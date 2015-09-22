@@ -31,7 +31,7 @@ var classCell =
     [ "getNumRings", "classCell.html#a2b6c85277a5865bd0f5843825c6ff771", null ],
     [ "getNumSectors", "classCell.html#ab3af78ae4f782aca1c576d19be395394", null ],
     [ "getNumSurfaces", "classCell.html#a61a924f10990017b73b5f3aac1534cb4", null ],
-    [ "getSurfaces", "classCell.html#a12e0a3ab057f37c7b079f302b08445d7", null ],
+    [ "getSurfaces", "classCell.html#adc5c79adfd3d248a70551704d662189f", null ],
     [ "getType", "classCell.html#af0421cc4cbb034947b2b7ec18c6df7d0", null ],
     [ "getUid", "classCell.html#ad37ca0901061c31e3a9c6642b99a447a", null ],
     [ "minSurfaceDist", "classCell.html#a44dd3dc3caf30c0f1a95645af4f05204", null ],

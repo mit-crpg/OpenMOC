@@ -123,13 +123,14 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a3a347126d75052556da0db33ff8a3955"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8fed853849ff46479586ea8b712fe2b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8fed853849ff46479586ea8b712fe2b4"></a>
 virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a8fed853849ff46479586ea8b712fe2b4">~Cmfd</a> ()</td></tr>
-<tr class="memdesc:a8fed853849ff46479586ea8b712fe2b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor deletes arrays of A and M row insertion arrays. <br/></td></tr>
+<tr class="memdesc:a8fed853849ff46479586ea8b712fe2b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. <br/></td></tr>
 <tr class="separator:a8fed853849ff46479586ea8b712fe2b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acbf4ad78315a368599795bbb6ba697bd"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#acbf4ad78315a368599795bbb6ba697bd">computeKeff</a> (int moc_iteration)</td></tr>
-<tr class="memdesc:acbf4ad78315a368599795bbb6ba697bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">CMFD solver that solves the diffusion problem.  <a href="#acbf4ad78315a368599795bbb6ba697bd">More...</a><br/></td></tr>
+<tr class="memdesc:acbf4ad78315a368599795bbb6ba697bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve the nonlinear diffusion acceleration problem to accelerate the convergence of the MOC problem.  <a href="#acbf4ad78315a368599795bbb6ba697bd">More...</a><br/></td></tr>
 <tr class="separator:acbf4ad78315a368599795bbb6ba697bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a013495a838bea7234b3674d8b088d8e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a013495a838bea7234b3674d8b088d8e4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>initialize</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a013495a838bea7234b3674d8b088d8e4">initialize</a> ()</td></tr>
+<tr class="memdesc:a013495a838bea7234b3674d8b088d8e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the <a class="el" href="classMatrix.html">Matrix</a> and <a class="el" href="classVector.html">Vector</a> objects, k-nearest stencils, the CMFD cell currents and MOC materials. <br/></td></tr>
 <tr class="separator:a013495a838bea7234b3674d8b088d8e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c4846b2a4a898dc8ce902c7c233563c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a3c4846b2a4a898dc8ce902c7c233563c">initializeCellMap</a> ()</td></tr>
 <tr class="memdesc:a3c4846b2a4a898dc8ce902c7c233563c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the vector of vectors that links CMFD cells with FSRs.  <a href="#a3c4846b2a4a898dc8ce902c7c233563c">More...</a><br/></td></tr>
@@ -137,22 +138,29 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>initialize</b> ()</td
 <tr class="memitem:a7ad43e41d38746446ae1b791e329cdf9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a7ad43e41d38746446ae1b791e329cdf9">initializeGroupMap</a> ()</td></tr>
 <tr class="memdesc:a7ad43e41d38746446ae1b791e329cdf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize and set array that links the MOC energy groups to the CMFD energy groups.  <a href="#a7ad43e41d38746446ae1b791e329cdf9">More...</a><br/></td></tr>
 <tr class="separator:a7ad43e41d38746446ae1b791e329cdf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d23205a23241d8eefdfa62081c3d722"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d23205a23241d8eefdfa62081c3d722"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a0d23205a23241d8eefdfa62081c3d722">initializeLattice</a> (<a class="el" href="classPoint.html">Point</a> *offset)</td></tr>
+<tr class="memdesc:a0d23205a23241d8eefdfa62081c3d722"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the CMFD lattice. <br/></td></tr>
+<tr class="separator:a0d23205a23241d8eefdfa62081c3d722"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a676f7fcd8476cda7c4f4c42d44c266da"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a676f7fcd8476cda7c4f4c42d44c266da">findCmfdCell</a> (<a class="el" href="classLocalCoords.html">LocalCoords</a> *coords)</td></tr>
 <tr class="memdesc:a676f7fcd8476cda7c4f4c42d44c266da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the CMFD cell that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object is in.  <a href="#a676f7fcd8476cda7c4f4c42d44c266da">More...</a><br/></td></tr>
 <tr class="separator:a676f7fcd8476cda7c4f4c42d44c266da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaad6d00dc8cc0b44ac56995e382e3853"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#aaad6d00dc8cc0b44ac56995e382e3853">findCmfdSurface</a> (int cell, <a class="el" href="classLocalCoords.html">LocalCoords</a> *coords)</td></tr>
-<tr class="memdesc:aaad6d00dc8cc0b44ac56995e382e3853"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the cmfd surface that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object lies on.  <a href="#aaad6d00dc8cc0b44ac56995e382e3853">More...</a><br/></td></tr>
-<tr class="separator:aaad6d00dc8cc0b44ac56995e382e3853"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a713c079fb2e048490a8cf0625a78d5a7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a713c079fb2e048490a8cf0625a78d5a7">addFSRToCell</a> (int cmfd_cell, int fsr_id)</td></tr>
-<tr class="memdesc:a713c079fb2e048490a8cf0625a78d5a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an FSR ID to a vector that contains all the FSR IDs contained within a CMFD mesh cell.  <a href="#a713c079fb2e048490a8cf0625a78d5a7">More...</a><br/></td></tr>
-<tr class="separator:a713c079fb2e048490a8cf0625a78d5a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef6f6ce5e9c3226a973198923242b2e2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef6f6ce5e9c3226a973198923242b2e2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#aef6f6ce5e9c3226a973198923242b2e2">zeroSurfaceCurrents</a> ()</td></tr>
-<tr class="memdesc:aef6f6ce5e9c3226a973198923242b2e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero the surface currents for each mesh cell and energy group. <br/></td></tr>
-<tr class="separator:aef6f6ce5e9c3226a973198923242b2e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0bfce334ab3b4421e62250a5028d5608"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a0bfce334ab3b4421e62250a5028d5608">tallySurfaceCurrent</a> (<a class="el" href="structsegment.html">segment</a> *curr_segment, FP_PRECISION *<a class="el" href="CPUSolver_8h.html#a2143506339a36528e1c9d7e27501897f">track_flux</a>, FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f">polar_weights</a>, bool fwd)</td></tr>
-<tr class="memdesc:a0bfce334ab3b4421e62250a5028d5608"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tallies the current contribution from this segment across the the appropriate CMFD mesh cell surface.  <a href="#a0bfce334ab3b4421e62250a5028d5608">More...</a><br/></td></tr>
-<tr class="separator:a0bfce334ab3b4421e62250a5028d5608"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad58b5b64841b7d8bc28b48acbc0b4790"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ad58b5b64841b7d8bc28b48acbc0b4790">findCmfdSurface</a> (int <a class="el" href="Cell_8h.html#abb9096ea25c5bc90958fe62105192ec7">cell_id</a>, <a class="el" href="classLocalCoords.html">LocalCoords</a> *coords)</td></tr>
+<tr class="memdesc:ad58b5b64841b7d8bc28b48acbc0b4790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the cmfd surface that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object lies on.  <a href="#ad58b5b64841b7d8bc28b48acbc0b4790">More...</a><br/></td></tr>
+<tr class="separator:ad58b5b64841b7d8bc28b48acbc0b4790"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89d7f15014b4b9a4f830895593eba12e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a89d7f15014b4b9a4f830895593eba12e">findCmfdCorner</a> (int <a class="el" href="Cell_8h.html#abb9096ea25c5bc90958fe62105192ec7">cell_id</a>, <a class="el" href="classLocalCoords.html">LocalCoords</a> *coords)</td></tr>
+<tr class="memdesc:a89d7f15014b4b9a4f830895593eba12e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the cmfd corner that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object lies on.  <a href="#a89d7f15014b4b9a4f830895593eba12e">More...</a><br/></td></tr>
+<tr class="separator:a89d7f15014b4b9a4f830895593eba12e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b8c8dd72d9b4fe1ec7b91a84bbad208"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a2b8c8dd72d9b4fe1ec7b91a84bbad208">addFSRToCell</a> (int <a class="el" href="Cell_8h.html#abb9096ea25c5bc90958fe62105192ec7">cell_id</a>, int fsr_id)</td></tr>
+<tr class="memdesc:a2b8c8dd72d9b4fe1ec7b91a84bbad208"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add an FSR ID to a vector that contains all the FSR IDs contained within a CMFD mesh cell.  <a href="#a2b8c8dd72d9b4fe1ec7b91a84bbad208">More...</a><br/></td></tr>
+<tr class="separator:a2b8c8dd72d9b4fe1ec7b91a84bbad208"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a305ecaf594daf93010d564df118b5d02"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a305ecaf594daf93010d564df118b5d02"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a305ecaf594daf93010d564df118b5d02">zeroCurrents</a> ()</td></tr>
+<tr class="memdesc:a305ecaf594daf93010d564df118b5d02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero the surface and corner currents for each mesh cell and energy group. <br/></td></tr>
+<tr class="separator:a305ecaf594daf93010d564df118b5d02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cfa9324576f273b5329f2b9cee3f769"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a7cfa9324576f273b5329f2b9cee3f769">tallyCurrent</a> (<a class="el" href="structsegment.html">segment</a> *curr_segment, FP_PRECISION *<a class="el" href="CPUSolver_8h.html#a2143506339a36528e1c9d7e27501897f">track_flux</a>, FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a818d2da0930d46b3fe53eff8bb60ea1f">polar_weights</a>, bool fwd)</td></tr>
+<tr class="memdesc:a7cfa9324576f273b5329f2b9cee3f769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tallies the current contribution from this segment across the the appropriate CMFD mesh cell surface or corner.  <a href="#a7cfa9324576f273b5329f2b9cee3f769">More...</a><br/></td></tr>
+<tr class="separator:a7cfa9324576f273b5329f2b9cee3f769"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3">updateBoundaryFlux</a> (<a class="el" href="classTrack.html">Track</a> **tracks, FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a2d0f44838c549b1382bbcd5efa2b57ee">boundary_flux</a>, int num_tracks)</td></tr>
 <tr class="memdesc:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the MOC boundary fluxes.  <a href="#a8e2162ab4e1b55d2240f5c41184d73d3">More...</a><br/></td></tr>
 <tr class="separator:a8e2162ab4e1b55d2240f5c41184d73d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -189,9 +197,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a441f0159f7bf8a0a4c3ce2d100ec6793"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a441f0159f7bf8a0a4c3ce2d100ec6793">convertFSRIdToCmfdCell</a> (int fsr_id)</td></tr>
 <tr class="memdesc:a441f0159f7bf8a0a4c3ce2d100ec6793"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the CMFD cell ID that an FSR lies in.  <a href="#a441f0159f7bf8a0a4c3ce2d100ec6793">More...</a><br/></td></tr>
 <tr class="separator:a441f0159f7bf8a0a4c3ce2d100ec6793"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1819addcb8c89ed78b4d70609851b49d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a1819addcb8c89ed78b4d70609851b49d">getCellFSRs</a> ()</td></tr>
-<tr class="memdesc:a1819addcb8c89ed78b4d70609851b49d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a pointer to the vector of vectors that contains the FSRs that lie in each cell.  <a href="#a1819addcb8c89ed78b4d70609851b49d">More...</a><br/></td></tr>
-<tr class="separator:a1819addcb8c89ed78b4d70609851b49d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab089dfee7ae2f043f042f209a111ddd3"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; int &gt; &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ab089dfee7ae2f043f042f209a111ddd3">getCellFSRs</a> ()</td></tr>
+<tr class="memdesc:ab089dfee7ae2f043f042f209a111ddd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a pointer to the vector of vectors that contains the FSRs that lie in each cell.  <a href="#ab089dfee7ae2f043f042f209a111ddd3">More...</a><br/></td></tr>
+<tr class="separator:ab089dfee7ae2f043f042f209a111ddd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad34edd48a104b4e298d23297d62a0c76"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ad34edd48a104b4e298d23297d62a0c76">isFluxUpdateOn</a> ()</td></tr>
 <tr class="memdesc:ad34edd48a104b4e298d23297d62a0c76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get flag indicating whether to update the MOC flux.  <a href="#ad34edd48a104b4e298d23297d62a0c76">More...</a><br/></td></tr>
 <tr class="separator:ad34edd48a104b4e298d23297d62a0c76"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -199,7 +207,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:abde9a63884e07b3c6cda980fa42ca522"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get flag indicating whether to use FSR centroids to update the MOC flux.  <a href="#abde9a63884e07b3c6cda980fa42ca522">More...</a><br/></td></tr>
 <tr class="separator:abde9a63884e07b3c6cda980fa42ca522"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab85d945c77c019bcc9991730247760e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ab85d945c77c019bcc9991730247760e4">setSORRelaxationFactor</a> (FP_PRECISION SOR_factor)</td></tr>
-<tr class="memdesc:ab85d945c77c019bcc9991730247760e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set successive over-relaxation relaxation factor.  <a href="#ab85d945c77c019bcc9991730247760e4">More...</a><br/></td></tr>
+<tr class="memdesc:ab85d945c77c019bcc9991730247760e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the successive over-relaxation factor for the linear solve within the diffusion eigenvalue solve.  <a href="#ab85d945c77c019bcc9991730247760e4">More...</a><br/></td></tr>
 <tr class="separator:ab85d945c77c019bcc9991730247760e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb9ac33074c36e818ae1d88381ae13f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#abb9ac33074c36e818ae1d88381ae13f1">setGeometry</a> (<a class="el" href="classGeometry.html">Geometry</a> *geometry)</td></tr>
 <tr class="memdesc:abb9ac33074c36e818ae1d88381ae13f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a pointer to the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>.  <a href="#abb9ac33074c36e818ae1d88381ae13f1">More...</a><br/></td></tr>
@@ -217,7 +225,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:a3ecee3886f2cb0f93d3c4c1a4818788f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the number of Mesh cells in a column.  <a href="#a3ecee3886f2cb0f93d3c4c1a4818788f">More...</a><br/></td></tr>
 <tr class="separator:a3ecee3886f2cb0f93d3c4c1a4818788f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa539a4c48c694c63c03063fb1e2bb9c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#aaa539a4c48c694c63c03063fb1e2bb9c">setNumFSRs</a> (int num_fsrs)</td></tr>
-<tr class="memdesc:aaa539a4c48c694c63c03063fb1e2bb9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">set the number of FSRs.  <a href="#aaa539a4c48c694c63c03063fb1e2bb9c">More...</a><br/></td></tr>
+<tr class="memdesc:aaa539a4c48c694c63c03063fb1e2bb9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the number of FSRs.  <a href="#aaa539a4c48c694c63c03063fb1e2bb9c">More...</a><br/></td></tr>
 <tr class="separator:aaa539a4c48c694c63c03063fb1e2bb9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26d5108a08df153fdef452bee7020dcf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a26d5108a08df153fdef452bee7020dcf">setNumMOCGroups</a> (int num_moc_groups)</td></tr>
 <tr class="memdesc:a26d5108a08df153fdef452bee7020dcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the number of MOC energy groups.  <a href="#a26d5108a08df153fdef452bee7020dcf">More...</a><br/></td></tr>
@@ -231,9 +239,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a750afeca3750f04b7b040079075e0854"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a750afeca3750f04b7b040079075e0854">setBoundary</a> (int side, <a class="el" href="boundary__type_8h.html#a94f2bdaf8e1769faec72dbd9e7486341">boundaryType</a> boundary)</td></tr>
 <tr class="memdesc:a750afeca3750f04b7b040079075e0854"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the CMFD boundary type for a given surface.  <a href="#a750afeca3750f04b7b040079075e0854">More...</a><br/></td></tr>
 <tr class="separator:a750afeca3750f04b7b040079075e0854"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf0d142408bf695cb405a4b9e31feb14"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#adf0d142408bf695cb405a4b9e31feb14">setLattice</a> (<a class="el" href="classLattice.html">Lattice</a> *lattice)</td></tr>
-<tr class="memdesc:adf0d142408bf695cb405a4b9e31feb14"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> object used as the CMFD mesh.  <a href="#adf0d142408bf695cb405a4b9e31feb14">More...</a><br/></td></tr>
-<tr class="separator:adf0d142408bf695cb405a4b9e31feb14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a161c5416a90ba890f3e2757754c14fa7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a161c5416a90ba890f3e2757754c14fa7">setLatticeStructure</a> (int num_x, int num_y)</td></tr>
 <tr class="memdesc:a161c5416a90ba890f3e2757754c14fa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The structure of the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> to be used as the CMFD mesh.  <a href="#a161c5416a90ba890f3e2757754c14fa7">More...</a><br/></td></tr>
 <tr class="separator:a161c5416a90ba890f3e2757754c14fa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -264,9 +269,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a8dc3d1c41f34eabbe50820df8dd79055"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a8dc3d1c41f34eabbe50820df8dd79055">setFSRFluxes</a> (FP_PRECISION *<a class="el" href="GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415">scalar_flux</a>)</td></tr>
 <tr class="memdesc:a8dc3d1c41f34eabbe50820df8dd79055"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set pointer to FSR flux array.  <a href="#a8dc3d1c41f34eabbe50820df8dd79055">More...</a><br/></td></tr>
 <tr class="separator:a8dc3d1c41f34eabbe50820df8dd79055"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad92afa9131f04b0523d215cd1bc5eda4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#ad92afa9131f04b0523d215cd1bc5eda4">setCellFSRs</a> (std::vector&lt; std::vector&lt; int &gt; &gt; cell_fsrs)</td></tr>
-<tr class="memdesc:ad92afa9131f04b0523d215cd1bc5eda4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the vector of vectors that contains. the FSRs that lie in each cell.  <a href="#ad92afa9131f04b0523d215cd1bc5eda4">More...</a><br/></td></tr>
-<tr class="separator:ad92afa9131f04b0523d215cd1bc5eda4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30d4db97cb5d8acc16a4581ad29d4e28"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCmfd.html#a30d4db97cb5d8acc16a4581ad29d4e28">setCellFSRs</a> (std::vector&lt; std::vector&lt; int &gt; &gt; *cell_fsrs)</td></tr>
+<tr class="memdesc:a30d4db97cb5d8acc16a4581ad29d4e28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the vector of vectors that contains the FSRs that lie in each cell.  <a href="#a30d4db97cb5d8acc16a4581ad29d4e28">More...</a><br/></td></tr>
+<tr class="separator:a30d4db97cb5d8acc16a4581ad29d4e28"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A class for Coarse Mesh Finite Difference (CMFD) acceleration. </p>
@@ -285,19 +290,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Constructor initializes boundaries and variables that describe the <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object. </p>
-<p>The construcor initializes the many variables that describe the CMFD Mesh, the solve method, and flux type. If solve method is DIFFUSION, the fsr volumes, Materials, and fluxes are initialized. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">geometry</td><td>pointer to the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> </td></tr>
-    <tr><td class="paramname">criteria</td><td>convergence criteria on keff </td></tr>
-  </table>
-  </dd>
-</dl>
+<p>The construcor initializes the many variables that describe the CMFD mesh and are used to solve the nonlinear diffusion acceleration problem. </p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a713c079fb2e048490a8cf0625a78d5a7"></a>
+<a class="anchor" id="a2b8c8dd72d9b4fe1ec7b91a84bbad208"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -305,7 +303,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
           <td class="memname">void Cmfd::addFSRToCell </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>cmfd_cell</em>, </td>
+          <td class="paramname"><em>cell_id</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -324,8 +322,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Add an FSR ID to a vector that contains all the FSR IDs contained within a CMFD mesh cell. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">The</td><td>CMFD cell ID. </td></tr>
-    <tr><td class="paramname">The</td><td>FSR ID. </td></tr>
+    <tr><td class="paramname">cell_id</td><td>The CMFD cell ID. </td></tr>
+    <tr><td class="paramname">fsr_id</td><td>The FSR ID. </td></tr>
   </table>
   </dd>
 </dl>
@@ -346,14 +344,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
       </table>
 </div><div class="memdoc">
 
-<p>CMFD solver that solves the diffusion problem. </p>
-<dl class="section return"><dt>Returns</dt><dd>k-effective the solution eigenvalue </dd></dl>
+<p>Solve the nonlinear diffusion acceleration problem to accelerate the convergence of the MOC problem. </p>
+<p>This method uses the information from the last MOC transport sweep and solves a simplified nonlinear diffusion problem. The diffusion problem is tightly converged and the solution is used to update the the solution of the MOC problem. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">MOC</td><td>iteration number </td></tr>
+    <tr><td class="paramname">moc_iteration</td><td>MOC iteration number </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>The dominant eigenvalue of the nonlinear diffusion problem </dd></dl>
 
 </div>
 </div>
@@ -372,10 +371,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Return the CMFD cell ID that an FSR lies in. </p>
-<p>Note that a CMFD cell is not an actual <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> object; rather, a CMFD cell is just a way of describing each of the rectangular regions that make up a CMFD lattice. CMFD cells are numbered with 0 in the lower left corner and monotonically increasing from left to right. from left to right. For example, he indices for a 4 x 4 lattice are: 12 13 14 15 8 9 10 11 4 5 6 7 0 1 2 3 </p>
+<p>Note that a CMFD cell is not an actual <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> object; rather, a CMFD cell is just a way of describing each of the rectangular regions that make up a CMFD lattice. CMFD cells are numbered with 0 in the lower left corner and monotonically increasing from left to right and from bottom to top. For example, the indices for a 4 x 4 lattice are: 12 13 14 15 8 9 10 11 4 5 6 7 0 1 2 3 </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">The</td><td>FSR ID. </td></tr>
+    <tr><td class="paramname">fsr_id</td><td>The FSR ID. </td></tr>
   </table>
   </dd>
 </dl>
@@ -400,7 +399,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Find the CMFD cell that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object is in. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">The</td><td>coords being evaluated. </td></tr>
+    <tr><td class="paramname">coords</td><td>The coords being evaluated. </td></tr>
   </table>
   </dd>
 </dl>
@@ -408,7 +407,44 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="aaad6d00dc8cc0b44ac56995e382e3853"></a>
+<a class="anchor" id="a89d7f15014b4b9a4f830895593eba12e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Cmfd::findCmfdCorner </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>cell_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classLocalCoords.html">LocalCoords</a> *&#160;</td>
+          <td class="paramname"><em>coords</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Find the cmfd corner that a <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object lies on. </p>
+<p>If the coords is not on a corner, -1 is returned. Otherwise, the corner ID is returned. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cell_id</td><td>The CMFD cell ID that the local coords is in. </td></tr>
+    <tr><td class="paramname">coords</td><td>The coords being evaluated. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The corner ID. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ad58b5b64841b7d8bc28b48acbc0b4790"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -416,7 +452,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
           <td class="memname">int Cmfd::findCmfdSurface </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>cell</em>, </td>
+          <td class="paramname"><em>cell_id</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -436,8 +472,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>If the coords is not on a surface, -1 is returned. Otherwise, the surface ID is returned. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">The</td><td>CMFD cell ID that the local coords is in. </td></tr>
-    <tr><td class="paramname">The</td><td>coords being evaluated. </td></tr>
+    <tr><td class="paramname">cell_id</td><td>The CMFD cell ID that the local coords is in. </td></tr>
+    <tr><td class="paramname">coords</td><td>The coords being evaluated. </td></tr>
   </table>
   </dd>
 </dl>
@@ -462,20 +498,20 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Get the boundaryType for one side of the CMFD mesh. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">the</td><td>CMFD mesh surface ID. </td></tr>
+    <tr><td class="paramname">side</td><td>The CMFD mesh surface ID. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the boundaryType for the surface. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The boundaryType for the surface. </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a1819addcb8c89ed78b4d70609851b49d"></a>
+<a class="anchor" id="ab089dfee7ae2f043f042f209a111ddd3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt; std::vector&lt; int &gt; &gt; Cmfd::getCellFSRs </td>
+          <td class="memname">std::vector&lt; std::vector&lt; int &gt; &gt; * Cmfd::getCellFSRs </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -484,7 +520,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Return a pointer to the vector of vectors that contains the FSRs that lie in each cell. </p>
-<dl class="section return"><dt>Returns</dt><dd>Vector of vectors containing FSR IDs in each cell. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="classVector.html">Vector</a> of vectors containing FSR IDs in each cell. </dd></dl>
 
 </div>
 </div>
@@ -505,11 +541,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Get the CMFD group given an MOC group. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group</td><td>the MOC energy group </td></tr>
+    <tr><td class="paramname">group</td><td>The MOC energy group </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the CMFD energy group </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The CMFD energy group </dd></dl>
 
 </div>
 </div>
@@ -545,7 +581,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Return the under-relaxation factor used in MOC updates. </p>
-<dl class="section return"><dt>Returns</dt><dd>the MOC current under-relaxation factor </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The MOC current under-relaxation factor </dd></dl>
 
 </div>
 </div>
@@ -563,7 +599,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Get the number of CMFD cells. </p>
-<dl class="section return"><dt>Returns</dt><dd>the number of CMFD cells </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of CMFD cells </dd></dl>
 
 </div>
 </div>
@@ -581,7 +617,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Get the number of coarse CMFD energy groups. </p>
-<dl class="section return"><dt>Returns</dt><dd>the number of CMFD energy groups </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of CMFD energy groups </dd></dl>
 
 </div>
 </div>
@@ -599,7 +635,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Get the number of MOC energy groups. </p>
-<dl class="section return"><dt>Returns</dt><dd>the number of MOC energy groups </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of MOC energy groups </dd></dl>
 
 </div>
 </div>
@@ -617,7 +653,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Get the number of Mesh cells in a row. </p>
-<dl class="section return"><dt>Returns</dt><dd>number of Mesh cells in a row </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of Mesh cells in a row </dd></dl>
 
 </div>
 </div>
@@ -635,7 +671,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Get the number of Mesh cells in a column. </p>
-<dl class="section return"><dt>Returns</dt><dd>number of Mesh cells in a column </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of Mesh cells in a column </dd></dl>
 
 </div>
 </div>
@@ -707,7 +743,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Get flag indicating whether to update the MOC flux. </p>
-<dl class="section return"><dt>Returns</dt><dd>Flag saying whether to update MOC flux. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Boolean saying whether to update MOC flux. </dd></dl>
 
 </div>
 </div>
@@ -725,7 +761,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Return whether optically thick diffusion correction factor is in use. </p>
-<dl class="section return"><dt>Returns</dt><dd>whether optically thick diffusion correction factor is in use. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether optically thick diffusion correction factor is in use. </dd></dl>
 
 </div>
 </div>
@@ -754,35 +790,35 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><div class="memdoc">
 
 <p>Set the CMFD boundary type for a given surface. </p>
-<p>The CMFD boundary is assumed to be rectangular with 4 boundary surfaces. The surfaces UIDs are 0 (left), 1 (bottom), 2 (right), and 3 (top). </p>
+<p>The CMFD boundary is assumed to be rectangular with the surfaces identified by constants in the <a class="el" href="constants_8h.html" title="Math constants and comparision tolerances. ">constants.h</a> file. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">the</td><td>CMFD surface UID. </td></tr>
-    <tr><td class="paramname">the</td><td>boundaryType of the surface. </td></tr>
+    <tr><td class="paramname">side</td><td>The CMFD surface UID. </td></tr>
+    <tr><td class="paramname">boundary</td><td>The boundaryType of the surface. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="ad92afa9131f04b0523d215cd1bc5eda4"></a>
+<a class="anchor" id="a30d4db97cb5d8acc16a4581ad29d4e28"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void Cmfd::setCellFSRs </td>
           <td>(</td>
-          <td class="paramtype">std::vector&lt; std::vector&lt; int &gt; &gt;&#160;</td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; int &gt; &gt; *&#160;</td>
           <td class="paramname"><em>cell_fsrs</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Set the vector of vectors that contains. the FSRs that lie in each cell. </p>
+<p>Set the vector of vectors that contains the FSRs that lie in each cell. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">Vector</td><td>of vectors containing FSR IDs in each cell. </td></tr>
+    <tr><td class="paramname">cell_fsrs</td><td><a class="el" href="classVector.html">Vector</a> of vectors containing FSR IDs in each cell. </td></tr>
   </table>
   </dd>
 </dl>
@@ -830,7 +866,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set flag indicating whether to update the MOC flux. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">Flag</td><td>saying whether to update MOC flux. </td></tr>
+    <tr><td class="paramname">flux_update_on</td><td>Boolean saying whether to update MOC flux. </td></tr>
   </table>
   </dd>
 </dl>
@@ -854,7 +890,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set pointer to FSR flux array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pointer</td><td>to FSR flux array </td></tr>
+    <tr><td class="paramname">scalar_flux</td><td>Pointer to FSR flux array </td></tr>
   </table>
   </dd>
 </dl>
@@ -878,7 +914,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set the FSR materials array pointer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pointer</td><td>to FSR_materials array </td></tr>
+    <tr><td class="paramname">FSR_materials</td><td>Pointer to FSR_materials array </td></tr>
   </table>
   </dd>
 </dl>
@@ -902,7 +938,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set the pointer to the array of FSR_volumes. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">array</td><td>of FSR volumes </td></tr>
+    <tr><td class="paramname">FSR_volumes</td><td>Array of FSR volumes </td></tr>
   </table>
   </dd>
 </dl>
@@ -961,8 +997,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>CMFD does not necessarily need to have the same energy group structure as the MOC problem. This function can be used to set a sparse energy group structure to speed up the CMFD solve. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">an</td><td>array of the CMFD group boundaries </td></tr>
-    <tr><td class="paramname">the</td><td>length of the group_indices array </td></tr>
+    <tr><td class="paramname">group_indices</td><td>An array of the CMFD group boundaries </td></tr>
+    <tr><td class="paramname">length_group_indices</td><td>The length of the group_indices array </td></tr>
   </table>
   </dd>
 </dl>
@@ -986,7 +1022,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set Mesh height. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">height</td><td>physical height of Mesh </td></tr>
+    <tr><td class="paramname">height</td><td>Physical height of Mesh </td></tr>
   </table>
   </dd>
 </dl>
@@ -1011,30 +1047,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">k_nearest</td><td>The number of nearest neighbor CMFD cells. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="adf0d142408bf695cb405a4b9e31feb14"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cmfd::setLattice </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLattice.html">Lattice</a> *&#160;</td>
-          <td class="paramname"><em>lattice</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> object used as the CMFD mesh. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">Pointer</td><td>to the lattice object. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1068,8 +1080,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>The structure of the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> to be used as the CMFD mesh. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">The</td><td>number of cells in the x direction. </td></tr>
-    <tr><td class="paramname">The</td><td>number of cells in the y direction. </td></tr>
+    <tr><td class="paramname">num_x</td><td>The number of cells in the x direction. </td></tr>
+    <tr><td class="paramname">num_y</td><td>The number of cells in the y direction. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1093,7 +1105,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set the under-relaxation factor used in MOC updates. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">the</td><td>MOC current under-relaxation factor </td></tr>
+    <tr><td class="paramname">relax_factor</td><td>The MOC current under-relaxation factor </td></tr>
   </table>
   </dd>
 </dl>
@@ -1114,10 +1126,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
       </table>
 </div><div class="memdoc">
 
-<p>set the number of FSRs. </p>
+<p>Set the number of FSRs. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">the</td><td>number of FSRs </td></tr>
+    <tr><td class="paramname">num_fsrs</td><td>The number of FSRs </td></tr>
   </table>
   </dd>
 </dl>
@@ -1141,7 +1153,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set the number of MOC energy groups. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">number</td><td>of MOC energy groups </td></tr>
+    <tr><td class="paramname">num_groups</td><td>Number of MOC energy groups </td></tr>
   </table>
   </dd>
 </dl>
@@ -1165,7 +1177,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set the number of Mesh cells in a row. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">number</td><td>of Mesh cells in a row </td></tr>
+    <tr><td class="paramname">num_x</td><td>Number of Mesh cells in a row </td></tr>
   </table>
   </dd>
 </dl>
@@ -1189,7 +1201,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set the number of Mesh cells in a column. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">number</td><td>of Mesh cells in a column </td></tr>
+    <tr><td class="paramname">num_y</td><td>Number of Mesh cells in a column </td></tr>
   </table>
   </dd>
 </dl>
@@ -1213,7 +1225,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set whether optically thick diffusion correction factor is in use. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">boolean</td><td>indicating whether optically thick diffusion correction factor is in use. </td></tr>
+    <tr><td class="paramname">optically_thick</td><td>Boolean indicating whether optically thick diffusion correction factor is in use. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1237,7 +1249,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Sets the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object in use by the MOC <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">polar_quad</td><td>a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object pointer from the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> </td></tr>
+    <tr><td class="paramname">polar_quad</td><td>A <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object pointer from the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> </td></tr>
   </table>
   </dd>
 </dl>
@@ -1258,10 +1270,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
       </table>
 </div><div class="memdoc">
 
-<p>Set successive over-relaxation relaxation factor. </p>
+<p>Set the successive over-relaxation factor for the linear solve within the diffusion eigenvalue solve. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">over-relaxation</td><td>factor </td></tr>
+    <tr><td class="paramname">SOR_factor</td><td>Over-relaxation factor </td></tr>
   </table>
   </dd>
 </dl>
@@ -1309,19 +1321,19 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Set Mesh width. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">width</td><td>physical width of Mesh </td></tr>
+    <tr><td class="paramname">width</td><td>Physical width of Mesh </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="a0bfce334ab3b4421e62250a5028d5608"></a>
+<a class="anchor" id="a7cfa9324576f273b5329f2b9cee3f769"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Cmfd::tallySurfaceCurrent </td>
+          <td class="memname">void Cmfd::tallyCurrent </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structsegment.html">segment</a> *&#160;</td>
           <td class="paramname"><em>curr_segment</em>, </td>
@@ -1352,13 +1364,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
       </table>
 </div><div class="memdoc">
 
-<p>Tallies the current contribution from this segment across the the appropriate CMFD mesh cell surface. </p>
+<p>Tallies the current contribution from this segment across the the appropriate CMFD mesh cell surface or corner. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">curr_segment</td><td>the current <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment </td></tr>
-    <tr><td class="paramname">track_flux</td><td>the outgoing angular flux for this segment </td></tr>
-    <tr><td class="paramname">polar_weights</td><td>array of polar weights for some azimuthal angle </td></tr>
-    <tr><td class="paramname">fwd</td><td>boolean indicating direction of integration along segment </td></tr>
+    <tr><td class="paramname">curr_segment</td><td>The current <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment </td></tr>
+    <tr><td class="paramname">track_flux</td><td>The outgoing angular flux for this segment </td></tr>
+    <tr><td class="paramname">polar_weights</td><td>Array of polar weights for some azimuthal angle </td></tr>
+    <tr><td class="paramname">fwd</td><td>Boolean indicating direction of integration along segment </td></tr>
   </table>
   </dd>
 </dl>
@@ -1399,18 +1411,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>The MOC boundary fluxes are updated using the P0 approximation. With this approximation, the boundary fluxes are updated using the ratio of new to old flux for the cell that the outgoing flux from the track enters. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">2D</td><td>array of Tracks </td></tr>
-    <tr><td class="paramname">array</td><td>of boundary fluxes </td></tr>
+    <tr><td class="paramname">tracks</td><td>2D array of Tracks </td></tr>
+    <tr><td class="paramname">boundary_flux</td><td>Array of boundary fluxes </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the number of Tracks </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of Tracks </dd></dl>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Cmfd_8h_source.html">Cmfd.h</a></li>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/Cmfd.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Cmfd_8h_source.html">Cmfd.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/Cmfd.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1418,7 +1430,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCmfd.html">Cmfd</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

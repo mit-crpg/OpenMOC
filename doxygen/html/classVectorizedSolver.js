@@ -9,6 +9,7 @@ var classVectorizedSolver =
     [ "getNumVectorWidths", "classVectorizedSolver.html#ae95a9f13a157ecf6ddc45da9718f1367", null ],
     [ "initializeExpEvaluator", "classVectorizedSolver.html#ac0cd0a8734b880230ec1e4eaf7941707", null ],
     [ "initializeFluxArrays", "classVectorizedSolver.html#a6d5bac107495fe429839826859b7dfa1", null ],
+    [ "initializeMaterials", "classVectorizedSolver.html#a41abcd7b5e69aa4e16a5d57b719f055c", null ],
     [ "initializeSourceArrays", "classVectorizedSolver.html#a7287329d44d695ca91181e9484e32bca", null ],
     [ "normalizeFluxes", "classVectorizedSolver.html#a6c428f0706f8c8960a88404606665704", null ],
     [ "setFixedSourceByFSR", "classVectorizedSolver.html#a7beb263e020c0ff2d32f6f16c4f99378", null ],

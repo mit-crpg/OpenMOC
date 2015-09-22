@@ -4,7 +4,7 @@ var searchData=
   ['material',['Material',['../classMaterial.html#a133f61006590cd0ca69662455f0f0349',1,'Material']]],
   ['material_5fid',['material_id',['../Material_8h.html#ab3edf20a0bb542abb3162f8b0891b221',1,'Material.cpp']]],
   ['materialize',['materialize',['../namespaceopenmoc_1_1materialize.html#a202690e95b90bfa40f5968edf8e37730',1,'openmoc::materialize']]],
-  ['matrix_5fmultiplication',['matrix_multiplication',['../linalg_8h.html#a43338349c584b2ec2b8be8fb147a1013',1,'linalg.h']]],
-  ['matrix_5fzero',['matrix_zero',['../linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765',1,'linalg.h']]],
+  ['matrix',['Matrix',['../classMatrix.html#afec818abc8fbc641994515e5eca74f31',1,'Matrix']]],
+  ['matrixmultiplication',['matrixMultiplication',['../linalg_8h.html#a5a7c44247e67fea309b6f9040f0b265e',1,'linalg.cpp']]],
   ['minsurfacedist',['minSurfaceDist',['../classCell.html#a44dd3dc3caf30c0f1a95645af4f05204',1,'Cell::minSurfaceDist()'],['../classLattice.html#a68148ab388f066e9bd0f4c88fb571880',1,'Lattice::minSurfaceDist()']]]
 ];

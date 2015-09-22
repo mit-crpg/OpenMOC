@@ -38,3 +38,7 @@
 \form#37:$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum \left(\frac{Q^i - Q^{i-1}{Q^i}\right)^2}{# FSRs}}} $
 \form#38:$ res = \sqrt{\frac{\displaystyle\sum \displaystyle\sum \left(\frac{Q^i - Q^{i-1}}{Q^i}\right)^2}{\# FSRs}} $
 \form#39:$ 1 - exp(-\tau/sin(\theta_p)) $
+\form#40:$ E_{0} $
+\form#41:$ E_{1} $
+\form#42:$ \nu\Sigma_{f}(E_{0}) * \chi(E_{1})$
+\form#43:$ Sigma_s\Phi $

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/geogunow/OpenMOC/OpenMOC/src/linalg.h File Reference</title>
+<title>/home/wboyd/Desktop/OpenMOC/src/linalg.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -108,77 +108,49 @@ $(document).ready(function(){initNavTree('linalg_8h.html','');});
 </div><!--header-->
 <div class="contents">
 
-<p>Utility function for performing linear algebra in CMFD solver.  
-<a href="#details">More...</a></p>
-
 <p><a href="linalg_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a8042f06d914ffb508c64abd6e930e6ff"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a8042f06d914ffb508c64abd6e930e6ff"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="linalg_8h.html#a8042f06d914ffb508c64abd6e930e6ff">vector_copy</a> (T *vector_from, T *vector_to, int length)</td></tr>
-<tr class="memdesc:a8042f06d914ffb508c64abd6e930e6ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a vector to another vector.  <a href="#a8042f06d914ffb508c64abd6e930e6ff">More...</a><br/></td></tr>
-<tr class="separator:a8042f06d914ffb508c64abd6e930e6ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e22ba533640a3e8122c1ef0f2f65765"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a9e22ba533640a3e8122c1ef0f2f65765"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="linalg_8h.html#a9e22ba533640a3e8122c1ef0f2f65765">matrix_zero</a> (T **matrix, int width, int length)</td></tr>
-<tr class="memdesc:a9e22ba533640a3e8122c1ef0f2f65765"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign all elements in a matrix to zero.  <a href="#a9e22ba533640a3e8122c1ef0f2f65765">More...</a><br/></td></tr>
-<tr class="separator:a9e22ba533640a3e8122c1ef0f2f65765"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5189c01cbdfe2dfc24c888fb4c29e2d"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ab5189c01cbdfe2dfc24c888fb4c29e2d"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="linalg_8h.html#ab5189c01cbdfe2dfc24c888fb4c29e2d">vector_zero</a> (T *vector, int length)</td></tr>
-<tr class="memdesc:ab5189c01cbdfe2dfc24c888fb4c29e2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign all elements in a matrix to zero.  <a href="#ab5189c01cbdfe2dfc24c888fb4c29e2d">More...</a><br/></td></tr>
-<tr class="separator:ab5189c01cbdfe2dfc24c888fb4c29e2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43338349c584b2ec2b8be8fb147a1013"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a43338349c584b2ec2b8be8fb147a1013"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="linalg_8h.html#a43338349c584b2ec2b8be8fb147a1013">matrix_multiplication</a> (T **matrix, T *vector_x, T *vector_y, int num_blocks, int block_width)</td></tr>
-<tr class="memdesc:a43338349c584b2ec2b8be8fb147a1013"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiply matrix by vector (i.e., y = M *x).  <a href="#a43338349c584b2ec2b8be8fb147a1013">More...</a><br/></td></tr>
-<tr class="separator:a43338349c584b2ec2b8be8fb147a1013"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af940e0906a23b2704bc70adf4fb4e0e0"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:af940e0906a23b2704bc70adf4fb4e0e0"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="linalg_8h.html#af940e0906a23b2704bc70adf4fb4e0e0">vector_scale</a> (T *vector, T scale_value, int length)</td></tr>
-<tr class="memdesc:af940e0906a23b2704bc70adf4fb4e0e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scale vectgor by some scalar value.  <a href="#af940e0906a23b2704bc70adf4fb4e0e0">More...</a><br/></td></tr>
-<tr class="separator:af940e0906a23b2704bc70adf4fb4e0e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab178264b14008c7adb808ffe7da90daa"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="linalg_8h.html#ab178264b14008c7adb808ffe7da90daa">eigenvalueSolve</a> (<a class="el" href="classMatrix.html">Matrix</a> *A, <a class="el" href="classMatrix.html">Matrix</a> *M, <a class="el" href="classVector.html">Vector</a> *X, FP_PRECISION tol, FP_PRECISION SOR_factor=1.5)</td></tr>
+<tr class="memdesc:ab178264b14008c7adb808ffe7da90daa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves a generalized eigenvalue problem using the Power method.  <a href="#ab178264b14008c7adb808ffe7da90daa">More...</a><br/></td></tr>
+<tr class="separator:ab178264b14008c7adb808ffe7da90daa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b7db2f0b10ed9f50e1c7ddf86bbe92f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="linalg_8h.html#a7b7db2f0b10ed9f50e1c7ddf86bbe92f">linearSolve</a> (<a class="el" href="classMatrix.html">Matrix</a> *A, <a class="el" href="classMatrix.html">Matrix</a> *M, <a class="el" href="classVector.html">Vector</a> *X, <a class="el" href="classVector.html">Vector</a> *B, FP_PRECISION tol, FP_PRECISION SOR_factor=1.5)</td></tr>
+<tr class="memdesc:a7b7db2f0b10ed9f50e1c7ddf86bbe92f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves a linear system using Red-Black Gauss Seidel with successive over-relaxation.  <a href="#a7b7db2f0b10ed9f50e1c7ddf86bbe92f">More...</a><br/></td></tr>
+<tr class="separator:a7b7db2f0b10ed9f50e1c7ddf86bbe92f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a7c44247e67fea309b6f9040f0b265e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="linalg_8h.html#a5a7c44247e67fea309b6f9040f0b265e">matrixMultiplication</a> (<a class="el" href="classMatrix.html">Matrix</a> *A, <a class="el" href="classVector.html">Vector</a> *X, <a class="el" href="classVector.html">Vector</a> *B)</td></tr>
+<tr class="memdesc:a5a7c44247e67fea309b6f9040f0b265e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs a matrix vector multiplication.  <a href="#a5a7c44247e67fea309b6f9040f0b265e">More...</a><br/></td></tr>
+<tr class="separator:a5a7c44247e67fea309b6f9040f0b265e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04b0609380db1bc8d7c03703a236bc42"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="linalg_8h.html#a04b0609380db1bc8d7c03703a236bc42">computeRMSE</a> (<a class="el" href="classVector.html">Vector</a> *x, <a class="el" href="classVector.html">Vector</a> *y, bool integrated)</td></tr>
+<tr class="memdesc:a04b0609380db1bc8d7c03703a236bc42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the Root Mean Square Error of two Vectors.  <a href="#a04b0609380db1bc8d7c03703a236bc42">More...</a><br/></td></tr>
+<tr class="separator:a04b0609380db1bc8d7c03703a236bc42"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Utility function for performing linear algebra in CMFD solver. </p>
-<dl class="section author"><dt>Author</dt><dd>Samuel Shaner (<a href="#" onclick="location.href='mai'+'lto:'+'sha'+'ne'+'r@m'+'it'+'.ed'+'u'; return false;">shane<span style="display: none;">.nosp@m.</span>r@mi<span style="display: none;">.nosp@m.</span>t.edu</a>) </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>August 26, 2014 </dd></dl>
+<div class="textblock"><p>This file contains a library of functions for performing linear algebra operations. </p>
+<dl class="section date"><dt>Date</dt><dd>July 3, 2015 </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Samuel Shaner, MIT, Course 22 (<a href="#" onclick="location.href='mai'+'lto:'+'sha'+'ne'+'r@m'+'it'+'.ed'+'u'; return false;">shane<span style="display: none;">.nosp@m.</span>r@mi<span style="display: none;">.nosp@m.</span>t.edu</a>) </dd></dl>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a43338349c584b2ec2b8be8fb147a1013"></a>
+<a class="anchor" id="a04b0609380db1bc8d7c03703a236bc42"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void matrix_multiplication </td>
+          <td class="memname">FP_PRECISION computeRMSE </td>
           <td>(</td>
-          <td class="paramtype">T **&#160;</td>
-          <td class="paramname"><em>matrix</em>, </td>
+          <td class="paramtype"><a class="el" href="classVector.html">Vector</a> *&#160;</td>
+          <td class="paramname"><em>X</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">T *&#160;</td>
-          <td class="paramname"><em>vector_x</em>, </td>
+          <td class="paramtype"><a class="el" href="classVector.html">Vector</a> *&#160;</td>
+          <td class="paramname"><em>Y</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">T *&#160;</td>
-          <td class="paramname"><em>vector_y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_blocks</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>block_width</em>&#160;</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>integrated</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -186,53 +158,54 @@ template&lt;typename T &gt; </div>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p>Multiply matrix by vector (i.e., y = M *x). </p>
+<p>Computes the Root Mean Square Error of two Vectors. </p>
+<p>This function takes in two vectors (X and Y) and computes the Root Mean Square Error of the <a class="el" href="classVector.html">Vector</a> Y with respect to <a class="el" href="classVector.html">Vector</a> X. The boolean integrated must also be given to indicate whether the operation on the vector should be group-wise integrated before performing the RMSE operation. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">matrix</td><td>source matrix </td></tr>
-    <tr><td class="paramname">vector_x</td><td>x vector </td></tr>
-    <tr><td class="paramname">vector_y</td><td>y vector </td></tr>
-    <tr><td class="paramname">num_blocks</td><td>number of cell blocks in M matrix. </td></tr>
-    <tr><td class="paramname">block_width</td><td>number of elements in cell blocks in M matrix. </td></tr>
+    <tr><td class="paramname">X</td><td>a <a class="el" href="classVector.html">Vector</a> object </td></tr>
+    <tr><td class="paramname">Y</td><td>a second <a class="el" href="classVector.html">Vector</a> object </td></tr>
+    <tr><td class="paramname">integrated</td><td>a boolean indicating whether to group-wise integrate. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="a9e22ba533640a3e8122c1ef0f2f65765"></a>
+<a class="anchor" id="ab178264b14008c7adb808ffe7da90daa"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void matrix_zero </td>
+          <td class="memname">FP_PRECISION eigenvalueSolve </td>
           <td>(</td>
-          <td class="paramtype">T **&#160;</td>
-          <td class="paramname"><em>matrix</em>, </td>
+          <td class="paramtype"><a class="el" href="classMatrix.html">Matrix</a> *&#160;</td>
+          <td class="paramname"><em>A</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>width</em>, </td>
+          <td class="paramtype"><a class="el" href="classMatrix.html">Matrix</a> *&#160;</td>
+          <td class="paramname"><em>M</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="classVector.html">Vector</a> *&#160;</td>
+          <td class="paramname"><em>X</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FP_PRECISION&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FP_PRECISION&#160;</td>
+          <td class="paramname"><em>SOR_factor</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -240,51 +213,109 @@ template&lt;typename T &gt; </div>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p>Assign all elements in a matrix to zero. </p>
+<p>Solves a generalized eigenvalue problem using the Power method. </p>
+<p>This function takes in a loss + streaming <a class="el" href="classMatrix.html">Matrix</a> (A), a fission gain <a class="el" href="classMatrix.html">Matrix</a> (M), a flux <a class="el" href="classVector.html">Vector</a> (X), a tolerance used for both the power method and linear solve convergence (tol), and a successive over-relaxation factor (SOR_factor) and computes the dominant eigenvalue and eigenvector using the Power method. The eigenvalue is returned and the input X <a class="el" href="classVector.html">Vector</a> is modified in place to be the corresponding eigenvector. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">matrix</td><td>matrix to be zeroed </td></tr>
-    <tr><td class="paramname">width</td><td>width of matrix row </td></tr>
-    <tr><td class="paramname">length</td><td>length of matrix column </td></tr>
+    <tr><td class="paramname">A</td><td>the loss + streaming <a class="el" href="classMatrix.html">Matrix</a> object </td></tr>
+    <tr><td class="paramname">M</td><td>the fission gain <a class="el" href="classMatrix.html">Matrix</a> object </td></tr>
+    <tr><td class="paramname">X</td><td>the flux <a class="el" href="classVector.html">Vector</a> object </td></tr>
+    <tr><td class="paramname">tol</td><td>the power method and linear solve source convergence threshold </td></tr>
+    <tr><td class="paramname">SOR_factor</td><td>the successive over-relaxation factor </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>k_eff the dominant eigenvalue </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7b7db2f0b10ed9f50e1c7ddf86bbe92f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void linearSolve </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classMatrix.html">Matrix</a> *&#160;</td>
+          <td class="paramname"><em>A</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classMatrix.html">Matrix</a> *&#160;</td>
+          <td class="paramname"><em>M</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classVector.html">Vector</a> *&#160;</td>
+          <td class="paramname"><em>X</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classVector.html">Vector</a> *&#160;</td>
+          <td class="paramname"><em>B</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FP_PRECISION&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FP_PRECISION&#160;</td>
+          <td class="paramname"><em>SOR_factor</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Solves a linear system using Red-Black Gauss Seidel with successive over-relaxation. </p>
+<p>This function takes in a loss + streaming <a class="el" href="classMatrix.html">Matrix</a> (A), a fission gain <a class="el" href="classMatrix.html">Matrix</a> (M), a flux <a class="el" href="classVector.html">Vector</a> (X), a source <a class="el" href="classVector.html">Vector</a> (B), a source convergence tolerance (tol) and a successive over-relaxation factor (SOR_factor) and computes the solution to the linear system. The input X <a class="el" href="classVector.html">Vector</a> is modified in place to be the solution vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">A</td><td>the loss + streaming <a class="el" href="classMatrix.html">Matrix</a> object </td></tr>
+    <tr><td class="paramname">M</td><td>the fission gain <a class="el" href="classMatrix.html">Matrix</a> object </td></tr>
+    <tr><td class="paramname">X</td><td>the flux <a class="el" href="classVector.html">Vector</a> object </td></tr>
+    <tr><td class="paramname">B</td><td>the source <a class="el" href="classVector.html">Vector</a> object </td></tr>
+    <tr><td class="paramname">tol</td><td>the power method and linear solve source convergence threshold </td></tr>
+    <tr><td class="paramname">SOR_factor</td><td>the successive over-relaxation factor </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="a8042f06d914ffb508c64abd6e930e6ff"></a>
+<a class="anchor" id="a5a7c44247e67fea309b6f9040f0b265e"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void vector_copy </td>
+          <td class="memname">void matrixMultiplication </td>
           <td>(</td>
-          <td class="paramtype">T *&#160;</td>
-          <td class="paramname"><em>vector_from</em>, </td>
+          <td class="paramtype"><a class="el" href="classMatrix.html">Matrix</a> *&#160;</td>
+          <td class="paramname"><em>A</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">T *&#160;</td>
-          <td class="paramname"><em>vector_to</em>, </td>
+          <td class="paramtype"><a class="el" href="classVector.html">Vector</a> *&#160;</td>
+          <td class="paramname"><em>X</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="classVector.html">Vector</a> *&#160;</td>
+          <td class="paramname"><em>B</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -292,116 +323,15 @@ template&lt;typename T &gt; </div>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p>Copy a vector to another vector. </p>
+<p>Performs a matrix vector multiplication. </p>
+<p>This function takes in a <a class="el" href="classMatrix.html">Matrix</a> (A), a variable <a class="el" href="classVector.html">Vector</a> (X), and a solution <a class="el" href="classVector.html">Vector</a> (B) and computes the matrix vector product. The solution <a class="el" href="classVector.html">Vector</a> is modified in place. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">vector_from</td><td>vector to be copied </td></tr>
-    <tr><td class="paramname">vector_to</td><td>vector to receive copied data </td></tr>
-    <tr><td class="paramname">length</td><td>length of vector </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="af940e0906a23b2704bc70adf4fb4e0e0"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void vector_scale </td>
-          <td>(</td>
-          <td class="paramtype">T *&#160;</td>
-          <td class="paramname"><em>vector</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">T&#160;</td>
-          <td class="paramname"><em>scale_value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Scale vectgor by some scalar value. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">vector</td><td>vector to be scaled </td></tr>
-    <tr><td class="paramname">scale_value</td><td>value to scale vector </td></tr>
-    <tr><td class="paramname">length</td><td>vector length </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="ab5189c01cbdfe2dfc24c888fb4c29e2d"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void vector_zero </td>
-          <td>(</td>
-          <td class="paramtype">T *&#160;</td>
-          <td class="paramname"><em>vector</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Assign all elements in a matrix to zero. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">vector</td><td>vector to be zeroed </td></tr>
-    <tr><td class="paramname">length</td><td>length of vector </td></tr>
+    <tr><td class="paramname">A</td><td>a <a class="el" href="classMatrix.html">Matrix</a> object </td></tr>
+    <tr><td class="paramname">X</td><td>the variable <a class="el" href="classVector.html">Vector</a> object </td></tr>
+    <tr><td class="paramname">B</td><td>the solution <a class="el" href="classVector.html">Vector</a> object </td></tr>
   </table>
   </dd>
 </dl>
@@ -414,7 +344,7 @@ template&lt;typename T &gt; </div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="linalg_8h.html">linalg.h</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:38 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

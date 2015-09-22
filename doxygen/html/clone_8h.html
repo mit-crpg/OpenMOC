@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/geogunow/OpenMOC/OpenMOC/src/accel/cuda/clone.h File Reference</title>
+<title>/home/wboyd/Desktop/OpenMOC/src/accel/cuda/clone.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -156,7 +156,7 @@ William Boyd, MIT, Course 22 (<a href="#" onclick="location.href='mai'+'lto:'+'w
 </div><div class="memdoc">
 
 <p>Given a pointer to a <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> on the host and a <a class="el" href="structdev__material.html" title="A Material&#39;s nuclear data to be stored on a GPU. ">dev_material</a> on the GPU, copy all of the properties from the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> object on the host struct to the GPU. </p>
-<p>This routine is called by the GPUSolver::initializeMaterials() private class method and is not intended to be called directly. </p>
+<p>This routine is called by the <a class="el" href="classGPUSolver.html#a71ff4c6912a17fa3620bd172b2500058" title="Allocates all Materials data on the GPU. ">GPUSolver::initializeMaterials()</a> private class method and is not intended to be called directly. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">material_h</td><td>pointer to a <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> on the host </td></tr>
@@ -198,7 +198,7 @@ William Boyd, MIT, Course 22 (<a href="#" onclick="location.href='mai'+'lto:'+'w
 </div><div class="memdoc">
 
 <p>Given a pointer to a <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> on the host, a <a class="el" href="structdev__track.html" title="A dev_track represents a characteristic line across the geometry. ">dev_track</a> on the GPU, and the map of material IDs to indices in the _materials array, copy all of the class attributes and segments from the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> object on the host to the GPU. </p>
-<p>This routine is called by the GPUSolver::initializeTracks() private class method and is not intended to be called directly. </p>
+<p>This routine is called by the <a class="el" href="classGPUSolver.html#a9ff5c289b273571e4007cd260ecea67c" title="Allocates memory for all Tracks on the GPU. ">GPUSolver::initializeTracks()</a> private class method and is not intended to be called directly. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">track_h</td><td>pointer to a <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> on the host </td></tr>
@@ -216,7 +216,7 @@ William Boyd, MIT, Course 22 (<a href="#" onclick="location.href='mai'+'lto:'+'w
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_1ea949864ab1faf245facc269e7b2721.html">accel</a></li><li class="navelem"><a class="el" href="dir_e42498f83ad2e028b83ea18abff69fa1.html">cuda</a></li><li class="navelem"><a class="el" href="clone_8h.html">clone.h</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:38 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

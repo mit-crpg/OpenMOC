@@ -28,8 +28,8 @@
     <link rel="next" title="OpenMOC API" href="../doxygen/api.html" />
     <link rel="prev" title="7. Documentation" href="documentation.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,15 +41,15 @@
         <li class="right" >
           <a href="documentation.html" title="7. Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="development-workflow">
 <span id="work-flow"></span><h1>8. Development Workflow<a class="headerlink" href="#development-workflow" title="Permalink to this headline">¶</a></h1>
@@ -62,7 +62,7 @@ follows:</p>
 <li><strong>Fork the Repository</strong> -  <a class="reference external" href="https://help.github.com/articles/fork-a-repo">Fork</a> the main OpenMOC repository from <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">mit-crpg/OpenMOC</a>. This will create a repository with the same name under your personal account.</li>
 <li><strong>Create a Git Branch</strong> - <a class="reference external" href="http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging">Create a git branch</a> to your local repository and make commits that you intend to merge back into the main OpenMOC repository.</li>
 <li><strong>Create a Pull Request</strong> - Create a <a class="reference external" href="https://help.github.com/articles/using-pull-requests">pull request</a> from GitHub and select the branch to merge from your local repository with the appropriate branch in <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">mit-crpg/OpenMOC</a>.</li>
-<li><strong>Merge the Pull Request</strong> - The OpenMOC integration manager will review your pull request and make sure it compiles and runs correctly and conforms to the <a class="reference internal" href="style_guide.html#style-guide"><em>Style Guide for OpenMOC</em></a>.</li>
+<li><strong>Merge the Pull Request</strong> - The OpenMOC integration manager will review your pull request and make sure it compiles and runs correctly and conforms to the <a class="reference internal" href="style_guide.html#style-guide"><span>Style Guide for OpenMOC</span></a>.</li>
 <li><strong>Code Integration</strong> - After the pull request has been thoroughly vetted, the integration manager will merge it back into <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">mit-crpg/OpenMOC</a>.</li>
 </ul>
 <p>While the process above depends on the fork of the OpenMOC repository being
@@ -80,7 +80,7 @@ of pulling a branch from your private repository into your public fork.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -91,12 +91,14 @@ of pulling a branch from your private repository into your public fork.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../doxygen/api.html"
                         title="next chapter">OpenMOC API</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/devguide/work_flow.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/devguide/work_flow.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -113,7 +115,7 @@ of pulling a branch from your private repository into your public fork.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -125,14 +127,14 @@ of pulling a branch from your private repository into your public fork.</p>
         <li class="right" >
           <a href="documentation.html" title="7. Documentation"
              >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
 <script type="text/javascript">
 

@@ -134,18 +134,30 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a4b87173e3bc0fc075cd1cda64de1aee4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGeometry.html">Geometry</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a4b87173e3bc0fc075cd1cda64de1aee4">getGeometry</a> ()</td></tr>
 <tr class="memdesc:a4b87173e3bc0fc075cd1cda64de1aee4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> for this <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> if one has been set.  <a href="#a4b87173e3bc0fc075cd1cda64de1aee4">More...</a><br/></td></tr>
 <tr class="separator:a4b87173e3bc0fc075cd1cda64de1aee4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a078d71a343d4c245c38195491b2d024c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a078d71a343d4c245c38195491b2d024c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</td></tr>
+<tr class="memitem:a078d71a343d4c245c38195491b2d024c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c">getNumTracks</a> ()</td></tr>
+<tr class="memdesc:a078d71a343d4c245c38195491b2d024c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the total number of Tracks generated.  <a href="#a078d71a343d4c245c38195491b2d024c">More...</a><br/></td></tr>
 <tr class="separator:a078d71a343d4c245c38195491b2d024c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20e00c47aa96fbee5c2eef16e8aa006c"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c">getNumTracksArray</a> ()</td></tr>
-<tr class="memdesc:a20e00c47aa96fbee5c2eef16e8aa006c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an array of the number of Tracks for each azimuthal angle.  <a href="#a20e00c47aa96fbee5c2eef16e8aa006c">More...</a><br/></td></tr>
-<tr class="separator:a20e00c47aa96fbee5c2eef16e8aa006c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2735d62e6638edc31d177a0bb7ed1c71"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a2735d62e6638edc31d177a0bb7ed1c71">getNumX</a> (int azim)</td></tr>
+<tr class="memdesc:a2735d62e6638edc31d177a0bb7ed1c71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of tracks on the x-axis for a given azimuthal angle.  <a href="#a2735d62e6638edc31d177a0bb7ed1c71">More...</a><br/></td></tr>
+<tr class="separator:a2735d62e6638edc31d177a0bb7ed1c71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ab6d074c77fef13ffcec54f2781bf72"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a6ab6d074c77fef13ffcec54f2781bf72">getNumY</a> (int azim)</td></tr>
+<tr class="memdesc:a6ab6d074c77fef13ffcec54f2781bf72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of tracks on the y-axis for a given azimuthal angle.  <a href="#a6ab6d074c77fef13ffcec54f2781bf72">More...</a><br/></td></tr>
+<tr class="separator:a6ab6d074c77fef13ffcec54f2781bf72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d6927d239177a3b0e12c4ceb9707a0f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a7d6927d239177a3b0e12c4ceb9707a0f">getNumTracksByParallelGroup</a> (int group)</td></tr>
+<tr class="memdesc:a7d6927d239177a3b0e12c4ceb9707a0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of tracks in a given parallel track group.  <a href="#a7d6927d239177a3b0e12c4ceb9707a0f">More...</a><br/></td></tr>
+<tr class="separator:a7d6927d239177a3b0e12c4ceb9707a0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc8d7a6b2214a2cb80b27ecaad72f054"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#acc8d7a6b2214a2cb80b27ecaad72f054">getNumParallelTrackGroups</a> ()</td></tr>
+<tr class="memdesc:acc8d7a6b2214a2cb80b27ecaad72f054"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of parallel track groups.  <a href="#acc8d7a6b2214a2cb80b27ecaad72f054">More...</a><br/></td></tr>
+<tr class="separator:acc8d7a6b2214a2cb80b27ecaad72f054"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e377cdc26b0eec5f54d55ebc2249089"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a4e377cdc26b0eec5f54d55ebc2249089">getNumSegments</a> ()</td></tr>
 <tr class="memdesc:a4e377cdc26b0eec5f54d55ebc2249089"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the total number of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segments across the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>.  <a href="#a4e377cdc26b0eec5f54d55ebc2249089">More...</a><br/></td></tr>
 <tr class="separator:a4e377cdc26b0eec5f54d55ebc2249089"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a293c6a25a694bfcb8187cfd679fa3639"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTrack.html">Track</a> **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639">getTracks</a> ()</td></tr>
 <tr class="memdesc:a293c6a25a694bfcb8187cfd679fa3639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a 2D jagged array of the Tracks.  <a href="#a293c6a25a694bfcb8187cfd679fa3639">More...</a><br/></td></tr>
 <tr class="separator:a293c6a25a694bfcb8187cfd679fa3639"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37c3677c990d9b6e40d69c3bc9b03f92"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTrack.html">Track</a> **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a37c3677c990d9b6e40d69c3bc9b03f92">getTracksByParallelGroup</a> ()</td></tr>
+<tr class="memdesc:a37c3677c990d9b6e40d69c3bc9b03f92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a 1D array of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> pointers.  <a href="#a37c3677c990d9b6e40d69c3bc9b03f92">More...</a><br/></td></tr>
+<tr class="separator:a37c3677c990d9b6e40d69c3bc9b03f92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31deadd969cddf7eba85a442729f697a"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a31deadd969cddf7eba85a442729f697a">getAzimWeights</a> ()</td></tr>
 <tr class="memdesc:a31deadd969cddf7eba85a442729f697a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a pointer to the array of azimuthal angle quadrature weights.  <a href="#a31deadd969cddf7eba85a442729f697a">More...</a><br/></td></tr>
 <tr class="separator:a31deadd969cddf7eba85a442729f697a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -449,6 +461,24 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 
 </div>
 </div>
+<a class="anchor" id="acc8d7a6b2214a2cb80b27ecaad72f054"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int TrackGenerator::getNumParallelTrackGroups </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the number of parallel track groups. </p>
+<dl class="section return"><dt>Returns</dt><dd>The number of parallel track groups </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a4e377cdc26b0eec5f54d55ebc2249089"></a>
 <div class="memitem">
 <div class="memproto">
@@ -485,12 +515,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 
 </div>
 </div>
-<a class="anchor" id="a20e00c47aa96fbee5c2eef16e8aa006c"></a>
+<a class="anchor" id="a078d71a343d4c245c38195491b2d024c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int * TrackGenerator::getNumTracksArray </td>
+          <td class="memname">int TrackGenerator::getNumTracks </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -498,8 +528,77 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
       </table>
 </div><div class="memdoc">
 
-<p>Return an array of the number of Tracks for each azimuthal angle. </p>
-<dl class="section return"><dt>Returns</dt><dd>array with the number of Tracks </dd></dl>
+<p>Return the total number of Tracks generated. </p>
+<dl class="section return"><dt>Returns</dt><dd>The number of Tracks generated </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7d6927d239177a3b0e12c4ceb9707a0f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int TrackGenerator::getNumTracksByParallelGroup </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>group</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the number of tracks in a given parallel track group. </p>
+<dl class="section return"><dt>Returns</dt><dd>the number of tracks in a given parallel track group. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2735d62e6638edc31d177a0bb7ed1c71"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int TrackGenerator::getNumX </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>azim</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the number of tracks on the x-axis for a given azimuthal angle. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">azim</td><td>An azimuthal angle index </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of Tracks on the x-axis </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6ab6d074c77fef13ffcec54f2781bf72"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int TrackGenerator::getNumY </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>azim</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the number of tracks on the y-axis for a given azimuthal angle. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">azim</td><td>An azimuthal angle index </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of Tracks on the y-axis </dd></dl>
 
 </div>
 </div>
@@ -519,6 +618,25 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 <p>Returns a 2D jagged array of the Tracks. </p>
 <p>The first index into the array is the azimuthal angle and the second index is the <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> number for a given azimuthal angle. </p>
 <dl class="section return"><dt>Returns</dt><dd>the 2D jagged array of Tracks </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a37c3677c990d9b6e40d69c3bc9b03f92"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classTrack.html">Track</a> ** TrackGenerator::getTracksByParallelGroup </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a 1D array of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> pointers. </p>
+<p>The tracks in the _tracks_by_parallel_group array are organized by parallel track group. The index into the array is also the corresponding <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s UID. </p>
+<dl class="section return"><dt>Returns</dt><dd>The 1D array of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> pointers </dd></dl>
 
 </div>
 </div>
@@ -739,8 +857,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="TrackGenerator_8h_source.html">TrackGenerator.h</a></li>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/TrackGenerator.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="TrackGenerator_8h_source.html">TrackGenerator.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/TrackGenerator.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -748,7 +866,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getNumTracks</b> ()</t
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

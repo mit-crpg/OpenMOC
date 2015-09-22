@@ -126,8 +126,10 @@ $(document).ready(function(){initNavTree('classLattice.html','');});
   <tr><td class="entry"><a class="el" href="classLattice.html#a05ea2bbca5556a661287854341669809">getAllUniverses</a>()</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classUniverse.html#a4c9d6fa60df75ec61fee665a2c7670e9">getCell</a>(int cell_id)</td><td class="entry"><a class="el" href="classUniverse.html">Universe</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classUniverse.html#a4b0dc4bf1fcda9bb4813ab60b07c8d2f">getCells</a>() const </td><td class="entry"><a class="el" href="classUniverse.html">Universe</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21">getId</a>() const </td><td class="entry"><a class="el" href="classUniverse.html">Universe</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classLattice.html#a38533bf0415df3a7a1f5b6fef25abef5">getLatticeCell</a>(Point *point)</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classLattice.html#a593784a7777ed4d3806fa2a93953eeaa">getDistanceToSurface</a>(int cell, Point *point, int surface)</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classUniverse.html#ae0686929fcba2aa1580bc64c3230cb21">getId</a>() const </td><td class="entry"><a class="el" href="classUniverse.html">Universe</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classLattice.html#a38533bf0415df3a7a1f5b6fef25abef5">getLatticeCell</a>(Point *point)</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classLattice.html#a487b37e78f5332709d2acf00ff58ebd1">getLatticeCorner</a>(int cell, Point *point)</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classLattice.html#a6de3cb1e21977cdb282869a38ba1d917">getLatticeSurface</a>(int cell, Point *point)</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classLattice.html#ae8974389c78e52cd88f642e38f8c664f">getLatX</a>(Point *point)</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classLattice.html#a0e020d6520cb0ef6f2a11046d554bc29">getLatY</a>(Point *point)</td><td class="entry"><a class="el" href="classLattice.html">Lattice</a></td><td class="entry"></td></tr>
@@ -180,7 +182,7 @@ $(document).ready(function(){initNavTree('classLattice.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

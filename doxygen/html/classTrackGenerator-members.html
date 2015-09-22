@@ -120,11 +120,15 @@ $(document).ready(function(){initNavTree('classTrackGenerator.html','');});
   <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a4b87173e3bc0fc075cd1cda64de1aee4">getGeometry</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#a4ac96dc85f87896ec9e78c9a004f031b">getMaxOpticalLength</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2">getNumAzim</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#a4e377cdc26b0eec5f54d55ebc2249089">getNumSegments</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a70f834e6677d9f6962ff7192dc7207dc">getNumThreads</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>getNumTracks</b>() (defined in <a class="el" href="classTrackGenerator.html">TrackGenerator</a>)</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a20e00c47aa96fbee5c2eef16e8aa006c">getNumTracksArray</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639">getTracks</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#acc8d7a6b2214a2cb80b27ecaad72f054">getNumParallelTrackGroups</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a4e377cdc26b0eec5f54d55ebc2249089">getNumSegments</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#a70f834e6677d9f6962ff7192dc7207dc">getNumThreads</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a078d71a343d4c245c38195491b2d024c">getNumTracks</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#a7d6927d239177a3b0e12c4ceb9707a0f">getNumTracksByParallelGroup</a>(int group)</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a2735d62e6638edc31d177a0bb7ed1c71">getNumX</a>(int azim)</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#a6ab6d074c77fef13ffcec54f2781bf72">getNumY</a>(int azim)</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a293c6a25a694bfcb8187cfd679fa3639">getTracks</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#a37c3677c990d9b6e40d69c3bc9b03f92">getTracksByParallelGroup</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classTrackGenerator.html#aa96bffdf881ca6142007a5716077bb9e">getTrackSpacing</a>()</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504">retrieveSegmentCoords</a>(double *coords, int num_segments)</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935">retrieveTrackCoords</a>(double *coords, int num_tracks)</td><td class="entry"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></td><td class="entry"></td></tr>
@@ -140,7 +144,7 @@ $(document).ready(function(){initNavTree('classTrackGenerator.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

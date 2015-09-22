@@ -201,9 +201,9 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a9a0ebe6de3cfa5f9faf674f586a061b5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classCmfd.html">Cmfd</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a9a0ebe6de3cfa5f9faf674f586a061b5">getCmfd</a> ()</td></tr>
 <tr class="memdesc:a9a0ebe6de3cfa5f9faf674f586a061b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the CMFD object.  <a href="#a9a0ebe6de3cfa5f9faf674f586a061b5">More...</a><br/></td></tr>
 <tr class="separator:a9a0ebe6de3cfa5f9faf674f586a061b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4aae2a67520bed6d790367341d6db56"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::size_t &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#ac4aae2a67520bed6d790367341d6db56">getFSRsToKeys</a> ()</td></tr>
-<tr class="memdesc:ac4aae2a67520bed6d790367341d6db56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the vector that maps FSR IDs to FSR key hashes.  <a href="#ac4aae2a67520bed6d790367341d6db56">More...</a><br/></td></tr>
-<tr class="separator:ac4aae2a67520bed6d790367341d6db56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2c83805e83b939f4ed984f688da889c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#ae2c83805e83b939f4ed984f688da889c">getFSRsToKeys</a> ()</td></tr>
+<tr class="memdesc:ae2c83805e83b939f4ed984f688da889c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the vector that maps FSR IDs to FSR key hashes.  <a href="#ae2c83805e83b939f4ed984f688da889c">More...</a><br/></td></tr>
+<tr class="separator:ae2c83805e83b939f4ed984f688da889c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9aac336a0684bd999858ba0abea801a8"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a9aac336a0684bd999858ba0abea801a8">getFSRsToMaterialIDs</a> ()</td></tr>
 <tr class="memdesc:a9aac336a0684bd999858ba0abea801a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a vector indexed by flat source region IDs which contain the corresponding <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> IDs.  <a href="#a9aac336a0684bd999858ba0abea801a8">More...</a><br/></td></tr>
 <tr class="separator:a9aac336a0684bd999858ba0abea801a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -219,25 +219,25 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:ac575f258acb53d8365733efaa1e74e12"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#ac575f258acb53d8365733efaa1e74e12">getFSRKey</a> (<a class="el" href="classLocalCoords.html">LocalCoords</a> *coords)</td></tr>
 <tr class="memdesc:ac575f258acb53d8365733efaa1e74e12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a string FSR "key" that identifies an FSR by its unique hierarchical lattice/universe/cell structure.  <a href="#ac575f258acb53d8365733efaa1e74e12">More...</a><br/></td></tr>
 <tr class="separator:ac575f258acb53d8365733efaa1e74e12"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7cadf2c81145cd0d6394806a36bdda9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::size_t, <br class="typebreak"/>
-<a class="el" href="structfsr__data.html">fsr_data</a> * &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#aa7cadf2c81145cd0d6394806a36bdda9">getFSRKeysMap</a> ()</td></tr>
-<tr class="memdesc:aa7cadf2c81145cd0d6394806a36bdda9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the map that maps FSR keys to FSR IDs.  <a href="#aa7cadf2c81145cd0d6394806a36bdda9">More...</a><br/></td></tr>
-<tr class="separator:aa7cadf2c81145cd0d6394806a36bdda9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76ebc89bec5b88c32fd9ca3d43a79a5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::string, <br class="typebreak"/>
+<a class="el" href="structfsr__data.html">fsr_data</a> * &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a76ebc89bec5b88c32fd9ca3d43a79a5b">getFSRKeysMap</a> ()</td></tr>
+<tr class="memdesc:a76ebc89bec5b88c32fd9ca3d43a79a5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the map that maps FSR keys to FSR IDs.  <a href="#a76ebc89bec5b88c32fd9ca3d43a79a5b">More...</a><br/></td></tr>
+<tr class="separator:a76ebc89bec5b88c32fd9ca3d43a79a5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07536ae96e23f6e4cfd6a9c5e732633b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a07536ae96e23f6e4cfd6a9c5e732633b">setFSRsToMaterialIDs</a> (std::vector&lt; int &gt; *FSRs_to_material_IDs)</td></tr>
 <tr class="memdesc:a07536ae96e23f6e4cfd6a9c5e732633b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the _FSRs_to_material_IDs vector.  <a href="#a07536ae96e23f6e4cfd6a9c5e732633b">More...</a><br/></td></tr>
 <tr class="separator:a07536ae96e23f6e4cfd6a9c5e732633b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aabb3f6cbf32886ecccfb0bf99079aad7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#aabb3f6cbf32886ecccfb0bf99079aad7">setFSRsToKeys</a> (std::vector&lt; std::size_t &gt; *FSRs_to_keys)</td></tr>
-<tr class="memdesc:aabb3f6cbf32886ecccfb0bf99079aad7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the _FSRs_to_keys vector.  <a href="#aabb3f6cbf32886ecccfb0bf99079aad7">More...</a><br/></td></tr>
-<tr class="separator:aabb3f6cbf32886ecccfb0bf99079aad7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3a6c251db31a7209ae8d9e8d27ec298"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#ae3a6c251db31a7209ae8d9e8d27ec298">setFSRsToKeys</a> (std::vector&lt; std::string &gt; *FSRs_to_keys)</td></tr>
+<tr class="memdesc:ae3a6c251db31a7209ae8d9e8d27ec298"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the _FSRs_to_keys vector.  <a href="#ae3a6c251db31a7209ae8d9e8d27ec298">More...</a><br/></td></tr>
+<tr class="separator:ae3a6c251db31a7209ae8d9e8d27ec298"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85b885809ef6d59190139b8d1477e69d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a85b885809ef6d59190139b8d1477e69d">setCmfd</a> (<a class="el" href="classCmfd.html">Cmfd</a> *cmfd)</td></tr>
 <tr class="memdesc:a85b885809ef6d59190139b8d1477e69d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the pointer to a CMFD object used for acceleration.  <a href="#a85b885809ef6d59190139b8d1477e69d">More...</a><br/></td></tr>
 <tr class="separator:a85b885809ef6d59190139b8d1477e69d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8023d7554e90d7e6cfff63a7513e1fe8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a8023d7554e90d7e6cfff63a7513e1fe8">setFSRCentroid</a> (int fsr, <a class="el" href="classPoint.html">Point</a> *centroid)</td></tr>
 <tr class="memdesc:a8023d7554e90d7e6cfff63a7513e1fe8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the centroid for an FSR.  <a href="#a8023d7554e90d7e6cfff63a7513e1fe8">More...</a><br/></td></tr>
 <tr class="separator:a8023d7554e90d7e6cfff63a7513e1fe8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8175456258560d17991a11864d5a7d2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a8175456258560d17991a11864d5a7d2a">setFSRKeysMap</a> (<a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::size_t, <a class="el" href="structfsr__data.html">fsr_data</a> * &gt; *FSR_keys_map)</td></tr>
-<tr class="memdesc:a8175456258560d17991a11864d5a7d2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the _FSR_keys_map map.  <a href="#a8175456258560d17991a11864d5a7d2a">More...</a><br/></td></tr>
-<tr class="separator:a8175456258560d17991a11864d5a7d2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41722b24711458b495435f720454d45a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#a41722b24711458b495435f720454d45a">setFSRKeysMap</a> (<a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::string, <a class="el" href="structfsr__data.html">fsr_data</a> * &gt; *FSR_keys_map)</td></tr>
+<tr class="memdesc:a41722b24711458b495435f720454d45a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the _FSR_keys_map map.  <a href="#a41722b24711458b495435f720454d45a">More...</a><br/></td></tr>
+<tr class="separator:a41722b24711458b495435f720454d45a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab09d1ee4b8da5d3e60d5745d2a044185"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classCell.html">Cell</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGeometry.html#ab09d1ee4b8da5d3e60d5745d2a044185">findCellContainingCoords</a> (<a class="el" href="classLocalCoords.html">LocalCoords</a> *coords)</td></tr>
 <tr class="memdesc:ab09d1ee4b8da5d3e60d5745d2a044185"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> that this <a class="el" href="classLocalCoords.html" title="The LocalCoords represents a set of local coordinates on some level of nested Universes making up the...">LocalCoords</a> object is in at the lowest level of the nested <a class="el" href="classUniverse.html" title="A Universe represents an unbounded space in the 2D xy-plane. ">Universe</a> hierarchy.  <a href="#ab09d1ee4b8da5d3e60d5745d2a044185">More...</a><br/></td></tr>
 <tr class="separator:ab09d1ee4b8da5d3e60d5745d2a044185"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -553,12 +553,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="aa7cadf2c81145cd0d6394806a36bdda9"></a>
+<a class="anchor" id="a76ebc89bec5b88c32fd9ca3d43a79a5b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::size_t, <a class="el" href="structfsr__data.html">fsr_data</a> * &gt; * Geometry::getFSRKeysMap </td>
+          <td class="memname"><a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::string, <a class="el" href="structfsr__data.html">fsr_data</a> * &gt; * Geometry::getFSRKeysMap </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -596,12 +596,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="ac4aae2a67520bed6d790367341d6db56"></a>
+<a class="anchor" id="ae2c83805e83b939f4ed984f688da889c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt; std::size_t &gt; * Geometry::getFSRsToKeys </td>
+          <td class="memname">std::vector&lt; std::string &gt; * Geometry::getFSRsToKeys </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1095,14 +1095,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="a8175456258560d17991a11864d5a7d2a"></a>
+<a class="anchor" id="a41722b24711458b495435f720454d45a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void Geometry::setFSRKeysMap </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::size_t, <a class="el" href="structfsr__data.html">fsr_data</a> * &gt; *&#160;</td>
+          <td class="paramtype"><a class="el" href="classParallelHashMap.html">ParallelHashMap</a>&lt; std::string, <a class="el" href="structfsr__data.html">fsr_data</a> * &gt; *&#160;</td>
           <td class="paramname"><em>FSR_keys_map</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1120,14 +1120,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="aabb3f6cbf32886ecccfb0bf99079aad7"></a>
+<a class="anchor" id="ae3a6c251db31a7209ae8d9e8d27ec298"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void Geometry::setFSRsToKeys </td>
           <td>(</td>
-          <td class="paramtype">std::vector&lt; std::size_t &gt; *&#160;</td>
+          <td class="paramtype">std::vector&lt; std::string &gt; *&#160;</td>
           <td class="paramname"><em>FSRs_to_keys</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1256,8 +1256,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Geometry_8h_source.html">Geometry.h</a></li>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/Geometry.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Geometry_8h_source.html">Geometry.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/Geometry.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1265,7 +1265,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classGeometry.html">Geometry</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

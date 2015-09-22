@@ -188,9 +188,10 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a61a924f10990017b73b5f3aac1534cb4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCell.html#a61a924f10990017b73b5f3aac1534cb4">getNumSurfaces</a> () const </td></tr>
 <tr class="memdesc:a61a924f10990017b73b5f3aac1534cb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of Surfaces in the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a>.  <a href="#a61a924f10990017b73b5f3aac1534cb4">More...</a><br/></td></tr>
 <tr class="separator:a61a924f10990017b73b5f3aac1534cb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12e0a3ab057f37c7b079f302b08445d7"><td class="memItemLeft" align="right" valign="top">std::map&lt; int, <a class="el" href="structsurface__halfspace.html">surface_halfspace</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCell.html#a12e0a3ab057f37c7b079f302b08445d7">getSurfaces</a> () const </td></tr>
-<tr class="memdesc:a12e0a3ab057f37c7b079f302b08445d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the std::map of <a class="el" href="classSurface.html" title="Represents a general Surface in the 2D xy-plane. ">Surface</a> pointers and halfspaces (+/-1) for all surfaces bounding the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a>.  <a href="#a12e0a3ab057f37c7b079f302b08445d7">More...</a><br/></td></tr>
-<tr class="separator:a12e0a3ab057f37c7b079f302b08445d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc5c79adfd3d248a70551704d662189f"><td class="memItemLeft" align="right" valign="top">std::map&lt; int, <br class="typebreak"/>
+<a class="el" href="structsurface__halfspace.html">surface_halfspace</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCell.html#adc5c79adfd3d248a70551704d662189f">getSurfaces</a> () const </td></tr>
+<tr class="memdesc:adc5c79adfd3d248a70551704d662189f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the std::map of <a class="el" href="classSurface.html" title="Represents a general Surface in the 2D xy-plane. ">Surface</a> pointers and halfspaces (+/-1) for all surfaces bounding the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a>.  <a href="#adc5c79adfd3d248a70551704d662189f">More...</a><br/></td></tr>
+<tr class="separator:adc5c79adfd3d248a70551704d662189f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af17e67b05a06c2411b22742a68f15807"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classCell.html">Cell</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCell.html#af17e67b05a06c2411b22742a68f15807">getNeighbors</a> () const </td></tr>
 <tr class="memdesc:af17e67b05a06c2411b22742a68f15807"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the std::vector of neighbor Cells to this <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a>.  <a href="#af17e67b05a06c2411b22742a68f15807">More...</a><br/></td></tr>
 <tr class="separator:af17e67b05a06c2411b22742a68f15807"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -817,12 +818,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="a12e0a3ab057f37c7b079f302b08445d7"></a>
+<a class="anchor" id="adc5c79adfd3d248a70551704d662189f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::map&lt; int, <a class="el" href="structsurface__halfspace.html">surface_halfspace</a> &gt; Cell::getSurfaces </td>
+          <td class="memname">std::map&lt; int, <a class="el" href="structsurface__halfspace.html">surface_halfspace</a> * &gt; Cell::getSurfaces </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -1091,8 +1092,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Cell_8h_source.html">Cell.h</a></li>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/Cell.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Cell_8h_source.html">Cell.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/Cell.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1100,7 +1101,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classCell.html">Cell</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:38 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

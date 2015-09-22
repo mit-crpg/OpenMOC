@@ -449,7 +449,7 @@ Protected Attributes</h2></td></tr>
 <p>Set the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>'s array of sines of each polar angle. </p>
 <p>This method is a helper function to allow OpenMOC users to assign the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>'s sin thetas in Python. A user must initialize a NumPy array of the correct size (e.g., a float64 array the length of the number of polar angles) as input to this function. This function then fills the NumPy array with the data values for the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>'s sin thetas. An example of how this function might be called in Python is as follows:</p>
 <div class="fragment"><div class="line">sin_thetas= numpy.array([0.05, 0.1, 0.15, ... ])</div>
-<div class="line">polar_quad = <a class="code" href="namespaceopenmoc_1_1log.html#aba53740608da72a6ff5857ab332fc48d">openmoc</a>.PolarQuad()</div>
+<div class="line">polar_quad = openmoc.PolarQuad()</div>
 <div class="line">polar_quad.setNumPolarAngles(len(sin_thetas))</div>
 <div class="line">polar_quad.setSinThetas(sin_thetas)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
@@ -489,7 +489,7 @@ Protected Attributes</h2></td></tr>
 <p>Set the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>'s array of weights for each angle. </p>
 <p>This method is a helper function to allow OpenMOC users to assign the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>'s angular weights in Python. A user must initialize a NumPy array of the correct size (e.g., a float64 array the length of the number of polar angles) as input to this function. This function then fills the NumPy array with the data values for the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>'s weights. An example of how this function might be called in Python is as follows:</p>
 <div class="fragment"><div class="line">weights = numpy.array([0.05, 0.1, 0.15, ... ])</div>
-<div class="line">polar_quad = <a class="code" href="namespaceopenmoc_1_1log.html#aba53740608da72a6ff5857ab332fc48d">openmoc</a>.PolarQuad()</div>
+<div class="line">polar_quad = openmoc.PolarQuad()</div>
 <div class="line">polar_quad.setNumPolarAngles(len(weights))</div>
 <div class="line">polar_quad.setWeights(weights)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
@@ -607,8 +607,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="PolarQuad_8h_source.html">PolarQuad.h</a></li>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/PolarQuad.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="PolarQuad_8h_source.html">PolarQuad.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/PolarQuad.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -616,7 +616,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classPolarQuad.html">PolarQuad</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

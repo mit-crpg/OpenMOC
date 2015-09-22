@@ -1,13 +1,25 @@
 var constants_8h =
 [
+    [ "CORNER_X_MAX_Y_MAX", "constants_8h.html#ae4ea3ae8b1419488f082b2b6f943a65e", null ],
+    [ "CORNER_X_MAX_Y_MIN", "constants_8h.html#ae54b66a7c600e78b67dd3187ab66281e", null ],
+    [ "CORNER_X_MIN_Y_MAX", "constants_8h.html#acd259ee3ece53404f037c0e7e60bca14", null ],
+    [ "CORNER_X_MIN_Y_MIN", "constants_8h.html#a2bc65346e337efeb89064c742fb7d4f4", null ],
     [ "EXP_PRECISION", "constants_8h.html#abd47494b8a16ac2aeb5c9e3242ff5e06", null ],
     [ "FOUR_PI", "constants_8h.html#ac6b39b7a27b735f3a62be33f38041985", null ],
+    [ "MAX_LINALG_POWER_ITERATIONS", "constants_8h.html#ab9d6d130fffcefc8215c5d48594ed04d", null ],
+    [ "MAX_LINEAR_SOLVE_ITERATIONS", "constants_8h.html#a73685171fdeb5dc1dc7bd573e0a25f4c", null ],
     [ "MAX_OPTICAL_LENGTH", "constants_8h.html#a895b93c581aefe76e1ccc425bb95a8c5", null ],
+    [ "NUM_CORNERS", "constants_8h.html#a9737403baa8af91db06b84f88c115d43", null ],
+    [ "NUM_SURFACES", "constants_8h.html#af1f6258b779d2016336c749856fe2972", null ],
     [ "ON_LATTICE_CELL_THRESH", "constants_8h.html#ad8a93cce3a9cd77aa9fc698dd9af26e7", null ],
     [ "ON_SURFACE_THRESH", "constants_8h.html#a5ff2a7fbf6ba25f47f298c79f39dc4f8", null ],
     [ "ONE_OVER_FOUR_PI", "constants_8h.html#a662cb71fde841f2762641d9f82e1fbb5", null ],
     [ "POLAR_WEIGHT_SUM_TOL", "constants_8h.html#a4b8b14232fe86e7e5d8c1e7b55421137", null ],
     [ "SIGMA_T_THRESH", "constants_8h.html#ae9c3eb98c50e150b93f8428cc6bdf3ca", null ],
+    [ "SURFACE_X_MAX", "constants_8h.html#ac9fc720235ecc162307755d06d2ce597", null ],
+    [ "SURFACE_X_MIN", "constants_8h.html#aa54c358add6e6cc3b8966ad6fa42154b", null ],
+    [ "SURFACE_Y_MAX", "constants_8h.html#a1e7f21b3382344e8e6f80e41066fb83b", null ],
+    [ "SURFACE_Y_MIN", "constants_8h.html#a57a9e4d29cf525354860054d408d1d0a", null ],
     [ "TINY_MOVE", "constants_8h.html#a481c7dad5dc2bb9070235752daa421c6", null ],
     [ "ZERO_SIGMA_T", "constants_8h.html#a40828c3842687236790de1dbcc10336b", null ]
 ];

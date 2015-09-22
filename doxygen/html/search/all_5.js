@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['eigenvaluesolve',['eigenvalueSolve',['../linalg_8h.html#ab178264b14008c7adb808ffe7da90daa',1,'linalg.cpp']]],
   ['equalanglepolarquad',['EqualAnglePolarQuad',['../classEqualAnglePolarQuad.html',1,'EqualAnglePolarQuad'],['../classEqualAnglePolarQuad.html#ad9bd741fea608849f8ffe675b72d81da',1,'EqualAnglePolarQuad::EqualAnglePolarQuad()']]],
   ['equalweightpolarquad',['EqualWeightPolarQuad',['../classEqualWeightPolarQuad.html',1,'EqualWeightPolarQuad'],['../classEqualWeightPolarQuad.html#ab9c23dd704b62f949f052355dda58cb8',1,'EqualWeightPolarQuad::EqualWeightPolarQuad()']]],
   ['error',['ERROR',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a2fd6f336d08340583bd620a7f5694c90',1,'log.h']]],

@@ -1,7 +1,7 @@
 var searchData=
 [
+  ['tallycurrent',['tallyCurrent',['../classCmfd.html#a7cfa9324576f273b5329f2b9cee3f769',1,'Cmfd::tallyCurrent()'],['../classCPUSolver.html#a71240b0a132aef4725614dfeb0af7470',1,'CPUSolver::tallyCurrent()']]],
   ['tallyscalarflux',['tallyScalarFlux',['../classCPUSolver.html#a4ec079d6fe1ad40fdf2f124e106c4f0a',1,'CPUSolver::tallyScalarFlux()'],['../classVectorizedSolver.html#a79482c301560318bc3f0c7670783c0fc',1,'VectorizedSolver::tallyScalarFlux()']]],
-  ['tallysurfacecurrent',['tallySurfaceCurrent',['../classCmfd.html#a0bfce334ab3b4421e62250a5028d5608',1,'Cmfd::tallySurfaceCurrent()'],['../classCPUSolver.html#af7afb01d1e66a83fb317102a58308532',1,'CPUSolver::tallySurfaceCurrent()']]],
   ['taus',['taus',['../VectorizedSolver_8h.html#a3c1eee3367b6bf3d9a00f66369aba5ed',1,'VectorizedSolver.h']]],
   ['timer',['Timer',['../classTimer.html',1,'Timer'],['../classTimer.html#a5f16e8da27d2a5a5242dead46de05d97',1,'Timer::Timer()']]],
   ['timer_2eh',['Timer.h',['../Timer_8h.html',1,'']]],
@@ -16,6 +16,7 @@ var searchData=
   ['trackgenerator',['TrackGenerator',['../classTrackGenerator.html',1,'TrackGenerator'],['../classTrackGenerator.html#a19c16de624bb489a4757772f08c078c3',1,'TrackGenerator::TrackGenerator()']]],
   ['trackgenerator_2eh',['TrackGenerator.h',['../TrackGenerator_8h.html',1,'']]],
   ['transferboundaryflux',['transferBoundaryFlux',['../classCPUSolver.html#aad866245497967dd5a834fb987c8f6d1',1,'CPUSolver::transferBoundaryFlux()'],['../classVectorizedSolver.html#a8870d66ff12cad16d893d9f1dad0c799',1,'VectorizedSolver::transferBoundaryFlux()']]],
-  ['transportsweep',['transportSweep',['../classCPUSolver.html#a9aac0098d2d8969d87212aad0cb9c54e',1,'CPUSolver::transportSweep()'],['../classSolver.html#ab029744c3532b239fab583c4f8d8ea98',1,'Solver::transportSweep()']]],
+  ['transportsweep',['transportSweep',['../classGPUSolver.html#ad2f08dce3f23fcaa7c1774861770b279',1,'GPUSolver::transportSweep()'],['../classCPUSolver.html#a9aac0098d2d8969d87212aad0cb9c54e',1,'CPUSolver::transportSweep()'],['../classSolver.html#ab029744c3532b239fab583c4f8d8ea98',1,'Solver::transportSweep()']]],
+  ['transpose',['transpose',['../classMatrix.html#aa753de1a2ed37c8eb934e06823fee179',1,'Matrix']]],
   ['typolarquad',['TYPolarQuad',['../classTYPolarQuad.html',1,'TYPolarQuad'],['../classTYPolarQuad.html#a733dbc8cc0419173d1a20fd840c3c223',1,'TYPolarQuad::TYPolarQuad()']]]
 ];

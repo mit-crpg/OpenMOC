@@ -162,12 +162,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a62c73dba0380643a9d359cfe844bef11"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a62c73dba0380643a9d359cfe844bef11">isUsingExponentialInterpolation</a> ()</td></tr>
 <tr class="memdesc:a62c73dba0380643a9d359cfe844bef11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> uses linear interpolation to compute exponentials.  <a href="#a62c73dba0380643a9d359cfe844bef11">More...</a><br/></td></tr>
 <tr class="separator:a62c73dba0380643a9d359cfe844bef11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeb787956a7bd88aca5a1e44a8ae1c9b1"><td class="memItemLeft" align="right" valign="top">virtual FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aeb787956a7bd88aca5a1e44a8ae1c9b1">getFSRScalarFlux</a> (int fsr_id, int group)</td></tr>
-<tr class="memdesc:aeb787956a7bd88aca5a1e44a8ae1c9b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the scalar flux for some FSR and energy group.  <a href="#aeb787956a7bd88aca5a1e44a8ae1c9b1">More...</a><br/></td></tr>
-<tr class="separator:aeb787956a7bd88aca5a1e44a8ae1c9b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac53d86f4d110a07651dde1af25876d5d"><td class="memItemLeft" align="right" valign="top">virtual FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac53d86f4d110a07651dde1af25876d5d">getFSRSource</a> (int fsr_id, int group)</td></tr>
 <tr class="memdesc:ac53d86f4d110a07651dde1af25876d5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the source for some energy group for a flat source region.  <a href="#ac53d86f4d110a07651dde1af25876d5d">More...</a><br/></td></tr>
 <tr class="separator:ac53d86f4d110a07651dde1af25876d5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0baf2ee72018ebc3c083141813b4e6ff"><td class="memItemLeft" align="right" valign="top">virtual FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a0baf2ee72018ebc3c083141813b4e6ff">getFlux</a> (int fsr_id, int group)</td></tr>
+<tr class="memdesc:a0baf2ee72018ebc3c083141813b4e6ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the scalar flux for some FSR and energy group.  <a href="#a0baf2ee72018ebc3c083141813b4e6ff">More...</a><br/></td></tr>
+<tr class="separator:a0baf2ee72018ebc3c083141813b4e6ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a447de542dc1734b07bedeb22e7fe0ec9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a447de542dc1734b07bedeb22e7fe0ec9"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>getFluxes</b> (FP_PRECISION *out_fluxes, int num_fluxes)=0</td></tr>
+<tr class="separator:a447de542dc1734b07bedeb22e7fe0ec9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac07cee2fe04515dc8e4d2980d567c4c5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac07cee2fe04515dc8e4d2980d567c4c5">setTrackGenerator</a> (<a class="el" href="classTrackGenerator.html">TrackGenerator</a> *track_generator)</td></tr>
 <tr class="memdesc:ac07cee2fe04515dc8e4d2980d567c4c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>'s <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> with characteristic Tracks.  <a href="#ac07cee2fe04515dc8e4d2980d567c4c5">More...</a><br/></td></tr>
 <tr class="separator:ac07cee2fe04515dc8e4d2980d567c4c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -180,6 +183,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a555f77789f36a78cad34df412300e6e7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a555f77789f36a78cad34df412300e6e7">setFixedSourceByFSR</a> (int fsr_id, int group, FP_PRECISION source)</td></tr>
 <tr class="memdesc:a555f77789f36a78cad34df412300e6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a fixed source for a flat source region and energy group.  <a href="#a555f77789f36a78cad34df412300e6e7">More...</a><br/></td></tr>
 <tr class="separator:a555f77789f36a78cad34df412300e6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ee2dfd0a65bb697cdd3f5f8afb36d2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ee2dfd0a65bb697cdd3f5f8afb36d2a"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setFluxes</b> (FP_PRECISION *in_fluxes, int num_fluxes)=0</td></tr>
+<tr class="separator:a3ee2dfd0a65bb697cdd3f5f8afb36d2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cae18c37e49e7a947069b765fd73fd1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a8cae18c37e49e7a947069b765fd73fd1">setFixedSourceByCell</a> (<a class="el" href="classCell.html">Cell</a> *cell, int group, FP_PRECISION source)</td></tr>
 <tr class="memdesc:a8cae18c37e49e7a947069b765fd73fd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a fixed source for a <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> and energy group.  <a href="#a8cae18c37e49e7a947069b765fd73fd1">More...</a><br/></td></tr>
 <tr class="separator:a8cae18c37e49e7a947069b765fd73fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,33 +206,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a5400c11874dac7f00ade6e7c2d573aee">useExponentialIntrinsic</a> ()</td></tr>
 <tr class="memdesc:a5400c11874dac7f00ade6e7c2d573aee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Informs the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> to use the exponential intrinsic exp(...) function to compute the exponential in the transport equation. <br/></td></tr>
 <tr class="separator:a5400c11874dac7f00ade6e7c2d573aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a277d69530a46b6d42fdf1e968cf768b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a277d69530a46b6d42fdf1e968cf768b6">computeFlux</a> (int max_iters=1000, bool only_fixed_source=true)</td></tr>
-<tr class="memdesc:a277d69530a46b6d42fdf1e968cf768b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the scalar flux distribution by performing a series of transport sweeps.  <a href="#a277d69530a46b6d42fdf1e968cf768b6">More...</a><br/></td></tr>
-<tr class="separator:a277d69530a46b6d42fdf1e968cf768b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a63f18f0140ee0dc90a18757bce9734a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a63f18f0140ee0dc90a18757bce9734a8">computeSource</a> (int max_iters=1000, double k_eff=1.0, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828">TOTAL_SOURCE</a>)</td></tr>
-<tr class="memdesc:a63f18f0140ee0dc90a18757bce9734a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the total source distribution by performing a series of transport sweep and source updates.  <a href="#a63f18f0140ee0dc90a18757bce9734a8">More...</a><br/></td></tr>
-<tr class="separator:a63f18f0140ee0dc90a18757bce9734a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18bf2e85828184e7df442b7d31296d99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a18bf2e85828184e7df442b7d31296d99">computeEigenvalue</a> (int max_iters=1000, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea">FISSION_SOURCE</a>)</td></tr>
-<tr class="memdesc:a18bf2e85828184e7df442b7d31296d99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes keff by performing a series of transport sweep and source updates.  <a href="#a18bf2e85828184e7df442b7d31296d99">More...</a><br/></td></tr>
-<tr class="separator:a18bf2e85828184e7df442b7d31296d99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a1bb7fc290b71e0010d9ab17c1e3fb6e8">computeFSRFissionRates</a> (double *fission_rates, int num_FSRs)=0</td></tr>
-<tr class="memdesc:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the volume-weighted, energy integrated fission rate in each FSR and stores them in an array indexed by FSR ID.  <a href="#a1bb7fc290b71e0010d9ab17c1e3fb6e8">More...</a><br/></td></tr>
-<tr class="separator:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeec2b08ba9d6be88cf08f1fc02658500"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeec2b08ba9d6be88cf08f1fc02658500"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aeec2b08ba9d6be88cf08f1fc02658500">printTimerReport</a> ()</td></tr>
-<tr class="memdesc:aeec2b08ba9d6be88cf08f1fc02658500"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a report of the timing statistics to the console. <br/></td></tr>
-<tr class="separator:aeec2b08ba9d6be88cf08f1fc02658500"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a916eb7ef96140e1ea2d22bb9d1c86240"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">initializeFluxArrays</a> ()=0</td></tr>
-<tr class="memdesc:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular and FSR scalar flux arrays. <br/></td></tr>
-<tr class="separator:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8592d819738b24a5b983e54c0a635d30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8592d819738b24a5b983e54c0a635d30"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a8592d819738b24a5b983e54c0a635d30">initializeSourceArrays</a> ()=0</td></tr>
-<tr class="memdesc:a8592d819738b24a5b983e54c0a635d30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates memory for FSR source arrays. <br/></td></tr>
-<tr class="separator:a8592d819738b24a5b983e54c0a635d30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d29853ed722d7484588842a55b80226"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a2d29853ed722d7484588842a55b80226">initializePolarQuadrature</a> ()</td></tr>
 <tr class="memdesc:a2d29853ed722d7484588842a55b80226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a new <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object.  <a href="#a2d29853ed722d7484588842a55b80226">More...</a><br/></td></tr>
 <tr class="separator:a2d29853ed722d7484588842a55b80226"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -237,12 +216,30 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:ad2699642abb92e66bf17be4d9009ee6c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ad2699642abb92e66bf17be4d9009ee6c">initializeFSRs</a> ()</td></tr>
 <tr class="memdesc:ad2699642abb92e66bf17be4d9009ee6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the FSR volumes and Materials array.  <a href="#ad2699642abb92e66bf17be4d9009ee6c">More...</a><br/></td></tr>
 <tr class="separator:ad2699642abb92e66bf17be4d9009ee6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba9ac4c39cfd25d836672312b410bd27"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba9ac4c39cfd25d836672312b410bd27"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aba9ac4c39cfd25d836672312b410bd27">initializeMaterials</a> ()</td></tr>
+<tr class="memdesc:aba9ac4c39cfd25d836672312b410bd27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> fission matrices. <br/></td></tr>
+<tr class="separator:aba9ac4c39cfd25d836672312b410bd27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43d38c4f178863d57fa5957180906851"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a43d38c4f178863d57fa5957180906851">countFissionableFSRs</a> ()</td></tr>
 <tr class="memdesc:a43d38c4f178863d57fa5957180906851"><td class="mdescLeft">&#160;</td><td class="mdescRight">Counts the number of fissionable flat source regions.  <a href="#a43d38c4f178863d57fa5957180906851">More...</a><br/></td></tr>
 <tr class="separator:a43d38c4f178863d57fa5957180906851"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeab07b86fb26ba8be22d525cba33c4f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#afeab07b86fb26ba8be22d525cba33c4f">initializeCmfd</a> ()</td></tr>
 <tr class="memdesc:afeab07b86fb26ba8be22d525cba33c4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object for acceleratiion prior to source iteration.  <a href="#afeab07b86fb26ba8be22d525cba33c4f">More...</a><br/></td></tr>
 <tr class="separator:afeab07b86fb26ba8be22d525cba33c4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c8be124257c94a96b1d82a6fb8c4c23"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a4c8be124257c94a96b1d82a6fb8c4c23">fissionTransportSweep</a> ()</td></tr>
+<tr class="memdesc:a4c8be124257c94a96b1d82a6fb8c4c23"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs one transport sweep using the fission source.  <a href="#a4c8be124257c94a96b1d82a6fb8c4c23">More...</a><br/></td></tr>
+<tr class="separator:a4c8be124257c94a96b1d82a6fb8c4c23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a291ec2929b42d337f1a21639564056"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a1a291ec2929b42d337f1a21639564056">scatterTransportSweep</a> ()</td></tr>
+<tr class="memdesc:a1a291ec2929b42d337f1a21639564056"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs one transport sweep using the scatter source.  <a href="#a1a291ec2929b42d337f1a21639564056">More...</a><br/></td></tr>
+<tr class="separator:a1a291ec2929b42d337f1a21639564056"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a916eb7ef96140e1ea2d22bb9d1c86240"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">initializeFluxArrays</a> ()=0</td></tr>
+<tr class="memdesc:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular and FSR scalar flux arrays. <br/></td></tr>
+<tr class="separator:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8592d819738b24a5b983e54c0a635d30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8592d819738b24a5b983e54c0a635d30"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a8592d819738b24a5b983e54c0a635d30">initializeSourceArrays</a> ()=0</td></tr>
+<tr class="memdesc:a8592d819738b24a5b983e54c0a635d30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates memory for FSR source arrays. <br/></td></tr>
+<tr class="separator:a8592d819738b24a5b983e54c0a635d30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9960f6987c85a3d8e670beb10a9fbb2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac9960f6987c85a3d8e670beb10a9fbb2"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac9960f6987c85a3d8e670beb10a9fbb2">zeroTrackFluxes</a> ()=0</td></tr>
 <tr class="memdesc:ac9960f6987c85a3d8e670beb10a9fbb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s boundary fluxes for each energy group and polar angle in the "forward" and "reverse" directions. <br/></td></tr>
@@ -262,6 +259,14 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae2cd5efe819275adf36380121c9064d1">computeFSRSources</a> ()=0</td></tr>
 <tr class="memdesc:ae2cd5efe819275adf36380121c9064d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the total source (fission, scattering, fixed) for each FSR and energy group. <br/></td></tr>
 <tr class="separator:ae2cd5efe819275adf36380121c9064d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a662276fda4135fe86192cf9d15ededc2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a662276fda4135fe86192cf9d15ededc2"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a662276fda4135fe86192cf9d15ededc2">computeFSRFissionSources</a> ()=0</td></tr>
+<tr class="memdesc:a662276fda4135fe86192cf9d15ededc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the total fission source for each FSR and energy group. <br/></td></tr>
+<tr class="separator:a662276fda4135fe86192cf9d15ededc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a701cc82670eb4560b57ac33bd8ac7b41"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a701cc82670eb4560b57ac33bd8ac7b41"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a701cc82670eb4560b57ac33bd8ac7b41">computeFSRScatterSources</a> ()=0</td></tr>
+<tr class="memdesc:a701cc82670eb4560b57ac33bd8ac7b41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the total scattering source for each FSR and energy group. <br/></td></tr>
+<tr class="separator:a701cc82670eb4560b57ac33bd8ac7b41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a512f94968837c403b90ed20af326036a"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a512f94968837c403b90ed20af326036a">computeResidual</a> (<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type)=0</td></tr>
 <tr class="memdesc:a512f94968837c403b90ed20af326036a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the residual between successive flux/source iterations.  <a href="#a512f94968837c403b90ed20af326036a">More...</a><br/></td></tr>
 <tr class="separator:a512f94968837c403b90ed20af326036a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -275,8 +280,27 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:a431c793e0164e134d35fecf9e1e56434"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab029744c3532b239fab583c4f8d8ea98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab029744c3532b239fab583c4f8d8ea98"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ab029744c3532b239fab583c4f8d8ea98">transportSweep</a> ()=0</td></tr>
-<tr class="memdesc:ab029744c3532b239fab583c4f8d8ea98"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs one transport sweep of all azimuthal angles, Tracks, segments, polar angles and energy groups. <br/></td></tr>
+<tr class="memdesc:ab029744c3532b239fab583c4f8d8ea98"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs one transport swep. <br/></td></tr>
 <tr class="separator:ab029744c3532b239fab583c4f8d8ea98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a277d69530a46b6d42fdf1e968cf768b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a277d69530a46b6d42fdf1e968cf768b6">computeFlux</a> (int max_iters=1000, bool only_fixed_source=true)</td></tr>
+<tr class="memdesc:a277d69530a46b6d42fdf1e968cf768b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the scalar flux distribution by performing a series of transport sweeps.  <a href="#a277d69530a46b6d42fdf1e968cf768b6">More...</a><br/></td></tr>
+<tr class="separator:a277d69530a46b6d42fdf1e968cf768b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63f18f0140ee0dc90a18757bce9734a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a63f18f0140ee0dc90a18757bce9734a8">computeSource</a> (int max_iters=1000, double k_eff=1.0, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828">TOTAL_SOURCE</a>)</td></tr>
+<tr class="memdesc:a63f18f0140ee0dc90a18757bce9734a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the total source distribution by performing a series of transport sweep and source updates.  <a href="#a63f18f0140ee0dc90a18757bce9734a8">More...</a><br/></td></tr>
+<tr class="separator:a63f18f0140ee0dc90a18757bce9734a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18bf2e85828184e7df442b7d31296d99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a18bf2e85828184e7df442b7d31296d99">computeEigenvalue</a> (int max_iters=1000, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea">FISSION_SOURCE</a>)</td></tr>
+<tr class="memdesc:a18bf2e85828184e7df442b7d31296d99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes keff by performing a series of transport sweep and source updates.  <a href="#a18bf2e85828184e7df442b7d31296d99">More...</a><br/></td></tr>
+<tr class="separator:a18bf2e85828184e7df442b7d31296d99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a1bb7fc290b71e0010d9ab17c1e3fb6e8">computeFSRFissionRates</a> (double *fission_rates, int num_FSRs)=0</td></tr>
+<tr class="memdesc:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the volume-weighted, energy integrated fission rate in each FSR and stores them in an array indexed by FSR ID.  <a href="#a1bb7fc290b71e0010d9ab17c1e3fb6e8">More...</a><br/></td></tr>
+<tr class="separator:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeec2b08ba9d6be88cf08f1fc02658500"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeec2b08ba9d6be88cf08f1fc02658500"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aeec2b08ba9d6be88cf08f1fc02658500">printTimerReport</a> ()</td></tr>
+<tr class="memdesc:aeec2b08ba9d6be88cf08f1fc02658500"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a report of the timing statistics to the console. <br/></td></tr>
+<tr class="separator:aeec2b08ba9d6be88cf08f1fc02658500"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
 <tr class="memitem:a4f6e2e3069aa9404fefd62be376e8390"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f6e2e3069aa9404fefd62be376e8390"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a4f6e2e3069aa9404fefd62be376e8390">clearTimerSplits</a> ()</td></tr>
 <tr class="memdesc:a4f6e2e3069aa9404fefd62be376e8390"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes the <a class="el" href="classTimer.html" title="The Timer class is for timing and profiling regions of code. ">Timer</a>'s timing entries for each timed code section code in the source convergence loop. <br/></td></tr>
@@ -334,10 +358,14 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ac1ecd090674688dc587be3e09f20cba3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a999862f5161f68900b1920165bd79ea8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classExpEvaluator.html">ExpEvaluator</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a999862f5161f68900b1920165bd79ea8">_exp_evaluator</a></td></tr>
 <tr class="separator:a999862f5161f68900b1920165bd79ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4b5e657248e2440bbc128934b3e9463"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac4b5e657248e2440bbc128934b3e9463">_user_fluxes</a></td></tr>
+<tr class="separator:ac4b5e657248e2440bbc128934b3e9463"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3cab54ec3cb374d796180b94201276ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTimer.html">Timer</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a3cab54ec3cb374d796180b94201276ec">_timer</a></td></tr>
 <tr class="separator:a3cab54ec3cb374d796180b94201276ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a5155c5a727f2bff2e0fc538bbdd1e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classCmfd.html">Cmfd</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a7a5155c5a727f2bff2e0fc538bbdd1e2">_cmfd</a></td></tr>
 <tr class="separator:a7a5155c5a727f2bff2e0fc538bbdd1e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e84f40ecede91b27e6b05c30519d071"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a9e84f40ecede91b27e6b05c30519d071">_num_parallel_track_groups</a></td></tr>
+<tr class="separator:a9e84f40ecede91b27e6b05c30519d071"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This is an abstract base class which different <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> subclasses implement for different architectures or source iteration algorithms. </p>
@@ -552,7 +580,7 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -566,7 +594,7 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the total residual summed over FSRs and energy groups </dd></dl>
 
-<p>Implemented in <a class="el" href="classCPUSolver.html#ac6438df84b52fa1f0e3a98e6288e84c1">CPUSolver</a>.</p>
+<p>Implemented in <a class="el" href="classGPUSolver.html#aec570126b75e125780191dfdd7e7ed7c">GPUSolver</a>, and <a class="el" href="classCPUSolver.html#ac6438df84b52fa1f0e3a98e6288e84c1">CPUSolver</a>.</p>
 
 </div>
 </div>
@@ -638,13 +666,39 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 <p>Counts the number of fissionable flat source regions. </p>
 <p>This routine is used by the <a class="el" href="classSolver.html#a18bf2e85828184e7df442b7d31296d99" title="Computes keff by performing a series of transport sweep and source updates. ">Solver::computeEigenvalue</a>(...) routine which uses the number of fissionable FSRs to normalize the residual on the fission source distribution. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4c8be124257c94a96b1d82a6fb8c4c23"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::fissionTransportSweep </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This method performs one transport sweep using the fission source. </p>
+<p>This is a helper routine used for Krylov subspace methods. </p>
 
 </div>
 </div>
@@ -665,7 +719,7 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -678,7 +732,7 @@ Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p>Implemented in <a class="el" href="classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102">CPUSolver</a>.</p>
+<p>Implemented in <a class="el" href="classGPUSolver.html#ad9da754a6838a033f78023ae39fb0402">GPUSolver</a>, and <a class="el" href="classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102">CPUSolver</a>.</p>
 
 </div>
 </div>
@@ -700,7 +754,7 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aeb787956a7bd88aca5a1e44a8ae1c9b1"></a>
+<a class="anchor" id="a0baf2ee72018ebc3c083141813b4e6ff"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -708,7 +762,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">FP_PRECISION Solver::getFSRScalarFlux </td>
+          <td class="memname">FP_PRECISION Solver::getFlux </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>fsr_id</em>, </td>
@@ -742,7 +796,7 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the FSR scalar flux </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classGPUSolver.html#ac2d7d22df0458ff93e619fa80d418416">GPUSolver</a>.</p>
+<p>Reimplemented in <a class="el" href="classGPUSolver.html#ae8a8f2973b40c9829f5d3ad940206945">GPUSolver</a>.</p>
 
 </div>
 </div>
@@ -960,7 +1014,7 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -986,7 +1040,7 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -994,7 +1048,7 @@ Protected Attributes</h2></td></tr>
 <p>Initializes the FSR volumes and Materials array. </p>
 <p>This method assigns each FSR a unique, monotonically increasing ID, sets the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> for each FSR, and assigns a volume based on the cumulative length of all of the segments inside the FSR. </p>
 
-<p>Reimplemented in <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>.</p>
+<p>Reimplemented in <a class="el" href="classGPUSolver.html#ab3c55b3861d4ec4064630a417cf210eb">GPUSolver</a>, and <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>.</p>
 
 </div>
 </div>
@@ -1014,13 +1068,15 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 <p>Initializes a new <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object. </p>
 <p>Deletes memory old <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> if one was previously allocated. </p>
+
+<p>Reimplemented in <a class="el" href="classGPUSolver.html#ab0035af3ba27d060628853b16d098cd4">GPUSolver</a>.</p>
 
 </div>
 </div>
@@ -1057,6 +1113,32 @@ Protected Attributes</h2></td></tr>
 
 <p>Returns whether the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> uses linear interpolation to compute exponentials. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if using linear interpolation to compute exponentials </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1a291ec2929b42d337f1a21639564056"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::scatterTransportSweep </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>This method performs one transport sweep using the scatter source. </p>
+<p>This is a helper routine used for Krylov subspace methods. </p>
 
 </div>
 </div>
@@ -1341,7 +1423,7 @@ Protected Attributes</h2></td></tr>
 <p>Assign a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>. </p>
 <p>This routine allows use of a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> with any polar angle quadrature. Alternatively, this routine may take in any subclass of the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> parent class, including <a class="el" href="classTYPolarQuad.html" title="Tabuchi-Yamamoto&#39;s polar quadrature. ">TYPolarQuad</a> (default), <a class="el" href="classLeonardPolarQuad.html" title="Leonard&#39;s polar quadrature. ">LeonardPolarQuad</a>, <a class="el" href="classGLPolarQuad.html" title="Gauss-Legendre&#39;s polar quadrature. ">GLPolarQuad</a>, etc.</p>
 <p>Users may assign a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> from Python script as follows:</p>
-<div class="fragment"><div class="line">polar_quad = <a class="code" href="namespaceopenmoc_1_1log.html#aba53740608da72a6ff5857ab332fc48d">openmoc</a>.LeonardPolarQuad()</div>
+<div class="fragment"><div class="line">polar_quad = openmoc.LeonardPolarQuad()</div>
 <div class="line">polar_quad.setNumPolarAngles(2)</div>
 <div class="line">solver.setPolarQuadrature(polar_quad)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
@@ -1472,7 +1554,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>En <a class="el" href="classExpEvaluator.html" title="This is a class for evaluating exponentials. ">ExpEvaluator</a> to compute exponentials in the transport equation </p>
+<p>An <a class="el" href="classExpEvaluator.html" title="This is a class for evaluating exponentials. ">ExpEvaluator</a> to compute exponentials in the transport equation </p>
 
 </div>
 </div>
@@ -1707,6 +1789,27 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a9e84f40ecede91b27e6b05c30519d071"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Solver::_num_parallel_track_groups</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The number of groups of tracks that can be looped over in parallel without data races between threads </p>
+
+</div>
+</div>
 <a class="anchor" id="a49cc179a9f47c5ca5f6d19c954d680ad"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1938,6 +2041,27 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ac4b5e657248e2440bbc128934b3e9463"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Solver::_user_fluxes</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Indicator of whether the flux array is defined by the user </p>
+
+</div>
+</div>
 <a class="anchor" id="ad1f22a0b48917197634d9fa56cdfaa1d"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1960,8 +2084,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/Solver.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/Solver.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1969,7 +2093,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classSolver.html">Solver</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

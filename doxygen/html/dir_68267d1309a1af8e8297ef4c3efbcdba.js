@@ -14,6 +14,9 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "LocalCoords.h", "LocalCoords_8h.html", "LocalCoords_8h" ],
     [ "log.h", "log_8h.html", "log_8h" ],
     [ "Material.h", "Material_8h.html", "Material_8h" ],
+    [ "Matrix.h", "Matrix_8h.html", [
+      [ "Matrix", "classMatrix.html", "classMatrix" ]
+    ] ],
     [ "pairwise_sum.h", "pairwise__sum_8h.html", "pairwise__sum_8h" ],
     [ "ParallelHashMap.h", "ParallelHashMap_8h.html", [
       [ "FixedHashMap", "classFixedHashMap.html", "classFixedHashMap" ],
@@ -43,5 +46,8 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
       [ "TrackGenerator", "classTrackGenerator.html", "classTrackGenerator" ]
     ] ],
     [ "Universe.h", "Universe_8h.html", "Universe_8h" ],
+    [ "Vector.h", "Vector_8h.html", [
+      [ "Vector", "classVector.html", "classVector" ]
+    ] ],
     [ "VectorizedSolver.h", "VectorizedSolver_8h.html", "VectorizedSolver_8h" ]
 ];

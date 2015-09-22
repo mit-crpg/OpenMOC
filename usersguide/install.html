@@ -28,8 +28,8 @@
     <link rel="next" title="3. Writing Python Input Files" href="input.html" />
     <link rel="prev" title="1. A Beginner’s Guide to OpenMOC" href="beginners.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,23 +41,23 @@
         <li class="right" >
           <a href="beginners.html" title="1. A Beginner’s Guide to OpenMOC"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="installation-and-configuration">
 <span id="install"></span><h1>2. Installation and Configuration<a class="headerlink" href="#installation-and-configuration" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="prerequisites">
 <h2>2.1. Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="ubuntu_prerequisites.html#ubuntu-prerequisites"><em>Installing Prerequisites on Ubuntu</em></a></li>
-<li><a class="reference internal" href="mac_prerequisites.html#mac-prerequisites"><em>Installing Prerequisites on Mac OS X</em></a></li>
+<li><a class="reference internal" href="ubuntu_prerequisites.html#ubuntu-prerequisites"><span>Installing Prerequisites on Ubuntu</span></a></li>
+<li><a class="reference internal" href="mac_prerequisites.html#mac-prerequisites"><span>Installing Prerequisites on Mac OS X</span></a></li>
 </ul>
 </div>
 <div class="section" id="obtaining-the-source">
@@ -77,7 +77,7 @@
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The <a class="reference internal" href="#cmdoption--user"><em class="xref std std-option">--user</em></a> flag should be used verbatim and should <strong>NOT</strong> be replaced with your username.</p>
+<p class="last">The <a class="reference internal" href="#cmdoption--user"><code class="xref std std-option docutils literal"><span class="pre">--user</span></code></a> flag should be used verbatim and should <strong>NOT</strong> be replaced with your username.</p>
 </div>
 <p>To compile and install the code in the directory of all Python packages accessible to all users of your machine (not recommended), run the following command:</p>
 <div class="highlight-python"><div class="highlight"><pre>python setup.py install
@@ -106,55 +106,55 @@ The main OpenMOC Python package can be imported into any Python script as follow
 <p>This section section will provides an overview of the most useful and relevant build options for OpenMOC developers.</p>
 <dl class="option">
 <dt id="cmdoption--user">
-<tt class="descname">--user</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--user" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--user</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--user" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>Installs OpenMOC in a user local directory (ie, <cite>/home/username/.local/lib/pythonX.X/site-packages</cite>) where it will only be accessible to your username. Installation without this option will instead install OpenMOC in the main Python directory accessible to all users of your machine (ie, <cite>/usr/lib/pythonX.X/site-packages/</cite>). This option is highly recommended for developers as it will prevent your Python packages from being polluted with code that has not yet been validated.</p>
 <dl class="option">
 <dt id="cmdoption--prefix">
-<tt class="descname">--prefix</tt><tt class="descclassname">=&lt;path to install OpenMOC&gt;</tt><a class="headerlink" href="#cmdoption--prefix" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--prefix</code><code class="descclassname">=&lt;path to install OpenMOC&gt;</code><a class="headerlink" href="#cmdoption--prefix" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Installs OpenMOC to an explicitly defined directory. This options is generally not useful unless your directory is included in your <span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></tt> such that you can import <tt class="docutils literal"><span class="pre">openmoc</span></tt> into your Python scripts.</p>
+<p>Installs OpenMOC to an explicitly defined directory. This options is generally not useful unless your directory is included in your <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></code> such that you can import <code class="docutils literal"><span class="pre">openmoc</span></code> into your Python scripts.</p>
 <dl class="option">
 <dt id="cmdoption--cc">
-<tt class="descname">--cc</tt><tt class="descclassname">=&lt;gcc,icpc,clang,bgxlc&gt;</tt><a class="headerlink" href="#cmdoption--cc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--cc</code><code class="descclassname">=&lt;gcc,icpc,clang,bgxlc&gt;</code><a class="headerlink" href="#cmdoption--cc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Sets the C++ compiler for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. Presently, GNU&#8217;s <a class="reference external" href="http://gcc.gnu.org/">gcc</a>, Intel&#8217;s <a class="reference external" href="http://software.intel.com/en-us/intel-compilers">icpc</a>, Apple&#8217;s <a class="reference external" href="http://clang.llvm.org/">clang</a> and IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/software/products/us/en/ccompfami/">bgxlc</a> are all configured if the path to the binary is pointed to by by the <span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">PATH</span></tt> environment variable. The default setting is the <strong class="program">gcc</strong> compiler.</p>
+<p>Sets the C++ compiler for the main <code class="docutils literal"><span class="pre">openmoc</span></code> module. Presently, GNU&#8217;s <a class="reference external" href="http://gcc.gnu.org/">gcc</a>, Intel&#8217;s <a class="reference external" href="http://software.intel.com/en-us/intel-compilers">icpc</a>, Apple&#8217;s <a class="reference external" href="http://clang.llvm.org/">clang</a> and IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/software/products/us/en/ccompfami/">bgxlc</a> are all configured if the path to the binary is pointed to by by the <span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal"><span class="pre">PATH</span></code> environment variable. The default setting is the <strong class="program">gcc</strong> compiler.</p>
 <dl class="option">
 <dt id="cmdoption--fp">
-<tt class="descname">--fp</tt><tt class="descclassname">=&lt;single,double&gt;</tt><a class="headerlink" href="#cmdoption--fp" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--fp</code><code class="descclassname">=&lt;single,double&gt;</code><a class="headerlink" href="#cmdoption--fp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Sets the floating point precision level for the main <tt class="docutils literal"><span class="pre">openmoc</span></tt> module. This sets the <span class="target" id="index-2"></span><tt class="xref std std-envvar docutils literal"><span class="pre">FP_PRECISION</span></tt> macro in the source code by setting it as an environment variable at compile time. The default setting is <span class="target" id="index-3"></span><tt class="xref std std-envvar docutils literal"><span class="pre">single</span></tt>.</p>
+<p>Sets the floating point precision level for the main <code class="docutils literal"><span class="pre">openmoc</span></code> module. This sets the <span class="target" id="index-2"></span><code class="xref std std-envvar docutils literal"><span class="pre">FP_PRECISION</span></code> macro in the source code by setting it as an environment variable at compile time. The default setting is <span class="target" id="index-3"></span><code class="xref std std-envvar docutils literal"><span class="pre">single</span></code>.</p>
 <dl class="option">
 <dt id="cmdoption--with-cuda">
-<tt class="descname">--with-cuda</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-cuda" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--with-cuda</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--with-cuda" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Compiles the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module using the <strong class="program">nvcc</strong> compiler. This module contains <tt class="xref cpp cpp-class docutils literal"><span class="pre">GPUSolver</span></tt> class with MOC routines for execution on NVIDIA GPUs. The default build configuration does not include the <tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt> module.</p>
+<p>Compiles the <code class="docutils literal"><span class="pre">openmoc.cuda</span></code> module using the <strong class="program">nvcc</strong> compiler. This module contains <code class="xref cpp cpp-class docutils literal"><span class="pre">GPUSolver</span></code> class with MOC routines for execution on NVIDIA GPUs. The default build configuration does not include the <code class="docutils literal"><span class="pre">openmoc.cuda</span></code> module.</p>
 <dl class="option">
 <dt id="cmdoption--debug-mode">
-<tt class="descname">--debug-mode</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--debug-mode" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--debug-mode</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--debug-mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Compiles with debugging symbols and information by including the <span class="target" id="index-4"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-g</span></tt> compile flag.</p>
+<p>Compiles with debugging symbols and information by including the <span class="target" id="index-4"></span><code class="xref std std-envvar docutils literal"><span class="pre">-g</span></code> compile flag.</p>
 <dl class="option">
 <dt id="cmdoption--profile-mode">
-<tt class="descname">--profile-mode</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--profile-mode" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--profile-mode</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--profile-mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Compiles with profiling information by including the <span class="target" id="index-5"></span><tt class="xref std std-envvar docutils literal"><span class="pre">-p</span></tt> compile flag.</p>
+<p>Compiles with profiling information by including the <span class="target" id="index-5"></span><code class="xref std std-envvar docutils literal"><span class="pre">-p</span></code> compile flag.</p>
 <dl class="option">
 <dt id="cmdoption--no-numpy">
-<tt class="descname">--no-numpy</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--no-numpy" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--no-numpy</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--no-numpy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>Compiles OpenMOC without embedding the NumPy C API. This is severely limiting for integrating both OpenMOC source convergence calculations and data analysis into Python, but may be necessary on some machines such as IBM&#8217;s <a class="reference external" href="http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/">BlueGene</a> where NumPy is not a standard package.</p>
 <dl class="option">
 <dt id="cmdoption--with-ccache">
-<tt class="descname">--with-ccache</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--with-ccache" title="Permalink to this definition">¶</a></dt>
+<code class="descname">--with-ccache</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--with-ccache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>Compiles using <a class="reference external" href="http://ccache.samba.org">ccache</a> which uses a cache to speedup compilation of unchanged source files with the binaries from previous compilations. This flag is only relevant for developers needing to frequently recompile the source code. The ccache p]rogram must be installed for this flag to work. The following console command will install ccache on Ubuntu:</p>
@@ -173,7 +173,7 @@ The main OpenMOC Python package can be imported into any Python script as follow
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -200,12 +200,14 @@ The main OpenMOC Python package can be imported into any Python script as follow
   <h4>Next topic</h4>
   <p class="topless"><a href="input.html"
                         title="next chapter">3. Writing Python Input Files</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/usersguide/install.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usersguide/install.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -222,7 +224,7 @@ The main OpenMOC Python package can be imported into any Python script as follow
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -234,14 +236,14 @@ The main OpenMOC Python package can be imported into any Python script as follow
         <li class="right" >
           <a href="beginners.html" title="1. A Beginner’s Guide to OpenMOC"
              >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
 <script type="text/javascript">
 

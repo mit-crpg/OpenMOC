@@ -215,8 +215,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:a38533bf0415df3a7a1f5b6fef25abef5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell index that a point lies in.  <a href="#a38533bf0415df3a7a1f5b6fef25abef5">More...</a><br/></td></tr>
 <tr class="separator:a38533bf0415df3a7a1f5b6fef25abef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6de3cb1e21977cdb282869a38ba1d917"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLattice.html#a6de3cb1e21977cdb282869a38ba1d917">getLatticeSurface</a> (int cell, <a class="el" href="classPoint.html">Point</a> *point)</td></tr>
-<tr class="memdesc:a6de3cb1e21977cdb282869a38ba1d917"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell surface that a point lies on. If the point is not on a surface, -1 is returned.  <a href="#a6de3cb1e21977cdb282869a38ba1d917">More...</a><br/></td></tr>
+<tr class="memdesc:a6de3cb1e21977cdb282869a38ba1d917"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell surface that a point lies on. If the point is not on exactly one surface, -1 is returned.  <a href="#a6de3cb1e21977cdb282869a38ba1d917">More...</a><br/></td></tr>
 <tr class="separator:a6de3cb1e21977cdb282869a38ba1d917"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a487b37e78f5332709d2acf00ff58ebd1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLattice.html#a487b37e78f5332709d2acf00ff58ebd1">getLatticeCorner</a> (int cell, <a class="el" href="classPoint.html">Point</a> *point)</td></tr>
+<tr class="memdesc:a487b37e78f5332709d2acf00ff58ebd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell corner that a point lies on. If the point is on exactly one surface, -1 is returned.  <a href="#a487b37e78f5332709d2acf00ff58ebd1">More...</a><br/></td></tr>
+<tr class="separator:a487b37e78f5332709d2acf00ff58ebd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a593784a7777ed4d3806fa2a93953eeaa"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLattice.html#a593784a7777ed4d3806fa2a93953eeaa">getDistanceToSurface</a> (int cell, <a class="el" href="classPoint.html">Point</a> *point, int surface)</td></tr>
+<tr class="memdesc:a593784a7777ed4d3806fa2a93953eeaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the distance from a point to a particular lattice cell surface.  <a href="#a593784a7777ed4d3806fa2a93953eeaa">More...</a><br/></td></tr>
+<tr class="separator:a593784a7777ed4d3806fa2a93953eeaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85eb51407b84e29d55f300e06b29f9b4"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLattice.html#a85eb51407b84e29d55f300e06b29f9b4">toString</a> ()</td></tr>
 <tr class="memdesc:a85eb51407b84e29d55f300e06b29f9b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a>'s attributes to a character array representation.  <a href="#a85eb51407b84e29d55f300e06b29f9b4">More...</a><br/></td></tr>
 <tr class="separator:a85eb51407b84e29d55f300e06b29f9b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -454,6 +460,49 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a593784a7777ed4d3806fa2a93953eeaa"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Lattice::getDistanceToSurface </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>cell</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classPoint.html">Point</a> *&#160;</td>
+          <td class="paramname"><em>point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>surface</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Finds the distance from a point to a particular lattice cell surface. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cell</td><td>the cell index that the point is in. </td></tr>
+    <tr><td class="paramname">point</td><td>a pointer to a point being evaluated. </td></tr>
+    <tr><td class="paramname">surface</td><td>a surface id to get the distance to. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the distance to the lattice cell surface of interest. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a38533bf0415df3a7a1f5b6fef25abef5"></a>
 <div class="memitem">
 <div class="memproto">
@@ -477,6 +526,43 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell index. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a487b37e78f5332709d2acf00ff58ebd1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Lattice::getLatticeCorner </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>cell</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classPoint.html">Point</a> *&#160;</td>
+          <td class="paramname"><em>point</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Finds the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell corner that a point lies on. If the point is on exactly one surface, -1 is returned. </p>
+<p>The surface and corner indices are defined in the <a class="el" href="constants_8h.html" title="Math constants and comparision tolerances. ">constants.h</a> file and the index returned takes into account the cell index and returns NUM_SURFACES * cell_index + corner_index. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cell</td><td>the cell index that the point is in. </td></tr>
+    <tr><td class="paramname">point</td><td>a pointer to a point being evaluated. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> corner index. </dd></dl>
 
 </div>
 </div>
@@ -504,8 +590,8 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Finds the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell surface that a point lies on. If the point is not on a surface, -1 is returned. </p>
-<p>The surface indices for a lattice cell are 0 (left), 1, (bottom), 2 (right), 3 (top), 4 (bottom-left corner), 5 (bottom-right corner), 6 (top-right corner), and 7 (top-left corner). The index returned takes into account the cell index and returns 8*cell_index + surface_index. </p>
+<p>Finds the <a class="el" href="classLattice.html" title="Represents a repeating 2D Lattice of Universes. ">Lattice</a> cell surface that a point lies on. If the point is not on exactly one surface, -1 is returned. </p>
+<p>The surface indices are defined in the <a class="el" href="constants_8h.html" title="Math constants and comparision tolerances. ">constants.h</a> file and the index returned takes into account the cell index and returns NUM_SURFACES * cell_index + surface_index. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">cell</td><td>the cell index that the point is in. </td></tr>
@@ -1122,8 +1208,8 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Universe_8h_source.html">Universe.h</a></li>
-<li>/home/geogunow/OpenMOC/OpenMOC/src/Universe.cpp</li>
+<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Universe_8h_source.html">Universe.h</a></li>
+<li>/home/wboyd/Desktop/OpenMOC/src/Universe.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1131,7 +1217,7 @@ Additional Inherited Members</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classLattice.html">Lattice</a></li>
-    <li class="footer">Generated on Thu Jul 30 2015 16:29:04 by
+    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

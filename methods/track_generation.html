@@ -28,8 +28,8 @@
     <link rel="next" title="6. Coarse Mesh Finite Difference Acceleration" href="cmfd.html" />
     <link rel="prev" title="4. Constructive Solid Geometry" href="constructive_solid_geometry.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,25 +41,25 @@
         <li class="right" >
           <a href="constructive_solid_geometry.html" title="4. Constructive Solid Geometry"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="track-generation">
 <span id="id1"></span><h1>5. Track Generation<a class="headerlink" href="#track-generation" title="Permalink to this headline">¶</a></h1>
 <p>The method of characteristics uses tracks across the geometry to discretize the azimuthal and polar angle domains as well as the spatial domain. The way in which an MOC code generates tracks affects the quadrature weights <img class="math" src="../_images/math/de0d3e1c3e8c05c6c08b5e454201672d3b015463.png" alt="w_{p}"/>, <img class="math" src="../_images/math/4a18465cc1478f6ef907bd0721439f202c7b4008.png" alt="w_{m}"/>, and <img class="math" src="../_images/math/ca99756e8e4a364556f4c19165ea3f68901089ef.png" alt="w_{k}"/> used to compute the angular and spatial integrals in the transport equation. This section describes the methodology used to generate tracks in OpenMOC and the corresponding angular and spatial quadrature weights.</p>
 <div class="section" id="cylic-tracks">
 <span id="cyclic-tracks"></span><h2>5.1. Cylic Tracks<a class="headerlink" href="#cylic-tracks" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC uses <em>global tracking</em> such that each track spans the entire extent of the simulation domain. By symmetry, tracks only need to be represented for azimuthal angles in the range <img class="math" src="../_images/math/6895b6524163cabd1fce0d1364163eb791e15dad.png" alt="\phi \in [0, \pi]"/> since a track with angle <img class="math" src="../_images/math/10e009bdb83f96c5f47c58b34d5d4b12ef268d5b.png" alt="\phi"/> will have the same start and end points as a track with angle <img class="math" src="../_images/math/17ef1022260c45e60abddf784ff7f801076a5e40.png" alt="\phi + \pi"/>. <em>Complementary angles</em> are pairs of angles <img class="math" src="../_images/math/c4902b123dafcd1b5e96cc446d5a2a3d90265e2c.png" alt="(\phi, \alpha)"/> in the azimuthal quadrature where <img class="math" src="../_images/math/7f82331030dd64a74d98039ff7221314c823e6a1.png" alt="\alpha = \pi - \phi"/>. Tracks for complementary angles have a <em>track spacing</em> such that they intersect at the boundaries of the geometry and form closed cycles. An illustration of OpenMOC&#8217;s track layout for eight azimuthal angles is given in <a class="reference internal" href="#figure-cyclic-tracks"><em>Figure 1</em></a>.</p>
-<div class="align-center figure" id="figure-cyclic-tracks">
-<a class="reference internal image-reference" href="../_images/cyclic-tracks.png"><img alt="../_images/cyclic-tracks.png" src="../_images/cyclic-tracks.png" style="width: 300px;" /></a>
-<p class="caption"><strong>Figure 1</strong>: Global cylic tracks across a square.</p>
+<p>OpenMOC uses <em>global tracking</em> such that each track spans the entire extent of the simulation domain. By symmetry, tracks only need to be represented for azimuthal angles in the range <img class="math" src="../_images/math/6895b6524163cabd1fce0d1364163eb791e15dad.png" alt="\phi \in [0, \pi]"/> since a track with angle <img class="math" src="../_images/math/10e009bdb83f96c5f47c58b34d5d4b12ef268d5b.png" alt="\phi"/> will have the same start and end points as a track with angle <img class="math" src="../_images/math/17ef1022260c45e60abddf784ff7f801076a5e40.png" alt="\phi + \pi"/>. <em>Complementary angles</em> are pairs of angles <img class="math" src="../_images/math/c4902b123dafcd1b5e96cc446d5a2a3d90265e2c.png" alt="(\phi, \alpha)"/> in the azimuthal quadrature where <img class="math" src="../_images/math/7f82331030dd64a74d98039ff7221314c823e6a1.png" alt="\alpha = \pi - \phi"/>. Tracks for complementary angles have a <em>track spacing</em> such that they intersect at the boundaries of the geometry and form closed cycles. An illustration of OpenMOC&#8217;s track layout for eight azimuthal angles is given in <a class="reference internal" href="#figure-cyclic-tracks"><span>Figure 1</span></a>.</p>
+<div class="align-center figure" id="id8">
+<span id="figure-cyclic-tracks"></span><a class="reference internal image-reference" href="../_images/cyclic-tracks.png"><img alt="../_images/cyclic-tracks.png" src="../_images/cyclic-tracks.png" style="width: 300px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 1</strong>: Global cylic tracks across a square.</span></p>
 </div>
 <p>Cyclic tracking is important since it allows for a simple treatment of reflective boundary conditions. Boundary conditions must be respected for the track outgoing fluxes at each iteration. Vacuum boundary conditions on a surface can be implemented for the MOC formulation by ensuring that each track originating along that surface has zero incoming flux, while tallying outgoing flux as leakage. Reflective boundary conditions are easily implemented since complementary angles guarantee that tracks wrap around the geometry in closed cycles. No approximations need to be made for each track&#8217;s incoming flux since it is exactly the outgoing flux of another track in the cycle.</p>
 <p>The key parameters necessary for track generation in an OpenMOC simulation are the number of azimuthal angles <img class="math" src="../_images/math/23bc4514ecb25618b6df976903fd229f9646bbfa.png" alt="n_{a}"/>, the spacing between tracks <img class="math" src="../_images/math/d104947ac01177c2ee1e736751b35ec66dd28fa8.png" alt="t_{s}"/>, and the total width and height of the geometry, <img class="math" src="../_images/math/8659700e6646cd91bc02c32affaa5ec046ee9935.png" alt="w"/> and <img class="math" src="../_images/math/cbb80ad77aa7a5e227d5a46bc44d235284106cfc.png" alt="h"/>, respectively. OpenMOC computes the appropriate azimuthal angles to form cyclic tracks prior to track generation and ray tracing. The algorithm used by OpenMOC attempts to divide up the azimuthal space <img class="math" src="../_images/math/7fb3ef29eddf02871b48acad7a187b09fa66cb5c.png" alt="\phi \in [0, 2\pi]"/> as evenly as possible. In particular, for index <img class="math" src="../_images/math/124bb7e772139b08c66d9da5c866016068ed7119.png" alt="m \in \{1, 2, ..., M\}"/>, the desired azimuthal angle <img class="math" src="../_images/math/06d72499c4b6baefb2d5f45d9e1bb372a2a12cf3.png" alt="\phi_{m}"/> is the following:</p>
@@ -110,21 +110,21 @@
 <p>The following four sections describe each of the algorithms used to perform each of these four ray tracing operations in OpenMOC.</p>
 <div class="section" id="universe-finding-algorithm">
 <span id="id5"></span><h3>5.4.1. Universe-Finding Algorithm<a class="headerlink" href="#universe-finding-algorithm" title="Permalink to this headline">¶</a></h3>
-<p>The first algorithm needed for track segmentation is the ability to find the universe corresponding to a given location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/>. The universe-finding algorithm used in OpenMOC is described in <a class="reference internal" href="#algorithm-find-universe"><em>Algorithm 1</em></a>. This algorithm requires the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> input along with the outermost lattice <img class="math" src="../_images/math/0a5711c7a37994043b2bc3bb374adca232491762.png" alt="L"/> in the model. The algorithm computes the lattice cell in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides and either returns the universe filling that lattice cell, or recursively calls itself using the lattice filling the lattice cell. In the latter case, the coordinates of the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> must first be translated to the <em>local coordinate system</em> within the lattice cell, as reflected in <a class="reference internal" href="#algorithm-find-universe"><em>Algorithm 1</em></a>. The algorithm completes by returning the universe along with the coordinates of the location within the universe&#8217;s local coordinate system.</p>
-<div class="align-center figure" id="algorithm-find-universe">
-<a class="reference internal image-reference" href="../_images/find-universe-algorithm.png"><img alt="../_images/find-universe-algorithm.png" src="../_images/find-universe-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 1</strong>: Universe-finding algorithm.</p>
+<p>The first algorithm needed for track segmentation is the ability to find the universe corresponding to a given location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/>. The universe-finding algorithm used in OpenMOC is described in <a class="reference internal" href="#algorithm-find-universe"><span>Algorithm 1</span></a>. This algorithm requires the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> input along with the outermost lattice <img class="math" src="../_images/math/0a5711c7a37994043b2bc3bb374adca232491762.png" alt="L"/> in the model. The algorithm computes the lattice cell in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides and either returns the universe filling that lattice cell, or recursively calls itself using the lattice filling the lattice cell. In the latter case, the coordinates of the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> must first be translated to the <em>local coordinate system</em> within the lattice cell, as reflected in <a class="reference internal" href="#algorithm-find-universe"><span>Algorithm 1</span></a>. The algorithm completes by returning the universe along with the coordinates of the location within the universe&#8217;s local coordinate system.</p>
+<div class="align-center figure" id="id9">
+<span id="algorithm-find-universe"></span><a class="reference internal image-reference" href="../_images/find-universe-algorithm.png"><img alt="../_images/find-universe-algorithm.png" src="../_images/find-universe-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 1</strong>: Universe-finding algorithm.</span></p>
 </div>
-<p><a class="reference internal" href="#figure-nested-lattice-coordinates"><em>Figure 2</em></a> illustrates one possible model with two <em>nested lattices</em> and the local coordinate transformations made using this algorithm. Here, <img class="math" src="../_images/math/1cc1f1fcabdfac29dbf924b2d676a9127ac23124.png" alt="n_{x}"/> and <img class="math" src="../_images/math/b724942c3d198b9ff61126a443d743ea717599dd.png" alt="n_{y}"/> represent the number of lattice cells along the <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/> and <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/> axes, while <img class="math" src="../_images/math/cbb80ad77aa7a5e227d5a46bc44d235284106cfc.png" alt="h"/> and <img class="math" src="../_images/math/8659700e6646cd91bc02c32affaa5ec046ee9935.png" alt="w"/> represent the total height and width of the lattice, respectively. Numerical subscripts are used to identify the appropriate lattice level.</p>
-<div class="align-center figure" id="figure-nested-lattice-coordinates">
-<a class="reference internal image-reference" href="../_images/nested-coordinates.png"><img alt="../_images/nested-coordinates.png" src="../_images/nested-coordinates.png" style="width: 400px;" /></a>
-<p class="caption"><strong>Figure 2</strong>: Local coordinates within nested lattices.</p>
+<p><a class="reference internal" href="#figure-nested-lattice-coordinates"><span>Figure 2</span></a> illustrates one possible model with two <em>nested lattices</em> and the local coordinate transformations made using this algorithm. Here, <img class="math" src="../_images/math/1cc1f1fcabdfac29dbf924b2d676a9127ac23124.png" alt="n_{x}"/> and <img class="math" src="../_images/math/b724942c3d198b9ff61126a443d743ea717599dd.png" alt="n_{y}"/> represent the number of lattice cells along the <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/> and <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/> axes, while <img class="math" src="../_images/math/cbb80ad77aa7a5e227d5a46bc44d235284106cfc.png" alt="h"/> and <img class="math" src="../_images/math/8659700e6646cd91bc02c32affaa5ec046ee9935.png" alt="w"/> represent the total height and width of the lattice, respectively. Numerical subscripts are used to identify the appropriate lattice level.</p>
+<div class="align-center figure" id="id10">
+<span id="figure-nested-lattice-coordinates"></span><a class="reference internal image-reference" href="../_images/nested-coordinates.png"><img alt="../_images/nested-coordinates.png" src="../_images/nested-coordinates.png" style="width: 400px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 2</strong>: Local coordinates within nested lattices.</span></p>
 </div>
 <p>The reader should note that this algorithm assumes that <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> is within the bounds of the lattice. In practice, a significant amount of error checking is involved to ensure that this algorithm is robust to user input as well as floating point roundoff errors from the coordinate transformations at each recursive call.</p>
 </div>
 <div class="section" id="cell-finding-algorithm">
 <span id="id6"></span><h3>5.4.2. Cell-Finding Algorithm<a class="headerlink" href="#cell-finding-algorithm" title="Permalink to this headline">¶</a></h3>
-<p>The second algorithm needed for track segmentation is the ability to find the cell corresponding to a given location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/>. The cell-finding algorithm is described in <a class="reference internal" href="#algorithm-find-cell"><em>Algorithm 2</em></a>. The algorithm first finds the universe <img class="math" src="../_images/math/e5fc41b391867da81606413e3389c7efc73abaf0.png" alt="u"/> in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides using <a class="reference internal" href="#algorithm-find-universe"><em>Algorithm 1</em></a>. Next, the algorithm loops over all cells in the universe <img class="math" src="../_images/math/6847f7a46922adc712a70807642f99ac21c4fe11.png" alt="c \in u"/>. For each cell <img class="math" src="../_images/math/65868d23a5bfe5b3b2d819386b19c14fa36af134.png" alt="c"/>, the algorithm iterates over each surface <img class="math" src="../_images/math/030ca9e9132e5293b43b937ca6690f0b5702d7f0.png" alt="s \in c"/> and multiplies the halfspace of the surface in the cell <img class="math" src="../_images/math/b6ba45884c4d4c9474aef3b723242c5f6b6bc762.png" alt="Hf(c,s) = \pm 1"/> with the potential function evaluated at the point of interest <img class="math" src="../_images/math/824c89467322fbc9f8e878fe88c7adfba6cd73a6.png" alt="f_{s}(x,y)"/>. There are three possible outcomes from this computation:</p>
+<p>The second algorithm needed for track segmentation is the ability to find the cell corresponding to a given location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/>. The cell-finding algorithm is described in <a class="reference internal" href="#algorithm-find-cell"><span>Algorithm 2</span></a>. The algorithm first finds the universe <img class="math" src="../_images/math/e5fc41b391867da81606413e3389c7efc73abaf0.png" alt="u"/> in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides using <a class="reference internal" href="#algorithm-find-universe"><span>Algorithm 1</span></a>. Next, the algorithm loops over all cells in the universe <img class="math" src="../_images/math/6847f7a46922adc712a70807642f99ac21c4fe11.png" alt="c \in u"/>. For each cell <img class="math" src="../_images/math/65868d23a5bfe5b3b2d819386b19c14fa36af134.png" alt="c"/>, the algorithm iterates over each surface <img class="math" src="../_images/math/030ca9e9132e5293b43b937ca6690f0b5702d7f0.png" alt="s \in c"/> and multiplies the halfspace of the surface in the cell <img class="math" src="../_images/math/b6ba45884c4d4c9474aef3b723242c5f6b6bc762.png" alt="Hf(c,s) = \pm 1"/> with the potential function evaluated at the point of interest <img class="math" src="../_images/math/824c89467322fbc9f8e878fe88c7adfba6cd73a6.png" alt="f_{s}(x,y)"/>. There are three possible outcomes from this computation:</p>
 <div class="math" id="equation-halfspace-evaluation-1">
 <p><span class="eqno">(11)</span><img src="../_images/math/b796de5df51b0bf6f371024528ba2758b63e73a7.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = +1 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is in the halfspace}"/></p>
 </div><div class="math" id="equation-halfspace-evaluation-2">
@@ -133,35 +133,35 @@
 <p><span class="eqno">(13)</span><img src="../_images/math/04a28de073834cc242344b4e98f1f2cb6e1b98c1.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = -1 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is in the opposite halfspace}"/></p>
 </div><p>For simplicity, the assumption is made that the point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> is not on any surface in the geometry, or more formally, <img class="math" src="../_images/math/b7145e4d647e1e62bc6178c2721d54936933a919.png" alt="\forall \; s \;\; f_{s}(x,y) \neq 0"/>. If any cell is found in which the potential evaluated at <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> and the halfspace of the corresponding surface each have the same sign for all surfaces in the cell, then the point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> uniquely resides in the cell and it is returned by the algorithm.</p>
 <p>The reader should note that <img class="math" src="../_images/math/2896029bf849ce5906696aa3cd43c9e0e3b064ef.png" alt="L_{base}"/> in the following algorithm refers to the base lattice or universe that is used to encapsulate the outermost level of the geometry.</p>
-<div class="align-center figure" id="algorithm-find-cell">
-<a class="reference internal image-reference" href="../_images/find-cell-algorithm.png"><img alt="../_images/find-cell-algorithm.png" src="../_images/find-cell-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 2</strong>: Cell-finding algorithm.</p>
+<div class="align-center figure" id="id11">
+<span id="algorithm-find-cell"></span><a class="reference internal image-reference" href="../_images/find-cell-algorithm.png"><img alt="../_images/find-cell-algorithm.png" src="../_images/find-cell-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 2</strong>: Cell-finding algorithm.</span></p>
 </div>
 </div>
 <div class="section" id="distance-to-nearest-surface-algorithm">
 <span id="surface-distance-algorithm"></span><h3>5.4.3. Distance-to-Nearest Surface Algorithm<a class="headerlink" href="#distance-to-nearest-surface-algorithm" title="Permalink to this headline">¶</a></h3>
 <p>The third algorithm that is needed for ray tracing is used to find the distance to the nearest surface to <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> along the trajectory vector <img class="math" src="../_images/math/976c654a0f1ab8febd8371ae77e428960e8b4506.png" alt="\hat{n}"/>. This algorithm builds upon each of the previous two as it only evaluates surfaces bounding the cell in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides.</p>
-<p>The distance-to-nearest surface algorithm is described in <a class="reference internal" href="#algorithm-minimum-surface-distance"><em>Algorithm 3</em></a>. The algorithm simply iterates over each surface <img class="math" src="../_images/math/6859317dd1b439cef34131bcd4bafee8393444e0.png" alt="s"/> in the cell <img class="math" src="../_images/math/65868d23a5bfe5b3b2d819386b19c14fa36af134.png" alt="c"/> and solves for the distance(s) to the surface. The algorithm keeps track of the minimum distance <img class="math" src="../_images/math/e404cab934c61364d1a6a3a9be12eae530d8d7f1.png" alt="d_{min}"/> it has evaluated to a surface at each step and returns the final value after iterating through all of the surfaces.</p>
-<div class="align-center figure" id="algorithm-minimum-surface-distance">
-<a class="reference internal image-reference" href="../_images/min-surf-dist-algorithm.png"><img alt="../_images/min-surf-dist-algorithm.png" src="../_images/min-surf-dist-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 3</strong>: Minimum surface distance algorithm.</p>
+<p>The distance-to-nearest surface algorithm is described in <a class="reference internal" href="#algorithm-minimum-surface-distance"><span>Algorithm 3</span></a>. The algorithm simply iterates over each surface <img class="math" src="../_images/math/6859317dd1b439cef34131bcd4bafee8393444e0.png" alt="s"/> in the cell <img class="math" src="../_images/math/65868d23a5bfe5b3b2d819386b19c14fa36af134.png" alt="c"/> and solves for the distance(s) to the surface. The algorithm keeps track of the minimum distance <img class="math" src="../_images/math/e404cab934c61364d1a6a3a9be12eae530d8d7f1.png" alt="d_{min}"/> it has evaluated to a surface at each step and returns the final value after iterating through all of the surfaces.</p>
+<div class="align-center figure" id="id12">
+<span id="algorithm-minimum-surface-distance"></span><a class="reference internal image-reference" href="../_images/min-surf-dist-algorithm.png"><img alt="../_images/min-surf-dist-algorithm.png" src="../_images/min-surf-dist-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 3</strong>: Minimum surface distance algorithm.</span></p>
 </div>
 </div>
 <div class="section" id="next-intersection-point-algorithm">
 <span id="id7"></span><h3>5.4.4. Next Intersection Point Algorithm<a class="headerlink" href="#next-intersection-point-algorithm" title="Permalink to this headline">¶</a></h3>
-<p>The final algorithm needed for ray tracing is to compute the intersection point of a point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> along a trajectory vector <img class="math" src="../_images/math/1f59d75a7396b110ca07515a8a7fad245829600c.png" alt="\hat{u}"/> with the nearest surface. The preceding algorithm is used to compute the parametrized distance to the intersection. This algorithm simply adds the parametrized distance multiplied by the trajectory vector to <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> as described in <a class="reference internal" href="#algorithm-next-intersection-point"><em>Algorithm 4</em></a>.</p>
-<div class="align-center figure" id="algorithm-next-intersection-point">
-<a class="reference internal image-reference" href="../_images/next-intersection-point-algorithm.png"><img alt="../_images/next-intersection-point-algorithm.png" src="../_images/next-intersection-point-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 4</strong>: Find nearest surface intersection point algorithm.</p>
+<p>The final algorithm needed for ray tracing is to compute the intersection point of a point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> along a trajectory vector <img class="math" src="../_images/math/1f59d75a7396b110ca07515a8a7fad245829600c.png" alt="\hat{u}"/> with the nearest surface. The preceding algorithm is used to compute the parametrized distance to the intersection. This algorithm simply adds the parametrized distance multiplied by the trajectory vector to <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> as described in <a class="reference internal" href="#algorithm-next-intersection-point"><span>Algorithm 4</span></a>.</p>
+<div class="align-center figure" id="id13">
+<span id="algorithm-next-intersection-point"></span><a class="reference internal image-reference" href="../_images/next-intersection-point-algorithm.png"><img alt="../_images/next-intersection-point-algorithm.png" src="../_images/next-intersection-point-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 4</strong>: Find nearest surface intersection point algorithm.</span></p>
 </div>
 </div>
 <div class="section" id="track-segmentation-algorithm">
 <span id="track-segmentation"></span><h3>5.4.5. Track Segmentation Algorithm<a class="headerlink" href="#track-segmentation-algorithm" title="Permalink to this headline">¶</a></h3>
-<p>Each of the preceding algorithms collectively define all of the logic that is necessary for ray tracing in the constructive solid geometry formulation. <a class="reference internal" href="#algorithm-ray-tracing"><em>Algorithm 5</em></a> defines the complete process of track segmentation for each track in the geometry. The algorithm defines a nested loop over all azimuthal angles <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/> and tracks <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/>. For each track, the algorithm begins with the track starting location and trajectory vector and ray traces across the geometry by computing intersection points with each surface along the trajectory&#8217;s path. At each step, the length of each track segment in each cell (FSR) is computed and a pair of the segment length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> and flat source region index <img class="math" src="../_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/> is appended to an ordered list of track segments within the track.</p>
-<p>This algorithm relies upon the use of a small numerical parameter <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> which is typically chosen to be <img class="math" src="../_images/math/269435a5d5273bd7237630944032e7b2e8f9ac59.png" alt="10^{-6}"/> for single precision and <img class="math" src="../_images/math/a2fef5208f519a2c91c8bfbbfe1c9bd7fc93b983.png" alt="10^{-12}"/> for double precision floating point numbers. This parameter allows the end point for each track segment to be perturbed slightly to force it to lie within the adjacent cell in order to meet the assumption that no point lies directly on a surface (declared in order for <a class="reference internal" href="#algorithm-find-cell"><em>Algorithm 5</em></a> to perform properly).</p>
-<div class="align-center figure" id="algorithm-ray-tracing">
-<a class="reference internal image-reference" href="../_images/ray-tracing-algorithm.png"><img alt="../_images/ray-tracing-algorithm.png" src="../_images/ray-tracing-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 5</strong>: Track segmentation algorithm.</p>
+<p>Each of the preceding algorithms collectively define all of the logic that is necessary for ray tracing in the constructive solid geometry formulation. <a class="reference internal" href="#algorithm-ray-tracing"><span>Algorithm 5</span></a> defines the complete process of track segmentation for each track in the geometry. The algorithm defines a nested loop over all azimuthal angles <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/> and tracks <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/>. For each track, the algorithm begins with the track starting location and trajectory vector and ray traces across the geometry by computing intersection points with each surface along the trajectory&#8217;s path. At each step, the length of each track segment in each cell (FSR) is computed and a pair of the segment length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> and flat source region index <img class="math" src="../_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/> is appended to an ordered list of track segments within the track.</p>
+<p>This algorithm relies upon the use of a small numerical parameter <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> which is typically chosen to be <img class="math" src="../_images/math/269435a5d5273bd7237630944032e7b2e8f9ac59.png" alt="10^{-6}"/> for single precision and <img class="math" src="../_images/math/a2fef5208f519a2c91c8bfbbfe1c9bd7fc93b983.png" alt="10^{-12}"/> for double precision floating point numbers. This parameter allows the end point for each track segment to be perturbed slightly to force it to lie within the adjacent cell in order to meet the assumption that no point lies directly on a surface (declared in order for <a class="reference internal" href="#algorithm-find-cell"><span>Algorithm 5</span></a> to perform properly).</p>
+<div class="align-center figure" id="id14">
+<span id="algorithm-ray-tracing"></span><a class="reference internal image-reference" href="../_images/ray-tracing-algorithm.png"><img alt="../_images/ray-tracing-algorithm.png" src="../_images/ray-tracing-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 5</strong>: Track segmentation algorithm.</span></p>
 </div>
 </div>
 </div>
@@ -183,7 +183,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -213,12 +213,14 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="cmfd.html"
                         title="next chapter">6. Coarse Mesh Finite Difference Acceleration</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/methods/track_generation.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/methods/track_generation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -235,7 +237,7 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -247,14 +249,14 @@
         <li class="right" >
           <a href="constructive_solid_geometry.html" title="4. Constructive Solid Geometry"
              >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
 <script type="text/javascript">
 
