@@ -83,7 +83,7 @@ protected:
 
 public:
 
-  Universe(const int id=0, const char* name="");
+  Universe(const int id=-1, const char* name="");
   virtual ~Universe();
   int getUid() const;
   int getId() const;
