@@ -1,15 +1,10 @@
-from openmoc import *
-import openmoc.log as log
-import openmoc.plotter as plotter
-import openmoc.materialize as materialize
-from openmoc.options import Options
-
+import openmoc
 
 ###############################################################################
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = Options()
+options = openmoc.options.Options()
 
 num_threads = options.getNumThreads()
 track_spacing = options.getTrackSpacing()
@@ -17,46 +12,46 @@ num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
-log.set_log_level('NORMAL')
+openmoc.log.set_log_level('NORMAL')
 
 
 ###############################################################################
 #                            Creating Materials
 ###############################################################################
 
-log.py_printf('NORMAL', 'Importing materials data from HDF5...')
+openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.h5')
+materials = openmoc.materialize.materialize('../c5g7-materials.h5')
 
 
 ###############################################################################
 #                            Creating Surfaces
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating surfaces...')
+openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = XPlane(x=-20.0, name='left')
-right = XPlane(x=20.0, name='right')
-top = YPlane(y=20.0, name='top')
-bottom = YPlane(y=-20.0, name='bottom')
+left = openmoc.XPlane(x=-20.0, name='left')
+right = openmoc.XPlane(x=20.0, name='right')
+top = openmoc.YPlane(y=20.0, name='top')
+bottom = openmoc.YPlane(y=-20.0, name='bottom')
 boundaries = [left, right, top, bottom]
 
-for boundary in boundaries: boundary.setBoundaryType(VACUUM)
+for boundary in boundaries: boundary.setBoundaryType(openmoc.VACUUM)
 
 
 ###############################################################################
 #                             Creating Cells
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating cells...')
+openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
-water_cell = Cell(name='water')
+water_cell = openmoc.Cell(name='water')
 water_cell.setFill(materials['Water'])
 
-source_cell = Cell(name='source')
+source_cell = openmoc.Cell(name='source')
 source_cell.setFill(materials['Water'])
 
-root_cell = Cell(name='root cell')
+root_cell = openmoc.Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=left)
 root_cell.addSurface(halfspace=-1, surface=right)
 root_cell.addSurface(halfspace=+1, surface=bottom)
@@ -67,11 +62,11 @@ root_cell.addSurface(halfspace=-1, surface=top)
 #                            Creating Universes
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating universes...')
+openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
-water_univ = Universe(name='water')
-source_univ = Universe(name='source')
-root_universe = Universe(name='root universe')
+water_univ = openmoc.Universe(name='water')
+source_univ = openmoc.Universe(name='source')
+root_universe = openmoc.Universe(name='root universe')
 
 water_univ.addCell(water_cell)
 source_univ.addCell(source_cell)
@@ -100,9 +95,10 @@ lat_x = (root_universe.getMaxX() - source_x) / width_x
 lat_y = (root_universe.getMaxY() - source_y) / width_y
 universes[int(lat_x)][int(lat_y)] = source_univ
 
-log.py_printf('NORMAL', 'Creating a {0}x{0} lattice...'.format(num_x, num_y))
+openmoc.log.py_printf('NORMAL', \
+  'Creating a {0}x{0} lattice...'.format(num_x, num_y))
 
-lattice = Lattice(name='{0}x{1} lattice'.format(num_x, num_y))
+lattice = openmoc.Lattice(name='{0}x{1} lattice'.format(num_x, num_y))
 lattice.setWidth(width_x=width_x, width_y=width_y)
 lattice.setUniverses(universes)
 root_cell.setFill(lattice)
@@ -112,9 +108,9 @@ root_cell.setFill(lattice)
 #                         Creating the Geometry
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating geometry...')
+openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry()
+geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()
 
@@ -123,9 +119,9 @@ geometry.initializeFlatSourceRegions()
 #                          Creating the TrackGenerator
 ###############################################################################
 
-log.py_printf('NORMAL', 'Initializing the track generator...')
+openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
@@ -134,7 +130,7 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = CPUSolver(track_generator)
+solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
 solver.setFixedSourceByCell(source_cell, 1, 1.0)
@@ -146,11 +142,11 @@ solver.printTimerReport()
 #                             Generating Plots
 ###############################################################################
 
-log.py_printf('NORMAL', 'Plotting data...')
+openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plot_materials(geometry, gridsize=250)
-plotter.plot_cells(geometry, gridsize=250)
-plotter.plot_flat_source_regions(geometry, gridsize=250)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+openmoc.plotter.plot_materials(geometry, gridsize=250)
+openmoc.plotter.plot_cells(geometry, gridsize=250)
+openmoc.plotter.plot_flat_source_regions(geometry, gridsize=250)
+openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
-log.py_printf('TITLE', 'Finished')
+openmoc.log.py_printf('TITLE', 'Finished')

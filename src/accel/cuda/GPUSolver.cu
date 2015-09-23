@@ -196,6 +196,8 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 /**
  * @brief Computes the total fission source in each FSR.
  * @details This method is a helper routine for the openmoc.krylov submodule.
+ *          This routine computes the total reduced fission source - the
+ *          fission source divided by the total cross-section in each FSR.
  * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
@@ -211,29 +213,26 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
   FP_PRECISION fission_source;
 
   dev_material* curr_material;
-  FP_PRECISION* nu_sigma_f;
   FP_PRECISION* sigma_t;
-  FP_PRECISION* chi;
+  FP_PRECISION* fiss_mat;
 
   /* Iterate over all FSRs */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
 
-    nu_sigma_f = curr_material->_nu_sigma_f;
     sigma_t = curr_material->_sigma_t;
-    chi = curr_material->_chi;
+    fiss_mat = curr_material->_fiss_matrix;
 
-    /* Initialize the fission source to zero for this FSR */
-    fission_source = 0;
-
-    /* Compute total fission source for current FSR */
-    for (int g_prime=0; g_prime < *num_groups; g_prime++)
-      fission_source += scalar_flux(tid,g_prime) * nu_sigma_f[g_prime];
-
-    /* Set the reduced source for FSR r in each group g */
+    /* Compute fission source for group g */
     for (int g=0; g < *num_groups; g++) {
-      reduced_sources(tid,g) = fission_source * chi[g];
+      fission_source = 0;
+
+      for (int g_prime=0; g_prime < *num_groups; g_prime++)
+        fission_source += fiss_mat[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
+
+      /* Set the reduced fission source for FSR tid in group g */
+      reduced_sources(tid,g) = fission_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
     }
@@ -247,6 +246,8 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
 /**
  * @brief Computes the total scattering source in each FSR.
  * @details This method is a helper routine for the openmoc.krylov submodule.
+ *          This routine computes the total reduced scatter source - the
+ *          fission source divided by the total cross-section in each FSR.
  * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
@@ -280,7 +281,7 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
       for (int g_prime=0; g_prime < *num_groups; g_prime++)
         scatter_source += sigma_s[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
 
-      /* Set the reduced source for FSR r in group G */
+      /* Set the reduced scatter source for FSR tid in group g */
       reduced_sources(tid,g) = scatter_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
@@ -289,53 +290,6 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
     /* Increment the thread id */
     tid += blockDim.x * gridDim.x;
   }
-}
-
-
-/**
- * @brief Compute the total fission source from all FSRs and energy groups.
- * @param FSR_volumes an array of the FSR volumes
- * @param FSR_materials an array of the FSR Material indices
- * @param materials an array of the dev_material pointers
- * @param scalar_flux an array of FSR scalar fluxes
- * @param fission an array of FSR nu-fission rates
- */
-__global__ void computeKeffReactionRates(FP_PRECISION* FSR_volumes,
-                                         int* FSR_materials,
-                                         dev_material* materials,
-                                         FP_PRECISION* scalar_flux,
-                                         FP_PRECISION* fission) {
-
-  int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-  dev_material* curr_material;
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION volume;
-
-  FP_PRECISION fiss = 0.;
-
-  /* Iterate over all FSRs */
-  while (tid < *num_FSRs) {
-
-    curr_material = &materials[FSR_materials[tid]];
-    nu_sigma_f = curr_material->_nu_sigma_f;
-    volume = FSR_volumes[tid];
-
-    FP_PRECISION curr_fiss = 0.;
-
-    /* Compute nu-fission rates rates for this thread block */
-    for (int e=0; e < *num_groups; e++)
-      curr_fiss += nu_sigma_f[e] * scalar_flux(tid,e);
-
-    fiss += curr_fiss * volume;
-
-    /* Increment thread id */
-    tid += blockDim.x * gridDim.x;
-  }
-
-  /* Copy this thread's fission to global memory */
-  tid = threadIdx.x + blockIdx.x * blockDim.x;
-  fission[tid] = fiss;
 }
 
 
@@ -539,7 +493,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
       curr_segment = &curr_track->_segments[i];
       tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
                       track_flux, reduced_sources, polar_weights, scalar_flux);
-  }
+    }
 
     /* Transfer boundary angular flux to outgoing Track */
     transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
@@ -597,40 +551,50 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 
 
 /**
- * @brief Computes the volume-averaged, energy integrated nu-fission rate in
- *        each FSR and stores them in an array indexed by FSR ID on the GPU.
- * @details This is a helper method for the
- *          GPUSolver::computeFSRFissionRates(...) method.
- * @param fission_rates an array to store the nu-fission rates
- * @param fission_rates an array in which to store the FSR nu-fission rates
- * @param FSR_materials an array of FSR material indices
- * @param materials an array of dev_material pointers
+ * @brief Compute the total volume-intergrated fission source from
+ *        all FSRs and energy groups.
+ * @param FSR_volumes an array of the FSR volumes
+ * @param FSR_materials an array of the FSR Material indices
+ * @param materials an array of the dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
+ * @param fission an array of FSR nu-fission rates
  */
-__global__ void computeFSRFissionRatesOnDevice(double* fission_rates,
+__global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
                                                int* FSR_materials,
                                                dev_material* materials,
-                                               FP_PRECISION* scalar_flux) {
+                                               FP_PRECISION* scalar_flux,
+                                               FP_PRECISION* fission) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
   dev_material* curr_material;
   FP_PRECISION* nu_sigma_f;
+  FP_PRECISION volume;
 
-  /* Loop over all FSRs and compute the volume-averaged nu-fission rate */
+  FP_PRECISION fiss = 0.;
+
+  /* Iterate over all FSRs */
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
     nu_sigma_f = curr_material->_nu_sigma_f;
+    volume = FSR_volumes[tid];
 
-    /* Initialize the nu-fission rate for this FSR to zero */
-    fission_rates[tid] = 0.0;
+    FP_PRECISION curr_fiss = 0.;
 
-    for (int i=0; i < *num_groups; i++)
-      fission_rates[tid] += scalar_flux(tid,i) * nu_sigma_f[i];
+    /* Compute nu-fission rates rates for this thread block */
+    for (int e=0; e < *num_groups; e++)
+      curr_fiss += nu_sigma_f[e] * scalar_flux(tid,e);
+
+    fiss += curr_fiss * volume;
 
     /* Increment thread id */
     tid += blockDim.x * gridDim.x;
   }
+
+  /* Copy this thread's fission to global memory */
+  tid = threadIdx.x + blockIdx.x * blockDim.x;
+  fission[tid] = fiss;
 }
 
 
@@ -1057,50 +1021,6 @@ void GPUSolver::initializeExpEvaluator() {
 
 
 /**
- * @brief Allocates all Materials data on the GPU.
- * @details This method loops over the materials in the host_materials map.
- *          Since CUDA does not support std::map data types on the device, 
- *          the materials map must be converted to an array and a map created
- *          that maps a material ID to an indice in the new materials array. In
- *          initializeTracks, this map is used to convert the Material ID
- *          associated with every segment to an index in the materials array.
- */
-void GPUSolver::initializeMaterials() {
-
-  Solver::initializeMaterials();
-
-  log_printf(INFO, "Initializing materials on the GPU...");
-
-  /* Copy the number of energy groups to constant memory on the GPU */
-  cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
-                     cudaMemcpyHostToDevice);
-
-  /* Delete old materials array if it exists */
-  if (_materials != NULL)
-    cudaFree(_materials);
-
-  /* Allocate memory for all dev_materials on the device */
-  try{
-
-    std::map<int, Material*> host_materials=_geometry->getAllMaterials();
-    std::map<int, Material*>::iterator iter;
-    int material_index = 0;
-
-    /* Iterate through all Materials and clone them as dev_material structs
-     * on the device */
-    cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
-    for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
-      clone_material(iter->second, &_materials[material_index]);
-      material_index++;
-    }
-  }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for Materials on GPU");
-  }
-}
-
-
-/**
  * @brief Initializes the FSR volumes and dev_materials array on the GPU.
  * @details This method assigns each FSR a unique, monotonically increasing
  *          ID, sets the Material for each FSR, and assigns a volume based on
@@ -1162,6 +1082,51 @@ void GPUSolver::initializeFSRs() {
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSRs on GPU");
+  }
+}
+
+
+/**
+ * @brief Allocates all Materials data on the GPU.
+ * @details This method loops over the materials in the host_materials map.
+ *          Since CUDA does not support std::map data types on the device, 
+ *          the materials map must be converted to an array and a map created
+ *          that maps a material ID to an indice in the new materials array. In
+ *          initializeTracks, this map is used to convert the Material ID
+ *          associated with every segment to an index in the materials array.
+ * @param mode the solution type (FORWARD or ADJOINT) 
+ */
+void GPUSolver::initializeMaterials(solverMode mode) {
+
+  Solver::initializeMaterials(mode);
+
+  log_printf(INFO, "Initializing materials on the GPU...");
+
+  /* Copy the number of energy groups to constant memory on the GPU */
+  cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
+                     cudaMemcpyHostToDevice);
+
+  /* Delete old materials array if it exists */
+  if (_materials != NULL)
+    cudaFree(_materials);
+
+  /* Allocate memory for all dev_materials on the device */
+  try{
+
+    std::map<int, Material*> host_materials=_geometry->getAllMaterials();
+    std::map<int, Material*>::iterator iter;
+    int material_index = 0;
+
+    /* Iterate through all Materials and clone them as dev_material structs
+     * on the device */
+    cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
+    for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
+      clone_material(iter->second, &_materials[material_index]);
+      material_index++;
+    }
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not allocate memory for Materials on GPU");
   }
 }
 
@@ -1485,12 +1450,10 @@ void GPUSolver::computeKeff() {
   /* Compute the total, fission and scattering reaction rates on device.
    * This kernel stores partial rates in a Thrust vector with as many
    * entries as CUDAthreads executed by the kernel */
-  computeKeffReactionRates<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
-                                       _materials, old_flux, old_fiss_ptr);
-  computeKeffReactionRates<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
-                                       _materials, new_flux, new_fiss_ptr);
-
-  cudaDeviceSynchronize();
+  computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
+                                             _materials, old_flux, old_fiss_ptr);
+  computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
+                                             _materials, new_flux, new_fiss_ptr);
 
   /* Compute the old and new fission sources */
   old_fission = thrust::reduce(old_fission_vec.begin(), old_fission_vec.end());
@@ -1549,13 +1512,13 @@ double GPUSolver::computeResidual(residualType res_type) {
     residuals.resize(_num_FSRs);
 
     /* Allocate Thrust vector for fission sources on the GPU */
-    thrust::device_vector<double> new_fission_sources_vec(_num_FSRs);
-    thrust::device_vector<double> old_fission_sources_vec(_num_FSRs);
+    thrust::device_vector<FP_PRECISION> new_fission_sources_vec(_num_FSRs);
+    thrust::device_vector<FP_PRECISION> old_fission_sources_vec(_num_FSRs);
     
     /* Cast Thrust vectors as array pointers */
-    double* old_fission_sources = 
+    FP_PRECISION* old_fission_sources =
          thrust::raw_pointer_cast(&old_fission_sources_vec[0]);
-    double* new_fission_sources = 
+    FP_PRECISION* new_fission_sources =
          thrust::raw_pointer_cast(&new_fission_sources_vec[0]);
     FP_PRECISION* scalar_flux = 
          thrust::raw_pointer_cast(&_scalar_flux[0]);
@@ -1563,23 +1526,21 @@ double GPUSolver::computeResidual(residualType res_type) {
          thrust::raw_pointer_cast(&_old_scalar_flux[0]);
 
     /* Compute the old and new nu-fission rates on the device */
-    computeFSRFissionRatesOnDevice<<<_B,_T>>>(old_fission_sources,
-                                              _FSR_materials,
-                                              _materials,
-                                              old_scalar_flux);
-    computeFSRFissionRatesOnDevice<<<_B,_T>>>(new_fission_sources,
-                                              _FSR_materials,
-                                              _materials,
-                                              scalar_flux);
+    computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
+                                               _materials, old_scalar_flux,
+                                               old_fission_sources);
+    computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
+                                               _materials, scalar_flux,
+                                               new_fission_sources);
 
     /* Compute the relative nu-fission rate change in each FSR */
     thrust::transform(new_fission_sources_vec.begin(), 
                       new_fission_sources_vec.end(),
                       old_fission_sources_vec.begin(), residuals.begin(),
-                      thrust::minus<double>());
+                      thrust::minus<FP_PRECISION>());
     thrust::transform(residuals.begin(), residuals.end(),
                       old_fission_sources_vec.begin(), residuals.begin(),
-                      thrust::divides<double>());
+                      thrust::divides<FP_PRECISION>());
 
     /* Deallocate memory for Thrust vectors */
     old_fission_sources_vec.clear();
@@ -1676,21 +1637,28 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   log_printf(INFO, "Computing FSR fission rates...");
 
-  /* Allocate memory for the FSR nu-fission rates on the device */
-  double* dev_fission_rates;
-  cudaMalloc((void**)&dev_fission_rates, _num_FSRs * sizeof(double));
+  /* Allocate memory for the FSR nu-fission rates on the device and host */
+  FP_PRECISION* dev_fission_rates;
+  cudaMalloc((void**)&dev_fission_rates, _num_FSRs * sizeof(FP_PRECISION));
+  FP_PRECISION* host_fission_rates = new FP_PRECISION[_num_FSRs];
 
   FP_PRECISION* scalar_flux = 
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Compute the FSR nu-fission rates on the device */
-  computeFSRFissionRatesOnDevice<<<_B,_T>>>(dev_fission_rates, _FSR_materials,
-                                           _materials, scalar_flux);
+  computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
+                                             _materials, scalar_flux,
+                                             dev_fission_rates);
 
   /* Copy the nu-fission rate array from the device to the host */
-  cudaMemcpy((void*)fission_rates, (void*)dev_fission_rates,
-             _num_FSRs * sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy((void*)host_fission_rates, (void*)dev_fission_rates,
+             _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
+
+  /* Populate the double precision NumPy array for the output */
+  for (int i=0; i < _num_FSRs; i++)
+    fission_rates[i] = host_fission_rates[i];
 
   /* Deallocate the memory assigned to store the fission rates on the device */
   cudaFree(dev_fission_rates);
+  delete [] host_fission_rates;
 }

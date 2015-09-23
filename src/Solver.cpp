@@ -574,16 +574,23 @@ void Solver::initializeExpEvaluator() {
 
 /**
  * @brief Initializes the Material fission matrices.
+ * @details In an adjoint calculation, this routine will transpose the
+ *          scattering and fission matrices in each material.
+ * @param mode the solution type (FORWARD or ADJOINT)
  */
-void Solver::initializeMaterials() {
+void Solver::initializeMaterials(solverMode mode) {
 
   log_printf(INFO, "Initializing materials...");
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
   std::map<int, Material*>::iterator m_iter;
 
-  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter) {
     m_iter->second->buildFissionMatrix();
+
+    if (mode == ADJOINT)
+      m_iter->second->transposeProductionMatrices();
+  }
 }
 
 
@@ -672,6 +679,29 @@ void Solver::initializeCmfd() {
 
 
 /**
+ * @brief Returns the Material data to its original state.
+ * @details In an adjoint calculation, the scattering and fission matrices
+ *          in each material are transposed during initialization. This 
+ *          routine returns both matrices to their original (FORWARD)
+ *          state at the end of a calculation.
+ * @param mode the solution type (FORWARD or ADJOINT)
+ */
+void Solver::resetMaterials(solverMode mode) {
+
+  if (mode == FORWARD)
+    return;
+
+  log_printf(INFO, "Resetting materials...");
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    m_iter->second->transposeProductionMatrices();
+}
+
+
+/**
  * @brief This method performs one transport sweep using the fission source.
  * @details This is a helper routine used for Krylov subspace methods.
  */
@@ -743,9 +773,11 @@ void Solver::scatterTransportSweep() {
  *
  *
  * @param max_iters the maximum number of source iterations to allow
+ * @param mode the solution type (FORWARD or ADJOINT)
  * @param only_fixed_source use only fixed sources (true by default)
  */
-void Solver::computeFlux(int max_iters, bool only_fixed_source) {
+void Solver::computeFlux(int max_iters, solverMode mode, 
+                         bool only_fixed_source) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the flux "
@@ -762,6 +794,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Initialize keff to 1 for FSR source calculations */
   _k_eff = 1.;
 
+  _num_iterations = 0;
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -778,7 +811,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   }
 
   initializeSourceArrays();
-  initializeMaterials();
+  initializeMaterials(mode);
   initializeFSRs();
   countFissionableFSRs();
   zeroTrackFluxes();
@@ -793,21 +826,20 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
     addSourceToScalarFlux();
     residual = computeResidual(SCALAR_FLUX);
     storeFSRFluxes();
+    _num_iterations++;
 
     log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
 
-    /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh) {
-      _num_iterations = i;
-      _timer->stopTimer();
-      _timer->recordSplit("Total time");
-      return;
-    }
+    /* Check for convergence */
+    if (i > 1 && residual < _converge_thresh)
+      break;
   }
 
-  log_printf(WARNING, "Unable to converge the flux");
+  if (_num_iterations == max_iters-1)
+    log_printf(WARNING, "Unable to converge the flux");
 
-  _num_iterations = max_iters;
+  resetMaterials(mode);
+
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }
@@ -846,10 +878,12 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
+ * @param mode the solution type (FORWARD or ADJOINT)
  * @param k_eff the sub/super-critical eigenvalue (default 1.0)
  * @param res_type the type of residual used for the convergence criterion
  */
-void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
+void Solver::computeSource(int max_iters, solverMode mode,
+                           double k_eff, residualType res_type) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the source "
@@ -867,7 +901,10 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
+  /* Set the eigenvalue to the user-specified value */
   _k_eff = k_eff;
+
+  _num_iterations = 0;
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -875,7 +912,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials();
+  initializeMaterials(mode);
   initializeFSRs();
 
   /* Guess unity scalar flux for each region */
@@ -891,21 +928,20 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
     storeFSRFluxes();
+    _num_iterations++;
 
     log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
 
-    /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh) {
-      _num_iterations = i;
-      _timer->stopTimer();
-      _timer->recordSplit("Total time");
-      return;
-    }
+    /* Check for convergence */
+    if (i > 1 && residual < _converge_thresh)
+      break;
   }
 
-  log_printf(WARNING, "Unable to converge the source");
+  if (_num_iterations == max_iters-1)
+    log_printf(WARNING, "Unable to converge the source distribution");
 
-  _num_iterations = max_iters;
+  resetMaterials(mode);
+
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }
@@ -932,9 +968,11 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
+ * @param mode the solution type (FORWARD or ADJOINT)
  * @param res_type the type of residual used for the convergence criterion
  */
-void Solver::computeEigenvalue(int max_iters, residualType res_type) {
+void Solver::computeEigenvalue(int max_iters, solverMode mode, 
+                               residualType res_type) {
 
   if (_track_generator == NULL)
     log_printf(ERROR, "The Solver is unable to compute the eigenvalue "
@@ -948,6 +986,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 
+  _num_iterations = 0;
   FP_PRECISION residual;
 
   /* An initial guess for the eigenvalue */
@@ -958,7 +997,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials();
+  initializeMaterials(mode);
   initializeFSRs();
   countFissionableFSRs();
 
@@ -991,19 +1030,18 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     residual = computeResidual(res_type);
     storeFSRFluxes();
+    _num_iterations++;
 
-    /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh) {
-      _num_iterations = i;
-      _timer->stopTimer();
-      _timer->recordSplit("Total time");
-      return;
-    }
+    /* Check for convergence */
+    if (i > 1 && residual < _converge_thresh)
+      break;
   }
 
-  log_printf(WARNING, "Unable to converge the source distribution");
+  if (_num_iterations == max_iters-1)
+    log_printf(WARNING, "Unable to converge the source distribution");
 
-  _num_iterations = max_iters;
+  resetMaterials(mode);
+
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }

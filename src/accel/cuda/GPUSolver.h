@@ -123,7 +123,7 @@ public:
 
   void initializePolarQuadrature();
   void initializeExpEvaluator();
-  void initializeMaterials();
+  void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFSRs();
   void initializeTracks();
   void initializeFluxArrays();

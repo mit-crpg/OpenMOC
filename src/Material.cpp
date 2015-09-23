@@ -1489,6 +1489,27 @@ void Material::alignData() {
 
 
 /**
+ * @brief Transposes the scattering and fission matrices.
+ * @details This routine is used by the Solver when performing
+ *          adjoint flux caclulations.
+ */
+void Material::transposeProductionMatrices() {
+
+  int num_groups;
+  if (_data_aligned)
+    num_groups = _num_vector_groups * VEC_LENGTH;
+  else
+    num_groups = _num_groups;
+
+  /* Perform matrix transpose on each matrix that has been allocated */
+  if (_fiss_matrix != NULL)
+    matrix_transpose<FP_PRECISION>(_fiss_matrix, num_groups, num_groups);
+  if (_sigma_s != NULL)
+    matrix_transpose<FP_PRECISION>(_sigma_s, num_groups, num_groups);
+}
+
+
+/**
  * @brief Create a duplicate of the Material.
  * @return a pointer to the clone
  */

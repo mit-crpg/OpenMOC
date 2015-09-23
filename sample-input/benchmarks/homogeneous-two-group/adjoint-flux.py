@@ -1,7 +1,8 @@
+import numpy
 import openmoc
 
 ###############################################################################
-#                           Main Simulation Parameters
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = openmoc.options.Options()
@@ -13,28 +14,44 @@ tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
 openmoc.log.set_log_level('NORMAL')
+openmoc.log.py_printf('TITLE', \
+  'Simulating a two group homogeneous infinite medium...')
+openmoc.log.py_printf('HEADER', 'The reference keff = 1.72...')
 
 
 ###############################################################################
-#                              Creating Materials
+#                            Creating Materials
 ###############################################################################
 
-openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
+openmoc.log.py_printf('NORMAL', 'Creating materials...')
 
-materials = openmoc.materialize.materialize('../c5g7-materials.h5')
+sigma_a = numpy.array([0.0038, 0.184])
+sigma_f = numpy.array([0.000625, 0.135416667])
+nu_sigma_f = numpy.array([0.0015, 0.325])
+sigma_s = numpy.array([[0.1, 0.117], [0., 1.42]])
+chi = numpy.array([1.0, 0.0])
+sigma_t = numpy.array([0.2208, 1.604])
+
+infinite_medium = openmoc.Material(name='2-group infinite medium')
+infinite_medium.setNumEnergyGroups(2)
+infinite_medium.setSigmaA(sigma_a)
+infinite_medium.setSigmaF(sigma_f)
+infinite_medium.setNuSigmaF(nu_sigma_f)
+infinite_medium.setSigmaS(sigma_s.flat)
+infinite_medium.setChi(chi)
+infinite_medium.setSigmaT(sigma_t)
 
 
 ###############################################################################
-#                              Creating Surfaces
+#                            Creating Surfaces
 ###############################################################################
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = openmoc.Circle(x=0.0, y=0.0, radius=0.8, name='pin')
-left = openmoc.XPlane(x=-2.0, name='left')
-right = openmoc.XPlane(x=2.0, name='right')
-top = openmoc.YPlane(y=2.0, name='top')
-bottom = openmoc.YPlane(y=-2.0, name='bottom')
+left = openmoc.XPlane(x=-100.0, name='left')
+right = openmoc.XPlane(x=100.0, name='right')
+top = openmoc.YPlane(y=100.0, name='top')
+bottom = openmoc.YPlane(y=-100.0, name='bottom')
 
 left.setBoundaryType(openmoc.REFLECTIVE)
 right.setBoundaryType(openmoc.REFLECTIVE)
@@ -43,24 +60,17 @@ bottom.setBoundaryType(openmoc.REFLECTIVE)
 
 
 ###############################################################################
-#                                Creating Cells
+#                             Creating Cells
 ###############################################################################
 
 openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = openmoc.Cell(name='fuel')
-fuel.setFill(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=circle)
-
-moderator = openmoc.Cell(name='moderator')
-moderator.setFill(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=circle)
-
-root_cell = openmoc.Cell(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=left)
-root_cell.addSurface(halfspace=-1, surface=right)
-root_cell.addSurface(halfspace=+1, surface=bottom)
-root_cell.addSurface(halfspace=-1, surface=top)
+cell = openmoc.Cell()
+cell.setFill(infinite_medium)
+cell.addSurface(halfspace=+1, surface=left)
+cell.addSurface(halfspace=-1, surface=right)
+cell.addSurface(halfspace=+1, surface=bottom)
+cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
@@ -69,29 +79,12 @@ root_cell.addSurface(halfspace=-1, surface=top)
 
 openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
-pincell = openmoc.Universe(name='pin cell')
 root_universe = openmoc.Universe(name='root universe')
-
-pincell.addCell(fuel)
-pincell.addCell(moderator)
-root_universe.addCell(root_cell)
+root_universe.addCell(cell)
 
 
 ###############################################################################
-#                             Creating Lattices
-###############################################################################
-
-openmoc.log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
-
-lattice = openmoc.Lattice(name='2x2 lattice')
-lattice.setWidth(width_x=2.0, width_y=2.0)
-lattice.setUniverses([[pincell, pincell], [pincell, pincell]])
-
-root_cell.setFill(lattice)
-
-
-###############################################################################
-#                            Creating the Geometry
+#                         Creating the Geometry
 ###############################################################################
 
 openmoc.log.py_printf('NORMAL', 'Creating geometry...')
@@ -116,22 +109,37 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
+openmoc.log.py_printf('NORMAL', 'Running MOC adjoint eigenvalue simulation...')
+
 solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
+solver.computeEigenvalue(max_iters, mode=openmoc.ADJOINT)
 solver.printTimerReport()
 
 
 ###############################################################################
-#                              Generating Plots
+#                            Verify with NumPy
 ###############################################################################
 
-openmoc.log.py_printf('NORMAL', 'Plotting data...')
+openmoc.log.py_printf('NORMAL', 'Verifying with NumPy adjoint eigenvalue...')
 
-openmoc.plotter.plot_materials(geometry, gridsize=50)
-openmoc.plotter.plot_cells(geometry, gridsize=50)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=50)
-openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+# Compute fission production matrix
+fiss_mat = numpy.outer(chi, nu_sigma_f)
 
+# Tranpose the scattering matrix from OpenMOC's notation
+sigma_s = numpy.transpose(sigma_s)
+
+# Create adjoint operator
+sigma_s = numpy.transpose(sigma_s)
+fiss_mat = numpy.transpose(fiss_mat)
+M = numpy.linalg.solve((numpy.diag(sigma_t) - sigma_s), fiss_mat)
+
+# Solve eigenvalue problem with NumPy
+k, phi = numpy.linalg.eig(M)
+
+# Select the dominant eigenvalue
+k = max(k)
+
+openmoc.log.py_printf('RESULT', 'Numpy adjoint eigenvalue: {0:.6f}'.format(k))
 openmoc.log.py_printf('TITLE', 'Finished')
