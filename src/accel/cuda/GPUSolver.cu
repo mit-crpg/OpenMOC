@@ -196,6 +196,8 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
 /**
  * @brief Computes the total fission source in each FSR.
  * @details This method is a helper routine for the openmoc.krylov submodule.
+ *          This routine computes the total reduced fission source - the
+ *          fission source divided by the total cross-section in each FSR.
  * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes

@@ -14,8 +14,6 @@ max_iters = options.getMaxIterations()
 
 openmoc.log.set_log_level('NORMAL')
 
-openmoc.log.py_printf('TITLE', 'Simulating the LRA Benchmark Problem...')
-
 
 ###############################################################################
 #                            Creating Materials
