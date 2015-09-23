@@ -83,7 +83,7 @@ protected:
 
 public:
 
-  Universe(const int id=0, const char* name="");
+  Universe(const int id=-1, const char* name="");
   virtual ~Universe();
   int getUid() const;
   int getId() const;
@@ -155,7 +155,7 @@ private:
 
 public:
 
-  Lattice(const int id=0, const char* name="");
+  Lattice(const int id=-1, const char* name="");
   virtual ~Lattice();
 
   void setOffset(double x, double y);
