@@ -231,7 +231,7 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
       for (int g_prime=0; g_prime < *num_groups; g_prime++)
         fission_source += fiss_mat[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
 
-      /* Compute total (scatter+fission+fixed) reduced source */
+      /* Set the reduced fission source for FSR r in group G */
       reduced_sources(tid,g) = fission_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
@@ -246,6 +246,8 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
 /**
  * @brief Computes the total scattering source in each FSR.
  * @details This method is a helper routine for the openmoc.krylov submodule.
+ *          This routine computes the total reduced scatter source - the
+ *          fission source divided by the total cross-section in each FSR.
  * @param FSR_materials an array of FSR Material indices
  * @param materials an array of dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
@@ -279,7 +281,7 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
       for (int g_prime=0; g_prime < *num_groups; g_prime++)
         scatter_source += sigma_s[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
 
-      /* Set the reduced source for FSR r in group G */
+      /* Set the reduced scatter source for FSR r in group G */
       reduced_sources(tid,g) = scatter_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
