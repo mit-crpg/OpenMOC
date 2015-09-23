@@ -231,7 +231,7 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
       for (int g_prime=0; g_prime < *num_groups; g_prime++)
         fission_source += fiss_mat[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
 
-      /* Set the reduced fission source for FSR r in group G */
+      /* Set the reduced fission source for FSR tid in group G */
       reduced_sources(tid,g) = fission_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
@@ -281,7 +281,7 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
       for (int g_prime=0; g_prime < *num_groups; g_prime++)
         scatter_source += sigma_s[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
 
-      /* Set the reduced scatter source for FSR r in group G */
+      /* Set the reduced scatter source for FSR tid in group G */
       reduced_sources(tid,g) = scatter_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
