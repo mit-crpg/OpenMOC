@@ -101,7 +101,7 @@ def get_openmoc_material(opencg_material):
     return OPENMOC_MATERIALS[material_id]
 
   # Create an OpenMOC Material to represent this OpenCG Material
-  name = opencg_material._name
+  name = str(opencg_material._name)
   openmoc_material = openmoc.Material(id=material_id, name=name)
 
   # Add the OpenMOC Material to the global collection of all OpenMOC Materials
@@ -109,9 +109,6 @@ def get_openmoc_material(opencg_material):
 
   # Add the OpenCG Material to the global collection of all OpenCG Materials
   OPENCG_MATERIALS[material_id] = opencg_material
-
-  # FIXME
-  openmoc_material.thisown = 0
 
   return openmoc_material
 
@@ -212,7 +209,7 @@ def get_openmoc_surface(opencg_surface):
     return OPENMOC_SURFACES[surface_id]
 
   # Create an OpenMOC Surface to represent this OpenCG Surface
-  name = opencg_surface._name
+  name = str(opencg_surface._name)
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
   boundary = opencg_surface._boundary_type
@@ -262,9 +259,6 @@ def get_openmoc_surface(opencg_surface):
   # Add the OpenCG Surface to the global collection of all OpenCG Surfaces
   OPENCG_SURFACES[surface_id] = opencg_surface
 
-  # FIXME
-  openmoc_surface.thisown = 0
-
   return openmoc_surface
 
 
@@ -283,7 +277,7 @@ def get_compatible_opencg_surfaces(opencg_surface):
     return OPENMOC_SURFACES[surface_id]
 
   # Create an OpenMOC Surface to represent this OpenCG Surface
-  name = opencg_surface._name
+  name = str(opencg_surface._name)
 
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
   boundary = opencg_surface._boundary_type
@@ -536,10 +530,10 @@ def get_openmoc_cell(opencg_cell):
     return OPENMOC_CELLS[cell_id]
 
   # Create an OpenMOC Cell to represent this OpenCG Cell
-  name = opencg_cell._name
+  name = str(opencg_cell._name)
+  openmoc_cell = openmoc.Cell(cell_id, name)
 
   fill = opencg_cell._fill
-  openmoc_cell = openmoc.Cell(cell_id, name)
   if opencg_cell._type == 'universe':
     openmoc_cell.setFill(get_openmoc_universe(fill))
   elif opencg_cell._type == 'lattice':
@@ -559,9 +553,6 @@ def get_openmoc_cell(opencg_cell):
 
   # Add the OpenCG Cell to the global collection of all OpenCG Cells
   OPENCG_CELLS[cell_id] = opencg_cell
-
-  # FIXME
-  openmoc_cell.thisown = 0
 
   return openmoc_cell
 
@@ -618,7 +609,7 @@ def get_openmoc_universe(opencg_universe):
   make_opencg_cells_compatible(opencg_universe)
 
   # Create an OpenMOC Universe to represent this OpenCG Universe
-  name = opencg_universe._name
+  name = str(opencg_universe._name)
   openmoc_universe = openmoc.Universe(universe_id, name)
 
   # Convert all OpenCG Cells in this Universe to OpenMOC Cells
@@ -633,9 +624,6 @@ def get_openmoc_universe(opencg_universe):
 
   # Add the OpenCG Universe to the global collection of all OpenCG Universes
   OPENCG_UNIVERSES[universe_id] = opencg_universe
-
-  # FIXME
-  openmoc_universe.thisown = 0
 
   return openmoc_universe
 
@@ -712,7 +700,7 @@ def get_openmoc_lattice(opencg_lattice):
   if lattice_id in OPENMOC_LATTICES:
     return OPENMOC_LATTICES[lattice_id]
 
-  name = opencg_lattice._name
+  name = str(opencg_lattice._name)
   dimension = opencg_lattice._dimension
   width = opencg_lattice._width
   offset = opencg_lattice._offset
@@ -744,9 +732,6 @@ def get_openmoc_lattice(opencg_lattice):
 
   # Add the OpenCG Lattice to the global collection of all OpenCG Lattices
   OPENCG_LATTICES[lattice_id] = opencg_lattice
-
-  # FIXME
-  openmoc_lattice.thisown = 0
 
   return openmoc_lattice
 
@@ -815,8 +800,5 @@ def get_openmoc_geometry(opencg_geometry):
 
   openmoc_geometry = openmoc.Geometry()
   openmoc_geometry.setRootUniverse(openmoc_root_universe)
-
-  # FIXME
-  openmoc_geometry.thisown = 0
 
   return openmoc_geometry

@@ -80,13 +80,15 @@ class IRAMSolver(object):
   ##
   # @brief Compute all eigenmodes in the problem.
   # @details Uses the scipy.linalg package.
+  # @param solver_mode the type of eigenmodes (FORWARD or ADJOINT) 
   # @param num_modes number of eigenmodes to compute
   # @param inner_method Krylov subspace method used for the Ax=b solve
   # @param outer_tol tolerance on the outer eigenvalue solve
   # @param inner_tol tolerance on the inner Ax=b solve
   # @param interval inner iteration interval for logging messages
-  def computeEigenmodes(self, num_modes=5, inner_method='gmres', 
-                        outer_tol=1e-5, inner_tol=1e-6, interval=10):
+  def computeEigenmodes(self, solver_mode=openmoc.FORWARD, num_modes=5, 
+                        inner_method='gmres', outer_tol=1e-5, 
+                        inner_tol=1e-6, interval=10):
 
     # Ensure that vacuum boundary conditions are used
     geometry = self._moc_solver.getGeometry()
@@ -94,8 +96,8 @@ class IRAMSolver(object):
         geometry.getMaxXBoundaryType() != openmoc.VACUUM or
         geometry.getMinYBoundaryType() != openmoc.VACUUM or
         geometry.getMaxYBoundaryType() != openmoc.VACUUM):
-        # Output an error and return
-        py_printf('ERROR', 'All boundary conditions must be vacuum to use IRAMSolver')
+        py_printf('ERROR', 'All boundary conditions must be ' + \
+                           'VACUUM for the IRAMSolver')
     
     # Set solution-dependent class attributes based on parameters
     # These are accessed and used by the LinearOperators
@@ -112,9 +114,9 @@ class IRAMSolver(object):
     # Initialize MOC solver
     self._moc_solver.initializePolarQuadrature()
     self._moc_solver.initializeExpEvaluator()
+    self._moc_solver.initializeMaterials(solver_mode)
     self._moc_solver.initializeFluxArrays()
     self._moc_solver.initializeSourceArrays()
-    self._moc_solver.initializeMaterials()
     self._moc_solver.initializeFSRs()
     self._moc_solver.countFissionableFSRs()
     self._moc_solver.zeroTrackFluxes()
@@ -142,6 +144,10 @@ class IRAMSolver(object):
     # Store the eigenvalues and eigenvectors
     self._eigenvalues = vals
     self._eigenvectors = vecs
+
+    # Restore the material data
+    self._moc_solver.resetMaterials(solver_mode)
+
 
 
   ##

@@ -69,7 +69,7 @@ public:
   void setGeometry(Geometry* geometry);
 
   void initializeExpEvaluator();
-  void initializeMaterials();
+  void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFluxArrays();
   void initializeSourceArrays();
 
