@@ -608,7 +608,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the CMFD cells since ' + \
-              'since the gridsize %s is not an integer', str(gridsize))
+              'the gridsize %s is not an integer', str(gridsize))
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the CMFD cells ' + \
@@ -958,7 +958,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the fission rates ' + \
-              'since since the gridsize %s is not an integer', str(gridsize))
+              'since the gridsize %s is not an integer', str(gridsize))
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the fission rates ' + \
