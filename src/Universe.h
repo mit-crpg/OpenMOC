@@ -197,7 +197,7 @@ public:
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double azim);
+  double minSurfaceDist(Point* point, double angle);
 
   int getLatX(Point* point);
   int getLatY(Point* point);

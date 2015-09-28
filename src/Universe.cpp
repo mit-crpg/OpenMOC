@@ -1286,10 +1286,10 @@ Cell* Lattice::findCell(LocalCoords* coords) {
  *          in the direction of the track.
  *          Returns distance to nearest Lattice cell boundary.
  * @param point a pointer to a starting point
- * @param azim the azimuthal angle of the track
+ * @param angle the angle of the track
  * @return the distance to the nearest Lattice cell boundary
  */
-double Lattice::minSurfaceDist(Point* point, double azim) {
+double Lattice::minSurfaceDist(Point* point, double angle) {
 
   /* Compute the x, y, and z indices for the Lattice cell this point is in */
   int lat_x = getLatX(point);
@@ -1300,20 +1300,20 @@ double Lattice::minSurfaceDist(Point* point, double azim) {
   YPlane yplane(0.0);
 
   /* Get the min distance for X PLANE  */
-  if (azim < M_PI_2 || azim > 3.0 * M_PI_2)
+  if (angle < M_PI_2 || angle > 3.0 * M_PI_2)
     xplane.setX(((lat_x+1) * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
   else
     xplane.setX((lat_x * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
   
-  double dist_x = xplane.getMinDistance(point, azim);
+  double dist_x = xplane.getMinDistance(point, angle);
 
   /* Get the min distance for Y PLANE */
-  if (azim < M_PI)
+  if (angle < M_PI)
     yplane.setY(((lat_y+1) * _width_y - _width_y*_num_y/2.0 + _offset.getY()));
   else
     yplane.setY((lat_y * _width_y - _width_y*_num_y/2.0 + _offset.getY()));
 
-  double dist_y = yplane.getMinDistance(point, azim);
+  double dist_y = yplane.getMinDistance(point, angle);
 
   /* return shortest distance to next lattice cell */
   return std::min(dist_x, dist_y);

@@ -343,11 +343,11 @@ double Plane::getD() {
 * @brief Finds the intersection Point with this Plane from a given Point and
 *        trajectory defined by an angle.
 * @param point pointer to the Point of interest
+* @param angle the angle defining the trajectory in radians
 * @param points pointer to a Point to store the intersection Point
-* @param azim the azimuthal angle defining the trajectory in radians
 * @return the number of intersection Points (0 or 1)
 */
-inline int Plane::intersection(Point* point, Point* points, double azim) {
+inline int Plane::intersection(Point* point, double angle, Point* points) {
 
   double x0 = point->getX();
   double y0 = point->getY();
@@ -358,8 +358,8 @@ inline int Plane::intersection(Point* point, Point* points, double azim) {
   double xcurr, ycurr, zcurr; /* coordinates of current intersection point */
 
   /* The track and plane are parallel */
-  double mx = cos(azim);
-  double my = sin(azim);
+  double mx = cos(angle);
+  double my = sin(angle);
 
   if ((fabs(mx) < 1.e-10 && fabs(_A) > 1.e-10) ||
       (fabs(my) < 1.e-10 && fabs(_B) > 1.e-10))
@@ -768,12 +768,12 @@ double Circle::getMaxZ(int halfspace) {
  * @brief Finds the intersection Point with this circle from a given Point and
  *        trajectory defined by an angle (0, 1, or 2 points).
  * @param point pointer to the Point of interest
+ * @param angle the angle defining the trajectory in radians
  * @param points pointer to a an array of Points to store intersection Points
- * @param azim the azimuthal angle defining the trajectory in radians
  * @param polar the polar angle defining the trajectory in radians
  * @return the number of intersection Points (0 or 1)
  */
-int Circle::intersection(Point* point, Point* points, double azim) {
+int Circle::intersection(Point* point, double angle, Point* points) {
 
   double x0 = point->getX();
   double y0 = point->getY();
@@ -783,7 +783,7 @@ int Circle::intersection(Point* point, Point* points, double azim) {
   double a, b, c, q, discr;
 
   /* If the track is vertical in y */
-  if ((fabs(azim - M_PI_2)) < 1.0e-10 || (fabs(azim - 3.0*M_PI_2)) < 1.0e-10) {
+  if ((fabs(angle - M_PI_2)) < 1.0e-10 || (fabs(angle - 3.0*M_PI_2)) < 1.0e-10) {
 
     /* Solve for where the line x = x0 and the Surface F(x,y) intersect
      * Find the y where F(x0, y) = 0
@@ -807,9 +807,9 @@ int Circle::intersection(Point* point, Point* points, double azim) {
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
-      if (azim < M_PI && ycurr > y0)
+      if (angle < M_PI && ycurr > y0)
         num++;
-      else if (azim > M_PI && ycurr < y0)
+      else if (angle > M_PI && ycurr < y0)
         num++;        
     }
 
@@ -819,18 +819,18 @@ int Circle::intersection(Point* point, Point* points, double azim) {
       ycurr = (-b + sqrt(discr)) / (2 * a);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0)
+      if (angle < M_PI && ycurr > y0)
         num++;
-      else if (azim > M_PI && ycurr < y0)
+      else if (angle > M_PI && ycurr < y0)
         num++;
 
       xcurr = x0;
       ycurr = (-b - sqrt(discr)) / (2 * a);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0)
+      if (angle < M_PI && ycurr > y0)
         num++;
-      else if (azim > M_PI && ycurr < y0)
+      else if (angle > M_PI && ycurr < y0)
         num++;
 
       return num;
@@ -845,7 +845,7 @@ int Circle::intersection(Point* point, Point* points, double azim) {
      * rearrange to put in the form of the quadratic formula:
      * ax^2 + bx + c = 0
      */
-    double m = sin(azim) / cos(azim);
+    double m = sin(angle) / cos(angle);
     q = y0 - m * x0;
     a = _A + _B * _B * m * m;
     b = 2 * _B * m * q + _C + _D * m;
@@ -863,9 +863,9 @@ int Circle::intersection(Point* point, Point* points, double azim) {
       ycurr = y0 + m * (points[num].getX() - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0)
+      if (angle < M_PI && ycurr > y0)
         num++;
-      else if (azim > M_PI && ycurr < y0)
+      else if (angle > M_PI && ycurr < y0)
         num++;
 
       return num;
@@ -877,18 +877,18 @@ int Circle::intersection(Point* point, Point* points, double azim) {
       ycurr = y0 + m * (xcurr - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0)
+      if (angle < M_PI && ycurr > y0)
         num++;
-      else if (azim > M_PI && ycurr < y0)
+      else if (angle > M_PI && ycurr < y0)
         num++;
 
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0)
+      if (angle < M_PI && ycurr > y0)
         num++;
-      else if (azim > M_PI && ycurr < y0)
+      else if (angle > M_PI && ycurr < y0)
         num++;
 
       return num;

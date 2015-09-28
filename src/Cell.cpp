@@ -580,10 +580,9 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param point the Point of interest
- * @param azim the azimuthal angle of the trajectory (in radians from 
- *        \f$[0,2\pi]\f$)
+ * @param angle the angle of trajectory (in radians from \f$[0,2\pi]\f$)
  */
-double Cell::minSurfaceDist(Point* point, double azim) {
+double Cell::minSurfaceDist(Point* point, double angle) {
 
   double curr_dist;
   double min_dist = INFINITY;
@@ -594,7 +593,7 @@ double Cell::minSurfaceDist(Point* point, double azim) {
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second->_surface->getMinDistance(point, azim);
+    curr_dist = iter->second->_surface->getMinDistance(point, angle);
 
     /* If the distance to Cell is less than current min distance, update */
     if (curr_dist < min_dist)

@@ -442,13 +442,12 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  *          each LocalCoord in the linked list for the Lattice or Universe
  *          that it is in.
  * @param coords pointer to a LocalCoords object
- * @param azim the azimuthal angle for a trajectory projected from the 
- *        LocalCoords
+ * @param angle the angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-Cell* Geometry::findFirstCell(LocalCoords* coords, double azim) {
-  double delta_x = cos(azim) * TINY_MOVE;
-  double delta_y = sin(azim) * TINY_MOVE;
+Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
+  double delta_x = cos(angle) * TINY_MOVE;
+  double delta_y = sin(angle) * TINY_MOVE;
   coords->adjustCoords(delta_x, delta_y);
   return findCellContainingCoords(coords);
 }
@@ -487,10 +486,10 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  *          return a pointer to the Cell that the LocalCoords will reach 
  *          next along its trajectory.
  * @param coords pointer to a LocalCoords object
- * @param azim the azimuthal angle of the trajectory
+ * @param angle the angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findNextCell(LocalCoords* coords, double azim) {
+Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
 
   Cell* cell = NULL;
   double dist;
@@ -518,13 +517,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim) {
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
         Lattice* lattice = coords->getLattice();
-        dist = lattice->minSurfaceDist(coords->getPoint(), azim);
+        dist = lattice->minSurfaceDist(coords->getPoint(), angle);
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else {
         Cell* cell = coords->getCell();
-        dist = cell->minSurfaceDist(coords->getPoint(), azim);
+        dist = cell->minSurfaceDist(coords->getPoint(), angle);
       }
 
       /* Recheck min distance */
@@ -542,13 +541,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim) {
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL) {
       Lattice* lattice = _cmfd->getLattice();
-      dist = lattice->minSurfaceDist(coords->getPoint(), azim);
+      dist = lattice->minSurfaceDist(coords->getPoint(), angle);
       min_dist = std::min(dist, min_dist);
     }
 
     /* Move point and get next cell */
-    double delta_x = cos(azim) * (min_dist + TINY_MOVE);
-    double delta_y = sin(azim) * (min_dist + TINY_MOVE);
+    double delta_x = cos(angle) * (min_dist + TINY_MOVE);
+    double delta_y = sin(angle) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y);
 
     return findCellContainingCoords(coords);
@@ -852,8 +851,8 @@ void Geometry::segmentize(Track* track) {
 
     /* Checks that segment does not have the same start and end Points */
     if (start.getX() == end.getX() && start.getY() == end.getY())
-      log_printf(ERROR, "Created segment with same start and end point: x = %f"
-                 ", y = %f", start.getX(), start.getY(), start.getZ());
+      log_printf(ERROR, "Created segment with same start and end "
+                 "point: x = %f, y = %f", start.getX(), start.getY());
 
     /* Find the segment length, Material and FSR ID */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));

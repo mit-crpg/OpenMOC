@@ -165,11 +165,11 @@ public:
    * @param points pointer to a Point to store the intersection Point
    * @return the number of intersection Points (0 or 1)
    */
-  virtual int intersection(Point* point, Point* points, double angle) = 0;
+  virtual int intersection(Point* point, double angle, Point* points) = 0;
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, double azim);
+  double getMinDistance(Point* point, double angle);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -226,7 +226,7 @@ public:
   double getD();
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, Point* points, double azim);
+  int intersection(Point* point, double angle, Point* points);
 
   std::string toString();
 };
@@ -354,7 +354,7 @@ public:
   double getMaxZ(int halfspace);
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, Point* points, double azim);
+  int intersection(Point* point, double angle, Point* points);
 
   std::string toString();
 };
@@ -366,16 +366,16 @@ public:
  *          given trajectory defined by an angle to this Surface. If the
  *          trajectory will not intersect the Surface, returns INFINITY.
  * @param point a pointer to the Point of interest
- * @param azim the azimuthal angle defining the trajectory in radians
+ * @param angle the angle defining the trajectory in radians
  * @return the minimum distance to the Surface
  */
-inline double Surface::getMinDistance(Point* point, double azim) {
+inline double Surface::getMinDistance(Point* point, double angle) {
 
   /* Point array for intersections with this Surface */
   Point intersections[2];
 
   /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, intersections, azim);
+  int num_inters = this->intersection(point, angle, intersections);
   double distance = INFINITY;
 
   /* If there is one intersection Point */

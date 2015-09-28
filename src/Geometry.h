@@ -117,8 +117,8 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  Cell* findFirstCell(LocalCoords* coords, double azim);
-  Cell* findNextCell(LocalCoords* coords, double azim);
+  Cell* findFirstCell(LocalCoords* coords, double angle);
+  Cell* findNextCell(LocalCoords* coords, double angle);
 
 public:
 

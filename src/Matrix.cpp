@@ -15,7 +15,7 @@
  * @param num_y The number of cells in the y direction.
  * @param num_groups The number of energy groups in each cell.
  */
-Matrix::Matrix(int num_x, int num_y, int num_groups){
+Matrix::Matrix(int num_x, int num_y, int num_groups) {
 
   setNumX(num_x);
   setNumY(num_y);
@@ -346,7 +346,7 @@ int Matrix::getNumY() {
  * @brief Get the number of groups in each cell.
  * @return The number of groups in each cell.
  */
-int Matrix::getNumGroups(){
+int Matrix::getNumGroups() {
   return _num_groups;
 }
 
