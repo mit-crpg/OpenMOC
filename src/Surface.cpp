@@ -783,7 +783,7 @@ int Circle::intersection(Point* point, double angle, Point* points) {
   double a, b, c, q, discr;
 
   /* If the track is vertical in y */
-  if ((fabs(angle - M_PI_2)) < 1.0e-10 || (fabs(angle - 3.0*M_PI_2)) < 1.0e-10) {
+  if ((fabs(angle - M_PI_2)) < 1.0e-10) {
 
     /* Solve for where the line x = x0 and the Surface F(x,y) intersect
      * Find the y where F(x0, y) = 0

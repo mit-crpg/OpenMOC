@@ -1300,7 +1300,7 @@ double Lattice::minSurfaceDist(Point* point, double angle) {
   YPlane yplane(0.0);
 
   /* Get the min distance for X PLANE  */
-  if (angle < M_PI_2 || angle > 3.0 * M_PI_2)
+  if (angle < M_PI_2)
     xplane.setX(((lat_x+1) * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
   else
     xplane.setX((lat_x * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
