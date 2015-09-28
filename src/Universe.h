@@ -100,8 +100,6 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  boundaryType getMinZBoundaryType();
-  boundaryType getMaxZBoundaryType();
 
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;
@@ -190,7 +188,8 @@ public:
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumZ(int num_z);
-  void setWidth(double width_x, double width_y, double width_z=1.0);
+  void setWidth(double width_x, double width_y,
+                double width_z=std::numeric_limits<double>::infinity());
   void setUniverses(int num_y, int num_x, Universe** universes);
   void setUniverses3D(int num_z, int num_y, int num_x, Universe** universes);
   void removeUniverse(Universe* universe);
@@ -198,7 +197,7 @@ public:
 
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
+  double minSurfaceDist(Point* point, double azim);
 
   int getLatX(Point* point);
   int getLatY(Point* point);
@@ -206,6 +205,8 @@ public:
 
   int getLatticeCell(Point* point);
   int getLatticeSurface(int cell, Point* point);
+  int getLatticeCorner(int cell, Point* point);
+  double getDistanceToSurface(int cell, Point* point, int surface);
 
   std::string toString();
   void printString();

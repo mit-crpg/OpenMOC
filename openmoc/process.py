@@ -9,31 +9,13 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
+import os
+import re 
+import mmap
 import sys
-
-## @var openmoc
-#  @brief The openmoc module in use in the Python script using the
-#         openmoc.process module.
-openmoc = ''
-
-# Determine which OpenMOC module is being used
-if 'openmoc.gnu.double' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.double']
-elif 'openmoc.gnu.single' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.single']
-elif 'openmoc.intel.double' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.double']
-elif 'openmoc.intel.single' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.single']
-elif 'openmoc.bgq.double' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.double']
-elif 'openmoc.bgq.single' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.single']
-else:
-  import openmoc
-
 import numpy as np
-import os, re, mmap
+
+import openmoc
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -111,7 +93,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 
       # Get the linked list of LocalCoords
       point = geometry.getFSRPoint(fsr)
-      coords = openmoc.LocalCoords(point.getX(), point.getY())
+      coords = openmoc.LocalCoords(point.getX(), point.getY(), point.getZ())
       coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(coords)
       coords = coords.getHighestLevel().getNext()
@@ -126,7 +108,8 @@ def compute_fission_rates(solver, use_hdf5=False):
         if coords.getType() is openmoc.LAT:
           key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
                  str(coords.getLatticeX()) + ', ' + \
-                 str(coords.getLatticeY()) + ') : '
+                 str(coords.getLatticeY()) + ', ' + \
+                 str(coords.getLatticeZ()) + ') : '
         else:
           key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
 
@@ -264,6 +247,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   num_FSRs = geometry.getNumFSRs()
   num_materials = geometry.getNumMaterials()
   num_groups = geometry.getNumEnergyGroups()
+  z_level = geometry.getZLevel()
   num_tracks = track_generator.getNumTracks()
   num_segments = track_generator.getNumSegments()
   spacing = track_generator.getTrackSpacing()
@@ -289,7 +273,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     # Get the scalar flux for each FSR and energy group
     for i in range(num_FSRs):
       for j in range(num_groups):
-        scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
+        scalar_fluxes[i,j] = solver.getFlux(i,j+1)
 
   # If the user requested to store the FSR sources
   if sources:
@@ -336,6 +320,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     time_group.create_dataset('# FSRs', data=num_FSRs)
     time_group.create_dataset('# materials', data=num_materials)
     time_group.create_dataset('# energy groups', data=num_groups)
+    time_group.create_dataset('z level', data=z_level)
     time_group.create_dataset('# tracks', data=num_tracks)
     time_group.create_dataset('# segments', data=num_segments)
     time_group.create_dataset('track spacing [cm]', data=spacing)
@@ -409,6 +394,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     state['# FSRs'] = num_FSRs
     state['# materials'] = num_materials
     state['# energy groups'] = num_groups
+    state['z level'] = z_level
     state['# tracks'] = num_tracks
     state['# segments'] = num_segments
     state['track spacing [cm]'] = spacing

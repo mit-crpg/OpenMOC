@@ -31,11 +31,13 @@ TrackGenerator::~TrackGenerator() {
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
+    delete [] _num_tracks_by_parallel_group;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
 
     delete [] _tracks;
+    delete [] _tracks_by_parallel_group;
   }
 }
 
@@ -74,6 +76,10 @@ Geometry* TrackGenerator::getGeometry() {
 }
 
 
+/**
+ * @brief Return the total number of Tracks generated.
+ * @return The number of Tracks generated
+ */
 int TrackGenerator::getNumTracks() {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the total number of Tracks since "
@@ -89,6 +95,25 @@ int TrackGenerator::getNumTracks() {
 }
 
 
+/**
+ * @brief Return the number of parallel track groups.
+ * @return The number of parallel track groups
+ */
+int TrackGenerator::getNumParallelTrackGroups() {
+
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to return the number of parallel track groups "
+               "since Tracks have not yet been generated.");
+
+  return _num_parallel_track_groups;
+}
+
+
+/**
+ * @brief Return the number of tracks on the x-axis for a given azimuthal angle.
+ * @param azim An azimuthal angle index
+ * @return The number of Tracks on the x-axis
+ */
 int TrackGenerator::getNumX(int azim) {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the number of Tracks on the x-axis"
@@ -99,6 +124,11 @@ int TrackGenerator::getNumX(int azim) {
 }
 
 
+/**
+ * @brief Return the number of tracks on the y-axis for a given azimuthal angle.
+ * @param azim An azimuthal angle index
+ * @return The number of Tracks on the y-axis
+ */
 int TrackGenerator::getNumY(int azim) {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the number of Tracks on the y-axis"
@@ -110,31 +140,22 @@ int TrackGenerator::getNumY(int azim) {
 
 
 /**
- * @brief Return an array of the number of Tracks for each azimuthal angle.
- * @return array with the number of Tracks
+ * @brief Return the number of tracks in a given parallel track group.
+ * @return the number of tracks in a given parallel track group.
  */
-int* TrackGenerator::getNumTracksArray() {
+int TrackGenerator::getNumTracksByParallelGroup(int group) {
+
+  if (group < 0 || group >= _num_parallel_track_groups)
+    log_printf(ERROR, "Unable to return the number of tracks in parallel track"
+               " group %d which is not between 0 and the number of parallel "
+               "groups, %d", group, _num_parallel_track_groups);
+
   if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the array of the number of Tracks per "
-               "azimuthal angle since Tracks have not yet been generated.");
+    log_printf(ERROR, "Unable to return the number of tracks in the parallel "
+               "track group %d since Tracks have not yet been generated."
+               , group);
 
-  return _num_tracks;
-}
-
-
-/**
- * @brief Return an array with the Track uid separating the azimuthal and
- * periodic halfspaces
- * @return array with the Track uid separating the azimuthal and periodic 
- *         halfspaces
- */
-int* TrackGenerator::getNumTracksByHalfspaceArray() {
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the array with the Track uid "
-               "separating the azimuthal and periodic halspaces since "
-               "Tracks have not yet been generated.");
-
-  return _num_tracks_by_halfspace;
+  return _num_tracks_by_parallel_group[group];
 }
 
 
@@ -170,6 +191,23 @@ Track **TrackGenerator::getTracks() {
                "since Tracks have not yet been generated.");
 
   return _tracks;
+}
+
+
+/**
+ * @brief Returns a 1D array of Track pointers.
+ * @details The tracks in the _tracks_by_parallel_group array are organized
+ *          by parallel track group. The index into the array is also the
+ *          corresponding Track's UID.
+ * @return The 1D array of Track pointers
+ */
+Track **TrackGenerator::getTracksByParallelGroup() {
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to return the 1D array of the Track pointers "
+               "arranged by parallel group since Tracks have not yet been "
+               "generated.");
+
+  return _tracks_by_parallel_group;
 }
 
 
@@ -382,7 +420,7 @@ bool TrackGenerator::containsTracks() {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -391,19 +429,19 @@ bool TrackGenerator::containsTracks() {
  *
  * @code
  *          num_tracks = track_generator.getNumTracks()
- *          coords = track_generator.retrieveTrackCoords(num_tracks*4)
+ *          coords = track_generator.retrieveTrackCoords(num_tracks*6)
  * @endcode
  *
- * @param coords an array of coords of length 4 times the number of Tracks
+ * @param coords an array of coords of length 6 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
 void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
 
-  if (num_tracks != 4*getNumTracks())
+  if (num_tracks != 6*getNumTracks())
     log_printf(ERROR, "Unable to retrieve the Track coordinates since the "
                "TrackGenerator contains %d Tracks with %d coordinates but an "
                "array of length %d was input",
-               getNumTracks(), 4*getNumTracks(), num_tracks);
+               getNumTracks(), 6*getNumTracks(), num_tracks);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -411,9 +449,11 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
     for (int j=0; j < _num_tracks[i]; j++) {
       coords[counter] = _tracks[i][j].getStart()->getX();
       coords[counter+1] = _tracks[i][j].getStart()->getY();
-      coords[counter+2] = _tracks[i][j].getEnd()->getX();
-      coords[counter+3] = _tracks[i][j].getEnd()->getY();
-      counter += 4;
+      coords[counter+2] = _tracks[i][j].getStart()->getZ();
+      coords[counter+3] = _tracks[i][j].getEnd()->getX();
+      coords[counter+4] = _tracks[i][j].getEnd()->getY();
+      coords[counter+5] = _tracks[i][j].getEnd()->getZ();
+      counter += 6;
     }
   }
 
@@ -422,7 +462,7 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @brief Fills an array with the x,y,z coordinates for each Track segment.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          segments. Although this method appears to require two arguments,
@@ -431,22 +471,22 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
  *
  * @code
  *          num_segments = track_generator.getNumSegments()
- *          coords = track_generator.retrieveSegmentCoords(num_segments*5)
+ *          coords = track_generator.retrieveSegmentCoords(num_segments*7)
  * @endcode
  *
- * @param coords an array of coords of length 5 times the number of segments
+ * @param coords an array of coords of length 7 times the number of segments
  * @param num_segments the total number of Track segments
  */
 void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
 
-  if (num_segments != 5*getNumSegments())
+  if (num_segments != 7*getNumSegments())
     log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
                "the TrackGenerator contains %d segments with %d coordinates "
                "but an array of length %d was input",
-               getNumSegments(), 5*getNumSegments(), num_segments);
+               getNumSegments(), 7*getNumSegments(), num_segments);
 
   segment* curr_segment = NULL;
-  double x0, x1, y0, y1;
+  double x0, x1, y0, y1, z;
   double phi;
   segment* segments;
 
@@ -459,6 +499,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
 
       x0 = _tracks[i][j].getStart()->getX();
       y0 = _tracks[i][j].getStart()->getY();
+      z = _tracks[i][j].getStart()->getZ();
       phi = _tracks[i][j].getPhi();
 
       segments = _tracks[i][j].getSegments();
@@ -470,17 +511,19 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
 
         coords[counter+1] = x0;
         coords[counter+2] = y0;
+        coords[counter+3] = z;
 
         x1 = x0 + cos(phi) * curr_segment->_length;
         y1 = y0 + sin(phi) * curr_segment->_length;
-
-        coords[counter+3] = x1;
-        coords[counter+4] = y1;
-
+        
+        coords[counter+4] = x1;
+        coords[counter+5] = y1;
+        coords[counter+6] = z;
+        
         x0 = x1;
         y0 = y1;
 
-        counter += 5;
+        counter += 7;
       }
     }
   }
@@ -505,10 +548,11 @@ void TrackGenerator::generateTracks() {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_tracks_by_halfspace;
+    delete [] _num_tracks_by_parallel_group;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
+    delete [] _tracks_by_parallel_group;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -528,7 +572,6 @@ void TrackGenerator::generateTracks() {
     /* Allocate memory for the Tracks */
     try {
       _num_tracks = new int[_num_azim];
-      _num_tracks_by_halfspace = new int[5];
       _num_x = new int[_num_azim];
       _num_y = new int[_num_azim];
       _azim_weights = new FP_PRECISION[_num_azim];
@@ -559,7 +602,10 @@ void TrackGenerator::generateTracks() {
     }
   }
 
+  /* Initialize the track boundary conditions and set the track UIDs */
   initializeBoundaryConditions();
+  initializeTrackCycleIndices(PERIODIC);
+  initializeTrackUids();
   return;
 }
 
@@ -591,15 +637,17 @@ void TrackGenerator::initializeTrackFileDirectory() {
   if (_geometry->getCmfd() != NULL) {
     test_filename << directory.str() << "/"
                   << _num_azim*2.0 << "_angles_"
-                  << _spacing << "_cm_spacing_cmfd_"
-                  << _geometry->getCmfd()->getNumX() 
+                  << _spacing << "_cm_spacing_"
+                  << _geometry->getZLevel() << "_z_level_("
+                  << _geometry->getCmfd()->getNumX()
                   << "x" << _geometry->getCmfd()->getNumY()
-                  << ".data";
+                  << ")_cmfd.data";
     }
   else{
     test_filename << directory.str() << "/"
                   << _num_azim*2.0 << "_angles_"
-                  << _spacing << "_cm_spacing.data";
+                  << _spacing << "_cm_spacing_"
+                  << _geometry->getZLevel() << "_z_level.data";
   }
 
   _tracks_filename = test_filename.str();
@@ -636,6 +684,7 @@ void TrackGenerator::initializeTracks() {
   double* phi_eff = new double[_num_azim];
 
   double x1, x2;
+  double z = _geometry->getZLevel();
   double iazim = _num_azim*2.0;
   double width = _geometry->getWidth();
   double height = _geometry->getHeight();
@@ -693,21 +742,26 @@ void TrackGenerator::initializeTracks() {
     _tracks[i] = new Track[_num_tracks[i]];
 
     /* Compute start points for Tracks starting on x-axis */
-    for (int j = 0; j < _num_x[i]; j++)
-      _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5+j), 0);
+    for (int j = 0; j < _num_x[i]; j++) {
+      if (i < _num_azim / 2)
+        _tracks[i][j].getStart()->setCoords
+          (dx_eff[i] * (_num_x[i] - j - 0.5), 0, z);
+      else
+        _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5 + j), 0, z);
+    }
 
     /* Compute start points for Tracks starting on y-axis */
     for (int j = 0; j < _num_y[i]; j++) {
 
       /* If Track points to the upper right */
-      if (sin(phi_eff[i]) > 0 && cos(phi_eff[i]) > 0)
-        _tracks[i][_num_x[i]+j].getStart()->setCoords(0,
-                                     dy_eff[i] * (0.5 + j));
+      if (i < _num_azim / 2)
+        _tracks[i][_num_x[i]+j].getStart()->setCoords
+          (0, dy_eff[i] * (0.5 + j), z);
 
       /* If Track points to the upper left */
-      else if (sin(phi_eff[i]) > 0 && cos(phi_eff[i]) < 0)
-        _tracks[i][_num_x[i]+j].getStart()->setCoords(width,
-                                     dy_eff[i] * (0.5 + j));
+      else
+        _tracks[i][_num_x[i]+j].getStart()->setCoords
+          (width, dy_eff[i] * (0.5 + j), z);
     }
 
     /* Compute the exit points for each Track */
@@ -739,48 +793,249 @@ void TrackGenerator::initializeTracks() {
  */
 void TrackGenerator::recalibrateTracksToOrigin() {
 
-  int uid = 0;
-  int azim_period, num_azim_periods;
-  _num_tracks_by_halfspace[0] = 0;
-  
-  /* Recalibrate the tracks to the origin and set the uid. Note that the 
-   * loop structure is unconventional in order to preserve a monotonically
-   * increasing track uid value in the Solver's tracks array. The tracks array
-   * is oriented such the tracks can be broken up into 4 sub arrays that are
-   * guaranteed to contain tracks that do not transport into other tracks both
-   * reflectively and periodically. This is done to guarantee reproducability
-   * in parallel runs. */
-  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-    for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
-      for (int a=azim_halfspace*_num_azim/2;
-           a < (azim_halfspace+1)*_num_azim/2; a++) {
-        azim_period = std::min(_num_x[a], _num_y[a]);
-        num_azim_periods = _num_tracks[a] / azim_period + 1;
-        for (int period=period_halfspace;
-             period < num_azim_periods; period+=2) {
-          for (int i=azim_period*period;
-               i < std::min((period+1)*azim_period, _num_tracks[a]); i++) {
+  /* Recalibrate the tracks to the origin. */
+  for (int a=0; a < _num_azim; a++) {
+    for (int i=0; i < _num_tracks[a]; i++) {
 
-            _tracks[a][i].setUid(uid);
-            uid++;
-            
-            double x0 = _tracks[a][i].getStart()->getX();
-            double y0 = _tracks[a][i].getStart()->getY();
-            double x1 = _tracks[a][i].getEnd()->getX();
-            double y1 = _tracks[a][i].getEnd()->getY();
-            double new_x0 = x0 + _geometry->getMinX();
-            double new_y0 = y0 + _geometry->getMinY();
-            double new_x1 = x1 + _geometry->getMinX();
-            double new_y1 = y1 + _geometry->getMinY();
-            double phi = _tracks[a][i].getPhi();
-            
-            _tracks[a][i].setValues(new_x0, new_y0, new_x1,new_y1, phi);
-            _tracks[a][i].setAzimAngleIndex(a);
+      double x0 = _tracks[a][i].getStart()->getX();
+      double y0 = _tracks[a][i].getStart()->getY();
+      double x1 = _tracks[a][i].getEnd()->getX();
+      double y1 = _tracks[a][i].getEnd()->getY();
+      double new_x0 = x0 + _geometry->getMinX();
+      double new_y0 = y0 + _geometry->getMinY();
+      double new_x1 = x1 + _geometry->getMinX();
+      double new_y1 = y1 + _geometry->getMinY();
+      double phi = _tracks[a][i].getPhi();
+
+      /* The z-coordinates don't need to be recalibrated to the origin. */
+      double z0 = _tracks[a][i].getStart()->getZ();
+      double z1 = _tracks[a][i].getEnd()->getZ();
+      
+      _tracks[a][i].setValues(new_x0, new_y0, z0, new_x1, new_y1, z1, phi);
+      _tracks[a][i].setAzimAngleIndex(a);
+    }
+  }
+}
+
+
+/**
+ * @brief Set the cycle index for each track in a PERIODIC or REFLECTIVE cycle.
+ * @details The tracks can be separated into cycles as they traverse the
+ *          geometry. It is important to set the periodic cycle indices for
+ *          problems with periodic boundary conditions so transport sweeps can
+ *          be performed in parallel over groups of tracks that do not transfer
+ *          their flux into each other. In this method, all tracks are looped
+ *          over; if the track's cycle index has not been set, the cycle index
+ *          for the input boundaryType is incremented and the cycle index is set
+ *          for that track and all tracks in its cycle.
+ */
+void TrackGenerator::initializeTrackCycleIndices(boundaryType bc) {
+
+  if (bc != REFLECTIVE && bc != PERIODIC)
+    log_printf(ERROR, "Cannot initialize Track cycle indices for boundaryType"
+               " other than REFLECTIVE or PERIODIC");
+
+  Track* track;
+  int track_index;
+  int next_i, next_a;
+  bool fwd;
+
+  /* Loop over all tracks */
+  for (int a=0; a < _num_azim; a++) {
+    for (int i=0; i < _num_tracks[a]; i++) {
+
+      /* Get the current track */
+      track = &_tracks[a][i];
+
+      /* Set the track indices for PERIODIC boundaryType */
+      if (bc == PERIODIC) {
+
+        /* Check if track index has been set */
+        if (track->getPeriodicTrackIndex() == -1) {
+
+          /* Initialize the track index counter */
+          track_index = 0;
+          next_i = i;
+
+          /* Set the periodic track indexes for all tracks in periodic cycle */
+          while (track->getPeriodicTrackIndex() == -1) {
+
+            /* Set the track periodic cycle */
+            track->setPeriodicTrackIndex(track_index);
+
+            /* Get the xy index of the next track in cycle */
+            if (next_i < _num_y[a])
+              next_i +=_num_x[a];
+            else
+              next_i -=_num_y[a];
+
+            /* Set the next track in cycle */
+            track = &_tracks[a][next_i];
+
+            /* Increment index counter */
+            track_index++;
           }
         }
       }
-      _num_tracks_by_halfspace[azim_halfspace*2 + period_halfspace + 1] = uid;
+
+      /* Set the track indices for REFLECTIVE boundaryType */
+      else {
+
+        /* Check if track index has been set */
+        if (track->getReflectiveTrackIndex() == -1) {
+
+          /* Initialize the track index counter */
+          track_index = 0;
+          next_i = i;
+          next_a = a;
+          fwd = true;
+
+          /* Set the reflective track indexes for all tracks in reflective
+           * cycle */
+          while (track->getReflectiveTrackIndex() == -1) {
+
+            /* Set the track reflective cycle */
+            track->setReflectiveTrackIndex(track_index);
+
+            /* Set the azimuthal angle of the next track in the cycle */
+            next_a = _num_azim - next_a - 1;
+
+            /* Set the xy index and direction of the next track in the cycle */
+            if (fwd) {
+              if (next_i < _num_y[a]) {
+                next_i = next_i + _num_x[a];
+                fwd = true;
+              }
+              else {
+                next_i = _num_x[a] + 2*_num_y[a] - next_i - 1;
+                fwd = false;
+              }
+            }
+
+            else {
+              if (next_i < _num_x[a]) {
+                next_i = _num_x[a] - next_i - 1;
+                fwd = true;
+              }
+              else{
+                next_i = next_i - _num_x[a];
+                fwd = false;
+              }
+            }
+
+            /* Set the next track in cycle */
+            track = &_tracks[next_a][next_i];
+
+            /* Increment index counter */
+            track_index++;
+          }
+        }
+      }
     }
+  }
+}
+
+
+/**
+ * @brief Set the Track UIDs for all tracks and generate the 1D array of
+ *        track pointers that separates the groups of tracks by parallel group.
+ * @details The Solver requires the tracks to be separated into groups of tracks
+ *          that can be looped over in parallel without data races. This method
+ *          creates a 1D array of Track pointers where the tracks are arranged
+ *          by parallel group. If the geometry has a periodic BC, 6 periodic
+ *          groups are created; otherwise, 2 periodic groups are created. The
+ *          Track UIDs are also set to their index in the tracks by periodic
+ *          group array.
+ */
+void TrackGenerator::initializeTrackUids() {
+
+  Track* track;
+  bool periodic;
+  int uid = 0;
+  int azim_group_id, periodic_group_id;
+  int track_azim_group_id, track_periodic_group_id;
+  int track_periodic_index;
+  int num_tracks;
+
+  /* If periodic boundary conditions are present, set the number of parallel
+   * track groups to 6; else, set the number of parallel track groups to 2. Also
+   * set the periodic boolean indicating whether periodic bcs are present. */
+  if (_geometry->getMinXBoundaryType() == PERIODIC ||
+      _geometry->getMinYBoundaryType() == PERIODIC) {
+    _num_parallel_track_groups = 6;
+    periodic = true;
+  }
+  else {
+    _num_parallel_track_groups = 2;
+    periodic = false;
+  }
+
+  /* Allocate memory for the num tracks by parallel group array */
+  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups];
+
+  /* Allocate memory for the tracks by parallel group array */
+  _tracks_by_parallel_group = new Track*[getNumTracks()];
+
+  /* Loop over the parallel track groups */
+  for (int g = 0; g < _num_parallel_track_groups; g++) {
+
+    /* Initialize the number of tracks counter */
+    num_tracks = 0;
+
+    /* Set the azimuthal and periodic group ids */
+    azim_group_id = g % 2;
+    periodic_group_id = g / 2;
+
+    /* Loop over all tracks and add all tracks belonging to the current
+     * parallel group to the tracks by parallel groups array */
+    for (int a=0; a < _num_azim; a++) {
+      for (int i=0; i < _num_tracks[a]; i++) {
+
+        /* Get current track */
+        track = &_tracks[a][i];
+
+        /* Get the track azim group id */
+        track_azim_group_id = a / (_num_azim / 2);
+
+        /* Get the track periodic group id */
+        if (periodic) {
+          track_periodic_index = track->getPeriodicTrackIndex();
+
+          /* If the track is the first track in periodic cycle, assign it a
+           * periodic group id of 0 */
+          if (track_periodic_index == 0)
+            track_periodic_group_id = 0;
+
+          /* If the track has an odd periodic cycle index, assign it a periodic
+           * group id of 1 */
+          else if (track_periodic_index % 2 == 1)
+            track_periodic_group_id = 1;
+
+          /* Else the track must have an even periodic cycle index and not be
+           * the first track in the periodic cycle; assign it a periodic group
+           * id of 2 */
+          else
+            track_periodic_group_id = 2;
+        }
+
+        /* If the geometry does not have any periodic BCs, assign the track a
+         * periodic group id of 0 */
+        else
+          track_periodic_group_id = 0;
+
+        /* Check if track has current azim_group_id and periodic_group_id */
+        if (azim_group_id == track_azim_group_id &&
+            periodic_group_id == track_periodic_group_id) {
+          track->setUid(uid);
+          _tracks_by_parallel_group[uid] = track;
+          uid++;
+          num_tracks++;
+        }
+      }
+    }
+
+    /* Set the number of tracks in this parallel group */
+    _num_tracks_by_parallel_group[g] = num_tracks;
   }
 }
 
@@ -801,17 +1056,18 @@ void TrackGenerator::computeEndPoint(Point* start, Point* end,
                                      const double height) {
 
   double m = sin(phi) / cos(phi);             /* slope */
-  double yin = start->getY();                 /* y-coord */
   double xin = start->getX();                 /* x-coord */
-
+  double yin = start->getY();                 /* y-coord */
+  double zin = start->getZ();                 /* Z-coord */
+  
   /* Allocate memory for the possible intersection points */
   Point *points = new Point[4];
 
   /* Determine all possible Points */
-  points[0].setCoords(0, yin - m * xin);
-  points[1].setCoords(width, yin + m * (width - xin));
-  points[2].setCoords(xin - yin / m, 0);
-  points[3].setCoords(xin - (yin - height) / m, height);
+  points[0].setCoords(0, yin - m * xin, zin);
+  points[1].setCoords(width, yin + m * (width - xin), zin);
+  points[2].setCoords(xin - yin / m, 0, zin);
+  points[3].setCoords(xin - (yin - height) / m, height, zin);
 
   /* For each of the possible intersection Points */
   for (int i = 0; i < 4; i++) {
@@ -842,93 +1098,92 @@ void TrackGenerator::initializeBoundaryConditions() {
   log_printf(INFO, "Initializing Track boundary conditions...");
 
   /* Check for symmetry of periodic boundary conditions */
-    if ((_geometry->getMinXBoundaryType() == PERIODIC &&
-         _geometry->getMaxXBoundaryType() != PERIODIC) ||
-        (_geometry->getMinXBoundaryType() != PERIODIC &&
-         _geometry->getMaxXBoundaryType() == PERIODIC))
-      log_printf(ERROR, "Cannot create tracks with only one x boundary"
-                 " set to PERIODIC");
-    else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
-              _geometry->getMaxYBoundaryType() != PERIODIC) ||
-             (_geometry->getMinYBoundaryType() != PERIODIC &&
-              _geometry->getMaxYBoundaryType() == PERIODIC))
-      log_printf(ERROR, "Cannot create tracks with only one y boundary"
-                 " set to PERIODIC");
-  
+  if ((_geometry->getMinXBoundaryType() == PERIODIC &&
+       _geometry->getMaxXBoundaryType() != PERIODIC) ||
+      (_geometry->getMinXBoundaryType() != PERIODIC &&
+       _geometry->getMaxXBoundaryType() == PERIODIC))
+    log_printf(ERROR, "Cannot create tracks with only one x boundary"
+               " set to PERIODIC");
+  else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
+            _geometry->getMaxYBoundaryType() != PERIODIC) ||
+           (_geometry->getMinYBoundaryType() != PERIODIC &&
+            _geometry->getMaxYBoundaryType() == PERIODIC))
+    log_printf(ERROR, "Cannot create tracks with only one y boundary"
+               " set to PERIODIC");
   Track* track;
-  int ac;
+  int ic;
   
   /* Loop over the all the tracks and set the incoming and outgoing tracks
    * and incoming and outgoing boundary conditions. */
-  for (int a=0; a < _num_azim; a++){
-    ac = _num_azim - a - 1;
-    for (int i=0; i < _num_tracks[a]; i++){
+  for (int i=0; i < _num_azim; i++) {
+    ic = _num_azim - i - 1;
+    for (int j=0; j < _num_tracks[i]; j++) {
 
       /* Get current track */
-      track = &_tracks[a][i];
-
-      /* Set boundary conditions for tracks in [0,PI/2] */
-      if (a < _num_azim/2){
-        if (i < _num_y[a])
+      track = &_tracks[i][j];
+      
+      /* Set boundary conditions for tracks in [0, PI/2] */
+      if (i < _num_azim/2) {
+        if (j < _num_y[i])
           track->setBCOut(_geometry->getMaxXBoundaryType());
         else
           track->setBCOut(_geometry->getMaxYBoundaryType());
 
-        if (i < _num_x[a])
+        if (j < _num_x[i])
           track->setBCIn(_geometry->getMinYBoundaryType());
         else
-          track->setBCIn(_geometry->getMinXBoundaryType());        
+          track->setBCIn(_geometry->getMinXBoundaryType());
       }
 
-      /* Set boundary conditions for tracks in [PI/2,PI] */
+      /* Set boundary conditions for tracks in [PI/2, PI] */
       else{
-        if (i < _num_y[a])
+        if (j < _num_y[i])
           track->setBCOut(_geometry->getMinXBoundaryType());
         else
           track->setBCOut(_geometry->getMaxYBoundaryType());
 
-        if (i < _num_x[a])
+        if (j < _num_x[i])
           track->setBCIn(_geometry->getMinYBoundaryType());
         else
           track->setBCIn(_geometry->getMaxXBoundaryType());
       }
-      
+
       /* Set connecting tracks in forward direction */
-      if (i < _num_y[a]) {
+      if (j < _num_y[i]) {
         track->setNextOut(false);
         if (track->getBCOut() == PERIODIC)
-          track->setTrackOut(&_tracks[a][i + _num_x[a]]);
+          track->setTrackOut(&_tracks[i][j + _num_x[i]]);
         else
-          track->setTrackOut(&_tracks[ac][i + _num_x[a]]);
+          track->setTrackOut(&_tracks[ic][j + _num_x[i]]);
       }
       else{
         if (track->getBCOut() == PERIODIC) {
           track->setNextOut(false);
-          track->setTrackOut(&_tracks[a][i - _num_y[a]]);
+          track->setTrackOut(&_tracks[i][j - _num_y[i]]);
         }
-        else {
+        else{
           track->setNextOut(true);
-          track->setTrackOut(&_tracks[ac][_num_x[a] + 2*_num_y[a] - i - 1]);
+          track->setTrackOut(&_tracks[ic][_num_x[i] + 2*_num_y[i] - j - 1]);
         }
       }
 
       /* Set connecting tracks in backward direction */
-      if (i < _num_x[a]) {
+      if (j < _num_x[i]) {
         if (track->getBCIn() == PERIODIC) {
           track->setNextIn(true);
-          track->setTrackIn(&_tracks[a][i + _num_y[a]]);
+          track->setTrackIn(&_tracks[i][j + _num_y[i]]);
         }
-        else {
+        else{
           track->setNextIn(false);
-          track->setTrackIn(&_tracks[ac][_num_x[a] - i - 1]);
+          track->setTrackIn(&_tracks[ic][_num_x[i] - j - 1]);
         }
       }
       else{
         track->setNextIn(true);
         if (track->getBCIn() == PERIODIC)
-          track->setTrackIn(&_tracks[a][i - _num_x[a]]);
+          track->setTrackIn(&_tracks[i][j - _num_x[i]]);
         else
-          track->setTrackIn(&_tracks[ac][i - _num_x[a]]);
+          track->setTrackIn(&_tracks[ic][j - _num_x[i]]);
       }
     }
   }
@@ -955,7 +1210,6 @@ void TrackGenerator::segmentize() {
       #pragma omp parallel for firstprivate(track)
       for (int j=0; j < _num_tracks[i]; j++) {
         track = &_tracks[i][j];
-        log_printf(DEBUG, "Segmenting Track %d", track->getUid());
         _geometry->segmentize(track);
       }
     }
@@ -1009,12 +1263,8 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(azim_weights, sizeof(double), _num_azim, out);
   delete [] azim_weights;
 
-  /* Write the array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  fwrite(_num_tracks_by_halfspace, sizeof(int), 5, out);
-  
   Track* curr_track;
-  double x0, y0, x1, y1;
+  double x0, y0, z0, x1, y1, z1;
   double phi;
   int azim_angle_index;
   int num_segments;
@@ -1027,6 +1277,8 @@ void TrackGenerator::dumpTracksToFile() {
   int region_id;
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
+  int cmfd_corner_fwd;
+  int cmfd_corner_bwd;
 
   /* Loop over all Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1036,8 +1288,10 @@ void TrackGenerator::dumpTracksToFile() {
       curr_track = &_tracks[i][j];
       x0 = curr_track->getStart()->getX();
       y0 = curr_track->getStart()->getY();
+      z0 = curr_track->getStart()->getZ();
       x1 = curr_track->getEnd()->getX();
       y1 = curr_track->getEnd()->getY();
+      z1 = curr_track->getEnd()->getZ();
       phi = curr_track->getPhi();
       azim_angle_index = curr_track->getAzimAngleIndex();
       num_segments = curr_track->getNumSegments();
@@ -1045,8 +1299,10 @@ void TrackGenerator::dumpTracksToFile() {
       /* Write data for this Track to the Track file */
       fwrite(&x0, sizeof(double), 1, out);
       fwrite(&y0, sizeof(double), 1, out);
+      fwrite(&z0, sizeof(double), 1, out);
       fwrite(&x1, sizeof(double), 1, out);
       fwrite(&y1, sizeof(double), 1, out);
+      fwrite(&z1, sizeof(double), 1, out);
       fwrite(&phi, sizeof(double), 1, out);
       fwrite(&azim_angle_index, sizeof(int), 1, out);
       fwrite(&num_segments, sizeof(int), 1, out);
@@ -1069,47 +1325,60 @@ void TrackGenerator::dumpTracksToFile() {
         if (cmfd != NULL) {
           cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
           cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+          cmfd_corner_fwd = curr_segment->_cmfd_corner_fwd;
+          cmfd_corner_bwd = curr_segment->_cmfd_corner_bwd;
           fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
           fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
+          fwrite(&cmfd_corner_fwd, sizeof(int), 1, out);
+          fwrite(&cmfd_corner_bwd, sizeof(int), 1, out);
         }
       }
     }
   }
 
   /* Get FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map = 
+  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map = 
       _geometry->getFSRKeysMap();
-  std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<std::string>* FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
-  std::size_t fsr_key;
+  std::string fsr_key;
   int fsr_id;
   int fsr_counter = 0;
-  double x, y;
+  double x, y, z;
 
   /* Write number of FSRs */
   int num_FSRs = _geometry->getNumFSRs();
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  std::size_t* fsr_key_list = FSR_keys_map->keys();
+  std::string* fsr_key_list = FSR_keys_map->keys();
   fsr_data** fsr_data_list = FSR_keys_map->values();
   for (int i=0; i < num_FSRs; i++) {
 
-    /* Write data to file from FSR_keys_map */
+    /* Write key to file from FSR_keys_map */
     fsr_key = fsr_key_list[i];
+    string_length = fsr_key.length() + 1;
+    fwrite(&string_length, sizeof(int), 1, out);
+    fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
+
+    /* Write data to file from FSR_keys_map */
     fsr_id = fsr_data_list[i]->_fsr_id;
     x = fsr_data_list[i]->_point->getX();
     y = fsr_data_list[i]->_point->getY();
-    fwrite(&fsr_key, sizeof(std::size_t), 1, out);
+    z = fsr_data_list[i]->_point->getZ();
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
     fwrite(&y, sizeof(double), 1, out);
+    fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_material_IDs */
     fwrite(&(FSRs_to_material_IDs->at(fsr_counter)), sizeof(int), 1, out);
 
     /* Write data to file from FSRs_to_keys */
-    fwrite(&(FSRs_to_keys->at(fsr_counter)), sizeof(std::size_t), 1, out);
+    fsr_key = FSRs_to_keys->at(fsr_counter);
+    string_length = fsr_key.length() + 1;
+    fwrite(&string_length, sizeof(int), 1, out);
+    fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
 
     /* Increment FSR ID counter */
     fsr_counter++;
@@ -1161,7 +1430,6 @@ bool TrackGenerator::readTracksFromFile() {
   /* Deletes Tracks arrays if tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_tracks_by_halfspace;
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
@@ -1215,13 +1483,8 @@ bool TrackGenerator::readTracksFromFile() {
 
   delete [] azim_weights;
   
-  /* Import the array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  _num_tracks_by_halfspace = new int[5];
-  ret = fread(_num_tracks_by_halfspace, sizeof(int), 5, in);
-  
   Track* curr_track;
-  double x0, y0, x1, y1;
+  double x0, y0, z0, x1, y1, z1;
   double phi;
   int azim_angle_index;
   int num_segments;
@@ -1233,11 +1496,11 @@ bool TrackGenerator::readTracksFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
+  int cmfd_corner_fwd;
+  int cmfd_corner_bwd;
   segment curr_segment;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
-
-  int uid = 0;
 
   /* Loop over Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1249,16 +1512,17 @@ bool TrackGenerator::readTracksFromFile() {
       /* Import data for this Track from Track file */
       ret = fread(&x0, sizeof(double), 1, in);
       ret = fread(&y0, sizeof(double), 1, in);
+      ret = fread(&z0, sizeof(double), 1, in);
       ret = fread(&x1, sizeof(double), 1, in);
       ret = fread(&y1, sizeof(double), 1, in);
+      ret = fread(&z1, sizeof(double), 1, in);
       ret = fread(&phi, sizeof(double), 1, in);
       ret = fread(&azim_angle_index, sizeof(int), 1, in);
       ret = fread(&num_segments, sizeof(int), 1, in);
 
       /* Initialize a Track with this data */
       curr_track = &_tracks[i][j];
-      curr_track->setValues(x0, y0, x1, y1, phi);
-      curr_track->setUid(uid);
+      curr_track->setValues(x0, y0, z0, x1, y1, z1, phi);
       curr_track->setAzimAngleIndex(azim_angle_index);
 
       /* Loop over all segments in this Track */
@@ -1278,29 +1542,31 @@ bool TrackGenerator::readTracksFromFile() {
         if (cmfd != NULL) {
           ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
           ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
+          ret = fread(&cmfd_corner_fwd, sizeof(int), 1, in);
+          ret = fread(&cmfd_corner_bwd, sizeof(int), 1, in);
           curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
           curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+          curr_segment._cmfd_corner_fwd = cmfd_corner_fwd;
+          curr_segment._cmfd_corner_bwd = cmfd_corner_bwd;
         }
 
         /* Add this segment to the Track */
         curr_track->addSegment(&curr_segment);
       }
-
-      uid++;
     }
   }
 
   /* Create FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
-      new ParallelHashMap<std::size_t, fsr_data*>;
+  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map =
+      new ParallelHashMap<std::string, fsr_data*>;
   std::vector<int>* FSRs_to_material_IDs
     = new std::vector<int>;
-  std::vector<std::size_t>* FSRs_to_keys
-    = new std::vector<std::size_t>;
+  std::vector<std::string>* FSRs_to_keys
+    = new std::vector<std::string>;
   int num_FSRs;
-  std::size_t fsr_key;
+  std::string fsr_key;
   int fsr_key_id;
-  double x, y;
+  double x, y, z;
 
   /* Get number of FSRs */
   ret = fread(&num_FSRs, sizeof(int), 1, in);
@@ -1308,15 +1574,21 @@ bool TrackGenerator::readTracksFromFile() {
   /* Read FSR vector maps from file */
   for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
 
+    /* Read key for FSR_keys_map */
+    ret = fread(&string_length, sizeof(int), 1, in);
+    char* char_buffer1 = new char[string_length];
+    ret = fread(char_buffer1, sizeof(char)*string_length, 1, in);
+    fsr_key = std::string(char_buffer1);
+
     /* Read data from file for FSR_keys_map */
-    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
     ret = fread(&fsr_key_id, sizeof(int), 1, in);
     ret = fread(&x, sizeof(double), 1, in);
     ret = fread(&y, sizeof(double), 1, in);
+    ret = fread(&z, sizeof(double), 1, in);
     fsr_data* fsr = new fsr_data;
     fsr->_fsr_id = fsr_key_id;
     Point* point = new Point();
-    point->setCoords(x,y);
+    point->setCoords(x,y,z);
     fsr->_point = point;
     FSR_keys_map->insert(fsr_key, fsr);
 
@@ -1325,7 +1597,10 @@ bool TrackGenerator::readTracksFromFile() {
     FSRs_to_material_IDs->push_back(material_id);
 
     /* Read data from file for FSR_to_keys */
-    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    ret = fread(&string_length, sizeof(int), 1, in);
+    char* char_buffer2 = new char[string_length];
+    ret = fread(char_buffer2, sizeof(char)*string_length, 1, in);
+    fsr_key = std::string(char_buffer2);
     FSRs_to_keys->push_back(fsr_key);
   }
 
@@ -1342,8 +1617,7 @@ bool TrackGenerator::readTracksFromFile() {
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
-      std::vector<int>* fsrs = new std::vector<int>;
-      cell_fsrs.push_back(*fsrs);
+      cell_fsrs.push_back(std::vector<int>());
       ret = fread(&num_FSRs, sizeof(int), 1, in);
 
       /* Loop over FRSs within cell */
@@ -1469,6 +1743,7 @@ void TrackGenerator::generateFSRCentroids() {
       segment* segments = _tracks[i][j].getSegments();
       double x = _tracks[i][j].getStart()->getX();
       double y = _tracks[i][j].getStart()->getY();
+      double z = _tracks[i][j].getStart()->getZ();
       double phi = _tracks[i][j].getPhi();
 
       for (int s=0; s < num_segments; s++) {
@@ -1481,7 +1756,8 @@ void TrackGenerator::generateFSRCentroids() {
         centroids[fsr]->setY(centroids[fsr]->getY() + _azim_weights[i] *
                              (y + sin(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
-
+        centroids[fsr]->setZ(z);
+        
         x += cos(phi) * curr_segment->_length;
         y += sin(phi) * curr_segment->_length;
       }
@@ -1492,8 +1768,9 @@ void TrackGenerator::generateFSRCentroids() {
   for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
 
-  /* Delete temporary array of FSR volumes */
+  /* Delete temporary array of FSR volumes and centroids */
   delete [] FSR_volumes;
+  delete [] centroids;
 }
 
 
@@ -1556,11 +1833,15 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           new_segment->_region_id = fsr_id;
 
           /* Assign CMFD surface boundaries */
-          if (k == 0)
+          if (k == 0) {
             new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+            new_segment->_cmfd_corner_bwd = curr_segment->_cmfd_corner_bwd;
+          }
 
-          if (k == min_num_cuts-1)
+          if (k == min_num_cuts-1) {
             new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+            new_segment->_cmfd_corner_fwd = curr_segment->_cmfd_corner_fwd;
+          }
 
           /* Insert the new segment to the Track */
           _tracks[i][j].insertSegment(s+k+1, new_segment);

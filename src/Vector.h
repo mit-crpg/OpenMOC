@@ -33,7 +33,6 @@ private:
   int _num_rows;
   int _num_x;
   int _num_y;
-  int _num_z;
   int _num_groups;
 
   /** OpenMP mutual exclusion locks for atomic cell updates */
@@ -41,11 +40,10 @@ private:
 
   void setNumX(int num_x);
   void setNumY(int num_y);
-  void setNumZ(int num_z);
   void setNumGroups(int num_groups);
   
 public:
-  Vector(int num_x=1, int num_y=1, int num_z=1, int num_groups=1);
+  Vector(int num_x=1, int num_y=1, int num_groups=1);
   virtual ~Vector();
 
   /* Worker functions */
@@ -60,7 +58,6 @@ public:
   FP_PRECISION* getArray();
   int getNumX();
   int getNumY();
-  int getNumZ();
   int getNumGroups();
   int getNumRows();
   FP_PRECISION getSum();

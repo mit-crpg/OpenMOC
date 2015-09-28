@@ -33,7 +33,7 @@ VectorizedSolver::~VectorizedSolver() {
     _boundary_flux = NULL;
   }
 
-  if (_scalar_flux != NULL) {
+  if (_scalar_flux != NULL && !_user_fluxes) {
     MM_FREE(_scalar_flux);
     _scalar_flux = NULL;
   }
@@ -176,7 +176,7 @@ void VectorizedSolver::initializeFluxArrays() {
   if (_boundary_flux != NULL)
     MM_FREE(_boundary_flux);
 
-  if (_scalar_flux != NULL)
+  if (_scalar_flux != NULL && !_user_fluxes)
     MM_FREE(_scalar_flux);
 
   if (_old_scalar_flux != NULL)
@@ -669,21 +669,21 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
                                             bool direction,
                                             FP_PRECISION* track_flux) {
   int start;
-  bool bc;
+  bool transfer_flux;
   int track_out_id;
 
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isNextOut() * _polar_times_groups;
+    transfer_flux = _tracks[track_id]->getTransferFluxOut();
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
-    bc = std::min((int)_tracks[track_id]->getBCOut(), 1);
   }
 
   /* For the "reverse" direction */
   else {
     start = _tracks[track_id]->isNextIn() * _polar_times_groups;
+    transfer_flux = _tracks[track_id]->getTransferFluxIn();
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
-    bc = std::min((int)_tracks[track_id]->getBCIn(), 1);
   }
 
   FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
@@ -697,7 +697,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
       /* Loop over energy groups within this vector */
       #pragma simd vectorlength(VEC_LENGTH)
       for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        track_out_flux(p,e) = track_flux(p,e) * bc;
+        track_out_flux(p,e) = track_flux(p,e) * transfer_flux;
     }
   }
 }

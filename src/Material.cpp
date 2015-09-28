@@ -299,9 +299,9 @@ FP_PRECISION* Material::getDifHat() {
 
   if (_dif_hat == NULL) {
 
-    _dif_hat = new FP_PRECISION[6*_num_groups];
+    _dif_hat = new FP_PRECISION[NUM_SURFACES*_num_groups];
 
-    for (int e = 0; e < 6*_num_groups; e++)
+    for (int e = 0; e < NUM_SURFACES*_num_groups; e++)
       _dif_hat[e] = 0.0;
   }
 
@@ -319,9 +319,9 @@ FP_PRECISION* Material::getDifTilde() {
 
   if (_dif_tilde == NULL) {
 
-    _dif_tilde = new FP_PRECISION[6*_num_groups];
+    _dif_tilde = new FP_PRECISION[NUM_SURFACES*_num_groups];
 
-    for (int e = 0; e < 6*_num_groups; e++)
+    for (int e = 0; e < NUM_SURFACES*_num_groups; e++)
       _dif_tilde[e] = 0.0;
   }
 
@@ -1214,9 +1214,9 @@ void Material::setDifHat(double* xs, int num_groups) {
                _id, _num_groups);
 
   if (_dif_hat == NULL)
-    _dif_hat = new FP_PRECISION[6*_num_groups];
+    _dif_hat = new FP_PRECISION[NUM_SURFACES*_num_groups];
 
-  for (int i=0; i < _num_groups*6; i++)
+  for (int i=0; i < _num_groups*NUM_SURFACES; i++)
     _dif_hat[i] = xs[i];
 }
 
@@ -1237,9 +1237,9 @@ void Material::setDifHatByGroup(double xs, int group, int surface) {
 
   if (_dif_hat == NULL) {
 
-    _dif_hat = new FP_PRECISION[6*_num_groups];
+    _dif_hat = new FP_PRECISION[NUM_SURFACES*_num_groups];
 
-    for (int i=0; i < _num_groups*6; i++)
+    for (int i=0; i < _num_groups*NUM_SURFACES; i++)
       _dif_hat[i] = 0.0;
   }
 
@@ -1274,10 +1274,10 @@ void Material::setDifTilde(double* xs, int num_groups) {
               _id, _num_groups);
 
   if (_dif_tilde == NULL) {
-    _dif_tilde = new FP_PRECISION[6*_num_groups];
+    _dif_tilde = new FP_PRECISION[NUM_SURFACES*_num_groups];
   }
 
-  for (int i=0; i < _num_groups*6; i++)
+  for (int i=0; i < _num_groups*NUM_SURFACES; i++)
     _dif_tilde[i] = xs[i];
 }
 
@@ -1297,9 +1297,9 @@ void Material::setDifTildeByGroup(double xs, int group, int surface) {
                group, _id, _num_groups);
 
   if (_dif_tilde == NULL) {
-    _dif_tilde = new FP_PRECISION[6*_num_groups];
+    _dif_tilde = new FP_PRECISION[NUM_SURFACES*_num_groups];
 
-    for (int i=0; i < _num_groups*6; i++)
+    for (int i=0; i < _num_groups*NUM_SURFACES; i++)
       _dif_tilde[i] = 0.0;
   }
 
@@ -1514,13 +1514,13 @@ Material* Material::clone() {
     if (_buckling != NULL)
       clone->setBucklingByGroup((double)_buckling[i], i+1);
 
-    for (int j=0; j < 6; j++) {
+    for (int j=0; j < NUM_SURFACES; j++) {
 
       if (_dif_hat != NULL)
-        clone->setDifHatByGroup((double)_dif_hat[i*6+j], i+1, j);
+        clone->setDifHatByGroup((double)_dif_hat[i*NUM_SURFACES+j], i+1, j);
 
       if (_dif_tilde != NULL)
-        clone->setDifTildeByGroup((double)_dif_tilde[i*6+j], i+1, j);
+        clone->setDifTildeByGroup((double)_dif_tilde[i*NUM_SURFACES+j], i+1, j);
     }
   }
 

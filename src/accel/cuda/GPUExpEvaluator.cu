@@ -4,6 +4,9 @@
 /** A boolean whether to use linear interpolation to compute exponentials */
 __constant__ bool interpolate[1];
 
+/** The maximum allowable optical length represented in the table */
+__constant__ FP_PRECISION max_optical_length[1];
+
 /** The inverse spacing for the exponential linear interpolation table */
 __constant__ FP_PRECISION inverse_exp_table_spacing[1];
 
@@ -39,6 +42,11 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
     cudaMemcpyToSymbol(inverse_exp_table_spacing, (void*)&inverse_spacing_h,
                        sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
+    /* Copy the number of table entries to constant memory on the device */
+    FP_PRECISION max_optical_length_h = evaluator_h->getMaxOpticalLength();
+    cudaMemcpyToSymbol(max_optical_length, (void*)&max_optical_length_h,
+               sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+
     /* Allocate memory for the interpolation table on the device */
     int exp_table_size_h = evaluator_h->getTableSize();
     FP_PRECISION* exp_table_h = evaluator_h->getExpTable();
@@ -73,11 +81,9 @@ __device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
 
   /* Evaluate the exponential using the linear interpolation table */
   if (*interpolate) {
-    int index;
-
-    index = floor(tau * (*inverse_exp_table_spacing));
+    tau = min(tau, (*max_optical_length));
+    int index = floor(tau * (*inverse_exp_table_spacing));
     index *= (*two_times_num_polar);
-
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                          _exp_table[index + 2 * polar +1]));
   }

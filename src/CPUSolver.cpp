@@ -38,6 +38,48 @@ int CPUSolver::getNumThreads() {
 
 
 /**
+ * @brief Fills an array with the scalar fluxes.
+ * @details This class method is a helper routine called by the OpenMOC
+ *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Although this method appears to require two arguments, in
+ *          reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_fluxes = num_groups * num_FSRs
+ *          fluxes = solver.getFluxes(num_fluxes)
+ * @endcode
+ *
+ * @param fluxes an array of FSR scalar fluxes in each energy group
+ * @param num_fluxes the total number of FSR flux values
+ */
+void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
+
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
+               "%d groups and %d FSRs which does not match the requested "
+               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
+               "have not yet been allocated");
+
+  /* If the user called setFluxes(...) they already have the flux */
+  if (_user_fluxes && _scalar_flux == out_fluxes)
+    return;
+
+  /* Otherwise, copy the fluxes into the input array */
+  else {
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+      for (int e=0; e < _num_groups; e++)
+        out_fluxes[r*_num_groups+e] = _scalar_flux(r,e);
+    }
+  }
+}
+
+
+/**
  * @brief Sets the number of shared memory OpenMP threads to use (>0).
  * @param num_threads the number of threads
  */
@@ -81,6 +123,39 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
 
   /* Store the fixed source for this FSR and energy group */
   _fixed_sources(fsr_id,group-1) = source;  
+}
+
+
+/**
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine may be used as follows from within Python:
+ *
+ * @code
+ *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          solver.setFluxes(fluxes)
+ * @endcode
+ *
+ *          NOTE: This routine stores a pointer to the fluxes for the Solver
+ *          to use during transport sweeps and other calculations. Hence, the 
+ *          flux array pointer is shared between NumPy and the Solver.
+ *
+ * @param in_fluxes an array with the fluxes to use
+ * @param num_fluxes the number of flux values (# groups x # FSRs)
+ */
+void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  /* Allocate array if flux arrays have not yet been initialized */
+  if (_scalar_flux == NULL)
+    initializeFluxArrays();
+
+  /* Set the scalar flux array pointer to the array passed in from NumPy */
+  _scalar_flux = in_fluxes;
+  _user_fluxes = true;
 }
 
 
@@ -296,13 +371,13 @@ void CPUSolver::computeFSRSources() {
       material = _FSR_materials[r];
       sigma_t = material->getSigmaT();
 
-      /* Compute scatter + fission source for group G */
-      for (int G=0; G < _num_groups; G++) {
-        for (int g=0; g < _num_groups; g++) {
-          sigma_s = material->getSigmaSByGroup(g+1,G+1);
-          fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
-          scatter_sources[g] = sigma_s * _scalar_flux(r,g);
-          fission_sources[g] = fiss_mat * _scalar_flux(r,g);
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
+          fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
         }
 
         scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
@@ -312,9 +387,9 @@ void CPUSolver::computeFSRSources() {
         fission_source /= _k_eff;
 
         /* Compute total (scatter+fission+fixed) reduced source */
-        _reduced_sources(r,G) = _fixed_sources(r,G);
-        _reduced_sources(r,G) += scatter_source + fission_source;
-        _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
+        _reduced_sources(r,g) = _fixed_sources(r,g);
+        _reduced_sources(r,g) += scatter_source + fission_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
       }
     }
 
@@ -323,6 +398,91 @@ void CPUSolver::computeFSRSources() {
   }
 }
 
+/**
+ * @brief Computes the total fission source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ */
+void CPUSolver::computeFSRFissionSources() {
+
+  #pragma omp parallel default(none)
+  {
+    int tid;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION fiss_mat;
+    FP_PRECISION fission_source;
+    FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
+
+    /* Compute the total source for each FSR */
+    #pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+      tid = omp_get_thread_num();
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
+
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
+        }
+        
+        fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
+                                                    _num_groups);
+
+        /* Compute total (fission) reduced source */
+        _reduced_sources(r,g) = fission_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
+      }
+    }
+
+    delete [] fission_sources;
+  }
+}
+
+/**
+ * @brief Computes the total scattering source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ */
+void CPUSolver::computeFSRScatterSources() {
+  
+  #pragma omp parallel default(none)
+  {
+    int tid;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION sigma_s;
+    FP_PRECISION scatter_source;
+    FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
+
+    /* Compute the total source for each FSR */
+    #pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+      tid = omp_get_thread_num();
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
+
+      /* Compute scatter + fission source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
+        }
+
+        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
+                                                    _num_groups);
+
+        /* Compute total (scatter) reduced source */
+        _reduced_sources(r,g) = scatter_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI / sigma_t[g];
+      }
+    }
+
+    delete [] scatter_sources;
+  }
+}
 
 /**
  * @brief Computes the residual between source/flux iterations.
@@ -506,12 +666,13 @@ void CPUSolver::computeKeff() {
 void CPUSolver::transportSweep() {
 
   int tid;
-  int min_track, max_track;
   int azim_index, num_segments;
   Track* curr_track;
   segment* curr_segment;
   segment* segments;
   FP_PRECISION* track_flux;
+  int min_track = 0;
+  int max_track = 0;
 
   log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
@@ -519,15 +680,15 @@ void CPUSolver::transportSweep() {
   flattenFSRFluxes(0.0);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->zeroSurfaceCurrents();
+    _cmfd->zeroCurrents();
 
-  /* Loop over azimuthal angle and periodic track halfspaces */
-  for (int i=0; i < _num_independent_sweeps; i++) {
+  /* Loop over the parallel track groups */
+  for (int i=0; i < _num_parallel_track_groups; i++) {
 
     /* Compute the minimum and maximum Track IDs corresponding to
-     * this azimuthal angle and periodic track halfspace */
-    min_track = _num_tracks_by_halfspace[i];
-    max_track = _num_tracks_by_halfspace[i+1];
+     * this parallel track group */
+    min_track = max_track;
+    max_track += _track_generator->getNumTracksByParallelGroup(i);
 
     /* Loop over each thread within this azimuthal angle halfspace */
     #pragma omp parallel for private(curr_track, azim_index, num_segments, \
@@ -536,7 +697,7 @@ void CPUSolver::transportSweep() {
 
       tid = omp_get_thread_num();
 
-      /* Use local array accumulator to prevent false sharing*/
+      /* Use local array accumulator to prevent false sharing */
       FP_PRECISION* thread_fsr_flux;
       thread_fsr_flux = new FP_PRECISION[_num_groups];
 
@@ -551,7 +712,7 @@ void CPUSolver::transportSweep() {
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, track_flux, true);
+        tallyCurrent(curr_segment, azim_index, track_flux, true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -563,7 +724,7 @@ void CPUSolver::transportSweep() {
       for (int s=num_segments-1; s > -1; s--) {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, track_flux, false);
+        tallyCurrent(curr_segment, azim_index, track_flux, false);
       }
       delete [] thread_fsr_flux;
 
@@ -621,19 +782,19 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
 /**
  * @brief Tallies the current contribution from this segment across the
- *        the appropriate CMFD mesh cell surface.
+ *        the appropriate CMFD mesh cell surface or corner.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index the azimuthal index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
  */
-void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                    FP_PRECISION* track_flux, bool fwd) {
+void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
+                             FP_PRECISION* track_flux, bool fwd) {
 
-  /* Tally surface currents if CMFD is in use */
+  /* Tally surface or corner currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->tallySurfaceCurrent(curr_segment, track_flux, 
-                               &_polar_weights(azim_index,0), fwd);
+    _cmfd->tallyCurrent(curr_segment, track_flux,
+                        &_polar_weights(azim_index,0), fwd);
 }
 
 
@@ -653,20 +814,20 @@ void CPUSolver::transferBoundaryFlux(int track_id,
                                      bool direction,
                                      FP_PRECISION* track_flux) {
   int start;
-  int bc;
+  bool transfer_flux;
   int track_out_id;
 
   /* For the "forward" direction */
   if (direction) {
     start = _tracks[track_id]->isNextOut() * _polar_times_groups;
-    bc = std::min((int)_tracks[track_id]->getBCOut(), 1);
+    transfer_flux = _tracks[track_id]->getTransferFluxOut();
     track_out_id = _tracks[track_id]->getTrackOut()->getUid();
   }
 
   /* For the "reverse" direction */
   else {
     start = _tracks[track_id]->isNextIn() * _polar_times_groups;
-    bc = std::min((int)_tracks[track_id]->getBCIn(), 1);
+    transfer_flux = _tracks[track_id]->getTransferFluxIn();
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
@@ -675,7 +836,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
     for (int p=0; p < _num_polar; p++)
-      track_out_flux(p,e) = track_flux(p,e) * bc;
+      track_out_flux(p,e) = track_flux(p,e) * transfer_flux;
   }
 }
 

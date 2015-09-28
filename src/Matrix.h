@@ -38,7 +38,6 @@ private:
   bool _modified;
   int _num_x;
   int _num_y;
-  int _num_z;
   int _num_groups;
   int _num_rows;
 
@@ -48,11 +47,10 @@ private:
   void convertToCSR();
   void setNumX(int num_x);
   void setNumY(int num_y);
-  void setNumZ(int num_z);
   void setNumGroups(int num_groups);
   
 public:
-  Matrix(int num_x=1, int num_y=1, int num_z=1, int num_groups=1);
+  Matrix(int num_x=1, int num_y=1, int num_groups=1);
   virtual ~Matrix();
 
   /* Worker functions */
@@ -71,7 +69,6 @@ public:
   FP_PRECISION* getDiag();
   int getNumX();
   int getNumY();
-  int getNumZ();
   int getNumGroups();
   int getNumRows();
   int getNNZ();

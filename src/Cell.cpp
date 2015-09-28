@@ -67,11 +67,9 @@ Cell::Cell(int id, const char* name) {
 
   /* Set the default boundaries to be REFLECTIVE */
   _min_x_bc = REFLECTIVE;
-  _min_y_bc = REFLECTIVE;
-  _min_z_bc = REFLECTIVE;
   _max_x_bc = REFLECTIVE;
+  _min_y_bc = REFLECTIVE;
   _max_y_bc = REFLECTIVE;
-  _max_z_bc = REFLECTIVE;
 }
 
 
@@ -79,12 +77,14 @@ Cell::Cell(int id, const char* name) {
  * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
-  /*
+
+  std::map<int, surface_halfspace*>::iterator iter;
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+    delete iter->second;
   _surfaces.clear();
 
   if (_name != NULL)
     delete [] _name;
-  */
 }
 
 
@@ -271,28 +271,6 @@ boundaryType Cell::getMaxYBoundaryType() {
 
 
 /**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable z-coordinate in the Cell.
- * @return the boundary condition at the minimum z-coordinate
- */
-boundaryType Cell::getMinZBoundaryType() {
-  findBoundingBox();
-  return _min_z_bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable z-coordinate in the Cell.
- * @return the boundary condition at the maximum z-coordinate
- */
-boundaryType Cell::getMaxZBoundaryType() {
-  findBoundingBox();
-  return _max_z_bc;
-}
-
-
-/**
  * @brief Return the number of Surfaces in the Cell.
  * @return the number of Surfaces
  */
@@ -306,7 +284,7 @@ int Cell::getNumSurfaces() const {
  *        surfaces bounding the Cell.
  * @return std::map of Surface pointers and halfspaces
  */
-std::map<int, surface_halfspace> Cell::getSurfaces() const {
+std::map<int, surface_halfspace*> Cell::getSurfaces() const {
   return _surfaces;
 }
 
@@ -455,7 +433,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   new_surf_half->_surface = surface;
   new_surf_half->_halfspace = halfspace;
 
-  _surfaces[surface->getId()] = *new_surf_half;
+  _surfaces[surface->getId()] = new_surf_half;
 }
 
 
@@ -465,8 +443,10 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  */
 void Cell::removeSurface(Surface* surface) {
 
-  if (_surfaces.find(surface->getId()) != _surfaces.end())
+  if (_surfaces.find(surface->getId()) != _surfaces.end()) {
+    delete _surfaces[surface->getId()];
     _surfaces.erase(surface->getId());
+  }
 }
 
 
@@ -496,15 +476,15 @@ void Cell::findBoundingBox() {
   _max_z = std::numeric_limits<double>::infinity();
 
   /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
   Surface* surface;
   int halfspace;
   double min_x, max_x, min_y, max_y, min_z, max_z;
 
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
-    surface = iter->second._surface;
-    halfspace = iter->second._halfspace;
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
 
     max_x = surface->getMaxX(halfspace);
     max_y = surface->getMaxY(halfspace);
@@ -524,7 +504,6 @@ void Cell::findBoundingBox() {
     }
     if (max_z != std::numeric_limits<double>::infinity() && max_z < _max_z) {
       _max_z = max_z;
-      _max_z_bc = surface->getBoundaryType();
     }
 
     if (min_x != -std::numeric_limits<double>::infinity() && min_x > _min_x) {
@@ -537,7 +516,6 @@ void Cell::findBoundingBox() {
     }
     if (min_z != -std::numeric_limits<double>::infinity() && min_z > _min_z) {
       _min_z = min_z;
-      _min_z_bc = surface->getBoundaryType();
     }
   }
 
@@ -556,14 +534,6 @@ void Cell::findBoundingBox() {
     _min_y = -std::numeric_limits<double>::infinity();
   if (_min_z == std::numeric_limits<double>::infinity())
     _min_z = -std::numeric_limits<double>::infinity();
-
-  /* Check to make sure min-z and max-z BCs are REFLECTIVE */
-  if (_min_z_bc != REFLECTIVE)
-    log_printf(ERROR, "The min-z boundary condition must be REFLECTIVE"
-               " since only 2D (xy) problems are supported");
-  else if (_max_z_bc != REFLECTIVE)
-    log_printf(ERROR, "The max-z boundary condition must be REFLECTIVE"
-               " since only 2D (xy) problems are supported");
 }
 
 
@@ -577,12 +547,12 @@ void Cell::findBoundingBox() {
 bool Cell::containsPoint(Point* point) {
 
   /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
 
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Return false if the Point is not in the correct Surface halfspace */
-    if (iter->second._surface->evaluate(point) * iter->second._halfspace
+    if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
         < -ON_SURFACE_THRESH)
       return false;
   }
@@ -612,21 +582,19 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @param point the Point of interest
  * @param azim the azimuthal angle of the trajectory (in radians from 
  *        \f$[0,2\pi]\f$)
- * @param polar the polar angle of the trajectory (in radians from 
- *        \f$[0,\pi]\f$)
  */
-double Cell::minSurfaceDist(Point* point, double azim, double polar) {
+double Cell::minSurfaceDist(Point* point, double azim) {
 
   double curr_dist;
   double min_dist = INFINITY;
 
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
 
   /* Loop over all of the Cell's Surfaces */
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second._surface->getMinDistance(point, azim, polar);
+    curr_dist = iter->second->_surface->getMinDistance(point, azim);
 
     /* If the distance to Cell is less than current min distance, update */
     if (curr_dist < min_dist)
@@ -655,10 +623,10 @@ Cell* Cell::clone() {
     new_cell->setFill((Universe*)_fill);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
 
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    new_cell->addSurface(iter->second._halfspace, iter->second._surface);
+    new_cell->addSurface(iter->second->_halfspace, iter->second->_surface);
 
   return new_cell;
 }
@@ -752,13 +720,13 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   std::vector<Cell*> rings;
 
   /* See if the Cell contains 1 or 2 CIRCLE Surfaces */
-  std::map<int, surface_halfspace>::iterator iter1;
+  std::map<int, surface_halfspace*>::iterator iter1;
   for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
     /* Determine if any of the Surfaces is a Circle */
-    if (iter1->second._surface->getSurfaceType() == CIRCLE) {
-      int halfspace = iter1->second._halfspace;
-      Circle* circle = static_cast<Circle*>(iter1->second._surface);
+    if (iter1->second->_surface->getSurfaceType() == CIRCLE) {
+      int halfspace = iter1->second->_halfspace;
+      Circle* circle = static_cast<Circle*>(iter1->second->_surface);
 
       /* Outermost bounding Circle */
       if (halfspace == -1) {
@@ -935,10 +903,10 @@ void Cell::buildNeighbors() {
   int halfspace;
 
   /* Add this Cell to all of the Surfaces in this Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second._surface;
-    halfspace = iter->second._halfspace;
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
     surface->addNeighborCell(halfspace, this);
   }
 
@@ -980,10 +948,10 @@ std::string Cell::toString() {
   string << ", # surfaces = " << getNumSurfaces();
 
   /** Add the IDs for the Surfaces in this Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
   string << ", surface ids = ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second._halfspace * iter->first << ", ";
+    string <<  iter->second->_halfspace * iter->first << ", ";
 
   return string.str();
 }

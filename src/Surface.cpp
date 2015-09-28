@@ -69,6 +69,8 @@ Surface::~Surface() {
   if (!_neighbors.empty()) {
     _neighbors[-1]->clear();
     _neighbors[+1]->clear();
+    delete _neighbors[-1];
+    delete _neighbors[+1];
     _neighbors.clear();
   }
 }
@@ -343,11 +345,9 @@ double Plane::getD() {
 * @param point pointer to the Point of interest
 * @param points pointer to a Point to store the intersection Point
 * @param azim the azimuthal angle defining the trajectory in radians
-* @param azim the polar angle defining the trajectory in radians
 * @return the number of intersection Points (0 or 1)
 */
-inline int Plane::intersection(Point* point, Point* points, double azim,
-                               double polar) {
+inline int Plane::intersection(Point* point, Point* points, double azim) {
 
   double x0 = point->getX();
   double y0 = point->getY();
@@ -358,23 +358,21 @@ inline int Plane::intersection(Point* point, Point* points, double azim,
   double xcurr, ycurr, zcurr; /* coordinates of current intersection point */
 
   /* The track and plane are parallel */
-  double mx = sin(polar) * cos(azim);
-  double my = sin(polar) * sin(azim);
-  double mz = cos(polar);
+  double mx = cos(azim);
+  double my = sin(azim);
 
   if ((fabs(mx) < 1.e-10 && fabs(_A) > 1.e-10) ||
-      (fabs(my) < 1.e-10 && fabs(_B) > 1.e-10) ||
-      (fabs(mz) < 1.e-10 && fabs(_C) > 1.e-10))
+      (fabs(my) < 1.e-10 && fabs(_B) > 1.e-10))
     return 0;
 
   /* The track is not parallel to the plane */
   else{
     
     l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
-      (_A * mx + _B * my + _C * mz);
+      (_A * mx + _B * my);
     xcurr = x0 + l * mx;
     ycurr = y0 + l * my;
-    zcurr = z0 + l * mz;
+    zcurr = z0;
 
     if (l > 0.0) {
       points[num].setCoords(xcurr, ycurr, zcurr);
@@ -775,8 +773,7 @@ double Circle::getMaxZ(int halfspace) {
  * @param polar the polar angle defining the trajectory in radians
  * @return the number of intersection Points (0 or 1)
  */
-int Circle::intersection(Point* point, Point* points, double azim,
-                         double polar) {
+int Circle::intersection(Point* point, Point* points, double azim) {
 
   double x0 = point->getX();
   double y0 = point->getY();
@@ -806,75 +803,36 @@ int Circle::intersection(Point* point, Point* points, double azim,
     else if (discr == 0) {
       xcurr = x0;
       ycurr = -b / (2*a);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
-        * tan(M_PI_2 - polar);
+      zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;        
-      }
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;        
     }
 
     /* There are two intersections */
     else {
       xcurr = x0;
       ycurr = (-b + sqrt(discr)) / (2 * a);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
-        * tan(M_PI_2 - polar);
+      zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
 
       xcurr = x0;
       ycurr = (-b - sqrt(discr)) / (2 * a);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
-        * tan(M_PI_2 - polar);
+      zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
+
       return num;
     }
   }
@@ -903,25 +861,12 @@ int Circle::intersection(Point* point, Point* points, double azim,
     else if (discr == 0) {
       xcurr = -b / (2*a);
       ycurr = y0 + m * (points[num].getX() - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
-        * tan(M_PI_2 - polar);
+      zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
 
       return num;
     }
@@ -930,47 +875,21 @@ int Circle::intersection(Point* point, Point* points, double azim,
     else {
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
-        * tan(M_PI_2 - polar);
+      zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
 
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0))
-        * tan(M_PI_2 - polar);
+      zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
 
       return num;
     }

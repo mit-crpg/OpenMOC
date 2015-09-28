@@ -107,42 +107,42 @@ public:
    * @param halfspace the halfspace of the Surface to consider
    * @return the minimum x value
    */
-  virtual double getMinX(int halfspace) =0;
+  virtual double getMinX(int halfspace) = 0;
 
   /**
    * @brief Returns the maximum x value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the maximum x value
    */
-  virtual double getMaxX(int halfspace) =0;
+  virtual double getMaxX(int halfspace) = 0;
 
   /**
    * @brief Returns the minimum y value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the minimum y value
    */
-  virtual double getMinY(int halfspace) =0;
+  virtual double getMinY(int halfspace) = 0;
 
   /**
    * @brief Returns the maximum y value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the maximum y value
    */
-  virtual double getMaxY(int halfspace) =0;
+  virtual double getMaxY(int halfspace) = 0;
 
   /**
    * @brief Returns the minimum z value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the minimum z value
    */
-  virtual double getMinZ(int halfspace) =0;
+  virtual double getMinZ(int halfspace) = 0;
 
   /**
    * @brief Returns the maximum z value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
    * @return the maximum z value
    */
-  virtual double getMaxZ(int halfspace) =0;
+  virtual double getMaxZ(int halfspace) = 0;
 
   void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
@@ -155,7 +155,7 @@ public:
    * @param point a pointer to the Soint of interest
    * @return the value of Point in the Plane's potential equation.
    */
-  virtual double evaluate(const Point* point) const =0;
+  virtual double evaluate(const Point* point) const = 0;
 
   /**
    * @brief Finds the intersection Point with this Surface from a given
@@ -165,12 +165,11 @@ public:
    * @param points pointer to a Point to store the intersection Point
    * @return the number of intersection Points (0 or 1)
    */
-  virtual int intersection(Point* point, Point* points, double azim,
-                           double polar) =0;
+  virtual int intersection(Point* point, Point* points, double angle) = 0;
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, double azim, double polar=M_PI_2);
+  double getMinDistance(Point* point, double azim);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -178,7 +177,7 @@ public:
    *          PLANE) and the coefficients in the potential equation.
    * @return a character array of this Surface's attributes
    */
-  virtual std::string toString() =0;
+  virtual std::string toString() = 0;
 
   void printString();
 };
@@ -227,8 +226,7 @@ public:
   double getD();
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, Point* points, double azim,
-                   double polar=M_PI_2);
+  int intersection(Point* point, Point* points, double azim);
 
   std::string toString();
 };
@@ -356,8 +354,7 @@ public:
   double getMaxZ(int halfspace);
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, Point* points, double azim,
-                   double polar=M_PI_2);
+  int intersection(Point* point, Point* points, double azim);
 
   std::string toString();
 };
@@ -370,16 +367,15 @@ public:
  *          trajectory will not intersect the Surface, returns INFINITY.
  * @param point a pointer to the Point of interest
  * @param azim the azimuthal angle defining the trajectory in radians
- * @param polar the polar angle defining the trajectory in radians
  * @return the minimum distance to the Surface
  */
-inline double Surface::getMinDistance(Point* point, double azim, double polar) {
+inline double Surface::getMinDistance(Point* point, double azim) {
 
   /* Point array for intersections with this Surface */
   Point intersections[2];
 
   /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, intersections, azim, polar);
+  int num_inters = this->intersection(point, intersections, azim);
   double distance = INFINITY;
 
   /* If there is one intersection Point */

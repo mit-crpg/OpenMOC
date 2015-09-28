@@ -10,8 +10,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _num_materials = 0;
   _num_groups = 0;
   _num_azim = 0;
-  _num_independent_sweeps = 4;
-  
+  _num_parallel_track_groups = 0;
+
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
   _FSR_volumes = NULL;
@@ -41,7 +41,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _polar_times_groups = 0;
 
   _num_iterations = 0;
-  _converge_thresh = 1E-5;
+  setConvergenceThreshold(1E-5);
+  _user_fluxes = false;
 
   _timer = new Timer();
 }
@@ -68,7 +69,7 @@ Solver::~Solver() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
-  if (_scalar_flux != NULL)
+  if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
@@ -82,6 +83,9 @@ Solver::~Solver() {
 
   if (_exp_evaluator != NULL)
     delete _exp_evaluator;
+
+  if (_timer != NULL)
+    delete _timer;
 
   if (_polar_quad != NULL && !_user_polar_quad)
     delete _polar_quad;
@@ -214,38 +218,6 @@ bool Solver::isUsingExponentialInterpolation() {
 
 
 /**
- * @brief Returns the scalar flux for some FSR and energy group.
- * @param fsr_id the ID for the FSR of interest
- * @param group the energy group of interest
- * @return the FSR scalar flux
- */
-FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int group) {
-
-  if (fsr_id >= _num_FSRs)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
-
-  else if (fsr_id < 0)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since FSRs do not have negative IDs", fsr_id);
-
-  else if (group-1 >= _num_groups)
-    log_printf(ERROR, "Unable to return a scalar flux in group %d "
-               "since there are only %d groups", group, _num_groups);
-
-  else if (group <= 0)
-    log_printf(ERROR, "Unable to return a scalar flux in group %d "
-               "since groups must be greater or equal to 1", group);
-
-  else if (_scalar_flux == NULL)
-    log_printf(ERROR, "Unable to return a scalar flux "
-             "since it has not yet been computed");
-
-  return _scalar_flux(fsr_id,group-1);
-}
-
-
-/**
  * @brief Returns the source for some energy group for a flat source region
  * @details This is a helper routine used by the openmoc.process module.
  * @param fsr_id the ID for the FSR of interest
@@ -307,6 +279,38 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 
 
 /**
+ * @brief Returns the scalar flux for some FSR and energy group.
+ * @param fsr_id the ID for the FSR of interest
+ * @param group the energy group of interest
+ * @return the FSR scalar flux
+ */
+FP_PRECISION Solver::getFlux(int fsr_id, int group) {
+
+  if (fsr_id >= _num_FSRs)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
+
+  else if (fsr_id < 0)
+    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
+               "since FSRs do not have negative IDs", fsr_id);
+
+  else if (group-1 >= _num_groups)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since there are only %d groups", group, _num_groups);
+
+  else if (group <= 0)
+    log_printf(ERROR, "Unable to return a scalar flux in group %d "
+               "since groups must be greater or equal to 1", group);
+
+  else if (_scalar_flux == NULL)
+    log_printf(ERROR, "Unable to return a scalar flux "
+             "since it has not yet been computed");
+
+  return _scalar_flux(fsr_id,group-1);
+}
+
+
+/**
  * @brief Sets the Geometry for the Solver.
  * @details This is a private setter method for the Solver and is not
  *          intended to be called by the user.
@@ -350,40 +354,9 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   _track_generator = track_generator;
   _num_azim = _track_generator->getNumAzim() / 2;
-  int* num_tracks = _track_generator->getNumTracksArray();
-  _num_tracks_by_halfspace = _track_generator->getNumTracksByHalfspaceArray();
+  _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
-  _tracks = new Track*[_tot_num_tracks];
-
-  /* Initialize the tracks array */
-  int counter = 0;
-  int azim_period, num_azim_periods;
-  int num_x, num_y;
-
-  /* Set the number of independent transport sweeps. Note that for 3D solves,
-   * this will need to be changed to 16 */
-  _num_independent_sweeps = 4;
-  
-  for (int azim_halfspace=0; azim_halfspace < 2; azim_halfspace++) {
-    for (int period_halfspace=0; period_halfspace < 2; period_halfspace++) {
-      for (int a=azim_halfspace*_num_azim/2;
-           a < (azim_halfspace+1)*_num_azim/2; a++) {
-        num_x = _track_generator->getNumX(a);
-        num_y = _track_generator->getNumY(a);
-        azim_period = std::min(num_x, num_y);
-        num_azim_periods = num_tracks[a] / azim_period + 1;
-        for (int period=period_halfspace;
-             period < num_azim_periods; period+=2) {
-          for (int i=azim_period*period;
-               i < std::min((period+1)*azim_period, num_tracks[a]); i++) {
-
-            _tracks[counter] = &_track_generator->getTracks()[a][i];
-            counter++;
-          }
-        }
-      }
-    }
-  }
+  _tracks = _track_generator->getTracksByParallelGroup();
 
   /* Retrieve and store the Geometry from the TrackGenerator */  
   setGeometry(_track_generator->getGeometry());
@@ -428,6 +401,9 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
                "since it is not a positive number", threshold);
 
   _converge_thresh = threshold;
+
+  if (_cmfd != NULL)
+    _cmfd->setSourceConvergenceThreshold(threshold*1.e-1);
 }
 
 
@@ -692,6 +668,28 @@ void Solver::initializeCmfd() {
   _cmfd->setPolarQuadrature(_polar_quad);
   _cmfd->setGeometry(_geometry);
   _cmfd->initialize();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the fission source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::fissionTransportSweep() {
+  computeFSRFissionSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the scatter source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::scatterTransportSweep() {
+  computeFSRScatterSources();
+  transportSweep();
+  addSourceToScalarFlux();
 }
 
 

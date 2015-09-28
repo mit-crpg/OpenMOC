@@ -86,11 +86,6 @@ private:
    * BCs. */
   boundaryType _y_min_bc;
 
-  /** The boundary conditions at the z-min surface of the bounding box 
-   * containing the Geometry. False is for vacuum and true is for reflective 
-   * BCs. */
-  boundaryType _z_min_bc;
-
   /** The boundary conditions at the x-max surface of the bounding box 
    * containing the Geometry. False is for vacuum and true is for reflective 
    * BCs. */
@@ -101,16 +96,14 @@ private:
    * BCs. */
   boundaryType _y_max_bc;
 
-  /** The boundary conditions at the z-max surface of the bounding box 
-   * containing the Geometry. False is for vacuum and true is for reflective 
-   * BCs. */
-  boundaryType _z_max_bc;
+  /** The z-level where the 2D Tracks should be created */
+  double _z_level;
 
   /** An map of FSR key hashes to unique fsr_data structs */
-  ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
+  ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
 
   /** An vector of FSR key hashes indexed by FSR ID */
-  std::vector<std::size_t> _FSRs_to_keys;
+  std::vector<std::string> _FSRs_to_keys;
 
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
@@ -124,8 +117,8 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
-  Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
+  Cell* findFirstCell(LocalCoords* coords, double azim);
+  Cell* findNextCell(LocalCoords* coords, double azim);
 
 public:
 
@@ -135,6 +128,7 @@ public:
   /* Get parameters */
   double getWidth();
   double getHeight();
+  double getDepth();
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -145,8 +139,7 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  boundaryType getMinZBoundaryType();
-  boundaryType getMaxZBoundaryType();
+  double getZLevel();
   Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();
@@ -159,20 +152,21 @@ public:
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::size_t>* getFSRsToKeys();
+  std::vector<std::string>* getFSRsToKeys();
   std::vector<int>* getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-  ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
+  ParallelHashMap<std::string, fsr_data*>* getFSRKeysMap();
 
   /* Set parameters */
   void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
-  void setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
+  void setFSRsToKeys(std::vector<std::string>* FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
-  void setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
+  void setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* FSR_keys_map);
+  void setZLevel(double z_level);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);

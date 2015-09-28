@@ -20,6 +20,9 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+
+  /* Initialize the z-level to zero */
+  _z_level = 0.0;
 }
 
 
@@ -78,6 +81,15 @@ double Geometry::getHeight() {
  */
 double Geometry::getWidth() {
   return (getMaxX() - getMinX());
+}
+
+
+/**
+ * @brief Returns the total depth (z extent) of the Geometry in cm.
+ * @return the total depth of the Geometry (cm)
+ */
+double Geometry::getDepth() {
+  return (getMaxZ() - getMinZ());
 }
 
 
@@ -176,22 +188,11 @@ boundaryType Geometry::getMaxYBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        minimum z-coordinate in the Geometry.
- * @return the boundary conditions for the minimum z-coordinate in the Geometry
+ * @brief Returns the z-level where the 2D Tracks should be created.
+ * @return the z-level where the 2D Tracks should be created.
  */
-boundaryType Geometry::getMinZBoundaryType() {
-  return _root_universe->getMinZBoundaryType();
-}
-
-
-/**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        maximum z-coordinate in the Geometry.
- * @return the boundary conditions for the maximum z-coordinate in the Geometry
- */
-boundaryType Geometry::getMaxZBoundaryType() {
-  return _root_universe->getMaxZBoundaryType();
+double Geometry::getZLevel() {
+  return _z_level;
 }
 
 
@@ -443,14 +444,12 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @param coords pointer to a LocalCoords object
  * @param azim the azimuthal angle for a trajectory projected from the 
  *        LocalCoords
- * @param polar the polar angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
-  double delta_x = cos(azim) * sin(polar) * TINY_MOVE;
-  double delta_y = sin(azim) * sin(polar) * TINY_MOVE;
-  double delta_z = cos(polar) * TINY_MOVE;
-  coords->adjustCoords(delta_x, delta_y, delta_z);
+Cell* Geometry::findFirstCell(LocalCoords* coords, double azim) {
+  double delta_x = cos(azim) * TINY_MOVE;
+  double delta_y = sin(azim) * TINY_MOVE;
+  coords->adjustCoords(delta_x, delta_y);
   return findCellContainingCoords(coords);
 }
 
@@ -489,15 +488,13 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  *          next along its trajectory.
  * @param coords pointer to a LocalCoords object
  * @param azim the azimuthal angle of the trajectory
- * @param polar the polar angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
+Cell* Geometry::findNextCell(LocalCoords* coords, double azim) {
 
   Cell* cell = NULL;
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
-  Point surf_intersection;
 
   /* Get lowest level coords */
   coords = coords->getLowestLevel();
@@ -521,13 +518,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
         Lattice* lattice = coords->getLattice();
-        dist = lattice->minSurfaceDist(coords->getPoint(), azim, polar);
+        dist = lattice->minSurfaceDist(coords->getPoint(), azim);
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else {
         Cell* cell = coords->getCell();
-        dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
+        dist = cell->minSurfaceDist(coords->getPoint(), azim);
       }
 
       /* Recheck min distance */
@@ -545,15 +542,14 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL) {
       Lattice* lattice = _cmfd->getLattice();
-      dist = lattice->minSurfaceDist(coords->getPoint(), azim, polar);
+      dist = lattice->minSurfaceDist(coords->getPoint(), azim);
       min_dist = std::min(dist, min_dist);
     }
 
     /* Move point and get next cell */
-    double delta_x = cos(azim) * sin(polar) * (min_dist + TINY_MOVE);
-    double delta_y = sin(azim) * sin(polar) * (min_dist + TINY_MOVE);
-    double delta_z = cos(polar) * (min_dist + TINY_MOVE);
-    coords->adjustCoords(delta_x, delta_y, delta_z);
+    double delta_x = cos(azim) * (min_dist + TINY_MOVE);
+    double delta_y = sin(azim) * (min_dist + TINY_MOVE);
+    coords->adjustCoords(delta_x, delta_y);
 
     return findCellContainingCoords(coords);
   }
@@ -571,22 +567,21 @@ int Geometry::findFSRId(LocalCoords* coords) {
   int fsr_id;
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
-  std::hash<std::string> key_hash_function;
 
   /* Generate unique FSR key */
-  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+  std::string fsr_key = getFSRKey(coords);
 
   /* If FSR has not been encountered, update FSR maps and vectors */
-  if (!_FSR_keys_map.contains(fsr_key_hash)) {
+  if (!_FSR_keys_map.contains(fsr_key)) {
 
     /* Try to get a clean copy of the fsr_id, adding the FSR data 
        if necessary where -1 indicates the key was already added */
-    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
+    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key, NULL);
     if (fsr_id == -1)
     {
       fsr_data volatile* fsr;
       do {
-        fsr = _FSR_keys_map.at(fsr_key_hash);
+        fsr = _FSR_keys_map.at(fsr_key);
       } while (fsr == NULL);
       fsr_id = fsr->_fsr_id;
     }
@@ -595,7 +590,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       /* Add FSR information to FSR key map and FSR_to vectors */
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
-      _FSR_keys_map.at(fsr_key_hash) = fsr;
+      _FSR_keys_map.at(fsr_key) = fsr;
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(), 
                        coords->getHighestLevel()->getY(),
@@ -616,7 +611,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   else {
     fsr_data volatile* fsr;
     do {
-      fsr = _FSR_keys_map.at(fsr_key_hash);
+      fsr = _FSR_keys_map.at(fsr_key);
     } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;
@@ -636,11 +631,10 @@ int Geometry::getFSRId(LocalCoords* coords) {
 
   int fsr_id = 0;
   std::string fsr_key;
-  std::hash<std::string> key_hash_function;
 
   try{
     fsr_key = getFSRKey(coords);
-    fsr_id = _FSR_keys_map.at(key_hash_function(fsr_key))->_fsr_id;
+    fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
@@ -714,9 +708,6 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << "CMFD = (" << curr_level_key.str() << ", ";
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatY(curr->getPoint());
-      key << curr_level_key.str() << ", ";
-      curr_level_key.str(std::string());
-      curr_level_key << _cmfd->getLattice()->getLatZ(curr->getPoint());
       key << curr_level_key.str() << ") : ";
   }
 
@@ -823,6 +814,7 @@ void Geometry::segmentize(Track* track) {
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
+  double z0 = track->getStart()->getZ();
   double phi = track->getPhi();
   double delta_x, delta_y;
 
@@ -833,8 +825,8 @@ void Geometry::segmentize(Track* track) {
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0);
-  LocalCoords end(x0, y0);
+  LocalCoords start(x0, y0, z0);
+  LocalCoords end(x0, y0, z0);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
 
@@ -860,8 +852,8 @@ void Geometry::segmentize(Track* track) {
 
     /* Checks that segment does not have the same start and end Points */
     if (start.getX() == end.getX() && start.getY() == end.getY())
-      log_printf(ERROR, "Created segment with same start and end "
-                 "point: x = %f, y = %f", start.getX(), start.getY());
+      log_printf(ERROR, "Created segment with same start and end point: x = %f"
+                 ", y = %f", start.getX(), start.getY(), start.getZ());
 
     /* Find the segment length, Material and FSR ID */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
@@ -890,8 +882,11 @@ void Geometry::segmentize(Track* track) {
       start.adjustCoords(-delta_x, -delta_y);
       end.adjustCoords(-delta_x, -delta_y);
 
-      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell,&end);
-      new_segment->_cmfd_surface_bwd = _cmfd->findCmfdSurface(cmfd_cell,&start);
+      new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      new_segment->_cmfd_surface_bwd =
+        _cmfd->findCmfdSurface(cmfd_cell, &start);
+      new_segment->_cmfd_corner_fwd = _cmfd->findCmfdCorner(cmfd_cell, &end);
+      new_segment->_cmfd_corner_bwd = _cmfd->findCmfdCorner(cmfd_cell, &start);
 
       /* Re-nudge segments from surface */
       start.adjustCoords(delta_x, delta_y);
@@ -922,19 +917,19 @@ void Geometry::segmentize(Track* track) {
 void Geometry::initializeFSRVectors() {
   
   /* get keys and values from map */
-  std::size_t *key_list = _FSR_keys_map.keys();
+  std::string *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
 
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
-  _FSRs_to_keys = std::vector<size_t>(num_FSRs);
+  _FSRs_to_keys = std::vector<std::string>(num_FSRs);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
   for (int i=0; i < num_FSRs; i++)
   {
-    std::size_t key = key_list[i];
+    std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
     int fsr_id = fsr->_fsr_id;
     _FSRs_to_keys.at(fsr_id) = key;
@@ -1074,23 +1069,6 @@ void Geometry::printString() {
  */
 void Geometry::initializeCmfd() {
 
-  /* Get information about geometry and CMFD mesh */
-  int num_x = _cmfd->getNumX();
-  int num_y = _cmfd->getNumY();
-  double height = getHeight();
-  double width = getWidth();
-  double cell_width = width / num_x;
-  double cell_height = height / num_y;
-
-  /* Create CMFD lattice and set properties */
-  Lattice* lattice = new Lattice();
-  lattice->setWidth(cell_width, cell_height);
-  lattice->setNumX(num_x);
-  lattice->setNumY(num_y);
-  lattice->setNumZ(1);
-  lattice->setOffset(getMinX() + width/2.0, getMinY() + height/2.0);
-  _cmfd->setLattice(lattice);
-
   /* Set CMFD mesh boundary conditions */
   _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
   _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
@@ -1098,9 +1076,8 @@ void Geometry::initializeCmfd() {
   _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidth(width);
-  _cmfd->setHeight(height);
-  _cmfd->setDepth(1.0);
+  _cmfd->setWidth(getWidth());
+  _cmfd->setHeight(getHeight());
   _cmfd->setNumMOCGroups(getNumEnergyGroups());
 
   /* If user did not set CMFD group structure, create CMFD group
@@ -1111,6 +1088,14 @@ void Geometry::initializeCmfd() {
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
   _cmfd->initializeGroupMap();
+
+  /* Initialize the CMFD lattice */
+  Point offset;
+  double offset_x = getMinX() + getWidth()/2.0;
+  double offset_y = getMinY() + getHeight()/2.0;
+  offset.setX(offset_x);
+  offset.setY(offset_y);
+  _cmfd->initializeLattice(&offset);
 }
 
 
@@ -1118,7 +1103,7 @@ void Geometry::initializeCmfd() {
  * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
  * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
  */
-ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap() {
+ParallelHashMap<std::string, fsr_data*>* Geometry::getFSRKeysMap() {
   return &_FSR_keys_map;
 }
 
@@ -1127,9 +1112,10 @@ ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap() {
  * @brief Returns the vector that maps FSR IDs to FSR key hashes
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::vector<std::size_t>* Geometry::getFSRsToKeys() {
+std::vector<std::string>* Geometry::getFSRsToKeys() {
   return &_FSRs_to_keys;
 }
+
 
 /**
  * @brief Return a vector indexed by flat source region IDs which contain
@@ -1144,6 +1130,7 @@ std::vector<int>* Geometry::getFSRsToMaterialIDs() {
   return &_FSRs_to_material_IDs;
 }
 
+
 /**
  * @brief Sets the _FSR_keys_map map
  * @details The _FSR_keys_map stores a hash of a std::string representing
@@ -1154,16 +1141,17 @@ std::vector<int>* Geometry::getFSRsToMaterialIDs() {
  *          are read from file to avoid unnecessary segmentation.  
  * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* 
+void Geometry::setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* 
                              FSR_keys_map) {
   _FSR_keys_map = *FSR_keys_map;
 }
+
 
 /**
  * @brief Sets the _FSRs_to_keys vector
  * @param FSRs_to_keys vector of FSR key hashes indexed by FSR IDs
  */
-void Geometry::setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys) {
+void Geometry::setFSRsToKeys(std::vector<std::string>* FSRs_to_keys) {
   _FSRs_to_keys = *FSRs_to_keys;
 }
 
@@ -1195,6 +1183,7 @@ bool Geometry::withinBounds(LocalCoords* coords) {
     return true;
 }
 
+
 /**
  * @brief Sets the centroid for an FSR
  * @details The _FSR_keys_map stores a hash of a std::string representing
@@ -1205,7 +1194,7 @@ bool Geometry::withinBounds(LocalCoords* coords) {
  *          to set the centroid after segments have been created. It is
  *          important to note that this method is a helper function for the
  *          TrackGenerator and should not be explicitly called by the user.
- * @param fsr a FSR id
+ * @param fsr a FSR ID
  * @param centroid a Point representing the FSR centroid
  */
 void Geometry::setFSRCentroid(int fsr, Point* centroid) {
@@ -1213,6 +1202,10 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
 }
 
 
+/**
+ * @brief Finds the Cell containing a given fsr ID.
+ * @param fsr_id an FSR ID.
+ */
 Cell* Geometry::findCellContainingFSR(int fsr_id) {
 
   Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
@@ -1224,4 +1217,13 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
   delete coords;
 
   return cell;
+}
+
+
+/**
+ * @brief Sets the z-level where the 2D Tracks should be created.
+ * @param z_level the z-level where the 2D Tracks should be created.
+ */
+void Geometry::setZLevel(double z_level) {
+  _z_level = z_level;
 }

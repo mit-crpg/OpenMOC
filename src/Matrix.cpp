@@ -13,22 +13,18 @@
  *         the matrix at a time reprsenting multiple groups in the same cell.
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
- * @param num_z The number of cells in the z direction.
  * @param num_groups The number of energy groups in each cell.
  */
-Matrix::Matrix(int num_x, int num_y, int num_z, int num_groups){
+Matrix::Matrix(int num_x, int num_y, int num_groups){
 
   setNumX(num_x);
   setNumY(num_y);
-  setNumZ(num_z);
   setNumGroups(num_groups);  
-  _num_rows = _num_x*_num_y*_num_z*_num_groups;
+  _num_rows = _num_x*_num_y*_num_groups;
   
   /* Initialize variables */
-  for (int i=0; i < _num_rows; i++) {
-    std::map<int, FP_PRECISION> *values = new std::map<int, FP_PRECISION>;
-    _LIL.push_back(*values);
-  }
+  for (int i=0; i < _num_rows; i++)
+    _LIL.push_back(std::map<int, FP_PRECISION>());
 
   _A = NULL;
   _IA = NULL;
@@ -37,11 +33,11 @@ Matrix::Matrix(int num_x, int num_y, int num_z, int num_groups){
   _modified = true;
 
   /* Allocate memory for OpenMP locks for each Matrix cell */ 
-  _cell_locks = new omp_lock_t[_num_x*_num_y*_num_z];
+  _cell_locks = new omp_lock_t[_num_x*_num_y];
 
   /* Loop over all Matrix cells to initialize OpenMP locks */
   #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_x*_num_y*_num_z; r++)
+  for (int r=0; r < _num_x*_num_y; r++)
     omp_init_lock(&_cell_locks[r]);  
 }
 
@@ -66,6 +62,7 @@ Matrix::~Matrix() {
   
   for (int i=0; i < _num_rows; i++)
     _LIL[i].clear();
+  _LIL.clear();
 
   if (_cell_locks != NULL)
     delete [] _cell_locks;
@@ -88,20 +85,18 @@ Matrix::~Matrix() {
 void Matrix::incrementValue(int cell_from, int group_from,
                             int cell_to, int group_to, FP_PRECISION val) {
 
-  if (cell_from >= _num_x*_num_y*_num_z || cell_from < 0)
-    log_printf(ERROR, "Unable to increment Matrix value for cell_from %i"
-               " which is not between 0 and %i", cell_from,
-               _num_x*_num_y*_num_z-1);
-  else if (cell_to >= _num_x*_num_y*_num_z || cell_to < 0)
-    log_printf(ERROR, "Unable to increment Matrix value for cell_to %i"
-               " which is not between 0 and %i", cell_from,
-               _num_x*_num_y*_num_z-1);
+  if (cell_from >= _num_x*_num_y || cell_from < 0)
+    log_printf(ERROR, "Unable to increment Matrix value for cell_from %d"
+               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
+  else if (cell_to >= _num_x*_num_y || cell_to < 0)
+    log_printf(ERROR, "Unable to increment Matrix value for cell_to %d"
+               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
   else if (group_from >= _num_groups || group_from < 0)
-    log_printf(ERROR, "Unable to increment Matrix value for group_from %i"
-               " which is not between 0 and %i", group_from, _num_groups-1);
+    log_printf(ERROR, "Unable to increment Matrix value for group_from %d"
+               " which is not between 0 and %d", group_from, _num_groups-1);
   else if (group_to >= _num_groups || group_to < 0)
-    log_printf(ERROR, "Unable to increment Matrix value for group_to %i"
-               " which is not between 0 and %i", group_to, _num_groups-1);
+    log_printf(ERROR, "Unable to increment Matrix value for group_to %d"
+               " which is not between 0 and %d", group_to, _num_groups-1);
   
   /* Atomically increment the Matrix value from the
    * temporary array using mutual exclusion locks */
@@ -135,20 +130,18 @@ void Matrix::incrementValue(int cell_from, int group_from,
 void Matrix::setValue(int cell_from, int group_from,
                       int cell_to, int group_to, FP_PRECISION val) {
 
-  if (cell_from >= _num_x*_num_y*_num_z || cell_from < 0)
-    log_printf(ERROR, "Unable to set Matrix value for cell_from %i"
-               " which is not between 0 and %i", cell_from,
-               _num_x*_num_y*_num_z-1);
-  else if (cell_to >= _num_x*_num_y*_num_z || cell_to < 0)
-    log_printf(ERROR, "Unable to set Matrix value for cell_to %i"
-               " which is not between 0 and %i", cell_from,
-               _num_x*_num_y*_num_z-1);
+  if (cell_from >= _num_x*_num_y || cell_from < 0)
+    log_printf(ERROR, "Unable to set Matrix value for cell_from %d"
+               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
+  else if (cell_to >= _num_x*_num_y || cell_to < 0)
+    log_printf(ERROR, "Unable to set Matrix value for cell_to %d"
+               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
   else if (group_from >= _num_groups || group_from < 0)
-    log_printf(ERROR, "Unable to set Matrix value for group_from %i"
-               " which is not between 0 and %i", group_from, _num_groups-1);
+    log_printf(ERROR, "Unable to set Matrix value for group_from %d"
+               " which is not between 0 and %d", group_from, _num_groups-1);
   else if (group_to >= _num_groups || group_to < 0)
-    log_printf(ERROR, "Unable to set Matrix value for group_to %i"
-               " which is not between 0 and %i", group_to, _num_groups-1);
+    log_printf(ERROR, "Unable to set Matrix value for group_to %d"
+               " which is not between 0 and %d", group_to, _num_groups-1);
   
   /* Atomically set the Matrix value from the
    * temporary array using mutual exclusion locks */
@@ -186,7 +179,7 @@ void Matrix::convertToCSR() {
   /* Get number of nonzero values */
   int NNZ = getNNZ();
   
-  /* Allocate memory for arrays */
+  /* Deallocate memory for arrays if previously allocated */
   if (_A != NULL)
     delete [] _A;
   
@@ -198,7 +191,8 @@ void Matrix::convertToCSR() {
   
   if (_DIAG != NULL)
     delete [] _DIAG;
-  
+
+  /* Allocate memory for arrays */
   _A = new FP_PRECISION[NNZ];
   _IA = new int[_num_rows+1];
   _JA = new int[NNZ];
@@ -349,15 +343,6 @@ int Matrix::getNumY() {
 
 
 /**
- * @brief Get the number of cells in the z dimension.
- * @return The number of cells in the z dimension.
- */
-int Matrix::getNumZ(){
-  return _num_z;
-}
-
-
-/**
  * @brief Get the number of groups in each cell.
  * @return The number of groups in each cell.
  */
@@ -401,7 +386,7 @@ int Matrix::getNNZ() {
 void Matrix::setNumX(int num_x) {
 
   if (num_x < 1)
-    log_printf(ERROR, "Unable to set Matrix num x to non-positive value %i",
+    log_printf(ERROR, "Unable to set Matrix num x to non-positive value %d",
                num_x);
 
   _num_x = num_x;
@@ -415,24 +400,10 @@ void Matrix::setNumX(int num_x) {
 void Matrix::setNumY(int num_y) {
 
   if (num_y < 1)
-    log_printf(ERROR, "Unable to set Matrix num y to non-positive value %i",
+    log_printf(ERROR, "Unable to set Matrix num y to non-positive value %d",
                num_y);
 
   _num_y = num_y;
-}
-
-
-/**
- * @brief Set the number of cells in the z dimension.
- * @param num_z The number of cells in the z dimension.
- */
-void Matrix::setNumZ(int num_z) {
-
-  if (num_z < 1)
-    log_printf(ERROR, "Unable to set Matrix num z to non-positive value %i",
-               num_z);
-
-  _num_z = num_z;
 }
 
 
@@ -444,7 +415,7 @@ void Matrix::setNumGroups(int num_groups) {
 
   if (num_groups < 1)
     log_printf(ERROR, "Unable to set Matrix num groups to non-positive value"
-               " %i", num_groups);
+               " %d", num_groups);
 
   _num_groups = num_groups;
 }
@@ -455,7 +426,7 @@ void Matrix::setNumGroups(int num_groups) {
  */
 void Matrix::transpose() {
 
-  Matrix temp(_num_x, _num_y, _num_z, _num_groups);
+  Matrix temp(_num_x, _num_y, _num_groups);
   convertToCSR();
   int col, cell_to, cell_from, group_to, group_from;
   FP_PRECISION val;
