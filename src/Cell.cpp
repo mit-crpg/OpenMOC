@@ -580,7 +580,7 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param point the Point of interest
- * @param angle the angle of trajectory (in radians from \f$[0,2\pi]\f$)
+ * @param angle the angle of the trajectory (in radians from \f$[0,2\pi]\f$)
  */
 double Cell::minSurfaceDist(Point* point, double angle) {
 
