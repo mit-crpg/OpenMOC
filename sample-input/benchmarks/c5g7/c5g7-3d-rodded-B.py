@@ -428,7 +428,7 @@ assembly_rfl_unrod_cell_cnr.setFill(lattices[-1])
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(openmoc.Lattice(name='Full Geometry'))
 lattices[-1].setWidth(width_x=21.42, width_y=21.42, width_z=7.14)
-lattices[-1].setUniverses3D
+lattices[-1].setUniverses3D \
 ([[[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
    [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
    [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
