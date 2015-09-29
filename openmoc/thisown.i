@@ -50,7 +50,7 @@
   else:
     fill = locals()['args'][0]
 
-  fill.thisown = 1
+  fill.thisown = 0
 %}
 
 /* A Universe owns the memory for each Cell it contains */
