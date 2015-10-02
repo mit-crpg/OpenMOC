@@ -711,7 +711,7 @@ def get_openmoc_lattice(opencg_lattice):
                               dtype=openmoc.Universe)
 
   # Create OpenMOC Universes for each unique nested Universe in this Lattice
-  unique_universes = opencg_lattice.get_unique_niverses()
+  unique_universes = opencg_lattice.get_unique_universes()
 
   for universe_id, universe in unique_universes.items():
     unique_universes[universe_id] = get_openmoc_universe(universe)
