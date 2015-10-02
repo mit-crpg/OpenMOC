@@ -744,6 +744,8 @@ def get_opencg_geometry(openmoc_geometry):
     raise ValueError(msg)
 
   # Clear dictionaries and auto-generated IDs
+  OPENMOC_MATERIALS.clear()
+  OPENCG_MATERIALS.clear()
   OPENMOC_SURFACES.clear()
   OPENCG_SURFACES.clear()
   OPENMOC_CELLS.clear()
@@ -778,7 +780,9 @@ def get_openmoc_geometry(opencg_geometry):
   # Update Cell bounding boxes in Geometry
   opencg_geometry.update_bounding_boxes()
 
-  # Clear dictionaries and auto-generated ID
+  # Clear dictionaries and auto-generated IDs
+  OPENMOC_MATERIALS.clear()
+  OPENCG_MATERIALS.clear()
   OPENMOC_SURFACES.clear()
   OPENCG_SURFACES.clear()
   OPENMOC_CELLS.clear()
