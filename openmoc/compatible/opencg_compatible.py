@@ -221,27 +221,27 @@ def get_openmoc_surface(opencg_surface):
     boundary = openmoc.BOUNDARY_NONE
 
   if opencg_surface.type == 'plane':
-    A = opencg_surface._coeffs['A']
-    B = opencg_surface._coeffs['B']
-    D = opencg_surface._coeffs['D']
+    A = opencg_surface.coeffs['A']
+    B = opencg_surface.coeffs['B']
+    D = opencg_surface.coeffs['D']
     openmoc_surface = openmoc.Plane(A, B, D, surface_id, name)
 
   elif opencg_surface.type == 'x-plane':
-    x0 = opencg_surface._coeffs['x0']
+    x0 = opencg_surface.coeffs['x0']
     openmoc_surface = openmoc.XPlane(x0, int(surface_id), name)
 
   elif opencg_surface.type == 'y-plane':
-    y0 = opencg_surface._coeffs['y0']
+    y0 = opencg_surface.coeffs['y0']
     openmoc_surface = openmoc.YPlane(y0, surface_id, name)
 
   elif opencg_surface.type == 'z-plane':
-    z0 = opencg_surface._coeffs['z0']
+    z0 = opencg_surface.coeffs['z0']
     openmoc_surface = openmoc.ZPlane(z0, surface_id, name)
 
   elif opencg_surface.type == 'z-cylinder':
-    x0 = opencg_surface._coeffs['x0']
-    y0 = opencg_surface._coeffs['y0']
-    R = opencg_surface._coeffs['R']
+    x0 = opencg_surface.coeffs['x0']
+    y0 = opencg_surface.coeffs['y0']
+    R = opencg_surface.coeffs['R']
     openmoc_surface = openmoc.Circle(x0, y0, R, surface_id, name)
 
   else:
@@ -283,9 +283,9 @@ def get_compatible_opencg_surfaces(opencg_surface):
   boundary = opencg_surface.boundary_type
 
   if opencg_surface.type == 'z-squareprism':
-    x0 = opencg_surface._coeffs['x0']
-    y0 = opencg_surface._coeffs['y0']
-    R = opencg_surface._coeffs['R']
+    x0 = opencg_surface.coeffs['x0']
+    y0 = opencg_surface.coeffs['y0']
+    R = opencg_surface.coeffs['R']
 
     # Create a list of the four planes we need
     left = opencg.XPlane(x0=x0-R, name=name)
@@ -478,12 +478,12 @@ def make_opencg_cells_compatible(opencg_universe):
     raise ValueError(msg)
 
   # Check all OpenCG Cells in this Universe for compatibility with OpenMOC
-  opencg_cells = opencg_universe._cells
+  opencg_cells = opencg_universe.cells
 
   for cell_id, opencg_cell in opencg_cells.items():
 
     # Check each of the OpenCG Surfaces for OpenMOC compatibility
-    surfaces = opencg_cell._surfaces
+    surfaces = opencg_cell.surfaces
 
     for surface_id in surfaces:
       surface = surfaces[surface_id][0]
@@ -541,12 +541,12 @@ def get_openmoc_cell(opencg_cell):
   else:
     openmoc_cell.setFill(get_openmoc_material(fill))
 
-  surfaces = opencg_cell._surfaces
+  surfaces = opencg_cell.surfaces
 
   for surface_id in surfaces:
     surface = surfaces[surface_id][0]
     halfspace = int(surfaces[surface_id][1])
-    openmoc_cell.add_surface(halfspace, get_openmoc_surface(surface))
+    openmoc_cell.addSurface(halfspace, get_openmoc_surface(surface))
 
   # Add the OpenMOC Cell to the global collection of all OpenMOC Cells
   OPENMOC_CELLS[cell_id] = openmoc_cell
@@ -613,7 +613,7 @@ def get_openmoc_universe(opencg_universe):
   openmoc_universe = openmoc.Universe(universe_id, name)
 
   # Convert all OpenCG Cells in this Universe to OpenMOC Cells
-  opencg_cells = opencg_universe._cells
+  opencg_cells = opencg_universe.cells
 
   for cell_id, opencg_cell in opencg_cells.items():
     openmoc_cell = get_openmoc_cell(opencg_cell)
