@@ -221,27 +221,27 @@ def get_openmoc_surface(opencg_surface):
     boundary = openmoc.BOUNDARY_NONE
 
   if opencg_surface.type == 'plane':
-    A = opencg_surface.coeffs['A']
-    B = opencg_surface.coeffs['B']
-    D = opencg_surface.coeffs['D']
+    A = opencg_surface.a
+    B = opencg_surface.b
+    D = opencg_surface.d
     openmoc_surface = openmoc.Plane(A, B, D, surface_id, name)
 
   elif opencg_surface.type == 'x-plane':
-    x0 = opencg_surface.coeffs['x0']
+    x0 = opencg_surface.x0
     openmoc_surface = openmoc.XPlane(x0, int(surface_id), name)
 
   elif opencg_surface.type == 'y-plane':
-    y0 = opencg_surface.coeffs['y0']
+    y0 = opencg_surface.y0
     openmoc_surface = openmoc.YPlane(y0, surface_id, name)
 
   elif opencg_surface.type == 'z-plane':
-    z0 = opencg_surface.coeffs['z0']
+    z0 = opencg_surface.z0
     openmoc_surface = openmoc.ZPlane(z0, surface_id, name)
 
   elif opencg_surface.type == 'z-cylinder':
-    x0 = opencg_surface.coeffs['x0']
-    y0 = opencg_surface.coeffs['y0']
-    R = opencg_surface.coeffs['R']
+    x0 = opencg_surface.x0
+    y0 = opencg_surface.y0
+    R = opencg_surface.r
     openmoc_surface = openmoc.Circle(x0, y0, R, surface_id, name)
 
   else:
@@ -283,9 +283,9 @@ def get_compatible_opencg_surfaces(opencg_surface):
   boundary = opencg_surface.boundary_type
 
   if opencg_surface.type == 'z-squareprism':
-    x0 = opencg_surface.coeffs['x0']
-    y0 = opencg_surface.coeffs['y0']
-    R = opencg_surface.coeffs['R']
+    x0 = opencg_surface.x0
+    y0 = opencg_surface.y0
+    R = opencg_surface.r
 
     # Create a list of the four planes we need
     left = opencg.XPlane(x0=x0-R, name=name)
