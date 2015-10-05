@@ -588,6 +588,86 @@ def plot_segments_2D(track_generator):
   plt.close(fig)
 
 
+
+def plot_segments_3D(track_generator):
+
+  global subdirectory
+
+  directory = openmoc.get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'TrackGenerator' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
+              'rather than a TrackGenerator', str(type(track_generator)))
+
+  if not track_generator.contains3DSegments():
+    py_printf('ERROR', 'Unable to plot Track segments since the ' + \
+              'TrackGenerator has not yet generated 3D segments.')
+
+  py_printf('NORMAL', 'Plotting the 3D track segments...')
+
+  # Retrieve data from TrackGenerator
+  num_azim = track_generator.getNumAzim()
+  spacing = track_generator.getDesiredAzimSpacing()
+  num_segments = track_generator.getNum3DSegments()
+  num_fsrs = track_generator.getGeometry().getNumFSRs()
+  coords = track_generator.retrieve3DSegmentCoords(num_segments*7)
+
+  # Convert data to NumPy arrays
+  coords = np.array(coords)
+  x = numpy.zeros(num_segments*2)
+  y = numpy.zeros(num_segments*2)
+  z = numpy.zeros(num_segments*2)
+  fsrs = numpy.zeros(num_segments)
+
+  for i in range(num_segments):
+    fsrs[i] = coords[i*7]
+    x[i*2] = coords[i*7+1]
+    y[i*2] = coords[i*7+2]
+    z[i*2] = coords[i*7+3]
+    x[i*2+1] = coords[i*7+4]
+    y[i*2+1] = coords[i*7+5]
+    z[i*2+1] = coords[i*7+6]
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
+  # Make figure of line segments for each track
+  fig = plt.figure()
+  ax = fig.gca(projection ='3d')
+  
+  for i in range(num_segments):
+
+    # Create a color map corresponding to FSR IDs
+    jet = cm = plt.get_cmap('jet')
+    cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
+    scalarMap = cmx.ScalarMappable(norm=cNorm)
+    color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+    plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], [z[i*2], z[i*2+1]], \
+             c=color)
+
+  title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
+        ' cm spacing'
+
+  plt.title(title)
+
+  filename = directory + 'segments-3D' + str(num_azim) + '-angles-' + \
+      str(spacing) + '-spacing.png'
+
+  plt.show()
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+  
+
+
+
 def plot_segments_3D(track_generator):
 
   global subdirectory
@@ -1738,3 +1818,574 @@ def get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim=None):
   coords['bounds'] = bounds
 
   return coords
+
+
+#TODO FIXME: write description
+def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250, 
+                       xlim=None, ylim=None, zlim=None, plane='xy', offset=0.,
+                       centroids=False, marker_type='o', marker_size=2):
+
+  global subdirectory
+
+  directory = openmoc.get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'Geometry' in str(type(geometry)):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'input was not a geometry class object')
+
+  if not is_integer(gridsize):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'the gridsize %d is not an integer', gridsize)
+
+  if gridsize <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'with a negative gridsize (%d)', gridsize)
+
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the flat source regions with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
+
+  if not is_float(offset):
+    msg = 'Unable to plot the flat source regions since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+    
+  if not isinstance(centroids, bool):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'centroids is not a boolean')
+
+  if not isinstance(marker_type, str):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is a string')
+
+  if marker_type not in matplotlib.markers.MarkerStyle().markers.keys():
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is not a valid marker (%d)', marker_type)
+
+  if not is_float(marker_size) and not is_integer(marker_size):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_size is not an int or float', marker_size)
+
+  if marker_size <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'with a negative marker_size (%d)', marker_size)
+
+  py_printf('NORMAL', 'Plotting track {0} vs FSRs...'.format(track_id))
+
+  # Get the number of flat source regions
+  num_fsrs = geometry.getNumFSRs()
+
+  if num_fsrs == 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'since no tracks have been generated.')
+
+  # Initialize a NumPy array for the surface colors
+  surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
+
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
+
+  # Find the flat source region IDs for each grid point
+  for i in range(gridsize):
+    for j in range(gridsize):
+
+      if plane == 'xy':
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      elif plane == 'xz':
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      else:
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+
+      # If we did not find a region for this region, use a -1 "bad" number color
+      if fsr_id is None:
+        surface[j][i] = -1
+      else:
+       surface[j][i] = fsr_id
+
+      del point
+
+  # Replace each Cell ID with a random (but reproducible) color ID
+  # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
+  # for Materials and Cells. The reason is that FSRs and CMFD cells are by
+  # definition a sequence of consecutive, monotonically increasing integers.
+  # Material and Cell IDs however may be any sequence of positive integers.
+  all_ids = np.arange(num_fsrs, dtype=np.int64)
+
+  id_colors = np.arange(num_fsrs, dtype=np.int64)
+  numpy.random.seed(26)
+  np.random.shuffle(id_colors)
+
+  ids_to_colors = np.arange(num_fsrs, dtype=np.int64)
+  ids_to_colors[all_ids] = id_colors
+
+  colors = ids_to_colors.take(surface)
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap('spectral')
+  cmap.set_bad(alpha=0.0)
+
+  # Plot a 2D color map of the flat source regions
+  fig = plt.figure()
+  colors = np.flipud(colors)
+  plt.imshow(colors, extent=coords['bounds'],
+             interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
+
+  # Plot the 3D track projection
+  track_coords = track_generator.retrieveSingle3DTrackCoords(track_id)
+
+  # Convert data to NumPy arrays
+  track_coords = np.array(track_coords)
+  x = track_coords[0::3]
+  y = track_coords[1::3]
+  z = track_coords[2::3]
+
+  # Plot track on top of flat source regions
+  if plane == 'xy':
+    plt.plot(x, y, 'k.-')
+    plt.xlim(min(coords['x']), max(coords['x']))
+    plt.ylim(min(coords['y']), max(coords['y']))
+  
+  elif plane == 'yz':
+    plt.plot(y, z, 'k.-')
+    plt.xlim(min(coords['y']), max(coords['y']))
+    plt.ylim(min(coords['z']), max(coords['z']))
+  
+  elif plane == 'xz':
+    plt.plot(x, z, 'k.-')
+    plt.xlim(min(coords['x']), max(coords['x']))
+    plt.ylim(min(coords['z']), max(coords['z']))
+  
+  # Plot centroids on top of 2D FSR color map
+  if centroids:
+    centroids_x = []
+    centroids_y = []
+    centroids_z = []
+    for r in range(geometry.getNumFSRs()):
+      point = geometry.getFSRCentroid(r)
+      centroids_x.append(point.getX())
+      centroids_y.append(point.getY())
+      centroids_z.append(point.getZ())
+      
+
+    if plane == 'xy':
+      plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['x']), max(coords['x']))
+      plt.ylim(min(coords['y']), max(coords['y']))
+      
+    elif plane == 'xz':
+      plt.scatter(centroids_x, centroids_z, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['x']), max(coords['x']))
+      plt.ylim(min(coords['z']), max(coords['z']))
+      
+    else:
+
+      plt.scatter(centroids_y, centroids_z, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['y']), max(coords['y']))
+      plt.ylim(min(coords['z']), max(coords['z']))
+      
+
+  # Set the plot title and save the figure
+  #plt.plot([10.421922],[-10.643587], 'bo', mew=3) 
+  #plt.plot([10.309855],[-10.577408], 'go', mew=3) 
+  plt.title('Flat Source Regions Near Track {0}'.format(track_id))
+  filename = directory + 'track-{0}-flat-source-regions-'.format(track_id) \
+              + plane + '.png'
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+
+
+##
+# @brief Plots the characteristic Track segments from an OpenMOC simulation.
+# @details This method requires that tracks have been generated by a
+#          TrackGenerator object. Each segment is colored by the ID of the
+#          unique flat flat source region it is within. A user may invoke
+#          this function from an OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plot_segments(track_generator)
+# @endcode
+#
+# @param track_generator the TrackGenerator which has generated Tracks
+# FIXME
+def plot_extruded_segments(track_generator, xlim=None, ylim=None):
+
+  global subdirectory
+
+  directory = openmoc.get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'TrackGenerator' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
+              'rather than a TrackGenerator', str(type(track_generator)))
+
+  if not track_generator.containsExtrudedSegments():
+    py_printf('ERROR', 'Unable to plot Track segments since the ' + \
+              'TrackGenerator has not yet generated 2D Segments.')
+
+  py_printf('NORMAL', 'Plotting the extruded 2d track segments...')
+
+  # Retrieve data from TrackGenerator
+  num_azim = track_generator.getNumAzim()
+  spacing = track_generator.getDesiredAzimSpacing()
+  num_segments = track_generator.getNumExtrudedSegments()
+  num_fsrs = track_generator.getGeometry().getNumFSRs()
+  coords = track_generator.retrieveExtrudedSegmentCoords(num_segments*5)
+
+  # Convert data to NumPy arrays
+  coords = np.array(coords)
+  x = numpy.zeros(num_segments*2)
+  y = numpy.zeros(num_segments*2)
+  fsrs = numpy.zeros(num_segments)
+  
+  for i in range(num_segments):
+    fsrs[i] = coords[i*5]
+    x[i*2] = coords[i*5+1]
+    y[i*2] = coords[i*5+2]
+    x[i*2+1] = coords[i*5+3]
+    y[i*2+1] = coords[i*5+4]
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
+  # Make figure of line segments for each track
+  fig = plt.figure()
+
+  # set limits if none present
+  if xlim == None:
+    xlim = [x.min(), x.max()]
+  if ylim == None:
+    ylim = [y.min(), y.max()]
+  
+  for i in range(num_segments):
+
+    if i % 100000 == 0:
+      print "Step ", i, "/", num_segments
+
+    if (x[i*2] < xlim[0] and x[i*2+1] < xlim[0]) or \
+        (x[i*2] > xlim[1] and x[i*2+1] > xlim[1]) or \
+        (y[i*2] < ylim[0] and y[i*2+1] < ylim[0]) or \
+        (y[i*2] > ylim[1] and y[i*2+1] > ylim[1]):
+        continue
+
+
+    # Create a color map corresponding to FSR IDs
+    jet = cm = plt.get_cmap('jet')
+    cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
+    scalarMap = cmx.ScalarMappable(norm=cNorm)
+    color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+    plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], 'x-', c=color)
+
+  # FIXME
+  plt.xlim(xlim)
+  plt.ylim(ylim)
+    
+  title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
+        ' cm spacing'
+
+  plt.title(title)
+
+  filename = directory + 'segments-2D-' + str(num_azim) + '-angles-' + \
+      str(spacing) + '-spacing.png'
+  
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+  
+
+#TODO FIXME: write description
+def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250, 
+                       xlim=None, ylim=None, zlim=None, plane='xy', offset=0.,
+                       centroids=False, marker_type='o', marker_size=2):
+
+  global subdirectory
+
+  directory = openmoc.get_output_directory() + subdirectory
+
+  # Make directory if it does not exist
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  # Error checking
+  if not 'Geometry' in str(type(geometry)):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'input was not a geometry class object')
+
+  if not is_integer(gridsize):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'the gridsize %d is not an integer', gridsize)
+
+  if gridsize <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'with a negative gridsize (%d)', gridsize)
+
+  if plane not in ['xy', 'xz', 'yz']:
+    msg = 'Unable to plot the flat source regions with an invalid ' \
+          'plane {0}. Plane options xy, xz, yz'.format(plane)
+    raise ValueError(msg)
+
+  if not is_float(offset):
+    msg = 'Unable to plot the flat source regions since the offset {0} ' \
+          'is not a float'.format(offset)
+    raise ValueError(msg)
+    
+  if not isinstance(centroids, bool):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'centroids is not a boolean')
+
+  if not isinstance(marker_type, str):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is a string')
+
+  if marker_type not in matplotlib.markers.MarkerStyle().markers.keys():
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_type is not a valid marker (%d)', marker_type)
+
+  if not is_float(marker_size) and not is_integer(marker_size):
+    py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
+              'marker_size is not an int or float', marker_size)
+
+  if marker_size <= 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'with a negative marker_size (%d)', marker_size)
+
+  py_printf('NORMAL', 'Plotting track {0} vs FSRs...'.format(track_id))
+
+  # Get the number of flat source regions
+  num_fsrs = geometry.getNumFSRs()
+
+  if num_fsrs == 0:
+    py_printf('ERROR', 'Unable to plot the flat source regions ' + \
+              'since no tracks have been generated.')
+
+  # Initialize a NumPy array for the surface colors
+  surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
+
+  # Retrieve the pixel coordinates
+  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
+
+  # Find the flat source region IDs for each grid point
+  for i in range(gridsize):
+    for j in range(gridsize):
+
+      if plane == 'xy':
+        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      elif plane == 'xz':
+        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+      else:
+        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
+        point.setUniverse(geometry.getRootUniverse())
+        geometry.findCellContainingCoords(point)
+        fsr_id = geometry.getFSRId(point)
+
+      # If we did not find a region for this region, use a -1 "bad" number color
+      if fsr_id is None:
+        surface[j][i] = -1
+      else:
+       surface[j][i] = fsr_id
+
+      del point
+
+  # Replace each Cell ID with a random (but reproducible) color ID
+  # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
+  # for Materials and Cells. The reason is that FSRs and CMFD cells are by
+  # definition a sequence of consecutive, monotonically increasing integers.
+  # Material and Cell IDs however may be any sequence of positive integers.
+  all_ids = np.arange(num_fsrs, dtype=np.int64)
+
+  id_colors = np.arange(num_fsrs, dtype=np.int64)
+  numpy.random.seed(26)
+  np.random.shuffle(id_colors)
+
+  ids_to_colors = np.arange(num_fsrs, dtype=np.int64)
+  ids_to_colors[all_ids] = id_colors
+
+  colors1 = ids_to_colors.take(surface)
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap('spectral')
+  cmap.set_bad(alpha=0.0)
+
+  # Plot a 2D color map of the flat source regions
+  fig = plt.figure()
+  colors1 = np.flipud(colors1)
+  plt.imshow(colors1, extent=coords['bounds'],
+             interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
+
+  # Plot the 3D track projection
+  track_coords = track_generator.retrieveSingle3DTrackCoords(track_id)
+
+  # Convert data to NumPy arrays
+  track_coords = np.array(track_coords)
+  x = track_coords[0::3]
+  y = track_coords[1::3]
+  z = track_coords[2::3]
+
+  # Plot track on top of flat source regions
+  if plane == 'xy':
+    plt.plot(x, y, 'k.-',lw=2)
+    plt.xlim(min(coords['x']), max(coords['x']))
+    plt.ylim(min(coords['y']), max(coords['y']))
+  
+  elif plane == 'yz':
+    plt.plot(y, z, 'k.-',lw=2)
+    plt.xlim(min(coords['y']), max(coords['y']))
+    plt.ylim(min(coords['z']), max(coords['z']))
+  
+  elif plane == 'xz':
+    plt.plot(x, z, 'k.-',lw=2)
+    plt.xlim(min(coords['x']), max(coords['x']))
+    plt.ylim(min(coords['z']), max(coords['z']))
+  
+  # Plot centroids on top of 2D FSR color map
+  if centroids:
+    centroids_x = []
+    centroids_y = []
+    centroids_z = []
+    for r in range(geometry.getNumFSRs()):
+      point = geometry.getFSRCentroid(r)
+      centroids_x.append(point.getX())
+      centroids_y.append(point.getY())
+      centroids_z.append(point.getZ())
+      
+
+    if plane == 'xy':
+      plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['x']), max(coords['x']))
+      plt.ylim(min(coords['y']), max(coords['y']))
+      
+    elif plane == 'xz':
+      plt.scatter(centroids_x, centroids_z, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['x']), max(coords['x']))
+      plt.ylim(min(coords['z']), max(coords['z']))
+      
+    else:
+
+      plt.scatter(centroids_y, centroids_z, color='k', marker=marker_type, \
+                  s=marker_size)
+
+      # Matplotlib likes to add a buffer around scatter plots, so we will
+      # manually set the plot bounds
+      plt.xlim(min(coords['y']), max(coords['y']))
+      plt.ylim(min(coords['z']), max(coords['z']))
+      
+  
+  if not track_generator.containsExtrudedSegments():
+    py_printf('ERROR', 'Unable to plot Track segments since the ' + \
+              'TrackGenerator has not yet generated 2D Segments.')
+
+  py_printf('NORMAL', 'Plotting the extruded 2d track segments...')
+
+  # Retrieve data from TrackGenerator
+  num_azim = track_generator.getNumAzim()
+  spacing = track_generator.getDesiredAzimSpacing()
+  num_segments = track_generator.getNumExtrudedSegments()
+  num_fsrs = track_generator.getGeometry().getNumFSRs()
+  coords = track_generator.retrieveExtrudedSegmentCoords(num_segments*5)
+
+  # Convert data to NumPy arrays
+  coords = np.array(coords)
+  x = numpy.zeros(num_segments*2)
+  y = numpy.zeros(num_segments*2)
+  fsrs = numpy.zeros(num_segments)
+  
+  for i in range(num_segments):
+    fsrs[i] = coords[i*5]
+    x[i*2] = coords[i*5+1]
+    y[i*2] = coords[i*5+2]
+    x[i*2+1] = coords[i*5+3]
+    y[i*2+1] = coords[i*5+4]
+
+  # Create array of equally spaced randomized floats as a color map for plots
+  # Seed the NumPy random number generator to ensure reproducible color maps
+  numpy.random.seed(1)
+  color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+  numpy.random.shuffle(color_map)
+
+  # set limits if none present
+  if xlim == None:
+    xlim = [x.min(), x.max()]
+  if ylim == None:
+    ylim = [y.min(), y.max()]
+  
+  for i in range(num_segments):
+
+    if i % 100000 == 0:
+      print "Step ", i, "/", num_segments
+
+    if (x[i*2] < xlim[0] and x[i*2+1] < xlim[0]) or \
+        (x[i*2] > xlim[1] and x[i*2+1] > xlim[1]) or \
+        (y[i*2] < ylim[0] and y[i*2+1] < ylim[0]) or \
+        (y[i*2] > ylim[1] and y[i*2+1] > ylim[1]):
+        continue
+
+
+    # Create a color map corresponding to FSR IDs
+    jet = cm = plt.get_cmap('jet')
+    cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
+    scalarMap = cmx.ScalarMappable(norm=cNorm)
+    color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+    plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], 'x-', c=color)
+
+  # FIXME
+  plt.xlim(xlim)
+  plt.ylim(ylim)
+    
+  title = 'Segments/FSRs for ' + str(num_azim) + ' angles and ' + str(spacing) + \
+        ' cm spacing'
+
+  plt.title(title)
+
+  filename = directory + 'segments-FSRs-2D-' + str(num_azim) + '-angles-' + \
+      str(spacing) + '-spacing.png'
+  
+  fig.savefig(filename, bbox_inches='tight')
+  plt.close(fig)
+  
+

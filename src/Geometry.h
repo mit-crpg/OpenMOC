@@ -33,8 +33,9 @@ class Cmfd;
  */
 struct fsr_data {
 
-  //FIXME
-  fsr_data() : _fsr_id(0), _cmfd_cell(0), _mat_id(0), _point(NULL), _centroid(NULL){}
+  /** Constructor for FSR data object */
+  fsr_data() : _fsr_id(0), _cmfd_cell(0), _mat_id(0), _point(NULL), 
+    _centroid(NULL){}
 
   /** The FSR ID */
   int _fsr_id;
@@ -60,6 +61,34 @@ struct fsr_data {
       delete _centroid;
   }
 };
+
+
+/**
+ * @struct ExtrudedFSR
+ * @brief An ExtrudedFSR struct represents a FSR region in the superposition
+ *        plane for axial on-the-fly ray tracing. It contains a characteristic
+ *        point that lies within the FSR, an axial mesh, and an array of 3D
+ *        FSR IDs contained within the extruded region along with their
+ *        corresponding materials.
+ */
+struct ExtrudedFSR {
+
+  /** Array defining the axial mesh */
+  FP_PRECISION* _mesh;
+
+  /** Array of 3D FSR IDs */
+  int* _fsr_ids;
+
+  /** Array of material pointers for each FSR */
+  Material** _materials;
+
+  /** Number of FSRs in the axially extruded FSR */
+  size_t _num_fsrs;
+  
+  /** Coordinates inside the FSR */
+  LocalCoords* _coords;
+};
+
 
 void reset_auto_ids();
 

@@ -20,6 +20,10 @@
 
 
 
+/** Forward declaration of ExtrudedFSR struct */
+struct ExtrudedFSR;
+
+
 /**
  * @class Track3D Track3D.h "src/Track3D.h"
  * @brief A 3D Track represents a characteristic line across the geometry.
@@ -75,32 +79,13 @@ public:
 };
 
 
-/**
- * @stuct ExtrudedFSR
- * @brief TODO, move to another file
- */
-struct ExtrudedFSR {
-
-  /** Array defining the axial mesh */
-  FP_PRECISION* _mesh;
-
-  /** Array of 3D FSR IDs */
-  int* _fsr_ids;
-
-  /** Array of material pointers for each FSR */
-  Material** _materials;
-
-  /** Number of FSRs in the axially extruded FSR */
-  size_t _num_fsrs;
-  
-  /** Coordinates inside the FSR */
-  LocalCoords* _coords;
-};
-
 
 /**
  * @struct ExtrudedTrack
- * @brief TODO
+ * @brief An ExtrudedTrack struct represents a 2D track over the superposition
+ *        plane for on-the-fly axial ray tracing. The ExtrudedTrack is split
+ *        into segments for each ExtrudedFSR region that is traversed. It
+ *        contains indexes and a pointer to the associated 2D Track.
  */
 struct ExtrudedTrack {
 

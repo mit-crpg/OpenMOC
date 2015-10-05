@@ -1,5 +1,4 @@
 #include "TrackGenerator.h"
-#include <fstream> //FIXME
 
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
@@ -130,7 +129,7 @@ int TrackGenerator::getNumPolar() {
 
 /**
  * @brief Return the track azimuthal spacing (cm).
- * @details This will return the user-specified track spacing and NOT the
+ * @ditails This will return the user-specified track spacing and NOT the
  *          effective track spacing which is computed and used to generate
  *          cyclic tracks.
  * @return the track azimuthal spacing (cm)
@@ -166,8 +165,8 @@ Geometry* TrackGenerator::getGeometry() {
 
 
 /**
- * @brief Return the total number of Tracks across the Geometry.
- * @return the total number of Tracks
+ * @brief Return the total number of 2D Tracks across the Geometry.
+ * @return the total number of 2D Tracks
  */
 int TrackGenerator::getNum2DTracks() {
   return _num_2D_tracks;
@@ -175,8 +174,8 @@ int TrackGenerator::getNum2DTracks() {
 
 
 /**
- * @brief Return the total number of Tracks across the Geometry.
- * @return the total number of Tracks
+ * @brief Return the total number of 3D Tracks across the Geometry.
+ * @return the total number of 3D Tracks
  */
 int TrackGenerator::getNum3DTracks() {
   return _num_3D_tracks;
@@ -494,87 +493,26 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
   segment* segment;
   FP_PRECISION volume;
   
-  //FIXME
-  //std::ofstream out("Segments_reg.txt");
-
   /* Calculate each FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for each FSR.  */
-  for (int a=0; a < _num_azim/2; a++){
-    for (int i=0; i < getNumX(a) + getNumY(a); i++){
-      for (int p=0; p < _num_polar; p++){
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
-          
-          //FIXME
-          /*
-          Track3D* curr_track = &_tracks_3D_stack[a][i][p][z];
-          out << "Track " << _tracks_3D_stack[a][i][p][z].getUid() << ":\n";
-          out << "Start = " << "(" << curr_track->getStart()->getX() 
-            << curr_track->getStart()->getY() << curr_track->getStart()->getZ() 
-            << ")\n";
-          out << "End = " << "(" << curr_track->getEnd()->getX() 
-            << curr_track->getEnd()->getY() << curr_track->getEnd()->getZ() 
-            << ")\n";
-          */
-          for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments(); s++){
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p=0; p < _num_polar; p++) {
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+          for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments(); s++) {
+            
             segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
             volume = segment->_length * _quadrature->getAzimWeight(a)
               * _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
               * getPolarSpacing(a,p);
             FSR_volumes[segment->_region_id] += volume;
         
-            //FIXME
-            /*
-            out << "seg " << s << " = " << segment->_length;
-            
-            FP_PRECISION max_sig_t = 0;
-            FP_PRECISION* sigmas = segment->_material->getSigmaT();
-            int num_groups = segment->_material->getNumEnergyGroups();
-            for (int e=0; e < num_groups; e++)
-              if (sigmas[e] > max_sig_t)
-                max_sig_t = sigmas[e];
-            out << ", tau = " << segment->_length * max_sig_t;
-            if (_tracks_3D_stack[a][i][p][z].getUid() == 16532)
-              out << ", ID = " << segment->_region_id;
-            if (true) {
-              Point* loc = _geometry->getFSRCentroid(segment->_region_id);
-              if(loc != NULL) {
-                double centroid[3];
-                centroid[0] = round(loc->getX() * 1e8) / 1e8;
-                centroid[1] = round(loc->getY() * 1e8) / 1e8;
-                centroid[2] = round(loc->getZ() * 1e8) / 1e8;
-                std::string vals[3];
-                for (int m=0; m<3; m++) {
-                  vals[m] = std::to_string(centroid[m]);
-                  if (vals[m] == "-0.000000")
-                    vals[m] = "0.000000";
-                }
-                out << ", centroid = (" << vals[0] << ", " 
-                  << vals[1] << ", " << vals[2] << ")";
-              }
-            }
-            out << std::endl;
-            */
           }
-          //FIXME
-          //out << std::endl;
         }
       }
     }
   }
-
-  //FIXME
-  /*
-  out.close();
-  out.open("Volumes_reg.txt");
-  FP_PRECISION total_volume = 0;
-  for (int i=0; i < num_FSRs; i++) {
-    out << "Volume of region " << i << " = " << FSR_volumes[i] << std::endl;
-    total_volume += FSR_volumes[i];
-  }
-  out << "TOTAL volume = " << total_volume << std::endl;
-  out.close();
-  */
-
+  
   return FSR_volumes;
 }
 
@@ -853,7 +791,7 @@ bool TrackGenerator::containsExtrudedSegments() {
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
- *          in reality it only requires on due to SWIG and would be called
+ *          in reality it only requires one due to SWIG and would be called
  *          from within Python as follows:
  *
  * @code
@@ -1012,7 +950,7 @@ void TrackGenerator::retrieve3DReflectiveCycleCoords(double* coords, int num_tra
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
- *          in reality it only requires on due to SWIG and would be called
+ *          in reality it only requires one due to SWIG and would be called
  *          from within Python as follows:
  *
  * @code
@@ -1196,6 +1134,92 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
   }
   
   return;
+}
+
+
+/**
+ * @brief Fills an array with the x,y coordinates for each extruded track 
+ *        segment.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          2D segments for on-the-fly axial ray tracing. Although this method
+ *          appears to require two arguments, in reality it only requires one 
+ *          due to SWIG and would be called from within Python as follows:
+ *
+ * @code
+ *          num_segments = track_generator.getNumSegments()
+ *          coords = track_generator.retrieveSegmentCoords(num_segments*5)
+ * @endcode
+ *
+ * @param coords an array of coords of length 5 times the number of extruded 
+          2D segments
+ * @param num_segments the total number of extruded track segments
+ */
+void TrackGenerator::retrieveExtrudedSegmentCoords(double* coords, 
+    int num_segments) {
+
+  if (num_segments != 5*getNumExtrudedSegments())
+    log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
+               "the TrackGenerator contains %d segments with %d coordinates "
+               "but an array of length %d was input",
+               getNumExtrudedSegments(), 5*getNumExtrudedSegments(), num_segments);
+
+  double x0, x1, y0, y1;
+  double phi;
+
+  int counter = 0;
+
+  /* Loop over Track segments and populate array with their FSR ID and *
+   * start/end points */
+  for (int i=0; i < _num_2D_tracks; i++){
+    
+    x0    = _extruded_tracks[i]._track_2D->getStart()->getX();
+    y0    = _extruded_tracks[i]._track_2D->getStart()->getY();
+    phi   = _extruded_tracks[i]._track_2D->getPhi();
+    
+    for (int s=0; s < _extruded_tracks[i]._num_segments; s++) {
+      
+      size_t ptr = (size_t) _extruded_tracks[i]._regions[s];
+      coords[counter] = (double) ptr;
+      double seg_len = _extruded_tracks[i]._lengths[s]; 
+        
+      coords[counter+1] = x0;
+      coords[counter+2] = y0;
+      
+      x1 = x0 + cos(phi) * seg_len;
+      y1 = y0 + sin(phi) * seg_len;
+      
+      coords[counter+3] = x1;
+      coords[counter+4] = y1;
+      
+      x0 = x1;
+      y0 = y1;
+      
+      counter += 5;
+    }
+  }
+
+  return;
+}
+
+
+/**
+ * @brief Return the total number of 2D extruded Tracks across the Geometry.
+ * @return the total number of 2D extruded Tracks
+ */
+int TrackGenerator::getNumExtrudedSegments() {
+  
+  if (!containsExtrudedSegments())
+    log_printf(ERROR, "Cannot get the number of 2D segments since they "
+               "have not been generated.");
+  
+  int num_extruded_segments = 0;
+
+  for (int i=0; i < _num_2D_tracks; i++)
+    num_extruded_segments += _extruded_tracks[i]._num_segments;
+
+  return num_extruded_segments;
+
 }
 
 
@@ -2880,7 +2904,12 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
 
 
 /**
- * @brief TODO
+ * @brief Initializes array of extruded tracks
+ * @details An array of ExtrudedTrack objects is initialized of length equal
+ *          to the number of 2D tracks. The azimuthal and track indexes of the
+ *          corresponding 2D track are saved as well as a pointer to the
+ *          corresponding 2D track. The number of 2D segments in each extruded
+ *          track is initialized to be zero.
  */
 void TrackGenerator::initializeExtrudedTracks() {
 
@@ -3108,15 +3137,14 @@ void TrackGenerator::segmentize2D() {
 }
 
 /**
- * @brief TODO YADA YADA YADA segmentize
+ * @brief Generates 2D segments for each extruded track across the Geometry,
+ *        initilaizing axially extruded regions as well as 3D FSRs.
  */
 void TrackGenerator::segmentizeExtruded() {
 
   log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
 
   /* Loop over all extruded Tracks */
-  int count = 0;
-  int interval = _num_2D_tracks * 0.2 + 1;
   #pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++)
     _geometry->segmentizeExtruded(&_extruded_tracks[index]);
@@ -4324,7 +4352,7 @@ bool TrackGenerator::getCycleDirection(int azim, int cycle, int track_index) {
 
 
 /**
- * @brief Sets the max optical path length for 3D segments for use in
+ * @brief Sets the max optical path length of 3D segments for use in
  *        on-the-fly computation
  * @param tau maximum optical path length
  */
@@ -4332,13 +4360,28 @@ void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
   _max_optical_length = tau;
 }
 
-// TODO
+
+/**
+ * @brief Retrieves the max optical path length of 3D segments for use in
+ *        on-the-fly computation
+ * @return maximum optical path length
+ */
 FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
   return _max_optical_length;
 }
 
+
 /**
- * @brief TODO do this a better way, maybe inline
+ * @brief A function that searches for the index into a values mesh using a 
+ *        binary search.
+ * @details A binary search is used to calculate the index into a mesh of where
+ *          the value val resides. If a mesh boundary is hit, the upper region
+ *          is selected for positive-z traversing rays and the lower region is
+ *          selected for negative-z traversing rays.
+ * @param values an array of monotonically increasing values
+ * @param size the size of the values array
+ * @param val the level to be searched for in the mesh
+ * @param sign the direction of the ray in the z-direction
  */
 int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
 
@@ -4348,7 +4391,7 @@ int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
 
   /* Check if val is outside the range */
   if (val < values[imin] or val > values[imax]) {
-    log_printf(ERROR, "Axial height in extruded FSR out of range");
+    log_printf(ERROR, "Value out of the mesh range in binary search");
     return -1;
   }
 
@@ -4373,6 +4416,43 @@ int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
 
 
 /**
+ * @brief Fills an array with the x,y coordinates for a given track.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          tracks. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          coords = track_generator.retrieveTrackCoords(track_id)
+ * @endcode
+ *
+ * @param coords an array of coords of length 6
+ * @param track_id the ID of the requested track
+ */
+void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6], 
+    int track_id) {
+
+  // Find 3D track
+  for (int a=0; a < _num_azim/2; a++) 
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) 
+      for (int p=0; p < _num_polar; p++) 
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) 
+          if (_tracks_3D_stack[a][i][p][z].getUid() == track_id) {
+
+            coords[0] = _tracks_3D_stack[a][i][p][z].getStart()->getX();
+            coords[1] = _tracks_3D_stack[a][i][p][z].getStart()->getY();
+            coords[2] = _tracks_3D_stack[a][i][p][z].getStart()->getZ();
+            coords[3] = _tracks_3D_stack[a][i][p][z].getEnd()->getX();
+            coords[4] = _tracks_3D_stack[a][i][p][z].getEnd()->getY();
+            coords[5] = _tracks_3D_stack[a][i][p][z].getEnd()->getZ();
+            return;
+          }
+  std::cout << "ERROR: UNABLE TO FIND TRACK" << std::endl;
+  return;
+}
+
+/**
  * @brief Computes and returns an array of volumes indexed by FSR for
           on-the-fly computation.
  * @details Segment lengths are computed on-the-fly and subsequently used to
@@ -4389,9 +4469,6 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
   VolumeKernel kernel;
   kernel.setBuffer(FSR_volumes);
   
-  //FIXME
-  //std::ofstream out("segments_OTF.txt");
-
   /* Calculate each FSR's "volume" by accumulating the total length of * 
    * all Track segments multipled by the Track "widths" for each FSR.  */
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
@@ -4425,89 +4502,31 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
         
         traceSegmentsOTF(extruded_track, start, theta, &kernel);
         
-        //FIXME
-        /*
-        SegmentationKernel temp_kernel;
-        int num_segments = curr_track->getNumSegments();
-        segment segments[num_segments];
-        temp_kernel.setSegments(segments);
-        temp_kernel.setMaxVal(_max_optical_length);
-        traceSegmentsOTF(extruded_track, start, theta, &temp_kernel);
-        out << "Track " << curr_track->getUid() << ":\n";
-        out << "Start = " << "(" << curr_track->getStart()->getX() 
-          << curr_track->getStart()->getY() << curr_track->getStart()->getZ() 
-          << ")\n";
-        out << "End = " << "(" << curr_track->getEnd()->getX() 
-          << curr_track->getEnd()->getY() << curr_track->getEnd()->getZ() 
-          << ")\n";
-      
-        for (int s=0; s < num_segments; s++) {
-          out << "seg " << s << " = " << segments[s]._length;
-          
-          segment seg = segments[s];
-          FP_PRECISION max_sig_t = 0;
-          FP_PRECISION* sigmas = seg._material->getSigmaT();
-          int num_groups = seg._material->getNumEnergyGroups();
-          for (int e=0; e < num_groups; e++)
-            if (sigmas[e] > max_sig_t)
-              max_sig_t = sigmas[e];
-          out << ", tau = " << seg._length * max_sig_t;
-          if (curr_track->getUid() == 16532) 
-            out << ", ID = " << seg._region_id;
-          if (true) {
-            Point* loc = _geometry->getFSRCentroid(seg._region_id);
-            if(loc != NULL) {
-              double centroid[3];
-              centroid[0] = round(loc->getX() * 1e8) / 1e8;
-              centroid[1] = round(loc->getY() * 1e8) / 1e8;
-              centroid[2] = round(loc->getZ() * 1e8) / 1e8;
-              std::string vals[3];
-              for (int m=0; m<3; m++) {
-                vals[m] = std::to_string(centroid[m]);
-                if (vals[m] == "-0.000000")
-                  vals[m] = "0.000000";
-              }
-              out << ", centroid = (" << vals[0] << ", " 
-                << vals[1] << ", " << vals[2] << ")";
-            }
-          }
-          out << std::endl;
-        }
-        out << std::endl;
-        */
       }
     }
   }
 
-  //FIXME
-  /*
-  out.close();
-  out.open("Volumes_OTF.txt");
-  FP_PRECISION total_volume = 0;
-  for (int i=0; i < num_FSRs; i++) {
-    out << "Volume of region " << i << " = " << FSR_volumes[i] << std::endl;
-    total_volume += FSR_volumes[i];
-  }
-  out << "TOTAL volume = " << total_volume << std::endl;
-  out.close();
-  */
-
   return FSR_volumes;
 }
 
+
 /**
  * @brief Computes 3D segment lengths for a given extruded track with a starting
-          point and an angle on-the-fly and stores the lengths in the kernel
-          passed by the user.
-TODO: params
+ *        point and an angle on-the-fly and stores the lengths in the kernel
+ *        passed by the user.
  * @details Segment lengths are computed on-the-fly using 2D segment lengths
-            stored in an ExtrudedTrack object and 1D meshes from the extruded
-            FSRs. Note: before calling this funciton, the memory for the 
-            segments should be allocated and referenced by the kernel using the
-            setSegments routine in the kernels.
+ *          stored in an ExtrudedTrack object and 1D meshes from the extruded
+ *          FSRs. Note: before calling this funciton with a SegmentationKernel, 
+ *          the memory for the segments should be allocated and referenced by 
+ *          the kernel using the setSegments routine in the kernels.
+ * @param extruded_track the extruded track associated with the 3D track for 
+ *        which 3D segments are computed
+ * @param start the starting coordinates of the 3D track
+ * @param theta the polar angle of the 3D track
+ * @param kernel An MOCKernel object to apply to the calculated 3D segments
  */
 void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
-    double theta, Kernel* kernel) {
+    double theta, MOCKernel* kernel) {
 
   /* Create unit vector */
   double phi = extruded_track->_track_2D->getPhi();
@@ -4536,7 +4555,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* star
     else
       break;
   }
-  
+
   /* Loop over 2D segments */
   bool segments_complete = false;
   for (int s=seg_start; s < extruded_track->_num_segments; s++) {
@@ -4607,7 +4626,12 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* star
   }
 }
 
-//TODO
+
+/**
+ * @brief Counts the number of 3D segments in the Geomtry
+ * @details All 3D segments are computed on-the-fly subject to the max optical
+ *          path length to determine the number of 3D segments in the Geometry
+ */
 void TrackGenerator::countSegments() {
 
   /* Calculate each FSR's "volume" by accumulating the total length of * 
@@ -4648,84 +4672,4 @@ void TrackGenerator::countSegments() {
       }
     }
   }
-}
- 
-
-Kernel::Kernel() {
-  _count = 0;
-  _max_tau = 1.79769e+308;
-}
-
-Kernel::~Kernel() {};
-
-void Kernel::setSegments(segment* segments) {
-  _segments = segments;
-}
-
-void Kernel::resetCount() {
-  _count = 0;
-  _weight = 0;
-}
-
-void Kernel::setBuffer(FP_PRECISION* buffer) {
-  _buffer = buffer;
-}
-
-void Kernel::setWeight(FP_PRECISION weight) {
-  _weight = weight;
-}
-
-void Kernel::setMaxVal(FP_PRECISION max_tau) {
-  _max_tau = max_tau;
-}
-
-int Kernel::getCount() {
-  return _count;
-}
-
-void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id) {
-  
-  /* Add value to buffer */
-  _buffer[id] += _weight * length;
-}
-
-void CounterKernel::execute(FP_PRECISION length, Material* mat, int id) {
-  
-  /* Determine the number of cuts on the segment */
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
-    if (sigma_t[e] > max_sigma_t)
-      max_sigma_t = sigma_t[e];
-
-  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
-
-  /* Increment count */
-  _count += num_cuts;
-}
-
-void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id) {
-  
-  /* Determine the number of cuts on the segment */
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
-    if (sigma_t[e] > max_sigma_t)
-      max_sigma_t = sigma_t[e];
-
-  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
-
-  /* Add segment information */
-  for (int i=0; i < num_cuts-1; i++) {
-    FP_PRECISION temp_length = _max_tau / max_sigma_t;
-    _segments[_count]._length = temp_length;
-    _segments[_count]._material = mat;
-    _segments[_count]._region_id = id;
-    length -= temp_length;
-    _count++;
-  }
-  _segments[_count]._length = length;
-  _segments[_count]._material = mat;
-  _segments[_count]._region_id = id;
-  _count++;
 }

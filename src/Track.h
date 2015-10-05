@@ -22,7 +22,6 @@
  * @brief A segment represents a line segment within a single flat source
  *        region along a track.
  */
-// FIXME: why is segment not capitalized?
 struct segment {
 
   /** The length of the segment (cm) */
@@ -206,7 +205,11 @@ inline int Track::getNumSegments() {
 }
 
 /**
- * @brief TODO
+ * @brief Sets the number of segments in a track
+ * @details This function sets the number of segments in a track. It's purpose
+ *          is to be used for 3D tracks with on-the-fly ray tracing where
+ *          segments are not explicitly created, but there is a need to know
+ *          how many segments exist.
  */
 inline void Track::setNumSegments(int num_segments) {
     _num_segments = num_segments;

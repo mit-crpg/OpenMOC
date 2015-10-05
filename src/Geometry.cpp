@@ -36,8 +36,7 @@ Geometry::~Geometry() {
     delete[] values;
 
     ExtrudedFSR **extruded_fsrs = _extruded_FSR_keys_map.values();
-    for (int i=0; i<_extruded_FSR_keys_map.size(); i++)
-    {
+    for (int i=0; i<_extruded_FSR_keys_map.size(); i++) {
       delete[] extruded_fsrs[i]->_mesh;
       delete[] extruded_fsrs[i]->_fsr_ids;
       delete[] extruded_fsrs[i]->_materials;
@@ -588,8 +587,13 @@ int Geometry::findFSRId(LocalCoords* coords) {
   return fsr_id;
 }
 
+
 /**
- * @brief TODO
+ * @brief Finds and returns a pointer to the axially extruded flat source 
+ *        region that a given LocalCoords object resides within.
+ * @param coords a LocalCoords object pointer
+ * @return a pointer to the ExtrudedFSR struct associated with the axially
+ *         extruded FSR
  */
 ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
 
@@ -621,7 +625,6 @@ ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
   return _extruded_FSR_keys_map.at(fsr_key_hash);
 
 }
-
 
 
 /**
@@ -819,6 +822,8 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
+ * @param z_level the axial height at which the 2D plane of the geometry is 
+ *        formed
  */
 void Geometry::segmentize2D(Track2D* track, double z_level) {
 
@@ -1036,7 +1041,15 @@ void Geometry::segmentize3D(Track3D* track) {
 
 
 /**
- * @brief TODO YADA YADA YADA segmentize
+ * @brief This method performs ray tracing to create extruded track segments 
+ *        within each flat source region in the 2D superposition plane of the 
+ *        Geometry.
+ * @details This method starts at the beginning of an extruded track and finds 
+ *          successive intersection points with FSRs as the extruded track 
+ *          crosses through the Geometry, saving the lengths and region IDs to
+ *          the extruded track and initializing ExtrudedFSR structs in the
+ *          traversed FSRs.
+ * @param extruded_track a pointer to a extruded track to segmentize
  */
 void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
 
@@ -1086,7 +1099,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
       log_printf(ERROR, "Created segment with same start and end "
                  "point: x = %f, y = %f", start.getX(), start.getY());
 
-    /* Find the segment length, Material and FSR ID */
+    /* Find the segment length and extruded FSR */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
     fsr = findExtrudedFSR(&start);
 
@@ -1108,7 +1121,14 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
 
 
 /**
- * @brief TODO
+ * @brief Rays are shot vertically through each ExtrudedFSR struct to calculate
+ *        the axial mesh and initialize 3D FSRs
+ * @details From a 2D point within each FSR, a temporary 3D track is created
+ *          starting at the bottom of the geometry and extending vertically to
+ *          the top of the geometry. These tracks are segmented using the
+ *          segmentize3D routine to calculate the distances between axial
+ *          intersections forming the axial meshes and initializing the 3D FSRs
+ *          as new regions are traversed.
  */
 void Geometry::initializeAxialFSRs() {
 
@@ -1122,9 +1142,6 @@ void Geometry::initializeAxialFSRs() {
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
   /* Parallelize over extruded FSRs */
-  int count = 0;
-  int map_size = _extruded_FSR_keys_map.size();
-  int interval = map_size * 0.2 + 1;
   #pragma omp parallel for
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 

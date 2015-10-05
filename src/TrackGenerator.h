@@ -14,55 +14,13 @@
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
+#include "MOCKernel.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
 #include <omp.h>
 #endif
-
-// TODO
-class Kernel {
-
-protected:
-
-  segment* _segments;
-  int _count;
-  FP_PRECISION* _buffer;
-  FP_PRECISION _weight;
-  FP_PRECISION _max_tau;
-
-public:
- 
-  Kernel();
-  virtual ~Kernel(); 
-  void setSegments(segment* segments);
-  void setWeight(FP_PRECISION weight);
-  void setMaxVal(FP_PRECISION max_tau);
-  void resetCount();
-  void setBuffer(FP_PRECISION* buffer);
-  int getCount();
-  virtual void execute(FP_PRECISION length, Material* mat, int id)=0;
-
-};
-
-class CounterKernel: public Kernel {
-
-public:
-  void execute(FP_PRECISION length, Material* mat, int id);
-};
-
-class SegmentationKernel: public Kernel {
-
-public:
-  void execute(FP_PRECISION length, Material* mat, int id);
-};
-
-class VolumeKernel: public Kernel {
-
-public:
-  void execute(FP_PRECISION length, Material* mat, int id);
-};
 
 
 /**
@@ -209,6 +167,7 @@ public:
   int getNum2DTracks();
   int getNum3DTracks();
   int getNum2DSegments();
+  int getNumExtrudedSegments();
   int getNum3DSegments();
   void countSegments();
   Track2D** get2DTracks();
@@ -269,7 +228,9 @@ public:
   void retrieve3DPeriodicCycleCoords(double* coords, int num_tracks);
   void retrieve3DReflectiveCycleCoords(double* coords, int num_tracks);
   void retrieve3DTrackCoords(double* coords, int num_tracks);
+  void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
+  void retrieveExtrudedSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void generateFSRCentroids();
   void generateTracks();
@@ -284,7 +245,7 @@ public:
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
   void traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
-    double theta, Kernel* kernel);
+    double theta, MOCKernel* kernel);
 };
 
 

@@ -198,7 +198,8 @@ void CPUSolver::zeroTrackFluxes() {
 
 
 /**
- * TODO: description
+ * @brief Copies values from the start flux into the boundary flux array
+ *        for both the "forward" and "reverse" directions.
  */
 void CPUSolver::copyBoundaryFluxes() {
 
@@ -674,7 +675,14 @@ void CPUSolver::transportSweep() {
 
 
 /**
- * @brief TODO
+ * @brief This method performs one transport sweep of all azimuthal angles,
+ *        Tracks, Track segments, polar angles and energy groups using
+ *        on-the-fly axial ray tracing.
+ * @details The method integrates the flux along each Track and updates the
+ *          boundary fluxes for the corresponding output Track, while updating
+ *          the scalar flux in each flat source region. Computation is
+ *          parallelized over 2D tracks and 3D segments are formed with
+ *          on-the-fly axial ray tracing.
  */
 void CPUSolver::transportSweepOTF() {
 
