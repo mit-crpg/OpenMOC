@@ -19,8 +19,8 @@ else:
     from openmoc.log import py_printf
 
 
-
 def _get_domain(domains, domain_spec):
+    """A helper routine to find materials/cells for load_from_hdf5(...)"""
 
     # If domain_spec is an integer, it must be a domain ID
     if isinstance(domain_spec, int) and domain_spec in domains:
@@ -37,21 +37,23 @@ def _get_domain(domains, domain_spec):
 
 
 ##
-# @brief This routine processes an HDF5 file of multi-group cross section data.
-# @details The routine instantiates Material objects with that data and
-#          returns a dictionary of each Material object keyed by its ID.
-#          An OpenMOC Geometry may optionally be given and the routine will
-#          directly insert the multi-group cross sections into each Material in
-#          the Geometry. If a Geometry is passed in, Material objects from the
-#          Geometry will be used in place of those instantiated by this routine.
-#          A second optional parameter for the domain types may be used to
-#          define whether multi-group cross sections are tabulated by material
-#          or cell in the HDF5 binary file.
-# @param filename the file of nuclear cross-sections for each Material
+# @brief This routine loads an HDF5 file of multi-group cross section data.
+# @details The routine instantiates Material objects with multi-group cross
+#          section data and returns a dictionary of each Material object keyed
+#          by its ID. An OpenMOC Geometry may optionally be given and the
+#          routine will directly insert the multi-group cross sections into each
+#          Material in the Geometry. If a Geometry is passed in, Material
+#          objects from the Geometry will be used in place of those instantiated
+#          by this routine. A second optional parameter for the domain types may
+#          be used to define whether multi-group cross sections are tabulated by
+#          material or cell in the HDF5 binary file.
+# @param filename filename for cross sections HDF5 file (default is 'mgxs.h5')
+# @param directory directory for cross sections HDF5 file (default is 'mgxs')
 # @param geometry an optional geometry populated with materials, cells, etc.
 # @param domain_type the domain type ('material' or 'cell') upon which the
 #        cross sections are defined (default is 'material')
-# @param suffice
+# @param suffix an optional string suffix to index the HDF5 file beyond the
+#        assumed domain_type/domain_id/mgxs_type group sequence (default is '')
 # @return a dictionary of Material objects keyed by ID
 def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                    geometry=None, domain_type='material', suffix=''):
@@ -74,9 +76,11 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         py_printf('ERROR', 'Unable to materialize file "%s"  with "%s" which '
                            'is not an OpenMOC Geometry', filename, str(geometry))
 
+    # Instantiate dictionary to hold Materials to return to user
     materials = {}
     num_groups = int(f.attrs['# groups'])
 
+    # If a Geometry was passed in, extract all cells or materials from it
     if geometry:
         if domain_type == 'material':
             domains = geometry.getAllMaterials()
@@ -85,14 +89,16 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         else:
             py_printf('ERROR', 'Domain type "%s" is not supported', domain_type)
 
+    # Iterate over all domains (e.g., materials or cells) in the HDF5 file
     for domain_spec in f[domain_type]:
 
-        py_printf('INFO', 'Importing material for %s "%s"',
+        py_printf('INFO', 'Importing cross sections for %s "%s"',
                           domain_type, str(domain_spec))
 
+        # Create shortcut to HDF5 group for this domain
         domain_group = f[domain_type][domain_spec]
 
-        # If the domain spec is an integer, it is an ID
+        # If domain_spec is an integer, it is an ID; otherwise a string name
         if domain_spec.isdigit():
             domain_spec = int(domain_spec)
 
@@ -103,7 +109,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             elif domain_type == 'cell':
                 material = _get_domain(domains, domain_spec).getFillMaterial()
 
-        # Instantiate a new Material with an appropriate ID or name
+        # If not Geometry, instantiate a new Material with the ID/name
         else:
             if isinstance(domain_spec, int):
                 material = openmoc.Material(id=domain_spec)
@@ -114,32 +120,32 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         materials[domain_spec] = material
         material.setNumEnergyGroups(num_groups)
 
-        # Total cross section
-        if 'total' in domain_group:
-            material.setSigmaT(domain_group['total/' + suffix][...])
-        elif 'transport' in domain_group:
+        # Search for the total/transport cross section
+        if 'transport' in domain_group:
             material.setSigmaT(domain_group['transport/' + suffix][...])
+        elif 'total' in domain_group:
+            material.setSigmaT(domain_group['total/' + suffix][...])
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
                                  '"%s %s"', domain_type, domain_spec)
 
-        # Nu-Fission cross section
+        # Search for the fission production cross section
         if 'nu-fission' in domain_group:
             material.setNuSigmaF(domain_group['nu-fission/' + suffix][...])
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
                                  '"%s %s"', domain_type, domain_spec)
 
-        # Scattering matrix cross section
-        if 'scatter matrix' in domain_group:
-            material.setSigmaS(domain_group['scatter matrix/' + suffix][...])
-        elif 'nu-scatter matrix' in domain_group:
+        # Search for the scattering matrix cross section
+        if 'nu-scatter matrix' in domain_group:
             material.setSigmaS(domain_group['nu-scatter matrix/' + suffix][...])
+        elif 'scatter matrix' in domain_group:
+            material.setSigmaS(domain_group['scatter matrix/' + suffix][...])
         else:
             py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '
                                  'found for "%s %s"', domain_type, domain_spec)
 
-        # Scattering matrix cross section
+        # Search for chi (fission spectrum)
         if 'chi' in domain_group:
             material.setChi(domain_group['chi/' + suffix][...])
         else:
