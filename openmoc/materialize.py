@@ -4,190 +4,147 @@
 # @brief The materialize module provides utility functions to read and write
 #        multi-group materials cross-section data from HDF5 binary file format.
 # @author William Boyd (wboyd@mit.edu)
-# @date April 23, 2013
-
-# Determine which OpenMOC module is being used. This is important for
-# the materialize module since it must instantiate Material objects
-# with the same floating point precision as that compiled into the
-# openmoc module used in the main Python input script to OpenMOC.
+# @date October 9, 2015
 
 import sys
+import os
 
 import openmoc
 
 # For Python 2.X.X
-if (sys.version_info[0] == 2):
-  from log import *
-  from process import *
+if sys.version_info[0] == 2:
+    from log import py_printf
 # For Python 3.X.X
 else:
-  from openmoc.log import *
-  from openmoc.process import *
+    from openmoc.log import py_printf
+
+
+
+def _get_domain(domains, domain_spec):
+
+    # If domain_spec is an integer, it must be a domain ID
+    if isinstance(domain_spec, int) and domain_spec in domains:
+        return domains[domain_spec]
+
+    # If domain_spec is a string, it must be a domain name
+    elif isinstance(domain_spec, str):
+        for domain_id, domain in domains.items():
+            if domain_spec == domain.getName():
+                return domain
+
+    # If domain could not be found
+    return None
 
 
 ##
-# @brief This routine takes in an input file of Material nuclear data and
-#        instantiates Material objects with that data, and returns a list of
-#        handles to each Material object to the user.
+# @brief This routine processes an HDF5 file of multi-group cross section data.
+# @details The routine instantiates Material objects with that data and
+#          returns a dictionary of each Material object keyed by its ID.
+#          An OpenMOC Geometry may optionally be given and the routine will
+#          directly insert the multi-group cross sections into each Material in
+#          the Geometry. If a Geometry is passed in, Material objects from the
+#          Geometry will be used in place of those instantiated by this routine.
+#          A second optional parameter for the domain types may be used to
+#          define whether multi-group cross sections are tabulated by material
+#          or cell in the HDF5 binary file.
 # @param filename the file of nuclear cross-sections for each Material
-# @return a list of Material object handles for OpenMOC
-def materialize(filename):
-
-  xs_types = ['Total XS', 'Absorption XS', 'Scattering XS', \
-              'Fission XS', 'Nu Fission XS', 'Chi', 'Diffusion Coefficient']
-  materials = {}
-
-  # Check that the filename is a string
-  if not isinstance(filename, str):
-    py_printf('ERROR', 'Unable to materialize using filename %s ' + \
-              'since it is not a string', str(filename))
-
-
-  ##############################################################################
-  #                               HDF5 DATA FILES
-  ##############################################################################
-
-  if filename.endswith('.h5') or filename.endswith('.hdf5'):
-
-    import h5py
+# @param geometry an optional geometry populated with materials, cells, etc.
+# @param domain_type the domain type ('material' or 'cell') upon which the
+#        cross sections are defined (default is 'material')
+# @param suffice
+# @return a dictionary of Material objects keyed by ID
+def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
+                   geometry=None, domain_type='material', suffix=''):
 
     # Create a h5py file handle for the file
-    try:
-      f = h5py.File(filename,'r')
-    except IOError:
-      py_printf('ERROR', 'Unable to materialize file %s because it ' + \
-                  'cannot be opened.  Check the file path.',filename)
+    import h5py
+    filename = os.path.join(directory, filename)
+    f = h5py.File(filename, 'r')
 
     # Check that the file has an 'energy groups' attribute
-    if not 'Energy Groups' in f.attrs:
-      py_printf('ERROR', 'Unable to materialize file %s since it does ' + \
-                  'not contain an \'Energy Groups\' attribute', filename)
+    if '# groups' not in f.attrs:
+        py_printf('ERROR', 'Unable to materialize file "%s" since it does ' +
+                           'not contain an \'# groups\' attribute', filename)
 
-    num_groups = f.attrs['Energy Groups']
+    if domain_type not in f.keys():
+        py_printf('ERROR', 'Unable to materialize file "%s" since it does ' +
+                           'not contain domain type "%s"', filename, domain_type)
 
-    # Check that the number of energy groups is an integer
-    if not is_integer(num_groups):
-      py_printf('ERROR', 'Unable to materialize file %s since the number of' + \
-                  'energy groups %s could not be converted to an integer', \
-                  filename, str(num_groups))
+    if geometry and 'openmoc.Geometry' not in str(type(geometry)):
+        py_printf('ERROR', 'Unable to materialize file "%s"  with "%s" which '
+                           'is not an OpenMOC Geometry', filename, str(geometry))
 
-    material_names = list(f)
+    materials = {}
+    num_groups = int(f.attrs['# groups'])
 
-    # Loop over each material and
-    for name in material_names:
+    if geometry:
+        if domain_type == 'material':
+            domains = geometry.getAllMaterials()
+        elif domain_type == 'cell':
+            domains = geometry.getAllMaterialCells()
+        else:
+            py_printf('ERROR', 'Domain type "%s" is not supported', domain_type)
 
-      py_printf('INFO', 'Importing material %s', str(name))
+    for domain_spec in f[domain_type]:
 
-      new_material = openmoc.Material()
-      new_material.setNumEnergyGroups(int(num_groups))
+        py_printf('INFO', 'Importing material for %s "%s"',
+                          domain_type, str(domain_spec))
 
-      # Retrieve and load the cross-section data into the material object
+        domain_group = f[domain_type][domain_spec]
 
-      if 'Total XS' in f[name]:
-        new_material.setSigmaT(f[name]['Total XS'][...])
+        # If the domain spec is an integer, it is an ID
+        if domain_spec.isdigit():
+            domain_spec = int(domain_spec)
 
-      if 'Scattering XS' in f[name]:
-        new_material.setSigmaS(f[name]['Scattering XS'][...])
+        # If using an OpenMOC Geometry, extract a Material from it
+        if geometry:
+            if domain_type == 'material':
+                material = _get_domain(domains, domain_spec)
+            elif domain_type == 'cell':
+                material = _get_domain(domains, domain_spec).getFillMaterial()
 
-      if 'Fission XS' in f[name]:
-        new_material.setSigmaF(f[name]['Fission XS'][...])
+        # Instantiate a new Material with an appropriate ID or name
+        else:
+            if isinstance(domain_spec, int):
+                material = openmoc.Material(id=domain_spec)
+            else:
+                material = openmoc.Material(name=domain_spec)
 
-      if 'Nu Fission XS' in f[name]:
-        new_material.setNuSigmaF(f[name]['Nu Fission XS'][...])
+        # Add material to the collection
+        materials[domain_spec] = material
+        material.setNumEnergyGroups(num_groups)
 
-      if 'Chi' in f[name]:
-        new_material.setChi(f[name]['Chi'][...])
+        # Total cross section
+        if 'total' in domain_group:
+            material.setSigmaT(domain_group['total/' + suffix][...])
+        elif 'transport' in domain_group:
+            material.setSigmaT(domain_group['transport/' + suffix][...])
+        else:
+            py_printf('WARNING', 'No "total" or "transport" MGXS found for'
+                                 '"%s %s"', domain_type, domain_spec)
 
-      if 'Diffusion Coefficient' in f[name]:
-        new_material.setDifCoef(f[name]['Diffusion Coefficient'][...])
+        # Nu-Fission cross section
+        if 'nu-fission' in domain_group:
+            material.setNuSigmaF(domain_group['nu-fission/' + suffix][...])
+        else:
+            py_printf('WARNING', 'No "nu-fission" MGXS found for'
+                                 '"%s %s"', domain_type, domain_spec)
 
-      if 'Buckling' in f[name]:
-        new_material.setBuckling(f[name]['Buckling'][...])
+        # Scattering matrix cross section
+        if 'scatter matrix' in domain_group:
+            material.setSigmaS(domain_group['scatter matrix/' + suffix][...])
+        elif 'nu-scatter matrix' in domain_group:
+            material.setSigmaS(domain_group['nu-scatter matrix/' + suffix][...])
+        else:
+            py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '
+                                 'found for "%s %s"', domain_type, domain_spec)
 
-      if 'Absorption XS' in f[name]:
-        new_material.setSigmaA(f[name]['Absorption XS'][...])
+        # Scattering matrix cross section
+        if 'chi' in domain_group:
+            material.setChi(domain_group['chi/' + suffix][...])
+        else:
+            py_printf('WARNING', 'No "chi" MGXS found for "%s %s"',
+                                 domain_type, domain_spec)
 
-      # Make sure this Material's cross-sections add up to
-      # its total cross-section
-      new_material.checkSigmaT()
-
-      # Add this material to the list
-      materials[name] = new_material
-
-
-  ##############################################################################
-  #                      PYTHON DICTIONARY DATA FILES
-  ##############################################################################
-  elif filename.endswith('.py'):
-
-    import imp
-
-    try:
-      data = imp.load_source(filename, filename).dataset
-    except IOError:
-      py_printf('ERROR', 'Unable to materialize file %s because it ' + \
-                  'cannot be opened.  Check the file path.',filename)
-
-    # Check that the file has an 'energy groups' attribute
-    if not 'Energy Groups' in data.keys():
-      py_printf('ERROR', 'Unable to materialize file %s since it does not ' + \
-                'contain an \'Energy Groups\' attribute', filename)
-
-    num_groups = data['Energy Groups']
-
-    # Check that the number of energy groups is an integer
-    if not is_integer(num_groups):
-      py_printf('ERROR', 'Unable to materialize file %s since the number of' + \
-                'energy groups %s is not an integer', filename, str(num_groups))
-
-    data = data['Materials']
-    material_names = data.keys()
-
-    # Loop over each material and
-    for name in material_names:
-
-      py_printf('INFO', 'Importing material %s', str(name))
-
-      new_material = openmoc.Material()
-      new_material.setNumEnergyGroups(int(num_groups))
-
-      if 'Total XS' in data[name].keys():
-        new_material.setSigmaT(data[name]['Total XS'])
-
-      if 'Scattering XS' in data[name].keys():
-        new_material.setSigmaS(data[name]['Scattering XS'])
-
-      if 'Fission XS' in data[name].keys():
-        new_material.setSigmaF(data[name]['Fission XS'])
-
-      if 'Nu Fission XS' in data[name].keys():
-        new_material.setNuSigmaF(data[name]['Nu Fission XS'])
-
-      if 'Chi' in data[name].keys():
-        new_material.setChi(data[name]['Chi'])
-
-      if 'Diffusion Coefficient' in data[name].keys():
-        new_material.setDifCoef(data[name]['Diffusion Coefficient'])
-
-      if 'Buckling' in data[name].keys():
-        new_material.setBuckling(data[name]['Buckling'])
-
-      if 'Absorption XS' in data[name].keys():
-        new_material.setSigmaA(data[name]['Absorption XS'])
-
-      # Add this material to the list
-      materials[name] = new_material
-
-
-  ##############################################################################
-  #                      UNSUPPORTED DATA FILE TYPES
-  ##############################################################################
-  else:
-    py_printf('ERROR', 'Unable to materialize using filename %s ' + \
-              'since it has an unkown extension. Supported ' + \
-              'extension types are .hdf5 and .py', filename)
-
-
-
-  # Return the list of materials
-  return materials
+    # Return collection of materials
+    return materials

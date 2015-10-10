@@ -8,18 +8,17 @@
 # @date June 30, 2015
 
 import sys
-import copy
+
 import numpy as np
-import scipy.sparse.linalg as linalg
 
 import openmoc
 
 # For Python 2.X.X
-if (sys.version_info[0] == 2):
-  from log import *
+if sys.version_info[0] == 2:
+    from log import py_printf
 # For Python 3.X.X
 else:
-  from openmoc.log import *
+    from openmoc.log import py_printf
 
 
 ##
@@ -98,7 +97,9 @@ class IRAMSolver(object):
         geometry.getMaxYBoundaryType() != openmoc.VACUUM):
         py_printf('ERROR', 'All boundary conditions must be ' + \
                            'VACUUM for the IRAMSolver')
-    
+
+    import scipy.sparse.linalg as linalg
+
     # Set solution-dependent class attributes based on parameters
     # These are accessed and used by the LinearOperators
     self._num_modes = num_modes
@@ -211,7 +212,9 @@ class IRAMSolver(object):
   # @param flux a flux vector from the scipy.linalg.eigs routine
   # @return the flux computed from fission/scatter fixed source calculations
   def _F(self, flux):
-  
+
+    import scipy.sparse.linalg as linalg
+
     # Apply operator to flux - get updated flux from fission source
     flux = self._M_op * flux
 
