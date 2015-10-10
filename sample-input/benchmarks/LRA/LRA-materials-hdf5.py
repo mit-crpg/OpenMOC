@@ -13,8 +13,11 @@ import numpy
 
 
 # Create the file to store LRA multi-groups cross-sections
-f = h5py.File('LRA-materials.h5')
-f.attrs["Energy Groups"] = 2
+f = h5py.File('LRA-mgxs.h5')
+f.attrs["# groups"] = 2
+
+# Create a group to specify that MGXS are split by material (vs. cell)
+material_group = f.create_group('material')
 
 
 ###############################################################################
@@ -22,7 +25,7 @@ f.attrs["Energy Groups"] = 2
 ###############################################################################
 
 # Create a subgroup for region 1 materials data
-region_1 = f.create_group('region_1')
+region_1 = material_group.create_group('region_1')
 
 sigma_t = numpy.array([0.2656, 1.5798])
 sigma_a = numpy.array([0.008252, 0.1003])
@@ -33,14 +36,14 @@ chi = numpy.array([1.0, 0.0])
 dif_coef = numpy.array([1.255, 0.211])
 buckle = numpy.array([1e-4, 1e-4])
 
-region_1.create_dataset('Total XS', data=sigma_t)
-region_1.create_dataset('Absorption XS', data=sigma_a)
-region_1.create_dataset('Scattering XS', data=sigma_s)
-region_1.create_dataset('Fission XS', data=sigma_f)
-region_1.create_dataset('Nu Fission XS', data=nu_sigma_f)
-region_1.create_dataset('Chi', data=chi)
-region_1.create_dataset('Diffusion Coefficient', data=dif_coef)
-region_1.create_dataset('Buckling', data=buckle)
+region_1.create_dataset('total', data=sigma_t)
+region_1.create_dataset('absorption', data=sigma_a)
+region_1.create_dataset('scatter matrix', data=sigma_s)
+region_1.create_dataset('fission', data=sigma_f)
+region_1.create_dataset('nu-fission', data=nu_sigma_f)
+region_1.create_dataset('chi', data=chi)
+region_1.create_dataset('diffusion', data=dif_coef)
+region_1.create_dataset('buckling', data=buckle)
 
 
 ###############################################################################
@@ -48,7 +51,7 @@ region_1.create_dataset('Buckling', data=buckle)
 ###############################################################################
 
 # Create a subgroup for region 2 materials data
-region_2 = f.create_group('region_2')
+region_2 = material_group.create_group('region_2')
 
 sigma_t = numpy.array([0.2629, 1.7525])
 sigma_a = numpy.array([0.007181, 0.07047])
@@ -59,21 +62,21 @@ chi = numpy.array([1.0, 0.0])
 dif_coef = numpy.array([1.268, 0.1902])
 buckle = numpy.array([1e-4, 1e-4])
 
-region_2.create_dataset('Total XS', data=sigma_t)
-region_2.create_dataset('Absorption XS', data=sigma_a)
-region_2.create_dataset('Scattering XS', data=sigma_s)
-region_2.create_dataset('Fission XS', data=sigma_f)
-region_2.create_dataset('Nu Fission XS', data=nu_sigma_f)
-region_2.create_dataset('Chi', data=chi)
-region_2.create_dataset('Diffusion Coefficient', data=dif_coef)
-region_2.create_dataset('Buckling', data=buckle)
+region_2.create_dataset('total', data=sigma_t)
+region_2.create_dataset('absorption', data=sigma_a)
+region_2.create_dataset('scatter matrix', data=sigma_s)
+region_2.create_dataset('fission', data=sigma_f)
+region_2.create_dataset('nu-fission', data=nu_sigma_f)
+region_2.create_dataset('chi', data=chi)
+region_2.create_dataset('diffusion', data=dif_coef)
+region_2.create_dataset('buckling', data=buckle)
 
 ###############################################################################
 ################################   region 3    ################################
 ###############################################################################
 
 # Create a subgroup for region 3 materials data
-region_3 = f.create_group('region_3')
+region_3 = material_group.create_group('region_3')
 
 sigma_t = numpy.array([0.2648, 1.5941])
 sigma_a = numpy.array([0.008002, 0.08344])
@@ -84,21 +87,21 @@ chi = numpy.array([1.0, 0.0])
 dif_coef = numpy.array([1.259, 0.2091])
 buckle = numpy.array([1e-4, 1e-4])
 
-region_3.create_dataset('Total XS', data=sigma_t)
-region_3.create_dataset('Absorption XS', data=sigma_a)
-region_3.create_dataset('Scattering XS', data=sigma_s)
-region_3.create_dataset('Fission XS', data=sigma_f)
-region_3.create_dataset('Nu Fission XS', data=nu_sigma_f)
-region_3.create_dataset('Chi', data=chi)
-region_3.create_dataset('Diffusion Coefficient', data=dif_coef)
-region_3.create_dataset('Buckling', data=buckle)
+region_3.create_dataset('total', data=sigma_t)
+region_3.create_dataset('absorption', data=sigma_a)
+region_3.create_dataset('scatter matrix', data=sigma_s)
+region_3.create_dataset('fission', data=sigma_f)
+region_3.create_dataset('nu-fission', data=nu_sigma_f)
+region_3.create_dataset('chi', data=chi)
+region_3.create_dataset('diffusion', data=dif_coef)
+region_3.create_dataset('buckling', data=buckle)
 
 ###############################################################################
 ################################   region 4    ################################
 ###############################################################################
 
 # Create a subgroup for region 4 materials data
-region_4 = f.create_group('region_4')
+region_4 = material_group.create_group('region_4')
 
 sigma_t = numpy.array([0.2648, 1.5941])
 sigma_a = numpy.array([0.008002, 0.073324])
@@ -109,21 +112,21 @@ chi = numpy.array([1.0, 0.0])
 dif_coef = numpy.array([1.259, 0.2091])
 buckle = numpy.array([1e-4, 1e-4])
 
-region_4.create_dataset('Total XS', data=sigma_t)
-region_4.create_dataset('Absorption XS', data=sigma_a)
-region_4.create_dataset('Scattering XS', data=sigma_s)
-region_4.create_dataset('Fission XS', data=sigma_f)
-region_4.create_dataset('Nu Fission XS', data=nu_sigma_f)
-region_4.create_dataset('Chi', data=chi)
-region_4.create_dataset('Diffusion Coefficient', data=dif_coef)
-region_4.create_dataset('Buckling', data=buckle)
+region_4.create_dataset('total', data=sigma_t)
+region_4.create_dataset('absorption', data=sigma_a)
+region_4.create_dataset('scatter matrix', data=sigma_s)
+region_4.create_dataset('fission', data=sigma_f)
+region_4.create_dataset('nu-fission', data=nu_sigma_f)
+region_4.create_dataset('chi', data=chi)
+region_4.create_dataset('diffusion', data=dif_coef)
+region_4.create_dataset('buckling', data=buckle)
 
 ###############################################################################
 ################################   region 5    ################################
 ###############################################################################
 
 # Create a subgroup for region 5 materials data
-region_5 = f.create_group('region_5')
+region_5 = material_group.create_group('region_5')
 
 sigma_t = numpy.array([0.2648, 1.5941])
 sigma_a = numpy.array([0.008002, 0.08344])
@@ -134,21 +137,21 @@ chi = numpy.array([1.0, 0.0])
 dif_coef = numpy.array([1.259, 0.2091])
 buckle = numpy.array([1e-4, 1e-4])
 
-region_5.create_dataset('Total XS', data=sigma_t)
-region_5.create_dataset('Absorption XS', data=sigma_a)
-region_5.create_dataset('Scattering XS', data=sigma_s)
-region_5.create_dataset('Fission XS', data=sigma_f)
-region_5.create_dataset('Nu Fission XS', data=nu_sigma_f)
-region_5.create_dataset('Chi', data=chi)
-region_5.create_dataset('Diffusion Coefficient', data=dif_coef)
-region_5.create_dataset('Buckling', data=buckle)
+region_5.create_dataset('total', data=sigma_t)
+region_5.create_dataset('absorption', data=sigma_a)
+region_5.create_dataset('scatter matrix', data=sigma_s)
+region_5.create_dataset('fission', data=sigma_f)
+region_5.create_dataset('nu-fission', data=nu_sigma_f)
+region_5.create_dataset('chi', data=chi)
+region_5.create_dataset('diffusion', data=dif_coef)
+region_5.create_dataset('buckling', data=buckle)
 
 ###############################################################################
 ################################   region 6    ################################
 ###############################################################################
 
 # Create a subgroup for region 6 materials data
-region_6 = f.create_group('region_6')
+region_6 = material_group.create_group('region_6')
 
 sigma_t = numpy.array([0.2652, 2.0938])
 sigma_a = numpy.array([0.0006034, 0.01911])
@@ -159,14 +162,14 @@ chi = numpy.array([1.0, 0.0])
 dif_coef = numpy.array([1.257, 0.1592])
 buckle = numpy.array([1e-4, 1e-4])
 
-region_6.create_dataset('Total XS', data=sigma_t)
-region_6.create_dataset('Absorption XS', data=sigma_a)
-region_6.create_dataset('Scattering XS', data=sigma_s)
-region_6.create_dataset('Fission XS', data=sigma_f)
-region_6.create_dataset('Nu Fission XS', data=nu_sigma_f)
-region_6.create_dataset('Chi', data=chi)
-region_6.create_dataset('Diffusion Coefficient', data=dif_coef)
-region_6.create_dataset('Buckling', data=buckle)
+region_6.create_dataset('total', data=sigma_t)
+region_6.create_dataset('absorption', data=sigma_a)
+region_6.create_dataset('scatter matrix', data=sigma_s)
+region_6.create_dataset('fission', data=sigma_f)
+region_6.create_dataset('nu-fission', data=nu_sigma_f)
+region_6.create_dataset('chi', data=chi)
+region_6.create_dataset('diffusion', data=dif_coef)
+region_6.create_dataset('buckling', data=buckle)
 
 # Close the hdf5 data file
 f.close()

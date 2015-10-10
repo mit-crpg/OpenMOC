@@ -101,6 +101,8 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         # If domain_spec is an integer, it is an ID; otherwise a string name
         if domain_spec.isdigit():
             domain_spec = int(domain_spec)
+        else:
+            domain_spec = str(domain_spec)
 
         # If using an OpenMOC Geometry, extract a Material from it
         if geometry:
@@ -151,6 +153,16 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %s"',
                                  domain_type, domain_spec)
+
+        # Search for optional cross sections
+        if 'absorption' in domain_group:
+            material.setSigmaA(domain_group['absorption/' + suffix][...])
+        if 'fission' in domain_group:
+            material.setSigmaF(domain_group['fission/' + suffix][...])
+        if 'diffusion' in domain_group:
+            material.setDifCoef(domain_group['diffusion/' + suffix][...])
+        if 'buckling' in domain_group:
+            material.setDifCoef(domain_group['buckling/' + suffix][...])
 
     # Return collection of materials
     return materials
