@@ -268,7 +268,7 @@ FP_PRECISION* Material::getFissionMatrix() {
                "since it has not yet been built", _id);
 
   return _fiss_matrix;
-  }
+}
 
 
 /**
@@ -683,7 +683,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
   _nu_sigma_f = new FP_PRECISION[_num_groups];
   _chi = new FP_PRECISION[_num_groups];
   _sigma_s = new FP_PRECISION[_num_groups*_num_groups];
-
 
   /* Assign the null vector to each data array */
   memset(_sigma_t, 0.0, sizeof(FP_PRECISION) * _num_groups);
