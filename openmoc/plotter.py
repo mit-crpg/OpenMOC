@@ -244,7 +244,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     zcoord = 0.0
 
   # Check z-coord
-  _check_zcoord(geometry, zcoord)
+  check_zcoord(geometry, zcoord)
     
   py_printf('NORMAL', 'Plotting the materials...')
 
@@ -348,7 +348,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     zcoord = 0.0
 
   # Check z-coord
-  _check_zcoord(geometry, zcoord)
+  check_zcoord(geometry, zcoord)
 
   py_printf('NORMAL', 'Plotting the cells...')
 
@@ -1141,7 +1141,13 @@ def get_pixel_coords(geometry, gridsize, xlim, ylim):
   return coords
 
 
-def _check_zcoord(geometry, zcoord):
+##
+# @brief This is a helper method to check that z-coord falls within the bounds
+#        of the geometry.
+# @param geometry a Geometry object which has been initialized with Materials,
+#        Cells, Universes and Lattices
+# @param zcoord the z coordinate
+def check_zcoord(geometry, zcoord):
 
   if not is_float(zcoord):
     py_printf('ERROR', 'Unable to produce plot since ' + \
