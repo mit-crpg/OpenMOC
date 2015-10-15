@@ -43,6 +43,7 @@ def _get_numpy_array(hdf5_group, key, suffix):
 
     sigma = np.array(hdf5_group['{}/'.format(key) + suffix][...])
     sigma = np.atleast_1d(sigma)
+    sigma = sigma.flatten()
     return sigma
 
 
