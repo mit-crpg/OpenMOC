@@ -687,12 +687,12 @@ Universe* Universe::clone() {
 Lattice::Lattice(const int id, const char* name): Universe(id, name) {
 
   _type = LATTICE;
-  _offset.setCoords(0.0, 0.0);
+  _offset.setCoords(0.0, 0.0, 0.0);
 
   /* Default width and number of Lattice cells along each dimension */
-  _num_x = 0;
-  _num_y = 0;
-  _num_z = 0;
+  _num_x = -1;
+  _num_y = -1;
+  _num_z = -1;
   _width_x = 0;
   _width_y = 0;
   _width_z = 0;
@@ -704,9 +704,7 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
  */
 Lattice::~Lattice() {
 
-  std::map<int, Universe*> unique_universes = getUniqueUniverses();
-  std::map<int, Universe*>::iterator iter;
-
+  /* Clear the triple-nested vector of Universes */
   for (int k=0; k < _num_z; k++){
     for (int j=0; j < _num_y; j++)
       _universes.at(k).at(j).clear();
@@ -863,7 +861,8 @@ double Lattice::getMaxZ() {
 Universe* Lattice::getUniverse(int lat_x, int lat_y, int lat_z) const {
 
   /* Checks that lattice indices are within the bounds of the lattice */
-  if (lat_x > _num_x || lat_y > _num_y || lat_z > _num_z)
+  if (lat_x >= _num_x || lat_y >= _num_y || lat_z >= _num_z ||
+      lat_x < 0 || lat_y < 0 || lat_z < 0)
     log_printf(ERROR, "Cannot retrieve Universe from Lattice ID = %d: Index"
                "out of bounds: Tried to access Cell x = %d, y = %d, "
                "z = %d but bounds are x = %d, y = %d, z = %d",
@@ -877,10 +876,10 @@ Universe* Lattice::getUniverse(int lat_x, int lat_y, int lat_z) const {
  * @brief Return a 2D vector of the Universes in the Lattice.
  * @return 2D vector of Universes
  */
-std::vector< std::vector<std::vector<std::pair<int, Universe*>>>>
+std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
   Lattice::getUniverses() const {
 
-  return _universes;
+  return &_universes;
 }
 
 
@@ -1011,24 +1010,30 @@ void Lattice::setWidth(double width_x, double width_y, double width_z) {
 /**
  * @brief Sets the array of Universe pointers filling each Lattice cell.
  * @details This is a helper method for SWIG to allow users to assign Universes
- *          to a Lattice using a 2D Python list (list of lists). An example
- *          how this method can be called from Python is as follows:
+ *          to a Lattice using a 3D Python list (list of lists of lists). An
+ *          example how this method can be called from Python is as follows:
  *
  * @code
  *          u1 = Universe(name='Universe 1')
  *          u2 = Universe(name='Universe 2')
  *          u3 = Universe(name='Universe 3')
- *          lattice.setUniverses([[u1, u2, u1, u2],
- *                                [u2, u3, u2, u3],
- *                                [u1, u2, u1, u2],
- *                                [u2, u3, u2, u3]])
+ *          lattice.setUniverses([[[u1, u2, u1, u2],
+ *                                 [u2, u3, u2, u3],
+ *                                 [u1, u2, u1, u2],
+ *                                 [u2, u3, u2, u3]],
+ *                                [[u1, u2, u1, u2],
+ *                                 [u2, u3, u2, u3],
+ *                                 [u1, u2, u1, u2],
+ *                                 [u2, u3, u2, u3]]])
  * @endcode
  *
+ * @param num_z the number of Lattice cells along z
  * @param num_y the number of Lattice cells along y
  * @param num_x the number of Lattice cells along x
  * @param universes the array of Universes for each Lattice cell
  */
-void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
+void Lattice::setUniverses(int num_z, int num_y, int num_x,
+                           Universe** universes) {
 
   std::map<int, Universe*> unique_universes = getUniqueUniverses();
   std::map<int, Universe*>::iterator iter;
@@ -1046,92 +1051,25 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
   /* Set the Lattice dimensions */
   setNumX(num_x);
   setNumY(num_y);
-  setNumZ(1);
-  
-  Universe* universe;
-
-  _universes.push_back
-    (std::vector< std::vector< std::pair<int, Universe*> > >());
-  
-  /* The Lattice cells are assumed input in row major order starting from the
-   * upper left corner. This double loop reorders the Lattice cells from the
-   * to start from the lower left corner */
-  for (int j = 0; j < _num_y; j++) {
-
-    _universes.at(0).push_back(std::vector< std::pair<int, Universe*> >());
-
-    for (int i = 0; i < _num_x; i++){
-      universe = universes[(_num_y-1-j)*_num_x + i];
-      _universes.at(0).at(j).push_back(std::pair<int, Universe*>
-                                       (universe->getId(), universe));
-    }
-  }
-}
-
-
-/**
- * @brief Sets the array of Universe pointers filling each Lattice cell.
- * @details This is a helper method for SWIG to allow users to assign Universes
- *          to a Lattice using a 3D Python list (list of lists of lists). An
- *          example how this method can be called from Python is as follows:
- *
- * @code
- *          u1 = Universe(name='Universe 1')
- *          u2 = Universe(name='Universe 2')
- *          u3 = Universe(name='Universe 3')
- *          lattice.setUniverses3D([[[u1, u2, u1, u2],
- *                                   [u2, u3, u2, u3],
- *                                   [u1, u2, u1, u2],
- *                                   [u2, u3, u2, u3]],
- *                                  [[u1, u2, u1, u2],
- *                                   [u2, u3, u2, u3],
- *                                   [u1, u2, u1, u2],
- *                                   [u2, u3, u2, u3]]])
- * @endcode
- *
- * @param num_z the number of Lattice cells along z
- * @param num_y the number of Lattice cells along y
- * @param num_x the number of Lattice cells along x
- * @param universes the array of Universes for each Lattice cell
- */
-void Lattice::setUniverses3D(int num_z, int num_y, int num_x,
-                             Universe** universes) {
-
-  std::map<int, Universe*> unique_universes = getUniqueUniverses();
-  std::map<int, Universe*>::iterator iter;
-
-  /* Remove all Universes in the Lattice */
-  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
-    removeUniverse(iter->second);
-
-  /* Clear all Univers maps in the Lattice (from a previous run) */
-  for (int i=0; i < _num_y; i++)
-    _universes.at(i).clear();
-
-  _universes.clear();
-
-  /* Set the Lattice dimensions */
-  setNumX(num_x);
-  setNumY(num_y);
   setNumZ(num_z);
 
   Universe* universe;
 
   /* The Lattice cells are assumed input in row major order starting from the
    * upper left corner. This double loop reorders the Lattice cells from the
-   * to start from the lower left corner */
+   * start from the lower left corner */
   for (int k = 0; k < _num_z; k++) {
-    _universes.push_back
-      (std::vector< std::vector< std::pair<int, Universe*> > >());
+    _universes.push_back(
+        std::vector< std::vector< std::pair<int, Universe*> > >());
     for (int j = 0; j < _num_y; j++) {
 
       _universes.at(k).push_back(std::vector< std::pair<int, Universe*> >());
 
       for (int i = 0; i < _num_x; i++){
         universe = universes
-          [(_num_z-1-k)*_num_x*_num_y + (_num_y-1-j)*_num_x + i];
-        _universes.at(k).at(j).push_back(std::pair<int, Universe*>
-                                   (universe->getId(), universe));
+            [(_num_z-1-k)*_num_x*_num_y + (_num_y-1-j)*_num_x + i];
+        _universes.at(k).at(j).push_back(std::pair<int, Universe*>(
+            universe->getId(), universe));
       }
     }
   }
@@ -1286,7 +1224,7 @@ Cell* Lattice::findCell(LocalCoords* coords) {
  *          in the direction of the track.
  *          Returns distance to nearest Lattice cell boundary.
  * @param point a pointer to a starting point
- * @param angle the angle of the track
+ * @param angle the azimuthal angle of the track
  * @return the distance to the nearest Lattice cell boundary
  */
 double Lattice::minSurfaceDist(Point* point, double angle) {

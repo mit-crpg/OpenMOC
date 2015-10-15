@@ -20,9 +20,6 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
-
-  /* Initialize the z-level to zero */
-  _z_level = 0.0;
 }
 
 
@@ -67,28 +64,28 @@ Geometry::~Geometry() {
 
 
 /**
- * @brief Returns the total height (y extent) of the Geometry in cm.
- * @return the total height of the Geometry (cm)
+ * @brief Returns the total width in the x-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the x-direction (cm)
  */
-double Geometry::getHeight() {
-  return (getMaxY() - getMinY());
-}
-
-
-/**
- * @brief Returns the total width (x extent) of the Geometry in cm.
- * @return the total width of the Geometry (cm)
- */
-double Geometry::getWidth() {
+double Geometry::getWidthX() {
   return (getMaxX() - getMinX());
 }
 
 
 /**
- * @brief Returns the total depth (z extent) of the Geometry in cm.
- * @return the total depth of the Geometry (cm)
+ * @brief Returns the total width in the y-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the y-direction (cm)
  */
-double Geometry::getDepth() {
+double Geometry::getWidthY() {
+  return (getMaxY() - getMinY());
+}
+
+
+/**
+ * @brief Returns the total width in the z-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the z-direction (cm)
+ */
+double Geometry::getWidthZ() {
   return (getMaxZ() - getMinZ());
 }
 
@@ -184,15 +181,6 @@ boundaryType Geometry::getMinYBoundaryType() {
  */
 boundaryType Geometry::getMaxYBoundaryType() {
   return _root_universe->getMaxYBoundaryType();
-}
-
-
-/**
- * @brief Returns the z-level where the 2D Tracks should be created.
- * @return the z-level where the 2D Tracks should be created.
- */
-double Geometry::getZLevel() {
-  return _z_level;
 }
 
 
@@ -1075,8 +1063,8 @@ void Geometry::initializeCmfd() {
   _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidth(getWidth());
-  _cmfd->setHeight(getHeight());
+  _cmfd->setWidthX(getWidthX());
+  _cmfd->setWidthY(getWidthY());
   _cmfd->setNumMOCGroups(getNumEnergyGroups());
 
   /* If user did not set CMFD group structure, create CMFD group
@@ -1090,8 +1078,8 @@ void Geometry::initializeCmfd() {
 
   /* Initialize the CMFD lattice */
   Point offset;
-  double offset_x = getMinX() + getWidth()/2.0;
-  double offset_y = getMinY() + getHeight()/2.0;
+  double offset_x = getMinX() + getWidthX()/2.0;
+  double offset_y = getMinY() + getWidthY()/2.0;
   offset.setX(offset_x);
   offset.setY(offset_y);
   _cmfd->initializeLattice(&offset);
@@ -1216,13 +1204,4 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
   delete coords;
 
   return cell;
-}
-
-
-/**
- * @brief Sets the z-level where the 2D Tracks should be created.
- * @param z_level the z-level where the 2D Tracks should be created.
- */
-void Geometry::setZLevel(double z_level) {
-  _z_level = z_level;
 }

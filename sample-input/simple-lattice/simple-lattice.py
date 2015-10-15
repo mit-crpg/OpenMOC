@@ -36,9 +36,9 @@ bottom = openmoc.YPlane(y=-2.0, name='bottom')
 top = openmoc.YPlane(y=2.0, name='top')
 boundaries = [left, right, bottom, top]
 
-large_circle = openmoc.Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
-medium_circle = openmoc.Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
-small_circle = openmoc.Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
+large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.4, name='large pin')
+medium_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='medium pin')
+small_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.2, name='small pin')
 
 for boundary in boundaries: boundary.setBoundaryType(openmoc.PERIODIC)
 
@@ -53,34 +53,34 @@ large_fuel = openmoc.Cell(name='large pin fuel')
 large_fuel.setNumRings(3)
 large_fuel.setNumSectors(8)
 large_fuel.setFill(materials['UO2'])
-large_fuel.addSurface(halfspace=-1, surface=large_circle)
+large_fuel.addSurface(halfspace=-1, surface=large_zcylinder)
 
 large_moderator = openmoc.Cell(name='large pin moderator')
 large_fuel.setNumSectors(8)
 large_moderator.setFill(materials['Water'])
-large_moderator.addSurface(halfspace=+1, surface=large_circle)
+large_moderator.addSurface(halfspace=+1, surface=large_zcylinder)
 
 medium_fuel = openmoc.Cell(name='medium pin fuel')
 medium_fuel.setNumRings(3)
 medium_fuel.setNumSectors(8)
 medium_fuel.setFill(materials['UO2'])
-medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
+medium_fuel.addSurface(halfspace=-1, surface=medium_zcylinder)
 
 medium_moderator = openmoc.Cell(name='medium pin moderator')
 medium_moderator.setNumSectors(8)
 medium_moderator.setFill(materials['Water'])
-medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
+medium_moderator.addSurface(halfspace=+1, surface=medium_zcylinder)
 
 small_fuel = openmoc.Cell(name='small pin fuel')
 small_fuel.setNumRings(3)
 small_fuel.setNumSectors(8)
 small_fuel.setFill(materials['UO2'])
-small_fuel.addSurface(halfspace=-1, surface=small_circle)
+small_fuel.addSurface(halfspace=-1, surface=small_zcylinder)
 
 small_moderator = openmoc.Cell(name='small pin moderator')
 small_moderator.setNumSectors(8)
 small_moderator.setFill(materials['Water'])
-small_moderator.addSurface(halfspace=+1, surface=small_circle)
+small_moderator.addSurface(halfspace=+1, surface=small_zcylinder)
 
 root_cell = openmoc.Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=boundaries[0])
@@ -117,10 +117,10 @@ openmoc.log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
 
 lattice = openmoc.Lattice(name='4x4 lattice')
 lattice.setWidth(width_x=1.0, width_y=1.0)
-lattice.setUniverses([[pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3],
-                      [pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3]])
+lattice.setUniverses([[[pin1, pin2, pin1, pin2],
+                       [pin2, pin3, pin2, pin3],
+                       [pin1, pin2, pin1, pin2],
+                       [pin2, pin3, pin2, pin3]]])
 root_cell.setFill(lattice)
 
 

@@ -302,14 +302,13 @@ LocalCoords* LocalCoords::getHighestLevel() {
  * @param delta_x amount we wish to move x by
  * @param delta_y amount we wish to move y by
  */
-void LocalCoords::adjustCoords(double delta_x, double delta_y, double delta_z) {
+void LocalCoords::adjustCoords(double delta_x, double delta_y) {
 
   /* Forward direction along linked list */
   LocalCoords* curr = this;
   while (curr != NULL) {
     curr->setX(curr->getX() + delta_x);
     curr->setY(curr->getY() + delta_y);
-    curr->setZ(curr->getZ() + delta_z);
     curr = curr->getNext();
   }
 
@@ -318,7 +317,6 @@ void LocalCoords::adjustCoords(double delta_x, double delta_y, double delta_z) {
   while (curr != NULL) {
     curr->setX(curr->getX() + delta_x);
     curr->setY(curr->getY() + delta_y);
-    curr->setZ(curr->getZ() + delta_z);
     curr = curr->getPrev();
   }
   return;
@@ -339,8 +337,7 @@ void LocalCoords::updateMostLocal(Point* point) {
   /* Translate coordinates by appropriate amount */
   double delta_x = point->getX() - curr->getX();
   double delta_y = point->getY() - curr->getY();
-  double delta_z = point->getZ() - curr->getZ();
-  adjustCoords(delta_x, delta_y, delta_z);
+  adjustCoords(delta_x, delta_y);
 
   return;
 }

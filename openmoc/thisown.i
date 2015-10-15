@@ -90,25 +90,6 @@
 /* A Lattice owns the memory for each Universe it contains */
 %pythonappend Lattice::setUniverses %{
   # SWIG 3
-  if 'num_y' in locals():
-    universes = locals()['num_y']
-  elif 'args' in locals() and 'num_y' in locals()['args']:
-    universes = locals()['args']['num_y']
-  elif 'kwargs' in locals() and 'num_y' in locals()['kwargs']:
-    universes = locals()['kwargs']['num_y']
-
-  # SWIG 2
-  else:
-    universes = locals()['args'][0]
-
-  for i in range(len(universes)):
-    for j in range(len(universes[i])):
-      universes[i][j].thisown = 0
-%}
-
-/* A Lattice owns the memory for each Universe it contains */
-%pythonappend Lattice::setUniverses3D %{
-  # SWIG 3
   if 'num_z' in locals():
     universes = locals()['num_z']
   elif 'args' in locals() and 'num_z' in locals()['args']:

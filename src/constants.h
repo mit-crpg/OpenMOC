@@ -86,6 +86,14 @@
 #define CORNER_X_MAX_Y_MAX 2
 #define CORNER_X_MIN_Y_MAX 3
 
+/** The number of values used in representing a Track when the Tracks are
+ *  retrieved from the TrackGenerator. */
+#define NUM_VALUES_PER_RETRIEVED_TRACK 6
+
+/** The number of values used in representing a Segment when the Segments are
+ *  retrieved from the TrackGenerator. */
+#define NUM_VALUES_PER_RETRIEVED_SEGMENT 7
+
 #ifdef NVCC
 
 /** The maximum number of polar angles to reserve constant memory on GPU */

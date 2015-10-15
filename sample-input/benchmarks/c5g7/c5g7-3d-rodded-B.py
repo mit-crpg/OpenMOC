@@ -22,9 +22,9 @@ openmoc.log.py_printf('TITLE', \
 ###########################   Creating Materials   ############################
 ###############################################################################
 
-openmoc.log.py_printf('NORMAL', 'Importing materials data from py...')
+openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = openmoc.materialize.materialize('../../c5g7-materials.py')
+materials = openmoc.materialize.materialize('../../c5g7-materials.h5')
 
 
 ###############################################################################
@@ -45,10 +45,11 @@ xmax.setBoundaryType(openmoc.VACUUM)
 ymin.setBoundaryType(openmoc.VACUUM)
 ymax.setBoundaryType(openmoc.REFLECTIVE)
 
-# Create Circles for the fuel as well as to discretize the moderator into rings
-fuel_radius = openmoc.Circle(x=0.0, y=0.0, radius=0.54)
-moderator_inner_radius = openmoc.Circle(x=0.0, y=0.0, radius=0.62)
-moderator_outer_radius = openmoc.Circle(x=0.0, y=0.0, radius=0.58)
+# Create ZCylinders for the fuel as well as to discretize the moderator into
+# rings
+fuel_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.54)
+moderator_inner_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.58)
+moderator_outer_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.62)
 
 
 ###############################################################################
@@ -231,7 +232,7 @@ lattices = list()
 lattices.append(openmoc.Lattice(name='Semi-Finely Spaced Reflector'))
 lattices[-1].setWidth(width_x=0.126, width_y=0.126)
 template = [[reflector] * 10] * 10
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 refined_reflector_cell.setFill(lattices[-1])
 
 
@@ -262,7 +263,7 @@ for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
 
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_uo2_unrod_cell.setFill(lattices[-1])
 
 
@@ -293,7 +294,7 @@ for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
 
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_uo2_rod_cell.setFill(lattices[-1])
 
 
@@ -325,7 +326,7 @@ for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
 
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_mox_unrod_cell.setFill(lattices[-1])
 
 
@@ -356,7 +357,7 @@ for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
 
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_mox_rod_cell.setFill(lattices[-1])
 
 
@@ -387,21 +388,21 @@ for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
 
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_rfl_rod_cell.setFill(lattices[-1])
 
 # Reflector unrodded 17 x 17 assemblies
 lattices.append(openmoc.Lattice(name='Assembly Reflector Unrodded'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[refined_reflector] * 17] * 17
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_rfl_unrod_cell.setFill(lattices[-1])
 
 # Reflector unrodded assembly right
 lattices.append(openmoc.Lattice(name='Assembly Reflector Unrodded Right'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[refined_reflector] * 11 + [reflector] * 6] * 17
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_rfl_unrod_cell_rgt.setFill(lattices[-1])
 
 # Reflector unrodded assembly bottom
@@ -409,7 +410,7 @@ lattices.append(openmoc.Lattice(name='Assembly Reflector Unrodded Bottom'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[refined_reflector] * 17] * 11
 template += [[reflector] * 17] * 6
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_rfl_unrod_cell_btm.setFill(lattices[-1])
 
 # Reflector unrodded assembly bottom
@@ -417,7 +418,7 @@ lattices.append(openmoc.Lattice(name='Assembly Reflector Unrodded Corner'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[refined_reflector] * 11 + [reflector] * 6] * 11
 template += [[reflector] * 17] * 6
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly_rfl_unrod_cell_cnr.setFill(lattices[-1])
 
 
@@ -428,35 +429,19 @@ assembly_rfl_unrod_cell_cnr.setFill(lattices[-1])
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(openmoc.Lattice(name='Full Geometry'))
 lattices[-1].setWidth(width_x=21.42, width_y=21.42, width_z=7.14)
-lattices[-1].setUniverses3D \
-([[[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-   [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-   [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-   [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_uo2_rod      , assembly_mox_rod      , assembly_rfl_unrod_rgt],
-   [assembly_mox_rod      , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_uo2_rod      , assembly_mox_rod      , assembly_rfl_unrod_rgt],
-   [assembly_mox_rod      , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_uo2_rod      , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_uo2_rod      , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-  [[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-   [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]])
-
+lattices[-1].setUniverses(
+  [[[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
+    [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
+    [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]]*3+
+  [[[assembly_uo2_rod      , assembly_mox_rod      , assembly_rfl_unrod_rgt],
+    [assembly_mox_rod      , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
+    [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]]*2+
+  [[[assembly_uo2_rod      , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
+    [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
+    [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]]*2+
+  [[[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
+    [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
+    [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]]*2)
 
 # Fill root cell with lattice
 root_cell.setFill(lattices[-1])
@@ -484,7 +469,6 @@ openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
-geometry.setZLevel(-20.0)
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
@@ -495,6 +479,7 @@ geometry.initializeFlatSourceRegions()
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
+track_generator.setZCoord(-20.0)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 

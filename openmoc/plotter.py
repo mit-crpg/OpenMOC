@@ -75,15 +75,16 @@ def plot_tracks(track_generator):
   py_printf('NORMAL', 'Plotting the tracks...')
 
   # Retrieve data from TrackGenerator
+  vals_per_track = openmoc.NUM_VALUES_PER_RETRIEVED_TRACK
   num_azim = track_generator.getNumAzim()
   spacing = track_generator.getTrackSpacing()
   num_tracks = track_generator.getNumTracks()
-  coords = track_generator.retrieveTrackCoords(num_tracks*6)
+  coords = track_generator.retrieveTrackCoords(num_tracks*vals_per_track)
 
   # Convert data to NumPy arrays
   coords = np.array(coords)
-  x = coords[0::3]
-  y = coords[1::3]
+  x = coords[0::vals_per_track/2]
+  y = coords[1::vals_per_track/2]
 
   # Make figure of line segments for each Track
   fig = plt.figure()
@@ -139,11 +140,12 @@ def plot_segments(track_generator):
   py_printf('NORMAL', 'Plotting the track segments...')
 
   # Retrieve data from TrackGenerator
+  vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
   num_azim = track_generator.getNumAzim()
   spacing = track_generator.getTrackSpacing()
   num_segments = track_generator.getNumSegments()
   num_fsrs = track_generator.getGeometry().getNumFSRs()
-  coords = track_generator.retrieveSegmentCoords(num_segments*7)
+  coords = track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
 
   # Convert data to NumPy arrays
   coords = np.array(coords)
@@ -153,13 +155,13 @@ def plot_segments(track_generator):
   fsrs = numpy.zeros(num_segments)
 
   for i in range(num_segments):
-    fsrs[i] = coords[i*7]
-    x[i*2] = coords[i*7+1]
-    y[i*2] = coords[i*7+2]
-    z[i*2] = coords[i*7+3]
-    x[i*2+1] = coords[i*7+4]
-    y[i*2+1] = coords[i*7+5]
-    z[i*2+1] = coords[i*7+6]
+    fsrs[i] = coords[i*vals_per_segment]
+    x[i*2] = coords[i*vals_per_segment+1]
+    y[i*2] = coords[i*vals_per_segment+2]
+    z[i*2] = coords[i*vals_per_segment+3]
+    x[i*2+1] = coords[i*vals_per_segment+4]
+    y[i*2+1] = coords[i*vals_per_segment+5]
+    z[i*2+1] = coords[i*vals_per_segment+6]
 
   # Create array of equally spaced randomized floats as a color map for plots
   # Seed the NumPy random number generator to ensure reproducible color maps
@@ -182,13 +184,15 @@ def plot_segments(track_generator):
   plt.xlim([x.min(), x.max()])
   plt.ylim([y.min(), y.max()])
 
-  title = 'Segments for ' + str(num_azim) + ' angles, ' + str(spacing) + \
-        ' cm spacing, and ' + str(z[0]) + ' z-level'
+  suptitle = 'Segments for ' + str(num_azim) + ' angles, and ' + str(spacing) + \
+        ' cm spacing'
+  title = 'z = ' + str(z[0])
 
+  plt.suptitle(suptitle)
   plt.title(title)
 
   filename = directory + 'segments-' + str(num_azim) + '-angles-' + \
-      str(spacing) + '-spacing-' + str(z[0]) + '-z-level.png'
+      str(spacing) + '-spacing-z-' + str(z[0]) + '.png'
 
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
@@ -211,8 +215,8 @@ def plot_segments(track_generator):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-# @param z_level optional the z level (default is Geometry's _z_level)
-def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
+# @param zcoord optional the z coordinate (default is 0.0)
+def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
   global subdirectory
 
@@ -229,21 +233,18 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
-              'the gridsize %d is not an integer', gridsize)
+                'the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the Materials ' + \
               'with a negative gridsize (%d)', gridsize)
     
-  if z_level is None:
-    z_level = geometry.getZLevel()
-  elif not is_float(z_level):
-    py_printf('ERROR', 'Unable to plot the Materials since ' + \
-              'the z level %d is not a float', z_level)
-  elif z_level < geometry.getMinZ() or z_level > geometry.getMaxZ():
-    py_printf('ERROR', 'Unable to plot the Materials since ' + \
-              'the z level %d is outside the geometry z-bounds (%d, %d)', \
-              geometry.getMinZ(), geometry.getMaxZ())
+  # If zcoord was not set, get the Geometry's zcoord
+  if zcoord is None:
+    zcoord = 0.0
+
+  # Check z-coord
+  _check_zcoord(geometry, zcoord)
     
   py_printf('NORMAL', 'Plotting the materials...')
 
@@ -260,7 +261,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = openmoc.LocalCoords(x, y, z_level)
+      point = openmoc.LocalCoords(x, y, zcoord)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
@@ -296,8 +297,9 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
   colors = np.flipud(colors)
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_materials)
-  plt.title('Materials')
-  filename = directory + 'materials.png'
+  plt.suptitle('Materials')
+  plt.title('z = ' + str(zcoord))
+  filename = directory + 'materials-z-' + str(zcoord) + '.png'
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
@@ -318,8 +320,8 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-# @param z_level optional the z level (default is Geometry's _z_level)
-def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
+# @param zcoord optional the z coordinate (default is 0.0)
+def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
   global subdirectory
 
@@ -342,15 +344,10 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
     py_printf('ERROR', 'Unable to plot the Cells ' + \
               'with a negative gridsize (%d)', gridsize)
 
-  if z_level is None:
-    z_level = geometry.getZLevel()
-  elif not is_float(z_level):
-    py_printf('ERROR', 'Unable to plot the Cells since ' + \
-              'the z level %d is not a float', z_level)
-  elif z_level < geometry.getMinZ() or z_level > geometry.getMaxZ():
-    py_printf('ERROR', 'Unable to plot the Cells since ' + \
-              'the z level %d is outside the geometry z-bounds (%d, %d)', \
-              geometry.getMinZ(), geometry.getMaxZ())
+  if zcoord is None:
+    zcoord = 0.0
+
+  _check_zcoord(geometry, zcoord)
 
   py_printf('NORMAL', 'Plotting the cells...')
 
@@ -367,7 +364,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = openmoc.LocalCoords(x, y, z_level)
+      point = openmoc.LocalCoords(x, y, zcoord)
       point.setUniverse(geometry.getRootUniverse())
       cell = geometry.findCellContainingCoords(point)
 
@@ -403,8 +400,9 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, z_level=None):
   colors = np.flipud(colors)
   plt.imshow(colors, extent=coords['bounds'],
              interpolation='nearest', cmap=cmap, vmin=0, vmax=num_cells)
-  plt.title('Cells')
-  filename = directory + 'cells.png'
+  plt.suptitle('Cells')
+  plt.title('z = ' + str(zcoord))
+  filename = directory + 'cells-z-' + str(zcoord) + '.png'
 
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
@@ -491,8 +489,8 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
   # Retrieve the pixel coordinates
   coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
-  # Get the Geometry's z-level
-  z_level = geometry.getZLevel()
+  # Get the Geometry's z-coord
+  zcoord = geometry.getFSRPoint(0).getZ()
 
   # Find the flat source region IDs for each grid point
   for i in range(gridsize):
@@ -501,7 +499,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
       x = coords['x'][i]
       y = coords['y'][j]
 
-      local_coords = openmoc.LocalCoords(x, y, z_level)
+      local_coords = openmoc.LocalCoords(x, y, zcoord)
       local_coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(local_coords)
       fsr_id = geometry.getFSRId(local_coords)
@@ -558,8 +556,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
     plt.ylim(min(coords['y']), max(coords['y']))
 
   # Set the plot title and save the figure
-  plt.title('Flat Source Regions')
-  filename = directory + 'flat-source-regions.png'
+  plt.suptitle('Flat Source Regions')
+  plt.title('z = ' + str(zcoord))
+  filename = directory + 'flat-source-regions-z-' + str(zcoord) + '.png'
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
@@ -622,8 +621,8 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
   # Retrieve the pixel coordinates
   coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
-  # Get the Geometry's z-level
-  z_level = geometry.getZLevel()
+  # Get the Geometry's z-coord
+  zcoord = geometry.getFSRPoint(0).getZ()
 
   # Find the CMFD cell ID for each grid point
   for i in range(gridsize):
@@ -632,7 +631,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
       x = coords['x'][i]
       y = coords['y'][j]
 
-      local_coords = openmoc.LocalCoords(x, y, z_level)
+      local_coords = openmoc.LocalCoords(x, y, zcoord)
       local_coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(local_coords)
       fsr_id = geometry.getFSRId(local_coords)
@@ -747,8 +746,8 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
   # Retrieve the pixel coordinates
   coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
-  # Get the Geometry's z-level
-  z_level = geometry.getZLevel()
+  # Get the Geometry's z-coord
+  zcoord = geometry.getFSRPoint(0).getZ()
 
   for i in range(gridsize):
     for j in range(gridsize):
@@ -757,7 +756,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
       x = coords['x'][i]
       y = coords['y'][j]
 
-      point = openmoc.LocalCoords(x, y, z_level)
+      point = openmoc.LocalCoords(x, y, zcoord)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)
@@ -778,8 +777,10 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
     fig = plt.figure()
     plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
     plt.colorbar()
-    plt.title('FSR Scalar Flux (Group {0})'.format(group))
-    filename = directory + 'fsr-flux-group-' + str(group) + '.png'
+    plt.suptitle('FSR Scalar Flux (Group {0})'.format(group))
+    plt.title('z = ' + str(zcoord))
+    filename = directory + 'fsr-flux-group-' + str(group) + '-z-' + \
+               str(zcoord) + '.png'
     fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)
 
@@ -978,8 +979,8 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
   # Retrieve the pixel coordinates
   coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
 
-  # Get the Geometry's z-level
-  z_level = geometry.getZLevel()
+  # Get the Geometry's z-coord
+  zcoord = geometry.getFSRPoint(0).getZ()
 
   for i in range(gridsize):
     for j in range(gridsize):
@@ -988,7 +989,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
       x = coords['y'][i]
       y = coords['x'][j]
 
-      point = openmoc.LocalCoords(x, y, z_level)
+      point = openmoc.LocalCoords(x, y, zcoord)
       point.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(point)
       fsr_id = geometry.getFSRId(point)
@@ -1004,8 +1005,9 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
   fig = plt.figure()
   plt.imshow(np.flipud(surface), extent=coords['bounds'])
   plt.colorbar()
-  plt.title('Flat Source Region Fission Rates')
-  filename = directory + 'fission-rates.png'
+  plt.suptitle('Flat Source Region Fission Rates')
+  plt.title('z = ' + str(zcoord))
+  filename = directory + 'fission-rates-z-' + str(zcoord) + '.png'
   fig.savefig(filename, bbox_inches='tight')
 
 
@@ -1136,3 +1138,15 @@ def get_pixel_coords(geometry, gridsize, xlim, ylim):
   coords['bounds'] = bounds
 
   return coords
+
+
+def _check_zcoord(geometry, zcoord):
+
+  if not is_float(zcoord):
+    py_printf('ERROR', 'Unable to produce plot since ' + \
+              'the z-coord %d is not a float', zcoord)
+
+  elif zcoord < geometry.getMinZ() or zcoord > geometry.getMaxZ():
+    py_printf('ERROR', 'Unable to produce plot since ' + \
+              'the z-coord %d is outside the geometry z-bounds (%d, %d)', \
+              geometry.getMinZ(), geometry.getMaxZ())

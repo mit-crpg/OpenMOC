@@ -156,14 +156,14 @@ private:
 
   /** A container of Universes ? */
   std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >
-    _universes;
+      _universes;
 
 public:
 
   Lattice(const int id=-1, const char* name="");
   virtual ~Lattice();
 
-  void setOffset(double x, double y, double z=0.0);
+  void setOffset(double x, double y, double z);
   Point* getOffset();
   int getNumX() const;
   int getNumY() const;
@@ -178,9 +178,9 @@ public:
   double getMinZ();
   double getMaxZ();
 
-  Universe* getUniverse(int lat_x, int lat_y, int lat_z=0) const;
-  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >
-    getUniverses() const;
+  Universe* getUniverse(int lat_x, int lat_y, int lat_z) const;
+  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
+      getUniverses() const;
   std::map<int, Universe*> getUniqueUniverses();
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
@@ -190,8 +190,7 @@ public:
   void setNumZ(int num_z);
   void setWidth(double width_x, double width_y,
                 double width_z=std::numeric_limits<double>::infinity());
-  void setUniverses(int num_y, int num_x, Universe** universes);
-  void setUniverses3D(int num_z, int num_y, int num_x, Universe** universes);
+  void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void removeUniverse(Universe* universe);
   void buildNeighbors();
 

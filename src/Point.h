@@ -31,7 +31,7 @@ private:
 public:
   Point();
   virtual ~Point();
-  void setCoords(const double x, const double y, const double z=0.0);
+  void setCoords(const double x, const double y, const double z);
   double getX() const;
   double getY() const;
   double getZ() const;

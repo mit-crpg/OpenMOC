@@ -96,49 +96,7 @@
 }
 
 
-/* Typemap for Lattice::setUniverses(int num_y, int num_x, Universe** universes)
- * method - allows users to pass in Python lists of Universes for each
- * lattice cell */
-%typemap(in) (int num_y, int num_x, Universe** universes) {
-
-  if (!PyList_Check($input)) {
-    PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
-                    "for the Lattice cells");
-    return NULL;
-  }
-
-  $1 = PySequence_Length($input);  // num_y
-  $2 = PySequence_Length(PyList_GetItem($input,0)); // num_x
-  $3 = (Universe**) malloc(($1 * $2) * sizeof(Universe*)); // universes
-
-  /* Loop over x */
-  for (int j = 0; j < $1; j++) {
-
-    /* Get the inner list in the nested list for the lattice */
-    PyObject* outer_list = PyList_GetItem($input,j);
-
-    /* Check that the length of this list is the same as the length
-     * of the first list */
-    if (PySequence_Length(outer_list) != $2) {
-      PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
-                      "list for Lattice which must be a 2D list of lists");
-      return NULL;
-    }
-
-    /* Loop over y */
-    for (int i =0; i < $2; i++) {
-      /* Extract the value from the list at this location and convert
-       * SWIG wrapper to pointer to underlying C++ class instance */
-      PyObject* o = PyList_GetItem(outer_list, i);
-      void *p1 = 0;
-      SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
-      $3[j*$2+i] = (Universe*) p1;
-    }
-  }
-}
-
-
-/* Typemap for Lattice::setUniverses3D(int num_z, int num_y, int num_x, 
+/* Typemap for Lattice::setUniverses(int num_z, int num_y, int num_x,
  *                                     Universe** universes)
  * method - allows users to pass in Python lists of Universes for each
  * lattice cell */
@@ -155,28 +113,29 @@
   $3 = PySequence_Length(PyList_GetItem(PyList_GetItem($input,0), 0)); // num_x
   $4 = (Universe**) malloc(($1 * $2 * $3) * sizeof(Universe*)); // universes
 
-  /* Loop over y */
+  /* Loop over the xy-planes */
   for (int k = 0; k < $1; k++) {
 
-    /* Get the inner list in the nested list for the lattice */
+    /* Get the 2D list of universes in the k-th xy-plane */
     PyObject* outer_outer_list = PyList_GetItem($input,k);
     
     /* Loop over y */
     for (int j = 0; j < $2; j++) {
 
-      /* Get the inner list in the nested list for the lattice */
+      /* Get the list of universes in the j-th row of the k-th xy-plane */
       PyObject* outer_list = PyList_GetItem(outer_outer_list, j);
 
-      /* Check that the length of this list is the same as the length
-       * of the first list */
+      /* Check that the number of universes in the j-th row of the k-th xy-plane
+       * is the same as the number of universes in the 1st row of the 1st
+       * xy-plane */
       if (PySequence_Length(outer_list) != $3) {
-        PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
-                        "list for Lattice which must be a 3D list of lists "
-                        "of lists");
+        PyErr_SetString(PyExc_ValueError, "Size mismatch in dimensions of 3D "
+                        "list of Universes in input to Lattice:setUniverses"
+                        " method");
         return NULL;
       }
       
-      /* Loop over x */
+      /* Loop over universes in j-th row of the k-th xy-plane */
       for (int i =0; i < $3; i++) {
         /* Extract the value from the list at this location and convert
          * SWIG wrapper to pointer to underlying C++ class instance */

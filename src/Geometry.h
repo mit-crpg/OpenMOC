@@ -77,27 +77,20 @@ class Geometry {
 private:
 
   /** The boundary conditions at the x-min surface of the bounding box 
-   * containing the Geometry. False is for vacuum and true is for reflective 
-   * BCs. */
+   *  containing the Geometry. */
   boundaryType _x_min_bc;
 
   /** The boundary conditions at the y-min surface of the bounding box 
-   * containing the Geometry. False is for vacuum and true is for reflective 
-   * BCs. */
+   *  containing the Geometry. */
   boundaryType _y_min_bc;
 
   /** The boundary conditions at the x-max surface of the bounding box 
-   * containing the Geometry. False is for vacuum and true is for reflective 
-   * BCs. */
+   *  containing the Geometry. */
   boundaryType _x_max_bc;
 
   /** The boundary conditions at the y-max surface of the bounding box 
-   * containing the Geometry. False is for vacuum and true is for reflective 
-   * BCs. */
+   *  containing the Geometry. */
   boundaryType _y_max_bc;
-
-  /** The z-level where the 2D Tracks should be created */
-  double _z_level;
 
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
@@ -126,9 +119,9 @@ public:
   virtual ~Geometry();
 
   /* Get parameters */
-  double getWidth();
-  double getHeight();
-  double getDepth();
+  double getWidthX();
+  double getWidthY();
+  double getWidthZ();
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -139,7 +132,6 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  double getZLevel();
   Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();
@@ -166,7 +158,6 @@ public:
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
   void setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* FSR_keys_map);
-  void setZLevel(double z_level);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);

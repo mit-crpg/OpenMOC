@@ -247,7 +247,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   num_FSRs = geometry.getNumFSRs()
   num_materials = geometry.getNumMaterials()
   num_groups = geometry.getNumEnergyGroups()
-  z_level = geometry.getZLevel()
+  zcoord = geometry.getZCoord()
   num_tracks = track_generator.getNumTracks()
   num_segments = track_generator.getNumSegments()
   spacing = track_generator.getTrackSpacing()
@@ -320,7 +320,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     time_group.create_dataset('# FSRs', data=num_FSRs)
     time_group.create_dataset('# materials', data=num_materials)
     time_group.create_dataset('# energy groups', data=num_groups)
-    time_group.create_dataset('z level', data=z_level)
+    time_group.create_dataset('z coord', data=zcoord)
     time_group.create_dataset('# tracks', data=num_tracks)
     time_group.create_dataset('# segments', data=num_segments)
     time_group.create_dataset('track spacing [cm]', data=spacing)
@@ -394,7 +394,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     state['# FSRs'] = num_FSRs
     state['# materials'] = num_materials
     state['# energy groups'] = num_groups
-    state['z level'] = z_level
+    state['z coord'] = zcoord
     state['# tracks'] = num_tracks
     state['# segments'] = num_segments
     state['track spacing [cm]'] = spacing

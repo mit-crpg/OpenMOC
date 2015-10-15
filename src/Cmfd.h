@@ -132,10 +132,10 @@ private:
   Material** _materials;
 
   /** Physical dimensions of the geometry and each CMFD cell */
-  double _width;
-  double _height;
-  double _cell_width;
-  double _cell_height;
+  double _width_x;
+  double _width_y;
+  double _cell_width_x;
+  double _cell_width_y;
 
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
@@ -230,8 +230,8 @@ public:
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
   void setGeometry(Geometry* geometry);
-  void setWidth(double width);
-  void setHeight(double height);
+  void setWidthX(double width);
+  void setWidthY(double width);
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumFSRs(int num_fsrs);

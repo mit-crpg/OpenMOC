@@ -283,5 +283,41 @@ water.create_dataset('Nu Fission XS', data=nu_sigma_f)
 water.create_dataset('Chi', data=chi)
 
 
+
+###############################################################################
+################################   Control Rod   ##############################
+###############################################################################
+
+# Create a subdictionary for water materials data
+control_rod = f.create_group('Control Rod')
+
+sigma_a = numpy.array([1.70490E-03, 8.36224E-03,8.37901E-02,
+                       3.97797E-01, 6.98763E-01, 9.29508E-01,
+                       1.17836E+00])
+sigma_t = numpy.array([2.16768E-01, 4.80098E-01, 8.86369E-01,
+                       9.70009E-01, 9.10482E-01, 1.13775E+00,
+                       1.84048E+00])
+sigma_s = numpy.array([1.70563E-01, 4.44012E-02, 9.83670E-05,
+                       1.27786E-07, 0., 0., 0., 0., 4.71050E-01,
+                       6.85480E-04, 3.91395E-10, 0., 0.,
+                       0., 0., 0., 8.01859E-01, 7.20132E-04,
+                       0., 0., 0., 0., 0., 0.,
+                       5.70752E-01, 1.46015E-03, 0., 0.,
+                       0., 0., 0., 6.55562E-05, 2.07838E-01, 3.81486E-03,
+                       3.69760E-09, 0., 0., 0., 0., 1.02427E-03, 2.02465E-01,
+                       4.75290E-03, 0., 0., 0., 0., 0., 3.53043E-03,
+                       6.58597E-01])
+sigma_f = numpy.zeros(7)
+nu_sigma_f = numpy.zeros(7)
+chi = numpy.zeros(7)
+
+# Create datasets for each cross-section type
+control_rod.create_dataset('Total XS', data=sigma_t)
+control_rod.create_dataset('Absorption XS', data=sigma_a)
+control_rod.create_dataset('Scattering XS', data=sigma_s)
+control_rod.create_dataset('Fission XS', data=sigma_f)
+control_rod.create_dataset('Nu Fission XS', data=nu_sigma_f)
+control_rod.create_dataset('Chi', data=chi)
+
 # Close the hdf5 data file
 f.close()

@@ -354,60 +354,6 @@ int Track::getReflectiveTrackIndex() const {
 
 
 /**
- * @brief Checks whether a Point is contained along this Track.
- * @param point a pointer to the Point of interest
- * @return true if the Point is on the Track, false otherwise
- */
-bool Track::contains(Point* point) {
-
-  /* The slope of the Track */
-  double m;
-
-  /* The distance from the Point to the Track */
-  double dist;
-
-  /* If the Point is outside of the bounds of the start and end Points of the
-   * Track it does not lie on the Track */
-  if (!(((point->getX() <= _start.getX()+1.0E-2 &&
-          point->getX() >= _end.getX()-1.0E-2)
-      || (point->getX() >= _start.getX()-1.0E-2 &&
-          point->getX() <= _end.getX()+1.0E-2)) &&
-        ((point->getY() <= _start.getY()+1.0E-2 &&
-          point->getY() >= _end.getY()-1.0E-2)
-      || (point->getY() >= _start.getY()-1.0E-2 &&
-          point->getY() <= _end.getY()+1.0E-2)) &&
-        ((point->getZ() <= _start.getZ()+1.0E-2 &&
-          point->getZ() >= _end.getZ()-1.0E-2)
-      || (point->getZ() >= _start.getZ()-1.0E-2 &&
-          point->getZ() <= _end.getZ()+1.0E-2)))) {
-
-    return false;
-  }
-
-
-  /* If the Track is vertical */
-  if (fabs(_phi - M_PI / 2) < 1E-10) {
-    if (fabs(point->getX() - _start.getX()) < 1E-10)
-      return true;
-    else
-      return false;
-  }
-
-  /* If the track is not vertical */
-  else {
-    m = sin(_phi) / cos(_phi);
-    dist = point->getY() - (_start.getY() + m * (point->getX()-_start.getX()));
-
-    /* Use point-slope formula */
-    if (fabs(dist) < 1e-10)
-      return true;
-    else
-      return false;
-  }
-}
-
-
-/**
  * @brief Deletes each of this Track's segments.
  */
 void Track::clearSegments() {

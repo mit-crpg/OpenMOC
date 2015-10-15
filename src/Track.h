@@ -151,7 +151,6 @@ public:
   bool getTransferFluxIn() const;
   bool getTransferFluxOut() const;
 
-  bool contains(Point* point);
   void addSegment(segment* to_add);
   void removeSegment(int index);
   void insertSegment(int index, segment* segment);
