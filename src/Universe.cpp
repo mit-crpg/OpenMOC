@@ -873,12 +873,11 @@ Universe* Lattice::getUniverse(int lat_x, int lat_y, int lat_z) const {
 
 
 /**
- * @brief Return a 2D vector of the Universes in the Lattice.
- * @return 2D vector of Universes
+ * @brief Return a 3D vector of the Universes in the Lattice.
+ * @return 3D vector of Universes
  */
 std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
-  Lattice::getUniverses() const {
-
+  Lattice::getUniverses() {
   return &_universes;
 }
 

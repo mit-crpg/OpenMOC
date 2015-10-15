@@ -247,7 +247,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   num_FSRs = geometry.getNumFSRs()
   num_materials = geometry.getNumMaterials()
   num_groups = geometry.getNumEnergyGroups()
-  zcoord = geometry.getZCoord()
+  zcoord = track_generator.getZCoord()
   num_tracks = track_generator.getNumTracks()
   num_segments = track_generator.getNumSegments()
   spacing = track_generator.getTrackSpacing()

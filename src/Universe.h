@@ -180,7 +180,7 @@ public:
 
   Universe* getUniverse(int lat_x, int lat_y, int lat_z) const;
   std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
-      getUniverses() const;
+      getUniverses();
   std::map<int, Universe*> getUniqueUniverses();
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();

@@ -165,7 +165,7 @@ control_rod.addCell(moderator_ring1)
 control_rod.addCell(moderator_ring2)
 control_rod.addCell(moderator_ring3)
 
-# Reflector
+# Reflector Cells
 reflector_cell = openmoc.Cell(name='moderator')
 reflector_cell.setFill(materials['Water'])
 
@@ -176,7 +176,7 @@ refined_reflector_cell = openmoc.Cell(name='Semi-Finely Spaced Reflector')
 refined_reflector = openmoc.Universe(name='Semi-Finely Spaced Moderator')
 refined_reflector.addCell(refined_reflector_cell)
 
-# Cells
+# Lattice-filled Cells for the assemblies
 assembly_uo2_unrod_cell = openmoc.Cell(name='UO2 Assembly Unrodded')
 assembly_mox_unrod_cell = openmoc.Cell(name='MOX Assembly Unrodded')
 assembly_rfl_unrod_cell_rgt = openmoc.Cell(name='Reflector Unrodded Right')
@@ -187,6 +187,7 @@ assembly_mox_rod_cell = openmoc.Cell(name='MOX Assembly Unrodded')
 assembly_rfl_rod_cell = openmoc.Cell(name='Reflector Rodded')
 assembly_rfl_unrod_cell = openmoc.Cell(name='Reflector Unrodded')
 
+# Assembly Universes
 assembly_uo2_unrod = openmoc.Universe(name='UO2 Assembly Unrodded')
 assembly_mox_unrod = openmoc.Universe(name='MOX Assembly Unrodded')
 assembly_rfl_unrod_rgt = openmoc.Universe(name='Rfl Assembly Unrodded Right')

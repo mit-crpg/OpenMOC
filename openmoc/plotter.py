@@ -229,17 +229,17 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
   # Error checking
   if not 'Geometry' in str(type(geometry)):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
-                    'input was not a geometry class object')
+              'input was not a geometry class object')
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Materials since ' + \
-                'the gridsize %d is not an integer', gridsize)
+              'the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the Materials ' + \
               'with a negative gridsize (%d)', gridsize)
     
-  # If zcoord was not set, get the Geometry's zcoord
+  # If zcoord was not set, set the zcoord to 0.0
   if zcoord is None:
     zcoord = 0.0
 
@@ -338,7 +338,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
   if not is_integer(gridsize):
     py_printf('ERROR', 'Unable to plot the Cells since ' + \
-                'the gridsize %d is not an integer', gridsize)
+              'the gridsize %d is not an integer', gridsize)
 
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the Cells ' + \
@@ -347,6 +347,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
   if zcoord is None:
     zcoord = 0.0
 
+  # Check z-coord
   _check_zcoord(geometry, zcoord)
 
   py_printf('NORMAL', 'Plotting the cells...')

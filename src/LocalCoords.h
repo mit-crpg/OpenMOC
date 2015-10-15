@@ -77,7 +77,7 @@ private:
   LocalCoords* _prev;
 
 public:
-  LocalCoords(double x, double y, double z=0.0);
+  LocalCoords(double x, double y, double z);
   virtual ~LocalCoords();
   coordType getType();
   Universe* getUniverse() const;

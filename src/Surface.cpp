@@ -366,7 +366,7 @@ inline int Plane::intersection(Point* point, double angle, Point* points) {
 
   /* The track is not parallel to the plane */
   else{
-    
+
     l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
       (_A * mx + _B * my);
     xcurr = x0 + l * mx;
@@ -658,8 +658,8 @@ std::string ZPlane::toString() {
  * @param name the optional Surface name
  */
 ZCylinder::ZCylinder(const double x, const double y,
-                   const double radius, const int id, const char* name):
-  Surface(id, name) {
+                     const double radius, const int id, const char* name):
+    Surface(id, name) {
 
   _surface_type = ZCYLINDER;
   _A = 1.;
