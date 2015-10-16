@@ -60,7 +60,7 @@ enum surfaceType {
 
 /**
  * @class Surface Surface.h "src/Surface.h"
- * @brief Represents a general Surface in the 2D xy-plane
+ * @brief Represents a general Surface in 3D.
  * @details The Surface class and its subclasses are used to define the
  *          geometry for an OpenMOC simulation using a constructive solid
  *          geometry (CSG) formalism. Surfaces are used during ray tracing

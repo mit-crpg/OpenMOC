@@ -67,7 +67,7 @@ private:
    *  resides */
   int _lattice_z;
   
-  /** A Point representing the 2D coordinates of this LocalCoords */
+  /** A Point representing the 3D coordinates of this LocalCoords */
   Point _coords;
 
   /** A pointer to the LocalCoords at the next lower nested Universe level */

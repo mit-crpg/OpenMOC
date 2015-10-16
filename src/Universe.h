@@ -49,11 +49,11 @@ enum universeType{
 
 /**
  * @class Universe Universe.h "src/Universe.h"
- * @brief A Universe represents an unbounded space in the 2D xy-plane.
- * @details A Universe contains cell which are bounded subspaces in the 2D
- *          xy-plane and which together form the Universe. Universes allow
- *          for complex, repeating (i.e. lattices) geometries to be simply
- *          represented with as few data structures as possible.
+ * @brief A Universe represents an unbounded space in the 3D.
+ * @details A Universe contains cell which are bounded subspaces in 3D which
+ *          together form the Universe. Universes allow for complex, repeating
+ *          (i.e. lattices) geometries to be simply represented with as few data
+ *          structures as possible.
  */
 class Universe {
 
@@ -127,7 +127,7 @@ public:
 
 /**
  * @class Lattice Universe.h "src/Universe.h"
- * @brief Represents a repeating 2D Lattice of Universes.
+ * @brief Represents a repeating 3D Lattice of Universes.
  */
 class Lattice: public Universe {
 

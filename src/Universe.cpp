@@ -705,7 +705,7 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
 Lattice::~Lattice() {
 
   /* Clear the triple-nested vector of Universes */
-  for (int k=0; k < _num_z; k++){
+  for (int k=0; k < _num_z; k++) {
     for (int j=0; j < _num_y; j++)
       _universes.at(k).at(j).clear();
     _universes.at(k).clear();
@@ -895,7 +895,7 @@ std::map<int, Universe*> Lattice::getUniqueUniverses() {
   Universe* universe;
   int univ_id;
 
-  for (int k = _num_z-1; k > -1; k--){
+  for (int k = _num_z-1; k > -1; k--) {
     for (int j = _num_y-1; j > -1;  j--) {
       for (int i = 0; i < _num_x; i++) {
         universe = _universes.at(k).at(j).at(i).second;
@@ -1064,7 +1064,7 @@ void Lattice::setUniverses(int num_z, int num_y, int num_x,
 
       _universes.at(k).push_back(std::vector< std::pair<int, Universe*> >());
 
-      for (int i = 0; i < _num_x; i++){
+      for (int i = 0; i < _num_x; i++) {
         universe = universes
             [(_num_z-1-k)*_num_x*_num_y + (_num_y-1-j)*_num_x + i];
         _universes.at(k).at(j).push_back(std::pair<int, Universe*>(

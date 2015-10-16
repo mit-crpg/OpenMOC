@@ -14,8 +14,8 @@ max_iters = options.getMaxIterations()
 
 openmoc.log.set_log_level('NORMAL')
 
-openmoc.log.py_printf('TITLE', \
-                      'Simulating the OECD\'s C5G7 Benchmark Problem...')
+openmoc.log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 3D Rodded B' \
+                      ' Benchmark Problem...')
 
 
 ###############################################################################
