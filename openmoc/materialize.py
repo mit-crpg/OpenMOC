@@ -2,7 +2,7 @@
 # @file materialize.py
 # @package openmoc.materialize
 # @brief The materialize module provides utility functions to read and write
-#        multi-group materials cross-section data from HDF5 binary file format.
+#        multi-group materials cross section data from HDF5 binary file format.
 # @author William Boyd (wboyd@mit.edu)
 # @date October 9, 2015
 
@@ -43,6 +43,7 @@ def _get_numpy_array(hdf5_group, key, suffix):
 
     sigma = np.array(hdf5_group['{}/'.format(key) + suffix][...])
     sigma = np.atleast_1d(sigma)
+    sigma = sigma.flatten()
     return sigma
 
 
@@ -54,8 +55,8 @@ def _get_numpy_array(hdf5_group, key, suffix):
 #          routine will directly insert the multi-group cross sections into each
 #          Material in the Geometry. If a Geometry is passed in, Material
 #          objects from the Geometry will be used in place of those instantiated
-#          by this routine. A second optional parameter for the domain types may
-#          be used to define whether multi-group cross sections are tabulated by
+#          by this routine. An optional parameter for the domain types may be
+#          used to define whether multi-group cross sections are tabulated by
 #          material or cell in the HDF5 binary file.
 # @param filename filename for cross sections HDF5 file (default is 'mgxs.h5')
 # @param directory directory for cross sections HDF5 file (default is 'mgxs')
@@ -75,16 +76,16 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
 
     # Check that the file has an 'energy groups' attribute
     if '# groups' not in f.attrs:
-        py_printf('ERROR', 'Unable to materialize file "%s" since it does ' +
+        py_printf('ERROR', 'Unable to load HDF5 file "%s" since it does '
                            'not contain an \'# groups\' attribute', filename)
 
     if domain_type not in f.keys():
-        py_printf('ERROR', 'Unable to materialize file "%s" since it does ' +
+        py_printf('ERROR', 'Unable to load HDF5 file "%s" since it does '
                            'not contain domain type "%s"', filename, domain_type)
 
     if geometry and 'openmoc.Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to materialize file "%s"  with "%s" which '
-                           'is not an OpenMOC Geometry', filename, str(geometry))
+        py_printf('ERROR', 'Unable to load HDF5 file "%s" for "%s" which is not '
+                           'an OpenMOC Geometry', filename, str(type(geometry)))
 
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
@@ -182,6 +183,137 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             material.setDifCoef(sigma)
         if 'buckling' in domain_group:
             sigma = _get_numpy_array(domain_group, 'buckling', suffix)
+            material.setBuckling(sigma)
+
+    # Return collection of materials
+    return materials
+
+
+
+##
+# @brief This routine loads an OpenMC Library of multi-group cross section data.
+# @details The routine instantiates Material objects with multi-group cross
+#          section data and returns a dictionary of each Material object keyed
+#          by its ID. An OpenMOC Geometry may optionally be given and the
+#          routine will directly insert the multi-group cross sections into each
+#          Material in the Geometry. If a Geometry is passed in, Material
+#          objects from the Geometry will be used in place of those instantiated
+#          by this routine.
+# @param mgxs_lib an openmc.mgxs.Library object with cross section data
+# @param geometry an optional geometry populated with materials, cells, etc.
+# @return a dictionary of Material objects keyed by ID
+def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
+
+    # Attempt to import openmc
+    try:
+        import openmc
+    except ImportError:
+        py_printf('ERROR', 'The OpenMC code must be installed on your system')
+
+    if not isinstance(mgxs_lib, openmc.mgxs.Library):
+        py_printf('ERROR', 'Unable to load cross sections from %s which is not '
+                           'an openmc.mgxs.Library object', str(type(mgxs_lib)))
+
+    if geometry and 'openmoc.Geometry' not in str(type(geometry)):
+        py_printf('ERROR', 'Unable to load cross sections for "%s" which '
+                           'is not an OpenMOC Geometry', str(type(geometry)))
+
+    # Instantiate dictionary to hold Materials to return to user
+    materials = {}
+    num_groups = mgxs_lib.num_groups
+    domain_type = mgxs_lib.domain_type
+
+    # If a Geometry was passed in, extract all cells or materials from it
+    if geometry:
+        if domain_type == 'material':
+            domains = geometry.getAllMaterials()
+        elif domain_type == 'cell':
+            domains = geometry.getAllMaterialCells()
+        else:
+            py_printf('ERROR', 'Unable to load a cross sections library with '
+                               'domain type %s', mgxs_lib.domain_type)
+
+    # Iterate over all domains (e.g., materials or cells) in the HDF5 file
+    for domain in mgxs_lib.domains:
+
+        py_printf('INFO', 'Importing cross sections for %s "%d"',
+                          domain_type, domain.id)
+
+        # If using an OpenMOC Geometry, extract a Material from it
+        if geometry:
+            if domain_type == 'material':
+                material = _get_domain(domains, domain.id)
+            elif domain_type == 'cell':
+                material = _get_domain(domains, domain.id).getFillMaterial()
+
+        # If not Geometry, instantiate a new Material with the ID/name
+        else:
+            material = openmoc.Material(id=domain.id)
+
+        # Add material to the collection
+        materials[domain.id] = material
+        material.setNumEnergyGroups(num_groups)
+
+        # Search for the total/transport cross section
+        if 'transport' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'transport')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaT(sigma)
+        elif 'total' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'total')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaT(sigma)
+        else:
+            py_printf('WARNING', 'No "total" or "transport" MGXS found for'
+                                 '"%s %d"', domain_type, domain.id)
+
+        # Search for the fission production cross section
+        if 'nu-fission' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'nu-fission')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setNuSigmaF(sigma)
+        else:
+            py_printf('WARNING', 'No "nu-fission" MGXS found for'
+                                 '"%s %d"', domain_type, domain.id)
+
+        # Search for the scattering matrix cross section
+        if 'nu-scatter matrix' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'nu-scatter matrix')
+            sigma = mgxs.get_xs(nuclides='sum').flatten()
+            material.setSigmaS(sigma)
+        elif 'scatter matrix' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix').flatten()
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaS(sigma)
+        else:
+            py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '
+                                 'found for "%s %d"', domain_type, domain.id)
+
+        # Search for chi (fission spectrum)
+        if 'chi' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'chi')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setChi(sigma)
+        else:
+            py_printf('WARNING', 'No "chi" MGXS found for "%s %d"',
+                                 domain_type, domain.id)
+
+        # Search for optional cross sections
+        if 'absorption' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'absorption')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaA(sigma)
+        if 'fission' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'fission')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaF(sigma)
+        if 'diffusion' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'diffusion')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setDifCoef(sigma)
+        if 'buckling' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'buckling')
+            sigma = mgxs.get_xs(nuclides='sum')
             material.setBuckling(sigma)
 
     # Return collection of materials
