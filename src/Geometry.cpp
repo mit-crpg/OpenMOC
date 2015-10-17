@@ -64,20 +64,29 @@ Geometry::~Geometry() {
 
 
 /**
- * @brief Returns the total height (y extent) of the Geometry in cm.
- * @return the total height of the Geometry (cm)
+ * @brief Returns the total width in the x-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the x-direction (cm)
  */
-double Geometry::getHeight() {
+double Geometry::getWidthX() {
+  return (getMaxX() - getMinX());
+}
+
+
+/**
+ * @brief Returns the total width in the y-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the y-direction (cm)
+ */
+double Geometry::getWidthY() {
   return (getMaxY() - getMinY());
 }
 
 
 /**
- * @brief Returns the total width (x extent) of the Geometry in cm.
- * @return the total width of the Geometry (cm)
+ * @brief Returns the total width in the z-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the z-direction (cm)
  */
-double Geometry::getWidth() {
-  return (getMaxX() - getMinX());
+double Geometry::getWidthZ() {
+  return (getMaxZ() - getMinZ());
 }
 
 
@@ -172,26 +181,6 @@ boundaryType Geometry::getMinYBoundaryType() {
  */
 boundaryType Geometry::getMaxYBoundaryType() {
   return _root_universe->getMaxYBoundaryType();
-}
-
-
-/**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        minimum z-coordinate in the Geometry.
- * @return the boundary conditions for the minimum z-coordinate in the Geometry
- */
-boundaryType Geometry::getMinZBoundaryType() {
-  return _root_universe->getMinZBoundaryType();
-}
-
-
-/**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        maximum z-coordinate in the Geometry.
- * @return the boundary conditions for the maximum z-coordinate in the Geometry
- */
-boundaryType Geometry::getMaxZBoundaryType() {
-  return _root_universe->getMaxZBoundaryType();
 }
 
 
@@ -591,7 +580,8 @@ int Geometry::findFSRId(LocalCoords* coords) {
       _FSR_keys_map.at(fsr_key) = fsr;
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(), 
-                       coords->getHighestLevel()->getY());
+                       coords->getHighestLevel()->getY(),
+                       coords->getHighestLevel()->getZ());
       
       /* Get the cell that contains coords */
       Cell* cell = findCellContainingCoords(curr);
@@ -725,6 +715,9 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << curr_level_key.str() << ", ";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeY();
+      key << curr_level_key.str() << ", ";
+      curr_level_key.str(std::string());
+      curr_level_key << curr->getLatticeZ();
       key << curr_level_key.str() << ") : ";
     }
     else {
@@ -808,6 +801,7 @@ void Geometry::segmentize(Track* track) {
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
+  double z0 = track->getStart()->getZ();
   double phi = track->getPhi();
   double delta_x, delta_y;
 
@@ -818,8 +812,8 @@ void Geometry::segmentize(Track* track) {
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0);
-  LocalCoords end(x0, y0);
+  LocalCoords start(x0, y0, z0);
+  LocalCoords end(x0, y0, z0);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
 
@@ -1069,8 +1063,8 @@ void Geometry::initializeCmfd() {
   _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidth(getWidth());
-  _cmfd->setHeight(getHeight());
+  _cmfd->setWidthX(getWidthX());
+  _cmfd->setWidthY(getWidthY());
   _cmfd->setNumMOCGroups(getNumEnergyGroups());
 
   /* If user did not set CMFD group structure, create CMFD group
@@ -1084,8 +1078,8 @@ void Geometry::initializeCmfd() {
 
   /* Initialize the CMFD lattice */
   Point offset;
-  double offset_x = getMinX() + getWidth()/2.0;
-  double offset_y = getMinY() + getHeight()/2.0;
+  double offset_x = getMinX() + getWidthX()/2.0;
+  double offset_y = getMinY() + getWidthY()/2.0;
   offset.setX(offset_x);
   offset.setY(offset_y);
   _cmfd->initializeLattice(&offset);
@@ -1109,6 +1103,7 @@ std::vector<std::string>* Geometry::getFSRsToKeys() {
   return &_FSRs_to_keys;
 }
 
+
 /**
  * @brief Return a vector indexed by flat source region IDs which contain
  *        the corresponding Material IDs.
@@ -1121,6 +1116,7 @@ std::vector<int>* Geometry::getFSRsToMaterialIDs() {
 
   return &_FSRs_to_material_IDs;
 }
+
 
 /**
  * @brief Sets the _FSR_keys_map map
@@ -1136,6 +1132,7 @@ void Geometry::setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>*
                              FSR_keys_map) {
   _FSR_keys_map = *FSR_keys_map;
 }
+
 
 /**
  * @brief Sets the _FSRs_to_keys vector
@@ -1164,12 +1161,15 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 
   double x = coords->getX();
   double y = coords->getY();
-
-  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY())
+  double z = coords->getZ();
+  
+  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY()
+      || z < getMinZ() || z > getMaxZ())
     return false;
   else
     return true;
 }
+
 
 /**
  * @brief Sets the centroid for an FSR
@@ -1181,7 +1181,7 @@ bool Geometry::withinBounds(LocalCoords* coords) {
  *          to set the centroid after segments have been created. It is
  *          important to note that this method is a helper function for the
  *          TrackGenerator and should not be explicitly called by the user.
- * @param fsr a FSR id
+ * @param fsr a FSR ID
  * @param centroid a Point representing the FSR centroid
  */
 void Geometry::setFSRCentroid(int fsr, Point* centroid) {
@@ -1189,10 +1189,15 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
 }
 
 
+/**
+ * @brief Finds the Cell containing a given fsr ID.
+ * @param fsr_id an FSR ID.
+ */
 Cell* Geometry::findCellContainingFSR(int fsr_id) {
 
   Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
-  LocalCoords* coords = new LocalCoords(point->getX(), point->getY());
+  LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
+                                        point->getZ());
   coords->setUniverse(_root_universe);
   Cell* cell = findCellContainingCoords(coords);
 

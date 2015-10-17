@@ -17,6 +17,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
+  _z_coord = 0.0;
 }
 
 
@@ -420,7 +421,7 @@ bool TrackGenerator::containsTracks() {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -429,19 +430,22 @@ bool TrackGenerator::containsTracks() {
  *
  * @code
  *          num_tracks = track_generator.getNumTracks()
- *          coords = track_generator.retrieveTrackCoords(num_tracks*4)
+ *          coords = track_generator.retrieveTrackCoords
+ *                     (num_tracks*NUM_VALUES_PER_RETRIEVED_TRACK)
  * @endcode
  *
- * @param coords an array of coords of length 4 times the number of Tracks
- * @param num_tracks the total number of Tracks
+ * @param coords an array of coords of length NUM_VALUES_PER_RETRIEVED_TRACK
+ *        times the number of Tracks
+ * @param length_coords the total number of Tracks times
+ *                      NUM_VALUES_PER_RETRIEVED_TRACK
  */
-void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
+void TrackGenerator::retrieveTrackCoords(double* coords, int length_coords) {
 
-  if (num_tracks != 4*getNumTracks())
+  if (length_coords != NUM_VALUES_PER_RETRIEVED_TRACK*getNumTracks())
     log_printf(ERROR, "Unable to retrieve the Track coordinates since the "
-               "TrackGenerator contains %d Tracks with %d coordinates but an "
-               "array of length %d was input",
-               getNumTracks(), 4*getNumTracks(), num_tracks);
+               "TrackGenerator contains %d Tracks with %d coordinates per track"
+               " but an array of length %d was input", getNumTracks(),
+               NUM_VALUES_PER_RETRIEVED_TRACK, length_coords);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -449,9 +453,11 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
     for (int j=0; j < _num_tracks[i]; j++) {
       coords[counter] = _tracks[i][j].getStart()->getX();
       coords[counter+1] = _tracks[i][j].getStart()->getY();
-      coords[counter+2] = _tracks[i][j].getEnd()->getX();
-      coords[counter+3] = _tracks[i][j].getEnd()->getY();
-      counter += 4;
+      coords[counter+2] = _tracks[i][j].getStart()->getZ();
+      coords[counter+3] = _tracks[i][j].getEnd()->getX();
+      coords[counter+4] = _tracks[i][j].getEnd()->getY();
+      coords[counter+5] = _tracks[i][j].getEnd()->getZ();
+      counter += NUM_VALUES_PER_RETRIEVED_TRACK;
     }
   }
 
@@ -460,7 +466,7 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @brief Fills an array with the x,y,z coordinates for each Track segment.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          segments. Although this method appears to require two arguments,
@@ -469,22 +475,25 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
  *
  * @code
  *          num_segments = track_generator.getNumSegments()
- *          coords = track_generator.retrieveSegmentCoords(num_segments*5)
+ *          coords = track_generator.retrieveSegmentCoords
+ *                     (num_segments*NUM_VALUES_PER_RETRIEVED_SEGMENT)
  * @endcode
  *
- * @param coords an array of coords of length 5 times the number of segments
- * @param num_segments the total number of Track segments
+ * @param coords an array of coords of length NUM_VALUES_PER_RETRIEVED_SEGMENT
+ *               times the number of segments
+ * @param length_coords the total number of Track segments times
+ *                      NUM_VALUES_PER_RETRIEVED_SEGMENT
  */
-void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
+void TrackGenerator::retrieveSegmentCoords(double* coords, int length_coords) {
 
-  if (num_segments != 5*getNumSegments())
+  if (length_coords != NUM_VALUES_PER_RETRIEVED_SEGMENT*getNumSegments())
     log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
-               "the TrackGenerator contains %d segments with %d coordinates "
-               "but an array of length %d was input",
-               getNumSegments(), 5*getNumSegments(), num_segments);
+               "the TrackGenerator contains %d segments with %d values per "
+               "segment but an array of length %d was input", getNumSegments(),
+               NUM_VALUES_PER_RETRIEVED_SEGMENT, length_coords);
 
   segment* curr_segment = NULL;
-  double x0, x1, y0, y1;
+  double x0, x1, y0, y1, z;
   double phi;
   segment* segments;
 
@@ -497,6 +506,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
 
       x0 = _tracks[i][j].getStart()->getX();
       y0 = _tracks[i][j].getStart()->getY();
+      z = _tracks[i][j].getStart()->getZ();
       phi = _tracks[i][j].getPhi();
 
       segments = _tracks[i][j].getSegments();
@@ -508,17 +518,19 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
 
         coords[counter+1] = x0;
         coords[counter+2] = y0;
+        coords[counter+3] = z;
 
         x1 = x0 + cos(phi) * curr_segment->_length;
         y1 = y0 + sin(phi) * curr_segment->_length;
-
-        coords[counter+3] = x1;
-        coords[counter+4] = y1;
-
+        
+        coords[counter+4] = x1;
+        coords[counter+5] = y1;
+        coords[counter+6] = z;
+        
         x0 = x1;
         y0 = y1;
 
-        counter += 5;
+        counter += NUM_VALUES_PER_RETRIEVED_SEGMENT;
       }
     }
   }
@@ -576,13 +588,13 @@ void TrackGenerator::generateTracks() {
       log_printf(ERROR, "Unable to allocate memory for TrackGenerator");
     }
 
-    /* Check to make sure that height, width of the Geometry are nonzero */
-    if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0)
-      log_printf(ERROR, "The total height and width of the Geometry must be "
+    /* Check to make sure that width of the Geometry in x and y are nonzero */
+    if (_geometry->getWidthX() <= 0 || _geometry->getWidthY() <= 0)
+      log_printf(ERROR, "The total x-width and y-width of the Geometry must be "
                  "non-zero for Track generation. Create a Cell which "
                  "is filled by the entire geometry and bounded by XPlanes "
                  "and YPlanes to enable the Geometry to determine the total "
-                 "width and height of the model.");
+                 "x-width and y-width of the model.");
 
     /* Generate Tracks, perform ray tracing across the geometry, and store
      * the data to a Track file */
@@ -632,15 +644,17 @@ void TrackGenerator::initializeTrackFileDirectory() {
   if (_geometry->getCmfd() != NULL) {
     test_filename << directory.str() << "/"
                   << _num_azim*2.0 << "_angles_"
-                  << _spacing << "_cm_spacing_cmfd_"
-                  << _geometry->getCmfd()->getNumX() 
+                  << _spacing << "_cm_spacing_z_"
+                  << _z_coord << "_("
+                  << _geometry->getCmfd()->getNumX()
                   << "x" << _geometry->getCmfd()->getNumY()
-                  << ".data";
+                  << ")_cmfd.data";
     }
   else{
     test_filename << directory.str() << "/"
                   << _num_azim*2.0 << "_angles_"
-                  << _spacing << "_cm_spacing.data";
+                  << _spacing << "_cm_spacing_z_"
+                  << _z_coord << ".data";
   }
 
   _tracks_filename = test_filename.str();
@@ -678,8 +692,8 @@ void TrackGenerator::initializeTracks() {
 
   double x1, x2;
   double iazim = _num_azim*2.0;
-  double width = _geometry->getWidth();
-  double height = _geometry->getHeight();
+  double width_x = _geometry->getWidthX();
+  double width_y = _geometry->getWidthY();
 
   /* Determine azimuthal angles and track spacing */
   for (int i = 0; i < _num_azim; i++) {
@@ -689,22 +703,22 @@ void TrackGenerator::initializeTracks() {
     double phi = 2.0 * M_PI / iazim * (0.5 + i);
 
     /* The number of intersections with x,y-axes */
-    _num_x[i] = (int) (fabs(width / _spacing * sin(phi))) + 1;
-    _num_y[i] = (int) (fabs(height / _spacing * cos(phi))) + 1;
+    _num_x[i] = (int) (fabs(width_x / _spacing * sin(phi))) + 1;
+    _num_y[i] = (int) (fabs(width_y / _spacing * cos(phi))) + 1;
 
     /* Total number of Tracks */
     _num_tracks[i] = _num_x[i] + _num_y[i];
 
     /* Effective/actual angle (not the angle we desire, but close) */
-    phi_eff[i] = atan((height * _num_x[i]) / (width * _num_y[i]));
+    phi_eff[i] = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
 
     /* Fix angles in range(pi/2, pi) */
     if (phi > M_PI / 2)
       phi_eff[i] = M_PI - phi_eff[i];
 
     /* Effective Track spacing (not spacing we desire, but close) */
-    dx_eff[i] = (width / _num_x[i]);
-    dy_eff[i] = (height / _num_y[i]);
+    dx_eff[i] = (width_x / _num_x[i]);
+    dy_eff[i] = (width_y / _num_y[i]);
     d_eff[i] = (dx_eff[i] * sin(phi_eff[i]));
   }
 
@@ -736,10 +750,10 @@ void TrackGenerator::initializeTracks() {
     /* Compute start points for Tracks starting on x-axis */
     for (int j = 0; j < _num_x[i]; j++) {
       if (i < _num_azim / 2)
-        _tracks[i][j].getStart()->setCoords
-          (dx_eff[i] * (_num_x[i] - j - 0.5), 0);
+        _tracks[i][j].getStart()->setCoords(
+            dx_eff[i] * (_num_x[i] - j - 0.5), 0, _z_coord);
       else
-        _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5 + j), 0);
+        _tracks[i][j].getStart()->setCoords(dx_eff[i] * (0.5 + j), 0, _z_coord);
     }
 
     /* Compute start points for Tracks starting on y-axis */
@@ -747,13 +761,13 @@ void TrackGenerator::initializeTracks() {
 
       /* If Track points to the upper right */
       if (i < _num_azim / 2)
-        _tracks[i][_num_x[i]+j].getStart()->setCoords(0,
-                                     dy_eff[i] * (0.5 + j));
+        _tracks[i][_num_x[i]+j].getStart()->setCoords(
+            0, dy_eff[i] * (0.5 + j), _z_coord);
 
       /* If Track points to the upper left */
       else
-        _tracks[i][_num_x[i]+j].getStart()->setCoords(width,
-                                     dy_eff[i] * (0.5 + j));
+        _tracks[i][_num_x[i]+j].getStart()->setCoords(
+            width_x, dy_eff[i] * (0.5 + j), _z_coord);
     }
 
     /* Compute the exit points for each Track */
@@ -762,7 +776,7 @@ void TrackGenerator::initializeTracks() {
       /* Set the Track's end point */
       Point* start = _tracks[i][j].getStart();
       Point* end = _tracks[i][j].getEnd();
-      computeEndPoint(start, end, phi_eff[i], width, height);
+      computeEndPoint(start, end, phi_eff[i], width_x, width_y);
 
       /* Set the Track's azimuthal angle */
       _tracks[i][j].setPhi(phi_eff[i]);
@@ -799,7 +813,11 @@ void TrackGenerator::recalibrateTracksToOrigin() {
       double new_y1 = y1 + _geometry->getMinY();
       double phi = _tracks[a][i].getPhi();
 
-      _tracks[a][i].setValues(new_x0, new_y0, new_x1,new_y1, phi);
+      /* The z-coordinates don't need to be recalibrated to the origin. */
+      double z0 = _tracks[a][i].getStart()->getZ();
+      double z1 = _tracks[a][i].getEnd()->getZ();
+      
+      _tracks[a][i].setValues(new_x0, new_y0, z0, new_x1, new_y1, z1, phi);
       _tracks[a][i].setAzimAngleIndex(a);
     }
   }
@@ -1036,25 +1054,26 @@ void TrackGenerator::initializeTrackUids() {
  * @param start pointer to the Track start Point
  * @param end pointer to a Point to store the end Point coordinates
  * @param phi the azimuthal angle
- * @param width the width of the Geometry (cm)
- * @param height the height of the Geometry (cm)
+ * @param width_x the x-width of the Geometry (cm)
+ * @param width_y the y-width of the Geometry (cm)
  */
 void TrackGenerator::computeEndPoint(Point* start, Point* end,
-                                     const double phi, const double width,
-                                     const double height) {
+                                     const double phi, const double width_x,
+                                     const double width_y) {
 
   double m = sin(phi) / cos(phi);             /* slope */
-  double yin = start->getY();                 /* y-coord */
   double xin = start->getX();                 /* x-coord */
-
+  double yin = start->getY();                 /* y-coord */
+  double zin = start->getZ();                 /* z-coord */
+  
   /* Allocate memory for the possible intersection points */
   Point *points = new Point[4];
 
   /* Determine all possible Points */
-  points[0].setCoords(0, yin - m * xin);
-  points[1].setCoords(width, yin + m * (width - xin));
-  points[2].setCoords(xin - yin / m, 0);
-  points[3].setCoords(xin - (yin - height) / m, height);
+  points[0].setCoords(0, yin - m * xin, zin);
+  points[1].setCoords(width_x, yin + m * (width_x - xin), zin);
+  points[2].setCoords(xin - yin / m, 0, zin);
+  points[3].setCoords(xin - (yin - width_y) / m, width_y, zin);
 
   /* For each of the possible intersection Points */
   for (int i = 0; i < 4; i++) {
@@ -1062,9 +1081,9 @@ void TrackGenerator::computeEndPoint(Point* start, Point* end,
     if (points[i].getX() == xin && points[i].getY() == yin) { }
 
     /* The Point to return will be within the bounds of the cell */
-    else if (points[i].getX() >= 0 && points[i].getX() <= width
-             && points[i].getY() >= 0 && points[i].getY() <= height) {
-      end->setCoords(points[i].getX(), points[i].getY());
+    else if (points[i].getX() >= 0 && points[i].getX() <= width_x
+             && points[i].getY() >= 0 && points[i].getY() <= width_y) {
+      end->setCoords(points[i].getX(), points[i].getY(), zin);
     }
   }
 
@@ -1201,8 +1220,9 @@ void TrackGenerator::segmentize() {
       }
     }
   }
-  _geometry->initializeFSRVectors();
 
+  _geometry->initializeFSRVectors();
+  
   _contains_tracks = true;
 
   return;
@@ -1250,7 +1270,7 @@ void TrackGenerator::dumpTracksToFile() {
   delete [] azim_weights;
 
   Track* curr_track;
-  double x0, y0, x1, y1;
+  double x0, y0, z0, x1, y1, z1;
   double phi;
   int azim_angle_index;
   int num_segments;
@@ -1274,8 +1294,10 @@ void TrackGenerator::dumpTracksToFile() {
       curr_track = &_tracks[i][j];
       x0 = curr_track->getStart()->getX();
       y0 = curr_track->getStart()->getY();
+      z0 = curr_track->getStart()->getZ();
       x1 = curr_track->getEnd()->getX();
       y1 = curr_track->getEnd()->getY();
+      z1 = curr_track->getEnd()->getZ();
       phi = curr_track->getPhi();
       azim_angle_index = curr_track->getAzimAngleIndex();
       num_segments = curr_track->getNumSegments();
@@ -1283,8 +1305,10 @@ void TrackGenerator::dumpTracksToFile() {
       /* Write data for this Track to the Track file */
       fwrite(&x0, sizeof(double), 1, out);
       fwrite(&y0, sizeof(double), 1, out);
+      fwrite(&z0, sizeof(double), 1, out);
       fwrite(&x1, sizeof(double), 1, out);
       fwrite(&y1, sizeof(double), 1, out);
+      fwrite(&z1, sizeof(double), 1, out);
       fwrite(&phi, sizeof(double), 1, out);
       fwrite(&azim_angle_index, sizeof(int), 1, out);
       fwrite(&num_segments, sizeof(int), 1, out);
@@ -1326,7 +1350,7 @@ void TrackGenerator::dumpTracksToFile() {
   std::string fsr_key;
   int fsr_id;
   int fsr_counter = 0;
-  double x, y;
+  double x, y, z;
 
   /* Write number of FSRs */
   int num_FSRs = _geometry->getNumFSRs();
@@ -1347,9 +1371,11 @@ void TrackGenerator::dumpTracksToFile() {
     fsr_id = fsr_data_list[i]->_fsr_id;
     x = fsr_data_list[i]->_point->getX();
     y = fsr_data_list[i]->_point->getY();
+    z = fsr_data_list[i]->_point->getZ();
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
     fwrite(&y, sizeof(double), 1, out);
+    fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_material_IDs */
     fwrite(&(FSRs_to_material_IDs->at(fsr_counter)), sizeof(int), 1, out);
@@ -1377,8 +1403,8 @@ void TrackGenerator::dumpTracksToFile() {
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
       /* Loop over FSRs within cell */
-      for (iter = cell_fsrs->at(cell).begin(); iter != cell_fsrs->at(cell).end();
-          ++iter)
+      for (iter = cell_fsrs->at(cell).begin();
+           iter != cell_fsrs->at(cell).end(); ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
     }
   }
@@ -1464,7 +1490,7 @@ bool TrackGenerator::readTracksFromFile() {
   delete [] azim_weights;
   
   Track* curr_track;
-  double x0, y0, x1, y1;
+  double x0, y0, z0, x1, y1, z1;
   double phi;
   int azim_angle_index;
   int num_segments;
@@ -1492,15 +1518,17 @@ bool TrackGenerator::readTracksFromFile() {
       /* Import data for this Track from Track file */
       ret = fread(&x0, sizeof(double), 1, in);
       ret = fread(&y0, sizeof(double), 1, in);
+      ret = fread(&z0, sizeof(double), 1, in);
       ret = fread(&x1, sizeof(double), 1, in);
       ret = fread(&y1, sizeof(double), 1, in);
+      ret = fread(&z1, sizeof(double), 1, in);
       ret = fread(&phi, sizeof(double), 1, in);
       ret = fread(&azim_angle_index, sizeof(int), 1, in);
       ret = fread(&num_segments, sizeof(int), 1, in);
 
       /* Initialize a Track with this data */
       curr_track = &_tracks[i][j];
-      curr_track->setValues(x0, y0, x1, y1, phi);
+      curr_track->setValues(x0, y0, z0, x1, y1, z1, phi);
       curr_track->setAzimAngleIndex(azim_angle_index);
 
       /* Loop over all segments in this Track */
@@ -1544,7 +1572,7 @@ bool TrackGenerator::readTracksFromFile() {
   int num_FSRs;
   std::string fsr_key;
   int fsr_key_id;
-  double x, y;
+  double x, y, z;
 
   /* Get number of FSRs */
   ret = fread(&num_FSRs, sizeof(int), 1, in);
@@ -1562,10 +1590,11 @@ bool TrackGenerator::readTracksFromFile() {
     ret = fread(&fsr_key_id, sizeof(int), 1, in);
     ret = fread(&x, sizeof(double), 1, in);
     ret = fread(&y, sizeof(double), 1, in);
+    ret = fread(&z, sizeof(double), 1, in);
     fsr_data* fsr = new fsr_data;
     fsr->_fsr_id = fsr_key_id;
     Point* point = new Point();
-    point->setCoords(x,y);
+    point->setCoords(x,y,z);
     fsr->_point = point;
     FSR_keys_map->insert(fsr_key, fsr);
 
@@ -1652,7 +1681,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
     volume = 0;
 
     /* Compute effective track spacing for this azimuthal angle */
-    dx_eff = (_geometry->getWidth() / _num_x[i]);
+    dx_eff = (_geometry->getWidthX() / _num_x[i]);
     d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
 
     /* Compute the current estimated volume of the FSR for this angle */
@@ -1709,7 +1738,7 @@ void TrackGenerator::generateFSRCentroids() {
   Point** centroids = new Point*[num_FSRs];
   for (int r=0; r < num_FSRs; r++) {
     centroids[r] = new Point();
-    centroids[r]->setCoords(0.0, 0.0);
+    centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
 
   /* Generate the fsr centroids */
@@ -1720,6 +1749,7 @@ void TrackGenerator::generateFSRCentroids() {
       segment* segments = _tracks[i][j].getSegments();
       double x = _tracks[i][j].getStart()->getX();
       double y = _tracks[i][j].getStart()->getY();
+      double z = _tracks[i][j].getStart()->getZ();
       double phi = _tracks[i][j].getPhi();
 
       for (int s=0; s < num_segments; s++) {
@@ -1732,7 +1762,8 @@ void TrackGenerator::generateFSRCentroids() {
         centroids[fsr]->setY(centroids[fsr]->getY() + _azim_weights[i] *
                              (y + sin(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
-
+        centroids[fsr]->setZ(z);
+        
         x += cos(phi) * curr_segment->_length;
         y += sin(phi) * curr_segment->_length;
       }
@@ -1827,4 +1858,22 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
       }
     }
   }
+}
+
+
+/**
+ * @brief Sets the z-coord where the 2D Tracks should be created.
+ * @param z_coord the z-coord where the 2D Tracks should be created.
+ */
+void TrackGenerator::setZCoord(double z_coord) {
+  _z_coord = z_coord;
+}
+
+
+/**
+ * @brief Returns the z-coord where the 2D Tracks should be created.
+ * @return the z-coord where the 2D Tracks should be created.
+ */
+double TrackGenerator::getZCoord() {
+  return _z_coord;
 }

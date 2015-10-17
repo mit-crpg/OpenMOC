@@ -37,11 +37,11 @@ void reset_surf_id();
  * @brief The types of surfaces supported by OpenMOC.
  */
 enum surfaceType {
-  /** A general plane perpendicular to the 2D xy plane */
+  /** A general plane */
   PLANE,
 
-  /** A circle with axis parallel to the z-axis */
-  CIRCLE,
+  /** A cylinder with axis parallel to the z-axis */
+  ZCYLINDER,
 
   /** A plane perpendicular to the x-axis */
   XPLANE,
@@ -60,7 +60,7 @@ enum surfaceType {
 
 /**
  * @class Surface Surface.h "src/Surface.h"
- * @brief Represents a general Surface in the 2D xy-plane
+ * @brief Represents a general Surface in 3D.
  * @details The Surface class and its subclasses are used to define the
  *          geometry for an OpenMOC simulation using a constructive solid
  *          geometry (CSG) formalism. Surfaces are used during ray tracing
@@ -82,7 +82,7 @@ protected:
   /** A user-defined name for the Surface */
   char* _name;
 
-  /** The type of Surface (ie, XPLANE, CIRCLE, etc) */
+  /** The type of Surface (ie, XPLANE, ZCYLINDER, etc) */
   surfaceType _surface_type;
 
   /** The type of boundary condition to be used for this Surface
@@ -197,18 +197,21 @@ protected:
   /** The coefficient for the linear term in y */
   double _B;
 
-  /** The constant offset */
+  /** The coefficient for the linear term in z */
   double _C;
+
+  /** The constant offset */
+  double _D;
 
   /** The Plane is a friend of class Surface */
   friend class Surface;
 
-  /** The Plane is a friend of class Circle */
-  friend class Circle;
+  /** The Plane is a friend of class Zcylinder */
+  friend class ZCylinder;
 
 public:
 
-  Plane(const double A, const double B, const double C,
+  Plane(const double A, const double B, const double C, const double D,
         const int id=0, const char* name="");
 
   double getMinX(int halfspace);
@@ -220,6 +223,7 @@ public:
   double getA();
   double getB();
   double getC();
+  double getD();
 
   double evaluate(const Point* point) const;
   int intersection(Point* point, double angle, Point* points);
@@ -301,17 +305,17 @@ public:
 
 
 /**
- * @class Circle Surface.h "src/Surface.h"
- * @brief Represents a Circle in the xy-plane.
+ * @class ZCylinder Surface.h "src/Surface.h"
+ * @brief Represents a Cylinder with axis parallel to the z-axis.
  */
-class Circle: public Surface {
+class ZCylinder: public Surface {
 
 private:
 
-  /** A 2D point for the Circle's center */
+  /** A point for the ZCylinder's center */
   Point _center;
 
-  /** The Circle's radius */
+  /** The ZCylinder's radius */
   double _radius;
 
   /** The coefficient of the x-squared term */
@@ -329,15 +333,15 @@ private:
   /** The constant offset */
   double _E;
 
-  /** The Circle is a friend of the Surface class */
+  /** The ZCylinder is a friend of the Surface class */
   friend class Surface;
 
-  /** The Circle is a friend of the Plane class */
+  /** The ZCylinder is a friend of the Plane class */
   friend class Plane;
 
 public:
-  Circle(const double x, const double y, const double radius,
-         const int id=0, const char* name="");
+  ZCylinder(const double x, const double y, const double radius,
+            const int id=0, const char* name="");
 
   double getX0();
   double getY0();
@@ -402,27 +406,27 @@ inline double Surface::getMinDistance(Point* point, double angle) {
 inline double Plane::evaluate(const Point* point) const {
   double x = point->getX();
   double y = point->getY();
+  double z = point->getZ();
 
-  //TODO: does not support ZPlanes
-  return (_A * x + _B * y + _C);
+  return (_A * x + _B * y + _C * z + _D);
 }
 
 
 /**
- * @brief Return the radius of the Circle.
- * @return the radius of the Circle
+ * @brief Return the radius of the ZCylinder.
+ * @return the radius of the ZCylinder
  */
-inline double Circle::getRadius() {
+inline double ZCylinder::getRadius() {
   return this->_radius;
 }
 
 
 /**
- * @brief Evaluate a Point using the Circle's quadratic Surface equation.
+ * @brief Evaluate a Point using the ZCylinder's quadratic Surface equation.
  * @param point a pointer to the Point of interest
  * @return the value of Point in the equation
  */
-inline double Circle::evaluate(const Point* point) const {
+inline double ZCylinder::evaluate(const Point* point) const {
   double x = point->getX();
   double y = point->getY();
   return (_A * x * x + _B * y * y + _C * x + _D * y + _E);

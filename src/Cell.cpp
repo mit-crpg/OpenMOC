@@ -64,6 +64,12 @@ Cell::Cell(int id, const char* name) {
   _max_y = std::numeric_limits<double>::infinity();
   _min_z = -std::numeric_limits<double>::infinity();
   _max_z = std::numeric_limits<double>::infinity();
+
+  /* Set the default boundaries to be REFLECTIVE */
+  _min_x_bc = REFLECTIVE;
+  _max_x_bc = REFLECTIVE;
+  _min_y_bc = REFLECTIVE;
+  _max_y_bc = REFLECTIVE;
 }
 
 
@@ -261,28 +267,6 @@ boundaryType Cell::getMinYBoundaryType() {
 boundaryType Cell::getMaxYBoundaryType() {
   findBoundingBox();
   return _max_y_bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable z-coordinate in the Cell.
- * @return the boundary condition at the minimum z-coordinate
- */
-boundaryType Cell::getMinZBoundaryType() {
-  findBoundingBox();
-  return _min_z_bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable z-coordinate in the Cell.
- * @return the boundary condition at the maximum z-coordinate
- */
-boundaryType Cell::getMaxZBoundaryType() {
-  findBoundingBox();
-  return _max_z_bc;
 }
 
 
@@ -520,7 +504,6 @@ void Cell::findBoundingBox() {
     }
     if (max_z != std::numeric_limits<double>::infinity() && max_z < _max_z) {
       _max_z = max_z;
-      _max_z_bc = surface->getBoundaryType();
     }
 
     if (min_x != -std::numeric_limits<double>::infinity() && min_x > _min_x) {
@@ -533,7 +516,6 @@ void Cell::findBoundingBox() {
     }
     if (min_z != -std::numeric_limits<double>::infinity() && min_z > _min_z) {
       _min_z = min_z;
-      _min_z_bc = surface->getBoundaryType();
     }
   }
 
@@ -677,7 +659,7 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
     /* Instantiate the plane */
     A = cos(azim_angle);
     B = sin(azim_angle);
-    Plane* plane = new Plane(A, B, 0.);
+    Plane* plane = new Plane(A, B, 0., 0.);
     planes.push_back(plane);
 
     log_printf(DEBUG, "Created sector Plane id = %d, angle = %f, A = %f, "
@@ -722,9 +704,9 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   if (_num_rings == 0)
         return;
 
-  int num_circles = 0;
-  Circle* circle1 = NULL;
-  Circle* circle2 = NULL;
+  int num_zcylinders = 0;
+  ZCylinder* zcylinder1 = NULL;
+  ZCylinder* zcylinder2 = NULL;
   double radius1 = 0;
   double radius2 = 0;
   double x1 = 0.;
@@ -733,96 +715,96 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   double y2 = 0.;
   int halfspace1 = 0;
   int halfspace2 = 0;
-  std::vector<Circle*> circles;
+  std::vector<ZCylinder*> zcylinders;
   std::vector<Cell*> rings;
 
-  /* See if the Cell contains 1 or 2 CIRCLE Surfaces */
+  /* See if the Cell contains 1 or 2 ZCYLINDER Surfaces */
   std::map<int, surface_halfspace*>::iterator iter1;
   for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
-    /* Determine if any of the Surfaces is a Circle */
-    if (iter1->second->_surface->getSurfaceType() == CIRCLE) {
+    /* Determine if any of the Surfaces is a ZCylinder */
+    if (iter1->second->_surface->getSurfaceType() == ZCYLINDER) {
       int halfspace = iter1->second->_halfspace;
-      Circle* circle = static_cast<Circle*>(iter1->second->_surface);
+      ZCylinder* zcylinder = static_cast<ZCylinder*>(iter1->second->_surface);
 
-      /* Outermost bounding Circle */
+      /* Outermost bounding ZCylinder */
       if (halfspace == -1) {
         halfspace1 = halfspace;
-        circle1 = circle;
-        radius1 = circle1->getRadius();
-        x1 = circle1->getX0();
-        y1 = circle1->getY0();
+        zcylinder1 = zcylinder;
+        radius1 = zcylinder1->getRadius();
+        x1 = zcylinder1->getX0();
+        y1 = zcylinder1->getY0();
       }
 
-      /* Innermost bounding circle */
+      /* Innermost bounding zcylinder */
       else if (halfspace == +1) {
         halfspace2 = halfspace;
-        circle2 = circle;
-        radius2 = circle2->getRadius();
-        x2 = circle2->getX0();
-        y2 = circle2->getY0();
+        zcylinder2 = zcylinder;
+        radius2 = zcylinder2->getRadius();
+        x2 = zcylinder2->getX0();
+        y2 = zcylinder2->getY0();
       }
 
-      num_circles++;
+      num_zcylinders++;
     }
   }
 
   /* Error checking */
-  if (num_circles == 0)
+  if (num_zcylinders == 0)
     log_printf(ERROR, "Unable to ringify Cell %d since it does not "
-              "contain any CIRCLE type Surface(s)", _id);
+              "contain any ZCYLINDER type Surface(s)", _id);
 
-  if (num_circles > 2)
+  if (num_zcylinders > 2)
     log_printf(NORMAL, "Unable to ringify Cell %d since it "
-               "contains more than 2 CIRCLE Surfaces", _id);
+               "contains more than 2 ZCYLINDER Surfaces", _id);
 
-  if (x1 != x2 && num_circles == 2)
+  if (x1 != x2 && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
-               "Circle %d centered at x=%f and Circle %d at x=%f. "
-               "Both Circles must have the same center.",
-               _id, circle1->getId(), x1, circle2->getId(), x2);
+               "ZCylinder %d centered at x=%f and ZCylinder %d at x=%f. "
+               "Both ZCylinders must have the same center.",
+               _id, zcylinder1->getId(), x1, zcylinder2->getId(), x2);
 
-  if (y1 != y2 && num_circles == 2)
+  if (y1 != y2 && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
-               "Circle %d centered at y=%f and Circle %d at y=%f. "
-               "Both Circles must have the same center.",
-               _id, circle1->getId(), y1, circle2->getId(), y2);
+               "ZCylinder %d centered at y=%f and ZCylinder %d at y=%f. "
+               "Both ZCylinders must have the same center.",
+               _id, zcylinder1->getId(), y1, zcylinder2->getId(), y2);
 
-  if (circle1 == NULL && circle2 != NULL)
+  if (zcylinder1 == NULL && zcylinder2 != NULL)
     log_printf(ERROR, "Unable to ringify Cell %d since it only contains "
-               "the positive halfpsace of Circle %d. Rings can only be "
+               "the positive halfpsace of ZCylinder %d. Rings can only be "
                "created for Cells on the interior (negative halfspace) "
-               "of a CIRCLE Surface.", _id, circle2->getId());
+               "of a ZCYLINDER Surface.", _id, zcylinder2->getId());
 
   if (radius1 <= radius2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains 2 "
-               "disjoint CIRCLE Surfaces: halfspace %d for Circle %d "
-               "and halfspace %d for Circle %d. Switch the signs of "
+               "disjoint ZCYLINDER Surfaces: halfspace %d for ZCylinder %d "
+               "and halfspace %d for ZCylinder %d. Switch the signs of "
                "the 2 halfspaces for each Surface.", _id, halfspace1,
-               circle1->getId(), halfspace2, circle2->getId());
+               zcylinder1->getId(), halfspace2, zcylinder2->getId());
 
   /* Compute the area to fill with each equal volume ring */
   double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
 
-  /* Generate successively smaller Circle Surfaces */
+  /* Generate successively smaller ZCylinder Surfaces */
   for (int i=0; i < _num_rings-1; i++) {
     radius2 = sqrt(radius1*radius1 - (area / M_PI));
-    Circle* circle = new Circle(x1, y1, radius1);
-    circles.push_back(circle);
+    ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
+    zcylinders.push_back(zcylinder);
     radius1 = radius2;
   }
 
-  /* Store smallest, innermost Circle */
-  Circle* circle = new Circle(x1, y1, radius1);
-  circles.push_back(circle);
+  /* Store smallest, innermost ZCylinder */
+  ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
+  zcylinders.push_back(zcylinder);
 
-  /* Loop over Circles and create a new Cell clone for each ring */
-  std::vector<Circle*>::iterator iter2;
+  /* Loop over ZCylinders and create a new Cell clone for each ring */
+  std::vector<ZCylinder*>::iterator iter2;
   std::vector<Cell*>::iterator iter3;
 
-  for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
+  for (iter2 = zcylinders.begin(); iter2 != zcylinders.end(); ++iter2) {
 
-    /* Create Circles for each of the sectorized Cells */
+    /* Create ZCylinders for each of the sectorized Cells */
     if (subcells->size() != 0) {
       for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
         log_printf(DEBUG, "Creating a new ring in sector Cell %d",
@@ -833,11 +815,11 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
         ring->setNumSectors(0);
         ring->setNumRings(0);
 
-        /* Add new bounding Circle surfaces to the clone */
+        /* Add new bounding ZCylinder surfaces to the clone */
         ring->addSurface(-1, (*iter2));
 
-        /* Look ahead and check if we have an inner Circle to add */
-        if (iter2+1 == circles.end()) {
+        /* Look ahead and check if we have an inner ZCylinder to add */
+        if (iter2+1 == zcylinders.end()) {
           rings.push_back(ring);
           continue;
         }
@@ -849,7 +831,7 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
       }
     }
 
-    /* Create Circles for this un-sectorized Cell */
+    /* Create ZCylinders for this un-sectorized Cell */
     else {
       log_printf(DEBUG, "Creating new ring in un-sectorized Cell %d",_id);
 
@@ -858,11 +840,11 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
       ring->setNumSectors(0);
       ring->setNumRings(0);
 
-      /* Add new bounding Circle Surfaces to the clone */
+      /* Add new bounding ZCylinder Surfaces to the clone */
       ring->addSurface(-1, (*iter2));
 
-      /* Look ahead and check if we have an inner Circle to add */
-      if (iter2+1 == circles.end()) {
+      /* Look ahead and check if we have an inner ZCylinder to add */
+      if (iter2+1 == zcylinders.end()) {
         rings.push_back(ring);
         break;
       }

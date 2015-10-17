@@ -50,7 +50,7 @@ moderator.setChi(numpy.array([1.0]))
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = openmoc.Circle(x=0.0, y=0.0, radius=0.4)
+zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.4)
 left = openmoc.XPlane(x=-0.635)
 right = openmoc.XPlane(x=0.635)
 top = openmoc.YPlane(y=0.635)
@@ -70,11 +70,11 @@ openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
 fuel_cell = openmoc.Cell(name='fuel')
 fuel_cell.setFill(fuel)
-fuel_cell.addSurface(halfspace=-1, surface=circle)
+fuel_cell.addSurface(halfspace=-1, surface=zcylinder)
 
 moderator_cell = openmoc.Cell(name='moderator')
 moderator_cell.setFill(moderator)
-moderator_cell.addSurface(halfspace=+1, surface=circle)
+moderator_cell.addSurface(halfspace=+1, surface=zcylinder)
 moderator_cell.addSurface(halfspace=+1, surface=left)
 moderator_cell.addSurface(halfspace=-1, surface=right)
 moderator_cell.addSurface(halfspace=+1, surface=bottom)
