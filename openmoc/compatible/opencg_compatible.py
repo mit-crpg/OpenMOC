@@ -724,8 +724,8 @@ def get_openmoc_lattice(opencg_lattice):
 
   openmoc_lattice = openmoc.Lattice(lattice_id, name)
   openmoc_lattice.setWidth(width[0], width[1])
-  openmoc_lattice.setUniverses(universe_array.tolist())
-  openmoc_lattice.setOffset(offset[0], offset[1])
+  openmoc_lattice.setUniverses([universe_array.tolist()])
+  openmoc_lattice.setOffset(offset[0], offset[1], offset[2])
 
   # Add the OpenMOC Lattice to the global collection of all OpenMOC Lattices
   OPENMOC_LATTICES[lattice_id] = openmoc_lattice
