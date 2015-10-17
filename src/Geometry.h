@@ -76,21 +76,21 @@ class Geometry {
 
 private:
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _top_bc;
+  /** The boundary conditions at the x-min surface of the bounding box 
+   *  containing the Geometry. */
+  boundaryType _x_min_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _bottom_bc;
+  /** The boundary conditions at the y-min surface of the bounding box 
+   *  containing the Geometry. */
+  boundaryType _y_min_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _left_bc;
+  /** The boundary conditions at the x-max surface of the bounding box 
+   *  containing the Geometry. */
+  boundaryType _x_max_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _right_bc;
+  /** The boundary conditions at the y-max surface of the bounding box 
+   *  containing the Geometry. */
+  boundaryType _y_max_bc;
 
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
@@ -119,8 +119,9 @@ public:
   virtual ~Geometry();
 
   /* Get parameters */
-  double getWidth();
-  double getHeight();
+  double getWidthX();
+  double getWidthY();
+  double getWidthZ();
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -131,8 +132,6 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  boundaryType getMinZBoundaryType();
-  boundaryType getMaxZBoundaryType();
   Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();

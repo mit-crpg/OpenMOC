@@ -131,7 +131,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 
       # Get the linked list of LocalCoords
       point = geometry.getFSRPoint(fsr)
-      coords = openmoc.LocalCoords(point.getX(), point.getY())
+      coords = openmoc.LocalCoords(point.getX(), point.getY(), point.getZ())
       coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(coords)
       coords = coords.getHighestLevel().getNext()
@@ -146,7 +146,8 @@ def compute_fission_rates(solver, use_hdf5=False):
         if coords.getType() is openmoc.LAT:
           key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
                  str(coords.getLatticeX()) + ', ' + \
-                 str(coords.getLatticeY()) + ') : '
+                 str(coords.getLatticeY()) + ', ' + \
+                 str(coords.getLatticeZ()) + ') : '
         else:
           key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
 
@@ -284,6 +285,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   num_FSRs = geometry.getNumFSRs()
   num_materials = geometry.getNumMaterials()
   num_groups = geometry.getNumEnergyGroups()
+  zcoord = track_generator.getZCoord()
   num_tracks = track_generator.getNumTracks()
   num_segments = track_generator.getNumSegments()
   spacing = track_generator.getTrackSpacing()
@@ -356,6 +358,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     time_group.create_dataset('# FSRs', data=num_FSRs)
     time_group.create_dataset('# materials', data=num_materials)
     time_group.create_dataset('# energy groups', data=num_groups)
+    time_group.create_dataset('z coord', data=zcoord)
     time_group.create_dataset('# tracks', data=num_tracks)
     time_group.create_dataset('# segments', data=num_segments)
     time_group.create_dataset('track spacing [cm]', data=spacing)
@@ -429,6 +432,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     state['# FSRs'] = num_FSRs
     state['# materials'] = num_materials
     state['# energy groups'] = num_groups
+    state['z coord'] = zcoord
     state['# tracks'] = num_tracks
     state['# segments'] = num_segments
     state['track spacing [cm]'] = spacing
