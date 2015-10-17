@@ -118,7 +118,8 @@ public:
   Track();
   virtual ~Track();
   void setValues(const double start_x, const double start_y,
-                 const double end_x, const double end_y, const double phi);
+                 const double start_z, const double end_x,
+                 const double end_y, const double end_z, const double phi);
   void setUid(int uid);
   void setPhi(const double phi);
   void setAzimAngleIndex(const int index);
@@ -150,7 +151,6 @@ public:
   bool getTransferFluxIn() const;
   bool getTransferFluxOut() const;
 
-  bool contains(Point* point);
   void addSegment(segment* to_add);
   void removeSegment(int index);
   void insertSegment(int index, segment* segment);

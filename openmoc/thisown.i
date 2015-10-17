@@ -90,12 +90,12 @@
 /* A Lattice owns the memory for each Universe it contains */
 %pythonappend Lattice::setUniverses %{
   # SWIG 3
-  if 'num_x' in locals():
-    universes = locals()['num_x']
-  elif 'args' in locals() and 'num_x' in locals()['args']:
-    universes = locals()['args']['num_x']
-  elif 'kwargs' in locals() and 'num_x' in locals()['kwargs']:
-    universes = locals()['kwargs']['num_x']
+  if 'num_z' in locals():
+    universes = locals()['num_z']
+  elif 'args' in locals() and 'num_z' in locals()['args']:
+    universes = locals()['args']['num_z']
+  elif 'kwargs' in locals() and 'num_z' in locals()['kwargs']:
+    universes = locals()['kwargs']['num_z']
 
   # SWIG 2
   else:
@@ -103,7 +103,8 @@
 
   for i in range(len(universes)):
     for j in range(len(universes[i])):
-      universes[i][j].thisown = 0
+      for k in range(len(universes[i][j])):
+        universes[i][j][k].thisown = 0
 %}
 
 /* Python must free memory for each Universe that is not in a Lattice */

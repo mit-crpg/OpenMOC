@@ -21,7 +21,7 @@ openmoc.log.set_log_level('NORMAL')
 
 openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = openmoc.materialize.materialize('../c5g7-materials.h5')
+materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 
 ###############################################################################
@@ -30,7 +30,7 @@ materials = openmoc.materialize.materialize('../c5g7-materials.h5')
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = openmoc.Circle(x=0.0, y=0.0, radius=0.8, name='pin')
+zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.8, name='pin')
 left = openmoc.XPlane(x=-2.0, name='left')
 right = openmoc.XPlane(x=2.0, name='right')
 top = openmoc.YPlane(y=2.0, name='top')
@@ -50,11 +50,11 @@ openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
 fuel = openmoc.Cell(name='fuel')
 fuel.setFill(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=circle)
+fuel.addSurface(halfspace=-1, surface=zcylinder)
 
 moderator = openmoc.Cell(name='moderator')
 moderator.setFill(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=circle)
+moderator.addSurface(halfspace=+1, surface=zcylinder)
 
 root_cell = openmoc.Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=left)
@@ -85,7 +85,7 @@ openmoc.log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
 
 lattice = openmoc.Lattice(name='2x2 lattice')
 lattice.setWidth(width_x=2.0, width_y=2.0)
-lattice.setUniverses([[pincell, pincell], [pincell, pincell]])
+lattice.setUniverses([[[pincell, pincell], [pincell, pincell]]])
 
 root_cell.setFill(lattice)
 

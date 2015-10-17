@@ -25,10 +25,11 @@ top.setBoundaryType(openmoc.REFLECTIVE)
 bottom.setBoundaryType(openmoc.VACUUM)
 boundaries = [left, right, top, bottom]
 
-# Create Circles for the fuel as well as to discretize the moderator into rings
-fuel_radius = openmoc.Circle(x=0.0, y=0.0, radius=0.54)
-moderator_inner_radius = openmoc.Circle(x=0.0, y=0.0, radius=0.58)
-moderator_outer_radius = openmoc.Circle(x=0.0, y=0.0, radius=0.62)
+# Create ZCylinders for the fuel as well as to discretize the moderator into
+# rings
+fuel_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.54)
+moderator_inner_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.58)
+moderator_outer_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.62)
 
 
 ###############################################################################
@@ -204,7 +205,7 @@ universes = {1 : uo2, 2 : guide_tube, 3 : fission_chamber}
 for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly1_cell.setFill(lattices[-1])
 
 # Top right, bottom left 17 x 17 assemblies
@@ -232,21 +233,21 @@ universes = {1 : mox43, 2 : mox7, 3 : mox87,
 for i in range(17):
   for j in range(17):
     template[i][j] = universes[template[i][j]]
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 assembly2_cell.setFill(lattices[-1])
 
 # Sliced up water cells - semi finely spaced
 lattices.append(openmoc.Lattice(name='Semi-Finely Spaced Reflector'))
 lattices[-1].setWidth(width_x=0.126, width_y=0.126)
 template = [[reflector] * 10] * 10
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 refined_reflector_cell.setFill(lattices[-1])
 
 # Sliced up water cells - right side of geometry
 lattices.append(openmoc.Lattice(name='Right Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[refined_reflector] * 11 + [reflector] * 6] * 17
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 right_reflector_cell.setFill(lattices[-1])
 
 # Sliced up water cells for bottom corner of geometry
@@ -254,7 +255,7 @@ lattices.append(openmoc.Lattice(name='Bottom Corner Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[refined_reflector] * 11 + [reflector] * 6] * 11
 template += [[reflector] * 17] * 6
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 corner_reflector_cell.setFill(lattices[-1])
 
 # Sliced up water cells for bottom of geometry
@@ -262,16 +263,16 @@ lattices.append(openmoc.Lattice(name='Bottom Reflector'))
 lattices[-1].setWidth(width_x=1.26, width_y=1.26)
 template = [[refined_reflector] * 17] * 11
 template += [[reflector] * 17] * 6
-lattices[-1].setUniverses(template)
+lattices[-1].setUniverses([template])
 bottom_reflector_cell.setFill(lattices[-1])
 
 # 4 x 4 core to represent two bundles and water
 lattices.append(openmoc.Lattice(name='Full Geometry'))
 lattices[-1].setWidth(width_x=21.42, width_y=21.42)
-lattices[-1].setUniverses([
+lattices[-1].setUniverses([[
      [assembly1,        assembly2,        right_reflector],
      [assembly2,        assembly1,        right_reflector],
-     [bottom_reflector, bottom_reflector, corner_reflector]])
+     [bottom_reflector, bottom_reflector, corner_reflector]]])
 root_cell.setFill(lattices[-1])
 
 

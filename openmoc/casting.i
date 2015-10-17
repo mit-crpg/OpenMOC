@@ -29,8 +29,8 @@
     return dynamic_cast<ZPlane*>(zplane);
   }
 
-  Circle* castSurfaceToCircle(Surface* circle) {
-    return dynamic_cast<Circle*>(circle);
+  ZCylinder* castSurfaceToZCylinder(Surface* zcylinder) {
+    return dynamic_cast<ZCylinder*>(zcylinder);
   }
 
 %}

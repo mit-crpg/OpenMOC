@@ -29,15 +29,18 @@ Track::~Track() {
  * @brief Set the values for the Track's start and end point and angle.
  * @param start_x the x-coordinate at the starting point
  * @param start_y the y-coordinate at the starting point
+ * @param start_z the z-coordinate at the starting point
  * @param end_x the x-coordinate at the ending point
  * @param end_y the y-coordinate at the ending point
+ * @param end_z the z-coordinate at the ending point
  * @param phi the track's azimuthal angle (\f$ \theta \in [0, \pi] \f$)
  */
  void Track::setValues(const double start_x, const double start_y,
-                       const double end_x, const double end_y,
+                       const double start_z, const double end_x,
+                       const double end_y, const double end_z,
                        const double phi) {
-   _start.setCoords(start_x, start_y);
-   _end.setCoords(end_x, end_y);
+   _start.setCoords(start_x, start_y, start_z);
+   _end.setCoords(end_x, end_y, end_z);
    _phi = phi;
 }
 
@@ -351,56 +354,6 @@ int Track::getReflectiveTrackIndex() const {
 
 
 /**
- * @brief Checks whether a Point is contained along this Track.
- * @param point a pointer to the Point of interest
- * @return true if the Point is on the Track, false otherwise
- */
-bool Track::contains(Point* point) {
-
-  /* The slope of the Track */
-  double m;
-
-  /* The distance from the Point to the Track */
-  double dist;
-
-  /* If the Point is outside of the bounds of the start and end Points of the
-   * Track it does not lie on the Track */
-  if (!(((point->getX() <= _start.getX()+1.0E-2 &&
-          point->getX() >= _end.getX()-1.0E-2)
-      || (point->getX() >= _start.getX()-1.0E-2 &&
-          point->getX() <= _end.getX()+1.0E-2)) &&
-        ((point->getY() <= _start.getY()+1.0E-2 &&
-          point->getY() >= _end.getY()-1.0E-2)
-      || (point->getY() >= _start.getY()-1.0E-2 &&
-          point->getY() <= _end.getY()+1.0E-2)))) {
-
-    return false;
-  }
-
-
-  /* If the Track is vertical */
-  if (fabs(_phi - M_PI / 2) < 1E-10) {
-    if (fabs(point->getX() - _start.getX()) < 1E-10)
-      return true;
-    else
-      return false;
-  }
-
-  /* If the track is not vertical */
-  else {
-    m = sin(_phi) / cos(_phi);
-    dist = point->getY() - (_start.getY() + m * (point->getX()-_start.getX()));
-
-    /* Use point-slope formula */
-    if (fabs(dist) < 1e-10)
-      return true;
-    else
-      return false;
-  }
-}
-
-
-/**
  * @brief Deletes each of this Track's segments.
  */
 void Track::clearSegments() {
@@ -417,7 +370,9 @@ void Track::clearSegments() {
 std::string Track::toString() {
   std::stringstream string;
   string << "Track: start, x = " << _start.getX() << ", y = " <<
-    _start.getY() << " end, x = " << _end.getX() << ", y = "
-                  << _end.getY() << ", phi = " << _phi;
+    _start.getY() << ", z = " << _start.getZ() << ", end, x = " <<
+    _end.getX() << ", y = " << _end.getY() << ", z = " << _end.getZ() <<
+    ", phi = " << _phi;
+
   return string.str();
 }

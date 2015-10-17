@@ -83,8 +83,11 @@ private:
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_tracks;
 
+  /** The z-coord where the 2D Tracks should be created */
+  double _z_coord;
+
   void computeEndPoint(Point* start, Point* end,  const double phi,
-                       const double width, const double height);
+                       const double width_x, const double width_y);
 
   void initializeTrackFileDirectory();
   void initializeTracks();
@@ -118,12 +121,14 @@ public:
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
+  double getZCoord();
 
   /* Set parameters */
   void setNumAzim(int num_azim);
   void setTrackSpacing(double spacing);
   void setGeometry(Geometry* geometry);
   void setNumThreads(int num_threads);
+  void setZCoord(double z_coord);
 
   /* Worker functions */
   bool containsTracks();

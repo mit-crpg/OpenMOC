@@ -64,7 +64,7 @@ root_universe.addCell(root_cell)
 
 lattice = openmoc.Lattice(name='MxN lattice')
 lattice.setWidth(width_x=length/num_cells_x, width_y=length/num_cells_y)
-lattice.setUniverses([[fill_universe] * num_cells_x]*num_cells_y)
+lattice.setUniverses([[[fill_universe] * num_cells_x]*num_cells_y])
 root_cell.setFill(lattice)
 
 #############################################################################

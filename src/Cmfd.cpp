@@ -16,10 +16,10 @@ Cmfd::Cmfd() {
   /* Global variables used in solving CMFD problem */
   _num_x = 1;
   _num_y = 1;
-  _width = 0.;
-  _height = 0.;
-  _cell_width = 0.;
-  _cell_height = 0.;
+  _width_x = 0.;
+  _width_y = 0.;
+  _cell_width_x = 0.;
+  _cell_width_y = 0.;
   _flux_update_on = true;
   _centroid_update_on = true;
   _k_nearest = 3;
@@ -139,8 +139,8 @@ void Cmfd::setNumX(int num_x) {
                "must be > 0. Input value: %d", num_x);
 
   _num_x = num_x;
-  if (_width != 0.)
-    _cell_width = _width / _num_x;
+  if (_width_x != 0.)
+    _cell_width_x = _width_x / _num_x;
 }
 
 
@@ -155,8 +155,8 @@ void Cmfd::setNumY(int num_y) {
                "must be > 0. Input value: %d", num_y);
 
   _num_y = num_y;
-  if (_height != 0.)
-    _cell_height = _height / _num_y;
+  if (_width_y != 0.)
+    _cell_width_y = _width_y / _num_y;
 }
 
 
@@ -179,24 +179,24 @@ int Cmfd::getNumY() {
 
 
 /**
- * @brief Set Mesh width.
- * @param width Physical width of Mesh
+ * @brief Set Mesh width in the x-direction
+ * @param width Physical width of Mesh in the x-direction
  */
-void Cmfd::setWidth(double width) {
-  _width = width;
+void Cmfd::setWidthX(double width) {
+  _width_x = width;
   if (_num_x != 0)
-    _cell_width = _width / _num_x;
+    _cell_width_x = _width_x / _num_x;
 }
 
 
 /**
- * @brief Set Mesh height.
- * @param height Physical height of Mesh
+ * @brief Set Mesh width in the y-direction
+ * @param width Physical width of Mesh in the y-direction
  */
-void Cmfd::setHeight(double height) {
-  _height = height;
+void Cmfd::setWidthY(double width) {
+  _width_y = width;
   if (_num_y != 0)
-    _cell_height = _height / _num_y;
+    _cell_width_y = _width_y / _num_y;
 }
 
 
@@ -413,12 +413,12 @@ void Cmfd::computeDs(int moc_iteration) {
 
           /* Set the length of this Surface and the perpendicular Surface */
           if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX) {
-            length = _cell_height;
-            length_perpen = _cell_width;
+            length = _cell_width_y;
+            length_perpen = _cell_width_x;
           }
           else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX) {
-            length = _cell_width;
-            length_perpen = _cell_height;
+            length = _cell_width_x;
+            length_perpen = _cell_width_y;
           }
 
           /* Compute the optical thickness correction factor */
@@ -453,19 +453,19 @@ void Cmfd::computeDs(int moc_iteration) {
 
             /* Set properties for cell next to Surface */
             if (surface == SURFACE_X_MIN) {
-              next_length_perpen = _cell_width;
+              next_length_perpen = _cell_width_x;
               next_surface = SURFACE_X_MAX;
             }
             else if (surface == SURFACE_Y_MIN) {
-              next_length_perpen = _cell_height;
+              next_length_perpen = _cell_width_y;
               next_surface = SURFACE_Y_MAX;
             }
             else if (surface == SURFACE_X_MAX) {
-              next_length_perpen = _cell_width;
+              next_length_perpen = _cell_width_x;
               next_surface = SURFACE_X_MIN;
             }
             else if (surface == SURFACE_Y_MAX) {
-              next_length_perpen = _cell_height;
+              next_length_perpen = _cell_width_y;
               next_surface = SURFACE_Y_MIN;
             }
 
@@ -670,21 +670,21 @@ void Cmfd::constructMatrices() {
 
         /* Set transport term on diagonal */
         value = (material->getDifHat()[e] + material->getDifTilde()[e])
-          * _cell_height;
+          * _cell_width_y;
         _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (x != 0) {
           value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
-                     [SURFACE_X_MIN*_num_cmfd_groups + e]) * _cell_height;
+                     [SURFACE_X_MIN*_num_cmfd_groups + e]) * _cell_width_y;
           _A->incrementValue(cell_id - 1, e, cell_id, e, value);
         }
         else if (_boundaries[SURFACE_X_MIN] == PERIODIC) {
           value = - (material->getDifHat()[SURFACE_X_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
                      [SURFACE_X_MIN*_num_cmfd_groups + e])
-            * _cell_height;
+            * _cell_width_y;
           
           _A->incrementValue(cell_id + (_num_x - 1), e, cell_id, e, value);
         }
@@ -694,20 +694,20 @@ void Cmfd::constructMatrices() {
         /* Set transport term on diagonal */
         value = (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
                 - material->getDifTilde()[SURFACE_X_MAX*_num_cmfd_groups + e])
-          * _cell_height;
+          * _cell_width_y;
         _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (x != _num_x - 1) {
           value = - (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
-                     [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_height;
+                     [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_width_y;
           _A->incrementValue(cell_id + 1, e, cell_id, e, value);
         }
         else if (_boundaries[SURFACE_X_MAX] == PERIODIC) {
           value = - (material->getDifHat()[SURFACE_X_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
-                     [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_height;
+                     [SURFACE_X_MAX*_num_cmfd_groups + e]) * _cell_width_y;
           
           _A->incrementValue(cell_id - (_num_x - 1), e, cell_id, e, value);
         }
@@ -717,20 +717,20 @@ void Cmfd::constructMatrices() {
         /* Set transport term on diagonal */
         value = (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
                  + material->getDifTilde()[SURFACE_Y_MIN*_num_cmfd_groups + e])
-          * _cell_width;
+          * _cell_width_x;
         _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (y != 0) {
           value = - (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
-                     [SURFACE_Y_MIN*_num_cmfd_groups + e]) * _cell_width;
+                     [SURFACE_Y_MIN*_num_cmfd_groups + e]) * _cell_width_x;
           _A->incrementValue(cell_id - _num_x, e, cell_id, e, value);
         }
         else if (_boundaries[SURFACE_Y_MIN] == PERIODIC) {
           value = - (material->getDifHat()[SURFACE_Y_MIN*_num_cmfd_groups + e]
                      - material->getDifTilde()
-                     [SURFACE_Y_MIN*_num_cmfd_groups + e]) * _cell_width;
+                     [SURFACE_Y_MIN*_num_cmfd_groups + e]) * _cell_width_x;
           
           _A->incrementValue(cell_id + _num_x * (_num_y - 1), e, cell_id, e,
                              value);
@@ -741,21 +741,21 @@ void Cmfd::constructMatrices() {
         /* Set transport term on diagonal */
         value = (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
                  - material->getDifTilde()[SURFACE_Y_MAX*_num_cmfd_groups + e])
-          * _cell_width;
+          * _cell_width_x;
         _A->incrementValue(cell_id, e, cell_id, e, value);
 
         /* Set transport term on off diagonal */
         if (y != _num_y - 1) {
           value = - (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
-                     [SURFACE_Y_MAX*_num_cmfd_groups + e]) * _cell_width;
+                     [SURFACE_Y_MAX*_num_cmfd_groups + e]) * _cell_width_x;
           _A->incrementValue(cell_id + _num_x, e, cell_id, e, value);
         }
         else if (_boundaries[SURFACE_Y_MAX] == PERIODIC) {
           value = - (material->getDifHat()[SURFACE_Y_MAX*_num_cmfd_groups + e]
                      + material->getDifTilde()
                      [SURFACE_Y_MAX*_num_cmfd_groups + e])
-            * _cell_width;
+            * _cell_width_x;
           
           _A->incrementValue(cell_id - _num_x * (_num_y - 1), e, cell_id, e,
                              value);
@@ -1731,72 +1731,81 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
 
   /* LOWER LEFT CORNER */
   if (x > 0 && y > 0 && stencil_index == 0) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x - 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x - 0.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 0.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* LOWER RIGHT CORNER */
   else if (x < _num_x - 1 && y > 0 && stencil_index == 2) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 1.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y - 0.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 1.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* LEFT SIDE */
   else if (x > 0 && stencil_index == 3) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x - 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x - 0.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 0.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* CURRENT */
   else if (stencil_index == 4) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 0.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 0.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* RIGHT SIDE */
   else if (x < _num_x - 1 && stencil_index == 5) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 1.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 0.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 1.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 0.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* UPPER LEFT CORNER */
   else if (x > 0 && y < _num_y - 1 && stencil_index == 6) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x - 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x - 0.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 1.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* TOP SIDE */
   else if (y < _num_y - 1 && stencil_index == 7) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 0.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 0.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 1.5)*_cell_width_y),
                  2.0);
     found = true;
   }
 
   /* UPPER RIGHT CORNER */
   else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8) {
-    dist_x = pow(centroid->getX() - (-_width/2.0 + (x + 1.5)*_cell_width), 2.0);
-    dist_y = pow(centroid->getY() - (-_height/2.0 + (y + 1.5)*_cell_height),
+    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 1.5)*_cell_width_x),
+                 2.0);
+    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 1.5)*_cell_width_y),
                  2.0);
     found = true;
   }
@@ -2033,6 +2042,6 @@ void Cmfd::initializeLattice(Point* offset) {
   _lattice = new Lattice();
   _lattice->setNumX(_num_x);
   _lattice->setNumY(_num_y);
-  _lattice->setWidth(_cell_width, _cell_height);
-  _lattice->setOffset(offset->getX(), offset->getY());
+  _lattice->setWidth(_cell_width_x, _cell_width_y);
+  _lattice->setOffset(offset->getX(), offset->getY(), 0.0);
 }

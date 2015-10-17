@@ -68,16 +68,16 @@
  *                             -----------
  *                            |           |
  *                            |           |
- *                          0 |           | 2
+ *                          0 |           | 1
  *                            |           |
  *                            |           |
  *                             -----------
- *                            0     1     1
+ *                            0     2     1
  */
 #define NUM_SURFACES 4
 #define SURFACE_X_MIN 0
-#define SURFACE_Y_MIN 1
-#define SURFACE_X_MAX 2
+#define SURFACE_X_MAX 1
+#define SURFACE_Y_MIN 2
 #define SURFACE_Y_MAX 3
 
 #define NUM_CORNERS 4
@@ -85,6 +85,14 @@
 #define CORNER_X_MAX_Y_MIN 1
 #define CORNER_X_MAX_Y_MAX 2
 #define CORNER_X_MIN_Y_MAX 3
+
+/** The number of values used in representing a Track when the Tracks are
+ *  retrieved from the TrackGenerator. */
+#define NUM_VALUES_PER_RETRIEVED_TRACK 6
+
+/** The number of values used in representing a Segment when the Segments are
+ *  retrieved from the TrackGenerator. */
+#define NUM_VALUES_PER_RETRIEVED_SEGMENT 7
 
 #ifdef NVCC
 

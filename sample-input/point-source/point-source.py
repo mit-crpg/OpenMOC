@@ -86,14 +86,14 @@ width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_y
 width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
 
 # Create 2D array of Universes in each lattice cell
-universes = [[water_univ]*num_x for _ in range(num_y)]
+universes = [[[water_univ]*num_x for _ in range(num_y)]]
 
 # Place fixed source Universe at (x=10, y=10)
 source_x = 10
 source_y = 10
 lat_x = (root_universe.getMaxX() - source_x) / width_x
 lat_y = (root_universe.getMaxY() - source_y) / width_y
-universes[int(lat_x)][int(lat_y)] = source_univ
+universes[0][int(lat_x)][int(lat_y)] = source_univ
 
 openmoc.log.py_printf('NORMAL', \
   'Creating a {0}x{0} lattice...'.format(num_x, num_y))

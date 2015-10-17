@@ -116,7 +116,7 @@ openmoc.log.py_printf('NORMAL', \
 
 lattice = openmoc.Lattice(name='{0}x{1} lattice'.format(num_x, num_y))
 lattice.setWidth(width_x=width_x, width_y=width_y)
-lattice.setUniverses(universes)
+lattice.setUniverses([universes])
 root_cell.setFill(lattice)
 
 

@@ -126,12 +126,6 @@ private:
   /** The boundary condition at the maximum reachable y-coordinate */
   boundaryType _max_y_bc;
 
-  /** The boundary condition at the minimum reachable z-coordinate */
-  boundaryType _min_z_bc;
-
-  /** The boundary condition at the maximum reachable z-coordinate */
-  boundaryType _max_z_bc;
-
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
 
@@ -159,8 +153,6 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  boundaryType getMinZBoundaryType();
-  boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace*> getSurfaces() const;
   std::vector<Cell*> getNeighbors() const;

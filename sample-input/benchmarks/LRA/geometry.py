@@ -19,7 +19,7 @@ openmoc.log.set_log_level('NORMAL')
 #                            Creating Materials
 ###############################################################################
 
-openmoc.log.py_printf('NORMAL', 'Importing materials data from py...')
+openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
 materials = openmoc.materialize.load_from_hdf5('LRA-mgxs.h5', '')
 
@@ -125,42 +125,42 @@ openmoc.log.py_printf('NORMAL', 'Creating LRA lattices...')
 assembly1_lattice = openmoc.Lattice(name='assembly 1')
 assembly1_lattice.setWidth(width_x=1.5, width_y=1.5)
 template = [[region1] * 10] * 10
-assembly1_lattice.setUniverses(template)
+assembly1_lattice.setUniverses([template])
 assembly1_cell.setFill(assembly1_lattice)
 
 # Assembly 2
 assembly2_lattice = openmoc.Lattice(name='assembly 2')
 assembly2_lattice.setWidth(width_x=1.5, width_y=1.5)
 template = [[region2] * 10] * 10
-assembly2_lattice.setUniverses(template)
+assembly2_lattice.setUniverses([template])
 assembly2_cell.setFill(assembly2_lattice)
 
 # Assembly 3
 assembly3_lattice = openmoc.Lattice(name='assembly 3')
 assembly3_lattice.setWidth(width_x=1.5, width_y=1.5)
 template = [[region3] * 10] * 10
-assembly3_lattice.setUniverses(template)
+assembly3_lattice.setUniverses([template])
 assembly3_cell.setFill(assembly3_lattice)
 
 # Assembly 4
 assembly4_lattice = openmoc.Lattice(name='assembly 4')
 assembly4_lattice.setWidth(width_x=1.5, width_y=1.5)
 template = [[region4] * 10] * 10
-assembly4_lattice.setUniverses(template)
+assembly4_lattice.setUniverses([template])
 assembly4_cell.setFill(assembly4_lattice)
 
 # Assembly 5
 assembly5_lattice = openmoc.Lattice(name='assembly 5')
 assembly5_lattice.setWidth(width_x=1.5, width_y=1.5)
 template = [[region5] * 10] * 10
-assembly5_lattice.setUniverses(template)
+assembly5_lattice.setUniverses([template])
 assembly5_cell.setFill(assembly5_lattice)
 
 # Assembly 6
 assembly6_lattice = openmoc.Lattice(name='assembly 6')
 assembly6_lattice.setWidth(width_x=1.5, width_y=1.5)
 template = [[region6] * 10] * 10
-assembly6_lattice.setUniverses(template)
+assembly6_lattice.setUniverses([template])
 assembly6_cell.setFill(assembly6_lattice)
 
 # Full core
@@ -184,7 +184,7 @@ template = [[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
 for i in range(11):
   for j in range(11):
     template[i][j] = universes[template[i][j]]
-core_lattice.setUniverses(template)
+core_lattice.setUniverses([template])
 root_cell.setFill(core_lattice)
 
 
