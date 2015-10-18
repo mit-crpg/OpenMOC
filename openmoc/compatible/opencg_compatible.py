@@ -161,7 +161,8 @@ def get_opencg_surface(openmoc_surface):
     A = openmoc_surface.getA()
     B = openmoc_surface.getB()
     C = openmoc_surface.getC()
-    opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, 0, C)
+    D = openmoc_surface.getD()
+    opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, D, C)
 
   elif surface_type == openmoc.XPLANE:
     openmoc_surface = openmoc.castSurfaceToXPlane(openmoc_surface)
@@ -224,7 +225,7 @@ def get_openmoc_surface(opencg_surface):
     A = opencg_surface.a
     B = opencg_surface.b
     D = opencg_surface.d
-    openmoc_surface = openmoc.Plane(A, B, D, surface_id, name)
+    openmoc_surface = openmoc.Plane(A, B, C, D, surface_id, name)
 
   elif opencg_surface.type == 'x-plane':
     x0 = opencg_surface.x0
@@ -301,17 +302,34 @@ def get_compatible_opencg_surfaces(opencg_surface):
 
     surfaces = [left, right, bottom, top]
 
-  elif opencg_surface.type in ['x-cylinder', 'y-cylinder',
-                               'x-squareprism', 'y-squareprism']:
-    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCG ' \
-          'Surface of type {0} since it is not compatible with OpenMOCs 2D ' \
-          'geometry formulation on the xy-plane'.format(opencg_surface.type)
-    raise ValueError(msg)
+  elif opencg_surface.type == 'y-squareprism':
+    x0 = opencg_surface.x0
+    z0 = opencg_surface.z0
+    R = opencg_surface.r
+
+    # Create a list of the four planes we need
+    left = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
+    right = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
+    bottom = opencg.ZPlane(name=name, boundary=boundary, z0=z0-R)
+    top = opencg.ZPlane(name=name, boundary=boundary, z0=z0+R)
+    surfaces = [left, right, bottom, top]
+
+  elif opencg_surface.type == 'z-squareprism':
+    x0 = opencg_surface.x0['x0']
+    y0 = opencg_surface.y0['y0']
+    R = opencg_surface.r['R']
+
+    # Create a list of the four planes we need
+    left = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
+    right = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
+    bottom = opencg.YPlane(name=name, boundary=boundary, y0=y0-R)
+    top = opencg.YPlane(name=name, boundary=boundary, y0=y0+R)
+    surfaces = [left, right, bottom, top]
 
   else:
-    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCG ' \
-          'Surface of type {0} since it already a compatible ' \
-          'Surface type in OpenMOC'.format(opencg_surface.type)
+    msg = 'Unable to create a compatible OpenMC Surface an OpenCG ' \
+          'Surface of type "{0}" since it already a compatible ' \
+          'Surface type in OpenMC'.format(opencg_surface.type)
     raise ValueError(msg)
 
   # Add the OpenMOC Surface(s) to the global collection of all OpenMOC Surfaces
@@ -387,7 +405,8 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
   compatible_cells = list()
 
   # SquarePrism Surfaces
-  if opencg_surface.type == 'z-squareprism':
+  if opencg_surface.type in ['x-squareprism', 'y-squareprism', 
+                             'z-squareprism']:
 
     # Get the compatible Surfaces (XPlanes and YPlanes)
     compatible_surfaces = get_compatible_opencg_surfaces(opencg_surface)
@@ -723,7 +742,7 @@ def get_openmoc_lattice(opencg_lattice):
       universe_array[x][y] = unique_universes[universe_id]
 
   openmoc_lattice = openmoc.Lattice(lattice_id, name)
-  openmoc_lattice.setWidth(width[0], width[1])
+  openmoc_lattice.setWidth(width[0], width[1], width[2])
   openmoc_lattice.setUniverses([universe_array.tolist()])
   openmoc_lattice.setOffset(offset[0], offset[1], offset[2])
 
