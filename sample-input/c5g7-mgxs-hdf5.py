@@ -209,7 +209,7 @@ fiss_chamber.create_dataset('absorption', data=sigma_a)
 fiss_chamber.create_dataset('scatter matrix', data=sigma_s)
 fiss_chamber.create_dataset('fission', data=sigma_f)
 fiss_chamber.create_dataset('nu-fission', data=nu_sigma_f)
-fiss_chamber.create_dataset('Chi', data=chi)
+fiss_chamber.create_dataset('chi', data=chi)
 
 
 
@@ -291,7 +291,7 @@ water.create_dataset('chi', data=chi)
 ###############################################################################
 
 # Create a subdictionary for water materials data
-control_rod = f.create_group('Control Rod')
+control_rod = material_group.create_group('Control Rod')
 
 sigma_a = numpy.array([1.70490E-03, 8.36224E-03,8.37901E-02,
                        3.97797E-01, 6.98763E-01, 9.29508E-01,
@@ -314,12 +314,12 @@ nu_sigma_f = numpy.zeros(7)
 chi = numpy.zeros(7)
 
 # Create datasets for each cross-section type
-control_rod.create_dataset('Total XS', data=sigma_t)
-control_rod.create_dataset('Absorption XS', data=sigma_a)
-control_rod.create_dataset('Scattering XS', data=sigma_s)
-control_rod.create_dataset('Fission XS', data=sigma_f)
-control_rod.create_dataset('Nu Fission XS', data=nu_sigma_f)
-control_rod.create_dataset('Chi', data=chi)
+control_rod.create_dataset('total', data=sigma_t)
+control_rod.create_dataset('absorption', data=sigma_a)
+control_rod.create_dataset('scatter matrix', data=sigma_s)
+control_rod.create_dataset('fission', data=sigma_f)
+control_rod.create_dataset('nu-fission', data=nu_sigma_f)
+control_rod.create_dataset('chi', data=chi)
 
 # Close the hdf5 data file
 f.close()
