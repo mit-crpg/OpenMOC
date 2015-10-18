@@ -21,7 +21,7 @@ openmoc.log.set_log_level('NORMAL')
 
 openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = openmoc.materialize.materialize('LRA-materials.h5')
+materials = openmoc.materialize.load_from_hdf5('LRA-mgxs.h5', '')
 
 
 ###############################################################################

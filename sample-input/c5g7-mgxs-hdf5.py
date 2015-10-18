@@ -13,9 +13,11 @@ import numpy
 
 
 # Create the file to store C5G7 multi-groups cross-sections
-f = h5py.File('c5g7-materials.h5')
-f.attrs["Energy Groups"] = 7
+f = h5py.File('c5g7-mgxs.h5')
+f.attrs["# groups"] = 7
 
+# Create a group to specify that MGXS are split by material (vs. cell)
+material_group = f.create_group('material')
 
 
 ###############################################################################
@@ -23,7 +25,7 @@ f.attrs["Energy Groups"] = 7
 ###############################################################################
 
 # Create a subgroup for UO2 materials data
-uo2 = f.create_group('UO2')
+uo2 = material_group.create_group('UO2')
 
 sigma_t = numpy.array([1.779490E-01, 3.298050E-01, 4.803880E-01,
                        5.543670E-01, 3.118010E-01, 3.951680E-01, 5.644060E-01])
@@ -48,12 +50,12 @@ chi = numpy.array([5.87910E-01, 4.11760E-01, 3.39060E-04,
                    1.17610E-07, 0., 0., 0.])
 
 # Create datasets for each cross-section type
-uo2.create_dataset('Total XS', data=sigma_t)
-uo2.create_dataset('Absorption XS', data=sigma_a)
-uo2.create_dataset('Scattering XS', data=sigma_s)
-uo2.create_dataset('Fission XS', data=sigma_f)
-uo2.create_dataset('Nu Fission XS', data=nu_sigma_f)
-uo2.create_dataset('Chi', data=chi)
+uo2.create_dataset('total', data=sigma_t)
+uo2.create_dataset('absorption', data=sigma_a)
+uo2.create_dataset('scatter matrix', data=sigma_s)
+uo2.create_dataset('fission', data=sigma_f)
+uo2.create_dataset('nu-fission', data=nu_sigma_f)
+uo2.create_dataset('chi', data=chi)
 
 
 
@@ -62,7 +64,7 @@ uo2.create_dataset('Chi', data=chi)
 ###############################################################################
 
 # Create a subgroup for MOX-4.3%  materials data
-mox43 = f.create_group('MOX-4.3%')
+mox43 = material_group.create_group('MOX-4.3%')
 
 sigma_a = numpy.array([8.433900E-03, 3.757700E-03, 2.797000E-02,
                        1.042100E-01, 1.399400E-01, 4.091800E-01, 4.093500E-01])
@@ -85,12 +87,12 @@ chi = numpy.array([5.87910E-01, 4.11760E-01, 3.39060E-04, 1.17610E-07,
                           0., 0., 0.])
 
 # Create datasets for each cross-section type
-mox43.create_dataset('Total XS', data=sigma_t)
-mox43.create_dataset('Absorption XS', data=sigma_a)
-mox43.create_dataset('Scattering XS', data=sigma_s)
-mox43.create_dataset('Fission XS', data=sigma_f)
-mox43.create_dataset('Nu Fission XS', data=nu_sigma_f)
-mox43.create_dataset('Chi', data=chi)
+mox43.create_dataset('total', data=sigma_t)
+mox43.create_dataset('absorption', data=sigma_a)
+mox43.create_dataset('scatter matrix', data=sigma_s)
+mox43.create_dataset('fission', data=sigma_f)
+mox43.create_dataset('nu-fission', data=nu_sigma_f)
+mox43.create_dataset('chi', data=chi)
 
 
 
@@ -99,7 +101,7 @@ mox43.create_dataset('Chi', data=chi)
 ###############################################################################
 
 # Create a subgroup for MOX-7% materials data
-mox7 = f.create_group('MOX-7%')
+mox7 = material_group.create_group('MOX-7%')
 
 sigma_a = numpy.array([9.065700E-03, 4.296700E-03, 3.288100E-02,
                        1.220300E-01, 1.829800E-01, 5.684600E-01, 5.852100E-01])
@@ -122,12 +124,12 @@ chi = numpy.array([5.87910E-01, 4.11760E-01, 3.39060E-04, 1.17610E-07,
                    0., 0., 0.])
 
 # Create datasets for each cross-section type
-mox7.create_dataset('Total XS', data=sigma_t)
-mox7.create_dataset('Absorption XS', data=sigma_a)
-mox7.create_dataset('Scattering XS', data=sigma_s)
-mox7.create_dataset('Fission XS', data=sigma_f)
-mox7.create_dataset('Nu Fission XS', data=nu_sigma_f)
-mox7.create_dataset('Chi', data=chi)
+mox7.create_dataset('total', data=sigma_t)
+mox7.create_dataset('absorption', data=sigma_a)
+mox7.create_dataset('scatter matrix', data=sigma_s)
+mox7.create_dataset('fission', data=sigma_f)
+mox7.create_dataset('nu-fission', data=nu_sigma_f)
+mox7.create_dataset('chi', data=chi)
 
 
 
@@ -136,7 +138,7 @@ mox7.create_dataset('Chi', data=chi)
 ###############################################################################
 
 # Create a subgroup for MOX-8.7% materials data
-mox87 = f.create_group('MOX-8.7%')
+mox87 = material_group.create_group('MOX-8.7%')
 
 sigma_a = numpy.array([9.486200E-03, 4.655600E-03, 3.624000E-02,
                        1.327200E-01, 2.084000E-01, 6.587000E-01, 6.901700E-01])
@@ -159,12 +161,12 @@ chi = numpy.array([5.87910E-01, 4.11760E-01, 3.39060E-04, 1.17610E-07,
                    0., 0., 0.])
 
 # Create datasets for each cross-section type
-mox87.create_dataset('Total XS', data=sigma_t)
-mox87.create_dataset('Absorption XS', data=sigma_a)
-mox87.create_dataset('Scattering XS', data=sigma_s)
-mox87.create_dataset('Fission XS', data=sigma_f)
-mox87.create_dataset('Nu Fission XS', data=nu_sigma_f)
-mox87.create_dataset('Chi', data=chi)
+mox87.create_dataset('total', data=sigma_t)
+mox87.create_dataset('absorption', data=sigma_a)
+mox87.create_dataset('scatter matrix', data=sigma_s)
+mox87.create_dataset('fission', data=sigma_f)
+mox87.create_dataset('nu-fission', data=nu_sigma_f)
+mox87.create_dataset('chi', data=chi)
 
 
 
@@ -173,7 +175,7 @@ mox87.create_dataset('Chi', data=chi)
 ###############################################################################
 
 # Create a subgroup for fission chamber materials data
-fiss_chamber = f.create_group('Fission Chamber')
+fiss_chamber = material_group.create_group('Fission Chamber')
 
 sigma_a = numpy.array([5.113200E-04, 7.581300E-05, 3.164300E-04,
                        1.167500E-03, 3.397700E-03, 9.188600E-03, 
@@ -202,12 +204,12 @@ chi = numpy.array([5.87910E-01, 4.11760E-01, 3.39060E-04,
                    1.17610E-07, 0., 0., 0.])
 
 # Create datasets for each cross-section type
-fiss_chamber.create_dataset('Total XS', data=sigma_t)
-fiss_chamber.create_dataset('Absorption XS', data=sigma_a)
-fiss_chamber.create_dataset('Scattering XS', data=sigma_s)
-fiss_chamber.create_dataset('Fission XS', data=sigma_f)
-fiss_chamber.create_dataset('Nu Fission XS', data=nu_sigma_f)
-fiss_chamber.create_dataset('Chi', data=chi)
+fiss_chamber.create_dataset('total', data=sigma_t)
+fiss_chamber.create_dataset('absorption', data=sigma_a)
+fiss_chamber.create_dataset('scatter matrix', data=sigma_s)
+fiss_chamber.create_dataset('fission', data=sigma_f)
+fiss_chamber.create_dataset('nu-fission', data=nu_sigma_f)
+fiss_chamber.create_dataset('chi', data=chi)
 
 
 
@@ -216,7 +218,7 @@ fiss_chamber.create_dataset('Chi', data=chi)
 ###############################################################################
 
 # Create a subgroup for guide tube materials data
-guide_tube = f.create_group('Guide Tube')
+guide_tube = material_group.create_group('Guide Tube')
 
 sigma_a = numpy.array([5.113200E-04, 7.580100E-05, 3.157200E-04, 
                        1.158200E-03, 3.397500E-03, 9.187800E-03, 
@@ -240,12 +242,12 @@ nu_sigma_f = numpy.zeros(7)
 chi = numpy.zeros(7)
 
 # Create datasets for each cross-section type
-guide_tube.create_dataset('Total XS', data=sigma_t)
-guide_tube.create_dataset('Absorption XS', data=sigma_a)
-guide_tube.create_dataset('Scattering XS', data=sigma_s)
-guide_tube.create_dataset('Fission XS', data=sigma_f)
-guide_tube.create_dataset('Nu Fission XS', data=nu_sigma_f)
-guide_tube.create_dataset('Chi', data=chi)
+guide_tube.create_dataset('total', data=sigma_t)
+guide_tube.create_dataset('absorption', data=sigma_a)
+guide_tube.create_dataset('scatter matrix', data=sigma_s)
+guide_tube.create_dataset('fission', data=sigma_f)
+guide_tube.create_dataset('nu-fission', data=nu_sigma_f)
+guide_tube.create_dataset('chi', data=chi)
 
 
 
@@ -254,7 +256,7 @@ guide_tube.create_dataset('Chi', data=chi)
 ###############################################################################
 
 # Create a subgroup for water materials data
-water = f.create_group('Water')
+water = material_group.create_group('Water')
 
 sigma_a = numpy.array([6.010500E-04, 1.579300E-05, 3.371600E-04,
                        1.940600E-03, 5.741600E-03, 1.500100E-02, 3.723900E-02])
@@ -275,12 +277,12 @@ nu_sigma_f = numpy.zeros(7)
 chi = numpy.zeros(7)
 
 # Create datasets for each cross-section type
-water.create_dataset('Total XS', data=sigma_t)
-water.create_dataset('Absorption XS', data=sigma_a)
-water.create_dataset('Scattering XS', data=sigma_s)
-water.create_dataset('Fission XS', data=sigma_f)
-water.create_dataset('Nu Fission XS', data=nu_sigma_f)
-water.create_dataset('Chi', data=chi)
+water.create_dataset('total', data=sigma_t)
+water.create_dataset('absorption', data=sigma_a)
+water.create_dataset('scatter matrix', data=sigma_s)
+water.create_dataset('fission', data=sigma_f)
+water.create_dataset('nu-fission', data=nu_sigma_f)
+water.create_dataset('chi', data=chi)
 
 
 
@@ -289,7 +291,7 @@ water.create_dataset('Chi', data=chi)
 ###############################################################################
 
 # Create a subdictionary for water materials data
-control_rod = f.create_group('Control Rod')
+control_rod = material_group.create_group('Control Rod')
 
 sigma_a = numpy.array([1.70490E-03, 8.36224E-03,8.37901E-02,
                        3.97797E-01, 6.98763E-01, 9.29508E-01,
@@ -312,12 +314,12 @@ nu_sigma_f = numpy.zeros(7)
 chi = numpy.zeros(7)
 
 # Create datasets for each cross-section type
-control_rod.create_dataset('Total XS', data=sigma_t)
-control_rod.create_dataset('Absorption XS', data=sigma_a)
-control_rod.create_dataset('Scattering XS', data=sigma_s)
-control_rod.create_dataset('Fission XS', data=sigma_f)
-control_rod.create_dataset('Nu Fission XS', data=nu_sigma_f)
-control_rod.create_dataset('Chi', data=chi)
+control_rod.create_dataset('total', data=sigma_t)
+control_rod.create_dataset('absorption', data=sigma_a)
+control_rod.create_dataset('scatter matrix', data=sigma_s)
+control_rod.create_dataset('fission', data=sigma_f)
+control_rod.create_dataset('nu-fission', data=nu_sigma_f)
+control_rod.create_dataset('chi', data=chi)
 
 # Close the hdf5 data file
 f.close()
