@@ -162,7 +162,7 @@ def get_opencg_surface(openmoc_surface):
     B = openmoc_surface.getB()
     C = openmoc_surface.getC()
     D = openmoc_surface.getD()
-    opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, D, C)
+    opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, C, D)
 
   elif surface_type == openmoc.XPLANE:
     openmoc_surface = openmoc.castSurfaceToXPlane(openmoc_surface)
@@ -283,24 +283,38 @@ def get_compatible_opencg_surfaces(opencg_surface):
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
   boundary = opencg_surface.boundary_type
 
-  if opencg_surface.type == 'z-squareprism':
-    x0 = opencg_surface.x0
+  # If Cell is outside the SquarePrism (positive halfspace), add "outside" 
+  # of Surface halfspaces. Since OpenMOC does not have a SquarePrism Surface, 
+  # individual Cells are created for the 8 Cells that make up the outer region 
+  # of a SquarePrism.
+  #                 |                    |
+  #           0     |        1           |    2
+  #           ______|____________________|______
+  #                 |     SquarePrism    |
+  #           7     |   (-)  halfspace   |    3
+  #           ______|____________________|______
+  #                 |                    |  
+  #           6     |        5           |    4
+  #                 |                    |
+
+  if opencg_surface.type == 'x-squareprism':
     y0 = opencg_surface.y0
+    z0 = opencg_surface.z0
     R = opencg_surface.r
 
     # Create a list of the four planes we need
-    left = opencg.XPlane(x0=x0-R, name=name)
-    right = opencg.XPlane(x0=x0+R, name=name)
-    bottom = opencg.YPlane(y0=y0-R, name=name)
-    top = opencg.YPlane(y0=y0+R, name=name)
+    min_y = opencg.YPlane(y0=y0-R, name=name)
+    max_y = opencg.YPlane(y0=y0+R, name=name)
+    min_z = opencg.ZPlane(z0=z0-R, name=name)
+    max_z = opencg.ZPlane(z0=z0+R, name=name)
 
     # Set the boundary conditions for each Surface
-    left.boundary_type = boundary
-    right.boundary_type = boundary
-    bottom.boundary_type = boundary
-    top.boundary_type = boundary
+    min_y.boundary_type = boundary
+    max_y.boundary_type = boundary
+    min_z.boundary_type = boundary
+    max_z.boundary_type = boundary
 
-    surfaces = [left, right, bottom, top]
+    surfaces = [min_y, max_y, min_z, max_z]
 
   elif opencg_surface.type == 'y-squareprism':
     x0 = opencg_surface.x0
@@ -308,23 +322,37 @@ def get_compatible_opencg_surfaces(opencg_surface):
     R = opencg_surface.r
 
     # Create a list of the four planes we need
-    left = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
-    right = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
-    bottom = opencg.ZPlane(name=name, boundary=boundary, z0=z0-R)
-    top = opencg.ZPlane(name=name, boundary=boundary, z0=z0+R)
-    surfaces = [left, right, bottom, top]
+    min_x = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
+    max_x = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
+    min_z = opencg.ZPlane(name=name, boundary=boundary, z0=z0-R)
+    max_z = opencg.ZPlane(name=name, boundary=boundary, z0=z0+R)
+
+    # Set the boundary conditions for each Surface
+    min_x.boundary_type = boundary
+    max_x.boundary_type = boundary
+    min_z.boundary_type = boundary
+    max_z.boundary_type = boundary
+
+    surfaces = [min_x, max_x, min_z, max_z]
 
   elif opencg_surface.type == 'z-squareprism':
-    x0 = opencg_surface.x0['x0']
-    y0 = opencg_surface.y0['y0']
-    R = opencg_surface.r['R']
+    x0 = opencg_surface.x0
+    y0 = opencg_surface.y0
+    R = opencg_surface.r
 
     # Create a list of the four planes we need
-    left = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
-    right = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
-    bottom = opencg.YPlane(name=name, boundary=boundary, y0=y0-R)
-    top = opencg.YPlane(name=name, boundary=boundary, y0=y0+R)
-    surfaces = [left, right, bottom, top]
+    min_x = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
+    max_x = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
+    min_y = opencg.YPlane(name=name, boundary=boundary, y0=y0-R)
+    max_y = opencg.YPlane(name=name, boundary=boundary, y0=y0+R)
+
+    # Set the boundary conditions for each Surface
+    min_x.boundary_type = boundary
+    max_x.boundary_type = boundary
+    min_y.boundary_type = boundary
+    max_y.boundary_type = boundary
+
+    surfaces = [min_x, max_x, min_y, max_y]
 
   else:
     msg = 'Unable to create a compatible OpenMC Surface an OpenCG ' \
