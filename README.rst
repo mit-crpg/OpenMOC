@@ -70,6 +70,6 @@ OpenMOC is approved for distribution under the MIT/X license_.
 .. _installation instructions: https://mit-crpg.github.io/OpenMOC/usersguide/install.html
 .. _license: https://mit-crpg.github.io/OpenMOC/license.html
 .. _Nuclear Science & Engineering Department: http://web.mit.edu/nse/
-.. _IPython Notebook: http://nbviewer.ipython.org/gist/anonymous/abbce6824bceda49a615
+.. _IPython Notebook: https://gist.github.com/wbinventor/8c5d2ffbb86f11735610
 .. _contact: https://mit-crpg.github.io/OpenMOC/developers.html
 .. _users group: https://groups.google.com/forum/#!forum/openmoc-users
