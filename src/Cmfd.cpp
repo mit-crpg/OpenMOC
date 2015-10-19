@@ -228,7 +228,6 @@ void Cmfd::collapseXS() {
     /* Initialize tallies for each parameter */
     FP_PRECISION nu_fis_tally, rxn_tally;
     FP_PRECISION vol_tally, tot_tally, neut_prod_tally;
-    FP_PRECISION rxn_tally_group;
     FP_PRECISION scat_tally[_num_cmfd_groups];
     FP_PRECISION chi_tally[_num_cmfd_groups];
 
@@ -286,20 +285,17 @@ void Cmfd::collapseXS() {
         /* Loop over MOC energy groups within this CMFD coarse group */
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
 
-          /* Reset transport, rxn, and vol tally for this MOC group */
-          rxn_tally_group = 0.0;
+          /* Reset volume tally for this MOC group */
           vol_tally = 0.0;
 
           /* Loop over FSRs in cmfd cell */
           for (iter = _cell_fsrs.at(i).begin();
                iter != _cell_fsrs.at(i).end(); ++iter) {
 
+            /* Gets FSR volume, material, and cross sections */
             fsr_material = _FSR_materials[*iter];
             volume = _FSR_volumes[*iter];
             scat = fsr_material->getSigmaS();
-            vol_tally += volume;
-
-            /* Gets FSR volume, material, and cross sections */
             flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
             tot = fsr_material->getSigmaTByGroup(h+1);
             nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
@@ -308,7 +304,7 @@ void Cmfd::collapseXS() {
             tot_tally += tot * flux * volume;
             nu_fis_tally += nu_fis * flux * volume;
             rxn_tally += flux * volume;
-            rxn_tally_group += flux * volume;
+            vol_tally += volume;
 
             /* Scattering tallies */
             for (int g = 0; g < _num_moc_groups; g++) {
@@ -369,7 +365,7 @@ FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
   /* Loop over MOC energy groups within this CMFD coarse group */
   for (int h = _group_indices[group]; h < _group_indices[group+1]; h++) {
 
-    /* Reset transport, rxn, and vol tally for this MOC group */
+    /* Reset transport and rxn tally for this MOC group */
     trans_tally_group = 0.0;
     rxn_tally_group = 0.0;
 
@@ -379,8 +375,6 @@ FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
 
       fsr_material = _FSR_materials[*iter];
       volume = _FSR_volumes[*iter];
-
-      /* Gets FSR volume, material, and cross sections */
       flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
       tot = fsr_material->getSigmaTByGroup(h+1);
 
@@ -395,10 +389,7 @@ FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
         (3.0 * (trans_tally_group / rxn_tally_group));
   }
 
-  /* Set the Mesh cell properties with the tallies */
-  FP_PRECISION dif_coef = dif_tally / rxn_tally;
-
-  return dif_coef;
+  return dif_tally / rxn_tally;
 }
 
 
@@ -765,8 +756,7 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
 
   /* Initialize variables */
   FP_PRECISION alpha, mu, expon;
-  FP_PRECISION rho, correction;
-  rho = 0.0;
+  FP_PRECISION rho = 0.0;
 
   /* Loop over polar angles */
   for (int p = 0; p < _num_polar; p++) {
@@ -777,7 +767,7 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
   }
 
   /* Compute the correction factor */
-  correction = 1.0 + delta * rho / (2 * dif_coef);
+  FP_PRECISION correction = 1.0 + delta * rho / (2 * dif_coef);
 
   return correction;
 }
@@ -1447,7 +1437,7 @@ int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
   int cell_next_id = -1;
   int x = cell_id % _num_x;
   int y = cell_id / _num_x;
-  
+
   if (stencil_id == 0) {
     if (x != 0 && y != 0)
       cell_next_id = cell_id - _num_x - 1;
@@ -1578,85 +1568,69 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   int y = cell_id / _num_x;
   FP_PRECISION dist_x, dist_y;
   bool found = false;
+  FP_PRECISION centroid_x = centroid->getX();
+  FP_PRECISION centroid_y = centroid->getY();
 
   /* LOWER LEFT CORNER */
   if (x > 0 && y > 0 && stencil_index == 0) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x - 0.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 0.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),2.0);
     found = true;
   }
 
   /* LOWER RIGHT CORNER */
   else if (x < _num_x - 1 && y > 0 && stencil_index == 2) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 1.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* LEFT SIDE */
   else if (x > 0 && stencil_index == 3) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x - 0.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 0.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* CURRENT */
   else if (stencil_index == 4) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 0.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 0.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* RIGHT SIDE */
   else if (x < _num_x - 1 && stencil_index == 5) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 1.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 0.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* UPPER LEFT CORNER */
   else if (x > 0 && y < _num_y - 1 && stencil_index == 6) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x - 0.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 1.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* TOP SIDE */
   else if (y < _num_y - 1 && stencil_index == 7) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 0.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 1.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* UPPER RIGHT CORNER */
   else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8) {
-    dist_x = pow(centroid->getX() - (-_width_x/2.0 + (x + 1.5)*_cell_width_x),
-                 2.0);
-    dist_y = pow(centroid->getY() - (-_width_y/2.0 + (y + 1.5)*_cell_width_y),
-                 2.0);
+    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
     found = true;
   }
 
@@ -1860,7 +1834,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 void Cmfd::initialize() {
 
   try{
-    
+
     /* Allocate memory for matrix and vector objects */
     _M = new Matrix(_num_x, _num_y, _num_cmfd_groups);
     _A = new Matrix(_num_x, _num_y, _num_cmfd_groups);
@@ -1870,7 +1844,7 @@ void Cmfd::initialize() {
     _new_flux = new Vector(_num_x, _num_y, _num_cmfd_groups);
     _flux_ratio = new Vector(_num_x, _num_y, _num_cmfd_groups);
     _volumes = new Vector(_num_x, _num_y, 1);
-    
+
     /* Initialize k-nearest stencils, currents, flux, and materials */
     generateKNearestStencils();
     initializeCurrents();
