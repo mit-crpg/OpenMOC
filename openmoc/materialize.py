@@ -98,19 +98,6 @@ def materialize(filename):
       if 'Chi' in f[name]:
         new_material.setChi(f[name]['Chi'][...])
 
-      if 'Diffusion Coefficient' in f[name]:
-        new_material.setDifCoef(f[name]['Diffusion Coefficient'][...])
-
-      if 'Buckling' in f[name]:
-        new_material.setBuckling(f[name]['Buckling'][...])
-
-      if 'Absorption XS' in f[name]:
-        new_material.setSigmaA(f[name]['Absorption XS'][...])
-
-      # Make sure this Material's cross-sections add up to
-      # its total cross-section
-      new_material.checkSigmaT()
-
       # Add this material to the list
       materials[name] = new_material
 
@@ -165,15 +152,6 @@ def materialize(filename):
 
       if 'Chi' in data[name].keys():
         new_material.setChi(data[name]['Chi'])
-
-      if 'Diffusion Coefficient' in data[name].keys():
-        new_material.setDifCoef(data[name]['Diffusion Coefficient'])
-
-      if 'Buckling' in data[name].keys():
-        new_material.setBuckling(data[name]['Buckling'])
-
-      if 'Absorption XS' in data[name].keys():
-        new_material.setSigmaA(data[name]['Absorption XS'])
 
       # Add this material to the list
       materials[name] = new_material

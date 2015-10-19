@@ -14,20 +14,11 @@
 #include "Python.h"
 #endif
 #include "log.h"
-#include "Timer.h"
 #include "Universe.h"
 #include "Track.h"
 #include "PolarQuad.h"
 #include "linalg.h"
 #include "Geometry.h"
-#include <utility>
-#include <math.h>
-#include <limits.h>
-#include <string>
-#include <sstream>
-#include <queue>
-#include <iostream>
-#include <fstream>
 #endif
 
 /** Forward declaration of Geometry class */
@@ -149,11 +140,9 @@ private:
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
-  /** MOC flux update relaxation factor */
-  FP_PRECISION _relax_factor;
-
-  /** Flag indicating whether to use optically thick correction factor */
-  bool _optically_thick;
+  /** Flag indicating whether to use Larsen's effective diffusion coefficient
+   *  correction */
+  bool _larsens_edc_on;
 
   /** Pointer to Lattice object representing the CMFD mesh */
   Lattice* _lattice;
@@ -172,10 +161,10 @@ private:
     _k_nearest_stencils;
 
   /* Private worker functions */
-  FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
-  void constructMatrices();
-  void computeDs(int moc_iteration);
-  void computeXS();
+  FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
+                                       FP_PRECISION delta);
+  void constructMatrices(int moc_iteration);
+  void collapseXS();
   void updateMOCFlux();
   void rescaleFlux();
   void splitCorners();
@@ -184,11 +173,18 @@ private:
   void generateKNearestStencils();
 
   /* Private getter functions */
-  int getCellNext(int cell_id, int surface_id);
-  int getCellByStencil(int cell_id, int stencil_id);
-  FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
-  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
+  FP_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
+                                              int group, int moc_iteration,
+                                              bool correction);
+  FP_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
+  int getCellNext(int cmfd_cell, int surface);
+  int getCellByStencil(int cmfd_cell, int stencil_id);
+  FP_PRECISION getUpdateRatio(int cmfd_cell, int moc_group, int fsr);
+  FP_PRECISION getDistanceToCentroid(Point* centroid, int cmfd_cell,
                                      int stencil_index);
+  FP_PRECISION getSurfaceWidth(int surface);
+  FP_PRECISION getPerpendicularSurfaceWidth(int surface);
+  int getSense(int surface);
 
 public:
 
@@ -202,9 +198,9 @@ public:
   void initializeGroupMap();
   void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
-  int findCmfdSurface(int cell_id, LocalCoords* coords);
-  int findCmfdCorner(int cell_id, LocalCoords* coords);
-  void addFSRToCell(int cell_id, int fsr_id);
+  int findCmfdSurface(int cmfd_cell, LocalCoords* coords);
+  int findCmfdCorner(int cmfd_cell, LocalCoords* coords);
+  void addFSRToCell(int cmfd_cell, int fsr_id);
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     FP_PRECISION* polar_weights, bool fwd);
@@ -216,8 +212,6 @@ public:
   int getNumMOCGroups();
   int getNumCells();
   int getCmfdGroup(int group);
-  bool isOpticallyThick();
-  FP_PRECISION getMOCRelaxationFactor();
   int getBoundary(int side);
   Lattice* getLattice();
   int getNumX();
@@ -226,6 +220,7 @@ public:
   std::vector< std::vector<int> >* getCellFSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();
+  bool isLarsensEDCOn();
 
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
@@ -236,10 +231,9 @@ public:
   void setNumY(int num_y);
   void setNumFSRs(int num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
-  void setOpticallyThick(bool thick);
-  void setMOCRelaxationFactor(FP_PRECISION relax_factor);
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y);
+  void setLarsensEDCOn(bool larsens_edc_on);
   void setFluxUpdateOn(bool flux_update_on);
   void setCentroidUpdateOn(bool centroid_update_on);
   void setGroupStructure(int* group_indices, int length_group_indices);

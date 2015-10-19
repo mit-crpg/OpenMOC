@@ -62,22 +62,28 @@
  *
  *        surface_id_counter_clockwise = (corner_id + 1) % NUM_SURFACES
  *
+ *
+ *  Similarly, the surface ID of the same physical surface in the neighboring
+ *  cell can be computed using the formula:
+ *
+ *       surface_id_next = (surface_id + NUM_SURFACES / 2) % NUM_SURFACES
+ *
  *  The surface and corner IDs are defined as follows:
  *
  *                            3     3     2
  *                             -----------
  *                            |           |
  *                            |           |
- *                          0 |           | 1
+ *                          0 |           | 2
  *                            |           |
  *                            |           |
  *                             -----------
- *                            0     2     1
+ *                            0     1     1
  */
 #define NUM_SURFACES 4
 #define SURFACE_X_MIN 0
-#define SURFACE_X_MAX 1
-#define SURFACE_Y_MIN 2
+#define SURFACE_Y_MIN 1
+#define SURFACE_X_MAX 2
 #define SURFACE_Y_MAX 3
 
 #define NUM_CORNERS 4

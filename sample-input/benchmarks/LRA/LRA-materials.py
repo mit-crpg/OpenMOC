@@ -23,8 +23,6 @@ lra_materials = dataset['Materials']
 # Create a subdictionary for region 1 material data
 lra_materials['region_1'] = {}
 
-lra_materials['region_1']['Absorption XS'] = [0.008252, 0.1003]
-
 lra_materials['region_1']['Total XS'] = [0.2656, 1.5798]
 
 lra_materials['region_1']['Scattering XS'] = [0.231892, 0.02533, 0.00, 1.47948]
@@ -35,18 +33,12 @@ lra_materials['region_1']['Nu Fission XS'] = [0.004602, 0.1091]
 
 lra_materials['region_1']['Chi'] = [1.0, 0.0]
 
-lra_materials['region_1']['Diffusion Coefficient'] = [1.255, 0.211]
-
-lra_materials['region_1']['Buckling'] = [1e-4, 1e-4]
-
 ###############################################################################
 ################################   region 2    ################################
 ###############################################################################
 
 # Create a subdictionary for region 2 material data
 lra_materials['region_2'] = {}
-
-lra_materials['region_2']['Absorption XS'] = [0.007181, 0.07047]
 
 lra_materials['region_2']['Total XS'] = [0.2629, 1.7525]
 
@@ -58,18 +50,12 @@ lra_materials['region_2']['Nu Fission XS'] = [0.004609, 0.08675]
 
 lra_materials['region_2']['Chi'] = [1.0, 0.0]
 
-lra_materials['region_2']['Diffusion Coefficient'] = [1.268, 0.1902]
-
-lra_materials['region_2']['Buckling'] = [1e-4, 1e-4]
-
 ###############################################################################
 ################################   region 3    ################################
 ###############################################################################
 
 # Create a subdictionary for region 3 material data
 lra_materials['region_3'] = {}
-
-lra_materials['region_3']['Absorption XS'] = [0.008002, 0.08344]
 
 lra_materials['region_3']['Total XS'] = [0.2648, 1.5941]
 
@@ -81,19 +67,12 @@ lra_materials['region_3']['Nu Fission XS'] = [0.004663, 0.1021]
 
 lra_materials['region_3']['Chi'] = [1.0, 0.0]
 
-lra_materials['region_3']['Diffusion Coefficient'] = [1.259, 0.2091]
-
-lra_materials['region_3']['Buckling'] = [1e-4, 1e-4]
-
-
 ###############################################################################
 ################################   region 4    ################################
 ###############################################################################
 
 # Create a subdictionary for region 4 material data
 lra_materials['region_4'] = {}
-
-lra_materials['region_4']['Absorption XS'] = [0.008002, 0.073324]
 
 lra_materials['region_4']['Total XS'] = [0.2648, 1.5941]
 
@@ -105,18 +84,12 @@ lra_materials['region_4']['Nu Fission XS'] = [0.004663, 0.1021]
 
 lra_materials['region_4']['Chi'] = [1.0, 0.0]
 
-lra_materials['region_4']['Diffusion Coefficient'] = [1.259, 0.2091]
-
-lra_materials['region_4']['Buckling'] = [1e-4, 1e-4]
-
 ###############################################################################
 ################################   region 5    ################################
 ###############################################################################
 
 # Create a subdictionary for region 5 material data
 lra_materials['region_5'] = {}
-
-lra_materials['region_5']['Absorption XS'] = [0.008002, 0.08344]
 
 lra_materials['region_5']['Total XS'] = [0.2648, 1.5941]
 
@@ -128,18 +101,12 @@ lra_materials['region_5']['Nu Fission XS'] = [0.004663, 0.1021]
 
 lra_materials['region_5']['Chi'] = [1.0, 0.0]
 
-lra_materials['region_5']['Diffusion Coefficient'] = [1.259, 0.2091]
-
-lra_materials['region_5']['Buckling'] = [1e-4, 1e-4]
-
 ###############################################################################
 ################################   region 6    ################################
 ###############################################################################
 
 # Create a subdictionary for region 6 material data
 lra_materials['region_6'] = {}
-
-lra_materials['region_6']['Absorption XS'] = [0.0006034, 0.01911]
 
 lra_materials['region_6']['Total XS'] = [0.2652, 2.0938]
 
@@ -150,7 +117,3 @@ lra_materials['region_6']['Fission XS'] = [0.0, 0.0]
 lra_materials['region_6']['Nu Fission XS'] = [0.0, 0.0]
 
 lra_materials['region_6']['Chi'] = [1.0, 0.0]
-
-lra_materials['region_6']['Diffusion Coefficient'] = [1.257, 0.1592]
-
-lra_materials['region_6']['Buckling'] = [1e-4, 1e-4]
