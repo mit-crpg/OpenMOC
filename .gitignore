@@ -154,3 +154,6 @@ profile/models/gradients/two-directional/two-directional-gradient
 profile/models/gradients/two-directional/two-directional-gradient.o
 profile/models/homogeneous/homogeneous-one-group
 profile/models/homogeneous/homogeneous-one-group.o
+
+# IPython Notebook
+*/.ipynb_checkpoints/
