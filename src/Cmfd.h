@@ -173,15 +173,15 @@ private:
   void generateKNearestStencils();
 
   /* Private getter functions */
+  int getCellNext(int cell_id, int surface_id);
+  int getCellByStencil(int cell_id, int stencil_id);
+  FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
+  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
+                                     int stencil_index);
   FP_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                                               int group, int moc_iteration,
                                               bool correction);
   FP_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
-  int getCellNext(int cmfd_cell, int surface);
-  int getCellByStencil(int cmfd_cell, int stencil_id);
-  FP_PRECISION getUpdateRatio(int cmfd_cell, int moc_group, int fsr);
-  FP_PRECISION getDistanceToCentroid(Point* centroid, int cmfd_cell,
-                                     int stencil_index);
   FP_PRECISION getSurfaceWidth(int surface);
   FP_PRECISION getPerpendicularSurfaceWidth(int surface);
   int getSense(int surface);
@@ -198,9 +198,9 @@ public:
   void initializeGroupMap();
   void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
-  int findCmfdSurface(int cmfd_cell, LocalCoords* coords);
-  int findCmfdCorner(int cmfd_cell, LocalCoords* coords);
-  void addFSRToCell(int cmfd_cell, int fsr_id);
+  int findCmfdSurface(int cell_id, LocalCoords* coords);
+  int findCmfdCorner(int cell_id, LocalCoords* coords);
+  void addFSRToCell(int cell_id, int fsr_id);
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     FP_PRECISION* polar_weights, bool fwd);

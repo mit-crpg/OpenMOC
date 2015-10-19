@@ -1136,42 +1136,42 @@ void Cmfd::splitCorners() {
 
 
 /**
- * @brief Get the next Mesh cell to a given Mesh cell across a
+ * @brief Get the ID of the Mesh cell next to a given Mesh cell across a
  *        given surface.
- * @param cmfd_cell Current Mesh cell
- * @param surface CMFD cell surface to look across for neighboring cell
+ * @param cell_id Current Mesh cell ID
+ * @param surface_id CMFD cell surface ID to look across for neighboring cell
  * @return Neighboring CMFD cell ID
  */
-int Cmfd::getCellNext(int cmfd_cell, int surface) {
+int Cmfd::getCellNext(int cell_id, int surface_id) {
 
-  int cmfd_cell_next = -1;
+  int cell_next_id = -1;
 
-  if (surface == SURFACE_X_MIN) {
-    if (cmfd_cell % _num_x != 0)
-      cmfd_cell_next = cmfd_cell - 1;
+  if (surface_id == SURFACE_X_MIN) {
+    if (cell_id % _num_x != 0)
+      cell_next_id = cell_id - 1;
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-      cmfd_cell_next = cmfd_cell + (_num_x - 1);
+      cell_next_id = cell_id + (_num_x - 1);
   }
-  else if (surface == SURFACE_Y_MIN) {
-    if (cmfd_cell / _num_x != 0)
-      cmfd_cell_next = cmfd_cell - _num_x;
+  else if (surface_id == SURFACE_Y_MIN) {
+    if (cell_id / _num_x != 0)
+      cell_next_id = cell_id - _num_x;
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-      cmfd_cell_next = cmfd_cell + _num_x * (_num_y - 1);
+      cell_next_id = cell_id + _num_x * (_num_y - 1);
   }
-  else if (surface == SURFACE_X_MAX) {
-    if (cmfd_cell % _num_x != _num_x - 1)
-      cmfd_cell_next = cmfd_cell + 1;
+  else if (surface_id == SURFACE_X_MAX) {
+    if (cell_id % _num_x != _num_x - 1)
+      cell_next_id = cell_id + 1;
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-      cmfd_cell_next = cmfd_cell - (_num_x - 1);
+      cell_next_id = cell_id - (_num_x - 1);
   }
-  else if (surface == SURFACE_Y_MAX) {
-    if (cmfd_cell / _num_x != _num_y - 1)
-      cmfd_cell_next = cmfd_cell + _num_x;
+  else if (surface_id == SURFACE_Y_MAX) {
+    if (cell_id / _num_x != _num_y - 1)
+      cell_next_id = cell_id + _num_x;
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-      cmfd_cell_next = cmfd_cell - _num_x * (_num_y - 1);
+      cell_next_id = cell_id - _num_x * (_num_y - 1);
   }
 
-  return cmfd_cell_next;
+  return cell_next_id;
 }
 
 

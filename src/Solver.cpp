@@ -795,7 +795,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   _k_eff = 1.;
 
   _num_iterations = 0;
-  FP_PRECISION residual = 0.0;
+  FP_PRECISION residual;
 
   /* Initialize data structures */
   initializePolarQuadrature();
@@ -905,7 +905,7 @@ void Solver::computeSource(int max_iters, solverMode mode,
   _k_eff = k_eff;
 
   _num_iterations = 0;
-  FP_PRECISION residual = 0.0;
+  FP_PRECISION residual;
 
   /* Initialize data structures */
   initializePolarQuadrature();
@@ -987,7 +987,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   _timer->startTimer();
 
   _num_iterations = 0;
-  FP_PRECISION residual = 0.0;
+  FP_PRECISION residual;
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
