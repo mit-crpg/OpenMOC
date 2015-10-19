@@ -341,9 +341,9 @@ def get_compatible_opencg_surfaces(opencg_surface):
     surfaces = [min_x, max_x, min_y, max_y]
 
   else:
-    msg = 'Unable to create a compatible OpenMC Surface an OpenCG ' \
+    msg = 'Unable to create a compatible OpenMOC Surface an OpenCG ' \
           'Surface of type "{0}" since it already a compatible ' \
-          'Surface type in OpenMC'.format(opencg_surface.type)
+          'Surface type in OpenMOC'.format(opencg_surface.type)
     raise ValueError(msg)
 
   # Add the OpenMOC Surface(s) to the global collection of all OpenMOC Surfaces
