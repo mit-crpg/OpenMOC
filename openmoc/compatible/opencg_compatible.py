@@ -283,20 +283,6 @@ def get_compatible_opencg_surfaces(opencg_surface):
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
   boundary = opencg_surface.boundary_type
 
-  # If Cell is outside the SquarePrism (positive halfspace), add "outside" 
-  # of Surface halfspaces. Since OpenMOC does not have a SquarePrism Surface, 
-  # individual Cells are created for the 8 Cells that make up the outer region 
-  # of a SquarePrism.
-  #                 |                    |
-  #           0     |        1           |    2
-  #           ______|____________________|______
-  #                 |     SquarePrism    |
-  #           7     |   (-)  halfspace   |    3
-  #           ______|____________________|______
-  #                 |                    |  
-  #           6     |        5           |    4
-  #                 |                    |
-
   if opencg_surface.type == 'x-squareprism':
     y0 = opencg_surface.y0
     z0 = opencg_surface.z0
@@ -449,7 +435,19 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
       opencg_cell.add_surface(compatible_surfaces[3], -1)
       compatible_cells.append(opencg_cell)
 
-    # If Cell is outside SquarePrism, add "outside" of Surface halfspaces
+    # If Cell is outside the SquarePrism (positive halfspace), add "outside" 
+    # of Surface halfspaces. Since OpenMOC does not have a SquarePrism 
+    # Surface, individual Cells are created for the 8 Cells that make up the 
+    # outer region of a SquarePrism.
+    #                 |                    |
+    #           0     |        1           |    2
+    #           ______|____________________|______
+    #                 |     SquarePrism    |
+    #           7     |   (-)  halfspace   |    3
+    #           ______|____________________|______
+    #                 |                    |  
+    #           6     |        5           |    4
+    #                 |                    |
     else:
 
       # Create 8 Cell clones to represent each of the disjoint planar
@@ -462,45 +460,45 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
         clone = opencg_cell.clone()
         compatible_cells.append(clone)
 
-        # Top left subcell - add left XPlane, top YPlane
+        # Top left subcell (subcell 0)
         if clone_id == 0:
           clone.add_surface(compatible_surfaces[0], -1)
           clone.add_surface(compatible_surfaces[3], +1)
 
-        # Top center subcell - add top YPlane, left/right XPlanes
+        # Top center subcell (subcell 1)
         elif clone_id == 1:
           clone.add_surface(compatible_surfaces[0], +1)
           clone.add_surface(compatible_surfaces[1], -1)
           clone.add_surface(compatible_surfaces[3], +1)
 
-        # Top right subcell - add top YPlane, right XPlane
+        # Top right subcell (subcell 2)
         elif clone_id == 2:
           clone.add_surface(compatible_surfaces[1], +1)
           clone.add_surface(compatible_surfaces[3], +1)
 
-        # Right center subcell - add right XPlane, top/bottom YPlanes
+        # Right center subcell (subcell 3)
         elif clone_id == 3:
           clone.add_surface(compatible_surfaces[1], +1)
           clone.add_surface(compatible_surfaces[3], -1)
           clone.add_surface(compatible_surfaces[2], +1)
 
-        # Bottom right subcell - add right XPlane, bottom YPlane
+        # Bottom right subcell (subcell 4)
         elif clone_id == 4:
           clone.add_surface(compatible_surfaces[1], +1)
           clone.add_surface(compatible_surfaces[2], -1)
 
-        # Bottom center subcell - add bottom YPlane, left/right XPlanes
+        # Bottom center subcell (subcell 5)
         elif clone_id == 5:
           clone.add_surface(compatible_surfaces[0], +1)
           clone.add_surface(compatible_surfaces[1], -1)
           clone.add_surface(compatible_surfaces[2], -1)
 
-        # Bottom left subcell - add bottom YPlane, left XPlane
+        # Bottom left subcell (subcell 6)
         elif clone_id == 6:
           clone.add_surface(compatible_surfaces[0], -1)
           clone.add_surface(compatible_surfaces[2], -1)
 
-        # Left center subcell - add left XPlane, top/bottom YPlanes
+        # Left center subcell (subcell 7)
         elif clone_id == 7:
           clone.add_surface(compatible_surfaces[0], -1)
           clone.add_surface(compatible_surfaces[3], -1)
