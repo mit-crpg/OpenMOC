@@ -161,7 +161,8 @@ def get_opencg_surface(openmoc_surface):
     A = openmoc_surface.getA()
     B = openmoc_surface.getB()
     C = openmoc_surface.getC()
-    opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, 0, C)
+    D = openmoc_surface.getD()
+    opencg_surface = opencg.Plane(surface_id, name, boundary, A, B, C, D)
 
   elif surface_type == openmoc.XPLANE:
     openmoc_surface = openmoc.castSurfaceToXPlane(openmoc_surface)
@@ -178,8 +179,8 @@ def get_opencg_surface(openmoc_surface):
     z0 = openmoc_surface.getZ()
     opencg_surface = opencg.ZPlane(surface_id, name, boundary, z0)
 
-  elif surface_type == openmoc.CIRCLE:
-    openmoc_surface = openmoc.castSurfaceToCircle(openmoc_surface)
+  elif surface_type == openmoc.ZCYLINDER:
+    openmoc_surface = openmoc.castSurfaceToZCylinder(openmoc_surface)
     x0 = openmoc_surface.getX0()
     y0 = openmoc_surface.getY0()
     R = openmoc_surface.getRadius()
@@ -224,7 +225,7 @@ def get_openmoc_surface(opencg_surface):
     A = opencg_surface.a
     B = opencg_surface.b
     D = opencg_surface.d
-    openmoc_surface = openmoc.Plane(A, B, D, surface_id, name)
+    openmoc_surface = openmoc.Plane(A, B, C, D, surface_id, name)
 
   elif opencg_surface.type == 'x-plane':
     x0 = opencg_surface.x0
@@ -242,7 +243,7 @@ def get_openmoc_surface(opencg_surface):
     x0 = opencg_surface.x0
     y0 = opencg_surface.y0
     R = opencg_surface.r
-    openmoc_surface = openmoc.Circle(x0, y0, R, surface_id, name)
+    openmoc_surface = openmoc.ZCylinder(x0, y0, R, surface_id, name)
 
   else:
     msg = 'Unable to create an OpenMOC Surface from an OpenCG ' \
@@ -282,35 +283,66 @@ def get_compatible_opencg_surfaces(opencg_surface):
   # Correct for OpenMOC's syntax for Surfaces dividing Cells
   boundary = opencg_surface.boundary_type
 
-  if opencg_surface.type == 'z-squareprism':
+  if opencg_surface.type == 'x-squareprism':
+    y0 = opencg_surface.y0
+    z0 = opencg_surface.z0
+    R = opencg_surface.r
+
+    # Create a list of the four planes we need
+    min_y = opencg.YPlane(y0=y0-R, name=name)
+    max_y = opencg.YPlane(y0=y0+R, name=name)
+    min_z = opencg.ZPlane(z0=z0-R, name=name)
+    max_z = opencg.ZPlane(z0=z0+R, name=name)
+
+    # Set the boundary conditions for each Surface
+    min_y.boundary_type = boundary
+    max_y.boundary_type = boundary
+    min_z.boundary_type = boundary
+    max_z.boundary_type = boundary
+
+    surfaces = [min_y, max_y, min_z, max_z]
+
+  elif opencg_surface.type == 'y-squareprism':
+    x0 = opencg_surface.x0
+    z0 = opencg_surface.z0
+    R = opencg_surface.r
+
+    # Create a list of the four planes we need
+    min_x = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
+    max_x = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
+    min_z = opencg.ZPlane(name=name, boundary=boundary, z0=z0-R)
+    max_z = opencg.ZPlane(name=name, boundary=boundary, z0=z0+R)
+
+    # Set the boundary conditions for each Surface
+    min_x.boundary_type = boundary
+    max_x.boundary_type = boundary
+    min_z.boundary_type = boundary
+    max_z.boundary_type = boundary
+
+    surfaces = [min_x, max_x, min_z, max_z]
+
+  elif opencg_surface.type == 'z-squareprism':
     x0 = opencg_surface.x0
     y0 = opencg_surface.y0
     R = opencg_surface.r
 
     # Create a list of the four planes we need
-    left = opencg.XPlane(x0=x0-R, name=name)
-    right = opencg.XPlane(x0=x0+R, name=name)
-    bottom = opencg.YPlane(y0=y0-R, name=name)
-    top = opencg.YPlane(y0=y0+R, name=name)
+    min_x = opencg.XPlane(name=name, boundary=boundary, x0=x0-R)
+    max_x = opencg.XPlane(name=name, boundary=boundary, x0=x0+R)
+    min_y = opencg.YPlane(name=name, boundary=boundary, y0=y0-R)
+    max_y = opencg.YPlane(name=name, boundary=boundary, y0=y0+R)
 
     # Set the boundary conditions for each Surface
-    left.boundary_type = boundary
-    right.boundary_type = boundary
-    bottom.boundary_type = boundary
-    top.boundary_type = boundary
+    min_x.boundary_type = boundary
+    max_x.boundary_type = boundary
+    min_y.boundary_type = boundary
+    max_y.boundary_type = boundary
 
-    surfaces = [left, right, bottom, top]
-
-  elif opencg_surface.type in ['x-cylinder', 'y-cylinder',
-                               'x-squareprism', 'y-squareprism']:
-    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCG ' \
-          'Surface of type {0} since it is not compatible with OpenMOCs 2D ' \
-          'geometry formulation on the xy-plane'.format(opencg_surface.type)
-    raise ValueError(msg)
+    surfaces = [min_x, max_x, min_y, max_y]
 
   else:
-    msg = 'Unable to create a compatible OpenMOC Surface from an OpenCG ' \
-          'Surface of type {0} since it already a compatible ' \
+    msg = 'Unable to create a compatible OpenMOC Surface an OpenCG ' \
+          'Surface of type "{0}" since it already a compatible ' \
           'Surface type in OpenMOC'.format(opencg_surface.type)
     raise ValueError(msg)
 
@@ -387,7 +419,8 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
   compatible_cells = list()
 
   # SquarePrism Surfaces
-  if opencg_surface.type == 'z-squareprism':
+  if opencg_surface.type in ['x-squareprism', 'y-squareprism', 
+                             'z-squareprism']:
 
     # Get the compatible Surfaces (XPlanes and YPlanes)
     compatible_surfaces = get_compatible_opencg_surfaces(opencg_surface)
@@ -402,7 +435,19 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
       opencg_cell.add_surface(compatible_surfaces[3], -1)
       compatible_cells.append(opencg_cell)
 
-    # If Cell is outside SquarePrism, add "outside" of Surface halfspaces
+    # If Cell is outside the SquarePrism (positive halfspace), add "outside" 
+    # of Surface halfspaces. Since OpenMOC does not have a SquarePrism 
+    # Surface, individual Cells are created for the 8 Cells that make up the 
+    # outer region of a SquarePrism.
+    #                 |                    |
+    #           0     |        1           |    2
+    #           ______|____________________|______
+    #                 |     SquarePrism    |
+    #           7     |   (-)  halfspace   |    3
+    #           ______|____________________|______
+    #                 |                    |  
+    #           6     |        5           |    4
+    #                 |                    |
     else:
 
       # Create 8 Cell clones to represent each of the disjoint planar
@@ -415,45 +460,45 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
         clone = opencg_cell.clone()
         compatible_cells.append(clone)
 
-        # Top left subcell - add left XPlane, top YPlane
+        # Top left subcell (subcell 0)
         if clone_id == 0:
           clone.add_surface(compatible_surfaces[0], -1)
           clone.add_surface(compatible_surfaces[3], +1)
 
-        # Top center subcell - add top YPlane, left/right XPlanes
+        # Top center subcell (subcell 1)
         elif clone_id == 1:
           clone.add_surface(compatible_surfaces[0], +1)
           clone.add_surface(compatible_surfaces[1], -1)
           clone.add_surface(compatible_surfaces[3], +1)
 
-        # Top right subcell - add top YPlane, right XPlane
+        # Top right subcell (subcell 2)
         elif clone_id == 2:
           clone.add_surface(compatible_surfaces[1], +1)
           clone.add_surface(compatible_surfaces[3], +1)
 
-        # Right center subcell - add right XPlane, top/bottom YPlanes
+        # Right center subcell (subcell 3)
         elif clone_id == 3:
           clone.add_surface(compatible_surfaces[1], +1)
           clone.add_surface(compatible_surfaces[3], -1)
           clone.add_surface(compatible_surfaces[2], +1)
 
-        # Bottom right subcell - add right XPlane, bottom YPlane
+        # Bottom right subcell (subcell 4)
         elif clone_id == 4:
           clone.add_surface(compatible_surfaces[1], +1)
           clone.add_surface(compatible_surfaces[2], -1)
 
-        # Bottom center subcell - add bottom YPlane, left/right XPlanes
+        # Bottom center subcell (subcell 5)
         elif clone_id == 5:
           clone.add_surface(compatible_surfaces[0], +1)
           clone.add_surface(compatible_surfaces[1], -1)
           clone.add_surface(compatible_surfaces[2], -1)
 
-        # Bottom left subcell - add bottom YPlane, left XPlane
+        # Bottom left subcell (subcell 6)
         elif clone_id == 6:
           clone.add_surface(compatible_surfaces[0], -1)
           clone.add_surface(compatible_surfaces[2], -1)
 
-        # Left center subcell - add left XPlane, top/bottom YPlanes
+        # Left center subcell (subcell 7)
         elif clone_id == 7:
           clone.add_surface(compatible_surfaces[0], -1)
           clone.add_surface(compatible_surfaces[3], -1)
@@ -723,9 +768,9 @@ def get_openmoc_lattice(opencg_lattice):
       universe_array[x][y] = unique_universes[universe_id]
 
   openmoc_lattice = openmoc.Lattice(lattice_id, name)
-  openmoc_lattice.setWidth(width[0], width[1])
-  openmoc_lattice.setUniverses(universe_array.tolist())
-  openmoc_lattice.setOffset(offset[0], offset[1])
+  openmoc_lattice.setWidth(width[0], width[1], width[2])
+  openmoc_lattice.setUniverses([universe_array.tolist()])
+  openmoc_lattice.setOffset(offset[0], offset[1], offset[2])
 
   # Add the OpenMOC Lattice to the global collection of all OpenMOC Lattices
   OPENMOC_LATTICES[lattice_id] = openmoc_lattice
