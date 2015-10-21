@@ -224,6 +224,7 @@ def get_openmoc_surface(opencg_surface):
   if opencg_surface.type == 'plane':
     A = opencg_surface.a
     B = opencg_surface.b
+    C = opencg_surface.c
     D = opencg_surface.d
     openmoc_surface = openmoc.Plane(A, B, C, D, surface_id, name)
 
