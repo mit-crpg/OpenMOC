@@ -1,2 +1,2 @@
-from casmo import *
-from opencg_compatible import *
+from openmoc.compatible.casmo import *
+from openmoc.compatible.opencg_compatible import *
