@@ -1188,8 +1188,8 @@ bool Cmfd::isLarsensEDCOn() {
  *         the CMFD acceleration equations have a diffusion coefficient (on the
  *         flux gradient term) that is consistent, not with the physical
  *         transport problem, but with the transport problem that is being
- *         accelerated by the CMFD equations. It is recommended that Larsen's
- *         effective diffusion coefficient always be turned on as it improves
+ *         accelerated by the CMFD equations. Larsen's EDC is on by default and
+ *         it is recommended that Larsen's EDC always be turned on as it improves
  *         stability of the CMFD-accelerated MOC solve. This function is provided
  *         to give users the ability to toggle Larsen's effective diffusion
  *         coefficient correction.
