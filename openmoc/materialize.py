@@ -117,12 +117,26 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
 
         # If using an OpenMOC Geometry, extract a Material from it
         if geometry:
+
             if domain_type == 'material':
                 material = _get_domain(domains, domain_spec)
+
             elif domain_type == 'cell':
-                cell = _get_domain(domains, domain_spec).getFillMaterial()
+                cell = _get_domain(domains, domain_spec)
                 material = cell.getFillMaterial()
-                material = material.clone()
+
+                # If the user filled the Cell with a Material, clone it
+                if material != None:
+                    material = material.clone()
+
+                # If the Cell does not contain a Material, creat one for it
+                else:
+                    if isinstance(domain_spec, int):
+                        material = openmoc.Material(id=domain_spec)
+                    else:
+                        material = openmoc.Material(name=domain_spec)
+
+                # Fill the Cell with the new Material
                 cell.setFill(material)
 
         # If not Geometry, instantiate a new Material with the ID/name
@@ -244,12 +258,26 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
         # If using an OpenMOC Geometry, extract a Material from it
         if geometry:
+
             if domain_type == 'material':
-                material = _get_domain(domains, domain.id)
+                material = _get_domain(domains, domain_spec)
+
             elif domain_type == 'cell':
-                cell = _get_domain(domains, domain.id)
+                cell = _get_domain(domains, domain_spec)
                 material = cell.getFillMaterial()
-                material = material.clone()
+
+                # If the user filled the Cell with a Material, clone it
+                if material != None:
+                    material = material.clone()
+
+                # If the Cell does not contain a Material, creat one for it
+                else:
+                    if isinstance(domain_spec, int):
+                        material = openmoc.Material(id=domain_spec)
+                    else:
+                        material = openmoc.Material(name=domain_spec)
+
+                # Fill the Cell with the new Material
                 cell.setFill(material)
 
         # If not Geometry, instantiate a new Material with the ID/name
