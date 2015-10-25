@@ -479,7 +479,6 @@ int main() {
   log_printf(NORMAL, "Creating CMFD mesh...");
 
   Cmfd cmfd;
-  cmfd.setMOCRelaxationFactor(0.6);
   cmfd.setSORRelaxationFactor(1.5);
   cmfd.setLatticeStructure(51, 51);
   int cmfd_group_structure[3] = {1,4,8};
