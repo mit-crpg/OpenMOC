@@ -339,7 +339,7 @@ void Cmfd::collapseXS() {
 
 /**
  * @brief Computes the diffusion coefficient for a given cmfd cell and cmfd
- *        cmfd energy group.
+ *        energy group.
  * @detail This method computes the diffusion coefficient for a cmfd cell and
  *         cmfd energy group by spatially collapsing the total/transport xs
  *         in each FSR contained within the cmfd cell and then energy collapsing
@@ -1080,45 +1080,50 @@ void Cmfd::splitCorners() {
 
   log_printf(INFO, "Splitting CMFD corner currents...");
 
-  FP_PRECISION current;
-  int cell_cw, cell_ccw;
-  int surface_cw, surface_ccw;
   int ncg = _num_cmfd_groups;
 
-  #pragma omp parallel for
-  for (int i = 0; i < _num_x * _num_y; i++) {
-    for (int c = 0; c < NUM_CORNERS; c++) {
+  #pragma omp parallel
+  {
 
-      /* Save the surfaces and cells located clockwise and counter-clockwise to
-       * current corner */
-      surface_cw = c;
-      surface_ccw = (c + 1) % NUM_SURFACES;
-      cell_cw = getCellNext(i, surface_cw);
-      cell_ccw = getCellNext(i, surface_ccw);
+    FP_PRECISION current;
+    int cell_cw, cell_ccw;
+    int surface_cw, surface_ccw;
 
-      for (int e=0; e > ncg; e++) {
-        current = 0.5 * _corner_currents->getValue(i, c * ncg + e);
+    #pragma omp parallel for
+    for (int i = 0; i < _num_x * _num_y; i++) {
+      for (int c = 0; c < NUM_CORNERS; c++) {
 
-        /* Increment current for surface clockwise of corner */
-        _surface_currents->incrementValue(i, surface_cw * ncg + e, current);
+        /* Save the surfaces and cells located clockwise and counter-clockwise to
+         * current corner */
+        surface_cw = c;
+        surface_ccw = (c + 1) % NUM_SURFACES;
+        cell_cw = getCellNext(i, surface_cw);
+        cell_ccw = getCellNext(i, surface_ccw);
 
-        /* Increment current for surface counter-clockwise of corner */
-        _surface_currents->incrementValue(i, surface_ccw * ncg + e, current);
+        for (int e=0; e > ncg; e++) {
+          current = 0.5 * _corner_currents->getValue(i, c * ncg + e);
 
-        /* Increment current for the surface in the neighboring cell across the
-         * surface clockwise to the corner */
-        if (cell_cw != -1)
-          _surface_currents->incrementValue(cell_cw, surface_ccw * ncg + e,
-                                            current);
+          /* Increment current for surface clockwise of corner */
+          _surface_currents->incrementValue(i, surface_cw * ncg + e, current);
 
-        /* Increment current for the surface in the neighboring cell across the
-         * surface counter-clockwise to the corner */
-        if (cell_ccw != -1)
-          _surface_currents->incrementValue(cell_ccw, surface_cw * ncg + e,
-                                            current);
+          /* Increment current for surface counter-clockwise of corner */
+          _surface_currents->incrementValue(i, surface_ccw * ncg + e, current);
 
-        /* Zero out the corner current */
-        _corner_currents->setValue(i, c * ncg + e, 0.0);
+          /* Increment current for the surface in the neighboring cell across the
+           * surface clockwise to the corner */
+          if (cell_cw != -1)
+            _surface_currents->incrementValue(cell_cw, surface_ccw * ncg + e,
+                                              current);
+
+          /* Increment current for the surface in the neighboring cell across the
+           * surface counter-clockwise to the corner */
+          if (cell_ccw != -1)
+            _surface_currents->incrementValue(cell_ccw, surface_cw * ncg + e,
+                                              current);
+
+          /* Zero out the corner current */
+          _corner_currents->setValue(i, c * ncg + e, 0.0);
+        }
       }
     }
   }
@@ -1179,6 +1184,15 @@ bool Cmfd::isLarsensEDCOn() {
 /**
  * @brief Set whether Larsen's effective diffusion coefficient correction factor
  *        is in use.
+ * @detail Larsen’s effective diffusion coefficient is useful in assuring that
+ *         the CMFD acceleration equations have a diffusion coefficient (on the
+ *         flux gradient term) that is consistent, not with the physical
+ *         transport problem, but with the transport problem that is being
+ *         accelerated by the CMFD equations. It is recommended that Larsen's
+ *         effective diffusion coefficient always be turned on as it improves
+ *         stability of the CMFD-accelerated MOC solve. This function is provided
+ *         to give users the ability to toggle Larsen's effective diffusion
+ *         coefficient correction.
  * @param larsens_edc_on Boolean indicating whether Larsen's effective diffusion
  *        coefficient correction factor is in use.
  */
