@@ -260,22 +260,21 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         if geometry:
 
             if domain_type == 'material':
-                material = _get_domain(domains, domain_spec)
+                material = _get_domain(domains, domain.id)
 
             elif domain_type == 'cell':
-                cell = _get_domain(domains, domain_spec)
+                print(domain, domains)
+                cell = _get_domain(domains, domain.id)
+                print(cell)
                 material = cell.getFillMaterial()
 
                 # If the user filled the Cell with a Material, clone it
                 if material != None:
                     material = material.clone()
 
-                # If the Cell does not contain a Material, creat one for it
+                # If the Cell does not contain a Material, create one for it
                 else:
-                    if isinstance(domain_spec, int):
-                        material = openmoc.Material(id=domain_spec)
-                    else:
-                        material = openmoc.Material(name=domain_spec)
+                    material = openmoc.Material(id=domain)
 
                 # Fill the Cell with the new Material
                 cell.setFill(material)
