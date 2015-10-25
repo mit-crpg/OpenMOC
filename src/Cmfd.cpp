@@ -23,7 +23,6 @@ Cmfd::Cmfd() {
   _flux_update_on = true;
   _centroid_update_on = true;
   _k_nearest = 3;
-  _larsens_edc_on = true;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
 
@@ -431,8 +430,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
    * coefficient correction factor */
-  if (_larsens_edc_on)
-    dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
+  dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
 
   /* If surface is on a boundary, choose appropriate BC */
   if (cmfd_cell_next == -1) {
@@ -468,8 +466,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
-    if (_larsens_edc_on)
-      dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
+    dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
@@ -1167,37 +1164,6 @@ int Cmfd::getCellNext(int cell_id, int surface_id) {
   }
 
   return cell_next_id;
-}
-
-
-/**
- * @brief Return whether Larsen's effective diffusion coefficient correction
- *        factor is in use.
- * @return Whether Larsen's effective diffusion coefficient correction factor
- *         is in use.
- */
-bool Cmfd::isLarsensEDCOn() {
-  return _larsens_edc_on;
-}
-
-
-/**
- * @brief Set whether Larsen's effective diffusion coefficient correction factor
- *        is in use.
- * @detail Larsen’s effective diffusion coefficient is useful in assuring that
- *         the CMFD acceleration equations have a diffusion coefficient (on the
- *         flux gradient term) that is consistent, not with the physical
- *         transport problem, but with the transport problem that is being
- *         accelerated by the CMFD equations. Larsen's EDC is on by default and
- *         it is recommended that Larsen's EDC always be turned on as it improves
- *         stability of the CMFD-accelerated MOC solve. This function is provided
- *         to give users the ability to toggle Larsen's effective diffusion
- *         coefficient correction.
- * @param larsens_edc_on Boolean indicating whether Larsen's effective diffusion
- *        coefficient correction factor is in use.
- */
-void Cmfd::setLarsensEDCOn(bool larsens_edc_on) {
-  _larsens_edc_on = larsens_edc_on;
 }
 
 

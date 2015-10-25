@@ -140,10 +140,6 @@ private:
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
-  /** Flag indicating whether to use Larsen's effective diffusion coefficient
-   *  correction */
-  bool _larsens_edc_on;
-
   /** Pointer to Lattice object representing the CMFD mesh */
   Lattice* _lattice;
 
@@ -220,7 +216,6 @@ public:
   std::vector< std::vector<int> >* getCellFSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();
-  bool isLarsensEDCOn();
 
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
@@ -233,7 +228,6 @@ public:
   void setNumMOCGroups(int num_moc_groups);
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y);
-  void setLarsensEDCOn(bool larsens_edc_on);
   void setFluxUpdateOn(bool flux_update_on);
   void setCentroidUpdateOn(bool centroid_update_on);
   void setGroupStructure(int* group_indices, int length_group_indices);
