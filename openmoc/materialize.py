@@ -120,7 +120,10 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             if domain_type == 'material':
                 material = _get_domain(domains, domain_spec)
             elif domain_type == 'cell':
-                material = _get_domain(domains, domain_spec).getFillMaterial()
+                cell = _get_domain(domains, domain_spec).getFillMaterial()
+                material = cell.getFillMaterial()
+                material = material.clone()
+                cell.setFill(material)
 
         # If not Geometry, instantiate a new Material with the ID/name
         else:
@@ -244,7 +247,10 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             if domain_type == 'material':
                 material = _get_domain(domains, domain.id)
             elif domain_type == 'cell':
-                material = _get_domain(domains, domain.id).getFillMaterial()
+                cell = _get_domain(domains, domain.id)
+                material = cell.getFillMaterial()
+                material = material.clone()
+                cell.setFill(material)
 
         # If not Geometry, instantiate a new Material with the ID/name
         else:
