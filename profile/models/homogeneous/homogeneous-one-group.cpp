@@ -25,13 +25,11 @@ int main() {
   log_printf(NORMAL, "Creating materials...");
   Material* infinite_medium = new Material();
   infinite_medium->setNumEnergyGroups(1);
-  double sigmaA[1] = {0.069389522};
   double sigmaF[1] = {0.0414198575};
   double nuSigmaF[1] = {0.0994076580};
   double sigmaS[1] = {0.383259177};
   double chi[1] = {1.0};
   double sigmaT[1] = {0.452648699};
-  infinite_medium->setSigmaA(sigmaA, 1);
   infinite_medium->setSigmaF(sigmaF, 1);
   infinite_medium->setNuSigmaF(nuSigmaF, 1);
   infinite_medium->setSigmaS(sigmaS, 1);
