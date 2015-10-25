@@ -25,7 +25,6 @@ openmoc.log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 openmoc.log.py_printf('NORMAL', 'Creating materials...')
 
-sigma_a = numpy.array([0.069389522])
 sigma_f = numpy.array([0.0414198575])
 nu_sigma_f = numpy.array([0.0994076580])
 sigma_s = numpy.array([0.383259177])
@@ -34,7 +33,6 @@ sigma_t = numpy.array([0.452648699])
 
 infinite_medium = openmoc.Material(name='1-group infinite medium')
 infinite_medium.setNumEnergyGroups(1)
-infinite_medium.setSigmaA(sigma_a)
 infinite_medium.setSigmaF(sigma_f)
 infinite_medium.setNuSigmaF(nu_sigma_f)
 infinite_medium.setSigmaS(sigma_s)

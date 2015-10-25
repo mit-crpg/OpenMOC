@@ -25,13 +25,11 @@ int main() {
   log_printf(NORMAL, "Creating materials...");
   Material* basic_material = new Material();
   basic_material->setNumEnergyGroups(1);
-  double sigmaA[1] = {0.069389522};
   double sigmaF[1] = {0.0414198575};
   double nuSigmaF[1] = {0.0994076580};
   double sigmaS[1] = {0.383259177};
   double chi[1] = {1.0};
   double sigmaT[1] = {0.452648699};
-  basic_material->setSigmaA(sigmaA, 1);
   basic_material->setSigmaF(sigmaF, 1);
   basic_material->setNuSigmaF(nuSigmaF, 1);
   basic_material->setSigmaS(sigmaS, 1);

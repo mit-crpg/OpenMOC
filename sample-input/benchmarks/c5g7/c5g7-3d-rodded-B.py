@@ -455,10 +455,8 @@ root_cell.setFill(lattices[-1])
 openmoc.log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = openmoc.Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.0)
 cmfd.setLatticeStructure(51,51)
-cmfd.setOpticallyThick(True)
 cmfd.setGroupStructure([1,4,8])
 
 

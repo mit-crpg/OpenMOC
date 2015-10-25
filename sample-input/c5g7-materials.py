@@ -27,10 +27,6 @@ c5g7_dataset['UO2']['Total XS'] = [1.779490E-01, 3.298050E-01, 4.803880E-01,
                                    5.543670E-01, 3.118010E-01, 3.951680E-01,
                                    5.644060E-01]
 
-c5g7_dataset['UO2']['Absorption XS'] = [8.024800E-03, 3.717400E-03, 2.676900E-02,
-                                        9.623600E-02, 3.002000E-02, 1.112600E-01,
-                                        2.827800E-01]
-
 c5g7_dataset['UO2']['Scattering XS'] = [1.275370E-01, 4.237800E-02, 9.437400E-06,
                                         5.516300E-09, 0., 0., 0., 0.,
                                         3.244560E-01, 1.631400E-03, 3.142700E-09,
@@ -66,10 +62,6 @@ c5g7_dataset['MOX-4.3%'] = {}
 c5g7_dataset['MOX-4.3%']['Total XS'] = [1.787310E-01, 3.308490E-01, 4.837720E-01,
                                         5.669220E-01, 4.262270E-01, 6.789970E-01,
                                         6.828520E-01]
-c5g7_dataset['MOX-4.3%']['Absorption XS'] = [8.433900E-03, 3.757700E-03,
-                                             2.797000E-02, 1.042100E-01,
-                                             1.399400E-01, 4.091800E-01,
-                                             4.093500E-01]
 c5g7_dataset['MOX-4.3%']['Scattering XS'] = [1.288760E-01, 4.141300E-02,
                                              8.229000E-06, 5.040500E-09, 0., 0.,
                                              0., 0., 3.254520E-01, 1.639500E-03,
@@ -101,10 +93,6 @@ c5g7_dataset['MOX-4.3%']['Chi'] = [5.87910E-01, 4.11760E-01, 3.39060E-04,
 # Create a subdictionary for MOX-7% materials data
 c5g7_dataset['MOX-7%'] = {}
 
-c5g7_dataset['MOX-7%']['Absorption XS'] = [9.065700E-03, 4.296700E-03,
-                                           3.288100E-02, 1.220300E-01,
-                                           1.829800E-01, 5.684600E-01,
-                                           5.852100E-01]
 c5g7_dataset['MOX-7%']['Total XS'] = [1.813230E-01, 3.343680E-01, 4.937850E-01, 
                                       5.912160E-01, 4.741980E-01, 8.336010E-01, 
                                       8.536030E-01]
@@ -140,10 +128,6 @@ c5g7_dataset['MOX-7%']['Chi'] = [5.87910E-01, 4.11760E-01, 3.39060E-04,
 c5g7_dataset['MOX-8.7%'] = {}
 
 # Create a subgroup for MOX-8.7% materials data
-c5g7_dataset['MOX-8.7%']['Absorption XS'] = [9.486200E-03, 4.655600E-03,
-                                             3.624000E-02, 1.327200E-01,
-                                             2.084000E-01, 6.587000E-01,
-                                             6.901700E-01]
 c5g7_dataset['MOX-8.7%']['Total XS'] = [1.830450E-01, 3.367050E-01, 5.005070E-01,
                                         6.061740E-01, 5.027540E-01, 9.210280E-01,
                                         9.552310E-01]
@@ -178,10 +162,6 @@ c5g7_dataset['MOX-8.7%']['Chi'] = [5.87910E-01, 4.11760E-01, 3.39060E-04,
 # Create a subdictionary for fission chamber materials data
 c5g7_dataset['Fission Chamber'] = {}
 
-c5g7_dataset['Fission Chamber']['Absorption XS'] = [5.113200E-04, 7.581300E-05,
-                                                    3.164300E-04, 1.167500E-03,
-                                                    3.397700E-03, 9.188600E-03,
-                                                    2.324400E-02]
 c5g7_dataset['Fission Chamber']['Total XS'] = [1.260320E-01, 2.931600E-01,
                                                2.842500E-01, 2.810200E-01,
                                                3.344600E-01, 5.656400E-01,
@@ -224,11 +204,6 @@ c5g7_dataset['Fission Chamber']['Chi'] = [5.87910E-01, 4.11760E-01, 3.39060E-04,
 # Create a subdictionary for guide tube materials data
 c5g7_dataset['Guide Tube'] = {}
 
-c5g7_dataset['Guide Tube']['Absorption XS'] = [5.113200E-04, 7.580100E-05,
-                                               3.157200E-04, 1.158200E-03,
-                                               3.397500E-03, 9.187800E-03,
-                                               2.324200E-02]
-
 c5g7_dataset['Guide Tube']['Total XS'] = [1.260320E-01, 2.931600E-01,
                                           2.842400E-01, 2.809600E-01,
                                           3.344400E-01, 5.656400E-01,
@@ -267,10 +242,6 @@ c5g7_dataset['Guide Tube']['Chi'] = [0., 0., 0., 0., 0., 0., 0.]
 # Create a subdictionary for water materials data
 c5g7_dataset['Water'] = {}
 
-c5g7_dataset['Water']['Absorption XS'] = [6.010500E-04, 1.579300E-05,
-                                          3.371600E-04, 1.940600E-03,
-                                          5.741600E-03, 1.500100E-02,
-                                          3.723900E-02]
 c5g7_dataset['Water']['Total XS'] = [1.592060E-01, 4.129700E-01, 5.903100E-01,
                                      5.843500E-01, 7.180000E-01, 1.254450E+00,
                                      2.650380E+00]
@@ -303,10 +274,6 @@ c5g7_dataset['Water']['Chi'] = [0., 0., 0., 0., 0., 0., 0.]
 # Create a subdictionary for water materials data
 c5g7_dataset['Control Rod'] = {}
 
-c5g7_dataset['Control Rod']['Absorption XS'] = [1.70490E-03, 8.36224E-03,
-                                                8.37901E-02, 3.97797E-01,
-                                                6.98763E-01, 9.29508E-01,
-                                                1.17836E+00]
 c5g7_dataset['Control Rod']['Total XS'] = [2.16768E-01, 4.80098E-01, 8.86369E-01,
                                            9.70009E-01, 9.10482E-01, 1.13775E+00,
                                            1.84048E+00]

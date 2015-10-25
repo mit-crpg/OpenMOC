@@ -24,7 +24,6 @@ int main() {
   log_printf(NORMAL, "Defining material properties..."); 
   
   const size_t num_groups = 7;
-  std::map<std::string, std::array<double, num_groups> > sigma_a;
   std::map<std::string, std::array<double, num_groups> > nu_sigma_f;
   std::map<std::string, std::array<double, num_groups> > sigma_f;
   std::map<std::string, std::array<double, num_groups*num_groups> > sigma_s;
@@ -32,8 +31,6 @@ int main() {
   std::map<std::string, std::array<double, num_groups> > sigma_t;
 
   /* Define water cross-sections */
-  sigma_a["Water"] = std::array<double, num_groups> {6.0105E-4, 1.5793E-5, 
-    3.3716E-4, 0.0019406, 0.0057416, 0.015001, 0.037239};
   nu_sigma_f["Water"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
   sigma_f["Water"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
   sigma_s["Water"] = std::array<double, num_groups*num_groups>
@@ -49,8 +46,6 @@ int main() {
     0.59031, 0.58435, 0.718, 1.25445, 2.65038};
 
   /* Define UO2 cross-sections */
-  sigma_a["UO2"] = std::array<double, num_groups> {0.0080248, 0.0037174, 
-    0.026769, 0.096236, 0.03002, 0.11126, 0.28278};
   nu_sigma_f["UO2"] = std::array<double, num_groups> {0.02005998, 0.002027303,
     0.01570599, 0.04518301, 0.04334208, 0.2020901, 0.5257105};
   sigma_f["UO2"] = std::array<double, num_groups> {0.00721206, 8.19301E-4, 
@@ -69,8 +64,6 @@ int main() {
     0.480388, 0.554367, 0.311801, 0.395168, 0.564406};
 
   /* Define MOX-4.3% cross-sections */
-  sigma_a["MOX-4.3%%"] = std::array<double, num_groups> {0.0084339, 0.0037577, 
-    0.02797, 0.10421, 0.13994, 0.40918, 0.40935};
   nu_sigma_f["MOX-4.3%%"] = std::array<double, num_groups> {0.021753, 
     0.002535103, 0.01626799, 0.0654741, 0.03072409, 0.666651, 0.7139904};
   sigma_f["MOX-4.3%%"] = std::array<double, num_groups> {0.00762704, 
@@ -89,8 +82,6 @@ int main() {
     0.483772, 0.566922, 0.426227, 0.678997, 0.68285};
 
   /* Define MOX-7% cross-sections */
-  sigma_a["MOX-7%%"] = std::array<double, num_groups> {0.0090657, 0.0042967, 
-    0.032881, 0.12203, 0.18298, 0.56846, 0.58521};
   nu_sigma_f["MOX-7%%"] = std::array<double, num_groups> {0.02381395, 
     0.003858689, 0.024134, 0.09436622, 0.04576988, 0.9281814, 1.0432};
   sigma_f["MOX-7%%"] = std::array<double, num_groups> {0.00825446, 0.00132565,
@@ -109,8 +100,6 @@ int main() {
     0.493785, 0.591216, 0.474198, 0.833601, 0.853603};
 
   /* Define MOX-8.7% cross-sections */
-  sigma_a["MOX-8.7%%"] = std::array<double, num_groups> {0.0094862, 0.0046556,
-    0.03624, 0.13272, 0.2084, 0.6587, 0.69017};
   nu_sigma_f["MOX-8.7%%"] = std::array<double, num_groups> {0.025186, 
     0.004739509, 0.02947805, 0.11225, 0.05530301, 1.074999, 1.239298};
   sigma_f["MOX-8.7%%"] = std::array<double, num_groups> {0.00867209, 
@@ -129,8 +118,6 @@ int main() {
     0.500507, 0.606174, 0.502754, 0.921028, 0.955231};
 
   /* Define fission chamber cross-sections */
-  sigma_a["Fission Chamber"] = std::array<double, num_groups> {5.1132E-4, 
-    7.5813E-5, 3.1643E-4, 0.0011675, 0.0033977, 0.0091886, 0.023244};
   nu_sigma_f["Fission Chamber"] = std::array<double, num_groups> {1.323401E-8, 
     1.4345E-8, 1.128599E-6, 1.276299E-5, 3.538502E-7, 1.740099E-6, 
     5.063302E-6};
@@ -150,8 +137,6 @@ int main() {
     0.29316, 0.28425, 0.28102, 0.33446, 0.56564, 1.17214};
 
   /* Define guide tube cross-sections */
-  sigma_a["Guide Tube"] = std::array<double, num_groups> {5.1132E-4, 7.5801E-5,
-    3.1572E-4, 0.0011582, 0.0033975, 0.0091878, 0.023242};
   nu_sigma_f["Guide Tube"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 
     0, 0};
   sigma_f["Guide Tube"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
@@ -173,14 +158,13 @@ int main() {
   
   std::map<std::string, std::array<double, num_groups> >::iterator it;
   int id_num = 0;
-  for (it = sigma_a.begin(); it != sigma_a.end(); it++) {
+  for (it = sigma_t.begin(); it != sigma_t.end(); it++) {
     
     std::string name = it->first;
     materials[name] = new Material(id_num, name.c_str());
     materials[name]->setNumEnergyGroups(num_groups);
     id_num++;
     
-    materials[name]->setSigmaA(sigma_a[name].data(), num_groups);
     materials[name]->setSigmaF(sigma_f[name].data(), num_groups);
     materials[name]->setNuSigmaF(nu_sigma_f[name].data(), num_groups);
     materials[name]->setSigmaS(sigma_s[name].data(), num_groups*num_groups);
@@ -479,7 +463,6 @@ int main() {
   log_printf(NORMAL, "Creating CMFD mesh...");
 
   Cmfd cmfd;
-  cmfd.setMOCRelaxationFactor(0.6);
   cmfd.setSORRelaxationFactor(1.5);
   cmfd.setLatticeStructure(51, 51);
   int cmfd_group_structure[3] = {1,4,8};
