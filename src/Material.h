@@ -64,9 +64,6 @@ private:
   /** An array of the total cross-sections for each energy group */
   FP_PRECISION* _sigma_t;
 
-  /** An array of the absorption cross-sections for each energy group */
-  FP_PRECISION* _sigma_a;
-
   /** A 2D array of the scattering cross-section matrix from/into each group */
   FP_PRECISION* _sigma_s;
 
@@ -82,20 +79,6 @@ private:
 
   /** A 2D array of the fission matrix from/into each group */
   FP_PRECISION* _fiss_matrix;
-
-  /** An array of the diffusion coefficients for each energy group */
-  FP_PRECISION* _dif_coef;
-
-  /** An array of the diffusion coefficients for each energy group */
-  FP_PRECISION* _buckling;
-
-  /** An array of the diffusion coefficient for each energy group
-   *  for each surface */
-  FP_PRECISION* _dif_hat;
-
-  /** An array of the CMFD correction to the diffusion coefficient values
-   *  for each energy group for each surface */
-  FP_PRECISION* _dif_tilde;
 
   /** A boolean representing whether or not this Material contains a non-zero
    *  fission cross-section and is fissionable */
@@ -116,27 +99,17 @@ public:
   char* getName() const;
   int getNumEnergyGroups() const;
   FP_PRECISION* getSigmaT();
-  FP_PRECISION* getSigmaA();
   FP_PRECISION* getSigmaS();
   FP_PRECISION* getSigmaF();
   FP_PRECISION* getNuSigmaF();
   FP_PRECISION* getChi();
   FP_PRECISION* getFissionMatrix();
-  FP_PRECISION* getDifCoef();
-  FP_PRECISION* getBuckling();
-  FP_PRECISION* getDifHat();
-  FP_PRECISION* getDifTilde();
   FP_PRECISION getSigmaTByGroup(int group);
-  FP_PRECISION getSigmaAByGroup(int group);
   FP_PRECISION getSigmaSByGroup(int origin, int destination);
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
   FP_PRECISION getFissionMatrixByGroup(int origin, int destination);
-  FP_PRECISION getDifCoefByGroup(int group);
-  FP_PRECISION getBucklingByGroup(int group);
-  FP_PRECISION getDifHatByGroup(int group, int surface);
-  FP_PRECISION getDifTildeByGroup(int group);  
   bool isFissionable();
   bool isDataAligned();
   int getNumVectorGroups();
@@ -145,28 +118,17 @@ public:
   void setNumEnergyGroups(const int num_groups);
 
   void setSigmaT(double* xs, int num_groups);
-  void setSigmaA(double* xs, int num_groups);
   void setSigmaS(double* xs, int num_groups);
   void setSigmaF(double* xs, int num_groups);
   void setNuSigmaF(double* xs, int num_groups);
   void setChi(double* xs, int num_groups);
-  void setBuckling(double* xs, int num_groups);
-  void setDifCoef(double* xs, int num_groups);
-  void setDifHat(double* xs, int num_groups);
-  void setDifTilde(double* xs, int num_groups);
 
   void setSigmaTByGroup(double xs, int group);
-  void setSigmaAByGroup(double xs, int group);
   void setSigmaFByGroup(double xs, int group);
   void setNuSigmaFByGroup(double xs, int group);
   void setSigmaSByGroup(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
-  void setBucklingByGroup(double xs, int group);
-  void setDifCoefByGroup(double xs, int group);
-  void setDifHatByGroup(double xs, int group, int surface);
-  void setDifTildeByGroup(double xs, int group, int surface);
 
-  void checkSigmaT();
   void buildFissionMatrix();
   void transposeProductionMatrices();
   void alignData();

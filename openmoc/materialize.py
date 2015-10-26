@@ -189,22 +189,12 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                                  domain_type, domain_spec)
 
         # Search for optional cross sections
-        if 'absorption' in domain_group:
-            sigma = _get_numpy_array(domain_group, 'absorption', suffix)
-            material.setSigmaA(sigma)
         if 'fission' in domain_group:
             sigma = _get_numpy_array(domain_group, 'fission', suffix)
             material.setSigmaF(sigma)
-        if 'diffusion' in domain_group:
-            sigma = _get_numpy_array(domain_group, 'diffusion', suffix)
-            material.setDifCoef(sigma)
-        if 'buckling' in domain_group:
-            sigma = _get_numpy_array(domain_group, 'buckling', suffix)
-            material.setBuckling(sigma)
 
     # Return collection of materials
     return materials
-
 
 
 ##
@@ -332,22 +322,10 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                                  domain_type, domain.id)
 
         # Search for optional cross sections
-        if 'absorption' in mgxs_lib.mgxs_types:
-            mgxs = mgxs_lib.get_mgxs(domain, 'absorption')
-            sigma = mgxs.get_xs(nuclides='sum')
-            material.setSigmaA(sigma)
         if 'fission' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'fission')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaF(sigma)
-        if 'diffusion' in mgxs_lib.mgxs_types:
-            mgxs = mgxs_lib.get_mgxs(domain, 'diffusion')
-            sigma = mgxs.get_xs(nuclides='sum')
-            material.setDifCoef(sigma)
-        if 'buckling' in mgxs_lib.mgxs_types:
-            mgxs = mgxs_lib.get_mgxs(domain, 'buckling')
-            sigma = mgxs.get_xs(nuclides='sum')
-            material.setBuckling(sigma)
 
     # Return collection of materials
     return materials

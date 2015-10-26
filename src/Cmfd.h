@@ -14,20 +14,11 @@
 #include "Python.h"
 #endif
 #include "log.h"
-#include "Timer.h"
 #include "Universe.h"
 #include "Track.h"
 #include "PolarQuad.h"
 #include "linalg.h"
 #include "Geometry.h"
-#include <utility>
-#include <math.h>
-#include <limits.h>
-#include <string>
-#include <sstream>
-#include <queue>
-#include <iostream>
-#include <fstream>
 #endif
 
 /** Forward declaration of Geometry class */
@@ -149,12 +140,6 @@ private:
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
-  /** MOC flux update relaxation factor */
-  FP_PRECISION _relax_factor;
-
-  /** Flag indicating whether to use optically thick correction factor */
-  bool _optically_thick;
-
   /** Pointer to Lattice object representing the CMFD mesh */
   Lattice* _lattice;
 
@@ -172,10 +157,10 @@ private:
     _k_nearest_stencils;
 
   /* Private worker functions */
-  FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
-  void constructMatrices();
-  void computeDs(int moc_iteration);
-  void computeXS();
+  FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
+                                       FP_PRECISION delta);
+  void constructMatrices(int moc_iteration);
+  void collapseXS();
   void updateMOCFlux();
   void rescaleFlux();
   void splitCorners();
@@ -189,6 +174,13 @@ private:
   FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
   FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
+  FP_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
+                                              int group, int moc_iteration,
+                                              bool correction);
+  FP_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
+  FP_PRECISION getSurfaceWidth(int surface);
+  FP_PRECISION getPerpendicularSurfaceWidth(int surface);
+  int getSense(int surface);
 
 public:
 
@@ -216,8 +208,6 @@ public:
   int getNumMOCGroups();
   int getNumCells();
   int getCmfdGroup(int group);
-  bool isOpticallyThick();
-  FP_PRECISION getMOCRelaxationFactor();
   int getBoundary(int side);
   Lattice* getLattice();
   int getNumX();
@@ -236,8 +226,6 @@ public:
   void setNumY(int num_y);
   void setNumFSRs(int num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
-  void setOpticallyThick(bool thick);
-  void setMOCRelaxationFactor(FP_PRECISION relax_factor);
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y);
   void setFluxUpdateOn(bool flux_update_on);

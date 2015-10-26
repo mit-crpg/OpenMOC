@@ -14,7 +14,6 @@ num_cells_y = 1
 
 basic_material = openmoc.Material(name='1-group infinite medium')
 basic_material.setNumEnergyGroups(1)
-basic_material.setSigmaA([0.069389522])
 basic_material.setSigmaF([0.0414198575])
 basic_material.setNuSigmaF([0.0994076580])
 basic_material.setSigmaS([0.383259177])
