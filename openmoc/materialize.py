@@ -155,57 +155,57 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             sigma = _get_numpy_array(domain_group, 'transport', suffix)
             material.setSigmaT(sigma)
             py_printf('INFO', 'Loaded "transport" MGXS for "%s %s"', 
-                      domain_type, domain_spec)
+                      domain_type, str(domain_spec))
         elif 'total' in domain_group:
             sigma = _get_numpy_array(domain_group, 'total', suffix)
             material.setSigmaT(sigma)
             py_printf('INFO', 'Loaded "total" MGXS for "%s %s"', 
-                      domain_type, domain_spec)
+                      domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
-                                 '"%s %s"', domain_type, domain_spec)
+                                 '"%s %s"', domain_type, str(domain_spec))
 
         # Search for the fission production cross section
         if 'nu-fission' in domain_group:
             sigma = _get_numpy_array(domain_group, 'nu-fission', suffix)
             material.setNuSigmaF(sigma)
             py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %s"', 
-                      domain_type, domain_spec)
+                      domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
-                                 '"%s %s"', domain_type, domain_spec)
+                                 '"%s %s"', domain_type, str(domain_spec))
 
         # Search for the scattering matrix cross section
         if 'nu-scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'nu-scatter matrix', suffix)
             material.setSigmaS(sigma)
             py_printf('INFO', 'Loaded "nu-scatter matrix" MGXS for "%s %s"', 
-                      domain_type, domain_spec)
+                      domain_type, str(domain_spec))
         elif 'scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'scatter matrix', suffix)
             material.setSigmaS(sigma)
             py_printf('INFO', 'Loaded "scatter matrix" MGXS for "%s %s"', 
-                      domain_type, domain_spec)
+                      domain_type, str(domain_spec))
         else:
-            py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '
-                                 'found for "%s %s"', domain_type, domain_spec)
+            py_printf('WARNING', 'No "scatter matrix" found for "%s %s"', 
+                      domain_type, str(domain_spec))
 
         # Search for chi (fission spectrum)
         if 'chi' in domain_group:
             chi = _get_numpy_array(domain_group, 'chi', suffix)
             material.setChi(chi)
             py_printf('INFO', 'Loaded "chi" MGXS for "%s %s"', 
-                      domain_type, domain_spec)
+                      domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %s"',
-                                 domain_type, domain_spec)
+                                 domain_type, str(domain_spec))
 
         # Search for optional cross sections
         if 'fission' in domain_group:
             sigma = _get_numpy_array(domain_group, 'fission', suffix)
             material.setSigmaF(sigma)
             py_printf('INFO', 'Loaded "fission" MGXS for "%s %s"', 
-                      domain_type, domain_spec)
+                      domain_type, str(domain_spec))
 
     # Return collection of materials
     return materials
