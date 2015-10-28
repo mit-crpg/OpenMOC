@@ -129,7 +129,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                 if material != None:
                     material = material.clone()
 
-                # If the Cell does not contain a Material, creat one for it
+                # If the Cell does not contain a Material, create one for it
                 else:
                     if isinstance(domain_spec, int):
                         material = openmoc.Material(id=domain_spec)
