@@ -82,7 +82,7 @@ cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setOpticallyThick(True)
 cmfd.setLatticeStructure(5, 5, 5)
-#cmfd.setKNearest(4)
+cmfd.setKNearest(1)
 cmfd.setCentroidUpdateOn(False)
 
 
@@ -104,12 +104,12 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-#quad = EqualAnglePolarQuad()
-#quad.setNumPolarAngles(num_polar)
+quad = EqualAnglePolarQuad()
+quad.setNumPolarAngles(num_polar)
 
 track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing)
-#track_generator.setQuadrature(quad)
+track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
 track_generator.generateTracks()

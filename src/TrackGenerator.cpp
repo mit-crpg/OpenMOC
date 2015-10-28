@@ -329,7 +329,6 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
           for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-<<<<<<< HEAD
            
             /* Extract 3D track and initialize segments pointer */ 
             Track* track_3D = &_tracks_3D_stack[a][i][p][z];
@@ -353,12 +352,9 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
             else 
               segments = track_3D->getSegments();
             
+            /* Look through all segments for max optical path length */
             for (int s=0; s < num_segments; s++) {
               curr_segment = &segments[s];
-=======
-            for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments(); s++) {
-              curr_segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
->>>>>>> Sam/3D-MOC
               length = curr_segment->_length;
               material = curr_segment->_material;
               sigma_t = material->getSigmaT();
@@ -528,16 +524,13 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
           for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments(); s++) {
-<<<<<<< HEAD
-            
-=======
->>>>>>> Sam/3D-MOC
+ 
             segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
             volume = segment->_length * _quadrature->getAzimWeight(a)
               * _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
               * getPolarSpacing(a,p);
             FSR_volumes[segment->_region_id] += volume;
-        
+ 
           }
         }
       }
@@ -716,12 +709,9 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
   _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
-<<<<<<< HEAD
   _contains_extruded_segments = false;
-=======
   _use_input_file = false;
   _tracks_filename = "";
->>>>>>> Sam/3D-MOC
 }
 
 
@@ -740,12 +730,9 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
   _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
-<<<<<<< HEAD
   _contains_extruded_segments = false;
-=======
   _use_input_file = false;
   _tracks_filename = "";
->>>>>>> Sam/3D-MOC
 }
 
 
@@ -760,12 +747,9 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
-<<<<<<< HEAD
   _contains_extruded_segments = false;
-=======
   _use_input_file = false;
   _tracks_filename = "";
->>>>>>> Sam/3D-MOC
 }
 
 
@@ -1813,7 +1797,6 @@ void TrackGenerator::initialize3DTracks() {
 
     /* Loop over 3D track cycles */
     #pragma omp parallel for private(track_2D, track_3D, pc, l_start, l_end, \
-<<<<<<< HEAD
         x1, y1, z1, x2, y2, z2)
     for (int ac = 0; ac < tot_num_cycles; ac++) {
 
@@ -1831,7 +1814,7 @@ void TrackGenerator::initialize3DTracks() {
       }
       
       /* Loop over polar angles < PI/2 */
-      for (int p=0; p < _num_polar/2; p++){
+      for (int p=0; p < _num_polar/2; p++) {
         
         /* Create tracks starting on Z_MIN and L_MIN surfaces */
         /*
@@ -1845,16 +1828,16 @@ void TrackGenerator::initialize3DTracks() {
          *         8    7    6    5    4    3    2    1    0 
          * l+ ->
          */
-        for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
+        for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++) {
 
           /* Get the starting point */
-          if (i < _num_l[a][p]){
+          if (i < _num_l[a][p]) {
             l_start = _cycle_length[a] - (i + 0.5) * _dl_eff[a][p];
             x1 = convertLtoX(l_start, a, c);
             y1 = convertLtoY(l_start, a, c);
             z1 = 0.0;
           }
-          else{
+          else {
             l_start = 0.0;
             track_2D = getTrack2DByCycle(a, c, 0);
             x1 = track_2D->getStart()->getX();
@@ -1863,97 +1846,34 @@ void TrackGenerator::initialize3DTracks() {
           }
           
           /* Get the end point */
-          if (i < _num_z[a][p]){
+          if (i < _num_z[a][p]) {
             l_end = _cycle_length[a];
             track_2D = getTrack2DByCycle(a, c, 0);
             x2 = track_2D->getStart()->getX();
             y2 = track_2D->getStart()->getY();
             z2 = _dz_eff[a][p] * (i + 0.5);
           }
-          else{
+          else {
             l_end = _cycle_length[a] - _dl_eff[a][p] *
               (i - _num_z[a][p] + 0.5);
             x2 = convertLtoX(l_end, a, c);
             y2 = convertLtoY(l_end, a, c);
             z2 = depth;
           }
-=======
-                                     x1, y1, z1, x2, y2, z2)
-    for (int a = 0; a < _num_azim/4; a++) {
-      for (int c = 0; c < _cycles_per_azim[a]; c++) {
-        
-        /* Loop over polar angles < PI/2 */
-        for (int p=0; p < _num_polar/2; p++) {
-          
-          /* Create tracks starting on Z_MIN and L_MIN surfaces */
-          /*
-           *             The track layout in the lz plane
-           *       _____________________________________________
-           *      | /    /    /    /    /    /    /    /    /   |
-           *      |/    /    /    /    /    /    /    /    /    |
-           * ^  9 |    /    /    /    /    /    /    /    /    /|
-           * |    |   /    /    /    /    /    /    /    /    / |
-           * z+   |__/____/____/____/____/____/____/____/____/__|
-           *         8    7    6    5    4    3    2    1    0 
-           * l+ ->
-           */
-          for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++) {
-
-            /* Get the starting point */
-            if (i < _num_l[a][p]) {
-              l_start = _cycle_length[a] - (i + 0.5) * _dl_eff[a][p];
-              x1 = convertLtoX(l_start, a, c);
-              y1 = convertLtoY(l_start, a, c);
-              z1 = 0.0;
-            }
-            else{
-              l_start = 0.0;
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x1 = track_2D->getStart()->getX();
-              y1 = track_2D->getStart()->getY();
-              z1 = _dz_eff[a][p] * (i - _num_l[a][p] + 0.5);
-            }
-            
-            /* Get the end point */
-            if (i < _num_z[a][p]) {
-              l_end = _cycle_length[a];
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x2 = track_2D->getStart()->getX();
-              y2 = track_2D->getStart()->getY();
-              z2 = _dz_eff[a][p] * (i + 0.5);
-            }
-            else{
-              l_end = _cycle_length[a] - _dl_eff[a][p] *
-                (i - _num_z[a][p] + 0.5);
-              x2 = convertLtoX(l_end, a, c);
-              y2 = convertLtoY(l_end, a, c);
-              z2 = depth;
-            }
->>>>>>> Sam/3D-MOC
-
           /* Set start and end points and save polar angle */
           track_3D.getStart()->setCoords(x1, y1, z1);
           track_3D.getEnd()->setCoords(x2, y2, z2);
           track_3D.setTheta(_quadrature->getTheta(a,p));
 
-<<<<<<< HEAD
           /* Decompose the track in the LZ plane by splitting it
            * based on the x and y geometry boundaries */
           decomposeLZTrack(&track_3D, l_start, l_end, a, c, p, i,
                            create_tracks);
-=======
-            /* Decompose the track in the LZ plane by splitting it
-             * based on the x and y geometry boundaries */
-           decomposeLZTrack(&track_3D, l_start, l_end, a, c, p, i,
-                             create_tracks);
-          }
->>>>>>> Sam/3D-MOC
         }
       }
 
-<<<<<<< HEAD
       /* Create tracks for polar angles [PI/2,PI] */
-      for (int p=0; p < _num_polar/2; p++){
+      for (int p=0; p < _num_polar/2; p++) {
         
         pc = _num_polar-p-1;
         
@@ -1968,17 +1888,17 @@ void TrackGenerator::initialize3DTracks() {
          *      
          * l+ ->
          */
-        for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++){
+        for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++) {
 
           /* Get the starting point */
-          if (i < _num_z[a][p]){
+          if (i < _num_z[a][p]) {
             l_start = 0.0;
             track_2D = getTrack2DByCycle(a, c, 0);
             x1 = track_2D->getStart()->getX();
             y1 = track_2D->getStart()->getY();
             z1 = _dz_eff[a][p] * (i + 0.5);
           }
-          else{
+          else {
             l_start = _dl_eff[a][p] * (i - _num_z[a][p] + 0.5);
             x1 = convertLtoX(l_start, a, c);
             y1 = convertLtoY(l_start, a, c);
@@ -1986,77 +1906,18 @@ void TrackGenerator::initialize3DTracks() {
           }
           
           /* Get the end point */
-          if (i < _num_l[a][p]){
+          if (i < _num_l[a][p]) {
             l_end = _dl_eff[a][p] * (i + 0.5);
             x2 = convertLtoX(l_end, a, c);
             y2 = convertLtoY(l_end, a, c);
             z2 = 0.0;
           }
-          else{
+          else {
             l_end = _cycle_length[a];
             track_2D = getTrack2DByCycle(a, c, 0);
             x2 = track_2D->getStart()->getX();
             y2 = track_2D->getStart()->getY();
             z2 = _dz_eff[a][p] * (i - _num_l[a][p] + 0.5);
-=======
-        /* Create tracks for polar angles [PI/2,PI] */
-        for (int p=0; p < _num_polar/2; p++) {
-          
-          pc = _num_polar-p-1;
-          
-          /* Create tracks starting on L_MIN and Z_MAX surfaces */
-          /*          1    2    3    4     5    6    7    8   9
-           *       ______________________________________________
-           *      |   \    \    \     \    \    \    \    \    \ |
-           *      |    \    \    \     \    \    \    \    \    \|
-           * ^  0 |\    \    \    \     \    \    \    \    \    |
-           * |    | \    \    \    \     \    \    \    \    \   |
-           * z+   |__\____\____\____\ ____\____\____\____\____\__|
-           *      
-           * l+ ->
-           */
-          for (int i=0; i < _num_l[a][p] + _num_z[a][p]; i++) {
-
-            /* Get the starting point */
-            if (i < _num_z[a][p]) {
-              l_start = 0.0;
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x1 = track_2D->getStart()->getX();
-              y1 = track_2D->getStart()->getY();
-              z1 = _dz_eff[a][p] * (i + 0.5);
-            }
-            else{
-              l_start = _dl_eff[a][p] * (i - _num_z[a][p] + 0.5);
-              x1 = convertLtoX(l_start, a, c);
-              y1 = convertLtoY(l_start, a, c);
-              z1 = depth;
-            }
-            
-            /* Get the end point */
-            if (i < _num_l[a][p]) {
-              l_end = _dl_eff[a][p] * (i + 0.5);
-              x2 = convertLtoX(l_end, a, c);
-              y2 = convertLtoY(l_end, a, c);
-              z2 = 0.0;
-            }
-            else{
-              l_end = _cycle_length[a];
-              track_2D = getTrack2DByCycle(a, c, 0);
-              x2 = track_2D->getStart()->getX();
-              y2 = track_2D->getStart()->getY();
-              z2 = _dz_eff[a][p] * (i - _num_l[a][p] + 0.5);
-            }
-            
-            /* Set start and end points and save polar angle */
-            track_3D.getStart()->setCoords(x1, y1, z1);
-            track_3D.getEnd()->setCoords(x2, y2, z2);
-            track_3D.setTheta(_quadrature->getTheta(a,pc));
-            
-            /* Decompose the track in the LZ plane by splitting it
-             * based on the x and y geometry boundaries */
-            decomposeLZTrack(&track_3D, l_start, l_end, a, c, pc, i,
-                             create_tracks);
->>>>>>> Sam/3D-MOC
           }
           
           /* Set start and end points and save polar angle */
@@ -3132,7 +2993,7 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
       }
     }
   }
-<<<<<<< HEAD
+
   /* Enusre that all tracks reside within the geometry */
   FP_PRECISION max_z = _geometry->getMaxZ();
   FP_PRECISION min_z = _geometry->getMinZ();
@@ -3151,8 +3012,6 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
       }
     }
   }   
-=======
->>>>>>> Sam/3D-MOC
 }
 
 
@@ -3415,11 +3274,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
   /* Check to see if a Track file exists for this geometry, number of azimuthal
    * angles, and track spacing, and if so, import the ray tracing data */
   if (!stat(_tracks_filename.c_str(), &buffer)) {
-<<<<<<< HEAD
     if (_solve_3D && !_OTF){
-=======
-    if (_solve_3D) {
->>>>>>> Sam/3D-MOC
       if (read3DSegmentsFromFile()) {
         _use_input_file = true;
         _contains_3D_segments = true;
@@ -4236,14 +4091,9 @@ void TrackGenerator::generateFSRCentroids() {
     centroids[r] = new Point();
     centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
-<<<<<<< HEAD
-  
-  if (_solve_3D){
-=======
 
   if (_solve_3D) {
 
->>>>>>> Sam/3D-MOC
     FSR_volumes = get3DFSRVolumes();
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
@@ -4423,7 +4273,6 @@ bool TrackGenerator::getCycleDirection(int azim, int cycle, int track_index) {
 }
 
 
-<<<<<<< HEAD
 /**
  * @brief Sets the max optical path length of 3D segments for use in
  *        on-the-fly computation
@@ -4773,7 +4622,12 @@ void TrackGenerator::countSegments() {
         int num_segments = counter.getCount();
         curr_track->setNumSegments(num_segments);
         counter.resetCount();
-=======
+      }
+    }
+  }
+}
+
+// TODO
 void TrackGenerator::initialize2DTrackPeriodicIndices() {
 
   log_printf(NORMAL, "Initializing track periodic indices...");
@@ -4815,6 +4669,7 @@ void TrackGenerator::initialize2DTrackPeriodicIndices() {
 }
 
 
+// TODO
 void TrackGenerator::initialize3DTrackPeriodicIndices() {
 
   if (!_periodic)
@@ -4856,6 +4711,7 @@ void TrackGenerator::initialize3DTrackPeriodicIndices() {
 }
 
 
+// TODO
 void TrackGenerator::initializeTracksArray() {
 
   log_printf(NORMAL, "Initializing tracks array...");
@@ -5019,17 +4875,18 @@ int* TrackGenerator::getNumTracksByParallelGroupArray() {
   return _num_tracks_by_parallel_group;
 }
 
-
+// TODO
 int TrackGenerator::getNumParallelTrackGroups() {
   return _num_parallel_track_groups;
 }
 
-
+// TODO
 bool TrackGenerator::getPeriodic() {
   return _periodic;
 }
 
 
+// TODO
 void TrackGenerator::create3DTracksArrays() {
 
   _tracks_3D_stack = new Track3D***[_num_azim/2];
@@ -5055,16 +4912,12 @@ void TrackGenerator::create3DTracksArrays() {
         for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
           _tracks_3D_cycle[a][c][p][i] =
             new Track3D*[_tracks_per_train[a][c][p][i]];
->>>>>>> Sam/3D-MOC
       }
     }
   }
 }
-<<<<<<< HEAD
-=======
 
-
+// TODO
 void TrackGenerator::setDumpSegments(bool dump_segments) {
   _dump_segments = dump_segments;
 }
->>>>>>> Sam/3D-MOC

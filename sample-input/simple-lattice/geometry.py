@@ -130,5 +130,5 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
-#geometry.setCmfd(cmfd)
+geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()

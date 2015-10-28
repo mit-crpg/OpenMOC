@@ -605,18 +605,12 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
-<<<<<<< HEAD
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
 
-  /* Loop over each set of tracks in parallel */
-  for (int i=0; i < 4 + 12*_solve_3D; i++){
-
-=======
-  /* Loop over each parallel track groups */
+  /* Loop over all parallel track groups */
   for (int i=0; i < _num_parallel_track_groups; i++){
     
->>>>>>> Sam/3D-MOC
     /* Compute the minimum and maximum Track IDs corresponding to
      * the current parallel tracks group */
     min_track = _num_tracks_by_parallel_group[i];
@@ -624,19 +618,10 @@ void CPUSolver::transportSweep() {
     
     #pragma omp parallel for private(curr_track, azim_index, polar_index, \
                                      num_segments, curr_segment,        \
-<<<<<<< HEAD
                                      segments, track_flux) schedule(guided)
     for (int track_id=min_track; track_id < max_track; track_id++) {
 
-      FP_PRECISION* thread_fsr_flux;
-      thread_fsr_flux = new FP_PRECISION[_num_groups];
-=======
-                                     segments, track_flux, tid) \
-                             firstprivate(thread_fsr_flux) schedule(guided)
-    for (int track_id=min_track; track_id < max_track; track_id++) {
-
-      tid = omp_get_thread_num();
->>>>>>> Sam/3D-MOC
+      FP_PRECISION thread_fsr_flux[_num_groups];
       curr_track = _tracks[track_id];      
       azim_index = _quad->getFirstOctantAzim
         (curr_track->getAzimIndex());
@@ -901,7 +886,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   /* For the "forward" direction */
   if (direction) {
     bc = _tracks[track_id]->getBCFwd();
-    track_leakage = &_boundary_leakage(track_id,0);
+    track_leakage = &_boundary_leakage(track_id, 0);
     if (bc == PERIODIC){
       start = 0;
       track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();  

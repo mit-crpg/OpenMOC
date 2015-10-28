@@ -109,13 +109,11 @@ private:
   /** An array of 3D tracks (azim, cycle, polar, lz track, train index) */
   Track3D****** _tracks_3D_cycle;
 
-<<<<<<< HEAD
   /** An array of axially extruded track groups */
   ExtrudedTrack* _extruded_tracks;
-=======
+  
   /** An array of track pointers used in the Solver */
   Track** _tracks;
->>>>>>> Sam/3D-MOC
   
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -139,30 +137,23 @@ private:
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
 
-<<<<<<< HEAD
   /** Max segment length for 3D tracks to be split during on-the-fly
       computation */
   FP_PRECISION _max_optical_length;
 
-  /** Boolean whether the Tracks have been generated (true) or not (false) */
-=======
   /** Boolean to indicate whether the segments should be dumped */
   bool _dump_segments;
 
   /** Booleans to indicate whether the Tracks and segments have been generated
    *  (true) or not (false) */
->>>>>>> Sam/3D-MOC
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
   bool _contains_extruded_tracks;
   bool _contains_2D_segments;
   bool _contains_3D_segments;
-<<<<<<< HEAD
   bool _contains_extruded_segments;
-=======
 
   /** Private class methods */
->>>>>>> Sam/3D-MOC
   void initialize2DTracks();
   void initialize3DTracks();
   void initializeExtrudedTracks();
@@ -200,14 +191,11 @@ public:
   int getNum2DSegments();
   int getNumExtrudedSegments();
   int getNum3DSegments();
-<<<<<<< HEAD
   void countSegments();
-=======
   int* getNumTracksByParallelGroupArray();
   int getNumParallelTrackGroups();
   bool getPeriodic();
   Track** getTracksArray();
->>>>>>> Sam/3D-MOC
   Track2D** get2DTracks();
   Track3D**** get3DTracks();
   ExtrudedTrack* getExtrudedTracks();
@@ -252,11 +240,8 @@ public:
   void setZLevel(double z_level);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
-<<<<<<< HEAD
   void setMaxOpticalLength(FP_PRECISION tau);
-=======
   void setDumpSegments(bool dump_segments);
->>>>>>> Sam/3D-MOC
 
   /* Worker functions */
   bool contains2DTracks();
@@ -286,10 +271,8 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
-<<<<<<< HEAD
   void traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
     double theta, MOCKernel* kernel);
-=======
   void initialize2DTrackPeriodicIndices();
   void initialize3DTrackPeriodicIndices();
   void initializeTracksArray();
@@ -297,7 +280,6 @@ public:
   void initialize2DTrackCycleIds();
   void initialize3DTrackCycleIds();
   void create3DTracksArrays();
->>>>>>> Sam/3D-MOC
 };
 
 
