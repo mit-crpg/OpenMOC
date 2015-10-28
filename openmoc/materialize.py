@@ -182,8 +182,8 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
 
         # Search for chi (fission spectrum)
         if 'chi' in domain_group:
-            sigma = _get_numpy_array(domain_group, 'chi', suffix)
-            material.setChi(sigma)
+            chi = _get_numpy_array(domain_group, 'chi', suffix)
+            material.setChi(chi)
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %s"',
                                  domain_type, domain_spec)
@@ -313,8 +313,8 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         # Search for chi (fission spectrum)
         if 'chi' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'chi')
-            sigma = mgxs.get_xs(nuclides='sum')
-            material.setChi(sigma)
+            chi = mgxs.get_xs(nuclides='sum')
+            material.setChi(chi)
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %d"',
                                  domain_type, domain.id)
