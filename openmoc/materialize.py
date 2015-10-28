@@ -253,9 +253,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                 material = _get_domain(domains, domain.id)
 
             elif domain_type == 'cell':
-                print(domain, domains)
                 cell = _get_domain(domains, domain.id)
-                print(cell)
                 material = cell.getFillMaterial()
 
                 # If the user filled the Cell with a Material, clone it
