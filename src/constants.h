@@ -43,6 +43,13 @@
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
+/** The maximum number of iterations allowed for a power method eigenvalue
+ *  solve in linalg.cpp */
+#define MAX_LINALG_POWER_ITERATIONS 25000
+
+/** The maximum number of iterations allowed for a linear solve in linalg.cpp */
+#define MAX_LINEAR_SOLVE_ITERATIONS 1000
+
 #ifdef NVCC
 
 /** The maximum number of polar angles to reserve constant memory on GPU */

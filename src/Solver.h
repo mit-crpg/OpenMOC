@@ -122,7 +122,13 @@ protected:
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
+<<<<<<< HEAD
   int* _num_tracks;
+=======
+  bool _solve_3D;
+  int* _num_tracks_by_parallel_group;
+  int _num_parallel_track_groups;
+>>>>>>> Sam/3D-MOC
   
   /** Boolean for whether to ray trace on the fly (true) or explicitly generate
       segments (false) */

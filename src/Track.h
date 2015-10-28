@@ -74,14 +74,14 @@ protected:
   /** Number of segments recorded during volume calculation */
   int _num_segments;
   
-  /** A boolean to indicate whether the outgoing angular flux along this
+  /** An enum to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
-   *  conditions. */
+   *  conditions or sent to a periodic or reflective track. */
   boundaryType _bc_fwd;
 
-  /** A boolean to indicate whether the outgoing angular flux along this
+  /** An enum to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be zeroed out for vacuum boundary
-   *  conditions. */
+   *  conditions or sent to a periodic or reflective track. */
   boundaryType _bc_bwd;
 
   /* Indices that are used to locate the track in the various track arrays */
@@ -89,23 +89,26 @@ protected:
   int _xy_index;
   int _periodic_cycle_id;
   int _reflective_cycle_id;
+  int _periodic_track_index;
   
-  /** The Track which reflects out of this Track along its "forward"
-   * direction for reflective boundary conditions. */
+  /** Pointers to reflective and periodic Tracks in the forward and reverse 
+   *  directions */
   Track* _track_refl_fwd;
   Track* _track_refl_bwd;
   Track* _track_prdc_fwd;
   Track* _track_prdc_bwd;
+
+  /** Booleans to indicate wheter the reflective Tracks in the forward and
+   *  and backward direction enter into Tracks pointed in the forward 
+   *  direction. */
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
-  bool _prdc_fwd_fwd;
-  bool _prdc_bwd_fwd;
-  bool _cycle_fwd;
   
 public:
   Track();
   virtual ~Track();
 
+  /* Setter methods */
   void setUid(int uid);
   void setPhi(const double phi);
   void setBCFwd(const boundaryType bc_fwd);
@@ -116,13 +119,13 @@ public:
   void setTrackPrdcBwd(Track* track);
   void setReflFwdFwd(bool fwd);
   void setReflBwdFwd(bool fwd);
-  void setPrdcFwdFwd(bool fwd);
-  void setPrdcBwdFwd(bool fwd);
   void setXYIndex(int index);
   void setAzimIndex(int index);
   void setPeriodicCycleId(int id);
   void setReflectiveCycleId(int id);
+  void setPeriodicTrackIndex(int index);
   
+  /* Getter methods */
   int getUid();
   Point* getEnd();
   Point* getStart();
@@ -134,8 +137,6 @@ public:
   Track* getTrackPrdcBwd();
   bool getReflFwdFwd();
   bool getReflBwdFwd();
-  bool getPrdcFwdFwd();
-  bool getPrdcBwdFwd();
   int getXYIndex();
   int getAzimIndex();
   int getPeriodicCycleId();
@@ -145,8 +146,9 @@ public:
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-
-  /* Worker functions */
+  int getPeriodicTrackIndex();
+  
+  /* Worker methods */
   void addSegment(segment* segment);
   void removeSegment(int index);
   void insertSegment(int index, segment* segment);

@@ -44,12 +44,16 @@ protected:
   int _cycle_index;
   int _cycle_track_index;
   int _train_index;
+
+  /** Boolean to indicate whether track is in the same direction as the 
+   *  reflective track cycle. */
+  bool _cycle_fwd;
   
 public:
   Track3D();
   virtual ~Track3D();
 
-  /* Setters */
+  /* Setter methods */
   void setValues(const double start_x, const double start_y,
                  const double start_z, const double end_x,
                  const double end_y, const double end_z,
@@ -65,7 +69,7 @@ public:
   void setTrainIndex(int index);
   void setCycleFwd(bool fwd);
   
-  /* Getters */
+  /* Getter methods */
   double getTheta() const;
   int getPolarIndex();
   int getZIndex();
@@ -74,7 +78,8 @@ public:
   int getCycleTrackIndex();
   int getTrainIndex();
   bool getCycleFwd();
-  
+
+  /* Worker methods */
   std::string toString();
 };
 

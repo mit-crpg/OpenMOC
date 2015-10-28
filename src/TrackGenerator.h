@@ -10,7 +10,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
@@ -34,9 +36,6 @@ class TrackGenerator {
 
 private:
 
-  /** The quadrature set */
-  Quadrature* _quadrature;
-  
   /** The number of shared memory OpenMP threads */
   int _num_threads;
 
@@ -61,24 +60,33 @@ private:
   /** An integer array of the number of Tracks in a cycle for each azim angle */
   int* _tracks_per_cycle;
 
-  /* An array of the number of cycles for each azimuthal angle */
+  /** An array of the number of cycles for each azimuthal angle */
   int* _cycles_per_azim;
 
-  /* An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
+  /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;
+
+  /** An array of the # of 3D tracks in each train train 
+   *  (azim, cycle, polar, lz track) */
   int**** _tracks_per_train;
   
-  /* An array of the cycle length of each cycle for each azimuthal angle */
+  /** An array of the cycle length of each cycle for each azimuthal angle */
   double* _cycle_length;
   
   /** The total number of Tracks for all azimuthal and polar angles */
   int _num_2D_tracks;
   int _num_3D_tracks;
 
-  /** The total number of segments for all Tracks */
-  int _num_2D_segments;
-  int _num_3D_segments;
+  /** An integer array with the Track uid separating the azimuthal, polar, and
+   * periodic halfspaces */
+  int* _num_tracks_by_parallel_group;
 
+  /** The number of parallel groups of tracks */
+  int _num_parallel_track_groups;
+
+  /** Boolen to indicate whether a periodic BC exists */
+  bool _periodic;
+  
   /** An integer array of the number of Tracks starting on each axis */
   int* _num_x;
   int* _num_y;
@@ -88,16 +96,26 @@ private:
   double* _dy_eff;
   double** _dz_eff;
   double** _dl_eff;
-  
+
+  /** The quadrature set */
+  Quadrature* _quadrature;
+
   /** A 2D ragged array of 2D tracks (azim, track index) */
   Track2D** _tracks_2D;
 
   /** An array of 3D tracks (azim, 2D track, polar, z-stack) */
   Track3D**** _tracks_3D_stack;
+
+  /** An array of 3D tracks (azim, cycle, polar, lz track, train index) */
   Track3D****** _tracks_3D_cycle;
 
+<<<<<<< HEAD
   /** An array of axially extruded track groups */
   ExtrudedTrack* _extruded_tracks;
+=======
+  /** An array of track pointers used in the Solver */
+  Track** _tracks;
+>>>>>>> Sam/3D-MOC
   
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -121,17 +139,30 @@ private:
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
 
+<<<<<<< HEAD
   /** Max segment length for 3D tracks to be split during on-the-fly
       computation */
   FP_PRECISION _max_optical_length;
 
   /** Boolean whether the Tracks have been generated (true) or not (false) */
+=======
+  /** Boolean to indicate whether the segments should be dumped */
+  bool _dump_segments;
+
+  /** Booleans to indicate whether the Tracks and segments have been generated
+   *  (true) or not (false) */
+>>>>>>> Sam/3D-MOC
   bool _contains_2D_tracks;
   bool _contains_3D_tracks;
   bool _contains_extruded_tracks;
   bool _contains_2D_segments;
   bool _contains_3D_segments;
+<<<<<<< HEAD
   bool _contains_extruded_segments;
+=======
+
+  /** Private class methods */
+>>>>>>> Sam/3D-MOC
   void initialize2DTracks();
   void initialize3DTracks();
   void initializeExtrudedTracks();
@@ -169,7 +200,14 @@ public:
   int getNum2DSegments();
   int getNumExtrudedSegments();
   int getNum3DSegments();
+<<<<<<< HEAD
   void countSegments();
+=======
+  int* getNumTracksByParallelGroupArray();
+  int getNumParallelTrackGroups();
+  bool getPeriodic();
+  Track** getTracksArray();
+>>>>>>> Sam/3D-MOC
   Track2D** get2DTracks();
   Track3D**** get3DTracks();
   ExtrudedTrack* getExtrudedTracks();
@@ -214,7 +252,11 @@ public:
   void setZLevel(double z_level);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
+<<<<<<< HEAD
   void setMaxOpticalLength(FP_PRECISION tau);
+=======
+  void setDumpSegments(bool dump_segments);
+>>>>>>> Sam/3D-MOC
 
   /* Worker functions */
   bool contains2DTracks();
@@ -244,8 +286,18 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
+<<<<<<< HEAD
   void traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
     double theta, MOCKernel* kernel);
+=======
+  void initialize2DTrackPeriodicIndices();
+  void initialize3DTrackPeriodicIndices();
+  void initializeTracksArray();
+  void checkBoundaryConditions();
+  void initialize2DTrackCycleIds();
+  void initialize3DTrackCycleIds();
+  void create3DTracksArrays();
+>>>>>>> Sam/3D-MOC
 };
 
 

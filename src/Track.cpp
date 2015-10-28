@@ -6,19 +6,27 @@
  */
 Track::Track() {
 
+  /* Initialize the pointers to reflective and periodic tracks to NULL */
   _track_refl_fwd = NULL;
   _track_refl_bwd = NULL;
   _track_prdc_fwd = NULL;
   _track_prdc_bwd = NULL;
+
+  /* Initialize booleans indicating whether the reflective tracks in the 
+   * forward and backward direction point enter the track in the forward
+   * direction */
   _refl_fwd_fwd = true;
   _refl_bwd_fwd = false;
-  _prdc_fwd_fwd = true;
-  _prdc_bwd_fwd = false;
 
+  /* Initialize the cycle ids and periodic track index to -1 (not set) */
   _periodic_cycle_id = -1;
   _reflective_cycle_id = -1;
+<<<<<<< HEAD
 
   _num_segments = 0;
+=======
+  _periodic_track_index = -1;
+>>>>>>> Sam/3D-MOC
 }
 
 
@@ -35,7 +43,7 @@ Track::~Track() {
  * @brief Initializes a Track's unique ID.
  * @details This is set by the trackgenerator to correspond to the Track's
  *          location in a 2D ragged array of all tracks.
- * @param uid the Track's unique ID
+ * @param uid The Track's unique ID
  */
 void Track::setUid(int uid) {
   _uid = uid;
@@ -43,7 +51,7 @@ void Track::setUid(int uid) {
 
 /**
  * @brief Set the Track's azimuthal angle.
- * @param phi the azimuthal angle
+ * @param phi The azimuthal angle
  */
 void Track::setPhi(const double phi) {
   _phi = phi;
@@ -55,7 +63,7 @@ void Track::setPhi(const double phi) {
  *        "forward" direction.
  * @details The boolean represents vacuum (false) or reflective (true)
  *          boundary conditions.
- * @param bc_in boundary condition for the incoming flux in the "forward"
+ * @param bc_fwd Boundary condition for the incoming flux in the "forward"
  *        direction
  */
 void Track::setBCFwd(const boundaryType bc_fwd) {
@@ -68,7 +76,7 @@ void Track::setBCFwd(const boundaryType bc_fwd) {
  *        "reverse" direction.
  * @details The boolean represents vacuum (false) or reflective (true)
  *          boundary conditions.
- * @param bc_out boundary condition for the incoming flux in the "reverse"
+ * @param bc_bwd Boundary condition for the incoming flux in the "reverse"
  *        direction
  */
 void Track::setBCBwd(const boundaryType bc_bwd) {
@@ -78,7 +86,7 @@ void Track::setBCBwd(const boundaryType bc_bwd) {
 
 /**
  * @brief Returns a pointer to the Track's end Point.
- * @return a pointer to the Track's end Point
+ * @return A pointer to the Track's end Point
  */
 Point* Track::getEnd() {
   return &_end;
@@ -87,7 +95,7 @@ Point* Track::getEnd() {
 
 /**
  * @brief Returns a pointer to the Track's start Point.
- * @return a pointer to the Track's start Point
+ * @return A pointer to the Track's start Point
  */
 Point* Track::getStart() {
   return &_start;
@@ -96,13 +104,17 @@ Point* Track::getStart() {
 
 /**
  * @brief Return the Track's azimuthal angle (with respect to the x-axis).
- * @return the azimuthal angle \f$ \phi \in [0, \pi] \f$
+ * @return The azimuthal angle \f$ \phi \in [0, \pi] \f$
  */
 double Track::getPhi() const {
   return _phi;
 }
 
 
+/**
+ * @brief Return the Track's length.
+ * @return The Track's length
+ */
 double Track::getLength() {
   return _start.distanceToPoint(&_end);
 }
@@ -111,7 +123,7 @@ double Track::getLength() {
 /**
  * @brief Returns the boundary condition for the flux along the Track's
  *        "forward" direction.
- * @return vacuum (false) or reflective (true) reflective boundary conditions
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
  */
 boundaryType Track::getBCFwd() const {
   return _bc_fwd;
@@ -121,7 +133,7 @@ boundaryType Track::getBCFwd() const {
 /**
  * @brief Returns the boundary condition for the flux along the Track's
  *        "reverse" direction.
- * @return vacuum (false) or reflective (true) reflective boundary conditions
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
  */
 boundaryType Track::getBCBwd() const {
   return _bc_bwd;
@@ -132,7 +144,7 @@ boundaryType Track::getBCBwd() const {
  * @brief Adds a segment pointer to this Track's list of segments.
  * @details This method assumes that segments are added in order of their
  *          starting location from the Track's start point.
- * @param segment a pointer to the segment
+ * @param segment A pointer to the segment
  */
 void Track::addSegment(segment* segment) {
 
@@ -148,7 +160,7 @@ void Track::addSegment(segment* segment) {
 
 /**
  * @brief Removes a segment from this Track's list of segments.
- * @param index the index of the segment to remove
+ * @param index The index of the segment to remove
  */
 void Track::removeSegment(int index) {
   try {
@@ -165,8 +177,8 @@ void Track::removeSegment(int index) {
  * @details This method appends the new segment directly behind another
  *          segment in the Track. This is a helper method for the
  *          TrackGenerator::splitTracks(...) routine.
- * @param index the index of the segment to insert behind in the list
- * @param segment a pointer to the segment to insert
+ * @param index The index of the segment to insert behind in the list
+ * @param segment A pointer to the segment to insert
  */
 void Track::insertSegment(int index, segment* segment) {
   try {
@@ -186,18 +198,31 @@ void Track::clearSegments() {
 }
 
 
+/**
+ * @brief Set a Track's azimuthal angle index.
+ * @param index The azimuthal angle index
+ */
 void Track::setAzimIndex(int index){
   _azim_index = index;
 }
 
 
+/**
+ * @brief Get a Track's azimuthal angle index.
+ * @return The azimuthal angle index
+ */
 int Track::getAzimIndex() {
   return _azim_index;
 }
 
 
+/**
+ * @brief Set a pointer to the reflective Track in the forward direction.
+ * @param track A pointer to the reflective track in the forward direction
+ */
 void Track::setTrackReflFwd(Track* track){
-  
+
+  /* Check to make sure the tracks have connecting points */
   if (_refl_fwd_fwd && _end.distanceToPoint(track->getStart()) > 1.e-8)
     log_printf(NORMAL, "INCORRECT TRACK REFL FWD: (%.4f, %.4f, %.4f) -> "
                "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
@@ -213,37 +238,34 @@ void Track::setTrackReflFwd(Track* track){
 }
 
 
+/**
+ * @brief Set a pointer to the periodic Track in the forward direction.
+ * @param track A pointer to the periodic track in the forward direction
+ */
 void Track::setTrackPrdcFwd(Track* track){
 
-  if (_prdc_fwd_fwd) {
-    double dx = fabs(_end.getX() - track->getStart()->getX());
-    double dy = fabs(_end.getY() - track->getStart()->getY());
-    double dz = fabs(_end.getZ() - track->getStart()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
-                 track->getStart()->getX(), track->getStart()->getY(),
-                 track->getStart()->getZ());
-  }
-  else {
-    double dx = fabs(_end.getX() - track->getEnd()->getX());
-    double dy = fabs(_end.getY() - track->getEnd()->getY());
-    double dz = fabs(_end.getZ() - track->getEnd()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
-                 track->getEnd()->getX(), track->getEnd()->getY(),
-                 track->getEnd()->getZ());
-  }
+  /* Check to make sure the tracks have connecting points */
+  double dx = fabs(_end.getX() - track->getStart()->getX());
+  double dy = fabs(_end.getY() - track->getStart()->getY());
+  double dz = fabs(_end.getZ() - track->getStart()->getZ());
+  if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+      (dy > 1.e-8 && dz > 1.e-8))
+    log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
+               track->getStart()->getX(), track->getStart()->getY(),
+               track->getStart()->getZ());
   
   _track_prdc_fwd = track;
 }
 
 
+/**
+ * @brief Set a pointer to the reflective Track in the backward direction.
+ * @param track A pointer to the reflective track in the backward direction
+ */
 void Track::setTrackReflBwd(Track* track){
 
+  /* Check to make sure the tracks have connecting points */
   if (_refl_bwd_fwd && _start.distanceToPoint(track->getStart()) > 1.e-8)
     log_printf(NORMAL, "INCORRECT TRACK REFL BWD: (%.4f, %.4f, %.4f) -> "
                "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
@@ -259,120 +281,223 @@ void Track::setTrackReflBwd(Track* track){
 }
 
 
+/**
+ * @brief Set a pointer to the periodic Track in the backward direction.
+ * @param track A pointer to the periodic track in the backward direction
+ */
 void Track::setTrackPrdcBwd(Track* track){
 
-  if (_prdc_bwd_fwd) {
-    double dx = fabs(_start.getX() - track->getStart()->getX());
-    double dy = fabs(_start.getY() - track->getStart()->getY());
-    double dz = fabs(_start.getZ() - track->getStart()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
-                 _start.getZ(), track->getStart()->getX(),
-                 track->getStart()->getY(), track->getStart()->getZ());
-  }
-  else {
-    double dx = fabs(_start.getX() - track->getEnd()->getX());
-    double dy = fabs(_start.getY() - track->getEnd()->getY());
-    double dz = fabs(_start.getZ() - track->getEnd()->getZ());
-    if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-        (dy > 1.e-8 && dz > 1.e-8))
-      log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
-                 "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
-                 _start.getZ(), track->getEnd()->getX(),
-                 track->getEnd()->getY(), track->getEnd()->getZ());
-  }
+  /* Check to make sure the tracks have connecting points */
+  double dx = fabs(_start.getX() - track->getEnd()->getX());
+  double dy = fabs(_start.getY() - track->getEnd()->getY());
+  double dz = fabs(_start.getZ() - track->getEnd()->getZ());
+  if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
+      (dy > 1.e-8 && dz > 1.e-8))
+    log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
+               "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
+               _start.getZ(), track->getEnd()->getX(),
+               track->getEnd()->getY(), track->getEnd()->getZ());
 
   _track_prdc_bwd = track;
 }
 
 
+/**
+ * @brief Get a pointer to the reflective Track in the forward direction.
+ * @return A pointer to the reflective track in the forward direction
+ */
 Track* Track::getTrackReflFwd() {
   return _track_refl_fwd;
 }
 
 
+/**
+ * @brief Get a pointer to the reflective Track in the backward direction.
+ * @return A pointer to the reflective track in the backward direction
+ */
 Track* Track::getTrackReflBwd() {
   return _track_refl_bwd;
 }
 
 
+/**
+ * @brief Get a pointer to the periodic Track in the forward direction.
+ * @return A pointer to the periodic track in the forward direction
+ */
 Track* Track::getTrackPrdcFwd() {
   return _track_prdc_fwd;
 }
 
 
+/**
+ * @brief Get a pointer to the periodic Track in the backward direction.
+ * @return A pointer to the periodic track in the backward direction
+ */
 Track* Track::getTrackPrdcBwd() {
   return _track_prdc_bwd;
 }
 
 
+/**
+ * @brief Set the xy index of this Track.
+ * @param index The xy index of this Track
+ */
 void Track::setXYIndex(int index) {
   _xy_index = index;
 }
 
 
+/**
+ * @brief Get the xy index of this Track.
+ * @return The xy index of this Track
+ */
 int Track::getXYIndex() {
   return _xy_index;
 }
 
 
+/**
+ * @brief Set whether the reflective track in the forward direction is pointing
+ *        in forward direction.
+ * @param fwd Boolean indicating whether reflective track in the forward
+ *        direction is point in forward direction
+ */
 void Track::setReflFwdFwd(bool fwd){
   _refl_fwd_fwd = fwd;
 }
 
 
+/**
+ * @brief Set whether the reflective track in the backward direction is pointing
+ *        in forward direction.
+ * @param fwd Boolean indicating whether reflective track in the backward
+ *        direction is point in forward direction
+ */
 void Track::setReflBwdFwd(bool fwd){
   _refl_bwd_fwd = fwd;
 }
 
 
-void Track::setPrdcFwdFwd(bool fwd){
-  _prdc_fwd_fwd = fwd;
-}
-
-
-void Track::setPrdcBwdFwd(bool fwd){
-  _prdc_bwd_fwd = fwd;
-}
-
-
+/**
+ * @brief Get whether the reflective track in the forward direction is pointing
+ *        in forward direction.
+ * @return Boolean indicating whether reflective track in the forward
+ *         direction is point in forward direction
+ */
 bool Track::getReflFwdFwd(){
   return _refl_fwd_fwd;
 }
 
 
+/**
+ * @brief Get whether the reflective track in the backward direction is pointing
+ *        in forward direction.
+ * @return Boolean indicating whether reflective track in the backward
+ *         direction is point in forward direction
+ */
 bool Track::getReflBwdFwd(){
   return _refl_bwd_fwd;
 }
 
 
-bool Track::getPrdcFwdFwd(){
-  return _prdc_fwd_fwd;
-}
-
-
-bool Track::getPrdcBwdFwd(){
-  return _prdc_bwd_fwd;
-}
-
-
+/**
+ * @brief Set this Track's periodic cycle id.
+ * @detail Tracks are arranged in periodic cycles. The example below shows a
+ *         periodic cycle for a sample geometry:
+ *
+ *                 __________
+ *                |    /     |
+ *                |   /      |
+ *                |  /       |
+ *                | /        |
+ *                |/         |
+ *                |         /|
+ *                |        / |
+ *                |       /  |
+ *                |      /   |
+ *                |_____/____|
+ *
+ *
+ * @param id The periodic cycle id
+ */
 void Track::setPeriodicCycleId(int id) {
   _periodic_cycle_id = id;
 }
 
+
+/**
+ * @brief Set this Track's periodic track index.
+ * @detail Tracks are arranged in periodic cycles. The example below shows a
+ *         periodic cycle and the corresponding periodic track indices for a 
+ *         sample geometry:
+ *
+ *                 __________
+ *                |    /     |
+ *                |   /      |
+ *                |  /       |
+ *                | /        |
+ *                |/         |
+ *             (1)|         /|
+ *                |        / |
+ *                |       /  |
+ *                |      /   |
+ *                |_____/____|
+ *                     (0) 
+ *
+ * @param id The periodic track index
+ */
+void Track::setPeriodicTrackIndex(int index) {
+  _periodic_track_index = index;
+}
+
  
+/**
+ * @brief Get this Track's periodic cycle id.
+ * @return The periodic cycle id
+ */
 int Track::getPeriodicCycleId() {
   return _periodic_cycle_id;
 }
 
 
+/**
+ * @brief Get this Track's periodic track index.
+ * @return The periodic track index
+ */
+int Track::getPeriodicTrackIndex() {
+  return _periodic_track_index;
+}
+
+
+/**
+ * @brief Set this Track's reflective cycle id.
+ * @detail Tracks are arranged in reflective cycles. The example below shows a
+ *         reflective cycle for a sample geometry:
+ *
+ *                 __________
+ *                |    /\    |
+ *                |   /  \   |
+ *                |  /    \  |
+ *                | /      \ |
+ *                |/        \|
+ *                |\        /|
+ *                | \      / |
+ *                |  \    /  |
+ *                |   \  /   |
+ *                |____\/____|
+ *
+ *
+ * @param id The reflective cycle id
+ */
 void Track::setReflectiveCycleId(int id) {
   _reflective_cycle_id = id;
 }
 
  
+/**
+ * @brief Get this Track's reflective cycle id.
+ * @return The reflective cycle id
+ */
 int Track::getReflectiveCycleId() {
   return _reflective_cycle_id;
 }

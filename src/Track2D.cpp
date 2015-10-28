@@ -48,6 +48,13 @@ std::string Track2D::toString() {
 }
 
 
+/**
+ * @brief Set the values for the Track's start and end point.
+ * @param x0 the x-coordinate at the starting point
+ * @param y0 the y-coordinate at the starting point
+ * @param x1 the x-coordinate at the ending point
+ * @param y1 the y-coordinate at the ending point
+ */
 void Track2D::setCoords(double x0, double y0,
                         double x1, double y1){
   _start.setCoords(x0, y0);

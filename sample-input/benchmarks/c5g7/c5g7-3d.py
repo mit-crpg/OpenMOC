@@ -18,7 +18,7 @@ num_polar = 6 #options.getNumPolarAngles()
 #tolerance = options.getTolerance()
 tolerance = 10**-2
 max_iters = options.getMaxIterations()
-
+refines_z = 2
 
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(Lattice(name='Full Geometry'))
@@ -51,6 +51,11 @@ lattices[-1].setUniverses3D([[[assembly_rfl_unrod    , assembly_rfl_unrod    , a
                               [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
                               [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]])
 
+# Refine lattice
+template_2 = template
+template = sum([[template_2[i]]*refines_z for i in range(len(template_2))], [])
+
+# Fill root cell with lattice
 root_cell.setFill(lattices[-1])
 
 
@@ -64,7 +69,13 @@ cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(3,3,3)
 cmfd.setGroupStructure([1,4,8])
+<<<<<<< HEAD
 cmfd.setKNearest(1)
+=======
+cmfd.setOpticallyThick(True)
+cmfd.setKNearest(4)
+
+>>>>>>> Sam/3D-MOC
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################

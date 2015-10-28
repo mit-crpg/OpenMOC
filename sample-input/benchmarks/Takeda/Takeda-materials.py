@@ -31,7 +31,7 @@ takeda_materials['core']['Scattering XS'] = [0.192423, 0.0228253, 0.00, 0.880439
 
 takeda_materials['core']['Fission XS'] = [0.0004, 0.1]
 
-takeda_materials['core']['Nu Fission XS'] = [0.000909319, 0.290183]
+takeda_materials['core']['Nu Fission XS'] = [0.00909319, 0.290183]
 
 takeda_materials['core']['Chi'] = [1.0, 0.0]
 

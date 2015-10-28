@@ -18,7 +18,7 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-
+refines_z = 2
 
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(Lattice(name='Full Geometry'))
@@ -51,7 +51,11 @@ lattices[-1].setUniverses3D([[[assembly_rfl_rod      , assembly_rfl_rod      , a
                               [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
                               [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]])
 
+# Refine lattice
+template_2 = template
+template = sum([[template_2[i]]*refines_z for i in range(len(template_2))], [])
 
+# Fill root cell with lattice
 root_cell.setFill(lattices[-1])
 
 
@@ -65,6 +69,7 @@ cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.0)
 cmfd.setLatticeStructure(51,51,9)
+cmfd.setOpticallyThick(True)
 cmfd.setGroupStructure([1,4,8])
 
 

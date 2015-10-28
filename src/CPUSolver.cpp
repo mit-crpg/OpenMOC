@@ -592,6 +592,10 @@ void CPUSolver::transportSweep() {
   segment* curr_segment;
   segment* segments;
   FP_PRECISION* track_flux;
+  FP_PRECISION thread_fsr_flux[_num_groups];
+
+  for (int g=0; g < _num_groups; g++)
+    thread_fsr_flux[g] = 0.0;
 
   log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
@@ -601,24 +605,38 @@ void CPUSolver::transportSweep() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
+<<<<<<< HEAD
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
 
   /* Loop over each set of tracks in parallel */
   for (int i=0; i < 4 + 12*_solve_3D; i++){
 
+=======
+  /* Loop over each parallel track groups */
+  for (int i=0; i < _num_parallel_track_groups; i++){
+    
+>>>>>>> Sam/3D-MOC
     /* Compute the minimum and maximum Track IDs corresponding to
-     * this azimuthal angular halfspace */
-    min_track = _num_tracks[i];
-    max_track = _num_tracks[i+1];
+     * the current parallel tracks group */
+    min_track = _num_tracks_by_parallel_group[i];
+    max_track = _num_tracks_by_parallel_group[i+1];
     
     #pragma omp parallel for private(curr_track, azim_index, polar_index, \
                                      num_segments, curr_segment,        \
+<<<<<<< HEAD
                                      segments, track_flux) schedule(guided)
     for (int track_id=min_track; track_id < max_track; track_id++) {
 
       FP_PRECISION* thread_fsr_flux;
       thread_fsr_flux = new FP_PRECISION[_num_groups];
+=======
+                                     segments, track_flux, tid) \
+                             firstprivate(thread_fsr_flux) schedule(guided)
+    for (int track_id=min_track; track_id < max_track; track_id++) {
+
+      tid = omp_get_thread_num();
+>>>>>>> Sam/3D-MOC
       curr_track = _tracks[track_id];      
       azim_index = _quad->getFirstOctantAzim
         (curr_track->getAzimIndex());
@@ -662,8 +680,6 @@ void CPUSolver::transportSweep() {
       /* Transfer boundary angular flux to outgoing Track */
       transferBoundaryFlux
         (track_id, azim_index, polar_index, false, track_flux);
-
-      delete [] thread_fsr_flux;
     }
   }
 }
@@ -887,7 +903,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     bc = _tracks[track_id]->getBCFwd();
     track_leakage = &_boundary_leakage(track_id,0);
     if (bc == PERIODIC){
-      start = _fluxes_per_track * (!_tracks[track_id]->getPrdcFwdFwd());
+      start = 0;
       track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();  
     }
     else{
@@ -901,7 +917,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     bc = _tracks[track_id]->getBCBwd();
     track_leakage = &_boundary_leakage(track_id,_fluxes_per_track);
     if (bc == PERIODIC) {
-      start = _fluxes_per_track * (!_tracks[track_id]->getPrdcBwdFwd());
+      start = _fluxes_per_track;
       track_out_id = _tracks[track_id]->getTrackPrdcBwd()->getUid();
     }
     else {
