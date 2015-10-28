@@ -53,7 +53,8 @@ public:
   int getCount();
 
   /* Executing function describes kernel behavior */
-  virtual void execute(FP_PRECISION length, Material* mat, int id)=0;
+  virtual void execute(FP_PRECISION length, Material* mat, int id,
+      int cmfd_surface_fwd, int cmfd_surface_bwd)=0;
 
 };
 
@@ -68,7 +69,8 @@ public:
  */
 class CounterKernel: public MOCKernel {
 public:
-  void execute(FP_PRECISION length, Material* mat, int id);
+  void execute(FP_PRECISION length, Material* mat, int id, 
+      int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
 
@@ -83,7 +85,8 @@ public:
  */
 class VolumeKernel: public MOCKernel {
 public:
-  void execute(FP_PRECISION length, Material* mat, int id);
+  void execute(FP_PRECISION length, Material* mat, int id,
+      int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
 
@@ -97,7 +100,8 @@ public:
  */
 class SegmentationKernel: public MOCKernel {
 public:
-  void execute(FP_PRECISION length, Material* mat, int id);
+  void execute(FP_PRECISION length, Material* mat, int id,
+      int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
 

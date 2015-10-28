@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <sstream>
 #include <string>
+#include <set>
 #include <omp.h>
 #include <functional>
 #include "ParallelHashMap.h"
@@ -182,6 +183,7 @@ public:
   int getNumCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Cell*> getAllMaterialCells();
+  std::vector<double> getUniqueZLevels();
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
@@ -213,7 +215,8 @@ public:
   void initializeFlatSourceRegions();
   void segmentize2D(Track2D* track, double z_level);
   void segmentize3D(Track3D* track);
-  void segmentizeExtruded(ExtrudedTrack* extruded_track);
+  void segmentizeExtruded(ExtrudedTrack* extruded_track, 
+      std::vector<double> z_levels);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
   

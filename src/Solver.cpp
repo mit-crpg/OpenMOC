@@ -647,7 +647,7 @@ void Solver::initializeFSRs() {
   _track_generator->generateFSRCentroids();
 
   /* Get an array of volumes indexed by FSR  */
-  if (_solve_3D) 
+  if (_solve_3D)
     _FSR_volumes = _track_generator->get3DFSRVolumes();
   
   else

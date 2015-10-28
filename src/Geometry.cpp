@@ -1042,16 +1042,22 @@ void Geometry::segmentize3D(Track3D* track) {
 
 /**
  * @brief This method performs ray tracing to create extruded track segments 
- *        within each flat source region in the 2D superposition plane of the 
- *        Geometry.
+ *        within each flat source region in the implicit 2D superposition plane
+ *        of the Geometry by 2D ray tracing across input heights that encompass
+ *        all radial geometric detail.
  * @details This method starts at the beginning of an extruded track and finds 
  *          successive intersection points with FSRs as the extruded track 
- *          crosses through the Geometry, saving the lengths and region IDs to
- *          the extruded track and initializing ExtrudedFSR structs in the
- *          traversed FSRs.
+ *          crosses radially through the Geometry at defined z-levels. The
+ *          minimum distance to intersection of all z-levels is chosen leading
+ *          to implicitly capturing all geometric radial detail at the defined
+ *          z-heights, saving the lengths and region IDs to the extruded track 
+ *          and initializing ExtrudedFSR structs in the traversed FSRs.
  * @param extruded_track a pointer to a extruded track to segmentize
+ * @param z_levels a vector of axial heights in the root geometry at which
+ *        the Geometry is segmentized radially
  */
-void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
+void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track, 
+    std::vector<double> z_levels) {
 
   /* Extract the associated 2D track */
   Track2D* track = extruded_track->_track_2D;
@@ -1059,12 +1065,14 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
-  double z0 = 0;
+  double z0 = z_levels[0];
   double phi = track->getPhi();
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
   FP_PRECISION length;
+  FP_PRECISION min_length = 0;
+  int min_z_ind = 0;
   ExtrudedFSR* fsr;
   int num_segments;
 
@@ -1076,7 +1084,6 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
 
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi);
-  Cell* prev;
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -1088,26 +1095,50 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track) {
    * Geometry */
   while (curr != NULL) {
 
+    /* Copy end coordinates to start */
     end.copyCoords(&start);
 
-    /* Find the next Cell along the Track's trajectory */
-    prev = curr;
-    curr = findNextCell(&end, phi);
-  
-    /* Checks that segment does not have the same start and end Points */
-    if (start.getX() == end.getX() && start.getY() == end.getY())
-      log_printf(ERROR, "Created segment with same start and end "
-                 "point: x = %f, y = %f", start.getX(), start.getY());
+    /* Loop over all z-heights to find shortest 2D intersection */
+    for (int i=0; i < z_levels.size(); i++) {
 
-    /* Find the segment length and extruded FSR */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+      /* Copy starting cordinates to end and change z-height */
+      start.copyCoords(&end);
+      end.setZ(z_levels[i]);
+    
+      /* Find the next Cell along the Track's trajectory */
+      curr = findNextCell(&end, phi);
+    
+      /* Checks that segment does not have the same start and end Points */
+      if (start.getX() == end.getX() && start.getY() == end.getY())
+        log_printf(ERROR, "Created segment with same start and end "
+                   "point: x = %f, y = %f", start.getX(), start.getY());
+
+      /* Find the segment length and extruded FSR */
+      length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+
+      /* Check if the segment length is the smallest found */
+      if (i == 0 || length < min_length) {
+        min_length = length;
+        min_z_ind = i;
+      }
+    }
+
+    /* Traverse across shortest segment */
+    start.copyCoords(&end);
+    end.setZ(z_levels[min_z_ind]);
+    curr = findNextCell(&end, phi);
+      
+    /* Find FSR using starting coordinate */
     fsr = findExtrudedFSR(&start);
+
+    /* Reset end axial height to z0 */
+    end.setZ(z0);
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
     
     /* Add the segment to the extruded track */
-    extruded_track->_lengths.push_back(length);
+    extruded_track->_lengths.push_back(min_length);
     extruded_track->_regions.push_back(fsr);
     extruded_track->_num_segments++;
   }
@@ -1479,7 +1510,10 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 }
 
 
-
+/**
+ * @brief Finds the Cell containing a given fsr ID.
+ * @param fsr_id an FSR ID.
+ */
 Cell* Geometry::findCellContainingFSR(int fsr_id){
 
   Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
@@ -1510,3 +1544,202 @@ Cell* Geometry::findCellContainingFSR(int fsr_id){
 void Geometry::setFSRCentroid(int fsr, Point* centroid) {
   _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
 }
+
+/**
+ * @brief Returns a vector of z-levels defining potential unique radial planes
+ *        in the Geometry
+ * @details The Geometry is traversed to retrieve all Z-planes and implicit
+ *          z-boundaries, such as lattice boundaries. The levels of all these
+ *          z-boundaries are rounded and added to a set containing no
+ *          duplicates, creating a mesh. The mid points of the mesh are then
+ *          used to construcut a vector of all potential unique radial planes
+ *          and returned to the user.
+ * @reutrn a vector of z-levels
+ */
+std::vector<double> Geometry::getUniqueZLevels() {
+
+  /* Get the bounds of the geometry */
+  double min_z = getMinZ();
+  double max_z = getMaxZ();
+
+  /* Initialize set for axial mesh */
+  std::set<double> unique_mesh;
+
+  /* Initialize vector of unvisited universes and add the root universe */
+  std::vector<Universe*> universes;
+  universes.push_back(_root_universe);
+
+  /* Initialize vector of offsets */
+  std::vector<double> offsets;
+  offsets.push_back(0.0);
+
+  /* Cycle through known universes */
+  while (!universes.empty()) {
+
+    /* Get the last universe and explore it */
+    Universe* curr_universe = universes.back();
+    universes.pop_back();
+
+    /* Get the z-offset of the universe */
+    double z_offset = offsets.back();
+    offsets.pop_back();
+        
+    /* Store a vector of the z_heights before rounding */
+    std::vector<double> z_heights;
+
+    /* Check if universe is actually a lattice */
+    universeType type = curr_universe->getType();
+    if (type == LATTICE) {
+      
+      /* Get lattice dimensions */
+      Lattice* lattice = static_cast<Lattice*>(curr_universe);
+      int nx = lattice->getNumX();
+      int ny = lattice->getNumY();
+      int nz = lattice->getNumZ();
+
+      /* Get offset of the lattice */
+      z_offset += lattice->getOffset()->getZ();
+
+      /* Calculate z-intersections */
+      double width = lattice->getWidthZ();
+      double offset = z_offset - nz * width / 2;
+      for (int k=0; k<nz+1; k++) {
+        double z_height = k * width + offset;
+        z_heights.push_back(z_height);
+      }
+
+      /* Add universes to unvisted universes */
+      for (int i=0; i<nx; i++) {
+        for (int j=0; j<ny; j++) {
+          for (int k=0; k<nz; k++) {
+            Universe* new_universe = lattice->getUniverse(i, j, k);
+            universes.push_back(new_universe);
+            offsets.push_back(z_offset);
+          }
+        }
+      }
+    }
+    
+    /* Otherwise check if universe is simple, contains cells */
+    else if (type == SIMPLE) {
+
+      /* Get all cells in the universe */
+      std::map<int, Cell*> cells = curr_universe->getCells();
+
+      /* Cycle through all cells */
+      std::map<int, Cell*>::iterator cell_iter;
+      for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
+
+        /* Get surfaces bounding the cell */
+        std::map<int, surface_halfspace> surfaces = 
+          cell_iter->second->getSurfaces();
+
+        /* Cycle through all surfaces and add them to the set */
+        std::map<int, surface_halfspace>::iterator surf_iter;
+        for (surf_iter = surfaces.begin(); surf_iter != surfaces.end();
+            ++surf_iter) {
+
+          /* Extract surface type */
+          Surface* surface = surf_iter->second._surface;
+          surfaceType surf_type = surface->getSurfaceType();
+
+          /* Treat surface types */
+          if (surf_type == PLANE) {
+            
+            /* Extract plane paramters */
+            Plane* plane = static_cast<Plane*>(surface);
+            double A = plane->getA();
+            double B = plane->getB();
+            double C = plane->getC();
+            double D = plane->getD();
+
+            /* Check if there is a z-compenent */
+            if (C != 0) {
+              
+              /* Check if plane has a continuous varying slope */
+              if (A != 0 || B != 0)
+                std::cout << "ERROR" << std::endl;
+              
+              /* Otherwise, surface is a z-plane */
+              else
+                z_heights.push_back(-D/C + z_offset);
+            }
+          }
+
+          /* Treat explicit z-planes */
+          else if (surf_type == ZPLANE) {
+            ZPlane* zplane = static_cast<ZPlane*>(surface);
+            z_heights.push_back(zplane->getZ() + z_offset);
+          }
+        }
+
+        /* Add min and max z-height to the cell */
+        double z_limits[2];
+        z_limits[0] = cell_iter->second->getMinZ();
+        z_limits[1] = cell_iter->second->getMaxZ();
+        for (int i=0; i < 2; i++) {
+          if (std::abs(z_limits[i]) != std::numeric_limits<double>::infinity())
+            z_heights.push_back(z_limits[i] + z_offset);
+        }
+
+        /* See if cell is filled with universes or lattices */
+        cellType cell_type = cell_iter->second->getType();
+        if (cell_type == FILL) {
+          Universe* new_universe = cell_iter->second->getFillUniverse();
+          universes.push_back(new_universe);
+          offsets.push_back(z_offset);
+        }
+      }
+    }
+    
+    /* Add z-heights to the set */
+    for (int i=0; i < z_heights.size(); i++) {
+      
+      /* Round z-height */
+      int place = 8;
+      z_heights[i] = z_heights[i] * pow(10, place) + 0.5;
+      long integer_rep = (long) z_heights[i];
+      z_heights[i] = integer_rep * pow(10, -place);
+
+      /* Add the rouned z-height to the set */
+      if (z_heights[i] >= min_z && z_heights[i] <= max_z) 
+        unique_mesh.insert(z_heights[i]);
+    }
+  }
+
+  /* Add CMFD levels */
+  if (_cmfd != NULL) {
+
+    /* Cycle through CMFD mesh not included by boundaries */
+    double cmfd_num_z = _cmfd->getNumZ();
+    double width = (max_z - min_z) / cmfd_num_z;
+    for (int i=1; i < cmfd_num_z; i++) {
+      
+      /* Calculate z-height */
+      double z_height = min_z + width*i;
+
+      /* Round z-height */
+      int place = 8;
+      z_height = z_height * pow(10, place) + 0.5;
+      long integer_rep = (long) z_height;
+      z_height = integer_rep * pow(10, -place);
+
+      /* Add height to set */
+      unique_mesh.insert(z_height);
+    }
+  }
+
+  /* Calculate z-levels from the midpoints of the mesh */
+  std::vector<double> unique_levels;
+  std::set<double>::iterator iter = unique_mesh.begin();
+  double prev = *iter;
+  for (iter = ++iter; iter != unique_mesh.end(); ++iter) {
+    double curr = *iter;
+    double mid = (prev + curr) / 2;
+    unique_levels.push_back(mid);
+    prev = curr;
+  }
+
+  return unique_levels;
+}
+

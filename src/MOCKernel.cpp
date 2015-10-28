@@ -81,7 +81,8 @@ int MOCKernel::getCount() {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id) {
+void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
+    int cmfd_surface_fwd, int cmfd_surface_bwd) {
   
   /* Add value to buffer */
   _buffer[id] += _weight * length;
@@ -99,7 +100,8 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(FP_PRECISION length, Material* mat, int id) {
+void CounterKernel::execute(FP_PRECISION length, Material* mat, int id, 
+    int cmfd_surface_fwd, int cmfd_surface_bwd) {
   
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
@@ -126,7 +128,8 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int id) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id) {
+void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
+    int cmfd_surface_fwd, int cmfd_surface_bwd) {
   
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
@@ -143,11 +146,15 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id) {
     _segments[_count]._length = temp_length;
     _segments[_count]._material = mat;
     _segments[_count]._region_id = id;
+    _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
+    _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
     length -= temp_length;
     _count++;
   }
   _segments[_count]._length = length;
   _segments[_count]._material = mat;
   _segments[_count]._region_id = id;
+  _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
+  _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
   _count++;
 }

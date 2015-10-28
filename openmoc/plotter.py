@@ -189,8 +189,8 @@ def plot_tracks_3D(track_generator):
 
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
-  
-  
+
+
 def plot_periodic_cycles_2D(track_generator):
 
   global subdirectory
@@ -232,7 +232,7 @@ def plot_periodic_cycles_2D(track_generator):
     cycle_ids[i] = coords[i*5+4]
 
   num_cycles = int(numpy.amax(cycle_ids))
-    
+
   # Create array of equally spaced randomized floats as a color map for plots
   # Seed the NumPy random number generator to ensure reproducible color maps
   numpy.random.seed(1)
@@ -253,7 +253,7 @@ def plot_periodic_cycles_2D(track_generator):
 
   plt.xlim([x.min(), x.max()])
   plt.ylim([y.min(), y.max()])
-    
+
   title = 'Periodic cycles for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
@@ -307,7 +307,7 @@ def plot_reflective_cycles_2D(track_generator):
     cycle_ids[i] = coords[i*5+4]
 
   num_cycles = int(numpy.amax(cycle_ids))
-    
+
   # Create array of equally spaced randomized floats as a color map for plots
   # Seed the NumPy random number generator to ensure reproducible color maps
   numpy.random.seed(1)
@@ -328,7 +328,7 @@ def plot_reflective_cycles_2D(track_generator):
 
   plt.xlim([x.min(), x.max()])
   plt.ylim([y.min(), y.max()])
-    
+
   title = 'Reflective cycles for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
@@ -387,7 +387,7 @@ def plot_periodic_cycles_3D(track_generator):
     cycle_ids[i] = coords[i*7+6]
 
   num_cycles = int(numpy.amax(cycle_ids))
-    
+
   # Create array of equally spaced randomized floats as a color map for plots
   # Seed the NumPy random number generator to ensure reproducible color maps
   numpy.random.seed(1)
@@ -419,7 +419,7 @@ def plot_periodic_cycles_3D(track_generator):
 
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
-  
+
 
 def plot_reflective_cycles_3D(track_generator):
 
@@ -467,7 +467,7 @@ def plot_reflective_cycles_3D(track_generator):
     cycle_ids[i] = coords[i*7+6]
 
   num_cycles = int(numpy.amax(cycle_ids))
-    
+
   # Create array of equally spaced randomized floats as a color map for plots
   # Seed the NumPy random number generator to ensure reproducible color maps
   numpy.random.seed(1)
@@ -477,7 +477,7 @@ def plot_reflective_cycles_3D(track_generator):
   # Make figure of line segments for each track
   fig = plt.figure()
   ax = fig.gca(projection ='3d')
-  
+
   for i in range(num_tracks):
 
     # Create a color map corresponding to FSR IDs
@@ -486,7 +486,7 @@ def plot_reflective_cycles_3D(track_generator):
     scalarMap = cmx.ScalarMappable(norm=cNorm)
     color = scalarMap.to_rgba(color_map[cycle_ids[i] % num_cycles])
     ax.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], [z[i*2], z[i*2+1]], c=color)
-    
+
   title = 'Reflective cycles for ' + str(num_azim) + ' azim, ' + str(num_polar) \
           + ' polar and ' + str(azim_spacing) + 'azim, ' + str(polar_spacing) \
           + ' polar spacing'
@@ -500,7 +500,7 @@ def plot_reflective_cycles_3D(track_generator):
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
 
-  
+
 
 ##
 # @brief Plots the characteristic Track segments from an OpenMOC simulation.
@@ -575,7 +575,7 @@ def plot_segments_2D(track_generator):
 
   plt.xlim([x.min(), x.max()])
   plt.ylim([y.min(), y.max()])
-    
+
   title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
@@ -642,7 +642,7 @@ def plot_segments_3D(track_generator):
   # Make figure of line segments for each track
   fig = plt.figure()
   ax = fig.gca(projection ='3d')
-  
+
   for i in range(num_segments):
 
     # Create a color map corresponding to FSR IDs
@@ -664,7 +664,7 @@ def plot_segments_3D(track_generator):
   plt.show()
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
-  
+
 
 
 
@@ -721,7 +721,7 @@ def plot_segments_3D(track_generator):
   # Make figure of line segments for each track
   fig = plt.figure()
   ax = fig.gca(projection ='3d')
-  
+
   for i in range(num_segments):
 
     # Create a color map corresponding to FSR IDs
@@ -743,7 +743,7 @@ def plot_segments_3D(track_generator):
   plt.show()
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
-  
+
 
 
 ##
@@ -785,7 +785,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, \
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the Materials ' + \
               'with a negative gridsize (%d)', gridsize)
-    
+
   if plane not in ['xy', 'xz', 'yz']:
     msg = 'Unable to plot the materials with an invalid ' \
           'plane {0}. Plane options xy, xz, yz'.format(plane)
@@ -795,7 +795,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, \
     msg = 'Unable to plot the materials since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-  
+
   py_printf('NORMAL', 'Plotting the materials...')
 
   # Initialize a NumPy array for the surface colors
@@ -908,7 +908,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None, \
     msg = 'Unable to plot the cells since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-    
+
   py_printf('NORMAL', 'Plotting the cells...')
 
   # Initialize a NumPy array for the surface colors
@@ -1126,7 +1126,6 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
       centroids_x.append(point.getX())
       centroids_y.append(point.getY())
       centroids_z.append(point.getZ())
-      
 
     if plane == 'xy':
       plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
@@ -1136,7 +1135,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
       # manually set the plot bounds
       plt.xlim(min(coords['x']), max(coords['x']))
       plt.ylim(min(coords['y']), max(coords['y']))
-      
+
     elif plane == 'xz':
       plt.scatter(centroids_x, centroids_z, color='k', marker=marker_type, \
                   s=marker_size)
@@ -1145,7 +1144,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
       # manually set the plot bounds
       plt.xlim(min(coords['x']), max(coords['x']))
       plt.ylim(min(coords['z']), max(coords['z']))
-      
+
     else:
 
       plt.scatter(centroids_y, centroids_z, color='k', marker=marker_type, \
@@ -1155,7 +1154,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
       # manually set the plot bounds
       plt.xlim(min(coords['y']), max(coords['y']))
       plt.ylim(min(coords['z']), max(coords['z']))
-      
+
 
   # Set the plot title and save the figure
   plt.title('Flat Source Regions')
@@ -1224,7 +1223,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, \
     msg = 'Unable to plot the cmfd cells since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-    
+
   py_printf('NORMAL', 'Plotting the CMFD cells...')
 
   # Initialize a NumPy array for the surface colors
@@ -1242,19 +1241,19 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, \
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
-        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
+        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
       elif plane == 'xz':
         point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
-        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
+        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
       else:
         point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
         geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
-        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)        
+        cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
 
       # If we did not find a cell for this point, use a -1 "bad" number color
       if np.isnan(cell_id):
@@ -1367,7 +1366,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
     msg = 'Unable to plot the spatial fluxes since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-    
+
   py_printf('NORMAL', 'Plotting the FSR scalar fluxes...')
 
   # Initialize a numpy array for the groupwise scalar fluxes
@@ -1383,7 +1382,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
         point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
-        fsr_id = geometry.getFSRId(point)        
+        fsr_id = geometry.getFSRId(point)
       elif plane == 'xz':
         point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
         point.setUniverse(geometry.getRootUniverse())
@@ -1643,7 +1642,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None,
         point.setUniverse(geometry.getRootUniverse())
         cell = geometry.findCellContainingCoords(point)
         fsr_id = geometry.getFSRId(point)
-      
+
       # If we did not find a region for this region, use a -1 "bad" number color
       if np.isnan(fsr_id):
         surface[j][i] = -1
@@ -1688,8 +1687,8 @@ def plot_quadrature(track_generator):
   for a in range(num_azim/4):
     phis[a] = quadrature.getPhi(a)
     for p in range(num_polar/2):
-      thetas[a][p] = quadrature.getTheta(a,p)      
-  
+      thetas[a][p] = quadrature.getTheta(a,p) 
+
   # Make figure of line segments for each Track
   fig = plt.figure()
   ax = fig.gca(projection ='3d')
@@ -1761,7 +1760,7 @@ def plot_quadrature(track_generator):
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @return a dictionary with the plotting window map and bounding box
 def get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim=None):
-  
+
   # initialize variables to be returned
   bounds = [geometry.getMinX() + TINY_MOVE, geometry.getMaxX() - TINY_MOVE,
             geometry.getMinY() + TINY_MOVE, geometry.getMaxY() - TINY_MOVE,
@@ -1770,19 +1769,19 @@ def get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim=None):
   ycoords = None
   zcoords = None
   coords = dict()
-  
+
   if not xlim is None:
     bounds[0] = xlim[0]
     bounds[1] = xlim[1]
-    
+
   if not ylim is None:
     bounds[2] = ylim[0]
     bounds[3] = ylim[1]
-      
+
   if not zlim is None:
     bounds[4] = zlim[0]
     bounds[5] = zlim[1]
-        
+
   if plane == 'xy':
     xcoords = np.linspace(bounds[0], bounds[1], gridsize)
     ycoords = np.linspace(bounds[2], bounds[3], gridsize)
@@ -1810,7 +1809,7 @@ def get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim=None):
                                                     bounds[0], bounds[1])
       raise ValueError(msg)
     del bounds[:2]
-  
+
   # add attributes to coords dictionary
   coords['x'] = xcoords
   coords['y'] = ycoords
@@ -1821,7 +1820,7 @@ def get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim=None):
 
 
 #TODO FIXME: write description
-def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250, 
+def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
                        xlim=None, ylim=None, zlim=None, plane='xy', offset=0.,
                        centroids=False, marker_type='o', marker_size=2):
 
@@ -1855,7 +1854,7 @@ def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
     msg = 'Unable to plot the flat source regions since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-    
+
   if not isinstance(centroids, bool):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'centroids is not a boolean')
@@ -1959,17 +1958,17 @@ def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
     plt.plot(x, y, 'k.-')
     plt.xlim(min(coords['x']), max(coords['x']))
     plt.ylim(min(coords['y']), max(coords['y']))
-  
+
   elif plane == 'yz':
     plt.plot(y, z, 'k.-')
     plt.xlim(min(coords['y']), max(coords['y']))
     plt.ylim(min(coords['z']), max(coords['z']))
-  
+
   elif plane == 'xz':
     plt.plot(x, z, 'k.-')
     plt.xlim(min(coords['x']), max(coords['x']))
     plt.ylim(min(coords['z']), max(coords['z']))
-  
+
   # Plot centroids on top of 2D FSR color map
   if centroids:
     centroids_x = []
@@ -1980,7 +1979,7 @@ def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       centroids_x.append(point.getX())
       centroids_y.append(point.getY())
       centroids_z.append(point.getZ())
-      
+
 
     if plane == 'xy':
       plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
@@ -1990,7 +1989,7 @@ def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       # manually set the plot bounds
       plt.xlim(min(coords['x']), max(coords['x']))
       plt.ylim(min(coords['y']), max(coords['y']))
-      
+
     elif plane == 'xz':
       plt.scatter(centroids_x, centroids_z, color='k', marker=marker_type, \
                   s=marker_size)
@@ -1999,7 +1998,7 @@ def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       # manually set the plot bounds
       plt.xlim(min(coords['x']), max(coords['x']))
       plt.ylim(min(coords['z']), max(coords['z']))
-      
+
     else:
 
       plt.scatter(centroids_y, centroids_z, color='k', marker=marker_type, \
@@ -2009,11 +2008,9 @@ def plot_track_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       # manually set the plot bounds
       plt.xlim(min(coords['y']), max(coords['y']))
       plt.ylim(min(coords['z']), max(coords['z']))
-      
+
 
   # Set the plot title and save the figure
-  #plt.plot([10.421922],[-10.643587], 'bo', mew=3) 
-  #plt.plot([10.309855],[-10.577408], 'go', mew=3) 
   plt.title('Flat Source Regions Near Track {0}'.format(track_id))
   filename = directory + 'track-{0}-flat-source-regions-'.format(track_id) \
               + plane + '.png'
@@ -2067,7 +2064,7 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
   x = numpy.zeros(num_segments*2)
   y = numpy.zeros(num_segments*2)
   fsrs = numpy.zeros(num_segments)
-  
+
   for i in range(num_segments):
     fsrs[i] = coords[i*5]
     x[i*2] = coords[i*5+1]
@@ -2112,7 +2109,7 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
   # FIXME
   plt.xlim(xlim)
   plt.ylim(ylim)
-    
+
   title = 'Segments for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
@@ -2120,10 +2117,10 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
 
   filename = directory + 'segments-2D-' + str(num_azim) + '-angles-' + \
       str(spacing) + '-spacing.png'
-  
+
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
-  
+
 
 #TODO FIXME: write description
 def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250, 
@@ -2160,7 +2157,7 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
     msg = 'Unable to plot the flat source regions since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-    
+
   if not isinstance(centroids, bool):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'centroids is not a boolean')

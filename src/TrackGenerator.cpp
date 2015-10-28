@@ -3144,13 +3144,19 @@ void TrackGenerator::segmentizeExtruded() {
 
   log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
 
+  /* Get all unique z-levels at which 2D radial segementation is performed */
+  std::vector<double> z_levels = _geometry->getUniqueZLevels();
+
   /* Loop over all extruded Tracks */
   #pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++)
-    _geometry->segmentizeExtruded(&_extruded_tracks[index]);
+    _geometry->segmentizeExtruded(&_extruded_tracks[index], z_levels);
 
+  /* Initialize 3D FSRs and their associated vectors*/
   _geometry->initializeAxialFSRs();
   _geometry->initializeFSRVectors();
+
+  /* Count the number of segments in each track */
   countSegments();
   _contains_extruded_segments = true;
   
@@ -4448,9 +4454,9 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
             coords[5] = _tracks_3D_stack[a][i][p][z].getEnd()->getZ();
             return;
           }
-  std::cout << "ERROR: UNABLE TO FIND TRACK" << std::endl;
   return;
 }
+
 
 /**
  * @brief Computes and returns an array of volumes indexed by FSR for
@@ -4506,6 +4512,12 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
     }
   }
 
+  for (int i=0; i < num_FSRs; i++)
+    if (FSR_volumes[i] == 0)
+      log_printf(ERROR, "Zero volume calculated in an FSR region since no "
+               "track traversed the FSR. Use a finer track laydown to ensure "
+               "every FSR is traversed.");
+
   return FSR_volumes;
 }
 
@@ -4555,6 +4567,15 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* star
     else
       break;
   }
+ 
+  /* Track current location in root universe */
+  Cmfd* cmfd = _geometry->getCmfd();
+  LocalCoords curr_coords(start->getX(), start->getY(), z_level);
+  curr_coords.setUniverse(_geometry->getRootUniverse());
+  
+  FP_PRECISION tiny_delta_x = seg_unit * cos(phi) * TINY_MOVE;
+  FP_PRECISION tiny_delta_y = seg_unit * sin(phi) * TINY_MOVE;
+  FP_PRECISION tiny_delta_z = z_unit * TINY_MOVE;
 
   /* Loop over 2D segments */
   bool segments_complete = false;
@@ -4569,7 +4590,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* star
     /* Extract 2D segment length */
     double remaining_length_2D = extruded_track->_lengths[s] - start_dist_2D;
     start_dist_2D = 0;
-    
+   
     /* Transport along the 2D segment until it is completed */
     while (remaining_length_2D > 0) {
 
@@ -4594,17 +4615,33 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* star
         dist_3D = seg_dist_3D;
         z_move = 0;
       }
+      
+      /* Calculate CMFD surface */
+      int cmfd_surface_bwd = -1;
+      int cmfd_surface_fwd = -1;
+      if (cmfd != NULL && dist_3D > TINY_MOVE) {
+        curr_coords.adjustCoords(tiny_delta_x, tiny_delta_y, tiny_delta_z);
+        int cmfd_cell = cmfd->findCmfdCell(&curr_coords);
+        curr_coords.adjustCoords(-tiny_delta_x, -tiny_delta_y, -tiny_delta_z);
+        cmfd_surface_bwd = cmfd->findCmfdSurface(cmfd_cell, &curr_coords);
+        
+        FP_PRECISION delta_x = seg_unit * cos(phi) * dist_3D;
+        FP_PRECISION delta_y = seg_unit * sin(phi) * dist_3D;
+        FP_PRECISION delta_z = z_unit * dist_3D;
+        curr_coords.adjustCoords(delta_x, delta_y, delta_z);
+        cmfd_surface_fwd = cmfd->findCmfdSurface(cmfd_cell, &curr_coords);
+      }
 
       /* Operate on segment */
-      if (dist_3D > 1e-12)
+      if (dist_3D > TINY_MOVE)
         kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], 
-            extruded_FSR->_fsr_ids[z_ind]);
+            extruded_FSR->_fsr_ids[z_ind], cmfd_surface_fwd, cmfd_surface_bwd);
 
       /* Shorten remaining 2D segment length and move axial level */
       remaining_length_2D -= dist_2D;
       z_level += dist_3D * z_unit;
       z_ind += z_move;
-      
+
       /* Check if the track has crossed a Z boundary */
       if (z_ind < 0 or z_ind >= num_regions) {
         

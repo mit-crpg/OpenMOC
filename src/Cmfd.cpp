@@ -243,7 +243,7 @@ void Cmfd::computeXS() {
         /* Chi tallies */
         for (int b = 0; b < _num_cmfd_groups; b++) {
           chi = 0.0;
-              
+ 
           /* Compute the chi for group b */
           for (int h = _group_indices[b]; h < _group_indices[b+1]; h++)
             chi += fsr_material->getChi()[h];
@@ -594,7 +594,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   
   /* Construct matrices */
   constructMatrices();
-  
+
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
 

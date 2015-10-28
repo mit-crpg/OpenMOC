@@ -11,11 +11,12 @@ from assemblies import *
 options = Options()
 
 num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
-tolerance = options.getTolerance()
+azim_spacing =  1.0 #options.getAzimSpacing()
+num_azim = 4 #options.getNumAzimAngles()
+polar_spacing = 0.25 #options.getPolarSpacing()
+num_polar = 6 #options.getNumPolarAngles()
+#tolerance = options.getTolerance()
+tolerance = 10**-2
 max_iters = options.getMaxIterations()
 
 
@@ -58,14 +59,12 @@ root_cell.setFill(lattices[-1])
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-'''
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51,9)
+cmfd.setLatticeStructure(3,3,3)
 cmfd.setGroupStructure([1,4,8])
-cmfd.setKNearest(4)
-'''
+cmfd.setKNearest(1)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -75,7 +74,7 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
-#geometry.setCmfd(cmfd)
+geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
   
 
@@ -92,7 +91,7 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setOTF()
+#track_generator.setOTF()
 track_generator.generateTracks()
 
 

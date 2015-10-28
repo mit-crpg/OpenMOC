@@ -1,6 +1,5 @@
 #include "CPUSolver.h"
 
-
 /**
  * @brief Constructor initializes array pointers for Tracks and Materials.
  * @details The constructor retrieves the number of energy groups and FSRs
@@ -641,10 +640,8 @@ void CPUSolver::transportSweep() {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
                         thread_fsr_flux);
-        /*
         tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux,
                             true);
-                            */
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -658,10 +655,8 @@ void CPUSolver::transportSweep() {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
                         thread_fsr_flux);
-        /*
         tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux,
                             false);
-                            */
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -688,6 +683,9 @@ void CPUSolver::transportSweepOTF() {
 
   log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads", 
       _num_threads);
+  
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
+    _cmfd->zeroSurfaceCurrents();
 
   /* Initialize flux in each FSr to zero */
   flattenFSRFluxes(0.0);
@@ -738,9 +736,14 @@ void CPUSolver::transportSweepOTF() {
         int polar_index = curr_track->getPolarIndex();
 
         /* Transport segments forward */
-        for (int s=0; s < num_segments; s++)
+        for (int s=0; s < num_segments; s++) {
+          
           tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux, 
               thread_fsr_flux);
+
+          tallySurfaceCurrent(&segments[s], azim_index, polar_index, 
+              track_flux, true);
+        }
 
         /* Transfer boundary angular flux to outgoing Track */
         transferBoundaryFlux(track_id, azim_index, polar_index, true, 
@@ -750,9 +753,14 @@ void CPUSolver::transportSweepOTF() {
         track_flux = &_boundary_flux(track_id, 1, 0);
        
         /* Transport segments backwards */
-        for (int s=num_segments-1; s > -1; s--)
+        for (int s=num_segments-1; s > -1; s--) {
+          
           tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
+        
+          tallySurfaceCurrent(&segments[s], azim_index, polar_index, 
+              track_flux, false);
+        }
         
         /* Transfer boundary angular flux to outgoing Track */
         transferBoundaryFlux(track_id, azim_index, polar_index, false, 
@@ -761,7 +769,6 @@ void CPUSolver::transportSweepOTF() {
     }
   }
 }
-
 
 
 /**
@@ -773,7 +780,6 @@ void CPUSolver::transportSweepOTF() {
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
- * @param fwd
  */
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
