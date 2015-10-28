@@ -122,7 +122,6 @@ protected:
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
-  bool _solve_3D;
   int* _num_tracks_by_parallel_group;
   int _num_parallel_track_groups;
   
