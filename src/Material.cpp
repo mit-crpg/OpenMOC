@@ -45,17 +45,15 @@ Material::Material(int id, const char* name) {
   _name = NULL;
   setName(name);
 
+  /* Initialize a dummy number groups */
+  _num_groups = -1;
+
   _sigma_t = NULL;
-  _sigma_a = NULL;
   _sigma_s = NULL;
   _sigma_f = NULL;
   _nu_sigma_f = NULL;
   _chi = NULL;
   _fiss_matrix = NULL;
-  _dif_coef = NULL;
-  _dif_hat = NULL;
-  _dif_tilde = NULL;
-  _buckling = NULL;
 
   _fissionable = false;
 
@@ -78,9 +76,6 @@ Material::~Material() {
     if (_sigma_t != NULL)
       MM_FREE(_sigma_t);
 
-    if (_sigma_a != NULL)
-      MM_FREE(_sigma_a);
-
     if (_sigma_s != NULL)
       MM_FREE(_sigma_s);
 
@@ -95,30 +90,12 @@ Material::~Material() {
 
     if (_fiss_matrix != NULL)
       MM_FREE(_fiss_matrix);
-
-    /* Whomever SIMD'izes OpenMOC will need to properly free these
-     * using mm_free if they are vector aligned */
-    if (_dif_coef != NULL)
-      delete [] _dif_coef;
-
-    if (_dif_hat != NULL)
-      delete [] _dif_hat;
-
-    if (_dif_tilde != NULL)
-      delete [] _dif_tilde;
-
-    if (_buckling != NULL)
-      delete [] _buckling;
-
   }
 
   /* Data is not vector aligned */
   else {
     if (_sigma_t != NULL)
       delete [] _sigma_t;
-
-    if (_sigma_a != NULL)
-      delete [] _sigma_a;
 
     if (_sigma_s != NULL)
       delete [] _sigma_s;
@@ -134,18 +111,6 @@ Material::~Material() {
 
     if (_fiss_matrix != NULL)
       delete [] _fiss_matrix;
-
-    if (_dif_coef != NULL)
-      delete [] _dif_coef;
-
-    if (_dif_hat != NULL)
-      delete [] _dif_hat;
-
-    if (_dif_tilde != NULL)
-      delete [] _dif_tilde;
-
-    if (_buckling != NULL)
-      delete [] _buckling;
   }
 }
 
@@ -187,20 +152,6 @@ FP_PRECISION* Material::getSigmaT() {
                "cross-section since it has not yet been set", _id);
 
   return _sigma_t;
-}
-
-
-
-/**
- * @brief Return the array of the Material's absorption cross-sections.
- * @return the pointer to the Material's array of absorption cross-sections
- */
-FP_PRECISION* Material::getSigmaA() {
-  if (_sigma_a == NULL)
-      log_printf(ERROR, "Unable to return Material %d's absorption "
-                 "cross-section since it has not yet been set", _id);
-
-  return _sigma_a;
 }
 
 
@@ -272,83 +223,6 @@ FP_PRECISION* Material::getFissionMatrix() {
 
 
 /**
- * @brief Return the array of the Material's diffusion coefficients.
- * @return the pointer to the Material's array of diffusion coefficients
- */
-FP_PRECISION* Material::getDifCoef() {
-
-  if (_dif_coef == NULL) {
-
-    _dif_coef = new FP_PRECISION[_num_groups];
-
-    for (int e = 0; e < _num_groups; e++)
-      _dif_coef[e] = 0.0;
-  }
-
-  return _dif_coef;
-}
-
-
-/**
- * @brief Return the array of the Material's surface diffusion coefficients.
- * @details Returns the diffusion coefficients \f$ \hat{D} \f$ for this Material
- *           on each of the four surfaces of a CMFD mesh cell.
- * @return the pointer to the Material's array of surface diffusion coefficients
- */
-FP_PRECISION* Material::getDifHat() {
-
-  if (_dif_hat == NULL) {
-
-    _dif_hat = new FP_PRECISION[NUM_SURFACES*_num_groups];
-
-    for (int e = 0; e < NUM_SURFACES*_num_groups; e++)
-      _dif_hat[e] = 0.0;
-  }
-
-  return _dif_hat;
-}
-
-
-/**
- * @brief Return the array of the Material's CMFD correction to the surface
- *        diffusion coefficients.
- * @return the pointer to the Material's array of CMFD correction to the
- *         surface diffusion coefficients
- */
-FP_PRECISION* Material::getDifTilde() {
-
-  if (_dif_tilde == NULL) {
-
-    _dif_tilde = new FP_PRECISION[NUM_SURFACES*_num_groups];
-
-    for (int e = 0; e < NUM_SURFACES*_num_groups; e++)
-      _dif_tilde[e] = 0.0;
-  }
-
-  return _dif_tilde;
-}
-
-
-/**
- * @brief Return the array of the Material's CMFD correction to the surface
- *        diffusion coefficients.
- * @return the pointer to the Material's array of CMFD correction to
- *         the surface diffusion coefficients
- */
-FP_PRECISION* Material::getBuckling() {
-
-  if (_buckling == NULL) {
-
-    _buckling = new FP_PRECISION[_num_groups];
-
-    for (int e = 0; e < _num_groups; e++)
-      _buckling[e] = 0.0;
-  }
-
-  return _buckling;
-}
-
-/**
  * @brief Get the Material's total cross section for some energy group.
  * @param group the energy group
  * @return the total cross section
@@ -363,24 +237,6 @@ FP_PRECISION Material::getSigmaTByGroup(int group) {
                "%d which contains %d energy groups", group, _id, _num_groups);
                
   return _sigma_t[group-1];
-}
-
-
-/**
- * @brief Get the Material's absorption cross section for some energy group.
- * @param group the energy group
- * @return the absorption cross section
- */
-FP_PRECISION Material::getSigmaAByGroup(int group) {    
-  if (_sigma_a == NULL)
-    log_printf(ERROR, "Unable to return Material %d's absorption "
-               "cross section since it has not yet been set", _id);
-  
-  else if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to get sigma_a for group %d for Material "
-               "%d which contains %d energy groups", group, _id, _num_groups);
-  
-  return _sigma_a[group-1];
 }
 
 
@@ -481,80 +337,6 @@ FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
 
 
 /**
- * @brief Get the Material's diffustion coefficient for some energy group.
- * @param group the energy group
- * @return the diffusion coefficient
- */
-FP_PRECISION Material::getDifCoefByGroup(int group) {
-  if (_dif_coef == NULL)
-    log_printf(ERROR, "Unable to return Material %d's diffusion coefficient "
-               "since it has not yet been set", _id);
-  
-  else if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to get dif_coef for group %d for Material "
-               "%d which contains %d energy groups", group, _id, _num_groups);
-  
-  return _dif_coef[group-1];
-}
-
-
-/**
- * @brief Get the Material's dif_hat for some energy group.
- * @param group the energy group
- * @param surface the index of the surface
- * @return the dif_hat value
- */
-FP_PRECISION Material::getDifHatByGroup(int group, int surface) {
-  if (_dif_hat == NULL)
-    log_printf(ERROR, "Unable to return Material %d's dif_hat "
-               "since it has not yet been set", _id);
-  
-  else if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to get dif_hat for group %d for Material "
-               "%d which contains %d energy groups", group, _id, _num_groups);
-               
-  return _dif_hat[surface*_num_groups + (group-1)];
-}
-
-
-/**
- * @brief Get the Material's dif_tilde for some energy group.
- * @param group the energy group
- * @return the dif_tilde value
- */
-FP_PRECISION Material::getDifTildeByGroup(int group) {
-  if (_dif_tilde == NULL)
-    log_printf(ERROR, "Unable to return Material %d's dif_tilde "
-               "since it has not yet been set", _id);
-  
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to get dif_tilde for group %d for Material "
-               "%d which contains %d energy groups", group, _id, _num_groups);
-  
-  return _dif_tilde[group-1];
-}
-
-
-/**
- * @brief Get the Material's buckling for some energy group.
- * @param group the energy group
- * @return the buckling value
- */
-FP_PRECISION Material::getBucklingByGroup(int group) {
-  if (_buckling == NULL)
-    log_printf(ERROR, "Unable to return Material %d's buckling "
-               "since it has not yet been set", _id);
-  
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to get buckling for group %d for Material "
-               "%d which contains %d energy groups", group, _id, _num_groups);
-  
-  return _buckling[group-1];
-}
-
-
-
-/**
  * @brief Returns whether or not the Material contains a fissionable (non-zero)
  *        fission cross-section.
  * @return true if fissionable, false otherwise
@@ -621,9 +403,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
     if (_sigma_t != NULL)
       MM_FREE(_sigma_t);
 
-    if (_sigma_a != NULL)
-      MM_FREE(_sigma_a);
-
     if (_sigma_s != NULL)
       MM_FREE(_sigma_s);
 
@@ -645,9 +424,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
     if (_sigma_t != NULL)
       delete [] _sigma_t;
 
-    if (_sigma_a != NULL)
-      delete [] _sigma_a;
-
     if (_sigma_s != NULL)
       delete [] _sigma_s;
 
@@ -662,23 +438,10 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
     if (_fiss_matrix != NULL)
       delete [] _fiss_matrix;
-
-    if (_dif_coef != NULL)
-      delete [] _dif_coef;
-
-    if (_dif_hat != NULL)
-      delete [] _dif_hat;
-
-    if (_dif_tilde != NULL)
-      delete [] _dif_tilde;
-
-    if (_buckling != NULL)
-      delete [] _buckling;
   }
 
   /* Allocate memory for data arrays */
   _sigma_t = new FP_PRECISION[_num_groups];
-  _sigma_a = new FP_PRECISION[_num_groups];
   _sigma_f = new FP_PRECISION[_num_groups];
   _nu_sigma_f = new FP_PRECISION[_num_groups];
   _chi = new FP_PRECISION[_num_groups];
@@ -686,7 +449,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
   /* Assign the null vector to each data array */
   memset(_sigma_t, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_sigma_a, 0.0, sizeof(FP_PRECISION) * _num_groups);
   memset(_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
   memset(_nu_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
   memset(_chi, 0.0, sizeof(FP_PRECISION) * _num_groups);
@@ -758,57 +520,6 @@ void Material::setSigmaTByGroup(double xs, int group) {
     else
       _sigma_t[group-1] = FP_PRECISION(xs);
 }
-
-
-/**
- * @brief Set the Material's array of absorption scattering cross-sections.
- * @details This method is a helper function to allow OpenMOC users to assign
- *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (e.g., a float64 array the length
- *          of the number of energy groups) as input to this function. This
- *          function then fills the NumPy array with the data values for the
- *          Material's absorption cross-sections. An example of how this
- *          function might be called in Python is as follows:
- *
- * @code
- *          sigma_a = numpy.array([0.05, 0.1, 0.15, ... ])
- *          material = openmoc.Material(openmoc.material_id())
- *          material.setSigmaA(sigma_a)
- * @endcode
- *
- * @param xs the array of absorption scattering cross-sections
- * @param num_groups the number of energy groups
- */
-void Material::setSigmaA(double* xs, int num_groups) {
-
-  if (_num_groups != num_groups)
-    log_printf(ERROR, "Unable to set sigma_a with %d groups for Material "
-               "%d which contains %d energy groups", num_groups, _id, _num_groups);
-
-  for (int i=0; i < _num_groups; i++) {
-    _sigma_a[i] = FP_PRECISION(xs[i]);
-
-    if (_buckling != NULL & _dif_coef != NULL)
-      _sigma_a[i] += FP_PRECISION(_buckling[i] * _dif_coef[i]);
-  }
-}
-
-
-/**
- * @brief Set the Material's absorption cross-section for some energy group.
- * @param xs the absorption cross-section
- * @param group the energy group
- */
-void Material::setSigmaAByGroup(double xs, int group) {
-
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to set sigma_a for group %d for material "
-               "%d which contains %d energy groups", group, _id, _num_groups);
-
-  _sigma_a[group-1] = xs;
-}
-
-
 
 
 /**
@@ -1019,7 +730,6 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
 }
 
 
-
 /**
  * @brief Set the Material's array of chi \f$ \chi \f$ values.
  * @details This method is a helper function to allow OpenMOC users to assign
@@ -1070,286 +780,6 @@ void Material::setChiByGroup(double xs, int group) {
               "%d which contains %d energy groups", group, _id, _num_groups);
 
   _chi[group-1] = xs;
-}
-
-
-/**
- * @brief Set the Material's array of diffusion coefficients.
- * @details This method is a helper function to allow OpenMOC users to assign
- *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (e.g., a float64 array the length
- *          of the number of energy groups) as input to this function. This
- *          function then fills the NumPy array with the data values for the
- *          Material's diffusion coefficients. An example of how this
- *          function might be called in Python is as follows:
- *
- * @code
- *          dif_coef = numpy.array([0.05, 0.1, 0.15, ... ])
- *          material = openmoc.Material(openmoc.material_id())
- *          material.setDifCoef(dif_coef)
- * @endcode
- *
- * @param xs the array of diffusion coefficents
- * @param num_groups the number of energy groups
- */
-void Material::setDifCoef(double* xs, int num_groups) {
-
-  if (_num_groups != num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient with %d groups for "
-               "Material %d which contains %d energy groups", num_groups,
-               _id, _num_groups);
-
-  if (_dif_coef == NULL)
-    _dif_coef = new FP_PRECISION[_num_groups];
-
-  for (int i=0; i < _num_groups; i++)
-    _dif_coef[i] = xs[i];
-}
-
-
-/**
- * @brief Set the Material's diffusion coefficient for some energy group.
- * @param xs the diffusion coefficient
- * @param group the energy group
- */
-void Material::setDifCoefByGroup(double xs, int group) {
-
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
-               "Material %d which contains %d energy groups",
-               group, _id, _num_groups);
-
-  if (_dif_coef == NULL) {
-    _dif_coef = new FP_PRECISION[_num_groups];
-
-    for (int i=0; i < _num_groups; i++)
-      _dif_coef[i] = 0.0;
-  }
-
-  _dif_coef[group-1] = xs;
-}
-
-
-/**
- * @brief Set the Material's array of diffusion coefficients.
- * @details This method is a helper function to allow OpenMOC users to assign
- *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (e.g., a float64 array the length
- *          of the number of energy groups) as input to this function. This
- *          function then fills the NumPy array with the data values for the
- *          Material's buckling coefficients. An example of how this function
- *          might be called in Python is as follows:
- *
- * @code
- *          buckling = numpy.array([0.05, 0.1, 0.15, ... ])
- *          material = openmoc.Material(openmoc.material_id())
- *          material.setBuckling(buckling)
- * @endcode
- *
- * @param xs the array of diffusion coefficents
- * @param num_groups the number of energy groups
- */
-void Material::setBuckling(double* xs, int num_groups) {
-
-  if (_num_groups != num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient with %d groups for "
-               "Material %d which contains %d energy groups", num_groups,
-               _id, _num_groups);
-
-  if (_buckling == NULL)
-    _buckling = new FP_PRECISION[_num_groups];
-
-  for (int i=0; i < _num_groups; i++)
-    _buckling[i] = xs[i];
-}
-
-
-/**
- * @brief Set the Material's diffusion coefficient for some energy group.
- * @param xs the diffusion coefficient
- * @param group the energy group
- */
-void Material::setBucklingByGroup(double xs, int group) {
-
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
-               "Material %d which contains %d energy groups",
-               group, _id, _num_groups);
-
-  if (_buckling == NULL) {
-    _buckling = new FP_PRECISION[_num_groups];
-    for (int i=0; i < _num_groups; i++)
-      _buckling[i] = 0.0;
-  }
-
-  _buckling[group-1] = xs;
-}
-
-
-/**
- * @brief Set the Material's array of diffusion coefficients.
- * @details This method is a helper function to allow OpenMOC users to assign
- *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (e.g., a float64 array the length
- *          of the number of energy groups) as input to this function. This
- *          function then fills the NumPy array with the data values for the
- *          Material's surface diffusion coefficients. An example of how this
- *          function might be called in Python is as follows:
- *
- * @code
- *          dif_hat = numpy.array([0.05, 0.1, 0.15, ... ])
- *          material = openmoc.Material(openmoc.material_id())
- *          material.setDifHat(dif_hat)
- * @endcode
- *
- * @param xs the array of surface diffusion coefficents
- * @param num_groups the number of energy groups
- */
-void Material::setDifHat(double* xs, int num_groups) {
-
-  if (_num_groups != num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient with %d groups "
-               "for Material %d which contains %d energy groups", num_groups,
-               _id, _num_groups);
-
-  if (_dif_hat == NULL)
-    _dif_hat = new FP_PRECISION[NUM_SURFACES*_num_groups];
-
-  for (int i=0; i < _num_groups*NUM_SURFACES; i++)
-    _dif_hat[i] = xs[i];
-}
-
-
-/**
- * @brief Set the Material's diffusion coefficient for some energy group along
- *        some CMFD mesh cell.
- * @param xs the diffusion coefficient along some mesh cell surface
- * @param group the energy group
- * @param surface the Surface corresponding to this coefficient
- */
-void Material::setDifHatByGroup(double xs, int group, int surface) {
-
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient for group %d for "
-              "Material %d which contains %d energy groups",
-              group, _id, _num_groups);
-
-  if (_dif_hat == NULL) {
-
-    _dif_hat = new FP_PRECISION[NUM_SURFACES*_num_groups];
-
-    for (int i=0; i < _num_groups*NUM_SURFACES; i++)
-      _dif_hat[i] = 0.0;
-  }
-
-  _dif_hat[surface*_num_groups + (group-1)] = xs;
-}
-
-
-/**
- * @brief Set the Material's array of diffusion coefficients.
- * @details This method is a helper function to allow OpenMOC users to assign
- *          the Material's nuclear data in Python. A user must initialize a
- *          NumPy array of the correct size (e.g., a float64 array the length
- *          of the number of energy groups) as input to this function. This
- *          function then fills the NumPy array with the data values for the
- *          Material's CMFD corrected diffusion coefficients. An example of how
- *          this function might be called in Python is as follows:
- *
- * @code
- *          dif_tilde = numpy.array([0.05, 0.1, 0.15, ... ])
- *          material = openmoc.Material(openmoc.material_id())
- *          material.setDifTilde(dif_tilde)
- * @endcode
- *
- * @param xs the array of CMFD corrected diffusion coefficents
- * @param num_groups the number of energy groups
- */
-void Material::setDifTilde(double* xs, int num_groups) {
-
-  if (_num_groups != num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient with %d groups "
-              "for Material %d which contains %d energy groups", num_groups,
-              _id, _num_groups);
-
-  if (_dif_tilde == NULL) {
-    _dif_tilde = new FP_PRECISION[NUM_SURFACES*_num_groups];
-  }
-
-  for (int i=0; i < _num_groups*NUM_SURFACES; i++)
-    _dif_tilde[i] = xs[i];
-}
-
-
-/**
- * @brief Set the Material's CMFD corrected diffusion coefficient for some
- *        energy group.
- * @param xs the CMFD corrected diffusion coefficient
- * @param group the energy group
- * @param surface the Surface corresponding to this coefficient
- */
-void Material::setDifTildeByGroup(double xs, int group, int surface) {
-
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR, "Unable to set diffusion coefficient correction for "
-              "group %d for Material %d which contains %d energy groups",
-               group, _id, _num_groups);
-
-  if (_dif_tilde == NULL) {
-    _dif_tilde = new FP_PRECISION[NUM_SURFACES*_num_groups];
-
-    for (int i=0; i < _num_groups*NUM_SURFACES; i++)
-      _dif_tilde[i] = 0.0;
-  }
-
-  _dif_tilde[surface*_num_groups + (group-1)] = xs;
-}
-
-
-/**
- * @brief Checks if the total cross-section for this Material is equal to the
- *        absorption plus scattering cross-sections for all energy groups.
- * @details If the total cross-section does not equal the absorption plus
- *          scattering cross-section within SIGMA_T_THRESH then this method
- *          exits OpenMOC.
- */
-void Material::checkSigmaT() {
-
-  if (_num_groups == 0)
-    log_printf(ERROR, "Unable to verify Material %d's total cross-section "
-              "since the number of energy groups has not been set", _id);
-  else if (_sigma_t == NULL)
-    log_printf(ERROR, "Unable to verify Material %d's total cross-section "
-              "since its total cross-section has not been set", _id);
-  else if (_sigma_a == NULL)
-    log_printf(ERROR, "Unable to verify Material %d's total cross-section "
-               "since its absorption cross-section has not been set", _id);
-  else if (_sigma_s == NULL)
-    log_printf(ERROR, "Unable to verify Material %d's total cross-section "
-              "since its scattering cross-section has not been set", _id);
-
-  FP_PRECISION calc_sigma_t;
-
-  /* Loop over all energy groups */
-  for (int i=0; i < _num_groups; i++) {
-
-    /* Initialize the calculated total xs to the absorption xs */
-    calc_sigma_t = _sigma_a[i];
-
-    /* Increment calculated total xs by scatter xs for each energy group */
-    for (int j=0; j < _num_groups; j++)
-      calc_sigma_t += _sigma_s[i+j*_num_groups];
-
-    /* Check if the calculated and total match up to certain threshold */
-    if (fabs(calc_sigma_t - _sigma_t[i]) > SIGMA_T_THRESH) {
-      log_printf(ERROR, "Material id = %d has a different total cross-section "
-                 "than the sum of its scattering and absorption cross-sections "
-                 "for group %d: sigma_t = %f, calc_sigma_t = %f",
-                 _id, i+1, _sigma_t[i], calc_sigma_t);
-    }
-  }
-
-  return;
 }
 
 
@@ -1410,7 +840,6 @@ void Material::alignData() {
 
   /* Allocate word-aligned memory for cross-section data arrays */
   FP_PRECISION* new_sigma_t = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-  FP_PRECISION* new_sigma_a = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_sigma_f = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
@@ -1429,7 +858,6 @@ void Material::alignData() {
   size = _num_vector_groups * VEC_LENGTH * sizeof(FP_PRECISION);
   for (int i=0; i < _num_vector_groups * VEC_LENGTH; i++) {
     new_sigma_t[i] = 1.0;
-    new_sigma_a[i] = 0.0;
     new_sigma_f[i] = 0.0;
     new_nu_sigma_f[i] = 0.0;
     new_chi[i] = 0.0;
@@ -1442,7 +870,6 @@ void Material::alignData() {
   /* Copy materials data from unaligned arrays into new aligned arrays */
   size = _num_groups * sizeof(FP_PRECISION);
   memcpy(new_sigma_t, _sigma_t, size);
-  memcpy(new_sigma_a, _sigma_a, size);
   memcpy(new_sigma_f, _sigma_f, size);
   memcpy(new_nu_sigma_f, _nu_sigma_f, size);
   memcpy(new_chi, _chi, size);
@@ -1465,7 +892,6 @@ void Material::alignData() {
 
   /* Delete the old unaligned arrays */
   delete [] _sigma_t;
-  delete [] _sigma_a;
   delete [] _sigma_f;
   delete [] _nu_sigma_f;
   delete [] _chi;
@@ -1474,7 +900,6 @@ void Material::alignData() {
 
   /* Set the material's array pointers to the new aligned arrays */
   _sigma_t = new_sigma_t;
-  _sigma_a = new_sigma_a;
   _sigma_f = new_sigma_f;
   _nu_sigma_f = new_nu_sigma_f;
   _chi = new_chi;
@@ -1514,34 +939,20 @@ void Material::transposeProductionMatrices() {
  */
 Material* Material::clone() {
 
-  Material* clone = new Material(getId());
+  Material* clone = new Material(material_id(), _name);
 
-  clone->setNumEnergyGroups(_num_groups);
+  /* Set the number of groups if this Material's groups have been set */
+  if (_num_groups > 0)
+    clone->setNumEnergyGroups(_num_groups);
 
   for (int i=0; i < _num_groups; i++) {
     clone->setSigmaTByGroup((double)_sigma_t[i], i+1);
-    clone->setSigmaAByGroup((double)_sigma_a[i], i+1);
     clone->setSigmaFByGroup((double)_sigma_f[i], i+1);
     clone->setNuSigmaFByGroup((double)_nu_sigma_f[i], i+1);
     clone->setChiByGroup((double)_chi[i], i+1);
 
     for (int j=0; j < _num_groups; j++)
       clone->setSigmaSByGroup((double)getSigmaSByGroup(i+1,j+1), i+1, j+1);
-
-    if (_dif_coef != NULL)
-      clone->setDifCoefByGroup((double)_dif_coef[i], i+1);
-
-    if (_buckling != NULL)
-      clone->setBucklingByGroup((double)_buckling[i], i+1);
-
-    for (int j=0; j < NUM_SURFACES; j++) {
-
-      if (_dif_hat != NULL)
-        clone->setDifHatByGroup((double)_dif_hat[i*NUM_SURFACES+j], i+1, j);
-
-      if (_dif_tilde != NULL)
-        clone->setDifTildeByGroup((double)_dif_tilde[i*NUM_SURFACES+j], i+1, j);
-    }
   }
 
   if (_fiss_matrix != NULL)
@@ -1564,12 +975,6 @@ std::string Material::toString() {
   std::stringstream string;
 
   string << "Material id = " << _id;
-
-  if (_sigma_a != NULL) {
-    string << "\n\t\tSigma_a = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _sigma_a[e] << ", ";
-  }
 
   if (_sigma_t != NULL) {
     string << "\n\t\tSigma_t = ";
@@ -1611,18 +1016,6 @@ std::string Material::toString() {
         string << _fiss_matrix[G+g*_num_groups] << "\t\t ";
       string << "\n\t\t";
     }
-  }
-
-  if (_dif_coef != NULL) {
-    string << "Diffusion Coefficient = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _dif_coef[e] << ", ";
-  }
-
-  if (_buckling != NULL) {
-    string << "Buckling = ";
-    for (int e = 0; e < _num_groups; e++)
-      string << _buckling[e] << ", ";
   }
 
   return string.str();
