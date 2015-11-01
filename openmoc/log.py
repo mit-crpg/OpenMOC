@@ -10,8 +10,6 @@
 # @author Samuel Shaner
 # @date March 15, 2013
 
-import sys
-
 import openmoc
 
 

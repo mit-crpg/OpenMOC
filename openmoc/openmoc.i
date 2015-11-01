@@ -91,17 +91,8 @@
 /* Routines which convert std::map return types to Python dictionaries */
 %include map_to_dict.i
 
-/* If the user uses the --no-numpy flag, then NumPy typemaps will not be used
- * and the NumPy C API will not be embedded in the source code. The NumPy
- * typemaps are used to allow users to pass NumPy arrays to/from the C++ source
- * code. This does not work well on BGQ, and some users may prefer not to embed
- * this into their code, so if --no-numpy is passed in we use SWIG typemaps to
- * allow users to pass in arrays of data as Python lists. */
-#ifdef NO_NUMPY
-%include swig_typemaps.i
-#else
+/* Routines which pass / return NumPy arrays to / from C++ routine **/
 %include numpy_typemaps.i
-#endif
 
 %include <exception.i>
 %include ../src/constants.h

@@ -7,7 +7,7 @@ import openmoc
 
 openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = openmoc.materialize.materialize('../c5g7-materials.h5')
+materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 
 ###############################################################################

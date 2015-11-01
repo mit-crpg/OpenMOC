@@ -71,10 +71,6 @@ class configuration:
   # Build the openmoc.cuda module
   with_cuda = False
 
-  # Compile with NumPy typemaps and the C API to allow users to pass NumPy
-  # arrays to/from the C++ source code
-  with_numpy = True
-
   # The vector length used for the VectorizedSolver class. This will used
   # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector
   # instructions. This is accomplished by adding "dummy" energy groups such
@@ -415,23 +411,16 @@ class configuration:
         self.compiler_flags[k].append('-pg')
         self.compiler_flags[k].append('-g')
 
-    # If the user passed in the --no-numpy flag, tell SWIG not to embed
-    # NumPy typemaps in the source code
-    if not self.with_numpy:
-      self.swig_flags.append('-DNO_NUMPY')
+    # Obtain the NumPy include directory
+    try:
+      numpy_include = numpy.get_include()
+    except AttributeError:
+      numpy_include = numpy.get_numpy_include()
 
-    # Otherwise, obtain the NumPy include directory
-    else:
-      try:
-        numpy_include = numpy.get_include()
-
-      except AttributeError:
-        numpy_include = numpy.get_numpy_include()
-
-      # Add the NumPy include directory to the include directories
-      # list for each type of compiler
-      for cc in self.include_directories.keys():
-        self.include_directories[cc].append(numpy_include)
+    # Add the NumPy include directory to the include directories
+    # list for each type of compiler
+    for cc in self.include_directories.keys():
+      self.include_directories[cc].append(numpy_include)
 
 
     # The main openmoc extension (defaults are gcc and single precision)

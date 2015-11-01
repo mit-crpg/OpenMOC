@@ -45,6 +45,9 @@ Material::Material(int id, const char* name) {
   _name = NULL;
   setName(name);
 
+  /* Initialize a dummy number groups */
+  _num_groups = -1;
+
   _sigma_t = NULL;
   _sigma_s = NULL;
   _sigma_f = NULL;
@@ -936,9 +939,11 @@ void Material::transposeProductionMatrices() {
  */
 Material* Material::clone() {
 
-  Material* clone = new Material(getId());
+  Material* clone = new Material(material_id(), _name);
 
-  clone->setNumEnergyGroups(_num_groups);
+  /* Set the number of groups if this Material's groups have been set */
+  if (_num_groups > 0)
+    clone->setNumEnergyGroups(_num_groups);
 
   for (int i=0; i < _num_groups; i++) {
     clone->setSigmaTByGroup((double)_sigma_t[i], i+1);
