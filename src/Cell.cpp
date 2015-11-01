@@ -605,6 +605,26 @@ double Cell::minSurfaceDist(Point* point, double angle) {
 
 
 /**
+ * @brief Returns true if this Cell is filled with a fissionable Material.
+ * @details If the Cell is filled by a Material, this method will simply query
+ *          the filling Material. If the Cell is filled by a Universe, this 
+ *          method will consider any Materials filling those Cells contained
+ *          by the filling Universe. This method should not be called prior to 
+ *          the calling of the Geometry::computeFissionability() method.
+ * @return true if contains a fissionable Material
+ */
+bool Cell::isFissionable() {
+  if (_fill != NULL)
+    if (_cell_type == FILL)
+      return ((Universe*)_fill)->isFissionable();
+    else
+      return ((Material*)_fill)->isFissionable();
+  else
+    return false;
+}
+
+
+/**
  * @brief Create a duplicate of the Cell.
  * @return a pointer to the clone
  */

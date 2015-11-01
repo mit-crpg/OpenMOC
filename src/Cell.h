@@ -173,6 +173,7 @@ public:
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
   double minSurfaceDist(Point* point, double angle);
+  bool isFissionable();
 
   Cell* clone();
   void subdivideCell();
