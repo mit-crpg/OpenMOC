@@ -273,6 +273,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
                 # If the user filled the Cell with a Material, clone it
                 if material != None:
+                    # FIXME!!!
 #                    material = material.clone()
                     material = material
 
@@ -428,27 +429,9 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-3, fix_src_tol=1E-5,
     # SPH Iteration
     for i in range(max_iters):
 
-        # Create an OpenMOC Geometry from the OpenCG Geometry
-#        geometry = get_openmoc_geometry(mgxs_lib.opencg_geometry)
-
-        # Load the MGXS library data into the OpenMOC geometry
-#        materials = load_openmc_mgxs_lib(mgxs_lib, geometry)
-
-        # Initialize an OpenMOC TrackGenerator
-#        geometry.initializeFlatSourceRegions()
-#        track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-#        track_generator.generateTracks()
-
-        # Initialize an OpenMOC Solver
-#        solver = openmoc.CPUSolver(track_generator)
-#        solver.setConvergenceThreshold(fix_src_tol)
-#        openmc_fluxes = _load_openmc_src(mgxs_lib, solver)
-
         # Run fixed source calculation
         geometry.initializeFlatSourceRegions()
-#        track_generator.generateTracks()
         solver.computeFlux()
-#        solver.computeEigenvalue()
 
         # Extract the FSR scalar fluxes and total fission rate
         openmoc_fluxes = get_scalar_fluxes(solver)
@@ -475,6 +458,8 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-3, fix_src_tol=1E-5,
     else:
         py_printf('WARNING', 'SPH factors did not converge '
                              'in %d iterations', max_iters)
+
+    openmoc.set_log_level('NORMAL')
 
     return sph, sph_mgxs_lib
 
@@ -507,11 +492,8 @@ def _load_openmc_src(mgxs_lib, solver):
     # Retrieve dictionary of OpenMOC domains corresponding to OpenMC domains
     geometry = solver.getGeometry()
     geometry.thisown = 0
-    if mgxs_lib.domain_type == 'material':
-        openmoc_domains = geometry.getAllMaterials()
-    elif mgxs_lib.domain_type == 'cell':
-        openmoc_domains = geometry.getAllCells()
-    else:
+
+    if mgxs_lib.domain_type not in ['material', 'cell']:
         py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
                            'library of domain type %s', mgxs_lib.domain_type)
 
@@ -523,41 +505,46 @@ def _load_openmc_src(mgxs_lib, solver):
     sp = openmc.StatePoint(mgxs_lib.sp_filename)
     keff = sp.k_combined[0]
 
-    # FIXME: Need Cell.getVolume(), Material.getVolume() routine
-    # FIXME: Need TrackGenerator to assign volume to Cell, Material
-    # FIXME: Need TrackGenerator to assign number of instances to Cell, Material
+    # FIXME: Need Material.getVolume() routine
+    # FIXME: Need TrackGenerator to assign volume to Material
+    # FIXME: Need TrackGenerator to assign number of instances to Material
     # FIXME: Implement doubly-nested scheme
 
-    # Compute fixed sources for all domains in the MGXS library
-    for i, openmc_domain in enumerate(mgxs_lib.domains):
+    # Compute fixed sources for all FSRs
+    for fsr in range(num_fsrs):
 
-        # Get OpenMOC domain corresponding to the OpenMOC domain
-        openmoc_domain = openmoc_domains[openmc_domain.id]
+        # Get the OpenMOC domain (Cell or Material) for this FSR
+        openmoc_domain = geometry.findCellContainingFSR(fsr)
+        if mgxs_lib.domain_type == 'material':
+            openmoc_domain = openmoc_domain.getFillMaterial()
 
         # Compute the total volume filled by this domain
         domain_volume = openmoc_domain.getVolume()
         num_domains = openmoc_domain.getNumInstances()
-        tot_volume = domain_volume * num_domains
+        tot_volume = domain_volume / num_domains
 
         # Extract an openmc.mgxs.MGXS object for the scattering matrix
         if 'nu-scatter matrix' in mgxs_lib.mgxs_types:
-            scatter = mgxs_lib.get_mgxs(openmc_domain, 'nu-scatter matrix')
+            scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
+                                        'nu-scatter matrix')
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
-            scatter = mgxs_lib.get_mgxs(openmc_domain, 'scatter matrix')
+            scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
+                                        'scatter matrix')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
                                'MGXS library without scattering matrices')
 
         # Extract an openmc.mgxs.MGXS object for the nu-fission cross section
         if 'nu-fission' in mgxs_lib.mgxs_types:
-            nu_fission = mgxs_lib.get_mgxs(openmc_domain, 'nu-fission')
+            nu_fission = mgxs_lib.get_mgxs(openmoc_domain.getId(),
+                                           'nu-fission')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
                                'MGXS library without nu-fission cross sections')
 
         # Extract an openmc.mgxs.MGXS object for the chi fission spectrum
         if 'chi' in mgxs_lib.mgxs_types:
-            chi = mgxs_lib.get_mgxs(openmc_domain, 'nu-fission')
+            chi = mgxs_lib.get_mgxs(openmoc_domain.getId(), 'chi')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
                                'MGXS library without nu-fission cross sections')
@@ -565,7 +552,7 @@ def _load_openmc_src(mgxs_lib, solver):
         # Retrieve the OpenMC volume-integrated flux for this domain from
         # the nu-fission MGXS and store it for SPH factor calculation
         flux = nu_fission.tallies['flux'].mean.flatten()
-        openmc_fluxes[i, :] = np.atleast_1d(np.flipud(flux) / tot_volume)
+        openmc_fluxes[fsr, :] = np.atleast_1d(np.flipud(flux) / tot_volume)
 
         # Extract a NumPy array for each MGXS summed across all nuclides
         scatter = scatter.get_xs(nuclides='sum')
@@ -576,15 +563,12 @@ def _load_openmc_src(mgxs_lib, solver):
         for group in range(num_groups):
 
             # Compute the source for this group from fission and scattering
-            in_scatter = scatter[:, group] * openmc_fluxes[i, :]
-            fission = (chi[group] / keff) * nu_fission * openmc_fluxes[i, :]
+            in_scatter = scatter[:, group] * openmc_fluxes[fsr, :]
+            fission = (chi[group] / keff) * nu_fission * openmc_fluxes[fsr, :]
             source = np.sum(in_scatter) + np.sum(fission)
 
-            # Assign the source to this domain
-            if mgxs_lib.domain_type == 'material':
-                solver.setFixedSourceByMaterial(openmoc_domain, group+1, source)
-            else:
-                solver.setFixedSourceByCell(openmoc_domain, group+1, source)
+            # Assign the source to this FSR
+            solver.setFixedSourceByFSR(fsr, group+1, source)
 
     return openmc_fluxes
 
