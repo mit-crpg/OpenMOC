@@ -44,7 +44,7 @@ private:
 
   /** OpenMP mutual exclusion locks for atomic cell updates */
   omp_lock_t* _cell_locks;
-  
+
   void convertToCSR();
   void setNumX(int num_x);
   void setNumY(int num_y);

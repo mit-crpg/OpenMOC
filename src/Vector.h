@@ -65,7 +65,7 @@ public:
   int getNumGroups();
   int getNumRows();
   FP_PRECISION getSum();
-  
+
   /* Setter functions */
   void setValue(int cell, int group, FP_PRECISION val);
   void setValues(int cell, int group_start, int group_end, FP_PRECISION* vals);

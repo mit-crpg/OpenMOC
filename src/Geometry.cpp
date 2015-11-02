@@ -534,7 +534,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
   std::hash<std::string> key_hash_function;
-  
+
   /* Generate unique FSR key */
   std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
 
@@ -589,7 +589,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
 
 
 /**
- * @brief Finds and returns a pointer to the axially extruded flat source 
+ * @brief Finds and returns a pointer to the axially extruded flat source
  *        region that a given LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
  * @return a pointer to the ExtrudedFSR struct associated with the axially
@@ -609,11 +609,11 @@ ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
     /* Create the FSR and insert it */
     ExtrudedFSR* fsr = new ExtrudedFSR;
     _extruded_FSR_keys_map.insert(fsr_key_hash, fsr);
-    
+
     /* If FSR key was already inserted, delete the new FSR */
     if(_extruded_FSR_keys_map.at(fsr_key_hash) != fsr)
       delete fsr;
-    
+
     /* Otherwise, intialize the extruded FSR */
     else {
       fsr->_num_fsrs = 0;
@@ -621,7 +621,7 @@ ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
       coords->copyCoords(fsr->_coords);
     }
   }
-  
+
   return _extruded_FSR_keys_map.at(fsr_key_hash);
 
 }
@@ -796,7 +796,7 @@ void Geometry::subdivideCells() {
  * @details This method is intended to be called by the user before initiating
  *          source iteration. This method first subdivides all Cells by calling
  *          the Geometry::subdivideCells() method. Then it initializes the CMFD
- *          object. 
+ *          object.
  */
 void Geometry::initializeFlatSourceRegions() {
 
@@ -822,7 +822,7 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
- * @param z_level the axial height at which the 2D plane of the geometry is 
+ * @param z_level the axial height at which the 2D plane of the geometry is
  *        formed
  */
 void Geometry::segmentize2D(Track2D* track, double z_level) {
@@ -915,7 +915,7 @@ void Geometry::segmentize2D(Track2D* track, double z_level) {
 
   log_printf(DEBUG, "Created %d segments for Track2D: %s",
              track->getNumSegments(), track->toString().c_str());
-  
+
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
@@ -1041,27 +1041,27 @@ void Geometry::segmentize3D(Track3D* track) {
 
 
 /**
- * @brief This method performs ray tracing to create extruded track segments 
+ * @brief This method performs ray tracing to create extruded track segments
  *        within each flat source region in the implicit 2D superposition plane
  *        of the Geometry by 2D ray tracing across input heights that encompass
  *        all radial geometric detail.
- * @details This method starts at the beginning of an extruded track and finds 
- *          successive intersection points with FSRs as the extruded track 
+ * @details This method starts at the beginning of an extruded track and finds
+ *          successive intersection points with FSRs as the extruded track
  *          crosses radially through the Geometry at defined z-levels. The
  *          minimum distance to intersection of all z-levels is chosen leading
  *          to implicitly capturing all geometric radial detail at the defined
- *          z-heights, saving the lengths and region IDs to the extruded track 
+ *          z-heights, saving the lengths and region IDs to the extruded track
  *          and initializing ExtrudedFSR structs in the traversed FSRs.
  * @param extruded_track a pointer to a extruded track to segmentize
  * @param z_levels a vector of axial heights in the root geometry at which
  *        the Geometry is segmentized radially
  */
-void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track, 
+void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
     std::vector<double> z_levels) {
 
   /* Extract the associated 2D track */
   Track2D* track = extruded_track->_track_2D;
-  
+
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
@@ -1104,10 +1104,10 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
       /* Copy starting cordinates to end and change z-height */
       start.copyCoords(&end);
       end.setZ(z_levels[i]);
-    
+
       /* Find the next Cell along the Track's trajectory */
       curr = findNextCell(&end, phi);
-    
+
       /* Checks that segment does not have the same start and end Points */
       if (start.getX() == end.getX() && start.getY() == end.getY())
         log_printf(ERROR, "Created segment with same start and end "
@@ -1127,7 +1127,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
     start.copyCoords(&end);
     end.setZ(z_levels[min_z_ind]);
     curr = findNextCell(&end, phi);
-      
+
     /* Find FSR using starting coordinate */
     fsr = findExtrudedFSR(&start);
 
@@ -1136,7 +1136,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
-    
+
     /* Add the segment to the extruded track */
     extruded_track->_lengths.push_back(min_length);
     extruded_track->_regions.push_back(fsr);
@@ -1164,7 +1164,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
 void Geometry::initializeAxialFSRs() {
 
   log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
-  
+
   /* Determine the extent of the axial geometry */
   FP_PRECISION min_z = getMinZ();
   FP_PRECISION max_z = getMaxZ();
@@ -1180,7 +1180,7 @@ void Geometry::initializeAxialFSRs() {
     ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
     double x0 = extruded_FSR->_coords->getX();
     double y0 = extruded_FSR->_coords->getY();
-    
+
     /* Create vertical track in the extruded FSR */
     Track3D track;
     track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
@@ -1202,7 +1202,7 @@ void Geometry::initializeAxialFSRs() {
     FP_PRECISION level = min_z;
     extruded_FSR->_mesh[0] = level;
     for (int s=0; s < num_segments; s++) {
-      
+
       level += segments[s]._length;
       if (std::abs(level - max_z) < 1e-12)
         level = max_z;
@@ -1210,12 +1210,12 @@ void Geometry::initializeAxialFSRs() {
       extruded_FSR->_materials[s] = segments[s]._material;
       extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
       extruded_FSR->_mesh[s+1] = level;
-    
+
     }
   }
   delete[] extruded_FSRs;
 }
- 
+
 
 /**
  * @brief Initialize key and material ID vectors for lookup by FSR ID
@@ -1583,14 +1583,14 @@ std::vector<double> Geometry::getUniqueZLevels() {
     /* Get the z-offset of the universe */
     double z_offset = offsets.back();
     offsets.pop_back();
-        
+
     /* Store a vector of the z_heights before rounding */
     std::vector<double> z_heights;
 
     /* Check if universe is actually a lattice */
     universeType type = curr_universe->getType();
     if (type == LATTICE) {
-      
+
       /* Get lattice dimensions */
       Lattice* lattice = static_cast<Lattice*>(curr_universe);
       int nx = lattice->getNumX();
@@ -1619,7 +1619,7 @@ std::vector<double> Geometry::getUniqueZLevels() {
         }
       }
     }
-    
+
     /* Otherwise check if universe is simple, contains cells */
     else if (type == SIMPLE) {
 
@@ -1631,7 +1631,7 @@ std::vector<double> Geometry::getUniqueZLevels() {
       for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
 
         /* Get surfaces bounding the cell */
-        std::map<int, surface_halfspace> surfaces = 
+        std::map<int, surface_halfspace> surfaces =
           cell_iter->second->getSurfaces();
 
         /* Cycle through all surfaces and add them to the set */
@@ -1645,7 +1645,7 @@ std::vector<double> Geometry::getUniqueZLevels() {
 
           /* Treat surface types */
           if (surf_type == PLANE) {
-            
+
             /* Extract plane paramters */
             Plane* plane = static_cast<Plane*>(surface);
             double A = plane->getA();
@@ -1655,11 +1655,12 @@ std::vector<double> Geometry::getUniqueZLevels() {
 
             /* Check if there is a z-compenent */
             if (C != 0) {
-              
+
               /* Check if plane has a continuous varying slope */
+              //FIXME
               if (A != 0 || B != 0)
                 std::cout << "ERROR" << std::endl;
-              
+
               /* Otherwise, surface is a z-plane */
               else
                 z_heights.push_back(-D/C + z_offset);
@@ -1691,10 +1692,10 @@ std::vector<double> Geometry::getUniqueZLevels() {
         }
       }
     }
-    
+
     /* Add z-heights to the set */
     for (int i=0; i < z_heights.size(); i++) {
-      
+
       /* Round z-height */
       int place = 8;
       z_heights[i] = z_heights[i] * pow(10, place) + 0.5;
@@ -1702,7 +1703,7 @@ std::vector<double> Geometry::getUniqueZLevels() {
       z_heights[i] = integer_rep * pow(10, -place);
 
       /* Add the rouned z-height to the set */
-      if (z_heights[i] >= min_z && z_heights[i] <= max_z) 
+      if (z_heights[i] >= min_z && z_heights[i] <= max_z)
         unique_mesh.insert(z_heights[i]);
     }
   }
@@ -1714,7 +1715,7 @@ std::vector<double> Geometry::getUniqueZLevels() {
     double cmfd_num_z = _cmfd->getNumZ();
     double width = (max_z - min_z) / cmfd_num_z;
     for (int i=1; i < cmfd_num_z; i++) {
-      
+
       /* Calculate z-height */
       double z_height = min_z + width*i;
 
@@ -1742,4 +1743,3 @@ std::vector<double> Geometry::getUniqueZLevels() {
 
   return unique_levels;
 }
-

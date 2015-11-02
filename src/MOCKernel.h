@@ -33,14 +33,14 @@ protected:
 
   /** A weight to be applied to segmentation data, if applicable */
   FP_PRECISION _weight;
-  
+
   /** Maximum optical path length when forming segments */
   FP_PRECISION _max_tau;
 
 public:
- 
+
   MOCKernel();
-  virtual ~MOCKernel(); 
+  virtual ~MOCKernel();
 
   /* Set parameters */
   void setSegments(segment* segments);
@@ -69,7 +69,7 @@ public:
  */
 class CounterKernel: public MOCKernel {
 public:
-  void execute(FP_PRECISION length, Material* mat, int id, 
+  void execute(FP_PRECISION length, Material* mat, int id,
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
@@ -81,7 +81,7 @@ public:
  *          is initialized with a pointer to floating point data and adds
  *          the product of the length and the weight to the floating point data
  *          at an input index. The weight corresponds to the weight of the
- *          track associated with the segments. 
+ *          track associated with the segments.
  */
 class VolumeKernel: public MOCKernel {
 public:

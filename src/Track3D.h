@@ -45,7 +45,7 @@ protected:
   int _cycle_track_index;
   int _train_index;
 
-  /** Boolean to indicate whether track is in the same direction as the 
+  /** Boolean to indicate whether track is in the same direction as the
    *  reflective track cycle. */
   bool _cycle_fwd;
   
@@ -108,7 +108,7 @@ struct ExtrudedTrack {
 
   /** 2D track index of the 2D and 3D tracks */
   int _track_index;
-  
+
   /** Pointer to associated 2D track */
   Track2D* _track_2D;
 };

@@ -66,7 +66,7 @@ private:
   /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;
 
-  /** An array of the # of 3D tracks in each train train 
+  /** An array of the # of 3D tracks in each train
    *  (azim, cycle, polar, lz track) */
   int**** _tracks_per_train;
   
@@ -86,7 +86,7 @@ private:
 
   /** Boolen to indicate whether a periodic BC exists */
   bool _periodic;
-  
+
   /** An integer array of the number of Tracks starting on each axis */
   int* _num_x;
   int* _num_y;
@@ -111,7 +111,7 @@ private:
 
   /** An array of axially extruded track groups */
   ExtrudedTrack* _extruded_tracks;
-  
+
   /** An array of track pointers used in the Solver */
   Track** _tracks;
   
@@ -123,7 +123,7 @@ private:
 
   /** Boolean for whether to solve 3D (true) or 2D (false) problem */
   bool _solve_3D;
-  
+
   /** Boolean for whether to ray trace on the fly (true) or explicitly generate
       segments (false) */
   bool _OTF;

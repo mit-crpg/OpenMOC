@@ -35,7 +35,7 @@ class Cmfd;
 struct fsr_data {
 
   /** Constructor for FSR data object */
-  fsr_data() : _fsr_id(0), _cmfd_cell(0), _mat_id(0), _point(NULL), 
+  fsr_data() : _fsr_id(0), _cmfd_cell(0), _mat_id(0), _point(NULL),
     _centroid(NULL){}
 
   /** The FSR ID */
@@ -85,7 +85,7 @@ struct ExtrudedFSR {
 
   /** Number of FSRs in the axially extruded FSR */
   size_t _num_fsrs;
-  
+
   /** Coordinates inside the FSR */
   LocalCoords* _coords;
 };
@@ -215,7 +215,7 @@ public:
   void initializeFlatSourceRegions();
   void segmentize2D(Track2D* track, double z_level);
   void segmentize3D(Track3D* track);
-  void segmentizeExtruded(ExtrudedTrack* extruded_track, 
+  void segmentizeExtruded(ExtrudedTrack* extruded_track,
       std::vector<double> z_levels);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);

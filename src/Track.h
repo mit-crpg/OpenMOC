@@ -91,7 +91,7 @@ protected:
   int _reflective_cycle_id;
   int _periodic_track_index;
   
-  /** Pointers to reflective and periodic Tracks in the forward and reverse 
+  /** Pointers to reflective and periodic Tracks in the forward and reverse
    *  directions */
   Track* _track_refl_fwd;
   Track* _track_refl_bwd;
@@ -99,7 +99,7 @@ protected:
   Track* _track_prdc_bwd;
 
   /** Booleans to indicate wheter the reflective Tracks in the forward and
-   *  and backward direction enter into Tracks pointed in the forward 
+   *  and backward direction enter into Tracks pointed in the forward
    *  direction. */
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
@@ -147,7 +147,7 @@ public:
   segment* getSegments();
   int getNumSegments();
   int getPeriodicTrackIndex();
-  
+
   /* Worker methods */
   void addSegment(segment* segment);
   void removeSegment(int index);

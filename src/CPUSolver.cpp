@@ -114,7 +114,7 @@ void CPUSolver::initializeFluxArrays() {
   /* Delete old flux arrays if they exist */
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
-  
+
   if (_start_flux != NULL)
     delete [] _start_flux;
 
@@ -682,9 +682,9 @@ void CPUSolver::transportSweep() {
  */
 void CPUSolver::transportSweepOTF() {
 
-  log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads", 
+  log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads",
       _num_threads);
-  
+
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
@@ -695,10 +695,10 @@ void CPUSolver::transportSweepOTF() {
   int num_2D_tracks = _track_generator->getNum2DTracks();
   ExtrudedTrack* extruded_tracks = _track_generator->getExtrudedTracks();
   Track3D**** tracks_3D = _track_generator->get3DTracks();
-  
+
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
-  
+
   /* Parallelize over 2D extruded tracks */
   #pragma omp parallel for
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
@@ -738,33 +738,33 @@ void CPUSolver::transportSweepOTF() {
 
         /* Transport segments forward */
         for (int s=0; s < num_segments; s++) {
-          
-          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux, 
+
+          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
 
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index, 
+          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
               track_flux, true);
         }
 
         /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, true, 
+        transferBoundaryFlux(track_id, azim_index, polar_index, true,
             track_flux);
- 
+
         /* Get the backward track flux */
         track_flux = &_boundary_flux(track_id, 1, 0);
-       
+
         /* Transport segments backwards */
         for (int s=num_segments-1; s > -1; s--) {
-          
+
           tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
-        
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index, 
+
+          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
               track_flux, false);
         }
-        
+
         /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, false, 
+        transferBoundaryFlux(track_id, azim_index, polar_index, false,
             track_flux);
       }
     }

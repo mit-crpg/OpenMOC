@@ -69,13 +69,8 @@ cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(3,3,3)
 cmfd.setGroupStructure([1,4,8])
-<<<<<<< HEAD
-cmfd.setKNearest(1)
-=======
 cmfd.setOpticallyThick(True)
 cmfd.setKNearest(4)
-
->>>>>>> Sam/3D-MOC
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################

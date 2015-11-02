@@ -242,7 +242,7 @@ void Cmfd::computeXS() {
         /* Chi tallies */
         for (int b = 0; b < _num_cmfd_groups; b++) {
           chi = 0.0;
- 
+
           /* Compute the chi for group b */
           for (int h = _group_indices[b]; h < _group_indices[b+1]; h++)
             chi += fsr_material->getChi()[h];
@@ -2107,7 +2107,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       }
 
       /* Increment current (polar and azimuthal weighted flux, group) */
-      _surface_currents->incrementValues(cell_id, s*_num_cmfd_groups, 
+      _surface_currents->incrementValues(cell_id, s*_num_cmfd_groups,
           (s+1)*_num_cmfd_groups-1, surf_currents);
     }
     else {

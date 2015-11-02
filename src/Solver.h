@@ -124,7 +124,7 @@ protected:
   int*** _tracks_per_stack;
   int* _num_tracks_by_parallel_group;
   int _num_parallel_track_groups;
-  
+
   /** Boolean for whether to ray trace on the fly (true) or explicitly generate
       segments (false) */
   bool _OTF;

@@ -65,7 +65,7 @@ Solver::~Solver() {
 
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
-  
+
   if (_start_flux != NULL)
     delete [] _start_flux;
 
@@ -555,10 +555,10 @@ void Solver::initializeFSRs() {
   /* Get an array of volumes indexed by FSR  */
   if (_solve_3D)
     _FSR_volumes = _track_generator->get3DFSRVolumes();
-  
+
   else
     _FSR_volumes = _track_generator->get2DFSRVolumes();
- 
+
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
@@ -898,7 +898,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
- 
   zeroTrackFluxes();
 
   /* Source iteration loop */

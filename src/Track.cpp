@@ -12,7 +12,7 @@ Track::Track() {
   _track_prdc_fwd = NULL;
   _track_prdc_bwd = NULL;
 
-  /* Initialize booleans indicating whether the reflective tracks in the 
+  /* Initialize booleans indicating whether the reflective tracks in the
    * forward and backward direction point enter the track in the forward
    * direction */
   _refl_fwd_fwd = true;
@@ -424,7 +424,7 @@ void Track::setPeriodicCycleId(int id) {
 /**
  * @brief Set this Track's periodic track index.
  * @detail Tracks are arranged in periodic cycles. The example below shows a
- *         periodic cycle and the corresponding periodic track indices for a 
+ *         periodic cycle and the corresponding periodic track indices for a
  *         sample geometry:
  *
  *                 __________
@@ -438,7 +438,7 @@ void Track::setPeriodicCycleId(int id) {
  *                |       /  |
  *                |      /   |
  *                |_____/____|
- *                     (0) 
+ *                     (0)
  *
  * @param id The periodic track index
  */

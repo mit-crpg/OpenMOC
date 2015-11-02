@@ -83,7 +83,7 @@ int MOCKernel::getCount() {
  */
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
-  
+
   /* Add value to buffer */
   _buffer[id] += _weight * length;
 }
@@ -100,9 +100,9 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(FP_PRECISION length, Material* mat, int id, 
+void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
-  
+
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
@@ -120,7 +120,7 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
 /*
  * @brief Writes segment information to the segmentation data array
  * @details The SegmentationKernel execute function writes segment information
- *          to the segmentation data referenced by _segments. Due to 
+ *          to the segmentation data referenced by _segments. Due to
  *          restrictions on maximum optical path length, the counter may be
  *          incremented by more than one to account for splitting of the
  *          segment into segments of allowed optical path length.
@@ -130,7 +130,7 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
  */
 void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
-  
+
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;

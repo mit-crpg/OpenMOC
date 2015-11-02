@@ -1687,7 +1687,7 @@ def plot_quadrature(track_generator):
   for a in range(num_azim/4):
     phis[a] = quadrature.getPhi(a)
     for p in range(num_polar/2):
-      thetas[a][p] = quadrature.getTheta(a,p) 
+      thetas[a][p] = quadrature.getTheta(a,p)
 
   # Make figure of line segments for each Track
   fig = plt.figure()
@@ -2086,7 +2086,7 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
     xlim = [x.min(), x.max()]
   if ylim == None:
     ylim = [y.min(), y.max()]
-  
+
   for i in range(num_segments):
 
     if i % 100000 == 0:
@@ -2123,7 +2123,7 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
 
 
 #TODO FIXME: write description
-def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250, 
+def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
                        xlim=None, ylim=None, zlim=None, plane='xy', offset=0.,
                        centroids=False, marker_type='o', marker_size=2):
 
@@ -2261,17 +2261,17 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
     plt.plot(x, y, 'k.-',lw=2)
     plt.xlim(min(coords['x']), max(coords['x']))
     plt.ylim(min(coords['y']), max(coords['y']))
-  
+
   elif plane == 'yz':
     plt.plot(y, z, 'k.-',lw=2)
     plt.xlim(min(coords['y']), max(coords['y']))
     plt.ylim(min(coords['z']), max(coords['z']))
-  
+
   elif plane == 'xz':
     plt.plot(x, z, 'k.-',lw=2)
     plt.xlim(min(coords['x']), max(coords['x']))
     plt.ylim(min(coords['z']), max(coords['z']))
-  
+
   # Plot centroids on top of 2D FSR color map
   if centroids:
     centroids_x = []
@@ -2282,7 +2282,6 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       centroids_x.append(point.getX())
       centroids_y.append(point.getY())
       centroids_z.append(point.getZ())
-      
 
     if plane == 'xy':
       plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
@@ -2292,7 +2291,7 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       # manually set the plot bounds
       plt.xlim(min(coords['x']), max(coords['x']))
       plt.ylim(min(coords['y']), max(coords['y']))
-      
+
     elif plane == 'xz':
       plt.scatter(centroids_x, centroids_z, color='k', marker=marker_type, \
                   s=marker_size)
@@ -2301,7 +2300,7 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       # manually set the plot bounds
       plt.xlim(min(coords['x']), max(coords['x']))
       plt.ylim(min(coords['z']), max(coords['z']))
-      
+
     else:
 
       plt.scatter(centroids_y, centroids_z, color='k', marker=marker_type, \
@@ -2311,8 +2310,8 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       # manually set the plot bounds
       plt.xlim(min(coords['y']), max(coords['y']))
       plt.ylim(min(coords['z']), max(coords['z']))
-      
-  
+
+
   if not track_generator.containsExtrudedSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
               'TrackGenerator has not yet generated 2D Segments.')
@@ -2331,7 +2330,7 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
   x = numpy.zeros(num_segments*2)
   y = numpy.zeros(num_segments*2)
   fsrs = numpy.zeros(num_segments)
-  
+
   for i in range(num_segments):
     fsrs[i] = coords[i*5]
     x[i*2] = coords[i*5+1]
@@ -2350,7 +2349,7 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
     xlim = [x.min(), x.max()]
   if ylim == None:
     ylim = [y.min(), y.max()]
-  
+
   for i in range(num_segments):
 
     if i % 100000 == 0:
@@ -2373,7 +2372,7 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
   # FIXME
   plt.xlim(xlim)
   plt.ylim(ylim)
-    
+
   title = 'Segments/FSRs for ' + str(num_azim) + ' angles and ' + str(spacing) + \
         ' cm spacing'
 
@@ -2381,8 +2380,6 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
 
   filename = directory + 'segments-FSRs-2D-' + str(num_azim) + '-angles-' + \
       str(spacing) + '-spacing.png'
-  
+
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
-  
-
