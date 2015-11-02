@@ -414,9 +414,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
     if (_chi != NULL)
       MM_FREE(_chi);
-
-    if (_fiss_matrix != NULL)
-      MM_FREE(_fiss_matrix);
   }
 
   /* Data is not vector aligned */
@@ -435,9 +432,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
     if (_chi != NULL)
       delete [] _chi;
-
-    if (_fiss_matrix != NULL)
-      delete [] _fiss_matrix;
   }
 
   /* Allocate memory for data arrays */
@@ -793,7 +787,7 @@ void Material::buildFissionMatrix() {
 
   if (_num_groups == 0)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
-              "since the number of energy groups has not been set", _id);
+	       "since the number of energy groups has not been set", _id);
   else if (_nu_sigma_f == NULL)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
               "since its nu-fission cross-section has not been set", _id);

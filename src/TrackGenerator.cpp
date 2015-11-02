@@ -613,6 +613,8 @@ void TrackGenerator::generateTracks() {
   initializeBoundaryConditions();
   initializeTrackCycleIndices(PERIODIC);
   initializeTrackUids();
+  initializeCellVolumes();
+
   return;
 }
 
@@ -1043,6 +1045,50 @@ void TrackGenerator::initializeTrackUids() {
     /* Set the number of tracks in this parallel group */
     _num_tracks_by_parallel_group[g] = num_tracks;
   }
+}
+
+
+/**
+ * @brief Computes the volumes/areas of each Cell in the Geometry.
+ * @details This computes the volumes/areas of each Cell in the Geometry
+ *          from the length of track segments crossing each Cell. This
+ *          routines assigns the volume and number of instances to each Cell.
+ *          This is a helper routine that is called after track segmentation
+ *          is complete in TrackGenerator::generateTracks().
+ */
+void TrackGenerator::initializeCellVolumes() {
+
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to initialize the cell volumes since tracks "
+               "have not yet been generated");
+
+  // FIXME: Get all Cells and loop over them
+  // FIXME: Do the same for all Materials
+
+  int num_FSRs = _geometry->getNumFSRs();
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
+  std::map<int, Cell*> cells = _geometry->getAllMaterialCells();
+  std::map<int, Cell*>::iterator iter;
+  Cell* cell;
+  FP_PRECISION volume;
+  int num_instances;
+
+  /* Compute the aggregate volume and number of instances for each Cell */
+  for (int i=0; i < num_FSRs; i++) {
+    cell = _geometry->findCellContainingFSR(i);
+    volume = cell->getVolume() + FSR_volumes[i];
+    num_instances = cell->getNumInstances() + 1;
+    cell->setVolume(volume);
+    cell->setNumInstances(num_instances);
+  }
+
+  /* Compute the average Cell volume by dividing out the number of instances */
+  for (iter = cells.begin(); iter != cells.end(); ++iter) {
+    volume = cell->getVolume() / cell->getNumInstances();
+    cell->setVolume(volume);
+  }
+
+  delete [] FSR_volumes;
 }
 
 

@@ -53,6 +53,8 @@ Cell::Cell(int id, const char* name) {
 
   _cell_type = UNFILLED;
   _fill = NULL;
+  _volume = 0;
+  _num_instances = 0;
 
   _num_rings = 0;
   _num_sectors = 0;
@@ -145,6 +147,28 @@ Universe* Cell::getFillUniverse() {
     log_printf(ERROR, "Unable to get Universe fill from Cell ID=%d", _id);
 
   return (Universe*)_fill;
+}
+
+
+/**
+ * @brief Return the volume/area of this Cell.
+ * @details The volume/area of the Cell is computed from track segments which
+ *          overlap this Cell during track generation.
+ * @return the volume/area of the Cell
+ */
+double Cell::getVolume() {
+  return _volume;
+}
+
+
+/**
+ * @brief Return the number of instances of this Cell in the Geometry.
+ * @details The number of instances of this Cell in the Geometry is
+ *          determined during track generation.
+ * @return the number of cell instances
+ */
+int Cell::getNumInstances() {
+  return _num_instances;
 }
 
 
@@ -384,6 +408,28 @@ void Cell::setFill(Material* fill) {
 void Cell::setFill(Universe* fill) {
   _cell_type = FILL;
   _fill = fill;
+}
+
+
+/**
+ * @brief Set the volume/area of the Cell.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ * @param volume the volume/area of the Cell
+ */
+void Cell::setVolume(double volume) {
+  _volume = volume;
+}
+
+
+/**
+ * @brief Set the number of instances of this Cell.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ * @param num_instances the number of instances of this Cell in the Geometry
+ */
+void Cell::setNumInstances(int num_instances) {
+  _num_instances = num_instances;
 }
 
 

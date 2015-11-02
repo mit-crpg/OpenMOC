@@ -87,6 +87,12 @@ private:
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
+  /** The volume / area of the Cell computed from overlapping segments */
+  double _volume;
+
+  /** The total number of instances of this Cell in the Geometry */
+  int _num_instances;
+
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
 
@@ -141,6 +147,8 @@ public:
   cellType getType() const;
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  double getVolume();
+  int getNumInstances();
   int getNumRings();
   int getNumSectors();
   double getMinX();
@@ -163,6 +171,8 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setVolume(double volume);
+  void setNumInstances(int num_instances);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
   void addSurface(int halfspace, Surface* surface);
