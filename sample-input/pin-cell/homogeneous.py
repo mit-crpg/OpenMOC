@@ -96,7 +96,8 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 quad = EqualAnglePolarQuad()
 quad.setNumPolarAngles(num_polar)
 
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
+track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
+    polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 #track_generator.setSolve2D()

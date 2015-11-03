@@ -11,12 +11,11 @@ from assemblies import *
 options = Options()
 
 num_threads = options.getNumThreads()
-azim_spacing =  1.0 #options.getAzimSpacing()
-num_azim = 4 #options.getNumAzimAngles()
-polar_spacing = 0.25 #options.getPolarSpacing()
-num_polar = 6 #options.getNumPolarAngles()
-#tolerance = options.getTolerance()
-tolerance = 10**-2
+azim_spacing =  options.getAzimSpacing()
+num_azim = options.getNumAzimAngles()
+polar_spacing = options.getPolarSpacing()
+num_polar = options.getNumPolarAngles()
+tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 refines_z = 2
 

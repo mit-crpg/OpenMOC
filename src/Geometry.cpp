@@ -1657,9 +1657,12 @@ std::vector<double> Geometry::getUniqueZLevels() {
             if (C != 0) {
 
               /* Check if plane has a continuous varying slope */
-              //FIXME
               if (A != 0 || B != 0)
-                std::cout << "ERROR" << std::endl;
+                log_printf(ERROR, "Continuous axial variation found in the "
+                          "Geometry during axial on-the-fly ray tracing. "
+                          "Axial on-the-fly ray tracing only supports "
+                          "geometries that are capable of having an axially "
+                          "extruded representation");
 
               /* Otherwise, surface is a z-plane */
               else

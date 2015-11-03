@@ -244,7 +244,12 @@ int TrackGenerator::getNum3DSegments() {
 }
 
 
-// TODO
+/**
+ * @brief Returns an array of the Track pointers by increasing UID.
+ * @details An array of pointers to all Track objects in the Geometry is
+ *          returned, arranged by increasing unique identifier (UID).
+ * @return the array of Track pointers
+ */
 Track** TrackGenerator::getTracksArray() {
 
   if (!contains2DTracks() && !contains3DTracks())
@@ -256,11 +261,10 @@ Track** TrackGenerator::getTracksArray() {
 
 
 /**
- * @brief Returns a 3D jagged array of the Tracks.
+ * @brief Returns a 2D jagged array of the 2D Tracks.
  * @details The first index into the array is the azimuthal angle and the
- *          second index is polar angle and the third index is the 
- *          Track number.
- * @return the 3D jagged array of Tracks
+ *          second index is the Track number.
+ * @return the 2D jagged array of 2D Tracks
  */
 Track2D** TrackGenerator::get2DTracks() {
 
@@ -272,7 +276,13 @@ Track2D** TrackGenerator::get2DTracks() {
 }
 
 
-// TODO
+/**
+ * @brief Returns a 4D jagged array of the 3D Tracks.
+ * @details The first index into the array is the azimuthal angle, the second
+ *          index is the 2D Track number, the third index is the polar angle,
+ *          and the fourth index is the z-stack number.
+ * @return the 4D jagged array of 3D Tracks
+ */
 Track3D**** TrackGenerator::get3DTracks() {
 
   if (!contains3DTracks())
@@ -283,7 +293,13 @@ Track3D**** TrackGenerator::get3DTracks() {
 }
 
 
-//TODO
+/**
+ * @brief Returns an array of all ExtrudedTrack objects by increasing UID
+ * @details An array of pointers to all ExtrudedTrack objects in the Geometry
+ *          is returned, arranged by increasing unique identifier (UID) of the
+ *          associated 2D Track.
+ * @return the array of Extruded Tracks
+ */
 ExtrudedTrack* TrackGenerator::getExtrudedTracks() {
   if (!_contains_extruded_tracks)
     log_printf(ERROR, "Unable to return the array of extruded tracks "
@@ -292,26 +308,53 @@ ExtrudedTrack* TrackGenerator::getExtrudedTracks() {
 }
 
 
-// TODO
+/**
+ * @brief Returns an array of adjusted azimuthal spacings
+ * @details An array of azimuthal spacings after adjustment is returned,
+ *          indexed by azimuthal angle
+ * @return the array of azimuthal spacings
+ */
 double* TrackGenerator::getAzimSpacings() {
   return _azim_spacings;
 }
 
 
-// TODO
+/**
+ * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
+ *        angle index
+ * @details The aziumthal spacing depends on the azimuthal angle. This function
+ *          returns the azimuthal spacing used at the desired azimuthal angle
+ *          index.
+ * @param azim the requested azimuthal angle index
+ * @return the requested azimuthal spacing
+ */
 double TrackGenerator::getAzimSpacing(int azim) {
   azim = _quadrature->getFirstOctantAzim(azim);
   return _azim_spacings[azim];
 }
 
 
-// TODO
+/**
+ * @brief Returns a 2D array of adjusted polar spacings
+ * @details An array of polar spacings after adjustment is returned,
+ *          indexed first by azimuthal angle and then by polar angle
+ * @return the 2D array of polar spacings
+ */
 double** TrackGenerator::getPolarSpacings() {
   return _polar_spacings;
 }
 
 
-// TODO
+/**
+ * @brief Returns the adjusted polar spacing at the requested azimuthal
+ *        angle index and polar angle index
+ * @details The polar spacing depends on the azimuthal angle and the polar
+ *          angle. This function returns the azimuthal spacing used at the
+ *          desired azimuthal angle and polar angle indexes.
+ * @param azim the requested azimuthal angle index
+ * @param polar the requested polar angle index
+ * @return the requested polar spacing
+ */
 double TrackGenerator::getPolarSpacing(int azim, int polar) {
   azim = _quadrature->getFirstOctantAzim(azim);
   polar = _quadrature->getFirstOctantPolar(polar);
@@ -406,46 +449,88 @@ int TrackGenerator::getNumThreads() {
 }
 
 
-// TODO
+/**
+ * @brief Returns an array of the number of 2D Tracks in a cycle
+ * @details The number of Tracks in a 2D cycle depends on the azimuthal angle
+ *          index. This function returns an array of the number of 2D Tracks in
+ *          each cycle, indexed by azimuthal anlge index. NOTE: all 2D cycles
+ *          with the same azimuthal angle have the same number of Tracks.
+ * @return the array of cycle lengths
+ */
 int* TrackGenerator::getTracksPerCycle() {
   return _tracks_per_cycle;
 }
 
 
-// TODO
+/**
+ * @brief Returns a 3D array of the number of 3D Tracks in each z-stack
+ * @details A 3D array is returned indexed first by azimuthal angle, second by
+ *          2D track number, and third by polar angle. This array describes
+ *          the number of tracks in each z-stack.
+ * @return A 3D array of the number of tracks in each z-stack
+ */
 int*** TrackGenerator::getTracksPerStack() {
   return _tracks_per_stack;
 }
 
 
-// TODO
+/**
+ * @brief Returns an array describing the number of cycles per azimuthal angle
+ * @details An array of the number of cycles per azimuthal angle is returned,
+ *          indexed by azimuthal index.
+ * @return the number of cycles per azimuthal angle
+ */
 int* TrackGenerator::getCyclesPerAzim() {
   return _cycles_per_azim;
 }
 
 
-// TODO
+/**
+ * @brief Returns the number of 2D Tracks in a cycle for a given azimuthal
+ *        angle index
+ * @details The number of Tracks in a 2D cycle depends on the azimuthal angle
+ *          index. This function returns the number of 2D Tracks in for a cycle
+ *          with a given azimuthal angle index.
+ * @param azim the azimuthal angle index
+ * @return the number of 2D Tracks in the cycle
+ */
 double TrackGenerator::getCycleLength(int azim) {
   azim = _quadrature->getFirstOctantAzim(azim);
   return _cycle_length[azim];
 }
 
 
-// TODO
+/**
+ * @brief Returns the number of 2D Tracks in the x-direction for a given
+ *        azimuthal angle index
+ * @param azim the azimuthal angle index
+ * @return the number of 2D Tracks in the x-direction of the Geometry
+ */
 int TrackGenerator::getNumX(int azim) {
   azim = _quadrature->getFirstOctantAzim(azim);
   return _num_x[azim];
 }
 
 
-// TODO
+/**
+ * @brief Returns the number of 2D Tracks in the y-direction for a given
+ *        azimuthal angle index
+ * @param azim the azimuthal angle index
+ * @return the number of 2D Tracks in the y-direction of the Geometry
+ */
 int TrackGenerator::getNumY(int azim) {
   azim = _quadrature->getFirstOctantAzim(azim);
   return _num_y[azim];
 }
 
 
-// TODO
+/**
+ * @brief Returns the number of 3D Tracks in the z-direction for a given
+ *        azimuthal angle index and polar angle index
+ * @param azim the azimuthal angle index
+ * @param polar the polar angle index
+ * @return the number of 3D Tracks in the z-direction of the Geometry
+ */
 int TrackGenerator::getNumZ(int azim, int polar) {
   azim = _quadrature->getFirstOctantAzim(azim);
   polar = _quadrature->getFirstOctantPolar(polar);
@@ -453,7 +538,13 @@ int TrackGenerator::getNumZ(int azim, int polar) {
 }
 
 
-// TODO
+/**
+ * @brief Returns the number of 3D Tracks in the radial direction for a given
+ *        azimuthal angle index and polar angle index
+ * @param azim the azimuthal angle index
+ * @param polar the polar angle index
+ * @return the number of 3D Tracks in the radial direction of the Geometry
+ */
 int TrackGenerator::getNumL(int azim, int polar) {
   azim = _quadrature->getFirstOctantAzim(azim);
   polar = _quadrature->getFirstOctantPolar(polar);
@@ -461,14 +552,24 @@ int TrackGenerator::getNumL(int azim, int polar) {
 }
 
 
-// TODO
+/**
+ * @brief Returns the spacing between Tracks in the x-direction for a given
+ *        azimuthal angle index
+ * @param azim the azimuthal angle index
+ * @return the spacing between Tracks in the x-direction
+ */
 double TrackGenerator::getDxEff(int azim) {
   azim = _quadrature->getFirstOctantAzim(azim);
   return _dx_eff[azim];
 }
 
 
-// TODO
+/**
+ * @brief Returns the spacing between Tracks in the y-direction for a given
+ *        azimuthal angle index
+ * @param azim the azimuthal angle index
+ * @return the spacing between Tracks in the y-direction
+ */
 double TrackGenerator::getDyEff(int azim) {
   azim = _quadrature->getFirstOctantAzim(azim);
   return _dy_eff[azim];
@@ -635,13 +736,19 @@ FP_PRECISION TrackGenerator::get3DFSRVolume(int fsr_id) {
 }
 
 
-// TODO
+/**
+ * @brief Returns the z-level of the radial plane used in 2D calcualtions
+ * @return the z-level of the 2D calculation
+ */
 double TrackGenerator::getZLevel() {
   return _z_level;
 }
 
 
-// TODO
+/**
+ * @brief Returns the Quadrature object
+ * @return the Quadrature object
+ */
 Quadrature* TrackGenerator::getQuadrature() {
   return _quadrature;
 }
@@ -774,69 +881,104 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
 }
 
 
-// TODO
+/**
+ * @brief sets a flag to solve the problem in two dimensions
+ */
 void TrackGenerator::setSolve2D() {
   _solve_3D = false;
 }
 
 
-// TODO
+/**
+ * @brief sets a flag to solve the problem in three dimensions
+ */
 void TrackGenerator::setSolve3D() {
   _solve_3D = true;
 }
 
 
-// TODO
+/**
+ * @brief sets a flag to calculate 3D segments on-the-fly in the axial
+ *        direction
+ */
 void TrackGenerator::setOTF() {
   _OTF = true;
 }
 
 
-// TODO
+/**
+ * @brief sets the z-level of the raidal plane used in 2D calculations
+ * @param z_level the z-level of the radial plane
+ */
 void TrackGenerator::setZLevel(double z_level) {
   _z_level = z_level;
 }
 
 
-// TODO
+/**
+ * @brief sets the Quadrature used for integrating the MOC equations
+ * @param quadrature a pointer to the Quadrature object used in calculation
+ */
 void TrackGenerator::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
 }
 
 
 /**
- * @brief Returns whether or not the TrackGenerator contains Track that are
+ * @brief Returns whether or not the TrackGenerator contains 2D Tracks
  *        for its current number of azimuthal angles, track spacing and
  *        geometry.
- * @return true if the TrackGenerator conatains Tracks; false otherwise
+ * @return true if the TrackGenerator conatains 2D Tracks; false otherwise
  */
 bool TrackGenerator::contains2DTracks() {
   return _contains_2D_tracks;
 }
 
 
-// TODO
+/**
+ * @brief Returns whether or not the TrackGenerator contains 3D Tracks
+ *        for its current number of azimuthal angles, track spacing and
+ *        geometry.
+ * @return true if the TrackGenerator conatains 3D Tracks; false otherwise
+ */
 bool TrackGenerator::contains3DTracks() {
   return _contains_3D_tracks;
 }
 
 
-// TODO
+/**
+ * @brief Returns whether or not the TrackGenerator contains 2D segments
+ *        for its current number of azimuthal angles, track spacing and
+ *        geometry.
+ * @return true if the TrackGenerator conatains 2D segments; false otherwise
+ */
 bool TrackGenerator::contains2DSegments() {
   return _contains_2D_segments;
 }
 
 
-// TODO
+/**
+ * @brief Returns whether or not the TrackGenerator contains 3D segments
+ *        for its current number of azimuthal angles, track spacing and
+ *        geometry.
+ * @return true if the TrackGenerator conatains 3D segments; false otherwise
+ */
 bool TrackGenerator::contains3DSegments() {
   return _contains_3D_segments;
 }
 
 
-// TODO
+/**
+ * @brief Returns whether or not the TrackGenerator contains Extruded segments
+ *        for its current number of azimuthal angles, track spacing and
+ *        geometry.
+ * @return true if the TrackGenerator conatains Extruded segments; false
+ *         otherwise
+ */
 bool TrackGenerator::containsExtrudedSegments() {
   return _contains_extruded_segments;
 }
+
 
 /**
  * @brief Fills an array with the x,y coordinates for each Track.
@@ -879,7 +1021,23 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
 }
 
 
-// TODO
+/**
+ * @brief Fills an array with the x,y coordinates and the periodic cycle ID
+ *        for each Track.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          tracks. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_tracks = track_generator.getNumTracks()
+ *          coords = track_generator.retrieveTrackCoords(num_tracks*5)
+ * @endcode
+ *
+ * @param coords an array of coords of length 5 times the number of Tracks
+ * @param num_tracks the total number of Tracks
+ */
 void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
     int num_tracks) {
 
@@ -908,7 +1066,23 @@ void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
 }
 
 
-// TODO
+/**
+ * @brief Fills an array with the x,y coordinates and the reflective cycle ID
+ *        for each Track.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          tracks. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_tracks = track_generator.getNumTracks()
+ *          coords = track_generator.retrieveTrackCoords(num_tracks*5)
+ * @endcode
+ *
+ * @param coords an array of coords of length 5 times the number of Tracks
+ * @param num_tracks the total number of Tracks
+ */
 void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
     int num_tracks) {
 
@@ -937,7 +1111,23 @@ void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
 }
 
 
-// TODO
+/**
+ * @brief Fills an array with the x,y,z coordinates and the periodic cycle ID
+ *        for each Track.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          tracks. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_tracks = track_generator.getNumTracks()
+ *          coords = track_generator.retrieveTrackCoords(num_tracks*7)
+ * @endcode
+ *
+ * @param coords an array of coords of length 7 times the number of Tracks
+ * @param num_tracks the total number of Tracks
+ */
 void TrackGenerator::retrieve3DPeriodicCycleCoords(double* coords,
     int num_tracks) {
 
@@ -972,7 +1162,23 @@ void TrackGenerator::retrieve3DPeriodicCycleCoords(double* coords,
 }
 
 
-// TODO
+/**
+ * @brief Fills an array with the x,y,z coordinates and the reflective cycle ID
+ *        for each Track.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          tracks. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_tracks = track_generator.getNumTracks()
+ *          coords = track_generator.retrieveTrackCoords(num_tracks*7)
+ * @endcode
+ *
+ * @param coords an array of coords of length 7 times the number of Tracks
+ * @param num_tracks the total number of Tracks
+ */
 void TrackGenerator::retrieve3DReflectiveCycleCoords(double* coords,
     int num_tracks) {
 
@@ -1200,7 +1406,10 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
 }
 
 
-// TODO
+/**
+ * @brief Checks boundary conditions for inconsistent periodic boundary
+ *        conditions
+ */
 void TrackGenerator::checkBoundaryConditions() {
 
   if ((_geometry->getMinXBoundaryType() == PERIODIC &&
@@ -1422,7 +1631,12 @@ void TrackGenerator::generateTracks() {
 }
 
 
-// TODO
+/**
+ * @brief calcualtes the least common multiple of two numbers a and b
+ * @param first number a
+ * @param second nuber b (order does not matter)
+ * @return the least common multiple of a and b
+ */
 double TrackGenerator::leastCommonMultiple(double a, double b) {
 
   bool _found = false;
@@ -1452,19 +1666,30 @@ double TrackGenerator::leastCommonMultiple(double a, double b) {
 }
 
 
-// TODO
+/**
+ * @brief Returns whether or not the solver is set to 2D
+ * @return true if the solver is set to 2D; false otherwise
+ */
 bool TrackGenerator::isSolve2D() {
   return !_solve_3D;
 }
 
 
-// TODO
+/**
+ * @brief Returns whether or not the solver is set to 3D
+ * @return true if the solver is set to 3D; false otherwise
+ */
 bool TrackGenerator::isSolve3D() {
   return _solve_3D;
 }
 
 
-// TODO
+/**
+ * @brief Returns whether or not the solver is set to forming 3D segments
+ *        on-the-fly
+ * @return true if the solver is set to axial on-the-fly segmentation; 
+ *         false otherwise
+ */
 bool TrackGenerator::isOTF() {
   return _OTF;
 }
@@ -1590,7 +1815,12 @@ void TrackGenerator::initialize2DTracks() {
 }
 
 
-// TODO
+/**
+ * @brief Initializes 2D Track reflections
+ * @details This method computes the connecting Tracks for all 2D Tracks in
+ *          the TrackGenerator analytically, handling both reflective and
+ *          periodic boundaries.
+ */
 void TrackGenerator::initialize2DTrackReflections() {
 
   log_printf(NORMAL, "Initializing 2D tracks reflections...");
@@ -1661,7 +1891,12 @@ void TrackGenerator::initialize2DTrackReflections() {
 }
 
 
-// TODO
+/**
+ * @brief Cycle IDs are created for all 2D cycles and assigned to 2D Tracks
+ * @details All tracks are traversed through connecting tracks, assigning cycle
+ *          numbers until all 2D Tracks are traversed. This is done for both
+ *          periodic and reflective connections.
+ */
 void TrackGenerator::initialize2DTrackCycleIds() {
 
   log_printf(NORMAL, "Initializing 2D track cycle ids...");
@@ -1996,7 +2231,12 @@ void TrackGenerator::initialize3DTracks() {
 }
 
 
-// TODO
+/**
+ * @brief Initializes 3D Track reflections
+ * @details This method computes the connecting Tracks for all 3D Tracks in
+ *          the TrackGenerator analytically, handling both reflective and
+ *          periodic boundaries.
+ */
 void TrackGenerator::initialize3DTrackReflections() {
 
   int pc;
@@ -2344,7 +2584,10 @@ void TrackGenerator::initialize3DTrackReflections() {
 
       /* Loop over polar angles > PI/2 */
       for (int p = _num_polar/2; p < _num_polar; p++) {
+        
         pc = _num_polar-p-1;
+        Track3D *** polar_group = _tracks_3D_cycle[a][c][p];
+        
         for (int i=0; i < _num_l[a][pc] + _num_z[a][pc]; i++) {
           for (int t=0; t < _tracks_per_train[a][c][p][i]; t++) {
             
@@ -2678,7 +2921,13 @@ void TrackGenerator::initialize3DTrackReflections() {
   }
 }
 
-//TODO
+
+/**
+ * @brief Cycle IDs are created for all 3D cycles and assigned to 3D Tracks
+ * @details All tracks are traversed through connecting tracks, assigning cycle
+ *          numbers until all 3D Tracks are traversed. This is done for both
+ *          periodic and reflective connections.
+ */
 void TrackGenerator::initialize3DTrackCycleIds() {
 
   int id = 0;
@@ -2743,7 +2992,27 @@ void TrackGenerator::initialize3DTrackCycleIds() {
 }
 
 
-// TODO
+/**
+ * @brief A 3D Track is decomposed by intersections with x and y boundaries
+ * @details A 3D Track which initially neglects intersections with x and y
+ *          boundaries is split into multiple tracks by finding those
+ *          x and y intersections. If create_tracks is set to true, the Tracks
+ *          will be altered to represent the correct 3D Tracks. If not, the
+ *          number of tracks in the train will simply be counted. Whenever this
+ *          function is called, the number of tracks in the associated z-stacks
+ *          are incremented.
+ * @param track The 3D track to be decomposed
+ * @param l_start The distance accross the radial or "l" direction to where the
+ *        track starts
+ * @param l_end The distance accross the radial or "l" direction to where the
+ *        track end
+ * @param azim The azimuthal index of the track
+ * @param cycle The cycle index of the track
+ * @param polar The polar index of the track
+ * @param lz_index The lz index into the Track3D cycles array
+ * @param create_tracks Boolean value determining whether to create the
+ *        associated decomposed tracks (true) or simply count them (false)
+ */
 void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
                                       double l_end, int azim, int cycle,
                                       int polar, int lz_index,
@@ -3179,8 +3448,14 @@ void TrackGenerator::segmentize3D() {
 }
 
 
-// TODO
-/* Convert a length traveled along a track cycle to value in x */
+/**
+ * @brief Converts a length traveled along a 2D Track cycle to a displacement
+ *        in the x-direction
+ * @param l The distance traveled in the 2D Track cycle
+ * @param azim The azimuthal angle index of the cycle
+ * @param cycle The ID of the cycle
+ * @return The displacement in the x-direction
+ */
 double TrackGenerator::convertLtoX(double l, int azim, int cycle) {
 
   if (l > _cycle_length[azim] || l < 0.0)
@@ -3219,8 +3494,14 @@ double TrackGenerator::convertLtoX(double l, int azim, int cycle) {
 }
 
 
-// TODO
-/* Convert a length traveled along a track cycle to value in y */
+/**
+ * @brief Converts a length traveled along a 2D Track cycle to a displacement
+ *        in the y-direction
+ * @param l The distance traveled in the 2D Track cycle
+ * @param azim The azimuthal angle index of the cycle
+ * @param cycle The ID of the cycle
+ * @return The displacement in the y-direction
+ */
 double TrackGenerator::convertLtoY(double l, int azim, int cycle) {
 
   if (l > _cycle_length[azim] || l < 0.0)
@@ -4276,7 +4557,12 @@ void TrackGenerator::generateFSRCentroids() {
 }
 
 
-// TODO
+/**
+ * @brief Sets the track laydown method for generation of 3D Tracks
+ * @details Options for the track laydown are GLOBAL_TRACKING, 
+ *          MODULAR_RAY_TRACING, and SIMPLIFIED_MODULAR_RAY_TRACING
+ * @param method The track laydown method
+ */
 void TrackGenerator::setTrackGenerationMethod(int method) {
 
   if (method != GLOBAL_TRACKING && method != MODULAR_RAY_TRACING &&
@@ -4289,13 +4575,27 @@ void TrackGenerator::setTrackGenerationMethod(int method) {
 }
 
 
-// TODO
+/**
+ * @brief Returns the track laydown method used for generating 3D Tracks
+ * @return The track generation method: GLOBAL_TRACKING, MODULAR_RAY_TRACING,
+ *         or SIMPLIFIED_MODULAR_RAY_TRACING
+ */
 int TrackGenerator::getTrackGenerationMethod() {
   return _track_generation_method;
 }
 
 
-// TODO
+/**
+ * @brief Returns a pointer to the Track indexed by azimuthal index, cycle,
+ *        and track index in the cycle
+ * @details The 2D Track cycle indicated by the azimuthal angle and cycle
+ *          number is traversed across track_index tracks, returning the Track
+ *          at that position if valid
+ * @param azim The azimuthal index
+ * @param cycle The 2D cycle number
+ * @param track_index The track index into the cycle
+ * @return the matching Track, if found
+ */
 Track* TrackGenerator::getTrack2DByCycle(int azim, int cycle, int track_index) {
 
   azim = _quadrature->getFirstOctantAzim(azim);
@@ -4324,7 +4624,17 @@ Track* TrackGenerator::getTrack2DByCycle(int azim, int cycle, int track_index) {
 }
 
 
-// TODO
+/**
+ * @brief Returns the direction in the cycle of the Track indexed by azimuthal
+ *        index, cycle, and track index in the cycle
+ * @details The 2D Track cycle indicated by the azimuthal angle and cycle
+ *          number is traversed across track_index tracks, returning the 
+ *          direction of the Track at that position
+ * @param azim The azimuthal index
+ * @param cycle The 2D cycle number
+ * @param track_index The track index into the cycle
+ * @return the direction of the matching Track
+ */
 bool TrackGenerator::getCycleDirection(int azim, int cycle, int track_index) {
 
   azim = _quadrature->getFirstOctantAzim(azim);
@@ -4704,7 +5014,12 @@ void TrackGenerator::countSegments() {
   }
 }
 
-// TODO
+
+/**
+ * @brief Sets the track periodic indices of all 2D Tracks
+ * @details Periodic cylces are traversed until all 2D Tracks are visited and
+ *          their periodic indices are set
+ */
 void TrackGenerator::initialize2DTrackPeriodicIndices() {
 
   log_printf(NORMAL, "Initializing track periodic indices...");
@@ -4746,7 +5061,11 @@ void TrackGenerator::initialize2DTrackPeriodicIndices() {
 }
 
 
-// TODO
+/**
+ * @brief Sets the track periodic indices of all 3D Tracks
+ * @details Periodic cylces are traversed until all 3D Tracks are visited and
+ *          their periodic indices are set
+ */
 void TrackGenerator::initialize3DTrackPeriodicIndices() {
 
   if (!_periodic)
@@ -4788,7 +5107,13 @@ void TrackGenerator::initialize3DTrackPeriodicIndices() {
 }
 
 
-// TODO
+/**
+ * @brief Creates a Track array by increasing uid 
+ * @details An array is created which indexes Tracks by increasing uid.
+ *          Parallel groups are also initialized -- groups of Tracks that can
+ *          be computed in parallel without the potential of overwriting 
+ *          angular fluxes of connecting tracks prematurely.
+ */
 void TrackGenerator::initializeTracksArray() {
 
   log_printf(NORMAL, "Initializing tracks array...");
@@ -4953,18 +5278,31 @@ int* TrackGenerator::getNumTracksByParallelGroupArray() {
   return _num_tracks_by_parallel_group;
 }
 
-// TODO
+
+/**
+ * @brief Returns the number of Track groups which can be executed in parallel
+ *        without conflicts
+ * @return the number of parallel grooups
+ */
 int TrackGenerator::getNumParallelTrackGroups() {
   return _num_parallel_track_groups;
 }
 
-// TODO
+
+/**
+ * @brief returns whether periodic boundaries are present in Track generation
+ * @return a boolean value - true if periodic; false otherwise
+ */
 bool TrackGenerator::getPeriodic() {
   return _periodic;
 }
 
 
-// TODO
+/**
+ * @brief allocates memory for 3D Tracks
+ * @details Before calling this function, the number of tracks per z-stack
+ *          should be known and initialized in the _tracks_per_stack 3D array
+ */
 void TrackGenerator::create3DTracksArrays() {
 
   _tracks_3D_stack = new Track3D***[_num_azim/2];
@@ -4995,7 +5333,11 @@ void TrackGenerator::create3DTracksArrays() {
   }
 }
 
-// TODO
+/**
+ * @brief Sets a flag to record all segment information in the tracking file
+ * @param A boolean value to determine whether or not to record segment
+ *        information in the tracking file: true to record, false not to record
+ */
 void TrackGenerator::setDumpSegments(bool dump_segments) {
   _dump_segments = dump_segments;
 }
