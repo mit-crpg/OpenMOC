@@ -520,10 +520,6 @@ def _load_openmc_src(mgxs_lib, solver):
     sp = openmc.StatePoint(mgxs_lib.sp_filename)
     keff = sp.k_combined[0]
 
-    # FIXME: Need Material.getVolume() routine
-    # FIXME: Need TrackGenerator to assign volume to Material
-    # FIXME: Need TrackGenerator to assign number of instances to Material
-
     # Compute fixed sources for all domains in the MGXS library
     for i, openmc_domain in enumerate(mgxs_lib.domains):
 
