@@ -1,4 +1,3 @@
-import openmc
 import openmc.mgxs
 import openmoc
 from openmoc.materialize import compute_sph_factors, load_openmc_mgxs_lib
@@ -73,4 +72,5 @@ keff_with_sph = solver.getKeff()
 sp = openmc.StatePoint(mgxs_lib.sp_filename)
 openmoc.log.py_printf('RESULT', 'OpenMOC keff w/o SPH: \t%1.5f', keff_no_sph)
 openmoc.log.py_printf('RESULT', 'OpenMOC keff w/ SPH: \t%1.5f', keff_with_sph)
-openmoc.log.py_printf('RESULT', 'OpenMC keff: \t\t%1.5f', sp.k_combined[0])
+openmoc.log.py_printf('RESULT', 'OpenMC keff: \t\t%1.5f +/- %1.5f',
+                                sp.k_combined[0], sp.k_combined[1])
