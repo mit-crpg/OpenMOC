@@ -45,6 +45,9 @@ Material::Material(int id, const char* name) {
   _name = NULL;
   setName(name);
 
+  _volume = 0.;
+  _num_instances = 0;
+
   /* Initialize a dummy number groups */
   _num_groups = -1;
 
