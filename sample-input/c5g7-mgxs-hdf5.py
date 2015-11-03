@@ -190,7 +190,7 @@ fiss_chamber.create_dataset('total', data=sigma_t)
 fiss_chamber.create_dataset('scatter matrix', data=sigma_s)
 fiss_chamber.create_dataset('fission', data=sigma_f)
 fiss_chamber.create_dataset('nu-fission', data=nu_sigma_f)
-fiss_chamber.create_dataset('Chi', data=chi)
+fiss_chamber.create_dataset('chi', data=chi)
 
 
 ###############################################################################
