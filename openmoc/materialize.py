@@ -570,8 +570,8 @@ def _load_openmc_src(mgxs_lib, solver):
         # the nu-fission MGXS and store it for SPH factor calculation
         flux = nu_fission.tallies['flux'].mean.flatten()
         openmc_fluxes[i, :] = np.atleast_1d(np.flipud(flux))
-        if tot_volume > 1E-5:
-            openmc_fluxes[i, :] /= tot_volume
+#        if tot_volume > 1E-5:
+        openmc_fluxes[i, :] /= tot_volume
 
         # Extract a NumPy array for each MGXS summed across all nuclides
         scatter = scatter.get_xs(nuclides='sum')
