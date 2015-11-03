@@ -368,7 +368,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 #
 #          Hebert, A., "A Consistent Technique for the Pin-by-Pin
 #          Homogenization of a Pressurized Water Reactor Assembly."
-#          Nuclear Science and Engineering, 113 (3), pp. 227–23, 1993.
+#          Nuclear Science and Engineering, 113 (3), pp. 227-233, 1993.
 #
 #          The SPH factors are needed to preserve reaction rates in
 #          heterogeneous geometries. The energy condensation process leads
@@ -384,7 +384,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 # @return a NumPy array of SPH factors and a new openmc.mgxs.Library object
 #         with the SPH factors applied to each MGXS object
 def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
-                        num_azim=4, track_spacing=0.1,):
+                        num_azim=4, track_spacing=0.1, zcoord=0.0):
 
     import openmc.mgxs
 
@@ -414,6 +414,7 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
     # Initialize an OpenMOC TrackGenerator
     geometry.initializeFlatSourceRegions()
     track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
+    track_generator.setZCoord(zcoord)
     track_generator.generateTracks()
 
     # Initialize an OpenMOC Solver
@@ -428,11 +429,10 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
     # Initialize SPH factors
     num_groups = geometry.getNumEnergyGroups()
     num_fsrs = geometry.getNumFSRs()
-    sph = np.ones((num_fsrs, num_groups))
 
     # Map FSRs to domains to compute domain-averaged fluxes
     num_domains = len(mgxs_lib.domains)
-    fsrs_to_domains = np.zeros(num_domains)
+    fsrs_to_domains = np.zeros(num_fsrs)
     for fsr in range(num_fsrs):
         cell = geometry.findCellContainingFSR(fsr)
 
@@ -442,8 +442,9 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
         else:
             fsrs_to_domains[fsr] = cell.getId()
 
-    # Initialize array of domain-averaged fluxes
+    # Initialize array of domain-averaged fluxes and SPH factors
     openmoc_fluxes = np.zeros((num_domains, num_groups))
+    sph = np.ones((num_domains, num_groups))
 
     # SPH Iteration
     for i in range(max_iters):
@@ -455,16 +456,19 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
         fsr_fluxes = get_scalar_fluxes(solver)
 
         # Compute the domain-averaged flux in each energy group
-        for i, domain in enumerate(mgxs_lib.domains):
+        for j, domain in enumerate(mgxs_lib.domains):
             domain_fluxes = fsr_fluxes[fsrs_to_domains == domain.id, :]
-            openmoc_fluxes[i, :] = np.mean(domain_fluxes, axis=0)
+            openmoc_fluxes[j, :] = np.mean(domain_fluxes, axis=0)
 
         # Compute SPH factors
         old_sph = np.copy(sph)
         sph = openmc_fluxes / openmoc_fluxes
+        sph = np.nan_to_num(sph)
+        sph[sph == 0.0] = 1.0
 
         # Compute SPH factor residuals
         res = np.abs((sph - old_sph) / old_sph)
+        res = np.nan_to_num(res)
 
         # Report maximum SPH factor residual
         py_printf('RESULT', 'SPH iteration %d:\tres = %1.3e', i, res.max())
@@ -528,8 +532,14 @@ def _load_openmc_src(mgxs_lib, solver):
 
         # Compute the total volume filled by this domain
         domain_volume = openmoc_domain.getVolume()
-        num_domains = openmoc_domain.getNumInstances()
-        tot_volume = domain_volume / num_domains
+        num_instances = openmoc_domain.getNumInstances()
+
+        # If this domain is not found in the OpenMOC geometry, ignore it
+        if num_instances == 0:
+            continue
+        # Compute the total volume of all replicas of this Cell in the Geometry
+        else:
+            tot_volume = num_instances * domain_volume
 
         # Extract an openmc.mgxs.MGXS object for the scattering matrix
         if 'nu-scatter matrix' in mgxs_lib.mgxs_types:
@@ -559,7 +569,9 @@ def _load_openmc_src(mgxs_lib, solver):
         # Retrieve the OpenMC volume-integrated flux for this domain from
         # the nu-fission MGXS and store it for SPH factor calculation
         flux = nu_fission.tallies['flux'].mean.flatten()
-        openmc_fluxes[i, :] = np.atleast_1d(np.flipud(flux) / tot_volume)
+        openmc_fluxes[i, :] = np.atleast_1d(np.flipud(flux))
+        if tot_volume > 1E-5:
+            openmc_fluxes[i, :] /= tot_volume
 
         # Extract a NumPy array for each MGXS summed across all nuclides
         scatter = scatter.get_xs(nuclides='sum')

@@ -53,7 +53,7 @@ Cell::Cell(int id, const char* name) {
 
   _cell_type = UNFILLED;
   _fill = NULL;
-  _volume = 0;
+  _volume = 0.;
   _num_instances = 0;
 
   _num_rings = 0;
