@@ -258,8 +258,47 @@ void set_log_level(const char* new_level) {
  * @brief Return the minimum level for log messages printed to the screen.
  * @return the minimum level for log messages
  */
-int get_log_level() {
-  return log_level;
+const char* get_log_level() {
+
+  std::string level;
+
+  switch (log_level) {
+  case (DEBUG):
+    level = "DEBUG";
+    break;
+  case (INFO):
+    level = "INFO";
+    break;
+  case (NORMAL):
+    level = "NORMAL";
+    break;
+  case (SEPARATOR):
+    level = "SEPARATOR";
+    break;
+  case (HEADER):
+    level = "HEADER";
+    break;
+  case (TITLE):
+    level = "TITLE";
+    break;
+  case (WARNING):
+    level = "WARNING";
+    break;
+  case (CRITICAL):
+    level = "CRITICAL";
+    break;
+  case (RESULT):
+    level = "RESULT";
+    break;
+  case (UNITTEST):
+    level = "UNITTEST";
+    break;
+  case (ERROR):
+    level = "ERROR";
+    break;
+  }
+
+  return level.c_str();
 }
 
 
