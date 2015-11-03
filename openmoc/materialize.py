@@ -405,6 +405,8 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
         py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
                            'library of domain type %s', mgxs_lib.domain_type)
 
+    py_printf('NORMAL', 'Computing SPH factors...')
+
     # Create an OpenMOC Geometry from the OpenCG Geometry
     geometry = get_openmoc_geometry(mgxs_lib.opencg_geometry)
 
@@ -489,6 +491,7 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
 
     # Reset log level
     openmoc.set_log_level(log_level)
+    py_printf('SEPARATOR', '')
 
     return sph, sph_mgxs_lib
 
