@@ -384,7 +384,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 # @param track_spacing the track spacing to use in fixed source calculations
 # @return a NumPy array of SPH factors and a new openmc.mgxs.Library object
 #         with the SPH factors applied to each MGXS object
-def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-3, fix_src_tol=1E-5,
+def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
                         update='fissionable', num_azim=4, track_spacing=0.1,):
 
     import openmc.mgxs
@@ -406,7 +406,7 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-3, fix_src_tol=1E-5,
     geometry = get_openmoc_geometry(mgxs_lib.opencg_geometry)
 
     # Load the MGXS library data into the OpenMOC geometry
-    materials = load_openmc_mgxs_lib(mgxs_lib, geometry)
+    load_openmc_mgxs_lib(mgxs_lib, geometry)
 
     # Initialize an OpenMOC TrackGenerator
     geometry.initializeFlatSourceRegions()
@@ -430,7 +430,6 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-3, fix_src_tol=1E-5,
     for i in range(max_iters):
 
         # Run fixed source calculation
-        geometry.initializeFlatSourceRegions()
         solver.computeFlux()
 
         # Extract the FSR scalar fluxes and total fission rate
@@ -450,7 +449,7 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-3, fix_src_tol=1E-5,
         sph_mgxs_lib = _apply_sph_factors(mgxs_lib, sph, geometry, update)
 
         # Load the new MGXS library data into the OpenMOC geometry
-        materials = load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
+        load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
 
         if res.max() < sph_tol:
             break
@@ -489,15 +488,12 @@ def _load_openmc_src(mgxs_lib, solver):
         py_printf('ERROR', 'Unable to apply SPH factors for "%s" which '
                            'is not an OpenMOC Solver', str(type(solver)))
 
-    # Retrieve dictionary of OpenMOC domains corresponding to OpenMC domains
-    geometry = solver.getGeometry()
-    geometry.thisown = 0
-
     if mgxs_lib.domain_type not in ['material', 'cell']:
         py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
                            'library of domain type %s', mgxs_lib.domain_type)
 
     # Create variables for the number of FSRs and energy groups
+    geometry = solver.getGeometry()
     num_groups = geometry.getNumEnergyGroups()
     num_fsrs = geometry.getNumFSRs()
     openmc_fluxes = np.zeros((num_fsrs, num_groups))
@@ -536,8 +532,7 @@ def _load_openmc_src(mgxs_lib, solver):
 
         # Extract an openmc.mgxs.MGXS object for the nu-fission cross section
         if 'nu-fission' in mgxs_lib.mgxs_types:
-            nu_fission = mgxs_lib.get_mgxs(openmoc_domain.getId(),
-                                           'nu-fission')
+            nu_fission = mgxs_lib.get_mgxs(openmoc_domain.getId(), 'nu-fission')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
                                'MGXS library without nu-fission cross sections')
@@ -597,21 +592,21 @@ def _apply_sph_factors(mgxs_lib, sph, geometry, update):
         py_printf('ERROR', 'Unable to apply SPH factors for "%s" which '
                            'is not an OpenMOC Geometry', str(type(geometry)))
 
-    # Retrieve dictionary of OpenMOC domains corresponding to OpenMC domains
-    if mgxs_lib.domain_type == 'material':
-        openmoc_domains = geometry.getAllMaterials()
-    elif mgxs_lib.domain_type == 'cell':
-        openmoc_domains = geometry.getAllCells()
-    else:
+    if mgxs_lib.domain_type not in ['material', 'cell']:
         py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
                            'library of domain type %s', mgxs_lib.domain_type)
 
     # Create a copy of the MGXS library to apply SPH factors
     sph_mgxs_lib = copy.deepcopy(mgxs_lib)
 
-    # Loop over all domains in the MGXS library
-    for i, openmc_domain in enumerate(sph_mgxs_lib.domains):
-        openmoc_domain = openmoc_domains[openmc_domain.id]
+    # Apply SPH factors to the total cross sections in each FSR, group
+    num_fsrs = geometry.getNumFSRs()
+    for fsr in range(num_fsrs):
+
+        # Get the OpenMOC domain (Cell or Material) for this FSR
+        openmoc_domain = geometry.findCellContainingFSR(fsr)
+        if mgxs_lib.domain_type == 'material':
+            openmoc_domain = openmoc_domain.getFillMaterial()
 
         # FIXME: Consider doubly-nested iteration scheme
         if not openmoc_domain.isFissionable():
@@ -625,22 +620,25 @@ def _apply_sph_factors(mgxs_lib, sph, geometry, update):
                 continue
 
             # Extract the openmc.mgxs.MGXS object from the input library
-            mgxs = mgxs_lib.get_mgxs(openmc_domain, mgxs_type)
+            mgxs = mgxs_lib.get_mgxs(openmoc_domain.getId(), mgxs_type)
 
             # Extract the openmc.mgxs.MGXS object to update with SPH factors
-            sph_mgxs = sph_mgxs_lib.get_mgxs(openmc_domain, mgxs_type)
+            sph_mgxs = sph_mgxs_lib.get_mgxs(openmoc_domain.getId(), mgxs_type)
 
             # Extract the OpenMC derived Tally for the MGXS
             tally = mgxs.xs_tally
             sph_tally = sph_mgxs.xs_tally
+            flip_sph = np.flipud(sph[fsr,:])
 
             # Apply SPH factors to the MGXS in each nuclide, group
             if 'scatter matrix' in mgxs_type:
-                sph_tile = np.tile(sph[i, :], mgxs_lib.num_groups)
+#                sph_tile = np.repeat(np.flipud(sph[fsr, :]), mgxs_lib.num_groups)
+                sph_tile = np.repeat(flip_sph, mgxs_lib.num_groups)
                 sph_tally._mean = tally.mean * sph_tile[:, np.newaxis, np.newaxis]
 #                sph_tally._std_dev = tally.std_dev * sph[:, np.newaxis, np.newaxis]**2
             else:
-                sph_tally._mean = tally.mean * sph[i, :][:, np.newaxis, np.newaxis]
+                sph_tally._mean = tally.mean * flip_sph[:,np.newaxis, np.newaxis]
+#                sph_tally._mean = tally.mean * np.flipud(sph[fsr,:])[:,np.newaxis, np.newaxis]
 #                sph_tally._std_dev = tally.std_dev * sph[i, :][:, np.newaxis, np.newaxis]**2
 
     return sph_mgxs_lib
