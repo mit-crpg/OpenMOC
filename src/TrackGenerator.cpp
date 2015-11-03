@@ -613,7 +613,7 @@ void TrackGenerator::generateTracks() {
   initializeBoundaryConditions();
   initializeTrackCycleIndices(PERIODIC);
   initializeTrackUids();
-  initializeCellVolumes();
+  initializeVolumes();
 
   return;
 }
@@ -1049,38 +1049,45 @@ void TrackGenerator::initializeTrackUids() {
 
 
 /**
- * @brief Computes the volumes/areas of each Cell in the Geometry.
- * @details This computes the volumes/areas of each Cell in the Geometry
- *          from the length of track segments crossing each Cell. This
- *          routines assigns the volume and number of instances to each Cell.
- *          This is a helper routine that is called after track segmentation
- *          is complete in TrackGenerator::generateTracks().
+ * @brief Computes the volumes/areas of each Cell and Material in the Geometry.
+ * @details This computes the volumes/areas of each Cell and Material in the 
+ *          Geometry from the length of track segments crossing each Cell. This
+ *          routine assigns the volume and number of instances to each Cell and
+ *          Material. This is a helper routine that is called after track 
+ *          segmentation is complete in TrackGenerator::generateTracks().
  */
-void TrackGenerator::initializeCellVolumes() {
+void TrackGenerator::initializeVolumes() {
 
   if (!containsTracks())
-    log_printf(ERROR, "Unable to initialize the cell volumes since tracks "
+    log_printf(ERROR, "Unable to initialize volumes since tracks "
                "have not yet been generated");
-
-  // FIXME: Do the same for all Materials
 
   int num_FSRs = _geometry->getNumFSRs();
   std::map<int, Cell*> cells = _geometry->getAllMaterialCells();
   std::map<int, Cell*>::iterator iter;
   Cell* cell;
+  Material* material;
 
-  /* Compute the aggregate volume and number of instances for each Cell */
+  /* Compute volume and number of instances for each Cell and Material */
   for (int i=0; i < num_FSRs; i++) {
     cell = _geometry->findCellContainingFSR(i);
     cell->setVolume(cell->getVolume() + getFSRVolume(i));
     cell->setNumInstances(cell->getNumInstances() + 1);
+
+    material = cell->getFillMaterial();
+    material->setVolume(material->getVolume() + getFSRVolume(i));
+    material->setNumInstances(material->getNumInstances() + 1);
   }
 
-  /* Compute the average Cell volumes by dividing out the number of instances */
+  /* Compute the average volumes by dividing out the number of instances */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
     cell = (*iter).second;
+    material = cell->getFillMaterial();
+
     if (cell->getNumInstances() > 0)
       cell->setVolume(cell->getVolume() / cell->getNumInstances());
+    if (material->getNumInstances() > 0)
+      material->setVolume(material->getVolume() / material->getNumInstances());
   }
 }
 

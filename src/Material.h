@@ -58,6 +58,12 @@ private:
   /** A user-defined name for the Material */
   char* _name;
 
+  /** The volume / area of the Material computed from overlapping segments */
+  double _volume;
+
+  /** The total number of instances of this Material in the Geometry */
+  int _num_instances;
+
   /** The number of energy groups */
   int _num_groups;
 
@@ -97,6 +103,8 @@ public:
 
   int getId() const;
   char* getName() const;
+  double getVolume();
+  int getNumInstances();
   int getNumEnergyGroups() const;
   FP_PRECISION* getSigmaT();
   FP_PRECISION* getSigmaS();
@@ -115,6 +123,8 @@ public:
   int getNumVectorGroups();
 
   void setName(const char* name);
+  void setVolume(double volume);
+  void setNumInstances(int num_instances);
   void setNumEnergyGroups(const int num_groups);
 
   void setSigmaT(double* xs, int num_groups);

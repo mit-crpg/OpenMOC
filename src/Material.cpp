@@ -134,6 +134,28 @@ char* Material::getName() const {
 
 
 /**
+ * @brief Return the volume/area of this Material.
+ * @details The volume/area of the Material is computed from track segments
+ *          which overlap this Material during track generation.
+ * @return the volume/area of the Material
+ */
+double Material::getVolume() {
+  return _volume;
+}
+
+
+/**
+ * @brief Return the number of instances of this Material in the Geometry.
+ * @details The number of instances of this Material in the Geometry is
+ *          determined during track generation.
+ * @return the number of material instances
+ */
+int Material::getNumInstances() {
+  return _num_instances;
+}
+
+
+/**
  * @brief Returns the number of energy groups for this Material's nuclear data.
  * @return the number of energy groups
  */
@@ -381,6 +403,28 @@ void Material::setName(const char* name) {
   /* Copy the input character array Material name to the class attribute name */
   for (int i=0; i <= length; i++)
     _name[i] = name[i];
+}
+
+
+/**
+ * @brief Set the volume/area of the Material.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ * @param volume the volume/area of the Material
+ */
+void Material::setVolume(double volume) {
+  _volume = volume;
+}
+
+
+/**
+ * @brief Set the number of instances of this Material.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ * @param num_instances the number of instances of this Material in the Geometry
+ */
+void Material::setNumInstances(int num_instances) {
+  _num_instances = num_instances;
 }
 
 
