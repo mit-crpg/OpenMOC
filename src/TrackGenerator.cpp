@@ -1064,6 +1064,7 @@ void TrackGenerator::initializeCellVolumes() {
 
   // FIXME: Do the same for all Materials
 
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
   int num_FSRs = _geometry->getNumFSRs();
   std::map<int, Cell*> cells = _geometry->getAllMaterialCells();
   std::map<int, Cell*>::iterator iter;
@@ -1074,15 +1075,9 @@ void TrackGenerator::initializeCellVolumes() {
   /* Compute the aggregate volume and number of instances for each Cell */
   for (int i=0; i < num_FSRs; i++) {
     cell = _geometry->findCellContainingFSR(i);
-    volume = cell->getVolume();
-    volume = getFSRVolume(i);
-    printf("volume = %f\n", volume);
-    printf("cell id = %d init vol = %f get vol = %f\n", 
-           cell->getId(), cell->getVolume(), getFSRVolume(i));
+    volume = cell->getVolume() + FSR_volumes[i];
     num_instances = cell->getNumInstances() + 1;
-    printf("setting volume to %f\n", volume);
     cell->setVolume(volume);
-    printf("set volume to %f\n", cell->getVolume());
     cell->setNumInstances(num_instances);
   }
 
@@ -1091,7 +1086,6 @@ void TrackGenerator::initializeCellVolumes() {
     cell = (*iter).second;
     if (cell->getNumInstances() > 0) {
       volume = cell->getVolume() / cell->getNumInstances();
-      printf("cell id = %d, volume = %f, num instances = %d\n", cell->getId(), cell->getVolume(), cell->getNumInstances());
       cell->setVolume(volume);
     }
   }
