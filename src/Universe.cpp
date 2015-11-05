@@ -747,7 +747,7 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
  */
 Lattice::~Lattice() {
 
-  for (int k=0; k < _num_z; k++){
+  for (int k=0; k < _num_z; k++) {
     for (int j=0; j < _num_y; j++)
       _universes.at(k).at(j).clear();
     _universes.at(k).clear();
@@ -936,7 +936,7 @@ std::map<int, Universe*> Lattice::getUniqueUniverses() {
   std::map<int, Universe*> unique_universes;
   Universe* universe;
 
-  for (int k = _num_z-1; k > -1; k--){
+  for (int k = _num_z-1; k > -1; k--) {
     for (int j = _num_y-1; j > -1;  j--) {
       for (int i = 0; i < _num_x; i++) {
         universe = _universes.at(k).at(j).at(i).second;
@@ -1070,7 +1070,7 @@ void Lattice::setWidth(double width_x, double width_y, double width_z) {
 void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
-  for (int k=0; k < _num_z; k++){
+  for (int k=0; k < _num_z; k++) {
     for (int j=0; j < _num_y; j++)
       _universes.at(k).at(j).clear();
     _universes.at(k).clear();
@@ -1095,7 +1095,7 @@ void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
 
     _universes.at(0).push_back(std::vector< std::pair<int, Universe*> >());
 
-    for (int i = 0; i < _num_x; i++){
+    for (int i = 0; i < _num_x; i++) {
       universe = universes[(_num_y-1-j)*_num_x + i];
       _universes.at(0).at(j).push_back(std::pair<int, Universe*>
                                        (universe->getId(), universe));
@@ -1129,7 +1129,7 @@ void Lattice::setUniverses3D(int num_z, int num_y, int num_x,
                              Universe** universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
-  for (int k=0; k < _num_z; k++){
+  for (int k=0; k < _num_z; k++) {
     for (int j=0; j < _num_y; j++)
       _universes.at(k).at(j).clear();
     _universes.at(k).clear();
@@ -1154,7 +1154,7 @@ void Lattice::setUniverses3D(int num_z, int num_y, int num_x,
 
       _universes.at(k).push_back(std::vector< std::pair<int, Universe*> >());
 
-      for (int i = 0; i < _num_x; i++){
+      for (int i = 0; i < _num_x; i++) {
         universe = universes
           [(_num_z-1-k)*_num_x*_num_y + (_num_y-1-j)*_num_x + i];
         _universes.at(k).at(j).push_back(std::pair<int, Universe*>
@@ -1467,7 +1467,7 @@ void Lattice::printString() {
  * @param point a pointer to a point being evaluated.
  * @return the Lattice cell index.
  */
-int Lattice::getLatticeCell(Point* point){
+int Lattice::getLatticeCell(Point* point) {
   return getLatZ(point)*_num_x*_num_y + getLatY(point)*_num_x + getLatX(point);
 }
 
@@ -1528,8 +1528,8 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   zplane.setZ(((lat_z + 1)*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
   on_max_z = zplane.isPointOnSurface(point);  
 
-  if (on_min_x){
-    if (on_min_y){
+  if (on_min_x) {
+    if (on_min_y) {
       if (on_min_z)
         surface = SURFACE_X_MIN_Y_MIN_Z_MIN;
       else if (on_max_z)
@@ -1537,7 +1537,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
       else
         surface = SURFACE_X_MIN_Y_MIN;
     }
-    else if (on_max_y){
+    else if (on_max_y) {
       if (on_min_z)
         surface = SURFACE_X_MIN_Y_MAX_Z_MIN;
       else if (on_max_z)
@@ -1548,8 +1548,8 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
     else
       surface = SURFACE_X_MIN;
   }
-  else if (on_max_x){
-    if (on_min_y){
+  else if (on_max_x) {
+    if (on_min_y) {
       if (on_min_z)
         surface = SURFACE_X_MAX_Y_MIN_Z_MIN;
       else if (on_max_z)
@@ -1557,7 +1557,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
       else
         surface = SURFACE_X_MAX_Y_MIN;
     }
-    else if (on_max_y){
+    else if (on_max_y) {
       if (on_min_z)
         surface = SURFACE_X_MAX_Y_MAX_Z_MIN;
       else if (on_max_z)
@@ -1568,7 +1568,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
     else
       surface = SURFACE_X_MAX;
   }
-  else if (on_min_y){
+  else if (on_min_y) {
     if (on_min_z)
       surface = SURFACE_Y_MIN_Z_MIN;
     else if (on_max_z)
@@ -1576,7 +1576,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
     else
       surface = SURFACE_Y_MIN;
   }
-  else if (on_max_y){
+  else if (on_max_y) {
     if (on_min_z)
       surface = SURFACE_Y_MAX_Z_MIN;
     else if (on_max_z)

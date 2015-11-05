@@ -484,7 +484,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
 
       /* Recheck min distance */
       min_dist = std::min(dist, min_dist);
-        
+
       /* Ascend one level */
       if (coords->getUniverse() == _root_universe)
         break;
@@ -524,7 +524,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
   std::hash<std::string> key_hash_function;
-  
+
   /* Generate unique FSR key */
   std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
 
@@ -543,7 +543,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr_id = fsr->_fsr_id;
     }
     else {
-      
+
       /* Add FSR information to FSR key map and FSR_to vectors */
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
@@ -552,7 +552,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       point->setCoords(coords->getHighestLevel()->getX(), 
                        coords->getHighestLevel()->getY(),
                        coords->getHighestLevel()->getZ());
-      
+
       /* Get the cell that contains coords */
       Cell* cell = findCellContainingCoords(curr);
       fsr->_point = point;
@@ -563,7 +563,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
         fsr->_cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
     }
   }
-  
+
   /* If FSR has already been encountered, get the fsr id from map */
   else {
     fsr_data volatile* fsr;
@@ -953,7 +953,7 @@ void Geometry::segmentize3D(Track3D* track) {
                end.getX(), end.getY(), end.getZ());
 
     /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
-    if (_cmfd != NULL){
+    if (_cmfd != NULL) {
       
       /* Find cmfd cell that segment lies in */
       int cmfd_cell = _cmfd->findCmfdCell(&start);
@@ -1283,7 +1283,7 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 
 
 
-Cell* Geometry::findCellContainingFSR(int fsr_id){
+Cell* Geometry::findCellContainingFSR(int fsr_id) {
 
   Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
   LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),

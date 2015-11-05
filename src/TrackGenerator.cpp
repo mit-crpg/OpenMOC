@@ -1199,7 +1199,7 @@ void TrackGenerator::generateTracks() {
     if (_use_input_file == false) {
 
       /* Segmentize the tracks */
-      if (_solve_3D){
+      if (_solve_3D) {
         segmentize3D();
         dump3DSegmentsToFile();
       }

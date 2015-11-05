@@ -33,7 +33,7 @@ class FixedHashMap
 {
   struct node
   {
-    node(K k_in, V v_in) : next(NULL), key(k_in), value(v_in){}
+    node(K k_in, V v_in) : next(NULL), key(k_in), value(v_in) {}
     K key;
     V value;
     node *next;

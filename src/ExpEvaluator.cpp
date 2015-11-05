@@ -1,5 +1,5 @@
 #include "ExpEvaluator.h"
- 
+
 
 /**
  * @brief Constructor initializes array pointers to NULL.
@@ -68,7 +68,7 @@ void ExpEvaluator::setExpPrecision(FP_PRECISION exp_precision) {
 }
 
 
-void ExpEvaluator::setSolve3D(bool solve_3D){
+void ExpEvaluator::setSolve3D(bool solve_3D) {
   _solve_3D = solve_3D;
 }
 
@@ -160,7 +160,7 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
 }
 
 
-bool ExpEvaluator::isSolve3D(){
+bool ExpEvaluator::isSolve3D() {
   return _solve_3D;
 }
 
@@ -193,7 +193,7 @@ void ExpEvaluator::initialize() {
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  if (_solve_3D){
+  if (_solve_3D) {
     _table_size = num_array_values * 2;
     _exp_table = new FP_PRECISION[_table_size];
     
@@ -203,7 +203,7 @@ void ExpEvaluator::initialize() {
     FP_PRECISION sin_theta;
     
     /* Create exponential linear interpolation table */
-    for (int i=0; i < num_array_values; i++){
+    for (int i=0; i < num_array_values; i++) {
       expon = exp(- (i * exp_table_spacing));
       slope = - expon;
       intercept = expon * (1 + (i * exp_table_spacing));
@@ -221,8 +221,8 @@ void ExpEvaluator::initialize() {
     FP_PRECISION sin_theta;
     
     /* Create exponential linear interpolation table */
-    for (int i=0; i < num_array_values; i++){
-      for (int p=0; p < _num_polar/2; p++){
+    for (int i=0; i < num_array_values; i++) {
+      for (int p=0; p < _num_polar/2; p++) {
         sin_theta = _quadrature->getSinTheta(0,p);
         expon = exp(- (i * exp_table_spacing) / sin_theta);
         slope = - expon / sin_theta;
@@ -249,11 +249,11 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim,
                                               int polar) {
 
   FP_PRECISION exponential;
-  
+
   /* Evaluate the exponential using the lookup table - linear interpolation */
   if (_interpolate) {
     int index;
-    if (_solve_3D){
+    if (_solve_3D) {
       index = floor(tau * _inverse_exp_table_spacing) * 2;
       exponential = (1. - (_exp_table[index] * tau +
                            _exp_table[index + 1]));

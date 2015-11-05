@@ -579,7 +579,7 @@ void CPUSolver::transportSweep() {
     _cmfd->zeroSurfaceCurrents();
 
   /* Loop over each parallel track groups */
-  for (int i=0; i < _num_parallel_track_groups; i++){
+  for (int i=0; i < _num_parallel_track_groups; i++) {
     
     /* Compute the minimum and maximum Track IDs corresponding to
      * the current parallel tracks group */
@@ -672,9 +672,9 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
-  if (_solve_3D){
+  if (_solve_3D) {
     p = _quad->getFirstOctantPolar(polar_index);
-    for (int e=0; e < _num_groups; e++){
+    for (int e=0; e < _num_groups; e++) {
       exponential = _exp_evaluator->computeExponential
         (sigma_t[e] * length, a, p);
       delta_psi = (track_flux(e)-_reduced_sources(fsr_id,e)) * exponential;
@@ -691,7 +691,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     for (int e=0; e < _num_groups; e++) {
       
       /* Loop over polar angles */
-      for (p=0; p < _num_polar/2; p++){
+      for (p=0; p < _num_polar/2; p++) {
         exponential = _exp_evaluator->computeExponential
           (sigma_t[e] * length, a, p);
         delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
@@ -723,7 +723,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  */
 void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
                                     int polar_index, FP_PRECISION* track_flux,
-                                    bool fwd){
+                                    bool fwd) {
 
   /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
@@ -759,7 +759,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   if (direction) {
     bc = _tracks[track_id]->getBCFwd();
     track_leakage = &_boundary_leakage(track_id,0);
-    if (bc == PERIODIC){
+    if (bc == PERIODIC) {
       start = 0;
       track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();  
     }
@@ -789,9 +789,9 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   if (bc == PERIODIC)
     bc = REFLECTIVE;
   
-  if (_solve_3D){
+  if (_solve_3D) {
     int p = _quad->getFirstOctantPolar(polar_index);
-    for (int e=0; e < _num_groups; e++){
+    for (int e=0; e < _num_groups; e++) {
       track_out_flux(e) = track_flux(e) * bc;
       track_leakage(e) = track_flux(e) * (!bc) *
         _azim_spacings[a] * _polar_spacings[a][p] *

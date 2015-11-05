@@ -197,7 +197,7 @@ void Track::clearSegments() {
  * @brief Set a Track's azimuthal angle index.
  * @param index The azimuthal angle index
  */
-void Track::setAzimIndex(int index){
+void Track::setAzimIndex(int index) {
   _azim_index = index;
 }
 
@@ -215,7 +215,7 @@ int Track::getAzimIndex() {
  * @brief Set a pointer to the reflective Track in the forward direction.
  * @param track A pointer to the reflective track in the forward direction
  */
-void Track::setTrackReflFwd(Track* track){
+void Track::setTrackReflFwd(Track* track) {
 
   /* Check to make sure the tracks have connecting points */
   if (_refl_fwd_fwd && _end.distanceToPoint(track->getStart()) > 1.e-8)
@@ -237,7 +237,7 @@ void Track::setTrackReflFwd(Track* track){
  * @brief Set a pointer to the periodic Track in the forward direction.
  * @param track A pointer to the periodic track in the forward direction
  */
-void Track::setTrackPrdcFwd(Track* track){
+void Track::setTrackPrdcFwd(Track* track) {
 
   /* Check to make sure the tracks have connecting points */
   double dx = fabs(_end.getX() - track->getStart()->getX());
@@ -258,7 +258,7 @@ void Track::setTrackPrdcFwd(Track* track){
  * @brief Set a pointer to the reflective Track in the backward direction.
  * @param track A pointer to the reflective track in the backward direction
  */
-void Track::setTrackReflBwd(Track* track){
+void Track::setTrackReflBwd(Track* track) {
 
   /* Check to make sure the tracks have connecting points */
   if (_refl_bwd_fwd && _start.distanceToPoint(track->getStart()) > 1.e-8)
@@ -280,7 +280,7 @@ void Track::setTrackReflBwd(Track* track){
  * @brief Set a pointer to the periodic Track in the backward direction.
  * @param track A pointer to the periodic track in the backward direction
  */
-void Track::setTrackPrdcBwd(Track* track){
+void Track::setTrackPrdcBwd(Track* track) {
 
   /* Check to make sure the tracks have connecting points */
   double dx = fabs(_start.getX() - track->getEnd()->getX());
@@ -357,7 +357,7 @@ int Track::getXYIndex() {
  * @param fwd Boolean indicating whether reflective track in the forward
  *        direction is point in forward direction
  */
-void Track::setReflFwdFwd(bool fwd){
+void Track::setReflFwdFwd(bool fwd) {
   _refl_fwd_fwd = fwd;
 }
 
@@ -368,7 +368,7 @@ void Track::setReflFwdFwd(bool fwd){
  * @param fwd Boolean indicating whether reflective track in the backward
  *        direction is point in forward direction
  */
-void Track::setReflBwdFwd(bool fwd){
+void Track::setReflBwdFwd(bool fwd) {
   _refl_bwd_fwd = fwd;
 }
 
@@ -379,7 +379,7 @@ void Track::setReflBwdFwd(bool fwd){
  * @return Boolean indicating whether reflective track in the forward
  *         direction is point in forward direction
  */
-bool Track::getReflFwdFwd(){
+bool Track::getReflFwdFwd() {
   return _refl_fwd_fwd;
 }
 
@@ -390,7 +390,7 @@ bool Track::getReflFwdFwd(){
  * @return Boolean indicating whether reflective track in the backward
  *         direction is point in forward direction
  */
-bool Track::getReflBwdFwd(){
+bool Track::getReflBwdFwd() {
   return _refl_bwd_fwd;
 }
 

@@ -504,7 +504,7 @@ void Solver::initializeExpEvaluator() {
   _exp_evaluator->setSolve3D(_solve_3D);
   _exp_evaluator->setQuadrature(_quad);
 
-  if (_exp_evaluator->isUsingInterpolation()){
+  if (_exp_evaluator->isUsingInterpolation()) {
 
     /* Find minimum of optional user-specified and actual max taus */
     FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
@@ -598,7 +598,7 @@ void Solver::initializeCmfd() {
   log_printf(INFO, "Initializing CMFD...");
 
   /* If 2D Solve, set CMFD z-direction mesh size to 1 and depth to 1.0 */
-  if (!_solve_3D){
+  if (!_solve_3D) {
     _cmfd->setNumZ(1);
     _cmfd->setDepth(1.0);
     _cmfd->setBoundary(SURFACE_Z_MIN, REFLECTIVE);

@@ -200,7 +200,7 @@ std::string Track3D::toString() {
  * @param z1 the z-coordinate at the ending point
  */
 void Track3D::setCoords(double x0, double y0, double z0,
-                        double x1, double y1, double z1){
+                        double x1, double y1, double z1) {
   _start.setCoords(x0, y0, z0);
   _end.setCoords(x1, y1, z1);
 }
