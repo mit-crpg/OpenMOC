@@ -235,7 +235,7 @@ void PolarQuad::setWeights(double* weights, int num_polar) {
   for (int p=0; p < _num_polar; p++) {
     _weights[p] = FP_PRECISION(weights[p]);
     tot_weight += _weights[p];
-  }  
+  }
 
   /* Check that weights sum to 1 (half of the symmetric polar domain) */
   if (fabs(tot_weight - 1.0) > POLAR_WEIGHT_SUM_TOL)
@@ -282,7 +282,7 @@ void PolarQuad::precomputeMultiples() {
 /**
  * @brief Converts this Quadrature to a character array of its attributes.
  * @details The character array includes the number of polar angles, the
- *          the values of the sine and weight of each polar angle, and the 
+ *          the values of the sine and weight of each polar angle, and the
  *          product of the sine and weight of each polar angle.
  * @return a character array of the PolarQuad's attributes
  */

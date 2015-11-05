@@ -4,7 +4,7 @@
 
 /* A Cell owns the memory for each Surface it contains */
 %pythonappend Cell::addSurface %{
-  # SWIG 3 
+  # SWIG 3
   if 'surface'in locals():
     surface = locals()['surface']
   elif 'args' in locals() and 'surface' in locals()['args']:

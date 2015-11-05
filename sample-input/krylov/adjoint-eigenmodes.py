@@ -45,7 +45,7 @@ iram_solver.computeEigenmodes(num_modes=num_modes, solver_mode=openmoc.ADJOINT)
 # Report the adjoint eigenvalues to the user
 eigenvalues = iram_solver._eigenvalues
 openmoc.log.py_printf('RESULT', 'Adjoint eigenvalues: %s', str(eigenvalues))
-        
+
 
 ###############################################################################
 #                             Generating Plots

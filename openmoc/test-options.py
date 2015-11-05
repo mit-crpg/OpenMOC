@@ -8,7 +8,7 @@ import nose
 from options import *
 
 class TestDefaultInit(unittest.TestCase):
-    
+
     # creates a new Options() every test... can it just be done once?
 
     def setUp(self):
@@ -64,9 +64,9 @@ class TestCustomInit(unittest.TestCase):
                                   'relax-factor=',
                                   'cmfd-acceleration',
                                   'mesh-level='])
-    
+
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestDefaultInit)
 #suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCustomInit))
 
-unittest.TextTestRunner(verbosity=2).run(suite)        
+unittest.TextTestRunner(verbosity=2).run(suite)

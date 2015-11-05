@@ -141,7 +141,7 @@ private:
 
   /** The number of Lattice cells along the z-axis */
   int _num_z;
-  
+
   /** The width of each Lattice cell (cm) along the x-axis */
   double _width_x;
 
@@ -150,7 +150,7 @@ private:
 
   /** The width of each Lattice cell (cm) along the z-axis */
   double _width_z;
-  
+
   /** The coordinates of the offset for the Universe */
   Point _offset;
 
@@ -235,11 +235,10 @@ struct second_t {
  * @param map a std::map iterator
  * @return the second element in the iterator (e.g., map value)
  */
-template<typename tMap> 
+template<typename tMap>
 second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
 
 
 #endif /* UNIVERSE_H_ */
-

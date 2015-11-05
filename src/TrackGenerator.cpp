@@ -254,7 +254,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   segment* curr_segment;
   FP_PRECISION volume;
 
-  /* Calculate each FSR's "volume" by accumulating the total length of * 
+  /* Calculate each FSR's "volume" by accumulating the total length of *
    * all Track segments multipled by the Track "widths" for each FSR.  */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -292,7 +292,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
   segment* curr_segment;
   FP_PRECISION volume;
 
-  /* Calculate the FSR's "volume" by accumulating the total length of * 
+  /* Calculate the FSR's "volume" by accumulating the total length of *
    * all Track segments multipled by the Track "widths" for the FSR.  */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -522,11 +522,11 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int length_coords) {
 
         x1 = x0 + cos(phi) * curr_segment->_length;
         y1 = y0 + sin(phi) * curr_segment->_length;
-        
+
         coords[counter+4] = x1;
         coords[counter+5] = y1;
         coords[counter+6] = z;
-        
+
         x0 = x1;
         y0 = y1;
 
@@ -816,7 +816,7 @@ void TrackGenerator::recalibrateTracksToOrigin() {
       /* The z-coordinates don't need to be recalibrated to the origin. */
       double z0 = _tracks[a][i].getStart()->getZ();
       double z1 = _tracks[a][i].getEnd()->getZ();
-      
+
       _tracks[a][i].setValues(new_x0, new_y0, z0, new_x1, new_y1, z1, phi);
       _tracks[a][i].setAzimAngleIndex(a);
     }
@@ -1065,7 +1065,7 @@ void TrackGenerator::computeEndPoint(Point* start, Point* end,
   double xin = start->getX();                 /* x-coord */
   double yin = start->getY();                 /* y-coord */
   double zin = start->getZ();                 /* z-coord */
-  
+
   /* Allocate memory for the possible intersection points */
   Point *points = new Point[4];
 
@@ -1118,7 +1118,7 @@ void TrackGenerator::initializeBoundaryConditions() {
                " set to PERIODIC");
   Track* track;
   int ic;
-  
+
   /* Loop over the all the tracks and set the incoming and outgoing tracks
    * and incoming and outgoing boundary conditions. */
   for (int i=0; i < _num_azim; i++) {
@@ -1127,7 +1127,7 @@ void TrackGenerator::initializeBoundaryConditions() {
 
       /* Get current track */
       track = &_tracks[i][j];
-      
+
       /* Set boundary conditions for tracks in [0, PI/2] */
       if (i < _num_azim/2) {
         if (j < _num_y[i])
@@ -1222,7 +1222,7 @@ void TrackGenerator::segmentize() {
   }
 
   _geometry->initializeFSRVectors();
-  
+
   _contains_tracks = true;
 
   return;
@@ -1343,7 +1343,7 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map = 
+  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map =
       _geometry->getFSRKeysMap();
   std::vector<std::string>* FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
@@ -1488,7 +1488,7 @@ bool TrackGenerator::readTracksFromFile() {
     _azim_weights[i] = azim_weights[i];
 
   delete [] azim_weights;
-  
+
   Track* curr_track;
   double x0, y0, z0, x1, y1, z1;
   double phi;
@@ -1665,7 +1665,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
   /* Compute the current volume approximation for the flat source region */
   FP_PRECISION curr_volume = getFSRVolume(fsr_id);
 
-  log_printf(INFO, "Correcting FSR %d volume from %f to %f", 
+  log_printf(INFO, "Correcting FSR %d volume from %f to %f",
              fsr_id, curr_volume, fsr_volume);
 
   int num_segments, azim_index;
@@ -1763,7 +1763,7 @@ void TrackGenerator::generateFSRCentroids() {
                              (y + sin(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
         centroids[fsr]->setZ(z);
-        
+
         x += cos(phi) * curr_segment->_length;
         y += sin(phi) * curr_segment->_length;
       }
@@ -1813,7 +1813,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
         material = curr_segment->_material;
         length = curr_segment->_length;
         fsr_id = curr_segment->_region_id;
-        
+
         /* Compute number of segments to split this segment into */
         min_num_cuts = 1;
         num_groups = material->getNumEnergyGroups();

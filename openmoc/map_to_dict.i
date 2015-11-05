@@ -51,7 +51,7 @@
 
 
 /* Typemap for all methods which return a std::map<int, Material*>.
- * This includes the Geometry::getAllMaterials() method, which is useful 
+ * This includes the Geometry::getAllMaterials() method, which is useful
  * for OpenCG compatibility. */
 %clear std::map<int, Material*>;
 %typemap(out) std::map<int, Material*> {
@@ -118,7 +118,7 @@
 
     /* Get the 2D list of universes in the k-th xy-plane */
     PyObject* outer_outer_list = PyList_GetItem($input,k);
-    
+
     /* Loop over y */
     for (int j = 0; j < $2; j++) {
 
@@ -134,7 +134,7 @@
                         " method");
         return NULL;
       }
-      
+
       /* Loop over universes in j-th row of the k-th xy-plane */
       for (int i =0; i < $3; i++) {
         /* Extract the value from the list at this location and convert

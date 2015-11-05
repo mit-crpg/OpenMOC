@@ -1,4 +1,4 @@
-%define DOCSTRING 
+%define DOCSTRING
 "A method of characteristics code for nuclear reactor physics calculations."
 %enddef
 

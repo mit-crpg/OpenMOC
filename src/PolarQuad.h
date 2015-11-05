@@ -2,7 +2,7 @@
  * @file PolarQuad.h
  * @brief The PolarQuad abstract class and subclasses.
  * @details The PolarQuad subclasses are defined with tabulated or functional
- *          quadrature sets given in the "Lattice Physics Computations", 
+ *          quadrature sets given in the "Lattice Physics Computations",
  *          Handbook of Nuclear Engineering, Dave Knott, Akio Yamamoto, 2010.
  * @date April 6, 2015
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
@@ -87,7 +87,7 @@ public:
  * @class LeonardPolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief Leonard's polar quadrature.
  */
-class LeonardPolarQuad: public PolarQuad { 
+class LeonardPolarQuad: public PolarQuad {
 
 private:
 
@@ -103,7 +103,7 @@ public:
  * @class GLPolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief Gauss-Legendre's polar quadrature.
  */
-class GLPolarQuad: public PolarQuad { 
+class GLPolarQuad: public PolarQuad {
 
 private:
 
@@ -119,7 +119,7 @@ public:
  * @class EqualWeightPolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief Equal weight polar quadrature.
  */
-class EqualWeightPolarQuad: public PolarQuad { 
+class EqualWeightPolarQuad: public PolarQuad {
 
 private:
 
@@ -135,7 +135,7 @@ public:
  * @class EqualAnglePolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief Equal angle polar quadrature.
  */
-class EqualAnglePolarQuad: public PolarQuad { 
+class EqualAnglePolarQuad: public PolarQuad {
 
 private:
 

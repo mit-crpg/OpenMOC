@@ -66,7 +66,7 @@ private:
   /** The third index of the Lattice cell within which this LocalCoords
    *  resides */
   int _lattice_z;
-  
+
   /** A Point representing the 3D coordinates of this LocalCoords */
   Point _coords;
 
