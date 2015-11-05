@@ -51,7 +51,7 @@ private:
 
   /** The maximum acceptable approximation error for exponentials */
   FP_PRECISION _exp_precision;
-  
+
 public:
 
   ExpEvaluator();

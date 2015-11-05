@@ -6,26 +6,26 @@ OpenMOC
     :target: https://mit-crpg.github.io/OpenMOC/
 .. image:: https://img.shields.io/badge/pypi-v0.1.4b-orange.svg
     :target: https://pypi.python.org/pypi/openmoc/0.1.4b
-.. image:: https://img.shields.io/badge/license-MIT%20License-brightgreen.svg    
+.. image:: https://img.shields.io/badge/license-MIT%20License-brightgreen.svg
     :target: https://mit-crpg.github.io/OpenMOC/license.html
 .. image:: https://img.shields.io/badge/anucene-Elsevier-lightgray.svg
     :target: http://www.sciencedirect.com/science/article/pii/S0306454913006634
 
-Welcome to the OpenMOC repository! OpenMOC is a simulation tool for 
-solving for the flux, power distribution, and multiplication factor 
-within a nuclear reactor. The code employs the deterministic method 
-of characteristics, with support for both fixed source and eigenvalue 
-calculations. The OpenMOC project aims to provide a simple-to-use 
-Python package bound to a back-end of source code written in C/C++ 
-and CUDA. It includes support for constructive solid geometry and 2D 
-ray tracing for fully heterogeneous multi-group calculations. 
-Development of OpenMOC began at MIT in 2012 and is spearheaded by 
-several graduate students in the 
+Welcome to the OpenMOC repository! OpenMOC is a simulation tool for
+solving for the flux, power distribution, and multiplication factor
+within a nuclear reactor. The code employs the deterministic method
+of characteristics, with support for both fixed source and eigenvalue
+calculations. The OpenMOC project aims to provide a simple-to-use
+Python package bound to a back-end of source code written in C/C++
+and CUDA. It includes support for constructive solid geometry and 2D
+ray tracing for fully heterogeneous multi-group calculations.
+Development of OpenMOC began at MIT in 2012 and is spearheaded by
+several graduate students in the
 `Nuclear Science & Engineering Department`_.
 
-Complete documentation on OpenMOC is hosted at 
-https://mit-crpg.github.io/OpenMOC/. If you would like to 
-contribute to the OpenMOC project, please `contact`_ the 
+Complete documentation on OpenMOC is hosted at
+https://mit-crpg.github.io/OpenMOC/. If you would like to
+contribute to the OpenMOC project, please `contact`_ the
 development team.
 
 For a guided example, see a demonstration `IPython Notebook`_.
@@ -34,7 +34,7 @@ For a guided example, see a demonstration `IPython Notebook`_.
 Installation
 ------------
 
-Detailed `installation instructions`_ can be found in the 
+Detailed `installation instructions`_ can be found in the
 User's Guide.
 
 ---------------

@@ -64,4 +64,3 @@ openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2])
 openmoc.plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 
 openmoc.log.py_printf('TITLE', 'Finished')
-

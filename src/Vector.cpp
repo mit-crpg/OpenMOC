@@ -5,7 +5,7 @@
  *        and sets the vector dimensions.
  * @detail The vector is ordered by cell (as opposed to by group) on the
  *         outside to be consistent with the Matrix object. Locks are used to
- *         make the vector object thread-safe against concurrent writes the 
+ *         make the vector object thread-safe against concurrent writes the
  *          same value. One lock locks out multiple rows of
  *         the vector at a time representing multiple groups in the same cell.
  * @param num_x The number of cells in the x direction.
@@ -16,14 +16,14 @@ Vector::Vector(int num_x, int num_y, int num_groups) {
 
   setNumX(num_x);
   setNumY(num_y);
-  setNumGroups(num_groups);  
+  setNumGroups(num_groups);
   _num_rows = _num_x*_num_y*_num_groups;
 
   /* Initialize array and set all to 0.0 */
   _array = new FP_PRECISION[_num_rows];
   setAll(0.0);
 
-  /* Allocate memory for OpenMP locks for each Vector cell */ 
+  /* Allocate memory for OpenMP locks for each Vector cell */
   _cell_locks = new omp_lock_t[_num_x*_num_y];
 
   /* Loop over all Vector cells to initialize OpenMP locks */
@@ -42,7 +42,7 @@ Vector::~Vector() {
     delete [] _array;
 
   if (_cell_locks != NULL)
-    delete [] _cell_locks;  
+    delete [] _cell_locks;
 }
 
 
@@ -162,7 +162,7 @@ void Vector::copyTo(Vector* vector) {
 
 
 /**
- * @brief Get a value at location described by a given cell and 
+ * @brief Get a value at location described by a given cell and
  *        group index.
  * @param cell The cell location index.
  * @param group The group location index.

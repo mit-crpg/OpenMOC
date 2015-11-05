@@ -172,16 +172,16 @@ void Surface::addNeighborCell(int halfspace, Cell* cell) {
   /* Update Cells with the neighbor Cells on the opposite Surface halfspace */
   std::vector<Cell*>::iterator iter1;
   std::vector<Cell*>::iterator iter2;
-  for (iter1 = _neighbors[-1]->begin(); 
+  for (iter1 = _neighbors[-1]->begin();
        iter1 != _neighbors[-1]->end(); ++iter1) {
-    for (iter2 = _neighbors[1]->begin(); 
+    for (iter2 = _neighbors[1]->begin();
          iter2 != _neighbors[1]->end(); ++iter2)
       (*iter1)->addNeighborCell(*iter2);
   }
 
-  for (iter1 = _neighbors[1]->begin(); 
+  for (iter1 = _neighbors[1]->begin();
        iter1 != _neighbors[1]->end(); ++iter1) {
-    for (iter2 = _neighbors[-1]->begin(); 
+    for (iter2 = _neighbors[-1]->begin();
          iter2 != _neighbors[-1]->end(); ++iter2)
       (*iter1)->addNeighborCell(*iter2);
   }
@@ -376,7 +376,7 @@ inline int Plane::intersection(Point* point, double angle, Point* points) {
     if (l > 0.0) {
       points[num].setCoords(xcurr, ycurr, zcurr);
       num++;
-    }    
+    }
   }
 
   return num;

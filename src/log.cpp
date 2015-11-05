@@ -80,7 +80,7 @@ static omp_lock_t log_error_lock;
  * @brief Initializes the logger for use.
  * @details This should be immediately called when the logger is imported
  *          into Python and before any of its other routines are called. The
- *          routine initializes an OpenMP mutual exclusion lock which is used 
+ *          routine initializes an OpenMP mutual exclusion lock which is used
  *          to preclude race conditions from occurring when an ERROR message
  *          is reported and program execution is terminated.
  */
@@ -481,7 +481,7 @@ void log_printf(logLevel level, const char* format, ...) {
       }
       omp_unset_lock(&log_error_lock);
     }
-    else 
+    else
       printf("%s", msg_string.c_str());
   }
 }

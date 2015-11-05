@@ -18,8 +18,8 @@ extern __constant__ int two_times_num_polar[1];
 
 
 /**
- * @brief Given a pointer to an ExpEvaluator on the host and a 
- *        GPUExpEvaluator on the GPU, copy all of the properties from 
+ * @brief Given a pointer to an ExpEvaluator on the host and a
+ *        GPUExpEvaluator on the GPU, copy all of the properties from
 *         the ExpEvaluator object on the host to the GPU.
  * @details This routine is called by the GPUSolver::initializeExpEvaluator()
  *          private class method and is not intended to be called directly.
@@ -54,9 +54,9 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
     FP_PRECISION* exp_table_d;
     cudaMalloc((void**)&exp_table_d, exp_table_size_h * sizeof(FP_PRECISION));
     cudaMemcpy((void*)exp_table_d, (void*)exp_table_h,
-               exp_table_size_h * sizeof(FP_PRECISION), 
+               exp_table_size_h * sizeof(FP_PRECISION),
                cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d, 
+    cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d,
                sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
   }
 
@@ -65,7 +65,7 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
 
 
 /**
- * @brief Computes the exponential term for a optical length and polar angle. 
+ * @brief Computes the exponential term for a optical length and polar angle.
  * @details This method computes \f$ 1 - exp(-\tau/sin(\theta_p)) \f$
  *          for some optical path length and polar angle. This method
  *          uses either a linear interpolation table (default) or the

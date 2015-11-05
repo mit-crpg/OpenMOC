@@ -3,7 +3,7 @@ import numpy
 
 
 ###############################################################################
-# This file writes all of the materials data (multi-group nuclear 
+# This file writes all of the materials data (multi-group nuclear
 # cross-sections) for the LRA diffusion
 # benchmark problem to an HDF5 file. The script uses the h5py Python package
 # to interact with the HDF5 file format. This may be a good example for those

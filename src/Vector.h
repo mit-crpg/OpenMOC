@@ -41,7 +41,7 @@ private:
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumGroups(int num_groups);
-  
+
 public:
   Vector(int num_x=1, int num_y=1, int num_groups=1);
   virtual ~Vector();
@@ -49,10 +49,10 @@ public:
   /* Worker functions */
   void incrementValue(int cell, int group, FP_PRECISION val);
   void clear();
-  void scaleByValue(FP_PRECISION val);  
+  void scaleByValue(FP_PRECISION val);
   void printString();
   void copyTo(Vector* vector);
-  
+
   /* Getter functions */
   FP_PRECISION getValue(int cell, int group);
   FP_PRECISION* getArray();
@@ -61,7 +61,7 @@ public:
   int getNumGroups();
   int getNumRows();
   FP_PRECISION getSum();
-  
+
   /* Setter functions */
   void setValue(int cell, int group, FP_PRECISION val);
   void setAll(FP_PRECISION val);
