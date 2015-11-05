@@ -1062,21 +1062,18 @@ void TrackGenerator::initializeVolumes() {
     log_printf(ERROR, "Unable to initialize volumes since tracks "
                "have not yet been generated");
 
-  int num_FSRs = _geometry->getNumFSRs();
   Cell* cell;
   Material* material;
-
+  int num_FSRs = _geometry->getNumFSRs();
   FP_PRECISION* fsr_volumes = getFSRVolumes();
 
   /* Compute volume and number of instances for each Cell and Material */
   for (int i=0; i < num_FSRs; i++) {
     cell = _geometry->findCellContainingFSR(i);
-    //    cell->setVolume(cell->getVolume() + getFSRVolume(i));
     cell->setVolume(cell->getVolume() + fsr_volumes[i]);
     cell->setNumInstances(cell->getNumInstances() + 1);
 
     material = cell->getFillMaterial();
-    //    material->setVolume(material->getVolume() + getFSRVolume(i));
     material->setVolume(material->getVolume() + fsr_volumes[i]);
     material->setNumInstances(material->getNumInstances() + 1);
   }
