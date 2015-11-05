@@ -51,9 +51,9 @@ private:
 
   /** The maximum acceptable approximation error for exponentials */
   FP_PRECISION _exp_precision;
-  
+
   bool _solve_3D;
-  
+
 public:
 
   ExpEvaluator();
@@ -73,7 +73,7 @@ public:
   int getTableSize();
   FP_PRECISION* getExpTable();
   bool isSolve3D();
-  
+
   void initialize();
   FP_PRECISION computeExponential(FP_PRECISION tau, int azim, int polar);
 };

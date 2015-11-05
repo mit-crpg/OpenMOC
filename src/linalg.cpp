@@ -177,22 +177,22 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                cy++) {
             for (int cx = (oct % 4 % 2) * num_x/2; cx < (oct % 4 % 2 + 1) * num_x/2;
                  cx++) {
-              
+
               /* check for correct color */
               if (((cx % 2)+(cy % 2)+(cz % 2)) % 2 == color) {
-                
+
                 for (int g = 0; g < num_groups; g++) {
-                  
+
                   row = ((cz*num_y + cy)*num_x + cx)*num_groups + g;
-                  
+
                   /* Over-relax the x array */
                   x[row] = (1.0 - SOR_factor) * x[row];
-                  
+
                   for (int i = IA[row]; i < IA[row+1]; i++) {
-                    
+
                     /* Get the column index */
                     col = JA[i];
-                    
+
                     if (row == col)
                       x[row] += SOR_factor * b[row] / DIAG[row];
                     else

@@ -35,10 +35,10 @@ struct fsr_data {
 
   /** The FSR ID */
   int _fsr_id;
- 
+
   /** The CMFD Cell */
   int _cmfd_cell;
-  
+
   /** The Material ID */
   int _mat_id;
 
@@ -75,14 +75,14 @@ class Geometry {
 private:
 
   bool _solve_3D;
-  
+
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _x_min_bc;
 
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _x_max_bc;  
+  boundaryType _x_max_bc;
 
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
@@ -90,8 +90,8 @@ private:
 
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _y_max_bc;  
-  
+  boundaryType _y_max_bc;
+
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _z_min_bc;
@@ -99,7 +99,7 @@ private:
   /** The boundary conditions at the top of the bounding box containing
    *  the Geometry. False is for vacuum and true is for reflective BCs. */
   boundaryType _z_max_bc;
-  
+
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
 
@@ -172,7 +172,7 @@ public:
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
   Cell* findCellContainingFSR(int fsr_id);
-  
+
   /* Other worker methods */
   void subdivideCells();
   void initializeFlatSourceRegions();
@@ -180,7 +180,7 @@ public:
   void segmentize3D(Track3D* track);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
-  
+
   std::string toString();
   void printString();
   void initializeCmfd();

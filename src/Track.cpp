@@ -12,7 +12,7 @@ Track::Track() {
   _track_prdc_fwd = NULL;
   _track_prdc_bwd = NULL;
 
-  /* Initialize booleans indicating whether the reflective tracks in the 
+  /* Initialize booleans indicating whether the reflective tracks in the
    * forward and backward direction point enter the track in the forward
    * direction */
   _refl_fwd_fwd = true;
@@ -163,7 +163,7 @@ void Track::removeSegment(int index) {
   }
   catch (std::exception &e) {
     log_printf(NORMAL, "Unable to remove a segment from Track");
-  }  
+  }
 }
 
 
@@ -181,7 +181,7 @@ void Track::insertSegment(int index, segment* segment) {
   }
   catch (std::exception &e) {
     log_printf(NORMAL, "Unable to insert a segment into Track");
-  }  
+  }
 }
 
 
@@ -228,7 +228,7 @@ void Track::setTrackReflFwd(Track* track) {
                "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
                track->getEnd()->getX(), track->getEnd()->getY(),
                track->getEnd()->getZ());
-    
+
   _track_refl_fwd = track;
 }
 
@@ -249,7 +249,7 @@ void Track::setTrackPrdcFwd(Track* track) {
                "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
                track->getStart()->getX(), track->getStart()->getY(),
                track->getStart()->getZ());
-  
+
   _track_prdc_fwd = track;
 }
 
@@ -271,7 +271,7 @@ void Track::setTrackReflBwd(Track* track) {
                "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
                _start.getZ(), track->getEnd()->getX(),
                track->getEnd()->getY(), track->getEnd()->getZ());
-  
+
   _track_refl_bwd = track;
 }
 
@@ -423,7 +423,7 @@ void Track::setPeriodicCycleId(int id) {
 /**
  * @brief Set this Track's periodic track index.
  * @detail Tracks are arranged in periodic cycles. The example below shows a
- *         periodic cycle and the corresponding periodic track indices for a 
+ *         periodic cycle and the corresponding periodic track indices for a
  *         sample geometry:
  *
  *                 __________
@@ -437,7 +437,7 @@ void Track::setPeriodicCycleId(int id) {
  *                |       /  |
  *                |      /   |
  *                |_____/____|
- *                     (0) 
+ *                     (0)
  *
  * @param id The periodic track index
  */
@@ -445,7 +445,7 @@ void Track::setPeriodicTrackIndex(int index) {
   _periodic_track_index = index;
 }
 
- 
+
 /**
  * @brief Get this Track's periodic cycle id.
  * @return The periodic cycle id
@@ -488,7 +488,7 @@ void Track::setReflectiveCycleId(int id) {
   _reflective_cycle_id = id;
 }
 
- 
+
 /**
  * @brief Get this Track's reflective cycle id.
  * @return The reflective cycle id

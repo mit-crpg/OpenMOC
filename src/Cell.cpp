@@ -50,7 +50,7 @@ Cell::Cell(int id, const char* name) {
 
   _num_rings = 0;
   _num_sectors = 0;
-  
+
   _name = NULL;
   setName(name);
 
@@ -586,9 +586,9 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param point the Point of interest
- * @param azim the azimuthal angle of the trajectory 
+ * @param azim the azimuthal angle of the trajectory
  *        (in radians from \f$[0,2\pi]\f$)
- * @param polar the polar angle of the trajectory 
+ * @param polar the polar angle of the trajectory
  *        (in radians from \f$[0,\pi]\f$)
  * @param min_intersection a pointer to the intersection Point that is found
  */
@@ -606,7 +606,7 @@ double Cell::minSurfaceDist(Point* point, double azim, double polar) {
     curr_dist = iter->second._surface->getMinDistance(point, azim, polar);
 
     /* If the distance to Cell is less than current min distance, update */
-    if (curr_dist < min_dist) 
+    if (curr_dist < min_dist)
       min_dist = curr_dist;
   }
 

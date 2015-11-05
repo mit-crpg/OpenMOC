@@ -6,7 +6,7 @@
  * @details The constructor sets the interpolation scheme as the default
  *          for computing exponentials.
  */
-ExpEvaluator::ExpEvaluator() { 
+ExpEvaluator::ExpEvaluator() {
   _interpolate = true;
   _exp_table = NULL;
   _quadrature = NULL;
@@ -17,7 +17,7 @@ ExpEvaluator::ExpEvaluator() {
 
 
 /**
- * @brief Destructor deletes table for linear interpolation of exponentials 
+ * @brief Destructor deletes table for linear interpolation of exponentials
  */
 ExpEvaluator::~ExpEvaluator() {
   if (_exp_table != NULL)
@@ -44,7 +44,7 @@ void ExpEvaluator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
 
   if (max_optical_length <= 0)
     log_printf(ERROR, "Cannot set max optical length to %f because it "
-               "must be positive.", max_optical_length); 
+               "must be positive.", max_optical_length);
 
   _max_optical_length = max_optical_length;
 }
@@ -62,7 +62,7 @@ void ExpEvaluator::setExpPrecision(FP_PRECISION exp_precision) {
 
   if (exp_precision <= 0)
     log_printf(ERROR, "Cannot set exp precision to %f because it "
-               "must be positive.", exp_precision); 
+               "must be positive.", exp_precision);
 
   _exp_precision = exp_precision;
 }
@@ -90,7 +90,7 @@ void ExpEvaluator::useIntrinsic() {
 
 
 /**
- * @brief Gets the maximum optical length covered with the exponential 
+ * @brief Gets the maximum optical length covered with the exponential
  *        interpolation table.
  * @return max_optical_length the maximum optical length
  */
@@ -196,12 +196,12 @@ void ExpEvaluator::initialize() {
   if (_solve_3D) {
     _table_size = num_array_values * 2;
     _exp_table = new FP_PRECISION[_table_size];
-    
+
     FP_PRECISION expon;
     FP_PRECISION intercept;
     FP_PRECISION slope;
     FP_PRECISION sin_theta;
-    
+
     /* Create exponential linear interpolation table */
     for (int i=0; i < num_array_values; i++) {
       expon = exp(- (i * exp_table_spacing));
@@ -214,12 +214,12 @@ void ExpEvaluator::initialize() {
   else{
     _table_size = _num_polar * num_array_values;
     _exp_table = new FP_PRECISION[_table_size];
-    
+
     FP_PRECISION expon;
     FP_PRECISION intercept;
     FP_PRECISION slope;
     FP_PRECISION sin_theta;
-    
+
     /* Create exponential linear interpolation table */
     for (int i=0; i < num_array_values; i++) {
       for (int p=0; p < _num_polar/2; p++) {
@@ -236,7 +236,7 @@ void ExpEvaluator::initialize() {
 
 
 /**
- * @brief Computes the exponential term for a optical length and polar angle. 
+ * @brief Computes the exponential term for a optical length and polar angle.
  * @details This method computes \f$ 1 - exp(-\tau/sin(\theta_p)) \f$
  *          for some optical path length and polar angle. This method
  *          uses either a linear interpolation table (default) or the

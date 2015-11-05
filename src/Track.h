@@ -55,7 +55,7 @@ struct segment {
 class Track {
 
 protected:
-  
+
   /** A monotonically increasing unique ID for each Track created */
   int _uid;
 
@@ -70,7 +70,7 @@ protected:
 
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
-  
+
   /** An enum to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions or sent to a periodic or reflective track. */
@@ -87,8 +87,8 @@ protected:
   int _periodic_cycle_id;
   int _reflective_cycle_id;
   int _periodic_track_index;
-  
-  /** Pointers to reflective and periodic Tracks in the forward and reverse 
+
+  /** Pointers to reflective and periodic Tracks in the forward and reverse
    *  directions */
   Track* _track_refl_fwd;
   Track* _track_refl_bwd;
@@ -96,11 +96,11 @@ protected:
   Track* _track_prdc_bwd;
 
   /** Booleans to indicate wheter the reflective Tracks in the forward and
-   *  and backward direction enter into Tracks pointed in the forward 
+   *  and backward direction enter into Tracks pointed in the forward
    *  direction. */
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
-  
+
 public:
   Track();
   virtual ~Track();
@@ -121,7 +121,7 @@ public:
   void setPeriodicCycleId(int id);
   void setReflectiveCycleId(int id);
   void setPeriodicTrackIndex(int index);
-  
+
   /* Getter methods */
   int getUid();
   Point* getEnd();
@@ -144,7 +144,7 @@ public:
   segment* getSegments();
   int getNumSegments();
   int getPeriodicTrackIndex();
-  
+
   /* Worker methods */
   void addSegment(segment* segment);
   void removeSegment(int index);

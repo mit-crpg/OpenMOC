@@ -25,7 +25,7 @@ private:
 
   /** The Point's xyz coordinates */
   double* _xyz;
-  
+
 public:
   Point();
   virtual ~Point();

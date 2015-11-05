@@ -94,7 +94,7 @@ class configuration:
   # List of the possible packages to install based on runtime options
   packages = ['openmoc', 'openmoc.cuda']
 
-  
+
   #############################################################################
   #                                 Source Code
   #############################################################################
@@ -147,7 +147,7 @@ class configuration:
                       'src/TrackGenerator.cpp',
                       'src/Universe.cpp',
                       'src/Cmfd.cpp']
-  
+
   sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                      'src/Cell.cpp',
                      'src/Geometry.cpp',
@@ -205,20 +205,20 @@ class configuration:
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
-  compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11', 
+  compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
                              '-fopenmp', '-fvectorize', '-fpic',
                              '-Qunused-arguments',
                              '-Wno-deprecated-register',
                              '-Wno-parentheses-equality']
-  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip', 
-                           '-openmp', '-xhost', '-std=c++11', 
+  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip',
+                           '-openmp', '-xhost', '-std=c++11',
                            '--ccache-skip', '-fpic',
                            '-openmp-report', '-vec-report']
   compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport',
                              '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
                              '-qsmp=omp', '-qpic']
   compiler_flags['nvcc'] =  ['--relocatable-device-code', 'true',
-                             '-c', '-O3',  '-std=c++11', 
+                             '-c', '-O3',  '-std=c++11',
                              '--compiler-options', '-fpic',
                              '-gencode=arch=compute_20,code=sm_20',
                              '-gencode=arch=compute_30,code=sm_30']

@@ -66,13 +66,13 @@ private:
   /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;
 
-  /** An array of the # of 3D tracks in each train train 
+  /** An array of the # of 3D tracks in each train train
    *  (azim, cycle, polar, lz track) */
   int**** _tracks_per_train;
-  
+
   /** An array of the cycle length of each cycle for each azimuthal angle */
   double* _cycle_length;
-  
+
   /** The total number of Tracks for all azimuthal and polar angles */
   int _num_2D_tracks;
   int _num_3D_tracks;
@@ -86,7 +86,7 @@ private:
 
   /** Boolen to indicate whether a periodic BC exists */
   bool _periodic;
-  
+
   /** An integer array of the number of Tracks starting on each axis */
   int* _num_x;
   int* _num_y;
@@ -111,7 +111,7 @@ private:
 
   /** An array of track pointers used in the Solver */
   Track** _tracks;
-  
+
   /** Pointer to the Geometry */
   Geometry* _geometry;
 
@@ -123,7 +123,7 @@ private:
 
   /** The z level where the 3D tracks should be generated */
   double _z_level;
-  
+
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
@@ -155,7 +155,7 @@ private:
   double findTrackEndPoint(Track2D* track, double phi, int azim_index);
   double convertLtoX(double l, int azim, int cycle);
   double convertLtoY(double l, int azim, int cycle);
-  
+
 public:
 
   TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
@@ -203,7 +203,7 @@ public:
   int getTrackGenerationMethod();
   Track* getTrack2DByCycle(int azim, int cycle, int track_index);
   bool getCycleDirection(int azim, int cycle, int track_index);
-  
+
   /* Set parameters */
   void setNumThreads(int num_threads);
   void setNumAzim(int num_azim);

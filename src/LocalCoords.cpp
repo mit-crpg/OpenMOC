@@ -445,7 +445,7 @@ std::string LocalCoords::toString() {
     else if (curr->getType() == LAT) {
       string << " LATTICE, x = " << curr->getX()
              << ", y = " << curr->getY()
-             << ", z = " << curr->getZ()        
+             << ", z = " << curr->getZ()
              << ", universe = " << curr->getUniverse()->getId()
              << ", lattice = " << curr->getLattice()->getId()
              << ", lattice_x = " << curr->getLatticeX()
