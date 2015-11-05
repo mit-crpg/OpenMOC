@@ -47,7 +47,7 @@ solver.setNumThreads(num_threads)
 #                 Eigenvalue Calculation w/o SPH Factors
 ###############################################################################
 
-# Run an eigennvalue calulation with the MGXS from OpenMC
+# Run an eigenvalue calulation with the MGXS from OpenMC
 solver.computeEigenvalue()
 solver.printTimerReport()
 keff_no_sph = solver.getKeff()
