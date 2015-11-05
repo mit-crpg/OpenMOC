@@ -126,9 +126,11 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                 cell = _get_domain(domains, domain_spec)
                 material = cell.getFillMaterial()
 
-                # If the user filled the Cell with a Material, clone it
+                # If the user filled multiple Cells with the same Material,
+                # the Material must be cloned for each unique Cell
                 if material != None:
-                    material = material.clone()
+                    if len(domains) > geometry.getNumMaterials():
+                        material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
                 else:
@@ -271,15 +273,15 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                 cell = _get_domain(domains, domain.id)
                 material = cell.getFillMaterial()
 
-                # If the user filled the Cell with a Material, clone it
+                # If the user filled multiple Cells with the same Material,
+                # the Material must be cloned for each unique Cell
                 if material != None:
-                    # FIXME!!!
-#                    material = material.clone()
-                    material = material
+                    if len(domains) > geometry.getNumMaterials():
+                        material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
                 else:
-                    material = openmoc.Material(id=domain)
+                    material = openmoc.Material(id=domain.id)
 
                 # Fill the Cell with the new Material
                 cell.setFill(material)
@@ -438,7 +440,6 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
     for fsr in range(num_fsrs):
         cell = geometry.findCellContainingFSR(fsr)
 
-        # FIXME: Will this work with material cloning later??
         if mgxs_lib.domain_type == 'material':
             fsrs_to_domains[fsr] = cell.getFillMaterial().getId()
         else:

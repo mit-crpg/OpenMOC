@@ -1066,16 +1066,22 @@ void TrackGenerator::initializeVolumes() {
   Cell* cell;
   Material* material;
 
+  FP_PRECISION* fsr_volumes = getFSRVolumes();
+
   /* Compute volume and number of instances for each Cell and Material */
   for (int i=0; i < num_FSRs; i++) {
     cell = _geometry->findCellContainingFSR(i);
-    cell->setVolume(cell->getVolume() + getFSRVolume(i));
+    //    cell->setVolume(cell->getVolume() + getFSRVolume(i));
+    cell->setVolume(cell->getVolume() + fsr_volumes[i]);
     cell->setNumInstances(cell->getNumInstances() + 1);
 
     material = cell->getFillMaterial();
-    material->setVolume(material->getVolume() + getFSRVolume(i));
+    //    material->setVolume(material->getVolume() + getFSRVolume(i));
+    material->setVolume(material->getVolume() + fsr_volumes[i]);
     material->setNumInstances(material->getNumInstances() + 1);
   }
+
+  delete [] fsr_volumes;
 
   /* Compute the average Cell volumes */
   std::map<int, Cell*> cells = _geometry->getAllMaterialCells();
