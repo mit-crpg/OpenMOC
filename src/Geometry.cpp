@@ -774,12 +774,12 @@ void Geometry::initializeFlatSourceRegions() {
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
  */
-void Geometry::segmentize2D(Track2D* track, double z_level) {
+void Geometry::segmentize2D(Track2D* track, double z_coord) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
-  double z0 = z_level;
+  double z0 = z_coord;
   double phi = track->getPhi();
   double delta_x, delta_y, delta_z;
 

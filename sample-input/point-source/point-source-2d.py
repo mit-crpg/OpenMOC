@@ -29,7 +29,7 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, \
                                  polar_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.setSolve2D()
-track_generator.setZLevel(1.e-5)
+track_generator.setZCoord(1.e-5)
 track_generator.generateTracks()
 
 

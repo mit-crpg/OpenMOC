@@ -121,8 +121,8 @@ private:
   /** Boolean for whether to solve 3D (true) or 2D (false) problem */
   bool _solve_3D;
 
-  /** The z level where the 3D tracks should be generated */
-  double _z_level;
+  /** The z coord where the 2D tracks should be generated */
+  double _z_coord;
 
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
@@ -198,7 +198,7 @@ public:
   FP_PRECISION get2DFSRVolume(int fsr_id);
   FP_PRECISION* get3DFSRVolumes();
   FP_PRECISION get3DFSRVolume(int fsr_id);
-  double getZLevel();
+  double getZCoord();
   Quadrature* getQuadrature();
   int getTrackGenerationMethod();
   Track* getTrack2DByCycle(int azim, int cycle, int track_index);
@@ -213,7 +213,7 @@ public:
   void setGeometry(Geometry* geometry);
   void setSolve2D();
   void setSolve3D();
-  void setZLevel(double z_level);
+  void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
   void setDumpSegments(bool dump_segments);

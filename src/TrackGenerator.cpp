@@ -23,7 +23,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _contains_3D_tracks = false;
   _contains_3D_segments = false;
   _quadrature = NULL;
-  _z_level = 0.0;
+  _z_coord = 0.0;
   _solve_3D = true;
   _track_generation_method = GLOBAL_TRACKING;
   _dump_segments = true;
@@ -571,8 +571,8 @@ FP_PRECISION TrackGenerator::get3DFSRVolume(int fsr_id) {
 }
 
 
-double TrackGenerator::getZLevel() {
-  return _z_level;
+double TrackGenerator::getZCoord() {
+  return _z_coord;
 }
 
 
@@ -710,8 +710,8 @@ void TrackGenerator::setSolve3D() {
 }
 
 
-void TrackGenerator::setZLevel(double z_level) {
-  _z_level = z_level;
+void TrackGenerator::setZCoord(double z_coord) {
+  _z_coord = z_coord;
 }
 
 
@@ -2813,7 +2813,7 @@ void TrackGenerator::segmentize2D() {
                double(tracks_segmented) / num_2D_tracks * 100.0);
     #pragma omp parallel for
     for (int i=0; i < getNumX(a) + getNumY(a); i++)
-      _geometry->segmentize2D(&_tracks_2D[a][i], _z_level);
+      _geometry->segmentize2D(&_tracks_2D[a][i], _z_coord);
 
     tracks_segmented += getNumX(a) + getNumY(a);
   }
@@ -3074,7 +3074,7 @@ void TrackGenerator::dump2DSegmentsToFile() {
   /* Write geometry metadata to the Track file */
   fwrite(&string_length, sizeof(int), 1, out);
   fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
-  fwrite(&_z_level, sizeof(double), 1, out);
+  fwrite(&_z_coord, sizeof(double), 1, out);
 
   Track2D* curr_track;
   int num_segments;
@@ -3372,18 +3372,18 @@ bool TrackGenerator::read2DSegmentsFromFile() {
   in = fopen(_tracks_filename.c_str(), "r");
 
   int string_length;
-  double z_level;
+  double z_coord;
 
   /* Import Geometry metadata from the Track file */
   ret = fread(&string_length, sizeof(int), 1, in);
   char* geometry_to_string = new char[string_length];
   ret = fread(geometry_to_string, sizeof(char)*string_length, 1, in);
-  ret = fread(&z_level, sizeof(double), 1, in);
+  ret = fread(&z_coord, sizeof(double), 1, in);
 
   /* Check if our Geometry is exactly the same as the Geometry in the
    * Track file for this number of azimuthal angles and track spacing */
   if (_geometry->toString().compare(std::string(geometry_to_string)) != 0 ||
-      _z_level != z_level)
+      _z_coord != z_coord)
     return false;
 
   delete [] geometry_to_string;
