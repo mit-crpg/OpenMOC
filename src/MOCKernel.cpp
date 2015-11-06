@@ -18,7 +18,6 @@ MOCKernel::~MOCKernel() {};
 
 /**
  * @brief Sets the location of segment data
- * @details Sets pointer for writing segment data
  * @param segments pointer to segment data
  */
 void MOCKernel::setSegments(segment* segments) {
@@ -36,7 +35,6 @@ void MOCKernel::resetCount() {
 
 /**
  * @brief Sets the location of buffer data
- * @details Sets pointer for writing floating point data
  * @param buffer pointer to buffer data
  */
 void MOCKernel::setBuffer(FP_PRECISION* buffer) {
@@ -53,8 +51,7 @@ void MOCKernel::setWeight(FP_PRECISION weight) {
 }
 
 /**
- * @brief Sets the maximum allowed optical path length
- * @details Sets the maximum allowed optical path length before segments are
+ * @brief Sets the maximum allowed optical path length before segments are
  *          split
  * @param max_tau maximum optical path length
  */
@@ -65,6 +62,9 @@ void MOCKernel::setMaxVal(FP_PRECISION max_tau) {
 
 /*
  * @brief Reads and returns the current count
+ * @details MOC kernels count how many times they are accessed. This value
+ *          returns the value of the counter since kernel creation or last
+ *          reset.
  * @return _count the counter value
  */
 int MOCKernel::getCount() {

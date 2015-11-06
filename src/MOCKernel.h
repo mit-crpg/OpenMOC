@@ -8,7 +8,7 @@
  * @brief An MOCKernel object specifies a functionality to apply to MOC
  *        segments.
  * @details An MOCKernel is an object that owns some specified data and
- *          contains an "execute" function which applys some functionality
+ *          contains an "execute" function which applies some functionality
  *          to the data. This is useful in MOC where it is very common to
  *          apply some function to segment data in either a nested loop
  *          structure or from on-the-fly calculations. Kernels specify the
@@ -65,7 +65,7 @@ public:
  * @details A CounterKernel inherets from MOCKernel and is a kernel which
  *          counts the number of segments in a track by incrementing the
  *          _count variable by the number of legitimate segment lengths
- *          (less than the max optical path length) in the input lenght.
+ *          (less than the max optical path length) in the input length.
  */
 class CounterKernel: public MOCKernel {
 public:

@@ -960,7 +960,6 @@ void CPUSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      FP_PRECISION old = _scalar_flux(r,e);
       _scalar_flux(r,e) *= 0.5;
       _scalar_flux(r,e) /= (sigma_t[e] * volume);
       _scalar_flux(r,e) += FOUR_PI * _reduced_sources(r,e);

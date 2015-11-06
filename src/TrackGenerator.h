@@ -137,7 +137,7 @@ private:
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
 
-  /** Max segment length for 3D tracks to be split during on-the-fly
+  /** Max optical segment length for 3D tracks to be split during on-the-fly
       computation */
   FP_PRECISION _max_optical_length;
 
