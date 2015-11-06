@@ -2,7 +2,7 @@
  * @file Quadrature.h
  * @brief The Quadrature abstract class and subclasses.
  * @details The Quadrature subclasses are defined with tabulated or functional
- *          quadrature sets given in the "Lattice Physics Computations", 
+ *          quadrature sets given in the "Lattice Physics Computations",
  *          Handbook of Nuclear Engineering, Dave Knott, Akio Yamamoto, 2010.
  * @date April 6, 2015
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
@@ -43,7 +43,7 @@ protected:
 
   /** The quadrature type being used */
   quadratureType _quad_type;
-  
+
   /** The number of azimuthal angles in (0, 2*PI) */
   int _num_azim;
 
@@ -54,11 +54,11 @@ protected:
   FP_PRECISION** _sin_thetas;
 
   /** An array of the quadrature polar angles */
-  FP_PRECISION** _thetas;
+  double** _thetas;
 
   /** An array of the quadrature azimuthal angles */
-  FP_PRECISION* _phis;
-  
+  double* _phis;
+
   /** An array of the quadrature azimuthal weights */
   FP_PRECISION* _azim_weights;
 
@@ -67,7 +67,7 @@ protected:
 
   /** An array of the sines multipled by the weights */
   FP_PRECISION** _multiples;
-  
+
 public:
 
   Quadrature();
@@ -76,14 +76,14 @@ public:
   int getNumPolarAngles() const;
   int getNumAzimAngles() const;
   FP_PRECISION getSinTheta(int azim, int polar);
-  FP_PRECISION getTheta(int azim, int polar);
-  FP_PRECISION getPhi(int azim);
+  double getTheta(int azim, int polar);
+  double getPhi(int azim);
   FP_PRECISION getAzimWeight(int azim);
   FP_PRECISION getPolarWeight(int azim, int polar);
   FP_PRECISION getMultiple(int azim, int polar);
   FP_PRECISION** getSinThetas();
-  FP_PRECISION** getThetas();
-  FP_PRECISION* getPhis();
+  double** getThetas();
+  double* getPhis();
   FP_PRECISION* getAzimWeights();
   FP_PRECISION** getPolarWeights();
   FP_PRECISION** getMultiples();
@@ -91,7 +91,7 @@ public:
   int getFirstOctantAzim(int azim);
   quadratureType getQuadratureType();
   int getOrthant(int azim, int polar);
-  
+
   virtual void setNumAzimAngles(const int num_azim);
   virtual void setNumPolarAngles(const int num_polar);
   void setThetas(double* thetas, int num_azim_times_polar);
@@ -100,10 +100,10 @@ public:
   void setPhi(double phi, int azim);
   void setAzimWeight(double weight, int azim);
   void setPolarWeight(double weight, int azim, int polar);
-  
+
   virtual void initialize();
-  virtual void precomputeWeights();
-  
+  virtual void precomputeWeights(bool solve_3D);
+
   std::string toString();
 };
 
@@ -121,7 +121,7 @@ public:
   TYPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -129,7 +129,7 @@ public:
  * @class LeonardPolarQuad Quadrature.h "src/Quadrature.h"
  * @brief Leonard's polar quadrature.
  */
-class LeonardPolarQuad: public Quadrature { 
+class LeonardPolarQuad: public Quadrature {
 
 private:
 
@@ -137,7 +137,7 @@ public:
   LeonardPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -146,7 +146,7 @@ public:
  * @class GLPolarQuad Quadrature.h "src/Quadrature.h"
  * @brief Gauss-Legendre's polar quadrature.
  */
-class GLPolarQuad: public Quadrature { 
+class GLPolarQuad: public Quadrature {
 
 private:
 
@@ -154,7 +154,7 @@ public:
   GLPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -163,7 +163,7 @@ public:
  * @class EqualWeightPolarQuad Quadrature.h "src/Quadrature.h"
  * @brief Equal weight polar quadrature.
  */
-class EqualWeightPolarQuad: public Quadrature { 
+class EqualWeightPolarQuad: public Quadrature {
 
 private:
 
@@ -171,7 +171,7 @@ public:
   EqualWeightPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 
@@ -180,7 +180,7 @@ public:
  * @class EqualAnglePolarQuad Quadrature.h "src/Quadrature.h"
  * @brief Equal angle polar quadrature.
  */
-class EqualAnglePolarQuad: public Quadrature { 
+class EqualAnglePolarQuad: public Quadrature {
 
 private:
 
@@ -188,7 +188,7 @@ public:
   EqualAnglePolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
-  void precomputeWeights();
+  void precomputeWeights(bool solve_3D);
 };
 
 

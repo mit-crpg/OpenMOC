@@ -6,7 +6,7 @@ from openmoc.options import Options
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                          Main Simulation Parameters
 ###############################################################################
 
 options = Options()
@@ -24,7 +24,7 @@ log.py_printf('HEADER', 'The reference keff = 1.43...')
 
 
 ###############################################################################
-#######################   Main Simulation Parameters   ########################
+#                            Creating Materials
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating materials...')
@@ -40,7 +40,7 @@ infinite_medium.setSigmaT(numpy.array([0.452648699]))
 
 
 ###############################################################################
-###########################   Creating Surfaces   #############################
+#                            Creating Surfaces
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating surfaces...')
@@ -57,13 +57,13 @@ bottom.setBoundaryType(REFLECTIVE)
 
 
 ###############################################################################
-#############################   Creating Cells   ##############################
+#                             Creating Cells
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-cell = CellBasic()
-cell.setMaterial(infinite_medium)
+cell = Cell()
+cell.setFill(infinite_medium)
 cell.addSurface(halfspace=+1, surface=left)
 cell.addSurface(halfspace=-1, surface=right)
 cell.addSurface(halfspace=+1, surface=bottom)
@@ -71,7 +71,7 @@ cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
-#                            Creating Universes
+#                             Creating Universes
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating universes...')
@@ -81,7 +81,7 @@ root_universe.addCell(cell)
 
 
 ###############################################################################
-##########################   Creating the Geometry   ##########################
+#                         Creating the Geometry
 ###############################################################################
 
 log.py_printf('NORMAL', 'Creating geometry...')
@@ -92,7 +92,7 @@ geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
-########################   Creating the TrackGenerator   ######################
+#                          Creating the TrackGenerator
 ###############################################################################
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
@@ -103,13 +103,13 @@ track_generator.generateTracks()
 
 
 ###############################################################################
-###########################   Running a Simulation   ##########################
+#                            Running a Simulation
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
+solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.convergeSource(max_iters)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 log.py_printf('TITLE', 'Finished')

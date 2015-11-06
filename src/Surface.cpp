@@ -35,7 +35,7 @@ void reset_surf_id() {
  * @param id an optional user-defined Surface ID
  * @param name an optional user-defined Surface name
  */
-Surface::Surface(const int id, const char* name){
+Surface::Surface(const int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
@@ -52,6 +52,10 @@ Surface::Surface(const int id, const char* name){
   setName(name);
 
   _boundary_type = BOUNDARY_NONE;
+
+  /* Initialize empty vectors of neighbor Cells for each halfspace */
+  _neighbors[-1] = new std::vector<Cell*>();
+  _neighbors[+1] = new std::vector<Cell*>();
 }
 
 
@@ -61,6 +65,12 @@ Surface::Surface(const int id, const char* name){
 Surface::~Surface() {
   if (_name != NULL)
     delete [] _name;
+
+  if (!_neighbors.empty()) {
+    _neighbors[-1]->clear();
+    _neighbors[+1]->clear();
+    _neighbors.clear();
+  }
 }
 
 
@@ -105,7 +115,7 @@ surfaceType Surface::getSurfaceType() {
  *        VACUUM or BOUNDARY_NONE)
  * @return the type of boundary condition type for this Surface
  */
-boundaryType Surface::getBoundaryType(){
+boundaryType Surface::getBoundaryType() {
   return _boundary_type;
 }
 
@@ -140,12 +150,49 @@ void Surface::setBoundaryType(boundaryType boundary_type) {
 
 
 /**
+ * @brief Adds a neighbor Cell to this Surface's collection of neighbors.
+ * @param halfspace the +/-1 halfspace for the neighboring Cell
+ * @param cell a pointer to the neighboring Cell
+ */
+void Surface::addNeighborCell(int halfspace, Cell* cell) {
+
+  if (halfspace != -1 && halfspace != +1)
+    log_printf(ERROR, "Unable to add neighbor Cell %d to Surface %d since the "
+               "halfspace %d is not -1 or 1", cell->getId(), _id, halfspace);
+
+  /* Get pointer to vector of neighbor Cells for this halfspace */
+  std::vector<Cell*>* neighbors = _neighbors[halfspace];
+
+  /* Add the neighbor Cell if the collection does not already contain it*/
+  if (std::find(neighbors->begin(), neighbors->end(), cell) == neighbors->end())
+    neighbors->push_back(cell);
+
+  /* Update Cells with the neighbor Cells on the opposite Surface halfspace */
+  std::vector<Cell*>::iterator iter1;
+  std::vector<Cell*>::iterator iter2;
+  for (iter1 = _neighbors[-1]->begin();
+       iter1 != _neighbors[-1]->end(); ++iter1) {
+    for (iter2 = _neighbors[1]->begin();
+         iter2 != _neighbors[1]->end(); ++iter2)
+      (*iter1)->addNeighborCell(*iter2);
+  }
+
+  for (iter1 = _neighbors[1]->begin();
+       iter1 != _neighbors[1]->end(); ++iter1) {
+    for (iter2 = _neighbors[-1]->begin();
+         iter2 != _neighbors[-1]->end(); ++iter2)
+      (*iter1)->addNeighborCell(*iter2);
+  }
+}
+
+
+/**
  * @brief Return true or false if a Point is on or off of a Surface.
  * @param point pointer to the Point of interest
  * @return on (true) or off (false) the Surface
  */
 bool Surface::isPointOnSurface(Point* point) {
-  
+
   /* Uses a threshold to determine whether the point is on the Surface */
   if (fabs(evaluate(point)) < ON_SURFACE_THRESH)
     return true;
@@ -199,7 +246,7 @@ Plane::Plane(const double A, const double B,
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum x value of -INFINITY
  */
-double Plane::getMinX(int halfspace){
+double Plane::getMinX(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -209,7 +256,7 @@ double Plane::getMinX(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the maximum x value of INFINITY
  */
-double Plane::getMaxX(int halfspace){
+double Plane::getMaxX(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
@@ -219,7 +266,7 @@ double Plane::getMaxX(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum y value of -INFINITY
  */
-double Plane::getMinY(int halfspace){
+double Plane::getMinY(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -229,7 +276,7 @@ double Plane::getMinY(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the maximum y value of INFINITY
  */
-double Plane::getMaxY(int halfspace){
+double Plane::getMaxY(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
@@ -239,7 +286,7 @@ double Plane::getMaxY(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum z value of -INFINITY
  */
-double Plane::getMinZ(int halfspace){
+double Plane::getMinZ(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -249,7 +296,7 @@ double Plane::getMinZ(int halfspace){
  * @param halfspace the halfspace of the Surface to consider
  * @return the maximum z value of INFINITY
  */
-double Plane::getMaxZ(int halfspace){
+double Plane::getMaxZ(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
@@ -305,7 +352,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
   double y0 = point->getY();
   double z0 = point->getZ();
   double l;
-  
+
   int num = 0;                /* number of intersections */
   double xcurr, ycurr, zcurr; /* coordinates of current intersection point */
 
@@ -321,7 +368,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
 
   /* The track is not parallel to the plane */
   else{
-    
+
     l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
       (_A * mx + _B * my + _C * mz);
     xcurr = x0 + l * mx;
@@ -330,10 +377,10 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
 
     if (l > 0.0)
       num++;
-    
-    points->setCoords(xcurr, ycurr, zcurr);
+
+    points[0].setCoords(xcurr, ycurr, zcurr);
   }
-  
+
   return num;
 }
 
@@ -396,8 +443,8 @@ double XPlane::getX() {
  * @param halfspace the halfspace of the XPlane to consider
  * @return the minimum x value
  */
-double XPlane::getMinX(int halfspace){
-  if(halfspace == +1)
+double XPlane::getMinX(int halfspace) {
+  if (halfspace == +1)
     return _x;
   else
     return -std::numeric_limits<double>::infinity();
@@ -409,8 +456,8 @@ double XPlane::getMinX(int halfspace){
  * @param halfspace the halfspace of the XPlane to consider
  * @return the maximum x value
  */
-double XPlane::getMaxX(int halfspace){
-  if(halfspace == -1)
+double XPlane::getMaxX(int halfspace) {
+  if (halfspace == -1)
     return _x;
   else
     return std::numeric_limits<double>::infinity();
@@ -478,8 +525,8 @@ double YPlane::getY() {
  * @param halfspace the halfspace of the YPlane to consider
  * @return the minimum y value
  */
-double YPlane::getMinY(int halfspace){
-  if(halfspace == +1)
+double YPlane::getMinY(int halfspace) {
+  if (halfspace == +1)
     return _y;
   else
     return -std::numeric_limits<double>::infinity();
@@ -491,8 +538,8 @@ double YPlane::getMinY(int halfspace){
  * @param halfspace the halfspace of the YPlane to consider
  * @return the maximum y value
  */
-double YPlane::getMaxY(int halfspace){
-  if(halfspace == -1)
+double YPlane::getMaxY(int halfspace) {
+  if (halfspace == -1)
     return _y;
   else
     return std::numeric_limits<double>::infinity();
@@ -558,8 +605,8 @@ double ZPlane::getZ() {
  * @param halfspace the halfspace of the ZPlane to consider
  * @return the minimum z value
  */
-double ZPlane::getMinZ(int halfspace){
-  if(halfspace == +1)
+double ZPlane::getMinZ(int halfspace) {
+  if (halfspace == +1)
     return _z;
   else
     return -std::numeric_limits<double>::infinity();
@@ -571,8 +618,8 @@ double ZPlane::getMinZ(int halfspace){
  * @param halfspace the halfspace of the ZPlane to consider
  * @return the maximum z value
  */
-double ZPlane::getMaxZ(int halfspace){
-  if(halfspace == -1)
+double ZPlane::getMaxZ(int halfspace) {
+  if (halfspace == -1)
     return _z;
   else
     return std::numeric_limits<double>::infinity();
@@ -648,7 +695,7 @@ double Circle::getY0() {
  * @param halfspace the halfspace of the Circle to consider
  * @return the minimum x value
  */
-double Circle::getMinX(int halfspace){
+double Circle::getMinX(int halfspace) {
   if (halfspace == -1)
     return _center.getX() - _radius;
   else
@@ -661,7 +708,7 @@ double Circle::getMinX(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the maximum x value
  */
-double Circle::getMaxX(int halfspace){
+double Circle::getMaxX(int halfspace) {
   if (halfspace == -1)
     return _center.getX() + _radius;
   else
@@ -674,7 +721,7 @@ double Circle::getMaxX(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the minimum y value
  */
-double Circle::getMinY(int halfspace){
+double Circle::getMinY(int halfspace) {
   if (halfspace == -1)
     return _center.getY() - _radius;
   else
@@ -687,7 +734,7 @@ double Circle::getMinY(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the maximum y value
  */
-double Circle::getMaxY(int halfspace){
+double Circle::getMaxY(int halfspace) {
   if (halfspace == -1)
     return _center.getY() + _radius;
   else
@@ -700,7 +747,7 @@ double Circle::getMaxY(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the minimum z value of -INFINITY
  */
-double Circle::getMinZ(int halfspace){
+double Circle::getMinZ(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
@@ -710,7 +757,7 @@ double Circle::getMinZ(int halfspace){
  * @param halfspace the halfspace of the Circle to consider
  * @return the maximum z value of INFINITY
  */
-double Circle::getMaxZ(int halfspace){
+double Circle::getMaxZ(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
@@ -758,7 +805,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI_2)
           num++;
         else if (zcurr < z0 && polar > M_PI_2)
@@ -766,13 +813,13 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI_2)
           num++;
         else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;        
+          num++;
       }
     }
 
@@ -782,7 +829,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
       ycurr = (-b + sqrt(discr)) / (2 * a);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -790,7 +837,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -803,7 +850,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
       ycurr = (-b - sqrt(discr)) / (2 * a);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -811,7 +858,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -819,7 +866,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      
+
       return num;
     }
   }
@@ -847,10 +894,10 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
       xcurr = -b / (2*a);
-      ycurr = y0 + m * (points[0].getX() - x0);
+      ycurr = y0 + m * (points[num].getX() - x0);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -858,7 +905,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)

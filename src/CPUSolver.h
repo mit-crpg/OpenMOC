@@ -17,8 +17,10 @@
 #include <stdlib.h>
 #endif
 
+#undef track_flux
+
 /** Indexing macro for the angular fluxes for each polar angle and energy
- *  group for either the forward or reverse direction for a given Track */ 
+ *  group for either the forward or reverse direction for a given Track */
 #define track_flux(pe) (track_flux[(pe)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
@@ -45,20 +47,19 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
-  /** OpenMP mutual exclusion locks for atomic surface current updates */
-  omp_lock_t* _cmfd_surface_locks;
-
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeFSRs();
-  void initializeCmfd();
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
-  void zeroSurfaceCurrents();
-  void flattenFSRSources(FP_PRECISION value);
+  void storeFSRFluxes();
   void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
+  void computeFSRSources();
+  void transportSweep();
+  void addSourceToScalarFlux();
+  void computeKeff();
+  double computeResidual(residualType res_type);
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
@@ -66,11 +67,21 @@ protected:
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
-   * @param fwd
    */
-  virtual void scalarFluxTally(segment* curr_segment, int azim_index, int polar_index,
-                               FP_PRECISION* track_flux, FP_PRECISION* fsr_flux,
-                               bool fwd);
+  virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
+                               int polar_index, FP_PRECISION* track_flux,
+                               FP_PRECISION* fsr_flux);
+
+  /**
+   * @brief Computes the contribution to surface current from a Track segment.
+   * @param curr_segment a pointer to the Track segment of interest
+   * @param azim_index a pointer to the azimuthal angle index for this segment
+   * @param track_flux a pointer to the Track's angular flux
+   * @param fwd the direction of integration along the segment
+   */
+  virtual void tallySurfaceCurrent(segment* curr_segment, int azim_index,
+                                   int polar_index, FP_PRECISION* track_flux,
+                                   bool fwd);
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.
@@ -79,27 +90,18 @@ protected:
    * @param direction the Track direction (forward - true, reverse - false)
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
-  virtual void transferBoundaryFlux(int track_id, int azim_index, int polar_index,
-                                    bool direction,
+  virtual void transferBoundaryFlux(int track_id, int azim_index,
+                                    int polar_index, bool direction,
                                     FP_PRECISION* track_flux);
-  void addSourceToScalarFlux();
-  void computeKeff();
-  void transportSweep();
 
 public:
-  CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
+  CPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPUSolver();
 
   int getNumThreads();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
-  FP_PRECISION* getFSRScalarFluxes();
-  FP_PRECISION getFSRSource(int fsr_id, int energy_group);
-  Vector* getSurfaceCurrents();
-
   void setNumThreads(int num_threads);
-
+  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
-
 };
 
 

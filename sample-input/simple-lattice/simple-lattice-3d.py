@@ -1,9 +1,8 @@
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
-import openmoc.materialize as materialize
 from openmoc.options import Options
-
+from geometry import *
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -12,145 +11,13 @@ from openmoc.options import Options
 options = Options()
 
 num_threads = options.getNumThreads()
-azim_spacing = options.getTrackSpacing()
+azim_spacing = options.getAzimSpacing()
 num_azim = options.getNumAzimAngles()
+polar_spacing = options.getPolarSpacing()
+num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-num_polar = 2
-polar_spacing = 0.25
-log.set_log_level('NORMAL')
-set_line_length(120)
 
-
-###############################################################################
-###########################   Creating Materials   ############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Importing materials data from HDF5...')
-
-materials = materialize.materialize('../c5g7-materials.h5')
-
-
-###############################################################################
-###########################   Creating Surfaces   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating surfaces...')
-
-xmin = XPlane(x=-2.0, name='xmin')
-xmax = XPlane(x= 2.0, name='xmax')
-ymin = YPlane(y=-2.0, name='ymin')
-ymax = YPlane(y= 2.0, name='ymax')
-zmin = ZPlane(z=-0.5, name='zmin')
-zmax = ZPlane(z= 0.5, name='zmax')
-
-xmin.setBoundaryType(REFLECTIVE)
-xmax.setBoundaryType(REFLECTIVE)
-ymin.setBoundaryType(REFLECTIVE)
-ymax.setBoundaryType(REFLECTIVE)
-zmin.setBoundaryType(REFLECTIVE)
-zmax.setBoundaryType(REFLECTIVE)
-
-large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
-medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
-small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
-
-###############################################################################
-#############################   Creating Cells   ##############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating cells...')
-
-large_fuel = CellBasic(name='large pin fuel')
-large_fuel.setMaterial(materials['UO2'])
-large_fuel.addSurface(halfspace=-1, surface=large_circle)
-
-large_moderator = CellBasic(name='large pin moderator')
-large_moderator.setMaterial(materials['Water'])
-large_moderator.addSurface(halfspace=+1, surface=large_circle)
-
-medium_fuel = CellBasic(name='medium pin fuel')
-medium_fuel.setMaterial(materials['UO2'])
-medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
-
-medium_moderator = CellBasic(name='medium pin moderator')
-medium_moderator.setMaterial(materials['Water'])
-medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
-
-small_fuel = CellBasic(name='small pin fuel')
-small_fuel.setMaterial(materials['UO2'])
-small_fuel.addSurface(halfspace=-1, surface=small_circle)
-
-small_moderator = CellBasic(name='small pin moderator')
-small_moderator.setMaterial(materials['Water'])
-small_moderator.addSurface(halfspace=+1, surface=small_circle)
-
-root_cell = CellFill(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=xmin)
-root_cell.addSurface(halfspace=-1, surface=xmax)
-root_cell.addSurface(halfspace=+1, surface=ymin)
-root_cell.addSurface(halfspace=-1, surface=ymax)
-root_cell.addSurface(halfspace=+1, surface=zmin)
-root_cell.addSurface(halfspace=-1, surface=zmax)
-
-###############################################################################
-#                            Creating Universes
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating universes...')
-
-pin1 = Universe(name='large pin cell')
-pin2 = Universe(name='medium pin cell')
-pin3 = Universe(name='small pin cell')
-root_universe = Universe(name='root universe')
-
-pin1.addCell(large_fuel)
-pin1.addCell(large_moderator)
-pin2.addCell(medium_fuel)
-pin2.addCell(medium_moderator)
-pin3.addCell(small_fuel)
-pin3.addCell(small_moderator)
-root_universe.addCell(root_cell)
-
-
-###############################################################################
-###########################   Creating Lattices   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
-
-lattice = Lattice(name='4x4 lattice')
-lattice.setWidth(width_x=1.0, width_y=1.0, width_z=1.0)
-lattice.setUniverses([[pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3],
-                      [pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3]])
-root_cell.setFill(lattice)
-
-
-###############################################################################
-##########################     Creating Cmfd mesh    ##########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
-cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(2,2,1)
-#cmfd.setGroupStructure([1,4,8])
-
-
-###############################################################################
-##########################   Creating the Geometry   ##########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating geometry...')
-
-geometry = Geometry()
-geometry.setRootUniverse(root_universe)
-geometry.setCmfd(cmfd)
-geometry.initializeFlatSourceRegions()
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -158,23 +25,20 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, polar_spacing)
+track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
+                                 polar_spacing)
 track_generator.setNumThreads(num_threads)
-#track_generator.setSolve2D()
-track_generator.setZLevel(0.1)
+track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING)
 track_generator.generateTracks()
-
-plotter.plot_segments_3d(track_generator)
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(geometry, track_generator)
+solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
-solver.setSourceConvergenceThreshold(tolerance)
-solver.useExponentialIntrinsic()
-solver.convergeSource(max_iters)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 
@@ -184,11 +48,18 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_tracks(track_generator)
-#plotter.plot_segments(track_generator)
-#plotter.plot_materials(geometry, gridsize=500)
-#plotter.plot_cells(geometry, gridsize=500)
-#plotter.plot_flat_source_regions(geometry, gridsize=500)
-#plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+plotter.plot_periodic_cycles_2D(track_generator)
+plotter.plot_periodic_cycles_3D(track_generator)
+plotter.plot_reflective_cycles_2D(track_generator)
+plotter.plot_reflective_cycles_3D(track_generator)
+plotter.plot_tracks_2D(track_generator)
+plotter.plot_tracks_3D(track_generator)
+plotter.plot_segments_3D(track_generator)
+plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7], \
+  plane='xy', offset=0.)
+plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 
 log.py_printf('TITLE', 'Finished')

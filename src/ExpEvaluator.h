@@ -10,9 +10,9 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
-#include <math.h>
 #include "log.h"
 #include "Quadrature.h"
+#include <math.h>
 #endif
 
 
@@ -46,47 +46,37 @@ private:
   /** The number of polar angles */
   int _num_polar;
 
+  /** The maximum optical length a track is allowed to have */
+  FP_PRECISION _max_optical_length;
+
+  /** The maximum acceptable approximation error for exponentials */
+  FP_PRECISION _exp_precision;
+
   bool _solve_3D;
-  
+
 public:
 
   ExpEvaluator();
   virtual ~ExpEvaluator();
 
   void setQuadrature(Quadrature* quadrature);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setExpPrecision(FP_PRECISION exp_precision);
   void setSolve3D(bool solve_3D);
   void useInterpolation();
   void useIntrinsic();
 
+  FP_PRECISION getMaxOpticalLength();
+  FP_PRECISION getExpPrecision();
   bool isUsingInterpolation();
   FP_PRECISION getTableSpacing();
   int getTableSize();
   FP_PRECISION* getExpTable();
   bool isSolve3D();
-  
-  void initialize(double max_tau, double tolerance);
+
+  void initialize();
   FP_PRECISION computeExponential(FP_PRECISION tau, int azim, int polar);
 };
 
 
-/**
- * @brief Rounds a single precision floating point value to an integer.
- * @param x a float precision floating point value
- * @brief the rounded integer value
- */
-inline int round_to_int(float x) {
-  return lrintf(x);
-}
-
-
-/**
- * @brief Rounds a double precision floating point value to an integer.
- * @param x a double precision floating point value
- * @brief the rounded integer value
- */
-inline int round_to_int(double x) {
-  return lrint(x);
-}
-
-
- #endif /* EXPEVALUATOR_H_ */
+#endif /* EXPEVALUATOR_H_ */

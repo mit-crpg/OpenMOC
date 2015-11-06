@@ -1,4 +1,4 @@
-##
+#
 # @file options.py
 # @package openmoc.options
 # @brief The options module provides the Options class to parse, interpret
@@ -56,9 +56,15 @@ class Options:
     ## The default number of azimuthal angles
     self._num_azim = 4
 
-    ## The default track spacing
-    self._track_spacing = 0.1
+    ## The default number of polar angles
+    self._num_polar = 6
+    
+    ## The default azimuthal spacing
+    self._azim_spacing = 0.1
 
+    ## The default polar spacing
+    self._polar_spacing = 0.1
+    
     ## The default maximum number of source iterations
     self._max_iters = 1000
 
@@ -86,10 +92,12 @@ class Options:
   def parseArguments(self):
     try:
       opts, args = getopt.getopt(sys.argv[1:],
-                                 'hfa:s:i:c:t:b:g:r:l:',
+                                 'hfa:s:p:z:i:c:t:b:g:r:l:',
                                  ['help',
                                   'num-azim=',
-                                  'track-spacing=',
+                                  'azim-spacing=',
+                                  'num-polar=',
+                                  'polar-spacing=',
                                   'tolerance=',
                                   'max-iters=',
                                   'num-omp-threads=',
@@ -121,10 +129,18 @@ class Options:
         num_azim += 'the number of azimuthal angles\n'
         print(num_azim)
 
-        track_spacing = '\t{: <35}'.format('-s, --track-spacing=<0.1>')
-        track_spacing += 'The track spacing [cm]\n'
-        print(track_spacing)
+        azim_spacing = '\t{: <35}'.format('-s, --azim-spacing=<0.1>')
+        azim_spacing += 'The azimuthal spacing [cm]\n'
+        print(azim_spacing)
 
+        num_polar = '\t{: <35}'.format('-p, --num-polar=<6>')
+        num_polar += 'the number of polar angles\n'
+        print(num_polar)
+
+        polar_spacing = '\t{: <35}'.format('-z, --polar-spacing=<0.1>')
+        polar_spacing += 'The polar spacing [cm]\n'
+        print(polar_spacing)
+        
         max_iters = '\t{: <35}'.format('-i, --max-iters=<1000>')
         max_iters += 'The max number of source iterations\n'
         print(max_iters)
@@ -151,8 +167,14 @@ class Options:
       elif opt in ('-a', '--num-azim'):
         self._num_azim = int(arg)
 
-      elif opt in ('-s', '--track-spacing'):
-        self._track_spacing = float(arg)
+      elif opt in ('-s', '--azim-spacing'):
+        self._azim_spacing = float(arg)
+
+      elif opt in ('-p', '--num-polar'):
+        self._num_polar = int(arg)
+
+      elif opt in ('-z', '--polar-spacing'):
+        self._polar_spacing = float(arg)
 
       elif opt in ('-i', '--max-iters'):
         self._max_iters = int(arg)
@@ -177,11 +199,23 @@ class Options:
 
 
   ##
-  # @brief Returns the track spacing [cm].
-  # @return the track spacing [cm].
-  def getTrackSpacing(self):
-    return self._track_spacing
+  # @brief Returns the azimuthal spacing [cm].
+  # @return the azimuthal spacing [cm].
+  def getAzimSpacing(self):
+    return self._azim_spacing
 
+  ##
+  # @brief Returns the number of polar angles.
+  # @return the number of polar angles
+  def getNumPolarAngles(self):
+    return self._num_polar
+
+
+  ##
+  # @brief Returns the polar spacing [cm].
+  # @return the polar spacing [cm].
+  def getPolarSpacing(self):
+    return self._polar_spacing
 
   ##
   # @brief Returns the maximum number of source iterations.

@@ -15,8 +15,6 @@
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
-#include <map>
-#include <vector>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -50,11 +48,14 @@ struct surface_halfspace {
 */
 enum cellType {
 
-  /** A cell filled by a material */
+  /** A cell filled by a Material */
   MATERIAL,
 
-  /** A cell filled by a universe */
-  FILL
+  /** A cell filled by a Universe */
+  FILL,
+
+  /** A cell not yet filled by anything */
+  UNFILLED
 };
 
 
@@ -64,13 +65,10 @@ enum cellType {
  */
 class Cell {
 
-protected:
+private:
 
   /** A static counter for the number of Cells */
   static int _n;
-
-  /** A static counter for the number of times this Cell has been cloned */
-  static int _num_clones;
 
   /** A monotonically increasing unique ID for each Cell created */
   int _uid;
@@ -84,8 +82,14 @@ protected:
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
-  /** The ID for the Universe within which this cell resides */
-  int _universe;
+  /** A pointer to the Material or Universe filling this Cell */
+  void* _fill;
+
+  /** The number of rings sub-dividing this Cell */
+  int _num_rings;
+
+  /** The number of sectors sub-dividing this Cell */
+  int _num_sectors;
 
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
   std::map<int, surface_halfspace> _surfaces;
@@ -126,14 +130,23 @@ protected:
   /** The boundary condition at the maximum reachable z-coordinate */
   boundaryType _max_z_bc;
 
+  /* Vector of neighboring Cells */
+  std::vector<Cell*> _neighbors;
+
+  void ringify(std::vector<Cell*>* subcells);
+  void sectorize(std::vector<Cell*>* subcells);
+
 public:
-  Cell();
   Cell(int id=0, const char* name="");
   virtual ~Cell();
   int getUid() const;
   int getId() const;
   char* getName() const;
   cellType getType() const;
+  Material* getFillMaterial();
+  Universe* getFillUniverse();
+  int getNumRings();
+  int getNumSectors();
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -148,116 +161,32 @@ public:
   boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace> getSurfaces() const;
+  std::vector<Cell*> getNeighbors() const;
 
-  /**
-   * @brief Returns the std::map of Cell IDs and Cell pointers within any
-   *        nested Universes filling this Cell.
-   * @return std::map of Cell IDs and pointers
-   */
-  virtual std::map<int, Cell*> getAllCells() =0;
-
-  /**
-   * @brief Returns the std::map of Universe IDs and Universe pointers within
-   *        any nested Universes filling this Universe.
-   * @return std::map of Universe IDs and pointers
-   */
-  virtual std::map<int, Universe*> getAllUniverses() =0;
+  std::map<int, Cell*> getAllCells();
+  std::map<int, Universe*> getAllUniverses();
 
   void setName(const char* name);
-  void addSurface(int halfspace, Surface* surface);
-  void removeSurface(Surface* surface);
-  void findBoundingBox();
-
-  bool cellContainsPoint(Point* point);
-  bool cellContainsCoords(LocalCoords* coords);
-  double minSurfaceDist(Point* point, Point* min_intersection,
-                        double azim, double polar=M_PI/2.0);
-  /**
-   * @brief Convert this CellFill's attributes to a string format.
-   * @return a character array of this Cell's attributes
-   */
-  virtual std::string toString() =0;
-
-  /**
-   * @brief Prints a string representation of all of the Cells's objects to
-   *        the console.
-   */
-  virtual void printString() =0;
-};
-
-
-/**
- * @class CellBasic Cell.h "src/Cell.h"
- * @brief Represents a Cell filled with a Material.
- */
-class CellBasic: public Cell {
-
-private:
-
-  /** A pointer to the Material filling this Cell */
-  Material* _material;
-
-  /** The number of rings sub-dividing this Cell */
-  int _num_rings;
-
-  /** The number of sectors sub-dividing this Cell */
-  int _num_sectors;
-
-  /** A container of all CellBasic clones created for rings */
-  std::vector<CellBasic*> _rings;
-
-  /** A container of all CellBasic clones created for angular sectors */
-  std::vector<CellBasic*> _sectors;
-
-  /** A container of all CellBasic clones created for rings and sectors */
-  std::vector<CellBasic*> _subcells;
-
-  void ringify();
-  void sectorize();
-
-public:
-  CellBasic(int id=0, const char* name="", int rings=0, int sectors=0);
-
-  Material* getMaterial();
-  int getNumRings();
-  int getNumSectors();
-  std::map<int, Cell*> getAllCells();
-  std::map<int, Universe*> getAllUniverses();
-
-  void setMaterial(Material* material);
+  void setFill(Material* fill);
+  void setFill(Universe* fill);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
+  void addSurface(int halfspace, Surface* surface);
+  void removeSurface(Surface* surface);
+  void addNeighborCell(Cell* cell);
 
-  CellBasic* clone();
-  std::vector<CellBasic*> subdivideCell();
+  void findBoundingBox();
+  bool containsPoint(Point* point);
+  bool containsCoords(LocalCoords* coords);
+  double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
 
-  std::string toString();
-  void printString();
-};
-
-
-/**
- * @class CellFill Cell.h "src/Cell.h"
- * @brief Represents a Cell filled with a Universe.
- */
-class CellFill: public Cell {
-
-private:
-
-  /** The pointer to the Universe filling this Cell */
-  Universe* _fill;
-
-public:
-  CellFill(int id=0, const char* name="");
-
-  Universe* getFill() const;
-  std::map<int, Cell*> getAllCells();
-  std::map<int, Universe*> getAllUniverses();
-
-  void setFill(Universe* universe_fill);
+  Cell* clone();
+  void subdivideCell();
+  void buildNeighbors();
 
   std::string toString();
   void printString();
 };
+
 
 #endif /* CELL_H_ */

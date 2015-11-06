@@ -19,7 +19,7 @@
  *  cross-sections very near zero (e.g., within (-1E-10, 1E-10)) */
 #define ZERO_SIGMA_T 1E-10
 
-/** Threshold to determine how close the sum of \f$ \Sigma_a \f$ and 
+/** Threshold to determine how close the sum of \f$ \Sigma_a \f$ and
  *  \f$ \Sigma_s \f$ must match \f$ \Sigma_t \f$ for each energy group */
 #define SIGMA_T_THRESH 1E-3
 
@@ -35,11 +35,30 @@
 /** Tolerance for difference of the sum of polar weights with respect to 1.0 */
 #define POLAR_WEIGHT_SUM_TOL 1E-5
 
+/** The default maximum optical path length */
+#define MAX_OPTICAL_LENGTH FP_PRECISION(10.)
+
+/** The minimum acceptable precision for exponential evaluations from
+ *  the ExpEvaluator's linear interpolation table. This default precision
+ *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
+#define EXP_PRECISION FP_PRECISION(1E-5)
+
+/** The maximum number of iterations allowed for a power method eigenvalue
+ *  solve in linalg.cpp */
+#define MAX_LINALG_POWER_ITERATIONS 25000
+
+/** The maximum number of iterations allowed for a linear solve in linalg.cpp */
+#define MAX_LINEAR_SOLVE_ITERATIONS 1000
+
+#ifdef NVCC
+
 /** The maximum number of polar angles to reserve constant memory on GPU */
 #define MAX_POLAR_ANGLES_GPU 10
 
 /** The maximum number of azimuthal angles to reserve constant memory on GPU */
 #define MAX_AZIM_ANGLES_GPU 256
+
+#endif
 
 /** The surfaces of a cube */
 #define NUM_SURFACES 26
@@ -72,5 +91,10 @@
 
 /** Least common multiple tolerance */
 #define LCM_TOLERANCE 1.e-8
+
+/** The options for 3D track generation */
+#define GLOBAL_TRACKING 0
+#define MODULAR_RAY_TRACING 1
+#define SIMPLIFIED_MODULAR_RAY_TRACING 2
 
 #endif /* CONSTANTS_H_ */

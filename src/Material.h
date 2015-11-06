@@ -23,7 +23,7 @@
 #define MM_FREE(array) _mm_free(array)
 
 /** Word-aligned memory allocation for Intel's compiler */
-#define MM_MALLOC(size,alignment) _mm_alloc(size, alignment)
+#define MM_MALLOC(size,alignment) _mm_malloc(size, alignment)
 
 #else
 
@@ -130,7 +130,7 @@ public:
   FP_PRECISION getDifCoefByGroup(int group);
   FP_PRECISION getBucklingByGroup(int group);
   FP_PRECISION getDifHatByGroup(int group, int surface);
-  FP_PRECISION getDifTildeByGroup(int group);  
+  FP_PRECISION getDifTildeByGroup(int group);
   bool isFissionable();
   bool isDataAligned();
   int getNumVectorGroups();
@@ -174,8 +174,8 @@ public:
  * @brief inline function for efficient mapping for scattering, from
  *        1D as stored in memory to 2D matrix
  * @details Encapsulates the logic for indexing into the scattering
- *        matrix so it does not need to be repeated in other parts of 
- *        the code.  Note that this routine is 0-based, rather than 
+ *        matrix so it does not need to be repeated in other parts of
+ *        the code.  Note that this routine is 0-based, rather than
  *        1-based indexing, as it is intended for use inside the code,
  *        not by users from Python.
  * @param origin the column index of the matrix element

@@ -6,6 +6,9 @@
  */
 Point::Point() {
   _xyz = new double[3];
+  _xyz[0] = 0.0;
+  _xyz[1] = 0.0;
+  _xyz[2] = 0.0;
 }
 
 

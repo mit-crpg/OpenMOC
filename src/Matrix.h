@@ -27,55 +27,58 @@ class Matrix {
 private:
 
   /** A list of lists representing the matrix */
-  std::vector< std::map<int, double> > _LIL;
+  std::vector< std::map<int, FP_PRECISION> > _LIL;
 
   /** The CSR matrix variables */
-  double* _A;
+  FP_PRECISION* _A;
   int* _IA;
   int* _JA;
-  double* _DIAG;
-  
+  FP_PRECISION* _DIAG;
+
   bool _modified;
   int _num_x;
   int _num_y;
   int _num_z;
   int _num_groups;
   int _num_rows;
-  
+
+  /** OpenMP mutual exclusion locks for atomic cell updates */
+  omp_lock_t* _cell_locks;
+
+  void convertToCSR();
+  void setNumX(int num_x);
+  void setNumY(int num_y);
+  void setNumZ(int num_z);
+  void setNumGroups(int num_groups);
+
 public:
   Matrix(int num_x=1, int num_y=1, int num_z=1, int num_groups=1);
   virtual ~Matrix();
 
   /* Worker functions */
-  void incrementValue(int row, int col, double val);
-  void incrementValueByCoords(int x_from, int y_from, int z_from, int g_from,
-                              int x_to, int y_to, int z_to, int g_to, double val);
-  void incrementValueByCell(int cell_from, int g_from, int cell_to, int g_to, double val);
-  void setValue(int row, int col, double val);
-  void setValueByCoords(int x_from, int y_from, int z_from, int g_from,
-                        int x_to, int y_to, int z_to, int g_to, double val);
-  void setValueByCell(int cell_from, int g_from, int cell_to, int g_to, double val);
+  void incrementValue(int cell_from, int group_from, int cell_to, int group_to,
+                      FP_PRECISION val);
   void clear();
-  void convertToCSR();  
   void printString();
-  void random();
-  
+  void transpose();
+
   /* Getter functions */
-  double getValue(int row, int col);
-  double getValueByCoords(int x_from, int y_from, int z_from, int g_from,
-                          int x_to, int y_to, int z_to, int g_to);
-  double getValueByCell(int cell_from, int g_from, int cell_to, int g_to);
-  double* getA();
+  FP_PRECISION getValue(int cell_from, int group_from, int cell_to,
+                        int group_to);
+  FP_PRECISION* getA();
   int* getIA();
   int* getJA();
-  double* getDIAG();
+  FP_PRECISION* getDiag();
   int getNumX();
   int getNumY();
   int getNumZ();
   int getNumGroups();
   int getNumRows();
   int getNNZ();
-  
+
+  /* Setter functions */
+  void setValue(int cell_from, int group_from, int cell_to, int group_to,
+                FP_PRECISION val);
 };
 
 #endif /* MATRIX_H_ */

@@ -30,7 +30,7 @@ elif 'openmoc.bgq.double' in sys.modules:
 elif 'openmoc.bgq.single' in sys.modules:
   openmoc = sys.modules['openmoc.bgq.single']
 else:
-  from openmoc import *
+  import openmoc
 
 import numpy as np
 import os, re, mmap
@@ -88,7 +88,7 @@ def is_float(val):
 def compute_fission_rates(solver, use_hdf5=False):
 
   # create directory and filename
-  directory = get_output_directory() + '/fission-rates/'
+  directory = openmoc.get_output_directory() + '/fission-rates/'
   filename = 'fission-rates'
 
   # Make directory if it does not exist
@@ -111,7 +111,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 
       # Get the linked list of LocalCoords
       point = geometry.getFSRPoint(fsr)
-      coords = LocalCoords(point.getX(), point.getY())
+      coords = openmoc.LocalCoords(point.getX(), point.getY())
       coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(coords)
       coords = coords.getHighestLevel().getNext()
@@ -120,10 +120,10 @@ def compute_fission_rates(solver, use_hdf5=False):
       key = 'UNIV = 0 : '
 
       # Parse through the linked list and create fsr key.
-      # If lowest level sub dictionary already exists, then increment 
+      # If lowest level sub dictionary already exists, then increment
       # fission rate; otherwise, set the fission rate.
       while True:
-        if coords.getType() is LAT:
+        if coords.getType() is openmoc.LAT:
           key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
                  str(coords.getLatticeX()) + ', ' + \
                  str(coords.getLatticeY()) + ') : '
@@ -203,7 +203,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @param note an additional string note to include in state file
 def store_simulation_state(solver, fluxes=False, sources=False,
                            fission_rates=False, use_hdf5=False,
-                           filename='simulation-state', 
+                           filename='simulation-state',
                            directory = 'simulation-states',
                            append=True, note=''):
 
@@ -242,12 +242,12 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   else:
     precision = 'single'
 
-  # Determine whether we are using the exponential intrinsic or
+  # Determine whether we are using the exponential
   # linear interpolation for exponential evaluations
-  if solver.isUsingExponentialIntrinsic():
-      method = 'exp intrinsic'
-  else:
+  if solver.isUsingExponentialInterpolation():
     method = 'linear interpolation'
+  else:
+    method = 'exp intrinsic'
 
   # Determine whether the Solver has initialized Coarse Mesh Finite
   # Difference Acceleration (CMFD)
@@ -270,7 +270,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   num_azim = track_generator.getNumAzim()
   num_polar = solver.getNumPolarAngles()
   num_iters = solver.getNumIterations()
-  thresh = solver.getSourceConvergenceThreshold()
+  thresh = solver.getConvergenceThreshold()
   tot_time = solver.getTotalTime()
   keff = solver.getKeff()
 
@@ -342,7 +342,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     time_group.create_dataset('# azimuthal angles', data=num_azim)
     time_group.create_dataset('# polar angles', data=num_polar)
     time_group.create_dataset('# iterations', data=num_iters)
-    time_group.create_dataset('source residual threshold', data=thresh)
+    time_group.create_dataset('convergence threshold', data=thresh)
     time_group.create_dataset('exponential', data=method)
     time_group.create_dataset('floating point', data=precision)
     time_group.create_dataset('CMFD', data=cmfd)
@@ -415,7 +415,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     state['# azimuthal angles'] = num_azim
     state['# polar angles'] = num_polar
     state['# iterations'] = num_iters
-    state['source residual threshold'] = thresh
+    state['convergence threshold'] = thresh
     state['exponential'] = method
     state['floating point'] = precision
     state['CMFD'] = cmfd
@@ -435,7 +435,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       state['FSR sources'] = sources_array
 
     if fission_rates:
-      compute_fission_rates(solver, False)      
+      compute_fission_rates(solver, False)
       state['fission-rates'] = \
         pickle.load(file('fission-rates/fission-rates.pkl', 'rb'))
 
@@ -460,7 +460,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 #          and number of OpenMP or CUDA threads. In addition, the routine
 #          can restore the FSR flux array, FSR source array.
 #
-#          Note: If the fission rates were stored in a hdf5 binary file, 
+#          Note: If the fission rates were stored in a hdf5 binary file,
 #          they are not restored and returned in this method.
 #
 #          This method may be called from Python as follows:
@@ -597,7 +597,7 @@ def restore_simulation_state(filename='simulation-state.h5',
 ##
 # @brief Parse an OpenMOC log file to obtain a simulation's convergence data.
 # @details This method compiles the eigenvalue and source residuals from each
-#          iteration of an OpenMOC simulation. This data is inserted into a 
+#          iteration of an OpenMOC simulation. This data is inserted into a
 #          Python dictionary under the key names 'eigenvalues' and 'residuals',
 #          along with an integer `# iters`, and returned to the user.
 #

@@ -31,26 +31,49 @@ protected:
   /** The polar angle for the Track */
   double _theta;
 
-  /** The polar angle index into the the TrackCycle _track_stacks 2D ragged array */
+  /* Indices that are used to locate the track in the various track arrays */
   int _polar_index;
-  
+  int _z_index;
+  int _lz_index;
+  int _cycle_index;
+  int _cycle_track_index;
+  int _train_index;
+
+  /** Boolean to indicate whether track is in the same direction as the
+   *  reflective track cycle. */
+  bool _cycle_fwd;
+
 public:
   Track3D();
   virtual ~Track3D();
 
-  /* Setters */
+  /* Setter methods */
   void setValues(const double start_x, const double start_y,
                  const double start_z, const double end_x,
                  const double end_y, const double end_z,
                  const double phi, const double theta);
   void setTheta(const double theta);
-  void setPolarIndex(const int index);
-  void setCoords(double x0, double y0, double z0, double x1, double y1, double z1);
-  
-  /* Getters */
-  double getTheta() const;
-  int getPolarIndex() const;
+  void setCoords(double x0, double y0, double z0, double x1, double y1,
+                 double z1);
+  void setPolarIndex(int index);
+  void setZIndex(int index);
+  void setLZIndex(int index);
+  void setCycleIndex(int index);
+  void setCycleTrackIndex(int index);
+  void setTrainIndex(int index);
+  void setCycleFwd(bool fwd);
 
+  /* Getter methods */
+  double getTheta() const;
+  int getPolarIndex();
+  int getZIndex();
+  int getLZIndex();
+  int getCycleIndex();
+  int getCycleTrackIndex();
+  int getTrainIndex();
+  bool getCycleFwd();
+
+  /* Worker methods */
   std::string toString();
 };
 

@@ -12,7 +12,9 @@
 #include "Python.h"
 #include "Point.h"
 #include "Material.h"
+#include "boundary_type.h"
 #include <vector>
+#include <algorithm>
 #endif
 
 /**
@@ -36,6 +38,12 @@ struct segment {
 
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
+
+  /** Constructor initializes CMFD surfaces */
+  segment() {
+    _cmfd_surface_fwd = -1;
+    _cmfd_surface_bwd = -1;
+  }
 };
 
 /**
@@ -47,7 +55,7 @@ struct segment {
 class Track {
 
 protected:
-  
+
   /** A monotonically increasing unique ID for each Track created */
   int _uid;
 
@@ -62,78 +70,88 @@ protected:
 
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
-  
-  /** A boolean to indicate whether the outgoing angular flux along this
+
+  /** An enum to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
-   *  conditions. */
-  bool _bc_in;
+   *  conditions or sent to a periodic or reflective track. */
+  boundaryType _bc_fwd;
 
-  /** A boolean to indicate whether the outgoing angular flux along this
+  /** An enum to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be zeroed out for vacuum boundary
-   *  conditions. */
-  bool  _bc_out;
+   *  conditions or sent to a periodic or reflective track. */
+  boundaryType _bc_bwd;
 
-  Track* _track_out;
-  Track* _track_in;
-
+  /* Indices that are used to locate the track in the various track arrays */
   int _azim_index;
-  
+  int _xy_index;
+  int _periodic_cycle_id;
+  int _reflective_cycle_id;
+  int _periodic_track_index;
+
+  /** Pointers to reflective and periodic Tracks in the forward and reverse
+   *  directions */
+  Track* _track_refl_fwd;
+  Track* _track_refl_bwd;
+  Track* _track_prdc_fwd;
+  Track* _track_prdc_bwd;
+
+  /** Booleans to indicate wheter the reflective Tracks in the forward and
+   *  and backward direction enter into Tracks pointed in the forward
+   *  direction. */
+  bool _refl_fwd_fwd;
+  bool _refl_bwd_fwd;
+
 public:
   Track();
   virtual ~Track();
 
+  /* Setter methods */
   void setUid(int uid);
   void setPhi(const double phi);
+  void setBCFwd(const boundaryType bc_fwd);
+  void setBCBwd(const boundaryType bc_bwd);
+  void setTrackReflFwd(Track* track);
+  void setTrackPrdcFwd(Track* track);
+  void setTrackReflBwd(Track* track);
+  void setTrackPrdcBwd(Track* track);
+  void setReflFwdFwd(bool fwd);
+  void setReflBwdFwd(bool fwd);
+  void setXYIndex(int index);
+  void setAzimIndex(int index);
+  void setPeriodicCycleId(int id);
+  void setReflectiveCycleId(int id);
+  void setPeriodicTrackIndex(int index);
 
-  void setBCIn(const bool bc_in);
-  void setBCOut(const bool bc_out);
-
-  void setTrackIn(Track* track_in);
-  void setTrackOut(Track* track_out);
-
-  void setAzimIndex(int azim_index);
-  
+  /* Getter methods */
   int getUid();
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
   double getLength();
-  
-  Track* getTrackIn();
-  Track* getTrackOut();
-
+  Track* getTrackReflFwd();
+  Track* getTrackReflBwd();
+  Track* getTrackPrdcFwd();
+  Track* getTrackPrdcBwd();
+  bool getReflFwdFwd();
+  bool getReflBwdFwd();
+  int getXYIndex();
   int getAzimIndex();
-  
-  bool getBCIn() const;
-  bool getBCOut() const;
-
+  int getPeriodicCycleId();
+  int getReflectiveCycleId();
+  boundaryType getBCFwd() const;
+  boundaryType getBCBwd() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
+  int getPeriodicTrackIndex();
 
-  /* Worker functions */
+  /* Worker methods */
   void addSegment(segment* segment);
+  void removeSegment(int index);
+  void insertSegment(int index, segment* segment);
   void clearSegments();
   virtual std::string toString()=0;
 };
-
-
-/**
- * @brief Returns the incoming Track.
- * @return a pointer to the incoming Track
- */
-inline Track* Track::getTrackIn() {
-  return _track_in;
-}
-
-
-/**
- * @brief Returns the outgoing Track
- * @return a pointer to the outgoing Track
- */
-inline Track* Track::getTrackOut() {
-  return _track_out;
-}
 
 
 /**
@@ -156,7 +174,7 @@ inline segment* Track::getSegment(int segment) {
 
   /* If Track doesn't contain this segment, exits program */
   if (segment >= (int)_segments.size())
-    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only"
+    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only "
                "has %d segments", segment, _segments.size());
 
   return &_segments[segment];

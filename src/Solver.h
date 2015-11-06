@@ -23,11 +23,8 @@
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define _scalar_flux(r,e) (_scalar_flux[(r)*_num_groups + (e)])
 
-/** Indexing macro for the surface currents for each CMFD Mesh surface and
- *  each energy group */
-#define _surface_currents(r,e,v) (_surface_currents->incrementValue \
-                                  ((r)*_cmfd->getNumCmfdGroups() \
-                                   + _cmfd->getCmfdGroup((e)), (v)))
+/** Indexing macro for the old scalar flux in each FSR and energy group */
+#define _old_scalar_flux(r,e) (_old_scalar_flux[(r)*_num_groups + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
@@ -45,14 +42,32 @@
 #define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_fluxes_per_track \
                                                     +(pe2)])
 
+/** Indexing scheme for fixed sources for each FSR and energy group */
+#define _fixed_sources(r,e) (_fixed_sources[(r)*_num_groups + (e)])
+
 /** Indexing scheme for the total fission source (\f$ \nu\Sigma_f\Phi \f$)
  *  for each FSR and energy group */
-#define _fission_sources(r,e) (_fission_sources[(r)*_num_groups + (e)])
+#define fission_sources(r,e) (fission_sources[(r)*_num_groups + (e)])
 
 /** Indexing scheme for the total in-scatter source (\f$ \Sigma_s\Phi \f$)
  *  for each FSR and energy group */
-#define _scatter_sources(r,e) (_scatter_sources[(r)*_num_groups + (e)])
+#define scatter_sources(r,e) (scatter_sources[(r)*_num_groups + (e)])
 
+/**
+ * @enum residualType
+ * @brief The type of residual used for the convergence criterion.
+*/
+enum residualType {
+
+  /** A residual on the scalar flux distribution */
+  SCALAR_FLUX,
+
+  /** A residual on the fission source distribution */
+  FISSION_SOURCE,
+
+  /** A residual on the total source distribution */
+  TOTAL_SOURCE,
+};
 
 /**
  * @class Solver Solver.h "src/Solver.h"
@@ -74,9 +89,6 @@ protected:
 
   /** The number of fissionable flat source regions */
   int _num_fissionable_FSRs;
-
-  /** The number of mesh cells */
-  int _num_mesh_cells;
 
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
   FP_PRECISION* _FSR_volumes;
@@ -105,16 +117,12 @@ protected:
   /** A pointer to the array of Tracks */
   Track** _tracks;
 
-  /** A pointer to the 3D ragged array of Tracks */
-  Track3D***** _tracks_3D;
-  
   /** A pointer to an array with the number of Tracks per azimuthal angle */
-  int* _tracks_per_cycle;
-  int* _cycles_per_azim;
-  int**** _tracks_per_plane;
+  int*** _tracks_per_stack;
   bool _solve_3D;
-  int** _num_tracks;
-  
+  int* _num_tracks_by_parallel_group;
+  int _num_parallel_track_groups;
+
   /** The total number of Tracks */
   int _tot_num_tracks;
 
@@ -137,42 +145,23 @@ protected:
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
 
-  /** The CMFD Mesh surface currents in each energy group */
-  Vector* _surface_currents;
+  /** The old scalar flux for each energy group in each FSR */
+  FP_PRECISION* _old_scalar_flux;
 
-  /** The fission source in each FSR and energy group */
-  FP_PRECISION* _fission_sources;
-
-  /** The in-scatter source in each FSR and energy group */
-  FP_PRECISION* _scatter_sources;
-
-  /** The old fission source in each FSR from the previous iteration */
-  FP_PRECISION* _old_fission_sources;
+  /** Optional user-specified fixed sources in each FSR and energy group */
+  FP_PRECISION* _fixed_sources;
 
   /** Ratios of source to total cross-section for each FSR and energy group */
   FP_PRECISION* _reduced_sources;
 
-  /** An array of the residuals between the old source and the new source
-   *  on each iteration in each FSR and energy group */
-  FP_PRECISION* _source_residuals;
-
   /** The current iteration's approximation to k-effective */
   FP_PRECISION _k_eff;
-
-  /** An array of k-effective at each iteration */
-  std::vector<FP_PRECISION> _residual_vector;
-
-  /** The total leakage across vacuum boundaries */
-  FP_PRECISION _leakage;
 
   /** The number of source iterations needed to reach convergence */
   int _num_iterations;
 
-  /** Whether or not the Solver has converged the source */
-  bool _converged_source;
-
-  /** The tolerance for converging the source */
-  FP_PRECISION _source_convergence_thresh;
+  /** The tolerance for converging the source/flux */
+  FP_PRECISION _converge_thresh;
 
   /** En ExpEvaluator to compute exponentials in the transport equation */
   ExpEvaluator* _exp_evaluator;
@@ -196,8 +185,8 @@ protected:
 
   virtual void initializeExpEvaluator();
   virtual void initializeFSRs();
+  virtual void countFissionableFSRs();
   virtual void initializeCmfd();
-  virtual void checkTrackSpacing();
 
   /**
    * @brief Zero each Track's boundary fluxes for each energy group and polar
@@ -212,10 +201,9 @@ protected:
   virtual void flattenFSRFluxes(FP_PRECISION value) =0;
 
   /**
-   * @brief Set the source for each FSR and energy group to some value.
-   * @param value the value to assign to each FSR source
+   * @brief Stores the current scalar fluxes in the old scalar flux array.
    */
-  virtual void flattenFSRSources(FP_PRECISION value) =0;
+  virtual void storeFSRFluxes() =0;
 
   /**
    * @brief Normalizes all FSR scalar fluxes and Track boundary angular
@@ -224,11 +212,17 @@ protected:
   virtual void normalizeFluxes() =0;
 
   /**
-   * @brief Computes the total source (fission and scattering) for each FSR
-   *        and energy group.
-   * @return the residual between this source and the previous source
+   * @brief Computes the total source (fission, scattering, fixed) for
+   *        each FSR and energy group.
    */
-  virtual FP_PRECISION computeFSRSources() =0;
+  virtual void computeFSRSources() =0;
+
+  /**
+   * @brief Computes the residual between successive flux/source iterations.
+   * @param res_type the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)
+   * @return the total residual summed over FSRs and energy groups
+   */
+  virtual double computeResidual(residualType res_type) =0;
 
   /**
    * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
@@ -250,70 +244,60 @@ protected:
 
   void clearTimerSplits();
 
-
 public:
-  Solver(Geometry* geom=NULL, TrackGenerator* track_generator=NULL);
+  Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
+  virtual void setGeometry(Geometry* geometry);
+
   Geometry* getGeometry();
-  FP_PRECISION getFSRVolume(int fsr_id);
   TrackGenerator* getTrackGenerator();
+  FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
   FP_PRECISION getKeff();
-  FP_PRECISION getSourceConvergenceThreshold();
-
+  FP_PRECISION getConvergenceThreshold();
+  FP_PRECISION getMaxOpticalLength();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
-  /**
-   * @brief Returns the scalar flux for a FSR and energy group.
-   * @param fsr_id the ID for the FSR of interest
-   * @param energy_group the energy group of interest
-   * @return the FSR scalar flux
-   */
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group) =0;
+  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
+  virtual FP_PRECISION getFSRSource(int fsr_id, int group);
 
-  /**
-   * @brief Returns an array of the scalar flux in each FSR and energy group.
-   * @return an array of FSR scalar fluxes
-   */
-  virtual FP_PRECISION* getFSRScalarFluxes() =0;
-
-  /**
-   * @brief Returns the source for a FSR and energy group.
-   * @param fsr_id the ID for the FSR of interest
-   * @param energy_group the energy group of interest
-   * @return the FSR source
-   */
-  virtual FP_PRECISION getFSRSource(int fsr_id, int energy_group) =0;
-
-  virtual void setGeometry(Geometry* geometry);
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
-
+  virtual void setConvergenceThreshold(FP_PRECISION threshold);
+  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
+  void setFixedSourceByMaterial(Material* material, int group,
+                                FP_PRECISION source);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setExpPrecision(FP_PRECISION precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
-  virtual FP_PRECISION convergeSource(int max_iterations);
+  void computeFlux(int max_iters=1000, bool only_fixed_source=true);
+  void computeSource(int max_iters=1000, double k_eff=1.0,
+                     residualType res_type=TOTAL_SOURCE);
+  void computeEigenvalue(int max_iters=1000,
+                         residualType res_type=FISSION_SOURCE);
 
-/**
- * @brief Computes the volume-weighted, energy integrated fission rate in
- *        each FSR and stores them in an array indexed by FSR ID.
- * @details This is a helper method for SWIG to allow users to retrieve
- *          FSR fission rates as a NumPy array. An example of how this method 
- *          can be called from Python is as follows:
- *
- * @code
- *          num_FSRs = geometry.getNumFSRs()
- *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
- * @endcode
- *
- * @param fission_rates an array to store the fission rates (implicitly passed
- *                      in as a NumPy array from Python)
- * @param num_FSRs the number of FSRs passed in from Python
- */
+ /**
+  * @brief Computes the volume-weighted, energy integrated fission rate in
+  *        each FSR and stores them in an array indexed by FSR ID.
+  * @details This is a helper method for SWIG to allow users to retrieve
+  *          FSR fission rates as a NumPy array. An example of how this method
+  *          can be called from Python is as follows:
+  *
+  * @code
+  *          num_FSRs = geometry.getNumFSRs()
+  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
+  * @endcode
+  *
+  * @param fission_rates an array to store the fission rates (implicitly passed
+  *                      in as a NumPy array from Python)
+  * @param num_FSRs the number of FSRs passed in from Python
+  */
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
 
   void printTimerReport();
