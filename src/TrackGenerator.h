@@ -69,10 +69,10 @@ private:
   /** An array of the # of 3D tracks in each train
    *  (azim, cycle, polar, lz track) */
   int**** _tracks_per_train;
-  
+
   /** An array of the cycle length of each cycle for each azimuthal angle */
   double* _cycle_length;
-  
+
   /** The total number of Tracks for all azimuthal and polar angles */
   int _num_2D_tracks;
   int _num_3D_tracks;
@@ -114,7 +114,7 @@ private:
 
   /** An array of track pointers used in the Solver */
   Track** _tracks;
-  
+
   /** Pointer to the Geometry */
   Geometry* _geometry;
 
@@ -128,8 +128,8 @@ private:
       segments (false) */
   bool _OTF;
 
-  /** The z level where the 3D tracks should be generated */
-  double _z_level;
+  /** The z coord where the 2D tracks should be generated */
+  double _z_coord;
   
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
@@ -170,9 +170,6 @@ private:
   double findTrackEndPoint(Track2D* track, double phi, int azim_index);
   double convertLtoX(double l, int azim, int cycle);
   double convertLtoY(double l, int azim, int cycle);
-  
-  int addFSRTrackVolumeOTF(ExtrudedTrack* extruded_track, Point* start,
-    double theta, FP_PRECISION* FSR_volumes, FP_PRECISION weight);
 
 public:
 
@@ -220,13 +217,13 @@ public:
   FP_PRECISION* get3DFSRVolumes();
   FP_PRECISION* get3DFSRVolumesOTF();
   FP_PRECISION get3DFSRVolume(int fsr_id);
-  double getZLevel();
+  double getZCoord();
   Quadrature* getQuadrature();
   int getTrackGenerationMethod();
   Track* getTrack2DByCycle(int azim, int cycle, int track_index);
   bool getCycleDirection(int azim, int cycle, int track_index);
   FP_PRECISION retrieveMaxOpticalLength();
-  
+
   /* Set parameters */
   void setNumThreads(int num_threads);
   void setNumAzim(int num_azim);
@@ -237,7 +234,7 @@ public:
   void setSolve2D();
   void setSolve3D();
   void setOTF();
-  void setZLevel(double z_level);
+  void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
   void setMaxOpticalLength(FP_PRECISION tau);

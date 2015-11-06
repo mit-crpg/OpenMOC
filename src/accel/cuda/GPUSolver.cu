@@ -35,7 +35,7 @@ __constant__ GPUExpEvaluator exp_evaluator;
  * @brief A struct used to check if a value on the GPU is equal to INF.
  * @details This is used as a predicate in Thrust routines.
  */
-struct isinf_test { 
+struct isinf_test {
   /**
    * @brief Checks if a double precision value is INF.
    * @param a the value to check

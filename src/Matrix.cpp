@@ -23,7 +23,7 @@ Matrix::Matrix(int num_x, int num_y, int num_z, int num_groups) {
   setNumZ(num_z);
   setNumGroups(num_groups);
   _num_rows = _num_x*_num_y*_num_z*_num_groups;
-  
+
   /* Initialize variables */
   for (int i=0; i < _num_rows; i++)
     _LIL.push_back(std::map<int, FP_PRECISION>());
@@ -61,7 +61,7 @@ Matrix::~Matrix() {
 
   if (_DIAG != NULL)
     delete [] _DIAG;
-  
+
   for (int i=0; i < _num_rows; i++)
     _LIL[i].clear();
   _LIL.clear();
@@ -177,7 +177,7 @@ void Matrix::clear() {
  *        form.
  */
 void Matrix::convertToCSR() {
-  
+
   /* Get number of nonzero values */
   int NNZ = getNNZ();
 
@@ -199,7 +199,7 @@ void Matrix::convertToCSR() {
   _IA = new int[_num_rows+1];
   _JA = new int[NNZ];
   _DIAG = new FP_PRECISION[_num_rows];
-  std::fill_n(_DIAG, _num_rows, 0.0);  
+  std::fill_n(_DIAG, _num_rows, 0.0);
 
   /* Form arrays */
   int j = 0;
@@ -282,7 +282,7 @@ FP_PRECISION* Matrix::getA() {
 
   if (_modified)
     convertToCSR();
-  
+
   return _A;
 }
 
@@ -308,7 +308,7 @@ int* Matrix::getJA() {
 
   if (_modified)
     convertToCSR();
-    
+
   return _JA;
 }
 
@@ -321,7 +321,7 @@ FP_PRECISION* Matrix::getDiag() {
 
   if (_modified)
     convertToCSR();
-    
+
   return _DIAG;
 }
 

@@ -10,25 +10,16 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "log.h"
-#include "Timer.h"
 #include "Universe.h"
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Quadrature.h"
 #include "linalg.h"
-#include "Vector.h"
-#include "Matrix.h"
 #include "Geometry.h"
-#include <utility>
-#include <math.h>
-#include <limits.h>
-#include <string>
-#include <sstream>
-#include <queue>
-#include <iostream>
-#include <fstream>
 #endif
 
 /** Forward declaration of Geometry class */
@@ -36,7 +27,7 @@ class Geometry;
 
 /** Comparitor for sorting k-nearest stencil std::pair objects */
 inline bool stencilCompare(const std::pair<int, FP_PRECISION>& firstElem,
-                           const std::pair<int, FP_PRECISION>& secondElem){
+                           const std::pair<int, FP_PRECISION>& secondElem) {
   return firstElem.second < secondElem.second;
 }
 
@@ -48,13 +39,13 @@ inline bool stencilCompare(const std::pair<int, FP_PRECISION>& firstElem,
 class Cmfd {
 
 private:
-  
+
   /** Pointer to polar quadrature object */
   Quadrature* _quadrature;
 
   /** Pointer to geometry object */
   Geometry* _geometry;
-  
+
   /** The keff eigenvalue */
   FP_PRECISION _k_eff;
 
@@ -70,11 +61,11 @@ private:
   /** The new source vector */
   Vector* _new_source;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
@@ -162,14 +153,14 @@ private:
 
   /** Flag indicating whether to us centroid updating */
   bool _centroid_update_on;
-  
+
   /** Number of cells to used in updating MOC flux */
   int _k_nearest;
-  
+
   /** Map storing the k-nearest stencil for each fsr */
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
-  
+
 public:
 
   Cmfd();
@@ -195,7 +186,7 @@ public:
   void addFSRToCell(int cmfd_cell, int fsr_id);
   void generateKNearestStencils();
   void zeroSurfaceCurrents();
-  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux, 
+  void tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                            int azim_index, int polar_index, bool fwd);
 
   /* Get parameters */
@@ -217,7 +208,7 @@ public:
   FP_PRECISION getFluxRatio(int cmfd_cell, int moc_group);
   FP_PRECISION getUpdateRatio(int cmfd_cell, int moc_group, int fsr);
   FP_PRECISION getDistanceToCentroid(Point* centroid, int cell, int surface);
-  
+
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
   void setGeometry(Geometry* geometry);
@@ -244,7 +235,7 @@ public:
   void setAzimSpacings(double* azim_spacings, int num_azim);
   void setPolarSpacings(double** azim_spacings, int num_azim, int num_polar);
   void setSolve3D(bool solve_3d);
-  
+
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);

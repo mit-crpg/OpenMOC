@@ -48,7 +48,7 @@ protected:
   /** Boolean to indicate whether track is in the same direction as the
    *  reflective track cycle. */
   bool _cycle_fwd;
-  
+
 public:
   Track3D();
   virtual ~Track3D();
@@ -68,7 +68,7 @@ public:
   void setCycleTrackIndex(int index);
   void setTrainIndex(int index);
   void setCycleFwd(bool fwd);
-  
+
   /* Getter methods */
   double getTheta() const;
   int getPolarIndex();

@@ -20,7 +20,7 @@
 #undef track_flux
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
- *  group for either the forward or reverse direction for a given Track */ 
+ *  group for either the forward or reverse direction for a given Track */
 #define track_flux(pe) (track_flux[(pe)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
@@ -84,7 +84,7 @@ protected:
   virtual void tallySurfaceCurrent(segment* curr_segment, int azim_index,
                                    int polar_index, FP_PRECISION* track_flux,
                                    bool fwd);
-  
+
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.
    * @param track_id the ID number for the Track of interest
@@ -95,7 +95,7 @@ protected:
   virtual void transferBoundaryFlux(int track_id, int azim_index,
                                     int polar_index, bool direction,
                                     FP_PRECISION* track_flux);
-  
+
 public:
   CPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPUSolver();

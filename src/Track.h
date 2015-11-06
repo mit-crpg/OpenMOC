@@ -55,7 +55,7 @@ struct segment {
 class Track {
 
 protected:
-  
+
   /** A monotonically increasing unique ID for each Track created */
   int _uid;
 
@@ -90,7 +90,7 @@ protected:
   int _periodic_cycle_id;
   int _reflective_cycle_id;
   int _periodic_track_index;
-  
+
   /** Pointers to reflective and periodic Tracks in the forward and reverse
    *  directions */
   Track* _track_refl_fwd;
@@ -103,7 +103,7 @@ protected:
    *  direction. */
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
-  
+
 public:
   Track();
   virtual ~Track();
@@ -124,7 +124,7 @@ public:
   void setPeriodicCycleId(int id);
   void setReflectiveCycleId(int id);
   void setPeriodicTrackIndex(int index);
-  
+
   /* Getter methods */
   int getUid();
   Point* getEnd();

@@ -94,7 +94,7 @@ class configuration:
   # List of the possible packages to install based on runtime options
   packages = ['openmoc', 'openmoc.cuda']
 
-  
+
   #############################################################################
   #                                 Source Code
   #############################################################################
@@ -149,7 +149,7 @@ class configuration:
                       'src/MOCKernel.cpp',
                       'src/Universe.cpp',
                       'src/Cmfd.cpp']
-  
+
   sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                      'src/Cell.cpp',
                      'src/Geometry.cpp',

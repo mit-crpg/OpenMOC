@@ -339,7 +339,7 @@ def plot_reflective_cycles_2D(track_generator):
 
   fig.savefig(filename, bbox_inches='tight')
   plt.close(fig)
-  
+
 
 def plot_periodic_cycles_3D(track_generator):
 
@@ -397,7 +397,7 @@ def plot_periodic_cycles_3D(track_generator):
   # Make figure of line segments for each track
   fig = plt.figure()
   ax = fig.gca(projection ='3d')
-  
+
   for i in range(num_tracks):
 
     # Create a color map corresponding to FSR IDs
@@ -957,7 +957,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
     msg = 'Unable to plot the flat source regions since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-    
+
   if not isinstance(centroids, bool):
     py_printf('ERROR', 'Unable to plot the flat source regions since ' + \
               'centroids is not a boolean')
@@ -1108,9 +1108,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
 # @endcode
 #
 # @param geometry a geometry object which has been initialized with Materials,
-#        Cells, Universes and Lattices. Segments must have been created or 
+#        Cells, Universes and Lattices. Segments must have been created or
 #        extracted from a file.
-# @param cmfd a Cmfd object which has been used with the geometry in 
+# @param cmfd a Cmfd object which has been used with the geometry in
 #        generating segments. The Cmfd object must have the _overlay_mesh
 #        flag set to true; otherwise, the map linking FSR IDs to CMFD cells
 #        would not have been created.
@@ -1229,7 +1229,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, \
 # @brief This method takes in a Solver object and plots a color-coded 2D
 #        surface plot representing the flat source region scalar fluxes.
 # @details The Solver must have converged the flat source sources prior to
-#          calling this routine. A user may invoke this function from an 
+#          calling this routine. A user may invoke this function from an
 #          OpenMOC Python file as follows:
 #
 # @code
@@ -1352,14 +1352,14 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
 #        flux vs. energy for one or more flat source regions.
 # @details The Solver must have converged the flat source sources prior to
 #          calling this routine. The routine will generate a step plot of the
-#          flat flux across each energy group. 
+#          flat flux across each energy group.
 #
-#          An optional parameter for the energy group bounds may be input. 
+#          An optional parameter for the energy group bounds may be input.
 #          The group bounds should be input in increasing order of energy.
-#          If group bounds are not specified, the routine will use equal 
+#          If group bounds are not specified, the routine will use equal
 #          width steps for each energy group.
 #
-#          A user may invoke this function from an OpenMOC Python file 
+#          A user may invoke this function from an OpenMOC Python file
 #          as follows:
 #
 # @code
@@ -1442,7 +1442,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
   group_deltas = np.ediff1d(group_bounds)
   group_bounds = np.flipud(group_bounds)
   group_deltas = np.flipud(group_deltas)
- 
+
   # Iterate over all flat source regions
   for fsr in fsrs:
 
@@ -1462,22 +1462,22 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
     # Draw horizontal/vertical lines on the plot for each energy group
     for group in range(num_groups):
-    
+
       # Horizontal line
       if loglog:
-        plt.loglog(group_bounds[group:group+2], [fluxes[group]]*2, 
+        plt.loglog(group_bounds[group:group+2], [fluxes[group]]*2,
                    linewidth=3, c='b', label='openmoc', linestyle='-')
       else:
-        plt.plot(group_bounds[group:group+2], [fluxes[group]]*2, 
+        plt.plot(group_bounds[group:group+2], [fluxes[group]]*2,
                  linewidth=3, c='b', label='openmoc', linestyle='-')
 
       # Vertical lines
       if group < num_groups - 1:
         if loglog:
-          plt.loglog([group_bounds[group+1]]*2, fluxes[group:group+2], 
+          plt.loglog([group_bounds[group+1]]*2, fluxes[group:group+2],
                      c='b', linestyle='--')
         else:
-          plt.plot([group_bounds[group+1]]*2, fluxes[group:group+2], 
+          plt.plot([group_bounds[group+1]]*2, fluxes[group:group+2],
                    c='b', linestyle='--')
 
     plt.xlabel('Energy')
@@ -1491,13 +1491,13 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
 
 ##
-# @brief This method plots a color-coded 2D surface plot representing the 
+# @brief This method plots a color-coded 2D surface plot representing the
 #        FSR fission rates in the Geometry.
 # @details The Solver must have converged the flat source sources prior to
 #          calling this routine. The routine will generate a step plot of the
-#          flat flux across each energy group. 
+#          flat flux across each energy group.
 #
-#          A user may invoke this function from an OpenMOC Python file 
+#          A user may invoke this function from an OpenMOC Python file
 #          as follows:
 #
 # @code
@@ -1540,7 +1540,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None,
     msg = 'Unable to plot the fission rates since the offset {0} ' \
           'is not a float'.format(offset)
     raise ValueError(msg)
-    
+
   py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
   # Get geometry

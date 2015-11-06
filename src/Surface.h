@@ -389,7 +389,7 @@ inline double Surface::getMinDistance(Point* point, double azim, double polar) {
     double dist2 = intersections[1].distanceToPoint(point);
 
     /* Determine which intersection Point is nearest */
-    if (dist1 < dist2) 
+    if (dist1 < dist2)
       distance = dist1;
     else
       distance = dist2;

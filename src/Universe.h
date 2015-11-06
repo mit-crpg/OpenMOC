@@ -225,10 +225,9 @@ struct second_t {
  * @param map a std::map iterator
  * @return the second element in the iterator (e.g., map value)
  */
-template<typename tMap> 
+template<typename tMap>
 second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
 
 #endif /* UNIVERSE_H_ */
-

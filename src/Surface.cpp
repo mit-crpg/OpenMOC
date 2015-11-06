@@ -172,16 +172,16 @@ void Surface::addNeighborCell(int halfspace, Cell* cell) {
   /* Update Cells with the neighbor Cells on the opposite Surface halfspace */
   std::vector<Cell*>::iterator iter1;
   std::vector<Cell*>::iterator iter2;
-  for (iter1 = _neighbors[-1]->begin(); 
+  for (iter1 = _neighbors[-1]->begin();
        iter1 != _neighbors[-1]->end(); ++iter1) {
-    for (iter2 = _neighbors[1]->begin(); 
+    for (iter2 = _neighbors[1]->begin();
          iter2 != _neighbors[1]->end(); ++iter2)
       (*iter1)->addNeighborCell(*iter2);
   }
 
-  for (iter1 = _neighbors[1]->begin(); 
+  for (iter1 = _neighbors[1]->begin();
        iter1 != _neighbors[1]->end(); ++iter1) {
-    for (iter2 = _neighbors[-1]->begin(); 
+    for (iter2 = _neighbors[-1]->begin();
          iter2 != _neighbors[-1]->end(); ++iter2)
       (*iter1)->addNeighborCell(*iter2);
   }
@@ -194,7 +194,7 @@ void Surface::addNeighborCell(int halfspace, Cell* cell) {
  * @return on (true) or off (false) the Surface
  */
 bool Surface::isPointOnSurface(Point* point) {
-  
+
   /* Uses a threshold to determine whether the point is on the Surface */
   if (fabs(evaluate(point)) < ON_SURFACE_THRESH)
     return true;
@@ -370,7 +370,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
 
   /* The track is not parallel to the plane */
   else{
-    
+
     l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
       (_A * mx + _B * my + _C * mz);
     xcurr = x0 + l * mx;
@@ -379,7 +379,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
 
     if (l > 0.0)
       num++;
-    
+
     points[0].setCoords(xcurr, ycurr, zcurr);
   }
 
@@ -807,7 +807,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI_2)
           num++;
         else if (zcurr < z0 && polar > M_PI_2)
@@ -815,13 +815,13 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI_2)
           num++;
         else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;        
+          num++;
       }
     }
 
@@ -831,7 +831,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
       ycurr = (-b + sqrt(discr)) / (2 * a);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -839,7 +839,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -852,7 +852,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
       ycurr = (-b - sqrt(discr)) / (2 * a);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -860,7 +860,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -868,7 +868,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      
+
       return num;
     }
   }
@@ -899,7 +899,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
       ycurr = y0 + m * (points[num].getX() - x0);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0){
+      if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
@@ -907,7 +907,7 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0){
+      else if (azim > M_PI && ycurr < y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)

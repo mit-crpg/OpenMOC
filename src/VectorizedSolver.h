@@ -74,7 +74,7 @@ public:
 
   int getNumVectorWidths();
 
-  void setFixedSourceByFSR(int fsr_id, int group, 
+  void setFixedSourceByFSR(int fsr_id, int group,
                            FP_PRECISION source);
   void setGeometry(Geometry* geometry);
 };
