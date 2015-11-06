@@ -2769,8 +2769,6 @@ void TrackGenerator::initialize3DTrackReflections() {
                 else {
                   
                   polar_group[i][t]->setBCFwd
-
-                  _tracks_3D_cycle[a][c][p][i][t]->setBCFwd
                     (_geometry->getMinYBoundaryType());
 
                   /* REFLECTIVE */
@@ -3378,13 +3376,13 @@ void TrackGenerator::segmentizeExtruded() {
 
   log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
 
-  /* Get all unique z-levels at which 2D radial segementation is performed */
-  std::vector<double> z_levels = _geometry->getUniqueZLevels();
+  /* Get all unique z-coords at which 2D radial segementation is performed */
+  std::vector<double> z_coords = _geometry->getUniqueZPlanes();
 
   /* Loop over all extruded Tracks */
   #pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++)
-    _geometry->segmentizeExtruded(&_extruded_tracks[index], z_levels);
+    _geometry->segmentizeExtruded(&_extruded_tracks[index], z_coords);
 
   /* Initialize 3D FSRs and their associated vectors*/
   _geometry->initializeAxialFSRs();
@@ -4842,7 +4840,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
   /* Extract starting coordinates */
   double x_start_3D = start->getX();
   double x_start_2D = extruded_track->_track_2D->getStart()->getX();
-  double z_level = start->getZ();
+  double z_coord = start->getZ();
 
   /* Find 2D distance from 2D edge to start of track */
   double start_dist_2D = (x_start_3D - x_start_2D) / cos(phi);
@@ -4863,7 +4861,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
 
   /* Track current location in root universe */
   Cmfd* cmfd = _geometry->getCmfd();
-  LocalCoords curr_coords(start->getX(), start->getY(), z_level);
+  LocalCoords curr_coords(start->getX(), start->getY(), z_coord);
   curr_coords.setUniverse(_geometry->getRootUniverse());
 
   FP_PRECISION tiny_delta_x = seg_unit * cos(phi) * TINY_MOVE;
@@ -4878,7 +4876,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
     ExtrudedFSR* extruded_FSR = extruded_track->_regions[s];
     FP_PRECISION* mesh = extruded_FSR->_mesh;
     int num_regions = extruded_FSR->_num_fsrs;
-    int z_ind = binarySearch(mesh, num_regions+1, z_level, sign);
+    int z_ind = binarySearch(mesh, num_regions+1, z_coord, sign);
 
     /* Extract 2D segment length */
     double remaining_length_2D = extruded_track->_lengths[s] - start_dist_2D;
@@ -4889,7 +4887,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
 
       /* Calculate 3D distance to z intersection */
       int mesh_ind = z_ind + (1 + sign) / 2;
-      double z_dist_3D = (mesh[mesh_ind] - z_level) / z_unit;
+      double z_dist_3D = (mesh[mesh_ind] - z_coord) / z_unit;
 
       /* Calculate 3D distance to end of segment */
       double seg_dist_3D = remaining_length_2D / seg_unit;
@@ -4932,7 +4930,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
 
       /* Shorten remaining 2D segment length and move axial level */
       remaining_length_2D -= dist_2D;
-      z_level += dist_3D * z_unit;
+      z_coord += dist_3D * z_unit;
       z_ind += z_move;
 
       /* Check if the track has crossed a Z boundary */

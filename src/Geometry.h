@@ -183,7 +183,7 @@ public:
   int getNumCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Cell*> getAllMaterialCells();
-  std::vector<double> getUniqueZLevels();
+  std::vector<double> getUniqueZPlanes();
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
@@ -216,7 +216,7 @@ public:
   void segmentize2D(Track2D* track, double z_coord);
   void segmentize3D(Track3D* track);
   void segmentizeExtruded(ExtrudedTrack* extruded_track,
-      std::vector<double> z_levels);
+      std::vector<double> z_coords);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
 

@@ -822,7 +822,7 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
- * @param z_level the axial height at which the 2D plane of the geometry is
+ * @param z_coord the axial height at which the 2D plane of the geometry is
  *        formed
  */
 void Geometry::segmentize2D(Track2D* track, double z_coord) {
@@ -1047,17 +1047,17 @@ void Geometry::segmentize3D(Track3D* track) {
  *        all radial geometric detail.
  * @details This method starts at the beginning of an extruded track and finds
  *          successive intersection points with FSRs as the extruded track
- *          crosses radially through the Geometry at defined z-levels. The
- *          minimum distance to intersection of all z-levels is chosen leading
+ *          crosses radially through the Geometry at defined z-coords. The
+ *          minimum distance to intersection of all z-coords is chosen leading
  *          to implicitly capturing all geometric radial detail at the defined
  *          z-heights, saving the lengths and region IDs to the extruded track
  *          and initializing ExtrudedFSR structs in the traversed FSRs.
  * @param extruded_track a pointer to a extruded track to segmentize
- * @param z_levels a vector of axial heights in the root geometry at which
+ * @param z_coords a vector of axial heights in the root geometry at which
  *        the Geometry is segmentized radially
  */
 void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
-    std::vector<double> z_levels) {
+    std::vector<double> z_coords) {
 
   /* Extract the associated 2D track */
   Track2D* track = extruded_track->_track_2D;
@@ -1065,7 +1065,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
-  double z0 = z_levels[0];
+  double z0 = z_coords[0];
   double phi = track->getPhi();
   double delta_x, delta_y, delta_z;
 
@@ -1099,11 +1099,11 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
     end.copyCoords(&start);
 
     /* Loop over all z-heights to find shortest 2D intersection */
-    for (int i=0; i < z_levels.size(); i++) {
+    for (int i=0; i < z_coords.size(); i++) {
 
       /* Copy starting cordinates to end and change z-height */
       start.copyCoords(&end);
-      end.setZ(z_levels[i]);
+      end.setZ(z_coords[i]);
 
       /* Find the next Cell along the Track's trajectory */
       curr = findNextCell(&end, phi);
@@ -1125,7 +1125,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
 
     /* Traverse across shortest segment */
     start.copyCoords(&end);
-    end.setZ(z_levels[min_z_ind]);
+    end.setZ(z_coords[min_z_ind]);
     curr = findNextCell(&end, phi);
 
     /* Find FSR using starting coordinate */
@@ -1546,7 +1546,7 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
 }
 
 /**
- * @brief Returns a vector of z-levels defining potential unique radial planes
+ * @brief Returns a vector of z-coords defining potential unique radial planes
  *        in the Geometry
  * @details The Geometry is traversed to retrieve all Z-planes and implicit
  *          z-boundaries, such as lattice boundaries. The levels of all these
@@ -1554,9 +1554,9 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
  *          duplicates, creating a mesh. The mid points of the mesh are then
  *          used to construcut a vector of all potential unique radial planes
  *          and returned to the user.
- * @reutrn a vector of z-levels
+ * @reutrn a vector of z-coords
  */
-std::vector<double> Geometry::getUniqueZLevels() {
+std::vector<double> Geometry::getUniqueZPlanes() {
 
   /* Get the bounds of the geometry */
   double min_z = getMinZ();
@@ -1733,7 +1733,7 @@ std::vector<double> Geometry::getUniqueZLevels() {
     }
   }
 
-  /* Calculate z-levels from the midpoints of the mesh */
+  /* Calculate z-coords from the midpoints of the mesh */
   std::vector<double> unique_levels;
   std::set<double>::iterator iter = unique_mesh.begin();
   double prev = *iter;
