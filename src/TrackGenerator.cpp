@@ -288,7 +288,6 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
                "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
 
-  int azim_index;
   segment* curr_segment;
   FP_PRECISION volume = 0;
 
@@ -299,7 +298,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
         if (curr_segment->_region_id == fsr_id)
-          volume += curr_segment->_length * _azim_weights[azim_index];
+          volume += curr_segment->_length * _azim_weights[i];
       }
     }
   }

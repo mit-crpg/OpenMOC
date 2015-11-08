@@ -530,16 +530,12 @@ def _load_openmc_src(mgxs_lib, solver):
         # Get OpenMOC domain corresponding to the OpenMOC domain
         openmoc_domain = openmoc_domains[openmc_domain.id]
 
-        # Compute the total volume filled by this domain
-        domain_volume = openmoc_domain.getVolume()
-        num_instances = openmoc_domain.getNumInstances()
-
         # If this domain is not found in the OpenMOC geometry, ignore it
-        if num_instances == 0:
+        if openmoc_domain.getNumInstances() == 0:
             continue
-        # Compute the total volume of all replicas of this Cell in the Geometry
-        else:
-            tot_volume = num_instances * domain_volume
+
+        # Compute the total volume filled by this domain throughout the geometry
+        tot_volume = openmoc_domain.getVolume()
 
         # Extract an openmc.mgxs.MGXS object for the scattering matrix
         if 'nu-scatter matrix' in mgxs_lib.mgxs_types:
