@@ -1070,36 +1070,15 @@ void TrackGenerator::initializeVolumes() {
   /* Compute volume and number of instances for each Cell and Material */
   for (int i=0; i < num_FSRs; i++) {
     cell = _geometry->findCellContainingFSR(i);
-    cell->setVolume(cell->getVolume() + fsr_volumes[i]);
-    cell->setNumInstances(cell->getNumInstances() + 1);
+    cell->incrementVolume(fsr_volumes[i]);
+    cell->incrementNumInstances();
 
     material = cell->getFillMaterial();
-    material->setVolume(material->getVolume() + fsr_volumes[i]);
-    material->setNumInstances(material->getNumInstances() + 1);
+    material->incrementVolume(fsr_volumes[i]);
+    material->incrementNumInstances();
   }
 
   delete [] fsr_volumes;
-
-  /* Compute the average Cell volumes */
-  std::map<int, Cell*> cells = _geometry->getAllMaterialCells();
-  std::map<int, Cell*>::iterator c_iter;
-
-  for (c_iter = cells.begin(); c_iter != cells.end(); ++c_iter) {
-    cell = (*c_iter).second;
-    material = cell->getFillMaterial();
-
-    if (cell->getNumInstances() > 0)
-      cell->setVolume(cell->getVolume() / cell->getNumInstances());
-  }
-
-  /* Compute the average Material volumes */
-  std::map<int, Material*> materials = _geometry->getAllMaterials();
-  std::map<int, Material*>::iterator m_iter;
-  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter) {
-    material = (*m_iter).second;
-    if (material->getNumInstances() > 0)
-      material->setVolume(material->getVolume() / material->getNumInstances());
-  }
 }
 
 

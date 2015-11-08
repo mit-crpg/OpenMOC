@@ -172,7 +172,9 @@ public:
   void setFill(Material* fill);
   void setFill(Universe* fill);
   void setVolume(double volume);
+  void incrementVolume(double volume);
   void setNumInstances(int num_instances);
+  void incrementNumInstances();
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
   void addSurface(int halfspace, Surface* surface);

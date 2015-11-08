@@ -151,7 +151,7 @@ Universe* Cell::getFillUniverse() {
 
 
 /**
- * @brief Return the volume/area of this Cell.
+ * @brief Return the aggregate volume/area of all instances of this Cell.
  * @details The volume/area of the Cell is computed from track segments which
  *          overlap this Cell during track generation.
  * @return the volume/area of the Cell
@@ -413,8 +413,6 @@ void Cell::setFill(Universe* fill) {
 
 /**
  * @brief Set the volume/area of the Cell.
- * @details This routine is called by the TrackGenerator during track 
- *          generation and segmentation.
  * @param volume the volume/area of the Cell
  */
 void Cell::setVolume(double volume) {
@@ -423,13 +421,32 @@ void Cell::setVolume(double volume) {
 
 
 /**
- * @brief Set the number of instances of this Cell.
+ * @brief Increment the volume/area of the Cell by some amount.
  * @details This routine is called by the TrackGenerator during track 
  *          generation and segmentation.
+ * @param volume the amount to increment the current volume by
+ */
+void Cell::incrementVolume(double volume) {
+  _volume += volume;
+}
+
+
+/**
+ * @brief Set the number of instances of this Cell.
  * @param num_instances the number of instances of this Cell in the Geometry
  */
 void Cell::setNumInstances(int num_instances) {
   _num_instances = num_instances;
+}
+
+
+/**
+ * @brief Increment the number of instances of this Cell.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ */
+void Cell::incrementNumInstances() {
+  _num_instances++;
 }
 
 

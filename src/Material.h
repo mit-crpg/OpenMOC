@@ -124,7 +124,9 @@ public:
 
   void setName(const char* name);
   void setVolume(double volume);
+  void incrementVolume(double volume);
   void setNumInstances(int num_instances);
+  void incrementNumInstances();
   void setNumEnergyGroups(const int num_groups);
 
   void setSigmaT(double* xs, int num_groups);

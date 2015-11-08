@@ -137,7 +137,7 @@ char* Material::getName() const {
 
 
 /**
- * @brief Return the volume/area of this Material.
+ * @brief Return the aggregate volume/area of all instances of this Material.
  * @details The volume/area of the Material is computed from track segments
  *          which overlap this Material during track generation.
  * @return the volume/area of the Material
@@ -411,8 +411,6 @@ void Material::setName(const char* name) {
 
 /**
  * @brief Set the volume/area of the Material.
- * @details This routine is called by the TrackGenerator during track 
- *          generation and segmentation.
  * @param volume the volume/area of the Material
  */
 void Material::setVolume(double volume) {
@@ -421,13 +419,32 @@ void Material::setVolume(double volume) {
 
 
 /**
- * @brief Set the number of instances of this Material.
+ * @brief Increment the volume/area of the Material by some amount.
  * @details This routine is called by the TrackGenerator during track 
  *          generation and segmentation.
+ * @param volume the amount to increment the current volume by
+ */
+void Material::incrementVolume(double volume) {
+  _volume += volume;
+}
+
+
+/**
+ * @brief Set the number of instances of this Material.
  * @param num_instances the number of instances of this Material in the Geometry
  */
 void Material::setNumInstances(int num_instances) {
   _num_instances = num_instances;
+}
+
+
+/**
+ * @brief Increment the number of instances of this Material.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ */
+void Material::incrementNumInstances() {
+  _num_instances++;
 }
 
 
