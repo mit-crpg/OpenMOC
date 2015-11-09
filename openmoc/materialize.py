@@ -383,10 +383,11 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 # @param fix_src_tol the tolerance on the MOC fixed source calculations
 # @param num_azim number of azimuthal angles to use in fixed source calculations
 # @param track_spacing the track spacing to use in fixed source calculations
+# @param num_threads the number of threads to use in fixed source calculations
 # @return a NumPy array of SPH factors and a new openmc.mgxs.Library object
 #         with the SPH factors applied to each MGXS object
 def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
-                        num_azim=4, track_spacing=0.1, zcoord=0.0):
+                        num_azim=4, track_spacing=0.1, num_threads=1, zcoord=0.0):
 
     import openmc.mgxs
 
@@ -424,6 +425,7 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
     # Initialize an OpenMOC Solver
     solver = openmoc.CPUSolver(track_generator)
     solver.setConvergenceThreshold(fix_src_tol)
+    solver.setNumThreads(num_threads)
     openmc_fluxes = _load_openmc_src(mgxs_lib, solver)
 
     # Set OpenMOC log level to reduce verbosity

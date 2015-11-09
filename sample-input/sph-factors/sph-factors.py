@@ -60,7 +60,8 @@ keff_no_sph = solver.getKeff()
 # Compute SPH factors
 sph, sph_mgxs_lib = compute_sph_factors(mgxs_lib, max_iters=30,
                                         num_azim=num_azim,
-                                        track_spacing=spacing)
+                                        track_spacing=spacing,
+                                        num_threads=num_threads)
 
 # Load the SPH-corrected MGXS library data
 openmoc_materials = load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
