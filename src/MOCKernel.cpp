@@ -52,7 +52,7 @@ void MOCKernel::setWeight(FP_PRECISION weight) {
 
 /**
  * @brief Sets the maximum allowed optical path length before segments are
- *          split
+ *        split
  * @param max_tau maximum optical path length
  */
 void MOCKernel::setMaxVal(FP_PRECISION max_tau) {
@@ -63,8 +63,8 @@ void MOCKernel::setMaxVal(FP_PRECISION max_tau) {
 /*
  * @brief Reads and returns the current count
  * @details MOC kernels count how many times they are accessed. This value
- *          returns the value of the counter since kernel creation or last
- *          reset.
+ *          returns the value of the counter (number of execute accesses) 
+ *          since kernel creation or last reset.
  * @return _count the counter value
  */
 int MOCKernel::getCount() {

@@ -1185,7 +1185,7 @@ void Geometry::initializeAxialFSRs() {
     Track3D track;
     track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
 
-    /* Shoot verticle track through the geometry to initialize 3D FSRs */
+    /* Shoot vertical track through the geometry to initialize 3D FSRs */
     segmentize3D(&track);
 
     /* Extract segments from track */
@@ -1653,7 +1653,7 @@ std::vector<double> Geometry::getUniqueZPlanes() {
             double C = plane->getC();
             double D = plane->getD();
 
-            /* Check if there is a z-compenent */
+            /* Check if there is a z-component */
             if (C != 0) {
 
               /* Check if plane has a continuous varying slope */

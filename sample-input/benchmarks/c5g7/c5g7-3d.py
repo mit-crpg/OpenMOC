@@ -66,7 +66,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51,3)
+cmfd.setLatticeStructure(3,3,3)
 cmfd.setGroupStructure([1,4,8])
 cmfd.setOpticallyThick(True)
 cmfd.setKNearest(4)
@@ -96,7 +96,7 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-#track_generator.setOTF()
+track_generator.setOTF()
 track_generator.generateTracks()
 
 
