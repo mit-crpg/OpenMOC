@@ -188,8 +188,8 @@ void CPUSolver::zeroTrackFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++) {
-        _boundary_flux(t,d,pe) = 0.0;
-        _start_flux(t,d,pe) = 0.0;
+        _boundary_flux(t, d, pe) = 0.0;
+        _start_flux(t, d, pe) = 0.0;
       }
     }
   }
@@ -206,7 +206,7 @@ void CPUSolver::copyBoundaryFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++)
-        _boundary_flux(t,d,pe) = _start_flux(t,d,pe);
+        _boundary_flux(t,d,pe) = _start_flux(t, d, pe);
     }
   }
 }
@@ -281,7 +281,7 @@ void CPUSolver::normalizeFluxes() {
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
-      _scalar_flux(r,e) *= norm_factor;
+      _scalar_flux(r, e) *= norm_factor;
   }
 
   /* Normalize angular boundary fluxes for each Track */
@@ -289,8 +289,8 @@ void CPUSolver::normalizeFluxes() {
   for (int i=0; i < _tot_num_tracks; i++) {
     for (int j=0; j < 2; j++) {
       for (int pe=0; pe < _fluxes_per_track; pe++) {
-        _start_flux(i,j,pe) *= norm_factor;
-        _boundary_flux(i,j,pe) *= norm_factor;
+        _start_flux(i, j, pe) *= norm_factor;
+        _boundary_flux(i, j, pe) *= norm_factor;
       }
     }
   }
@@ -599,7 +599,7 @@ void CPUSolver::transportSweep() {
 
   log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
-  /* Initialize flux in each FSr to zero */
+  /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
@@ -687,7 +687,7 @@ void CPUSolver::transportSweepOTF() {
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroSurfaceCurrents();
 
-  /* Initialize flux in each FSr to zero */
+  /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
   /* Unpack information from track generator */
@@ -804,9 +804,9 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     for (int e=0; e < _num_groups; e++) {
       exponential = _exp_evaluator->computeExponential
         (sigma_t[e] * length, a, p);
-      delta_psi = (track_flux(e)-_reduced_sources(fsr_id,e)) * exponential;
+      delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
       fsr_flux[e] += delta_psi * _azim_spacings[a] * _polar_spacings[a][p] *
-        _quad->getMultiple(a,p) * 4.0 * M_PI;
+        _quad->getMultiple(a, p) * 4.0 * M_PI;
       track_flux(e) -= delta_psi;
     }
   }
@@ -910,7 +910,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     }
   }
 
-  FP_PRECISION* track_out_flux = &_start_flux(track_out_id,0,start);
+  FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start);
 
   /* Set bc to 1 if bc is PERIODIC (bc == 2) */
   if (bc == PERIODIC)
@@ -922,7 +922,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
       track_out_flux(e) = track_flux(e) * bc;
       track_leakage(e) = track_flux(e) * (!bc) *
         _azim_spacings[a] * _polar_spacings[a][p] *
-        _quad->getMultiple(a,p) * 4.0 * M_PI;
+        _quad->getMultiple(a, p) * 4.0 * M_PI;
     }
   }
   else{
@@ -960,9 +960,9 @@ void CPUSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) *= 0.5;
-      _scalar_flux(r,e) /= (sigma_t[e] * volume);
-      _scalar_flux(r,e) += FOUR_PI * _reduced_sources(r,e);
+      _scalar_flux(r, e) *= 0.5;
+      _scalar_flux(r, e) /= (sigma_t[e] * volume);
+      _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e);
     }
   }
 

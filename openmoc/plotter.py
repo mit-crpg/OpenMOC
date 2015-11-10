@@ -1857,15 +1857,16 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
 ##
 # @brief This method takes in a Geometry object and plots a color-coded 2D
 #        surface plot representing the flat source regions in the Geometry.
-#        The FSR centroids are plotted as black circles on top of the FSRs if
-#        the centroids boolean is set to True. Additionally, segments from 
-#        a Track with ID track_id are plotted ontop of the flat source regions.
-# @details The Geometry object must be initialized with Materials, Cells,
-#          Universes and Lattices before being passed into this method. A user
-#          may invoke this function from an OpenMOC Python file as follows:
+# @details The FSR centroids are plotted as black circles on top of the FSRs if
+#          the centroids boolean is set to True. Additionally, segments from
+#          a Track with ID track_id are plotted on top of the flat source
+#          regions. The Geometry object must be initialized with Materials,
+#          Cells, Universes and Lattices before being passed into this method.
+#          A user may invoke this function from an OpenMOC Python file as
+#          follows:
 #
 # @code
-#         openmoc.plotter.plot_segments_vs_fsrs(geometry, track_generator)
+#         openmoc.plotter.plot_segments_on_fsrs(geometry, track_generator)
 # @endcode
 #
 # @param track_generator the TrackGenerator which has generated Tracks
@@ -1875,7 +1876,8 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
+# @param zlim optional list/tuple of the minimim/maximum z-coordinates
+def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
                        xlim=None, ylim=None, zlim=None, plane='xy', offset=0.,
                        centroids=False, marker_type='o', marker_size=2):
 
@@ -1981,7 +1983,7 @@ def plot_segments_vs_fsrs(geometry, track_generator, track_id=0, gridsize=250,
   all_ids = np.arange(num_fsrs, dtype=np.int64)
 
   id_colors = np.arange(num_fsrs, dtype=np.int64)
-  numpy.random.seed(26)
+  numpy.random.seed(1)
   np.random.shuffle(id_colors)
 
   ids_to_colors = np.arange(num_fsrs, dtype=np.int64)
