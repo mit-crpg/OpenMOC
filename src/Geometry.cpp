@@ -1071,7 +1071,6 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
 
   /* Length of each segment */
   FP_PRECISION length;
-  FP_PRECISION min_length = 0;
   int min_z_ind = 0;
   ExtrudedFSR* fsr;
   int num_segments;
@@ -1095,15 +1094,18 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
    * Geometry */
   while (curr != NULL) {
 
+    /* Records the minimum length to a 2D intersection */
+    FP_PRECISION min_length = -std::numeric_limits<FP_PRECISION>::infinity();
+    
     /* Copy end coordinates to start */
     end.copyCoords(&start);
 
     /* Loop over all z-heights to find shortest 2D intersection */
     for (int i=0; i < z_coords.size(); i++) {
 
-      /* Copy starting cordinates to end and change z-height */
+      /* Change z-height and copy starting cordinates to end */
+      start.setZ(z_coords[i]);
       start.copyCoords(&end);
-      end.setZ(z_coords[i]);
 
       /* Find the next Cell along the Track's trajectory */
       curr = findNextCell(&end, phi);
@@ -1117,22 +1119,19 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
       length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
 
       /* Check if the segment length is the smallest found */
-      if (i == 0 || length < min_length) {
+      if (length < min_length) {
         min_length = length;
         min_z_ind = i;
       }
     }
 
     /* Traverse across shortest segment */
+    start.setZ(z_coords[min_z_ind]);
     start.copyCoords(&end);
-    end.setZ(z_coords[min_z_ind]);
     curr = findNextCell(&end, phi);
 
     /* Find FSR using starting coordinate */
     fsr = findExtrudedFSR(&start);
-
-    /* Reset end axial height to z0 */
-    end.setZ(z0);
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
