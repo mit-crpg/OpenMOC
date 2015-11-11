@@ -260,6 +260,7 @@ public:
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);
+  int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
   bool isSolve2D();
   bool isSolve3D();
   bool isOTF();
@@ -280,6 +281,5 @@ public:
 };
 
 
-int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
 
 #endif /* TRACKGENERATOR_H_ */

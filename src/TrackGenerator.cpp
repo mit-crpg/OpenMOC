@@ -4691,7 +4691,8 @@ FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
  * @param val the level to be searched for in the mesh
  * @param sign the direction of the ray in the z-direction
  */
-int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
+int TrackGenerator::binarySearch(FP_PRECISION* values, int size,
+                                 FP_PRECISION val, int sign) {
 
   /* Initialize indexes into the values array */
   int imin = 0;
