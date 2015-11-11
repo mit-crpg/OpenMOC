@@ -39,6 +39,8 @@ TrackGenerator::~TrackGenerator() {
 
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_3D_tracks) {
+    
+    /* Delete 3D tracks */
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
@@ -53,6 +55,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks_3D_stack;
     delete [] _tracks_per_stack;
 
+    /* Delete book keeping for 3D tracks */
     for (int a = 0; a < _num_azim/4; a++) {
       for (int c = 0; c < _cycles_per_azim[a]; c++) {
         for (int p=0; p < _num_polar; p++) {
@@ -70,6 +73,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks_3D_cycle;
     delete [] _tracks_per_train;
 
+    /* Delete track laydown information */
     for (int a=0; a < _num_azim/4; a++) {
       delete [] _num_l[a];
       delete [] _num_z[a];
@@ -77,7 +81,6 @@ TrackGenerator::~TrackGenerator() {
       delete [] _dz_eff[a];
       delete [] _polar_spacings[a];
     }
-
     delete [] _num_l;
     delete [] _num_z;
     delete [] _dl_eff;
@@ -87,10 +90,12 @@ TrackGenerator::~TrackGenerator() {
 
   if (_contains_2D_tracks) {
 
+    /* Delete 2D tracks */
     for (int a=0; a < _num_azim/2; a++)
       delete [] _tracks_2D[a];
     delete [] _tracks_2D;
 
+    /* Delete track laydown information */
     delete [] _num_x;
     delete [] _num_y;
     delete [] _dx_eff;
@@ -101,6 +106,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _cycle_length;
   }
 
+  /* Delete extruded tracks if created */
   if (_contains_extruded_tracks)
     delete[] _extruded_tracks;
 }
@@ -1039,7 +1045,7 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
  * @param num_tracks the total number of Tracks
  */
 void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
-    int num_tracks) {
+                                                   int num_tracks) {
 
   if (num_tracks != 5*getNum2DTracks())
     log_printf(ERROR, "Unable to retrieve the 2D Track periodic cycle "
@@ -1084,7 +1090,7 @@ void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
  * @param num_tracks the total number of Tracks
  */
 void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
-    int num_tracks) {
+                                                     int num_tracks) {
 
   if (num_tracks != 5*getNum2DTracks())
     log_printf(ERROR, "Unable to retrieve the 2D Track reflective cycle "
@@ -1129,7 +1135,7 @@ void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
  * @param num_tracks the total number of Tracks
  */
 void TrackGenerator::retrieve3DPeriodicCycleCoords(double* coords,
-    int num_tracks) {
+                                                   int num_tracks) {
 
   if (num_tracks != 7*getNum3DTracks())
     log_printf(ERROR, "Unable to retrieve the 3D Track periodic cycle "
@@ -1180,7 +1186,7 @@ void TrackGenerator::retrieve3DPeriodicCycleCoords(double* coords,
  * @param num_tracks the total number of Tracks
  */
 void TrackGenerator::retrieve3DReflectiveCycleCoords(double* coords,
-    int num_tracks) {
+                                                     int num_tracks) {
 
   if (num_tracks != 7*getNum3DTracks())
     log_printf(ERROR, "Unable to retrieve the 3D Track reflective cycle "
@@ -1469,7 +1475,7 @@ void TrackGenerator::checkBoundaryConditions() {
  * @param num_segments the total number of extruded track segments
  */
 void TrackGenerator::retrieveExtrudedSegmentCoords(double* coords,
-    int num_segments) {
+                                                   int num_segments) {
 
   if (num_segments != 5*getNumExtrudedSegments())
     log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
@@ -4733,7 +4739,7 @@ int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
  * @param track_id the ID of the requested track
  */
 void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
-    int track_id) {
+                                                 int track_id) {
 
   /* Find 3D track associated with track_id */
   for (int a=0; a < _num_azim/2; a++)
@@ -4837,7 +4843,8 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
  * @param kernel An MOCKernel object to apply to the calculated 3D segments
  */
 void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
-    Point* start, double theta, MOCKernel* kernel) {
+                                      Point* start, double theta, 
+                                      MOCKernel* kernel) {
 
   /* Create unit vector */
   double phi = extruded_track->_track_2D->getPhi();
