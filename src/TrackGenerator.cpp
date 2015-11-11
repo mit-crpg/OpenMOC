@@ -13,7 +13,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
 
   setNumThreads(1);
 
-   _geometry = geometry;
+  _geometry = geometry;
   setNumAzim(num_azim);
   setNumPolar(num_polar);
   setDesiredAzimSpacing(azim_spacing);
@@ -26,7 +26,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _z_coord = 0.0;
   _solve_3D = true;
   _OTF = false;
-  _max_optical_length = 1.79769e+308;
+  _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _track_generation_method = GLOBAL_TRACKING;
   _dump_segments = true;
 }
@@ -596,7 +596,7 @@ FP_PRECISION* TrackGenerator::get2DFSRVolumes() {
   FP_PRECISION volume;
 
   /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for each FSR.  */
+   * all Track segments multiplied by the Track "widths" for each FSR.  */
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int s=0; s < _tracks_2D[a][i].getNumSegments(); s++) {
@@ -636,7 +636,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
   FP_PRECISION volume;
 
   /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for each FSR.  */
+   * all Track segments multiplied by the Track "widths" for each FSR.  */
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
@@ -679,7 +679,7 @@ FP_PRECISION TrackGenerator::get2DFSRVolume(int fsr_id) {
   FP_PRECISION volume = 0.0;
 
   /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for each FSR.  */
+   * all Track segments multiplied by the Track "widths" for each FSR.  */
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int s=0; s < _tracks_2D[a][i].getNumSegments(); s++) {
@@ -714,7 +714,7 @@ FP_PRECISION TrackGenerator::get3DFSRVolume(int fsr_id) {
   FP_PRECISION volume = 0.0;
 
   /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for each FSR.  */
+   * all Track segments multiplied by the Track "widths" for each FSR.  */
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
@@ -1223,7 +1223,7 @@ void TrackGenerator::retrieve3DReflectiveCycleCoords(double* coords,
  *
  * @code
  *          num_tracks = track_generator.getNumTracks()
- *          coords = track_generator.retrieveTrackCoords(num_tracks*4)
+ *          coords = track_generator.retrieveTrackCoords(num_tracks*6)
  * @endcode
  *
  * @param coords an array of coords of length 6 times the number of Tracks
@@ -1269,7 +1269,7 @@ void TrackGenerator::retrieve3DTrackCoords(double* coords, int num_tracks) {
  *
  * @code
  *          num_segments = track_generator.getNumSegments()
- *          coords = track_generator.retrieveSegmentCoords(num_segments*5)
+ *          coords = track_generator.retrieveSegmentCoords(num_segments*7)
  * @endcode
  *
  * @param coords an array of coords of length 7 times the number of segments
@@ -3228,6 +3228,8 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
  */
 void TrackGenerator::initializeExtrudedTracks() {
 
+  log_printf(NORMAL, "Initializing extruded tracks...");
+  
   _extruded_tracks = new ExtrudedTrack[_num_2D_tracks];
 
   size_t index = 0;
@@ -3373,7 +3375,7 @@ void TrackGenerator::segmentize2D() {
 
 /**
  * @brief Generates 2D segments for each extruded track across the Geometry,
- *        initilaizing axially extruded regions as well as 3D FSRs.
+ *        initializing axially extruded regions as well as 3D FSRs.
  */
 void TrackGenerator::segmentizeExtruded() {
 
@@ -4733,7 +4735,7 @@ int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign) {
 void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
     int track_id) {
 
-  // Find 3D track
+  /* Find 3D track associated with track_id */
   for (int a=0; a < _num_azim/2; a++)
     for (int i=0; i < getNumX(a) + getNumY(a); i++)
       for (int p=0; p < _num_polar; p++)
@@ -4748,6 +4750,8 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
             coords[5] = _tracks_3D_stack[a][i][p][z].getEnd()->getZ();
             return;
           }
+  log_printf(ERROR, "Unable to find a 3D track associated with the given track"
+                    "ID during coordinate retrieval");
   return;
 }
 
@@ -4770,10 +4774,10 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
   kernel.setBuffer(FSR_volumes);
 
   /* Calculate each FSR's "volume" by accumulating the total length of
-   * all Track segments multipled by the Track "widths" for each FSR.  */
+   * all Track segments multiplied by the Track "widths" for each FSR.  */
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
-    /* Extract indecies of 3D tracks associated with the extruded track */
+    /* Extract indices of 3D tracks associated with the extruded track */
     ExtrudedTrack* extruded_track = &_extruded_tracks[ext_id];
     int a = extruded_track->_azim_index;
     int azim_index = _quadrature->getFirstOctantAzim(a);
@@ -4838,7 +4842,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
   /* Create unit vector */
   double phi = extruded_track->_track_2D->getPhi();
   double z_unit = cos(theta);
-  double seg_unit = sin(theta);
+  double radial_unit = sin(theta);
   int sign = (z_unit > 0) - (z_unit < 0);
 
   /* Extract starting coordinates */
@@ -4868,8 +4872,8 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
   LocalCoords curr_coords(start->getX(), start->getY(), z_coord);
   curr_coords.setUniverse(_geometry->getRootUniverse());
 
-  FP_PRECISION tiny_delta_x = seg_unit * cos(phi) * TINY_MOVE;
-  FP_PRECISION tiny_delta_y = seg_unit * sin(phi) * TINY_MOVE;
+  FP_PRECISION tiny_delta_x = radial_unit * cos(phi) * TINY_MOVE;
+  FP_PRECISION tiny_delta_y = radial_unit * sin(phi) * TINY_MOVE;
   FP_PRECISION tiny_delta_z = z_unit * TINY_MOVE;
 
   /* Loop over 2D segments */
@@ -4894,14 +4898,14 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
       double z_dist_3D = (mesh[mesh_ind] - z_coord) / z_unit;
 
       /* Calculate 3D distance to end of segment */
-      double seg_dist_3D = remaining_length_2D / seg_unit;
+      double seg_dist_3D = remaining_length_2D / radial_unit;
 
       /* Calcualte shortest distance to intersection */
       double dist_2D;
       double dist_3D;
       int z_move;
       if (z_dist_3D < seg_dist_3D) {
-        dist_2D = z_dist_3D * seg_unit;
+        dist_2D = z_dist_3D * radial_unit;
         dist_3D = z_dist_3D;
         z_move = sign;
       }
@@ -4920,8 +4924,8 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
         curr_coords.adjustCoords(-tiny_delta_x, -tiny_delta_y, -tiny_delta_z);
         cmfd_surface_bwd = cmfd->findCmfdSurface(cmfd_cell, &curr_coords);
 
-        FP_PRECISION delta_x = seg_unit * cos(phi) * dist_3D;
-        FP_PRECISION delta_y = seg_unit * sin(phi) * dist_3D;
+        FP_PRECISION delta_x = radial_unit * cos(phi) * dist_3D;
+        FP_PRECISION delta_y = radial_unit * sin(phi) * dist_3D;
         FP_PRECISION delta_z = z_unit * dist_3D;
         curr_coords.adjustCoords(delta_x, delta_y, delta_z);
         cmfd_surface_fwd = cmfd->findCmfdSurface(cmfd_cell, &curr_coords);
@@ -4967,14 +4971,14 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
 void TrackGenerator::countSegments() {
 
   /* Calculate each FSR's "volume" by accumulating the total length of
-   * all Track segments multipled by the Track "widths" for each FSR.  */
+   * all Track segments multiplied by the Track "widths" for each FSR.  */
   #pragma omp parallel for
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
     CounterKernel counter;
     counter.setMaxVal(_max_optical_length);
 
-    /* Extract indecies of 3D tracks associated with the extruded track */
+    /* Extract indices of 3D tracks associated with the extruded track */
     ExtrudedTrack* extruded_track = &_extruded_tracks[ext_id];
     int a = extruded_track->_azim_index;
     int azim_index = _quadrature->getFirstOctantAzim(a);

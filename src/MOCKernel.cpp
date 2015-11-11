@@ -5,7 +5,7 @@
  */
 MOCKernel::MOCKernel() {
   _count = 0;
-  _max_tau = 1.79769e+308;
+  _max_tau = std::numeric_limits<FP_PRECISION>::max();
   _weight = 0;
 }
 

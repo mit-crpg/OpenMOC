@@ -1095,7 +1095,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
   while (curr != NULL) {
 
     /* Records the minimum length to a 2D intersection */
-    FP_PRECISION min_length = -std::numeric_limits<FP_PRECISION>::infinity();
+    FP_PRECISION min_length = std::numeric_limits<FP_PRECISION>::infinity();
     
     /* Copy end coordinates to start */
     end.copyCoords(&start);

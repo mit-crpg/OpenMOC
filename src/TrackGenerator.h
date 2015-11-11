@@ -125,7 +125,7 @@ private:
   bool _solve_3D;
 
   /** Boolean for whether to ray trace on the fly (true) or explicitly generate
-      segments (false) */
+   *  segments (false) */
   bool _OTF;
 
   /** The z coord where the 2D tracks should be generated */
@@ -138,7 +138,7 @@ private:
   int _track_generation_method;
 
   /** Max optical segment length for 3D tracks to be split during on-the-fly
-      computation */
+   *  computation */
   FP_PRECISION _max_optical_length;
 
   /** Boolean to indicate whether the segments should be dumped */

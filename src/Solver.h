@@ -126,7 +126,7 @@ protected:
   int _num_parallel_track_groups;
 
   /** Boolean for whether to ray trace on the fly (true) or explicitly generate
-      segments (false) */
+   *  segments (false) */
   bool _OTF;
   bool _solve_3D;
   

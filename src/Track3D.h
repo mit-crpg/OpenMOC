@@ -101,7 +101,7 @@ struct ExtrudedTrack {
   std::vector<ExtrudedFSR*> _regions;
 
   /** The number of 2D segments associated with the extruded track */
-  size_t _num_segments;
+  int _num_segments;
 
   /** Azimuthal index of the 2D and 3D tracks */
   int _azim_index;
