@@ -1855,8 +1855,10 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
   plt.close(fig)
 
 ##
-# @brief This method takes in a Geometry object and plots a color-coded 2D
-#        surface plot representing the flat source regions in the Geometry.
+# @brief This method takes in a Geometry object and a TrackGenerator object and
+#        plots a color-coded 2D surface plot representing the flat source
+#        regions in the Geometry and overlays the segments in the TrackGenerator
+#        in the X-Y plane.
 # @details The FSR centroids are plotted as black circles on top of the FSRs if
 #          the centroids boolean is set to True. Additionally, segments from
 #          a Track with ID track_id are plotted on top of the flat source
@@ -1876,10 +1878,14 @@ def plot_extruded_segments(track_generator, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-# @param zlim optional list/tuple of the minimim/maximum z-coordinates
+# @param centroids optional parameter to turn on plotting FSR centroids
+# @param marker_type optional parameter for the type of marker used in plotting
+#        FSR centroids
+# @param marker_type optional parameter for the marker size used in plotting
+#        FSR centroids
 def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
-                       xlim=None, ylim=None, zlim=None, plane='xy', offset=0.,
-                       centroids=False, marker_type='o', marker_size=2):
+                       xlim=None, ylim=None, offset=0., centroids=False, 
+                       marker_type='o', marker_size=2):
 
   global subdirectory
 
@@ -1901,11 +1907,6 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the flat source regions ' + \
               'with a negative gridsize (%d)', gridsize)
-
-  if plane not in ['xy', 'xz', 'yz']:
-    msg = 'Unable to plot the flat source regions with an invalid ' \
-          'plane {0}. Plane options xy, xz, yz'.format(plane)
-    raise ValueError(msg)
 
   if not is_float(offset):
     msg = 'Unable to plot the flat source regions since the offset {0} ' \
@@ -1945,27 +1946,16 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
   surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, plane, offset, gridsize, xlim, ylim, zlim)
+  coords = get_pixel_coords(geometry, 'xy', offset, gridsize, xlim, ylim, zlim)
 
   # Find the flat source region IDs for each grid point
   for i in range(gridsize):
     for j in range(gridsize):
 
-      if plane == 'xy':
-        point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
-        point.setUniverse(geometry.getRootUniverse())
-        geometry.findCellContainingCoords(point)
-        fsr_id = geometry.getFSRId(point)
-      elif plane == 'xz':
-        point = openmoc.LocalCoords(coords['x'][i], offset, coords['z'][j])
-        point.setUniverse(geometry.getRootUniverse())
-        geometry.findCellContainingCoords(point)
-        fsr_id = geometry.getFSRId(point)
-      else:
-        point = openmoc.LocalCoords(offset, coords['y'][i], coords['z'][j])
-        point.setUniverse(geometry.getRootUniverse())
-        geometry.findCellContainingCoords(point)
-        fsr_id = geometry.getFSRId(point)
+      point = openmoc.LocalCoords(coords['x'][i], coords['y'][j], offset)
+      point.setUniverse(geometry.getRootUniverse())
+      geometry.findCellContainingCoords(point)
+      fsr_id = geometry.getFSRId(point)
 
       # If we did not find a region for this region, use a -1 "bad" number color
       if fsr_id is None:
@@ -2011,20 +2001,9 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
   z = track_coords[2::3]
 
   # Plot track on top of flat source regions
-  if plane == 'xy':
-    plt.plot(x, y, 'k.-',lw=2)
-    plt.xlim(min(coords['x']), max(coords['x']))
-    plt.ylim(min(coords['y']), max(coords['y']))
-
-  elif plane == 'yz':
-    plt.plot(y, z, 'k.-',lw=2)
-    plt.xlim(min(coords['y']), max(coords['y']))
-    plt.ylim(min(coords['z']), max(coords['z']))
-
-  elif plane == 'xz':
-    plt.plot(x, z, 'k.-',lw=2)
-    plt.xlim(min(coords['x']), max(coords['x']))
-    plt.ylim(min(coords['z']), max(coords['z']))
+  plt.plot(x, y, 'k.-',lw=2)
+  plt.xlim(min(coords['x']), max(coords['x']))
+  plt.ylim(min(coords['y']), max(coords['y']))
 
   # Plot centroids on top of 2D FSR color map
   if centroids:
@@ -2036,34 +2015,14 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       centroids_x.append(point.getX())
       centroids_y.append(point.getY())
       centroids_z.append(point.getZ())
+    
+    plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
+                s=marker_size)
 
-    if plane == 'xy':
-      plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
-                  s=marker_size)
-
-      # Matplotlib likes to add a buffer around scatter plots, so we will
-      # manually set the plot bounds
-      plt.xlim(min(coords['x']), max(coords['x']))
-      plt.ylim(min(coords['y']), max(coords['y']))
-
-    elif plane == 'xz':
-      plt.scatter(centroids_x, centroids_z, color='k', marker=marker_type, \
-                  s=marker_size)
-
-      # Matplotlib likes to add a buffer around scatter plots, so we will
-      # manually set the plot bounds
-      plt.xlim(min(coords['x']), max(coords['x']))
-      plt.ylim(min(coords['z']), max(coords['z']))
-
-    else:
-
-      plt.scatter(centroids_y, centroids_z, color='k', marker=marker_type, \
-                  s=marker_size)
-
-      # Matplotlib likes to add a buffer around scatter plots, so we will
-      # manually set the plot bounds
-      plt.xlim(min(coords['y']), max(coords['y']))
-      plt.ylim(min(coords['z']), max(coords['z']))
+    # Matplotlib likes to add a buffer around scatter plots, so we will
+    # manually set the plot bounds
+    plt.xlim(min(coords['x']), max(coords['x']))
+    plt.ylim(min(coords['y']), max(coords['y']))
 
 
   if not track_generator.containsExtrudedSegments():
@@ -2111,7 +2070,6 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
         (y[i*2] < ylim[0] and y[i*2+1] < ylim[0]) or \
         (y[i*2] > ylim[1] and y[i*2+1] > ylim[1]):
         continue
-
 
     # Create a color map corresponding to FSR IDs
     jet = cm = plt.get_cmap('jet')
