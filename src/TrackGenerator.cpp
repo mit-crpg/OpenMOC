@@ -1717,6 +1717,7 @@ void TrackGenerator::initialize2DTracks() {
   _num_y            = new int[_num_azim/4];
   _cycle_length     = new double[_num_azim/4];
   _azim_spacings    = new double[_num_azim/4];
+  _num_2D_tracks    = 0;
 
   double x1, x2, y1, y2;
   double phi;
@@ -1760,6 +1761,7 @@ void TrackGenerator::initialize2DTracks() {
 
     /* Allocate memory for the 2D tracks array */
     _tracks_2D[a] = new Track2D[getNumX(a) + getNumY(a)];
+    _num_2D_tracks += getNumX(a) + getNumY(a);
 
     /* Get the azimuthal angle for all tracks with this azimuthal angle */
     phi = _quadrature->getPhi(a);
@@ -1983,6 +1985,7 @@ void TrackGenerator::initialize3DTracks() {
   _polar_spacings   = new double*[_num_azim/4];
   _tracks_3D_cycle  = new Track3D*****[_num_azim/4];
   _tracks_per_train = new int***[_num_azim/4];
+  _num_3D_tracks    = 0;
 
   for (int i=0; i < _num_azim/4; i++) {
     _dz_eff[i]         = new double[_num_polar/2];
@@ -3385,6 +3388,7 @@ void TrackGenerator::segmentizeExtruded() {
     _geometry->segmentizeExtruded(&_extruded_tracks[index], z_coords);
 
   /* Initialize 3D FSRs and their associated vectors*/
+  log_printf(NORMAL, "Initializing FSRs axially...");
   _geometry->initializeAxialFSRs();
   _geometry->initializeFSRVectors();
 
@@ -5149,7 +5153,7 @@ void TrackGenerator::initializeTracksArray() {
    * guaranteed to contain tracks that do not transport into other tracks both
    * reflectively and periodically. This is done to guarantee reproducability
    * in parallel runs. */
-  if (!_solve_3D) {
+  if (!_solve_3D || _OTF) {
     for (int g = 0; g < _num_parallel_track_groups; g++) {
 
       /* Set the azimuthal and periodic group ids */
@@ -5194,7 +5198,11 @@ void TrackGenerator::initializeTracksArray() {
       _num_tracks_by_parallel_group[g + 1] = uid;
     }
   }
-  else {
+  if(_solve_3D) {
+
+    /* Reset UID in case 2D tracks were intiialized */
+    uid = 0;
+
     for (int g = 0; g < _num_parallel_track_groups; g++) {
 
       /* Set the azimuthal, polar, and periodic group ids */
@@ -5300,6 +5308,7 @@ void TrackGenerator::create3DTracksArrays() {
       _tracks_3D_stack[a][i] = new Track3D*[_num_polar];
       for (int p=0; p < _num_polar; p++) {
         _tracks_3D_stack[a][i][p] = new Track3D[_tracks_per_stack[a][i][p]];
+        _num_3D_tracks += _tracks_per_stack[a][i][p];
         _tracks_per_stack[a][i][p] = 0;
       }
     }
