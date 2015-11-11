@@ -1607,7 +1607,7 @@ std::vector<double> Geometry::getUniqueZPlanes() {
         z_heights.push_back(z_height);
       }
 
-      /* Add universes to unvisted universes */
+      /* Add universes to unvisited universes vector */
       for (int i=0; i<nx; i++) {
         for (int j=0; j<ny; j++) {
           for (int k=0; k<nz; k++) {
