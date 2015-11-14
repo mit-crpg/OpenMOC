@@ -544,8 +544,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
     /* Try to get a clean copy of the fsr_id, adding the FSR data
        if necessary where -1 indicates the key was already added */
     fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
-    if (fsr_id == -1)
-    {
+    if (fsr_id == -1) {
       fsr_data volatile* fsr;
       do {
         fsr = _FSR_keys_map.at(fsr_key_hash);
@@ -592,16 +591,72 @@ int Geometry::findFSRId(LocalCoords* coords) {
  * @brief Finds and returns a pointer to the axially extruded flat source
  *        region that a given LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
+ * @return the ID of an extruded FSR for a given LocalCoords object
+ */
+int Geometry::findExtrudedFSR(LocalCoords* coords) {
+
+  int fsr_id;
+  LocalCoords* curr = coords;
+  curr = coords->getLowestLevel();
+  std::hash<std::string> key_hash_function;
+
+  /* Generate unique FSR key */
+  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+
+  /* If FSR has not been encountered, update FSR maps and vectors */
+  if (!_extruded_FSR_keys_map.contains(fsr_key_hash)) {
+
+    /* Try to get a clean copy of the fsr_id, adding the FSR data
+       if necessary where -1 indicates the key was already added */
+    fsr_id = _extruded_FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
+    if (fsr_id == -1) {
+      ExtrudedFSR volatile* fsr;
+      do {
+        fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
+      } while (fsr == NULL);
+      fsr_id = fsr->_fsr_id;
+    }
+    else {
+
+      /* Add FSR information to FSR key map and FSR_to vectors */
+      ExtrudedFSR* fsr = new ExtrudedFSR;
+      fsr->_fsr_id = fsr_id;
+      fsr->_num_fsrs = 0;
+      fsr->_coords = new LocalCoords(0, 0, 0);
+      _extruded_FSR_keys_map.at(fsr_key_hash) = fsr;
+      coords->copyCoords(fsr->_coords);
+    }
+  }
+
+  /* If FSR has already been encountered, get the fsr id from map */
+  else {
+    ExtrudedFSR volatile* fsr;
+    do {
+      fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
+    } while (fsr == NULL);
+
+    fsr_id = fsr->_fsr_id;
+  }
+
+  return fsr_id;
+}
+
+
+/**
+ * @brief Finds and returns a pointer to the axially extruded flat source
+ *        region that a given LocalCoords object resides within.
+ * @param coords a LocalCoords object pointer
  * @return a pointer to the ExtrudedFSR struct associated with the axially
  *         extruded FSR
  */
-ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
+ExtrudedFSR* Geometry::findExtrudedFSR_LEGACY(LocalCoords* coords) {
 
   /* Generate unique FSR key */
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
   std::hash<std::string> key_hash_function;
   std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+  int fsr_id;
 
   /* If FSR has not been encountered, update FSR maps and vectors */
   if (!_extruded_FSR_keys_map.contains(fsr_key_hash)) {
@@ -623,7 +678,6 @@ ExtrudedFSR* Geometry::findExtrudedFSR(LocalCoords* coords) {
   }
 
   return _extruded_FSR_keys_map.at(fsr_key_hash);
-
 }
 
 
@@ -766,6 +820,15 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
   return key.str();
 }
 
+
+/**
+ * @brief Return a pointer to an ExtrudedFSR by its extruded FSR ID
+ * @param extruded_fsr_id the extruded FSR ID
+ * @return a pointer to the ExtrudedFSR
+ */
+ExtrudedFSR* Geometry::getExtrudedFSR(int extruded_fsr_id) {
+  return _extruded_FSR_lookup[extruded_fsr_id];
+}
 
 
 /**
@@ -1052,27 +1115,25 @@ void Geometry::segmentize3D(Track3D* track) {
  *          to implicitly capturing all geometric radial detail at the defined
  *          z-heights, saving the lengths and region IDs to the extruded track
  *          and initializing ExtrudedFSR structs in the traversed FSRs.
- * @param extruded_track a pointer to a extruded track to segmentize
+ * @param flattend_track a pointer to a 2D track to segmentize into regions of
+ *        extruded FSRs
  * @param z_coords a vector of axial heights in the root geometry at which
  *        the Geometry is segmentized radially
  */
-void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
+void Geometry::segmentizeExtruded(Track* flattened_track,
     std::vector<double> z_coords) {
 
-  /* Extract the associated 2D track */
-  Track2D* track = extruded_track->_track_2D;
-
   /* Track starting Point coordinates and azimuthal angle */
-  double x0 = track->getStart()->getX();
-  double y0 = track->getStart()->getY();
+  double x0 = flattened_track->getStart()->getX();
+  double y0 = flattened_track->getStart()->getY();
   double z0 = z_coords[0];
-  double phi = track->getPhi();
+  double phi = flattened_track->getPhi();
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
   FP_PRECISION length;
   int min_z_ind = 0;
-  ExtrudedFSR* fsr;
+  int region_id;
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
@@ -1087,7 +1148,7 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track2D: %s", track->toString().c_str());
+               "of this Track2D: %s", flattened_track->toString().c_str());
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
@@ -1131,15 +1192,18 @@ void Geometry::segmentizeExtruded(ExtrudedTrack* extruded_track,
     curr = findNextCell(&end, phi);
 
     /* Find FSR using starting coordinate */
-    fsr = findExtrudedFSR(&start);
+    region_id = findExtrudedFSR(&start);
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
 
-    /* Add the segment to the extruded track */
-    extruded_track->_lengths.push_back(min_length);
-    extruded_track->_regions.push_back(fsr);
-    extruded_track->_num_segments++;
+    /* Create a new 2D Track segment with extruded region ID */
+    segment* new_segment = new segment;
+    new_segment->_length = min_length;
+    new_segment->_region_id = region_id;
+    
+    /* Add the segment to the 2D track */
+    flattened_track->addSegment(new_segment);
   }
 
   /* Truncate the linked list for the LocalCoords */
@@ -1253,6 +1317,21 @@ void Geometry::initializeFSRVectors() {
       int fsr_id = fsr->_fsr_id;
       _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);
     }
+  }
+
+  /* Check if extruded FSRs are present */
+  size_t num_extruded_FSRs = _extruded_FSR_keys_map.size();
+  if (num_extruded_FSRs > 0) {
+
+    /* Allocate extruded FSR lookup vector and fill with extruded FSRs by ID */
+    _extruded_FSR_lookup = std::vector<ExtrudedFSR*>(num_extruded_FSRs);
+    ExtrudedFSR **extruded_value_list = _extruded_FSR_keys_map.values();
+    for (int i=0; i < num_extruded_FSRs; i++) {
+      int fsr_id = extruded_value_list[i]->_fsr_id;
+      _extruded_FSR_lookup[fsr_id] = extruded_value_list[i];
+    }
+
+    delete [] extruded_value_list;
   }
 
   /* Delete key and value lists */

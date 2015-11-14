@@ -109,11 +109,9 @@ private:
   /** An array of 3D tracks (azim, cycle, polar, lz track, train index) */
   Track3D****** _tracks_3D_cycle;
 
-  /** An array of axially extruded track groups */
-  ExtrudedTrack* _extruded_tracks;
-
   /** An array of track pointers used in the Solver */
   Track** _tracks;
+  Track** _flattened_tracks;
 
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -147,8 +145,8 @@ private:
   /** Booleans to indicate whether the Tracks and segments have been generated
    *  (true) or not (false) */
   bool _contains_2D_tracks;
+  bool _contains_flattened_tracks;
   bool _contains_3D_tracks;
-  bool _contains_extruded_tracks;
   bool _contains_2D_segments;
   bool _contains_3D_segments;
   bool _contains_extruded_segments;
@@ -156,7 +154,6 @@ private:
   /** Private class methods */
   void initialize2DTracks();
   void initialize3DTracks();
-  void initializeExtrudedTracks();
   void initialize2DTrackReflections();
   void initialize3DTrackReflections();
   void recalibrate2DTracksToOrigin();
@@ -186,16 +183,15 @@ public:
   int getNum2DTracks();
   int getNum3DTracks();
   int getNum2DSegments();
-  int getNumExtrudedSegments();
   int getNum3DSegments();
   void countSegments();
   int* getNumTracksByParallelGroupArray();
   int getNumParallelTrackGroups();
   bool getPeriodic();
   Track** getTracksArray();
+  Track** getFlattenedTracksArray();
   Track2D** get2DTracks();
   Track3D**** get3DTracks();
-  ExtrudedTrack* getExtrudedTracks();
   double* getAzimSpacings();
   double getAzimSpacing(int azim);
   double** getPolarSpacings();
@@ -242,10 +238,10 @@ public:
 
   /* Worker functions */
   bool contains2DTracks();
+  bool containsFlattenedTracks();
   bool contains3DTracks();
   bool contains2DSegments();
   bool contains3DSegments();
-  bool containsExtrudedSegments();
   void retrieve2DTrackCoords(double* coords, int num_tracks);
   void retrieve2DPeriodicCycleCoords(double* coords, int num_tracks);
   void retrieve2DReflectiveCycleCoords(double* coords, int num_tracks);
@@ -254,7 +250,6 @@ public:
   void retrieve3DTrackCoords(double* coords, int num_tracks);
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
-  void retrieveExtrudedSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void generateFSRCentroids();
   void generateTracks();
@@ -269,7 +264,7 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
-  void traceSegmentsOTF(ExtrudedTrack* extruded_track, Point* start,
+  void traceSegmentsOTF(Track* flattened_track, Point* start,
     double theta, MOCKernel* kernel);
   void initialize2DTrackPeriodicIndices();
   void initialize3DTrackPeriodicIndices();

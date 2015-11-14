@@ -341,10 +341,9 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
-  if ((!track_generator->contains2DSegments() && (track_generator->isSolve2D())
-      || (track_generator->isSolve3D() && (track_generator->isOTF() &&
-      !track_generator->containsExtrudedSegments()) ||
-      !track_generator->isOTF() && !track_generator->contains3DSegments())))
+  if ((!track_generator->contains2DSegments() && (track_generator->isSolve2D()
+      || track_generator->isOTF())) || (track_generator->isSolve3D() &&
+      !track_generator->isOTF() && !track_generator->contains3DSegments()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 

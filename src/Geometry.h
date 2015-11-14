@@ -77,6 +77,9 @@ struct ExtrudedFSR {
   /** Array defining the axial mesh */
   FP_PRECISION* _mesh;
 
+  /** Axial extruded FSR ID */
+  int _fsr_id;
+
   /** Array of 3D FSR IDs */
   int* _fsr_ids;
 
@@ -143,6 +146,9 @@ private:
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
 
+  /** A vector of ExtrudedFSR pointers indexed by extruded FSR ID */
+  std::vector<ExtrudedFSR*> _extruded_FSR_lookup;
+
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
@@ -185,6 +191,7 @@ public:
   std::map<int, Cell*> getAllMaterialCells();
   std::vector<double> getUniqueZPlanes();
   void setRootUniverse(Universe* root_universe);
+  ExtrudedFSR* findExtrudedFSR_LEGACY(LocalCoords* coords); //FIXME TODO REMOVE
 
   Cmfd* getCmfd();
   std::vector<std::size_t>* getFSRsToKeys();
@@ -192,6 +199,7 @@ public:
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
+  ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
   ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
 
@@ -206,7 +214,7 @@ public:
   Cell* findCellContainingCoords(LocalCoords* coords);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
-  ExtrudedFSR* findExtrudedFSR(LocalCoords* coords);
+  int findExtrudedFSR(LocalCoords* coords);
   Cell* findCellContainingFSR(int fsr_id);
 
   /* Other worker methods */
@@ -215,7 +223,7 @@ public:
   void initializeFlatSourceRegions();
   void segmentize2D(Track2D* track, double z_coord);
   void segmentize3D(Track3D* track);
-  void segmentizeExtruded(ExtrudedTrack* extruded_track,
+  void segmentizeExtruded(Track* flattened_track,
       std::vector<double> z_coords);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);

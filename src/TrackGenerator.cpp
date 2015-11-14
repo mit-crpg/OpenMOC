@@ -106,9 +106,9 @@ TrackGenerator::~TrackGenerator() {
     delete [] _cycle_length;
   }
 
-  /* Delete extruded tracks if created */
-  if (_contains_extruded_tracks)
-    delete[] _extruded_tracks;
+  /* Delete flattened tracks used in OTF calculations */
+  if (_contains_flattened_tracks)
+    delete [] _flattened_tracks;
 }
 
 
@@ -230,7 +230,7 @@ int TrackGenerator::getNum2DSegments() {
 int TrackGenerator::getNum3DSegments() {
 
   if ((!_OTF && !contains3DSegments()) ||
-      (_OTF && !containsExtrudedSegments()))
+      (_OTF && !contains2DSegments()))
     log_printf(ERROR, "Cannot get the number of 3D segments since they "
                "have not been generated.");
 
@@ -267,6 +267,23 @@ Track** TrackGenerator::getTracksArray() {
 
 
 /**
+ * @brief Returns an array of the flattend Track pointers by increasing UID.
+ * @details An array of pointers to all 2D Track objects for 3D on-the-fly
+ *          calculation in the Geometry is returned, arranged by increasing 
+ *          2D Track unique identifier (UID).
+ * @return the array of flattened Track pointers
+ */
+Track** TrackGenerator::getFlattenedTracksArray() {
+
+  if (!containsFlattenedTracks())
+    log_printf(ERROR, "Unable to return the 1D array of Tracks "
+               "since Tracks have not yet been generated.");
+
+  return _flattened_tracks;
+}
+
+
+/**
  * @brief Returns a 2D jagged array of the 2D Tracks.
  * @details The first index into the array is the azimuthal angle and the
  *          second index is the Track number.
@@ -296,21 +313,6 @@ Track3D**** TrackGenerator::get3DTracks() {
                "since Tracks have not yet been generated.");
 
   return _tracks_3D_stack;
-}
-
-
-/**
- * @brief Returns an array of all ExtrudedTrack objects by increasing UID
- * @details An array of pointers to all ExtrudedTrack objects in the Geometry
- *          is returned, arranged by increasing unique identifier (UID) of the
- *          associated 2D Track.
- * @return the array of Extruded Tracks
- */
-ExtrudedTrack* TrackGenerator::getExtrudedTracks() {
-  if (!_contains_extruded_tracks)
-    log_printf(ERROR, "Unable to return the array of extruded tracks "
-               "since extruded tracks have not yet been generated.");
-  return _extruded_tracks;
 }
 
 
@@ -389,28 +391,27 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
             /* Extract 3D track and initialize segments pointer */
             Track* track_3D = &_tracks_3D_stack[a][i][p][z];
             int num_segments = track_3D->getNumSegments();
-            segment* segments;
+            segment* segments_3D;
 
             /* Get the segments corresponding to the 3D track */
             if (_OTF) {
-
+              
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
               double theta = _tracks_3D_stack[a][i][p][z].getTheta();
-              int ext_id = _tracks_2D[a][i].getUid();
-              ExtrudedTrack* extruded_track = &_extruded_tracks[ext_id];
+              Track2D* flattened_track = &_tracks_2D[a][i];
 
-              segments = new segment[num_segments];
+              segments_3D = new segment[num_segments];
 
               SegmentationKernel kernel;
-              kernel.setSegments(segments);
-              traceSegmentsOTF(extruded_track, start, theta, &kernel);
+              kernel.setSegments(segments_3D);
+              traceSegmentsOTF(flattened_track, start, theta, &kernel);
             }
             else
-              segments = track_3D->getSegments();
+              segments_3D = track_3D->getSegments();
 
             /* Look through all segments for max optical path length */
             for (int s=0; s < num_segments; s++) {
-              curr_segment = &segments[s];
+              curr_segment = &segments_3D[s];
               length = curr_segment->_length;
               material = curr_segment->_material;
               sigma_t = material->getSigmaT();
@@ -420,7 +421,7 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
                                               length*sigma_t[e]);
             }
             if (_OTF)
-              delete[] segments;
+              delete[] segments_3D;
           }
         }
       }
@@ -794,8 +795,8 @@ void TrackGenerator::setNumAzim(int num_azim) {
 
   _num_azim = num_azim;
   _contains_2D_tracks = false;
+  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
-  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
   _contains_extruded_segments = false;
@@ -820,6 +821,7 @@ void TrackGenerator::setNumPolar(int num_polar) {
 
   _num_polar = num_polar;
   _contains_2D_tracks = false;
+  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
@@ -839,8 +841,8 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
 
   _azim_spacing = spacing;
   _contains_2D_tracks = false;
+  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
-  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
   _contains_extruded_segments = false;
@@ -860,8 +862,8 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
 
   _polar_spacing = spacing;
   _contains_2D_tracks = false;
+  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
-  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
   _contains_extruded_segments = false;
@@ -877,8 +879,8 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
   _contains_2D_tracks = false;
+  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
-  _contains_extruded_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
   _contains_extruded_segments = false;
@@ -942,6 +944,18 @@ bool TrackGenerator::contains2DTracks() {
 
 
 /**
+ * @brief Returns whether or not the TrackGenerator contains flattened Tracks
+ *        for its current number of azimuthal angles, track spacing and
+ *        geometry.
+ * @return true if the TrackGenerator conatains flattened Tracks
+ *         false otherwise
+ */
+bool TrackGenerator::containsFlattenedTracks() {
+  return _contains_flattened_tracks;
+}
+
+
+/**
  * @brief Returns whether or not the TrackGenerator contains 3D Tracks
  *        for its current number of azimuthal angles, track spacing and
  *        geometry.
@@ -971,18 +985,6 @@ bool TrackGenerator::contains2DSegments() {
  */
 bool TrackGenerator::contains3DSegments() {
   return _contains_3D_segments;
-}
-
-
-/**
- * @brief Returns whether or not the TrackGenerator contains Extruded segments
- *        for its current number of azimuthal angles, track spacing and
- *        geometry.
- * @return true if the TrackGenerator conatains Extruded segments; false
- *         otherwise
- */
-bool TrackGenerator::containsExtrudedSegments() {
-  return _contains_extruded_segments;
 }
 
 
@@ -1456,92 +1458,6 @@ void TrackGenerator::checkBoundaryConditions() {
     _periodic = false;
 }
 
-/**
- * @brief Fills an array with the x,y coordinates for each extruded track
- *        segment.
- * @details This class method is intended to be called by the OpenMOC
- *          Python "plotter" module as a utility to assist in plotting
- *          2D segments for on-the-fly axial ray tracing. Although this method
- *          appears to require two arguments, in reality it only requires one
- *          due to SWIG and would be called from within Python as follows:
- *
- * @code
- *          num_segments = track_generator.getNumSegments()
- *          coords = track_generator.retrieveSegmentCoords(num_segments*5)
- * @endcode
- *
- * @param coords an array of coords of length 5 times the number of extruded
-          2D segments
- * @param num_segments the total number of extruded track segments
- */
-void TrackGenerator::retrieveExtrudedSegmentCoords(double* coords,
-                                                   int num_segments) {
-
-  if (num_segments != 5*getNumExtrudedSegments())
-    log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
-               "the TrackGenerator contains %d segments with %d coordinates "
-               "but an array of length %d was input",
-               getNumExtrudedSegments(), 5*getNumExtrudedSegments(),
-               num_segments);
-
-  double x0, x1, y0, y1;
-  double phi;
-
-  int counter = 0;
-
-  /* Loop over Track segments and populate array with their FSR ID and *
-   * start/end points */
-  for (int i=0; i < _num_2D_tracks; i++){
-
-    x0    = _extruded_tracks[i]._track_2D->getStart()->getX();
-    y0    = _extruded_tracks[i]._track_2D->getStart()->getY();
-    phi   = _extruded_tracks[i]._track_2D->getPhi();
-
-    for (int s=0; s < _extruded_tracks[i]._num_segments; s++) {
-
-      size_t ptr = (size_t) _extruded_tracks[i]._regions[s];
-      coords[counter] = (double) ptr;
-      double seg_len = _extruded_tracks[i]._lengths[s];
-
-      coords[counter+1] = x0;
-      coords[counter+2] = y0;
-
-      x1 = x0 + cos(phi) * seg_len;
-      y1 = y0 + sin(phi) * seg_len;
-
-      coords[counter+3] = x1;
-      coords[counter+4] = y1;
-
-      x0 = x1;
-      y0 = y1;
-
-      counter += 5;
-    }
-  }
-
-  return;
-}
-
-
-/**
- * @brief Return the total number of 2D extruded Tracks across the Geometry.
- * @return the total number of 2D extruded Tracks
- */
-int TrackGenerator::getNumExtrudedSegments() {
-
-  if (!containsExtrudedSegments())
-    log_printf(ERROR, "Cannot get the number of 2D segments since they "
-               "have not been generated.");
-
-  int num_extruded_segments = 0;
-
-  for (int i=0; i < _num_2D_tracks; i++)
-    num_extruded_segments += _extruded_tracks[i]._num_segments;
-
-  return num_extruded_segments;
-
-}
-
 
 /**
  * @brief Generates tracks for some number of azimuthal angles and track spacing
@@ -1595,15 +1511,15 @@ void TrackGenerator::generateTracks() {
     /* Recalibrate the 2D tracks back to the geometry origin */
     recalibrate2DTracksToOrigin();
 
-    if (_OTF)
-      initializeExtrudedTracks();
-
     /* If 3D problem, recalibrate the 3D tracks back to the geometry origin */
     if (_solve_3D)
       recalibrate3DTracksToOrigin();
 
     /* Initialize the track file directory and read in tracks if they exist */
     initializeTrackFileDirectory();
+
+    /* Initialize the 1D array of Tracks */
+    initializeTracksArray();
 
     /* If track file not present, generater segments */
     if (_use_input_file == false) {
@@ -1622,9 +1538,6 @@ void TrackGenerator::generateTracks() {
         dump2DSegmentsToFile();
       }
     }
-
-    /* Initialize the 1D array of Tracks */
-    initializeTracksArray();
 
     /* Precompute the quadrature weights */
     _quadrature->precomputeWeights(_solve_3D);
@@ -3225,36 +3138,6 @@ void TrackGenerator::decomposeLZTrack(Track3D* track, double l_start,
 
 
 /**
- * @brief Initializes array of extruded tracks
- * @details An array of ExtrudedTrack objects is initialized of length equal
- *          to the number of 2D tracks. The azimuthal and track indexes of the
- *          corresponding 2D track are saved as well as a pointer to the
- *          corresponding 2D track. The number of 2D segments in each extruded
- *          track is initialized to be zero.
- */
-void TrackGenerator::initializeExtrudedTracks() {
-
-  log_printf(NORMAL, "Initializing extruded tracks...");
-  
-  _extruded_tracks = new ExtrudedTrack[_num_2D_tracks];
-
-  size_t index = 0;
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-
-      _extruded_tracks[index]._azim_index = a;
-      _extruded_tracks[index]._track_index = i;
-      _extruded_tracks[index]._num_segments = 0;
-      _extruded_tracks[index]._track_2D = &_tracks_2D[a][i];
-
-      index++;
-    }
-  }
-  _contains_extruded_tracks = true;
-}
-
-
-/**
  * @brief Recalibrates Track start and end points to the origin of the Geometry.
  * @details The origin of the Geometry is designated at its center by
  *          convention, but for track initialization the origin is assumed to be
@@ -3387,13 +3270,22 @@ void TrackGenerator::segmentizeExtruded() {
 
   log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
 
+  /* Allocate and initialize the flattened tracks array */
+  _flattened_tracks = new Track*[_num_2D_tracks];
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      int id = _tracks_2D[a][i].getUid();
+      _flattened_tracks[id] = &_tracks_2D[a][i];
+    }
+  }
+
   /* Get all unique z-coords at which 2D radial segementation is performed */
   std::vector<double> z_coords = _geometry->getUniqueZPlanes();
 
   /* Loop over all extruded Tracks */
   #pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++)
-    _geometry->segmentizeExtruded(&_extruded_tracks[index], z_coords);
+    _geometry->segmentizeExtruded(_flattened_tracks[index], z_coords);
 
   /* Initialize 3D FSRs and their associated vectors*/
   log_printf(NORMAL, "Initializing FSRs axially...");
@@ -3402,7 +3294,8 @@ void TrackGenerator::segmentizeExtruded() {
 
   /* Count the number of segments in each track */
   countSegments();
-  _contains_extruded_segments = true;
+  _contains_flattened_tracks = true;
+  _contains_2D_segments = true;
   
   return;
 }
@@ -4469,14 +4362,14 @@ void TrackGenerator::generateFSRCentroids() {
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
               double theta = _tracks_3D_stack[a][i][p][z].getTheta();
               int ext_id = _tracks_2D[a][i].getUid();
-              ExtrudedTrack* extruded_track = &_extruded_tracks[ext_id];
+              Track* flattened_track = _flattened_tracks[ext_id];
 
               segments = new segment[num_segments];
 
               SegmentationKernel kernel;
               kernel.setSegments(segments);
               kernel.setMaxVal(_max_optical_length);
-              traceSegmentsOTF(extruded_track, start, theta, &kernel);
+              traceSegmentsOTF(flattened_track, start, theta, &kernel);
             }
             else
               segments = _tracks_3D_stack[a][i][p][z].getSegments();
@@ -4785,10 +4678,10 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the extruded track */
-    ExtrudedTrack* extruded_track = &_extruded_tracks[ext_id];
-    int a = extruded_track->_azim_index;
+    Track* flattened_track = _flattened_tracks[ext_id];
+    int a = flattened_track->getAzimIndex();
     int azim_index = _quadrature->getFirstOctantAzim(a);
-    int i = extruded_track->_track_index;
+    int i = flattened_track->getXYIndex();
 
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++) {
@@ -4812,7 +4705,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
         Point* start = curr_track->getStart();
         double theta = curr_track->getTheta();
 
-        traceSegmentsOTF(extruded_track, start, theta, &kernel);
+        traceSegmentsOTF(flattened_track, start, theta, &kernel);
 
       }
     }
@@ -4829,33 +4722,32 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
 
 /**
- * @brief Computes 3D segment lengths for a given extruded track with a starting
- *        point and an angle on-the-fly and stores the lengths in the kernel
- *        passed by the user.
+ * @brief Computes 3D segment lengths for a given associated 2D Track with a
+ *        starting point and an angle on-the-fly and stores the lengths in the
+ *        kernel passed by the user.
  * @details Segment lengths are computed on-the-fly using 2D segment lengths
- *          stored in an ExtrudedTrack object and 1D meshes from the extruded
+ *          stored in a 2D Track object and 1D meshes from the extruded
  *          FSRs. Note: before calling this funciton with a SegmentationKernel,
  *          the memory for the segments should be allocated and referenced by
  *          the kernel using the setSegments routine in the kernels.
- * @param extruded_track the extruded track associated with the 3D track for
- *        which 3D segments are computed
+ * @param flattened_track the 2D track associated with the 3D track for which
+ *        3D segments are computed
  * @param start the starting coordinates of the 3D track
  * @param theta the polar angle of the 3D track
  * @param kernel An MOCKernel object to apply to the calculated 3D segments
  */
-void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
-                                      Point* start, double theta, 
-                                      MOCKernel* kernel) {
+void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start, 
+                                      double theta, MOCKernel* kernel) {
 
   /* Create unit vector */
-  double phi = extruded_track->_track_2D->getPhi();
+  double phi = flattened_track->getPhi();
   double z_unit = cos(theta);
   double radial_unit = sin(theta);
   int sign = (z_unit > 0) - (z_unit < 0);
 
   /* Extract starting coordinates */
   double x_start_3D = start->getX();
-  double x_start_2D = extruded_track->_track_2D->getStart()->getX();
+  double x_start_2D = flattened_track->getStart()->getX();
   double z_coord = start->getZ();
 
   /* Find 2D distance from 2D edge to start of track */
@@ -4863,10 +4755,11 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
 
   /* Find starting 2D segment */
   int seg_start = 0;
-  for (int s=0; s < extruded_track->_num_segments; s++) {
+  segment* segments_2D = flattened_track->getSegments();
+  for (int s=0; s < flattened_track->getNumSegments(); s++) {
 
     /* Determine if start point of track is beyond current 2D segment */
-    double seg_len_2D = extruded_track->_lengths[s];
+    double seg_len_2D = segments_2D[s]._length;
     if (start_dist_2D > seg_len_2D) {
       start_dist_2D -= seg_len_2D;
       seg_start++;
@@ -4874,6 +4767,7 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
     else
       break;
   }
+
 
   /* Track current location in root universe */
   Cmfd* cmfd = _geometry->getCmfd();
@@ -4886,16 +4780,17 @@ void TrackGenerator::traceSegmentsOTF(ExtrudedTrack* extruded_track,
 
   /* Loop over 2D segments */
   bool segments_complete = false;
-  for (int s=seg_start; s < extruded_track->_num_segments; s++) {
+  for (int s=seg_start; s < flattened_track->getNumSegments(); s++) {
 
     /* Extract extruded FSR and determine the axial region */
-    ExtrudedFSR* extruded_FSR = extruded_track->_regions[s];
+    int extruded_fsr_id = segments_2D[s]._region_id;
+    ExtrudedFSR* extruded_FSR = _geometry->getExtrudedFSR(extruded_fsr_id);
     FP_PRECISION* mesh = extruded_FSR->_mesh;
     int num_regions = extruded_FSR->_num_fsrs;
     int z_ind = binarySearch(mesh, num_regions+1, z_coord, sign);
 
     /* Extract 2D segment length */
-    double remaining_length_2D = extruded_track->_lengths[s] - start_dist_2D;
+    double remaining_length_2D = segments_2D[s]._length - start_dist_2D;
     start_dist_2D = 0;
 
     /* Transport along the 2D segment until it is completed */
@@ -4987,10 +4882,10 @@ void TrackGenerator::countSegments() {
     counter.setMaxVal(_max_optical_length);
 
     /* Extract indices of 3D tracks associated with the extruded track */
-    ExtrudedTrack* extruded_track = &_extruded_tracks[ext_id];
-    int a = extruded_track->_azim_index;
+    Track* flattened_track = _flattened_tracks[ext_id];
+    int a = flattened_track->getAzimIndex();
     int azim_index = _quadrature->getFirstOctantAzim(a);
-    int i = extruded_track->_track_index;
+    int i = flattened_track->getXYIndex();
 
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++) {
@@ -5007,7 +4902,7 @@ void TrackGenerator::countSegments() {
         Point* start = curr_track->getStart();
 
         /* Trace 3D segments */
-        traceSegmentsOTF(extruded_track, start, theta, &counter);
+        traceSegmentsOTF(flattened_track, start, theta, &counter);
 
         /* Set the number of segments for the track */
         int num_segments = counter.getCount();
