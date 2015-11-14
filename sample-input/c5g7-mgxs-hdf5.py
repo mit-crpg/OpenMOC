@@ -262,7 +262,7 @@ water.create_dataset('chi', data=chi)
 ###############################################################################
 
 # Create a subdictionary for water materials data
-control_rod = f.create_group('Control Rod')
+control_rod = material_group.create_group('Control Rod')
 
 sigma_t = numpy.array([2.16768E-01, 4.80098E-01, 8.86369E-01,
                        9.70009E-01, 9.10482E-01, 1.13775E+00,
