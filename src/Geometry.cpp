@@ -643,45 +643,6 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
 
 
 /**
- * @brief Finds and returns a pointer to the axially extruded flat source
- *        region that a given LocalCoords object resides within.
- * @param coords a LocalCoords object pointer
- * @return a pointer to the ExtrudedFSR struct associated with the axially
- *         extruded FSR
- */
-ExtrudedFSR* Geometry::findExtrudedFSR_LEGACY(LocalCoords* coords) {
-
-  /* Generate unique FSR key */
-  LocalCoords* curr = coords;
-  curr = coords->getLowestLevel();
-  std::hash<std::string> key_hash_function;
-  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
-  int fsr_id;
-
-  /* If FSR has not been encountered, update FSR maps and vectors */
-  if (!_extruded_FSR_keys_map.contains(fsr_key_hash)) {
-
-    /* Create the FSR and insert it */
-    ExtrudedFSR* fsr = new ExtrudedFSR;
-    _extruded_FSR_keys_map.insert(fsr_key_hash, fsr);
-
-    /* If FSR key was already inserted, delete the new FSR */
-    if(_extruded_FSR_keys_map.at(fsr_key_hash) != fsr)
-      delete fsr;
-
-    /* Otherwise, intialize the extruded FSR */
-    else {
-      fsr->_num_fsrs = 0;
-      fsr->_coords = new LocalCoords(0, 0, 0);
-      coords->copyCoords(fsr->_coords);
-    }
-  }
-
-  return _extruded_FSR_keys_map.at(fsr_key_hash);
-}
-
-
-/**
  * @brief Return the ID of the flat source region that a given
  *        LocalCoords object resides within.
  * @param coords a LocalCoords object pointer

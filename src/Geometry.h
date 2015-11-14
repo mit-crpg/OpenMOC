@@ -191,7 +191,6 @@ public:
   std::map<int, Cell*> getAllMaterialCells();
   std::vector<double> getUniqueZPlanes();
   void setRootUniverse(Universe* root_universe);
-  ExtrudedFSR* findExtrudedFSR_LEGACY(LocalCoords* coords); //FIXME TODO REMOVE
 
   Cmfd* getCmfd();
   std::vector<std::size_t>* getFSRsToKeys();
