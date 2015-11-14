@@ -395,7 +395,7 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
             /* Get the segments corresponding to the 3D track */
             if (_OTF) {
-              
+
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
               double theta = _tracks_3D_stack[a][i][p][z].getTheta();
               Track2D* flattened_track = &_tracks_2D[a][i];
