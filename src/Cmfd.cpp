@@ -2108,7 +2108,8 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
       /* Increment current (polar and azimuthal weighted flux, group) */
       _surface_currents->incrementValues(cell_id, s*_num_cmfd_groups,
-          (s+1)*_num_cmfd_groups-1, surf_currents);
+                                         (s+1)*_num_cmfd_groups-1, 
+                                         surf_currents);
     }
     else {
       int pe = 0;

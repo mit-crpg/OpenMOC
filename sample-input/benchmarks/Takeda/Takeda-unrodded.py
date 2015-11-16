@@ -82,7 +82,7 @@ cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setOpticallyThick(True)
 cmfd.setLatticeStructure(5, 5, 5)
-cmfd.setKNearest(1)
+cmfd.setKNearest(4)
 cmfd.setCentroidUpdateOn(False)
 
 

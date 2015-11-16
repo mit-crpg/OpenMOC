@@ -702,7 +702,7 @@ void CPUSolver::transportSweepOTF() {
   #pragma omp parallel for
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
-    /* Extract indecies of 3D tracks associated with the extruded track */
+    /* Extract indices of 3D tracks associated with the extruded track */
     Track* flattened_track = flattened_tracks[track_id];
     int a = flattened_track->getAzimIndex();
     int azim_index = _quad->getFirstOctantAzim(a);
