@@ -84,34 +84,4 @@ public:
 };
 
 
-
-/**
- * @struct ExtrudedTrack
- * @brief An ExtrudedTrack struct represents a 2D track over the superposition
- *        plane for on-the-fly axial ray tracing. The ExtrudedTrack is split
- *        into segments for each ExtrudedFSR region that is traversed. It
- *        contains indexes and a pointer to the associated 2D Track.
- */
-struct ExtrudedTrack {
-
-  /** The lengths of the associated 2D segments (cm) */
-  std::vector<FP_PRECISION> _lengths;
-
-  /** Vector of extruded FSR region pointers associated with the 2D segments */
-  std::vector<ExtrudedFSR*> _regions;
-
-  /** The number of 2D segments associated with the extruded track */
-  int _num_segments;
-
-  /** Azimuthal index of the 2D and 3D tracks */
-  int _azim_index;
-
-  /** 2D track index of the 2D and 3D tracks */
-  int _track_index;
-
-  /** Pointer to associated 2D track */
-  Track2D* _track_2D;
-};
-
-
 #endif /* TRACK3D_H_ */

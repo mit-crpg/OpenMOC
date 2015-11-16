@@ -619,6 +619,7 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
     else {
 
       /* Add FSR information to FSR key map and FSR_to vectors */
+      // TODO: make factory pattern
       ExtrudedFSR* fsr = new ExtrudedFSR;
       fsr->_fsr_id = fsr_id;
       fsr->_num_fsrs = 0;
