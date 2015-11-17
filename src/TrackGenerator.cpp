@@ -4229,6 +4229,10 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
               if (min_num_cuts == 1)
                 continue;
 
+              /* Record the CMFD surfaces */
+              int cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+              int cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+
               /* Split the segment into sub-segments */
               for (int k=0; k < min_num_cuts; k++) {
 
@@ -4240,12 +4244,10 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
                 /* Assign CMFD surface boundaries */
                 if (k == 0)
-                  new_segment->_cmfd_surface_bwd =
-                    curr_segment->_cmfd_surface_bwd;
+                  new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
 
                 if (k == min_num_cuts-1)
-                  new_segment->_cmfd_surface_fwd =
-                    curr_segment->_cmfd_surface_fwd;
+                  new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
 
                 /* Insert the new segment to the Track */
                 _tracks_3D_stack[a][i][p][z].insertSegment(s+k+1,
