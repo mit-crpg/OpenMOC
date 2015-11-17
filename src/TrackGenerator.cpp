@@ -1802,6 +1802,8 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
   Material* material;
   FP_PRECISION* sigma_t;
   int num_groups;
+  int cmfd_surface_fwd, cmfd_surface_bwd;
+  int cmfd_corner_fwd, cmfd_corner_bwd;
 
   /* Iterate over all Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1813,6 +1815,10 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
         material = curr_segment->_material;
         length = curr_segment->_length;
         fsr_id = curr_segment->_region_id;
+        cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+        cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+        cmfd_corner_fwd = curr_segment->_cmfd_corner_fwd;
+        cmfd_corner_bwd = curr_segment->_cmfd_corner_bwd;
 
         /* Compute number of segments to split this segment into */
         min_num_cuts = 1;
@@ -1840,13 +1846,13 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
           /* Assign CMFD surface boundaries */
           if (k == 0) {
-            new_segment->_cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-            new_segment->_cmfd_corner_bwd = curr_segment->_cmfd_corner_bwd;
+            new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+            new_segment->_cmfd_corner_bwd = cmfd_corner_bwd;
           }
 
           if (k == min_num_cuts-1) {
-            new_segment->_cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-            new_segment->_cmfd_corner_fwd = curr_segment->_cmfd_corner_fwd;
+            new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+            new_segment->_cmfd_corner_fwd = cmfd_corner_fwd;
           }
 
           /* Insert the new segment to the Track */
