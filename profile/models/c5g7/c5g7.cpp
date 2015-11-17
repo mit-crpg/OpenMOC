@@ -185,9 +185,9 @@ int main() {
 
   /* Create circles for the fuel as well as to discretize the moderator into
      rings */
-  Circle fuel_radius(0.0, 0.0, 0.54);
-  Circle moderator_inner_radius(0.0, 0.0, 0.62);
-  Circle moderator_outer_radius(0.0, 0.0, 0.58);
+  ZCylinder fuel_radius(0.0, 0.0, 0.54);
+  ZCylinder moderator_inner_radius(0.0, 0.0, 0.58);
+  ZCylinder moderator_outer_radius(0.0, 0.0, 0.62);
 
   /* Create cells and universes */
   log_printf(NORMAL, "Creating cells...");
@@ -356,7 +356,7 @@ int main() {
     for (int n=0; n<17*17; n++)
       matrix1[n] = names[mold[n]];
 
-    assembly1_lattice->setUniverses(17, 17, matrix1);
+    assembly1_lattice->setUniverses(1, 17, 17, matrix1);
   }
   assembly1_cell->setFill(assembly1_lattice);
 
@@ -388,7 +388,7 @@ int main() {
     for (int n=0; n<17*17; n++)
       matrix2[n] = names[mold[n]];
 
-    assembly2_lattice->setUniverses(17, 17, matrix2);
+    assembly2_lattice->setUniverses(1, 17, 17, matrix2);
   }
   assembly2_cell->setFill(assembly2_lattice);
 
@@ -398,7 +398,7 @@ int main() {
   Universe* refined_ref_matrix[10*10];
   for (int n=0; n<10*10; n++)
     refined_ref_matrix[n] = reflector;
-  refined_ref_lattice->setUniverses(10, 10, refined_ref_matrix);
+  refined_ref_lattice->setUniverses(1, 10, 10, refined_ref_matrix);
   refined_reflector_cell->setFill(refined_ref_lattice);
 
   /* Sliced up water cells - right side of geometry */
@@ -414,7 +414,7 @@ int main() {
         right_ref_matrix[index] = reflector;
     }
   }
-  right_ref_lattice->setUniverses(17, 17, right_ref_matrix);
+  right_ref_lattice->setUniverses(1, 17, 17, right_ref_matrix);
   right_reflector_cell->setFill(right_ref_lattice);
 
   /* Sliced up water cells for bottom corner of geometry */
@@ -430,7 +430,7 @@ int main() {
         corner_ref_matrix[index] = reflector;
     }
   }
-  corner_ref_lattice->setUniverses(17, 17, corner_ref_matrix);
+  corner_ref_lattice->setUniverses(1, 17, 17, corner_ref_matrix);
   corner_reflector_cell->setFill(corner_ref_lattice);
 
   /* Sliced up water cells for bottom of geometry */
@@ -446,7 +446,7 @@ int main() {
         bottom_ref_matrix[index] = reflector;
     }
   }
-  bottom_ref_lattice->setUniverses(17, 17, bottom_ref_matrix);
+  bottom_ref_lattice->setUniverses(1, 17, 17, bottom_ref_matrix);
   bottom_reflector_cell->setFill(bottom_ref_lattice);
 
   /* 4 x 4 core to represent two bundles and water */
@@ -456,7 +456,7 @@ int main() {
     assembly1,        assembly2,        right_reflector,
     assembly2,        assembly1,        right_reflector,
     bottom_reflector, bottom_reflector, corner_reflector};
-  full_geometry->setUniverses(3, 3, universes);
+  full_geometry->setUniverses(1, 3, 3, universes);
   root_cell->setFill(full_geometry);
 
   /* Create the geometry */
