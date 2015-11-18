@@ -157,12 +157,12 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'transport' in domain_group:
             sigma = _get_numpy_array(domain_group, 'transport', suffix)
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "transport" MGXS for "%s %s"', 
+            py_printf('INFO', 'Loaded "transport" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         elif 'total' in domain_group:
             sigma = _get_numpy_array(domain_group, 'total', suffix)
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "total" MGXS for "%s %s"', 
+            py_printf('INFO', 'Loaded "total" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
@@ -172,7 +172,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'nu-fission' in domain_group:
             sigma = _get_numpy_array(domain_group, 'nu-fission', suffix)
             material.setNuSigmaF(sigma)
-            py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %s"', 
+            py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
@@ -182,22 +182,22 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'nu-scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'nu-scatter matrix', suffix)
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "nu-scatter matrix" MGXS for "%s %s"', 
+            py_printf('INFO', 'Loaded "nu-scatter matrix" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         elif 'scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'scatter matrix', suffix)
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "scatter matrix" MGXS for "%s %s"', 
+            py_printf('INFO', 'Loaded "scatter matrix" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
-            py_printf('WARNING', 'No "scatter matrix" found for "%s %s"', 
+            py_printf('WARNING', 'No "scatter matrix" found for "%s %s"',
                       domain_type, str(domain_spec))
 
         # Search for chi (fission spectrum)
         if 'chi' in domain_group:
             chi = _get_numpy_array(domain_group, 'chi', suffix)
             material.setChi(chi)
-            py_printf('INFO', 'Loaded "chi" MGXS for "%s %s"', 
+            py_printf('INFO', 'Loaded "chi" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %s"',
@@ -207,7 +207,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'fission' in domain_group:
             sigma = _get_numpy_array(domain_group, 'fission', suffix)
             material.setSigmaF(sigma)
-            py_printf('INFO', 'Loaded "fission" MGXS for "%s %s"', 
+            py_printf('INFO', 'Loaded "fission" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
 
     # Return collection of materials
@@ -299,13 +299,13 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'transport')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "transport" MGXS for "%s %d"', 
+            py_printf('INFO', 'Loaded "transport" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'total' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'total')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "total" MGXS for "%s %d"', 
+            py_printf('INFO', 'Loaded "total" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
@@ -316,7 +316,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-fission')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setNuSigmaF(sigma)
-            py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %d"', 
+            py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %d"',
                                domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
@@ -327,13 +327,13 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "nu-scatter matrix" MGXS for "%s %d"', 
+            py_printf('INFO', 'Loaded "nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix').flatten()
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "scatter matrix" MGXS for "%s %d"', 
+            py_printf('INFO', 'Loaded "scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '
@@ -344,7 +344,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'chi')
             chi = mgxs.get_xs(nuclides='sum')
             material.setChi(chi)
-            py_printf('INFO', 'Loaded "chi" MGXS for "%s %d"', 
+            py_printf('INFO', 'Loaded "chi" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %d"',
@@ -355,7 +355,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'fission')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaF(sigma)
-            py_printf('INFO', 'Loaded "fission" MGXS for "%s %d"', 
+            py_printf('INFO', 'Loaded "fission" MGXS for "%s %d"',
                       domain_type, domain.id)
 
     # Return collection of materials

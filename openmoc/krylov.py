@@ -41,7 +41,7 @@ class IRAMSolver(object):
     if not 'Solver' in type(moc_solver).__name__:
       py_printf('ERROR', 'Unable to initialize an IRAMSolver with %s ' + \
                 'which is not an OpenMOC Solver object', str(moc_solver))
-    
+
     self._moc_solver = moc_solver
 
     # Determine the floating point precision for Solver
@@ -79,14 +79,14 @@ class IRAMSolver(object):
   ##
   # @brief Compute all eigenmodes in the problem.
   # @details Uses the scipy.linalg package.
-  # @param solver_mode the type of eigenmodes (FORWARD or ADJOINT) 
+  # @param solver_mode the type of eigenmodes (FORWARD or ADJOINT)
   # @param num_modes number of eigenmodes to compute
   # @param inner_method Krylov subspace method used for the Ax=b solve
   # @param outer_tol tolerance on the outer eigenvalue solve
   # @param inner_tol tolerance on the inner Ax=b solve
   # @param interval inner iteration interval for logging messages
-  def computeEigenmodes(self, solver_mode=openmoc.FORWARD, num_modes=5, 
-                        inner_method='gmres', outer_tol=1e-5, 
+  def computeEigenmodes(self, solver_mode=openmoc.FORWARD, num_modes=5,
+                        inner_method='gmres', outer_tol=1e-5,
                         inner_tol=1e-6, interval=10):
 
     # Ensure that vacuum boundary conditions are used
@@ -163,7 +163,7 @@ class IRAMSolver(object):
     # Remove imaginary components from NumPy array
     flux = np.real(flux).astype(self._precision)
     flux_old = np.copy(flux)
-    
+
     # Apply operator to flux
     self._a_count += 1
     self._moc_solver.setFluxes(flux)
@@ -175,7 +175,7 @@ class IRAMSolver(object):
       py_printf('NORMAL', "Performed A operator sweep number %d", self._a_count)
     else:
       py_printf('INFO', "Performed A operator sweep number %d", self._a_count)
-      
+
     # Return flux residual
     return flux_old - flux
 

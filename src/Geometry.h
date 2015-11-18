@@ -37,10 +37,10 @@ struct fsr_data {
 
   /** The FSR ID */
   int _fsr_id;
- 
+
   /** The CMFD Cell */
   int _cmfd_cell;
-  
+
   /** The Material ID */
   int _mat_id;
 
@@ -76,19 +76,19 @@ class Geometry {
 
 private:
 
-  /** The boundary conditions at the x-min surface of the bounding box 
+  /** The boundary conditions at the x-min surface of the bounding box
    *  containing the Geometry. */
   boundaryType _x_min_bc;
 
-  /** The boundary conditions at the y-min surface of the bounding box 
+  /** The boundary conditions at the y-min surface of the bounding box
    *  containing the Geometry. */
   boundaryType _y_min_bc;
 
-  /** The boundary conditions at the x-max surface of the bounding box 
+  /** The boundary conditions at the x-max surface of the bounding box
    *  containing the Geometry. */
   boundaryType _x_max_bc;
 
-  /** The boundary conditions at the y-max surface of the bounding box 
+  /** The boundary conditions at the y-max surface of the bounding box
    *  containing the Geometry. */
   boundaryType _y_max_bc;
 

@@ -20,7 +20,7 @@ int main() {
   set_log_level("NORMAL");
   log_printf(TITLE, "Simulating a one group homogeneous two directional"
      " gradient...");
-  
+
   /* Create materials */
   log_printf(NORMAL, "Creating materials...");
   Material* basic_material = new Material();
@@ -74,12 +74,12 @@ int main() {
   int num_cells_y = 1;
   Lattice* lattice = new Lattice();
   lattice->setWidth(L/num_cells_x, L/num_cells_y);
-  
+
   Universe** matrix = new Universe*[num_cells_x * num_cells_y];
   for (int j=0; j<num_cells_y; j++)
     for (int i=0; i<num_cells_x; i++)
       matrix[(num_cells_y-1-j)*num_cells_x + i] = fill_universe;
-  lattice->setUniverses(num_cells_y, num_cells_x, matrix);
+  lattice->setUniverses(1, num_cells_y, num_cells_x, matrix);
   root_cell->setFill(lattice);
 
   /* Create the geometry */

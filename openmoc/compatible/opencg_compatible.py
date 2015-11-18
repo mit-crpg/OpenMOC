@@ -420,7 +420,7 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
   compatible_cells = list()
 
   # SquarePrism Surfaces
-  if opencg_surface.type in ['x-squareprism', 'y-squareprism', 
+  if opencg_surface.type in ['x-squareprism', 'y-squareprism',
                              'z-squareprism']:
 
     # Get the compatible Surfaces (XPlanes and YPlanes)
@@ -436,9 +436,9 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
       opencg_cell.add_surface(compatible_surfaces[3], -1)
       compatible_cells.append(opencg_cell)
 
-    # If Cell is outside the SquarePrism (positive halfspace), add "outside" 
-    # of Surface halfspaces. Since OpenMOC does not have a SquarePrism 
-    # Surface, individual Cells are created for the 8 Cells that make up the 
+    # If Cell is outside the SquarePrism (positive halfspace), add "outside"
+    # of Surface halfspaces. Since OpenMOC does not have a SquarePrism
+    # Surface, individual Cells are created for the 8 Cells that make up the
     # outer region of a SquarePrism.
     #                 |                    |
     #           0     |        1           |    2
@@ -446,7 +446,7 @@ def get_compatible_opencg_cells(opencg_cell, opencg_surface, halfspace):
     #                 |     SquarePrism    |
     #           7     |   (-)  halfspace   |    3
     #           ______|____________________|______
-    #                 |                    |  
+    #                 |                    |
     #           6     |        5           |    4
     #                 |                    |
     else:

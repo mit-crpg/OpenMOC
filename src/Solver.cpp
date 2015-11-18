@@ -245,7 +245,7 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
   else if (_scalar_flux == NULL)
     log_printf(ERROR, "Unable to return a source "
                "since it has not yet been computed");
- 
+
   /* Get Material and cross-sections */
   Material* material = _FSR_materials[fsr_id];
   FP_PRECISION* sigma_s = material->getSigmaS();
@@ -257,9 +257,9 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 
   /* Compute total scattering and fission sources for this FSR */
   for (int g=0; g < _num_groups; g++) {
-    scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
+    scatter_source += sigma_s[(group-1)*(_num_groups)+g]
                       * _scalar_flux(fsr_id-1,g);
-    fission_source += fiss_mat[(group-1)*(_num_groups)+g] 
+    fission_source += fiss_mat[(group-1)*(_num_groups)+g]
                       * _scalar_flux(fsr_id-1,g);
   }
 
@@ -358,7 +358,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = _track_generator->getTracksByParallelGroup();
 
-  /* Retrieve and store the Geometry from the TrackGenerator */  
+  /* Retrieve and store the Geometry from the TrackGenerator */
   setGeometry(_track_generator->getGeometry());
 }
 
@@ -370,7 +370,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
  *          of the PolarQuad parent class, including TYPolarQuad (default),
  *          LeonardPolarQuad, GLPolarQuad, etc.
  *
- *          Users may assign a PolarQuad object to the Solver from 
+ *          Users may assign a PolarQuad object to the Solver from
  *          Python script as follows:
  *
  * @code
@@ -416,7 +416,7 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
-  
+
   if (group <= 0 || group > _num_groups)
     log_printf(ERROR,"Unable to set fixed source for group %d in "
                "in a %d energy group problem", group, _num_groups);
@@ -448,7 +448,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
   /* Aadd the source to all FSRs for this MATERIAL type Cell */
   else {
     Cell* fsr_cell;
-    
+
     for (int r=0; r < _num_FSRs; r++) {
       fsr_cell = _geometry->findCellContainingFSR(r);
       if (cell->getId() == fsr_cell->getId())
@@ -466,7 +466,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::setFixedSourceByMaterial(Material* material, int group, 
+void Solver::setFixedSourceByMaterial(Material* material, int group,
                                       FP_PRECISION source) {
 
   Material* fsr_material;
@@ -492,7 +492,7 @@ void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
 /**
  * @brief Set the precision, or maximum allowable approximation error, of the
  *        the exponential interpolation table.
- * @details By default, the precision is 1E-5 based on the analysis in 
+ * @details By default, the precision is 1E-5 based on the analysis in
  *          Yamamoto's 2003 paper.
  * @param precision the precision of the exponential interpolation table,
  */
@@ -519,7 +519,7 @@ void Solver::useExponentialIntrinsic() {
 }
 
 
-/** 
+/**
  * @brief Initializes a new PolarQuad object.
  * @details Deletes memory old PolarQuad if one was previously allocated.
  */
@@ -542,7 +542,7 @@ void Solver::initializePolarQuadrature() {
   #pragma omp parallel for schedule(guided)
   for (int i=0; i < _num_azim; i++) {
     for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) = 
+      _polar_weights(i,p) =
            azim_weights[i] * _polar_quad->getMultiple(p) * FOUR_PI;
   }
 }
@@ -566,7 +566,7 @@ void Solver::initializeExpEvaluator() {
     _track_generator->splitSegments(max_tau);
 
     /* Initialize exponential interpolation table */
-    _exp_evaluator->setMaxOpticalLength(max_tau);  
+    _exp_evaluator->setMaxOpticalLength(max_tau);
     _exp_evaluator->initialize();
   }
 }
@@ -637,7 +637,7 @@ void Solver::initializeFSRs() {
 
 /**
  * @brief Counts the number of fissionable flat source regions.
- * @details This routine is used by the Solver::computeEigenvalue(...) 
+ * @details This routine is used by the Solver::computeEigenvalue(...)
  *          routine which uses the number of fissionable FSRs to normalize
  *          the residual on the fission source distribution.
  */
@@ -681,7 +681,7 @@ void Solver::initializeCmfd() {
 /**
  * @brief Returns the Material data to its original state.
  * @details In an adjoint calculation, the scattering and fission matrices
- *          in each material are transposed during initialization. This 
+ *          in each material are transposed during initialization. This
  *          routine returns both matrices to their original (FORWARD)
  *          state at the end of a calculation.
  * @param mode the solution type (FORWARD or ADJOINT)
@@ -724,20 +724,20 @@ void Solver::scatterTransportSweep() {
 
 
 /**
- * @brief Computes the scalar flux distribution by performing a series of 
+ * @brief Computes the scalar flux distribution by performing a series of
  *        transport sweeps.
  * @details This is the main method exposed to the user through the Python
- *          interface to compute the scalar flux distribution, e.g., for a 
+ *          interface to compute the scalar flux distribution, e.g., for a
  *          fixed source calculation. This routine makes an initial guess for
- *          scalar and boundary fluxes and performs transport sweep until 
- *          convergence. 
+ *          scalar and boundary fluxes and performs transport sweep until
+ *          convergence.
  *
  *          By default, this method will perform a maximum of 1000 transport
  *          sweeps with a 1E-5 threshold on the average FSR scalar flux. These
  *          values may be freely modified by the user at runtime.
  *
  *          The only_fixed_source runtime parameter may be used to control
- *          the type of source distribution used in the calculation. By 
+ *          the type of source distribution used in the calculation. By
  *          default, this paramter is true and only the fixed sources specified
  *          by the user will be considered. Alternatively, when the parameter
  *          is false, the source will be computed as the scattering and fission
@@ -745,13 +745,13 @@ void Solver::scatterTransportSweep() {
  *          (e.g., an eigenvalue calculation) in addition to any user-defined
  *          fixed sources.
  *
- *          This method may be called by the user to compute the scalar flux 
+ *          This method may be called by the user to compute the scalar flux
  *          for a fixed source distribution from Python as follows:
  *
  * @code
  *          // Assign fixed sources
  *          // ...
- * 
+ *
  *          // Find the flux distribution resulting from the fixed sources
  *          solver.computeFlux(max_iters=100)
  * @endcode
@@ -766,7 +766,7 @@ void Solver::scatterTransportSweep() {
  *
  *          // Add fixed source(s)
  *          // ...
- *          
+ *
  *          // Find fluxes from superposition of eigenvalue and fixed sources
  *          solver.computeFlux(max_iters=100, only_fixed_source=False)
  * @endcode
@@ -776,7 +776,7 @@ void Solver::scatterTransportSweep() {
  * @param mode the solution type (FORWARD or ADJOINT)
  * @param only_fixed_source use only fixed sources (true by default)
  */
-void Solver::computeFlux(int max_iters, solverMode mode, 
+void Solver::computeFlux(int max_iters, solverMode mode,
                          bool only_fixed_source) {
 
   if (_track_generator == NULL)
@@ -801,7 +801,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   initializePolarQuadrature();
   initializeExpEvaluator();
 
-  /* Initialize new flux arrays if a) the user requested the use of 
+  /* Initialize new flux arrays if a) the user requested the use of
    * only fixed sources or b) no previous simulation was performed which
    * initialized and computed the flux (e.g., an eigenvalue calculation) */
   if (only_fixed_source || _num_iterations == 0) {
@@ -846,16 +846,16 @@ void Solver::computeFlux(int max_iters, solverMode mode,
 
 
 /**
- * @brief Computes the total source distribution by performing a series of 
+ * @brief Computes the total source distribution by performing a series of
  *        transport sweep and source updates.
  * @details This is the main method exposed to the user through the Python
  *          interface to compute the source distribution, e.g., for a fixed
- *          and/or external source calculation. This routine makes an initial 
- *          guess for the scalar and boundary fluxes and performs transport 
- *          sweeps and source updates until convergence. 
+ *          and/or external source calculation. This routine makes an initial
+ *          guess for the scalar and boundary fluxes and performs transport
+ *          sweeps and source updates until convergence.
  *
  *          By default, this method will perform a maximum of 1000 transport
- *          sweeps with a 1E-5 threshold on the integrated FSR total source. 
+ *          sweeps with a 1E-5 threshold on the integrated FSR total source.
  *          These values may be freely modified by the user at runtime.
  *
  *          The k_eff parameter may be used for fixed source calculations
@@ -872,7 +872,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
  * @code
  *          // Assign fixed sources
  *          // ...
- * 
+ *
  *          // Find the flux distribution resulting from the fixed sources
  *          solver.computeSource(max_iters=100, k_eff=0.981)
  * @endcode
@@ -951,12 +951,12 @@ void Solver::computeSource(int max_iters, solverMode mode,
  * @brief Computes keff by performing a series of transport sweep and
  *        source updates.
  * @details This is the main method exposed to the user through the Python
- *          interface to perform an eigenvalue calculation. The method makes 
- *          an initial guess for the scalar and boundary fluxes and performs 
+ *          interface to perform an eigenvalue calculation. The method makes
+ *          an initial guess for the scalar and boundary fluxes and performs
  *          transport sweeps and source updates until convergence.
  *
  *          By default, this method will perform a maximum of 1000 transport
- *          sweeps with a 1E-5 threshold on the integrated FSR fission source. 
+ *          sweeps with a 1E-5 threshold on the integrated FSR fission source.
  *          These values may be freely modified by the user at runtime.
  *
  *          The res_type parameter may be used to control the convergence
@@ -971,7 +971,7 @@ void Solver::computeSource(int max_iters, solverMode mode,
  * @param mode the solution type (FORWARD or ADJOINT)
  * @param res_type the type of residual used for the convergence criterion
  */
-void Solver::computeEigenvalue(int max_iters, solverMode mode, 
+void Solver::computeEigenvalue(int max_iters, solverMode mode,
                                residualType res_type) {
 
   if (_track_generator == NULL)

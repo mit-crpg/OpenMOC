@@ -522,9 +522,9 @@ Cell* Universe::findCell(LocalCoords* coords) {
     cells = coords->getCell()->getNeighbors();
 
   /* Add all of Universe's Cells to the back of neighbor Cells vector */
-  std::transform(_cells.begin(), _cells.end(), 
+  std::transform(_cells.begin(), _cells.end(),
                  std::back_inserter(cells), pair_second(_cells));
-  
+
   /* Loop over all Cells */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
     cell = (*iter);
@@ -596,7 +596,7 @@ void Universe::subdivideCells() {
 
 
 /**
- * @brief Builds collections of neighboring Cells for all Cells in this 
+ * @brief Builds collections of neighboring Cells for all Cells in this
  *        Universe for optimized ray tracing.
  */
 void Universe::buildNeighbors() {
@@ -1103,7 +1103,7 @@ void Lattice::removeUniverse(Universe* universe) {
 void Lattice::buildNeighbors() {
 
   /* Get list of unique Universes in this Lattice */
-  std::map<int, Universe*> universes = getUniqueUniverses();  
+  std::map<int, Universe*> universes = getUniqueUniverses();
 
   /* Loop over each Universe and make recursive call */
   std::map<int, Universe*>::iterator iter;
@@ -1143,7 +1143,7 @@ bool Lattice::withinBounds(Point* point) {
   /* If the Point is outside the z bounds */
   else if (z > bound_z_max || z < bound_z_min)
     return false;
-  
+
   /* If the Point is within the bounds */
   else
     return true;
@@ -1168,7 +1168,7 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   int lat_y = getLatY(coords->getPoint());
   int lat_z = getLatZ(coords->getPoint());
   double next_x, next_y, next_z;
-  
+
   /* If the indices are outside the bound of the Lattice */
   if (lat_x < 0 || lat_x >= _num_x ||
       lat_y < 0 || lat_y >= _num_y ||
@@ -1231,7 +1231,7 @@ double Lattice::minSurfaceDist(Point* point, double angle) {
   /* Compute the x, y, and z indices for the Lattice cell this point is in */
   int lat_x = getLatX(point);
   int lat_y = getLatY(point);
-  
+
   /* Create planes representing the boundaries of the lattice cell */
   XPlane xplane(0.0);
   YPlane yplane(0.0);
@@ -1241,7 +1241,7 @@ double Lattice::minSurfaceDist(Point* point, double angle) {
     xplane.setX(((lat_x+1) * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
   else
     xplane.setX((lat_x * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
-  
+
   double dist_x = xplane.getMinDistance(point, angle);
 
   /* Get the min distance for Y PLANE */
@@ -1265,7 +1265,7 @@ double Lattice::minSurfaceDist(Point* point, double angle) {
 int Lattice::getLatX(Point* point) {
 
   /* Compute the x indice for the Lattice cell this point is in */
-  int lat_x = (int)floor((point->getX() + _width_x*_num_x/2.0 - 
+  int lat_x = (int)floor((point->getX() + _width_x*_num_x/2.0 -
                           _offset.getX()) / _width_x);
 
   /* get the distance to the left surface */
@@ -1301,9 +1301,9 @@ int Lattice::getLatY(Point* point) {
 
   /* Check if the Point is on the Lattice boundaries and if so adjust
    * y Lattice cell indice */
-  if (fabs(dist_to_bottom) < ON_SURFACE_THRESH) 
+  if (fabs(dist_to_bottom) < ON_SURFACE_THRESH)
     lat_y = 0;
-  else if (fabs(dist_to_bottom - _num_y*_width_y) < ON_SURFACE_THRESH) 
+  else if (fabs(dist_to_bottom - _num_y*_width_y) < ON_SURFACE_THRESH)
     lat_y = _num_y - 1;
   else if (lat_y < 0 || lat_y > _num_y-1)
     log_printf(ERROR, "Trying to get lattice y index for point that is "
@@ -1323,7 +1323,7 @@ int Lattice::getLatZ(Point* point) {
   /* Check to see if lattice is infinite in z direction */
   if (_width_z == std::numeric_limits<double>::infinity())
     return 0;
-  
+
   /* Compute the z indice for the Lattice cell this point is in */
   int lat_z = (int)floor((point->getZ() + _width_z*_num_z/2.0 -
                           _offset.getZ()) / _width_z);
@@ -1333,9 +1333,9 @@ int Lattice::getLatZ(Point* point) {
 
   /* Check if the Point is on the Lattice boundaries and if so adjust
    * z Lattice cell indice */
-  if (fabs(dist_to_bottom) < ON_SURFACE_THRESH) 
+  if (fabs(dist_to_bottom) < ON_SURFACE_THRESH)
     lat_z = 0;
-  else if (fabs(dist_to_bottom - _num_z*_width_z) < ON_SURFACE_THRESH) 
+  else if (fabs(dist_to_bottom - _num_z*_width_z) < ON_SURFACE_THRESH)
     lat_z = _num_z - 1;
   else if (lat_z < 0 || lat_z > _num_z-1)
     log_printf(ERROR, "Trying to get lattice z index for point that is "

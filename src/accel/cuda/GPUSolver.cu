@@ -35,7 +35,7 @@ __constant__ GPUExpEvaluator exp_evaluator;
  * @brief A struct used to check if a value on the GPU is equal to INF.
  * @details This is used as a predicate in Thrust routines.
  */
-struct isinf_test { 
+struct isinf_test {
   /**
    * @brief Checks if a double precision value is INF.
    * @param a the value to check
@@ -60,7 +60,7 @@ struct isinf_test {
  * @brief A struct used to check if a value on the GPU is equal to NaN.
  * @details This is used as a predicate in Thrust routines.
  */
-struct isnan_test { 
+struct isnan_test {
   /**
    * @brief Checks if a double precision value is NaN.
    * @param a the value to check
@@ -353,7 +353,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
 
   /* Loop over polar angles */
   for (int p=0; p < *num_polar; p++) {
-    exponential = 
+    exponential =
       exp_evaluator.computeExponential(sigma_t[energy_group] * length, p);
     delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group));
     delta_psi *= exponential;
@@ -539,7 +539,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
     /* Iterate over all energy groups */
     for (int i=0; i < *num_groups; i++) {
       scalar_flux(tid,i) *= 0.5;
-      scalar_flux(tid,i) = __fdividef(scalar_flux(tid,i), 
+      scalar_flux(tid,i) = __fdividef(scalar_flux(tid,i),
                                      (sigma_t[i] * volume));
       scalar_flux(tid,i) += FOUR_PI * reduced_sources(tid,i);
     }
@@ -600,7 +600,7 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
 
 /**
  * @brief Constructor initializes arrays for dev_tracks and dev_materials..
- * @details The constructor initalizes the number of CUDA threads and thread 
+ * @details The constructor initalizes the number of CUDA threads and thread
  *          blocks each to a default of 64.
  * @param track_generator an optional pointer to the TrackjGenerator
  */
@@ -711,7 +711,7 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
   FP_PRECISION* fiss_mat = host_material->getFissionMatrix();
 
   FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_groups];
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
   cudaMemcpy((void*)fsr_scalar_fluxes, (void*)&scalar_flux[fsr_id*_num_groups],
              _num_groups * sizeof(FP_PRECISION),
@@ -723,9 +723,9 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
 
   /* Compute total scattering and fission sources for this FSR */
   for (int g=0; g < _num_groups; g++) {
-    scatter_source += sigma_s[(group-1)*(_num_groups)+g] 
+    scatter_source += sigma_s[(group-1)*(_num_groups)+g]
                       * fsr_scalar_fluxes[g];
-    fission_source += fiss_mat[(group-1)*(_num_groups)+g] 
+    fission_source += fiss_mat[(group-1)*(_num_groups)+g]
                       * fsr_scalar_fluxes[g];
   }
 
@@ -781,7 +781,7 @@ FP_PRECISION GPUSolver::getFlux(int fsr_id, int group) {
 /**
  * @brief Fills an array with the scalar fluxes on the GPU.
  * @details This class method is a helper routine called by the OpenMOC
- *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Python "openmoc.krylov" module for Krylov subspace methods.
  *          Although this method appears to require two arguments, in
  *          reality it only requires one due to SWIG and would be called
  *          from within Python as follows:
@@ -805,7 +805,7 @@ void GPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
     log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
                "have not yet been allocated on the device");
 
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Copy the fluxes from the GPU to the input array */
@@ -844,14 +844,14 @@ void GPUSolver::setNumThreadsPerBlock(int num_threads) {
 
 /**
  * @brief Assign a fixed source for a flat source region and energy group.
- * @details Fixed sources should be scaled to reflect the fact that OpenMOC 
- *          normalizes the scalar flux such that the total energy- and 
+ * @details Fixed sources should be scaled to reflect the fact that OpenMOC
+ *          normalizes the scalar flux such that the total energy- and
  *          volume-integrated production rate sums to 1.0.
  * @param fsr_id the flat source region ID
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void GPUSolver::setFixedSourceByFSR(int fsr_id, int group, 
+void GPUSolver::setFixedSourceByFSR(int fsr_id, int group,
                                     FP_PRECISION source) {
 
   Solver::setFixedSourceByFSR(fsr_id, group, source);
@@ -870,7 +870,7 @@ void GPUSolver::setFixedSourceByFSR(int fsr_id, int group,
   }
 
   /* Store the fixed source for this FSR and energy group */
-  _fixed_sources(fsr_id,group-1) = source;  
+  _fixed_sources(fsr_id,group-1) = source;
 }
 
 
@@ -932,7 +932,7 @@ void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
  * @endcode
  *
  *          NOTE: This routine stores a pointer to the fluxes for the Solver
- *          to use during transport sweeps and other calculations. Hence, the 
+ *          to use during transport sweeps and other calculations. Hence, the
  *          flux array pointer is shared between NumPy and the Solver.
  *
  * @param in_fluxes an array with the fluxes to use
@@ -947,12 +947,12 @@ void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
   if (_scalar_flux.size() == 0)
     initializeFluxArrays();
 
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Copy the input fluxes onto the GPU */
   cudaMemcpy((void*)scalar_flux, (void*)in_fluxes,
-             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);  
+             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
   _user_fluxes = true;
 }
 
@@ -1015,7 +1015,7 @@ void GPUSolver::initializeExpEvaluator() {
   clone_exp_evaluator(_exp_evaluator, dev_exp_evaluator);
 
   /* Copy the GPUExpEvaluator into constant memory on the GPU */
-  cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator, 
+  cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator,
                      sizeof(GPUExpEvaluator), 0, cudaMemcpyDeviceToDevice);
 }
 
@@ -1046,7 +1046,7 @@ void GPUSolver::initializeFSRs() {
   /* Allocate memory for all FSR volumes and dev_materials on the device */
   try{
 
-    /* Store pointers to arrays of FSR data created on the host by the 
+    /* Store pointers to arrays of FSR data created on the host by the
      * the parent class Solver::initializeFSRs() routine */
     FP_PRECISION* host_FSR_volumes = _FSR_volumes;
     int* host_FSR_materials = _FSR_materials;
@@ -1089,12 +1089,12 @@ void GPUSolver::initializeFSRs() {
 /**
  * @brief Allocates all Materials data on the GPU.
  * @details This method loops over the materials in the host_materials map.
- *          Since CUDA does not support std::map data types on the device, 
+ *          Since CUDA does not support std::map data types on the device,
  *          the materials map must be converted to an array and a map created
  *          that maps a material ID to an indice in the new materials array. In
  *          initializeTracks, this map is used to convert the Material ID
  *          associated with every segment to an index in the materials array.
- * @param mode the solution type (FORWARD or ADJOINT) 
+ * @param mode the solution type (FORWARD or ADJOINT)
  */
 void GPUSolver::initializeMaterials(solverMode mode) {
 
@@ -1261,7 +1261,7 @@ void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  * @brief Stores the FSR scalar fluxes in the old scalar flux array.
  */
 void GPUSolver::storeFSRFluxes() {
-  thrust::copy(_scalar_flux.begin(), _scalar_flux.end(), 
+  thrust::copy(_scalar_flux.begin(), _scalar_flux.end(),
                _old_scalar_flux.begin());
 }
 
@@ -1275,10 +1275,10 @@ void GPUSolver::normalizeFluxes() {
   /** Create Thrust vector of fission sources in each FSR */
   thrust::device_vector<FP_PRECISION> fission_sources_vec;
   fission_sources_vec.resize(_B * _T);
-  FP_PRECISION* fission_sources = 
+  FP_PRECISION* fission_sources =
        thrust::raw_pointer_cast(&fission_sources_vec[0]);
 
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   int shared_mem = sizeof(FP_PRECISION) * _T;
@@ -1298,7 +1298,7 @@ void GPUSolver::normalizeFluxes() {
                     _scalar_flux.begin(), thrust::multiplies<FP_PRECISION>());
   thrust::transform(_old_scalar_flux.begin(), _old_scalar_flux.end(),
                     thrust::constant_iterator<FP_PRECISION>(norm_factor),
-                    _old_scalar_flux.begin(), 
+                    _old_scalar_flux.begin(),
                     thrust::multiplies<FP_PRECISION>());
   thrust::transform(_boundary_flux.begin(), _boundary_flux.end(),
                     thrust::constant_iterator<FP_PRECISION>(norm_factor),
@@ -1316,11 +1316,11 @@ void GPUSolver::normalizeFluxes() {
  */
 void GPUSolver::computeFSRSources() {
 
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
-  FP_PRECISION* fixed_sources = 
+  FP_PRECISION* fixed_sources =
        thrust::raw_pointer_cast(&_fixed_sources[0]);
-  FP_PRECISION* reduced_sources = 
+  FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
@@ -1336,9 +1336,9 @@ void GPUSolver::computeFSRSources() {
  */
 void GPUSolver::computeFSRFissionSources() {
 
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
-  FP_PRECISION* reduced_sources = 
+  FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
   computeFSRFissionSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
@@ -1353,9 +1353,9 @@ void GPUSolver::computeFSRFissionSources() {
  */
 void GPUSolver::computeFSRScatterSources() {
 
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
-  FP_PRECISION* reduced_sources = 
+  FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
   computeFSRScatterSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
@@ -1380,11 +1380,11 @@ void GPUSolver::transportSweep() {
              _B, _T);
 
   /* Get device pointer to the Thrust vectors */
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
-  FP_PRECISION* boundary_flux = 
+  FP_PRECISION* boundary_flux =
        thrust::raw_pointer_cast(&_boundary_flux[0]);
-  FP_PRECISION* reduced_sources = 
+  FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
   /* Initialize flux in each FSR to zero */
@@ -1412,9 +1412,9 @@ void GPUSolver::transportSweep() {
  *        the FSR scalar flux.
  */
 void GPUSolver::addSourceToScalarFlux() {
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
-  FP_PRECISION* reduced_sources = 
+  FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
   addSourceToScalarFluxOnDevice<<<_B,_T>>>(scalar_flux, reduced_sources,
@@ -1468,7 +1468,7 @@ void GPUSolver::computeKeff() {
 
 /**
  * @brief Computes the residual between source/flux iterations.
- * @param res_type the type of residuals to compute 
+ * @param res_type the type of residuals to compute
  *        (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)
  * @return the average residual in each flat source region
  */
@@ -1514,15 +1514,15 @@ double GPUSolver::computeResidual(residualType res_type) {
     /* Allocate Thrust vector for fission sources on the GPU */
     thrust::device_vector<FP_PRECISION> new_fission_sources_vec(_num_FSRs);
     thrust::device_vector<FP_PRECISION> old_fission_sources_vec(_num_FSRs);
-    
+
     /* Cast Thrust vectors as array pointers */
     FP_PRECISION* old_fission_sources =
          thrust::raw_pointer_cast(&old_fission_sources_vec[0]);
     FP_PRECISION* new_fission_sources =
          thrust::raw_pointer_cast(&new_fission_sources_vec[0]);
-    FP_PRECISION* scalar_flux = 
+    FP_PRECISION* scalar_flux =
          thrust::raw_pointer_cast(&_scalar_flux[0]);
-    FP_PRECISION* old_scalar_flux = 
+    FP_PRECISION* old_scalar_flux =
          thrust::raw_pointer_cast(&_old_scalar_flux[0]);
 
     /* Compute the old and new nu-fission rates on the device */
@@ -1534,7 +1534,7 @@ double GPUSolver::computeResidual(residualType res_type) {
                                                new_fission_sources);
 
     /* Compute the relative nu-fission rate change in each FSR */
-    thrust::transform(new_fission_sources_vec.begin(), 
+    thrust::transform(new_fission_sources_vec.begin(),
                       new_fission_sources_vec.end(),
                       old_fission_sources_vec.begin(), residuals.begin(),
                       thrust::minus<FP_PRECISION>());
@@ -1560,15 +1560,15 @@ double GPUSolver::computeResidual(residualType res_type) {
     thrust::device_vector<FP_PRECISION> old_sources_vec(_num_FSRs * _num_groups);
 
     /* Cast Thrust vectors as array pointers */
-    FP_PRECISION* old_sources = 
+    FP_PRECISION* old_sources =
          thrust::raw_pointer_cast(&old_sources_vec[0]);
-    FP_PRECISION* new_sources = 
+    FP_PRECISION* new_sources =
          thrust::raw_pointer_cast(&new_sources_vec[0]);
-    FP_PRECISION* scalar_flux = 
+    FP_PRECISION* scalar_flux =
          thrust::raw_pointer_cast(&_scalar_flux[0]);
-    FP_PRECISION* old_scalar_flux = 
+    FP_PRECISION* old_scalar_flux =
          thrust::raw_pointer_cast(&_old_scalar_flux[0]);
-    FP_PRECISION* fixed_sources = 
+    FP_PRECISION* fixed_sources =
          thrust::raw_pointer_cast(&_fixed_sources[0]);
 
     /* Compute the old and new total sources on the device */
@@ -1595,7 +1595,7 @@ double GPUSolver::computeResidual(residualType res_type) {
     thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
   }
 
-  /* Replace INF and NaN values (from divide by zero) with 0. */ 
+  /* Replace INF and NaN values (from divide by zero) with 0. */
   thrust::replace_if(residuals.begin(), residuals.end(), inf_test, 0);
   thrust::replace_if(residuals.begin(), residuals.end(), nan_test, 0);
 
@@ -1629,7 +1629,7 @@ double GPUSolver::computeResidual(residualType res_type) {
  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
  * @endcode
  *
- * @param fission_rates an array to store the nu-fission rates (implicitly 
+ * @param fission_rates an array to store the nu-fission rates (implicitly
  *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
  */
@@ -1642,7 +1642,7 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   cudaMalloc((void**)&dev_fission_rates, _num_FSRs * sizeof(FP_PRECISION));
   FP_PRECISION* host_fission_rates = new FP_PRECISION[_num_FSRs];
 
-  FP_PRECISION* scalar_flux = 
+  FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Compute the FSR nu-fission rates on the device */

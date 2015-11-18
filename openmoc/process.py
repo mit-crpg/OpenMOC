@@ -10,7 +10,7 @@
 # @date April 27, 2013
 
 import os
-import re 
+import re
 import mmap
 import sys
 import numpy as np
@@ -140,7 +140,7 @@ def compute_fission_rates(solver, use_hdf5=False):
       key = 'UNIV = 0 : '
 
       # Parse through the linked list and create fsr key.
-      # If lowest level sub dictionary already exists, then increment 
+      # If lowest level sub dictionary already exists, then increment
       # fission rate; otherwise, set the fission rate.
       while True:
         if coords.getType() is openmoc.LAT:
@@ -224,7 +224,7 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @param note an additional string note to include in state file
 def store_simulation_state(solver, fluxes=False, sources=False,
                            fission_rates=False, use_hdf5=False,
-                           filename='simulation-state', 
+                           filename='simulation-state',
                            directory = 'simulation-states',
                            append=True, note=''):
 
@@ -459,7 +459,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       state['FSR sources'] = sources_array
 
     if fission_rates:
-      compute_fission_rates(solver, False)      
+      compute_fission_rates(solver, False)
       state['fission-rates'] = \
         pickle.load(file('fission-rates/fission-rates.pkl', 'rb'))
 
@@ -484,7 +484,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 #          and number of OpenMP or CUDA threads. In addition, the routine
 #          can restore the FSR flux array, FSR source array.
 #
-#          Note: If the fission rates were stored in a hdf5 binary file, 
+#          Note: If the fission rates were stored in a hdf5 binary file,
 #          they are not restored and returned in this method.
 #
 #          This method may be called from Python as follows:
@@ -621,7 +621,7 @@ def restore_simulation_state(filename='simulation-state.h5',
 ##
 # @brief Parse an OpenMOC log file to obtain a simulation's convergence data.
 # @details This method compiles the eigenvalue and source residuals from each
-#          iteration of an OpenMOC simulation. This data is inserted into a 
+#          iteration of an OpenMOC simulation. This data is inserted into a
 #          Python dictionary under the key names 'eigenvalues' and 'residuals',
 #          along with an integer `# iters`, and returned to the user.
 #

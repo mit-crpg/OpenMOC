@@ -238,14 +238,14 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
   if gridsize <= 0:
     py_printf('ERROR', 'Unable to plot the Materials ' + \
               'with a negative gridsize (%d)', gridsize)
-    
+
   # If zcoord was not set, set the zcoord to 0.0
   if zcoord is None:
     zcoord = 0.0
 
   # Check z-coord
   check_zcoord(geometry, zcoord)
-    
+
   py_printf('NORMAL', 'Plotting the materials...')
 
   # Initialize a NumPy array for the surface colors
@@ -578,9 +578,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None, \
 # @endcode
 #
 # @param geometry a geometry object which has been initialized with Materials,
-#        Cells, Universes and Lattices. Segments must have been created or 
+#        Cells, Universes and Lattices. Segments must have been created or
 #        extracted from a file.
-# @param cmfd a Cmfd object which has been used with the geometry in 
+# @param cmfd a Cmfd object which has been used with the geometry in
 #        generating segments. The Cmfd object must have the _overlay_mesh
 #        flag set to true; otherwise, the map linking FSR IDs to CMFD cells
 #        would not have been created.
@@ -681,7 +681,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 # @brief This method takes in a Solver object and plots a color-coded 2D
 #        surface plot representing the flat source region scalar fluxes.
 # @details The Solver must have converged the flat source sources prior to
-#          calling this routine. A user may invoke this function from an 
+#          calling this routine. A user may invoke this function from an
 #          OpenMOC Python file as follows:
 #
 # @code
@@ -791,14 +791,14 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
 #        flux vs. energy for one or more flat source regions.
 # @details The Solver must have converged the flat source sources prior to
 #          calling this routine. The routine will generate a step plot of the
-#          flat flux across each energy group. 
+#          flat flux across each energy group.
 #
-#          An optional parameter for the energy group bounds may be input. 
+#          An optional parameter for the energy group bounds may be input.
 #          The group bounds should be input in increasing order of energy.
-#          If group bounds are not specified, the routine will use equal 
+#          If group bounds are not specified, the routine will use equal
 #          width steps for each energy group.
 #
-#          A user may invoke this function from an OpenMOC Python file 
+#          A user may invoke this function from an OpenMOC Python file
 #          as follows:
 #
 # @code
@@ -881,7 +881,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
   group_deltas = np.ediff1d(group_bounds)
   group_bounds = np.flipud(group_bounds)
   group_deltas = np.flipud(group_deltas)
- 
+
   # Iterate over all flat source regions
   for fsr in fsrs:
 
@@ -901,22 +901,22 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
     # Draw horizontal/vertical lines on the plot for each energy group
     for group in range(num_groups):
-    
+
       # Horizontal line
       if loglog:
-        plt.loglog(group_bounds[group:group+2], [fluxes[group]]*2, 
+        plt.loglog(group_bounds[group:group+2], [fluxes[group]]*2,
                    linewidth=3, c='b', label='openmoc', linestyle='-')
       else:
-        plt.plot(group_bounds[group:group+2], [fluxes[group]]*2, 
+        plt.plot(group_bounds[group:group+2], [fluxes[group]]*2,
                  linewidth=3, c='b', label='openmoc', linestyle='-')
 
       # Vertical lines
       if group < num_groups - 1:
         if loglog:
-          plt.loglog([group_bounds[group+1]]*2, fluxes[group:group+2], 
+          plt.loglog([group_bounds[group+1]]*2, fluxes[group:group+2],
                      c='b', linestyle='--')
         else:
-          plt.plot([group_bounds[group+1]]*2, fluxes[group:group+2], 
+          plt.plot([group_bounds[group+1]]*2, fluxes[group:group+2],
                    c='b', linestyle='--')
 
     plt.xlabel('Energy')
@@ -930,10 +930,10 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
 
 ##
-# @brief This method plots a color-coded 2D surface plot representing the 
+# @brief This method plots a color-coded 2D surface plot representing the
 #        FSR fission rates in the Geometry.
 # @details The Solver must have converged the flat source sources prior to
-#          calling this routine. A user may invoke this function from an 
+#          calling this routine. A user may invoke this function from an
 #          OpenMOC Python file as follows:
 #
 # @code
@@ -1013,10 +1013,10 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
 
 
 ##
-# @brief This method plots a color-coded 2D surface plot representing the 
+# @brief This method plots a color-coded 2D surface plot representing the
 #        FSR scalar fluxes for various eigenmodes from an IRAMSolver.
 # @details The IRAMSolver must have computed the eigenmodes prior to
-#          calling this routine. A user may invoke this function from 
+#          calling this routine. A user may invoke this function from
 #          an OpenMOC Python file as follows:
 #
 # @code
@@ -1029,7 +1029,7 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1], 
+def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
                           gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
@@ -1075,7 +1075,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 
   # Loop over each eigenmode
   for mode in eigenmodes:
-  
+
     # Extract the eigenvector for this eigenmode from the IRAMSolver
     eigenvec = iramsolver._eigenvectors[:,mode-1]
 
@@ -1086,7 +1086,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
     # Ensure the primary eigenvector is positive
     if(mode-1 == 0):
       eigenvec = np.abs(eigenvec)
-        
+
     # Insert eigenvector into MOC Solver object
     moc_solver.setFluxes(eigenvec)
 
@@ -1094,7 +1094,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
     num_digits = len(str(max(eigenmodes)))
     subdirectory = '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
 
-    # Plot this eigenmode's spatial fluxes 
+    # Plot this eigenmode's spatial fluxes
     plot_spatial_fluxes(moc_solver, energy_groups, gridsize, xlim, ylim)
 
   # Reset global subdirectory

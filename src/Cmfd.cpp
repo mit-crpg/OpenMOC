@@ -600,7 +600,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
   /* Zero _A and _M matrices */
   _A->clear();
   _M->clear();
-  
+
   #pragma omp parallel
   {
 
@@ -832,22 +832,22 @@ int Cmfd::getCmfdGroup(int group) {
 
 
 /**
- * @brief Set the CMFD energy group structure. 
- * @details CMFD does not necessarily need to have the same energy group 
- *          structure as the MOC problem. This function can be used to set 
+ * @brief Set the CMFD energy group structure.
+ * @details CMFD does not necessarily need to have the same energy group
+ *          structure as the MOC problem. This function can be used to set
  *          a sparse energy group structure to speed up the CMFD solve.
  * @param group_indices An array of the CMFD group boundaries
  * @param length_group_indices The length of the group_indices array
  */
 void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
-    
+
   _num_cmfd_groups = length_group_indices - 1;
 
   /* Allocate memory */
   if (_group_indices == NULL) {
     _group_indices = new int[length_group_indices];
   }
-    
+
   if (group_indices == NULL) {
     for (int i = 0; i < length_group_indices; i++) {
       _group_indices[i] = i;
@@ -855,17 +855,17 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
   }
   else{
     if (group_indices[0] != 1)
-      log_printf(ERROR, "The first value in group indices must be 1!");    
+      log_printf(ERROR, "The first value in group indices must be 1!");
 
     /* Set first group indice to 0 */
     _group_indices[0] = 0;
-        
+
     /* Set MOC group bounds for rest of CMFD energy groups */
     for (int i = 1; i < length_group_indices; i++) {
       /* Check that the group indices are always increasing */
       if (group_indices[i] <= group_indices[i-1])
         log_printf(ERROR, "The group indices must be increasing!");
-            
+
       _group_indices[i] = group_indices[i] - 1;
       log_printf(INFO, "group indices %d: %d", i, group_indices[i]);
     }
@@ -942,7 +942,7 @@ void Cmfd::initializeCellMap() {
  * @brief Initialize and set array that links the MOC energy groups to the
  *        CMFD energy groups.
  * @details This method initializes the _group_indices_map, which is a 1D array
- *          of length _num_moc_groups that maps the MOC energy groups to CMFD 
+ *          of length _num_moc_groups that maps the MOC energy groups to CMFD
  *          energy groups. The indices into _group_indices_map are the MOC
  *          energy groups and the values are the CMFD energy groups.
  */
@@ -951,8 +951,8 @@ void Cmfd::initializeGroupMap() {
   /* Allocate memory */
   if (_group_indices_map == NULL) {
     _group_indices_map = new int[_num_moc_groups];
-  }    
-    
+  }
+
   /* Create group indices map */
   for (int e = 0; e < _num_cmfd_groups; e++) {
     for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
@@ -992,7 +992,7 @@ int Cmfd::findCmfdCorner(int cell_id, LocalCoords* coords) {
 
 
 /**
- * @brief Find the CMFD cell that a LocalCoords object is in. 
+ * @brief Find the CMFD cell that a LocalCoords object is in.
  * @param coords The coords being evaluated.
  * @return The CMFD cell ID.
  */
@@ -1014,7 +1014,7 @@ void Cmfd::setLatticeStructure(int num_x, int num_y) {
 
 
 /**
- * @brief Returns the Lattice object used as the CMFD mesh. 
+ * @brief Returns the Lattice object used as the CMFD mesh.
  * @return A pointer to a Lattice object.
  */
 Lattice* Cmfd::getLattice() {
@@ -1206,7 +1206,7 @@ int Cmfd::getBoundary(int side) {
  */
 int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
-  std::vector<int>::iterator iter;    
+  std::vector<int>::iterator iter;
   for (int cell_id=0; cell_id < _num_x * _num_y; cell_id++) {
 
     for (iter = _cell_fsrs.at(cell_id).begin();
@@ -1216,12 +1216,12 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
     }
   }
 
-  return -1;  
+  return -1;
 }
 
 
 /**
- * @brief Return a pointer to the vector of vectors that contains 
+ * @brief Return a pointer to the vector of vectors that contains
  *        the FSRs that lie in each cell.
  * @return Vector of vectors containing FSR IDs in each cell.
  */
@@ -1229,7 +1229,7 @@ std::vector< std::vector<int> >* Cmfd::getCellFSRs() {
   return &_cell_fsrs;
 }
 
- 
+
 /**
  * @brief Set the vector of vectors that contains the FSRs that lie in
  *        each cell.
@@ -1346,7 +1346,7 @@ void Cmfd::generateKNearestStencils() {
          fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
 
       fsr_id = *fsr_iter;
-      
+
       /* Get centroid */
       centroid = _geometry->getFSRCentroid(fsr_id);
 
@@ -1631,7 +1631,7 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
  * @param boundary_flux Array of boundary fluxes
  * @return The number of Tracks
  */
-void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
+void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
 			      int num_tracks) {
 
   segment* segments;
@@ -1641,12 +1641,12 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
   FP_PRECISION* track_flux;
   FP_PRECISION ratio;
   int cell_id;
-  
+
   log_printf(INFO, "updating boundary flux");
 
   /* Loop over Tracks */
   for (int i=0; i < num_tracks; i++) {
-      
+
     num_segments = tracks[i]->getNumSegments();
     segments = tracks[i]->getSegments();
 
@@ -1655,7 +1655,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     curr_segment = &segments[0];
     track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar];
     cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
-    
+
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
         for (int p=0; p < _num_polar; p++) {
@@ -1669,7 +1669,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     bc = (int)tracks[i]->getBCIn();
     curr_segment = &segments[num_segments - 1];
     track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar];
-    
+
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
         for (int p=0; p < _num_polar; p++) {

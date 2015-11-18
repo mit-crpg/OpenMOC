@@ -215,7 +215,7 @@ public:
   virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
-  void setFixedSourceByMaterial(Material* material, int group, 
+  void setFixedSourceByMaterial(Material* material, int group,
                                 FP_PRECISION source);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setExpPrecision(FP_PRECISION precision);
@@ -267,7 +267,7 @@ public:
   virtual void normalizeFluxes() = 0;
 
   /**
-   * @brief Computes the total source (fission, scattering, fixed) for 
+   * @brief Computes the total source (fission, scattering, fixed) for
    *        each FSR and energy group.
    */
   virtual void computeFSRSources() = 0;
@@ -283,7 +283,7 @@ public:
   virtual void computeFSRScatterSources() = 0;
 
   /**
-   * @brief Computes the residual between successive flux/source iterations. 
+   * @brief Computes the residual between successive flux/source iterations.
    * @param res_type the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)
    * @return the total residual summed over FSRs and energy groups
    */
@@ -317,7 +317,7 @@ public:
   * @brief Computes the volume-weighted, energy integrated fission rate in
   *        each FSR and stores them in an array indexed by FSR ID.
   * @details This is a helper method for SWIG to allow users to retrieve
-  *          FSR fission rates as a NumPy array. An example of how this method 
+  *          FSR fission rates as a NumPy array. An example of how this method
   *          can be called from Python is as follows:
   *
   * @code

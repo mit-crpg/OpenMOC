@@ -34,7 +34,7 @@ private:
   int* _IA;
   int* _JA;
   FP_PRECISION* _DIAG;
-  
+
   bool _modified;
   int _num_x;
   int _num_y;
@@ -43,12 +43,12 @@ private:
 
   /** OpenMP mutual exclusion locks for atomic cell updates */
   omp_lock_t* _cell_locks;
-  
+
   void convertToCSR();
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumGroups(int num_groups);
-  
+
 public:
   Matrix(int num_x=1, int num_y=1, int num_groups=1);
   virtual ~Matrix();

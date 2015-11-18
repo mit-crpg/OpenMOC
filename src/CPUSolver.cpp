@@ -40,7 +40,7 @@ int CPUSolver::getNumThreads() {
 /**
  * @brief Fills an array with the scalar fluxes.
  * @details This class method is a helper routine called by the OpenMOC
- *          Python "openmoc.krylov" module for Krylov subspace methods. 
+ *          Python "openmoc.krylov" module for Krylov subspace methods.
  *          Although this method appears to require two arguments, in
  *          reality it only requires one due to SWIG and would be called
  *          from within Python as follows:
@@ -97,14 +97,14 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 /**
  * @brief Assign a fixed source for a flat source region and energy group.
- * @details Fixed sources should be scaled to reflect the fact that OpenMOC 
- *          normalizes the scalar flux such that the total energy- and 
+ * @details Fixed sources should be scaled to reflect the fact that OpenMOC
+ *          normalizes the scalar flux such that the total energy- and
  *          volume-integrated production rate sums to 1.0.
  * @param fsr_id the flat source region ID
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void CPUSolver::setFixedSourceByFSR(int fsr_id, int group, 
+void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
                                     FP_PRECISION source) {
 
   Solver::setFixedSourceByFSR(fsr_id, group, source);
@@ -122,7 +122,7 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
                _fixed_sources(fsr_id,group-1), fsr_id, source);
 
   /* Store the fixed source for this FSR and energy group */
-  _fixed_sources(fsr_id,group-1) = source;  
+  _fixed_sources(fsr_id,group-1) = source;
 }
 
 
@@ -138,7 +138,7 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
  * @endcode
  *
  *          NOTE: This routine stores a pointer to the fluxes for the Solver
- *          to use during transport sweeps and other calculations. Hence, the 
+ *          to use during transport sweeps and other calculations. Hence, the
  *          flux array pointer is shared between NumPy and the Solver.
  *
  * @param in_fluxes an array with the fluxes to use
@@ -380,7 +380,7 @@ void CPUSolver::computeFSRSources() {
           fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
         }
 
-        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
+        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources,
                                                     _num_groups);
         fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
                                                     _num_groups);
@@ -427,7 +427,7 @@ void CPUSolver::computeFSRFissionSources() {
           fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
           fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
         }
-        
+
         fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
                                                     _num_groups);
 
@@ -446,7 +446,7 @@ void CPUSolver::computeFSRFissionSources() {
  * @details This method is a helper routine for the openmoc.krylov submodule.
  */
 void CPUSolver::computeFSRScatterSources() {
-  
+
   #pragma omp parallel default(none)
   {
     int tid;
@@ -471,7 +471,7 @@ void CPUSolver::computeFSRScatterSources() {
           scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
         }
 
-        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources, 
+        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources,
                                                     _num_groups);
 
         /* Compute total (scatter) reduced source */
@@ -486,7 +486,7 @@ void CPUSolver::computeFSRScatterSources() {
 
 /**
  * @brief Computes the residual between source/flux iterations.
- * @param res_type the type of residuals to compute 
+ * @param res_type the type of residuals to compute
  *        (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)
  * @return the average residual in each FSR
  */
@@ -504,7 +504,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     for (int r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
         if (_old_scalar_flux(r,e) > 0.) {
-          residuals[r] += pow((_scalar_flux(r,e) - _old_scalar_flux(r,e)) / 
+          residuals[r] += pow((_scalar_flux(r,e) - _old_scalar_flux(r,e)) /
                                _old_scalar_flux(r,e), 2);
       }
     }
@@ -546,7 +546,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_FSRs;
 
-    double new_total_source, old_total_source; 
+    double new_total_source, old_total_source;
     FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
     FP_PRECISION* nu_sigma_f;
     Material* material;
@@ -558,7 +558,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
       if (material->isFissionable()) {
         nu_sigma_f = material->getNuSigmaF();
- 
+
         for (int e=0; e < _num_groups; e++) {
           new_total_source += _scalar_flux(r,e) * nu_sigma_f[e];
           old_total_source += _old_scalar_flux(r,e) * nu_sigma_f[e];
@@ -579,7 +579,7 @@ double CPUSolver::computeResidual(residualType res_type) {
       }
 
       if (old_total_source > 0.)
-        residuals[r] = pow((new_total_source -  old_total_source) / 
+        residuals[r] = pow((new_total_source -  old_total_source) /
                             old_total_source, 2);
     }
   }
@@ -870,7 +870,7 @@ void CPUSolver::addSourceToScalarFlux() {
  * @brief Computes the volume-integrated, energy-integrated nu-fission rate in
  *        each FSR and stores them in an array indexed by FSR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
- *          FSR nu-fission rates as a NumPy array. An example of how this 
+ *          FSR nu-fission rates as a NumPy array. An example of how this
  *          method can be called from Python is as follows:
  *
  * @code
@@ -878,7 +878,7 @@ void CPUSolver::addSourceToScalarFlux() {
  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
  * @endcode
  *
- * @param fission_rates an array to store the nu-fission rates (implicitly 
+ * @param fission_rates an array to store the nu-fission rates (implicitly
  *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
  */

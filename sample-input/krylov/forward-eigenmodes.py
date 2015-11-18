@@ -44,7 +44,7 @@ iram_solver.computeEigenmodes(num_modes=num_modes, solver_mode=openmoc.FORWARD)
 # Report the forward eigenvalues to the user
 eigenvalues = iram_solver._eigenvalues
 openmoc.log.py_printf('RESULT', 'Forward eigenvalues: %s', str(eigenvalues))
-        
+
 
 ###############################################################################
 #                             Generating Plots

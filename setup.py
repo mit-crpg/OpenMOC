@@ -88,7 +88,7 @@ class custom_install(install):
 
     python setup.py install
 
-    By default, this will build the main openmoc C/C++ Python extension using 
+    By default, this will build the main openmoc C/C++ Python extension using
     the GCC compiler with single precision (default).
     """
 
@@ -291,8 +291,8 @@ def customize_linker(self):
 
 
 # monkey-patch for parallel compilation
-def parallel_compile(self, sources, output_dir=None, macros=None, 
-                     include_dirs=None, debug=0, extra_preargs=None, 
+def parallel_compile(self, sources, output_dir=None, macros=None,
+                     include_dirs=None, debug=0, extra_preargs=None,
                      extra_postargs=None, depends=None):
   """A parallel version of the Distutils compile method
 
@@ -301,7 +301,7 @@ def parallel_compile(self, sources, output_dir=None, macros=None,
 
   # Copy args from distutils.ccompiler.CCompiler directly
   macros, objects, extra_postargs, pp_opts, build = \
-       self._setup_compile(output_dir, macros, include_dirs, 
+       self._setup_compile(output_dir, macros, include_dirs,
                            sources, depends, extra_postargs)
   cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
   num_cpus = multiprocessing.cpu_count()

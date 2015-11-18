@@ -65,11 +65,11 @@ private:
   /** The new source vector */
   Vector* _new_source;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
@@ -200,7 +200,7 @@ public:
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     FP_PRECISION* polar_weights, bool fwd);
-  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
+  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
                           int num_tracks);
 
   /* Get parameters */

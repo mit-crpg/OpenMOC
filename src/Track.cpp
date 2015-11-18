@@ -126,7 +126,7 @@ void Track::removeSegment(int index) {
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to remove a segment from Track");
-  }  
+  }
 }
 
 
@@ -144,7 +144,7 @@ void Track::insertSegment(int index, segment* segment) {
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to insert a segment into Track");
-  }  
+  }
 }
 
 
@@ -179,7 +179,7 @@ void Track::setNextOut(const bool next_out) {
 /**
  * @brief Sets the boundary condition for the incoming flux along the Track's
  *        "forward" direction.
- * @details The boundaryType represents vacuum (0), reflective (1), or 
+ * @details The boundaryType represents vacuum (0), reflective (1), or
  *          periodic (2) boundary conditions.
  * @param bc_in boundary condition for the incoming flux in the "forward"
  *        direction
@@ -192,7 +192,7 @@ void Track::setBCIn(const boundaryType bc_in) {
 /**
  * @brief Sets the boundary condition for the incoming flux along the Track's
  *        "reverse" direction.
- * @details The boundaryType represents vacuum (0), reflective (1), or 
+ * @details The boundaryType represents vacuum (0), reflective (1), or
  *          periodic (2) boundary conditions.
  * @param bc_out boundary condition for the incoming flux in the "reverse"
  *        direction
@@ -245,7 +245,7 @@ bool Track::isNextOut() const {
 /**
  * @brief Returns the boundary condition for the flux along the Track's
  *        "forward" direction.
- * @return vacuum (0), reflective (1), or periodic (2) reflective 
+ * @return vacuum (0), reflective (1), or periodic (2) reflective
  *         boundary conditions
  */
 boundaryType Track::getBCIn() const {
@@ -256,7 +256,7 @@ boundaryType Track::getBCIn() const {
 /**
  * @brief Returns the boundary condition for the flux along the Track's
  *        "reverse" direction.
- * @return vacuum (0), reflective (1), or periodic (2) reflective 
+ * @return vacuum (0), reflective (1), or periodic (2) reflective
  *         boundary conditions
  */
 boundaryType Track::getBCOut() const {

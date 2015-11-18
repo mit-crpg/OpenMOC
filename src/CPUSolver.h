@@ -21,7 +21,7 @@
 #undef track_flux
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
- *  group for either the forward or reverse direction for a given Track */ 
+ *  group for either the forward or reverse direction for a given Track */
 #define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy

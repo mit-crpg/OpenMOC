@@ -22,7 +22,7 @@ Point::~Point() {
 
 /**
  * @brief Converts this Point to a character representation of its attributes.
- * @details The character array includes the x-coordinate, y-coordinate, and 
+ * @details The character array includes the x-coordinate, y-coordinate, and
  *          z-coordinate
  * @return a character array of this Point's attributes
  */

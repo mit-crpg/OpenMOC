@@ -459,9 +459,9 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  *          to be the one at the boundary of the next Cell crossed along the
  *          given trajectory. It will do this by finding the minimum distance
  *          to the surfaces at all levels of the coords hierarchy.
- *          If the LocalCoords is outside the bounds of the Geometry or on 
- *          the boundaries this method will return NULL; otherwise it will 
- *          return a pointer to the Cell that the LocalCoords will reach 
+ *          If the LocalCoords is outside the bounds of the Geometry or on
+ *          the boundaries this method will return NULL; otherwise it will
+ *          return a pointer to the Cell that the LocalCoords will reach
  *          next along its trajectory.
  * @param coords pointer to a LocalCoords object
  * @param angle the angle of the trajectory
@@ -551,7 +551,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   /* If FSR has not been encountered, update FSR maps and vectors */
   if (!_FSR_keys_map.contains(fsr_key)) {
 
-    /* Try to get a clean copy of the fsr_id, adding the FSR data 
+    /* Try to get a clean copy of the fsr_id, adding the FSR data
        if necessary where -1 indicates the key was already added */
     fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key, NULL);
     if (fsr_id == -1)
@@ -563,16 +563,16 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr_id = fsr->_fsr_id;
     }
     else {
-      
+
       /* Add FSR information to FSR key map and FSR_to vectors */
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
       _FSR_keys_map.at(fsr_key) = fsr;
       Point* point = new Point();
-      point->setCoords(coords->getHighestLevel()->getX(), 
+      point->setCoords(coords->getHighestLevel()->getX(),
                        coords->getHighestLevel()->getY(),
                        coords->getHighestLevel()->getZ());
-      
+
       /* Get the cell that contains coords */
       Cell* cell = findCellContainingCoords(curr);
       fsr->_point = point;
@@ -583,7 +583,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
         fsr->_cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
     }
   }
-  
+
   /* If FSR has already been encountered, get the fsr id from map */
   else {
     fsr_data volatile* fsr;
@@ -763,7 +763,7 @@ void Geometry::subdivideCells() {
  * @details This method is intended to be called by the user before initiating
  *          source iteration. This method first subdivides all Cells by calling
  *          the Geometry::subdivideCells() method. Then it initializes the CMFD
- *          object. 
+ *          object.
  */
 void Geometry::initializeFlatSourceRegions() {
 
@@ -887,12 +887,12 @@ void Geometry::segmentize(Track* track) {
  * @brief Initialize key and material ID vectors for lookup by FSR ID
  * @detail This function initializes and sets reverse lookup vectors by FSR ID.
  *      This is called after the FSRs have all been identified and allocated
- *      during segmentation. This function must be called after 
+ *      during segmentation. This function must be called after
  *      Geometry::segmentize() has completed. It should not be called if tracks
  *      are loaded from a file.
  */
 void Geometry::initializeFSRVectors() {
-  
+
   /* get keys and values from map */
   std::string *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
@@ -1114,11 +1114,11 @@ std::vector<int>* Geometry::getFSRsToMaterialIDs() {
  *          the Lattice/Cell/Universe hierarchy for a unique region
  *          and the associated FSR data. fsr_data is a struct that contains
  *          a unique FSR id and a Point located in the highest level Universe
- *          that is contained in the FSR. This method is used when the tracks 
- *          are read from file to avoid unnecessary segmentation.  
+ *          that is contained in the FSR. This method is used when the tracks
+ *          are read from file to avoid unnecessary segmentation.
  * @param FSR_keys_map map of FSR keys to FSR data
  */
-void Geometry::setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* 
+void Geometry::setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>*
                              FSR_keys_map) {
   _FSR_keys_map = *FSR_keys_map;
 }
@@ -1152,7 +1152,7 @@ bool Geometry::withinBounds(LocalCoords* coords) {
   double x = coords->getX();
   double y = coords->getY();
   double z = coords->getZ();
-  
+
   if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY()
       || z < getMinZ() || z > getMaxZ())
     return false;
