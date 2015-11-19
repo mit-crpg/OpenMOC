@@ -946,11 +946,11 @@ std::string Cell::toString() {
 
   string << ", # surfaces = " << getNumSurfaces();
 
-  /** Add the IDs for the Surfaces in this Cell */
+  /** Add string data for the Surfaces in this Cell */
   std::map<int, surface_halfspace*>::iterator iter;
-  string << ", surface ids = ";
+  string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second->_halfspace * iter->first << ", ";
+    string <<  iter->second->_surface->toString() << ", ";
 
   return string.str();
 }
