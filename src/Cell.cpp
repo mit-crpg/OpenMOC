@@ -53,6 +53,7 @@ Cell::Cell(int id, const char* name) {
 
   _cell_type = UNFILLED;
   _fill = NULL;
+  _rotated = false;
 
   _num_rings = 0;
   _num_sectors = 0;
@@ -384,6 +385,37 @@ void Cell::setFill(Material* fill) {
 void Cell::setFill(Universe* fill) {
   _cell_type = FILL;
   _fill = fill;
+}
+
+
+/**
+ * @brief Set the Cell's rotation angles about the x, y and z axes.
+ * @details This method is a helper function to allow OpenMOC users to assign
+ *          the Cell's rotation angles in Python. A user must initialize a
+ *          length 3 NumPy array as input to this function. This function then
+ *          stores the data values in the NumPy array in the Cell's rotation
+ *          array. An example of how this function might be called in Python
+ *          is as follows:
+ *
+ * @code
+ *          rotation = numpy.array([90., 0., 0.])
+ *          cell = openmoc.Cell()
+ *          cell.setRotation(rotation)
+ * @endcode
+ *
+ * @param rotation the array of rotation angles
+ * @param num_axes the number of axes (this must always be 3)
+ */
+void Cell::setRotation(double* rotation, int num_axes) {
+
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to set rotation with %d axes for Cell %d. "
+               "The rotation array should be length 3.", num_axes, _id);
+
+  for (int i=0; i < 3; i++)
+    _rotation[i] = rotation[i];
+
+  _rotated = true;
 }
 
 

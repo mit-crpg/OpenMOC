@@ -24,6 +24,11 @@
  * using NumPy arrays */
 %apply (double* IN_ARRAY1, int DIM1) {(double* xs, int num_groups)}
 
+/* The typemap used to match the method signature for the Cell rotation
+ * angle setter method. This allows users to set the rotation angles
+ * using NumPy arrays */
+%apply (double* IN_ARRAY1, int DIM1) {(double* rotation, int num_axes)}
+
 /* The typemap used to match the method signature for the TrackGenerator's
  * getter methods for track start and end coordinates for the plotting
  * routines in openmoc.plotter */

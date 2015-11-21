@@ -87,6 +87,15 @@ private:
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
+  /* A boolean indicating whether to cell is rotated */
+  bool _rotated;
+
+  /* An array with angles in degrees for rotations about x, y, and z */
+  double _rotation[3];
+  
+  /* A rotation matrix defined in terms of the rotation angles */
+  double _rotation_matrix[3][3];
+
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
 
@@ -163,6 +172,7 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setRotation(double* rotation, int num_axes);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
   void addSurface(int halfspace, Surface* surface);
