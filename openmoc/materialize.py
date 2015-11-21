@@ -486,13 +486,13 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                 fsr_fluxes = get_scalar_fluxes(solver)
 
                 # Compute the domain-averaged flux in each energy group
-                for j, domain in enumerate(mgxs_lib.domains):
+                for k, domain in enumerate(mgxs_lib.domains):
                     domain_fluxes = fsr_fluxes[fsrs_to_domains == domain.id, :]
-                    openmoc_fluxes[j, :] = np.mean(domain_fluxes, axis=0)
+                    openmoc_fluxes[k, :] = np.mean(domain_fluxes, axis=0)
 
                     # FIXME: Need to keep track of the index into the SPH array
                     if domain.id == domain_id:
-                        sph_index = j
+                        sph_index = k
 
                 # Compute SPH factors
                 old_sph = np.copy(sph)
@@ -518,6 +518,10 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                 # Check maximum SPH factor residual for convergence
                 if res.max() < sph_tol:
                     break
+
+        # Check maximum SPH factor residual for convergence
+        if res.max() < sph_tol:
+            break
 
     # Warn user if SPH factors did not converge
     else:
