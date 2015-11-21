@@ -284,7 +284,10 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
   colors = np.zeros((gridsize, gridsize))
 
   for material_id in np.unique(surface):
-    index = material_ids.index(material_id)
+    if material_id != -1:
+      index = material_ids.index(material_id)
+    else:
+      index = -1
     indices = np.where(surface == material_id)
     colors[indices] = index
 
@@ -388,7 +391,10 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
   colors = np.zeros((gridsize, gridsize))
 
   for cell_id in np.unique(surface):
-    index = cell_ids.index(cell_id)
+    if cell_id != -1:
+      index = cell_ids.index(cell_id)
+    else:
+      index = -1
     indices = np.where(surface == cell_id)
     colors[indices] = index
 
