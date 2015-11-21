@@ -88,6 +88,9 @@ root_cell.addSurface(halfspace=-1, surface=boundaries[1])
 root_cell.addSurface(halfspace=+1, surface=boundaries[2])
 root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
+import numpy as np
+root_cell.setRotation(np.array([90., 0., 0.]))
+
 
 ###############################################################################
 #                            Creating Universes

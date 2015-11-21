@@ -150,6 +150,7 @@ public:
   cellType getType() const;
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  bool isRotated();
   int getNumRings();
   int getNumSectors();
   double getMinX();

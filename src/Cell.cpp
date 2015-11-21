@@ -150,6 +150,15 @@ Universe* Cell::getFillUniverse() {
 
 
 /**
+ * @brief Return a boolean indicating whether or not the Cell has been rotated.
+ * @return whether the Cell has been rotated
+ */
+bool Cell::isRotated() {
+  return _rotated;
+}
+
+
+/**
  * @brief Return the number of rings in the Cell.
  * @return the number of rings
  */
@@ -414,6 +423,32 @@ void Cell::setRotation(double* rotation, int num_axes) {
 
   for (int i=0; i < 3; i++)
     _rotation[i] = rotation[i];
+
+  /* Compute rotation angles in x,y,z directions */
+  double phi = -_rotation[0] * M_PI / 180.;
+  double theta = -_rotation[1] * M_PI / 180.;
+  double psi = -_rotation[2] * M_PI / 180.;
+
+  /* Calculate rotation matrix based on angles given */
+  /* Indexed by (y,x) since the universe array is indexed by (z,y,z) */
+  _rotation_matrix[0][0] = cos(theta) * cos(psi);
+  _rotation_matrix[1][0] = cos(theta) * sin(psi);
+  _rotation_matrix[2][0] = -sin(theta);
+  _rotation_matrix[0][1] = -cos(phi) * sin(psi) + 
+                           sin(phi) * sin(theta) * cos(psi);
+  _rotation_matrix[1][1] = cos(phi) * cos(psi) +
+                           sin(phi) * sin(theta) * sin(psi);
+  _rotation_matrix[2][1] = sin(phi) * cos(theta);
+  _rotation_matrix[0][2] = sin(phi) * sin(psi) + \
+                           cos(phi) * sin(theta) * cos(psi);
+  _rotation_matrix[1][2] = -sin(phi) * cos(psi) + 
+                           cos(phi) * sin(theta) * sin(psi);
+  _rotation_matrix[2][2] = cos(phi) * cos(theta);
+
+  for (int i=0; i < 3; i++) {
+    for (int j=0; j < 3; j++)
+      printf("i = %d , j = %d, rot mat = %f\n", i, j, _rotation_matrix[i][j]);
+  }
 
   _rotated = true;
 }
