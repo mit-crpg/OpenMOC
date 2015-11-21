@@ -404,10 +404,6 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
         py_printf('ERROR', 'Unable to compute SPH factors with %s which is '
                   'not an openmc.mgxs.Library', str(openmc.mgxs.Library))
 
-    if mgxs_lib.domain_type not in ['material', 'cell']:
-        py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
-                           'library of domain type %s', mgxs_lib.domain_type)
-
     py_printf('NORMAL', 'Computing SPH factors...')
 
     # Create an OpenMOC Geometry from the OpenCG Geometry
@@ -421,6 +417,21 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
     track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
     track_generator.setZCoord(zcoord)
     track_generator.generateTracks()
+
+    # FIXME: Get all OpenMOC domains
+    if mgxs_lib.domain_type == 'material':
+        all_domains = geometry.getAllMaterials()
+    elif mgxs_lib.domain_type == 'cell':
+        all_domains = geometry.getAllMaterialCells()
+    else:
+        py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
+                           'library of domain type %s', mgxs_lib.domain_type)
+
+    # FIXME: Filter domains for only those that are fissionable
+    domains = {}
+    for domain_id in all_domains:
+        if all_domains[domain_id].isFissionable():
+            domains[domain_id] = all_domains[domain_id]
 
     # Initialize an OpenMOC Solver
     solver = openmoc.CPUSolver(track_generator)
@@ -479,7 +490,7 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
         py_printf('RESULT', 'SPH iteration %d:\tres = %1.3e', i, res.max())
 
         # Update multi-group cross sections with SPH factors
-        sph_mgxs_lib = _apply_sph_factors(mgxs_lib, sph, geometry)
+        sph_mgxs_lib = _apply_sph_factors(mgxs_lib, sph, domains)
 
         # Load the new MGXS library data into the OpenMOC geometry
         load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
@@ -597,26 +608,20 @@ def _load_openmc_src(mgxs_lib, solver):
 # @details This is a helper routine for openmoc.process.compute_sph_factors(...)
 # @param mgxs_lib an openmc.mgxs.Library object
 # @param sph a NumpPy array of SPH factors for each domain and energy group
-# @param geometry an OpenMOC Geometry object
+# @param openmoc_domains a dictionary of OpenMOC Cells or Materials
 # @return a new openmc.mgxs.Library with SPH factors applied to all MGXS
-def _apply_sph_factors(mgxs_lib, sph, geometry):
-
-    # Retrieve dictionary of OpenMOC domains corresponding to OpenMC domains
-    if mgxs_lib.domain_type == 'material':
-        openmoc_domains = geometry.getAllMaterials()
-    else:
-        openmoc_domains = geometry.getAllCells()
+def _apply_sph_factors(mgxs_lib, sph, openmoc_domains):
 
     # Create a copy of the MGXS library to apply SPH factors
     sph_mgxs_lib = copy.deepcopy(mgxs_lib)
 
     # Loop over all domains in the MGXS library
-    for i, openmc_domain in enumerate(sph_mgxs_lib.domains):
-        openmoc_domain = openmoc_domains[openmc_domain.id]
+    for i, openmc_domain in enumerate(mgxs_lib.domains):
 
-        # If not a fissionable domain, then do not modify MGXS
-        if not openmoc_domain.isFissionable():
+        if openmc_domain.id not in openmoc_domains:
             continue
+        else:
+            openmoc_domain = openmoc_domains[openmc_domain.id]
 
         # Loop over all cross section types in the MGXS library
         for mgxs_type in sph_mgxs_lib.mgxs_types:
