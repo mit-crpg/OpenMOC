@@ -454,11 +454,14 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     # Collect those domains for which we will apply SPH factors
     if domains == 'all':
         sph_domains = all_domains
+        sph_indices = np.arange(len(sph_domains))
     elif domains == 'fissionable':
         sph_domains = {}
-        for domain_id in all_domains:
-            if all_domains[domain_id].isFissionable():
-                sph_domains[domain_id] = all_domains[domain_id]
+        sph_indices = []
+        for i, openmc_domain in enumerate(mgxs_lib.domains):
+            if all_domains[openmc_domain.id].isFissionable():
+                sph_domains[openmc_domain.id] = all_domains[openmc_domain.id]
+                sph_indices.append(i)
     else:
         py_printf('ERROR', 'SPH factors cannot be applied for domain type '
                            '%s which is not supported', str(domains))
@@ -466,11 +469,8 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     # Initialize array of domain-averaged fluxes and SPH factors
     openmoc_fluxes = np.zeros((num_domains, num_groups))
 
-    # Outer SPH loop
+    # Outer SPH loop over domains of interest
     for i in range(max_domain_iters):
-        sph_indices = []
-
-        # Loop over all domains of interest
         for domain_id in sph_domains:
             py_printf('NORMAL', 'SPH outer iteration %d: %s %d',
                                 i, mgxs_lib.domain_type.capitalize(), domain_id)
@@ -493,11 +493,8 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                     openmoc_fluxes[k, :] = np.mean(domain_fluxes, axis=0)
 
                     # Store index for the domain in the array of SPH factors
-                    # FIXME:
                     if domain.id == domain_id:
                         sph_index = k
-                        if sph_index not in sph_indices:
-                            sph_indices.append(sph_index)
 
                 # Compute SPH factors
                 old_inner_sph = np.copy(inner_sph)
@@ -534,9 +531,11 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     else:
         py_printf('WARNING', 'SPH factors did not converge')
 
+    # Compute the final SPH factors for all domains and energy groups
     final_sph = openmc_fluxes / openmoc_fluxes
     final_sph = np.nan_to_num(final_sph)
     final_sph[final_sph == 0.0] = 1.0
+
     return final_sph, mgxs_lib
 
 ##
