@@ -688,6 +688,9 @@ Cell* Cell::clone() {
   else
     new_cell->setFill((Universe*)_fill);
 
+  if (_rotated)
+    new_cell->setRotation(_rotation, 3);
+
   /* Loop over all of this Cell's Surfaces and add them to the clone */
   std::map<int, surface_halfspace*>::iterator iter;
 
