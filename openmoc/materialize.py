@@ -446,7 +446,7 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     openmoc_fluxes = np.zeros((num_domains, num_groups))
     sph = np.ones((num_domains, num_groups))
 
-    # FIXME: Get all OpenMOC domains
+    # Get all OpenMOC domains
     if mgxs_lib.domain_type == 'material':
         all_domains = geometry.getAllMaterials()
     elif mgxs_lib.domain_type == 'cell':
@@ -455,29 +455,30 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
         py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
                            'library of domain type %s', mgxs_lib.domain_type)
 
-    # FIXME: Filter domains for only those that are fissionable
+    # Collect those domains for which we will apply SPH factors
     if domains == 'all':
-        domains = all_domains
+        sph_domains = all_domains
     elif domains == 'fissionable':
-        domains = {}
+        sph_domains = {}
         for domain_id in all_domains:
             if all_domains[domain_id].isFissionable():
-                domains[domain_id] = all_domains[domain_id]
+                sph_domains[domain_id] = all_domains[domain_id]
     else:
         py_printf('ERROR', 'SPH factors cannot be applied for domain type '
                            '%s which is not supported', str(domains))
 
-    # FIXME: outer loop over domains
-    # SPH Iteration over domains
+    # Outer SPH loop
     for i in range(max_domain_iters):
-        for domain_id in domains:
+        old_outer_sph = np.copy(sph)
+
+        # Loop over all domains of interest
+        for domain_id in sph_domains:
             py_printf('NORMAL', 'SPH outer iteration %d: %s %d',
                                 i, mgxs_lib.domain_type.capitalize(), domain_id)
 
-            # FIXME: inner loop over fixed source iterations
             for j in range(max_fix_src_iters):
 
-                # Run fixed source calculation
+                # Run fixed source calculation with throttled verbosity
                 openmoc.set_log_level('WARNING')
                 solver.computeFlux()
                 openmoc.set_log_level('NORMAL')
@@ -490,43 +491,47 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                     domain_fluxes = fsr_fluxes[fsrs_to_domains == domain.id, :]
                     openmoc_fluxes[k, :] = np.mean(domain_fluxes, axis=0)
 
-                    # FIXME: Need to keep track of the index into the SPH array
+                    # Store index for the domain in the array of SPH factors
                     if domain.id == domain_id:
                         sph_index = k
 
                 # Compute SPH factors
-                old_sph = np.copy(sph)
+                old_inner_sph = np.copy(sph)
                 sph = openmc_fluxes / openmoc_fluxes
                 sph = np.nan_to_num(sph)
                 sph[sph == 0.0] = 1.0
 
                 # Compute SPH factor residuals
-                res = np.abs((sph - old_sph) / old_sph)
-                res = np.nan_to_num(res)
+                inner_res = np.abs((sph - old_inner_sph) / old_inner_sph)
+                inner_res = np.nan_to_num(inner_res)
+                inner_res = inner_res[sph_index]
 
                 # Report maximum SPH factor residual
                 py_printf('NORMAL', 'SPH inner iteration %d:\tres = '
-                                    '%1.3e', j, res.max())
+                                    '%1.3e', j, inner_res.max())
 
                 # Update multi-group cross sections with SPH factors
                 sph_mgxs_lib = _apply_sph_factors(mgxs_lib, sph[sph_index, :],
-                                                  domains[domain_id])
+                                                  sph_domains[domain_id])
 
                 # Load the new MGXS library data into the OpenMOC geometry
                 load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
 
                 # Check maximum SPH factor residual for convergence
-                if res.max() < sph_tol:
+                if inner_res.max() < sph_tol:
                     break
 
-        # Check maximum SPH factor residual for convergence
-        if res.max() < sph_tol:
+        # Compute SPH factor residuals
+        outer_res = np.abs((sph - old_outer_sph) / old_outer_sph)
+        outer_res = np.nan_to_num(outer_res)
+
+        # Check maximum SPH factor residual across domains for convergence
+        if outer_res.max() < sph_tol:
             break
 
     # Warn user if SPH factors did not converge
     else:
         py_printf('WARNING', 'SPH factors did not converge')
-        print('residuals: {}'.format(res))
 
     return sph, sph_mgxs_lib
 
