@@ -379,6 +379,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 #          MGXS without properly accounting for angular-dependence of the flux.
 # @param mgxs_lib an openmc.mgxs.Library object
 # @param max_iters the maximum number of SPH iterations
+# @param domains the domain to apply SPH factors to ('fissionable' or 'all')
 # @param sph_tol the tolerance on the SPH factor convergence
 # @param fix_src_tol the tolerance on the MOC fixed source calculations
 # @param num_azim number of azimuthal angles to use in fixed source calculations
@@ -386,8 +387,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 # @param num_threads the number of threads to use in fixed source calculations
 # @return a NumPy array of SPH factors and a new openmc.mgxs.Library object
 #         with the SPH factors applied to each MGXS object
-def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
-                        num_azim=4, track_spacing=0.1, num_threads=1, zcoord=0.0):
+def compute_sph_factors(mgxs_lib, max_iters=10, domains='fissionable',
+                        sph_tol=1E-6, fix_src_tol=1E-5, num_azim=4,
+                        track_spacing=0.1, num_threads=1, zcoord=0.0):
 
     import openmc.mgxs
 
@@ -418,21 +420,6 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
     track_generator.setZCoord(zcoord)
     track_generator.generateTracks()
 
-    # FIXME: Get all OpenMOC domains
-    if mgxs_lib.domain_type == 'material':
-        all_domains = geometry.getAllMaterials()
-    elif mgxs_lib.domain_type == 'cell':
-        all_domains = geometry.getAllMaterialCells()
-    else:
-        py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
-                           'library of domain type %s', mgxs_lib.domain_type)
-
-    # FIXME: Filter domains for only those that are fissionable
-    domains = {}
-    for domain_id in all_domains:
-        if all_domains[domain_id].isFissionable():
-            domains[domain_id] = all_domains[domain_id]
-
     # Initialize an OpenMOC Solver
     solver = openmoc.CPUSolver(track_generator)
     solver.setConvergenceThreshold(fix_src_tol)
@@ -461,6 +448,27 @@ def compute_sph_factors(mgxs_lib, max_iters=10, sph_tol=1E-6, fix_src_tol=1E-5,
     # Initialize array of domain-averaged fluxes and SPH factors
     openmoc_fluxes = np.zeros((num_domains, num_groups))
     sph = np.ones((num_domains, num_groups))
+
+    # FIXME: Get all OpenMOC domains
+    if mgxs_lib.domain_type == 'material':
+        all_domains = geometry.getAllMaterials()
+    elif mgxs_lib.domain_type == 'cell':
+        all_domains = geometry.getAllMaterialCells()
+    else:
+        py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
+                           'library of domain type %s', mgxs_lib.domain_type)
+
+    # FIXME: Filter domains for only those that are fissionable
+    if domains == 'all':
+        domains = all_domains
+    elif domains == 'fissionable':
+        domains = {}
+        for domain_id in all_domains:
+            if all_domains[domain_id].isFissionable():
+                domains[domain_id] = all_domains[domain_id]
+    else:
+        py_printf('ERROR', 'SPH factors cannot be applied for domain type '
+                           '%s which is not supported', str(domains))
 
     # SPH Iteration
     for i in range(max_iters):
