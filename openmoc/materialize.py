@@ -442,10 +442,6 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
         else:
             fsrs_to_domains[fsr] = cell.getId()
 
-    # Initialize array of domain-averaged fluxes and SPH factors
-    openmoc_fluxes = np.zeros((num_domains, num_groups))
-    sph = np.ones((num_domains, num_groups))
-
     # Get all OpenMOC domains
     if mgxs_lib.domain_type == 'material':
         all_domains = geometry.getAllMaterials()
@@ -467,14 +463,19 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
         py_printf('ERROR', 'SPH factors cannot be applied for domain type '
                            '%s which is not supported', str(domains))
 
+    # Initialize array of domain-averaged fluxes and SPH factors
+    openmoc_fluxes = np.zeros((num_domains, num_groups))
+
     # Outer SPH loop
     for i in range(max_domain_iters):
-        old_outer_sph = np.copy(sph)
+        sph_indices = []
 
         # Loop over all domains of interest
         for domain_id in sph_domains:
             py_printf('NORMAL', 'SPH outer iteration %d: %s %d',
                                 i, mgxs_lib.domain_type.capitalize(), domain_id)
+
+            inner_sph = np.ones((num_domains, num_groups))
 
             for j in range(max_fix_src_iters):
 
@@ -492,48 +493,51 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                     openmoc_fluxes[k, :] = np.mean(domain_fluxes, axis=0)
 
                     # Store index for the domain in the array of SPH factors
+                    # FIXME:
                     if domain.id == domain_id:
                         sph_index = k
+                        if sph_index not in sph_indices:
+                            sph_indices.append(sph_index)
 
                 # Compute SPH factors
-                old_inner_sph = np.copy(sph)
-                sph = openmc_fluxes / openmoc_fluxes
-                sph = np.nan_to_num(sph)
-                sph[sph == 0.0] = 1.0
+                old_inner_sph = np.copy(inner_sph)
+                inner_sph = openmc_fluxes / openmoc_fluxes
+                inner_sph = np.nan_to_num(inner_sph)
+                inner_sph[inner_sph == 0.0] = 1.0
 
                 # Compute SPH factor residuals
-                inner_res = np.abs((sph - old_inner_sph) / old_inner_sph)
+                inner_res = np.abs((inner_sph - old_inner_sph) / old_inner_sph)
                 inner_res = np.nan_to_num(inner_res)
-                inner_res = inner_res[sph_index]
 
                 # Report maximum SPH factor residual
                 py_printf('NORMAL', 'SPH inner iteration %d:\tres = '
                                     '%1.3e', j, inner_res.max())
 
                 # Update multi-group cross sections with SPH factors
-                sph_mgxs_lib = _apply_sph_factors(mgxs_lib, sph[sph_index, :],
+                sph_mgxs_lib = _apply_sph_factors(mgxs_lib, inner_sph[sph_index],
                                                   sph_domains[domain_id])
 
                 # Load the new MGXS library data into the OpenMOC geometry
                 load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
 
-                # Check maximum SPH factor residual for convergence
-                if inner_res.max() < sph_tol:
+                # Check max SPH factor residual for this domain for convergence
+                if inner_res[sph_index].max() < sph_tol:
                     break
 
-        # Compute SPH factor residuals
-        outer_res = np.abs((sph - old_outer_sph) / old_outer_sph)
-        outer_res = np.nan_to_num(outer_res)
+            mgxs_lib = sph_mgxs_lib
 
-        # Check maximum SPH factor residual across domains for convergence
-        if outer_res.max() < sph_tol:
+        # Check max SPH factor residuals for domains of interest for convergence
+        if inner_res[sph_indices].max() < sph_tol:
             break
 
     # Warn user if SPH factors did not converge
     else:
         py_printf('WARNING', 'SPH factors did not converge')
 
-    return sph, sph_mgxs_lib
+    final_sph = openmc_fluxes / openmoc_fluxes
+    final_sph = np.nan_to_num(final_sph)
+    final_sph[final_sph == 0.0] = 1.0
+    return final_sph, mgxs_lib
 
 ##
 # @brief Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.

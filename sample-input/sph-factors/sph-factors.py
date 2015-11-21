@@ -58,7 +58,9 @@ keff_no_sph = solver.getKeff()
 ###############################################################################
 
 # Compute SPH factors
-sph, sph_mgxs_lib = compute_sph_factors(mgxs_lib, num_azim=num_azim,
+sph, sph_mgxs_lib = compute_sph_factors(mgxs_lib, num_azim=num_azim, 
+                                        max_fix_src_iters=30, 
+                                        domains='fissionable',
                                         track_spacing=spacing,
                                         num_threads=num_threads)
 
