@@ -151,7 +151,9 @@ public:
   Material* getFillMaterial();
   Universe* getFillUniverse();
   bool isRotated();
-  double* getRotation();
+  double getPhi();
+  double getTheta();
+  double getPsi();
   double* getRotationMatrix();
   int getNumRings();
   int getNumSectors();

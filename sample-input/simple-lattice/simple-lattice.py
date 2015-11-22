@@ -89,7 +89,7 @@ root_cell.addSurface(halfspace=+1, surface=boundaries[2])
 root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
 import numpy as np
-root_cell.setRotation(np.array([0., 0., 90.]))
+#root_cell.setRotation(np.array([0., 0., 90.]))
 
 
 ###############################################################################
@@ -144,9 +144,9 @@ geometry.initializeFlatSourceRegions()
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-#track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-#track_generator.setNumThreads(1)
-#track_generator.generateTracks()
+track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(1)
+track_generator.generateTracks()
 
 
 ###############################################################################

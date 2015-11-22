@@ -374,21 +374,28 @@ def get_opencg_cell(openmoc_cell):
   name = openmoc_cell.getName()
   opencg_cell = opencg.Cell(cell_id, name)
 
-  fill = openmoc_cell.getFill()
-  if (openmoc_cell.getType == openmoc.MATERIAL):
+  if (openmoc_cell.getType() == openmoc.MATERIAL):
+    fill = openmoc_cell.getFillMaterial()
     opencg_cell.fill = get_opencg_material(fill)
   elif (openmoc_cell.getType() == openmoc.FILL):
+    fill = openmoc_cell.getFillUniverse()
     if isinstance(fill, openmoc.Lattice):
       opencg_cell.fill = get_opencg_lattice(fill)
     else:
       opencg_cell.fill = get_opencg_universe(fill)
+
+  if openmoc_cell.isRotated():
+    rotation = np.array([openmoc_cell.getPhi(),
+                         openmoc_cell.getTheta(),
+                         openmoc_cell.getPsi()])
+    opencg_cell.rotation = rotation * -1
 
   surfaces = openmoc_cell.getSurfaces()
 
   for surf_id, surface_halfspace in surfaces.items():
     halfspace = surface_halfspace._halfspace
     surface = surface_halfspace._surface
-    opencg_cell.addSurface(get_opencg_surface(surface), halfspace)
+    opencg_cell.add_surface(get_opencg_surface(surface), halfspace)
 
   # Add the OpenMOC Cell to the global collection of all OpenMOC Cells
   OPENMOC_CELLS[cell_id] = openmoc_cell

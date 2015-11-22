@@ -162,11 +162,29 @@ bool Cell::isRotated() {
 
 
 /**
- * @brief Return pointer to array of rotation angles about x, y, and z.
- * @returns a pointer to array of rotation angles
+ * @brief Get the rotation angle about the x-axis in degrees.
+ * @return the rotation angle about the x-axis
  */
-double* Cell::getRotation() {
-  return _rotation;
+double Cell::getPhi() {
+  return _rotation[0];
+}
+
+
+/**
+ * @brief Get the rotation angle about the y-axis in degrees.
+ * @return the rotation angle about the y-axis
+ */
+double Cell::getTheta() {
+  return _rotation[1];
+}
+
+
+/**
+ * @brief Get the rotation angle about the z-axis in degrees.
+ * @return the rotation angle about the z-axis
+ */
+double Cell::getPsi() {
+  return _rotation[2];
 }
 
 

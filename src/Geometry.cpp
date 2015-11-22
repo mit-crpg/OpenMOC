@@ -513,8 +513,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
         Cell* cell = coords->getCell();
 	// FIXME: Rotate angle here ???
 	if (cell->isRotated()) {
-	  double* rotation = cell->getRotation();
-	  double psi = rotation[2] * M_PI / 180.;
+	  double psi = cell->getPsi() * M_PI / 180.;
 	  //	  angle += psi;
 	}
         dist = cell->minSurfaceDist(coords->getPoint(), angle);
