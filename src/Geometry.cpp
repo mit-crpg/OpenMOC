@@ -483,11 +483,11 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
 
-  /* Get lowest level coords */
-  coords = coords->getLowestLevel();
+  /* Get highest level coords */
+  coords = coords->getHighestLevel();
 
   /* Get the current Cell */
-  cell = coords->getCell();
+  cell = coords->getLowestLevel()->getCell();
 
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
@@ -496,7 +496,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
   /* If the current coords is inside a Cell, look for next Cell */
   else {
 
-    /* Ascend universes until at the highest level.
+    /* Descend universes until at the lowest level.
      * At each universe/lattice level get distance to next
      * universe or lattice cell. Recheck min_dist. */
     while (coords != NULL) {
@@ -511,20 +511,26 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
        * nearest cell surface */
       else {
         Cell* cell = coords->getCell();
+	// FIXME: Rotate angle here ???
+	if (cell->isRotated()) {
+	  double* rotation = cell->getRotation();
+	  double psi = rotation[2] * M_PI / 180.;
+	  //	  angle += psi;
+	}
         dist = cell->minSurfaceDist(coords->getPoint(), angle);
       }
 
       /* Recheck min distance */
       min_dist = std::min(dist, min_dist);
 
-      /* Ascend one level */
-      if (coords->getUniverse() == _root_universe)
-        break;
-      else {
-        coords = coords->getPrev();
-        coords->prune();
-      }
+      /* Descend one level */
+      if (coords->getNext() == NULL)
+	break;
+      else
+	coords = coords->getNext();
     }
+
+    coords = coords->getHighestLevel();
 
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL) {
@@ -884,7 +890,7 @@ void Geometry::segmentize(Track* track) {
     track->addSegment(new_segment);
   }
 
-  log_printf(DEBUG, "Created %d segments for Track: %s",
+  log_printf(NORMAL, "Created %d segments for Track: %s",
              track->getNumSegments(), track->toString().c_str());
 
   /* Truncate the linked list for the LocalCoords */

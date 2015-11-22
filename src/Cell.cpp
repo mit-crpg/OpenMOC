@@ -53,7 +53,10 @@ Cell::Cell(int id, const char* name) {
 
   _cell_type = UNFILLED;
   _fill = NULL;
+
   _rotated = false;
+  memset(&_rotation, 0., 3);
+  memset(&_rotation_matrix, 0., 9);
 
   _num_rings = 0;
   _num_sectors = 0;
@@ -155,6 +158,24 @@ Universe* Cell::getFillUniverse() {
  */
 bool Cell::isRotated() {
   return _rotated;
+}
+
+
+/**
+ * @brief Return pointer to array of rotation angles about x, y, and z.
+ * @returns a pointer to array of rotation angles
+ */
+double* Cell::getRotation() {
+  return _rotation;
+}
+
+
+/**
+ * @brief Return pointer to array for the rotation matrix.
+ * @returns a pointer to an array of rotation angles
+ */
+double* Cell::getRotationMatrix() {
+  return _rotation_matrix;
 }
 
 
@@ -431,24 +452,22 @@ void Cell::setRotation(double* rotation, int num_axes) {
 
   /* Calculate rotation matrix based on angles given */
   /* Indexed by (y,x) since the universe array is indexed by (z,y,z) */
-  _rotation_matrix[0][0] = cos(theta) * cos(psi);
-  _rotation_matrix[1][0] = cos(theta) * sin(psi);
-  _rotation_matrix[2][0] = -sin(theta);
-  _rotation_matrix[0][1] = -cos(phi) * sin(psi) + 
-                           sin(phi) * sin(theta) * cos(psi);
-  _rotation_matrix[1][1] = cos(phi) * cos(psi) +
-                           sin(phi) * sin(theta) * sin(psi);
-  _rotation_matrix[2][1] = sin(phi) * cos(theta);
-  _rotation_matrix[0][2] = sin(phi) * sin(psi) + \
-                           cos(phi) * sin(theta) * cos(psi);
-  _rotation_matrix[1][2] = -sin(phi) * cos(psi) + 
-                           cos(phi) * sin(theta) * sin(psi);
-  _rotation_matrix[2][2] = cos(phi) * cos(theta);
+  _rotation_matrix[0] = cos(theta) * cos(psi);
+  _rotation_matrix[1] = cos(theta) * sin(psi);
+  _rotation_matrix[2] = -sin(theta);
+  _rotation_matrix[3] = -cos(phi) * sin(psi) + 
+                        sin(phi) * sin(theta) * cos(psi);
+  _rotation_matrix[4] = cos(phi) * cos(psi) +
+                        sin(phi) * sin(theta) * sin(psi);
+  _rotation_matrix[5] = sin(phi) * cos(theta);
+  _rotation_matrix[6] = sin(phi) * sin(psi) + \
+                        cos(phi) * sin(theta) * cos(psi);
+  _rotation_matrix[7] = -sin(phi) * cos(psi) + 
+                        cos(phi) * sin(theta) * sin(psi);
+  _rotation_matrix[8] = cos(phi) * cos(theta);
 
-  for (int i=0; i < 3; i++) {
-    for (int j=0; j < 3; j++)
-      printf("i = %d , j = %d, rot mat = %f\n", i, j, _rotation_matrix[i][j]);
-  }
+  for (int i=0; i < 9; i++)
+    printf("i = %d , rot mat = %f\n", i, _rotation_matrix[i]);
 
   _rotated = true;
 }
@@ -1013,6 +1032,11 @@ std::string Cell::toString() {
   }
   else
     string << ", type = UNFILLED";
+
+  if (_rotated) {
+    string << ", rotation = " << _rotation[0] << ", ";
+    string << _rotation[1] << ", " << _rotation[2];
+  }
 
   string << ", # surfaces = " << getNumSurfaces();
 

@@ -94,7 +94,7 @@ private:
   double _rotation[3];
   
   /* A rotation matrix defined in terms of the rotation angles */
-  double _rotation_matrix[3][3];
+  double _rotation_matrix[9];
 
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
@@ -151,6 +151,8 @@ public:
   Material* getFillMaterial();
   Universe* getFillUniverse();
   bool isRotated();
+  double* getRotation();
+  double* getRotationMatrix();
   int getNumRings();
   int getNumSectors();
   double getMinX();

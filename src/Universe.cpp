@@ -547,11 +547,28 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
         LocalCoords* next_coords;
 
-        if (coords->getNext() == NULL)
-          next_coords = new LocalCoords(coords->getX(), coords->getY(),
-                                        coords->getZ());
-        else
-          next_coords = coords->getNext();
+        /* Apply rotation */
+        if (cell->isRotated()){
+          double x = coords->getX();
+	  double y = coords->getY();
+	  double z = coords->getZ();
+	  double* matrix = cell->getRotationMatrix();
+	  double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
+	  double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
+	  double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
+	  coords->setX(new_x);
+	  coords->setY(new_y);
+	  coords->setZ(new_z);
+        }
+
+	/* Apply translation */
+        // FIXME
+
+	//        if (coords->getNext() == NULL)
+        next_coords = new LocalCoords(coords->getX(), coords->getY(),
+                                      coords->getZ());
+	  //        else
+	  //          next_coords = coords->getNext();
 
         Universe* univ = cell->getFillUniverse();
         next_coords->setUniverse(univ);
