@@ -587,6 +587,10 @@ def get_openmoc_cell(opencg_cell):
   else:
     openmoc_cell.setFill(get_openmoc_material(fill))
 
+  if opencg_cell.rotation is not None:
+    rotation = np.asarray(opencg_cell.rotation, dtype=np.float64) * -1
+    openmoc_cell.setRotation(rotation)
+
   surfaces = opencg_cell.surfaces
 
   for surface_id in surfaces:
@@ -753,8 +757,8 @@ def get_openmoc_lattice(opencg_lattice):
   universes = opencg_lattice.universes
 
   # Initialize an empty array for the OpenMOC nested Universes in this Lattice
-  universe_array = np.ndarray(tuple(np.array(dimension[0:2])), \
-                              dtype=openmoc.Universe)
+  # The Lattice universe array is stored x-y-z in OpenCG, but z-y-x in OpenMOC
+  universe_array = np.ndarray(tuple(dimension[::-1]), dtype=openmoc.Universe)
 
   # Create OpenMOC Universes for each unique nested Universe in this Lattice
   unique_universes = opencg_lattice.get_unique_universes()
@@ -763,14 +767,15 @@ def get_openmoc_lattice(opencg_lattice):
     unique_universes[universe_id] = get_openmoc_universe(universe)
 
   # Build the nested Universe array
-  for y in range(dimension[1]):
-    for x in range(dimension[0]):
-      universe_id = universes[0][y][x].id
-      universe_array[x][y] = unique_universes[universe_id]
+  for z in range(dimension[2]):
+    for y in range(dimension[1]):
+      for x in range(dimension[0]):
+        universe_id = universes[z][y][x].id
+        universe_array[z][dimension[1]-y-1][x] = unique_universes[universe_id]
 
   openmoc_lattice = openmoc.Lattice(lattice_id, name)
   openmoc_lattice.setWidth(width[0], width[1], width[2])
-  openmoc_lattice.setUniverses([universe_array.tolist()])
+  openmoc_lattice.setUniverses(universe_array.tolist())
   openmoc_lattice.setOffset(offset[0], offset[1], offset[2])
 
   # Add the OpenMOC Lattice to the global collection of all OpenMOC Lattices

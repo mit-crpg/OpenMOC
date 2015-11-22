@@ -89,7 +89,7 @@ root_cell.addSurface(halfspace=+1, surface=boundaries[2])
 root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
 import numpy as np
-root_cell.setRotation(np.array([0., 0., 270.]))
+root_cell.setRotation(np.array([0., 0., 90.]))
 
 
 ###############################################################################

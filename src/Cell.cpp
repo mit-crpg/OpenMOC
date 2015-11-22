@@ -466,9 +466,6 @@ void Cell::setRotation(double* rotation, int num_axes) {
                         cos(phi) * sin(theta) * sin(psi);
   _rotation_matrix[8] = cos(phi) * cos(theta);
 
-  for (int i=0; i < 9; i++)
-    printf("i = %d , rot mat = %f\n", i, _rotation_matrix[i]);
-
   _rotated = true;
 }
 
