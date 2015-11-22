@@ -386,11 +386,13 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 # @param num_azim number of azimuthal angles to use in fixed source calculations
 # @param track_spacing the track spacing to use in fixed source calculations
 # @param num_threads the number of threads to use in fixed source calculations
+# @param zcoord the coordinate on the z-axis to use for 2D MOC calculations
 # @return a NumPy array of SPH factors and a new openmc.mgxs.Library object
 #         with the SPH factors applied to each MGXS object
 def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                         domains='fissionable', sph_tol=1E-6, fix_src_tol=1E-5,
-                        num_azim=4, track_spacing=0.1, num_threads=1, zcoord=0.0):
+                        num_azim=4, track_spacing=0.1, num_threads=1, 
+                        zcoord=0.0, throttle_output=True):
 
     import openmc.mgxs
 
@@ -469,6 +471,9 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     # Initialize array of domain-averaged fluxes and SPH factors
     openmoc_fluxes = np.zeros((num_domains, num_groups))
 
+    # Sore starting verbosity log level
+    log_level = openmoc.get_log_level()
+
     # Outer SPH loop over domains of interest
     for i in range(max_domain_iters):
         for domain_id in sph_domains:
@@ -479,12 +484,18 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
             for j in range(max_fix_src_iters):
 
-                # Run fixed source calculation with throttled verbosity
-                openmoc.set_log_level('WARNING')
-                solver.computeFlux()
-                openmoc.set_log_level('NORMAL')
+                # Run fixed source calculation with suppressed output
+                if throttle_output and log_level <= openmoc.WARNING:
+                    openmoc.set_log_level('WARNING')
 
-                # Extract the FSR scalar fluxes and total fission rate
+                # Fixed source calculation
+                solver.computeFlux()
+
+                # Restore log output level
+                if throttle_output and log_level <= openmoc.NORMAL: 
+                    openmoc.set_log_level('NORMAL')
+
+                # Extract the FSR scalar fluxes
                 fsr_fluxes = get_scalar_fluxes(solver)
 
                 # Compute the domain-averaged flux in each energy group
@@ -535,6 +546,9 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     final_sph = openmc_fluxes / openmoc_fluxes
     final_sph = np.nan_to_num(final_sph)
     final_sph[final_sph == 0.0] = 1.0
+
+    # Restore verbosity log level to original status
+    openmoc.set_log_level(log_level)
 
     return final_sph, mgxs_lib
 
@@ -602,7 +616,7 @@ def _load_openmc_src(mgxs_lib, solver):
             chi = mgxs_lib.get_mgxs(openmoc_domain.getId(), 'chi')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
-                               'MGXS library without nu-fission cross sections')
+                               'MGXS library without chi fission spectrum')
 
         # Retrieve the OpenMC volume-integrated flux for this domain from
         # the nu-fission MGXS and store it for SPH factor calculation
