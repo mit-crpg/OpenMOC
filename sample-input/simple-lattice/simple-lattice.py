@@ -144,20 +144,20 @@ geometry.initializeFlatSourceRegions()
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-#track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-#track_generator.setNumThreads(1)
-#track_generator.generateTracks()
+track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
+track_generator.setNumThreads(1)
+track_generator.generateTracks()
 
 
 ###############################################################################
 #                            Running a Simulation
 ###############################################################################
 
-#solver = openmoc.CPUSolver(track_generator)
-#solver.setNumThreads(num_threads)
-#solver.setConvergenceThreshold(tolerance)
-#solver.computeEigenvalue(max_iters)
-#solver.printTimerReport()
+solver = openmoc.CPUSolver(track_generator)
+solver.setNumThreads(num_threads)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
+solver.printTimerReport()
 
 
 ###############################################################################
@@ -166,7 +166,7 @@ openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-#openmoc.plotter.plot_segments(track_generator)
+openmoc.plotter.plot_segments(track_generator)
 openmoc.plotter.plot_materials(geometry, gridsize=500)
 openmoc.plotter.plot_cells(geometry, gridsize=500)
 openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500, centroids=False)

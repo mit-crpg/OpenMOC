@@ -51,6 +51,8 @@ openmoc.log.py_printf('NORMAL', 'Creating cells...')
 fuel = openmoc.Cell(name='fuel')
 fuel.setFill(materials['UO2'])
 fuel.addSurface(halfspace=-1, surface=zcylinder)
+fuel.setNumRings(3)
+fuel.setNumSectors(4)
 
 moderator = openmoc.Cell(name='moderator')
 moderator.setFill(materials['Water'])
@@ -91,7 +93,7 @@ geometry.initializeFlatSourceRegions()
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-#track_generator.setNumThreads(num_threads)
+track_generator.setNumThreads(num_threads)
 track_generator.setNumThreads(1)
 track_generator.generateTracks()
 

@@ -509,7 +509,6 @@ void Universe::removeCell(Cell* cell) {
 Cell* Universe::findCell(LocalCoords* coords) {
 
   Cell* cell;
-  Cell* return_cell = NULL;
   std::vector<Cell*> cells;
   std::vector<Cell*>::iterator iter;
 
@@ -525,67 +524,71 @@ Cell* Universe::findCell(LocalCoords* coords) {
   std::transform(_cells.begin(), _cells.end(),
                  std::back_inserter(cells), pair_second(_cells));
 
+  //  printf("checking universe %d with %d cells\n", _id, _cells.size());
+
   /* Loop over all Cells */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
     cell = (*iter);
 
+    //    printf("universe %d inquiring cell %d, %s, %d\n", _id, cell->getId(), cell->getName(), cell->getType());
+
     if (cell->containsCoords(coords)) {
+
+      //      printf("FOUND cell %d!!\n", cell->getId());
 
       /* Set the Cell on this level */
       coords->setCell(cell);
 
       /* MATERIAL type Cell - lowest level, terminate search for Cell */
-      if (cell->getType() == MATERIAL) {
-        coords->setCell(cell);
-        return_cell = cell;
-        return return_cell;
-      }
+      if (cell->getType() == MATERIAL)
+        return cell;
 
       /* FILL type Cell - Cell contains a Universe at a lower level
        * Update coords to next level and continue search */
       else if (cell->getType() == FILL) {
 
-        LocalCoords* next_coords;
+	//	printf("cell %d %s is a FILL type cell\n", cell->getId(), cell->getName());
+
+        LocalCoords* next_coords =
+            new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
+        next_coords->setPhi(coords->getPhi());
+
 
 	// FIXME
         /* Apply rotation */
-        if (cell->isRotated()){
-          double x = coords->getX();
-	  double y = coords->getY();
-	  double z = coords->getZ();
-	  double* matrix = cell->getRotationMatrix();
-	  double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
-	  double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
-	  double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
-	  coords->setX(new_x);
-	  coords->setY(new_y);
-	  coords->setZ(new_z);
-        }
+	//        if (cell->isRotated()){
+	//          double x = coords->getX();
+	//  double y = coords->getY();
+	//  double z = coords->getZ();
+	//  double* matrix = cell->getRotationMatrix();
+	//  double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
+	//  double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
+	//  double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
+	//  coords->setX(new_x);
+	//  coords->setY(new_y);
+	//  coords->setZ(new_z);
+	// }
 
 	/* Apply translation */
         // FIXME
 
-	//        if (coords->getNext() == NULL)
-        next_coords = 
-            new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
-	  //        else
-	  //          next_coords = coords->getNext();
-
         Universe* univ = cell->getFillUniverse();
         next_coords->setUniverse(univ);
-        coords->setCell(cell);
 
         coords->setNext(next_coords);
         next_coords->setPrev(coords);
-        if (univ->getType() == SIMPLE)
+
+        if (univ->getType() == SIMPLE) {
+	  //	  printf("asking SIMPLE universe %d %s\n", univ->getId(), univ->getName());
           return univ->findCell(next_coords);
+        }
         else
           return static_cast<Lattice*>(univ)->findCell(next_coords);
       }
     }
   }
 
-  return return_cell;
+  return NULL;
 }
 
 

@@ -177,6 +177,7 @@ void LocalCoords::setUniverse(Universe* universe) {
  */
 void LocalCoords::setCell(Cell* cell) {
   _cell = cell;
+  // FIXME: Beware!!!
   _phi += cell->getPhi();
 }
 
@@ -330,26 +331,9 @@ void LocalCoords::adjustCoords(double delta) {
   setX(getX() + delta_x);
   setY(getY() + delta_y);
 
-
   if (_next != NULL)
     _next->adjustCoords(delta);
 
-  /* Forward direction along linked list */
-  //  LocalCoords* curr = this;
-  //while (curr != NULL) {
-  // curr->adjustCoords(
-      //    curr->setX(curr->getX() + delta_x);
-      //curr->setY(curr->getY() + delta_y);
-  //  curr = curr->getNext();
-  //}
-
-  /* Reverse direction along linked list */
-  //  curr = _prev;
-  //while (curr != NULL) {
-  //  curr->setX(curr->getX() + delta_x);
-  //  curr->setY(curr->getY() + delta_y);
-  //  curr = curr->getPrev();
-  // }
   return;
 }
 
@@ -369,7 +353,6 @@ void LocalCoords::updateMostLocal(Point* point) {
   double delta_x = point->getX() - curr->getX();
   double delta_y = point->getY() - curr->getY();
   double delta = sqrt(delta_x*delta_x + delta_y*delta_y);
-  //  adjustCoords(delta_x, delta_y);
   adjustCoords(delta);
 
   return;

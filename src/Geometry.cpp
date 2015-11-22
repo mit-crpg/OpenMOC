@@ -433,10 +433,6 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
 Cell* Geometry::findFirstCell(LocalCoords* coords) {
-  //  double phi = coords->getPhi();
-  //  double delta_x = cos(phi) * TINY_MOVE;
-  // double delta_y = sin(phi) * TINY_MOVE;
-  //  coords->adjustCoords(delta_x, delta_y);
   coords->adjustCoords(TINY_MOVE);
   return findCellContainingCoords(coords);
 }
@@ -512,6 +508,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
       else {
         Cell* cell = coords->getCell();
         dist = cell->minSurfaceDist(coords);
+	//        printf("dist to cell %d is %f\n", cell->getId(), dist);
       }
 
       /* Recheck min distance */
@@ -525,6 +522,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
     }
 
     coords = coords->getHighestLevel();
+    coords->prune();
 
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL) {
@@ -534,10 +532,6 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
     }
 
     /* Move point and get next cell */
-    //    double phi = coords->getPhi();
-    //    double delta_x = cos(phi) * (min_dist + TINY_MOVE);
-    // double delta_y = sin(phi) * (min_dist + TINY_MOVE);
-    //    coords->adjustCoords(delta_x, delta_y);
     coords->adjustCoords(min_dist + TINY_MOVE);
 
     return findCellContainingCoords(coords);
@@ -868,10 +862,6 @@ void Geometry::segmentize(Track* track) {
 
       /* Reverse nudge from surface to determine whether segment start or end
        * points lie on a CMFD surface. */
-      //      delta_x = cos(phi) * TINY_MOVE;
-      //delta_y = sin(phi) * TINY_MOVE;
-      //start.adjustCoords(-delta_x, -delta_y);
-      //end.adjustCoords(-delta_x, -delta_y);
       start.adjustCoords(-TINY_MOVE);
       end.adjustCoords(-TINY_MOVE);
 
@@ -882,10 +872,8 @@ void Geometry::segmentize(Track* track) {
       new_segment->_cmfd_corner_bwd = _cmfd->findCmfdCorner(cmfd_cell, &start);
 
       /* Re-nudge segments from surface */
-      //      start.adjustCoords(delta_x, delta_y);
-      //      end.adjustCoords(delta_x, delta_y);
-      start.adjustCoords(-TINY_MOVE);
-      end.adjustCoords(-TINY_MOVE);
+      start.adjustCoords(TINY_MOVE);
+      end.adjustCoords(TINY_MOVE);
     }
 
     /* Add the segment to the Track */
