@@ -430,13 +430,14 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  *          each LocalCoord in the linked list for the Lattice or Universe
  *          that it is in.
  * @param coords pointer to a LocalCoords object
- * @param angle the angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
-Cell* Geometry::findFirstCell(LocalCoords* coords, double angle) {
-  double delta_x = cos(angle) * TINY_MOVE;
-  double delta_y = sin(angle) * TINY_MOVE;
-  coords->adjustCoords(delta_x, delta_y);
+Cell* Geometry::findFirstCell(LocalCoords* coords) {
+  //  double phi = coords->getPhi();
+  //  double delta_x = cos(phi) * TINY_MOVE;
+  // double delta_y = sin(phi) * TINY_MOVE;
+  //  coords->adjustCoords(delta_x, delta_y);
+  coords->adjustCoords(TINY_MOVE);
   return findCellContainingCoords(coords);
 }
 
@@ -474,10 +475,9 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
  *          return a pointer to the Cell that the LocalCoords will reach
  *          next along its trajectory.
  * @param coords pointer to a LocalCoords object
- * @param angle the angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
-Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
+Cell* Geometry::findNextCell(LocalCoords* coords) {
 
   Cell* cell = NULL;
   double dist;
@@ -505,18 +505,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
         Lattice* lattice = coords->getLattice();
-        dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+        dist = lattice->minSurfaceDist(coords);
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
       else {
         Cell* cell = coords->getCell();
-	// FIXME: Rotate angle here ???
-	if (cell->isRotated()) {
-	  double psi = cell->getPsi() * M_PI / 180.;
-	  //	  angle += psi;
-	}
-        dist = cell->minSurfaceDist(coords->getPoint(), angle);
+        dist = cell->minSurfaceDist(coords);
       }
 
       /* Recheck min distance */
@@ -534,14 +529,16 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double angle) {
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL) {
       Lattice* lattice = _cmfd->getLattice();
-      dist = lattice->minSurfaceDist(coords->getPoint(), angle);
+      dist = lattice->minSurfaceDist(coords);
       min_dist = std::min(dist, min_dist);
     }
 
     /* Move point and get next cell */
-    double delta_x = cos(angle) * (min_dist + TINY_MOVE);
-    double delta_y = sin(angle) * (min_dist + TINY_MOVE);
-    coords->adjustCoords(delta_x, delta_y);
+    //    double phi = coords->getPhi();
+    //    double delta_x = cos(phi) * (min_dist + TINY_MOVE);
+    // double delta_y = sin(phi) * (min_dist + TINY_MOVE);
+    //    coords->adjustCoords(delta_x, delta_y);
+    coords->adjustCoords(min_dist + TINY_MOVE);
 
     return findCellContainingCoords(coords);
   }
@@ -821,9 +818,11 @@ void Geometry::segmentize(Track* track) {
   LocalCoords end(x0, y0, z0);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
+  start.setPhi(phi);
+  end.setPhi(phi);
 
   /* Find the Cell containing the Track starting Point */
-  Cell* curr = findFirstCell(&end, phi);
+  Cell* curr = findFirstCell(&end);
   Cell* prev;
 
   /* If starting Point was outside the bounds of the Geometry */
@@ -840,7 +839,7 @@ void Geometry::segmentize(Track* track) {
 
     /* Find the next Cell along the Track's trajectory */
     prev = curr;
-    curr = findNextCell(&end, phi);
+    curr = findNextCell(&end);
 
     /* Checks that segment does not have the same start and end Points */
     if (start.getX() == end.getX() && start.getY() == end.getY())
@@ -869,10 +868,12 @@ void Geometry::segmentize(Track* track) {
 
       /* Reverse nudge from surface to determine whether segment start or end
        * points lie on a CMFD surface. */
-      delta_x = cos(phi) * TINY_MOVE;
-      delta_y = sin(phi) * TINY_MOVE;
-      start.adjustCoords(-delta_x, -delta_y);
-      end.adjustCoords(-delta_x, -delta_y);
+      //      delta_x = cos(phi) * TINY_MOVE;
+      //delta_y = sin(phi) * TINY_MOVE;
+      //start.adjustCoords(-delta_x, -delta_y);
+      //end.adjustCoords(-delta_x, -delta_y);
+      start.adjustCoords(-TINY_MOVE);
+      end.adjustCoords(-TINY_MOVE);
 
       new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell, &end);
       new_segment->_cmfd_surface_bwd =
@@ -881,8 +882,10 @@ void Geometry::segmentize(Track* track) {
       new_segment->_cmfd_corner_bwd = _cmfd->findCmfdCorner(cmfd_cell, &start);
 
       /* Re-nudge segments from surface */
-      start.adjustCoords(delta_x, delta_y);
-      end.adjustCoords(delta_x, delta_y);
+      //      start.adjustCoords(delta_x, delta_y);
+      //      end.adjustCoords(delta_x, delta_y);
+      start.adjustCoords(-TINY_MOVE);
+      end.adjustCoords(-TINY_MOVE);
     }
 
     /* Add the segment to the Track */

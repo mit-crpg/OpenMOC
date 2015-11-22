@@ -547,6 +547,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
         LocalCoords* next_coords;
 
+	// FIXME
         /* Apply rotation */
         if (cell->isRotated()){
           double x = coords->getX();
@@ -565,8 +566,8 @@ Cell* Universe::findCell(LocalCoords* coords) {
         // FIXME
 
 	//        if (coords->getNext() == NULL)
-        next_coords = new LocalCoords(coords->getX(), coords->getY(),
-                                      coords->getZ());
+        next_coords = 
+            new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
 	  //        else
 	  //          next_coords = coords->getNext();
 
@@ -1239,35 +1240,34 @@ Cell* Lattice::findCell(LocalCoords* coords) {
  *          the distance to the nearest boundary between lattice cells
  *          in the direction of the track.
  *          Returns distance to nearest Lattice cell boundary.
- * @param point a pointer to a starting point
- * @param angle the azimuthal angle of the track
  * @return the distance to the nearest Lattice cell boundary
  */
-double Lattice::minSurfaceDist(Point* point, double angle) {
+double Lattice::minSurfaceDist(LocalCoords* coords) {
 
   /* Compute the x, y, and z indices for the Lattice cell this point is in */
-  int lat_x = getLatX(point);
-  int lat_y = getLatY(point);
+  int lat_x = getLatX(coords->getPoint());
+  int lat_y = getLatY(coords->getPoint());
+  double phi = coords->getPhi();
 
   /* Create planes representing the boundaries of the lattice cell */
   XPlane xplane(0.0);
   YPlane yplane(0.0);
 
   /* Get the min distance for X PLANE  */
-  if (angle < M_PI_2)
+  if (phi < M_PI_2)
     xplane.setX(((lat_x+1) * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
   else
     xplane.setX((lat_x * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
 
-  double dist_x = xplane.getMinDistance(point, angle);
+  double dist_x = xplane.getMinDistance(coords);
 
   /* Get the min distance for Y PLANE */
-  if (angle < M_PI)
+  if (phi < M_PI)
     yplane.setY(((lat_y+1) * _width_y - _width_y*_num_y/2.0 + _offset.getY()));
   else
     yplane.setY((lat_y * _width_y - _width_y*_num_y/2.0 + _offset.getY()));
 
-  double dist_y = yplane.getMinDistance(point, angle);
+  double dist_y = yplane.getMinDistance(coords);
 
   /* return shortest distance to next lattice cell */
   return std::min(dist_x, dist_y);
