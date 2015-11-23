@@ -88,9 +88,6 @@ root_cell.addSurface(halfspace=-1, surface=boundaries[1])
 root_cell.addSurface(halfspace=+1, surface=boundaries[2])
 root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
-import numpy as np
-root_cell.setRotation(np.array([0., 0., 90.]))
-
 
 ###############################################################################
 #                            Creating Universes
@@ -145,7 +142,7 @@ geometry.initializeFlatSourceRegions()
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(1)
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 
 
@@ -169,7 +166,7 @@ openmoc.log.py_printf('NORMAL', 'Plotting data...')
 openmoc.plotter.plot_segments(track_generator)
 openmoc.plotter.plot_materials(geometry, gridsize=500)
 openmoc.plotter.plot_cells(geometry, gridsize=500)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500, centroids=False)
+openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500, centroids=True)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 openmoc.log.py_printf('TITLE', 'Finished')
