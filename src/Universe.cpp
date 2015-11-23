@@ -543,6 +543,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
         LocalCoords* next_coords =
             new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
+        next_coords->setPhi(coords->getPhi());
 
 	// FIXME
         /* Apply rotation */
@@ -557,13 +558,11 @@ Cell* Universe::findCell(LocalCoords* coords) {
 	  next_coords->setX(new_x);
 	  next_coords->setY(new_y);
 	  next_coords->setZ(new_z);
+          next_coords->incrementPhi(cell->getPsi() * M_PI / 180.);
 	}
 
 	/* Apply translation */
         // FIXME
-
-        next_coords->setPhi(coords->getPhi());
-        next_coords->incrementPhi(cell->getPsi() * M_PI / 180.);
 
         Universe* univ = cell->getFillUniverse();
         next_coords->setUniverse(univ);
