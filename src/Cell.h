@@ -163,6 +163,8 @@ public:
   double getPsi();
   double* getRotationMatrix();
   double* getTranslation();
+  void retrieveRotation(double* rotations, int num_axes);
+  void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();
   double getMinX();

@@ -210,11 +210,59 @@ double* Cell::getRotationMatrix() {
 
 
 /**
+ * @brief Fills an array with the rotation angles for x, y and z.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python OpenCG compatiblity module. Although this method appears to
+ *          require two arguments, in reality it only requires one due to SWIG
+ *          and would be called from within Python as follows:
+ *
+ * @code
+ *          rotation = cell.getRotation(3)
+ * @endcode
+ *
+ * @param rotation an array of rotation angles of length 3 for x, y and z
+ * @param num_axes the number of axes (this must always be 3)
+ */
+void Cell::retrieveRotation(double* rotations, int num_axes) {
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
+               "The rotation array should be length 3.", num_axes, _id);
+
+  for (int i=0; i < 3; i++)
+    rotations[i] = _rotation[i];
+}
+
+
+/**
  * @brief Return pointer to array for the translations along x, y and z.
  * @returns a pointer to an array of translations
  */
 double* Cell::getTranslation() {
   return _translation;
+}
+
+
+/**
+ * @brief Fills an array with the translations along x, y and z.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python OpenCG compatiblity module. Although this method appears to
+ *          require two arguments, in reality it only requires one due to SWIG
+ *          and would be called from within Python as follows:
+ *
+ * @code
+ *          translation = cell.retrieveTranslation(3)
+ * @endcode
+ *
+ * @param translation an array of translations of length 3 for x, y and z
+ * @param num_axes the number of axes (this must always be 3)
+ */
+void Cell::retrieveTranslation(double* translations, int num_axes) {
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to get translation with %d axes for Cell %d. "
+               "The translation array should be length 3.", num_axes, _id);
+
+  for (int i=0; i < 3; i++)
+    translations[i] = _translation[i];
 }
 
 

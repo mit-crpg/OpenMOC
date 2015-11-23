@@ -30,9 +30,16 @@
 %apply (double* IN_ARRAY1, int DIM1) {(double* rotation, int num_axes)}
 
 /* The typemap used to match the method signature for the Cell translation
- * angle setter method. This allows users to set the translations
- * using NumPy arrays */
+ * setter method. This allows users to set translations using NumPy arrays */
 %apply (double* IN_ARRAY1, int DIM1) {(double* translation, int num_axes)}
+
+/* The typemap used to match the method signature for the Cell's
+ * getter method for rotations used by the OpenCG compatibility module. */
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* rotations, int num_axes)}
+
+/* The typemap used to match the method signature for the Cell's
+ * getter method for translations used by the OpenCG compatibility module. */
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* translations, int num_axes)}
 
 /* The typemap used to match the method signature for the TrackGenerator's
  * getter methods for track start and end coordinates for the plotting

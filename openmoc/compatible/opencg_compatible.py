@@ -385,10 +385,11 @@ def get_opencg_cell(openmoc_cell):
       opencg_cell.fill = get_opencg_universe(fill)
 
   if openmoc_cell.isRotated():
-    rotation = np.array([openmoc_cell.getPhi(),
-                         openmoc_cell.getTheta(),
-                         openmoc_cell.getPsi()])
+    rotation = openmoc_cell.getRotation(3)
     opencg_cell.rotation = rotation * -1
+  if openmoc_cell.isTranslated():
+    rotation = openmoc_cell.getTranslation(3)
+    opencg_cell.translation = translation
 
   surfaces = openmoc_cell.getSurfaces()
 
@@ -597,6 +598,9 @@ def get_openmoc_cell(opencg_cell):
   if opencg_cell.rotation is not None:
     rotation = np.asarray(opencg_cell.rotation, dtype=np.float64) * -1
     openmoc_cell.setRotation(rotation)
+  if opencg_cell.translation is not None:
+    translation = np.asarray(opencg_cell.translation, dtype=np.float64)
+    openmoc_cell.setTranslation(translation)
 
   surfaces = opencg_cell.surfaces
 
