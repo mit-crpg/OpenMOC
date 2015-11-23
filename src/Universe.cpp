@@ -545,6 +545,17 @@ Cell* Universe::findCell(LocalCoords* coords) {
             new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
         next_coords->setPhi(coords->getPhi());
 
+        /* Apply translation to position in the next coords */
+	if (cell->isTranslated()){
+	  double* translation = cell->getTranslation();
+	  double new_x = coords->getX() + translation[0];
+	  double new_y = coords->getY() + translation[1];
+	  double new_z = coords->getZ() + translation[2];
+	  next_coords->setX(new_x);
+	  next_coords->setY(new_y);
+	  next_coords->setZ(new_z);
+	}
+
         /* Apply rotation to position and direction in the next coords */
 	if (cell->isRotated()){
 	  double x = coords->getX();
@@ -559,9 +570,6 @@ Cell* Universe::findCell(LocalCoords* coords) {
 	  next_coords->setZ(new_z);
           next_coords->incrementPhi(cell->getPsi() * M_PI / 180.);
 	}
-
-	/* Apply translation */
-        // FIXME
 
         Universe* univ = cell->getFillUniverse();
         next_coords->setUniverse(univ);
