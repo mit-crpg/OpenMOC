@@ -58,6 +58,9 @@ Cell::Cell(int id, const char* name) {
   memset(&_rotation, 0., 3);
   memset(&_rotation_matrix, 0., 9);
 
+  _translated = false;
+  memset(&_translation, 0., 3);
+
   _num_rings = 0;
   _num_sectors = 0;
 
@@ -153,11 +156,20 @@ Universe* Cell::getFillUniverse() {
 
 
 /**
- * @brief Return a boolean indicating whether or not the Cell has been rotated.
+ * @brief Return a boolean indicating whether the Cell has been rotated.
  * @return whether the Cell has been rotated
  */
 bool Cell::isRotated() {
   return _rotated;
+}
+
+
+/**
+ * @brief Return a boolean indicating whether the Cell has been translated.
+ * @return whether the Cell has been translated
+ */
+bool Cell::isTranslated() {
+  return _translated;
 }
 
 
@@ -194,6 +206,15 @@ double Cell::getPsi() {
  */
 double* Cell::getRotationMatrix() {
   return _rotation_matrix;
+}
+
+
+/**
+ * @brief Return pointer to array for the translations along x, y and z.
+ * @returns a pointer to an array of translations
+ */
+double* Cell::getTranslation() {
+  return _translation;
 }
 
 
@@ -446,7 +467,7 @@ void Cell::setFill(Universe* fill) {
  *          is as follows:
  *
  * @code
- *          rotation = numpy.array([90., 0., 0.])
+ *          rotation = numpy.array([0., 0., 90.])
  *          cell = openmoc.Cell()
  *          cell.setRotation(rotation)
  * @endcode
@@ -487,6 +508,36 @@ void Cell::setRotation(double* rotation, int num_axes) {
   _rotated = true;
 }
 
+
+/**
+ * @brief Set the Cell's translation along the x, y and z axes.
+ * @details This method is a helper function to allow OpenMOC users to assign
+ *          the Cell's translations in Python. A user must initialize a
+ *          length 3 NumPy array as input to this function. This function then
+ *          stores the data values in the NumPy array in the Cell's translation
+ *          array. An example of how this function might be called in Python
+ *          is as follows:
+ *
+ * @code
+ *          translation = numpy.array([0.25, 0.25, 0.])
+ *          cell = openmoc.Cell()
+ *          cell.setTranslation(translation)
+ * @endcode
+ *
+ * @param translation the array of translations
+ * @param num_axes the number of axes (this must always be 3)
+ */
+void Cell::setTranslation(double* translation, int num_axes) {
+
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to set translation for %d axes for Cell %d. "
+               "The translation array should be length 3.", num_axes, _id);
+
+  for (int i=0; i < 3; i++)
+    _translation[i] = translation[i];
+
+  _translated = true;
+}
 
 /**
  * @brief Set the Cell's number of rings.
@@ -723,6 +774,8 @@ Cell* Cell::clone() {
 
   if (_rotated)
     new_cell->setRotation(_rotation, 3);
+  if (_translated)
+    new_cell->setTranslation(_translation, 3);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
   std::map<int, surface_halfspace*>::iterator iter;
@@ -1050,6 +1103,10 @@ std::string Cell::toString() {
   if (_rotated) {
     string << ", rotation = " << _rotation[0] << ", ";
     string << _rotation[1] << ", " << _rotation[2];
+  }
+  if (_translation) {
+    string << ", translation = " << _translation[0] << ", ";
+    string << _translation[1] << ", " << _translation[2];
   }
 
   string << ", # surfaces = " << getNumSurfaces();

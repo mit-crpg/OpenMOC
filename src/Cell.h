@@ -96,6 +96,12 @@ private:
   /* A rotation matrix defined in terms of the rotation angles */
   double _rotation_matrix[9];
 
+  /* A boolean indicating whether to cell is translated */
+  bool _translated;
+
+  /* An array with translations in x, y and z */
+  double _translation[3];
+
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
 
@@ -151,10 +157,12 @@ public:
   Material* getFillMaterial();
   Universe* getFillUniverse();
   bool isRotated();
+  bool isTranslated();
   double getPhi();
   double getTheta();
   double getPsi();
   double* getRotationMatrix();
+  double* getTranslation();
   int getNumRings();
   int getNumSectors();
   double getMinX();
@@ -178,6 +186,7 @@ public:
   void setFill(Material* fill);
   void setFill(Universe* fill);
   void setRotation(double* rotation, int num_axes);
+  void setTranslation(double* translation, int num_axes);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
   void addSurface(int halfspace, Surface* surface);
