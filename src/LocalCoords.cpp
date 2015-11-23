@@ -327,20 +327,16 @@ LocalCoords* LocalCoords::getHighestLevel() {
  *        the linked list.
  * @details This method will traverse the entire linked list and apply the
  *          translation to each element.
- * @param delta amount we wish to move x by
+ * @param delta amount we wish to move the point by
  */
 void LocalCoords::adjustCoords(double delta) {
-
   double new_x = getX() + cos(_phi) * delta;
   double new_y = getY() + sin(_phi) * delta;
-
   setX(new_x);
   setY(new_y);
 
   if (_next != NULL)
     _next->adjustCoords(delta);
-
-  return;
 }
 
 

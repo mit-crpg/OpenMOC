@@ -545,8 +545,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
             new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
         next_coords->setPhi(coords->getPhi());
 
-	// FIXME
-        /* Apply rotation */
+        /* Apply rotation to position and direction in the next coords */
 	if (cell->isRotated()){
 	  double x = coords->getX();
 	  double y = coords->getY();
@@ -569,7 +568,6 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
         coords->setNext(next_coords);
         next_coords->setPrev(coords);
-
         if (univ->getType() == SIMPLE)
           return univ->findCell(next_coords);
         else
@@ -1234,7 +1232,7 @@ Cell* Lattice::findCell(LocalCoords* coords) {
  * @details Knowing that a Lattice must be cartesian, this function computes
  *          the distance to the nearest boundary between lattice cells
  *          in the direction of the track.
- *          Returns distance to nearest Lattice cell boundary.
+ * @param coords a pointer to a localcoords object
  * @return the distance to the nearest Lattice cell boundary
  */
 double Lattice::minSurfaceDist(LocalCoords* coords) {

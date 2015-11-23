@@ -215,9 +215,10 @@ bool Surface::isCoordOnSurface(LocalCoords* coord) {
 
 /**
  * @brief Finds the minimum distance to a Surface.
- * @details Finds the miniumum distance to a Surface from a Point with a
- *          given trajectory defined by an angle to this Surface. If the
+ * @details Finds the miniumum distance to a Surface from a LocalCoords
+ *          with a trajectory defined by an angle to this Surface. If the
  *          trajectory will not intersect the Surface, returns INFINITY.
+ * @param coords a pointer to a localcoords object
  * @return the minimum distance to the Surface
  */
 double Surface::getMinDistance(LocalCoords* coords) {

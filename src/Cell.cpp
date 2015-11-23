@@ -676,10 +676,11 @@ bool Cell::containsCoords(LocalCoords* coords) {
 
 
 /**
- * @brief Computes the minimum distance to a Surface from a Point with a given
- *        trajectory at a certain angle.
+ * @brief Computes the minimum distance to a Surface from a point with a given
+ *        trajectory at a certain angle stored in a LocalCoords object.
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
+ * @param coords a pointer to a localcoords
  */
 double Cell::minSurfaceDist(LocalCoords* coords) {
 

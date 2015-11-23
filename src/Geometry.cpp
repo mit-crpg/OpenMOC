@@ -460,16 +460,15 @@ Material* Geometry::findFSRMaterial(int fsr_id) {
 
 
 /**
- * @brief Finds the next Cell for a LocalCoords object along a trajectory
- *        defined by some angle (in radians from 0 to Pi).
+ * @brief Finds the next Cell for a LocalCoords object.
  * @details The method will update the LocalCoords passed in as an argument
  *          to be the one at the boundary of the next Cell crossed along the
  *          given trajectory. It will do this by finding the minimum distance
- *          to the surfaces at all levels of the coords hierarchy.
- *          If the LocalCoords is outside the bounds of the Geometry or on
- *          the boundaries this method will return NULL; otherwise it will
- *          return a pointer to the Cell that the LocalCoords will reach
- *          next along its trajectory.
+ *          to the surfaces at all levels of the coords hierarchy. If the
+ *          LocalCoords is outside the bounds of the Geometry or on the
+ *          boundaries this method will return NULL; otherwise it will return
+ *          a pointer to the Cell that the LocalCoords will reach next along
+ *          its trajectory.
  * @param coords pointer to a LocalCoords object
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
