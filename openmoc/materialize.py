@@ -521,9 +521,10 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                 py_printf('NORMAL', 'SPH inner iteration %d:\tres = '
                                     '%1.3e', j, inner_res.max())
 
-                # Update multi-group cross sections with SPH factors
-                sph_mgxs_lib = _apply_sph_factors(mgxs_lib, inner_sph[sph_index],
-                                                  sph_domains[domain_id])
+                # Update this domain's cross sections with SPH factors
+                sph_mgxs_lib = \
+                    _apply_sph_factors(mgxs_lib, inner_sph[sph_index], \
+                                       sph_domains[domain_id])
 
                 # Load the new MGXS library data into the OpenMOC geometry
                 load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
