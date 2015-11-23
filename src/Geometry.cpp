@@ -517,7 +517,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
       if (coords->getNext() == NULL)
 	break;
       else
-	coords = coords->getNext();
+ 	coords = coords->getNext();
     }
 
     coords = coords->getHighestLevel();
@@ -829,6 +829,7 @@ void Geometry::segmentize(Track* track) {
   while (curr != NULL) {
 
     end.copyCoords(&start);
+    end.setPhi(phi);
 
     /* Find the next Cell along the Track's trajectory */
     prev = curr;

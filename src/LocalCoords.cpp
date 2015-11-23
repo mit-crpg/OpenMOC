@@ -177,8 +177,6 @@ void LocalCoords::setUniverse(Universe* universe) {
  */
 void LocalCoords::setCell(Cell* cell) {
   _cell = cell;
-  // FIXME: Beware!!!
-  _phi += cell->getPhi();
 }
 
 
@@ -258,6 +256,15 @@ void LocalCoords::setPhi(double phi) {
 
 
 /**
+ * @brief Increment the direction angle in radians for this LocalCoords.
+ * @param phi the incremental direction angle in radians
+ */
+void LocalCoords::incrementPhi(double phi) {
+  _phi += phi;
+}
+
+
+/**
  * @brief Sets the pointer to the LocalCoords on the next lower nested Universe
  *        level.
  * @param next pointer to the next LocalCoords
@@ -324,7 +331,6 @@ LocalCoords* LocalCoords::getHighestLevel() {
  */
 void LocalCoords::adjustCoords(double delta) {
 
-  // FIXME: Make this apply the rotation in each Cell
   double new_x = getX() + cos(_phi) * delta;
   double new_y = getY() + sin(_phi) * delta;
 

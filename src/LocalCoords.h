@@ -108,6 +108,7 @@ public:
   void setY(double y);
   void setZ(double z);
   void setPhi(double phi);
+  void incrementPhi(double phi);
   void setNext(LocalCoords *next);
   void setPrev(LocalCoords* coords);
 

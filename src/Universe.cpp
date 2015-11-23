@@ -543,26 +543,27 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
         LocalCoords* next_coords =
             new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
-        next_coords->setPhi(coords->getPhi());
-
 
 	// FIXME
         /* Apply rotation */
-	//        if (cell->isRotated()){
-	//          double x = coords->getX();
-	//  double y = coords->getY();
-	//  double z = coords->getZ();
-	//  double* matrix = cell->getRotationMatrix();
-	//  double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
-	//  double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
-	//  double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
-	//  coords->setX(new_x);
-	//  coords->setY(new_y);
-	//  coords->setZ(new_z);
-	// }
+	if (cell->isRotated()){
+	  double x = coords->getX();
+	  double y = coords->getY();
+	  double z = coords->getZ();
+	  double* matrix = cell->getRotationMatrix();
+	  double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
+	  double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
+	  double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
+	  next_coords->setX(new_x);
+	  next_coords->setY(new_y);
+	  next_coords->setZ(new_z);
+	}
 
 	/* Apply translation */
         // FIXME
+
+        next_coords->setPhi(coords->getPhi());
+        next_coords->incrementPhi(cell->getPsi() * M_PI / 180.);
 
         Universe* univ = cell->getFillUniverse();
         next_coords->setUniverse(univ);
@@ -1207,14 +1208,13 @@ Cell* Lattice::findCell(LocalCoords* coords) {
 
   if (coords->getNext() == NULL) {
     next_coords = new LocalCoords(next_x, next_y, next_z);
-    // FIXME
-    next_coords->setPhi(coords->getPhi());
   }
   else
     next_coords = coords->getNext();
 
   Universe* univ = getUniverse(lat_x, lat_y, lat_z);
   next_coords->setUniverse(univ);
+  next_coords->setPhi(coords->getPhi());
 
   /* Set Lattice indices */
   coords->setLattice(this);

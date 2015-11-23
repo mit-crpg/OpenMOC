@@ -69,6 +69,9 @@ moderator.addSurface(halfspace=-1, surface=top)
 
 openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
+import numpy as np
+#fuel.setRotation(np.array([0., 0., 180.]))
+
 root_universe = openmoc.Universe(name='root universe')
 root_universe.addCell(fuel)
 root_universe.addCell(moderator)
