@@ -524,17 +524,11 @@ Cell* Universe::findCell(LocalCoords* coords) {
   std::transform(_cells.begin(), _cells.end(),
                  std::back_inserter(cells), pair_second(_cells));
 
-  //  printf("checking universe %d with %d cells\n", _id, _cells.size());
-
   /* Loop over all Cells */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
     cell = (*iter);
 
-    //    printf("universe %d inquiring cell %d, %s, %d\n", _id, cell->getId(), cell->getName(), cell->getType());
-
     if (cell->containsCoords(coords)) {
-
-      //      printf("FOUND cell %d!!\n", cell->getId());
 
       /* Set the Cell on this level */
       coords->setCell(cell);
@@ -546,8 +540,6 @@ Cell* Universe::findCell(LocalCoords* coords) {
       /* FILL type Cell - Cell contains a Universe at a lower level
        * Update coords to next level and continue search */
       else if (cell->getType() == FILL) {
-
-	//	printf("cell %d %s is a FILL type cell\n", cell->getId(), cell->getName());
 
         LocalCoords* next_coords =
             new LocalCoords(coords->getX(), coords->getY(), coords->getZ());
@@ -578,10 +570,8 @@ Cell* Universe::findCell(LocalCoords* coords) {
         coords->setNext(next_coords);
         next_coords->setPrev(coords);
 
-        if (univ->getType() == SIMPLE) {
-	  //	  printf("asking SIMPLE universe %d %s\n", univ->getId(), univ->getName());
+        if (univ->getType() == SIMPLE)
           return univ->findCell(next_coords);
-        }
         else
           return static_cast<Lattice*>(univ)->findCell(next_coords);
       }
@@ -1215,8 +1205,11 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   /* Create a new LocalCoords object for the next level Universe */
   LocalCoords* next_coords;
 
-  if (coords->getNext() == NULL)
+  if (coords->getNext() == NULL) {
     next_coords = new LocalCoords(next_x, next_y, next_z);
+    // FIXME
+    next_coords->setPhi(coords->getPhi());
+  }
   else
     next_coords = coords->getNext();
 

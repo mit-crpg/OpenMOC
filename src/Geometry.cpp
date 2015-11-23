@@ -508,7 +508,6 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
       else {
         Cell* cell = coords->getCell();
         dist = cell->minSurfaceDist(coords);
-	//        printf("dist to cell %d is %f\n", cell->getId(), dist);
       }
 
       /* Recheck min distance */
@@ -880,7 +879,7 @@ void Geometry::segmentize(Track* track) {
     track->addSegment(new_segment);
   }
 
-  log_printf(NORMAL, "Created %d segments for Track: %s",
+  log_printf(DEBUG, "Created %d segments for Track: %s",
              track->getNumSegments(), track->toString().c_str());
 
   /* Truncate the linked list for the LocalCoords */

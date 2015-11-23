@@ -325,11 +325,11 @@ LocalCoords* LocalCoords::getHighestLevel() {
 void LocalCoords::adjustCoords(double delta) {
 
   // FIXME: Make this apply the rotation in each Cell
-  double delta_x = cos(_phi) * delta;
-  double delta_y = sin(_phi) * delta;
+  double new_x = getX() + cos(_phi) * delta;
+  double new_y = getY() + sin(_phi) * delta;
 
-  setX(getX() + delta_x);
-  setY(getY() + delta_y);
+  setX(new_x);
+  setY(new_y);
 
   if (_next != NULL)
     _next->adjustCoords(delta);
