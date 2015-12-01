@@ -178,7 +178,7 @@ bool Cell::isTranslated() {
  * @return the rotation angle about the x-axis
  */
 double Cell::getPhi() {
-  return _rotation[0];
+  return _rotation[0] * 180. / M_PI;
 }
 
 
@@ -187,7 +187,7 @@ double Cell::getPhi() {
  * @return the rotation angle about the y-axis
  */
 double Cell::getTheta() {
-  return _rotation[1];
+  return _rotation[1] * 180. / M_PI;
 }
 
 
@@ -196,7 +196,7 @@ double Cell::getTheta() {
  * @return the rotation angle about the z-axis
  */
 double Cell::getPsi() {
-  return _rotation[2];
+  return _rotation[2] * 180. / M_PI;
 }
 
 
@@ -229,7 +229,7 @@ void Cell::retrieveRotation(double* rotations, int num_axes) {
                "The rotation array should be length 3.", num_axes, _id);
 
   for (int i=0; i < 3; i++)
-    rotations[i] = _rotation[i];
+    rotations[i] = _rotation[i] * 180. / M_PI;
 }
 
 
@@ -529,16 +529,15 @@ void Cell::setRotation(double* rotation, int num_axes) {
     log_printf(ERROR, "Unable to set rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
 
+  /* Store rotation angles in radians */
   for (int i=0; i < 3; i++)
-    _rotation[i] = rotation[i];
+    _rotation[i] = rotation[i] * M_PI / 180.;
 
   /* Use pitch-roll-yaw convention according to eqns 51-59 on Wolfram:
    * http://mathworld.wolfram.com/EulerAngles.html */
-
-  /* Compute rotation angles in x,y,z directions */
-  double theta = _rotation[0] * M_PI / 180.;
-  double psi = _rotation[1] * M_PI / 180.;
-  double phi = _rotation[2] * M_PI / 180.;
+  double theta = _rotation[0];
+  double psi = _rotation[1];
+  double phi = _rotation[2];
 
   /* Calculate rotation matrix based on angles given */
   /* Indexed by (y,x) since the universe array is indexed by (z,y,z) */
@@ -823,8 +822,12 @@ Cell* Cell::clone() {
   else
     new_cell->setFill((Universe*)_fill);
 
-  if (_rotated)
-    new_cell->setRotation(_rotation, 3);
+  if (_rotated) {
+    /* Compute rotation angles in degrees to assign to clone */
+    double rotation[3];
+    memcpy(&rotation, _rotation, 3 * sizeof(double));
+    new_cell->setRotation(rotation, 3);
+  }
   if (_translated)
     new_cell->setTranslation(_translation, 3);
 
@@ -1152,8 +1155,8 @@ std::string Cell::toString() {
     string << ", type = UNFILLED";
 
   if (_rotated) {
-    string << ", (rotation = " << _rotation[0] << ", ";
-    string << _rotation[1] << ", " << _rotation[2] << ")";
+    string << ", (rotation = " << getPhi() << ", ";
+    string << getTheta() << ", " << getPsi() << ")";
   }
   if (_translated) {
     string << ", (translation = " << _translation[0] << ", ";
