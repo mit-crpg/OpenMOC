@@ -386,7 +386,7 @@ def get_opencg_cell(openmoc_cell):
 
   if openmoc_cell.isRotated():
     rotation = openmoc_cell.getRotation(3)
-    opencg_cell.rotation = rotation * -1
+    opencg_cell.rotation = rotation
   if openmoc_cell.isTranslated():
     rotation = openmoc_cell.getTranslation(3)
     opencg_cell.translation = translation
@@ -596,7 +596,7 @@ def get_openmoc_cell(opencg_cell):
     openmoc_cell.setFill(get_openmoc_material(fill))
 
   if opencg_cell.rotation is not None:
-    rotation = np.asarray(opencg_cell.rotation, dtype=np.float64) * -1
+    rotation = np.asarray(opencg_cell.rotation, dtype=np.float64)
     openmoc_cell.setRotation(rotation)
   if opencg_cell.translation is not None:
     translation = np.asarray(opencg_cell.translation, dtype=np.float64)

@@ -532,26 +532,29 @@ void Cell::setRotation(double* rotation, int num_axes) {
   for (int i=0; i < 3; i++)
     _rotation[i] = rotation[i];
 
+  /* Use pitch-roll-yaw convention according to eqns 51-59 on Wolfram:
+   * http://mathworld.wolfram.com/EulerAngles.html */
+
   /* Compute rotation angles in x,y,z directions */
-  double phi = -_rotation[0] * M_PI / 180.;
-  double theta = -_rotation[1] * M_PI / 180.;
-  double psi = -_rotation[2] * M_PI / 180.;
+  double theta = _rotation[0] * M_PI / 180.;
+  double psi = _rotation[1] * M_PI / 180.;
+  double phi = _rotation[2] * M_PI / 180.;
 
   /* Calculate rotation matrix based on angles given */
   /* Indexed by (y,x) since the universe array is indexed by (z,y,z) */
-  _rotation_matrix[0] = cos(theta) * cos(psi);
-  _rotation_matrix[1] = cos(theta) * sin(psi);
+  _rotation_matrix[0] = cos(theta) * cos(phi);
+  _rotation_matrix[1] = cos(theta) * sin(phi);
   _rotation_matrix[2] = -sin(theta);
-  _rotation_matrix[3] = -cos(phi) * sin(psi) + 
-                        sin(phi) * sin(theta) * cos(psi);
-  _rotation_matrix[4] = cos(phi) * cos(psi) +
-                        sin(phi) * sin(theta) * sin(psi);
-  _rotation_matrix[5] = sin(phi) * cos(theta);
-  _rotation_matrix[6] = sin(phi) * sin(psi) + \
-                        cos(phi) * sin(theta) * cos(psi);
-  _rotation_matrix[7] = -sin(phi) * cos(psi) + 
-                        cos(phi) * sin(theta) * sin(psi);
-  _rotation_matrix[8] = cos(phi) * cos(theta);
+  _rotation_matrix[3] = sin(psi) * sin(theta) * cos(psi) -
+                        cos(psi) * sin(phi);
+  _rotation_matrix[4] = sin(psi) * sin(theta) * sin(phi) +
+                        cos(psi) * cos(phi);
+  _rotation_matrix[5] = cos(theta) * sin(psi);
+  _rotation_matrix[6] = cos(psi) * sin(theta) * cos(phi) + 
+                        sin(psi) * sin(phi);
+  _rotation_matrix[7] = cos(psi) * sin(theta) * sin(phi) -
+                        sin(psi) * cos(phi);
+  _rotation_matrix[8] = cos(theta) * cos(psi);
 
   _rotated = true;
 }
