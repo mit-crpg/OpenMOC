@@ -768,7 +768,6 @@ def get_openmoc_lattice(opencg_lattice):
   universes = opencg_lattice.universes
 
   # Initialize an empty array for the OpenMOC nested Universes in this Lattice
-  # The Lattice universe array is stored x-y-z in OpenCG, but z-y-x in OpenMOC
   universe_array = np.ndarray(tuple(dimension[::-1]), dtype=openmoc.Universe)
 
   # Create OpenMOC Universes for each unique nested Universe in this Lattice
