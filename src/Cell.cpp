@@ -202,7 +202,7 @@ double Cell::getPsi() {
 
 /**
  * @brief Return pointer to array for the rotation matrix.
- * @returns a pointer to an array of rotation angles
+ * @return a pointer to an array of rotation angles
  */
 double* Cell::getRotationMatrix() {
   return _rotation_matrix;
@@ -235,7 +235,7 @@ void Cell::retrieveRotation(double* rotations, int num_axes) {
 
 /**
  * @brief Return pointer to array for the translations along x, y and z.
- * @returns a pointer to an array of translations
+ * @return a pointer to an array of translations
  */
 double* Cell::getTranslation() {
   return _translation;
