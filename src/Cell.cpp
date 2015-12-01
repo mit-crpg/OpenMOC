@@ -1152,12 +1152,12 @@ std::string Cell::toString() {
     string << ", type = UNFILLED";
 
   if (_rotated) {
-    string << ", rotation = " << _rotation[0] << ", ";
-    string << _rotation[1] << ", " << _rotation[2];
+    string << ", (rotation = " << _rotation[0] << ", ";
+    string << _rotation[1] << ", " << _rotation[2] << ")";
   }
-  if (_translation) {
-    string << ", translation = " << _translation[0] << ", ";
-    string << _translation[1] << ", " << _translation[2];
+  if (_translated) {
+    string << ", (translation = " << _translation[0] << ", ";
+    string << _translation[1] << ", " << _translation[2] << ")";
   }
 
   string << ", # surfaces = " << getNumSurfaces();

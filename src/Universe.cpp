@@ -1211,9 +1211,8 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   /* Create a new LocalCoords object for the next level Universe */
   LocalCoords* next_coords;
 
-  if (coords->getNext() == NULL) {
+  if (coords->getNext() == NULL)
     next_coords = new LocalCoords(next_x, next_y, next_z);
-  }
   else
     next_coords = coords->getNext();
 
