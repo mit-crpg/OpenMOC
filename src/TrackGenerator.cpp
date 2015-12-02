@@ -1,4 +1,5 @@
 #include "TrackGenerator.h"
+#include <iomanip>
 
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
@@ -22,6 +23,8 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _contains_2D_segments = false;
   _contains_3D_tracks = false;
   _contains_3D_segments = false;
+  _contains_global_z_mesh = false;
+  _contains_segmentation_heights = false;
   _quadrature = NULL;
   _z_coord = 0.0;
   _solve_3D = true;
@@ -799,7 +802,6 @@ void TrackGenerator::setNumAzim(int num_azim) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
-  _contains_extruded_segments = false;
   _use_input_file = false;
   _tracks_filename = "";
 }
@@ -845,7 +847,6 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
-  _contains_extruded_segments = false;
   _use_input_file = false;
   _tracks_filename = "";
 }
@@ -866,7 +867,6 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
-  _contains_extruded_segments = false;
   _use_input_file = false;
   _tracks_filename = "";
 }
@@ -883,7 +883,7 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
-  _contains_extruded_segments = false;
+  _contains_global_z_mesh = false;
   _use_input_file = false;
   _tracks_filename = "";
 }
@@ -915,11 +915,38 @@ void TrackGenerator::setOTF() {
 
 
 /**
- * @brief sets the z-coord of the raidal plane used in 2D calculations
+ * @brief Sets the z-coord of the raidal plane used in 2D calculations
  * @param z_coord the z-coord of the radial plane
  */
 void TrackGenerator::setZCoord(double z_coord) {
   _z_coord = z_coord;
+}
+
+/**
+ * @brief Sets the z-planes over which 2D segmentation is performed for
+ *        on-the-fly calculations
+ * @param z_mesh the z-coordinates defining the height of the radial
+ *        segmentation planes
+ */
+void TrackGenerator::setSegmentationHeights(std::vector<double> z_mesh) {
+  _contains_segmentation_heights = true;
+  _segmentation_heights = z_mesh;
+}
+
+
+/**
+ * @brief Sets a global z-mesh to use during axial on-the-fly ray tracing
+ * @details In axial on-the-fly ray tracing, normally each extruded FSR
+ *          contians a z-mesh. During on-the-fly segmentation when a new
+ *          extruded FSR is entered, a binary search must be conducted to
+ *          determine the axial cell. Alternatively, this function can be
+ *          called which creates a global z-mesh from the geometry so that
+ *          binary searches must only be conducted at the beginning of the
+ *          track.
+ */
+void TrackGenerator::setGlobalZMesh() {
+  _contains_global_z_mesh = true;
+  _global_z_mesh = _geometry->getUniqueZHeights();
 }
 
 
@@ -3280,7 +3307,11 @@ void TrackGenerator::segmentizeExtruded() {
   }
 
   /* Get all unique z-coords at which 2D radial segementation is performed */
-  std::vector<double> z_coords = _geometry->getUniqueZPlanes();
+  std::vector<FP_PRECISION> z_coords;
+  if (_contains_segmentation_heights)
+    z_coords = _segmentation_heights;
+  else
+    z_coords = _geometry->getUniqueZPlanes();
 
   /* Loop over all extruded Tracks */
   #pragma omp parallel for
@@ -3289,7 +3320,7 @@ void TrackGenerator::segmentizeExtruded() {
 
   /* Initialize 3D FSRs and their associated vectors*/
   log_printf(NORMAL, "Initializing FSRs axially...");
-  _geometry->initializeAxialFSRs();
+  _geometry->initializeAxialFSRs(_contains_global_z_mesh);
   _geometry->initializeFSRVectors();
 
   /* Count the number of segments in each track */
@@ -3650,7 +3681,6 @@ void TrackGenerator::dump2DSegmentsToFile() {
 
     /* Write data to file from FSRs_to_keys */
     fwrite(&(FSRs_to_keys->at(fsr_counter)), sizeof(std::size_t), 1, out);
-
 
     /* Increment FSR ID counter */
     fsr_counter++;
@@ -4771,7 +4801,6 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
     }
   }
 
-
   /* Track current location in root universe */
   Cmfd* cmfd = _geometry->getCmfd();
   LocalCoords curr_coords(start->getX(), start->getY(), z_coord);
@@ -4781,16 +4810,42 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
   FP_PRECISION tiny_delta_y = sin_theta * sin(phi) * TINY_MOVE;
   FP_PRECISION tiny_delta_z = cos_theta * TINY_MOVE;
 
+  /* Extract the appropriate starting mesh */
+  int num_fsrs;
+  FP_PRECISION* axial_mesh;
+  if (_contains_global_z_mesh) {
+    num_fsrs = _global_z_mesh.size() - 1;
+    axial_mesh = &_global_z_mesh[0];
+  }
+  else {
+    int extruded_fsr_id = segments_2D[seg_start]._region_id;
+    ExtrudedFSR* extruded_FSR = _geometry->getExtrudedFSR(extruded_fsr_id);
+    num_fsrs = extruded_FSR->_num_fsrs;
+    axial_mesh = extruded_FSR->_mesh;
+  }
+
+  /* Get the starting z index */
+  int z_ind = binarySearch(axial_mesh, num_fsrs+1, z_coord, sign);
+
   /* Loop over 2D segments */
+  bool first_segment = true;
   bool segments_complete = false;
   for (int s=seg_start; s < flattened_track->getNumSegments(); s++) {
 
-    /* Extract extruded FSR and determine the axial region */
+    /* Extract extruded FSR */
     int extruded_fsr_id = segments_2D[s]._region_id;
     ExtrudedFSR* extruded_FSR = _geometry->getExtrudedFSR(extruded_fsr_id);
-    FP_PRECISION* axial_mesh = extruded_FSR->_mesh;
-    int num_fsrs = extruded_FSR->_num_fsrs;
-    int z_ind = binarySearch(axial_mesh, num_fsrs+1, z_coord, sign);
+
+    /* Determine new mesh and z index */
+    if (first_segment || _contains_global_z_mesh) {
+      first_segment = false;
+    }
+    else {
+      /* Determine the axial region */
+      num_fsrs = extruded_FSR->_num_fsrs;
+      axial_mesh = extruded_FSR->_mesh;
+      z_ind = binarySearch(axial_mesh, num_fsrs+1, z_coord, sign);
+    }
 
     /* Extract 2D segment length */
     double remaining_length_2D = segments_2D[s]._length - start_dist_2D;
@@ -4813,7 +4868,7 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
       double dist_2D;
       double dist_3D;
       int z_move;
-      if (z_dist_3D < seg_dist_3D) {
+      if (z_dist_3D <= seg_dist_3D) {
         dist_2D = z_dist_3D * sin_theta;
         dist_3D = z_dist_3D;
         z_move = sign;

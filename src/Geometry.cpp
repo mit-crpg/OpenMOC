@@ -535,7 +535,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   curr = coords->getLowestLevel();
   std::hash<std::string> key_hash_function;
 
-  /* Generate unique FSR key */
+  /* Generate faulty FSR key */
   std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
 
   /* If FSR has not been encountered, update FSR maps and vectors */
@@ -619,7 +619,6 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
     else {
 
       /* Add FSR information to FSR key map and FSR_to vectors */
-      // TODO: make factory pattern
       ExtrudedFSR* fsr = new ExtrudedFSR;
       fsr->_fsr_id = fsr_id;
       fsr->_num_fsrs = 0;
@@ -1183,10 +1182,13 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
  *          starting at the bottom of the geometry and extending vertically to
  *          the top of the geometry. These tracks are segmented using the
  *          segmentize3D routine to calculate the distances between axial
- *          intersections forming the axial meshes and initializing the 3D FSRs
- *          as new regions are traversed.
+ *          intersections forming the axial meshes if necessary and
+ *          initializing the 3D FSRs as new regions are traversed.
+ * @param contains_global_z_mesh indicates whether a global z mesh is present.
+ *        If false, z meshes are local and need to be created for every
+ *        ExtrudedFSR.
  */
-void Geometry::initializeAxialFSRs() {
+void Geometry::initializeAxialFSRs(bool contains_global_z_mesh) {
 
   log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
 
@@ -1220,22 +1222,26 @@ void Geometry::initializeAxialFSRs() {
     /* Allocate materials and mesh in extruded FSR */
     extruded_FSR->_num_fsrs = (size_t) num_segments;
     extruded_FSR->_materials = new Material*[num_segments];
-    extruded_FSR->_mesh = new FP_PRECISION[num_segments+1];
     extruded_FSR->_fsr_ids = new int[num_segments];
+    if (!contains_global_z_mesh)
+      extruded_FSR->_mesh = new FP_PRECISION[num_segments+1];
 
     /* Initialize values in extruded FSR */
-    FP_PRECISION level = min_z;
-    extruded_FSR->_mesh[0] = level;
     for (int s=0; s < num_segments; s++) {
-
-      level += segments[s]._length;
-      if (std::abs(level - max_z) < 1e-12)
-        level = max_z;
-
       extruded_FSR->_materials[s] = segments[s]._material;
       extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
-      extruded_FSR->_mesh[s+1] = level;
+    }
 
+    /* Initilaize z mesh */
+    if (!contains_global_z_mesh) {
+      FP_PRECISION level = min_z;
+      extruded_FSR->_mesh[0] = level;
+      for (int s=0; s < num_segments; s++) {
+        level += segments[s]._length;
+        if (std::abs(level - max_z) < 1e-12)
+          level = max_z;
+      extruded_FSR->_mesh[s+1] = level;
+      }
     }
   }
   delete[] extruded_FSRs;
@@ -1258,7 +1264,7 @@ void Geometry::initializeFSRVectors() {
 
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
-  _FSRs_to_keys = std::vector<size_t>(num_FSRs);
+  _FSRs_to_keys = std::vector<std::size_t>(num_FSRs);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
@@ -1585,18 +1591,17 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
   _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
 }
 
-/**
- * @brief Returns a vector of z-coords defining potential unique radial planes
- *        in the Geometry
+
+/*
+ * @brief Returns a vector of z-coords defining a superposition of all axial
+ *        boundaries in the Geometry.
  * @details The Geometry is traversed to retrieve all Z-planes and implicit
  *          z-boundaries, such as lattice boundaries. The levels of all these
  *          z-boundaries are rounded and added to a set containing no
- *          duplicates, creating a mesh. The mid points of the mesh are then
- *          used to construcut a vector of all potential unique radial planes
- *          and returned to the user.
+ *          duplicates, creating a mesh.
  * @reutrn a vector of z-coords
  */
-std::vector<double> Geometry::getUniqueZPlanes() {
+std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
 
   /* Get the bounds of the geometry */
   double min_z = getMinZ();
@@ -1741,9 +1746,7 @@ std::vector<double> Geometry::getUniqueZPlanes() {
 
       /* Round z-height */
       int place = 8;
-      z_heights[i] = z_heights[i] * pow(10, place) + 0.5;
-      long integer_rep = (long) z_heights[i];
-      z_heights[i] = integer_rep * pow(10, -place);
+      z_heights[i] = floor(z_heights[i] * pow(10, place)) * pow(10, -place);
 
       /* Add the rouned z-height to the set */
       if (z_heights[i] >= min_z && z_heights[i] <= max_z)
@@ -1764,25 +1767,43 @@ std::vector<double> Geometry::getUniqueZPlanes() {
 
       /* Round z-height */
       int place = 8;
-      z_height = z_height * pow(10, place) + 0.5;
-      long integer_rep = (long) z_height;
-      z_height = integer_rep * pow(10, -place);
-
+      z_height = floor(z_height * pow(10, place)) * pow(10, -place);
+      
       /* Add height to set */
       unique_mesh.insert(z_height);
     }
   }
 
-  /* Calculate z-coords from the midpoints of the mesh */
-  std::vector<double> unique_levels;
-  std::set<double>::iterator iter = unique_mesh.begin();
-  double prev = *iter;
-  for (iter = ++iter; iter != unique_mesh.end(); ++iter) {
-    double curr = *iter;
-    double mid = (prev + curr) / 2;
-    unique_levels.push_back(mid);
-    prev = curr;
+  /* Get a vector of the unique z-heights in the Geometry */
+  std::vector<double> unique_heights;
+  std::set<double>::iterator iter;
+  for (iter = unique_mesh.begin(); iter != unique_mesh.end(); ++iter)
+    unique_heights.push_back(static_cast<FP_PRECISION>(*iter));
+
+  return unique_heights;
+}
+
+
+/**
+ * @brief Returns a vector of z-coords defining potential unique radial planes
+ *        in the Geometry
+ * @details The Geometry is traversed to retrieve all Z-planes and implicit
+ *          z-boundaries, such as lattice boundaries. The mid points of this
+ *          mesh are then used to construcut a vector of all potential unique
+ *          radial planes and returned to the user.
+ * @reutrn a vector of z-coords
+ */
+std::vector<FP_PRECISION> Geometry::getUniqueZPlanes() {
+
+  /* Get a vector of all unique z-heights in the Geometry */
+  std::vector<FP_PRECISION> unique_heights = getUniqueZHeights();
+
+  /* Use the midpoints to construct all possible unique radial planes */
+  std::vector<FP_PRECISION> unique_z_planes;
+  for (int i=1; i < unique_heights.size(); i++) {
+    FP_PRECISION mid = (unique_heights[i-1] + unique_heights[i]) / 2;
+    unique_z_planes.push_back(mid);
   }
 
-  return unique_levels;
+  return unique_z_planes;
 }

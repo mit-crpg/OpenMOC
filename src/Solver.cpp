@@ -908,6 +908,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     normalizeFluxes();
     computeFSRSources();
     transportSweep();
+    transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
     storeFSRFluxes();

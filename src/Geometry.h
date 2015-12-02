@@ -189,7 +189,8 @@ public:
   int getNumCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Cell*> getAllMaterialCells();
-  std::vector<double> getUniqueZPlanes();
+  std::vector<FP_PRECISION> getUniqueZHeights();
+  std::vector<FP_PRECISION> getUniqueZPlanes();
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
@@ -218,7 +219,7 @@ public:
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeAxialFSRs();
+  void initializeAxialFSRs(bool contains_global_z_mesh);
   void initializeFlatSourceRegions();
   void segmentize2D(Track2D* track, double z_coord);
   void segmentize3D(Track3D* track);

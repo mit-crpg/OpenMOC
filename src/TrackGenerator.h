@@ -128,7 +128,14 @@ private:
 
   /** The z coord where the 2D tracks should be generated */
   double _z_coord;
-  
+
+  /** The mesh defining axial heights of radial planes segmented in on-the-fly
+      calculations */
+  std::vector<FP_PRECISION> _segmentation_heights;
+
+  /** The global axial mesh to use in on-the-fly calculations */
+  std::vector<FP_PRECISION> _global_z_mesh;
+
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
@@ -149,7 +156,8 @@ private:
   bool _contains_3D_tracks;
   bool _contains_2D_segments;
   bool _contains_3D_segments;
-  bool _contains_extruded_segments;
+  bool _contains_global_z_mesh;
+  bool _contains_segmentation_heights;
 
   /** Private class methods */
   void initialize2DTracks();
@@ -233,6 +241,8 @@ public:
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
+  void setSegmentationHeights(std::vector<double> z_mesh);
+  void setGlobalZMesh();
   void setMaxOpticalLength(FP_PRECISION tau);
   void setDumpSegments(bool dump_segments);
 
