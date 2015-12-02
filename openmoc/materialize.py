@@ -557,7 +557,7 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                 load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
 
                 # Check max SPH factor residual for this domain for convergence
-                if inner_res.max() < fix_src_tol:
+                if inner_res.max() < sph_tol:
                     break
 
             mgxs_lib = sph_mgxs_lib
