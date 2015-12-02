@@ -390,7 +390,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 # @return a NumPy array of SPH factors and a new openmc.mgxs.Library object
 #         with the SPH factors applied to each MGXS object
 def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
-                        mode='fissionable', sph_tol=1E-6, fix_src_tol=1E-5,
+                        mode='fissionable', sph_tol=1E-5, fix_src_tol=1E-5,
                         num_azim=4, track_spacing=0.1, num_threads=1, 
                         zcoord=0.0, throttle_output=True):
 
@@ -456,24 +456,20 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     # Collect those domains for which we will apply SPH factors
     if mode == 'all':
 
-        # Initialize indices for each fissionable domain in SPH factor array
-        sph_indices = np.arange(len(openmoc_domains))
+        # Initialize indices for each domain in SPH factor array
+        sph_indices = {}
 
         # Initialize dict of fissionable SPH domains keyed by a tuple of IDs
         # SPH factors will be applied to all fissionable domains simultaneously
         sph_domains = {}
-        for domain_id in openmoc_domains:
+        for i, domain_id in enumerate(openmoc_domains):
+            sph_indices[(domain_id, )] = i
             sph_domains[(domain_id, )] = [openmoc_domains[domain_id]]
         
     elif mode == 'fissionable':
-
-        # Initialize indices for each fissionable domain in SPH factor array
         sph_indices = []
-
-        # Initialize dict of fissionable SPH domains keyed by a tuple of IDs
-        # SPH factors will be applied to all fissionable domains simultaneously
-        sph_domain_ids = tuple()
-        sph_domains = { sph_domain_ids : [] }
+        sph_domains = []
+        sph_domain_ids = []
 
         # Build dict of fissionable SPH domains keyed by a tuple of IDs
         for i, openmc_domain in enumerate(mgxs_lib.domains):
@@ -481,31 +477,35 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
             if openmoc_domain.isFissionable():
                 sph_indices.append(i)
-                new_sph_domain_ids = sph_domain_ids + (openmc_domain.id, )
-                sph_domains[new_sph_domain_ids] = \
-                    sph_domains.pop(sph_domain_ids)
-                sph_domains[new_sph_domain_ids].append(openmoc_domain)
-                sph_domain_ids = new_sph_domain_ids
+                sph_domains.append(openmoc_domain)
+                sph_domain_ids.append(openmc_domain.id)
 
-        sph_indices = np.array(sph_indices)
+        # Initialize indices for each fissionable domain in SPH factor array
+        sph_indices = { tuple(sph_domain_ids) : np.array(sph_indices) }
+
+        # Initialize dict of fissionable SPH domains keyed by a tuple of IDs
+        # SPH factors will be applied to all fissionable domains simultaneously
+        sph_domains = { tuple(sph_domain_ids) : sph_domains }
 
     else:
         py_printf('ERROR', 'SPH factors cannot be applied with mode type '
                            '%s which is not supported', str(mode))
 
     # Initialize array of domain-averaged fluxes and SPH factors
+    outer_sph = np.ones((num_domains, num_groups))
     openmoc_fluxes = np.zeros((num_domains, num_groups))
 
     # Sore starting verbosity log level
     log_level = openmoc.get_log_level()
 
+
     # Outer SPH loop over domains of interest
     for i in range(max_domain_iters):
         for domain_ids in sph_domains:
-            py_printf('NORMAL', 'SPH outer iteration %d: %s %s',
-                      i, mgxs_lib.domain_type.capitalize(), str(domain_ids))
+            py_printf('NORMAL', 'SPH outer iteration %d: %ss %s',
+                      i, mgxs_lib.domain_type.capitalize(), str(domain_ids[0]))
 
-            inner_sph = np.ones((num_domains, num_groups))
+            inner_sph = np.ones((len(domain_ids), num_groups))
 
             for j in range(max_fix_src_iters):
 
@@ -534,6 +534,10 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                 inner_sph = np.nan_to_num(inner_sph)
                 inner_sph[inner_sph == 0.0] = 1.0
 
+                # Extract SPH factors for domains of interest only
+                inner_sph = inner_sph[sph_indices[domain_ids], :]
+                inner_sph = np.atleast_2d(inner_sph)
+
                 # Compute SPH factor residuals
                 inner_res = np.abs((inner_sph - old_inner_sph) / old_inner_sph)
                 inner_res = np.nan_to_num(inner_res)
@@ -544,20 +548,28 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
                 # Update this domain's cross sections with SPH factors
                 sph_mgxs_lib = \
-                    _apply_sph_factors(mgxs_lib, inner_sph[sph_indices], \
+                    _apply_sph_factors(mgxs_lib, inner_sph, \
                                        sph_domains[domain_ids])
 
                 # Load the new MGXS library data into the OpenMOC geometry
                 load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
 
                 # Check max SPH factor residual for this domain for convergence
-                if inner_res[sph_indices].max() < sph_tol:
+                if inner_res.max() < fix_src_tol:
                     break
 
             mgxs_lib = sph_mgxs_lib
 
         # Check max SPH factor residuals for domains of interest for convergence
-        if inner_res[sph_indices].max() < sph_tol:
+        if mode == 'fissionable':
+            outer_res = inner_res
+        else:
+            old_outer_sph = np.copy(outer_sph)
+            outer_sph = openmc_fluxes / openmoc_fluxes
+            outer_res = np.abs((outer_sph - old_outer_sph) / old_outer_sph)
+            outer_res = np.nan_to_num(outer_res)
+
+        if outer_res.max() < sph_tol:
             break
 
     # Warn user if SPH factors did not converge
@@ -699,7 +711,7 @@ def _apply_sph_factors(mgxs_lib, sph, domains):
             # Extract the OpenMC derived Tally for the MGXS
             tally = mgxs.xs_tally
             sph_tally = sph_mgxs.xs_tally
-            flip_sph = np.flipud(sph[i,:])
+            flip_sph = np.flipud(sph[i, :])
 
             # If this is a scattering matrix, repeat for all outgoing groups
             if 'scatter matrix' in mgxs_type:
