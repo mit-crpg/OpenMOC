@@ -503,7 +503,8 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     for i in range(max_domain_iters):
         for domain_ids in sph_domains:
             py_printf('NORMAL', 'SPH outer iteration %d: %ss %s',
-                      i, mgxs_lib.domain_type.capitalize(), str(domain_ids[0]))
+                      i, mgxs_lib.domain_type.capitalize(),
+                      str(domain_ids)[1:-1])
 
             inner_sph = np.ones((len(domain_ids), num_groups))
 
