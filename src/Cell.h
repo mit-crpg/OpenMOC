@@ -17,6 +17,7 @@
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
+#include <string>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -158,12 +159,13 @@ public:
   Universe* getFillUniverse();
   bool isRotated();
   bool isTranslated();
-  double getPhi();
-  double getTheta();
-  double getPsi();
+  double getPhi(std::string units="degrees");
+  double getTheta(std::string units="degrees");
+  double getPsi(std::string units="degrees");
   double* getRotationMatrix();
   double* getTranslation();
-  void retrieveRotation(double* rotations, int num_axes);
+  void retrieveRotation(double* rotations, int num_axes,
+			std::string units="degrees");
   void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();
@@ -187,7 +189,7 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
-  void setRotation(double* rotation, int num_axes);
+  void setRotation(double* rotation, int num_axes, std::string units="degrees");
   void setTranslation(double* translation, int num_axes);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);

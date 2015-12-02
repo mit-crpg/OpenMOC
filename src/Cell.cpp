@@ -175,28 +175,58 @@ bool Cell::isTranslated() {
 
 /**
  * @brief Get the rotation angle about the x-axis in degrees.
+ * @param units the angular units in "radians" or "degrees" (default)
  * @return the rotation angle about the x-axis
  */
-double Cell::getPhi() {
-  return _rotation[0] * 180. / M_PI;
+double Cell::getPhi(std::string units) {
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return phi in degrees or radians */
+  if (degrees.compare(units) == 0)
+    return _rotation[0] * M_PI / 180.;
+  else if (radians.compare(units) == 0)
+    return _rotation[0];
+  else
+    log_printf(ERROR, "Unable to return phi in units %s", units.c_str());
 }
 
 
 /**
  * @brief Get the rotation angle about the y-axis in degrees.
+ * @param units the angular units in "radians" or "degrees" (default)
  * @return the rotation angle about the y-axis
  */
-double Cell::getTheta() {
-  return _rotation[1] * 180. / M_PI;
+double Cell::getTheta(std::string units) {
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return theta in degrees or radians */
+  if (degrees.compare(units) == 0)
+    return _rotation[1] * M_PI / 180.;
+  else if (radians.compare(units) == 0)
+    return _rotation[1];
+  else
+    log_printf(ERROR, "Unable to return theta in units %s", units.c_str());
 }
 
 
 /**
  * @brief Get the rotation angle about the z-axis in degrees.
+ * @param units the angular units in "radians" or "degrees" (default)
  * @return the rotation angle about the z-axis
  */
-double Cell::getPsi() {
-  return _rotation[2] * 180. / M_PI;
+double Cell::getPsi(std::string units) {
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return psi in degrees or radians */
+  if (degrees.compare(units) == 0)
+    return _rotation[2] * M_PI / 180.;
+  else if (radians.compare(units) == 0)
+    return _rotation[2];
+  else
+    log_printf(ERROR, "Unable to return psi in units %s", units.c_str());
 }
 
 
@@ -222,14 +252,26 @@ double* Cell::getRotationMatrix() {
  *
  * @param rotation an array of rotation angles of length 3 for x, y and z
  * @param num_axes the number of axes (this must always be 3)
+ * @param units the angular units in "radians" or "degrees" (default)
  */
-void Cell::retrieveRotation(double* rotations, int num_axes) {
+void Cell::retrieveRotation(double* rotations, int num_axes,
+			    std::string units) {
   if (num_axes != 3)
     log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
 
-  for (int i=0; i < 3; i++)
-    rotations[i] = _rotation[i] * 180. / M_PI;
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return psi in degrees or radians */
+  for (int i=0; i < 3; i++) {
+    if (degrees.compare(units) == 0)
+      rotations[i] = _rotation[i] * 180. / M_PI;
+    else if (radians.compare(units) == 0)
+      rotations[i] = _rotation[i];
+    else
+      log_printf(ERROR, "Unable to return rotation in units %s", units.c_str());
+  }
 }
 
 
@@ -522,16 +564,26 @@ void Cell::setFill(Universe* fill) {
  *
  * @param rotation the array of rotation angles
  * @param num_axes the number of axes (this must always be 3)
+ * @param units the angular units in "radians" or "degrees" (default)
  */
-void Cell::setRotation(double* rotation, int num_axes) {
+void Cell::setRotation(double* rotation, int num_axes, std::string units) {
 
   if (num_axes != 3)
     log_printf(ERROR, "Unable to set rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
 
+  std::string degrees("degrees");
+  std::string radians("radians");
+
   /* Store rotation angles in radians */
-  for (int i=0; i < 3; i++)
-    _rotation[i] = rotation[i] * M_PI / 180.;
+  for (int i=0; i < 3; i++) {
+    if (degrees.compare(units) == 0)
+      _rotation[i] = rotation[i] * M_PI / 180.;
+    else if (radians.compare(units) == 0)
+      _rotation[i] = rotation[i];
+    else
+      log_printf(ERROR, "Unable to set rotation with units %s", units.c_str());
+  }
 
   /* Use pitch-roll-yaw convention according to eqns 51-59 on Wolfram:
    * http://mathworld.wolfram.com/EulerAngles.html */
@@ -822,12 +874,8 @@ Cell* Cell::clone() {
   else
     new_cell->setFill((Universe*)_fill);
 
-  if (_rotated) {
-    /* Compute rotation angles in degrees to assign to clone */
-    double rotation[3];
-    memcpy(&rotation, _rotation, 3 * sizeof(double));
-    new_cell->setRotation(rotation, 3);
-  }
+  if (_rotated)
+    new_cell->setRotation(_rotation, 3, "radians");
   if (_translated)
     new_cell->setTranslation(_translation, 3);
 
