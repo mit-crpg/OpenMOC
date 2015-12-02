@@ -311,20 +311,29 @@ const char* get_log_level() {
  */
 void log_printf(logLevel level, const char* format, ...) {
 
-  char message[1024];
-  std::string msg_string;
   if (level >= log_level) {
     va_list args;
-
     va_start(args, format);
-    vsprintf(message, format, args);
+
+    int size = 256;
+    char* buffer = new char[size];
+    std::string msg_string;
+    int n = vsnprintf(buffer, size, format, args);
+
+    /* Resize buffer as needed for strings longer than 256 characters */
+    if (size <= n) {
+      delete [] buffer;
+      buffer = new char[n+1];
+      n = vsnprintf(buffer, n, format, args);
+    }
+
+    std::string msg = std::string(buffer);
     va_end(args);
 
     /* Append the log level to the message */
     switch (level) {
     case (DEBUG):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  DEBUG  ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -339,7 +348,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (INFO):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  INFO   ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -354,7 +362,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (NORMAL):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  NORMAL ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -378,33 +385,32 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (HEADER):
       {
-        int size = strlen(message);
+        int size = strlen(buffer);
         int halfpad = (line_length - 4 - size) / 2;
         std::string pad1 = std::string(halfpad, header_char);
         std::string pad2 = std::string(halfpad +
                            (line_length - 4 - size) % 2, header_char);
         std::string prefix = std::string("[  HEADER ]  ");
         std::stringstream ss;
-        ss << prefix << pad1 << "  " << message << "  " << pad2 << "\n";
+        ss << prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
         msg_string = ss.str();
         break;
       }
     case (TITLE):
       {
-        int size = strlen(message);
+        int size = strlen(buffer);
         int halfpad = (line_length - size) / 2;
         std::string pad = std::string(halfpad, ' ');
         std::string prefix = std::string("[  TITLE  ]  ");
         std::stringstream ss;
         ss << prefix << std::string(line_length, title_char) << "\n";
-        ss << prefix << pad << message << pad << "\n";
+        ss << prefix << pad << buffer << pad << "\n";
         ss << prefix << std::string(line_length, title_char) << "\n";
         msg_string = ss.str();
         break;
       }
     case (WARNING):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[ WARNING ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -419,7 +425,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (CRITICAL):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[ CRITICAL]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -434,7 +439,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (RESULT):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  RESULT ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -449,7 +453,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (UNITTEST):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[   TEST  ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -465,10 +468,6 @@ void log_printf(logLevel level, const char* format, ...) {
     case (ERROR):
       {
         /* Create message based on runtime error stack */
-        va_start(args, format);
-        vsprintf(message, format, args);
-        va_end(args);
-        std::string msg = std::string(message);
         std::string level_prefix = "";
 
         /* If message is too long for a line, split into many lines */
