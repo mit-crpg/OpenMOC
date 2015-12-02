@@ -528,10 +528,6 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                     domain_fluxes = fsr_fluxes[fsrs_to_domains == domain.id, :]
                     openmoc_fluxes[k, :] = np.mean(domain_fluxes, axis=0)
 
-                    # Store index for the domain in the array of SPH factors
-                    if domain.id in domain_ids:
-                        sph_index = k
-
                 # Compute SPH factors
                 old_inner_sph = np.copy(inner_sph)
                 inner_sph = openmc_fluxes / openmoc_fluxes
@@ -548,14 +544,14 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
                 # Update this domain's cross sections with SPH factors
                 sph_mgxs_lib = \
-                    _apply_sph_factors(mgxs_lib, inner_sph[sph_index], \
+                    _apply_sph_factors(mgxs_lib, inner_sph[sph_indices], \
                                        sph_domains[domain_ids])
 
                 # Load the new MGXS library data into the OpenMOC geometry
                 load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
 
                 # Check max SPH factor residual for this domain for convergence
-                if inner_res[sph_index].max() < sph_tol:
+                if inner_res[sph_indices].max() < sph_tol:
                     break
 
             mgxs_lib = sph_mgxs_lib
@@ -685,7 +681,7 @@ def _apply_sph_factors(mgxs_lib, sph, domains):
     sph_mgxs_lib = copy.deepcopy(mgxs_lib)
 
     # Loop over all domains
-    for domain in domains:
+    for i, domain in enumerate(domains):
 
         # Loop over all cross section types in the MGXS library
         for mgxs_type in sph_mgxs_lib.mgxs_types:
@@ -703,7 +699,7 @@ def _apply_sph_factors(mgxs_lib, sph, domains):
             # Extract the OpenMC derived Tally for the MGXS
             tally = mgxs.xs_tally
             sph_tally = sph_mgxs.xs_tally
-            flip_sph = np.flipud(sph[:])
+            flip_sph = np.flipud(sph[i,:])
 
             # If this is a scattering matrix, repeat for all outgoing groups
             if 'scatter matrix' in mgxs_type:
