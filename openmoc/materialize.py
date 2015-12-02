@@ -501,10 +501,11 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
     # Outer SPH loop over domains of interest
     for i in range(max_domain_iters):
+        py_printf('NORMAL', 'SPH outer iteration %d', i)
+
         for domain_ids in sph_domains:
-            py_printf('NORMAL', 'SPH outer iteration %d: %ss %s',
-                      i, mgxs_lib.domain_type.capitalize(),
-                      str(domain_ids)[1:-1])
+            py_printf('NORMAL', '  Domains:\t%ss %s', 
+                      mgxs_lib.domain_type.capitalize(), str(domain_ids)[1:-1])
 
             inner_sph = np.ones((len(domain_ids), num_groups))
 
@@ -544,8 +545,8 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
                 inner_res = np.nan_to_num(inner_res)
 
                 # Report maximum SPH factor residual
-                py_printf('NORMAL', 'SPH inner iteration %d:\tres = '
-                                    '%1.3e', j, inner_res.max())
+                py_printf('NORMAL', '    Iteration %d:\tres = '
+                          '%1.3e', j, inner_res.max())
 
                 # Update this domain's cross sections with SPH factors
                 sph_mgxs_lib = \
