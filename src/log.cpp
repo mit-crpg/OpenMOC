@@ -258,8 +258,47 @@ void set_log_level(const char* new_level) {
  * @brief Return the minimum level for log messages printed to the screen.
  * @return the minimum level for log messages
  */
-int get_log_level() {
-  return log_level;
+const char* get_log_level() {
+
+  std::string level;
+
+  switch (log_level) {
+  case (DEBUG):
+    level = "DEBUG";
+    break;
+  case (INFO):
+    level = "INFO";
+    break;
+  case (NORMAL):
+    level = "NORMAL";
+    break;
+  case (SEPARATOR):
+    level = "SEPARATOR";
+    break;
+  case (HEADER):
+    level = "HEADER";
+    break;
+  case (TITLE):
+    level = "TITLE";
+    break;
+  case (WARNING):
+    level = "WARNING";
+    break;
+  case (CRITICAL):
+    level = "CRITICAL";
+    break;
+  case (RESULT):
+    level = "RESULT";
+    break;
+  case (UNITTEST):
+    level = "UNITTEST";
+    break;
+  case (ERROR):
+    level = "ERROR";
+    break;
+  }
+
+  return level.c_str();
 }
 
 
@@ -285,7 +324,7 @@ void log_printf(logLevel level, const char* format, ...) {
     if (size <= n) {
       delete [] buffer;
       buffer = new char[n+1];
-      n = vsnprintf(buffer, n, format, args);
+      n = vsnprintf(buffer, n+1, format, args);
     }
 
     std::string msg = std::string(buffer);
@@ -506,7 +545,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
   std::string msg_string;
 
   /* Loop over msg creating substrings for each line */
-  while (end < size + line_length) {
+  while (end <= size + line_length) {
 
     /* Append log level to the beginning of each line */
     msg_string += level;
@@ -519,7 +558,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
     substring = message.substr(start, line_length);
 
     /* Truncate substring to last complete word */
-    if (end < size-1) {
+    if (end <= size) {
       int endspace = substring.find_last_of(" ");
       if (message.at(endspace+1) != ' ' &&
           endspace != int(std::string::npos)) {
