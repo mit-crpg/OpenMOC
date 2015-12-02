@@ -324,7 +324,7 @@ void log_printf(logLevel level, const char* format, ...) {
     if (size <= n) {
       delete [] buffer;
       buffer = new char[n+1];
-      n = vsnprintf(buffer, n, format, args);
+      n = vsnprintf(buffer, n+1, format, args);
     }
 
     std::string msg = std::string(buffer);
@@ -545,7 +545,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
   std::string msg_string;
 
   /* Loop over msg creating substrings for each line */
-  while (end < size + line_length) {
+  while (end <= size + line_length) {
 
     /* Append log level to the beginning of each line */
     msg_string += level;
@@ -558,7 +558,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
     substring = message.substr(start, line_length);
 
     /* Truncate substring to last complete word */
-    if (end < size-1) {
+    if (end <= size) {
       int endspace = substring.find_last_of(" ");
       if (message.at(endspace+1) != ' ' &&
           endspace != int(std::string::npos)) {
