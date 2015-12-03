@@ -462,9 +462,10 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
         # Initialize dict of fissionable SPH domains keyed by a tuple of IDs
         # SPH factors will be applied to all fissionable domains simultaneously
         sph_domains = {}
-        for i, domain_id in enumerate(openmoc_domains):
-            sph_indices[(domain_id, )] = i
-            sph_domains[(domain_id, )] = [openmoc_domains[domain_id]]
+        for i, openmc_domain in enumerate(mgxs_lib.domains):
+            openmoc_domain = openmoc_domains[openmc_domain.id]
+            sph_indices[(openmc_domain.id, )] = i
+            sph_domains[(openmc_domain.id, )] = [openmoc_domain]
         
     elif mode == 'fissionable':
         sph_indices = []
@@ -713,7 +714,7 @@ def _apply_sph_factors(mgxs_lib, sph, domains):
             # Extract the OpenMC derived Tally for the MGXS
             tally = mgxs.xs_tally
             sph_tally = sph_mgxs.xs_tally
-            flip_sph = np.flipud(sph[i, :])
+            flip_sph = sph[i, :]
 
             # If this is a scattering matrix, repeat for all outgoing groups
             if 'scatter matrix' in mgxs_type:

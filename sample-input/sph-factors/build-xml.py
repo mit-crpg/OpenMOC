@@ -145,6 +145,9 @@ groups = openmc.mgxs.EnergyGroups()
 groups.group_edges = [0., 0.058e-6, 0.14e-6, 0.28e-6,
                       0.625e-6, 4.e-6, 5.53e-3, 821.e-3, 20.]
 
+#groups = openmc.mgxs.EnergyGroups()
+#groups.group_edges = [0., 0.625e-6, 20.]
+
 # Initialize an MGXS Library for OpenMOC
 mgxs_lib = openmc.mgxs.Library(geometry)
 mgxs_lib.energy_groups = groups
