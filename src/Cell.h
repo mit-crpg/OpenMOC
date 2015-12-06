@@ -17,6 +17,7 @@
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
+#include <string>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -87,6 +88,21 @@ private:
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
+  /* A boolean indicating whether to cell is rotated */
+  bool _rotated;
+
+  /* An array with angles in degrees for rotations about x, y, and z */
+  double _rotation[3];
+  
+  /* A rotation matrix defined in terms of the rotation angles */
+  double _rotation_matrix[9];
+
+  /* A boolean indicating whether to cell is translated */
+  bool _translated;
+
+  /* An array with translations in x, y and z */
+  double _translation[3];
+
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
 
@@ -141,6 +157,16 @@ public:
   cellType getType() const;
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  bool isRotated();
+  bool isTranslated();
+  double getPhi(std::string units="degrees");
+  double getTheta(std::string units="degrees");
+  double getPsi(std::string units="degrees");
+  double* getRotationMatrix();
+  double* getTranslation();
+  void retrieveRotation(double* rotations, int num_axes,
+			std::string units="degrees");
+  void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();
   double getMinX();
@@ -163,6 +189,8 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setRotation(double* rotation, int num_axes, std::string units="degrees");
+  void setTranslation(double* translation, int num_axes);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
   void addSurface(int halfspace, Surface* surface);
@@ -172,7 +200,7 @@ public:
   void findBoundingBox();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double angle);
+  double minSurfaceDist(LocalCoords* coords);
 
   Cell* clone();
   void subdivideCell();

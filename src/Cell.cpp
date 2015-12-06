@@ -54,6 +54,13 @@ Cell::Cell(int id, const char* name) {
   _cell_type = UNFILLED;
   _fill = NULL;
 
+  _rotated = false;
+  memset(&_rotation, 0., 3);
+  memset(&_rotation_matrix, 0., 9);
+
+  _translated = false;
+  memset(&_translation, 0., 3);
+
   _num_rings = 0;
   _num_sectors = 0;
 
@@ -145,6 +152,159 @@ Universe* Cell::getFillUniverse() {
     log_printf(ERROR, "Unable to get Universe fill from Cell ID=%d", _id);
 
   return (Universe*)_fill;
+}
+
+
+/**
+ * @brief Return a boolean indicating whether the Cell has been rotated.
+ * @return whether the Cell has been rotated
+ */
+bool Cell::isRotated() {
+  return _rotated;
+}
+
+
+/**
+ * @brief Return a boolean indicating whether the Cell has been translated.
+ * @return whether the Cell has been translated
+ */
+bool Cell::isTranslated() {
+  return _translated;
+}
+
+
+/**
+ * @brief Get the rotation angle about the x-axis in degrees.
+ * @param units the angular units in "radians" or "degrees" (default)
+ * @return the rotation angle about the x-axis
+ */
+double Cell::getPhi(std::string units) {
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return phi in degrees or radians */
+  if (degrees.compare(units) == 0)
+    return _rotation[0] * M_PI / 180.;
+  else if (radians.compare(units) == 0)
+    return _rotation[0];
+  else
+    log_printf(ERROR, "Unable to return phi in units %s", units.c_str());
+}
+
+
+/**
+ * @brief Get the rotation angle about the y-axis in degrees.
+ * @param units the angular units in "radians" or "degrees" (default)
+ * @return the rotation angle about the y-axis
+ */
+double Cell::getTheta(std::string units) {
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return theta in degrees or radians */
+  if (degrees.compare(units) == 0)
+    return _rotation[1] * M_PI / 180.;
+  else if (radians.compare(units) == 0)
+    return _rotation[1];
+  else
+    log_printf(ERROR, "Unable to return theta in units %s", units.c_str());
+}
+
+
+/**
+ * @brief Get the rotation angle about the z-axis in degrees.
+ * @param units the angular units in "radians" or "degrees" (default)
+ * @return the rotation angle about the z-axis
+ */
+double Cell::getPsi(std::string units) {
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return psi in degrees or radians */
+  if (degrees.compare(units) == 0)
+    return _rotation[2] * M_PI / 180.;
+  else if (radians.compare(units) == 0)
+    return _rotation[2];
+  else
+    log_printf(ERROR, "Unable to return psi in units %s", units.c_str());
+}
+
+
+/**
+ * @brief Return pointer to array for the rotation matrix.
+ * @return a pointer to an array of rotation angles
+ */
+double* Cell::getRotationMatrix() {
+  return _rotation_matrix;
+}
+
+
+/**
+ * @brief Fills an array with the rotation angles for x, y and z.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python OpenCG compatiblity module. Although this method appears to
+ *          require two arguments, in reality it only requires one due to SWIG
+ *          and would be called from within Python as follows:
+ *
+ * @code
+ *          rotation = cell.getRotation(3)
+ * @endcode
+ *
+ * @param rotation an array of rotation angles of length 3 for x, y and z
+ * @param num_axes the number of axes (this must always be 3)
+ * @param units the angular units in "radians" or "degrees" (default)
+ */
+void Cell::retrieveRotation(double* rotations, int num_axes,
+			    std::string units) {
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
+               "The rotation array should be length 3.", num_axes, _id);
+
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Return psi in degrees or radians */
+  for (int i=0; i < 3; i++) {
+    if (degrees.compare(units) == 0)
+      rotations[i] = _rotation[i] * 180. / M_PI;
+    else if (radians.compare(units) == 0)
+      rotations[i] = _rotation[i];
+    else
+      log_printf(ERROR, "Unable to return rotation in units %s", units.c_str());
+  }
+}
+
+
+/**
+ * @brief Return pointer to array for the translations along x, y and z.
+ * @return a pointer to an array of translations
+ */
+double* Cell::getTranslation() {
+  return _translation;
+}
+
+
+/**
+ * @brief Fills an array with the translations along x, y and z.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python OpenCG compatiblity module. Although this method appears to
+ *          require two arguments, in reality it only requires one due to SWIG
+ *          and would be called from within Python as follows:
+ *
+ * @code
+ *          translation = cell.retrieveTranslation(3)
+ * @endcode
+ *
+ * @param translation an array of translations of length 3 for x, y and z
+ * @param num_axes the number of axes (this must always be 3)
+ */
+void Cell::retrieveTranslation(double* translations, int num_axes) {
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to get translation with %d axes for Cell %d. "
+               "The translation array should be length 3.", num_axes, _id);
+
+  for (int i=0; i < 3; i++)
+    translations[i] = _translation[i];
 }
 
 
@@ -388,6 +548,100 @@ void Cell::setFill(Universe* fill) {
 
 
 /**
+ * @brief Set the Cell's rotation angles about the x, y and z axes.
+ * @details This method is a helper function to allow OpenMOC users to assign
+ *          the Cell's rotation angles in Python. A user must initialize a
+ *          length 3 NumPy array as input to this function. This function then
+ *          stores the data values in the NumPy array in the Cell's rotation
+ *          array. An example of how this function might be called in Python
+ *          is as follows:
+ *
+ * @code
+ *          rotation = numpy.array([0., 0., 90.])
+ *          cell = openmoc.Cell()
+ *          cell.setRotation(rotation)
+ * @endcode
+ *
+ * @param rotation the array of rotation angles
+ * @param num_axes the number of axes (this must always be 3)
+ * @param units the angular units in "radians" or "degrees" (default)
+ */
+void Cell::setRotation(double* rotation, int num_axes, std::string units) {
+
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to set rotation with %d axes for Cell %d. "
+               "The rotation array should be length 3.", num_axes, _id);
+
+  std::string degrees("degrees");
+  std::string radians("radians");
+
+  /* Store rotation angles in radians */
+  for (int i=0; i < 3; i++) {
+    if (degrees.compare(units) == 0)
+      _rotation[i] = rotation[i] * M_PI / 180.;
+    else if (radians.compare(units) == 0)
+      _rotation[i] = rotation[i];
+    else
+      log_printf(ERROR, "Unable to set rotation with units %s", units.c_str());
+  }
+
+  /* Use pitch-roll-yaw convention according to eqns 51-59 on Wolfram:
+   * http://mathworld.wolfram.com/EulerAngles.html */
+  double theta = _rotation[0];
+  double psi = _rotation[1];
+  double phi = _rotation[2];
+
+  /* Calculate rotation matrix based on angles given */
+  /* Indexed by (y,x) since the universe array is indexed by (z,y,z) */
+  _rotation_matrix[0] = cos(theta) * cos(phi);
+  _rotation_matrix[1] = cos(theta) * sin(phi);
+  _rotation_matrix[2] = -sin(theta);
+  _rotation_matrix[3] = sin(psi) * sin(theta) * cos(psi) -
+                        cos(psi) * sin(phi);
+  _rotation_matrix[4] = sin(psi) * sin(theta) * sin(phi) +
+                        cos(psi) * cos(phi);
+  _rotation_matrix[5] = cos(theta) * sin(psi);
+  _rotation_matrix[6] = cos(psi) * sin(theta) * cos(phi) + 
+                        sin(psi) * sin(phi);
+  _rotation_matrix[7] = cos(psi) * sin(theta) * sin(phi) -
+                        sin(psi) * cos(phi);
+  _rotation_matrix[8] = cos(theta) * cos(psi);
+
+  _rotated = true;
+}
+
+
+/**
+ * @brief Set the Cell's translation along the x, y and z axes.
+ * @details This method is a helper function to allow OpenMOC users to assign
+ *          the Cell's translations in Python. A user must initialize a
+ *          length 3 NumPy array as input to this function. This function then
+ *          stores the data values in the NumPy array in the Cell's translation
+ *          array. An example of how this function might be called in Python
+ *          is as follows:
+ *
+ * @code
+ *          translation = numpy.array([0.25, 0.25, 0.])
+ *          cell = openmoc.Cell()
+ *          cell.setTranslation(translation)
+ * @endcode
+ *
+ * @param translation the array of translations
+ * @param num_axes the number of axes (this must always be 3)
+ */
+void Cell::setTranslation(double* translation, int num_axes) {
+
+  if (num_axes != 3)
+    log_printf(ERROR, "Unable to set translation for %d axes for Cell %d. "
+               "The translation array should be length 3.", num_axes, _id);
+
+  for (int i=0; i < 3; i++)
+    _translation[i] = translation[i];
+
+  _translated = true;
+}
+
+/**
  * @brief Set the Cell's number of rings.
  * @param num_rings the number of rings in this Cell
  */
@@ -575,14 +829,13 @@ bool Cell::containsCoords(LocalCoords* coords) {
 
 
 /**
- * @brief Computes the minimum distance to a Surface from a Point with a given
- *        trajectory at a certain angle.
+ * @brief Computes the minimum distance to a Surface from a point with a given
+ *        trajectory at a certain angle stored in a LocalCoords object.
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
- * @param point the Point of interest
- * @param angle the angle of the trajectory (in radians from \f$[0,2\pi]\f$)
+ * @param coords a pointer to a localcoords
  */
-double Cell::minSurfaceDist(Point* point, double angle) {
+double Cell::minSurfaceDist(LocalCoords* coords) {
 
   double curr_dist;
   double min_dist = INFINITY;
@@ -593,7 +846,7 @@ double Cell::minSurfaceDist(Point* point, double angle) {
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second->_surface->getMinDistance(point, angle);
+    curr_dist = iter->second->_surface->getMinDistance(coords);
 
     /* If the distance to Cell is less than current min distance, update */
     if (curr_dist < min_dist)
@@ -620,6 +873,11 @@ Cell* Cell::clone() {
     new_cell->setFill((Material*)_fill);
   else
     new_cell->setFill((Universe*)_fill);
+
+  if (_rotated)
+    new_cell->setRotation(_rotation, 3, "radians");
+  if (_translated)
+    new_cell->setTranslation(_translation, 3);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
   std::map<int, surface_halfspace*>::iterator iter;
@@ -943,6 +1201,15 @@ std::string Cell::toString() {
   }
   else
     string << ", type = UNFILLED";
+
+  if (_rotated) {
+    string << ", (rotation = " << getPhi() << ", ";
+    string << getTheta() << ", " << getPsi() << ")";
+  }
+  if (_translated) {
+    string << ", (translation = " << _translation[0] << ", ";
+    string << _translation[1] << ", " << _translation[2] << ")";
+  }
 
   string << ", # surfaces = " << getNumSurfaces();
 

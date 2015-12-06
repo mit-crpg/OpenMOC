@@ -169,7 +169,7 @@ public:
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, double angle);
+  double getMinDistance(LocalCoords* coords);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -358,44 +358,6 @@ public:
 
   std::string toString();
 };
-
-
-/**
- * @brief Finds the minimum distance to a Surface.
- * @details Finds the miniumum distance to a Surface from a Point with a
- *          given trajectory defined by an angle to this Surface. If the
- *          trajectory will not intersect the Surface, returns INFINITY.
- * @param point a pointer to the Point of interest
- * @param angle the angle defining the trajectory in radians
- * @return the minimum distance to the Surface
- */
-inline double Surface::getMinDistance(Point* point, double angle) {
-
-  /* Point array for intersections with this Surface */
-  Point intersections[2];
-
-  /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, angle, intersections);
-  double distance = INFINITY;
-
-  /* If there is one intersection Point */
-  if (num_inters == 1)
-    distance = intersections[0].distanceToPoint(point);
-
-  /* If there are two intersection Points */
-  else if (num_inters == 2) {
-    double dist1 = intersections[0].distanceToPoint(point);
-    double dist2 = intersections[1].distanceToPoint(point);
-
-    /* Determine which intersection Point is nearest */
-    if (dist1 < dist2)
-      distance = dist1;
-    else
-      distance = dist2;
-  }
-
-  return distance;
-}
 
 
 /**
