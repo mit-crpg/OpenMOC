@@ -147,9 +147,9 @@ geometry_file.geometry = geometry
 geometry_file.export_to_xml()
 
 # OpenMC simulation parameters
-batches = 50
+batches = 100
 inactive = 10
-particles = 10000
+particles = 100000
 
 # Instantiate a SettingsFile
 settings_file = openmc.SettingsFile()
@@ -170,7 +170,6 @@ mgxs_lib = openmc.mgxs.Library(geometry)
 mgxs_lib.energy_groups = groups
 mgxs_lib.mgxs_types = ['transport', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'distribcell'
-mgxs_lib.by_nuclide = True
 mgxs_lib.build_library()
 
 # Create a "tallies.xml" file for the MGXS Library

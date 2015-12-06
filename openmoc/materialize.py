@@ -483,7 +483,11 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
         # Build dict of fissionable SPH domains keyed by a tuple of IDs
         for i, openmc_domain in enumerate(mgxs_lib.domains):
-            openmoc_domain = openmoc_domains[openmc_domain.id]
+            # FIXME: MGXS Library may have domains not in OpenMOC Geometry
+            if openmc_domain.id in openmoc_domains:
+                openmoc_domain = openmoc_domains[openmc_domain.id]
+            else:
+                continue
 
             if openmoc_domain.isFissionable():
                 sph_indices.append(i)
@@ -629,8 +633,12 @@ def _load_openmc_src(mgxs_lib, solver):
     # Compute fixed sources for all domains in the MGXS library
     for i, openmc_domain in enumerate(mgxs_lib.domains):
 
+        # FIXME: MGXS Library may have domains not in OpenMOC Geometry
         # Get OpenMOC domain corresponding to the OpenMOC domain
-        openmoc_domain = openmoc_domains[openmc_domain.id]
+        if openmc_domain.id in openmoc_domains:
+            openmoc_domain = openmoc_domains[openmc_domain.id]
+        else:
+            continue
 
         # If this domain is not found in the OpenMOC geometry, ignore it
         if openmoc_domain.getNumInstances() == 0:

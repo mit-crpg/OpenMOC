@@ -72,39 +72,33 @@ counter = 1
 for region in range(opencg_geometry.num_regions):
     coords = opencg_geometry.find_region(region)
 
-#    if 'Fuel' in coords.tail_node.cell.fill.name:
-#        regions_to_clusters[region] = counter
-#        counter += 1
-#        regions_to_clusters[region] = \
-#            opencg_geometry.get_neighbors_hash(region)
+#    regions_to_clusters[region] = \
+#           opencg_geometry.get_neighbors_hash(region)
 
-#    if 'Water' in coords.tail_node.cell.fill.name:
-#        regions_to_clusters[region] = counter
-#        counter += 1
-#        regions_to_clusters[region] = \
-#            opencg_geometry.get_neighbors_hash(region)
+    regions_to_clusters[region] = counter
+    counter += 1
 
 #clusters_to_regions = opencg_geometry.differentiate(regions_to_clusters)
-openmoc_geometry = get_openmoc_geometry(opencg_geometry)
+#openmoc_geometry = get_openmoc_geometry(opencg_geometry)
 
 
 ###############################################################################
 #                Eigenvalue Calculation with SPH Factors
 ###############################################################################
 
-# Compute SPH factors
-'''
-sph, sph_mgxs_lib, = compute_sph_factors(mgxs_lib, num_azim=num_azim, 
-                                         max_fix_src_iters=50,
-                                         mode='fissionable',
-                                         max_domain_iters=1,
-                                         track_spacing=spacing,
-                                         num_threads=num_threads)
-'''
-
-sph_mgxs_lib = diff_mgxs_lib
-#sph_mgxs_lib = \
+#sph_mgxs_lib = diff_mgxs_lib
+#mgxs_lib = \
 #    differentiate_mgxs_lib(mgxs_lib, clusters_to_regions, opencg_geometry)
+#mgxs_lib = mgxs_lib.get_subdomain_avg_library()
+
+# Compute SPH factors
+sph_mgxs_lib = mgxs_lib
+#sph, sph_mgxs_lib, = compute_sph_factors(mgxs_lib, max_fix_src_iters=50,
+#                                         max_domain_iters=1,
+#                                         track_spacing=spacing, num_azim=num_azim,
+#                                         num_threads=num_threads)
+
+print(sph)
 
 # Load the SPH-corrected MGXS library data
 openmoc_materials = load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
