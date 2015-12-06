@@ -72,13 +72,20 @@ counter = 1
 for region in range(opencg_geometry.num_regions):
     coords = opencg_geometry.find_region(region)
 
-    if 'Fuel' in coords.tail_node.cell.fill.name:
+#    if 'Fuel' in coords.tail_node.cell.fill.name:
 #        regions_to_clusters[region] = counter
 #        counter += 1
-        regions_to_clusters[region] = \
-            opencg_geometry.get_neighbors_hash(region)
+#        regions_to_clusters[region] = \
+#            opencg_geometry.get_neighbors_hash(region)
 
-clusters_to_regions = opencg_geometry.differentiate(regions_to_clusters)
+#    if 'Water' in coords.tail_node.cell.fill.name:
+#        regions_to_clusters[region] = counter
+#        counter += 1
+#        regions_to_clusters[region] = \
+#            opencg_geometry.get_neighbors_hash(region)
+
+#clusters_to_regions = opencg_geometry.differentiate(regions_to_clusters)
+openmoc_geometry = get_openmoc_geometry(opencg_geometry)
 
 
 ###############################################################################
@@ -95,15 +102,20 @@ sph, sph_mgxs_lib, = compute_sph_factors(mgxs_lib, num_azim=num_azim,
                                          num_threads=num_threads)
 '''
 
-#sph_mgxs_lib = diff_mgxs_lib
-sph_mgxs_lib = \
-    differentiate_mgxs_lib(mgxs_lib, clusters_to_regions, opencg_geometry)
-
+sph_mgxs_lib = diff_mgxs_lib
+#sph_mgxs_lib = \
+#    differentiate_mgxs_lib(mgxs_lib, clusters_to_regions, opencg_geometry)
 
 # Load the SPH-corrected MGXS library data
 openmoc_materials = load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
 
+# Initialize an OpenMOC TrackGenerator and Solver
+openmoc_geometry.initializeFlatSourceRegions()
+track_generator = openmoc.TrackGenerator(openmoc_geometry, num_azim, spacing)
+track_generator.generateTracks()
+
 # Run an eigenvalue calculation with the SPH-corrected modifed MGXS library
+solver.setTrackGenerator(track_generator)
 solver.computeEigenvalue()
 solver.printTimerReport()
 keff_with_sph = solver.getKeff()
@@ -123,3 +135,5 @@ openmoc.plotter.plot_flat_source_regions(openmoc_geometry)
 # Use OpenMOC to plot the scalar fluxes
 energy_groups = list(range(1, mgxs_lib.num_groups+1))
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=energy_groups)
+
+openmoc.plotter.plot_fission_rates(solver, transparent_zeros=True)

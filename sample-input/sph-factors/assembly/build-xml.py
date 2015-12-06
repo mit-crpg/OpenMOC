@@ -149,7 +149,7 @@ geometry_file.export_to_xml()
 # OpenMC simulation parameters
 batches = 50
 inactive = 10
-particles = 2500
+particles = 10000
 
 # Instantiate a SettingsFile
 settings_file = openmc.SettingsFile()
