@@ -1,4 +1,4 @@
-#
+##
 # @file plotter.py
 # @package openmoc.plotter
 # @brief The plotter module provides utility functions to plot data from
@@ -941,10 +941,12 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @endcode
 #
 # @param solver a Solver object that has converged the source for the Geometry
+# @param transparent_zeros make regions without fission transparent
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
+def plot_fission_rates(solver, transparent_zeros=False, gridsize=250,
+                       xlim=None, ylim=None):
 
   global subdirectory
 
@@ -1002,9 +1004,17 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
       else:
        surface[j][i] = fission_rates[fsr_id]
 
+  # Set zero fission rates to NaN so Matplotlib will make them transparent
+  if transparent_zeros:
+    surface[surface == 0.0] = np.nan
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap()
+  cmap.set_bad(alpha=0.0)
+
   # Plot a 2D color map of the flat source regions fission rates
   fig = plt.figure()
-  plt.imshow(np.flipud(surface), extent=coords['bounds'])
+  plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap)
   plt.colorbar()
   plt.suptitle('Flat Source Region Fission Rates')
   plt.title('z = ' + str(zcoord))
