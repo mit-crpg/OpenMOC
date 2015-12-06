@@ -269,9 +269,18 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             if domain_type == 'material':
                 material = _get_domain(domains, domain.id)
 
+                # FIXME: MGXS Library may have domains not in OpenMOC Geometry
+                if material is None:
+                    continue
+
             elif domain_type == 'cell':
                 cell = _get_domain(domains, domain.id)
-                material = cell.getFillMaterial()
+
+                # FIXME: MGXS Library may have domains not in OpenMOC Geometry
+                if cell is None:
+                    continue
+                else:
+                    material = cell.getFillMaterial()
 
                 # If the user filled multiple Cells with the same Material,
                 # the Material must be cloned for each unique Cell
