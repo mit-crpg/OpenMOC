@@ -781,7 +781,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
   for index, group in enumerate(energy_groups):
 
     # Plot a 2D color map of the flat source regions
-    fig = plt.figure()
+    fig = plt.figure(index)
     plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
     plt.colorbar()
     plt.suptitle('FSR Scalar Flux (Group {0})'.format(group))
@@ -1012,7 +1012,8 @@ def plot_fission_rates(solver, transparent_zeros=True, gridsize=250,
 
   # Set zero fission rates to NaN so Matplotlib will make them transparent
   if transparent_zeros:
-    surface[surface == 0.0] = np.nan
+    indices = np.where(surface == 0.0)
+    surface[indices] = np.nan
 
   # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
   cmap = plt.get_cmap()
