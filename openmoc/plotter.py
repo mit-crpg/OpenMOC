@@ -945,7 +945,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_fission_rates(solver, transparent_zeros=False, gridsize=250,
+def plot_fission_rates(solver, transparent_zeros=True, gridsize=250,
                        xlim=None, ylim=None):
 
   global subdirectory
