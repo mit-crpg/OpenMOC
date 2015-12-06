@@ -7,6 +7,7 @@
  */
 LocalCoords::LocalCoords(double x, double y, double z) {
   _coords.setCoords(x, y, z);
+  _phi = 0.;
   _universe = NULL;
   _lattice = NULL;
   _cell = NULL;
@@ -110,6 +111,15 @@ double LocalCoords::getY() const {
  */
 double LocalCoords::getZ() const {
   return _coords.getZ();
+}
+
+
+/**
+ * @brief Returns the direction angle in radians with respect to the x-axis.
+ * @return the direction angle in radians
+ */
+double LocalCoords::getPhi() const {
+  return _phi;
 }
 
 
@@ -237,6 +247,24 @@ void LocalCoords::setZ(double z) {
 
 
 /**
+ * @brief Set the direction angle in radians for this LocalCoords.
+ * @param angle the direction angle in radians
+ */
+void LocalCoords::setPhi(double phi) {
+  _phi = phi;
+}
+
+
+/**
+ * @brief Increment the direction angle in radians for this LocalCoords.
+ * @param phi the incremental direction angle in radians
+ */
+void LocalCoords::incrementPhi(double phi) {
+  _phi += phi;
+}
+
+
+/**
  * @brief Sets the pointer to the LocalCoords on the next lower nested Universe
  *        level.
  * @param next pointer to the next LocalCoords
@@ -299,27 +327,16 @@ LocalCoords* LocalCoords::getHighestLevel() {
  *        the linked list.
  * @details This method will traverse the entire linked list and apply the
  *          translation to each element.
- * @param delta_x amount we wish to move x by
- * @param delta_y amount we wish to move y by
+ * @param delta amount we wish to move the point by
  */
-void LocalCoords::adjustCoords(double delta_x, double delta_y) {
+void LocalCoords::adjustCoords(double delta) {
+  double new_x = getX() + cos(_phi) * delta;
+  double new_y = getY() + sin(_phi) * delta;
+  setX(new_x);
+  setY(new_y);
 
-  /* Forward direction along linked list */
-  LocalCoords* curr = this;
-  while (curr != NULL) {
-    curr->setX(curr->getX() + delta_x);
-    curr->setY(curr->getY() + delta_y);
-    curr = curr->getNext();
-  }
-
-  /* Reverse direction along linked list */
-  curr = _prev;
-  while (curr != NULL) {
-    curr->setX(curr->getX() + delta_x);
-    curr->setY(curr->getY() + delta_y);
-    curr = curr->getPrev();
-  }
-  return;
+  if (_next != NULL)
+    _next->adjustCoords(delta);
 }
 
 
@@ -337,7 +354,8 @@ void LocalCoords::updateMostLocal(Point* point) {
   /* Translate coordinates by appropriate amount */
   double delta_x = point->getX() - curr->getX();
   double delta_y = point->getY() - curr->getY();
-  adjustCoords(delta_x, delta_y);
+  double delta = sqrt(delta_x*delta_x + delta_y*delta_y);
+  adjustCoords(delta);
 
   return;
 }
@@ -385,6 +403,7 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
     curr2->setX(curr1->getX());
     curr2->setY(curr1->getY());
     curr2->setZ(curr1->getZ());
+    curr2->setPhi(curr1->getPhi());
     curr2->setUniverse(curr1->getUniverse());
 
     if (curr1->getType() == UNIV) {
