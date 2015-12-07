@@ -5,6 +5,11 @@ from openmc.statepoint import StatePoint
 from openmc.summary import Summary
 from infermc.materialize import differentiate_mgxs_lib
 
+
+###############################################################################
+#               Build MGXS Library on Distribcell Domains
+###############################################################################
+
 # Load the last statepoint file
 sp = openmc.StatePoint('statepoint.100.h5')
 su = openmc.Summary('summary.h5')

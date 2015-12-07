@@ -2,6 +2,20 @@ import numpy as np
 import openmc
 import openmc.mgxs
 
+###############################################################################
+#                      Simulation Input File Parameters
+###############################################################################
+
+# OpenMC simulation parameters
+batches = 100
+inactive = 10
+particles = 10000
+
+
+###############################################################################
+#                 Exporting to OpenMC materials.xml File
+###############################################################################
+
 # Instantiate some Nuclides
 h1 = openmc.Nuclide('H-1')
 b10 = openmc.Nuclide('B-10')
@@ -38,6 +52,11 @@ materials_file.default_xs = '71c'
 
 # Export to "materials.xml"
 materials_file.export_to_xml()
+
+
+###############################################################################
+#                 Exporting to OpenMC geometry.xml File
+###############################################################################
 
 # Create cylinders for the fuel and clad
 fuel_outer_radius = openmc.ZCylinder(x0=0.0, y0=0.0, R=0.39218)
@@ -137,10 +156,9 @@ geometry_file.geometry = geometry
 # Export to "geometry.xml"
 geometry_file.export_to_xml()
 
-# OpenMC simulation parameters
-batches = 100
-inactive = 10
-particles = 100000
+###############################################################################
+#                   Exporting to OpenMC settings.xml File
+###############################################################################
 
 # Instantiate a SettingsFile
 settings_file = openmc.SettingsFile()
@@ -151,6 +169,11 @@ settings_file.output = {'tallies': False, 'summary': True}
 source_bounds = [-10.71, -10.71, -10, 10.71, 10.71, 10.]
 settings_file.set_source_space('fission', source_bounds)
 settings_file.export_to_xml()
+
+
+###############################################################################
+#                        Create OpenMC MGXS Library
+###############################################################################
 
 # Instantiate a 2-group EnergyGroups object
 groups = openmc.mgxs.EnergyGroups()
@@ -167,6 +190,11 @@ mgxs_lib.build_library()
 tallies_file = openmc.TalliesFile()
 mgxs_lib.add_to_tallies_file(tallies_file, merge=True)
 tallies_file.export_to_xml()
+
+
+###############################################################################
+#                         Run OpenMC Simulation
+###############################################################################
 
 # Run OpenMC
 executor = openmc.Executor()
