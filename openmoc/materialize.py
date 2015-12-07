@@ -626,9 +626,7 @@ def _load_openmc_src(mgxs_lib, solver):
     num_groups = geometry.getNumEnergyGroups()
     num_domains = len(mgxs_lib.domains)
     openmc_fluxes = np.zeros((num_domains, num_groups))
-
-    sp = openmc.StatePoint(mgxs_lib.sp_filename)
-    keff = sp.k_combined[0]
+    keff = mgxs_lib.keff
 
     # Compute fixed sources for all domains in the MGXS library
     for i, openmc_domain in enumerate(mgxs_lib.domains):
