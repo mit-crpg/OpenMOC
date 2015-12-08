@@ -55,6 +55,7 @@ borated_water.add_s_alpha_beta('HH2O', '71t')
 materials_file = openmc.MaterialsFile()
 materials_file.default_xs = '71c'
 materials_file.add_materials([uo2, helium, zircaloy, borated_water])
+materials_file.make_isotropic_in_lab()
 materials_file.export_to_xml()
 
 
@@ -149,8 +150,9 @@ groups.group_edges = [0., 0.03e-6, 0.058e-6, 0.14e-6, 0.28e-6, 0.35e-6,
 # Initialize an MGXS Library for OpenMOC
 mgxs_lib = openmc.mgxs.Library(geometry)
 mgxs_lib.energy_groups = groups
-mgxs_lib.mgxs_types = ['transport', 'nu-fission', 'nu-scatter matrix', 'chi']
+mgxs_lib.mgxs_types = ['total', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'cell'
+mgxs_lib.correction = None
 mgxs_lib.domains = geometry.get_all_material_cells()
 mgxs_lib.build_library()
 

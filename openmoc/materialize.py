@@ -269,14 +269,14 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             if domain_type == 'material':
                 material = _get_domain(domains, domain.id)
 
-                # FIXME: MGXS Library may have domains not in OpenMOC Geometry
+                # Ignore materials which cannot be found in the OpenMOC Geometry
                 if material is None:
                     continue
 
             elif domain_type == 'cell':
                 cell = _get_domain(domains, domain.id)
 
-                # FIXME: MGXS Library may have domains not in OpenMOC Geometry
+                # Ignore cells which cannot be found in the OpenMOC Geometry
                 if cell is None:
                     continue
                 else:
@@ -483,7 +483,7 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
         # Build dict of fissionable SPH domains keyed by a tuple of IDs
         for i, openmc_domain in enumerate(mgxs_lib.domains):
-            # FIXME: MGXS Library may have domains not in OpenMOC Geometry
+            # Ignore domains which cannot be found in the OpenMOC Geometry
             if openmc_domain.id in openmoc_domains:
                 openmoc_domain = openmoc_domains[openmc_domain.id]
             else:
@@ -631,10 +631,10 @@ def _load_openmc_src(mgxs_lib, solver):
     # Compute fixed sources for all domains in the MGXS library
     for i, openmc_domain in enumerate(mgxs_lib.domains):
 
-        # FIXME: MGXS Library may have domains not in OpenMOC Geometry
         # Get OpenMOC domain corresponding to the OpenMOC domain
         if openmc_domain.id in openmoc_domains:
             openmoc_domain = openmoc_domains[openmc_domain.id]
+        # Ignore domains which cannot be found in the OpenMOC Geometry
         else:
             continue
 

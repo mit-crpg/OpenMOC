@@ -26,7 +26,7 @@ openmoc.log.set_log_level('NORMAL')
 ###############################################################################
 
 # Initialize 2-group OpenMC multi-group cross section library for a pin cell
-mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='mgxs')
+mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='.')
 
 # Create an OpenMOC Geometry from the OpenCG Geometry
 openmoc_geometry = \

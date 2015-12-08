@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import numpy as np
 import openmc.mgxs
 import openmoc
 from openmoc.materialize import compute_sph_factors, load_openmc_mgxs_lib
@@ -95,3 +97,24 @@ openmoc.plotter.plot_flat_source_regions(openmoc_geometry)
 energy_groups = list(range(1, mgxs_lib.num_groups+1))
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=energy_groups)
 openmoc.plotter.plot_fission_rates(solver, transparent_zeros=True)
+
+# Plot histograms of the SPH factors in each group
+for group in range(sph_mgxs_lib.num_groups):
+    fig = plt.figure()
+    indices = np.where(sph[:,group] != 1.)
+    plt.hist(sph[indices,group].flatten(), 20, normed=1, facecolor='green')
+    plt.xlabel('SPH Factors')
+    plt.ylabel('Probability')
+    plt.title('Histogram of SPH Factors (Group {})'.format(group+1))
+    plt.grid()
+    plt.savefig('plots/sph-group-{}.png'.format(group+1), bbox_inches='tight')
+
+# Create a scatter plot of the SPH factors in groups 1 and 2
+fig = plt.figure()
+indices = np.where(sph[:,0] != 1.)
+plt.scatter(sph[indices,0].flatten(), sph[indices,1].flatten())
+plt.xlabel('Group 1')
+plt.xlabel('Group 2')
+plt.title('SPH Factors')
+plt.grid()
+plt.savefig('plots/sph-scatter.png', bbox_inches='tight')

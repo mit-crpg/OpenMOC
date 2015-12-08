@@ -22,8 +22,9 @@ groups.group_edges = np.array([0., 0.625e-6, 20.])
 # Initialize an 2-group MGXS Library for OpenMOC
 mgxs_lib = openmc.mgxs.Library(su.openmc_geometry)
 mgxs_lib.energy_groups = groups
-mgxs_lib.mgxs_types = ['transport', 'nu-fission', 'nu-scatter matrix', 'chi']
+mgxs_lib.mgxs_types = ['total', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'distribcell'
+mgxs_lib.correction = None
 mgxs_lib.build_library()
 mgxs_lib.load_from_statepoint(sp)
 

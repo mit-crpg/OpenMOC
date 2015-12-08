@@ -9,7 +9,7 @@ import openmc.mgxs
 # OpenMC simulation parameters
 batches = 100
 inactive = 10
-particles = 10000
+particles = 100000
 
 
 ###############################################################################
@@ -45,9 +45,8 @@ zircaloy.add_nuclide(zr90, 7.2758e-3)
 
 # Instantiate a MaterialsFile, add Materials
 materials_file = openmc.MaterialsFile()
-materials_file.add_material(fuel)
-materials_file.add_material(water)
-materials_file.add_material(zircaloy)
+materials_file.add_materials([fuel, water, zircaloy])
+materials_file.make_isotropic_in_lab()
 materials_file.default_xs = '71c'
 
 # Export to "materials.xml"
@@ -182,8 +181,9 @@ groups.group_edges = np.array([0., 0.625e-6, 20.])
 # Initialize an 2-group MGXS Library for OpenMOC
 mgxs_lib = openmc.mgxs.Library(geometry)
 mgxs_lib.energy_groups = groups
-mgxs_lib.mgxs_types = ['transport', 'nu-fission', 'nu-scatter matrix', 'chi']
+mgxs_lib.mgxs_types = ['total', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'distribcell'
+mgxs_lib.correction = None
 mgxs_lib.build_library()
 
 # Create a "tallies.xml" file for the MGXS Library
