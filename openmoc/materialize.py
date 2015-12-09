@@ -472,10 +472,14 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
         # SPH factors will be applied to all fissionable domains simultaneously
         sph_domains = {}
         for i, openmc_domain in enumerate(mgxs_lib.domains):
-            openmoc_domain = openmoc_domains[openmc_domain.id]
-            sph_indices[(openmc_domain.id, )] = i
-            sph_domains[(openmc_domain.id, )] = [openmoc_domain]
-        
+            # Ignore domains which cannot be found in the OpenMOC Geometry
+            if openmc_domain.id not in openmoc_domains:
+                continue
+            else:
+                openmoc_domain = openmoc_domains[openmc_domain.id]
+                sph_indices[(openmc_domain.id, )] = i
+                sph_domains[(openmc_domain.id, )] = [openmoc_domain]
+
     elif mode == 'fissionable':
         sph_indices = []
         sph_domains = []
