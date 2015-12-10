@@ -733,7 +733,7 @@ def _apply_sph_factors(mgxs_lib, sph, domains):
             # Extract the OpenMC derived Tally for the MGXS
             tally = mgxs.xs_tally
             sph_tally = sph_mgxs.xs_tally
-            flip_sph = sph[i, :]
+            flip_sph = np.flipud(sph[i, :])
 
             # If this is a scattering matrix, repeat for all outgoing groups
             if 'scatter matrix' in mgxs_type:
