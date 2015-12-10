@@ -905,11 +905,11 @@ void Cmfd::initializeCurrents() {
 
   /* Delete old Cmfd surface currents array it it exists */
   if (_surface_currents != NULL)
-    delete [] _surface_currents;
+    delete _surface_currents;
 
   /* Delete old Cmfd corner currents array it it exists */
   if (_corner_currents != NULL)
-    delete [] _corner_currents;
+    delete _corner_currents;
 
   /* Allocate memory for the Cmfd Mesh surface and corner currents Vectors */
   _surface_currents = new Vector(_num_x, _num_y,
@@ -1306,11 +1306,6 @@ void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  * @param polar_quad A PolarQuad object pointer from the Solver
  */
 void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
-
-  /* Deletes the old Quadrature if one existed */
-  if (_polar_quad != NULL)
-    delete _polar_quad;
-
   _polar_quad = polar_quad;
   _num_polar = polar_quad->getNumPolarAngles();
 }
