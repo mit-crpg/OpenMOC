@@ -1,4 +1,4 @@
-#
+##
 # @file plotter.py
 # @package openmoc.plotter
 # @brief The plotter module provides utility functions to plot data from
@@ -781,7 +781,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
   for index, group in enumerate(energy_groups):
 
     # Plot a 2D color map of the flat source regions
-    fig = plt.figure()
+    fig = plt.figure(index)
     plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
     plt.colorbar()
     plt.suptitle('FSR Scalar Flux (Group {0})'.format(group))
@@ -947,12 +947,13 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @endcode
 #
 # @param solver a Solver object that has converged the source for the Geometry
+# @param normed normalize the fission rates to unity (default is False)
+# @param transparent_zeros make regions without fission transparent
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-# @param normed normalize the fission rates to unity (default is False)
-def plot_fission_rates(solver, normed=False, gridsize=250, 
-                       xlim=None, ylim=None):
+def plot_fission_rates(solver, normed=False, transparent_zeros=True,
+                       gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -1014,9 +1015,18 @@ def plot_fission_rates(solver, normed=False, gridsize=250,
   if normed:
     surface /= np.max(surface)
 
+  # Set zero fission rates to NaN so Matplotlib will make them transparent
+  if transparent_zeros:
+    indices = np.where(surface == 0.0)
+    surface[indices] = np.nan
+
+  # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+  cmap = plt.get_cmap()
+  cmap.set_bad(alpha=0.0)
+
   # Plot a 2D color map of the flat source regions fission rates
   fig = plt.figure()
-  plt.imshow(np.flipud(surface), extent=coords['bounds'])
+  plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap)
   plt.colorbar()
   plt.suptitle('Flat Source Region Fission Rates')
   plt.title('z = ' + str(zcoord))
