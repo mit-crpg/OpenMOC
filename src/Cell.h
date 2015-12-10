@@ -88,6 +88,12 @@ private:
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
+  /** The volume / area of the Cell computed from overlapping segments */
+  double _volume;
+
+  /** The total number of instances of this Cell in the Geometry */
+  int _num_instances;
+
   /* A boolean indicating whether to cell is rotated */
   bool _rotated;
 
@@ -157,6 +163,8 @@ public:
   cellType getType() const;
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  double getVolume();
+  int getNumInstances();
   bool isRotated();
   bool isTranslated();
   double getPhi(std::string units="degrees");
@@ -189,6 +197,10 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setVolume(double volume);
+  void incrementVolume(double volume);
+  void setNumInstances(int num_instances);
+  void incrementNumInstances();
   void setRotation(double* rotation, int num_axes, std::string units="degrees");
   void setTranslation(double* translation, int num_axes);
   void setNumRings(int num_rings);
@@ -197,6 +209,7 @@ public:
   void removeSurface(Surface* surface);
   void addNeighborCell(Cell* cell);
 
+  bool isFissionable();
   void findBoundingBox();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
