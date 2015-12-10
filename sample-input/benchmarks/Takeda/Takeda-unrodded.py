@@ -17,7 +17,7 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines = 1
+refines = 5
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
@@ -113,7 +113,6 @@ track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
 track_generator.setGlobalZMesh()
 track_generator.generateTracks()
-'''
 
 
 ###############################################################################
@@ -146,5 +145,5 @@ plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='xz', offset=0.)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='yz', offset=0.)
-'''
+
 log.py_printf('TITLE', 'Finished')
