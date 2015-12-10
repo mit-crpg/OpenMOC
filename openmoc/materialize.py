@@ -9,6 +9,7 @@
 import sys
 import os
 import copy
+import collections
 
 import numpy as np
 
@@ -626,11 +627,21 @@ def _load_openmc_src(mgxs_lib, solver):
     else:
         openmoc_domains = geometry.getAllCells()
 
-    # Create variables for the number of FSRs and energy groups
+    # Create variables for the number of domains and energy groups
     num_groups = geometry.getNumEnergyGroups()
     num_domains = len(mgxs_lib.domains)
     openmc_fluxes = np.zeros((num_domains, num_groups))
     keff = mgxs_lib.keff
+
+    # Create mapping of FSRs-to-domains to optimize fixed source setup
+    domains_to_fsrs = collections.defaultdict(list)
+    for fsr_id in range(geometry.getNumFSRs()):
+        cell = geometry.findCellContainingFSR(fsr_id)
+        if mgxs_lib.domain_type == 'material':
+            domain = cell.getFillMaterial()
+        else:
+            domain = cell
+        domains_to_fsrs[domain.getId()].append(fsr_id)
 
     # Compute fixed sources for all domains in the MGXS library
     for i, openmc_domain in enumerate(mgxs_lib.domains):
@@ -694,10 +705,9 @@ def _load_openmc_src(mgxs_lib, solver):
             source = np.sum(in_scatter) + np.sum(fission)
 
             # Assign the source to this domain
-            if mgxs_lib.domain_type == 'material':
-                solver.setFixedSourceByMaterial(openmoc_domain, group+1, source)
-            else:
-                solver.setFixedSourceByCell(openmoc_domain, group+1, source)
+            fsr_ids = domains_to_fsrs[openmoc_domain.getId()]
+            for fsr_id in fsr_ids:
+                solver.setFixedSourceByFSR(fsr_id, group+1, source)
 
     return openmc_fluxes
 
