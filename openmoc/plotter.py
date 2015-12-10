@@ -950,7 +950,9 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
+# @param normed normalize the fission rates to unity (default is False)
+def plot_fission_rates(solver, normed=False, gridsize=250, 
+                       xlim=None, ylim=None):
 
   global subdirectory
 
@@ -1007,6 +1009,10 @@ def plot_fission_rates(solver, gridsize=250, xlim=None, ylim=None):
       # Get the fission rate in this FSR
       else:
        surface[j][i] = fission_rates[fsr_id]
+
+  # Normalize the plot if needed
+  if normed:
+    surface /= np.max(surface)
 
   # Plot a 2D color map of the flat source regions fission rates
   fig = plt.figure()
