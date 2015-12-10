@@ -903,11 +903,11 @@ void Cmfd::initializeMaterials() {
  */
 void Cmfd::initializeCurrents() {
 
-  /* Delete old Cmfd surface currents array it it exists */
+  /* Delete old Cmfd surface currents vector if it exists */
   if (_surface_currents != NULL)
     delete _surface_currents;
 
-  /* Delete old Cmfd corner currents array it it exists */
+  /* Delete old Cmfd corner currents vector if it exists */
   if (_corner_currents != NULL)
     delete _corner_currents;
 
