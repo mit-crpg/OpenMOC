@@ -76,7 +76,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks_3D_cycle;
     delete [] _tracks_per_train;
 
-    /* Delete track laydown information */
+    /* Delete book keeping for 3D tracks */
     for (int a=0; a < _num_azim/4; a++) {
       delete [] _num_l[a];
       delete [] _num_z[a];
