@@ -696,10 +696,11 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 #
 # @param solver a Solver object that has converged the source for the Geometry
 # @param energy_groups a Python list of integer energy groups to plot
+# @param norm normalize the fission rates to unity (default is False)
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_spatial_fluxes(solver, energy_groups=[1],
+def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
                         gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
@@ -779,6 +780,10 @@ def plot_spatial_fluxes(solver, energy_groups=[1],
 
   # Loop over all energy group and create a plot
   for index, group in enumerate(energy_groups):
+
+    # Normalize fluxes to maximum flux if requested
+    if norm:
+      fluxes[index,:,:] /= np.max(fluxes[index,:,:])
 
     # Plot a 2D color map of the flat source regions
     fig = plt.figure(index)
@@ -947,12 +952,12 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @endcode
 #
 # @param solver a Solver object that has converged the source for the Geometry
-# @param normed normalize the fission rates to unity (default is False)
+# @param norm normalize the fission rates to unity (default is False)
 # @param transparent_zeros make regions without fission transparent
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_fission_rates(solver, normed=False, transparent_zeros=True,
+def plot_fission_rates(solver, norm=False, transparent_zeros=True,
                        gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
@@ -1011,8 +1016,8 @@ def plot_fission_rates(solver, normed=False, transparent_zeros=True,
       else:
        surface[j][i] = fission_rates[fsr_id]
 
-  # Normalize the plot if needed
-  if normed:
+  # Normalize to maximum rate if requested
+  if norm:
     surface /= np.max(surface)
 
   # Set zero fission rates to NaN so Matplotlib will make them transparent
@@ -1048,11 +1053,12 @@ def plot_fission_rates(solver, normed=False, transparent_zeros=True,
 # @param iramsolver an IRAMSolver object that has computed the eigenmodes
 # @param eigenmodes a Python list of integer eigenmodes to plot
 # @param energy_groups a Python list of integer energy groups to plot
+# @param norm normalize the fission rates to unity (default is False)
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
-                          gridsize=250, xlim=None, ylim=None):
+def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
+                          energy_groups=[1], gridsize=250, xlim=None, ylim=None):
 
   global subdirectory
 
@@ -1117,7 +1123,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
     subdirectory = '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
 
     # Plot this eigenmode's spatial fluxes
-    plot_spatial_fluxes(moc_solver, energy_groups, gridsize, xlim, ylim)
+    plot_spatial_fluxes(moc_solver, energy_groups, norm, gridsize, xlim, ylim)
 
   # Reset global subdirectory
   subdirectory = '/plots/'
