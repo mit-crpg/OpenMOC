@@ -53,6 +53,8 @@ Cell::Cell(int id, const char* name) {
 
   _cell_type = UNFILLED;
   _fill = NULL;
+  _volume = 0.;
+  _num_instances = 0;
 
   _rotated = false;
   memset(&_rotation, 0., 3);
@@ -156,11 +158,33 @@ Universe* Cell::getFillUniverse() {
 
 
 /**
+ * @brief Return the aggregate volume/area of all instances of this Cell.
+ * @details The volume/area of the Cell is computed from track segments which
+ *          overlap this Cell during track generation.
+ * @return the volume/area of the Cell
+ */
+double Cell::getVolume() {
+  return _volume;
+}
+
+
+/**
  * @brief Return a boolean indicating whether the Cell has been rotated.
  * @return whether the Cell has been rotated
  */
 bool Cell::isRotated() {
   return _rotated;
+}
+
+
+/**
+ * @brief Return the number of instances of this Cell in the Geometry.
+ * @details The number of instances of this Cell in the Geometry is
+ *          determined during track generation.
+ * @return the number of cell instances
+ */
+int Cell::getNumInstances() {
+  return _num_instances;
 }
 
 
@@ -548,6 +572,34 @@ void Cell::setFill(Universe* fill) {
 
 
 /**
+ * @brief Set the volume/area of the Cell.
+ * @param volume the volume/area of the Cell
+ */
+void Cell::setVolume(double volume) {
+  _volume = volume;
+}
+
+
+/**
+ * @brief Increment the volume/area of the Cell by some amount.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ * @param volume the amount to increment the current volume by
+ */
+void Cell::incrementVolume(double volume) {
+  _volume += volume;
+}
+
+
+/**
+ * @brief Set the number of instances of this Cell.
+ * @param num_instances the number of instances of this Cell in the Geometry
+ */
+void Cell::setNumInstances(int num_instances) {
+  _num_instances = num_instances;
+}
+
+/**
  * @brief Set the Cell's rotation angles about the x, y and z axes.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Cell's rotation angles in Python. A user must initialize a
@@ -612,6 +664,15 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
 
 
 /**
+ * @brief Increment the number of instances of this Cell.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ */
+void Cell::incrementNumInstances() {
+  _num_instances++;
+}
+
+/**
  * @brief Set the Cell's translation along the x, y and z axes.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Cell's translations in Python. A user must initialize a
@@ -640,6 +701,7 @@ void Cell::setTranslation(double* translation, int num_axes) {
 
   _translated = true;
 }
+
 
 /**
  * @brief Set the Cell's number of rings.
@@ -854,6 +916,26 @@ double Cell::minSurfaceDist(LocalCoords* coords) {
   }
 
   return min_dist;
+}
+
+
+/**
+ * @brief Returns true if this Cell is filled with a fissionable Material.
+ * @details If the Cell is filled by a Material, this method will simply query
+ *          the filling Material. If the Cell is filled by a Universe, this 
+ *          method will consider any Materials filling those Cells contained
+ *          by the filling Universe. This method should not be called prior to 
+ *          the calling of the Geometry::computeFissionability() method.
+ * @return true if contains a fissionable Material
+ */
+bool Cell::isFissionable() {
+  if (_fill != NULL)
+    if (_cell_type == FILL)
+      return ((Universe*)_fill)->isFissionable();
+    else
+      return ((Material*)_fill)->isFissionable();
+  else
+    return false;
 }
 
 

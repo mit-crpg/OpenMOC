@@ -95,6 +95,7 @@ private:
   void initializeTrackUids();
   void initializeBoundaryConditions();
   void initializeTrackCycleIndices(boundaryType bc);
+  void initializeVolumes();
   void segmentize();
   void dumpTracksToFile();
   bool readTracksFromFile();
