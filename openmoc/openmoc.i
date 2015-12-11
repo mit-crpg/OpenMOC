@@ -111,6 +111,13 @@
 %}
 
 
+/* Include standard vector library for SWIG */
+%include "std_vector.i"
+namespace std {
+  %template(DoubleVector) vector<double>;
+}
+
+
 /* If the user uses the --no-numpy flag, then NumPy typemaps will not be used
  * and the NumPy C API will not be embedded in the source code. The NumPy
  * typemaps are used to allow users to pass NumPy arrays to/from the C++ source
