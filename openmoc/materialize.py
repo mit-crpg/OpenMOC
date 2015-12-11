@@ -605,6 +605,7 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     # Restore verbosity log level to original status
     openmoc.set_log_level(log_level)
 
+    final_sph = np.flipud(final_sph)
     return final_sph, mgxs_lib
 
 ##

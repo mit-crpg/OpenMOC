@@ -99,6 +99,7 @@ openmoc.plotter.plot_cells(openmoc_geometry)
 
 # Extract the OpenMOC scalar fluxes
 fluxes_sph = openmoc.process.get_scalar_fluxes(solver)
+fluxes_sph *= sph
 
 # Extract the OpenMC scalar fluxes
 num_fsrs = openmoc_geometry.getNumFSRs()
