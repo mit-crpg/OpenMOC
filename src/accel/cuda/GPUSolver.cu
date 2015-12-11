@@ -1435,34 +1435,26 @@ void GPUSolver::addSourceToScalarFlux() {
  */
 void GPUSolver::computeKeff() {
 
-  FP_PRECISION old_fission, new_fission;
+  FP_PRECISION fission;
 
-  thrust::device_vector<FP_PRECISION> old_fission_vec;
-  thrust::device_vector<FP_PRECISION> new_fission_vec;
-  old_fission_vec.resize(_B * _T);
-  new_fission_vec.resize(_B * _T);
+  thrust::device_vector<FP_PRECISION> fission_vec;
+  fission_vec.resize(_B * _T);
 
-  FP_PRECISION* old_fiss_ptr = thrust::raw_pointer_cast(&old_fission_vec[0]);
-  FP_PRECISION* new_fiss_ptr = thrust::raw_pointer_cast(&new_fission_vec[0]);
-  FP_PRECISION* old_flux = thrust::raw_pointer_cast(&_old_scalar_flux[0]);
-  FP_PRECISION* new_flux = thrust::raw_pointer_cast(&_scalar_flux[0]);
+  FP_PRECISION* fiss_ptr = thrust::raw_pointer_cast(&fission_vec[0]);
+  FP_PRECISION* flux = thrust::raw_pointer_cast(&_scalar_flux[0]);
 
   /* Compute the total, fission and scattering reaction rates on device.
    * This kernel stores partial rates in a Thrust vector with as many
    * entries as CUDAthreads executed by the kernel */
   computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
-                                             _materials, old_flux, old_fiss_ptr);
-  computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
-                                             _materials, new_flux, new_fiss_ptr);
+                                             _materials, flux, fiss_ptr);
 
-  /* Compute the old and new fission sources */
-  old_fission = thrust::reduce(old_fission_vec.begin(), old_fission_vec.end());
-  new_fission = thrust::reduce(new_fission_vec.begin(), new_fission_vec.end());
+  /* Compute the total fission source */
+  fission = thrust::reduce(fission_vec.begin(), fission_vec.end());
 
-  _k_eff *= new_fission / old_fission;
+  _k_eff *= fission;
 
-  old_fission_vec.clear();
-  new_fission_vec.clear();
+  fission_vec.clear();
 }
 
 
