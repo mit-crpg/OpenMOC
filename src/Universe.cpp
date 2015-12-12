@@ -406,7 +406,7 @@ std::map<int, Universe*> Universe::getAllUniverses() {
 
   /* Append all Universes containing each Cell to the map */
   for (iter = cells.begin(); iter != cells.end(); ++iter) {
-    cell = (*iter).second;
+    cell = iter->second;
     std::map<int, Universe*> nested_universes = cell->getAllUniverses();
     universes.insert(nested_universes.begin(), nested_universes.end());
   }
@@ -600,24 +600,23 @@ void Universe::subdivideCells(double max_radius) {
 
   std::map<int, Cell*>::iterator iter;
 
-  while (iter != _cells.end()) {
-    for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
 
-      /* Cells filled with Materials */
-      if (((*iter).second)->getType() == MATERIAL) {
-        Cell* cell = (*iter).second;
+    /* Cells filled with Materials */
+    if (iter->second->getType() == MATERIAL) {
+      Cell* cell = iter->second;
 
-        if (cell->getNumRings() > 0 || cell->getNumSectors() > 0)
-          cell->subdivideCell(max_radius);
-      }
-      /* Cells filled with Universes */
-      else {
-	Universe* fill = ((*iter).second)->getFillUniverse();
-	if (fill->getType() == SIMPLE)
-	  fill->subdivideCells(max_radius);
-	else
-	  static_cast<Lattice*>(fill)->subdivideCells(max_radius);
-      }
+      if (cell->getNumRings() > 0 || cell->getNumSectors() > 0)
+        cell->subdivideCell(max_radius);
+    }
+
+    /* Cells filled with Universes */
+    else {
+      Universe* fill = iter->second->getFillUniverse();
+      if (fill->getType() == SIMPLE)
+        fill->subdivideCells(max_radius);
+      else
+        static_cast<Lattice*>(fill)->subdivideCells(max_radius);
     }
   }
 }
@@ -688,10 +687,10 @@ Universe* Universe::clone() {
   for (iter1 = _cells.begin(); iter1 != _cells.end(); ++iter1) {
 
     /* If the Cell is filled with a Material, clone it */
-    if ((*iter1).second->getType() == MATERIAL) {
+    if (iter1->second->getType() == MATERIAL) {
 
       /* Clone the Cell */
-      Cell* parent = static_cast<Cell*>((*iter1).second);
+      Cell* parent = static_cast<Cell*>(iter1->second);
       Cell* cell_clone = parent->clone();
 
       /* Add Cell clone to the list */
@@ -1145,10 +1144,8 @@ void Lattice::subdivideCells(double max_radius) {
     max_radius = radius;
 
   /* Subdivide all Cells */
-  while (iter != universes.end()) {
-    for (iter = universes.begin(); iter != universes.end(); ++iter)
-      ((*iter).second)->subdivideCells(max_radius);
-  }
+  for (iter = universes.begin(); iter != universes.end(); ++iter)
+    iter->second->subdivideCells(max_radius);
 }
 
 
