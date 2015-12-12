@@ -595,7 +595,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
  */
 void Universe::subdivideCells(double max_radius) {
 
-  log_printf(NORMAL, "Subdividing Cells for Universe ID=%d "
+  log_printf(DEBUG, "Subdividing Cells for Universe ID=%d "
 	     "with max radius %f", _id, max_radius);
 
   std::map<int, Cell*>::iterator iter;
@@ -613,7 +613,10 @@ void Universe::subdivideCells(double max_radius) {
       /* Cells filled with Universes */
       else {
 	Universe* fill = ((*iter).second)->getFillUniverse();
-        fill->subdivideCells(max_radius);
+	if (fill->getType() == SIMPLE)
+	  fill->subdivideCells(max_radius);
+	else
+	  static_cast<Lattice*>(fill)->subdivideCells(max_radius);
       }
     }
   }
@@ -1127,7 +1130,7 @@ void Lattice::removeUniverse(Universe* universe) {
  */
 void Lattice::subdivideCells(double max_radius) {
 
-  log_printf(NORMAL, "Subdividing Cells for Lattice ID=%d "
+  log_printf(DEBUG, "Subdividing Cells for Lattice ID=%d "
              "with max radius %f", _id, max_radius);
 
   std::map<int, Universe*>::iterator iter;

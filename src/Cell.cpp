@@ -1041,7 +1041,6 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
 
   /* Generate successively smaller ZCylinder Surfaces */
   for (int i=0; i < _num_rings-1; i++) {
-    printf("radius1 = %f\n", radius1);
     radius2 = sqrt(radius1*radius1 - (area / M_PI));
     ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
     zcylinders.push_back(zcylinder);
