@@ -595,7 +595,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
  */
 void Universe::subdivideCells(double max_radius) {
 
-  log_printf(DEBUG, "Subdividing Cells for Universe ID=%d "
+  log_printf(NORMAL, "Subdividing Cells for Universe ID=%d "
 	     "with max radius %f", _id, max_radius);
 
   std::map<int, Cell*>::iterator iter;
@@ -1127,17 +1127,19 @@ void Lattice::removeUniverse(Universe* universe) {
  */
 void Lattice::subdivideCells(double max_radius) {
 
-  log_printf(DEBUG, "Subdividing Cells for Lattice ID=%d "
+  log_printf(NORMAL, "Subdividing Cells for Lattice ID=%d "
              "with max radius %f", _id, max_radius);
 
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> universes = getUniqueUniverses();
 
-  double pitch = (_width_x + _width_y) / 2.0;
+  /* Compute minimum radius needed to surround a lattice cell */
+  /* This is used as the maximum radius for all ringified Cells */
+  double radius = sqrt(_width_x * _width_x / 2. + _width_y * _width_y / 2.);
 
   /* If the lattice pitch is smaller than max_radius parameter, over-ride it */
-  if (pitch < max_radius)
-    max_radius = pitch;
+  if (radius < max_radius)
+    max_radius = radius;
 
   /* Subdivide all Cells */
   while (iter != universes.end()) {

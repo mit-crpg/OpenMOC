@@ -966,7 +966,7 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
   int num_zcylinders = 0;
   ZCylinder* zcylinder1 = NULL;
   ZCylinder* zcylinder2 = NULL;
-  double radius1 = 0;
+  double radius1 = max_radius;
   double radius2 = 0;
   double x1 = 0.;
   double y1 = 0.;
@@ -1029,12 +1029,6 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
                "Both ZCylinders must have the same center.",
                _id, zcylinder1->getId(), y1, zcylinder2->getId(), y2);
 
-  if (zcylinder1 == NULL && zcylinder2 != NULL)
-    log_printf(ERROR, "Unable to ringify Cell %d since it only contains "
-               "the positive halfpsace of ZCylinder %d. Rings can only be "
-               "created for Cells on the interior (negative halfspace) "
-               "of a ZCYLINDER Surface.", _id, zcylinder2->getId());
-
   if (radius1 <= radius2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains 2 "
                "disjoint ZCYLINDER Surfaces: halfspace %d for ZCylinder %d "
@@ -1047,6 +1041,7 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
 
   /* Generate successively smaller ZCylinder Surfaces */
   for (int i=0; i < _num_rings-1; i++) {
+    printf("radius1 = %f\n", radius1);
     radius2 = sqrt(radius1*radius1 - (area / M_PI));
     ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
     zcylinders.push_back(zcylinder);
@@ -1066,7 +1061,7 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
     /* Create ZCylinders for each of the sectorized Cells */
     if (subcells->size() != 0) {
       for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
-        log_printf(DEBUG, "Creating a new ring in sector Cell %d",
+        log_printf(DEBUG, "Creating a new ring in sector Cell ID=%d",
                    (*iter3)->getId());
 
         /* Create a new Cell clone */
