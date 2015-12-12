@@ -161,13 +161,11 @@ class Options:
             elif opt in ('-g', '--num-gpu-threads'):
                 self._num_gpu_threads = int(arg)
 
-
     ##
     # @brief Returns the number of azimuthal angles.
     # @return the number of azimuthal angles
     def getNumAzimAngles(self):
         return self._num_azim
-
 
     ##
     # @brief Returns the track spacing [cm].
@@ -175,13 +173,11 @@ class Options:
     def getTrackSpacing(self):
         return self._track_spacing
 
-
     ##
     # @brief Returns the maximum number of source iterations.
     # @return the maximum number of source iterations
     def getMaxIterations(self):
         return self._max_iters
-
 
     ##
     # @brief Returns the source convergence tolerance.
@@ -189,20 +185,17 @@ class Options:
     def getTolerance(self):
         return self._tolerance
 
-
     ##
     # @brief Returns the number of OpenMP multi-core CPU threads.
     # @return the number of OpenMP threads
     def getNumThreads(self):
         return self._num_omp_threads
 
-
     ##
     # @brief Returns the number of CUDA thread blocks for a GPU.
     # @return the number of CUDA thread blocks
     def getNumThreadBlocks(self):
         return self._num_thread_blocks
-
 
     ##
     # @brief Returns the number of CUDA threads per block for a GPU.
