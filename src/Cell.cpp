@@ -1037,8 +1037,9 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
 /**
  * @brief Subdivides the Cell into clones for fuel pin rings.
  * @param subcells an empty vector to store all subcells
+ * @param max_radius the maximum allowable radius used in the subdivisions
  */
-void Cell::ringify(std::vector<Cell*>* subcells) {
+void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
 
   /* If the user didn't request any rings, don't make any */
   if (_num_rings == 0)
@@ -1047,7 +1048,7 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   int num_zcylinders = 0;
   ZCylinder* zcylinder1 = NULL;
   ZCylinder* zcylinder2 = NULL;
-  double radius1 = 0;
+  double radius1 = max_radius;
   double radius2 = 0;
   double x1 = 0.;
   double y1 = 0.;
@@ -1110,12 +1111,6 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
                "Both ZCylinders must have the same center.",
                _id, zcylinder1->getId(), y1, zcylinder2->getId(), y2);
 
-  if (zcylinder1 == NULL && zcylinder2 != NULL)
-    log_printf(ERROR, "Unable to ringify Cell %d since it only contains "
-               "the positive halfpsace of ZCylinder %d. Rings can only be "
-               "created for Cells on the interior (negative halfspace) "
-               "of a ZCYLINDER Surface.", _id, zcylinder2->getId());
-
   if (radius1 <= radius2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains 2 "
                "disjoint ZCYLINDER Surfaces: halfspace %d for ZCylinder %d "
@@ -1147,7 +1142,7 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
     /* Create ZCylinders for each of the sectorized Cells */
     if (subcells->size() != 0) {
       for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
-        log_printf(DEBUG, "Creating a new ring in sector Cell %d",
+        log_printf(DEBUG, "Creating a new ring in sector Cell ID=%d",
                    (*iter3)->getId());
 
         /* Create a new Cell clone */
@@ -1203,18 +1198,19 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
 
 
 /**
- * @brief Subdivides a Cell into rings and sectors.
+ * @brief Subdivides a Cell into rings and sectors aligned with the z-axis.
  * @details This method uses the Cell's clone method to produce a vector of
  *          this Cell's subdivided ring and sector Cells.
+ * @param max_radius the maximum allowable radius used in the subdivisions
  * @return a vector of Cell pointers to the new subdivided Cells
  */
-void Cell::subdivideCell() {
+void Cell::subdivideCell(double max_radius) {
 
   /** A container of all Cell clones created for rings and sectors */
   std::vector<Cell*>* subcells = new std::vector<Cell*>();
 
   sectorize(subcells);
-  ringify(subcells);
+  ringify(subcells, max_radius);
 
   /* Put any ring / sector subcells in a new Universe fill */
   if (subcells->size() != 0) {
