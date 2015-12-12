@@ -955,8 +955,9 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
 /**
  * @brief Subdivides the Cell into clones for fuel pin rings.
  * @param subcells an empty vector to store all subcells
+ * @param max_radius the maximum allowable radius used in the subdivisions
  */
-void Cell::ringify(std::vector<Cell*>* subcells) {
+void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
 
   /* If the user didn't request any rings, don't make any */
   if (_num_rings == 0)
@@ -1121,18 +1122,19 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
 
 
 /**
- * @brief Subdivides a Cell into rings and sectors.
+ * @brief Subdivides a Cell into rings and sectors aligned with the z-axis.
  * @details This method uses the Cell's clone method to produce a vector of
  *          this Cell's subdivided ring and sector Cells.
+ * @param max_radius the maximum allowable radius used in the subdivisions
  * @return a vector of Cell pointers to the new subdivided Cells
  */
-void Cell::subdivideCell() {
+void Cell::subdivideCell(double max_radius) {
 
   /** A container of all Cell clones created for rings and sectors */
   std::vector<Cell*>* subcells = new std::vector<Cell*>();
 
   sectorize(subcells);
-  ringify(subcells);
+  ringify(subcells, max_radius);
 
   /* Put any ring / sector subcells in a new Universe fill */
   if (subcells->size() != 0) {
