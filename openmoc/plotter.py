@@ -208,25 +208,10 @@ def plot_segments(track_generator):
 # @param zcoord optional the z coordinate (default is 0.0)
 def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
-    global subdirectory
-    directory = openmoc.get_output_directory() + subdirectory
-
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
     # Error checking
     if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the Materials since ' +
-                  'input was not a geometry class object')
-
-    if not is_integer(gridsize):
-        py_printf('ERROR', 'Unable to plot the Materials since ' +
-                  'the gridsize %d is not an integer', gridsize)
-
-    if gridsize <= 0:
-        py_printf('ERROR', 'Unable to plot the Materials ' +
-                  'with a negative gridsize (%d)', gridsize)
+        py_printf('ERROR', 'Unable to plot the Materials since input %s ' +
+                  'is not a Geometry class object', str(geometry))
 
     # If zcoord was not set, set the zcoord to 0.0
     if zcoord is None:
@@ -237,62 +222,29 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
     py_printf('NORMAL', 'Plotting the materials...')
 
-    # Initialize a NumPy array for the surface colors
-    surface = np.zeros((gridsize, gridsize), np.int64)
+    # Create a NumPy array to map FSRs to Materials
+    num_fsrs = geometry.getNumFSRs()
+    fsrs_to_materials = np.zeros(num_fsrs, dtype=np.int64)
+    for fsr_id in range(num_fsrs):
+        cell = geometry.findCellContainingFSR(fsr_id)
+        fsrs_to_materials[fsr_id] = cell.getFillMaterial().getId()
 
-    # Retrieve the pixel coordinates
-    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
-
-    # Find the <aterial IDs for each grid point
-    for i in range(gridsize):
-        for j in range(gridsize):
-
-            x = coords['x'][i]
-            y = coords['y'][j]
-            point = openmoc.LocalCoords(x, y, zcoord)
-            point.setUniverse(geometry.getRootUniverse())
-            cell = geometry.findCellContainingCoords(point)
-
-            # If we did not find a Cell for this region, use a -1 "bad" number color
-            if cell is None:
-                surface[j][i] = -1
-            else:
-                surface[j][i] = cell.getFillMaterial().getId()
-
-    # Get the number of Materials in the Geometry
+    # Create an array of random integer colors for each Material
     materials = geometry.getAllMaterials()
     num_materials = len(materials)
-
-    # Create array of all Material IDs and randomly (but reproducibly) permute it
     material_ids = [material_id for material_id in materials]
     numpy.random.seed(1)
     numpy.random.shuffle(material_ids)
-
-    # Create an array of the colors (array indices) for each value in surface
-    colors = np.zeros((gridsize, gridsize))
-
-    for material_id in np.unique(surface):
-        if material_id != -1:
-            index = material_ids.index(material_id)
-        else:
-            index = -1
-        indices = np.where(surface == material_id)
-        colors[indices] = index
-
-    # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    cmap = plt.get_cmap('spectral')
-    cmap.set_bad(alpha=0.0)
+    for i, material_id in enumerate(fsrs_to_materials):
+        fsrs_to_materials[i] = np.where(material_ids == material_id)[0]
 
     # Plot a 2D color map of the Materials
-    fig = plt.figure()
-    colors = np.flipud(colors)
-    plt.imshow(colors, extent=coords['bounds'],
-               interpolation='nearest', cmap=cmap, vmin=0, vmax=num_materials)
-    plt.suptitle('Materials')
-    plt.title('z = {0}'.format(zcoord))
+    suptitle = 'Materials'
+    title = 'z = {0}'.format(zcoord)
     filename = 'materials-z-{0}.png'.format(zcoord)
-    fig.savefig(directory+filename, bbox_inches='tight')
-    plt.close(fig)
+    plot_spatial_data(geometry, fsrs_to_materials, False, False, zcoord,
+                      gridsize, xlim, ylim, False, title, suptitle, filename,
+                      'nearest', plt.get_cmap('spectral'), 0, num_materials)
 
 
 ##
@@ -317,7 +269,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     # Error checking
     if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the Cells since %s ' +
-                  'input was not a Geometry class object', str(geometry))
+                  'input is not a Geometry class object', str(geometry))
 
     if zcoord is None:
         zcoord = 0.0
@@ -327,7 +279,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
     py_printf('NORMAL', 'Plotting the cells...')
 
-    # Create a NumPy array to map FSRs to CMFD cells
+    # Create a NumPy array to map FSRs to Cells
     num_fsrs = geometry.getNumFSRs()
     fsrs_to_cells = np.zeros(num_fsrs, dtype=np.int64)
     for fsr_id in range(num_fsrs):
@@ -389,8 +341,8 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 
     # Error checking
     if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the flat source regions since ' +
-                  'input was not a geometry class object')
+        py_printf('ERROR', 'Unable to plot the flat source regions since %s ' +
+                  'input is not a Geometry class object', str(geometry))
 
     if not is_integer(gridsize):
         py_printf('ERROR', 'Unable to plot the flat source regions since ' +
@@ -536,12 +488,12 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
     # Error checking
     if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the CMFD cells since ' +
-                  'input was not a geometry class object')
+        py_printf('ERROR', 'Unable to plot the CMFD cells since %s ' +
+                  'input is not a geometry class object', str(geometry))
 
     if 'Cmfd' not in str(type(cmfd)):
-        py_printf('ERROR', 'Unable to plot the CMFD cells since ' +
-                  'input was not a CMFD class object')
+        py_printf('ERROR', 'Unable to plot the CMFD cells since %s ' +
+                  'input is not a CMFD class object', str(cmfd))
 
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
@@ -1007,7 +959,7 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
     # Error checking
     if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot spatial data since %s ' +
-                  'input was not a Geometry class object', str(geometry))
+                  'input is not a Geometry class object', str(geometry))
 
     if not isinstance(fsrs_to_data, np.ndarray):
         py_printf('ERROR', 'Unable to plot spatial data since ' +
