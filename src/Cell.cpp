@@ -1040,11 +1040,12 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
   std::vector<ZCylinder*>::iterator iter2;
   std::vector<Cell*>::iterator iter3;
 
-  // FIXME!!!
+  /* If this is an unbounded Cell - i.e., moderator in a fuel pin cell - then
+   * make the first ring span the volume outside the outermost cylinder */
   if (radius1 > radius2) {
     ZCylinder* outer = new ZCylinder(x1, y1, radius1);
 
-    /* Create ZCylinders for each of the sectorized Cells */
+    /* Create outermost ZCylinder for each of the sectorized Cells */
     if (subcells->size() != 0) {
       for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
         log_printf(DEBUG, "Creating a new ring in sector Cell ID=%d",
@@ -1054,16 +1055,12 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
         Cell* ring = (*iter3)->clone();
         ring->setNumSectors(0);
         ring->setNumRings(0);
-
-        /* Add new bounding ZCylinder surfaces to the clone */
         ring->addSurface(+1, outer);
-
-        /* Store the clone in the parent Cell's container of ring Cells */
         rings.push_back(ring);
       }
     }
 
-    /* Create ZCylinders for this un-sectorized Cell */
+    /* Create outermost ZCylinder for this un-sectorized Cell */
     else {
       log_printf(DEBUG, "Creating new ring in un-sectorized Cell %d",_id);
 
@@ -1071,11 +1068,7 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
       Cell* ring = clone();
       ring->setNumSectors(0);
       ring->setNumRings(0);
-
-      /* Add new bounding ZCylinder to the clone */
       ring->addSurface(+1, outer);
-
-      /* Store the clone in the parent Cell's container of ring Cells */
       rings.push_back(ring);
     } 
   }
@@ -1085,7 +1078,6 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
 
   /* Generate successively smaller ZCylinders */
   for (int i=0; i < _num_rings-1; i++) {
-    printf("ring %d\n", i);
     radius2 = sqrt(radius1*radius1 - (area / M_PI));
     ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
     zcylinders.push_back(zcylinder);
@@ -1096,7 +1088,7 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
   ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
   zcylinders.push_back(zcylinder);
 
-  //FIXME:
+  /* Create ring Cells with successively smaller ZCylinders */
   for (iter2 = zcylinders.begin(); iter2 != zcylinders.end(); ++iter2) {
 
     /* Create ZCylinders for each of the sectorized Cells */
@@ -1109,8 +1101,6 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
         Cell* ring = (*iter3)->clone();
         ring->setNumSectors(0);
         ring->setNumRings(0);
-
-        /* Add new bounding ZCylinders to the clone */
         ring->addSurface(-1, (*iter2));
 
         /* Look ahead and check if we have an inner ZCylinder to add */
@@ -1134,8 +1124,6 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
       Cell* ring = clone();
       ring->setNumSectors(0);
       ring->setNumRings(0);
-
-      /* Add new bounding ZCylinders to the clone */
       ring->addSurface(-1, (*iter2));
 
       /* Look ahead and check if we have an inner ZCylinder to add */
