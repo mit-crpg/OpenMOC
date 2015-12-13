@@ -144,10 +144,10 @@ def plot_segments(track_generator):
 
     # Convert data to NumPy arrays
     coords = np.array(coords)
-    x = numpy.zeros(num_segments*2)
-    y = numpy.zeros(num_segments*2)
-    z = numpy.zeros(num_segments*2)
-    fsrs = numpy.zeros(num_segments)
+    x = np.zeros(num_segments*2)
+    y = np.zeros(num_segments*2)
+    z = np.zeros(num_segments*2)
+    fsrs = np.zeros(num_segments)
 
     for i in range(num_segments):
         fsrs[i] = coords[i*vals_per_segment]
@@ -238,7 +238,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     py_printf('NORMAL', 'Plotting the materials...')
 
     # Initialize a NumPy array for the surface colors
-    surface = numpy.zeros((gridsize, gridsize), numpy.int64)
+    surface = np.zeros((gridsize, gridsize), np.int64)
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
@@ -343,7 +343,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     py_printf('NORMAL', 'Plotting the cells...')
 
     # Initialize a NumPy array for the surface colors
-    surface = np.zeros((gridsize, gridsize), numpy.int64)
+    surface = np.zeros((gridsize, gridsize), np.int64)
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
@@ -475,7 +475,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
                   'since no tracks have been generated.')
 
     # Initialize a NumPy array for the surface colors
-    surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
+    surface = np.zeros((gridsize, gridsize), dtype=np.int64)
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
@@ -579,13 +579,6 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
-    global subdirectory
-    directory = openmoc.get_output_directory() + subdirectory
-
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
     # Error checking
     if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the CMFD cells since ' +
@@ -595,75 +588,35 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
         py_printf('ERROR', 'Unable to plot the CMFD cells since ' +
                   'input was not a CMFD class object')
 
-    if not is_integer(gridsize):
-        py_printf('ERROR', 'Unable to plot the CMFD cells since ' +
-                  'the gridsize %s is not an integer', str(gridsize))
-
-    if gridsize <= 0:
-        py_printf('ERROR', 'Unable to plot the CMFD cells ' +
-                  'with a negative gridsize (%d)', gridsize)
-
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
-    # Initialize a NumPy array for the surface colors
-    surface = numpy.zeros((gridsize, gridsize), numpy.int64)
-
-    # Retrieve the pixel coordinates
-    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
-
-    # Get the Geometry's z-coord
     zcoord = geometry.getFSRPoint(0).getZ()
+    num_fsrs = geometry.getNumFSRs()
 
-    # Find the CMFD cell ID for each grid point
-    for i in range(gridsize):
-        for j in range(gridsize):
-
-            x = coords['x'][i]
-            y = coords['y'][j]
-
-            local_coords = openmoc.LocalCoords(x, y, zcoord)
-            local_coords.setUniverse(geometry.getRootUniverse())
-            geometry.findCellContainingCoords(local_coords)
-            fsr_id = geometry.getFSRId(local_coords)
-            cell_id = cmfd.convertFSRIdToCmfdCell(fsr_id)
-
-            # If we did not find a cell, use a -1 "bad" number color
-            if np.isnan(cell_id):
-                surface[j][i] = -1
-            else:
-                surface[j][i] = cell_id
-
-    # Get the number of CMFD cells
-    num_cmfd_cells = cmfd.getNumCells()
+    # Create a NumPy array to map FSRs to CMFD cells
+    fsrs_to_cmfd_cells = np.zeros(num_fsrs, dtype=np.int64)
+    for fsr_id in range(num_fsrs):
+        fsrs_to_cmfd_cells[fsr_id] = cmfd.convertFSRIdToCmfdCell(fsr_id)
 
     # Replace each Cell ID with a random (but reproducible) color ID
     # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
     # for Materials and Cells. The reason is that FSRs and CMFD cells are by
     # definition a sequence of consecutive, monotonically increasing integers.
     # Material and Cell IDs however may be any sequence of positive integers.
+    num_cmfd_cells = cmfd.getNumCells()
     all_ids = np.arange(num_cmfd_cells, dtype=np.int64)
-
     id_colors = np.arange(num_cmfd_cells, dtype=np.int64)
     numpy.random.seed(1)
     np.random.shuffle(id_colors)
-
     ids_to_colors = np.arange(num_cmfd_cells, dtype=np.int64)
     ids_to_colors[all_ids] = id_colors
+    fsrs_to_cmfd_cells = ids_to_colors.take(fsrs_to_cmfd_cells)
 
-    colors = ids_to_colors.take(surface)
-
-    # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    cmap = plt.get_cmap('spectral')
-    cmap.set_bad(alpha=0.0)
-
-    # Plot a 2D color map of the CMFD cells
-    fig = plt.figure()
-    colors = np.flipud(colors)
-    plt.imshow(colors, extent=coords['bounds'],
-               interpolation='nearest', cmap=cmap)
-    plt.title('CMFD cells')
+    # Plot the CMFD cells
+    title = 'CMFD cells'
     filename = 'cmfd-cells.png'
-    fig.savefig(directory+filename, bbox_inches='tight')
+    plot_spatial_data(geometry, fsrs_to_cmfd_cells, False, False, zcoord,
+                      gridsize, xlim, ylim, False, title, None, filename)
 
 
 ##
@@ -685,13 +638,6 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
                         gridsize=250, xlim=None, ylim=None):
-
-    global subdirectory
-    directory = openmoc.get_output_directory() + subdirectory
-
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-        os.makedirs(directory)
 
     if 'Solver' not in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
@@ -879,9 +825,6 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 def plot_fission_rates(solver, norm=False, transparent_zeros=True,
                        gridsize=250, xlim=None, ylim=None):
-
-    global subdirectory
-    directory = openmoc.get_output_directory() + subdirectory
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -1127,7 +1070,7 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
     _check_zcoord(geometry, zcoord)
 
     # Initialize a numpy array of fission rates
-    surface = numpy.zeros((gridsize, gridsize))
+    surface = np.zeros((gridsize, gridsize))
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
