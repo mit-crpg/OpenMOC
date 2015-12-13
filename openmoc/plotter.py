@@ -932,7 +932,7 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
     # Check z-coord
     _check_zcoord(geometry, zcoord)
 
-    # Initialize a numpy array of fission rates
+    # Initialize a numpy array for the FSR spatial data
     surface = np.zeros((gridsize, gridsize))
 
     # Retrieve the pixel coordinates
@@ -953,7 +953,8 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
             # If we did not find a region, use a -1 "bad" number color
             if np.isnan(fsr_id):
                 surface[j][i] = -1
-            # Get the fission rate in this FSR
+
+            # Get the data for this FSR
             else:
                 surface[j][i] = fsrs_to_data[fsr_id]
 
@@ -972,7 +973,7 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
     # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
     cmap.set_bad(alpha=0.0)
 
-    # Plot a 2D color map of the flat source regions fission rates
+    # Plot a 2D color map of the flat source region data
     fig = plt.figure()
     plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap,
                vmin=vmin, vmax=vmax, interpolation=interpolation)
