@@ -950,7 +950,7 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
             geometry.findCellContainingCoords(point)
             fsr_id = geometry.getFSRId(point)
 
-            # If we did not find a region for this region, use a -1 "bad" number color
+            # If we did not find a region, use a -1 "bad" number color
             if np.isnan(fsr_id):
                 surface[j][i] = -1
             # Get the fission rate in this FSR
