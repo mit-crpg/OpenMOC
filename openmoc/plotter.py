@@ -166,10 +166,9 @@ def plot_segments(track_generator):
 
     # Make figure of line segments for each track
     fig = plt.figure()
-    for i in range(num_segments):
 
-        # Create a color map corresponding to FSR IDs
-        jet = cm = plt.get_cmap('jet')
+    # Create a color map corresponding to FSR IDs
+    for i in range(num_segments):
         cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
         scalarMap = cmx.ScalarMappable(norm=cNorm)
         color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
