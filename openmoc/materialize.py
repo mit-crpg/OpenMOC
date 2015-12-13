@@ -469,16 +469,13 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
         # Initialize indices for each domain in SPH factor array
         sph_indices = {}
 
-        # Initialize dict of fissionable SPH domains keyed by a tuple of IDs
+        # Initialize dict of SPH domains keyed by a tuple of IDs
         # SPH factors will be applied to all fissionable domains simultaneously
         sph_domains = {}
         for i, openmc_domain in enumerate(mgxs_lib.domains):
-            # Ignore domains which cannot be found in the OpenMOC Geometry
-            if openmc_domain.id not in openmoc_domains:
-                continue
-            else:
+            if openmc_domain.id in openmoc_domains:
                 openmoc_domain = openmoc_domains[openmc_domain.id]
-                sph_indices[(openmc_domain.id, )] = i
+                sph_indices[(openmc_domain.id, )] = np.array([i])
                 sph_domains[(openmc_domain.id, )] = [openmoc_domain]
 
     elif mode == 'fissionable':
@@ -488,16 +485,12 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 
         # Build dict of fissionable SPH domains keyed by a tuple of IDs
         for i, openmc_domain in enumerate(mgxs_lib.domains):
-            # Ignore domains which cannot be found in the OpenMOC Geometry
             if openmc_domain.id in openmoc_domains:
                 openmoc_domain = openmoc_domains[openmc_domain.id]
-            else:
-                continue
-
-            if openmoc_domain.isFissionable():
-                sph_indices.append(i)
-                sph_domains.append(openmoc_domain)
-                sph_domain_ids.append(openmc_domain.id)
+                if openmoc_domain.isFissionable():
+                    sph_indices.append(i)
+                    sph_domains.append(openmoc_domain)
+                    sph_domain_ids.append(openmc_domain.id)
 
         # Initialize indices for each fissionable domain in SPH factor array
         sph_indices = { tuple(sph_domain_ids) : np.array(sph_indices) }
@@ -514,16 +507,15 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     outer_sph = np.ones((num_domains, num_groups))
     openmoc_fluxes = np.zeros((num_domains, num_groups))
 
-    # Sore starting verbosity log level
+    # Store starting verbosity log level
     log_level = openmoc.get_log_level()
-
 
     # Outer SPH loop over domains of interest
     for i in range(max_domain_iters):
         py_printf('NORMAL', 'SPH outer iteration %d', i)
 
         for domain_ids in sph_domains:
-            py_printf('NORMAL', '  Domains:\t%ss %s', 
+            py_printf('NORMAL', '  Domains:\t%ss %s',
                       mgxs_lib.domain_type.capitalize(), str(domain_ids)[1:-1])
 
             inner_sph = np.ones((len(domain_ids), num_groups))
@@ -601,12 +593,34 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
     final_sph = openmc_fluxes / openmoc_fluxes
     final_sph = np.nan_to_num(final_sph)
     final_sph[final_sph == 0.0] = 1.0
+    final_sph = np.flipud(final_sph)
 
     # Restore verbosity log level to original status
     openmoc.set_log_level(log_level)
 
-    final_sph = np.flipud(final_sph)
-    return final_sph, mgxs_lib
+    # FIXME: Organize SPH factors in the order of the FSRS
+    # FIXME: Return SPH indices (e.g., which FSRs were SPH domains?)
+
+    # Create mapping of FSRs-to-domains to help order SPH factors by FSR below
+    domains_to_fsrs = collections.defaultdict(list)
+    sph_indices = []
+    for fsr_id in range(geometry.getNumFSRs()):
+        cell = geometry.findCellContainingFSR(fsr_id)
+        if mgxs_lib.domain_type == 'material':
+            domain = cell.getFillMaterial()
+        else:
+            domain = cell
+        if domain.isFissionable():
+            sph_indices.append(fsr_id)
+        domains_to_fsrs[domain.getId()].append(fsr_id)
+
+    # Collect SPH factors for each FSR, energy group
+    fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
+    for i, domain in enumerate(mgxs_lib.domains):
+        fsr_ids = domains_to_fsrs[domain.id]
+        fsrs_to_sph[fsr_ids,:] = final_sph[i,:]
+
+    return fsrs_to_sph, mgxs_lib, np.array(sph_indices)
 
 ##
 # @brief Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.
@@ -618,8 +632,6 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
 # @param solver an OpenMOC Solver object
 # @return a NumPy array of the OpenMC fluxes indexed by domain and energy group
 def _load_openmc_src(mgxs_lib, solver):
-
-    import openmc
 
     # Retrieve dictionary of OpenMOC domains corresponding to OpenMC domains
     geometry = solver.getGeometry()
@@ -647,12 +659,12 @@ def _load_openmc_src(mgxs_lib, solver):
     # Compute fixed sources for all domains in the MGXS library
     for i, openmc_domain in enumerate(mgxs_lib.domains):
 
-        # Get OpenMOC domain corresponding to the OpenMOC domain
-        if openmc_domain.id in openmoc_domains:
-            openmoc_domain = openmoc_domains[openmc_domain.id]
         # Ignore domains which cannot be found in the OpenMOC Geometry
-        else:
+        if openmc_domain.id not in openmoc_domains:
             continue
+
+        # Get OpenMOC domain corresponding to the OpenMC domain
+        openmoc_domain = openmoc_domains[openmc_domain.id]
 
         # If this domain is not found in the OpenMOC geometry, ignore it
         if openmoc_domain.getNumInstances() == 0:
