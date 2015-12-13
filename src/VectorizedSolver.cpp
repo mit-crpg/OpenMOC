@@ -438,46 +438,13 @@ void VectorizedSolver::computeKeff() {
   Material* material;
   FP_PRECISION* sigma;
   FP_PRECISION volume;
-  FP_PRECISION old_fission, new_fission;
+  FP_PRECISION fission;
 
   int size = _num_FSRs * sizeof(FP_PRECISION);
   FP_PRECISION* FSR_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   size = _num_threads * _num_groups * sizeof(FP_PRECISION);
   FP_PRECISION* group_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-
-  /* Compute the old nu-fission rates in each FSR */
-  #pragma omp parallel for private(tid, volume, \
-    material, sigma) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
-
-    tid = omp_get_thread_num() * _num_groups;
-    volume = _FSR_volumes[r];
-    material = _FSR_materials[r];
-    sigma = material->getNuSigmaF();
-
-    /* Loop over each energy group vector length */
-    for (int v=0; v < _num_vector_lengths; v++) {
-
-      /* Loop over energy groups within this vector */
-      #pragma simd vectorlength(VEC_LENGTH)
-      for (int e=v*VEC_LENGTH; e < (v+1)*VEC_LENGTH; e++)
-        group_rates[tid+e] = sigma[e] * _old_scalar_flux(r,e);
-    }
-
-    #ifdef SINGLE
-    FSR_rates[r] = cblas_sasum(_num_groups, &group_rates[tid], 1) * volume;
-    #else
-    FSR_rates[r] = cblas_dasum(_num_groups, &group_rates[tid], 1) * volume;
-    #endif
-  }
-
-  /* Reduce old fission rates across FSRs */
-  #ifdef SINGLE
-  old_fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
-  #else
-  old_fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
-  #endif
 
   /* Compute the new nu-fission rates in each FSR */
   #pragma omp parallel for private(tid, volume, \
@@ -507,12 +474,12 @@ void VectorizedSolver::computeKeff() {
 
   /* Reduce new fission rates across FSRs */
   #ifdef SINGLE
-  new_fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
+  fission = cblas_sasum(_num_FSRs, FSR_rates, 1);
   #else
-  new_fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
+  fission = cblas_dasum(_num_FSRs, FSR_rates, 1);
   #endif
 
-  _k_eff *= new_fission / old_fission;
+  _k_eff *= fission;
 
   MM_FREE(FSR_rates);
   MM_FREE(group_rates);

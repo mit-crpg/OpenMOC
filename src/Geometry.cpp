@@ -1196,6 +1196,7 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
   coords->setUniverse(_root_universe);
   Cell* cell = findCellContainingCoords(coords);
 
+  coords->prune();
   delete coords;
 
   return cell;
