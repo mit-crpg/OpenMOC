@@ -598,19 +598,9 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
     for fsr_id in range(num_fsrs):
         fsrs_to_cmfd_cells[fsr_id] = cmfd.convertFSRIdToCmfdCell(fsr_id)
 
-    # Replace each Cell ID with a random (but reproducible) color ID
-    # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
-    # for Materials and Cells. The reason is that FSRs and CMFD cells are by
-    # definition a sequence of consecutive, monotonically increasing integers.
-    # Material and Cell IDs however may be any sequence of positive integers.
+    # Assign random color scheme to CMFD cells
     num_cmfd_cells = cmfd.getNumCells()
-    all_ids = np.arange(num_cmfd_cells, dtype=np.int64)
-    id_colors = np.arange(num_cmfd_cells, dtype=np.int64)
-    numpy.random.seed(1)
-    np.random.shuffle(id_colors)
-    ids_to_colors = np.arange(num_cmfd_cells, dtype=np.int64)
-    ids_to_colors[all_ids] = id_colors
-    fsrs_to_cmfd_cells = ids_to_colors.take(fsrs_to_cmfd_cells)
+    fsrs_to_cmfd_cells = _colorize(fsrs_to_cmfd_cells, num_cmfd_cells)
 
     # Plot the CMFD cells
     title = 'CMFD cells'
@@ -994,6 +984,31 @@ def _check_zcoord(geometry, zcoord):
         py_printf('ERROR', 'Unable to produce plot since ' +
                   'the z-coord %d is outside the geometry z-bounds (%d, %d)',
                   geometry.getMinZ(), geometry.getMaxZ())
+
+
+##
+# @brief Replace unique data values with a random but reproducible color ID.
+# @param data a NumPy array of data to colorize
+# @param num_colors the number of random colors to generate
+# @param seed the random number seed used to generate colors
+# @return
+def _colorize(data, num_colors, seed=1):
+
+    # Generate linearly-spaced array of color indices
+    all_ids = np.arange(num_colors, dtype=np.int64)
+
+    # Generate linearly-spaced integer color IDs
+    id_colors = np.arange(num_colors, dtype=np.int64)
+
+    # Randomly shuffle the linearly-spaced integer color IDs
+    numpy.random.seed(1)
+    np.random.shuffle(id_colors)
+
+    # Insert random colors into appropriate locations in data array
+    ids_to_colors = np.arange(num_colors, dtype=np.int64)
+    ids_to_colors[all_ids] = id_colors
+
+    return ids_to_colors.take(data)
 
 
 ##
