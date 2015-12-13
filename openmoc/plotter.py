@@ -64,7 +64,7 @@ def plot_tracks(track_generator):
         os.makedirs(directory)
 
     # Error checking
-    if not 'TrackGenerator' in str(type(track_generator)):
+    if 'TrackGenerator' not in str(type(track_generator)):
         py_printf('ERROR', 'Unable to plot Tracks since from %s rather ' +
                   'than a TrackGenerator', str(type(track_generator)))
 
@@ -124,7 +124,7 @@ def plot_segments(track_generator):
         os.makedirs(directory)
 
     # Error checking
-    if not 'TrackGenerator' in str(type(track_generator)):
+    if 'TrackGenerator' not in str(type(track_generator)):
         py_printf('ERROR', 'Unable to plot Track segments from %s ' +
                   'rather than a TrackGenerator', str(type(track_generator)))
 
@@ -216,7 +216,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
         os.makedirs(directory)
 
     # Error checking
-    if not 'Geometry' in str(type(geometry)):
+    if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the Materials since ' +
                   'input was not a geometry class object')
 
@@ -233,7 +233,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
         zcoord = 0.0
 
     # Check z-coord
-    check_zcoord(geometry, zcoord)
+    _check_zcoord(geometry, zcoord)
 
     py_printf('NORMAL', 'Plotting the materials...')
 
@@ -241,7 +241,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     surface = numpy.zeros((gridsize, gridsize), numpy.int64)
 
     # Retrieve the pixel coordinates
-    coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
 
     # Find the <aterial IDs for each grid point
     for i in range(gridsize):
@@ -322,9 +322,9 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
         os.makedirs(directory)
 
     # Error checking
-    if not 'Geometry' in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the Cells since ' +
-                  'input was not a Geometry class object')
+    if 'Geometry' not in str(type(geometry)):
+        py_printf('ERROR', 'Unable to plot the Cells since %s ' +
+                  'input was not a Geometry class object', str(geometry))
 
     if not is_integer(gridsize):
         py_printf('ERROR', 'Unable to plot the Cells since ' +
@@ -338,7 +338,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
         zcoord = 0.0
 
     # Check z-coord
-    check_zcoord(geometry, zcoord)
+    _check_zcoord(geometry, zcoord)
 
     py_printf('NORMAL', 'Plotting the cells...')
 
@@ -346,7 +346,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     surface = np.zeros((gridsize, gridsize), numpy.int64)
 
     # Retrieve the pixel coordinates
-    coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
 
     # Find the Cell IDs for each grid point
     for i in range(gridsize):
@@ -433,7 +433,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
         os.makedirs(directory)
 
     # Error checking
-    if not 'Geometry' in str(type(geometry)):
+    if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'input was not a geometry class object')
 
@@ -478,7 +478,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
 
     # Retrieve the pixel coordinates
-    coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
 
     # Get the Geometry's z-coord
     zcoord = geometry.getFSRPoint(0).getZ()
@@ -587,11 +587,11 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
         os.makedirs(directory)
 
     # Error checking
-    if not 'Geometry' in str(type(geometry)):
+    if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the CMFD cells since ' +
                   'input was not a geometry class object')
 
-    if not 'Cmfd' in str(type(cmfd)):
+    if 'Cmfd' not in str(type(cmfd)):
         py_printf('ERROR', 'Unable to plot the CMFD cells since ' +
                   'input was not a CMFD class object')
 
@@ -609,7 +609,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
     surface = numpy.zeros((gridsize, gridsize), numpy.int64)
 
     # Retrieve the pixel coordinates
-    coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
 
     # Get the Geometry's z-coord
     zcoord = geometry.getFSRPoint(0).getZ()
@@ -693,7 +693,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    if not 'Solver' in str(type(solver)):
+    if 'Solver' not in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
                   'input did not contain a solver class object')
 
@@ -732,7 +732,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
     fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
 
     # Retrieve the pixel coordinates
-    coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
+    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
 
     # Get the Geometry's z-coord
     zcoord = geometry.getFSRPoint(0).getZ()
@@ -810,7 +810,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    if not 'Solver' in str(type(solver)):
+    if 'Solver' not in str(type(solver)):
       py_printf('ERROR', 'Unable to plot the flux vs. energy ' +
                 'since input did not contain a Solver class object')
 
@@ -944,75 +944,23 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True,
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    if not 'Solver' in str(type(solver)):
+    if 'Solver' not in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the fission rates ' +
                   'since input did not contain a solver class object')
 
-    if not is_integer(gridsize):
-        py_printf('ERROR', 'Unable to plot the fission rates ' +
-                  'since the gridsize %s is not an integer', str(gridsize))
-
-    if gridsize <= 0:
-        py_printf('ERROR', 'Unable to plot the fission rates ' +
-                  'with a negative gridsize (%d)', gridsize)
-
     py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
-    # Get geometry
-    geometry = solver.getGeometry()
-
     # Compute the volume-weighted fission rates for each FSR
+    geometry = solver.getGeometry()
     fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
-
-    # Initialize a numpy array of fission rates
-    surface = numpy.zeros((gridsize, gridsize))
-
-    # Retrieve the pixel coordinates
-    coords = get_pixel_coords(geometry, gridsize, xlim, ylim)
-
-    # Get the Geometry's z-coord
     zcoord = geometry.getFSRPoint(0).getZ()
 
-    for i in range(gridsize):
-        for j in range(gridsize):
-
-            # Find the flat source region IDs for each grid point
-            x = coords['y'][i]
-            y = coords['x'][j]
-
-            point = openmoc.LocalCoords(x, y, zcoord)
-            point.setUniverse(geometry.getRootUniverse())
-            geometry.findCellContainingCoords(point)
-            fsr_id = geometry.getFSRId(point)
-
-            # If we did not find a region for this region, use a -1 "bad" number color
-            if np.isnan(fsr_id):
-                surface[j][i] = -1
-            # Get the fission rate in this FSR
-            else:
-                surface[j][i] = fission_rates[fsr_id]
-
-    # Normalize to maximum fission rate if requested
-    if norm:
-        surface /= np.max(surface)
-
-    # Set zero fission rates to NaN so Matplotlib will make them transparent
-    if transparent_zeros:
-        indices = np.where(surface == 0.0)
-        surface[indices] = np.nan
-
-    # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    cmap = plt.get_cmap()
-    cmap.set_bad(alpha=0.0)
-
-    # Plot a 2D color map of the flat source regions fission rates
-    fig = plt.figure()
-    plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap)
-    plt.colorbar()
-    plt.suptitle('Flat Source Region Fission Rates')
-    plt.title('z = {0}'.format(zcoord))
+    # Plot the fission rates
+    suptitle = 'Flat Source Region Fission Rates'
+    title = 'z = {0}'.format(zcoord)
     filename = 'fission-rates-z-{0}.png'.format(zcoord)
-    fig.savefig(directory+filename, bbox_inches='tight')
+    plot_spatial_data(geometry, fission_rates, norm, transparent_zeros, zcoord,
+                      gridsize, xlim, ylim, True, title, suptitle, filename)
 
 
 ##
@@ -1043,7 +991,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    if not 'IRAMSolver' in str(type(iramsolver)):
+    if 'IRAMSolver' not in str(type(iramsolver)):
       py_printf('ERROR', 'Unable to plot the eigenmode fluxes ' +
                 'since input did not contain an IRAMSolver class object')
 
@@ -1118,7 +1066,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @return a dictionary with the plotting window map and bounding box
-def get_pixel_coords(geometry, gridsize, xlim, ylim):
+def _get_pixel_coords(geometry, gridsize, xlim, ylim):
 
     # initialize variables to be returned
     bounds = [geometry.getMinX() + TINY_MOVE, geometry.getMaxX() - TINY_MOVE,
@@ -1150,7 +1098,7 @@ def get_pixel_coords(geometry, gridsize, xlim, ylim):
 # @param geometry a Geometry object which has been initialized with Materials,
 #        Cells, Universes and Lattices
 # @param zcoord the z coordinate
-def check_zcoord(geometry, zcoord):
+def _check_zcoord(geometry, zcoord):
 
     if not is_float(zcoord):
         py_printf('ERROR', 'Unable to produce plot since ' +
@@ -1160,3 +1108,128 @@ def check_zcoord(geometry, zcoord):
         py_printf('ERROR', 'Unable to produce plot since ' +
                   'the z-coord %d is outside the geometry z-bounds (%d, %d)',
                   geometry.getMinZ(), geometry.getMaxZ())
+
+
+##
+# @brief This method plots a color-coded 2D surface plot representing the
+#        arbitrary data mapped to each FSR in the Geometry.
+# @details The routine takes as its first parameter a NumPy array with
+#          data for each flat source region must have converged the flat source sources prior to
+#          calling this routine. A user may invoke this function from an
+#          OpenMOC Python file as follows:
+#
+# @code
+#         num_fsrs = geometry.getNumFSRS()
+#         fsrs_to_data = numpy.random.rand(num_fsrs)
+#         openmoc.plotter.plot_spatial_data(fsrs_to_data, geometry)
+# @endcode
+#
+# @param fsrs_to_data an array mapping flat source regions to numerical data
+# @param geometry a Geometry object which has initialized flat source regions
+# @param norm normalize the fission rates to the maximum fission rate
+# @param transparent_zeros make regions without fission transparent
+# @param gridsize an optional number of grid cells for the plot
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True,
+                     zcoord=None, gridsize=250, xlim=None, ylim=None,
+                     colorbar=False, title=None, suptitle=None,
+                     filename='spatial-data'):
+
+    global subdirectory
+    directory = openmoc.get_output_directory() + subdirectory
+
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Error checking
+    if 'Geometry' not in str(type(geometry)):
+        py_printf('ERROR', 'Unable to plot spatial data since %s ' +
+                  'input was not a Geometry class object', str(geometry))
+
+    if not isinstance(fsrs_to_data, np.ndarray):
+        py_printf('ERROR', 'Unable to plot spatial data since ' +
+                  'fsrs_to_data is not a NumPy array')
+
+    if len(fsrs_to_data) != geometry.getNumFSRs():
+        py_printf('ERROR', 'Unable to plot spatial data since fsrs_to_data ' +
+                  'is length %d but there are %d FSRs in the Geometry',
+                  len(fsrs_to_data), geometry.getNumFSRs())
+
+    if not is_integer(gridsize):
+        py_printf('ERROR', 'Unable to plot spatial data ' +
+                  'since the gridsize %s is not an integer', str(gridsize))
+
+    if gridsize <= 0:
+        py_printf('ERROR', 'Unable to plot spatial data ' +
+                  'with a negative gridsize (%d)', gridsize)
+
+    if title and not isinstance(title, str):
+        py_printf('ERROR', 'Unable to plot spatial data with a '
+                  'non-string title %s', str(title))
+
+    if suptitle and not isinstance(suptitle, str):
+        py_printf('ERROR', 'Unable to plot spatial data with a '
+                  'non-string suptitle %s', str(suptitle))
+
+    if not isinstance(filename, str):
+        py_printf('ERROR', 'Unable to plot spatial data with a '
+                  'non-string filename %s', str(filename))
+
+    if zcoord is None:
+        zcoord = 0.0
+
+    # Check z-coord
+    _check_zcoord(geometry, zcoord)
+
+    # Initialize a numpy array of fission rates
+    surface = numpy.zeros((gridsize, gridsize))
+
+    # Retrieve the pixel coordinates
+    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
+
+    for i in range(gridsize):
+        for j in range(gridsize):
+
+            # Find the flat source region IDs for each grid point
+            x = coords['y'][i]
+            y = coords['x'][j]
+
+            point = openmoc.LocalCoords(x, y, zcoord)
+            point.setUniverse(geometry.getRootUniverse())
+            geometry.findCellContainingCoords(point)
+            fsr_id = geometry.getFSRId(point)
+
+            # If we did not find a region for this region, use a -1 "bad" number color
+            if np.isnan(fsr_id):
+                surface[j][i] = -1
+            # Get the fission rate in this FSR
+            else:
+                surface[j][i] = fsrs_to_data[fsr_id]
+
+    # Normalize to maximum fission rate if requested
+    if norm:
+        surface /= np.max(surface)
+
+    # Set zero fission rates to NaN so Matplotlib will make them transparent
+    if transparent_zeros:
+        indices = np.where(surface == 0.0)
+        surface[indices] = np.nan
+
+    # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+    cmap = plt.get_cmap()
+    cmap.set_bad(alpha=0.0)
+
+    # Plot a 2D color map of the flat source regions fission rates
+    fig = plt.figure()
+    plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap)
+
+    if colorbar:
+        plt.colorbar()
+    if suptitle:
+        plt.suptitle(suptitle)
+    if title:
+        plt.title(title)
+
+    fig.savefig(directory+filename, bbox_inches='tight')
