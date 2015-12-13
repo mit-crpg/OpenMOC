@@ -334,130 +334,66 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
 
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
     # Error checking
     if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the flat source regions since %s ' +
                   'input is not a Geometry class object', str(geometry))
 
-    if not is_integer(gridsize):
-        py_printf('ERROR', 'Unable to plot the flat source regions since ' +
-                  'the gridsize %d is not an integer', gridsize)
-
-    if gridsize <= 0:
-      py_printf('ERROR', 'Unable to plot the flat source regions ' +
-                  'with a negative gridsize (%d)', gridsize)
-
     if not isinstance(centroids, bool):
-      py_printf('ERROR', 'Unable to plot the flat source regions since ' +
+        py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'centroids is not a boolean')
 
     if not isinstance(marker_type, str):
-      py_printf('ERROR', 'Unable to plot the flat source regions since ' +
+        py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'marker_type is a string')
 
     if marker_type not in matplotlib.markers.MarkerStyle().markers.keys():
-      py_printf('ERROR', 'Unable to plot the flat source regions since ' +
+        py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'marker_type is not a valid marker (%d)', marker_type)
 
     if not is_float(marker_size) and not is_integer(marker_size):
-      py_printf('ERROR', 'Unable to plot the flat source regions since ' +
+        py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'marker_size is not an int or float', marker_size)
 
     if marker_size <= 0:
-      py_printf('ERROR', 'Unable to plot the flat source regions ' +
+        py_printf('ERROR', 'Unable to plot the flat source regions ' +
                   'with a negative marker_size (%d)', marker_size)
 
-    py_printf('NORMAL', 'Plotting the flat source regions...')
-
-    # Get the number of flat source regions
-    num_fsrs = geometry.getNumFSRs()
-
-    if num_fsrs == 0:
+    if geometry.getNumFSRs() == 0:
         py_printf('ERROR', 'Unable to plot the flat source regions ' +
                   'since no tracks have been generated.')
 
-    # Initialize a NumPy array for the surface colors
-    surface = np.zeros((gridsize, gridsize), dtype=np.int64)
-
-    # Retrieve the pixel coordinates
-    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
+    py_printf('NORMAL', 'Plotting the flat source regions...')
 
     # Get the Geometry's z-coord
     zcoord = geometry.getFSRPoint(0).getZ()
 
-    # Find the flat source region IDs for each grid point
-    for i in range(gridsize):
-        for j in range(gridsize):
-
-            x = coords['x'][i]
-            y = coords['y'][j]
-
-            local_coords = openmoc.LocalCoords(x, y, zcoord)
-            local_coords.setUniverse(geometry.getRootUniverse())
-            geometry.findCellContainingCoords(local_coords)
-            fsr_id = geometry.getFSRId(local_coords)
-
-            # If we did not find a region, use a -1 "bad" number color
-            if fsr_id is None:
-                surface[j][i] = -1
-            else:
-                surface[j][i] = fsr_id
-
-            del local_coords
-
-    # Replace each Cell ID with a random (but reproducible) color ID
-    # NOTE: This color coding scheme only works for FSRs and CMFD cells and not
-    # for Materials and Cells. The reason is that FSRs and CMFD cells are by
-    # definition a sequence of consecutive, monotonically increasing integers.
-    # Material and Cell IDs however may be any sequence of positive integers.
-    all_ids = np.arange(num_fsrs, dtype=np.int64)
-
-    id_colors = np.arange(num_fsrs, dtype=np.int64)
-    numpy.random.seed(1)
-    np.random.shuffle(id_colors)
-
-    ids_to_colors = np.arange(num_fsrs, dtype=np.int64)
-    ids_to_colors[all_ids] = id_colors
-
-    colors = ids_to_colors.take(surface)
-
-    # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    cmap = plt.get_cmap('spectral')
-    cmap.set_bad(alpha=0.0)
+    num_fsrs = geometry.getNumFSRs()
+    fsrs_to_fsrs = np.arange(num_fsrs, dtype=np.int64)
+    fsrs_to_fsrs = _colorize(fsrs_to_fsrs, num_fsrs)
 
     # Plot a 2D color map of the flat source regions
-    fig = plt.figure()
-    colors = np.flipud(colors)
-    plt.imshow(colors, extent=coords['bounds'],
-               interpolation='nearest', cmap=cmap, vmin=0, vmax=num_fsrs)
+    suptitle = 'Flat Source Regions'
+    title = 'z = {0}'.format(zcoord)
+    filename = 'flat-source-regions-z-{0}.png'.format(zcoord)
+    fig = plot_spatial_data(geometry, fsrs_to_fsrs, False, False, zcoord,
+                            gridsize, xlim, ylim, False, title, suptitle,
+                            filename, 'nearest', plt.get_cmap('spectral'),
+                            0, num_fsrs, True)
 
-    # Plot centroids on top of 2D FSR color map
+    # Plot centroids on top of 2D flat source region color map
     if centroids:
-        centroids_x = []
-        centroids_y = []
-        for r in range(geometry.getNumFSRs()):
-            point = geometry.getFSRCentroid(r)
-            centroids_x.append(point.getX())
-            centroids_y.append(point.getY())
+        centroids = np.zeros((num_fsrs, 2), dtype=np.float)
+        for fsr_id in range(num_fsrs):
+            point = geometry.getFSRCentroid(fsr_id)
+            centroids[fsr_id,:] = [point.getX(), point.getY()]
 
-        plt.scatter(centroids_x, centroids_y, color='k',
+        plt.scatter(centroids[:,0], centroids[:,1], color='k',
                     marker=marker_type, s=marker_size)
 
-        # Matplotlib likes to add a buffer around scatter plots, so we will
-        # manually set the plot bounds
-        plt.xlim(min(coords['x']), max(coords['x']))
-        plt.ylim(min(coords['y']), max(coords['y']))
-
-        # Set the plot title and save the figure
-        plt.suptitle('Flat Source Regions')
-        plt.title('z = {0}'.format(zcoord))
-        filename = 'flat-source-regions-z-{0}.png'.format(zcoord)
-        fig.savefig(directory+filename, bbox_inches='tight')
-        plt.close(fig)
+    # Set the plot title and save the figure
+    fig.savefig(directory+filename, bbox_inches='tight')
+    plt.close(fig)
 
 
 ##
@@ -942,11 +878,12 @@ def _colorize(data, num_colors, seed=1):
 # @parma cmap
 # @param vmin
 # @param vmax
+# @param get_figure
 def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True,
                      zcoord=None, gridsize=250, xlim=None, ylim=None,
                      colorbar=False, title=None, suptitle=None,
                      filename='spatial-data', interpolation=None,
-                     cmap=None, vmin=None, vmax=None):
+                     cmap=None, vmin=None, vmax=None, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -1047,4 +984,8 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
     if title:
         plt.title(title)
 
-    fig.savefig(directory+filename, bbox_inches='tight')
+    if get_figure:
+        return fig
+    else:
+        fig.savefig(directory+filename, bbox_inches='tight')
+        plt.close()
