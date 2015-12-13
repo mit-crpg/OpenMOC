@@ -697,83 +697,26 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
         py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
                   'input did not contain a solver class object')
 
-    geometry = solver.getGeometry()
-    num_groups = geometry.getNumEnergyGroups()
-
-    if isinstance(energy_groups, (list, tuple, np.ndarray)):
-        for group in energy_groups:
-            if not is_integer(group):
-                py_printf('ERROR', 'Unable to plot the FSR flux ' +
-                          'with energy group %s', str(group))
-
-            elif group <= 0:
-                py_printf('ERROR', 'Unable to plot the FSR flux for ' +
-                          'negative group %d', group)
-
-            elif group > num_groups:
-                py_printf('ERROR', 'Unable to plot the FSR flux for group ' +
-                          '%d with %d total groups', group, num_groups)
-
-    else:
+    if not isinstance(energy_groups, (list, tuple, np.ndarray)):
         py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
                   'energy_groups is not a Python tuple/list or NumPy array')
 
-    if not is_integer(gridsize):
-        py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
-                  'gridsize %s is not an integer', str(gridsize))
-
-    if gridsize <= 0:
-        py_printf('ERROR', 'Unable to plot the FSR flux with a ' +
-                  'negative gridsize (%d)', gridsize)
-
     py_printf('NORMAL', 'Plotting the FSR scalar fluxes...')
 
-    # Initialize a numpy array for the groupwise scalar fluxes
-    fluxes = numpy.zeros((len(energy_groups), gridsize, gridsize))
-
-    # Retrieve the pixel coordinates
-    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
-
-    # Get the Geometry's z-coord
+    geometry = solver.getGeometry()
     zcoord = geometry.getFSRPoint(0).getZ()
 
-    for i in range(gridsize):
-        for j in range(gridsize):
-
-            # Find the flat source region IDs for each grid point
-            x = coords['x'][i]
-            y = coords['y'][j]
-
-            point = openmoc.LocalCoords(x, y, zcoord)
-            point.setUniverse(geometry.getRootUniverse())
-            geometry.findCellContainingCoords(point)
-            fsr_id = geometry.getFSRId(point)
-
-            # If we did not find a region, use a -1 "bad" number color
-            if np.isnan(fsr_id):
-                fluxes[:,j,i] = -1
-
-            # Get the scalar flux for each energy group in this FSR
-            else:
-                for index, group in enumerate(energy_groups):
-                    fluxes[index,j,i] = solver.getFlux(fsr_id, group)
+    # Get array of FSR energy-dependent fluxes
+    fluxes = get_scalar_fluxes(solver)
 
     # Loop over all energy group and create a plot
+    # Plot a 2D color map of the flat source regions
     for index, group in enumerate(energy_groups):
-
-        # Normalize to maximum flux if requested
-        if norm:
-            fluxes[index,:,:] /= np.max(fluxes[index,:,:])
-
-        # Plot a 2D color map of the flat source regions
-        fig = plt.figure(index)
-        plt.imshow(np.flipud(fluxes[index,:,:]), extent=coords['bounds'])
-        plt.colorbar()
-        plt.suptitle('FSR Scalar Flux (Group {0})'.format(group))
-        plt.title('z = {0}'.format(zcoord))
+        suptitle = 'FSR Scalar Flux (Group {0})'.format(group)
+        title = 'z = {0}'.format(zcoord)
         filename = 'fsr-flux-group-{0}-z-{1}.png'.format(group, zcoord)
-        fig.savefig(directory+filename, bbox_inches='tight')
-        plt.close(fig)
+        plot_spatial_data(geometry, fluxes[:,index], norm, False, zcoord,
+                          gridsize, xlim, ylim, True, title, suptitle, filename)
 
 
 ##
