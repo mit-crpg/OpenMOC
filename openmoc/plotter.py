@@ -314,25 +314,10 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 # @param zcoord optional the z coordinate (default is 0.0)
 def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
-    global subdirectory
-    directory = openmoc.get_output_directory() + subdirectory
-
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
     # Error checking
     if 'Geometry' not in str(type(geometry)):
         py_printf('ERROR', 'Unable to plot the Cells since %s ' +
                   'input was not a Geometry class object', str(geometry))
-
-    if not is_integer(gridsize):
-        py_printf('ERROR', 'Unable to plot the Cells since ' +
-                  'the gridsize %d is not an integer', gridsize)
-
-    if gridsize <= 0:
-        py_printf('ERROR', 'Unable to plot the Cells ' +
-                  'with a negative gridsize (%d)', gridsize)
 
     if zcoord is None:
         zcoord = 0.0
@@ -342,63 +327,33 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
     py_printf('NORMAL', 'Plotting the cells...')
 
-    # Initialize a NumPy array for the surface colors
-    surface = np.zeros((gridsize, gridsize), np.int64)
+    # Create a NumPy array to map FSRs to CMFD cells
+    num_fsrs = geometry.getNumFSRs()
+    fsrs_to_cells = np.zeros(num_fsrs, dtype=np.int64)
+    for fsr_id in range(num_fsrs):
+        cell = geometry.findCellContainingFSR(fsr_id)
+        fsrs_to_cells[fsr_id] = cell.getId()
 
-    # Retrieve the pixel coordinates
-    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
-
-    # Find the Cell IDs for each grid point
-    for i in range(gridsize):
-        for j in range(gridsize):
-
-            x = coords['x'][i]
-            y = coords['y'][j]
-
-            point = openmoc.LocalCoords(x, y, zcoord)
-            point.setUniverse(geometry.getRootUniverse())
-            cell = geometry.findCellContainingCoords(point)
-
-            # If we did not find a Cel, use a -1 "bad" number color
-            if cell is None:
-                surface[j][i] = -1
-            else:
-                surface[j][i] = cell.getId()
-
-    # Get the number of Material Cells in the Geometry
+    # Create an array of random integer colors for each Cell
     material_cells = geometry.getAllMaterialCells()
     num_cells = len(material_cells)
-
-    # Create array of all Cell IDs and randomly (but reproducibly) permute it
     cell_ids = [cell_id for cell_id in material_cells]
     numpy.random.seed(1)
     numpy.random.shuffle(cell_ids)
-
-    # Create an array of the colors (array indices) for each value in surface
-    colors = np.zeros((gridsize, gridsize))
-
-    for cell_id in np.unique(surface):
-        if cell_id != -1:
-            index = cell_ids.index(cell_id)
-        else:
-            index = -1
-        indices = np.where(surface == cell_id)
-        colors[indices] = index
-
-    # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    cmap = plt.get_cmap('spectral')
-    cmap.set_bad(alpha=0.0)
+    for i, cell_id in enumerate(fsrs_to_cells):
+        fsrs_to_cells[i] = np.where(cell_ids == cell_id)[0]
 
     # Plot a 2D color map of the Cells
-    fig = plt.figure()
-    colors = np.flipud(colors)
-    plt.imshow(colors, extent=coords['bounds'],
-               interpolation='nearest', cmap=cmap, vmin=0, vmax=num_cells)
-    plt.suptitle('Cells')
-    plt.title('z = {0}'.format(zcoord))
+    suptitle = 'Cells'
+    title = 'z = {0}'.format(zcoord)
     filename = 'cells-z-{0}.png'.format(zcoord)
-    fig.savefig(directory+filename, bbox_inches='tight')
-    plt.close(fig)
+    plot_spatial_data(geometry, fsrs_to_cells, False, False, zcoord, gridsize,
+                      xlim, ylim, False, title, suptitle, filename,
+                      'nearest', plt.get_cmap('spectral'), 0, num_cells)
+
+
+#    plt.imshow(colors, extent=coords['bounds'],
+#               interpolation='nearest', cmap=cmap, vmin=0, vmax=num_cells)
 
 
 ##
@@ -816,10 +771,6 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 def plot_fission_rates(solver, norm=False, transparent_zeros=True,
                        gridsize=250, xlim=None, ylim=None):
 
-    # Make directory if it does not exist
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
     if 'Solver' not in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the fission rates ' +
                   'since input did not contain a solver class object')
@@ -1032,10 +983,19 @@ def _colorize(data, num_colors, seed=1):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
+# @param colorbar
+# @param title
+# @param suptitle
+# @param filename
+# @param interpolation
+# @parma cmap
+# @param vmin
+# @param vmax
 def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True,
                      zcoord=None, gridsize=250, xlim=None, ylim=None,
                      colorbar=False, title=None, suptitle=None,
-                     filename='spatial-data'):
+                     filename='spatial-data', interpolation=None,
+                     cmap=None, vmin=None, vmax=None):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -1109,22 +1069,25 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
             else:
                 surface[j][i] = fsrs_to_data[fsr_id]
 
-    # Normalize to maximum fission rate if requested
+    # Normalize data to maximum if requested
     if norm:
         surface /= np.max(surface)
 
-    # Set zero fission rates to NaN so Matplotlib will make them transparent
+    # Set zero data entries to NaN so Matplotlib will make them transparent
     if transparent_zeros:
         indices = np.where(surface == 0.0)
         surface[indices] = np.nan
 
+    if cmap is None:
+        cmap = plt.get_cmap()
+
     # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    cmap = plt.get_cmap()
     cmap.set_bad(alpha=0.0)
 
     # Plot a 2D color map of the flat source regions fission rates
     fig = plt.figure()
-    plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap)
+    plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap,
+               vmin=vmin, vmax=vmax, interpolation=interpolation)
 
     if colorbar:
         plt.colorbar()
