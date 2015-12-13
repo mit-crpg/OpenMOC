@@ -1135,9 +1135,9 @@ void Lattice::subdivideCells(double max_radius) {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> universes = getUniqueUniverses();
 
-  /* Compute minimum radius needed to surround a lattice cell */
+  /* Compute equivalent radius with the same area of a lattice cell */
   /* This is used as the maximum radius for all ringified Cells */
-  double radius = sqrt(_width_x * _width_x / 2. + _width_y * _width_y / 2.);
+  double radius = sqrt(_width_x * _width_y / M_PI);
 
   /* If the lattice pitch is smaller than max_radius parameter, over-ride it */
   if (radius < max_radius)

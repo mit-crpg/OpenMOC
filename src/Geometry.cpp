@@ -751,11 +751,9 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
  */
 void Geometry::subdivideCells() {
 
-  /* Compute minimum radius needed to surround a lattice cell */
+  /* Compute equivalent radius with the same area as the Geometry */
   /* This is used as the maximum radius for all ringified Cells */
-  double width_x = getWidthX() / 2.;
-  double width_y = getWidthY() / 2.;
-  double max_radius = sqrt(width_x * width_x + width_y * width_y);
+  double max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
 
   /* Recursively subdivide Cells into rings and sectors */
   _root_universe->subdivideCells(max_radius);
