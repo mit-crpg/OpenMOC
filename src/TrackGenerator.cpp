@@ -4883,16 +4883,36 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
       int cmfd_surface_bwd = -1;
       int cmfd_surface_fwd = -1;
       if (cmfd != NULL && dist_3D > TINY_MOVE) {
+
+        /* Determine if this is the first 3D segment handled for the flattened
+           2D segment. If so, get the 2D cmfd surface. */
+        if (segments_2D[s]._length - remaining_length_2D <= TINY_MOVE)
+          cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
+
+        /* Determine if this is the last 3D segment handled for the flattened
+           2D segment. If so, get the 2D cmfd surface. */
+        double next_dist_3D = (remaining_length_2D - dist_2D) / sin_theta;
+        if (z_move == 0 || next_dist_3D <= TINY_MOVE)
+          cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
+
+        /* Adjust coordinats forward to find cell */
         curr_coords.adjustCoords(tiny_delta_x, tiny_delta_y, tiny_delta_z);
         int cmfd_cell = cmfd->findCmfdCell(&curr_coords);
-        curr_coords.adjustCoords(-tiny_delta_x, -tiny_delta_y, -tiny_delta_z);
-        cmfd_surface_bwd = cmfd->findCmfdSurface(cmfd_cell, &curr_coords);
 
+        /* Adjust coordinates back to find the backwards surface */
+        curr_coords.adjustCoords(-tiny_delta_x, -tiny_delta_y, -tiny_delta_z);
+        cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords, 
+            cmfd_surface_bwd);
+
+        /* Move coordinates to end of segment */
         FP_PRECISION delta_x = sin_theta * cos(phi) * dist_3D;
         FP_PRECISION delta_y = sin_theta * sin(phi) * dist_3D;
         FP_PRECISION delta_z = cos_theta * dist_3D;
         curr_coords.adjustCoords(delta_x, delta_y, delta_z);
-        cmfd_surface_fwd = cmfd->findCmfdSurface(cmfd_cell, &curr_coords);
+
+        /* Find forward surface */
+        cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords,
+            cmfd_surface_fwd);
       }
 
       /* Operate on segment */

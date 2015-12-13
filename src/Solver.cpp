@@ -700,9 +700,6 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
-  /* Start the timer to record the total time to converge the flux */
-  _timer->startTimer();
-
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -723,6 +720,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
 
   /* Compute the sum of fixed, total and scattering sources */
   computeFSRSources();
+
+  /* Start the timer to record the total time to converge the flux */
+  _timer->startTimer();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -802,9 +802,6 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
-  /* Start the timer to record the total time to converge the flux */
-  _timer->startTimer();
-
   _k_eff = k_eff;
   FP_PRECISION residual;
 
@@ -817,6 +814,9 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
+
+  /* Start the timer to record the total time to converge the flux */
+  _timer->startTimer();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -879,10 +879,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
-
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
-
   FP_PRECISION residual;
 
   /* An initial guess for the eigenvalue */
@@ -901,6 +897,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
+
+  /* Start the timer to record the total time to converge the source */
+  _timer->startTimer();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {

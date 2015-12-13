@@ -1164,6 +1164,29 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     new_segment->_length = min_length;
     new_segment->_region_id = region_id;
     
+    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    if (_cmfd != NULL) {
+
+      /* Find cmfd cell that segment lies in */
+      int cmfd_cell = _cmfd->findCmfdCell(&start);
+
+      /* Reverse nudge from surface to determine whether segment start or end
+       * points lie on a CMFD surface. */
+      delta_x = cos(phi) * TINY_MOVE;
+      delta_y = sin(phi) * TINY_MOVE;
+      start.adjustCoords(-delta_x, -delta_y, 0);
+      end.adjustCoords(-delta_x, -delta_y, 0);
+
+      new_segment->_cmfd_surface_fwd =
+        _cmfd->findCmfdSurface(cmfd_cell, &end);
+      new_segment->_cmfd_surface_bwd =
+        _cmfd->findCmfdSurface(cmfd_cell, &start);
+
+      /* Re-nudge segments from surface. */
+      start.adjustCoords(delta_x, delta_y, 0);
+      end.adjustCoords(delta_x, delta_y, 0);
+    }
+
     /* Add the segment to the 2D track */
     flattened_track->addSegment(new_segment);
   }

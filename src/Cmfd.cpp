@@ -1124,6 +1124,25 @@ int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
 }
 
 
+/*
+ * @brief Quickly finds a 3D CMFD surface given a cell, global coordinate, and
+ *        2D CMFD surface. Intended for use in axial on-the-fly ray tracing.
+ * @details If the coords is not on a surface, -1 is returned. If there is
+ *          no 2D CMFD surface intersection, -1 should be input for the 2D CMFD
+ *          surface.
+ * @param cell The CMFD cell ID that the local coords is in.
+ * @param coords The coords being evaluated. It is assumed this LocalCoords
+ *        object is in the root universe.
+ * @param surface_2D The ID of the 2D CMFD surface that the LocalCoords object
+ *        intersects. If there is no 2D intersection, -1 should be input.
+ */
+int Cmfd::findCmfdSurfaceOTF(int cell, LocalCoords* coords, int surface_2D) {
+  Point* point = coords->getPoint();
+  int surface = _lattice->getLatticeSurfaceOTF(cell, point, surface_2D);
+  return surface;
+}
+
+
 /**
  * @brief Find the CMFD cell that a LocalCoords object is in.
  * @param The coords being evaluated.
