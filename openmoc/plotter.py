@@ -372,7 +372,8 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.vmax = num_fsrs
 
     # Plot a 2D color map of the flat source regions
-    fig = plot_spatial_data(fsrs_to_fsrs, plot_params, get_figure=True)
+    figures = plot_spatial_data(fsrs_to_fsrs, plot_params, get_figure=True)
+    fig = figures[0]
 
     # Plot centroids on top of 2D flat source region color map
     if centroids:
@@ -802,7 +803,8 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
 #
 # @param fsrs_to_data an array mapping flat source regions to numerical data
 # @param plot_params a PlotParams object initialized with a Geometry
-# @param get_figure whether to return the Matplotlib figure
+# @param get_figure whether to return a list of Matplotlib figures
+# @return a list of Matplotlib figures, if requested
 def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
 
     global subdirectory
@@ -826,7 +828,7 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
                   'fsrs_to_data is not a NumPy array or Pandas DataFrame')
 
     # Initialize a numpy array for the FSR spatial data
-    surface = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
+    fsrs = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(plot_params)
@@ -845,46 +847,83 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
 
             # If we did not find a region, use a -1 "bad" number color
             if np.isnan(fsr_id):
-                surface[j][i] = -1
+                fsrs[j][i] = -1
             else:
-                surface[j][i] = fsr_id
+                fsrs[j][i] = fsr_id
 
-    # Use FSR IDs in surface to appropriately index into FSR data array
-    surface = fsrs_to_data.take(surface.flatten())
-    surface.shape = (plot_params.gridsize, plot_params.gridsize)
+    # Make FSRs-to-data array 2D to mirror a Pandas DataFrame
+    if isinstance(fsrs_to_data, np.ndarray):
+        fsrs_to_data.shape += (1,)
 
-    # Normalize data to maximum if requested
-    if plot_params.norm:
-        surface /= np.max(surface)
+    # Initialize a list of Matplotlib figures to return to user if requested
+    figures = []
 
-    # Set zero data entries to NaN so Matplotlib will make them transparent
-    if plot_params.transparent_zeros:
-        indices = np.where(surface == 0.0)
-        surface[indices] = np.nan
+    # Loop over all columns in NumPy array or Pandas DataFrame input
+    for i in range(fsrs_to_data.shape[1]):
 
-    # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    if plot_params.cmap:
-        plot_params.cmap.set_bad(alpha=0.0)
+        # Use FSR IDs to appropriately index into FSR data
+        if isinstance(fsrs_to_data, pd.DataFrame):
+            surface = fsrs_to_data.ix[:,i].values
+            surface = surface.take(fsrs.flatten())
+        else:
+            surface = fsrs_to_data.take(fsrs.flatten())
 
-    # Plot a 2D color map of the flat source region data
-    fig = plt.figure()
-    plt.imshow(np.flipud(surface), extent=coords['bounds'],
-               cmap=plot_params.cmap, interpolation=plot_params.interpolation,
-               vmin=plot_params.vmin, vmax=plot_params.vmax,)
+        # Reshape data to 2D array for Matplotlib image plot
+        surface.shape = (plot_params.gridsize, plot_params.gridsize)
 
-    if plot_params.colorbar:
-        plt.colorbar()
-    if plot_params.suptitle:
-        plt.suptitle(plot_params.suptitle)
-    if plot_params.title:
-        plt.title(plot_params.title)
+        # Normalize data to maximum if requested
+        if plot_params.norm:
+            surface /= np.max(surface)
+
+        # Set zero data entries to NaN so Matplotlib will make them transparent
+        if plot_params.transparent_zeros:
+            indices = np.where(surface == 0.0)
+            surface[indices] = np.nan
+
+        # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+        if plot_params.cmap:
+            plot_params.cmap.set_bad(alpha=0.0)
+
+        # Plot a 2D color map of the flat source region data
+        fig = plt.figure()
+        plt.imshow(np.flipud(surface), extent=coords['bounds'],
+                   cmap=plot_params.cmap, interpolation=plot_params.interpolation,
+                   vmin=plot_params.vmin, vmax=plot_params.vmax,)
+
+        if plot_params.colorbar:
+            plt.colorbar()
+        if plot_params.title:
+            plt.title(plot_params.title)
+
+        if plot_params.suptitle:
+            # If input was a Pandas DataFrame, append column name to suptitle
+            if isinstance(fsrs_to_data, pd.DataFrame):
+                suptitle = plot_params.suptitle
+                suptitle += ' ({0})'.format(fsrs_to_data.columns[i])
+            else:
+                suptitle = plot_params.suptitle
+
+            plt.suptitle(suptitle)
+
+        # If the user requested the Matplotlib figure handles for further
+        # specialization, append the handle to this figure to a list
+        if get_figure:
+            figures.append(fig)
+
+        # Otherwise, save this Matplotlib figure
+        else:
+            plot_filename = directory + plot_params.filename
+
+            # If input was a Pandas DataFrame, append column name to filename
+            if isinstance(fsrs_to_data, pd.DataFrame):
+                plot_filename += '-{0}'.format(fsrs_to_data.columns[i])
+
+            plot_filename +=  plot_params.extension
+            fig.savefig(plot_filename, bbox_inches='tight')
+            plt.close()
 
     if get_figure:
-        return fig
-    else:
-        plot_filename = directory + plot_params.filename + plot_params.extension
-        fig.savefig(plot_filename, bbox_inches='tight')
-        plt.close()
+        return figures
 
 
 ##
@@ -912,7 +951,7 @@ class PlotParams(object):
         self._extension = '.png'
 
         ## The z-coordinate at which to slice the Geometry
-        self._zcoord = None
+        self._zcoord = 0
 
         ## The number of points along the x- and y-axes
         self._gridsize = 250
@@ -1038,9 +1077,7 @@ class PlotParams(object):
 
     @zcoord.setter
     def zcoord(self, zcoord):
-        if zcoord is None:
-            self._zcoord = 0.0
-        else:
+        if zcoord:
             self._zcoord = zcoord
 
         self._check_zcoord()
