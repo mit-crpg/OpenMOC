@@ -12,6 +12,7 @@ import sys
 import numpy as np
 import numpy.random
 import matplotlib
+import pandas as pd
 
 # force headless backend, or set 'backend' to 'Agg'
 # in your ~/.matplotlib/matplotlibrc
@@ -234,7 +235,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     plot_params.zcoord = zcoord
     plot_params.suptitle = 'Materials'
     plot_params.title = 'z = {0}'.format(plot_params.zcoord)
-    plot_params.filename = 'materials-z-{0}.png'.format(plot_params.zcoord)
+    plot_params.filename = 'materials-z-{0}'.format(plot_params.zcoord)
     plot_params.interpolation = 'nearest'
     plot_params.vmin = 0
     plot_params.vmax = num_materials
@@ -289,7 +290,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     plot_params.zcoord = zcoord
     plot_params.suptitle = 'Cells'
     plot_params.title = 'z = {0}'.format(plot_params.zcoord)
-    plot_params.filename = 'cells-z-{0}.png'.format(plot_params.zcoord)
+    plot_params.filename = 'cells-z-{0}'.format(plot_params.zcoord)
     plot_params.interpolation = 'nearest'
     plot_params.vmin = 0
     plot_params.vmax = num_cells
@@ -365,7 +366,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.ylim = ylim
     plot_params.suptitle = 'Flat Source Regions'
     plot_params.title = 'z = {0}'.format(zcoord)
-    plot_params.filename = 'flat-source-regions-z-{0}.png'.format(zcoord)
+    plot_params.filename = 'flat-source-regions-z-{0}'.format(zcoord)
     plot_params.interpolation = 'nearest'
     plot_params.vmin = 0
     plot_params.vmax = num_fsrs
@@ -384,7 +385,8 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
                     marker=marker_type, s=marker_size)
 
     # Set the plot title and save the figure
-    fig.savefig(directory+plot_params.filename, bbox_inches='tight')
+    plot_filename = directory + plot_params.filename + plot_params.extension
+    fig.savefig(plot_filename, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -439,7 +441,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
     plot_params.ylim = ylim
     plot_params.suptitle = 'CMFD Cells'
     plot_params.title = 'z = {0}'.format(zcoord)
-    plot_params.filename = 'cmfd-cells-{0}.png'.format(zcoord)
+    plot_params.filename = 'cmfd-cells-{0}'.format(zcoord)
     plot_params.interpolation = 'nearest'
     plot_params.vmin = 0
     plot_params.vmax = num_cmfd_cells
@@ -498,7 +500,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
     for index, group in enumerate(energy_groups):
         plot_params.suptitle = 'FSR Scalar Flux (Group {0})'.format(group)
         plot_params.title = 'z = {0}'.format(zcoord)
-        plot_params.filename = 'fsr-flux-group-{0}-z-{1}.png'.format(group, zcoord)
+        plot_params.filename = 'fsr-flux-group-{0}-z-{1}'.format(group, zcoord)
         plot_spatial_data(fluxes[:,index], plot_params)
 
 
@@ -787,16 +789,17 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
 ##
 # @brief This method plots a color-coded 2D surface plot representing the
 #        arbitrary data mapped to each FSR in the Geometry.
-# @details The routine takes as its first parameter a NumPy array with
-#          data for each flat source region must have converged the flat source sources prior to
-#          calling this routine. A user may invoke this function from an
+# @details The routine takes as its first parameter a NumPy array or Pandas
+#          DataFrame with as many entries / rows as there are flat source
+#          regions in the geometry. A user may invoke this function from an
 #          OpenMOC Python file as follows:
 #
 # @code
 #         num_fsrs = geometry.getNumFSRS()
 #         fsrs_to_data = numpy.random.rand(num_fsrs)
-#         openmoc.plotter.plot_spatial_data(fsrs_to_data, geometry)
+#         openmoc.plotter.plot_spatial_data(fsrs_to_data, )
 # @endcode
+#
 # @param fsrs_to_data an array mapping flat source regions to numerical data
 # @param plot_params a PlotParams object initialized with a Geometry
 # @param get_figure whether to return the Matplotlib figure
@@ -813,17 +816,17 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
         py_printf('ERROR', 'Unable to plot spatial data with %s which is'
                            'not a PlotParams object', str(plot_params))
 
-    if not isinstance(fsrs_to_data, np.ndarray):
+    if isinstance(fsrs_to_data, (np.ndarray, pd.DataFrame)):
+        if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
+            py_printf('ERROR', 'The fsrs_to_data array is length %d but ' +
+                      'there are %d FSRs in the Geometry', len(fsrs_to_data),
+                      plot_params.geometry.getNumFSRs())
+    else:
         py_printf('ERROR', 'Unable to plot spatial data since ' +
-                  'fsrs_to_data is not a NumPy array')
-
-    if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
-        py_printf('ERROR', 'Unable to plot spatial data since fsrs_to_data ' +
-                  'is length %d but there are %d FSRs in the Geometry',
-                  len(fsrs_to_data), plot_params.geometry.getNumFSRs())
+                  'fsrs_to_data is not a NumPy array or Pandas DataFrame')
 
     # Initialize a numpy array for the FSR spatial data
-    surface = np.zeros((plot_params.gridsize, plot_params.gridsize))
+    surface = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(plot_params)
@@ -843,10 +846,12 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
             # If we did not find a region, use a -1 "bad" number color
             if np.isnan(fsr_id):
                 surface[j][i] = -1
-
-            # Get the data for this FSR
             else:
-                surface[j][i] = fsrs_to_data[fsr_id]
+                surface[j][i] = fsr_id
+
+    # Use FSR IDs in surface to appropriately index into FSR data array
+    surface = fsrs_to_data.take(surface.flatten())
+    surface.shape = (plot_params.gridsize, plot_params.gridsize)
 
     # Normalize data to maximum if requested
     if plot_params.norm:
@@ -877,7 +882,8 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
     if get_figure:
         return fig
     else:
-        fig.savefig(directory+plot_params.filename, bbox_inches='tight')
+        plot_filename = directory + plot_params.filename + plot_params.extension
+        fig.savefig(plot_filename, bbox_inches='tight')
         plt.close()
 
 
@@ -901,6 +907,9 @@ class PlotParams(object):
 
         ## The filename string
         self._filename = None
+
+        ## The image file extension
+        self._extension = '.png'
 
         ## The z-coordinate at which to slice the Geometry
         self._zcoord = None
@@ -948,6 +957,10 @@ class PlotParams(object):
     @property
     def filename(self):
         return self._filename
+
+    @property
+    def extension(self):
+        return self._extension
 
     @property
     def zcoord(self):
@@ -1015,6 +1028,13 @@ class PlotParams(object):
             py_printf('ERROR', 'The filename %s is not a string', str(filename))
 
         self._filename = filename
+
+    @extension.setter
+    def extension(self, extension):
+        if not isinstance(extension, str):
+            py_printf('ERROR', 'The extension %s is not a string', str(extension))
+
+        self._filename = extension
 
     @zcoord.setter
     def zcoord(self, zcoord):
