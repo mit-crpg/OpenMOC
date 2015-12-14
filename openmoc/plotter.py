@@ -207,18 +207,6 @@ def plot_segments(track_generator):
 # @param zcoord optional the z coordinate (default is 0.0)
 def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
-    # Error checking
-    if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the Materials since input %s ' +
-                  'is not a Geometry class object', str(geometry))
-
-    # If zcoord was not set, set the zcoord to 0.0
-    if zcoord is None:
-        zcoord = 0.0
-
-    # Check z-coord
-    _check_zcoord(geometry, zcoord)
-
     py_printf('NORMAL', 'Plotting the materials...')
 
     # Create a NumPy array to map FSRs to Materials
@@ -237,13 +225,22 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     for i, material_id in enumerate(fsrs_to_materials):
         fsrs_to_materials[i] = np.where(material_ids == material_id)[0]
 
+    # Initialize plotting parameters
+    plot_params = PlotParams()
+    plot_params.geometry = geometry
+    plot_params.gridsize = gridsize
+    plot_params.xlim = xlim
+    plot_params.ylim = ylim
+    plot_params.zcoord = zcoord
+    plot_params.suptitle = 'Materials'
+    plot_params.title = 'z = {0}'.format(plot_params.zcoord)
+    plot_params.filename = 'materials-z-{0}.png'.format(plot_params.zcoord)
+    plot_params.interpolation = 'nearest'
+    plot_params.vmin = 0
+    plot_params.vmax = num_materials
+
     # Plot a 2D color map of the Materials
-    suptitle = 'Materials'
-    title = 'z = {0}'.format(zcoord)
-    filename = 'materials-z-{0}.png'.format(zcoord)
-    plot_spatial_data(geometry, fsrs_to_materials, False, False, zcoord,
-                      gridsize, xlim, ylim, False, title, suptitle, filename,
-                      'nearest', plt.get_cmap('spectral'), 0, num_materials)
+    plot_spatial_data(fsrs_to_materials, plot_params)
 
 
 ##
@@ -265,17 +262,6 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 # @param zcoord optional the z coordinate (default is 0.0)
 def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
-    # Error checking
-    if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the Cells since %s ' +
-                  'input is not a Geometry class object', str(geometry))
-
-    if zcoord is None:
-        zcoord = 0.0
-
-    # Check z-coord
-    _check_zcoord(geometry, zcoord)
-
     py_printf('NORMAL', 'Plotting the cells...')
 
     # Create a NumPy array to map FSRs to Cells
@@ -294,17 +280,22 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     for i, cell_id in enumerate(fsrs_to_cells):
         fsrs_to_cells[i] = np.where(cell_ids == cell_id)[0]
 
+    # Initialize plotting parameters
+    plot_params = PlotParams()
+    plot_params.geometry = geometry
+    plot_params.gridsize = gridsize
+    plot_params.xlim = xlim
+    plot_params.ylim = ylim
+    plot_params.zcoord = zcoord
+    plot_params.suptitle = 'Cells'
+    plot_params.title = 'z = {0}'.format(plot_params.zcoord)
+    plot_params.filename = 'cells-z-{0}.png'.format(plot_params.zcoord)
+    plot_params.interpolation = 'nearest'
+    plot_params.vmin = 0
+    plot_params.vmax = num_cells
+
     # Plot a 2D color map of the Cells
-    suptitle = 'Cells'
-    title = 'z = {0}'.format(zcoord)
-    filename = 'cells-z-{0}.png'.format(zcoord)
-    plot_spatial_data(geometry, fsrs_to_cells, False, False, zcoord, gridsize,
-                      xlim, ylim, False, title, suptitle, filename,
-                      'nearest', plt.get_cmap('spectral'), 0, num_cells)
-
-
-#    plt.imshow(colors, extent=coords['bounds'],
-#               interpolation='nearest', cmap=cmap, vmin=0, vmax=num_cells)
+    plot_spatial_data(fsrs_to_cells, plot_params)
 
 
 ##
@@ -334,11 +325,6 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
 
-    # Error checking
-    if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the flat source regions since %s ' +
-                  'input is not a Geometry class object', str(geometry))
-
     if not isinstance(centroids, bool):
         py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'centroids is not a boolean')
@@ -365,21 +351,27 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 
     py_printf('NORMAL', 'Plotting the flat source regions...')
 
-    # Get the Geometry's z-coord
-    zcoord = geometry.getFSRPoint(0).getZ()
-
     num_fsrs = geometry.getNumFSRs()
     fsrs_to_fsrs = np.arange(num_fsrs, dtype=np.int64)
     fsrs_to_fsrs = _colorize(fsrs_to_fsrs, num_fsrs)
 
+    # Initialize plotting parameters
+    zcoord = geometry.getFSRPoint(0).getZ()
+    plot_params = PlotParams()
+    plot_params.geometry = geometry
+    plot_params.zcoord = zcoord
+    plot_params.gridsize = gridsize
+    plot_params.xlim = xlim
+    plot_params.ylim = ylim
+    plot_params.suptitle = 'Flat Source Regions'
+    plot_params.title = 'z = {0}'.format(zcoord)
+    plot_params.filename = 'flat-source-regions-z-{0}.png'.format(zcoord)
+    plot_params.interpolation = 'nearest'
+    plot_params.vmin = 0
+    plot_params.vmax = num_fsrs
+
     # Plot a 2D color map of the flat source regions
-    suptitle = 'Flat Source Regions'
-    title = 'z = {0}'.format(zcoord)
-    filename = 'flat-source-regions-z-{0}.png'.format(zcoord)
-    fig = plot_spatial_data(geometry, fsrs_to_fsrs, False, False, zcoord,
-                            gridsize, xlim, ylim, False, title, suptitle,
-                            filename, 'nearest', plt.get_cmap('spectral'),
-                            0, num_fsrs, True)
+    fig = plot_spatial_data(fsrs_to_fsrs, plot_params, get_figure=True)
 
     # Plot centroids on top of 2D flat source region color map
     if centroids:
@@ -392,7 +384,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
                     marker=marker_type, s=marker_size)
 
     # Set the plot title and save the figure
-    fig.savefig(directory+filename, bbox_inches='tight')
+    fig.savefig(directory+plot_params.filename, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -421,21 +413,14 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 
-    # Error checking
-    if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot the CMFD cells since %s ' +
-                  'input is not a geometry class object', str(geometry))
+    py_printf('NORMAL', 'Plotting the CMFD cells...')
 
     if 'Cmfd' not in str(type(cmfd)):
         py_printf('ERROR', 'Unable to plot the CMFD cells since %s ' +
                   'input is not a CMFD class object', str(cmfd))
 
-    py_printf('NORMAL', 'Plotting the CMFD cells...')
-
-    zcoord = geometry.getFSRPoint(0).getZ()
-    num_fsrs = geometry.getNumFSRs()
-
     # Create a NumPy array to map FSRs to CMFD cells
+    num_fsrs = geometry.getNumFSRs()
     fsrs_to_cmfd_cells = np.zeros(num_fsrs, dtype=np.int64)
     for fsr_id in range(num_fsrs):
         fsrs_to_cmfd_cells[fsr_id] = cmfd.convertFSRIdToCmfdCell(fsr_id)
@@ -444,11 +429,23 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
     num_cmfd_cells = cmfd.getNumCells()
     fsrs_to_cmfd_cells = _colorize(fsrs_to_cmfd_cells, num_cmfd_cells)
 
+    # Initialize plotting parameters
+    zcoord = geometry.getFSRPoint(0).getZ()
+    plot_params = PlotParams()
+    plot_params.geometry = geometry
+    plot_params.zcoord = zcoord
+    plot_params.gridsize = gridsize
+    plot_params.xlim = xlim
+    plot_params.ylim = ylim
+    plot_params.suptitle = 'CMFD Cells'
+    plot_params.title = 'z = {0}'.format(zcoord)
+    plot_params.filename = 'cmfd-cells-{0}.png'.format(zcoord)
+    plot_params.interpolation = 'nearest'
+    plot_params.vmin = 0
+    plot_params.vmax = num_cmfd_cells
+
     # Plot the CMFD cells
-    title = 'CMFD cells'
-    filename = 'cmfd-cells.png'
-    plot_spatial_data(geometry, fsrs_to_cmfd_cells, False, False, zcoord,
-                      gridsize, xlim, ylim, False, title, None, filename)
+    plot_spatial_data(fsrs_to_cmfd_cells, plot_params)
 
 
 ##
@@ -481,20 +478,28 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
 
     py_printf('NORMAL', 'Plotting the FSR scalar fluxes...')
 
+    # Initialize plotting parameters
     geometry = solver.getGeometry()
     zcoord = geometry.getFSRPoint(0).getZ()
+    plot_params = PlotParams()
+    plot_params.geometry = geometry
+    plot_params.zcoord = zcoord
+    plot_params.gridsize = gridsize
+    plot_params.xlim = xlim
+    plot_params.ylim = ylim
+    plot_params.colorbar = True
+    plot_params.cmap = None
+    plot_params.norm = norm
 
     # Get array of FSR energy-dependent fluxes
     fluxes = get_scalar_fluxes(solver)
 
     # Loop over all energy group and create a plot
-    # Plot a 2D color map of the flat source regions
     for index, group in enumerate(energy_groups):
-        suptitle = 'FSR Scalar Flux (Group {0})'.format(group)
-        title = 'z = {0}'.format(zcoord)
-        filename = 'fsr-flux-group-{0}-z-{1}.png'.format(group, zcoord)
-        plot_spatial_data(geometry, fluxes[:,index], norm, False, zcoord,
-                          gridsize, xlim, ylim, True, title, suptitle, filename)
+        plot_params.suptitle = 'FSR Scalar Flux (Group {0})'.format(group)
+        plot_params.title = 'z = {0}'.format(zcoord)
+        plot_params.filename = 'fsr-flux-group-{0}-z-{1}.png'.format(group, zcoord)
+        plot_spatial_data(fluxes[:,index], plot_params)
 
 
 ##
@@ -658,23 +663,34 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 def plot_fission_rates(solver, norm=False, transparent_zeros=True,
                        gridsize=250, xlim=None, ylim=None):
 
+    py_printf('NORMAL', 'Plotting the flat source region fission rates...')
+
     if 'Solver' not in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the fission rates ' +
                   'since input did not contain a solver class object')
 
-    py_printf('NORMAL', 'Plotting the flat source region fission rates...')
-
     # Compute the volume-weighted fission rates for each FSR
     geometry = solver.getGeometry()
     fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+
+    # Initialize plotting parameters
     zcoord = geometry.getFSRPoint(0).getZ()
+    plot_params = PlotParams()
+    plot_params.geometry = geometry
+    plot_params.zcoord = zcoord
+    plot_params.gridsize = gridsize
+    plot_params.xlim = xlim
+    plot_params.ylim = ylim
+    plot_params.suptitle = 'Flat Source Region Fission Rates'
+    plot_params.title = 'z = {0}'.format(zcoord)
+    plot_params.filename = 'fission-rates-z-{0}.png'.format(zcoord)
+    plot_params.transparent_zeros = True
+    plot_params.colorbar = True
+    plot_params.cmap = None
+    plot_params.norm = norm
 
     # Plot the fission rates
-    suptitle = 'Flat Source Region Fission Rates'
-    title = 'z = {0}'.format(zcoord)
-    filename = 'fission-rates-z-{0}.png'.format(zcoord)
-    plot_spatial_data(geometry, fission_rates, norm, transparent_zeros, zcoord,
-                      gridsize, xlim, ylim, True, title, suptitle, filename)
+    plot_spatial_data(fission_rates, plot_params)
 
 
 ##
@@ -769,87 +785,6 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
 
 
 ##
-# @brief This is a helper method to define coordinates for a plotting window.
-# @details This routine builds a coordinate surface map for the plotting
-#          window defined for by the user. If no window was defined, then
-#          this routine uses the outer bounding box around the geometry as
-#          the plotting window.
-# @param geometry a Geometry object which has been initialized with Materials,
-#        Cells, Universes and Lattices
-# @param gridsize an optional number of grid cells for the plot
-# @param xlim optional list/tuple of the minimim/maximum x-coordinates
-# @param ylim optional list/tuple of the minimim/maximum y-coordinates
-# @return a dictionary with the plotting window map and bounding box
-def _get_pixel_coords(geometry, gridsize, xlim, ylim):
-
-    # initialize variables to be returned
-    bounds = [geometry.getMinX() + TINY_MOVE, geometry.getMaxX() - TINY_MOVE,
-              geometry.getMinY() + TINY_MOVE, geometry.getMaxY() - TINY_MOVE]
-    coords = dict()
-
-    if not xlim is None:
-        bounds[0] = xlim[0]
-        bounds[1] = xlim[1]
-
-    if not ylim is None:
-        bounds[2] = ylim[0]
-        bounds[3] = ylim[1]
-
-    xcoords = np.linspace(bounds[0], bounds[1], gridsize)
-    ycoords = np.linspace(bounds[2], bounds[3], gridsize)
-
-    # add attributes to coords dictionary
-    coords['x'] = xcoords
-    coords['y'] = ycoords
-    coords['bounds'] = bounds
-
-    return coords
-
-
-##
-# @brief This is a helper method to check that z-coord falls within the bounds
-#        of the geometry.
-# @param geometry a Geometry object which has been initialized with Materials,
-#        Cells, Universes and Lattices
-# @param zcoord the z coordinate
-def _check_zcoord(geometry, zcoord):
-
-    if not is_float(zcoord):
-        py_printf('ERROR', 'Unable to produce plot since ' +
-                  'the z-coord %d is not a float', zcoord)
-
-    elif zcoord < geometry.getMinZ() or zcoord > geometry.getMaxZ():
-        py_printf('ERROR', 'Unable to produce plot since ' +
-                  'the z-coord %d is outside the geometry z-bounds (%d, %d)',
-                  geometry.getMinZ(), geometry.getMaxZ())
-
-
-##
-# @brief Replace unique data values with a random but reproducible color ID.
-# @param data a NumPy array of data to colorize
-# @param num_colors the number of random colors to generate
-# @param seed the random number seed used to generate colors
-# @return
-def _colorize(data, num_colors, seed=1):
-
-    # Generate linearly-spaced array of color indices
-    all_ids = np.arange(num_colors, dtype=np.int64)
-
-    # Generate linearly-spaced integer color IDs
-    id_colors = np.arange(num_colors, dtype=np.int64)
-
-    # Randomly shuffle the linearly-spaced integer color IDs
-    numpy.random.seed(1)
-    np.random.shuffle(id_colors)
-
-    # Insert random colors into appropriate locations in data array
-    ids_to_colors = np.arange(num_colors, dtype=np.int64)
-    ids_to_colors[all_ids] = id_colors
-
-    return ids_to_colors.take(data)
-
-
-##
 # @brief This method plots a color-coded 2D surface plot representing the
 #        arbitrary data mapped to each FSR in the Geometry.
 # @details The routine takes as its first parameter a NumPy array with
@@ -862,28 +797,10 @@ def _colorize(data, num_colors, seed=1):
 #         fsrs_to_data = numpy.random.rand(num_fsrs)
 #         openmoc.plotter.plot_spatial_data(fsrs_to_data, geometry)
 # @endcode
-#
 # @param fsrs_to_data an array mapping flat source regions to numerical data
-# @param geometry a Geometry object which has initialized flat source regions
-# @param norm normalize the fission rates to the maximum fission rate
-# @param transparent_zeros make regions without fission transparent
-# @param gridsize an optional number of grid cells for the plot
-# @param xlim optional list/tuple of the minimim/maximum x-coordinates
-# @param ylim optional list/tuple of the minimim/maximum y-coordinates
-# @param colorbar
-# @param title
-# @param suptitle
-# @param filename
-# @param interpolation
-# @parma cmap
-# @param vmin
-# @param vmax
-# @param get_figure
-def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True,
-                     zcoord=None, gridsize=250, xlim=None, ylim=None,
-                     colorbar=False, title=None, suptitle=None,
-                     filename='spatial-data', interpolation=None,
-                     cmap=None, vmin=None, vmax=None, get_figure=False):
+# @param plot_params a PlotParams object initialized with a Geometry
+# @param get_figure whether to return the Matplotlib figure
+def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -892,63 +809,36 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # Error checking
-    if 'Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to plot spatial data since %s ' +
-                  'input is not a Geometry class object', str(geometry))
+    if not isinstance(plot_params, PlotParams):
+        py_printf('ERROR', 'Unable to plot spatial data with %s which is'
+                           'not a PlotParams object', str(plot_params))
 
     if not isinstance(fsrs_to_data, np.ndarray):
         py_printf('ERROR', 'Unable to plot spatial data since ' +
                   'fsrs_to_data is not a NumPy array')
 
-    if len(fsrs_to_data) != geometry.getNumFSRs():
+    if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
         py_printf('ERROR', 'Unable to plot spatial data since fsrs_to_data ' +
                   'is length %d but there are %d FSRs in the Geometry',
-                  len(fsrs_to_data), geometry.getNumFSRs())
-
-    if not is_integer(gridsize):
-        py_printf('ERROR', 'Unable to plot spatial data ' +
-                  'since the gridsize %s is not an integer', str(gridsize))
-
-    if gridsize <= 0:
-        py_printf('ERROR', 'Unable to plot spatial data ' +
-                  'with a negative gridsize (%d)', gridsize)
-
-    if title and not isinstance(title, str):
-        py_printf('ERROR', 'Unable to plot spatial data with a '
-                  'non-string title %s', str(title))
-
-    if suptitle and not isinstance(suptitle, str):
-        py_printf('ERROR', 'Unable to plot spatial data with a '
-                  'non-string suptitle %s', str(suptitle))
-
-    if not isinstance(filename, str):
-        py_printf('ERROR', 'Unable to plot spatial data with a '
-                  'non-string filename %s', str(filename))
-
-    if zcoord is None:
-        zcoord = 0.0
-
-    # Check z-coord
-    _check_zcoord(geometry, zcoord)
+                  len(fsrs_to_data), plot_params.geometry.getNumFSRs())
 
     # Initialize a numpy array for the FSR spatial data
-    surface = np.zeros((gridsize, gridsize))
+    surface = np.zeros((plot_params.gridsize, plot_params.gridsize))
 
     # Retrieve the pixel coordinates
-    coords = _get_pixel_coords(geometry, gridsize, xlim, ylim)
+    coords = _get_pixel_coords(plot_params)
 
-    for i in range(gridsize):
-        for j in range(gridsize):
+    for i in range(plot_params.gridsize):
+        for j in range(plot_params.gridsize):
 
             # Find the flat source region IDs for each grid point
             x = coords['y'][i]
             y = coords['x'][j]
 
-            point = openmoc.LocalCoords(x, y, zcoord)
-            point.setUniverse(geometry.getRootUniverse())
-            geometry.findCellContainingCoords(point)
-            fsr_id = geometry.getFSRId(point)
+            point = openmoc.LocalCoords(x, y, plot_params.zcoord)
+            point.setUniverse(plot_params.geometry.getRootUniverse())
+            plot_params.geometry.findCellContainingCoords(point)
+            fsr_id = plot_params.geometry.getFSRId(point)
 
             # If we did not find a region, use a -1 "bad" number color
             if np.isnan(fsr_id):
@@ -959,34 +849,305 @@ def plot_spatial_data(geometry, fsrs_to_data, norm=False, transparent_zeros=True
                 surface[j][i] = fsrs_to_data[fsr_id]
 
     # Normalize data to maximum if requested
-    if norm:
+    if plot_params.norm:
         surface /= np.max(surface)
 
     # Set zero data entries to NaN so Matplotlib will make them transparent
-    if transparent_zeros:
+    if plot_params.transparent_zeros:
         indices = np.where(surface == 0.0)
         surface[indices] = np.nan
 
-    if cmap is None:
-        cmap = plt.get_cmap()
-
     # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
-    cmap.set_bad(alpha=0.0)
+    if plot_params.cmap:
+        plot_params.cmap.set_bad(alpha=0.0)
 
     # Plot a 2D color map of the flat source region data
     fig = plt.figure()
-    plt.imshow(np.flipud(surface), extent=coords['bounds'], cmap=cmap,
-               vmin=vmin, vmax=vmax, interpolation=interpolation)
+    plt.imshow(np.flipud(surface), extent=coords['bounds'],
+               cmap=plot_params.cmap, interpolation=plot_params.interpolation,
+               vmin=plot_params.vmin, vmax=plot_params.vmax,)
 
-    if colorbar:
+    if plot_params.colorbar:
         plt.colorbar()
-    if suptitle:
-        plt.suptitle(suptitle)
-    if title:
-        plt.title(title)
+    if plot_params.suptitle:
+        plt.suptitle(plot_params.suptitle)
+    if plot_params.title:
+        plt.title(plot_params.title)
 
     if get_figure:
         return fig
     else:
-        fig.savefig(directory+filename, bbox_inches='tight')
+        fig.savefig(directory+plot_params.filename, bbox_inches='tight')
         plt.close()
+
+
+class PlotParams(object):
+    
+    def __init__(self):
+        self._geometry = None
+        self._filename = None
+        self._zcoord = None
+        self._gridsize = 250
+        self._xlim = None
+        self._ylim = None
+        self._title = None
+        self._suptitle = None
+        self._norm = False
+        self._transparent_zeros = False
+        self._interpolation = None
+        self._colorbar = False
+        self._cmap = plt.get_cmap('spectral')
+        self._vmin = None
+        self._vmax = None
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @property
+    def zcoord(self):
+        return self._zcoord
+
+    @property
+    def gridsize(self):
+        return self._gridsize
+
+    @property
+    def xlim(self):
+        return self._xlim
+
+    @property
+    def ylim(self):
+        return self._ylim
+
+    @property
+    def colorbar(self):
+        return self._colorbar
+
+    @property
+    def title(self):
+        return self._title
+
+    @property
+    def suptitle(self):
+        return self._suptitle
+
+    @property
+    def norm(self):
+        return self._norm
+
+    @property
+    def transparent_zeros(self):
+        return self._transparent_zeros
+
+    @property
+    def interpolation(self):
+        return self._interpolation
+
+    @property
+    def cmap(self):
+        return self._cmap
+
+    @property
+    def vmin(self):
+        return self._vmin
+
+    @property
+    def vmax(self):
+        return self._vmax
+
+    @geometry.setter
+    def geometry(self, geometry):
+        if 'Geometry' not in str(type(geometry)):
+            py_printf('ERROR', '%s is not a Geometry object', str(geometry))
+
+        self._geometry = geometry
+        self.check_zcoord()
+
+    @filename.setter
+    def filename(self, filename):
+        if not isinstance(filename, str):
+            py_printf('ERROR', 'The filename %s is not a string', str(filename))
+
+        self._filename = filename
+
+    @zcoord.setter
+    def zcoord(self, zcoord):
+        if zcoord is None:
+            self._zcoord = 0.0
+        else:
+            self._zcoord = zcoord
+
+        self.check_zcoord()
+
+    @gridsize.setter
+    def gridsize(self, gridsize):
+        if not is_integer(gridsize):
+            py_printf('ERROR', 'The gridsize %s is not an integer', str(gridsize))
+        if gridsize <= 0:
+            py_printf('ERROR', 'The gridsize %s is negative', gridsize)
+
+        self._gridsize = gridsize
+
+    @xlim.setter
+    def xlim(self, xlim):
+        if xlim:
+            if not is_float(xlim) and not is_integer(xlim):
+                py_printf('ERROR', 'The xlim %s is not a number', str(xlim))
+            if xlim <= 0:
+                py_printf('ERROR', 'The xlim %s is negative', str(xlim))
+
+        self._xlim = xlim
+
+    @ylim.setter
+    def ylim(self, ylim):
+        if ylim:
+            if not is_float(ylim) and not is_integer(ylim):
+                py_printf('ERROR', 'The xlim %s is not a number', str(ylim))
+            if ylim <= 0:
+                py_printf('ERROR', 'The xlim %s is negative', str(ylim))
+
+        self._ylim = ylim
+
+    @colorbar.setter
+    def colorbar(self, colorbar):
+        if colorbar and not isinstance(colorbar, bool):
+            py_printf('ERROR', 'The colorbar %s is not a boolean', str(colorbar))
+
+        self._colorbar = colorbar
+
+    @title.setter
+    def title(self, title):
+        if title and not isinstance(title, str):
+            py_printf('ERROR', 'The title %s is not a string', str(title))
+
+        self._title = title
+
+    @suptitle.setter
+    def suptitle(self, suptitle):
+        if suptitle and not isinstance(suptitle, str):
+            py_printf('ERROR', 'The suptitle %s is not a string', str(suptitle))
+
+        self._suptitle = suptitle
+
+    @norm.setter
+    def norm(self, norm):
+        if norm and not isinstance(norm, bool):
+            py_printf('ERROR', 'The norm %s is not a boolean', str(norm))
+
+        self._norm = norm
+
+    @transparent_zeros.setter
+    def transparent_zeros(self, transparent_zeros):
+        if transparent_zeros and not isinstance(transparent_zeros, bool):
+            py_printf('ERROR', 'The transparent_zeros %s is not a ',
+                               'boolean', str(transparent_zeros))
+
+        self._transparent_zeros = transparent_zeros
+
+    @interpolation.setter
+    def interpolation(self, interpolation):
+        if not isinstance(interpolation, str):
+            py_printf('ERROR', 'The interpolation %s is not '
+                               'a string', str(interpolation))
+
+        self._interpolation = interpolation
+
+    @cmap.setter
+    def cmap(self, cmap):
+        if cmap and not isinstance(cmap, matplotlib.colors.ColorMap):
+            py_printf('ERROR', 'The cmap %s is not a Matplotlib',
+                               'ColorMap object', str(cmap))
+
+        self._cmap = cmap
+
+    @vmin.setter
+    def vmin(self, vmin):
+        if vmin and not is_float(vmin) and not is_integer(vmin):
+            py_printf('ERROR', 'The vmin %s is not a number', str(vmin))
+
+        self._vmin = vmin
+
+    @vmax.setter
+    def vmax(self, vmax):
+        if vmax and not is_float(vmax) and not is_integer(vmax):
+            py_printf('ERROR', 'The vmin %s is not a number', str(vmax))
+
+        self._vmax = vmax
+
+    def check_zcoord(self):
+        if self.zcoord and self.geometry:
+            if not is_float(self.zcoord):
+                py_printf('ERROR', 'Unable to produce plot since ' + \
+                          'the z-coord %f is not a float', self.zcoord)
+            elif self.zcoord < self.geometry.getMinZ() or \
+                            self.zcoord > self.geometry.getMaxZ():
+                py_printf('ERROR', 'The z-coord %f is outside the ' + \
+                          'geometry z-bounds (%f, %f)',
+                          self.geometry.getMinZ(), self.geometry.getMaxZ())
+
+
+##
+# @brief This is a helper method to define coordinates for a plotting window.
+# @details This routine builds a coordinate surface map for the plotting
+#          window defined for by the user. If no window was defined, then
+#          this routine uses the outer bounding box around the geometry as
+#          the plotting window.
+# @param plot_params a PlotParams object initialized with a Geometry
+# @return a dictionary with the plotting window map and bounding box
+def _get_pixel_coords(plot_params):
+
+    # initialize variables to be returned
+    geometry = plot_params.geometry
+    bounds = [geometry.getMinX() + TINY_MOVE, geometry.getMaxX() - TINY_MOVE,
+              geometry.getMinY() + TINY_MOVE, geometry.getMaxY() - TINY_MOVE]
+    coords = dict()
+
+    if not plot_params.xlim is None:
+        bounds[0] = plot_params.xlim[0]
+        bounds[1] = plot_params.xlim[1]
+
+    if not plot_params.ylim is None:
+        bounds[2] = plot_params.ylim[0]
+        bounds[3] = plot_params.ylim[1]
+
+    xcoords = np.linspace(bounds[0], bounds[1], plot_params.gridsize)
+    ycoords = np.linspace(bounds[2], bounds[3], plot_params.gridsize)
+
+    # add attributes to coords dictionary
+    coords['x'] = xcoords
+    coords['y'] = ycoords
+    coords['bounds'] = bounds
+
+    return coords
+
+
+##
+# @brief Replace unique data values with a random but reproducible color IDs.
+# @details Thid method randomly assigns a random integer to each unique value
+#          in the input array. This is a helper method for the plotting methods.
+# @param data a NumPy array of data to colorize
+# @param num_colors the number of random colors to generate
+# @param seed the random number seed used to generate colors
+# @return A NumPy array with random integer colors
+def _colorize(data, num_colors, seed=1):
+
+    # Generate linearly-spaced array of color indices
+    all_ids = np.arange(num_colors, dtype=np.int64)
+
+    # Generate linearly-spaced integer color IDs
+    id_colors = np.arange(num_colors, dtype=np.int64)
+
+    # Randomly shuffle the linearly-spaced integer color IDs
+    numpy.random.seed(seed)
+    np.random.shuffle(id_colors)
+
+    # Insert random colors into appropriate locations in data array
+    ids_to_colors = np.arange(num_colors, dtype=np.int64)
+    ids_to_colors[all_ids] = id_colors
+
+    return ids_to_colors.take(data)
