@@ -5,7 +5,7 @@
 #        OpenMOCs C++ classes, in particular, the geomery, including Material,
 #        Cells and flat source regions, and fluxes and pin powers.
 # @author William Boyd (wboyd@mit.edu)
-# @date March 10, 2013
+# @date December 14, 2015
 
 import os
 import sys
@@ -881,23 +881,64 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
         plt.close()
 
 
+##
+# @class PlotParms plotter.py "openmoc/plotter.py"
+# @brief A class to containerize Matplotlib options for 2D spatial plots.
+# @details This class is used to containerize plotting options for the general
+#          plot_spatial_data(...) routine.
+#
 class PlotParams(object):
     
+    ##
+    # @brief PlotParams class constructor.
+    # @details This method initializes a PlotParams object with default values
+    #          for 2D Matplotlib image plots.
+    #
     def __init__(self):
+
+        ## The Geometry to query when generating the spatial map
         self._geometry = None
+
+        ## The filename string
         self._filename = None
+
+        ## The z-coordinate at which to slice the Geometry
         self._zcoord = None
+
+        ## The number of points along the x- and y-axes
         self._gridsize = 250
+
+        ## A 2-tuple of (maximum, minimum) x-coordinates to display
         self._xlim = None
+
+        ## A 2-tuple of (maximum, minimum) y-coordinates to display
         self._ylim = None
+
+        ## The minor title string
         self._title = None
+
+        ## The minor title string
         self._suptitle = None
+
+        ## Normalize the plotted data to unity
         self._norm = False
+
+        ## Make zeros in the data appear transparent
         self._transparent_zeros = False
+
+        ## Interpolation used between points (e.g., 'nearest')
         self._interpolation = None
+
+        ## Include a colorbar to the right of the plot
         self._colorbar = False
+
+        ## A colormap for the plot
         self._cmap = plt.get_cmap('spectral')
+
+        ## The minimum value used in colormapping the data
         self._vmin = None
+
+        ## The maximum value used in colormapping the data
         self._vmax = None
 
     @property
@@ -966,7 +1007,7 @@ class PlotParams(object):
             py_printf('ERROR', '%s is not a Geometry object', str(geometry))
 
         self._geometry = geometry
-        self.check_zcoord()
+        self._check_zcoord()
 
     @filename.setter
     def filename(self, filename):
@@ -982,7 +1023,7 @@ class PlotParams(object):
         else:
             self._zcoord = zcoord
 
-        self.check_zcoord()
+        self._check_zcoord()
 
     @gridsize.setter
     def gridsize(self, gridsize):
@@ -1079,7 +1120,7 @@ class PlotParams(object):
 
         self._vmax = vmax
 
-    def check_zcoord(self):
+    def _check_zcoord(self):
         if self.zcoord and self.geometry:
             if not is_float(self.zcoord):
                 py_printf('ERROR', 'Unable to produce plot since ' + \
