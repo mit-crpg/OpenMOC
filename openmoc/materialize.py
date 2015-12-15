@@ -544,8 +544,10 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
-            fsr_ids = domains_to_fsrs[openmc_domain.id]
-            fsrs_to_sph[fsr_ids,:] = sph[i,:]
+            openmoc_domain = openmoc_domains[openmc_domain.id]
+            if openmoc_domain.isFissionable():
+                fsr_ids = domains_to_fsrs[openmc_domain.id]
+                fsrs_to_sph[fsr_ids,:] = sph[i,:]
 
     return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
 
