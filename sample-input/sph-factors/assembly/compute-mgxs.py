@@ -1,8 +1,6 @@
 import copy
 import numpy as np
 import openmc.mgxs
-from openmc.statepoint import StatePoint
-from openmc.summary import Summary
 from infermc.materialize import differentiate_mgxs_lib
 
 
@@ -42,26 +40,6 @@ cell_mgxs_lib = mgxs_lib.get_subdomain_avg_library()
 
 # Store library and its MGXS objects in a pickled binary file
 cell_mgxs_lib.dump_to_file(filename='cell-avg', directory='mgxs')
-
-
-## OpenCG Local Neighor Symmetry-averaged MGXS library
-# Differentiate fuel pin cells with OpenCG Local Neighbor Symmetry (LNS)
-opencg_geometry = copy.deepcopy(mgxs_lib.opencg_geometry)
-opencg_geometry.build_neighbors()
-opencg_geometry.count_neighbors()
-
-regions_to_lns = np.zeros(opencg_geometry.num_regions, dtype=np.int)
-for region in range(opencg_geometry.num_regions):
-    coords = opencg_geometry.find_region(region)
-    regions_to_lns[region] = opencg_geometry.get_neighbors_hash(region)
-
-# Differentiate OpenMC MGXS library for new region-differentiated geometry
-new_regions = opencg_geometry.differentiate(regions_to_lns)
-lns_mgxs_lib = \
-    differentiate_mgxs_lib(mgxs_lib, new_regions, opencg_geometry)
-
-# Store library and its MGXS objects in a pickled binary file
-lns_mgxs_lib.dump_to_file(filename='lns-avg', directory='mgxs')
 
 
 ## Cell instance (region)-averaged MGXS library

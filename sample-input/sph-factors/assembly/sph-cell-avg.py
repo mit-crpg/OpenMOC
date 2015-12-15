@@ -30,6 +30,13 @@ mgxs_lib = openmc.mgxs.Library.load_from_file(filename='cell-avg')
 # Create an OpenMOC Geometry from the OpenCG Geometry
 openmoc_geometry = get_openmoc_geometry(mgxs_lib.opencg_geometry)
 
+# Initialize CMFD
+cmfd = openmoc.Cmfd()
+cmfd.setSORRelaxationFactor(1.5)
+cmfd.setLatticeStructure(17,17)
+cmfd.setKNearest(3)
+openmoc_geometry.setCmfd(cmfd)
+
 # Load cross section data
 openmoc_materials = load_openmc_mgxs_lib(mgxs_lib, openmoc_geometry)
 
@@ -54,22 +61,14 @@ keff_no_sph = solver.getKeff()
 ###############################################################################
 
 # Compute SPH factors
-sph, sph_mgxs_lib, = compute_sph_factors(mgxs_lib, max_fix_src_iters=50,
-                                         max_domain_iters=1,
-                                         track_spacing=spacing, 
-                                         num_azim=num_azim,
-                                         num_threads=num_threads)
+sph, sph_mgxs_lib, sph_indices = \
+    compute_sph_factors(mgxs_lib, track_spacing=spacing,
+                        num_azim=num_azim, num_threads=num_threads)
 
 # Load the SPH-corrected MGXS library data
 openmoc_materials = load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
 
-# Initialize an OpenMOC TrackGenerator and Solver
-openmoc_geometry.initializeFlatSourceRegions()
-track_generator = openmoc.TrackGenerator(openmoc_geometry, num_azim, spacing)
-track_generator.generateTracks()
-
 # Run an eigenvalue calculation with the SPH-corrected modifed MGXS library
-solver.setTrackGenerator(track_generator)
 solver.computeEigenvalue()
 solver.printTimerReport()
 keff_with_sph = solver.getKeff()

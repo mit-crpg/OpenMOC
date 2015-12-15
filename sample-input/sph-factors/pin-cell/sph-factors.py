@@ -69,13 +69,7 @@ sph, sph_mgxs_lib, sph_indices = \
 materials = \
     openmoc.materialize.load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
 
-# Initialize an OpenMOC TrackGenerator and Solver
-openmoc_geometry.initializeFlatSourceRegions()
-track_generator = openmoc.TrackGenerator(openmoc_geometry, num_azim, spacing)
-track_generator.generateTracks()
-
 # Run an eigenvalue calculation with the SPH-corrected modifed MGXS library
-solver.setTrackGenerator(track_generator)
 solver.computeEigenvalue()
 solver.printTimerReport()
 keff_with_sph = solver.getKeff()
