@@ -12,7 +12,6 @@ import sys
 import numpy as np
 import numpy.random
 import matplotlib
-import pandas as pd
 
 # force headless backend, or set 'backend' to 'Agg'
 # in your ~/.matplotlib/matplotlibrc
@@ -818,9 +817,16 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
         py_printf('ERROR', 'Unable to plot spatial data with %s which is'
                            'not a PlotParams object', str(plot_params))
 
-    if isinstance(fsrs_to_data, (np.ndarray, pd.DataFrame)):
+    if isinstance(fsrs_to_data, np.ndarray):
+        pandas_df = False
         if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
-            py_printf('ERROR', 'The fsrs_to_data array is length %d but ' +
+            py_printf('ERROR', 'The fsrs_to_data array is length %d ' +
+                      'but there are %d FSRs in the Geometry', len(fsrs_to_data),
+                      plot_params.geometry.getNumFSRs())
+    elif 'DataFrame' in str(type(fsrs_to_data)):
+        pandas_df = True
+        if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
+            py_printf('ERROR', 'The fsrs_to_data DataFrame is length %d but ' +
                       'there are %d FSRs in the Geometry', len(fsrs_to_data),
                       plot_params.geometry.getNumFSRs())
     else:
@@ -862,7 +868,7 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
     for i in range(fsrs_to_data.shape[1]):
 
         # Use FSR IDs to appropriately index into FSR data
-        if isinstance(fsrs_to_data, pd.DataFrame):
+        if pandas_df:
             surface = fsrs_to_data.ix[:,i].values
             surface = surface.take(fsrs.flatten())
         else:
@@ -897,7 +903,7 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
 
         if plot_params.suptitle:
             # If input was a Pandas DataFrame, append column name to suptitle
-            if isinstance(fsrs_to_data, pd.DataFrame):
+            if pandas_df:
                 suptitle = plot_params.suptitle
                 suptitle += ' ({0})'.format(fsrs_to_data.columns[i])
             else:
@@ -915,7 +921,7 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
             plot_filename = directory + plot_params.filename
 
             # If input was a Pandas DataFrame, append column name to filename
-            if isinstance(fsrs_to_data, pd.DataFrame):
+            if pandas_df:
                 plot_filename += '-{0}'.format(fsrs_to_data.columns[i])
 
             plot_filename +=  plot_params.extension
