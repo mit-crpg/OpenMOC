@@ -620,6 +620,9 @@ def compute_sph_factors(mgxs_lib, max_fix_src_iters=10, max_domain_iters=10,
         fsr_ids = domains_to_fsrs[domain.id]
         fsrs_to_sph[fsr_ids,:] = final_sph[i,:]
 
+    # Reorder SPH factors from the fast to thermal groups
+    fsrs_to_sph = np.flipud(fsrs_to_sph)
+
     return fsrs_to_sph, mgxs_lib, np.array(sph_indices)
 
 ##
