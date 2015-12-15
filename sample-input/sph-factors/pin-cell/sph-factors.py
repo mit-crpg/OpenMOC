@@ -61,9 +61,7 @@ fluxes_no_sph = openmoc.process.get_scalar_fluxes(solver)
 
 # Compute SPH factors
 sph, sph_mgxs_lib, sph_indices = \
-    openmoc.materialize.compute_sph_factors(mgxs_lib, max_fix_src_iters=50,
-                                            max_domain_iters=1,
-                                            track_spacing=spacing, 
+    openmoc.materialize.compute_sph_factors(mgxs_lib, track_spacing=spacing,
                                             num_azim=num_azim,
                                             num_threads=num_threads)
 

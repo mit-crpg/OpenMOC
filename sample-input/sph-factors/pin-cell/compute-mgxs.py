@@ -1,6 +1,5 @@
+import openmc
 import openmc.mgxs
-from openmc.statepoint import StatePoint
-from openmc.summary import Summary
 
 # Load the last statepoint file
 sp = openmc.StatePoint('statepoint.100.h5')
