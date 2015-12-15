@@ -617,7 +617,7 @@ def plot_segments_3D(track_generator):
 
   if not track_generator.contains3DSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
-              'TrackGenerator has not yet generated 3D segments.')
+              'TrackGenerator has not yet generated explicit 3D segments.')
 
   py_printf('NORMAL', 'Plotting the 3D track segments...')
 
@@ -1946,7 +1946,7 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
   surface = numpy.zeros((gridsize, gridsize), dtype=np.int64)
 
   # Retrieve the pixel coordinates
-  coords = get_pixel_coords(geometry, 'xy', offset, gridsize, xlim, ylim, zlim)
+  coords = get_pixel_coords(geometry, 'xy', offset, gridsize, xlim, ylim, None)
 
   # Find the flat source region IDs for each grid point
   for i in range(gridsize):
