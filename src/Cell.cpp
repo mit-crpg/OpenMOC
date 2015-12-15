@@ -893,7 +893,7 @@ Cell* Cell::clone() {
  * @brief Subdivides the Cell into clones for fuel pin angular sectors.
  * @param subcells an empty vector to store all subcells
  */
-void Cell::sectorize(std::vector<Cell*>* subcells) {
+void Cell::sectorize(std::vector<Cell*>& subcells) {
 
   /* If the user didn't request any sectors, don't make any */
   if (_num_sectors == 0)
@@ -947,7 +947,7 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
     }
 
     /* Store the clone in the parent Cell's container of sector Cells */
-    subcells->push_back(sector);
+    subcells.push_back(sector);
   }
 }
 
@@ -957,7 +957,7 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
  * @param subcells an empty vector to store all subcells
  * @param max_radius the maximum allowable radius used in the subdivisions
  */
-void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
+void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
 
   /* If the user didn't request any rings, don't make any */
   if (_num_rings == 0)
@@ -1059,8 +1059,8 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
   for (iter2 = zcylinders.begin(); iter2 != zcylinders.end(); ++iter2) {
 
     /* Create ZCylinders for each of the sectorized Cells */
-    if (subcells->size() != 0) {
-      for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
+    if (subcells.size() != 0) {
+      for (iter3 = subcells.begin(); iter3 != subcells.end(); ++iter3) {
         log_printf(DEBUG, "Creating a new ring in sector Cell ID=%d",
                    (*iter3)->getId());
 
@@ -1115,8 +1115,8 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
   }
 
   /* Store all of the rings in the parent Cell's subcells container */
-  subcells->clear();
-  subcells->insert(subcells->end(), rings.begin(), rings.end());
+  subcells.clear();
+  subcells.insert(subcells.end(), rings.begin(), rings.end());
 }
 
 
@@ -1130,20 +1130,20 @@ void Cell::ringify(std::vector<Cell*>* subcells, double max_radius) {
 void Cell::subdivideCell(double max_radius) {
 
   /** A container of all Cell clones created for rings and sectors */
-  std::vector<Cell*>* subcells = new std::vector<Cell*>();
+  std::vector<Cell*> subcells;
 
   sectorize(subcells);
   ringify(subcells, max_radius);
 
   /* Put any ring / sector subcells in a new Universe fill */
-  if (subcells->size() != 0) {
+  if (subcells.size() != 0) {
 
     /* Create a new Universe to contain all of the subcells */
     Universe* new_fill = new Universe();
 
     /* Add each subcell to the new Universe fill */
     std::vector<Cell*>::iterator iter;
-    for (iter = subcells->begin(); iter != subcells->end(); ++iter)
+    for (iter = subcells.begin(); iter != subcells.end(); ++iter)
       new_fill->addCell(*iter);
 
     /* Set the new Universe as the fill for this Cell */
