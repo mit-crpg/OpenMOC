@@ -488,7 +488,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     # Store starting verbosity log level
     log_level = openmoc.get_log_level()
 
-    # Outer SPH loop over domains of interest
+    # SPH iteration loop
     for i in range(max_sph_iters):
 
         # Run fixed source calculation with suppressed output
@@ -540,15 +540,12 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     else:
         py_printf('WARNING', 'SPH factors did not converge')
 
-    # FIXME: Organize SPH factors in the order of the FSRS
     # Collect SPH factors for each FSR, energy group
     fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
-            openmoc_domain = openmoc_domains[openmc_domain.id]
-            if openmoc_domain.isFissionable():
-                fsr_ids = domains_to_fsrs[openmc_domain.id]
-                fsrs_to_sph[fsr_ids,:] = sph[i,:]
+            fsr_ids = domains_to_fsrs[openmc_domain.id]
+            fsrs_to_sph[fsr_ids,:] = sph[i,:]
 
     return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
 
