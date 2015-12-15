@@ -70,7 +70,7 @@ def _get_numpy_array(hdf5_group, key, suffix):
 # @return a dictionary of Material objects keyed by ID
 def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                    geometry=None, domain_type='material', suffix=''):
-    
+
     # Create a h5py file handle for the file
     import h5py
     filename = os.path.join(directory, filename)
@@ -441,15 +441,24 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     num_groups = geometry.getNumEnergyGroups()
     num_fsrs = geometry.getNumFSRs()
 
-    # Map FSRs to domains to compute domain-averaged fluxes
-    num_domains = len(mgxs_lib.domains)
+    # Map FSRs to domains (and vice versa) to compute domain-averaged fluxes
     fsrs_to_domains = np.zeros(num_fsrs)
+    domains_to_fsrs = collections.defaultdict(list)
+    sph_to_fsr_indices = []
+
     for fsr in range(num_fsrs):
         cell = geometry.findCellContainingFSR(fsr)
+
         if mgxs_lib.domain_type == 'material':
-            fsrs_to_domains[fsr] = cell.getFillMaterial().getId()
+            domain = cell.getFillMaterial()
         else:
-            fsrs_to_domains[fsr] = cell.getId()
+            domain = cell
+
+        fsrs_to_domains[fsr] = domain.getId()
+        domains_to_fsrs[domain.getId()].append(fsr)
+
+        if domain.isFissionable():
+            sph_to_fsr_indices.append(fsr)
 
     # Get all OpenMOC domains
     if mgxs_lib.domain_type == 'material':
@@ -461,17 +470,18 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                            'library of domain type %s', mgxs_lib.domain_type)
 
     # Build a list of indices into the SPH array for fissionable domains
-    sph_indices = []
+    sph_to_domain_indices = []
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
             openmoc_domain = openmoc_domains[openmc_domain.id]
             if openmoc_domain.isFissionable():
-                sph_indices.append(i)
+                sph_to_domain_indices.append(i)
 
     py_printf('NORMAL', 'Computing SPH factors for %d "%s" domains',
-                        len(sph_indices), mgxs_lib.domain_type)
+                        len(sph_to_domain_indices), mgxs_lib.domain_type)
 
     # Initialize array of domain-averaged fluxes and SPH factors
+    num_domains = len(mgxs_lib.domains)
     openmoc_fluxes = np.zeros((num_domains, num_groups))
     sph = np.ones((num_domains, num_groups))
 
@@ -511,7 +521,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         res = np.nan_to_num(res)
 
         # Extract residuals for fissionable domains only
-        res = res[sph_indices, :]
+        res = res[sph_to_domain_indices, :]
 
         # Report maximum SPH factor residual
         py_printf('NORMAL', 'SPH Iteration %d:\tres = %1.3e', i, res.max())
@@ -531,21 +541,6 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         py_printf('WARNING', 'SPH factors did not converge')
 
     # FIXME: Organize SPH factors in the order of the FSRS
-    # FIXME: Return SPH indices (e.g., which FSRs were SPH domains?)
-
-    # Create mapping of FSRs-to-domains to help order SPH factors by FSR below
-    domains_to_fsrs = collections.defaultdict(list)
-    sph_indices = []
-    for fsr_id in range(geometry.getNumFSRs()):
-        cell = geometry.findCellContainingFSR(fsr_id)
-        if mgxs_lib.domain_type == 'material':
-            domain = cell.getFillMaterial()
-        else:
-            domain = cell
-        if domain.isFissionable():
-            sph_indices.append(fsr_id)
-        domains_to_fsrs[domain.getId()].append(fsr_id)
-
     # Collect SPH factors for each FSR, energy group
     fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
     for i, openmc_domain in enumerate(mgxs_lib.domains):
@@ -555,7 +550,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                 fsr_ids = domains_to_fsrs[openmc_domain.id]
                 fsrs_to_sph[fsr_ids,:] = sph[i,:]
 
-    return fsrs_to_sph, sph_mgxs_lib, np.array(sph_indices)
+    return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
 
 ##
 # @brief Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.
