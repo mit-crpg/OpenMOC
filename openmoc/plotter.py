@@ -140,7 +140,8 @@ def plot_segments(track_generator):
     spacing = track_generator.getTrackSpacing()
     num_segments = track_generator.getNumSegments()
     num_fsrs = track_generator.getGeometry().getNumFSRs()
-    coords = track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
+    coords = \
+        track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
 
     # Convert data to NumPy arrays
     coords = np.array(coords)
@@ -713,8 +714,8 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True,
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
-                          energy_groups=[1], gridsize=250, xlim=None, ylim=None):
+def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
+                          norm=False, gridsize=250, xlim=None, ylim=None):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -777,10 +778,12 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], norm=False,
 
         # Set subdirectory folder for this eigenmode
         num_digits = len(str(max(eigenmodes)))
-        subdirectory = '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
+        subdirectory = \
+            '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
 
         # Plot this eigenmode's spatial fluxes
-        plot_spatial_fluxes(moc_solver, energy_groups, norm, gridsize, xlim, ylim)
+        plot_spatial_fluxes(moc_solver, energy_groups, norm, 
+                            gridsize, xlim, ylim)
 
     # Reset global subdirectory
     subdirectory = '/plots/'
@@ -821,7 +824,8 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
         pandas_df = False
         if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
             py_printf('ERROR', 'The fsrs_to_data array is length %d ' +
-                      'but there are %d FSRs in the Geometry', len(fsrs_to_data),
+                      'but there are %d FSRs', len(fsrs_to_data),
+
                       plot_params.geometry.getNumFSRs())
     elif 'DataFrame' in str(type(fsrs_to_data)):
         pandas_df = True
@@ -886,15 +890,16 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
             indices = np.where(surface == 0.0)
             surface[indices] = np.nan
 
-        # Make Matplotlib color "bad" numbers (ie, NaN, INF) with transparent pixels
+        # Color "bad" numbers (ie, NaN, INF) with transparent pixels
         if plot_params.cmap:
             plot_params.cmap.set_bad(alpha=0.0)
 
         # Plot a 2D color map of the flat source region data
         fig = plt.figure()
         plt.imshow(np.flipud(surface), extent=coords['bounds'],
-                   cmap=plot_params.cmap, interpolation=plot_params.interpolation,
-                   vmin=plot_params.vmin, vmax=plot_params.vmax,)
+                   interpolation=plot_params.interpolation,
+                   vmin=plot_params.vmin, vmax=plot_params.vmax,
+                   cmap=plot_params.cmap)
 
         if plot_params.colorbar:
             plt.colorbar()
@@ -1070,14 +1075,14 @@ class PlotParams(object):
     @filename.setter
     def filename(self, filename):
         if not isinstance(filename, str):
-            py_printf('ERROR', 'The filename %s is not a string', str(filename))
+            py_printf('ERROR', 'Filename %s is not a string', str(filename))
 
         self._filename = filename
 
     @extension.setter
     def extension(self, extension):
         if not isinstance(extension, str):
-            py_printf('ERROR', 'The extension %s is not a string', str(extension))
+            py_printf('ERROR', 'Extension %s is not a string', str(extension))
 
         self._filename = extension
 
@@ -1091,9 +1096,9 @@ class PlotParams(object):
     @gridsize.setter
     def gridsize(self, gridsize):
         if not is_integer(gridsize):
-            py_printf('ERROR', 'The gridsize %s is not an integer', str(gridsize))
+            py_printf('ERROR', 'Gridsize %s is not an integer', str(gridsize))
         if gridsize <= 0:
-            py_printf('ERROR', 'The gridsize %s is negative', gridsize)
+            py_printf('ERROR', 'Gridsize %s is negative', gridsize)
 
         self._gridsize = gridsize
 
@@ -1120,28 +1125,28 @@ class PlotParams(object):
     @colorbar.setter
     def colorbar(self, colorbar):
         if colorbar and not isinstance(colorbar, bool):
-            py_printf('ERROR', 'The colorbar %s is not a boolean', str(colorbar))
+            py_printf('ERROR', 'Colorbar %s is not a boolean', str(colorbar))
 
         self._colorbar = colorbar
 
     @title.setter
     def title(self, title):
         if title and not isinstance(title, str):
-            py_printf('ERROR', 'The title %s is not a string', str(title))
+            py_printf('ERROR', 'Title %s is not a string', str(title))
 
         self._title = title
 
     @suptitle.setter
     def suptitle(self, suptitle):
         if suptitle and not isinstance(suptitle, str):
-            py_printf('ERROR', 'The suptitle %s is not a string', str(suptitle))
+            py_printf('ERROR', 'Suptitle %s is not a string', str(suptitle))
 
         self._suptitle = suptitle
 
     @norm.setter
     def norm(self, norm):
         if norm and not isinstance(norm, bool):
-            py_printf('ERROR', 'The norm %s is not a boolean', str(norm))
+            py_printf('ERROR', 'Norm %s is not a boolean', str(norm))
 
         self._norm = norm
 
