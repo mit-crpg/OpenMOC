@@ -76,10 +76,10 @@ keff_with_sph = solver.getKeff()
 # Report the OpenMC and OpenMOC eigenvalues
 openmoc.log.py_printf('RESULT', 'OpenMOC keff w/o SPH: \t%1.5f', keff_no_sph)
 openmoc.log.py_printf('RESULT', 'OpenMOC keff w/ SPH: \t%1.5f', keff_with_sph)
-openmoc.log.py_printf('RESULT', 'OpenMC keff: \t\t:0.96261 +/- 0.00093')
+openmoc.log.py_printf('RESULT', 'OpenMC keff: \t\t:0.96281 +/- 0.00009')
 
 # Extract the OpenMOC scalar fluxes
-fluxes_sph = openmoc.process.get_scalar_fluxes(solver)
+fluxes_sph = openmoc.process.get_scalar_fluxes(solver) * sph
 
 
 ###############################################################################
