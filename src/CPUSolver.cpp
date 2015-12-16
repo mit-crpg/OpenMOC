@@ -605,31 +605,11 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION old_fission, new_fission;
+  FP_PRECISION fission;
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
 
   /* Compute the old nu-fission rates in each FSR */
-  #pragma omp parallel for private(tid, volume, \
-    material, sigma) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
-
-    tid = omp_get_thread_num() * _num_groups;
-    volume = _FSR_volumes[r];
-    material = _FSR_materials[r];
-    sigma = material->getNuSigmaF();
-
-    for (int e=0; e < _num_groups; e++)
-      group_rates[tid+e] = sigma[e] * _old_scalar_flux(r,e);
-
-    FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
-    FSR_rates[r] *= volume;
-  }
-
-  /* Reduce old fission rates across FSRs */
-  old_fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
-
-  /* Compute the new nu-fission rates in each FSR */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -647,9 +627,9 @@ void CPUSolver::computeKeff() {
   }
 
   /* Reduce new fission rates across FSRs */
-  new_fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
-
-  _k_eff *= new_fission / old_fission;
+  fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+  
+  _k_eff *= fission;
 
   delete [] FSR_rates;
   delete [] group_rates;
