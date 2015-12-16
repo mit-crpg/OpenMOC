@@ -25,8 +25,8 @@ import openmoc
 # @code
 #          value1 = 25
 #          value2 = 26.0
-#          log.py_printf('NORMAL', 'My name is Will and I am %d going on' \
-#                        ' %f years of age', value1, value2)
+#          log.py_printf('NORMAL', 'My name is Will and I am %d going on ' \
+#                        '%f years of age', value1, value2)
 # @endcode
 #
 # @param level the logging level for this message
@@ -34,28 +34,28 @@ import openmoc
 # @param *args a variable length list of values for the message string
 def py_printf(level, my_str, *args):
 
-  if level == 'DEBUG':
-    openmoc.log_printf(openmoc.DEBUG, my_str % args)
-  elif level == 'INFO':
-    openmoc.log_printf(openmoc.INFO, my_str % args)
-  elif level == 'NORMAL':
-    openmoc.log_printf(openmoc.NORMAL, my_str % args)
-  elif level == 'SEPARATOR':
-    openmoc.log_printf(openmoc.SEPARATOR, my_str % args)
-  elif level == 'HEADER':
-    openmoc.log_printf(openmoc.HEADER, my_str % args)
-  elif level == 'TITLE':
-    openmoc.log_printf(openmoc.TITLE, my_str % args)
-  elif level == 'WARNING':
-    openmoc.log_printf(openmoc.WARNING, my_str % args)
-  elif level == 'CRITICAL':
-    openmoc.log_printf(openmoc.CRITICAL, my_str % args)
-  elif level == 'RESULT':
-    openmoc.log_printf(openmoc.RESULT, my_str % args)
-  elif level == 'UNITTEST':
-    openmoc.log_printf(openmoc.UNITTEST, my_str % args)
-  elif level == 'ERROR':
-    openmoc.log_printf(openmoc.ERROR, my_str % args)
+    if level == 'DEBUG':
+        openmoc.log_printf(openmoc.DEBUG, my_str % args)
+    elif level == 'INFO':
+        openmoc.log_printf(openmoc.INFO, my_str % args)
+    elif level == 'NORMAL':
+      openmoc.log_printf(openmoc.NORMAL, my_str % args)
+    elif level == 'SEPARATOR':
+        openmoc.log_printf(openmoc.SEPARATOR, my_str % args)
+    elif level == 'HEADER':
+        openmoc.log_printf(openmoc.HEADER, my_str % args)
+    elif level == 'TITLE':
+        openmoc.log_printf(openmoc.TITLE, my_str % args)
+    elif level == 'WARNING':
+        openmoc.log_printf(openmoc.WARNING, my_str % args)
+    elif level == 'CRITICAL':
+        openmoc.log_printf(openmoc.CRITICAL, my_str % args)
+    elif level == 'RESULT':
+        openmoc.log_printf(openmoc.RESULT, my_str % args)
+    elif level == 'UNITTEST':
+        openmoc.log_printf(openmoc.UNITTEST, my_str % args)
+    elif level == 'ERROR':
+        openmoc.log_printf(openmoc.ERROR, my_str % args)
 
 
 ##
@@ -73,27 +73,27 @@ def py_printf(level, my_str, *args):
 # @param level the minimum logging level ('DEBUG', 'INFO', etc)
 def set_log_level(level):
 
-  if level == 'DEBUG':
-    openmoc.set_log_level('DEBUG')
-  elif level == 'INFO':
-    openmoc.set_log_level('INFO')
-  elif level == 'NORMAL':
-    openmoc.set_log_level('NORMAL')
-  elif level == 'SEPARATOR':
-    openmoc.set_log_level('SEPARATOR')
-  elif level == 'HEADER':
-    openmoc.set_log_level('HEADER')
-  elif level == 'TITLE':
-    openmoc.set_log_level('TITLE')
-  elif level == 'WARNING':
-    openmoc.set_log_level('WARNING')
-  elif level == 'CRITICAL':
-    openmoc.set_log_level('CRITICAL')
-  elif level == 'RESULT':
-    openmoc.set_log_level('RESULT')
-  elif level == 'UNITTEST':
-    openmoc.set_log_level('UNITTEST')
-  elif level == 'ERROR':
-    openmoc.set_log_level('ERROR')
-  else:
-    py_printf('Cannot set log level to unsupported log level %s', str(level))
+    if level == 'DEBUG':
+        openmoc.set_log_level('DEBUG')
+    elif level == 'INFO':
+        openmoc.set_log_level('INFO')
+    elif level == 'NORMAL':
+        openmoc.set_log_level('NORMAL')
+    elif level == 'SEPARATOR':
+        openmoc.set_log_level('SEPARATOR')
+    elif level == 'HEADER':
+        openmoc.set_log_level('HEADER')
+    elif level == 'TITLE':
+        openmoc.set_log_level('TITLE')
+    elif level == 'WARNING':
+        openmoc.set_log_level('WARNING')
+    elif level == 'CRITICAL':
+        openmoc.set_log_level('CRITICAL')
+    elif level == 'RESULT':
+        openmoc.set_log_level('RESULT')
+    elif level == 'UNITTEST':
+        openmoc.set_log_level('UNITTEST')
+    elif level == 'ERROR':
+        openmoc.set_log_level('ERROR')
+    else:
+        py_printf('Cannot set log level to unsupported level %s', str(level))
