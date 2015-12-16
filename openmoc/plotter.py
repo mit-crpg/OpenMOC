@@ -1102,7 +1102,7 @@ class PlotParams(object):
         if xlim:
             if not isinstance(xlim, tuple):
                 py_printf('ERROR', 'The xlim %s is not a tuple', str(xlim))
-            if len(xlim):
+            if len(xlim) != 2:
                 py_printf('ERROR', 'The xlim %s is not length 2', str(xlim))
 
         self._xlim = xlim
@@ -1112,7 +1112,7 @@ class PlotParams(object):
         if ylim:
             if not isinstance(ylim, tuple):
                 py_printf('ERROR', 'The ylim %s is not a tuple', str(ylim))
-            if len(ylim):
+            if len(ylim) != 2:
                 py_printf('ERROR', 'The ylim %s is not length 2', str(ylim))
 
         self._ylim = ylim
