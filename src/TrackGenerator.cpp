@@ -3320,7 +3320,7 @@ void TrackGenerator::segmentizeExtruded() {
 
   /* Initialize 3D FSRs and their associated vectors*/
   log_printf(NORMAL, "Initializing FSRs axially...");
-  _geometry->initializeAxialFSRs(_contains_global_z_mesh);
+  _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
 
   /* Count the number of segments in each track */

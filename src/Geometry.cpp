@@ -1210,9 +1210,9 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
  *          initializing the 3D FSRs as new regions are traversed.
  * @param contains_global_z_mesh indicates whether a global z mesh is present.
  *        If false, z meshes are local and need to be created for every
- *        ExtrudedFSR.
+ *        ExtrudedFSR. //FIXME
  */
-void Geometry::initializeAxialFSRs(bool contains_global_z_mesh) {
+void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) { //FIXME
 
   log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
 
@@ -1223,8 +1223,7 @@ void Geometry::initializeAxialFSRs(bool contains_global_z_mesh) {
   /* Extract list of extruded FSRs */
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
-  /* Parallelize over extruded FSRs */
-  #pragma omp parallel for
+  /* Loop over extruded FSRs */
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
     /* Extract coordinates of extruded FSR */
@@ -1232,32 +1231,62 @@ void Geometry::initializeAxialFSRs(bool contains_global_z_mesh) {
     double x0 = extruded_FSR->_coords->getX();
     double y0 = extruded_FSR->_coords->getY();
 
-    /* Create vertical track in the extruded FSR */
-    Track3D track;
-    track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
+    /* Determine if there is a global mesh or local meshes should be created */
+    if (global_z_mesh.size() > 0) { // FIXME
 
-    /* Shoot vertical track through the geometry to initialize 3D FSRs */
-    segmentize3D(&track);
+      /* Allocate materials in extruded FSR */
+      size_t num_regions = global_z_mesh.size() - 1;
+      extruded_FSR->_num_fsrs = num_regions;
+      extruded_FSR->_materials = new Material*[num_regions];
+      extruded_FSR->_fsr_ids = new int[num_regions];
 
-    /* Extract segments from track */
-    int num_segments = track.getNumSegments();
-    segment* segments = track.getSegments();
+      /* Create LocalCoords object to find/create FSR */
+      LocalCoords coord(x0, y0, 0);
+      coord.setUniverse(_root_universe);
 
-    /* Allocate materials and mesh in extruded FSR */
-    extruded_FSR->_num_fsrs = (size_t) num_segments;
-    extruded_FSR->_materials = new Material*[num_segments];
-    extruded_FSR->_fsr_ids = new int[num_segments];
-    if (!contains_global_z_mesh)
+      /* Loop over all regions in the global mesh */
+      for (int n=0; n < num_regions; n++) {
+
+        /* Set the axial coordinate at the midpoint of mesh boundaries */
+        double midpt = (global_z_mesh[n] + global_z_mesh[n+1]) / 2;
+        coord.setZ(midpt);
+
+        /* Get the FSR ID and material */
+        Cell* cell = findCellContainingCoords(&coord);
+        int fsr_id = findFSRId(&coord);
+        Material* material = cell->getFillMaterial();
+
+        /* Set the FSR ID and material */
+        extruded_FSR->_fsr_ids[n] = fsr_id;
+        extruded_FSR->_materials[n] = material;
+      }
+    }
+    else {
+
+      /* Create vertical track in the extruded FSR */
+      Track3D track;
+      track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
+
+      /* Shoot vertical track through the geometry to initialize 3D FSRs */
+      segmentize3D(&track);
+
+      /* Extract segments from track */
+      int num_segments = track.getNumSegments();
+      segment* segments = track.getSegments();
+
+      /* Allocate materials and mesh in extruded FSR */
+      extruded_FSR->_num_fsrs = (size_t) num_segments;
+      extruded_FSR->_materials = new Material*[num_segments];
+      extruded_FSR->_fsr_ids = new int[num_segments];
       extruded_FSR->_mesh = new FP_PRECISION[num_segments+1];
 
-    /* Initialize values in extruded FSR */
-    for (int s=0; s < num_segments; s++) {
-      extruded_FSR->_materials[s] = segments[s]._material;
-      extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
-    }
+      /* Initialize values in extruded FSR */
+      for (int s=0; s < num_segments; s++) {
+        extruded_FSR->_materials[s] = segments[s]._material;
+        extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
+      }
 
-    /* Initilaize z mesh */
-    if (!contains_global_z_mesh) {
+      /* Initilaize z mesh */
       FP_PRECISION level = min_z;
       extruded_FSR->_mesh[0] = level;
       for (int s=0; s < num_segments; s++) {
