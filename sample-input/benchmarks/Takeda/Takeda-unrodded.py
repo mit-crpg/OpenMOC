@@ -112,7 +112,7 @@ track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
 track_generator.setSegmentationHeights([0.0])
-track_generator.setGlobalZMesh()
+#track_generator.setGlobalZMesh()
 track_generator.generateTracks()
 
 
