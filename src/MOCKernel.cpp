@@ -146,8 +146,11 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
     _segments[_count]._length = temp_length;
     _segments[_count]._material = mat;
     _segments[_count]._region_id = id;
-    _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
-    _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
+    _segments[_count]._cmfd_surface_fwd = -1;
+    if (i == 0)
+      _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
+    else
+      _segments[_count]._cmfd_surface_bwd = -1;
     length -= temp_length;
     _count++;
   }
@@ -155,6 +158,9 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
   _segments[_count]._material = mat;
   _segments[_count]._region_id = id;
   _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
-  _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
+  if (num_cuts > 1)
+    _segments[_count]._cmfd_surface_bwd = -1;
+  else  
+    _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
   _count++;
 }

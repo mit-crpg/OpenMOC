@@ -4879,20 +4879,25 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
         z_move = 0;
       }
 
+      /* Check for next segment being small */
+
       /* Calculate CMFD surface */
       int cmfd_surface_bwd = -1;
       int cmfd_surface_fwd = -1;
-      if (cmfd != NULL && dist_3D > TINY_MOVE) {
+      //if (cmfd != NULL && dist_3D > TINY_MOVE) {
+      if (cmfd != NULL) {
 
         /* Determine if this is the first 3D segment handled for the flattened
            2D segment. If so, get the 2D cmfd surface. */
-        if (segments_2D[s]._length - remaining_length_2D <= TINY_MOVE)
+        //if (segments_2D[s]._length - remaining_length_2D <= TINY_MOVE)
+        if (remaining_length_2D == segments_2D[s]._length)
           cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
 
         /* Determine if this is the last 3D segment handled for the flattened
            2D segment. If so, get the 2D cmfd surface. */
-        double next_dist_3D = (remaining_length_2D - dist_2D) / sin_theta;
-        if (z_move == 0 || next_dist_3D <= TINY_MOVE)
+        //double next_dist_3D = (remaining_length_2D - dist_2D) / sin_theta;
+        //if (z_move == 0 || next_dist_3D <= TINY_MOVE)
+        if (z_move == 0 || dist_2D >= remaining_length_2D)
           cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
 
         /* Adjust coordinats forward to find cell */
@@ -4903,6 +4908,13 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
         curr_coords.adjustCoords(-tiny_delta_x, -tiny_delta_y, -tiny_delta_z);
         cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords, 
             cmfd_surface_bwd);
+/*
+        int ref_surface = cmfd->findCmfdSurface(cmfd_cell, &curr_coords); //TODO
+        if (cmfd_surface_bwd != ref_surface) {
+          std::cout << "Incorrect bwd surface" << std::endl;
+          exit(1);
+        }
+        */
 
         /* Move coordinates to end of segment */
         FP_PRECISION delta_x = sin_theta * cos(phi) * dist_3D;
@@ -4913,10 +4925,18 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
         /* Find forward surface */
         cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords,
             cmfd_surface_fwd);
+        /*
+        ref_surface = cmfd->findCmfdSurface(cmfd_cell, &curr_coords); //TODO
+        if (cmfd_surface_fwd != ref_surface) {
+          std::cout << "Incorrect fwd surface" << std::endl;
+          exit(1);
+        }
+        */
       }
 
       /* Operate on segment */
-      if (dist_3D > TINY_MOVE)
+      //if (dist_3D > TINY_MOVE)
+      if (true)
         kernel->execute(dist_3D, extruded_FSR->_materials[z_ind],
                         extruded_FSR->_fsr_ids[z_ind], cmfd_surface_fwd,
                         cmfd_surface_bwd);

@@ -732,6 +732,34 @@ void CPUSolver::transportSweepOTF() {
         kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
         _track_generator->traceSegmentsOTF(flattened_track, start, theta,
             &kernel);
+        //TODO
+        /*
+        _geometry->segmentize3D(curr_track);
+        segment* e_segments = curr_track->getSegments();
+        int num_e_segments = curr_track->getNumSegments();
+        for (int s = 0; s < num_segments; s++) {
+          if (segments[s]._cmfd_surface_fwd != e_segments[s]._cmfd_surface_fwd) {
+            std::cout << "ERROR in FWD segments" << std::endl;
+            std::cout << "Explicit Segments:" << std::endl;
+            for (int ss=0; ss < num_e_segments; ss++) {
+              int surf = e_segments[ss]._cmfd_surface_fwd;
+              std::cout << "{" << e_segments[ss]._length << ", " <<
+                 surf << " (" << surf % NUM_SURFACES << ")}" << std::endl;
+            }
+            std::cout << "OTF Segments:" << std::endl;
+            for (int ss=0; ss < num_segments; ss++) {
+              int surf = segments[ss]._cmfd_surface_fwd;
+              std::cout << "{" << segments[ss]._length << ", " <<
+                 surf << " (" << surf % NUM_SURFACES << ")}" << std::endl;
+            }
+            exit(1);
+          }
+          if (segments[s]._cmfd_surface_bwd != e_segments[s]._cmfd_surface_bwd) {
+            std::cout << "ERROR in BWD segments" << std::endl;
+            exit(2);
+          }
+        }
+        */
 
         int polar_index = curr_track->getPolarIndex();
 
