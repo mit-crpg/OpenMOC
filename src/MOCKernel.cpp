@@ -160,7 +160,7 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
   _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
   if (num_cuts > 1)
     _segments[_count]._cmfd_surface_bwd = -1;
-  else  
+  else
     _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
   _count++;
 }

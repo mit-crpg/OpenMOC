@@ -1208,11 +1208,11 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
  *          segmentize3D routine to calculate the distances between axial
  *          intersections forming the axial meshes if necessary and
  *          initializing the 3D FSRs as new regions are traversed.
- * @param contains_global_z_mesh indicates whether a global z mesh is present.
- *        If false, z meshes are local and need to be created for every
- *        ExtrudedFSR. //FIXME
+ * @param global_z_mesh A global z mesh used for ray tracing. If the vector's
+ *        length is zero, z meshes are local and need to be created for every
+ *        ExtrudedFSR.
  */
-void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) { //FIXME
+void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
 
   log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
 
@@ -1232,7 +1232,7 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) { //
     double y0 = extruded_FSR->_coords->getY();
 
     /* Determine if there is a global mesh or local meshes should be created */
-    if (global_z_mesh.size() > 0) { // FIXME
+    if (global_z_mesh.size() > 0) {
 
       /* Allocate materials in extruded FSR */
       size_t num_regions = global_z_mesh.size() - 1;
@@ -1240,16 +1240,13 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) { //
       extruded_FSR->_materials = new Material*[num_regions];
       extruded_FSR->_fsr_ids = new int[num_regions];
 
-      /* Create LocalCoords object to find/create FSR */
-      LocalCoords coord(x0, y0, 0);
-      coord.setUniverse(_root_universe);
-
       /* Loop over all regions in the global mesh */
       for (int n=0; n < num_regions; n++) {
 
         /* Set the axial coordinate at the midpoint of mesh boundaries */
         double midpt = (global_z_mesh[n] + global_z_mesh[n+1]) / 2;
-        coord.setZ(midpt);
+        LocalCoords coord(x0, y0, midpt);
+        coord.setUniverse(_root_universe);
 
         /* Get the FSR ID and material */
         Cell* cell = findCellContainingCoords(&coord);
