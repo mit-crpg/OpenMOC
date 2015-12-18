@@ -145,8 +145,8 @@ private:
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
 
-  void ringify(std::vector<Cell*>* subcells);
-  void sectorize(std::vector<Cell*>* subcells);
+  void ringify(std::vector<Cell*>& subcells, double max_radius);
+  void sectorize(std::vector<Cell*>& subcells);
 
 public:
   Cell(int id=0, const char* name="");
@@ -203,7 +203,7 @@ public:
   double minSurfaceDist(LocalCoords* coords);
 
   Cell* clone();
-  void subdivideCell();
+  void subdivideCell(double max_radius);
   void buildNeighbors();
 
   std::string toString();

@@ -893,7 +893,7 @@ Cell* Cell::clone() {
  * @brief Subdivides the Cell into clones for fuel pin angular sectors.
  * @param subcells an empty vector to store all subcells
  */
-void Cell::sectorize(std::vector<Cell*>* subcells) {
+void Cell::sectorize(std::vector<Cell*>& subcells) {
 
   /* If the user didn't request any sectors, don't make any */
   if (_num_sectors == 0)
@@ -947,7 +947,7 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
     }
 
     /* Store the clone in the parent Cell's container of sector Cells */
-    subcells->push_back(sector);
+    subcells.push_back(sector);
   }
 }
 
@@ -955,8 +955,9 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
 /**
  * @brief Subdivides the Cell into clones for fuel pin rings.
  * @param subcells an empty vector to store all subcells
+ * @param max_radius the maximum allowable radius used in the subdivisions
  */
-void Cell::ringify(std::vector<Cell*>* subcells) {
+void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
 
   /* If the user didn't request any rings, don't make any */
   if (_num_rings == 0)
@@ -965,7 +966,7 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   int num_zcylinders = 0;
   ZCylinder* zcylinder1 = NULL;
   ZCylinder* zcylinder2 = NULL;
-  double radius1 = 0;
+  double radius1 = max_radius;
   double radius2 = 0;
   double x1 = 0.;
   double y1 = 0.;
@@ -1028,12 +1029,6 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
                "Both ZCylinders must have the same center.",
                _id, zcylinder1->getId(), y1, zcylinder2->getId(), y2);
 
-  if (zcylinder1 == NULL && zcylinder2 != NULL)
-    log_printf(ERROR, "Unable to ringify Cell %d since it only contains "
-               "the positive halfpsace of ZCylinder %d. Rings can only be "
-               "created for Cells on the interior (negative halfspace) "
-               "of a ZCYLINDER Surface.", _id, zcylinder2->getId());
-
   if (radius1 <= radius2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains 2 "
                "disjoint ZCYLINDER Surfaces: halfspace %d for ZCylinder %d "
@@ -1041,10 +1036,14 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
                "the 2 halfspaces for each Surface.", _id, halfspace1,
                zcylinder1->getId(), halfspace2, zcylinder2->getId());
 
+  /* Loop over ZCylinders and create a new Cell clone for each ring */
+  std::vector<ZCylinder*>::iterator iter2;
+  std::vector<Cell*>::iterator iter3;
+
   /* Compute the area to fill with each equal volume ring */
   double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
 
-  /* Generate successively smaller ZCylinder Surfaces */
+  /* Generate successively smaller ZCylinders */
   for (int i=0; i < _num_rings-1; i++) {
     radius2 = sqrt(radius1*radius1 - (area / M_PI));
     ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
@@ -1056,16 +1055,13 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
   zcylinders.push_back(zcylinder);
 
-  /* Loop over ZCylinders and create a new Cell clone for each ring */
-  std::vector<ZCylinder*>::iterator iter2;
-  std::vector<Cell*>::iterator iter3;
-
+  /* Create ring Cells with successively smaller ZCylinders */
   for (iter2 = zcylinders.begin(); iter2 != zcylinders.end(); ++iter2) {
 
     /* Create ZCylinders for each of the sectorized Cells */
-    if (subcells->size() != 0) {
-      for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
-        log_printf(DEBUG, "Creating a new ring in sector Cell %d",
+    if (subcells.size() != 0) {
+      for (iter3 = subcells.begin(); iter3 != subcells.end(); ++iter3) {
+        log_printf(DEBUG, "Creating a new ring in sector Cell ID=%d",
                    (*iter3)->getId());
 
         /* Create a new Cell clone */
@@ -1073,8 +1069,10 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
         ring->setNumSectors(0);
         ring->setNumRings(0);
 
-        /* Add new bounding ZCylinder surfaces to the clone */
-        ring->addSurface(-1, (*iter2));
+        /* Add ZCylinder only if this is not the outermost ring in an
+         * unbounded Cell (i.e. the moderator in a fuel pin cell) */
+	if ((*iter2)->getRadius() < max_radius)
+            ring->addSurface(-1, (*iter2));
 
         /* Look ahead and check if we have an inner ZCylinder to add */
         if (iter2+1 == zcylinders.end()) {
@@ -1098,8 +1096,10 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
       ring->setNumSectors(0);
       ring->setNumRings(0);
 
-      /* Add new bounding ZCylinder Surfaces to the clone */
-      ring->addSurface(-1, (*iter2));
+      /* Add ZCylinder only if this is not the outermost ring in an
+       * unbounded Cell (i.e. the moderator in a fuel pin cell) */
+      if ((*iter2)->getRadius() < max_radius)
+        ring->addSurface(-1, (*iter2));
 
       /* Look ahead and check if we have an inner ZCylinder to add */
       if (iter2+1 == zcylinders.end()) {
@@ -1115,34 +1115,35 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   }
 
   /* Store all of the rings in the parent Cell's subcells container */
-  subcells->clear();
-  subcells->insert(subcells->end(), rings.begin(), rings.end());
+  subcells.clear();
+  subcells.insert(subcells.end(), rings.begin(), rings.end());
 }
 
 
 /**
- * @brief Subdivides a Cell into rings and sectors.
+ * @brief Subdivides a Cell into rings and sectors aligned with the z-axis.
  * @details This method uses the Cell's clone method to produce a vector of
  *          this Cell's subdivided ring and sector Cells.
+ * @param max_radius the maximum allowable radius used in the subdivisions
  * @return a vector of Cell pointers to the new subdivided Cells
  */
-void Cell::subdivideCell() {
+void Cell::subdivideCell(double max_radius) {
 
   /** A container of all Cell clones created for rings and sectors */
-  std::vector<Cell*>* subcells = new std::vector<Cell*>();
+  std::vector<Cell*> subcells;
 
   sectorize(subcells);
-  ringify(subcells);
+  ringify(subcells, max_radius);
 
   /* Put any ring / sector subcells in a new Universe fill */
-  if (subcells->size() != 0) {
+  if (subcells.size() != 0) {
 
     /* Create a new Universe to contain all of the subcells */
     Universe* new_fill = new Universe();
 
     /* Add each subcell to the new Universe fill */
     std::vector<Cell*>::iterator iter;
-    for (iter = subcells->begin(); iter != subcells->end(); ++iter)
+    for (iter = subcells.begin(); iter != subcells.end(); ++iter)
       new_fill->addCell(*iter);
 
     /* Set the new Universe as the fill for this Cell */
