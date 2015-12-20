@@ -1126,7 +1126,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     /* Loop over all z-heights to find shortest 2D intersection */
     for (int i=0; i < z_coords.size(); i++) {
 
-      /* Change z-height and copy starting cordinates to end */
+      /* Change z-height and copy starting coordinates to end */
       start.setZ(z_coords[i]);
       start.copyCoords(&end);
 
@@ -1283,7 +1283,7 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
         extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
       }
 
-      /* Initilaize z mesh */
+      /* Initialize z mesh */
       FP_PRECISION level = min_z;
       extruded_FSR->_mesh[0] = level;
       for (int s=0; s < num_segments; s++) {
