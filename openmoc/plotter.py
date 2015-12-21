@@ -825,7 +825,6 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
         if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
             py_printf('ERROR', 'The fsrs_to_data array is length %d ' +
                       'but there are %d FSRs', len(fsrs_to_data),
-
                       plot_params.geometry.getNumFSRs())
     elif 'DataFrame' in str(type(fsrs_to_data)):
         pandas_df = True
