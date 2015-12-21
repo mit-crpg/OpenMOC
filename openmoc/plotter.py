@@ -210,25 +210,19 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
     py_printf('NORMAL', 'Plotting the materials...')
 
-    # Create a NumPy array to map FSRs to Materials
-    num_fsrs = geometry.getNumFSRs()
-    fsrs_to_materials = np.zeros(num_fsrs, dtype=np.int64)
-    for fsr_id in range(num_fsrs):
-        cell = geometry.findCellContainingFSR(fsr_id)
-        fsrs_to_materials[fsr_id] = cell.getFillMaterial().getId()
-
     # Create an array of random integer colors for each Material
     materials = geometry.getAllMaterials()
     num_materials = len(materials)
-    material_ids = [material_id for material_id in materials]
+    colors = np.arange(num_materials)
     numpy.random.seed(1)
-    numpy.random.shuffle(material_ids)
-    for i, material_id in enumerate(fsrs_to_materials):
-        fsrs_to_materials[i] = np.where(material_ids == material_id)[0]
+    numpy.random.shuffle(colors)
+    for i, material_id in enumerate(materials):
+        materials[material_id] = colors[i]
 
     # Initialize plotting parameters
     plot_params = PlotParams()
     plot_params.geometry = geometry
+    plot_params.domain_type = 'material'
     plot_params.gridsize = gridsize
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -241,7 +235,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     plot_params.vmax = num_materials
 
     # Plot a 2D color map of the Materials
-    plot_spatial_data(fsrs_to_materials, plot_params)
+    plot_spatial_data(materials, plot_params)
 
 
 ##
@@ -265,25 +259,19 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 
     py_printf('NORMAL', 'Plotting the cells...')
 
-    # Create a NumPy array to map FSRs to Cells
-    num_fsrs = geometry.getNumFSRs()
-    fsrs_to_cells = np.zeros(num_fsrs, dtype=np.int64)
-    for fsr_id in range(num_fsrs):
-        cell = geometry.findCellContainingFSR(fsr_id)
-        fsrs_to_cells[fsr_id] = cell.getId()
-
     # Create an array of random integer colors for each Cell
-    material_cells = geometry.getAllMaterialCells()
-    num_cells = len(material_cells)
-    cell_ids = [cell_id for cell_id in material_cells]
+    cells = geometry.getAllMaterialCells()
+    num_cells = len(cells)
+    colors = np.arange(num_cells)
     numpy.random.seed(1)
-    numpy.random.shuffle(cell_ids)
-    for i, cell_id in enumerate(fsrs_to_cells):
-        fsrs_to_cells[i] = np.where(cell_ids == cell_id)[0]
+    numpy.random.shuffle(colors)
+    for i, cell_id in enumerate(cells):
+        cells[cell_id] = colors[i]
 
     # Initialize plotting parameters
     plot_params = PlotParams()
     plot_params.geometry = geometry
+    plot_params.domain_type = 'cell'
     plot_params.gridsize = gridsize
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -296,7 +284,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     plot_params.vmax = num_cells
 
     # Plot a 2D color map of the Cells
-    plot_spatial_data(fsrs_to_cells, plot_params)
+    plot_spatial_data(cells, plot_params)
 
 
 ##
@@ -791,23 +779,30 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 
 ##
 # @brief This method plots a color-coded 2D surface plot representing the
-#        arbitrary data mapped to each FSR in the Geometry.
-# @details The routine takes as its first parameter a NumPy array or Pandas
-#          DataFrame with as many entries / rows as there are flat source
-#          regions in the geometry. A user may invoke this function from an
-#          OpenMOC Python file as follows:
+#        arbitrary data mapped to each domain in the geometry
+# @details The second PlotParams parameter to this routine must include the
+#          domain type encoded in the domains_to_ data parameter. In the case
+#          of 'material' and 'cell' domain types, the domains-to-data map must
+#          be a Python dictionary with keys representing each Material/Cell ID
+#          and values indicating the data to plot. In the case of the 'fsr'
+#          domain type, the domains-to-data map may be a dictionary, NumPy array
+#          or a Pandas DataFrame with indices representing FSR IDs and values
+#          representing the data to plot.
+#
+#          A user may invoke this function from an Python file as follows:
 #
 # @code
-#         num_fsrs = geometry.getNumFSRS()
-#         fsrs_to_data = numpy.random.rand(num_fsrs)
-#         openmoc.plotter.plot_spatial_data(fsrs_to_data, )
+#         fsrs_to_data = numpy.random.rand(geometry.getNumFSRS())
+#         plot_params = PlotParams()
+#         plot_params.domain_type = 'fsr'
+#         openmoc.plotter.plot_spatial_data(fsrs_to_data, plot_params)
 # @endcode
 #
-# @param fsrs_to_data an array mapping flat source regions to numerical data
+# @param domains_to_data a mapping between spatial domain IDs and numerical data
 # @param plot_params a PlotParams object initialized with a Geometry
 # @param get_figure whether to return a list of Matplotlib figures
 # @return a list of Matplotlib figures, if requested
-def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
+def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -820,24 +815,31 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
         py_printf('ERROR', 'Unable to plot spatial data with %s which is'
                            'not a PlotParams object', str(plot_params))
 
-    if isinstance(fsrs_to_data, np.ndarray):
+    # Determine the number of domains
+    if plot_params.domain_type == 'material':
+        num_domains = len(plot_params.geometry.getAllMaterials())
+    elif plot_params.domain_type == 'cell':
+        num_domains = len(plot_params.geometry.getAllMaterialCells())
+    else:
+        num_domains = plot_params.geometry.getNumFSRs()
+
+    if isinstance(domains_to_data, (np.ndarray, dict)):
         pandas_df = False
-        if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
-            py_printf('ERROR', 'The fsrs_to_data array is length %d ' +
-                      'but there are %d FSRs', len(fsrs_to_data),
-                      plot_params.geometry.getNumFSRs())
-    elif 'DataFrame' in str(type(fsrs_to_data)):
+        if len(domains_to_data) != num_domains:
+            py_printf('ERROR', 'The domains_to_data array is length %d but ' +
+                      'there are %d domains', len(domains_to_data), num_domains)
+    elif 'DataFrame' in str(type(domains_to_data)):
         pandas_df = True
-        if len(fsrs_to_data) != plot_params.geometry.getNumFSRs():
-            py_printf('ERROR', 'The fsrs_to_data DataFrame is length %d but ' +
-                      'there are %d FSRs in the Geometry', len(fsrs_to_data),
-                      plot_params.geometry.getNumFSRs())
+        if len(domains_to_data) != plot_params.geometry.getNumFSRs():
+            py_printf('ERROR', 'The domains_to_data DataFrame is length %d ' +
+                      'but there are %d domain in the Geometry',
+                      len(domains_to_data), num_domains)
     else:
         py_printf('ERROR', 'Unable to plot spatial data since ' +
-                  'fsrs_to_data is not a NumPy array or Pandas DataFrame')
+                  'domain_to_data is not a dict, array or DataFrame')
 
-    # Initialize a numpy array for the FSR spatial data
-    fsrs = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
+    # Initialize a numpy array for the spatial data
+    domains = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(plot_params)
@@ -845,37 +847,52 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
     for i in range(plot_params.gridsize):
         for j in range(plot_params.gridsize):
 
-            # Find the flat source region IDs for each grid point
+            # Find the domain IDs for each grid point
             x = coords['x'][i]
             y = coords['y'][j]
 
             point = openmoc.LocalCoords(x, y, plot_params.zcoord)
             point.setUniverse(plot_params.geometry.getRootUniverse())
-            plot_params.geometry.findCellContainingCoords(point)
-            fsr_id = plot_params.geometry.getFSRId(point)
+            cell = plot_params.geometry.findCellContainingCoords(point)
 
-            # If we did not find a region, use a -1 "bad" number color
-            if np.isnan(fsr_id):
-                fsrs[j][i] = -1
+            if plot_params.domain_type == 'fsr':
+                domain_id = plot_params.geometry.getFSRId(point)
+            elif plot_params.domain_type == 'material':
+                domain_id = cell.getFillMaterial().getId()
             else:
-                fsrs[j][i] = fsr_id
+                domain_id = cell.getId()
+
+            # If we did not find a domain, use a -1 "bad" number color
+            if np.isnan(domain_id):
+                domains[j][i] = -1
+            else:
+                domains[j][i] = domain_id
 
     # Make FSRs-to-data array 2D to mirror a Pandas DataFrame
-    if isinstance(fsrs_to_data, np.ndarray):
-        fsrs_to_data.shape += (1,)
+    if isinstance(domains_to_data, np.ndarray):
+        domains_to_data.shape += (1,)
 
     # Initialize a list of Matplotlib figures to return to user if requested
     figures = []
 
     # Loop over all columns in NumPy array or Pandas DataFrame input
-    for i in range(fsrs_to_data.shape[1]):
+    num_plots = len(domains_to_data) / num_domains
+    for i in range(num_plots):
 
-        # Use FSR IDs to appropriately index into FSR data
+        # Use domain IDs to appropriately index into FSR data
+        # If domains-to-data was input as a Pandas DataFrame
         if pandas_df:
-            surface = fsrs_to_data.ix[:,i].values
-            surface = surface.take(fsrs.flatten())
+            surface = domains_to_data.ix[:,i].values
+            surface = surface.take(domains.flatten())
+        # If domains-to-data was input as a NumPy array
+        elif isinstance(domains_to_data, np.ndarray):
+            surface = domains_to_data.take(domains.flatten())
+        # If domains-to-data was input as a Python dictionary
         else:
-            surface = fsrs_to_data.take(fsrs.flatten())
+            surface = np.zeros(domains.shape, dtype=np.int)
+            for domain_id in domains_to_data:
+                indices = np.where(domains == domain_id)
+                surface[indices] = domains_to_data[domain_id]
 
         # Reshape data to 2D array for Matplotlib image plot
         surface.shape = (plot_params.gridsize, plot_params.gridsize)
@@ -909,7 +926,7 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
             # If input was a Pandas DataFrame, append column name to suptitle
             if pandas_df:
                 suptitle = plot_params.suptitle
-                suptitle += ' ({0})'.format(fsrs_to_data.columns[i])
+                suptitle += ' ({0})'.format(domains_to_data.columns[i])
             else:
                 suptitle = plot_params.suptitle
 
@@ -926,7 +943,7 @@ def plot_spatial_data(fsrs_to_data, plot_params, get_figure=False):
 
             # If input was a Pandas DataFrame, append column name to filename
             if pandas_df:
-                plot_filename += '-{0}'.format(fsrs_to_data.columns[i])
+                plot_filename += '-{0}'.format(domains_to_data.columns[i])
 
             plot_filename +=  plot_params.extension
             fig.savefig(plot_filename, bbox_inches='tight')
@@ -953,6 +970,9 @@ class PlotParams(object):
 
         ## The Geometry to query when generating the spatial map
         self._geometry = None
+
+        ## The domain type used to map spatial data to the geometry
+        self._domain_type = 'fsr'
 
         ## The filename string
         self._filename = None
@@ -1002,6 +1022,10 @@ class PlotParams(object):
     @property
     def geometry(self):
         return self._geometry
+
+    @property
+    def domain_type(self):
+        return self._domain_type
 
     @property
     def filename(self):
@@ -1070,6 +1094,13 @@ class PlotParams(object):
 
         self._geometry = geometry
         self._check_zcoord()
+
+    @domain_type.setter
+    def domain_type(self, domain_type):
+        if domain_type not in ['material', 'cell', 'fsr']:
+            py_printf('ERROR', '%s is not a domain type', str(domain_type))
+
+        self._domain_type = domain_type
 
     @filename.setter
     def filename(self, filename):
