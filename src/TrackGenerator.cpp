@@ -30,6 +30,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _solve_3D = true;
   _OTF = false;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
+  _max_num_segments = 0;
   _track_generation_method = GLOBAL_TRACKING;
   _dump_segments = true;
 }
@@ -386,6 +387,12 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
   FP_PRECISION max_optical_length = 0.;
 
   if (_solve_3D) {
+
+    /* Allocate array for 3D segments for OTF computation */
+    segment* segments_3D;
+    if (_OTF)
+      segments_3D = new segment[_max_num_segments];
+
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
@@ -394,7 +401,6 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
             /* Extract 3D track and initialize segments pointer */
             Track* track_3D = &_tracks_3D_stack[a][i][p][z];
             int num_segments = track_3D->getNumSegments();
-            segment* segments_3D;
 
             /* Get the segments corresponding to the 3D track */
             if (_OTF) {
@@ -402,8 +408,6 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
               double theta = _tracks_3D_stack[a][i][p][z].getTheta();
               Track2D* flattened_track = &_tracks_2D[a][i];
-
-              segments_3D = new segment[num_segments];
 
               SegmentationKernel kernel;
               kernel.setSegments(segments_3D);
@@ -423,12 +427,12 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
                 max_optical_length = std::max(max_optical_length,
                                               length*sigma_t[e]);
             }
-            if (_OTF)
-              delete[] segments_3D;
           }
         }
       }
     }
+    if (_OTF)
+      delete[] segments_3D;
   }
   else{
     for (int a=0; a < _num_azim/2; a++) {
@@ -4373,6 +4377,11 @@ void TrackGenerator::generateFSRCentroids() {
 
     FSR_volumes = get3DFSRVolumes();
 
+    /* Allocate array for 3D segments for OTF computation */
+    segment* segments;
+    if (_OTF)
+      segments = new segment[_max_num_segments];
+
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
@@ -4388,15 +4397,12 @@ void TrackGenerator::generateFSRCentroids() {
               _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
               * getPolarSpacing(a,p);
             
-            segment* segments;
             if (_OTF) {
 
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
               double theta = _tracks_3D_stack[a][i][p][z].getTheta();
               int ext_id = _tracks_2D[a][i].getUid();
               Track* flattened_track = _flattened_tracks[ext_id];
-
-              segments = new segment[num_segments];
 
               SegmentationKernel kernel;
               kernel.setSegments(segments);
@@ -4429,12 +4435,12 @@ void TrackGenerator::generateFSRCentroids() {
               yy += sin(phi) * sin(theta) * curr_segment->_length;
               zz += cos(theta) * curr_segment->_length;
             }
-            if (_OTF)
-              delete[] segments;
           }
         }
       }
     }
+    if (_OTF)
+      delete[] segments;
   }
   else{
 
@@ -4989,6 +4995,8 @@ void TrackGenerator::countSegments() {
         /* Set the number of segments for the track */
         int num_segments = counter.getCount();
         curr_track->setNumSegments(num_segments);
+        if (num_segments > _max_num_segments)
+          _max_num_segments = num_segments;
         counter.resetCount();
       }
     }

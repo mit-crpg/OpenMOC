@@ -146,6 +146,10 @@ private:
    *  computation */
   FP_PRECISION _max_optical_length;
 
+  /** Maximum number of track segmenets in a single 3D track for on-the-fly
+    computation */
+  int _max_num_segments;
+
   /** Boolean to indicate whether the segments should be dumped */
   bool _dump_segments;
 
