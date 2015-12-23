@@ -836,7 +836,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
                       len(domains_to_data), num_domains)
     else:
         py_printf('ERROR', 'Unable to plot spatial data since ' +
-                  'domain_to_data is not a dict, array or DataFrame')
+                  'domains_to_data is not a dict, array or DataFrame')
 
     # Initialize a numpy array for the spatial data
     domains = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
@@ -873,7 +873,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         domains_to_data.shape += (1,)
 
     # Determine the number of plots to generate
-    if pandas_df or isinstance(domain_to_data, np.ndarray):
+    if pandas_df or isinstance(domains_to_data, np.ndarray):
         num_plots = domains_to_data.shape[1]
     else:
         num_plots = len(domains_to_data) / num_domains
