@@ -732,6 +732,8 @@ void CPUSolver::transportSweepOTF() {
         kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
         _track_generator->traceSegmentsOTF(flattened_track, start, theta,
             &kernel);
+        //FIXME
+        _track_generator->traceStackOTF(flattened_track, p, 0, &kernel);
 
         int polar_index = curr_track->getPolarIndex();
 

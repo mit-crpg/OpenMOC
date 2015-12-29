@@ -4954,6 +4954,195 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
 }
 
 
+// TODO FIXME
+/**
+ * @brief Computes 3D segment lengths for a given associated 2D Track with a
+ *        starting point and an angle on-the-fly and stores the lengths in the
+ *        kernel passed by the user.
+ * @details Segment lengths are computed on-the-fly using 2D segment lengths
+ *          stored in a 2D Track object and 1D meshes from the extruded
+ *          FSRs. Note: before calling this funciton with a SegmentationKernel,
+ *          the memory for the segments should be allocated and referenced by
+ *          the kernel using the setSegments routine in the kernels.
+ * @param flattened_track the 2D track associated with the 3D track for which
+ *        3D segments are computed
+ * @param start the starting coordinates of the 3D track
+ * @param theta the polar angle of the 3D track
+ * @param kernel An MOCKernel object to apply to the calculated 3D segments
+ */
+// TODO FIXME
+// TODO: get start z by finding intersection with FIRST TRACK and Z AXIS
+void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
+                                    double start_z, MOCKernel* kernel) {
+
+  /* Extract information about the z-stack */
+  int azim_index = flattened_track->getAzimIndex();
+  //int azim_index = _quadrature->getFirstOctantAzim(a);
+  double z_spacing = _dz_eff[azim_index][polar_index];
+  double theta = _quadrature->getTheta(azim_index, polar_index);
+  int track_index = flattened_track->getXYIndex();
+
+  /* Create unit vector */
+  double phi = flattened_track->getPhi();
+  double cos_theta = cos(theta);
+  double sin_theta = sin(theta);
+  double tan_theta = sin_theta / cos_theta;
+  int sign = (cos_theta > 0) - (cos_theta < 0);
+
+  /* Track current location in root universe FIXME */
+  Cmfd* cmfd = _geometry->getCmfd();
+
+  /* Extract the appropriate starting mesh */
+  int num_fsrs;
+  FP_PRECISION* axial_mesh;
+  if (_contains_global_z_mesh) {
+    num_fsrs = _global_z_mesh.size() - 1;
+    axial_mesh = &_global_z_mesh[0];
+  }
+
+  //TODO REMOVE
+  int num_z_stack = _tracks_per_stack[azim_index][track_index][polar_index];
+  segment ref_segments[num_z_stack][_max_num_segments];
+  for (int n = 0; n < num_z_stack; n++) {
+    
+    int a = azim_index;
+    int i = track_index;
+    int p = polar_index;
+    int z = n;
+    Track3D* curr_track = &_tracks_3D_stack[a][i][p][z];
+    Point* start = curr_track->getStart();
+
+    SegmentationKernel temp_kernel;
+    temp_kernel.setSegments(ref_segments[n]);
+    traceSegmentsOTF(flattened_track, start, theta, &temp_kernel);
+  }
+  segment computed_segments[num_z_stack][_max_num_segments];
+  int track_seg_num[num_z_stack];
+  for (int n = 0; n < num_z_stack; n++)
+    track_seg_num[n] = 0;
+
+  /* Loop over 2D segments */
+  double first_start_z = start_z;
+  segment* segments_2D = flattened_track->getSegments();
+  for (int s=0; s < flattened_track->getNumSegments(); s++) {
+
+    /* Get segment length and extruded FSR */
+    FP_PRECISION seg_length_2D = segments_2D[s]._length;
+    int extruded_fsr_id = segments_2D[s]._region_id;
+    ExtrudedFSR* extruded_FSR = _geometry->getExtrudedFSR(extruded_fsr_id);
+
+    /* Determine new mesh and z index */
+    if (!_contains_global_z_mesh) {
+      num_fsrs = extruded_FSR->_num_fsrs;
+      axial_mesh = extruded_FSR->_mesh;
+    }
+
+    /* Calculate the end z coordinate of the first track */
+    double first_end_z = first_start_z + seg_length_2D / tan_theta;
+
+    /* Find the upper and lower z coordinates of the first track */
+    double first_track_lower_z;
+    double first_track_upper_z;
+    if (sign > 0) {
+      first_track_lower_z = first_start_z;
+      first_track_upper_z = first_end_z;
+    }
+    else {
+      first_track_lower_z = first_end_z;
+      first_track_upper_z = first_start_z;
+    }
+    
+    /* Loop over all 3D FSRs in the Extruded FSR to find intersections */
+    for (int z_ind = 0; z_ind < num_fsrs; z_ind++) {
+
+      /* Extract the FSR ID of this 3D FSR */
+      int fsr_id = extruded_FSR->_fsr_ids[z_ind];
+
+      /* Get boundaries of the current mesh cell */
+      double z_min = axial_mesh[z_ind];
+      double z_max = axial_mesh[z_ind+1];
+
+      /* Calculate z-stack track indexes that cross the 3D FSR */
+      int start_track = (z_min - first_track_upper_z) / z_spacing + 1;
+      int start_full = (z_min - first_track_lower_z) / z_spacing + 1;
+      int end_full = (z_max - first_track_upper_z) / z_spacing + 1;
+      int end_track = (z_max - first_track_lower_z) / z_spacing + 1;
+
+      /* Treat lower tracks that do not cross the entire 2D length */
+      for (int i = start_track; i < start_full; i++) {
+
+        /* Calculate distance traveled in 3D FSR */
+        double end_z = first_track_upper_z + z_ind * z_spacing;
+        double seg_len_3D = (end_z - z_min) / cos_theta;
+
+        //TODO handle sagment length FIXME
+        int nn = track_seg_num[i];
+        computed_segments[i][nn]._length = seg_len_3D;
+        computed_segments[i][nn]._region_id = fsr_id;
+      }
+
+      /* Treat tracks that do cross the entire 2D length */
+      for (int i = start_full; i < end_full; i++) {
+
+        /* Calculate distance traveled in 3D FSR */
+        double seg_len_3D = seg_length_2D / sin_theta;
+
+        //TODO handle sagment length BAHHAHA
+        int nn = track_seg_num[i];
+        computed_segments[i][nn]._length = seg_len_3D;
+        computed_segments[i][nn]._region_id = fsr_id;
+      }
+
+      /* Treat upper tracks that do not cross the entire 2D length */
+      for (int i = start_track; i < start_full; i++) {
+
+        /* Calculate distance traveled in 3D FSR */
+        double start_z = first_track_lower_z + z_ind * z_spacing;
+        double seg_len_3D = (z_max - start_z) / cos_theta;
+
+        //TODO handle sagment length BAHHAHA
+        int nn = track_seg_num[i];
+        computed_segments[i][nn]._length = seg_len_3D;
+        computed_segments[i][nn]._region_id = fsr_id;
+      }
+    }
+
+    /* Traverse segment on first track */
+    first_start_z = first_end_z;
+  }
+
+  //TODO: remove
+  for (int i = 0; i < num_z_stack; i++) {
+    bool success = true;
+    for (int s = 0; s < _max_num_segments; s++) {
+      bool l = computed_segments[i][s]._length == ref_segments[i][s]._length;
+      bool f = computed_segments[i][s]._region_id == 
+        ref_segments[i][s]._region_id;
+      if (!l || !f) success = false;
+    }
+    if (!success) {
+      std::cout << "Computed Segment Lengths:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << computed_segments[i][s]._length << std::endl;
+      std::cout << "Reference Segment Lengths:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << ref_segments[i][s]._length << std::endl;
+      
+      std::cout << "Computed Segment FSRs:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << computed_segments[i][s]._region_id << std::endl;
+      std::cout << "Reference Segment FSRs:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << ref_segments[i][s]._region_id << std::endl;
+
+      exit(1);
+    }
+    else
+      std::cout << "SUCCESS" << std::endl;
+  }
+}
+
+
 /**
  * @brief Counts the number of 3D segments in the Geomtry
  * @details All 3D segments are computed on-the-fly subject to the max optical
