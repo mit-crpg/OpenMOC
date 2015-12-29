@@ -1795,8 +1795,8 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
     for (int i=0; i < z_heights.size(); i++) {
 
       /* Round z-height */
-      int place = 8;
-      z_heights[i] = floor(z_heights[i] * pow(10, place)) * pow(10, -place);
+      z_heights[i] = floor(z_heights[i] / ON_SURFACE_THRESH)
+        * ON_SURFACE_THRESH;
 
       /* Add the rounded z-height to the set */
       if (z_heights[i] >= min_z && z_heights[i] <= max_z)
