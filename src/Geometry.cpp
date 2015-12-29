@@ -1791,14 +1791,14 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
       }
     }
 
-    /* Add z-heights to the set */
+    /* Add rounded z-heights to the set of unique z-heights */
     for (int i=0; i < z_heights.size(); i++) {
 
       /* Round z-height */
       int place = 8;
       z_heights[i] = floor(z_heights[i] * pow(10, place)) * pow(10, -place);
 
-      /* Add the rouned z-height to the set */
+      /* Add the rounded z-height to the set */
       if (z_heights[i] >= min_z && z_heights[i] <= max_z)
         unique_mesh.insert(z_heights[i]);
     }
