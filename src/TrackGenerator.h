@@ -209,6 +209,7 @@ public:
   double** getPolarSpacings();
   double getPolarSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
+  int getMaxNumSegments();
   int getNumThreads();
   int* getTracksPerCycle();
   int*** getTracksPerStack();
