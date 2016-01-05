@@ -793,6 +793,11 @@ void CPUSolver::transportSweepOTF() {
  *          on-the-fly axial ray tracing.
  */
 //FIXME
+//TODO: create getMaxTracksPerStack (local?)
+//TODO: cretate variable and switch _OTF_stacks
+//TODO: RUN & debug?
+//TODO: CMFD
+//TODO: documentation
 void CPUSolver::transportSweepOTFStacks() {
 
   log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads",
@@ -809,6 +814,11 @@ void CPUSolver::transportSweepOTFStacks() {
   int max_num_segments = _track_generator->getMaxNumSegments();
   segment segments[max_num_tracks_per_stack][max_num_segments];
 
+  /* Create MOC segmentation kernels */
+  SegmentationKernel kernels[max_num_tracks_per_stack];
+  for (int z = 0; z < max_num_tracks_per_stack; z++)
+    kernels[z].setMaxVal(_track_generator->retrieveMaxOpticalLength());
+
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
   Track** flattened_tracks = _track_generator->getFlattenedTracksArray();
@@ -818,8 +828,12 @@ void CPUSolver::transportSweepOTFStacks() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for private(segments)
+  #pragma omp parallel for private(segments, kernels)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
+
+    /* Set segments for each kernel */
+    for (int z = 0; z < max_num_tracks_per_stack; z++)
+      kernels[z].setSegments(segments[z]);
 
     /* Extract indices of 3D tracks associated with the extruded track */
     Track* flattened_track = flattened_tracks[track_id];
@@ -833,9 +847,12 @@ void CPUSolver::transportSweepOTFStacks() {
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++) {
 
-      //FIXME
-      SegmentationKernel temp_kernel;
-      _track_generator->traceStackOTF(flattened_track, p, &temp_kernel);
+      /* Reset the segment count for all kernels */
+      for (int z = 0; z < max_num_tracks_per_stack; z++)
+        kernels[z].resetCount();
+
+      /* Get the segments for the stack */
+      _track_generator->traceStackOTF(flattened_track, p, &kernels);
       
       /* Loop over z-stacked rays */
       for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
@@ -845,26 +862,16 @@ void CPUSolver::transportSweepOTFStacks() {
         int track_id = curr_track->getUid();
         track_flux = &_boundary_flux(track_id, 0, 0);
         double theta = curr_track->getTheta();
-
-        /* Follow track to determine segments */
-        int num_segments = curr_track->getNumSegments();
-        segment segments[num_segments];
-        Point* start = curr_track->getStart();
-        SegmentationKernel kernel;
-        kernel.setSegments(segments);
-        kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
-        _track_generator->traceSegmentsOTF(flattened_track, start, theta,
-            &kernel);
-
         int polar_index = curr_track->getPolarIndex();
 
         /* Transport segments forward */
+        int num_segments = curr_track->getNumSegments();
         for (int s=0; s < num_segments; s++) {
 
-          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
+          tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
 
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
+          tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
               track_flux, true);
         }
 
@@ -878,10 +885,10 @@ void CPUSolver::transportSweepOTFStacks() {
         /* Transport segments backwards */
         for (int s=num_segments-1; s > -1; s--) {
 
-          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
+          tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
 
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
+          tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
               track_flux, false);
         }
 
