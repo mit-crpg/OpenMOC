@@ -715,12 +715,9 @@ void CPUSolver::transportSweepOTF() {
 
       //FIXME
       SegmentationKernel temp_kernel;
-      std::cout << "Begin trace stack" << std::endl;
       _track_generator->traceStackOTF(flattened_track, p, &temp_kernel);
-      std::cout << "End trace stack" << std::endl;
       
       /* Loop over z-stacked rays */
-      std::cout << "Begin ZS" << std::endl;
       for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
         /* Extract track and flux data */
@@ -728,7 +725,6 @@ void CPUSolver::transportSweepOTF() {
         int track_id = curr_track->getUid();
         track_flux = &_boundary_flux(track_id, 0, 0);
         double theta = curr_track->getTheta();
-        std::cout << "ZS 1" << std::endl;
 
         /* Follow track to determine segments */
         int num_segments = curr_track->getNumSegments();
@@ -739,25 +735,18 @@ void CPUSolver::transportSweepOTF() {
         kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
         _track_generator->traceSegmentsOTF(flattened_track, start, theta,
             &kernel);
-        std::cout << "ZS 2" << std::endl;
 
         int polar_index = curr_track->getPolarIndex();
-        std::cout << "ZS 2a" << std::endl;
 
         /* Transport segments forward */
         for (int s=0; s < num_segments; s++) {
 
-          std::cout << "Indexing at segment " << s << std::endl;
-          std::cout << "Length = " << segments[s]._length << std::endl;
           tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
-          std::cout << "ZS 2b" << std::endl;
 
           tallySurfaceCurrent(&segments[s], azim_index, polar_index,
               track_flux, true);
-          std::cout << "ZS 2c" << std::endl;
         }
-        std::cout << "ZS 3" << std::endl;
 
         /* Transfer boundary angular flux to outgoing Track */
         transferBoundaryFlux(track_id, azim_index, polar_index, true,
@@ -765,7 +754,6 @@ void CPUSolver::transportSweepOTF() {
 
         /* Get the backward track flux */
         track_flux = &_boundary_flux(track_id, 1, 0);
-        std::cout << "ZS 4" << std::endl;
 
         /* Transport segments backwards */
         for (int s=num_segments-1; s > -1; s--) {
@@ -776,17 +764,13 @@ void CPUSolver::transportSweepOTF() {
           tallySurfaceCurrent(&segments[s], azim_index, polar_index,
               track_flux, false);
         }
-        std::cout << "ZS 5" << std::endl;
 
         /* Transfer boundary angular flux to outgoing Track */
         transferBoundaryFlux(track_id, azim_index, polar_index, false,
             track_flux);
-        std::cout << "ZS 6" << std::endl;
       }
-      std::cout << "End ZS" << std::endl;
     }
   }
-  std::cout << "END transport sweep" << std::endl;
 }
 
 
