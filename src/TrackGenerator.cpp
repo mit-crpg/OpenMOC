@@ -4992,6 +4992,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
   double z_spacing = _dz_eff[ai][pi];
   double theta = _quadrature->getTheta(azim_index, polar_index);
   int track_index = flattened_track->getXYIndex();
+  int num_z_stack = _tracks_per_stack[azim_index][track_index][polar_index];
 
   /* Create unit vector */
   double phi = flattened_track->getPhi();

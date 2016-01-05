@@ -802,6 +802,11 @@ void CPUSolver::transportSweepOTFStacks() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
+  /* Allocate array of segments */
+  int max_num_tracks_per_stack = _track_generator->getMaxNumTracksPerStack();
+  int max_num_segments = _track_generator->getMaxNumSegments();
+  segment segments[max_num_tracks_per_stack][max_num_segments];
+
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
   Track** flattened_tracks = _track_generator->getFlattenedTracksArray();
@@ -811,7 +816,7 @@ void CPUSolver::transportSweepOTFStacks() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for
+  #pragma omp parallel for private(segments)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
     /* Extract indices of 3D tracks associated with the extruded track */
@@ -826,6 +831,7 @@ void CPUSolver::transportSweepOTFStacks() {
     /* Loop over polar angles */
     for (int p=0; p < _num_polar; p++) {
 
+      //FIXME
       SegmentationKernel temp_kernel;
       _track_generator->traceStackOTF(flattened_track, p, &temp_kernel);
       
