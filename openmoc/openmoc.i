@@ -60,6 +60,9 @@
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
 
+/* WARNING: this removes SWIG warning messages for std::vector<double> */
+%warnfilter(511) std::vector<double>;
+
 /* Methods for SWIG to ignore in generating Python API */
 %ignore setFSRCentroid(int fsr, Point* centroid);
 %ignore setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
