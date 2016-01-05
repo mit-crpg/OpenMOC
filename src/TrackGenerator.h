@@ -281,8 +281,8 @@ public:
   void traceSegmentsOTF(Track* flattened_track, Point* start,
     double theta, MOCKernel* kernel);
 //FIXME
-  void traceStackOTF(Track* flattened_track, int polar_index, double start_z,
-                    MOCKernel* kernel);
+  void traceStackOTF(Track* flattened_track, int polar_index, 
+      MOCKernel* kernel);
   void initialize2DTrackPeriodicIndices();
   void initialize3DTrackPeriodicIndices();
   void initializeTracksArray();
