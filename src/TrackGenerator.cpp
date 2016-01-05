@@ -455,6 +455,17 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
 
 /**
+ * @brief Returns the maximum number of segments along a single track
+ * @details The TrackGenerator::countSegments routine must be called before
+ *          this function will return a correct value
+ * @return the maximum number of segments
+ */
+int TrackGenerator::getMaxNumSegments() {
+  return _max_num_segments;
+}
+
+
+/**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */

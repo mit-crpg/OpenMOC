@@ -692,6 +692,10 @@ void CPUSolver::transportSweepOTF() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
+  /* Allocate array of segments */
+  int max_num_segments = _track_generator->getMaxNumSegments();
+  segment segments[max_num_segments];
+
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
   Track** flattened_tracks = _track_generator->getFlattenedTracksArray();
@@ -701,8 +705,13 @@ void CPUSolver::transportSweepOTF() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for
+  #pragma omp parallel for private(segments)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
+
+    /* Create MOC segmentation kernel */
+    SegmentationKernel kernel;
+    kernel.setSegments(segments);
+    kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
 
     /* Extract indices of 3D tracks associated with the extruded track */
     Track* flattened_track = flattened_tracks[track_id];
@@ -726,16 +735,13 @@ void CPUSolver::transportSweepOTF() {
         double theta = curr_track->getTheta();
 
         /* Follow track to determine segments */
-        int num_segments = curr_track->getNumSegments();
-        segment segments[num_segments];
+        kernel.resetCount();
         Point* start = curr_track->getStart();
-        SegmentationKernel kernel;
-        kernel.setSegments(segments);
-        kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
         _track_generator->traceSegmentsOTF(flattened_track, start, theta,
             &kernel);
 
         int polar_index = curr_track->getPolarIndex();
+        int num_segments = curr_track->getNumSegments();
 
         /* Transport segments forward */
         for (int s=0; s < num_segments; s++) {
