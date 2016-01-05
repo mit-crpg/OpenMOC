@@ -393,6 +393,10 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
     if (_OTF)
       segments_3D = new segment[_max_num_segments];
 
+    /* Create segmentation kernel */
+    SegmentationKernel kernel;
+    kernel.setSegments(segments_3D);
+
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
@@ -404,13 +408,10 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
             /* Get the segments corresponding to the 3D track */
             if (_OTF) {
-
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
               double theta = _tracks_3D_stack[a][i][p][z].getTheta();
               Track2D* flattened_track = &_tracks_2D[a][i];
-
-              SegmentationKernel kernel;
-              kernel.setSegments(segments_3D);
+              kernel.resetCount();
               traceSegmentsOTF(flattened_track, start, theta, &kernel);
             }
             else
@@ -4393,6 +4394,12 @@ void TrackGenerator::generateFSRCentroids() {
     if (_OTF)
       segments = new segment[_max_num_segments];
 
+    /* Create segmentation kernel */
+    SegmentationKernel kernel;
+    kernel.setSegments(segments);
+    kernel.setMaxVal(_max_optical_length);
+
+    /* Loop over all tracks */
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
@@ -4415,9 +4422,7 @@ void TrackGenerator::generateFSRCentroids() {
               int ext_id = _tracks_2D[a][i].getUid();
               Track* flattened_track = _flattened_tracks[ext_id];
 
-              SegmentationKernel kernel;
-              kernel.setSegments(segments);
-              kernel.setMaxVal(_max_optical_length);
+              kernel.resetCount();
               traceSegmentsOTF(flattened_track, start, theta, &kernel);
             }
             else
@@ -5138,6 +5143,7 @@ void TrackGenerator::countSegments() {
   #pragma omp parallel for
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
+    /* Create counter kernel for the current thread */
     CounterKernel counter;
     counter.setMaxVal(_max_optical_length);
 
