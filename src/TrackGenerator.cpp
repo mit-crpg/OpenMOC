@@ -4972,7 +4972,7 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
  */
 // TODO FIXME
 void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
-                                    MOCKernel* kernel) {
+                                    MOCKernel** kernels) {
 
   /* Extract information about the z-stack */
   int azim_index = flattened_track->getAzimIndex();
@@ -5010,34 +5010,6 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     axial_mesh = &_global_z_mesh[0];
   }
 
-  //TODO REMOVE
-  int num_z_stack = _tracks_per_stack[azim_index][track_index][polar_index];
-  segment ref_segments[num_z_stack][_max_num_segments];
-  segment computed_segments[num_z_stack][_max_num_segments];
-  int track_seg_num[num_z_stack];
-  for (int n = 0; n < num_z_stack; n++) {
-    track_seg_num[n] = 0;
-    for (int s = 0; s < _max_num_segments; s++) {
-      computed_segments[n][s]._length = -1;
-      computed_segments[n][s]._region_id = -1;
-      ref_segments[n][s]._length = -1;
-      ref_segments[n][s]._region_id = -1;
-    }
-  }
-  for (int n = 0; n < num_z_stack; n++) {
-    
-    int a = azim_index;
-    int i = track_index;
-    int p = polar_index;
-    int z = n;
-    Track3D* curr_track = &_tracks_3D_stack[a][i][p][z];
-    Point* start = curr_track->getStart();
-
-    SegmentationKernel temp_kernel;
-    temp_kernel.setSegments(ref_segments[n]);
-    traceSegmentsOTF(flattened_track, start, theta, &temp_kernel);
-  }
-
   /* Loop over 2D segments */
   double first_start_z = start_z;
   segment* segments_2D = flattened_track->getSegments();
@@ -5072,8 +5044,9 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     /* Loop over all 3D FSRs in the Extruded FSR to find intersections */
     for (int z_ind = 0; z_ind < num_fsrs; z_ind++) {
   
-      /* Extract the FSR ID of this 3D FSR */
+      /* Extract the FSR ID and Material ID of this 3D FSR */
       int fsr_id = extruded_FSR->_fsr_ids[z_ind];
+      int material_id = extruded_FSR->_fsr_ids[z_ind];
 
       /* Get boundaries of the current mesh cell */
       double z_min = axial_mesh[z_ind];
@@ -5084,8 +5057,10 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
       int start_full = (z_min - first_track_lower_z) / z_spacing + 1;
       int end_full = (z_max - first_track_upper_z) / z_spacing + 1;
       int end_track = (z_max - first_track_lower_z) / z_spacing + 1;
-      if (end_track > num_z_stack)
-        end_track = num_z_stack;
+      
+      /* Check track bounds */
+      start_track = std::max(start_track, 0);
+      end_track = std::min(end_track, num_z_stack);
       
       /* Treat lower tracks that do not cross the entire 2D length */
       int min_lower = std::min(start_full, end_full);
@@ -5095,11 +5070,8 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double end_z = first_track_upper_z + i * z_spacing;
         double seg_len_3D = (end_z - z_min) / std::abs(cos_theta);
 
-        //TODO handle sagment length FIXME
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
+        /* Operate on segment */
+        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
       }
 
       /* Treat tracks that do cross the entire 2D length */
@@ -5108,11 +5080,8 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = seg_length_2D / sin_theta;
 
-        //TODO handle sagment length BAHHAHA
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
+        /* Operate on segment */
+        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
       }
 
       /* Treat tracks that cross through both the upper and lower boundary
@@ -5123,11 +5092,8 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = (z_max - z_min) / std::abs(cos_theta);
 
-        //TODO handle sagment length BAHHAHA
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
+        /* Operate on segment */
+        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
       }
 
       /* Treat upper tracks that do not cross the entire 2D length */
@@ -5138,45 +5104,12 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double start_z = first_track_lower_z + i * z_spacing;
         double seg_len_3D = (z_max - start_z) / std::abs(cos_theta);
 
-        //TODO handle sagment length BAHHAHA
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
+        /* Operate on segment */
+        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
       }
     }
     /* Traverse segment on first track */
     first_start_z = first_end_z;
-  }
-
-  //TODO: remove
-  for (int i = 0; i < num_z_stack; i++) {
-    bool success = true;
-    for (int s = 0; s < _max_num_segments; s++) {
-      bool l = std::abs(computed_segments[i][s]._length - 
-          ref_segments[i][s]._length) < 1e-8;
-      bool f = computed_segments[i][s]._region_id == 
-        ref_segments[i][s]._region_id;
-      if (!l || !f) success = false;
-    }
-    if (!success) {
-      std::cout << "FAILURE" << std::endl;
-      std::cout << "Computed Segment Lengths:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << computed_segments[i][s]._length << std::endl;
-      std::cout << "Reference Segment Lengths:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << ref_segments[i][s]._length << std::endl;
-      
-      std::cout << "Computed Segment FSRs:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << computed_segments[i][s]._region_id << std::endl;
-      std::cout << "Reference Segment FSRs:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << ref_segments[i][s]._region_id << std::endl;
-
-      exit(1);
-    }
   }
 }
 
