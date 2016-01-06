@@ -580,7 +580,7 @@ void CPUSolver::computeKeff() {
 void CPUSolver::transportSweep() {
 
   if (_OTF) {
-    if (_OTF_stack)
+    if (_OTF_stacks)
       transportSweepOTFStacks();
     else
       transportSweepOTF();
@@ -709,7 +709,7 @@ void CPUSolver::transportSweepOTF() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for private(segments, kernel)
+  #pragma omp parallel for firstprivate(segments, kernel)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
     /* Set the segments of this thread's kernel to its segments */
@@ -795,6 +795,7 @@ void CPUSolver::transportSweepOTF() {
 //FIXME
 //TODO: create getMaxTracksPerStack (local?)
 //TODO: cretate variable and switch _OTF_stacks
+// TODO: firstprivate, fix parallel stuff
 //TODO: RUN & debug?
 //TODO: CMFD
 //TODO: documentation
@@ -815,9 +816,9 @@ void CPUSolver::transportSweepOTFStacks() {
   segment segments[max_num_tracks_per_stack][max_num_segments];
 
   /* Create MOC segmentation kernels */
-  SegmentationKernel kernels[max_num_tracks_per_stack];
+  SegmentationKernel kernel_data[max_num_tracks_per_stack];
   for (int z = 0; z < max_num_tracks_per_stack; z++)
-    kernels[z].setMaxVal(_track_generator->retrieveMaxOpticalLength());
+    kernel_data[z].setMaxVal(_track_generator->retrieveMaxOpticalLength());
 
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
@@ -828,12 +829,16 @@ void CPUSolver::transportSweepOTFStacks() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for private(segments, kernels)
+  #pragma omp parallel for firstprivate(segments, kernel_data)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
+    MOCKernel* kernels[max_num_tracks_per_stack];
+
     /* Set segments for each kernel */
-    for (int z = 0; z < max_num_tracks_per_stack; z++)
-      kernels[z].setSegments(segments[z]);
+    for (int z = 0; z < max_num_tracks_per_stack; z++) {
+      kernels[z] = &kernel_data[z];
+      kernels[z]->setSegments(segments[z]);
+    }
 
     /* Extract indices of 3D tracks associated with the extruded track */
     Track* flattened_track = flattened_tracks[track_id];
@@ -849,10 +854,10 @@ void CPUSolver::transportSweepOTFStacks() {
 
       /* Reset the segment count for all kernels */
       for (int z = 0; z < max_num_tracks_per_stack; z++)
-        kernels[z].resetCount();
+        kernels[z]->resetCount();
 
       /* Get the segments for the stack */
-      _track_generator->traceStackOTF(flattened_track, p, &kernels);
+      _track_generator->traceStackOTF(flattened_track, p, kernels);
       
       /* Loop over z-stacked rays */
       for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {

@@ -29,8 +29,10 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _z_coord = 0.0;
   _solve_3D = true;
   _OTF = false;
+  _OTF_stacks = false;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _max_num_segments = 0;
+  _max_num_tracks_per_stack = 0;
   _track_generation_method = GLOBAL_TRACKING;
   _dump_segments = true;
 }
@@ -463,6 +465,15 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
  */
 int TrackGenerator::getMaxNumSegments() {
   return _max_num_segments;
+}
+
+
+/**
+ * @brief Returns the maximum number of tracks in a single stack
+ * @return the maximum number of tracks
+ */
+int TrackGenerator::getMaxNumTracksPerStack() {
+  return _max_num_tracks_per_stack;
 }
 
 
@@ -927,6 +938,15 @@ void TrackGenerator::setSolve3D() {
  */
 void TrackGenerator::setOTF() {
   _OTF = true;
+}
+
+
+/**
+ * @brief sets a flag to calculate 3D segments on-the-fly in the axial
+ *        direction for all tracks in a z-stack at once
+ */
+void TrackGenerator::setOTFStacks() {
+  _OTF_stacks = true;
 }
 
 
@@ -1659,6 +1679,17 @@ bool TrackGenerator::isOTF() {
 
 
 /**
+ * @brief Returns whether or not the solver is set to forming 3D segments
+ *        on-the-fly by track z-stacks
+ * @return true if the solver is set to axial on-the-fly stack segmentation; 
+ *         false otherwise
+ */
+bool TrackGenerator::isOTFStacks() {
+  return _OTF_stacks;
+}
+
+
+/**
  * @brief Initializes Track azimuthal angles, start and end Points.
  * @details This method computes the azimuthal angles and effective track
  *          spacing to use to guarantee cyclic Track wrapping. Based on the
@@ -2174,6 +2205,13 @@ void TrackGenerator::initialize3DTracks() {
     }
   }
 
+  /* Record the maximum number of tracks in a single stack */
+  for (int a=0; a < _num_azim/2; a++)
+    for (int i=0; i < getNumX(a) + getNumY(a); i++)
+      for (int p=0; p < _num_polar; p++)
+        if (_tracks_per_stack[a][i][p] > _max_num_tracks_per_stack)
+          _max_num_tracks_per_stack = _tracks_per_stack[a][i][p];
+  
   _contains_3D_tracks = true;
 
   /* Initialize the 3D track reflections and cycle ids */
@@ -5063,7 +5101,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
   
       /* Extract the FSR ID and Material ID of this 3D FSR */
       int fsr_id = extruded_FSR->_fsr_ids[z_ind];
-      int material_id = extruded_FSR->_fsr_ids[z_ind];
+      Material* material = extruded_FSR->_materials[z_ind];
 
       /* Get boundaries of the current mesh cell */
       double z_min = axial_mesh[z_ind];
@@ -5088,7 +5126,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double seg_len_3D = (end_z - z_min) / std::abs(cos_theta);
 
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
+        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
 
       /* Treat tracks that do cross the entire 2D length */
@@ -5098,7 +5136,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double seg_len_3D = seg_length_2D / sin_theta;
 
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
+        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
 
       /* Treat tracks that cross through both the upper and lower boundary
@@ -5110,7 +5148,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double seg_len_3D = (z_max - z_min) / std::abs(cos_theta);
 
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
+        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
 
       /* Treat upper tracks that do not cross the entire 2D length */
@@ -5122,7 +5160,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double seg_len_3D = (z_max - start_z) / std::abs(cos_theta);
 
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material_id, fsr_id, -1, -1);
+        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
     }
     /* Traverse segment on first track */

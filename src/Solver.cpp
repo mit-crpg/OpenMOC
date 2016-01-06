@@ -350,6 +350,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _track_generator = track_generator;
   _solve_3D = _track_generator->isSolve3D();
   _OTF = _track_generator->isOTF();
+  _OTF_stacks = _track_generator->isOTFStacks();
   _num_azim = _track_generator->getNumAzim();
   _tracks_per_stack = _track_generator->getTracksPerStack();
   _azim_spacings = _track_generator->getAzimSpacings();

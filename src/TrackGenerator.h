@@ -122,9 +122,13 @@ private:
   /** Boolean for whether to solve 3D (true) or 2D (false) problem */
   bool _solve_3D;
 
-  /** Boolean for whether to ray trace on the fly (true) or explicitly generate
+  /** Boolean for whether to ray trace on-the-fly (true) or explicitly generate
    *  segments (false) */
   bool _OTF;
+
+  /** Bool for whether to trace whole axial track stacks on-the-fly (true) or
+      not (false) */
+  bool _OTF_stacks;
 
   /** The z coord where the 2D tracks should be generated */
   double _z_coord;
@@ -149,6 +153,10 @@ private:
   /** Maximum number of track segmenets in a single 3D track for on-the-fly
     computation */
   int _max_num_segments;
+
+  /** Maximum number of tracks a single 3D track stack for on-the-fly
+    computation */
+  int _max_num_tracks_per_stack;
 
   /** Boolean to indicate whether the segments should be dumped */
   bool _dump_segments;
@@ -210,6 +218,7 @@ public:
   double getPolarSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
+  int getMaxNumTracksPerStack();
   int getNumThreads();
   int* getTracksPerCycle();
   int*** getTracksPerStack();
@@ -243,6 +252,7 @@ public:
   void setSolve2D();
   void setSolve3D();
   void setOTF();
+  void setOTFStacks();
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
@@ -274,6 +284,7 @@ public:
   bool isSolve2D();
   bool isSolve3D();
   bool isOTF();
+  bool isOTFStacks();
   void dump2DSegmentsToFile();
   void dump3DSegmentsToFile();
   bool read2DSegmentsFromFile();

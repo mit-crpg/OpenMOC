@@ -125,10 +125,16 @@ protected:
   int* _num_tracks_by_parallel_group;
   int _num_parallel_track_groups;
 
-  /** Boolean for whether to ray trace on the fly (true) or explicitly generate
+  /** Boolean for whether to solve in 3D (true) or 2D (false) */
+  bool _solve_3D;
+
+  /** Boolean for whether to ray trace on-the-fly (true) or explicitly generate
    *  segments (false) */
   bool _OTF;
-  bool _solve_3D;
+
+  /** Bool for whether to trace whole axial track stacks on-the-fly (true) or
+      not (false) */
+  bool _OTF_stacks;
   
   /** The total number of Tracks */
   int _tot_num_tracks;
