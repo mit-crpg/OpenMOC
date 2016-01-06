@@ -781,7 +781,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 # @brief This method plots a color-coded 2D surface plot representing the
 #        arbitrary data mapped to each domain in the geometry
 # @details The second PlotParams parameter to this routine must include the
-#          domain type encoded in the domains_to_ data parameter. In the case
+#          domain type encoded in the domains_to_data parameter. In the case
 #          of 'material' and 'cell' domain types, the domains-to-data map must
 #          be a Python dictionary with keys representing each Material/Cell ID
 #          and values indicating the data to plot. In the case of the 'fsr'
@@ -832,11 +832,11 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         pandas_df = True
         if len(domains_to_data) != plot_params.geometry.getNumFSRs():
             py_printf('ERROR', 'The domains_to_data DataFrame is length %d ' +
-                      'but there are %d domain in the Geometry',
+                      'but there are %d domains in the Geometry',
                       len(domains_to_data), num_domains)
     else:
         py_printf('ERROR', 'Unable to plot spatial data since ' +
-                  'domain_to_data is not a dict, array or DataFrame')
+                  'domains_to_data is not a dict, array or DataFrame')
 
     # Initialize a numpy array for the spatial data
     domains = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
@@ -868,15 +868,20 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             else:
                 domains[j][i] = domain_id
 
-    # Make FSRs-to-data array 2D to mirror a Pandas DataFrame
+    # Make domains-to-data array 2D to mirror a Pandas DataFrame
     if isinstance(domains_to_data, np.ndarray):
         domains_to_data.shape += (1,)
+
+    # Determine the number of plots to generate
+    if pandas_df or isinstance(domains_to_data, np.ndarray):
+        num_plots = domains_to_data.shape[1]
+    else:
+        num_plots = len(domains_to_data) / num_domains
 
     # Initialize a list of Matplotlib figures to return to user if requested
     figures = []
 
     # Loop over all columns in NumPy array or Pandas DataFrame input
-    num_plots = len(domains_to_data) / num_domains
     for i in range(num_plots):
 
         # Use domain IDs to appropriately index into FSR data
@@ -910,7 +915,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         if plot_params.cmap:
             plot_params.cmap.set_bad(alpha=0.0)
 
-        # Plot a 2D color map of the flat source region data
+        # Plot a 2D color map of the domain data
         fig = plt.figure()
         plt.imshow(np.flipud(surface), extent=coords['bounds'],
                    interpolation=plot_params.interpolation,
