@@ -5125,7 +5125,12 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     }
     
     /* Loop over all 3D FSRs in the Extruded FSR to find intersections */
-    for (int z_ind = 0; z_ind < num_fsrs; z_ind++) {
+    for (int z_iter = 0; z_iter < num_fsrs; z_iter++) {
+
+      /* If traveling in negative-z direction, loop through FSRs from top */
+      int z_ind = z_iter;
+      if (sign < 0)
+        z_ind = num_fsrs - z_iter - 1;
   
       /* Extract the FSR ID and Material ID of this 3D FSR */
       int fsr_id = extruded_FSR->_fsr_ids[z_ind];
@@ -5140,7 +5145,11 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
       int start_full = (z_min - first_track_lower_z) / z_spacing + 1;
       int end_full = (z_max - first_track_upper_z) / z_spacing + 1;
       int end_track = (z_max - first_track_lower_z) / z_spacing + 1;
-      
+
+      //FIXME
+      std::cout << "INTERVALS = [" << start_track << ", " << start_full <<
+        ", " << end_full << ", " << end_track << std::endl;
+
       /* Check track bounds */
       start_track = std::max(start_track, 0);
       end_track = std::min(end_track, num_z_stack);
@@ -5153,6 +5162,12 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double end_z = first_track_upper_z + i * z_spacing;
         double seg_len_3D = (end_z - z_min) / std::abs(cos_theta);
 
+        //TODO Remove
+        int nn = track_seg_num[i];
+        computed_segments[i][nn]._length = seg_len_3D;
+        computed_segments[i][nn]._region_id = fsr_id;
+        track_seg_num[i]++;
+
         /* Operate on segment */
         kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
@@ -5162,6 +5177,12 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
 
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = seg_length_2D / sin_theta;
+
+        //TODO Remove
+        int nn = track_seg_num[i];
+        computed_segments[i][nn]._length = seg_len_3D;
+        computed_segments[i][nn]._region_id = fsr_id;
+        track_seg_num[i]++;
 
         /* Operate on segment */
         kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
@@ -5175,6 +5196,12 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = (z_max - z_min) / std::abs(cos_theta);
 
+        //TODO Remove
+        int nn = track_seg_num[i];
+        computed_segments[i][nn]._length = seg_len_3D;
+        computed_segments[i][nn]._region_id = fsr_id;
+        track_seg_num[i]++;
+
         /* Operate on segment */
         kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
@@ -5187,6 +5214,12 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double start_z = first_track_lower_z + i * z_spacing;
         double seg_len_3D = (z_max - start_z) / std::abs(cos_theta);
 
+        //TODO Remove
+        int nn = track_seg_num[i];
+        computed_segments[i][nn]._length = seg_len_3D;
+        computed_segments[i][nn]._region_id = fsr_id;
+        track_seg_num[i]++;
+
         /* Operate on segment */
         kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
@@ -5198,15 +5231,19 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
   //TODO: remove
   for (int i = 0; i < num_z_stack; i++) {
     bool success = true;
+    int failure_seg = -1;
     for (int s = 0; s < _max_num_segments; s++) {
       bool l = std::abs(computed_segments[i][s]._length - 
           ref_segments[i][s]._length) < 1e-8;
       bool f = computed_segments[i][s]._region_id == 
         ref_segments[i][s]._region_id;
-      if (!l || !f) success = false;
+      if (!l || !f) {
+        success = false;
+        failure_seg = s;
+      }
     }
     if (!success) {
-      std::cout << "FAILURE" << std::endl;
+      std::cout << "FAILURE at " << i << ", " << failure_seg << std::endl;
       std::cout << "Computed Segment Lengths:" << std::endl;
       for (int s = 0; s < _max_num_segments; s++)
         std::cout << computed_segments[i][s]._length << std::endl;
