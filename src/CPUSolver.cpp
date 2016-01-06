@@ -707,7 +707,7 @@ void CPUSolver::transportSweepOTF() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for private(segments, kernel)
+  #pragma omp parallel for firstprivate(segments, kernel)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
     /* Set the segments of this thread's kernel to its segments */
