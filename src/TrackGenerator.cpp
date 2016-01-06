@@ -5065,6 +5065,34 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     axial_mesh = &_global_z_mesh[0];
   }
 
+  //TODO REMOVE
+  segment ref_segments[num_z_stack][_max_num_segments];
+  segment computed_segments[num_z_stack][_max_num_segments];
+  int track_seg_num[num_z_stack];
+  for (int n = 0; n < num_z_stack; n++) {
+    track_seg_num[n] = 0;
+    for (int s = 0; s < _max_num_segments; s++) {
+      computed_segments[n][s]._length = -1;
+      computed_segments[n][s]._region_id = -1;
+      ref_segments[n][s]._length = -1;
+      ref_segments[n][s]._region_id = -1;
+    }
+  }
+  for (int n = 0; n < num_z_stack; n++) {
+    
+    int a = azim_index;
+    int i = track_index;
+    int p = polar_index;
+    int z = n;
+    Track3D* curr_track = &_tracks_3D_stack[a][i][p][z];
+    Point* start = curr_track->getStart();
+
+    SegmentationKernel temp_kernel;
+    temp_kernel.setSegments(ref_segments[n]);
+    traceSegmentsOTF(flattened_track, start, theta, &temp_kernel);
+  }
+  //TODO: end remove
+
   /* Loop over 2D segments */
   double first_start_z = start_z;
   segment* segments_2D = flattened_track->getSegments();
@@ -5166,6 +5194,37 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     /* Traverse segment on first track */
     first_start_z = first_end_z;
   }
+
+  //TODO: remove
+  for (int i = 0; i < num_z_stack; i++) {
+    bool success = true;
+    for (int s = 0; s < _max_num_segments; s++) {
+      bool l = std::abs(computed_segments[i][s]._length - 
+          ref_segments[i][s]._length) < 1e-8;
+      bool f = computed_segments[i][s]._region_id == 
+        ref_segments[i][s]._region_id;
+      if (!l || !f) success = false;
+    }
+    if (!success) {
+      std::cout << "FAILURE" << std::endl;
+      std::cout << "Computed Segment Lengths:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << computed_segments[i][s]._length << std::endl;
+      std::cout << "Reference Segment Lengths:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << ref_segments[i][s]._length << std::endl;
+      
+      std::cout << "Computed Segment FSRs:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << computed_segments[i][s]._region_id << std::endl;
+      std::cout << "Reference Segment FSRs:" << std::endl;
+      for (int s = 0; s < _max_num_segments; s++)
+        std::cout << ref_segments[i][s]._region_id << std::endl;
+
+      exit(1);
+    }
+  }
+  //TODO end remove
 }
 
 
