@@ -52,11 +52,13 @@ protected:
   void initializeFSRs();
 
   void zeroTrackFluxes();
+  void copyBoundaryFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();
   void computeFSRSources();
   void transportSweep();
+  void transportSweepOTF();
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);

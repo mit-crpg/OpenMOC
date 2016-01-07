@@ -21,6 +21,7 @@ Track::Track() {
   /* Initialize the cycle ids and periodic track index to -1 (not set) */
   _periodic_cycle_id = -1;
   _reflective_cycle_id = -1;
+  _num_segments = 0;
   _periodic_track_index = -1;
 }
 

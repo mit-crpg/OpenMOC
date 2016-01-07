@@ -23,5 +23,5 @@ zmax.setBoundaryType(VACUUM)
 
 # Create Circles for the fuel as well as to discretize the moderator into rings
 fuel_radius = Circle(x=0.0, y=0.0, radius=0.54)
-moderator_inner_radius = Circle(x=0.0, y=0.0, radius=0.62)
-moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.58)
+moderator_inner_radius = Circle(x=0.0, y=0.0, radius=0.58)
+moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.62)

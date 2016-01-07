@@ -71,6 +71,9 @@ protected:
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
+  /** Number of segments recorded during volume calculation */
+  int _num_segments;
+  
   /** An enum to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions or sent to a periodic or reflective track. */
@@ -150,6 +153,7 @@ public:
   void removeSegment(int index);
   void insertSegment(int index, segment* segment);
   void clearSegments();
+  void setNumSegments(int num_segments);
   virtual std::string toString()=0;
 };
 
@@ -196,7 +200,21 @@ inline segment* Track::getSegments() {
  * @return the number of segments
  */
 inline int Track::getNumSegments() {
-  return _segments.size();
+  if (_num_segments == 0)
+    return _segments.size();
+  else
+    return _num_segments;
+}
+
+/**
+ * @brief Sets the number of segments in a track
+ * @details This function sets the number of segments in a track. It's purpose
+ *          is to be used for 3D tracks with on-the-fly ray tracing where
+ *          segments are not explicitly created, but there is a need to know
+ *          how many segments exist.
+ */
+inline void Track::setNumSegments(int num_segments) {
+    _num_segments = num_segments;
 }
 
 #endif /* TRACK_H_ */

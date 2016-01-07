@@ -58,13 +58,13 @@ class Options:
 
     ## The default number of polar angles
     self._num_polar = 6
-    
+
     ## The default azimuthal spacing
     self._azim_spacing = 0.1
 
     ## The default polar spacing
     self._polar_spacing = 0.1
-    
+
     ## The default maximum number of source iterations
     self._max_iters = 1000
 
@@ -140,7 +140,7 @@ class Options:
         polar_spacing = '\t{: <35}'.format('-z, --polar-spacing=<0.1>')
         polar_spacing += 'The polar spacing [cm]\n'
         print(polar_spacing)
-        
+
         max_iters = '\t{: <35}'.format('-i, --max-iters=<1000>')
         max_iters += 'The max number of source iterations\n'
         print(max_iters)

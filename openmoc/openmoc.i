@@ -60,6 +60,9 @@
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
 
+/* WARNING: this removes SWIG warning messages for std::vector<double> */
+%warnfilter(511) std::vector<double>;
+
 /* Methods for SWIG to ignore in generating Python API */
 %ignore setFSRCentroid(int fsr, Point* centroid);
 %ignore setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
@@ -75,7 +78,6 @@
       SWIG_exception(SWIG_RuntimeError, e.what());
   }
 }
-
 
 /* C++ casting helper method for openmoc.process computePinPowers
  * routine and the OpenCG compatibility module */
@@ -110,6 +112,13 @@
   }
 
 %}
+
+
+/* Include standard vector library for SWIG */
+%include "std_vector.i"
+namespace std {
+  %template(DoubleVector) vector<double>;
+}
 
 
 /* If the user uses the --no-numpy flag, then NumPy typemaps will not be used
@@ -252,10 +261,11 @@
  * using NumPy arrays */
 %apply (double* IN_ARRAY1, int DIM1) {(double* xs, int num_groups)}
 
-/* The typemap used to match the method signature for the TrackGenerator's
+/* The typemaps used to match the method signature for the TrackGenerator's
  * getter methods for track start and end coordinates for the plotting
  * routines in openmoc.plotter */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
+%apply (double ARGOUT_ARRAY1[ANY]) {(double coords[6])}
 
 /* The typemap used to match the method signature for the TrackGenerator's
  * getter methods for track segment start and end coordinates for the plotting

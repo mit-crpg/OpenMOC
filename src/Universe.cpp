@@ -1594,3 +1594,104 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
 
   return surface;
 }
+
+
+/**
+ * @brief Finds the 3D Lattice cell surface that a point lies on.
+ *        If the point is not on a surface, -1 is returned.
+ * @details This is intended for use in axial on-the-fly rat tracing, requiring
+ *          the ID of the 2D surface intersected to be provided. This routine
+ *          returns the same value as Lattice::getLatticeSurface but in much
+ *          less computational time, making it suitable for axial on-the-fly
+ *          ray tracing where computational efficiency is a primary concern.
+ *          The surface indices for a lattice cell are 0 (left),
+ *          1, (bottom), 2 (right), 3 (top), 4 (bottom-left corner),
+ *          5 (bottom-right corner), 6 (top-right corner), and
+ *          7 (top-left corner). The index returned takes into account
+ *          the cell index and returns 8*cell_index + surface_index.
+ * @param cell the cell index that the point is in.
+ * @param point a pointer to a point being evaluated.
+ * @param surface_2D The surface intersected by the 2D projection of the point.
+ * @return the Lattice surface index.
+ */
+int Lattice::getLatticeSurfaceOTF(int cell, Point* point, int surface_2D) {
+
+  /* Determine min and max z boundaries of the cell */
+  double lat_z = cell / (_num_x*_num_y);
+  double z_min = _width_z * (lat_z - _num_z/2.0) + _offset.getZ();
+  double z_max = z_min + _width_z;
+
+  /* Check min z boundary for crossing */
+  if (fabs(z_min - point->getZ()) < ON_SURFACE_THRESH) {
+    int surface;
+    switch (surface_2D % NUM_SURFACES) {
+      case SURFACE_X_MIN:
+        surface = SURFACE_X_MIN_Z_MIN;
+        break;
+      case SURFACE_X_MAX:
+        surface = SURFACE_X_MAX_Z_MIN;
+        break;
+      case SURFACE_Y_MIN:
+        surface = SURFACE_Y_MIN_Z_MIN;
+        break;
+      case SURFACE_Y_MAX:
+        surface = SURFACE_Y_MAX_Z_MIN;
+        break;
+      case SURFACE_X_MIN_Y_MIN:
+        surface = SURFACE_X_MIN_Y_MIN_Z_MIN;
+        break;
+      case SURFACE_X_MIN_Y_MAX:
+        surface = SURFACE_X_MIN_Y_MAX_Z_MIN;
+        break;
+      case SURFACE_X_MAX_Y_MIN:
+        surface = SURFACE_X_MAX_Y_MIN_Z_MIN;
+        break;
+      case SURFACE_X_MAX_Y_MAX:
+        surface = SURFACE_X_MAX_Y_MAX_Z_MIN;
+        break;
+      default:
+        surface = SURFACE_Z_MIN;
+    }
+    return NUM_SURFACES * cell + surface;
+  }
+
+  /* Check max z boundary for crossing */
+  if (fabs(z_max - point->getZ()) < ON_SURFACE_THRESH) {
+    int surface;
+    switch (surface_2D % NUM_SURFACES) {
+      case SURFACE_X_MIN:
+        surface = SURFACE_X_MIN_Z_MAX;
+        break;
+      case SURFACE_X_MAX:
+        surface = SURFACE_X_MAX_Z_MAX;
+        break;
+      case SURFACE_Y_MIN:
+        surface = SURFACE_Y_MIN_Z_MAX;
+        break;
+      case SURFACE_Y_MAX:
+        surface = SURFACE_Y_MAX_Z_MAX;
+        break;
+      case SURFACE_X_MIN_Y_MIN:
+        surface = SURFACE_X_MIN_Y_MIN_Z_MAX;
+        break;
+      case SURFACE_X_MIN_Y_MAX:
+        surface = SURFACE_X_MIN_Y_MAX_Z_MAX;
+        break;
+      case SURFACE_X_MAX_Y_MIN:
+        surface = SURFACE_X_MAX_Y_MIN_Z_MAX;
+        break;
+      case SURFACE_X_MAX_Y_MAX:
+        surface = SURFACE_X_MAX_Y_MAX_Z_MAX;
+        break;
+      default:
+        surface = SURFACE_Z_MAX;
+    }
+    return NUM_SURFACES * cell + surface;
+  }
+
+  /* If no axial crossing, return the 2D surface */
+  if (surface_2D == -1)
+    return surface_2D;
+  else
+    return NUM_SURFACES * cell + surface_2D % NUM_SURFACES;
+}

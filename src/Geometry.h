@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <sstream>
 #include <string>
+#include <set>
 #include <omp.h>
 #include <functional>
 #include "ParallelHashMap.h"
@@ -32,6 +33,10 @@ class Cmfd;
  *        linked list.
  */
 struct fsr_data {
+
+  /** Constructor for FSR data object */
+  fsr_data() : _fsr_id(0), _cmfd_cell(0), _mat_id(0), _point(NULL),
+    _centroid(NULL){}
 
   /** The FSR ID */
   int _fsr_id;
@@ -57,6 +62,41 @@ struct fsr_data {
       delete _centroid;
   }
 };
+
+
+/**
+ * @struct ExtrudedFSR
+ * @brief An ExtrudedFSR struct represents a FSR region in the superposition
+ *        plane for axial on-the-fly ray tracing. It contains a characteristic
+ *        point that lies within the FSR, an axial mesh, and an array of 3D
+ *        FSR IDs contained within the extruded region along with their
+ *        corresponding materials.
+ */
+struct ExtrudedFSR {
+  
+  /** Constructor for ExtrudedFSR object */
+  ExtrudedFSR() : _mesh(NULL), _fsr_id(0), _fsr_ids(NULL), _materials(NULL), 
+    _num_fsrs(0), _coords(NULL){}
+
+  /** Array defining the axial mesh */
+  FP_PRECISION* _mesh;
+
+  /** Axial extruded FSR ID */
+  int _fsr_id;
+
+  /** Array of 3D FSR IDs */
+  int* _fsr_ids;
+
+  /** Array of material pointers for each FSR */
+  Material** _materials;
+
+  /** Number of FSRs in the axially extruded FSR */
+  size_t _num_fsrs;
+
+  /** Coordinates inside the FSR */
+  LocalCoords* _coords;
+};
+
 
 void reset_auto_ids();
 
@@ -102,12 +142,16 @@ private:
 
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
+  ParallelHashMap<std::size_t, ExtrudedFSR*> _extruded_FSR_keys_map;
 
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::size_t> _FSRs_to_keys;
 
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
+
+  /** A vector of ExtrudedFSR pointers indexed by extruded FSR ID */
+  std::vector<ExtrudedFSR*> _extruded_FSR_lookup;
 
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
@@ -149,6 +193,8 @@ public:
   int getNumCells();
   std::map<int, Material*> getAllMaterials();
   std::map<int, Cell*> getAllMaterialCells();
+  std::vector<FP_PRECISION> getUniqueZHeights();
+  std::vector<FP_PRECISION> getUniqueZPlanes();
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
@@ -157,6 +203,7 @@ public:
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
+  ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
   ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
 
@@ -171,13 +218,17 @@ public:
   Cell* findCellContainingCoords(LocalCoords* coords);
   Material* findFSRMaterial(int fsr_id);
   int findFSRId(LocalCoords* coords);
+  int findExtrudedFSR(LocalCoords* coords);
   Cell* findCellContainingFSR(int fsr_id);
 
   /* Other worker methods */
   void subdivideCells();
+  void initializeAxialFSRs(std::vector<double> global_z_mesh);
   void initializeFlatSourceRegions();
   void segmentize2D(Track2D* track, double z_coord);
   void segmentize3D(Track3D* track);
+  void segmentizeExtruded(Track* flattened_track,
+      std::vector<double> z_coords);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
 

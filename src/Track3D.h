@@ -13,9 +13,15 @@
 #include "Point.h"
 #include "Material.h"
 #include "Track.h"
+#include "Track2D.h"
+#include "LocalCoords.h"
 #include <vector>
 #endif
 
+
+
+/** Forward declaration of ExtrudedFSR struct */
+struct ExtrudedFSR;
 
 
 /**

@@ -198,6 +198,7 @@ public:
 
   int getLatticeCell(Point* point);
   int getLatticeSurface(int cell, Point* point);
+  int getLatticeSurfaceOTF(int cell, Point* point, int surface_2D);
 
   std::string toString();
   void printString();

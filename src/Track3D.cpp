@@ -69,7 +69,7 @@ void Track3D::setZIndex(int index) {
 
 /**
  * @brief Set the Track's lz index into the Track3D cycles array.
- * @param index The Track's ;z index.
+ * @param index The Track's lz index.
  */
 void Track3D::setLZIndex(int index) {
   _lz_index = index;

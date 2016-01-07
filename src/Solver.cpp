@@ -21,11 +21,13 @@ Solver::Solver(TrackGenerator* track_generator) {
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
+  _OTF = false;
 
   _tracks = NULL;
   _azim_spacings = NULL;
   _polar_spacings = NULL;
   _boundary_flux = NULL;
+  _start_flux = NULL;
   _boundary_leakage = NULL;
 
   _scalar_flux = NULL;
@@ -63,6 +65,9 @@ Solver::~Solver() {
 
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
+
+  if (_start_flux != NULL)
+    delete [] _start_flux;
 
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
@@ -336,14 +341,15 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
-  if ((!track_generator->contains2DSegments() && track_generator->isSolve2D())
-      || (!track_generator->contains3DSegments() &&
-          track_generator->isSolve3D()))
+  if ((!track_generator->contains2DSegments() && (track_generator->isSolve2D()
+      || track_generator->isOTF())) || (track_generator->isSolve3D() &&
+      !track_generator->isOTF() && !track_generator->contains3DSegments()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
   _solve_3D = _track_generator->isSolve3D();
+  _OTF = _track_generator->isOTF();
   _num_azim = _track_generator->getNumAzim();
   _tracks_per_stack = _track_generator->getTracksPerStack();
   _azim_spacings = _track_generator->getAzimSpacings();
@@ -512,7 +518,11 @@ void Solver::initializeExpEvaluator() {
     FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
 
     /* Split Track segments so that none has a greater optical length */
-    _track_generator->splitSegments(max_tau);
+    _track_generator->setMaxOpticalLength(max_tau);
+    if (_OTF)
+      _track_generator->countSegments();
+    else
+      _track_generator->splitSegments(max_tau);
 
     /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);
@@ -538,9 +548,13 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
+  /* Generate the FSR centroids */
+  _track_generator->generateFSRCentroids();
+
   /* Get an array of volumes indexed by FSR  */
   if (_solve_3D)
     _FSR_volumes = _track_generator->get3DFSRVolumes();
+
   else
     _FSR_volumes = _track_generator->get2DFSRVolumes();
 
@@ -686,9 +700,6 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
-  /* Start the timer to record the total time to converge the flux */
-  _timer->startTimer();
-
   FP_PRECISION residual;
 
   /* Initialize data structures */
@@ -709,6 +720,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
 
   /* Compute the sum of fixed, total and scattering sources */
   computeFSRSources();
+
+  /* Start the timer to record the total time to converge the flux */
+  _timer->startTimer();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -788,9 +802,6 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
-  /* Start the timer to record the total time to converge the flux */
-  _timer->startTimer();
-
   _k_eff = k_eff;
   FP_PRECISION residual;
 
@@ -803,6 +814,9 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
+
+  /* Start the timer to record the total time to converge the flux */
+  _timer->startTimer();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -865,10 +879,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
-
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
-
   FP_PRECISION residual;
 
   /* An initial guess for the eigenvalue */
@@ -888,11 +898,15 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
 
+  /* Start the timer to record the total time to converge the source */
+  _timer->startTimer();
+
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
     normalizeFluxes();
     computeFSRSources();
+    transportSweep();
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);

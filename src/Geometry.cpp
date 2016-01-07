@@ -29,13 +29,24 @@ Geometry::~Geometry() {
 
   /* Free FSR maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {
-    fsr_data **values = _FSR_keys_map.values();
 
+    fsr_data **values = _FSR_keys_map.values();
     for (int i=0; i<_FSR_keys_map.size(); i++)
       delete values[i];
     delete[] values;
 
+    ExtrudedFSR **extruded_fsrs = _extruded_FSR_keys_map.values();
+    for (int i=0; i<_extruded_FSR_keys_map.size(); i++) {
+      if (extruded_fsrs[i]->_mesh != NULL)
+        delete[] extruded_fsrs[i]->_mesh;
+      delete[] extruded_fsrs[i]->_fsr_ids;
+      delete[] extruded_fsrs[i]->_materials;
+      delete extruded_fsrs[i];
+    }
+    delete[] extruded_fsrs;
+
     _FSR_keys_map.clear();
+    _extruded_FSR_keys_map.clear();
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
   }
@@ -525,7 +536,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   curr = coords->getLowestLevel();
   std::hash<std::string> key_hash_function;
 
-  /* Generate unique FSR key */
+  /* Generate faulty FSR key */
   std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
 
   /* If FSR has not been encountered, update FSR maps and vectors */
@@ -534,8 +545,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
     /* Try to get a clean copy of the fsr_id, adding the FSR data
        if necessary where -1 indicates the key was already added */
     fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
-    if (fsr_id == -1)
-    {
+    if (fsr_id == -1) {
       fsr_data volatile* fsr;
       do {
         fsr = _FSR_keys_map.at(fsr_key_hash);
@@ -569,6 +579,61 @@ int Geometry::findFSRId(LocalCoords* coords) {
     fsr_data volatile* fsr;
     do {
       fsr = _FSR_keys_map.at(fsr_key_hash);
+    } while (fsr == NULL);
+
+    fsr_id = fsr->_fsr_id;
+  }
+
+  return fsr_id;
+}
+
+
+/**
+ * @brief Finds and returns a pointer to the axially extruded flat source
+ *        region that a given LocalCoords object resides within.
+ * @param coords a LocalCoords object pointer
+ * @return the ID of an extruded FSR for a given LocalCoords object
+ */
+int Geometry::findExtrudedFSR(LocalCoords* coords) {
+
+  int fsr_id;
+  LocalCoords* curr = coords;
+  curr = coords->getLowestLevel();
+  std::hash<std::string> key_hash_function;
+
+  /* Generate unique FSR key */
+  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+
+  /* If FSR has not been encountered, update FSR maps and vectors */
+  if (!_extruded_FSR_keys_map.contains(fsr_key_hash)) {
+
+    /* Try to get a clean copy of the fsr_id, adding the FSR data
+       if necessary where -1 indicates the key was already added */
+    fsr_id = _extruded_FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
+    if (fsr_id == -1) {
+      ExtrudedFSR volatile* fsr;
+      do {
+        fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
+      } while (fsr == NULL);
+      fsr_id = fsr->_fsr_id;
+    }
+    else {
+
+      /* Add FSR information to FSR key map and FSR_to vectors */
+      ExtrudedFSR* fsr = new ExtrudedFSR;
+      fsr->_fsr_id = fsr_id;
+      fsr->_num_fsrs = 0;
+      fsr->_coords = new LocalCoords(0, 0, 0);
+      _extruded_FSR_keys_map.at(fsr_key_hash) = fsr;
+      coords->copyCoords(fsr->_coords);
+    }
+  }
+
+  /* If FSR has already been encountered, get the fsr id from map */
+  else {
+    ExtrudedFSR volatile* fsr;
+    do {
+      fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
     } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;
@@ -718,6 +783,15 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 }
 
 
+/**
+ * @brief Return a pointer to an ExtrudedFSR by its extruded FSR ID
+ * @param extruded_fsr_id the extruded FSR ID
+ * @return a pointer to the ExtrudedFSR
+ */
+ExtrudedFSR* Geometry::getExtrudedFSR(int extruded_fsr_id) {
+  return _extruded_FSR_lookup[extruded_fsr_id];
+}
+
 
 /**
  * @brief Subidivides all Cells in the Geometry into rings and angular sectors.
@@ -773,6 +847,8 @@ void Geometry::initializeFlatSourceRegions() {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
+ * @param z_coord the axial height at which the 2D plane of the geometry is
+ *        formed
  */
 void Geometry::segmentize2D(Track2D* track, double z_coord) {
 
@@ -990,6 +1066,239 @@ void Geometry::segmentize3D(Track3D* track) {
 
 
 /**
+ * @brief This method performs ray tracing to create extruded track segments
+ *        within each flat source region in the implicit 2D superposition plane
+ *        of the Geometry by 2D ray tracing across input heights that encompass
+ *        all radial geometric detail.
+ * @details This method starts at the beginning of an extruded track and finds
+ *          successive intersection points with FSRs as the extruded track
+ *          crosses radially through the Geometry at defined z-coords. The
+ *          minimum distance to intersection of all z-coords is chosen leading
+ *          to implicitly capturing all geometric radial detail at the defined
+ *          z-heights, saving the lengths and region IDs to the extruded track
+ *          and initializing ExtrudedFSR structs in the traversed FSRs.
+ * @param flattend_track a pointer to a 2D track to segmentize into regions of
+ *        extruded FSRs
+ * @param z_coords a vector of axial heights in the root geometry at which
+ *        the Geometry is segmentized radially
+ */
+void Geometry::segmentizeExtruded(Track* flattened_track,
+    std::vector<double> z_coords) {
+
+  /* Track starting Point coordinates and azimuthal angle */
+  double x0 = flattened_track->getStart()->getX();
+  double y0 = flattened_track->getStart()->getY();
+  double z0 = z_coords[0];
+  double phi = flattened_track->getPhi();
+  double delta_x, delta_y, delta_z;
+
+  /* Length of each segment */
+  FP_PRECISION length;
+  int min_z_ind = 0;
+  int region_id;
+  int num_segments;
+
+  /* Use a LocalCoords for the start and end of each segment */
+  LocalCoords start(x0, y0, z0);
+  LocalCoords end(x0, y0, z0);
+  start.setUniverse(_root_universe);
+  end.setUniverse(_root_universe);
+
+  /* Find the Cell containing the Track starting Point */
+  Cell* curr = findFirstCell(&end, phi);
+
+  /* If starting Point was outside the bounds of the Geometry */
+  if (curr == NULL)
+    log_printf(ERROR, "Could not find a Cell containing the start Point "
+               "of this Track2D: %s", flattened_track->toString().c_str());
+
+  /* While the end of the segment's LocalCoords is still within the Geometry,
+   * move it to the next Cell, create a new segment, and add it to the
+   * Geometry */
+  while (curr != NULL) {
+
+    /* Records the minimum length to a 2D intersection */
+    FP_PRECISION min_length = std::numeric_limits<FP_PRECISION>::infinity();
+    
+    /* Copy end coordinates to start */
+    end.copyCoords(&start);
+
+    /* Loop over all z-heights to find shortest 2D intersection */
+    for (int i=0; i < z_coords.size(); i++) {
+
+      /* Change z-height and copy starting coordinates to end */
+      start.setZ(z_coords[i]);
+      start.copyCoords(&end);
+
+      /* Find the next Cell along the Track's trajectory */
+      curr = findNextCell(&end, phi);
+
+      /* Checks that segment does not have the same start and end Points */
+      if (start.getX() == end.getX() && start.getY() == end.getY())
+        log_printf(ERROR, "Created segment with same start and end "
+                   "point: x = %f, y = %f", start.getX(), start.getY());
+
+      /* Find the segment length and extruded FSR */
+      length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+
+      /* Check if the segment length is the smallest found */
+      if (length < min_length) {
+        min_length = length;
+        min_z_ind = i;
+      }
+    }
+
+    /* Traverse across shortest segment */
+    start.setZ(z_coords[min_z_ind]);
+    start.copyCoords(&end);
+    curr = findNextCell(&end, phi);
+
+    /* Find FSR using starting coordinate */
+    region_id = findExtrudedFSR(&start);
+
+    log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
+               start.getX(), start.getY(), end.getX(), end.getY());
+
+    /* Create a new 2D Track segment with extruded region ID */
+    segment* new_segment = new segment;
+    new_segment->_length = min_length;
+    new_segment->_region_id = region_id;
+    
+    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    if (_cmfd != NULL) {
+
+      /* Find cmfd cell that segment lies in */
+      int cmfd_cell = _cmfd->findCmfdCell(&start);
+
+      /* Reverse nudge from surface to determine whether segment start or end
+       * points lie on a CMFD surface. */
+      delta_x = cos(phi) * TINY_MOVE;
+      delta_y = sin(phi) * TINY_MOVE;
+      start.adjustCoords(-delta_x, -delta_y, 0);
+      end.adjustCoords(-delta_x, -delta_y, 0);
+
+      new_segment->_cmfd_surface_fwd =
+        _cmfd->findCmfdSurface(cmfd_cell, &end);
+      new_segment->_cmfd_surface_bwd =
+        _cmfd->findCmfdSurface(cmfd_cell, &start);
+
+      /* Re-nudge segments from surface. */
+      start.adjustCoords(delta_x, delta_y, 0);
+      end.adjustCoords(delta_x, delta_y, 0);
+    }
+
+    /* Add the segment to the 2D track */
+    flattened_track->addSegment(new_segment);
+  }
+
+  /* Truncate the linked list for the LocalCoords */
+  start.prune();
+  end.prune();
+
+  return;
+}
+
+
+/**
+ * @brief Rays are shot vertically through each ExtrudedFSR struct to calculate
+ *        the axial mesh and initialize 3D FSRs
+ * @details From a 2D point within each FSR, a temporary 3D track is created
+ *          starting at the bottom of the geometry and extending vertically to
+ *          the top of the geometry. These tracks are segmented using the
+ *          segmentize3D routine to calculate the distances between axial
+ *          intersections forming the axial meshes if necessary and
+ *          initializing the 3D FSRs as new regions are traversed.
+ * @param global_z_mesh A global z mesh used for ray tracing. If the vector's
+ *        length is zero, z meshes are local and need to be created for every
+ *        ExtrudedFSR.
+ */
+void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
+
+  log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
+
+  /* Determine the extent of the axial geometry */
+  FP_PRECISION min_z = getMinZ();
+  FP_PRECISION max_z = getMaxZ();
+
+  /* Extract list of extruded FSRs */
+  ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
+
+  /* Loop over extruded FSRs */
+  for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
+
+    /* Extract coordinates of extruded FSR */
+    ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
+    double x0 = extruded_FSR->_coords->getX();
+    double y0 = extruded_FSR->_coords->getY();
+
+    /* Determine if there is a global mesh or local meshes should be created */
+    if (global_z_mesh.size() > 0) {
+
+      /* Allocate materials in extruded FSR */
+      size_t num_regions = global_z_mesh.size() - 1;
+      extruded_FSR->_num_fsrs = num_regions;
+      extruded_FSR->_materials = new Material*[num_regions];
+      extruded_FSR->_fsr_ids = new int[num_regions];
+
+      /* Loop over all regions in the global mesh */
+      for (int n=0; n < num_regions; n++) {
+
+        /* Set the axial coordinate at the midpoint of mesh boundaries */
+        double midpt = (global_z_mesh[n] + global_z_mesh[n+1]) / 2;
+        LocalCoords coord(x0, y0, midpt);
+        coord.setUniverse(_root_universe);
+
+        /* Get the FSR ID and material */
+        Cell* cell = findCellContainingCoords(&coord);
+        int fsr_id = findFSRId(&coord);
+        Material* material = cell->getFillMaterial();
+
+        /* Set the FSR ID and material */
+        extruded_FSR->_fsr_ids[n] = fsr_id;
+        extruded_FSR->_materials[n] = material;
+      }
+    }
+    else {
+
+      /* Create vertical track in the extruded FSR */
+      Track3D track;
+      track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
+
+      /* Shoot vertical track through the geometry to initialize 3D FSRs */
+      segmentize3D(&track);
+
+      /* Extract segments from track */
+      int num_segments = track.getNumSegments();
+      segment* segments = track.getSegments();
+
+      /* Allocate materials and mesh in extruded FSR */
+      extruded_FSR->_num_fsrs = (size_t) num_segments;
+      extruded_FSR->_materials = new Material*[num_segments];
+      extruded_FSR->_fsr_ids = new int[num_segments];
+      extruded_FSR->_mesh = new FP_PRECISION[num_segments+1];
+
+      /* Initialize values in extruded FSR */
+      for (int s=0; s < num_segments; s++) {
+        extruded_FSR->_materials[s] = segments[s]._material;
+        extruded_FSR->_fsr_ids[s] = segments[s]._region_id;
+      }
+
+      /* Initialize z mesh */
+      FP_PRECISION level = min_z;
+      extruded_FSR->_mesh[0] = level;
+      for (int s=0; s < num_segments; s++) {
+        level += segments[s]._length;
+        if (std::abs(level - max_z) < 1e-12)
+          level = max_z;
+      extruded_FSR->_mesh[s+1] = level;
+      }
+    }
+  }
+  delete[] extruded_FSRs;
+}
+
+
+/**
  * @brief Initialize key and material ID vectors for lookup by FSR ID
  * @detail This function initializes and sets reverse lookup vectors by FSR ID.
  *      This is called after the FSRs have all been identified and allocated
@@ -1005,7 +1314,7 @@ void Geometry::initializeFSRVectors() {
 
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
-  _FSRs_to_keys = std::vector<size_t>(num_FSRs);
+  _FSRs_to_keys = std::vector<std::size_t>(num_FSRs);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
@@ -1026,6 +1335,21 @@ void Geometry::initializeFSRVectors() {
       int fsr_id = fsr->_fsr_id;
       _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);
     }
+  }
+
+  /* Check if extruded FSRs are present */
+  size_t num_extruded_FSRs = _extruded_FSR_keys_map.size();
+  if (num_extruded_FSRs > 0) {
+
+    /* Allocate extruded FSR lookup vector and fill with extruded FSRs by ID */
+    _extruded_FSR_lookup = std::vector<ExtrudedFSR*>(num_extruded_FSRs);
+    ExtrudedFSR **extruded_value_list = _extruded_FSR_keys_map.values();
+    for (int i=0; i < num_extruded_FSRs; i++) {
+      int fsr_id = extruded_value_list[i]->_fsr_id;
+      _extruded_FSR_lookup[fsr_id] = extruded_value_list[i];
+    }
+
+    delete [] extruded_value_list;
   }
 
   /* Delete key and value lists */
@@ -1282,7 +1606,10 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 }
 
 
-
+/**
+ * @brief Finds the Cell containing a given fsr ID.
+ * @param fsr_id an FSR ID.
+ */
 Cell* Geometry::findCellContainingFSR(int fsr_id) {
 
   Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
@@ -1312,4 +1639,221 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
  */
 void Geometry::setFSRCentroid(int fsr, Point* centroid) {
   _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
+}
+
+
+/*
+ * @brief Returns a vector of z-coords defining a superposition of all axial
+ *        boundaries in the Geometry.
+ * @details The Geometry is traversed to retrieve all Z-planes and implicit
+ *          z-boundaries, such as lattice boundaries. The levels of all these
+ *          z-boundaries are rounded and added to a set containing no
+ *          duplicates, creating a mesh.
+ * @reutrn a vector of z-coords
+ */
+std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
+
+  /* Get the bounds of the geometry */
+  double min_z = getMinZ();
+  double max_z = getMaxZ();
+
+  /* Initialize set for axial mesh */
+  std::set<double> unique_mesh;
+
+  /* Initialize vector of unvisited universes and add the root universe */
+  std::vector<Universe*> universes;
+  universes.push_back(_root_universe);
+
+  /* Initialize vector of offsets */
+  std::vector<double> offsets;
+  offsets.push_back(0.0);
+
+  /* Cycle through known universes */
+  while (!universes.empty()) {
+
+    /* Get the last universe and explore it */
+    Universe* curr_universe = universes.back();
+    universes.pop_back();
+
+    /* Get the z-offset of the universe */
+    double z_offset = offsets.back();
+    offsets.pop_back();
+
+    /* Store a vector of the z_heights before rounding */
+    std::vector<double> z_heights;
+
+    /* Check if universe is actually a lattice */
+    universeType type = curr_universe->getType();
+    if (type == LATTICE) {
+
+      /* Get lattice dimensions */
+      Lattice* lattice = static_cast<Lattice*>(curr_universe);
+      int nx = lattice->getNumX();
+      int ny = lattice->getNumY();
+      int nz = lattice->getNumZ();
+
+      /* Get offset of the lattice */
+      z_offset += lattice->getOffset()->getZ();
+
+      /* Calculate z-intersections */
+      double width = lattice->getWidthZ();
+      double offset = z_offset - nz * width / 2;
+      for (int k=0; k<nz+1; k++) {
+        double z_height = k * width + offset;
+        z_heights.push_back(z_height);
+      }
+
+      /* Add universes to unvisited universes vector */
+      for (int i=0; i<nx; i++) {
+        for (int j=0; j<ny; j++) {
+          for (int k=0; k<nz; k++) {
+            Universe* new_universe = lattice->getUniverse(i, j, k);
+            universes.push_back(new_universe);
+            offsets.push_back(z_offset);
+          }
+        }
+      }
+    }
+
+    /* Otherwise check if universe is simple, contains cells */
+    else if (type == SIMPLE) {
+
+      /* Get all cells in the universe */
+      std::map<int, Cell*> cells = curr_universe->getCells();
+
+      /* Cycle through all cells */
+      std::map<int, Cell*>::iterator cell_iter;
+      for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
+
+        /* Get surfaces bounding the cell */
+        std::map<int, surface_halfspace> surfaces =
+          cell_iter->second->getSurfaces();
+
+        /* Cycle through all surfaces and add them to the set */
+        std::map<int, surface_halfspace>::iterator surf_iter;
+        for (surf_iter = surfaces.begin(); surf_iter != surfaces.end();
+            ++surf_iter) {
+
+          /* Extract surface type */
+          Surface* surface = surf_iter->second._surface;
+          surfaceType surf_type = surface->getSurfaceType();
+
+          /* Treat surface types */
+          if (surf_type == PLANE) {
+
+            /* Extract plane paramters */
+            Plane* plane = static_cast<Plane*>(surface);
+            double A = plane->getA();
+            double B = plane->getB();
+            double C = plane->getC();
+            double D = plane->getD();
+
+            /* Check if there is a z-component */
+            if (C != 0) {
+
+              /* Check if plane has a continuous varying slope */
+              if (A != 0 || B != 0)
+                log_printf(ERROR, "Continuous axial variation found in the "
+                          "Geometry during axial on-the-fly ray tracing. "
+                          "Axial on-the-fly ray tracing only supports "
+                          "geometries that are capable of having an axially "
+                          "extruded representation");
+
+              /* Otherwise, surface is a z-plane */
+              else
+                z_heights.push_back(-D/C + z_offset);
+            }
+          }
+
+          /* Treat explicit z-planes */
+          else if (surf_type == ZPLANE) {
+            ZPlane* zplane = static_cast<ZPlane*>(surface);
+            z_heights.push_back(zplane->getZ() + z_offset);
+          }
+        }
+
+        /* Add min and max z-height to the cell */
+        double z_limits[2];
+        z_limits[0] = cell_iter->second->getMinZ();
+        z_limits[1] = cell_iter->second->getMaxZ();
+        for (int i=0; i < 2; i++) {
+          if (std::abs(z_limits[i]) != std::numeric_limits<double>::infinity())
+            z_heights.push_back(z_limits[i] + z_offset);
+        }
+
+        /* See if cell is filled with universes or lattices */
+        cellType cell_type = cell_iter->second->getType();
+        if (cell_type == FILL) {
+          Universe* new_universe = cell_iter->second->getFillUniverse();
+          universes.push_back(new_universe);
+          offsets.push_back(z_offset);
+        }
+      }
+    }
+
+    /* Add rounded z-heights to the set of unique z-heights */
+    for (int i=0; i < z_heights.size(); i++) {
+
+      /* Round z-height */
+      z_heights[i] = floor(z_heights[i] / ON_SURFACE_THRESH)
+        * ON_SURFACE_THRESH;
+
+      /* Add the rounded z-height to the set */
+      if (z_heights[i] >= min_z && z_heights[i] <= max_z)
+        unique_mesh.insert(z_heights[i]);
+    }
+  }
+
+  /* Add CMFD levels */
+  if (_cmfd != NULL) {
+
+    /* Cycle through CMFD mesh not included by boundaries */
+    double cmfd_num_z = _cmfd->getNumZ();
+    double width = (max_z - min_z) / cmfd_num_z;
+    for (int i=1; i < cmfd_num_z; i++) {
+
+      /* Calculate z-height */
+      double z_height = min_z + width*i;
+
+      /* Round z-height */
+      int place = 8;
+      z_height = floor(z_height * pow(10, place)) * pow(10, -place);
+      
+      /* Add height to set */
+      unique_mesh.insert(z_height);
+    }
+  }
+
+  /* Get a vector of the unique z-heights in the Geometry */
+  std::vector<double> unique_heights;
+  std::set<double>::iterator iter;
+  for (iter = unique_mesh.begin(); iter != unique_mesh.end(); ++iter)
+    unique_heights.push_back(static_cast<FP_PRECISION>(*iter));
+
+  return unique_heights;
+}
+
+
+/**
+ * @brief Returns a vector of z-coords defining potential unique radial planes
+ *        in the Geometry
+ * @details The Geometry is traversed to retrieve all Z-planes and implicit
+ *          z-boundaries, such as lattice boundaries. The mid points of this
+ *          mesh are then used to construcut a vector of all potential unique
+ *          radial planes and returned to the user.
+ * @reutrn a vector of z-coords
+ */
+std::vector<FP_PRECISION> Geometry::getUniqueZPlanes() {
+
+  /* Get a vector of all unique z-heights in the Geometry */
+  std::vector<FP_PRECISION> unique_heights = getUniqueZHeights();
+
+  /* Use the midpoints to construct all possible unique radial planes */
+  std::vector<FP_PRECISION> unique_z_planes;
+  for (int i=1; i < unique_heights.size(); i++) {
+    FP_PRECISION mid = (unique_heights[i-1] + unique_heights[i]) / 2;
+    unique_z_planes.push_back(mid);
+  }
+
+  return unique_z_planes;
 }
