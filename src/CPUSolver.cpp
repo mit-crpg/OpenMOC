@@ -829,7 +829,7 @@ void CPUSolver::transportSweepOTFStacks() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  //FIXME #pragma omp parallel for firstprivate(segments, kernel_data)
+  #pragma omp parallel for firstprivate(segments, kernel_data)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
     MOCKernel* kernels[max_num_tracks_per_stack];
