@@ -392,16 +392,43 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
     /* Allocate array for 3D segments for OTF computation */
     segment* segments_3D;
-    if (_OTF)
-      segments_3D = new segment[_max_num_segments];
+    segment** segments_3D_matrix;
+    if (_OTF) {
+      if (_OTF_stacks) {
+        segments_3D_matrix = new segment*[_max_num_tracks_per_stack];
+        for (int z=0; z < _max_num_tracks_per_stack; z++) {
+          segments_3D_matrix[z] = new segment[_max_num_segments];
+        }
+      }
+      else {
+        segments_3D = new segment[_max_num_segments];
+      }
+    }
 
-    /* Create segmentation kernel */
+    /* Create segmentation kernels */
     SegmentationKernel kernel;
     kernel.setSegments(segments_3D);
+    MOCKernel* kernels[_max_num_tracks_per_stack];
+    SegmentationKernel kernel_data[_max_num_tracks_per_stack];
+    if (_OTF_stacks) {
+      for (int z=0; z < _max_num_tracks_per_stack; z++) {
+        kernel_data[z].setSegments(segments_3D_matrix[z]);
+        kernels[z] = &kernel_data[z];
+      }
+    }
 
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
+
+          /* Trace stack on-the-fly if requested */
+          if (_OTF_stacks) {
+            Track2D* flattened_track = &_tracks_2D[a][i];
+            for (int z = 0; z < _max_num_tracks_per_stack; z++)
+              kernels[z]->resetCount();
+            traceStackOTF(flattened_track, p, kernels);
+          }
+
           for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
             /* Extract 3D track and initialize segments pointer */
@@ -410,14 +437,20 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
             /* Get the segments corresponding to the 3D track */
             if (_OTF) {
-              Point* start = _tracks_3D_stack[a][i][p][z].getStart();
-              double theta = _tracks_3D_stack[a][i][p][z].getTheta();
-              Track2D* flattened_track = &_tracks_2D[a][i];
-              kernel.resetCount();
-              traceSegmentsOTF(flattened_track, start, theta, &kernel);
+              if (_OTF_stacks) {
+                segments_3D = segments_3D_matrix[z];
+              }
+              else {
+                Point* start = _tracks_3D_stack[a][i][p][z].getStart();
+                double theta = _tracks_3D_stack[a][i][p][z].getTheta();
+                Track2D* flattened_track = &_tracks_2D[a][i];
+                kernel.resetCount();
+                traceSegmentsOTF(flattened_track, start, theta, &kernel);
+              }
             }
-            else
+            else {
               segments_3D = track_3D->getSegments();
+            }
 
             /* Look through all segments for max optical path length */
             for (int s=0; s < num_segments; s++) {
@@ -434,10 +467,10 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
         }
       }
     }
-    if (_OTF)
+    if (_OTF && !_OTF_stacks)
       delete[] segments_3D;
   }
-  else{
+  else {
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int s=0; s < _tracks_2D[a][i].getNumSegments(); s++) {
@@ -5065,34 +5098,6 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     axial_mesh = &_global_z_mesh[0];
   }
 
-  //TODO REMOVE
-  segment ref_segments[num_z_stack][_max_num_segments];
-  segment computed_segments[num_z_stack][_max_num_segments];
-  int track_seg_num[num_z_stack];
-  for (int n = 0; n < num_z_stack; n++) {
-    track_seg_num[n] = 0;
-    for (int s = 0; s < _max_num_segments; s++) {
-      computed_segments[n][s]._length = -1;
-      computed_segments[n][s]._region_id = -1;
-      ref_segments[n][s]._length = -1;
-      ref_segments[n][s]._region_id = -1;
-    }
-  }
-  for (int n = 0; n < num_z_stack; n++) {
-    
-    int a = azim_index;
-    int i = track_index;
-    int p = polar_index;
-    int z = n;
-    Track3D* curr_track = &_tracks_3D_stack[a][i][p][z];
-    Point* start = curr_track->getStart();
-
-    SegmentationKernel temp_kernel;
-    temp_kernel.setSegments(ref_segments[n]);
-    traceSegmentsOTF(flattened_track, start, theta, &temp_kernel);
-  }
-  //TODO: end remove
-
   /* Loop over 2D segments */
   double first_start_z = start_z;
   segment* segments_2D = flattened_track->getSegments();
@@ -5146,10 +5151,6 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
       int end_full = (z_max - first_track_upper_z) / z_spacing + 1;
       int end_track = (z_max - first_track_lower_z) / z_spacing + 1;
 
-      //FIXME
-      std::cout << "INTERVALS = [" << start_track << ", " << start_full <<
-        ", " << end_full << ", " << end_track << std::endl;
-
       /* Check track bounds */
       start_track = std::max(start_track, 0);
       end_track = std::min(end_track, num_z_stack);
@@ -5162,14 +5163,9 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double end_z = first_track_upper_z + i * z_spacing;
         double seg_len_3D = (end_z - z_min) / std::abs(cos_theta);
 
-        //TODO Remove
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
-
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        if (seg_len_3D > TINY_MOVE)
+          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
 
       /* Treat tracks that do cross the entire 2D length */
@@ -5178,14 +5174,9 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = seg_length_2D / sin_theta;
 
-        //TODO Remove
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
-
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        if (seg_len_3D > TINY_MOVE)
+          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
 
       /* Treat tracks that cross through both the upper and lower boundary
@@ -5196,14 +5187,9 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = (z_max - z_min) / std::abs(cos_theta);
 
-        //TODO Remove
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
-
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        if (seg_len_3D > TINY_MOVE)
+          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
 
       /* Treat upper tracks that do not cross the entire 2D length */
@@ -5214,54 +5200,14 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double start_z = first_track_lower_z + i * z_spacing;
         double seg_len_3D = (z_max - start_z) / std::abs(cos_theta);
 
-        //TODO Remove
-        int nn = track_seg_num[i];
-        computed_segments[i][nn]._length = seg_len_3D;
-        computed_segments[i][nn]._region_id = fsr_id;
-        track_seg_num[i]++;
-
         /* Operate on segment */
-        kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        if (seg_len_3D > TINY_MOVE)
+          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
       }
     }
     /* Traverse segment on first track */
     first_start_z = first_end_z;
   }
-
-  //TODO: remove
-  for (int i = 0; i < num_z_stack; i++) {
-    bool success = true;
-    int failure_seg = -1;
-    for (int s = 0; s < _max_num_segments; s++) {
-      bool l = std::abs(computed_segments[i][s]._length - 
-          ref_segments[i][s]._length) < 1e-8;
-      bool f = computed_segments[i][s]._region_id == 
-        ref_segments[i][s]._region_id;
-      if (!l || !f) {
-        success = false;
-        failure_seg = s;
-      }
-    }
-    if (!success) {
-      std::cout << "FAILURE at " << i << ", " << failure_seg << std::endl;
-      std::cout << "Computed Segment Lengths:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << computed_segments[i][s]._length << std::endl;
-      std::cout << "Reference Segment Lengths:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << ref_segments[i][s]._length << std::endl;
-      
-      std::cout << "Computed Segment FSRs:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << computed_segments[i][s]._region_id << std::endl;
-      std::cout << "Reference Segment FSRs:" << std::endl;
-      for (int s = 0; s < _max_num_segments; s++)
-        std::cout << ref_segments[i][s]._region_id << std::endl;
-
-      exit(1);
-    }
-  }
-  //TODO end remove
 }
 
 
@@ -5272,14 +5218,32 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
  */
 void TrackGenerator::countSegments() {
 
+  /* Create lock for determining the maximum number of segments per track */
+  omp_lock_t counter_lock;
+  omp_init_lock(&counter_lock);
+
+  /* Create counter kernels */
+  CounterKernel counter;
+  counter.setMaxVal(_max_optical_length);
+  CounterKernel counters_array[_max_num_tracks_per_stack];
+  MOCKernel* counters[_max_num_tracks_per_stack];
+
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for
+  #pragma omp parallel for firstprivate(counter, counters_array, counters)
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
-    /* Create counter kernel for the current thread */
-    CounterKernel counter;
-    counter.setMaxVal(_max_optical_length);
+    /* Link counters if calculating stacks on-the-fly */
+    if (_OTF_stacks) {
+      for (int z = 0; z < _max_num_tracks_per_stack; z++) {
+        counters[z] = &counters_array[z];
+        counters[z]->setMaxVal(_max_optical_length);
+        counters[z]->resetCount();
+      }
+    }
+    else {
+      counter.resetCount();
+    }
 
     /* Extract indices of 3D tracks associated with the extruded track */
     Track* flattened_track = _flattened_tracks[ext_id];
@@ -5293,6 +5257,13 @@ void TrackGenerator::countSegments() {
       /* Extract polar angle */
       int polar_index = _quadrature->getFirstOctantPolar(p);
 
+      /* Trace stack if calculating stack on-the-fly */
+      if (_OTF_stacks) {
+        for (int z = 0; z < _max_num_tracks_per_stack; z++)
+          counters[z]->resetCount();
+        traceStackOTF(flattened_track, p, counters);
+      }
+
       /* Loop over z-stacked rays */
       for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
@@ -5302,17 +5273,28 @@ void TrackGenerator::countSegments() {
         Point* start = curr_track->getStart();
 
         /* Trace 3D segments */
-        traceSegmentsOTF(flattened_track, start, theta, &counter);
+        int num_segments;
+        if (_OTF_stacks) {
+          num_segments = counters[z]->getCount();
+        }
+        else {
+          traceSegmentsOTF(flattened_track, start, theta, &counter);
+          num_segments = counter.getCount();
+        }
 
         /* Set the number of segments for the track */
-        int num_segments = counter.getCount();
         curr_track->setNumSegments(num_segments);
-        if (num_segments > _max_num_segments)
-          _max_num_segments = num_segments;
+        if (num_segments > _max_num_segments) {
+          omp_set_lock(&counter_lock);
+          if (num_segments > _max_num_segments)
+            _max_num_segments = num_segments;
+          omp_unset_lock(&counter_lock);
+        }
         counter.resetCount();
       }
     }
   }
+  omp_destroy_lock(&counter_lock);
 }
 
 
