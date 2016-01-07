@@ -658,8 +658,8 @@ def _load_openmc_src(mgxs_lib, solver):
 # @brief Apply SPH factors to an OpenMC MGXS library
 # @details This is a helper routine for openmoc.process.compute_sph_factors(...)
 # @param mgxs_lib an openmc.mgxs.Library object
-# @param sph a NumpPy array of SPH factors for each energy group for this domain
 # @param geometry an OpenMOC Geometry object
+# @param sph a NumpPy array of SPH factors for each energy group for this domain
 # @return a new openmc.mgxs.Library with SPH factors applied to all MGXS
 def _apply_sph_factors(mgxs_lib, geometry, sph):
 

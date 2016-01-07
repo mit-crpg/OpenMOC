@@ -68,7 +68,7 @@ sph, sph_mgxs_lib, sph_indices = \
 # Load the SPH-corrected MGXS library data
 openmoc_materials = load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
 
-# Run an eigenvalue calculation with the SPH-corrected modifed MGXS library
+# Run an eigenvalue calculation with the SPH-corrected modified MGXS library
 solver.computeEigenvalue()
 solver.printTimerReport()
 keff_with_sph = solver.getKeff()
