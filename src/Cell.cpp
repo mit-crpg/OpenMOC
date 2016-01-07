@@ -645,7 +645,7 @@ Cell* Cell::clone() {
  * @brief Subdivides the Cell into clones for fuel pin angular sectors.
  * @param subcells an empty vector to store all subcells
  */
-void Cell::sectorize(std::vector<Cell*>* subcells) {
+void Cell::sectorize(std::vector<Cell*>& subcells) {
 
   /* If the user didn't request any sectors, don't make any */
   if (_num_sectors == 0)
@@ -699,7 +699,7 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
     }
 
     /* Store the clone in the parent Cell's container of sector Cells */
-    subcells->push_back(sector);
+    subcells.push_back(sector);
   }
 }
 
@@ -707,8 +707,9 @@ void Cell::sectorize(std::vector<Cell*>* subcells) {
 /**
  * @brief Subdivides the Cell into clones for fuel pin rings.
  * @param subcells an empty vector to store all subcells
+ * @param max_radius the maximum allowable radius used in the subdivisions
  */
-void Cell::ringify(std::vector<Cell*>* subcells) {
+void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
 
   /* If the user didn't request any rings, don't make any */
   if (_num_rings == 0)
@@ -717,7 +718,7 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   int num_circles = 0;
   Circle* circle1 = NULL;
   Circle* circle2 = NULL;
-  double radius1 = 0;
+  double radius1 = max_radius;
   double radius2 = 0;
   double x1 = 0.;
   double y1 = 0.;
@@ -780,18 +781,16 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
                "Both Circles must have the same center.",
                _id, circle1->getId(), y1, circle2->getId(), y2);
 
-  if (circle1 == NULL && circle2 != NULL)
-    log_printf(ERROR, "Unable to ringify Cell %d since it only contains "
-               "the positive halfpsace of Circle %d. Rings can only be "
-               "created for Cells on the interior (negative halfspace) "
-               "of a CIRCLE Surface.", _id, circle2->getId());
-
   if (radius1 <= radius2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains 2 "
                "disjoint CIRCLE Surfaces: halfspace %d for Circle %d "
                "and halfspace %d for Circle %d. Switch the signs of "
                "the 2 halfspaces for each Surface.", _id, halfspace1,
                circle1->getId(), halfspace2, circle2->getId());
+
+  /* Loop over Circles and create a new Cell clone for each ring */
+  std::vector<Circle*>::iterator iter2;
+  std::vector<Cell*>::iterator iter3;
 
   /* Compute the area to fill with each equal volume ring */
   double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
@@ -808,16 +807,13 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   Circle* circle = new Circle(x1, y1, radius1);
   circles.push_back(circle);
 
-  /* Loop over Circles and create a new Cell clone for each ring */
-  std::vector<Circle*>::iterator iter2;
-  std::vector<Cell*>::iterator iter3;
-
+  /* Create ring Cells with successively smaller Circles */
   for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {
 
     /* Create Circles for each of the sectorized Cells */
-    if (subcells->size() != 0) {
-      for (iter3 = subcells->begin(); iter3 != subcells->end(); ++iter3) {
-        log_printf(DEBUG, "Creating a new ring in sector Cell %d",
+    if (subcells.size() != 0) {
+      for (iter3 = subcells.begin(); iter3 != subcells.end(); ++iter3) {
+        log_printf(DEBUG, "Creating a new ring in sector Cell ID=%d",
                    (*iter3)->getId());
 
         /* Create a new Cell clone */
@@ -825,8 +821,10 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
         ring->setNumSectors(0);
         ring->setNumRings(0);
 
-        /* Add new bounding Circle surfaces to the clone */
-        ring->addSurface(-1, (*iter2));
+        /* Add Circle only if this is not the outermost ring in an
+         * unbounded Cell (i.e. the moderator in a fuel pin cell) */
+        if ((*iter2)->getRadius() < max_radius)
+          ring->addSurface(-1, (*iter2));
 
         /* Look ahead and check if we have an inner Circle to add */
         if (iter2+1 == circles.end()) {
@@ -850,8 +848,10 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
       ring->setNumSectors(0);
       ring->setNumRings(0);
 
-      /* Add new bounding Circle Surfaces to the clone */
-      ring->addSurface(-1, (*iter2));
+      /* Add Circle only if this is not the outermost ring in an
+       * unbounded Cell (i.e. the moderator in a fuel pin cell) */
+      if ((*iter2)->getRadius() < max_radius)
+        ring->addSurface(-1, (*iter2));
 
       /* Look ahead and check if we have an inner Circle to add */
       if (iter2+1 == circles.end()) {
@@ -867,34 +867,35 @@ void Cell::ringify(std::vector<Cell*>* subcells) {
   }
 
   /* Store all of the rings in the parent Cell's subcells container */
-  subcells->clear();
-  subcells->insert(subcells->end(), rings.begin(), rings.end());
+  subcells.clear();
+  subcells.insert(subcells.end(), rings.begin(), rings.end());
 }
 
 
 /**
- * @brief Subdivides a Cell into rings and sectors.
+ * @brief Subdivides a Cell into rings and sectors aligned with the z-axis.
  * @details This method uses the Cell's clone method to produce a vector of
  *          this Cell's subdivided ring and sector Cells.
+ * @param max_radius the maximum allowable radius used in the subdivisions
  * @return a vector of Cell pointers to the new subdivided Cells
  */
-void Cell::subdivideCell() {
+void Cell::subdivideCell(double max_radius) {
 
   /** A container of all Cell clones created for rings and sectors */
-  std::vector<Cell*>* subcells = new std::vector<Cell*>();
+  std::vector<Cell*> subcells;
 
   sectorize(subcells);
-  ringify(subcells);
+  ringify(subcells, max_radius);
 
   /* Put any ring / sector subcells in a new Universe fill */
-  if (subcells->size() != 0) {
+  if (subcells.size() != 0) {
 
     /* Create a new Universe to contain all of the subcells */
     Universe* new_fill = new Universe();
 
     /* Add each subcell to the new Universe fill */
     std::vector<Cell*>::iterator iter;
-    for (iter = subcells->begin(); iter != subcells->end(); ++iter)
+    for (iter = subcells.begin(); iter != subcells.end(); ++iter)
       new_fill->addCell(*iter);
 
     /* Set the new Universe as the fill for this Cell */

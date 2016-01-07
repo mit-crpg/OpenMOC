@@ -23,20 +23,11 @@ materials = materialize.materialize('../../c5g7-materials.py')
 log.py_printf('NORMAL', 'Creating cells...')
 
 # Moderator rings
-moderator_ring1 = Cell()
-moderator_ring2 = Cell()
-moderator_ring3 = Cell()
-moderator_ring1.setNumSectors(8)
-moderator_ring2.setNumSectors(8)
-moderator_ring3.setNumSectors(8)
-moderator_ring1.setFill(materials['Water'])
-moderator_ring2.setFill(materials['Water'])
-moderator_ring3.setFill(materials['Water'])
-moderator_ring1.addSurface(+1, fuel_radius)
-moderator_ring1.addSurface(-1, moderator_inner_radius)
-moderator_ring2.addSurface(+1, moderator_inner_radius)
-moderator_ring2.addSurface(-1, moderator_outer_radius)
-moderator_ring3.addSurface(+1, moderator_outer_radius)
+moderator = Cell()
+moderator.setFill(materials['Water'])
+moderator.addSurface(+1, fuel_radius)
+moderator.setNumRings(2)
+moderator.setNumSectors(8)
 
 # UO2 pin cell
 uo2_cell = Cell()
@@ -47,9 +38,7 @@ uo2_cell.addSurface(-1, fuel_radius)
 
 uo2 = Universe(name='UO2')
 uo2.addCell(uo2_cell)
-uo2.addCell(moderator_ring1)
-uo2.addCell(moderator_ring2)
-uo2.addCell(moderator_ring3)
+uo2.addCell(moderator)
 
 # 4.3% MOX pin cell
 mox43_cell = Cell()
@@ -60,9 +49,7 @@ mox43_cell.addSurface(-1, fuel_radius)
 
 mox43 = Universe(name='MOX-4.3%')
 mox43.addCell(mox43_cell)
-mox43.addCell(moderator_ring1)
-mox43.addCell(moderator_ring2)
-mox43.addCell(moderator_ring3)
+mox43.addCell(moderator)
 
 # 7% MOX pin cell
 mox7_cell = Cell()
@@ -73,9 +60,7 @@ mox7_cell.addSurface(-1, fuel_radius)
 
 mox7 = Universe(name='MOX-7%')
 mox7.addCell(mox7_cell)
-mox7.addCell(moderator_ring1)
-mox7.addCell(moderator_ring2)
-mox7.addCell(moderator_ring3)
+mox7.addCell(moderator)
 
 # 8.7% MOX pin cell
 mox87_cell = Cell()
@@ -86,9 +71,7 @@ mox87_cell.addSurface(-1, fuel_radius)
 
 mox87 = Universe(name='MOX-8.7%')
 mox87.addCell(mox87_cell)
-mox87.addCell(moderator_ring1)
-mox87.addCell(moderator_ring2)
-mox87.addCell(moderator_ring3)
+mox87.addCell(moderator)
 
 # Fission chamber pin cell
 fission_chamber_cell = Cell()
@@ -99,9 +82,7 @@ fission_chamber_cell.addSurface(-1, fuel_radius)
 
 fission_chamber = Universe(name='Fission Chamber')
 fission_chamber.addCell(fission_chamber_cell)
-fission_chamber.addCell(moderator_ring1)
-fission_chamber.addCell(moderator_ring2)
-fission_chamber.addCell(moderator_ring3)
+fission_chamber.addCell(moderator)
 
 # Guide tube pin cell
 guide_tube_cell = Cell()
@@ -112,9 +93,7 @@ guide_tube_cell.addSurface(-1, fuel_radius)
 
 guide_tube = Universe(name='Guide Tube')
 guide_tube.addCell(guide_tube_cell)
-guide_tube.addCell(moderator_ring1)
-guide_tube.addCell(moderator_ring2)
-guide_tube.addCell(moderator_ring3)
+guide_tube.addCell(moderator)
 
 # Control rod pin cell
 control_rod_cell = Cell()
@@ -125,9 +104,7 @@ control_rod_cell.addSurface(-1, fuel_radius)
 
 control_rod = Universe(name='Control Rod')
 control_rod.addCell(control_rod_cell)
-control_rod.addCell(moderator_ring1)
-control_rod.addCell(moderator_ring2)
-control_rod.addCell(moderator_ring3)
+control_rod.addCell(moderator)
 
 # Reflector
 reflector_cell = Cell(name='moderator')
