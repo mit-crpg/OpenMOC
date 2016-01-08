@@ -628,6 +628,7 @@ void Universe::subdivideCells(double max_radius) {
 
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
     
+    /* Cells filled with Material */
     if (iter->second->getType() == MATERIAL) {
       Cell* cell = iter->second;
       
