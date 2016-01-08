@@ -57,9 +57,6 @@ Cell::Cell(int id, const char* name) {
   _cell_type = UNFILLED;
   _fill = NULL;
 
-  _num_rings = 0;
-  _num_sectors = 0;
-
   /* Set a default bounding box around the Cell */
   _min_x = -std::numeric_limits<double>::infinity();
   _max_x = std::numeric_limits<double>::infinity();
@@ -74,6 +71,10 @@ Cell::Cell(int id, const char* name) {
  * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
+
+  std::map<int, surface_halfspace*>::iterator iter;
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+    delete iter->second;
   _surfaces.clear();
 
   if (_name != NULL)
@@ -287,7 +288,7 @@ int Cell::getNumSurfaces() const {
  *        surfaces bounding the Cell.
  * @return std::map of Surface pointers and halfspaces
  */
-std::map<int, surface_halfspace> Cell::getSurfaces() const {
+std::map<int, surface_halfspace*> Cell::getSurfaces() const {
   return _surfaces;
 }
 
@@ -436,7 +437,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   new_surf_half->_surface = surface;
   new_surf_half->_halfspace = halfspace;
 
-  _surfaces[surface->getId()] = *new_surf_half;
+  _surfaces[surface->getId()] = new_surf_half;
 
   findBoundingBox();
 }
@@ -448,8 +449,10 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  */
 void Cell::removeSurface(Surface* surface) {
 
-  if (_surfaces.find(surface->getId()) != _surfaces.end())
+  if (_surfaces.find(surface->getId()) != _surfaces.end()) {
+    delete _surfaces[surface->getId()];
     _surfaces.erase(surface->getId());
+  }
 
   findBoundingBox();
 }
@@ -481,15 +484,15 @@ void Cell::findBoundingBox() {
   _max_z = std::numeric_limits<double>::infinity();
 
   /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
   Surface* surface;
   int halfspace;
   double min_x, max_x, min_y, max_y, min_z, max_z;
 
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
-    surface = iter->second._surface;
-    halfspace = iter->second._halfspace;
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
 
     max_x = surface->getMaxX(halfspace);
     max_y = surface->getMaxY(halfspace);
@@ -554,12 +557,13 @@ void Cell::findBoundingBox() {
 bool Cell::containsPoint(Point* point) {
 
   /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
 
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Return false if the Point is not in the correct Surface halfspace */
-    if (iter->second._surface->evaluate(point) * iter->second._halfspace < -ON_SURFACE_THRESH)
+    if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
+        < -ON_SURFACE_THRESH)
       return false;
   }
 
@@ -597,13 +601,13 @@ double Cell::minSurfaceDist(Point* point, double azim, double polar) {
   double min_dist = INFINITY;
   double curr_dist;
 
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
 
   /* Loop over all of the Cell's Surfaces */
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second._surface->getMinDistance(point, azim, polar);
+    curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
 
     /* If the distance to Cell is less than current min distance, update */
     if (curr_dist < min_dist)
@@ -632,10 +636,10 @@ Cell* Cell::clone() {
     new_cell->setFill((Universe*)_fill);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
 
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    new_cell->addSurface(iter->second._halfspace, iter->second._surface);
+    new_cell->addSurface(iter->second->_halfspace, iter->second->_surface);
 
   return new_cell;
 }
@@ -730,13 +734,13 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::vector<Cell*> rings;
 
   /* See if the Cell contains 1 or 2 CIRCLE Surfaces */
-  std::map<int, surface_halfspace>::iterator iter1;
+  std::map<int, surface_halfspace*>::iterator iter1;
   for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
     /* Determine if any of the Surfaces is a Circle */
-    if (iter1->second._surface->getSurfaceType() == CIRCLE) {
-      int halfspace = iter1->second._halfspace;
-      Circle* circle = static_cast<Circle*>(iter1->second._surface);
+    if (iter1->second->_surface->getSurfaceType() == CIRCLE) {
+      int halfspace = iter1->second->_halfspace;
+      Circle* circle = static_cast<Circle*>(iter1->second->_surface);
 
       /* Outermost bounding Circle */
       if (halfspace == -1) {
@@ -913,10 +917,10 @@ void Cell::buildNeighbors() {
   int halfspace;
 
   /* Add this Cell to all of the Surfaces in this Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second._surface;
-    halfspace = iter->second._halfspace;
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
     surface->addNeighborCell(halfspace, this);
   }
 
@@ -956,10 +960,10 @@ std::string Cell::toString() {
   string << ", # surfaces = " << getNumSurfaces();
 
   /** Add the IDs for the Surfaces in this Cell */
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, surface_halfspace*>::iterator iter;
   string << ", surface ids = ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second._halfspace * iter->first << ", ";
+    string <<  iter->second->_halfspace * iter->first << ", ";
 
   return string.str();
 }
