@@ -709,6 +709,25 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
 
 
 /**
+ * @brief Return the characteristic point for a given FSR ID
+ * @param fsr_id the FSR ID
+ * @return the FSR's characteristic point
+ */
+int Geometry::getCmfdCell(int fsr_id) {
+
+  int cmfd_cell;
+
+  try{
+    cmfd_cell = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_cmfd_cell;
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not find CMFD cell in FSR: %d", fsr_id);
+  }
+
+  return cmfd_cell;
+}
+
+/**
  * @brief Generate a string FSR "key" that identifies an FSR by its
  *        unique hierarchical lattice/universe/cell structure.
  * @details Since not all FSRs will reside on the absolute lowest universe

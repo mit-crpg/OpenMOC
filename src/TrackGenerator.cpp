@@ -4823,14 +4823,7 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
     }
   }
 
-  /* Track current location in root universe */
   Cmfd* cmfd = _geometry->getCmfd();
-  LocalCoords curr_coords(start->getX(), start->getY(), z_coord);
-  curr_coords.setUniverse(_geometry->getRootUniverse());
-
-  FP_PRECISION tiny_delta_x = sin_theta * cos(phi) * TINY_MOVE;
-  FP_PRECISION tiny_delta_y = sin_theta * sin(phi) * TINY_MOVE;
-  FP_PRECISION tiny_delta_z = cos_theta * TINY_MOVE;
 
   /* Extract the appropriate starting mesh */
   int num_fsrs;
@@ -4901,6 +4894,9 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
         z_move = 0;
       }
 
+      /* Get the 3D FSR */
+      int fsr_id = extruded_FSR->_fsr_ids[z_ind];
+
       /* Calculate CMFD surface */
       int cmfd_surface_bwd = -1;
       int cmfd_surface_fwd = -1;
@@ -4917,35 +4913,32 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
         if (z_move == 0 || next_dist_3D <= TINY_MOVE)
           cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
 
-        /* Adjust coordinats forward to find cell */
-        curr_coords.adjustCoords(tiny_delta_x, tiny_delta_y, tiny_delta_z);
-        int cmfd_cell = cmfd->findCmfdCell(&curr_coords);
+        /* Get CMFD cell */
+        int cmfd_cell = _geometry->getCmfdCell(fsr_id);
 
-        /* Adjust coordinates back to find the backwards surface */
-        curr_coords.adjustCoords(-tiny_delta_x, -tiny_delta_y, -tiny_delta_z);
-        cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords, 
-            cmfd_surface_bwd);
+        /* Find the backwards surface */
+        cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_coord,
+                                                    cmfd_surface_bwd);
 
-        /* Move coordinates to end of segment */
-        FP_PRECISION delta_x = sin_theta * cos(phi) * dist_3D;
-        FP_PRECISION delta_y = sin_theta * sin(phi) * dist_3D;
-        FP_PRECISION delta_z = cos_theta * dist_3D;
-        curr_coords.adjustCoords(delta_x, delta_y, delta_z);
+        /* Move axial height to end of segment */
+        z_coord += cos_theta * dist_3D;
 
         /* Find forward surface */
-        cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords,
-            cmfd_surface_fwd);
+        cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_coord,
+                                                    cmfd_surface_fwd);
+      }
+      else {
+        /* Move axial height to end of segment */
+        z_coord += dist_3D * cos_theta;
       }
 
       /* Operate on segment */
       if (dist_3D > TINY_MOVE)
-        kernel->execute(dist_3D, extruded_FSR->_materials[z_ind],
-                        extruded_FSR->_fsr_ids[z_ind], cmfd_surface_fwd,
-                        cmfd_surface_bwd);
+        kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], fsr_id,
+                        cmfd_surface_fwd, cmfd_surface_bwd);
 
       /* Shorten remaining 2D segment length and move axial level */
       remaining_length_2D -= dist_2D;
-      z_coord += dist_3D * cos_theta;
       z_ind += z_move;
 
       /* Check if the track has crossed a Z boundary */
@@ -4976,6 +4969,10 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
  *          path length to determine the number of 3D segments in the Geometry
  */
 void TrackGenerator::countSegments() {
+
+  /* Create lock for determining the maximum number of segments per track */
+  omp_lock_t counter_lock;
+  omp_init_lock(&counter_lock);
 
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
@@ -5012,12 +5009,17 @@ void TrackGenerator::countSegments() {
         /* Set the number of segments for the track */
         int num_segments = counter.getCount();
         curr_track->setNumSegments(num_segments);
-        if (num_segments > _max_num_segments)
-          _max_num_segments = num_segments;
+        if (num_segments > _max_num_segments) {
+          omp_set_lock(&counter_lock);
+          if (num_segments > _max_num_segments)
+            _max_num_segments = num_segments;
+          omp_unset_lock(&counter_lock);
+        }
         counter.resetCount();
       }
     }
   }
+  omp_destroy_lock(&counter_lock);
 }
 
 
