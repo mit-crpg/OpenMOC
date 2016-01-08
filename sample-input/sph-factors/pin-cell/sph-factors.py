@@ -1,14 +1,9 @@
-import numpy as np
-import matplotlib
-
 import openmoc
 import openmoc.compatible
 import openmc.mgxs
 
-# Enable Matplotib to work for headless nodes
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-plt.ioff()
+import numpy as np
+import matplotlib
 
 
 ###############################################################################

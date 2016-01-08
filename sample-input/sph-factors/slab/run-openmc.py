@@ -159,6 +159,7 @@ settings_file.inactive = inactive
 settings_file.particles = particles
 settings_file.output = {'tallies': False, 'summary': True}
 settings_file.set_source_space('fission', opencg_geometry.bounds)
+settings_file.sourcepoint_write = False
 
 # Export to "settings.xml"
 settings_file.export_to_xml()
