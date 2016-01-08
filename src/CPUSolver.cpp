@@ -820,12 +820,12 @@ void CPUSolver::transportSweepOTFStacks() {
 
   #pragma omp parallel
   {
-    /* Allocate array of segments */
+    /* Allocate array of segments for each thread */
     int max_num_tracks_per_stack = _track_generator->getMaxNumTracksPerStack();
     int max_num_segments = _track_generator->getMaxNumSegments();
     segment** segments = new segment*[max_num_tracks_per_stack];
 
-    /* Create MOC segmentation kernels */
+    /* Create MOC segmentation kernels for each thread */
     MOCKernel* kernels[max_num_tracks_per_stack];
     SegmentationKernel segmentation_kernels[max_num_tracks_per_stack];
     for (int z = 0; z < max_num_tracks_per_stack; z++) {
@@ -838,11 +838,6 @@ void CPUSolver::transportSweepOTFStacks() {
     /* Parallelize over 2D extruded tracks */
     #pragma omp for
     for (int track_id=0; track_id < num_2D_tracks; track_id++) {
-
-
-      /* Set segments for each kernel */
-      for (int z = 0; z < max_num_tracks_per_stack; z++) {
-      }
 
       /* Extract indices of 3D tracks associated with the extruded track */
       Track* flattened_track = flattened_tracks[track_id];
