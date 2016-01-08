@@ -810,16 +810,6 @@ void CPUSolver::transportSweepOTFStacks() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
-  /* Allocate array of segments */
-  int max_num_tracks_per_stack = _track_generator->getMaxNumTracksPerStack();
-  int max_num_segments = _track_generator->getMaxNumSegments();
-  segment segments[max_num_tracks_per_stack][max_num_segments];
-
-  /* Create MOC segmentation kernels */
-  SegmentationKernel kernel_data[max_num_tracks_per_stack];
-  for (int z = 0; z < max_num_tracks_per_stack; z++)
-    kernel_data[z].setMaxVal(_track_generator->retrieveMaxOpticalLength());
-
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
   Track** flattened_tracks = _track_generator->getFlattenedTracksArray();
@@ -828,80 +818,98 @@ void CPUSolver::transportSweepOTFStacks() {
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
 
-  /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for firstprivate(segments, kernel_data)
-  for (int track_id=0; track_id < num_2D_tracks; track_id++) {
+  #pragma omp parallel
+  {
+    /* Allocate array of segments */
+    int max_num_tracks_per_stack = _track_generator->getMaxNumTracksPerStack();
+    int max_num_segments = _track_generator->getMaxNumSegments();
+    segment** segments = new segment*[max_num_tracks_per_stack];
 
+    /* Create MOC segmentation kernels */
     MOCKernel* kernels[max_num_tracks_per_stack];
-
-    /* Set segments for each kernel */
+    SegmentationKernel segmentation_kernels[max_num_tracks_per_stack];
     for (int z = 0; z < max_num_tracks_per_stack; z++) {
-      kernels[z] = &kernel_data[z];
+      segments[z] = new segment[max_num_segments];
+      kernels[z] = &segmentation_kernels[z];
       kernels[z]->setSegments(segments[z]);
+      kernels[z]->setMaxVal(_track_generator->retrieveMaxOpticalLength());
     }
 
-    /* Extract indices of 3D tracks associated with the extruded track */
-    Track* flattened_track = flattened_tracks[track_id];
-    int a = flattened_track->getAzimIndex();
-    int azim_index = _quad->getFirstOctantAzim(a);
-    int i = flattened_track->getXYIndex();
+    /* Parallelize over 2D extruded tracks */
+    #pragma omp for
+    for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
-    FP_PRECISION* track_flux;
-    FP_PRECISION thread_fsr_flux[_num_groups];
 
-    /* Loop over polar angles */
-    for (int p=0; p < _num_polar; p++) {
+      /* Set segments for each kernel */
+      for (int z = 0; z < max_num_tracks_per_stack; z++) {
+      }
 
-      /* Reset the segment count for all kernels */
-      for (int z = 0; z < max_num_tracks_per_stack; z++)
-        kernels[z]->resetCount();
+      /* Extract indices of 3D tracks associated with the extruded track */
+      Track* flattened_track = flattened_tracks[track_id];
+      int a = flattened_track->getAzimIndex();
+      int azim_index = _quad->getFirstOctantAzim(a);
+      int i = flattened_track->getXYIndex();
 
-      /* Get the segments for the stack */
-      _track_generator->traceStackOTF(flattened_track, p, kernels);
-      
-      /* Loop over z-stacked rays */
-      for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+      FP_PRECISION* track_flux;
+      FP_PRECISION thread_fsr_flux[_num_groups];
 
-        /* Extract track and flux data */
-        Track3D* curr_track = &tracks_3D[a][i][p][z];
-        int track_id = curr_track->getUid();
-        track_flux = &_boundary_flux(track_id, 0, 0);
-        double theta = curr_track->getTheta();
-        int polar_index = curr_track->getPolarIndex();
+      /* Loop over polar angles */
+      for (int p=0; p < _num_polar; p++) {
 
-        /* Transport segments forward */
-        int num_segments = curr_track->getNumSegments();
-        for (int s=0; s < num_segments; s++) {
+        /* Reset the segment count for all kernels */
+        for (int z = 0; z < max_num_tracks_per_stack; z++)
+          kernels[z]->resetCount();
 
-          tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
-              thread_fsr_flux);
+        /* Get the segments for the stack */
+        _track_generator->traceStackOTF(flattened_track, p, kernels);
+        
+        /* Loop over z-stacked rays */
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
-          tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
-              track_flux, true);
+          /* Extract track and flux data */
+          Track3D* curr_track = &tracks_3D[a][i][p][z];
+          int track_id = curr_track->getUid();
+          track_flux = &_boundary_flux(track_id, 0, 0);
+          double theta = curr_track->getTheta();
+          int polar_index = curr_track->getPolarIndex();
+
+          /* Transport segments forward */
+          int num_segments = curr_track->getNumSegments();
+          for (int s=0; s < num_segments; s++) {
+
+            tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
+                thread_fsr_flux);
+
+            tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
+                track_flux, true);
+          }
+
+          /* Transfer boundary angular flux to outgoing Track */
+          transferBoundaryFlux(track_id, azim_index, polar_index, true,
+              track_flux);
+
+          /* Get the backward track flux */
+          track_flux = &_boundary_flux(track_id, 1, 0);
+
+          /* Transport segments backwards */
+          for (int s=num_segments-1; s > -1; s--) {
+
+            tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
+                thread_fsr_flux);
+
+            tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
+                track_flux, false);
+          }
+
+          /* Transfer boundary angular flux to outgoing Track */
+          transferBoundaryFlux(track_id, azim_index, polar_index, false,
+              track_flux);
         }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, true,
-            track_flux);
-
-        /* Get the backward track flux */
-        track_flux = &_boundary_flux(track_id, 1, 0);
-
-        /* Transport segments backwards */
-        for (int s=num_segments-1; s > -1; s--) {
-
-          tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
-              thread_fsr_flux);
-
-          tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
-              track_flux, false);
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, false,
-            track_flux);
       }
     }
+    for (int z = 0; z < max_num_tracks_per_stack; z++)
+      delete [] segments[z];
+    delete segments;
   }
 }
 
