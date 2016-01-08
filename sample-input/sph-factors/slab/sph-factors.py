@@ -1,8 +1,14 @@
 import numpy as np
-import matplotlib.pylab as pylab
+import matplotlib
+
 import openmoc
 import openmoc.compatible
 import openmc.mgxs
+
+# Enable Matplotib to work for headless nodes
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.ioff()
 
 
 ###############################################################################
@@ -130,12 +136,12 @@ openmc_fluxes /= volumes[:,np.newaxis] * tot_fiss_src
 
 # Plot the OpenMOC and OpenMC spatially-varying fluxes
 for group in range(mgxs_lib.num_groups):
-    fig = pylab.figure()
-    pylab.plot(centroids, openmc_fluxes[:,group])
-    pylab.plot(centroids, fluxes_no_sph[:,group])
-    pylab.plot(centroids, fluxes_sph[:,group])
-    pylab.legend(['openmc', 'openmoc (w/o sph)', 'openmoc (sph)'],loc='best')
-    pylab.title('Volume-Averaged Scalar Flux (Group {})'.format(group+1))
-    pylab.xlabel('x [cm]')
-    pylab.ylabel('flux')
-    pylab.savefig('flux-group-{}.png'.format(group+1), bbox_inches='tight')
+    fig = plt.figure()
+    plt.plot(centroids, openmc_fluxes[:,group])
+    plt.plot(centroids, fluxes_no_sph[:,group])
+    plt.plot(centroids, fluxes_sph[:,group])
+    plt.legend(['openmc', 'openmoc (w/o sph)', 'openmoc (sph)'],loc='best')
+    plt.title('Volume-Averaged Scalar Flux (Group {})'.format(group+1))
+    plt.xlabel('x [cm]')
+    plt.ylabel('flux')
+    plt.savefig('flux-group-{}.png'.format(group+1), bbox_inches='tight')

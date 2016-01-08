@@ -1,10 +1,12 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import openmc.mgxs
 import openmoc
 from openmoc.materialize import compute_sph_factors, load_openmc_mgxs_lib
 from openmoc.compatible import get_openmoc_geometry
 import openmoc.plotter
+
+# Import Matplotlib after openmoc.plotter so it works for headless nodes
+import matplotlib.pyplot as plt
 
 
 ###############################################################################
