@@ -5,6 +5,11 @@ import openmc.mgxs
 import numpy as np
 import matplotlib
 
+# Enable Matplotib to work for headless nodes
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.ioff()
+
 
 ###############################################################################
 #                          Main Simulation Parameters
