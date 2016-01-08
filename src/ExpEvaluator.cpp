@@ -253,14 +253,13 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim,
 
   /* Evaluate the exponential using the lookup table - linear interpolation */
   if (_interpolate) {
-    int index;
+    tau = std::min(tau, (_max_optical_length));
+    int index = floor(tau * _inverse_exp_table_spacing);
     if (_solve_3D) {
-      index = floor(tau * _inverse_exp_table_spacing) * 2;
-      exponential = (1. - (_exp_table[index] * tau +
-                           _exp_table[index + 1]));
+      exponential = (1. - (_exp_table[index * 2] * tau +
+                           _exp_table[index * 2 + 1]));
     }
     else{
-      index = floor(tau * _inverse_exp_table_spacing);
       index *= _num_polar;
       exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                            _exp_table[index + 2 * polar + 1]));
