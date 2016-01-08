@@ -82,7 +82,7 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
   fluxes = np.zeros((num_fsrs, num_groups))
   for fsr in fsrs:
     for group in groups:
-      fluxes[fsr, group-1] = solver.getFlux(fsr, group)
+      fluxes[fsr, group-1] = solver.getFlux(int(fsr), int(group))
 
   return fluxes
 

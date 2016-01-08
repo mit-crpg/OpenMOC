@@ -45,6 +45,9 @@ Material::Material(int id, const char* name) {
   _name = NULL;
   setName(name);
 
+  _volume = 0.;
+  _num_instances = 0;
+
   /* Initialize a dummy number groups */
   _num_groups = -1;
 
@@ -130,6 +133,28 @@ int Material::getId() const {
  */
 char* Material::getName() const {
   return _name;
+}
+
+
+/**
+ * @brief Return the aggregate volume/area of all instances of this Material.
+ * @details The volume/area of the Material is computed from track segments
+ *          which overlap this Material during track generation.
+ * @return the volume/area of the Material
+ */
+double Material::getVolume() {
+  return _volume;
+}
+
+
+/**
+ * @brief Return the number of instances of this Material in the Geometry.
+ * @details The number of instances of this Material in the Geometry is
+ *          determined during track generation.
+ * @return the number of material instances
+ */
+int Material::getNumInstances() {
+  return _num_instances;
 }
 
 
@@ -385,6 +410,45 @@ void Material::setName(const char* name) {
 
 
 /**
+ * @brief Set the volume/area of the Material.
+ * @param volume the volume/area of the Material
+ */
+void Material::setVolume(double volume) {
+  _volume = volume;
+}
+
+
+/**
+ * @brief Increment the volume/area of the Material by some amount.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ * @param volume the amount to increment the current volume by
+ */
+void Material::incrementVolume(double volume) {
+  _volume += volume;
+}
+
+
+/**
+ * @brief Set the number of instances of this Material.
+ * @param num_instances the number of instances of this Material in the Geometry
+ */
+void Material::setNumInstances(int num_instances) {
+  _num_instances = num_instances;
+}
+
+
+/**
+ * @brief Increment the number of instances of this Material.
+ * @details This routine is called by the TrackGenerator during track 
+ *          generation and segmentation.
+ */
+void Material::incrementNumInstances() {
+  _num_instances++;
+}
+
+
+/**
  * @brief Set the number of energy groups for this Material.
  * @param num_groups the number of energy groups.
  */
@@ -414,9 +478,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
     if (_chi != NULL)
       MM_FREE(_chi);
-
-    if (_fiss_matrix != NULL)
-      MM_FREE(_fiss_matrix);
   }
 
   /* Data is not vector aligned */
@@ -435,9 +496,6 @@ void Material::setNumEnergyGroups(const int num_groups) {
 
     if (_chi != NULL)
       delete [] _chi;
-
-    if (_fiss_matrix != NULL)
-      delete [] _fiss_matrix;
   }
 
   /* Allocate memory for data arrays */
@@ -490,7 +548,7 @@ void Material::setSigmaT(double* xs, int num_groups) {
 
     /* If the cross-section is near zero (e.g., within (-1E-10, 1E-10)) */
     if (fabs(xs[i]) < ZERO_SIGMA_T) {
-      log_printf(WARNING, "Overriding zero cross-section in "
+      log_printf(INFO, "Overriding zero cross-section in "
                  "group %d for Material %d with 1E-10", i, _id);
       _sigma_t[i] = FP_PRECISION(ZERO_SIGMA_T);
     }
@@ -513,7 +571,7 @@ void Material::setSigmaTByGroup(double xs, int group) {
 
     /* If the cross-section is near zero (e.g., within (-1E-10, 1E-10)) */
     if (fabs(xs) < ZERO_SIGMA_T) {
-      log_printf(WARNING, "Overriding zero cross-section in "
+      log_printf(INFO, "Overriding zero cross-section in "
                  "group %d for Material %d with 1E-10", group, _id);
       _sigma_t[group-1] = FP_PRECISION(ZERO_SIGMA_T);
     }
@@ -793,7 +851,7 @@ void Material::buildFissionMatrix() {
 
   if (_num_groups == 0)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
-              "since the number of energy groups has not been set", _id);
+	       "since the number of energy groups has not been set", _id);
   else if (_nu_sigma_f == NULL)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
               "since its nu-fission cross-section has not been set", _id);

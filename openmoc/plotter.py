@@ -876,7 +876,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     if pandas_df or isinstance(domains_to_data, np.ndarray):
         num_plots = domains_to_data.shape[1]
     else:
-        num_plots = len(domains_to_data) / num_domains
+        num_plots = int(len(domains_to_data) / num_domains)
 
     # Initialize a list of Matplotlib figures to return to user if requested
     figures = []

@@ -288,9 +288,8 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
                "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
 
-  int azim_index;
   segment* curr_segment;
-  FP_PRECISION volume;
+  FP_PRECISION volume = 0;
 
   /* Calculate the FSR's "volume" by accumulating the total length of *
    * all Track segments multipled by the Track "widths" for the FSR.  */
@@ -299,7 +298,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
         if (curr_segment->_region_id == fsr_id)
-          volume += curr_segment->_length * _azim_weights[azim_index];
+          volume += curr_segment->_length * _azim_weights[i];
       }
     }
   }
@@ -613,6 +612,8 @@ void TrackGenerator::generateTracks() {
   initializeBoundaryConditions();
   initializeTrackCycleIndices(PERIODIC);
   initializeTrackUids();
+  initializeVolumes();
+
   return;
 }
 
@@ -1043,6 +1044,40 @@ void TrackGenerator::initializeTrackUids() {
     /* Set the number of tracks in this parallel group */
     _num_tracks_by_parallel_group[g] = num_tracks;
   }
+}
+
+
+/**
+ * @brief Computes the volumes/areas of each Cell and Material in the Geometry.
+ * @details This computes the volumes/areas of each Cell and Material in the 
+ *          Geometry from the length of track segments crossing each Cell. This
+ *          routine assigns the volume and number of instances to each Cell and
+ *          Material. This is a helper routine that is called after track 
+ *          segmentation is complete in TrackGenerator::generateTracks().
+ */
+void TrackGenerator::initializeVolumes() {
+
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to initialize volumes since tracks "
+               "have not yet been generated");
+
+  Cell* cell;
+  Material* material;
+  int num_FSRs = _geometry->getNumFSRs();
+  FP_PRECISION* fsr_volumes = getFSRVolumes();
+
+  /* Compute volume and number of instances for each Cell and Material */
+  for (int i=0; i < num_FSRs; i++) {
+    cell = _geometry->findCellContainingFSR(i);
+    cell->incrementVolume(fsr_volumes[i]);
+    cell->incrementNumInstances();
+
+    material = cell->getFillMaterial();
+    material->incrementVolume(fsr_volumes[i]);
+    material->incrementNumInstances();
+  }
+
+  delete [] fsr_volumes;
 }
 
 
