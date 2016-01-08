@@ -178,13 +178,14 @@ void ExpEvaluator::initialize() {
 
   log_printf(INFO, "Initializing exponential interpolation table...");
 
-  /* Expand max tau slightly to avoid roundoff error approximation */
-  _max_optical_length *= 1.00001;
-
   /* Set size of interpolation table */
   _num_polar = _quadrature->getNumPolarAngles();
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
   FP_PRECISION exp_table_spacing = _max_optical_length / num_array_values;
+
+  /* Increment the number of vaues in the array to ensure that a tau equal to
+   * max_optical_length resides as the final entry in the table */
+  num_array_values += 1;
 
   /* Compute the reciprocal of the table entry spacing */
   _inverse_exp_table_spacing = 1.0 / exp_table_spacing;
