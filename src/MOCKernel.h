@@ -51,6 +51,7 @@ public:
 
   /* Get parameters */
   int getCount();
+  segment* getSegments(); //TODO REMOVE
 
   /* Executing function describes kernel behavior */
   virtual void execute(FP_PRECISION length, Material* mat, int id,

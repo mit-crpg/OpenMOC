@@ -24,6 +24,10 @@ void MOCKernel::setSegments(segment* segments) {
   _segments = segments;
 }
 
+//TODO REMOVE
+segment* MOCKernel::getSegments() {
+  return _segments;
+}
 
 /**
  * @brief Resets the counter to zero
