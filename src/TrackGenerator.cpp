@@ -5080,7 +5080,6 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
   double z0 = first->getStart()->getZ();
   double start_z = z0 - start_dist_2D / tan_theta;
 
-  /* Track current location in root universe FIXME */
   Cmfd* cmfd = _geometry->getCmfd();
 
   /* Extract the appropriate starting mesh */
@@ -5129,10 +5128,15 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
       int z_ind = z_iter;
       if (sign < 0)
         z_ind = num_fsrs - z_iter - 1;
-  
+
       /* Extract the FSR ID and Material ID of this 3D FSR */
       int fsr_id = extruded_FSR->_fsr_ids[z_ind];
       Material* material = extruded_FSR->_materials[z_ind];
+
+      /* Find CMFD cell if necessary */
+      int cmfd_cell;
+      if (cmfd != NULL)
+        cmfd_cell = _geometry->getCmfdCell(fsr_id);
 
       /* Get boundaries of the current mesh cell */
       double z_min = axial_mesh[z_ind];
@@ -5147,7 +5151,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
       /* Check track bounds */
       start_track = std::max(start_track, 0);
       end_track = std::min(end_track, num_z_stack);
-      
+
       /* Treat lower tracks that do not cross the entire 2D length */
       int min_lower = std::min(start_full, end_full);
       for (int i = start_track; i < min_lower; i++) {
@@ -5156,33 +5160,118 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double end_z = first_track_upper_z + i * z_spacing;
         double seg_len_3D = (end_z - z_min) / std::abs(cos_theta);
 
-        /* Operate on segment */
-        if (seg_len_3D > TINY_MOVE)
-          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        /* Determine if segment length is large enough to operate on */
+        if (seg_len_3D > TINY_MOVE) {
+
+          /* Initialize CMFD surfaces to none (-1) */
+          int cmfd_surface_fwd = -1;
+          int cmfd_surface_bwd = -1;
+
+          /* Get CMFD surface if necessary */
+          if (cmfd != NULL) {
+            if (sign > 0) {
+              cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
+                                                          cmfd_surface_fwd);
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_min,
+                                                          cmfd_surface_bwd);
+            }
+            else {
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_min,
+                                                          cmfd_surface_fwd);
+              cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
+                                                          cmfd_surface_bwd);
+            }
+          }
+
+          /* Operate on segment */
+          kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+                              cmfd_surface_bwd);
+        }
       }
 
-      /* Treat tracks that do cross the entire 2D length */
-      for (int i = start_full; i < end_full; i++) {
+      /* Find if there are tracks the traverse the entire 2D length */
+      if (end_full > start_full) {
 
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = seg_length_2D / sin_theta;
 
-        /* Operate on segment */
-        if (seg_len_3D > TINY_MOVE)
-          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        /* Determine if segment length is large enough to operate on */
+        if (seg_len_3D > TINY_MOVE) {
+
+          /* Treat tracks that do cross the entire 2D length */
+          for (int i = start_full; i < end_full; i++) {
+
+            /* Initialize CMFD surfaces to 2D CMFD surfaces */
+            int cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
+            int cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
+
+            /* Get CMFD surfaces if necessary */
+            if (cmfd != NULL) {
+
+              /* Calculate start and end z */
+              double start_z = first_start_z + i * z_spacing;
+              double end_z = first_start_z + i * z_spacing;
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
+                                                          cmfd_surface_fwd);
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
+                                                          cmfd_surface_bwd);
+            }
+
+            /* Operate on segment */
+            kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+                                cmfd_surface_bwd);
+          }
+        }
       }
 
-      /* Treat tracks that cross through both the upper and lower boundary
-         NOTE: this loop will only execute if there are no tracks that cross
-         the entire 2D length in the FSR */
-      for (int i = end_full; i < start_full; i++) {
+      /* Find if there are tracks that cross both upper and lower boundaries
+         NOTE: this will only be true if there are no tracks that cross the
+         entire 2D length in the FSR */
+      else if (start_full > end_full) {
         
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = (z_max - z_min) / std::abs(cos_theta);
 
-        /* Operate on segment */
-        if (seg_len_3D > TINY_MOVE)
-          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        /* Determine if segment length is large enough to operate on */
+        if (seg_len_3D > TINY_MOVE) {
+
+          /* Treat tracks that cross through both the upper and lower axial
+             boundaries */
+          for (int i = end_full; i < start_full; i++) {
+
+            /* Initialize CMFD surfaces to none (-1) */
+            int cmfd_surface_bwd = -1;
+            int cmfd_surface_fwd = -1;
+
+            /* Get CMFD surfaces if necessary */
+            if (cmfd != NULL) {
+
+              /* Determine start and end z */
+              double start_z;
+              double end_z;
+              if (sign > 0) {
+                start_z = z_min;
+                end_z = z_max;
+              }
+              else {
+                start_z = z_max;
+                end_z = z_min;
+              }
+
+              /* Find CMFD surfaces */
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
+                                                          cmfd_surface_fwd);
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
+                                                          cmfd_surface_bwd);
+            }
+
+            /* Operate on segment */
+            kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+                                cmfd_surface_bwd);
+          }
+        }
       }
 
       /* Treat upper tracks that do not cross the entire 2D length */
@@ -5193,9 +5282,35 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
         double start_z = first_track_lower_z + i * z_spacing;
         double seg_len_3D = (z_max - start_z) / std::abs(cos_theta);
 
-        /* Operate on segment */
-        if (seg_len_3D > TINY_MOVE)
-          kernels[i]->execute(seg_len_3D, material, fsr_id, -1, -1);
+        /* Determine if segment length is large enough to operate on */
+        if (seg_len_3D > TINY_MOVE) {
+
+          /* Initialize CMFD surfaces to none (-1) */
+          int cmfd_surface_fwd = -1;
+          int cmfd_surface_bwd = -1;
+
+          /* Get CMFD surface if necessary */
+          if (cmfd != NULL) {
+            if (sign > 0) {
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_max,
+                                                          cmfd_surface_fwd);
+              cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
+                                                          cmfd_surface_bwd);
+            }
+            else {
+              cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
+                                                          cmfd_surface_fwd);
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_max,
+                                                          cmfd_surface_bwd);
+            }
+          }
+
+          /* Operate on segment */
+          kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+                              cmfd_surface_bwd);
+        }
       }
     }
     /* Traverse segment on first track */

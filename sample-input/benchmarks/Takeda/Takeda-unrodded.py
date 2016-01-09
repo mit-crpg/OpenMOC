@@ -74,7 +74,7 @@ root_cell.setFill(lattice)
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
 ###############################################################################
-'''
+
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
@@ -83,7 +83,6 @@ cmfd.setOpticallyThick(True)
 cmfd.setLatticeStructure(5, 5, 5)
 cmfd.setKNearest(4)
 cmfd.setCentroidUpdateOn(False)
-'''
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -93,7 +92,7 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
-#geometry.setCmfd(cmfd)
+geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
 
@@ -110,10 +109,10 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setOTF()
-track_generator.setOTFStacks()
-track_generator.setSegmentationHeights([0.0])
-track_generator.setGlobalZMesh()
+#track_generator.setOTF()
+#track_generator.setOTFStacks()
+#track_generator.setSegmentationHeights([0.0])
+#track_generator.setGlobalZMesh()
 track_generator.generateTracks()
 
 
