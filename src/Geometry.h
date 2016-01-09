@@ -203,6 +203,7 @@ public:
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
+  int getCmfdCell(int fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
   ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
