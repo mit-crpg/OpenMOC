@@ -1,7 +1,18 @@
+/**
+ * @file MOCKernel.h
+ * @brief An MOCKernel object
+ * @date May 5, 2015
+ * @autho Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
+ */
+
+#ifndef MOCKERNEL_H_
+#define MOCKERNEL_H_
+
 #include "Python.h"
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
+
 
 /**
  * @class MOCKernel MOCKernel.h "src/MOCKernel.h"
@@ -104,6 +115,4 @@ public:
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
-
-
-
+#endif /* MOCKERNEL_H_ */
