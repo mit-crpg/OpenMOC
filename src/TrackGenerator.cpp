@@ -5157,10 +5157,10 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
       double z_max = axial_mesh[z_ind+1];
 
       /* Calculate z-stack track indexes that cross the 3D FSR */
-      int start_track = (z_min - first_track_upper_z) / z_spacing + 1;
-      int start_full = (z_min - first_track_lower_z) / z_spacing + 1;
-      int end_full = (z_max - first_track_upper_z) / z_spacing + 1;
-      int end_track = (z_max - first_track_lower_z) / z_spacing + 1;
+      int start_track = std::ceil((z_min - first_track_upper_z) / z_spacing);
+      int start_full = std::ceil((z_min - first_track_lower_z) / z_spacing);
+      int end_full = std::ceil((z_max - first_track_upper_z) / z_spacing);
+      int end_track = std::ceil((z_max - first_track_lower_z) / z_spacing);
 
       /* Check track bounds */
       start_track = std::max(start_track, 0);
@@ -5183,14 +5183,20 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
 
           /* Get CMFD surface if necessary */
           if (cmfd != NULL) {
+            double start_z = first_track_lower_z + i * z_spacing;
+            double dist_to_corner = std::abs((z_min - start_z) / cos_theta);
             if (sign > 0) {
               cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
                                                           cmfd_surface_fwd);
+              if (dist_to_corner <= TINY_MOVE)
+                cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
               cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_min,
                                                           cmfd_surface_bwd);
             }
             else {
+              if (dist_to_corner <= TINY_MOVE)
+                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_min,
                                                           cmfd_surface_fwd);
               cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
@@ -5226,7 +5232,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
 
               /* Calculate start and end z */
               double start_z = first_start_z + i * z_spacing;
-              double end_z = first_start_z + i * z_spacing;
+              double end_z = first_end_z + i * z_spacing;
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
                                                           cmfd_surface_fwd);
               cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
@@ -5263,27 +5269,55 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
             if (cmfd != NULL) {
 
               /* Determine start and end z */
-              double start_z;
-              double end_z;
+              double enter_z;
+              double exit_z;
               if (sign > 0) {
-                start_z = z_min;
-                end_z = z_max;
+                enter_z = z_min;
+                exit_z = z_max;
               }
               else {
-                start_z = z_max;
-                end_z = z_min;
+                enter_z = z_max;
+                exit_z = z_min;
               }
 
+              /* Determine if any corners in the s-z plane are hit */
+              double dist_to_corner;
+              double track_end_z = first_end_z + i * z_spacing;
+              dist_to_corner = (track_end_z - exit_z) / cos_theta;
+              if (dist_to_corner <= TINY_MOVE)
+                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
+
+              double track_start_z = first_start_z + i * z_spacing;
+              dist_to_corner = (enter_z - track_start_z) / cos_theta;
+              if (dist_to_corner <= TINY_MOVE)
+                cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
+
               /* Find CMFD surfaces */
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, exit_z,
                                                           cmfd_surface_fwd);
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, enter_z,
                                                           cmfd_surface_bwd);
             }
 
             /* Operate on segment */
             kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
                                 cmfd_surface_bwd);
+            if (fsr_id == 10713 && cmfd_surface_fwd == 1405 &&
+                cmfd_surface_bwd == -1 && i == 102 && sign == 1
+                && kernels[i]->getCount() == 4 && seg_len_3D > 1.465
+                && seg_len_3D < 1.466) {
+              std::cout << "CHECK 3" << std::endl;
+              double enter_z = z_min;
+              double track_start_z = first_start_z + i * z_spacing;
+              double track_end_z = first_end_z + i * z_spacing;
+              std::cout << "In box [" << z_min << ", " << z_max << "] with track ["
+                << track_start_z << ", " << track_end_z << "] and dist to corner ";
+              double dist_to_corner = (enter_z - track_start_z) / cos_theta;
+              std::cout << dist_to_corner << std::endl;
+              std::cout << "start z = " << start_z << std::endl;
+              std::cout << "track start z = " << track_start_z << std::endl;
+              std::cout << "Tiny move = " << TINY_MOVE << std::endl;
+            }
           }
         }
       }
@@ -5305,7 +5339,11 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
 
           /* Get CMFD surface if necessary */
           if (cmfd != NULL) {
+            double end_z = first_track_upper_z + i * z_spacing;
+            double dist_to_corner = (end_z - z_max) / std::abs(cos_theta);
             if (sign > 0) {
+              if (dist_to_corner <= TINY_MOVE)
+                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_max,
                                                           cmfd_surface_fwd);
               cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
@@ -5316,6 +5354,8 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
               cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
                                                           cmfd_surface_fwd);
+              if (dist_to_corner <= TINY_MOVE)
+                cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
               cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_max,
                                                           cmfd_surface_bwd);
             }
