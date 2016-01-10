@@ -43,7 +43,7 @@ TrackGenerator::~TrackGenerator() {
 
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_3D_tracks) {
-    
+
     /* Delete 3D tracks */
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
@@ -273,7 +273,7 @@ Track** TrackGenerator::getTracksArray() {
 /**
  * @brief Returns an array of the flattend Track pointers by increasing UID.
  * @details An array of pointers to all 2D Track objects for 3D on-the-fly
- *          calculation in the Geometry is returned, arranged by increasing 
+ *          calculation in the Geometry is returned, arranged by increasing
  *          2D Track unique identifier (UID).
  * @return the array of flattened Track pointers
  */
@@ -398,6 +398,9 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
     kernel.setSegments(segments_3D);
 
     for (int a=0; a < _num_azim/2; a++) {
+      #pragma omp parallel for reduction(max:max_optical_length) \
+        private(curr_segment, length, material, sigma_t) \
+        firstprivate(segments_3D, kernel)
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
           for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
@@ -1650,7 +1653,7 @@ bool TrackGenerator::isSolve3D() {
 /**
  * @brief Returns whether or not the solver is set to forming 3D segments
  *        on-the-fly
- * @return true if the solver is set to axial on-the-fly segmentation; 
+ * @return true if the solver is set to axial on-the-fly segmentation;
  *         false otherwise
  */
 bool TrackGenerator::isOTF() {
@@ -2245,7 +2248,7 @@ void TrackGenerator::initialize3DTrackReflections() {
                     (polar_group[_num_l[a][p] + i][0]->getCycleFwd());
                   polar_group[i][t]->setTrackReflBwd
                     (polar_group[_num_l[a][p] + i][0]);
-                                    
+
                   /* PERIODIC */
                   if (_periodic) {
                     ai = polar_group[i][t]->getAzimIndex();
@@ -2536,10 +2539,10 @@ void TrackGenerator::initialize3DTrackReflections() {
 
       /* Loop over polar angles > PI/2 */
       for (int p = _num_polar/2; p < _num_polar; p++) {
-        
+
         pc = _num_polar-p-1;
         Track3D *** polar_group = _tracks_3D_cycle[a][c][p];
-        
+
         for (int i=0; i < _num_l[a][pc] + _num_z[a][pc]; i++) {
           for (int t=0; t < _tracks_per_train[a][c][p][i]; t++) {
 
@@ -2643,7 +2646,7 @@ void TrackGenerator::initialize3DTrackReflections() {
             /* SURFACE_X_MIN, SURFACE_X_MAX, SURFACE_Y_MIN, or SURFACE_Y_MAX */
             else{
               if (polar_group[i][t]->getCycleFwd()) {
-                
+
                 polar_group[i][t]->setBCFwd
                   (getTrack2DByCycle(a, c, polar_group[i][t]
                                      ->getCycleTrackIndex())->getBCFwd());
@@ -2732,7 +2735,7 @@ void TrackGenerator::initialize3DTrackReflections() {
                   }
                 }
                 else {
-                  
+
                   polar_group[i][t]->setBCFwd
                     (_geometry->getMinYBoundaryType());
 
@@ -3343,7 +3346,7 @@ void TrackGenerator::segmentizeExtruded() {
   countSegments();
   _contains_flattened_tracks = true;
   _contains_2D_segments = true;
-  
+
   return;
 }
 
@@ -4251,8 +4254,8 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
             for (int s=0; s < _tracks_3D_stack[a][i][p][z].getNumSegments();
                 s++) {
-                
-              /* Extract data from this segment to compute its optical 
+
+              /* Extract data from this segment to compute its optical
                * length */
               curr_segment = _tracks_3D_stack[a][i][p][z].getSegment(s);
               material = curr_segment->_material;
@@ -4401,6 +4404,7 @@ void TrackGenerator::generateFSRCentroids() {
 
     /* Loop over all tracks */
     for (int a=0; a < _num_azim/2; a++) {
+      #pragma omp parallel for firstprivate(segments, kernel)
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
           for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
@@ -4414,7 +4418,7 @@ void TrackGenerator::generateFSRCentroids() {
             double wgt = _quadrature->getAzimWeight(a) *
               _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
               * getPolarSpacing(a,p);
-            
+
             if (_OTF) {
 
               Point* start = _tracks_3D_stack[a][i][p][z].getStart();
@@ -4432,20 +4436,24 @@ void TrackGenerator::generateFSRCentroids() {
               segment* curr_segment = &segments[s];
               int fsr = curr_segment->_region_id;
               double volume = FSR_volumes[fsr];
-              centroids[fsr]->
-                setX(centroids[fsr]->getX() + wgt *
-                     (xx + cos(phi) * sin(theta) * curr_segment->_length / 2.0)
-                     * curr_segment->_length / FSR_volumes[fsr]);
 
-              centroids[fsr]->
-                setY(centroids[fsr]->getY() + wgt *
-                     (yy + sin(phi) * sin(theta) * curr_segment->_length / 2.0)
-                     * curr_segment->_length / FSR_volumes[fsr]);
+              #pragma omp critical
+              {
+                centroids[fsr]->
+                    setX(centroids[fsr]->getX() + wgt *
+                    (xx + cos(phi) * sin(theta) * curr_segment->_length / 2.0)
+                    * curr_segment->_length / FSR_volumes[fsr]);
 
-              centroids[fsr]->
-                setZ(centroids[fsr]->getZ() + wgt *
-                     (zz + cos(theta) * curr_segment->_length / 2.0) *
-                     curr_segment->_length / FSR_volumes[fsr]);
+                centroids[fsr]->
+                    setY(centroids[fsr]->getY() + wgt *
+                    (yy + sin(phi) * sin(theta) * curr_segment->_length / 2.0)
+                    * curr_segment->_length / FSR_volumes[fsr]);
+
+                centroids[fsr]->
+                    setZ(centroids[fsr]->getZ() + wgt *
+                    (zz + cos(theta) * curr_segment->_length / 2.0)
+                    * curr_segment->_length / FSR_volumes[fsr]);
+              }
 
               xx += cos(phi) * sin(theta) * curr_segment->_length;
               yy += sin(phi) * sin(theta) * curr_segment->_length;
@@ -4506,7 +4514,7 @@ void TrackGenerator::generateFSRCentroids() {
 
 /**
  * @brief Sets the track laydown method for generation of 3D Tracks
- * @details Options for the track laydown are GLOBAL_TRACKING, 
+ * @details Options for the track laydown are GLOBAL_TRACKING,
  *          MODULAR_RAY_TRACING, and SIMPLIFIED_MODULAR_RAY_TRACING
  * @param method The track laydown method
  */
@@ -4575,7 +4583,7 @@ Track* TrackGenerator::getTrack2DByCycle(int azim, int cycle, int track_index) {
  * @brief Returns the direction in the cycle of the Track indexed by azimuthal
  *        index, cycle, and track index in the cycle
  * @details The 2D Track cycle indicated by the azimuthal angle and cycle
- *          number is traversed across track_index tracks, returning the 
+ *          number is traversed across track_index tracks, returning the
  *          direction of the Track at that position
  * @param azim The azimuthal index
  * @param cycle The 2D cycle number
@@ -4729,6 +4737,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
+  #pragma omp parallel for firstprivate(kernel)
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the extruded track */
@@ -4790,7 +4799,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
  * @param theta the polar angle of the 3D track
  * @param kernel An MOCKernel object to apply to the calculated 3D segments
  */
-void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start, 
+void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
                                       double theta, MOCKernel* kernel) {
 
   /* Create unit vector */
@@ -4923,7 +4932,7 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
 
         /* Adjust coordinates back to find the backwards surface */
         curr_coords.adjustCoords(-tiny_delta_x, -tiny_delta_y, -tiny_delta_z);
-        cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords, 
+        cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, &curr_coords,
             cmfd_surface_bwd);
 
         /* Move coordinates to end of segment */
@@ -5114,10 +5123,10 @@ void TrackGenerator::initialize3DTrackPeriodicIndices() {
 
 
 /**
- * @brief Creates a Track array by increasing uid 
+ * @brief Creates a Track array by increasing uid
  * @details An array is created which indexes Tracks by increasing uid.
  *          Parallel groups are also initialized -- groups of Tracks that can
- *          be computed in parallel without the potential of overwriting 
+ *          be computed in parallel without the potential of overwriting
  *          angular fluxes of connecting tracks prematurely.
  */
 void TrackGenerator::initializeTracksArray() {

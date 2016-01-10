@@ -63,7 +63,7 @@ void MOCKernel::setMaxVal(FP_PRECISION max_tau) {
 /*
  * @brief Reads and returns the current count
  * @details MOC kernels count how many times they are accessed. This value
- *          returns the value of the counter (number of execute accesses) 
+ *          returns the value of the counter (number of execute accesses)
  *          since kernel creation or last reset.
  * @return _count the counter value
  */
@@ -85,6 +85,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
   /* Add value to buffer */
+  #pragma omp atomic update
   _buffer[id] += _weight * length;
 }
 

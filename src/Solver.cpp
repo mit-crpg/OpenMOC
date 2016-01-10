@@ -548,9 +548,6 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids();
-
   /* Get an array of volumes indexed by FSR  */
   if (_solve_3D)
     _FSR_volumes = _track_generator->get3DFSRVolumes();
@@ -906,7 +903,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     normalizeFluxes();
     computeFSRSources();
-    transportSweep();
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
