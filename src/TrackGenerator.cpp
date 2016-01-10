@@ -5082,19 +5082,6 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
   double start_z = z0 - start_dist_2D / tan_theta;
 
   Cmfd* cmfd = _geometry->getCmfd();
-  //TODO: REMOVE
-  segment** ref_segments = new segment*[num_z_stack];
-  if (_z_coord == -1 && kernels[0]->getSegments() != NULL) {
-    for (int z=0; z < num_z_stack; z++) {
-      ref_segments[z] = new segment[_max_num_segments*2];
-      SegmentationKernel temp_kernel;
-      temp_kernel.setMaxVal(_max_optical_length);
-      temp_kernel.setSegments(ref_segments[z]);
-      Track3D* tt = &_tracks_3D_stack[azim_index][track_index][polar_index][z];
-      Point* start = tt->getStart();
-      traceSegmentsOTF(flattened_track, start, theta, &temp_kernel);
-    }
-  }
 
   /* Extract the appropriate starting mesh */
   int num_fsrs;
@@ -5302,22 +5289,6 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
             /* Operate on segment */
             kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
                                 cmfd_surface_bwd);
-            if (fsr_id == 10713 && cmfd_surface_fwd == 1405 &&
-                cmfd_surface_bwd == -1 && i == 102 && sign == 1
-                && kernels[i]->getCount() == 4 && seg_len_3D > 1.465
-                && seg_len_3D < 1.466) {
-              std::cout << "CHECK 3" << std::endl;
-              double enter_z = z_min;
-              double track_start_z = first_start_z + i * z_spacing;
-              double track_end_z = first_end_z + i * z_spacing;
-              std::cout << "In box [" << z_min << ", " << z_max << "] with track ["
-                << track_start_z << ", " << track_end_z << "] and dist to corner ";
-              double dist_to_corner = (enter_z - track_start_z) / cos_theta;
-              std::cout << dist_to_corner << std::endl;
-              std::cout << "start z = " << start_z << std::endl;
-              std::cout << "track start z = " << track_start_z << std::endl;
-              std::cout << "Tiny move = " << TINY_MOVE << std::endl;
-            }
           }
         }
       }
@@ -5370,54 +5341,6 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     /* Traverse segment on first track */
     first_start_z = first_end_z;
   }
-  //TODO Remove
-  if (_z_coord == -1 && kernels[0]->getSegments() != NULL) {
-    for (int z=0; z < num_z_stack; z++) {
-      segment* comp_segments = kernels[z]->getSegments();
-      for (int s = 0; s < kernels[z]->getCount(); s++) {
-        if (comp_segments[s]._cmfd_surface_fwd !=
-            ref_segments[z][s]._cmfd_surface_fwd) {
-          std::cout << "ERROR in CMFD FWD" << std::endl;
-          std::cout << "Sign = " << sign << std::endl;
-          std::cout << "stack index = " << z << std::endl;
-          std::cout << "Reference Segments:" << std::endl;
-          for (int s = 0; s < kernels[z]->getCount(); s++) {
-            std::cout << "Len = " << ref_segments[z][s]._length << ", CMFD = [";
-            std::cout << ref_segments[z][s]._cmfd_surface_fwd << ", ";
-            std::cout << ref_segments[z][s]._cmfd_surface_bwd << "], FSR = ";
-            std::cout << ref_segments[z][s]._region_id << std::endl;
-          }
-          std::cout << "Computed Segments:" << std::endl;
-          for (int s = 0; s < kernels[z]->getCount(); s++) {
-            std::cout << "Len = " << comp_segments[s]._length << ", CMFD = [";
-            std::cout << comp_segments[s]._cmfd_surface_fwd << ", ";
-            std::cout << comp_segments[s]._cmfd_surface_bwd << "], FSR = ";
-            std::cout << comp_segments[s]._region_id << std::endl;
-          }
-          exit(1);
-        }
-        if (comp_segments[s]._cmfd_surface_bwd !=
-            ref_segments[z][s]._cmfd_surface_bwd) {
-          std::cout << "ERROR in CMFD BWD" << std::endl;
-          std::cout << "Reference Segments:" << std::endl;
-          for (int s = 0; s < kernels[z]->getCount(); s++) {
-            std::cout << "Len = " << ref_segments[z][s]._length << ", CMFD = ";
-            std::cout << ref_segments[z][s]._cmfd_surface_fwd << ", ";
-            std::cout << ref_segments[z][s]._cmfd_surface_bwd << std::endl;
-          }
-          std::cout << "Computed Segments:" << std::endl;
-          for (int s = 0; s < kernels[z]->getCount(); s++) {
-            std::cout << "Len = " << comp_segments[s]._length << ", CMFD = ";
-            std::cout << comp_segments[s]._cmfd_surface_fwd << ", ";
-            std::cout << comp_segments[s]._cmfd_surface_bwd << std::endl;
-          }
-          exit(1);
-        }
-      }
-      delete [] ref_segments[z];
-    }
-  }
-  delete [] ref_segments;
 }
 
 
