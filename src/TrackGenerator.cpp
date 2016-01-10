@@ -486,6 +486,7 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
       }
     }
   }
+  _z_coord = -1;
   return max_optical_length;
 }
 
@@ -5082,10 +5083,10 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
 
   Cmfd* cmfd = _geometry->getCmfd();
   //TODO: REMOVE
-  segment** ref_segments = new segment*[_max_num_tracks_per_stack];
-  if (_max_num_segments > 0) {
-    for (int z=0; z < _max_num_tracks_per_stack; z++) {
-      ref_segments[z] = new segment[_max_num_segments];
+  segment** ref_segments = new segment*[num_z_stack];
+  if (_z_coord == -1 && kernels[0]->getSegments() != NULL) {
+    for (int z=0; z < num_z_stack; z++) {
+      ref_segments[z] = new segment[_max_num_segments*2];
       SegmentationKernel temp_kernel;
       temp_kernel.setMaxVal(_max_optical_length);
       temp_kernel.setSegments(ref_segments[z]);
@@ -5226,9 +5227,9 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
               /* Calculate start and end z */
               double start_z = first_start_z + i * z_spacing;
               double end_z = first_start_z + i * z_spacing;
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
                                                           cmfd_surface_fwd);
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
                                                           cmfd_surface_bwd);
             }
 
@@ -5274,9 +5275,9 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
               }
 
               /* Find CMFD surfaces */
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
+              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
                                                           cmfd_surface_fwd);
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
+              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
                                                           cmfd_surface_bwd);
             }
 
@@ -5330,24 +5331,28 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
     first_start_z = first_end_z;
   }
   //TODO Remove
-  if (_max_num_segments > 0) {
-    for (int z=0; z < _max_num_tracks_per_stack; z++) {
+  if (_z_coord == -1 && kernels[0]->getSegments() != NULL) {
+    for (int z=0; z < num_z_stack; z++) {
       segment* comp_segments = kernels[z]->getSegments();
       for (int s = 0; s < kernels[z]->getCount(); s++) {
         if (comp_segments[s]._cmfd_surface_fwd !=
             ref_segments[z][s]._cmfd_surface_fwd) {
           std::cout << "ERROR in CMFD FWD" << std::endl;
+          std::cout << "Sign = " << sign << std::endl;
+          std::cout << "stack index = " << z << std::endl;
           std::cout << "Reference Segments:" << std::endl;
           for (int s = 0; s < kernels[z]->getCount(); s++) {
-            std::cout << "Len = " << ref_segments[z][s]._length << ", CMFD = ";
+            std::cout << "Len = " << ref_segments[z][s]._length << ", CMFD = [";
             std::cout << ref_segments[z][s]._cmfd_surface_fwd << ", ";
-            std::cout << ref_segments[z][s]._cmfd_surface_bwd << std::endl;
+            std::cout << ref_segments[z][s]._cmfd_surface_bwd << "], FSR = ";
+            std::cout << ref_segments[z][s]._region_id << std::endl;
           }
           std::cout << "Computed Segments:" << std::endl;
           for (int s = 0; s < kernels[z]->getCount(); s++) {
-            std::cout << "Len = " << comp_segments[s]._length << ", CMFD = ";
+            std::cout << "Len = " << comp_segments[s]._length << ", CMFD = [";
             std::cout << comp_segments[s]._cmfd_surface_fwd << ", ";
-            std::cout << comp_segments[s]._cmfd_surface_bwd << std::endl;
+            std::cout << comp_segments[s]._cmfd_surface_bwd << "], FSR = ";
+            std::cout << comp_segments[s]._region_id << std::endl;
           }
           exit(1);
         }

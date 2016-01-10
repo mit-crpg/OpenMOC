@@ -520,7 +520,9 @@ void Solver::initializeExpEvaluator() {
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
-    if (!_OTF)
+    if (_OTF)
+      _track_generator->countSegments();
+    else
       _track_generator->splitSegments(max_tau);
 
     /* Initialize exponential interpolation table */
@@ -902,10 +904,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
-
+    
     normalizeFluxes();
     computeFSRSources();
-    transportSweep();
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
