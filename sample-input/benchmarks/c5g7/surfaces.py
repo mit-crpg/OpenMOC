@@ -1,27 +1,23 @@
-from openmoc import *
-import openmoc.log as log
-import openmoc.materialize as materialize
-
+import openmoc
 
 ###############################################################################
 ###########################   Creating Surfaces   #############################
 ###############################################################################
 
-xmin = XPlane(x=-32.13, name='xmin')
-xmax = XPlane(x= 32.13, name='xmax')
-ymin = YPlane(y=-32.13, name='ymin')
-ymax = YPlane(y= 32.13, name='ymax')
-zmin = ZPlane(z=-32.13, name='zmin')
-zmax = ZPlane(z= 32.13, name='zmax')
+surfaces = {}
 
-xmin.setBoundaryType(REFLECTIVE)
-xmax.setBoundaryType(VACUUM)
-ymin.setBoundaryType(VACUUM)
-ymax.setBoundaryType(REFLECTIVE)
-zmin.setBoundaryType(REFLECTIVE)
-zmax.setBoundaryType(VACUUM)
+# Instantiate surfaces
+surfaces['Root x-min']    = openmoc.XPlane(x=-32.13, name='Root x-min')
+surfaces['Root x-max']    = openmoc.XPlane(x= 32.13, name='Root x-max')
+surfaces['Root y-min']    = openmoc.YPlane(y=-32.13, name='Root y-min')
+surfaces['Root y-max']    = openmoc.YPlane(y= 32.13, name='Root y-max')
+surfaces['Root z-min']    = openmoc.ZPlane(z=-32.13, name='Root z-min')
+surfaces['Root z-max']    = openmoc.ZPlane(z= 32.13, name='Root z-max')
+surfaces['Fuel Cylinder'] = openmoc.Circle(x=0.0, y=0.0, radius=0.54, name='Fuel Cylinder')
 
-# Create Circles for the fuel as well as to discretize the moderator into rings
-fuel_radius = Circle(x=0.0, y=0.0, radius=0.54)
-moderator_inner_radius = Circle(x=0.0, y=0.0, radius=0.58)
-moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.62)
+surfaces['Root x-min'].setBoundaryType(openmoc.REFLECTIVE)
+surfaces['Root x-max'].setBoundaryType(openmoc.VACUUM)
+surfaces['Root y-min'].setBoundaryType(openmoc.VACUUM)
+surfaces['Root y-max'].setBoundaryType(openmoc.REFLECTIVE)
+surfaces['Root z-min'].setBoundaryType(openmoc.REFLECTIVE)
+surfaces['Root z-max'].setBoundaryType(openmoc.VACUUM)
