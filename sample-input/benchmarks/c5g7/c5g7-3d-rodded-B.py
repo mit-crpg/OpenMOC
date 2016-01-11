@@ -4,6 +4,8 @@ import openmoc.plotter as plotter
 from openmoc.options import Options
 from lattices import lattices, universes, cells, surfaces
 
+axial_refines = 2
+
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
@@ -36,34 +38,19 @@ rb = universes['Reflector Bottom Assembly']
 rc = universes['Reflector Corner Assembly']
 
 # 3 x 3 x 9 core to represent 3D core
-lattices['Root'].setWidth(width_x=21.42, width_y=21.42, width_z=7.14)
+lattices['Root'].setWidth(width_x=21.42, width_y=21.42, width_z=7.14/axial_refines)
 lattices['Root'].setUniverses3D([[[rr, rr, ri],
                                   [rr, rr, ri],
-                                  [rb, rb, rc]],
-                                 [[rr, rr, ri],
-                                  [rr, rr, ri],
-                                  [rb, rb, rc]],
-                                 [[rr, rr, ri],
-                                  [rr, rr, ri],
-                                  [rb, rb, rc]],
-                                 [[ur, mr, ri],
+                                  [rb, rb, rc]]] * 3 * axial_refines +
+                                [[[ur, mr, ri],
                                   [mr, uu, ri],
-                                  [rb, rb, rc]],
-                                 [[ur, mr, ri],
-                                  [mr, uu, ri],
-                                  [rb, rb, rc]],
-                                 [[ur, mu, ri],
+                                  [rb, rb, rc]]] * 2 * axial_refines +
+                                [[[ur, mu, ri],
                                   [mu, uu, ri],
-                                  [rb, rb, rc]],
-                                 [[ur, mu, ri],
+                                  [rb, rb, rc]]] * 2 * axial_refines +
+                                [[[uu, mu, ri],
                                   [mu, uu, ri],
-                                  [rb, rb, rc]],
-                                 [[uu, mu, ri],
-                                  [mu, uu, ri],
-                                  [rb, rb, rc]],
-                                 [[uu, mu, ri],
-                                  [mu, uu, ri],
-                                  [rb, rb, rc]]])
+                                  [rb, rb, rc]]] * 2 * axial_refines)
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
@@ -73,10 +60,11 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = openmoc.Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.0)
-cmfd.setLatticeStructure(51,51,9)
-cmfd.setOpticallyThick(True)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setSORRelaxationFactor(1.5)
+cmfd.setLatticeStructure(51,51,3)
+cmfd.setOpticallyThick(False)
+#cmfd.setGroupStructure([1,4,8])
+cmfd.setKNearest(1)
 
 
 ###############################################################################
@@ -103,7 +91,14 @@ track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
                                          azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
+track_generator.setOTF()
+track_generator.setSegmentationHeights([0.1])
+#track_generator.setGlobalZMesh()
 track_generator.generateTracks()
+
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy')
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xz')
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='yz')
 
 
 ###############################################################################
@@ -111,9 +106,9 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = openmoc.CPUSolver(track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
+solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
 
