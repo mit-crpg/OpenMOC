@@ -2286,22 +2286,6 @@ void TrackGenerator::initialize3DTracks() {
   initialize3DTrackReflections();
   initialize3DTrackCycleIds();
   initialize3DTrackPeriodicIndices();
-
-  /* Delete book keeping for 3D tracks */
-  if (_tracks_3D_cycle != NULL) {
-    for (int a = 0; a < _num_azim/4; a++) {
-      for (int c = 0; c < _cycles_per_azim[a]; c++) {
-        for (int p=0; p < _num_polar; p++) {
-          for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
-            delete [] _tracks_3D_cycle[a][c][p][i];
-          delete [] _tracks_3D_cycle[a][c][p];
-        }
-        delete [] _tracks_3D_cycle[a][c];
-      }
-      delete [] _tracks_3D_cycle[a];
-    }
-    delete [] _tracks_3D_cycle;
-  }
 }
 
 
