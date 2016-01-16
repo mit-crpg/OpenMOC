@@ -228,6 +228,7 @@ public:
   double getDyEff(int azim);
   FP_PRECISION* get2DFSRVolumes();
   FP_PRECISION get2DFSRVolume(int fsr_id);
+  void export3DFSRVolumes(double* out_volumes, int num_fsrs);
   FP_PRECISION* get3DFSRVolumes();
   FP_PRECISION* get3DFSRVolumesOTF();
   FP_PRECISION get3DFSRVolume(int fsr_id);
@@ -270,7 +271,7 @@ public:
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
-  void generateFSRCentroids();
+  void generateFSRCentroids(FP_PRECISION* FSR_volumes);
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);

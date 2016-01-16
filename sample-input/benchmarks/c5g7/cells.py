@@ -2,9 +2,9 @@ import openmoc
 import openmoc.materialize as materialize
 from surfaces import surfaces
 
-fuel_rings      = 1
-moderator_rings = 1
-num_sectors     = 1
+fuel_rings      = 3
+moderator_rings = 2
+num_sectors     = 8
 
 ###############################################################################
 ###########################   Creating Materials   ############################

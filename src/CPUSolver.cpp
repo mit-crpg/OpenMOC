@@ -622,7 +622,7 @@ void CPUSolver::transportSweep() {
     for (int track_id=min_track; track_id < max_track; track_id++) {
 
       FP_PRECISION thread_fsr_flux[_num_groups];
-      curr_track = _tracks[track_id];      
+      curr_track = _tracks[track_id];
       azim_index = _quad->getFirstOctantAzim(curr_track->getAzimIndex());
 
       /* Get the polar index */

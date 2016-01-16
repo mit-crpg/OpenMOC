@@ -1,5 +1,6 @@
 import openmoc
 import openmoc.plotter as plotter
+import openmoc.process as process
 from openmoc.options import Options
 from universes import universes, cells
 
@@ -16,7 +17,7 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines = 1
+refines = 10
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
@@ -78,7 +79,8 @@ cmfd = openmoc.Cmfd()
 cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setOpticallyThick(True)
-cmfd.setLatticeStructure(5, 5, 5)
+cmfd.setLatticeStructure(5*refines, 5*refines, 5*refines)
+cmfd.setCentroidUpdateOn(False)
 cmfd.setKNearest(1)
 
 
@@ -105,7 +107,7 @@ track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
 track_generator.setSegmentationHeights([0.0])
-track_generator.setGlobalZMesh()
+#track_generator.setGlobalZMesh()
 track_generator.generateTracks()
 
 
@@ -123,6 +125,9 @@ solver.printTimerReport()
 ###############################################################################
 ############################   Generating Plots   #############################
 ###############################################################################
+
+process.compute_fission_rates(solver, use_hdf5=False)
+process.compute_material_fluxes(solver, use_hdf5=False)
 
 plotter.plot_materials(geometry, gridsize=500, plane='xy')
 plotter.plot_materials(geometry, gridsize=500, plane='xz', offset=-10.0)

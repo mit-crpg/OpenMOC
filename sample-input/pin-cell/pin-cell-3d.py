@@ -1,6 +1,7 @@
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
+import openmoc.process as process
 from openmoc.options import Options
 from geometry import *
 
@@ -29,6 +30,7 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, \
                                  polar_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
+track_generator.setSegmentationHeights([0.1])
 track_generator.setGlobalZMesh()
 track_generator.generateTracks()
 
@@ -47,6 +49,8 @@ solver.printTimerReport()
 ###############################################################################
 #                             Generating Plots
 ###############################################################################
+
+process.compute_material_fluxes(solver, use_hdf5=False)
 
 log.py_printf('NORMAL', 'Plotting data...')
 plotter.plot_periodic_cycles_2D(track_generator)

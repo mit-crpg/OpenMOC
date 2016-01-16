@@ -69,14 +69,13 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
     /* Compute and set keff */
     _k_eff = new_source.getSum() / num_rows;
 
-    /* Scale the old source by keff */
-    old_source.scaleByValue(_k_eff);
+    /* Scale the new source by keff */
+    new_source.scaleByValue(1.0 / _k_eff);
 
     /* Compute the residual */
     residual = computeRMSE(&new_source, &old_source, true);
 
     /* Normalize the new source to have an average value of 1.0 */
-    new_source.scaleByValue(num_rows / new_source.getSum());
     new_source.copyTo(&old_source);
 
     log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "

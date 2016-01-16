@@ -11,6 +11,7 @@
 #ifdef __cplusplus
 #include "Python.h"
 #include "Cmfd.h"
+#include "Progress.h"
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>

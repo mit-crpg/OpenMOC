@@ -62,20 +62,29 @@ TrackGenerator::~TrackGenerator() {
     /* Delete book keeping for 3D tracks */
     for (int a = 0; a < _num_azim/4; a++) {
       for (int c = 0; c < _cycles_per_azim[a]; c++) {
-        for (int p=0; p < _num_polar; p++) {
-          for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
-            delete [] _tracks_3D_cycle[a][c][p][i];
-          delete [] _tracks_3D_cycle[a][c][p];
+        for (int p=0; p < _num_polar; p++)
           delete [] _tracks_per_train[a][c][p];
-        }
-        delete [] _tracks_3D_cycle[a][c];
         delete [] _tracks_per_train[a][c];
       }
-      delete [] _tracks_3D_cycle[a];
       delete [] _tracks_per_train[a];
     }
-    delete [] _tracks_3D_cycle;
     delete [] _tracks_per_train;
+
+    /* Delete book keeping for 3D tracks */
+    if (_tracks_3D_cycle != NULL) {
+      for (int a = 0; a < _num_azim/4; a++) {
+        for (int c = 0; c < _cycles_per_azim[a]; c++) {
+          for (int p=0; p < _num_polar; p++) {
+            for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
+              delete [] _tracks_3D_cycle[a][c][p][i];
+            delete [] _tracks_3D_cycle[a][c][p];
+          }
+          delete [] _tracks_3D_cycle[a][c];
+        }
+        delete [] _tracks_3D_cycle[a];
+      }
+      delete [] _tracks_3D_cycle;
+    }
 
     /* Delete book keeping for 3D tracks */
     for (int a=0; a < _num_azim/4; a++) {
@@ -398,8 +407,8 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
     kernel.setSegments(segments_3D);
 
     for (int a=0; a < _num_azim/2; a++) {
-      #pragma omp parallel for reduction(max:max_optical_length) \
-        private(curr_segment, length, material, sigma_t) \
+      #pragma omp parallel for reduction(max:max_optical_length)      \
+        private(curr_segment, length, material, sigma_t)              \
         firstprivate(segments_3D, kernel)
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
@@ -640,6 +649,16 @@ FP_PRECISION* TrackGenerator::get2DFSRVolumes() {
   return FSR_volumes;
 }
 
+
+void TrackGenerator::export3DFSRVolumes(double* out_volumes, int num_fsrs) {
+
+  FP_PRECISION* fsr_volumes = get3DFSRVolumes();
+
+  for (int i=0; i < num_fsrs; i++)
+    out_volumes[i] = fsr_volumes[i];
+
+  delete [] fsr_volumes;
+}
 
 /**
  * @brief Computes and returns an array of volumes indexed by FSR.
@@ -1539,6 +1558,22 @@ void TrackGenerator::generateTracks() {
         _quadrature = new TYPolarQuad();
     }
 
+    log_printf(NORMAL, "num azim : %d", _num_azim);
+    log_printf(NORMAL, "num polar: %d", _num_polar);
+    log_printf(NORMAL, "azim spacing : %f", _azim_spacing);
+    log_printf(NORMAL, "polar spacing: %f", _polar_spacing);
+
+    if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO)
+      log_printf(NORMAL, "quadrature type = TABUCHI_YAMAMOTO");
+    else if (_quadrature->getQuadratureType() == LEONARD)
+      log_printf(NORMAL, "quadrature type = LEONARD");
+    else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
+      log_printf(NORMAL, "quadrature type = GAUSS_LEGENDRE");
+    else if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
+      log_printf(NORMAL, "quadrature type = EQUAL_WEIGHT");
+    else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
+      log_printf(NORMAL, "quadrature type = EQUAL_ANGLE");
+
     /* Initialize the quadrature set */
     _quadrature->setNumPolarAngles(_num_polar);
     _quadrature->setNumAzimAngles(_num_azim);
@@ -2084,11 +2119,14 @@ void TrackGenerator::initialize3DTracks() {
       for (c = 0; c < _cycles_per_azim[a]; c++) {
         for (int p=0; p < _num_polar/2; p++) {
           cycle_tuples.push_back(std::make_tuple(direction, a, c, p));
-          tot_num_cycles ++;
+          tot_num_cycles++;
         }
       }
     }
   }
+
+  std::string msg = "initializing 3D Tracks";
+  Progress progress(tot_num_cycles, msg);
 
   /* Create the 3D tracks for each lz plane */
   /*
@@ -2103,6 +2141,8 @@ void TrackGenerator::initialize3DTracks() {
    * l+ ->
    */
   for (int create_tracks = 0; create_tracks < 2; create_tracks++) {
+
+    progress.reset();
 
     /* Allocate memory for 3D track stacks */
     if (create_tracks)
@@ -2234,6 +2274,9 @@ void TrackGenerator::initialize3DTracks() {
                            create_tracks);
         }
       }
+
+      progress.incrementCounter();
+
     }
   }
 
@@ -2243,6 +2286,22 @@ void TrackGenerator::initialize3DTracks() {
   initialize3DTrackReflections();
   initialize3DTrackCycleIds();
   initialize3DTrackPeriodicIndices();
+
+  /* Delete book keeping for 3D tracks */
+  if (_tracks_3D_cycle != NULL) {
+    for (int a = 0; a < _num_azim/4; a++) {
+      for (int c = 0; c < _cycles_per_azim[a]; c++) {
+        for (int p=0; p < _num_polar; p++) {
+          for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
+            delete [] _tracks_3D_cycle[a][c][p][i];
+          delete [] _tracks_3D_cycle[a][c][p];
+        }
+        delete [] _tracks_3D_cycle[a][c];
+      }
+      delete [] _tracks_3D_cycle[a];
+    }
+    delete [] _tracks_3D_cycle;
+  }
 }
 
 
@@ -3321,14 +3380,14 @@ void TrackGenerator::recalibrate3DTracksToOrigin() {
   }
 
   /* Enusre that all tracks reside within the geometry */
-  FP_PRECISION max_z = _geometry->getMaxZ();
-  FP_PRECISION min_z = _geometry->getMinZ();
+  double max_z = _geometry->getMaxZ();
+  double min_z = _geometry->getMinZ();
   for (int a=0; a < _num_azim/2; a++) {
     #pragma omp parallel for
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-          FP_PRECISION start_z =
+          double start_z =
             _tracks_3D[a][i][p][z].getStart()->getZ();
           if (start_z > max_z)
             _tracks_3D[a][i][p][z].getStart()->setZ(max_z);
@@ -4436,16 +4495,15 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
  *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
  *          Approximation in CASMO 5", PHYSOR 2012.
  */
-void TrackGenerator::generateFSRCentroids() {
+void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes;
 
   /* Create fsr locks for updating centroids */
-  omp_lock_t FSR_locks[num_FSRs];
+  omp_lock_t FSR_locks[num_FSRs/10+1];
 
   #pragma omp parallel for schedule(guided)
-  for (int r=0; r < num_FSRs; r++)
+  for (int r=0; r < num_FSRs/10 + 1; r++)
     omp_init_lock(&FSR_locks[r]);
 
   /* Create temporary array of centroids and initialize to origin */
@@ -4455,9 +4513,9 @@ void TrackGenerator::generateFSRCentroids() {
     centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
 
-  if (_solve_3D) {
+  log_printf(NORMAL, "max num segments: %d", _max_num_segments);
 
-    FSR_volumes = get3DFSRVolumes();
+  if (_solve_3D) {
 
     /* Allocate array for 3D segments for OTF computation */
     segment* segments;
@@ -4469,10 +4527,18 @@ void TrackGenerator::generateFSRCentroids() {
     kernel.setSegments(segments);
     kernel.setMaxVal(_max_optical_length);
 
+    int num_iterations = 0;
+    for (int a=0; a < _num_azim/2; a++)
+      num_iterations += getNumX(a) + getNumY(a);
+
+    std::string msg = "generating centroids";
+    Progress progress(num_iterations, msg);
+
     /* Loop over all tracks */
     for (int a=0; a < _num_azim/2; a++) {
       #pragma omp parallel for firstprivate(segments, kernel)
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+        progress.incrementCounter();
         for (int p=0; p < _num_polar; p++) {
           for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
@@ -4505,7 +4571,7 @@ void TrackGenerator::generateFSRCentroids() {
               double volume = FSR_volumes[fsr];
 
               /* Set the lock for this FSR */
-              omp_set_lock(&FSR_locks[fsr]);
+              omp_set_lock(&FSR_locks[fsr/10]);
 
               centroids[fsr]->
                   setX(centroids[fsr]->getX() + wgt *
@@ -4523,7 +4589,7 @@ void TrackGenerator::generateFSRCentroids() {
                   * curr_segment->_length / FSR_volumes[fsr]);
 
               /* Unset the lock for this FSR */
-              omp_unset_lock(&FSR_locks[fsr]);
+              omp_unset_lock(&FSR_locks[fsr/10]);
 
               xx += cos(phi) * sin(theta) * curr_segment->_length;
               yy += sin(phi) * sin(theta) * curr_segment->_length;
@@ -4558,7 +4624,7 @@ void TrackGenerator::generateFSRCentroids() {
           double volume = FSR_volumes[fsr];
 
           /* Set the lock for this FSR */
-          omp_set_lock(&FSR_locks[fsr]);
+          omp_set_lock(&FSR_locks[fsr/10]);
 
           centroids[fsr]->
             setX(centroids[fsr]->getX() + wgt *
@@ -4571,7 +4637,7 @@ void TrackGenerator::generateFSRCentroids() {
                  curr_segment->_length / FSR_volumes[fsr]);
 
           /* Unset the lock for this FSR */
-          omp_unset_lock(&FSR_locks[fsr]);
+          omp_unset_lock(&FSR_locks[fsr/10]);
 
           x += cos(phi) * curr_segment->_length;
           y += sin(phi) * curr_segment->_length;
@@ -4584,9 +4650,6 @@ void TrackGenerator::generateFSRCentroids() {
   for (int r=0; r < num_FSRs; r++) {
     _geometry->setFSRCentroid(r, centroids[r]);
   }
-
-  /* Delete temporary array of centroids and FSR volumes */
-  delete [] FSR_volumes;
 }
 
 
@@ -4750,16 +4813,21 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
 FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
+  log_printf(NORMAL, "num fsrs: %d", num_FSRs);
+  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-
-  VolumeKernel kernel;
+  VolumeKernel kernel(num_FSRs);
   kernel.setBuffer(FSR_volumes);
+
+  std::string msg = "getting 3D FSR Volumes OTF";
+  Progress progress(_num_2D_tracks, msg);
 
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for firstprivate(kernel)
+  #pragma omp parallel for
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
+
+    progress.incrementCounter();
 
     /* Extract indices of 3D tracks associated with the extruded track */
     Track* flattened_track = _flattened_tracks[ext_id];
@@ -4795,11 +4863,16 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
     }
   }
 
-  for (int i=0; i < num_FSRs; i++)
-    if (FSR_volumes[i] == 0)
+  for (int i=0; i < num_FSRs; i++) {
+    if (FSR_volumes[i] == 0.0) {
+      log_printf(NORMAL, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
+                 i, _geometry->getFSRPoint(i)->getX(), _geometry->getFSRPoint(i)->getY(),
+                 _geometry->getFSRPoint(i)->getZ());
       log_printf(ERROR, "Zero volume calculated in an FSR region since no "
                "track traversed the FSR. Use a finer track laydown to ensure "
                "every FSR is traversed.");
+    }
+  }
 
   return FSR_volumes;
 }
@@ -5007,10 +5080,16 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
  */
 void TrackGenerator::countSegments() {
 
+  std::string msg = "counting segments";
+  Progress progress(_num_2D_tracks, msg);
+  int max_num_segments = 0;
+
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for
+  #pragma omp parallel for reduction(max: max_num_segments)
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
+
+    progress.incrementCounter();
 
     /* Create counter kernel for the current thread */
     CounterKernel counter;
@@ -5042,12 +5121,14 @@ void TrackGenerator::countSegments() {
         /* Set the number of segments for the track */
         int num_segments = counter.getCount();
         curr_track->setNumSegments(num_segments);
-        if (num_segments > _max_num_segments)
-          _max_num_segments = num_segments;
+        if (num_segments > max_num_segments)
+          max_num_segments = num_segments;
         counter.resetCount();
       }
     }
   }
+
+  _max_num_segments = max_num_segments;
 }
 
 
@@ -5186,6 +5267,8 @@ void TrackGenerator::initializeTracksArray() {
     num_tracks = getNum3DTracks();
   else
     num_tracks = getNum2DTracks();
+
+  log_printf(NORMAL, "num tracks: %i", num_tracks);
 
   /* Allocate memory for tracks array */
   _tracks = new Track*[num_tracks];

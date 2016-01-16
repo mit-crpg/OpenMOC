@@ -95,7 +95,19 @@ public:
  *          track associated with the segments.
  */
 class VolumeKernel: public MOCKernel {
+
+protected:
+
+  /** OpenMP mutual exclusion locks for atomic buffer updates */
+  omp_lock_t* _buffer_locks;
+
+  /** Maximum optical path length when forming segments */
+  FP_PRECISION _max_tau;
+
 public:
+
+  VolumeKernel(int size);
+  virtual ~VolumeKernel();
   void execute(FP_PRECISION length, Material* mat, int id,
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };

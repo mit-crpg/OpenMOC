@@ -61,9 +61,10 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51,3)
-cmfd.setOpticallyThick(False)
+cmfd.setLatticeStructure(51,51,9)
+cmfd.setOpticallyThick(True)
 #cmfd.setGroupStructure([1,4,8])
+cmfd.setCentroidUpdateOn(False)
 cmfd.setKNearest(1)
 
 
@@ -84,7 +85,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-quad = openmoc.EqualAnglePolarQuad()
+quad = openmoc.EqualWeightPolarQuad()
 quad.setNumPolarAngles(num_polar)
 
 track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,

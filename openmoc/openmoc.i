@@ -1,4 +1,4 @@
-%define DOCSTRING 
+%define DOCSTRING
 "A method of characteristics code for nuclear reactor physics calculations."
 %enddef
 
@@ -26,11 +26,12 @@
   #include "../src/Vector.h"
   #include "../src/Matrix.h"
   #include "../src/linalg.h"
+  #include "../src/Progress.h"
   #include "../src/TrackGenerator.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
   #include "../src/boundary_type.h"
-  
+
   #ifdef ICPC
   #include "../src/VectorizedSolver.h"
   #endif
@@ -252,7 +253,7 @@ namespace std {
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
 
 /* The typemap used to match the method signature for the
- * Cmfd::setGroupStructure method. This allows users to set the CMFD group 
+ * Cmfd::setGroupStructure method. This allows users to set the CMFD group
  * structure using a NumPy array */
 %apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int length_group_indices)}
 
@@ -281,15 +282,19 @@ namespace std {
  * getCellIds method for the data processing routines in openmoc.process */
 %apply (int* ARGOUT_ARRAY1, int DIM1) {(int* cell_ids, int num_cells)}
 
-/* The typemap used to match the method signature for the 
- * PolarQuad::setSinThetas method. This allows users to set the polar angle 
+/* The typemap used to match the method signature for the
+ * PolarQuad::setSinThetas method. This allows users to set the polar angle
  * quadrature sine thetas using a NumPy array */
 %apply (double* IN_ARRAY1, int DIM1) {(double* sin_thetas, int num_polar)}
 
-/* The typemap used to match the method signature for the 
- * PolarQuad::setWeights method. This allows users to set the polar angle 
+/* The typemap used to match the method signature for the
+ * PolarQuad::setWeights method. This allows users to set the polar angle
  * quadrature weights using a NumPy array */
 %apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
+
+/* The typemap used to match the method signature for TrackGenerator::export3DFSRVolumes() */
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* out_volumes, int num_fsrs)}
+
 
 #endif
 
@@ -344,7 +349,7 @@ namespace std {
 
 
 /* Typemap for all methods which return a std::map<int, Material*>.
- * This includes the Geometry::getAllMaterials() method, which is useful 
+ * This includes the Geometry::getAllMaterials() method, which is useful
  * for OpenCG compatibility. */
 %include <std_map.i>
 %clear std::map<int, Material*>;
@@ -454,7 +459,7 @@ namespace std {
 
     /* Get the inner list in the nested list for the lattice */
     PyObject* outer_outer_list = PyList_GetItem($input,k);
-    
+
     /* Loop over y */
     for (int j = 0; j < $2; j++) {
 
@@ -469,7 +474,7 @@ namespace std {
                         "of lists");
         return NULL;
       }
-      
+
       /* Loop over x */
       for (int i =0; i < $3; i++) {
         /* Extract the value from the list at this location and convert
@@ -505,6 +510,7 @@ namespace std {
 %include ../src/Vector.h
 %include ../src/Matrix.h
 %include ../src/linalg.h
+%include ../src/Progress.h
 %include ../src/TrackGenerator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h

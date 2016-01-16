@@ -1222,8 +1222,13 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
   /* Extract list of extruded FSRs */
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
+  std::string msg = "initializing 3D FSRs";
+  Progress progress(_extruded_FSR_keys_map.size(), msg);
+
   /* Loop over extruded FSRs */
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
+
+    progress.incrementCounter();
 
     /* Extract coordinates of extruded FSR */
     ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
