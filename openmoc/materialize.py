@@ -131,6 +131,9 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                 # the Material must be cloned for each unique Cell
                 if material != None:
                     if len(domains) > geometry.getNumMaterials():
+                        # Return memory ownership of material to Python
+                        # so it will be deallocated after material is cloned
+                        material.thisown = 1
                         material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
@@ -287,6 +290,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                 # the Material must be cloned for each unique Cell
                 if material != None:
                     if len(domains) > geometry.getNumMaterials():
+                        # Return memory ownership of material to Python
+                        # so it will be deallocated after material is cloned
+                        material.thisown = 1
                         material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it

@@ -880,6 +880,10 @@ void Cmfd::initializeMaterials() {
 
   Material* material;
 
+  /* Delete old Cmfd surface currents vector if it exists */
+  if (_materials != NULL)
+    delete [] _materials;
+
   try{
     _materials = new Material*[_num_x*_num_y];
 
@@ -1808,6 +1812,24 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
  */
 void Cmfd::initialize() {
 
+  /* Delete old Matrix and Vector objects if they exist */
+  if (_M != NULL)
+    delete _M;
+  if (_A != NULL)
+    delete _A;
+  if (_old_source != NULL)
+    delete _old_source;
+  if (_new_source != NULL)
+    delete _new_source;
+  if (_old_flux != NULL)
+    delete _old_flux;
+  if (_new_flux != NULL)
+    delete _new_flux;
+  if (_flux_ratio != NULL)
+    delete _flux_ratio;
+  if (_volumes != NULL)
+    delete _volumes;
+
   try{
 
     /* Allocate memory for matrix and vector objects */
@@ -1836,6 +1858,10 @@ void Cmfd::initialize() {
  * @brief Initialize the CMFD lattice.
  */
 void Cmfd::initializeLattice(Point* offset) {
+
+  /* Delete old lattice if it exists */
+  if (_lattice != NULL)
+    delete _lattice;
 
   /* Initialize the lattice */
   _lattice = new Lattice();

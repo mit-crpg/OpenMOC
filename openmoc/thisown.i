@@ -240,7 +240,9 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  # Only disown if user specified optional track_generator parameter
+  if track_generator:
+    track_generator.thisown = 0
 %}
 
 /* A GPUSolver owns the memory for the TrackGenerator it contains */

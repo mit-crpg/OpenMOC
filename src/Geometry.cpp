@@ -1050,11 +1050,7 @@ void Geometry::initializeCmfd() {
   _cmfd->setWidthX(getWidthX());
   _cmfd->setWidthY(getWidthY());
   _cmfd->setNumMOCGroups(getNumEnergyGroups());
-
-  /* If user did not set CMFD group structure, create CMFD group
-  * structure that is the same as the MOC group structure */
-  if (_cmfd->getNumCmfdGroups() == 0)
-    _cmfd->setGroupStructure(NULL, getNumEnergyGroups()+1);
+  _cmfd->setGroupStructure(NULL, getNumEnergyGroups()+1);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
