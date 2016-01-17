@@ -289,11 +289,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                 # If the user filled multiple Cells with the same Material,
                 # the Material must be cloned for each unique Cell
                 if material != None:
-                    if len(domains) > geometry.getNumMaterials():
-                        # Return memory ownership of material to Python
-                        # so it will be deallocated after material is cloned
-                        material.thisown = 1
-                        material = material.clone()
+                    material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
                 else:
@@ -432,7 +428,6 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     load_openmc_mgxs_lib(mgxs_lib, geometry)
 
     # Initialize an OpenMOC TrackGenerator
-    geometry.initializeFlatSourceRegions()
     track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
     track_generator.setZCoord(zcoord)
     track_generator.generateTracks()

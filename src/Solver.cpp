@@ -339,7 +339,6 @@ void Solver::setGeometry(Geometry* geometry) {
  *          to the Solver:
  *
  * @code
- *          geometry.initializeFlatSourceRegions()
  *          track_generator.generateTracks()
  *          solver.setTrackGenerator(track_generator)
  * @endcode
@@ -610,6 +609,9 @@ void Solver::initializeFSRs() {
 
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
+
+  /* Initialize FSRs with pin cell discretization and neighbor cell lists */
+  _geometry->initializeFSRs();
 
   /* Get an array of volumes indexed by FSR  */
   _FSR_volumes = _track_generator->getFSRVolumes();

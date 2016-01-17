@@ -1242,6 +1242,9 @@ void TrackGenerator::segmentize() {
 
   Track* track;
 
+  /* Initialize FSRs with pin cell discretization and neighbor cell lists */
+  _geometry->initializeFSRs();
+
   /* This section loops over all Track and segmentizes each one if the
    * Tracks were not read in from an input file */
   if (!_use_input_file) {

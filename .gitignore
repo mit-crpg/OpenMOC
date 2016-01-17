@@ -103,7 +103,7 @@ profile/models/homogeneous/homogeneous-one-group
 profile/models/homogeneous/homogeneous-one-group.o
 
 # IPython Notebook
-*/.ipynb_checkpoints/
+*.ipynb_checkpoints
 
 # OpenMC input files
 *.xml

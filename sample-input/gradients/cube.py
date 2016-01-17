@@ -72,4 +72,3 @@ root_cell.setFill(lattice)
 
 geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
-geometry.initializeFlatSourceRegions()

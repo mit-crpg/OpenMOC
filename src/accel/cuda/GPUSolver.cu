@@ -905,7 +905,6 @@ void GPUSolver::setGeometry(Geometry* geometry) {
  *          to the Solver:
  *
  * @code
- *          geometry.initializeFlatSourceRegions()
  *          track_generator.generateTracks()
  *          solver.setTrackGenerator(track_generator)
  * @endcode

@@ -167,7 +167,7 @@ public:
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeFlatSourceRegions();
+  void initializeFSRs();
   void segmentize(Track* track);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);

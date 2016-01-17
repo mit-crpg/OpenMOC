@@ -8,7 +8,7 @@ import openmc.mgxs
 # OpenMC simulation parameters
 batches = 100
 inactive = 10
-particles = 100000
+particles = 1000
 
 
 ###############################################################################
@@ -124,14 +124,19 @@ geometry_file.export_to_xml()
 #                   Exporting to OpenMC settings.xml File
 ###############################################################################
 
+# Construct uniform initial source distribution over fissionable zones
+lower_left = [-0.62992, -0.62992, -0.62992]
+upper_right = [+0.62992, +0.62992, +0.62992]
+source = openmc.source.Source(space=openmc.stats.Box(lower_left, upper_right))
+source.only_fissionable = True
+
 # Instantiate a SettingsFile
 settings_file = openmc.SettingsFile()
 settings_file.batches = batches
 settings_file.inactive = inactive
 settings_file.particles = particles
 settings_file.output = {'tallies': False, 'summary': True}
-settings_file.set_source_space('fission', [-0.62992, -0.62992, -0.62992, \
-                                           +0.62992, +0.62992, +0.62992])
+settings_file.source = source
 settings_file.sourcepoint_write = False
 
 # Export to "settings.xml"

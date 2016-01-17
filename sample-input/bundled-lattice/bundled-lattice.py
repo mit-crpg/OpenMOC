@@ -195,7 +195,6 @@ openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
-geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################

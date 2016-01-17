@@ -732,7 +732,7 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 /**
  * @brief Subdivides all Cells in the Geometry into rings and angular sectors
  *        aligned with the z-axis.
- * @details This method is called by the Geometry::initializeFlatSourceRegions()
+ * @details This method is called by the Geometry::initializeFSRs()
  *          method but may also be called by the user in Python if needed:
  *
  * @code
@@ -758,7 +758,7 @@ void Geometry::subdivideCells() {
  *          the Geometry::subdivideCells() method. Then it initializes the CMFD
  *          object.
  */
-void Geometry::initializeFlatSourceRegions() {
+void Geometry::initializeFSRs() {
 
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
