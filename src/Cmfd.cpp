@@ -12,6 +12,7 @@ Cmfd::Cmfd() {
   /* Initialize Geometry and Mesh-related attribute */
   _polar_quad = NULL;
   _geometry = NULL;
+  _materials = NULL;
 
   /* Global variables used in solving CMFD problem */
   _num_x = 1;
@@ -843,10 +844,12 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
 
   _num_cmfd_groups = length_group_indices - 1;
 
-  /* Allocate memory */
-  if (_group_indices == NULL) {
-    _group_indices = new int[length_group_indices];
-  }
+  /* Delete old group indices array if it exists */
+  if (_group_indices != NULL)
+    delete [] _group_indices;
+
+  /* Allocate memory for new group indices */
+  _group_indices = new int[length_group_indices];
 
   if (group_indices == NULL) {
     for (int i = 0; i < length_group_indices; i++) {
@@ -882,7 +885,7 @@ void Cmfd::initializeMaterials() {
 
   /* Delete old Cmfd surface currents vector if it exists */
   if (_materials != NULL)
-    delete [] _materials;
+    delete _materials;
 
   try{
     _materials = new Material*[_num_x*_num_y];
@@ -952,10 +955,12 @@ void Cmfd::initializeCellMap() {
  */
 void Cmfd::initializeGroupMap() {
 
-  /* Allocate memory */
-  if (_group_indices_map == NULL) {
-    _group_indices_map = new int[_num_moc_groups];
-  }
+  /* Delete old group indices map if it exists */
+  if (_group_indices_map != NULL)
+    delete _group_indices_map;
+
+  /* Allocate memory for new group indices map */
+  _group_indices_map = new int[_num_moc_groups];
 
   /* Create group indices map */
   for (int e = 0; e < _num_cmfd_groups; e++) {

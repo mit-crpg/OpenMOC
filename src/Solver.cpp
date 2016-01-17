@@ -667,6 +667,11 @@ void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
 
+  /* Intialize the CMFD energy group structure */
+  _cmfd->setNumMOCGroups(_num_groups);
+  _cmfd->setGroupStructure(NULL, _num_groups+1);
+  _cmfd->initializeGroupMap();
+
   /* Give CMFD number of FSRs and FSR property arrays */
   _cmfd->setNumFSRs(_num_FSRs);
   _cmfd->setFSRVolumes(_FSR_volumes);
@@ -1011,7 +1016,6 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
-
     normalizeFluxes();
     computeFSRSources();
     transportSweep();

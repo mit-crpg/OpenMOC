@@ -1049,12 +1049,9 @@ void Geometry::initializeCmfd() {
   /* Set CMFD mesh dimensions and number of groups */
   _cmfd->setWidthX(getWidthX());
   _cmfd->setWidthY(getWidthY());
-  _cmfd->setNumMOCGroups(getNumEnergyGroups());
-  _cmfd->setGroupStructure(NULL, getNumEnergyGroups()+1);
 
-  /* Intialize CMFD Maps */
+  /* Intialize CMFD cell map */
   _cmfd->initializeCellMap();
-  _cmfd->initializeGroupMap();
 
   /* Initialize the CMFD lattice */
   Point offset;
