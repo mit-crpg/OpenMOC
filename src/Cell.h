@@ -10,11 +10,14 @@
 #define CELL_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Material.h"
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
+#include <string>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -92,7 +95,7 @@ private:
   int _num_sectors;
 
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
-  std::map<int, surface_halfspace> _surfaces;
+  std::map<int, surface_halfspace*> _surfaces;
 
   /** The minimum reachable x-coordinate within the Cell */
   double _min_x;
@@ -133,8 +136,8 @@ private:
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
 
-  void ringify(std::vector<Cell*>* subcells);
-  void sectorize(std::vector<Cell*>* subcells);
+  void ringify(std::vector<Cell*>& subcells, double max_radius);
+  void sectorize(std::vector<Cell*>& subcells);
 
 public:
   Cell(int id=0, const char* name="");
@@ -160,7 +163,7 @@ public:
   boundaryType getMinZBoundaryType();
   boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
-  std::map<int, surface_halfspace> getSurfaces() const;
+  std::map<int, surface_halfspace*> getSurfaces() const;
   std::vector<Cell*> getNeighbors() const;
 
   std::map<int, Cell*> getAllCells();
@@ -181,7 +184,7 @@ public:
   double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
 
   Cell* clone();
-  void subdivideCell();
+  void subdivideCell(double max_radius);
   void buildNeighbors();
 
   std::string toString();
