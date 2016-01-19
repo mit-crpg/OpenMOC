@@ -2016,12 +2016,6 @@ void TrackGenerator::initialize3DTracks() {
     log_printf(ERROR, "Cannot initialize 3D tracks since the 2D tracks "
                "have not been created");
 
-  else if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO ||
-           _quadrature->getQuadratureType() == LEONARD ||
-           _quadrature->getQuadratureType() == GAUSS_LEGENDRE)
-    log_printf(ERROR, "Cannot initialize 3D tracks with a quadrature "
-               "type of TABUCHI_YAMAMOTO, LEONARD, or GAUSS_LEGENDRE");
-
   log_printf(NORMAL, "Initializing 3D tracks...");
 
   /* Allocate memory for arrays */
@@ -3619,9 +3613,12 @@ void TrackGenerator::initializeTrackFileDirectory() {
       quad_type = "EQ_WGT";
     else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
       quad_type = "EQ_ANG";
-    else
-      log_printf(ERROR, "Unable to solve 3D problem with quadrature type"
-                 " other than EQUAL_WEIGHT or EQUAL_ANGLE");
+    if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO)
+      quad_type = "TABUCHI_YAMAMOTO";
+    else if (_quadrature->getQuadratureType() == LEONARD)
+      quad_type = "LEONARD";
+    else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
+      quad_type = "GAUSS_LEGENDRE";
 
     if (_track_generation_method == GLOBAL_TRACKING)
       track_method = "GT";
