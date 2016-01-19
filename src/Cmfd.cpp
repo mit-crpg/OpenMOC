@@ -235,7 +235,7 @@ void Cmfd::collapseXS() {
     Material* cell_material;
 
     /* Loop over cmfd cells */
-    #pragma omp parallel for
+    #pragma omp for
     for (int i = 0; i < _num_x * _num_y; i++) {
 
       cell_material = _materials[i];
@@ -610,7 +610,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
     Material* material;
 
     /* Loop over cells */
-    #pragma omp parallel for
+    #pragma omp for
     for (int i = 0; i < _num_x*_num_y; i++) {
 
       material = _materials[i];
@@ -1086,7 +1086,7 @@ void Cmfd::splitCorners() {
     int cell_cw, cell_ccw;
     int surface_cw, surface_ccw;
 
-    #pragma omp parallel for
+    #pragma omp for
     for (int i = 0; i < _num_x * _num_y; i++) {
       for (int c = 0; c < NUM_CORNERS; c++) {
 
