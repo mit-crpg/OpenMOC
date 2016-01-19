@@ -132,6 +132,7 @@ settings_file.particles = particles
 settings_file.output = {'tallies': False, 'summary': True}
 settings_file.set_source_space('fission', [-0.62992, -0.62992, -0.62992, \
                                            +0.62992, +0.62992, +0.62992])
+settings_file.sourcepoint_write = False
 
 # Export to "settings.xml"
 settings_file.export_to_xml()
@@ -153,7 +154,6 @@ mgxs_lib.energy_groups = groups
 mgxs_lib.mgxs_types = ['total', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'cell'
 mgxs_lib.correction = None
-mgxs_lib.domains = geometry.get_all_material_cells()
 mgxs_lib.build_library()
 
 # Create a "tallies.xml" file for the MGXS Library

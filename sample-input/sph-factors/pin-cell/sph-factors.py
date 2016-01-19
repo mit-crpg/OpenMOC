@@ -1,9 +1,14 @@
-import numpy as np
-import matplotlib.pyplot as plt
-
 import openmoc
 import openmoc.compatible
 import openmc.mgxs
+
+import numpy as np
+import matplotlib
+
+# Enable Matplotib to work for headless nodes
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.ioff()
 
 
 ###############################################################################
@@ -60,10 +65,8 @@ fluxes_no_sph = openmoc.process.get_scalar_fluxes(solver)
 ###############################################################################
 
 # Compute SPH factors
-sph, sph_mgxs_lib = \
-    openmoc.materialize.compute_sph_factors(mgxs_lib, max_fix_src_iters=50,
-                                            max_domain_iters=1,
-                                            track_spacing=spacing, 
+sph, sph_mgxs_lib, sph_indices = \
+    openmoc.materialize.compute_sph_factors(mgxs_lib, track_spacing=spacing,
                                             num_azim=num_azim,
                                             num_threads=num_threads)
 
@@ -71,13 +74,7 @@ sph, sph_mgxs_lib = \
 materials = \
     openmoc.materialize.load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
 
-# Initialize an OpenMOC TrackGenerator and Solver
-openmoc_geometry.initializeFlatSourceRegions()
-track_generator = openmoc.TrackGenerator(openmoc_geometry, num_azim, spacing)
-track_generator.generateTracks()
-
-# Run an eigenvalue calculation with the SPH-corrected modifed MGXS library
-solver.setTrackGenerator(track_generator)
+# Run an eigenvalue calculation with the SPH-corrected modified MGXS library
 solver.computeEigenvalue()
 solver.printTimerReport()
 keff_with_sph = solver.getKeff()
@@ -99,6 +96,7 @@ openmoc.plotter.plot_cells(openmoc_geometry)
 
 # Extract the OpenMOC scalar fluxes
 fluxes_sph = openmoc.process.get_scalar_fluxes(solver)
+fluxes_sph *= sph
 
 # Extract the OpenMC scalar fluxes
 num_fsrs = openmoc_geometry.getNumFSRs()

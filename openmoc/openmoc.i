@@ -71,11 +71,11 @@
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
  * attributes. These attributes should be used internally only by the Matrix and
  * Vector class methods and linear algrebra (linalg.h/linalg.cpp) methods. */
-%ignore getArray();
-%ignore getA();
-%ignore getIA();
-%ignore getJA();
-%ignore getDiag();
+%ignore Matrix::getArray();
+%ignore Matrix::getA();
+%ignore Matrix::getIA();
+%ignore Matrix::getJA();
+%ignore Matrix::getDiag();
 
 %exception {
   try {
