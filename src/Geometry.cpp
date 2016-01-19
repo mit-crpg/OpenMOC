@@ -1744,16 +1744,16 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
       for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
 
         /* Get surfaces bounding the cell */
-        std::map<int, surface_halfspace> surfaces =
+        std::map<int, surface_halfspace*> surfaces =
           cell_iter->second->getSurfaces();
 
         /* Cycle through all surfaces and add them to the set */
-        std::map<int, surface_halfspace>::iterator surf_iter;
+        std::map<int, surface_halfspace*>::iterator surf_iter;
         for (surf_iter = surfaces.begin(); surf_iter != surfaces.end();
             ++surf_iter) {
 
           /* Extract surface type */
-          Surface* surface = surf_iter->second._surface;
+          Surface* surface = surf_iter->second->_surface;
           surfaceType surf_type = surface->getSurfaceType();
 
           /* Treat surface types */
