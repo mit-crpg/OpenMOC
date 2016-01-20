@@ -38,7 +38,6 @@ Geometry::~Geometry() {
 
     _FSR_keys_map.clear();
     _FSRs_to_keys.clear();
-    _FSRs_to_material_IDs.clear();
   }
 
   /* Remove all Materials in the Geometry */
@@ -223,14 +222,7 @@ int Geometry::getNumEnergyGroups() {
  * @return the number of Materials
  */
 int Geometry::getNumMaterials() {
-
-  std::map<int, Material*> all_materials;
-
-  if (_all_materials.size() == 0)
-    all_materials = getAllMaterials();
-  else
-    all_materials = _all_materials;
-
+  std::map<int, Material*> all_materials = getAllMaterials();
   int num_materials = all_materials.size();
   return num_materials;
 }
@@ -759,15 +751,11 @@ void Geometry::subdivideCells() {
  *          object.
  */
 void Geometry::initializeFSRs() {
-
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
   /* Build collections of neighbor Cells for optimized ray tracing */
   _root_universe->buildNeighbors();
-
-  /* Create map of Material IDs to Material pointers */
-  _all_materials = getAllMaterials();
 }
 
 
@@ -894,7 +882,6 @@ void Geometry::initializeFSRVectors() {
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
-  _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
@@ -904,7 +891,6 @@ void Geometry::initializeFSRVectors() {
     fsr_data* fsr = value_list[i];
     int fsr_id = fsr->_fsr_id;
     _FSRs_to_keys.at(fsr_id) = key;
-    _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
   }
 
   /* add cmfd information serially */
@@ -1082,20 +1068,6 @@ std::vector<std::string>* Geometry::getFSRsToKeys() {
 
 
 /**
- * @brief Return a vector indexed by flat source region IDs which contain
- *        the corresponding Material IDs.
- * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
- */
-std::vector<int>* Geometry::getFSRsToMaterialIDs() {
-  if (_FSR_keys_map.size() == 0)
-    log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
-               "the Geometry has not initialized FSRs.");
-
-  return &_FSRs_to_material_IDs;
-}
-
-
-/**
  * @brief Sets the _FSR_keys_map map
  * @details The _FSR_keys_map stores a hash of a std::string representing
  *          the Lattice/Cell/Universe hierarchy for a unique region
@@ -1117,15 +1089,6 @@ void Geometry::setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>*
  */
 void Geometry::setFSRsToKeys(std::vector<std::string>* FSRs_to_keys) {
   _FSRs_to_keys = *FSRs_to_keys;
-}
-
-
-/**
- * @brief Sets the _FSRs_to_material_IDs vector
- * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
- */
-void Geometry::setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs) {
-  _FSRs_to_material_IDs = *FSRs_to_material_IDs;
 }
 
 

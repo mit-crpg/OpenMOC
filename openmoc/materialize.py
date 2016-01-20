@@ -10,6 +10,7 @@ import sys
 import os
 import copy
 import collections
+import hashlib
 
 import numpy as np
 
@@ -103,7 +104,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             py_printf('ERROR', 'Domain type "%s" is not supported', domain_type)
 
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
-    for domain_spec in f[domain_type]:
+    for domain_spec in sorted(f[domain_type]):
 
         py_printf('INFO', 'Importing cross sections for %s "%s"',
                           domain_type, str(domain_spec))
@@ -133,7 +134,6 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                     if len(domains) > geometry.getNumMaterials():
                         # Return memory ownership of material to Python
                         # so it will be deallocated after material is cloned
-                        material.thisown = 1
                         material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
@@ -141,7 +141,11 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                     if isinstance(domain_spec, int):
                         material = openmoc.Material(id=domain_spec)
                     else:
-                        material = openmoc.Material(name=domain_spec)
+                        # Reproducibly hash the domain name into an integer ID
+                        domain_id = \
+                            int(hashlib.md5(domain_spec).hexdigest()[:4], 16)
+                        material = \
+                            openmoc.Material(id=domain_id, name=domain_spec)
 
                 # Fill the Cell with the new Material
                 cell.setFill(material)
@@ -151,7 +155,9 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             if isinstance(domain_spec, int):
                 material = openmoc.Material(id=domain_spec)
             else:
-                material = openmoc.Material(name=domain_spec)
+                # Reproducibly hash the domain name into an integer ID
+                domain_id = int(hashlib.md5(domain_spec).hexdigest()[:4], 16)
+                material = openmoc.Material(id=domain_id, name=domain_spec)
 
         # Add material to the collection
         materials[domain_spec] = material
@@ -285,11 +291,16 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                     continue
                 else:
                     material = cell.getFillMaterial()
+                    # FIXME:
+#                    material.thisown = 0
 
                 # If the user filled multiple Cells with the same Material,
                 # the Material must be cloned for each unique Cell
                 if material != None:
+
                     material = material.clone()
+                    # FIXME:
+#                    material.thisown = 0
 
                 # If the Cell does not contain a Material, create one for it
                 else:

@@ -610,8 +610,12 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  /* Initialize FSRs with pin cell discretization and neighbor cell lists */
-  _geometry->initializeFSRs();
+  // FIXME
+  _cmfd = _geometry->getCmfd();
+  _num_FSRs = _geometry->getNumFSRs();
+  _num_groups = _geometry->getNumEnergyGroups();
+  _polar_times_groups = _num_groups * _num_polar;
+  _num_materials = _geometry->getNumMaterials();
 
   /* Get an array of volumes indexed by FSR  */
   _FSR_volumes = _track_generator->getFSRVolumes();
@@ -619,19 +623,16 @@ void Solver::initializeFSRs() {
   /* Generate the FSR centroids */
   _track_generator->generateFSRCentroids();
 
+  /* Attach the correct materials to each track segment */
+  _track_generator->initializeSegments();
+
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
-  /* Compute the number of fissionable Materials */
-  _num_fissionable_FSRs = 0;
-
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
-
-    /* Assign the Material corresponding to this FSR */
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
+    log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
 }
@@ -648,9 +649,7 @@ void Solver::countFissionableFSRs() {
   log_printf(INFO, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
   _num_fissionable_FSRs = 0;
-
   for (int r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
@@ -669,9 +668,10 @@ void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
 
+  // FIXME: Use the coarse group structure!!!
   /* Intialize the CMFD energy group structure */
   _cmfd->setNumMOCGroups(_num_groups);
-  _cmfd->setGroupStructure(NULL, _num_groups+1);
+  // _cmfd->setGroupStructure(NULL, _num_groups+1);
   _cmfd->initializeGroupMap();
 
   /* Give CMFD number of FSRs and FSR property arrays */
@@ -804,6 +804,11 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   _num_iterations = 0;
   FP_PRECISION residual;
 
+  // FIXME
+  initializeFSRs();
+  initializeMaterials(mode);
+  countFissionableFSRs();
+
   /* Initialize data structures */
   initializePolarQuadrature();
   initializeExpEvaluator();
@@ -818,9 +823,6 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   }
 
   initializeSourceArrays();
-  initializeMaterials(mode);
-  initializeFSRs();
-  countFissionableFSRs();
   zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */
@@ -915,12 +917,12 @@ void Solver::computeSource(int max_iters, solverMode mode,
   FP_PRECISION residual;
 
   /* Initialize data structures */
+  initializeFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
   initializeMaterials(mode);
-  initializeFSRs();
 
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
@@ -1000,13 +1002,13 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   _k_eff = 1.0;
 
   /* Initialize data structures */
+  initializeFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials(mode);
-  initializeFSRs();
   countFissionableFSRs();
+  initializeMaterials(mode);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     initializeCmfd();

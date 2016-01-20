@@ -229,10 +229,11 @@ void CPUSolver::initializeSourceArrays() {
     _reduced_sources = new FP_PRECISION[size];
 
     /* If no fixed sources were assigned, use a zeroes array */
-    if (_fixed_sources == NULL) {
+    // FIXME: This is an issue!!!
+    //    if (_fixed_sources == NULL) {
       _fixed_sources = new FP_PRECISION[size];
       memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
-    }
+      //    }
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR sources");
@@ -628,7 +629,7 @@ void CPUSolver::computeKeff() {
 
   /* Reduce new fission rates across FSRs */
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
-  
+ 
   _k_eff *= fission;
 
   delete [] FSR_rates;
@@ -654,7 +655,7 @@ void CPUSolver::transportSweep() {
   int min_track = 0;
   int max_track = 0;
 
-  log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
+  log_printf(INFO, "Transport sweep with %d OpenMP threads", _num_threads);
 
   /* Initialize flux in each FSr to zero */
   flattenFSRFluxes(0.0);
@@ -706,6 +707,7 @@ void CPUSolver::transportSweep() {
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
         tallyCurrent(curr_segment, azim_index, track_flux, false);
       }
+
       delete [] thread_fsr_flux;
 
       /* Transfer boundary angular flux to outgoing Track */
