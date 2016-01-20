@@ -410,15 +410,6 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
-
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR,"Unable to set fixed source for group %d in "
-               "in a %d energy group problem", group, _num_groups);
-
-  if (fsr_id < 0 || fsr_id >= _num_FSRs)
-    log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
-               "%d FSRs in the geometry", fsr_id, _num_FSRs);
-
   /* Insert fixed source into map */
   _fixed_sources_map[std::pair<int, int>(fsr_id, group)] = source;
 }

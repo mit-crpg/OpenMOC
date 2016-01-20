@@ -1201,11 +1201,22 @@ void GPUSolver::initializeSourceArrays() {
     /* Populate fixed source array with any user-defined sources */
     std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
     std::pair<int, int> fsr_group_key;
+    int fsr_id, group;
     for (iter = _fixed_sources_map.begin();
 	 iter != _fixed_sources_map.end(); ++iter) {
       fsr_group_key = iter->first;
-      _fixed_sources(fsr_group_key.first,fsr_group_key.second-1) = 
-          _fixed_sources_map[fsr_group_key];
+      fsr_id = fsr_group_key.first;
+      group = fsr_group_key.second;
+
+      if (group <= 0 || group > _num_groups)
+        log_printf(ERROR,"Unable to use fixed source for group %d in "
+                   "in a %d energy group problem", group, _num_groups);
+
+      if (fsr_id < 0 || fsr_id >= _num_FSRs)
+        log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
+                   "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+      _fixed_sources(fsr_id, group-1) = _fixed_sources_map[fsr_group_key];
     }
   }
   catch(std::exception &e) {
