@@ -3,6 +3,7 @@ import openmoc.plotter as plotter
 import openmoc.process as process
 from openmoc.options import Options
 from lattices import lattices, universes, cells
+import numpy as np
 
 refines = 1
 
@@ -30,11 +31,11 @@ a = universes['Control Rod']
 r = universes['Reflector']
 
 lattices['Root'].setWidth(width_x=5.0/refines, width_y=5.0/refines, width_z=5.0/refines)
-lattices['Root'].setUniverses3D([[[r, r, r, r, r] * refines] * 4 * refines +
-                                 [[r, r, r, a, r] * refines] * refines] * 2 * refines +
-                                [[[r, r, r, r, r] * refines] * 2 * refines +
-                                 [[c, c, c, r, r] * refines] * 2 * refines +
-                                 [[c, c, c, a, r] * refines] * refines] * 3 * refines)
+lattices['Root'].setUniverses3D([[np.repeat([r, r, r, r, r], refines).tolist()] * 4 * refines +
+                                 [np.repeat([r, r, r, a, r], refines).tolist()] * refines] * 2 * refines +
+                                [[np.repeat([r, r, r, r, r], refines).tolist()] * 2 * refines +
+                                 [np.repeat([c, c, c, r, r], refines).tolist()] * 2 * refines +
+                                 [np.repeat([c, c, c, a, r], refines).tolist()] * refines] * 3 * refines)
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################

@@ -1,5 +1,4 @@
 import openmoc
-import openmoc.materialize as materialize
 from cells import cells, surfaces
 
 ###############################################################################

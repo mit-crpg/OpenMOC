@@ -1,5 +1,4 @@
 import openmoc
-import openmoc.materialize as materialize
 from universes import universes, cells, surfaces
 
 ###############################################################################
@@ -27,7 +26,7 @@ lattices['MOX Unrodded Assembly']       = openmoc.Lattice()
 lattices['MOX Rodded Assembly']         = openmoc.Lattice()
 lattices['Root']                        = openmoc.Lattice()
 
-# Abbreviates for universes that will fill lattices
+# Abbreviate universes that will fill lattices
 u = universes['UO2']
 m = universes['MOX 4.3%']
 o = universes['MOX 7.0%']
