@@ -97,8 +97,33 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
   /* Reset the number of energy groups by rounding up for the number
    * of vector widths needed to accomodate the energy groups */
   _num_groups = _num_vector_lengths * VEC_LENGTH;
-
   _polar_times_groups = _num_groups * _num_polar;
+}
+
+
+/**
+ * @brief Assign a fixed source for a flat source region and energy group.
+ * @details Fixed sources should be scaled to reflect the fact that OpenMOC
+ *          normalizes the scalar flux such that the total energy- and
+ *          volume-integrated production rate sums to 1.0.
+ * @param fsr_id the flat source region ID
+ * @param group the energy group
+ * @param source the volume-averaged source in this group
+ */
+void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
+                                    FP_PRECISION source) {
+
+  Solver::setFixedSourceByFSR(fsr_id, group, source);
+
+  /* Allocate the fixed sources array if not yet allocated */
+  if (_fixed_sources == NULL) {
+    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
+    _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    memset(_fixed_sources, 0.0, size);
+  }
+
+  /* Store the fixed source for this FSR and energy group */
+  _fixed_sources(fsr_id,group-1) = source;
 }
 
 
@@ -227,6 +252,32 @@ void VectorizedSolver::initializeSourceArrays() {
     log_printf(ERROR, "Could not allocate memory for FSR sources");
   }
 }
+
+
+/**
+ * @brief Initializes the FSR volumes and Materials array.
+ */
+void VectorizedSolver::initializeFSRs() {
+
+  CPUSolver::initializeFSRs();
+
+  /* Compute the number of SIMD vector widths needed to fit energy groups */
+  _num_vector_lengths = (_num_groups / VEC_LENGTH) + 1;
+
+  /* Reset the number of energy groups by rounding up for the number
+   * of vector widths needed to accomodate the energy groups */
+  _num_groups = _num_vector_lengths * VEC_LENGTH;
+  _polar_times_groups = _num_groups * _num_polar;
+
+  /* Allocate array of mutex locks for each FSR */
+  _FSR_locks = new omp_lock_t[_num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < _num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
+}
+
 
 
 /**

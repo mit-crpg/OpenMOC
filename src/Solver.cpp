@@ -323,11 +323,6 @@ void Solver::setGeometry(Geometry* geometry) {
                "Geometry has not yet initialized FSRs");
 
   _geometry = geometry;
-  _cmfd = geometry->getCmfd();
-  _num_FSRs = _geometry->getNumFSRs();
-  _num_groups = _geometry->getNumEnergyGroups();
-  _polar_times_groups = _num_groups * _num_polar;
-  _num_materials = _geometry->getNumMaterials();
 }
 
 
