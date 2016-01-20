@@ -843,38 +843,6 @@ void GPUSolver::setNumThreadsPerBlock(int num_threads) {
 
 
 /**
- * @brief Assign a fixed source for a flat source region and energy group.
- * @details Fixed sources should be scaled to reflect the fact that OpenMOC
- *          normalizes the scalar flux such that the total energy- and
- *          volume-integrated production rate sums to 1.0.
- * @param fsr_id the flat source region ID
- * @param group the energy group
- * @param source the volume-averaged source in this group
- */
-void GPUSolver::setFixedSourceByFSR(int fsr_id, int group,
-                                    FP_PRECISION source) {
-
-  Solver::setFixedSourceByFSR(fsr_id, group, source);
-
-  /* Allocate the fixed sources Thrust vector if not yet allocated */
-  if (_fixed_sources.size() == 0) {
-    _fixed_sources.resize(_num_FSRs * _num_groups);
-    thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
-  }
-
-  /* Warn the user if a fixed source has already been assigned to this FSR */
-  if (_fixed_sources(fsr_id,group-1) != 0.) {
-    FP_PRECISION old_source = _fixed_sources(fsr_id,group-1);
-    log_printf(WARNING, "Over-riding fixed source %f in FSR ID=%d with %f",
-               old_source, fsr_id, source);
-  }
-
-  /* Store the fixed source for this FSR and energy group */
-  _fixed_sources(fsr_id,group-1) = source;
-}
-
-
-/**
  * @brief Sets the Geometry for the Solver.
  * @details This is a private setter method for the Solver and is not
  *          intended to be called by the user.
@@ -1219,18 +1187,26 @@ void GPUSolver::initializeSourceArrays() {
 
   /* Clear Thrust vectors' memory if previously allocated */
   _reduced_sources.clear();
+  _fixed_sources.clear();
 
   /* Allocate memory for all source arrays on the device */
   try{
     int size = _num_FSRs * _num_groups;
     _reduced_sources.resize(size);
+    _fixed_sources.resize(size);
 
-    /* Allocate the fixed sources Thrust vector if not yet allocated */
-    if (_fixed_sources.size() == 0) {
-      _fixed_sources.resize(size);
-      thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
+    /* Initialize fixed sources to zero */
+    thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
+
+    /* Populate fixed source array with any user-defined sources */
+    std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
+    std::pair<int, int> fsr_group_key;
+    for (iter = _fixed_sources_map.begin();
+	 iter != _fixed_sources_map.end(); ++iter) {
+      fsr_group_key = iter->first;
+      _fixed_sources(fsr_group_key.first,fsr_group_key.second-1) = 
+          _fixed_sources_map[fsr_group_key];
     }
-
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for sources on GPU");

@@ -115,8 +115,6 @@ public:
 
   void setNumThreadBlocks(int num_blocks);
   void setNumThreadsPerBlock(int num_threads);
-  void setFixedSourceByFSR(int fsr_id, int group,
-                           FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
   void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
