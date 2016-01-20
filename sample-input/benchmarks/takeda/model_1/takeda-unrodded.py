@@ -2,7 +2,9 @@ import openmoc
 import openmoc.plotter as plotter
 import openmoc.process as process
 from openmoc.options import Options
-from universes import universes, cells
+from lattices import lattices, universes, cells
+
+refines = 1
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -17,7 +19,6 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines = 10
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
@@ -28,48 +29,12 @@ v = universes['Void']
 a = universes['Control Rod']
 r = universes['Reflector']
 
-lattice = openmoc.Lattice(name='5x5 lattice')
-lattice.setWidth(width_x=5.0/refines, width_y=5.0/refines, width_z=5.0/refines)
-template = [[[r, r, r, r, r],
-             [r, r, r, r, r],
-             [r, r, r, r, r],
-             [r, r, r, r, r],
-             [r, r, r, v, r]],
-            [[r, r, r, r, r],
-             [r, r, r, r, r],
-             [r, r, r, r, r],
-             [r, r, r, r, r],
-             [r, r, r, v, r]],
-            [[r, r, r, r, r],
-             [r, r, r, r, r],
-             [c, c, c, r, r],
-             [c, c, c, r, r],
-             [c, c, c, v, r]],
-            [[r, r, r, r, r],
-             [r, r, r, r, r],
-             [c, c, c, r, r],
-             [c, c, c, r, r],
-             [c, c, c, v, r]],
-            [[r, r, r, r, r],
-             [r, r, r, r, r],
-             [c, c, c, r, r],
-             [c, c, c, r, r],
-             [c, c, c, v, r]]]
-
-
-# refine lattice
-for k in range(5):
-  for j in range(5):
-    a = template[k][j]
-    template[k][j] = sum([[a[i]]*refines for i in range(len(a))], [])
-  a = template[k]
-  template[k] = sum([[a[i]]*refines for i in range(len(a))], [])
-a = template
-template = sum([[a[i]]*refines for i in range(len(a))], [])
-
-lattice.setUniverses3D(template)
-cells['Root'].setFill(lattice)
-
+lattices['Root'].setWidth(width_x=5.0/refines, width_y=5.0/refines, width_z=5.0/refines)
+lattices['Root'].setUniverses3D([[[r, r, r, r, r] * refines] * 4 * refines +
+                                 [[r, r, r, v, r] * refines] * refines] * 2 * refines +
+                                [[[r, r, r, r, r] * refines] * 2 * refines +
+                                 [[c, c, c, r, r] * refines] * 2 * refines +
+                                 [[c, c, c, v, r] * refines] * refines] * 3 * refines)
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
@@ -81,8 +46,6 @@ cmfd.setSORRelaxationFactor(1.5)
 cmfd.setOpticallyThick(True)
 cmfd.setLatticeStructure(5*refines, 5*refines, 5*refines)
 cmfd.setCentroidUpdateOn(False)
-cmfd.setKNearest(1)
-
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -106,10 +69,8 @@ track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar, azim_spa
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
-track_generator.setSegmentationHeights([0.0])
-#track_generator.setGlobalZMesh()
+track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
-
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
@@ -120,7 +81,6 @@ solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
-
 
 ###############################################################################
 ############################   Generating Plots   #############################

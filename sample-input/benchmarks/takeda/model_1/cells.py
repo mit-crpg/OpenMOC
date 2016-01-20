@@ -6,7 +6,7 @@ import openmoc.materialize as materialize
 #                           Creating Materials
 ###############################################################################
 
-materials = materialize.materialize('Takeda-materials.py')
+materials = materialize.materialize('materials.py')
 
 ###############################################################################
 #                   Create dictionary of all cells

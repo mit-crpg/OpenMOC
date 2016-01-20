@@ -47,10 +47,9 @@ cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
 cmfd.setOpticallyThick(True)
-#cmfd.setGroupStructure([1,4,8])
-cmfd.setCentroidUpdateOn(False)
-cmfd.setKNearest(1)
-
+cmfd.setGroupStructure([1,4,8])
+cmfd.setCentroidUpdateOn(True)
+cmfd.setKNearest(3)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -78,20 +77,6 @@ track_generator.setQuadrature(quad)
 track_generator.setSolve2D()
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
-
-
-###############################################################################
-##########################     Creating Cmfd mesh    ##########################
-###############################################################################
-
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-
-cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(1.0)
-cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([1,4,8])
-cmfd.setKNearest(4)
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################

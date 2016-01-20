@@ -58,12 +58,10 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51,9)
+cmfd.setLatticeStructure(51,51,9*axial_refines)
 cmfd.setOpticallyThick(True)
-#cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([1,4,8])
 cmfd.setCentroidUpdateOn(False)
-cmfd.setKNearest(1)
-
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -91,13 +89,7 @@ track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
 track_generator.setSegmentationHeights([0.1])
-#track_generator.setGlobalZMesh()
 track_generator.generateTracks()
-
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy')
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xz')
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='yz')
-
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
@@ -108,7 +100,6 @@ solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
-
 
 ###############################################################################
 ############################   Generating Plots   #############################
