@@ -1500,7 +1500,6 @@ bool TrackGenerator::readTracksFromFile() {
   int ret;
   FILE* in;
   in = fopen(_tracks_filename.c_str(), "r");
-
   int string_length;
 
   /* Import Geometry metadata from the Track file */
@@ -1561,7 +1560,6 @@ bool TrackGenerator::readTracksFromFile() {
 
   /* Loop over Tracks */
   for (int i=0; i < _num_azim; i++) {
-
     _tracks[i] = new Track[_num_tracks[i]];
 
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -1646,10 +1644,6 @@ bool TrackGenerator::readTracksFromFile() {
     point->setCoords(x,y,z);
     fsr->_point = point;
     FSR_keys_map->insert(fsr_key, fsr);
-
-    /* Read data from file for FSR_to_materials_IDs */
-    ret = fread(&material_id, sizeof(int), 1, in);
-    fsr->_mat_id = material_id;
 
     /* Read data from file for FSR_to_keys */
     ret = fread(&string_length, sizeof(int), 1, in);
@@ -1930,6 +1924,12 @@ void TrackGenerator::initializeSegments() {
   /* Get all of the Materials from the Geometry */
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
+  /* Get the mappings of FSR to keys to fsr_data to update Materials */
+  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map;
+  std::vector<std::string>* FSRs_to_keys;
+  FSR_keys_map = _geometry->getFSRKeysMap();
+  FSRs_to_keys = _geometry->getFSRsToKeys();
+
   /* Iterate over all Track segments and assign them each a Material */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -1938,6 +1938,7 @@ void TrackGenerator::initializeSegments() {
 	region_id = curr_segment->_region_id;
         Material* mat = _geometry->findFSRMaterial(region_id);
 	curr_segment->_material = _geometry->findFSRMaterial(region_id);
+	FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id = mat->getId();
       }
     }
   }
