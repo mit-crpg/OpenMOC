@@ -110,25 +110,6 @@ void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
 
 
 /**
- * @brief Sets the Geometry for the Solver.
- * @param geometry a pointer to the Geometry
- */
-void VectorizedSolver::setGeometry(Geometry* geometry) {
-
-  CPUSolver::setGeometry(geometry);
-
-  /* Compute the number of SIMD vector widths needed to fit energy groups */
-  _num_vector_lengths = (_num_groups / VEC_LENGTH) + 1;
-
-  /* Reset the number of energy groups by rounding up for the number
-   * of vector widths needed to accomodate the energy groups */
-  _num_groups = _num_vector_lengths * VEC_LENGTH;
-
-  _polar_times_groups = _num_groups * _num_polar;
-}
-
-
-/**
  * @brief Allocates memory for the exponential linear interpolation table.
  */
 void VectorizedSolver::initializeExpEvaluator() {
@@ -243,6 +224,32 @@ void VectorizedSolver::initializeSourceArrays() {
     log_printf(ERROR, "Could not allocate memory for FSR sources");
   }
 }
+
+
+/**
+ * @brief Initializes the FSR volumes and Materials array.
+ */
+void VectorizedSolver::initializeFSRs() {
+
+  CPUSolver::initializeFSRs();
+
+  /* Compute the number of SIMD vector widths needed to fit energy groups */
+  _num_vector_lengths = (_num_groups / VEC_LENGTH) + 1;
+
+  /* Reset the number of energy groups by rounding up for the number
+   * of vector widths needed to accomodate the energy groups */
+  _num_groups = _num_vector_lengths * VEC_LENGTH;
+  _polar_times_groups = _num_groups * _num_polar;
+
+  /* Allocate array of mutex locks for each FSR */
+  _FSR_locks = new omp_lock_t[_num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < _num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
+}
+
 
 
 /**
