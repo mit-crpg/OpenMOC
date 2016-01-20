@@ -203,7 +203,7 @@ void CPUSolver::initializeSourceArrays() {
     /* Initialize fixed sources to zero */
     memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
 
-     /* Populate fixed source array */
+    /* Populate fixed source array */
     std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
     std::pair<int, int> fsr_group_key;
     int fsr, group;
@@ -635,7 +635,7 @@ void CPUSolver::transportSweep() {
   int min_track = 0;
   int max_track = 0;
 
-  log_printf(INFO, "Transport sweep with %d OpenMP threads", _num_threads);
+  log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
   /* Initialize flux in each FSr to zero */
   flattenFSRFluxes(0.0);
@@ -687,7 +687,6 @@ void CPUSolver::transportSweep() {
         tallyScalarFlux(curr_segment, azim_index, track_flux, thread_fsr_flux);
         tallyCurrent(curr_segment, azim_index, track_flux, false);
       }
-
       delete [] thread_fsr_flux;
 
       /* Transfer boundary angular flux to outgoing Track */
