@@ -157,6 +157,9 @@ protected:
   /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
 
+  /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
+  std::map< std::pair<int, int>, FP_PRECISION > _fixed_sources_map;
+
   /** Ratios of source to total cross-section for each FSR and energy group */
   FP_PRECISION* _reduced_sources;
 
@@ -212,8 +215,8 @@ public:
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
+  void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
   void setFixedSourceByMaterial(Material* material, int group,
                                 FP_PRECISION source);

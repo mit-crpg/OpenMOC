@@ -83,7 +83,6 @@ public:
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreads(int num_threads);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
   void initializeFluxArrays();

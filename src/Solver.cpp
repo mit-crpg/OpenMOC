@@ -423,6 +423,9 @@ void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
   if (fsr_id < 0 || fsr_id >= _num_FSRs)
     log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
                "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+  /* Insert fixed source into map */
+  _fixed_sources_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
 
