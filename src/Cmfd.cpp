@@ -42,6 +42,7 @@ Cmfd::Cmfd() {
   _new_source = NULL;
   _group_indices = NULL;
   _group_indices_map = NULL;
+  _user_group_indices = false;
   _surface_currents = NULL;
   _corner_currents = NULL;
   _volumes = NULL;
@@ -873,6 +874,8 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
       log_printf(INFO, "group indices %d: %d", i, group_indices[i]);
     }
   }
+
+  _user_group_indices = true;
 }
 
 
@@ -954,6 +957,12 @@ void Cmfd::initializeCellMap() {
  *          energy groups and the values are the CMFD energy groups.
  */
 void Cmfd::initializeGroupMap() {
+
+  /* Setup one-to-one fine-to-coarse group map if not specified by user */
+  if (!_user_group_indices) {
+    setGroupStructure(NULL, _num_moc_groups+1);
+    _user_group_indices = false;
+  }
 
   /* Delete old group indices map if it exists */
   if (_group_indices_map != NULL)

@@ -668,10 +668,8 @@ void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
 
-  // FIXME: Use the coarse group structure!!!
   /* Intialize the CMFD energy group structure */
   _cmfd->setNumMOCGroups(_num_groups);
-  // _cmfd->setGroupStructure(NULL, _num_groups+1);
   _cmfd->initializeGroupMap();
 
   /* Give CMFD number of FSRs and FSR property arrays */

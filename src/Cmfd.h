@@ -104,6 +104,9 @@ private:
   /** Map of MOC groups to CMFD groups */
   int* _group_indices_map;
 
+  /** If the user specified fine-to-coarse group indices */
+  bool _user_group_indices;
+
   /** Number of FSRs */
   int _num_FSRs;
 
