@@ -69,7 +69,6 @@ int main() {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
   log_printf(NORMAL, "Initializing the track generator...");
