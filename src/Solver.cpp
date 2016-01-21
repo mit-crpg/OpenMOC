@@ -395,9 +395,6 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
                "since it is not a positive number", threshold);
 
   _converge_thresh = threshold;
-
-  if (_cmfd != NULL)
-    _cmfd->setSourceConvergenceThreshold(threshold*1.e-1);
 }
 
 
@@ -599,8 +596,7 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  // FIXME
-  _cmfd = _geometry->getCmfd();
+  /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
@@ -657,7 +653,17 @@ void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
 
+  /* Retrieve CMFD from the Geometry */
+  _cmfd = _geometry->getCmfd();
+
+  /* If the user did not initialize Cmfd, simply return */
+  if (_cmfd == NULL)
+    return;
+  else if (_cmfd->isFluxUpdateOn())
+    return;
+
   /* Intialize the CMFD energy group structure */
+  _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1);
   _cmfd->setNumMOCGroups(_num_groups);
   _cmfd->initializeGroupMap();
 
@@ -791,12 +797,10 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   _num_iterations = 0;
   FP_PRECISION residual;
 
-  // FIXME
+  /* Initialize data structures */
   initializeFSRs();
   initializeMaterials(mode);
   countFissionableFSRs();
-
-  /* Initialize data structures */
   initializePolarQuadrature();
   initializeExpEvaluator();
 
@@ -905,11 +909,11 @@ void Solver::computeSource(int max_iters, solverMode mode,
 
   /* Initialize data structures */
   initializeFSRs();
+  initializeMaterials(mode);
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials(mode);
 
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
@@ -990,15 +994,13 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
 
   /* Initialize data structures */
   initializeFSRs();
+  initializeMaterials(mode);
+  countFissionableFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  countFissionableFSRs();
-  initializeMaterials(mode);
-
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    initializeCmfd();
+  initializeCmfd();
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
