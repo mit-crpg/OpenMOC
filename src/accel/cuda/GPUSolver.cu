@@ -1482,7 +1482,6 @@ void GPUSolver::transportSweep() {
   /* Loop over the parallel track groups and perform transport sweep on tracks
    * in that group */
   for (int g=0; g < _num_parallel_track_groups; g++) {
-
     tid_offset = tid_max * _num_groups;
     tid_max += _track_generator->getNumTracksByParallelGroup(g);
 
@@ -1559,15 +1558,17 @@ double GPUSolver::computeResidual(residualType res_type) {
   double residual;
   isinf_test inf_test;
   isnan_test nan_test;
-  thrust::device_vector<double> residuals;
+
+  /* Allocate Thrust vector for residuals in each FSR */
+  thrust::device_vector<double> residuals(_num_FSRs);
 
   if (res_type == SCALAR_FLUX) {
 
     norm = _num_FSRs;
 
     /* Allocate Thrust vector for residuals */
-    residuals.resize(_num_FSRs * _num_groups);
     thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
+    thrust::device_vector<FP_PRECISION> FSR_fp_residuals(_num_FSRs);
 
     /* Compute the relative flux change in each FSR and group */
     thrust::transform(_scalar_flux.begin(), _scalar_flux.end(),
@@ -1577,8 +1578,42 @@ double GPUSolver::computeResidual(residualType res_type) {
                       _old_scalar_flux.begin(), fp_residuals.begin(),
                       thrust::divides<FP_PRECISION>());
 
+    /* Replace INF and NaN values (from divide by zero) with 0. */
+    thrust::replace_if(fp_residuals.begin(), fp_residuals.end(), inf_test, 0);
+    thrust::replace_if(fp_residuals.begin(), fp_residuals.end(), nan_test, 0);
+
+    /* Square the residuals */
+    thrust::transform(fp_residuals.begin(), fp_residuals.end(),
+                      fp_residuals.begin(), fp_residuals.begin(),
+                      thrust::multiplies<FP_PRECISION>());
+
+    typedef thrust::device_vector<FP_PRECISION>::iterator Iterator;
+
+    /* Reduce flux residuals across energy groups within each FSR */
+    for (int e=0; e < _num_groups; e++) {
+      strided_range<Iterator> strider(fp_residuals.begin() + e,
+                                      fp_residuals.end(), _num_groups);
+      thrust::transform(FSR_fp_residuals.begin(), FSR_fp_residuals.end(),
+                        strider.begin(), FSR_fp_residuals.begin(),
+                        thrust::plus<FP_PRECISION>());
+    }
+
     /* Copy the FP_PRECISION residual to the double precision residual */
-    thrust::copy(fp_residuals.begin(), fp_residuals.end(), residuals.begin());
+    thrust::copy(FSR_fp_residuals.begin(),
+                 FSR_fp_residuals.end(), residuals.begin());
+
+    /* Sum up the residuals */
+    residual = thrust::reduce(residuals.begin(), residuals.end());
+
+    /* Deallocate memory for Thrust vectors */
+    fp_residuals.clear();
+    FSR_fp_residuals.clear();
+    residuals.clear();
+
+    /* Normalize the residual */
+    residual = sqrt(residual / norm);
+
+    return residual;
   }
 
   else if (res_type == FISSION_SOURCE) {
@@ -1589,20 +1624,13 @@ double GPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_fissionable_FSRs;
 
-    /* Allocate Thrust vector for residuals in each FSR */
-    residuals.resize(_num_FSRs);
-
     /* Allocate Thrust vectors for fission sources in each FSR, group */
     thrust::device_vector<FP_PRECISION> new_fission_sources_vec(_num_FSRs * _num_groups);
     thrust::device_vector<FP_PRECISION> old_fission_sources_vec(_num_FSRs * _num_groups);
-    thrust::fill(new_fission_sources_vec.begin(), new_fission_sources_vec.end(), 0.0);
-    thrust::fill(old_fission_sources_vec.begin(), old_fission_sources_vec.end(), 0.0);
 
     /* Allocate Thrust vectors for energy-integrated fission sources in each FSR */
     thrust::device_vector<FP_PRECISION> FSR_old_fiss_src(_num_FSRs);
     thrust::device_vector<FP_PRECISION> FSR_new_fiss_src(_num_FSRs);
-    thrust::fill(FSR_old_fiss_src.begin(), FSR_old_fiss_src.end(), 0.);
-    thrust::fill(FSR_new_fiss_src.begin(), FSR_new_fiss_src.end(), 0.);
 
     /* Cast Thrust vectors as array pointers */
     FP_PRECISION* old_fission_sources =
@@ -1654,9 +1682,6 @@ double GPUSolver::computeResidual(residualType res_type) {
   else if (res_type == TOTAL_SOURCE) {
 
     norm = _num_FSRs;
-
-    /* Allocate Thrust vector for residuals in each FSR */
-    residuals.resize(_num_FSRs);
 
     /* Allocate Thrust vectors for fission/scatter sources in each FSR, group */
     thrust::device_vector<FP_PRECISION> new_sources_vec(_num_FSRs * _num_groups);
