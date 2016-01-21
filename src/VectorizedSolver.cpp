@@ -102,32 +102,6 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
 
 
 /**
- * @brief Assign a fixed source for a flat source region and energy group.
- * @details Fixed sources should be scaled to reflect the fact that OpenMOC
- *          normalizes the scalar flux such that the total energy- and
- *          volume-integrated production rate sums to 1.0.
- * @param fsr_id the flat source region ID
- * @param group the energy group
- * @param source the volume-averaged source in this group
- */
-void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
-                                    FP_PRECISION source) {
-
-  Solver::setFixedSourceByFSR(fsr_id, group, source);
-
-  /* Allocate the fixed sources array if not yet allocated */
-  if (_fixed_sources == NULL) {
-    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-    memset(_fixed_sources, 0.0, size);
-  }
-
-  /* Store the fixed source for this FSR and energy group */
-  _fixed_sources(fsr_id,group-1) = source;
-}
-
-
-/**
  * @brief Allocates memory for the exponential linear interpolation table.
  */
 void VectorizedSolver::initializeExpEvaluator() {

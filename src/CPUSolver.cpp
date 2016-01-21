@@ -540,11 +540,13 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
     FP_PRECISION* nu_sigma_f;
     Material* material;
+    FP_PRECISION* sigma_s;
 
     for (int r=0; r < _num_FSRs; r++) {
       new_total_source = 0.;
       old_total_source = 0.;
       material = _FSR_materials[r];
+      sigma_s = material->getSigmaS();
 
       if (material->isFissionable()) {
         nu_sigma_f = material->getNuSigmaF();
@@ -561,9 +563,9 @@ double CPUSolver::computeResidual(residualType res_type) {
       /* Compute total scattering source for group G */
       for (int G=0; G < _num_groups; G++) {
         for (int g=0; g < _num_groups; g++) {
-          new_total_source += material->getSigmaSByGroup(g+1,G+1)
+          new_total_source += sigma_s[g*_num_groups+G]
                               * _scalar_flux(r,g);
-          old_total_source += material->getSigmaSByGroup(g+1,G+1)
+          old_total_source += sigma_s[g*_num_groups+G]
                               * _old_scalar_flux(r,g);
         }
       }
