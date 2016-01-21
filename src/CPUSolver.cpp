@@ -563,9 +563,9 @@ double CPUSolver::computeResidual(residualType res_type) {
       /* Compute total scattering source for group G */
       for (int G=0; G < _num_groups; G++) {
         for (int g=0; g < _num_groups; g++) {
-          new_total_source += sigma_s[g*_num_groups+G]
+          new_total_source += sigma_s[G*_num_groups+g]
                               * _scalar_flux(r,g);
-          old_total_source += sigma_s[g*_num_groups+G]
+          old_total_source += sigma_s[G*_num_groups+g]
                               * _old_scalar_flux(r,g);
         }
       }
