@@ -659,7 +659,7 @@ void Solver::initializeCmfd() {
   /* If the user did not initialize Cmfd, simply return */
   if (_cmfd == NULL)
     return;
-  else if (_cmfd->isFluxUpdateOn())
+  else if (!_cmfd->isFluxUpdateOn())
     return;
 
   /* Intialize the CMFD energy group structure */
