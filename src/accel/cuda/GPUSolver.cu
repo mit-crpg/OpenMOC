@@ -82,25 +82,22 @@ struct isnan_test {
 
 
 /**
- * @class
- *
- *
+ * @class This provides a templated interface for a strided iterator over
+ *        a Thrust device_vector on a GPU.
+ * @details This code is taken from the Thrust examples site on 1/20/2015:
+ *           https://github.com/thrust/thrust/blob/master/examples/strided_range.cu
  */
 template <typename Iterator>
 class strided_range {
 
 public:
 
-  /** */
   typedef typename thrust::iterator_difference<Iterator>::type difference_type;
 
-  /** */
   struct stride_functor : public thrust::unary_function<difference_type,difference_type> {
 
-    /** */
     difference_type stride;
 
-    /** */
     stride_functor(difference_type stride) : stride(stride) { }
 
     __host__ __device__ difference_type operator()(const difference_type& i) const { 
@@ -108,28 +105,22 @@ public:
     }
   };
 
-  /** */
   typedef typename thrust::counting_iterator<difference_type> CountingIterator;
-
-  /** */
-  typedef typename thrust::transform_iterator<stride_functor, CountingIterator> TransformIterator;
-
-  /** */
-  typedef typename thrust::permutation_iterator<Iterator,TransformIterator> PermutationIterator;
-
-  /** */
+  typedef typename thrust::transform_iterator<stride_functor, CountingIterator> 
+    TransformIterator;
+  typedef typename thrust::permutation_iterator<Iterator,TransformIterator> 
+    PermutationIterator;
   typedef PermutationIterator iterator;
 
   /**
-   * @brief
-   * @return
+   * @brief The strided iterator constructor.
    */
   strided_range(Iterator first, Iterator last, difference_type stride) 
     : first(first), last(last), stride(stride) { }
    
   /**
-   * @brief
-   * @return
+   * @brief Get the first element in the iterator.
+   * @return the first element in the iterator
    */
   iterator begin(void) const {
     return PermutationIterator(first,
@@ -137,8 +128,8 @@ public:
   }
 
   /**
-   * @brief
-   * @return
+   * @brief Get the last element in the iterator.
+   * @return the last element in the iterator
    */
   iterator end(void) const {
     return begin() + ((last - first) + (stride - 1)) / stride;
@@ -146,13 +137,13 @@ public:
 
 protected:
 
-  /** */
+  /** The first element in the underlying device_vector as set by the constructor */
   Iterator first;
 
-  /** */
+  /** The last element in the underlying device_vector as set by the constructor */
   Iterator last;
 
-  /** */
+  /** The stride to use when iterating over the underlying device_vector */
   difference_type stride;
 
 };
@@ -1539,7 +1530,7 @@ double GPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_FSRs;
 
-    /* Allocate Thrust vector for residuals on the GPU */
+    /* Allocate Thrust vector for residuals */
     residuals.resize(_num_FSRs * _num_groups);
     thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
 
@@ -1563,10 +1554,10 @@ double GPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_fissionable_FSRs;
 
-    /* Allocate Thrust vector for residuals on the GPU */
+    /* Allocate Thrust vector for residuals in each FSR */
     residuals.resize(_num_FSRs);
 
-    /* Allocate Thrust vector for fission sources on the GPU */
+    /* Allocate Thrust vectors for fission sources in each FSR, group */
     thrust::device_vector<FP_PRECISION> new_fission_sources_vec(_num_FSRs * _num_groups);
     thrust::device_vector<FP_PRECISION> old_fission_sources_vec(_num_FSRs * _num_groups);
     thrust::fill(new_fission_sources_vec.begin(), new_fission_sources_vec.end(), 0.0);
@@ -1582,30 +1573,13 @@ double GPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* old_scalar_flux =
          thrust::raw_pointer_cast(&_old_scalar_flux[0]);
 
-    /* Allocate zero FSR volumes array to compute volume-integrated residuals */
-    //thrust::device_vector<FP_PRECISION> FSR_volumes_vec(_num_FSRs);
-    //thrust::fill(FSR_volumes_vec.begin(), FSR_volumes_vec.end(), 1.0);
-    //FP_PRECISION* FSR_volumes =
-    //     thrust::raw_pointer_cast(&FSR_volumes_vec[0]);
-
-
-    // FIXME
-    /* Compute the old and new nu-fission rates on the device */
+    /* Compute the old and new nu-fission rates in each FSR, group */
     computeFSRFissionSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                                  old_scalar_flux, old_fission_sources);
     computeFSRFissionSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                                  scalar_flux, new_fission_sources);
 
-    /* Compute the old and new nu-fission rates on the device */
-    // FIXME: Need to resize fission sources vectors by energy group
-//    computeFSRFissionSourcesOnDevice<<<_B, _T>>>(_FSR_materials,
-//                                                 _materials, old_scalar_flux,
-//                                                 old_fission_sources);
-//    computeFSRFissionSourcesOnDevice<<<_B, _T>>>(FSR_volumes, _FSR_materials,
-//                                                 _materials, scalar_flux,
-//                                                 new_fission_sources);
-
-    // FIXME
+    /* Allocate Thrust vectors for energy-integrated fission sources in each FSR */
     thrust::device_vector<FP_PRECISION> FSR_old_fiss_src(_num_FSRs);
     thrust::device_vector<FP_PRECISION> FSR_new_fiss_src(_num_FSRs);
     thrust::fill(FSR_old_fiss_src.begin(), FSR_old_fiss_src.end(), 0.);
@@ -1613,7 +1587,7 @@ double GPUSolver::computeResidual(residualType res_type) {
 
     typedef thrust::device_vector<FP_PRECISION>::iterator Iterator;
 
-    // FIXME: Reduce residuals across energy groups within each FSR
+    /* Reduce residuals across energy groups within each FSR */
     for (int e=0; e < _num_groups; e++) {
       strided_range<Iterator> old_strider(old_fission_sources_vec.begin() + e, 
                                           old_fission_sources_vec.end(), _num_groups);
@@ -1625,8 +1599,6 @@ double GPUSolver::computeResidual(residualType res_type) {
       thrust::transform(FSR_new_fiss_src.begin(), FSR_new_fiss_src.end(), 
                         new_strider.begin(), FSR_new_fiss_src.begin(), 
                         thrust::plus<FP_PRECISION>());
-//      thrust::transform(FSR_residuals.begin(), FSR_residuals.end(), strider.begin(),
-//                        FSR_residuals.begin(), thrust::minus<FP_PRECISION>());
     }
 
     /* Compute the relative nu-fission rate change in each FSR */
@@ -1637,23 +1609,9 @@ double GPUSolver::computeResidual(residualType res_type) {
                       FSR_old_fiss_src.begin(), residuals.begin(),
                       thrust::divides<FP_PRECISION>());
 
-    // FIXME: Then square, sum, sqrt
-
-    /* Compute the relative nu-fission rate change in each FSR */
-    /*
-    thrust::transform(new_fission_sources_vec.begin(),
-                      new_fission_sources_vec.end(),
-                      old_fission_sources_vec.begin(), residuals.begin(),
-                      thrust::minus<FP_PRECISION>());
-    thrust::transform(residuals.begin(), residuals.end(),
-                      old_fission_sources_vec.begin(), residuals.begin(),
-                      thrust::divides<FP_PRECISION>());
-    */
-
     /* Deallocate memory for Thrust vectors and null FSR volumes */
     old_fission_sources_vec.clear();
     new_fission_sources_vec.clear();
-//    FSR_volumes_vec.clear();
     FSR_old_fiss_src.clear();
     FSR_new_fiss_src.clear();
   }
