@@ -139,8 +139,6 @@ public:
   void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
   void generateFSRCentroids();
   void splitSegments(FP_PRECISION max_optical_length);
-
-  // FIXME - can this be merged with splitSegments and generateFSRCentroids()?
   void initializeSegments();
 };
 

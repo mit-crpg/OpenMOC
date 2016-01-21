@@ -8,7 +8,7 @@ import openmc.mgxs
 # OpenMC simulation parameters
 batches = 100
 inactive = 10
-particles = 1000
+particles = 100000
 
 
 ###############################################################################

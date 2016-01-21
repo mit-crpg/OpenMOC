@@ -11,7 +11,7 @@ import openmc.opencg_compatible
 # OpenMC simulation parameters
 batches = 100
 inactive = 10
-particles = 1000
+particles = 10000
 
 
 ###############################################################################
@@ -222,4 +222,4 @@ tallies_file.export_to_xml()
 
 # Run OpenMC
 executor = openmc.Executor()
-executor.run_simulation(output=True, mpi_procs=4)
+executor.run_simulation(output=True, mpi_procs=3)

@@ -1910,7 +1910,12 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
 
 /**
- * @brief 
+ * @brief Initialize track segments with pointers to FSR Materials.
+ * @details This is called by the Solver at simulation time. This
+ *          initialization is necessary since Materials in each FSR
+ *          may be interchanged by the user in between different
+ *          simulations. This method links each segment and fsr_data
+ *          struct with the current Material found in each FSR.
  */
 void TrackGenerator::initializeSegments() {
 

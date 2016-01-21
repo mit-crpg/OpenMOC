@@ -92,6 +92,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
 
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
+    old_materials = {}
     num_groups = int(f.attrs['# groups'])
 
     # If a Geometry was passed in, extract all cells or materials from it
@@ -132,8 +133,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                 # the Material must be cloned for each unique Cell
                 if material != None:
                     if len(domains) > geometry.getNumMaterials():
-                        # Return memory ownership of material to Python
-                        # so it will be deallocated after material is cloned
+                        old_materials[material.getId()] = material
                         material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
@@ -220,6 +220,10 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             py_printf('INFO', 'Loaded "fission" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
 
+    # Inform SWIG to garbage collect any old Materials from the Geometry
+    for material_id in old_materials:
+        old_materials[material_id].thisown = False
+
     # Return collection of materials
     return materials
 
@@ -254,6 +258,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
+    old_materials = {}
     num_groups = mgxs_lib.num_groups
     domain_type = mgxs_lib.domain_type
 
@@ -291,16 +296,12 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                     continue
                 else:
                     material = cell.getFillMaterial()
-                    # FIXME:
-#                    material.thisown = 0
 
                 # If the user filled multiple Cells with the same Material,
                 # the Material must be cloned for each unique Cell
                 if material != None:
-
+                    old_materials[material.getId()] = material
                     material = material.clone()
-                    # FIXME:
-#                    material.thisown = 0
 
                 # If the Cell does not contain a Material, create one for it
                 else:
@@ -380,6 +381,10 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             material.setSigmaF(sigma)
             py_printf('INFO', 'Loaded "fission" MGXS for "%s %d"',
                       domain_type, domain.id)
+
+    # Inform SWIG to garbage collect any old Materials from the Geometry
+    for material_id in old_materials:
+        old_materials[material_id].thisown = False
 
     # Return collection of materials
     return materials
