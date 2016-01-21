@@ -82,6 +82,33 @@ struct isnan_test {
 
 
 /**
+ * @brief A functor to multiply	all elements in	a Thrust vector by a constant.
+ * @param constant the constant to multiply the vector
+ */
+template< typename T >
+struct multiplyByConstant {
+
+public:
+  /* The constant to multiply by */
+  const T constant;
+
+  /**
+   * @brief Constructor for the functor.
+   * @param constant to multiply each element in a Thrust vector
+   */
+  multiplyByConstant(T constant) : constant(constant) {}
+
+  /**
+   * @brief Multiply an element in a Thrust vector.
+   * @param VecElem the element to multiply
+   */
+  __host__ __device__ void operator()(T& VecElem) const {
+    VecElem = VecElem * constant;
+  }
+};
+
+
+/**
  * @class This provides a templated interface for a strided iterator over
  *        a Thrust device_vector on a GPU.
  * @details This code is taken from the Thrust examples site on 1/20/2015:
@@ -1677,6 +1704,12 @@ double GPUSolver::computeResidual(residualType res_type) {
                         thrust::plus<FP_PRECISION>());
     }
 
+    /* Multiply fission sources by inverse keff */
+    thrust::for_each(FSR_new_src.begin(), FSR_new_src.end(),
+                     multiplyByConstant<FP_PRECISION>(1. / _k_eff));
+    thrust::for_each(FSR_old_src.begin(), FSR_old_src.end(),
+                     multiplyByConstant<FP_PRECISION>(1. / _k_eff));
+
     /* Compute scatter source */
 
     /* Reset sources Thrust vectors to zero */
@@ -1716,8 +1749,6 @@ double GPUSolver::computeResidual(residualType res_type) {
     new_sources_vec.clear();
     FSR_old_src.clear();
     FSR_new_src.clear();
-
-    // FIXME: Need to multiply by inverse keff
   }
 
   /* Replace INF and NaN values (from divide by zero) with 0. */
