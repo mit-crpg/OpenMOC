@@ -102,7 +102,7 @@ class TestHarness(object):
             msg = 'Unable to run OpenMOC in mode {0}'.format(self.calc_mode)
             raise ValueError(msg)
 
-    def _get_results(self, num_iters=True, keff=True, fluxes=False,
+    def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
         """Digest info in the solver and return as a string."""

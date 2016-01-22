@@ -36,8 +36,9 @@ class RingTestHarness(TestHarness):
         """Digest info from geometry and return as a string."""
 
         return super(RingTestHarness, self)._get_results(
-                num_iters=num_iters, keff=keff, num_fsrs=num_fsrs,
-                num_segments=num_segments, num_tracks=num_tracks)
+                num_iters=num_iters, keff=keff, fluxes=fluxes,
+                num_fsrs=num_fsrs, num_segments=num_segments,
+                num_tracks=num_tracks, hash_output=hash_output)
 
 
 if __name__ == '__main__':

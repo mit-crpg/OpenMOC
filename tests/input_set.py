@@ -1,6 +1,8 @@
 import sys
 from abc import ABCMeta, abstractmethod
 
+import numpy
+
 sys.path.insert(0, 'openmoc')
 import openmoc
 
@@ -24,6 +26,55 @@ class InputSet(object):
         """Instantiate a Geometry."""
         self.geometry.initializeFlatSourceRegions()
         return
+
+
+class HomInfMedInput(InputSet):
+    """A homogenized infinite medium problem with 2-group cross sections."""
+
+    def create_materials(self):
+
+        sigma_f = numpy.array([0.000625, 0.135416667])
+        nu_sigma_f = numpy.array([0.0015, 0.325])
+        sigma_s = numpy.array([[0.1, 0.117], [0., 1.42]])
+        chi = numpy.array([1.0, 0.0])
+        sigma_t = numpy.array([0.2208, 1.604])
+
+        self.materials['infinite medium'] = openmoc.Material()
+        self.materials['infinite medium'].setName('2-group infinite medium')
+        self.materials['infinite medium'].setNumEnergyGroups(2)
+        self.materials['infinite medium'].setSigmaF(sigma_f)
+        self.materials['infinite medium'].setNuSigmaF(nu_sigma_f)
+        self.materials['infinite medium'].setSigmaS(sigma_s.flat)
+        self.materials['infinite medium'].setChi(chi)
+        self.materials['infinite medium'].setSigmaT(sigma_t)
+
+    def create_geometry(self):
+        """Instantiate an infinite medium Geometry."""
+
+        xmin = openmoc.XPlane(x=-100.0, name='left')
+        xmax = openmoc.XPlane(x=+100.0, name='right')
+        ymin = openmoc.YPlane(y=-100.0, name='bottom')
+        ymax = openmoc.YPlane(y=+100.0, name='top')
+
+        xmax.setBoundaryType(openmoc.REFLECTIVE)
+        xmin.setBoundaryType(openmoc.REFLECTIVE)
+        ymin.setBoundaryType(openmoc.REFLECTIVE)
+        ymax.setBoundaryType(openmoc.REFLECTIVE)
+
+        cell = openmoc.Cell()
+        cell.setFill(self.materials['infinite_medium'])
+        cell.addSurface(halfspace=+1, surface=xmin)
+        cell.addSurface(halfspace=-1, surface=xmax)
+        cell.addSurface(halfspace=+1, surface=ymin)
+        cell.addSurface(halfspace=-1, surface=ymax)
+
+        root_universe = openmoc.Universe(name='root universe')
+        root_universe.addCell(cell)
+
+        self.geometry = openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
+
+        super(PinCellInput, self).create_geometry()
 
 
 class PinCellInput(InputSet):
