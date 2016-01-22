@@ -31,7 +31,7 @@ Writing New Documentation
 
 This tutorial will not present any of the semantics of how to write documentation for Sphinx as that is well covered by its own tutorials. Likewise, the same is true for Doxygen-style comments, although the basics are presented in :ref:`Code Comments <code_comments>`. Instead, this section presents the location of the source code and the basic console commands used to generate HTML documentation.
 
-First, the :file:`/docs/source` directory contains the reStructuredText source for the Sphinx documentation. In order to compile the Sphinx documentation into HTML, you can run the following from within the :file:`docs` directory:
+First, the :file:`/docs/source` directory contains the reStructuredText source for the Sphinx documentation. In order to compile the Sphinx documentation into HTML, you can run the following from within the :file:`/docs` directory:
 
 .. code-block:: none
 
@@ -46,14 +46,14 @@ This command will use the Sphinx tool to generate HTML in the :file:`/docs/build
 
 The reStructuredText source files that should be updated with each pull request are located in the :file:`/docs/source` directory. If developers wish to add new pictures to the documentation, image files should be added to the :file:`/docs/img` directory in either png or svg format. Developers can test out their changes to the documentation by recompiling the Sphinx documentation into HTML and viewing the updated HTML files.
 
-Likewise, in order to build a revised version of the :ref:`OpenMOC API <api>` from Doxygen-style comments in the Python and C++ source code, you may use the following console command from within the :file:`docs/doxygen` directory:
+Likewise, in order to build a revised version of the :ref:`OpenMOC API <api>` from Doxygen-style comments in the Python and C++ source code, you may use the following console command from within the :file:`/docs` directory:
 
 .. code-block:: none
 
     cd doxygen
     doxygen Doxyfile
 
-This will build a new version of the API in the :file:`doxygen/html` directory. From within the :file:`/docs/doxygen` directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:
+This will build a new version of the API in the :file:`/docs/doxygen/html` directory. From within the :file:`/docs/doxygen` directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:
 
 .. code-block:: none
 
@@ -82,7 +82,7 @@ Now that the HTML files have been built, you can checkout the **gh-pages** branc
     git checkout gh-pages
     git checkout -b gh-pages-update
 
-You can then copy the files from the :file:`docs` directory to the root OpenMOC directory on your new branch:
+You can then copy the files from the :file:`/docs` directory to the root OpenMOC directory on your new branch:
 
 .. code-block:: none
 
@@ -98,6 +98,8 @@ Since the :file:`.gitignore` file does not allow image and HTML files to be trac
     git push origin gh-pages-update
 
 The final step in updating the website documentation is to `pull request`_ to the ``gh-pages`` branch of the OpenMOC repository on GitHub as described in :ref:`Development Workflow <work_flow>`.
+
+.. note:: The diff for the pull request into **gh-pages** will likely be massive! The purpose of this pull request is not to conduct a code review, but rather to provide a transparent and publicly-available record of when the website documentation has been changed.
 
 .. _Sphinx: http://sphinx-doc.org/
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
