@@ -69,7 +69,7 @@
 <div class="section" id="writing-new-documentation">
 <h2>7.2. Writing New Documentation<a class="headerlink" href="#writing-new-documentation" title="Permalink to this headline">¶</a></h2>
 <p>This tutorial will not present any of the semantics of how to write documentation for Sphinx as that is well covered by its own tutorials. Likewise, the same is true for Doxygen-style comments, although the basics are presented in <a class="reference internal" href="style_guide.html#code-comments"><span>Code Comments</span></a>. Instead, this section presents the location of the source code and the basic console commands used to generate HTML documentation.</p>
-<p>First, the <code class="file docutils literal"><span class="pre">/docs/source</span></code> directory contains the reStructuredText source for the Sphinx documentation. In order to compile the Sphinx documentation into HTML, you can run the following from within the <code class="file docutils literal"><span class="pre">docs</span></code> directory:</p>
+<p>First, the <code class="file docutils literal"><span class="pre">/docs/source</span></code> directory contains the reStructuredText source for the Sphinx documentation. In order to compile the Sphinx documentation into HTML, you can run the following from within the <code class="file docutils literal"><span class="pre">/docs</span></code> directory:</p>
 <div class="highlight-none"><div class="highlight"><pre>cd docs
 make html
 </pre></div>
@@ -79,12 +79,12 @@ make html
 </pre></div>
 </div>
 <p>The reStructuredText source files that should be updated with each pull request are located in the <code class="file docutils literal"><span class="pre">/docs/source</span></code> directory. If developers wish to add new pictures to the documentation, image files should be added to the <code class="file docutils literal"><span class="pre">/docs/img</span></code> directory in either png or svg format. Developers can test out their changes to the documentation by recompiling the Sphinx documentation into HTML and viewing the updated HTML files.</p>
-<p>Likewise, in order to build a revised version of the <a class="reference internal" href="../doxygen/api.html#api"><span>OpenMOC API</span></a> from Doxygen-style comments in the Python and C++ source code, you may use the following console command from within the <code class="file docutils literal"><span class="pre">docs/doxygen</span></code> directory:</p>
+<p>Likewise, in order to build a revised version of the <a class="reference internal" href="../doxygen/api.html#api"><span>OpenMOC API</span></a> from Doxygen-style comments in the Python and C++ source code, you may use the following console command from within the <code class="file docutils literal"><span class="pre">/docs</span></code> directory:</p>
 <div class="highlight-none"><div class="highlight"><pre>cd doxygen
 doxygen Doxyfile
 </pre></div>
 </div>
-<p>This will build a new version of the API in the <code class="file docutils literal"><span class="pre">doxygen/html</span></code> directory. From within the <code class="file docutils literal"><span class="pre">/docs/doxygen</span></code> directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:</p>
+<p>This will build a new version of the API in the <code class="file docutils literal"><span class="pre">/docs/doxygen/html</span></code> directory. From within the <code class="file docutils literal"><span class="pre">/docs/doxygen</span></code> directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:</p>
 <div class="highlight-none"><div class="highlight"><pre>firefox html/index.html
 </pre></div>
 </div>
@@ -105,7 +105,7 @@ cd ../..
 git checkout -b gh-pages-update
 </pre></div>
 </div>
-<p>You can then copy the files from the <code class="file docutils literal"><span class="pre">docs</span></code> directory to the root OpenMOC directory on your new branch:</p>
+<p>You can then copy the files from the <code class="file docutils literal"><span class="pre">/docs</span></code> directory to the root OpenMOC directory on your new branch:</p>
 <div class="highlight-none"><div class="highlight"><pre>cp -r docs/build/html/* .
 cp -r docs/doxygen/html doxygen/
 </pre></div>
@@ -117,6 +117,10 @@ git push origin gh-pages-update
 </pre></div>
 </div>
 <p>The final step in updating the website documentation is to <a class="reference external" href="https://help.github.com/articles/using-pull-requests">pull request</a> to the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch of the OpenMOC repository on GitHub as described in <a class="reference internal" href="work_flow.html#work-flow"><span>Development Workflow</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The diff for the pull request into <strong>gh-pages</strong> will likely be massive! The purpose of this pull request is not to conduct a code review, but rather to provide a transparent and publicly-available record of when the website documentation has been changed.</p>
+</div>
 </div>
 </div>
 
