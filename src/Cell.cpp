@@ -1153,8 +1153,8 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
 
         /* Add ZCylinder only if this is not the outermost ring in an
          * unbounded Cell (i.e. the moderator in a fuel pin cell) */
-	if ((*iter2)->getRadius() < max_radius)
-            ring->addSurface(-1, (*iter2));
+        if ((*iter2)->getRadius() < max_radius)
+          ring->addSurface(-1, (*iter2));
 
         /* Look ahead and check if we have an inner ZCylinder to add */
         if (iter2+1 == zcylinders.end()) {
