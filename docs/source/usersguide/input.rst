@@ -451,7 +451,7 @@ Lastly, the rings and sectors can be used to discretize regions between 2 ``ZCyl
     moderator.setNumSectors(8)
 
 
-The annular pin cell materials are illustrated on the left below, with the resulting fuel and moderator discretization presented on the right.
+The annular pin cell materials are illustrated below on the left, with the resulting fuel and moderator discretization presented on the right.
 
 .. _figure_pin_cell_fsrs_moderator_annular:
      
