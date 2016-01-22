@@ -103,7 +103,8 @@ class TestHarness(object):
             raise ValueError(msg)
 
     def _get_results(self, num_iters=True, keff=True, fluxes=False,
-                     num_fsrs=False, hash_output=False):
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=False):
         """Digest info in the solver and return as a string."""
 
         outstr = ''
@@ -133,6 +134,16 @@ class TestHarness(object):
         if num_fsrs:
             num_fsrs = self.input_set.geometry.getNumFSRs()
             outstr += '# FSRs: {0}\n'.format(num_fsrs)
+
+        # Write out the number of tracks
+        if num_tracks:
+            num_tracks = self.track_generator.getNumTracks()
+            outstr += '# tracks: {0}\n'.format(num_tracks)
+
+        # Write out the number of segments
+        if num_segments:
+            num_segments = self.track_generator.getNumSegments()
+            outstr += '# segments: {0}\n'.format(num_segments)
 
         # Hash the results if necessary.
         if hash_output:
