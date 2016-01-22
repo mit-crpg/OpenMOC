@@ -396,7 +396,7 @@ The following code snippet illustrates how a user may designate a positive integ
     # Subdivide the moderator region into 16 angular sectors
     moderator.setNumSectors(16)
 
-The pin cell materials are illustrated on the left below, while the flat source regions with 3 equal volume rings and 12 sectors in the fuel, and 16 sectors in the moderator, are displayed on the right.
+The plots shown below illustrate the pin cell material layout (left) and flat source region layout (right) where the flat source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 16 sectors in the moderator.
 
 .. _figure_pin_cell_fsrs:
 
@@ -410,7 +410,7 @@ The pin cell materials are illustrated on the left below, while the flat source 
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-The user may wish to caputre gradients in the moderator by adding rings in the moderator. The following code snipet repeats the scenario above but with 2 rings in the moderator.
+The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above but with 2 rings in the moderator.
 
 .. code-block:: python
 
@@ -422,7 +422,7 @@ The user may wish to caputre gradients in the moderator by adding rings in the m
     moderator.setNumRings(2)
     moderator.setNumSectors(16)
 
-Again, the pin cell materials are illustrated on the left below, while the flat source regions are displayed on the right with 2 rings now present in the moderator.
+Again, the pin cell materials are illustrated below on the left, while the flat source regions are displayed on the right with 2 rings now present in the moderator.
 
 .. _figure_pin_cell_fsrs_moderator_rings:
 
@@ -436,7 +436,7 @@ Again, the pin cell materials are illustrated on the left below, while the flat 
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-Lastly, the rings and sectors can be used to discretize regions between 2 ``ZCylinder`` objects, such as annular fuel. The following code snipet discretizes annular fuel into 3 rings and 12 sectors with the inner and outer moderators both discretized into 8 sectors with no rings.
+Lastly, the rings and sectors can be used to discretize regions between 2 ``ZCylinder`` objects, such as annular fuel. The following code snippet discretizes annular fuel into 3 rings and 12 sectors with the inner and outer moderators both discretized into 8 sectors with no rings.
 
 .. code-block:: python
 
