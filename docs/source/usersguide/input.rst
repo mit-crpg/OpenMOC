@@ -405,7 +405,7 @@ The plots shown below illustrate the pin cell material layout (left) and flat so
    +--------------------------------------------------------+--------------------------------------------------------+
    | .. _figa:                                              | .. _figb:                                              |
    |                                                        |                                                        |
-   | .. image:: ../../img/pin-cell-fsrs-1.png               | .. image:: ../../img/pin-cell-fsrs-2.png               |
+   | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs.png                 |
    |   :width: 50 %                                         |   :width: 50 %                                         |
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
@@ -431,7 +431,7 @@ Again, the pin cell materials are illustrated below on the left, while the flat 
    +--------------------------------------------------------+--------------------------------------------------------+
    | .. _figa:                                              | .. _figb:                                              |
    |                                                        |                                                        |
-   | .. image:: ../../img/pin-cell-fsrs-1.png               | .. image:: ../../img/pin-cell-fsrs-moderator-rings.png |
+   | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs-moderator-rings.png |
    |   :width: 50 %                                         |   :width: 50 %                                         |
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
