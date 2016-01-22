@@ -10,7 +10,7 @@ cache:
   directories:
 
 before_install:
-  # ================ Get C++11-compatible compiler =================
+  # ========== Point apt-get to C++11-compatible compiler ==========
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
   # ============== Handle Python third-party packages ==============
@@ -29,15 +29,12 @@ before_install:
   - source activate test-environment
 
 install:
-- sudo apt-get install -qq g++-4.8 gcc-4.8
-- sudo rm /usr/bin/gcc
-- sudo rm /usr/bin/g++
-- sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc
-- sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
-- g++ --version
+  # ================= Get C++11-compatible compiler ==================
+  - sudo apt-get install -qq gcc-4.8
+  - sudo rm /usr/bin/gcc
+  - sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc
 
 script:
-  - g++ --version
   - cd tests
   - ./travis.sh
   - cd ..
