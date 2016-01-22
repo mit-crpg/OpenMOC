@@ -1,61 +1,35 @@
-# installation
+# Installation
 *.o
 *.cxx
 *.h.gch
 *.so
-*.pbs.e*
-*.pbs.o*
 *.pyc
-*/*.o
-*/*.cxx
-*/*.h.gch
-*/*.so
+*.o
+*.cxx
+*.h.gch
+*.so
 *~
-*/*~
-*/*.pbs.e*
-*/*.pbs.o*
-*/*.pyc
-build
 build/*
-dist
 dist/*
-
 openmoc/openmoc.py
 openmoc/openmoc_wrap.cpp
-
 openmoc/cuda/openmoc_cuda.py
 openmoc/cuda/openmoc_cuda_wrap.cpp
 
+# TORQUE log files
+*.pbs.e*
+*.pbs.o*
+
 # output files
 log
-log/*
-*/log
-*/log/*
 tracks
-tracks/*
-*/tracks
-*/tracks/*
+tracks
 plots
-plots/*
-*/plots
-*/plots/*
 fission-rates
-fission-rates/*
-*/fission-rates
-*/fission-rates/*
-simulation-state*
-simulation-state/*
-*/simulation-state*
-*/simulation-state*/*
-
-
+simulation-state
 *.data
-*/*.data
 *.png
-*/*.png
-
 openmoc-*-.log
-*/openmoc-*-.log
 
 Openmp
 */penmp
@@ -63,8 +37,7 @@ penmoc
 penmp-report
 */penmoc
 */penmp-report
-*.egg-info/*
-*/*.egg-info/
+*/*.egg-info/*
 
 #Documentation
 sphinx/
@@ -74,13 +47,10 @@ docs/doxygen/xml
 docs/doxyge/xml/*
 
 build/*
-*/build/
 */build/*
 
 # PyCharm configuration files
-.idea*
 .idea/*
-.idea/*.xml
 
 *.DS_Store
 */*.DS_Store
@@ -103,9 +73,17 @@ profile/models/homogeneous/homogeneous-one-group
 profile/models/homogeneous/homogeneous-one-group.o
 
 # IPython Notebook
-*/.ipynb_checkpoints/
+.ipynb_checkpoints/
 
 # OpenMC input files
 *.xml
 statepoint*
 summary*
+
+# Test results error file
+results_error.dat
+results_test.dat
+
+# Test build files
+tests/build/
+tests/ctestscript.run
