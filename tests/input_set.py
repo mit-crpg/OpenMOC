@@ -62,7 +62,7 @@ class HomInfMedInput(InputSet):
         ymax.setBoundaryType(openmoc.REFLECTIVE)
 
         cell = openmoc.Cell()
-        cell.setFill(self.materials['infinite_medium'])
+        cell.setFill(self.materials['infinite medium'])
         cell.addSurface(halfspace=+1, surface=xmin)
         cell.addSurface(halfspace=-1, surface=xmax)
         cell.addSurface(halfspace=+1, surface=ymin)
@@ -74,7 +74,7 @@ class HomInfMedInput(InputSet):
         self.geometry = openmoc.Geometry()
         self.geometry.setRootUniverse(root_universe)
 
-        super(PinCellInput, self).create_geometry()
+        super(HomInfMedInput, self).create_geometry()
 
 
 class PinCellInput(InputSet):
