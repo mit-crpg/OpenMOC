@@ -16,14 +16,14 @@ parser = OptionParser()
 parser.add_option('-j', '--parallel', dest='n_procs', default='1',
                   help="Number of parallel jobs.")
 parser.add_option('-R', '--tests-regex', dest='regex_tests',
-                  help="Run tests matching regular expression. \
-                  Test names are the directories present in tests folder.\
-                  This uses standard regex syntax to select tests.")
+                  help="Run tests matching regular expression. "
+                  "Test names are the directories present in tests folder. "
+                  "This uses standard regex syntax to select tests.")
 parser.add_option('-C', '--build-config', dest='build_config',
-                  help="Build configurations matching regular expression. \
-                        Specific build configurations can be printed out with \
-                        optional argument -p, --print. This uses standard \
-                        regex syntax to select build configurations.")
+                  help="Build configurations matching regular expression. "
+                        "Specific build configurations can be printed out with "
+                        "optional argument -p, --print. This uses standard "
+                        "regex syntax to select build configurations.")
 parser.add_option('-l', '--list', action="store_true",
                   dest="list_build_configs", default=False,
                   help="List out build configurations.")
@@ -51,8 +51,8 @@ class Test(object):
 
         setup_cmd = ['python', 'setup.py', 'install']
         setup_cmd += ['--install-purelib=tests/openmoc']
-        setup_cmd += ['--cc={}'.format(self.cc)]
-        setup_cmd += ['--fp={}'.format(self.fp)]
+        setup_cmd += ['--cc={0}'.format(self.cc)]
+        setup_cmd += ['--fp={0}'.format(self.fp)]
         if self.debug:
             setup_cmd += ['--debug-mode']
 

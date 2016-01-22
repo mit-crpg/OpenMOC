@@ -16,6 +16,8 @@ class TestHarness(object):
     """General class for running OpenMOC regression tests."""
     def __init__(self):
 
+        openmoc.log.set_log_level('NORMAL')
+
         # Define default simulation parameters
         self.num_threads = 1
         self.spacing = 0.1
@@ -84,8 +86,6 @@ class TestHarness(object):
     def run_openmoc(self):
         """Run an OpenMOC eigenvalue or fixed source calculation."""
 
-        openmoc.log.set_log_level('NORMAL')
-
         self.input_set.create_materials()
         self.input_set.create_geometry()
         self.create_trackgenerator()
@@ -99,15 +99,19 @@ class TestHarness(object):
         elif self.calc_mode == 'subcritical':
             self.solver.computeSource(self.max_iters, res_type=self.res_type)
         else:
-            msg = 'Unable to run OpenMOC in mode {}'.format(self.calc_mode)
+            msg = 'Unable to run OpenMOC in mode {0}'.format(self.calc_mode)
             raise ValueError(msg)
 
-    def _get_results(self, keff=True, fluxes=False, hash_output=False):
-        """Digest info in the statepoint and return as a string."""
+    def _get_results(self, num_iters=True, keff=True, fluxes=False,
+                     num_fsrs=False, hash_output=False):
+        """Digest info in the solver and return as a string."""
+
+        outstr = ''
 
         # Write out the number of iterations
-        num_iters = self.solver.getNumIterations()
-        outstr = '# Iterations: {0}\n'.format(num_iters)
+        if num_iters:
+            num_iters = self.solver.getNumIterations()
+            outstr += '# Iterations: {0}\n'.format(num_iters)
 
         # Write out the eigenvalue
         if keff and self.calc_mode == 'eigenvalue':
@@ -124,6 +128,11 @@ class TestHarness(object):
             # Add the fluxes to the output string
             outstr += 'fluxes:\n'
             outstr += '\n'.join(fluxes) + '\n'
+
+        # Write out the number of FSRs
+        if num_fsrs:
+            num_fsrs = self.input_set.geometry.getNumFSRs()
+            outstr += '# FSRs: {0}\n'.format(num_fsrs)
 
         # Hash the results if necessary.
         if hash_output:
@@ -157,7 +166,7 @@ class TestHarness(object):
         outputs.append(os.path.join(os.getcwd(), 'log'))
         outputs.append(os.path.join(os.getcwd(), 'plots'))
         outputs.append(os.path.join(os.getcwd(), 'simulation-state'))
-        outputs.append(os.path.join(os.getcwd(), 'results_test.dat'))
+        outputs.append(os.path.join(os.getcwd(), 'fission-rates'))
         outputs.append(os.path.join(os.getcwd(), 'results_test.dat'))
 
         # Remove each file / directory if it exists
