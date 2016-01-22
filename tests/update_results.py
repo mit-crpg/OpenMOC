@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 import re
 from subprocess import Popen
@@ -32,8 +34,6 @@ for adir in sorted(folders):
 
     # Go into that directory
     os.chdir(adir)
-    pwd = os.path.abspath(os.path.dirname('settings.xml'))
-    os.putenv('PWD', pwd)
 
     # Print status to screen
     print(adir, end="")
@@ -43,8 +43,8 @@ for adir in sorted(folders):
 
     # Find the test executable
     test_exec = glob('test_*.py')
-    assert len(test_exec) == 1, 'There must be only one test executable per ' \
-         'test directory'
+    assert len(test_exec) == 1, \
+        'There must be only one test executable per test directory'
 
     # Update the test results
     proc = Popen(['python', test_exec[0], '--update'])

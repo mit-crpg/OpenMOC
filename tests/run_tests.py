@@ -112,7 +112,7 @@ def add_test(name, num_threads=1, debug=False, ):
 # a subset of these configurations
 add_test('normal', num_threads=1)
 #add_test('normal-openmp', num_threads=4)
-add_test('debug', num_threads=1, debug=True)
+#add_test('debug', num_threads=1, debug=True)
 #add_test('debug-openmp', num_threads=4, debug=True)
 
 # Check to see if we should just print build configuration information to user
