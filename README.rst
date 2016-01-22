@@ -2,10 +2,10 @@
 OpenMOC
 =======
 
+.. image:: https://api.travis-ci.org/mit-crpg/OpenMOC.svg?branch=develop
+    :target: https://travis-ci.org/mit-crpg/OpenMOC
 .. image:: https://img.shields.io/badge/powered%20by-OpenMOC-blue.svg
     :target: https://mit-crpg.github.io/OpenMOC/
-.. image:: https://img.shields.io/badge/pypi-v0.1.4b-orange.svg
-    :target: https://pypi.python.org/pypi/openmoc/0.1.4b
 .. image:: https://img.shields.io/badge/license-MIT%20License-brightgreen.svg
     :target: https://mit-crpg.github.io/OpenMOC/license.html
 .. image:: https://img.shields.io/badge/anucene-Elsevier-lightgray.svg
