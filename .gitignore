@@ -86,5 +86,4 @@ results_test.dat
 
 # Test build files
 openmoc/
-tests/
 *.log
