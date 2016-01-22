@@ -22,7 +22,6 @@ class InputSet(object):
     @abstractmethod
     def create_geometry(self):
         """Instantiate a Geometry."""
-        self.geometry.initializeFlatSourceRegions()
         return
 
 
