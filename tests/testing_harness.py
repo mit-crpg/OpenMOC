@@ -112,7 +112,7 @@ class TestHarness(object):
         # Write out the eigenvalue
         if keff and self.calc_mode == 'eigenvalue':
             keff = self.solver.getKeff()
-            outstr += 'keff: {0:12.6E}'.format(keff)
+            outstr += 'keff: {0:12.5E}'.format(keff)
 
         if fluxes:
             # Get the fluxes for each FSR and energy group
@@ -154,8 +154,10 @@ class TestHarness(object):
 
         # Create list of directories and/or files to remove
         outputs = [os.path.join(os.getcwd(), 'tracks')]
+        outputs.append(os.path.join(os.getcwd(), 'log'))
         outputs.append(os.path.join(os.getcwd(), 'plots'))
         outputs.append(os.path.join(os.getcwd(), 'simulation-state'))
+        outputs.append(os.path.join(os.getcwd(), 'results_test.dat'))
         outputs.append(os.path.join(os.getcwd(), 'results_test.dat'))
 
         # Remove each file / directory if it exists
