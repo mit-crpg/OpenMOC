@@ -383,7 +383,7 @@ Rings can be created inside of a ``ZCylinder``, between two ``ZCylinder`` object
 .. math::
   R_\textit{eff} = \sqrt{\frac{\Delta x \Delta y}{\pi}}
 
-where :math:`\Delta x` is the width of the ``Cell`` in the :math:`x`-direction and :math:`\Delta y` is the width of the ``Cell`` in the :math:`y`-direction. Equal volume rings are then created between the inner bounding ``ZCylinder`` and this effective bounding radius. Note that in this case the regions will not be of equal volume since the effective bounding cricle will lay partially outside of the boundaries of the ``Cell``.
+where :math:`\Delta x` is the width of the ``Cell`` in the :math:`x`-direction and :math:`\Delta y` is the width of the ``Cell`` in the :math:`y`-direction. Equal volume rings are then created between the inner bounding ``ZCylinder`` and this effective bounding radius. Note that in this case the regions will not be of equal volume since the effective bounding cylinder will lay partially outside of the boundaries of the ``Cell``.
 
 The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin ``Cells`` and a positive integral number of sectors with no rings for moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
 
@@ -410,7 +410,7 @@ The plots shown below illustrate the pin cell material layout (left) and flat so
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above but with 2 rings in the moderator.
+The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above, but with 2 rings in the moderator.
 
 .. code-block:: python
 
@@ -418,7 +418,7 @@ The user may wish to capture gradients in the moderator by adding rings in the m
     fuel.setNumRings(3)
     fuel.setNumSectors(12)
 
-    # Subdivide the moderator region into 2 rings 16 angular sectors
+    # Subdivide the moderator region into 2 rings and 16 angular sectors
     moderator.setNumRings(2)
     moderator.setNumSectors(16)
 
@@ -436,19 +436,19 @@ Again, the pin cell materials are illustrated below on the left, while the flat 
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-Lastly, the rings and sectors can be used to discretize regions between 2 ``ZCylinder`` objects, such as annular fuel. The following code snippet discretizes annular fuel into 3 rings and 12 sectors with the inner and outer moderators both discretized into 8 sectors with no rings.
+Lastly, the rings and sectors can be used to discretize regions between 2 ``ZCylinder`` objects, such as annular fuel. The following code snippet discretizes annular fuel into 3 rings and 12 sectors with the inner coolant and outer moderator both discretized into 8 sectors with no rings.
 
 .. code-block:: python
 
-    # Subdivide the inner moderator region into 8 angular sectors
-    fuel.setNumSectors(8)
+    # Subdivide the inner coolant region into 8 angular sectors
+    inner_coolant.setNumSectors(8)
 
     # Subdivide the annular fuel region into 3 rings and 12 sectors
     fuel.setNumRings(3)
     fuel.setNumSectors(12)
 
     # Subdivide the outer moderator region into 8 angular sectors
-    moderator.setNumSectors(8)
+    outer_moderator.setNumSectors(8)
 
 
 The annular pin cell materials are illustrated below on the left, with the resulting fuel and moderator discretization presented on the right.
