@@ -5,9 +5,7 @@ python:
 addons:
   apt:
     packages:
-    - g++
     - swig
-    - build-essential
 cache:
   directories:
 
@@ -31,8 +29,12 @@ before_install:
   - source activate test-environment
 
 install:
-- sudo apt-get install -qq g++-4.8
-- export CXX="g++-4.8"
+- sudo apt-get install -qq g++-4.8 gcc-4.8
+- sudo rm /usr/bin/gcc
+- sudo rm /usr/bin/g++
+- sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc
+- sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
+- g++ --version
 
 script:
   - g++ --version
