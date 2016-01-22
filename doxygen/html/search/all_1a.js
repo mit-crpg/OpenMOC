@@ -8,7 +8,6 @@ var searchData=
   ['_7efixedhashmap',['~FixedHashMap',['../classFixedHashMap.html#a9f697747c2dbe27ec6ecd7ea71b6a02a',1,'FixedHashMap']]],
   ['_7efsr_5fdata',['~fsr_data',['../structfsr__data.html#a7b303bccc394b7969ee0371dcb9ca2f4',1,'fsr_data']]],
   ['_7egeometry',['~Geometry',['../classGeometry.html#ad55e832122ab3a2833dcaa6507867678',1,'Geometry']]],
-  ['_7egpusolver',['~GPUSolver',['../classGPUSolver.html#ad1e93fffcb26624da0fa621248a944d2',1,'GPUSolver']]],
   ['_7elattice',['~Lattice',['../classLattice.html#a91be54ce9927b6bc53d30a2faf760780',1,'Lattice']]],
   ['_7elocalcoords',['~LocalCoords',['../classLocalCoords.html#a1864bf1ab24fc1e785db20bc24185754',1,'LocalCoords']]],
   ['_7ematerial',['~Material',['../classMaterial.html#a2c19452d71f54075df8f5405b03129f4',1,'Material']]],

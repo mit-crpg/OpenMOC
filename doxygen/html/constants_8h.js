@@ -11,6 +11,8 @@ var constants_8h =
     [ "MAX_OPTICAL_LENGTH", "constants_8h.html#a895b93c581aefe76e1ccc425bb95a8c5", null ],
     [ "NUM_CORNERS", "constants_8h.html#a9737403baa8af91db06b84f88c115d43", null ],
     [ "NUM_SURFACES", "constants_8h.html#af1f6258b779d2016336c749856fe2972", null ],
+    [ "NUM_VALUES_PER_RETRIEVED_SEGMENT", "constants_8h.html#aea52b0deb6a8027af3d8775beeecd367", null ],
+    [ "NUM_VALUES_PER_RETRIEVED_TRACK", "constants_8h.html#a6217f122191af9ef96d319988bb162b9", null ],
     [ "ON_LATTICE_CELL_THRESH", "constants_8h.html#ad8a93cce3a9cd77aa9fc698dd9af26e7", null ],
     [ "ON_SURFACE_THRESH", "constants_8h.html#a5ff2a7fbf6ba25f47f298c79f39dc4f8", null ],
     [ "ONE_OVER_FOUR_PI", "constants_8h.html#a662cb71fde841f2762641d9f82e1fbb5", null ],

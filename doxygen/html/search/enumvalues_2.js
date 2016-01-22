@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['debug',['DEBUG',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a0593585da9181e972974c1274d8f2b4f',1,'log.h']]]
+  ['critical',['CRITICAL',['../log_8h.html#a5096002e05063d13577205e0bc5f0564acda21a4a072f2261f6d4ab596599f8b0',1,'log.h']]]
 ];

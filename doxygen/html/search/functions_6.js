@@ -3,6 +3,7 @@ var searchData=
   ['findboundingbox',['findBoundingBox',['../classCell.html#aec048b4d5a04383288e1d5c7a40b78e9',1,'Cell']]],
   ['findcell',['findCell',['../classUniverse.html#a2fb122abbc8f47165642d8457f700733',1,'Universe::findCell()'],['../classLattice.html#a6ee2ee63e17bbfff4bc7de3b04a598fe',1,'Lattice::findCell()']]],
   ['findcellcontainingcoords',['findCellContainingCoords',['../classGeometry.html#ab09d1ee4b8da5d3e60d5745d2a044185',1,'Geometry']]],
+  ['findcellcontainingfsr',['findCellContainingFSR',['../classGeometry.html#ae41e24b98d4216c44984c77ef95fc05f',1,'Geometry']]],
   ['findcmfdcell',['findCmfdCell',['../classCmfd.html#a676f7fcd8476cda7c4f4c42d44c266da',1,'Cmfd']]],
   ['findcmfdcorner',['findCmfdCorner',['../classCmfd.html#a89d7f15014b4b9a4f830895593eba12e',1,'Cmfd']]],
   ['findcmfdsurface',['findCmfdSurface',['../classCmfd.html#ad58b5b64841b7d8bc28b48acbc0b4790',1,'Cmfd']]],

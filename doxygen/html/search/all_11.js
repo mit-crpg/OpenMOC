@@ -12,9 +12,12 @@ var searchData=
   ['reset_5fmaterial_5fid',['reset_material_id',['../Material_8h.html#ac302c7b523c507299ef6c02a37c5cbad',1,'Material.cpp']]],
   ['reset_5fsurf_5fid',['reset_surf_id',['../Surface_8h.html#a1427b307e4ad78897e551270bc112c29',1,'Surface.cpp']]],
   ['reset_5funiverse_5fid',['reset_universe_id',['../Universe_8h.html#aa28b6af91940e7a6d3ab828bb0cebe3f',1,'Universe.cpp']]],
+  ['resetmaterials',['resetMaterials',['../classSolver.html#ae283d5e199fb47d604d13d0f9cd3d4cb',1,'Solver']]],
   ['residualtype',['residualType',['../Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be',1,'Solver.h']]],
   ['restore_5fsimulation_5fstate',['restore_simulation_state',['../namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93',1,'openmoc::process']]],
   ['result',['RESULT',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b',1,'log.h']]],
+  ['retrieverotation',['retrieveRotation',['../classCell.html#a8a25a500988c028462ee9bd2594414e9',1,'Cell']]],
   ['retrievesegmentcoords',['retrieveSegmentCoords',['../classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504',1,'TrackGenerator']]],
-  ['retrievetrackcoords',['retrieveTrackCoords',['../classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935',1,'TrackGenerator']]]
+  ['retrievetrackcoords',['retrieveTrackCoords',['../classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935',1,'TrackGenerator']]],
+  ['retrievetranslation',['retrieveTranslation',['../classCell.html#a36a3488d0dc4cdd1c645a71ad269ba8f',1,'Cell']]]
 ];

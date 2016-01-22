@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['vector',['Vector',['../classVector.html',1,'']]],
-  ['vectorizedsolver',['VectorizedSolver',['../classVectorizedSolver.html',1,'']]]
+  ['xplane',['XPlane',['../classXPlane.html',1,'']]]
 ];

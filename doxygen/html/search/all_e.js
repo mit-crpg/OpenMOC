@@ -7,9 +7,9 @@ var searchData=
   ['on_5flattice_5fcell_5fthresh',['ON_LATTICE_CELL_THRESH',['../constants_8h.html#ad8a93cce3a9cd77aa9fc698dd9af26e7',1,'constants.h']]],
   ['on_5fsurface_5fthresh',['ON_SURFACE_THRESH',['../constants_8h.html#a5ff2a7fbf6ba25f47f298c79f39dc4f8',1,'constants.h']]],
   ['one_5fover_5ffour_5fpi',['ONE_OVER_FOUR_PI',['../constants_8h.html#a662cb71fde841f2762641d9f82e1fbb5',1,'constants.h']]],
-  ['operator_28_29',['operator()',['../structisinf__test.html#a9e0455e188bbe71cbddcf0affd832c27',1,'isinf_test::operator()(double a)'],['../structisinf__test.html#a99c56e498dc11ea229fc9c4d73e556f1',1,'isinf_test::operator()(float a)'],['../structisnan__test.html#adcff003d32cd87734d88380402a08c03',1,'isnan_test::operator()(double a)'],['../structisnan__test.html#a6cbc837b60293642b022ab5094e88748',1,'isnan_test::operator()(float a)']]],
-  ['options',['options',['../namespaceopenmoc_1_1options.html',1,'openmoc']]],
   ['options',['Options',['../classopenmoc_1_1options_1_1Options.html',1,'openmoc::options']]],
+  ['options',['options',['../namespaceopenmoc_1_1options.html',1,'openmoc']]],
   ['options_2epy',['options.py',['../options_8py.html',1,'']]],
+  ['plotter',['plotter',['../namespaceopenmoc_1_1plotter.html',1,'openmoc']]],
   ['process',['process',['../namespaceopenmoc_1_1process.html',1,'openmoc']]]
 ];

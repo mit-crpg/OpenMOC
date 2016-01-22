@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['plane',['Plane',['../classCircle.html#a89c71bac3ec153ca700e1cd69900b6ce',1,'Circle']]]
+  ['surface',['Surface',['../classPlane.html#a432070efb8401735ea64bc0e98feebe5',1,'Plane::Surface()'],['../classZCylinder.html#a432070efb8401735ea64bc0e98feebe5',1,'ZCylinder::Surface()']]]
 ];
