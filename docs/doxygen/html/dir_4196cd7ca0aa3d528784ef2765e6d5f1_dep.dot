@@ -1,9 +1,0 @@
-digraph "/home/wbinventor/OpenMOC/openmoc/gnu/single/" {
-  compound=true
-  node [ fontsize="10", fontname="Helvetica"];
-  edge [ labelfontsize="10", labelfontname="Helvetica"];
-  subgraph clusterdir_3fa9e6483d17027c78a49ff5f1039d10 {
-    graph [ bgcolor="#ddddee", pencolor="black", label="gnu" fontname="Helvetica", fontsize="10", URL="dir_3fa9e6483d17027c78a49ff5f1039d10.html"]
-  dir_4196cd7ca0aa3d528784ef2765e6d5f1 [shape=box, label="single", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_4196cd7ca0aa3d528784ef2765e6d5f1.html"];
-  }
-}

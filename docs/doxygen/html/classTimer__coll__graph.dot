@@ -1,6 +1,0 @@
-digraph "Timer"
-{
-  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
-  node [fontname="Helvetica",fontsize="10",shape=record];
-  Node1 [label="{Timer\n||+ Timer()\l+ ~Timer()\l+ startTimer()\l+ stopTimer()\l+ recordSplit()\l+ getTime()\l+ getSplit()\l+ printSplits()\l+ clearSplit()\l+ clearSplits()\l+ Get()\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
-}

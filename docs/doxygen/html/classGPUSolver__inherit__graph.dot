@@ -1,8 +1,0 @@
-digraph "GPUSolver"
-{
-  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
-  node [fontname="Helvetica",fontsize="10",shape=record];
-  Node1 [label="{GPUSolver\n||+ GPUSolver()\l+ ~GPUSolver()\l+ getNumThreadBlocks()\l+ getNumThreadsPerBlock()\l+ getFSRScalarFlux()\l+ getFSRScalarFluxes()\l+ getFSRSource()\l+ setNumThreadBlocks()\l+ setNumThreadsPerBlock()\l+ setGeometry()\l+ setTrackGenerator()\l+ computeScalarTrackIndex()\l+ computeFSRFissionRates()\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
-  Node2 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",arrowtail="onormal",fontname="Helvetica"];
-  Node2 [label="{Solver\n|# _num_azim\l# _num_groups\l# _num_FSRs\l# _num_mesh_cells\l# _FSR_volumes\l# _FSR_materials\l# _track_generator\l# _geometry\l# _num_materials\l# _quad\land 33 more...\l|+ Solver()\l+ ~Solver()\l+ getGeometry()\l+ getTrackGenerator()\l+ getNumPolarAngles()\l+ getPolarQuadratureType()\l+ getNumIterations()\l+ getTotalTime()\l+ getKeff()\l+ getSourceConvergenceThreshold()\land 18 more...\l# round_to_int()\l# round_to_int()\l# initializePolarQuadrature()\l# initializeFluxArrays()\l# initializeSourceArrays()\l# buildExpInterpTable()\l# initializeFSRs()\l# initializeCmfd()\l# checkTrackSpacing()\l# zeroTrackFluxes()\land 8 more...\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classSolver.html",tooltip="This is an abstract base class which different Solver subclasses implement for different architecture..."];
-}
