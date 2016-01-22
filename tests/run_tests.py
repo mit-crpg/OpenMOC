@@ -7,8 +7,7 @@ import sys
 import shutil
 import re
 import glob
-import socket
-from subprocess import call
+import subprocess
 from collections import OrderedDict
 from optparse import OptionParser
 
@@ -20,76 +19,101 @@ parser.add_option('-R', '--tests-regex', dest='regex_tests',
                   help="Run tests matching regular expression. \
                   Test names are the directories present in tests folder.\
                   This uses standard regex syntax to select tests.")
+parser.add_option('-C', '--build-config', dest='build_config',
+                  help="Build configurations matching regular expression. \
+                        Specific build configurations can be printed out with \
+                        optional argument -p, --print. This uses standard \
+                        regex syntax to select build configurations.")
+parser.add_option('-l', '--list', action="store_true",
+                  dest="list_build_configs", default=False,
+                  help="List out build configurations.")
 (options, args) = parser.parse_args()
+
+# Default build options
+CC = 'gcc'
+FP = 'double'
 
 # Define test data structure
 tests = OrderedDict()
 
 class Test(object):
-    def __init__(self, name, debug=False):
+    def __init__(self, name, num_threads=1, debug=False):
         self.name = name
+        self.cc = CC
+        self.fp = FP
+        self.num_threads = num_threads
         self.debug = debug
         self.success = True
         self.msg = None
-        self.skipped = False
 
-        # FIXME: Set this up for different compilers???
-
-    # Sets up build options for various tests. It is used both
-    # in script and non-script modes
-    def get_build_opts(self):
-        build_str = ""
-        if self.debug:
-            build_str += "-Ddebug=ON "
-        if self.coverage:
-            build_str += "-Dcoverage=ON "
-        self.build_opts = build_str
-        return self.build_opts
-
-    # FIXME: Run setup.py install
     def run_setup_install(self):
-        """
-        rc = call(self.cmake)
+        """Install OpenMOC with distutils"""
+
+        setup_cmd = ['python', 'setup.py', 'install']
+        setup_cmd += ['--prefix=tests/build']
+        setup_cmd += ['--cc={}'.format(self.cc)]
+        setup_cmd += ['--fp={}'.format(self.fp)]
+        if self.debug:
+            setup_cmd += ['--debug-mode']
+
+        # Run setup.py installation script
+        rc = subprocess.call(setup_cmd)
+
+        # Check for error code
         if rc != 0:
             self.success = False
             self.msg = 'Failed on setup.py'
-        """
 
-    # Runs make when in non-script mode
-    def run_make(self):
+    def run_cmake(self):
+        """Run CMake to create CTest script"""
+
+        cmake_cmd = ['cmake', '-H..', '-Bbuild']
+        # FIXME: Is this needed?
+        cmake_cmd += ['-DPYTHON_EXECUTABLE=' + sys.executable]
+
+        # Run CMake
+        rc = subprocess.call(cmake_cmd)
+
+        # Check for error code
+        if rc != 0:
+            self.success = False
+            self.msg = 'Failed on cmake.'
+
+    def run_ctests(self):
+        """Run CTest on all tests"""
         if not self.success:
             return
 
-        # Default distutils build string
-        make_list = ['python','setup.py', 'build_ext']
+        # Default CTest string
+        ctest_cmd = ['ctest']
 
-        # Use distutils to build OpenMOC
-        rc = call(make_list)
+        # Check for parallel
+        if options.n_procs:
+            ctest_cmd += ['-j', str(options.n_procs)]
+
+        # Check for subset of tests
+        if options.regex_tests:
+            ctest_cmd += ['-R', str(options.regex_tests)]
+
+        # Run CTest
+        rc = subprocess.call(ctest_cmd)
+
+        # Check for error code
         if rc != 0:
             self.success = False
-            self.msg = 'Failed on setup.py'
+            self.msg = 'Failed on testing.'
 
-    # Checks to see if file exists in PWD or PATH
-    def check_compiler(self):
-        result = False
-        if os.path.isfile(self.fc):
-            result = True
-        for path in os.environ["PATH"].split(":"):
-            if os.path.isfile(os.path.join(path, self.fc)):
-                result = True
-        if not result:
-            self.msg = 'Compiler not found: {0}'.\
-                       format((os.path.join(path, self.fc)))
-            self.success = False
 
 # Simple function to add a test to the global tests dictionary
-def add_test(name, debug=False):
-    tests.update({name: Test(name, debug)})
+def add_test(name, num_threads=1, debug=False, ):
+    tests.update({name: Test(name, num_threads, debug)})
 
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
-add_test('normal')
-add_test('debug', debug=True)
+add_test('normal', num_threads=1)
+#add_test('normal-openmp', num_threads=4)
+add_test('debug', num_threads=1, debug=True)
+#add_test('debug-openmp', num_threads=4, debug=True)
 
 # Check to see if we should just print build configuration information to user
 if options.list_build_configs:
@@ -110,9 +134,11 @@ if len(list(tests.keys())) == 0:
     print('No tests to run.')
     exit()
 
-# Begin testing
+# Removes all binary track and output files from tests
 shutil.rmtree('build', ignore_errors=True)
-call(['./cleanup']) # removes all binary and hdf5 output files from tests
+subprocess.call(['./cleanup'])
+
+# Run each Test in sequence
 for key in iter(tests):
     test = tests[key]
 
@@ -121,37 +147,28 @@ for key in iter(tests):
     print('-'*(len(key) + 6))
     sys.stdout.flush()
 
-    # Verify fortran compiler exists
-    test.check_compiler()
-    if not test.success:
-        continue
+    # Run CMake to setup CTest
+    test.run_cmake()
 
-    if not test.success:
-        continue
+    # Go into main OpenMOC directory
+    os.chdir('..')
 
-    # Get coverage command
-    if test.coverage:
-        test.find_coverage()
-    if not test.success:
-        continue
-
-    # Run setup.py to configure build
+    # Run setup.py to build and install OpenMOC
     test.run_setup_install()
 
     # Go into build directory
-    os.chdir('build')
+    os.chdir('tests/build')
 
-    # Build OpenMC
-    test.run_make()
+    # FIXME: Set PYTHONPATH to /tests/build
+
+    # Run CTest
+    test.run_ctests()
 
     # Leave build directory
     os.chdir('..')
 
     # Copy over log file
-    if script_mode:
-        logfile = glob.glob('build/Testing/Temporary/LastTest_*.log')
-    else:
-        logfile = glob.glob('build/Testing/Temporary/LastTest.log')
+    logfile = glob.glob('build/Testing/Temporary/LastTest.log')
     if len(logfile) > 0:
         logfilename = os.path.split(logfile[0])[1]
         logfilename = os.path.splitext(logfilename)[0]
@@ -160,9 +177,7 @@ for key in iter(tests):
 
     # Clear build directory and remove binary and hdf5 files
     shutil.rmtree('build', ignore_errors=True)
-    if script_mode:
-        os.remove('ctestscript.run')
-    call(['./cleanup'])
+    subprocess.call(['./cleanup'])
 
 # Print out summary of results
 print('\n' + '='*54)

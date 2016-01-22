@@ -87,3 +87,4 @@ results_test.dat
 # Test build files
 tests/build/
 tests/ctestscript.run
+*.log
