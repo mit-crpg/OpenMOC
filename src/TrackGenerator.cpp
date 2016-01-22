@@ -587,6 +587,9 @@ void TrackGenerator::generateTracks() {
   if (_geometry->getCmfd() != NULL)
     _geometry->initializeCmfd();
 
+  /* Initialize FSRs with pin cell discretization and neighbor cell lists */
+  _geometry->initializeFSRs();
+
   initializeTrackFileDirectory();
 
   /* If not Tracks input file exists, generate Tracks */
@@ -1258,9 +1261,6 @@ void TrackGenerator::segmentize() {
   log_printf(NORMAL, "Ray tracing for track segmentation...");
 
   Track* track;
-
-  /* Initialize FSRs with pin cell discretization and neighbor cell lists */
-  _geometry->initializeFSRs();
 
   /* This section loops over all Track and segmentizes each one if the
    * Tracks were not read in from an input file */
