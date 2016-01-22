@@ -58,6 +58,7 @@ class Test(object):
 
         # Run setup.py installation script
         rc = subprocess.call(setup_cmd)
+        rc = subprocess.call(setup_cmd)
 
         # Check for error code
         if rc != 0:
