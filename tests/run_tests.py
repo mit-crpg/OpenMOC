@@ -172,9 +172,6 @@ for key in iter(tests):
         logfilename = logfilename + '_{0}.log'.format(test.name)
         shutil.copy(logfile[0], logfilename)
 
-    with open('LastTest_normal.log', 'r') as fin:
-        print(fin.read())
-
     # Clear build directory and remove binary and hdf5 files
     shutil.rmtree('build', ignore_errors=True)
     shutil.rmtree('openmoc', ignore_errors=True)
