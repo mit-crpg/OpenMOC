@@ -36,9 +36,7 @@ class SectorTestHarness(TestHarness):
 
         return super(SectorTestHarness, self)._get_results(num_iters=num_iters,
                                                            keff=keff,
-                                                           fluxes=fluxes,
-                                                           num_fsrs=num_fsrs,
-                                                           hash_output=hash_output)
+                                                           num_fsrs=num_fsrs)
 
 
 if __name__ == '__main__':
