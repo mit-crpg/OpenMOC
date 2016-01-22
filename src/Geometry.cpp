@@ -440,22 +440,12 @@ Cell* Geometry::findFirstCell(LocalCoords* coords) {
 
 /**
  * @brief Find the Material for a flat source region ID.
- * @details  This method finds the fsr_id within the
- *           _FSR_to_material_IDs map and returns the corresponding
- *           pointer to the Material object.
  * @param fsr_id a FSR id
  * @return a pointer to the Material that this FSR is in
  */
 Material* Geometry::findFSRMaterial(int fsr_id) {
-
-  std::map<int, Material*> all_materials;
-
-  if (_all_materials.size() == 0)
-    all_materials = getAllMaterials();
-  else
-    all_materials = _all_materials;
-
-  return all_materials[_FSRs_to_material_IDs.at(fsr_id)];
+  Cell* cell = findCellContainingFSR(fsr_id);
+  return cell->getFillMaterial();
 }
 
 
@@ -740,7 +730,8 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 
 
 /**
- * @brief Subidivides all Cells in the Geometry into rings and angular sectors.
+ * @brief Subdivides all Cells in the Geometry into rings and angular sectors
+ *        aligned with the z-axis.
  * @details This method is called by the Geometry::initializeFlatSourceRegions()
  *          method but may also be called by the user in Python if needed:
  *
@@ -750,14 +741,12 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
  */
 void Geometry::subdivideCells() {
 
-  std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
-  std::map<int, Universe*>::iterator iter;
+  /* Compute equivalent radius with the same area as the Geometry */
+  /* This is used as the maximum radius for all ringified Cells */
+  double max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
 
-  /* Loop over all Universe in the Geometry and instruct each to inform
-   * their Cells to subdivide into rings and sectors as specified by
-   * the user during Cell instantiation */
-  for (iter = all_universes.begin(); iter != all_universes.end(); ++iter)
-    (*iter).second->subdivideCells();
+  /* Recursively subdivide Cells into rings and sectors */
+  _root_universe->subdivideCells(max_radius);
 }
 
 

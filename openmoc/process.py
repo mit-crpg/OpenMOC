@@ -50,6 +50,44 @@ def is_float(val):
 
 
 ##
+# @brief Return an array of scalar fluxes in one or more FSRs and groups.
+# @details This routine builds a 2D NumPy array indexed by FSR and energy
+#          group for the corresponding scalar fluxes. The fluxes are organized
+#          in the array in order of increasing FSR and enery group if 'all'
+#          FSRs or energy groups are requested (the default). If the user
+#          requests fluxes for specific FSRs or energy groups, then the
+#          fluxes are returned in the order in which the FSRs and groups
+#          are enumerated in the associated paramters.
+# @param solver an OpenMOC Solver object
+# @param fsrs a list of integer FSRs or 'all' (default)
+# @param groups a list of integer energy groups or 'all' (default)
+# @return
+def get_scalar_fluxes(solver, fsrs='all', groups='all'):
+
+  # Build a list of FSRs to iterate over
+  if fsrs == 'all':
+    num_fsrs = solver.getGeometry().getNumFSRs()
+    fsrs = np.arange(num_fsrs)
+  else:
+    num_fsrs = len(fsrs)
+
+  # Build a list of enery groups to iterate over
+  if groups == 'all':
+    num_groups = solver.getGeometry().getNumEnergyGroups()
+    groups = np.arange(num_groups) + 1
+  else:
+    num_groups = len(groups)
+
+  # Extract the FSR scalar fluxes
+  fluxes = np.zeros((num_fsrs, num_groups))
+  for fsr in fsrs:
+    for group in groups:
+      fluxes[fsr, group-1] = solver.getFlux(int(fsr), int(group))
+
+  return fluxes
+
+
+##
 # @brief This routine computes the fission rate in each flat source region,
 #        and combines the rates based on their hierarchical universe/lattice
 #        structure. The fission rates are then exported to a binary HDF5

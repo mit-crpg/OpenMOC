@@ -67,6 +67,6 @@ openmoc.plotter.plot_cells(geometry, gridsize=250)
 openmoc.plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
 openmoc.plotter.plot_flat_source_regions(geometry, gridsize=250)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-openmoc.plotter.plot_fission_rates(solver, gridsize=250)
+openmoc.plotter.plot_fission_rates(solver, gridsize=250, norm=True)
 
 openmoc.log.py_printf('TITLE', 'Finished')
