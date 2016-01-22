@@ -559,12 +559,69 @@ The following code snippet illustrates the instantiation of the ``CPUSolver`` fo
 Fixed Source Calculations
 -------------------------
 
-aljlkjadf
+It is also possible to add a fixed source to any region in OpenMOC. During computation of the total source, a fixed source is added together with the calculated scattering source and fission source for each flat source region. By default, the fixed source is set to zero everywhere. The ``setFixedSourceByFSR(...)`` routine allows the user to set the fixed source in a given flat source region using its unique ID. For most calcuations, setting the fixed source for every flat source region of interest individually can be cumbersome. In addition, this would require retreiving the unique ID for every flat source region in which the user desires to set the fixed source. Therefore, the ``setFixedSourceByCell(...)`` routine allows the user to set the fixed source for every flat source region within a cell to a common value. An example is given below for setting the fixed source of a ``Cell`` with a point source to unity in the first energy group.
+
+.. code-block:: python
+
+  # Set the fixed source inside the source cell in group 1 to unity
+  solver.setFixedSourceByCell(source_cell, 1, 1.0)
+
+
+The equivalent code for setting the point source of all flat source regions within the source cell using ``setFixedSourceByFSR(...)`` is given below.
+
+.. code-block:: python
+
+  # Get the unique ID of the cell containing the point source
+  point_source_cell_id = source_cell.getId()
+
+  # Loop over all FSRs and test if the FSR is within the point source cell
+  for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+    cell = solver.getGeometry().findCellContainingFSR(fsr_id)
+
+    # If ithe FSR is within the point source cell, set the fixed source
+    if cell.getId() == point_source_cell_id:
+      solver.setFixedSourceByFSR(fsr_id, 1, 1.0)
+
+In this case, it is far simpler to set the fixed source by ``Cell``. However, there may be cases where the user may wish to set the fixed source within a ``Cell`` to different values. For instance, if the user wishes to model a continuously varying fixed source and there are multiple flat source regions within some ``Cell``, then for each flat source region within the cell the fixed source would need to be set individually.
+
+So far only the ``computeEigenvalue(...)`` routine has been introduced for solving neutron transport problems. The OpenMOC ``Solver`` has other solution options in addition to the eigenvalue solver which can be very useful for fixed source calculations. Specifically, the ``computeFlux(...)`` and ``computeSource(...)`` routines solve neutron transport over the problem without computing an eigenvalue.
+
+.. note:: The fixed source can **only** be set **after** ``TrackGenerator`` has generated tracks
+
+Flux Calculations
+-----------------
+
+For many fixed source calculations, there is no fissionable material in the problem and the user simply desires the flux distribution within the specified geometry. For these problems the ``computeFlux(...)`` routine calculates the flux distribution within the geometry without computing any sources. Only the fixed source specified by the user is used to determine the total source distribution. This mode can be useful for solving problems where the user already knows the total neutron source distribution.
+
+Source Calculations
+-------------------
+
+In other problems, the source distribution is desired for a set eigenvalue. For this case, the ``computeSource(...)`` routine can be used, which calculates the total source (including any fixed source) in each flat source region iteratively. At the end of each transport sweep, the eigenvalue is reset to the eigenvalue set by the user. By default this value is 1.0 if no value is provided by the user. This mode can be particularly useful for subcritical multiplication problems.
+
+.. note:: This calculation mode has not yet been thoroughly tested
+
+Convergence Options
+-------------------
+
+There are a variety of convergence options available in OpenMOC. These options can be set in the ``res_type`` attribute of the ``computeEigenvalue(...)``, ``computeFlux(...)``, and ``computeSource(...)`` solvers. The options for ``res_type`` are:
+
+- **SCALAR_FLUX** - Sets the convergence based on the integrated scalar flux by each flat source region. This is the default for ``computeFlux(...)``.
+- **TOTAL_SOURCE** - Sets the convergence based on the integrated total source by each flat source region. This is the default for ``computeSource(...)``.
+- **FISSION_SOURCE** - Sets the convergence based on the integrated fission source by each flat source region. This is the default for ``computeEigenvalue(...)``.
+
+An example of setting the convergence option of a criticality calculation to the scalar flux is given below.
+
+.. code-block:: python
+
+  # Compute the eigenvlaue with a maximum of 1000 source iterations
+  # and converge by the scalar flux
+  solver.computeEigenvalue(1000, res_type=openmoc.SCALAR_FLUX)
 
 
 Polar Quadrature
 ----------------
 
+<<<<<<< HEAD
 In OpenMOC, there are five included polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard, and Tabuchi Yamamoto polar quadrature sets. Users can also input a custom polar quadrature set by manually setting the weights and sines of the polar angles. Example code on how to create the 6 polar quadrature sets is included below.
 
 .. code-block:: python
@@ -638,11 +695,10 @@ Plots of the six quadrature sets with 3 polar angles and 16 azimuthal angles are
 
 The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC.
 
-
 FSR Volume Correction
 ---------------------
 
-aljlk
+To be updated...
 
 
 -----------------
