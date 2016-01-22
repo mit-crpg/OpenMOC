@@ -2,6 +2,8 @@
 OpenMOC
 =======
 
+.. image:: https://travis-ci.org/mit-crpg/openmc.svg?branch=develop
+    :target: https://travis-ci.org/mit-crpg/openmc
 .. image:: https://img.shields.io/badge/powered%20by-OpenMOC-blue.svg
     :target: https://mit-crpg.github.io/OpenMOC/
 .. image:: https://img.shields.io/badge/pypi-v0.1.4b-orange.svg
