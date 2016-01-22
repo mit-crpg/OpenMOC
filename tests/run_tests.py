@@ -50,7 +50,7 @@ class Test(object):
         """Install OpenMOC with distutils"""
 
         setup_cmd = ['python', 'setup.py', 'install']
-        setup_cmd += ['--prefix=tests/openmoc']
+        setup_cmd += ['--install-purelib=tests/openmoc']
         setup_cmd += ['--cc={}'.format(self.cc)]
         setup_cmd += ['--fp={}'.format(self.fp)]
         if self.debug:

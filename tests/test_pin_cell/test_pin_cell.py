@@ -3,6 +3,7 @@
 import os
 import sys
 sys.path.insert(0, os.pardir)
+sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
 from input_set import PinCellInput
 

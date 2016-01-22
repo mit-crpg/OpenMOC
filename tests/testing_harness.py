@@ -7,8 +7,7 @@ import os
 import shutil
 import sys
 
-# FIXME: Is this needed to import openmoc from tests/build???
-sys.path.insert(0, os.path.join(os.pardir, os.pardir))
+sys.path.insert(0, 'openmoc')
 import openmoc
 import openmoc.process
 
@@ -125,8 +124,6 @@ class TestHarness(object):
             # Add the fluxes to the output string
             outstr += 'fluxes:\n'
             outstr += '\n'.join(fluxes) + '\n'
-
-        print(outstr)
 
         # Hash the results if necessary.
         if hash_output:

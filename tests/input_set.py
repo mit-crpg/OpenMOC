@@ -1,5 +1,7 @@
+import sys
 from abc import ABCMeta, abstractmethod
 
+sys.path.insert(0, 'openmoc')
 import openmoc
 
 
@@ -37,15 +39,15 @@ class PinCellInput(InputSet):
         """Instantiate a pin cell Geometry."""
 
         zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
-        left = openmoc.XPlane(x=-2.0, name='left')
-        right = openmoc.XPlane(x=2.0, name='right')
-        top = openmoc.YPlane(y=2.0, name='top')
-        bottom = openmoc.YPlane(y=-2.0, name='bottom')
+        xmin = openmoc.XPlane(x=-2.0, name='xmin')
+        xmax = openmoc.XPlane(x=+2.0, name='xmax')
+        ymin = openmoc.YPlane(y=-2.0, name='ymin')
+        ymax = openmoc.YPlane(y=+2.0, name='ymax')
 
-        left.setBoundaryType(openmoc.REFLECTIVE)
-        right.setBoundaryType(openmoc.REFLECTIVE)
-        top.setBoundaryType(openmoc.REFLECTIVE)
-        bottom.setBoundaryType(openmoc.REFLECTIVE)
+        xmin.setBoundaryType(openmoc.REFLECTIVE)
+        xmax.setBoundaryType(openmoc.REFLECTIVE)
+        ymin.setBoundaryType(openmoc.REFLECTIVE)
+        ymax.setBoundaryType(openmoc.REFLECTIVE)
 
         fuel = openmoc.Cell(name='fuel')
         fuel.setFill(self.materials['UO2'])
@@ -54,10 +56,10 @@ class PinCellInput(InputSet):
         moderator = openmoc.Cell(name='moderator')
         moderator.setFill(self.materials['Water'])
         moderator.addSurface(halfspace=+1, surface=zcylinder)
-        moderator.addSurface(halfspace=+1, surface=left)
-        moderator.addSurface(halfspace=-1, surface=right)
-        moderator.addSurface(halfspace=+1, surface=bottom)
-        moderator.addSurface(halfspace=-1, surface=top)
+        moderator.addSurface(halfspace=+1, surface=xmin)
+        moderator.addSurface(halfspace=-1, surface=xmax)
+        moderator.addSurface(halfspace=+1, surface=ymin)
+        moderator.addSurface(halfspace=-1, surface=ymax)
 
         root_universe = openmoc.Universe(name='root universe')
         root_universe.addCell(fuel)
