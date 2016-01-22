@@ -1,8 +1,0 @@
-digraph "dev_track"
-{
-  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
-  node [fontname="Helvetica",fontsize="10",shape=record];
-  Node1 [label="{dev_track\n|+ _uid\l+ _azim_angle_index\l+ _num_segments\l+ _track_in\l+ _track_out\l+ _refl_in\l+ _refl_out\l+ _bc_in\l+ _bc_out\l|}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
-  Node2 -> Node1 [color="grey25",fontsize="10",style="solid",label=" _segments" ,arrowhead="odiamond",fontname="Helvetica"];
-  Node2 [label="{dev_segment\n|+ _length\l+ _material_uid\l+ _region_uid\l|}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structdev__segment.html",tooltip="A dev_segment represents a line segment within a single flat source region along a track..."];
-}

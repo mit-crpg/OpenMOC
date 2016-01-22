@@ -53,7 +53,7 @@
             
   <div class="section" id="documentation">
 <span id="id1"></span><h1>7. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
-<p>The following describes the suggested steps that developers should take to edit, revise or add to OpenMOC&#8217;s documentation. OpenMOC uses the <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> tool for code due to its growing popularity for open source codes. Sphinx uses <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> (rst) files to encapuslate text-based content with semantic markup for figures, tables, URLs, and more. Sphinx provides a compiler which parses the reStructuredText source files to generate a target output in the form of HTML or a PDF. OpenMOC also uses <a class="reference external" href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a> for automated generated of Application Programming Interface (API) documentation based on source code comments. The used of Doxygen-style comments is explained further in <a class="reference internal" href="style_guide.html#code-comments"><span>Code Comments</span></a>.</p>
+<p>The following describes the suggested steps that developers should take to edit, revise or add to OpenMOC&#8217;s documentation. When new features are added to OpenMOC, the documentation located in <code class="file docutils literal"><span class="pre">/docs</span></code> should be updated in the same pull request as the new feature. OpenMOC uses the <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> tool for documentation due to its growing popularity for open source codes. Sphinx uses <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> (rst) files to encapuslate text-based content with semantic markup for figures, tables, URLs, and more. Sphinx provides a compiler which parses the reStructuredText source files to generate a target output in the form of HTML or a PDF. OpenMOC also uses <a class="reference external" href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a> for automated generated of Application Programming Interface (API) documentation based on source code comments. The use of Doxygen-style comments is explained further in <a class="reference internal" href="style_guide.html#code-comments"><span>Code Comments</span></a>.</p>
 <div class="section" id="preliminary-configuration">
 <h2>7.1. Preliminary Configuration<a class="headerlink" href="#preliminary-configuration" title="Permalink to this headline">¶</a></h2>
 <p>First, in order to build OpenMOC&#8217;s documentation, you must have installed both Sphinx and Doxygen. Since both tools are widely used, they are available with most source package system. On Debian-based systems, such as Ubuntu, you may install both tools with the following command in the console:</p>
@@ -64,89 +64,63 @@
 <div class="highlight-none"><div class="highlight"><pre>sudo port install py27-sphinx doxygen
 </pre></div>
 </div>
-<p>Next, it is important to note that <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a> reserves the use of the <strong>gh-pages</strong> branch to host a project website for each repository. OpenMOC makes uses of this feature for its code documentation website. However, the use of Sphinx coupled with Doxygen - which requires access to the source code on the <code class="docutils literal"><span class="pre">master</span></code> branch - presents a challenge to properly configure the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch in GitHub. A nice workaround has been developed, however, based on <a class="reference external" href="http://rickfoosusa.blogspot.com/2011/10/howto-use-doxygen-with-github.html">Rick Foos&#8217; blog post</a> blog post on the issue. The following steps will guide you through the workaround such that you will be able to easily edit and revise the documentation.</p>
-<p>First, you need to create a <code class="file docutils literal"><span class="pre">/OpenMOC/sphinx</span></code> directory inside of the repository on your machine:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd OpenMOC
-mkdir sphinx
-</pre></div>
-</div>
-<p>Note that the <code class="file docutils literal"><span class="pre">sphinx</span></code> directory is intentionally in the <code class="file docutils literal"><span class="pre">.gitignore</span></code> file in the OpenMOC repository. As a result, the directory will not be tracked by Git in the traditional sense, which is what we want.</p>
-<p>Next, enter the <code class="file docutils literal"><span class="pre">/OpenMOC/sphinx</span></code> directory and clone the OpenMOC repository there:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx
-git clone https://github.com/mit-crpg/OpenMOC.git .
-</pre></div>
-</div>
-<p>You have effectively created a <cite>nested repository</cite> of OpenMOC within the original local OpenMOC repository. Now, within the nested repository in the <code class="file docutils literal"><span class="pre">/OpenMOC/sphinx</span></code> directory, checkout the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch, ignoring the warning message:</p>
-<div class="highlight-none"><div class="highlight"><pre>git checkout origin/gh-pages -b gh-pages
-</pre></div>
-</div>
-<p>Now, your nested repository is on the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch within the original repository on its original branch (<em>i.e.</em>, the <code class="docutils literal"><span class="pre">master</span></code> branch). Next, delete the <code class="docutils literal"><span class="pre">master</span></code> branch within the nested repository in <code class="file docutils literal"><span class="pre">/OpenMOC/sphinx</span></code>, ignoring the warning:</p>
-<div class="highlight-none"><div class="highlight"><pre>git branch -d master
-</pre></div>
-</div>
-<p>Congratulations! You are now configured to edit and revise the documentation, as discussed in the following section.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you clone the repository to a different directory on the same machine, or to a new machine, you will have to repeat these steps in order to configure the newly cloned repository since the <code class="file docutils literal"><span class="pre">/OpenMOC/sphinx</span></code> directory will not be tracked within the <code class="file docutils literal"><span class="pre">master</span></code> branch.</p>
-</div>
+<p>These packages are all that is required to build and update the documentation in your pull request. Next, we will discuss how you can build and update the documentation when you modify the source code.</p>
 </div>
 <div class="section" id="writing-new-documentation">
 <h2>7.2. Writing New Documentation<a class="headerlink" href="#writing-new-documentation" title="Permalink to this headline">¶</a></h2>
 <p>This tutorial will not present any of the semantics of how to write documentation for Sphinx as that is well covered by its own tutorials. Likewise, the same is true for Doxygen-style comments, although the basics are presented in <a class="reference internal" href="style_guide.html#code-comments"><span>Code Comments</span></a>. Instead, this section presents the location of the source code and the basic console commands used to generate HTML documentation.</p>
-<p>First, the <code class="file docutils literal"><span class="pre">/sphinx/docs/source</span></code> directory contains the reStructuredText source for the Sphinx documentation. In order to compile the Sphinx documentation into HTML, you can run the following from within the <code class="file docutils literal"><span class="pre">sphinx/docs</span></code> directory:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx/docs
+<p>First, the <code class="file docutils literal"><span class="pre">/docs/source</span></code> directory contains the reStructuredText source for the Sphinx documentation. In order to compile the Sphinx documentation into HTML, you can run the following from within the <code class="file docutils literal"><span class="pre">/docs</span></code> directory:</p>
+<div class="highlight-none"><div class="highlight"><pre>cd docs
 make html
 </pre></div>
 </div>
-<p>This command will use the Sphinx tool to generate HTML in the <code class="file docutils literal"><span class="pre">/sphinx/docs/build</span></code> directory. You may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx/docs/build
-firefox index.html
+<p>This command will use the Sphinx tool to generate HTML in the <code class="file docutils literal"><span class="pre">/docs/build</span></code> directory. From within the <code class="file docutils literal"><span class="pre">/docs</span></code> directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre>firefox build/html/index.html
 </pre></div>
 </div>
-<p>Likewise, in order to build a revised version of the <a class="reference internal" href="../doxygen/api.html#api"><span>OpenMOC API</span></a> from Doxygen-style comments in the Python and C++ source code, you may use the following console command from within the <code class="file docutils literal"><span class="pre">sphinx/docs/doxygen</span></code> directory:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx/docs/doxygen
+<p>The reStructuredText source files that should be updated with each pull request are located in the <code class="file docutils literal"><span class="pre">/docs/source</span></code> directory. If developers wish to add new pictures to the documentation, image files should be added to the <code class="file docutils literal"><span class="pre">/docs/img</span></code> directory in either png or svg format. Developers can test out their changes to the documentation by recompiling the Sphinx documentation into HTML and viewing the updated HTML files.</p>
+<p>Likewise, in order to build a revised version of the <a class="reference internal" href="../doxygen/api.html#api"><span>OpenMOC API</span></a> from Doxygen-style comments in the Python and C++ source code, you may use the following console command from within the <code class="file docutils literal"><span class="pre">/docs</span></code> directory:</p>
+<div class="highlight-none"><div class="highlight"><pre>cd doxygen
 doxygen Doxyfile
 </pre></div>
 </div>
-<p>This will build a new version of the API in the <code class="file docutils literal"><span class="pre">sphinx/doxygen/html</span></code> directory. You may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx/doxygen/html
-firefox index.html
+<p>This will build a new version of the API in the <code class="file docutils literal"><span class="pre">/docs/doxygen/html</span></code> directory. From within the <code class="file docutils literal"><span class="pre">/docs/doxygen</span></code> directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre>firefox html/index.html
 </pre></div>
 </div>
-<p>In order to <strong>expose</strong> your newly generated HTML documentation to GitHub such that it will present your website, you must copy the HTML into the main <code class="file docutils literal"><span class="pre">sphinx</span></code> directory:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx
-cp -rf docs/build/html/. .
-</pre></div>
-</div>
-<p>Finally, one should note that all of the commands needed to build the Sphinx documentation, build the Doxygen API, and copy the files to the outer directory are encapsulated in the <code class="file docutils literal"><span class="pre">sphinx/configure.sh</span></code> shell script. Hence, everything that was presented in this section may be executed using the following single command:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx
-./configure.sh
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Since the Doxygen API likely does not need to be re-built each time you compile the Sphinx source code, it may be easiest to debug your Sphinx source code using the individual commands presented at the beginning of this section, rather than using <code class="file docutils literal"><span class="pre">configure.sh</span></code>.</p>
-</div>
+<p>Note that this procedure updates the documentation shipped with the source code in the <strong>develop</strong> branch, but changes will not be reflected in the documentation on the website. <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a> reserves the use of the <strong>gh-pages</strong> branch to host a project website for each repository. The <strong>gh-pages</strong> branch contains the documentation source code for the latest public release of OpenMOC and thus will only be periodically updated with the documentation from the <strong>develop</strong> branch. The procedure for updating the website documentation will be discussed in the next section.</p>
 </div>
 <div class="section" id="version-control-for-new-documentation">
 <h2>7.3. Version Control for New Documentation<a class="headerlink" href="#version-control-for-new-documentation" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="file docutils literal"><span class="pre">configure.sh</span></code> script automatically adds your newly generated HTML files and image files to Git for tracking of the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch using the following console commands:</p>
-<div class="highlight-none"><div class="highlight"><pre>cd sphinx
-git add -A
-git add -f _images/*
-git add -f _images/math*
-git add -f doxygen/html/* .
+<p>With each new release, the website documentation will be updated by one of the core developers with the latest documentation from the <strong>develop</strong> branch. In order to <strong>expose</strong> newly generated HTML documentation to GitHub such that it will present on the website, the Sphinx and Doxygen build files must be copied to the <strong>gh-pages</strong> branch. Once the documentation is ready to be copied over to the <strong>gh-pages</strong> branch, the Sphinx and Doxygen HTML files need to be built:</p>
+<div class="highlight-none"><div class="highlight"><pre>cd docs
+make html
+cd doxygen
+doxygen Doxyfile
+cd ../..
 </pre></div>
 </div>
-<p>You may commit your changes locally for the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch just as you normally would expect to using Git:</p>
-<div class="highlight-none"><div class="highlight"><pre>git commit -m &#39;my commit message here&#39;
+<p>Now that the HTML files have been built, you can checkout the <strong>gh-pages</strong> branch and then checkout a new branch to store the new version of the documentation:</p>
+<div class="highlight-none"><div class="highlight"><pre>git checkout gh-pages
+git checkout -b gh-pages-update
 </pre></div>
 </div>
-<p>Likewise, to push the changes made to your personal forked repository of OpenMOC, use the following command in the console:</p>
-<div class="highlight-none"><div class="highlight"><pre>git push
+<p>You can then copy the files from the <code class="file docutils literal"><span class="pre">/docs</span></code> directory to the root OpenMOC directory on your new branch:</p>
+<div class="highlight-none"><div class="highlight"><pre>cp -r docs/build/html/* .
+cp -r docs/doxygen/html doxygen/
 </pre></div>
 </div>
-<p>In order to submit new and/or revised documentation to the main OpenMOC reposotiry, please use a <a class="reference external" href="https://help.github.com/articles/using-pull-requests">pull request</a> to the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch of the OpenMOC repository on GitHub as described in <a class="reference internal" href="work_flow.html#work-flow"><span>Development Workflow</span></a>.</p>
+<p>Since the <code class="file docutils literal"><span class="pre">.gitignore</span></code> file does not allow image and HTML files to be tracked, you will need to force all image and HTML files to be added to tracking history. The <code class="file docutils literal"><span class="pre">configure.sh</span></code> script contains the commands to add all the necessary files. The <code class="file docutils literal"><span class="pre">configure.sh</span></code> can be executed and the changes committed and pushed to GitHub:</p>
+<div class="highlight-none"><div class="highlight"><pre>./configure.sh
+git commit -am &#39;my commit message here&#39;
+git push origin gh-pages-update
+</pre></div>
+</div>
+<p>The final step in updating the website documentation is to <a class="reference external" href="https://help.github.com/articles/using-pull-requests">pull request</a> to the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch of the OpenMOC repository on GitHub as described in <a class="reference internal" href="work_flow.html#work-flow"><span>Development Workflow</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The diff for the pull request into <strong>gh-pages</strong> will likely be massive! The purpose of this pull request is not to conduct a code review, but rather to provide a transparent and publicly-available record of when the website documentation has been changed.</p>
+</div>
 </div>
 </div>
 
@@ -218,7 +192,7 @@ git add -f doxygen/html/* .
 
     <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
     </div>
 <script type="text/javascript">
 

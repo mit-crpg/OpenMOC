@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- basic theme.
  *
- * :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -197,15 +197,18 @@ h3:hover > a.headerlink,
 h4:hover > a.headerlink,
 h5:hover > a.headerlink,
 h6:hover > a.headerlink,
-dt:hover > a.headerlink {
+dt:hover > a.headerlink,
+caption:hover > a.headerlink,
+p.caption:hover > a.headerlink,
+div.code-block-caption:hover > a.headerlink {
     visibility: visible;
 }
 
-div.content p.caption {
+div.body p.caption {
     text-align: inherit;
 }
 
-div.content td {
+div.body td {
     text-align: left;
 }
 
@@ -302,7 +305,7 @@ p.admonition-title {
     font-weight: bold;
 }
 
-div.content p.centered {
+div.body p.centered {
     text-align: center;
     margin-top: 25px;
 }
@@ -312,6 +315,13 @@ div.content p.centered {
 table.docutils {
     border: 0;
     border-collapse: collapse;
+}
+
+table caption span.caption-number {
+    font-style: italic;
+}
+
+table caption span.caption-text {
 }
 
 table.docutils td, table.docutils th {
@@ -343,6 +353,25 @@ table.citation {
 table.citation td {
     border-bottom: none;
 }
+
+/* -- figures --------------------------------------------------------------- */
+
+div.figure {
+    margin: 0.5em;
+    padding: 0.5em;
+}
+
+div.figure p.caption {
+    padding: 0.3em;
+}
+
+div.figure p.caption span.caption-number {
+    font-style: italic;
+}
+
+div.figure p.caption span.caption-text {
+}
+
 
 /* -- other body styles ----------------------------------------------------- */
 
@@ -404,6 +433,10 @@ dl.glossary dt {
 
 .optional {
     font-size: 1.3em;
+}
+
+.sig-paren {
+    font-size: larger;
 }
 
 .versionmodified {
@@ -471,22 +504,51 @@ table.highlighttable td {
     padding: 0 0.5em 0 0.5em;
 }
 
-tt.descname {
+div.code-block-caption {
+    padding: 2px 5px;
+    font-size: small;
+}
+
+div.code-block-caption code {
+    background-color: transparent;
+}
+
+div.code-block-caption + div > div.highlight > pre {
+    margin-top: 0;
+}
+
+div.code-block-caption span.caption-number {
+    padding: 0.1em 0.3em;
+    font-style: italic;
+}
+
+div.code-block-caption span.caption-text {
+}
+
+div.literal-block-wrapper {
+    padding: 1em 1em 0;
+}
+
+div.literal-block-wrapper div.highlight {
+    margin: 0;
+}
+
+code.descname {
     background-color: transparent;
     font-weight: bold;
     font-size: 1.2em;
 }
 
-tt.descclassname {
+code.descclassname {
     background-color: transparent;
 }
 
-tt.xref, a tt {
+code.xref, a code {
     background-color: transparent;
     font-weight: bold;
 }
 
-h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt {
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
     background-color: transparent;
 }
 
@@ -510,7 +572,7 @@ img.math {
     vertical-align: middle;
 }
 
-div.content div.math p {
+div.body div.math p {
     text-align: center;
 }
 
@@ -523,7 +585,7 @@ span.eqno {
 @media print {
     div.document,
     div.documentwrapper,
-    div.contentwrapper {
+    div.bodywrapper {
         margin: 0 !important;
         width: 100%;
     }

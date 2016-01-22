@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['xplane',['XPlane',['../classXPlane.html',1,'']]]
+  ['yplane',['YPlane',['../classYPlane.html',1,'']]]
 ];

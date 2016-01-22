@@ -1,9 +1,0 @@
-digraph "/home/wbinventor/OpenMOC/src/accel/cuda/" {
-  compound=true
-  node [ fontsize="10", fontname="Helvetica"];
-  edge [ labelfontsize="10", labelfontname="Helvetica"];
-  subgraph clusterdir_1ea949864ab1faf245facc269e7b2721 {
-    graph [ bgcolor="#ddddee", pencolor="black", label="accel" fontname="Helvetica", fontsize="10", URL="dir_1ea949864ab1faf245facc269e7b2721.html"]
-  dir_e42498f83ad2e028b83ea18abff69fa1 [shape=box, label="cuda", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_e42498f83ad2e028b83ea18abff69fa1.html"];
-  }
-}

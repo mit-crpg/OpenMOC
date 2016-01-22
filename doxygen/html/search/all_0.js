@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['_5f_5finit_5f_5f',['__init__',['../classopenmoc_1_1options_1_1Options.html#a15ef23a601cd963fdf5bcca94821f272',1,'openmoc.options.Options.__init__()'],['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#aca9b5323ed8bd30b4594cd6b099da62f',1,'openmoc.compatible.casmo.Casmo.__init__()']]],
+  ['_5f_5finit_5f_5f',['__init__',['../classopenmoc_1_1options_1_1Options.html#acf18c922f3c3e30bcc4887879377bd5e',1,'openmoc.options.Options.__init__()'],['../classopenmoc_1_1plotter_1_1PlotParams.html#a4fb61b1db631d6b51e0c44772da93ba7',1,'openmoc.plotter.PlotParams.__init__()'],['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a90ff2d543ceed3ca9b23cbb98bc20f0a',1,'openmoc.compatible.casmo.Casmo.__init__()']]],
   ['_5fa',['_A',['../classPlane.html#afd0aae8ff683f84d286e975e856df3ef',1,'Plane']]],
   ['_5fazim_5fangle_5findex',['_azim_angle_index',['../structdev__track.html#a8a209d642c97a47a95ef485b9251b6f6',1,'dev_track']]],
   ['_5fb',['_B',['../classPlane.html#a2aac5aa1b6e726918a1afc87269e51f4',1,'Plane']]],
@@ -17,6 +17,7 @@ var searchData=
   ['_5fcmfd_5fsurface_5fbwd',['_cmfd_surface_bwd',['../structsegment.html#a702938e8b2fca619edd3d4437fbb45f5',1,'segment']]],
   ['_5fcmfd_5fsurface_5ffwd',['_cmfd_surface_fwd',['../structsegment.html#adb1ca6980006607db9de5b37eaf2c851',1,'segment']]],
   ['_5fconverge_5fthresh',['_converge_thresh',['../classSolver.html#ac1ecd090674688dc587be3e09f20cba3',1,'Solver']]],
+  ['_5fd',['_D',['../classPlane.html#af2ca309ce5afb49255e85cff9c7770a7',1,'Plane']]],
   ['_5fdelta_5fpsi',['_delta_psi',['../classVectorizedSolver.html#a26902a56a4aa93a0580656be36ef03cf',1,'VectorizedSolver']]],
   ['_5fexp_5fevaluator',['_exp_evaluator',['../classSolver.html#a999862f5161f68900b1920165bd79ea8',1,'Solver']]],
   ['_5fexp_5ftable',['_exp_table',['../classGPUExpEvaluator.html#ac8b5eab60de53a45762958230fab7bca',1,'GPUExpEvaluator']]],
@@ -62,7 +63,6 @@ var searchData=
   ['_5fregion_5fuid',['_region_uid',['../structdev__segment.html#a986cb48a5ac6eb7b26791b828d363ee3',1,'dev_segment']]],
   ['_5fscalar_5fflux',['_scalar_flux',['../classSolver.html#a60df3fd1a13667c294b1519d59a00b87',1,'Solver::_scalar_flux()'],['../Solver_8h.html#a3d16df105bf900bad9d2b5a6061aa06d',1,'_scalar_flux():&#160;Solver.h']]],
   ['_5fsegments',['_segments',['../structdev__track.html#a0d80897523e45e6d3c23e6dbe94f7210',1,'dev_track']]],
-  ['_5fsigma_5fa',['_sigma_a',['../structdev__material.html#a8ce73ccc101b0ab9b8c7fa770c101980',1,'dev_material']]],
   ['_5fsigma_5ff',['_sigma_f',['../structdev__material.html#a8fbd6f04e4aacd09933c1feeafc90fff',1,'dev_material']]],
   ['_5fsigma_5fs',['_sigma_s',['../structdev__material.html#ae3bff1238df4a0525fdeb62b6844e00d',1,'dev_material']]],
   ['_5fsigma_5ft',['_sigma_t',['../structdev__material.html#a0732a4eb6589a5d81b5e8224f8650e6e',1,'dev_material']]],
