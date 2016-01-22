@@ -25,7 +25,7 @@ class InputSet(object):
 
 
 class PinCellInput(InputSet):
-    """A pin cell hoblem from sample-input/pin-cell."""
+    """A pin cell problem from sample-input/pin-cell."""
 
     def create_materials(self):
         """Instantiate C5G7 Materials."""

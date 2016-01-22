@@ -11,7 +11,6 @@ import sys
 sys.path.insert(0, os.path.join(os.pardir, os.pardir))
 import openmoc
 import openmoc.process
-print(openmoc.__file__)
 
 
 class TestHarness(object):

@@ -50,7 +50,7 @@ class Test(object):
         """Install OpenMOC with distutils"""
 
         setup_cmd = ['python', 'setup.py', 'install']
-        setup_cmd += ['--prefix=tests/build']
+        setup_cmd += ['--prefix=tests/openmoc']
         setup_cmd += ['--cc={}'.format(self.cc)]
         setup_cmd += ['--fp={}'.format(self.fp)]
         if self.debug:
@@ -68,7 +68,6 @@ class Test(object):
         """Run CMake to create CTest script"""
 
         cmake_cmd = ['cmake', '-H..', '-Bbuild']
-        # FIXME: Is this needed?
         cmake_cmd += ['-DPYTHON_EXECUTABLE=' + sys.executable]
 
         # Run CMake
@@ -111,16 +110,14 @@ def add_test(name, num_threads=1, debug=False, ):
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal', num_threads=1)
-#add_test('normal-openmp', num_threads=4)
 #add_test('debug', num_threads=1, debug=True)
+#add_test('normal-openmp', num_threads=4)
 #add_test('debug-openmp', num_threads=4, debug=True)
 
 # Check to see if we should just print build configuration information to user
 if options.list_build_configs:
     for key in tests:
         print('Configuration Name: {0}'.format(key))
-        print('  Debug Flags:..........{0}'.format(tests[key].debug))
-        print('  Coverage Test:........{0}\n'.format(tests[key].coverage))
     exit()
 
 # Delete items of dictionary that don't match regular expression
@@ -142,6 +139,7 @@ subprocess.call(['./cleanup'])
 for key in iter(tests):
     test = tests[key]
 
+    # Print header for this test
     print('-'*(len(key) + 6))
     print(key + ' tests')
     print('-'*(len(key) + 6))
@@ -159,8 +157,6 @@ for key in iter(tests):
     # Go into build directory
     os.chdir('tests/build')
 
-    # FIXME: Set PYTHONPATH to /tests/build
-
     # Run CTest
     test.run_ctests()
 
@@ -177,6 +173,7 @@ for key in iter(tests):
 
     # Clear build directory and remove binary and hdf5 files
     shutil.rmtree('build', ignore_errors=True)
+    shutil.rmtree('openmoc', ignore_errors=True)
     subprocess.call(['./cleanup'])
 
 # Print out summary of results
