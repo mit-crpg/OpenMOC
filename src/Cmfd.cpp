@@ -888,7 +888,7 @@ void Cmfd::initializeMaterials() {
 
   /* Delete old Cmfd surface currents vector if it exists */
   if (_materials != NULL)
-    delete _materials;
+    delete [] _materials;
 
   try{
     _materials = new Material*[_num_x*_num_y];
@@ -966,7 +966,7 @@ void Cmfd::initializeGroupMap() {
 
   /* Delete old group indices map if it exists */
   if (_group_indices_map != NULL)
-    delete _group_indices_map;
+    delete [] _group_indices_map;
 
   /* Allocate memory for new group indices map */
   _group_indices_map = new int[_num_moc_groups];
