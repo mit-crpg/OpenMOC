@@ -584,7 +584,25 @@ The equivalent code for setting the point source of all flat source regions with
 
 In this case, it is far simpler to set the fixed source by ``Cell``. However, there may be cases where the user may wish to set the fixed source within a ``Cell`` to different values. For instance, if the user wishes to model a continuously varying fixed source and there are multiple flat source regions within some ``Cell``, then for each flat source region within the cell the fixed source would need to be set individually.
 
-TODO: make fixed source problem
+For instance, if the user desires to input a source based on the location within the geometry, setting the source with ``setFixedSourceByFSR(...)`` could be useful. In particular if a user has defined a fucntion ``source_distribution`` which provides the source over the flat source regions that depends on the coordinates within the geometry and the energy group, the following code will set the source to the appropriate values.
+
+.. code-block:: python
+
+  # Set the source every cell to the desired distribution
+  for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+
+    # Get the coordinates of some point within the FSR
+    pt = solver.getGeometry().getFSRPoint(fsr_id)
+    x_pt = pt.getX()
+    y_pt = pt.getY()
+
+    # Set the FSR source for every group
+    L = num_x * width_x / 2
+    H = num_y * width_y / 2
+    for g in range(materials['Water'].getNumEnergyGroups()):
+      group = g + 1
+      source_value = source_distribution(x_pt, y_pt, group)
+      solver.setFixedSourceByFSR(fsr_id, group, source_value)
 
 So far only the ``computeEigenvalue(...)`` routine has been introduced for solving neutron transport problems. The OpenMOC ``Solver`` has other solution options in addition to the eigenvalue solver which can be very useful for fixed source calculations. Specifically, the ``computeFlux(...)`` and ``computeSource(...)`` routines solve neutron transport over the problem without computing an eigenvalue.
 
@@ -611,9 +629,9 @@ To illustrate the effect of this solver, a fixed source problem is chosen. This 
 The first group flux is plotted below. All other flux plots are zero throughout the entire geometry because the scattering source is not accounted in ``computeFlux(...)`` and neutrons are always born in the first group. By using the ``computeFlux(...)`` routine, OpenMOC is directed to only use the provided fixed source and not to update for fission or scattering. Notice that there are prominant ray effects since there is no scattering in this problem, an inherent characteristic of MOC solvers. The MOC solver is defined with 4 azimuthal angles for the figure on the left and 16 azimuthal angles for the figure on the right. As the number of angles increases, the effect is not as noticable but is still present.
 
 .. _figure_fixed_source_flux_calc:
-     
-.. table:: 
-   
+
+.. table::
+
    +--------------------------------------------------------+--------------------------------------------------------+
    | .. _figa:                                              | .. _figb:                                              |
    |                                                        |                                                        |
@@ -622,9 +640,20 @@ The first group flux is plotted below. All other flux plots are zero throughout 
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-While this case seems illsuited for the ``computeFlux(...)`` routine, the ``computeFlux(...)`` would be very useful for the fixed source cosine distribution problem described previously above. This problem
+While this case seems illsuited for the ``computeFlux(...)`` routine, the ``computeFlux(...)`` is very useful for cases where the total source is known and can be defined by the user. For instance, if the total source :math:`S_g` for energy group :math:`g` is defined to be a cosine distribution such as
 
-TODO: make fixed source plots
+.. math::
+  S_g(x,y) = S_g(0,0) \cos{\frac{x}{L}} \cos{\frac{y}{H}}
+
+where the geometry spans :math:`x \in (-L, L)` and :math:`y \in (-H, H)`. The source can be set using ``setFixedSourceByFSR(...)`` as described above. If the geometry is filled entirely with water and the ``computeFlux(...)`` routine is used to resolve the flux, the solver accurately computes the flux distribution as plotted below.
+
+.. _figure_tracks:
+
+.. figure:: ../../img/cosine_flux_distribution.png
+   :align: center
+   :figclass: align-center
+   :width: 400px
+
 
 Source Calculations
 -------------------
@@ -637,10 +666,10 @@ In other problems, the source distribution is desired for a set eigenvalue. For 
 
 The resulting flux distribution in the third energy group (which previously was calculated to be zero everywhere) is shown below using 4 azimuthal angles in the figure to the left and 32 azimuthal angles in the figure to the right. Notice that ray effects are still present when a low number of azimuthal angles are used, but the effects are far less extreme than observed with ``computeFlux(...)`` due to scattering and with 32 azimuthal angles, the ray effects seem to have disappeared.
 
-.. _figure_fixed_source_source_calc:
-     
-.. table:: 
-   
+.. _figure_fixed_source_calc:
+
+.. table::
+
    +--------------------------------------------------------+--------------------------------------------------------+
    | .. _figa:                                              | .. _figb:                                              |
    |                                                        |                                                        |
