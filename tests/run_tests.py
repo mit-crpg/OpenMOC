@@ -30,16 +30,15 @@ parser.add_option('-l', '--list', action="store_true",
 (options, args) = parser.parse_args()
 
 # Default build options
-CC = 'gcc'
 FP = 'double'
 
 # Define test data structure
 tests = OrderedDict()
 
 class Test(object):
-    def __init__(self, name, num_threads=1, debug=False):
+    def __init__(self, name, cc='gcc', num_threads=1, debug=False):
         self.name = name
-        self.cc = CC
+        self.cc = cc
         self.fp = FP
         self.num_threads = num_threads
         self.debug = debug
@@ -107,13 +106,15 @@ class Test(object):
 
 
 # Simple function to add a test to the global tests dictionary
-def add_test(name, num_threads=1, debug=False, ):
-    tests.update({name: Test(name, num_threads, debug)})
+def add_test(name, cc='gcc', num_threads=1, debug=False, ):
+    tests.update({name: Test(name, cc, num_threads, debug)})
 
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
-add_test('normal', num_threads=1)
-add_test('normal-openmp', num_threads=4)
+add_test('normal-gcc', cc='gcc', num_threads=1)
+add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+add_test('normal-clang', cc='clang', num_threads=1)
+add_test('normal-openmp-clang', cc='clang', num_threads=4)
 #add_test('debug', num_threads=4, debug=True)
 #add_test('debug-openmp', num_threads=4, debug=True)
 
