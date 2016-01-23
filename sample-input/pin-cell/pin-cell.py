@@ -1,5 +1,4 @@
 import openmoc
-import numpy as np
 
 ###############################################################################
 #                          Main Simulation Parameters
@@ -100,16 +99,7 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-polar_quad = openmoc.EqualAnglesPolarQuad()
-polar_quad.setNumPolarAngles(3)
-#thetas = np.array([np.pi/20.0, np.pi/3.0, np.pi/2.5])
-#weights = np.array([0.2, 0.4, 0.4])
-#sin_thetas = np.sin(thetas)
-#polar_quad.setSinThetas(sin_thetas)
-#polar_quad.setWeights(weights)
-
 solver = openmoc.CPUSolver(track_generator)
-solver.setPolarQuadrature(polar_quad)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
 solver.computeEigenvalue(max_iters)

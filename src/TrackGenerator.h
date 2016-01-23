@@ -44,7 +44,7 @@ private:
   /** The track spacing (cm) */
   double _spacing;
 
-  /** The azimuthal angles (radials) */
+  /** The azimuthal angles (radians) */
   double* _phi;
 
   /** An integer array of the number of Tracks for each azimuthal angle */
