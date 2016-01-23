@@ -253,14 +253,6 @@ void VectorizedSolver::initializeFSRs() {
    * of vector widths needed to accomodate the energy groups */
   _num_groups = _num_vector_lengths * VEC_LENGTH;
   _polar_times_groups = _num_groups * _num_polar;
-
-  /* Allocate array of mutex locks for each FSR */
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
 }
 
 
