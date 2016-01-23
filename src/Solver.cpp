@@ -122,6 +122,20 @@ TrackGenerator* Solver::getTrackGenerator() {
 
 
 /**
+ * @brief Returns a pointer to the PolarQuad.
+ * @return a pointer to the PolarQuad
+ */
+PolarQuad* Solver::getPolarQuad() {
+
+  if (_polar_quad == NULL)
+    log_printf(ERROR, "Unable to return the Solver's PolarQuad "
+               "since it has not yet been set");
+
+  return _polar_quad;
+}
+
+
+/**
  * @brief Returns the calculated volume for a flat source region.
  * @param fsr_id the flat source region ID of interest
  * @return the flat source region volume

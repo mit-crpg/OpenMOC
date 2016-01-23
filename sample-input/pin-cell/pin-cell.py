@@ -112,6 +112,7 @@ solver.printTimerReport()
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
+openmoc.plotter.plot_quadrature(solver)
 openmoc.plotter.plot_tracks(track_generator)
 openmoc.plotter.plot_segments(track_generator)
 openmoc.plotter.plot_materials(geometry)
