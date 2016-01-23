@@ -113,10 +113,8 @@ def add_test(name, cc='gcc', num_threads=1, debug=False, ):
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
 add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
-add_test('normal-clang', cc='clang', num_threads=1)
-add_test('normal-openmp-clang', cc='clang', num_threads=4)
-#add_test('debug', num_threads=4, debug=True)
-#add_test('debug-openmp', num_threads=4, debug=True)
+#add_test('normal-clang', cc='clang', num_threads=1)
+#add_test('normal-openmp-clang', cc='clang', num_threads=4)
 
 # Check to see if we should just print build configuration information to user
 if options.list_build_configs:
