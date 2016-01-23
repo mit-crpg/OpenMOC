@@ -235,3 +235,153 @@ class SimpleLatticeInput(InputSet):
         self.geometry.setRootUniverse(root_universe)
 
         super(SimpleLatticeInput, self).create_geometry()
+
+
+class PWRAssemblyInput(InputSet):
+    """A 17x17 pin cell lattice problem from sample-input/ipython-notebook."""
+
+    def create_materials(self):
+        """Instantiate C5G7 Materials."""
+        self.materials = \
+            openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
+                                               directory='../../sample-input/')
+
+    def create_geometry(self):
+        """Instantiate a 17x17 pin cell lattice Geometry."""
+
+        # Create ZCylinder for the fuel and moderator
+        fuel_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.54)
+
+        # Create planes to bound the entire geometry
+        xmin = openmoc.XPlane(x=-10.71, name='xmin')
+        xmax = openmoc.XPlane(x=+10.71, name='xmax')
+        ymin = openmoc.YPlane(y=-10.71, name='ymin')
+        ymax = openmoc.YPlane(y=+10.71, name='xmax')
+
+        xmin.setBoundaryType(openmoc.REFLECTIVE)
+        xmax.setBoundaryType(openmoc.REFLECTIVE)
+        ymin.setBoundaryType(openmoc.REFLECTIVE)
+        ymax.setBoundaryType(openmoc.REFLECTIVE)
+
+        # 4.3% MOX pin cell
+        mox43_cell = openmoc.Cell()
+        mox43_cell.setFill(self.materials['MOX-4.3%'])
+        mox43_cell.setNumRings(3)
+        mox43_cell.setNumSectors(8)
+        mox43_cell.addSurface(-1, fuel_radius)
+
+        mox43 = openmoc.Universe(name='MOX-4.3%')
+        mox43.addCell(mox43_cell)
+
+        # 7% MOX pin cell
+        mox7_cell = openmoc.Cell()
+        mox7_cell.setFill(self.materials['MOX-7%'])
+        mox7_cell.setNumRings(3)
+        mox7_cell.setNumSectors(8)
+        mox7_cell.addSurface(-1, fuel_radius)
+
+        mox7 = openmoc.Universe(name='MOX-7%')
+        mox7.addCell(mox7_cell)
+
+        # 8.7% MOX pin cell
+        mox87_cell = openmoc.Cell()
+        mox87_cell.setFill(self.materials['MOX-8.7%'])
+        mox87_cell.setNumRings(3)
+        mox87_cell.setNumSectors(8)
+        mox87_cell.addSurface(-1, fuel_radius)
+
+        mox87 = openmoc.Universe(name='MOX-8.7%')
+        mox87.addCell(mox87_cell)
+
+        # Fission chamber pin cell
+        fission_chamber_cell = openmoc.Cell()
+        fission_chamber_cell.setFill(self.materials['Fission Chamber'])
+        fission_chamber_cell.setNumRings(3)
+        fission_chamber_cell.setNumSectors(8)
+        fission_chamber_cell.addSurface(-1, fuel_radius)
+
+        fission_chamber = openmoc.Universe(name='Fission Chamber')
+        fission_chamber.addCell(fission_chamber_cell)
+
+        # Guide tube pin cell
+        guide_tube_cell = openmoc.Cell()
+        guide_tube_cell.setFill(self.materials['Guide Tube'])
+        guide_tube_cell.setNumRings(3)
+        guide_tube_cell.setNumSectors(8)
+        guide_tube_cell.addSurface(-1, fuel_radius)
+
+        guide_tube = openmoc.Universe(name='Guide Tube')
+        guide_tube.addCell(guide_tube_cell)
+
+        # Moderator cell
+        moderator = openmoc.Cell()
+        moderator.setFill(self.materials['Water'])
+        moderator.addSurface(+1, fuel_radius)
+        moderator.setNumRings(3)
+        moderator.setNumSectors(8)
+
+        # Add moderator to each pin cell
+        pins = [mox43, mox7, mox87, fission_chamber, guide_tube]
+        for pin in pins:
+            pin.addCell(moderator)
+
+        # CellFills for the assembly
+        assembly1_cell = openmoc.Cell(name='Assembly 1')
+        assembly1 = openmoc.Universe(name='Assembly 1')
+        assembly1.addCell(assembly1_cell)
+
+        # A mixed enrichment PWR MOX fuel assembly
+        assembly = openmoc.Lattice(name='MOX Assembly')
+        assembly.setWidth(width_x=1.26, width_y=1.26)
+
+        # Create a template to map to pin cell types
+        template = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                    [1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1],
+                    [1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1],
+                    [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1],
+                    [1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1],
+                    [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                    [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                    [1, 2, 4, 3, 3, 4, 3, 3, 5, 3, 3, 4, 3, 3, 4, 2, 1],
+                    [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                    [1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1],
+                    [1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1],
+                    [1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1],
+                    [1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1],
+                    [1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1],
+                    [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+
+        universes = {1 : mox43, 2 : mox7, 3 : mox87,
+                     4 : guide_tube, 5 : fission_chamber}
+
+        for i in range(17):
+            for j in range(17):
+                template[i][j] = universes[template[i][j]]
+
+        assembly.setUniverses([template])
+
+        # Root Cell/Universe
+        root_cell = openmoc.Cell(name='Full Geometry')
+        root_cell.setFill(assembly)
+        root_cell.addSurface(+1, xmin)
+        root_cell.addSurface(-1, xmax)
+        root_cell.addSurface(+1, ymin)
+        root_cell.addSurface(-1, ymax)
+
+        root_universe = openmoc.Universe(name='Root Universe')
+        root_universe.addCell(root_cell)
+
+        # Initialize CMFD
+        cmfd = openmoc.Cmfd()
+        cmfd.setSORRelaxationFactor(1.5)
+        cmfd.setLatticeStructure(17,17)
+        cmfd.setGroupStructure([1,4,8])
+        cmfd.setKNearest(3)
+
+        self.geometry = openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
+        self.geometry.setCmfd(cmfd)
+
+        super(PWRAssemblyInput, self).create_geometry()

@@ -276,3 +276,21 @@
 
   track_generator.thisown = 0
 %}
+
+
+/* A Geometry owns the memory for its Cmfd (if any) */
+%pythonappend Geometry::setCmfd %{
+  # SWIG 3
+  if 'cmfd' in locals():
+    cmfd = locals()['cmfd']
+  elif 'args' in locals() and 'cmfd' in locals()['args']:
+    cmfd = locals()['args']['cmfd']
+  elif 'kwargs' in locals() and 'cmfd' in locals()['kwargs']:
+    cmfd = locals()['kwargs']['cmfd']
+
+  # SWIG 2
+  else:
+    cmfd = locals()['args'][0]
+
+  cmfd.thisown = 0
+%}
