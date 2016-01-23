@@ -215,7 +215,7 @@ void CPUSolver::initializeSourceArrays() {
 
       if (group <= 0 || group > _num_groups)
         log_printf(ERROR,"Unable to use fixed source for group %d in "
-                   "in a %d energy group problem", group, _num_groups);
+                   "a %d energy group problem", group, _num_groups);
 
       if (fsr_id < 0 || fsr_id >= _num_FSRs)
         log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
@@ -491,6 +491,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_FSRs;
 
+    #pragma omp for schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
         if (_old_scalar_flux(r,e) > 0.) {
@@ -512,6 +513,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
+    #pragma omp for private(new_fission_source, old_fission_source, \
+      material, nu_sigma_f) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       new_fission_source = 0.;
       old_fission_source = 0.;
@@ -542,6 +545,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     Material* material;
     FP_PRECISION* sigma_s;
 
+    #pragma omp for private(new_total_source, old_total_source, \
+      material, nu_sigma_f, sigma_s) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       new_total_source = 0.;
       old_total_source = 0.;

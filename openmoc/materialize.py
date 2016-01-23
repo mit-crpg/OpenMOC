@@ -275,7 +275,6 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
     for domain in mgxs_lib.domains:
-        domain_spec = domain_spec.encode('utf-8')
 
         py_printf('INFO', 'Importing cross sections for %s "%d"',
                           domain_type, domain.id)
