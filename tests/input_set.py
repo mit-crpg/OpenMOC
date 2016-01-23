@@ -29,7 +29,7 @@ class InputSet(object):
 
 
 class HomInfMedInput(InputSet):
-    """A homogenized infinite medium problem with 2-group cross sections."""
+    """A homogeneous infinite medium problem with 2-group cross sections."""
 
     def create_materials(self):
 
@@ -51,9 +51,9 @@ class HomInfMedInput(InputSet):
     def create_geometry(self):
         """Instantiate an infinite medium lattice Geometry."""
 
-        length = 10.
-        num_cells_x = 100
-        num_cells_y = 1
+        length = 2.5
+        num_cells_x = 10
+        num_cells_y = 10
 
         xmin = openmoc.XPlane(x=-length/2., name='xmin')
         xmax = openmoc.XPlane(x=+length/2., name='xmax')

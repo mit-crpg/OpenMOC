@@ -134,7 +134,7 @@ solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
 solver.setFixedSourceByCell(source_cell, 1, 1.0)
-solver.computeSource(max_iters)
+solver.computeFlux(max_iters)
 solver.printTimerReport()
 
 

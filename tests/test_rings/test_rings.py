@@ -15,7 +15,7 @@ class RingTestHarness(TestHarness):
         super(RingTestHarness, self).__init__()
         self.input_set = PinCellInput()
 
-    def run_openmoc(self):
+    def _create_geometry(self):
         """Discretize fuel and moderator into rings."""
 
         self.input_set.create_materials()
@@ -27,8 +27,6 @@ class RingTestHarness(TestHarness):
             cells[cell_id].setNumRings(i*2 + 3)
 
         self.input_set.geometry.initializeFlatSourceRegions()
-        self.create_trackgenerator()
-        self.generate_tracks()
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=True, num_segments=True, num_tracks=True,

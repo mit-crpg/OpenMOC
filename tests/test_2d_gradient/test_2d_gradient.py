@@ -14,7 +14,7 @@ class OneDGradientTestHarness(TestHarness):
     """An eigenvalue calculation in a cube with vacuum BCs in x
     and reflective BCs in y with 2-group cross section data."""
 
-    def run_openmoc(self):
+    def _create_geometry(self):
         """Put VACUUM boundary conditions on left and right boundaries."""
 
         self.input_set.create_materials()
@@ -37,10 +37,6 @@ class OneDGradientTestHarness(TestHarness):
                 surface.setBoundaryType(openmoc.VACUUM)
 
         self.input_set.geometry.initializeFlatSourceRegions()
-        self.create_trackgenerator()
-        self.generate_tracks()
-        self.create_solver()
-        self.solver.computeEigenvalue(self.max_iters, res_type=self.res_type)
 
     def __init__(self):
         super(OneDGradientTestHarness, self).__init__()
