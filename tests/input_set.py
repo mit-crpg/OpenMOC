@@ -49,27 +49,41 @@ class HomInfMedInput(InputSet):
         self.materials['infinite medium'].setSigmaT(sigma_t)
 
     def create_geometry(self):
-        """Instantiate an infinite medium Geometry."""
+        """Instantiate an infinite medium lattice Geometry."""
 
-        xmin = openmoc.XPlane(x=-100.0, name='left')
-        xmax = openmoc.XPlane(x=+100.0, name='right')
-        ymin = openmoc.YPlane(y=-100.0, name='bottom')
-        ymax = openmoc.YPlane(y=+100.0, name='top')
+        length = 10.
+        num_cells_x = 100
+        num_cells_y = 1
+
+        xmin = openmoc.XPlane(x=-length/2., name='xmin')
+        xmax = openmoc.XPlane(x=+length/2., name='xmax')
+        ymin = openmoc.YPlane(y=-length/2., name='ymin')
+        ymax = openmoc.YPlane(y=+length/2., name='ymax')
 
         xmax.setBoundaryType(openmoc.REFLECTIVE)
         xmin.setBoundaryType(openmoc.REFLECTIVE)
         ymin.setBoundaryType(openmoc.REFLECTIVE)
         ymax.setBoundaryType(openmoc.REFLECTIVE)
 
-        cell = openmoc.Cell()
-        cell.setFill(self.materials['infinite medium'])
-        cell.addSurface(halfspace=+1, surface=xmin)
-        cell.addSurface(halfspace=-1, surface=xmax)
-        cell.addSurface(halfspace=+1, surface=ymin)
-        cell.addSurface(halfspace=-1, surface=ymax)
+        fill = openmoc.Cell(name='fill')
+        fill.setFill(self.materials['infinite medium'])
+
+        root_cell = openmoc.Cell(name='root cell')
+        root_cell.addSurface(halfspace=+1, surface=xmin)
+        root_cell.addSurface(halfspace=-1, surface=xmax)
+        root_cell.addSurface(halfspace=+1, surface=ymin)
+        root_cell.addSurface(halfspace=-1, surface=ymax)
+
+        fill_universe = openmoc.Universe(name='homogeneous fill cell')
+        fill_universe.addCell(fill)
 
         root_universe = openmoc.Universe(name='root universe')
-        root_universe.addCell(cell)
+        root_universe.addCell(root_cell)
+
+        lattice = openmoc.Lattice(name='MxN lattice')
+        lattice.setWidth(width_x=length/num_cells_x, width_y=length/num_cells_y)
+        lattice.setUniverses([[[fill_universe] * num_cells_x]*num_cells_y])
+        root_cell.setFill(lattice)
 
         self.geometry = openmoc.Geometry()
         self.geometry.setRootUniverse(root_universe)

@@ -117,7 +117,7 @@ class TestHarness(object):
         # Write out the eigenvalue
         if keff and self.calc_mode == 'eigenvalue':
             keff = self.solver.getKeff()
-            outstr += 'keff: {0:12.5E}'.format(keff)
+            outstr += 'keff: {0:12.5E}\n'.format(keff)
 
         if fluxes:
             # Get the fluxes for each FSR and energy group
