@@ -18,7 +18,7 @@ class ComputeSourceTestHarness(TestHarness):
         super(ComputeSourceTestHarness, self).__init__()
         self.input_set = HomInfMedInput()
         self.res_type = openmoc.TOTAL_SOURCE
-        self.calc_mode = 'source'
+        self.solution_type = 'source'
         self.source_cell = None
 
     def _create_geometry(self):

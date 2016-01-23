@@ -21,7 +21,7 @@ class TestHarness(object):
         # Define default simulation parameters
         self.spacing = 0.1
         self.num_azim = 4
-        self.max_iters = 10
+        self.max_iters = 500
         self.tolerance = 1E-5
 
         # Define threads based on OMP_NUM_THREADS env var set by run_tests.py
@@ -33,7 +33,8 @@ class TestHarness(object):
         self.input_set = None
         self.track_generator = None
         self.solver = None
-        self.calc_mode = 'eigenvalue'
+        self.solution_type = 'eigenvalue'
+        self.calculation_mode = openmoc.FORWARD
         self.res_type = openmoc.FISSION_SOURCE
 
         self.parser = OptionParser()
@@ -108,14 +109,16 @@ class TestHarness(object):
     def _run_openmoc(self):
         """Run an OpenMOC eigenvalue or fixed source calculation."""
 
-        if self.calc_mode == 'eigenvalue':
-            self.solver.computeEigenvalue(self.max_iters, res_type=self.res_type)
-        elif self.calc_mode == 'flux':
+        if self.solution_type == 'eigenvalue':
+            self.solver.computeEigenvalue(self.max_iters, res_type=self.res_type,
+                                          mode=self.calculation_mode)
+        elif self.solution_type == 'flux':
             self.solver.computeFlux(self.max_iters)
-        elif self.calc_mode == 'source':
-            self.solver.computeSource(self.max_iters, res_type=self.res_type)
+        elif self.solution_type == 'source':
+            self.solver.computeSource(self.max_iters, res_type=self.res_type,
+                                      mode=self.calculation_mode)
         else:
-            msg = 'Unable to run OpenMOC in mode {0}'.format(self.calc_mode)
+            msg = 'Unable to run OpenMOC in mode {0}'.format(self.solution_type)
             raise ValueError(msg)
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
@@ -131,7 +134,7 @@ class TestHarness(object):
             outstr += '# Iterations: {0}\n'.format(num_iters)
 
         # Write out the eigenvalue
-        if keff and self.calc_mode == 'eigenvalue':
+        if keff and self.solution_type == 'eigenvalue':
             keff = self.solver.getKeff()
             outstr += 'keff: {0:12.5E}\n'.format(keff)
 

@@ -18,7 +18,7 @@ class ComputeFluxTestHarness(TestHarness):
         super(ComputeFluxTestHarness, self).__init__()
         self.input_set = HomInfMedInput()
         self.res_type = openmoc.SCALAR_FLUX
-        self.calc_mode = 'flux'
+        self.solution_type = 'flux'
 
     def _create_geometry(self):
         """Put a box source """
