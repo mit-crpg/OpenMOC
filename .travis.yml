@@ -37,6 +37,7 @@ install:
   - sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
 
 script:
+  - clang --version
   - cd tests
   - ./travis.sh
   - cd ..
