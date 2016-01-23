@@ -1,4 +1,5 @@
 import openmoc
+from math import *
 
 ###############################################################################
 #                          Main Simulation Parameters
@@ -8,10 +9,9 @@ options = openmoc.options.Options()
 
 num_threads = options.getNumThreads()
 track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
+num_azim = 4
 tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
-
+max_iters = 1000 
 openmoc.log.set_log_level('NORMAL')
 
 
@@ -48,9 +48,6 @@ openmoc.log.py_printf('NORMAL', 'Creating cells...')
 water_cell = openmoc.Cell(name='water')
 water_cell.setFill(materials['Water'])
 
-source_cell = openmoc.Cell(name='source')
-source_cell.setFill(materials['Water'])
-
 root_cell = openmoc.Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=left)
 root_cell.addSurface(halfspace=-1, surface=right)
@@ -65,11 +62,9 @@ root_cell.addSurface(halfspace=-1, surface=top)
 openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
 water_univ = openmoc.Universe(name='water')
-source_univ = openmoc.Universe(name='source')
 root_universe = openmoc.Universe(name='root universe')
 
 water_univ.addCell(water_cell)
-source_univ.addCell(source_cell)
 root_universe.addCell(root_cell)
 
 
@@ -87,13 +82,6 @@ width_y = (root_universe.getMaxY() - root_universe.getMinY()) / num_x
 
 # Create 2D array of Universes in each lattice cell
 universes = [[[water_univ]*num_x for _ in range(num_y)]]
-
-# Place fixed source Universe at (x=10, y=10)
-source_x = 10
-source_y = 10
-lat_x = (root_universe.getMaxX() - source_x) / width_x
-lat_y = (root_universe.getMaxY() - source_y) / width_y
-universes[0][int(lat_x)][int(lat_y)] = source_univ
 
 openmoc.log.py_printf('NORMAL', \
   'Creating a {0}x{0} lattice...'.format(num_x, num_y))
@@ -130,11 +118,36 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
+# initialize the solver
 solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.setFixedSourceByCell(source_cell, 1, 1.0)
-solver.computeSource(max_iters)
+
+# Set the source in every cell to a cosine distribution
+for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+
+  # Get the coordinates of some point within the FSR
+  pt = solver.getGeometry().getFSRPoint(fsr_id)
+  x_pt = pt.getX()
+  y_pt = pt.getY()
+
+  # Set the FSR source for every group
+  L = num_x * width_x / 2
+  H = num_y * width_y / 2
+  for g in range(materials['Water'].getNumEnergyGroups()):
+    group = g + 1
+    source_value = cos(x_pt/L) * cos(y_pt/H)
+    solver.setFixedSourceByFSR(fsr_id, group, source_value)
+  
+  # NOTE: A more precise definition of the source would calculate the same
+  # source values for all points within each flat source region. In this
+  # example that is not the case. However, since the FSR discretization is
+  # reasonably fine in this case, the slight error introduced from defining the
+  # source based on one point in the FSR does not have a large impact on the
+  # resulting flux shapes.
+
+# Run the solver for the provided source
+solver.computeFlux(max_iters)
 solver.printTimerReport()
 
 
