@@ -84,6 +84,8 @@ class Test(object):
         if not self.success:
             return
 
+        os.environ['OMP_NUM_THREADS'] = str(self.num_threads)
+
         # Default CTest string
         ctest_cmd = ['ctest']
 
@@ -111,8 +113,8 @@ def add_test(name, num_threads=1, debug=False, ):
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal', num_threads=1)
-#add_test('debug', num_threads=1, debug=True)
-#add_test('normal-openmp', num_threads=4)
+add_test('normal-openmp', num_threads=4)
+#add_test('debug', num_threads=4, debug=True)
 #add_test('debug-openmp', num_threads=4, debug=True)
 
 # Check to see if we should just print build configuration information to user

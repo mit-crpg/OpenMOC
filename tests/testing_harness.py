@@ -19,7 +19,7 @@ class TestHarness(object):
         openmoc.log.set_log_level('NORMAL')
 
         # Define default simulation parameters
-        self.num_threads = 1
+        self.num_threads = int(os.environ['OMP_NUM_THREADS'])
         self.spacing = 0.1
         self.num_azim = 4
         self.max_iters = 10
@@ -52,7 +52,9 @@ class TestHarness(object):
 
     def generate_tracks(self):
         """Generate Tracks and segments."""
-        self.track_generator.setNumThreads(self.num_threads)
+
+        # Always use 1 thread for FSR reproducibility
+        self.track_generator.setNumThreads(1)
         self.track_generator.generateTracks()
 
     def main(self):
