@@ -44,6 +44,9 @@ private:
   /** The track spacing (cm) */
   double _spacing;
 
+  /** The azimuthal angles (radials) */
+  double* _phi;
+
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
@@ -107,6 +110,7 @@ public:
 
   /* Get parameters */
   int getNumAzim();
+  double getPhi(int azim);
   double getTrackSpacing();
   Geometry* getGeometry();
   int getNumTracks();

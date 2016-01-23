@@ -10,7 +10,7 @@ The method of characteristics uses tracks across the geometry to discretize the 
 .. _cyclic-tracks:
 
 Cyclic Tracks
-============
+=============
 
 OpenMOC uses *global tracking* such that each track spans the entire extent of the simulation domain. By symmetry, tracks only need to be represented for azimuthal angles in the range :math:`\phi \in [0, \pi]` since a track with angle :math:`\phi` will have the same start and end points as a track with angle :math:`\phi + \pi`. *Complementary angles* are pairs of angles :math:`(\phi, \alpha)` in the azimuthal quadrature where :math:`\alpha = \pi - \phi`. Tracks for complementary angles have a *track spacing* such that they intersect at the boundaries of the geometry and form closed cycles. An illustration of OpenMOC's track layout for eight azimuthal angles is given in :ref:`Figure 1 <figure-cyclic-tracks>`.
 
@@ -95,7 +95,7 @@ OpenMOC uses a product quadrature set that uncouples the azimuthal angle quadrat
 Polar Angle Quadrature
 ======================
 
-In OpenMOC, there are five polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard,and Tabuchi-Yamamoto polar quadrature sets.  The formulas for computing the angles and weights of the equal angles and equal weights quadrature sets, given below, are described in the Handbook of Nuclear Engineering [Cacuci]_. The angles and weights for the Gauss Legendre, Leonard, and Tabuchi Yamamoto quadrature sets were taken from reference without modification [Yamamoto]_, [Cacuci]_.
+In OpenMOC, there are five polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard, and Tabuchi Yamamoto polar quadrature sets. The formulas for computing the angles and weights of the equal angles and equal weights quadrature sets, given below, are described in the Handbook of Nuclear Engineering [Cacuci]_. The angles and weights for the Gauss Legendre, Leonard, and Tabuchi Yamamoto quadrature sets were taken from reference without modification [Yamamoto]_, [Cacuci]_.
 
 For the equal angles and equal weights quadrature sets, the user inputs the number of polar angles in :math:`[0,\frac{\pi}{2}]`, P, and then the angles and corresponding weights are computed. The relations for computing the angles, :math:`\theta_p`, and corresponding weights are given as equations :eq:`equal-angles-quad-1`, :eq:`equal-angles-quad-2`, and :eq:`equal-angles-quad-3`. The angle boundaries used to compute the angles and weights start at :math:`\bar{\theta}_p = 0`.
 
@@ -121,18 +121,7 @@ The equations for the equal weights quadrature set are the same as the equations
 
    \bar{\theta}_p = cos^{-1} \bigg\{ cos \big(\bar{\theta}_{p-1}\big) - \frac{1}{P} \bigg\}
 
-Figures of the five quadrature sets plotted with 3 polar angles and 16 azimuthal angles are shown below.
-
-.. _figure-polar-quads:
-
-.. figure:: ../../img/polar_quadrature_sets.png
-   :align: center
-   :figclass: align-center
-   :width: 700px
-
-   **Figure 2**: Polar quadrature sets with 3 polar angles and 16 azimuthal angles.
-
-The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC.
+Users can also input a custom polar quadrature set by manually setting the weights and sines of the polar angles. The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC. Example code on how to instantiate the different polar quadrature objects is provided in the :ref:`Users Guide <usersguide>`.
 
 
 .. _spatial-quadrature:
@@ -182,7 +171,7 @@ The first algorithm needed for track segmentation is the ability to find the uni
 
    **Algorithm 1**: Universe-finding algorithm.
 
-:ref:`Figure 2 <figure-nested-lattice-coordinates>` illustrates one possible model with two *nested lattices* and the local coordinate transformations made using this algorithm. Here, :math:`n_{x}` and :math:`n_{y}` represent the number of lattice cells along the :math:`x` and :math:`y` axes, while :math:`h` and :math:`w` represent the total height and width of the lattice, respectively. Numerical subscripts are used to identify the appropriate lattice level.
+:ref:`Figure 3 <figure-nested-lattice-coordinates>` illustrates one possible model with two *nested lattices* and the local coordinate transformations made using this algorithm. Here, :math:`n_{x}` and :math:`n_{y}` represent the number of lattice cells along the :math:`x` and :math:`y` axes, while :math:`h` and :math:`w` represent the total height and width of the lattice, respectively. Numerical subscripts are used to identify the appropriate lattice level.
 
 .. _figure-nested-lattice-coordinates:
 
