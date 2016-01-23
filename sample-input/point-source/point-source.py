@@ -8,9 +8,9 @@ options = openmoc.options.Options()
 
 num_threads = options.getNumThreads()
 track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
+num_azim = 32
 tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+max_iters = 2000
 
 openmoc.log.set_log_level('NORMAL')
 
@@ -134,7 +134,7 @@ solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
 solver.setFixedSourceByCell(source_cell, 1, 1.0)
-solver.computeSource(max_iters,res_type=openmoc.SCALAR_FLUX)
+solver.computeFlux(max_iters)
 solver.printTimerReport()
 
 
