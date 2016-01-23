@@ -374,37 +374,98 @@ OpenMOC does not place a limit on the hierarchical depth - or number of nested u
 Rings and Sectors
 -----------------
 
-The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of circular fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (*i.e.*, `polar coordinates`_). As a result, discretization along the radial coordinate using circular **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient. 
+The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of cylindrical fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (*i.e.*, `polar coordinates`_). As a result, discretization along the radial coordinate using cylindrical **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient.
 
-This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide circular fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``Circle`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide square pin cells of circular fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``Cell`` object and differentiates each one with ``Circle`` or ``Plane`` objects to subdivide the pin cell.
+This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide cylindrical fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``ZCylinder`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide pin cells of cylindrical fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``Cell`` object and differentiates each one with ``ZCylinder`` or ``Plane`` objects to subdivide the pin cell.
 
-The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin and moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
+Rings can be created inside of a ``ZCylinder``, between two ``ZCylinder`` objects, or outside of a ``ZCylinder``. If rings are created outside of a ``ZCylinder`` and the exterior bounding surface is the ``Cell`` boundaries, then an effective bounding cylinder radius :math:`R_\textit{eff}` is calculated as
+
+.. math::
+  R_\textit{eff} = \sqrt{\frac{\Delta x \Delta y}{\pi}}
+
+where :math:`\Delta x` is the width of the ``Cell`` in the :math:`x`-direction and :math:`\Delta y` is the width of the ``Cell`` in the :math:`y`-direction. Equal volume rings are then created between the inner bounding ``ZCylinder`` and this effective bounding radius. Note that in this case the regions will not be of equal volume since the effective bounding cylinder will lay partially outside of the boundaries of the ``Cell``.
+
+The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin ``Cells`` and a positive integral number of sectors with no rings for moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
 
 .. code-block:: python
 
-    # Subdivide the fuel region into 3 rings and 8 angular sectors
+    # Subdivide the fuel region into 3 rings and 12 angular sectors
     fuel.setNumRings(3)
-    fuel.setNumSectors(8)
+    fuel.setNumSectors(12)
 
-    # Subdivide the moderator region into 8 angular sectors
+    # Subdivide the moderator region into 16 angular sectors
     moderator.setNumSectors(16)
-   
-The pin cell materials are illustrated on the left below, while the flat source regions with 3 equal volume rings and 8 sectors in the fuel, and 16 sectors in the moderator, are displayed on the right.
 
-.. _figure_fluxes:
+The plots shown below illustrate the pin cell material layout (left) and flat source region layout (right) where the flat source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 16 sectors in the moderator.
+
+.. _figure_pin_cell_fsrs:
+
+.. table::
+
+   +--------------------------------------------------------+--------------------------------------------------------+
+   | .. _figa:                                              | .. _figb:                                              |
+   |                                                        |                                                        |
+   | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs.png                 |
+   |   :width: 50 %                                         |   :width: 50 %                                         |
+   |   :align: right                                        |   :align: left                                         |
+   +--------------------------------------------------------+--------------------------------------------------------+
+
+The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above, but with 2 rings in the moderator.
+
+.. code-block:: python
+
+    # Subdivide the fuel region into 3 rings and 12 angular sectors
+    fuel.setNumRings(3)
+    fuel.setNumSectors(12)
+
+    # Subdivide the moderator region into 2 rings and 16 angular sectors
+    moderator.setNumRings(2)
+    moderator.setNumSectors(16)
+
+Again, the pin cell materials are illustrated below on the left, while the flat source regions are displayed on the right with 2 rings now present in the moderator.
+
+.. _figure_pin_cell_fsrs_moderator_rings:
+
+.. table::
+
+   +--------------------------------------------------------+--------------------------------------------------------+
+   | .. _figa:                                              | .. _figb:                                              |
+   |                                                        |                                                        |
+   | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs-moderator-rings.png |
+   |   :width: 50 %                                         |   :width: 50 %                                         |
+   |   :align: right                                        |   :align: left                                         |
+   +--------------------------------------------------------+--------------------------------------------------------+
+
+Lastly, the rings and sectors can be used to discretize regions between 2 ``ZCylinder`` objects, such as annular fuel. The following code snippet discretizes annular fuel into 3 rings and 12 sectors with the inner coolant and outer moderator both discretized into 8 sectors with no rings.
+
+.. code-block:: python
+
+    # Subdivide the inner coolant region into 8 angular sectors
+    inner_coolant.setNumSectors(8)
+
+    # Subdivide the annular fuel region into 3 rings and 12 sectors
+    fuel.setNumRings(3)
+    fuel.setNumSectors(12)
+
+    # Subdivide the outer moderator region into 8 angular sectors
+    outer_moderator.setNumSectors(8)
+
+
+The annular pin cell materials are illustrated below on the left, with the resulting fuel and moderator discretization presented on the right.
+
+.. _figure_pin_cell_fsrs_moderator_annular:
      
 .. table:: 
    
-   +------------------------------------------+------------------------------------------+
-   | .. _figa:                                | .. _figb:                                |
-   |                                          |                                          |
-   | .. image:: ../../img/pin-cell-fsrs-1.png | .. image:: ../../img/pin-cell-fsrs-2.png |
-   |   :width: 50 %                           |   :width: 50 %                           |
-   |   :align: right                          |   :align: left                           |
-   +------------------------------------------+------------------------------------------+ 
+   +--------------------------------------------------------+--------------------------------------------------------+
+   | .. _figa:                                              | .. _figb:                                              |
+   |                                                        |                                                        |
+   | .. image:: ../../img/pin-cell-materials-annular.png    | .. image:: ../../img/pin-cell-fsrs-annular.png         |
+   |   :width: 50 %                                         |   :width: 50 %                                         |
+   |   :align: right                                        |   :align: left                                         |
+   +--------------------------------------------------------+--------------------------------------------------------+
 
-
-.. note:: Circular rings may **only** be used in ``Cell`` objects which form the interior of a ``Circle`` surface, such as a fuel pin.
+.. note:: Rings may **only** be used in ``Cell`` objects that contain a ``ZCylinder`` surface, such as a fuel pin.
 
 .. note:: Each subdivided region will be filled by the **same Material** as the ``Cell`` object created by the user in the Python script.
 

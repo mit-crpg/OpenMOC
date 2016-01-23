@@ -512,7 +512,7 @@ Variable                   Description                                      Allo
 ``COMPILER``               Specifies the compiler                           gnu, intel, clang, bluegene      gnu
 ``OPENMP``                 Flag to turn on OpenMP parallelism               yes, no                          yes
 ``OPTIMIZE``               Flag to turn on compiler optimizations           yes, no                          yes
-``DEBUG``                  Flag to turn on vector reports and debug flag    yes, no                          no
+``DEBUG``                  Flag to turn on vector reports and debug mode    yes, no                          no
 ``PROFILE``                Creates a :file:`gmon.out` file for profiling    yes, no                          no
 ``PRECISION``              Specifies the floating point precision           single, double                   single
 =========================  ===============================================  ==============================   =========================
