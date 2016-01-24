@@ -414,23 +414,19 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
 
 /**
  * @brief Assign a fixed source for a flat source region and energy group.
- * @details This is a helper routine to perform error checking for the
- *          subclasses which store the source in the appropriate array.
  * @param fsr_id the flat source region ID
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
   /* Insert fixed source into map */
-  _fixed_sources_map[std::pair<int, int>(fsr_id, group)] = source;
+  _fix_src_FSR_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
 
 /**
  * @brief Assign a fixed source for a Cell and energy group.
- * @details This routine will add the fixed source to all instances of the
- *          Cell in the geometry (e.g., all FSRs for this Cell).
- * @param fsr_id the Cell of interest
+ * @param cell the Cell of interest
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
@@ -444,38 +440,22 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
       setFixedSourceByCell(iter->second, group, source);
   }
 
-  /* Aadd the source to all FSRs for this MATERIAL type Cell */
-  else {
-    Cell* fsr_cell;
-
-    for (int r=0; r < _num_FSRs; r++) {
-      fsr_cell = _geometry->findCellContainingFSR(r);
-      if (cell->getId() == fsr_cell->getId())
-        setFixedSourceByFSR(r, group, source);
-    }
-  }
+  /* Insert fixed source into map */
+  else
+    _fix_src_cell_map[std::pair<Cell*, int>(cell, group)] = source;
 }
 
 
 /**
  * @brief Assign a fixed source for a Material and energy group.
- * @details This routine will add the fixed source to all instances of the
- *          Material in the geometry (e.g., all FSRs with this Material).
- * @param fsr_id the Material of interest
+ * @param material the Material of interest
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByMaterial(Material* material, int group,
                                       FP_PRECISION source) {
-
-  Material* fsr_material;
-
-  /* Add the source to all FSRs for this Material */
-  for (int r=0; r < _num_FSRs; r++) {
-    fsr_material = _geometry->findFSRMaterial(r);
-    if (material->getId() == fsr_material->getId())
-      setFixedSourceByFSR(r, group, source);
-  }
+  /* Insert fixed source into map */
+  _fix_src_material_map[std::pair<Material*, int>(material, group)] = source;
 }
 
 

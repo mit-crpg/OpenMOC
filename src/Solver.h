@@ -158,7 +158,13 @@ protected:
   FP_PRECISION* _fixed_sources;
 
   /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
-  std::map< std::pair<int, int>, FP_PRECISION > _fixed_sources_map;
+  std::map< std::pair<int, int>, FP_PRECISION > _fix_src_FSR_map;
+
+  /** A mapping of fixed sources keyed by the pair (Cell*, energy group) */
+  std::map< std::pair<Cell*, int>, FP_PRECISION > _fix_src_cell_map;
+
+  /** A mapping of fixed sources keyed by the pair (Material*, energy group) */
+  std::map< std::pair<Material*, int>, FP_PRECISION > _fix_src_material_map;
 
   /** Ratios of source to total cross-section for each FSR and energy group */
   FP_PRECISION* _reduced_sources;
@@ -241,6 +247,11 @@ public:
    * @brief Initializes Track boundary angular and FSR scalar flux arrays.
    */
   virtual void initializeFluxArrays() = 0;
+
+  /**
+   * @brief Assigns fixed sources by Cell and Material to FSRs.
+   */
+  virtual void initializeFixedSources() = 0;
 
   /**
    * @brief Allocates memory for FSR source arrays.

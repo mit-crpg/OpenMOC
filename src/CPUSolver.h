@@ -86,6 +86,7 @@ public:
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
   void initializeFluxArrays();
+  void initializeFixedSources();
   void initializeSourceArrays();
   void initializeFSRs();
 

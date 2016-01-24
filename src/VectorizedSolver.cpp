@@ -213,6 +213,7 @@ void VectorizedSolver::initializeSourceArrays() {
     memset(_fixed_sources, 0.0, size);
 
     /* Populate fixed source array with any user-defined sources */
+    /*
     std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
     std::pair<int, int> fsr_group_key;
     int fsr_id, group;
@@ -232,6 +233,7 @@ void VectorizedSolver::initializeSourceArrays() {
 
       _fixed_sources(fsr_id, group-1) = _fixed_sources_map[fsr_group_key];
     }
+    */
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR sources");

@@ -1301,7 +1301,11 @@ void GPUSolver::initializeSourceArrays() {
     /* Initialize fixed sources to zero */
     thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
 
+    /* Fill fixed sources with those assigned by Cell, Material or FSR */
+    initializeFixedSources();
+
     /* Populate fixed source array with any user-defined sources */
+    /*
     std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
     std::pair<int, int> fsr_group_key;
     int fsr_id, group;
@@ -1320,6 +1324,7 @@ void GPUSolver::initializeSourceArrays() {
                    "%d FSRs in the geometry", fsr_id, _num_FSRs);
 
       _fixed_sources(fsr_id, group-1) = _fixed_sources_map[fsr_group_key];
+      */
     }
   }
   catch(std::exception &e) {
