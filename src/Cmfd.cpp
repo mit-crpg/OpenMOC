@@ -12,6 +12,7 @@ Cmfd::Cmfd() {
   /* Initialize Geometry and Mesh-related attribute */
   _polar_quad = NULL;
   _geometry = NULL;
+  _materials = NULL;
 
   /* Global variables used in solving CMFD problem */
   _num_x = 1;
@@ -41,6 +42,7 @@ Cmfd::Cmfd() {
   _new_source = NULL;
   _group_indices = NULL;
   _group_indices_map = NULL;
+  _user_group_indices = false;
   _surface_currents = NULL;
   _corner_currents = NULL;
   _volumes = NULL;
@@ -843,10 +845,12 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
 
   _num_cmfd_groups = length_group_indices - 1;
 
-  /* Allocate memory */
-  if (_group_indices == NULL) {
-    _group_indices = new int[length_group_indices];
-  }
+  /* Delete old group indices array if it exists */
+  if (_group_indices != NULL)
+    delete [] _group_indices;
+
+  /* Allocate memory for new group indices */
+  _group_indices = new int[length_group_indices];
 
   if (group_indices == NULL) {
     for (int i = 0; i < length_group_indices; i++) {
@@ -870,6 +874,8 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
       log_printf(INFO, "group indices %d: %d", i, group_indices[i]);
     }
   }
+
+  _user_group_indices = true;
 }
 
 
@@ -879,6 +885,10 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
 void Cmfd::initializeMaterials() {
 
   Material* material;
+
+  /* Delete old Cmfd surface currents vector if it exists */
+  if (_materials != NULL)
+    delete [] _materials;
 
   try{
     _materials = new Material*[_num_x*_num_y];
@@ -948,10 +958,18 @@ void Cmfd::initializeCellMap() {
  */
 void Cmfd::initializeGroupMap() {
 
-  /* Allocate memory */
-  if (_group_indices_map == NULL) {
-    _group_indices_map = new int[_num_moc_groups];
+  /* Setup one-to-one fine-to-coarse group map if not specified by user */
+  if (!_user_group_indices) {
+    setGroupStructure(NULL, _num_moc_groups+1);
+    _user_group_indices = false;
   }
+
+  /* Delete old group indices map if it exists */
+  if (_group_indices_map != NULL)
+    delete [] _group_indices_map;
+
+  /* Allocate memory for new group indices map */
+  _group_indices_map = new int[_num_moc_groups];
 
   /* Create group indices map */
   for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -1808,6 +1826,24 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
  */
 void Cmfd::initialize() {
 
+  /* Delete old Matrix and Vector objects if they exist */
+  if (_M != NULL)
+    delete _M;
+  if (_A != NULL)
+    delete _A;
+  if (_old_source != NULL)
+    delete _old_source;
+  if (_new_source != NULL)
+    delete _new_source;
+  if (_old_flux != NULL)
+    delete _old_flux;
+  if (_new_flux != NULL)
+    delete _new_flux;
+  if (_flux_ratio != NULL)
+    delete _flux_ratio;
+  if (_volumes != NULL)
+    delete _volumes;
+
   try{
 
     /* Allocate memory for matrix and vector objects */
@@ -1836,6 +1872,10 @@ void Cmfd::initialize() {
  * @brief Initialize the CMFD lattice.
  */
 void Cmfd::initializeLattice(Point* offset) {
+
+  /* Delete old lattice if it exists */
+  if (_lattice != NULL)
+    delete _lattice;
 
   /* Initialize the lattice */
   _lattice = new Lattice();

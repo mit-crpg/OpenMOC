@@ -237,6 +237,15 @@ int TrackGenerator::getNumThreads() {
 
 
 /**
+ * @brief Returns the z-coord where the 2D Tracks should be created.
+ * @return the z-coord where the 2D Tracks should be created.
+ */
+double TrackGenerator::getZCoord() {
+  return _z_coord;
+}
+
+
+/**
  * @brief Computes and returns an array of volumes indexed by FSR.
  * @details Note: It is the function caller's responsibility to deallocate
  *          the memory reserved for the FSR volume array.
@@ -325,7 +334,6 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-
         curr_segment = _tracks[i][j].getSegment(s);
         length = curr_segment->_length;
         material = curr_segment->_material;
@@ -356,6 +364,15 @@ void TrackGenerator::setNumThreads(int num_threads) {
 
   /* Set the number of threads for OpenMP */
   omp_set_num_threads(_num_threads);
+}
+
+
+/**
+ * @brief Sets the z-coord where the 2D Tracks should be created.
+ * @param z_coord the z-coord where the 2D Tracks should be created.
+ */
+void TrackGenerator::setZCoord(double z_coord) {
+  _z_coord = z_coord;
 }
 
 
@@ -572,6 +589,9 @@ void TrackGenerator::generateTracks() {
   /* Initialize the CMFD object */
   if (_geometry->getCmfd() != NULL)
     _geometry->initializeCmfd();
+
+  /* Initialize FSRs with pin cell discretization and neighbor cell lists */
+  _geometry->initializeFSRs();
 
   initializeTrackFileDirectory();
 
@@ -1381,7 +1401,6 @@ void TrackGenerator::dumpTracksToFile() {
   ParallelHashMap<std::string, fsr_data*>* FSR_keys_map =
       _geometry->getFSRKeysMap();
   std::vector<std::string>* FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::string fsr_key;
   int fsr_id;
   int fsr_counter = 0;
@@ -1411,9 +1430,6 @@ void TrackGenerator::dumpTracksToFile() {
     fwrite(&x, sizeof(double), 1, out);
     fwrite(&y, sizeof(double), 1, out);
     fwrite(&z, sizeof(double), 1, out);
-
-    /* Write data to file from FSRs_to_material_IDs */
-    fwrite(&(FSRs_to_material_IDs->at(fsr_counter)), sizeof(int), 1, out);
 
     /* Write data to file from FSRs_to_keys */
     fsr_key = FSRs_to_keys->at(fsr_counter);
@@ -1485,7 +1501,6 @@ bool TrackGenerator::readTracksFromFile() {
   int ret;
   FILE* in;
   in = fopen(_tracks_filename.c_str(), "r");
-
   int string_length;
 
   /* Import Geometry metadata from the Track file */
@@ -1547,7 +1562,6 @@ bool TrackGenerator::readTracksFromFile() {
 
   /* Loop over Tracks */
   for (int i=0; i < _num_azim; i++) {
-
     _tracks[i] = new Track[_num_tracks[i]];
 
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -1603,8 +1617,6 @@ bool TrackGenerator::readTracksFromFile() {
   /* Create FSR vector maps */
   ParallelHashMap<std::string, fsr_data*>* FSR_keys_map =
       new ParallelHashMap<std::string, fsr_data*>;
-  std::vector<int>* FSRs_to_material_IDs
-    = new std::vector<int>;
   std::vector<std::string>* FSRs_to_keys
     = new std::vector<std::string>;
   int num_FSRs;
@@ -1636,10 +1648,6 @@ bool TrackGenerator::readTracksFromFile() {
     fsr->_point = point;
     FSR_keys_map->insert(fsr_key, fsr);
 
-    /* Read data from file for FSR_to_materials_IDs */
-    ret = fread(&material_id, sizeof(int), 1, in);
-    FSRs_to_material_IDs->push_back(material_id);
-
     /* Read data from file for FSR_to_keys */
     ret = fread(&string_length, sizeof(int), 1, in);
     char* char_buffer2 = new char[string_length];
@@ -1650,7 +1658,6 @@ bool TrackGenerator::readTracksFromFile() {
 
   /* Set FSR vector maps */
   _geometry->setFSRKeysMap(FSR_keys_map);
-  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
   _geometry->setFSRsToKeys(FSRs_to_keys);
 
   /* Read cmfd cell_fsrs vector of vectors from file */
@@ -1906,20 +1913,43 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
 
 /**
- * @brief Sets the z-coord where the 2D Tracks should be created.
- * @param z_coord the z-coord where the 2D Tracks should be created.
+ * @brief Initialize track segments with pointers to FSR Materials.
+ * @details This is called by the Solver at simulation time. This
+ *          initialization is necessary since Materials in each FSR
+ *          may be interchanged by the user in between different
+ *          simulations. This method links each segment and fsr_data
+ *          struct with the current Material found in each FSR.
  */
-void TrackGenerator::setZCoord(double z_coord) {
-  _z_coord = z_coord;
-}
+void TrackGenerator::initializeSegments() {
 
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to initialize segments since "
+	       "tracks have not yet been generated");
 
-/**
- * @brief Returns the z-coord where the 2D Tracks should be created.
- * @return the z-coord where the 2D Tracks should be created.
- */
-double TrackGenerator::getZCoord() {
-  return _z_coord;
+  int region_id;
+  segment* curr_segment;
+
+  /* Get all of the Materials from the Geometry */
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+
+  /* Get the mappings of FSR to keys to fsr_data to update Materials */
+  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map;
+  std::vector<std::string>* FSRs_to_keys;
+  FSR_keys_map = _geometry->getFSRKeysMap();
+  FSRs_to_keys = _geometry->getFSRsToKeys();
+
+  /* Iterate over all Track segments and assign them each a Material */
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
+	region_id = curr_segment->_region_id;
+        Material* mat = _geometry->findFSRMaterial(region_id);
+	curr_segment->_material = _geometry->findFSRMaterial(region_id);
+	FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id = mat->getId();
+      }
+    }
+  }
 }
 
 

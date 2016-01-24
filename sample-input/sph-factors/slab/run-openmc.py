@@ -1,6 +1,6 @@
 import numpy as np
-import openmc
 import opencg
+import openmc
 import openmc.mgxs
 import openmc.opencg_compatible
 
@@ -152,13 +152,19 @@ geometry_file.export_to_xml()
 #                   Exporting to OpenMC settings.xml File
 ###############################################################################
 
+# Construct uniform initial source distribution over fissionable zones
+lower_left = opencg_geometry.bounds[:3]
+upper_right = opencg_geometry.bounds[3:]
+source = openmc.source.Source(space=openmc.stats.Box(lower_left, upper_right))
+source.only_fissionable = True
+
 # Instantiate a SettingsFile
 settings_file = openmc.SettingsFile()
 settings_file.batches = batches
 settings_file.inactive = inactive
 settings_file.particles = particles
 settings_file.output = {'tallies': False, 'summary': True}
-settings_file.set_source_space('fission', opencg_geometry.bounds)
+settings_file.source = source
 settings_file.sourcepoint_write = False
 
 # Export to "settings.xml"
@@ -216,4 +222,4 @@ tallies_file.export_to_xml()
 
 # Run OpenMC
 executor = openmc.Executor()
-executor.run_simulation(output=True, mpi_procs=4)
+executor.run_simulation(output=True, mpi_procs=3)

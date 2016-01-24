@@ -84,32 +84,6 @@ int VectorizedSolver::getNumVectorWidths() {
 
 
 /**
- * @brief Assign a fixed source for a flat source region and energy group.
- * @details Fixed sources should be scaled to reflect the fact that OpenMOC
- *          normalizes the scalar flux such that the total energy- and
- *          volume-integrated production rate sums to 1.0.
- * @param fsr_id the flat source region ID
- * @param group the energy group
- * @param source the volume-averaged source in this group
- */
-void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
-                                    FP_PRECISION source) {
-
-  Solver::setFixedSourceByFSR(fsr_id, group, source);
-
-  /* Allocate the fixed sources array if not yet allocated */
-  if (_fixed_sources == NULL) {
-    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-    memset(_fixed_sources, 0.0, size);
-  }
-
-  /* Store the fixed source for this FSR and energy group */
-  _fixed_sources(fsr_id,group-1) = source;
-}
-
-
-/**
  * @brief Sets the Geometry for the Solver.
  * @param geometry a pointer to the Geometry
  */
@@ -123,7 +97,6 @@ void VectorizedSolver::setGeometry(Geometry* geometry) {
   /* Reset the number of energy groups by rounding up for the number
    * of vector widths needed to accomodate the energy groups */
   _num_groups = _num_vector_lengths * VEC_LENGTH;
-
   _polar_times_groups = _num_groups * _num_polar;
 }
 
@@ -225,6 +198,8 @@ void VectorizedSolver::initializeSourceArrays() {
   /* Delete old sources arrays if they exist */
   if (_reduced_sources != NULL)
     MM_FREE(_reduced_sources);
+  if (_fixed_sources != NULL)
+    MM_FREE(_fixed_sources);
 
   int size;
 
@@ -232,17 +207,54 @@ void VectorizedSolver::initializeSourceArrays() {
   try{
     size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
     _reduced_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-    /* Allocate the fixed sources array if not yet allocated */
-    if (_fixed_sources == NULL) {
-      _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-      memset(_fixed_sources, 0.0, size);
+    /* Initialize fixed sources to zero */
+    memset(_fixed_sources, 0.0, size);
+
+    /* Populate fixed source array with any user-defined sources */
+    std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
+    std::pair<int, int> fsr_group_key;
+    int fsr_id, group;
+    for (iter = _fixed_sources_map.begin();
+	 iter != _fixed_sources_map.end(); ++iter) {
+      fsr_group_key = iter->first;
+      fsr_id = fsr_group_key.first;
+      group = fsr_group_key.second;
+
+      if (group <= 0 || group > _num_groups)
+        log_printf(ERROR,"Unable to use fixed source for group %d in "
+                   "in a %d energy group problem", group, _num_groups);
+
+      if (fsr_id < 0 || fsr_id >= _num_FSRs)
+        log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
+                   "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+      _fixed_sources(fsr_id, group-1) = _fixed_sources_map[fsr_group_key];
     }
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR sources");
   }
 }
+
+
+/**
+ * @brief Initializes the FSR volumes and Materials array.
+ */
+void VectorizedSolver::initializeFSRs() {
+
+  CPUSolver::initializeFSRs();
+
+  /* Compute the number of SIMD vector widths needed to fit energy groups */
+  _num_vector_lengths = (_num_groups / VEC_LENGTH) + 1;
+
+  /* Reset the number of energy groups by rounding up for the number
+   * of vector widths needed to accomodate the energy groups */
+  _num_groups = _num_vector_lengths * VEC_LENGTH;
+  _polar_times_groups = _num_groups * _num_polar;
+}
+
 
 
 /**

@@ -859,8 +859,11 @@ void Material::buildFissionMatrix() {
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
                "since its chi spectrum has not been set", _id);
 
-  if (_fiss_matrix == NULL)
-    _fiss_matrix = new FP_PRECISION[_num_groups*_num_groups];
+  /* Deallocate memory for old fission matrix if needed */
+  if (_fiss_matrix != NULL)
+    delete [] _fiss_matrix;
+
+  _fiss_matrix = new FP_PRECISION[_num_groups*_num_groups];
 
   /* Compute vector outer product of chi and the fission cross-section */
   for (int G=0; G < _num_groups; G++) {
