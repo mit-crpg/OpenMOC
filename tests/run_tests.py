@@ -36,6 +36,11 @@ FP = 'double'
 tests = OrderedDict()
 
 class Test(object):
+
+    # A class attribute to cache the setup install commands from
+    # previous Tests, if any (this helps eliminate redundant builds)
+    _setup_cmd = []
+
     def __init__(self, name, cc='gcc', num_threads=1, debug=False):
         self.name = name
         self.cc = cc
@@ -55,14 +60,18 @@ class Test(object):
         if self.debug:
             setup_cmd += ['--debug-mode']
 
-        # Run setup.py installation script
-        rc = subprocess.call(setup_cmd)
-        rc = subprocess.call(setup_cmd)
+        # Run setup.py if it was not run for the previous Test
+        if setup_cmd != Test._setup_cmd:
+            rc = subprocess.call(setup_cmd)
+            rc = subprocess.call(setup_cmd)
 
-        # Check for error code
-        if rc != 0:
-            self.success = False
-            self.msg = 'Failed on setup.py'
+            # Check for error code
+            if rc != 0:
+                self.success = False
+                self.msg = 'Failed on setup.py'
+            # Cache the setup install command for the next Test
+            else:
+                Test._setup_cmd = setup_cmd
 
     def run_cmake(self):
         """Run CMake to create CTest script"""
@@ -173,10 +182,10 @@ for key in iter(tests):
         logfilename = logfilename + '_{0}.log'.format(test.name)
         shutil.copy(logfile[0], logfilename)
 
-    # Clear build directory and remove binary and hdf5 files
-    shutil.rmtree('build', ignore_errors=True)
-    shutil.rmtree('openmoc', ignore_errors=True)
-    subprocess.call(['./cleanup'])
+# Clear build directory and remove binary and hdf5 files
+shutil.rmtree('build', ignore_errors=True)
+shutil.rmtree('openmoc', ignore_errors=True)
+subprocess.call(['./cleanup'])
 
 # Print out summary of results
 print('\n' + '='*54)
