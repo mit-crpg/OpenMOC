@@ -703,6 +703,7 @@ Polar Quadrature
 ----------------
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 In OpenMOC, there are five included polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard, and Tabuchi Yamamoto polar quadrature sets. Users can also input a custom polar quadrature set by manually setting the weights and sines of the polar angles. Example code on how to create the 6 polar quadrature sets is included below.
 
 .. code-block:: python
