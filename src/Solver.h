@@ -237,6 +237,7 @@ public:
   virtual void initializeMaterials(solverMode mode=FORWARD);
   virtual void initializeFSRs();
   virtual void countFissionableFSRs();
+  virtual void initializeFixedSources();
   virtual void initializeCmfd();
 
   virtual void resetMaterials(solverMode mode=FORWARD);
@@ -247,11 +248,6 @@ public:
    * @brief Initializes Track boundary angular and FSR scalar flux arrays.
    */
   virtual void initializeFluxArrays() = 0;
-
-  /**
-   * @brief Assigns fixed sources by Cell and Material to FSRs.
-   */
-  virtual void initializeFixedSources() = 0;
 
   /**
    * @brief Allocates memory for FSR source arrays.

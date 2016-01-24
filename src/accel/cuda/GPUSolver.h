@@ -132,6 +132,7 @@ public:
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();
+  void initializeFixedSources();
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);

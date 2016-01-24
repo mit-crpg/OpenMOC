@@ -182,53 +182,47 @@ void CPUSolver::initializeFluxArrays() {
 
 
 /**
- * @brief Assigns fixed sources assigned by Cell, Material and FSR. 
+ * @brief Allocates memory for FSR source arrays.
+ * @details Deletes memory for old source arrays if they were allocated for a
+ *          previous simulation.
+ */
+void CPUSolver::initializeSourceArrays() {
+
+  /* Delete old sources arrays if they exist */
+  if (_reduced_sources != NULL)
+    delete [] _reduced_sources;
+  if (_fixed_sources != NULL)
+    delete [] _fixed_sources;
+
+  int size = _num_FSRs * _num_groups;
+
+  /* Allocate memory for all source arrays */
+  try{
+    _reduced_sources = new FP_PRECISION[size];
+    _fixed_sources = new FP_PRECISION[size];
+  }
+  catch(std::exception &e) {
+    log_printf(ERROR, "Could not allocate memory for FSR sources");
+  }
+
+  /* Initialize fixed sources to zero */
+  memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+
+  /* Populate fixed source array with any user-defined sources */
+  initializeFixedSources();
+}
+
+
+/**
+ * @brief Populates array of fixed sources assigned by FSR.
  */
 void CPUSolver::initializeFixedSources() {
 
-  Cell* fsr_cell;
-  Material* fsr_material;
+  Solver::initializeFixedSources();
+
   int fsr_id, group;
-  FP_PRECISION source;
   std::pair<int, int> fsr_group_key;
-  std::pair<Cell*, int> cell_group_key;
-  std::pair<Material*, int> mat_group_key;
-  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
-  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
   std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
-
-  /** Fixed sources assigned by Cell */
-  for (cell_iter = _fix_src_cell_map.begin(); 
-       cell_iter != _fix_src_cell_map.end(); ++cell_iter) {
-
-    /* Get the Cell with an assigned fixed source */
-    cell_group_key = cell_iter->first;
-    group = cell_group_key.second;
-    source = _fix_src_cell_map[cell_group_key];
-
-    /* Search for this Cell in all FSRs */
-    for (int r=0; r < _num_FSRs; r++) {
-      fsr_cell = _geometry->findCellContainingFSR(r);
-      if (cell_group_key.first->getId() == fsr_cell->getId())
-        setFixedSourceByFSR(r, group, source);
-    }
-  }
-
-  /** Fixed sources assigned by Material */
-  for (mat_iter = _fix_src_material_map.begin(); 
-       mat_iter != _fix_src_material_map.end(); ++mat_iter) {
-
-    /* Get the Material with an assigned fixed source */
-    mat_group_key = mat_iter->first;
-    group = mat_group_key.second;
-    source = _fix_src_material_map[mat_group_key];
-
-    for (int r=0; r < _num_FSRs; r++) {
-      fsr_material = _geometry->findFSRMaterial(r);
-      if (mat_group_key.first->getId() == fsr_material->getId())
-        setFixedSourceByFSR(r, group, source);
-    }
-  }
 
   /* Populate fixed source array with any user-defined sources */
   for (fsr_iter = _fix_src_FSR_map.begin(); 
@@ -248,35 +242,6 @@ void CPUSolver::initializeFixedSources() {
                  "%d FSRs in the geometry", fsr_id, _num_FSRs);
 
     _fixed_sources(fsr_id, group-1) = _fix_src_FSR_map[fsr_group_key];
-  }
-}
-
-
-
-/**
- * @brief Allocates memory for FSR source arrays.
- * @details Deletes memory for old source arrays if they were allocated for a
- *          previous simulation.
- */
-void CPUSolver::initializeSourceArrays() {
-
-  /* Delete old sources arrays if they exist */
-  if (_reduced_sources != NULL)
-    delete [] _reduced_sources;
-  if (_fixed_sources != NULL)
-    delete [] _fixed_sources;
-
-  /* Allocate memory for all source arrays */
-  try{
-    int size = _num_FSRs * _num_groups;
-    _reduced_sources = new FP_PRECISION[size];
-    _fixed_sources = new FP_PRECISION[size];
-    /* Initialize fixed sources to zero */
-    memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
-    initializeFixedSources();
-  }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for FSR sources");
   }
 }
 

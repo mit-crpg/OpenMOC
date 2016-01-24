@@ -419,7 +419,6 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
-  /* Insert fixed source into map */
   _fix_src_FSR_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
@@ -439,8 +438,6 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
     for (iter = cells.begin(); iter != cells.end(); ++iter)
       setFixedSourceByCell(iter->second, group, source);
   }
-
-  /* Insert fixed source into map */
   else
     _fix_src_cell_map[std::pair<Cell*, int>(cell, group)] = source;
 }
@@ -454,7 +451,6 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
  */
 void Solver::setFixedSourceByMaterial(Material* material, int group,
                                       FP_PRECISION source) {
-  /* Insert fixed source into map */
   _fix_src_material_map[std::pair<Material*, int>(material, group)] = source;
 }
 
@@ -632,6 +628,55 @@ void Solver::countFissionableFSRs() {
   for (int r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
+  }
+}
+
+
+/**
+ * @brief Assigns fixed sources assigned by Cell, Material to FSRs.
+ */
+void Solver::initializeFixedSources() {
+
+  Cell* fsr_cell;
+  Material* fsr_material;
+  int group;
+  FP_PRECISION source;
+  std::pair<Cell*, int> cell_group_key;
+  std::pair<Material*, int> mat_group_key;
+  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
+  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
+
+  /** Fixed sources assigned by Cell */
+  for (cell_iter = _fix_src_cell_map.begin(); 
+       cell_iter != _fix_src_cell_map.end(); ++cell_iter) {
+
+    /* Get the Cell with an assigned fixed source */
+    cell_group_key = cell_iter->first;
+    group = cell_group_key.second;
+    source = _fix_src_cell_map[cell_group_key];
+
+    /* Search for this Cell in all FSRs */
+    for (int r=0; r < _num_FSRs; r++) {
+      fsr_cell = _geometry->findCellContainingFSR(r);
+      if (cell_group_key.first->getId() == fsr_cell->getId())
+        setFixedSourceByFSR(r, group, source);
+    }
+  }
+
+  /** Fixed sources assigned by Material */
+  for (mat_iter = _fix_src_material_map.begin(); 
+       mat_iter != _fix_src_material_map.end(); ++mat_iter) {
+
+    /* Get the Material with an assigned fixed source */
+    mat_group_key = mat_iter->first;
+    group = mat_group_key.second;
+    source = _fix_src_material_map[mat_group_key];
+
+    for (int r=0; r < _num_FSRs; r++) {
+      fsr_material = _geometry->findFSRMaterial(r);
+      if (mat_group_key.first->getId() == fsr_material->getId())
+        setFixedSourceByFSR(r, group, source);
+    }
   }
 }
 
