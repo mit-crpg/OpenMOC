@@ -5,7 +5,8 @@ import sys
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
-from input_set import PWRAssemblyInput
+from input_set import PwrAssemblyInput
+import openmoc
 
 
 class CmfdPwrAssemblyTestHarness(TestHarness):
@@ -14,7 +15,22 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
 
     def __init__(self):
         super(CmfdPwrAssemblyTestHarness, self).__init__()
-        self.input_set = PWRAssemblyInput()
+        self.input_set = PwrAssemblyInput()
+
+    def _create_geometry(self):
+        """Initialize CMFD and add it to the Geometry."""
+
+        super(CmfdPwrAssemblyTestHarness, self)._create_geometry()
+
+        # Initialize CMFD
+        cmfd = openmoc.Cmfd()
+        cmfd.setSORRelaxationFactor(1.5)
+        cmfd.setLatticeStructure(17,17)
+        cmfd.setGroupStructure([1,4,8])
+        cmfd.setKNearest(3)
+
+        # Add CMFD to the Geometry
+        self.input_set.geometry.setCmfd(cmfd)
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,

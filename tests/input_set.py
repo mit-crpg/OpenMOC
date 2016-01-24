@@ -237,7 +237,7 @@ class SimpleLatticeInput(InputSet):
         super(SimpleLatticeInput, self).create_geometry()
 
 
-class PWRAssemblyInput(InputSet):
+class PwrAssemblyInput(InputSet):
     """A 17x17 pin cell lattice problem from sample-input/ipython-notebook."""
 
     def create_materials(self):
@@ -373,15 +373,7 @@ class PWRAssemblyInput(InputSet):
         root_universe = openmoc.Universe(name='Root Universe')
         root_universe.addCell(root_cell)
 
-        # Initialize CMFD
-        cmfd = openmoc.Cmfd()
-        cmfd.setSORRelaxationFactor(1.5)
-        cmfd.setLatticeStructure(17,17)
-        cmfd.setGroupStructure([1,4,8])
-        cmfd.setKNearest(3)
-
         self.geometry = openmoc.Geometry()
         self.geometry.setRootUniverse(root_universe)
-        self.geometry.setCmfd(cmfd)
 
-        super(PWRAssemblyInput, self).create_geometry()
+        super(PwrAssemblyInput, self).create_geometry()
