@@ -10,6 +10,7 @@ import sys
 import os
 import copy
 import collections
+import hashlib
 
 import numpy as np
 
@@ -91,6 +92,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
 
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
+    old_materials = {}
     num_groups = int(f.attrs['# groups'])
 
     # If a Geometry was passed in, extract all cells or materials from it
@@ -103,7 +105,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             py_printf('ERROR', 'Domain type "%s" is not supported', domain_type)
 
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
-    for domain_spec in f[domain_type]:
+    for domain_spec in sorted(f[domain_type]):
 
         py_printf('INFO', 'Importing cross sections for %s "%s"',
                           domain_type, str(domain_spec))
@@ -131,6 +133,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                 # the Material must be cloned for each unique Cell
                 if material != None:
                     if len(domains) > geometry.getNumMaterials():
+                        old_materials[material.getId()] = material
                         material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
@@ -138,7 +141,11 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                     if isinstance(domain_spec, int):
                         material = openmoc.Material(id=domain_spec)
                     else:
-                        material = openmoc.Material(name=domain_spec)
+                        # Reproducibly hash the domain name into an integer ID
+                        domain_id =hashlib.md5(domain_spec.encode('utf-8'))
+                        domain_id = int(domain_id.hexdigest()[:4], 16)
+                        material = \
+                            openmoc.Material(id=domain_id, name=domain_spec)
 
                 # Fill the Cell with the new Material
                 cell.setFill(material)
@@ -148,7 +155,10 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             if isinstance(domain_spec, int):
                 material = openmoc.Material(id=domain_spec)
             else:
-                material = openmoc.Material(name=domain_spec)
+                # Reproducibly hash the domain name into an integer ID
+                domain_id =hashlib.md5(domain_spec.encode('utf-8'))
+                domain_id = int(domain_id.hexdigest()[:4], 16)
+                material = openmoc.Material(id=domain_id, name=domain_spec)
 
         # Add material to the collection
         materials[domain_spec] = material
@@ -211,6 +221,10 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             py_printf('INFO', 'Loaded "fission" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
 
+    # Inform SWIG to garbage collect any old Materials from the Geometry
+    for material_id in old_materials:
+        old_materials[material_id].thisown = False
+
     # Return collection of materials
     return materials
 
@@ -245,6 +259,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
+    old_materials = {}
     num_groups = mgxs_lib.num_groups
     domain_type = mgxs_lib.domain_type
 
@@ -286,8 +301,8 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                 # If the user filled multiple Cells with the same Material,
                 # the Material must be cloned for each unique Cell
                 if material != None:
-                    if len(domains) > geometry.getNumMaterials():
-                        material = material.clone()
+                    old_materials[material.getId()] = material
+                    material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
                 else:
@@ -368,6 +383,10 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             py_printf('INFO', 'Loaded "fission" MGXS for "%s %d"',
                       domain_type, domain.id)
 
+    # Inform SWIG to garbage collect any old Materials from the Geometry
+    for material_id in old_materials:
+        old_materials[material_id].thisown = False
+
     # Return collection of materials
     return materials
 
@@ -426,7 +445,6 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     load_openmc_mgxs_lib(mgxs_lib, geometry)
 
     # Initialize an OpenMOC TrackGenerator
-    geometry.initializeFlatSourceRegions()
     track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
     track_generator.setZCoord(zcoord)
     track_generator.generateTracks()

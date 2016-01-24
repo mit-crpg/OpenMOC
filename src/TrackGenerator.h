@@ -44,6 +44,9 @@ private:
   /** The track spacing (cm) */
   double _spacing;
 
+  /** The azimuthal angles (radians) */
+  double* _phi;
+
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
@@ -107,6 +110,7 @@ public:
 
   /* Get parameters */
   int getNumAzim();
+  double getPhi(int azim);
   double getTrackSpacing();
   Geometry* getGeometry();
   int getNumTracks();
@@ -139,6 +143,7 @@ public:
   void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
   void generateFSRCentroids();
   void splitSegments(FP_PRECISION max_optical_length);
+  void initializeSegments();
 };
 
 #endif /* TRACKGENERATOR_H_ */

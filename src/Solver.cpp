@@ -122,6 +122,20 @@ TrackGenerator* Solver::getTrackGenerator() {
 
 
 /**
+ * @brief Returns a pointer to the PolarQuad.
+ * @return a pointer to the PolarQuad
+ */
+PolarQuad* Solver::getPolarQuad() {
+
+  if (_polar_quad == NULL)
+    log_printf(ERROR, "Unable to return the Solver's PolarQuad "
+               "since it has not yet been set");
+
+  return _polar_quad;
+}
+
+
+/**
  * @brief Returns the calculated volume for a flat source region.
  * @param fsr_id the flat source region ID of interest
  * @return the flat source region volume
@@ -323,11 +337,6 @@ void Solver::setGeometry(Geometry* geometry) {
                "Geometry has not yet initialized FSRs");
 
   _geometry = geometry;
-  _cmfd = geometry->getCmfd();
-  _num_FSRs = _geometry->getNumFSRs();
-  _num_groups = _geometry->getNumEnergyGroups();
-  _polar_times_groups = _num_groups * _num_polar;
-  _num_materials = _geometry->getNumMaterials();
 }
 
 
@@ -339,7 +348,6 @@ void Solver::setGeometry(Geometry* geometry) {
  *          to the Solver:
  *
  * @code
- *          geometry.initializeFlatSourceRegions()
  *          track_generator.generateTracks()
  *          solver.setTrackGenerator(track_generator)
  * @endcode
@@ -401,9 +409,6 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
                "since it is not a positive number", threshold);
 
   _converge_thresh = threshold;
-
-  if (_cmfd != NULL)
-    _cmfd->setSourceConvergenceThreshold(threshold*1.e-1);
 }
 
 
@@ -416,14 +421,8 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
-
-  if (group <= 0 || group > _num_groups)
-    log_printf(ERROR,"Unable to set fixed source for group %d in "
-               "in a %d energy group problem", group, _num_groups);
-
-  if (fsr_id < 0 || fsr_id >= _num_FSRs)
-    log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
-               "%d FSRs in the geometry", fsr_id, _num_FSRs);
+  /* Insert fixed source into map */
+  _fixed_sources_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
 
@@ -611,25 +610,28 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
+  /* Retrieve simulation parameters from the Geometry */
+  _num_FSRs = _geometry->getNumFSRs();
+  _num_groups = _geometry->getNumEnergyGroups();
+  _polar_times_groups = _num_groups * _num_polar;
+  _num_materials = _geometry->getNumMaterials();
+
   /* Get an array of volumes indexed by FSR  */
   _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Generate the FSR centroids */
   _track_generator->generateFSRCentroids();
 
+  /* Attach the correct materials to each track segment */
+  _track_generator->initializeSegments();
+
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
-  /* Compute the number of fissionable Materials */
-  _num_fissionable_FSRs = 0;
-
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
-
-    /* Assign the Material corresponding to this FSR */
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
+    log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
 }
@@ -646,9 +648,7 @@ void Solver::countFissionableFSRs() {
   log_printf(INFO, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
   _num_fissionable_FSRs = 0;
-
   for (int r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
@@ -666,6 +666,20 @@ void Solver::countFissionableFSRs() {
 void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
+
+  /* Retrieve CMFD from the Geometry */
+  _cmfd = _geometry->getCmfd();
+
+  /* If the user did not initialize Cmfd, simply return */
+  if (_cmfd == NULL)
+    return;
+  else if (!_cmfd->isFluxUpdateOn())
+    return;
+
+  /* Intialize the CMFD energy group structure */
+  _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1);
+  _cmfd->setNumMOCGroups(_num_groups);
+  _cmfd->initializeGroupMap();
 
   /* Give CMFD number of FSRs and FSR property arrays */
   _cmfd->setNumFSRs(_num_FSRs);
@@ -798,6 +812,9 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   FP_PRECISION residual;
 
   /* Initialize data structures */
+  initializeFSRs();
+  initializeMaterials(mode);
+  countFissionableFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
 
@@ -811,9 +828,6 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   }
 
   initializeSourceArrays();
-  initializeMaterials(mode);
-  initializeFSRs();
-  countFissionableFSRs();
   zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */
@@ -908,12 +922,12 @@ void Solver::computeSource(int max_iters, solverMode mode,
   FP_PRECISION residual;
 
   /* Initialize data structures */
+  initializeFSRs();
+  initializeMaterials(mode);
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials(mode);
-  initializeFSRs();
 
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
@@ -993,16 +1007,14 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   _k_eff = 1.0;
 
   /* Initialize data structures */
+  initializeFSRs();
+  initializeMaterials(mode);
+  countFissionableFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeMaterials(mode);
-  initializeFSRs();
-  countFissionableFSRs();
-
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    initializeCmfd();
+  initializeCmfd();
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
@@ -1011,7 +1023,6 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
-
     normalizeFluxes();
     computeFSRSources();
     transportSweep();

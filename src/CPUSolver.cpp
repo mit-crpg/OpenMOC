@@ -96,37 +96,6 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
- * @brief Assign a fixed source for a flat source region and energy group.
- * @details Fixed sources should be scaled to reflect the fact that OpenMOC
- *          normalizes the scalar flux such that the total energy- and
- *          volume-integrated production rate sums to 1.0.
- * @param fsr_id the flat source region ID
- * @param group the energy group
- * @param source the volume-averaged source in this group
- */
-void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
-                                    FP_PRECISION source) {
-
-  Solver::setFixedSourceByFSR(fsr_id, group, source);
-
-  /* Allocate the fixed sources array if not yet allocated */
-  if (_fixed_sources == NULL) {
-    int size = _num_FSRs * _num_groups;
-    _fixed_sources = new FP_PRECISION[size];
-    memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
-  }
-
-  /* Warn the user if a fixed source has already been assigned to this FSR */
-  if (_fixed_sources(fsr_id,group-1) != 0.)
-    log_printf(WARNING, "Over-riding fixed source %f in FSR ID=%d with %f",
-               _fixed_sources(fsr_id,group-1), fsr_id, source);
-
-  /* Store the fixed source for this FSR and energy group */
-  _fixed_sources(fsr_id,group-1) = source;
-}
-
-
-/**
  * @brief Set the flux array for use in transport sweep source calculations.
  * @detail This is a helper method for the checkpoint restart capabilities,
  *         as well as the IRAMSolver in the openmoc.krylov submodule. This
@@ -222,16 +191,37 @@ void CPUSolver::initializeSourceArrays() {
   /* Delete old sources arrays if they exist */
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
+  if (_fixed_sources != NULL)
+    delete [] _fixed_sources;
 
   /* Allocate memory for all source arrays */
   try{
     int size = _num_FSRs * _num_groups;
     _reduced_sources = new FP_PRECISION[size];
+    _fixed_sources = new FP_PRECISION[size];
 
-    /* If no fixed sources were assigned, use a zeroes array */
-    if (_fixed_sources == NULL) {
-      _fixed_sources = new FP_PRECISION[size];
-      memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+    /* Initialize fixed sources to zero */
+    memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+
+    /* Populate fixed source array with any user-defined sources */
+    std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
+    std::pair<int, int> fsr_group_key;
+    int fsr_id, group;
+    for (iter = _fixed_sources_map.begin();
+	 iter != _fixed_sources_map.end(); ++iter) {
+      fsr_group_key = iter->first;
+      fsr_id = fsr_group_key.first;
+      group = fsr_group_key.second;
+
+      if (group <= 0 || group > _num_groups)
+        log_printf(ERROR,"Unable to use fixed source for group %d in "
+                   "a %d energy group problem", group, _num_groups);
+
+      if (fsr_id < 0 || fsr_id >= _num_FSRs)
+        log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
+                   "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+      _fixed_sources(fsr_id, group-1) = _fixed_sources_map[fsr_group_key];
     }
   }
   catch(std::exception &e) {
@@ -501,6 +491,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_FSRs;
 
+    #pragma omp parallel for schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
         if (_old_scalar_flux(r,e) > 0.) {
@@ -522,6 +513,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
+    #pragma omp parallel for private(new_fission_source, \
+      old_fission_source, material, nu_sigma_f) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       new_fission_source = 0.;
       old_fission_source = 0.;
@@ -550,11 +543,15 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
     FP_PRECISION* nu_sigma_f;
     Material* material;
+    FP_PRECISION* sigma_s;
 
+    #pragma omp parallel for private(new_total_source, \
+      old_total_source, material, nu_sigma_f, sigma_s) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       new_total_source = 0.;
       old_total_source = 0.;
       material = _FSR_materials[r];
+      sigma_s = material->getSigmaS();
 
       if (material->isFissionable()) {
         nu_sigma_f = material->getNuSigmaF();
@@ -571,9 +568,9 @@ double CPUSolver::computeResidual(residualType res_type) {
       /* Compute total scattering source for group G */
       for (int G=0; G < _num_groups; G++) {
         for (int g=0; g < _num_groups; g++) {
-          new_total_source += material->getSigmaSByGroup(g+1,G+1)
+          new_total_source += sigma_s[G*_num_groups+g]
                               * _scalar_flux(r,g);
-          old_total_source += material->getSigmaSByGroup(g+1,G+1)
+          old_total_source += sigma_s[G*_num_groups+g]
                               * _old_scalar_flux(r,g);
         }
       }
@@ -628,7 +625,7 @@ void CPUSolver::computeKeff() {
 
   /* Reduce new fission rates across FSRs */
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
-  
+ 
   _k_eff *= fission;
 
   delete [] FSR_rates;

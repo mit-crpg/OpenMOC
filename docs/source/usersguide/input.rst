@@ -17,7 +17,7 @@ The following sections describe the essential portions of the OpenMOC API needed
 Simulation Parameters
 ---------------------
 
-The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user's discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, track spacing, number of threads, etc. 
+The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user's discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, track spacing, number of threads, etc.
 
 The ``openmoc.options`` module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in :ref:`Runtime Options <runtime_options>`. The following code snippet illutrates how to instantiate an ``Options`` object and extract data from command line arguments.
 
@@ -115,7 +115,7 @@ And the following is the output displayed to the console and recorded in the log
   [SEPARATOR]  *******************************************************************
   [  HEADER ]  *******************  This is a HEADER message  ********************
   [  TITLE  ]  *******************************************************************
-  [  TITLE  ]                        This is a TITLE message                      
+  [  TITLE  ]                        This is a TITLE message
   [  TITLE  ]  *******************************************************************
   [ WARNING ]  This is a WARNING message
   [ CRITICAL]  This is a CRITICAL message
@@ -183,8 +183,8 @@ For many simulations, defining the nuclear data cross-sections by hand in a Pyth
 
     import openmoc
     import openmoc.materialize as mat
-    
-    # Import cross-section data from an HDF5 file. This instantiates 
+
+    # Import cross-section data from an HDF5 file. This instantiates
     # objects for each material and returns them in a dictionary
     # indexed by a name string defined in the pickle file.
     hdf5_materials = mat.materialize('materials-data.h5')
@@ -192,7 +192,7 @@ For many simulations, defining the nuclear data cross-sections by hand in a Pyth
     # Retrieve the material called 'moderator' in the HDF5 file
     moderator = hdf5_materials['moderator']
 
-    # Import cross-section data from a pickle file. This instantiates 
+    # Import cross-section data from a pickle file. This instantiates
     # objects for each material and returns them in a dictionary
     # indexed by a name string defined in the pickle file
     pickle_materials = mat.materialize('materials-data.pkl')
@@ -291,7 +291,7 @@ create complex objects using Boolean operators on a set of simpler surfaces. In
 the geometry model, each unique closed volume is defined by its bounding
 surfaces. The CSG formulation used in OpenMOC is described in more detail in :ref:`Constructive Solid Geometry <constructive_solid_geometry>`.
 
-The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 :math:`\times` 4 pin cell lattice. 
+The following sections detail how to create surfaces, cells, universes and lattices to construct a simple 4 :math:`\times` 4 pin cell lattice.
 
 
 Surfaces
@@ -353,14 +353,14 @@ Each universe is comprised of one or more cells. A ``Universe`` can be instantia
     pin_univ.addCell(fuel)
     pin_univ.addCell(moderator)
 
-The OpenMOC ``Cell`` class may not only be filled with materials, but universes as well. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (*e.g.*, rectangular arrays of fuel pins and fuel assemblies). 
+The OpenMOC ``Cell`` class may not only be filled with materials, but universes as well. As a result, a geometry may be constructed of a hierarchy of nested cells/universes. A hierarchichal geometry permits a simple treatment of repeating geometric structures on multiple length scales (*e.g.*, rectangular arrays of fuel pins and fuel assemblies).
 
 OpenMOC does not place a limit on the hierarchical depth - or number of nested universe levels - that a user may define in constructing a geometry. The only limitation is that at the top of the hierarchy, a *root* cell must encapsulate the entire geometry in a *root* universe. The following code snippet illustrates the creation of a ``Cell`` which is filled by a lattice constructed in the next section. The appropriate halfspaces for the planes defined in the preceding section are added to the cell to enforce boundaries on the portion of the root universe relevant to the geometry.
 
 .. code-block:: python
 
     # Initialize a cell filled by a nested lattice with an optional
-    # string name. This cell resides within the root universe. 
+    # string name. This cell resides within the root universe.
     root_cell = openmoc.Cell(name='root cell')
     root_cell.setFill(lattice)
 
@@ -374,37 +374,98 @@ OpenMOC does not place a limit on the hierarchical depth - or number of nested u
 Rings and Sectors
 -----------------
 
-The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of circular fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (*i.e.*, `polar coordinates`_). As a result, discretization along the radial coordinate using circular **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient. 
+The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of cylindrical fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (*i.e.*, `polar coordinates`_). As a result, discretization along the radial coordinate using cylindrical **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient.
 
-This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide circular fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``Circle`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide square pin cells of circular fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``Cell`` object and differentiates each one with ``Circle`` or ``Plane`` objects to subdivide the pin cell.
+This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide cylindrical fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``ZCylinder`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide pin cells of cylindrical fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``Cell`` object and differentiates each one with ``ZCylinder`` or ``Plane`` objects to subdivide the pin cell.
 
-The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin and moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
+Rings can be created inside of a ``ZCylinder``, between two ``ZCylinder`` objects, or outside of a ``ZCylinder``. If rings are created outside of a ``ZCylinder`` and the exterior bounding surface is the ``Cell`` boundaries, then an effective bounding cylinder radius :math:`R_\textit{eff}` is calculated as
+
+.. math::
+  R_\textit{eff} = \sqrt{\frac{\Delta x \Delta y}{\pi}}
+
+where :math:`\Delta x` is the width of the ``Cell`` in the :math:`x`-direction and :math:`\Delta y` is the width of the ``Cell`` in the :math:`y`-direction. Equal volume rings are then created between the inner bounding ``ZCylinder`` and this effective bounding radius. Note that in this case the regions will not be of equal volume since the effective bounding cylinder will lay partially outside of the boundaries of the ``Cell``.
+
+The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin ``Cells`` and a positive integral number of sectors with no rings for moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
 
 .. code-block:: python
 
-    # Subdivide the fuel region into 3 rings and 8 angular sectors
+    # Subdivide the fuel region into 3 rings and 12 angular sectors
     fuel.setNumRings(3)
-    fuel.setNumSectors(8)
+    fuel.setNumSectors(12)
 
-    # Subdivide the moderator region into 8 angular sectors
+    # Subdivide the moderator region into 16 angular sectors
     moderator.setNumSectors(16)
-   
-The pin cell materials are illustrated on the left below, while the flat source regions with 3 equal volume rings and 8 sectors in the fuel, and 16 sectors in the moderator, are displayed on the right.
 
-.. _figure_fluxes:
-     
-.. table:: 
-   
-   +------------------------------------------+------------------------------------------+
-   | .. _figa:                                | .. _figb:                                |
-   |                                          |                                          |
-   | .. image:: ../../img/pin-cell-fsrs-1.png | .. image:: ../../img/pin-cell-fsrs-2.png |
-   |   :width: 50 %                           |   :width: 50 %                           |
-   |   :align: right                          |   :align: left                           |
-   +------------------------------------------+------------------------------------------+ 
+The plots shown below illustrate the pin cell material layout (left) and flat source region layout (right) where the flat source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 16 sectors in the moderator.
+
+.. _figure_pin_cell_fsrs:
+
+.. table::
+
+   +--------------------------------------------------------+--------------------------------------------------------+
+   | .. _figa:                                              | .. _figb:                                              |
+   |                                                        |                                                        |
+   | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs.png                 |
+   |   :width: 50 %                                         |   :width: 50 %                                         |
+   |   :align: right                                        |   :align: left                                         |
+   +--------------------------------------------------------+--------------------------------------------------------+
+
+The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above, but with 2 rings in the moderator.
+
+.. code-block:: python
+
+    # Subdivide the fuel region into 3 rings and 12 angular sectors
+    fuel.setNumRings(3)
+    fuel.setNumSectors(12)
+
+    # Subdivide the moderator region into 2 rings and 16 angular sectors
+    moderator.setNumRings(2)
+    moderator.setNumSectors(16)
+
+Again, the pin cell materials are illustrated below on the left, while the flat source regions are displayed on the right with 2 rings now present in the moderator.
+
+.. _figure_pin_cell_fsrs_moderator_rings:
+
+.. table::
+
+   +--------------------------------------------------------+--------------------------------------------------------+
+   | .. _figa:                                              | .. _figb:                                              |
+   |                                                        |                                                        |
+   | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs-moderator-rings.png |
+   |   :width: 50 %                                         |   :width: 50 %                                         |
+   |   :align: right                                        |   :align: left                                         |
+   +--------------------------------------------------------+--------------------------------------------------------+
+
+Lastly, the rings and sectors can be used to discretize regions between 2 ``ZCylinder`` objects, such as annular fuel. The following code snippet discretizes annular fuel into 3 rings and 12 sectors with the inner coolant and outer moderator both discretized into 8 sectors with no rings.
+
+.. code-block:: python
+
+    # Subdivide the inner coolant region into 8 angular sectors
+    inner_coolant.setNumSectors(8)
+
+    # Subdivide the annular fuel region into 3 rings and 12 sectors
+    fuel.setNumRings(3)
+    fuel.setNumSectors(12)
+
+    # Subdivide the outer moderator region into 8 angular sectors
+    outer_moderator.setNumSectors(8)
 
 
-.. note:: Circular rings may **only** be used in ``Cell`` objects which form the interior of a ``Circle`` surface, such as a fuel pin.
+The annular pin cell materials are illustrated below on the left, with the resulting fuel and moderator discretization presented on the right.
+
+.. _figure_pin_cell_fsrs_moderator_annular:
+
+.. table::
+
+   +--------------------------------------------------------+--------------------------------------------------------+
+   | .. _figa:                                              | .. _figb:                                              |
+   |                                                        |                                                        |
+   | .. image:: ../../img/pin-cell-materials-annular.png    | .. image:: ../../img/pin-cell-fsrs-annular.png         |
+   |   :width: 50 %                                         |   :width: 50 %                                         |
+   |   :align: right                                        |   :align: left                                         |
+   +--------------------------------------------------------+--------------------------------------------------------+
+
+.. note:: Rings may **only** be used in ``Cell`` objects that contain a ``ZCylinder`` surface, such as a fuel pin.
 
 .. note:: Each subdivided region will be filled by the **same Material** as the ``Cell`` object created by the user in the Python script.
 
@@ -416,7 +477,7 @@ Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class m
 
 .. code-block:: python
 
-    # Initialize the lattice for the geometry 
+    # Initialize the lattice for the geometry
     lattice = openmoc.Lattice(name='4x4 pin lattice')
     lattice.setWidth(width_x=5.04, width_y=5.04)
 
@@ -440,7 +501,7 @@ The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` c
 
     # Initialize an empty geometry object
     geometry = openmoc.Geometry()
-    
+
     # Register the root universe with the geometry
     geometry.setRootUniverse(root_univ)
 
@@ -460,7 +521,7 @@ Once the geometry has been initialized for a simulation, the next step is to per
     # constructed. Use 64 azimuthal angles and 0.05 cm track spacing.
     track_generator = openmoc.TrackGenerator(geometry, num_azim=64, \
                                              spacing=0.05)
-    
+
     # Generate tracks using ray tracing across the geometry
     track_generator.generateTracks()
 
@@ -473,6 +534,7 @@ One of OpenMOC's ``Solver`` subclasses may be initialized given the ``TrackGener
 
   * ``CPUSolver`` - multi-core CPUs, memory efficient, good parallel scaling [CPUs]_
   * ``GPUSolver`` - GPUs, 30-50 :math:`\times` faster than CPUs [GPUs]_
+
 
 Criticality Calculations
 ------------------------
@@ -503,7 +565,78 @@ aljlkjadf
 Polar Quadrature
 ----------------
 
-aldjf
+In OpenMOC, there are five included polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard, and Tabuchi Yamamoto polar quadrature sets. Users can also input a custom polar quadrature set by manually setting the weights and sines of the polar angles. Example code on how to create the 6 polar quadrature sets is included below.
+
+.. code-block:: python
+
+   import openmoc
+   import numpy as np
+
+   ...
+
+   # Create a Tabuchi Yamamoto PolarQuad object with 3 polar angles
+   ty_polar_quad = openmoc.TYPolarQuad()
+   ty_polar_quad.setNumPolarAngles(3)
+
+   # Create a Gauss Legendre PolarQuad object with 3 polar angles
+   gl_polar_quad = openmoc.GLPolarQuad()
+   gl_polar_quad.setNumPolarAngles(3)
+
+   # Create a Leonard PolarQuad object with 3 polar angles
+   leonard_polar_quad = openmoc.LeonardPolarQuad()
+   leonard_polar_quad.setNumPolarAngles(3)
+
+   # Create an Equal Weights PolarQuad object with 3 polar angles
+   ew_polar_quad = openmoc.EqualWeightsPolarQuad()
+   ew_polar_quad.setNumPolarAngles(3)
+
+   # Create an Equal Angles PolarQuad object with 3 polar angles
+   ea_polar_quad = openmoc.EqualAnglesPolarQuad()
+   ea_polar_quad.setNumPolarAngles(3)
+
+   # Create a Custom PolarQuad object with 3 polar angles
+   custom_polar_quad = openmoc.EqualAnglesPolarQuad()
+   custom_polar_quad.setNumPolarAngles(3)
+   thetas = np.array([np.pi/20.0, np.pi/3.0, np.pi/2.5])
+   weights = np.array([0.2, 0.4, 0.4])
+   sin_thetas = np.sin(thetas)
+   custom_polar_quad.setSinThetas(sin_thetas)
+   custom_polar_quad.setWeights(weights)
+   ...
+
+In order for a user specified quadrature set to be used in solving an MOC problem, it needs to be given to the Solver object. Example code on how to assign a polar quadrature set to a Solver and plot the polar quadrature set associated with the Solver is included below.
+
+.. code-block:: python
+
+   import openmoc
+
+   ...
+
+   # Create a Leonard PolarQuad object with 3 polar angles
+   leonard_polar_quad = openmoc.LeonardPolarQuad()
+   leonard_polar_quad.setNumPolarAngles(3)
+
+   # Create a CPUSolver and give it the Leonard PolarQuad object
+   solver = openmoc.CPUSolver(track_generator)
+   solver.setPolarQuadrature(leonard_polar_quad)
+   solver.computeEigenvalue()
+
+   # Plot the quadrature set used in the solver
+   openmoc.plotter.plot_quadrature(solver)
+   ...
+
+Plots of the six quadrature sets with 3 polar angles and 16 azimuthal angles are shown in :ref:`Figure 4 <figure-polar-quads>`.
+
+.. _figure-polar-quads:
+
+.. figure:: ../../img/polar_quadrature_sets.png
+   :align: center
+   :figclass: align-center
+   :width: 1000px
+
+   **Figure 4**: Polar quadrature sets with 3 polar angles and 16 azimuthal angles.
+
+The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC.
 
 
 FSR Volume Correction
@@ -533,7 +666,7 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
     cmfd.setFluxUpdateOn(True)
 
     # Initialize the Geometry object
-    geometry = Geometry()  
+    geometry = Geometry()
     geometry.setCmfd(cmfd)
     ...
 
@@ -569,8 +702,12 @@ With those few additional lines of code, you should be able to create an input f
 .. _unstructured mesh: http://en.wikipedia.org/wiki/Unstructured_grid
 
 
+----------
+References
+----------
+
 .. [CPUs] William Boyd, Kord Smith, Benoit Forget, and Andrew Siegel, "Parallel Performance Results for the OpenMOC Method of Characteristics Code on Multi-Core Platforms." *Submitted to the Proceedings of PHYSOR*, Kyoto, Japan (2014).
 
 .. [GPUs] William Boyd, Kord Smith, and Benoit Forget, "A Massively Parallel Method of Characteristic Neutral Particle Transport Code for GPUs." *Proc. Int'l Conf. Math. and Comp. Methods Appl. to Nucl. Sci. and Eng.*, Sun Valley, ID, USA (2013).
 
-
+.. [Yamamoto] A. Yamamoto, M. Tabuchi, N. Sugimura, T. Ushio and M. Mori, "Derivation of Optimum Polar Angle Quadrature Set for the Method of Characteristics Based on Approximation Error for the Bickley Function." *Journal of Nuclear Science and Engineering*, **44(2)**, pp. 129-136 (2007).

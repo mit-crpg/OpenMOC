@@ -16,7 +16,7 @@
   else:
     surface = locals()['args'][1]
 
-  surface.thisown = 0
+  surface.thisown = False
 %}
 
 /* Python must free memory for each Surface that is not in a Cell */
@@ -33,7 +33,7 @@
   else:
     surface = locals()['args'][0]
 
-  surface.thisown = 1
+  surface.thisown = True
 %}
 
 /* A Cell owns the memory for its Material/Universe fill */
@@ -50,7 +50,7 @@
   else:
     fill = locals()['args'][0]
 
-  fill.thisown = 0
+  fill.thisown = False
 %}
 
 /* A Universe owns the memory for each Cell it contains */
@@ -67,7 +67,7 @@
   else:
     cell = locals()['args'][0]
 
-  cell.thisown = 0
+  cell.thisown = False
 %}
 
 /* Python must free memory for each Cell that is not in a Universe */
@@ -84,7 +84,7 @@
   else:
     cell = locals()['args'][0]
 
-  cell.thisown = 1
+  cell.thisown = True
 %}
 
 /* A Lattice owns the memory for each Universe it contains */
@@ -104,7 +104,7 @@
   for i in range(len(universes)):
     for j in range(len(universes[i])):
       for k in range(len(universes[i][j])):
-        universes[i][j][k].thisown = 0
+        universes[i][j][k].thisown = False
 %}
 
 /* Python must free memory for each Universe that is not in a Lattice */
@@ -121,7 +121,7 @@
   else:
     universe = locals()['args'][0]
 
-  universe.thisown = 1
+  universe.thisown = True
 %}
 
 /* A TrackGenerator owns the memory for the Geometry it contains */
@@ -138,7 +138,7 @@
   else:
     geometry = locals()['args'][0]
 
-  geometry.thisown = 0
+  geometry.thisown = False
 %}
 
 /* A TrackGenerator owns the memory for the Geometry it contains */
@@ -155,7 +155,7 @@
   else:
     geometry = locals()['args'][0]
 
-  geometry.thisown = 0
+  geometry.thisown = False
 %}
 
 /* A Geometry owns the memory for the root Universe it contains */
@@ -172,7 +172,7 @@
   else:
     root_universe = locals()['args'][0]
 
-  root_universe.thisown = 0
+  root_universe.thisown = False
 %}
 
 /* A Solver owns the memory for the PolarQuadrature it contains */
@@ -189,7 +189,7 @@
   else:
     polar_quad = locals()['args'][0]
 
-  polar_quad.thisown = 0
+  polar_quad.thisown = False
 %}
 
 /* A Solver owns the memory for the TrackGenerator it contains */
@@ -206,7 +206,7 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
 %}
 
 /* A Solver owns the memory for the TrackGenerator it contains */
@@ -223,7 +223,7 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
 %}
 
 /* A CPUSolver owns the memory for the TrackGenerator it contains */
@@ -240,7 +240,9 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  # Only disown if user specified optional track_generator parameter
+  if track_generator:
+    track_generator.thisown = False
 %}
 
 /* A GPUSolver owns the memory for the TrackGenerator it contains */
@@ -257,7 +259,7 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
 %}
 
 /* A VectorizedSolver owns the memory for the TrackGenerator it contains */
@@ -274,7 +276,7 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
 %}
 
 

@@ -26,7 +26,8 @@ class SectorTestHarness(TestHarness):
         for i, cell_id in enumerate(cells):
             cells[cell_id].setNumSectors(i*2 + 3)
 
-        self.input_set.geometry.initializeFlatSourceRegions()
+        self._create_trackgenerator()
+        self._generate_tracks()
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=True, num_segments=True, num_tracks=True,

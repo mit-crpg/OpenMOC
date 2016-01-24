@@ -77,8 +77,6 @@ class ComputeFluxTestHarness(TestHarness):
         lattice.setUniverses(universes)
         root_cell.setFill(lattice)
 
-        self.input_set.geometry.initializeFlatSourceRegions()
-
     def _create_solver(self):
         """Instantiate a CPUSolver."""
         super(ComputeFluxTestHarness, self)._create_solver()

@@ -98,9 +98,6 @@ private:
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::string> _FSRs_to_keys;
 
-  /** A vector of Material IDs indexed by FSR IDs */
-  std::vector<int> _FSRs_to_material_IDs;
-
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
@@ -145,7 +142,6 @@ public:
 
   Cmfd* getCmfd();
   std::vector<std::string>* getFSRsToKeys();
-  std::vector<int>* getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
@@ -153,7 +149,6 @@ public:
   ParallelHashMap<std::string, fsr_data*>* getFSRKeysMap();
 
   /* Set parameters */
-  void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
   void setFSRsToKeys(std::vector<std::string>* FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
@@ -167,7 +162,7 @@ public:
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeFlatSourceRegions();
+  void initializeFSRs();
   void segmentize(Track* track);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);

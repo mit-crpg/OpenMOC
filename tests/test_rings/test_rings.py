@@ -26,8 +26,6 @@ class RingTestHarness(TestHarness):
         for i, cell_id in enumerate(cells):
             cells[cell_id].setNumRings(i*2 + 3)
 
-        self.input_set.geometry.initializeFlatSourceRegions()
-
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=True, num_segments=True, num_tracks=True,
                      hash_output=False):

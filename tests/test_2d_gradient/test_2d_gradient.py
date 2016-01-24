@@ -36,8 +36,6 @@ class OneDGradientTestHarness(TestHarness):
             if surface.getName() == 'ymax':
                 surface.setBoundaryType(openmoc.VACUUM)
 
-        self.input_set.geometry.initializeFlatSourceRegions()
-
     def __init__(self):
         super(OneDGradientTestHarness, self).__init__()
         self.input_set = HomInfMedInput()
