@@ -491,7 +491,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_FSRs;
 
-    #pragma omp for schedule(guided)
+    #pragma omp parallel for schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
         if (_old_scalar_flux(r,e) > 0.) {
@@ -513,8 +513,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
-    #pragma omp for private(new_fission_source, old_fission_source, \
-      material, nu_sigma_f) schedule(guided)
+    #pragma omp parallel for private(new_fission_source, \
+      old_fission_source, material, nu_sigma_f) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       new_fission_source = 0.;
       old_fission_source = 0.;
@@ -545,8 +545,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     Material* material;
     FP_PRECISION* sigma_s;
 
-    #pragma omp for private(new_total_source, old_total_source, \
-      material, nu_sigma_f, sigma_s) schedule(guided)
+    #pragma omp parallel for private(new_total_source, \
+      old_total_source, material, nu_sigma_f, sigma_s) schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
       new_total_source = 0.;
       old_total_source = 0.;

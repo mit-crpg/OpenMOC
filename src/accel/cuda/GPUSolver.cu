@@ -82,7 +82,7 @@ struct isnan_test {
 
 
 /**
- * @brief A functor to multiply	all elements in	a Thrust vector by a constant.
+ * @brief A functor to multiply all elements in a Thrust vector by a constant.
  * @param constant the constant to multiply the vector
  */
 template< typename T >
