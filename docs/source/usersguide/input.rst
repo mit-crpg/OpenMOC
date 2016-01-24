@@ -559,7 +559,7 @@ The following code snippet illustrates the instantiation of the ``CPUSolver`` fo
 Fixed Source Calculations
 -------------------------
 
-It is also possible to add a fixed source to any region in OpenMOC. During computation of the total source, a fixed source is added together with the calculated scattering source and fission source for each flat source region. By default, the fixed source is set to zero everywhere. The ``setFixedSourceByFSR(...)`` routine allows the user to set the fixed source in a given flat source region using its unique ID. For most calcuations, setting the fixed source for every flat source region of interest individually can be cumbersome. In addition, this would require retreiving the unique ID for every flat source region in which the user desires to set the fixed source. Therefore, the ``setFixedSourceByCell(...)`` routine allows the user to set the fixed source for every flat source region within a cell to a common value. An example is given below for setting the fixed source of a ``Cell`` with a point source to unity in the first energy group.
+It is also possible to add a fixed source to any region in OpenMOC. During computation of the total source, a fixed source is added together with the calculated scattering source and fission source for each flat source region. By default, the fixed source is set to zero everywhere. The ``setFixedSourceByFSR(...)`` routine allows the user to set the fixed source in a given flat source region using its unique ID. For most calcuations, setting the fixed source for every flat source region of interest individually can be cumbersome. In addition, this would require retreiving the unique ID for every flat source region in which the user desires to set the fixed source. Therefore, the ``setFixedSourceByCell(...)`` routine allows the user to set the fixed source for every flat source region within a cell to a common value. An example is given below for setting the fixed source of a ``Cell`` with a point source of unity in the first energy group.
 
 .. code-block:: python
 
@@ -575,10 +575,10 @@ The equivalent code for setting the point source of all flat source regions with
   point_source_cell_id = source_cell.getId()
 
   # Loop over all FSRs and test if the FSR is within the point source cell
-  for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+  for fsr_id in range(solver.getGeometry().getNumFSRs()):
     cell = solver.getGeometry().findCellContainingFSR(fsr_id)
 
-    # If ithe FSR is within the point source cell, set the fixed source
+    # If the FSR is within the point source cell, set the fixed source
     if cell.getId() == point_source_cell_id:
       solver.setFixedSourceByFSR(fsr_id, 1, 1.0)
 
@@ -589,7 +589,7 @@ For instance, if the user desires to input a source based on the location within
 .. code-block:: python
 
   # Set the source every cell to the desired distribution
-  for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+  for fsr_id in range(solver.getGeometry().getNumFSRs()):
 
     # Get the coordinates of some point within the FSR
     pt = solver.getGeometry().getFSRPoint(fsr_id)
@@ -604,7 +604,7 @@ For instance, if the user desires to input a source based on the location within
       source_value = source_distribution(x_pt, y_pt, group)
       solver.setFixedSourceByFSR(fsr_id, group, source_value)
 
-So far only the ``computeEigenvalue(...)`` routine has been introduced for solving neutron transport problems. The OpenMOC ``Solver`` has other solution options in addition to the eigenvalue solver which can be very useful for fixed source calculations. Specifically, the ``computeFlux(...)`` and ``computeSource(...)`` routines solve neutron transport over the problem without computing an eigenvalue.
+The OpenMOC ``Solver`` has other solution options in addition to the eigenvalue solver which can be very useful for fixed source calculations. Specifically, the ``computeFlux(...)`` and ``computeSource(...)`` routines solve neutron transport over the problem without computing an eigenvalue.
 
 .. note:: The fixed source can **only** be set **after** ``TrackGenerator`` has generated tracks
 
@@ -626,7 +626,7 @@ To illustrate the effect of this solver, a fixed source problem is chosen. This 
   solver.setFixedSourceByCell(source_cell, 1, 1.0)
   solver.computeFlux(max_iters)
 
-The first group flux is plotted below. All other flux plots are zero throughout the entire geometry because the scattering source is not accounted in ``computeFlux(...)`` and neutrons are always born in the first group. By using the ``computeFlux(...)`` routine, OpenMOC is directed to only use the provided fixed source and not to update for fission or scattering. Notice that there are prominant ray effects since there is no scattering in this problem, an inherent characteristic of MOC solvers. The MOC solver is defined with 4 azimuthal angles for the figure on the left and 16 azimuthal angles for the figure on the right. As the number of angles increases, the effect is not as noticable but is still present.
+The first group flux is plotted below. All other flux plots are zero throughout the entire geometry because the scattering source is not accounted for in ``computeFlux(...)`` and neutrons are always born in the first group. By using the ``computeFlux(...)`` routine, OpenMOC is directed to only use the provided fixed source and not to update for fission or scattering. Notice that there are prominent ray effects since there is no scattering in this problem, an inherent characteristic of MOC solvers. The MOC solver is defined with 4 azimuthal angles for the figure on the left and 32 azimuthal angles for the figure on the right. As the number of angles increases, the effect is not as noticeable but is still present.
 
 .. _figure_fixed_source_flux_calc:
 
@@ -640,7 +640,7 @@ The first group flux is plotted below. All other flux plots are zero throughout 
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-While this case seems illsuited for the ``computeFlux(...)`` routine, the ``computeFlux(...)`` is very useful for cases where the total source is known and can be defined by the user. For instance, if the total source :math:`S_g` for energy group :math:`g` is defined to be a cosine distribution such as
+While this case seems ill-suited for the ``computeFlux(...)`` routine, the ``computeFlux(...)`` is very useful for cases where the total source is known and can be defined by the user. For instance, if the total source :math:`S_g` for energy group :math:`g` is defined to be a cosine distribution such as
 
 .. math::
   S_g(x,y) = S_g(0,0) \cos{\frac{x}{L}} \cos{\frac{y}{H}}
@@ -658,13 +658,13 @@ where the geometry spans :math:`x \in (-L, L)` and :math:`y \in (-H, H)`. The so
 Source Calculations
 -------------------
 
-In other problems, the source distribution is desired for a set eigenvalue. For this case, the ``computeSource(...)`` routine can be used, which calculates the total source (including any fixed source) in each flat source region iteratively. At the end of each transport sweep, the eigenvalue is reset to the eigenvalue set by the user. By default this value is 1.0 if no value is provided by the user. Returning to the first problem discussed using the ``computeFlux(...)`` routine where a fixed source was placed in a geometry filled with water, the ``computeFlux(...)`` routine could not account for scattering. Since the ``computeSource(...)`` routine computes both scattering and fission sources during transport sweeps, it is able to account for scattering and compute the correct flux distribution. The line below shows how the ``computeSource(...)`` routine can be called.
+In other problems, the source distribution is desired for a set eigenvalue. For this case, the ``computeSource(...)`` routine can be used, which calculates the total source (including any fixed source) in each flat source region iteratively. At the end of each transport sweep, the eigenvalue is reset to the eigenvalue set by the user. By default this value is 1.0. Returning to the first problem discussed using the ``computeFlux(...)`` routine where a fixed source was placed in a geometry filled with water, the ``computeFlux(...)`` routine could not account for scattering. Since the ``computeSource(...)`` routine computes both scattering and fission sources during transport sweeps, it is able to account for scattering and compute the correct flux distribution. The line below shows how the ``computeSource(...)`` routine can be called.
 
 .. code-block:: python
 
   solver.computeSource(max_iters)
 
-The resulting flux distribution in the third energy group (which previously was calculated to be zero everywhere) is shown below using 4 azimuthal angles in the figure to the left and 32 azimuthal angles in the figure to the right. Notice that ray effects are still present when a low number of azimuthal angles are used, but the effects are far less extreme than observed with ``computeFlux(...)`` due to scattering and with 32 azimuthal angles, the ray effects seem to have disappeared.
+The resulting flux distribution in the third energy group (which previously was calculated to be zero everywhere) is shown below using 4 azimuthal angles in the figure to the left and 32 azimuthal angles in the figure to the right. Notice that ray effects are still present when a low number of azimuthal angles are used, but the effects are far less extreme than observed with ``computeFlux(...)`` due to scattering and with 32 azimuthal angles, the ray effects have largely disappeared.
 
 .. _figure_fixed_source_calc:
 
@@ -684,11 +684,11 @@ The resulting flux distribution in the third energy group (which previously was 
 Convergence Options
 -------------------
 
-There are a variety of convergence options available in OpenMOC. These options can be set in the ``res_type`` attribute of the ``computeEigenvalue(...)`` and ``computeSource(...)`` solvers. The options for ``res_type`` are:
+There are a variety of convergence options available in OpenMOC. These options can be set in the ``res_type`` optional parameter of the ``computeEigenvalue(...)`` and ``computeSource(...)`` solvers. The options for ``res_type`` are:
 
-- **SCALAR_FLUX** - Sets the convergence based on the integrated scalar flux by each flat source region. This is the convergence criteria for ``computeFlux(...)``.
-- **TOTAL_SOURCE** - Sets the convergence based on the integrated total source by each flat source region. This is the default for ``computeSource(...)``.
-- **FISSION_SOURCE** - Sets the convergence based on the integrated fission source by each flat source region. This is the default for ``computeEigenvalue(...)``.
+- **SCALAR_FLUX** - Sets the convergence based on the enegy-integrated scalar flux by each flat source region. This is the convergence criteria for ``computeFlux(...)``.
+- **TOTAL_SOURCE** - Sets the convergence based on the energy-integrated total source by each flat source region. This is the default for ``computeSource(...)``.
+- **FISSION_SOURCE** - Sets the convergence based on the energy-integrated fission source by each flat source region. This is the default for ``computeEigenvalue(...)``.
 
 An example of setting the convergence option of a criticality calculation to the scalar flux is given below.
 
