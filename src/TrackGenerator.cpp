@@ -18,6 +18,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _use_input_file = false;
   _tracks_filename = "";
   _z_coord = 0.0;
+  _phi = NULL;
 }
 
 
@@ -33,6 +34,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _num_y;
     delete [] _azim_weights;
     delete [] _num_tracks_by_parallel_group;
+    delete [] _phi;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -48,7 +50,7 @@ TrackGenerator::~TrackGenerator() {
  * @return the number of azimuthal angles in \f$ 2\pi \f$
  */
 int TrackGenerator::getNumAzim() {
-  return _num_azim * 2.0;
+  return _num_azim * 2;
 }
 
 
@@ -389,7 +391,7 @@ void TrackGenerator::setNumAzim(int num_azim) {
                "the TrackGenerator since it is not a multiple of 4", num_azim);
 
   /* Subdivide out angles in [pi,2pi] */
-  _num_azim = num_azim / 2.0;
+  _num_azim = num_azim / 2;
 
   _contains_tracks = false;
   _use_input_file = false;
@@ -576,6 +578,7 @@ void TrackGenerator::generateTracks() {
     delete [] _num_y;
     delete [] _azim_weights;
     delete [] _tracks_by_parallel_group;
+    delete [] _phi;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -602,6 +605,7 @@ void TrackGenerator::generateTracks() {
       _num_y = new int[_num_azim];
       _azim_weights = new FP_PRECISION[_num_azim];
       _tracks = new Track*[_num_azim];
+      _phi = new double[_num_azim];
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for TrackGenerator");
@@ -708,9 +712,6 @@ void TrackGenerator::initializeTracks() {
   double* dy_eff = new double[_num_azim];
   double* d_eff = new double[_num_azim];
 
-  /* Effective azimuthal angles with respect to positive x-axis */
-  double* phi_eff = new double[_num_azim];
-
   double x1, x2;
   double iazim = _num_azim*2.0;
   double width_x = _geometry->getWidthX();
@@ -731,30 +732,30 @@ void TrackGenerator::initializeTracks() {
     _num_tracks[i] = _num_x[i] + _num_y[i];
 
     /* Effective/actual angle (not the angle we desire, but close) */
-    phi_eff[i] = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
+    _phi[i] = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
 
     /* Fix angles in range(pi/2, pi) */
     if (phi > M_PI / 2)
-      phi_eff[i] = M_PI - phi_eff[i];
+      _phi[i] = M_PI - _phi[i];
 
     /* Effective Track spacing (not spacing we desire, but close) */
     dx_eff[i] = (width_x / _num_x[i]);
     dy_eff[i] = (width_y / _num_y[i]);
-    d_eff[i] = (dx_eff[i] * sin(phi_eff[i]));
+    d_eff[i] = (dx_eff[i] * sin(_phi[i]));
   }
 
   /* Compute azimuthal angle quadrature weights */
   for (int i = 0; i < _num_azim; i++) {
 
     if (i < _num_azim - 1)
-      x1 = 0.5 * (phi_eff[i+1] - phi_eff[i]);
+      x1 = 0.5 * (_phi[i+1] - _phi[i]);
     else
-      x1 = 2 * M_PI / 2.0 - phi_eff[i];
+      x1 = 2 * M_PI / 2.0 - _phi[i];
 
     if (i >= 1)
-      x2 = 0.5 * (phi_eff[i] - phi_eff[i-1]);
+      x2 = 0.5 * (_phi[i] - _phi[i-1]);
     else
-      x2 = phi_eff[i];
+      x2 = _phi[i];
 
     /* Multiply weight by 2 because angles are in [0, Pi] */
     _azim_weights[i] = (x1 + x2) / (2 * M_PI) * d_eff[i] * 2;
@@ -797,17 +798,16 @@ void TrackGenerator::initializeTracks() {
       /* Set the Track's end point */
       Point* start = _tracks[i][j].getStart();
       Point* end = _tracks[i][j].getEnd();
-      computeEndPoint(start, end, phi_eff[i], width_x, width_y);
+      computeEndPoint(start, end, _phi[i], width_x, width_y);
 
       /* Set the Track's azimuthal angle */
-      _tracks[i][j].setPhi(phi_eff[i]);
+      _tracks[i][j].setPhi(_phi[i]);
     }
   }
 
   delete [] dx_eff;
   delete [] dy_eff;
   delete [] d_eff;
-  delete [] phi_eff;
 }
 
 
@@ -1069,10 +1069,10 @@ void TrackGenerator::initializeTrackUids() {
 
 /**
  * @brief Computes the volumes/areas of each Cell and Material in the Geometry.
- * @details This computes the volumes/areas of each Cell and Material in the 
+ * @details This computes the volumes/areas of each Cell and Material in the
  *          Geometry from the length of track segments crossing each Cell. This
  *          routine assigns the volume and number of instances to each Cell and
- *          Material. This is a helper routine that is called after track 
+ *          Material. This is a helper routine that is called after track
  *          segmentation is complete in TrackGenerator::generateTracks().
  */
 void TrackGenerator::initializeVolumes() {
@@ -1490,6 +1490,7 @@ bool TrackGenerator::readTracksFromFile() {
     delete [] _num_x;
     delete [] _num_y;
     delete [] _azim_weights;
+    delete [] _phi;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -1524,6 +1525,7 @@ bool TrackGenerator::readTracksFromFile() {
   _num_tracks = new int[_num_azim];
   _num_x = new int[_num_azim];
   _num_y = new int[_num_azim];
+  _phi = new double[_num_azim];
   _azim_weights = new FP_PRECISION[_num_azim];
   double* azim_weights = new double[_num_azim];
   _tracks = new Track*[_num_azim];
@@ -1579,6 +1581,7 @@ bool TrackGenerator::readTracksFromFile() {
       curr_track = &_tracks[i][j];
       curr_track->setValues(x0, y0, z0, x1, y1, z1, phi);
       curr_track->setAzimAngleIndex(azim_angle_index);
+      _phi[azim_angle_index] = phi;
 
       /* Loop over all segments in this Track */
       for (int s=0; s < num_segments; s++) {
@@ -1947,4 +1950,26 @@ void TrackGenerator::initializeSegments() {
       }
     }
   }
+}
+
+
+/**
+ * @brief Returns the azimuthal angle for a given azimuthal angle index.
+ * @param the azimuthal angle index.
+ * @return the desired azimuthal angle.
+ */
+double TrackGenerator::getPhi(int azim) {
+
+  if (!_contains_tracks)
+    log_printf(ERROR, "Unable to get Phi since the TrackGenerator does not"
+               " contain tracks.");
+
+  if (azim < 0 || azim >= _num_azim*2)
+    log_printf(ERROR, "Unable to get Phi for azimuthal angle %d since there"
+               " %d azimuthal angles", azim, _num_azim*2);
+
+  if (azim < _num_azim)
+    return _phi[azim];
+  else
+    return 2 * M_PI - _phi[azim - _num_azim];
 }

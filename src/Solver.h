@@ -198,6 +198,7 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
+  PolarQuad* getPolarQuad();
   FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
