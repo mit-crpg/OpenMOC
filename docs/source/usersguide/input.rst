@@ -640,7 +640,7 @@ The first group flux is plotted below. All other flux plots are zero throughout 
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-While this case seems ill-suited for the ``computeFlux(...)`` routine, the ``computeFlux(...)`` is very useful for cases where the total source is known and can be defined by the user. For instance, if the total source :math:`S_g` for energy group :math:`g` is defined to be a cosine distribution such as
+While this case seems ill-suited for the ``computeFlux(...)`` routine, ``computeFlux(...)`` is very useful for cases where the total source is known and can be defined by the user. For instance, if the total source :math:`S_g` for energy group :math:`g` is defined to be a cosine distribution such as
 
 .. math::
   S_g(x,y) = S_g(0,0) \cos{\frac{x}{L}} \cos{\frac{y}{H}}
