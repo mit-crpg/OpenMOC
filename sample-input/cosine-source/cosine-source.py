@@ -1,5 +1,5 @@
 import openmoc
-from math import *
+import math
 
 ###############################################################################
 #                          Main Simulation Parameters
@@ -9,9 +9,9 @@ options = openmoc.options.Options()
 
 num_threads = options.getNumThreads()
 track_spacing = options.getTrackSpacing()
-num_azim = 4
+num_azim = options.getNumAzimAngles()
 tolerance = options.getTolerance()
-max_iters = 1000 
+max_iters = options.getMaxIterations()
 openmoc.log.set_log_level('NORMAL')
 
 
@@ -100,7 +100,6 @@ openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
-geometry.initializeFlatSourceRegions()
 
 
 ###############################################################################
@@ -136,7 +135,7 @@ for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
   H = num_y * width_y / 2
   for g in range(materials['Water'].getNumEnergyGroups()):
     group = g + 1
-    source_value = cos(x_pt/L) * cos(y_pt/H)
+    source_value = math.cos(x_pt/L) * math.cos(y_pt/H)
     solver.setFixedSourceByFSR(fsr_id, group, source_value)
   
   # NOTE: A more precise definition of the source would calculate the same
