@@ -2127,7 +2127,7 @@ void Cmfd::tallySurfaceCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
       /* Increment current (polar and azimuthal weighted flux, group) */
       _surface_currents->incrementValues(cell_id, s*_num_cmfd_groups,
-                                         (s+1)*_num_cmfd_groups-1, 
+                                         (s+1)*_num_cmfd_groups-1,
                                          surf_currents);
     }
     else {
@@ -2241,6 +2241,9 @@ FP_PRECISION Cmfd::getFluxRatio(int cmfd_cell, int moc_group) {
  *         k is reduced to the number of neighbor cells for that instance.
  */
 void Cmfd::generateKNearestStencils() {
+
+  if (!_centroid_update_on)
+    return;
 
   std::vector< std::pair<int, FP_PRECISION> >::iterator iter2;
   std::vector<int>::iterator iter;

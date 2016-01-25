@@ -556,7 +556,10 @@ void Solver::initializeFSRs() {
     _FSR_volumes = _track_generator->get2DFSRVolumes();
 
   /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids();
+  if (_cmfd != NULL) {
+    if (_cmfd->isCentroidUpdateOn())
+      _track_generator->generateFSRCentroids(_FSR_volumes);
+  }
 
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
@@ -882,11 +885,17 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   _k_eff = 1.0;
 
   /* Initialize data structures */
+  log_printf(NORMAL, "1");
   initializeExpEvaluator();
+  log_printf(NORMAL, "2");
   initializeFluxArrays();
+  log_printf(NORMAL, "3");
   initializeSourceArrays();
+  log_printf(NORMAL, "4");
   initializeFSRs();
+  log_printf(NORMAL, "5");
   countFissionableFSRs();
+  log_printf(NORMAL, "6");
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       initializeCmfd();

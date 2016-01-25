@@ -1,4 +1,4 @@
-##
+#
 # @file process.py
 # @package openmoc.process
 # @brief The process module provides utility functions for processing of
@@ -9,31 +9,13 @@
 # @author William Boyd (wboyd@mit.edu)
 # @date April 27, 2013
 
+import os
+import re
+import mmap
 import sys
-
-## @var openmoc
-#  @brief The openmoc module in use in the Python script using the
-#         openmoc.process module.
-openmoc = ''
-
-# Determine which OpenMOC module is being used
-if 'openmoc.gnu.double' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.double']
-elif 'openmoc.gnu.single' in sys.modules:
-  openmoc = sys.modules['openmoc.gnu.single']
-elif 'openmoc.intel.double' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.double']
-elif 'openmoc.intel.single' in sys.modules:
-  openmoc = sys.modules['openmoc.intel.single']
-elif 'openmoc.bgq.double' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.double']
-elif 'openmoc.bgq.single' in sys.modules:
-  openmoc = sys.modules['openmoc.bgq.single']
-else:
-  import openmoc
-
 import numpy as np
-import os, re, mmap
+
+import openmoc
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
@@ -87,84 +69,188 @@ def is_float(val):
 # @param use_hdf5 whether or not to export fission rates to an HDF5 file
 def compute_fission_rates(solver, use_hdf5=False):
 
-  # create directory and filename
-  directory = openmoc.get_output_directory() + '/fission-rates/'
-  filename = 'fission-rates'
+    # create directory and filename
+    directory = openmoc.get_output_directory() + '/fission-rates/'
+    filename = 'fission-rates'
 
-  # Make directory if it does not exist
-  if not os.path.exists(directory):
-    os.makedirs(directory)
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-  # Get geometry
-  geometry = solver.getGeometry()
+    # Get geometry
+    geometry = solver.getGeometry()
+    track_generator = solver.getTrackGenerator()
+    quad = track_generator.getQuadrature()
+    filename += '-angles-(' + str(quad.getNumAzimAngles()) + ',' +\
+                str(quad.getNumPolarAngles()) + ')-spacing-(' + \
+                "{:4.3f}".format(track_generator.getDesiredAzimSpacing()) + ',' + \
+                "{:4.3f}".format(track_generator.getDesiredPolarSpacing()) + ')-'
 
-  # Compute the volume-weighted fission rates for each FSR
-  fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+    if quad.getQuadratureType() == openmoc.TABUCHI_YAMAMOTO:
+        filename += 'TABUCHI-YAMAMOTO'
+    elif quad.getQuadratureType() == openmoc.LEONARD:
+        filename += 'LEONARD'
+    elif quad.getQuadratureType() == openmoc.GAUSS_LEGENDRE:
+        filename += 'GAUSS-LEGENDRE'
+    elif quad.getQuadratureType() == openmoc.EQUAL_ANGLE:
+        filename += 'EQUAL-ANGLE'
+    elif quad.getQuadratureType() == openmoc.EQUAL_WEIGHT:
+        filename += 'EQUAL-WEIGHT'
 
-  # Initialize fission rates dictionary
-  fission_rates_sum = {}
+    # Compute the volume-weighted fission rates for each FSR
+    fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
-  # Loop over FSRs and populate fission rates dictionary
-  for fsr in range(geometry.getNumFSRs()):
+    # Initialize fission rates dictionary
+    fission_rates_sum = {}
 
-    if geometry.findFSRMaterial(fsr).isFissionable():
+    # Loop over FSRs and populate fission rates dictionary
+    for fsr in range(geometry.getNumFSRs()):
 
-      # Get the linked list of LocalCoords
-      point = geometry.getFSRPoint(fsr)
-      coords = openmoc.LocalCoords(point.getX(), point.getY())
-      coords.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(coords)
-      coords = coords.getHighestLevel().getNext()
+        if geometry.findFSRMaterial(fsr).isFissionable():
 
-      # initialize dictionary key
-      key = 'UNIV = 0 : '
+            # Get the linked list of LocalCoords
+            point = geometry.getFSRPoint(fsr)
+            coords = openmoc.LocalCoords(point.getX(), point.getY(), point.getZ())
+            coords.setUniverse(geometry.getRootUniverse())
+            geometry.findCellContainingCoords(coords)
+            coords = coords.getHighestLevel().getNext()
 
-      # Parse through the linked list and create fsr key.
-      # If lowest level sub dictionary already exists, then increment
-      # fission rate; otherwise, set the fission rate.
-      while True:
-        if coords.getType() is openmoc.LAT:
-          key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
-                 str(coords.getLatticeX()) + ', ' + \
-                 str(coords.getLatticeY()) + ') : '
-        else:
-          key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
+            # initialize dictionary key
+            key = 'UNIV = 0 : '
 
-        # Remove the trailing ' : ' on the end of the key if at last univ/lat
-        if coords.getNext() is None:
-          key = key[:-3]
-          break
-        else:
-          coords = coords.getNext()
+            # Parse through the linked list and create fsr key.
+            # If lowest level sub dictionary already exists, then increment
+            # fission rate; otherwise, set the fission rate.
+            while True:
+                if coords.getType() is openmoc.LAT:
+                    key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
+                           str(coords.getLatticeX()) + ', ' + \
+                           str(coords.getLatticeY()) + ', ' + \
+                           str(coords.getLatticeZ()) + ') : '
+                else:
+                    key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
 
-      # Increment or set fission rate
-      if key in fission_rates_sum:
-        fission_rates_sum[key] += fsr_fission_rates[fsr]
-      else:
-        fission_rates_sum[key] = fsr_fission_rates[fsr]
+                # Remove the trailing ' : ' on the end of the key if at last univ/lat
+                if coords.getNext() is None:
+                    key = key[:-3]
+                    break
+                else:
+                    coords = coords.getNext()
 
-  # If using HDF5
-  if use_hdf5:
+            # Increment or set fission rate
+            if key in fission_rates_sum:
+                fission_rates_sum[key] += fsr_fission_rates[fsr]
+            else:
+                fission_rates_sum[key] = fsr_fission_rates[fsr]
 
-    import h5py
+    # If using HDF5
+    if use_hdf5:
 
-    # Open HDF5 file
-    f = h5py.File(directory + filename + '.h5', 'w')
+        import h5py
 
-    # Write the fission rates to the HDF5 file
-    fission_rates_group = f.create_group('fission-rates')
-    for key, value in fission_rates_sum.items():
-      fission_rates_group.attrs[key] = value
+        # Open HDF5 file
+        f = h5py.File(directory + filename + '.h5', 'w')
 
-    # Close hdf5 file
-    f.close()
+        # Write the fission rates to the HDF5 file
+        fission_rates_group = f.create_group('fission-rates')
+        for key, value in fission_rates_sum.items():
+            fission_rates_group.attrs[key] = value
 
-  else:
+        # Close hdf5 file
+        f.close()
 
-    import pickle
+    else:
 
-    # Pickle the fission rates to a file
-    pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
+        import pickle
+
+        # Pickle the fission rates to a file
+        pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
+
+
+def compute_material_fluxes(solver, use_hdf5=False):
+
+    # create directory and filename
+    directory = openmoc.get_output_directory() + '/fission-rates/'
+    filename = 'material-fluxes'
+
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Get geometry
+    geometry = solver.getGeometry()
+    track_generator = solver.getTrackGenerator()
+    quad = track_generator.getQuadrature()
+    filename += '-angles-(' + str(quad.getNumAzimAngles()) + ',' +\
+                str(quad.getNumPolarAngles()) + ')-spacing-(' + \
+                "{:4.3f}".format(track_generator.getDesiredAzimSpacing()) + ',' + \
+                "{:4.3f}".format(track_generator.getDesiredPolarSpacing()) + ')-'
+
+    if quad.getQuadratureType() == openmoc.TABUCHI_YAMAMOTO:
+        filename += 'TABUCHI-YAMAMOTO'
+    elif quad.getQuadratureType() == openmoc.LEONARD:
+        filename += 'LEONARD'
+    elif quad.getQuadratureType() == openmoc.GAUSS_LEGENDRE:
+        filename += 'GAUSS-LEGENDRE'
+    elif quad.getQuadratureType() == openmoc.EQUAL_ANGLE:
+        filename += 'EQUAL-ANGLE'
+    elif quad.getQuadratureType() == openmoc.EQUAL_WEIGHT:
+        filename += 'EQUAL-WEIGHT'
+
+
+    # Get materials
+    all_materials = geometry.getAllMaterials()
+    num_groups = all_materials.values()[0].getNumEnergyGroups()
+    num_FSRs = geometry.getNumFSRs()
+    fsr_volumes = track_generator.export3DFSRVolumes(num_FSRs)
+
+    # Initialize fission rates dictionary
+    fluxes = {}
+    fission_rates = {}
+
+    for mat in all_materials.values():
+        fission_rates[mat.getName()] = 0.0
+        fluxes[mat.getName()] = np.zeros(num_groups)
+
+    # Loop over FSRs and populate fluxes dictionary
+    for fsr in range(geometry.getNumFSRs()):
+
+        # Get material for this fsr
+        mat = geometry.findFSRMaterial(fsr)
+        name = mat.getName()
+        for g in range(1,num_groups+1):
+            fission_rates[name] += solver.getFSRScalarFlux(fsr, g) * fsr_volumes[fsr] * mat.getNuSigmaFByGroup(g)
+            fluxes[name][g-1] += solver.getFSRScalarFlux(fsr, g) * fsr_volumes[fsr]
+
+    # If using HDF5
+    if use_hdf5:
+
+        import h5py
+
+        # Open HDF5 file
+        f = h5py.File(directory + filename + '.h5', 'w')
+
+        # Write the fission rates to the HDF5 file
+        fluxes_group = f.create_group('fluxes')
+        production_rates_group = f.create_group('production-rates')
+        for key, value in fluxes.items():
+            fluxes_group.attrs[key] = value
+        for key, value in fission_rates.items():
+            production_rates_group.attrs[key] = value
+
+        # Close hdf5 file
+        f.close()
+
+    else:
+
+        import pickle
+
+        data = {}
+        data['fluxes'] = fluxes
+        data['production rates'] = fission_rates
+
+        # Pickle the fluxes to a file
+        pickle.dump(data, open(directory + filename + '.pkl', 'wb'))
 
 ##
 # @brief This method stores all of the data for an OpenMOC simulation to a
@@ -289,7 +375,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     # Get the scalar flux for each FSR and energy group
     for i in range(num_FSRs):
       for j in range(num_groups):
-        scalar_fluxes[i,j] = solver.getFSRScalarFlux(i,j+1)
+        scalar_fluxes[i,j] = solver.getFlux(i,j+1)
 
   # If the user requested to store the FSR sources
   if sources:

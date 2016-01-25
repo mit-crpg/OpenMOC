@@ -114,7 +114,7 @@ public:
 
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
-  void subdivideCells();
+  void subdivideCells(double max_radius);
   void buildNeighbors();
   std::string toString();
   void printString();
@@ -187,6 +187,7 @@ public:
   void setWidth(double width_x, double width_y, double width_z=1.0);
   void setUniverses(int num_y, int num_x, Universe** universes);
   void setUniverses3D(int num_z, int num_y, int num_x, Universe** universes);
+  void subdivideCells(double max_radius=INFINITY);
   void buildNeighbors();
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);

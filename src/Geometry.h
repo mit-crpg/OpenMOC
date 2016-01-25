@@ -11,6 +11,7 @@
 #ifdef __cplusplus
 #include "Python.h"
 #include "Cmfd.h"
+#include "Progress.h"
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -73,9 +74,9 @@ struct fsr_data {
  *        corresponding materials.
  */
 struct ExtrudedFSR {
-  
+
   /** Constructor for ExtrudedFSR object */
-  ExtrudedFSR() : _mesh(NULL), _fsr_id(0), _fsr_ids(NULL), _materials(NULL), 
+  ExtrudedFSR() : _mesh(NULL), _fsr_id(0), _fsr_ids(NULL), _materials(NULL),
     _num_fsrs(0), _coords(NULL){}
 
   /** Array defining the axial mesh */

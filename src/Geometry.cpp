@@ -794,7 +794,8 @@ ExtrudedFSR* Geometry::getExtrudedFSR(int extruded_fsr_id) {
 
 
 /**
- * @brief Subidivides all Cells in the Geometry into rings and angular sectors.
+ * @brief Subidivides all Cells in the Geometry into rings and angular sectors
+ *        aligned with the z-axis.
  * @details This method is called by the Geometry::initializeFlatSourceRegions()
  *          method but may also be called by the user in Python if needed:
  *
@@ -804,14 +805,12 @@ ExtrudedFSR* Geometry::getExtrudedFSR(int extruded_fsr_id) {
  */
 void Geometry::subdivideCells() {
 
-  std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
-  std::map<int, Universe*>::iterator iter;
+  /* Compute equivalent radius with the same area as the Geometry */
+  /* This is used as the maximum radius for all ringified Cells */
+  double max_radius = sqrt(getWidth() * getHeight() / M_PI);
 
-  /* Loop over all Universe in the Geometry and instruct each to inform
-   * their Cells to subdivide into rings and sectors as specified by
-   * the user during Cell instantiation */
-  for (iter = all_universes.begin(); iter != all_universes.end(); ++iter)
-    (*iter).second->subdivideCells();
+  /* Recursively subdivide Cells into rings and sectors */
+  _root_universe->subdivideCells(max_radius);
 }
 
 
@@ -1119,7 +1118,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     /* Records the minimum length to a 2D intersection */
     FP_PRECISION min_length = std::numeric_limits<FP_PRECISION>::infinity();
-    
+
     /* Copy end coordinates to start */
     end.copyCoords(&start);
 
@@ -1163,7 +1162,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     segment* new_segment = new segment;
     new_segment->_length = min_length;
     new_segment->_region_id = region_id;
-    
+
     /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL) {
 
@@ -1223,8 +1222,13 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
   /* Extract list of extruded FSRs */
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
+  std::string msg = "initializing 3D FSRs";
+  Progress progress(_extruded_FSR_keys_map.size(), msg);
+
   /* Loop over extruded FSRs */
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
+
+    progress.incrementCounter();
 
     /* Extract coordinates of extruded FSR */
     ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
@@ -1726,16 +1730,16 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
       for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
 
         /* Get surfaces bounding the cell */
-        std::map<int, surface_halfspace> surfaces =
+        std::map<int, surface_halfspace*> surfaces =
           cell_iter->second->getSurfaces();
 
         /* Cycle through all surfaces and add them to the set */
-        std::map<int, surface_halfspace>::iterator surf_iter;
+        std::map<int, surface_halfspace*>::iterator surf_iter;
         for (surf_iter = surfaces.begin(); surf_iter != surfaces.end();
             ++surf_iter) {
 
           /* Extract surface type */
-          Surface* surface = surf_iter->second._surface;
+          Surface* surface = surf_iter->second->_surface;
           surfaceType surf_type = surface->getSurfaceType();
 
           /* Treat surface types */
@@ -1818,7 +1822,7 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
       /* Round z-height */
       int place = 8;
       z_height = floor(z_height * pow(10, place)) * pow(10, -place);
-      
+
       /* Add height to set */
       unique_mesh.insert(z_height);
     }

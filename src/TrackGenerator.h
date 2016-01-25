@@ -22,6 +22,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <omp.h>
+#include <tuple>
 #endif
 
 
@@ -103,8 +104,11 @@ private:
   /** A 2D ragged array of 2D tracks (azim, track index) */
   Track2D** _tracks_2D;
 
+  /** A 2D ragged array of 2D tracks (azim, cycle, train index) */
+  Track2D**** _tracks_2D_cycle;
+
   /** An array of 3D tracks (azim, 2D track, polar, z-stack) */
-  Track3D**** _tracks_3D_stack;
+  Track3D**** _tracks_3D;
 
   /** An array of 3D tracks (azim, cycle, polar, lz track, train index) */
   Track3D****** _tracks_3D_cycle;
@@ -168,6 +172,7 @@ private:
   void initialize3DTracks();
   void initialize2DTrackReflections();
   void initialize3DTrackReflections();
+  void initialize2DTrackCycles();
   void recalibrate2DTracksToOrigin();
   void recalibrate3DTracksToOrigin();
   void segmentize2D();
@@ -223,13 +228,13 @@ public:
   double getDyEff(int azim);
   FP_PRECISION* get2DFSRVolumes();
   FP_PRECISION get2DFSRVolume(int fsr_id);
+  void export3DFSRVolumes(double* out_volumes, int num_fsrs);
   FP_PRECISION* get3DFSRVolumes();
   FP_PRECISION* get3DFSRVolumesOTF();
   FP_PRECISION get3DFSRVolume(int fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
   int getTrackGenerationMethod();
-  Track* getTrack2DByCycle(int azim, int cycle, int track_index);
   bool getCycleDirection(int azim, int cycle, int track_index);
   FP_PRECISION retrieveMaxOpticalLength();
 
@@ -266,7 +271,7 @@ public:
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
-  void generateFSRCentroids();
+  void generateFSRCentroids(FP_PRECISION* FSR_volumes);
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);
