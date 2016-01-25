@@ -17,7 +17,7 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines = 1
+refines = 5
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
