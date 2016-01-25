@@ -19,6 +19,15 @@ class SimpleLatticeAdjointTestHarness(TestHarness):
         self.input_set = SimpleLatticeInput()
         self.calculation_mode = openmoc.ADJOINT
 
+    def _get_results(self, num_iters=True, keff=True, fluxes=True,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=True):
+        """Digest info in the solver and return hash as a string."""
+        return super(SimpleLatticeAdjointTestHarness, self)._get_results(
+                num_iters=num_iters, keff=keff, fluxes=fluxes,
+                num_fsrs=num_fsrs, num_tracks=num_tracks,
+                num_segments=num_segments, hash_output=hash_output)
+
 
 if __name__ == '__main__':
     harness = SimpleLatticeAdjointTestHarness()
