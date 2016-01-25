@@ -149,8 +149,8 @@ class SimpleLatticeInput(InputSet):
 
         xmin = openmoc.XPlane(x=-2.0, name='xmin')
         xmax = openmoc.XPlane(x=+2.0, name='xmax')
-        ymin = openmoc.YPlane(y=+2.0, name='ymin')
-        ymax = openmoc.YPlane(y=-2.0, name='ymax')
+        ymax = openmoc.YPlane(y=+2.0, name='ymin')
+        ymin = openmoc.YPlane(y=-2.0, name='ymax')
         boundaries = [xmin, xmax, ymin, ymax]
 
         large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
@@ -200,8 +200,8 @@ class SimpleLatticeInput(InputSet):
         root_cell = openmoc.Cell(name='root cell')
         root_cell.addSurface(halfspace=+1, surface=boundaries[0])
         root_cell.addSurface(halfspace=-1, surface=boundaries[1])
-        root_cell.addSurface(halfspace=-1, surface=boundaries[2])
-        root_cell.addSurface(halfspace=+1, surface=boundaries[3])
+        root_cell.addSurface(halfspace=+1, surface=boundaries[2])
+        root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
         pin1 = openmoc.Universe(name='large pin cell')
         pin2 = openmoc.Universe(name='medium pin cell')

@@ -23,13 +23,13 @@ the script run:
 
     python run_tests.py --help
 
-As an example, say we want to run all tests with debug flags only on tests
-that have cone and plot in their name. Also, we would like to run this on
-4 processors. We can run:
+As an example, say we want to run all tests with that have "adjoint" and
+"pwr" in their name. Also, we wish to split the tests across 4 processors.
+We can run:
 
 .. code-block:: sh
 
-    python run_tests.py -j 4 -C debug -R "rings|sectors"
+    python run_tests.py -j 4 -R "adjoint|pwr"
 
 Note that standard regular expression syntax is used for selecting build
 configurations and tests. To print out a list of build configurations, we
@@ -37,6 +37,6 @@ can run:
 
 .. code-block:: sh
 
-    python run_tests.py -p
+    python run_tests.py -l
 
 .. _ctest: http://www.cmake.org/cmake/help/v2.8.12/ctest.html

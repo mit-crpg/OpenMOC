@@ -10,9 +10,9 @@ from input_set import HomInfMedInput
 import openmoc
 
 
-class OneDGradientTestHarness(TestHarness):
-    """An eigenvalue calculation in a cube with vacuum BCs in x
-    and reflective BCs in y with 2-group cross section data."""
+class TwoDGradientTestHarness(TestHarness):
+    """An eigenvalue calculation in a cube with vacuum BCs along xmin and
+    ymax and reflective BCs elsewhere with 2-group cross section data."""
 
     def _create_geometry(self):
         """Put VACUUM boundary conditions on left and right boundaries."""
@@ -27,7 +27,7 @@ class OneDGradientTestHarness(TestHarness):
             if cell.getName() == 'root cell':
                 root_cell = cell
 
-        # Apply VACUUM BCs on the min/max XPlane surfaces
+        # Apply VACUUM BCs on the xmin and ymax surfaces
         surfaces = root_cell.getSurfaces()
         for surface_id in surfaces:
             surface = surfaces[surface_id]._surface
@@ -37,10 +37,10 @@ class OneDGradientTestHarness(TestHarness):
                 surface.setBoundaryType(openmoc.VACUUM)
 
     def __init__(self):
-        super(OneDGradientTestHarness, self).__init__()
+        super(TwoDGradientTestHarness, self).__init__()
         self.input_set = HomInfMedInput()
 
 
 if __name__ == '__main__':
-    harness = OneDGradientTestHarness()
+    harness = TwoDGradientTestHarness()
     harness.main()

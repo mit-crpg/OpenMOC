@@ -370,7 +370,7 @@ void CPUSolver::computeFSRSources() {
     FP_PRECISION* scatter_sources = new FP_PRECISION[_num_groups];
 
     /* Compute the total source for each FSR */
-    //    #pragma omp for schedule(guided)
+    #pragma omp for schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
       tid = omp_get_thread_num();
