@@ -521,6 +521,8 @@ void Solver::initializeExpEvaluator() {
     _track_generator->setMaxOpticalLength(max_tau);
     if (!_OTF)
       _track_generator->splitSegments(max_tau);
+    else
+      _track_generator->countSegments();
 
     /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);
@@ -545,9 +547,6 @@ void Solver::initializeFSRs() {
 
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
-
-  /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids();
 
   /* Get an array of volumes indexed by FSR  */
   if (_solve_3D)
