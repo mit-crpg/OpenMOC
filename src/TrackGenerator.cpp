@@ -4970,13 +4970,10 @@ void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
  */
 void TrackGenerator::countSegments() {
 
-  /* Create lock for determining the maximum number of segments per track */
-  omp_lock_t counter_lock;
-  omp_init_lock(&counter_lock);
-
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for
+  int max_num_segments = 0;
+  #pragma omp parallel for reduction(max:max_num_segments)
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
     /* Create counter kernel for the current thread */
@@ -5009,17 +5006,12 @@ void TrackGenerator::countSegments() {
         /* Set the number of segments for the track */
         int num_segments = counter.getCount();
         curr_track->setNumSegments(num_segments);
-        if (num_segments > _max_num_segments) {
-          omp_set_lock(&counter_lock);
-          if (num_segments > _max_num_segments)
-            _max_num_segments = num_segments;
-          omp_unset_lock(&counter_lock);
-        }
+        max_num_segments = std::max(max_num_segments, num_segments);
         counter.resetCount();
       }
     }
   }
-  omp_destroy_lock(&counter_lock);
+  _max_num_segments = max_num_segments;
 }
 
 

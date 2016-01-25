@@ -709,9 +709,9 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
 
 
 /**
- * @brief Return the characteristic point for a given FSR ID
+ * @brief Return the CMFD cell for a given FSR ID
  * @param fsr_id the FSR ID
- * @return the FSR's characteristic point
+ * @return the CMFD cell
  */
 int Geometry::getCmfdCell(int fsr_id) {
 
