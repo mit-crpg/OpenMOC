@@ -2,7 +2,7 @@
  * @file MOCKernel.h
  * @brief An MOCKernel object
  * @date May 5, 2015
- * @autho Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
+ * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
  */
 
 #ifndef MOCKERNEL_H_

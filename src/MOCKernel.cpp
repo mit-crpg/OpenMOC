@@ -17,10 +17,10 @@ VolumeKernel::VolumeKernel(int size) : MOCKernel() {
 
   size = size / 10 + 1;
 
-  /* Allocate memory for OpenMP locks for each Vector cell */
+  /* Allocate memory for OpenMP locks for every 10 FSRs */
   _buffer_locks = new omp_lock_t[size];
 
-  /* Loop over all Vector cells to initialize OpenMP locks */
+  /* Initialize OpenMP locks */
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < size; r++)
     omp_init_lock(&_buffer_locks[r]);
@@ -113,11 +113,13 @@ int MOCKernel::getCount() {
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
+  /* Set omp lock for corresponding block of 10 FSRs */
   omp_set_lock(&_buffer_locks[id/10]);
 
   /* Add value to buffer */
   _buffer[id] += _weight * length;
 
+  /* Unset lock */
   omp_unset_lock(&_buffer_locks[id/10]);
 }
 
