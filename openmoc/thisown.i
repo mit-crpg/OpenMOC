@@ -294,5 +294,5 @@
   else:
     cmfd = locals()['args'][0]
 
-  cmfd.thisown = 0
+  cmfd.thisown = False
 %}
