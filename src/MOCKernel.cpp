@@ -11,9 +11,28 @@ MOCKernel::MOCKernel() {
 
 
 /**
+ * @biief Constructor for the MOCKernel assigns default values
+ */
+VolumeKernel::VolumeKernel(omp_lock_t* FSR_locks) : MOCKernel() {
+
+  if (FSR_locks == NULL)
+    log_printf(ERROR, "Unable to create a VolumeKernel without "
+               "an array of FSR locks");
+
+  _FSR_locks = FSR_locks;
+}
+
+
+/**
  * @brief Destructor for MOCKernel
  */
 MOCKernel::~MOCKernel() {};
+
+
+/**
+ * @brief Destructor for MOCKernel
+ */
+VolumeKernel::~VolumeKernel() {};
 
 
 /**
@@ -63,7 +82,7 @@ void MOCKernel::setMaxVal(FP_PRECISION max_tau) {
 /*
  * @brief Reads and returns the current count
  * @details MOC kernels count how many times they are accessed. This value
- *          returns the value of the counter (number of execute accesses) 
+ *          returns the value of the counter (number of execute accesses)
  *          since kernel creation or last reset.
  * @return _count the counter value
  */
@@ -84,8 +103,14 @@ int MOCKernel::getCount() {
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
+  /* Set omp lock for FSRs */
+  omp_set_lock(&_FSR_locks[id]);
+
   /* Add value to buffer */
   _buffer[id] += _weight * length;
+
+  /* Unset lock */
+  omp_unset_lock(&_FSR_locks[id]);
 }
 
 

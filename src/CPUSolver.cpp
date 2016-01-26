@@ -93,13 +93,8 @@ void CPUSolver::initializeFSRs() {
 
   Solver::initializeFSRs();
 
-  /* Allocate array of mutex locks for each FSR */
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
+  /* Get FSR locks from TrackGenerator */
+  _FSR_locks = _track_generator->getFSRLocks();
 }
 
 
@@ -622,7 +617,7 @@ void CPUSolver::transportSweep() {
     for (int track_id=min_track; track_id < max_track; track_id++) {
 
       FP_PRECISION thread_fsr_flux[_num_groups];
-      curr_track = _tracks[track_id];      
+      curr_track = _tracks[track_id];
       azim_index = _quad->getFirstOctantAzim(curr_track->getAzimIndex());
 
       /* Get the polar index */

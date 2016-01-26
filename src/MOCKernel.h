@@ -1,7 +1,18 @@
+/**
+ * @file MOCKernel.h
+ * @brief An MOCKernel object
+ * @date May 5, 2015
+ * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
+ */
+
+#ifndef MOCKERNEL_H_
+#define MOCKERNEL_H_
+
 #include "Python.h"
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
+
 
 /**
  * @class MOCKernel MOCKernel.h "src/MOCKernel.h"
@@ -48,6 +59,7 @@ public:
   void setMaxVal(FP_PRECISION max_tau);
   void resetCount();
   void setBuffer(FP_PRECISION* buffer);
+  void setFSRLocks(omp_lock_t* fsr_locks);
 
   /* Get parameters */
   int getCount();
@@ -84,7 +96,19 @@ public:
  *          track associated with the segments.
  */
 class VolumeKernel: public MOCKernel {
+
+protected:
+
+  /** Array of FSR locks */
+  omp_lock_t* _FSR_locks;
+
+  /** Maximum optical path length when forming segments */
+  FP_PRECISION _max_tau;
+
 public:
+
+  VolumeKernel(omp_lock_t* FSR_locks);
+  virtual ~VolumeKernel();
   void execute(FP_PRECISION length, Material* mat, int id,
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
@@ -104,6 +128,4 @@ public:
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
-
-
-
+#endif /* MOCKERNEL_H_ */

@@ -497,3 +497,13 @@ void Track::setReflectiveCycleId(int id) {
 int Track::getReflectiveCycleId() {
   return _reflective_cycle_id;
 }
+
+
+void Track::setDirectionInCycle(bool fwd) {
+  _direction_in_cycle = fwd;
+}
+
+
+bool Track::getDirectionInCycle() {
+  return _direction_in_cycle;
+}

@@ -1137,7 +1137,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     /* Records the minimum length to a 2D intersection */
     FP_PRECISION min_length = std::numeric_limits<FP_PRECISION>::infinity();
-    
+
     /* Copy end coordinates to start */
     end.copyCoords(&start);
 
@@ -1181,7 +1181,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     segment* new_segment = new segment;
     new_segment->_length = min_length;
     new_segment->_region_id = region_id;
-    
+
     /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL) {
 
@@ -1241,8 +1241,13 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
   /* Extract list of extruded FSRs */
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
+  std::string msg = "initializing 3D FSRs";
+  Progress progress(_extruded_FSR_keys_map.size(), msg);
+
   /* Loop over extruded FSRs */
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
+
+    progress.incrementCounter();
 
     /* Extract coordinates of extruded FSR */
     ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
@@ -1836,7 +1841,7 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
       /* Round z-height */
       int place = 8;
       z_height = floor(z_height * pow(10, place)) * pow(10, -place);
-      
+
       /* Add height to set */
       unique_mesh.insert(z_height);
     }

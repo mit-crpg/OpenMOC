@@ -73,7 +73,7 @@ protected:
 
   /** Number of segments recorded during volume calculation */
   int _num_segments;
-  
+
   /** An enum to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be zeroed out for vacuum boundary
    *  conditions or sent to a periodic or reflective track. */
@@ -104,6 +104,10 @@ protected:
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
 
+  /* Boolean indicating whether the track is pointing fwd (True) or bwd (False)
+   * in the cycle of tracks */
+  bool _direction_in_cycle;
+
 public:
   Track();
   virtual ~Track();
@@ -124,6 +128,7 @@ public:
   void setPeriodicCycleId(int id);
   void setReflectiveCycleId(int id);
   void setPeriodicTrackIndex(int index);
+  void setDirectionInCycle(bool fwd);
 
   /* Getter methods */
   int getUid();
@@ -147,6 +152,7 @@ public:
   segment* getSegments();
   int getNumSegments();
   int getPeriodicTrackIndex();
+  bool getDirectionInCycle();
 
   /* Worker methods */
   void addSegment(segment* segment);
