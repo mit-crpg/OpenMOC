@@ -35,7 +35,6 @@ MOCKernel::~MOCKernel() {};
 VolumeKernel::~VolumeKernel() {};
 
 
-
 /**
  * @brief Sets the location of segment data
  * @param segments pointer to segment data
@@ -104,7 +103,7 @@ int MOCKernel::getCount() {
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
-  /* Set omp lock for corresponding block of 10 FSRs */
+  /* Set omp lock for FSRs */
   omp_set_lock(&_FSR_locks[id]);
 
   /* Add value to buffer */
