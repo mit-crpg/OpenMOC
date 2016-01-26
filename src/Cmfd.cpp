@@ -1131,15 +1131,12 @@ int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
  *          no 2D CMFD surface intersection, -1 should be input for the 2D CMFD
  *          surface.
  * @param cell The CMFD cell ID that the local coords is in.
- * @param coords The coords being evaluated. It is assumed this LocalCoords
- *        object is in the root universe.
+ * @param z the axial height in the root universe of the point being evaluated.
  * @param surface_2D The ID of the 2D CMFD surface that the LocalCoords object
  *        intersects. If there is no 2D intersection, -1 should be input.
  */
-int Cmfd::findCmfdSurfaceOTF(int cell, LocalCoords* coords, int surface_2D) {
-  Point* point = coords->getPoint();
-  int surface = _lattice->getLatticeSurfaceOTF(cell, point, surface_2D);
-  return surface;
+int Cmfd::findCmfdSurfaceOTF(int cell, double z, int surface_2D) {
+  return _lattice->getLatticeSurfaceOTF(cell, z, surface_2D);
 }
 
 

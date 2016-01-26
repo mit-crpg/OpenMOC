@@ -1647,11 +1647,11 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
  *          7 (top-left corner). The index returned takes into account
  *          the cell index and returns 8*cell_index + surface_index.
  * @param cell the cell index that the point is in.
- * @param point a pointer to a point being evaluated.
+ * @param z the axial height of the point being evaluated.
  * @param surface_2D The surface intersected by the 2D projection of the point.
  * @return the Lattice surface index.
  */
-int Lattice::getLatticeSurfaceOTF(int cell, Point* point, int surface_2D) {
+int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
 
   /* Determine min and max z boundaries of the cell */
   double lat_z = cell / (_num_x*_num_y);
@@ -1659,7 +1659,7 @@ int Lattice::getLatticeSurfaceOTF(int cell, Point* point, int surface_2D) {
   double z_max = z_min + _width_z;
 
   /* Check min z boundary for crossing */
-  if (fabs(z_min - point->getZ()) < ON_SURFACE_THRESH) {
+  if (fabs(z_min - z) < ON_SURFACE_THRESH) {
     int surface;
     switch (surface_2D % NUM_SURFACES) {
       case SURFACE_X_MIN:
@@ -1693,7 +1693,7 @@ int Lattice::getLatticeSurfaceOTF(int cell, Point* point, int surface_2D) {
   }
 
   /* Check max z boundary for crossing */
-  if (fabs(z_max - point->getZ()) < ON_SURFACE_THRESH) {
+  if (fabs(z_max - z) < ON_SURFACE_THRESH) {
     int surface;
     switch (surface_2D % NUM_SURFACES) {
       case SURFACE_X_MIN:
