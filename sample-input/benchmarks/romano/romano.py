@@ -54,7 +54,7 @@ moderator.setChi(numpy.array([1.0]))
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=0.4)
+zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.4)
 left = XPlane(x=-0.635)
 right = XPlane(x=0.635)
 top = YPlane(y=0.635)
@@ -74,11 +74,11 @@ log.py_printf('NORMAL', 'Creating cells...')
 
 fuel_cell = Cell(name='fuel')
 fuel_cell.setFill(fuel)
-fuel_cell.addSurface(halfspace=-1, surface=circle)
+fuel_cell.addSurface(halfspace=-1, surface=zcylinder)
 
 moderator_cell = Cell(name='moderator')
 moderator_cell.setFill(moderator)
-moderator_cell.addSurface(halfspace=+1, surface=circle)
+moderator_cell.addSurface(halfspace=+1, surface=zcylinder)
 moderator_cell.addSurface(halfspace=+1, surface=left)
 moderator_cell.addSurface(halfspace=-1, surface=right)
 moderator_cell.addSurface(halfspace=+1, surface=bottom)

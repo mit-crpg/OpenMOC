@@ -35,9 +35,9 @@ ymax.setBoundaryType(PERIODIC)
 zmin.setBoundaryType(PERIODIC)
 zmax.setBoundaryType(PERIODIC)
 
-large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
-medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
-small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
+large_zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.4, name='large pin')
+medium_zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.3, name='medium pin')
+small_zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.2, name='small pin')
 
 ###############################################################################
 #############################   Creating Cells   ##############################
@@ -47,27 +47,27 @@ log.py_printf('NORMAL', 'Creating cells...')
 
 large_fuel = Cell()
 large_fuel.setFill(materials['UO2'])
-large_fuel.addSurface(halfspace=-1, surface=large_circle)
+large_fuel.addSurface(halfspace=-1, surface=large_zcylinder)
 
 large_moderator = Cell()
 large_moderator.setFill(materials['Water'])
-large_moderator.addSurface(halfspace=+1, surface=large_circle)
+large_moderator.addSurface(halfspace=+1, surface=large_zcylinder)
 
 medium_fuel = Cell()
 medium_fuel.setFill(materials['UO2'])
-medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
+medium_fuel.addSurface(halfspace=-1, surface=medium_zcylinder)
 
 medium_moderator = Cell()
 medium_moderator.setFill(materials['Water'])
-medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
+medium_moderator.addSurface(halfspace=+1, surface=medium_zcylinder)
 
 small_fuel = Cell()
 small_fuel.setFill(materials['UO2'])
-small_fuel.addSurface(halfspace=-1, surface=small_circle)
+small_fuel.addSurface(halfspace=-1, surface=small_zcylinder)
 
 small_moderator = Cell()
 small_moderator.setFill(materials['Water'])
-small_moderator.addSurface(halfspace=+1, surface=small_circle)
+small_moderator.addSurface(halfspace=+1, surface=small_zcylinder)
 
 root_cell = Cell()
 root_cell.addSurface(halfspace=+1, surface=xmin)

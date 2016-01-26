@@ -104,7 +104,7 @@ char* Surface::getName() const {
 
 
 /**
- * @brief Return the type of Surface (ie, XPLANE, CIRCLE, etc).
+ * @brief Return the type of Surface (ie, XPLANE, ZYCLINDER, etc).
  * @return the Surface type
  */
 surfaceType Surface::getSurfaceType() {
@@ -652,17 +652,17 @@ std::string ZPlane::toString() {
 
 /**
  * @brief constructor.
- * @param x the x-coordinte of the Circle center
- * @param y the y-coordinate of the Circle center
- * @param radius the radius of the Circle
+ * @param x the x-coordinte of the ZCylinder center
+ * @param y the y-coordinate of the ZCylinder center
+ * @param radius the radius of the ZCylinder
  * @param id the optional Surface ID
  * @param name the optional Surface name
  */
-Circle::Circle(const double x, const double y,
+ZCylinder::ZCylinder(const double x, const double y,
                const double radius, const int id, const char* name):
   Surface(id, name) {
 
-  _surface_type = CIRCLE;
+  _surface_type = ZCYLINDER;
   _A = 1.;
   _B = 1.;
   _C = -2.*x;
@@ -675,29 +675,29 @@ Circle::Circle(const double x, const double y,
 
 
 /**
- * @brief Return the x-coordinate of the Circle's center Point.
- * @return the x-coordinate of the Circle center
+ * @brief Return the x-coordinate of the ZCylinder's center Point.
+ * @return the x-coordinate of the ZCylinder center
  */
-double Circle::getX0() {
+double ZCylinder::getX0() {
   return _center.getX();
 }
 
 
 /**
- * @brief Return the y-coordinate of the Circle's center Point.
- * @return the y-coordinate of the Circle center
+ * @brief Return the y-coordinate of the ZCylinder's center Point.
+ * @return the y-coordinate of the ZCylinder center
  */
-double Circle::getY0() {
+double ZCylinder::getY0() {
   return _center.getY();
 }
 
 
 /**
- * @brief Returns the minimum x value for one of this Circle's halfspaces.
- * @param halfspace the halfspace of the Circle to consider
+ * @brief Returns the minimum x value for one of this ZCylinder's halfspaces.
+ * @param halfspace the halfspace of the ZCylinder to consider
  * @return the minimum x value
  */
-double Circle::getMinX(int halfspace) {
+double ZCylinder::getMinX(int halfspace) {
   if (halfspace == -1)
     return _center.getX() - _radius;
   else
@@ -706,11 +706,11 @@ double Circle::getMinX(int halfspace) {
 
 
 /**
- * @brief Returns the maximum x value for one of this Circle's halfspaces.
- * @param halfspace the halfspace of the Circle to consider
+ * @brief Returns the maximum x value for one of this ZCylinder's halfspaces.
+ * @param halfspace the halfspace of the ZCylinder to consider
  * @return the maximum x value
  */
-double Circle::getMaxX(int halfspace) {
+double ZCylinder::getMaxX(int halfspace) {
   if (halfspace == -1)
     return _center.getX() + _radius;
   else
@@ -719,11 +719,11 @@ double Circle::getMaxX(int halfspace) {
 
 
 /**
- * @brief Returns the minimum y value for one of this Circle's halfspaces.
- * @param halfspace the halfspace of the Circle to consider
+ * @brief Returns the minimum y value for one of this ZCylinder's halfspaces.
+ * @param halfspace the halfspace of the ZCylinder to consider
  * @return the minimum y value
  */
-double Circle::getMinY(int halfspace) {
+double ZCylinder::getMinY(int halfspace) {
   if (halfspace == -1)
     return _center.getY() - _radius;
   else
@@ -732,11 +732,11 @@ double Circle::getMinY(int halfspace) {
 
 
 /**
- * @brief Returns the maximum y value for one of this Circle's halfspaces.
- * @param halfspace the halfspace of the Circle to consider
+ * @brief Returns the maximum y value for one of this ZCylinder's halfspaces.
+ * @param halfspace the halfspace of the ZCylinder to consider
  * @return the maximum y value
  */
-double Circle::getMaxY(int halfspace) {
+double ZCylinder::getMaxY(int halfspace) {
   if (halfspace == -1)
     return _center.getY() + _radius;
   else
@@ -746,26 +746,26 @@ double Circle::getMaxY(int halfspace) {
 
 /**
  * @brief Returns the minimum z value of -INFINITY.
- * @param halfspace the halfspace of the Circle to consider
+ * @param halfspace the halfspace of the ZCylinder to consider
  * @return the minimum z value of -INFINITY
  */
-double Circle::getMinZ(int halfspace) {
+double ZCylinder::getMinZ(int halfspace) {
   return -std::numeric_limits<double>::infinity();
 }
 
 
 /**
  * @brief Returns the maximum z value of INFINITY.
- * @param halfspace the halfspace of the Circle to consider
+ * @param halfspace the halfspace of the ZCylinder to consider
  * @return the maximum z value of INFINITY
  */
-double Circle::getMaxZ(int halfspace) {
+double ZCylinder::getMaxZ(int halfspace) {
   return std::numeric_limits<double>::infinity();
 }
 
 
 /**
- * @brief Finds the intersection Point with this circle from a given Point and
+ * @brief Finds the intersection Point with this zcylinder from a given Point and
  *        trajectory defined by an azim/polar angles (0, 1, or 2 points).
  * @param point pointer to the Point of interest
  * @param azim the azimuthal angle defining the trajectory in radians
@@ -773,7 +773,7 @@ double Circle::getMaxZ(int halfspace) {
  * @param points pointer to a an array of Points to store intersection Points
  * @return the number of intersection Points (0 or 1)
  */
-int Circle::intersection(Point* point, double azim, double polar, Point* points) {
+int ZCylinder::intersection(Point* point, double azim, double polar, Point* points) {
 
   double x0 = point->getX();
   double y0 = point->getY();
@@ -970,19 +970,19 @@ int Circle::intersection(Point* point, double azim, double polar, Point* points)
 
 
 /**
- * @brief Converts this Circle's attributes to a character array.
+ * @brief Converts this ZCylinder's attributes to a character array.
  * @details The character array returned conatins the type of Plane (ie,
- *          CIRCLE) and the A, B, C, D and E coefficients in the
+ *          ZCYLINDER) and the A, B, C, D and E coefficients in the
  *          quadratic Surface equation.
- * @return a character array of this Circle's attributes
+ * @return a character array of this ZCylinder's attributes
  */
-std::string Circle::toString() {
+std::string ZCylinder::toString() {
 
   std::stringstream string;
 
   string << "Surface ID = " << _id
          << ", name " << _name
-         << ", type = CIRCLE "
+         << ", type = ZCYLINDER "
          << ", A = " << _A << ", B = " << _B
          << ", C = " << _C << ", D = " << _D << ", E = " << _E
          << ", x0 = " << _center.getX()
