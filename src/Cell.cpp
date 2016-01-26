@@ -792,10 +792,6 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
                "the 2 halfspaces for each Surface.", _id, halfspace1,
                circle1->getId(), halfspace2, circle2->getId());
 
-  /* Loop over Circles and create a new Cell clone for each ring */
-  std::vector<Circle*>::iterator iter2;
-  std::vector<Cell*>::iterator iter3;
-
   /* Compute the area to fill with each equal volume ring */
   double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
 
@@ -810,6 +806,10 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   /* Store smallest, innermost Circle */
   Circle* circle = new Circle(x1, y1, radius1);
   circles.push_back(circle);
+
+  /* Loop over Circles and create a new Cell clone for each ring */
+  std::vector<Circle*>::iterator iter2;
+  std::vector<Cell*>::iterator iter3;
 
   /* Create ring Cells with successively smaller Circles */
   for (iter2 = circles.begin(); iter2 != circles.end(); ++iter2) {

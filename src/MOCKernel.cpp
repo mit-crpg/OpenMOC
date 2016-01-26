@@ -24,7 +24,6 @@ VolumeKernel::VolumeKernel(int size) : MOCKernel() {
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < size; r++)
     omp_init_lock(&_buffer_locks[r]);
-
 }
 
 
