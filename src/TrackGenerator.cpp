@@ -4505,8 +4505,6 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
     centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
 
-  log_printf(NORMAL, "max num segments: %d", _max_num_segments);
-
   if (_solve_3D) {
 
     /* Allocate array for 3D segments for OTF computation */
@@ -5249,8 +5247,6 @@ void TrackGenerator::initializeTracksArray() {
     num_tracks = getNum3DTracks();
   else
     num_tracks = getNum2DTracks();
-
-  log_printf(NORMAL, "num tracks: %i", num_tracks);
 
   /* Allocate memory for tracks array */
   _tracks = new Track*[num_tracks];
