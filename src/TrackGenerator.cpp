@@ -424,8 +424,8 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
     kernel.setSegments(segments_3D);
 
     for (int a=0; a < _num_azim/2; a++) {
-      #pragma omp parallel for reduction(max:max_optical_length)      \
-        private(curr_segment, length, material, sigma_t)              \
+      #pragma omp parallel for reduction(max:max_optical_length)\
+        private(curr_segment, length, material, sigma_t)\
         firstprivate(segments_3D, kernel)
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
@@ -706,8 +706,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments();
-              s++) {
+          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
 
             segment = _tracks_3D[a][i][p][z].getSegment(s);
             volume = segment->_length * _quadrature->getAzimWeight(a)
@@ -784,8 +783,7 @@ FP_PRECISION TrackGenerator::get3DFSRVolume(int fsr_id) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments();
-              s++) {
+          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
             segment = _tracks_3D[a][i][p][z].getSegment(s);
             if (segment->_region_id == fsr_id)
               volume += segment->_length * _quadrature->getAzimWeight(a)
@@ -1240,8 +1238,7 @@ void TrackGenerator::retrieve3DPeriodicCycleCoords(double* coords,
           coords[counter+3] = _tracks_3D[a][i][p][z].getEnd()->getX();
           coords[counter+4] = _tracks_3D[a][i][p][z].getEnd()->getY();
           coords[counter+5] = _tracks_3D[a][i][p][z].getEnd()->getZ();
-          coords[counter+6] =
-            _tracks_3D[a][i][p][z].getPeriodicCycleId();
+          coords[counter+6] = _tracks_3D[a][i][p][z].getPeriodicCycleId();
           counter += 7;
         }
       }
@@ -1291,8 +1288,7 @@ void TrackGenerator::retrieve3DReflectiveCycleCoords(double* coords,
           coords[counter+3] = _tracks_3D[a][i][p][z].getEnd()->getX();
           coords[counter+4] = _tracks_3D[a][i][p][z].getEnd()->getY();
           coords[counter+5] = _tracks_3D[a][i][p][z].getEnd()->getZ();
-          coords[counter+6] =
-            _tracks_3D[a][i][p][z].getReflectiveCycleId();
+          coords[counter+6] = _tracks_3D[a][i][p][z].getReflectiveCycleId();
           counter += 7;
         }
       }
@@ -1395,8 +1391,7 @@ void TrackGenerator::retrieve3DSegmentCoords(double* coords, int num_segments) {
 
           segments = _tracks_3D[a][i][p][z].getSegments();
 
-          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments();
-              s++) {
+          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
 
             curr_segment = &segments[s];
 
@@ -2135,9 +2130,9 @@ void TrackGenerator::initialize3DTracks() {
   std::vector<std::tuple<int, int, int, int> > cycle_tuples;
   int tot_num_cycles = 0;
   for (int direction = 0; direction < 2; direction++) {
-    for (int a = 0; a < _num_azim/4; a++) {
+    for (a = 0; a < _num_azim/4; a++) {
       for (c = 0; c < _cycles_per_azim[a]; c++) {
-        for (int p=0; p < _num_polar/2; p++) {
+        for (p = 0; p < _num_polar/2; p++) {
           cycle_tuples.push_back(std::make_tuple(direction, a, c, p));
           tot_num_cycles++;
         }
@@ -2359,7 +2354,7 @@ void TrackGenerator::initialize3DTrackReflections() {
                     zp = polar_group[_num_l[a][p] + i][0]->getZIndex();
                     pi = polar_group[i][t]->getPolarIndex();
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
-                      (&_tracks_3D[ai][xp][pi][zp]);
+                        (&_tracks_3D[ai][xp][pi][zp]);
                   }
                 }
                 else {
@@ -4378,8 +4373,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
       for (int i=0; i < getNumX(a) + getNumY(a); i++) {
         for (int p=0; p < _num_polar; p++) {
           for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-            for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments();
-                s++) {
+            for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
 
               /* Extract data from this segment to compute its optical
                * length */
@@ -4425,8 +4419,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
                   new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
 
                 /* Insert the new segment to the Track */
-                _tracks_3D[a][i][p][z].insertSegment(s+k+1,
-                    new_segment);
+                _tracks_3D[a][i][p][z].insertSegment(s+k+1, new_segment);
               }
 
               /* Remove the original segment from the Track */
@@ -5076,7 +5069,7 @@ void TrackGenerator::countSegments() {
 
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for reduction(max: max_num_segments)
+  #pragma omp parallel for reduction(max:max_num_segments)
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
     progress.incrementCounter();
