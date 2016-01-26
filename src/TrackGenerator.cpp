@@ -4506,13 +4506,6 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   int num_FSRs = _geometry->getNumFSRs();
 
-  /* Create fsr locks for updating centroids */
-  omp_lock_t FSR_locks[num_FSRs/10+1];
-
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < num_FSRs/10 + 1; r++)
-    omp_init_lock(&FSR_locks[r]);
-
   /* Create temporary array of centroids and initialize to origin */
   Point** centroids = new Point*[num_FSRs];
   for (int r=0; r < num_FSRs; r++) {
@@ -4576,7 +4569,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
               double volume = FSR_volumes[fsr];
 
               /* Set the lock for this FSR */
-              omp_set_lock(&FSR_locks[fsr/10]);
+              omp_set_lock(&_FSR_locks[fsr]);
 
               centroids[fsr]->
                   setX(centroids[fsr]->getX() + wgt *
@@ -4594,7 +4587,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
                   * curr_segment->_length / FSR_volumes[fsr]);
 
               /* Unset the lock for this FSR */
-              omp_unset_lock(&FSR_locks[fsr/10]);
+              omp_unset_lock(&_FSR_locks[fsr]);
 
               xx += cos(phi) * sin(theta) * curr_segment->_length;
               yy += sin(phi) * sin(theta) * curr_segment->_length;
@@ -4629,7 +4622,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
           double volume = FSR_volumes[fsr];
 
           /* Set the lock for this FSR */
-          omp_set_lock(&FSR_locks[fsr/10]);
+          omp_set_lock(&_FSR_locks[fsr]);
 
           centroids[fsr]->
             setX(centroids[fsr]->getX() + wgt *
@@ -4642,7 +4635,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
                  curr_segment->_length / FSR_volumes[fsr]);
 
           /* Unset the lock for this FSR */
-          omp_unset_lock(&FSR_locks[fsr/10]);
+          omp_unset_lock(&_FSR_locks[fsr]);
 
           x += cos(phi) * curr_segment->_length;
           y += sin(phi) * curr_segment->_length;
@@ -4818,7 +4811,6 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
 FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
   int num_FSRs = _geometry->getNumFSRs();
-  log_printf(NORMAL, "num fsrs: %d", num_FSRs);
   FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
   VolumeKernel kernel(_FSR_locks);
@@ -4829,7 +4821,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
   /* Calculate each FSR's "volume" by accumulating the total length of
    * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for
+  #pragma omp parallel for firstprivate(kernel)
   for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
 
     progress.incrementCounter();

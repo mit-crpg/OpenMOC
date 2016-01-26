@@ -5,7 +5,7 @@ from openmoc.options import Options
 from lattices import lattices, universes, cells
 import numpy as np
 
-refines = 5
+refines = 1
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -70,7 +70,7 @@ track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar, azim_spa
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
-track_generator.setSegmentationHeights([0.1])
+track_generator.setSegmentationHeights([0.0])
 track_generator.generateTracks()
 
 ###############################################################################
