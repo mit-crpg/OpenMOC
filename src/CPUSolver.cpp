@@ -93,13 +93,8 @@ void CPUSolver::initializeFSRs() {
 
   Solver::initializeFSRs();
 
-  /* Allocate array of mutex locks for each FSR */
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
+  /* Get FSR locks from TrackGenerator */
+  _FSR_locks = _track_generator->getFSRLocks();
 }
 
 

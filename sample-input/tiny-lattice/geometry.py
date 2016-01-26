@@ -21,7 +21,7 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-circle = Circle(x=0.0, y=0.0, radius=0.8, name='pin')
+zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.8, name='pin')
 xmin = XPlane(x=-2.0, name='xmin')
 xmax = XPlane(x= 2.0, name='xmax')
 ymin = YPlane(y=-2.0, name='ymin')
@@ -45,11 +45,11 @@ log.py_printf('NORMAL', 'Creating cells...')
 
 fuel = Cell(name='fuel')
 fuel.setFill(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=circle)
+fuel.addSurface(halfspace=-1, surface=zcylinder)
 
 moderator = Cell(name='moderator')
 moderator.setFill(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=circle)
+moderator.addSurface(halfspace=+1, surface=zcylinder)
 
 root_cell = Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=xmin)

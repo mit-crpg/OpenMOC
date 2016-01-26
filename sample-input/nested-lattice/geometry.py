@@ -37,9 +37,9 @@ zmin.setBoundaryType(REFLECTIVE)
 zmax.setBoundaryType(REFLECTIVE)
 
 
-large_circle = Circle(x=0.0, y=0.0, radius=0.4, name='large pin')
-medium_circle = Circle(x=0.0, y=0.0, radius=0.3, name='medium pin')
-small_circle = Circle(x=0.0, y=0.0, radius=0.2, name='small pin')
+large_zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.4, name='large pin')
+medium_zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.3, name='medium pin')
+small_zcylinder = ZCylinder(x=0.0, y=0.0, radius=0.2, name='small pin')
 
 
 ###############################################################################
@@ -52,34 +52,34 @@ large_fuel = Cell(name='large pin fuel')
 large_fuel.setNumRings(3)
 large_fuel.setNumSectors(8)
 large_fuel.setFill(materials['UO2'])
-large_fuel.addSurface(halfspace=-1, surface=large_circle)
+large_fuel.addSurface(halfspace=-1, surface=large_zcylinder)
 
 large_moderator = Cell(name='large pin moderator')
 large_moderator.setNumSectors(8)
 large_moderator.setFill(materials['Water'])
-large_moderator.addSurface(halfspace=+1, surface=large_circle)
+large_moderator.addSurface(halfspace=+1, surface=large_zcylinder)
 
 medium_fuel = Cell(name='medium pin fuel')
 medium_fuel.setNumRings(3)
 medium_fuel.setNumSectors(8)
 medium_fuel.setFill(materials['UO2'])
-medium_fuel.addSurface(halfspace=-1, surface=medium_circle)
+medium_fuel.addSurface(halfspace=-1, surface=medium_zcylinder)
 
 medium_moderator = Cell(name='medium pin moderator')
 medium_moderator.setNumSectors(8)
 medium_moderator.setFill(materials['Water'])
-medium_moderator.addSurface(halfspace=+1, surface=medium_circle)
+medium_moderator.addSurface(halfspace=+1, surface=medium_zcylinder)
 
 small_fuel = Cell(name='small pin fuel')
 small_fuel.setNumRings(3)
 small_fuel.setNumSectors(8)
 small_fuel.setFill(materials['UO2'])
-small_fuel.addSurface(halfspace=-1, surface=small_circle)
+small_fuel.addSurface(halfspace=-1, surface=small_zcylinder)
 
 small_moderator = Cell(name='small pin moderator')
 small_moderator.setNumSectors(8)
 small_moderator.setFill(materials['Water'])
-small_moderator.addSurface(halfspace=+1, surface=small_circle)
+small_moderator.addSurface(halfspace=+1, surface=small_zcylinder)
 
 lattice_cell = Cell(name='lattice cell')
 

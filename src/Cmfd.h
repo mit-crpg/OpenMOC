@@ -161,6 +161,9 @@ private:
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
 
+  /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
+  omp_lock_t* _cell_locks;
+
 public:
 
   Cmfd();
@@ -183,7 +186,7 @@ public:
   int getCellNext(int cell_num, int surface_id);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell, LocalCoords* coords);
-  int findCmfdSurfaceOTF(int cell, LocalCoords* coords, int surface_2D);
+  int findCmfdSurfaceOTF(int cell, double z, int surface_2D);
   void addFSRToCell(int cmfd_cell, int fsr_id);
   void generateKNearestStencils();
   void zeroSurfaceCurrents();

@@ -2,7 +2,7 @@
  * @file MOCKernel.h
  * @brief An MOCKernel object
  * @date May 5, 2015
- * @autho Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
+ * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
  */
 
 #ifndef MOCKERNEL_H_
@@ -59,6 +59,7 @@ public:
   void setMaxVal(FP_PRECISION max_tau);
   void resetCount();
   void setBuffer(FP_PRECISION* buffer);
+  void setFSRLocks(omp_lock_t* fsr_locks);
 
   /* Get parameters */
   int getCount();
@@ -98,15 +99,15 @@ class VolumeKernel: public MOCKernel {
 
 protected:
 
-  /** OpenMP mutual exclusion locks for atomic buffer updates */
-  omp_lock_t* _buffer_locks;
+  /** Array of FSR locks */
+  omp_lock_t* _FSR_locks;
 
   /** Maximum optical path length when forming segments */
   FP_PRECISION _max_tau;
 
 public:
 
-  VolumeKernel(int size);
+  VolumeKernel(omp_lock_t* FSR_locks);
   virtual ~VolumeKernel();
   void execute(FP_PRECISION length, Material* mat, int id,
       int cmfd_surface_fwd, int cmfd_surface_bwd);

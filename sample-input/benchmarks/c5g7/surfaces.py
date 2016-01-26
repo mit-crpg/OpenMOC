@@ -15,7 +15,7 @@ surfaces['Root Small z-min'] = openmoc.ZPlane(z=-32.13, name='Root Small z-min')
 surfaces['Root Small z-max'] = openmoc.ZPlane(z= 32.13, name='Root Small z-max')
 surfaces['Root Big z-min']   = openmoc.ZPlane(z=-107.1, name='Root Big z-min')
 surfaces['Root Big z-max']   = openmoc.ZPlane(z= 107.1, name='Root Big z-max')
-surfaces['Fuel Cylinder']    = openmoc.Circle(x=0.0, y=0.0, radius=0.54, name='Fuel Cylinder')
+surfaces['Fuel Cylinder']    = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.54, name='Fuel Cylinder')
 
 surfaces['Root x-min'].setBoundaryType(openmoc.REFLECTIVE)
 surfaces['Root x-max'].setBoundaryType(openmoc.VACUUM)

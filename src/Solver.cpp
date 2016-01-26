@@ -519,10 +519,10 @@ void Solver::initializeExpEvaluator() {
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
-    if (_OTF)
-      _track_generator->countSegments();
-    else
+    if (!_OTF)
       _track_generator->splitSegments(max_tau);
+    else
+      _track_generator->countSegments();
 
     /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);
@@ -556,8 +556,10 @@ void Solver::initializeFSRs() {
     _FSR_volumes = _track_generator->get2DFSRVolumes();
 
   /* Generate the FSR centroids */
-  if (_cmfd->isCentroidUpdateOn())
-    _track_generator->generateFSRCentroids(_FSR_volumes);
+  if (_cmfd != NULL) {
+    if (_cmfd->isCentroidUpdateOn())
+      _track_generator->generateFSRCentroids(_FSR_volumes);
+  }
 
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];

@@ -13,18 +13,13 @@ MOCKernel::MOCKernel() {
 /**
  * @biief Constructor for the MOCKernel assigns default values
  */
-VolumeKernel::VolumeKernel(int size) : MOCKernel() {
+VolumeKernel::VolumeKernel(omp_lock_t* FSR_locks) : MOCKernel() {
 
-  size = size / 10 + 1;
+  if (FSR_locks == NULL)
+    log_printf(ERROR, "Unable to create a VolumeKernel without "
+               "an array of FSR locks");
 
-  /* Allocate memory for OpenMP locks for each Vector cell */
-  _buffer_locks = new omp_lock_t[size];
-
-  /* Loop over all Vector cells to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < size; r++)
-    omp_init_lock(&_buffer_locks[r]);
-
+  _FSR_locks = FSR_locks;
 }
 
 
@@ -37,12 +32,7 @@ MOCKernel::~MOCKernel() {};
 /**
  * @brief Destructor for MOCKernel
  */
-VolumeKernel::~VolumeKernel() {
-
-  if (_buffer_locks != NULL)
-    delete [] _buffer_locks;
-};
-
+VolumeKernel::~VolumeKernel() {};
 
 
 /**
@@ -113,12 +103,14 @@ int MOCKernel::getCount() {
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
-  omp_set_lock(&_buffer_locks[id/10]);
+  /* Set omp lock for FSRs */
+  omp_set_lock(&_FSR_locks[id]);
 
   /* Add value to buffer */
   _buffer[id] += _weight * length;
 
-  omp_unset_lock(&_buffer_locks[id/10]);
+  /* Unset lock */
+  omp_unset_lock(&_FSR_locks[id]);
 }
 
 

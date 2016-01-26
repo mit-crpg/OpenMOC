@@ -83,6 +83,7 @@ quad.setNumPolarAngles(num_polar)
 track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
                                          azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
+
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
 track_generator.setSegmentationHeights([0.1])

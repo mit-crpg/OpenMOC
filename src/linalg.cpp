@@ -42,13 +42,14 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
                X->getNumGroups());
 
   /* Initialize variables */
+  omp_lock_t* cell_locks = X->getCellLocks();
   int num_rows = X->getNumRows();
   int num_x = X->getNumX();
   int num_y = X->getNumY();
   int num_z = X->getNumZ();
   int num_groups = X->getNumGroups();
-  Vector old_source(num_x, num_y, num_z, num_groups);
-  Vector new_source(num_x, num_y, num_z, num_groups);
+  Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
+  Vector new_source(cell_locks, num_x, num_y, num_z, num_groups);
   FP_PRECISION residual, _k_eff;
   int iter;
 
@@ -141,12 +142,13 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   /* Initialize variables */
   FP_PRECISION residual;
   int iter = 0;
+  omp_lock_t* cell_locks = X->getCellLocks();
   int num_x = X->getNumX();
   int num_y = X->getNumY();
   int num_z = X->getNumZ();
   int num_groups = X->getNumGroups();
   int num_rows = X->getNumRows();
-  Vector X_old(num_rows);
+  Vector X_old(cell_locks, num_x, num_y, num_z, num_groups);
   FP_PRECISION* x_old = X_old.getArray();
   int* IA = A->getIA();
   int* JA = A->getJA();
@@ -155,8 +157,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   FP_PRECISION* x = X->getArray();
   FP_PRECISION* b = B->getArray();
   int row, col;
-  Vector old_source(num_x, num_y, num_z, num_groups);
-  Vector new_source(num_x, num_y, num_z, num_groups);
+  Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
+  Vector new_source(cell_locks, num_x, num_y, num_z, num_groups);
 
   /* Compute initial source */
   matrixMultiplication(M, X, &old_source);
@@ -300,11 +302,12 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
   int num_y = X->getNumY();
   int num_z = X->getNumZ();
   int num_groups = X->getNumGroups();
+  omp_lock_t* cell_locks = X->getCellLocks();
 
   if (integrated) {
 
     FP_PRECISION new_source, old_source;
-    Vector residual(num_x, num_y, num_z, 1);
+    Vector residual(cell_locks, num_x, num_y, num_z, 1);
 
     /* Compute the RMSE */
     #pragma omp parallel for private(new_source, old_source)
@@ -324,7 +327,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
   }
   else{
 
-    Vector residual(num_x, num_y, num_z, num_groups);
+    Vector residual(cell_locks, num_x, num_y, num_z, num_groups);
 
     /* Compute the RMSE */
     #pragma omp parallel for

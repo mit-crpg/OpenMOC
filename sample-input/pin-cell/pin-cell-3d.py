@@ -3,7 +3,7 @@ import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.process as process
 from openmoc.options import Options
-from geometry import *
+from geometry import geometry
 
 ###############################################################################
 #                          Main Simulation Parameters
@@ -31,7 +31,6 @@ track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, \
 track_generator.setNumThreads(num_threads)
 track_generator.setOTF()
 track_generator.setSegmentationHeights([0.1])
-track_generator.setGlobalZMesh()
 track_generator.generateTracks()
 
 
