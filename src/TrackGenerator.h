@@ -157,6 +157,9 @@ private:
   /** Boolean to indicate whether the segments should be dumped */
   bool _dump_segments;
 
+  /** OpenMP mutual exclusion locks for atomic FSR operations */
+  omp_lock_t* _FSR_locks;
+
   /** Booleans to indicate whether the Tracks and segments have been generated
    *  (true) or not (false) */
   bool _contains_2D_tracks;
@@ -237,6 +240,7 @@ public:
   int getTrackGenerationMethod();
   bool getCycleDirection(int azim, int cycle, int track_index);
   FP_PRECISION retrieveMaxOpticalLength();
+  omp_lock_t* getFSRLocks();
 
   /* Set parameters */
   void setNumThreads(int num_threads);

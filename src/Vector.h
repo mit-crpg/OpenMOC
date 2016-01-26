@@ -45,7 +45,8 @@ private:
   void setNumGroups(int num_groups);
 
 public:
-  Vector(int num_x=1, int num_y=1, int num_z=1, int num_groups=1);
+  Vector(omp_lock_t* cell_locks, int num_x=1, int num_y=1, int num_z=1,
+         int num_groups=1);
   virtual ~Vector();
 
   /* Worker functions */
@@ -66,6 +67,7 @@ public:
   int getNumGroups();
   int getNumRows();
   FP_PRECISION getSum();
+  omp_lock_t* getCellLocks();
 
   /* Setter functions */
   void setValue(int cell, int group, FP_PRECISION val);

@@ -33,6 +33,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _max_num_segments = 0;
   _track_generation_method = GLOBAL_TRACKING;
   _dump_segments = true;
+  _FSR_locks = NULL;
 }
 
 
@@ -122,6 +123,9 @@ TrackGenerator::~TrackGenerator() {
   /* Delete flattened tracks used in OTF calculations */
   if (_contains_flattened_tracks)
     delete [] _flattened_tracks;
+
+  if (_FSR_locks != NULL)
+    delete [] _FSR_locks;
 }
 
 
@@ -177,6 +181,19 @@ Geometry* TrackGenerator::getGeometry() {
                "since it has not yet been set");
 
   return _geometry;
+}
+
+
+/**
+ * @brief Return the array of FSR locks for atomic FSR operations.
+ * @return an array of FSR locks
+ */
+omp_lock_t* TrackGenerator::getFSRLocks() {
+  if (_FSR_locks == NULL)
+    log_printf(ERROR, "Unable to return the TrackGenerator's FSR locks "
+               "since they have not yet been created");
+
+  return _FSR_locks;
 }
 
 
@@ -1619,6 +1636,15 @@ void TrackGenerator::generateTracks() {
         dump2DSegmentsToFile();
       }
     }
+
+    /* Allocate array of mutex locks for each FSR */
+    int num_FSRs = _geometry->getNumFSRs();
+    _FSR_locks = new omp_lock_t[num_FSRs];
+
+    /* Loop over all FSRs to initialize OpenMP locks */
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < num_FSRs; r++)
+      omp_init_lock(&_FSR_locks[r]);
 
     /* Precompute the quadrature weights */
     _quadrature->precomputeWeights(_solve_3D);
@@ -4494,8 +4520,6 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
     centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
 
-  log_printf(NORMAL, "max num segments: %d", _max_num_segments);
-
   if (_solve_3D) {
 
     /* Allocate array for 3D segments for OTF computation */
@@ -4797,7 +4821,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
   log_printf(NORMAL, "num fsrs: %d", num_FSRs);
   FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-  VolumeKernel kernel(num_FSRs);
+  VolumeKernel kernel(_FSR_locks);
   kernel.setBuffer(FSR_volumes);
 
   std::string msg = "getting 3D FSR Volumes OTF";
@@ -5239,8 +5263,6 @@ void TrackGenerator::initializeTracksArray() {
     num_tracks = getNum3DTracks();
   else
     num_tracks = getNum2DTracks();
-
-  log_printf(NORMAL, "num tracks: %i", num_tracks);
 
   /* Allocate memory for tracks array */
   _tracks = new Track*[num_tracks];

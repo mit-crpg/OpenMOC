@@ -11,12 +11,14 @@
  *         outside. Locks are used to make the matrix thread-safe against
  *         concurrent writes the same value. One lock locks out multiple rows of
  *         the matrix at a time reprsenting multiple groups in the same cell.
+ * @param cell_locks Omp locks for atomic cell operations
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
  * @param num_z The number of cells in the z direction.
  * @param num_groups The number of energy groups in each cell.
  */
-Matrix::Matrix(int num_x, int num_y, int num_z, int num_groups) {
+Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_z,
+               int num_groups) {
 
   setNumX(num_x);
   setNumY(num_y);
@@ -34,13 +36,12 @@ Matrix::Matrix(int num_x, int num_y, int num_z, int num_groups) {
   _DIAG = NULL;
   _modified = true;
 
-  /* Allocate memory for OpenMP locks for each Matrix cell */
-  _cell_locks = new omp_lock_t[_num_x*_num_y*_num_z];
+  /* Set OpenMP locks for each Matrix cell */
+  if (cell_locks == NULL)
+    log_printf(ERROR, "Unable to create a Matrix without an array of cell "
+               "locks");
 
-  /* Loop over all Matrix cells to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_x*_num_y*_num_z; r++)
-    omp_init_lock(&_cell_locks[r]);
+  _cell_locks = cell_locks;
 }
 
 
@@ -65,9 +66,6 @@ Matrix::~Matrix() {
   for (int i=0; i < _num_rows; i++)
     _LIL[i].clear();
   _LIL.clear();
-
-  if (_cell_locks != NULL)
-    delete [] _cell_locks;
 }
 
 
@@ -451,7 +449,7 @@ void Matrix::setNumGroups(int num_groups) {
  */
 void Matrix::transpose() {
 
-  Matrix temp(_num_x, _num_y, _num_z, _num_groups);
+  Matrix temp(_cell_locks, _num_x, _num_y, _num_z, _num_groups);
   convertToCSR();
   int col, cell_to, cell_from, group_to, group_from;
   FP_PRECISION val;
@@ -487,4 +485,13 @@ void Matrix::transpose() {
       setValue(cell_from, group_from, cell_to, group_to, val);
     }
   }
+}
+
+
+/**
+ * @brief Return the array of cell locks for atomic cell operations.
+ * @return an array of cell locks
+ */
+omp_lock_t* Matrix::getCellLocks() {
+  return _cell_locks;
 }

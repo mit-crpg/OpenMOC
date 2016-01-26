@@ -53,6 +53,7 @@ Cmfd::Cmfd() {
   _surface_currents = NULL;
   _azim_spacings = NULL;
   _polar_spacings = NULL;
+  _cell_locks = NULL;
 
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[6];
@@ -68,7 +69,11 @@ Cmfd::Cmfd() {
 /**
  * @brief Destructor deletes arrays of A and M row insertion arrays.
  */
-Cmfd::~Cmfd() { }
+Cmfd::~Cmfd() {
+
+  if (_cell_locks != NULL)
+    delete [] _cell_locks;
+}
 
 
 /**
@@ -565,14 +570,16 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   if (_A == NULL) {
     try{
 
+      int ng = _num_cmfd_groups;
+
       /* Allocate memory for matrix and vector objects */
-      _M = new Matrix(_num_x, _num_y, _num_z, _num_cmfd_groups);
-      _A = new Matrix(_num_x, _num_y, _num_z, _num_cmfd_groups);
-      _old_source = new Vector(_num_x, _num_y, _num_z, _num_cmfd_groups);
-      _new_source = new Vector(_num_x, _num_y, _num_z, _num_cmfd_groups);
-      _old_flux = new Vector(_num_x, _num_y, _num_z, _num_cmfd_groups);
-      _new_flux = new Vector(_num_x, _num_y, _num_z, _num_cmfd_groups);
-      _volumes = new Vector(_num_x, _num_y, _num_z, 1);
+      _M = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ng);
+      _A = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ng);
+      _old_source = new Vector(_cell_locks, _num_x, _num_y, _num_z, ng);
+      _new_source = new Vector(_cell_locks, _num_x, _num_y, _num_z, ng);
+      _old_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ng);
+      _new_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ng);
+      _volumes = new Vector(_cell_locks, _num_x, _num_y, _num_z, 1);
 
       /* Initialize flux and materials */
       initializeMaterials();
@@ -1050,13 +1057,25 @@ void Cmfd::initializeMaterials() {
  */
 void Cmfd::initializeSurfaceCurrents() {
 
-  /* Delete old Cmfd surface currents array it it exists */
+  int num_cells = _num_x * _num_y * _num_z;
+
+  /* Delete old cell locks array if it exists */
+  if (_cell_locks != NULL)
+    delete [] _cell_locks;
+
+  _cell_locks = new omp_lock_t[num_cells];
+
+  /* Loop over all cells to initialize OpenMP locks */
+  #pragma omp parallel for schedule(guided)
+  for (int r=0; r < num_cells; r++)
+    omp_init_lock(&_cell_locks[r]);
+
+  /* Delete old Cmfd surface currents array if it exists */
   if (_surface_currents != NULL)
     delete _surface_currents;
 
   /* Allocate memory for the Cmfd Mesh surface currents array */
-  int num_mesh_cells = _num_x * _num_y * _num_z;
-  _surface_currents = new Vector(_num_x, _num_y, _num_z,
+  _surface_currents = new Vector(_cell_locks, _num_x, _num_y, _num_z,
                                  _num_cmfd_groups * NUM_SURFACES);
 
   return;
