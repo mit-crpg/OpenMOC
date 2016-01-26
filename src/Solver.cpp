@@ -519,10 +519,10 @@ void Solver::initializeExpEvaluator() {
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
-    if (_OTF)
-      _track_generator->countSegments();
-    else
+    if (!_OTF)
       _track_generator->splitSegments(max_tau);
+    else
+      _track_generator->countSegments();
 
     /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);

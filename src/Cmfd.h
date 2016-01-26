@@ -183,7 +183,7 @@ public:
   int getCellNext(int cell_num, int surface_id);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell, LocalCoords* coords);
-  int findCmfdSurfaceOTF(int cell, LocalCoords* coords, int surface_2D);
+  int findCmfdSurfaceOTF(int cell, double z, int surface_2D);
   void addFSRToCell(int cmfd_cell, int fsr_id);
   void generateKNearestStencils();
   void zeroSurfaceCurrents();
