@@ -450,7 +450,7 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
        * on-the-fly ray tracing */
       #pragma omp for
       for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
-        
+
         /* Extract indices of 3D tracks associated with the flattened track */
         Track* flattened_track = _flattened_tracks[ext_id];
         int a = flattened_track->getAzimIndex();
@@ -1639,21 +1639,23 @@ void TrackGenerator::generateTracks() {
         _quadrature = new TYPolarQuad();
     }
 
-    log_printf(NORMAL, "num azim : %d", _num_azim);
-    log_printf(NORMAL, "num polar: %d", _num_polar);
-    log_printf(NORMAL, "azim spacing : %f", _azim_spacing);
-    log_printf(NORMAL, "polar spacing: %f", _polar_spacing);
+    if (false) {
+      log_printf(NORMAL, "num azim : %d", _num_azim);
+      log_printf(NORMAL, "num polar: %d", _num_polar);
+      log_printf(NORMAL, "azim spacing : %f", _azim_spacing);
+      log_printf(NORMAL, "polar spacing: %f", _polar_spacing);
 
-    if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO)
-      log_printf(NORMAL, "quadrature type = TABUCHI_YAMAMOTO");
-    else if (_quadrature->getQuadratureType() == LEONARD)
-      log_printf(NORMAL, "quadrature type = LEONARD");
-    else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
-      log_printf(NORMAL, "quadrature type = GAUSS_LEGENDRE");
-    else if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
-      log_printf(NORMAL, "quadrature type = EQUAL_WEIGHT");
-    else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
-      log_printf(NORMAL, "quadrature type = EQUAL_ANGLE");
+      if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO)
+        log_printf(NORMAL, "quadrature type = TABUCHI_YAMAMOTO");
+      else if (_quadrature->getQuadratureType() == LEONARD)
+        log_printf(NORMAL, "quadrature type = LEONARD");
+      else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
+        log_printf(NORMAL, "quadrature type = GAUSS_LEGENDRE");
+      else if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
+        log_printf(NORMAL, "quadrature type = EQUAL_WEIGHT");
+      else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
+        log_printf(NORMAL, "quadrature type = EQUAL_ANGLE");
+    }
 
     /* Initialize the quadrature set */
     _quadrature->setNumPolarAngles(_num_polar);
@@ -1789,7 +1791,7 @@ bool TrackGenerator::isOTF() {
 /**
  * @brief Returns whether or not the solver is set to forming 3D segments
  *        on-the-fly by track z-stacks
- * @return true if the solver is set to axial on-the-fly stack segmentation; 
+ * @return true if the solver is set to axial on-the-fly stack segmentation;
  *         false otherwise
  */
 bool TrackGenerator::isOTFStacks() {
@@ -2381,7 +2383,7 @@ void TrackGenerator::initialize3DTracks() {
       for (int p=0; p < _num_polar; p++)
         if (_tracks_per_stack[a][i][p] > _max_num_tracks_per_stack)
           _max_num_tracks_per_stack = _tracks_per_stack[a][i][p];
-  
+
   _contains_3D_tracks = true;
 
   /* Initialize the 3D track reflections and cycle ids */
@@ -5202,7 +5204,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
   double first_start_z = start_z;
   segment* segments_2D = flattened_track->getSegments();
   for (int s=0; s < flattened_track->getNumSegments(); s++) {
-  
+
     /* Get segment length and extruded FSR */
     FP_PRECISION seg_length_2D = segments_2D[s]._length;
     int extruded_fsr_id = segments_2D[s]._region_id;
@@ -5228,7 +5230,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
       first_track_lower_z = first_end_z;
       first_track_upper_z = first_start_z;
     }
-    
+
     /* Loop over all 3D FSRs in the Extruded FSR to find intersections */
     for (int z_iter = 0; z_iter < num_fsrs; z_iter++) {
 
@@ -5344,7 +5346,7 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
          NOTE: this will only be true if there are no tracks that cross the
          entire 2D length in the FSR */
       else if (start_full > end_full) {
-        
+
         /* Calculate distance traveled in 3D FSR */
         double seg_len_3D = (z_max - z_min) / std::abs(cos_theta);
 
@@ -5478,7 +5480,7 @@ void TrackGenerator::countSegments() {
         counters[z]->setMaxVal(_max_optical_length);
       }
     }
- 
+
     /* Calculate the number of segments in each track with axial on-the-fly ray
      * tracing */
     #pragma omp for

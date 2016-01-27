@@ -301,7 +301,7 @@ public:
   void initializeTrackFileDirectory();
   void traceSegmentsOTF(Track* flattened_track, Point* start,
                         double theta, MOCKernel* kernel);
-  void traceStackOTF(Track* flattened_track, int polar_index, 
+  void traceStackOTF(Track* flattened_track, int polar_index,
                      MOCKernel** kernels);
   void initialize2DTrackPeriodicIndices();
   void initialize3DTrackPeriodicIndices();

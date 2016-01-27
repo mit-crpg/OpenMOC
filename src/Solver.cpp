@@ -904,7 +904,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
-    
+
     normalizeFluxes();
     computeFSRSources();
     transportSweep();

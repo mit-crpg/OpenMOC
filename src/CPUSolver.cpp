@@ -841,7 +841,7 @@ void CPUSolver::transportSweepOTFStacks() {
 
         /* Get the segments for the stack */
         _track_generator->traceStackOTF(flattened_track, p, kernels);
-        
+
         /* Loop over z-stacked rays */
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
