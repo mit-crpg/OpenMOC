@@ -301,8 +301,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                 # If the user filled multiple Cells with the same Material,
                 # the Material must be cloned for each unique Cell
                 if material != None:
-                    old_materials[material.getId()] = material
-                    material = material.clone()
+                    if len(domains) > geometry.getNumMaterials():
+                        old_materials[material.getId()] = material
+                        material = material.clone()
 
                 # If the Cell does not contain a Material, create one for it
                 else:

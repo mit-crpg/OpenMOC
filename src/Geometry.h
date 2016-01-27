@@ -162,7 +162,7 @@ public:
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeFSRs();
+  void initializeFSRs(bool neighbor_cells=false);
   void segmentize(Track* track);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
