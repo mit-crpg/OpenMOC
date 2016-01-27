@@ -50,7 +50,7 @@ private:
   void setNumGroups(int num_groups);
 
 public:
-  Matrix(int num_x=1, int num_y=1, int num_groups=1);
+  Matrix(omp_lock_t* cell_locks, int num_x=1, int num_y=1, int num_groups=1);
   virtual ~Matrix();
 
   /* Worker functions */
@@ -72,6 +72,7 @@ public:
   int getNumGroups();
   int getNumRows();
   int getNNZ();
+  omp_lock_t* getCellLocks();
 
   /* Setter functions */
   void setValue(int cell_from, int group_from, int cell_to, int group_to,

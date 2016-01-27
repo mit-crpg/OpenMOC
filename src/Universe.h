@@ -205,7 +205,6 @@ public:
 
   int getLatticeCell(Point* point);
   int getLatticeSurface(int cell, Point* point);
-  int getLatticeCorner(int cell, Point* point);
   double getDistanceToSurface(int cell, Point* point, int surface);
 
   std::string toString();

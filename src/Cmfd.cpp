@@ -44,7 +44,7 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
   _user_group_indices = false;
   _surface_currents = NULL;
-  _corner_currents = NULL;
+  _cell_locks = NULL;
   _volumes = NULL;
   _lattice = NULL;
 
@@ -61,6 +61,9 @@ Cmfd::Cmfd() {
  * @brief Destructor.
  */
 Cmfd::~Cmfd() {
+
+  if (_cell_locks != NULL)
+    delete [] _cell_locks;
 
   if (_boundaries != NULL)
     delete [] _boundaries;
@@ -95,9 +98,6 @@ Cmfd::~Cmfd() {
 
   if (_surface_currents != NULL)
     delete _surface_currents;
-
-  if (_corner_currents != NULL)
-    delete _corner_currents;
 
   if (_volumes != NULL)
     delete _volumes;
@@ -216,8 +216,8 @@ void Cmfd::collapseXS() {
 
   log_printf(INFO, "Collapsing cross-sections onto CMFD mesh...");
 
-  /* Split corner currents to side surfaces */
-  splitCorners();
+  /* Split edge currents to side surfaces */
+  splitEdgeCurrents();
 
   #pragma omp parallel
   {
@@ -460,7 +460,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   else{
 
     /* Get the surface index for the surface in the neighboring cell */
-    int surface_next = (surface + NUM_SURFACES / 2) % NUM_SURFACES;
+    int surface_next = (surface + NUM_FACES / 2) % NUM_FACES;
 
     /* Set diffusion coefficient and flux for the neighboring cell */
     FP_PRECISION dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
@@ -632,7 +632,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
         }
 
         /* Streaming to neighboring cells */
-        for (int s = 0; s < NUM_SURFACES; s++) {
+        for (int s = 0; s < NUM_FACES; s++) {
 
           sense = getSense(s);
           delta = getSurfaceWidth(s);
@@ -688,7 +688,7 @@ void Cmfd::updateMOCFlux() {
 
   /* Loop over mesh cells */
   #pragma omp parallel for
-  for (int i = 0; i < _num_y * _num_x; i++) {
+  for (int i = 0; i < _num_x * _num_y; i++) {
 
     std::vector<int>::iterator iter;
 
@@ -917,15 +917,9 @@ void Cmfd::initializeCurrents() {
   if (_surface_currents != NULL)
     delete _surface_currents;
 
-  /* Delete old Cmfd corner currents vector if it exists */
-  if (_corner_currents != NULL)
-    delete _corner_currents;
-
-  /* Allocate memory for the Cmfd Mesh surface and corner currents Vectors */
-  _surface_currents = new Vector(_num_x, _num_y,
+  /* Allocate memory for the Cmfd Mesh surface currents Vectors */
+  _surface_currents = new Vector(_cell_locks, _num_x, _num_y,
                                  _num_cmfd_groups * NUM_SURFACES);
-  _corner_currents = new Vector(_num_x, _num_y,
-                                 _num_cmfd_groups * NUM_CORNERS);
 
   return;
 }
@@ -992,20 +986,6 @@ void Cmfd::initializeGroupMap() {
 int Cmfd::findCmfdSurface(int cell_id, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   return _lattice->getLatticeSurface(cell_id, point);
-}
-
-
-/**
- * @brief Find the cmfd corner that a LocalCoords object lies on.
- * @details If the coords is not on a corner, -1 is returned. Otherwise,
- *        the corner ID is returned.
- * @param cell_id The CMFD cell ID that the local coords is in.
- * @param coords The coords being evaluated.
- * @return The corner ID.
- */
-int Cmfd::findCmfdCorner(int cell_id, LocalCoords* coords) {
-  Point* point = coords->getHighestLevel()->getPoint();
-  return _lattice->getLatticeCorner(cell_id, point);
 }
 
 
@@ -1087,60 +1067,150 @@ void Cmfd::setNumFSRs(int num_fsrs) {
 }
 
 
-/** @brief Split the currents of the Mesh cell corners to the nearby surfaces.
- *  @details This method splits the current from each corner evenly to the two
- *           adjoining surfaces.
+/**
+ * @brief Split the currents of the Mesh cell edged to the adjacent faces.
  */
-void Cmfd::splitCorners() {
+void Cmfd::splitEdgeCurrents() {
 
-  log_printf(INFO, "Splitting CMFD corner currents...");
+  log_printf(INFO, "Splitting CMFD edge currents...");
 
   int ncg = _num_cmfd_groups;
+  int nf = NUM_FACES;
+  int ne = NUM_EDGES;
+  int ns = NUM_SURFACES;
 
-  #pragma omp parallel
+#pragma omp parallel
   {
 
     FP_PRECISION current;
-    int cell_cw, cell_ccw;
-    int surface_cw, surface_ccw;
+    std::vector<int> surfaces;
+    std::vector<int>::iterator iter;
+    int cell, surface;
 
-    #pragma omp for
+#pragma omp for
     for (int i = 0; i < _num_x * _num_y; i++) {
-      for (int c = 0; c < NUM_CORNERS; c++) {
+      for (int e = nf - 1; e < nf + ne; e++) {
 
-        /* Save the surfaces and cells located clockwise and counter-clockwise to
-         * current corner */
-        surface_cw = c;
-        surface_ccw = (c + 1) % NUM_SURFACES;
-        cell_cw = getCellNext(i, surface_cw);
-        cell_ccw = getCellNext(i, surface_ccw);
+        /* Get the surfaces to split this edge's current to */
+        getEdgeSplitSurfaces(i, e, &surfaces);
 
-        for (int e=0; e > ncg; e++) {
-          current = 0.5 * _corner_currents->getValue(i, c * ncg + e);
+        for (int g=0; g > ncg; g++) {
+          /* Divide edge current by 2 since we will split to 2 surfaces,
+           * which propagate through 2 surfaces */
+          current = _surface_currents->getValue(i, e * ncg + g) / 2;
 
-          /* Increment current for surface clockwise of corner */
-          _surface_currents->incrementValue(i, surface_cw * ncg + e, current);
-
-          /* Increment current for surface counter-clockwise of corner */
-          _surface_currents->incrementValue(i, surface_ccw * ncg + e, current);
-
-          /* Increment current for the surface in the neighboring cell across the
-           * surface clockwise to the corner */
-          if (cell_cw != -1)
-            _surface_currents->incrementValue(cell_cw, surface_ccw * ncg + e,
-                                              current);
-
-          /* Increment current for the surface in the neighboring cell across the
-           * surface counter-clockwise to the corner */
-          if (cell_ccw != -1)
-            _surface_currents->incrementValue(cell_ccw, surface_cw * ncg + e,
-                                              current);
-
-          /* Zero out the corner current */
-          _corner_currents->setValue(i, c * ncg + e, 0.0);
+          /* Increment current for faces adjacent to this edge */
+          for (iter = surfaces.begin(); iter != surfaces.end(); ++iter) {
+            cell = (*iter) / ns;
+            surface = (*iter) % ns;
+            _surface_currents->incrementValue(cell, surface * ncg + g, current);
+          }
         }
       }
     }
+  }
+}
+
+
+void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
+                                std::vector<int>* surfaces) {
+
+  surfaces->clear();
+  int x = cell % _num_x;
+  int y = cell / _num_x;
+  int ns = NUM_SURFACES;
+
+  if (edge == SURFACE_X_MIN_Y_MIN) {
+    surfaces->push_back(cell * ns + SURFACE_X_MIN);
+    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
+
+    if (x == 0) {
+      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_Y_MIN);
+      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
+        surfaces->push_back((cell + (_num_x - 1))* ns + SURFACE_Y_MIN);
+    }
+    else
+      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MIN);
+
+    if (y == 0) {
+      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_X_MIN);
+      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
+        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
+                            + SURFACE_X_MIN);
+    }
+    else
+      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MIN);
+  }
+  else if (edge == SURFACE_X_MAX_Y_MIN) {
+    surfaces->push_back(cell * ns + SURFACE_X_MAX);
+    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
+
+    if (x == _num_x - 1) {
+      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_Y_MIN);
+      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
+        surfaces->push_back((cell - (_num_x - 1))* ns + SURFACE_Y_MIN);
+    }
+    else
+      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MIN);
+
+    if (y == 0) {
+      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_X_MAX);
+      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
+        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
+                            + SURFACE_X_MAX);
+    }
+    else
+      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MAX);
+  }
+  else if (edge == SURFACE_X_MIN_Y_MAX) {
+    surfaces->push_back(cell * ns + SURFACE_X_MIN);
+    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
+
+    if (x == 0) {
+      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_Y_MAX);
+      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
+        surfaces->push_back((cell + (_num_x - 1))* ns + SURFACE_Y_MAX);
+    }
+    else
+      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MAX);
+
+    if (y == _num_y - 1) {
+      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_X_MIN);
+      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
+        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
+                            + SURFACE_X_MIN);
+    }
+    else
+      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MIN);
+  }
+  else if (edge == SURFACE_X_MAX_Y_MAX) {
+    surfaces->push_back(cell * ns + SURFACE_X_MAX);
+    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
+
+    if (x == _num_x - 1) {
+      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_Y_MAX);
+      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
+        surfaces->push_back((cell - (_num_x - 1))* ns + SURFACE_Y_MAX);
+    }
+    else
+      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MAX);
+
+    if (y == _num_y - 1) {
+      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
+        surfaces->push_back(cell * ns + SURFACE_X_MAX);
+      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
+        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
+                            + SURFACE_X_MAX);
+    }
+    else
+      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MAX);
   }
 }
 
@@ -1155,27 +1225,29 @@ void Cmfd::splitCorners() {
 int Cmfd::getCellNext(int cell_id, int surface_id) {
 
   int cell_next_id = -1;
+  int x = cell_id % _num_x;
+  int y = cell_id / _num_x;
 
   if (surface_id == SURFACE_X_MIN) {
-    if (cell_id % _num_x != 0)
+    if (x != 0)
       cell_next_id = cell_id - 1;
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
       cell_next_id = cell_id + (_num_x - 1);
   }
   else if (surface_id == SURFACE_Y_MIN) {
-    if (cell_id / _num_x != 0)
+    if (y != 0)
       cell_next_id = cell_id - _num_x;
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
       cell_next_id = cell_id + _num_x * (_num_y - 1);
   }
   else if (surface_id == SURFACE_X_MAX) {
-    if (cell_id % _num_x != _num_x - 1)
+    if (x != _num_x - 1)
       cell_next_id = cell_id + 1;
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
       cell_next_id = cell_id - (_num_x - 1);
   }
   else if (surface_id == SURFACE_Y_MAX) {
-    if (cell_id / _num_x != _num_y - 1)
+    if (y != _num_y - 1)
       cell_next_id = cell_id + _num_x;
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
       cell_next_id = cell_id - _num_x * (_num_y - 1);
@@ -1346,6 +1418,9 @@ void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
  */
 void Cmfd::generateKNearestStencils() {
 
+  if (!_centroid_update_on)
+    return;
+
   std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
   std::vector<int>::iterator fsr_iter;
   Point* centroid;
@@ -1368,7 +1443,7 @@ void Cmfd::generateKNearestStencils() {
         std::vector< std::pair<int, FP_PRECISION> >();
 
       /* Get distance to all cells that touch current cell */
-      for (int j=0; j <= NUM_SURFACES + NUM_CORNERS; j++)
+      for (int j=0; j <= NUM_SURFACES; j++)
         _k_nearest_stencils[fsr_id]
           .push_back(std::make_pair<int, FP_PRECISION>
                      (int(j), getDistanceToCentroid(centroid, i, j)));
@@ -1718,18 +1793,17 @@ void Cmfd::setKNearest(int k_nearest) {
 
 
 /**
- * @brief Zero the surface and corner currents for each mesh cell and energy
+ * @brief Zero the surface currents for each mesh cell and energy
  *        group.
  */
 void Cmfd::zeroCurrents() {
   _surface_currents->clear();
-  _corner_currents->clear();
 }
 
 
 /**
  * @brief Tallies the current contribution from this segment across the
- *        the appropriate CMFD mesh cell surface or corner.
+ *        the appropriate CMFD mesh cell surface.
  * @param curr_segment The current Track segment
  * @param track_flux The outgoing angular flux for this segment
  * @param polar_weights Array of polar weights for some azimuthal angle
@@ -1739,7 +1813,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                         FP_PRECISION* polar_weights, bool fwd) {
 
   FP_PRECISION current;
-  int surf_id, corner_id, cell_id;
+  int surf_id, cell_id;
 
   if (fwd) {
     if (curr_segment->_cmfd_surface_fwd != -1) {
@@ -1758,24 +1832,6 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         /* Increment current (polar and azimuthal weighted flux, group) */
         _surface_currents->incrementValue
           (cell_id, surf_id*_num_cmfd_groups + g, current / 2.);
-      }
-    }
-    else if (curr_segment->_cmfd_corner_fwd != -1) {
-
-      corner_id = curr_segment->_cmfd_corner_fwd % NUM_CORNERS;
-      cell_id = curr_segment->_cmfd_corner_fwd / NUM_CORNERS;
-
-      for (int e=0; e < _num_moc_groups; e++) {
-        current = 0.;
-
-        int g = getCmfdGroup(e);
-
-        for (int p=0; p < _num_polar; p++)
-          current += track_flux(p, e) * polar_weights[p];
-
-        /* Increment current (polar and azimuthal weighted flux, group) */
-        _corner_currents->incrementValue
-          (cell_id, corner_id*_num_cmfd_groups + g, current / 2.);
       }
     }
   }
@@ -1798,24 +1854,6 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
           (cell_id, surf_id*_num_cmfd_groups + g, current / 2.);
       }
     }
-    else if (curr_segment->_cmfd_corner_bwd != -1) {
-
-      corner_id = curr_segment->_cmfd_corner_bwd % NUM_CORNERS;
-      cell_id = curr_segment->_cmfd_corner_bwd / NUM_CORNERS;
-
-      for (int e=0; e < _num_moc_groups; e++) {
-        current = 0.;
-
-        int g = getCmfdGroup(e);
-
-        for (int p=0; p < _num_polar; p++)
-          current += track_flux(p, e) * polar_weights[p];
-
-        /* Increment current (polar and azimuthal weighted flux, group) */
-        _corner_currents->incrementValue
-          (cell_id, corner_id*_num_cmfd_groups + g, current / 2.);
-      }
-    }
   }
 }
 
@@ -1825,6 +1863,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
  *        CMFD cell currents and MOC materials.
  */
 void Cmfd::initialize() {
+
+  int num_cells = getNumCells();
 
   /* Delete old Matrix and Vector objects if they exist */
   if (_M != NULL)
@@ -1843,18 +1883,28 @@ void Cmfd::initialize() {
     delete _flux_ratio;
   if (_volumes != NULL)
     delete _volumes;
+  if (_cell_locks != NULL)
+    delete [] _cell_locks;
 
   try{
 
+    /* Allocate array of OpenMP locks for each CMFD cell */
+    _cell_locks = new omp_lock_t[num_cells];
+
+    /* Loop over all cells to initialize OpenMP locks */
+    #pragma omp parallel for schedule(guided)
+    for (int r=0; r < num_cells; r++)
+      omp_init_lock(&_cell_locks[r]);
+
     /* Allocate memory for matrix and vector objects */
-    _M = new Matrix(_num_x, _num_y, _num_cmfd_groups);
-    _A = new Matrix(_num_x, _num_y, _num_cmfd_groups);
-    _old_source = new Vector(_num_x, _num_y, _num_cmfd_groups);
-    _new_source = new Vector(_num_x, _num_y, _num_cmfd_groups);
-    _old_flux = new Vector(_num_x, _num_y, _num_cmfd_groups);
-    _new_flux = new Vector(_num_x, _num_y, _num_cmfd_groups);
-    _flux_ratio = new Vector(_num_x, _num_y, _num_cmfd_groups);
-    _volumes = new Vector(_num_x, _num_y, 1);
+    _M = new Matrix(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
+    _A = new Matrix(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
+    _old_source = new Vector(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
+    _new_source = new Vector(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
+    _old_flux = new Vector(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
+    _new_flux = new Vector(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
+    _flux_ratio = new Vector(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
+    _volumes = new Vector(_cell_locks, _num_x, _num_y, 1);
 
     /* Initialize k-nearest stencils, currents, flux, and materials */
     generateKNearestStencils();
