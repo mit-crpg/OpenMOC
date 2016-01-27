@@ -8,11 +8,13 @@
  *         make the vector object thread-safe against concurrent writes the
  *          same value. One lock locks out multiple rows of
  *         the vector at a time representing multiple groups in the same cell.
+ * @param cell_locks OpenMP locks for atomic cell operations.
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
  * @param num_groups The number of energy groups in each cell.
  */
-Vector::Vector(int num_x, int num_y, int num_z, int num_groups) {
+Vector::Vector(omp_lock_t* cell_locks, int num_x, int num_y, int num_z,
+               int num_groups) {
 
   setNumX(num_x);
   setNumY(num_y);
@@ -24,13 +26,12 @@ Vector::Vector(int num_x, int num_y, int num_z, int num_groups) {
   _array = new FP_PRECISION[_num_rows];
   setAll(0.0);
 
-  /* Allocate memory for OpenMP locks for each Vector cell */
-  _cell_locks = new omp_lock_t[_num_x*_num_y*_num_z];
+  /* Set OpenMP locks for each Vector cell */
+  if (cell_locks == NULL)
+    log_printf(ERROR, "Unable to create a Vector without an array of cell "
+               "locks");
 
-  /* Loop over all Vector cells to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_x*_num_y*_num_z; r++)
-    omp_init_lock(&_cell_locks[r]);
+  _cell_locks = cell_locks;
 }
 
 
@@ -41,9 +42,6 @@ Vector::~Vector() {
 
   if (_array != NULL)
     delete [] _array;
-
-  if (_cell_locks != NULL)
-    delete [] _cell_locks;
 }
 
 
@@ -368,4 +366,13 @@ void Vector::setNumGroups(int num_groups) {
                " %d", num_groups);
 
   _num_groups = num_groups;
+}
+
+
+/**
+ * @brief Return the array of cell locks for atomic cell operations.
+ * @return an array of cell locks
+ */
+omp_lock_t* Vector::getCellLocks() {
+  return _cell_locks;
 }

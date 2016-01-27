@@ -21,10 +21,7 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
  *        FSR scalar flux updates, and calls Solver parent class destructor
  *        to deletes arrays for fluxes and sources.
  */
-CPUSolver::~CPUSolver() {
-  if (_FSR_locks != NULL)
-    delete [] _FSR_locks;
-}
+CPUSolver::~CPUSolver() {}
 
 
 /**
@@ -92,13 +89,8 @@ void CPUSolver::initializeFSRs() {
 
   Solver::initializeFSRs();
 
-  /* Allocate array of mutex locks for each FSR */
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
+  /* Get FSR locks from TrackGenerator */
+  _FSR_locks = _track_generator->getFSRLocks();
 }
 
 
@@ -624,7 +616,7 @@ void CPUSolver::transportSweep() {
     for (int track_id=min_track; track_id < max_track; track_id++) {
 
       FP_PRECISION thread_fsr_flux[_num_groups];
-      curr_track = _tracks[track_id];      
+      curr_track = _tracks[track_id];
       azim_index = _quad->getFirstOctantAzim(curr_track->getAzimIndex());
 
       /* Get the polar index */
@@ -781,24 +773,16 @@ void CPUSolver::transportSweepOTF() {
 }
 
 
-//FIXME
 /**
  * @brief This method performs one transport sweep of all azimuthal angles,
  *        Tracks, Track segments, polar angles and energy groups using
- *        on-the-fly axial ray tracing.
+ *        on-the-fly axial ray tracing by z-stack.
  * @details The method integrates the flux along each Track and updates the
  *          boundary fluxes for the corresponding output Track, while updating
  *          the scalar flux in each flat source region. Computation is
  *          parallelized over 2D tracks and 3D segments are formed with
- *          on-the-fly axial ray tracing.
+ *          on-the-fly for each z-stack using axial on-the-fly ray tracing.
  */
-//FIXME
-//TODO: create getMaxTracksPerStack (local?)
-//TODO: cretate variable and switch _OTF_stacks
-// TODO: firstprivate, fix parallel stuff
-//TODO: RUN & debug?
-//TODO: CMFD
-//TODO: documentation
 void CPUSolver::transportSweepOTFStacks() {
 
   log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads",

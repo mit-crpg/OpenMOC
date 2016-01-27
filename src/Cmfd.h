@@ -161,6 +161,9 @@ private:
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
 
+  /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
+  omp_lock_t* _cell_locks;
+
 public:
 
   Cmfd();
