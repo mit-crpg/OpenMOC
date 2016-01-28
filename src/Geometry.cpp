@@ -54,28 +54,28 @@ Geometry::~Geometry() {
 
 
 /**
- * @brief Returns the total width (x extent) of the Geometry in cm.
- * @return the total width of the Geometry (cm)
+ * @brief Returns the total width in the x-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the x-direction (cm)
  */
-double Geometry::getWidth() {
+double Geometry::getWidthX() {
   return (getMaxX() - getMinX());
 }
 
 
 /**
- * @brief Returns the total height (y extent) of the Geometry in cm.
- * @return the total height of the Geometry (cm)
+ * @brief Returns the total width in the y-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the y-direction (cm)
  */
-double Geometry::getHeight() {
+double Geometry::getWidthY() {
   return (getMaxY() - getMinY());
 }
 
 
 /**
- * @brief Returns the total dept (z extent) of the Geometry in cm.
- * @return the total depth of the Geometry (cm)
+ * @brief Returns the total width in the z-direction of the Geometry in cm.
+ * @return the total width of the Geometry in the z-direction (cm)
  */
-double Geometry::getDepth() {
+double Geometry::getWidthZ() {
   return (getMaxZ() - getMinZ());
 }
 
@@ -826,7 +826,7 @@ void Geometry::subdivideCells() {
 
   /* Compute equivalent radius with the same area as the Geometry */
   /* This is used as the maximum radius for all ringified Cells */
-  double max_radius = sqrt(getWidth() * getHeight() / M_PI);
+  double max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
 
   /* Recursively subdivide Cells into rings and sectors */
   _root_universe->subdivideCells(max_radius);
@@ -1499,29 +1499,6 @@ void Geometry::printString() {
  */
 void Geometry::initializeCmfd() {
 
-  /* Get information about geometry and CMFD mesh */
-  int num_x = _cmfd->getNumX();
-  int num_y = _cmfd->getNumY();
-  int num_z = _cmfd->getNumZ();
-  double height = getHeight();
-  double width = getWidth();
-  double depth = getDepth();
-
-  double cell_width = width / num_x;
-  double cell_height = height / num_y;
-  double cell_depth = depth / num_z;
-
-  /* Create CMFD lattice and set properties */
-  Lattice* lattice = new Lattice();
-  lattice->setWidth(cell_width, cell_height, cell_depth);
-  lattice->setNumX(num_x);
-  lattice->setNumY(num_y);
-  lattice->setNumZ(num_z);
-  lattice->setOffset(getMinX() + width/2.0,
-                     getMinY() + height/2.0,
-                     getMinZ() + depth/2.0);
-  _cmfd->setLattice(lattice);
-
   /* Set CMFD mesh boundary conditions */
   _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
   _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
@@ -1531,19 +1508,28 @@ void Geometry::initializeCmfd() {
   _cmfd->setBoundary(SURFACE_Z_MAX, getMaxZBoundaryType());
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidth(width);
-  _cmfd->setHeight(height);
-  _cmfd->setDepth(depth);
-  _cmfd->setNumMOCGroups(getNumEnergyGroups());
-
-  /* If user did not set CMFD group structure, create CMFD group
-  * structure that is the same as the MOC group structure */
-  if (_cmfd->getNumCmfdGroups() == 0)
-    _cmfd->setGroupStructure(NULL, getNumEnergyGroups()+1);
+  _cmfd->setWidthX(getWidthX());
+  _cmfd->setWidthY(getWidthY());
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
-  _cmfd->initializeGroupMap();
+
+  /* Initialize the CMFD lattice */
+  Point offset;
+  offset.setX(getMinX() + getWidthX()/2.0);
+  offset.setY(getMinY() + getWidthY()/2.0);
+
+  /* If geometry is infinite in z, set Cmfd z-width to 1.0 and z-offset to 0 */
+  if (getWidthZ() == std::numeric_limits<double>::infinity()) {
+    _cmfd->setWidthZ(1.0);
+    offset.setZ(0.0);
+  }
+  else {
+    _cmfd->setWidthZ(getWidthZ());
+    offset.setZ(getMinZ() + getWidthZ()/2.0);
+  }
+
+  _cmfd->initializeLattice(&offset);
 }
 
 

@@ -45,9 +45,11 @@
 
 /** The maximum number of iterations allowed for a power method eigenvalue
  *  solve in linalg.cpp */
+#define MIN_LINALG_POWER_ITERATIONS 10
 #define MAX_LINALG_POWER_ITERATIONS 25000
 
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
+#define MIN_LINEAR_SOLVE_ITERATIONS 10
 #define MAX_LINEAR_SOLVE_ITERATIONS 1000
 
 #ifdef NVCC
@@ -60,13 +62,39 @@
 
 #endif
 
-/** The surfaces of a cube */
+/** The faces, edges, and vertices that collectively make up the surfaces of a
+ *  rectangular prism. The edges denoted as "e" and vertices as "v" on the
+ *  illustration below:
+ *
+ *                                   e
+ *                       v +--------------------+ v
+ *                        /|                   /|
+ *                       / |                  / |
+ *                      /  |                 /  |
+ *                    e/  e|                /e  |e
+ *                    /    |               /    |
+ *                   /     |         e    /     |
+ *                  /    v +-------------/------+ v
+ *               v +--------------------+ v    /
+ *                 |     /              |     /
+ *                 |    /               |    /
+ *                e|  e/                |e e/
+ *                 |  /                 |  /
+ *                 | /                  | /
+ *                 |/                   |/
+ *               v +--------------------+ v
+ *                           e
+ *
+ */
+#define NUM_FACES 6
+#define NUM_EDGES 12
+#define NUM_VERTICES 8
 #define NUM_SURFACES 26
 #define SURFACE_X_MIN 0
-#define SURFACE_X_MAX 1
-#define SURFACE_Y_MIN 2
-#define SURFACE_Y_MAX 3
-#define SURFACE_Z_MIN 4
+#define SURFACE_Y_MIN 1
+#define SURFACE_Z_MIN 2
+#define SURFACE_X_MAX 3
+#define SURFACE_Y_MAX 4
 #define SURFACE_Z_MAX 5
 #define SURFACE_X_MIN_Y_MIN 6
 #define SURFACE_X_MAX_Y_MIN 7

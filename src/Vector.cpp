@@ -59,7 +59,7 @@ void Vector::incrementValue(int cell, int group, FP_PRECISION val) {
 
   if (cell >= _num_x*_num_y*_num_z || cell < 0)
     log_printf(ERROR, "Unable to increment Vector value for cell %d"
-               " which is not between 0 and %d", cell, _num_x*_num_y*_num_y-1);
+               " which is not between 0 and %d", cell, _num_x*_num_y*_num_z-1);
   else if (group >= _num_groups || group < 0)
     log_printf(ERROR, "Unable to increment Vector value for group %d"
                " which is not between 0 and %d", group, _num_groups-1);
@@ -91,7 +91,7 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
 
   if (cell >= _num_x*_num_y*_num_z || cell < 0)
     log_printf(ERROR, "Unable to increment Vector values for cell %d"
-               " which is not between 0 and %d", cell, _num_x*_num_y*_num_y-1);
+               " which is not between 0 and %d", cell, _num_x*_num_y*_num_z-1);
   else if (group_first >= _num_groups || group_first < 0)
     log_printf(ERROR, "Unable to increment Vector values for first group %d"
                " which is not between 0 and %d", group_first, _num_groups-1);
@@ -166,7 +166,7 @@ void Vector::setValues(int cell, int group_first, int group_last,
 
   if (cell >= _num_x*_num_y*_num_z || cell < 0)
     log_printf(ERROR, "Unable to set Vector values for cell %d"
-               " which is not between 0 and %d", cell, _num_x*_num_y*_num_y-1);
+               " which is not between 0 and %d", cell, _num_x*_num_y*_num_z-1);
   else if (group_first >= _num_groups || group_first < 0)
     log_printf(ERROR, "Unable to set Vector values for first group %d"
                " which is not between 0 and %d", group_first, _num_groups-1);
