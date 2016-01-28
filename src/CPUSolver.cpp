@@ -21,10 +21,7 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
  *        FSR scalar flux updates, and calls Solver parent class destructor
  *        to deletes arrays for fluxes and sources.
  */
-CPUSolver::~CPUSolver() {
-  if (_FSR_locks != NULL)
-    delete [] _FSR_locks;
-}
+CPUSolver::~CPUSolver() {}
 
 
 /**
