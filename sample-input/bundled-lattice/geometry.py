@@ -35,9 +35,9 @@ ymax.setBoundaryType(REFLECTIVE)
 zmin.setBoundaryType(REFLECTIVE)
 zmax.setBoundaryType(REFLECTIVE)
 
-circles = list()
+zcylinders = list()
 radii = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-for r in radii: circles.append(Circle(x=0.0, y=0.0, radius=r))
+for r in radii: zcylinders.append(ZCylinder(x=0.0, y=0.0, radius=r))
 
 
 ###############################################################################
@@ -55,18 +55,18 @@ assembly2 = Cell(name='assembly 2')
 root_cell = Cell(name='full core')
 
 # Create fuel/moderator by adding the appropriate Surfaces and Materials
-cells[0].addSurface(halfspace=-1, surface=circles[0])
-cells[1].addSurface(halfspace=+1, surface=circles[0])
-cells[2].addSurface(halfspace=-1, surface=circles[1])
-cells[3].addSurface(halfspace=+1, surface=circles[1])
-cells[4].addSurface(halfspace=-1, surface=circles[2])
-cells[5].addSurface(halfspace=+1, surface=circles[2])
-cells[6].addSurface(halfspace=-1, surface=circles[3])
-cells[7].addSurface(halfspace=+1, surface=circles[3])
-cells[8].addSurface(halfspace=-1, surface=circles[4])
-cells[9].addSurface(halfspace=+1, surface=circles[4])
-cells[10].addSurface(halfspace=-1, surface=circles[5])
-cells[11].addSurface(halfspace=+1, surface=circles[5])
+cells[0].addSurface(halfspace=-1, surface=zcylinders[0])
+cells[1].addSurface(halfspace=+1, surface=zcylinders[0])
+cells[2].addSurface(halfspace=-1, surface=zcylinders[1])
+cells[3].addSurface(halfspace=+1, surface=zcylinders[1])
+cells[4].addSurface(halfspace=-1, surface=zcylinders[2])
+cells[5].addSurface(halfspace=+1, surface=zcylinders[2])
+cells[6].addSurface(halfspace=-1, surface=zcylinders[3])
+cells[7].addSurface(halfspace=+1, surface=zcylinders[3])
+cells[8].addSurface(halfspace=-1, surface=zcylinders[4])
+cells[9].addSurface(halfspace=+1, surface=zcylinders[4])
+cells[10].addSurface(halfspace=-1, surface=zcylinders[5])
+cells[11].addSurface(halfspace=+1, surface=zcylinders[5])
 
 cells[0].setFill(materials['UO2'])
 cells[1].setFill(materials['Water'])

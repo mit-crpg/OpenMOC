@@ -180,8 +180,8 @@ def get_opencg_surface(openmoc_surface):
     z0 = openmoc_surface.getZ()
     opencg_surface = opencg.ZPlane(surface_id, name, boundary, z0)
 
-  elif surface_type == openmoc.CIRCLE:
-    openmoc_surface = openmoc.castSurfaceToCircle(openmoc_surface)
+  elif surface_type == openmoc.ZYCLINDER:
+    openmoc_surface = openmoc.castSurfaceToZCylinder(openmoc_surface)
     x0 = openmoc_surface.getX0()
     y0 = openmoc_surface.getY0()
     R = openmoc_surface.getRadius()
@@ -244,7 +244,7 @@ def get_openmoc_surface(opencg_surface):
     x0 = opencg_surface._coeffs['x0']
     y0 = opencg_surface._coeffs['y0']
     R = opencg_surface._coeffs['R']
-    openmoc_surface = openmoc.Circle(x0, y0, R, surface_id, name)
+    openmoc_surface = openmoc.ZCylinder(x0, y0, R, surface_id, name)
 
   else:
     msg = 'Unable to create an OpenMOC Surface from an OpenCG ' \
