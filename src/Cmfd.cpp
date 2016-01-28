@@ -1846,8 +1846,10 @@ void Cmfd::zeroCurrents() {
 void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                         FP_PRECISION* polar_weights, bool fwd) {
 
-  FP_PRECISION current;
   int surf_id, cell_id;
+  int ncg = _num_cmfd_groups;
+  FP_PRECISION currents[_num_cmfd_groups];
+  memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
 
   if (fwd) {
     if (curr_segment->_cmfd_surface_fwd != -1) {
@@ -1856,17 +1858,16 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
 
       for (int e=0; e < _num_moc_groups; e++) {
-        current = 0.;
 
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          current += track_flux(p, e) * polar_weights[p];
-
-        /* Increment current (polar and azimuthal weighted flux, group) */
-        _surface_currents->incrementValue
-          (cell_id, surf_id*_num_cmfd_groups + g, current / 2.);
+          currents[g] += track_flux(p, e) * polar_weights[p] / 2.;
       }
+
+      /* Increment currents */
+      _surface_currents->incrementValues
+          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
     }
   }
   else {
@@ -1876,17 +1877,16 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
 
       for (int e=0; e < _num_moc_groups; e++) {
-        current = 0.;
 
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          current += track_flux(p, e) * polar_weights[p];
-
-        /* Increment current (polar and azimuthal weighted flux, group) */
-        _surface_currents->incrementValue
-          (cell_id, surf_id*_num_cmfd_groups + g, current / 2.);
+          currents[g] += track_flux(p, e) * polar_weights[p] / 2.;
       }
+
+      /* Increment currents */
+      _surface_currents->incrementValues
+          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
     }
   }
 }
