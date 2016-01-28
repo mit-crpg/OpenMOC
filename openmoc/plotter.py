@@ -1884,7 +1884,7 @@ def plot_flattened_segments(track_generator, xlim=None, ylim=None):
 # @param marker_type optional parameter for the marker size used in plotting
 #        FSR centroids
 def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
-                       xlim=None, ylim=None, offset=0., centroids=False, 
+                       xlim=None, ylim=None, offset=0., centroids=False,
                        marker_type='o', marker_size=2):
 
   global subdirectory
@@ -2015,7 +2015,7 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
       centroids_x.append(point.getX())
       centroids_y.append(point.getY())
       centroids_z.append(point.getZ())
-    
+
     plt.scatter(centroids_x, centroids_y, color='k', marker=marker_type, \
                 s=marker_size)
 

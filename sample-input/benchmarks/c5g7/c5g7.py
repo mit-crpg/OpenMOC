@@ -47,10 +47,8 @@ top.setBoundaryType(REFLECTIVE)
 bottom.setBoundaryType(VACUUM)
 boundaries = [left, right, top, bottom]
 
-# Create Circles for the fuel as well as to discretize the moderator into rings
-fuel_radius = Circle(x=0.0, y=0.0, radius=0.54)
-moderator_inner_radius = Circle(x=0.0, y=0.0, radius=0.62)
-moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.58)
+# Create ZCylinders for the fuel as well as to discretize the moderator into rings
+fuel_radius = ZCylinder(x=0.0, y=0.0, radius=0.54)
 
 
 ###############################################################################
@@ -60,20 +58,11 @@ moderator_outer_radius = Circle(x=0.0, y=0.0, radius=0.58)
 log.py_printf('NORMAL', 'Creating cells...')
 
 # Moderator rings
-moderator_ring1 = Cell()
-moderator_ring2 = Cell()
-moderator_ring3 = Cell()
-moderator_ring1.setNumSectors(8)
-moderator_ring2.setNumSectors(8)
-moderator_ring3.setNumSectors(8)
-moderator_ring1.setFill(materials['Water'])
-moderator_ring2.setFill(materials['Water'])
-moderator_ring3.setFill(materials['Water'])
-moderator_ring1.addSurface(+1, fuel_radius)
-moderator_ring1.addSurface(-1, moderator_inner_radius)
-moderator_ring2.addSurface(+1, moderator_inner_radius)
-moderator_ring2.addSurface(-1, moderator_outer_radius)
-moderator_ring3.addSurface(+1, moderator_outer_radius)
+moderator = Cell()
+moderator.setNumSectors(8)
+moderator.setNumRings(2)
+moderator.setFill(materials['Water'])
+moderator.addSurface(+1, fuel_radius)
 
 # UO2 pin cell
 uo2_cell = Cell()
