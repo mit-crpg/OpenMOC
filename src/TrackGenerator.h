@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <omp.h>
 #include <tuple>
+#include "segmentation_type.h"
 #endif
 
 
@@ -126,13 +127,8 @@ private:
   /** Boolean for whether to solve 3D (true) or 2D (false) problem */
   bool _solve_3D;
 
-  /** Boolean for whether to ray trace on-the-fly (true) or explicitly generate
-   *  segments (false) */
-  bool _OTF;
-
-  /** Bool for whether to trace whole axial track stacks on-the-fly (true) or
-      not (false) */
-  bool _OTF_stacks;
+  /** Determines the type of track segmentation to use for 3D MOC */
+  segmentationType _segment_formation;
 
   /** The z coord where the 2D tracks should be generated */
   double _z_coord;
@@ -260,8 +256,7 @@ public:
   void setGeometry(Geometry* geometry);
   void setSolve2D();
   void setSolve3D();
-  void setOTF();
-  void setOTFStacks();
+  void setSegmentFormation(segmentationType segmentation_type);
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
@@ -292,8 +287,7 @@ public:
   int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
   bool isSolve2D();
   bool isSolve3D();
-  bool isOTF();
-  bool isOTFStacks();
+  segmentationType getSegmentFormation();
   void dump2DSegmentsToFile();
   void dump3DSegmentsToFile();
   bool read2DSegmentsFromFile();

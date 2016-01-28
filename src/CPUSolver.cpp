@@ -571,11 +571,13 @@ void CPUSolver::computeKeff() {
  */
 void CPUSolver::transportSweep() {
 
-  if (_OTF) {
-    if (_OTF_stacks)
-      transportSweepOTFStacks();
-    else
-      transportSweepOTF();
+  /* Check for on-the-fly methods */
+  if (_segment_formation == OTF_STACKS) {
+    transportSweepOTFStacks();
+    return;
+  }
+  else if (_segment_formation == OTF_TRACKS) {
+    transportSweepOTF();
     return;
   }
 

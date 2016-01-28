@@ -21,7 +21,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
-  _OTF = false;
+  _segment_formation = EXPLICIT;
 
   _tracks = NULL;
   _azim_spacings = NULL;
@@ -341,16 +341,16 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
+  segmentationType segment_formation = track_generator->getSegmentFormation();
   if ((!track_generator->contains2DSegments() && (track_generator->isSolve2D()
-      || track_generator->isOTF())) || (track_generator->isSolve3D() &&
-      !track_generator->isOTF() && !track_generator->contains3DSegments()))
+      || segment_formation != EXPLICIT)) || (track_generator->isSolve3D() &&
+      segment_formation == EXPLICIT && !track_generator->contains3DSegments()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
   _solve_3D = _track_generator->isSolve3D();
-  _OTF = _track_generator->isOTF();
-  _OTF_stacks = _track_generator->isOTFStacks();
+  _segment_formation = _track_generator->getSegmentFormation();
   _num_azim = _track_generator->getNumAzim();
   _tracks_per_stack = _track_generator->getTracksPerStack();
   _azim_spacings = _track_generator->getAzimSpacings();
@@ -520,10 +520,10 @@ void Solver::initializeExpEvaluator() {
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
-    if (_OTF)
-      _track_generator->countSegments();
-    else
+    if (_segment_formation == EXPLICIT)
       _track_generator->splitSegments(max_tau);
+    else
+      _track_generator->countSegments();
 
     /* Initialize exponential interpolation table */
     _exp_evaluator->setMaxOpticalLength(max_tau);
