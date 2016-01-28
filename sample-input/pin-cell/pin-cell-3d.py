@@ -49,8 +49,6 @@ solver.printTimerReport()
 #                             Generating Plots
 ###############################################################################
 
-process.compute_material_fluxes(solver, use_hdf5=False)
-
 log.py_printf('NORMAL', 'Plotting data...')
 plotter.plot_periodic_cycles_2D(track_generator)
 plotter.plot_reflective_cycles_2D(track_generator)
