@@ -646,7 +646,7 @@ void Solver::initializeFixedSources() {
   std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
   std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
 
-  /** Fixed sources assigned by Cell */
+  /* Fixed sources assigned by Cell */
   for (cell_iter = _fix_src_cell_map.begin(); 
        cell_iter != _fix_src_cell_map.end(); ++cell_iter) {
 
