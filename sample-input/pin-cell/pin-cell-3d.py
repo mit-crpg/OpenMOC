@@ -1,7 +1,6 @@
 from openmoc import *
 import openmoc.log as log
 import openmoc.plotter as plotter
-import openmoc.process as process
 from openmoc.options import Options
 from geometry import geometry
 
