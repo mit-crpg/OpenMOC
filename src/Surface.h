@@ -161,8 +161,9 @@ public:
    * @brief Finds the intersection Point with this Surface from a given
    *        Point and trajectory defined by an angle.
    * @param point pointer to the Point of interest
-   * @param angle the angle defining the trajectory in radians
-   * @param points pointer to a Point to store the intersection Point
+   * @param azim the azimuthal angle (in radians)
+   * @param polar the polar angle (in radians)
+   * @param points array of Points to store the intersection locations
    * @return the number of intersection Points (0 or 1)
    */
   virtual int intersection(Point* point, double azim, double polar,
@@ -173,7 +174,7 @@ public:
   double getMinDistance(Point* point, double azim, double polar=M_PI_2);
 
   /**
-   * @Brief Converts this Surface's attributes to a character array.
+   * @brief Converts this Surface's attributes to a character array.
    * @details The character array returned conatins the type of Surface (ie,
    *          PLANE) and the coefficients in the potential equation.
    * @return a character array of this Surface's attributes
