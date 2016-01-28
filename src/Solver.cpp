@@ -620,7 +620,7 @@ void Solver::initializeFSRs() {
   _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids();
+  _track_generator->generateFSRCentroids(_FSR_volumes);
 
   /* Attach the correct materials to each track segment */
   _track_generator->initializeSegments();

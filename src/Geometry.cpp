@@ -1039,10 +1039,9 @@ void Geometry::initializeCmfd() {
 
   /* Initialize the CMFD lattice */
   Point offset;
-  double offset_x = getMinX() + getWidthX()/2.0;
-  double offset_y = getMinY() + getWidthY()/2.0;
-  offset.setX(offset_x);
-  offset.setY(offset_y);
+  offset.setX(getMinX() + getWidthX()/2.0);
+  offset.setY(getMinY() + getWidthY()/2.0);
+
   _cmfd->initializeLattice(&offset);
 }
 

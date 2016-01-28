@@ -53,7 +53,22 @@
 #define MAX_LINEAR_SOLVE_ITERATIONS 1000
 
 /** The faces and edges that collectively make up the surfaces of a
- *  horizontal slice of a rectangular prism */
+ *  horizontal slice of a rectangular prism. The faces are denoted
+ *  as "f" and edges denoted as "e" on the illustration below:
+ *
+ *          e            f            e
+ *           +----------------------+
+ *           |                      |
+ *           |                      |
+ *           |                      |
+ *         f |                      | f
+ *           |                      |
+ *           |                      |
+ *           |                      |
+ *           +----------------------+
+ *          e            f            e
+ *
+ */
 #define NUM_FACES 4
 #define NUM_EDGES 4
 #define NUM_SURFACES 8
