@@ -749,13 +749,15 @@ void Geometry::subdivideCells() {
  *          source iteration. This method first subdivides all Cells by calling
  *          the Geometry::subdivideCells() method. Then it initializes the CMFD
  *          object.
+ * @brief neighbor_cells whether to use neighbor cell optimizations
  */
-void Geometry::initializeFSRs() {
+void Geometry::initializeFSRs(bool neighbor_cells) {
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
   /* Build collections of neighbor Cells for optimized ray tracing */
-  _root_universe->buildNeighbors();
+  if (neighbor_cells)
+    _root_universe->buildNeighbors();
 }
 
 
@@ -979,27 +981,54 @@ void Geometry::computeFissionability(Universe* univ) {
 
 /**
  * @brief Converts this Geometry's attributes to a character array.
- * @details This method calls the toString() method for all Materials,
- *          Surfaces, Cell, Universes and Lattices contained by the Geometry.
+ * @details This method calls the toString() method for all Surfaces,
+ *          Cells, Universes and Lattices contained by the Geometry.
+ *          Since this routine provides the metadata used by the
+ *          TrackGenerator to discriminate between geometries when
+ *          exporting / importing binary track files.
  * @return a character array of this Geometry's class attributes
  */
 std::string Geometry::toString() {
 
   std::stringstream string;
 
-  std::map<int, Cell*> all_cells = getAllCells();
-  std::map<int, Universe*> all_universes = getAllUniverses();
+  std::map<int, Cell*> cells = getAllCells();
+  std::map<int, Universe*> universes = getAllUniverses();
+  std::map<int, surface_halfspace*> surfaces;
 
   std::map<int, Cell*>::iterator cell_iter;
   std::map<int, Universe*>::iterator univ_iter;
+  std::map<int, surface_halfspace*>::iterator surf_iter;
 
+  /** Add string data for all Cells */
   string << "\n\tCells:\n\t\t";
-  for (cell_iter = all_cells.begin(); cell_iter != all_cells.end(); ++cell_iter)
-    string << cell_iter->second->toString() << "\n\t\t";
+  for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
+    string << "Cell ID = " << cell_iter->second->getId();
+    string << ", name = " << cell_iter->second->getName();
 
+    if (cell_iter->second->isRotated()) {
+      string << ", (rotation = " << cell_iter->second->getPhi() << ", ";
+      string << cell_iter->second->getTheta() << ", ";
+      string << cell_iter->second->getPsi() << ")";
+    }
+    if (cell_iter->second->isTranslated()) {
+      double* translation = cell_iter->second->getTranslation();
+      string << ", (translation = " << translation[0] << ", ";
+      string << translation[1] << ", " << translation[2] << ")";
+    }
+
+    string << ", # surfaces = " << cell_iter->second->getNumSurfaces();
+
+    /** Add string data for the Surfaces in this Cell */
+    surfaces = cell_iter->second->getSurfaces();
+    string << ", Surfaces: ";
+    for (surf_iter = surfaces.begin(); surf_iter != surfaces.end(); ++surf_iter)
+      string <<  surf_iter->second->_surface->toString() << ", ";
+  }
+
+  /** Add string data for all Universes */
   string << "\n\tUniverses:\n\t\t";
-  for (univ_iter = all_universes.begin();
-       univ_iter != all_universes.end(); ++univ_iter)
+  for (univ_iter = universes.begin(); univ_iter != universes.end(); ++univ_iter)
     string << univ_iter->second->toString() << "\n\t\t";
 
   std::string formatted_string = string.str();

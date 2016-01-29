@@ -71,6 +71,7 @@ public:
   void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFluxArrays();
   void initializeSourceArrays();
+  void initializeFixedSources();
   void initializeFSRs();
 
   void normalizeFluxes();

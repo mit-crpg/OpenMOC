@@ -1292,38 +1292,54 @@ void GPUSolver::initializeSourceArrays() {
   _reduced_sources.clear();
   _fixed_sources.clear();
 
+  int size = _num_FSRs * _num_groups;
+
   /* Allocate memory for all source arrays on the device */
   try{
-    int size = _num_FSRs * _num_groups;
     _reduced_sources.resize(size);
     _fixed_sources.resize(size);
-
-    /* Initialize fixed sources to zero */
-    thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
-
-    /* Populate fixed source array with any user-defined sources */
-    std::map< std::pair<int, int>, FP_PRECISION >::iterator iter;
-    std::pair<int, int> fsr_group_key;
-    int fsr_id, group;
-    for (iter = _fixed_sources_map.begin();
-	 iter != _fixed_sources_map.end(); ++iter) {
-      fsr_group_key = iter->first;
-      fsr_id = fsr_group_key.first;
-      group = fsr_group_key.second;
-
-      if (group <= 0 || group > _num_groups)
-        log_printf(ERROR,"Unable to use fixed source for group %d in "
-                   "in a %d energy group problem", group, _num_groups);
-
-      if (fsr_id < 0 || fsr_id >= _num_FSRs)
-        log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
-                   "%d FSRs in the geometry", fsr_id, _num_FSRs);
-
-      _fixed_sources(fsr_id, group-1) = _fixed_sources_map[fsr_group_key];
-    }
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for sources on GPU");
+  }
+
+  /* Initialize fixed sources to zero */
+  thrust::fill(_fixed_sources.begin(), _fixed_sources.end(), 0.0);
+
+  /* Fill fixed sources with those assigned by Cell, Material or FSR */
+  initializeFixedSources();
+}
+
+
+/**
+ * @brief Populates array of fixed sources assigned by FSR.
+ */
+void GPUSolver::initializeFixedSources() {
+
+  Solver::initializeFixedSources();
+
+  int fsr_id, group;
+  std::pair<int, int> fsr_group_key;
+  std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
+
+  /* Populate fixed source array with any user-defined sources */
+  for (fsr_iter = _fix_src_FSR_map.begin(); 
+       fsr_iter != _fix_src_FSR_map.end(); ++fsr_iter) {
+
+    /* Get the FSR with an assigned fixed source */
+    fsr_group_key = fsr_iter->first;
+    fsr_id = fsr_group_key.first;
+    group = fsr_group_key.second;
+
+    if (group <= 0 || group > _num_groups)
+      log_printf(ERROR,"Unable to use fixed source for group %d in "
+                 "a %d energy group problem", group, _num_groups);
+
+    if (fsr_id < 0 || fsr_id >= _num_FSRs)
+      log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
+                 "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+    _fixed_sources(fsr_id, group-1) = _fix_src_FSR_map[fsr_group_key];
   }
 }
 
