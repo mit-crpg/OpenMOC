@@ -9,7 +9,9 @@
 #define GEOMETRY_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Cmfd.h"
 #include "Progress.h"
 #include <limits>

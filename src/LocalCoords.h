@@ -9,7 +9,9 @@
 #define LOCALCOORDS_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Point.h"
 #include "Universe.h"
 #include "Cell.h"

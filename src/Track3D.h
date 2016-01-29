@@ -9,7 +9,9 @@
 #define TRACK3D_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Point.h"
 #include "Material.h"
 #include "Track.h"
