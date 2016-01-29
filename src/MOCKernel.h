@@ -8,7 +8,9 @@
 #ifndef MOCKERNEL_H_
 #define MOCKERNEL_H_
 
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
