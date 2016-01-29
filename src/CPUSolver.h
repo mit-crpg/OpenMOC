@@ -86,6 +86,7 @@ public:
 
   void initializeFluxArrays();
   void initializeSourceArrays();
+  void initializeFixedSources();
   void initializeFSRs();
 
   void zeroTrackFluxes();

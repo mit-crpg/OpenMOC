@@ -19,16 +19,22 @@ class TestHarness(object):
         openmoc.log.set_log_level('NORMAL')
 
         # Define default simulation parameters
-        self.num_threads = 1
         self.spacing = 0.1
         self.num_azim = 4
-        self.max_iters = 10
+        self.max_iters = 500
         self.tolerance = 1E-5
+
+        # Define threads based on OMP_NUM_THREADS env var set by run_tests.py
+        if 'OMP_NUM_THREADS' in os.environ:
+            self.num_threads = int(os.environ['OMP_NUM_THREADS'])
+        else:
+            self.num_threads = 1
 
         self.input_set = None
         self.track_generator = None
         self.solver = None
-        self.calc_mode = 'eigenvalue'
+        self.solution_type = 'eigenvalue'
+        self.calculation_mode = openmoc.FORWARD
         self.res_type = openmoc.FISSION_SOURCE
 
         self.parser = OptionParser()
@@ -38,22 +44,37 @@ class TestHarness(object):
         self._opts = None
         self._args = None
 
-    def create_trackgenerator(self):
+
+    def _create_geometry(self):
+        """Initialize the materials and geometry in the InputSet."""
+        self.input_set.create_materials()
+        self.input_set.create_geometry()
+
+    def _create_trackgenerator(self):
         """Instantiate a TrackGenerator."""
         geometry = self.input_set.geometry
         self.track_generator = \
             openmoc.TrackGenerator(geometry, self.num_azim, self.spacing)
 
-    def create_solver(self):
+    def _create_solver(self):
         """Instantiate a CPUSolver."""
         self.solver = openmoc.CPUSolver(self.track_generator)
         self.solver.setNumThreads(self.num_threads)
         self.solver.setConvergenceThreshold(self.tolerance)
 
-    def generate_tracks(self):
+    def _generate_tracks(self):
         """Generate Tracks and segments."""
-        self.track_generator.setNumThreads(self.num_threads)
+        # Always use 1 thread for FSR reproducibility
+        self.track_generator.setNumThreads(1)
         self.track_generator.generateTracks()
+
+    def _setup(self):
+        """Build materials, geometry and perform ray tracing."""
+        self._create_geometry()
+        self._create_trackgenerator()
+        self._generate_tracks()
+        self._create_solver()
+
 
     def main(self):
         """Accept commandline arguments and either run or update tests."""
@@ -66,7 +87,8 @@ class TestHarness(object):
     def _execute_test(self):
         """Build geometry, ray trace, run calculation, and verify results."""
         try:
-            self.run_openmoc()
+            self._setup()
+            self._run_openmoc()
             results = self._get_results()
             self._write_results(results)
             self._compare_results()
@@ -76,34 +98,32 @@ class TestHarness(object):
     def _update_results(self):
         """Update the results_true using the current version of OpenMOC."""
         try:
-            self.run_openmoc()
+            self._setup()
+            self._run_openmoc()
             results = self._get_results()
             self._write_results(results)
             self._overwrite_results()
         finally:
             self._cleanup()
 
-    def run_openmoc(self):
+    def _run_openmoc(self):
         """Run an OpenMOC eigenvalue or fixed source calculation."""
 
-        self.input_set.create_materials()
-        self.input_set.create_geometry()
-        self.create_trackgenerator()
-        self.generate_tracks()
-        self.create_solver()
-
-        if self.calc_mode == 'eigenvalue':
-            self.solver.computeEigenvalue(self.max_iters, res_type=self.res_type)
-        elif self.calc_mode == 'fixed source':
-            self.solver.computeFlux(self.max_iters, res_type=self.res_type)
-        elif self.calc_mode == 'subcritical':
-            self.solver.computeSource(self.max_iters, res_type=self.res_type)
+        if self.solution_type == 'eigenvalue':
+            self.solver.computeEigenvalue(self.max_iters, res_type=self.res_type,
+                                          mode=self.calculation_mode)
+        elif self.solution_type == 'flux':
+            self.solver.computeFlux(self.max_iters)
+        elif self.solution_type == 'source':
+            self.solver.computeSource(self.max_iters, res_type=self.res_type,
+                                      mode=self.calculation_mode)
         else:
-            msg = 'Unable to run OpenMOC in mode {0}'.format(self.calc_mode)
+            msg = 'Unable to run OpenMOC in mode {0}'.format(self.solution_type)
             raise ValueError(msg)
 
-    def _get_results(self, num_iters=True, keff=True, fluxes=False,
-                     num_fsrs=False, hash_output=False):
+    def _get_results(self, num_iters=True, keff=True, fluxes=True,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=False):
         """Digest info in the solver and return as a string."""
 
         outstr = ''
@@ -114,9 +134,9 @@ class TestHarness(object):
             outstr += '# Iterations: {0}\n'.format(num_iters)
 
         # Write out the eigenvalue
-        if keff and self.calc_mode == 'eigenvalue':
+        if keff and self.solution_type == 'eigenvalue':
             keff = self.solver.getKeff()
-            outstr += 'keff: {0:12.5E}'.format(keff)
+            outstr += 'keff: {0:12.5E}\n'.format(keff)
 
         if fluxes:
             # Get the fluxes for each FSR and energy group
@@ -133,6 +153,16 @@ class TestHarness(object):
         if num_fsrs:
             num_fsrs = self.input_set.geometry.getNumFSRs()
             outstr += '# FSRs: {0}\n'.format(num_fsrs)
+
+        # Write out the number of tracks
+        if num_tracks:
+            num_tracks = self.track_generator.getNumTracks()
+            outstr += '# tracks: {0}\n'.format(num_tracks)
+
+        # Write out the number of segments
+        if num_segments:
+            num_segments = self.track_generator.getNumSegments()
+            outstr += '# segments: {0}\n'.format(num_segments)
 
         # Hash the results if necessary.
         if hash_output:

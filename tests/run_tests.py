@@ -30,16 +30,20 @@ parser.add_option('-l', '--list', action="store_true",
 (options, args) = parser.parse_args()
 
 # Default build options
-CC = 'gcc'
 FP = 'double'
 
 # Define test data structure
 tests = OrderedDict()
 
 class Test(object):
-    def __init__(self, name, num_threads=1, debug=False):
+
+    # A class attribute to cache the setup install commands from
+    # previous Tests, if any (this helps eliminate redundant builds)
+    _setup_cmd = []
+
+    def __init__(self, name, cc='gcc', num_threads=1, debug=False):
         self.name = name
-        self.cc = CC
+        self.cc = cc
         self.fp = FP
         self.num_threads = num_threads
         self.debug = debug
@@ -56,14 +60,18 @@ class Test(object):
         if self.debug:
             setup_cmd += ['--debug-mode']
 
-        # Run setup.py installation script
-        rc = subprocess.call(setup_cmd)
-        rc = subprocess.call(setup_cmd)
+        # Run setup.py if it was not run for the previous Test
+        if setup_cmd != Test._setup_cmd:
+            rc = subprocess.call(setup_cmd)
+            rc = subprocess.call(setup_cmd)
 
-        # Check for error code
-        if rc != 0:
-            self.success = False
-            self.msg = 'Failed on setup.py'
+            # Check for error code
+            if rc != 0:
+                self.success = False
+                self.msg = 'Failed on setup.py'
+            # Cache the setup install command for the next Test
+            else:
+                Test._setup_cmd = setup_cmd
 
     def run_cmake(self):
         """Run CMake to create CTest script"""
@@ -83,6 +91,8 @@ class Test(object):
         """Run CTest on all tests"""
         if not self.success:
             return
+
+        os.environ['OMP_NUM_THREADS'] = str(self.num_threads)
 
         # Default CTest string
         ctest_cmd = ['ctest']
@@ -105,15 +115,17 @@ class Test(object):
 
 
 # Simple function to add a test to the global tests dictionary
-def add_test(name, num_threads=1, debug=False, ):
-    tests.update({name: Test(name, num_threads, debug)})
+def add_test(name, cc='gcc', num_threads=1, debug=False, ):
+    tests.update({name: Test(name, cc, num_threads, debug)})
 
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
-add_test('normal', num_threads=1)
-#add_test('debug', num_threads=1, debug=True)
-#add_test('normal-openmp', num_threads=4)
-#add_test('debug-openmp', num_threads=4, debug=True)
+add_test('normal-gcc', cc='gcc', num_threads=1)
+add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+#add_test('normal-icpc', cc='icpc', num_threads=1)
+#add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
+#add_test('normal-clang', cc='clang', num_threads=1)
+#add_test('normal-openmp-clang', cc='clang', num_threads=4)
 
 # Check to see if we should just print build configuration information to user
 if options.list_build_configs:
@@ -172,10 +184,10 @@ for key in iter(tests):
         logfilename = logfilename + '_{0}.log'.format(test.name)
         shutil.copy(logfile[0], logfilename)
 
-    # Clear build directory and remove binary and hdf5 files
-    shutil.rmtree('build', ignore_errors=True)
-    shutil.rmtree('openmoc', ignore_errors=True)
-    subprocess.call(['./cleanup'])
+# Clear build directory and remove binary and hdf5 files
+shutil.rmtree('build', ignore_errors=True)
+shutil.rmtree('openmoc', ignore_errors=True)
+subprocess.call(['./cleanup'])
 
 # Print out summary of results
 print('\n' + '='*54)

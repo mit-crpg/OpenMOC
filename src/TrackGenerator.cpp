@@ -563,8 +563,9 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int length_coords) {
  *          number of Tracks for each azimuthal angle, allocates memory for
  *          all Tracks at each angle and sets each Track's starting and ending
  *          Points, azimuthal angle, and azimuthal angle quadrature weight.
+ * @brief neighbor_cells whether to use neighbor cell optimizations
  */
-void TrackGenerator::generateTracks() {
+void TrackGenerator::generateTracks(bool neighbor_cells) {
 
   if (_geometry == NULL)
     log_printf(ERROR, "Unable to generate Tracks since no Geometry "
@@ -591,7 +592,7 @@ void TrackGenerator::generateTracks() {
     _geometry->initializeCmfd();
 
   /* Initialize FSRs with pin cell discretization and neighbor cell lists */
-  _geometry->initializeFSRs();
+  _geometry->initializeFSRs(neighbor_cells);
 
   initializeTrackFileDirectory();
 
