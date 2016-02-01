@@ -26,6 +26,7 @@ class Surface;
 
 int cell_id();
 void reset_cell_id();
+void maximize_cell_id(int cell_id);
 
 
 /**

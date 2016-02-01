@@ -31,6 +31,7 @@ struct surface_halfspace;
 
 int universe_id();
 void reset_universe_id();
+void maximize_universe_id(int universe_id);
 
 
 /**

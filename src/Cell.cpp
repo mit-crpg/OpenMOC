@@ -31,6 +31,21 @@ void reset_cell_id() {
 
 
 /**
+ * @brief Maximize the auto-generated unique Cell ID counter.
+ * @details This method updates the auto-generated unique Cell ID
+ *          counter if the input parameter is greater than the present
+ *          value. This is useful for the OpenCG compatibility module
+ *          to ensure that the auto-generated Cell IDs do not
+ *          collide with those created in OpenCG.
+ * @param material_id the id assigned to the auto-generated counter
+ */
+void maximize_cell_id(int cell_id) {
+  if (cell_id > auto_id)
+    auto_id = cell_id;
+}
+
+
+/**
  * @brief Constructor sets the unique and user-specifed IDs for this Cell.
  * @param id the user-specified optional Cell ID
  * @param name the user-specified optional Cell name

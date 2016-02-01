@@ -7,7 +7,7 @@
  */
 void reset_auto_ids() {
   reset_material_id();
-  reset_surf_id();
+  reset_surface_id();
   reset_cell_id();
   reset_universe_id();
 }
@@ -246,18 +246,65 @@ int Geometry::getNumCells() {
 
 
 /**
- * @brief Return a std::map container of Universe IDs (keys) with Unierses
+ * @brief Return a std::map container of Surface IDs (keys) with Surfaces
  *        pointers (values).
- * @return a std::map of Universes indexed by Universe ID in the geometry
+ * @return a std::map of Surfaces indexed by Surface ID in the geometry
  */
-std::map<int, Universe*> Geometry::getAllUniverses() {
+std::map<int, Surface*> Geometry::getAllSurfaces() {
 
-  std::map<int, Universe*> all_universes;
+  Cell* cell;
+  Surface* surf;
+  std::map<int, Surface*> all_surfs;
+  std::map<int, surface_halfspace*> surfs;
+  std::map<int, Cell*>::iterator c_iter;
+  std::map<int, surface_halfspace*>::iterator s_iter;
 
-  if (_root_universe != NULL)
-    all_universes = _root_universe->getAllUniverses();
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = getAllCells();
 
-  return all_universes;
+    for (c_iter = all_cells.begin(); c_iter != all_cells.end(); ++c_iter) {
+      cell = (*c_iter).second;
+      surfs = cell->getSurfaces();
+
+      for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
+	surf = (*s_iter).second->_surface;
+	all_surfs[surf->getId()] = surf;
+      }
+    }
+  }
+
+  return all_surfs;
+}
+
+
+/**
+ * @brief Return a std::map container of Material IDs (keys) with Materials
+ *        pointers (values).
+ * @return a std::map of Materials indexed by Material ID in the geometry
+ */
+std::map<int, Material*> Geometry::getAllMaterials() {
+
+  std::map<int, Material*> all_materials;
+  Cell* cell;
+  Material* material;
+
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = getAllMaterialCells();
+    std::map<int, Cell*>::iterator iter;
+
+    for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
+      cell = (*iter).second;
+
+      if (cell->getType() == MATERIAL) {
+        material = cell->getFillMaterial();
+
+        if (material != NULL)
+          all_materials[material->getId()] = material;
+      }
+    }
+  }
+
+  return all_materials;
 }
 
 
@@ -304,33 +351,18 @@ std::map<int, Cell*> Geometry::getAllMaterialCells() {
 
 
 /**
- * @brief Return a std::map container of Material IDs (keys) with Materials
+ * @brief Return a std::map container of Universe IDs (keys) with Unierses
  *        pointers (values).
- * @return a std::map of Materials indexed by Material ID in the geometry
+ * @return a std::map of Universes indexed by Universe ID in the geometry
  */
-std::map<int, Material*> Geometry::getAllMaterials() {
+std::map<int, Universe*> Geometry::getAllUniverses() {
 
-  std::map<int, Material*> all_materials;
-  Cell* cell;
-  Material* material;
+  std::map<int, Universe*> all_universes;
 
-  if (_root_universe != NULL) {
-    std::map<int, Cell*> all_cells = getAllMaterialCells();
-    std::map<int, Cell*>::iterator iter;
+  if (_root_universe != NULL)
+    all_universes = _root_universe->getAllUniverses();
 
-    for (iter = all_cells.begin(); iter != all_cells.end(); ++iter) {
-      cell = (*iter).second;
-
-      if (cell->getType() == MATERIAL) {
-        material = cell->getFillMaterial();
-
-        if (material != NULL)
-          all_materials[material->getId()] = material;
-      }
-    }
-  }
-
-  return all_materials;
+  return all_universes;
 }
 
 

@@ -134,10 +134,11 @@ public:
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
-  std::map<int, Universe*> getAllUniverses();
+  std::map<int, Material*> getAllMaterials();
+  std::map<int, Surface*> getAllSurfaces();
   std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
-  std::map<int, Material*> getAllMaterials();
+  std::map<int, Universe*> getAllUniverses();
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
