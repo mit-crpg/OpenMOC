@@ -842,7 +842,8 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
     /* Solve for where the line x = x0 and the Surface F(x,y) intersect
      * Find the y where F(x0, y) = 0
      * Substitute x0 into F(x,y) and rearrange to put in
-     * the form of the quadratic formula: ay^2 + by + c = 0 */
+     * the form of the quadratic formula: ay^2 + by + c = 0 
+     * This is simplified for a z-cylinder with a vertical axis */
     a = 1.;
     b = _D;
     c = _A * x0 * x0 + _C * x0 + _E;
