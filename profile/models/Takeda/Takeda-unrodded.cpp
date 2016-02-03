@@ -219,8 +219,7 @@ int main() {
                                  polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
-  track_generator.setOTF();
-  track_generator.setOTFStacks();
+  track_generator.setSegmentFormation(OTF_STACKS);
   std::vector<double> seg_heights {0.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.setGlobalZMesh();
@@ -230,7 +229,6 @@ int main() {
   CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
-  solver.setOTFTransport();
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 

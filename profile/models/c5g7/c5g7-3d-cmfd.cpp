@@ -206,11 +206,11 @@ int main() {
   zmin.setBoundaryType(REFLECTIVE);
   zmax.setBoundaryType(VACUUM);
 
-  /* Create circles for the fuel as well as to discretize the moderator into
-     rings */
-  Circle fuel_radius(0.0, 0.0, 0.54);
-  Circle moderator_inner_radius(0.0, 0.0, 0.58);
-  Circle moderator_outer_radius(0.0, 0.0, 0.62);
+  /* Create z-cylinders for the fuel as well as to discretize the moderator
+   * into rings */
+  ZCylinder fuel_radius(0.0, 0.0, 0.54);
+  ZCylinder moderator_inner_radius(0.0, 0.0, 0.58);
+  ZCylinder moderator_outer_radius(0.0, 0.0, 0.62);
 
   /* Create cells and universes */
   log_printf(NORMAL, "Creating cells...");
@@ -547,8 +547,7 @@ int main() {
                                  polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
-  track_generator.setOTF();
-  track_generator.setOTFStacks();
+  track_generator.setSegmentFormation(OTF_STACKS);
   std::vector<double> seg_heights {0.0, 20.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.setGlobalZMesh();
@@ -558,7 +557,6 @@ int main() {
   CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
-  solver.setOTFTransport();
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 

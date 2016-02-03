@@ -28,6 +28,7 @@ Material.cpp \
 Matrix.cpp \
 MOCKernel.cpp \
 Point.cpp \
+Progress.cpp \
 Quadrature.cpp \
 Solver.cpp \
 Surface.cpp \
