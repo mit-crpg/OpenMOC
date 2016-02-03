@@ -596,7 +596,7 @@ void Solver::initializeFSRs() {
   _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids();
+  _track_generator->generateFSRCentroids(_FSR_volumes);
 
   /* Attach the correct materials to each track segment */
   _track_generator->initializeSegments();
@@ -834,7 +834,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   _k_eff = 1.;
 
   _num_iterations = 0;
-  FP_PRECISION residual;
+  FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
   initializeFSRs();
@@ -944,7 +944,7 @@ void Solver::computeSource(int max_iters, solverMode mode,
   _k_eff = k_eff;
 
   _num_iterations = 0;
-  FP_PRECISION residual;
+  FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
   initializeFSRs();
@@ -1026,7 +1026,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   _timer->startTimer();
 
   _num_iterations = 0;
-  FP_PRECISION residual;
+  FP_PRECISION residual = 0.;
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;

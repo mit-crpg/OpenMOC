@@ -641,7 +641,7 @@ void CPUSolver::computeKeff() {
 
   /* Reduce new fission rates across FSRs */
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
- 
+
   _k_eff *= fission;
 
   delete [] FSR_rates;
@@ -775,7 +775,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
 /**
  * @brief Tallies the current contribution from this segment across the
- *        the appropriate CMFD mesh cell surface or corner.
+ *        the appropriate CMFD mesh cell surface.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index the azimuthal index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
@@ -784,7 +784,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
                              FP_PRECISION* track_flux, bool fwd) {
 
-  /* Tally surface or corner currents if CMFD is in use */
+  /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->tallyCurrent(curr_segment, track_flux,
                         &_polar_weights(azim_index,0), fwd);

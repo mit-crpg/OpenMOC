@@ -137,9 +137,6 @@ private:
   /** Vector of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
-  /** Vector of corner currents for each CMFD cell */
-  Vector* _corner_currents;
-
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
 
@@ -159,6 +156,9 @@ private:
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
 
+  /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
+  omp_lock_t* _cell_locks;
+
   /* Private worker functions */
   FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
                                        FP_PRECISION delta);
@@ -166,7 +166,8 @@ private:
   void collapseXS();
   void updateMOCFlux();
   void rescaleFlux();
-  void splitCorners();
+  void splitEdgeCurrents();
+  void getEdgeSplitSurfaces(int cell, int edge, std::vector<int>* surfaces);
   void initializeMaterials();
   void initializeCurrents();
   void generateKNearestStencils();
@@ -198,7 +199,6 @@ public:
   void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);
-  int findCmfdCorner(int cell_id, LocalCoords* coords);
   void addFSRToCell(int cell_id, int fsr_id);
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,

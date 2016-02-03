@@ -420,7 +420,7 @@ void Material::setVolume(double volume) {
 
 /**
  * @brief Increment the volume/area of the Material by some amount.
- * @details This routine is called by the TrackGenerator during track 
+ * @details This routine is called by the TrackGenerator during track
  *          generation and segmentation.
  * @param volume the amount to increment the current volume by
  */
@@ -440,7 +440,7 @@ void Material::setNumInstances(int num_instances) {
 
 /**
  * @brief Increment the number of instances of this Material.
- * @details This routine is called by the TrackGenerator during track 
+ * @details This routine is called by the TrackGenerator during track
  *          generation and segmentation.
  */
 void Material::incrementNumInstances() {

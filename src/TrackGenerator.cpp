@@ -1339,8 +1339,6 @@ void TrackGenerator::dumpTracksToFile() {
   int region_id;
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
-  int cmfd_corner_fwd;
-  int cmfd_corner_bwd;
 
   /* Loop over all Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1387,12 +1385,8 @@ void TrackGenerator::dumpTracksToFile() {
         if (cmfd != NULL) {
           cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
           cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-          cmfd_corner_fwd = curr_segment->_cmfd_corner_fwd;
-          cmfd_corner_bwd = curr_segment->_cmfd_corner_bwd;
           fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
           fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
-          fwrite(&cmfd_corner_fwd, sizeof(int), 1, out);
-          fwrite(&cmfd_corner_bwd, sizeof(int), 1, out);
         }
       }
     }
@@ -1555,8 +1549,6 @@ bool TrackGenerator::readTracksFromFile() {
 
   int cmfd_surface_fwd;
   int cmfd_surface_bwd;
-  int cmfd_corner_fwd;
-  int cmfd_corner_bwd;
   segment curr_segment;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
@@ -1601,12 +1593,8 @@ bool TrackGenerator::readTracksFromFile() {
         if (cmfd != NULL) {
           ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
           ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-          ret = fread(&cmfd_corner_fwd, sizeof(int), 1, in);
-          ret = fread(&cmfd_corner_bwd, sizeof(int), 1, in);
           curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
           curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
-          curr_segment._cmfd_corner_fwd = cmfd_corner_fwd;
-          curr_segment._cmfd_corner_bwd = cmfd_corner_bwd;
         }
 
         /* Add this segment to the Track */
@@ -1772,13 +1760,11 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
  *          FSR by the segment's length and azimuthal weight. The numerical
  *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
  *          Approximation in CASMO 5", PHYSOR 2012.
+ * @param FSR_volumes An array of FSR volumes.
  */
-void TrackGenerator::generateFSRCentroids() {
+void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   int num_FSRs = _geometry->getNumFSRs();
-
-  /* Get FSR Volumes */
-  FP_PRECISION* FSR_volumes = getFSRVolumes();
 
   /* Create array of centroids and initialize to origin */
   Point** centroids = new Point*[num_FSRs];
@@ -1821,7 +1807,6 @@ void TrackGenerator::generateFSRCentroids() {
     _geometry->setFSRCentroid(r, centroids[r]);
 
   /* Delete temporary array of FSR volumes and centroids */
-  delete [] FSR_volumes;
   delete [] centroids;
 }
 
@@ -1849,7 +1834,6 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
   FP_PRECISION* sigma_t;
   int num_groups;
   int cmfd_surface_fwd, cmfd_surface_bwd;
-  int cmfd_corner_fwd, cmfd_corner_bwd;
 
   /* Iterate over all Tracks */
   for (int i=0; i < _num_azim; i++) {
@@ -1863,8 +1847,6 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
         fsr_id = curr_segment->_region_id;
         cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
         cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-        cmfd_corner_fwd = curr_segment->_cmfd_corner_fwd;
-        cmfd_corner_bwd = curr_segment->_cmfd_corner_bwd;
 
         /* Compute number of segments to split this segment into */
         min_num_cuts = 1;
@@ -1891,15 +1873,11 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           new_segment->_region_id = fsr_id;
 
           /* Assign CMFD surface boundaries */
-          if (k == 0) {
+          if (k == 0)
             new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
-            new_segment->_cmfd_corner_bwd = cmfd_corner_bwd;
-          }
 
-          if (k == min_num_cuts-1) {
+          if (k == min_num_cuts-1)
             new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-            new_segment->_cmfd_corner_fwd = cmfd_corner_fwd;
-          }
 
           /* Insert the new segment to the Track */
           _tracks[i][j].insertSegment(s+k+1, new_segment);

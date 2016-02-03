@@ -41,18 +41,10 @@ struct segment {
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
 
-  /** The ID for the mesh corner crossed by the Track end point */
-  int _cmfd_corner_fwd;
-
-  /** The ID for the mesh corner crossed by the Track start point */
-  int _cmfd_corner_bwd;
-
   /** Constructor initializes CMFD surfaces */
   segment() {
     _cmfd_surface_fwd = -1;
     _cmfd_surface_bwd = -1;
-    _cmfd_corner_fwd = -1;
-    _cmfd_corner_bwd = -1;
   }
 };
 

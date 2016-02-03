@@ -846,8 +846,6 @@ void Geometry::segmentize(Track* track) {
       new_segment->_cmfd_surface_fwd = _cmfd->findCmfdSurface(cmfd_cell, &end);
       new_segment->_cmfd_surface_bwd =
         _cmfd->findCmfdSurface(cmfd_cell, &start);
-      new_segment->_cmfd_corner_fwd = _cmfd->findCmfdCorner(cmfd_cell, &end);
-      new_segment->_cmfd_corner_bwd = _cmfd->findCmfdCorner(cmfd_cell, &start);
 
       /* Re-nudge segments from surface */
       start.adjustCoords(TINY_MOVE);
@@ -1070,10 +1068,9 @@ void Geometry::initializeCmfd() {
 
   /* Initialize the CMFD lattice */
   Point offset;
-  double offset_x = getMinX() + getWidthX()/2.0;
-  double offset_y = getMinY() + getWidthY()/2.0;
-  offset.setX(offset_x);
-  offset.setY(offset_y);
+  offset.setX(getMinX() + getWidthX()/2.0);
+  offset.setY(getMinY() + getWidthY()/2.0);
+
   _cmfd->initializeLattice(&offset);
 }
 
