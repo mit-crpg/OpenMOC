@@ -3,7 +3,7 @@
 
 int Cell::_n = 0;
 
-static int auto_id = 10000;
+static int auto_id = DEFAULT_INIT_ID;
 
 
 /**
@@ -26,7 +26,22 @@ int cell_id() {
  * @brief Resets the auto-generated unique Cell ID counter to 10000.
  */
 void reset_cell_id() {
-  auto_id = 10000;
+  auto_id = DEFAULT_INIT_ID;
+}
+
+
+/**
+ * @brief Maximize the auto-generated unique Cell ID counter.
+ * @details This method updates the auto-generated unique Cell ID
+ *          counter if the input parameter is greater than the present
+ *          value. This is useful for the OpenCG compatibility module
+ *          to ensure that the auto-generated Cell IDs do not
+ *          collide with those created in OpenCG.
+ * @param cell_id the id assigned to the auto-generated counter
+ */
+void maximize_cell_id(int cell_id) {
+  if (cell_id > auto_id)
+    auto_id = cell_id;
 }
 
 

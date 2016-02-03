@@ -866,4 +866,21 @@ def get_openmoc_geometry(opencg_geometry):
   openmoc_geometry = openmoc.Geometry()
   openmoc_geometry.setRootUniverse(openmoc_root_universe)
 
+  # Update OpenMOC's auto-generated object IDs (e.g., Surface, Material)
+  # with the maximum of those created from the OpenCG objects
+  all_materials = openmoc_geometry.getAllMaterials()
+  all_surfaces = openmoc_geometry.getAllSurfaces()
+  all_cells = openmoc_geometry.getAllCells()
+  all_universes = openmoc_geometry.getAllUniverses()
+
+  max_material_id = max(all_materials.keys())
+  max_surface_id = max(all_surfaces.keys())
+  max_cell_id = max(all_cells.keys())
+  max_universe_id = max(all_universes.keys())
+
+  openmoc.maximize_material_id(max_material_id+1)
+  openmoc.maximize_surface_id(max_surface_id+1)
+  openmoc.maximize_cell_id(max_cell_id+1)
+  openmoc.maximize_universe_id(max_universe_id+1)
+
   return openmoc_geometry

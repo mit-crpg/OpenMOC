@@ -2,7 +2,7 @@
 
 int Surface::_n = 0;
 
-static int auto_id = 10000;
+static int auto_id = DEFAULT_INIT_ID;
 
 /**
  * @brief Returns an auto-generated unique surface ID.
@@ -13,7 +13,7 @@ static int auto_id = 10000;
  *          first ID begins at 10000. Hence, user-defined surface IDs greater
  *          than or equal to 10000 are prohibited.
  */
-int surf_id() {
+int surface_id() {
   int id = auto_id;
   auto_id++;
   return id;
@@ -23,8 +23,23 @@ int surf_id() {
 /**
  * @brief Resets the auto-generated unique Surface ID counter to 10000.
  */
-void reset_surf_id() {
-  auto_id = 10000;
+void reset_surface_id() {
+  auto_id = DEFAULT_INIT_ID;
+}
+
+
+/**
+ * @brief Maximize the auto-generated unique Surface ID counter.
+ * @details This method updates the auto-generated unique Surface ID
+ *          counter if the input parameter is greater than the present
+ *          value. This is useful for the OpenCG compatibility module
+ *          to ensure that the auto-generated Surface IDs do not
+ *          collide with those created in OpenCG.
+ * @param surface_id the id assigned to the auto-generated counter
+ */
+void maximize_surface_id(int surface_id) {
+  if (surface_id > auto_id)
+    auto_id = surface_id;
 }
 
 
@@ -39,7 +54,7 @@ Surface::Surface(const int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
-    _id = surf_id();
+    _id = surface_id();
 
   /* Use the user-defined ID */
   else

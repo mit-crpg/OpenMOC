@@ -41,6 +41,7 @@
 
 int material_id();
 void reset_material_id();
+void maximize_material_id(int material_id);
 
 
 /**

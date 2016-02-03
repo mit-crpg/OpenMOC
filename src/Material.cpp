@@ -1,6 +1,6 @@
 #include "Material.h"
 
-static int auto_id = 10000;
+static int auto_id = DEFAULT_INIT_ID;
 
 
 /**
@@ -23,7 +23,22 @@ int material_id() {
  * @brief Resets the auto-generated unique Material ID counter to 10000.
  */
 void reset_material_id() {
-  auto_id = 10000;
+  auto_id = DEFAULT_INIT_ID;
+}
+
+
+/**
+ * @brief Maximize the auto-generated unique Material ID counter.
+ * @details This method updates the auto-generated unique Material ID
+ *          counter if the input parameter is greater than the present
+ *          value. This is useful for the OpenCG compatibility module
+ *          to ensure that the auto-generated Material IDs do not
+ *          collide with those created in OpenCG.
+ * @param material_id the id assigned to the auto-generated counter
+ */
+void maximize_material_id(int material_id) {
+  if (material_id > auto_id)
+    auto_id = material_id;
 }
 
 
