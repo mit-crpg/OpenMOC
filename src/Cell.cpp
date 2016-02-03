@@ -3,7 +3,7 @@
 
 int Cell::_n = 0;
 
-static int auto_id = 10000;
+static int auto_id = DEFAULT_INIT_ID;
 
 
 /**
@@ -26,7 +26,7 @@ int cell_id() {
  * @brief Resets the auto-generated unique Cell ID counter to 10000.
  */
 void reset_cell_id() {
-  auto_id = 10000;
+  auto_id = DEFAULT_INIT_ID;
 }
 
 

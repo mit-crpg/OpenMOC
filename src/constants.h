@@ -9,6 +9,9 @@
 #define CONSTANTS_H_
 
 
+/** The minimum auto ID used for Surfaces, Cells, Materials and Universes */
+#define DEFAULT_INIT_ID 10000
+
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.5663706143
 

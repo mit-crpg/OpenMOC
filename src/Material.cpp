@@ -1,6 +1,6 @@
 #include "Material.h"
 
-static int auto_id = 10000;
+static int auto_id = DEFAULT_INIT_ID;
 
 
 /**
@@ -23,7 +23,7 @@ int material_id() {
  * @brief Resets the auto-generated unique Material ID counter to 10000.
  */
 void reset_material_id() {
-  auto_id = 10000;
+  auto_id = DEFAULT_INIT_ID;
 }
 
 

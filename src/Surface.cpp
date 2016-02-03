@@ -2,7 +2,7 @@
 
 int Surface::_n = 0;
 
-static int auto_id = 10000;
+static int auto_id = DEFAULT_INIT_ID;
 
 /**
  * @brief Returns an auto-generated unique surface ID.
@@ -24,7 +24,7 @@ int surface_id() {
  * @brief Resets the auto-generated unique Surface ID counter to 10000.
  */
 void reset_surface_id() {
-  auto_id = 10000;
+  auto_id = DEFAULT_INIT_ID;
 }
 
 
