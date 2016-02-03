@@ -37,7 +37,7 @@ void reset_cell_id() {
  *          value. This is useful for the OpenCG compatibility module
  *          to ensure that the auto-generated Cell IDs do not
  *          collide with those created in OpenCG.
- * @param material_id the id assigned to the auto-generated counter
+ * @param cell_id the id assigned to the auto-generated counter
  */
 void maximize_cell_id(int cell_id) {
   if (cell_id > auto_id)
