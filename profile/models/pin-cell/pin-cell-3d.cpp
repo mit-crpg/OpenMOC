@@ -83,7 +83,7 @@ int main() {
   /* Create surfaces */
   log_printf(NORMAL, "Creating surfaces...");
 
-  Circle* circle = new Circle(0.0, 0.0, 1.0);
+  ZCylinder* pin = new ZCylinder(0.0, 0.0, 1.0);
   XPlane xmin(-2.0);
   XPlane xmax( 2.0);
   YPlane ymin(-2.0);
@@ -103,13 +103,13 @@ int main() {
 
   Cell* fuel = new Cell();
   fuel->setFill(materials["UO2"]);
-  fuel->addSurface(-1, circle);
+  fuel->addSurface(-1, pin);
   fuel->addSurface(+1, &zmin);
   fuel->addSurface(-1, &zmax);
 
   Cell* moderator = new Cell();
   moderator->setFill(materials["Water"]);
-  moderator->addSurface(+1, circle);
+  moderator->addSurface(+1, pin);
   moderator->addSurface(+1, &xmin);
   moderator->addSurface(-1, &xmax);
   moderator->addSurface(+1, &ymin);
@@ -138,8 +138,7 @@ int main() {
   TrackGenerator track_generator(geometry, num_azim, num_polar, azim_spacing,
                                  polar_spacing);
   track_generator.setNumThreads(num_threads);
-  track_generator.setOTF();
-  track_generator.setOTFStacks();
+  track_generator.setSegmentFormation(OTF_STACKS);
   track_generator.setGlobalZMesh();
   track_generator.generateTracks();
 
@@ -147,7 +146,6 @@ int main() {
   CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
-  solver.setOTFTransport();
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
