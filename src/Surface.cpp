@@ -902,14 +902,16 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
      * rearrange to put in the form of the quadratic formula:
      * ax^2 + bx + c = 0
      */
-    bool right = angle < M_PI / 2. || angle > 3. * M_PI / 2.;
     double m = tan(angle);
     q = y0 - m * x0;
-    a = 1. + m * m;
+    a = 1 + m * m;
     b = 2 * m * q + _C + _D * m;
     c = q * q + _D * q + _E;
 
     discr = b*b - 4*a*c;
+
+    /* Boolean value describing whether the track is traveling to the right */
+    bool right = angle < M_PI / 2. || angle > 3. * M_PI / 2.;
 
     /* There are no intersections */
     if (discr < 0)
@@ -931,19 +933,28 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
 
     /* There are two intersections */
     else {
+
+      /* Determine the point of intersection */
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
       if (right && xcurr > x0)
         num++;
       else if (!right && xcurr < x0)
         num++;
 
+      /* Determine the point of intersection */
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
       if (right && xcurr > x0)
         num++;
       else if (!right && xcurr < x0)
