@@ -23,7 +23,7 @@ inline T pairwise_sum(T* vector, int length) {
   /* Base case: if length is less than 16, perform summation */
   if (length < 16) {
 
-    #pragma simd reduction(+:sum)
+#pragma simd reduction(+:sum)
     for (int i=0; i < length; i++)
       sum += vector[i];
   }

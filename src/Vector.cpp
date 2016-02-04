@@ -109,7 +109,7 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell]);
 
-  #pragma omp simd
+#pragma omp simd
   for (int g=group_first; g <= group_last; g++)
     _array[cell*_num_groups + g] += vals[g-group_first];
 
@@ -179,7 +179,7 @@ void Vector::setValues(int cell, int group_first, int group_last,
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell]);
 
-  #pragma omp simd
+#pragma omp simd
   for (int g=group_first; g <= group_last; g++)
     _array[cell*_num_groups + g] = vals[g-group_first];
 
@@ -202,7 +202,7 @@ void Vector::clear() {
  */
 void Vector::scaleByValue(FP_PRECISION val) {
 
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int i=0; i < _num_rows; i++)
     _array[i] *= val;
 }
