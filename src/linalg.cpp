@@ -159,7 +159,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Iteration over red/black cells */
     for (int color = 0; color < 2; color++) {
       for (int quad = 0; quad < 4; quad++) {
-        #pragma omp parallel for private(row, col)
+#pragma omp parallel for private(row, col)
         for (int cy = (quad % 2) * num_y/2; cy < (quad % 2 + 1) * num_y/2;
              cy++) {
           for (int cx = (quad / 2) * num_x/2; cx < (quad / 2 + 1) * num_x/2;
@@ -249,7 +249,7 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
   FP_PRECISION* b = B->getArray();
   int num_rows = X->getNumRows();
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int row = 0; row < num_rows; row++) {
     for (int i = IA[row]; i < IA[row+1]; i++)
       b[row] += a[i] * x[JA[i]];
@@ -290,7 +290,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
     Vector residual(cell_locks, num_x, num_y, 1);
 
     /* Compute the RMSE */
-    #pragma omp parallel for private(new_source, old_source)
+#pragma omp parallel for private(new_source, old_source)
     for (int i = 0; i < num_x*num_y; i++) {
       new_source = 0.0;
       old_source = 0.0;
@@ -310,7 +310,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
     Vector residual(cell_locks, num_x, num_y, num_groups);
 
     /* Compute the RMSE */
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < num_x*num_y; i++) {
       for (int g = 0; g < num_groups; g++) {
         if (X->getValue(i, g) != 0.0)

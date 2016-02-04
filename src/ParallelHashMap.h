@@ -257,7 +257,7 @@ void FixedHashMap<K,V>::insert(K key, V value)
   *iter_node = new_node;
 
   /* increment counter */
-  #pragma omp atomic
+#pragma omp atomic
   _N++;
 }
 
@@ -295,7 +295,7 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
 
   /* increment counter and return number */
   size_t N;
-  #pragma omp critical (node_incr)
+#pragma omp critical (node_incr)
   {
       N = _N++;
   }

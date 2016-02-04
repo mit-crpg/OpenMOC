@@ -514,7 +514,7 @@ void Solver::initializePolarQuadrature() {
   _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
 
   /* Compute the total azimuthal weight for tracks at each polar angle */
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int i=0; i < _num_azim; i++) {
     for (int p=0; p < _num_polar; p++)
       _polar_weights(i,p) =
@@ -647,7 +647,7 @@ void Solver::initializeFixedSources() {
   std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
 
   /* Fixed sources assigned by Cell */
-  for (cell_iter = _fix_src_cell_map.begin(); 
+  for (cell_iter = _fix_src_cell_map.begin();
        cell_iter != _fix_src_cell_map.end(); ++cell_iter) {
 
     /* Get the Cell with an assigned fixed source */
@@ -664,7 +664,7 @@ void Solver::initializeFixedSources() {
   }
 
   /** Fixed sources assigned by Material */
-  for (mat_iter = _fix_src_material_map.begin(); 
+  for (mat_iter = _fix_src_material_map.begin();
        mat_iter != _fix_src_material_map.end(); ++mat_iter) {
 
     /* Get the Material with an assigned fixed source */
