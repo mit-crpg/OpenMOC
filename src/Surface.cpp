@@ -902,7 +902,7 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
      * rearrange to put in the form of the quadratic formula:
      * ax^2 + bx + c = 0
      */
-    bool right = angle < M_PI || angle > 3. * M_PI / 2.;
+    bool right = angle < M_PI / 2. || angle > 3. * M_PI / 2.;
     double m = tan(angle);
     q = y0 - m * x0;
     a = 1. + m * m;
