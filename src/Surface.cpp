@@ -919,10 +919,15 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
 
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
+
+      /* Determine the point of intersection */
       xcurr = -b / (2*a);
       ycurr = y0 + m * (points[num].getX() - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
       if (right && xcurr > x0)
         num++;
       else if (!right && xcurr < x0)
