@@ -842,12 +842,13 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
     /* Solve for where the line x = x0 and the Surface F(x,y) intersect
      * Find the y where F(x0, y) = 0
      * Substitute x0 into F(x,y) and rearrange to put in
-     * the form of the quadratic formula: ay^2 + by + c = 0 */
-    a = _B * _B;
+     * the form of the quadratic formula: ay^2 + by + c = 0 
+     * This is simplified for a z-cylinder with a vertical axis */
+    a = 1.;
     b = _D;
     c = _A * x0 * x0 + _C * x0 + _E;
 
-    discr = b*b - 4*a*c;
+    discr = b*b - 4*c;
 
     /* There are no intersections */
     if (discr < 0)
@@ -856,7 +857,7 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
       xcurr = x0;
-      ycurr = -b / (2*a);
+      ycurr = -b / 2;
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
 
@@ -872,7 +873,7 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
     /* There are two intersections */
     else {
       xcurr = x0;
-      ycurr = (-b + sqrt(discr)) / (2 * a);
+      ycurr = (-b + sqrt(discr)) / 2;
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (angle < M_PI && ycurr > y0)
@@ -881,7 +882,7 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
         num++;
 
       xcurr = x0;
-      ycurr = (-b - sqrt(discr)) / (2 * a);
+      ycurr = (-b - sqrt(discr)) / 2;
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (angle < M_PI && ycurr > y0)
@@ -901,13 +902,16 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
      * rearrange to put in the form of the quadratic formula:
      * ax^2 + bx + c = 0
      */
-    double m = sin(angle) / cos(angle);
+    double m = tan(angle);
     q = y0 - m * x0;
-    a = _A + _B * _B * m * m;
-    b = 2 * _B * m * q + _C + _D * m;
-    c = _B * q * q + _D * q + _E;
+    a = 1 + m * m;
+    b = 2 * m * q + _C + _D * m;
+    c = q * q + _D * q + _E;
 
     discr = b*b - 4*a*c;
+
+    /* Boolean value describing whether the track is traveling to the right */
+    bool right = angle < M_PI / 2. || angle > 3. * M_PI / 2.;
 
     /* There are no intersections */
     if (discr < 0)
@@ -915,13 +919,18 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
 
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
+
+      /* Determine the point of intersection */
       xcurr = -b / (2*a);
       ycurr = y0 + m * (points[num].getX() - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (angle < M_PI && ycurr > y0)
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0)
         num++;
-      else if (angle > M_PI && ycurr < y0)
+      else if (!right && xcurr < x0)
         num++;
 
       return num;
@@ -929,22 +938,31 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
 
     /* There are two intersections */
     else {
+
+      /* Determine the point of intersection */
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (angle < M_PI && ycurr > y0)
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0)
         num++;
-      else if (angle > M_PI && ycurr < y0)
+      else if (!right && xcurr < x0)
         num++;
 
+      /* Determine the point of intersection */
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (angle < M_PI && ycurr > y0)
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0)
         num++;
-      else if (angle > M_PI && ycurr < y0)
+      else if (!right && xcurr < x0)
         num++;
 
       return num;

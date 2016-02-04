@@ -50,6 +50,12 @@ struct fsr_data {
   /** Global numerical centroid in Root Universe */
   Point* _centroid;
 
+  /** Constructor for FSR data initializes centroids and points to NULL */
+  fsr_data() {
+    _centroid = NULL;
+    _point = NULL;
+  }
+
   /** Destructor for fsr_data */
   ~fsr_data() {
     if (_point != NULL)
