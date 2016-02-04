@@ -1020,10 +1020,13 @@ void TrackGenerator::setSolve3D() {
 
 
 /**
- * @brief sets a flag to calculate 3D segments on-the-fly in the axial
- *        direction
+ * @brief sets the type of segmentation used for segment formation
+ * @param segmentation_type a segmentationType defining the type of
+ *        segmentation to be used in segment formation. Options are:
+ *          - EXPLICIT: explicit 2D/3D segment formation
+ *          - OTF_TRACKS: axial on-the-fly ray tracing by individaul tracks
+ *          - OTF_STACKS: axial on-the-fly ray tracing by entire z-stacks
  */
-//FIXME
 void TrackGenerator::setSegmentFormation(segmentationType segmentation_type) {
   _segment_formation = segmentation_type;
 }
@@ -1773,12 +1776,9 @@ bool TrackGenerator::isSolve3D() {
 
 
 /**
- * @brief Returns whether or not the solver is set to forming 3D segments
- *        on-the-fly
- * @return true if the solver is set to axial on-the-fly segmentation;
- *         false otherwise
+ * @brief Returns the type of ray tracing used for segment formation
+ * @return the segmentation type
  */
-//FIXME
 segmentationType TrackGenerator::getSegmentFormation() {
   return _segment_formation;
 }
