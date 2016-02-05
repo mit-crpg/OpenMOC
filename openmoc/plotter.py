@@ -54,7 +54,8 @@ TINY_MOVE = openmoc.TINY_MOVE
 # @endcode
 #
 # @param track_generator the TrackGenerator which has generated Tracks
-def plot_tracks(track_generator):
+# @param get_figure whether or not to return the Matplotlib figure
+def plot_tracks(track_generator, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -92,6 +93,7 @@ def plot_tracks(track_generator):
 
     # Make figure of line segments for each Track
     fig = plt.figure()
+    fig.patch.set_facecolor('none')
     for i in range(num_tracks):
         plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], 'b-')
 
@@ -101,12 +103,17 @@ def plot_tracks(track_generator):
     title = 'Tracks for {0} angles and {1} cm spacing'.format(num_azim, spacing)
     plt.title(title)
 
-    filename = 'tracks-{1}-angles-{2}.png'.format(directory, num_azim, spacing)
-    fig.savefig(directory+filename, bbox_inches='tight')
-    plt.close(fig)
-
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
+
+    # Save the figure to a file or return to user
+    if get_figure:
+        return fig
+    else:
+        filename = \
+            'tracks-{1}-angles-{2}.png'.format(directory, num_azim, spacing)
+        fig.savefig(directory+filename, bbox_inches='tight')
+        plt.close(fig)
 
 
 ##
@@ -121,7 +128,8 @@ def plot_tracks(track_generator):
 # @endcode
 #
 # @param track_generator the TrackGenerator which has generated Tracks
-def plot_segments(track_generator):
+# @param get_figure whether or not to return the Matplotlib figure
+def plot_segments(track_generator, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -178,6 +186,7 @@ def plot_segments(track_generator):
 
     # Make figure of line segments for each track
     fig = plt.figure()
+    fig.patch.set_facecolor('none')
 
     # Create a color map corresponding to FSR IDs
     for i in range(num_segments):
@@ -194,13 +203,16 @@ def plot_segments(track_generator):
     plt.suptitle(suptitle)
     plt.title(title)
 
-    filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim, spacing)
-    filename = '{0}-z-{1}.png'.format(filename, z[0])
-    fig.savefig(directory+filename, bbox_inches='tight')
-    plt.close(fig)
-
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
+
+    if get_figure:
+        return fig
+    else:
+        filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim, spacing)
+        filename = '{0}-z-{1}.png'.format(filename, z[0])
+        fig.savefig(directory+filename, bbox_inches='tight')
+        plt.close(fig)
 
 
 ##
@@ -220,7 +232,9 @@ def plot_segments(track_generator):
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param zcoord optional the z coordinate (default is 0.0)
-def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
+# @param get_figure whether to return the Matplotlib figure
+def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, 
+                   zcoord=None, get_figure=False):
 
     py_printf('NORMAL', 'Plotting the materials...')
 
@@ -249,7 +263,11 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     plot_params.vmax = num_materials
 
     # Plot a 2D color map of the Materials
-    plot_spatial_data(materials, plot_params)
+    figures = plot_spatial_data(materials, plot_params, get_figure)
+
+    # Return the figure to the user if requested
+    if get_figure:
+        return figures[0]
 
 
 ##
@@ -269,7 +287,9 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param zcoord optional the z coordinate (default is 0.0)
-def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
+# @param get_figure whether to return the Matplotlib figure
+def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
+               zcoord=None, get_figure=False):
 
     py_printf('NORMAL', 'Plotting the cells...')
 
@@ -298,7 +318,11 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
     plot_params.vmax = num_cells
 
     # Plot a 2D color map of the Cells
-    plot_spatial_data(cells, plot_params)
+    figures = plot_spatial_data(cells, plot_params, get_figure)
+
+    # Return the figure to the user if requested
+    if get_figure:
+        return figures[0]
 
 
 ##
@@ -322,8 +346,10 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None):
 # @param centroids optional boolean to plot the FSR centroids
 # @param marker_type optional string to set the centroids marker type
 # @param marker_size optional int/float to set the centroids marker size
+# @param get_figure whether to return the Matplotlib figure
 def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
-                             centroids=False, marker_type='o', marker_size=2):
+                             centroids=False, marker_type='o', marker_size=2,
+                             get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -391,13 +417,17 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
         plt.scatter(centroids[:,0], centroids[:,1], color='k',
                     marker=marker_type, s=marker_size)
 
-    # Set the plot title and save the figure
-    plot_filename = directory + plot_params.filename + plot_params.extension
-    fig.savefig(plot_filename, bbox_inches='tight')
-    plt.close(fig)
-
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
+
+    # Return the figure to the user if requested
+    if get_figure:
+        return figures[0]
+    else:
+        # Set the plot title and save the figure
+        plot_filename = directory + plot_params.filename + plot_params.extension
+        fig.savefig(plot_filename, bbox_inches='tight')
+        plt.close(fig)
 
 
 ##
@@ -423,7 +453,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
+# @param get_figure whether to return the Matplotlib figure
+def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, 
+                    get_figure=False):
 
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
@@ -457,7 +489,11 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
     plot_params.vmax = num_cmfd_cells
 
     # Plot the CMFD cells
-    plot_spatial_data(fsrs_to_cmfd_cells, plot_params)
+    figures = plot_spatial_data(fsrs_to_cmfd_cells, plot_params, get_figure)
+
+    # Return the figure to the user if requested
+    if get_figure:
+        return figures[0]
 
 
 ##
@@ -477,8 +513,9 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
+# @param get_figure whether to a return a list of Matplotlib figures
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
-                        gridsize=250, xlim=None, ylim=None):
+                        gridsize=250, xlim=None, ylim=None, get_figure=False):
 
     if 'Solver' not in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
@@ -506,12 +543,20 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
     # Get array of FSR energy-dependent fluxes
     fluxes = get_scalar_fluxes(solver)
 
+    # Initialize an empty list of Matplotlib figures if requestd by the user
+    figures = []
+
     # Loop over all energy group and create a plot
     for index, group in enumerate(energy_groups):
         plot_params.suptitle = 'FSR Scalar Flux (Group {0})'.format(group)
         plot_params.title = 'z = {0}'.format(zcoord)
         plot_params.filename = 'fsr-flux-group-{0}-z-{1}'.format(group, zcoord)
-        plot_spatial_data(fluxes[:,index], plot_params)
+        fig = plot_spatial_data(fluxes[:,index], plot_params, get_figure)
+        figures.append(fig)
+
+    # Return figures if requested by the user
+    if get_figure:
+        return figures
 
 
 ##
@@ -539,7 +584,9 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
 # @param group_bounds an optional Python list of the energy group bounds (eV)
 # @param norm normalize the fluxes to the total energy-integrated flux
 # @param loglog boolean indicating whether to plot use a log-log scale
-def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
+# @param get_figure return a list of the Matplotlib figures
+def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, 
+                       loglog=True, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -612,6 +659,9 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
     group_bounds = np.flipud(group_bounds)
     group_deltas = np.flipud(group_deltas)
 
+    # Initialize an empty list of Matplotlib figures if requestd by the user
+    figures = []
+
     # Iterate over all flat source regions
     for fsr in fsrs:
 
@@ -628,6 +678,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 
         # Initialize a separate plot for this FSR's fluxes
         fig = plt.figure()
+        fig.patch.set_facecolor('none')
 
         # Draw horizontal/vertical lines on the plot for each energy group
         for group in range(num_groups):
@@ -654,9 +705,14 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
         plt.xlim((min(group_bounds), max(group_bounds)))
         plt.grid()
         plt.title('FSR {0} Flux ({1} groups)'.format(fsr, num_groups))
-        filename = 'flux-fsr-{0}.png'.format(fsr)
-        plt.savefig(directory+filename, bbox_inches='tight')
-        plt.close(fig)
+
+        # Save the figure to a file or return to user if requested
+        if get_figure:
+            filename = 'flux-fsr-{0}.png'.format(fsr)
+            plt.savefig(directory+filename, bbox_inches='tight')
+            plt.close(fig)
+        else:
+            figures.append(fig)
 
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
@@ -679,8 +735,9 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
+# @param get_figure whether to return the Matplotlib figure
 def plot_fission_rates(solver, norm=False, transparent_zeros=True,
-                       gridsize=250, xlim=None, ylim=None):
+                       gridsize=250, xlim=None, ylim=None, get_figure=False):
 
     py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
@@ -709,7 +766,11 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True,
     plot_params.norm = norm
 
     # Plot the fission rates
-    plot_spatial_data(fission_rates, plot_params)
+    figures = plot_spatial_data(fission_rates, plot_params, get_figure)
+
+    # Return the figure if requested by user
+    if get_figure:
+        return figures[0]
 
 
 ##
@@ -730,8 +791,10 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True,
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
+# @param get_figure whether to return a list of Matplotlib figures
 def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
-                          norm=False, gridsize=250, xlim=None, ylim=None):
+                          norm=False, gridsize=250, xlim=None, 
+                          ylim=None, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -775,6 +838,9 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
     # Extract the MOC Solver from the IRAMSolver
     moc_solver = iramsolver._moc_solver
 
+    # Initialize a list of figures to return to user if requested
+    figures = []
+
     # Loop over each eigenmode
     for mode in eigenmodes:
 
@@ -798,11 +864,16 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
             '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
 
         # Plot this eigenmode's spatial fluxes
-        plot_spatial_fluxes(moc_solver, energy_groups, norm,
-                            gridsize, xlim, ylim)
+        fig = plot_spatial_fluxes(moc_solver, energy_groups, norm,
+                                  gridsize, xlim, ylim, get_figure)
+        figures.append(fig)
 
     # Reset global subdirectory
     subdirectory = '/plots/'
+
+    # Return Matplotlib figures if requested by user
+    if get_figure:
+        return figures
 
 
 ##
@@ -949,6 +1020,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
         # Plot a 2D color map of the domain data
         fig = plt.figure()
+        fig.patch.set_facecolor('none')
         plt.imshow(np.flipud(surface), extent=coords['bounds'],
                    interpolation=plot_params.interpolation,
                    vmin=plot_params.vmin, vmax=plot_params.vmax,
@@ -989,6 +1061,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
 
+    # Return Matplotlib figures if requested by user
     if get_figure:
         return figures
 
@@ -1005,7 +1078,8 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 #
 # @param solver the Solver which has a TrackGenerator containing tracks and
 #               PolarQuad object
-def plot_quadrature(solver):
+# @param get_figure whether to return the Matplotlib figure
+def plot_quadrature(solver, get_figure=False):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -1044,6 +1118,7 @@ def plot_quadrature(solver):
 
     # Make a 3D figure
     fig = plt.figure()
+    fig.patch.set_facecolor('none')
     ax = fig.gca(projection ='3d')
 
     # Plot a wire mesh on one octant of the unit sphere
@@ -1097,11 +1172,17 @@ def plot_quadrature(solver):
     ax.set_ylim([0,1])
     ax.set_zlim([0,1])
     plt.title(title)
-    fig.savefig(filename, bbox_inches='tight')
-    plt.close(fig)
 
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
+
+    # Save the figure or return to user
+    if get_figure:
+        return fig
+    else:
+        fig.savefig(filename, bbox_inches='tight')
+        plt.close(fig)
+
 
 
 ##
