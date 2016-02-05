@@ -57,8 +57,11 @@ TINY_MOVE = openmoc.TINY_MOVE
 def plot_tracks(track_generator):
 
     global subdirectory
-
     directory = openmoc.get_output_directory() + subdirectory
+
+    # Ensure that normal settings are used even if called from ipython
+    curr_rc = dict(matplotlib.rcParams)
+    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -102,6 +105,9 @@ def plot_tracks(track_generator):
     fig.savefig(directory+filename, bbox_inches='tight')
     plt.close(fig)
 
+    # Restore settings if called from ipython
+    matplotlib.rcParams.update(curr_rc)
+
 
 ##
 # @brief Plots the characteristic Track segments from an OpenMOC simulation.
@@ -119,6 +125,10 @@ def plot_segments(track_generator):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
+
+    # Ensure that normal settings are used even if called from ipython
+    curr_rc = dict(matplotlib.rcParams)
+    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -188,6 +198,9 @@ def plot_segments(track_generator):
     filename = '{0}-z-{1}.png'.format(filename, z[0])
     fig.savefig(directory+filename, bbox_inches='tight')
     plt.close(fig)
+
+    # Restore settings if called from ipython
+    matplotlib.rcParams.update(curr_rc)
 
 
 ##
@@ -315,6 +328,10 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
 
+    # Ensure that normal settings are used even if called from ipython
+    curr_rc = dict(matplotlib.rcParams)
+    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+
     if not isinstance(centroids, bool):
         py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'centroids is not a boolean')
@@ -378,6 +395,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_filename = directory + plot_params.filename + plot_params.extension
     fig.savefig(plot_filename, bbox_inches='tight')
     plt.close(fig)
+
+    # Restore settings if called from ipython
+    matplotlib.rcParams.update(curr_rc)
 
 
 ##
@@ -524,6 +544,10 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
 
+    # Ensure that normal settings are used even if called from ipython
+    curr_rc = dict(matplotlib.rcParams)
+    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+
     # Make directory if it does not exist
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -633,6 +657,9 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, loglog=True):
         filename = 'flux-fsr-{0}.png'.format(fsr)
         plt.savefig(directory+filename, bbox_inches='tight')
         plt.close(fig)
+
+    # Restore settings if called from ipython
+    matplotlib.rcParams.update(curr_rc)
 
 
 ##
@@ -808,6 +835,10 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
 
+    # Ensure that normal settings are used even if called from ipython
+    curr_rc = dict(matplotlib.rcParams)
+    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+
     # Make directory if it does not exist
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -955,6 +986,9 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             fig.savefig(plot_filename, bbox_inches='tight')
             plt.close()
 
+    # Restore settings if called from ipython
+    matplotlib.rcParams.update(curr_rc)
+
     if get_figure:
         return figures
 
@@ -975,6 +1009,10 @@ def plot_quadrature(solver):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
+
+    # Ensure that normal settings are used even if called from ipython
+    curr_rc = dict(matplotlib.rcParams)
+    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -1061,6 +1099,9 @@ def plot_quadrature(solver):
     plt.title(title)
     fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)
+
+    # Restore settings if called from ipython
+    matplotlib.rcParams.update(curr_rc)
 
 
 ##
