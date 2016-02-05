@@ -37,6 +37,11 @@ else:
 # in your ~/.matplotlib/matplotlibrc
 plt.ioff()
 
+## Font parameters to use in all plots
+font = {'family' : 'sans-serif',
+        'weight' : 'normal',
+        'size' : 15}
+
 ## A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
@@ -57,12 +62,13 @@ TINY_MOVE = openmoc.TINY_MOVE
 # @param get_figure whether or not to return the Matplotlib figure
 def plot_tracks(track_generator, get_figure=False):
 
-    global subdirectory
+    global subdirectory, font
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    plt.rc('font', **font)
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -131,12 +137,13 @@ def plot_tracks(track_generator, get_figure=False):
 # @param get_figure whether or not to return the Matplotlib figure
 def plot_segments(track_generator, get_figure=False):
 
-    global subdirectory
+    global subdirectory, font
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    plt.rc('font', **font)
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -351,12 +358,13 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
                              centroids=False, marker_type='o', marker_size=2,
                              get_figure=False):
 
-    global subdirectory
+    global subdirectory, font
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    plt.rc('font', **font)
 
     if not isinstance(centroids, bool):
         py_printf('ERROR', 'Unable to plot the flat source regions since ' +
@@ -588,12 +596,13 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
 def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, 
                        loglog=True, get_figure=False):
 
-    global subdirectory
+    global subdirectory, font
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    plt.rc('font', **font)
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
