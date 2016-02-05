@@ -560,7 +560,9 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False,
         plot_params.title = 'z = {0}'.format(zcoord)
         plot_params.filename = 'fsr-flux-group-{0}-z-{1}'.format(group, zcoord)
         fig = plot_spatial_data(fluxes[:,index], plot_params, get_figure)
-        figures.append(fig[0])
+
+        if get_figure:
+            figures.append(fig[0])
 
     # Return figures if requested by the user
     if get_figure:
@@ -875,7 +877,9 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
         # Plot this eigenmode's spatial fluxes
         fig = plot_spatial_fluxes(moc_solver, energy_groups, norm,
                                   gridsize, xlim, ylim, get_figure)
-        figures.append(fig[0])
+
+        if get_figure:
+            figures.append(fig[0])
 
     # Reset global subdirectory
     subdirectory = '/plots/'
