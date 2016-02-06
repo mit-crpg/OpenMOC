@@ -2,29 +2,29 @@
 
 import os
 import sys
+import math
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
 from input_set import LatticeGridInput
 
 import openmoc
-import math
 
 class TrackingLatticeGridTestHarness(TestHarness):
-    """Tests cell radial discretization."""
+    """Tests tracking over a lattice geometry."""
 
     def __init__(self):
         super(TrackingLatticeGridTestHarness, self).__init__()
         self.input_set = LatticeGridInput()
         self._result = ''
 
-
     def _setup(self):
         """Initialize the materials and geometry in the InputSet."""
         super(TrackingLatticeGridTestHarness, self)._create_geometry()
 
-
     def _segment_track(self, track, geometry):
+        """Segments a given track over a given geometry and records the
+           resulting segment information to a string"""
 
         # segmentize a track in a geometry, recording the segments in a string
         geometry.segmentize(track)
@@ -43,6 +43,8 @@ class TrackingLatticeGridTestHarness(TestHarness):
         return info
 
     def _run_openmoc(self):
+        """Creates tracks over the geometry and segments them, saving the
+           results in the _result string"""
 
         # initialize track objects
         diag_track = openmoc.Track()
@@ -61,23 +63,21 @@ class TrackingLatticeGridTestHarness(TestHarness):
         rev_diag_track.setValues(3, 3, 0, -3, -3, 0, math.pi + math.atan(1))
 
         # segmentize over the geometry
-        self._result += 'Diagonal track...\n'
+        self._result += 'Diagonal track\n'
         self._result += self._segment_track(diag_track, geometry)
-        self._result += 'Nudged Diagonal track...\n'
+        self._result += 'Nudged Diagonal track\n'
         self._result += self._segment_track(nudge_diag_track, geometry)
-        self._result += 'Horizontal track...\n'
+        self._result += 'Horizontal track\n'
         self._result += self._segment_track(hor_track, geometry)
-        self._result += 'Vertical track...\n'
+        self._result += 'Vertical track\n'
         self._result += self._segment_track(ver_track, geometry)
-        self._result += 'Reverse Diagonal track...\n'
+        self._result += 'Reverse Diagonal track\n'
         self._result += self._segment_track(rev_diag_track, geometry)
-
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=True, num_segments=True, num_tracks=True,
                      hash_output=False):
         """Return the result string"""
-
         return self._result
 
 if __name__ == '__main__':

@@ -136,7 +136,7 @@ class PinCellInput(InputSet):
 
 
 class GridInput(InputSet):
-    """A simple grid problem"""
+    """Sets up a simple grid problem using explicit plane"""
 
     def create_materials(self):
         """Instantiate C5G7 Materials."""
@@ -147,6 +147,7 @@ class GridInput(InputSet):
     def create_geometry(self):
         """Instantiate a 3x3 grid Geometry."""
 
+        # create the planes that bound the cell and geometry
         xplanes = [None] * 4
         yplanes = [None] * 4
         for i in range(4):
@@ -159,6 +160,7 @@ class GridInput(InputSet):
         yplanes[0].setBoundaryType(openmoc.REFLECTIVE)
         yplanes[-1].setBoundaryType(openmoc.REFLECTIVE)
 
+        # create the cells and set the central cell to UO2, the rest as water
         cells = [[None]*3 for i in range(3)]
         for i in range(3):
             for j in range(3):
@@ -172,6 +174,7 @@ class GridInput(InputSet):
                 cells[i][j].addSurface(halfspace=+1, surface=yplanes[j])
                 cells[i][j].addSurface(halfspace=-1, surface=yplanes[j+1])
 
+        # add the cells to the universe
         root_universe = openmoc.Universe(name='root universe')
         for i in range(3):
             for j in range(3):
@@ -195,27 +198,31 @@ class LatticeGridInput(InputSet):
     def create_geometry(self):
         """Instantiate a 3x3 grid Geometry by making a lattice"""
 
-        left = openmoc.XPlane(x=-3.0, name='left')
-        right = openmoc.XPlane(x=3.0, name='right')
-        bottom = openmoc.YPlane(y=-3.0, name='bottom')
-        top = openmoc.YPlane(y=3.0, name='top')
+        # create the planes bounding the geometry
+        xmin = openmoc.XPlane(x=-3.0, name='xmin')
+        xmax = openmoc.XPlane(x=3.0, name='xmax')
+        ymin = openmoc.YPlane(y=-3.0, name='ymin')
+        ymax = openmoc.YPlane(y=3.0, name='ymax')
 
-        left.setBoundaryType(openmoc.REFLECTIVE)
-        right.setBoundaryType(openmoc.REFLECTIVE)
-        bottom.setBoundaryType(openmoc.REFLECTIVE)
-        top.setBoundaryType(openmoc.REFLECTIVE)
+        xmin.setBoundaryType(openmoc.REFLECTIVE)
+        xmax.setBoundaryType(openmoc.REFLECTIVE)
+        ymin.setBoundaryType(openmoc.REFLECTIVE)
+        ymax.setBoundaryType(openmoc.REFLECTIVE)
 
+        # create the root cell, bounded by the geometry bounds
         root_cell = openmoc.Cell(name='root cell')
-        root_cell.addSurface(halfspace=+1, surface=left)
-        root_cell.addSurface(halfspace=-1, surface=right)
-        root_cell.addSurface(halfspace=+1, surface=bottom)
-        root_cell.addSurface(halfspace=-1, surface=top)
+        root_cell.addSurface(halfspace=+1, surface=xmin)
+        root_cell.addSurface(halfspace=-1, surface=xmax)
+        root_cell.addSurface(halfspace=+1, surface=ymin)
+        root_cell.addSurface(halfspace=-1, surface=ymax)
 
+        # create UO2 and water cells
         uo2_cell = openmoc.Cell(name='UO2 Cell')
         uo2_cell.setFill(self.materials['UO2'])
         water_cell = openmoc.Cell(name='Water Cell')
         water_cell.setFill(self.materials['Water'])
 
+        # crate universes and fill with the associated cell
         root_universe = openmoc.Universe(name='root universe')
         root_universe.addCell(root_cell)
         uo2 = openmoc.Universe(name='uo2 universe')
@@ -223,6 +230,7 @@ class LatticeGridInput(InputSet):
         water = openmoc.Universe(name='uo2 universe')
         water.addCell(water_cell)
 
+        # create the lattice and fill it with the appropriate universes
         lattice = openmoc.Lattice(name='3x3 lattice')
         lattice.setWidth(width_x=2.0, width_y=2.0)
         lattice.setUniverses([[[water, water, water],
