@@ -33,7 +33,7 @@ class TrackingGridTestHarness(TestHarness):
         for i in range(num_segments):
             info += 'Segment ' + str(i) + ': '
             segment = track.getSegment(i)
-            info += 'length=' + str(round(segment._length, 8)) + ', '
+            info += 'length=' + str(round(segment._length, 7)) + ', '
             info += 'FSR ID=' + str(segment._region_id) + ', '
             info += 'CMFD FWD=' + str(segment._cmfd_surface_fwd) + ', '
             info += 'CMFD BWD=' + str(segment._cmfd_surface_bwd) + ', '

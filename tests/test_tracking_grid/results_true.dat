@@ -1,15 +1,15 @@
 Diagonal track...
 Number of segments = 3
-Segment 0: length=2.82842707634, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=2.82842707634, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=2.82842707634, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 0: length=2.8284271, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 1: length=2.8284271, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
+Segment 2: length=2.8284271, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
 Nudged Diagonal track...
 Number of segments = 5
-Segment 0: length=2.82841300964, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=1.4142136024e-05, FSR ID=3, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 2: length=2.82841300964, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 3: length=1.4142136024e-05, FSR ID=4, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 4: length=2.82841300964, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 0: length=2.828413, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 1: length=1.41e-05, FSR ID=3, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 2: length=2.828413, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
+Segment 3: length=1.41e-05, FSR ID=4, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 4: length=2.828413, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
 Horizontal track...
 Number of segments = 3
 Segment 0: length=2.0, FSR ID=5, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
@@ -22,6 +22,6 @@ Segment 1: length=2.0, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Ma
 Segment 2: length=2.0, FSR ID=6, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
 Reverse Diagonal track...
 Number of segments = 3
-Segment 0: length=2.82842707634, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=2.82842707634, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=2.82842707634, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 0: length=2.8284271, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Segment 1: length=2.8284271, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
+Segment 2: length=2.8284271, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
