@@ -219,7 +219,7 @@ void Cmfd::collapseXS() {
   /* Split edge currents to side surfaces */
   splitEdgeCurrents();
 
-  #pragma omp parallel
+#pragma omp parallel
   {
 
     /* Initialize variables for FSR properties*/
@@ -237,7 +237,7 @@ void Cmfd::collapseXS() {
     Material* cell_material;
 
     /* Loop over cmfd cells */
-    #pragma omp for
+#pragma omp for
     for (int i = 0; i < _num_x * _num_y; i++) {
 
       cell_material = _materials[i];
@@ -603,7 +603,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
   _A->clear();
   _M->clear();
 
-  #pragma omp parallel
+#pragma omp parallel
   {
 
     FP_PRECISION value, volume, delta;
@@ -612,7 +612,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
     Material* material;
 
     /* Loop over cells */
-    #pragma omp for
+#pragma omp for
     for (int i = 0; i < _num_x*_num_y; i++) {
 
       material = _materials[i];
@@ -679,7 +679,7 @@ void Cmfd::updateMOCFlux() {
   log_printf(INFO, "Updating MOC flux...");
 
   /* Precompute the CMFD flux ratios */
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y; i++) {
     for (int e = 0; e < _num_cmfd_groups; e++)
       _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
@@ -687,7 +687,7 @@ void Cmfd::updateMOCFlux() {
   }
 
   /* Loop over mesh cells */
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y; i++) {
 
     std::vector<int>::iterator iter;
@@ -1926,7 +1926,7 @@ void Cmfd::initialize() {
     _cell_locks = new omp_lock_t[num_cells];
 
     /* Loop over all cells to initialize OpenMP locks */
-    #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
     for (int r=0; r < num_cells; r++)
       omp_init_lock(&_cell_locks[r]);
 
