@@ -26,7 +26,7 @@ class TrackingGridTestHarness(TestHarness):
         """Segments a given track over a given geometry and records the
            resulting segment information to a string"""
 
-        # segmentize a track in a geometry, recording the segments in a string
+        # Segmentize a track in a geometry, recording the segments in a string
         geometry.segmentize(track)
         num_segments = track.getNumSegments()
         info = 'Number of segments = ' + str(num_segments) + '\n'
@@ -46,7 +46,7 @@ class TrackingGridTestHarness(TestHarness):
         """Creates tracks over the geometry and segments them, saving the
            results in the _result string"""
 
-        # initialize track objects
+        # Initialize track objects
         diag_track = openmoc.Track()
         nudge_diag_track = openmoc.Track()
         hor_track = openmoc.Track()
@@ -54,7 +54,7 @@ class TrackingGridTestHarness(TestHarness):
         rev_diag_track = openmoc.Track()
         geometry = self.input_set.geometry
 
-        # set track trajectories and locations
+        # Set track trajectories and locations
         diag_track.setValues(-3, -3, 0, 3, 3, 0, math.atan(1))
         nudge = 1e-5
         nudge_diag_track.setValues(-3+nudge, -3, 0, 3, 3-nudge, 0, math.atan(1))
@@ -62,7 +62,7 @@ class TrackingGridTestHarness(TestHarness):
         ver_track.setValues(0, -3, 0, 0, 3, 0, math.pi/2)
         rev_diag_track.setValues(3, 3, 0, -3, -3, 0, math.pi + math.atan(1))
 
-        # segmentize over the geometry
+        # Segmentize over the geometry
         self._result += 'Diagonal track\n'
         self._result += self._segment_track(diag_track, geometry)
         self._result += 'Nudged Diagonal track\n'

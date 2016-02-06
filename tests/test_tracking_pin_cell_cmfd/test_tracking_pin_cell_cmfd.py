@@ -26,7 +26,7 @@ class TrackingPinCellCMFDTestHarness(TestHarness):
         """Segments a given track over a given geometry and records the
            resulting segment information to a string"""
 
-        # segmentize a track in a geometry, recording the segments in a string
+        # Segmentize a track in a geometry, recording the segments in a string
         geometry.segmentize(track)
         num_segments = track.getNumSegments()
         info = 'Number of segments = ' + str(num_segments) + '\n'
@@ -46,7 +46,7 @@ class TrackingPinCellCMFDTestHarness(TestHarness):
         """Creates tracks over the geometry and segments them, saving the
            results in the _result string"""
 
-        # initialize track objects
+        # Initialize track objects
         diag_track = openmoc.Track()
         tan_track = openmoc.Track()
         nudge_tan_track = openmoc.Track()
@@ -54,7 +54,7 @@ class TrackingPinCellCMFDTestHarness(TestHarness):
         ver_track = openmoc.Track()
         rev_diag_track = openmoc.Track()
 
-        # set track trajectories and locations
+        # Set track trajectories and locations
         diag_track.setValues(-2, -2, 0, 2, 2, 0, math.atan(1))
         offset = math.sqrt(2) - 2
         tan_track.setValues(offset, -2, 0, 2, -offset, 0, math.atan(1))
@@ -64,10 +64,10 @@ class TrackingPinCellCMFDTestHarness(TestHarness):
         ver_track.setValues(0, -2, 0, 0, 2, 0, math.pi/2)
         rev_diag_track.setValues(2, 2, 0, -2, -2, 0, math.pi + math.atan(1))
 
-        # segmentize over the geometry with a fine and coarse cmfd mesh
+        # Segmentize over the geometry with a fine and coarse cmfd mesh
         for m in [3, 51]:
 
-            # overlay simple CMFD mesh
+            # Overlay simple CMFD mesh
             self._result += 'Pin cell with an overlaid {0} x {0} CMFD mesh\n'.format(m)
             geometry = self.input_set.geometry
             cmfd = openmoc.Cmfd()
@@ -75,7 +75,7 @@ class TrackingPinCellCMFDTestHarness(TestHarness):
             geometry.setCmfd(cmfd)
             geometry.initializeCmfd()
 
-            # segmentize tracks over the geometry
+            # Segmentize tracks over the geometry
             self._result += 'Diagonal track\n'
             self._result += self._segment_track(diag_track, geometry)
             self._result += 'Tangent track\n'
