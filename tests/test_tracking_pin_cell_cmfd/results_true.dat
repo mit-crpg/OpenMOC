@@ -1,38 +1,38 @@
 Pin cell with an overlaid 3 x 3 CMFD mesh
-Diagonal track...
+Diagonal track
 Number of segments = 5
 Segment 0: length=1.8284271, FSR ID=0, CMFD FWD=-1, CMFD BWD=4, Material Name=Water, Material ID=10083
 Segment 1: length=0.057191, FSR ID=1, CMFD FWD=6, CMFD BWD=-1, Material Name=UO2, Material ID=49930
 Segment 2: length=1.8856181, FSR ID=2, CMFD FWD=38, CMFD BWD=36, Material Name=UO2, Material ID=49930
 Segment 3: length=0.057191, FSR ID=3, CMFD FWD=-1, CMFD BWD=68, Material Name=UO2, Material ID=49930
 Segment 4: length=1.8284271, FSR ID=4, CMFD FWD=70, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Tangent track...
+Tangent track
 Number of segments = 3
 Segment 0: length=1.7712362, FSR ID=5, CMFD FWD=10, CMFD BWD=9, Material Name=Water, Material ID=10083
 Segment 1: length=0.1143819, FSR ID=6, CMFD FWD=19, CMFD BWD=16, Material Name=Water, Material ID=10083
 Segment 2: length=1.7712362, FSR ID=7, CMFD FWD=42, CMFD BWD=41, Material Name=Water, Material ID=10083
-Nudged Tangent track...
+Nudged Tangent track
 Number of segments = 5
 Segment 0: length=1.7712376, FSR ID=5, CMFD FWD=10, CMFD BWD=9, Material Name=Water, Material ID=10083
 Segment 1: length=0.056001, FSR ID=6, CMFD FWD=-1, CMFD BWD=16, Material Name=Water, Material ID=10083
 Segment 2: length=0.0023784, FSR ID=8, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
 Segment 3: length=0.056001, FSR ID=8, CMFD FWD=19, CMFD BWD=-1, Material Name=UO2, Material ID=49930
 Segment 4: length=1.7712376, FSR ID=7, CMFD FWD=42, CMFD BWD=41, Material Name=Water, Material ID=10083
-Horizontal track...
+Horizontal track
 Number of segments = 5
 Segment 0: length=1.0, FSR ID=9, CMFD FWD=-1, CMFD BWD=24, Material Name=Water, Material ID=10083
 Segment 1: length=0.3333333, FSR ID=10, CMFD FWD=26, CMFD BWD=-1, Material Name=UO2, Material ID=49930
 Segment 2: length=1.3333333, FSR ID=2, CMFD FWD=34, CMFD BWD=32, Material Name=UO2, Material ID=49930
 Segment 3: length=0.3333333, FSR ID=11, CMFD FWD=-1, CMFD BWD=40, Material Name=UO2, Material ID=49930
 Segment 4: length=1.0, FSR ID=7, CMFD FWD=42, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Vertical track...
+Vertical track
 Number of segments = 5
 Segment 0: length=1.0, FSR ID=5, CMFD FWD=-1, CMFD BWD=9, Material Name=Water, Material ID=10083
 Segment 1: length=0.3333333, FSR ID=12, CMFD FWD=11, CMFD BWD=-1, Material Name=UO2, Material ID=49930
 Segment 2: length=1.3333333, FSR ID=2, CMFD FWD=35, CMFD BWD=33, Material Name=UO2, Material ID=49930
 Segment 3: length=0.3333333, FSR ID=13, CMFD FWD=-1, CMFD BWD=57, Material Name=UO2, Material ID=49930
 Segment 4: length=1.0, FSR ID=14, CMFD FWD=59, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Reverse Diagonal track...
+Reverse Diagonal track
 Number of segments = 5
 Segment 0: length=1.8284271, FSR ID=4, CMFD FWD=-1, CMFD BWD=70, Material Name=Water, Material ID=10083
 Segment 1: length=0.057191, FSR ID=3, CMFD FWD=68, CMFD BWD=-1, Material Name=UO2, Material ID=49930
@@ -40,7 +40,7 @@ Segment 2: length=1.8856181, FSR ID=2, CMFD FWD=36, CMFD BWD=38, Material Name=U
 Segment 3: length=0.057191, FSR ID=1, CMFD FWD=-1, CMFD BWD=6, Material Name=UO2, Material ID=49930
 Segment 4: length=1.8284271, FSR ID=0, CMFD FWD=4, CMFD BWD=-1, Material Name=Water, Material ID=10083
 Pin cell with an overlaid 51 x 51 CMFD mesh
-Diagonal track...
+Diagonal track
 Number of segments = 53
 Segment 0: length=0.1109187, FSR ID=0, CMFD FWD=6, CMFD BWD=4, Material Name=Water, Material ID=10083
 Segment 1: length=0.1109187, FSR ID=15, CMFD FWD=422, CMFD BWD=420, Material Name=Water, Material ID=10083
@@ -95,7 +95,7 @@ Segment 49: length=0.1109187, FSR ID=62, CMFD FWD=19558, CMFD BWD=19556, Materia
 Segment 50: length=0.1109187, FSR ID=63, CMFD FWD=19974, CMFD BWD=19972, Material Name=Water, Material ID=10083
 Segment 51: length=0.1109187, FSR ID=64, CMFD FWD=20390, CMFD BWD=20388, Material Name=Water, Material ID=10083
 Segment 52: length=0.1109187, FSR ID=65, CMFD FWD=20806, CMFD BWD=20804, Material Name=Water, Material ID=10083
-Tangent track...
+Tangent track
 Number of segments = 67
 Segment 0: length=0.1074555, FSR ID=66, CMFD FWD=146, CMFD BWD=145, Material Name=Water, Material ID=10083
 Segment 1: length=0.0034632, FSR ID=67, CMFD FWD=155, CMFD BWD=152, Material Name=Water, Material ID=10083
@@ -164,7 +164,7 @@ Segment 63: length=0.0034632, FSR ID=128, CMFD FWD=12635, CMFD BWD=12632, Materi
 Segment 64: length=0.1074555, FSR ID=129, CMFD FWD=13042, CMFD BWD=13041, Material Name=Water, Material ID=10083
 Segment 65: length=0.0034632, FSR ID=130, CMFD FWD=13051, CMFD BWD=13048, Material Name=Water, Material ID=10083
 Segment 66: length=0.1074555, FSR ID=131, CMFD FWD=13458, CMFD BWD=13457, Material Name=Water, Material ID=10083
-Nudged Tangent track...
+Nudged Tangent track
 Number of segments = 67
 Segment 0: length=0.1074569, FSR ID=66, CMFD FWD=146, CMFD BWD=145, Material Name=Water, Material ID=10083
 Segment 1: length=0.0034618, FSR ID=67, CMFD FWD=155, CMFD BWD=152, Material Name=Water, Material ID=10083
@@ -233,7 +233,7 @@ Segment 63: length=0.0034618, FSR ID=128, CMFD FWD=12635, CMFD BWD=12632, Materi
 Segment 64: length=0.1074569, FSR ID=129, CMFD FWD=13042, CMFD BWD=13041, Material Name=Water, Material ID=10083
 Segment 65: length=0.0034618, FSR ID=130, CMFD FWD=13051, CMFD BWD=13048, Material Name=Water, Material ID=10083
 Segment 66: length=0.1074569, FSR ID=131, CMFD FWD=13458, CMFD BWD=13457, Material Name=Water, Material ID=10083
-Horizontal track...
+Horizontal track
 Number of segments = 53
 Segment 0: length=0.0784314, FSR ID=132, CMFD FWD=10202, CMFD BWD=10200, Material Name=Water, Material ID=10083
 Segment 1: length=0.0784314, FSR ID=133, CMFD FWD=10210, CMFD BWD=10208, Material Name=Water, Material ID=10083
@@ -288,7 +288,7 @@ Segment 49: length=0.0784314, FSR ID=178, CMFD FWD=10578, CMFD BWD=10576, Materi
 Segment 50: length=0.0784314, FSR ID=179, CMFD FWD=10586, CMFD BWD=10584, Material Name=Water, Material ID=10083
 Segment 51: length=0.0784314, FSR ID=180, CMFD FWD=10594, CMFD BWD=10592, Material Name=Water, Material ID=10083
 Segment 52: length=0.0784314, FSR ID=181, CMFD FWD=10602, CMFD BWD=10600, Material Name=Water, Material ID=10083
-Vertical track...
+Vertical track
 Number of segments = 53
 Segment 0: length=0.0784314, FSR ID=182, CMFD FWD=203, CMFD BWD=201, Material Name=Water, Material ID=10083
 Segment 1: length=0.0784314, FSR ID=183, CMFD FWD=611, CMFD BWD=609, Material Name=Water, Material ID=10083
@@ -343,7 +343,7 @@ Segment 49: length=0.0784314, FSR ID=228, CMFD FWD=19379, CMFD BWD=19377, Materi
 Segment 50: length=0.0784314, FSR ID=229, CMFD FWD=19787, CMFD BWD=19785, Material Name=Water, Material ID=10083
 Segment 51: length=0.0784314, FSR ID=230, CMFD FWD=20195, CMFD BWD=20193, Material Name=Water, Material ID=10083
 Segment 52: length=0.0784314, FSR ID=231, CMFD FWD=20603, CMFD BWD=20601, Material Name=Water, Material ID=10083
-Reverse Diagonal track...
+Reverse Diagonal track
 Number of segments = 53
 Segment 0: length=0.1109187, FSR ID=65, CMFD FWD=20804, CMFD BWD=20806, Material Name=Water, Material ID=10083
 Segment 1: length=0.1109187, FSR ID=64, CMFD FWD=20388, CMFD BWD=20390, Material Name=Water, Material ID=10083
