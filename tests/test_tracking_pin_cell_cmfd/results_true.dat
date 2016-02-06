@@ -1,400 +1,388 @@
-Pin cell with an overlaid 3 x 3 CMFD mesh
-Diagonal track
-Number of segments = 5
-Segment 0: length=1.8284271, FSR ID=0, CMFD FWD=-1, CMFD BWD=4, Material Name=Water, Material ID=10083
-Segment 1: length=0.057191, FSR ID=1, CMFD FWD=6, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=1.8856181, FSR ID=2, CMFD FWD=38, CMFD BWD=36, Material Name=UO2, Material ID=49930
-Segment 3: length=0.057191, FSR ID=3, CMFD FWD=-1, CMFD BWD=68, Material Name=UO2, Material ID=49930
-Segment 4: length=1.8284271, FSR ID=4, CMFD FWD=70, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Tangent track
-Number of segments = 3
-Segment 0: length=1.7712362, FSR ID=5, CMFD FWD=10, CMFD BWD=9, Material Name=Water, Material ID=10083
-Segment 1: length=0.1143819, FSR ID=6, CMFD FWD=19, CMFD BWD=16, Material Name=Water, Material ID=10083
-Segment 2: length=1.7712362, FSR ID=7, CMFD FWD=42, CMFD BWD=41, Material Name=Water, Material ID=10083
-Nudged Tangent track
-Number of segments = 5
-Segment 0: length=1.7712376, FSR ID=5, CMFD FWD=10, CMFD BWD=9, Material Name=Water, Material ID=10083
-Segment 1: length=0.056001, FSR ID=6, CMFD FWD=-1, CMFD BWD=16, Material Name=Water, Material ID=10083
-Segment 2: length=0.0023784, FSR ID=8, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 3: length=0.056001, FSR ID=8, CMFD FWD=19, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 4: length=1.7712376, FSR ID=7, CMFD FWD=42, CMFD BWD=41, Material Name=Water, Material ID=10083
-Horizontal track
-Number of segments = 5
-Segment 0: length=1.0, FSR ID=9, CMFD FWD=-1, CMFD BWD=24, Material Name=Water, Material ID=10083
-Segment 1: length=0.3333333, FSR ID=10, CMFD FWD=26, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=1.3333333, FSR ID=2, CMFD FWD=34, CMFD BWD=32, Material Name=UO2, Material ID=49930
-Segment 3: length=0.3333333, FSR ID=11, CMFD FWD=-1, CMFD BWD=40, Material Name=UO2, Material ID=49930
-Segment 4: length=1.0, FSR ID=7, CMFD FWD=42, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Vertical track
-Number of segments = 5
-Segment 0: length=1.0, FSR ID=5, CMFD FWD=-1, CMFD BWD=9, Material Name=Water, Material ID=10083
-Segment 1: length=0.3333333, FSR ID=12, CMFD FWD=11, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=1.3333333, FSR ID=2, CMFD FWD=35, CMFD BWD=33, Material Name=UO2, Material ID=49930
-Segment 3: length=0.3333333, FSR ID=13, CMFD FWD=-1, CMFD BWD=57, Material Name=UO2, Material ID=49930
-Segment 4: length=1.0, FSR ID=14, CMFD FWD=59, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Reverse Diagonal track
-Number of segments = 5
-Segment 0: length=1.8284271, FSR ID=4, CMFD FWD=-1, CMFD BWD=70, Material Name=Water, Material ID=10083
-Segment 1: length=0.057191, FSR ID=3, CMFD FWD=68, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=1.8856181, FSR ID=2, CMFD FWD=36, CMFD BWD=38, Material Name=UO2, Material ID=49930
-Segment 3: length=0.057191, FSR ID=1, CMFD FWD=-1, CMFD BWD=6, Material Name=UO2, Material ID=49930
-Segment 4: length=1.8284271, FSR ID=0, CMFD FWD=4, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Pin cell with an overlaid 51 x 51 CMFD mesh
-Diagonal track
-Number of segments = 53
-Segment 0: length=0.1109187, FSR ID=0, CMFD FWD=6, CMFD BWD=4, Material Name=Water, Material ID=10083
-Segment 1: length=0.1109187, FSR ID=15, CMFD FWD=422, CMFD BWD=420, Material Name=Water, Material ID=10083
-Segment 2: length=0.1109187, FSR ID=4, CMFD FWD=838, CMFD BWD=836, Material Name=Water, Material ID=10083
-Segment 3: length=0.1109187, FSR ID=16, CMFD FWD=1254, CMFD BWD=1252, Material Name=Water, Material ID=10083
-Segment 4: length=0.1109187, FSR ID=17, CMFD FWD=1670, CMFD BWD=1668, Material Name=Water, Material ID=10083
-Segment 5: length=0.1109187, FSR ID=18, CMFD FWD=2086, CMFD BWD=2084, Material Name=Water, Material ID=10083
-Segment 6: length=0.1109187, FSR ID=19, CMFD FWD=2502, CMFD BWD=2500, Material Name=Water, Material ID=10083
-Segment 7: length=0.1109187, FSR ID=20, CMFD FWD=2918, CMFD BWD=2916, Material Name=Water, Material ID=10083
-Segment 8: length=0.1109187, FSR ID=21, CMFD FWD=3334, CMFD BWD=3332, Material Name=Water, Material ID=10083
-Segment 9: length=0.1109187, FSR ID=22, CMFD FWD=3750, CMFD BWD=3748, Material Name=Water, Material ID=10083
-Segment 10: length=0.1109187, FSR ID=23, CMFD FWD=4166, CMFD BWD=4164, Material Name=Water, Material ID=10083
-Segment 11: length=0.1109187, FSR ID=24, CMFD FWD=4582, CMFD BWD=4580, Material Name=Water, Material ID=10083
-Segment 12: length=0.1109187, FSR ID=25, CMFD FWD=4998, CMFD BWD=4996, Material Name=Water, Material ID=10083
-Segment 13: length=0.1109187, FSR ID=26, CMFD FWD=5414, CMFD BWD=5412, Material Name=Water, Material ID=10083
-Segment 14: length=0.1109187, FSR ID=27, CMFD FWD=5830, CMFD BWD=5828, Material Name=Water, Material ID=10083
-Segment 15: length=0.1109187, FSR ID=28, CMFD FWD=6246, CMFD BWD=6244, Material Name=Water, Material ID=10083
-Segment 16: length=0.0537278, FSR ID=29, CMFD FWD=-1, CMFD BWD=6660, Material Name=Water, Material ID=10083
-Segment 17: length=0.057191, FSR ID=30, CMFD FWD=6662, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 18: length=0.1109187, FSR ID=31, CMFD FWD=7078, CMFD BWD=7076, Material Name=UO2, Material ID=49930
-Segment 19: length=0.1109187, FSR ID=32, CMFD FWD=7494, CMFD BWD=7492, Material Name=UO2, Material ID=49930
-Segment 20: length=0.1109187, FSR ID=33, CMFD FWD=7910, CMFD BWD=7908, Material Name=UO2, Material ID=49930
-Segment 21: length=0.1109187, FSR ID=34, CMFD FWD=8326, CMFD BWD=8324, Material Name=UO2, Material ID=49930
-Segment 22: length=0.1109187, FSR ID=35, CMFD FWD=8742, CMFD BWD=8740, Material Name=UO2, Material ID=49930
-Segment 23: length=0.1109187, FSR ID=36, CMFD FWD=9158, CMFD BWD=9156, Material Name=UO2, Material ID=49930
-Segment 24: length=0.1109187, FSR ID=37, CMFD FWD=9574, CMFD BWD=9572, Material Name=UO2, Material ID=49930
-Segment 25: length=0.1109187, FSR ID=38, CMFD FWD=9990, CMFD BWD=9988, Material Name=UO2, Material ID=49930
-Segment 26: length=0.1109187, FSR ID=39, CMFD FWD=10406, CMFD BWD=10404, Material Name=UO2, Material ID=49930
-Segment 27: length=0.1109187, FSR ID=40, CMFD FWD=10822, CMFD BWD=10820, Material Name=UO2, Material ID=49930
-Segment 28: length=0.1109187, FSR ID=41, CMFD FWD=11238, CMFD BWD=11236, Material Name=UO2, Material ID=49930
-Segment 29: length=0.1109187, FSR ID=42, CMFD FWD=11654, CMFD BWD=11652, Material Name=UO2, Material ID=49930
-Segment 30: length=0.1109187, FSR ID=43, CMFD FWD=12070, CMFD BWD=12068, Material Name=UO2, Material ID=49930
-Segment 31: length=0.1109187, FSR ID=44, CMFD FWD=12486, CMFD BWD=12484, Material Name=UO2, Material ID=49930
-Segment 32: length=0.1109187, FSR ID=45, CMFD FWD=12902, CMFD BWD=12900, Material Name=UO2, Material ID=49930
-Segment 33: length=0.1109187, FSR ID=46, CMFD FWD=13318, CMFD BWD=13316, Material Name=UO2, Material ID=49930
-Segment 34: length=0.1109187, FSR ID=47, CMFD FWD=13734, CMFD BWD=13732, Material Name=UO2, Material ID=49930
-Segment 35: length=0.057191, FSR ID=48, CMFD FWD=-1, CMFD BWD=14148, Material Name=UO2, Material ID=49930
-Segment 36: length=0.0537278, FSR ID=49, CMFD FWD=14150, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 37: length=0.1109187, FSR ID=50, CMFD FWD=14566, CMFD BWD=14564, Material Name=Water, Material ID=10083
-Segment 38: length=0.1109187, FSR ID=51, CMFD FWD=14982, CMFD BWD=14980, Material Name=Water, Material ID=10083
-Segment 39: length=0.1109187, FSR ID=52, CMFD FWD=15398, CMFD BWD=15396, Material Name=Water, Material ID=10083
-Segment 40: length=0.1109187, FSR ID=53, CMFD FWD=15814, CMFD BWD=15812, Material Name=Water, Material ID=10083
-Segment 41: length=0.1109187, FSR ID=54, CMFD FWD=16230, CMFD BWD=16228, Material Name=Water, Material ID=10083
-Segment 42: length=0.1109187, FSR ID=55, CMFD FWD=16646, CMFD BWD=16644, Material Name=Water, Material ID=10083
-Segment 43: length=0.1109187, FSR ID=56, CMFD FWD=17062, CMFD BWD=17060, Material Name=Water, Material ID=10083
-Segment 44: length=0.1109187, FSR ID=57, CMFD FWD=17478, CMFD BWD=17476, Material Name=Water, Material ID=10083
-Segment 45: length=0.1109187, FSR ID=58, CMFD FWD=17894, CMFD BWD=17892, Material Name=Water, Material ID=10083
-Segment 46: length=0.1109187, FSR ID=59, CMFD FWD=18310, CMFD BWD=18308, Material Name=Water, Material ID=10083
-Segment 47: length=0.1109187, FSR ID=60, CMFD FWD=18726, CMFD BWD=18724, Material Name=Water, Material ID=10083
-Segment 48: length=0.1109187, FSR ID=61, CMFD FWD=19142, CMFD BWD=19140, Material Name=Water, Material ID=10083
-Segment 49: length=0.1109187, FSR ID=62, CMFD FWD=19558, CMFD BWD=19556, Material Name=Water, Material ID=10083
-Segment 50: length=0.1109187, FSR ID=63, CMFD FWD=19974, CMFD BWD=19972, Material Name=Water, Material ID=10083
-Segment 51: length=0.1109187, FSR ID=64, CMFD FWD=20390, CMFD BWD=20388, Material Name=Water, Material ID=10083
-Segment 52: length=0.1109187, FSR ID=65, CMFD FWD=20806, CMFD BWD=20804, Material Name=Water, Material ID=10083
-Tangent track
-Number of segments = 67
-Segment 0: length=0.1074555, FSR ID=66, CMFD FWD=146, CMFD BWD=145, Material Name=Water, Material ID=10083
-Segment 1: length=0.0034632, FSR ID=67, CMFD FWD=155, CMFD BWD=152, Material Name=Water, Material ID=10083
-Segment 2: length=0.1074555, FSR ID=68, CMFD FWD=562, CMFD BWD=561, Material Name=Water, Material ID=10083
-Segment 3: length=0.0034632, FSR ID=69, CMFD FWD=571, CMFD BWD=568, Material Name=Water, Material ID=10083
-Segment 4: length=0.1074555, FSR ID=70, CMFD FWD=978, CMFD BWD=977, Material Name=Water, Material ID=10083
-Segment 5: length=0.0034632, FSR ID=71, CMFD FWD=987, CMFD BWD=984, Material Name=Water, Material ID=10083
-Segment 6: length=0.1074555, FSR ID=72, CMFD FWD=1394, CMFD BWD=1393, Material Name=Water, Material ID=10083
-Segment 7: length=0.0034632, FSR ID=73, CMFD FWD=1403, CMFD BWD=1400, Material Name=Water, Material ID=10083
-Segment 8: length=0.1074555, FSR ID=74, CMFD FWD=1810, CMFD BWD=1809, Material Name=Water, Material ID=10083
-Segment 9: length=0.0034632, FSR ID=75, CMFD FWD=1819, CMFD BWD=1816, Material Name=Water, Material ID=10083
-Segment 10: length=0.1074555, FSR ID=76, CMFD FWD=2226, CMFD BWD=2225, Material Name=Water, Material ID=10083
-Segment 11: length=0.0034632, FSR ID=77, CMFD FWD=2235, CMFD BWD=2232, Material Name=Water, Material ID=10083
-Segment 12: length=0.1074555, FSR ID=78, CMFD FWD=2642, CMFD BWD=2641, Material Name=Water, Material ID=10083
-Segment 13: length=0.0034632, FSR ID=79, CMFD FWD=2651, CMFD BWD=2648, Material Name=Water, Material ID=10083
-Segment 14: length=0.1074555, FSR ID=80, CMFD FWD=3058, CMFD BWD=3057, Material Name=Water, Material ID=10083
-Segment 15: length=0.0034632, FSR ID=81, CMFD FWD=3067, CMFD BWD=3064, Material Name=Water, Material ID=10083
-Segment 16: length=0.1074555, FSR ID=82, CMFD FWD=3474, CMFD BWD=3473, Material Name=Water, Material ID=10083
-Segment 17: length=0.0034632, FSR ID=83, CMFD FWD=3483, CMFD BWD=3480, Material Name=Water, Material ID=10083
-Segment 18: length=0.1074555, FSR ID=84, CMFD FWD=3890, CMFD BWD=3889, Material Name=Water, Material ID=10083
-Segment 19: length=0.0034632, FSR ID=85, CMFD FWD=3899, CMFD BWD=3896, Material Name=Water, Material ID=10083
-Segment 20: length=0.1074555, FSR ID=86, CMFD FWD=4306, CMFD BWD=4305, Material Name=Water, Material ID=10083
-Segment 21: length=0.0034632, FSR ID=87, CMFD FWD=4315, CMFD BWD=4312, Material Name=Water, Material ID=10083
-Segment 22: length=0.1074555, FSR ID=88, CMFD FWD=4722, CMFD BWD=4721, Material Name=Water, Material ID=10083
-Segment 23: length=0.0034632, FSR ID=89, CMFD FWD=4731, CMFD BWD=4728, Material Name=Water, Material ID=10083
-Segment 24: length=0.1074555, FSR ID=90, CMFD FWD=5138, CMFD BWD=5137, Material Name=Water, Material ID=10083
-Segment 25: length=0.0034632, FSR ID=91, CMFD FWD=5147, CMFD BWD=5144, Material Name=Water, Material ID=10083
-Segment 26: length=0.1074555, FSR ID=92, CMFD FWD=5554, CMFD BWD=5553, Material Name=Water, Material ID=10083
-Segment 27: length=0.0034632, FSR ID=93, CMFD FWD=5563, CMFD BWD=5560, Material Name=Water, Material ID=10083
-Segment 28: length=0.1074555, FSR ID=94, CMFD FWD=5970, CMFD BWD=5969, Material Name=Water, Material ID=10083
-Segment 29: length=0.0034632, FSR ID=95, CMFD FWD=5979, CMFD BWD=5976, Material Name=Water, Material ID=10083
-Segment 30: length=0.1074555, FSR ID=96, CMFD FWD=6386, CMFD BWD=6385, Material Name=Water, Material ID=10083
-Segment 31: length=0.0034632, FSR ID=97, CMFD FWD=6395, CMFD BWD=6392, Material Name=Water, Material ID=10083
-Segment 32: length=0.0537277, FSR ID=98, CMFD FWD=-1, CMFD BWD=6801, Material Name=Water, Material ID=10083
-Segment 33: length=1e-07, FSR ID=99, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 34: length=0.0537277, FSR ID=99, CMFD FWD=6802, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 35: length=0.0034632, FSR ID=100, CMFD FWD=6811, CMFD BWD=6808, Material Name=Water, Material ID=10083
-Segment 36: length=0.1074555, FSR ID=101, CMFD FWD=7218, CMFD BWD=7217, Material Name=Water, Material ID=10083
-Segment 37: length=0.0034632, FSR ID=102, CMFD FWD=7227, CMFD BWD=7224, Material Name=Water, Material ID=10083
-Segment 38: length=0.1074555, FSR ID=103, CMFD FWD=7634, CMFD BWD=7633, Material Name=Water, Material ID=10083
-Segment 39: length=0.0034632, FSR ID=104, CMFD FWD=7643, CMFD BWD=7640, Material Name=Water, Material ID=10083
-Segment 40: length=0.1074555, FSR ID=105, CMFD FWD=8050, CMFD BWD=8049, Material Name=Water, Material ID=10083
-Segment 41: length=0.0034632, FSR ID=106, CMFD FWD=8059, CMFD BWD=8056, Material Name=Water, Material ID=10083
-Segment 42: length=0.1074555, FSR ID=107, CMFD FWD=8466, CMFD BWD=8465, Material Name=Water, Material ID=10083
-Segment 43: length=0.0034632, FSR ID=108, CMFD FWD=8475, CMFD BWD=8472, Material Name=Water, Material ID=10083
-Segment 44: length=0.1074555, FSR ID=109, CMFD FWD=8882, CMFD BWD=8881, Material Name=Water, Material ID=10083
-Segment 45: length=0.0034632, FSR ID=110, CMFD FWD=8891, CMFD BWD=8888, Material Name=Water, Material ID=10083
-Segment 46: length=0.1074555, FSR ID=111, CMFD FWD=9298, CMFD BWD=9297, Material Name=Water, Material ID=10083
-Segment 47: length=0.0034632, FSR ID=112, CMFD FWD=9307, CMFD BWD=9304, Material Name=Water, Material ID=10083
-Segment 48: length=0.1074555, FSR ID=113, CMFD FWD=9714, CMFD BWD=9713, Material Name=Water, Material ID=10083
-Segment 49: length=0.0034632, FSR ID=114, CMFD FWD=9723, CMFD BWD=9720, Material Name=Water, Material ID=10083
-Segment 50: length=0.1074555, FSR ID=115, CMFD FWD=10130, CMFD BWD=10129, Material Name=Water, Material ID=10083
-Segment 51: length=0.0034632, FSR ID=116, CMFD FWD=10139, CMFD BWD=10136, Material Name=Water, Material ID=10083
-Segment 52: length=0.1074555, FSR ID=117, CMFD FWD=10546, CMFD BWD=10545, Material Name=Water, Material ID=10083
-Segment 53: length=0.0034632, FSR ID=118, CMFD FWD=10555, CMFD BWD=10552, Material Name=Water, Material ID=10083
-Segment 54: length=0.1074555, FSR ID=119, CMFD FWD=10962, CMFD BWD=10961, Material Name=Water, Material ID=10083
-Segment 55: length=0.0034632, FSR ID=120, CMFD FWD=10971, CMFD BWD=10968, Material Name=Water, Material ID=10083
-Segment 56: length=0.1074555, FSR ID=121, CMFD FWD=11378, CMFD BWD=11377, Material Name=Water, Material ID=10083
-Segment 57: length=0.0034632, FSR ID=122, CMFD FWD=11387, CMFD BWD=11384, Material Name=Water, Material ID=10083
-Segment 58: length=0.1074555, FSR ID=123, CMFD FWD=11794, CMFD BWD=11793, Material Name=Water, Material ID=10083
-Segment 59: length=0.0034632, FSR ID=124, CMFD FWD=11803, CMFD BWD=11800, Material Name=Water, Material ID=10083
-Segment 60: length=0.1074555, FSR ID=125, CMFD FWD=12210, CMFD BWD=12209, Material Name=Water, Material ID=10083
-Segment 61: length=0.0034632, FSR ID=126, CMFD FWD=12219, CMFD BWD=12216, Material Name=Water, Material ID=10083
-Segment 62: length=0.1074555, FSR ID=127, CMFD FWD=12626, CMFD BWD=12625, Material Name=Water, Material ID=10083
-Segment 63: length=0.0034632, FSR ID=128, CMFD FWD=12635, CMFD BWD=12632, Material Name=Water, Material ID=10083
-Segment 64: length=0.1074555, FSR ID=129, CMFD FWD=13042, CMFD BWD=13041, Material Name=Water, Material ID=10083
-Segment 65: length=0.0034632, FSR ID=130, CMFD FWD=13051, CMFD BWD=13048, Material Name=Water, Material ID=10083
-Segment 66: length=0.1074555, FSR ID=131, CMFD FWD=13458, CMFD BWD=13457, Material Name=Water, Material ID=10083
-Nudged Tangent track
-Number of segments = 67
-Segment 0: length=0.1074569, FSR ID=66, CMFD FWD=146, CMFD BWD=145, Material Name=Water, Material ID=10083
-Segment 1: length=0.0034618, FSR ID=67, CMFD FWD=155, CMFD BWD=152, Material Name=Water, Material ID=10083
-Segment 2: length=0.1074569, FSR ID=68, CMFD FWD=562, CMFD BWD=561, Material Name=Water, Material ID=10083
-Segment 3: length=0.0034618, FSR ID=69, CMFD FWD=571, CMFD BWD=568, Material Name=Water, Material ID=10083
-Segment 4: length=0.1074569, FSR ID=70, CMFD FWD=978, CMFD BWD=977, Material Name=Water, Material ID=10083
-Segment 5: length=0.0034618, FSR ID=71, CMFD FWD=987, CMFD BWD=984, Material Name=Water, Material ID=10083
-Segment 6: length=0.1074569, FSR ID=72, CMFD FWD=1394, CMFD BWD=1393, Material Name=Water, Material ID=10083
-Segment 7: length=0.0034618, FSR ID=73, CMFD FWD=1403, CMFD BWD=1400, Material Name=Water, Material ID=10083
-Segment 8: length=0.1074569, FSR ID=74, CMFD FWD=1810, CMFD BWD=1809, Material Name=Water, Material ID=10083
-Segment 9: length=0.0034618, FSR ID=75, CMFD FWD=1819, CMFD BWD=1816, Material Name=Water, Material ID=10083
-Segment 10: length=0.1074569, FSR ID=76, CMFD FWD=2226, CMFD BWD=2225, Material Name=Water, Material ID=10083
-Segment 11: length=0.0034618, FSR ID=77, CMFD FWD=2235, CMFD BWD=2232, Material Name=Water, Material ID=10083
-Segment 12: length=0.1074569, FSR ID=78, CMFD FWD=2642, CMFD BWD=2641, Material Name=Water, Material ID=10083
-Segment 13: length=0.0034618, FSR ID=79, CMFD FWD=2651, CMFD BWD=2648, Material Name=Water, Material ID=10083
-Segment 14: length=0.1074569, FSR ID=80, CMFD FWD=3058, CMFD BWD=3057, Material Name=Water, Material ID=10083
-Segment 15: length=0.0034618, FSR ID=81, CMFD FWD=3067, CMFD BWD=3064, Material Name=Water, Material ID=10083
-Segment 16: length=0.1074569, FSR ID=82, CMFD FWD=3474, CMFD BWD=3473, Material Name=Water, Material ID=10083
-Segment 17: length=0.0034618, FSR ID=83, CMFD FWD=3483, CMFD BWD=3480, Material Name=Water, Material ID=10083
-Segment 18: length=0.1074569, FSR ID=84, CMFD FWD=3890, CMFD BWD=3889, Material Name=Water, Material ID=10083
-Segment 19: length=0.0034618, FSR ID=85, CMFD FWD=3899, CMFD BWD=3896, Material Name=Water, Material ID=10083
-Segment 20: length=0.1074569, FSR ID=86, CMFD FWD=4306, CMFD BWD=4305, Material Name=Water, Material ID=10083
-Segment 21: length=0.0034618, FSR ID=87, CMFD FWD=4315, CMFD BWD=4312, Material Name=Water, Material ID=10083
-Segment 22: length=0.1074569, FSR ID=88, CMFD FWD=4722, CMFD BWD=4721, Material Name=Water, Material ID=10083
-Segment 23: length=0.0034618, FSR ID=89, CMFD FWD=4731, CMFD BWD=4728, Material Name=Water, Material ID=10083
-Segment 24: length=0.1074569, FSR ID=90, CMFD FWD=5138, CMFD BWD=5137, Material Name=Water, Material ID=10083
-Segment 25: length=0.0034618, FSR ID=91, CMFD FWD=5147, CMFD BWD=5144, Material Name=Water, Material ID=10083
-Segment 26: length=0.1074569, FSR ID=92, CMFD FWD=5554, CMFD BWD=5553, Material Name=Water, Material ID=10083
-Segment 27: length=0.0034618, FSR ID=93, CMFD FWD=5563, CMFD BWD=5560, Material Name=Water, Material ID=10083
-Segment 28: length=0.1074569, FSR ID=94, CMFD FWD=5970, CMFD BWD=5969, Material Name=Water, Material ID=10083
-Segment 29: length=0.0034618, FSR ID=95, CMFD FWD=5979, CMFD BWD=5976, Material Name=Water, Material ID=10083
-Segment 30: length=0.1074569, FSR ID=96, CMFD FWD=6386, CMFD BWD=6385, Material Name=Water, Material ID=10083
-Segment 31: length=0.0034618, FSR ID=97, CMFD FWD=6395, CMFD BWD=6392, Material Name=Water, Material ID=10083
-Segment 32: length=0.0525393, FSR ID=98, CMFD FWD=-1, CMFD BWD=6801, Material Name=Water, Material ID=10083
-Segment 33: length=0.0023784, FSR ID=99, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 34: length=0.0525393, FSR ID=99, CMFD FWD=6802, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 35: length=0.0034618, FSR ID=100, CMFD FWD=6811, CMFD BWD=6808, Material Name=Water, Material ID=10083
-Segment 36: length=0.1074569, FSR ID=101, CMFD FWD=7218, CMFD BWD=7217, Material Name=Water, Material ID=10083
-Segment 37: length=0.0034618, FSR ID=102, CMFD FWD=7227, CMFD BWD=7224, Material Name=Water, Material ID=10083
-Segment 38: length=0.1074569, FSR ID=103, CMFD FWD=7634, CMFD BWD=7633, Material Name=Water, Material ID=10083
-Segment 39: length=0.0034618, FSR ID=104, CMFD FWD=7643, CMFD BWD=7640, Material Name=Water, Material ID=10083
-Segment 40: length=0.1074569, FSR ID=105, CMFD FWD=8050, CMFD BWD=8049, Material Name=Water, Material ID=10083
-Segment 41: length=0.0034618, FSR ID=106, CMFD FWD=8059, CMFD BWD=8056, Material Name=Water, Material ID=10083
-Segment 42: length=0.1074569, FSR ID=107, CMFD FWD=8466, CMFD BWD=8465, Material Name=Water, Material ID=10083
-Segment 43: length=0.0034618, FSR ID=108, CMFD FWD=8475, CMFD BWD=8472, Material Name=Water, Material ID=10083
-Segment 44: length=0.1074569, FSR ID=109, CMFD FWD=8882, CMFD BWD=8881, Material Name=Water, Material ID=10083
-Segment 45: length=0.0034618, FSR ID=110, CMFD FWD=8891, CMFD BWD=8888, Material Name=Water, Material ID=10083
-Segment 46: length=0.1074569, FSR ID=111, CMFD FWD=9298, CMFD BWD=9297, Material Name=Water, Material ID=10083
-Segment 47: length=0.0034618, FSR ID=112, CMFD FWD=9307, CMFD BWD=9304, Material Name=Water, Material ID=10083
-Segment 48: length=0.1074569, FSR ID=113, CMFD FWD=9714, CMFD BWD=9713, Material Name=Water, Material ID=10083
-Segment 49: length=0.0034618, FSR ID=114, CMFD FWD=9723, CMFD BWD=9720, Material Name=Water, Material ID=10083
-Segment 50: length=0.1074569, FSR ID=115, CMFD FWD=10130, CMFD BWD=10129, Material Name=Water, Material ID=10083
-Segment 51: length=0.0034618, FSR ID=116, CMFD FWD=10139, CMFD BWD=10136, Material Name=Water, Material ID=10083
-Segment 52: length=0.1074569, FSR ID=117, CMFD FWD=10546, CMFD BWD=10545, Material Name=Water, Material ID=10083
-Segment 53: length=0.0034618, FSR ID=118, CMFD FWD=10555, CMFD BWD=10552, Material Name=Water, Material ID=10083
-Segment 54: length=0.1074569, FSR ID=119, CMFD FWD=10962, CMFD BWD=10961, Material Name=Water, Material ID=10083
-Segment 55: length=0.0034618, FSR ID=120, CMFD FWD=10971, CMFD BWD=10968, Material Name=Water, Material ID=10083
-Segment 56: length=0.1074569, FSR ID=121, CMFD FWD=11378, CMFD BWD=11377, Material Name=Water, Material ID=10083
-Segment 57: length=0.0034618, FSR ID=122, CMFD FWD=11387, CMFD BWD=11384, Material Name=Water, Material ID=10083
-Segment 58: length=0.1074569, FSR ID=123, CMFD FWD=11794, CMFD BWD=11793, Material Name=Water, Material ID=10083
-Segment 59: length=0.0034618, FSR ID=124, CMFD FWD=11803, CMFD BWD=11800, Material Name=Water, Material ID=10083
-Segment 60: length=0.1074569, FSR ID=125, CMFD FWD=12210, CMFD BWD=12209, Material Name=Water, Material ID=10083
-Segment 61: length=0.0034618, FSR ID=126, CMFD FWD=12219, CMFD BWD=12216, Material Name=Water, Material ID=10083
-Segment 62: length=0.1074569, FSR ID=127, CMFD FWD=12626, CMFD BWD=12625, Material Name=Water, Material ID=10083
-Segment 63: length=0.0034618, FSR ID=128, CMFD FWD=12635, CMFD BWD=12632, Material Name=Water, Material ID=10083
-Segment 64: length=0.1074569, FSR ID=129, CMFD FWD=13042, CMFD BWD=13041, Material Name=Water, Material ID=10083
-Segment 65: length=0.0034618, FSR ID=130, CMFD FWD=13051, CMFD BWD=13048, Material Name=Water, Material ID=10083
-Segment 66: length=0.1074569, FSR ID=131, CMFD FWD=13458, CMFD BWD=13457, Material Name=Water, Material ID=10083
-Horizontal track
-Number of segments = 53
-Segment 0: length=0.0784314, FSR ID=132, CMFD FWD=10202, CMFD BWD=10200, Material Name=Water, Material ID=10083
-Segment 1: length=0.0784314, FSR ID=133, CMFD FWD=10210, CMFD BWD=10208, Material Name=Water, Material ID=10083
-Segment 2: length=0.0784314, FSR ID=134, CMFD FWD=10218, CMFD BWD=10216, Material Name=Water, Material ID=10083
-Segment 3: length=0.0784314, FSR ID=135, CMFD FWD=10226, CMFD BWD=10224, Material Name=Water, Material ID=10083
-Segment 4: length=0.0784314, FSR ID=136, CMFD FWD=10234, CMFD BWD=10232, Material Name=Water, Material ID=10083
-Segment 5: length=0.0784314, FSR ID=137, CMFD FWD=10242, CMFD BWD=10240, Material Name=Water, Material ID=10083
-Segment 6: length=0.0784314, FSR ID=138, CMFD FWD=10250, CMFD BWD=10248, Material Name=Water, Material ID=10083
-Segment 7: length=0.0784314, FSR ID=139, CMFD FWD=10258, CMFD BWD=10256, Material Name=Water, Material ID=10083
-Segment 8: length=0.0784314, FSR ID=140, CMFD FWD=10266, CMFD BWD=10264, Material Name=Water, Material ID=10083
-Segment 9: length=0.0784314, FSR ID=141, CMFD FWD=10274, CMFD BWD=10272, Material Name=Water, Material ID=10083
-Segment 10: length=0.0784314, FSR ID=142, CMFD FWD=10282, CMFD BWD=10280, Material Name=Water, Material ID=10083
-Segment 11: length=0.0784314, FSR ID=143, CMFD FWD=10290, CMFD BWD=10288, Material Name=Water, Material ID=10083
-Segment 12: length=0.0588235, FSR ID=144, CMFD FWD=-1, CMFD BWD=10296, Material Name=Water, Material ID=10083
-Segment 13: length=0.0196078, FSR ID=145, CMFD FWD=10298, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 14: length=0.0784314, FSR ID=146, CMFD FWD=10306, CMFD BWD=10304, Material Name=UO2, Material ID=49930
-Segment 15: length=0.0784314, FSR ID=147, CMFD FWD=10314, CMFD BWD=10312, Material Name=UO2, Material ID=49930
-Segment 16: length=0.0784314, FSR ID=148, CMFD FWD=10322, CMFD BWD=10320, Material Name=UO2, Material ID=49930
-Segment 17: length=0.0784314, FSR ID=149, CMFD FWD=10330, CMFD BWD=10328, Material Name=UO2, Material ID=49930
-Segment 18: length=0.0784314, FSR ID=150, CMFD FWD=10338, CMFD BWD=10336, Material Name=UO2, Material ID=49930
-Segment 19: length=0.0784314, FSR ID=151, CMFD FWD=10346, CMFD BWD=10344, Material Name=UO2, Material ID=49930
-Segment 20: length=0.0784314, FSR ID=152, CMFD FWD=10354, CMFD BWD=10352, Material Name=UO2, Material ID=49930
-Segment 21: length=0.0784314, FSR ID=153, CMFD FWD=10362, CMFD BWD=10360, Material Name=UO2, Material ID=49930
-Segment 22: length=0.0784314, FSR ID=154, CMFD FWD=10370, CMFD BWD=10368, Material Name=UO2, Material ID=49930
-Segment 23: length=0.0784314, FSR ID=155, CMFD FWD=10378, CMFD BWD=10376, Material Name=UO2, Material ID=49930
-Segment 24: length=0.0784314, FSR ID=156, CMFD FWD=10386, CMFD BWD=10384, Material Name=UO2, Material ID=49930
-Segment 25: length=0.0784314, FSR ID=157, CMFD FWD=10394, CMFD BWD=10392, Material Name=UO2, Material ID=49930
-Segment 26: length=0.0784314, FSR ID=39, CMFD FWD=10402, CMFD BWD=10400, Material Name=UO2, Material ID=49930
-Segment 27: length=0.0784314, FSR ID=158, CMFD FWD=10410, CMFD BWD=10408, Material Name=UO2, Material ID=49930
-Segment 28: length=0.0784314, FSR ID=159, CMFD FWD=10418, CMFD BWD=10416, Material Name=UO2, Material ID=49930
-Segment 29: length=0.0784314, FSR ID=160, CMFD FWD=10426, CMFD BWD=10424, Material Name=UO2, Material ID=49930
-Segment 30: length=0.0784314, FSR ID=161, CMFD FWD=10434, CMFD BWD=10432, Material Name=UO2, Material ID=49930
-Segment 31: length=0.0784314, FSR ID=162, CMFD FWD=10442, CMFD BWD=10440, Material Name=UO2, Material ID=49930
-Segment 32: length=0.0784314, FSR ID=163, CMFD FWD=10450, CMFD BWD=10448, Material Name=UO2, Material ID=49930
-Segment 33: length=0.0784314, FSR ID=164, CMFD FWD=10458, CMFD BWD=10456, Material Name=UO2, Material ID=49930
-Segment 34: length=0.0784314, FSR ID=165, CMFD FWD=10466, CMFD BWD=10464, Material Name=UO2, Material ID=49930
-Segment 35: length=0.0784314, FSR ID=166, CMFD FWD=10474, CMFD BWD=10472, Material Name=UO2, Material ID=49930
-Segment 36: length=0.0784314, FSR ID=167, CMFD FWD=10482, CMFD BWD=10480, Material Name=UO2, Material ID=49930
-Segment 37: length=0.0784314, FSR ID=168, CMFD FWD=10490, CMFD BWD=10488, Material Name=UO2, Material ID=49930
-Segment 38: length=0.0784314, FSR ID=169, CMFD FWD=10498, CMFD BWD=10496, Material Name=UO2, Material ID=49930
-Segment 39: length=0.0196078, FSR ID=170, CMFD FWD=-1, CMFD BWD=10504, Material Name=UO2, Material ID=49930
-Segment 40: length=0.0588235, FSR ID=171, CMFD FWD=10506, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 41: length=0.0784314, FSR ID=172, CMFD FWD=10514, CMFD BWD=10512, Material Name=Water, Material ID=10083
-Segment 42: length=0.0784314, FSR ID=173, CMFD FWD=10522, CMFD BWD=10520, Material Name=Water, Material ID=10083
-Segment 43: length=0.0784314, FSR ID=174, CMFD FWD=10530, CMFD BWD=10528, Material Name=Water, Material ID=10083
-Segment 44: length=0.0784314, FSR ID=175, CMFD FWD=10538, CMFD BWD=10536, Material Name=Water, Material ID=10083
-Segment 45: length=0.0784314, FSR ID=117, CMFD FWD=10546, CMFD BWD=10544, Material Name=Water, Material ID=10083
-Segment 46: length=0.0784314, FSR ID=118, CMFD FWD=10554, CMFD BWD=10552, Material Name=Water, Material ID=10083
-Segment 47: length=0.0784314, FSR ID=176, CMFD FWD=10562, CMFD BWD=10560, Material Name=Water, Material ID=10083
-Segment 48: length=0.0784314, FSR ID=177, CMFD FWD=10570, CMFD BWD=10568, Material Name=Water, Material ID=10083
-Segment 49: length=0.0784314, FSR ID=178, CMFD FWD=10578, CMFD BWD=10576, Material Name=Water, Material ID=10083
-Segment 50: length=0.0784314, FSR ID=179, CMFD FWD=10586, CMFD BWD=10584, Material Name=Water, Material ID=10083
-Segment 51: length=0.0784314, FSR ID=180, CMFD FWD=10594, CMFD BWD=10592, Material Name=Water, Material ID=10083
-Segment 52: length=0.0784314, FSR ID=181, CMFD FWD=10602, CMFD BWD=10600, Material Name=Water, Material ID=10083
-Vertical track
-Number of segments = 53
-Segment 0: length=0.0784314, FSR ID=182, CMFD FWD=203, CMFD BWD=201, Material Name=Water, Material ID=10083
-Segment 1: length=0.0784314, FSR ID=183, CMFD FWD=611, CMFD BWD=609, Material Name=Water, Material ID=10083
-Segment 2: length=0.0784314, FSR ID=184, CMFD FWD=1019, CMFD BWD=1017, Material Name=Water, Material ID=10083
-Segment 3: length=0.0784314, FSR ID=185, CMFD FWD=1427, CMFD BWD=1425, Material Name=Water, Material ID=10083
-Segment 4: length=0.0784314, FSR ID=186, CMFD FWD=1835, CMFD BWD=1833, Material Name=Water, Material ID=10083
-Segment 5: length=0.0784314, FSR ID=187, CMFD FWD=2243, CMFD BWD=2241, Material Name=Water, Material ID=10083
-Segment 6: length=0.0784314, FSR ID=79, CMFD FWD=2651, CMFD BWD=2649, Material Name=Water, Material ID=10083
-Segment 7: length=0.0784314, FSR ID=80, CMFD FWD=3059, CMFD BWD=3057, Material Name=Water, Material ID=10083
-Segment 8: length=0.0784314, FSR ID=188, CMFD FWD=3467, CMFD BWD=3465, Material Name=Water, Material ID=10083
-Segment 9: length=0.0784314, FSR ID=189, CMFD FWD=3875, CMFD BWD=3873, Material Name=Water, Material ID=10083
-Segment 10: length=0.0784314, FSR ID=190, CMFD FWD=4283, CMFD BWD=4281, Material Name=Water, Material ID=10083
-Segment 11: length=0.0784314, FSR ID=191, CMFD FWD=4691, CMFD BWD=4689, Material Name=Water, Material ID=10083
-Segment 12: length=0.0588235, FSR ID=192, CMFD FWD=-1, CMFD BWD=5097, Material Name=Water, Material ID=10083
-Segment 13: length=0.0196078, FSR ID=193, CMFD FWD=5099, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 14: length=0.0784314, FSR ID=194, CMFD FWD=5507, CMFD BWD=5505, Material Name=UO2, Material ID=49930
-Segment 15: length=0.0784314, FSR ID=195, CMFD FWD=5915, CMFD BWD=5913, Material Name=UO2, Material ID=49930
-Segment 16: length=0.0784314, FSR ID=196, CMFD FWD=6323, CMFD BWD=6321, Material Name=UO2, Material ID=49930
-Segment 17: length=0.0784314, FSR ID=197, CMFD FWD=6731, CMFD BWD=6729, Material Name=UO2, Material ID=49930
-Segment 18: length=0.0784314, FSR ID=198, CMFD FWD=7139, CMFD BWD=7137, Material Name=UO2, Material ID=49930
-Segment 19: length=0.0784314, FSR ID=199, CMFD FWD=7547, CMFD BWD=7545, Material Name=UO2, Material ID=49930
-Segment 20: length=0.0784314, FSR ID=200, CMFD FWD=7955, CMFD BWD=7953, Material Name=UO2, Material ID=49930
-Segment 21: length=0.0784314, FSR ID=201, CMFD FWD=8363, CMFD BWD=8361, Material Name=UO2, Material ID=49930
-Segment 22: length=0.0784314, FSR ID=202, CMFD FWD=8771, CMFD BWD=8769, Material Name=UO2, Material ID=49930
-Segment 23: length=0.0784314, FSR ID=203, CMFD FWD=9179, CMFD BWD=9177, Material Name=UO2, Material ID=49930
-Segment 24: length=0.0784314, FSR ID=204, CMFD FWD=9587, CMFD BWD=9585, Material Name=UO2, Material ID=49930
-Segment 25: length=0.0784314, FSR ID=205, CMFD FWD=9995, CMFD BWD=9993, Material Name=UO2, Material ID=49930
-Segment 26: length=0.0784314, FSR ID=39, CMFD FWD=10403, CMFD BWD=10401, Material Name=UO2, Material ID=49930
-Segment 27: length=0.0784314, FSR ID=206, CMFD FWD=10811, CMFD BWD=10809, Material Name=UO2, Material ID=49930
-Segment 28: length=0.0784314, FSR ID=207, CMFD FWD=11219, CMFD BWD=11217, Material Name=UO2, Material ID=49930
-Segment 29: length=0.0784314, FSR ID=208, CMFD FWD=11627, CMFD BWD=11625, Material Name=UO2, Material ID=49930
-Segment 30: length=0.0784314, FSR ID=209, CMFD FWD=12035, CMFD BWD=12033, Material Name=UO2, Material ID=49930
-Segment 31: length=0.0784314, FSR ID=210, CMFD FWD=12443, CMFD BWD=12441, Material Name=UO2, Material ID=49930
-Segment 32: length=0.0784314, FSR ID=211, CMFD FWD=12851, CMFD BWD=12849, Material Name=UO2, Material ID=49930
-Segment 33: length=0.0784314, FSR ID=212, CMFD FWD=13259, CMFD BWD=13257, Material Name=UO2, Material ID=49930
-Segment 34: length=0.0784314, FSR ID=213, CMFD FWD=13667, CMFD BWD=13665, Material Name=UO2, Material ID=49930
-Segment 35: length=0.0784314, FSR ID=214, CMFD FWD=14075, CMFD BWD=14073, Material Name=UO2, Material ID=49930
-Segment 36: length=0.0784314, FSR ID=215, CMFD FWD=14483, CMFD BWD=14481, Material Name=UO2, Material ID=49930
-Segment 37: length=0.0784314, FSR ID=216, CMFD FWD=14891, CMFD BWD=14889, Material Name=UO2, Material ID=49930
-Segment 38: length=0.0784314, FSR ID=217, CMFD FWD=15299, CMFD BWD=15297, Material Name=UO2, Material ID=49930
-Segment 39: length=0.0196078, FSR ID=218, CMFD FWD=-1, CMFD BWD=15705, Material Name=UO2, Material ID=49930
-Segment 40: length=0.0588235, FSR ID=219, CMFD FWD=15707, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 41: length=0.0784314, FSR ID=220, CMFD FWD=16115, CMFD BWD=16113, Material Name=Water, Material ID=10083
-Segment 42: length=0.0784314, FSR ID=221, CMFD FWD=16523, CMFD BWD=16521, Material Name=Water, Material ID=10083
-Segment 43: length=0.0784314, FSR ID=222, CMFD FWD=16931, CMFD BWD=16929, Material Name=Water, Material ID=10083
-Segment 44: length=0.0784314, FSR ID=223, CMFD FWD=17339, CMFD BWD=17337, Material Name=Water, Material ID=10083
-Segment 45: length=0.0784314, FSR ID=224, CMFD FWD=17747, CMFD BWD=17745, Material Name=Water, Material ID=10083
-Segment 46: length=0.0784314, FSR ID=225, CMFD FWD=18155, CMFD BWD=18153, Material Name=Water, Material ID=10083
-Segment 47: length=0.0784314, FSR ID=226, CMFD FWD=18563, CMFD BWD=18561, Material Name=Water, Material ID=10083
-Segment 48: length=0.0784314, FSR ID=227, CMFD FWD=18971, CMFD BWD=18969, Material Name=Water, Material ID=10083
-Segment 49: length=0.0784314, FSR ID=228, CMFD FWD=19379, CMFD BWD=19377, Material Name=Water, Material ID=10083
-Segment 50: length=0.0784314, FSR ID=229, CMFD FWD=19787, CMFD BWD=19785, Material Name=Water, Material ID=10083
-Segment 51: length=0.0784314, FSR ID=230, CMFD FWD=20195, CMFD BWD=20193, Material Name=Water, Material ID=10083
-Segment 52: length=0.0784314, FSR ID=231, CMFD FWD=20603, CMFD BWD=20601, Material Name=Water, Material ID=10083
-Reverse Diagonal track
-Number of segments = 53
-Segment 0: length=0.1109187, FSR ID=65, CMFD FWD=20804, CMFD BWD=20806, Material Name=Water, Material ID=10083
-Segment 1: length=0.1109187, FSR ID=64, CMFD FWD=20388, CMFD BWD=20390, Material Name=Water, Material ID=10083
-Segment 2: length=0.1109187, FSR ID=63, CMFD FWD=19972, CMFD BWD=19974, Material Name=Water, Material ID=10083
-Segment 3: length=0.1109187, FSR ID=62, CMFD FWD=19556, CMFD BWD=19558, Material Name=Water, Material ID=10083
-Segment 4: length=0.1109187, FSR ID=61, CMFD FWD=19140, CMFD BWD=19142, Material Name=Water, Material ID=10083
-Segment 5: length=0.1109187, FSR ID=60, CMFD FWD=18724, CMFD BWD=18726, Material Name=Water, Material ID=10083
-Segment 6: length=0.1109187, FSR ID=59, CMFD FWD=18308, CMFD BWD=18310, Material Name=Water, Material ID=10083
-Segment 7: length=0.1109187, FSR ID=58, CMFD FWD=17892, CMFD BWD=17894, Material Name=Water, Material ID=10083
-Segment 8: length=0.1109187, FSR ID=57, CMFD FWD=17476, CMFD BWD=17478, Material Name=Water, Material ID=10083
-Segment 9: length=0.1109187, FSR ID=56, CMFD FWD=17060, CMFD BWD=17062, Material Name=Water, Material ID=10083
-Segment 10: length=0.1109187, FSR ID=55, CMFD FWD=16644, CMFD BWD=16646, Material Name=Water, Material ID=10083
-Segment 11: length=0.1109187, FSR ID=54, CMFD FWD=16228, CMFD BWD=16230, Material Name=Water, Material ID=10083
-Segment 12: length=0.1109187, FSR ID=53, CMFD FWD=15812, CMFD BWD=15814, Material Name=Water, Material ID=10083
-Segment 13: length=0.1109187, FSR ID=52, CMFD FWD=15396, CMFD BWD=15398, Material Name=Water, Material ID=10083
-Segment 14: length=0.1109187, FSR ID=51, CMFD FWD=14980, CMFD BWD=14982, Material Name=Water, Material ID=10083
-Segment 15: length=0.1109187, FSR ID=50, CMFD FWD=14564, CMFD BWD=14566, Material Name=Water, Material ID=10083
-Segment 16: length=0.0537278, FSR ID=49, CMFD FWD=-1, CMFD BWD=14150, Material Name=Water, Material ID=10083
-Segment 17: length=0.057191, FSR ID=48, CMFD FWD=14148, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 18: length=0.1109187, FSR ID=47, CMFD FWD=13732, CMFD BWD=13734, Material Name=UO2, Material ID=49930
-Segment 19: length=0.1109187, FSR ID=46, CMFD FWD=13316, CMFD BWD=13318, Material Name=UO2, Material ID=49930
-Segment 20: length=0.1109187, FSR ID=45, CMFD FWD=12900, CMFD BWD=12902, Material Name=UO2, Material ID=49930
-Segment 21: length=0.1109187, FSR ID=44, CMFD FWD=12484, CMFD BWD=12486, Material Name=UO2, Material ID=49930
-Segment 22: length=0.1109187, FSR ID=43, CMFD FWD=12068, CMFD BWD=12070, Material Name=UO2, Material ID=49930
-Segment 23: length=0.1109187, FSR ID=42, CMFD FWD=11652, CMFD BWD=11654, Material Name=UO2, Material ID=49930
-Segment 24: length=0.1109187, FSR ID=41, CMFD FWD=11236, CMFD BWD=11238, Material Name=UO2, Material ID=49930
-Segment 25: length=0.1109187, FSR ID=40, CMFD FWD=10820, CMFD BWD=10822, Material Name=UO2, Material ID=49930
-Segment 26: length=0.1109187, FSR ID=39, CMFD FWD=10404, CMFD BWD=10406, Material Name=UO2, Material ID=49930
-Segment 27: length=0.1109187, FSR ID=38, CMFD FWD=9988, CMFD BWD=9990, Material Name=UO2, Material ID=49930
-Segment 28: length=0.1109187, FSR ID=37, CMFD FWD=9572, CMFD BWD=9574, Material Name=UO2, Material ID=49930
-Segment 29: length=0.1109187, FSR ID=36, CMFD FWD=9156, CMFD BWD=9158, Material Name=UO2, Material ID=49930
-Segment 30: length=0.1109187, FSR ID=35, CMFD FWD=8740, CMFD BWD=8742, Material Name=UO2, Material ID=49930
-Segment 31: length=0.1109187, FSR ID=34, CMFD FWD=8324, CMFD BWD=8326, Material Name=UO2, Material ID=49930
-Segment 32: length=0.1109187, FSR ID=33, CMFD FWD=7908, CMFD BWD=7910, Material Name=UO2, Material ID=49930
-Segment 33: length=0.1109187, FSR ID=32, CMFD FWD=7492, CMFD BWD=7494, Material Name=UO2, Material ID=49930
-Segment 34: length=0.1109187, FSR ID=31, CMFD FWD=7076, CMFD BWD=7078, Material Name=UO2, Material ID=49930
-Segment 35: length=0.057191, FSR ID=30, CMFD FWD=-1, CMFD BWD=6662, Material Name=UO2, Material ID=49930
-Segment 36: length=0.0537278, FSR ID=29, CMFD FWD=6660, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 37: length=0.1109187, FSR ID=28, CMFD FWD=6244, CMFD BWD=6246, Material Name=Water, Material ID=10083
-Segment 38: length=0.1109187, FSR ID=27, CMFD FWD=5828, CMFD BWD=5830, Material Name=Water, Material ID=10083
-Segment 39: length=0.1109187, FSR ID=26, CMFD FWD=5412, CMFD BWD=5414, Material Name=Water, Material ID=10083
-Segment 40: length=0.1109187, FSR ID=25, CMFD FWD=4996, CMFD BWD=4998, Material Name=Water, Material ID=10083
-Segment 41: length=0.1109187, FSR ID=24, CMFD FWD=4580, CMFD BWD=4582, Material Name=Water, Material ID=10083
-Segment 42: length=0.1109187, FSR ID=23, CMFD FWD=4164, CMFD BWD=4166, Material Name=Water, Material ID=10083
-Segment 43: length=0.1109187, FSR ID=22, CMFD FWD=3748, CMFD BWD=3750, Material Name=Water, Material ID=10083
-Segment 44: length=0.1109187, FSR ID=21, CMFD FWD=3332, CMFD BWD=3334, Material Name=Water, Material ID=10083
-Segment 45: length=0.1109187, FSR ID=20, CMFD FWD=2916, CMFD BWD=2918, Material Name=Water, Material ID=10083
-Segment 46: length=0.1109187, FSR ID=19, CMFD FWD=2500, CMFD BWD=2502, Material Name=Water, Material ID=10083
-Segment 47: length=0.1109187, FSR ID=18, CMFD FWD=2084, CMFD BWD=2086, Material Name=Water, Material ID=10083
-Segment 48: length=0.1109187, FSR ID=17, CMFD FWD=1668, CMFD BWD=1670, Material Name=Water, Material ID=10083
-Segment 49: length=0.1109187, FSR ID=16, CMFD FWD=1252, CMFD BWD=1254, Material Name=Water, Material ID=10083
-Segment 50: length=0.1109187, FSR ID=4, CMFD FWD=836, CMFD BWD=838, Material Name=Water, Material ID=10083
-Segment 51: length=0.1109187, FSR ID=15, CMFD FWD=420, CMFD BWD=422, Material Name=Water, Material ID=10083
-Segment 52: length=0.1109187, FSR ID=0, CMFD FWD=4, CMFD BWD=6, Material Name=Water, Material ID=10083
+3 x 3 CMFD mesh
+Diagonal track 5
+0: 1.82842712, 0, -1, 4, Water, 10083
+1: 0.05719096, 1, 6, -1, UO2, 49930
+2: 1.88561808, 2, 38, 36, UO2, 49930
+3: 0.05719096, 3, -1, 68, UO2, 49930
+4: 1.82842712, 4, 70, -1, Water, 10083
+Tangent track 3
+0: 1.77123617, 5, 10, 9, Water, 10083
+1: 0.11438192, 6, 19, 16, Water, 10083
+2: 1.77123617, 7, 42, 41, Water, 10083
+Nudged Tangent track 5
+0: 1.77123758, 5, 10, 9, Water, 10083
+1: 0.05600104, 6, -1, 16, Water, 10083
+2: 0.00237841, 8, -1, -1, UO2, 49930
+3: 0.05600104, 8, 19, -1, UO2, 49930
+4: 1.77123758, 7, 42, 41, Water, 10083
+Horizontal track 5
+0: 1.0, 9, -1, 24, Water, 10083
+1: 0.33333333, 10, 26, -1, UO2, 49930
+2: 1.33333333, 2, 34, 32, UO2, 49930
+3: 0.33333333, 11, -1, 40, UO2, 49930
+4: 1.0, 7, 42, -1, Water, 10083
+Vertical track 5
+0: 1.0, 5, -1, 9, Water, 10083
+1: 0.33333333, 12, 11, -1, UO2, 49930
+2: 1.33333333, 2, 35, 33, UO2, 49930
+3: 0.33333333, 13, -1, 57, UO2, 49930
+4: 1.0, 14, 59, -1, Water, 10083
+Reverse Diagonal track 5
+0: 1.82842712, 4, -1, 70, Water, 10083
+1: 0.05719096, 3, 68, -1, UO2, 49930
+2: 1.88561808, 2, 36, 38, UO2, 49930
+3: 0.05719096, 1, -1, 6, UO2, 49930
+4: 1.82842712, 0, 4, -1, Water, 10083
+51 x 51 CMFD mesh
+Diagonal track 53
+0: 0.11091871, 0, 6, 4, Water, 10083
+1: 0.11091871, 15, 422, 420, Water, 10083
+2: 0.11091871, 4, 838, 836, Water, 10083
+3: 0.11091871, 16, 1254, 1252, Water, 10083
+4: 0.11091871, 17, 1670, 1668, Water, 10083
+5: 0.11091871, 18, 2086, 2084, Water, 10083
+6: 0.11091871, 19, 2502, 2500, Water, 10083
+7: 0.11091871, 20, 2918, 2916, Water, 10083
+8: 0.11091871, 21, 3334, 3332, Water, 10083
+9: 0.11091871, 22, 3750, 3748, Water, 10083
+10: 0.11091871, 23, 4166, 4164, Water, 10083
+11: 0.11091871, 24, 4582, 4580, Water, 10083
+12: 0.11091871, 25, 4998, 4996, Water, 10083
+13: 0.11091871, 26, 5414, 5412, Water, 10083
+14: 0.11091871, 27, 5830, 5828, Water, 10083
+15: 0.11091871, 28, 6246, 6244, Water, 10083
+16: 0.05372775, 29, -1, 6660, Water, 10083
+17: 0.05719096, 30, 6662, -1, UO2, 49930
+18: 0.11091871, 31, 7078, 7076, UO2, 49930
+19: 0.11091871, 32, 7494, 7492, UO2, 49930
+20: 0.11091871, 33, 7910, 7908, UO2, 49930
+21: 0.11091871, 34, 8326, 8324, UO2, 49930
+22: 0.11091871, 35, 8742, 8740, UO2, 49930
+23: 0.11091871, 36, 9158, 9156, UO2, 49930
+24: 0.11091871, 37, 9574, 9572, UO2, 49930
+25: 0.11091871, 38, 9990, 9988, UO2, 49930
+26: 0.11091871, 39, 10406, 10404, UO2, 49930
+27: 0.11091871, 40, 10822, 10820, UO2, 49930
+28: 0.11091871, 41, 11238, 11236, UO2, 49930
+29: 0.11091871, 42, 11654, 11652, UO2, 49930
+30: 0.11091871, 43, 12070, 12068, UO2, 49930
+31: 0.11091871, 44, 12486, 12484, UO2, 49930
+32: 0.11091871, 45, 12902, 12900, UO2, 49930
+33: 0.11091871, 46, 13318, 13316, UO2, 49930
+34: 0.11091871, 47, 13734, 13732, UO2, 49930
+35: 0.05719096, 48, -1, 14148, UO2, 49930
+36: 0.05372775, 49, 14150, -1, Water, 10083
+37: 0.11091871, 50, 14566, 14564, Water, 10083
+38: 0.11091871, 51, 14982, 14980, Water, 10083
+39: 0.11091871, 52, 15398, 15396, Water, 10083
+40: 0.11091871, 53, 15814, 15812, Water, 10083
+41: 0.11091871, 54, 16230, 16228, Water, 10083
+42: 0.11091871, 55, 16646, 16644, Water, 10083
+43: 0.11091871, 56, 17062, 17060, Water, 10083
+44: 0.11091871, 57, 17478, 17476, Water, 10083
+45: 0.11091871, 58, 17894, 17892, Water, 10083
+46: 0.11091871, 59, 18310, 18308, Water, 10083
+47: 0.11091871, 60, 18726, 18724, Water, 10083
+48: 0.11091871, 61, 19142, 19140, Water, 10083
+49: 0.11091871, 62, 19558, 19556, Water, 10083
+50: 0.11091871, 63, 19974, 19972, Water, 10083
+51: 0.11091871, 64, 20390, 20388, Water, 10083
+52: 0.11091871, 65, 20806, 20804, Water, 10083
+Tangent track 67
+0: 0.1074555, 66, 146, 145, Water, 10083
+1: 0.00346321, 67, 155, 152, Water, 10083
+2: 0.1074555, 68, 562, 561, Water, 10083
+3: 0.00346321, 69, 571, 568, Water, 10083
+4: 0.1074555, 70, 978, 977, Water, 10083
+5: 0.00346321, 71, 987, 984, Water, 10083
+6: 0.1074555, 72, 1394, 1393, Water, 10083
+7: 0.00346321, 73, 1403, 1400, Water, 10083
+8: 0.1074555, 74, 1810, 1809, Water, 10083
+9: 0.00346321, 75, 1819, 1816, Water, 10083
+10: 0.1074555, 76, 2226, 2225, Water, 10083
+11: 0.00346321, 77, 2235, 2232, Water, 10083
+12: 0.1074555, 78, 2642, 2641, Water, 10083
+13: 0.00346321, 79, 2651, 2648, Water, 10083
+14: 0.1074555, 80, 3058, 3057, Water, 10083
+15: 0.00346321, 81, 3067, 3064, Water, 10083
+16: 0.1074555, 82, 3474, 3473, Water, 10083
+17: 0.00346321, 83, 3483, 3480, Water, 10083
+18: 0.1074555, 84, 3890, 3889, Water, 10083
+19: 0.00346321, 85, 3899, 3896, Water, 10083
+20: 0.1074555, 86, 4306, 4305, Water, 10083
+21: 0.00346321, 87, 4315, 4312, Water, 10083
+22: 0.1074555, 88, 4722, 4721, Water, 10083
+23: 0.00346321, 89, 4731, 4728, Water, 10083
+24: 0.1074555, 90, 5138, 5137, Water, 10083
+25: 0.00346321, 91, 5147, 5144, Water, 10083
+26: 0.1074555, 92, 5554, 5553, Water, 10083
+27: 0.00346321, 93, 5563, 5560, Water, 10083
+28: 0.1074555, 94, 5970, 5969, Water, 10083
+29: 0.00346321, 95, 5979, 5976, Water, 10083
+30: 0.1074555, 96, 6386, 6385, Water, 10083
+31: 0.00346321, 97, 6395, 6392, Water, 10083
+32: 0.05372772, 98, -1, 6801, Water, 10083
+33: 7e-08, 99, -1, -1, UO2, 49930
+34: 0.05372772, 99, 6802, -1, UO2, 49930
+35: 0.00346321, 100, 6811, 6808, Water, 10083
+36: 0.1074555, 101, 7218, 7217, Water, 10083
+37: 0.00346321, 102, 7227, 7224, Water, 10083
+38: 0.1074555, 103, 7634, 7633, Water, 10083
+39: 0.00346321, 104, 7643, 7640, Water, 10083
+40: 0.1074555, 105, 8050, 8049, Water, 10083
+41: 0.00346321, 106, 8059, 8056, Water, 10083
+42: 0.1074555, 107, 8466, 8465, Water, 10083
+43: 0.00346321, 108, 8475, 8472, Water, 10083
+44: 0.1074555, 109, 8882, 8881, Water, 10083
+45: 0.00346321, 110, 8891, 8888, Water, 10083
+46: 0.1074555, 111, 9298, 9297, Water, 10083
+47: 0.00346321, 112, 9307, 9304, Water, 10083
+48: 0.1074555, 113, 9714, 9713, Water, 10083
+49: 0.00346321, 114, 9723, 9720, Water, 10083
+50: 0.1074555, 115, 10130, 10129, Water, 10083
+51: 0.00346321, 116, 10139, 10136, Water, 10083
+52: 0.1074555, 117, 10546, 10545, Water, 10083
+53: 0.00346321, 118, 10555, 10552, Water, 10083
+54: 0.1074555, 119, 10962, 10961, Water, 10083
+55: 0.00346321, 120, 10971, 10968, Water, 10083
+56: 0.1074555, 121, 11378, 11377, Water, 10083
+57: 0.00346321, 122, 11387, 11384, Water, 10083
+58: 0.1074555, 123, 11794, 11793, Water, 10083
+59: 0.00346321, 124, 11803, 11800, Water, 10083
+60: 0.1074555, 125, 12210, 12209, Water, 10083
+61: 0.00346321, 126, 12219, 12216, Water, 10083
+62: 0.1074555, 127, 12626, 12625, Water, 10083
+63: 0.00346321, 128, 12635, 12632, Water, 10083
+64: 0.1074555, 129, 13042, 13041, Water, 10083
+65: 0.00346321, 130, 13051, 13048, Water, 10083
+66: 0.1074555, 131, 13458, 13457, Water, 10083
+Nudged Tangent track 67
+0: 0.10745692, 66, 146, 145, Water, 10083
+1: 0.00346179, 67, 155, 152, Water, 10083
+2: 0.10745692, 68, 562, 561, Water, 10083
+3: 0.00346179, 69, 571, 568, Water, 10083
+4: 0.10745692, 70, 978, 977, Water, 10083
+5: 0.00346179, 71, 987, 984, Water, 10083
+6: 0.10745692, 72, 1394, 1393, Water, 10083
+7: 0.00346179, 73, 1403, 1400, Water, 10083
+8: 0.10745692, 74, 1810, 1809, Water, 10083
+9: 0.00346179, 75, 1819, 1816, Water, 10083
+10: 0.10745692, 76, 2226, 2225, Water, 10083
+11: 0.00346179, 77, 2235, 2232, Water, 10083
+12: 0.10745692, 78, 2642, 2641, Water, 10083
+13: 0.00346179, 79, 2651, 2648, Water, 10083
+14: 0.10745692, 80, 3058, 3057, Water, 10083
+15: 0.00346179, 81, 3067, 3064, Water, 10083
+16: 0.10745692, 82, 3474, 3473, Water, 10083
+17: 0.00346179, 83, 3483, 3480, Water, 10083
+18: 0.10745692, 84, 3890, 3889, Water, 10083
+19: 0.00346179, 85, 3899, 3896, Water, 10083
+20: 0.10745692, 86, 4306, 4305, Water, 10083
+21: 0.00346179, 87, 4315, 4312, Water, 10083
+22: 0.10745692, 88, 4722, 4721, Water, 10083
+23: 0.00346179, 89, 4731, 4728, Water, 10083
+24: 0.10745692, 90, 5138, 5137, Water, 10083
+25: 0.00346179, 91, 5147, 5144, Water, 10083
+26: 0.10745692, 92, 5554, 5553, Water, 10083
+27: 0.00346179, 93, 5563, 5560, Water, 10083
+28: 0.10745692, 94, 5970, 5969, Water, 10083
+29: 0.00346179, 95, 5979, 5976, Water, 10083
+30: 0.10745692, 96, 6386, 6385, Water, 10083
+31: 0.00346179, 97, 6395, 6392, Water, 10083
+32: 0.05253925, 98, -1, 6801, Water, 10083
+33: 0.00237841, 99, -1, -1, UO2, 49930
+34: 0.05253925, 99, 6802, -1, UO2, 49930
+35: 0.00346179, 100, 6811, 6808, Water, 10083
+36: 0.10745692, 101, 7218, 7217, Water, 10083
+37: 0.00346179, 102, 7227, 7224, Water, 10083
+38: 0.10745692, 103, 7634, 7633, Water, 10083
+39: 0.00346179, 104, 7643, 7640, Water, 10083
+40: 0.10745692, 105, 8050, 8049, Water, 10083
+41: 0.00346179, 106, 8059, 8056, Water, 10083
+42: 0.10745692, 107, 8466, 8465, Water, 10083
+43: 0.00346179, 108, 8475, 8472, Water, 10083
+44: 0.10745692, 109, 8882, 8881, Water, 10083
+45: 0.00346179, 110, 8891, 8888, Water, 10083
+46: 0.10745692, 111, 9298, 9297, Water, 10083
+47: 0.00346179, 112, 9307, 9304, Water, 10083
+48: 0.10745692, 113, 9714, 9713, Water, 10083
+49: 0.00346179, 114, 9723, 9720, Water, 10083
+50: 0.10745692, 115, 10130, 10129, Water, 10083
+51: 0.00346179, 116, 10139, 10136, Water, 10083
+52: 0.10745692, 117, 10546, 10545, Water, 10083
+53: 0.00346179, 118, 10555, 10552, Water, 10083
+54: 0.10745692, 119, 10962, 10961, Water, 10083
+55: 0.00346179, 120, 10971, 10968, Water, 10083
+56: 0.10745692, 121, 11378, 11377, Water, 10083
+57: 0.00346179, 122, 11387, 11384, Water, 10083
+58: 0.10745692, 123, 11794, 11793, Water, 10083
+59: 0.00346179, 124, 11803, 11800, Water, 10083
+60: 0.10745692, 125, 12210, 12209, Water, 10083
+61: 0.00346179, 126, 12219, 12216, Water, 10083
+62: 0.10745692, 127, 12626, 12625, Water, 10083
+63: 0.00346179, 128, 12635, 12632, Water, 10083
+64: 0.10745692, 129, 13042, 13041, Water, 10083
+65: 0.00346179, 130, 13051, 13048, Water, 10083
+66: 0.10745692, 131, 13458, 13457, Water, 10083
+Horizontal track 53
+0: 0.07843137, 132, 10202, 10200, Water, 10083
+1: 0.07843137, 133, 10210, 10208, Water, 10083
+2: 0.07843137, 134, 10218, 10216, Water, 10083
+3: 0.07843137, 135, 10226, 10224, Water, 10083
+4: 0.07843137, 136, 10234, 10232, Water, 10083
+5: 0.07843137, 137, 10242, 10240, Water, 10083
+6: 0.07843137, 138, 10250, 10248, Water, 10083
+7: 0.07843137, 139, 10258, 10256, Water, 10083
+8: 0.07843137, 140, 10266, 10264, Water, 10083
+9: 0.07843137, 141, 10274, 10272, Water, 10083
+10: 0.07843137, 142, 10282, 10280, Water, 10083
+11: 0.07843137, 143, 10290, 10288, Water, 10083
+12: 0.05882353, 144, -1, 10296, Water, 10083
+13: 0.01960784, 145, 10298, -1, UO2, 49930
+14: 0.07843137, 146, 10306, 10304, UO2, 49930
+15: 0.07843137, 147, 10314, 10312, UO2, 49930
+16: 0.07843137, 148, 10322, 10320, UO2, 49930
+17: 0.07843137, 149, 10330, 10328, UO2, 49930
+18: 0.07843137, 150, 10338, 10336, UO2, 49930
+19: 0.07843137, 151, 10346, 10344, UO2, 49930
+20: 0.07843137, 152, 10354, 10352, UO2, 49930
+21: 0.07843137, 153, 10362, 10360, UO2, 49930
+22: 0.07843137, 154, 10370, 10368, UO2, 49930
+23: 0.07843137, 155, 10378, 10376, UO2, 49930
+24: 0.07843137, 156, 10386, 10384, UO2, 49930
+25: 0.07843137, 157, 10394, 10392, UO2, 49930
+26: 0.07843137, 39, 10402, 10400, UO2, 49930
+27: 0.07843137, 158, 10410, 10408, UO2, 49930
+28: 0.07843137, 159, 10418, 10416, UO2, 49930
+29: 0.07843137, 160, 10426, 10424, UO2, 49930
+30: 0.07843137, 161, 10434, 10432, UO2, 49930
+31: 0.07843137, 162, 10442, 10440, UO2, 49930
+32: 0.07843137, 163, 10450, 10448, UO2, 49930
+33: 0.07843137, 164, 10458, 10456, UO2, 49930
+34: 0.07843137, 165, 10466, 10464, UO2, 49930
+35: 0.07843137, 166, 10474, 10472, UO2, 49930
+36: 0.07843137, 167, 10482, 10480, UO2, 49930
+37: 0.07843137, 168, 10490, 10488, UO2, 49930
+38: 0.07843137, 169, 10498, 10496, UO2, 49930
+39: 0.01960784, 170, -1, 10504, UO2, 49930
+40: 0.05882353, 171, 10506, -1, Water, 10083
+41: 0.07843137, 172, 10514, 10512, Water, 10083
+42: 0.07843137, 173, 10522, 10520, Water, 10083
+43: 0.07843137, 174, 10530, 10528, Water, 10083
+44: 0.07843137, 175, 10538, 10536, Water, 10083
+45: 0.07843137, 117, 10546, 10544, Water, 10083
+46: 0.07843137, 118, 10554, 10552, Water, 10083
+47: 0.07843137, 176, 10562, 10560, Water, 10083
+48: 0.07843137, 177, 10570, 10568, Water, 10083
+49: 0.07843137, 178, 10578, 10576, Water, 10083
+50: 0.07843137, 179, 10586, 10584, Water, 10083
+51: 0.07843137, 180, 10594, 10592, Water, 10083
+52: 0.07843137, 181, 10602, 10600, Water, 10083
+Vertical track 53
+0: 0.07843137, 182, 203, 201, Water, 10083
+1: 0.07843137, 183, 611, 609, Water, 10083
+2: 0.07843137, 184, 1019, 1017, Water, 10083
+3: 0.07843137, 185, 1427, 1425, Water, 10083
+4: 0.07843137, 186, 1835, 1833, Water, 10083
+5: 0.07843137, 187, 2243, 2241, Water, 10083
+6: 0.07843137, 79, 2651, 2649, Water, 10083
+7: 0.07843137, 80, 3059, 3057, Water, 10083
+8: 0.07843137, 188, 3467, 3465, Water, 10083
+9: 0.07843137, 189, 3875, 3873, Water, 10083
+10: 0.07843137, 190, 4283, 4281, Water, 10083
+11: 0.07843137, 191, 4691, 4689, Water, 10083
+12: 0.05882353, 192, -1, 5097, Water, 10083
+13: 0.01960784, 193, 5099, -1, UO2, 49930
+14: 0.07843137, 194, 5507, 5505, UO2, 49930
+15: 0.07843137, 195, 5915, 5913, UO2, 49930
+16: 0.07843137, 196, 6323, 6321, UO2, 49930
+17: 0.07843137, 197, 6731, 6729, UO2, 49930
+18: 0.07843137, 198, 7139, 7137, UO2, 49930
+19: 0.07843137, 199, 7547, 7545, UO2, 49930
+20: 0.07843137, 200, 7955, 7953, UO2, 49930
+21: 0.07843137, 201, 8363, 8361, UO2, 49930
+22: 0.07843137, 202, 8771, 8769, UO2, 49930
+23: 0.07843137, 203, 9179, 9177, UO2, 49930
+24: 0.07843137, 204, 9587, 9585, UO2, 49930
+25: 0.07843137, 205, 9995, 9993, UO2, 49930
+26: 0.07843137, 39, 10403, 10401, UO2, 49930
+27: 0.07843137, 206, 10811, 10809, UO2, 49930
+28: 0.07843137, 207, 11219, 11217, UO2, 49930
+29: 0.07843137, 208, 11627, 11625, UO2, 49930
+30: 0.07843137, 209, 12035, 12033, UO2, 49930
+31: 0.07843137, 210, 12443, 12441, UO2, 49930
+32: 0.07843137, 211, 12851, 12849, UO2, 49930
+33: 0.07843137, 212, 13259, 13257, UO2, 49930
+34: 0.07843137, 213, 13667, 13665, UO2, 49930
+35: 0.07843137, 214, 14075, 14073, UO2, 49930
+36: 0.07843137, 215, 14483, 14481, UO2, 49930
+37: 0.07843137, 216, 14891, 14889, UO2, 49930
+38: 0.07843137, 217, 15299, 15297, UO2, 49930
+39: 0.01960784, 218, -1, 15705, UO2, 49930
+40: 0.05882353, 219, 15707, -1, Water, 10083
+41: 0.07843137, 220, 16115, 16113, Water, 10083
+42: 0.07843137, 221, 16523, 16521, Water, 10083
+43: 0.07843137, 222, 16931, 16929, Water, 10083
+44: 0.07843137, 223, 17339, 17337, Water, 10083
+45: 0.07843137, 224, 17747, 17745, Water, 10083
+46: 0.07843137, 225, 18155, 18153, Water, 10083
+47: 0.07843137, 226, 18563, 18561, Water, 10083
+48: 0.07843137, 227, 18971, 18969, Water, 10083
+49: 0.07843137, 228, 19379, 19377, Water, 10083
+50: 0.07843137, 229, 19787, 19785, Water, 10083
+51: 0.07843137, 230, 20195, 20193, Water, 10083
+52: 0.07843137, 231, 20603, 20601, Water, 10083
+Reverse Diagonal track 53
+0: 0.11091871, 65, 20804, 20806, Water, 10083
+1: 0.11091871, 64, 20388, 20390, Water, 10083
+2: 0.11091871, 63, 19972, 19974, Water, 10083
+3: 0.11091871, 62, 19556, 19558, Water, 10083
+4: 0.11091871, 61, 19140, 19142, Water, 10083
+5: 0.11091871, 60, 18724, 18726, Water, 10083
+6: 0.11091871, 59, 18308, 18310, Water, 10083
+7: 0.11091871, 58, 17892, 17894, Water, 10083
+8: 0.11091871, 57, 17476, 17478, Water, 10083
+9: 0.11091871, 56, 17060, 17062, Water, 10083
+10: 0.11091871, 55, 16644, 16646, Water, 10083
+11: 0.11091871, 54, 16228, 16230, Water, 10083
+12: 0.11091871, 53, 15812, 15814, Water, 10083
+13: 0.11091871, 52, 15396, 15398, Water, 10083
+14: 0.11091871, 51, 14980, 14982, Water, 10083
+15: 0.11091871, 50, 14564, 14566, Water, 10083
+16: 0.05372775, 49, -1, 14150, Water, 10083
+17: 0.05719096, 48, 14148, -1, UO2, 49930
+18: 0.11091871, 47, 13732, 13734, UO2, 49930
+19: 0.11091871, 46, 13316, 13318, UO2, 49930
+20: 0.11091871, 45, 12900, 12902, UO2, 49930
+21: 0.11091871, 44, 12484, 12486, UO2, 49930
+22: 0.11091871, 43, 12068, 12070, UO2, 49930
+23: 0.11091871, 42, 11652, 11654, UO2, 49930
+24: 0.11091871, 41, 11236, 11238, UO2, 49930
+25: 0.11091871, 40, 10820, 10822, UO2, 49930
+26: 0.11091871, 39, 10404, 10406, UO2, 49930
+27: 0.11091871, 38, 9988, 9990, UO2, 49930
+28: 0.11091871, 37, 9572, 9574, UO2, 49930
+29: 0.11091871, 36, 9156, 9158, UO2, 49930
+30: 0.11091871, 35, 8740, 8742, UO2, 49930
+31: 0.11091871, 34, 8324, 8326, UO2, 49930
+32: 0.11091871, 33, 7908, 7910, UO2, 49930
+33: 0.11091871, 32, 7492, 7494, UO2, 49930
+34: 0.11091871, 31, 7076, 7078, UO2, 49930
+35: 0.05719096, 30, -1, 6662, UO2, 49930
+36: 0.05372775, 29, 6660, -1, Water, 10083
+37: 0.11091871, 28, 6244, 6246, Water, 10083
+38: 0.11091871, 27, 5828, 5830, Water, 10083
+39: 0.11091871, 26, 5412, 5414, Water, 10083
+40: 0.11091871, 25, 4996, 4998, Water, 10083
+41: 0.11091871, 24, 4580, 4582, Water, 10083
+42: 0.11091871, 23, 4164, 4166, Water, 10083
+43: 0.11091871, 22, 3748, 3750, Water, 10083
+44: 0.11091871, 21, 3332, 3334, Water, 10083
+45: 0.11091871, 20, 2916, 2918, Water, 10083
+46: 0.11091871, 19, 2500, 2502, Water, 10083
+47: 0.11091871, 18, 2084, 2086, Water, 10083
+48: 0.11091871, 17, 1668, 1670, Water, 10083
+49: 0.11091871, 16, 1252, 1254, Water, 10083
+50: 0.11091871, 4, 836, 838, Water, 10083
+51: 0.11091871, 15, 420, 422, Water, 10083
+52: 0.11091871, 0, 4, 6, Water, 10083

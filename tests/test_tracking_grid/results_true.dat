@@ -1,27 +1,22 @@
-Diagonal track
-Number of segments = 3
-Segment 0: length=2.8284271, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=2.8284271, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=2.8284271, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Nudged Diagonal track
-Number of segments = 5
-Segment 0: length=2.828413, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=1.41e-05, FSR ID=3, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 2: length=2.828413, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 3: length=1.41e-05, FSR ID=4, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 4: length=2.828413, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Horizontal track
-Number of segments = 3
-Segment 0: length=2.0, FSR ID=5, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=2.0, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=2.0, FSR ID=4, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Vertical track
-Number of segments = 3
-Segment 0: length=2.0, FSR ID=3, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=2.0, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=2.0, FSR ID=6, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Reverse Diagonal track
-Number of segments = 3
-Segment 0: length=2.8284271, FSR ID=2, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
-Segment 1: length=2.8284271, FSR ID=1, CMFD FWD=-1, CMFD BWD=-1, Material Name=UO2, Material ID=49930
-Segment 2: length=2.8284271, FSR ID=0, CMFD FWD=-1, CMFD BWD=-1, Material Name=Water, Material ID=10083
+Diagonal track 3
+0: 2.82842712, 0, -1, -1, Water, 10083
+1: 2.82842712, 1, -1, -1, UO2, 49930
+2: 2.82842712, 2, -1, -1, Water, 10083
+Nudged Diagonal track 5
+0: 2.82841298, 0, -1, -1, Water, 10083
+1: 1.414e-05, 3, -1, -1, Water, 10083
+2: 2.82841298, 1, -1, -1, UO2, 49930
+3: 1.414e-05, 4, -1, -1, Water, 10083
+4: 2.82841298, 2, -1, -1, Water, 10083
+Horizontal track 3
+0: 2.0, 5, -1, -1, Water, 10083
+1: 2.0, 1, -1, -1, UO2, 49930
+2: 2.0, 4, -1, -1, Water, 10083
+Vertical track 3
+0: 2.0, 3, -1, -1, Water, 10083
+1: 2.0, 1, -1, -1, UO2, 49930
+2: 2.0, 6, -1, -1, Water, 10083
+Reverse Diagonal track 3
+0: 2.82842712, 2, -1, -1, Water, 10083
+1: 2.82842712, 1, -1, -1, UO2, 49930
+2: 2.82842712, 0, -1, -1, Water, 10083

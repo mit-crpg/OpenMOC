@@ -29,16 +29,16 @@ class TrackingLatticeGridCMFDTestHarness(TestHarness):
         # Segmentize a track in a geometry, recording the segments in a string
         geometry.segmentize(track)
         num_segments = track.getNumSegments()
-        info = 'Number of segments = ' + str(num_segments) + '\n'
+        info = ' ' + str(num_segments) + '\n'
         for i in range(num_segments):
-            info += 'Segment ' + str(i) + ': '
+            info += str(i) + ': '
             segment = track.getSegment(i)
-            info += 'length=' + str(round(segment._length, 7)) + ', '
-            info += 'FSR ID=' + str(segment._region_id) + ', '
-            info += 'CMFD FWD=' + str(segment._cmfd_surface_fwd) + ', '
-            info += 'CMFD BWD=' + str(segment._cmfd_surface_bwd) + ', '
-            info += 'Material Name=' + str(segment._material.getName()) + ', '
-            info += 'Material ID=' + str(segment._material.getId()) + '\n'
+            info += str(round(segment._length, 8)) + ', '
+            info += str(segment._region_id) + ', '
+            info += str(segment._cmfd_surface_fwd) + ', '
+            info += str(segment._cmfd_surface_bwd) + ', '
+            info += str(segment._material.getName()) + ', '
+            info += str(segment._material.getId()) + '\n'
         track.clearSegments()
         return info
 
@@ -65,7 +65,7 @@ class TrackingLatticeGridCMFDTestHarness(TestHarness):
         for m in [3, 51]:
 
             # Overlay simple CMFD mesh
-            self._result += 'Pin cell with an overlaid {0} x {0} CMFD mesh\n'.format(m)
+            self._result += '{0} x {0} CMFD mesh\n'.format(m)
             geometry = self.input_set.geometry
             cmfd = openmoc.Cmfd()
             cmfd.setLatticeStructure(m, m)
@@ -73,15 +73,15 @@ class TrackingLatticeGridCMFDTestHarness(TestHarness):
             geometry.initializeCmfd()
 
             # Segmentize tracks over the geometry
-            self._result += 'Diagonal track\n'
+            self._result += 'Diagonal track'
             self._result += self._segment_track(diag_track, geometry)
-            self._result += 'Nudged Diagonal track\n'
+            self._result += 'Nudged Diagonal track'
             self._result += self._segment_track(nudge_diag_track, geometry)
-            self._result += 'Horizontal track\n'
+            self._result += 'Horizontal track'
             self._result += self._segment_track(hor_track, geometry)
-            self._result += 'Vertical track\n'
+            self._result += 'Vertical track'
             self._result += self._segment_track(ver_track, geometry)
-            self._result += 'Reverse Diagonal track\n'
+            self._result += 'Reverse Diagonal track'
             self._result += self._segment_track(rev_diag_track, geometry)
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
