@@ -806,17 +806,21 @@ void CPUSolver::transportSweepOTFStacks() {
 
   #pragma omp parallel
   {
-    /* Allocate array of segments for each thread */
-    int max_num_tracks_per_stack = _track_generator->getMaxNumTracksPerStack();
+    /* Create kernels and allocate segments for OTF computation */
+    MOCKernel** kernels;
+    int num_rows = 1;
+    int max_rows = _track_generator->getMaxNumTracksPerStack();
     int max_num_segments = _track_generator->getMaxNumSegments();
-    segment** segments = new segment*[max_num_tracks_per_stack];
+    if (_segment_formation != EXPLICIT) {
+      if (_segment_formation == OTF_STACKS)
+        num_rows = _max_num_tracks_per_stack;
 
-    /* Create MOC segmentation kernels for each thread */
-    MOCKernel* kernels[max_num_tracks_per_stack];
-    SegmentationKernel segmentation_kernels[max_num_tracks_per_stack];
-    for (int z = 0; z < max_num_tracks_per_stack; z++) {
-      segments[z] = new segment[max_num_segments];
-      kernels[z] = &segmentation_kernels[z];
+    /* Allocate memory */
+    segment** segments = new segment*[num_rows];
+    MOCKernel** kernels = new MOCKernel*[num_rows];
+    for (int z=0; z < num_rows; z++) {
+      segments[z] = new segment[_max_num_segments];
+      kernels[z] = new SegmentationKernel;
       kernels[z]->setSegments(segments[z]);
       kernels[z]->setMaxVal(_track_generator->retrieveMaxOpticalLength());
     }

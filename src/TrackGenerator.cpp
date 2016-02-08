@@ -417,33 +417,26 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
     #pragma omp parallel reduction(max:max_optical_length)\
       private(curr_segment, length, material, sigma_t)
     {
-      /* Allocate array for 3D segments for OTF computation */
-      segment* segments_3D;
-      segment** segments_3D_matrix;
-      if (_segment_formation == OTF_STACKS) {
-        segments_3D_matrix = new segment*[_max_num_tracks_per_stack];
-        for (int z=0; z < _max_num_tracks_per_stack; z++) {
-          segments_3D_matrix[z] = new segment[_max_num_segments];
-        }
-      }
-      else if (_segment_formation == OTF_TRACKS) {
-        segments_3D = new segment[_max_num_segments];
-      }
-
-      /* Create segmentation kernels */
-      MOCKernel* kernel;
+      /* Create kernels and allocate segments for OTF computation */
       MOCKernel** kernels;
-      if (_segment_formation == OTF_STACKS) {
-        kernels = new MOCKernel*[_max_num_tracks_per_stack];
-        for (int z=0; z < _max_num_tracks_per_stack; z++) {
+      segment** segments_3D_matrix;
+      int num_rows = 1;
+      if (_segment_formation != EXPLICIT) {
+        if (_segment_formation == OTF_STACKS)
+          num_rows = _max_num_tracks_per_stack;
+
+        /* Allocate memory */
+        kernels = new MOCKernel*[num_rows];
+        segments_3D_matrix = new segment*[num_rows];
+        for (int z=0; z < num_rows; z++) {
+          segments_3D_matrix[z] = new segment[_max_num_segments];
           kernels[z] = new SegmentationKernel;
           kernels[z]->setSegments(segments_3D_matrix[z]);
         }
       }
-      else if (_segment_formation == OTF_TRACKS) {
-        kernel = new SegmentationKernel;
-        kernel->setSegments(segments_3D);
-      }
+
+      /* Track the current set of 3D segments for a Track */
+      segment* segments_3D = segments_3D_matrix[0];
 
       /* Calculate the maximum optical path length over all segments with axial
        * on-the-fly ray tracing */
@@ -479,8 +472,8 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
               Point* start = _tracks_3D[a][i][p][z].getStart();
               double theta = _tracks_3D[a][i][p][z].getTheta();
               Track2D* flattened_track = &_tracks_2D[a][i];
-              kernel->resetCount();
-              traceSegmentsOTF(flattened_track, start, theta, kernel);
+              kernels[0]->resetCount();
+              traceSegmentsOTF(flattened_track, start, theta, kernels[0]);
             }
             else {
               segments_3D = track_3D->getSegments();
@@ -502,17 +495,13 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
       }
 
       /* Delete temporary segment storage and associated kernels */
-      if (_segment_formation == OTF_STACKS) {
+      if (_segment_formation != EXPLICIT) {
         for (int z=0; z < _max_num_tracks_per_stack; z++) {
           delete [] segments_3D_matrix[z];
           delete kernels[z];
         }
         delete [] segments_3D_matrix;
         delete [] kernels;
-      }
-      else if (_segment_formation == OTF_TRACKS) {
-        delete [] segments_3D;
-        delete kernel;
       }
     }
   }
@@ -5452,19 +5441,19 @@ void TrackGenerator::countSegments() {
 
   #pragma omp parallel reduction(max:max_num_segments)
   {
-    /* Create segmentation kernels */
-    MOCKernel* counter;
-    MOCKernel** counters;
-    if (_segment_formation == OTF_STACKS) {
-      counters = new MOCKernel*[_max_num_tracks_per_stack];
-      for (int z=0; z < _max_num_tracks_per_stack; z++) {
-        counters[z] = new CounterKernel;
-        counters[z]->setMaxVal(_max_optical_length);
+    /* Create kernels and allocate segments for OTF computation */
+    MOCKernel** kernels;
+    int num_rows = 1;
+    if (_segment_formation != EXPLICIT) {
+      if (_segment_formation == OTF_STACKS)
+        num_rows = _max_num_tracks_per_stack;
+
+      /* Allocate memory */
+      kernels = new MOCKernel*[num_rows];
+      for (int z=0; z < num_rows; z++) {
+        kernels[z] = new CounterKernel;
+        kerels[z]->setMaxVal(_max_optical_length);
       }
-    }
-    else if (_segment_formation == OTF_TRACKS) {
-      counter = new CounterKernel;
-      counter->setMaxVal(_max_optical_length);
     }
 
     /* Calculate the number of segments in each track with axial on-the-fly ray
@@ -5488,7 +5477,7 @@ void TrackGenerator::countSegments() {
 
         /* Trace stack if calculating stack on-the-fly */
         if (_segment_formation == OTF_STACKS)
-          traceStackOTF(flattened_track, p, counters);
+          traceStackOTF(flattened_track, p, kernels);
 
         /* Loop over z-stacked rays */
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
@@ -5501,13 +5490,13 @@ void TrackGenerator::countSegments() {
           /* Trace 3D segments */
           int num_segments;
           if (_segment_formation == OTF_STACKS) {
-            num_segments = counters[z]->getCount();
-            counters[z]->resetCount();
+            num_segments = kernels[z]->getCount();
+            kernels[z]->resetCount();
           }
           else {
-            traceSegmentsOTF(flattened_track, start, theta, counter);
-            num_segments = counter->getCount();
-            counter->resetCount();
+            traceSegmentsOTF(flattened_track, start, theta, kernels[0]);
+            num_segments = kernels[0]->getCount();
+            kernels[0]->resetCount();
           }
 
           /* Set the number of segments for the track */
