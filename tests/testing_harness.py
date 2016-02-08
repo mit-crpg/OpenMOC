@@ -213,3 +213,47 @@ class HashedTestHarness(TestHarness):
     def _get_results(self):
         """Digest info in the results and return as a string."""
         return super(HashedTestHarness, self)._get_results(hash_output=True)
+
+
+class TrackingTestHarness(TestHarness):
+    """Specialized TestHarness for testing tracking."""
+    
+    def __init__(self):
+        super(TrackingTestHarness, self).__init__()
+        self.tracks = dict()
+        self._result = ''
+
+    def _segment_track(self, track, geometry):
+        """Segments a given track over a given geometry and records the
+           resulting segment information to a string"""
+
+        # Segmentize a track in a geometry, recording the segments in a string
+        geometry.segmentize(track)
+        num_segments = track.getNumSegments()
+        info = ' ' + str(num_segments) + '\n'
+        for i in range(num_segments):
+            info += str(i) + ': '
+            segment = track.getSegment(i)
+            info += str(round(segment._length, 8)) + ', '
+            info += str(segment._region_id) + ', '
+            info += str(segment._cmfd_surface_fwd) + ', '
+            info += str(segment._cmfd_surface_bwd) + ', '
+            info += str(segment._material.getName()) + ', '
+            info += str(segment._material.getId()) + '\n'
+        track.clearSegments()
+        return info
+
+    def _run_openmoc(self):
+        """Segment tracks over the geometry and save the result to a string"""
+
+        # Segmentize tracks over the geometry
+        for track_name in self.tracks:
+            self._result += track_name
+            self._result += self._segment_track(self.tracks[track_name],
+                                                self.input_set.geometry)
+
+    def _get_results(self, num_iters=False, keff=False, fluxes=False,
+                     num_fsrs=True, num_segments=True, num_tracks=True,
+                     hash_output=False):
+        """Return the result string"""
+        return self._result

@@ -136,7 +136,7 @@ class PinCellInput(InputSet):
 
 
 class GridInput(InputSet):
-    """Sets up a simple grid problem using explicit plane"""
+    """Sets up a simple grid problem using explicit planes"""
 
     def create_materials(self):
         """Instantiate C5G7 Materials."""
