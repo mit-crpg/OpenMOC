@@ -23,7 +23,7 @@ class TrackingPinCellTestHarness(TrackingTestHarness):
         super(TrackingPinCellTestHarness, self)._create_geometry()
 
         # Initialize track objects
-        tracks = OrderedDict()
+        tracks = self.tracks
         tracks['Diagonal Track'] = openmoc.Track()
         tracks['Tangent Track'] = openmoc.Track()
         tracks['Nudged Tangent Track'] = openmoc.Track()
@@ -43,9 +43,6 @@ class TrackingPinCellTestHarness(TrackingTestHarness):
         tracks['Vertical Track'].setValues(0, -2, 0, 0, 2, 0, math.pi/2)
         tracks['Reverse Diagonal Track'].setValues(2, 2, 0, -2, -2, 0,\
                                                    math.pi + math.atan(1))
-
-        # Set the tracks dictionary in the parent class
-        self.tracks = tracks
 
 if __name__ == '__main__':
     harness = TrackingPinCellTestHarness()

@@ -23,7 +23,7 @@ class TrackingLatticeGridTestHarness(TrackingTestHarness):
         super(TrackingLatticeGridTestHarness, self)._create_geometry()
 
         # Initialize track objects
-        tracks = OrderedDict()
+        tracks = self.tracks
         tracks['Diagonal Track'] = openmoc.Track()
         tracks['Nudged Diagonal Track'] = openmoc.Track()
         tracks['Horizontal Track'] = openmoc.Track()
@@ -39,9 +39,6 @@ class TrackingLatticeGridTestHarness(TrackingTestHarness):
         tracks['Vertical Track'].setValues(0, -3, 0, 0, 3, 0, math.pi/2)
         tracks['Reverse Diagonal Track'].setValues(3, 3, 0, -3, -3, 0,\
                                                    math.pi + math.atan(1))
-
-        # Set the tracks dictionary in the parent class
-        self.tracks = tracks
 
 if __name__ == '__main__':
     harness = TrackingLatticeGridTestHarness()
