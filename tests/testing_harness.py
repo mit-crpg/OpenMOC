@@ -6,6 +6,7 @@ from optparse import OptionParser
 import os
 import shutil
 import sys
+from collections import OrderedDict
 
 sys.path.insert(0, 'openmoc')
 import openmoc
@@ -220,7 +221,7 @@ class TrackingTestHarness(TestHarness):
     
     def __init__(self):
         super(TrackingTestHarness, self).__init__()
-        self.tracks = dict()
+        self.tracks = OrderedDict()
         self._result = ''
 
     def _segment_track(self, track, geometry):

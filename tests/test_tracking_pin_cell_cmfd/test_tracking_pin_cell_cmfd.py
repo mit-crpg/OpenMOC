@@ -3,6 +3,7 @@
 import os
 import sys
 import math
+from collections import OrderedDict
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TrackingTestHarness
@@ -22,7 +23,7 @@ class TrackingPinCellCMFDTestHarness(TrackingTestHarness):
         super(TrackingPinCellCMFDTestHarness, self)._create_geometry()
 
         # Initialize track objects
-        tracks = dict()
+        tracks = OrderedDict()
         tracks['Diagonal Track'] = openmoc.Track()
         tracks['Tangent Track'] = openmoc.Track()
         tracks['Nudged Tangent Track'] = openmoc.Track()
