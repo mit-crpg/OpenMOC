@@ -884,7 +884,7 @@ bool Cell::containsPoint(Point* point) {
 
     /* Return false if the Point is not in the correct Surface halfspace */
     if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
-        < -ON_SURFACE_THRESH)
+        < 0.0)
       return false;
   }
 
