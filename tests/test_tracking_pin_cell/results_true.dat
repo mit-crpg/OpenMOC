@@ -7,7 +7,7 @@ Tangent Track 1
 Nudged Tangent Track 3
 0: 1.82723862, 0, -1, -1, Water, 10083
 1: 0.00237841, 1, -1, -1, UO2, 49930
-2: inf, 1, -1, -1, UO2, 49930
+2: 1.82723862, 0, -1, -1, Water, 10083
 Horizontal Track 3
 0: 1.0, 0, -1, -1, Water, 10083
 1: 2.0, 1, -1, -1, UO2, 49930
