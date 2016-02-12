@@ -1382,7 +1382,7 @@ class PlotParams(object):
         if not isinstance(extension, str):
             py_printf('ERROR', 'Extension %s is not a string', str(extension))
 
-        self._filename = extension
+        self._extension = extension
 
     @zcoord.setter
     def zcoord(self, zcoord):
