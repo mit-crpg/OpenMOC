@@ -11,6 +11,7 @@ import os
 import sys
 import numpy as np
 import numpy.random
+from PIL import Image, ImageDraw
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -374,10 +375,6 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
 
-    # Ensure that normal settings are used even if called from ipython
-    curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
-
     if not isinstance(centroids, bool):
         py_printf('ERROR', 'Unable to plot the flat source regions since ' +
                   'centroids is not a boolean')
@@ -430,17 +427,45 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     fig = figures[0]
 
     # Plot centroids on top of 2D flat source region color map
-    if library == 'matplotlib' and centroids:
+    if centroids:
+
+        # Populate a NumPy array with the FSR centroid coordinates
         centroids = np.zeros((num_fsrs, 2), dtype=np.float)
         for fsr_id in range(num_fsrs):
             point = geometry.getFSRCentroid(fsr_id)
             centroids[fsr_id,:] = [point.getX(), point.getY()]
 
-        plt.scatter(centroids[:,0], centroids[:,1], color='k',
-                    marker=marker_type, s=marker_size)
+        # Plot centroids on figure using matplotlib
+        if library == 'pil':
 
-    # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+            # Retrieve the plot bounds
+            coords = _get_pixel_coords(plot_params)
+            r = marker_size
+
+            # Open a PIL ImageDraw portal on the Image object
+            draw = ImageDraw.Draw(fig)
+
+            for fsr_id in range(num_fsrs):
+                # Retrieve the pixel coordinates for this centroid
+                x, y = centroids[fsr_id,:]
+
+                # Only plot centroid if it is within the plot bounds
+                if x < coords['bounds'][0] or x > coords['bounds'][1]:
+                    continue
+                elif y < coords['bounds'][2] or y > coords['bounds'][3]:
+                    continue
+
+                # Transform the centroid into pixel coordinates
+                x = int((x-coords['x'][1]) / (coords['x'][1]-coords['x'][0]))
+                y = int((y-coords['y'][1]) / (coords['y'][1]-coords['y'][0]))
+
+                # Draw circle for this centroid on the image
+                draw.ellipse((x-r, y-r, x+r, y+r), fill=(0, 0, 0))
+
+        # Plot centroids on figure using PIL
+        else:
+            plt.scatter(centroids[:,0], centroids[:,1], color='k',
+                        marker=marker_type, s=marker_size)
 
     # Return the figure to the user if requested
     if get_figure:
@@ -1619,9 +1644,13 @@ def _colorize(data, num_colors, seed=1):
     return ids_to_colors.take(data)
 
 
+##
+# @brief Plot 2D NumPy array data using Python Imaging Library (PIL).
+# @details This is a good alternative to matplotlib for high-resolution images.
+# @param array a NumPy array of data
+# @param plot_params a PlotParams object with the matplotlib colormap to use
+# @return A Python Imaging Library (PIL) Image object
 def _get_pil_image(array, plot_params):
-
-    from PIL import Image
 
     # Convert array to a normalized array of floating point values
     float_array = np.zeros(array.shape, dtype=np.float)
