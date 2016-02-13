@@ -244,8 +244,9 @@ def plot_segments(track_generator, get_figure=False, dpi=500):
 # @param zcoord optional the z coordinate (default is 0.0)
 # @param get_figure whether to return the Matplotlib figure
 # @param dpi dots per inch
-def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, 
-                   zcoord=None, get_figure=False, dpi=500):
+# @param library the plotting library ('matplotlib' or 'pil')
+def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None,
+                   get_figure=False, dpi=500, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the materials...')
 
@@ -264,6 +265,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.domain_type = 'material'
     plot_params.gridsize = gridsize
     plot_params.dpi = dpi
+    plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
     plot_params.zcoord = zcoord
@@ -301,8 +303,9 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None,
 # @param zcoord optional the z coordinate (default is 0.0)
 # @param get_figure whether to return the Matplotlib figure
 # @param dpi dots per inch
+# @param library the plotting library ('matplotlib' or 'pil')
 def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
-               zcoord=None, get_figure=False, dpi=500):
+               zcoord=None, get_figure=False, dpi=500, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the cells...')
 
@@ -321,6 +324,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.domain_type = 'cell'
     plot_params.gridsize = gridsize
     plot_params.dpi = dpi
+    plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
     plot_params.zcoord = zcoord
@@ -362,9 +366,10 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
 # @param marker_size optional int/float to set the centroids marker size
 # @param get_figure whether to return the Matplotlib figure
 # @param dpi dots per inch
+# @param library the plotting library ('matplotlib' or 'pil')
 def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
                              centroids=False, marker_type='o', marker_size=2,
-                             get_figure=False, dpi=500):
+                             get_figure=False, dpi=500, library='matplotlib'):
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -410,6 +415,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
     plot_params.dpi = dpi
+    plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
     plot_params.suptitle = 'Flat Source Regions'
@@ -424,7 +430,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     fig = figures[0]
 
     # Plot centroids on top of 2D flat source region color map
-    if centroids:
+    if library == 'matplotlib' and centroids:
         centroids = np.zeros((num_fsrs, 2), dtype=np.float)
         for fsr_id in range(num_fsrs):
             point = geometry.getFSRCentroid(fsr_id)
@@ -439,11 +445,15 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     # Return the figure to the user if requested
     if get_figure:
         return figures[0]
+    # Set the plot title and save the figure
     else:
-        # Set the plot title and save the figure
         plot_filename = directory + plot_params.filename + plot_params.extension
-        fig.savefig(plot_filename, bbox_inches='tight', dpi=dpi)
-        plt.close(fig)
+
+        if library == 'pil':
+            fig.save(plot_filename)
+        else:
+            fig.savefig(plot_filename, bbox_inches='tight', dpi=dpi)
+            plt.close(fig)
 
 
 ##
@@ -471,8 +481,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return the Matplotlib figure
 # @param dpi dots per inch
+# @param library the plotting library ('matplotlib' or 'pil')
 def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, 
-                    get_figure=False, dpi=500):
+                    get_figure=False, dpi=500, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
@@ -497,6 +508,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
     plot_params.dpi = dpi
+    plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
     plot_params.suptitle = 'CMFD Cells'
@@ -533,8 +545,10 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to a return a list of Matplotlib figures
 # @param dpi dots per inch
+# @param library the plotting library ('matplotlib' or 'pil')
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
-                        xlim=None, ylim=None, get_figure=False, dpi=500):
+                        xlim=None, ylim=None, get_figure=False, dpi=500, 
+                        library='matplotlib'):
 
     if 'Solver' not in str(type(solver)):
         py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
@@ -554,6 +568,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
     plot_params.dpi = dpi
+    plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
     plot_params.colorbar = True
@@ -760,8 +775,10 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return the Matplotlib figure
 # @param dpi dots per inch
+# @param library the plotting library ('matplotlib' or 'pil')
 def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
-                       xlim=None, ylim=None, get_figure=False, dpi=500):
+                       xlim=None, ylim=None, get_figure=False, dpi=500, 
+                       library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
@@ -780,6 +797,7 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
     plot_params.dpi = dpi
+    plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
     plot_params.suptitle = 'Flat Source Region Fission Rates'
@@ -818,9 +836,10 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return a list of Matplotlib figures
 # @param dpi dots per inch
+# @param library the plotting library ('matplotlib' or 'pil')
 def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
-                          norm=False, gridsize=250, xlim=None, 
-                          ylim=None, get_figure=False, dpi=500):
+                          norm=False, gridsize=250, xlim=None, ylim=None,
+                          get_figure=False, dpi=500, library='matplotlib'):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -890,8 +909,8 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
             '/plots/eig-{0}-flux/'.format(str(mode).zfill(num_digits))
 
         # Plot this eigenmode's spatial fluxes
-        fig = plot_spatial_fluxes(moc_solver, energy_groups, norm,
-                                  gridsize, xlim, ylim, get_figure, dpi)
+        fig = plot_spatial_fluxes(moc_solver, energy_groups, norm, gridsize,
+                                  xlim, ylim, get_figure, dpi, library)
 
         if get_figure:
             figures.append(fig[0])
@@ -933,10 +952,6 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
-
-    # Ensure that normal settings are used even if called from ipython
-    curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
     if not os.path.exists(directory):
@@ -1046,48 +1061,67 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         if plot_params.cmap:
             plot_params.cmap.set_bad(alpha=0.0)
 
-        # Plot a 2D color map of the domain data
-        fig = plt.figure()
-        fig.patch.set_facecolor('none')
-        plt.imshow(np.flipud(surface), extent=coords['bounds'],
-                   interpolation=plot_params.interpolation,
-                   vmin=plot_params.vmin, vmax=plot_params.vmax,
-                   cmap=plot_params.cmap)
+        # Create plot filename
+        plot_filename = directory + plot_params.filename
 
-        if plot_params.colorbar:
-            plt.colorbar()
-        if plot_params.title:
-            plt.title(plot_params.title)
+        # If input was Pandas DataFrame, append column name to filename
+        if pandas_df:
+            plot_filename += '-{0}'.format(domains_to_data.columns[i])
 
-        if plot_params.suptitle:
-            # If input was a Pandas DataFrame, append column name to suptitle
-            if pandas_df:
-                suptitle = plot_params.suptitle
-                suptitle += ' ({0})'.format(domains_to_data.columns[i])
+        # Append file extension (e.g., '.png', '.ppm') to filename
+        plot_filename +=  plot_params.extension
+
+        # Use Python Imaging Library (PIL) to plot 2D color map of domain data
+        if plot_params.library == 'pil':
+            img = _get_pil_image(np.flipud(surface), plot_params)
+            
+            if get_figure:
+                figures.append(img)
             else:
-                suptitle = plot_params.suptitle
+                img.save(plot_filename)
 
-            plt.suptitle(suptitle)
-
-        # If the user requested the Matplotlib figure handles for further
-        # specialization, append the handle to this figure to a list
-        if get_figure:
-            figures.append(fig)
-
-        # Otherwise, save this Matplotlib figure
+        # Use Matplotlib to plot 2D color map of domain data
         else:
-            plot_filename = directory + plot_params.filename
 
-            # If input was a Pandas DataFrame, append column name to filename
-            if pandas_df:
-                plot_filename += '-{0}'.format(domains_to_data.columns[i])
+            # Ensure that normal settings are used even if called from ipython
+            curr_rc = dict(matplotlib.rcParams)
+            matplotlib.rcParams.update(matplotlib_rcparams)
 
-            plot_filename +=  plot_params.extension
-            fig.savefig(plot_filename, bbox_inches='tight', dpi=plot_params.dpi)
-            plt.close()
+            fig = plt.figure()
+            fig.patch.set_facecolor('none')
+            plt.imshow(np.flipud(surface), extent=coords['bounds'],
+                       interpolation=plot_params.interpolation,
+                       vmin=plot_params.vmin, vmax=plot_params.vmax,
+                       cmap=plot_params.cmap)
 
-    # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+            if plot_params.colorbar:
+                plt.colorbar()
+            if plot_params.title:
+                plt.title(plot_params.title)
+
+            if plot_params.suptitle:
+                # If input was Pandas DataFrame, append column name to suptitle
+                if pandas_df:
+                    suptitle = plot_params.suptitle
+                    suptitle += ' ({0})'.format(domains_to_data.columns[i])
+                else:
+                    suptitle = plot_params.suptitle
+
+                plt.suptitle(suptitle)
+
+            # If the user requested the Matplotlib figure handles for further
+            # specialization, append the handle to this figure to a list
+            if get_figure:
+                figures.append(fig)
+
+            # Otherwise, save this Matplotlib figure
+            else:
+                fig.savefig(plot_filename, bbox_inches='tight', 
+                            dpi=plot_params.dpi)
+                plt.close()
+
+            # Restore settings if called from ipython
+            matplotlib.rcParams.update(curr_rc)
 
     # Return Matplotlib figures if requested by user
     if get_figure:
@@ -1241,6 +1275,9 @@ class PlotParams(object):
         ## The image file extension
         self._extension = '.png'
 
+        ## The image processing library ('matplotlib' or 'pil')
+        self._library = 'matplotlib'
+
         ## The z-coordinate at which to slice the Geometry
         self._zcoord = 0
 
@@ -1298,6 +1335,10 @@ class PlotParams(object):
     @property
     def extension(self):
         return self._extension
+
+    @property
+    def library(self):
+        return self._library
 
     @property
     def zcoord(self):
@@ -1383,6 +1424,15 @@ class PlotParams(object):
             py_printf('ERROR', 'Extension %s is not a string', str(extension))
 
         self._extension = extension
+
+    @library.setter
+    def library(self, library):
+        if not isinstance(library, str):
+            py_printf('ERROR', 'Library %s is not a string', str(library))
+        elif library not in ['matplotlib', 'pil']:
+            py_printf('ERROR', 'Library %s is not supported', library)
+
+        self._library = library
 
     @zcoord.setter
     def zcoord(self, zcoord):
@@ -1567,3 +1617,22 @@ def _colorize(data, num_colors, seed=1):
     ids_to_colors[all_ids] = id_colors
 
     return ids_to_colors.take(data)
+
+
+def _get_pil_image(array, plot_params):
+
+    from PIL import Image
+
+    # Convert array to a normalized array of floating point values
+    float_array = np.zeros(array.shape, dtype=np.float)
+    float_array[:,:] = array[:,:]
+    float_array[:,:] /= np.max(float_array)
+
+    # Use "jet" colormap if none is defined
+    if plot_params.cmap is None:
+        cmap = plt.get_cmap('jet')
+    else:
+        cmap = plt.get_cmap('spectral')
+
+    # Use Python Imaging Library (PIL) to create an image from the array
+    return Image.fromarray(np.uint8(cmap(float_array) * 255))
