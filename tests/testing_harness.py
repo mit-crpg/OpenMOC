@@ -298,7 +298,7 @@ class PlottingTestHarness(TestHarness):
 #            sha512.update(outstr.encode('utf-8'))
 #            outstr = sha512.hexdigest()
 
-            plot_hash = hashlib.md5(img.tostring())
+            plot_hash = hashlib.md5(img.tobytes())
             outstr += '{}\n'.format(plot_hash.hexdigest())
 
         return outstr
