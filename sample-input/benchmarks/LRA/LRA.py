@@ -1,6 +1,5 @@
 import openmoc
 import openmoc.plotter as plotter
-import openmoc.process as process
 from openmoc.options import Options
 from lattices import lattices, universes, cells
 
