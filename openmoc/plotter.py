@@ -11,7 +11,6 @@ import os
 import sys
 import numpy as np
 import numpy.random
-from PIL import Image, ImageDraw
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -1621,6 +1620,8 @@ def _colorize(data, num_colors, seed=1):
 # @param plot_params a PlotParams object with the matplotlib colormap to use
 # @return A Python Imaging Library (PIL) Image object
 def _get_pil_image(array, plot_params):
+
+    from PIL import Image, ImageDraw
 
     # Convert array to a normalized array of floating point values
     float_array = np.zeros(array.shape, dtype=np.float)
