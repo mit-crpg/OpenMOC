@@ -585,7 +585,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
     plot_params.xlim = xlim
     plot_params.ylim = ylim
     plot_params.colorbar = True
-    plot_params.cmap = None
+    plot_params.cmap = plt.get_cmap('jet')
     plot_params.norm = norm
 
     # Get array of FSR energy-dependent fluxes
@@ -819,7 +819,7 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
     plot_params.filename = 'fission-rates-z-{0}.png'.format(zcoord)
     plot_params.transparent_zeros = True
     plot_params.colorbar = True
-    plot_params.cmap = None
+    plot_params.cmap = plt.get_cmap('jet')
     plot_params.norm = norm
 
     # Plot the fission rates
@@ -1520,7 +1520,7 @@ class PlotParams(object):
 
     @cmap.setter
     def cmap(self, cmap):
-        if cmap and not isinstance(cmap, matplotlib.colors.ColorMap):
+        if cmap and not isinstance(cmap, matplotlib.colors.Colormap):
             py_printf('ERROR', 'The cmap %s is not a Matplotlib',
                                'ColorMap object', str(cmap))
 
@@ -1629,11 +1629,5 @@ def _get_pil_image(array, plot_params):
     float_array[:,:] = array[:,:]
     float_array[:,:] /= np.max(float_array)
 
-    # Use "jet" colormap if none is defined
-    if plot_params.cmap is None:
-        cmap = plt.get_cmap('jet')
-    else:
-        cmap = plt.get_cmap('spectral')
-
     # Use Python Imaging Library (PIL) to create an image from the array
-    return Image.fromarray(np.uint8(cmap(float_array) * 255))
+    return Image.fromarray(np.uint8(plot_params.cmap(float_array) * 255))
