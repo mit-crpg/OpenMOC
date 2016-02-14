@@ -434,6 +434,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
             r = marker_size
 
             # Open a PIL ImageDraw portal on the Image object
+            from PIL import ImageDraw
             draw = ImageDraw.Draw(fig)
 
             for fsr_id in range(num_fsrs):
@@ -1621,7 +1622,10 @@ def _colorize(data, num_colors, seed=1):
 # @return A Python Imaging Library (PIL) Image object
 def _get_pil_image(array, plot_params):
 
-    from PIL import Image, ImageDraw
+    from PIL import Image
+
+    import PIL
+    print(PIL.VERSION)
 
     # Convert array to a normalized array of floating point values
     float_array = np.zeros(array.shape, dtype=np.float)
