@@ -4,7 +4,8 @@ from __future__ import print_function
 
 import os
 import re
-from subprocess import Popen
+import subprocess
+import shutil
 from glob import glob
 from optparse import OptionParser
 
@@ -21,6 +22,26 @@ OKGREEN = '\033[92m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 BOLD = '\033[1m'
+
+# Go into main OpenMOC directory
+os.chdir('..')
+
+# Setup shell command to install OpenMOC with distutils
+setup_cmd = ['python', 'setup.py', 'install']
+setup_cmd += ['--install-purelib=tests/openmoc']
+setup_cmd += ['--fp=double']
+setup_cmd += ['--cc=gcc']
+
+# Run setup.py to install openmoc
+rc = subprocess.call(setup_cmd)
+rc = subprocess.call(setup_cmd)
+
+# Check for error code
+if rc != 0:
+    exit('Failed on setup.py')
+
+# Return to tests directory
+os.chdir('tests')
 
 # Get a list of all test folders
 folders = glob('test_*')
@@ -47,7 +68,7 @@ for adir in sorted(folders):
         'There must be only one test executable per test directory'
 
     # Update the test results
-    proc = Popen(['python', test_exec[0], '--update'])
+    proc = subprocess.Popen(['python', test_exec[0], '--update'])
     returncode = proc.wait()
     if returncode == 0:
         print(BOLD + OKGREEN + "[OK]" + ENDC)
@@ -56,3 +77,7 @@ for adir in sorted(folders):
 
     # Go back a directory
     os.chdir('..')
+
+# Clear build directories for OpenMOC
+shutil.rmtree('build', ignore_errors=True)
+shutil.rmtree('openmoc', ignore_errors=True)

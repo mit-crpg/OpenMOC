@@ -64,8 +64,7 @@ TINY_MOVE = openmoc.TINY_MOVE
 #
 # @param track_generator the TrackGenerator which has generated Tracks
 # @param get_figure whether or not to return the Matplotlib figure
-# @param dpi dots per inch
-def plot_tracks(track_generator, get_figure=False, dpi=500):
+def plot_tracks(track_generator, get_figure=False):
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -122,7 +121,7 @@ def plot_tracks(track_generator, get_figure=False, dpi=500):
     else:
         filename = \
             'tracks-{1}-angles-{2}.png'.format(directory, num_azim, spacing)
-        fig.savefig(directory+filename, bbox_inches='tight', dpi=dpi)
+        fig.savefig(directory+filename, bbox_inches='tight')
         plt.close(fig)
 
 
@@ -139,8 +138,7 @@ def plot_tracks(track_generator, get_figure=False, dpi=500):
 #
 # @param track_generator the TrackGenerator which has generated Tracks
 # @param get_figure whether or not to return the Matplotlib figure
-# @param dpi dots per inch
-def plot_segments(track_generator, get_figure=False, dpi=500):
+def plot_segments(track_generator, get_figure=False):
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -222,7 +220,7 @@ def plot_segments(track_generator, get_figure=False, dpi=500):
     else:
         filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim, spacing)
         filename = '{0}-z-{1}.png'.format(filename, z[0])
-        fig.savefig(directory+filename, bbox_inches='tight', dpi=dpi)
+        fig.savefig(directory+filename, bbox_inches='tight')
         plt.close(fig)
 
 
@@ -244,10 +242,9 @@ def plot_segments(track_generator, get_figure=False, dpi=500):
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param zcoord optional the z coordinate (default is 0.0)
 # @param get_figure whether to return the Matplotlib figure
-# @param dpi dots per inch
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None,
-                   get_figure=False, dpi=500, library='matplotlib'):
+                   get_figure=False, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the materials...')
 
@@ -265,7 +262,6 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None,
     plot_params.geometry = geometry
     plot_params.domain_type = 'material'
     plot_params.gridsize = gridsize
-    plot_params.dpi = dpi
     plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -303,10 +299,9 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zcoord=None,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param zcoord optional the z coordinate (default is 0.0)
 # @param get_figure whether to return the Matplotlib figure
-# @param dpi dots per inch
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
-               zcoord=None, get_figure=False, dpi=500, library='matplotlib'):
+               zcoord=None, get_figure=False, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the cells...')
 
@@ -324,7 +319,6 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.geometry = geometry
     plot_params.domain_type = 'cell'
     plot_params.gridsize = gridsize
-    plot_params.dpi = dpi
     plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -366,11 +360,10 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
 # @param marker_type optional string to set the centroids marker type
 # @param marker_size optional int/float to set the centroids marker size
 # @param get_figure whether to return the Matplotlib figure
-# @param dpi dots per inch
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
                              centroids=False, marker_type='o', marker_size=2,
-                             get_figure=False, dpi=500, library='matplotlib'):
+                             get_figure=False, library='matplotlib'):
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -411,7 +404,6 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
-    plot_params.dpi = dpi
     plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -477,7 +469,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
         if library == 'pil':
             fig.save(plot_filename)
         else:
-            fig.savefig(plot_filename, bbox_inches='tight', dpi=dpi)
+            fig.savefig(plot_filename, bbox_inches='tight')
             plt.close(fig)
 
 
@@ -505,10 +497,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return the Matplotlib figure
-# @param dpi dots per inch
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, 
-                    get_figure=False, dpi=500, library='matplotlib'):
+                    get_figure=False, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
@@ -532,7 +523,6 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
-    plot_params.dpi = dpi
     plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -569,10 +559,9 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to a return a list of Matplotlib figures
-# @param dpi dots per inch
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
-                        xlim=None, ylim=None, get_figure=False, dpi=500, 
+                        xlim=None, ylim=None, get_figure=False, 
                         library='matplotlib'):
 
     if 'Solver' not in str(type(solver)):
@@ -592,7 +581,6 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
-    plot_params.dpi = dpi
     plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -647,9 +635,8 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 # @param norm normalize the fluxes to the total energy-integrated flux
 # @param loglog boolean indicating whether to plot use a log-log scale
 # @param get_figure return a list of the Matplotlib figures
-# @param dpi dots per inch
 def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, 
-                       loglog=True, get_figure=False, dpi=500):
+                       loglog=True, get_figure=False):
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -772,7 +759,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
         # Save the figure to a file or return to user if requested
         if get_figure:
             filename = 'flux-fsr-{0}.png'.format(fsr)
-            plt.savefig(directory+filename, bbox_inches='tight', dpi=dpi)
+            plt.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
         else:
             figures.append(fig)
@@ -799,10 +786,9 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return the Matplotlib figure
-# @param dpi dots per inch
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
-                       xlim=None, ylim=None, get_figure=False, dpi=500, 
+                       xlim=None, ylim=None, get_figure=False,
                        library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the flat source region fission rates...')
@@ -821,7 +807,6 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
     plot_params.gridsize = gridsize
-    plot_params.dpi = dpi
     plot_params.library = library
     plot_params.xlim = xlim
     plot_params.ylim = ylim
@@ -860,11 +845,10 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return a list of Matplotlib figures
-# @param dpi dots per inch
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
                           norm=False, gridsize=250, xlim=None, ylim=None,
-                          get_figure=False, dpi=500, library='matplotlib'):
+                          get_figure=False, library='matplotlib'):
 
     global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
@@ -935,7 +919,7 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 
         # Plot this eigenmode's spatial fluxes
         fig = plot_spatial_fluxes(moc_solver, energy_groups, norm, gridsize,
-                                  xlim, ylim, get_figure, dpi, library)
+                                  xlim, ylim, get_figure, library)
 
         if get_figure:
             figures.append(fig[0])
@@ -1141,8 +1125,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
             # Otherwise, save this Matplotlib figure
             else:
-                fig.savefig(plot_filename, bbox_inches='tight', 
-                            dpi=plot_params.dpi)
+                fig.savefig(plot_filename, bbox_inches='tight')
                 plt.close()
 
             # Restore settings if called from ipython
@@ -1166,8 +1149,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 # @param solver the Solver which has a TrackGenerator containing tracks and
 #               PolarQuad object
 # @param get_figure whether to return the Matplotlib figure
-# @param dpi dots per inch
-def plot_quadrature(solver, get_figure=False, dpi=500):
+def plot_quadrature(solver, get_figure=False):
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -1268,7 +1250,7 @@ def plot_quadrature(solver, get_figure=False, dpi=500):
     if get_figure:
         return fig
     else:
-        fig.savefig(filename, bbox_inches='tight', dpi=dpi)
+        fig.savefig(filename, bbox_inches='tight')
         plt.close(fig)
 
 
@@ -1308,9 +1290,6 @@ class PlotParams(object):
 
         ## The number of points along the x- and y-axes
         self._gridsize = 250
-
-        ## The number of dots per inch
-        self._dpi = 500
 
         ## A 2-tuple of (maximum, minimum) x-coordinates to display
         self._xlim = None
@@ -1372,10 +1351,6 @@ class PlotParams(object):
     @property
     def gridsize(self):
         return self._gridsize
-
-    @property
-    def dpi(self):
-        return self._dpi
 
     @property
     def xlim(self):
@@ -1474,15 +1449,6 @@ class PlotParams(object):
             py_printf('ERROR', 'Gridsize %s is negative', str(gridsize))
 
         self._gridsize = gridsize
-
-    @dpi.setter
-    def dpi(self, dpi):
-        if not is_integer(dpi):
-            py_printf('ERROR', 'DPI %s is not an integer', str(dpi))
-        if dpi <= 0:
-            py_printf('ERROR', 'DPI %s is negative', str(dpi))
-
-        self._dpi = dpi
 
     @xlim.setter
     def xlim(self, xlim):
