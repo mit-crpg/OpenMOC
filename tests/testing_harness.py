@@ -10,12 +10,12 @@ from collections import OrderedDict
 from optparse import OptionParser
 from PIL import Image
 
-import matplotlib
-import matplotlib.pyplot as plt
-
 sys.path.insert(0, 'openmoc')
 import openmoc
 import openmoc.process
+
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 class TestHarness(object):
