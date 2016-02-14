@@ -19,6 +19,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _tracks_filename = "";
   _z_coord = 0.0;
   _phi = NULL;
+  _FSR_locks = NULL;
 }
 
 
@@ -42,6 +43,9 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks;
     delete [] _tracks_by_parallel_group;
   }
+
+  if (_FSR_locks != NULL)
+    delete [] _FSR_locks;
 }
 
 
@@ -76,6 +80,19 @@ Geometry* TrackGenerator::getGeometry() {
                "since it has not yet been set");
 
   return _geometry;
+}
+
+
+/**
+ * @brief Return the array of FSR locks for atomic FSR operations.
+ * @return an array of FSR locks
+ */
+omp_lock_t* TrackGenerator::getFSRLocks() {
+  if (_FSR_locks == NULL)
+    log_printf(ERROR, "Unable to return the TrackGenerator's FSR locks "
+               "since they have not yet been created");
+
+  return _FSR_locks;
 }
 
 
@@ -171,14 +188,18 @@ int TrackGenerator::getNumSegments() {
     log_printf(ERROR, "Unable to return the total number of segments since "
                "Tracks have not yet been generated.");
 
-  int num_segments = 0;
+  int total_num_segments = 0;
+  int num_segments;
 
   for (int i=0; i < _num_azim; i++) {
+#pragma omp parallel for reduction(+:num_segments)
     for (int j=0; j < _num_tracks[i]; j++)
       num_segments += _tracks[i][j].getNumSegments();
+
+    total_num_segments += num_segments;
   }
 
-  return num_segments;
+  return total_num_segments;
 }
 
 
@@ -261,21 +282,34 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
-  int azim_index;
-  segment* curr_segment;
-  FP_PRECISION volume;
-
   /* Calculate each FSR's "volume" by accumulating the total length of *
    * all Track segments multipled by the Track "widths" for each FSR.  */
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
+#pragma omp parallel
+  {
 
-      azim_index = _tracks[i][j].getAzimAngleIndex();
+    int azim_index, fsr_id;
+    segment* curr_segment;
+    FP_PRECISION volume;
 
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-        curr_segment = _tracks[i][j].getSegment(s);
-        volume = curr_segment->_length * _azim_weights[azim_index];
-        FSR_volumes[curr_segment->_region_id] += volume;
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+
+        azim_index = _tracks[i][j].getAzimAngleIndex();
+
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          volume = curr_segment->_length * _azim_weights[azim_index];
+          fsr_id = curr_segment->_region_id;
+
+          /* Set FSR mutual exclusion lock */
+          omp_set_lock(&_FSR_locks[fsr_id]);
+
+          FSR_volumes[fsr_id] += volume;
+
+          /* Release FSR mutual exclusion lock */
+          omp_unset_lock(&_FSR_locks[fsr_id]);
+        }
       }
     }
   }
@@ -299,17 +333,31 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
                "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
 
-  segment* curr_segment;
   FP_PRECISION volume = 0;
 
-  /* Calculate the FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for the FSR.  */
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-        curr_segment = _tracks[i][j].getSegment(s);
-        if (curr_segment->_region_id == fsr_id)
-          volume += curr_segment->_length * _azim_weights[i];
+#pragma omp parallel
+  {
+
+    segment* curr_segment;
+
+    /* Calculate the FSR's "volume" by accumulating the total length of *
+     * all Track segments multipled by the Track "widths" for the FSR.  */
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          if (curr_segment->_region_id == fsr_id) {
+
+            /* Set FSR mutual exclusion lock */
+            omp_set_lock(&_FSR_locks[fsr_id]);
+
+            volume += curr_segment->_length * _azim_weights[i];
+
+            /* Release FSR mutual exclusion lock */
+            omp_unset_lock(&_FSR_locks[fsr_id]);
+          }
+        }
       }
     }
   }
@@ -324,24 +372,36 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
  */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
-  segment* curr_segment;
-  FP_PRECISION length;
-  Material* material;
-  FP_PRECISION* sigma_t;
   FP_PRECISION max_optical_length = 0.;
 
-  /* Iterate over all tracks, segments, groups to find max optical length */
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-        curr_segment = _tracks[i][j].getSegment(s);
-        length = curr_segment->_length;
-        material = curr_segment->_material;
-        sigma_t = material->getSigmaT();
+#pragma omp parallel
+  {
 
-        for (int e=0; e < material->getNumEnergyGroups(); e++)
-          max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+    segment* curr_segment;
+    FP_PRECISION length;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION thread_max_optical_length = 0.;
+
+    /* Iterate over all tracks, segments, groups to find max optical length */
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          length = curr_segment->_length;
+          material = curr_segment->_material;
+          sigma_t = material->getSigmaT();
+
+          for (int e=0; e < material->getNumEnergyGroups(); e++)
+            thread_max_optical_length = std::max(thread_max_optical_length,
+                                                 length*sigma_t[e]);
+        }
       }
+
+#pragma omp critical
+      max_optical_length = std::max(max_optical_length,
+                                    thread_max_optical_length);
     }
   }
 
@@ -637,11 +697,30 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   initializeBoundaryConditions();
   initializeTrackCycleIndices(PERIODIC);
   initializeTrackUids();
+  initializeFSRLocks();
   initializeVolumes();
 
   return;
 }
 
+
+/**
+ * @brief Create an array of OpenMP mutual exclusion locks for each FSR.
+ * @details This method allocates and initializes an array of OpenMP
+ *          mutual exclusion locks for each FSR for use in loops that
+ *          set or update values by FSR.
+ */
+void TrackGenerator::initializeFSRLocks() {
+
+  /* Allocate array of mutex locks for each FSR */
+  int num_FSRs = _geometry->getNumFSRs();
+  _FSR_locks = new omp_lock_t[num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+#pragma omp parallel for schedule(guided)
+  for (int r=0; r < num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
+}
 
 /**
  * @brief This method creates a directory to store Track files, and reads
@@ -1269,7 +1348,7 @@ void TrackGenerator::segmentize() {
 
     /* Loop over all Tracks */
     for (int i=0; i < _num_azim; i++) {
-#pragma omp parallel for firstprivate(track)
+#pragma omp parallel for private(track)
       for (int j=0; j < _num_tracks[i]; j++) {
         track = &_tracks[i][j];
         _geometry->segmentize(track);
@@ -1702,51 +1781,67 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
   log_printf(INFO, "Correcting FSR %d volume from %f to %f",
              fsr_id, curr_volume, fsr_volume);
 
-  int num_segments, azim_index;
-  double dx_eff, d_eff;
-  double volume, corr_factor;
-  segment* curr_segment;
-  segment* segments;
+#pragma omp parallel
+  {
 
-  /* Correct volume separately for each azimuthal angle */
-  for (int i=0; i < _num_azim; i++) {
+    int num_segments, azim_index;
+    double dx_eff, d_eff;
+    double volume, corr_factor;
+    segment* curr_segment;
+    segment* segments;
 
-    /* Initialize volume to zero for this azimuthal angle */
-    volume = 0;
+    /* Correct volume separately for each azimuthal angle */
+    for (int i=0; i < _num_azim; i++) {
 
-    /* Compute effective track spacing for this azimuthal angle */
-    dx_eff = (_geometry->getWidthX() / _num_x[i]);
-    d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
+      /* Initialize volume to zero for this azimuthal angle */
+      volume = 0;
 
-    /* Compute the current estimated volume of the FSR for this angle */
-    for (int j=0; j < _num_tracks[i]; j++) {
+      /* Compute effective track spacing for this azimuthal angle */
+      dx_eff = (_geometry->getWidthX() / _num_x[i]);
+      d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
 
-      num_segments = _tracks[i][j].getNumSegments();
-      segments = _tracks[i][j].getSegments();
+      /* Compute the current estimated volume of the FSR for this angle */
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
 
-      for (int s=0; s < num_segments; s++) {
-        curr_segment = &segments[s];
-        if (curr_segment->_region_id == fsr_id)
-          volume += curr_segment->_length * d_eff;
+        num_segments = _tracks[i][j].getNumSegments();
+        segments = _tracks[i][j].getSegments();
+
+        for (int s=0; s < num_segments; s++) {
+          curr_segment = &segments[s];
+          if (curr_segment->_region_id == fsr_id) {
+
+            /* Set FSR mutual exclusion lock */
+            omp_set_lock(&_FSR_locks[fsr_id]);
+
+            volume += curr_segment->_length * d_eff;
+
+            /* Release FSR mutual exclusion lock */
+            omp_unset_lock(&_FSR_locks[fsr_id]);
+          }
+        }
       }
-    }
 
-    /* Compute correction factor to the volume */
-    corr_factor = fsr_volume / volume;
 
-    log_printf(DEBUG, "Volume correction factor for FSR %d and azim "
-               "angle %d is %f", fsr_id, i, corr_factor);
+      /* Compute correction factor to the volume */
+#pragma omp single
+      corr_factor = fsr_volume / volume;
 
-    /* Correct the length of each segment which crosses the FSR */
-    for (int j=0; j < _num_tracks[i]; j++) {
+      log_printf(DEBUG, "Volume correction factor for FSR %d and azim "
+                 "angle %d is %f", fsr_id, i, corr_factor);
 
-      num_segments = _tracks[i][j].getNumSegments();
-      segments = _tracks[i][j].getSegments();
+      /* Correct the length of each segment which crosses the FSR */
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
 
-      for (int s=0; s < num_segments; s++) {
-        curr_segment = &segments[s];
-        if (curr_segment->_region_id == fsr_id)
-          curr_segment->_length *= corr_factor;
+        num_segments = _tracks[i][j].getNumSegments();
+        segments = _tracks[i][j].getSegments();
+
+        for (int s=0; s < num_segments; s++) {
+          curr_segment = &segments[s];
+          if (curr_segment->_region_id == fsr_id)
+            curr_segment->_length *= corr_factor;
+        }
       }
     }
   }
@@ -1775,6 +1870,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   /* Generate the fsr centroids */
   for (int i=0; i < _num_azim; i++) {
+#pragma omp parallel for
     for (int j=0; j < _num_tracks[i]; j++) {
 
       int num_segments = _tracks[i][j].getNumSegments();
@@ -1788,6 +1884,10 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
         segment* curr_segment = &segments[s];
         int fsr = curr_segment->_region_id;
         double volume = FSR_volumes[fsr];
+
+        /* Set FSR mutual exclusion lock */
+        omp_set_lock(&_FSR_locks[fsr]);
+
         centroids[fsr]->setX(centroids[fsr]->getX() + _azim_weights[i] *
                              (x + cos(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
@@ -1796,6 +1896,9 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
                              curr_segment->_length / FSR_volumes[fsr]);
         centroids[fsr]->setZ(z);
 
+        /* Release FSR mutual exclusion lock */
+        omp_unset_lock(&_FSR_locks[fsr]);
+
         x += cos(phi) * curr_segment->_length;
         y += sin(phi) * curr_segment->_length;
       }
@@ -1803,6 +1906,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   }
 
   /* Set the centroid for the FSR */
+#pragma omp parallel for
   for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
 
@@ -1825,66 +1929,71 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
     log_printf(ERROR, "Unable to split segments since "
 	       "tracks have not yet been generated");
 
-  int num_cuts, min_num_cuts;
-  segment* curr_segment;
+#pragma omp parallel
+  {
 
-  FP_PRECISION length, tau;
-  int fsr_id;
-  Material* material;
-  FP_PRECISION* sigma_t;
-  int num_groups;
-  int cmfd_surface_fwd, cmfd_surface_bwd;
+    int num_cuts, min_num_cuts;
+    segment* curr_segment;
 
-  /* Iterate over all Tracks */
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s+=min_num_cuts) {
+    FP_PRECISION length, tau;
+    int fsr_id;
+    Material* material;
+    FP_PRECISION* sigma_t;
+    int num_groups;
+    int cmfd_surface_fwd, cmfd_surface_bwd;
 
-        /* Extract data from this segment to compute it optical length */
-        curr_segment = _tracks[i][j].getSegment(s);
-        material = curr_segment->_material;
-        length = curr_segment->_length;
-        fsr_id = curr_segment->_region_id;
-        cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-        cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+    /* Iterate over all Tracks */
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s+=min_num_cuts) {
 
-        /* Compute number of segments to split this segment into */
-        min_num_cuts = 1;
-        num_groups = material->getNumEnergyGroups();
-        sigma_t = material->getSigmaT();
+          /* Extract data from this segment to compute it optical length */
+          curr_segment = _tracks[i][j].getSegment(s);
+          material = curr_segment->_material;
+          length = curr_segment->_length;
+          fsr_id = curr_segment->_region_id;
+          cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+          cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
 
-        for (int g=0; g < num_groups; g++) {
-          tau = length * sigma_t[g];
-          num_cuts = ceil(tau / max_optical_length);
-          min_num_cuts = std::max(num_cuts, min_num_cuts);
+          /* Compute number of segments to split this segment into */
+          min_num_cuts = 1;
+          num_groups = material->getNumEnergyGroups();
+          sigma_t = material->getSigmaT();
+
+          for (int g=0; g < num_groups; g++) {
+            tau = length * sigma_t[g];
+            num_cuts = ceil(tau / max_optical_length);
+            min_num_cuts = std::max(num_cuts, min_num_cuts);
+          }
+
+          /* If the segment does not need subdivisions, go to next segment */
+          if (min_num_cuts == 1)
+            continue;
+
+          /* Split the segment into sub-segments */
+          for (int k=0; k < min_num_cuts; k++) {
+
+            /* Create a new Track segment */
+            segment* new_segment = new segment;
+            new_segment->_material = material;
+            new_segment->_length = length / FP_PRECISION(min_num_cuts);
+            new_segment->_region_id = fsr_id;
+
+            /* Assign CMFD surface boundaries */
+            if (k == 0)
+              new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+
+            if (k == min_num_cuts-1)
+              new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+
+            /* Insert the new segment to the Track */
+            _tracks[i][j].insertSegment(s+k+1, new_segment);
+          }
+
+          /* Remove the original segment from the Track */
+          _tracks[i][j].removeSegment(s);
         }
-
-        /* If the segment does not need subdivisions, go to next segment */
-        if (min_num_cuts == 1)
-          continue;
-
-        /* Split the segment into sub-segments */
-        for (int k=0; k < min_num_cuts; k++) {
-
-          /* Create a new Track segment */
-          segment* new_segment = new segment;
-          new_segment->_material = material;
-          new_segment->_length = length / FP_PRECISION(min_num_cuts);
-          new_segment->_region_id = fsr_id;
-
-          /* Assign CMFD surface boundaries */
-          if (k == 0)
-            new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
-
-          if (k == min_num_cuts-1)
-            new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-
-          /* Insert the new segment to the Track */
-          _tracks[i][j].insertSegment(s+k+1, new_segment);
-        }
-
-        /* Remove the original segment from the Track */
-        _tracks[i][j].removeSegment(s);
       }
     }
   }
@@ -1905,9 +2014,6 @@ void TrackGenerator::initializeSegments() {
     log_printf(ERROR, "Unable to initialize segments since "
 	       "tracks have not yet been generated");
 
-  int region_id;
-  segment* curr_segment;
-
   /* Get all of the Materials from the Geometry */
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
@@ -1918,14 +2024,29 @@ void TrackGenerator::initializeSegments() {
   FSRs_to_keys = _geometry->getFSRsToKeys();
 
   /* Iterate over all Track segments and assign them each a Material */
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-        curr_segment = _tracks[i][j].getSegment(s);
-	region_id = curr_segment->_region_id;
-        Material* mat = _geometry->findFSRMaterial(region_id);
-	curr_segment->_material = _geometry->findFSRMaterial(region_id);
-	FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id = mat->getId();
+#pragma omp parallel
+  {
+
+    int region_id, mat_id;
+    segment* curr_segment;
+    Material* mat;
+
+    /* Set the Material for each FSR */
+#pragma omp for
+    for (int r=0; r < _geometry->getNumFSRs(); r++) {
+      mat = _geometry->findFSRMaterial(r);
+      FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
+    }
+
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          region_id = curr_segment->_region_id;
+          mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
+          curr_segment->_material = materials[mat_id];
+        }
       }
     }
   }

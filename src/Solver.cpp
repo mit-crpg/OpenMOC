@@ -605,6 +605,7 @@ void Solver::initializeFSRs() {
   _FSR_materials = new Material*[_num_FSRs];
 
   /* Loop over all FSRs to extract FSR material pointers */
+#pragma omp parallel for
   for (int r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
     log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
@@ -624,11 +625,14 @@ void Solver::countFissionableFSRs() {
   log_printf(INFO, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
-  _num_fissionable_FSRs = 0;
+  int num_fissionable_FSRs;
+#pragma omp parallel for reduction(+:num_fissionable_FSRs)
   for (int r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
-      _num_fissionable_FSRs++;
+      num_fissionable_FSRs++;
   }
+
+  _num_fissionable_FSRs = num_fissionable_FSRs;
 }
 
 

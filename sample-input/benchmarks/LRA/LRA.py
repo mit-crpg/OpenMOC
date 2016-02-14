@@ -1,10 +1,14 @@
 import openmoc
+import openmoc.plotter as plotter
+import openmoc.process as process
+from openmoc.options import Options
+from lattices import lattices, universes, cells
 
 ###############################################################################
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = openmoc.options.Options()
+options = Options()
 
 num_threads = options.getNumThreads()
 track_spacing = options.getTrackSpacing()
@@ -16,6 +20,15 @@ openmoc.log.set_log_level('NORMAL')
 
 openmoc.log.py_printf('TITLE', 'Simulating the LRA Benchmark Problem...')
 
+###############################################################################
+##########################   Creating the Geometry   ##########################
+###############################################################################
+
+openmoc.log.py_printf('NORMAL', 'Creating geometry...')
+
+geometry = openmoc.Geometry()
+geometry.setRootUniverse(universes['Root'])
+
 
 ###############################################################################
 #                          Creating the TrackGenerator
@@ -23,7 +36,6 @@ openmoc.log.py_printf('TITLE', 'Simulating the LRA Benchmark Problem...')
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-from geometry import geometry
 track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
