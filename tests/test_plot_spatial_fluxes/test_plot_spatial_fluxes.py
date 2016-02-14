@@ -10,7 +10,7 @@ from openmoc.plotter import plot_spatial_fluxes
 
 
 class PlotSpatialFluxesTestHarness(PlottingTestHarness):
-    """Test cell plotting with a 4x4 lattice."""
+    """Test spatial flux plotting with a 4x4 lattice."""
 
     def __init__(self):
         super(PlotSpatialFluxesTestHarness, self).__init__()
