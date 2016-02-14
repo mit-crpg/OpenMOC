@@ -19,6 +19,9 @@ class PlotFSRsTestHarness(PlottingTestHarness):
     def _run_openmoc(self):
         """Plot the flat source regions in the geometry."""
 
+        # Run an eigenvalue calculation to setup FSR centroids
+        super(PlotFSRsTestHarness, self)._run_openmoc()
+
         # Create a series of Matplotlib Figures / PIL Images for different
         # plotting parameters and append to figures list
         self.figures.append(
@@ -26,16 +29,13 @@ class PlotFSRsTestHarness(PlottingTestHarness):
                        get_figure=True))
         self.figures.append(
             plot_flat_source_regions(self.input_set.geometry, gridsize=100, 
-                       zcoord=10., get_figure=True))
-        self.figures.append(
-            plot_flat_source_regions(self.input_set.geometry, gridsize=100, 
                        get_figure=True, xlim=(0., 2.), ylim=(0., 2.)))
         self.figures.append(
             plot_flat_source_regions(self.input_set.geometry, gridsize=100, 
-                       get_figure=True, centroids=True, markersize=3))
+                       get_figure=True, centroids=True, marker_size=3))
         self.figures.append(
             plot_flat_source_regions(self.input_set.geometry, gridsize=100, 
-                       get_figure=True, library='pil'))
+                       get_figure=True, centroids=True, library='pil'))
  
 
 if __name__ == '__main__':
