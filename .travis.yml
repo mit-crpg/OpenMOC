@@ -39,4 +39,5 @@ install:
 script:
   - cd tests
   - ./travis.sh
+  - cat LastTest_normal-gcc.log
   - cd ..
