@@ -24,13 +24,14 @@ class PlotEnergyFluxesTestHarness(PlottingTestHarness):
 
         # Extract the FSR count from the geometry
         num_fsrs = self.input_set.geometry.getNumFSRs()
+        fsrs = tuple(range(num_fsrs))
 
         # Create a series of Matplotlib Figures / PIL Images for different
         # plotting parameters and append to figures list
-        self.figures.extend(plot_energy_fluxes(self.solver, range(num_fsrs),
+        self.figures.extend(plot_energy_fluxes(self.solver, fsrs,
                     get_figure=True))
-        self.figures.extend(plot_energy_fluxes(self.solver, range(num_fsrs),
-                    get_figure=True, norm=False, loglog=False))
+        self.figures.extend(plot_energy_fluxes(self.solver, fsrs,
+                    get_figure=True, loglog=True))
 
 
 if __name__ == '__main__':

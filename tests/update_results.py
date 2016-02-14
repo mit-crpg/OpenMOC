@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import os
+import sys
 import re
 import subprocess
 import shutil
@@ -27,10 +28,9 @@ BOLD = '\033[1m'
 os.chdir('..')
 
 # Setup shell command to install OpenMOC with distutils
-setup_cmd = ['python', 'setup.py', 'install']
+setup_cmd = [sys.executable, 'setup.py', 'install']
 setup_cmd += ['--install-purelib=tests/openmoc']
-setup_cmd += ['--fp=double']
-setup_cmd += ['--cc=gcc']
+setup_cmd += ['--fp=double', '--cc=gcc']
 
 # Run setup.py to install openmoc
 rc = subprocess.call(setup_cmd)
@@ -68,7 +68,7 @@ for adir in sorted(folders):
         'There must be only one test executable per test directory'
 
     # Update the test results
-    proc = subprocess.Popen(['python', test_exec[0], '--update'])
+    proc = subprocess.Popen([sys.executable, test_exec[0], '--update'])
     returncode = proc.wait()
     if returncode == 0:
         print(BOLD + OKGREEN + "[OK]" + ENDC)

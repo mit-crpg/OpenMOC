@@ -294,8 +294,12 @@ class PlottingTestHarness(TestHarness):
             img = Image.open(plot_filename)
 
             # Hash the image and append to output string
-            plot_hash = hashlib.md5(img.tobytes()).hexdigest()
-            outstr += '{}\n'.format(plot_hash)
+#            sha512 = hashlib.sha512()
+#            sha512.update(outstr.encode('utf-8'))
+#            outstr = sha512.hexdigest()
+
+            plot_hash = hashlib.md5(img.tostring())
+            outstr += '{}\n'.format(plot_hash.hexdigest())
 
         return outstr
 

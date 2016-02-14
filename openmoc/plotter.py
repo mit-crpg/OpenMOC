@@ -1187,7 +1187,7 @@ def plot_quadrature(solver, get_figure=False):
         thetas[p] = np.arcsin(polar_quad.getSinTheta(p))
 
     # Get the azimuthal angles
-    for a in range(num_azim/4):
+    for a in range(int(num_azim / 4)):
         phis[a] = track_generator.getPhi(a)
 
     # Make a 3D figure
@@ -1204,7 +1204,7 @@ def plot_quadrature(solver, get_figure=False):
     ax.plot_wireframe(x, y, z, rstride=5, cstride=5, color='k', linewidth=0.1)
 
     # Plot the quadrature points on the octant unit sphere
-    for a in range(num_azim/4):
+    for a in range(int(num_azim / 4)):
         for p in range(num_polar):
             ax.scatter(np.cos(phis[a]) * np.sin(thetas[p]), np.sin(phis[a]) *
                        np.sin(thetas[p]), np.cos(thetas[p]), s=50, color='b')
@@ -1623,9 +1623,6 @@ def _colorize(data, num_colors, seed=1):
 def _get_pil_image(array, plot_params):
 
     from PIL import Image
-
-    import PIL
-    print(PIL.VERSION)
 
     # Convert array to a normalized array of floating point values
     float_array = np.zeros(array.shape, dtype=np.float)
