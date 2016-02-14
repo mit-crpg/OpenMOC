@@ -758,14 +758,18 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
         # Save the figure to a file or return to user if requested
         if get_figure:
+            figures.append(fig)
+        else:
             filename = 'flux-fsr-{0}.png'.format(fsr)
             plt.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
-        else:
-            figures.append(fig)
 
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
+
+    # Return the figures if requested by user
+    if get_figure:
+        return figures
 
 
 ##
