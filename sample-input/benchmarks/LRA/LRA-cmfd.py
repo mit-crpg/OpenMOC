@@ -1,7 +1,8 @@
 import openmoc
 import openmoc.plotter as plotter
+import openmoc.process as process
 from openmoc.options import Options
-from lattices import lattices, universes, cells
+from lattices import lattices
 
 ###############################################################################
 #                          Main Simulation Parameters
@@ -67,6 +68,8 @@ solver.printTimerReport()
 ###############################################################################
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
+
+process.compute_fission_rates(solver)
 
 openmoc.plotter.plot_materials(geometry, gridsize=500)
 openmoc.plotter.plot_cells(geometry, gridsize=500)

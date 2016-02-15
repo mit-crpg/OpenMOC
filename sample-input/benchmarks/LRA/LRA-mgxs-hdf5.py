@@ -27,9 +27,9 @@ material_group = f.create_group('material')
 # Create a subgroup for region 1 materials data
 region_1 = material_group.create_group('Region 1')
 
-sigma_t = numpy.array([0.2656, 1.5798])
-sigma_s = numpy.array([0.2318925, 0.02533, 0.00, 1.4794789])
-sigma_f = numpy.array([0.002, 0.05])
+sigma_t = numpy.array([0.265604, 1.579779])
+sigma_s = numpy.array([0.232022, 0.02533, 0.00, 1.479479])
+sigma_f = numpy.array([0.004602, 0.1091]) / 2.43
 nu_sigma_f = numpy.array([0.004602, 0.1091])
 chi = numpy.array([1.0, 0.0])
 
@@ -47,9 +47,9 @@ region_1.create_dataset('chi', data=chi)
 # Create a subgroup for region 2 materials data
 region_2 = material_group.create_group('Region 2')
 
-sigma_t = numpy.array([0.2629, 1.7525])
-sigma_s = numpy.array([0.2279222, 0.02767, 0.00, 1.68201098])
-sigma_f = numpy.array([0.002, 0.045])
+sigma_t = numpy.array([0.262881, 1.752541])
+sigma_s = numpy.array([0.228030, 0.02767, 0.00, 1.682071])
+sigma_f = numpy.array([0.004609, 0.08675]) / 2.43
 nu_sigma_f = numpy.array([0.004609, 0.08675])
 chi = numpy.array([1.0, 0.0])
 
@@ -67,9 +67,9 @@ region_2.create_dataset('chi', data=chi)
 # Create a subgroup for region 3 materials data
 region_3 = material_group.create_group('Region 3')
 
-sigma_t = numpy.array([0.2648, 1.5941])
-sigma_s = numpy.array([0.2305021, 0.02617, 0.00, 1.51063909])
-sigma_f = numpy.array([0.002, 0.045])
+sigma_t = numpy.array([0.26476, 1.594134])
+sigma_s = numpy.array([0.230588, 0.02617, 0.00, 1.510694])
+sigma_f = numpy.array([0.004663, 0.1021]) / 2.43
 nu_sigma_f = numpy.array([0.004663, 0.1021])
 chi = numpy.array([1.0, 0.0])
 
@@ -87,9 +87,9 @@ region_3.create_dataset('chi', data=chi)
 # Create a subgroup for region 4 materials data
 region_4 = material_group.create_group('Region 4')
 
-sigma_t = numpy.array([0.2648, 1.5941])
-sigma_s = numpy.array([0.230462, 0.02617, 0.00, 1.520789])
-sigma_f = numpy.array([0.002, 0.045])
+sigma_t = numpy.array([0.26476, 1.594134])
+sigma_s = numpy.array([0.230588, 0.02617, 0.00, 1.52081])
+sigma_f = numpy.array([0.004663, 0.1021]) / 2.43
 nu_sigma_f = numpy.array([0.004663, 0.1021])
 chi = numpy.array([1.0, 0.0])
 
@@ -107,10 +107,10 @@ region_4.create_dataset('chi', data=chi)
 # Create a subgroup for region 5 materials data
 region_5 = material_group.create_group('Region 5')
 
-sigma_t = numpy.array([0.2648, 1.5941])
-sigma_s = numpy.array([0.230462, 0.02617, 0.00, 1.510672])
-sigma_f = numpy.array([0.002, 0.045])
-nu_sigma_f = numpy.array([0.004663, 0.1021])
+sigma_t = numpy.array([0.265182, 2.093802])
+sigma_s = numpy.array([0.217039, 0.04754, 0.00, 2.074692])
+sigma_f = numpy.array([0.0, 0.0])
+nu_sigma_f = numpy.array([0.0, 0.0])
 chi = numpy.array([1.0, 0.0])
 
 region_5.create_dataset('total', data=sigma_t)
@@ -118,26 +118,6 @@ region_5.create_dataset('scatter matrix', data=sigma_s)
 region_5.create_dataset('fission', data=sigma_f)
 region_5.create_dataset('nu-fission', data=nu_sigma_f)
 region_5.create_dataset('chi', data=chi)
-
-
-###############################################################################
-################################   region 6    ################################
-###############################################################################
-
-# Create a subgroup for region 6 materials data
-region_6 = material_group.create_group('Region 6')
-
-sigma_t = numpy.array([0.2652, 2.0938])
-sigma_s = numpy.array([0.216931, 0.04754, 0.00, 2.074676])
-sigma_f = numpy.array([0.0, 0.0])
-nu_sigma_f = numpy.array([0.0, 0.0])
-chi = numpy.array([1.0, 0.0])
-
-region_6.create_dataset('total', data=sigma_t)
-region_6.create_dataset('scatter matrix', data=sigma_s)
-region_6.create_dataset('fission', data=sigma_f)
-region_6.create_dataset('nu-fission', data=nu_sigma_f)
-region_6.create_dataset('chi', data=chi)
 
 # Close the hdf5 data file
 f.close()
