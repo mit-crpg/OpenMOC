@@ -25,7 +25,7 @@ class CorrectFSRVolumeTestHarness(TestHarness):
         self.track_generator.generateTracks()
 
         old_volume = self.track_generator.getFSRVolume(1)
-        self.track_generator.correctFSRVolume(1, 3.0)
+        self.track_generator.correctFSRVolume(1, 2.7)
         one_thread_volume = self.track_generator.getFSRVolume(1)
 
         # Save results for one thread
