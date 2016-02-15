@@ -1,7 +1,7 @@
 import openmoc
 import openmoc.plotter as plotter
 from openmoc.options import Options
-from lattices import lattices
+from lattices import lattices, universes
 
 ###############################################################################
 #                          Main Simulation Parameters
