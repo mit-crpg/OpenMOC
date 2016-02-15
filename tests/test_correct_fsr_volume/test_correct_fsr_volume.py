@@ -29,8 +29,8 @@ class CorrectFSRVolumeTestHarness(TestHarness):
         one_thread_volume = self.track_generator.getFSRVolume(1)
 
         # Save results for one thread
-        self._result += str(old_volume) + '\n'
-        self._result += str(one_thread_volume) + '\n'
+        self._result += str(round(old_volume,6)) + '\n'
+        self._result += str(round(one_thread_volume, 1)) + '\n'
 
         # get results with multiple threads
         self.track_generator.setNumThreads(2)
@@ -38,7 +38,7 @@ class CorrectFSRVolumeTestHarness(TestHarness):
         two_thread_volume = self.track_generator.getFSRVolume(1)
 
         # Save results for two threads
-        self._result += str(two_thread_volume)
+        self._result += str(round(two_thread_volume,1))
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=True, num_segments=True, num_tracks=True,
