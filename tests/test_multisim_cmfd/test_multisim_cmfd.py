@@ -16,9 +16,10 @@ class MultiSimCmfdTestHarness(TestHarness):
     def __init__(self):
         super(MultiSimCmfdTestHarness, self).__init__()
         self.input_set = PwrAssemblyInput()
-        self.keffs = []
         self.num_simulations = 3
         self.max_iters = 5
+        self.num_iters = []
+        self.keffs = []
 
     def _create_geometry(self):
         """Initialize CMFD and add it to the Geometry."""
@@ -39,19 +40,19 @@ class MultiSimCmfdTestHarness(TestHarness):
         """Run multiple OpenMOC eigenvalue calculations with CMFD."""
 
         for i in range(self.num_simulations):
-            super(MultiSimCmfdTestHarness, self)._run_openmoc()
+            super(MultiSimCmfdTestHarness, self)._run_openmoc()            
+            self.num_iters.append(self.solver.getNumIterations())
             self.keffs.append(self.solver.getKeff())
 
-    def _get_results(self, num_iters=False, keff=True, fluxes=False,
+    def _get_results(self, num_iters=True, keff=True, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
         """Return eigenvalues from each simulation into a string."""
 
+        # Write out the iteration count and eigenvalues from each simulation
         outstr = ''
-
-        # Write out the eigenvalues from each simulation
-        for keff in self.keffs:
-            outstr += 'keff: {0:12.5E}\n'.format(keff)
+        for num_iters, keff in zip(self.num_iters, self.keffs):
+            outstr += 'Iters: {0}\tkeff: {1:12.5E}\n'.format(num_iters, keff)
 
         return outstr
 
