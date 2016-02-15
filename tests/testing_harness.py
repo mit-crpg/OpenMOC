@@ -218,7 +218,7 @@ class HashedTestHarness(TestHarness):
 
 class TrackingTestHarness(TestHarness):
     """Specialized TestHarness for testing tracking."""
-    
+
     def __init__(self):
         super(TrackingTestHarness, self).__init__()
         self.tracks = OrderedDict()
