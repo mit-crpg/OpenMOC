@@ -5,7 +5,7 @@
 COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = yes
-DEBUG       = no
+DEBUG       = yes
 PROFILE     = no
 PRECISION   = single
 
@@ -13,7 +13,7 @@ PRECISION   = single
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-cmfd.cpp
+case = LRA/lra-cmfd.cpp
 
 source = \
 Cell.cpp \
@@ -41,7 +41,8 @@ gradients/one-directional/one-directional-gradient.cpp \
 gradients/two-directional/two-directional-gradient.cpp \
 homogeneous/homogeneous-one-group.cpp \
 c5g7/c5g7.cpp \
-c5g7/c5g7-cmfd.cpp
+c5g7/c5g7-cmfd.cpp \
+LRA/lra-cmfd.cpp
 
 #===============================================================================
 # Sets Flags
