@@ -9,22 +9,34 @@ from input_set import PinCellInput
 import openmoc
 
 
-class MultiSimSimpleTestHarness(TestHarness):
-    """A multi-simulation eigenvalue calculation for a pin cell problem
-    with C5G7 7-group cross section data."""
+class MultiSimMaterialsTestHarness(TestHarness):
+    """A multi-simulation eigenvalue calculation with different materials in
+    a pin cell problem with C5G7 7-group cross section data."""
 
     def __init__(self):
-        super(MultiSimSimpleTestHarness, self).__init__()
+        super(MultiSimMaterialsTestHarness, self).__init__()
         self.input_set = PinCellInput()
         self.num_simulations = 3
         self.num_iters = []
         self.keffs = []
 
     def _run_openmoc(self):
-        """Run multiple OpenMOC eigenvalue calculations."""
+        """Run multiple OpenMOC eigenvalue calculations with different
+        materials."""
 
         for i in range(self.num_simulations):
-            super(MultiSimSimpleTestHarness, self)._run_openmoc()            
+
+            # Extract all of the material-filled cells in the geometry
+            cells = self.input_set.geometry.getAllMaterialCells()
+
+            # Exchange all of the materials for their clones
+            for cell_id in cells:
+                material = cells[cell_id].getFillMaterial()
+                material = material.clone()
+                cells[cell_id].setFill(material)
+
+            # Run eigenvalue calculation and store the results
+            super(MultiSimMaterialsTestHarness, self)._run_openmoc()
             self.num_iters.append(self.solver.getNumIterations())
             self.keffs.append(self.solver.getKeff())
 
@@ -42,5 +54,5 @@ class MultiSimSimpleTestHarness(TestHarness):
 
 
 if __name__ == '__main__':
-    harness = MultiSimSimpleTestHarness()
+    harness = MultiSimMaterialsTestHarness()
     harness.main()
