@@ -100,7 +100,7 @@ private:
 
   /* An array with angles in degrees for rotations about x, y, and z */
   double _rotation[3];
-  
+
   /* A rotation matrix defined in terms of the rotation angles */
   double _rotation_matrix[9];
 
