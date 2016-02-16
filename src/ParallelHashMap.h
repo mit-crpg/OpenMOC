@@ -21,7 +21,7 @@
  * @class FixedHashMap ParallelHashMap.h "src/ParallelHashMap.h"
  * @brief A fixed-size hash map supporting insertion and lookup operations
  * @details The FixedHashMap class supports insertion and lookup operations
- *    but not deletion as deletion is not needed in the OpenMOC application.
+ *    but not deletion as deletion is not needed in the OpenMOC application. 
  *    This hash table uses chaining for collisions and does not incorporate
  *    concurrency objects except for tracking the number of entries in the
  *    table for which an atomic increment is used. This hash table is not
@@ -167,11 +167,11 @@ FixedHashMap<K,V>::~FixedHashMap()
       delete iter_node;
       iter_node = next_node;
     }
-  }
+  } 
 
   /* delete all buckets (now pointers to empty linked lists) */
   delete[] _buckets;
-}
+} 
 
 /**
  * @brief Determine whether the fixed-size table contains a given key
@@ -220,8 +220,8 @@ V& FixedHashMap<K,V>::at(K key)
       return iter_node->value;
     else
       iter_node = iter_node->next;
-
-  /* after the bucket has been completely searched without finding the key,
+  
+  /* after the bucket has been completely searched without finding the key, 
      throw an exception */
   throw std::out_of_range("Key not present in map");
 }
@@ -244,7 +244,7 @@ void FixedHashMap<K,V>::insert(K key, V value)
   /* check to see if key already exists in map */
   if (contains(key))
     return;
-
+ 
   /* create new node */
   node *new_node = new node(key, value);
 
@@ -255,9 +255,9 @@ void FixedHashMap<K,V>::insert(K key, V value)
 
   /* place element in linked list */
   *iter_node = new_node;
-
+  
   /* increment counter */
-#pragma omp atomic
+  #pragma omp atomic
   _N++;
 }
 
@@ -281,7 +281,7 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
   /* check to see if key already exists in map */
   if (contains(key))
     return -1;
-
+ 
   /* create new node */
   node *new_node = new node(key, value);
 
@@ -289,13 +289,13 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
   node **iter_node = &_buckets[key_hash];
   while (*iter_node != NULL)
     iter_node = &(*iter_node)->next;
-
+  
   /* place element in linked list */
   *iter_node = new_node;
-
+  
   /* increment counter and return number */
   size_t N;
-#pragma omp critical (node_incr)
+  #pragma omp critical (node_incr)
   {
       N = _N++;
   }
@@ -359,7 +359,7 @@ K* FixedHashMap<K,V>::keys()
  *      present in the table and then the list is returned. WARNING: The user
  *      is responsible for freeing the allocated memory once the array is no
  *      longer needed.
- * @return an array of values in the map whose length is the number of
+ * @return an array of values in the map whose length is the number of 
  *      key/value pairs in the table.
 */
 template <class K, class V>
@@ -429,7 +429,7 @@ void FixedHashMap<K,V>::print_buckets()
 }
 
 /**
- * @brief Constructor generates initial underlying table as a fixed-sized
+ * @brief Constructor generates initial underlying table as a fixed-sized 
  *      hash map and intializes concurrency structures.
  */
 template <class K, class V>
@@ -459,7 +459,7 @@ template <class K, class V>
 ParallelHashMap<K,V>::~ParallelHashMap()
 {
   delete _table;
-  #ifdef OPENMP
+  #ifdef OPENMP  
   delete[] _locks;
   #endif
   delete[] _announce;
@@ -469,7 +469,7 @@ ParallelHashMap<K,V>::~ParallelHashMap()
 /**
  * @brief Determine whether the parallel hash map contains a given key
  * @details First the thread accessing the table announces its presence and
- *      which table it is reading. Then the linked list in the bucket
+ *      which table it is reading. Then the linked list in the bucket 
  *      associated with the key is searched without setting any locks
  *      to determine whether the key is present. When the thread has
  *      finished accessing the table, the announcement is reset to NULL.
@@ -487,9 +487,9 @@ bool ParallelHashMap<K,V>::contains(K key)
   tid = omp_get_thread_num();
   #endif
 
-  /* get pointer to table, announce it will be searched,
+  /* get pointer to table, announce it will be searched, 
      and ensure consistency */
-  FixedHashMap<K,V> *table_ptr;
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
@@ -497,10 +497,10 @@ bool ParallelHashMap<K,V>::contains(K key)
 
   /* see if current table contains the thread */
   bool present = table_ptr->contains(key);
-
+  
   /* reset table announcement to not searching */
   _announce[tid].value = NULL;
-
+  
   return present;
 }
 
@@ -509,12 +509,12 @@ bool ParallelHashMap<K,V>::contains(K key)
  * @details This function follows the same algorithm as <contains> except that
  *      the value associated with the searched key is returned.
  *      First the thread accessing the table announces its presence and
- *      which table it is reading. Then the linked list in the bucket
+ *      which table it is reading. Then the linked list in the bucket 
  *      associated with the key is searched without setting any locks
- *      to determine the associated value. An exception is thrown if the
- *      key is not found. When the thread has finished accessing the table,
- *      the announcement is reset to NULL. The announcement ensures that
- *      the data in the map is not freed during a resize until all threads
+ *      to determine the associated value. An exception is thrown if the 
+ *      key is not found. When the thread has finished accessing the table, 
+ *      the announcement is reset to NULL. The announcement ensures that 
+ *      the data in the map is not freed during a resize until all threads 
  *      have finished accessing the map.
  * @param key key to be searched
  * @return value associated with the key
@@ -529,18 +529,18 @@ V& ParallelHashMap<K,V>::at(K key)
   #endif
 
   /* get pointer to table, announce it will be searched */
-  FixedHashMap<K,V> *table_ptr;
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
   } while (table_ptr != _table);
-
+  
   /* get value associated with the key in the underlying table */
   V& value = table_ptr->at(key);
-
+  
   /* reset table announcement to not searching */
   _announce[tid].value = NULL;
-
+  
   return value;
 }
 
@@ -623,7 +623,7 @@ int ParallelHashMap<K,V>::insert_and_get_count(K key, V value)
   #ifdef OPENMP
   omp_unset_lock(&_locks[lock_hash]);
   #endif
-
+   
   return N;
 }
 /**
@@ -645,7 +645,7 @@ void ParallelHashMap<K,V>::resize()
   #ifdef OPENMP
   for (size_t i=0; i<_num_locks; i++)
     omp_set_lock(&_locks[i]);
-  #endif
+  #endif 
 
   /* recheck if resize needed */
   if (2*_table->size() < _table->bucket_count())
@@ -654,13 +654,13 @@ void ParallelHashMap<K,V>::resize()
     #ifdef OPENMP
     for (size_t i=0; i<_num_locks; i++)
       omp_unset_lock(&_locks[i]);
-    #endif
+    #endif 
 
     return;
   }
 
   /* allocate new hash map of double the size */
-  FixedHashMap<K,V> *new_map =
+  FixedHashMap<K,V> *new_map = 
     new FixedHashMap<K,V>(2*_table->bucket_count());
 
   /* get keys, values, and number of elements */
@@ -730,7 +730,7 @@ size_t ParallelHashMap<K,V>::num_locks()
  * @details All buckets are scanned in order to form a list of all keys
  *      present in the table and then the list is returned. Threads
  *      announce their presence to ensure table memory is not freed
- *      during access. WARNING: The user is responsible for freeing the
+ *      during access. WARNING: The user is responsible for freeing the 
  *      allocated memory once the array is no longer needed.
  * @return an array of keys in the map whose length is the number of key/value
  *      pairs in the table.
@@ -745,7 +745,7 @@ K* ParallelHashMap<K,V>::keys()
   #endif
 
   /* get pointer to table, announce it will be searched */
-  FixedHashMap<K,V> *table_ptr;
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
@@ -765,7 +765,7 @@ K* ParallelHashMap<K,V>::keys()
  * @details All buckets are scanned in order to form a list of all values
  *      present in the table and then the list is returned. Threads
  *      announce their presence to ensure table memory is not freed
- *      during access. WARNING: The user is responsible for freeing the
+ *      during access. WARNING: The user is responsible for freeing the 
  *      allocated memory once the array is no longer needed.
  * @return an array of values in the map whose length is the number of key/value
  *      pairs in the table.
@@ -780,7 +780,7 @@ V* ParallelHashMap<K,V>::values()
   #endif
 
   /* get pointer to table, announce it will be searched */
-  FixedHashMap<K,V> *table_ptr;
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
@@ -788,7 +788,7 @@ V* ParallelHashMap<K,V>::values()
 
   /* get value list */
   V* value_list = table_ptr->values();
-
+  
   /* reset table announcement to not searching */
   _announce[tid].value = NULL;
 
@@ -805,7 +805,7 @@ void ParallelHashMap<K,V>::clear()
   #ifdef OPENMP
   for (size_t i=0; i<_num_locks; i++)
     omp_set_lock(&_locks[i]);
-  #endif
+  #endif 
 
   /* clear underlying fixed table */
   _table->clear();
@@ -829,12 +829,12 @@ void ParallelHashMap<K,V>::print_buckets()
   #endif
 
   /* get pointer to table, announce it will be searched */
-  FixedHashMap<K,V> *table_ptr;
+  FixedHashMap<K,V> *table_ptr; 
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
   } while (table_ptr != _table);
-
+    
   /* print buckets */
   table_ptr->print_buckets();
 

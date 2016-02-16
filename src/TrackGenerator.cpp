@@ -1772,12 +1772,12 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
   /* Correct volume separately for each azimuthal angle */
   for (int i=0; i < _num_azim; i++) {
 
+    /* Initialize volume to zero for this azimuthal angle */
+    volume = 0;
+
     /* Compute effective track spacing for this azimuthal angle */
     dx_eff = (_geometry->getWidthX() / _num_x[i]);
     d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
-
-    /* Reset the volume to zero */
-    volume = 0.0;
 
     /* Compute the current estimated volume of the FSR for this angle */
 #pragma omp parallel for private(num_segments, segments, curr_segment)  \

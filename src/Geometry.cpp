@@ -586,6 +586,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
       _FSR_keys_map.at(fsr_key) = fsr;
+#pragma omp flush(_FSR_keys_map)
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(),
                        coords->getHighestLevel()->getY(),
