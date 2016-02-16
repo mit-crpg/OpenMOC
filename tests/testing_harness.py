@@ -68,6 +68,7 @@ class TestHarness(object):
         # Always use 1 thread for FSR reproducibility
         self.track_generator.setNumThreads(1)
         self.track_generator.generateTracks()
+        self.track_generator.setNumThreads(self.num_threads)
 
     def _setup(self):
         """Build materials, geometry and perform ray tracing."""
@@ -218,7 +219,7 @@ class HashedTestHarness(TestHarness):
 
 class TrackingTestHarness(TestHarness):
     """Specialized TestHarness for testing tracking."""
-    
+
     def __init__(self):
         super(TrackingTestHarness, self).__init__()
         self.tracks = OrderedDict()
