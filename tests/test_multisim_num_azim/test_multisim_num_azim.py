@@ -4,21 +4,19 @@ import os
 import sys
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
-from testing_harness import TestHarness
+from testing_harness import MultiSimTestHarness
 from input_set import PinCellInput
 import openmoc
 
 
-class MultiSimNumAzimTestHarness(TestHarness):
+class MultiSimNumAzimTestHarness(MultiSimTestHarness):
     """A multi-simulation eigenvalue calculation with varying azimuthal angle
     counts for a simple pin cell with 7-group C5G7 cross section data."""
 
     def __init__(self):
         super(MultiSimNumAzimTestHarness, self).__init__()
         self.input_set = PinCellInput()
-        self.num_azims = [4, 8, 16]
-        self.num_iters = []
-        self.keffs = []
+        self.num_simulations = 1
         self.num_tracks = []
         self.num_segments = []
 
@@ -37,7 +35,7 @@ class MultiSimNumAzimTestHarness(TestHarness):
     def _run_openmoc(self):
         """Run multiple OpenMOC eigenvalue calculations."""
 
-        for num_azim in self.num_azims:
+        for num_azim in [4, 8, 16]:
             
             # Generate tracks
             self.track_generator.setNumAzim(num_azim)
@@ -48,8 +46,6 @@ class MultiSimNumAzimTestHarness(TestHarness):
             super(MultiSimNumAzimTestHarness, self)._run_openmoc()
 
             # Store results
-            self.num_iters.append(self.solver.getNumIterations())
-            self.keffs.append(self.solver.getKeff())
             self.num_tracks.append(self.track_generator.getNumTracks())
             self.num_segments.append(self.track_generator.getNumSegments())
 

@@ -258,3 +258,34 @@ class TrackingTestHarness(TestHarness):
                      hash_output=False):
         """Return the result string"""
         return self._result
+
+
+class MultiSimTestHarness(TestHarness):
+    """Specialized TestHarness for testing multi-simulation capabilities."""
+
+    def __init__(self):
+        super(MultiSimTestHarness, self).__init__()
+        self.num_simulations = 3
+        self.num_iters = []
+        self.keffs = []
+
+    def _run_openmoc(self):
+        """Run multiple OpenMOC eigenvalue calculations."""
+
+        for i in range(self.num_simulations):
+            print(i)
+            super(MultiSimTestHarness, self)._run_openmoc()            
+            self.num_iters.append(self.solver.getNumIterations())
+            self.keffs.append(self.solver.getKeff())
+
+    def _get_results(self, num_iterations=True, keff=True, fluxes=False,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=False):
+        """Return eigenvalues from each simulation into a string."""
+
+        # Write out the iteration count and eigenvalues from each simulation
+        outstr = ''
+        for num_iters, keff in zip(self.num_iters, self.keffs):
+            outstr += 'Iters: {0}\tkeff: {1:12.5E}\n'.format(num_iters, keff)
+
+        return outstr
