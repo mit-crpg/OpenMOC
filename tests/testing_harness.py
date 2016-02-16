@@ -273,7 +273,6 @@ class MultiSimTestHarness(TestHarness):
         """Run multiple OpenMOC eigenvalue calculations."""
 
         for i in range(self.num_simulations):
-            print(i)
             super(MultiSimTestHarness, self)._run_openmoc()            
             self.num_iters.append(self.solver.getNumIterations())
             self.keffs.append(self.solver.getKeff())
