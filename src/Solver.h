@@ -129,7 +129,7 @@ protected:
    *  segments (false) */
   bool _OTF;
   bool _solve_3D;
-  
+
   /** The total number of Tracks */
   int _tot_num_tracks;
 
@@ -269,6 +269,8 @@ public:
   FP_PRECISION getMaxOpticalLength();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
+
+
 
   virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);

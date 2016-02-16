@@ -1,9 +1,10 @@
-from openmoc import *
+import openmoc
 import openmoc.log as log
 import openmoc.plotter as plotter
 from openmoc.options import Options
-from assemblies import *
+from lattices import lattices, universes, cells, surfaces
 
+axial_refines = 2
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -18,46 +19,35 @@ polar_spacing = options.getPolarSpacing()
 num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines_z = 2
+
+###############################################################################
+##########################   Create Core Lattice  #############################
+###############################################################################
+
+cells['Root'].addSurface(+1, surfaces['Root Small z-min'])
+cells['Root'].addSurface(-1, surfaces['Root Small z-max'])
+
+uu = universes['UO2 Unrodded Assembly']
+ur = universes['UO2 Rodded Assembly']
+mu = universes['MOX Unrodded Assembly']
+mr = universes['MOX Rodded Assembly']
+ru = universes['Reflector Unrodded Assembly']
+rr = universes['Reflector Rodded Assembly']
+ri = universes['Reflector Right Assembly']
+rb = universes['Reflector Bottom Assembly']
+rc = universes['Reflector Corner Assembly']
 
 # 3 x 3 x 9 core to represent 3D core
-lattices.append(Lattice(name='Full Geometry'))
-lattices[-1].setWidth(width_x=21.42, width_y=21.42, width_z=7.14)
-lattices[-1].setUniverses3D([[[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_rod      , assembly_rfl_rod      , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_uo2_rod      , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_uo2_rod      , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]],
-                             [[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-                              [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]]])
-
-# Refine lattice
-template_2 = template
-template = sum([[template_2[i]]*refines_z for i in range(len(template_2))], [])
-
-# Fill root cell with lattice
-root_cell.setFill(lattices[-1])
-
+lattices['Root'].setWidth(width_x=21.42, width_y=21.42, width_z=7.14/axial_refines)
+lattices['Root'].setUniverses3D([[[rr, rr, ri],
+                                  [rr, rr, ri],
+                                  [rb, rb, rc]]] * 3 * axial_refines +
+                                [[[ur, mu, ri],
+                                  [mu, uu, ri],
+                                  [rb, rb, rc]]] * 2 * axial_refines +
+                                [[[uu, mu, ri],
+                                  [mu, uu, ri],
+                                  [rb, rb, rc]]] * 4 * axial_refines)
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
@@ -65,13 +55,13 @@ root_cell.setFill(lattices[-1])
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
-cmfd = Cmfd()
+cmfd = openmoc.Cmfd()
 cmfd.setMOCRelaxationFactor(0.6)
-cmfd.setSORRelaxationFactor(1.0)
-cmfd.setLatticeStructure(51,51,9)
+cmfd.setSORRelaxationFactor(1.5)
+cmfd.setLatticeStructure(51,51,9*axial_refines)
 cmfd.setOpticallyThick(True)
 cmfd.setGroupStructure([1,4,8])
-
+cmfd.setCentroidUpdateOn(False)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -79,11 +69,10 @@ cmfd.setGroupStructure([1,4,8])
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry()
-geometry.setRootUniverse(root_universe)
+geometry = openmoc.Geometry()
+geometry.setRootUniverse(universes['Root'])
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
-
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -91,26 +80,26 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-quad = EqualAnglePolarQuad()
+quad = openmoc.EqualWeightPolarQuad()
 quad.setNumPolarAngles(num_polar)
 
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing, \
-                                 polar_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
+                                         azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
+track_generator.setOTF()
+track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
-
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(track_generator)
-solver.setSourceConvergenceThreshold(tolerance)
+solver = openmoc.CPUSolver(track_generator)
+solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
-solver.convergeSource(max_iters)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
-
 
 ###############################################################################
 ############################   Generating Plots   #############################

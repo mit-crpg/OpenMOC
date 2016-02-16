@@ -1,8 +1,8 @@
-from openmoc import *
+import openmoc
 import openmoc.log as log
 import openmoc.plotter as plotter
 from openmoc.options import Options
-from assemblies import *
+from lattices import lattices, universes, cells, surfaces
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -18,16 +18,23 @@ num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
+uu = universes['UO2 Unrodded Assembly']
+ur = universes['UO2 Rodded Assembly']
+mu = universes['MOX Unrodded Assembly']
+mr = universes['MOX Rodded Assembly']
+ru = universes['Reflector Unrodded Assembly']
+rr = universes['Reflector Rodded Assembly']
+ri = universes['Reflector Right Assembly']
+rb = universes['Reflector Bottom Assembly']
+rc = universes['Reflector Corner Assembly']
 
 # 3 x 3 x 9 core to represent 3D core
-lattices.append(Lattice(name='Full Geometry'))
-lattices[-1].setWidth(width_x=21.42, width_y=21.42)
-lattices[-1].setUniverses([[assembly_uo2_unrod    , assembly_mox_unrod    , assembly_rfl_unrod_rgt],
-                           [assembly_mox_unrod    , assembly_uo2_unrod    , assembly_rfl_unrod_rgt],
-                           [assembly_rfl_unrod_btm, assembly_rfl_unrod_btm, assembly_rfl_unrod_cnr]])
+lattices['Root'].setWidth(width_x=21.42, width_y=21.42)
+lattices['Root'].setUniverses3D([[[uu, mu, ri],
+                                  [mu, uu, ri],
+                                  [rb, rb, rc]]])
 
-root_cell.setFill(lattices[-1])
-
+cells['Root'].setFill(lattices['Root'])
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
@@ -35,13 +42,14 @@ root_cell.setFill(lattices[-1])
 
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
-cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(1.0)
+cmfd = openmoc.Cmfd()
+cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
+cmfd.setOpticallyThick(True)
 cmfd.setGroupStructure([1,4,8])
-cmfd.setKNearest(4)
-
+cmfd.setCentroidUpdateOn(True)
+cmfd.setKNearest(3)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -49,11 +57,10 @@ cmfd.setKNearest(4)
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry()
-geometry.setRootUniverse(root_universe)
+geometry = openmoc.Geometry()
+geometry.setRootUniverse(universes['Root'])
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
-  
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
@@ -61,27 +68,25 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-quad = EqualAnglePolarQuad()
+quad = openmoc.EqualAnglePolarQuad()
 quad.setNumPolarAngles(num_polar)
 
-track_generator = TrackGenerator(geometry, num_azim, num_polar, azim_spacing,
-                                 polar_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
+                                         azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
-track_generator.setNumThreads(num_threads)
 track_generator.setSolve2D()
+track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
-
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(track_generator)
+solver = openmoc.CPUSolver(track_generator)
 solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
-
 
 ###############################################################################
 ############################   Generating Plots   #############################

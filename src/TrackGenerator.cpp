@@ -707,7 +707,6 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
           for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
-
             segment = _tracks_3D[a][i][p][z].getSegment(s);
             volume = segment->_length * _quadrature->getAzimWeight(a)
               * _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
