@@ -272,7 +272,6 @@ class PlottingTestHarness(TestHarness):
         super(PlottingTestHarness, self).__init__()
         self.figures = []
 
-    
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=True):
@@ -290,14 +289,8 @@ class PlottingTestHarness(TestHarness):
             else:
                 fig.save(plot_filename)
             
-            # Open the image file in PIL
+            # Open the image file in PIL and hash it
             img = Image.open(plot_filename)
-
-            # Hash the image and append to output string
-#            sha512 = hashlib.sha512()
-#            sha512.update(outstr.encode('utf-8'))
-#            outstr = sha512.hexdigest()
-
             plot_hash = hashlib.md5(img.tobytes())
             outstr += '{}\n'.format(plot_hash.hexdigest())
 

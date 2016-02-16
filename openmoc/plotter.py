@@ -1082,7 +1082,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             plot_filename += '-{0}'.format(domains_to_data.columns[i])
 
         # Append file extension (e.g., '.png', '.ppm') to filename
-        plot_filename +=  plot_params.extension
+        plot_filename += plot_params.extension
 
         # Use Python Imaging Library (PIL) to plot 2D color map of domain data
         if plot_params.library == 'pil':
