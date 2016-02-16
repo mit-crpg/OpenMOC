@@ -27,6 +27,19 @@
 class Cmfd;
 
 /**
+ * @enum ringifyType
+ * @brief The method to use when subdividing cells into rings
+ */
+enum ringifyType{
+
+  /** Max ring radius chosen such that it has the same area as the total geometry */
+  EQUIVALENT_AREA,
+
+  /** Max ring radius chosen to be the distance from the center to a corner of the geometry */
+  MAX_DISTANCE
+};
+
+/**
  * @struct fsr_data
  * @brief A fsr_data struct represents an FSR with a unique FSR ID
  *        and a characteristic point that lies within the FSR that
@@ -104,6 +117,9 @@ private:
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::string> _FSRs_to_keys;
 
+  /** The method to use when subdividing cells into rings */
+  ringifyType _ringify_type;
+
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
@@ -160,6 +176,7 @@ public:
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
   void setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* FSR_keys_map);
+  void setRingifyType(ringifyType ringify_type);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
