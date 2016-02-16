@@ -110,7 +110,8 @@ class ParallelHashMap
     ParallelHashMap(size_t M = 64, size_t L = 64);
     virtual ~ParallelHashMap();
     bool contains(K key);
-    V& at(K key);
+    V at(K key);
+    void update(K key, V value);
     void insert(K key, V value);
     int insert_and_get_count(K key, V value);
     size_t size();
@@ -493,6 +494,7 @@ bool ParallelHashMap<K,V>::contains(K key)
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* see if current table contains the thread */
@@ -520,7 +522,7 @@ bool ParallelHashMap<K,V>::contains(K key)
  * @return value associated with the key
  */
 template <class K, class V>
-V& ParallelHashMap<K,V>::at(K key)
+V ParallelHashMap<K,V>::at(K key)
 {
   /* get thread ID */
   size_t tid = 0;
@@ -533,10 +535,11 @@ V& ParallelHashMap<K,V>::at(K key)
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* get value associated with the key in the underlying table */
-  V& value = table_ptr->at(key);
+  V value = table_ptr->at(key);
 
   /* reset table announcement to not searching */
   _announce[tid].value = NULL;
@@ -582,6 +585,39 @@ void ParallelHashMap<K,V>::insert(K key, V value)
   omp_unset_lock(&_locks[lock_hash]);
   #endif
 }
+
+
+/**
+ * @brief Insert a given key/value pair into the parallel hash map.
+ * @details First the underlying table is checked to determine if a resize
+ *      should be conducted. Then, the table is checked to see if it
+ *      already contains the key. If so, the key/value pair is not inserted
+ *      and the function returns. Otherwise, the lock of the associated
+ *      bucket is acquired and the key/value pair is added to the bucket.
+ * @param key key of the key/value pair to be inserted
+ * @param value value of the key/value pair to be inserted
+ */
+template <class K, class V>
+void ParallelHashMap<K,V>::update(K key, V value)
+{
+  /* get lock hash */
+  #ifdef OPENMP
+  size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
+    % _num_locks;
+
+  /* acquire lock */
+  omp_set_lock(&_locks[lock_hash]);
+  #endif
+
+  /* insert value */
+  _table->at(key) = value;
+
+  /* release lock */
+  #ifdef OPENMP
+  omp_unset_lock(&_locks[lock_hash]);
+  #endif
+}
+
 
 /**
  * @brief Insert a given key/value pair into the parallel hash map and return
@@ -676,6 +712,7 @@ void ParallelHashMap<K,V>::resize()
 
   /* reassign pointer */
   _table = new_map;
+#pragma omp flush(_table)
 
   /* release all locks */
   #ifdef OPENMP
@@ -749,6 +786,7 @@ K* ParallelHashMap<K,V>::keys()
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* get key list */
@@ -784,6 +822,7 @@ V* ParallelHashMap<K,V>::values()
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* get value list */
@@ -833,6 +872,7 @@ void ParallelHashMap<K,V>::print_buckets()
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* print buckets */
