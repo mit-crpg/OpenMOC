@@ -533,6 +533,7 @@ V& ParallelHashMap<K,V>::at(K key)
   do{
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* get value associated with the key in the underlying table */
@@ -676,6 +677,7 @@ void ParallelHashMap<K,V>::resize()
 
   /* reassign pointer */
   _table = new_map;
+#pragma omp flush(_table)
 
   /* release all locks */
   #ifdef OPENMP
