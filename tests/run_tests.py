@@ -53,10 +53,9 @@ class Test(object):
     def run_setup_install(self):
         """Install OpenMOC with distutils"""
 
-        setup_cmd = ['python', 'setup.py', 'install']
+        setup_cmd = [sys.executable, 'setup.py', 'install']
         setup_cmd += ['--install-purelib=tests/openmoc']
-        setup_cmd += ['--cc={0}'.format(self.cc)]
-        setup_cmd += ['--fp={0}'.format(self.fp)]
+        setup_cmd += ['--cc={0}'.format(self.cc), '--fp={0}'.format(self.fp)]
         if self.debug:
             setup_cmd += ['--debug-mode']
 
