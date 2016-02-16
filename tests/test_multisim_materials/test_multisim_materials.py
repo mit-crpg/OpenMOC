@@ -28,12 +28,18 @@ class MultiSimMaterialsTestHarness(TestHarness):
 
             # Extract all of the material-filled cells in the geometry
             cells = self.input_set.geometry.getAllMaterialCells()
+            materials = self.input_set.geometry.getAllMaterials()
 
             # Exchange all of the materials for their clones
             for cell_id in cells:
                 material = cells[cell_id].getFillMaterial()
-                material = material.clone()
-                cells[cell_id].setFill(material)
+                clone = material.clone()
+                cells[cell_id].setFill(clone)
+
+            # Turn on SWIG flag to register old Materials 
+            # with Python garbage collector
+            for material_id in materials:
+                materials[material_id].thisown = 1
 
             # Run eigenvalue calculation and store the results
             super(MultiSimMaterialsTestHarness, self)._run_openmoc()
