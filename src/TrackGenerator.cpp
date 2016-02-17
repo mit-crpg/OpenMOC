@@ -5466,7 +5466,7 @@ void TrackGenerator::countSegments() {
       kernels = new MOCKernel*[num_rows];
       for (int z=0; z < num_rows; z++) {
         kernels[z] = new CounterKernel;
-        kerels[z]->setMaxVal(_max_optical_length);
+        kernels[z]->setMaxVal(_max_optical_length);
       }
     }
 
