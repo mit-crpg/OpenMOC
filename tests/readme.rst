@@ -39,4 +39,6 @@ can run:
 
     python run_tests.py -l
 
+Note that the test suite requires h5py, matplotlib (>=1.5) and Pandas (>=0.13).
+
 .. _ctest: http://www.cmake.org/cmake/help/v2.8.12/ctest.html
