@@ -13,6 +13,7 @@
 #include "Python.h"
 #endif
 #include "Cmfd.h"
+#include "ringify_type.h"
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,19 +26,6 @@
 
 /** Forward declaration of Cmfd class */
 class Cmfd;
-
-/**
- * @enum ringifyType
- * @brief The method to use when subdividing cells into rings
- */
-enum ringifyType{
-
-  /** Max ring radius chosen such that it has the same area as the total geometry */
-  EQUIVALENT_AREA,
-
-  /** Max ring radius chosen to be the distance from the center to a corner of the geometry */
-  MAX_DISTANCE
-};
 
 /**
  * @struct fsr_data

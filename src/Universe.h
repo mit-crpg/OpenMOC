@@ -15,6 +15,7 @@
 #include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
+#include "ringify_type.h"
 #include <limits>
 #include <map>
 #include <vector>
@@ -28,7 +29,6 @@ class Surface;
 class Material;
 struct surface_halfspace;
 
-
 int universe_id();
 void reset_universe_id();
 void maximize_universe_id(int universe_id);
@@ -38,7 +38,7 @@ void maximize_universe_id(int universe_id);
  * @enum universeType
  * @brief The type of universe
  */
-enum universeType{
+enum universeType {
 
   /** A simple non-repeating Universe */
   SIMPLE,
@@ -116,7 +116,7 @@ public:
 
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
-  void subdivideCells(double max_radius=INFINITY);
+  void subdivideCells(double max_radius=INFINITY, ringifyType ringify_type=EQUIVALENT_AREA);
   void buildNeighbors();
 
   virtual std::string toString();
@@ -193,7 +193,7 @@ public:
                 double width_z=std::numeric_limits<double>::infinity());
   void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void removeUniverse(Universe* universe);
-  void subdivideCells(double max_radius=INFINITY);
+  void subdivideCells(double max_radius=INFINITY, ringifyType ringify_type=EQUIVALENT_AREA);
   void buildNeighbors();
 
   bool withinBounds(Point* point);

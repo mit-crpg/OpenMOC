@@ -780,7 +780,7 @@ void Geometry::subdivideCells() {
   }
 
   /* Recursively subdivide Cells into rings and sectors */
-  _root_universe->subdivideCells(max_radius);
+  _root_universe->subdivideCells(max_radius, _ringify_type);
 }
 
 
@@ -1164,8 +1164,7 @@ void Geometry::setFSRsToKeys(std::vector<std::string>* FSRs_to_keys) {
  * @brief Sets the method for selection of the maximum ring radius for subdivision
  * @param ringify_type The method to use for selection of maximum ring radius
  */
-void Geometry::setRingifyType(ringifyType ringify_type)
-{
+void Geometry::setRingifyType(ringifyType ringify_type) {
   _ringify_type = ringify_type;
 }
 
