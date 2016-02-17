@@ -845,4 +845,4 @@ void ParallelHashMap<K,V>::print_buckets() {
   _announce[tid].value = NULL;
 }
 
-
+#endif
