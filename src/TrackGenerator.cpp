@@ -191,7 +191,7 @@ int TrackGenerator::getNumSegments() {
   int num_segments = 0;
 
   for (int i=0; i < _num_azim; i++) {
-#pragma omp parallel for reduction(+:num_segments)
+    //#pragma omp parallel for reduction(+:num_segments)
     for (int j=0; j < _num_tracks[i]; j++)
       num_segments += _tracks[i][j].getNumSegments();
   }
@@ -335,7 +335,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
   /* Calculate the FSR's "volume" by accumulating the total length of *
    * all Track segments multipled by the Track "widths" for the FSR.  */
   for (int i=0; i < _num_azim; i++) {
-#pragma omp parallel for reduction(+:volume)
+#pragma omp parallel for reduction(+:volume) private(curr_segment)
     for (int j=0; j < _num_tracks[i]; j++) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
