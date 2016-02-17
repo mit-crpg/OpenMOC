@@ -12,10 +12,12 @@ from PIL import Image
 
 sys.path.insert(0, 'openmoc')
 import openmoc
+import openmoc.plotter
 import openmoc.process
 
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.testing.compare import compare_images
 
 
 class TestHarness(object):
@@ -274,36 +276,53 @@ class PlottingTestHarness(TestHarness):
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
-                     hash_output=True):
+                     hash_output=False):
 
-        outstr = ''
-
-        # Loop over each Matplotlib figure / PIL Image and hash it
+        # Store each each Matplotlib figure / PIL Image
         for i, fig in enumerate(self.figures):
-            plot_filename = 'plot-{0}.png'.format(i)
+            test_filename = 'test-{0}.png'.format(i)
 
             # Save the figure to a file
             if isinstance(fig, matplotlib.figure.Figure):
-                fig.savefig(plot_filename, bbox_inches='tight')
+                fig.set_dpi(100)
+                fig.set_size_inches(4, 4)
+                fig.savefig(test_filename, bbox_inches='tight')
                 plt.close(fig)
             else:
-                fig.save(plot_filename)
-            
-            # Open the image file in PIL and hash it
-            img = Image.open(plot_filename)
-            plot_hash = hashlib.md5(img.tobytes())
-            outstr += '{}\n'.format(plot_hash.hexdigest())
+                fig.save(test_filename)
 
-        return outstr
+        return ''
+
+    def _compare_results(self):
+        """Make sure the current results agree with the true standard."""
+
+        # Loop over each Matplotlib figure / PIL Image and
+        # compare to reference using Matplotlib fuzzy comparison
+        for i, fig in enumerate(self.figures):
+            img1 = os.path.join(os.getcwd(), 'test-{0}.png'.format(i))
+            img2 = os.path.join(os.getcwd(), 'true-{0}.png'.format(i))
+            results = compare_images(img1, img2, tol=0.25)
+            assert results is None, 'Results do not agree.'
+
+    def _overwrite_results(self):
+        """Overwrite the reference images with the test images."""
+
+        # Find all plot files
+        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
+
+        # Copy each test plot as a new reference plot
+        for i in range(len(outputs)):
+            shutil.copyfile('test-{0}.png'.format(i), 'true-{0}.png'.format(i))
 
     def _cleanup(self):
         """Delete plot PNG files."""
 
-        # Find all plot files
-        outputs = glob.glob(os.path.join(os.getcwd(), '*.png'))
+        # Find all test plot files
+        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
 
         # Remove each plot file if it exists
-        for output in outputs:
+        for i in range(len(outputs)):
+            output = 'test-{0}.png'.format(i)
             if os.path.isfile(output):
                 os.remove(output)
             elif os.path.isdir(output):
