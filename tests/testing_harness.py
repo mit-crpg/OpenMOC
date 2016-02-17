@@ -19,7 +19,6 @@ import openmoc.process
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.compare import compare_images
 
 
 class TestHarness(object):
@@ -291,16 +290,6 @@ class PlottingTestHarness(TestHarness):
             # Save the figure to a file
             if isinstance(fig, matplotlib.figure.Figure):
                 fig.set_size_inches(4., 4.)
-                #fig.axis('off')
-#                fig.texts = []
-#                fig.suptitle('')
-#                print(fig.texts, dir(fig.texts), fig.texts[0])
-#                fig.get_title().set_title('')
-#                fig.frameon = False
-#                ax = fig.get_axes()[0]
-#                ax.axes.get_xaxis().set_visible(False)
-#                ax.axes.get_yaxis().set_visible(False)
-#                fig.tight_layout()
                 fig.savefig(test_filename, bbox_inches='tight', dpi=100)
                 plt.close(fig)
             else:
@@ -308,49 +297,43 @@ class PlottingTestHarness(TestHarness):
 
         return ''
 
-    def _compare_results(self):
+    def _compare_images(self, img1, img2):
+        """Compare two PIL images using in RGB space with pixel histograms."""
+
+        # Extract RGBA data from each PIL Image
+        rgba1 = np.array(img1)
+        rgba2 = np.array(img2)
+
+        # Compute histograms of each images pixels
+        hr1, bins1 = np.histogram(rgba1[...,0], bins=256, normed=True)
+        hg1, bins1 = np.histogram(rgba1[...,1], bins=256, normed=True)
+        hb1, bins1 = np.histogram(rgba1[...,2], bins=256, normed=True)
+        hr2, bins2 = np.histogram(rgba2[...,0], bins=256, normed=True)
+        hg2, bins2 = np.histogram(rgba2[...,1], bins=256, normed=True)
+        hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
+        hist1 = np.array([hr1, hg1, hb1]).ravel()
+        hist2 = np.array([hr2, hg2, hb2]).ravel()
+        
+        # Compute cartesian distance between histograms in RGB space
+        diff = hist1 - hist2
+        distance = np.sqrt(np.dot(diff, diff))
+        return distance
+
+    def _compare_results(self, max_distance=1.):
         """Make sure the current results agree with the true standard."""
 
         # Loop over each Matplotlib figure / PIL Image and
         # compare to reference using Matplotlib fuzzy comparison
         for i, fig in enumerate(self.figures):
-            test_filename = 'test-{0}.png'.format(i)
-            true_filename = 'true-{0}.png'.format(i)
 
             # Open test image and resize to that of the true image with PIL
-            img1 = Image.open(test_filename)
-            img2 = Image.open(true_filename)
+            img1 = Image.open('test-{0}.png'.format(i))
+            img2 = Image.open('true-{0}.png'.format(i))
             img1 = ImageOps.fit(img1, img2.size, Image.ANTIALIAS)
-#            img1.save(test_filename)
 
-            rgb1 = np.array(img1)
-            rgb2 = np.array(img2)
-            print(rgb1.shape, rgb2.shape)
-#            r1 = np.asarray(img1.convert("RGB", (1,0,0,0, 1,0,0,0, 1,0,0,0) ))
-#            print(r1)
-#            g1 = np.asarray(img1.convert( "RGB", (0,1,0,0, 0,1,0,0, 0,1,0,0) ))
-#            b1 = np.asarray(img1.convert( "RGB", (0,0,1,0, 0,0,1,0, 0,0,1,0) ))
-#            r2 = np.asarray(img2.convert( "RGB", (1,0,0,0, 1,0,0,0, 1,0,0,0) ))
-#            g2 = np.asarray(img2.convert( "RGB", (0,1,0,0, 0,1,0,0, 0,1,0,0) ))
-#            b2 = np.asarray(img2.convert( "RGB", (0,0,1,0, 0,0,1,0, 0,0,1,0) ))
-            hr1, bins1 = np.histogram(rgb1[...,0], bins=256, normed=True)
-            hg1, bins1 = np.histogram(rgb1[...,1], bins=256, normed=True)
-            hb1, bins1 = np.histogram(rgb1[...,2], bins=256, normed=True)
-            hr2, bins2 = np.histogram(rgb2[...,0], bins=256, normed=True)
-            hg2, bins2 = np.histogram(rgb2[...,1], bins=256, normed=True)
-            hb2, bins2 = np.histogram(rgb2[...,2], bins=256, normed=True)
-            hist1 = np.array([hr1, hg1, hb1]).ravel()
-            hist2 = np.array([hr2, hg2, hb2]).ravel()
-        
-            diff = hist1 - hist2
-            distance = np.sqrt(np.dot(diff, diff))
-            print(distance)
-
-            # Use Matplotlib for fuzzy image comparison
-#            results = compare_images(test_filename, true_filename, tol=5.)
-#            print('results: {}'.format(results))
-#            assert results is None, 'Results do not agree.'
-            assert distance < 1, 'Results do not agree #2.'
+            # Compute distance between each image in RGB space
+            distance = compare_images(img1, img2)
+            assert distance < max_distance, 'Results do not agree.'
 
     def _overwrite_results(self):
         """Overwrite the reference images with the test images."""
