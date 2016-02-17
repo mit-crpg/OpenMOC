@@ -297,6 +297,52 @@ class PlottingTestHarness(TestHarness):
 
         return ''
 
+    def _write_results(self, results_string):
+        """Do nothing since the plots are created in _run_openmoce() method."""
+        return
+
+    def _overwrite_results(self):
+        """Overwrite the reference images with the test images."""
+
+        # Find all plot files
+        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
+
+        # Copy each test plot as a new reference plot
+        for i in range(len(outputs)):
+            shutil.copyfile('test-{0}.png'.format(i), 'true-{0}.png'.format(i))
+
+    def _compare_results(self, max_distance=1.):
+        """Make sure the current results agree with the true standard."""
+
+        # Loop over each Matplotlib figure / PIL Image and
+        # compare to reference using Matplotlib fuzzy comparison
+        for i, fig in enumerate(self.figures):
+
+            # Open test image and resize to that of the true image with PIL
+            img1 = Image.open('test-{0}.png'.format(i))
+            img2 = Image.open('true-{0}.png'.format(i))
+            img1 = ImageOps.fit(img1, img2.size, Image.ANTIALIAS)
+
+            # Compute distance between each image in RGB space
+            distance = self._compare_images(img1, img2)
+            assert distance < max_distance, 'Results do not agree.'
+
+    def _cleanup(self):
+        """Delete plot PNG files."""
+
+        # Find all test plot files
+        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
+
+        # Remove each plot file if it exists
+        for i in range(len(outputs)):
+            output = 'test-{0}.png'.format(i)
+            if os.path.isfile(output):
+                os.remove(output)
+            elif os.path.isdir(output):
+                shutil.rmtree(output)
+
+        super(PlottingTestHarness, self)._cleanup()
+
     def _compare_images(self, img1, img2):
         """Compare two PIL images using in RGB space with pixel histograms."""
 
@@ -318,48 +364,6 @@ class PlottingTestHarness(TestHarness):
         diff = hist1 - hist2
         distance = np.sqrt(np.dot(diff, diff))
         return distance
-
-    def _compare_results(self, max_distance=1.):
-        """Make sure the current results agree with the true standard."""
-
-        # Loop over each Matplotlib figure / PIL Image and
-        # compare to reference using Matplotlib fuzzy comparison
-        for i, fig in enumerate(self.figures):
-
-            # Open test image and resize to that of the true image with PIL
-            img1 = Image.open('test-{0}.png'.format(i))
-            img2 = Image.open('true-{0}.png'.format(i))
-            img1 = ImageOps.fit(img1, img2.size, Image.ANTIALIAS)
-
-            # Compute distance between each image in RGB space
-            distance = compare_images(img1, img2)
-            assert distance < max_distance, 'Results do not agree.'
-
-    def _overwrite_results(self):
-        """Overwrite the reference images with the test images."""
-
-        # Find all plot files
-        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
-
-        # Copy each test plot as a new reference plot
-        for i in range(len(outputs)):
-            shutil.copyfile('test-{0}.png'.format(i), 'true-{0}.png'.format(i))
-
-    def _cleanup(self):
-        """Delete plot PNG files."""
-
-        # Find all test plot files
-        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
-
-        # Remove each plot file if it exists
-        for i in range(len(outputs)):
-            output = 'test-{0}.png'.format(i)
-            if os.path.isfile(output):
-                os.remove(output)
-            elif os.path.isdir(output):
-                shutil.rmtree(output)
-
-        super(PlottingTestHarness, self)._cleanup()
 
 
 class MultiSimTestHarness(TestHarness):
