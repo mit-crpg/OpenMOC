@@ -16,6 +16,7 @@ import openmoc
 import openmoc.plotter
 import openmoc.process
 
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.testing.compare import compare_images
@@ -320,12 +321,36 @@ class PlottingTestHarness(TestHarness):
             img1 = Image.open(test_filename)
             img2 = Image.open(true_filename)
             img1 = ImageOps.fit(img1, img2.size, Image.ANTIALIAS)
-            img1.save(test_filename)
+#            img1.save(test_filename)
+
+            rgb1 = np.array(img1)
+            rgb2 = np.array(img2)
+            print(rgb1.shape, rgb2.shape)
+#            r1 = np.asarray(img1.convert("RGB", (1,0,0,0, 1,0,0,0, 1,0,0,0) ))
+#            print(r1)
+#            g1 = np.asarray(img1.convert( "RGB", (0,1,0,0, 0,1,0,0, 0,1,0,0) ))
+#            b1 = np.asarray(img1.convert( "RGB", (0,0,1,0, 0,0,1,0, 0,0,1,0) ))
+#            r2 = np.asarray(img2.convert( "RGB", (1,0,0,0, 1,0,0,0, 1,0,0,0) ))
+#            g2 = np.asarray(img2.convert( "RGB", (0,1,0,0, 0,1,0,0, 0,1,0,0) ))
+#            b2 = np.asarray(img2.convert( "RGB", (0,0,1,0, 0,0,1,0, 0,0,1,0) ))
+            hr1, bins1 = np.histogram(rgb1[...,0], bins=256, normed=True)
+            hg1, bins1 = np.histogram(rgb1[...,1], bins=256, normed=True)
+            hb1, bins1 = np.histogram(rgb1[...,2], bins=256, normed=True)
+            hr2, bins2 = np.histogram(rgb2[...,0], bins=256, normed=True)
+            hg2, bins2 = np.histogram(rgb2[...,1], bins=256, normed=True)
+            hb2, bins2 = np.histogram(rgb2[...,2], bins=256, normed=True)
+            hist1 = np.array([hr1, hg1, hb1]).ravel()
+            hist2 = np.array([hr2, hg2, hb2]).ravel()
         
+            diff = hist1 - hist2
+            distance = np.sqrt(np.dot(diff, diff))
+            print(distance)
+
             # Use Matplotlib for fuzzy image comparison
-            results = compare_images(test_filename, true_filename, tol=5.)
-            print('results: {}'.format(results))
-            assert results is None, 'Results do not agree.'
+#            results = compare_images(test_filename, true_filename, tol=5.)
+#            print('results: {}'.format(results))
+#            assert results is None, 'Results do not agree.'
+            assert distance < 1, 'Results do not agree #2.'
 
     def _overwrite_results(self):
         """Overwrite the reference images with the test images."""
