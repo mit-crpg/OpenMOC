@@ -9,7 +9,7 @@ import glob
 import pickle
 from collections import OrderedDict
 from optparse import OptionParser
-from PIL import Image
+from PIL import Image, ImageOps
 
 sys.path.insert(0, 'openmoc')
 import openmoc
@@ -295,7 +295,6 @@ class PlottingTestHarness(TestHarness):
 #                fig.suptitle('')
 #                print(fig.texts, dir(fig.texts), fig.texts[0])
 #                fig.get_title().set_title('')
-#                fig.get_title().set_suptitle('')
 #                fig.frameon = False
 #                ax = fig.get_axes()[0]
 #                ax.axes.get_xaxis().set_visible(False)
@@ -314,9 +313,18 @@ class PlottingTestHarness(TestHarness):
         # Loop over each Matplotlib figure / PIL Image and
         # compare to reference using Matplotlib fuzzy comparison
         for i, fig in enumerate(self.figures):
-            img1 = os.path.join(os.getcwd(), 'test-{0}.png'.format(i))
-            img2 = os.path.join(os.getcwd(), 'true-{0}.png'.format(i))
-            results = compare_images(img1, img2, tol=0.25)
+            test_filename = 'test-{0}.png'.format(i)
+            true_filename = 'true-{0}.png'.format(i)
+
+            # Open test image and resize to that of the true image with PIL
+            img1 = Image.open(test_filename)
+            img2 = Image.open(true_filename)
+            img1 = ImageOps.fit(img1, img2.size, Image.ANTIALIAS)
+            img1.save(test_filename)
+        
+            # Use Matplotlib for fuzzy image comparison
+            results = compare_images(test_filename, true_filename, tol=5.)
+            print('results: {}'.format(results))
             assert results is None, 'Results do not agree.'
 
     def _overwrite_results(self):
