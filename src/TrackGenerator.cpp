@@ -400,11 +400,16 @@ double TrackGenerator::getPolarSpacing(int azim, int polar) {
 }
 
 
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+  return 0;
+}
+
+
 /**
  * @brief Get the maximum allowable optical length for a track segment
  * @return The max optical length
  */
-FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+FP_PRECISION TrackGenerator::OLDgetMaxOpticalLength() {
 
   segment* curr_segment;
   FP_PRECISION length;
