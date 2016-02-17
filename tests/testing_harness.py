@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import glob
+import pickle
 from collections import OrderedDict
 from optparse import OptionParser
 from PIL import Image
@@ -273,6 +274,10 @@ class PlottingTestHarness(TestHarness):
     def __init__(self):
         super(PlottingTestHarness, self).__init__()
         self.figures = []
+        
+        # Use standardized default matplotlib rcparams
+        rcparams = pickle.load(open('../rcparams.pkl', 'rb'))
+        openmoc.matplotlib_rcparams = rcparams
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
@@ -284,9 +289,19 @@ class PlottingTestHarness(TestHarness):
 
             # Save the figure to a file
             if isinstance(fig, matplotlib.figure.Figure):
-                fig.set_dpi(100)
-                fig.set_size_inches(4, 4)
-                fig.savefig(test_filename, bbox_inches='tight')
+                fig.set_size_inches(4., 4.)
+                #fig.axis('off')
+#                fig.texts = []
+#                fig.suptitle('')
+#                print(fig.texts, dir(fig.texts), fig.texts[0])
+#                fig.get_title().set_title('')
+#                fig.get_title().set_suptitle('')
+#                fig.frameon = False
+#                ax = fig.get_axes()[0]
+#                ax.axes.get_xaxis().set_visible(False)
+#                ax.axes.get_yaxis().set_visible(False)
+#                fig.tight_layout()
+                fig.savefig(test_filename, bbox_inches='tight', dpi=100)
                 plt.close(fig)
             else:
                 fig.save(test_filename)
