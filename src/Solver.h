@@ -272,6 +272,8 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
+
+
   virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
 
