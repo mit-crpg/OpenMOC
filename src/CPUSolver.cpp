@@ -807,19 +807,14 @@ void CPUSolver::transportSweepOTFStacks() {
   #pragma omp parallel
   {
     /* Create kernels and allocate segments for OTF computation */
-    MOCKernel** kernels;
-    int num_rows = 1;
-    int max_rows = _track_generator->getMaxNumTracksPerStack();
+    int num_rows = _track_generator->getMaxNumTracksPerStack();
     int max_num_segments = _track_generator->getMaxNumSegments();
-    if (_segment_formation != EXPLICIT) {
-      if (_segment_formation == OTF_STACKS)
-        num_rows = _max_num_tracks_per_stack;
-
+   
     /* Allocate memory */
     segment** segments = new segment*[num_rows];
     MOCKernel** kernels = new MOCKernel*[num_rows];
     for (int z=0; z < num_rows; z++) {
-      segments[z] = new segment[_max_num_segments];
+      segments[z] = new segment[max_num_segments];
       kernels[z] = new SegmentationKernel;
       kernels[z]->setSegments(segments[z]);
       kernels[z]->setMaxVal(_track_generator->retrieveMaxOpticalLength());
@@ -842,7 +837,7 @@ void CPUSolver::transportSweepOTFStacks() {
       for (int p=0; p < _num_polar; p++) {
 
         /* Reset the segment count for all kernels */
-        for (int z = 0; z < max_num_tracks_per_stack; z++)
+        for (int z = 0; z < num_rows; z++)
           kernels[z]->resetCount();
 
         /* Get the segments for the stack */
@@ -892,7 +887,7 @@ void CPUSolver::transportSweepOTFStacks() {
         }
       }
     }
-    for (int z = 0; z < max_num_tracks_per_stack; z++)
+    for (int z = 0; z < num_rows; z++)
       delete [] segments[z];
     delete segments;
   }
