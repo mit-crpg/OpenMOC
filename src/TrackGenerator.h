@@ -294,6 +294,7 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
+  void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
   void traceSegmentsOTF(Track* flattened_track, Point* start,
                         double theta, MOCKernel* kernel);
   void traceStackOTF(Track* flattened_track, int polar_index,

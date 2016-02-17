@@ -14,7 +14,7 @@
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
-
+#include "TrackGenerator.h"
 
 class TraverseSegments {
 
@@ -37,13 +37,14 @@ protected:
 
   // descriptions
   MOCKernel** _kernels;
-  segment** _segments;
+  segment** _temporary_segments;
   FP_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
 
   //descriptions
   segmentationType _segment_formation;
   FP_PRECISION _max_optical_length;
+  int _curr_z_index;
 
   // descriptions
   TraverseSegments(TrackGenerator* track_generator);
@@ -53,9 +54,11 @@ protected:
   void deallocateTemporarySegmentStorage();
 
   //TODO TEMPLATE
+  template <class KernelType>
   void allocateKernels<KernelType>();
+  template <class KernelType>
   void deallocateKernels<KernelType>();
-  void TraverseSegments::loopOverTracks();
+  void loopOverTracks();
 
 public:
   virtual void execute() = 0;

@@ -4935,6 +4935,16 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 }
 
 
+//FIXME description
+void TrackGenerator::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
+  for (int s=0; s < track->getNumSegments(); s++) {
+    segment seg = track->getSegment(s);
+    kernel->execute(seg._length, seg._material, seg._region_id,
+                    seg._cmfd_surface_fwd, seg._cmfd_surface_bwd);
+  }
+}
+
+
 /**
  * @brief Computes 3D segment lengths on-the-fly for a single 3D track given an
  *        associated 2D Track with a starting point and a polar angle. The
