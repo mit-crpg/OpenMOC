@@ -277,7 +277,7 @@ class PlottingTestHarness(TestHarness):
         
         # Use standardized default matplotlib rcparams
         rcparams = pickle.load(open('../rcparams.pkl', 'rb'))
-        openmoc.matplotlib_rcparams = rcparams
+        openmoc.plotter.matplotlib_rcparams = rcparams
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
