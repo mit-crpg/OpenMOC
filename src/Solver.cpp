@@ -625,7 +625,7 @@ void Solver::countFissionableFSRs() {
   log_printf(INFO, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
-  int num_fissionable_FSRs;
+  int num_fissionable_FSRs = 0;
 #pragma omp parallel for reduction(+:num_fissionable_FSRs)
   for (int r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
