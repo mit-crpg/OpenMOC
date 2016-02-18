@@ -191,7 +191,7 @@ int TrackGenerator::getNumSegments() {
   int num_segments = 0;
 
   for (int i=0; i < _num_azim; i++) {
-    //#pragma omp parallel for reduction(+:num_segments)
+#pragma omp parallel for reduction(+:num_segments)
     for (int j=0; j < _num_tracks[i]; j++)
       num_segments += _tracks[i][j].getNumSegments();
   }
