@@ -23,11 +23,11 @@ class MultiSimMaterialsTestHarness(MultiSimTestHarness):
 
         for i in range(self.num_simulations):
 
-            # Extract all of the material-filled cells in the geometry
+            # Extract all of the Material-filled Cells in the Geometry
             cells = self.input_set.geometry.getAllMaterialCells()
             materials = self.input_set.geometry.getAllMaterials()
 
-            # Exchange all of the materials for their clones
+            # Exchange all of the Materials for their clones
             for cell_id in cells:
                 material = cells[cell_id].getFillMaterial()
                 clone = material.clone()
