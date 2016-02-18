@@ -16,7 +16,6 @@ class MultiSimMaterialsCmfdTestHarness(MultiSimTestHarness):
     def __init__(self):
         super(MultiSimMaterialsCmfdTestHarness, self).__init__()
         self.input_set = GridInput()
-        self.num_threads = 4
 
     def _create_geometry(self):
         """Initialize CMFD and add it to the Geometry."""
