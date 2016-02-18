@@ -370,7 +370,6 @@ int Cell::getNumSectors() {
  * @return the minimum x-coordinate
  */
 double Cell::getMinX() {
-  findBoundingBox();
   return _min_x;
 }
 
@@ -380,7 +379,6 @@ double Cell::getMinX() {
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
-  findBoundingBox();
   return _max_x;
 }
 
@@ -390,7 +388,6 @@ double Cell::getMaxX() {
  * @return the minimum y-coordinate
  */
 double Cell::getMinY() {
-  findBoundingBox();
   return _min_y;
 }
 
@@ -400,7 +397,6 @@ double Cell::getMinY() {
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
-  findBoundingBox();
   return _max_y;
 }
 
@@ -410,7 +406,6 @@ double Cell::getMaxY() {
  * @return the minimum z-coordinate
  */
 double Cell::getMinZ() {
-  findBoundingBox();
   return _min_z;
 }
 
@@ -420,7 +415,6 @@ double Cell::getMinZ() {
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
-  findBoundingBox();
   return _max_z;
 }
 
@@ -431,7 +425,6 @@ double Cell::getMaxZ() {
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Cell::getMinXBoundaryType() {
-  findBoundingBox();
   return _min_x_bc;
 }
 
@@ -442,7 +435,6 @@ boundaryType Cell::getMinXBoundaryType() {
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Cell::getMaxXBoundaryType() {
-  findBoundingBox();
   return _max_x_bc;
 }
 
@@ -453,7 +445,6 @@ boundaryType Cell::getMaxXBoundaryType() {
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Cell::getMinYBoundaryType() {
-  findBoundingBox();
   return _min_y_bc;
 }
 
@@ -464,7 +455,6 @@ boundaryType Cell::getMinYBoundaryType() {
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Cell::getMaxYBoundaryType() {
-  findBoundingBox();
   return _max_y_bc;
 }
 
@@ -597,7 +587,7 @@ void Cell::setVolume(double volume) {
 
 /**
  * @brief Increment the volume/area of the Cell by some amount.
- * @details This routine is called by the TrackGenerator during track 
+ * @details This routine is called by the TrackGenerator during track
  *          generation and segmentation.
  * @param volume the amount to increment the current volume by
  */
@@ -668,7 +658,7 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
   _rotation_matrix[4] = sin(psi) * sin(theta) * sin(phi) +
                         cos(psi) * cos(phi);
   _rotation_matrix[5] = cos(theta) * sin(psi);
-  _rotation_matrix[6] = cos(psi) * sin(theta) * cos(phi) + 
+  _rotation_matrix[6] = cos(psi) * sin(theta) * cos(phi) +
                         sin(psi) * sin(phi);
   _rotation_matrix[7] = cos(psi) * sin(theta) * sin(phi) -
                         sin(psi) * cos(phi);
@@ -680,7 +670,7 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
 
 /**
  * @brief Increment the number of instances of this Cell.
- * @details This routine is called by the TrackGenerator during track 
+ * @details This routine is called by the TrackGenerator during track
  *          generation and segmentation.
  */
 void Cell::incrementNumInstances() {
@@ -765,6 +755,9 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   new_surf_half->_halfspace = halfspace;
 
   _surfaces[surface->getId()] = new_surf_half;
+
+  /* Recompute the bounding box */
+  findBoundingBox();
 }
 
 
@@ -778,6 +771,9 @@ void Cell::removeSurface(Surface* surface) {
     delete _surfaces[surface->getId()];
     _surfaces.erase(surface->getId());
   }
+
+  /* Recompute the bounding box */
+  findBoundingBox();
 }
 
 
@@ -937,9 +933,9 @@ double Cell::minSurfaceDist(LocalCoords* coords) {
 /**
  * @brief Returns true if this Cell is filled with a fissionable Material.
  * @details If the Cell is filled by a Material, this method will simply query
- *          the filling Material. If the Cell is filled by a Universe, this 
+ *          the filling Material. If the Cell is filled by a Universe, this
  *          method will consider any Materials filling those Cells contained
- *          by the filling Universe. This method should not be called prior to 
+ *          by the filling Universe. This method should not be called prior to
  *          the calling of the Geometry::computeFissionability() method.
  * @return true if contains a fissionable Material
  */
