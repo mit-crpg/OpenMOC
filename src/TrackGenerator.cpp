@@ -1992,29 +1992,23 @@ void TrackGenerator::initializeSegments() {
   FSRs_to_keys = _geometry->getFSRsToKeys();
 
   /* Iterate over all Track segments and assign them each a Material */
-#pragma omp parallel
-  {
+  int region_id, mat_id;
+  segment* curr_segment;
+  Material* mat;
 
-    int region_id, mat_id;
-    segment* curr_segment;
-    Material* mat;
+  /* Set the Material for each FSR */
+  for (int r=0; r < _geometry->getNumFSRs(); r++) {
+    mat = _geometry->findFSRMaterial(r);
+    FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
+  }
 
-    /* Set the Material for each FSR */
-#pragma omp for
-    for (int r=0; r < _geometry->getNumFSRs(); r++) {
-      mat = _geometry->findFSRMaterial(r);
-      FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
-    }
-
-    for (int i=0; i < _num_azim; i++) {
-#pragma omp for
-      for (int j=0; j < _num_tracks[i]; j++) {
-        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-          curr_segment = _tracks[i][j].getSegment(s);
-          region_id = curr_segment->_region_id;
-          mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
-          curr_segment->_material = materials[mat_id];
-        }
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
+        region_id = curr_segment->_region_id;
+        mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
+        curr_segment->_material = materials[mat_id];
       }
     }
   }
