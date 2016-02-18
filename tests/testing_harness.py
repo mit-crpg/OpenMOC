@@ -2,15 +2,20 @@ from __future__ import print_function
 
 import filecmp
 import hashlib
-from optparse import OptionParser
 import os
 import shutil
 import sys
+import glob
 from collections import OrderedDict
+from optparse import OptionParser
+from PIL import Image
 
 sys.path.insert(0, 'openmoc')
 import openmoc
 import openmoc.process
+
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 class TestHarness(object):
@@ -259,3 +264,80 @@ class TrackingTestHarness(TestHarness):
                      hash_output=False):
         """Return the result string"""
         return self._result
+
+
+class MultiSimTestHarness(TestHarness):
+    """Specialized TestHarness for testing multi-simulation capabilities."""
+
+    def __init__(self):
+        super(MultiSimTestHarness, self).__init__()
+        self.num_simulations = 3
+        self.num_iters = []
+        self.keffs = []
+
+    def _run_openmoc(self):
+        """Run multiple OpenMOC eigenvalue calculations."""
+
+        for i in range(self.num_simulations):
+            super(MultiSimTestHarness, self)._run_openmoc()
+            self.num_iters.append(self.solver.getNumIterations())
+            self.keffs.append(self.solver.getKeff())
+
+    def _get_results(self, num_iterations=True, keff=True, fluxes=False,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=False):
+        """Return eigenvalues from each simulation into a string."""
+
+        # Write out the iteration count and eigenvalues from each simulation
+        outstr = ''
+        for num_iters, keff in zip(self.num_iters, self.keffs):
+            outstr += 'Iters: {0}\tkeff: {1:12.5E}\n'.format(num_iters, keff)
+
+        return outstr
+
+
+class PlottingTestHarness(TestHarness):
+    """Specialized TestHarness for testing plotting."""
+
+    def __init__(self):
+        super(PlottingTestHarness, self).__init__()
+        self.figures = []
+
+    def _get_results(self, num_iters=False, keff=False, fluxes=False,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=True):
+
+        outstr = ''
+
+        # Loop over each Matplotlib figure / PIL Image and hash it
+        for i, fig in enumerate(self.figures):
+            plot_filename = 'plot-{0}.png'.format(i)
+
+            # Save the figure to a file
+            if isinstance(fig, matplotlib.figure.Figure):
+                fig.savefig(plot_filename, bbox_inches='tight')
+                plt.close(fig)
+            else:
+                fig.save(plot_filename)
+
+            # Open the image file in PIL and hash it
+            img = Image.open(plot_filename)
+            plot_hash = hashlib.md5(img.tobytes())
+            outstr += '{}\n'.format(plot_hash.hexdigest())
+
+        return outstr
+
+    def _cleanup(self):
+        """Delete plot PNG files."""
+
+        # Find all plot files
+        outputs = glob.glob(os.path.join(os.getcwd(), '*.png'))
+
+        # Remove each plot file if it exists
+        for output in outputs:
+            if os.path.isfile(output):
+                os.remove(output)
+            elif os.path.isdir(output):
+                shutil.rmtree(output)
+
+        super(PlottingTestHarness, self)._cleanup()

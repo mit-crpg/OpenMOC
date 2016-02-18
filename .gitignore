@@ -28,6 +28,7 @@ fission-rates
 simulation-state
 *.data
 *.png
+*.ppm
 openmoc-*-.log
 
 Openmp
