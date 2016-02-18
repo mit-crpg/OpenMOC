@@ -16,6 +16,7 @@ class MultiSimMaterialsCmfdTestHarness(MultiSimTestHarness):
     def __init__(self):
         super(MultiSimMaterialsCmfdTestHarness, self).__init__()
         self.input_set = GridInput()
+        self.num_threads = 4
 
     def _create_geometry(self):
         """Initialize CMFD and add it to the Geometry."""
@@ -46,7 +47,7 @@ class MultiSimMaterialsCmfdTestHarness(MultiSimTestHarness):
                 clone = material.clone()
                 cells[cell_id].setFill(clone)
 
-            # Turn on SWIG flag to register old Materials 
+            # Turn on SWIG flag to register old Materials
             # with Python garbage collector
             for material_id in materials:
                 materials[material_id].thisown = 1
