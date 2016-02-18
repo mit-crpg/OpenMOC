@@ -9,16 +9,16 @@ import glob
 import pickle
 from collections import OrderedDict
 from optparse import OptionParser
-from PIL import Image
+from PIL import Image, ImageOps
 
 sys.path.insert(0, 'openmoc')
 import openmoc
 import openmoc.plotter
 import openmoc.process
 
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.compare import compare_images
 
 
 class TestHarness(object):
@@ -291,17 +291,6 @@ class PlottingTestHarness(TestHarness):
             # Save the figure to a file
             if isinstance(fig, matplotlib.figure.Figure):
                 fig.set_size_inches(4., 4.)
-                #fig.axis('off')
-#                fig.texts = []
-#                fig.suptitle('')
-#                print(fig.texts, dir(fig.texts), fig.texts[0])
-#                fig.get_title().set_title('')
-#                fig.get_title().set_suptitle('')
-#                fig.frameon = False
-#                ax = fig.get_axes()[0]
-#                ax.axes.get_xaxis().set_visible(False)
-#                ax.axes.get_yaxis().set_visible(False)
-#                fig.tight_layout()
                 fig.savefig(test_filename, bbox_inches='tight', dpi=100)
                 plt.close(fig)
             else:
@@ -309,16 +298,9 @@ class PlottingTestHarness(TestHarness):
 
         return ''
 
-    def _compare_results(self):
-        """Make sure the current results agree with the true standard."""
-
-        # Loop over each Matplotlib figure / PIL Image and
-        # compare to reference using Matplotlib fuzzy comparison
-        for i, fig in enumerate(self.figures):
-            img1 = os.path.join(os.getcwd(), 'test-{0}.png'.format(i))
-            img2 = os.path.join(os.getcwd(), 'true-{0}.png'.format(i))
-            results = compare_images(img1, img2, tol=0.25)
-            assert results is None, 'Results do not agree.'
+    def _write_results(self, results_string):
+        """Do nothing since the plots are created in _run_openmoce() method."""
+        return
 
     def _overwrite_results(self):
         """Overwrite the reference images with the test images."""
@@ -329,6 +311,22 @@ class PlottingTestHarness(TestHarness):
         # Copy each test plot as a new reference plot
         for i in range(len(outputs)):
             shutil.copyfile('test-{0}.png'.format(i), 'true-{0}.png'.format(i))
+
+    def _compare_results(self, max_distance=1.):
+        """Make sure the current results agree with the true standard."""
+
+        # Loop over each Matplotlib figure / PIL Image and
+        # compare to reference using Matplotlib fuzzy comparison
+        for i, fig in enumerate(self.figures):
+
+            # Open test image and resize to that of the true image with PIL
+            img1 = Image.open('test-{0}.png'.format(i))
+            img2 = Image.open('true-{0}.png'.format(i))
+            img1 = ImageOps.fit(img1, img2.size, Image.ANTIALIAS)
+
+            # Compute distance between each image in RGB space
+            distance = self._compare_images(img1, img2)
+            assert distance < max_distance, 'Results do not agree.'
 
     def _cleanup(self):
         """Delete plot PNG files."""
@@ -345,6 +343,28 @@ class PlottingTestHarness(TestHarness):
                 shutil.rmtree(output)
 
         super(PlottingTestHarness, self)._cleanup()
+
+    def _compare_images(self, img1, img2):
+        """Compare two PIL images using in RGB space with pixel histograms."""
+
+        # Extract RGBA data from each PIL Image
+        rgba1 = np.array(img1)
+        rgba2 = np.array(img2)
+
+        # Compute histograms of each images pixels
+        hr1, bins1 = np.histogram(rgba1[...,0], bins=256, normed=True)
+        hg1, bins1 = np.histogram(rgba1[...,1], bins=256, normed=True)
+        hb1, bins1 = np.histogram(rgba1[...,2], bins=256, normed=True)
+        hr2, bins2 = np.histogram(rgba2[...,0], bins=256, normed=True)
+        hg2, bins2 = np.histogram(rgba2[...,1], bins=256, normed=True)
+        hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
+        hist1 = np.array([hr1, hg1, hb1]).ravel()
+        hist2 = np.array([hr2, hg2, hb2]).ravel()
+        
+        # Compute cartesian distance between histograms in RGB space
+        diff = hist1 - hist2
+        distance = np.sqrt(np.dot(diff, diff))
+        return distance
 
 
 class MultiSimTestHarness(TestHarness):
