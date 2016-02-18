@@ -26,7 +26,7 @@ private:
   SegmentationKernel* initializeKernel<SegmentationKernel>();
 
   void loopOverTracks2D();
-  void loopOverTrackExplicit();
+  void loopOverTracksExplicit();
   void loopOverTracksByTrackOTF();
   void loopOverTracksByStackOTF();
 
@@ -62,7 +62,8 @@ protected:
 
 public:
   virtual void execute() = 0;
+  virtual void onTrack(Track* track, segment* segments) = 0;
 
 };
 
-
+#endif

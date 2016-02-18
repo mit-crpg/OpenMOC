@@ -7,7 +7,6 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
   /* Initialize kernel information to NULL */
   _kernels = NULL;
-  _segments = NULL;
   _temporary_segments = NULL;
   _FSR_volumes = NULL;
   _FSR_locks = NULL;
@@ -23,15 +22,20 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
 
 // description
-TraverseSegments~TraverseSegments() {};
+TraverseSegments::~TraverseSegments() {};
 
 
 // TODO: DELETE: all this will be application specific 
+/*
 void TraverseSegments::execute() {
   pre(); //make kernels, etc
   loopOverTracks();
   post(); //delete kernels, etc
 }
+*/
+void TraverseSegments::execute() {}
+void TraverseSegments::onTrack(Track* track, segment* segments) {}
+
 
 
 // description
@@ -173,11 +177,11 @@ void TraverseSegments::loopOverTracks2D() {
   //FIXME: loop over all 2D tracks?
   Track2D** tracks_2D = _track_generator->get2DTracks();
   int num_azim = _track_generator->getNumAzim();
-  for (int a=0; a < _num_azim/2; a++) {    
-#pragma omp for
+  for (int a=0; a < num_azim/2; a++) {
     int num_xy = _track_generator->getNumX(a) + _track_generator->getNumY(a);
+#pragma omp for
     for (int i=0; i < num_xy; i++) {
-      Track* track_2D = tracks_2D[a][i];
+      Track* track_2D = &tracks_2D[a][i];
       _track_generator->traceSegmentsExplicit(track_2D, _kernels[0]);
       segment* segments = track_2D->getSegments();
       onTrack(track_2D, segments);
@@ -187,7 +191,7 @@ void TraverseSegments::loopOverTracks2D() {
 
 
 // description
-void TraverseSegments::loopOverTrackExplicit() { 
+void TraverseSegments::loopOverTracksExplicit() {
 
   int num_2D_tracks = _track_generator->getNum2DTracks();
   Track** flattened_tracks = _track_generator->getFlattenedTracksArray();
@@ -251,10 +255,13 @@ void TraverseSegments::loopOverTracksByTrackOTF() {
 
         /* Extract 3D track and initialize segments pointer */
         Track* track_3D = &tracks_3D[a][i][p][z];
+        double theta = tracks_3D[a][i][p][z].getTheta();
+        Point* start = track_3D->getStart();
 
         /* Trace the segments on the track */
-        traceSegmentsOTF(flattened_track, start, theta, _kernels[0]);
-        track_3D->setNumSegments(_kernels[0].getCount());
+        _track_generator->traceSegmentsOTF(flattened_track, start, theta,
+                                            _kernels[0]);
+        track_3D->setNumSegments(_kernels[0]->getCount());
         segment* segments = _temporary_segments[0];
 
         /* Apply kernel to track */
@@ -287,16 +294,16 @@ void TraverseSegments::loopOverTracksByStackOTF() {
     for (int p=0; p < num_polar; p++) {
       
       /* Trace all tracks in the z-stack */      
-      for (int z = 0; z < max_num_tracks_per_stack; z++)
-        kernels[z]->resetCount();
-      traceStackOTF(flattened_track, p, kernels);
+      for (int z = 0; z < tracks_per_stack[a][i][p]; z++)
+        _kernels[z]->resetCount();
+      _track_generator->traceStackOTF(flattened_track, p, _kernels);
 
       /* Loop over tracks in the z-stack */
       for (int z=0; z < tracks_per_stack[a][i][p]; z++) {
 
         /* Extract 3D track and initialize segments pointer */
         Track* track_3D = &tracks_3D[a][i][p][z];
-        track_3D->setNumSegments(_kernels[z].getCount());
+        track_3D->setNumSegments(_kernels[z]->getCount());
         segment* segments = _temporary_segments[z];
 
         /* Apply kernel to track */

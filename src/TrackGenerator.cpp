@@ -4938,9 +4938,9 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 //FIXME description
 void TrackGenerator::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
   for (int s=0; s < track->getNumSegments(); s++) {
-    segment seg = track->getSegment(s);
-    kernel->execute(seg._length, seg._material, seg._region_id,
-                    seg._cmfd_surface_fwd, seg._cmfd_surface_bwd);
+    segment* seg = track->getSegment(s);
+    kernel->execute(seg->_length, seg->_material, seg->_region_id,
+                    seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd);
   }
 }
 
