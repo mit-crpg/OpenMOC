@@ -10,7 +10,7 @@ import openmoc
 
 
 class MultiSimCmfdTestHarness(MultiSimTestHarness):
-    """A multi-simulation eigenvalue calculation with CMFD for a 17x17 
+    """A multi-simulation eigenvalue calculation with CMFD for a 17x17
     lattice with 7-group C5G7 cross section data."""
 
     def __init__(self):
