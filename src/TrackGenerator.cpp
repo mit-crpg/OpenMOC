@@ -1760,11 +1760,11 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
  *          FSR by the segment's length and azimuthal weight. The numerical
  *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
  *          Approximation in CASMO 5", PHYSOR 2012.
- * @param FSR_volumes An array of FSR volumes.
  */
-void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
+void TrackGenerator::generateFSRCentroids() {
 
   int num_FSRs = _geometry->getNumFSRs();
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
 
   /* Create array of centroids and initialize to origin */
   Point** centroids = new Point*[num_FSRs];
@@ -1808,6 +1808,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   /* Delete temporary array of FSR volumes and centroids */
   delete [] centroids;
+  delete [] FSR_volumes;
 }
 
 
