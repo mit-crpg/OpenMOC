@@ -1900,10 +1900,9 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 #pragma omp parallel
   {
 
-    volatile FP_PRECISION tau;
+    FP_PRECISION tau, length;
     int num_cuts, min_num_cuts;
     segment* curr_segment;
-    FP_PRECISION length;
     int fsr_id;
     Material* material;
     FP_PRECISION* sigma_t;
