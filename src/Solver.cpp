@@ -605,6 +605,7 @@ void Solver::initializeFSRs() {
   _FSR_materials = new Material*[_num_FSRs];
 
   /* Loop over all FSRs to extract FSR material pointers */
+#pragma omp parallel for
   for (int r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
     log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",

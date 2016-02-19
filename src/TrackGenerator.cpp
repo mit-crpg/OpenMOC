@@ -1900,10 +1900,9 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 #pragma omp parallel
   {
 
+    FP_PRECISION tau, length;
     int num_cuts, min_num_cuts;
     segment* curr_segment;
-
-    FP_PRECISION length, tau;
     int fsr_id;
     Material* material;
     FP_PRECISION* sigma_t;
@@ -1991,24 +1990,30 @@ void TrackGenerator::initializeSegments() {
   FSR_keys_map = _geometry->getFSRKeysMap();
   FSRs_to_keys = _geometry->getFSRsToKeys();
 
-  /* Iterate over all Track segments and assign them each a Material */
-  int region_id, mat_id;
-  segment* curr_segment;
-  Material* mat;
+#pragma omp parallel
+  {
 
-  /* Set the Material for each FSR */
-  for (int r=0; r < _geometry->getNumFSRs(); r++) {
-    mat = _geometry->findFSRMaterial(r);
-    FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
-  }
+    /* Iterate over all Track segments and assign them each a Material */
+    int region_id, mat_id;
+    segment* curr_segment;
+    Material* mat;
 
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-        curr_segment = _tracks[i][j].getSegment(s);
-        region_id = curr_segment->_region_id;
-        mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
-        curr_segment->_material = materials[mat_id];
+    /* Set the Material for each FSR */
+#pragma omp for
+    for (int r=0; r < _geometry->getNumFSRs(); r++) {
+      mat = _geometry->findFSRMaterial(r);
+      FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
+    }
+
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          region_id = curr_segment->_region_id;
+          mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
+          curr_segment->_material = materials[mat_id];
+        }
       }
     }
   }
