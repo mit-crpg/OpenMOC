@@ -15,6 +15,8 @@
 #include<functional>
 #include<omp.h>
 
+#include "log.h"
+
 
 /**
  * @class FixedHashMap ParallelHashMap.h "src/ParallelHashMap.h"
@@ -211,11 +213,12 @@ V& FixedHashMap<K,V>::at(K key) {
 
   /* search bucket for key and return the corresponding value if found */
   node *iter_node = _buckets[key_hash];
-  while (iter_node != NULL)
+  while (iter_node != NULL) {
     if (iter_node->key == key)
       return iter_node->value;
     else
       iter_node = iter_node->next;
+  }
 
   /* after the bucket has been completely searched without finding the key,
      throw an exception */
@@ -293,9 +296,7 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
   /* increment counter and return number */
   size_t N;
 #pragma omp critical (node_incr)
-  {
       N = _N++;
-  }
 
   return (int) N;
 }
@@ -367,11 +368,9 @@ V* FixedHashMap<K,V>::values() {
 
   /* fill array with values */
   size_t ind = 0;
-  for (size_t i=0; i<_M; i++)
-  {
+  for (size_t i=0; i<_M; i++) {
     node *iter_node = _buckets[i];
-    while (iter_node != NULL)
-    {
+    while (iter_node != NULL) {
       values[ind] = iter_node->value;
       iter_node = iter_node->next;
       ind++;
@@ -417,9 +416,9 @@ template <class K, class V>
 void FixedHashMap<K,V>::print_buckets() {
   for (size_t i=0; i<_M; i++) {
     if (_buckets[i] == NULL)
-      std::cout << i << " -> NULL" << std::endl;
+      log_printf(NORMAL, "%d -> NULL", i);
     else
-      std::cout << i << " -> " << _buckets[i] << std::endl;
+      log_printf(NORMAL, "%d -> %p", i, _buckets[i]);
   }
 }
 
@@ -655,8 +654,7 @@ void ParallelHashMap<K,V>::resize() {
     omp_set_lock(&_locks[i]);
 
   /* recheck if resize needed */
-  if (2*_table->size() < _table->bucket_count())
-  {
+  if (2*_table->size() < _table->bucket_count()) {
     /* release locks */
     for (size_t i=0; i<_num_locks; i++)
       omp_unset_lock(&_locks[i]);
@@ -693,7 +691,8 @@ void ParallelHashMap<K,V>::resize() {
 
   /* wait for all threads to stop reading from the old table */
   for (size_t i=0; i<_num_threads; i++)
-    while (_announce[i].value == old_table) {};
+    while (_announce[i].value == old_table)
+      continue;
 
   /* free memory associated with old table */
   delete old_table;
