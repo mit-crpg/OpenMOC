@@ -6,14 +6,17 @@ import os
 import shutil
 import sys
 import glob
+import pickle
 from collections import OrderedDict
 from optparse import OptionParser
-from PIL import Image
+from PIL import Image, ImageOps
 
 sys.path.insert(0, 'openmoc')
 import openmoc
+import openmoc.plotter
 import openmoc.process
 
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -271,42 +274,123 @@ class PlottingTestHarness(TestHarness):
     def __init__(self):
         super(PlottingTestHarness, self).__init__()
         self.figures = []
+        
+        # Use standardized default matplotlib rcparams
+        rcparams = pickle.load(open('../rcparams.pkl', 'rb'))
+        openmoc.plotter.matplotlib_rcparams = rcparams
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
-                     hash_output=True):
+                     hash_output=False):
 
-        outstr = ''
-
-        # Loop over each Matplotlib figure / PIL Image and hash it
+        # Store each each Matplotlib figure / PIL Image
         for i, fig in enumerate(self.figures):
-            plot_filename = 'plot-{0}.png'.format(i)
+            test_filename = 'test-{0}.png'.format(i)
 
             # Save the figure to a file
             if isinstance(fig, matplotlib.figure.Figure):
-                fig.savefig(plot_filename, bbox_inches='tight')
+                fig.set_size_inches(4., 4.)
+                fig.savefig(test_filename, bbox_inches='tight', dpi=100)
                 plt.close(fig)
             else:
-                fig.save(plot_filename)
-            
-            # Open the image file in PIL and hash it
-            img = Image.open(plot_filename)
-            plot_hash = hashlib.md5(img.tobytes())
-            outstr += '{}\n'.format(plot_hash.hexdigest())
+                fig.save(test_filename)
 
-        return outstr
+        return ''
+
+    def _write_results(self, results_string):
+        """Do nothing since the plots are created in _run_openmoce() method."""
+        return
+
+    def _overwrite_results(self):
+        """Overwrite the reference images with the test images."""
+
+        # Find all plot files
+        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
+
+        # Copy each test plot as a new reference plot
+        for i in range(len(outputs)):
+            shutil.copyfile('test-{0}.png'.format(i), 'true-{0}.png'.format(i))
+
+    def _compare_results(self, max_distance=1.):
+        """Make sure the current results agree with the true standard."""
+
+        # Loop over each Matplotlib figure / PIL Image and
+        # compare to reference using Matplotlib fuzzy comparison
+        for i, fig in enumerate(self.figures):
+
+            # Open test image and resize to that of the true image with PIL
+            img1 = Image.open('test-{0}.png'.format(i))
+            img2 = Image.open('true-{0}.png'.format(i))
+            img1 = ImageOps.fit(img1, img2.size, Image.ANTIALIAS)
+
+            # Compute distance between each image in RGB space
+            distance = self._compare_images(img1, img2)
+            assert distance < max_distance, 'Results do not agree.'
 
     def _cleanup(self):
         """Delete plot PNG files."""
 
-        # Find all plot files
-        outputs = glob.glob(os.path.join(os.getcwd(), '*.png'))
+        # Find all test plot files
+        outputs = glob.glob(os.path.join(os.getcwd(), 'test-*.png'))
 
         # Remove each plot file if it exists
-        for output in outputs:
+        for i in range(len(outputs)):
+            output = 'test-{0}.png'.format(i)
             if os.path.isfile(output):
                 os.remove(output)
             elif os.path.isdir(output):
                 shutil.rmtree(output)
 
         super(PlottingTestHarness, self)._cleanup()
+
+    def _compare_images(self, img1, img2):
+        """Compare two PIL images using in RGB space with pixel histograms."""
+
+        # Extract RGBA data from each PIL Image
+        rgba1 = np.array(img1)
+        rgba2 = np.array(img2)
+
+        # Compute histograms of each images pixels
+        hr1, bins1 = np.histogram(rgba1[...,0], bins=256, normed=True)
+        hg1, bins1 = np.histogram(rgba1[...,1], bins=256, normed=True)
+        hb1, bins1 = np.histogram(rgba1[...,2], bins=256, normed=True)
+        hr2, bins2 = np.histogram(rgba2[...,0], bins=256, normed=True)
+        hg2, bins2 = np.histogram(rgba2[...,1], bins=256, normed=True)
+        hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
+        hist1 = np.array([hr1, hg1, hb1]).ravel()
+        hist2 = np.array([hr2, hg2, hb2]).ravel()
+        
+        # Compute cartesian distance between histograms in RGB space
+        diff = hist1 - hist2
+        distance = np.sqrt(np.dot(diff, diff))
+        return distance
+
+
+class MultiSimTestHarness(TestHarness):
+    """Specialized TestHarness for testing multi-simulation capabilities."""
+
+    def __init__(self):
+        super(MultiSimTestHarness, self).__init__()
+        self.num_simulations = 3
+        self.num_iters = []
+        self.keffs = []
+
+    def _run_openmoc(self):
+        """Run multiple OpenMOC eigenvalue calculations."""
+
+        for i in range(self.num_simulations):
+            super(MultiSimTestHarness, self)._run_openmoc()            
+            self.num_iters.append(self.solver.getNumIterations())
+            self.keffs.append(self.solver.getKeff())
+
+    def _get_results(self, num_iterations=True, keff=True, fluxes=False,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=False):
+        """Return eigenvalues from each simulation into a string."""
+
+        # Write out the iteration count and eigenvalues from each simulation
+        outstr = ''
+        for num_iters, keff in zip(self.num_iters, self.keffs):
+            outstr += 'Iters: {0}\tkeff: {1:12.5E}\n'.format(num_iters, keff)
+
+        return outstr

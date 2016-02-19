@@ -2,24 +2,26 @@
 
 import os
 import sys
-
+import hashlib
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
-from testing_harness import TestHarness
+from testing_harness import MultiSimTestHarness
 from input_set import HomInfMedInput
 import openmoc
+import openmoc.process
 
 
-class ComputeSourceTestHarness(TestHarness):
-    """A source calculation in a cube of water with 7-group cross sections and
-    a fixed box source. This tests the Solver::computeSource(...) method."""
+class MultiSimFixedSourceTestHarness(MultiSimTestHarness):
+    """A multi-simulation fixed source calculation for a cube of water with
+    7-group cross sections and a fixed box source."""
 
     def __init__(self):
-        super(ComputeSourceTestHarness, self).__init__()
+        super(MultiSimFixedSourceTestHarness, self).__init__()
         self.input_set = HomInfMedInput()
         self.res_type = openmoc.TOTAL_SOURCE
         self.solution_type = 'source'
         self.source_cell = None
+        self.fluxes = []
 
     def _create_geometry(self):
         """Put a box source in the cube."""
@@ -80,10 +82,44 @@ class ComputeSourceTestHarness(TestHarness):
 
     def _create_solver(self):
         """Instantiate a CPUSolver."""
-        super(ComputeSourceTestHarness, self)._create_solver()
+        super(MultiSimFixedSourceTestHarness, self)._create_solver()
         self.solver.setFixedSourceByCell(self.source_cell, 1, 1.0)
+
+    def _run_openmoc(self):
+        """Run multiple OpenMOC fixed source calculations."""
+
+        for i in range(self.num_simulations):
+            super(MultiSimTestHarness, self)._run_openmoc()            
+            self.num_iters.append(self.solver.getNumIterations())
+            self.fluxes.append(openmoc.process.get_scalar_fluxes(self.solver))
+
+    def _get_results(self, num_iterations=True, keff=True, fluxes=False,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=True):
+        """Return eigenvalues from each simulation into a string."""
+
+        # Write out the iteration count and fluxes from each simulation
+        outstr = ''
+        for i, num_iters in enumerate(self.num_iters):
+            outstr += 'Iters: {0}\n'.format(num_iters)
+
+            # Create a list of the floating point flux values
+            fluxes = \
+                ['{0:12.6E}'.format(flux) for flux in self.fluxes[i].ravel()]
+
+            # Add the fluxes to the output string
+            outstr += 'fluxes:\n'
+            outstr += '\n'.join(fluxes) + '\n'
+
+        # Hash the results if necessary.
+        if hash_output:
+            sha512 = hashlib.sha512()
+            sha512.update(outstr.encode('utf-8'))
+            outstr = sha512.hexdigest()
+
+        return outstr
 
 
 if __name__ == '__main__':
-    harness = ComputeSourceTestHarness()
+    harness = MultiSimFixedSourceTestHarness()
     harness.main()
