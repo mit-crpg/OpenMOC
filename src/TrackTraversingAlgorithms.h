@@ -16,17 +16,30 @@ public:
 };
 
 
-/* TODO: implement...
-class SegmentsCounter: public TraverseSegments {
+//TODO: description
+class SegmentCounter: public TraverseSegments {
+private:
+  int _max_num_segments;
 
 public:
 
-  SegemntsCounter(TrackGenerator* track_generator);
+  SegmentCounter(TrackGenerator* track_generator);
   void execute();
   void onTrack(Track* track, segment* segments);
 };
 
 
+/* TODO: implement...
+class VolumeCalculator: public TraverseSegments {
+
+public:
+
+  VolumeCalculator(TrackGenerator* track_generator);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+   
 class TransportSweep: public TraverseSegments {
 
 public:

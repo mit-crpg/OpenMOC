@@ -276,6 +276,7 @@ public:
   void setSegmentationHeights(std::vector<double> z_mesh);
   void setGlobalZMesh();
   void setMaxOpticalLength(FP_PRECISION tau);
+  void setMaxNumSegments(int max_num_segments);
   void setDumpSegments(bool dump_segments);
 
   /* Worker functions */

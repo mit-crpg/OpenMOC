@@ -38,6 +38,7 @@ SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator, int row_
 }
 
 
+//TODO: description
 CounterKernel::CounterKernel(TrackGenerator* track_generator, int row_num) :
                            MOCKernel(track_generator, row_num) {}
 

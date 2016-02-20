@@ -471,6 +471,10 @@ int TrackGenerator::getMaxNumTracksPerStack() {
  */
 // FIXME description
 int TrackGenerator::getNumRows() {
+  if (_segment_formation == OTF_STACKS)
+    _num_rows = _max_num_tracks_per_stack;
+  else
+    _num_rows = 1;
   return _num_rows;
 }
 
@@ -491,7 +495,10 @@ int TrackGenerator::getNumColumns() {
  */
 // FIXME description
 segment* TrackGenerator::getTemporarySegments(int thread_id, int row_num) {
-  return _temporary_segments.at(thread_id)[row_num];
+  if (_contains_temporary_segments)
+    return _temporary_segments.at(thread_id)[row_num];
+  else
+    return NULL;
 }
 
 
@@ -3499,11 +3506,11 @@ void TrackGenerator::segmentizeExtruded() {
   log_printf(NORMAL, "Initializing FSRs axially...");
   _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
+  _contains_flattened_tracks = true;
+  _contains_2D_segments = true;
 
   /* Count the number of segments in each track */
   countSegments();
-  _contains_flattened_tracks = true;
-  _contains_2D_segments = true;
 
   return;
 }
@@ -4735,6 +4742,12 @@ void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
 }
 
 
+//FIXME description
+void TrackGenerator::setMaxNumSegments(int max_num_segments) {
+  _max_num_segments = max_num_segments;
+}
+
+
 /**
  * @brief Retrieves the max optical path length of 3D segments for use in
  *        on-the-fly computation
@@ -5408,81 +5421,15 @@ void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
  * @details All 3D segments are computed on-the-fly subject to the max optical
  *          path length to determine the number of 3D segments in the Geometry
  */
+//FIXME: update description
 void TrackGenerator::countSegments() {
 
-  std::string msg = "counting segments";
+  std::string msg = "Counting segments";
   Progress progress(_num_2D_tracks, msg);
-  int max_num_segments = 0;
 
-
-  #pragma omp parallel reduction(max:max_num_segments)
-  {
-    /* Create kernels and allocate segments for OTF computation */
-    MOCKernel** kernels;
-    int num_rows = 1;
-    if (_segment_formation != EXPLICIT) {
-      if (_segment_formation == OTF_STACKS)
-        num_rows = _max_num_tracks_per_stack;
-
-      /* Allocate memory */
-      kernels = new MOCKernel*[num_rows];
-      for (int z=0; z < num_rows; z++) {
-        kernels[z] = new CounterKernel(this, z);
-      }
-    }
-
-    /* Calculate the number of segments in each track with axial on-the-fly ray
-     * tracing */
-    #pragma omp for
-    for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
-
-      progress.incrementCounter();
-
-      /* Extract indices of 3D tracks associated with the flattened track */
-      Track* flattened_track = _flattened_tracks[ext_id];
-      int a = flattened_track->getAzimIndex();
-      int azim_index = _quadrature->getFirstOctantAzim(a);
-      int i = flattened_track->getXYIndex();
-
-      /* Loop over polar angles */
-      for (int p=0; p < _num_polar; p++) {
-
-        /* Extract polar angle */
-        int polar_index = _quadrature->getFirstOctantPolar(p);
-
-        /* Trace stack if calculating stack on-the-fly */
-        if (_segment_formation == OTF_STACKS)
-          traceStackOTF(flattened_track, p, kernels);
-
-        /* Loop over z-stacked rays */
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-
-          /* Extract track and starting point */
-          Track3D* curr_track = &_tracks_3D[a][i][p][z];
-          double theta = curr_track->getTheta();
-          Point* start = curr_track->getStart();
-
-          /* Trace 3D segments */
-          int num_segments;
-          if (_segment_formation == OTF_STACKS) {
-            num_segments = kernels[z]->getCount();
-            kernels[z]->newTrack(&_tracks_3D[a][i][p][z]);
-          }
-          else {
-            traceSegmentsOTF(flattened_track, start, theta, kernels[0]);
-            num_segments = kernels[0]->getCount();
-            kernels[z]->newTrack(&_tracks_3D[a][i][p][z]);
-          }
-
-          /* Set the number of segments for the track */
-          curr_track->setNumSegments(num_segments);
-          max_num_segments = std::max(max_num_segments, num_segments);
-        }
-      }
-    }
-  }
-
-  _max_num_segments = max_num_segments;
+  /* Count the number of segments on each track and update the maximium */
+  SegmentCounter counter(this);
+  counter.execute();
 
   /* Allocate new temporary segments if necessary */
   if (_segment_formation != EXPLICIT && _segment_formation != TWO_DIM) {
@@ -5499,10 +5446,6 @@ void TrackGenerator::countSegments() {
       }
       else {
         _temporary_segments.resize(_num_threads);
-        if (_segment_formation == OTF_STACKS)
-          _num_rows = _max_num_tracks_per_stack;
-        else
-          _num_rows = 1;
         for (int t = 0; t < _num_threads; t++)
           _temporary_segments.at(t) = new segment*[_num_rows];
         _contains_temporary_segments = true;

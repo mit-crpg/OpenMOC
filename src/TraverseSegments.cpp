@@ -174,7 +174,7 @@ void TraverseSegments::loopOverTracksByStackOTF() {
     /* Loop over polar angles */
     for (int p=0; p < num_polar; p++) {
       
-      /* Trace all tracks in the z-stack */      
+      /* Trace all tracks in the z-stack */
       for (int z = 0; z < tracks_per_stack[a][i][p]; z++)
         _kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
       _track_generator->traceStackOTF(flattened_track, p, _kernels);

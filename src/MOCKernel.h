@@ -55,7 +55,7 @@ public:
   void setMaxOpticalLength(FP_PRECISION max_tau);
 
   /* Prepare MOCKernel for handling a new track */
-  void newTrack(Track* track);
+  virtual void newTrack(Track* track);
 
   /* Executing function describes kernel behavior */
   virtual void execute(FP_PRECISION length, Material* mat, int id,
