@@ -13,6 +13,7 @@
   #include "../src/constants.h"
   #include "../src/Cell.h"
   #include "../src/Geometry.h"
+  #include "../src/ExpEvaluator.h"
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
@@ -20,6 +21,7 @@
   #include "../src/PolarQuad.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
+  #include "../src/CPULSSolver.h"
   #include "../src/boundary_type.h"
   #include "../src/Surface.h"
   #include "../src/Timer.h"
@@ -97,6 +99,7 @@
 %include <exception.i>
 %include ../src/constants.h
 %include ../src/Cell.h
+%include ../src/ExpEvaluator.h
 %include ../src/Geometry.h
 %include ../src/LocalCoords.h
 %include ../src/log.h
@@ -105,6 +108,7 @@
 %include ../src/PolarQuad.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
+%include ../src/CPULSSolver.h
 %include ../src/boundary_type.h
 %include ../src/Surface.h
 %include ../src/Timer.h

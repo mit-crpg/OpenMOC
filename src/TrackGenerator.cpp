@@ -315,6 +315,194 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
 
 /**
+ * @brief Computes and returns an array of volumes indexed by FSR.
+ * @details Note: It is the function caller's responsibility to deallocate
+ *          the memory reserved for the FSR volume array.
+ * @return a pointer to the array of FSR volumes
+ */
+FP_PRECISION* TrackGenerator::getFSRMs(PolarQuad* polar_quad) {
+
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to get the FSR Ms since tracks "
+               "have not yet been generated");
+
+  int num_FSRs = _geometry->getNumFSRs();
+  FP_PRECISION* FSR_Ms = new FP_PRECISION[num_FSRs*3];
+  memset(FSR_Ms, 0., num_FSRs*3*sizeof(FP_PRECISION));
+
+  /* Calculate each FSR's "volume" by accumulating the total length of *
+   * all Track segments multipled by the Track "widths" for each FSR.  */
+#pragma omp parallel
+  {
+
+    int azim_index, fsr_id;
+    segment* curr_segment;
+    FP_PRECISION wgt_a, multiple, sin_t, s_aki, s_mki;
+    double phi;
+    double X, Y, xin, yin, xc_mki, yc_mki;
+    Point* centroid;
+
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        azim_index = _tracks[i][j].getAzimAngleIndex();
+        phi = _tracks[i][j].getPhi();
+        X = _tracks[i][j].getStart()->getX();
+        Y = _tracks[i][j].getStart()->getY();
+
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          s_aki = curr_segment->_length;
+          wgt_a = _azim_weights[azim_index];
+          fsr_id = curr_segment->_region_id;
+          centroid = _geometry->getFSRCentroid(fsr_id);
+
+          xin = X - centroid->getX();
+          yin = Y - centroid->getY();
+
+          /* Set FSR mutual exclusion lock */
+          omp_set_lock(&_FSR_locks[fsr_id]);
+
+          for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
+
+            multiple = polar_quad->getMultiple(p);
+            sin_t = polar_quad->getSinTheta(p);
+            s_mki = s_aki / sin_t;
+            xc_mki = xin + s_mki / 2.0 * cos(phi);
+            yc_mki = yin + s_mki / 2.0 * sin(phi);
+
+            FSR_Ms[fsr_id*3    ] += wgt_a * multiple * s_mki * (xc_mki * xc_mki + pow(cos(phi) * s_mki, 2.0) / 12.0);
+            FSR_Ms[fsr_id*3 + 1] += wgt_a * multiple * s_mki * (yc_mki * yc_mki + pow(sin(phi) * s_mki, 2.0) / 12.0);
+            FSR_Ms[fsr_id*3 + 2] += wgt_a * multiple * s_mki * (xc_mki * yc_mki + sin(phi) * cos(phi) * pow(s_mki, 2.0) / 12.0);
+          }
+
+          /* Release FSR mutual exclusion lock */
+          omp_unset_lock(&_FSR_locks[fsr_id]);
+
+          X += s_aki * cos(phi);
+          Y += s_aki * sin(phi);
+        }
+      }
+    }
+  }
+
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
+
+  /* Divide the Ms by the FSR volumes */
+  for (int r=0; r < num_FSRs; r++) {
+    FSR_Ms[r*3    ] /= FSR_volumes[r];
+    FSR_Ms[r*3 + 1] /= FSR_volumes[r];
+    FSR_Ms[r*3 + 2] /= FSR_volumes[r];
+
+    //log_printf(NORMAL, "FSR Ms %d: (%f, %f, %f)", r, FSR_Ms[r*3], FSR_Ms[r*3+1], FSR_Ms[r*3+2]);
+  }
+
+  delete [] FSR_volumes;
+
+  return FSR_Ms;
+}
+
+
+FP_PRECISION* TrackGenerator::getFSRCs(PolarQuad* polar_quad, ExpEvaluator* exp_eval) {
+
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to get the FSR Cs since tracks "
+               "have not yet been generated");
+
+  int num_FSRs = _geometry->getNumFSRs();
+  int num_groups = _geometry->getNumEnergyGroups();
+  FP_PRECISION* FSR_Cs = new FP_PRECISION[num_FSRs*num_groups*3];
+  memset(FSR_Cs, 0., num_FSRs*num_groups*3*sizeof(FP_PRECISION));
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
+
+  /* Calculate each FSR's "volume" by accumulating the total length of *
+   * all Track segments multipled by the Track "widths" for each FSR.  */
+  {
+
+    int azim_index, polar_index, fsr_id;
+    segment* curr_segment;
+    FP_PRECISION s_aki, tau_aki, wgt_a, multiple, G2;
+    FP_PRECISION* sigma_t;
+    double phi;
+    double X, Y, xin, yin, xc_aki, yc_aki;
+    Point* centroid;
+
+    for (int i=0; i < _num_azim; i++) {
+      for (int j=0; j < _num_tracks[i]; j++) {
+        azim_index = _tracks[i][j].getAzimAngleIndex();
+        phi = _tracks[i][j].getPhi();
+        X = _tracks[i][j].getStart()->getX();
+        Y = _tracks[i][j].getStart()->getY();
+
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          fsr_id = curr_segment->_region_id;
+          sigma_t = curr_segment->_material->getSigmaT();
+          s_aki = curr_segment->_length;
+          wgt_a = _azim_weights[azim_index];
+          centroid = _geometry->getFSRCentroid(fsr_id);
+
+          xin = X - centroid->getX();
+          yin = Y - centroid->getY();
+          xc_aki = xin + s_aki * cos(phi) / 2.0;
+          yc_aki = yin + s_aki * sin(phi) / 2.0;
+
+          for (int g=0; g < num_groups; g++) {
+
+            FSR_Cs[fsr_id*num_groups*3 + g*3 + 0] +=
+                1.0 / FSR_volumes[fsr_id] * wgt_a * xc_aki * xc_aki * s_aki;
+
+            FSR_Cs[fsr_id*num_groups*3 + g*3 + 1] +=
+                1.0 / FSR_volumes[fsr_id] * wgt_a * yc_aki * yc_aki * s_aki;
+
+            FSR_Cs[fsr_id*num_groups*3 + g*3 + 2] +=
+                1.0 / FSR_volumes[fsr_id] * wgt_a * xc_aki * yc_aki * s_aki;
+
+            for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
+
+              multiple = polar_quad->getMultiple(p);
+
+              tau_aki = s_aki * sigma_t[g];
+              G2 = exp_eval->computeExponentialG2(tau_aki, p);
+
+              FSR_Cs[fsr_id*num_groups*3 + g*3 + 0] +=
+                  1.0 / (2.0 * sigma_t[g] * FSR_volumes[fsr_id]) * wgt_a * multiple
+                  * pow(cos(phi) * s_aki, 2.0) * G2;
+
+              FSR_Cs[fsr_id*num_groups*3 + g*3 + 1] +=
+                  1.0 / (2.0 * sigma_t[g] * FSR_volumes[fsr_id]) * wgt_a * multiple
+                  * pow(sin(phi) * s_aki, 2.0) * G2;
+
+              FSR_Cs[fsr_id*num_groups*3 + g*3 + 2] +=
+                  1.0 / (2.0 * sigma_t[g] * FSR_volumes[fsr_id]) * wgt_a * multiple
+                  * sin(phi) * cos(phi) * pow(s_aki, 2.0) * G2;
+            }
+          }
+
+          X += s_aki * cos(phi);
+          Y += s_aki * sin(phi);
+        }
+      }
+    }
+  }
+
+  /* Divide the Ms by the FSR volumes */
+  /*
+  for (int r=0; r < num_FSRs; r++) {
+    for (int g=0; g < num_groups; g++)
+      log_printf(NORMAL, "FSR Cs %d, %d: (%f, %f, %f)", r, g,
+                 FSR_Cs[r*3*num_groups + g*3], FSR_Cs[r*3*num_groups + g*3 + 1],
+                 FSR_Cs[r*3*num_groups + g*3 + 2]);
+  }
+  */
+
+  delete [] FSR_volumes;
+
+  return FSR_Cs;
+}
+
+
+/**
  * @brief Computes and returns the volume of an FSR.
  * @param fsr_id the ID for the FSR of interest
  * @return the FSR volume
@@ -1825,7 +2013,8 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
  *          Approximation in CASMO 5", PHYSOR 2012.
  * @param FSR_volumes An array of FSR volumes.
  */
-void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
+void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes,
+                                          PolarQuad* polar_quad) {
 
   int num_FSRs = _geometry->getNumFSRs();
 
@@ -1852,23 +2041,29 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
         segment* curr_segment = &segments[s];
         int fsr = curr_segment->_region_id;
         double volume = FSR_volumes[fsr];
+        FP_PRECISION s_aki = curr_segment->_length;
+        FP_PRECISION wgt_a = _azim_weights[i];
 
-        /* Set FSR mutual exclusion lock */
-        omp_set_lock(&_FSR_locks[fsr]);
+        for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
 
-        centroids[fsr]->setX(centroids[fsr]->getX() + _azim_weights[i] *
-                             (x + cos(phi) * curr_segment->_length / 2.0) *
-                             curr_segment->_length / FSR_volumes[fsr]);
-        centroids[fsr]->setY(centroids[fsr]->getY() + _azim_weights[i] *
-                             (y + sin(phi) * curr_segment->_length / 2.0) *
-                             curr_segment->_length / FSR_volumes[fsr]);
-        centroids[fsr]->setZ(z);
+          FP_PRECISION s_mki = s_aki / polar_quad->getSinTheta(p);
+          FP_PRECISION multiple = polar_quad->getMultiple(p);
 
-        /* Release FSR mutual exclusion lock */
-        omp_unset_lock(&_FSR_locks[fsr]);
+          /* Set FSR mutual exclusion lock */
+          omp_set_lock(&_FSR_locks[fsr]);
 
-        x += cos(phi) * curr_segment->_length;
-        y += sin(phi) * curr_segment->_length;
+          centroids[fsr]->setX(centroids[fsr]->getX() + wgt_a * multiple *
+                               (x + cos(phi) * s_mki / 2.0) * s_mki / FSR_volumes[fsr]);
+          centroids[fsr]->setY(centroids[fsr]->getY() + wgt_a * multiple *
+                               (y + sin(phi) * s_mki / 2.0) * s_mki / FSR_volumes[fsr]);
+          centroids[fsr]->setZ(z);
+
+          /* Release FSR mutual exclusion lock */
+          omp_unset_lock(&_FSR_locks[fsr]);
+        }
+
+        x += cos(phi) * s_aki;
+        y += sin(phi) * s_aki;
       }
     }
   }

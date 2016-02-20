@@ -79,10 +79,10 @@ public:
   virtual ~CPUSolver();
 
   int getNumThreads();
-  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
+  void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreads(int num_threads);
-  virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
+  void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
   void initializeFluxArrays();
   void initializeSourceArrays();

@@ -16,6 +16,7 @@
 #endif
 #include "Track.h"
 #include "Geometry.h"
+#include "ExpEvaluator.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -128,6 +129,8 @@ public:
   FP_PRECISION* getAzimWeights();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
+  FP_PRECISION* getFSRMs(PolarQuad* polar_quad);
+  FP_PRECISION* getFSRCs(PolarQuad* polar_quad, ExpEvaluator* exp_eval);
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
   double getZCoord();
@@ -146,7 +149,7 @@ public:
   void retrieveSegmentCoords(double* coords, int num_segments);
   void generateTracks(bool neighbor_cells=false);
   void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
-  void generateFSRCentroids(FP_PRECISION* FSR_volumes);
+  void generateFSRCentroids(FP_PRECISION* FSR_volumes, PolarQuad* polar_quad);
   void splitSegments(FP_PRECISION max_optical_length);
   void initializeSegments();
 };
