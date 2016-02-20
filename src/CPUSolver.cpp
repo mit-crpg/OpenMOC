@@ -686,13 +686,8 @@ void CPUSolver::transportSweepOTF() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
-  /* Allocate array of segments */
-  int max_num_segments = _track_generator->getMaxNumSegments();
-  segment segments[max_num_segments];
-
   /* Create MOC segmentation kernel */
-  SegmentationKernel kernel;
-  kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
+  SegmentationKernel kernel(_track_generator, 0);
 
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
@@ -703,17 +698,15 @@ void CPUSolver::transportSweepOTF() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for firstprivate(segments, kernel)
+  #pragma omp parallel for firstprivate(kernel)
   for (int track_id=0; track_id < num_2D_tracks; track_id++) {
-
-    /* Set the segments of this thread's kernel to its segments */
-    kernel.setSegments(segments);
 
     /* Extract indices of 3D tracks associated with the extruded track */
     Track* flattened_track = flattened_tracks[track_id];
     int a = flattened_track->getAzimIndex();
     int azim_index = _quad->getFirstOctantAzim(a);
     int i = flattened_track->getXYIndex();
+    int tid = omp_get_thread_num();
 
     FP_PRECISION* track_flux;
     FP_PRECISION thread_fsr_flux[_num_groups];
@@ -731,13 +724,14 @@ void CPUSolver::transportSweepOTF() {
         double theta = curr_track->getTheta();
 
         /* Follow track to determine segments */
-        kernel.resetCount();
+        kernel.newTrack(curr_track);
         Point* start = curr_track->getStart();
         _track_generator->traceSegmentsOTF(flattened_track, start, theta,
             &kernel);
 
         int polar_index = curr_track->getPolarIndex();
         int num_segments = curr_track->getNumSegments();
+        segment* segments = _track_generator->getTemporarySegments(tid, 0);
 
         /* Transport segments forward */
         for (int s=0; s < num_segments; s++) {
@@ -808,16 +802,11 @@ void CPUSolver::transportSweepOTFStacks() {
   {
     /* Create kernels and allocate segments for OTF computation */
     int num_rows = _track_generator->getMaxNumTracksPerStack();
-    int max_num_segments = _track_generator->getMaxNumSegments();
    
     /* Allocate memory */
-    segment** segments = new segment*[num_rows];
     MOCKernel** kernels = new MOCKernel*[num_rows];
     for (int z=0; z < num_rows; z++) {
-      segments[z] = new segment[max_num_segments];
-      kernels[z] = new SegmentationKernel;
-      kernels[z]->setSegments(segments[z]);
-      kernels[z]->setMaxVal(_track_generator->retrieveMaxOpticalLength());
+      kernels[z] = new SegmentationKernel(_track_generator, z);
     }
 
     /* Parallelize over 2D extruded tracks */
@@ -829,6 +818,7 @@ void CPUSolver::transportSweepOTFStacks() {
       int a = flattened_track->getAzimIndex();
       int azim_index = _quad->getFirstOctantAzim(a);
       int i = flattened_track->getXYIndex();
+      int tid = omp_get_thread_num();
 
       FP_PRECISION* track_flux;
       FP_PRECISION thread_fsr_flux[_num_groups];
@@ -838,7 +828,7 @@ void CPUSolver::transportSweepOTFStacks() {
 
         /* Reset the segment count for all kernels */
         for (int z = 0; z < num_rows; z++)
-          kernels[z]->resetCount();
+          kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
 
         /* Get the segments for the stack */
         _track_generator->traceStackOTF(flattened_track, p, kernels);
@@ -855,12 +845,13 @@ void CPUSolver::transportSweepOTFStacks() {
 
           /* Transport segments forward */
           int num_segments = curr_track->getNumSegments();
+          segment* segments = _track_generator->getTemporarySegments(tid, z);
           for (int s=0; s < num_segments; s++) {
 
-            tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
+            tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
                 thread_fsr_flux);
 
-            tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
+            tallySurfaceCurrent(&segments[s], azim_index, polar_index,
                 track_flux, true);
           }
 
@@ -874,10 +865,10 @@ void CPUSolver::transportSweepOTFStacks() {
           /* Transport segments backwards */
           for (int s=num_segments-1; s > -1; s--) {
 
-            tallyScalarFlux(&segments[z][s], azim_index, polar_index, track_flux,
+            tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
                 thread_fsr_flux);
 
-            tallySurfaceCurrent(&segments[z][s], azim_index, polar_index,
+            tallySurfaceCurrent(&segments[s], azim_index, polar_index,
                 track_flux, false);
           }
 
@@ -887,9 +878,6 @@ void CPUSolver::transportSweepOTFStacks() {
         }
       }
     }
-    for (int z = 0; z < num_rows; z++)
-      delete [] segments[z];
-    delete segments;
   }
 }
 

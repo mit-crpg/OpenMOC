@@ -507,3 +507,15 @@ void Track::setDirectionInCycle(bool fwd) {
 bool Track::getDirectionInCycle() {
   return _direction_in_cycle;
 }
+
+
+//FIXME descriptions, ordering
+void Track::setWeight(FP_PRECISION weight) {
+  _weight = weight;
+}
+
+
+//FIXME descriptions, ordering
+FP_PRECISION Track::getWeight() {
+  return _weight;
+}

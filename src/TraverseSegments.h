@@ -16,15 +16,12 @@
 #include "Geometry.h"
 #include "TrackGenerator.h"
 
+
 class TraverseSegments {
 
 private:
   
   // descriptions
-  CounterKernel* initializeKernel<CounterKernel>();
-  VolumeKernel* initializeKernel<VolumeKernel>();
-  SegmentationKernel* initializeKernel<SegmentationKernel>();
-
   void loopOverTracks2D();
   void loopOverTracksExplicit();
   void loopOverTracksByTrackOTF();
@@ -37,33 +34,28 @@ protected:
 
   // descriptions
   MOCKernel** _kernels;
-  segment** _temporary_segments;
-  FP_PRECISION* _FSR_volumes;
-  omp_lock_t* _FSR_locks;
 
   //descriptions
   segmentationType _segment_formation;
-  FP_PRECISION _max_optical_length;
-  int _curr_z_index;
 
   // descriptions
   TraverseSegments(TrackGenerator* track_generator);
   virtual ~TraverseSegments();
 
-  void allocateTemporarySegmentStorage();
-  void deallocateTemporarySegmentStorage();
-
-  //TODO TEMPLATE
-  template <class KernelType>
-  void allocateKernels<KernelType>();
-  template <class KernelType>
-  void deallocateKernels<KernelType>();
   void loopOverTracks();
 
 public:
   virtual void execute() = 0;
   virtual void onTrack(Track* track, segment* segments) = 0;
 
+  // description
+  template <class KernelType>
+  void setKernel() {
+    int num_rows = _track_generator->getNumRows();
+    _kernels = new MOCKernel*[num_rows];
+    for (int z=0; z < num_rows; z++)
+      _kernels[z] = new KernelType(_track_generator, z);
+  }
 };
 
 #endif

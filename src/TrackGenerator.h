@@ -153,16 +153,25 @@ private:
   /** Maximum number of track segmenets in a single 3D track for on-the-fly
     computation */
   int _max_num_segments;
+  int _num_columns;
 
   /** Maximum number of tracks a single 3D track stack for on-the-fly
     computation */
   int _max_num_tracks_per_stack;
+  int _num_rows;
+
+  //FIXME: description
+  std::vector<segment**> _temporary_segments;
+  bool _contains_temporary_segments;
 
   /** Boolean to indicate whether the segments should be dumped */
   bool _dump_segments;
 
   /** OpenMP mutual exclusion locks for atomic FSR operations */
   omp_lock_t* _FSR_locks;
+
+  //FIXME: descrpition
+  FP_PRECISION* _FSR_volumes;
 
   /** Booleans to indicate whether the Tracks and segments have been generated
    *  (true) or not (false) */
@@ -222,8 +231,11 @@ public:
   double getPolarSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
   FP_PRECISION OLDgetMaxOpticalLength();
-  int getMaxNumSegments();
-  int getMaxNumTracksPerStack();
+  int getMaxNumSegments(); //FIXME
+  int getMaxNumTracksPerStack(); // FIXME
+  int getNumRows();
+  int getNumColumns();
+  segment* getTemporarySegments(int thread_id, int row_num);
   int getNumThreads();
   int* getTracksPerCycle();
   int*** getTracksPerStack();
@@ -238,6 +250,7 @@ public:
   FP_PRECISION* get2DFSRVolumes();
   FP_PRECISION get2DFSRVolume(int fsr_id);
   void export3DFSRVolumes(double* out_volumes, int num_fsrs);
+  FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* get3DFSRVolumes();
   FP_PRECISION* get3DFSRVolumesOTF();
   FP_PRECISION get3DFSRVolume(int fsr_id);

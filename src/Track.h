@@ -108,6 +108,9 @@ protected:
    * in the cycle of tracks */
   bool _direction_in_cycle;
 
+  //FIXME: description
+  FP_PRECISION _weight;
+
 public:
   Track();
   virtual ~Track();
@@ -129,6 +132,7 @@ public:
   void setReflectiveCycleId(int id);
   void setPeriodicTrackIndex(int index);
   void setDirectionInCycle(bool fwd);
+  void setWeight(FP_PRECISION weight);
 
   /* Getter methods */
   int getUid();
@@ -153,6 +157,7 @@ public:
   int getNumSegments();
   int getPeriodicTrackIndex();
   bool getDirectionInCycle();
+  FP_PRECISION getWeight();
 
   /* Worker methods */
   void addSegment(segment* segment);

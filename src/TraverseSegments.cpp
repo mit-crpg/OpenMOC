@@ -7,17 +7,12 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
   /* Initialize kernel information to NULL */
   _kernels = NULL;
-  _temporary_segments = NULL;
-  _FSR_volumes = NULL;
-  _FSR_locks = NULL;
-  _curr_z_index = -1;
 
   /* Save the track generator */
   _track_generator = track_generator;
 
-  /* Extract tracking information from TrackGenerator */
+  /* Determine the type of segment formation used */
   _segment_formation = track_generator->getSegmentFormation();
-  _max_optical_length = track_generator->retrieveMaxOpticalLength();
 }
 
 
@@ -35,120 +30,6 @@ void TraverseSegments::execute() {
 */
 void TraverseSegments::execute() {}
 void TraverseSegments::onTrack(Track* track, segment* segments) {}
-
-
-
-// description
-void TraverseSegments::allocateTemporarySegmentStorage() {
-
-  /* Don't allocate segments for explicit storage */
-  if (_segment_formation == TWO_DIM || _segment_formation == EXPLICIT)
-    return;
-
-  int max_num_segments = _track_generator->getMaxNumSegments();
-  
-  /* Determine the number of segment arrays to allocate */
-  int num_rows = 1;
-  if (_segment_formation == OTF_STACKS)
-    num_rows = _track_generator->getMaxNumTracksPerStack();
-
-  /* Allocate memory */
-  _temporary_segments = new segment*[num_rows];
-  for (int z=0; z < num_rows; z++)
-    _temporary_segments[z] = new segment[max_num_segments];
-}
-
-
-
-// description
-void TraverseSegments::deallocateTemporarySegmentStorage() {
-
-  /* Don't deallocate segments for explicit storage */
-  if (_segment_formation == TWO_DIM || _segment_formation == EXPLICIT)
-    return;
-
-  int max_num_segments = _track_generator->getMaxNumSegments();
-
-  /* Determine the number of segment arrays to deallocate */
-  int num_rows = 1;
-  if (_segment_formation == OTF_STACKS)
-    num_rows = _track_generator->getMaxNumTracksPerStack();
-
-  /* Deallocate memory */
-  for (int z=0; z < num_rows; z++)
-    delete [] _temporary_segments[z];
-  delete [] _temporary_segments;
-}
-
-
-// description
-template <class KernelType>
-void TraverseSegments::allocateKernels<KernelType>() {
-
-  segment* segments = NULL;
-
-  /* Allocate temporary segments for SegmentationKernels */
-  if (typeid(KernelType) == typeid(SegmentationKernel))
-    allocateTemporarySegmentStorage();
-
-  /* Determine the number of kernels to allocate */
-  int num_rows = 1;
-  if (_segment_formation == OTF_STACKS)
-    num_rows = _track_generator->getMaxNumTracksPerStack();
-
-  /* Allocate memory */
-  _kernels = new MOCKernel*[num_rows];
-  for (int z=0; z < num_rows; z++) {
-    _curr_z_index = z;
-    kernels[z] = initializeKernel<KernelType>();
-  }
-}
-
-
-// description
-CounterKernel* TraverseSegments::initializeKernel<CounterKernel>() {
-  CounterKernel* kernel = new CounterKernel;
-  kernel->setMaxVal(_max_optical_length);
-  return kernel;
-}
-
-
-// description
-VolumeKernel* TraverseSegments::initializeKernel<VolumeKernel>() {
-  VolumeKernel* kernel = new VolumeKernel;
-  kernel->setLocks(_FSR_locks);
-  kernel->setBuffer(_FSR_volumes);
-  return kernel;
-}
-
-
-// description
-SegmentationKernel* TraverseSegments::initializeKernel<SegmentationKernel>() {
-  SegmentationKernel* kernel = new SegmentationKernel;
-  kernel->setMaxVal(_max_optical_length);
-  kernel->setSegments(_temporary_segments[_curr_z_index]);
-  return kernel;
-}
-
-
-// description
-template <class KernelType>
-void TraverseSegments::deallocateKernels<KernelType>() {
-
-  /* Deallocate temporary segments for SegmentationKernels */
-  if (typeid(KernelType) == typeid(SegmentationKernel))
-    deallocateTemporarySegmentStorage();
-
-  /* Determine the number of kernels to deallocate */
-  int num_rows = 1;
-  if (_segment_formation == OTF_STACKS)
-    num_rows = _track_generator->getMaxNumTracksPerStack();
-
-  /* Deallocate memory */
-  for (int z=0; z < num_rows; z++)
-    delete _kernels[z];
-  delete [] _kernels;
-}
 
 
 // description
@@ -182,6 +63,7 @@ void TraverseSegments::loopOverTracks2D() {
 #pragma omp for
     for (int i=0; i < num_xy; i++) {
       Track* track_2D = &tracks_2D[a][i];
+      _kernels[0]->newTrack(track_2D);
       _track_generator->traceSegmentsExplicit(track_2D, _kernels[0]);
       segment* segments = track_2D->getSegments();
       onTrack(track_2D, segments);
@@ -216,6 +98,7 @@ void TraverseSegments::loopOverTracksExplicit() {
 
         /* Extract 3D track and initialize segments pointer */
         Track* track_3D = &tracks_3D[a][i][p][z];
+        _kernels[0]->newTrack(track_3D);
 
         /* Trace the segments on the track */
         _track_generator->traceSegmentsExplicit(track_3D, _kernels[0]);
@@ -237,6 +120,7 @@ void TraverseSegments::loopOverTracksByTrackOTF() {
   Track3D**** tracks_3D = _track_generator->get3DTracks();
   int*** tracks_per_stack = _track_generator->getTracksPerStack();
   int num_polar = _track_generator->getNumPolar();
+  int tid = omp_get_thread_num();
 
 #pragma omp for
   /* Loop over flattened 2D tracks */
@@ -255,6 +139,7 @@ void TraverseSegments::loopOverTracksByTrackOTF() {
 
         /* Extract 3D track and initialize segments pointer */
         Track* track_3D = &tracks_3D[a][i][p][z];
+        _kernels[0]->newTrack(track_3D);
         double theta = tracks_3D[a][i][p][z].getTheta();
         Point* start = track_3D->getStart();
 
@@ -262,7 +147,7 @@ void TraverseSegments::loopOverTracksByTrackOTF() {
         _track_generator->traceSegmentsOTF(flattened_track, start, theta,
                                             _kernels[0]);
         track_3D->setNumSegments(_kernels[0]->getCount());
-        segment* segments = _temporary_segments[0];
+        segment* segments = _track_generator->getTemporarySegments(tid, 0);
 
         /* Apply kernel to track */
         onTrack(track_3D, segments);
@@ -280,6 +165,7 @@ void TraverseSegments::loopOverTracksByStackOTF() {
   Track3D**** tracks_3D = _track_generator->get3DTracks();
   int*** tracks_per_stack = _track_generator->getTracksPerStack();
   int num_polar = _track_generator->getNumPolar();
+  int tid = omp_get_thread_num();
 
 #pragma omp for
   /* Loop over flattened 2D tracks */
@@ -295,7 +181,7 @@ void TraverseSegments::loopOverTracksByStackOTF() {
       
       /* Trace all tracks in the z-stack */      
       for (int z = 0; z < tracks_per_stack[a][i][p]; z++)
-        _kernels[z]->resetCount();
+        _kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
       _track_generator->traceStackOTF(flattened_track, p, _kernels);
 
       /* Loop over tracks in the z-stack */
@@ -304,7 +190,7 @@ void TraverseSegments::loopOverTracksByStackOTF() {
         /* Extract 3D track and initialize segments pointer */
         Track* track_3D = &tracks_3D[a][i][p][z];
         track_3D->setNumSegments(_kernels[z]->getCount());
-        segment* segments = _temporary_segments[z];
+        segment* segments = _track_generator->getTemporarySegments(tid, z);
 
         /* Apply kernel to track */
         onTrack(track_3D, segments);

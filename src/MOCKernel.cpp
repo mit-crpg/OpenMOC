@@ -1,11 +1,28 @@
 #include "MOCKernel.h"
+#include "TrackGenerator.h"
 
 /**
  * @biief Constructor for the MOCKernel assigns default values
  */
-MOCKernel::MOCKernel() {
+MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
   _count = 0;
-  _max_tau = std::numeric_limits<FP_PRECISION>::max();
+  _max_tau = track_generator->retrieveMaxOpticalLength();
+}
+
+
+/**
+ * @biief Constructor for the MOCKernel assigns default values
+ */
+VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
+                           MOCKernel(track_generator, row_num) {
+
+  _FSR_locks = track_generator->getFSRLocks();
+
+  if (_FSR_locks == NULL)
+    log_printf(ERROR, "Unable to create a VolumeKernel without "
+               "first creating FSR locks");
+
+  _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _weight = 0;
 }
 
@@ -13,13 +30,28 @@ MOCKernel::MOCKernel() {
 /**
  * @biief Constructor for the MOCKernel assigns default values
  */
-VolumeKernel::VolumeKernel(omp_lock_t* FSR_locks) : MOCKernel() {
+SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator, int row_num) :
+                           MOCKernel(track_generator, row_num) {
 
-  if (FSR_locks == NULL)
-    log_printf(ERROR, "Unable to create a VolumeKernel without "
-               "an array of FSR locks");
+  int thread_id = omp_get_thread_num();
+  _segments = track_generator->getTemporarySegments(thread_id, row_num);
+}
 
-  _FSR_locks = FSR_locks;
+
+CounterKernel::CounterKernel(TrackGenerator* track_generator, int row_num) :
+                           MOCKernel(track_generator, row_num) {}
+
+
+//TODO: description
+void MOCKernel::newTrack(Track* track) {
+  _count = 0;
+}
+
+
+//TODO: description
+void VolumeKernel::newTrack(Track* track) {
+  _weight = track->getWeight(); //TODO: set weight
+  _count = 0;
 }
 
 
@@ -29,66 +61,28 @@ VolumeKernel::VolumeKernel(omp_lock_t* FSR_locks) : MOCKernel() {
 MOCKernel::~MOCKernel() {};
 
 
-/**
- * @brief Destructor for MOCKernel
- */
-VolumeKernel::~VolumeKernel() {};
-
-
-/**
- * @brief Sets the location of segment data
- * @param segments pointer to segment data
- */
-void MOCKernel::setSegments(segment* segments) {
-  _segments = segments;
-}
-
-
-/**
- * @brief Resets the counter to zero
- */
-void MOCKernel::resetCount() {
-  _count = 0;
-}
-
-
-/**
- * @brief Sets the location of buffer data
- * @param buffer pointer to buffer data
- */
-void MOCKernel::setBuffer(FP_PRECISION* buffer) {
-  _buffer = buffer;
-}
-
-
-/**
- * @brief Sets the weight to apply to segment data
- * @param weight the associated track's weight
- */
-void MOCKernel::setWeight(FP_PRECISION weight) {
-  _weight = weight;
-}
-
-/**
- * @brief Sets the maximum allowed optical path length before segments are
- *        split
- * @param max_tau maximum optical path length
- */
-void MOCKernel::setMaxVal(FP_PRECISION max_tau) {
-  _max_tau = max_tau;
-}
-
-
 /*
  * @brief Reads and returns the current count
  * @details MOC kernels count how many times they are accessed. This value
  *          returns the value of the counter (number of execute accesses)
- *          since kernel creation or last reset.
+ *          since kernel creation or last call to newTrack.
  * @return _count the counter value
  */
 int MOCKernel::getCount() {
   return _count;
 }
+
+
+/* @brief Resets the maximum optcal path length for a segment
+ * @details MOC kernels ensure that there are no segments with an optical path
+ *          length greater than the maximum optical path length by splitting
+ *          then when they get too large.
+ * @param the maximum optical path length for a segment
+ */
+void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
+  _max_tau = max_tau;
+}
+
 
 
 /*
@@ -107,7 +101,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
   omp_set_lock(&_FSR_locks[id]);
 
   /* Add value to buffer */
-  _buffer[id] += _weight * length;
+  _FSR_volumes[id] += _weight * length;
 
   /* Unset lock */
   omp_unset_lock(&_FSR_locks[id]);
