@@ -17,19 +17,14 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
 
 // description
-TraverseSegments::~TraverseSegments() {};
-
-
-// TODO: DELETE: all this will be application specific 
-/*
-void TraverseSegments::execute() {
-  pre(); //make kernels, etc
-  loopOverTracks();
-  post(); //delete kernels, etc
+TraverseSegments::~TraverseSegments() {
+  if (_kernels != NULL) {
+    int num_rows = _track_generator->getNumRows();
+    for (int z=0; z < num_rows; z++)
+      delete _kernels[z];
+    delete [] _kernels;
+  }
 }
-*/
-void TraverseSegments::execute() {}
-void TraverseSegments::onTrack(Track* track, segment* segments) {}
 
 
 // description

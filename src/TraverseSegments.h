@@ -43,9 +43,6 @@ protected:
   virtual ~TraverseSegments();
 
   void loopOverTracks();
-
-public:
-  virtual void execute() = 0;
   virtual void onTrack(Track* track, segment* segments) = 0;
 
   // description
@@ -56,6 +53,9 @@ public:
     for (int z=0; z < num_rows; z++)
       _kernels[z] = new KernelType(_track_generator, z);
   }
+
+public:
+  virtual void execute() = 0;
 };
 
 #endif

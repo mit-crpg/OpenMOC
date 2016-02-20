@@ -230,7 +230,6 @@ public:
   double** getPolarSpacings();
   double getPolarSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
-  FP_PRECISION OLDgetMaxOpticalLength();
   int getMaxNumSegments(); //FIXME
   int getMaxNumTracksPerStack(); // FIXME
   int getNumRows();

@@ -1,5 +1,6 @@
 #include "TrackGenerator.h"
-#include "TraverseSegments.h"
+// FIXME #include "TraverseSegments.h"
+#include "TrackTraversingAlgorithms.h"
 #include <iomanip>
 
 /**
@@ -434,129 +435,11 @@ double TrackGenerator::getPolarSpacing(int azim, int polar) {
 }
 
 
+//TODO: description
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
-  std::cout << OLDgetMaxOpticalLength() << std::endl;
-  exit(1);
-  return OLDgetMaxOpticalLength();
-}
-
-
-/**
- * @brief Get the maximum allowable optical length for a track segment
- * @return The max optical length
- */
-FP_PRECISION TrackGenerator::OLDgetMaxOpticalLength() {
-
-  segment* curr_segment;
-  FP_PRECISION length;
-  Material* material;
-  FP_PRECISION* sigma_t;
-  FP_PRECISION max_optical_length = 0.;
-
-  if (_solve_3D) {
-
-    #pragma omp parallel reduction(max:max_optical_length)\
-      private(curr_segment, length, material, sigma_t)
-    {
-      /* Create kernels and allocate segments for OTF computation */
-      MOCKernel** kernels;
-      int num_rows = 1;
-      if (_segment_formation != EXPLICIT) {
-        if (_segment_formation == OTF_STACKS)
-          num_rows = _max_num_tracks_per_stack;
-
-        /* Allocate memory */
-        kernels = new MOCKernel*[num_rows];
-        for (int z=0; z < num_rows; z++) {
-          kernels[z] = new SegmentationKernel(this, z);
-        }
-      }
-
-      /* Calculate the maximum optical path length over all segments with axial
-       * on-the-fly ray tracing */
-      #pragma omp for
-      for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
-
-        /* Extract indices of 3D tracks associated with the flattened track */
-        Track* flattened_track = _flattened_tracks[ext_id];
-        int a = flattened_track->getAzimIndex();
-        int azim_index = _quadrature->getFirstOctantAzim(a);
-        int i = flattened_track->getXYIndex();
-        int tid = omp_get_thread_num();
-
-        for (int p=0; p < _num_polar; p++) {
-
-          /* Trace stack on-the-fly if requested */
-          if (_segment_formation == OTF_STACKS) {
-            for (int z = 0; z < _max_num_tracks_per_stack; z++)
-              kernels[z]->newTrack(&_tracks_3D[a][i][p][z]);
-            traceStackOTF(flattened_track, p, kernels);
-          }
-
-          for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-
-            /* Extract 3D track and initialize segments pointer */
-            Track* track_3D = &_tracks_3D[a][i][p][z];
-            segment* segments_3D;
-            int num_segments = track_3D->getNumSegments();
-
-            /* Get the segments corresponding to the 3D track */
-            if (_segment_formation == OTF_STACKS) {
-              segments_3D = _temporary_segments[tid][z];
-            }
-            else if (_segment_formation == OTF_TRACKS) {
-              Point* start = _tracks_3D[a][i][p][z].getStart();
-              double theta = _tracks_3D[a][i][p][z].getTheta();
-              Track2D* flattened_track = &_tracks_2D[a][i];
-              kernels[0]->newTrack(&_tracks_3D[a][i][p][z]);
-              traceSegmentsOTF(flattened_track, start, theta, kernels[0]);
-              segments_3D = _temporary_segments[tid][0];
-            }
-            else {
-              segments_3D = track_3D->getSegments();
-            }
-
-            /* Look through all segments for max optical path length */
-            for (int s=0; s < num_segments; s++) {
-              curr_segment = &segments_3D[s];
-              length = curr_segment->_length;
-              material = curr_segment->_material;
-              sigma_t = material->getSigmaT();
-
-              for (int e=0; e < material->getNumEnergyGroups(); e++)
-                max_optical_length = std::max(max_optical_length,
-                                              length*sigma_t[e]);
-            }
-          }
-        }
-      }
-
-      /* Delete temporary segment storage and associated kernels */
-      if (_segment_formation != EXPLICIT) {
-        for (int z=0; z < _max_num_tracks_per_stack; z++) {
-          delete kernels[z];
-        }
-        delete [] kernels;
-      }
-    }
-  }
-  else {
-    for (int a=0; a < _num_azim/2; a++) {
-      for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-        for (int s=0; s < _tracks_2D[a][i].getNumSegments(); s++) {
-          curr_segment = _tracks_2D[a][i].getSegment(s);
-          length = curr_segment->_length;
-          material = curr_segment->_material;
-          sigma_t = material->getSigmaT();
-
-          for (int e=0; e < material->getNumEnergyGroups(); e++)
-            max_optical_length = std::max(max_optical_length,
-                                          length*sigma_t[e]);
-        }
-      }
-    }
-  }
-  return max_optical_length;
+  MaxOpticalLength update_max_optical_length(this);
+  update_max_optical_length.execute();
+  return _max_optical_length;
 }
 
 
@@ -761,7 +644,7 @@ FP_PRECISION* TrackGenerator::get2DFSRVolumes() {
                "have not yet been generated");
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
+  FP_PRECISION *FSR_volumes = getFSRVolumesBuffer();
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
   segment* segment;
@@ -811,7 +694,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
                "have not yet been generated");
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = new FP_PRECISION[num_FSRs];
+  FP_PRECISION *FSR_volumes = getFSRVolumesBuffer();
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
   segment* segment;
@@ -1766,6 +1649,35 @@ void TrackGenerator::generateTracks() {
 
     /* Precompute the quadrature weights */
     _quadrature->precomputeWeights(_solve_3D);
+
+    /* Set the weight on every Track */
+    if (_solve_3D) {
+      for (int a=0; a < _num_azim/2; a++) {
+        for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+          for (int p=0; p < _num_polar; p++) {
+            for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+              int azim_index = _quadrature->getFirstOctantAzim(a);
+              int polar_index = _quadrature->getFirstOctantPolar(p);
+              FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
+                      * _quadrature->getPolarWeight(azim_index, polar_index)
+                      * getAzimSpacing(azim_index)
+                      * getPolarSpacing(azim_index, polar_index);
+              _tracks_3D[a][i][p][z].setWeight(weight);
+            }
+          }
+        }
+      }
+    }
+    else {    
+      for (int a=0; a < _num_azim/2; a++) {
+        for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+          int azim_index = _quadrature->getFirstOctantAzim(a);
+          FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
+                                * getAzimSpacing(azim_index);
+          _tracks_2D[a][i].setWeight(weight);
+        }
+      }
+    }
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
@@ -4929,7 +4841,7 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
 FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
 
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
+  FP_PRECISION* FSR_volumes = getFSRVolumesBuffer();
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
   VolumeKernel kernel(this, 0);
 
@@ -4955,14 +4867,6 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
       /* Extract polar angle */
       int polar_index = _quadrature->getFirstOctantPolar(p);
 
-      /* Calculate the weight of the track */
-      FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-          * _quadrature->getPolarWeight(azim_index, polar_index)
-          * getAzimSpacing(azim_index)
-          * getPolarSpacing(azim_index, polar_index);
-
-      //kernel.setWeight(weight);
-
       /* Loop over z-stacked rays */
       for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
@@ -4971,6 +4875,7 @@ FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
         Point* start = curr_track->getStart();
         double theta = curr_track->getTheta();
 
+        kernel.newTrack(curr_track);
         traceSegmentsOTF(flattened_track, start, theta, &kernel);
 
       }
@@ -5594,7 +5499,10 @@ void TrackGenerator::countSegments() {
       }
       else {
         _temporary_segments.resize(_num_threads);
-        _num_rows = _max_num_tracks_per_stack;
+        if (_segment_formation == OTF_STACKS)
+          _num_rows = _max_num_tracks_per_stack;
+        else
+          _num_rows = 1;
         for (int t = 0; t < _num_threads; t++)
           _temporary_segments.at(t) = new segment*[_num_rows];
         _contains_temporary_segments = true;
@@ -5789,10 +5697,6 @@ void TrackGenerator::initializeTracksArray() {
           /* Check if track has current azim_group_id and periodic_group_id */
           if (azim_group_id == track_azim_group_id &&
               periodic_group_id == track_periodic_group_id) {
-            int azim_index = _quadrature->getFirstOctantAzim(a);
-            FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-                                  * getAzimSpacing(azim_index);
-            track->setWeight(weight);
             track->setUid(uid);
             _tracks[uid] = track;
             uid++;
@@ -5851,11 +5755,6 @@ void TrackGenerator::initializeTracksArray() {
                   periodic_group_id == track_periodic_group_id) {
                 int azim_index = _quadrature->getFirstOctantAzim(a);
                 int polar_index = _quadrature->getFirstOctantPolar(p);
-                FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-                        * _quadrature->getPolarWeight(azim_index, polar_index)
-                        * getAzimSpacing(azim_index)
-                        * getPolarSpacing(azim_index, polar_index);
-                track->setWeight(weight);
                 track->setUid(uid);
                 _tracks[uid] = track;
                 uid++;
