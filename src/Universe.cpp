@@ -607,8 +607,9 @@ Cell* Universe::findCell(LocalCoords* coords) {
  * @brief Subdivides all of the Material-filled Cells within this Universe
  *        into rings and angular sectors aligned with the z-axis.
  * @param max_radius the maximum allowable radius used in the subdivisions
+ * @param ringify_type The method to use in finding the maximum ring radius
  */
-void Universe::subdivideCells(double max_radius) {
+void Universe::subdivideCells(double max_radius, ringifyType ringify_type) {
 
   log_printf(DEBUG, "Subdividing Cells for Universe ID=%d "
 	     "with max radius %f", _id, max_radius);
@@ -629,9 +630,9 @@ void Universe::subdivideCells(double max_radius) {
     else {
       Universe* fill = iter->second->getFillUniverse();
       if (fill->getType() == SIMPLE)
-        fill->subdivideCells(max_radius);
+        fill->subdivideCells(max_radius, ringify_type);
       else
-        static_cast<Lattice*>(fill)->subdivideCells(max_radius);
+        static_cast<Lattice*>(fill)->subdivideCells(max_radius, ringify_type);
     }
   }
 }
@@ -1141,8 +1142,9 @@ void Lattice::removeUniverse(Universe* universe) {
  * @brief Subdivides all of the Material-filled Cells within this Lattice
  *        into rings and angular sectors aligned with the z-axis.
  * @param max_radius the maximum allowable radius used in the subdivisions
+ * @param ringify_type The method to use in finding the maximum ring radius
  */
-void Lattice::subdivideCells(double max_radius) {
+void Lattice::subdivideCells(double max_radius, ringifyType ringify_type) {
 
   log_printf(DEBUG, "Subdividing Cells for Lattice ID=%d "
              "with max radius %f", _id, max_radius);
@@ -1150,9 +1152,17 @@ void Lattice::subdivideCells(double max_radius) {
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> universes = getUniqueUniverses();
 
-  /* Compute equivalent radius with the same area of a lattice cell */
   /* This is used as the maximum radius for all ringified Cells */
-  double radius = sqrt(_width_x * _width_y / M_PI);
+  double radius = 0;
+
+  if (ringify_type == EQUIVALENT_AREA)
+    radius = sqrt(_width_x * _width_y / M_PI);
+  else {
+    double x_rad = _width_x/2.0;
+    double y_rad = _width_y/2.0;
+
+    radius = sqrt(x_rad*x_rad + y_rad*y_rad);
+  }
 
   /* If the lattice pitch is smaller than max_radius parameter, over-ride it */
   if (radius < max_radius)
@@ -1160,7 +1170,7 @@ void Lattice::subdivideCells(double max_radius) {
 
   /* Subdivide all Cells */
   for (iter = universes.begin(); iter != universes.end(); ++iter)
-    iter->second->subdivideCells(max_radius);
+    iter->second->subdivideCells(max_radius, ringify_type);
 }
 
 

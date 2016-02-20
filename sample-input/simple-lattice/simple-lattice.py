@@ -56,7 +56,7 @@ large_fuel.setFill(materials['UO2'])
 large_fuel.addSurface(halfspace=-1, surface=large_zcylinder)
 
 large_moderator = openmoc.Cell(name='large pin moderator')
-large_fuel.setNumSectors(8)
+large_moderator.setNumSectors(8)
 large_moderator.setFill(materials['Water'])
 large_moderator.addSurface(halfspace=+1, surface=large_zcylinder)
 

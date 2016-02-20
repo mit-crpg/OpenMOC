@@ -13,6 +13,7 @@
 #include "Python.h"
 #endif
 #include "Cmfd.h"
+#include "ringify_type.h"
 #include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -104,6 +105,9 @@ private:
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::string> _FSRs_to_keys;
 
+  /** The method to use when subdividing cells into rings */
+  ringifyType _ringify_type;
+
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
@@ -160,6 +164,7 @@ public:
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
   void setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* FSR_keys_map);
+  void setRingifyType(ringifyType ringify_type);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);

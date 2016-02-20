@@ -20,6 +20,9 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+
+  /* Default value for ringify type */
+  _ringify_type = EQUIVALENT_AREA;
 }
 
 
@@ -765,12 +768,19 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
  */
 void Geometry::subdivideCells() {
 
-  /* Compute equivalent radius with the same area as the Geometry */
-  /* This is used as the maximum radius for all ringified Cells */
-  double max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
+  double max_radius = 0;
+
+  if (_ringify_type == EQUIVALENT_AREA)
+    max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
+  else {
+    double x_rad = getWidthX()/2.0;
+    double y_rad = getWidthY()/2.0;
+
+    max_radius = sqrt(x_rad*x_rad + y_rad*y_rad);
+  }
 
   /* Recursively subdivide Cells into rings and sectors */
-  _root_universe->subdivideCells(max_radius);
+  _root_universe->subdivideCells(max_radius, _ringify_type);
 }
 
 
@@ -1147,6 +1157,15 @@ void Geometry::setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>*
  */
 void Geometry::setFSRsToKeys(std::vector<std::string>* FSRs_to_keys) {
   _FSRs_to_keys = *FSRs_to_keys;
+}
+
+
+/**
+ * @brief Sets the method for selection of the maximum ring radius for subdivision
+ * @param ringify_type The method to use for selection of maximum ring radius
+ */
+void Geometry::setRingifyType(ringifyType ringify_type) {
+  _ringify_type = ringify_type;
 }
 
 
