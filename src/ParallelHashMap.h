@@ -296,7 +296,7 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
   /* increment counter and return number */
   size_t N;
 #pragma omp critical (node_incr)
-      N = _N++;
+    N = _N++;
 
   return (int) N;
 }
@@ -414,11 +414,12 @@ void FixedHashMap<K,V>::clear() {
  */
 template <class K, class V>
 void FixedHashMap<K,V>::print_buckets() {
+  log_printf(NORMAL, "Printing all buckets in the hash map...");
   for (size_t i=0; i<_M; i++) {
     if (_buckets[i] == NULL)
-      log_printf(NORMAL, "%d -> NULL", i);
+      log_printf(NORMAL, "Bucket %d -> NULL", i);
     else
-      log_printf(NORMAL, "%d -> %p", i, _buckets[i]);
+      log_printf(NORMAL, "Bucket %d -> %p", i, _buckets[i]);
   }
 }
 
