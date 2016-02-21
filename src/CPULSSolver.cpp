@@ -534,3 +534,12 @@ void CPULSSolver::addSourceToScalarFlux() {
     }
   }
 }
+
+
+/**
+ * @brief Initializes new ExpEvaluator object to compute exponentials.
+ */
+void CPULSSolver::initializeExpEvaluator() {
+  _exp_evaluator->useIntrinsic();
+  Solver::initializeExpEvaluator();
+}
