@@ -16,7 +16,6 @@ class NumFissionableFSRsTestHarness(TestHarness):
     def __init__(self):
         super(NumFissionableFSRsTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
-        self._result = ''
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,

@@ -26,7 +26,7 @@ class SplitSegmentsTestHarness(TestHarness):
     def _get_results(self):
         """Digest info in the results and return as a string."""
         return super(SplitSegmentsTestHarness, self).\
-            _get_results(num_segments=True)
+            _get_results(num_segments=True, fluxes=False, keff=False)
 
 
 if __name__ == '__main__':
