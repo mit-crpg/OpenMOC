@@ -31,12 +31,11 @@ class CorrectFSRVolumeTestHarness(TestHarness):
         new_volume = self.track_generator.getFSRVolume(1)
 
         # Save results for one thread
-        self._result += '{0: 1.6f}'.format(old_volume)
+        self._result += '{0: 1.10f}'.format(old_volume)
         self._result += '{0: 1.1f}'.format(new_volume)
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
-                     num_fsrs=True, num_segments=True, num_tracks=True,
-                     hash_output=False):
+                     num_fsrs=False, num_segments=False, num_tracks=False):
         """Return the result string"""
         return self._result
 

@@ -35,7 +35,7 @@ cells['Region 4'].setFill(materials['Region 4'])
 cells['Region 5'].setFill(materials['Region 5'])
 
 # Add surfaces to root cell
-cells['Root'].addSurface(halfspace=+1, surface=surfaces['Root x-min'])
-cells['Root'].addSurface(halfspace=-1, surface=surfaces['Root x-max'])
-cells['Root'].addSurface(halfspace=+1, surface=surfaces['Root y-min'])
-cells['Root'].addSurface(halfspace=-1, surface=surfaces['Root y-max'])
+cells['Root'].addSurface(halfspace=+1, surface=surfaces['x-min'])
+cells['Root'].addSurface(halfspace=-1, surface=surfaces['x-max'])
+cells['Root'].addSurface(halfspace=+1, surface=surfaces['y-min'])
+cells['Root'].addSurface(halfspace=-1, surface=surfaces['y-max'])

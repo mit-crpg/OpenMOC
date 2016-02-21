@@ -620,7 +620,7 @@ void Solver::initializeFSRs() {
  *          routine which uses the number of fissionable FSRs to normalize
  *          the residual on the fission source distribution.
  */
-void Solver::countFissionableFSRs() {
+int Solver::getNumFissionableFSRs() {
 
   log_printf(INFO, "Counting fissionable FSRs...");
 
@@ -632,7 +632,7 @@ void Solver::countFissionableFSRs() {
       num_fissionable_FSRs++;
   }
 
-  _num_fissionable_FSRs = num_fissionable_FSRs;
+  return num_fissionable_FSRs;
 }
 
 
@@ -843,7 +843,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   /* Initialize data structures */
   initializeFSRs();
   initializeMaterials(mode);
-  countFissionableFSRs();
+  _num_fissionable_FSRs = getNumFissionableFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
 
@@ -1038,7 +1038,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   /* Initialize data structures */
   initializeFSRs();
   initializeMaterials(mode);
-  countFissionableFSRs();
+  _num_fissionable_FSRs = getNumFissionableFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();

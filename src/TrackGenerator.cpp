@@ -359,7 +359,6 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
 #pragma omp parallel
   {
-
     segment* curr_segment;
     FP_PRECISION length;
     Material* material;
