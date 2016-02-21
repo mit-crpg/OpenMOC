@@ -196,12 +196,13 @@ void CPULSSolver::normalizeFluxes() {
   log_printf(DEBUG, "Tot. Fiss. Src. = %f, Norm. factor = %f",
              tot_fission_source, norm_factor);
 
-#pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r,e) *= norm_factor;
       _scalar_flux_x(r,e) *= norm_factor;
       _scalar_flux_y(r,e) *= norm_factor;
+      //log_printf(NORMAL, "(%d, %d): (%f, %f, %f)", r, e, _scalar_flux(r,e),
+      //          _scalar_flux_x(r,e), _scalar_flux_y(r,e));
       _old_scalar_flux(r,e) *= norm_factor;
     }
   }
@@ -228,7 +229,7 @@ void CPULSSolver::normalizeFluxes() {
 void CPULSSolver::computeFSRSources() {
   CPUSolver::computeFSRSources();
 
-#pragma omp parallel default(none)
+#pragma omp parallel
   {
     Material* material;
     FP_PRECISION* sigma_t;
@@ -467,6 +468,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
            (tau_mki / 2.0 - exp_G1) + y * delta_psi);
 
       track_flux(p,e) -= delta_psi;
+
       /*
       if (track_flux(p,e) < 0.0) {
         log_printf(NORMAL, "encountered track with negative flux, (%f, %f)",
@@ -474,6 +476,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                    _geometry->getFSRCentroid(fsr_id)->getY());
       }
       */
+
       track_flux(p,e) = std::max(track_flux(p,e), 0.0);
       //log_printf(NORMAL, "track flux (%d, %d): %f", e, p, track_flux(p,e));
     }
@@ -509,13 +512,6 @@ void CPULSSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      /*
-      if (_scalar_flux(r,e) < 0.0)
-        log_printf(NORMAL, "encountered negative scalar flux (%f, %f)",
-                   _geometry->getFSRCentroid(r)->getX(),
-                   _geometry->getFSRCentroid(r)->getY());
-      */
-
       _scalar_flux(r,e) *= 0.5;
       _scalar_flux(r,e) /= (sigma_t[e] * volume);
       _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
@@ -529,8 +525,6 @@ void CPULSSolver::addSourceToScalarFlux() {
       _scalar_flux_y(r,e) /= (sigma_t[e] * volume);
       _scalar_flux_y(r,e) += (FOUR_PI * _reduced_sources_y(r,e) * _FSR_Cs[r*_num_groups*3 + 3*e + 1]);
       _scalar_flux_y(r,e) += (FOUR_PI * _reduced_sources_x(r,e) * _FSR_Cs[r*_num_groups*3 + 3*e + 2]);
-
-      //log_printf(NORMAL, "(%d, %d) scalar fluxes: (%f, %f, %f)", r, e, _scalar_flux(r,e), _scalar_flux_x(r,e), _scalar_flux_y(r,e));
     }
   }
 }

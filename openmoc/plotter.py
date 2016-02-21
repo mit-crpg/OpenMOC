@@ -498,7 +498,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return the Matplotlib figure
 # @param library the plotting library ('matplotlib' or 'pil')
-def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, 
+def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
                     get_figure=False, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the CMFD cells...')
@@ -561,7 +561,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
 # @param get_figure whether to a return a list of Matplotlib figures
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
-                        xlim=None, ylim=None, get_figure=False, 
+                        xlim=None, ylim=None, get_figure=False,
                         library='matplotlib'):
 
     if 'Solver' not in str(type(solver)):
@@ -635,7 +635,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 # @param norm normalize the fluxes to the total energy-integrated flux
 # @param loglog boolean indicating whether to plot use a log-log scale
 # @param get_figure return a list of the Matplotlib figures
-def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, 
+def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
                        loglog=True, get_figure=False):
 
     global subdirectory, matplotlib_rcparams
@@ -1087,7 +1087,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         # Use Python Imaging Library (PIL) to plot 2D color map of domain data
         if plot_params.library == 'pil':
             img = _get_pil_image(np.flipud(surface), plot_params)
-            
+
             if get_figure:
                 figures.append(img)
             else:
