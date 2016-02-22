@@ -610,6 +610,89 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 
 
 ##
+# @brief This method takes in a CPULSSolver object and plots a color-coded 2D
+#        surface plot representing the linear source region scalar fluxes.
+# @details The Solver must have converged the linear source sources prior to
+#          calling this routine. A user may invoke this function from an
+#          OpenMOC Python file as follows:
+#
+# @code
+#         openmoc.plotter.plot_spatial_fluxes_ls(solver, energy_groups=[1,7])
+# @endcode
+#
+# @param solver a CPULSSolver object that has converged the source for the
+#               Geometry
+# @param energy_groups a Python list of integer energy groups to plot
+# @param norm normalize the fluxes to the maximum flux
+# @param gridsize an optional number of grid cells for the plot
+# @param xlim optional list/tuple of the minimim/maximum x-coordinates
+# @param ylim optional list/tuple of the minimim/maximum y-coordinates
+# @param get_figure whether to a return a list of Matplotlib figures
+# @param library the plotting library ('matplotlib' or 'pil')
+def plot_spatial_fluxes_ls(solver, energy_groups=[1], norm=False, gridsize=250,
+                           xlim=None, ylim=None, get_figure=False,
+                           library='matplotlib'):
+
+    if 'CPULSSolver' not in str(type(solver)):
+        py_printf('ERROR', 'Unable to plot the LSR flux since the ' +
+                  'input did not contain a CPULSSolver class object')
+
+    if not isinstance(energy_groups, (list, tuple, np.ndarray)):
+        py_printf('ERROR', 'Unable to plot the LSR flux since the ' +
+                  'energy_groups is not a Python tuple/list or NumPy array')
+
+    global subdirectory, matplotlib_rcparams
+    directory = openmoc.get_output_directory() + subdirectory
+
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    py_printf('NORMAL', 'Plotting the LSR scalar fluxes...')
+
+    # Initialize plotting parameters
+    geometry = solver.getGeometry()
+    zcoord = geometry.getFSRPoint(0).getZ()
+    plot_params = PlotParams()
+    plot_params.geometry = geometry
+    plot_params.zcoord = zcoord
+    plot_params.gridsize = gridsize
+    plot_params.library = library
+    plot_params.xlim = xlim
+    plot_params.ylim = ylim
+    plot_params.colorbar = True
+    plot_params.cmap = plt.get_cmap('jet')
+    plot_params.norm = norm
+
+    data = np.zeros((len(energy_groups), plot_params.gridsize, plot_params.gridsize), dtype=np.float)
+
+    # Retrieve the pixel coordinates
+    coords = _get_pixel_coords(plot_params)
+
+    for i in range(plot_params.gridsize):
+        for j in range(plot_params.gridsize):
+
+            # Find the domain IDs for each grid point
+            x = coords['x'][i]
+            y = coords['y'][j]
+
+            point = openmoc.LocalCoords(x, y, plot_params.zcoord)
+            for g,group in enumerate(energy_groups):
+                data[g][j][i] = solver.getFluxByCoords(point, group-1)
+
+    for g,group in enumerate(energy_groups):
+        fig = plt.figure()
+        fig.patch.set_facecolor('none')
+        plt.imshow(np.flipud(data[g]), extent=coords['bounds'],
+                   interpolation=plot_params.interpolation,
+                   vmin=plot_params.vmin, vmax=plot_params.vmax,
+                   cmap=plot_params.cmap)
+        plt.colorbar()
+        filename = 'lsr-flux-group-{0}.png'.format(group)
+        plt.savefig(directory+filename, bbox_inches='tight')
+
+
+##
 # @brief This method takes in a Solver object and plots the scalar
 #        flux vs. energy for one or more flat source regions.
 # @details The Solver must have converged the flat source sources prior to

@@ -315,31 +315,46 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
 
 /**
- * @brief Computes and returns an array of volumes indexed by FSR.
- * @details Note: It is the function caller's responsibility to deallocate
- *          the memory reserved for the FSR volume array.
- * @return a pointer to the array of FSR volumes
+ * @brief Computes the linear expansion matrices for each FSR.
+ * @details In order to get the source along a segment, the linear source method
+ *          requires a transformation from source moments in an FSR to the
+ *          source along the length of a segment. The linear expansion
+ *          matrix, M (with components\f$M_{i,xx}, M_{i,yy}, M_{i,xy}\f$),
+ *          and the linear expansion coefficients form a system of equations
+ *          that equals the source moments in an FSR:
+ *               _                  _  _         _    _         _
+ *              | M_{i,xx} M_{i,xy} | | q_{i,x}^g |  | Q_{i,x}^g |
+ *              | M_{i,xy} M_{i,yy} | | q_{i,y}^g | =| Q_{i,y}^g |
+ *               -                  -  -         -    -         -
+ *          This method computes the linear expansion matrix for each FSR, noted
+ *          as equation 22 in Ferrer [1].
+ *
+ *            [1] R. Ferrer, J. Rhodes III, "A Linear Source Approximation
+ *                Scheme for the Method of Characteristics", Nuclear Science
+ *                and Engineering, Volume 182, Issue 2, 2016.
+ *
+ * @return An array of the linear expansion matrix elements.
  */
-FP_PRECISION* TrackGenerator::getFSRMs(PolarQuad* polar_quad) {
+FP_PRECISION* TrackGenerator::getFSRLinearExpansionCoeffs(
+    PolarQuad* polar_quad) {
 
   if (!containsTracks())
-    log_printf(ERROR, "Unable to get the FSR Ms since tracks "
-               "have not yet been generated");
+    log_printf(ERROR, "Unable to get the linear expansion matrices since tracks"
+               " have not yet been generated");
 
+  /* Initialize an array to store the values of the linear expansion matrix */
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_Ms = new FP_PRECISION[num_FSRs*3];
-  memset(FSR_Ms, 0., num_FSRs*3*sizeof(FP_PRECISION));
+  FP_PRECISION* lin_exp_matrix = new FP_PRECISION[num_FSRs*3];
+  memset(lin_exp_matrix, 0., num_FSRs*3*sizeof(FP_PRECISION));
 
-  /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for each FSR.  */
 #pragma omp parallel
   {
 
     int azim_index, fsr_id;
     segment* curr_segment;
-    FP_PRECISION wgt_a, s_aki;
-    double phi;
-    double X, Y, xc_aki, yc_aki;
+    FP_PRECISION wgt, length;
+    double phi, sin_phi, cos_phi;
+    double X, Y, xc, yc;
     Point* centroid;
 
     for (int i=0; i < _num_azim; i++) {
@@ -347,151 +362,182 @@ FP_PRECISION* TrackGenerator::getFSRMs(PolarQuad* polar_quad) {
       for (int j=0; j < _num_tracks[i]; j++) {
         azim_index = _tracks[i][j].getAzimAngleIndex();
         phi = _tracks[i][j].getPhi();
+        sin_phi = sin(phi);
+        cos_phi = cos(phi);
         X = _tracks[i][j].getStart()->getX();
         Y = _tracks[i][j].getStart()->getY();
 
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
           curr_segment = _tracks[i][j].getSegment(s);
-          s_aki = curr_segment->_length;
-          wgt_a = _azim_weights[azim_index];
+          length = curr_segment->_length;
+          wgt = _azim_weights[azim_index];
           fsr_id = curr_segment->_region_id;
           centroid = _geometry->getFSRCentroid(fsr_id);
 
-          xc_aki = X - centroid->getX() + s_aki / 2.0 * cos(phi);
-          yc_aki = Y - centroid->getY() + s_aki / 2.0 * sin(phi);
+          /* Get the centroid of the segment in the local coordinate system */
+          xc = X - centroid->getX() + length / 2.0 * cos_phi;
+          yc = Y - centroid->getY() + length / 2.0 * sin_phi;
 
           /* Set FSR mutual exclusion lock */
           omp_set_lock(&_FSR_locks[fsr_id]);
 
-          FSR_Ms[fsr_id*3    ] += wgt_a * s_aki *
-              (xc_aki * xc_aki + pow(cos(phi) * s_aki, 2.0) / 12.0);
-          FSR_Ms[fsr_id*3 + 1] += wgt_a * s_aki *
-              (yc_aki * yc_aki + pow(sin(phi) * s_aki, 2.0) / 12.0);
-          FSR_Ms[fsr_id*3 + 2] += wgt_a * s_aki *
-              (xc_aki * yc_aki + sin(phi) * cos(phi) * pow(s_aki, 2.0) / 12.0);
+          lin_exp_matrix[fsr_id*3    ] += wgt * length *
+              (xc * xc + pow(cos_phi * length, 2.0) / 12.0);
+          lin_exp_matrix[fsr_id*3 + 1] += wgt * length *
+              (yc * yc + pow(sin_phi * length, 2.0) / 12.0);
+          lin_exp_matrix[fsr_id*3 + 2] += wgt * length *
+              (xc * yc + sin_phi * cos_phi * pow(length, 2.0) / 12.0);
 
           /* Release FSR mutual exclusion lock */
           omp_unset_lock(&_FSR_locks[fsr_id]);
 
-          X += s_aki * cos(phi);
-          Y += s_aki * sin(phi);
+          /* Move the segment coordinates forward to the next segment */
+          X += length * cos_phi;
+          Y += length * sin_phi;
         }
       }
     }
   }
 
+  /* Get array of FSR volumes */
   FP_PRECISION* FSR_volumes = getFSRVolumes();
 
-  /* Divide the Ms by the FSR volumes */
+  /* Divide the linear expansion matrix values by the FSR volumes */
   for (int r=0; r < num_FSRs; r++) {
-    FSR_Ms[r*3    ] /= FSR_volumes[r];
-    FSR_Ms[r*3 + 1] /= FSR_volumes[r];
-    FSR_Ms[r*3 + 2] /= FSR_volumes[r];
-
-    //log_printf(NORMAL, "FSR Ms %d: (%f, %f, %f)", r, FSR_Ms[r*3], FSR_Ms[r*3+1], FSR_Ms[r*3+2]);
+    lin_exp_matrix[r*3  ] /= FSR_volumes[r];
+    lin_exp_matrix[r*3+1] /= FSR_volumes[r];
+    lin_exp_matrix[r*3+2] /= FSR_volumes[r];
   }
 
+  /* Delete temporary array of FSR volumes */
   delete [] FSR_volumes;
 
-  return FSR_Ms;
+  /* Check to make sure none of the source expansion matrices are singular */
+  double determinant;
+  for (int r=0; r < num_FSRs; r++) {
+    determinant = lin_exp_matrix[r*3  ] * lin_exp_matrix[r*3+1] -
+        lin_exp_matrix[r*3+2] * lin_exp_matrix[r*3+2];
+
+    if (determinant == 0.0)
+      log_printf(ERROR, "Encountered singular source expansion matrix for"
+                 " FSR %d", r);
+  }
+
+  return lin_exp_matrix;
 }
 
 
-FP_PRECISION* TrackGenerator::getFSRCs(PolarQuad* polar_quad, ExpEvaluator* exp_eval) {
+/**
+ * @brief Computes the source constants for each FSR use in the linear source
+ *        solver.
+ * @details During each transport sweep, the source needs to be tallied to the
+ *          flux moments. The expressions that multiply the source expansion
+ *          coefficients is quite long and can be precomputed to reduce the time
+ *          required to add the source to the scalar flux moments after a
+ *          transport sweep. This method precomputes source constants (in x, y,
+ *          and xy) for each fsr and group. The expressions are denoted as
+ *          C_{i,x}^g, C_{i,y}^g, and C_{i,xy}^g in equations 31, 32, and 33
+ *          in Ferrer [1].
+ *
+ *            [1] R. Ferrer, J. Rhodes III, "A Linear Source Approximation
+ *                Scheme for the Method of Characteristics", Nuclear Science
+ *                and Engineering, Volume 182, Issue 2, 2016.
+ *
+ * @return An array of the source constants.
+ */
+FP_PRECISION* TrackGenerator::getFSRSourceConstants(PolarQuad* polar_quad,
+                                                    ExpEvaluator* exp_eval) {
 
   if (!containsTracks())
-    log_printf(ERROR, "Unable to get the FSR Cs since tracks "
+    log_printf(ERROR, "Unable to get the FSR source constants since tracks "
                "have not yet been generated");
 
   int num_FSRs = _geometry->getNumFSRs();
   int num_groups = _geometry->getNumEnergyGroups();
-  FP_PRECISION* FSR_Cs = new FP_PRECISION[num_FSRs*num_groups*3];
-  memset(FSR_Cs, 0., num_FSRs*num_groups*3*sizeof(FP_PRECISION));
-  FP_PRECISION* FSR_volumes = getFSRVolumes();
+  FP_PRECISION* FSR_src_constants = new FP_PRECISION[num_FSRs*num_groups*3];
+  memset(FSR_src_constants, 0., num_FSRs*num_groups*3*sizeof(FP_PRECISION));
 
-  /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for each FSR.  */
-  {
+  int azim_index, polar_index, fsr_id;
+  segment* curr_segment;
+  FP_PRECISION length, tau, wgt, multiple, G2;
+  FP_PRECISION* sigma_t;
+  double phi, sin_phi, cos_phi;
+  double X, Y, xc, yc;
+  Point* centroid;
 
-    int azim_index, polar_index, fsr_id;
-    segment* curr_segment;
-    FP_PRECISION s_aki, tau_aki, wgt_a, multiple, G2;
-    FP_PRECISION* sigma_t;
-    double phi;
-    double X, Y, xin, yin, xc_aki, yc_aki;
-    Point* centroid;
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+      azim_index = _tracks[i][j].getAzimAngleIndex();
+      phi = _tracks[i][j].getPhi();
+      sin_phi = sin(phi);
+      cos_phi = cos(phi);
+      X = _tracks[i][j].getStart()->getX();
+      Y = _tracks[i][j].getStart()->getY();
 
-    for (int i=0; i < _num_azim; i++) {
-      for (int j=0; j < _num_tracks[i]; j++) {
-        azim_index = _tracks[i][j].getAzimAngleIndex();
-        phi = _tracks[i][j].getPhi();
-        X = _tracks[i][j].getStart()->getX();
-        Y = _tracks[i][j].getStart()->getY();
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
+        fsr_id = curr_segment->_region_id;
+        sigma_t = curr_segment->_material->getSigmaT();
+        length = curr_segment->_length;
+        wgt = _azim_weights[azim_index];
+        centroid = _geometry->getFSRCentroid(fsr_id);
 
-        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-          curr_segment = _tracks[i][j].getSegment(s);
-          fsr_id = curr_segment->_region_id;
-          sigma_t = curr_segment->_material->getSigmaT();
-          s_aki = curr_segment->_length;
-          wgt_a = _azim_weights[azim_index];
-          centroid = _geometry->getFSRCentroid(fsr_id);
+        /* Get the centroid of the segment in the local coordinate system */
+        xc = X - centroid->getX() + length * cos_phi / 2.0;
+        yc = Y - centroid->getY() + length * sin_phi / 2.0;
 
-          xin = X - centroid->getX();
-          yin = Y - centroid->getY();
-          xc_aki = xin + s_aki * cos(phi) / 2.0;
-          yc_aki = yin + s_aki * sin(phi) / 2.0;
+        for (int g=0; g < num_groups; g++) {
 
-          for (int g=0; g < num_groups; g++) {
+          FSR_src_constants[fsr_id*num_groups*3 + g*3 + 0] +=
+              wgt * xc * xc * length;
+          FSR_src_constants[fsr_id*num_groups*3 + g*3 + 1] +=
+              wgt * yc * yc * length;
+          FSR_src_constants[fsr_id*num_groups*3 + g*3 + 2] +=
+              wgt * xc * yc * length;
 
-            FSR_Cs[fsr_id*num_groups*3 + g*3 + 0] +=
-                1.0 / FSR_volumes[fsr_id] * wgt_a * xc_aki * xc_aki * s_aki;
+          for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
 
-            FSR_Cs[fsr_id*num_groups*3 + g*3 + 1] +=
-                1.0 / FSR_volumes[fsr_id] * wgt_a * yc_aki * yc_aki * s_aki;
+            multiple = polar_quad->getMultiple(p);
 
-            FSR_Cs[fsr_id*num_groups*3 + g*3 + 2] +=
-                1.0 / FSR_volumes[fsr_id] * wgt_a * xc_aki * yc_aki * s_aki;
+            tau = length * sigma_t[g];
+            G2 = exp_eval->computeExponentialG2(tau, p);
 
-            for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
+            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 0] +=
+                1.0 / (2.0 * sigma_t[g]) * wgt * multiple
+                * pow(cos_phi * length, 2.0) * G2;
 
-              multiple = polar_quad->getMultiple(p);
+            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 1] +=
+                1.0 / (2.0 * sigma_t[g]) * wgt * multiple
+                * pow(sin_phi * length, 2.0) * G2;
 
-              tau_aki = s_aki * sigma_t[g];
-              G2 = exp_eval->computeExponentialG2(tau_aki, p);
-
-              FSR_Cs[fsr_id*num_groups*3 + g*3 + 0] +=
-                  1.0 / (2.0 * sigma_t[g] * FSR_volumes[fsr_id]) * wgt_a * multiple
-                  * pow(cos(phi) * s_aki, 2.0) * G2;
-
-              FSR_Cs[fsr_id*num_groups*3 + g*3 + 1] +=
-                  1.0 / (2.0 * sigma_t[g] * FSR_volumes[fsr_id]) * wgt_a * multiple
-                  * pow(sin(phi) * s_aki, 2.0) * G2;
-
-              FSR_Cs[fsr_id*num_groups*3 + g*3 + 2] +=
-                  1.0 / (2.0 * sigma_t[g] * FSR_volumes[fsr_id]) * wgt_a * multiple
-                  * sin(phi) * cos(phi) * pow(s_aki, 2.0) * G2;
-            }
+            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 2] +=
+                1.0 / (2.0 * sigma_t[g]) * wgt * multiple
+                * sin_phi * cos_phi * pow(length, 2.0) * G2;
           }
-
-          X += s_aki * cos(phi);
-          Y += s_aki * sin(phi);
         }
+
+        X += length * cos_phi;
+        Y += length * sin_phi;
       }
     }
   }
 
-  /* Divide the Ms by the FSR volumes */
-  /*
+  /* Get array of FSR volumes */
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
+
+  /* Divide the source constants by the FSR volumes */
   for (int r=0; r < num_FSRs; r++) {
-    for (int g=0; g < num_groups; g++)
-      log_printf(NORMAL, "FSR Cs %d, %d: (%f, %f, %f)", r, g,
-                 FSR_Cs[r*3*num_groups + g*3], FSR_Cs[r*3*num_groups + g*3 + 1],
-                 FSR_Cs[r*3*num_groups + g*3 + 2]);
+    for (int g=0; g < num_groups; g++) {
+      FSR_src_constants[r*num_groups*3 + g*3    ] /= FSR_volumes[r];
+      FSR_src_constants[r*num_groups*3 + g*3 + 1] /= FSR_volumes[r];
+      FSR_src_constants[r*num_groups*3 + g*3 + 2] /= FSR_volumes[r];
+    }
   }
-  */
+
+  /* Delete temporary array of FSR volumes */
   delete [] FSR_volumes;
 
-  return FSR_Cs;
+  return FSR_src_constants;
 }
 
 
@@ -2173,30 +2219,24 @@ void TrackGenerator::initializeSegments() {
   FSR_keys_map = _geometry->getFSRKeysMap();
   FSRs_to_keys = _geometry->getFSRsToKeys();
 
-#pragma omp parallel
-  {
+  /* Iterate over all Track segments and assign them each a Material */
+  int region_id, mat_id;
+  segment* curr_segment;
+  Material* mat;
 
-    /* Iterate over all Track segments and assign them each a Material */
-    int region_id, mat_id;
-    segment* curr_segment;
-    Material* mat;
+  /* Set the Material for each FSR */
+  for (int r=0; r < _geometry->getNumFSRs(); r++) {
+    mat = _geometry->findFSRMaterial(r);
+    FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
+  }
 
-    /* Set the Material for each FSR */
-#pragma omp for
-    for (int r=0; r < _geometry->getNumFSRs(); r++) {
-      mat = _geometry->findFSRMaterial(r);
-      FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
-    }
-
-    for (int i=0; i < _num_azim; i++) {
-#pragma omp for
-      for (int j=0; j < _num_tracks[i]; j++) {
-        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-          curr_segment = _tracks[i][j].getSegment(s);
-          region_id = curr_segment->_region_id;
-          mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
-          curr_segment->_material = materials[mat_id];
-        }
+  for (int i=0; i < _num_azim; i++) {
+    for (int j=0; j < _num_tracks[i]; j++) {
+      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+        curr_segment = _tracks[i][j].getSegment(s);
+        region_id = curr_segment->_region_id;
+        mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
+        curr_segment->_material = materials[mat_id];
       }
     }
   }

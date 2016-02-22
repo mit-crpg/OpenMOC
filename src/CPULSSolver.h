@@ -42,19 +42,20 @@ class CPULSSolver : public CPUSolver {
 
 protected:
 
-  /** The scalar flux for each energy group in each FSR */
+  /** The scalar flux moments for each energy group in each FSR */
   FP_PRECISION* _scalar_flux_x;
   FP_PRECISION* _scalar_flux_y;
 
-  /** Ratios of source to total cross-section for each FSR and energy group */
+  /** Ratios of source moments to total cross-section for each FSR and energy
+   *  group */
   FP_PRECISION* _reduced_sources_x;
   FP_PRECISION* _reduced_sources_y;
 
-  /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
-  FP_PRECISION* _FSR_Ms;
+  /** The FSR linear expansion matrix values for each FSR */
+  FP_PRECISION* _FSR_lin_exp_matrix;
 
-  /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
-  FP_PRECISION* _FSR_Cs;
+  /** The FSR source constants for each FSR and energy group */
+  FP_PRECISION* _FSR_source_constants;
 
   /** Array of sin(phi) */
   double* _sin_phi;
@@ -68,6 +69,10 @@ protected:
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
+   * @param x the x-coord of the segment starting point
+   * @param y the y-coord of the segment starting point
+   * @param fwd bool indicating whether the segment is pointing forward or
+   *            backwards
    */
   void tallyLSScalarFlux(segment* curr_segment, int azim_index,
                          FP_PRECISION* track_flux,
@@ -87,6 +92,8 @@ public:
   void computeFSRSources();
   void transportSweep();
   void addSourceToScalarFlux();
+
+  FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
 };
 
 

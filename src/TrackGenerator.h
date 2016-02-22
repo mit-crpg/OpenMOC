@@ -129,8 +129,9 @@ public:
   FP_PRECISION* getAzimWeights();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
-  FP_PRECISION* getFSRMs(PolarQuad* polar_quad);
-  FP_PRECISION* getFSRCs(PolarQuad* polar_quad, ExpEvaluator* exp_eval);
+  FP_PRECISION* getFSRLinearExpansionCoeffs(PolarQuad* polar_quad);
+  FP_PRECISION* getFSRSourceConstants(PolarQuad* polar_quad,
+                                      ExpEvaluator* exp_eval);
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
   double getZCoord();
