@@ -339,7 +339,7 @@ FP_PRECISION* TrackGenerator::getFSRMs(PolarQuad* polar_quad) {
     segment* curr_segment;
     FP_PRECISION wgt_a, multiple, sin_t, s_aki, s_mki;
     double phi;
-    double X, Y, xin, yin, xc_mki, yc_mki;
+    double X, Y, xin, yin, xc_aki, yc_aki;
     Point* centroid;
 
     for (int i=0; i < _num_azim; i++) {
@@ -368,12 +368,15 @@ FP_PRECISION* TrackGenerator::getFSRMs(PolarQuad* polar_quad) {
             multiple = polar_quad->getMultiple(p);
             sin_t = polar_quad->getSinTheta(p);
             s_mki = s_aki / sin_t;
-            xc_mki = xin + s_mki / 2.0 * cos(phi);
-            yc_mki = yin + s_mki / 2.0 * sin(phi);
+            xc_aki = xin + s_aki / 2.0 * cos(phi);
+            yc_aki = yin + s_aki / 2.0 * sin(phi);
 
-            FSR_Ms[fsr_id*3    ] += wgt_a * multiple * s_mki * (xc_mki * xc_mki + pow(cos(phi) * s_mki, 2.0) / 12.0);
-            FSR_Ms[fsr_id*3 + 1] += wgt_a * multiple * s_mki * (yc_mki * yc_mki + pow(sin(phi) * s_mki, 2.0) / 12.0);
-            FSR_Ms[fsr_id*3 + 2] += wgt_a * multiple * s_mki * (xc_mki * yc_mki + sin(phi) * cos(phi) * pow(s_mki, 2.0) / 12.0);
+            FSR_Ms[fsr_id*3    ] += wgt_a * multiple * s_mki *
+                (xc_aki * xc_aki + pow(cos(phi) * s_aki, 2.0) / 12.0);
+            FSR_Ms[fsr_id*3 + 1] += wgt_a * multiple * s_mki *
+                (yc_aki * yc_aki + pow(sin(phi) * s_aki, 2.0) / 12.0);
+            FSR_Ms[fsr_id*3 + 2] += wgt_a * multiple * s_mki *
+                (xc_aki * yc_aki + sin(phi) * cos(phi) * pow(s_aki, 2.0) / 12.0);
           }
 
           /* Release FSR mutual exclusion lock */
@@ -495,7 +498,6 @@ FP_PRECISION* TrackGenerator::getFSRCs(PolarQuad* polar_quad, ExpEvaluator* exp_
                  FSR_Cs[r*3*num_groups + g*3 + 2]);
   }
   */
-
   delete [] FSR_volumes;
 
   return FSR_Cs;
@@ -2063,9 +2065,10 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes,
   }
 
   /* Set the centroid for the FSR */
-#pragma omp parallel for
-  for (int r=0; r < num_FSRs; r++)
+  for (int r=0; r < num_FSRs; r++) {
     _geometry->setFSRCentroid(r, centroids[r]);
+    //log_printf(NORMAL, "fsr %d centroid: (%f, %f)", r, centroids[r]->getX(), centroids[r]->getY());
+  }
 
   /* Delete temporary array of FSR volumes and centroids */
   delete [] centroids;
