@@ -106,6 +106,18 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
 
   /* Unset lock */
   omp_unset_lock(&_FSR_locks[id]);
+
+  /* Determine the number of cuts on the segment */
+  FP_PRECISION* sigma_t = mat->getSigmaT();
+  double max_sigma_t = 0;
+  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+    if (sigma_t[e] > max_sigma_t)
+      max_sigma_t = sigma_t[e];
+
+  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
+
+  /* Increment count */
+  _count += num_cuts;
 }
 
 

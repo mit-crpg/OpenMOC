@@ -249,7 +249,6 @@ public:
   void export3DFSRVolumes(double* out_volumes, int num_fsrs);
   FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();
-  FP_PRECISION* tempF();
   FP_PRECISION get2DFSRVolume(int fsr_id);
   FP_PRECISION get3DFSRVolume(int fsr_id);
   double getZCoord();

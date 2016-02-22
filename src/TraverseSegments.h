@@ -20,7 +20,7 @@
 class TraverseSegments {
 
 private:
-  
+
   // descriptions
   void loopOverTracks2D();
   void loopOverTracksExplicit();

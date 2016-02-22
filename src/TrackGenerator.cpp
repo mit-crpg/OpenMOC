@@ -1,5 +1,4 @@
 #include "TrackGenerator.h"
-// FIXME #include "TraverseSegments.h"
 #include "TrackTraversingAlgorithms.h"
 #include <iomanip>
 
@@ -655,75 +654,8 @@ void TrackGenerator::export3DFSRVolumes(double* out_volumes, int num_fsrs) {
  *          the memory reserved for the FSR volume array.
  * @return a pointer to the array of FSR volumes
  */
-FP_PRECISION* TrackGenerator::tempF() {
-  int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
-  _FSR_volumes = FSR_volumes;
-  memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-  VolumeKernel kernel(this, 0);
-
-  std::string msg = "getting 3D FSR Volumes OTF";
-  Progress progress(_num_2D_tracks, msg);
-
-  /* Calculate each FSR's "volume" by accumulating the total length of
-   * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for firstprivate(kernel)
-  for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
-
-    progress.incrementCounter();
-
-    /* Extract indices of 3D tracks associated with the extruded track */
-    Track* flattened_track = _flattened_tracks[ext_id];
-    int a = flattened_track->getAzimIndex();
-    int azim_index = _quadrature->getFirstOctantAzim(a);
-    int i = flattened_track->getXYIndex();
-
-    /* Loop over polar angles */
-    for (int p=0; p < _num_polar; p++) {
-
-      /* Extract polar angle */
-      int polar_index = _quadrature->getFirstOctantPolar(p);
-
-      /* Calculate the weight of the track */
-      FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-          * _quadrature->getPolarWeight(azim_index, polar_index)
-          * getAzimSpacing(azim_index)
-          * getPolarSpacing(azim_index, polar_index);
-
-      /* Loop over z-stacked rays */
-      for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-
-        /* Extract track and starting point */
-        Track3D* curr_track = &_tracks_3D[a][i][p][z];
-        kernel.newTrack(curr_track);
-        Point* start = curr_track->getStart();
-        double theta = curr_track->getTheta();
-
-        traceSegmentsOTF(flattened_track, start, theta, &kernel);
-
-      }
-    }
-  }
-
-  for (int i=0; i < num_FSRs; i++) {
-    if (FSR_volumes[i] == 0.0) {
-      log_printf(NORMAL, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
-                 i, _geometry->getFSRPoint(i)->getX(), _geometry->getFSRPoint(i)->getY(),
-                 _geometry->getFSRPoint(i)->getZ());
-      log_printf(ERROR, "Zero volume calculated in an FSR region since no "
-               "track traversed the FSR. Use a finer track laydown to ensure "
-               "every FSR is traversed.");
-    }
-  }
-
-  _FSR_volumes = FSR_volumes;
-  return FSR_volumes;
-}
-
 //TODO update
 FP_PRECISION* TrackGenerator::getFSRVolumes() {
-  if(true)
-    return tempF();
 
   /* Reset FSR volumes to zero */
   int num_FSRs = _geometry->getNumFSRs();
@@ -744,7 +676,6 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
                "track traversed the FSR. Use a finer track laydown to ensure "
                "every FSR is traversed.");
     }
-    std::cout << "FSR " << i << " = " << _FSR_volumes[i] << std::endl;
   }
 
   return _FSR_volumes;
