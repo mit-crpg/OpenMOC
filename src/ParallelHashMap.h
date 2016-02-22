@@ -84,7 +84,7 @@ class ParallelHashMap {
     volatile long pad_L5;
     volatile long pad_L7;
     volatile long pad_L8;
-    FixedHashMap<K,V>* volatile value;
+    FixedHashMap<K,V> volatile* value;
     volatile long pad_R1;
     volatile long pad_R2;
     volatile long pad_R3;
