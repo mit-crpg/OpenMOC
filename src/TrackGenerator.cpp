@@ -337,9 +337,9 @@ FP_PRECISION* TrackGenerator::getFSRMs(PolarQuad* polar_quad) {
 
     int azim_index, fsr_id;
     segment* curr_segment;
-    FP_PRECISION wgt_a, multiple, sin_t, s_aki, s_mki;
+    FP_PRECISION wgt_a, s_aki;
     double phi;
-    double X, Y, xin, yin, xc_aki, yc_aki;
+    double X, Y, xc_aki, yc_aki;
     Point* centroid;
 
     for (int i=0; i < _num_azim; i++) {
@@ -357,27 +357,18 @@ FP_PRECISION* TrackGenerator::getFSRMs(PolarQuad* polar_quad) {
           fsr_id = curr_segment->_region_id;
           centroid = _geometry->getFSRCentroid(fsr_id);
 
-          xin = X - centroid->getX();
-          yin = Y - centroid->getY();
+          xc_aki = X - centroid->getX() + s_aki / 2.0 * cos(phi);
+          yc_aki = Y - centroid->getY() + s_aki / 2.0 * sin(phi);
 
           /* Set FSR mutual exclusion lock */
           omp_set_lock(&_FSR_locks[fsr_id]);
 
-          for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
-
-            multiple = polar_quad->getMultiple(p);
-            sin_t = polar_quad->getSinTheta(p);
-            s_mki = s_aki / sin_t;
-            xc_aki = xin + s_aki / 2.0 * cos(phi);
-            yc_aki = yin + s_aki / 2.0 * sin(phi);
-
-            FSR_Ms[fsr_id*3    ] += wgt_a * multiple * s_mki *
-                (xc_aki * xc_aki + pow(cos(phi) * s_aki, 2.0) / 12.0);
-            FSR_Ms[fsr_id*3 + 1] += wgt_a * multiple * s_mki *
-                (yc_aki * yc_aki + pow(sin(phi) * s_aki, 2.0) / 12.0);
-            FSR_Ms[fsr_id*3 + 2] += wgt_a * multiple * s_mki *
-                (xc_aki * yc_aki + sin(phi) * cos(phi) * pow(s_aki, 2.0) / 12.0);
-          }
+          FSR_Ms[fsr_id*3    ] += wgt_a * s_aki *
+              (xc_aki * xc_aki + pow(cos(phi) * s_aki, 2.0) / 12.0);
+          FSR_Ms[fsr_id*3 + 1] += wgt_a * s_aki *
+              (yc_aki * yc_aki + pow(sin(phi) * s_aki, 2.0) / 12.0);
+          FSR_Ms[fsr_id*3 + 2] += wgt_a * s_aki *
+              (xc_aki * yc_aki + sin(phi) * cos(phi) * pow(s_aki, 2.0) / 12.0);
 
           /* Release FSR mutual exclusion lock */
           omp_unset_lock(&_FSR_locks[fsr_id]);
