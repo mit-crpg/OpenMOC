@@ -467,6 +467,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
            (tau_mki / 2.0 - exp_G1) + y * delta_psi);
 
       track_flux(p,e) -= delta_psi;
+
       /*
       if (track_flux(p,e) < 0.0) {
         log_printf(NORMAL, "encountered track with negative flux, (%f, %f)",
@@ -474,8 +475,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                    _geometry->getFSRCentroid(fsr_id)->getY());
       }
       */
+
       track_flux(p,e) = std::max(track_flux(p,e), 0.0);
-      //log_printf(NORMAL, "track flux (%d, %d): %f", e, p, track_flux(p,e));
     }
   }
 
@@ -509,16 +510,15 @@ void CPULSSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      /*
-      if (_scalar_flux(r,e) < 0.0)
-        log_printf(NORMAL, "encountered negative scalar flux (%f, %f)",
-                   _geometry->getFSRCentroid(r)->getX(),
-                   _geometry->getFSRCentroid(r)->getY());
-      */
 
       _scalar_flux(r,e) *= 0.5;
       _scalar_flux(r,e) /= (sigma_t[e] * volume);
       _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
+
+      if (_scalar_flux(r,e) < 0.0)
+        log_printf(NORMAL, "encountered negative scalar flux (%f, %f)",
+                   _geometry->getFSRCentroid(r)->getX(),
+                   _geometry->getFSRCentroid(r)->getY());
 
       _scalar_flux_x(r,e) *= 0.5;
       _scalar_flux_x(r,e) /= (sigma_t[e] * volume);

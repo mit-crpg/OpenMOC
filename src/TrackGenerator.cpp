@@ -2044,23 +2044,17 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes,
         FP_PRECISION s_aki = curr_segment->_length;
         FP_PRECISION wgt_a = _azim_weights[i];
 
-        for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
+        /* Set FSR mutual exclusion lock */
+        omp_set_lock(&_FSR_locks[fsr]);
 
-          FP_PRECISION s_mki = s_aki / polar_quad->getSinTheta(p);
-          FP_PRECISION multiple = polar_quad->getMultiple(p);
+        centroids[fsr]->setX(centroids[fsr]->getX() + wgt_a * s_aki *
+                             (x + cos(phi) * s_aki / 2.0) / FSR_volumes[fsr]);
+        centroids[fsr]->setY(centroids[fsr]->getY() + wgt_a * s_aki *
+                             (y + sin(phi) * s_aki / 2.0) / FSR_volumes[fsr]);
+        centroids[fsr]->setZ(z);
 
-          /* Set FSR mutual exclusion lock */
-          omp_set_lock(&_FSR_locks[fsr]);
-
-          centroids[fsr]->setX(centroids[fsr]->getX() + wgt_a * multiple *
-                               (x + cos(phi) * s_mki / 2.0) * s_mki / FSR_volumes[fsr]);
-          centroids[fsr]->setY(centroids[fsr]->getY() + wgt_a * multiple *
-                               (y + sin(phi) * s_mki / 2.0) * s_mki / FSR_volumes[fsr]);
-          centroids[fsr]->setZ(z);
-
-          /* Release FSR mutual exclusion lock */
-          omp_unset_lock(&_FSR_locks[fsr]);
-        }
+        /* Release FSR mutual exclusion lock */
+        omp_unset_lock(&_FSR_locks[fsr]);
 
         x += cos(phi) * s_aki;
         y += sin(phi) * s_aki;
