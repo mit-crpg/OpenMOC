@@ -246,12 +246,10 @@ public:
   int getNumL(int azim, int polar);
   double getDxEff(int azim);
   double getDyEff(int azim);
-  FP_PRECISION* get2DFSRVolumes();
-  FP_PRECISION get2DFSRVolume(int fsr_id);
   void export3DFSRVolumes(double* out_volumes, int num_fsrs);
   FP_PRECISION* getFSRVolumesBuffer();
-  FP_PRECISION* get3DFSRVolumes();
-  FP_PRECISION* get3DFSRVolumesOTF();
+  FP_PRECISION* getFSRVolumes();
+  FP_PRECISION get2DFSRVolume(int fsr_id);
   FP_PRECISION get3DFSRVolume(int fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();

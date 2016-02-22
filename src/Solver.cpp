@@ -550,11 +550,7 @@ void Solver::initializeFSRs() {
     delete [] _FSR_materials;
 
   /* Get an array of volumes indexed by FSR  */
-  if (_solve_3D)
-    _FSR_volumes = _track_generator->get3DFSRVolumes();
-
-  else
-    _FSR_volumes = _track_generator->get2DFSRVolumes();
+  _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Generate the FSR centroids */
   if (_cmfd != NULL) {

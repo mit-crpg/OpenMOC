@@ -29,7 +29,7 @@ public:
 };
 
 
-/* TODO: implement...
+// TODO: description
 class VolumeCalculator: public TraverseSegments {
 
 public:
@@ -39,7 +39,8 @@ public:
   void onTrack(Track* track, segment* segments);
 };
 
-   
+
+/*
 class TransportSweep: public TraverseSegments {
 
 public:

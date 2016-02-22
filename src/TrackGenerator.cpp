@@ -227,6 +227,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
   if (_FSR_volumes == NULL) {
     int num_FSRs = _geometry->getNumFSRs();
     _FSR_volumes = new FP_PRECISION[num_FSRs];
+    memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
   }
 
   return _FSR_volumes;
@@ -638,45 +639,10 @@ double TrackGenerator::getDyEff(int azim) {
 }
 
 
-/**
- * @brief Computes and returns an array of volumes indexed by FSR.
- * @details Note: It is the function caller's responsibility to deallocate
- *          the memory reserved for the FSR volume array.
- * @return a pointer to the array of FSR volumes
- */
-FP_PRECISION* TrackGenerator::get2DFSRVolumes() {
-
-  if (!contains2DSegments())
-    log_printf(ERROR, "Unable to get the FSR volumes since 2D tracks "
-               "have not yet been generated");
-
-  int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = getFSRVolumesBuffer();
-  memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-
-  segment* segment;
-  FP_PRECISION volume;
-
-  /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multiplied by the Track "widths" for each FSR.  */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      for (int s=0; s < _tracks_2D[a][i].getNumSegments(); s++) {
-        segment = _tracks_2D[a][i].getSegment(s);
-        volume = segment->_length * _quadrature->getAzimWeight(a)
-          * getAzimSpacing(a);
-        FSR_volumes[segment->_region_id] += volume;
-      }
-    }
-  }
-
-  return FSR_volumes;
-}
-
-
+//TODO: description
 void TrackGenerator::export3DFSRVolumes(double* out_volumes, int num_fsrs) {
 
-  FP_PRECISION* fsr_volumes = get3DFSRVolumes();
+  FP_PRECISION* fsr_volumes = getFSRVolumes();
 
   for (int i=0; i < num_fsrs; i++)
     out_volumes[i] = fsr_volumes[i];
@@ -690,42 +656,34 @@ void TrackGenerator::export3DFSRVolumes(double* out_volumes, int num_fsrs) {
  *          the memory reserved for the FSR volume array.
  * @return a pointer to the array of FSR volumes
  */
-FP_PRECISION* TrackGenerator::get3DFSRVolumes() {
+//TODO update
+FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
-  /* Determine whether to calculate on-the-fly */
-  if (_segment_formation != EXPLICIT)
-    return get3DFSRVolumesOTF();
-
-  if (!contains3DSegments())
-    log_printf(ERROR, "Unable to get the FSR volumes since 3D tracks "
-               "have not yet been generated");
-
+  /* Reset FSR volumes to zero */
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION *FSR_volumes = getFSRVolumesBuffer();
-  memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+  if (_FSR_volumes != NULL)
+    memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
-  segment* segment;
-  FP_PRECISION volume;
+  /* Create volume calculator and calculate new FSR volumes */
+  VolumeCalculator volume_calculator(this);
+  volume_calculator.execute();
 
-  /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multiplied by the Track "widths" for each FSR.  */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
-            segment = _tracks_3D[a][i][p][z].getSegment(s);
-            volume = segment->_length * _quadrature->getAzimWeight(a)
-              * _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
-              * getPolarSpacing(a,p);
-            FSR_volumes[segment->_region_id] += volume;
-          }
-        }
-      }
+  /* Check to ensure all FSRs are crossed by at least one track */
+  for (int i=0; i < num_FSRs; i++) {
+    if (_FSR_volumes[i] == 0.0) {
+      log_printf(NORMAL, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
+                 i, _geometry->getFSRPoint(i)->getX(), _geometry->getFSRPoint(i)->getY(),
+                 _geometry->getFSRPoint(i)->getZ());
+      log_printf(ERROR, "Zero volume calculated in an FSR region since no "
+               "track traversed the FSR. Use a finer track laydown to ensure "
+               "every FSR is traversed.");
     }
+    std::cout << "FSR " << i << " = " << _FSR_volumes[i] << std::endl;
   }
+  for (int i=0; i < num_FSRs; i++)
+    std::cout << "Reference FSR " << i << " = " << get3DFSRVolume(i) << std::endl;
 
-  return FSR_volumes;
+  return _FSR_volumes;
 }
 
 
@@ -1675,7 +1633,7 @@ void TrackGenerator::generateTracks() {
         }
       }
     }
-    else {    
+    else {
       for (int a=0; a < _num_azim/2; a++) {
         for (int i=0; i < getNumX(a) + getNumY(a); i++) {
           int azim_index = _quadrature->getFirstOctantAzim(a);
@@ -4638,7 +4596,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   }
   else{
 
-    FSR_volumes = get2DFSRVolumes();
+    FSR_volumes = getFSRVolumes();
 
     for (int a=0; a < _num_azim/2; a++) {
       #pragma omp parallel for
@@ -4839,74 +4797,6 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
   log_printf(ERROR, "Unable to find a 3D track associated with the given track"
                     "ID during coordinate retrieval");
   return;
-}
-
-
-/**
- * @brief Computes and returns an array of volumes indexed by FSR for
-          on-the-fly computation.
- * @details Segment lengths are computed on-the-fly and subsequently used to
-            tally FSR volumes. Note: It is the function caller's responsibility
-            to deallocate the memory reserved for the FSR volume array.
- * @return a pointer to the array of FSR volumes
-//FIXME description
- */
-FP_PRECISION* TrackGenerator::get3DFSRVolumesOTF() {
-
-  int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = getFSRVolumesBuffer();
-  memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-  VolumeKernel kernel(this, 0);
-
-  std::string msg = "getting 3D FSR Volumes OTF";
-  Progress progress(_num_2D_tracks, msg);
-
-  /* Calculate each FSR's "volume" by accumulating the total length of
-   * all Track segments multiplied by the Track "widths" for each FSR.  */
-  #pragma omp parallel for firstprivate(kernel)
-  for (int ext_id=0; ext_id < _num_2D_tracks; ext_id++) {
-
-    progress.incrementCounter();
-
-    /* Extract indices of 3D tracks associated with the extruded track */
-    Track* flattened_track = _flattened_tracks[ext_id];
-    int a = flattened_track->getAzimIndex();
-    int azim_index = _quadrature->getFirstOctantAzim(a);
-    int i = flattened_track->getXYIndex();
-
-    /* Loop over polar angles */
-    for (int p=0; p < _num_polar; p++) {
-
-      /* Extract polar angle */
-      int polar_index = _quadrature->getFirstOctantPolar(p);
-
-      /* Loop over z-stacked rays */
-      for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-
-        /* Extract track and starting point */
-        Track3D* curr_track = &_tracks_3D[a][i][p][z];
-        Point* start = curr_track->getStart();
-        double theta = curr_track->getTheta();
-
-        kernel.newTrack(curr_track);
-        traceSegmentsOTF(flattened_track, start, theta, &kernel);
-
-      }
-    }
-  }
-
-  for (int i=0; i < num_FSRs; i++) {
-    if (FSR_volumes[i] == 0.0) {
-      log_printf(NORMAL, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
-                 i, _geometry->getFSRPoint(i)->getX(), _geometry->getFSRPoint(i)->getY(),
-                 _geometry->getFSRPoint(i)->getZ());
-      log_printf(ERROR, "Zero volume calculated in an FSR region since no "
-               "track traversed the FSR. Use a finer track laydown to ensure "
-               "every FSR is traversed.");
-    }
-  }
-
-  return FSR_volumes;
 }
 
 

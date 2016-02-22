@@ -6,7 +6,7 @@ MaxOpticalLength::MaxOpticalLength(TrackGenerator* track_generator)
                                  : TraverseSegments(track_generator) {
   _max_tau = 0;
 }
-  
+
 
 //TODO: description
 void MaxOpticalLength::execute() {
@@ -48,7 +48,7 @@ SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
                                : TraverseSegments(track_generator) {
   _max_num_segments = 0;
 }
-  
+
 
 //TODO: description
 void SegmentCounter::execute() {
@@ -68,4 +68,30 @@ void SegmentCounter::onTrack(Track* track, segment* segments) {
     _max_num_segments = std::max(_max_num_segments, track->getNumSegments());
   }
 }
+
+
+/*
+   TODO: class description
+*/
+
+//TODO: description
+VolumeCalculator::VolumeCalculator(TrackGenerator* track_generator)
+                                  : TraverseSegments(track_generator) {
+}
+
+
+//TODO: description
+void VolumeCalculator::execute() {
+#pragma omp parallel
+  {
+    setKernel<VolumeKernel>();
+    loopOverTracks();
+  }
+}
+
+
+//TODO: description
+void VolumeCalculator::onTrack(Track* track, segment* segments) {
+}
+
 
