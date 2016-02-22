@@ -543,9 +543,6 @@ void Solver::initializeFSRs() {
   log_printf(INFO, "Initializing flat source regions...");
 
   /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
