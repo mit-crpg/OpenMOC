@@ -13,16 +13,25 @@ import os
 import re
 import mmap
 import sys
+from numbers import Integral, Real
+from collections import Iterable
+
 import numpy as np
 
 import openmoc
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
-  from log import *
+    from log import *
+    import checkvalue as cv
 # For Python 3.X.X
 else:
-  from openmoc.log import *
+    from openmoc.log import *
+    import openmoc.checkvalue as cv
+
+
+if sys.version_info[0] >= 3:
+    basestring = str
 
 
 ##
@@ -30,7 +39,7 @@ else:
 #
 # @param val a value to check
 def is_integer(val):
-  return isinstance(val, (int, np.int32, np.int64))
+    return isinstance(val, (int, np.int32, np.int64))
 
 
 ##
@@ -38,7 +47,7 @@ def is_integer(val):
 #
 # @param val a value to check
 def is_string(val):
-  return isinstance(val, (str, np.str))
+    return isinstance(val, (str, np.str))
 
 
 ##
@@ -46,7 +55,7 @@ def is_string(val):
 #
 # @param val a value to check
 def is_float(val):
-  return isinstance(val, (float, np.float32, np.float64))
+    return isinstance(val, (float, np.float32, np.float64))
 
 
 ##
@@ -64,27 +73,27 @@ def is_float(val):
 # @return
 def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 
-  # Build a list of FSRs to iterate over
-  if fsrs == 'all':
-    num_fsrs = solver.getGeometry().getNumFSRs()
-    fsrs = np.arange(num_fsrs)
-  else:
-    num_fsrs = len(fsrs)
+    # Build a list of FSRs to iterate over
+    if fsrs == 'all':
+        num_fsrs = solver.getGeometry().getNumFSRs()
+        fsrs = np.arange(num_fsrs)
+    else:
+        num_fsrs = len(fsrs)
 
-  # Build a list of enery groups to iterate over
-  if groups == 'all':
-    num_groups = solver.getGeometry().getNumEnergyGroups()
-    groups = np.arange(num_groups) + 1
-  else:
-    num_groups = len(groups)
+    # Build a list of enery groups to iterate over
+    if groups == 'all':
+        num_groups = solver.getGeometry().getNumEnergyGroups()
+        groups = np.arange(num_groups) + 1
+    else:
+        num_groups = len(groups)
 
-  # Extract the FSR scalar fluxes
-  fluxes = np.zeros((num_fsrs, num_groups))
-  for fsr in fsrs:
-    for group in groups:
-      fluxes[fsr, group-1] = solver.getFlux(int(fsr), int(group))
+    # Extract the FSR scalar fluxes
+    fluxes = np.zeros((num_fsrs, num_groups))
+    for fsr in fsrs:
+        for group in groups:
+            fluxes[fsr, group-1] = solver.getFlux(int(fsr), int(group))
 
-  return fluxes
+    return fluxes
 
 
 ##
@@ -107,85 +116,85 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 # @param use_hdf5 whether or not to export fission rates to an HDF5 file
 def compute_fission_rates(solver, use_hdf5=False):
 
-  # create directory and filename
-  directory = openmoc.get_output_directory() + '/fission-rates/'
-  filename = 'fission-rates'
+    # create directory and filename
+    directory = openmoc.get_output_directory() + '/fission-rates/'
+    filename = 'fission-rates'
 
-  # Make directory if it does not exist
-  if not os.path.exists(directory):
-    os.makedirs(directory)
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-  # Get geometry
-  geometry = solver.getGeometry()
+    # Get geometry
+    geometry = solver.getGeometry()
 
-  # Compute the volume-weighted fission rates for each FSR
-  fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+    # Compute the volume-weighted fission rates for each FSR
+    fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
 
-  # Initialize fission rates dictionary
-  fission_rates_sum = {}
+    # Initialize fission rates dictionary
+    fission_rates_sum = {}
 
-  # Loop over FSRs and populate fission rates dictionary
-  for fsr in range(geometry.getNumFSRs()):
+    # Loop over FSRs and populate fission rates dictionary
+    for fsr in range(geometry.getNumFSRs()):
 
-    if geometry.findFSRMaterial(fsr).isFissionable():
+        if geometry.findFSRMaterial(fsr).isFissionable():
 
-      # Get the linked list of LocalCoords
-      point = geometry.getFSRPoint(fsr)
-      coords = openmoc.LocalCoords(point.getX(), point.getY(), point.getZ())
-      coords.setUniverse(geometry.getRootUniverse())
-      geometry.findCellContainingCoords(coords)
-      coords = coords.getHighestLevel().getNext()
+            # Get the linked list of LocalCoords
+            point = geometry.getFSRPoint(fsr)
+            coords = openmoc.LocalCoords(point.getX(), point.getY(), point.getZ())
+            coords.setUniverse(geometry.getRootUniverse())
+            geometry.findCellContainingCoords(coords)
+            coords = coords.getHighestLevel().getNext()
 
-      # initialize dictionary key
-      key = 'UNIV = 0 : '
+            # initialize dictionary key
+            key = 'UNIV = 0 : '
 
-      # Parse through the linked list and create fsr key.
-      # If lowest level sub dictionary already exists, then increment
-      # fission rate; otherwise, set the fission rate.
-      while True:
-        if coords.getType() is openmoc.LAT:
-          key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
-                 str(coords.getLatticeX()) + ', ' + \
-                 str(coords.getLatticeY()) + ', ' + \
-                 str(coords.getLatticeZ()) + ') : '
-        else:
-          key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
+            # Parse through the linked list and create fsr key.
+            # If lowest level sub dictionary already exists, then increment
+            # fission rate; otherwise, set the fission rate.
+            while True:
+                if coords.getType() is openmoc.LAT:
+                    key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
+                           str(coords.getLatticeX()) + ', ' + \
+                           str(coords.getLatticeY()) + ', ' + \
+                           str(coords.getLatticeZ()) + ') : '
+                else:
+                    key += 'UNIV = ' + str(coords.getUniverse().getId()) + ' : '
 
-        # Remove the trailing ' : ' on the end of the key if at last univ/lat
-        if coords.getNext() is None:
-          key = key[:-3]
-          break
-        else:
-          coords = coords.getNext()
+                # Remove the trailing ' : ' on the end of the key if at last univ/lat
+                if coords.getNext() is None:
+                    key = key[:-3]
+                    break
+                else:
+                    coords = coords.getNext()
 
-      # Increment or set fission rate
-      if key in fission_rates_sum:
-        fission_rates_sum[key] += fsr_fission_rates[fsr]
-      else:
-        fission_rates_sum[key] = fsr_fission_rates[fsr]
+            # Increment or set fission rate
+            if key in fission_rates_sum:
+                fission_rates_sum[key] += fsr_fission_rates[fsr]
+            else:
+                fission_rates_sum[key] = fsr_fission_rates[fsr]
 
-  # If using HDF5
-  if use_hdf5:
+    # If using HDF5
+    if use_hdf5:
 
-    import h5py
+        import h5py
 
-    # Open HDF5 file
-    f = h5py.File(directory + filename + '.h5', 'w')
+        # Open HDF5 file
+        f = h5py.File(directory + filename + '.h5', 'w')
 
-    # Write the fission rates to the HDF5 file
-    fission_rates_group = f.create_group('fission-rates')
-    for key, value in fission_rates_sum.items():
-      fission_rates_group.attrs[key] = value
+        # Write the fission rates to the HDF5 file
+        fission_rates_group = f.create_group('fission-rates')
+        for key, value in fission_rates_sum.items():
+            fission_rates_group.attrs[key] = value
 
-    # Close hdf5 file
-    f.close()
+        # Close hdf5 file
+        f.close()
 
-  else:
+    else:
 
-    import pickle
+        import pickle
 
-    # Pickle the fission rates to a file
-    pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
+        # Pickle the fission rates to a file
+        pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
 
 ##
 # @brief This method stores all of the data for an OpenMOC simulation to a
@@ -228,246 +237,246 @@ def store_simulation_state(solver, fluxes=False, sources=False,
                            directory = 'simulation-states',
                            append=True, note=''):
 
-  import datetime
+    import datetime
 
-  # Make directory if it does not exist
-  if not os.path.exists(directory):
-    os.makedirs(directory)
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-  # Get the day and time to construct the appropriate groups in the file
-  time = datetime.datetime.now()
-  year = time.year
-  month = time.month
-  day = time.day
-  hr = time.hour
-  mins = time.minute
-  sec = time.second
+    # Get the day and time to construct the appropriate groups in the file
+    time = datetime.datetime.now()
+    year = time.year
+    month = time.month
+    day = time.day
+    hr = time.hour
+    mins = time.minute
+    sec = time.second
 
-  # Determine the Solver type
-  solver_type = ''
+    # Determine the Solver type
+    solver_type = ''
 
-  if 'CPUSolver' in str(solver.__class__):
-    solver_type = 'CPUSolver'
-  elif 'ThreadPrivateSolver' in str(solver.__class__):
-    solver_type = 'ThreadPrivateSolver'
-  elif 'VectorizedSolver' in str(solver.__class__):
-    solver_type = 'VectorizedSolver'
-  elif 'VectorizedPrivateSolver' in str(solver.__class__):
-    solver_type = 'VectorizedPrivateSolver'
-  elif 'GPUSolver' in str(solver.__class__):
-    solver_type = 'GPUSolver'
+    if 'CPUSolver' in str(solver.__class__):
+        solver_type = 'CPUSolver'
+    elif 'ThreadPrivateSolver' in str(solver.__class__):
+        solver_type = 'ThreadPrivateSolver'
+    elif 'VectorizedSolver' in str(solver.__class__):
+        solver_type = 'VectorizedSolver'
+    elif 'VectorizedPrivateSolver' in str(solver.__class__):
+        solver_type = 'VectorizedPrivateSolver'
+    elif 'GPUSolver' in str(solver.__class__):
+        solver_type = 'GPUSolver'
 
-  # Determine the floating point precision level
-  if solver.isUsingDoublePrecision():
-    precision = 'double'
-  else:
-    precision = 'single'
-
-  # Determine whether we are using the exponential
-  # linear interpolation for exponential evaluations
-  if solver.isUsingExponentialInterpolation():
-    method = 'linear interpolation'
-  else:
-    method = 'exp intrinsic'
-
-  # Determine whether the Solver has initialized Coarse Mesh Finite
-  # Difference Acceleration (CMFD)
-  if solver.getGeometry().getCmfd() is not None:
-    cmfd = True
-  else:
-    cmfd = False
-
-  # Get the Geometry and TrackGenerator from the solver
-  geometry = solver.getGeometry()
-  track_generator = solver.getTrackGenerator()
-
-  # Retrieve useful data from the Solver, Geometry and TrackGenerator
-  num_FSRs = geometry.getNumFSRs()
-  num_materials = geometry.getNumMaterials()
-  num_groups = geometry.getNumEnergyGroups()
-  zcoord = track_generator.getZCoord()
-  num_tracks = track_generator.getNumTracks()
-  num_segments = track_generator.getNumSegments()
-  spacing = track_generator.getTrackSpacing()
-  num_azim = track_generator.getNumAzim()
-  num_polar = solver.getNumPolarAngles()
-  num_iters = solver.getNumIterations()
-  thresh = solver.getConvergenceThreshold()
-  tot_time = solver.getTotalTime()
-  keff = solver.getKeff()
-
-  if solver_type is 'GPUSolver':
-    num_threads = solver.getNumThreadsPerBlock()
-    num_blocks = solver.getNumThreadBlocks()
-  else:
-    num_threads = solver.getNumThreads()
-
-  # If the user requested to store the FSR fluxes
-  if fluxes:
-
-    # Allocate array
-    scalar_fluxes = np.zeros((num_FSRs, num_groups))
-
-    # Get the scalar flux for each FSR and energy group
-    for i in range(num_FSRs):
-      for j in range(num_groups):
-        scalar_fluxes[i,j] = solver.getFlux(i,j+1)
-
-  # If the user requested to store the FSR sources
-  if sources:
-
-    # Allocate array
-    sources_array = np.zeros((num_FSRs, num_groups))
-
-    # Get the scalar flux for each FSR and energy group
-    for i in range(num_FSRs):
-      for j in range(num_groups):
-        sources_array[i,j] = solver.getFSRSource(i,j+1)
-
-  # If using HDF5
-  if use_hdf5:
-
-    import h5py
-
-    # Create a file handle
-    if append:
-      f = h5py.File(directory + '/' + filename + '.h5', 'a')
+    # Determine the floating point precision level
+    if solver.isUsingDoublePrecision():
+        precision = 'double'
     else:
-      f = h5py.File(directory + '/' + filename + '.h5', 'w')
+        precision = 'single'
 
-    # Create groups for the day in the HDF5 file
-    day_key = '{0:02}-{1:02}-{2:02}'.format(month, day, year)
-    day_group = f.require_group(day_key)
+    # Determine whether we are using the exponential
+    # linear interpolation for exponential evaluations
+    if solver.isUsingExponentialInterpolation():
+        method = 'linear interpolation'
+    else:
+        method = 'exp intrinsic'
 
-    # Create group for the time - use counter in case two simulations
-    # write simulation state at the exact same hour,minute, and second
-    time_key = '{0:02}:{1:02}:{2:02}'.format(hr, mins, sec)
-    counter = 0
-    while time_key in day_group.keys():
-      time_key = '{0:02}:{1:02}:{2:02}-{3}'.format(hr, mins, sec, counter)
-      counter += 1
+    # Determine whether the Solver has initialized Coarse Mesh Finite
+    # Difference Acceleration (CMFD)
+    if solver.getGeometry().getCmfd() is not None:
+        cmfd = True
+    else:
+        cmfd = False
 
-    time_group = day_group.require_group(time_key)
+    # Get the Geometry and TrackGenerator from the solver
+    geometry = solver.getGeometry()
+    track_generator = solver.getTrackGenerator()
 
-    # Store a note for this simulation state
-    if not note is '':
-      time_group.attrs['note'] = note
-
-    # Store simulation data to the HDF5 file
-    time_group.create_dataset('solver type', data=solver_type)
-    time_group.create_dataset('# FSRs', data=num_FSRs)
-    time_group.create_dataset('# materials', data=num_materials)
-    time_group.create_dataset('# energy groups', data=num_groups)
-    time_group.create_dataset('z coord', data=zcoord)
-    time_group.create_dataset('# tracks', data=num_tracks)
-    time_group.create_dataset('# segments', data=num_segments)
-    time_group.create_dataset('track spacing [cm]', data=spacing)
-    time_group.create_dataset('# azimuthal angles', data=num_azim)
-    time_group.create_dataset('# polar angles', data=num_polar)
-    time_group.create_dataset('# iterations', data=num_iters)
-    time_group.create_dataset('convergence threshold', data=thresh)
-    time_group.create_dataset('exponential', data=method)
-    time_group.create_dataset('floating point', data=precision)
-    time_group.create_dataset('CMFD', data=cmfd)
-    time_group.create_dataset('time [sec]', data=tot_time)
-    time_group.create_dataset('keff', data=keff)
+    # Retrieve useful data from the Solver, Geometry and TrackGenerator
+    num_FSRs = geometry.getNumFSRs()
+    num_materials = geometry.getNumMaterials()
+    num_groups = geometry.getNumEnergyGroups()
+    zcoord = track_generator.getZCoord()
+    num_tracks = track_generator.getNumTracks()
+    num_segments = track_generator.getNumSegments()
+    spacing = track_generator.getTrackSpacing()
+    num_azim = track_generator.getNumAzim()
+    num_polar = solver.getNumPolarAngles()
+    num_iters = solver.getNumIterations()
+    thresh = solver.getConvergenceThreshold()
+    tot_time = solver.getTotalTime()
+    keff = solver.getKeff()
 
     if solver_type is 'GPUSolver':
-      time_group.create_dataset('# threads per block', data=num_threads)
-      time_group.create_dataset('# thread blocks', data=num_blocks)
+        num_threads = solver.getNumThreadsPerBlock()
+        num_blocks = solver.getNumThreadBlocks()
     else:
-      time_group.create_dataset('# threads', data=num_threads)
+        num_threads = solver.getNumThreads()
 
+    # If the user requested to store the FSR fluxes
     if fluxes:
-      time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
 
+        # Allocate array
+        scalar_fluxes = np.zeros((num_FSRs, num_groups))
+
+        # Get the scalar flux for each FSR and energy group
+        for i in range(num_FSRs):
+            for j in range(num_groups):
+                scalar_fluxes[i,j] = solver.getFlux(i,j+1)
+
+    # If the user requested to store the FSR sources
     if sources:
-      time_group.create_dataset('FSR sources', data=sources_array)
 
-    if fission_rates:
+        # Allocate array
+        sources_array = np.zeros((num_FSRs, num_groups))
 
-      compute_fission_rates(solver, use_hdf5=True)
+        # Get the scalar flux for each FSR and energy group
+        for i in range(num_FSRs):
+            for j in range(num_groups):
+                sources_array[i,j] = solver.getFSRSource(i,j+1)
 
-      # Open the fission rates file generated by compute_fission_rates(...)
-      fission_rates_file = h5py.File('fission-rates/fission-rates.h5', 'r')
+    # If using HDF5
+    if use_hdf5:
 
-      # Deep copy the group of fission rates from fission_rates_file
-      f.copy(fission_rates_file, time_group, name='fission-rates')
+        import h5py
 
-      # Close the pin powers file
-      fission_rates_file.close()
+        # Create a file handle
+        if append:
+            f = h5py.File(directory + '/' + filename + '.h5', 'a')
+        else:
+            f = h5py.File(directory + '/' + filename + '.h5', 'w')
 
-    # Close the HDF5 file
-    f.close()
+        # Create groups for the day in the HDF5 file
+        day_key = '{0:02}-{1:02}-{2:02}'.format(month, day, year)
+        day_group = f.require_group(day_key)
 
-  # If not using HDF5, we are pickling all of the data
-  else:
+        # Create group for the time - use counter in case two simulations
+        # write simulation state at the exact same hour,minute, and second
+        time_key = '{0:02}:{1:02}:{2:02}'.format(hr, mins, sec)
+        counter = 0
+        while time_key in day_group.keys():
+            time_key = '{0:02}:{1:02}:{2:02}-{3}'.format(hr, mins, sec, counter)
+            counter += 1
 
-    import pickle
+        time_group = day_group.require_group(time_key)
 
-    # Load the dictionary from the Pickle file
-    filename = directory + '/' + filename + '.pkl'
-    if os.path.exists(filename) and append:
-      sim_states = pickle.load(file(filename, 'rb'))
+        # Store a note for this simulation state
+        if not note is '':
+            time_group.attrs['note'] = note
+
+        # Store simulation data to the HDF5 file
+        time_group.create_dataset('solver type', data=solver_type)
+        time_group.create_dataset('# FSRs', data=num_FSRs)
+        time_group.create_dataset('# materials', data=num_materials)
+        time_group.create_dataset('# energy groups', data=num_groups)
+        time_group.create_dataset('z coord', data=zcoord)
+        time_group.create_dataset('# tracks', data=num_tracks)
+        time_group.create_dataset('# segments', data=num_segments)
+        time_group.create_dataset('track spacing [cm]', data=spacing)
+        time_group.create_dataset('# azimuthal angles', data=num_azim)
+        time_group.create_dataset('# polar angles', data=num_polar)
+        time_group.create_dataset('# iterations', data=num_iters)
+        time_group.create_dataset('convergence threshold', data=thresh)
+        time_group.create_dataset('exponential', data=method)
+        time_group.create_dataset('floating point', data=precision)
+        time_group.create_dataset('CMFD', data=cmfd)
+        time_group.create_dataset('time [sec]', data=tot_time)
+        time_group.create_dataset('keff', data=keff)
+
+        if solver_type is 'GPUSolver':
+            time_group.create_dataset('# threads per block', data=num_threads)
+            time_group.create_dataset('# thread blocks', data=num_blocks)
+        else:
+            time_group.create_dataset('# threads', data=num_threads)
+
+        if fluxes:
+            time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
+
+        if sources:
+            time_group.create_dataset('FSR sources', data=sources_array)
+
+        if fission_rates:
+
+            compute_fission_rates(solver, use_hdf5=True)
+
+            # Open the fission rates file generated by compute_fission_rates(...)
+            fission_rates_file = h5py.File('fission-rates/fission-rates.h5', 'r')
+
+            # Deep copy the group of fission rates from fission_rates_file
+            f.copy(fission_rates_file, time_group, name='fission-rates')
+
+            # Close the pin powers file
+            fission_rates_file.close()
+
+        # Close the HDF5 file
+        f.close()
+
+    # If not using HDF5, we are pickling all of the data
     else:
-      sim_states = {}
 
-    # Create strings for the day and time
-    day = str(month).zfill(2)+'-'+str(day).zfill(2)+'-'+str(year)
-    time = str(hr).zfill(2)+':'+str(mins).zfill(2)+':'+str(sec).zfill(2)
+        import pickle
 
-    # Create dictionaries for this day and time within the pickled file
-    if not day in sim_states.keys():
-      sim_states[day] = {}
+        # Load the dictionary from the Pickle file
+        filename = directory + '/' + filename + '.pkl'
+        if os.path.exists(filename) and append:
+            sim_states = pickle.load(file(filename, 'rb'))
+        else:
+            sim_states = {}
 
-    sim_states[day][time] = {}
-    state = sim_states[day][time]
+        # Create strings for the day and time
+        day = str(month).zfill(2)+'-'+str(day).zfill(2)+'-'+str(year)
+        time = str(hr).zfill(2)+':'+str(mins).zfill(2)+':'+str(sec).zfill(2)
 
-    # Store a note for this simulation state
-    if not note is '':
-      state['note'] = note
+        # Create dictionaries for this day and time within the pickled file
+        if not day in sim_states.keys():
+            sim_states[day] = {}
 
-    # Store simulation data to a Python dictionary
-    state['solver type'] = solver_type
-    state['# FSRs'] = num_FSRs
-    state['# materials'] = num_materials
-    state['# energy groups'] = num_groups
-    state['z coord'] = zcoord
-    state['# tracks'] = num_tracks
-    state['# segments'] = num_segments
-    state['track spacing [cm]'] = spacing
-    state['# azimuthal angles'] = num_azim
-    state['# polar angles'] = num_polar
-    state['# iterations'] = num_iters
-    state['convergence threshold'] = thresh
-    state['exponential'] = method
-    state['floating point'] = precision
-    state['CMFD'] = cmfd
-    state['time [sec]'] = tot_time
-    state['keff'] = keff
+        sim_states[day][time] = {}
+        state = sim_states[day][time]
 
-    if solver_type is 'GPUSolver':
-      state['# threads per block'] = num_threads
-      state['# thread blocks'] = num_blocks
-    else:
-      state['# threads'] = num_threads
+        # Store a note for this simulation state
+        if not note is '':
+            state['note'] = note
 
-    if fluxes:
-      state['FSR scalar fluxes'] = scalar_fluxes
+        # Store simulation data to a Python dictionary
+        state['solver type'] = solver_type
+        state['# FSRs'] = num_FSRs
+        state['# materials'] = num_materials
+        state['# energy groups'] = num_groups
+        state['z coord'] = zcoord
+        state['# tracks'] = num_tracks
+        state['# segments'] = num_segments
+        state['track spacing [cm]'] = spacing
+        state['# azimuthal angles'] = num_azim
+        state['# polar angles'] = num_polar
+        state['# iterations'] = num_iters
+        state['convergence threshold'] = thresh
+        state['exponential'] = method
+        state['floating point'] = precision
+        state['CMFD'] = cmfd
+        state['time [sec]'] = tot_time
+        state['keff'] = keff
 
-    if sources:
-      state['FSR sources'] = sources_array
+        if solver_type is 'GPUSolver':
+            state['# threads per block'] = num_threads
+            state['# thread blocks'] = num_blocks
+        else:
+            state['# threads'] = num_threads
 
-    if fission_rates:
-      compute_fission_rates(solver, False)
-      state['fission-rates'] = \
-        pickle.load(file('fission-rates/fission-rates.pkl', 'rb'))
+        if fluxes:
+            state['FSR scalar fluxes'] = scalar_fluxes
 
-    # Pickle the simulation states to a file
-    pickle.dump(sim_states, open(filename, 'wb'))
+        if sources:
+            state['FSR sources'] = sources_array
 
-    # Pickle the simulation states to a file
-    pickle.dump(sim_states, open(filename, 'wb'))
+        if fission_rates:
+            compute_fission_rates(solver, False)
+            state['fission-rates'] = \
+                pickle.load(file('fission-rates/fission-rates.pkl', 'rb'))
+
+        # Pickle the simulation states to a file
+        pickle.dump(sim_states, open(filename, 'wb'))
+
+        # Pickle the simulation states to a file
+        pickle.dump(sim_states, open(filename, 'wb'))
 
 
 ##
@@ -499,123 +508,123 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 def restore_simulation_state(filename='simulation-state.h5',
                              directory='simulation-states'):
 
-  filename = directory + '/' + filename
+    filename = directory + '/' + filename
 
-  if not os.path.isfile(filename):
-    py_printf('ERROR', 'Unable restore simulation state since "{0}" ' + \
-              'is not an existing simulation state file'.format(filename))
+    if not os.path.isfile(filename):
+        py_printf('ERROR', 'Unable restore simulation state since "{0}" ' + \
+                  'is not an existing simulation state file'.format(filename))
 
-  # If using HDF5
-  if '.h5' in filename or '.hdf5' in filename:
+    # If using HDF5
+    if '.h5' in filename or '.hdf5' in filename:
 
-    import h5py
+        import h5py
 
-    # Create a file handle
-    f = h5py.File(filename, 'r')
+        # Create a file handle
+        f = h5py.File(filename, 'r')
 
-    states = {}
+        states = {}
 
-    # Loop over all simulation state timestamps by day
-    for day in f.keys():
+        # Loop over all simulation state timestamps by day
+        for day in f.keys():
 
-      # Create sub-dictionary for this day
-      states[day] = {}
+            # Create sub-dictionary for this day
+            states[day] = {}
 
-      # Loop over all simulation state timestamps by time of day
-      for time in f[day]:
+            # Loop over all simulation state timestamps by time of day
+            for time in f[day]:
 
-        # Create sub-dictionary for this simulation state
-        dataset = f[day][time]
-        states[day][time] = {}
-        state = states[day][time]
+                # Create sub-dictionary for this simulation state
+                dataset = f[day][time]
+                states[day][time] = {}
+                state = states[day][time]
 
-        # Extract simulation data and store it in the sub-dictionary
-        solver_type = str(dataset['solver type'])
-        state['solver type'] = solver_type
+                # Extract simulation data and store it in the sub-dictionary
+                solver_type = str(dataset['solver type'])
+                state['solver type'] = solver_type
 
-        num_FSRs = int(dataset['# FSRs'][...])
-        state['# FSRs'] = num_FSRs
+                num_FSRs = int(dataset['# FSRs'][...])
+                state['# FSRs'] = num_FSRs
 
-        num_materials = int(dataset['# materials'][...])
-        state['# materials'] = num_materials
+                num_materials = int(dataset['# materials'][...])
+                state['# materials'] = num_materials
 
-        num_tracks = int(dataset['# tracks'][...])
-        state['# tracks'] = num_materials
+                num_tracks = int(dataset['# tracks'][...])
+                state['# tracks'] = num_materials
 
-        num_segments = int(dataset['# segments'][...])
-        state['# segments'] = num_segments
+                num_segments = int(dataset['# segments'][...])
+                state['# segments'] = num_segments
 
-        spacing = int(dataset['track spacing [cm]'][...])
-        state['track spacing [cm]'] = spacing
+                spacing = int(dataset['track spacing [cm]'][...])
+                state['track spacing [cm]'] = spacing
 
-        num_azim = int(dataset['# azimuthal angles'][...])
-        state['# azimuthal angles'] = num_azim
+                num_azim = int(dataset['# azimuthal angles'][...])
+                state['# azimuthal angles'] = num_azim
 
-        num_polar = int(dataset['# polar angles'][...])
-        state['# polar angles'] = num_polar
+                num_polar = int(dataset['# polar angles'][...])
+                state['# polar angles'] = num_polar
 
-        num_iters = int(dataset['# iterations'][...])
-        state['# iterations'] = num_iters
+                num_iters = int(dataset['# iterations'][...])
+                state['# iterations'] = num_iters
 
-        thresh = float(dataset['source residual threshold'][...])
-        state['source residual threshold'] = thresh
+                thresh = float(dataset['source residual threshold'][...])
+                state['source residual threshold'] = thresh
 
-        method = str(dataset['exponential'][...])
-        state['exponential'] = method
+                method = str(dataset['exponential'][...])
+                state['exponential'] = method
 
-        precision = str(dataset['floating point'][...])
-        state['floating point'] = precision
+                precision = str(dataset['floating point'][...])
+                state['floating point'] = precision
 
-        cmfd = str(dataset['CMFD'][...])
-        state['CMFD'] = cmfd
+                cmfd = str(dataset['CMFD'][...])
+                state['CMFD'] = cmfd
 
-        time = float(dataset['time [sec]'][...])
-        state['time [sec]'] = time
+                time = float(dataset['time [sec]'][...])
+                state['time [sec]'] = time
 
-        keff =  float(dataset['keff'][...])
-        state['keff'] = keff
+                keff =  float(dataset['keff'][...])
+                state['keff'] = keff
 
-        if solver_type is 'GPUSolver':
-          num_threads = int(dataset['# threads per block'])
-          num_blocks = int(dataset['# thread blocks'])
-        else:
-          num_threads = int(dataset['# threads'][...])
+                if solver_type is 'GPUSolver':
+                    num_threads = int(dataset['# threads per block'])
+                    num_blocks = int(dataset['# thread blocks'])
+                else:
+                    num_threads = int(dataset['# threads'][...])
 
-        if 'FSR scalar fluxes' in dataset:
-          fluxes = dataset['FSR scalar fluxes'][...]
-          state['FSR scalar fluxes'] = fluxes
+                if 'FSR scalar fluxes' in dataset:
+                    fluxes = dataset['FSR scalar fluxes'][...]
+                    state['FSR scalar fluxes'] = fluxes
 
-        if 'FSR sources' in dataset:
-          sources_array = dataset['FSR sources'][...]
-          state['FSR sources'] = sources_array
+                if 'FSR sources' in dataset:
+                    sources_array = dataset['FSR sources'][...]
+                    state['FSR sources'] = sources_array
 
-        if 'note' in dataset:
-          state['note'] = str(dataset['note'])
+                if 'note' in dataset:
+                    state['note'] = str(dataset['note'])
 
-        if 'fission-rates' in dataset:
-          py_printf('WARNING', 'The process.restore_simulation_state(...)'+\
-                    'method does not yet support fission rates')
+                if 'fission-rates' in dataset:
+                    py_printf('WARNING', 'The process.restore_simulation_state(...)'+ \
+                              'method does not yet support fission rates')
 
-    return states
+        return states
 
 
-  # If using a Python pickled file
-  elif '.pkl' in filename:
+    # If using a Python pickled file
+    elif '.pkl' in filename:
 
-    import pickle
+        import pickle
 
-    # Load the dictionary from the pickle file
-    states = pickle.load(file(filename, 'rb'))
+        # Load the dictionary from the pickle file
+        states = pickle.load(file(filename, 'rb'))
 
-    return states
+        return states
 
-  # If file does not have a recognizable extension
-  else:
-    py_printf('WARNING', 'Unable to restore the simulation states file %s' + \
-              ' since it does not have a supported file extension. Only ' + \
-              '*.h5, *.hdf5, and *.pkl files are supported', filename)
+    # If file does not have a recognizable extension
+    else:
+        py_printf('WARNING', 'Unable to restore the simulation states file %s' + \
+                  ' since it does not have a supported file extension. Only ' + \
+                  '*.h5, *.hdf5, and *.pkl files are supported', filename)
 
-    return {}
+        return {}
 
 
 ##
@@ -635,38 +644,107 @@ def restore_simulation_state(filename='simulation-state.h5',
 # @return a Python dictionary of key/value pairs for convergence data
 def parse_convergence_data(filename, directory=''):
 
-  # If the user specified a directory
-  if len(directory) > 0:
-    filename = directory + '/' + filename
+    # If the user specified a directory
+    if len(directory) > 0:
+        filename = directory + '/' + filename
 
-  if not os.path.isfile(filename):
-    py_printf('ERROR', 'Unable to parse convergence data since "{0}" is ' + \
-              'not an existing OpenMOC log file'.format(filename))
+    if not os.path.isfile(filename):
+        py_printf('ERROR', 'Unable to parse convergence data since "{0}" is ' + \
+                  'not an existing OpenMOC log file'.format(filename))
 
-  # Compile regular expressions to find the residual and eigenvalue data
-  res = re.compile(b'res = ([0-9].[0-9]+E[+|-][0-9]+)')
-  keff = re.compile(b'k_eff = ([0-9]+.[0-9]+)')
+    # Compile regular expressions to find the residual and eigenvalue data
+    res = re.compile(b'res = ([0-9].[0-9]+E[+|-][0-9]+)')
+    keff = re.compile(b'k_eff = ([0-9]+.[0-9]+)')
 
-  # Parse the eigenvalues
-  with open(filename, 'r+') as f:
-    data = mmap.mmap(f.fileno(), 0)
-    eigenvalues = keff.findall(data)
+    # Parse the eigenvalues
+    with open(filename, 'r+') as f:
+        data = mmap.mmap(f.fileno(), 0)
+        eigenvalues = keff.findall(data)
 
-  # Parse the source residuals
-  with open(filename, 'r+') as f:
-    data = mmap.mmap(f.fileno(), 0)
-    residuals = res.findall(data)
+    # Parse the source residuals
+    with open(filename, 'r+') as f:
+        data = mmap.mmap(f.fileno(), 0)
+        residuals = res.findall(data)
 
-  # Create NumPy arrays of the data
-  eigenvalues = np.array([float(eigenvalue) for eigenvalue in eigenvalues])
-  residuals = np.array([float(residual) for residual in residuals])
+    # Create NumPy arrays of the data
+    eigenvalues = np.array([float(eigenvalue) for eigenvalue in eigenvalues])
+    residuals = np.array([float(residual) for residual in residuals])
 
-  # Find the total number of source iterations
-  num_iters = len(residuals)
+    # Find the total number of source iterations
+    num_iters = len(residuals)
 
-  # Store the data in a dictionary to return to the user
-  convergence_data = dict()
-  convergence_data['# iters'] = num_iters
-  convergence_data['eigenvalues'] = eigenvalues
-  convergence_data['residuals'] = residuals
-  return convergence_data
+    # Store the data in a dictionary to return to the user
+    convergence_data = dict()
+    convergence_data['# iters'] = num_iters
+    convergence_data['eigenvalues'] = eigenvalues
+    convergence_data['residuals'] = residuals
+    return convergence_data
+
+
+class Mesh(object):
+    """A structured Cartesian mesh in two or three dimensions
+
+    Attributes
+    ----------
+    dimension : Iterable of int
+        The number of mesh cells in each direction.
+    lower_left : Iterable of float
+        The lower-left corner of the structured mesh. If only two coordinate are
+        given, it is assumed that the mesh is an x-y mesh.
+    upper_right : Iterable of float
+        The upper-right corner of the structrued mesh. If only two coordinate
+        are given, it is assumed that the mesh is an x-y mesh.
+    width : Iterable of float
+        The width of mesh cells in each direction.
+
+    """
+
+    def __init__(self, mesh_id=None, name=''):
+        self._dimension = None
+        self._lower_left = None
+        self._upper_right = None
+        self._width = None
+
+    @property
+    def dimension(self):
+        return self._dimension
+
+    @property
+    def lower_left(self):
+        return self._lower_left
+
+    @property
+    def upper_right(self):
+        return self._upper_right
+
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def num_mesh_cells(self):
+        return np.prod(self._dimension)
+
+    @dimension.setter
+    def dimension(self, dimension):
+        cv.check_type('mesh dimension', dimension, Iterable, Integral)
+        cv.check_length('mesh dimension', dimension, 2, 3)
+        self._dimension = dimension
+
+    @lower_left.setter
+    def lower_left(self, lower_left):
+        cv.check_type('mesh lower_left', lower_left, Iterable, Real)
+        cv.check_length('mesh lower_left', lower_left, 2, 3)
+        self._lower_left = lower_left
+
+    @upper_right.setter
+    def upper_right(self, upper_right):
+        cv.check_type('mesh upper_right', upper_right, Iterable, Real)
+        cv.check_length('mesh upper_right', upper_right, 2, 3)
+        self._upper_right = upper_right
+
+    @width.setter
+    def width(self, width):
+        cv.check_type('mesh width', width, Iterable, Real)
+        cv.check_length('mesh width', width, 2, 3)
+        self._width = width
