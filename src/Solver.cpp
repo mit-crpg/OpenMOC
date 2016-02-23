@@ -57,9 +57,6 @@ Solver::Solver(TrackGenerator* track_generator) {
  */
 Solver::~Solver() {
 
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 

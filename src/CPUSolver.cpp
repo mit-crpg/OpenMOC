@@ -686,8 +686,6 @@ void CPUSolver::transportSweepOTF() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
-  /* Create MOC segmentation kernel */
-  SegmentationKernel kernel(_track_generator, 0);
 
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();
@@ -698,71 +696,77 @@ void CPUSolver::transportSweepOTF() {
   copyBoundaryFluxes();
 
   /* Parallelize over 2D extruded tracks */
-  #pragma omp parallel for firstprivate(kernel)
-  for (int track_id=0; track_id < num_2D_tracks; track_id++) {
+  SegmentCounter ts_instance(_track_generator); //FIXME
+  #pragma omp parallel
+  {
+    /* Create MOC segmentation kernel */
+    SegmentationKernel kernel(_track_generator, 0);
+    #pragma omp for
+    for (int track_id=0; track_id < num_2D_tracks; track_id++) {
 
-    /* Extract indices of 3D tracks associated with the extruded track */
-    Track* flattened_track = flattened_tracks[track_id];
-    int a = flattened_track->getAzimIndex();
-    int azim_index = _quad->getFirstOctantAzim(a);
-    int i = flattened_track->getXYIndex();
-    int tid = omp_get_thread_num();
+      /* Extract indices of 3D tracks associated with the extruded track */
+      Track* flattened_track = flattened_tracks[track_id];
+      int a = flattened_track->getAzimIndex();
+      int azim_index = _quad->getFirstOctantAzim(a);
+      int i = flattened_track->getXYIndex();
+      int tid = omp_get_thread_num();
 
-    FP_PRECISION* track_flux;
-    FP_PRECISION thread_fsr_flux[_num_groups];
+      FP_PRECISION* track_flux;
+      FP_PRECISION thread_fsr_flux[_num_groups];
 
-    /* Loop over polar angles */
-    for (int p=0; p < _num_polar; p++) {
+      /* Loop over polar angles */
+      for (int p=0; p < _num_polar; p++) {
 
-      /* Loop over z-stacked rays */
-      for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+        /* Loop over z-stacked rays */
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
-        /* Extract track and flux data */
-        Track3D* curr_track = &tracks_3D[a][i][p][z];
-        int track_id = curr_track->getUid();
-        track_flux = &_boundary_flux(track_id, 0, 0);
-        double theta = curr_track->getTheta();
+          /* Extract track and flux data */
+          Track3D* curr_track = &tracks_3D[a][i][p][z];
+          int track_id = curr_track->getUid();
+          track_flux = &_boundary_flux(track_id, 0, 0);
+          double theta = curr_track->getTheta();
 
-        /* Follow track to determine segments */
-        kernel.newTrack(curr_track);
-        Point* start = curr_track->getStart();
-        _track_generator->traceSegmentsOTF(flattened_track, start, theta,
-            &kernel);
+          /* Follow track to determine segments */
+          kernel.newTrack(curr_track);
+          Point* start = curr_track->getStart();
+          ts_instance.traceSegmentsOTF(flattened_track, start, theta,
+              &kernel); //FIXME
 
-        int polar_index = curr_track->getPolarIndex();
-        int num_segments = curr_track->getNumSegments();
-        segment* segments = _track_generator->getTemporarySegments(tid, 0);
+          int polar_index = curr_track->getPolarIndex();
+          int num_segments = curr_track->getNumSegments();
+          segment* segments = _track_generator->getTemporarySegments(tid, 0);
 
-        /* Transport segments forward */
-        for (int s=0; s < num_segments; s++) {
+          /* Transport segments forward */
+          for (int s=0; s < num_segments; s++) {
 
-          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
-              thread_fsr_flux);
+            tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
+                thread_fsr_flux);
 
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
-              track_flux, true);
+            tallySurfaceCurrent(&segments[s], azim_index, polar_index,
+                track_flux, true);
+          }
+
+          /* Transfer boundary angular flux to outgoing Track */
+          transferBoundaryFlux(track_id, azim_index, polar_index, true,
+              track_flux);
+
+          /* Get the backward track flux */
+          track_flux = &_boundary_flux(track_id, 1, 0);
+
+          /* Transport segments backwards */
+          for (int s=num_segments-1; s > -1; s--) {
+
+            tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
+                thread_fsr_flux);
+
+            tallySurfaceCurrent(&segments[s], azim_index, polar_index,
+                track_flux, false);
+          }
+
+          /* Transfer boundary angular flux to outgoing Track */
+          transferBoundaryFlux(track_id, azim_index, polar_index, false,
+              track_flux);
         }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, true,
-            track_flux);
-
-        /* Get the backward track flux */
-        track_flux = &_boundary_flux(track_id, 1, 0);
-
-        /* Transport segments backwards */
-        for (int s=num_segments-1; s > -1; s--) {
-
-          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
-              thread_fsr_flux);
-
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
-              track_flux, false);
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, polar_index, false,
-            track_flux);
       }
     }
   }
@@ -802,7 +806,7 @@ void CPUSolver::transportSweepOTFStacks() {
   {
     /* Create kernels and allocate segments for OTF computation */
     int num_rows = _track_generator->getMaxNumTracksPerStack();
-   
+
     /* Allocate memory */
     MOCKernel** kernels = new MOCKernel*[num_rows];
     for (int z=0; z < num_rows; z++) {
@@ -831,7 +835,9 @@ void CPUSolver::transportSweepOTFStacks() {
           kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
 
         /* Get the segments for the stack */
-        _track_generator->traceStackOTF(flattened_track, p, kernels);
+        //FIXME
+        SegmentCounter ts_instance(_track_generator); //FIXME
+        ts_instance.traceStackOTF(flattened_track, p, kernels);
 
         /* Loop over z-stacked rays */
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {

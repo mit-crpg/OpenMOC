@@ -22,40 +22,51 @@ class TraverseSegments {
 private:
 
   // descriptions
-  void loopOverTracks2D();
-  void loopOverTracksExplicit();
-  void loopOverTracksByTrackOTF();
-  void loopOverTracksByStackOTF();
+  void loopOverTracks2D(MOCKernel** kernels);
+  void loopOverTracksExplicit(MOCKernel** kernels);
+  void loopOverTracksByTrackOTF(MOCKernel** kernels);
+  void loopOverTracksByStackOTF(MOCKernel** kernels);
+
+
+  int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
 
 protected:
 
   /** Pointer to the associated TrackGenerator */
   TrackGenerator* _track_generator;
 
-  // descriptions
-  MOCKernel** _kernels;
-
   //descriptions
   segmentationType _segment_formation;
+  FP_PRECISION* _global_z_mesh;
+  int _mesh_size;
 
   // descriptions
   TraverseSegments(TrackGenerator* track_generator);
   virtual ~TraverseSegments();
 
-  void loopOverTracks();
+  void loopOverTracks(MOCKernel** kernels);
   virtual void onTrack(Track* track, segment* segments) = 0;
 
   // description
   template <class KernelType>
-  void setKernel() {
+  MOCKernel** getKernels() {
     int num_rows = _track_generator->getNumRows();
-    _kernels = new MOCKernel*[num_rows];
+    MOCKernel** kernels = new MOCKernel*[num_rows];
     for (int z=0; z < num_rows; z++)
-      _kernels[z] = new KernelType(_track_generator, z);
+      kernels[z] = new KernelType(_track_generator, z);
+    return kernels;
   }
 
 public:
   virtual void execute() = 0;
+
+//FIXME: move to private:
+  void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
+  void traceSegmentsOTF(Track* flattened_track, Point* start,
+                        double theta, MOCKernel* kernel);
+  void traceStackOTF(Track* flattened_track, int polar_index,
+                     MOCKernel** kernels);
+
 };
 
 #endif

@@ -142,10 +142,8 @@ TrackGenerator::~TrackGenerator() {
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
 
-  /* TODO: fix memory allocation
   if (_FSR_volumes != NULL)
     delete [] _FSR_volumes;
-    */
 }
 
 
@@ -223,10 +221,13 @@ omp_lock_t* TrackGenerator::getFSRLocks() {
  */
 // FIXME: description
 FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
-  if (_FSR_volumes == NULL) {
-    int num_FSRs = _geometry->getNumFSRs();
-    _FSR_volumes = new FP_PRECISION[num_FSRs];
-    memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+#pragma omp critical
+  {
+    if (_FSR_volumes == NULL) {
+      int num_FSRs = _geometry->getNumFSRs();
+      _FSR_volumes = new FP_PRECISION[num_FSRs];
+      memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+    }
   }
 
   return _FSR_volumes;
@@ -435,6 +436,14 @@ double TrackGenerator::getPolarSpacing(int azim, int polar) {
 }
 
 
+//FIXME: description
+double TrackGenerator::getZSpacing(int azim, int polar) {
+  azim = _quadrature->getFirstOctantAzim(azim);
+  polar = _quadrature->getFirstOctantPolar(polar);
+  return _dz_eff[azim][polar];
+}
+
+
 //TODO: description
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
   MaxOpticalLength update_max_optical_length(this);
@@ -639,12 +648,10 @@ double TrackGenerator::getDyEff(int azim) {
 
 
 //TODO: description
-void TrackGenerator::export3DFSRVolumes(double* out_volumes, int num_fsrs) {
-
-  FP_PRECISION* fsr_volumes = getFSRVolumes();
+void TrackGenerator::exportFSRVolumes(double* out_volumes, int num_fsrs) {
 
   for (int i=0; i < num_fsrs; i++)
-    out_volumes[i] = fsr_volumes[i];
+    out_volumes[i] = _FSR_volumes[i];
 
 }
 
@@ -683,77 +690,20 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
 
 /**
- * @brief Computes and returns the volume of an FSR.
+ * @brief Returns the volume of an FSR.
  * @param fsr_id the ID for the FSR of interest
  * @return the FSR volume
  */
-FP_PRECISION TrackGenerator::get2DFSRVolume(int fsr_id) {
+FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
 
-  if (!contains2DSegments())
-    log_printf(ERROR, "Unable to get the FSR volume since 2D tracks "
+  if (_FSR_volumes == NULL)
+    log_printf(ERROR, "Unable to get the FSR volume since FSR volumes "
                "have not yet been generated");
 
   else if (fsr_id < 0 || fsr_id > _geometry->getNumFSRs())
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
                "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
-
-  segment* segment;
-  FP_PRECISION volume = 0.0;
-
-  /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multiplied by the Track "widths" for each FSR.  */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      for (int s=0; s < _tracks_2D[a][i].getNumSegments(); s++) {
-        segment = _tracks_2D[a][i].getSegment(s);
-        if (segment->_region_id == fsr_id)
-          volume += segment->_length * _quadrature->getAzimWeight(a)
-            * getAzimSpacing(a);
-      }
-    }
-  }
-
-  return volume;
-}
-
-
-/**
- * @brief Computes and returns the volume of an FSR.
- * @param fsr_id the ID for the FSR of interest
- * @return the FSR volume
- */
-FP_PRECISION TrackGenerator::get3DFSRVolume(int fsr_id) {
-
-  if (!contains3DSegments())
-    log_printf(ERROR, "Unable to get the FSR volume since 3D tracks "
-               "have not yet been generated");
-
-  else if (fsr_id < 0 || fsr_id > _geometry->getNumFSRs())
-    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
-               "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
-
-  segment* segment;
-  FP_PRECISION volume = 0.0;
-
-  /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multiplied by the Track "widths" for each FSR.  */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-          for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
-            segment = _tracks_3D[a][i][p][z].getSegment(s);
-            if (segment->_region_id == fsr_id)
-              volume += segment->_length * _quadrature->getAzimWeight(a)
-                * _quadrature->getPolarWeight(a, p) * getAzimSpacing(a)
-                * getPolarSpacing(a,p);
-          }
-        }
-      }
-    }
-  }
-
-  return volume;
+  return _FSR_volumes[fsr_id];
 }
 
 
@@ -905,6 +855,7 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
  */
 void TrackGenerator::setSolve2D() {
   _solve_3D = false;
+  _segment_formation = TWO_DIM;
 }
 
 
@@ -963,6 +914,19 @@ void TrackGenerator::setSegmentationHeights(std::vector<double> z_mesh) {
 void TrackGenerator::setGlobalZMesh() {
   _contains_global_z_mesh = true;
   _global_z_mesh = _geometry->getUniqueZHeights();
+}
+
+
+//FIXME: description
+void TrackGenerator::retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs) {
+  if (_contains_global_z_mesh) {
+    z_mesh = &_global_z_mesh[0];
+    num_fsrs = _global_z_mesh.size() - 1;
+  }
+  else {
+    z_mesh = NULL;
+    num_fsrs = 0;
+  }
 }
 
 
@@ -4548,7 +4512,9 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
               Track* flattened_track = _flattened_tracks[ext_id];
 
               kernel.newTrack(&_tracks_3D[a][i][p][z]);
-              traceSegmentsOTF(flattened_track, start, theta, &kernel);
+
+              SegmentCounter ts_instance(this); //FIXME
+              ts_instance.traceSegmentsOTF(flattened_track, start, theta, &kernel);
               segments = _temporary_segments[tid][z];
             }
             else
@@ -4711,50 +4677,6 @@ FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
 }
 
 
-/**
- * @brief A function that searches for the index into a values mesh using a
- *        binary search.
- * @details A binary search is used to calculate the index into a mesh of where
- *          the value val resides. If a mesh boundary is hit, the upper region
- *          is selected for positive-z traversing rays and the lower region is
- *          selected for negative-z traversing rays.
- * @param values an array of monotonically increasing values
- * @param size the size of the values array
- * @param val the level to be searched for in the mesh
- * @param sign the direction of the ray in the z-direction
- */
-int TrackGenerator::binarySearch(FP_PRECISION* values, int size,
-                                 FP_PRECISION val, int sign) {
-
-  /* Initialize indexes into the values array */
-  int imin = 0;
-  int imax = size-1;
-
-  /* Check if val is outside the range */
-  if (val < values[imin] or val > values[imax]) {
-    log_printf(ERROR, "Value out of the mesh range in binary search");
-    return -1;
-  }
-
-  /* Search for interval containing val */
-  while (imax - imin > 1) {
-
-    int imid = (imin + imax) / 2;
-
-    if (val > values[imid])
-      imin = imid;
-    else if (val < values[imid])
-      imax = imid;
-    else {
-      if (sign > 0)
-        return imid;
-      else
-        return imid-1;
-    }
-  }
-  return imin;
-}
-
 
 /**
  * @brief Fills an array with the x,y coordinates for a given track.
@@ -4794,511 +4716,6 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
   return;
 }
 
-
-//FIXME description
-void TrackGenerator::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
-  for (int s=0; s < track->getNumSegments(); s++) {
-    segment* seg = track->getSegment(s);
-    kernel->execute(seg->_length, seg->_material, seg->_region_id,
-                    seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd);
-  }
-}
-
-
-/**
- * @brief Computes 3D segment lengths on-the-fly for a single 3D track given an
- *        associated 2D Track with a starting point and a polar angle. The
- *        computed segments are passed to the provided kernel.
- * @details Segment lengths are computed on-the-fly using 2D segment lengths
- *          stored in a 2D Track object and 1D meshes from the extruded
- *          FSRs. Note: before calling this funciton with a SegmentationKernel,
- *          the memory for the segments should be allocated and referenced by
- *          the kernel using the setSegments routine in the kernels.
- * @param flattened_track the 2D track associated with the 3D track for which
- *        3D segments are computed
- * @param start the starting coordinates of the 3D track
- * @param theta the polar angle of the 3D track
- * @param kernel An MOCKernel object to apply to the calculated 3D segments
- */
-void TrackGenerator::traceSegmentsOTF(Track* flattened_track, Point* start,
-                                      double theta, MOCKernel* kernel) {
-
-  /* Create unit vector */
-  double phi = flattened_track->getPhi();
-  double cos_theta = cos(theta);
-  double sin_theta = sin(theta);
-  int sign = (cos_theta > 0) - (cos_theta < 0);
-
-  /* Extract starting coordinates */
-  double x_start_3D = start->getX();
-  double x_start_2D = flattened_track->getStart()->getX();
-  double z_coord = start->getZ();
-
-  /* Find 2D distance from 2D edge to start of track */
-  double start_dist_2D = (x_start_3D - x_start_2D) / cos(phi);
-
-  /* Find starting 2D segment */
-  int seg_start = 0;
-  segment* segments_2D = flattened_track->getSegments();
-  for (int s=0; s < flattened_track->getNumSegments(); s++) {
-
-    /* Determine if start point of track is beyond current 2D segment */
-    double seg_len_2D = segments_2D[s]._length;
-    if (start_dist_2D > seg_len_2D) {
-      start_dist_2D -= seg_len_2D;
-      seg_start++;
-    }
-    else {
-      break;
-    }
-  }
-
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  /* Extract the appropriate starting mesh */
-  int num_fsrs;
-  FP_PRECISION* axial_mesh;
-  if (_contains_global_z_mesh) {
-    num_fsrs = _global_z_mesh.size() - 1;
-    axial_mesh = &_global_z_mesh[0];
-  }
-  else {
-    int extruded_fsr_id = segments_2D[seg_start]._region_id;
-    ExtrudedFSR* extruded_FSR = _geometry->getExtrudedFSR(extruded_fsr_id);
-    num_fsrs = extruded_FSR->_num_fsrs;
-    axial_mesh = extruded_FSR->_mesh;
-  }
-
-  /* Get the starting z index */
-  int z_ind = binarySearch(axial_mesh, num_fsrs+1, z_coord, sign);
-
-  /* Loop over 2D segments */
-  bool first_segment = true;
-  bool segments_complete = false;
-  for (int s=seg_start; s < flattened_track->getNumSegments(); s++) {
-
-    /* Extract extruded FSR */
-    int extruded_fsr_id = segments_2D[s]._region_id;
-    ExtrudedFSR* extruded_FSR = _geometry->getExtrudedFSR(extruded_fsr_id);
-
-    /* Determine new mesh and z index */
-    if (first_segment || _contains_global_z_mesh) {
-      first_segment = false;
-    }
-    else {
-      /* Determine the axial region */
-      num_fsrs = extruded_FSR->_num_fsrs;
-      axial_mesh = extruded_FSR->_mesh;
-      z_ind = binarySearch(axial_mesh, num_fsrs+1, z_coord, sign);
-    }
-
-    /* Extract 2D segment length */
-    double remaining_length_2D = segments_2D[s]._length - start_dist_2D;
-    start_dist_2D = 0;
-
-    /* Transport along the 2D segment until it is completed */
-    while (remaining_length_2D > 0) {
-
-      /* Calculate 3D distance to z intersection */
-      double z_dist_3D;
-      if (sign > 0)
-        z_dist_3D = (axial_mesh[z_ind+1] - z_coord) / cos_theta;
-      else
-        z_dist_3D = (axial_mesh[z_ind] - z_coord) / cos_theta;
-
-      /* Calculate 3D distance to end of segment */
-      double seg_dist_3D = remaining_length_2D / sin_theta;
-
-      /* Calcualte shortest distance to intersection */
-      double dist_2D;
-      double dist_3D;
-      int z_move;
-      if (z_dist_3D <= seg_dist_3D) {
-        dist_2D = z_dist_3D * sin_theta;
-        dist_3D = z_dist_3D;
-        z_move = sign;
-      }
-      else {
-        dist_2D = remaining_length_2D;
-        dist_3D = seg_dist_3D;
-        z_move = 0;
-      }
-
-      /* Get the 3D FSR */
-      int fsr_id = extruded_FSR->_fsr_ids[z_ind];
-
-      /* Calculate CMFD surface */
-      int cmfd_surface_bwd = -1;
-      int cmfd_surface_fwd = -1;
-      if (cmfd != NULL && dist_3D > TINY_MOVE) {
-
-        /* Determine if this is the first 3D segment handled for the flattened
-           2D segment. If so, get the 2D cmfd surface. */
-        if (segments_2D[s]._length - remaining_length_2D <= TINY_MOVE)
-          cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
-
-        /* Determine if this is the last 3D segment handled for the flattened
-           2D segment. If so, get the 2D cmfd surface. */
-        double next_dist_3D = (remaining_length_2D - dist_2D) / sin_theta;
-        if (z_move == 0 || next_dist_3D <= TINY_MOVE)
-          cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-
-        /* Get CMFD cell */
-        int cmfd_cell = _geometry->getCmfdCell(fsr_id);
-
-        /* Find the backwards surface */
-        cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_coord,
-                                                    cmfd_surface_bwd);
-
-        /* Move axial height to end of segment */
-        z_coord += cos_theta * dist_3D;
-
-        /* Find forward surface */
-        cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_coord,
-                                                    cmfd_surface_fwd);
-      }
-      else {
-        /* Move axial height to end of segment */
-        z_coord += dist_3D * cos_theta;
-      }
-
-      /* Operate on segment */
-      if (dist_3D > TINY_MOVE)
-        kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], fsr_id,
-                        cmfd_surface_fwd, cmfd_surface_bwd);
-
-      /* Shorten remaining 2D segment length and move axial level */
-      remaining_length_2D -= dist_2D;
-      z_ind += z_move;
-
-      /* Check if the track has crossed a Z boundary */
-      if (z_ind < 0 or z_ind >= num_fsrs) {
-
-        /* Reset z index */
-        if (z_ind < 0)
-          z_ind = 0;
-        else
-          z_ind = num_fsrs - 1;
-
-        /* Mark the 2D segment as complete */
-        segments_complete = true;
-        break;
-      }
-    }
-
-    /* Check if the track is completed due to an axial boundary */
-    if (segments_complete)
-      break;
-  }
-}
-
-
-/**
- * @brief Computes 3D segment lengths on-the-fly for all tracks in a z-stack
- *        for a given associated 2D Track and a polar index on-the-fly and
- *        passes the computed segments to the provided kernels.
- * @details Segment lengths are computed on-the-fly using 2D segment lengths
- *          stored in a 2D Track object and 1D meshes from the extruded
- *          FSRs. Note: before calling this funciton with SegmentationKernels,
- *          the memory for the segments should be allocated and referenced by
- *          the kernels using the setSegments routine in the kernels.
- * @param flattened_track the 2D track associated with the z-stack for which
- *        3D segments are computed
- * @param polar_index the index into the polar angles which is associated with
- *        the polar angle of the z-stack
- * @param kernels An array of MOCKernel objects to apply to the calculated 3D
- *        segments
- */
-void TrackGenerator::traceStackOTF(Track* flattened_track, int polar_index,
-                                    MOCKernel** kernels) {
-
-  /* Extract information about the z-stack */
-  int azim_index = flattened_track->getAzimIndex();
-  int ai = _quadrature->getFirstOctantAzim(azim_index);
-  int pi = _quadrature->getFirstOctantPolar(polar_index);
-  double z_spacing = _dz_eff[ai][pi];
-  double theta = _quadrature->getTheta(azim_index, polar_index);
-  int track_index = flattened_track->getXYIndex();
-  int num_z_stack = _tracks_per_stack[azim_index][track_index][polar_index];
-
-  /* Create unit vector */
-  double phi = flattened_track->getPhi();
-  double cos_theta = cos(theta);
-  double sin_theta = sin(theta);
-  double tan_theta = sin_theta / cos_theta;
-  int sign = (cos_theta > 0) - (cos_theta < 0);
-
-  /* Find 2D distance from 2D edge to start of track */
-  Track3D* first = &_tracks_3D[azim_index][track_index][polar_index][0];
-  double x_start_3D = first->getStart()->getX();
-  double x_start_2D = flattened_track->getStart()->getX();
-  double start_dist_2D = (x_start_3D - x_start_2D) / cos(phi);
-
-  /* Calculate starting intersection of lowest track with z-axis */
-  double z0 = first->getStart()->getZ();
-  double start_z = z0 - start_dist_2D / tan_theta;
-
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  /* Extract the appropriate starting mesh */
-  int num_fsrs;
-  FP_PRECISION* axial_mesh;
-  if (_contains_global_z_mesh) {
-    num_fsrs = _global_z_mesh.size() - 1;
-    axial_mesh = &_global_z_mesh[0];
-  }
-
-  /* Loop over 2D segments */
-  double first_start_z = start_z;
-  segment* segments_2D = flattened_track->getSegments();
-  for (int s=0; s < flattened_track->getNumSegments(); s++) {
-
-    /* Get segment length and extruded FSR */
-    FP_PRECISION seg_length_2D = segments_2D[s]._length;
-    int extruded_fsr_id = segments_2D[s]._region_id;
-    ExtrudedFSR* extruded_FSR = _geometry->getExtrudedFSR(extruded_fsr_id);
-
-    /* Determine new mesh and z index */
-    if (!_contains_global_z_mesh) {
-      num_fsrs = extruded_FSR->_num_fsrs;
-      axial_mesh = extruded_FSR->_mesh;
-    }
-
-    /* Calculate the end z coordinate of the first track */
-    double first_end_z = first_start_z + seg_length_2D / tan_theta;
-
-    /* Find the upper and lower z coordinates of the first track */
-    double first_track_lower_z;
-    double first_track_upper_z;
-    if (sign > 0) {
-      first_track_lower_z = first_start_z;
-      first_track_upper_z = first_end_z;
-    }
-    else {
-      first_track_lower_z = first_end_z;
-      first_track_upper_z = first_start_z;
-    }
-
-    /* Loop over all 3D FSRs in the Extruded FSR to find intersections */
-    for (int z_iter = 0; z_iter < num_fsrs; z_iter++) {
-
-      /* If traveling in negative-z direction, loop through FSRs from top */
-      int z_ind = z_iter;
-      if (sign < 0)
-        z_ind = num_fsrs - z_iter - 1;
-
-      /* Extract the FSR ID and Material ID of this 3D FSR */
-      int fsr_id = extruded_FSR->_fsr_ids[z_ind];
-      Material* material = extruded_FSR->_materials[z_ind];
-
-      /* Find CMFD cell if necessary */
-      int cmfd_cell;
-      if (cmfd != NULL)
-        cmfd_cell = _geometry->getCmfdCell(fsr_id);
-
-      /* Get boundaries of the current mesh cell */
-      double z_min = axial_mesh[z_ind];
-      double z_max = axial_mesh[z_ind+1];
-
-      /* Calculate z-stack track indexes that cross the 3D FSR */
-      int start_track = std::ceil((z_min - first_track_upper_z) / z_spacing);
-      int start_full = std::ceil((z_min - first_track_lower_z) / z_spacing);
-      int end_full = std::ceil((z_max - first_track_upper_z) / z_spacing);
-      int end_track = std::ceil((z_max - first_track_lower_z) / z_spacing);
-
-      /* Check track bounds */
-      start_track = std::max(start_track, 0);
-      end_track = std::min(end_track, num_z_stack);
-
-      /* Treat lower tracks that do not cross the entire 2D length */
-      int min_lower = std::min(start_full, end_full);
-      for (int i = start_track; i < min_lower; i++) {
-
-        /* Calculate distance traveled in 3D FSR */
-        double end_z = first_track_upper_z + i * z_spacing;
-        double seg_len_3D = (end_z - z_min) / std::abs(cos_theta);
-
-        /* Determine if segment length is large enough to operate on */
-        if (seg_len_3D > TINY_MOVE) {
-
-          /* Initialize CMFD surfaces to none (-1) */
-          int cmfd_surface_fwd = -1;
-          int cmfd_surface_bwd = -1;
-
-          /* Get CMFD surface if necessary */
-          if (cmfd != NULL) {
-            double start_z = first_track_lower_z + i * z_spacing;
-            double dist_to_corner = std::abs((z_min - start_z) / cos_theta);
-            if (sign > 0) {
-              cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
-                                                          cmfd_surface_fwd);
-              if (dist_to_corner <= TINY_MOVE)
-                cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_min,
-                                                          cmfd_surface_bwd);
-            }
-            else {
-              if (dist_to_corner <= TINY_MOVE)
-                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_min,
-                                                          cmfd_surface_fwd);
-              cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
-                                                          cmfd_surface_bwd);
-            }
-          }
-
-          /* Operate on segment */
-          kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
-                              cmfd_surface_bwd);
-        }
-      }
-
-      /* Find if there are tracks the traverse the entire 2D length */
-      if (end_full > start_full) {
-
-        /* Calculate distance traveled in 3D FSR */
-        double seg_len_3D = seg_length_2D / sin_theta;
-
-        /* Determine if segment length is large enough to operate on */
-        if (seg_len_3D > TINY_MOVE) {
-
-          /* Treat tracks that do cross the entire 2D length */
-          for (int i = start_full; i < end_full; i++) {
-
-            /* Initialize CMFD surfaces to 2D CMFD surfaces */
-            int cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-            int cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
-
-            /* Get CMFD surfaces if necessary */
-            if (cmfd != NULL) {
-
-              /* Calculate start and end z */
-              double start_z = first_start_z + i * z_spacing;
-              double end_z = first_end_z + i * z_spacing;
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
-                                                          cmfd_surface_fwd);
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
-                                                          cmfd_surface_bwd);
-            }
-
-            /* Operate on segment */
-            kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
-                                cmfd_surface_bwd);
-          }
-        }
-      }
-
-      /* Find if there are tracks that cross both upper and lower boundaries
-         NOTE: this will only be true if there are no tracks that cross the
-         entire 2D length in the FSR */
-      else if (start_full > end_full) {
-
-        /* Calculate distance traveled in 3D FSR */
-        double seg_len_3D = (z_max - z_min) / std::abs(cos_theta);
-
-        /* Determine if segment length is large enough to operate on */
-        if (seg_len_3D > TINY_MOVE) {
-
-          /* Treat tracks that cross through both the upper and lower axial
-             boundaries */
-          for (int i = end_full; i < start_full; i++) {
-
-            /* Initialize CMFD surfaces to none (-1) */
-            int cmfd_surface_bwd = -1;
-            int cmfd_surface_fwd = -1;
-
-            /* Get CMFD surfaces if necessary */
-            if (cmfd != NULL) {
-
-              /* Determine start and end z */
-              double enter_z;
-              double exit_z;
-              if (sign > 0) {
-                enter_z = z_min;
-                exit_z = z_max;
-              }
-              else {
-                enter_z = z_max;
-                exit_z = z_min;
-              }
-
-              /* Determine if any corners in the s-z plane are hit */
-              double dist_to_corner;
-              double track_end_z = first_end_z + i * z_spacing;
-              dist_to_corner = (track_end_z - exit_z) / cos_theta;
-              if (dist_to_corner <= TINY_MOVE)
-                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-
-              double track_start_z = first_start_z + i * z_spacing;
-              dist_to_corner = (enter_z - track_start_z) / cos_theta;
-              if (dist_to_corner <= TINY_MOVE)
-                cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
-
-              /* Find CMFD surfaces */
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, exit_z,
-                                                          cmfd_surface_fwd);
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, enter_z,
-                                                          cmfd_surface_bwd);
-            }
-
-            /* Operate on segment */
-            kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
-                                cmfd_surface_bwd);
-          }
-        }
-      }
-
-      /* Treat upper tracks that do not cross the entire 2D length */
-      int min_upper = std::max(start_full, end_full);
-      for (int i = min_upper; i < end_track; i++) {
-
-        /* Calculate distance traveled in 3D FSR */
-        double start_z = first_track_lower_z + i * z_spacing;
-        double seg_len_3D = (z_max - start_z) / std::abs(cos_theta);
-
-        /* Determine if segment length is large enough to operate on */
-        if (seg_len_3D > TINY_MOVE) {
-
-          /* Initialize CMFD surfaces to none (-1) */
-          int cmfd_surface_fwd = -1;
-          int cmfd_surface_bwd = -1;
-
-          /* Get CMFD surface if necessary */
-          if (cmfd != NULL) {
-            double end_z = first_track_upper_z + i * z_spacing;
-            double dist_to_corner = (end_z - z_max) / std::abs(cos_theta);
-            if (sign > 0) {
-              if (dist_to_corner <= TINY_MOVE)
-                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_max,
-                                                          cmfd_surface_fwd);
-              cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
-                                                          cmfd_surface_bwd);
-            }
-            else {
-              cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-              cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, start_z,
-                                                          cmfd_surface_fwd);
-              if (dist_to_corner <= TINY_MOVE)
-                cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
-              cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_max,
-                                                          cmfd_surface_bwd);
-            }
-          }
-
-          /* Operate on segment */
-          kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
-                              cmfd_surface_bwd);
-        }
-      }
-    }
-    /* Traverse segment on first track */
-    first_start_z = first_end_z;
-  }
-}
 
 
 /**

@@ -14,8 +14,8 @@ void MaxOpticalLength::execute() {
   _track_generator->setMaxOpticalLength(infinity);
 #pragma omp parallel
   {
-    setKernel<SegmentationKernel>();
-    loopOverTracks();
+    MOCKernel** kernels = getKernels<SegmentationKernel>();
+    loopOverTracks(kernels);
   }
   _track_generator->setMaxOpticalLength(_max_tau);
 }
@@ -54,8 +54,8 @@ SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
 void SegmentCounter::execute() {
 #pragma omp parallel
   {
-    setKernel<CounterKernel>();
-    loopOverTracks();
+    MOCKernel** kernels = getKernels<CounterKernel>();
+    loopOverTracks(kernels);
   }
   _track_generator->setMaxNumSegments(_max_num_segments);
 }
@@ -84,8 +84,8 @@ VolumeCalculator::VolumeCalculator(TrackGenerator* track_generator)
 void VolumeCalculator::execute() {
 #pragma omp parallel
   {
-    setKernel<VolumeKernel>();
-    loopOverTracks();
+    MOCKernel** kernels = getKernels<VolumeKernel>();
+    loopOverTracks(kernels);
   }
 }
 

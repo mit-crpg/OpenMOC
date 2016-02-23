@@ -163,6 +163,10 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
 void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
     int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
+  /* Check if segments have not been set, if so return */
+  if (_segments == NULL)
+    return;
+
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;

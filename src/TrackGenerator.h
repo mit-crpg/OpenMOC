@@ -229,6 +229,7 @@ public:
   double getAzimSpacing(int azim);
   double** getPolarSpacings();
   double getPolarSpacing(int azim, int polar);
+  double getZSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments(); //FIXME
   int getMaxNumTracksPerStack(); // FIXME
@@ -246,11 +247,10 @@ public:
   int getNumL(int azim, int polar);
   double getDxEff(int azim);
   double getDyEff(int azim);
-  void export3DFSRVolumes(double* out_volumes, int num_fsrs);
+  void exportFSRVolumes(double* out_volumes, int num_fsrs);
   FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();
-  FP_PRECISION get2DFSRVolume(int fsr_id);
-  FP_PRECISION get3DFSRVolume(int fsr_id);
+  FP_PRECISION getFSRVolume(int fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
   int getTrackGenerationMethod();
@@ -273,6 +273,7 @@ public:
   void setTrackGenerationMethod(int method);
   void setSegmentationHeights(std::vector<double> z_mesh);
   void setGlobalZMesh();
+  void retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs);
   void setMaxOpticalLength(FP_PRECISION tau);
   void setMaxNumSegments(int max_num_segments);
   void setDumpSegments(bool dump_segments);
@@ -296,7 +297,6 @@ public:
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);
-  int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
   bool isSolve2D();
   bool isSolve3D();
   segmentationType getSegmentFormation();
@@ -305,11 +305,6 @@ public:
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
-  void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
-  void traceSegmentsOTF(Track* flattened_track, Point* start,
-                        double theta, MOCKernel* kernel);
-  void traceStackOTF(Track* flattened_track, int polar_index,
-                     MOCKernel** kernels);
   void initialize2DTrackPeriodicIndices();
   void initialize3DTrackPeriodicIndices();
   void initializeTracksArray();
