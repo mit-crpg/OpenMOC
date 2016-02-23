@@ -9,9 +9,6 @@
 ExpEvaluator::ExpEvaluator() {
   _interpolate = true;
   _exp_table_F1 = NULL;
-  _exp_table_F2 = NULL;
-  _exp_table_G1 = NULL;
-  _exp_table_G2 = NULL;
   _polar_quad = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
   _exp_precision = EXP_PRECISION;
@@ -24,15 +21,6 @@ ExpEvaluator::ExpEvaluator() {
 ExpEvaluator::~ExpEvaluator() {
   if (_exp_table_F1 != NULL)
     delete [] _exp_table_F1;
-
-  if (_exp_table_F2 != NULL)
-    delete [] _exp_table_F2;
-
-  if (_exp_table_G1 != NULL)
-    delete [] _exp_table_G1;
-
-  if (_exp_table_G2 != NULL)
-    delete [] _exp_table_G2;
 }
 
 
@@ -166,36 +154,6 @@ FP_PRECISION* ExpEvaluator::getExpTableF1() {
 }
 
 
-FP_PRECISION* ExpEvaluator::getExpTableF2() {
-
-  if (_exp_table_F2 == NULL)
-    log_printf(ERROR, "Unable to return exponential table F2 "
-               "since it has not yet been initialized");
-
-  return _exp_table_F2;
-}
-
-
-FP_PRECISION* ExpEvaluator::getExpTableG1() {
-
-  if (_exp_table_G1 == NULL)
-    log_printf(ERROR, "Unable to return exponential table G1 "
-               "since it has not yet been initialized");
-
-  return _exp_table_G1;
-}
-
-
-FP_PRECISION* ExpEvaluator::getExpTableG2() {
-
-  if (_exp_table_G2 == NULL)
-    log_printf(ERROR, "Unable to return exponential table G2 "
-               "since it has not yet been initialized");
-
-  return _exp_table_G2;
-}
-
-
 /**
  * @brief If using linear interpolation, builds the table for each polar angle.
  * @param tolerance the minimum acceptable interpolation accuracy
@@ -224,33 +182,21 @@ void ExpEvaluator::initialize() {
   if (_exp_table_F1 != NULL)
     delete [] _exp_table_F1;
 
-  if (_exp_table_F2 != NULL)
-    delete [] _exp_table_F2;
-
-  if (_exp_table_G1 != NULL)
-    delete [] _exp_table_G1;
-
-  if (_exp_table_G2 != NULL)
-    delete [] _exp_table_G2;
-
   _table_size = 2 * num_polar * num_array_values;
   _exp_table_F1 = new FP_PRECISION[_table_size];
-  _exp_table_F2 = new FP_PRECISION[_table_size];
-  _exp_table_G1 = new FP_PRECISION[_table_size];
-  _exp_table_G2 = new FP_PRECISION[_table_size];
 
   FP_PRECISION expon;
   FP_PRECISION intercept;
-  FP_PRECISION slope_F1, slope_F2, slope_G1, slope_G2;
+  FP_PRECISION slope_F1;;
   FP_PRECISION sin_theta;
   FP_PRECISION tau;
-  FP_PRECISION F1, F2, G1, G2;
+  FP_PRECISION F1;
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < num_polar; p++) {
       sin_theta = _polar_quad->getSinTheta(p);
-      tau = i * exp_table_spacing;
+      tau = (i + 0.5) * exp_table_spacing;
       expon = exp(- tau / sin_theta);
 
       /* Compute F1 */
@@ -259,29 +205,6 @@ void ExpEvaluator::initialize() {
       intercept = F1 - slope_F1 * tau;
       _exp_table_F1[_two_times_num_polar * i + 2 * p] = slope_F1;
       _exp_table_F1[_two_times_num_polar * i + 2 * p + 1] = intercept;
-
-      /* Compute F2 */
-      F2 = 2.0 * (tau / sin_theta - F1) - tau / sin_theta * F1;
-      slope_F2 = 1.0 / sin_theta * (1 - tau / sin_theta - expon);
-      intercept = F2 - slope_F2 * tau;
-      _exp_table_F2[_two_times_num_polar * i + 2 * p] = slope_F2;
-      _exp_table_F2[_two_times_num_polar * i + 2 * p + 1] = intercept;
-
-      /* Compute G1 */
-      G1 = 1 + tau / (2 * sin_theta) - (1 + sin_theta / tau) * F1;
-      slope_G1 = 1.0 / sin_theta * (0.5 - expon) + sin_theta * log(tau) *
-          (expon - 1) - 1.0 / tau * expon;
-      intercept = G1 - slope_G1 * tau;
-      _exp_table_G1[_two_times_num_polar * i + 2 * p] = slope_G1;
-      _exp_table_G1[_two_times_num_polar * i + 2 * p + 1] = intercept;
-
-      /* Compute G2 */
-      G2 = 2.0 * tau / (3.0 * sin_theta) - (1 + 2 * sin_theta / tau) * G1;
-      slope_G2 = 2.0 / (3.0 * sin_theta) - slope_G1 - 2 * sin_theta * log(tau) *
-          G1 - 2 * sin_theta / tau * slope_G1;
-      intercept = G2 - slope_G2 * tau;
-      _exp_table_G2[_two_times_num_polar * i + 2 * p] = slope_G2;
-      _exp_table_G2[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
   }
 }
@@ -322,23 +245,9 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
 
 FP_PRECISION ExpEvaluator::computeExponentialF2(FP_PRECISION tau, int polar) {
 
-  FP_PRECISION exponential;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    tau = std::min(tau, (_max_optical_length));
-    int index = floor(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = _exp_table_F2[index + 2 * polar] * tau +
-        _exp_table_F2[index + 2 * polar + 1];
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
-    FP_PRECISION F1 = computeExponential(tau, polar);
-    exponential = 2.0 * (tau / sintheta - F1) - tau / sintheta * F1;
-  }
+  FP_PRECISION tau_sintheta = tau / _polar_quad->getSinTheta(polar);
+  FP_PRECISION F1 = computeExponential(tau, polar);
+  FP_PRECISION exponential = 2.0 * (tau_sintheta - F1) - tau_sintheta * F1;
 
   return exponential;
 }
@@ -346,23 +255,12 @@ FP_PRECISION ExpEvaluator::computeExponentialF2(FP_PRECISION tau, int polar) {
 
 FP_PRECISION ExpEvaluator::computeExponentialG1(FP_PRECISION tau, int polar) {
 
-  FP_PRECISION exponential;
+  if (tau == 0.0)
+    return 0.0;
 
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    tau = std::min(tau, (_max_optical_length));
-    int index = floor(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = _exp_table_G1[index + 2 * polar] * tau +
-        _exp_table_G1[index + 2 * polar + 1];
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
-    FP_PRECISION F1 = computeExponential(tau, polar);
-    exponential = 1 + tau / (2 * sintheta) - (1 + sintheta / tau) * F1;
-  }
+  FP_PRECISION tau_sintheta = tau / _polar_quad->getSinTheta(polar);
+  FP_PRECISION F1 = computeExponential(tau, polar);
+  FP_PRECISION exponential = 1 + tau_sintheta / 2.0 - (1 + 1.0 / tau_sintheta) * F1;
 
   return exponential;
 }
@@ -370,23 +268,13 @@ FP_PRECISION ExpEvaluator::computeExponentialG1(FP_PRECISION tau, int polar) {
 
 FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau, int polar) {
 
-  FP_PRECISION exponential;
+  if (tau == 0.0)
+    return 0.0;
 
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    tau = std::min(tau, (_max_optical_length));
-    int index = floor(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = _exp_table_G2[index + 2 * polar] * tau +
-        _exp_table_G2[index + 2 * polar + 1];
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
-    FP_PRECISION G1 = computeExponentialG1(tau, polar);
-    exponential = 2.0 * tau / (3.0 * sintheta) - (1 + 2.0 * sintheta / tau) * G1;
-  }
+  FP_PRECISION tau_sintheta = tau / _polar_quad->getSinTheta(polar);
+  FP_PRECISION exponential = 2.0 * tau_sintheta / 3.0 - (1 + 2.0 / tau_sintheta)
+      * (1.0 + tau_sintheta / 2.0 - (1.0 + 1.0 / tau_sintheta) *
+         (1.0 - exp(- tau_sintheta)));
 
   return exponential;
 }

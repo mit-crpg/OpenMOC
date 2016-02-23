@@ -855,6 +855,88 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
         return figures
 
 
+def plot_exp_evaluator(precision=1.e-5, max_tau=10.0):
+
+    exp_eval = openmoc.ExpEvaluator()
+    polar_quad = openmoc.TYPolarQuad()
+    polar_quad.setNumPolarAngles(3)
+    polar_quad.initialize()
+    exp_eval.setPolarQuadrature(polar_quad)
+    exp_eval.setMaxOpticalLength(max_tau)
+    exp_eval.setExpPrecision(precision)
+    exp_eval.initialize()
+    table_size = exp_eval.getTableSize()
+
+    py_printf('NORMAL', 'table size %d', table_size)
+
+    # create query arrays
+    test_size = int(10*table_size)
+    exp_interp = np.zeros((4,test_size))
+    exp_intrin = np.zeros((4,test_size))
+    exp_error = np.zeros((4,test_size))
+    test_tau = np.linspace(0, max_tau, test_size)
+
+    # query interpolated values
+    for i,t in enumerate(test_tau):
+        exp_interp[0][i] = exp_eval.computeExponential(t,0)
+        exp_interp[1][i] = exp_eval.computeExponentialF2(t,0)
+        exp_interp[2][i] = exp_eval.computeExponentialG1(t,0)
+        exp_interp[3][i] = exp_eval.computeExponentialG2(t,0)
+
+    exp_eval.useIntrinsic()
+
+    # query intrinsic values
+    for i,t in enumerate(test_tau):
+        exp_intrin[0][i] = exp_eval.computeExponential(t,0)
+        exp_intrin[1][i] = exp_eval.computeExponentialF2(t,0)
+        exp_intrin[2][i] = exp_eval.computeExponentialG1(t,0)
+        exp_intrin[3][i] = exp_eval.computeExponentialG2(t,0)
+
+    exp_error = (exp_interp - exp_intrin)
+
+    fig = plt.figure()
+    plt.semilogy(test_tau, exp_error[0], label='F1')
+    plt.semilogy(test_tau, exp_error[1], label='F2')
+    plt.semilogy(test_tau, exp_error[2], label='G1')
+    plt.semilogy(test_tau, exp_error[3], label='G2')
+    plt.ylabel('Error')
+    plt.xlabel('Tau')
+    plt.legend()
+    plt.savefig('plots/exp_error.png')
+
+    exp_error = exp_error / exp_intrin * 100.0
+
+    fig = plt.figure()
+    plt.semilogy(test_tau, exp_error[0], label='F1')
+    plt.semilogy(test_tau, exp_error[1], label='F2')
+    plt.semilogy(test_tau, exp_error[2], label='G1')
+    plt.semilogy(test_tau, exp_error[3], label='G2')
+    plt.ylabel('Relative Error (%)')
+    plt.xlabel('Tau')
+    plt.legend()
+    plt.savefig('plots/exp_rel_error.png')
+
+    fig = plt.figure()
+    plt.plot(test_tau, exp_intrin[0], label='F1')
+    plt.plot(test_tau, exp_intrin[1], label='F2')
+    plt.plot(test_tau, exp_intrin[2], label='G1')
+    plt.plot(test_tau, exp_intrin[3], label='G2')
+    plt.ylabel('Exponential Intrinsic')
+    plt.xlabel('Tau')
+    plt.legend(loc=2)
+    plt.savefig('plots/exp_intrin.png')
+
+    fig = plt.figure()
+    plt.plot(test_tau, exp_interp[0], label='F1')
+    plt.plot(test_tau, exp_interp[1], label='F2')
+    plt.plot(test_tau, exp_interp[2], label='G1')
+    plt.plot(test_tau, exp_interp[3], label='G2')
+    plt.ylabel('Exponential Interpolation')
+    plt.xlabel('Tau')
+    plt.legend(loc=2)
+    plt.savefig('plots/exp_interp.png')
+
+
 ##
 # @brief This method plots a color-coded 2D surface plot representing the
 #        FSR fission rates in the Geometry.

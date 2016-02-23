@@ -85,7 +85,6 @@ public:
 
   void initializeFluxArrays();
   void initializeSourceArrays();
-  void initializeExpEvaluator();
 
   void flattenFSRFluxes(FP_PRECISION value);
   void normalizeFluxes();

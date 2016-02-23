@@ -465,12 +465,12 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         _reduced_sources_y(fsr_id, e) * yc;
 
     for (int p=0; p < _num_polar; p++) {
+      tau_mki = tau_aki / sin_thetas[p];
       exp_F1 = _exp_evaluator->computeExponential  (tau_aki, p);
-      exp_F2 = _exp_evaluator->computeExponentialF2(tau_aki, p);
-      exp_G1 = _exp_evaluator->computeExponentialG1(tau_aki, p);
+      exp_F2 = 2 * (tau_mki - exp_F1) - tau_mki * exp_F1;
+      exp_G1 = 1 + tau_mki / 2 - (1 + 1.0 / tau_mki) * exp_F1;
       ax = cos_phi * sin_thetas[p];
       ay = sin_phi * sin_thetas[p];
-      tau_mki = tau_aki / sin_thetas[p];
 
       /* Compute the moment component of the source */
       src_moment = (ax * _reduced_sources_x(fsr_id, e) +
@@ -548,17 +548,6 @@ void CPULSSolver::addSourceToScalarFlux() {
                               _FSR_source_constants[r*_num_groups*3 + 3*e + 2]);
     }
   }
-}
-
-
-/**
- * @brief Initializes new ExpEvaluator object to compute exponentials and sets
- *        it to intrinsic since table look up is not yet supported for the
- *        linear source solver.
- */
-void CPULSSolver::initializeExpEvaluator() {
-  _exp_evaluator->useIntrinsic();
-  Solver::initializeExpEvaluator();
 }
 
 

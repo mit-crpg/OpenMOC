@@ -39,9 +39,6 @@ private:
 
   /** The exponential linear interpolation table */
   FP_PRECISION* _exp_table_F1;
-  FP_PRECISION* _exp_table_F2;
-  FP_PRECISION* _exp_table_G1;
-  FP_PRECISION* _exp_table_G2;
 
   /** The PolarQuad object of interest */
   PolarQuad* _polar_quad;
@@ -72,9 +69,6 @@ public:
   FP_PRECISION getTableSpacing();
   int getTableSize();
   FP_PRECISION* getExpTableF1();
-  FP_PRECISION* getExpTableF2();
-  FP_PRECISION* getExpTableG1();
-  FP_PRECISION* getExpTableG2();
 
   void initialize();
   FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
