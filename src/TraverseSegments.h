@@ -27,6 +27,12 @@ private:
   void loopOverTracksByTrackOTF(MOCKernel** kernels);
   void loopOverTracksByStackOTF(MOCKernel** kernels);
 
+  void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
+  void traceSegmentsOTF(Track* flattened_track, Point* start,
+                        double theta, MOCKernel* kernel);
+  void traceStackOTF(Track* flattened_track, int polar_index,
+                     MOCKernel** kernels);
+
 
   int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
 
@@ -59,13 +65,6 @@ protected:
 
 public:
   virtual void execute() = 0;
-
-//FIXME: move to private:
-  void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
-  void traceSegmentsOTF(Track* flattened_track, Point* start,
-                        double theta, MOCKernel* kernel);
-  void traceStackOTF(Track* flattened_track, int polar_index,
-                     MOCKernel** kernels);
 
 };
 
