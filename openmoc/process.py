@@ -13,6 +13,7 @@ import os
 import re
 import mmap
 import sys
+import math
 from numbers import Integral, Real
 from collections import Iterable
 
@@ -748,3 +749,61 @@ class Mesh(object):
         cv.check_type('mesh width', width, Iterable, Real)
         cv.check_length('mesh width', width, 2, 3)
         self._width = width
+
+    def get_mesh_cell_indices(self, point):
+
+        # Extract the x,y,z coordinates from the OpenMOC Point
+        x, y, z = point.getX(), point.getY(), point.getZ()
+
+        # Compute the mesh cell indices
+        lat_x = math.floor((x + self.dimension[0] * self.width[0] * 0.5 -
+                            self.offset[0]) / self.width[0])
+        lat_y = math.floor((y + self.dimension[1] * self.width[1] * 0.5 -
+                            self.offset[1]) / self.width[1])
+        if self.dimension[2] == 1:
+            lat_z = 0
+        else:
+            lat_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5 -
+                                self.offset[2]) / self.width[2])
+
+        # Compute the distance to the mesh cell boundaries
+        distance_x = math.fabs(math.fabs(x) - self.dimension[0] *
+                               self.width[0] * 0.5 - self.offset[0])
+        distance_y = math.fabs(math.fabs(y) - self.dimension[1] *
+                               self.width[1]*0.5 - self.offset[1])
+        distance_z = math.fabs(math.fabs(z) - self.dimension[2] *
+                               self.width[2] * 0.5 - self.offset[2])
+
+        # Check if the point is on the mesh boundaries - if so, adjust indices
+        if distance_x < openmoc.ON_LATTICE_CELL_THRESH:
+            if x > 0:
+                lat_x = self.dimension[0] - 1
+            else:
+                lat_x = 0
+
+        if distance_y < openmoc.ON_LATTICE_CELL_THRESH:
+            if y > 0:
+                lat_y = self.dimension[1] - 1
+            else:
+                lat_y = 0
+
+        if distance_z < openmoc.ON_LATTICE_CELL_THRESH:
+            if z > 0:
+                lat_z = self.dimension[2] - 1
+            else:
+                lat_z = 0
+
+        # Cast the mesh cell indices as integers
+        lat_x = int(lat_x)
+        lat_y = int(lat_y)
+        lat_z = int(lat_z)
+
+        # Throw error if indices are outside of the Mesh
+        if (lat_x < 0 or lat_x >= self.dimension[0]) or \
+           (lat_y < 0 or lat_y >= self.dimension[1]) or \
+           (lat_z < 0 or lat_z >= self.dimension[2]):
+            py_printf('ERROR', 'Unable to find cell since the indices ({0},' + \
+                      '{1},{2}) are outside of the mesh', lat_x, lat_y, lat_z)
+
+        # Return mesh cell indices
+        return lat_x, lat_y, lat_z
