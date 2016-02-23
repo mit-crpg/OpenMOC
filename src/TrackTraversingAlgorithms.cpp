@@ -176,9 +176,95 @@ void VolumeCalculator::execute() {
 void VolumeCalculator::onTrack(Track* track, segment* segments) {
 }
 
+
 /*
    TODO: class description
 */
+
+//TODO: description
+CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
+                                  : TraverseSegments(track_generator) {
+
+  _FSR_volumes = track_generator->getFSRVolumesBuffer();
+  _FSR_locks = track_generator->getFSRLocks();
+}
+
+
+//TODO: description
+void CentroidGenerator::execute() {
+#pragma omp parallel
+  {
+    MOCKernel** kernels = getKernels<SegmentationKernel>();
+    loopOverTracks(kernels);
+  }
+}
+
+
+//TODO: description
+void CentroidGenerator::setCentroids(Point** centroids) {
+  _centroids = centroids;
+}
+
+
+//TODO: description
+void CentroidGenerator::onTrack(Track* track, segment* segments) {
+
+  /* Extract track information */
+  Point* start = track->getStart();
+  double xx = start->getX();
+  double yy = start->getY();
+  double zz = start->getZ();
+  double wgt = track->getWeight();
+  double phi = track->getPhi();
+
+  /* Get polar angles depending on the dimensionality */
+  double sin_theta = 1;
+  double cos_theta = 0;
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  if (track_3D != NULL) {
+    double theta = track_3D->getTheta();
+    sin_theta = sin(theta);
+    cos_theta = cos(theta);
+  }
+
+  /* Loop over segments to accumlate contribution to centroids */
+  for (int s=0; s < track->getNumSegments(); s++) {
+    segment* curr_segment = &segments[s];
+    int fsr = curr_segment->_region_id;
+    double volume = _FSR_volumes[fsr];
+
+    /* Set the lock for this FSR */
+    omp_set_lock(&_FSR_locks[fsr]);
+
+    _centroids[fsr]->
+        setX(_centroids[fsr]->getX() + wgt *
+        (xx + cos(phi) * sin_theta * curr_segment->_length / 2.0)
+        * curr_segment->_length / _FSR_volumes[fsr]);
+
+    _centroids[fsr]->
+        setY(_centroids[fsr]->getY() + wgt *
+        (yy + sin(phi) * sin_theta * curr_segment->_length / 2.0)
+        * curr_segment->_length / _FSR_volumes[fsr]);
+
+    _centroids[fsr]->
+        setZ(_centroids[fsr]->getZ() + wgt *
+        (zz + cos_theta * curr_segment->_length / 2.0)
+        * curr_segment->_length / _FSR_volumes[fsr]);
+
+    /* Unset the lock for this FSR */
+    omp_unset_lock(&_FSR_locks[fsr]);
+
+    xx += cos(phi) * sin_theta * curr_segment->_length;
+    yy += sin(phi) * cos_theta * curr_segment->_length;
+    zz += cos_theta * curr_segment->_length;
+  }
+}
+
+
+/*
+   TODO: class description
+*/
+
 
 //TODO: description
 TransportSweep::TransportSweep(TrackGenerator* track_generator)
@@ -389,3 +475,5 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     track->addSegment(curr_segment);
   }
 }
+
+

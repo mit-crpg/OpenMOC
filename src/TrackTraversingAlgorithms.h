@@ -45,13 +45,30 @@ public:
 };
 
 
-
 // TODO: description
 class VolumeCalculator: public TraverseSegments {
 
 public:
 
   VolumeCalculator(TrackGenerator* track_generator);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+
+// TODO: description
+class CentroidGenerator: public TraverseSegments {
+
+private:
+
+  Point** _centroids;
+  FP_PRECISION* _FSR_volumes;
+  omp_lock_t* _FSR_locks;
+
+public:
+
+  CentroidGenerator(TrackGenerator* track_generator);
+  void setCentroids(Point** centroids);
   void execute();
   void onTrack(Track* track, segment* segments);
 };
