@@ -14,6 +14,7 @@ import re
 import mmap
 import sys
 import math
+import operator
 from numbers import Integral, Real
 from collections import Iterable
 
@@ -700,7 +701,7 @@ class Mesh(object):
 
     """
 
-    def __init__(self, mesh_id=None, name=''):
+    def __init__(self):
         self._dimension = None
         self._lower_left = None
         self._upper_right = None
@@ -725,6 +726,10 @@ class Mesh(object):
     @property
     def num_mesh_cells(self):
         return np.prod(self._dimension)
+
+    @property
+    def mesh_cell_volume(self):
+        return reduce(operator.mul, self.dimension, 1)
 
     @dimension.setter
     def dimension(self, dimension):
@@ -752,58 +757,146 @@ class Mesh(object):
 
     def get_mesh_cell_indices(self, point):
 
+        cv.check_type('point', point, openmoc.Point)
+
         # Extract the x,y,z coordinates from the OpenMOC Point
         x, y, z = point.getX(), point.getY(), point.getZ()
 
         # Compute the mesh cell indices
-        lat_x = math.floor((x + self.dimension[0] * self.width[0] * 0.5 -
-                            self.offset[0]) / self.width[0])
-        lat_y = math.floor((y + self.dimension[1] * self.width[1] * 0.5 -
-                            self.offset[1]) / self.width[1])
-        if self.dimension[2] == 1:
-            lat_z = 0
+        mesh_x = math.floor((x + self.dimension[0] * self.width[0] * 0.5) / self.width[0])
+        mesh_y = math.floor((y + self.dimension[1] * self.width[1] * 0.5) / self.width[1])
+        if len(self.dimension) == 2:
+            mesh_z = 0
         else:
-            lat_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5 -
-                                self.offset[2]) / self.width[2])
+            mesh_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5) / self.width[2])
 
         # Compute the distance to the mesh cell boundaries
         distance_x = math.fabs(math.fabs(x) - self.dimension[0] *
-                               self.width[0] * 0.5 - self.offset[0])
+                               self.width[0] * 0.5)
         distance_y = math.fabs(math.fabs(y) - self.dimension[1] *
-                               self.width[1]*0.5 - self.offset[1])
-        distance_z = math.fabs(math.fabs(z) - self.dimension[2] *
-                               self.width[2] * 0.5 - self.offset[2])
+                               self.width[1]*0.5)
+        if len(self.dimension) == 2:
+            distance_z = np.inf
+        else:
+            distance_z = math.fabs(math.fabs(z) - self.dimension[2] *
+                                   self.width[2] * 0.5)
 
         # Check if the point is on the mesh boundaries - if so, adjust indices
         if distance_x < openmoc.ON_LATTICE_CELL_THRESH:
             if x > 0:
-                lat_x = self.dimension[0] - 1
+                mesh_x = self.dimension[0] - 1
             else:
-                lat_x = 0
+                mesh_x = 0
 
         if distance_y < openmoc.ON_LATTICE_CELL_THRESH:
             if y > 0:
-                lat_y = self.dimension[1] - 1
+                mesh_y = self.dimension[1] - 1
             else:
-                lat_y = 0
+                mesh_y = 0
 
         if distance_z < openmoc.ON_LATTICE_CELL_THRESH:
             if z > 0:
-                lat_z = self.dimension[2] - 1
+                mesh_z = self.dimension[2] - 1
             else:
-                lat_z = 0
+                mesh_z = 0
 
         # Cast the mesh cell indices as integers
-        lat_x = int(lat_x)
-        lat_y = int(lat_y)
-        lat_z = int(lat_z)
+        lat_x = int(mesh_x)
+        lat_y = int(mesh_y)
+        lat_z = int(mesh_z)
 
         # Throw error if indices are outside of the Mesh
-        if (lat_x < 0 or lat_x >= self.dimension[0]) or \
-           (lat_y < 0 or lat_y >= self.dimension[1]) or \
-           (lat_z < 0 or lat_z >= self.dimension[2]):
-            py_printf('ERROR', 'Unable to find cell since the indices ({0},' + \
-                      '{1},{2}) are outside of the mesh', lat_x, lat_y, lat_z)
+        if len(self.dimension) == 2:
+            if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
+               (mesh_y < 0 or mesh_y >= self.dimension[1]):
+                py_printf('ERROR', 'Unable to find cell since indices ({0},' + \
+                          '{1},{2}) are outside mesh', lat_x, lat_y, lat_z)
+        else:
+            if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
+               (mesh_y < 0 or mesh_y >= self.dimension[1]) or \
+               (mesh_z < 0 or mesh_z >= self.dimension[2]):
+                py_printf('ERROR', 'Unable to find cell since indices ({0},' + \
+                          '{1},{2}) are outside mesh', lat_x, lat_y, lat_z)
 
         # Return mesh cell indices
-        return lat_x, lat_y, lat_z
+        if len(self.dimension) == 2:
+            return mesh_x, mesh_y
+        else:
+            return mesh_x, mesh_y, mesh_z
+
+    def get_fission_rates(self, solver, volume='integrated'):
+
+        # NOTE: This assumes that the mesh perfectly aligns with the FSR mesh
+
+#        cv.check_type('solver', solver, openmoc.Solver)
+        cv.check_value('volume', volume, ('integrated', 'averaged'))
+
+        geometry = solver.getGeometry()
+        num_fsrs = geometry.getNumFSRs()
+
+        # Compute the volume- and energy-integrated fission rates for each FSR
+        fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+
+        # Initialize a 2D or 3D NumPy array in which to tally
+        tally = np.zeros(tuple(self.dimension), dtype=np.float)
+
+        # Compute sum of product of fluxes with domains-to-coeffs mapping by group, FSR
+        for fsr in range(num_fsrs):
+            point = geometry.getFSRPoint(fsr)
+            indices = self.get_mesh_cell_indices(point)
+            tally[indices] += fission_rates[fsr]
+
+        # Average the fission rates by mesh cell volume if needed
+        if volume == 'averaged':
+            tally /= self.mesh_cell_volume
+
+        return tally
+
+
+    def tally_on_mesh(self, solver, domains_to_coeffs, domain_type='fsr',
+                      volume='integrated'):
+
+        # NOTE: This assumes that the mesh perfectly aligns with the FSR mesh
+
+#        cv.check_type('solver', solver, openmoc.openmoc.Solver)
+        cv.check_value('domain_type', domain_type, ('fsr', 'cell', 'material'))
+        cv.check_value('volume', volume, ('integrated', 'averaged'))
+
+        if 'DataFrame' in type(domains_to_coeffs):
+            pandas_df = True
+        else:
+            cv.check_type('domains_to_coeffs', domains_to_coeffs, np.ndarray)
+
+        geometry = solver.getGeometry()
+        num_groups = solver.getNumEnergyGroups()
+        num_fsrs = geometry.getNumFSRs()
+        fluxes = get_scalar_fluxes(solver)
+
+        # Initialize a 2D or 3D NumPy array in which to tally
+        tally_shape = tuple(self.dimension) + (num_groups,)
+        tally = np.zeros(tally_shape, dtype=np.float)
+
+        # Compute product of fluxes with domains-to-coeffs mapping by group, FSR
+        for fsr in range(num_fsrs):
+            point = geometry.getFSRPoint(fsr)
+            indices = self.get_mesh_cell_indices(point)
+            volume = solver.getFSRVolume()
+            fsr_tally = np.zeros(num_groups, dtype=np.float)
+
+            for group in range(1, num_groups+1):
+                # FIXME: Make this work for cells, materials or FSR mappings
+                if pandas_df:
+                    fsr_tally[group-1] = \
+                        fluxes[fsr,group-1] * domains_to_coeffs.iloc[fsr, group]
+                else:
+                    fsr_tally[group-1] = \
+                        fluxes[fsr,group-1] * domains_to_coeffs[fsr, group]
+
+                # Increment mesh tally with volume-integrated FSR tally
+                tally[indices] += fsr_tally * volume
+
+        # Average the fission rates by mesh cell volume if needed
+        if volume == 'averaged':
+            tally /= self.mesh_cell_volume
+
+        return tally

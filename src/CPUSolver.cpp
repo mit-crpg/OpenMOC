@@ -893,7 +893,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
 
   log_printf(INFO, "Computing FSR fission rates...");
 
-  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma_f;
   FP_PRECISION volume;
 
   /* Initialize fission rates to zero */
@@ -901,12 +901,12 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     fission_rates[r] = 0.0;
 
   /* Loop over all FSRs and compute the volume-averaged nu-fission rate */
-#pragma omp parallel for private (nu_sigma_f, volume) schedule(guided)
+#pragma omp parallel for private (sigma_f, volume) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
-    nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+    sigma_f = _FSR_materials[r]->getSigmaF();
     volume = _FSR_volumes[r];
 
     for (int e=0; e < _num_groups; e++)
-      fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e) * volume;
+      fission_rates[r] += sigma_f[e] * _scalar_flux(r,e) * volume;
   }
 }
