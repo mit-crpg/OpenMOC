@@ -1543,22 +1543,19 @@ void TrackGenerator::generateTracks() {
     /* Initialize the 1D array of Tracks */
     initializeTracksArray();
 
-    /* If track file not present, generater segments */
+    /* If track file not present, generate segments */
     if (_use_input_file == false) {
 
       /* Segmentize the tracks */
-      if (_solve_3D) {
-        if (_segment_formation == EXPLICIT) {
+      if (_segment_formation == EXPLICIT || _segment_formation == TWO_DIM) {
+        if (_solve_3D)
           segmentize3D();
-          dump3DSegmentsToFile();
-        }
-        else {
-          segmentizeExtruded();
-        }
+        else
+          segmentize2D();
+        dumpSegmentsToFile();
       }
       else {
-        segmentize2D();
-        dump2DSegmentsToFile();
+        segmentizeExtruded();
       }
     }
 
@@ -3830,16 +3827,16 @@ void TrackGenerator::dump2DSegmentsToFile() {
  * @details Storing Tracks in a binary file saves time by eliminating ray
  *          tracing for Track segmentation in commonly simulated geometries.
  */
-void TrackGenerator::dump3DSegmentsToFile() {
+void TrackGenerator::dumpSegmentsToFile() {
 
   /* Check whether the segments should be dumped */
   if (!_dump_segments)
     return;
 
-  log_printf(NORMAL, "Dumping 3D segments to file...");
+  log_printf(NORMAL, "Dumping segments to file...");
 
-  if (!_contains_3D_segments)
-    log_printf(ERROR, "Unable to dump 3D Segments to a file since no Segments "
+  if (!_contains_3D_segments && !_contains_2D_segments)
+    log_printf(ERROR, "Unable to dump Segments to a file since no Segments "
                "have been generated for %d azimuthal angles and %f track "
                "spacing", _num_azim, _azim_spacing);
 

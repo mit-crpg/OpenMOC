@@ -301,7 +301,7 @@ public:
   bool isSolve3D();
   segmentationType getSegmentFormation();
   void dump2DSegmentsToFile();
-  void dump3DSegmentsToFile();
+  void dumpSegmentsToFile();
   bool read2DSegmentsFromFile();
   bool read3DSegmentsFromFile();
   void initializeTrackFileDirectory();
