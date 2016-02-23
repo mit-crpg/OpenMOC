@@ -72,6 +72,87 @@ void SegmentCounter::onTrack(Track* track, segment* segments) {
 
 
 /*
+  TODO: class description
+*/
+
+//TODO: description
+SegmentSplitter::SegmentSplitter(TrackGenerator* track_generator)
+                               : TraverseSegments(track_generator) {
+}
+
+
+//TODO: description
+void SegmentSplitter::execute() {
+#pragma omp parallel
+  {
+    MOCKernel** kernels = getKernels<SegmentationKernel>();
+    loopOverTracks(kernels);
+  }
+}
+
+
+//TODO: description
+void SegmentSplitter::onTrack(Track* track, segment* segments) {
+
+  /* Get the max optical length from the TrackGenerator */
+  FP_PRECISION max_optical_length =
+    _track_generator->retrieveMaxOpticalLength();
+
+  /* Extract data from this segment to compute its optical
+   * length */
+  for (int s = 0; s < track->getNumSegments(); s++) {
+    segment* curr_segment = track->getSegment(s);
+    Material* material = curr_segment->_material;
+    FP_PRECISION length = curr_segment->_length;
+    int fsr_id = curr_segment->_region_id;
+
+    /* Compute number of segments to split this segment into */
+    int min_num_cuts = 1;
+    int num_groups = material->getNumEnergyGroups();
+    FP_PRECISION* sigma_t = material->getSigmaT();
+
+    for (int g=0; g < num_groups; g++) {
+      FP_PRECISION tau = length * sigma_t[g];
+      int num_cuts = ceil(tau / max_optical_length);
+      min_num_cuts = std::max(num_cuts, min_num_cuts);
+    }
+
+    /* If the segment does not need subdivisions, go to next
+     * segment */
+    if (min_num_cuts == 1)
+      continue;
+
+    /* Record the CMFD surfaces */
+    int cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+    int cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+
+    /* Split the segment into sub-segments */
+    for (int k=0; k < min_num_cuts; k++) {
+
+      /* Create a new Track segment */
+      segment* new_segment = new segment;
+      new_segment->_material = material;
+      new_segment->_length = length / FP_PRECISION(min_num_cuts);
+      new_segment->_region_id = fsr_id;
+
+      /* Assign CMFD surface boundaries */
+      if (k == 0)
+        new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+
+      if (k == min_num_cuts-1)
+        new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+
+      /* Insert the new segment to the Track */
+      track->insertSegment(s+k+1, new_segment);
+    }
+
+    /* Remove the original segment from the Track */
+    track->removeSegment(s);
+  }
+}
+
+
+/*
    TODO: class description
 */
 

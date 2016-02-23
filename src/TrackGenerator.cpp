@@ -3651,15 +3651,12 @@ void TrackGenerator::initializeTrackFileDirectory() {
   /* Check to see if a Track file exists for this geometry, number of azimuthal
    * angles, and track spacing, and if so, import the ray tracing data */
   if (!stat(_tracks_filename.c_str(), &buffer)) {
-    if (_solve_3D && _segment_formation == EXPLICIT){
-      if (read3DSegmentsFromFile()) {
+    if (_segment_formation == EXPLICIT || _segment_formation == TWO_DIM) {
+      if (readSegmentsFromFile()) {
         _use_input_file = true;
-        _contains_3D_segments = true;
-      }
-    }
-    else{
-      if (read2DSegmentsFromFile()) {
-        _use_input_file = true;
+        if (_solve_3D)
+          _contains_3D_segments = true;
+        else
         _contains_2D_segments = true;
       }
     }
@@ -3940,168 +3937,7 @@ void TrackGenerator::dumpSegmentsToFile() {
  *          tracing for Track segmentation in commonly simulated geometries.
  * @return true if able to read Tracks in from a file; false otherwise
  */
-bool TrackGenerator::read2DSegmentsFromFile() {
-
-  int ret;
-  FILE* in;
-  in = fopen(_tracks_filename.c_str(), "r");
-
-  int string_length;
-  double z_coord;
-
-  /* Import Geometry metadata from the Track file */
-  ret = fread(&string_length, sizeof(int), 1, in);
-  char* geometry_to_string = new char[string_length];
-  ret = fread(geometry_to_string, sizeof(char)*string_length, 1, in);
-  ret = fread(&z_coord, sizeof(double), 1, in);
-
-  /* Check if our Geometry is exactly the same as the Geometry in the
-   * Track file for this number of azimuthal angles and track spacing */
-  if (_geometry->toString().compare(std::string(geometry_to_string)) != 0 ||
-      _z_coord != z_coord)
-    return false;
-
-  delete [] geometry_to_string;
-
-  log_printf(NORMAL, "Importing ray tracing data from file...");
-
-  Track2D* curr_track;
-  int num_segments;
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  double length;
-  int material_id;
-  int region_id;
-
-  int cmfd_surface_fwd;
-  int cmfd_surface_bwd;
-
-  std::map<int, Material*> materials = _geometry->getAllMaterials();
-
-  int uid = 0;
-
-  /* Loop over Tracks */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-
-      /* Import data for this Track from Track file */
-      ret = fread(&num_segments, sizeof(int), 1, in);
-
-      /* Initialize a Track with this data */
-      curr_track = &_tracks_2D[a][i];
-
-      /* Loop over all segments in this Track */
-      for (int s=0; s < num_segments; s++) {
-
-        /* Import data for this segment from Track file */
-        ret = fread(&length, sizeof(double), 1, in);
-        ret = fread(&material_id, sizeof(int), 1, in);
-        ret = fread(&region_id, sizeof(int), 1, in);
-
-        /* Initialize segment with the data */
-        segment* curr_segment = new segment;
-        curr_segment->_length = length;
-        curr_segment->_material = materials[material_id];
-        curr_segment->_region_id = region_id;
-
-        /* Import CMFD-related data if needed */
-        if (cmfd != NULL) {
-          ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
-          ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-          curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-          curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
-        }
-
-        /* Add this segment to the Track */
-        curr_track->addSegment(curr_segment);
-      }
-
-      uid++;
-    }
-  }
-
-  /* Create FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
-      new ParallelHashMap<std::size_t, fsr_data*>;
-  std::vector<int>* FSRs_to_material_IDs
-    = new std::vector<int>;
-  std::vector<std::size_t>* FSRs_to_keys
-    = new std::vector<std::size_t>;
-  int num_FSRs;
-  std::size_t fsr_key;
-  int fsr_key_id;
-  double x, y, z;
-
-  /* Get number of FSRs */
-  ret = fread(&num_FSRs, sizeof(int), 1, in);
-
-  /* Read FSR vector maps from file */
-  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
-
-    /* Read data from file for FSR_keys_map */
-    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
-    ret = fread(&fsr_key_id, sizeof(int), 1, in);
-    ret = fread(&x, sizeof(double), 1, in);
-    ret = fread(&y, sizeof(double), 1, in);
-    ret = fread(&z, sizeof(double), 1, in);
-    fsr_data* fsr = new fsr_data;
-    fsr->_fsr_id = fsr_key_id;
-    Point* point = new Point();
-    point->setCoords(x,y,z);
-    fsr->_point = point;
-    FSR_keys_map->insert(fsr_key, fsr);
-
-    /* Read data from file for FSR_to_materials_IDs */
-    ret = fread(&material_id, sizeof(int), 1, in);
-    FSRs_to_material_IDs->push_back(material_id);
-
-    /* Read data from file for FSR_to_keys */
-    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
-    FSRs_to_keys->push_back(fsr_key);
-  }
-
-  /* Set FSR vector maps */
-  _geometry->setFSRKeysMap(FSR_keys_map);
-  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
-  _geometry->setFSRsToKeys(FSRs_to_keys);
-
-  /* Read cmfd cell_fsrs vector of vectors from file */
-  if (cmfd != NULL) {
-    std::vector< std::vector<int> > cell_fsrs;
-    int num_cells, fsr_id;
-    ret = fread(&num_cells, sizeof(int), 1, in);
-
-    /* Loop over CMFD cells */
-    for (int cell=0; cell < num_cells; cell++) {
-      std::vector<int> *fsrs = new std::vector<int>;
-      cell_fsrs.push_back(*fsrs);
-      ret = fread(&num_FSRs, sizeof(int), 1, in);
-
-      /* Loop over FRSs within cell */
-      for (int fsr = 0; fsr < num_FSRs; fsr++) {
-        ret = fread(&fsr_id, sizeof(int), 1, in);
-        cell_fsrs.at(cell).push_back(fsr_id);
-      }
-    }
-
-    /* Set CMFD cell_fsrs vector of vectors */
-    cmfd->setCellFSRs(cell_fsrs);
-  }
-
-  /* Close the Track file */
-  fclose(in);
-
-  return true;
-}
-
-
-/**
- * @brief Reads Tracks in from a "*.tracks" binary file.
- * @details Storing Tracks in a binary file saves time by eliminating ray
- *          tracing for Track segmentation in commonly simulated geometries.
- * @return true if able to read Tracks in from a file; false otherwise
- */
-bool TrackGenerator::read3DSegmentsFromFile() {
+bool TrackGenerator::readSegmentsFromFile() {
 
   int ret;
   FILE* in;
@@ -4219,134 +4055,14 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
     log_printf(ERROR, "Unable to split segments since "
 	       "segments have not yet been generated");
 
-  if (_segment_formation != EXPLICIT)
+  if (_segment_formation != EXPLICIT && _segment_formation != TWO_DIM)
     log_printf(ERROR, "Segments cannot be split for on-the-fly ray tracing");
 
-  int num_cuts, min_num_cuts;
-  segment* curr_segment;
+  /* Split all segments along all Tracks */
+  _max_optical_length = max_optical_length;
+  SegmentSplitter segment_splitter(this);
+  segment_splitter.execute();
 
-  FP_PRECISION length, tau;
-  int fsr_id;
-  Material* material;
-  FP_PRECISION* sigma_t;
-  int num_groups;
-
-  if (_solve_3D) {
-    for (int a=0; a < _num_azim/2; a++) {
-      for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-        for (int p=0; p < _num_polar; p++) {
-          for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-            for (int s=0; s < _tracks_3D[a][i][p][z].getNumSegments(); s++) {
-
-              /* Extract data from this segment to compute its optical
-               * length */
-              curr_segment = _tracks_3D[a][i][p][z].getSegment(s);
-              material = curr_segment->_material;
-              length = curr_segment->_length;
-              fsr_id = curr_segment->_region_id;
-
-              /* Compute number of segments to split this segment into */
-              min_num_cuts = 1;
-              num_groups = material->getNumEnergyGroups();
-              sigma_t = material->getSigmaT();
-
-              for (int g=0; g < num_groups; g++) {
-                tau = length * sigma_t[g];
-                num_cuts = ceil(tau / max_optical_length);
-                min_num_cuts = std::max(num_cuts, min_num_cuts);
-              }
-
-              /* If the segment does not need subdivisions, go to next
-               * segment */
-              if (min_num_cuts == 1)
-                continue;
-
-              /* Record the CMFD surfaces */
-              int cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-              int cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-
-              /* Split the segment into sub-segments */
-              for (int k=0; k < min_num_cuts; k++) {
-
-                /* Create a new Track segment */
-                segment* new_segment = new segment;
-                new_segment->_material = material;
-                new_segment->_length = length / FP_PRECISION(min_num_cuts);
-                new_segment->_region_id = fsr_id;
-
-                /* Assign CMFD surface boundaries */
-                if (k == 0)
-                  new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
-
-                if (k == min_num_cuts-1)
-                  new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-
-                /* Insert the new segment to the Track */
-                _tracks_3D[a][i][p][z].insertSegment(s+k+1, new_segment);
-              }
-
-              /* Remove the original segment from the Track */
-              _tracks_3D[a][i][p][z].removeSegment(s);
-            }
-          }
-        }
-      }
-    }
-  }
-  else{
-    for (int a=0; a < _num_azim/2; a++) {
-      for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-        for (int s=0; s < _tracks_2D[a][i].getNumSegments(); s++) {
-
-          /* Extract data from this segment to compute it optical length */
-          curr_segment = _tracks_2D[a][i].getSegment(s);
-          material = curr_segment->_material;
-          length = curr_segment->_length;
-          fsr_id = curr_segment->_region_id;
-
-          /* Compute number of segments to split this segment into */
-          min_num_cuts = 1;
-          num_groups = material->getNumEnergyGroups();
-          sigma_t = material->getSigmaT();
-
-          for (int g=0; g < num_groups; g++) {
-            tau = length * sigma_t[g];
-            num_cuts = ceil(tau / max_optical_length);
-            min_num_cuts = std::max(num_cuts, min_num_cuts);
-          }
-
-          /* If the segment does not need subdivisions, go to next segment */
-          if (min_num_cuts == 1)
-            continue;
-
-          /* Split the segment into sub-segments */
-          for (int k=0; k < min_num_cuts; k++) {
-
-            /* Create a new Track segment */
-            segment* new_segment = new segment;
-            new_segment->_material = material;
-            new_segment->_length = length / FP_PRECISION(min_num_cuts);
-            new_segment->_region_id = fsr_id;
-
-            /* Assign CMFD surface boundaries */
-            if (k == 0)
-              new_segment->_cmfd_surface_bwd =
-                curr_segment->_cmfd_surface_bwd;
-
-            if (k == min_num_cuts-1)
-              new_segment->_cmfd_surface_fwd =
-                curr_segment->_cmfd_surface_fwd;
-
-            /* Insert the new segment to the Track */
-            _tracks_2D[a][i].insertSegment(s+k+1, new_segment);
-          }
-
-          /* Remove the original segment from the Track */
-          _tracks_2D[a][i].removeSegment(s);
-        }
-      }
-    }
-  }
 }
 
 

@@ -302,8 +302,7 @@ public:
   segmentationType getSegmentFormation();
   void dump2DSegmentsToFile();
   void dumpSegmentsToFile();
-  bool read2DSegmentsFromFile();
-  bool read3DSegmentsFromFile();
+  bool readSegmentsFromFile();
   void initializeTrackFileDirectory();
   void initialize2DTrackPeriodicIndices();
   void initialize3DTrackPeriodicIndices();

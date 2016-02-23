@@ -34,6 +34,18 @@ public:
 };
 
 
+//TODO: description
+class SegmentSplitter: public TraverseSegments {
+
+public:
+
+  SegmentSplitter(TrackGenerator* track_generator);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+
+
 // TODO: description
 class VolumeCalculator: public TraverseSegments {
 
