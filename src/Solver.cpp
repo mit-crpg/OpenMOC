@@ -296,6 +296,12 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 }
 
 
+// FIXME: description
+FP_PRECISION* Solver::getBoundaryFlux(int track_id, bool fwd) {
+  return &_boundary_flux(track_id, !fwd, 0);
+}
+
+
 /**
  * @brief Sets the Geometry for the Solver.
  * @details This is a private setter method for the Solver and is not

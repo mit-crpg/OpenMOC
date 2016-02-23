@@ -686,6 +686,38 @@ void CPUSolver::transportSweepOTF() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
+  /* Copy starting flux to current flux */
+  copyBoundaryFluxes();
+
+  //TODO: description
+  TransportSweep sweep_tracks(_track_generator);
+  sweep_tracks.setCPUSolver(this);
+  sweep_tracks.execute();
+
+}
+
+
+/**
+ * @brief This method performs one transport sweep of all azimuthal angles,
+ *        Tracks, Track segments, polar angles and energy groups using
+ *        on-the-fly axial ray tracing.
+ * @details The method integrates the flux along each Track and updates the
+ *          boundary fluxes for the corresponding output Track, while updating
+ *          the scalar flux in each flat source region. Computation is
+ *          parallelized over 2D tracks and 3D segments are formed with
+ *          on-the-fly axial ray tracing.
+ */
+void CPUSolver::OLDtransportSweepOTF() {
+
+  log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads",
+      _num_threads);
+
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
+    _cmfd->zeroSurfaceCurrents();
+
+  /* Initialize flux in each FSR to zero */
+  flattenFSRFluxes(0.0);
+
 
   /* Unpack information from track generator */
   int num_2D_tracks = _track_generator->getNum2DTracks();

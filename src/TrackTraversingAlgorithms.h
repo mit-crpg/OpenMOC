@@ -3,6 +3,11 @@
 
 #include "TraverseSegments.h"
 
+
+/** Forward declaration of CPUSolver class */
+class CPUSolver;
+
+
 //TODO: description
 class MaxOpticalLength: public TraverseSegments {
 private:
@@ -40,16 +45,19 @@ public:
 };
 
 
-/*
 class TransportSweep: public TraverseSegments {
+
+private:
+
+  CPUSolver* _cpu_solver;
 
 public:
 
   TransportSweep(TrackGenerator* track_generator);
+  void setCPUSolver(CPUSolver* cpu_solver);
   void execute();
   void onTrack(Track* track, segment* segments);
 };
-*/
 
 
 #endif

@@ -131,7 +131,7 @@ protected:
 
   /** Determines the type of track segmentation to use for 3D MOC */
   segmentationType _segment_formation;
-  
+
   /** The total number of Tracks */
   int _tot_num_tracks;
 
@@ -273,9 +273,9 @@ public:
   bool isUsingExponentialInterpolation();
 
 
-
   virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
+  virtual FP_PRECISION* getBoundaryFlux(int track_id, bool fwd);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
