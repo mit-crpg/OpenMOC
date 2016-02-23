@@ -179,3 +179,132 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 }
 
 
+/*
+   TODO: class description
+*/
+
+//TODO: description
+DumpSegments::DumpSegments(TrackGenerator* track_generator)
+                           : TraverseSegments(track_generator) {
+  _out = NULL;
+}
+
+
+//TODO: description
+void DumpSegments::execute() {
+  MOCKernel** kernels = getKernels<SegmentationKernel>();
+  loopOverTracks(kernels);
+}
+
+
+//TODO: description
+void DumpSegments::setOutputFile(FILE* out) {
+  _out = out;
+}
+
+
+//TODO: description
+void DumpSegments::onTrack(Track* track, segment* segments) {
+
+  /* Write data for this Track to the Track file */
+  int num_segments = track->getNumSegments();
+  fwrite(&num_segments, sizeof(int), 1, _out);
+
+  /* Get CMFD mesh object */
+  Cmfd* cmfd = _track_generator->getGeometry()->getCmfd();
+
+  /* Loop over all segments for this Track */
+  for (int s=0; s < num_segments; s++) {
+
+    /* Get data for this segment */
+    segment* curr_segment = track->getSegment(s);
+    FP_PRECISION length = curr_segment->_length;
+    int material_id = curr_segment->_material->getId();
+    int region_id = curr_segment->_region_id;
+
+    /* Write data for this segment to the Track file */
+    fwrite(&length, sizeof(double), 1, _out);
+    fwrite(&material_id, sizeof(int), 1, _out);
+    fwrite(&region_id, sizeof(int), 1, _out);
+
+    /* Write CMFD-related data for the Track if needed */
+    if (cmfd != NULL) {
+      int cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+      int cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+      fwrite(&cmfd_surface_fwd, sizeof(int), 1, _out);
+      fwrite(&cmfd_surface_bwd, sizeof(int), 1, _out);
+    }
+  }
+}
+
+
+/*
+   TODO: class description
+*/
+
+//TODO: description
+ReadSegments::ReadSegments(TrackGenerator* track_generator)
+                           : TraverseSegments(track_generator) {
+  _in = NULL;
+}
+
+
+//TODO: description
+void ReadSegments::execute() {
+  MOCKernel** kernels = getKernels<SegmentationKernel>();
+  loopOverTracks(kernels);
+}
+
+
+//TODO: description
+void ReadSegments::setInputFile(FILE* in) {
+  _in = in;
+}
+
+
+//TODO: description
+void ReadSegments::onTrack(Track* track, segment* segments) {
+
+  /* Get CMFD mesh object */
+  Geometry* geometry = _track_generator->getGeometry();
+  Cmfd* cmfd = geometry->getCmfd();
+  int ret;
+
+  /* Get materials map */
+  std::map<int, Material*> materials = geometry->getAllMaterials();
+
+  /* Import data for this Track from Track file */
+  int num_segments;
+  ret = fread(&num_segments, sizeof(int), 1, _in);
+
+  /* Loop over all segments in this Track */
+  for (int s=0; s < num_segments; s++) {
+
+    /* Import data for this segment from Track file */
+    double length;
+    ret = fread(&length, sizeof(double), 1, _in);
+    int material_id;
+    ret = fread(&material_id, sizeof(int), 1, _in);
+    int region_id;
+    ret = fread(&region_id, sizeof(int), 1, _in);
+
+    /* Initialize segment with the data */
+    segment* curr_segment = new segment;
+    curr_segment->_length = length;
+    curr_segment->_material = materials[material_id];
+    curr_segment->_region_id = region_id;
+
+    /* Import CMFD-related data if needed */
+    if (cmfd != NULL) {
+      int cmfd_surface_fwd;
+      ret = fread(&cmfd_surface_fwd, sizeof(int), 1, _in);
+      curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+      int cmfd_surface_bwd;
+      ret = fread(&cmfd_surface_bwd, sizeof(int), 1, _in);
+      curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+    }
+
+    /* Add this segment to the Track */
+    track->addSegment(curr_segment);
+  }
+}

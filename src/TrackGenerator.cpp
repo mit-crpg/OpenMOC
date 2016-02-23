@@ -3855,57 +3855,10 @@ void TrackGenerator::dump3DSegmentsToFile() {
   fwrite(&string_length, sizeof(int), 1, out);
   fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
 
-  Track3D* curr_track;
-  int num_segments;
-  std::vector<segment*> _segments;
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  segment* curr_segment;
-  double length;
-  int material_id;
-  int region_id;
-  int cmfd_surface_fwd;
-  int cmfd_surface_bwd;
-
-  /* Loop over all Tracks */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-
-          /* Get data for this Track */
-          curr_track = &_tracks_3D[a][i][p][z];
-          num_segments = curr_track->getNumSegments();
-
-          /* Write data for this Track to the Track file */
-          fwrite(&num_segments, sizeof(int), 1, out);
-
-          /* Loop over all segments for this Track */
-          for (int s=0; s < num_segments; s++) {
-
-            /* Get data for this segment */
-            curr_segment = curr_track->getSegment(s);
-            length = curr_segment->_length;
-            material_id = curr_segment->_material->getId();
-            region_id = curr_segment->_region_id;
-
-            /* Write data for this segment to the Track file */
-            fwrite(&length, sizeof(double), 1, out);
-            fwrite(&material_id, sizeof(int), 1, out);
-            fwrite(&region_id, sizeof(int), 1, out);
-
-            /* Write CMFD-related data for the Track if needed */
-            if (cmfd != NULL) {
-              cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-              cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-              fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
-              fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
-            }
-          }
-        }
-      }
-    }
-  }
+  /* Write segment data to Track file */
+  DumpSegments dump_segments(this);
+  dump_segments.setOutputFile(out);
+  dump_segments.execute();
 
   /* Get FSR vector maps */
   ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
@@ -3924,6 +3877,7 @@ void TrackGenerator::dump3DSegmentsToFile() {
   /* Write FSR vector maps to file */
   std::size_t* fsr_key_list = FSR_keys_map->keys();
   fsr_data** fsr_data_list = FSR_keys_map->values();
+  Cmfd* cmfd = _geometry->getCmfd();
   for (int i=0; i < num_FSRs; i++) {
 
     /* Write data to file from FSR_keys_map */
@@ -4172,64 +4126,10 @@ bool TrackGenerator::read3DSegmentsFromFile() {
 
   log_printf(NORMAL, "Importing ray tracing data from file...");
 
-  Track3D* curr_track;
-  int num_segments;
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  double length;
-  int material_id;
-  int region_id;
-
-  int cmfd_surface_fwd;
-  int cmfd_surface_bwd;
-
-  std::map<int, Material*> materials = _geometry->getAllMaterials();
-
-  int uid = 0;
-
-  /* Loop over Tracks */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-
-          /* Import data for this Track from Track file */
-          ret = fread(&num_segments, sizeof(int), 1, in);
-
-          /* Get data for this Track */
-          curr_track = &_tracks_3D[a][i][p][z];
-
-          /* Loop over all segments in this Track */
-          for (int s=0; s < num_segments; s++) {
-
-            /* Import data for this segment from Track file */
-            ret = fread(&length, sizeof(double), 1, in);
-            ret = fread(&material_id, sizeof(int), 1, in);
-            ret = fread(&region_id, sizeof(int), 1, in);
-
-            /* Initialize segment with the data */
-            segment* curr_segment = new segment;
-            curr_segment->_length = length;
-            curr_segment->_material = materials[material_id];
-            curr_segment->_region_id = region_id;
-
-            /* Import CMFD-related data if needed */
-            if (cmfd != NULL) {
-              ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
-              ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-              curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-              curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
-            }
-
-            /* Add this segment to the Track */
-            curr_track->addSegment(curr_segment);
-          }
-
-          uid++;
-        }
-      }
-    }
-  }
+  /* Load all segment data into Tracks */
+  ReadSegments read_segments(this);
+  read_segments.setInputFile(in);
+  read_segments.execute();
 
   /* Create FSR vector maps */
   ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
@@ -4263,6 +4163,7 @@ bool TrackGenerator::read3DSegmentsFromFile() {
     FSR_keys_map->insert(fsr_key, fsr);
 
     /* Read data from file for FSR_to_materials_IDs */
+    int material_id;
     ret = fread(&material_id, sizeof(int), 1, in);
     FSRs_to_material_IDs->push_back(material_id);
 
@@ -4277,6 +4178,7 @@ bool TrackGenerator::read3DSegmentsFromFile() {
   _geometry->setFSRsToKeys(FSRs_to_keys);
 
   /* Read cmfd cell_fsrs vector of vectors from file */
+  Cmfd* cmfd = _geometry->getCmfd();
   if (cmfd != NULL) {
     std::vector< std::vector<int> > cell_fsrs;
     int num_cells, fsr_id;

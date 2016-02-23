@@ -45,6 +45,7 @@ public:
 };
 
 
+// TODO: description
 class TransportSweep: public TraverseSegments {
 
 private:
@@ -59,5 +60,36 @@ public:
   void onTrack(Track* track, segment* segments);
 };
 
+
+// TODO: description
+class DumpSegments: public TraverseSegments {
+
+private:
+
+  FILE* _out;
+
+public:
+
+  DumpSegments(TrackGenerator* track_generator);
+  void setOutputFile(FILE* out);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+
+// TODO: description
+class ReadSegments: public TraverseSegments {
+
+private:
+
+  FILE* _in;
+
+public:
+
+  ReadSegments(TrackGenerator* track_generator);
+  void setInputFile(FILE* in);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
 
 #endif
