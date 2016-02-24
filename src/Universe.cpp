@@ -53,7 +53,7 @@ Universe::Universe(const int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == -1)
-    _id = cell_id();
+    _id = universe_id();
 
   /* Use the user-defined ID */
   else
