@@ -393,10 +393,10 @@ The following code snippet illustrates how a user may designate a positive integ
     fuel.setNumRings(3)
     fuel.setNumSectors(12)
 
-    # Subdivide the moderator region into 16 angular sectors
-    moderator.setNumSectors(16)
+    # Subdivide the moderator region into 4 angular sectors
+    moderator.setNumSectors(4)
 
-The plots shown below illustrate the pin cell material layout (left) and flat source region layout (right) where the flat source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 16 sectors in the moderator.
+The plots shown below illustrate the pin cell material layout (left) and flat source region layout (right) where the flat source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 4 sectors in the moderator.
 
 .. _figure_pin_cell_fsrs:
 
@@ -410,7 +410,7 @@ The plots shown below illustrate the pin cell material layout (left) and flat so
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above, but with 2 rings in the moderator.
+As seen in the figure above, the sector divisions start along the plane :math:`\pi/4` radians clockwise of the horizontal plane. The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above, but with 2 rings in the moderator.
 
 .. code-block:: python
 
