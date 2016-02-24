@@ -20,7 +20,7 @@ class CorrectFSRVolumeTestHarness(TestHarness):
         """Generate Tracks and segments and correct the FSR volume for
         the fuel."""
 
-        # Always use 1 thread for FSR reproducibility
+        # Always use one thread for FSR reproducibility
         self.track_generator.setNumThreads(1)
         self.track_generator.generateTracks()
 
