@@ -100,7 +100,7 @@ private:
 
   /* An array with angles in degrees for rotations about x, y, and z */
   double _rotation[3];
-  
+
   /* A rotation matrix defined in terms of the rotation angles */
   double _rotation_matrix[9];
 
@@ -118,36 +118,6 @@ private:
 
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
   std::map<int, surface_halfspace*> _surfaces;
-
-  /** The minimum reachable x-coordinate within the Cell */
-  double _min_x;
-
-  /** The maximum reachable x-coordinate within the Cell */
-  double _max_x;
-
-  /** The minimum reachable y-coordinate within the Cell */
-  double _min_y;
-
-  /** The maximum reachable y-coordinate within the Cell */
-  double _max_y;
-
-  /** The minimum reachable z-coordinate within the Cell */
-  double _min_z;
-
-  /** The maximum reachable z-coordinate within the Cell */
-  double _max_z;
-
-  /** The boundary condition at the minimum reachable x-coordinate */
-  boundaryType _min_x_bc;
-
-  /** The boundary condition at the maximum reachable x-coordinate */
-  boundaryType _max_x_bc;
-
-  /** The boundary condition at the minimum reachable y-coordinate */
-  boundaryType _min_y_bc;
-
-  /** The boundary condition at the maximum reachable y-coordinate */
-  boundaryType _max_y_bc;
 
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
@@ -211,7 +181,6 @@ public:
   void addNeighborCell(Cell* cell);
 
   bool isFissionable();
-  void findBoundingBox();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
   double minSurfaceDist(LocalCoords* coords);
