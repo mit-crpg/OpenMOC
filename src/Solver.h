@@ -214,6 +214,7 @@ public:
   FP_PRECISION getMaxOpticalLength();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
+  virtual int getNumFissionableFSRs();
 
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
   virtual FP_PRECISION getFlux(int fsr_id, int group);
@@ -236,7 +237,6 @@ public:
   virtual void initializeExpEvaluator();
   virtual void initializeMaterials(solverMode mode=FORWARD);
   virtual void initializeFSRs();
-  virtual void countFissionableFSRs();
   virtual void initializeFixedSources();
   virtual void initializeCmfd();
 
