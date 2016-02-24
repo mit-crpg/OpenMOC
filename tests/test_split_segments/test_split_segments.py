@@ -9,16 +9,16 @@ from input_set import PinCellInput
 
 
 class SplitSegmentsTestHarness(TestHarness):
-    """An eigenvalue calculation in a pin cell with 7-group C5G7 data."""
+    """Test segment splitting based on max optical path length."""
 
     def __init__(self):
         super(SplitSegmentsTestHarness, self).__init__()
         self.input_set = PinCellInput()
 
     def _run_openmoc(self):
-        """Run an OpenMOC eigenvalue or fixed source calculation."""
+        """Set a small max optical path length to ensure segments are split."""
 
-        # Set a small max optical pathlength so segments are split
+        # Set a small max optical path length so segments are split
         self.solver.setMaxOpticalLength(0.5)
 
         super(SplitSegmentsTestHarness, self)._run_openmoc()
@@ -26,7 +26,7 @@ class SplitSegmentsTestHarness(TestHarness):
     def _get_results(self):
         """Digest info in the results and return as a string."""
         return super(SplitSegmentsTestHarness, self).\
-            _get_results(num_segments=True)
+            _get_results(num_segments=True, fluxes=False, keff=False)
 
 
 if __name__ == '__main__':

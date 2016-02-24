@@ -85,7 +85,6 @@ class TestHarness(object):
         self._generate_tracks()
         self._create_solver()
 
-
     def main(self):
         """Accept commandline arguments and either run or update tests."""
         (self._opts, self._args) = self.parser.parse_args()
@@ -360,7 +359,7 @@ class PlottingTestHarness(TestHarness):
         hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
         hist1 = np.array([hr1, hg1, hb1]).ravel()
         hist2 = np.array([hr2, hg2, hb2]).ravel()
-        
+
         # Compute cartesian distance between histograms in RGB space
         diff = hist1 - hist2
         distance = np.sqrt(np.dot(diff, diff))
