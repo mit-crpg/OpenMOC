@@ -1390,7 +1390,8 @@ int Lattice::getLatX(Point* point) {
     lat_x = _num_x - 1;
   else if (lat_x < 0 || lat_x > _num_x-1)
     log_printf(ERROR, "Trying to get lattice x index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f", lat_x, _num_x, dist_to_left, _width_x, point->getX());
+               "outside lattice bounds: %i, %i, %f, %f, %f", lat_x, _num_x,
+               dist_to_left, _width_x, point->getX());
 
   return lat_x;
 }
@@ -1418,9 +1419,8 @@ int Lattice::getLatY(Point* point) {
     lat_y = _num_y - 1;
   else if (lat_y < 0 || lat_y > _num_y-1)
     log_printf(ERROR, "Trying to get lattice y index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_y, _num_y, dist_to_bottom, _width_y, point->getY(), _offset.getY());
-  //log_printf(ERROR, "Trying to get lattice y index for point that is "
-  //           "outside lattice bounds.");
+               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_y, _num_y,
+               dist_to_bottom, _width_y, point->getY(), _offset.getY());
 
   return lat_y;
 }
@@ -1448,9 +1448,8 @@ int Lattice::getLatZ(Point* point) {
     lat_z = _num_z - 1;
   else if (lat_z < 0 || lat_z > _num_z-1)
     log_printf(ERROR, "Trying to get lattice z index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_z, _num_z, dist_to_bottom, _width_z, point->getZ(), _offset.getZ());
-  //log_printf(ERROR, "Trying to get lattice z index for point that is "
-  //            "outside lattice bounds.");
+               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_z, _num_z,
+               dist_to_bottom, _width_z, point->getZ(), _offset.getZ());
 
   return lat_z;
 }
