@@ -1906,9 +1906,6 @@ void TrackGenerator::initializeSegments() {
     log_printf(ERROR, "Unable to initialize segments since "
 	       "tracks have not yet been generated");
 
-  int region_id;
-  segment* curr_segment;
-
   /* Get all of the Materials from the Geometry */
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
@@ -1918,15 +1915,24 @@ void TrackGenerator::initializeSegments() {
   FSR_keys_map = _geometry->getFSRKeysMap();
   FSRs_to_keys = _geometry->getFSRsToKeys();
 
-  /* Iterate over all Track segments and assign them each a Material */
+  int region_id, mat_id;
+  segment* curr_segment;
+  Material* mat;
+
+  /* Set the Material for each FSR */
+  for (int r=0; r < _geometry->getNumFSRs(); r++) {
+    mat = _geometry->findFSRMaterial(r);
+    FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
+  }
+
+  /* Set the Material for each segment */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
-	region_id = curr_segment->_region_id;
-        Material* mat = _geometry->findFSRMaterial(region_id);
-	curr_segment->_material = _geometry->findFSRMaterial(region_id);
-	FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id = mat->getId();
+        region_id = curr_segment->_region_id;
+        mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
+        curr_segment->_material = materials[mat_id];
       }
     }
   }

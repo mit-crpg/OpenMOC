@@ -597,7 +597,7 @@ void Cell::setVolume(double volume) {
 
 /**
  * @brief Increment the volume/area of the Cell by some amount.
- * @details This routine is called by the TrackGenerator during track 
+ * @details This routine is called by the TrackGenerator during track
  *          generation and segmentation.
  * @param volume the amount to increment the current volume by
  */
@@ -668,7 +668,7 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
   _rotation_matrix[4] = sin(psi) * sin(theta) * sin(phi) +
                         cos(psi) * cos(phi);
   _rotation_matrix[5] = cos(theta) * sin(psi);
-  _rotation_matrix[6] = cos(psi) * sin(theta) * cos(phi) + 
+  _rotation_matrix[6] = cos(psi) * sin(theta) * cos(phi) +
                         sin(psi) * sin(phi);
   _rotation_matrix[7] = cos(psi) * sin(theta) * sin(phi) -
                         sin(psi) * cos(phi);
@@ -680,7 +680,7 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
 
 /**
  * @brief Increment the number of instances of this Cell.
- * @details This routine is called by the TrackGenerator during track 
+ * @details This routine is called by the TrackGenerator during track
  *          generation and segmentation.
  */
 void Cell::incrementNumInstances() {
@@ -937,9 +937,9 @@ double Cell::minSurfaceDist(LocalCoords* coords) {
 /**
  * @brief Returns true if this Cell is filled with a fissionable Material.
  * @details If the Cell is filled by a Material, this method will simply query
- *          the filling Material. If the Cell is filled by a Universe, this 
+ *          the filling Material. If the Cell is filled by a Universe, this
  *          method will consider any Materials filling those Cells contained
- *          by the filling Universe. This method should not be called prior to 
+ *          by the filling Universe. This method should not be called prior to
  *          the calling of the Geometry::computeFissionability() method.
  * @return true if contains a fissionable Material
  */
@@ -1009,7 +1009,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   for (int i=0; i < _num_sectors; i++) {
 
     /* Figure out the angle for this plane */
-    azim_angle = i * delta_azim;
+    azim_angle = i * delta_azim + M_PI / 4.0;
 
     /* Instantiate the plane */
     A = cos(azim_angle);
@@ -1137,12 +1137,29 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::vector<ZCylinder*>::iterator iter2;
   std::vector<Cell*>::iterator iter3;
 
-  /* Compute the area to fill with each equal volume ring */
-  double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
+  /* Compute the increment, either by radius or area, to use to construct
+   * the concentric rings */
+  double increment;
+
+  /* If there is no outer bounding surface, make the rings have the same
+  * radius increment (e.g. moderator in a pin cell universe). */
+  if (halfspace1 == 0)
+    increment = fabs(radius1 - radius2) / _num_rings;
+
+  /* If there is an outer bounding surface, make the rings have the same
+   * area (e.g. fuel in a pin cell universe).*/
+  else
+    increment = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
 
   /* Generate successively smaller ZCylinders */
   for (int i=0; i < _num_rings-1; i++) {
-    radius2 = sqrt(radius1*radius1 - (area / M_PI));
+
+    /* Compute the outer radius of the next ring */
+    if (halfspace1 == 0)
+      radius2 = radius1 - increment;
+    else
+      radius2 = sqrt(radius1 * radius1 - (increment / M_PI));
+
     ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
     zcylinders.push_back(zcylinder);
     radius1 = radius2;
