@@ -1458,7 +1458,6 @@ void TrackGenerator::dumpTracksToFile() {
   std::vector<std::string>* FSRs_to_keys = _geometry->getFSRsToKeys();
   std::string fsr_key;
   int fsr_id;
-  int fsr_counter = 0;
   double x, y, z;
 
   /* Write number of FSRs */
@@ -1487,13 +1486,10 @@ void TrackGenerator::dumpTracksToFile() {
     fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_keys */
-    fsr_key = FSRs_to_keys->at(fsr_counter);
+    fsr_key = FSRs_to_keys->at(i);
     string_length = fsr_key.length() + 1;
     fwrite(&string_length, sizeof(int), 1, out);
     fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
-
-    /* Increment FSR ID counter */
-    fsr_counter++;
   }
 
   /* Write cmfd_fsrs vector of vectors to file */
