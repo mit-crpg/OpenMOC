@@ -22,10 +22,7 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
  *        FSR scalar flux updates, and calls Solver parent class destructor
  *        to deletes arrays for fluxes and sources.
  */
-CPUSolver::~CPUSolver() {
-  if (_FSR_locks != NULL)
-    delete [] _FSR_locks;
-}
+CPUSolver::~CPUSolver() {}
 
 
 /**
@@ -130,21 +127,12 @@ void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
 
 /**
  * @brief Initializes the FSR volumes and Materials array.
- * @details This method allocates and initializes an array of OpenMP
- *          mutual exclusion locks for each FSR for use in the
- *          transport sweep algorithm.
+ * @details This method gets an array of OpenMP mutual exclusion locks
+ *          for each FSR for use in the transport sweep algorithm.
  */
 void CPUSolver::initializeFSRs() {
-
   Solver::initializeFSRs();
-
-  /* Allocate array of mutex locks for each FSR */
-  _FSR_locks = new omp_lock_t[_num_FSRs];
-
-  /* Loop over all FSRs to initialize OpenMP locks */
-#pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
+  _FSR_locks = _track_generator->getFSRLocks();
 }
 
 

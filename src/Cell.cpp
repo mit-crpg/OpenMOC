@@ -80,20 +80,6 @@ Cell::Cell(int id, const char* name) {
 
   _num_rings = 0;
   _num_sectors = 0;
-
-  /* Set a default bounding box around the Cell */
-  _min_x = -std::numeric_limits<double>::infinity();
-  _max_x = std::numeric_limits<double>::infinity();
-  _min_y = -std::numeric_limits<double>::infinity();
-  _max_y = std::numeric_limits<double>::infinity();
-  _min_z = -std::numeric_limits<double>::infinity();
-  _max_z = std::numeric_limits<double>::infinity();
-
-  /* Set the default boundaries to be REFLECTIVE */
-  _min_x_bc = REFLECTIVE;
-  _max_x_bc = REFLECTIVE;
-  _min_y_bc = REFLECTIVE;
-  _max_y_bc = REFLECTIVE;
 }
 
 
@@ -370,8 +356,22 @@ int Cell::getNumSectors() {
  * @return the minimum x-coordinate
  */
 double Cell::getMinX() {
-  findBoundingBox();
-  return _min_x;
+
+  /* Set a default min-x */
+  double min_x = -std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+    min_x = std::max(min_x, surface->getMinX(halfspace));
+  }
+
+  return min_x;
 }
 
 
@@ -380,8 +380,22 @@ double Cell::getMinX() {
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
-  findBoundingBox();
-  return _max_x;
+
+  /* Set a default max-x */
+  double max_x = std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+    max_x = std::min(max_x, surface->getMaxX(halfspace));
+  }
+
+  return max_x;
 }
 
 
@@ -390,8 +404,22 @@ double Cell::getMaxX() {
  * @return the minimum y-coordinate
  */
 double Cell::getMinY() {
-  findBoundingBox();
-  return _min_y;
+
+  /* Set a default min-y */
+  double min_y = -std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+    min_y = std::max(min_y, surface->getMinY(halfspace));
+  }
+
+  return min_y;
 }
 
 
@@ -400,8 +428,22 @@ double Cell::getMinY() {
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
-  findBoundingBox();
-  return _max_y;
+
+  /* Set a default max-y */
+  double max_y = std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+    max_y = std::min(max_y, surface->getMaxY(halfspace));
+  }
+
+  return max_y;
 }
 
 
@@ -410,8 +452,22 @@ double Cell::getMaxY() {
  * @return the minimum z-coordinate
  */
 double Cell::getMinZ() {
-  findBoundingBox();
-  return _min_z;
+
+  /* Set a default min-z */
+  double min_z = -std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+    min_z = std::max(min_z, surface->getMinZ(halfspace));
+  }
+
+  return min_z;
 }
 
 
@@ -420,8 +476,22 @@ double Cell::getMinZ() {
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
-  findBoundingBox();
-  return _max_z;
+
+  /* Set a default max-z */
+  double max_z = std::numeric_limits<double>::infinity();
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+    max_z = std::min(max_z, surface->getMaxZ(halfspace));
+  }
+
+  return max_z;
 }
 
 
@@ -431,8 +501,27 @@ double Cell::getMaxZ() {
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Cell::getMinXBoundaryType() {
-  findBoundingBox();
-  return _min_x_bc;
+
+  /* Set a default min-x and boundary type*/
+  double min_x = -std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+
+    if (min_x < surface->getMinX(halfspace)) {
+      min_x = surface->getMinX(halfspace);
+      bc = surface->getBoundaryType();
+    }
+  }
+
+  return bc;
 }
 
 
@@ -442,8 +531,27 @@ boundaryType Cell::getMinXBoundaryType() {
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Cell::getMaxXBoundaryType() {
-  findBoundingBox();
-  return _max_x_bc;
+
+  /* Set a default max-x and boundary type*/
+  double max_x = std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+
+    if (max_x > surface->getMaxX(halfspace)) {
+      max_x = surface->getMaxX(halfspace);
+      bc = surface->getBoundaryType();
+    }
+  }
+
+  return bc;
 }
 
 
@@ -453,8 +561,27 @@ boundaryType Cell::getMaxXBoundaryType() {
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Cell::getMinYBoundaryType() {
-  findBoundingBox();
-  return _min_y_bc;
+
+  /* Set a default min-y and boundary type*/
+  double min_y = -std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+
+    if (min_y < surface->getMinY(halfspace)) {
+      min_y = surface->getMinY(halfspace);
+      bc = surface->getBoundaryType();
+    }
+  }
+
+  return bc;
 }
 
 
@@ -464,8 +591,27 @@ boundaryType Cell::getMinYBoundaryType() {
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Cell::getMaxYBoundaryType() {
-  findBoundingBox();
-  return _max_y_bc;
+
+  /* Set a default max-y and boundary type*/
+  double max_y = std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all Surfaces inside the Cell */
+  std::map<int, surface_halfspace*>::iterator iter;
+  Surface* surface;
+  int halfspace;
+
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+
+    if (max_y > surface->getMaxY(halfspace)) {
+      max_y = surface->getMaxY(halfspace);
+      bc = surface->getBoundaryType();
+    }
+  }
+
+  return bc;
 }
 
 
@@ -794,81 +940,6 @@ void Cell::addNeighborCell(Cell* cell) {
 
 
 /**
- * @brief Finds and stores a bounding box for the entire geometry.
- */
-void Cell::findBoundingBox() {
-
-  /* Set a default bounding box around the Cell */
-  _min_x = -std::numeric_limits<double>::infinity();
-  _max_x = std::numeric_limits<double>::infinity();
-  _min_y = -std::numeric_limits<double>::infinity();
-  _max_y = std::numeric_limits<double>::infinity();
-  _min_z = -std::numeric_limits<double>::infinity();
-  _max_z = std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-  double min_x, max_x, min_y, max_y, min_z, max_z;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    max_x = surface->getMaxX(halfspace);
-    max_y = surface->getMaxY(halfspace);
-    max_z = surface->getMaxZ(halfspace);
-
-    min_x = surface->getMinX(halfspace);
-    min_y = surface->getMinY(halfspace);
-    min_z = surface->getMinZ(halfspace);
-
-    if (max_x != std::numeric_limits<double>::infinity() && max_x < _max_x) {
-      _max_x = max_x;
-      _max_x_bc = surface->getBoundaryType();
-    }
-    if (max_y != std::numeric_limits<double>::infinity() && max_y < _max_y) {
-      _max_y = max_y;
-      _max_y_bc = surface->getBoundaryType();
-    }
-    if (max_z != std::numeric_limits<double>::infinity() && max_z < _max_z) {
-      _max_z = max_z;
-    }
-
-    if (min_x != -std::numeric_limits<double>::infinity() && min_x > _min_x) {
-      _min_x = min_x;
-      _min_x_bc = surface->getBoundaryType();
-    }
-    if (min_y != -std::numeric_limits<double>::infinity() && min_y > _min_y) {
-      _min_y = min_y;
-      _min_y_bc = surface->getBoundaryType();
-    }
-    if (min_z != -std::numeric_limits<double>::infinity() && min_z > _min_z) {
-      _min_z = min_z;
-    }
-  }
-
-  /* If we could not find a bounds for any dimension, readjust
-   * it to +/- infinity */
-  if (_max_x == -std::numeric_limits<double>::infinity())
-    _max_x = std::numeric_limits<double>::infinity();
-  if (_max_y == -std::numeric_limits<double>::infinity())
-    _max_y = std::numeric_limits<double>::infinity();
-  if (_max_z == -std::numeric_limits<double>::infinity())
-    _max_z = std::numeric_limits<double>::infinity();
-
-  if (_min_x == std::numeric_limits<double>::infinity())
-    _min_x = -std::numeric_limits<double>::infinity();
-  if (_min_y == std::numeric_limits<double>::infinity())
-    _min_y = -std::numeric_limits<double>::infinity();
-  if (_min_z == std::numeric_limits<double>::infinity())
-    _min_z = -std::numeric_limits<double>::infinity();
-}
-
-
-/**
  * @brief Determines whether a Point is contained inside a Cell.
  * @details Queries each Surface inside the Cell to determine if the Point
  *          is on the same side of the Surface. This point is only inside
@@ -1142,7 +1213,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   double increment;
 
   /* If there is no outer bounding surface, make the rings have the same
-  * radius increment (e.g. moderator in a pin cell universe). */
+   * radius increment (e.g. moderator in a pin cell universe). */
   if (halfspace1 == 0)
     increment = fabs(radius1 - radius2) / _num_rings;
 
