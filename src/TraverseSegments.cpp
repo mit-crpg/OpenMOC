@@ -57,10 +57,17 @@ void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
     int num_xy = _track_generator->getNumX(a) + _track_generator->getNumY(a);
 #pragma omp for
     for (int i=0; i < num_xy; i++) {
+
       Track* track_2D = &tracks_2D[a][i];
-      kernels[0]->newTrack(track_2D);
-      traceSegmentsExplicit(track_2D, kernels[0]);
-      segment* segments = track_2D->getSegments();
+
+      /* Operate on segments if necessary */
+      if (kernels != NULL) {
+        kernels[0]->newTrack(track_2D);
+        traceSegmentsExplicit(track_2D, kernels[0]);
+      }
+
+      /* Operate on the Track */
+      semgent* segments = track_2D->getSegments();
       onTrack(track_2D, segments);
     }
   }
@@ -89,13 +96,19 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel** kernels) {
 
           /* Extract 3D track and initialize segments pointer */
           Track* track_3D = &tracks_3D[a][i][p][z];
-          kernels[0]->newTrack(track_3D);
 
-          /* Trace the segments on the track */
-          traceSegmentsExplicit(track_3D, kernels[0]);
+          /* Operate on segments if necessary */
+          if (kernels != NULL) {
+
+            /* Reset kernel for a new Track */
+            kernels[0]->newTrack(track_3D);
+
+            /* Trace the segments on the track */
+            traceSegmentsExplicit(track_3D, kernels[0]);
+          }
+
+          /* Operate on the Track */
           segment* segments = track_3D->getSegments();
-
-          /* Apply kernel to track */
           onTrack(track_3D, segments);
         }
       }
@@ -131,16 +144,22 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel** kernels) {
 
         /* Extract 3D track and initialize segments pointer */
         Track* track_3D = &tracks_3D[a][i][p][z];
-        kernels[0]->newTrack(track_3D);
-        double theta = tracks_3D[a][i][p][z].getTheta();
-        Point* start = track_3D->getStart();
 
-        /* Trace the segments on the track */
-        traceSegmentsOTF(flattened_track, start, theta, kernels[0]);
-        track_3D->setNumSegments(kernels[0]->getCount());
+        /* Operate on segments if necessary */
+        if (kernels != NULL) {
+
+          /* Reset kernel for a new Track */
+          kernels[0]->newTrack(track_3D);
+          double theta = tracks_3D[a][i][p][z].getTheta();
+          Point* start = track_3D->getStart();
+
+          /* Trace the segments on the track */
+          traceSegmentsOTF(flattened_track, start, theta, kernels[0]);
+          track_3D->setNumSegments(kernels[0]->getCount());
+        }
+
+        /* Operate on the Track */
         segment* segments = _track_generator->getTemporarySegments(tid, 0);
-
-        /* Apply kernel to track */
         onTrack(track_3D, segments);
       }
     }
@@ -170,10 +189,12 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
     /* Loop over polar angles */
     for (int p=0; p < num_polar; p++) {
 
-      /* Trace all tracks in the z-stack */
-      for (int z = 0; z < tracks_per_stack[a][i][p]; z++)
-        kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
-      traceStackOTF(flattened_track, p, kernels);
+      /* Trace all tracks in the z-stack if necessary */
+      if (kernels != NULL) {
+        for (int z = 0; z < tracks_per_stack[a][i][p]; z++)
+          kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
+        traceStackOTF(flattened_track, p, kernels);
+      }
 
       /* Loop over tracks in the z-stack */
       for (int z=0; z < tracks_per_stack[a][i][p]; z++) {
@@ -183,7 +204,7 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
         track_3D->setNumSegments(kernels[z]->getCount());
         segment* segments = _track_generator->getTemporarySegments(tid, z);
 
-        /* Apply kernel to track */
+        /* Operate on the Track */
         onTrack(track_3D, segments);
       }
     }

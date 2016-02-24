@@ -121,4 +121,20 @@ public:
   void onTrack(Track* track, segment* segments);
 };
 
+
+//TODO: description
+class SetTrackWeights: public TraverseSegments {
+pirvate:
+
+  Quadrature* _quadrature;
+
+public:
+
+  SetTrackWeights(TrackGenerator* track_generator);
+  void setQuadrature(Quadrature* quadrature);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+
 #endif

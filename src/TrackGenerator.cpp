@@ -216,10 +216,9 @@ omp_lock_t* TrackGenerator::getFSRLocks() {
 
 
 /**
- * @brief Return the array of FSR locks for atomic FSR operations.
- * @return an array of FSR locks
+ * @brief Return the array used to store the FSR volumes
+ * @return _FSR_volumes the FSR volumes array indexed by FSR ID
  */
-// FIXME: description
 FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
 #pragma omp critical
   {
@@ -436,7 +435,13 @@ double TrackGenerator::getPolarSpacing(int azim, int polar) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Returns the spacing between tracks in the axial direction for the
+ *        requested azimuthal angle index and polar angle index
+ * @param azim the requested azimuthal angle index
+ * @param polar the requested polar angle index
+ * @return the requested axial spacing
+ */
 double TrackGenerator::getZSpacing(int azim, int polar) {
   azim = _quadrature->getFirstOctantAzim(azim);
   polar = _quadrature->getFirstOctantPolar(polar);
@@ -444,7 +449,15 @@ double TrackGenerator::getZSpacing(int azim, int polar) {
 }
 
 
-//TODO: description
+/**
+ * @breif Calculates and returns the maximum optcial length for any segment
+ *        in the Geomtry.
+ * @details The _max_optical_length value is recomputed, updated, and returned.
+ *          This value determines the when segments must be split during ray
+ *          tracing.
+ * @return _max_optical_length the maximum optical length of any segment in the
+ *         Geometry
+ */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
   MaxOpticalLength update_max_optical_length(this);
   update_max_optical_length.execute();
@@ -458,7 +471,6 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
  *          this function will return a correct value
  * @return the maximum number of segments
  */
-//FIXME delete
 int TrackGenerator::getMaxNumSegments() {
   return _max_num_segments;
 }
@@ -468,17 +480,20 @@ int TrackGenerator::getMaxNumSegments() {
  * @brief Returns the maximum number of tracks in a single stack
  * @return the maximum number of tracks
  */
-//FIXME: delete
 int TrackGenerator::getMaxNumTracksPerStack() {
   return _max_num_tracks_per_stack;
 }
 
 
 /**
- * @brief Returns the maximum number of tracks in a single stack
- * @return the maximum number of tracks
+ * @brief Returns the number of rows in the temporary segment storage matrix
+ * @details For on-the-fly computation, a matrix of temporary segments is
+ *          allocated for each thread. This matrix is indexed by the z-stack
+ *          index (row) and the segment number (column). For ray tracing by
+ *          individual Tracks the number of rows is always one since temporary
+ *          segments only need to be stored for one Track at a time.
+ * @return _num_rows the number of rows in the temporary segment storage matrix
  */
-// FIXME description
 int TrackGenerator::getNumRows() {
   if (_segment_formation == OTF_STACKS)
     _num_rows = _max_num_tracks_per_stack;
@@ -489,20 +504,33 @@ int TrackGenerator::getNumRows() {
 
 
 /**
- * @brief Returns the maximum number of tracks in a single stack
- * @return the maximum number of tracks
+ * @brief Returns the number of columns in the temporary segment storage matrix
+ * @details For on-the-fly computation, a matrix of temporary segments is
+ *          allocated for each thread. This matrix is indexed by the z-stack
+ *          index (row) and the segment number (column). The number of columns
+ *          is equal to the maximum number of segments per Track at the time of
+ *          allocation.
+ * @return _num_columns the number of columns in the temporary segment storage
+ *         matrix
  */
-// FIXME description
 int TrackGenerator::getNumColumns() {
   return _num_columns;
 }
 
 
 /**
- * @brief Returns the maximum number of tracks in a single stack
- * @return the maximum number of tracks
+ * @brief Returns an array of temporary segments for use in on-the-fly
+ *        computations.
+ * @details For on-the-fly computation, a matrix of temporary segments is
+ *          allocated for each thread. This matrix is indexed by the z-stack
+ *          index (row) and the segment number (column). The row index should
+ *          be one if temporary segments are only required for one Track at a
+ *          given time. If the segmentation method is not an on-the-fly method,
+ *          NULL is returned.
+ * @param thread_id The thread ID, as assigned by OpenMP
+ * @param num_row The requested row number associated with the z-stack index
+ * @return a pointer to the array of temporary segments
  */
-// FIXME description
 segment* TrackGenerator::getTemporarySegments(int thread_id, int row_num) {
   if (_contains_temporary_segments)
     return _temporary_segments.at(thread_id)[row_num];
@@ -646,8 +674,12 @@ double TrackGenerator::getDyEff(int azim) {
   return _dy_eff[azim];
 }
 
-
-//TODO: description
+/**
+ * @brief FSR volumes are coppied to an array input by the user
+ * @param out_volumes The array to which FSR volumes are coppied
+ * @param num_fsrs The number of FSR volumes to copy. The first num_fsrs
+ *        volumes stored in the FSR volumes array are coppied.
+ */
 void TrackGenerator::exportFSRVolumes(double* out_volumes, int num_fsrs) {
 
   for (int i=0; i < num_fsrs; i++)
@@ -657,11 +689,10 @@ void TrackGenerator::exportFSRVolumes(double* out_volumes, int num_fsrs) {
 
 /**
  * @brief Computes and returns an array of volumes indexed by FSR.
- * @details Note: It is the function caller's responsibility to deallocate
- *          the memory reserved for the FSR volume array.
+ * @details Note: The memory is stored in the FSR volumes buffer of the
+ *          TrackGenerator and is freed during deconstruction.
  * @return a pointer to the array of FSR volumes
  */
-//TODO update
 FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Reset FSR volumes to zero */
@@ -917,7 +948,16 @@ void TrackGenerator::setGlobalZMesh() {
 }
 
 
-//FIXME: description
+/**
+ * @brief Provides the global z-mesh and size if available
+ * @details For some cases, a global z-mesh is generated for the Geometry. If
+ *          so, a pointer to the assocaited mesh (array) is updated as well as
+ *          the number of FSRs in the mesh. If no global z-mesh has been
+ *          generated, a null pointer is given to z_mesh and the number of FSRs
+ *          is assigned to be zero.
+ * @param z_mesh The global z-mesh to be updated
+ * @param num_fsrs The number of FSRs in the z-mesh
+ */
 void TrackGenerator::retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs) {
   if (_contains_global_z_mesh) {
     z_mesh = &_global_z_mesh[0];
@@ -1570,6 +1610,8 @@ void TrackGenerator::generateTracks() {
 
     /* Precompute the quadrature weights */
     _quadrature->precomputeWeights(_solve_3D);
+
+    /* Set the weights of every track */
 
     /* Set the weight on every Track */
     if (_solve_3D) {
@@ -4153,7 +4195,10 @@ void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
 }
 
 
-//FIXME description
+/**
+ * @breif Sets the maximum number of segments per Track
+ * @param max_num_segments the maximum number of segments per Track
+ */
 void TrackGenerator::setMaxNumSegments(int max_num_segments) {
   _max_num_segments = max_num_segments;
 }
@@ -4211,11 +4256,13 @@ void TrackGenerator::retrieveSingle3DTrackCoords(double coords[6],
 
 
 /**
- * @brief Counts the number of 3D segments in the Geomtry
- * @details All 3D segments are computed on-the-fly subject to the max optical
- *          path length to determine the number of 3D segments in the Geometry
+ * @brief Counts the number of segments for each Track in the Geomtery
+ * @details All segments are subject to the max optical path length to
+ *          determine the number of segments for each track as well as the
+ *          maximum number of segments per Track in the Geometry. For
+ *          on-the-fly calculations, the temporary segment buffer is expanded
+ *          to fit the calculated maximum number of segments per Track.
  */
-//FIXME: update description
 void TrackGenerator::countSegments() {
 
   std::string msg = "Counting segments";

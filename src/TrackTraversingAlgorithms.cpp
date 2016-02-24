@@ -85,8 +85,7 @@ SegmentSplitter::SegmentSplitter(TrackGenerator* track_generator)
 void SegmentSplitter::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<SegmentationKernel>();
-    loopOverTracks(kernels);
+    loopOverTracks(NULL);
   }
 }
 
@@ -384,7 +383,7 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
   for (int s=0; s < num_segments; s++) {
 
     /* Get data for this segment */
-    segment* curr_segment = track->getSegment(s);
+    segment* curr_segment = &segments[s];
     FP_PRECISION length = curr_segment->_length;
     int material_id = curr_segment->_material->getId();
     int region_id = curr_segment->_region_id;
@@ -418,8 +417,7 @@ ReadSegments::ReadSegments(TrackGenerator* track_generator)
 
 //TODO: description
 void ReadSegments::execute() {
-  MOCKernel** kernels = getKernels<SegmentationKernel>();
-  loopOverTracks(kernels);
+  loopOverTracks(NULL);
 }
 
 
@@ -475,5 +473,4 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     track->addSegment(curr_segment);
   }
 }
-
 

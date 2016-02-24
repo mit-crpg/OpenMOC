@@ -151,16 +151,17 @@ private:
   FP_PRECISION _max_optical_length;
 
   /** Maximum number of track segmenets in a single 3D track for on-the-fly
-    computation */
+   *  computation */
   int _max_num_segments;
   int _num_columns;
 
   /** Maximum number of tracks a single 3D track stack for on-the-fly
-    computation */
+   *  computation */
   int _max_num_tracks_per_stack;
   int _num_rows;
 
-  //FIXME: description
+  /** A matrix of temporary segmnents are created for on-the-fly methods to
+    * improve efficiency */
   std::vector<segment**> _temporary_segments;
   bool _contains_temporary_segments;
 
@@ -170,7 +171,7 @@ private:
   /** OpenMP mutual exclusion locks for atomic FSR operations */
   omp_lock_t* _FSR_locks;
 
-  //FIXME: descrpition
+  /** A buffer holding the computed FSR volumes */
   FP_PRECISION* _FSR_volumes;
 
   /** Booleans to indicate whether the Tracks and segments have been generated
@@ -231,8 +232,8 @@ public:
   double getPolarSpacing(int azim, int polar);
   double getZSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
-  int getMaxNumSegments(); //FIXME
-  int getMaxNumTracksPerStack(); // FIXME
+  int getMaxNumSegments();
+  int getMaxNumTracksPerStack();
   int getNumRows();
   int getNumColumns();
   segment* getTemporarySegments(int thread_id, int row_num);

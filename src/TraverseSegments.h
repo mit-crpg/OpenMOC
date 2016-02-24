@@ -21,7 +21,7 @@ class TraverseSegments {
 
 private:
 
-  // descriptions
+  // TODO descriptions
   void loopOverTracks2D(MOCKernel** kernels);
   void loopOverTracksExplicit(MOCKernel** kernels);
   void loopOverTracksByTrackOTF(MOCKernel** kernels);
