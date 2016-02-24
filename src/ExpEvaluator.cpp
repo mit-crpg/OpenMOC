@@ -194,9 +194,9 @@ void ExpEvaluator::initialize() {
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < num_polar; p++) {
       sin_theta = _polar_quad->getSinTheta(p);
-      expon = exp(- (i * exp_table_spacing) / sin_theta);
+      expon = exp(- ((i + 0.5) * exp_table_spacing) / sin_theta);
       slope = - expon / sin_theta;
-      intercept = expon * (1 + (i * exp_table_spacing) / sin_theta);
+      intercept = expon * (1 + ((i+0.5) * exp_table_spacing) / sin_theta);
       _exp_table[_two_times_num_polar * i + 2 * p] = slope;
       _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
