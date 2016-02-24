@@ -457,67 +457,90 @@ FP_PRECISION* TrackGenerator::getFSRSourceConstants(PolarQuad* polar_quad,
   FP_PRECISION* FSR_src_constants = new FP_PRECISION[num_FSRs*num_groups*3];
   memset(FSR_src_constants, 0., num_FSRs*num_groups*3*sizeof(FP_PRECISION));
 
-  int azim_index, polar_index, fsr_id;
-  segment* curr_segment;
-  FP_PRECISION length, tau, wgt, multiple, G2;
-  FP_PRECISION* sigma_t;
-  double phi, sin_phi, cos_phi;
-  double X, Y, xc, yc;
-  Point* centroid;
+#pragma omp parallel
+  {
+    int azim_index, polar_index, fsr_id;
+    segment* curr_segment;
+    FP_PRECISION length, tau, wgt, multiple, G2;
+    FP_PRECISION* sigma_t;
+    double phi, sin_phi, cos_phi, src_constant;
+    double X, Y, xc, yc;
+    Point* centroid;
 
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      azim_index = _tracks[i][j].getAzimAngleIndex();
-      phi = _tracks[i][j].getPhi();
-      sin_phi = sin(phi);
-      cos_phi = cos(phi);
-      X = _tracks[i][j].getStart()->getX();
-      Y = _tracks[i][j].getStart()->getY();
+    /* Use local array accumulator to prevent false sharing */
+    FP_PRECISION thread_src_constants[num_groups*3];
 
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-        curr_segment = _tracks[i][j].getSegment(s);
-        fsr_id = curr_segment->_region_id;
-        sigma_t = curr_segment->_material->getSigmaT();
-        length = curr_segment->_length;
-        wgt = _azim_weights[azim_index];
-        centroid = _geometry->getFSRCentroid(fsr_id);
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        azim_index = _tracks[i][j].getAzimAngleIndex();
+        phi = _tracks[i][j].getPhi();
+        sin_phi = sin(phi);
+        cos_phi = cos(phi);
+        X = _tracks[i][j].getStart()->getX();
+        Y = _tracks[i][j].getStart()->getY();
 
-        /* Get the centroid of the segment in the local coordinate system */
-        xc = X - centroid->getX() + length * cos_phi / 2.0;
-        yc = Y - centroid->getY() + length * sin_phi / 2.0;
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          fsr_id = curr_segment->_region_id;
+          sigma_t = curr_segment->_material->getSigmaT();
+          length = curr_segment->_length;
+          wgt = _azim_weights[azim_index];
+          centroid = _geometry->getFSRCentroid(fsr_id);
 
-        for (int g=0; g < num_groups; g++) {
+          /* Get the centroid of the segment in the local coordinate system */
+          xc = X - centroid->getX() + length * cos_phi / 2.0;
+          yc = Y - centroid->getY() + length * sin_phi / 2.0;
 
-          FSR_src_constants[fsr_id*num_groups*3 + g*3 + 0] +=
-              wgt * xc * xc * length;
-          FSR_src_constants[fsr_id*num_groups*3 + g*3 + 1] +=
-              wgt * yc * yc * length;
-          FSR_src_constants[fsr_id*num_groups*3 + g*3 + 2] +=
-              wgt * xc * yc * length;
+          /* Set the FSR src cosntants buffer to zero */
+          memset(thread_src_constants, 0.0, num_groups * 3 *
+                 sizeof(FP_PRECISION));
 
-          for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
+          for (int g=0; g < num_groups; g++) {
 
-            multiple = polar_quad->getMultiple(p);
+            src_constant = wgt * length;
 
+            thread_src_constants[g*3    ] += src_constant * xc * xc;
+            thread_src_constants[g*3 + 1] += src_constant * yc * yc;
+            thread_src_constants[g*3 + 2] += src_constant * xc * yc;
+
+            /* store the tau for this segment and total xs */
             tau = length * sigma_t[g];
-            G2 = exp_eval->computeExponentialG2(tau, p);
 
-            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 0] +=
-                1.0 / (2.0 * sigma_t[g]) * wgt * multiple
-                * pow(cos_phi * length, 2.0) * G2;
+            src_constant *= length * length / (2.0 * sigma_t[g]);
 
-            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 1] +=
-                1.0 / (2.0 * sigma_t[g]) * wgt * multiple
-                * pow(sin_phi * length, 2.0) * G2;
+            for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
 
-            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 2] +=
-                1.0 / (2.0 * sigma_t[g]) * wgt * multiple
-                * sin_phi * cos_phi * pow(length, 2.0) * G2;
+              multiple = polar_quad->getMultiple(p);
+              G2 = exp_eval->computeExponentialG2(tau, p);
+
+              thread_src_constants[g*3] += src_constant * multiple *
+                  cos_phi * cos_phi * G2;
+              thread_src_constants[g*3 + 1] += src_constant * multiple *
+                  sin_phi * sin_phi * G2;
+              thread_src_constants[g*3 + 2] += src_constant * multiple *
+                  sin_phi * cos_phi * G2;
+            }
           }
-        }
 
-        X += length * cos_phi;
-        Y += length * sin_phi;
+          /* Set FSR mutual exclusion lock */
+          omp_set_lock(&_FSR_locks[fsr_id]);
+
+          for (int g=0; g < num_groups; g++) {
+            FSR_src_constants[fsr_id*num_groups*3 + g*3] +=
+                thread_src_constants[g*3];
+            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 1] +=
+                thread_src_constants[g*3 + 1];
+            FSR_src_constants[fsr_id*num_groups*3 + g*3 + 2] +=
+                thread_src_constants[g*3 + 2];
+          }
+
+          /* Release FSR mutual exclusion lock */
+          omp_unset_lock(&_FSR_locks[fsr_id]);
+
+          X += length * cos_phi;
+          Y += length * sin_phi;
+        }
       }
     }
   }

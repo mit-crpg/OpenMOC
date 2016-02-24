@@ -19,18 +19,11 @@
 
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
-#define _scalar_flux_x(r,e) (_scalar_flux_x[(r)*_num_groups + (e)])
-
-/** Indexing macro for the scalar flux in each FSR and energy group */
-#define _scalar_flux_y(r,e) (_scalar_flux_y[(r)*_num_groups + (e)])
+#define _scalar_flux_xy(r,e,x) (_scalar_flux_xy[(r)*_num_groups*2 + (e)*2 + (x)])
 
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
-#define _reduced_sources_x(r,e) (_reduced_sources_x[(r)*_num_groups + (e)])
-
-/** Indexing macro for the total source divided by the total cross-section
- *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
-#define _reduced_sources_y(r,e) (_reduced_sources_y[(r)*_num_groups + (e)])
+#define _reduced_sources_xy(r,e,x) (_reduced_sources_xy[(r)*_num_groups*2 + (e)*2 + (x)])
 
 
 /**
@@ -43,13 +36,11 @@ class CPULSSolver : public CPUSolver {
 protected:
 
   /** The scalar flux moments for each energy group in each FSR */
-  FP_PRECISION* _scalar_flux_x;
-  FP_PRECISION* _scalar_flux_y;
+  FP_PRECISION* _scalar_flux_xy;
 
   /** Ratios of source moments to total cross-section for each FSR and energy
    *  group */
-  FP_PRECISION* _reduced_sources_x;
-  FP_PRECISION* _reduced_sources_y;
+  FP_PRECISION* _reduced_sources_xy;
 
   /** The FSR linear expansion matrix values for each FSR */
   FP_PRECISION* _FSR_lin_exp_matrix;
