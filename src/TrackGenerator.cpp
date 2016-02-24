@@ -19,6 +19,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _tracks_filename = "";
   _z_coord = 0.0;
   _phi = NULL;
+  _FSR_locks = NULL;
 }
 
 
@@ -42,6 +43,9 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks;
     delete [] _tracks_by_parallel_group;
   }
+
+  if (_FSR_locks != NULL)
+    delete [] _FSR_locks;
 }
 
 
@@ -76,6 +80,19 @@ Geometry* TrackGenerator::getGeometry() {
                "since it has not yet been set");
 
   return _geometry;
+}
+
+
+/**
+ * @brief Return the array of FSR locks for atomic FSR operations.
+ * @return an array of FSR locks
+ */
+omp_lock_t* TrackGenerator::getFSRLocks() {
+  if (_FSR_locks == NULL)
+    log_printf(ERROR, "Unable to return the TrackGenerator's FSR locks "
+               "since they have not yet been created");
+
+  return _FSR_locks;
 }
 
 
@@ -637,9 +654,33 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   initializeBoundaryConditions();
   initializeTrackCycleIndices(PERIODIC);
   initializeTrackUids();
+  initializeFSRLocks();
   initializeVolumes();
 
   return;
+}
+
+
+/**
+ * @brief Create an array of OpenMP mutual exclusion locks for each FSR.
+ * @details This method allocates and initializes an array of OpenMP
+ *          mutual exclusion locks for each FSR for use in loops that
+ *          set or update values by FSR.
+ */
+void TrackGenerator::initializeFSRLocks() {
+
+  /* Delete old FSR locks, if they exist */
+  if (_FSR_locks != NULL)
+    delete [] _FSR_locks;
+
+  /* Allocate array of mutex locks for each FSR */
+  int num_FSRs = _geometry->getNumFSRs();
+  _FSR_locks = new omp_lock_t[num_FSRs];
+
+  /* Loop over all FSRs to initialize OpenMP locks */
+#pragma omp parallel for schedule(guided)
+  for (int r=0; r < num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
 }
 
 
@@ -1775,6 +1816,7 @@ void TrackGenerator::generateFSRCentroids() {
 
   /* Generate the fsr centroids */
   for (int i=0; i < _num_azim; i++) {
+#pragma omp parallel for
     for (int j=0; j < _num_tracks[i]; j++) {
 
       int num_segments = _tracks[i][j].getNumSegments();
@@ -1788,6 +1830,10 @@ void TrackGenerator::generateFSRCentroids() {
         segment* curr_segment = &segments[s];
         int fsr = curr_segment->_region_id;
         double volume = FSR_volumes[fsr];
+
+        /* Set FSR mutual exclusion lock */
+        omp_set_lock(&_FSR_locks[fsr]);
+
         centroids[fsr]->setX(centroids[fsr]->getX() + _azim_weights[i] *
                              (x + cos(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
@@ -1795,6 +1841,9 @@ void TrackGenerator::generateFSRCentroids() {
                              (y + sin(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
         centroids[fsr]->setZ(z);
+
+        /* Release FSR mutual exclusion lock */
+        omp_unset_lock(&_FSR_locks[fsr]);
 
         x += cos(phi) * curr_segment->_length;
         y += sin(phi) * curr_segment->_length;
