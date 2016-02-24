@@ -1009,7 +1009,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   for (int i=0; i < _num_sectors; i++) {
 
     /* Figure out the angle for this plane */
-    azim_angle = i * delta_azim;
+    azim_angle = i * delta_azim + M_PI / 4.0;
 
     /* Instantiate the plane */
     A = cos(azim_angle);
