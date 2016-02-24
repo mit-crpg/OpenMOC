@@ -765,9 +765,11 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
  */
 void Geometry::subdivideCells() {
 
-  /* Compute equivalent radius with the same area as the Geometry */
-  /* This is used as the maximum radius for all ringified Cells */
-  double max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
+  /* Compute the max radius as the distance from the center to a corner
+  * of the geometry. */
+  double dx = getWidthX() / 2.0;
+  double dy = getWidthY() / 2.0;
+  double max_radius = sqrt(dx*dx + dy*dy);
 
   /* Recursively subdivide Cells into rings and sectors */
   _root_universe->subdivideCells(max_radius);

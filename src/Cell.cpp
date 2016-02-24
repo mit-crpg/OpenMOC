@@ -1137,12 +1137,29 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::vector<ZCylinder*>::iterator iter2;
   std::vector<Cell*>::iterator iter3;
 
-  /* Compute the area to fill with each equal volume ring */
-  double area = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
+  /* Compute the increment, either by radius or area, to use to construct
+   * the concentric rings */
+  double increment;
+
+  /* If there is no outer bounding surface, make the rings have the same
+  * radius increment (e.g. moderator in a pin cell universe). */
+  if (halfspace1 == 0)
+    increment = fabs(radius1 - radius2) / _num_rings;
+
+  /* If there is an outer bounding surface, make the rings have the same
+   * area (e.g. fuel in a pin cell universe).*/
+  else
+    increment = M_PI * fabs(radius1*radius1 - radius2*radius2) / _num_rings;
 
   /* Generate successively smaller ZCylinders */
   for (int i=0; i < _num_rings-1; i++) {
-    radius2 = sqrt(radius1*radius1 - (area / M_PI));
+
+    /* Compute the outer radius of the next ring */
+    if (halfspace1 == 0)
+      radius2 = radius1 - increment;
+    else
+      radius2 = sqrt(radius1 * radius1 - (increment / M_PI));
+
     ZCylinder* zcylinder = new ZCylinder(x1, y1, radius1);
     zcylinders.push_back(zcylinder);
     radius1 = radius2;
