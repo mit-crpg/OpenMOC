@@ -76,6 +76,7 @@ class TestHarness(object):
         # Always use 1 thread for FSR reproducibility
         self.track_generator.setNumThreads(1)
         self.track_generator.generateTracks()
+        self.track_generator.setNumThreads(self.num_threads)
 
     def _setup(self):
         """Build materials, geometry and perform ray tracing."""
@@ -83,7 +84,6 @@ class TestHarness(object):
         self._create_trackgenerator()
         self._generate_tracks()
         self._create_solver()
-
 
     def main(self):
         """Accept commandline arguments and either run or update tests."""
@@ -226,7 +226,7 @@ class HashedTestHarness(TestHarness):
 
 class TrackingTestHarness(TestHarness):
     """Specialized TestHarness for testing tracking."""
-    
+
     def __init__(self):
         super(TrackingTestHarness, self).__init__()
         self.tracks = OrderedDict()
@@ -274,7 +274,7 @@ class PlottingTestHarness(TestHarness):
     def __init__(self):
         super(PlottingTestHarness, self).__init__()
         self.figures = []
-        
+
         # Use standardized default matplotlib rcparams
         rcparams = pickle.load(open('../rcparams.pkl', 'rb'))
         openmoc.plotter.matplotlib_rcparams = rcparams
@@ -359,7 +359,7 @@ class PlottingTestHarness(TestHarness):
         hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
         hist1 = np.array([hr1, hg1, hb1]).ravel()
         hist2 = np.array([hr2, hg2, hb2]).ravel()
-        
+
         # Compute cartesian distance between histograms in RGB space
         diff = hist1 - hist2
         distance = np.sqrt(np.dot(diff, diff))
@@ -379,7 +379,7 @@ class MultiSimTestHarness(TestHarness):
         """Run multiple OpenMOC eigenvalue calculations."""
 
         for i in range(self.num_simulations):
-            super(MultiSimTestHarness, self)._run_openmoc()            
+            super(MultiSimTestHarness, self)._run_openmoc()
             self.num_iters.append(self.solver.getNumIterations())
             self.keffs.append(self.solver.getKeff())
 

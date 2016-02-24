@@ -83,6 +83,9 @@ private:
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
+  /** OpenMP mutual exclusion locks for atomic FSR operations */
+  omp_lock_t* _FSR_locks;
+
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_tracks;
 
@@ -99,6 +102,7 @@ private:
   void initializeBoundaryConditions();
   void initializeTrackCycleIndices(boundaryType bc);
   void initializeVolumes();
+  void initializeFSRLocks();
   void segmentize();
   void dumpTracksToFile();
   bool readTracksFromFile();
@@ -127,6 +131,7 @@ public:
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
   double getZCoord();
+  omp_lock_t* getFSRLocks();
 
   /* Set parameters */
   void setNumAzim(int num_azim);

@@ -535,7 +535,7 @@ void Solver::initializeExpEvaluator() {
     /* Find minimum of optional user-specified and actual max taus */
     FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
     FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
-    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
+    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->splitSegments(max_tau);
@@ -605,6 +605,7 @@ void Solver::initializeFSRs() {
   _FSR_materials = new Material*[_num_FSRs];
 
   /* Loop over all FSRs to extract FSR material pointers */
+#pragma omp parallel for
   for (int r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
     log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
@@ -619,16 +620,19 @@ void Solver::initializeFSRs() {
  *          routine which uses the number of fissionable FSRs to normalize
  *          the residual on the fission source distribution.
  */
-void Solver::countFissionableFSRs() {
+int Solver::getNumFissionableFSRs() {
 
   log_printf(INFO, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
-  _num_fissionable_FSRs = 0;
+  int num_fissionable_FSRs = 0;
+#pragma omp parallel for reduction(+:num_fissionable_FSRs)
   for (int r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
-      _num_fissionable_FSRs++;
+      num_fissionable_FSRs++;
   }
+
+  return num_fissionable_FSRs;
 }
 
 
@@ -839,7 +843,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   /* Initialize data structures */
   initializeFSRs();
   initializeMaterials(mode);
-  countFissionableFSRs();
+  _num_fissionable_FSRs = getNumFissionableFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
 
@@ -1034,7 +1038,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   /* Initialize data structures */
   initializeFSRs();
   initializeMaterials(mode);
-  countFissionableFSRs();
+  _num_fissionable_FSRs = getNumFissionableFSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
