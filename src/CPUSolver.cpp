@@ -583,7 +583,8 @@ void CPUSolver::transportSweep() {
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
 
-  //TODO: description
+  /* Tracks are traversed and the MOC equations from this CPUSolver are applied
+     to all Tracks and corresponding segments */
   TransportSweep sweep_tracks(_track_generator);
   sweep_tracks.setCPUSolver(this);
   sweep_tracks.execute();

@@ -104,11 +104,11 @@ protected:
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
 
-  /* Boolean indicating whether the track is pointing fwd (True) or bwd (False)
-   * in the cycle of tracks */
+  /** Boolean indicating whether the track is pointing fwd (True) or bwd
+   *  (False) in the cycle of tracks */
   bool _direction_in_cycle;
 
-  //FIXME: description
+  /** The weight of the Track for use in volume and MOC calculations */
   FP_PRECISION _weight;
 
 public:

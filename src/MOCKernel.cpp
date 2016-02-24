@@ -2,7 +2,10 @@
 #include "TrackGenerator.h"
 
 /**
- * @biief Constructor for the MOCKernel assigns default values
+ * @brief Constructor for the MOCKernel assigns default values
+ * @param track_generator the TrackGenerator used to pull relevant tracking
+ *        data from
+ * @param row_num the row index into the temporary segments matrix
  */
 MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
   _count = 0;
@@ -11,7 +14,12 @@ MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
 
 
 /**
- * @biief Constructor for the MOCKernel assigns default values
+ * @brief Constructor for the VolumeKernel assigns default values, calls
+ *        the MOCKernel constructor, and pulls refernces to FSR locks and FSR
+ *        volumes from the provided TrackGenerator.
+ * @param track_generator the TrackGenerator used to pull relevant tracking
+ *        data from
+ * @param row_num the row index into the temporary segments matrix
  */
 VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
                            MOCKernel(track_generator, row_num) {
@@ -28,30 +36,50 @@ VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
 
 
 /**
- * @biief Constructor for the MOCKernel assigns default values
+ * @brief Constructor for the SegmentationKernel assigns default values, calls
+ *        the MOCKernel constructor, and pulls a reference to temporary segment
+ *        data from the provided TrackGenerator.
+ * @param track_generator the TrackGenerator used to pull relevant tracking
+ *        data from
+ * @param row_num the row index into the temporary segments matrix
  */
-SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator, int row_num) :
-                           MOCKernel(track_generator, row_num) {
+SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator,
+                                       int row_num)
+                                       : MOCKernel(track_generator, row_num) {
 
   int thread_id = omp_get_thread_num();
   _segments = track_generator->getTemporarySegments(thread_id, row_num);
 }
 
 
-//TODO: description
+/**
+ * @brief Constructor for the CounterKernel assigns default values and calls
+ *        the MOCKernel constructor
+ * @param track_generator the TrackGenerator used to pull relevant tracking
+ *        data from
+ * @param row_num the row index into the temporary segments matrix
+ */
 CounterKernel::CounterKernel(TrackGenerator* track_generator, int row_num) :
                            MOCKernel(track_generator, row_num) {}
 
 
-//TODO: description
+/**
+ * @brief Prepares an MOCKernel for a new Track
+ * @details Resets the segment count
+ * @param track The new Track the MOCKernel prepares to handle
+ */
 void MOCKernel::newTrack(Track* track) {
   _count = 0;
 }
 
 
-//TODO: description
+/**
+ * @brief Prepares a VolumeKernel for a new Track
+ * @details Resets the segment count and updates the weight for the new Track
+ * @param track The new Track the MOCKernel prepares to handle
+ */
 void VolumeKernel::newTrack(Track* track) {
-  _weight = track->getWeight(); //TODO: set weight
+  _weight = track->getWeight();
   _count = 0;
 }
 
@@ -83,7 +111,6 @@ int MOCKernel::getCount() {
 void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
   _max_tau = max_tau;
 }
-
 
 
 /*

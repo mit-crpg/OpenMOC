@@ -2,14 +2,26 @@
 #include "CPUSolver.h"
 
 
-//TODO: description
+/**
+ * @brief Constructor for MaxOpticalLength calls the TraverseSegments
+ *        constructor and sets the max optical path length to zero
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 MaxOpticalLength::MaxOpticalLength(TrackGenerator* track_generator)
                                  : TraverseSegments(track_generator) {
   _max_tau = 0;
 }
 
 
-//TODO: description
+/**
+ * @brief Determines the maximum optical path length for the TrackGenerator
+ *        provided during construction
+ * @details The maximum optical path length is initialized to infinity for
+ *          segmentation within the TrackGenerator and then SegmentationKernels
+ *          are allocated to store temporary segmnents. Tracks are traversed
+ *          and onTrack(...) is applied, calculating a maximum optical length
+ *          and setting it on the TrackGenerator.
+*/
 void MaxOpticalLength::execute() {
   FP_PRECISION infinity = std::numeric_limits<FP_PRECISION>::max();
   _track_generator->setMaxOpticalLength(infinity);
@@ -22,7 +34,12 @@ void MaxOpticalLength::execute() {
 }
 
 
-//TODO: description
+/**
+ * @brief Calculates the optical path length for the provided segments and
+ *        updates the maximum optical path length if necessary
+ * @param track The track associated with the segments
+ * @param segments The segments for which the optical path length is calculated
+ */
 void MaxOpticalLength::onTrack(Track* track, segment* segments) {
   for (int s=0; s < track->getNumSegments(); s++) {
     FP_PRECISION length = segments[s]._length;
@@ -40,18 +57,23 @@ void MaxOpticalLength::onTrack(Track* track, segment* segments) {
 }
 
 
-/*
-  TODO: class description
-*/
-
-//TODO: description
+/**
+ * @brief Constructor for SegmentCounter calls the TraverseSegments
+ *        constructor and sets the max number of segments per Track to zero
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
                                : TraverseSegments(track_generator) {
   _max_num_segments = 0;
 }
 
 
-//TODO: description
+/**
+ * @brief Determines the maximum number of segments per Track
+ * @details CounterKernels are initialized to count segments along each Track.
+ *          Then Tracks are traversed, saving the maximum number of segments
+ *          and setting the corresponding parameter on the TrackGenerator.
+*/
 void SegmentCounter::execute() {
 #pragma omp parallel
   {
@@ -62,7 +84,12 @@ void SegmentCounter::execute() {
 }
 
 
-//TODO: description
+/**
+ * @brief Updates the maximum number of segments per Track if a Track with a
+ *        larger number of segments is observed
+ * @param track The Track whose segments are counted
+ * @param segments The segments associated with the Track
+ */
 void SegmentCounter::onTrack(Track* track, segment* segments) {
   if (track->getNumSegments() > _max_num_segments) {
 #pragma omp critical
@@ -71,17 +98,20 @@ void SegmentCounter::onTrack(Track* track, segment* segments) {
 }
 
 
-/*
-  TODO: class description
-*/
-
-//TODO: description
+/**
+ * @brief Constructor for SegmentSplitter calls the TraverseSegments
+ *        constructor
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 SegmentSplitter::SegmentSplitter(TrackGenerator* track_generator)
                                : TraverseSegments(track_generator) {
 }
 
 
-//TODO: description
+/**
+ * @brief Splits segments stored explicity along each Track
+ * @details No MOCKernels are initialized for this function.
+ */
 void SegmentSplitter::execute() {
 #pragma omp parallel
   {
@@ -90,7 +120,12 @@ void SegmentSplitter::execute() {
 }
 
 
-//TODO: description
+/**
+ * @brief Segments for the provided Track are split so that no segment has a
+ *        larger optical path length than the maximum optical path length
+ * @param track The Track whose segments are potentially split
+ * @param segments The segments associated with the Track
+ */
 void SegmentSplitter::onTrack(Track* track, segment* segments) {
 
   /* Get the max optical length from the TrackGenerator */
@@ -151,17 +186,22 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
 }
 
 
-/*
-   TODO: class description
-*/
-
-//TODO: description
+/**
+ * @brief Constructor for SegmentSplitter calls the TraverseSegments
+ *        constructor
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 VolumeCalculator::VolumeCalculator(TrackGenerator* track_generator)
                                   : TraverseSegments(track_generator) {
 }
 
 
-//TODO: description
+/**
+ * @brief FSR volumes are calculated and saved in the TrackGenerator's FSR
+ *        volumes buffer
+ * @details VolumeKernels are created and used to loop over all segments and
+ *          tally each segments contribution to FSR volumes.
+ */
 void VolumeCalculator::execute() {
 #pragma omp parallel
   {
@@ -171,16 +211,22 @@ void VolumeCalculator::execute() {
 }
 
 
-//TODO: description
+/**
+ * @brief No functionality is applied for each Track during the execution of
+ *        the VolumeCalculator
+ * @param track The current Track
+ * @param segments The segments associated with the Track
+ */
 void VolumeCalculator::onTrack(Track* track, segment* segments) {
 }
 
 
-/*
-   TODO: class description
-*/
-
-//TODO: description
+/**
+ * @brief Constructor for CentroidGenerator calls the TraverseSegments
+ *        constructor and imports refernces to both the FSR volumes and FSR
+ *        locks arrays
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
                                   : TraverseSegments(track_generator) {
 
@@ -189,7 +235,13 @@ CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
 }
 
 
-//TODO: description
+/**
+ * @brief Calculates the centroid of every FSR
+ * @details SegmentationKernels are created to temporarily save segments for
+ *          on-the-fly methods. Then on each segment, onTrack(...) calculates
+ *          the contribution to each FSR centroid and saves the centroids in
+ *          the centroids array provided by setCentroids(...).
+ */
 void CentroidGenerator::execute() {
 #pragma omp parallel
   {
@@ -199,13 +251,20 @@ void CentroidGenerator::execute() {
 }
 
 
-//TODO: description
+/**
+ * @brief Specifies an array to save calculated FSR centroids
+ * @brief centroids The array of FSR centroids pointers
+ */
 void CentroidGenerator::setCentroids(Point** centroids) {
   _centroids = centroids;
 }
 
 
-//TODO: description
+/**
+ * @brief Centroid contributions are calculated for every segment in the Track
+ * @param track The Track associated with the segments
+ * @param segments The segments whose contributions are added to the centroids
+ */
 void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
   /* Extract track information */
@@ -260,19 +319,23 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 }
 
 
-/*
-   TODO: class description
-*/
-
-
-//TODO: description
+/**
+ * @brief Constructor for TransportSweep calls the TraverseSegments
+ *        constructor and initializes the associated CPUSolver to NULL
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 TransportSweep::TransportSweep(TrackGenerator* track_generator)
                               : TraverseSegments(track_generator) {
   _cpu_solver = NULL;
 }
 
 
-//TODO: description
+/**
+ * @brief MOC equations are applied to every segment in the TrackGenerator
+ * @details SegmntationKernels are allocated to temporarily save segments. Then
+ *          onTrack(...) applies the MOC equations to each segment and
+ *          transfers boundary fluxes for the corresponding Track.
+ */
 void TransportSweep::execute() {
 #pragma omp parallel
   {
@@ -282,13 +345,26 @@ void TransportSweep::execute() {
 }
 
 
-//TODO: description
+/**
+ * @brief Sets the CPUSolver so that TransportSweep can apply MOC equations
+ * @details This allows TransportSweep to transfer boundary fluxes from the
+ *          CPUSolver and tally scalar fluxes
+ * @param cpu_solver The CPUSolver which applies the MOC equations
+ */
 void TransportSweep::setCPUSolver(CPUSolver* cpu_solver) {
   _cpu_solver = cpu_solver;
 }
 
 
-//TODO: description
+/**
+ * @brief Applies the MOC equations the Track and segments
+ * @details The MOC equations are applied to each segment, attenuating the
+ *          Track's angular flux and tallying FSR contributions. Finally,
+ *          Track boundary fluxes are transferred.
+ * @param track The Track for which the angular flux is attenuated and
+ *        transferred
+ * @param segments The segments over which the MOC equations are applied
+ */
 void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Allocate temporary FSR flux locally */
@@ -345,31 +421,45 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 }
 
 
-/*
-   TODO: class description
-*/
-
-//TODO: description
+/**
+ * @brief Constructor for DumpSegments calls the TraverseSegments
+ *        constructor and initializes the output FILE to NULL
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 DumpSegments::DumpSegments(TrackGenerator* track_generator)
                            : TraverseSegments(track_generator) {
   _out = NULL;
 }
 
 
-//TODO: description
+/**
+ * @brief Wrties all tracking information to file
+ * @details SegmentationKernels are created to temporarily store segments for
+ *          on-the-fly method. For each Track, onTrack(...) writes the tracking
+ *          information to file.
+ */
 void DumpSegments::execute() {
   MOCKernel** kernels = getKernels<SegmentationKernel>();
   loopOverTracks(kernels);
 }
 
 
-//TODO: description
+/**
+ * @brief Sets the file which to write tracking information
+ * @param out the file which to write tracking infmormation
+ */
 void DumpSegments::setOutputFile(FILE* out) {
   _out = out;
 }
 
 
-//TODO: description
+/**
+ * @brief Writes tracking information to file for a Track and associated
+ *        segments
+ * @param track The Track whose information is written to file
+ * @param segments The segments associated with the Track whose information is
+ *        written to file
+ */
 void DumpSegments::onTrack(Track* track, segment* segments) {
 
   /* Write data for this Track to the Track file */
@@ -404,30 +494,42 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
 }
 
 
-/*
-   TODO: class description
-*/
-
-//TODO: description
+/**
+ * @brief Constructor for ReadSegments calls the TraverseSegments
+ *        constructor and initializes the input FILE to NULL
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
 ReadSegments::ReadSegments(TrackGenerator* track_generator)
                            : TraverseSegments(track_generator) {
   _in = NULL;
 }
 
 
-//TODO: description
+/**
+ * @brief Reads a tracking file and saves the information explicitly for every
+ *        Track in the TrackGenerator.
+ * @details The tracking file is set by setInputFile(...)
+ */
 void ReadSegments::execute() {
   loopOverTracks(NULL);
 }
 
 
-//TODO: description
+/**
+ * @brief Sets the input file to read in tracking information
+ * @param in The input tracking file
+ */
 void ReadSegments::setInputFile(FILE* in) {
   _in = in;
 }
 
 
-//TODO: description
+/**
+ * @brief Saves tracking information to the corresponding Track explicity
+ * @param track The track for which all tracking information is explicitly
+ *        saved (including segments)
+ * @param segments The segments associated with the Track
+ */
 void ReadSegments::onTrack(Track* track, segment* segments) {
 
   /* Get CMFD mesh object */

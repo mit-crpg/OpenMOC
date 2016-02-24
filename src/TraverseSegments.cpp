@@ -2,6 +2,7 @@
 
 /**
  * @brief Constructor for the TravseSegments class assigns the TrackGenerator
+ *        and pulls relevant information from it.
  */
 TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
@@ -16,12 +17,22 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 }
 
 
-// description
+/**
+ * @brief Destructor for TraverseSegments
+ */
 TraverseSegments::~TraverseSegments() {
 }
 
 
-// description
+/**
+ * @breif Loops over Tracks, applying the provided kernels to all segments and
+ *        the functionality described in onTrack(...) to all Tracks.
+ * @details The segment formation method imported from the TrackGenerator
+ *          during construction is used to redirect to the appropriate looping
+ *          scheme. If kernels are provided (not NULL) then they are deleted at
+ *          the end of the looping scheme.
+ * @param kernels MOCKernels to apply to all segments
+ */
 void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
 
   switch (_segment_formation) {
@@ -47,7 +58,14 @@ void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
 }
 
 
-// description
+/**
+ * @brief Loops over all explicit 2D Tracks
+ * @details The onTrack(...) function is applied to all 2D Tracks and the
+ *          specified kernels are applied to all segments. If NULL is provided
+ *          for the kernels, only the onTrack(...) functionality is applied.
+ * @param kernels The MOCKernels dictating the functionality to apply to
+ *        segments
+ */
 void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
 
   /* Loop over all parallel tracks for each azimuthal angle */
@@ -74,7 +92,14 @@ void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
 }
 
 
-// description
+/**
+ * @brief Loops over all explicit 3D Tracks
+ * @details The onTrack(...) function is applied to all 3D Tracks and the
+ *          specified kernels are applied to all segments. If NULL is provided
+ *          for the kernels, only the onTrack(...) functionality is applied.
+ * @param kernels The MOCKernels dictating the functionality to apply to
+ *        segments
+ */
 void TraverseSegments::loopOverTracksExplicit(MOCKernel** kernels) {
 
   Track3D**** tracks_3D = _track_generator->get3DTracks();
@@ -117,7 +142,14 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel** kernels) {
 }
 
 
-// description
+/**
+ * @brief Loops over all 3D Tracks using axial on-the-fly ray tracking by Track
+ * @details The onTrack(...) function is applied to all 3D Tracks and the
+ *          specified kernels are applied to all segments. If NULL is provided
+ *          for the kernels, only the onTrack(...) functionality is applied.
+ * @param kernels The MOCKernels dictating the functionality to apply to
+ *        segments
+ */
 void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel** kernels) {
 
   int num_2D_tracks = _track_generator->getNum2DTracks();
@@ -167,7 +199,15 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel** kernels) {
 }
 
 
-// description
+/**
+ * @brief Loops over all 3D Tracks using axial on-the-fly ray tracking by
+ *        z-stack
+ * @details The onTrack(...) function is applied to all 3D Tracks and the
+ *          specified kernels are applied to all segments. If NULL is provided
+ *          for the kernels, only the onTrack(...) functionality is applied.
+ * @param kernels The MOCKernels dictating the functionality to apply to
+ *        segments
+ */
 void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
 
   int num_2D_tracks = _track_generator->getNum2DTracks();
@@ -212,7 +252,13 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
 }
 
 
-//FIXME description
+/**
+ * @brief Loops over segments in a Track when segments are explicitly generated
+ * @details All segments in the provided Track are looped over and the provided
+ *          MOCKernel is applied to them.
+ * @param track The Track whose segments will be traversed
+ * @param kernel The kernel to apply to all segments
+ */
 void TraverseSegments::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
   for (int s=0; s < track->getNumSegments(); s++) {
     segment* seg = track->getSegment(s);

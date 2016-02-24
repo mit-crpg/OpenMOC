@@ -17,16 +17,32 @@
 #include "TrackGenerator.h"
 
 
+/**
+ * @class TraverseSegments TraverseSegments.h "src/TraverseSegments.h"
+ * @brief An TraverseSegments object defines how to loop over Tracks given
+ *        various different segmentation schemes and how to apply algorithms
+ *        to the Tracks and associated segments.
+ * @details A TraverseSegments object sketches how to loop over Tracks for
+ *          various different segmentation schemes such as 2D explicit, 3D
+ *          explicit, and on-the-fly ray tracing. A TraverseSegments object
+ *          is an abstract class meant to be extended by classes defined in
+ *          TrackTraversingAlgorithms.h. This parent class's main purpose is to
+ *          abstract the looping procedure and apply a function onTrack(...) to
+ *          each Track and apply supplied MOCKernels to each segment. If NULL
+ *          is provided for the MOCKernels, only the functionality defined in
+ *          onTrack(...) is applied to each Track.
+ */
 class TraverseSegments {
 
 private:
 
-  // TODO descriptions
+  /* Functions defining how to loop over Tracks */
   void loopOverTracks2D(MOCKernel** kernels);
   void loopOverTracksExplicit(MOCKernel** kernels);
   void loopOverTracksByTrackOTF(MOCKernel** kernels);
   void loopOverTracksByStackOTF(MOCKernel** kernels);
 
+  /* Functions defining how to traverse segments */
   void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
   void traceSegmentsOTF(Track* flattened_track, Point* start,
                         double theta, MOCKernel* kernel);
@@ -41,19 +57,23 @@ protected:
   /** Pointer to the associated TrackGenerator */
   TrackGenerator* _track_generator;
 
-  //descriptions
-  segmentationType _segment_formation;
+  /** A pointer to the associated global z-mesh (if applicable) */
   FP_PRECISION* _global_z_mesh;
+
+  /** The size of the global z-mesh */
   int _mesh_size;
 
-  // descriptions
+  /** The type of segmentation used for segment formation */
+  segmentationType _segment_formation;
+
   TraverseSegments(TrackGenerator* track_generator);
   virtual ~TraverseSegments();
 
+  /* Functions defining how to loop over and operate on Tracks */
   void loopOverTracks(MOCKernel** kernels);
   virtual void onTrack(Track* track, segment* segments) = 0;
 
-  // description
+  /* Returns a matrix of kernels of the requested type */
   template <class KernelType>
   MOCKernel** getKernels() {
     int num_rows = _track_generator->getNumRows();
