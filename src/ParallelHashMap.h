@@ -812,6 +812,10 @@ void ParallelHashMap<K,V>::clear() {
 
   /* clear underlying fixed table */
   _table->clear();
+
+  /* release all locks in order */
+  for (size_t i=0; i<_num_locks; i++)
+    omp_unset_lock(&_locks[i]);
 }
 
 
