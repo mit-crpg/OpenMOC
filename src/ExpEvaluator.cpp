@@ -189,14 +189,25 @@ void ExpEvaluator::initialize() {
   FP_PRECISION intercept;
   FP_PRECISION slope;
   FP_PRECISION sin_theta;
+  FP_PRECISION tau;
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < num_polar; p++) {
       sin_theta = _polar_quad->getSinTheta(p);
-      expon = exp(- ((i + 0.5) * exp_table_spacing) / sin_theta);
+
+      /* Use the optical length at the start of the interval for the first value
+       * to avoid exponential values greater than one. */
+      if (i == 0)
+        tau = i * exp_table_spacing;
+
+      /* Use the optical length at the interval mid-point to reduce error. */
+      else
+        tau = (i + 0.5) * exp_table_spacing;
+
+      expon = exp(- tau / sin_theta);
+      intercept = expon * (1 + tau / sin_theta);
       slope = - expon / sin_theta;
-      intercept = expon * (1 + ((i+0.5) * exp_table_spacing) / sin_theta);
       _exp_table[_two_times_num_polar * i + 2 * p] = slope;
       _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
