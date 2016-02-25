@@ -25,6 +25,12 @@
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources_xy(r,e,x) (_reduced_sources_xy[(r)*_num_groups*2 + (e)*2 + (x)])
 
+/** Indexing macro for the total source divided by the total cross-section
+ *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
+#define _reduced_source_moments(r,a,e,p) (_reduced_source_moments[(r)*_num_groups*_num_polar*_num_azim \
+                                                                  + (a)*_num_groups*_num_polar + \
+                                                                  (e)*_num_polar + (p)])
+
 
 /**
  * @class CPULSSolver CPULSSolver.h "src/CPULSSolver.h"
@@ -41,6 +47,7 @@ protected:
   /** Ratios of source moments to total cross-section for each FSR and energy
    *  group */
   FP_PRECISION* _reduced_sources_xy;
+  FP_PRECISION* _reduced_source_moments;
 
   /** The FSR linear expansion matrix values for each FSR */
   FP_PRECISION* _FSR_lin_exp_matrix;
@@ -68,7 +75,7 @@ protected:
   void tallyLSScalarFlux(segment* curr_segment, int azim_index,
                          FP_PRECISION* track_flux,
                          FP_PRECISION* fsr_flux, double x, double y,
-                         bool fwd);
+                         int fwd);
 
 public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
