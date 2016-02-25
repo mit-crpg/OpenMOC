@@ -585,7 +585,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       /* Add FSR information to FSR key map and FSR_to vectors */
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
-      _FSR_keys_map.at(fsr_key) = fsr;
+      _FSR_keys_map.update(fsr_key, fsr);
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(),
                        coords->getHighestLevel()->getY(),
