@@ -1127,31 +1127,6 @@ std::vector<std::string> & Geometry::getFSRsToKeys() {
 
 
 /**
- * @brief Sets the _FSR_keys_map map
- * @details The _FSR_keys_map stores a hash of a std::string representing
- *          the Lattice/Cell/Universe hierarchy for a unique region
- *          and the associated FSR data. fsr_data is a struct that contains
- *          a unique FSR id and a Point located in the highest level Universe
- *          that is contained in the FSR. This method is used when the tracks
- *          are read from file to avoid unnecessary segmentation.
- * @param FSR_keys_map map of FSR keys to FSR data
- */
-void Geometry::setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>*
-                             FSR_keys_map) {
-  _FSR_keys_map = *FSR_keys_map;
-}
-
-
-/**
- * @brief Sets the _FSRs_to_keys vector
- * @param FSRs_to_keys vector of FSR key hashes indexed by FSR IDs
- */
-void Geometry::setFSRsToKeys(std::vector<std::string>* FSRs_to_keys) {
-  _FSRs_to_keys = *FSRs_to_keys;
-}
-
-
-/**
  * @brief Determins whether a point is within the bounding box of the geometry.
  * @param coords a populated LocalCoords linked list
  * @return boolean indicating whether the coords is within the geometry
