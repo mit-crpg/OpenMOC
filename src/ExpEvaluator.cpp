@@ -197,8 +197,12 @@ void ExpEvaluator::initialize() {
     for (int p=0; p < num_polar; p++) {
       sin_theta = _polar_quad->getSinTheta(p);
 
+      /* Use the optical length at the start of the interval for the first value
+       * to avoid exponential values greater than one. */
       if (i == 0)
         tau = i * exp_table_spacing;
+
+      /* Use the optical length at the interval mid-point to reduce error. */
       else
         tau = (i + 0.5) * exp_table_spacing;
 

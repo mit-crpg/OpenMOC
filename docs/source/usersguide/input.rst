@@ -376,14 +376,27 @@ Rings and Sectors
 
 The spatial discretization_ of the geometry is a key determining factor in the accuracy of OpenMOC's simulation results. This is especially important since OpenMOC presently uses the :ref:`Flat Source Region Approximation <flat-source-region-approximation>`.  The spatial discretization is most relevant in regions where the flux gradient is greatest. In LWRs composed of cylindrical fuel pins, the flux gradient is largely determined by the distance to the center of the nearest fuel pin and the angle formed between the center of the fuel pin and the point of interest (*i.e.*, `polar coordinates`_). As a result, discretization along the radial coordinate using cylindrical **rings**, and along the angular coordinate using angular **sectors** is the most applicable way to discretize the geometry to capture the flux gradient.
 
-This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide cylindrical fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``ZCylinder`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide pin cells of cylindrical fuel pins into equal volume rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``Cell`` object and differentiates each one with ``ZCylinder`` or ``Plane`` objects to subdivide the pin cell.
+This type of discretization is particularly useful for codes which can make use of an `unstructured mesh`_, such as OpenMOC with its general :ref:`Constructive Solid Geometry <constructive_solid_geometry>` formulation. To subdivide cylindrical fuel pins into rings and sectors in an LWR model would require a substantial amount of work for the user to create the necessary ``ZCylinder`` and/or ``Plane`` objects. Since this is a commonly needed feature for many users, OpenMOC includes the ability to automatically subdivide cells that contain at least one ``ZCylinder`` surface into rings and equally spaced angular sectors. In particular, OpenMOC uses **cell cloning** to create clones (or copies) of a ``Cell`` object and differentiates each one with ``ZCylinder`` or ``Plane`` objects to subdivide the pin cell.
 
-Rings can be created inside of a ``ZCylinder``, between two ``ZCylinder`` objects, or outside of a ``ZCylinder``. If rings are created outside of a ``ZCylinder`` and the exterior bounding surface is the ``Cell`` boundaries, then an effective bounding cylinder radius :math:`R_\textit{eff}` is calculated as
+There are three cases where rings can be created in a cell:
 
-.. math::
-  R_\textit{eff} = \sqrt{\frac{\Delta x \Delta y}{\pi}}
+1. A ``Cell`` contains one ``ZCylinder`` with a negative halfspace.
+2. A ``Cell`` contains one ``ZCylinder`` with a negative halfspace and one ``ZCylinder`` with a positive halfspace.
+3. A ``Cell`` contains one ``ZCylinder`` with a positive halfspace.
 
-where :math:`\Delta x` is the width of the ``Cell`` in the :math:`x`-direction and :math:`\Delta y` is the width of the ``Cell`` in the :math:`y`-direction. Equal volume rings are then created between the inner bounding ``ZCylinder`` and this effective bounding radius. Note that in this case the regions will not be of equal volume since the effective bounding cylinder will lay partially outside of the boundaries of the ``Cell``.
+Rings for cases 1 and 2 are create such that each ring is of **equal volume**. Rings for cases 3 are created with equal **ring spacing**, where :math:`(R_{outer} - R_{inner})` is the same for all rings. The outer bounding ring for case 3 is set to the distance from the center of the universe that the cell is in to the corner of the parent lattice cell or, if one doesn't exist, the geometry bounding box. The rings for case 3 are chosen to have **equal spacing** instead of **equal volume** so that the inner ring (often a moderator ring next to a fuel pin) has a relatively small radius in order to capture the sharp flux gradient outside a fuel pin. The figure below shows a plot for the materials and plots of the cells for cases 1, 2, and 3 where 3 rings have been created for the corresponding cell in each case:
+
+.. _figure_annular_pin_rings:
+
+.. table::
+
+   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+--------------------------------------------------+
+   | .. _figa:                                      | .. _figb:                                        | .. _figc:                                       | .. _figd:                                        |
+   |                                                |                                                  |                                                 |                                                  |
+   | .. image:: ../../img/annular_pin_materials.png | .. image:: ../../img/annular_pin_inner_rings.png | .. image:: ../../img/annular_pin_fuel_rings.png | .. image:: ../../img/annular_pin_outer_rings.png |
+   |   :width: 90 %                                 |   :width: 90 %                                   |   :width: 90 %                                  |   :width: 90 %                                   |
+   |   :align: left                                 |   :align: left                                   |   :align: left                                  |   :align: left                                   |
+   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+--------------------------------------------------+
 
 The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin ``Cells`` and a positive integral number of sectors with no rings for moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
 
@@ -393,8 +406,8 @@ The following code snippet illustrates how a user may designate a positive integ
     fuel.setNumRings(3)
     fuel.setNumSectors(12)
 
-    # Subdivide the moderator region into 16 angular sectors
-    moderator.setNumSectors(16)
+    # Subdivide the moderator region into 4 angular sectors
+    moderator.setNumSectors(4)
 
 The plots shown below illustrate the pin cell material layout (left) and flat source region layout (right) where the flat source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 16 sectors in the moderator.
 
@@ -410,7 +423,7 @@ The plots shown below illustrate the pin cell material layout (left) and flat so
    |   :align: right                                        |   :align: left                                         |
    +--------------------------------------------------------+--------------------------------------------------------+
 
-The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above, but with 2 rings in the moderator.
+As seen in the figure above, the sector divisions start along the plane :math:`\pi/4` radians clockwise of the horizontal plane. The user may wish to capture gradients in the moderator by adding rings in the moderator. The following code snippet repeats the scenario above, but with 2 rings in the moderator.
 
 .. code-block:: python
 

@@ -5,7 +5,8 @@ from universes import universes, cells
 ###########################   Creating Lattices   #############################
 ###############################################################################
 
-refines = 1
+# The number of uniform refinements to perform on the assembly lattices
+refines = 10
 
 lattices = {}
 
@@ -23,20 +24,20 @@ u3 = universes['Region 3']
 u4 = universes['Region 4']
 u5 = universes['Region 5']
 
-lattices['Region 1 Assembly'].setWidth(1.5/refines, 1.5/refines)
-lattices['Region 1 Assembly'].setUniverses([[[u1] * 10 * refines] * 10 * refines])
+lattices['Region 1 Assembly'].setWidth(15.0/refines, 15.0/refines)
+lattices['Region 1 Assembly'].setUniverses([[[u1] * refines] * refines])
 
-lattices['Region 2 Assembly'].setWidth(1.5/refines, 1.5/refines)
-lattices['Region 2 Assembly'].setUniverses([[[u2] * 10 * refines] * 10 * refines])
+lattices['Region 2 Assembly'].setWidth(15.0/refines, 15.0/refines)
+lattices['Region 2 Assembly'].setUniverses([[[u2] * refines] * refines])
 
-lattices['Region 3 Assembly'].setWidth(1.5/refines, 1.5/refines)
-lattices['Region 3 Assembly'].setUniverses([[[u3] * 10 * refines] * 10 * refines])
+lattices['Region 3 Assembly'].setWidth(15.0/refines, 15.0/refines)
+lattices['Region 3 Assembly'].setUniverses([[[u3] * refines] * refines])
 
-lattices['Region 4 Assembly'].setWidth(1.5/refines, 1.5/refines)
-lattices['Region 4 Assembly'].setUniverses([[[u4] * 10 * refines] * 10 * refines])
+lattices['Region 4 Assembly'].setWidth(15.0/refines, 15.0/refines)
+lattices['Region 4 Assembly'].setUniverses([[[u4] * refines] * refines])
 
-lattices['Region 5 Assembly'].setWidth(1.5/refines, 1.5/refines)
-lattices['Region 5 Assembly'].setUniverses([[[u5] * 10 * refines] * 10 * refines])
+lattices['Region 5 Assembly'].setWidth(15.0/refines, 15.0/refines)
+lattices['Region 5 Assembly'].setUniverses([[[u5] * refines] * refines])
 
 u1 = universes['Region 1 Assembly']
 u2 = universes['Region 2 Assembly']

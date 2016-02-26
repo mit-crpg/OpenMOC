@@ -76,7 +76,6 @@ class TestHarness(object):
         # Always use 1 thread for FSR reproducibility
         self.track_generator.setNumThreads(1)
         self.track_generator.generateTracks()
-        self.track_generator.setNumThreads(self.num_threads)
 
     def _setup(self):
         """Build materials, geometry and perform ray tracing."""
@@ -227,7 +226,7 @@ class HashedTestHarness(TestHarness):
 
 class TrackingTestHarness(TestHarness):
     """Specialized TestHarness for testing tracking."""
-
+    
     def __init__(self):
         super(TrackingTestHarness, self).__init__()
         self.tracks = OrderedDict()
@@ -275,7 +274,7 @@ class PlottingTestHarness(TestHarness):
     def __init__(self):
         super(PlottingTestHarness, self).__init__()
         self.figures = []
-
+        
         # Use standardized default matplotlib rcparams
         rcparams = pickle.load(open('../rcparams.pkl', 'rb'))
         openmoc.plotter.matplotlib_rcparams = rcparams
@@ -380,7 +379,7 @@ class MultiSimTestHarness(TestHarness):
         """Run multiple OpenMOC eigenvalue calculations."""
 
         for i in range(self.num_simulations):
-            super(MultiSimTestHarness, self)._run_openmoc()
+            super(MultiSimTestHarness, self)._run_openmoc()            
             self.num_iters.append(self.solver.getNumIterations())
             self.keffs.append(self.solver.getKeff())
 

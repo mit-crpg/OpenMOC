@@ -279,18 +279,18 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
-  /* Calculate each FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for each FSR.  */
 #pragma omp parallel
   {
-
     int azim_index, fsr_id;
     segment* curr_segment;
     FP_PRECISION volume;
 
+    /* Calculate each FSR's "volume" by accumulating the total length of *
+     * all Track segments multipled by the Track "widths" for each FSR.  */
     for (int i=0; i < _num_azim; i++) {
 #pragma omp for
       for (int j=0; j < _num_tracks[i]; j++) {
+
         azim_index = _tracks[i][j].getAzimAngleIndex();
 
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
@@ -609,7 +609,6 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
 #pragma omp parallel
   {
-
     segment* curr_segment;
     FP_PRECISION length;
     Material* material;
@@ -953,6 +952,7 @@ void TrackGenerator::initializeFSRLocks() {
   for (int r=0; r < num_FSRs; r++)
     omp_init_lock(&_FSR_locks[r]);
 }
+
 
 /**
  * @brief This method creates a directory to store Track files, and reads
@@ -1704,12 +1704,11 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map =
+  ParallelHashMap<std::string, fsr_data*> & FSR_keys_map =
       _geometry->getFSRKeysMap();
-  std::vector<std::string>* FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<std::string> & FSRs_to_keys = _geometry->getFSRsToKeys();
   std::string fsr_key;
   int fsr_id;
-  int fsr_counter = 0;
   double x, y, z;
 
   /* Write number of FSRs */
@@ -1717,8 +1716,8 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  std::string* fsr_key_list = FSR_keys_map->keys();
-  fsr_data** fsr_data_list = FSR_keys_map->values();
+  std::string* fsr_key_list = FSR_keys_map.keys();
+  fsr_data** fsr_data_list = FSR_keys_map.values();
   for (int i=0; i < num_FSRs; i++) {
 
     /* Write key to file from FSR_keys_map */
@@ -1738,13 +1737,10 @@ void TrackGenerator::dumpTracksToFile() {
     fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_keys */
-    fsr_key = FSRs_to_keys->at(fsr_counter);
+    fsr_key = FSRs_to_keys.at(i);
     string_length = fsr_key.length() + 1;
     fwrite(&string_length, sizeof(int), 1, out);
     fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
-
-    /* Increment FSR ID counter */
-    fsr_counter++;
   }
 
   /* Write cmfd_fsrs vector of vectors to file */
@@ -1915,10 +1911,12 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map =
-      new ParallelHashMap<std::string, fsr_data*>;
-  std::vector<std::string>* FSRs_to_keys
-    = new std::vector<std::string>;
+  ParallelHashMap<std::string, fsr_data*> & FSR_keys_map =
+      _geometry->getFSRKeysMap();
+  std::vector<std::string> & FSRs_to_keys =
+      _geometry->getFSRsToKeys();
+  FSR_keys_map.clear();
+  FSRs_to_keys.clear();
   int num_FSRs;
   std::string fsr_key;
   int fsr_key_id;
@@ -1946,19 +1944,15 @@ bool TrackGenerator::readTracksFromFile() {
     Point* point = new Point();
     point->setCoords(x,y,z);
     fsr->_point = point;
-    FSR_keys_map->insert(fsr_key, fsr);
+    FSR_keys_map.insert(fsr_key, fsr);
 
     /* Read data from file for FSR_to_keys */
     ret = fread(&string_length, sizeof(int), 1, in);
     char* char_buffer2 = new char[string_length];
     ret = fread(char_buffer2, sizeof(char)*string_length, 1, in);
     fsr_key = std::string(char_buffer2);
-    FSRs_to_keys->push_back(fsr_key);
+    FSRs_to_keys.push_back(fsr_key);
   }
-
-  /* Set FSR vector maps */
-  _geometry->setFSRKeysMap(FSR_keys_map);
-  _geometry->setFSRsToKeys(FSRs_to_keys);
 
   /* Read cmfd cell_fsrs vector of vectors from file */
   if (cmfd != NULL) {
@@ -2030,7 +2024,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
     d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
 
     /* Compute the current estimated volume of the FSR for this angle */
-#pragma omp parallel for private(num_segments, segments, curr_segment)  \
+#pragma omp parallel for private(num_segments, segments, curr_segment) \
   reduction(+:volume)
     for (int j=0; j < _num_tracks[i]; j++) {
       num_segments = _tracks[i][j].getNumSegments();
@@ -2073,15 +2067,15 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
  *          FSR by the segment's length and azimuthal weight. The numerical
  *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
  *          Approximation in CASMO 5", PHYSOR 2012.
- * @param FSR_volumes An array of FSR volumes.
  */
-void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes,
-                                          PolarQuad* polar_quad) {
+void TrackGenerator::generateFSRCentroids() {
 
   int num_FSRs = _geometry->getNumFSRs();
+  FP_PRECISION* FSR_volumes = getFSRVolumes();
 
   /* Create array of centroids and initialize to origin */
   Point** centroids = new Point*[num_FSRs];
+#pragma omp parallel for
   for (int r=0; r < num_FSRs; r++) {
     centroids[r] = new Point();
     centroids[r]->setCoords(0.0, 0.0, 0.0);
@@ -2125,13 +2119,13 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes,
   }
 
   /* Set the centroid for the FSR */
-  for (int r=0; r < num_FSRs; r++) {
+#pragma omp parallel for
+  for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
-    //log_printf(NORMAL, "fsr %d centroid: (%f, %f)", r, centroids[r]->getX(), centroids[r]->getY());
-  }
 
   /* Delete temporary array of FSR volumes and centroids */
   delete [] centroids;
+  delete [] FSR_volumes;
 }
 
 
@@ -2152,9 +2146,10 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 #pragma omp parallel
   {
 
-    FP_PRECISION tau, length;
     int num_cuts, min_num_cuts;
     segment* curr_segment;
+
+    FP_PRECISION length, tau;
     int fsr_id;
     Material* material;
     FP_PRECISION* sigma_t;
@@ -2237,29 +2232,34 @@ void TrackGenerator::initializeSegments() {
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
   /* Get the mappings of FSR to keys to fsr_data to update Materials */
-  ParallelHashMap<std::string, fsr_data*>* FSR_keys_map;
-  std::vector<std::string>* FSRs_to_keys;
-  FSR_keys_map = _geometry->getFSRKeysMap();
-  FSRs_to_keys = _geometry->getFSRsToKeys();
+  ParallelHashMap<std::string, fsr_data*> & FSR_keys_map =
+      _geometry->getFSRKeysMap();
+  std::vector<std::string> & FSRs_to_keys = _geometry->getFSRsToKeys();
 
-  /* Iterate over all Track segments and assign them each a Material */
-  int region_id, mat_id;
-  segment* curr_segment;
-  Material* mat;
+#pragma omp parallel
+  {
 
-  /* Set the Material for each FSR */
-  for (int r=0; r < _geometry->getNumFSRs(); r++) {
-    mat = _geometry->findFSRMaterial(r);
-    FSR_keys_map->at(FSRs_to_keys->at(r))->_mat_id = mat->getId();
-  }
+    int region_id, mat_id;
+    segment* curr_segment;
+    Material* mat;
 
-  for (int i=0; i < _num_azim; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-      for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-        curr_segment = _tracks[i][j].getSegment(s);
-        region_id = curr_segment->_region_id;
-        mat_id = FSR_keys_map->at(FSRs_to_keys->at(region_id))->_mat_id;
-        curr_segment->_material = materials[mat_id];
+    /* Set the Material for each FSR */
+#pragma omp for
+    for (int r=0; r < _geometry->getNumFSRs(); r++) {
+      mat = _geometry->findFSRMaterial(r);
+      FSR_keys_map.at(FSRs_to_keys.at(r))->_mat_id = mat->getId();
+    }
+
+    /* Set the Material for each segment */
+    for (int i=0; i < _num_azim; i++) {
+#pragma omp for
+      for (int j=0; j < _num_tracks[i]; j++) {
+        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
+          curr_segment = _tracks[i][j].getSegment(s);
+          region_id = curr_segment->_region_id;
+          mat_id = FSR_keys_map.at(FSRs_to_keys.at(region_id))->_mat_id;
+          curr_segment->_material = materials[mat_id];
+        }
       }
     }
   }

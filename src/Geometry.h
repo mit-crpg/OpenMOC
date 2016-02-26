@@ -148,18 +148,16 @@ public:
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::string>* getFSRsToKeys();
+  std::vector<std::string> & getFSRsToKeys();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-  ParallelHashMap<std::string, fsr_data*>* getFSRKeysMap();
+  ParallelHashMap<std::string, fsr_data*> & getFSRKeysMap();
 
   /* Set parameters */
-  void setFSRsToKeys(std::vector<std::string>* FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
-  void setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* FSR_keys_map);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);

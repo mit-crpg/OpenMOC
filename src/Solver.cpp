@@ -520,9 +520,6 @@ void Solver::initializePolarQuadrature() {
       _polar_weights(i,p) =
            azim_weights[i] * _polar_quad->getMultiple(p) * FOUR_PI;
   }
-
-  /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids(_FSR_volumes, _polar_quad);
 }
 
 
@@ -597,6 +594,9 @@ void Solver::initializeFSRs() {
 
   /* Get an array of volumes indexed by FSR  */
   _FSR_volumes = _track_generator->getFSRVolumes();
+
+  /* Generate the FSR centroids */
+  _track_generator->generateFSRCentroids();
 
   /* Attach the correct materials to each track segment */
   _track_generator->initializeSegments();

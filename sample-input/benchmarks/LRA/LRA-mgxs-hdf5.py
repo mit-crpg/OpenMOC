@@ -19,6 +19,8 @@ f.attrs["# groups"] = 2
 # Create a group to specify that MGXS are split by material (vs. cell)
 material_group = f.create_group('material')
 
+# The neutron multiplication factor for all fissionable materials
+nu = 2.43
 
 ###############################################################################
 ################################   region 1    ################################
@@ -29,7 +31,7 @@ region_1 = material_group.create_group('Region 1')
 
 sigma_t = numpy.array([0.265604, 1.579779])
 sigma_s = numpy.array([0.232022, 0.02533, 0.00, 1.479479])
-sigma_f = numpy.array([0.004602, 0.1091]) / 2.43
+sigma_f = numpy.array([0.004602, 0.1091]) / nu
 nu_sigma_f = numpy.array([0.004602, 0.1091])
 chi = numpy.array([1.0, 0.0])
 
@@ -49,7 +51,7 @@ region_2 = material_group.create_group('Region 2')
 
 sigma_t = numpy.array([0.262881, 1.752541])
 sigma_s = numpy.array([0.228030, 0.02767, 0.00, 1.682071])
-sigma_f = numpy.array([0.004609, 0.08675]) / 2.43
+sigma_f = numpy.array([0.004609, 0.08675]) / nu
 nu_sigma_f = numpy.array([0.004609, 0.08675])
 chi = numpy.array([1.0, 0.0])
 
@@ -69,7 +71,7 @@ region_3 = material_group.create_group('Region 3')
 
 sigma_t = numpy.array([0.26476, 1.594134])
 sigma_s = numpy.array([0.230588, 0.02617, 0.00, 1.510694])
-sigma_f = numpy.array([0.004663, 0.1021]) / 2.43
+sigma_f = numpy.array([0.004663, 0.1021]) / nu
 nu_sigma_f = numpy.array([0.004663, 0.1021])
 chi = numpy.array([1.0, 0.0])
 
@@ -89,7 +91,7 @@ region_4 = material_group.create_group('Region 4')
 
 sigma_t = numpy.array([0.26476, 1.594134])
 sigma_s = numpy.array([0.230588, 0.02617, 0.00, 1.52081])
-sigma_f = numpy.array([0.004663, 0.1021]) / 2.43
+sigma_f = numpy.array([0.004663, 0.1021]) / nu
 nu_sigma_f = numpy.array([0.004663, 0.1021])
 chi = numpy.array([1.0, 0.0])
 
