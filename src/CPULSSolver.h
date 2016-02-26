@@ -25,12 +25,6 @@
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources_xy(r,e,x) (_reduced_sources_xy[(r)*_num_groups*2 + (e)*2 + (x)])
 
-/** Indexing macro for the total source divided by the total cross-section
- *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
-#define _reduced_source_moments(r,a,e,p) (_reduced_source_moments[(r)*_num_groups*_num_polar*_num_azim \
-                                                                  + (a)*_num_groups*_num_polar + \
-                                                                  (e)*_num_polar + (p)])
-
 
 /**
  * @class CPULSSolver CPULSSolver.h "src/CPULSSolver.h"
@@ -47,7 +41,6 @@ protected:
   /** Ratios of source moments to total cross-section for each FSR and energy
    *  group */
   FP_PRECISION* _reduced_sources_xy;
-  FP_PRECISION* _reduced_source_moments;
 
   /** The FSR linear expansion matrix values for each FSR */
   FP_PRECISION* _FSR_lin_exp_matrix;
@@ -69,8 +62,8 @@ protected:
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
    * @param x the x-coord of the segment starting point
    * @param y the y-coord of the segment starting point
-   * @param fwd bool indicating whether the segment is pointing forward or
-   *            backwards
+   * @param fwd int indicating whether the segment is pointing forward (1) or
+   *            backwards (-1)
    */
   void tallyLSScalarFlux(segment* curr_segment, int azim_index,
                          FP_PRECISION* track_flux,

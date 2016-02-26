@@ -196,7 +196,12 @@ void ExpEvaluator::initialize() {
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < num_polar; p++) {
       sin_theta = _polar_quad->getSinTheta(p);
-      tau = (i + 0.5) * exp_table_spacing;
+
+      if (i == 0)
+        tau = i * exp_table_spacing;
+      else
+        tau = (i + 0.5) * exp_table_spacing;
+
       expon = exp(- tau / sin_theta);
 
       /* Compute F1 */
