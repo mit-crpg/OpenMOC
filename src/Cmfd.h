@@ -119,6 +119,9 @@ private:
   /** The FSR scalar flux in each energy group */
   FP_PRECISION* _FSR_fluxes;
 
+  /** The LSR scalar flux moments in each energy group */
+  FP_PRECISION* _LSR_flux_moments;
+
   /** Vector of CMFD cell volumes */
   Vector* _volumes;
 
@@ -148,6 +151,9 @@ private:
 
   /** Flag indicating whether to use centroid updating (default true) */
   bool _centroid_update_on;
+
+  /** Flag indicating whether linear source is being used */
+  bool _linear_source;
 
   /** Number of cells used in updating MOC flux (default 3) */
   int _k_nearest;
@@ -232,6 +238,7 @@ public:
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y);
   void setFluxUpdateOn(bool flux_update_on);
+  void setLinearSourceOn(bool linear_source);
   void setCentroidUpdateOn(bool centroid_update_on);
   void setGroupStructure(int* group_indices, int length_group_indices);
   void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
@@ -242,6 +249,7 @@ public:
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
+  void setLSRFluxMoments(FP_PRECISION* scalar_flux);
   void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
 };
 

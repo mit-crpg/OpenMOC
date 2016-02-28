@@ -27,7 +27,7 @@ openmoc.log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([1,4,8])
+#cmfd.setGroupStructure([1,4,8])
 cmfd.setKNearest(3)
 
 from geometry_ls import geometry
@@ -61,6 +61,8 @@ solver.printTimerReport()
 ###############################################################################
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
+
+openmoc.process.compute_fission_rates(solver)
 
 openmoc.plotter.plot_materials(geometry, gridsize=250)
 openmoc.plotter.plot_cells(geometry, gridsize=250)

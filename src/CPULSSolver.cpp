@@ -557,3 +557,12 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 
   return flux;
 }
+
+
+void CPULSSolver::initializeCmfd() {
+  Solver::initializeCmfd();
+  if (_cmfd != NULL) {
+    _cmfd->setLinearSourceOn(true);
+    _cmfd->setLSRFluxMoments(_scalar_flux_xy);
+  }
+}

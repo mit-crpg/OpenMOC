@@ -1050,17 +1050,26 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   storeFSRFluxes();
   zeroTrackFluxes();
 
+  _timer->startTimer();
+
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
     normalizeFluxes();
     computeFSRSources();
+    _timer->startTimer();
     transportSweep();
+    _timer->stopTimer();
+    _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
 
     /* Solve CMFD diffusion problem and update MOC flux */
+
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
+      _timer->startTimer();
       _k_eff = _cmfd->computeKeff(i);
       _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
+      _timer->stopTimer();
+      _timer->recordSplit("CMFD");
     }
     else
       computeKeff();
@@ -1076,6 +1085,9 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
     if (i > 1 && residual < _converge_thresh)
       break;
   }
+
+  _timer->stopTimer();
+  _timer->recordSplit("MOC Kernel");
 
   if (_num_iterations == max_iters-1)
     log_printf(WARNING, "Unable to converge the source distribution");
@@ -1111,6 +1123,16 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
+  double cmfd_time = _timer->getSplit("CMFD");
+  msg_string = "CMFD solve time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), cmfd_time);
+
+  double moc_kernel_time = _timer->getSplit("MOC Kernel");
+  msg_string = "MOC Kernel time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), moc_kernel_time);
+
   /* Time per iteration */
   double time_per_iter = tot_time / _num_iterations;
   msg_string = "Solution time per iteration";
@@ -1118,9 +1140,10 @@ void Solver::printTimerReport() {
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
 
   /* Time per segment */
+  double transport_sweep_time = _timer->getSplit("Transport Sweep");
   int num_segments = _track_generator->getNumSegments();
-  int num_integrations = 2 * _num_polar * _num_groups * num_segments;
-  double time_per_integration = (time_per_iter / num_integrations);
+  int num_integrations = 2 * _num_polar * _num_groups * num_segments * _num_iterations;
+  double time_per_integration = (transport_sweep_time / num_integrations);
   msg_string = "Time per segment integration";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);

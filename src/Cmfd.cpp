@@ -23,6 +23,7 @@ Cmfd::Cmfd() {
   _cell_width_y = 0.;
   _flux_update_on = true;
   _centroid_update_on = true;
+  _linear_source = false;
   _k_nearest = 3;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
@@ -704,8 +705,13 @@ void Cmfd::updateMOCFlux() {
         for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
           /* Update FSR flux using ratio of old and new CMFD flux */
-          _FSR_fluxes[*iter*_num_moc_groups + h] = update_ratio
-            * _FSR_fluxes[*iter*_num_moc_groups + h];
+          _FSR_fluxes[*iter*_num_moc_groups + h] *= update_ratio;
+
+          /* Update LSR flux moments using ratio of old and new CMFD flux */
+          if (_linear_source) {
+            _LSR_flux_moments[(*iter)*2*_num_moc_groups + h*2] *= update_ratio;
+            _LSR_flux_moments[(*iter)*2*_num_moc_groups + h*2 + 1] *= update_ratio;
+          }
 
           log_printf(DEBUG, "Updating flux in FSR: %d, cell: %d, MOC group: "
             "%d, CMFD group: %d, ratio: %f", *iter ,i, h, e, update_ratio);
@@ -796,6 +802,15 @@ void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
  */
 void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
   _FSR_fluxes = scalar_flux;
+}
+
+
+/**
+ * @brief Set pointer to LSR flux moments array.
+ * @param scalar_flux Pointer to LSR flux moments array
+ */
+void Cmfd::setLSRFluxMoments(FP_PRECISION* scalar_flux) {
+  _LSR_flux_moments = scalar_flux;
 }
 
 
@@ -1388,6 +1403,16 @@ void Cmfd::setFluxUpdateOn(bool flux_update_on) {
 bool Cmfd::isFluxUpdateOn() {
  return _flux_update_on;
 }
+
+
+/**
+ * @brief Set flag indicating whether to update the MOC flux.
+ * @param flux_update_on Boolean saying whether to update MOC flux.
+ */
+void Cmfd::setLinearSourceOn(bool linear_source) {
+  _linear_source = linear_source;
+}
+
 
 
 /**

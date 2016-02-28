@@ -33,6 +33,7 @@ private:
 
   /** The inverse spacing for the exponential linear interpolation table */
   FP_PRECISION _inverse_exp_table_spacing;
+  FP_PRECISION _exp_table_spacing;
 
   /** The number of entries in the exponential linear interpolation table */
   int _table_size;

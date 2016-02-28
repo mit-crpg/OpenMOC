@@ -76,6 +76,7 @@ public:
 
   void initializeFluxArrays();
   void initializeSourceArrays();
+  void initializeCmfd();
 
   void flattenFSRFluxes(FP_PRECISION value);
   void normalizeFluxes();
