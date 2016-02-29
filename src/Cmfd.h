@@ -113,6 +113,9 @@ private:
   /** The volumes (areas) for each FSR */
   FP_PRECISION* _FSR_volumes;
 
+  /** Pointers to centroids for each FSR */
+  Point** _FSR_centroids;
+
   /** Pointers to Materials for each FSR */
   Material** _FSR_materials;
 
@@ -247,6 +250,7 @@ public:
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
+  void setFSRCentroids(Point** FSR_centroids);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
   void setLSRFluxMoments(FP_PRECISION* scalar_flux);

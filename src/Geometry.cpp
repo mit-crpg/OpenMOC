@@ -20,8 +20,6 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
-
-  _centroids == NULL;
 }
 
 
@@ -669,8 +667,6 @@ Point* Geometry::getFSRPoint(int fsr_id) {
  */
 Point* Geometry::getFSRCentroid(int fsr_id) {
 
-  return _centroids[fsr_id];
-
   Point* point;
 
   try{
@@ -1163,11 +1159,6 @@ bool Geometry::withinBounds(LocalCoords* coords) {
  * @param centroid a Point representing the FSR centroid
  */
 void Geometry::setFSRCentroid(int fsr, Point* centroid) {
-
-  if (_centroids == NULL)
-    _centroids = new Point*[getNumFSRs()];
-
-  _centroids[fsr] = centroid;
   _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
 }
 

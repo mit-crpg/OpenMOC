@@ -18,6 +18,14 @@
 #endif
 
 
+/** Indexing macro for the scalar flux in each FSR and energy group */
+#define _scalar_flux_xy(r,e,x) (_scalar_flux_xy[(r)*_num_groups*2 + (e)*2 + (x)])
+
+/** Indexing macro for the total source divided by the total cross-section
+ *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
+#define _reduced_sources_xy(r,e,x) (_reduced_sources_xy[(r)*_num_groups*2 + (e)*2 + (x)])
+
+
 /**
  * @class CPULSSolver CPULSSolver.h "src/CPULSSolver.h"
  * @brief This a subclass of the CPUSolver class for using the linear source
@@ -34,15 +42,28 @@ protected:
   FP_PRECISION* _FSR_source_constants;
 
   /** Array of sin(phi) */
-  double* _sin_phi;
-  FP_PRECISION* _sin_thetas;
-  FP_PRECISION* _inv_sin_thetas;
-  FP_PRECISION _spacing;
-  FP_PRECISION _inv_spacing;
+  FP_PRECISION* _sin_phi;
 
   /** Array of cos(phi) */
   double* _cos_phi;
 
+  /** Array of sin(theta) */
+  FP_PRECISION* _sin_thetas;
+
+  /** Array of 1.0 / sin(theta) */
+  FP_PRECISION* _inv_sin_thetas;
+
+  /** The spacing between tau in the exp table */
+  FP_PRECISION _spacing;
+
+  /** The inverse of the spacing between tau in the exp table */
+  FP_PRECISION _inv_spacing;
+
+  /** An array of the scalar flux x and y terms */
+  FP_PRECISION* _scalar_flux_xy;
+
+  /** An array of the reduced source x and y terms */
+  FP_PRECISION* _reduced_sources_xy;
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
@@ -72,11 +93,8 @@ public:
   void flattenFSRFluxes(FP_PRECISION value);
   void normalizeFluxes();
   void computeFSRSources();
-  double computeResidual(residualType res_type);
   void transportSweep();
   void addSourceToScalarFlux();
-  void storeFSRFluxes();
-  void computeKeff();
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
 };

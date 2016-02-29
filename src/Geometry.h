@@ -110,8 +110,6 @@ private:
   /** A CMFD object pointer */
   Cmfd* _cmfd;
 
-  Point** _centroids;
-
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 

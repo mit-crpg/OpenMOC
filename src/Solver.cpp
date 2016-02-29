@@ -16,6 +16,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _num_fissionable_FSRs = 0;
   _FSR_volumes = NULL;
   _FSR_materials = NULL;
+  _FSR_centroids = NULL;
 
   _track_generator = NULL;
   _geometry = NULL;
@@ -570,10 +571,11 @@ void Solver::initializeMaterials(solverMode mode) {
 
 
 /**
- * @brief Initializes the FSR volumes and Materials array.
+ * @brief Initializes the FSR volumes, Materials, and centroids arrays.
  * @details This method assigns each FSR a unique, monotonically increasing
- *          ID, sets the Material for each FSR, and assigns a volume based on
- *          the cumulative length of all of the segments inside the FSR.
+ *          ID, sets the Material and centroid for each FSR, and assigns a
+ *          volume based on the cumulative length of all of the segments inside
+ *          the FSR.
  */
 void Solver::initializeFSRs() {
 
@@ -585,6 +587,9 @@ void Solver::initializeFSRs() {
 
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
+
+  if (_FSR_centroids != NULL)
+    delete [] _FSR_centroids;
 
   /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();
@@ -604,10 +609,14 @@ void Solver::initializeFSRs() {
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
+  /* Allocate an array of centroid Point pointers indexed by FSR */
+  _FSR_centroids = new Point*[_num_FSRs];
+
   /* Loop over all FSRs to extract FSR material pointers */
 #pragma omp parallel for
   for (int r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
+    _FSR_centroids[r] = _geometry->getFSRCentroid(r);
     log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
@@ -714,6 +723,7 @@ void Solver::initializeCmfd() {
   _cmfd->setNumFSRs(_num_FSRs);
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
+  _cmfd->setFSRCentroids(_FSR_centroids);
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
   _cmfd->setGeometry(_geometry);

@@ -788,6 +788,15 @@ void Cmfd::setFSRMaterials(Material** FSR_materials) {
 
 
 /**
+ * @brief Set the FSR centroids array pointer.
+ * @param FSR_centroids Pointer to FSR_centroids array
+ */
+void Cmfd::setFSRCentroids(Point** FSR_centroids) {
+  _FSR_centroids = FSR_centroids;
+}
+
+
+/**
  * @brief Set the pointer to the array of FSR_volumes.
  * @param FSR_volumes Array of FSR volumes
  */
@@ -1495,7 +1504,7 @@ void Cmfd::generateKNearestStencils() {
       fsr_id = *fsr_iter;
 
       /* Get centroid */
-      centroid = _geometry->getFSRCentroid(fsr_id);
+      centroid = _FSR_centroids[fsr_id];
 
       /* Create new stencil */
       _k_nearest_stencils[fsr_id] =

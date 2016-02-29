@@ -113,6 +113,9 @@ protected:
   /** The FSR Material pointers indexed by FSR UID */
   Material** _FSR_materials;
 
+  /** The FSR Centroid pointers indexed by FSR UID */
+  Point** _FSR_centroids;
+
   /** A pointer to a TrackGenerator which contains Tracks */
   TrackGenerator* _track_generator;
 
