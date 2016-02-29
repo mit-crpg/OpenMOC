@@ -7,6 +7,7 @@
 PolarQuad::PolarQuad() {
   _num_polar = 0;
   _sin_thetas = NULL;
+  _inverse_sin_thetas = NULL;
   _weights = NULL;
   _multiples = NULL;
   _quad_type = CUSTOM;

@@ -441,7 +441,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     tau_aki = sigma_t[e] * length;
     inv_tau_aki = 1.0 / tau_aki;
     index = floor(tau_aki * _inv_spacing);
-    dt = tau_aki - (index + 0.5) * _spacing;
+    dt = tau_aki - index * _spacing;
     src_constant = _reduced_sources(fsr_id, e) + 2 * sigma_t[e] *
         (_reduced_sources_xy(fsr_id, e, 0) * xc +
          _reduced_sources_xy(fsr_id, e, 1) * yc);

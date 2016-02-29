@@ -758,7 +758,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   for (int e=0; e < _num_groups; e++) {
     tau = sigma_t[e] * length;
     index = floor(tau * inv_spacing);
-    dt = tau - (index + 0.5) * spacing;
+    dt = tau - index * spacing;
     for (int p=0; p < _num_polar; p++) {
       exponential = _exp_evaluator->computeExponentialFast(dt, p, index);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;

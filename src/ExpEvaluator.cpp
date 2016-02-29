@@ -197,7 +197,7 @@ void ExpEvaluator::initialize() {
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < _two_times_num_polar/2; p++) {
-      tau_a = (i + 0.5) * _exp_table_spacing;
+      tau_a = i * _exp_table_spacing;
       tau_m = tau_a * _inv_sin_theta[p];
       expon = exp(- tau_m);
 
@@ -229,7 +229,7 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
   /* Evaluate the exponential using the lookup table - linear interpolation */
   if (_interpolate) {
     int i = floor(tau * _inverse_exp_table_spacing);
-    FP_PRECISION dt = tau - (i + 0.5) * _exp_table_spacing;
+    FP_PRECISION dt = tau - i * _exp_table_spacing;
     exponential = _exp_table[_two_times_num_polar * i + 2 * polar] *
         dt * (1 - 0.5 * dt * _inv_sin_theta[polar]) +
         _exp_table[_two_times_num_polar * i + 2 * polar + 1];
@@ -278,11 +278,6 @@ FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau, int polar) {
 
 
 FP_PRECISION ExpEvaluator::computeExponentialH(FP_PRECISION tau, int polar) {
-
-  FP_PRECISION exponential;
-
-  if (tau == 0.0)
-    return 0.0;
 
   FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
   FP_PRECISION G1 = computeExponentialG1(tau, polar);
