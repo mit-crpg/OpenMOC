@@ -52,6 +52,7 @@ protected:
 
   /** An array of the sines of quadrature angles */
   FP_PRECISION* _sin_thetas;
+  FP_PRECISION* _inverse_sin_thetas;
 
   /** An array of the quadrature weights */
   FP_PRECISION* _weights;
@@ -68,9 +69,11 @@ public:
 
   int getNumPolarAngles() const;
   FP_PRECISION getSinTheta(const int n) const;
+  FP_PRECISION getInverseSinTheta(const int n) const;
   FP_PRECISION getWeight(const int n) const;
   FP_PRECISION getMultiple(const int n) const;
   FP_PRECISION* getSinThetas();
+  FP_PRECISION* getInverseSinThetas();
   FP_PRECISION* getWeights();
   FP_PRECISION* getMultiples();
   quadratureType getQuadratureType();

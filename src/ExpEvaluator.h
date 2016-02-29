@@ -39,7 +39,9 @@ private:
   int _table_size;
 
   /** The exponential linear interpolation table */
-  FP_PRECISION* _exp_table_F1;
+  FP_PRECISION* _exp_table;
+  FP_PRECISION* _sin_theta;
+  FP_PRECISION* _inv_sin_theta;
 
   /** The PolarQuad object of interest */
   PolarQuad* _polar_quad;
@@ -68,14 +70,17 @@ public:
   FP_PRECISION getExpPrecision();
   bool isUsingInterpolation();
   FP_PRECISION getTableSpacing();
+  FP_PRECISION getInverseTableSpacing();
   int getTableSize();
-  FP_PRECISION* getExpTableF1();
+  FP_PRECISION* getExpTable();
 
   void initialize();
   FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialF2(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialG1(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialG2(FP_PRECISION tau, int polar);
+  FP_PRECISION computeExponentialH(FP_PRECISION tau, int polar);
+  FP_PRECISION computeExponentialFast(FP_PRECISION dt, int polar, int index);
 };
 
 #endif /* EXPEVALUATOR_H_ */

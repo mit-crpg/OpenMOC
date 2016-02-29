@@ -22,6 +22,9 @@ PolarQuad::~PolarQuad() {
   if (_sin_thetas != NULL)
     delete [] _sin_thetas;
 
+  if (_inverse_sin_thetas != NULL)
+    delete [] _inverse_sin_thetas;
+
   if (_weights != NULL)
     delete [] _weights;
 
@@ -56,6 +59,20 @@ FP_PRECISION PolarQuad::getSinTheta(const int n) const {
                "but the sin thetas have not been initialized", n);
 
   return _sin_thetas[n];
+}
+
+
+FP_PRECISION PolarQuad::getInverseSinTheta(const int n) const {
+
+  if (n < 0 || n >= _num_polar)
+    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = "
+               "%d but only %d polar angles are defined", n, _num_polar);
+
+  else if (_inverse_sin_thetas == NULL)
+    log_printf(ERROR, "Attempted to retrieve sin theta for polar angle = %d "
+               "but the sin thetas have not been initialized", n);
+
+  return _inverse_sin_thetas[n];
 }
 
 
@@ -109,6 +126,16 @@ FP_PRECISION* PolarQuad::getSinThetas() {
                "but it has not been initialized");
 
   return _sin_thetas;
+}
+
+
+FP_PRECISION* PolarQuad::getInverseSinThetas() {
+
+  if (_inverse_sin_thetas == NULL)
+    log_printf(ERROR, "Attempted to retrieve the inverse sin thetas array "
+               "but it has not been initialized");
+
+  return _inverse_sin_thetas;
 }
 
 
@@ -185,8 +212,12 @@ void PolarQuad::setSinThetas(double* sin_thetas, int num_polar) {
   if (_sin_thetas != NULL)
     delete [] _sin_thetas;
 
+  if (_inverse_sin_thetas != NULL)
+    delete [] _inverse_sin_thetas;
+
   /* Initialize memory for arrays */
   _sin_thetas = new FP_PRECISION[_num_polar];
+  _inverse_sin_thetas = new FP_PRECISION[_num_polar];
 
   /* Extract sin thetas from user input */
   for (int p=0; p < _num_polar; p++) {
@@ -194,6 +225,7 @@ void PolarQuad::setSinThetas(double* sin_thetas, int num_polar) {
       log_printf(ERROR, "Unable to set sin theta to %f which is "
                  "not in the range [0,1]", sin_thetas[p]);
     _sin_thetas[p] = FP_PRECISION(sin_thetas[p]);
+    _inverse_sin_thetas[p] = 1.0 / _sin_thetas[p];
   }
 }
 

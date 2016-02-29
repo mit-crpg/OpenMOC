@@ -746,15 +746,21 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  FP_PRECISION delta_psi, exponential;
+  FP_PRECISION delta_psi, exponential, tau, dt;
+  int index;
+  FP_PRECISION inv_spacing = _exp_evaluator->getInverseTableSpacing();
+  FP_PRECISION spacing = _exp_evaluator->getTableSpacing();
 
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
   /* Compute change in angular flux along segment in this FSR */
   for (int e=0; e < _num_groups; e++) {
+    tau = sigma_t[e] * length;
+    index = floor(tau * inv_spacing);
+    dt = tau - (index + 0.5) * spacing;
     for (int p=0; p < _num_polar; p++) {
-      exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
+      exponential = _exp_evaluator->computeExponentialFast(dt, p, index);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
@@ -763,10 +769,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
   /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);
-  {
-    for (int e=0; e < _num_groups; e++)
-      _scalar_flux(fsr_id,e) += fsr_flux[e];
-  }
+
+#pragma omp simd
+  for (int e=0; e < _num_groups; e++)
+    _scalar_flux(fsr_id,e) += fsr_flux[e];
+
   omp_unset_lock(&_FSR_locks[fsr_id]);
 }
 

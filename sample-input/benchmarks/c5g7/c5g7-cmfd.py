@@ -30,8 +30,8 @@ cmfd.setLatticeStructure(51,51)
 cmfd.setGroupStructure([1,4,8])
 cmfd.setKNearest(3)
 
-from geometry import geometry
-geometry.setCmfd(cmfd)
+from geometry_ls import geometry
+#geometry.setCmfd(cmfd)
 
 
 ###############################################################################
@@ -62,11 +62,11 @@ solver.printTimerReport()
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-openmoc.plotter.plot_materials(geometry, gridsize=250)
-openmoc.plotter.plot_cells(geometry, gridsize=250)
-openmoc.plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=250)
-openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-openmoc.plotter.plot_fission_rates(solver, gridsize=250, norm=True)
+#openmoc.plotter.plot_materials(geometry, gridsize=250)
+#openmoc.plotter.plot_cells(geometry, gridsize=250)
+#openmoc.plotter.plot_cmfd_cells(geometry, cmfd, gridsize=250)
+#openmoc.plotter.plot_flat_source_regions(geometry, gridsize=250)
+#openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
+#openmoc.plotter.plot_fission_rates(solver, gridsize=250, norm=True)
 
 openmoc.log.py_printf('TITLE', 'Finished')

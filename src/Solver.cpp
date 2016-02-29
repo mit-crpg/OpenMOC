@@ -1133,6 +1133,11 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), moc_kernel_time);
 
+  double transport_sweep_time = _timer->getSplit("Transport Sweep");
+  msg_string = "Transport Sweep time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep_time);
+
   /* Time per iteration */
   double time_per_iter = tot_time / _num_iterations;
   msg_string = "Solution time per iteration";
@@ -1140,9 +1145,8 @@ void Solver::printTimerReport() {
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
 
   /* Time per segment */
-  double transport_sweep_time = _timer->getSplit("Transport Sweep");
-  int num_segments = _track_generator->getNumSegments();
-  int num_integrations = 2 * _num_polar * _num_groups * num_segments * _num_iterations;
+  long int num_segments = _track_generator->getNumSegments();
+  long int num_integrations = 2 * _num_polar * _num_groups * num_segments * _num_iterations;
   double time_per_integration = (transport_sweep_time / num_integrations);
   msg_string = "Time per segment integration";
   msg_string.resize(53, '.');
