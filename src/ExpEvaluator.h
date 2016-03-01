@@ -87,8 +87,6 @@ public:
   FP_PRECISION computeExponentialF2(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialG2(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialH(FP_PRECISION tau, int polar);
-  FP_PRECISION computeExponentialFast(FP_PRECISION dt, FP_PRECISION dt2,
-                                      int polar, int index);
 };
 
 #endif /* EXPEVALUATOR_H_ */

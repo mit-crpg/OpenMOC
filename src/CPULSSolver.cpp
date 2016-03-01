@@ -16,7 +16,7 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xy = NULL;
   _reduced_sources_xy = NULL;
-  _rr_sources_xy = NULL;
+  _directional_sources = NULL;
   _sin_phi = NULL;
   _cos_phi = NULL;
 }
@@ -41,8 +41,8 @@ CPULSSolver::~CPULSSolver() {
   if (_reduced_sources_xy != NULL)
     delete [] _reduced_sources_xy;
 
-  if (_rr_sources_xy != NULL)
-    delete [] _rr_sources_xy;
+  if (_directional_sources != NULL)
+    delete [] _directional_sources;
 
   if (_sin_phi != NULL)
     delete [] _sin_phi;
@@ -87,8 +87,8 @@ void CPULSSolver::initializeSourceArrays() {
   if (_reduced_sources_xy != NULL)
     delete [] _reduced_sources_xy;
 
-  if (_rr_sources_xy != NULL)
-    delete [] _rr_sources_xy;
+  if (_directional_sources != NULL)
+    delete [] _directional_sources;
 
   int size1 = _num_FSRs * _num_groups * 2;
   int size2 = _num_FSRs * _num_azim * _num_polar * _num_groups;
@@ -96,7 +96,7 @@ void CPULSSolver::initializeSourceArrays() {
   /* Allocate memory for all source arrays */
   try{
     _reduced_sources_xy = new FP_PRECISION[size1];
-    _rr_sources_xy = new FP_PRECISION[size2];
+    _directional_sources = new FP_PRECISION[size2];
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR source moments");
@@ -104,7 +104,7 @@ void CPULSSolver::initializeSourceArrays() {
 
   /* Initialize source moments to zero */
   memset(_reduced_sources_xy, 0.0, sizeof(FP_PRECISION) * size1);
-  memset(_rr_sources_xy, 0.0, sizeof(FP_PRECISION) * size2);
+  memset(_directional_sources, 0.0, sizeof(FP_PRECISION) * size2);
 
   /* Delete old sin(phi) and cos(phi) arrays if they exist */
   if (_sin_phi != NULL)
@@ -302,9 +302,10 @@ void CPULSSolver::computeFSRSources() {
           for (int p=0; p < _num_polar; p++) {
             ax = _cos_phi[a] * _sin_thetas[p];
             ay = _sin_phi[a] * _sin_thetas[p];
-            _rr_sources_xy[p + (e + (a + r * _num_azim) * _num_groups) * _num_polar] =
-                (ax * _reduced_sources_xy(r,e,0) + ay * _reduced_sources_xy(r,e,1))
-                / (2 * sigma_t[e]);
+            _directional_sources
+                [p + (e + (a + r * _num_azim) * _num_groups) * _num_polar] =
+                (ax * _reduced_sources_xy(r,e,0) +
+                 ay * _reduced_sources_xy(r,e,1)) / (2 * sigma_t[e]);
           }
         }
       }
@@ -456,8 +457,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION src_flat, dt, dt2;
   int i;
 
-  FP_PRECISION* rr_sources = &_rr_sources_xy[(azim_index + fsr_id * _num_azim)
-                                             * _num_groups * _num_polar];
+  FP_PRECISION* directional_sources_sr = &_directional_sources
+      [(azim_index + fsr_id * _num_azim) * _num_groups * _num_polar];
 
   /* Compute the segment midpoint */
   double cos_phi = fwd * _cos_phi[azim_index];
@@ -490,7 +491,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
       /* Compute the change in flux across the segment */
       delta_psi = (track_flux(p,e) - src_flat) * exp_F1 -
-          rr_sources[e*_num_polar + p] * exp_F2;
+          directional_sources_sr[e*_num_polar + p] * exp_F2;
 
       /* Increment the fsr scalar flux and scalar flux moments */
       fsr_flux[e*3    ] += _polar_weights(azim_index,p) * delta_psi;

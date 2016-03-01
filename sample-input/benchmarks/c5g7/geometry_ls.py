@@ -84,8 +84,7 @@ mox87.addCell(moderator)
 
 # Fission chamber pin cell
 fission_chamber_cell = openmoc.Cell()
-fission_chamber_cell.setNumRings(3)
-fission_chamber_cell.setNumSectors(4)
+fission_chamber_cell.setNumSectors(8)
 fission_chamber_cell.setFill(materials['Fission Chamber'])
 fission_chamber_cell.addSurface(-1, fuel_radius)
 
@@ -95,8 +94,8 @@ fission_chamber.addCell(moderator)
 
 # Guide tube pin cell
 guide_tube_cell = openmoc.Cell()
-guide_tube_cell.setNumRings(3)
-guide_tube_cell.setNumSectors(4)
+guide_tube_cell.setNumRings(5)
+guide_tube_cell.setNumSectors(8)
 guide_tube_cell.setFill(materials['Guide Tube'])
 guide_tube_cell.addSurface(-1, fuel_radius)
 
@@ -204,8 +203,8 @@ assembly2_cell.setFill(lattices[-1])
 
 # Sliced up water cells - semi finely spaced
 lattices.append(openmoc.Lattice(name='Semi-Finely Spaced Reflector'))
-lattices[-1].setWidth(width_x=1.26/2, width_y=1.26/2)
-template = [[reflector] * 2] * 2
+lattices[-1].setWidth(width_x=1.26/3, width_y=1.26/3)
+template = [[reflector] * 3] * 3
 lattices[-1].setUniverses([template])
 refined_reflector_cell.setFill(lattices[-1])
 

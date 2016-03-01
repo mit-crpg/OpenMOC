@@ -352,10 +352,3 @@ FP_PRECISION ExpEvaluator::computeExponentialH(FP_PRECISION tau, int polar) {
 
   return exponential;
 }
-
-
-FP_PRECISION ExpEvaluator::computeExponentialFast(FP_PRECISION dt, FP_PRECISION dt2,
-                                                  int polar, int i) {
-
-  return _exp_table[i] + _exp_table[i + 1] * dt + _exp_table[i + 2] * dt2;
-}
