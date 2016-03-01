@@ -211,10 +211,9 @@ void CPULSSolver::normalizeFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
+      for (int e=0; e < _num_groups; e++) {
+        for (int p=0; p < _num_polar; p++)
           _boundary_flux(t,d,p,e) *= norm_factor;
-        }
       }
     }
   }
@@ -455,7 +454,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exp_F1, exp_F2, exp_H, tau;
   FP_PRECISION src_flat, dt, dt2;
-  int index;
+  int i;
 
   FP_PRECISION* rr_sources = &_rr_sources_xy[(azim_index + fsr_id * _num_azim)
                                              * _num_groups * _num_polar];
@@ -473,9 +472,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   for (int e=0; e < _num_groups; e++) {
 
     tau = sigma_t[e] * length;
-    index = floor(tau * _inv_spacing);
-    dt = tau - index * _spacing;
-    index *= 9 * _num_polar;
+    i = floor(tau * _inv_spacing);
+    dt = tau - i * _spacing;
+    i *= 9 * _num_polar;
     dt2 = dt * dt;
 
     src_flat = _reduced_sources(fsr_id, e) +
@@ -484,13 +483,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
     for (int p=0; p < _num_polar; p++) {
 
-      exp_F1 = _exp_table[index    ] + _exp_table[index + 1] * dt +
-          _exp_table[index + 2] * dt2;
-      exp_F2 = _exp_table[index + 3] + _exp_table[index + 4] * dt +
-          _exp_table[index + 5] * dt2;
-      exp_H  = _exp_table[index + 6] + _exp_table[index + 7] * dt +
-          _exp_table[index + 8] * dt2;
-      index += 9;
+      exp_F1 = _exp_table[i    ] + _exp_table[i + 1] * dt + _exp_table[i + 2] * dt2;
+      exp_F2 = _exp_table[i + 3] + _exp_table[i + 4] * dt + _exp_table[i + 5] * dt2;
+      exp_H  = _exp_table[i + 6] + _exp_table[i + 7] * dt + _exp_table[i + 8] * dt2;
+      i += 9;
 
       /* Compute the change in flux across the segment */
       delta_psi = (track_flux(p,e) - src_flat) * exp_F1 -

@@ -22,11 +22,11 @@
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for either the forward or reverse direction for a given Track */
-#define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
+#define track_flux(p,e) (track_flux[(e)*_num_polar + (p)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track from a given Track */
-#define track_out_flux(p,e) (track_out_flux[(p)*_num_groups + (e)])
+#define track_out_flux(p,e) (track_out_flux[(e)*_num_polar + (p)])
 
 
 /**

@@ -243,10 +243,9 @@ void CPUSolver::zeroTrackFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
+      for (int e=0; e < _num_groups; e++) {
+        for (int p=0; p < _num_polar; p++)
           _boundary_flux(t,d,p,e) = 0.0;
-        }
       }
     }
   }
@@ -330,10 +329,9 @@ void CPUSolver::normalizeFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
+      for (int e=0; e < _num_groups; e++) {
+        for (int p=0; p < _num_polar; p++)
           _boundary_flux(t,d,p,e) *= norm_factor;
-        }
       }
     }
   }
@@ -747,7 +745,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exp_F1, tau, dt, dt2;
-  int index;
+  int i;
   FP_PRECISION inv_spacing = _exp_evaluator->getInverseTableSpacing();
   FP_PRECISION spacing = _exp_evaluator->getTableSpacing();
 
@@ -757,14 +755,14 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   /* Compute change in angular flux along segment in this FSR */
   for (int e=0; e < _num_groups; e++) {
     tau = sigma_t[e] * length;
-    index = floor(tau * inv_spacing);
-    dt = tau - index * spacing;
-    index *= 3 * _num_polar;
+    i = floor(tau * inv_spacing);
+    dt = tau - i * spacing;
+    i *= 3 * _num_polar;
     dt2 = dt * dt;
+
     for (int p=0; p < _num_polar; p++) {
-      exp_F1 = _exp_table[index] + _exp_table[index + 1] * dt +
-          _exp_table[index + 2] * dt2;
-      index += 3;
+      exp_F1 = _exp_table[i] + _exp_table[i + 1] * dt + _exp_table[i + 2] * dt2;
+      i += 3;
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exp_F1;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
