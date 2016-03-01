@@ -65,6 +65,9 @@ protected:
   /** An array of the reduced source x and y terms */
   FP_PRECISION* _reduced_sources_xy;
 
+  /** An array of the reduced reduced source x and y terms */
+  FP_PRECISION* _rr_sources_xy;
+
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
    * @param curr_segment a pointer to the Track segment of interest

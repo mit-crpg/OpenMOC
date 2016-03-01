@@ -16,6 +16,7 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xy = NULL;
   _reduced_sources_xy = NULL;
+  _rr_sources_xy = NULL;
   _sin_phi = NULL;
   _cos_phi = NULL;
 }
@@ -39,6 +40,9 @@ CPULSSolver::~CPULSSolver() {
 
   if (_reduced_sources_xy != NULL)
     delete [] _reduced_sources_xy;
+
+  if (_rr_sources_xy != NULL)
+    delete [] _rr_sources_xy;
 
   if (_sin_phi != NULL)
     delete [] _sin_phi;
@@ -83,18 +87,24 @@ void CPULSSolver::initializeSourceArrays() {
   if (_reduced_sources_xy != NULL)
     delete [] _reduced_sources_xy;
 
-  int size = _num_FSRs * _num_groups * 2;
+  if (_rr_sources_xy != NULL)
+    delete [] _rr_sources_xy;
+
+  int size1 = _num_FSRs * _num_groups * 2;
+  int size2 = _num_FSRs * _num_azim * _num_polar * _num_groups;
 
   /* Allocate memory for all source arrays */
   try{
-    _reduced_sources_xy = new FP_PRECISION[size];
+    _reduced_sources_xy = new FP_PRECISION[size1];
+    _rr_sources_xy = new FP_PRECISION[size2];
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR source moments");
   }
 
   /* Initialize source moments to zero */
-  memset(_reduced_sources_xy, 0.0, sizeof(FP_PRECISION) * size);
+  memset(_reduced_sources_xy, 0.0, sizeof(FP_PRECISION) * size1);
+  memset(_rr_sources_xy, 0.0, sizeof(FP_PRECISION) * size2);
 
   /* Delete old sin(phi) and cos(phi) arrays if they exist */
   if (_sin_phi != NULL)
@@ -270,16 +280,37 @@ void CPULSSolver::computeFSRSources() {
         src_y = scatter_source_y + fission_source_y;
 
         /* Compute total (scatter+fission+fixed) reduced source moments */
-        _reduced_sources_xy(r,g,0) = ONE_OVER_FOUR_PI /
-            (2 * det * sigma_t[g] * sigma_t[g]) *
+        _reduced_sources_xy(r,g,0) = ONE_OVER_FOUR_PI / (det * sigma_t[g]) *
             (_FSR_lin_exp_matrix[r*3+1] * src_x -
              _FSR_lin_exp_matrix[r*3+2] * src_y);
-        _reduced_sources_xy(r,g,1) = ONE_OVER_FOUR_PI /
-            (2 * det * sigma_t[g] * sigma_t[g]) *
+        _reduced_sources_xy(r,g,1) = ONE_OVER_FOUR_PI / (det * sigma_t[g]) *
             (_FSR_lin_exp_matrix[r*3  ] * src_y -
              _FSR_lin_exp_matrix[r*3+2] * src_x);
       }
     }
+
+    int ax, ay;
+
+    /* Compute the total source for each FSR */
+#pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+      material = _FSR_materials[r];
+      sigma_t = material->getSigmaT();
+
+      for (int a=0; a < _num_azim; a++) {
+        for (int e=0; e < _num_groups; e++) {
+          for (int p=0; p < _num_polar; p++) {
+            ax = _cos_phi[a] * _sin_thetas[p];
+            ay = _sin_phi[a] * _sin_thetas[p];
+            _rr_sources_xy[p + (e + (a + r * _num_azim) * _num_groups) * _num_polar] =
+                (ax * _reduced_sources_xy(r,e,0) + ay * _reduced_sources_xy(r,e,1))
+                / (2 * sigma_t[e]);
+          }
+        }
+      }
+    }
+
 
     delete [] fission_sources_x;
     delete [] scatter_sources_x;
@@ -423,8 +454,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exp_F1, exp_F2, exp_H, tau_aki, tau_mki, inv_tau_aki;
-  FP_PRECISION src_constant, src_moment, dt, dt2, ax, ay;
+  FP_PRECISION src_flat, dt, dt2;
   int index;
+
+  FP_PRECISION* rr_sources = &_rr_sources_xy[(azim_index + fsr_id * _num_azim)
+                                             * _num_groups * _num_polar];
 
   /* Compute the segment midpoint */
   double cos_phi = fwd * _cos_phi[azim_index];
@@ -444,9 +478,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     dt = tau_aki - index * _spacing;
     index *= 9 * _num_polar;
     dt2 = dt * dt;
-    src_constant = _reduced_sources(fsr_id, e) + 2 * sigma_t[e] *
-        (_reduced_sources_xy(fsr_id, e, 0) * xc +
-         _reduced_sources_xy(fsr_id, e, 1) * yc);
+    src_flat = _reduced_sources(fsr_id, e) +
+        _reduced_sources_xy(fsr_id, e, 0) * xc +
+        _reduced_sources_xy(fsr_id, e, 1) * yc;
 
     for (int p=0; p < _num_polar; p++) {
 
@@ -458,15 +492,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       //exp_F2 = _exp_evaluator->computeExponentialF2(tau_aki, p);
       //exp_H = _exp_evaluator->computeExponentialH(tau_aki, p);
 
-      ax = cos_phi * _sin_thetas[p];
-      ay = sin_phi * _sin_thetas[p];
-
-      /* Compute the moment component of the source */
-      src_moment = (ax * _reduced_sources_xy(fsr_id, e, 0) +
-                    ay * _reduced_sources_xy(fsr_id, e, 1)) * exp_F2;
-
       /* Compute the change in flux across the segment */
-      delta_psi = (track_flux(p,e) - src_constant) * exp_F1 - src_moment;
+      delta_psi = (track_flux(p,e) - src_flat) * exp_F1 -
+          rr_sources[e*_num_polar + p] * exp_F2;
 
       /* Increment the fsr scalar flux and scalar flux moments */
       fsr_flux[e*3    ] += _polar_weights(azim_index,p) * delta_psi;
@@ -521,17 +549,17 @@ void CPULSSolver::addSourceToScalarFlux() {
 
         _scalar_flux_xy(r,e,0) *= 0.5;
         _scalar_flux_xy(r,e,0) /= (sigma_t[e] * volume);
-        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,0) *
-            _FSR_source_constants[r*_num_groups*3 + 3*e];
-        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,1) *
-            _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
+        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,0) /
+            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e];
+        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,1) /
+            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
 
         _scalar_flux_xy(r,e,1) *= 0.5;
         _scalar_flux_xy(r,e,1) /= (sigma_t[e] * volume);
-        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,1) *
-            _FSR_source_constants[r*_num_groups*3 + 3*e + 1];
-        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,0) *
-            _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
+        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,1) /
+            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e + 1];
+        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,0) /
+            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
       }
     }
   }
