@@ -746,7 +746,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  FP_PRECISION delta_psi, exponential, tau, dt;
+  FP_PRECISION delta_psi, exponential, tau, dt, dt2;
   int index;
   FP_PRECISION inv_spacing = _exp_evaluator->getInverseTableSpacing();
   FP_PRECISION spacing = _exp_evaluator->getTableSpacing();
@@ -759,8 +759,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
     tau = sigma_t[e] * length;
     index = floor(tau * inv_spacing);
     dt = tau - index * spacing;
+    index *= 3 * _num_polar;
+    dt2 = dt * dt;
     for (int p=0; p < _num_polar; p++) {
-      exponential = _exp_evaluator->computeExponentialFast(dt, p, index);
+      exponential = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 3*p);
+      //exponential = _exp_evaluator->computeExponential(tau, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
@@ -904,4 +907,17 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     for (int e=0; e < _num_groups; e++)
       fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e) * volume;
   }
+}
+
+
+FP_PRECISION CPUSolver::getFluxByCoords(LocalCoords* coords, int group) {
+
+  double x, y, xc, yc, det;
+
+  coords->setUniverse(_geometry->getRootUniverse());
+  Cell* cell = _geometry->findCellContainingCoords(coords);
+  int fsr_id = _geometry->getFSRId(coords);
+  FP_PRECISION flux = _scalar_flux(fsr_id, group);
+
+  return flux;
 }

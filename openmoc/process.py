@@ -670,3 +670,35 @@ def parse_convergence_data(filename, directory=''):
   convergence_data['eigenvalues'] = eigenvalues
   convergence_data['residuals'] = residuals
   return convergence_data
+
+
+def compute_flux_ls(solver):
+
+    # create directory and filename
+    directory = openmoc.get_output_directory() + '/fission-rates/'
+    filename = 'fluxes_ls'
+
+    # Make directory if it does not exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    data = np.zeros(999, dtype=np.float)
+
+    # Get geometry
+    geometry = solver.getGeometry()
+
+    xmin = geometry.getMinX()
+    xmax = geometry.getMaxX()
+    spacing = (xmax - xmin) / 1000.0
+
+    xvals = np.linspace(xmin + spacing/2, xmax - spacing/2, 999)
+
+    for i,x in enumerate(xvals):
+
+        point = openmoc.LocalCoords(x, 0, 0)
+        data[i] = solver.getFluxByCoords(point, 0)
+
+    import pickle
+
+    # Pickle the fission rates to a file
+    pickle.dump(data, open(directory + filename + '.pkl', 'wb'))

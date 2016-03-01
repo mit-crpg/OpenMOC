@@ -31,6 +31,9 @@ private:
   /** A boolean indicating whether or not to use linear interpolation */
   bool _interpolate;
 
+  /** A boolean indicating whether or not linear source is being used */
+  bool _linear_source;
+
   /** The inverse spacing for the exponential linear interpolation table */
   FP_PRECISION _inverse_exp_table_spacing;
   FP_PRECISION _exp_table_spacing;
@@ -46,8 +49,11 @@ private:
   /** The PolarQuad object of interest */
   PolarQuad* _polar_quad;
 
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
+  /** The number of polar angles */
+  int _num_polar;
+
+  /** Three times the number of exponentials stored contiguously in the table */
+  int _three_times_num_exp;
 
   /** The maximum optical length a track is allowed to have */
   FP_PRECISION _max_optical_length;
@@ -65,6 +71,8 @@ public:
   void setExpPrecision(FP_PRECISION exp_precision);
   void useInterpolation();
   void useIntrinsic();
+  void useLinearSource();
+  void useFlatSource();
 
   FP_PRECISION getMaxOpticalLength();
   FP_PRECISION getExpPrecision();
@@ -77,10 +85,10 @@ public:
   void initialize();
   FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialF2(FP_PRECISION tau, int polar);
-  FP_PRECISION computeExponentialG1(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialG2(FP_PRECISION tau, int polar);
   FP_PRECISION computeExponentialH(FP_PRECISION tau, int polar);
-  FP_PRECISION computeExponentialFast(FP_PRECISION dt, int polar, int index);
+  FP_PRECISION computeExponentialFast(FP_PRECISION dt, FP_PRECISION dt2,
+                                      int polar, int index);
 };
 
 #endif /* EXPEVALUATOR_H_ */

@@ -423,7 +423,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exp_F1, exp_F2, exp_H, tau_aki, tau_mki, inv_tau_aki;
-  FP_PRECISION src_constant, src_moment, dt,  ax, ay;
+  FP_PRECISION src_constant, src_moment, dt, dt2, ax, ay;
   int index;
 
   /* Compute the segment midpoint */
@@ -435,13 +435,15 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * 3 * sizeof(FP_PRECISION));
 
-  /* Compute change in angular flux along segment in this FSR */
+  /* Compute change in angular flux along segment in this LSR */
   for (int e=0; e < _num_groups; e++) {
 
     tau_aki = sigma_t[e] * length;
     inv_tau_aki = 1.0 / tau_aki;
     index = floor(tau_aki * _inv_spacing);
     dt = tau_aki - index * _spacing;
+    index *= 9 * _num_polar;
+    dt2 = dt * dt;
     src_constant = _reduced_sources(fsr_id, e) + 2 * sigma_t[e] *
         (_reduced_sources_xy(fsr_id, e, 0) * xc +
          _reduced_sources_xy(fsr_id, e, 1) * yc);
@@ -449,9 +451,13 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     for (int p=0; p < _num_polar; p++) {
 
       tau_mki = tau_aki * _inv_sin_thetas[p];
-      exp_F1 = _exp_evaluator->computeExponentialFast(dt, p, index);
-      exp_F2 = 2 * (tau_mki - exp_F1) - tau_mki * exp_F1;
-      exp_H = ((1 + inv_tau_aki * _sin_thetas[p]) * exp_F1 - 1) * length * track_flux(p,e);
+      exp_F1 = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 9*p);
+      exp_F2 = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 9*p + 3);
+      exp_H  = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 9*p + 6);
+      //exp_F1 = _exp_evaluator->computeExponential(tau_aki, p);
+      //exp_F2 = _exp_evaluator->computeExponentialF2(tau_aki, p);
+      //exp_H = _exp_evaluator->computeExponentialH(tau_aki, p);
+
       ax = cos_phi * _sin_thetas[p];
       ay = sin_phi * _sin_thetas[p];
 
@@ -471,9 +477,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
       /* Decrement the track flux */
       track_flux(p,e) -= delta_psi;
-
-      /* Make sure the track flux is physical (i.e. > 0) */
-      track_flux(p,e) = std::max(track_flux(p,e), 0.0);
     }
   }
 
@@ -580,6 +583,7 @@ void CPULSSolver::initializeCmfd() {
 
 
 void CPULSSolver::initializeExpEvaluator() {
+  _exp_evaluator->useLinearSource();
   Solver::initializeExpEvaluator();
 
   _inv_spacing = _exp_evaluator->getInverseTableSpacing();

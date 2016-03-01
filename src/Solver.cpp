@@ -531,20 +531,17 @@ void Solver::initializeExpEvaluator() {
 
   _exp_evaluator->setPolarQuadrature(_polar_quad);
 
-  if (_exp_evaluator->isUsingInterpolation()) {
+  /* Find minimum of optional user-specified and actual max taus */
+  FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+  FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
+  FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
 
-    /* Find minimum of optional user-specified and actual max taus */
-    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
-    FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
-    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
+  /* Split Track segments so that none has a greater optical length */
+  _track_generator->splitSegments(max_tau);
 
-    /* Split Track segments so that none has a greater optical length */
-    _track_generator->splitSegments(max_tau);
-
-    /* Initialize exponential interpolation table */
-    _exp_evaluator->setMaxOpticalLength(max_tau);
-    _exp_evaluator->initialize();
-  }
+  /* Initialize exponential interpolation table */
+  _exp_evaluator->setMaxOpticalLength(max_tau);
+  _exp_evaluator->initialize();
 }
 
 

@@ -102,6 +102,8 @@ public:
   double computeResidual(residualType res_type);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+
+  FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
 };
 
 

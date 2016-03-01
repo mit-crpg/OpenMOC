@@ -8,10 +8,12 @@
  */
 ExpEvaluator::ExpEvaluator() {
   _interpolate = true;
+  _linear_source = false;
   _exp_table = NULL;
   _polar_quad = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
   _exp_precision = EXP_PRECISION;
+  _three_times_num_exp = 3;
 }
 
 
@@ -30,7 +32,7 @@ ExpEvaluator::~ExpEvaluator() {
  */
 void ExpEvaluator::setPolarQuadrature(PolarQuad* polar_quad) {
   _polar_quad = polar_quad;
-  _two_times_num_polar = 2 * _polar_quad->getNumPolarAngles();
+  _num_polar = _polar_quad->getNumPolarAngles();
 }
 
 
@@ -80,6 +82,24 @@ void ExpEvaluator::useInterpolation() {
  */
 void ExpEvaluator::useIntrinsic() {
   _interpolate = false;
+}
+
+
+/**
+ * @brief Use linear source exponentials.
+ */
+void ExpEvaluator::useLinearSource() {
+  _linear_source = true;
+  _three_times_num_exp = 9;
+}
+
+
+/**
+ * @brief Use flat source exponentials.
+ */
+void ExpEvaluator::useFlatSource() {
+  _linear_source = false;
+  _three_times_num_exp = 3;
 }
 
 
@@ -163,14 +183,11 @@ void ExpEvaluator::initialize() {
   _sin_theta = _polar_quad->getSinThetas();
   _inv_sin_theta = _polar_quad->getInverseSinThetas();
 
-  /* If no exponential table is needed, return */
-  if (!_interpolate)
-    return;
-
   log_printf(INFO, "Initializing exponential interpolation table...");
 
   /* Set size of interpolation table */
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
+  //int num_array_values = _max_optical_length * pow(1. / (72. * sqrt(3.0) * _exp_precision), 1.0/3.0);
   _exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Increment the number of vaues in the array to ensure that a tau equal to
@@ -184,29 +201,62 @@ void ExpEvaluator::initialize() {
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  _table_size = _two_times_num_polar * num_array_values;
+  _table_size = _three_times_num_exp * _num_polar * num_array_values;
   _exp_table = new FP_PRECISION[_table_size];
 
   FP_PRECISION expon;
   FP_PRECISION intercept;
   FP_PRECISION slope_F1;
-  FP_PRECISION sin_theta;
+  FP_PRECISION st, ist;
   FP_PRECISION tau_a, tau_m;
-  FP_PRECISION F1;
+  FP_PRECISION exp_const_1, exp_const_2, exp_const_3;
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
-    for (int p=0; p < _two_times_num_polar/2; p++) {
+    for (int p=0; p < _num_polar; p++) {
+
+      st = _sin_theta[p];
+      ist = _inv_sin_theta[p];
+
       tau_a = i * _exp_table_spacing;
-      tau_m = tau_a * _inv_sin_theta[p];
+      tau_m = tau_a * ist;
       expon = exp(- tau_m);
 
       /* Compute F1 */
-      F1 = (1.0 - expon);
-      slope_F1 = expon * _inv_sin_theta[p];
-      intercept = F1 - slope_F1 * tau_a;
-      _exp_table[_two_times_num_polar * i + 2 * p    ] = slope_F1;
-      _exp_table[_two_times_num_polar * i + 2 * p + 1] = F1;
+      exp_const_1 = (1.0 - expon);
+      exp_const_2 = expon * ist;
+      exp_const_3 = -0.5 * exp_const_2 * ist;
+      _exp_table[_three_times_num_exp * (_num_polar * i + p)    ] = exp_const_1;
+      _exp_table[_three_times_num_exp * (_num_polar * i + p) + 1] = exp_const_2;
+      _exp_table[_three_times_num_exp * (_num_polar * i + p) + 2] = exp_const_3;
+
+      if (_linear_source) {
+
+        /* Compute F2 */
+        exp_const_1 = 2 * expon - 2 + tau_m + tau_m * expon;
+        exp_const_2 = (-expon * (tau_a + st) + st) * ist * ist;
+        exp_const_3 = 0.5 * tau_a * expon * ist * ist * ist;
+        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 3] = exp_const_1;
+        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 4] = exp_const_2;
+        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 5] = exp_const_3;
+
+        /* Compute H */
+        if (tau_a == 0.0) {
+          exp_const_1 = 0.0;
+          exp_const_2 = 0.5 * ist;
+          exp_const_3 = -1.0 * ist * ist / 3.0;
+        }
+        else {
+          exp_const_1 = (-expon * (tau_a + st) + st) / tau_a;
+          exp_const_2 = (expon * (tau_a * tau_a + tau_a * st + st * st) - st * st) / (tau_a * tau_a * st);
+          exp_const_3 = 1.0 / (2 * tau_a * tau_a * tau_a * st * st) *
+              (-expon * (tau_a * tau_a * tau_a + tau_a * tau_a * st +
+                         2 * tau_a * st * st + 2 * st * st * st) + 2 * st * st * st);
+        }
+        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 6] = exp_const_1;
+        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 7] = exp_const_2;
+        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 8] = exp_const_3;
+      }
     }
   }
 }
@@ -230,12 +280,9 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
   if (_interpolate) {
     int i = floor(tau * _inverse_exp_table_spacing);
     FP_PRECISION dt = tau - i * _exp_table_spacing;
-    exponential = _exp_table[_two_times_num_polar * i + 2 * polar] *
-        dt * (1 - 0.5 * dt * _inv_sin_theta[polar]) +
-        _exp_table[_two_times_num_polar * i + 2 * polar + 1];
-
-    //exponential = _exp_table[_two_times_num_polar * i + 2 * polar] * dt +
-    //    _exp_table[_two_times_num_polar * i + 2 * polar + 1];
+    exponential = _exp_table[_three_times_num_exp * (_num_polar * i + polar)] +
+        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 1] * dt +
+        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 2] * dt * dt;
   }
 
   /* Evalute the exponential using the intrinsic exp(...) function */
@@ -248,20 +295,25 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
 
 FP_PRECISION ExpEvaluator::computeExponentialF2(FP_PRECISION tau, int polar) {
 
-  FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
-  FP_PRECISION F1 = computeExponential(tau, polar);
-  return 2.0 * (tau_m - F1) - tau_m * F1;
-}
+  FP_PRECISION exponential;
 
+  /* Evaluate the exponential using the lookup table - linear interpolation */
+  if (_interpolate) {
+    int i = floor(tau * _inverse_exp_table_spacing);
+    FP_PRECISION dt = tau - i * _exp_table_spacing;
+    exponential = _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 3] +
+        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 4] * dt +
+        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 5] * dt * dt;
+  }
 
-FP_PRECISION ExpEvaluator::computeExponentialG1(FP_PRECISION tau, int polar) {
+  /* Evalute the exponential using the intrinsic exp(...) function */
+  else {
+    FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
+    FP_PRECISION F1 = 1.0 - exp(- tau_m);
+    exponential = 2 * (tau_m - F1) - tau_m * F1;
+  }
 
-  if (tau == 0.0)
-    return 0.0;
-
-  FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
-  FP_PRECISION F1 = computeExponential(tau, polar);
-  return 1 + 0.5 * tau_m - (1 + 1.0 / tau_m) * F1;
+  return exponential;
 }
 
 
@@ -279,18 +331,31 @@ FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau, int polar) {
 
 FP_PRECISION ExpEvaluator::computeExponentialH(FP_PRECISION tau, int polar) {
 
-  FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
-  FP_PRECISION G1 = computeExponentialG1(tau, polar);
-  return 0.5 * tau_m - G1;
+  FP_PRECISION exponential;
+
+  /* Evaluate the exponential using the lookup table - linear interpolation */
+  if (_interpolate) {
+    int i = floor(tau * _inverse_exp_table_spacing);
+    FP_PRECISION dt = tau - i * _exp_table_spacing;
+    exponential = _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 6] +
+        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 7] * dt +
+        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 8] * dt * dt;
+  }
+
+  /* Evalute the exponential using the intrinsic exp(...) function */
+  else {
+    FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
+    FP_PRECISION F1 = 1.0 - exp(- tau_m);
+    FP_PRECISION G1 = 1 + 0.5 * tau_m - (1 + 1.0 / tau_m) * F1;
+    exponential = 0.5 * tau_m - G1;
+  }
+
+  return exponential;
 }
 
 
-FP_PRECISION ExpEvaluator::computeExponentialFast(FP_PRECISION dt, int polar, int i) {
+FP_PRECISION ExpEvaluator::computeExponentialFast(FP_PRECISION dt, FP_PRECISION dt2,
+                                                  int polar, int i) {
 
-  return _exp_table[_two_times_num_polar * i + 2 * polar] *
-      dt * (1 - 0.5 * dt * _inv_sin_theta[polar]) +
-      _exp_table[_two_times_num_polar * i + 2 * polar + 1];
-
-  //return _exp_table[_two_times_num_polar * i + 2 * polar] * dt +
-  //    _exp_table[_two_times_num_polar * i + 2 * polar + 1];
+  return _exp_table[i] + _exp_table[i + 1] * dt + _exp_table[i + 2] * dt2;
 }
