@@ -746,7 +746,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  FP_PRECISION delta_psi, exponential, tau, dt, dt2;
+  FP_PRECISION delta_psi, exp_F1, tau, dt, dt2;
   int index;
   FP_PRECISION inv_spacing = _exp_evaluator->getInverseTableSpacing();
   FP_PRECISION spacing = _exp_evaluator->getTableSpacing();
@@ -762,9 +762,10 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
     index *= 3 * _num_polar;
     dt2 = dt * dt;
     for (int p=0; p < _num_polar; p++) {
-      exponential = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 3*p);
-      //exponential = _exp_evaluator->computeExponential(tau, p);
-      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
+      exp_F1 = _exp_table[index] + _exp_table[index + 1] * dt +
+          _exp_table[index + 2] * dt2;
+      index += 3;
+      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exp_F1;
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
       track_flux(p,e) -= delta_psi;
     }

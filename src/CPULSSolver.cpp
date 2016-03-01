@@ -453,7 +453,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  FP_PRECISION delta_psi, exp_F1, exp_F2, exp_H, tau_aki, tau_mki, inv_tau_aki;
+  FP_PRECISION delta_psi, exp_F1, exp_F2, exp_H, tau;
   FP_PRECISION src_flat, dt, dt2;
   int index;
 
@@ -472,25 +472,25 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   /* Compute change in angular flux along segment in this LSR */
   for (int e=0; e < _num_groups; e++) {
 
-    tau_aki = sigma_t[e] * length;
-    inv_tau_aki = 1.0 / tau_aki;
-    index = floor(tau_aki * _inv_spacing);
-    dt = tau_aki - index * _spacing;
+    tau = sigma_t[e] * length;
+    index = floor(tau * _inv_spacing);
+    dt = tau - index * _spacing;
     index *= 9 * _num_polar;
     dt2 = dt * dt;
+
     src_flat = _reduced_sources(fsr_id, e) +
         _reduced_sources_xy(fsr_id, e, 0) * xc +
         _reduced_sources_xy(fsr_id, e, 1) * yc;
 
     for (int p=0; p < _num_polar; p++) {
 
-      tau_mki = tau_aki * _inv_sin_thetas[p];
-      exp_F1 = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 9*p);
-      exp_F2 = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 9*p + 3);
-      exp_H  = _exp_evaluator->computeExponentialFast(dt, dt2, p, index + 9*p + 6);
-      //exp_F1 = _exp_evaluator->computeExponential(tau_aki, p);
-      //exp_F2 = _exp_evaluator->computeExponentialF2(tau_aki, p);
-      //exp_H = _exp_evaluator->computeExponentialH(tau_aki, p);
+      exp_F1 = _exp_table[index    ] + _exp_table[index + 1] * dt +
+          _exp_table[index + 2] * dt2;
+      exp_F2 = _exp_table[index + 3] + _exp_table[index + 4] * dt +
+          _exp_table[index + 5] * dt2;
+      exp_H  = _exp_table[index + 6] + _exp_table[index + 7] * dt +
+          _exp_table[index + 8] * dt2;
+      index += 9;
 
       /* Compute the change in flux across the segment */
       delta_psi = (track_flux(p,e) - src_flat) * exp_F1 -
@@ -511,6 +511,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);
 
+#pragma omp simd
   for (int e=0; e < _num_groups; e++) {
     _scalar_flux   (fsr_id,e)   += fsr_flux[e*3    ];
     _scalar_flux_xy(fsr_id,e,0) += fsr_flux[e*3 + 1];
