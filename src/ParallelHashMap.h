@@ -13,9 +13,10 @@
 #include<iostream>
 #include<stdexcept>
 #include<functional>
-#ifdef OPENMP
 #include<omp.h>
-#endif
+
+#include "log.h"
+
 
 /**
  * @class FixedHashMap ParallelHashMap.h "src/ParallelHashMap.h"
@@ -29,11 +30,9 @@
  *    class. This table guarantees O(1) insertions and lookups on average.
  */
 template <class K, class V>
-class FixedHashMap
-{
-  struct node
-  {
-    node(K k_in, V v_in) : next(NULL), key(k_in), value(v_in){}
+class FixedHashMap {
+  struct node {
+    node(K k_in, V v_in) : next(NULL), key(k_in), value(v_in) {}
     K key;
     V value;
     node *next;
@@ -60,6 +59,7 @@ class FixedHashMap
     void print_buckets();
 };
 
+
 /**
  * @class ParallelHashMap ParallelHashMap.h "src/ParallelHashMap.h"
  * @brief A thread-safe hash map supporting insertion and lookup operations
@@ -73,11 +73,10 @@ class FixedHashMap
  *    chosen to limit the number of resizing operations.
  */
 template <class K, class V>
-class ParallelHashMap
-{
+class ParallelHashMap {
+
   /* padded pointer to hash table to avoid false sharing */
-  struct paddedPointer
-  {
+  struct paddedPointer {
     volatile long pad_L1;
     volatile long pad_L2;
     volatile long pad_L3;
@@ -85,7 +84,7 @@ class ParallelHashMap
     volatile long pad_L5;
     volatile long pad_L7;
     volatile long pad_L8;
-    FixedHashMap<K,V>* volatile value;
+    FixedHashMap<K,V> volatile* value;
     volatile long pad_R1;
     volatile long pad_R2;
     volatile long pad_R3;
@@ -95,22 +94,22 @@ class ParallelHashMap
     volatile long pad_R7;
     volatile long pad_R8;
   };
+
   private:
     FixedHashMap<K,V> *_table;
     paddedPointer *_announce;
     size_t _num_threads;
     size_t _N;
-    #ifdef OPENMP
     omp_lock_t * _locks;
     size_t _num_locks;
-    #endif
     void resize();
 
   public:
     ParallelHashMap(size_t M = 64, size_t L = 64);
     virtual ~ParallelHashMap();
     bool contains(K key);
-    V& at(K key);
+    V at(K key);
+    void update(K key, V value);
     void insert(K key, V value);
     int insert_and_get_count(K key, V value);
     size_t size();
@@ -122,6 +121,7 @@ class ParallelHashMap
     void print_buckets();
 };
 
+
 /**
  * @brief Constructor initializes fixed-size table of buckets filled with empty
  *      linked lists.
@@ -132,11 +132,10 @@ class ParallelHashMap
  * @param M size of fixed hash map
  */
 template <class K, class V>
-FixedHashMap<K,V>::FixedHashMap(size_t M)
-{
+FixedHashMap<K,V>::FixedHashMap(size_t M) {
+
   /* ensure M is a power of 2 */
-  if ((M & (M-1)) != 0)
-  {
+  if ((M & (M-1)) != 0) {
     /* if not, round up to nearest power of 2 */
     M--;
     for (size_t i = 1; i < 8 * sizeof(size_t); i*=2)
@@ -150,19 +149,17 @@ FixedHashMap<K,V>::FixedHashMap(size_t M)
   _buckets = new node*[_M]();
 }
 
+
 /**
  * @brief Destructor deletes all nodes in the linked lists associated with each
  *      bucket in the fixed-size table and their pointers.
  */
 template <class K, class V>
-FixedHashMap<K,V>::~FixedHashMap()
-{
+FixedHashMap<K,V>::~FixedHashMap() {
   /* for each bucket, scan through linked list and delete all nodes */
-  for (size_t i=0; i<_M; i++)
-  {
+  for (size_t i=0; i<_M; i++) {
     node *iter_node = _buckets[i];
-    while (iter_node != NULL)
-    {
+    while (iter_node != NULL) {
       node *next_node = iter_node->next;
       delete iter_node;
       iter_node = next_node;
@@ -170,8 +167,9 @@ FixedHashMap<K,V>::~FixedHashMap()
   }
 
   /* delete all buckets (now pointers to empty linked lists) */
-  delete[] _buckets;
+  delete [] _buckets;
 }
+
 
 /**
  * @brief Determine whether the fixed-size table contains a given key
@@ -181,15 +179,14 @@ FixedHashMap<K,V>::~FixedHashMap()
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
-bool FixedHashMap<K,V>::contains(K key)
-{
+bool FixedHashMap<K,V>::contains(K key) {
+
   /* get hash into table assuming M is a power of 2, using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
   /* search corresponding bucket for key */
   node *iter_node = _buckets[key_hash];
-  while (iter_node != NULL)
-  {
+  while (iter_node != NULL) {
     if (iter_node->key == key)
       return true;
     else
@@ -197,6 +194,7 @@ bool FixedHashMap<K,V>::contains(K key)
   }
   return false;
 }
+
 
 /**
  * @brief Determine the value associated with a given key in the fixed-size
@@ -208,18 +206,19 @@ bool FixedHashMap<K,V>::contains(K key)
  * @return value associated with the given key
  */
 template <class K, class V>
-V& FixedHashMap<K,V>::at(K key)
-{
+V& FixedHashMap<K,V>::at(K key) {
+
   /* get hash into table assuming M is a power of 2, using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
   /* search bucket for key and return the corresponding value if found */
   node *iter_node = _buckets[key_hash];
-  while (iter_node != NULL)
+  while (iter_node != NULL) {
     if (iter_node->key == key)
       return iter_node->value;
     else
       iter_node = iter_node->next;
+  }
 
   /* after the bucket has been completely searched without finding the key,
      throw an exception */
@@ -236,8 +235,8 @@ V& FixedHashMap<K,V>::at(K key)
  * @param value value of the key/value pair to be inserted
  */
 template <class K, class V>
-void FixedHashMap<K,V>::insert(K key, V value)
-{
+void FixedHashMap<K,V>::insert(K key, V value) {
+
   /* get hash into table using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
@@ -261,6 +260,7 @@ void FixedHashMap<K,V>::insert(K key, V value)
   _N++;
 }
 
+
 /**
  * @brief Inserts a key/value pair into the fixed-size table and returns the
  *      order number with which it was inserted.
@@ -273,8 +273,8 @@ void FixedHashMap<K,V>::insert(K key, V value)
  *      key was already present in map.
  */
 template <class K, class V>
-int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
-{
+int FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
+
   /* get hash into table using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
 
@@ -296,32 +296,31 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value)
   /* increment counter and return number */
   size_t N;
 #pragma omp critical (node_incr)
-  {
-      N = _N++;
-  }
+    N = _N++;
 
   return (int) N;
 }
+
 
 /**
  * @brief Returns the number of key/value pairs in the fixed-size table
  * @return number of key/value pairs in the map
  */
 template <class K, class V>
-size_t FixedHashMap<K,V>::size()
-{
+size_t FixedHashMap<K,V>::size() {
   return _N;
 }
+
 
 /**
  * @brief Returns the number of buckets in the fixed-size table
  * @return number of buckets in the map
  */
 template <class K, class V>
-size_t FixedHashMap<K,V>::bucket_count()
-{
+size_t FixedHashMap<K,V>::bucket_count() {
   return _M;
 }
+
 
 /**
  * @brief Returns an array of the keys in the fixed-size table
@@ -333,18 +332,16 @@ size_t FixedHashMap<K,V>::bucket_count()
  *      pairs in the table.
 */
 template <class K, class V>
-K* FixedHashMap<K,V>::keys()
-{
+K* FixedHashMap<K,V>::keys() {
+
   /* allocate array of keys */
   K *key_list = new K[_N];
 
   /* fill array with keys */
   size_t ind = 0;
-  for (size_t i=0; i<_M; i++)
-  {
+  for (size_t i=0; i<_M; i++) {
     node *iter_node = _buckets[i];
-    while (iter_node != NULL)
-    {
+    while (iter_node != NULL) {
       key_list[ind] = iter_node->key;
       iter_node = iter_node->next;
       ind++;
@@ -352,6 +349,7 @@ K* FixedHashMap<K,V>::keys()
   }
   return key_list;
 }
+
 
 /**
  * @brief Returns an array of the values in the fixed-size table
@@ -363,18 +361,16 @@ K* FixedHashMap<K,V>::keys()
  *      key/value pairs in the table.
 */
 template <class K, class V>
-V* FixedHashMap<K,V>::values()
-{
+V* FixedHashMap<K,V>::values() {
+
   /* allocate array of values */
   V *values = new V[_N];
 
   /* fill array with values */
   size_t ind = 0;
-  for (size_t i=0; i<_M; i++)
-  {
+  for (size_t i=0; i<_M; i++) {
     node *iter_node = _buckets[i];
-    while (iter_node != NULL)
-    {
+    while (iter_node != NULL) {
       values[ind] = iter_node->value;
       iter_node = iter_node->next;
       ind++;
@@ -383,18 +379,17 @@ V* FixedHashMap<K,V>::values()
   return values;
 }
 
+
 /**
  * @brief Clears all key/value pairs form the hash table.
  */
 template <class K, class V>
-void FixedHashMap<K,V>::clear()
-{
+void FixedHashMap<K,V>::clear() {
+
   /* for each bucket, scan through linked list and delete all nodes */
-  for (size_t i=0; i<_M; i++)
-  {
+  for (size_t i=0; i<_M; i++) {
     node *iter_node = _buckets[i];
-    while (iter_node != NULL)
-    {
+    while (iter_node != NULL) {
       node *next_node = iter_node->next;
       delete iter_node;
       iter_node = next_node;
@@ -409,6 +404,7 @@ void FixedHashMap<K,V>::clear()
   _N = 0;
 }
 
+
 /**
  * @brief Prints the contents of each bucket to the screen
  * @details All buckets are scanned and the contents of the buckets are
@@ -417,52 +413,48 @@ void FixedHashMap<K,V>::clear()
  *      screen.
  */
 template <class K, class V>
-void FixedHashMap<K,V>::print_buckets()
-{
-  for (size_t i=0; i<_M; i++)
-  {
+void FixedHashMap<K,V>::print_buckets() {
+  log_printf(NORMAL, "Printing all buckets in the hash map...");
+  for (size_t i=0; i<_M; i++) {
     if (_buckets[i] == NULL)
-      std::cout << i << " -> NULL" << std::endl;
+      log_printf(NORMAL, "Bucket %d -> NULL", i);
     else
-      std::cout << i << " -> " << _buckets[i] << std::endl;
+      log_printf(NORMAL, "Bucket %d -> %p", i, _buckets[i]);
   }
 }
+
 
 /**
  * @brief Constructor generates initial underlying table as a fixed-sized
  *      hash map and intializes concurrency structures.
  */
 template <class K, class V>
-ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L)
-{
+ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L) {
+
   /* allocate table */
   _table = new FixedHashMap<K,V>(M);
 
   /* get number of threads and create concurrency structures */
   _num_threads = 1;
-  #ifdef OPENMP
   _num_threads = omp_get_max_threads();
   _num_locks = L;
   _locks = new omp_lock_t[_num_locks];
   for (size_t i=0; i<_num_locks; i++)
     omp_init_lock(&_locks[i]);
-  #endif
 
   _announce = new paddedPointer[_num_threads];
 }
+
 
 /**
  * @brief Destructor frees memory associated with fixed-sized hash map and
  *      concurrency structures.
  */
 template <class K, class V>
-ParallelHashMap<K,V>::~ParallelHashMap()
-{
+ParallelHashMap<K,V>::~ParallelHashMap() {
   delete _table;
-  #ifdef OPENMP
-  delete[] _locks;
-  #endif
-  delete[] _announce;
+  delete [] _locks;
+  delete [] _announce;
 }
 
 
@@ -479,20 +471,19 @@ ParallelHashMap<K,V>::~ParallelHashMap()
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
-bool ParallelHashMap<K,V>::contains(K key)
-{
+bool ParallelHashMap<K,V>::contains(K key) {
+
   /* get thread ID */
   size_t tid = 0;
-  #ifdef OPENMP
   tid = omp_get_thread_num();
-  #endif
 
   /* get pointer to table, announce it will be searched,
      and ensure consistency */
   FixedHashMap<K,V> *table_ptr;
-  do{
+  do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* see if current table contains the thread */
@@ -504,45 +495,42 @@ bool ParallelHashMap<K,V>::contains(K key)
   return present;
 }
 
+
 /**
  * @brief Determine the value associated with a given key.
  * @details This function follows the same algorithm as <contains> except that
  *      the value associated with the searched key is returned.
- *      First the thread accessing the table announces its presence and
- *      which table it is reading. Then the linked list in the bucket
- *      associated with the key is searched without setting any locks
- *      to determine the associated value. An exception is thrown if the
+ *      First the thread accessing the table acquires the lock corresponding
+ *      with the associated bucket based on the key. Then the linked list
+ *      in the bucket is searched for the key. An exception is thrown if the
  *      key is not found. When the thread has finished accessing the table,
- *      the announcement is reset to NULL. The announcement ensures that
- *      the data in the map is not freed during a resize until all threads
- *      have finished accessing the map.
+ *      it releases the lock.
  * @param key key to be searched
  * @return value associated with the key
  */
 template <class K, class V>
-V& ParallelHashMap<K,V>::at(K key)
-{
+V ParallelHashMap<K,V>::at(K key) {
   /* get thread ID */
   size_t tid = 0;
-  #ifdef OPENMP
   tid = omp_get_thread_num();
-  #endif
 
   /* get pointer to table, announce it will be searched */
   FixedHashMap<K,V> *table_ptr;
-  do{
+  do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* get value associated with the key in the underlying table */
-  V& value = table_ptr->at(key);
+  V value = table_ptr->at(key);
 
   /* reset table announcement to not searching */
   _announce[tid].value = NULL;
 
   return value;
 }
+
 
 /**
  * @brief Insert a given key/value pair into the parallel hash map.
@@ -555,8 +543,7 @@ V& ParallelHashMap<K,V>::at(K key)
  * @param value value of the key/value pair to be inserted
  */
 template <class K, class V>
-void ParallelHashMap<K,V>::insert(K key, V value)
-{
+void ParallelHashMap<K,V>::insert(K key, V value) {
   /* check if resize needed */
   if (2*_table->size() > _table->bucket_count())
     resize();
@@ -566,22 +553,46 @@ void ParallelHashMap<K,V>::insert(K key, V value)
     return;
 
   /* get lock hash */
-  #ifdef OPENMP
   size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
     % _num_locks;
 
   /* acquire lock */
   omp_set_lock(&_locks[lock_hash]);
-  #endif
 
   /* insert value */
   _table->insert(key, value);
 
   /* release lock */
-  #ifdef OPENMP
   omp_unset_lock(&_locks[lock_hash]);
-  #endif
 }
+
+
+/**
+ * @brief Updates the value associated with a key in the parallel hash map.
+ * @details The thread first acquires the lock for the bucket associated with
+ *      the key is acquired, then the linked list in the bucket is searched
+ *      for the key. If the key is not found, an exception is returned. When
+ *      the key is found, the value is updated and the lock is released.
+ * @param key the key of the key/value pair to be updated
+ * @param value the new value for the key/value pair
+ */
+template <class K, class V>
+void ParallelHashMap<K,V>::update(K key, V value) {
+
+  /* get lock hash */
+  size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
+    % _num_locks;
+
+  /* acquire lock */
+  omp_set_lock(&_locks[lock_hash]);
+
+  /* insert value */
+  _table->at(key) = value;
+
+  /* release lock */
+  omp_unset_lock(&_locks[lock_hash]);
+}
+
 
 /**
  * @brief Insert a given key/value pair into the parallel hash map and return
@@ -597,8 +608,8 @@ void ParallelHashMap<K,V>::insert(K key, V value)
  *      already exists
  */
 template <class K, class V>
-int ParallelHashMap<K,V>::insert_and_get_count(K key, V value)
-{
+int ParallelHashMap<K,V>::insert_and_get_count(K key, V value) {
+
   /* check if resize needed */
   if (2*_table->size() > _table->bucket_count())
     resize();
@@ -608,24 +619,22 @@ int ParallelHashMap<K,V>::insert_and_get_count(K key, V value)
     return -1;
 
   /* get lock hash */
-  #ifdef OPENMP
   size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
     % _num_locks;
 
   /* acquire lock */
   omp_set_lock(&_locks[lock_hash]);
-  #endif
 
   /* insert value */
   int N =_table->insert_and_get_count(key, value);
 
   /* release lock */
-  #ifdef OPENMP
   omp_unset_lock(&_locks[lock_hash]);
-  #endif
 
   return N;
 }
+
+
 /**
  * @brief Resizes the underlying table to twice its current capacity.
  * @details In a thread-safe manner, this procedure resizes the underlying
@@ -639,22 +648,17 @@ int ParallelHashMap<K,V>::insert_and_get_count(K key, V value)
  *    to be free of references to the old table before freeing the memory.
  */
 template <class K, class V>
-void ParallelHashMap<K,V>::resize()
-{
+void ParallelHashMap<K,V>::resize() {
+
   /* acquire all locks in order */
-  #ifdef OPENMP
   for (size_t i=0; i<_num_locks; i++)
     omp_set_lock(&_locks[i]);
-  #endif
 
   /* recheck if resize needed */
-  if (2*_table->size() < _table->bucket_count())
-  {
+  if (2*_table->size() < _table->bucket_count()) {
     /* release locks */
-    #ifdef OPENMP
     for (size_t i=0; i<_num_locks; i++)
       omp_unset_lock(&_locks[i]);
-    #endif
 
     return;
   }
@@ -676,54 +680,55 @@ void ParallelHashMap<K,V>::resize()
 
   /* reassign pointer */
   _table = new_map;
+#pragma omp flush(_table)
 
   /* release all locks */
-  #ifdef OPENMP
   for (size_t i=0; i<_num_locks; i++)
     omp_unset_lock(&_locks[i]);
-  #endif
 
   /* delete key and value list */
-  delete[] key_list;
-  delete[] value_list;
+  delete [] key_list;
+  delete [] value_list;
 
   /* wait for all threads to stop reading from the old table */
   for (size_t i=0; i<_num_threads; i++)
-    while (_announce[i].value == old_table) {};
+    while (_announce[i].value == old_table)
+      continue;
 
   /* free memory associated with old table */
   delete old_table;
 }
+
 
 /**
  * @brief Returns the number of key/value pairs in the underlying table
  * @return number of key/value pairs in the map
  */
 template <class K, class V>
-size_t ParallelHashMap<K,V>::size()
-{
+size_t ParallelHashMap<K,V>::size() {
   return _table->size();
 }
+
 
 /**
  * @brief Returns the number of buckets in the underlying table
  * @return number of buckets in the map
  */
 template <class K, class V>
-size_t ParallelHashMap<K,V>::bucket_count()
-{
+size_t ParallelHashMap<K,V>::bucket_count() {
   return _table->bucket_count();
 }
+
 
 /**
  * @brief Returns the number of locks in the parallel hash map
  * @return number of locks in the map
  */
 template <class K, class V>
-size_t ParallelHashMap<K,V>::num_locks()
-{
+size_t ParallelHashMap<K,V>::num_locks() {
   return _num_locks;
 }
+
 
 /**
  * @brief Returns an array of the keys in the underlying table
@@ -736,19 +741,18 @@ size_t ParallelHashMap<K,V>::num_locks()
  *      pairs in the table.
  */
 template <class K, class V>
-K* ParallelHashMap<K,V>::keys()
-{
+K* ParallelHashMap<K,V>::keys() {
+
   /* get thread ID */
   size_t tid = 0;
-  #ifdef OPENMP
   tid = omp_get_thread_num();
-  #endif
 
   /* get pointer to table, announce it will be searched */
   FixedHashMap<K,V> *table_ptr;
-  do{
+  do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* get key list */
@@ -759,6 +763,7 @@ K* ParallelHashMap<K,V>::keys()
 
   return key_list;
 }
+
 
 /**
  * @brief Returns an array of the values in the underlying table
@@ -771,19 +776,18 @@ K* ParallelHashMap<K,V>::keys()
  *      pairs in the table.
  */
 template <class K, class V>
-V* ParallelHashMap<K,V>::values()
-{
+V* ParallelHashMap<K,V>::values() {
+
   /* get thread ID */
   size_t tid = 0;
-  #ifdef OPENMP
   tid = omp_get_thread_num();
-  #endif
 
   /* get pointer to table, announce it will be searched */
   FixedHashMap<K,V> *table_ptr;
-  do{
+  do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* get value list */
@@ -795,21 +799,25 @@ V* ParallelHashMap<K,V>::values()
   return value_list;
 }
 
+
 /**
  * @brief Clears all key/value pairs form the hash table.
  */
 template <class K, class V>
-void ParallelHashMap<K,V>::clear()
-{
+void ParallelHashMap<K,V>::clear() {
+
   /* acquire all locks in order */
-  #ifdef OPENMP
   for (size_t i=0; i<_num_locks; i++)
     omp_set_lock(&_locks[i]);
-  #endif
 
   /* clear underlying fixed table */
   _table->clear();
+
+  /* release all locks in order */
+  for (size_t i=0; i<_num_locks; i++)
+    omp_unset_lock(&_locks[i]);
 }
+
 
 /**
  * @brief Prints the contents of each bucket to the screen
@@ -820,19 +828,18 @@ void ParallelHashMap<K,V>::clear()
  *      not freed during access.
  */
 template <class K, class V>
-void ParallelHashMap<K,V>::print_buckets()
-{
+void ParallelHashMap<K,V>::print_buckets() {
+
   /* get thread ID */
   size_t tid = 0;
-  #ifdef OPENMP
   tid = omp_get_thread_num();
-  #endif
 
   /* get pointer to table, announce it will be searched */
   FixedHashMap<K,V> *table_ptr;
-  do{
+  do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
+#pragma omp flush(_announce)
   } while (table_ptr != _table);
 
   /* print buckets */
@@ -841,6 +848,5 @@ void ParallelHashMap<K,V>::print_buckets()
   /* reset table announcement to not searching */
   _announce[tid].value = NULL;
 }
-
 
 #endif

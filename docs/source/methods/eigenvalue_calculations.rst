@@ -104,7 +104,7 @@ The outer iteration updates the source according to :eq:`moc-source-iteration` f
 Transport Sweep Algorithm
 =========================
 
-The inner iteration in OpenMOC solves the fixed source problem given in :eq:`moc-flux-iteration`. The fixed source flux is solved through the MOC formulation by integrating the angular flux across the geometry for each track. The OpenMOC solver implementation performs this integration to compute the scalar flux for each FSR in each group. By default, OpenMOC guesses a uniform incoming angular flux for each track, normalized to the total source: 
+The inner iteration in OpenMOC solves the fixed source problem given in :eq:`moc-flux-iteration`. The fixed source flux is solved through the MOC formulation by integrating the angular flux across the geometry for each track. The OpenMOC solver implementation performs this integration to compute the scalar flux for each FSR in each group. By default, OpenMOC guesses a uniform incoming angular flux for each track, normalized to the total source:
 
 .. math::
    :label: incoming-angular-flux
@@ -202,14 +202,14 @@ The final step is to compute the slope :math:`q_{n}` and y-intercept :math:`b_{n
 .. math::
    :label: exponential-slope
 
-   q_n = \frac{\mathrm{d}}{\mathrm{d}(\tau)}\exp\left(-\frac{\tau}{\sin\theta_p}\right)\bigg|_{\tau=n\Delta_{N}} = -\frac{\exp\left(-\frac{n\Delta_{N}}{\sin\theta_p}\right)}{\sin\theta_{p}} 
+   q_n = \frac{\mathrm{d}}{\mathrm{d}(\tau)}\exp\left(-\frac{\tau}{\sin\theta_p}\right)\bigg|_{\tau=(n+0.5)\Delta_{N}} = -\frac{\exp\left(-\frac{(n + 0.5)\Delta_{N}}{\sin\theta_p}\right)}{\sin\theta_{p}}
 
 .. math::
    :label: exponential-intercept
 
-   b_n = \exp\left(-\frac{n\Delta_{N}}{\sin\theta_{p}}\right)\left[1 + \frac{n\Delta_{N}}{\sin\theta_{p}}\right]
+   b_n = \exp\left(-\frac{(n+0.5)\Delta_{N}}{\sin\theta_{p}}\right)\left[1 + \frac{(n+0.5)\Delta_{N}}{\sin\theta_{p}}\right]
 
-OpenMOC modifies this process by computing array values for each polar angle quadrature point :math:`\theta_{p}` which results in a table with :math:`PN` values instead of just :math:`N`. The reason for this is cache efficiency: at each :math:`n \in \{1, 2, ..., N\}` the values for the exponential with argument :math:`n\Delta_{N}` at each polar angle are contiguously stored in the table. Since the innermost loop in the transport sweep (:ref:`Algorithm 2 <figure-transport-sweep-algorithm>`) is over polar angles, the exponential values for each polar angle in the table are pre-fetched and stored in the cache on the first iteration of the loop. Finally, since both a slope and a y-intercept must be stored for each point, the total size of the table is :math:`2PN`. The procedure to construct the linear interpolation table is outlined by :ref:`Algorithm 4 <figure-exponential-interpolation-table>`.
+The exponential is computed at the midpoint of each interval, :math:`(n+0.5)\Delta_{N}`, to minimize the error in approximating the exponential for the values in the interval. OpenMOC modifies this process by computing array values for each polar angle quadrature point :math:`\theta_{p}` which results in a table with :math:`PN` values instead of just :math:`N`. The reason for this is cache efficiency: at each :math:`n \in \{1, 2, ..., N\}` the values for the exponential with argument :math:`(n+0.5)\Delta_{N}` at each polar angle are contiguously stored in the table. Since the innermost loop in the transport sweep (:ref:`Algorithm 2 <figure-transport-sweep-algorithm>`) is over polar angles, the exponential values for each polar angle in the table are pre-fetched and stored in the cache on the first iteration of the loop. Finally, since both a slope and a y-intercept must be stored for each point, the total size of the table is :math:`2PN`. The procedure to construct the linear interpolation table is outlined by :ref:`Algorithm 4 <figure-exponential-interpolation-table>`.
 
 .. _figure-exponential-interpolation-table:
 
@@ -227,7 +227,7 @@ To compute a linear approximation to an exponential, the following procedure is 
 
    n = 2P\lfloor\frac{\Sigma^T_{i,g}l_{k,i}}{\Delta_{N}}\rfloor
 
-Next, the slope and y-intercept for polar angle :math:`p` are extracted from the table: 
+Next, the slope and y-intercept for polar angle :math:`p` are extracted from the table:
 
 .. math::
    :label: exponential-slope-lookup
