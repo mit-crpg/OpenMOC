@@ -765,10 +765,12 @@ class Mesh(object):
         # Compute the mesh cell indices
         mesh_x = math.floor((x + self.dimension[0] * self.width[0] * 0.5) / self.width[0])
         mesh_y = math.floor((y + self.dimension[1] * self.width[1] * 0.5) / self.width[1])
-        if len(self.dimension) == 2:
-            mesh_z = 0
-        else:
-            mesh_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5) / self.width[2])
+#        if len(self.dimension) == 2:
+#            mesh_z = 0
+#        else:
+#            mesh_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5) / self.width[2])
+        # FIXME
+        mesh_z = 0
 
         # Compute the distance to the mesh cell boundaries
         distance_x = math.fabs(math.fabs(x) - self.dimension[0] *
@@ -815,6 +817,9 @@ class Mesh(object):
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]) or \
                (mesh_z < 0 or mesh_z >= self.dimension[2]):
+                print(x,y,z)
+                print(mesh_x,mesh_y,mesh_z)
+                print(self.dimension, self.width)
                 py_printf('ERROR', 'Unable to find cell since indices ({0},' + \
                           '{1},{2}) are outside mesh', lat_x, lat_y, lat_z)
 

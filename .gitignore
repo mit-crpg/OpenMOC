@@ -87,3 +87,6 @@ results_test.dat
 # Test build files
 openmoc/
 *.log
+
+# Doxygen
+docs/doxygen/html/*

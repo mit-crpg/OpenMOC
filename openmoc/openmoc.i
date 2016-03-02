@@ -4,6 +4,8 @@
 
 %module(docstring=DOCSTRING) openmoc
 
+%include docstring.i
+
 /* Import rules for Python/C++ transferrable memory ownership */
 %include thisown.i
 
