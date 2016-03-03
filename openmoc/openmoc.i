@@ -2,9 +2,10 @@
 "A method of characteristics code for nuclear reactor physics calculations."
 %enddef
 
-%module(docstring=DOCSTRING) openmoc
-
+/* Include docstrings generated from Doxygen and doxy2swig.py */
 %include docstring.i
+
+%module(docstring=DOCSTRING) openmoc
 
 /* Import rules for Python/C++ transferrable memory ownership */
 %include thisown.i

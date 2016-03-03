@@ -5,27 +5,14 @@
 
 
 %feature("docstring") Cell "
-`Cell(int id=0, const char *name=\"\")`  
 
 Represents a Cell inside of a Universe.  
-
-Constructors
-------------
-* `Cell(int id=0, const char *name=\"\")`  
-    
-    Constructor sets the unique and user-specifed IDs for this Cell.  
-
-    Parameters:  
-    * `id` :  
-        the user-specified optional Cell ID  
-    * `name` :  
-        the user-specified optional Cell name  
 
 C++ includes: src/Cell.h
 ";
 
 %feature("docstring") Cell::incrementVolume "
-`incrementVolume(double volume)`  
+incrementVolume(double volume)  
 
 Increment the volume/area of the Cell by some amount.  
 
@@ -34,12 +21,12 @@ segmentation.
 
 Parameters
 ----------
-* `volume` :  
+* volume :  
     the amount to increment the current volume by  
 ";
 
 %feature("docstring") Cell::getRotationMatrix "
-`getRotationMatrix() -> double *`  
+getRotationMatrix() -> double *  
 
 Return pointer to array for the rotation matrix.  
 
@@ -49,7 +36,7 @@ a pointer to an array of rotation angles
 ";
 
 %feature("docstring") Cell::retrieveTranslation "
-`retrieveTranslation(double *translations, int num_axes)`  
+retrieveTranslation(double *translations, int num_axes)  
 
 Fills an array with the translations along x, y and z.  
 
@@ -61,14 +48,14 @@ as follows:
 
 Parameters
 ----------
-* `translation` :  
+* translation :  
     an array of translations of length 3 for x, y and z  
-* `num_axes` :  
+* num_axes :  
     the number of axes (this must always be 3)  
 ";
 
 %feature("docstring") Cell::getUid "
-`getUid() const  -> int`  
+getUid() const  -> int  
 
 Return the Cell's unique ID.  
 
@@ -78,7 +65,7 @@ the Cell's unique ID
 ";
 
 %feature("docstring") Cell::getMaxY "
-`getMaxY() -> double`  
+getMaxY() -> double  
 
 Return the maximum reachable y-coordinate in the Cell.  
 
@@ -88,7 +75,7 @@ the maximum y-coordinate
 ";
 
 %feature("docstring") Cell::getMaxX "
-`getMaxX() -> double`  
+getMaxX() -> double  
 
 Return the maximum reachable x-coordinate in the Cell.  
 
@@ -98,7 +85,7 @@ the maximum x-coordinate
 ";
 
 %feature("docstring") Cell::getName "
-`getName() const  -> char *`  
+getName() const  -> char *  
 
 Return the user-defined name of the Cell.  
 
@@ -108,18 +95,18 @@ the Cell name
 ";
 
 %feature("docstring") Cell::setNumSectors "
-`setNumSectors(int num_sectors)`  
+setNumSectors(int num_sectors)  
 
 Set the Cell's number of sectors.  
 
 Parameters
 ----------
-* `num_sectors` :  
+* num_sectors :  
     the number of sectors in this Cell  
 ";
 
 %feature("docstring") Cell::getMinY "
-`getMinY() -> double`  
+getMinY() -> double  
 
 Return the minimum reachable y-coordinate in the Cell.  
 
@@ -129,7 +116,7 @@ the minimum y-coordinate
 ";
 
 %feature("docstring") Cell::getMinX "
-`getMinX() -> double`  
+getMinX() -> double  
 
 Return the minimum reachable x-coordinate in the Cell.  
 
@@ -139,7 +126,7 @@ the minimum x-coordinate
 ";
 
 %feature("docstring") Cell::getMinZ "
-`getMinZ() -> double`  
+getMinZ() -> double  
 
 Return the minimum reachable z-coordinate in the Cell.  
 
@@ -149,7 +136,7 @@ the minimum z-coordinate
 ";
 
 %feature("docstring") Cell::getNumSurfaces "
-`getNumSurfaces() const  -> int`  
+getNumSurfaces() const  -> int  
 
 Return the number of Surfaces in the Cell.  
 
@@ -159,43 +146,43 @@ the number of Surfaces
 ";
 
 %feature("docstring") Cell::setFill "
-`setFill(Material *fill)`  
-`setFill(Universe *fill)`  
+setFill(Material *fill)  
+setFill(Universe *fill)  
 
 Overloaded function
 -------------------
-* `setFill(Material *fill)`  
+* setFill(Material *fill)  
     
     Sets the Material filling this Cell.  
 
     Parameters:  
-    * `fill` :  
+    * fill :  
         the Material filling this Cell  
 
-* `setFill(Universe *fill)`  
+* setFill(Universe *fill)  
     
     Sets the Universe filling this Cell.  
 
     Parameters:  
-    * `fill` :  
+    * fill :  
         the Universe filling this Cell  
 ";
 
 %feature("docstring") Cell::Cell "
-`Cell(int id=0, const char *name=\"\")`  
+Cell(int id=0, const char *name=\"\")  
 
 Constructor sets the unique and user-specifed IDs for this Cell.  
 
 Parameters
 ----------
-* `id` :  
+* id :  
     the user-specified optional Cell ID  
-* `name` :  
+* name :  
     the user-specified optional Cell name  
 ";
 
 %feature("docstring") Cell::minSurfaceDist "
-`minSurfaceDist(LocalCoords *coords) -> double`  
+minSurfaceDist(LocalCoords *coords) -> double  
 
 Computes the minimum distance to a Surface from a point with a given trajectory
 at a certain angle stored in a LocalCoords object.  
@@ -205,12 +192,12 @@ INFINITY.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a pointer to a localcoords  
 ";
 
 %feature("docstring") Cell::getVolume "
-`getVolume() -> double`  
+getVolume() -> double  
 
 Return the aggregate volume/area of all instances of this Cell.  
 
@@ -223,7 +210,7 @@ the volume/area of the Cell
 ";
 
 %feature("docstring") Cell::getMaxZ "
-`getMaxZ() -> double`  
+getMaxZ() -> double  
 
 Return the maximum reachable z-coordinate in the Cell.  
 
@@ -233,31 +220,31 @@ the maximum z-coordinate
 ";
 
 %feature("docstring") Cell::setNumRings "
-`setNumRings(int num_rings)`  
+setNumRings(int num_rings)  
 
 Set the Cell's number of rings.  
 
 Parameters
 ----------
-* `num_rings` :  
+* num_rings :  
     the number of rings in this Cell  
 ";
 
 %feature("docstring") Cell::addSurface "
-`addSurface(int halfspace, Surface *surface)`  
+addSurface(int halfspace, Surface *surface)  
 
 Insert a Surface into this Cell's container of bounding Surfaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the Surface halfspace (+/-1)  
-* `surface` :  
+* surface :  
     a pointer to the Surface  
 ";
 
 %feature("docstring") Cell::getAllCells "
-`getAllCells() -> std::map< int, Cell * >`  
+getAllCells() -> std::map< int, Cell * >  
 
 Returns the std::map of Cell IDs and Cell pointers within any nested Universes
 filling this Cell.  
@@ -268,7 +255,7 @@ std::map of Cell IDs and pointers
 ";
 
 %feature("docstring") Cell::clone "
-`clone() -> Cell *`  
+clone() -> Cell *  
 
 Create a duplicate of the Cell.  
 
@@ -278,13 +265,13 @@ a pointer to the clone
 ";
 
 %feature("docstring") Cell::~Cell "
-`~Cell()`  
+~Cell()  
 
 Destructor clears vector of Surface pointers bounding the Cell.  
 ";
 
 %feature("docstring") Cell::getAllUniverses "
-`getAllUniverses() -> std::map< int, Universe * >`  
+getAllUniverses() -> std::map< int, Universe * >  
 
 Returns the std::map of all nested Universe IDs and Universe pointers filling
 this Cell.  
@@ -295,7 +282,7 @@ std::map of Universe IDs and pointers
 ";
 
 %feature("docstring") Cell::setTranslation "
-`setTranslation(double *translation, int num_axes)`  
+setTranslation(double *translation, int num_axes)  
 
 Set the Cell's translation along the x, y and z axes.  
 
@@ -308,15 +295,14 @@ in Python is as follows:
 
 Parameters
 ----------
-* `translation` :  
+* translation :  
     the array of translations  
-* `num_axes` :  
+* num_axes :  
     the number of axes (this must always be 3)  
 ";
 
 %feature("docstring") Cell::retrieveRotation "
-`retrieveRotation(double *rotations, int num_axes, std::string
-    units=\"degrees\")`  
+retrieveRotation(double *rotations, int num_axes, std::string units=\"degrees\")  
 
 Fills an array with the rotation angles for x, y and z.  
 
@@ -328,38 +314,38 @@ as follows:
 
 Parameters
 ----------
-* `rotation` :  
+* rotation :  
     an array of rotation angles of length 3 for x, y and z  
-* `num_axes` :  
+* num_axes :  
     the number of axes (this must always be 3)  
-* `units` :  
+* units :  
     the angular units in \"radians\" or \"degrees\" (default)  
 ";
 
 %feature("docstring") Cell::addNeighborCell "
-`addNeighborCell(Cell *cell)`  
+addNeighborCell(Cell *cell)  
 
 Add a neighboring Cell to this Cell's collection of neighbors.  
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     a pointer to the neighboring Cell  
 ";
 
 %feature("docstring") Cell::setVolume "
-`setVolume(double volume)`  
+setVolume(double volume)  
 
 Set the volume/area of the Cell.  
 
 Parameters
 ----------
-* `volume` :  
+* volume :  
     the volume/area of the Cell  
 ";
 
 %feature("docstring") Cell::getType "
-`getType() const  -> cellType`  
+getType() const  -> cellType  
 
 Return the Cell type (FILL or MATERIAL).  
 
@@ -369,7 +355,7 @@ the Cell type
 ";
 
 %feature("docstring") Cell::getMinXBoundaryType "
-`getMinXBoundaryType() -> boundaryType`  
+getMinXBoundaryType() -> boundaryType  
 
 Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the minimum
 reachable x-coordinate in the Cell.  
@@ -380,7 +366,7 @@ the boundary condition at the minimum x-coordinate
 ";
 
 %feature("docstring") Cell::getMaxXBoundaryType "
-`getMaxXBoundaryType() -> boundaryType`  
+getMaxXBoundaryType() -> boundaryType  
 
 Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the maximum
 reachable x-coordinate in the Cell.  
@@ -391,7 +377,7 @@ the boundary condition at the maximum x-coordinate
 ";
 
 %feature("docstring") Cell::getNumSectors "
-`getNumSectors() -> int`  
+getNumSectors() -> int  
 
 Return the number of sectors in the Cell.  
 
@@ -401,13 +387,13 @@ the number of sectors
 ";
 
 %feature("docstring") Cell::buildNeighbors "
-`buildNeighbors()`  
+buildNeighbors()  
 
 Build a collection of neighboring Cells for optimized ray tracing.  
 ";
 
 %feature("docstring") Cell::isTranslated "
-`isTranslated() -> bool`  
+isTranslated() -> bool  
 
 Return a boolean indicating whether the Cell has been translated.  
 
@@ -417,7 +403,7 @@ whether the Cell has been translated
 ";
 
 %feature("docstring") Cell::getTranslation "
-`getTranslation() -> double *`  
+getTranslation() -> double *  
 
 Return pointer to array for the translations along x, y and z.  
 
@@ -427,13 +413,13 @@ a pointer to an array of translations
 ";
 
 %feature("docstring") Cell::getTheta "
-`getTheta(std::string units=\"degrees\") -> double`  
+getTheta(std::string units=\"degrees\") -> double  
 
 Get the rotation angle about the y-axis in degrees.  
 
 Parameters
 ----------
-* `units` :  
+* units :  
     the angular units in \"radians\" or \"degrees\" (default)  
 
 Returns
@@ -442,13 +428,13 @@ the rotation angle about the y-axis
 ";
 
 %feature("docstring") Cell::getPhi "
-`getPhi(std::string units=\"degrees\") -> double`  
+getPhi(std::string units=\"degrees\") -> double  
 
 Get the rotation angle about the x-axis in degrees.  
 
 Parameters
 ----------
-* `units` :  
+* units :  
     the angular units in \"radians\" or \"degrees\" (default)  
 
 Returns
@@ -457,7 +443,7 @@ the rotation angle about the x-axis
 ";
 
 %feature("docstring") Cell::subdivideCell "
-`subdivideCell(double max_radius)`  
+subdivideCell(double max_radius)  
 
 Subdivides a Cell into rings and sectors aligned with the z-axis.  
 
@@ -466,7 +452,7 @@ subdivided ring and sector Cells.
 
 Parameters
 ----------
-* `max_radius` :  
+* max_radius :  
     the maximum allowable radius used in the subdivisions  
 
 Returns
@@ -477,7 +463,7 @@ A container of all Cell clones created for rings and sectors
 ";
 
 %feature("docstring") Cell::getNumRings "
-`getNumRings() -> int`  
+getNumRings() -> int  
 
 Return the number of rings in the Cell.  
 
@@ -487,7 +473,7 @@ the number of rings
 ";
 
 %feature("docstring") Cell::getMaxYBoundaryType "
-`getMaxYBoundaryType() -> boundaryType`  
+getMaxYBoundaryType() -> boundaryType  
 
 Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the maximum
 reachable y-coordinate in the Cell.  
@@ -498,7 +484,7 @@ the boundary condition at the maximum y-coordinate
 ";
 
 %feature("docstring") Cell::containsPoint "
-`containsPoint(Point *point) -> bool`  
+containsPoint(Point *point) -> bool  
 
 Determines whether a Point is contained inside a Cell.  
 
@@ -508,40 +494,40 @@ side of every Surface in the Cell.
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to a Point  
 ";
 
 %feature("docstring") Cell::setName "
-`setName(const char *name)`  
+setName(const char *name)  
 
 Sets the name of the Cell.  
 
 Parameters
 ----------
-* `name` :  
+* name :  
     the Cell name string  
 ";
 
 %feature("docstring") Cell::removeSurface "
-`removeSurface(Surface *surface)`  
+removeSurface(Surface *surface)  
 
 Removes a Surface from this Cell's container of bounding Surfaces.  
 
 Parameters
 ----------
-* `surface` :  
+* surface :  
     a pointer to the Surface to remove  
 ";
 
 %feature("docstring") Cell::getPsi "
-`getPsi(std::string units=\"degrees\") -> double`  
+getPsi(std::string units=\"degrees\") -> double  
 
 Get the rotation angle about the z-axis in degrees.  
 
 Parameters
 ----------
-* `units` :  
+* units :  
     the angular units in \"radians\" or \"degrees\" (default)  
 
 Returns
@@ -550,7 +536,7 @@ the rotation angle about the z-axis
 ";
 
 %feature("docstring") Cell::getNumInstances "
-`getNumInstances() -> int`  
+getNumInstances() -> int  
 
 Return the number of instances of this Cell in the Geometry.  
 
@@ -563,7 +549,7 @@ the number of cell instances
 ";
 
 %feature("docstring") Cell::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Convert this Cell's attributes to a string format.  
 
@@ -575,7 +561,7 @@ Add string data for the Surfaces in this Cell
 ";
 
 %feature("docstring") Cell::getNeighbors "
-`getNeighbors() const  -> std::vector< Cell * >`  
+getNeighbors() const  -> std::vector< Cell * >  
 
 Return the std::vector of neighbor Cells to this Cell.  
 
@@ -585,18 +571,18 @@ std::vector of neighbor Cell pointers
 ";
 
 %feature("docstring") Cell::setNumInstances "
-`setNumInstances(int num_instances)`  
+setNumInstances(int num_instances)  
 
 Set the number of instances of this Cell.  
 
 Parameters
 ----------
-* `num_instances` :  
+* num_instances :  
     the number of instances of this Cell in the Geometry  
 ";
 
 %feature("docstring") Cell::getSurfaces "
-`getSurfaces() const  -> std::map< int, surface_halfspace * >`  
+getSurfaces() const  -> std::map< int, surface_halfspace * >  
 
 Return the std::map of Surface pointers and halfspaces (+/-1) for all surfaces
 bounding the Cell.  
@@ -607,7 +593,7 @@ std::map of Surface pointers and halfspaces
 ";
 
 %feature("docstring") Cell::getFillUniverse "
-`getFillUniverse() -> Universe *`  
+getFillUniverse() -> Universe *  
 
 Return a pointer to the Material filling this Cell.  
 
@@ -617,7 +603,7 @@ the Material fill pointer
 ";
 
 %feature("docstring") Cell::setRotation "
-`setRotation(double *rotation, int num_axes, std::string units=\"degrees\")`  
+setRotation(double *rotation, int num_axes, std::string units=\"degrees\")  
 
 Set the Cell's rotation angles about the x, y and z axes.  
 
@@ -630,16 +616,16 @@ called in Python is as follows:
 
 Parameters
 ----------
-* `rotation` :  
+* rotation :  
     the array of rotation angles  
-* `num_axes` :  
+* num_axes :  
     the number of axes (this must always be 3)  
-* `units` :  
+* units :  
     the angular units in \"radians\" or \"degrees\" (default)  
 ";
 
 %feature("docstring") Cell::isRotated "
-`isRotated() -> bool`  
+isRotated() -> bool  
 
 Return a boolean indicating whether the Cell has been rotated.  
 
@@ -649,7 +635,7 @@ whether the Cell has been rotated
 ";
 
 %feature("docstring") Cell::incrementNumInstances "
-`incrementNumInstances()`  
+incrementNumInstances()  
 
 Increment the number of instances of this Cell.  
 
@@ -658,13 +644,13 @@ segmentation.
 ";
 
 %feature("docstring") Cell::printString "
-`printString()`  
+printString()  
 
 Prints a string representation of all of the Cell's attributes to the console.  
 ";
 
 %feature("docstring") Cell::isFissionable "
-`isFissionable() -> bool`  
+isFissionable() -> bool  
 
 Returns true if this Cell is filled with a fissionable Material.  
 
@@ -680,7 +666,7 @@ true if contains a fissionable Material
 ";
 
 %feature("docstring") Cell::getMinYBoundaryType "
-`getMinYBoundaryType() -> boundaryType`  
+getMinYBoundaryType() -> boundaryType  
 
 Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the minimum
 reachable y-coordinate in the Cell.  
@@ -691,7 +677,7 @@ the boundary condition at the minimum y-coordinate
 ";
 
 %feature("docstring") Cell::getId "
-`getId() const  -> int`  
+getId() const  -> int  
 
 Return the Cell's user-specified ID.  
 
@@ -701,7 +687,7 @@ the Cell's user-specified ID
 ";
 
 %feature("docstring") Cell::getFillMaterial "
-`getFillMaterial() -> Material *`  
+getFillMaterial() -> Material *  
 
 Return a pointer to the Material filling this Cell.  
 
@@ -711,7 +697,7 @@ the Material fill pointer
 ";
 
 %feature("docstring") Cell::containsCoords "
-`containsCoords(LocalCoords *coords) -> bool`  
+containsCoords(LocalCoords *coords) -> bool  
 
 Determines whether a Point is contained inside a Cell.  
 
@@ -721,7 +707,7 @@ side of every Surface in the Cell.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a pointer to a localcoord  
 ";
 
@@ -729,25 +715,14 @@ Parameters
 
 
 %feature("docstring") Cmfd "
-`Cmfd()`  
 
 A class for Coarse Mesh Finite Difference (CMFD) acceleration.  
-
-Constructors
-------------
-* `Cmfd()`  
-    
-    Constructor initializes boundaries and variables that describe the Cmfd
-    object.  
-
-    The construcor initializes the many variables that describe the CMFD mesh
-    and are used to solve the nonlinear diffusion acceleration problem.  
 
 C++ includes: src/Cmfd.h
 ";
 
 %feature("docstring") Cmfd::initializeGroupMap "
-`initializeGroupMap()`  
+initializeGroupMap()  
 
 Initialize and set array that links the MOC energy groups to the CMFD energy
 groups.  
@@ -759,7 +734,7 @@ CMFD energy groups.
 ";
 
 %feature("docstring") Cmfd::getNumY "
-`getNumY() -> int`  
+getNumY() -> int  
 
 Get the number of Mesh cells in a column.  
 
@@ -769,7 +744,7 @@ The number of Mesh cells in a column
 ";
 
 %feature("docstring") Cmfd::getNumX "
-`getNumX() -> int`  
+getNumX() -> int  
 
 Get the number of Mesh cells in a row.  
 
@@ -779,35 +754,35 @@ The number of Mesh cells in a row
 ";
 
 %feature("docstring") Cmfd::~Cmfd "
-`~Cmfd()`  
+~Cmfd()  
 
 Destructor.  
 ";
 
 %feature("docstring") Cmfd::setNumFSRs "
-`setNumFSRs(int num_fsrs)`  
+setNumFSRs(int num_fsrs)  
 
 Set the number of FSRs.  
 
 Parameters
 ----------
-* `num_fsrs` :  
+* num_fsrs :  
     The number of FSRs  
 ";
 
 %feature("docstring") Cmfd::setFSRVolumes "
-`setFSRVolumes(FP_PRECISION *FSR_volumes)`  
+setFSRVolumes(FP_PRECISION *FSR_volumes)  
 
 Set the pointer to the array of FSR_volumes.  
 
 Parameters
 ----------
-* `FSR_volumes` :  
+* FSR_volumes :  
     Array of FSR volumes  
 ";
 
 %feature("docstring") Cmfd::getNumCmfdGroups "
-`getNumCmfdGroups() -> int`  
+getNumCmfdGroups() -> int  
 
 Get the number of coarse CMFD energy groups.  
 
@@ -817,13 +792,13 @@ The number of CMFD energy groups
 ";
 
 %feature("docstring") Cmfd::getCmfdGroup "
-`getCmfdGroup(int group) -> int`  
+getCmfdGroup(int group) -> int  
 
 Get the CMFD group given an MOC group.  
 
 Parameters
 ----------
-* `group` :  
+* group :  
     The MOC energy group  
 
 Returns
@@ -832,20 +807,20 @@ The CMFD energy group
 ";
 
 %feature("docstring") Cmfd::setLatticeStructure "
-`setLatticeStructure(int num_x, int num_y)`  
+setLatticeStructure(int num_x, int num_y)  
 
 The structure of the Lattice to be used as the CMFD mesh.  
 
 Parameters
 ----------
-* `num_x` :  
+* num_x :  
     The number of cells in the x direction.  
-* `num_y` :  
+* num_y :  
     The number of cells in the y direction.  
 ";
 
 %feature("docstring") Cmfd::getNumMOCGroups "
-`getNumMOCGroups() -> int`  
+getNumMOCGroups() -> int  
 
 Get the number of MOC energy groups.  
 
@@ -855,7 +830,7 @@ The number of MOC energy groups
 ";
 
 %feature("docstring") Cmfd::Cmfd "
-`Cmfd()`  
+Cmfd()  
 
 Constructor initializes boundaries and variables that describe the Cmfd object.  
 
@@ -864,24 +839,24 @@ are used to solve the nonlinear diffusion acceleration problem.
 ";
 
 %feature("docstring") Cmfd::setGeometry "
-`setGeometry(Geometry *geometry)`  
+setGeometry(Geometry *geometry)  
 
 Set a pointer to the Geometry.  
 
 Parameters
 ----------
-* `goemetry` :  
+* goemetry :  
     A pointer to a Geometry object.  
 ";
 
 %feature("docstring") Cmfd::zeroCurrents "
-`zeroCurrents()`  
+zeroCurrents()  
 
 Zero the surface currents for each mesh cell and energy group.  
 ";
 
 %feature("docstring") Cmfd::setGroupStructure "
-`setGroupStructure(int *group_indices, int length_group_indices)`  
+setGroupStructure(int *group_indices, int length_group_indices)  
 
 Set the CMFD energy group structure.  
 
@@ -891,47 +866,47 @@ speed up the CMFD solve.
 
 Parameters
 ----------
-* `group_indices` :  
+* group_indices :  
     An array of the CMFD group boundaries  
-* `length_group_indices` :  
+* length_group_indices :  
     The length of the group_indices array  
 ";
 
 %feature("docstring") Cmfd::setWidthY "
-`setWidthY(double width)`  
+setWidthY(double width)  
 
 Set Mesh width in the y-direction.  
 
 Parameters
 ----------
-* `width` :  
+* width :  
     Physical width of Mesh in the y-direction  
 ";
 
 %feature("docstring") Cmfd::setWidthX "
-`setWidthX(double width)`  
+setWidthX(double width)  
 
 Set Mesh width in the x-direction.  
 
 Parameters
 ----------
-* `width` :  
+* width :  
     Physical width of Mesh in the x-direction  
 ";
 
 %feature("docstring") Cmfd::setFluxUpdateOn "
-`setFluxUpdateOn(bool flux_update_on)`  
+setFluxUpdateOn(bool flux_update_on)  
 
 Set flag indicating whether to update the MOC flux.  
 
 Parameters
 ----------
-* `flux_update_on` :  
+* flux_update_on :  
     Boolean saying whether to update MOC flux.  
 ";
 
 %feature("docstring") Cmfd::getCellFSRs "
-`getCellFSRs() -> std::vector< std::vector< int > > *`  
+getCellFSRs() -> std::vector< std::vector< int > > *  
 
 Return a pointer to the vector of vectors that contains the FSRs that lie in
 each cell.  
@@ -942,24 +917,24 @@ Vector of vectors containing FSR IDs in each cell.
 ";
 
 %feature("docstring") Cmfd::setFSRMaterials "
-`setFSRMaterials(Material **FSR_materials)`  
+setFSRMaterials(Material **FSR_materials)  
 
 Set the FSR materials array pointer.  
 
 Parameters
 ----------
-* `FSR_materials` :  
+* FSR_materials :  
     Pointer to FSR_materials array  
 ";
 
 %feature("docstring") Cmfd::initializeLattice "
-`initializeLattice(Point *offset)`  
+initializeLattice(Point *offset)  
 
 Initialize the CMFD lattice.  
 ";
 
 %feature("docstring") Cmfd::convertFSRIdToCmfdCell "
-`convertFSRIdToCmfdCell(int fsr_id) -> int`  
+convertFSRIdToCmfdCell(int fsr_id) -> int  
 
 Return the CMFD cell ID that an FSR lies in.  
 
@@ -971,7 +946,7 @@ for a 4 x 4 lattice are: 12 13 14 15 8 9 10 11 4 5 6 7 0 1 2 3
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     The FSR ID.  
 
 Returns
@@ -980,48 +955,48 @@ The CMFD cell ID. Return -1 if cell is not found.
 ";
 
 %feature("docstring") Cmfd::setCellFSRs "
-`setCellFSRs(std::vector< std::vector< int > > *cell_fsrs)`  
+setCellFSRs(std::vector< std::vector< int > > *cell_fsrs)  
 
 Set the vector of vectors that contains the FSRs that lie in each cell.  
 
 Parameters
 ----------
-* `cell_fsrs` :  
+* cell_fsrs :  
     Vector of vectors containing FSR IDs in each cell.  
 ";
 
 %feature("docstring") Cmfd::tallyCurrent "
-`tallyCurrent(segment *curr_segment, FP_PRECISION *track_flux, FP_PRECISION
-    *polar_weights, bool fwd)`  
+tallyCurrent(segment *curr_segment, FP_PRECISION *track_flux, FP_PRECISION
+    *polar_weights, bool fwd)  
 
 Tallies the current contribution from this segment across the the appropriate
 CMFD mesh cell surface.  
 
 Parameters
 ----------
-* `curr_segment` :  
+* curr_segment :  
     The current Track segment  
-* `track_flux` :  
+* track_flux :  
     The outgoing angular flux for this segment  
-* `polar_weights` :  
+* polar_weights :  
     Array of polar weights for some azimuthal angle  
-* `fwd` :  
+* fwd :  
     Boolean indicating direction of integration along segment  
 ";
 
 %feature("docstring") Cmfd::setCentroidUpdateOn "
-`setCentroidUpdateOn(bool centroid_update_on)`  
+setCentroidUpdateOn(bool centroid_update_on)  
 
 Set flag indicating whether to use FSR centroids to update the MOC flux.  
 
 Parameters
 ----------
-* `centroid_update_on` :  
+* centroid_update_on :  
     Flag saying whether to use centroids to update MOC flux.  
 ";
 
 %feature("docstring") Cmfd::findCmfdSurface "
-`findCmfdSurface(int cell_id, LocalCoords *coords) -> int`  
+findCmfdSurface(int cell_id, LocalCoords *coords) -> int  
 
 Find the cmfd surface that a LocalCoords object lies on.  
 
@@ -1030,9 +1005,9 @@ returned.
 
 Parameters
 ----------
-* `cell_id` :  
+* cell_id :  
     The CMFD cell ID that the local coords is in.  
-* `coords` :  
+* coords :  
     The coords being evaluated.  
 
 Returns
@@ -1041,13 +1016,13 @@ The surface ID.
 ";
 
 %feature("docstring") Cmfd::getBoundary "
-`getBoundary(int side) -> int`  
+getBoundary(int side) -> int  
 
 Get the boundaryType for one side of the CMFD mesh.  
 
 Parameters
 ----------
-* `side` :  
+* side :  
     The CMFD mesh surface ID.  
 
 Returns
@@ -1056,81 +1031,81 @@ The boundaryType for the surface.
 ";
 
 %feature("docstring") Cmfd::setNumMOCGroups "
-`setNumMOCGroups(int num_moc_groups)`  
+setNumMOCGroups(int num_moc_groups)  
 
 Set the number of MOC energy groups.  
 
 Parameters
 ----------
-* `num_groups` :  
+* num_groups :  
     Number of MOC energy groups  
 ";
 
 %feature("docstring") Cmfd::setSORRelaxationFactor "
-`setSORRelaxationFactor(FP_PRECISION SOR_factor)`  
+setSORRelaxationFactor(FP_PRECISION SOR_factor)  
 
 Set the successive over-relaxation factor for the linear solve within the
 diffusion eigenvalue solve.  
 
 Parameters
 ----------
-* `SOR_factor` :  
+* SOR_factor :  
     Over-relaxation factor  
 ";
 
 %feature("docstring") Cmfd::initialize "
-`initialize()`  
+initialize()  
 
 Initialize the Matrix and Vector objects, k-nearest stencils, the CMFD cell
 currents and MOC materials.  
 ";
 
 %feature("docstring") Cmfd::setKNearest "
-`setKNearest(int k_nearest)`  
+setKNearest(int k_nearest)  
 
 Set a number of k-nearest neighbor cells to use in updating the FSR flux.  
 
 Parameters
 ----------
-* `k_nearest` :  
+* k_nearest :  
     The number of nearest neighbor CMFD cells.  
 ";
 
 %feature("docstring") Cmfd::setFSRFluxes "
-`setFSRFluxes(FP_PRECISION *scalar_flux)`  
+setFSRFluxes(FP_PRECISION *scalar_flux)  
 
 Set pointer to FSR flux array.  
 
 Parameters
 ----------
-* `scalar_flux` :  
+* scalar_flux :  
     Pointer to FSR flux array  
 ";
 
 %feature("docstring") Cmfd::setNumY "
-`setNumY(int num_y)`  
+setNumY(int num_y)  
 
 Set the number of Mesh cells in a column.  
 
 Parameters
 ----------
-* `num_y` :  
+* num_y :  
     Number of Mesh cells in a column  
 ";
 
 %feature("docstring") Cmfd::setNumX "
-`setNumX(int num_x)`  
+setNumX(int num_x)  
 
 Set the number of Mesh cells in a row.  
 
 Parameters
 ----------
-* `num_x` :  
+* num_x :  
     Number of Mesh cells in a row  
 ";
 
 %feature("docstring") Cmfd::getLattice "
-`getLattice() -> Lattice *`  
+getLattice() -> Lattice *  
 
 Returns the Lattice object used as the CMFD mesh.  
 
@@ -1140,27 +1115,27 @@ A pointer to a Lattice object.
 ";
 
 %feature("docstring") Cmfd::addFSRToCell "
-`addFSRToCell(int cell_id, int fsr_id)`  
+addFSRToCell(int cell_id, int fsr_id)  
 
 Add an FSR ID to a vector that contains all the FSR IDs contained within a CMFD
 mesh cell.  
 
 Parameters
 ----------
-* `cell_id` :  
+* cell_id :  
     The CMFD cell ID.  
-* `fsr_id` :  
+* fsr_id :  
     The FSR ID.  
 ";
 
 %feature("docstring") Cmfd::findCmfdCell "
-`findCmfdCell(LocalCoords *coords) -> int`  
+findCmfdCell(LocalCoords *coords) -> int  
 
 Find the CMFD cell that a LocalCoords object is in.  
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     The coords being evaluated.  
 
 Returns
@@ -1169,19 +1144,18 @@ The CMFD cell ID.
 ";
 
 %feature("docstring") Cmfd::setPolarQuadrature "
-`setPolarQuadrature(PolarQuad *polar_quad)`  
+setPolarQuadrature(PolarQuad *polar_quad)  
 
 Sets the PolarQuad object in use by the MOC Solver.  
 
 Parameters
 ----------
-* `polar_quad` :  
+* polar_quad :  
     A PolarQuad object pointer from the Solver  
 ";
 
 %feature("docstring") Cmfd::updateBoundaryFlux "
-`updateBoundaryFlux(Track **tracks, FP_PRECISION *boundary_flux, int
-    num_tracks)`  
+updateBoundaryFlux(Track **tracks, FP_PRECISION *boundary_flux, int num_tracks)  
 
 Update the MOC boundary fluxes.  
 
@@ -1191,9 +1165,9 @@ flux for the cell that the outgoing flux from the track enters.
 
 Parameters
 ----------
-* `tracks` :  
+* tracks :  
     2D array of Tracks  
-* `boundary_flux` :  
+* boundary_flux :  
     Array of boundary fluxes  
 
 Returns
@@ -1202,7 +1176,7 @@ The number of Tracks
 ";
 
 %feature("docstring") Cmfd::setBoundary "
-`setBoundary(int side, boundaryType boundary)`  
+setBoundary(int side, boundaryType boundary)  
 
 Set the CMFD boundary type for a given surface.  
 
@@ -1211,25 +1185,25 @@ constants in the constants.h file.
 
 Parameters
 ----------
-* `side` :  
+* side :  
     The CMFD surface UID.  
-* `boundary` :  
+* boundary :  
     The boundaryType of the surface.  
 ";
 
 %feature("docstring") Cmfd::setSourceConvergenceThreshold "
-`setSourceConvergenceThreshold(FP_PRECISION source_thresh)`  
+setSourceConvergenceThreshold(FP_PRECISION source_thresh)  
 
 Sets the threshold for CMFD source convergence (>0)  
 
 Parameters
 ----------
-* `the` :  
+* the :  
     threshold for source convergence  
 ";
 
 %feature("docstring") Cmfd::isFluxUpdateOn "
-`isFluxUpdateOn() -> bool`  
+isFluxUpdateOn() -> bool  
 
 Get flag indicating whether to update the MOC flux.  
 
@@ -1239,7 +1213,7 @@ Boolean saying whether to update MOC flux.
 ";
 
 %feature("docstring") Cmfd::computeKeff "
-`computeKeff(int moc_iteration) -> FP_PRECISION`  
+computeKeff(int moc_iteration) -> FP_PRECISION  
 
 Solve the nonlinear diffusion acceleration problem to accelerate the convergence
 of the MOC problem.  
@@ -1251,7 +1225,7 @@ problem.
 
 Parameters
 ----------
-* `moc_iteration` :  
+* moc_iteration :  
     MOC iteration number  
 
 Returns
@@ -1260,7 +1234,7 @@ The dominant eigenvalue of the nonlinear diffusion problem
 ";
 
 %feature("docstring") Cmfd::initializeCellMap "
-`initializeCellMap()`  
+initializeCellMap()  
 
 Initializes the vector of vectors that links CMFD cells with FSRs.  
 
@@ -1270,7 +1244,7 @@ store the FSR ids contained within that cell.
 ";
 
 %feature("docstring") Cmfd::isCentroidUpdateOn "
-`isCentroidUpdateOn() -> bool`  
+isCentroidUpdateOn() -> bool  
 
 Get flag indicating whether to use FSR centroids to update the MOC flux.  
 
@@ -1280,7 +1254,7 @@ Flag saying whether to use centroids to update MOC flux.
 ";
 
 %feature("docstring") Cmfd::getNumCells "
-`getNumCells() -> int`  
+getNumCells() -> int  
 
 Get the number of CMFD cells.  
 
@@ -1293,31 +1267,15 @@ The number of CMFD cells
 
 
 %feature("docstring") CPUSolver "
-`CPUSolver(TrackGenerator *track_generator=NULL)`  
 
 This a subclass of the Solver class for multi-core CPUs using OpenMP multi-
 threading.  
-
-Constructors
-------------
-* `CPUSolver(TrackGenerator *track_generator=NULL)`  
-    
-    Constructor initializes array pointers for Tracks and Materials.  
-
-    The constructor retrieves the number of energy groups and FSRs and azimuthal
-    angles from the Geometry and TrackGenerator if passed in as parameters by
-    the user. The constructor initalizes the number of OpenMP threads to a
-    default of 1.  
-
-    Parameters:  
-    * `track_generator` :  
-        an optional pointer to the TrackGenerator  
 
 C++ includes: src/CPUSolver.h
 ";
 
 %feature("docstring") CPUSolver::~CPUSolver "
-`~CPUSolver()`  
+~CPUSolver()  
 
 Destructor deletes array for OpenMP mutual exclusion locks for FSR scalar flux
 updates, and calls Solver parent class destructor to deletes arrays for fluxes
@@ -1325,7 +1283,7 @@ and sources.
 ";
 
 %feature("docstring") CPUSolver::computeFSRScatterSources "
-`computeFSRScatterSources()`  
+computeFSRScatterSources()  
 
 Computes the total scattering source in each FSR.  
 
@@ -1333,7 +1291,7 @@ This method is a helper routine for the openmoc.krylov submodule.
 ";
 
 %feature("docstring") CPUSolver::initializeFluxArrays "
-`initializeFluxArrays()`  
+initializeFluxArrays()  
 
 Allocates memory for Track boundary angular and FSR scalar fluxes.  
 
@@ -1342,18 +1300,18 @@ simulation.
 ";
 
 %feature("docstring") CPUSolver::flattenFSRFluxes "
-`flattenFSRFluxes(FP_PRECISION value)`  
+flattenFSRFluxes(FP_PRECISION value)  
 
 Set the scalar flux for each FSR and energy group to some value.  
 
 Parameters
 ----------
-* `value` :  
+* value :  
     the value to assign to each FSR scalar flux  
 ";
 
 %feature("docstring") CPUSolver::transportSweep "
-`transportSweep()`  
+transportSweep()  
 
 This method performs one transport sweep of all azimuthal angles, Tracks, Track
 segments, polar angles and energy groups.  
@@ -1364,7 +1322,7 @@ source region.
 ";
 
 %feature("docstring") CPUSolver::setFluxes "
-`setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)`  
+setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)  
 
 Set the flux array for use in transport sweep source calculations.  This is a
 helper method for the checkpoint restart capabilities, as well as the IRAMSolver
@@ -1379,14 +1337,14 @@ Python:
 
 Parameters
 ----------
-* `in_fluxes` :  
+* in_fluxes :  
     an array with the fluxes to use  
-* `num_fluxes` :  
+* num_fluxes :  
     the number of flux values (# groups x # FSRs)  
 ";
 
 %feature("docstring") CPUSolver::computeFSRFissionSources "
-`computeFSRFissionSources()`  
+computeFSRFissionSources()  
 
 Computes the total fission source in each FSR.  
 
@@ -1394,26 +1352,26 @@ This method is a helper routine for the openmoc.krylov submodule.
 ";
 
 %feature("docstring") CPUSolver::computeKeff "
-`computeKeff()`  
+computeKeff()  
 
 Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") CPUSolver::initializeFixedSources "
-`initializeFixedSources()`  
+initializeFixedSources()  
 
 Populates array of fixed sources assigned by FSR.  
 ";
 
 %feature("docstring") CPUSolver::addSourceToScalarFlux "
-`addSourceToScalarFlux()`  
+addSourceToScalarFlux()  
 
 Add the source term contribution in the transport equation to the FSR scalar
 flux.  
 ";
 
 %feature("docstring") CPUSolver::getFluxes "
-`getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)`  
+getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)  
 
 Fills an array with the scalar fluxes.  
 
@@ -1425,21 +1383,21 @@ and would be called from within Python as follows:
 
 Parameters
 ----------
-* `fluxes` :  
+* fluxes :  
     an array of FSR scalar fluxes in each energy group  
-* `num_fluxes` :  
+* num_fluxes :  
     the total number of FSR flux values  
 ";
 
 %feature("docstring") CPUSolver::zeroTrackFluxes "
-`zeroTrackFluxes()`  
+zeroTrackFluxes()  
 
 Zero each Track's boundary fluxes for each energy group and polar angle in the
 \"forward\" and \"reverse\" directions.  
 ";
 
 %feature("docstring") CPUSolver::CPUSolver "
-`CPUSolver(TrackGenerator *track_generator=NULL)`  
+CPUSolver(TrackGenerator *track_generator=NULL)  
 
 Constructor initializes array pointers for Tracks and Materials.  
 
@@ -1449,30 +1407,30 @@ user. The constructor initalizes the number of OpenMP threads to a default of 1.
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     an optional pointer to the TrackGenerator  
 ";
 
 %feature("docstring") CPUSolver::normalizeFluxes "
-`normalizeFluxes()`  
+normalizeFluxes()  
 
 Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
 fission source (times $ \\nu $).  
 ";
 
 %feature("docstring") CPUSolver::setNumThreads "
-`setNumThreads(int num_threads)`  
+setNumThreads(int num_threads)  
 
 Sets the number of shared memory OpenMP threads to use (>0).  
 
 Parameters
 ----------
-* `num_threads` :  
+* num_threads :  
     the number of threads  
 ";
 
 %feature("docstring") CPUSolver::getNumThreads "
-`getNumThreads() -> int`  
+getNumThreads() -> int  
 
 Returns the number of shared memory OpenMP threads in use.  
 
@@ -1482,7 +1440,7 @@ the number of threads
 ";
 
 %feature("docstring") CPUSolver::initializeFSRs "
-`initializeFSRs()`  
+initializeFSRs()  
 
 Initializes the FSR volumes and Materials array.  
 
@@ -1491,13 +1449,13 @@ in the transport sweep algorithm.
 ";
 
 %feature("docstring") CPUSolver::computeResidual "
-`computeResidual(residualType res_type) -> double`  
+computeResidual(residualType res_type) -> double  
 
 Computes the residual between source/flux iterations.  
 
 Parameters
 ----------
-* `res_type` :  
+* res_type :  
     the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
 
 Returns
@@ -1506,7 +1464,7 @@ the average residual in each FSR
 ";
 
 %feature("docstring") CPUSolver::initializeSourceArrays "
-`initializeSourceArrays()`  
+initializeSourceArrays()  
 
 Allocates memory for FSR source arrays.  
 
@@ -1515,7 +1473,7 @@ simulation.
 ";
 
 %feature("docstring") CPUSolver::computeFSRSources "
-`computeFSRSources()`  
+computeFSRSources()  
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
@@ -1524,13 +1482,13 @@ current approximation to the scalar flux.
 ";
 
 %feature("docstring") CPUSolver::storeFSRFluxes "
-`storeFSRFluxes()`  
+storeFSRFluxes()  
 
 Stores the FSR scalar fluxes in the old scalar flux array.  
 ";
 
 %feature("docstring") CPUSolver::computeFSRFissionRates "
-`computeFSRFissionRates(double *fission_rates, int num_FSRs)`  
+computeFSRFissionRates(double *fission_rates, int num_FSRs)  
 
 Computes the volume-integrated, energy-integrated nu-fission rate in each FSR
 and stores them in an array indexed by FSR ID.  
@@ -1542,10 +1500,10 @@ follows:
 
 Parameters
 ----------
-* `fission_rates` :  
+* fission_rates :  
     an array to store the nu-fission rates (implicitly passed in as a NumPy
     array from Python)  
-* `num_FSRs` :  
+* num_FSRs :  
     the number of FSRs passed in from Python  
 ";
 
@@ -1553,52 +1511,45 @@ Parameters
 
 
 %feature("docstring") dev_material "
-`dev_material()`  
 
 A Material's nuclear data to be stored on a GPU.  
 
-Constructors
-------------
-* `dev_material()`  
-    
-    Constructor for a dev_material struct on a GPU.  
-
 Attributes
 ----------
-* `_id` : `int`  
+* _id : int  
     A user-defined ID for each Material created  
 
-* `_sigma_t` : `FP_PRECISION *`  
+* _sigma_t : FP_PRECISION *  
     An array of the total cross-sections for each energy group  
 
-* `_sigma_f` : `FP_PRECISION *`  
+* _sigma_f : FP_PRECISION *  
     A 2D array of the scattering cross-section matrix. The first index is row
     number and second index is column number  
 
-* `_nu_sigma_f` : `FP_PRECISION *`  
+* _nu_sigma_f : FP_PRECISION *  
     An array of the fission cross-sections multiplied by nu $ \\nu $ for each
     energy group  
 
-* `_chi` : `FP_PRECISION *`  
+* _chi : FP_PRECISION *  
     An array of the chi $ \\chi $ values for each energy group  
 
-* `_fiss_matrix` : `FP_PRECISION *`  
+* _fiss_matrix : FP_PRECISION *  
     A 2D array of the fission matrix from/into each group  
 
-* `_sigma_s` : `FP_PRECISION *`  
+* _sigma_s : FP_PRECISION *  
     A 2D array of the scattering cross-section matrix from/into each group  
 
 C++ includes: DeviceMaterial.h
 ";
 
 %feature("docstring") dev_material::dev_material "
-`dev_material()`  
+dev_material()  
 
 Constructor for a dev_material struct on a GPU.  
 ";
 
 %feature("docstring") dev_material::~dev_material "
-`~dev_material()`  
+~dev_material()  
 
 Destructor releases data for all Material's cross-sections on GPU.  
 ";
@@ -1615,13 +1566,13 @@ The dev_segment is intended for use on the GPU.
 
 Attributes
 ----------
-* `_length` : `FP_PRECISION`  
+* _length : FP_PRECISION  
     The length of the segment (cm)  
 
-* `_material_index` : `int`  
+* _material_index : int  
     An index into the _materials array that contains Material pointers  
 
-* `_region_uid` : `int`  
+* _region_uid : int  
     The ID for flat source region in which this segment resides  
 
 C++ includes: DeviceTrack.h
@@ -1639,41 +1590,41 @@ geometry and an azimuthal angle. The dev_track is intended for use on the GPU.
 
 Attributes
 ----------
-* `_uid` : `int`  
+* _uid : int  
     A monotonically increasing unique ID for each Track created  
 
-* `_azim_angle_index` : `int`  
+* _azim_angle_index : int  
     The azimuthal angle index into the global 2D ragged array of Tracks  
 
-* `_segments` : `dev_segment *`  
+* _segments : dev_segment *  
     A vector of segments making up this track  
 
-* `_num_segments` : `int`  
+* _num_segments : int  
     The number of segments making up this Track  
 
-* `_track_in` : `int`  
+* _track_in : int  
     Index of the next Track when traveling along this Track in the \"forward\"
     direction.  
 
-* `_track_out` : `int`  
+* _track_out : int  
     Index of the next Track when traveling along this Track in the \"reverse\"
     direction.  
 
-* `_next_in` : `bool`  
+* _next_in : bool  
     A boolean to indicate whether to give the flux to the \"forward\" (false) or
     \"reverse\" (true) direction of the next Track going in the \"forward\"
     direction.  
 
-* `_next_out` : `bool`  
+* _next_out : bool  
     A boolean to indicate whether to give the flux to the \"forward\" (false) or
     \"reverse\" (true) direction of the next Track going in the \"reverse\"
     direction.  
 
-* `_transfer_flux_in` : `bool`  
+* _transfer_flux_in : bool  
     A boolean to indicate whether the outgoing angular flux along this Track's
     \"forward\" direction should be transferred to the outgoing Track.  
 
-* `_transfer_flux_out` : `bool`  
+* _transfer_flux_out : bool  
     A boolean to indicate whether the outgoing angular flux along this Track's
     \"reverse\" direction should be transferred to the incoming Track.  
 
@@ -1684,27 +1635,20 @@ C++ includes: DeviceTrack.h
 
 
 %feature("docstring") EqualAnglesPolarQuad "
-`EqualAnglesPolarQuad()`  
 
 Equal angles polar quadrature.  
-
-Constructors
-------------
-* `EqualAnglesPolarQuad()`  
-    
-    Dummy constructor calls the parent constructor.  
 
 C++ includes: src/PolarQuad.h
 ";
 
 %feature("docstring") EqualAnglesPolarQuad::EqualAnglesPolarQuad "
-`EqualAnglesPolarQuad()`  
+EqualAnglesPolarQuad()  
 
 Dummy constructor calls the parent constructor.  
 ";
 
 %feature("docstring") EqualAnglesPolarQuad::initialize "
-`initialize()`  
+initialize()  
 
 Routine to initialize the polar quadrature.  
 
@@ -1712,13 +1656,13 @@ This routine generates the sine thetas and weights.
 ";
 
 %feature("docstring") EqualAnglesPolarQuad::setNumPolarAngles "
-`setNumPolarAngles(const int num_polar)`  
+setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
 
 Parameters
 ----------
-* `num_polar` :  
+* num_polar :  
     the number of polar angles  
 ";
 
@@ -1726,27 +1670,20 @@ Parameters
 
 
 %feature("docstring") EqualWeightsPolarQuad "
-`EqualWeightsPolarQuad()`  
 
 Equal weights polar quadrature.  
-
-Constructors
-------------
-* `EqualWeightsPolarQuad()`  
-    
-    Dummy constructor calls the parent constructor.  
 
 C++ includes: src/PolarQuad.h
 ";
 
 %feature("docstring") EqualWeightsPolarQuad::EqualWeightsPolarQuad "
-`EqualWeightsPolarQuad()`  
+EqualWeightsPolarQuad()  
 
 Dummy constructor calls the parent constructor.  
 ";
 
 %feature("docstring") EqualWeightsPolarQuad::initialize "
-`initialize()`  
+initialize()  
 
 Routine to initialize the polar quadrature.  
 
@@ -1754,13 +1691,13 @@ This routine generates the sine thetas and weights.
 ";
 
 %feature("docstring") EqualWeightsPolarQuad::setNumPolarAngles "
-`setNumPolarAngles(const int num_polar)`  
+setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
 
 Parameters
 ----------
-* `num_polar` :  
+* num_polar :  
     the number of polar angles  
 ";
 
@@ -1768,7 +1705,6 @@ Parameters
 
 
 %feature("docstring") ExpEvaluator "
-`ExpEvaluator()`  
 
 This is a class for evaluating exponentials.  
 
@@ -1776,42 +1712,33 @@ The ExpEvaluator includes different algorithms to evaluate exponentials with
 varying degrees of accuracy and speed. This is a helper class for the Solver and
 its subclasses and it not intended to be initialized as a standalone object.  
 
-Constructors
-------------
-* `ExpEvaluator()`  
-    
-    Constructor initializes array pointers to NULL.  
-
-    The constructor sets the interpolation scheme as the default for computing
-    exponentials.  
-
 C++ includes: src/ExpEvaluator.h
 ";
 
 %feature("docstring") ExpEvaluator::getTableSize "
-`getTableSize() -> int`  
+getTableSize() -> int  
 
 Get the number of entries in the exponential interpolation table.  
 
 Parameters
 ----------
-* `entries` :  
+* entries :  
     in the interpolation table  
 ";
 
 %feature("docstring") ExpEvaluator::setPolarQuadrature "
-`setPolarQuadrature(PolarQuad *polar_quad)`  
+setPolarQuadrature(PolarQuad *polar_quad)  
 
 Set the PolarQuad to use when computing exponentials.  
 
 Parameters
 ----------
-* `polar_quad` :  
+* polar_quad :  
     a PolarQuad object pointer  
 ";
 
 %feature("docstring") ExpEvaluator::getTableSpacing "
-`getTableSpacing() -> FP_PRECISION`  
+getTableSpacing() -> FP_PRECISION  
 
 Returns the exponential table spacing.  
 
@@ -1821,7 +1748,7 @@ exponential table spacing
 ";
 
 %feature("docstring") ExpEvaluator::setExpPrecision "
-`setExpPrecision(FP_PRECISION exp_precision)`  
+setExpPrecision(FP_PRECISION exp_precision)  
 
 Sets the maximum acceptable approximation error for exponentials.  
 
@@ -1831,29 +1758,29 @@ recommended by the analysis of Yamamoto in his 2004 paper on the subject.
 
 Parameters
 ----------
-* `exp_precision` :  
+* exp_precision :  
     the maximum exponential approximation error  
 ";
 
 %feature("docstring") ExpEvaluator::setMaxOpticalLength "
-`setMaxOpticalLength(FP_PRECISION max_optical_length)`  
+setMaxOpticalLength(FP_PRECISION max_optical_length)  
 
 Sets the maximum optical length covered in the exponential interpolation table.  
 
 Parameters
 ----------
-* `max_optical_length` :  
+* max_optical_length :  
     the maximum optical length  
 ";
 
 %feature("docstring") ExpEvaluator::useIntrinsic "
-`useIntrinsic()`  
+useIntrinsic()  
 
 Use the exponential intrinsic exp(...) to compute exponentials.  
 ";
 
 %feature("docstring") ExpEvaluator::isUsingInterpolation "
-`isUsingInterpolation() -> bool`  
+isUsingInterpolation() -> bool  
 
 Returns true if using linear interpolation to compute exponentials.  
 
@@ -1863,7 +1790,7 @@ true if so, false otherwise
 ";
 
 %feature("docstring") ExpEvaluator::getExpTable "
-`getExpTable() -> FP_PRECISION *`  
+getExpTable() -> FP_PRECISION *  
 
 Returns a pointer to the exponential interpolation table.  
 
@@ -1873,13 +1800,13 @@ pointer to the exponential interpolation table
 ";
 
 %feature("docstring") ExpEvaluator::useInterpolation "
-`useInterpolation()`  
+useInterpolation()  
 
 Use linear interpolation to compute exponentials.  
 ";
 
 %feature("docstring") ExpEvaluator::getExpPrecision "
-`getExpPrecision() -> FP_PRECISION`  
+getExpPrecision() -> FP_PRECISION  
 
 Gets the maximum acceptable approximation error for exponentials.  
 
@@ -1889,7 +1816,7 @@ the maximum exponential approximation error
 ";
 
 %feature("docstring") ExpEvaluator::getMaxOpticalLength "
-`getMaxOpticalLength() -> FP_PRECISION`  
+getMaxOpticalLength() -> FP_PRECISION  
 
 Gets the maximum optical length covered with the exponential interpolation
 table.  
@@ -1900,7 +1827,7 @@ max_optical_length the maximum optical length
 ";
 
 %feature("docstring") ExpEvaluator::ExpEvaluator "
-`ExpEvaluator()`  
+ExpEvaluator()  
 
 Constructor initializes array pointers to NULL.  
 
@@ -1909,7 +1836,7 @@ exponentials.
 ";
 
 %feature("docstring") ExpEvaluator::computeExponential "
-`computeExponential(FP_PRECISION tau, int polar) -> FP_PRECISION`  
+computeExponential(FP_PRECISION tau, int polar) -> FP_PRECISION  
 
 Computes the exponential term for a optical length and polar angle.  
 
@@ -1919,9 +1846,9 @@ length and polar angle. This method uses either a linear interpolation table
 
 Parameters
 ----------
-* `tau` :  
+* tau :  
     the optical path length (e.g., sigma_t times length)  
-* `polar` :  
+* polar :  
     the polar angle index  
 
 Returns
@@ -1930,18 +1857,18 @@ the evaluated exponential
 ";
 
 %feature("docstring") ExpEvaluator::initialize "
-`initialize()`  
+initialize()  
 
 If using linear interpolation, builds the table for each polar angle.  
 
 Parameters
 ----------
-* `tolerance` :  
+* tolerance :  
     the minimum acceptable interpolation accuracy  
 ";
 
 %feature("docstring") ExpEvaluator::~ExpEvaluator "
-`~ExpEvaluator()`  
+~ExpEvaluator()  
 
 Destructor deletes table for linear interpolation of exponentials.  
 ";
@@ -1965,13 +1892,13 @@ C++ includes: src/ParallelHashMap.h
 ";
 
 %feature("docstring") FixedHashMap::clear "
-`clear()`  
+clear()  
 
 Clears all key/value pairs form the hash table.  
 ";
 
 %feature("docstring") FixedHashMap::keys "
-`keys() -> K *`  
+keys() -> K *  
 
 Returns an array of the keys in the fixed-size table.  
 
@@ -1986,7 +1913,7 @@ table.
 ";
 
 %feature("docstring") FixedHashMap::bucket_count "
-`bucket_count() -> size_t`  
+bucket_count() -> size_t  
 
 Returns the number of buckets in the fixed-size table.  
 
@@ -1996,7 +1923,7 @@ number of buckets in the map
 ";
 
 %feature("docstring") FixedHashMap::values "
-`values() -> V *`  
+values() -> V *  
 
 Returns an array of the values in the fixed-size table.  
 
@@ -2011,7 +1938,7 @@ the table.
 ";
 
 %feature("docstring") FixedHashMap::at "
-`at(K key) -> V &`  
+at(K key) -> V &  
 
 Determine the value associated with a given key in the fixed-size table.  
 
@@ -2021,7 +1948,7 @@ key is not present in the map.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key whose corresponding value is desired  
 
 Returns
@@ -2030,7 +1957,7 @@ value associated with the given key
 ";
 
 %feature("docstring") FixedHashMap::size "
-`size() -> size_t`  
+size() -> size_t  
 
 Returns the number of key/value pairs in the fixed-size table.  
 
@@ -2040,7 +1967,7 @@ number of key/value pairs in the map
 ";
 
 %feature("docstring") FixedHashMap::insert_and_get_count "
-`insert_and_get_count(K key, V value) -> int`  
+insert_and_get_count(K key, V value) -> int  
 
 Inserts a key/value pair into the fixed-size table and returns the order number
 with which it was inserted.  
@@ -2051,9 +1978,9 @@ already exists in the table, the pair is not inserted and the function returns
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key of the key/value pair to be inserted  
-* `value` :  
+* value :  
     value of the key/value pair to be inserted  
 
 Returns
@@ -2063,7 +1990,7 @@ already present in map.
 ";
 
 %feature("docstring") FixedHashMap::insert "
-`insert(K key, V value)`  
+insert(K key, V value)  
 
 Inserts a key/value pair into the fixed-size table.  
 
@@ -2072,21 +1999,21 @@ already exists in the table, the pair is not inserted and the function returns.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key of the key/value pair to be inserted  
-* `value` :  
+* value :  
     value of the key/value pair to be inserted  
 ";
 
 %feature("docstring") FixedHashMap::~FixedHashMap "
-`~FixedHashMap()`  
+~FixedHashMap()  
 
 Destructor deletes all nodes in the linked lists associated with each bucket in
 the fixed-size table and their pointers.  
 ";
 
 %feature("docstring") FixedHashMap::print_buckets "
-`print_buckets()`  
+print_buckets()  
 
 Prints the contents of each bucket to the screen.  
 
@@ -2096,7 +2023,7 @@ is empty, NULL is printed to the screen.
 ";
 
 %feature("docstring") FixedHashMap::contains "
-`contains(K key) -> bool`  
+contains(K key) -> bool  
 
 Determine whether the fixed-size table contains a given key.  
 
@@ -2105,7 +2032,7 @@ whether the key is present.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key to be searched  
 
 Returns
@@ -2114,7 +2041,7 @@ boolean value referring to whether the key is contained in the map
 ";
 
 %feature("docstring") FixedHashMap::FixedHashMap "
-`FixedHashMap(size_t M=64)`  
+FixedHashMap(size_t M=64)  
 
 Constructor initializes fixed-size table of buckets filled with empty linked
 lists.  
@@ -2125,7 +2052,7 @@ with empty linked lists presented as NULL pointers.
 
 Parameters
 ----------
-* `M` :  
+* M :  
     size of fixed hash map  
 ";
 
@@ -2133,46 +2060,39 @@ Parameters
 
 
 %feature("docstring") fsr_data "
-`fsr_data()`  
 
 A fsr_data struct represents an FSR with a unique FSR ID and a characteristic
 point that lies within the FSR that can be used to recompute the hierarchical
 LocalCoords linked list.  
 
-Constructors
-------------
-* `fsr_data()`  
-    
-    Constructor for FSR data initializes centroids and points to NULL  
-
 Attributes
 ----------
-* `_fsr_id` : `int`  
+* _fsr_id : int  
     The FSR ID  
 
-* `_cmfd_cell` : `int`  
+* _cmfd_cell : int  
     The CMFD Cell  
 
-* `_mat_id` : `int`  
+* _mat_id : int  
     The Material ID  
 
-* `_point` : `Point *`  
+* _point : Point *  
     Characteristic point in Root Universe that lies in FSR  
 
-* `_centroid` : `Point *`  
+* _centroid : Point *  
     Global numerical centroid in Root Universe  
 
 C++ includes: Geometry.h
 ";
 
 %feature("docstring") fsr_data::~fsr_data "
-`~fsr_data()`  
+~fsr_data()  
 
 Destructor for fsr_data  
 ";
 
 %feature("docstring") fsr_data::fsr_data "
-`fsr_data()`  
+fsr_data()  
 
 Constructor for FSR data initializes centroids and points to NULL  
 ";
@@ -2181,7 +2101,6 @@ Constructor for FSR data initializes centroids and points to NULL
 
 
 %feature("docstring") Geometry "
-`Geometry()`  
 
 The master class containing references to all geometry-related objects -
 Surfaces, Cells, Universes and Lattices - and Materials.  
@@ -2190,17 +2109,11 @@ The primary purpose for the geometry is to serve as a collection of all
 geometry-related objects, as well as for ray tracing of characteristic tracks
 across the Geometry and computing FSR-to-cell offset maps.  
 
-Constructors
-------------
-* `Geometry()`  
-    
-    Constructor initializes an empty Geometry.  
-
 C++ includes: src/Geometry.h
 ";
 
 %feature("docstring") Geometry::getAllUniverses "
-`getAllUniverses() -> std::map< int, Universe * >`  
+getAllUniverses() -> std::map< int, Universe * >  
 
 Return a std::map container of Universe IDs (keys) with Unierses pointers
 (values).  
@@ -2211,7 +2124,7 @@ a std::map of Universes indexed by Universe ID in the geometry
 ";
 
 %feature("docstring") Geometry::initializeFSRVectors "
-`initializeFSRVectors()`  
+initializeFSRVectors()  
 
 Initialize key and material ID vectors for lookup by FSR ID  This function
 initializes and sets reverse lookup vectors by FSR ID. This is called after the
@@ -2221,18 +2134,18 @@ called if tracks are loaded from a file.
 ";
 
 %feature("docstring") Geometry::findCellContainingFSR "
-`findCellContainingFSR(int fsr_id) -> Cell *`  
+findCellContainingFSR(int fsr_id) -> Cell *  
 
 Finds the Cell containing a given fsr ID.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     an FSR ID.  
 ";
 
 %feature("docstring") Geometry::getAllMaterialCells "
-`getAllMaterialCells() -> std::map< int, Cell * >`  
+getAllMaterialCells() -> std::map< int, Cell * >  
 
 Return a std::map container of Cell IDs (keys) with Cells pointers (values).  
 
@@ -2242,7 +2155,7 @@ a std::map of Cells indexed by Cell ID in the geometry
 ";
 
 %feature("docstring") Geometry::getMaxZ "
-`getMaxZ() -> double`  
+getMaxZ() -> double  
 
 Return the maximum z-coordinate contained by the Geometry.  
 
@@ -2252,7 +2165,7 @@ the maximum z-coordinate (cm)
 ";
 
 %feature("docstring") Geometry::getMaxY "
-`getMaxY() -> double`  
+getMaxY() -> double  
 
 Return the maximum y-coordinate contained by the Geometry.  
 
@@ -2262,7 +2175,7 @@ the maximum y-coordinate (cm)
 ";
 
 %feature("docstring") Geometry::getMaxX "
-`getMaxX() -> double`  
+getMaxX() -> double  
 
 Return the maximum x-coordinate contained by the Geometry.  
 
@@ -2272,7 +2185,7 @@ the maximum x-coordinate (cm)
 ";
 
 %feature("docstring") Geometry::initializeFSRs "
-`initializeFSRs(bool neighbor_cells=false)`  
+initializeFSRs(bool neighbor_cells=false)  
 
 Compute the number of flat source regions in the Geometry and initialize CMFD.  
 
@@ -2283,7 +2196,7 @@ neighbor_cells whether to use neighbor cell optimizations
 ";
 
 %feature("docstring") Geometry::segmentize "
-`segmentize(Track *track)`  
+segmentize(Track *track)  
 
 This method performs ray tracing to create Track segments within each flat
 source region in the Geometry.  
@@ -2294,12 +2207,12 @@ structs and adds them to the Track.
 
 Parameters
 ----------
-* `track` :  
+* track :  
     a pointer to a track to segmentize  
 ";
 
 %feature("docstring") Geometry::getFSRsToKeys "
-`getFSRsToKeys() -> std::vector< std::string > &`  
+getFSRsToKeys() -> std::vector< std::string > &  
 
 Returns the vector that maps FSR IDs to FSR key hashes.  
 
@@ -2309,25 +2222,25 @@ _FSR_keys_map map of FSR keys to FSR IDs
 ";
 
 %feature("docstring") Geometry::setCmfd "
-`setCmfd(Cmfd *cmfd)`  
+setCmfd(Cmfd *cmfd)  
 
 Sets the pointer to a CMFD object used for acceleration.  
 
 Parameters
 ----------
-* `cmfd` :  
+* cmfd :  
     a pointer to the CMFD object  
 ";
 
 %feature("docstring") Geometry::getFSRId "
-`getFSRId(LocalCoords *coords) -> int`  
+getFSRId(LocalCoords *coords) -> int  
 
 Return the ID of the flat source region that a given LocalCoords object resides
 within.  
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a LocalCoords object pointer  
 
 Returns
@@ -2336,13 +2249,13 @@ the FSR ID for a given LocalCoords object
 ";
 
 %feature("docstring") Geometry::getFSRCentroid "
-`getFSRCentroid(int fsr_id) -> Point *`  
+getFSRCentroid(int fsr_id) -> Point *  
 
 Return the centroid for a given FSR ID.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the FSR ID  
 
 Returns
@@ -2351,7 +2264,7 @@ the FSR's centroid
 ";
 
 %feature("docstring") Geometry::getFSRKeysMap "
-`getFSRKeysMap() -> ParallelHashMap< std::string, fsr_data * > &`  
+getFSRKeysMap() -> ParallelHashMap< std::string, fsr_data * > &  
 
 Returns a pointer to the map that maps FSR keys to FSR IDs.  
 
@@ -2361,7 +2274,7 @@ pointer to _FSR_keys_map map of FSR keys to FSR IDs
 ";
 
 %feature("docstring") Geometry::getMinY "
-`getMinY() -> double`  
+getMinY() -> double  
 
 Return the minimum y-coordinate contained by the Geometry.  
 
@@ -2371,7 +2284,7 @@ the minimum y-coordinate (cm)
 ";
 
 %feature("docstring") Geometry::getMinX "
-`getMinX() -> double`  
+getMinX() -> double  
 
 Return the minimum x-coordinate contained by the Geometry.  
 
@@ -2381,7 +2294,7 @@ the minimum x-coordinate (cm)
 ";
 
 %feature("docstring") Geometry::getMinZ "
-`getMinZ() -> double`  
+getMinZ() -> double  
 
 Return the minimum z-coordinate contained by the Geometry.  
 
@@ -2391,7 +2304,7 @@ the minimum z-coordinate (cm)
 ";
 
 %feature("docstring") Geometry::getMaxYBoundaryType "
-`getMaxYBoundaryType() -> boundaryType`  
+getMaxYBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (REFLECTIVE or VACUUM) at the maximum
 y-coordinate in the Geometry.  
@@ -2402,7 +2315,7 @@ the boundary conditions for the maximum y-coordinate in the Geometry
 ";
 
 %feature("docstring") Geometry::getAllCells "
-`getAllCells() -> std::map< int, Cell * >`  
+getAllCells() -> std::map< int, Cell * >  
 
 Return a std::map container of Cell IDs (keys) with Cells pointers (values).  
 
@@ -2412,7 +2325,7 @@ a std::map of Cells indexed by Cell ID in the geometry
 ";
 
 %feature("docstring") Geometry::getNumCells "
-`getNumCells() -> int`  
+getNumCells() -> int  
 
 Returns the number of Cells in the Geometry.  
 
@@ -2422,7 +2335,7 @@ the number of Cells
 ";
 
 %feature("docstring") Geometry::getFSRKey "
-`getFSRKey(LocalCoords *coords) -> std::string`  
+getFSRKey(LocalCoords *coords) -> std::string  
 
 Generate a string FSR \"key\" that identifies an FSR by its unique hierarchical
 lattice/universe/cell structure.  
@@ -2434,7 +2347,7 @@ structured string that describes the hierarchy of lattices/universes/cells.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a LocalCoords object pointer  
 
 Returns
@@ -2443,7 +2356,7 @@ the FSR key
 ";
 
 %feature("docstring") Geometry::subdivideCells "
-`subdivideCells()`  
+subdivideCells()  
 
 Subdivides all Cells in the Geometry into rings and angular sectors aligned with
 the z-axis.  
@@ -2455,7 +2368,7 @@ called by the user in Python if needed:
 ";
 
 %feature("docstring") Geometry::getRootUniverse "
-`getRootUniverse() -> Universe *`  
+getRootUniverse() -> Universe *  
 
 Returns the Universe at the root node in the CSG tree.  
 
@@ -2465,18 +2378,18 @@ the root Universe
 ";
 
 %feature("docstring") Geometry::setRootUniverse "
-`setRootUniverse(Universe *root_universe)`  
+setRootUniverse(Universe *root_universe)  
 
 Sets the root Universe for the CSG tree.  
 
 Parameters
 ----------
-* `root_universe` :  
+* root_universe :  
     the root Universe of the CSG tree.  
 ";
 
 %feature("docstring") Geometry::computeFissionability "
-`computeFissionability(Universe *univ=NULL)`  
+computeFissionability(Universe *univ=NULL)  
 
 Determines the fissionability of each Universe within this Geometry.  
 
@@ -2489,12 +2402,12 @@ ensure that the recursion starts from the uppermost Universe level:
 
 Parameters
 ----------
-* `univ` :  
+* univ :  
     the Universe of interest (default is NULL)  
 ";
 
 %feature("docstring") Geometry::getNumEnergyGroups "
-`getNumEnergyGroups() -> int`  
+getNumEnergyGroups() -> int  
 
 Returns the number of energy groups for each Material's nuclear data.  
 
@@ -2504,13 +2417,13 @@ the number of energy groups
 ";
 
 %feature("docstring") Geometry::Geometry "
-`Geometry()`  
+Geometry()  
 
 Constructor initializes an empty Geometry.  
 ";
 
 %feature("docstring") Geometry::findCellContainingCoords "
-`findCellContainingCoords(LocalCoords *coords) -> Cell *`  
+findCellContainingCoords(LocalCoords *coords) -> Cell *  
 
 Find the Cell that this LocalCoords object is in at the lowest level of the
 nested Universe hierarchy.  
@@ -2527,7 +2440,7 @@ found by the recursive Geometry::findCell(...) method.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     pointer to a LocalCoords object  
 
 Returns
@@ -2536,7 +2449,7 @@ returns a pointer to a Cell if found, NULL if no Cell found
 ";
 
 %feature("docstring") Geometry::getWidthZ "
-`getWidthZ() -> double`  
+getWidthZ() -> double  
 
 Returns the total width in the z-direction of the Geometry in cm.  
 
@@ -2546,7 +2459,7 @@ the total width of the Geometry in the z-direction (cm)
 ";
 
 %feature("docstring") Geometry::getWidthY "
-`getWidthY() -> double`  
+getWidthY() -> double  
 
 Returns the total width in the y-direction of the Geometry in cm.  
 
@@ -2556,7 +2469,7 @@ the total width of the Geometry in the y-direction (cm)
 ";
 
 %feature("docstring") Geometry::getWidthX "
-`getWidthX() -> double`  
+getWidthX() -> double  
 
 Returns the total width in the x-direction of the Geometry in cm.  
 
@@ -2566,13 +2479,13 @@ the total width of the Geometry in the x-direction (cm)
 ";
 
 %feature("docstring") Geometry::findFSRMaterial "
-`findFSRMaterial(int fsr_id) -> Material *`  
+findFSRMaterial(int fsr_id) -> Material *  
 
 Find the Material for a flat source region ID.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     a FSR id  
 
 Returns
@@ -2581,7 +2494,7 @@ a pointer to the Material that this FSR is in
 ";
 
 %feature("docstring") Geometry::printString "
-`printString()`  
+printString()  
 
 Prints a string representation of all of the Geometry's attributes to the
 console.  
@@ -2591,7 +2504,7 @@ Universes and Lattices contained by the Geometry.
 ";
 
 %feature("docstring") Geometry::getNumFSRs "
-`getNumFSRs() -> int`  
+getNumFSRs() -> int  
 
 Returns the number of flat source regions in the Geometry.  
 
@@ -2601,14 +2514,14 @@ number of FSRs
 ";
 
 %feature("docstring") Geometry::findFSRId "
-`findFSRId(LocalCoords *coords) -> int`  
+findFSRId(LocalCoords *coords) -> int  
 
 Find and return the ID of the flat source region that a given LocalCoords object
 resides within.  
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a LocalCoords object pointer  
 
 Returns
@@ -2617,7 +2530,7 @@ the FSR ID for a given LocalCoords object
 ";
 
 %feature("docstring") Geometry::getCmfd "
-`getCmfd() -> Cmfd *`  
+getCmfd() -> Cmfd *  
 
 Returns a pointer to the CMFD object.  
 
@@ -2627,13 +2540,13 @@ A pointer to the CMFD object
 ";
 
 %feature("docstring") Geometry::withinBounds "
-`withinBounds(LocalCoords *coords) -> bool`  
+withinBounds(LocalCoords *coords) -> bool  
 
 Determins whether a point is within the bounding box of the geometry.  
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a populated LocalCoords linked list  
 
 Returns
@@ -2642,7 +2555,7 @@ boolean indicating whether the coords is within the geometry
 ";
 
 %feature("docstring") Geometry::getMaxXBoundaryType "
-`getMaxXBoundaryType() -> boundaryType`  
+getMaxXBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (REFLECTIVE or VACUUM) at the maximum
 x-coordinate in the Geometry.  
@@ -2653,7 +2566,7 @@ the boundary conditions for the maximum z-coordinate in the Geometry
 ";
 
 %feature("docstring") Geometry::getMinYBoundaryType "
-`getMinYBoundaryType() -> boundaryType`  
+getMinYBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (REFLECTIVE or VACUUM) at the minimum
 y-coordinate in the Geometry.  
@@ -2664,7 +2577,7 @@ the boundary conditions for the minimum y-coordinate in the Geometry
 ";
 
 %feature("docstring") Geometry::getAllMaterials "
-`getAllMaterials() -> std::map< int, Material * >`  
+getAllMaterials() -> std::map< int, Material * >  
 
 Return a std::map container of Material IDs (keys) with Materials pointers
 (values).  
@@ -2675,7 +2588,7 @@ a std::map of Materials indexed by Material ID in the geometry
 ";
 
 %feature("docstring") Geometry::getAllSurfaces "
-`getAllSurfaces() -> std::map< int, Surface * >`  
+getAllSurfaces() -> std::map< int, Surface * >  
 
 Return a std::map container of Surface IDs (keys) with Surfaces pointers
 (values).  
@@ -2686,7 +2599,7 @@ a std::map of Surfaces indexed by Surface ID in the geometry
 ";
 
 %feature("docstring") Geometry::getMinXBoundaryType "
-`getMinXBoundaryType() -> boundaryType`  
+getMinXBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (REFLECTIVE or VACUUM) at the minimum
 x-coordinate in the Geometry.  
@@ -2697,13 +2610,13 @@ the boundary conditions for the minimum x-coordinate in the Geometry
 ";
 
 %feature("docstring") Geometry::getFSRPoint "
-`getFSRPoint(int fsr_id) -> Point *`  
+getFSRPoint(int fsr_id) -> Point *  
 
 Return the characteristic point for a given FSR ID.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the FSR ID  
 
 Returns
@@ -2712,13 +2625,13 @@ the FSR's characteristic point
 ";
 
 %feature("docstring") Geometry::initializeCmfd "
-`initializeCmfd()`  
+initializeCmfd()  
 
 This is a method that initializes the CMFD Lattice and sets CMFD parameters.  
 ";
 
 %feature("docstring") Geometry::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this Geometry's attributes to a character array.  
 
@@ -2739,7 +2652,7 @@ Add string data for all Universes
 ";
 
 %feature("docstring") Geometry::getNumMaterials "
-`getNumMaterials() -> int`  
+getNumMaterials() -> int  
 
 Returns the number of Materials in the Geometry.  
 
@@ -2749,7 +2662,7 @@ the number of Materials
 ";
 
 %feature("docstring") Geometry::setFSRCentroid "
-`setFSRCentroid(int fsr, Point *centroid)`  
+setFSRCentroid(int fsr, Point *centroid)  
 
 Sets the centroid for an FSR.  
 
@@ -2763,14 +2676,14 @@ and should not be explicitly called by the user.
 
 Parameters
 ----------
-* `fsr` :  
+* fsr :  
     a FSR ID  
-* `centroid` :  
+* centroid :  
     a Point representing the FSR centroid  
 ";
 
 %feature("docstring") Geometry::~Geometry "
-`~Geometry()`  
+~Geometry()  
 
 Destructor clears FSR to Cells and Materials maps.  
 ";
@@ -2779,38 +2692,31 @@ Destructor clears FSR to Cells and Materials maps.
 
 
 %feature("docstring") GLPolarQuad "
-`GLPolarQuad()`  
 
 Gauss-Legendre's polar quadrature.  
-
-Constructors
-------------
-* `GLPolarQuad()`  
-    
-    Dummy constructor calls the parent constructor.  
 
 C++ includes: src/PolarQuad.h
 ";
 
 %feature("docstring") GLPolarQuad::GLPolarQuad "
-`GLPolarQuad()`  
+GLPolarQuad()  
 
 Dummy constructor calls the parent constructor.  
 ";
 
 %feature("docstring") GLPolarQuad::setNumPolarAngles "
-`setNumPolarAngles(const int num_polar)`  
+setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
 
 Parameters
 ----------
-* `num_polar` :  
+* num_polar :  
     the number of polar angles (maximum 6)  
 ";
 
 %feature("docstring") GLPolarQuad::initialize "
-`initialize()`  
+initialize()  
 
 Routine to initialize the polar quadrature.  
 
@@ -2831,14 +2737,14 @@ its subclasses and it not intended to be initialized as a standalone object.
 
 Attributes
 ----------
-* `_exp_table` : `FP_PRECISION *`  
+* _exp_table : FP_PRECISION *  
     The exponential linear interpolation table  
 
 C++ includes: src/accel/cuda/ExpEvaluator.h
 ";
 
 %feature("docstring") GPUExpEvaluator::computeExponential "
-`computeExponential(FP_PRECISION tau, int polar) -> __device__ FP_PRECISION`  
+computeExponential(FP_PRECISION tau, int polar) -> __device__ FP_PRECISION  
 
 Computes the exponential term for a optical length and polar angle.  
 
@@ -2848,9 +2754,9 @@ length and polar angle. This method uses either a linear interpolation table
 
 Parameters
 ----------
-* `tau` :  
+* tau :  
     the optical path length (e.g., sigma_t times length)  
-* `polar` :  
+* polar :  
     the polar angle index  
 
 Returns
@@ -2862,31 +2768,17 @@ the evaluated exponential
 
 
 %feature("docstring") GPUSolver "
-`GPUSolver(TrackGenerator *track_generator=NULL)`  
 
 This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs).  
 
 The source code for this class includes C++ coupled with compute intensive CUDA
 kernels for execution on the GPU.  
 
-Constructors
-------------
-* `GPUSolver(TrackGenerator *track_generator=NULL)`  
-    
-    Constructor initializes arrays for dev_tracks and dev_materials..  
-
-    The constructor initalizes the number of CUDA threads and thread blocks each
-    to a default of 64.  
-
-    Parameters:  
-    * `track_generator` :  
-        an optional pointer to the TrackjGenerator  
-
 C++ includes: openmoc/src/dev/gpu/GPUSolver.h
 ";
 
 %feature("docstring") GPUSolver::initializeFSRs "
-`initializeFSRs()`  
+initializeFSRs()  
 
 Initializes the FSR volumes and dev_materials array on the GPU.  
 
@@ -2896,14 +2788,14 @@ all of the segments inside the FSR.
 ";
 
 %feature("docstring") GPUSolver::zeroTrackFluxes "
-`zeroTrackFluxes()`  
+zeroTrackFluxes()  
 
 Zero each Track's boundary fluxes for each energy group and polar angle in the
 \"forward\" and \"reverse\" directions.  
 ";
 
 %feature("docstring") GPUSolver::normalizeFluxes "
-`normalizeFluxes()`  
+normalizeFluxes()  
 
 Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
 fission source (times $ \\nu $).  
@@ -2912,7 +2804,7 @@ Create Thrust vector of fission sources in each FSR
 ";
 
 %feature("docstring") GPUSolver::getNumThreadsPerBlock "
-`getNumThreadsPerBlock() -> int`  
+getNumThreadsPerBlock() -> int  
 
 Returns the number of threads per block to execute on the GPU.  
 
@@ -2922,13 +2814,13 @@ the number of threads per block
 ";
 
 %feature("docstring") GPUSolver::computeResidual "
-`computeResidual(residualType res_type) -> double`  
+computeResidual(residualType res_type) -> double  
 
 Computes the residual between source/flux iterations.  
 
 Parameters
 ----------
-* `res_type` :  
+* res_type :  
     the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
 
 Returns
@@ -2937,42 +2829,42 @@ the average residual in each flat source region
 ";
 
 %feature("docstring") GPUSolver::setNumThreadsPerBlock "
-`setNumThreadsPerBlock(int num_threads)`  
+setNumThreadsPerBlock(int num_threads)  
 
 Sets the number of threads per block (>0) for CUDA kernels.  
 
 Parameters
 ----------
-* `num_threads` :  
+* num_threads :  
     the number of threads per block  
 ";
 
 %feature("docstring") GPUSolver::initializePolarQuadrature "
-`initializePolarQuadrature()`  
+initializePolarQuadrature()  
 
 Creates a polar quadrature object for the GPUSolver on the GPU.  
 ";
 
 %feature("docstring") GPUSolver::~GPUSolver "
-`~GPUSolver()`  
+~GPUSolver()  
 
 Solver destructor frees all memory on the device, including arrays for the FSR
 scalar fluxes and sources and Track boundary fluxes.  
 ";
 
 %feature("docstring") GPUSolver::setNumThreadBlocks "
-`setNumThreadBlocks(int num_blocks)`  
+setNumThreadBlocks(int num_blocks)  
 
 Sets the number of thread blocks (>0) for CUDA kernels.  
 
 Parameters
 ----------
-* `num_blocks` :  
+* num_blocks :  
     the number of thread blocks  
 ";
 
 %feature("docstring") GPUSolver::getNumThreadBlocks "
-`getNumThreadBlocks() -> int`  
+getNumThreadBlocks() -> int  
 
 Returns the number of thread blocks to execute on the GPU.  
 
@@ -2982,26 +2874,26 @@ the number of thread blocks
 ";
 
 %feature("docstring") GPUSolver::addSourceToScalarFlux "
-`addSourceToScalarFlux()`  
+addSourceToScalarFlux()  
 
 Add the source term contribution in the transport equation to the FSR scalar
 flux.  
 ";
 
 %feature("docstring") GPUSolver::initializeTracks "
-`initializeTracks()`  
+initializeTracks()  
 
 Allocates memory for all Tracks on the GPU.  
 ";
 
 %feature("docstring") GPUSolver::storeFSRFluxes "
-`storeFSRFluxes()`  
+storeFSRFluxes()  
 
 Stores the FSR scalar fluxes in the old scalar flux array.  
 ";
 
 %feature("docstring") GPUSolver::getFSRSource "
-`getFSRSource(int fsr_id, int group) -> FP_PRECISION`  
+getFSRSource(int fsr_id, int group) -> FP_PRECISION  
 
 Returns the source for some energy group for a flat source region.  
 
@@ -3009,9 +2901,9 @@ This is a helper routine used by the openmoc.process module.
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the ID for the FSR of interest  
-* `group` :  
+* group :  
     the energy group of interest  
 
 Returns
@@ -3020,7 +2912,7 @@ the flat source region source
 ";
 
 %feature("docstring") GPUSolver::initializeMaterials "
-`initializeMaterials(solverMode mode=ADJOINT)`  
+initializeMaterials(solverMode mode=ADJOINT)  
 
 Allocates all Materials data on the GPU.  
 
@@ -3032,12 +2924,12 @@ Material ID associated with every segment to an index in the materials array.
 
 Parameters
 ----------
-* `mode` :  
+* mode :  
     the solution type (FORWARD or ADJOINT)  
 ";
 
 %feature("docstring") GPUSolver::GPUSolver "
-`GPUSolver(TrackGenerator *track_generator=NULL)`  
+GPUSolver(TrackGenerator *track_generator=NULL)  
 
 Constructor initializes arrays for dev_tracks and dev_materials..  
 
@@ -3046,20 +2938,20 @@ a default of 64.
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     an optional pointer to the TrackjGenerator  
 ";
 
 %feature("docstring") GPUSolver::getFlux "
-`getFlux(int fsr_id, int group) -> FP_PRECISION`  
+getFlux(int fsr_id, int group) -> FP_PRECISION  
 
 Returns the scalar flux for some FSR and energy group.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the ID for the FSR of interest  
-* `group` :  
+* group :  
     the energy group of interest  
 
 Returns
@@ -3068,7 +2960,7 @@ the FSR scalar flux
 ";
 
 %feature("docstring") GPUSolver::computeFSRFissionSources "
-`computeFSRFissionSources()`  
+computeFSRFissionSources()  
 
 Computes the fission source in each FSR.  
 
@@ -3077,7 +2969,7 @@ current approximation to the scalar flux.
 ";
 
 %feature("docstring") GPUSolver::computeKeff "
-`computeKeff()`  
+computeKeff()  
 
 Compute $ k_{eff} $ from successive fission sources.  
 
@@ -3089,7 +2981,7 @@ this iteration as follows: $ k_{eff} = \\frac{\\displaystyle\\sum_{i \\in I}
 ";
 
 %feature("docstring") GPUSolver::transportSweep "
-`transportSweep()`  
+transportSweep()  
 
 This method performs one transport sweep of all azimuthal angles, Tracks, Track
 segments, polar angles and energy groups.  
@@ -3100,7 +2992,7 @@ source region.
 ";
 
 %feature("docstring") GPUSolver::computeFSRSources "
-`computeFSRSources()`  
+computeFSRSources()  
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
@@ -3109,19 +3001,19 @@ current approximation to the scalar flux.
 ";
 
 %feature("docstring") GPUSolver::initializeFixedSources "
-`initializeFixedSources()`  
+initializeFixedSources()  
 
 Populates array of fixed sources assigned by FSR.  
 ";
 
 %feature("docstring") GPUSolver::initializeExpEvaluator "
-`initializeExpEvaluator()`  
+initializeExpEvaluator()  
 
 Initializes new GPUExpEvaluator object to compute exponentials.  
 ";
 
 %feature("docstring") GPUSolver::computeFSRScatterSources "
-`computeFSRScatterSources()`  
+computeFSRScatterSources()  
 
 Computes the scatter source in each FSR.  
 
@@ -3130,7 +3022,7 @@ current approximation to the scalar flux.
 ";
 
 %feature("docstring") GPUSolver::initializeFluxArrays "
-`initializeFluxArrays()`  
+initializeFluxArrays()  
 
 Allocates memory for Track boundary angular and FSR scalar fluxes.  
 
@@ -3139,7 +3031,7 @@ simulation.
 ";
 
 %feature("docstring") GPUSolver::setGeometry "
-`setGeometry(Geometry *geometry)`  
+setGeometry(Geometry *geometry)  
 
 Sets the Geometry for the Solver.  
 
@@ -3148,12 +3040,12 @@ by the user.
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a pointer to a Geometry object  
 ";
 
 %feature("docstring") GPUSolver::getFluxes "
-`getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)`  
+getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)  
 
 Fills an array with the scalar fluxes on the GPU.  
 
@@ -3165,14 +3057,14 @@ and would be called from within Python as follows:
 
 Parameters
 ----------
-* `fluxes` :  
+* fluxes :  
     an array of FSR scalar fluxes in each energy group  
-* `num_fluxes` :  
+* num_fluxes :  
     the total number of FSR flux values  
 ";
 
 %feature("docstring") GPUSolver::setFluxes "
-`setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)`  
+setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)  
 
 Set the flux array for use in transport sweep source calculations.  This is a
 helper method for the checkpoint restart capabilities, as well as the IRAMSolver
@@ -3187,25 +3079,25 @@ Python:
 
 Parameters
 ----------
-* `in_fluxes` :  
+* in_fluxes :  
     an array with the fluxes to use  
-* `num_fluxes` :  
+* num_fluxes :  
     the number of flux values (# groups x # FSRs)  
 ";
 
 %feature("docstring") GPUSolver::flattenFSRFluxes "
-`flattenFSRFluxes(FP_PRECISION value)`  
+flattenFSRFluxes(FP_PRECISION value)  
 
 Set the scalar flux for each FSR and energy group to some value.  
 
 Parameters
 ----------
-* `value` :  
+* value :  
     the value to assign to each FSR scalar flux  
 ";
 
 %feature("docstring") GPUSolver::computeFSRFissionRates "
-`computeFSRFissionRates(double *fission_rates, int num_FSRs)`  
+computeFSRFissionRates(double *fission_rates, int num_FSRs)  
 
 Computes the volume-averaged, energy-integrated nu-fission rate in each FSR and
 stores them in an array indexed by FSR ID.  
@@ -3217,15 +3109,15 @@ follows:
 
 Parameters
 ----------
-* `fission_rates` :  
+* fission_rates :  
     an array to store the nu-fission rates (implicitly passed in as a NumPy
     array from Python)  
-* `num_FSRs` :  
+* num_FSRs :  
     the number of FSRs passed in from Python  
 ";
 
 %feature("docstring") GPUSolver::initializeSourceArrays "
-`initializeSourceArrays()`  
+initializeSourceArrays()  
 
 Allocates memory for FSR source vectors on the GPU.  
 
@@ -3234,7 +3126,7 @@ simulation.
 ";
 
 %feature("docstring") GPUSolver::setTrackGenerator "
-`setTrackGenerator(TrackGenerator *track_generator)`  
+setTrackGenerator(TrackGenerator *track_generator)  
 
 Sets the Solver's TrackGenerator with characteristic Tracks.  
 
@@ -3245,7 +3137,7 @@ to assigning the TrackGenerator to the Solver:
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     a pointer to a TrackGenerator object  
 ";
 
@@ -3273,33 +3165,20 @@ This is used as a predicate in Thrust routines.
 
 
 %feature("docstring") Lattice "
-`Lattice(const int id=-1, const char *name=\"\")`  
 
 Represents a repeating 3D Lattice of Universes.  
-
-Constructors
-------------
-* `Lattice(const int id=-1, const char *name=\"\")`  
-    
-    Constructor sets the user-specified and unique IDs for this Lattice.  
-
-    Parameters:  
-    * `id` :  
-        the user-specified optional Lattice (Universe) ID  
-    * `name` :  
-        the user-specified optional Lattice (Universe) name  
 
 C++ includes: src/Universe.h
 ";
 
 %feature("docstring") Lattice::withinBounds "
-`withinBounds(Point *point) -> bool`  
+withinBounds(Point *point) -> bool  
 
 Checks if a Point is within the bounds of a Lattice.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to the Point of interest  
 
 Returns
@@ -3308,27 +3187,27 @@ true if the Point is in the bounds, false if not
 ";
 
 %feature("docstring") Lattice::printString "
-`printString()`  
+printString()  
 
 Prints a string representation of all of the Lattice's attributes to the
 console.  
 ";
 
 %feature("docstring") Lattice::subdivideCells "
-`subdivideCells(double max_radius=INFINITY)`  
+subdivideCells(double max_radius=INFINITY)  
 
 Subdivides all of the Material-filled Cells within this Lattice into rings and
 angular sectors aligned with the z-axis.  
 
 Parameters
 ----------
-* `max_radius` :  
+* max_radius :  
     the maximum allowable radius used in the subdivisions  
 ";
 
 %feature("docstring") Lattice::getUniverses "
-`getUniverses() -> std::vector< std::vector< std::vector< std::pair< int,
-    Universe * > > > > *`  
+getUniverses() -> std::vector< std::vector< std::vector< std::pair< int,
+    Universe * > > > > *  
 
 Return a 3D vector of the Universes in the Lattice.  
 
@@ -3338,7 +3217,7 @@ Returns
 ";
 
 %feature("docstring") Lattice::getMinZ "
-`getMinZ() -> double`  
+getMinZ() -> double  
 
 Returns the minimum reachable z-coordinate in the Lattice.  
 
@@ -3348,7 +3227,7 @@ the minimum reachable z-coordinate
 ";
 
 %feature("docstring") Lattice::getMinX "
-`getMinX() -> double`  
+getMinX() -> double  
 
 Returns the minimum reachable x-coordinate in the Lattice.  
 
@@ -3358,7 +3237,7 @@ the minimum reachable x-coordinate
 ";
 
 %feature("docstring") Lattice::getMinY "
-`getMinY() -> double`  
+getMinY() -> double  
 
 Returns the minimum reachable y-coordinate in the Lattice.  
 
@@ -3368,7 +3247,7 @@ the minimum reachable y-coordinate
 ";
 
 %feature("docstring") Lattice::minSurfaceDist "
-`minSurfaceDist(LocalCoords *coords) -> double`  
+minSurfaceDist(LocalCoords *coords) -> double  
 
 Finds the distance to the nearest surface.  
 
@@ -3377,7 +3256,7 @@ the nearest boundary between lattice cells in the direction of the track.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a pointer to a localcoords object  
 
 Returns
@@ -3386,7 +3265,7 @@ the distance to the nearest Lattice cell boundary
 ";
 
 %feature("docstring") Lattice::findCell "
-`findCell(LocalCoords *coords) -> Cell *`  
+findCell(LocalCoords *coords) -> Cell *  
 
 Finds the Cell within this Lattice that a LocalCoords is in.  
 
@@ -3396,7 +3275,7 @@ will return NULL.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     the LocalCoords of interest  
 
 Returns
@@ -3405,13 +3284,13 @@ a pointer to the Cell this LocalCoord is in or NULL
 ";
 
 %feature("docstring") Lattice::getLatZ "
-`getLatZ(Point *point) -> int`  
+getLatZ(Point *point) -> int  
 
 Finds the Lattice cell z index that a point lies in.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to a point being evaluated.  
 
 Returns
@@ -3420,13 +3299,13 @@ the Lattice cell z index.
 ";
 
 %feature("docstring") Lattice::getLatY "
-`getLatY(Point *point) -> int`  
+getLatY(Point *point) -> int  
 
 Finds the Lattice cell y index that a point lies in.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to a point being evaluated.  
 
 Returns
@@ -3435,7 +3314,7 @@ the Lattice cell y index.
 ";
 
 %feature("docstring") Lattice::setUniverses "
-`setUniverses(int num_z, int num_y, int num_x, Universe **universes)`  
+setUniverses(int num_z, int num_y, int num_x, Universe **universes)  
 
 Sets the array of Universe pointers filling each Lattice cell.  
 
@@ -3446,39 +3325,39 @@ be called from Python is as follows:
 
 Parameters
 ----------
-* `num_z` :  
+* num_z :  
     the number of Lattice cells along z  
-* `num_y` :  
+* num_y :  
     the number of Lattice cells along y  
-* `num_x` :  
+* num_x :  
     the number of Lattice cells along x  
-* `universes` :  
+* universes :  
     the array of Universes for each Lattice cell  
 ";
 
 %feature("docstring") Lattice::removeUniverse "
-`removeUniverse(Universe *universe)`  
+removeUniverse(Universe *universe)  
 
 Removes all references to a Universe from the Lattice.  
 
 Parameters
 ----------
-* `universe` :  
+* universe :  
     the Universe to remove  
 ";
 
 %feature("docstring") Lattice::getUniverse "
-`getUniverse(int lat_x, int lat_y, int lat_z) const  -> Universe *`  
+getUniverse(int lat_x, int lat_y, int lat_z) const  -> Universe *  
 
 Returns a pointer to the Universe within a specific Lattice cell.  
 
 Parameters
 ----------
-* `lat_x` :  
+* lat_x :  
     the x index to the Lattice cell  
-* `lat_y` :  
+* lat_y :  
     the y index to the Lattice cell  
-* `lat_z` :  
+* lat_z :  
     the z index to the Lattice cell  
 
 Returns
@@ -3487,66 +3366,66 @@ pointer to a Universe filling the Lattice cell
 ";
 
 %feature("docstring") Lattice::buildNeighbors "
-`buildNeighbors()`  
+buildNeighbors()  
 
 Builds collections of neighboring Cells for all Cells in each Universe in the
 Lattice for optimized ray tracing.  
 ";
 
 %feature("docstring") Lattice::Lattice "
-`Lattice(const int id=-1, const char *name=\"\")`  
+Lattice(const int id=-1, const char *name=\"\")  
 
 Constructor sets the user-specified and unique IDs for this Lattice.  
 
 Parameters
 ----------
-* `id` :  
+* id :  
     the user-specified optional Lattice (Universe) ID  
-* `name` :  
+* name :  
     the user-specified optional Lattice (Universe) name  
 ";
 
 %feature("docstring") Lattice::setNumZ "
-`setNumZ(int num_z)`  
+setNumZ(int num_z)  
 
 Set the number of Lattice cells along the z-axis.  
 
 Parameters
 ----------
-* `num_z` :  
+* num_z :  
     the number of Lattice cells along z  
 ";
 
 %feature("docstring") Lattice::setNumX "
-`setNumX(int num_x)`  
+setNumX(int num_x)  
 
 Set the number of Lattice cells along the x-axis.  
 
 Parameters
 ----------
-* `num_x` :  
+* num_x :  
     the number of Lattice cells along x  
 ";
 
 %feature("docstring") Lattice::setNumY "
-`setNumY(int num_y)`  
+setNumY(int num_y)  
 
 Set the number of Lattice cells along the y-axis.  
 
 Parameters
 ----------
-* `num_y` :  
+* num_y :  
     the number of Lattice cells along y  
 ";
 
 %feature("docstring") Lattice::getLatX "
-`getLatX(Point *point) -> int`  
+getLatX(Point *point) -> int  
 
 Finds the Lattice cell x index that a point lies in.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to a point being evaluated.  
 
 Returns
@@ -3555,7 +3434,7 @@ the Lattice cell x index.
 ";
 
 %feature("docstring") Lattice::setOffset "
-`setOffset(double x, double y, double z)`  
+setOffset(double x, double y, double z)  
 
 Set the offset in global coordinates for this Lattice.  
 
@@ -3567,16 +3446,16 @@ lattice to the left 1 cm and up 2 cm.
 
 Parameters
 ----------
-* `x` :  
+* x :  
     the offset in the x direction  
-* `y` :  
+* y :  
     the offset in the y direction  
-* `z` :  
+* z :  
     the offset in the z direction  
 ";
 
 %feature("docstring") Lattice::getWidthX "
-`getWidthX() const  -> double`  
+getWidthX() const  -> double  
 
 Return the width of the Lattice along the x-axis.  
 
@@ -3586,7 +3465,7 @@ the width of the Lattice cells along x
 ";
 
 %feature("docstring") Lattice::getWidthY "
-`getWidthY() const  -> double`  
+getWidthY() const  -> double  
 
 Return the width of the Lattice along the y-axis.  
 
@@ -3596,7 +3475,7 @@ the width of the Lattice cells along y
 ";
 
 %feature("docstring") Lattice::getWidthZ "
-`getWidthZ() const  -> double`  
+getWidthZ() const  -> double  
 
 Return the width of the Lattice along the z-axis.  
 
@@ -3606,17 +3485,17 @@ the width of the Lattice cells along z
 ";
 
 %feature("docstring") Lattice::getDistanceToSurface "
-`getDistanceToSurface(int cell, Point *point, int surface) -> double`  
+getDistanceToSurface(int cell, Point *point, int surface) -> double  
 
 Finds the distance from a point to a particular lattice cell surface.  
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     the cell index that the point is in.  
-* `point` :  
+* point :  
     a pointer to a point being evaluated.  
-* `surface` :  
+* surface :  
     a surface id to get the distance to.  
 
 Returns
@@ -3625,7 +3504,7 @@ the distance to the lattice cell surface of interest.
 ";
 
 %feature("docstring") Lattice::getOffset "
-`getOffset() -> Point *`  
+getOffset() -> Point *  
 
 Return a pointer to the offset for this Cell (in global coordinates).  
 
@@ -3635,23 +3514,23 @@ the offset of the Cell
 ";
 
 %feature("docstring") Lattice::setWidth "
-`setWidth(double width_x, double width_y, double width_z=std::numeric_limits<
-    double >::infinity())`  
+setWidth(double width_x, double width_y, double width_z=std::numeric_limits<
+    double >::infinity())  
 
 Set the width of each Lattice cell.  
 
 Parameters
 ----------
-* `width_x` :  
+* width_x :  
     the width along the x-axis in centimeters  
-* `width_y` :  
+* width_y :  
     the width along the y-axis in centimeters  
-* `width_z` :  
+* width_z :  
     the width along the z-axis in centimeters  
 ";
 
 %feature("docstring") Lattice::getUniqueUniverses "
-`getUniqueUniverses() -> std::map< int, Universe * >`  
+getUniqueUniverses() -> std::map< int, Universe * >  
 
 Aggregates a list (vector) of the IDs of all Universes within the FILL type
 Cells filling this Universe.  
@@ -3665,7 +3544,7 @@ a vector of Universe IDs
 ";
 
 %feature("docstring") Lattice::getLatticeSurface "
-`getLatticeSurface(int cell, Point *point) -> int`  
+getLatticeSurface(int cell, Point *point) -> int  
 
 Finds the Lattice cell surface that a point lies on. If the point is not on a
 surface, -1 is returned.  
@@ -3676,9 +3555,9 @@ into account the cell index and returns NUM_SURFACES*cell_index + surface_index.
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     the cell index that the point is in.  
-* `point` :  
+* point :  
     a pointer to a point being evaluated.  
 
 Returns
@@ -3687,7 +3566,7 @@ the Lattice surface index.
 ";
 
 %feature("docstring") Lattice::getAllUniverses "
-`getAllUniverses() -> std::map< int, Universe * >`  
+getAllUniverses() -> std::map< int, Universe * >  
 
 Returns the std::map of all nested Universe IDs and Universe pointers filling
 this Lattice.  
@@ -3698,7 +3577,7 @@ std::map of Universe IDs and pointers
 ";
 
 %feature("docstring") Lattice::getNumZ "
-`getNumZ() const  -> int`  
+getNumZ() const  -> int  
 
 Return the number of Lattice cells along the z-axis.  
 
@@ -3708,7 +3587,7 @@ the number of Lattice cells along z
 ";
 
 %feature("docstring") Lattice::getNumX "
-`getNumX() const  -> int`  
+getNumX() const  -> int  
 
 Return the number of Lattice cells along the x-axis.  
 
@@ -3718,7 +3597,7 @@ the number of Lattice cells along x
 ";
 
 %feature("docstring") Lattice::getNumY "
-`getNumY() const  -> int`  
+getNumY() const  -> int  
 
 Return the number of Lattice cells along the y-axis.  
 
@@ -3728,7 +3607,7 @@ the number of Lattice cells along y
 ";
 
 %feature("docstring") Lattice::getAllCells "
-`getAllCells() -> std::map< int, Cell * >`  
+getAllCells() -> std::map< int, Cell * >  
 
 Returns the std::map of Cell IDs and Cell pointers in this Lattice at all nested
 Universe levels.  
@@ -3739,7 +3618,7 @@ std::map of Cell IDs and pointers
 ";
 
 %feature("docstring") Lattice::getLatticeCell "
-`getLatticeCell(Point *point) -> int`  
+getLatticeCell(Point *point) -> int  
 
 Finds the Lattice cell index that a point lies in.  
 
@@ -3751,7 +3630,7 @@ y-axis, then on the z-axis. For example, the indices for a 4 x 4 x 1 lattice: 12
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to a point being evaluated.  
 
 Returns
@@ -3760,7 +3639,7 @@ the Lattice cell index.
 ";
 
 %feature("docstring") Lattice::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts a Lattice's attributes to a character array representation.  
 
@@ -3770,7 +3649,7 @@ character array of this Lattice's attributes
 ";
 
 %feature("docstring") Lattice::getMaxX "
-`getMaxX() -> double`  
+getMaxX() -> double  
 
 Returns the maximum reachable x-coordinate in the Lattice.  
 
@@ -3780,7 +3659,7 @@ the maximum reachable x-coordinate
 ";
 
 %feature("docstring") Lattice::getMaxY "
-`getMaxY() -> double`  
+getMaxY() -> double  
 
 Returns the maximum reachable y-coordinate in the Lattice.  
 
@@ -3790,7 +3669,7 @@ the maximum reachable y-coordinate
 ";
 
 %feature("docstring") Lattice::getMaxZ "
-`getMaxZ() -> double`  
+getMaxZ() -> double  
 
 Returns the maximum reachable z-coordinate in the Lattice.  
 
@@ -3800,7 +3679,7 @@ the maximum reachable z-coordinate
 ";
 
 %feature("docstring") Lattice::~Lattice "
-`~Lattice()`  
+~Lattice()  
 
 Destructor clears memory for all of Universes pointers.  
 ";
@@ -3809,21 +3688,14 @@ Destructor clears memory for all of Universes pointers.
 
 
 %feature("docstring") LeonardPolarQuad "
-`LeonardPolarQuad()`  
 
 Leonard's polar quadrature.  
-
-Constructors
-------------
-* `LeonardPolarQuad()`  
-    
-    Dummy constructor calls the parent constructor.  
 
 C++ includes: src/PolarQuad.h
 ";
 
 %feature("docstring") LeonardPolarQuad::initialize "
-`initialize()`  
+initialize()  
 
 Routine to initialize the polar quadrature.  
 
@@ -3832,18 +3704,18 @@ including the sine thetas and weights.
 ";
 
 %feature("docstring") LeonardPolarQuad::setNumPolarAngles "
-`setNumPolarAngles(const int num_polar)`  
+setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
 
 Parameters
 ----------
-* `num_polar` :  
+* num_polar :  
     the number of polar angles (2 or 3)  
 ";
 
 %feature("docstring") LeonardPolarQuad::LeonardPolarQuad "
-`LeonardPolarQuad()`  
+LeonardPolarQuad()  
 
 Dummy constructor calls the parent constructor.  
 ";
@@ -3852,28 +3724,15 @@ Dummy constructor calls the parent constructor.
 
 
 %feature("docstring") LocalCoords "
-`LocalCoords(double x, double y, double z)`  
 
 The LocalCoords represents a set of local coordinates on some level of nested
 Universes making up the geometry.  
-
-Constructors
-------------
-* `LocalCoords(double x, double y, double z)`  
-    
-    Constructor sets the x and y coordinates.  
-
-    Parameters:  
-    * `x` :  
-        the x-coordinate  
-    * `y` :  
-        the y-coordinate  
 
 C++ includes: openmoc/src/host/LocalCoords.h
 ";
 
 %feature("docstring") LocalCoords::getPhi "
-`getPhi() const  -> double`  
+getPhi() const  -> double  
 
 Returns the direction angle in radians with respect to the x-axis.  
 
@@ -3883,24 +3742,24 @@ the direction angle in radians
 ";
 
 %feature("docstring") LocalCoords::~LocalCoords "
-`~LocalCoords()`  
+~LocalCoords()  
 
 Destructor.  
 ";
 
 %feature("docstring") LocalCoords::setPhi "
-`setPhi(double phi)`  
+setPhi(double phi)  
 
 Set the direction angle in radians for this LocalCoords.  
 
 Parameters
 ----------
-* `angle` :  
+* angle :  
     the direction angle in radians  
 ";
 
 %feature("docstring") LocalCoords::getLattice "
-`getLattice() const  -> Lattice *`  
+getLattice() const  -> Lattice *  
 
 Return the Lattice within which this LocalCoords resides.  
 
@@ -3910,18 +3769,18 @@ the Lattice
 ";
 
 %feature("docstring") LocalCoords::setCell "
-`setCell(Cell *cell)`  
+setCell(Cell *cell)  
 
 Set the Cell within which this LocalCoords resides.  
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     the Cell  
 ";
 
 %feature("docstring") LocalCoords::getPrev "
-`getPrev() const  -> LocalCoords *`  
+getPrev() const  -> LocalCoords *  
 
 Return a pointer to the LocalCoord at the next higher nested Universe level if
 one exists.  
@@ -3932,7 +3791,7 @@ pointer to the previous LocalCoord
 ";
 
 %feature("docstring") LocalCoords::getCell "
-`getCell() const  -> Cell *`  
+getCell() const  -> Cell *  
 
 Return the Cell within which this LocalCoords resides.  
 
@@ -3942,24 +3801,24 @@ the Cell
 ";
 
 %feature("docstring") LocalCoords::prune "
-`prune()`  
+prune()  
 
 Removes and frees memory for all LocalCoords beyond this one in the linked list.  
 ";
 
 %feature("docstring") LocalCoords::setNext "
-`setNext(LocalCoords *next)`  
+setNext(LocalCoords *next)  
 
 Sets the pointer to the LocalCoords on the next lower nested Universe level.  
 
 Parameters
 ----------
-* `next` :  
+* next :  
     pointer to the next LocalCoords  
 ";
 
 %feature("docstring") LocalCoords::getZ "
-`getZ() const  -> double`  
+getZ() const  -> double  
 
 Returns the z-coordinate for this LocalCoords location.  
 
@@ -3969,7 +3828,7 @@ the z-coordinate of this LocalCoords location
 ";
 
 %feature("docstring") LocalCoords::getNext "
-`getNext() const  -> LocalCoords *`  
+getNext() const  -> LocalCoords *  
 
 Return a pointer to the LocalCoord at the next lower nested Universe level if
 one exists.  
@@ -3980,40 +3839,40 @@ pointer to the next LocalCoord
 ";
 
 %feature("docstring") LocalCoords::setZ "
-`setZ(double z)`  
+setZ(double z)  
 
 Set the z-coordinate for this Localcoords.  
 
 Parameters
 ----------
-* `z` :  
+* z :  
     the z-coordinate  
 ";
 
 %feature("docstring") LocalCoords::setX "
-`setX(double x)`  
+setX(double x)  
 
 Set the x-coordinate for this LocalCoords.  
 
 Parameters
 ----------
-* `x` :  
+* x :  
     the x-coordinate  
 ";
 
 %feature("docstring") LocalCoords::setY "
-`setY(double y)`  
+setY(double y)  
 
 Set the y-coordinate for this Localcoords.  
 
 Parameters
 ----------
-* `y` :  
+* y :  
     the y-coordinate  
 ";
 
 %feature("docstring") LocalCoords::getLowestLevel "
-`getLowestLevel() -> LocalCoords *`  
+getLowestLevel() -> LocalCoords *  
 
 Find and return the last LocalCoords in the linked list which represents the
 local coordinates on the lowest level of a geometry of nested universes.  
@@ -4027,40 +3886,40 @@ a pointer to the last LocalCoords object in the list
 ";
 
 %feature("docstring") LocalCoords::setType "
-`setType(coordType type)`  
+setType(coordType type)  
 
 Set the type of LocalCoords (UNIV or LAT).  
 
 Parameters
 ----------
-* `type` :  
+* type :  
     the type for LocalCoords (UNIV or LAT)  
 ";
 
 %feature("docstring") LocalCoords::setLatticeZ "
-`setLatticeZ(int lattice_z)`  
+setLatticeZ(int lattice_z)  
 
 Sets the z index for the Lattice cell within which this LocalCoords resides.  
 
 Parameters
 ----------
-* `lattice_z` :  
+* lattice_z :  
     the z Lattice cell index  
 ";
 
 %feature("docstring") LocalCoords::setLatticeY "
-`setLatticeY(int lattice_y)`  
+setLatticeY(int lattice_y)  
 
 Sets the y index for the Lattice cell within which this LocalCoords resides.  
 
 Parameters
 ----------
-* `lattice_y` :  
+* lattice_y :  
     the y Lattice cell index  
 ";
 
 %feature("docstring") LocalCoords::getLatticeZ "
-`getLatticeZ() const  -> int`  
+getLatticeZ() const  -> int  
 
 Return the third index of the Lattice cell within which this LocalCoords
 resides.  
@@ -4071,7 +3930,7 @@ the third Lattice cell index
 ";
 
 %feature("docstring") LocalCoords::getLatticeY "
-`getLatticeY() const  -> int`  
+getLatticeY() const  -> int  
 
 Return the second index of the Lattice cell within which this LocalCoords
 resides.  
@@ -4082,7 +3941,7 @@ the second Lattice cell index
 ";
 
 %feature("docstring") LocalCoords::getLatticeX "
-`getLatticeX() const  -> int`  
+getLatticeX() const  -> int  
 
 Return the first index of the Lattice cell within which this LocalCoords
 resides.  
@@ -4093,7 +3952,7 @@ the first Lattice cell index
 ";
 
 %feature("docstring") LocalCoords::getUniverse "
-`getUniverse() const  -> Universe *`  
+getUniverse() const  -> Universe *  
 
 Return the Universe within which this LocalCoords resides.  
 
@@ -4103,19 +3962,19 @@ the Universe
 ";
 
 %feature("docstring") LocalCoords::updateMostLocal "
-`updateMostLocal(Point *point)`  
+updateMostLocal(Point *point)  
 
 Update the last element in the linked list (the one at the lowest level of
 nested Universes) to have the same coordinates as a given point.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to a point of interest  
 ";
 
 %feature("docstring") LocalCoords::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this LocalCoords's attributes to a character array representation.  
 
@@ -4125,18 +3984,18 @@ a character array of the LocalCoord's attributes
 ";
 
 %feature("docstring") LocalCoords::incrementPhi "
-`incrementPhi(double phi)`  
+incrementPhi(double phi)  
 
 Increment the direction angle in radians for this LocalCoords.  
 
 Parameters
 ----------
-* `phi` :  
+* phi :  
     the incremental direction angle in radians  
 ";
 
 %feature("docstring") LocalCoords::copyCoords "
-`copyCoords(LocalCoords *coords)`  
+copyCoords(LocalCoords *coords)  
 
 Copies a LocalCoords' values to this one. details Given a pointer to a
 LocalCoords, it first prunes it and then creates a copy of the linked list of
@@ -4144,23 +4003,23 @@ LocalCoords in the linked list below this one to give to the input LocalCoords.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a pointer to the LocalCoords to give the linked list copy to  
 ";
 
 %feature("docstring") LocalCoords::setLattice "
-`setLattice(Lattice *lattice)`  
+setLattice(Lattice *lattice)  
 
 Sets the Lattice within which this LocalCoords resides.  
 
 Parameters
 ----------
-* `lattice` :  
+* lattice :  
     the Lattice  
 ";
 
 %feature("docstring") LocalCoords::adjustCoords "
-`adjustCoords(double delta)`  
+adjustCoords(double delta)  
 
 Translate all of the x,y coordinates for each LocalCoords object in the linked
 list.  
@@ -4170,12 +4029,12 @@ each element.
 
 Parameters
 ----------
-* `delta` :  
+* delta :  
     amount we wish to move the point by  
 ";
 
 %feature("docstring") LocalCoords::getHighestLevel "
-`getHighestLevel() -> LocalCoords *`  
+getHighestLevel() -> LocalCoords *  
 
 Find and return the first LocalCoords in the linked list which represents the
 local coordinates on the highest level of a geometry of nested universes.  
@@ -4189,18 +4048,18 @@ a pointer to the first LocalCoords object in the list
 ";
 
 %feature("docstring") LocalCoords::setUniverse "
-`setUniverse(Universe *universe)`  
+setUniverse(Universe *universe)  
 
 Set the Universe within which this LocalCoords resides.  
 
 Parameters
 ----------
-* `universe` :  
+* universe :  
     the Universe  
 ";
 
 %feature("docstring") LocalCoords::getX "
-`getX() const  -> double`  
+getX() const  -> double  
 
 Returns the x-coordinate for this LocalCoords location.  
 
@@ -4210,7 +4069,7 @@ the x-coordinate of this LocalCoords location
 ";
 
 %feature("docstring") LocalCoords::getY "
-`getY() const  -> double`  
+getY() const  -> double  
 
 Returns the y-coordinate for this LocalCoords location.  
 
@@ -4220,7 +4079,7 @@ the y-coordinate of this LocalCoords location
 ";
 
 %feature("docstring") LocalCoords::getPoint "
-`getPoint() -> Point *`  
+getPoint() -> Point *  
 
 Returns a pointer to the Point containing the coordinates for this LocalCoord.  
 
@@ -4230,7 +4089,7 @@ pointer to the Point containing the x and y coordinates
 ";
 
 %feature("docstring") LocalCoords::getType "
-`getType() -> coordType`  
+getType() -> coordType  
 
 Return the level (UNIV or LAT) of this LocalCoords.  
 
@@ -4240,37 +4099,37 @@ the nested Universe level (UNIV or LAT)
 ";
 
 %feature("docstring") LocalCoords::LocalCoords "
-`LocalCoords(double x, double y, double z)`  
+LocalCoords(double x, double y, double z)  
 
 Constructor sets the x and y coordinates.  
 
 Parameters
 ----------
-* `x` :  
+* x :  
     the x-coordinate  
-* `y` :  
+* y :  
     the y-coordinate  
 ";
 
 %feature("docstring") LocalCoords::setLatticeX "
-`setLatticeX(int lattice_x)`  
+setLatticeX(int lattice_x)  
 
 Sets the x index for the Lattice cell within which this LocalCoords resides.  
 
 Parameters
 ----------
-* `lattice_x` :  
+* lattice_x :  
     the x Lattice cell index  
 ";
 
 %feature("docstring") LocalCoords::setPrev "
-`setPrev(LocalCoords *coords)`  
+setPrev(LocalCoords *coords)  
 
 Sets the pointer to the LocalCoords on the next higher nested Universe level.  
 
 Parameters
 ----------
-* `prev` :  
+* prev :  
     pointer to the previous LocalCoords  
 ";
 
@@ -4278,47 +4137,34 @@ Parameters
 
 
 %feature("docstring") Material "
-`Material(int id=0, const char *name=\"\")`  
 
 The Material class represents a unique material and its relevant nuclear data
 (i.e., multigroup cross-sections) for neutron transport.  
-
-Constructors
-------------
-* `Material(int id=0, const char *name=\"\")`  
-    
-    Constructor sets the ID and unique ID for the Material.  
-
-    Parameters:  
-    * `id` :  
-        the user-specified optional Material ID  
-    * `name` :  
-        the user-specified optional Material name  
 
 C++ includes: src/Material.h
 ";
 
 %feature("docstring") Material::setChiByGroup "
-`setChiByGroup(double xs, int group)`  
+setChiByGroup(double xs, int group)  
 
 Set the Material's chi value for some energy group.  
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the chi value ( $ \\Chi $)  
-* `group` :  
+* group :  
     the energy group  
 ";
 
 %feature("docstring") Material::getChiByGroup "
-`getChiByGroup(int group) -> FP_PRECISION`  
+getChiByGroup(int group) -> FP_PRECISION  
 
 Get the Material's fission spectrum for some energy group.  
 
 Parameters
 ----------
-* `group` :  
+* group :  
     the energy group  
 
 Returns
@@ -4327,7 +4173,7 @@ the fission spectrum
 ";
 
 %feature("docstring") Material::clone "
-`clone() -> Material *`  
+clone() -> Material *  
 
 Create a duplicate of the Material.  
 
@@ -4337,13 +4183,13 @@ a pointer to the clone
 ";
 
 %feature("docstring") Material::getSigmaFByGroup "
-`getSigmaFByGroup(int group) -> FP_PRECISION`  
+getSigmaFByGroup(int group) -> FP_PRECISION  
 
 Get the Material's fission cross section for some energy group.  
 
 Parameters
 ----------
-* `group` :  
+* group :  
     the energy group  
 
 Returns
@@ -4352,7 +4198,7 @@ the fission cross section
 ";
 
 %feature("docstring") Material::setSigmaF "
-`setSigmaF(double *xs, int num_groups)`  
+setSigmaF(double *xs, int num_groups)  
 
 Set the Material's array of fission cross-sections.  
 
@@ -4366,14 +4212,14 @@ called in Python is as follows:
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the array of fission cross-sections  
-* `num_groups` :  
+* num_groups :  
     the number of energy groups  
 ";
 
 %feature("docstring") Material::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this Material's attributes to a character array representation.  
 
@@ -4387,7 +4233,7 @@ character array of this Material's attributes
 ";
 
 %feature("docstring") Material::buildFissionMatrix "
-`buildFissionMatrix()`  
+buildFissionMatrix()  
 
 Builds the fission matrix from chi and the fission cross-section.  
 
@@ -4397,7 +4243,7 @@ by the Solver at runtime.
 ";
 
 %feature("docstring") Material::getId "
-`getId() const  -> int`  
+getId() const  -> int  
 
 Return the Material's user-defined ID.  
 
@@ -4407,22 +4253,22 @@ the Material's user-defined ID
 ";
 
 %feature("docstring") Material::setSigmaSByGroup "
-`setSigmaSByGroup(double xs, int origin, int destination)`  
+setSigmaSByGroup(double xs, int origin, int destination)  
 
 Set the Material's scattering cross-section for some energy group.  
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the scattering cross-section  
-* `origin` :  
+* origin :  
     the column index in the scattering matrix  
-* `destination` :  
+* destination :  
     the row index in the scattering matrix  
 ";
 
 %feature("docstring") Material::setSigmaS "
-`setSigmaS(double *xs, int num_groups)`  
+setSigmaS(double *xs, int num_groups)  
 
 Set the Material's 2D array of scattering cross-sections.  
 
@@ -4447,14 +4293,14 @@ function might be called in Python is as follows:
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the array of scattering cross-sections  
-* `num_groups_squared` :  
+* num_groups_squared :  
     the number of energy groups squared  
 ";
 
 %feature("docstring") Material::getFissionMatrix "
-`getFissionMatrix() -> FP_PRECISION *`  
+getFissionMatrix() -> FP_PRECISION *  
 
 Return the array of the Material's fission matrix.  
 
@@ -4464,7 +4310,7 @@ the pointer to the Material's fission matrix array
 ";
 
 %feature("docstring") Material::setSigmaT "
-`setSigmaT(double *xs, int num_groups)`  
+setSigmaT(double *xs, int num_groups)  
 
 Set the Material's array of total cross-sections.  
 
@@ -4483,14 +4329,14 @@ called in Python is as follows:
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the array of total cross-sections  
-* `num_groups` :  
+* num_groups :  
     the number of energy groups  
 ";
 
 %feature("docstring") Material::isDataAligned "
-`isDataAligned() -> bool`  
+isDataAligned() -> bool  
 
 Returns true if the data is vector aligned, false otherwise (default).  
 
@@ -4500,18 +4346,18 @@ Whether or not the Material's data is vector aligned
 ";
 
 %feature("docstring") Material::setNumEnergyGroups "
-`setNumEnergyGroups(const int num_groups)`  
+setNumEnergyGroups(const int num_groups)  
 
 Set the number of energy groups for this Material.  
 
 Parameters
 ----------
-* `num_groups` :  
+* num_groups :  
     the number of energy groups.  
 ";
 
 %feature("docstring") Material::alignData "
-`alignData()`  
+alignData()  
 
 Reallocates the Material's cross-section data structures along word-aligned
 boundaries.  
@@ -4525,7 +4371,7 @@ to \"expose\" the SIMD nature of the algorithm.
 ";
 
 %feature("docstring") Material::getName "
-`getName() const  -> char *`  
+getName() const  -> char *  
 
 Return the user-defined name of the Material.  
 
@@ -4535,28 +4381,28 @@ the Material name
 ";
 
 %feature("docstring") Material::printString "
-`printString()`  
+printString()  
 
 Prints a string representation of all of the Material's attributes to the
 console.  
 ";
 
 %feature("docstring") Material::~Material "
-`~Material()`  
+~Material()  
 
 Destructor deletes all cross-section data structures from memory.  
 ";
 
 %feature("docstring") Material::getSigmaSByGroup "
-`getSigmaSByGroup(int origin, int destination) -> FP_PRECISION`  
+getSigmaSByGroup(int origin, int destination) -> FP_PRECISION  
 
 Get the Material's scattering cross section for some energy group.  
 
 Parameters
 ----------
-* `origin` :  
+* origin :  
     the incoming energy group  
-* `destination` :  
+* destination :  
     the outgoing energy group  
 
 Returns
@@ -4565,7 +4411,7 @@ the scattering cross section
 ";
 
 %feature("docstring") Material::getNumInstances "
-`getNumInstances() -> int`  
+getNumInstances() -> int  
 
 Return the number of instances of this Material in the Geometry.  
 
@@ -4578,13 +4424,13 @@ the number of material instances
 ";
 
 %feature("docstring") Material::getNuSigmaFByGroup "
-`getNuSigmaFByGroup(int group) -> FP_PRECISION`  
+getNuSigmaFByGroup(int group) -> FP_PRECISION  
 
 Get the Material's nu-fission cross section for some energy group.  
 
 Parameters
 ----------
-* `group` :  
+* group :  
     the energy group  
 
 Returns
@@ -4593,7 +4439,7 @@ the nu-fission cross section
 ";
 
 %feature("docstring") Material::getNumEnergyGroups "
-`getNumEnergyGroups() const  -> int`  
+getNumEnergyGroups() const  -> int  
 
 Returns the number of energy groups for this Material's nuclear data.  
 
@@ -4603,7 +4449,7 @@ the number of energy groups
 ";
 
 %feature("docstring") Material::isFissionable "
-`isFissionable() -> bool`  
+isFissionable() -> bool  
 
 Returns whether or not the Material contains a fissionable (non-zero) fission
 cross-section.  
@@ -4614,26 +4460,26 @@ true if fissionable, false otherwise
 ";
 
 %feature("docstring") Material::setNumInstances "
-`setNumInstances(int num_instances)`  
+setNumInstances(int num_instances)  
 
 Set the number of instances of this Material.  
 
 Parameters
 ----------
-* `num_instances` :  
+* num_instances :  
     the number of instances of this Material in the Geometry  
 ";
 
 %feature("docstring") Material::getFissionMatrixByGroup "
-`getFissionMatrixByGroup(int origin, int destination) -> FP_PRECISION`  
+getFissionMatrixByGroup(int origin, int destination) -> FP_PRECISION  
 
 Get the Material's fission matrix for some energy group.  
 
 Parameters
 ----------
-* `origin` :  
+* origin :  
     the incoming energy group $ E_{0} $  
-* `destination` :  
+* destination :  
     the outgoing energy group $ E_{1} $  
 
 Returns
@@ -4642,7 +4488,7 @@ the fission matrix entry $ \\nu\\Sigma_{f}(E_{0}) * \\chi(E_{1})$
 ";
 
 %feature("docstring") Material::getVolume "
-`getVolume() -> double`  
+getVolume() -> double  
 
 Return the aggregate volume/area of all instances of this Material.  
 
@@ -4655,18 +4501,18 @@ the volume/area of the Material
 ";
 
 %feature("docstring") Material::setName "
-`setName(const char *name)`  
+setName(const char *name)  
 
 Sets the name of the Material.  
 
 Parameters
 ----------
-* `name` :  
+* name :  
     the Material name string  
 ";
 
 %feature("docstring") Material::incrementNumInstances "
-`incrementNumInstances()`  
+incrementNumInstances()  
 
 Increment the number of instances of this Material.  
 
@@ -4675,7 +4521,7 @@ segmentation.
 ";
 
 %feature("docstring") Material::getChi "
-`getChi() -> FP_PRECISION *`  
+getChi() -> FP_PRECISION *  
 
 Return the array of the Material's chi $ \\chi $.  
 
@@ -4685,46 +4531,46 @@ the pointer to the Material's array of chi $ \\chi $ values
 ";
 
 %feature("docstring") Material::setNuSigmaF "
-`setNuSigmaF(double *xs, int num_groups)`  
+setNuSigmaF(double *xs, int num_groups)  
 
 Set the Material's array of fission cross-sections multiplied by $ \\nu $.  
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the array of fission cross-sections multiplied by nu $ \\nu $  
-* `num_groups` :  
+* num_groups :  
     the number of energy groups  
 ";
 
 %feature("docstring") Material::setSigmaTByGroup "
-`setSigmaTByGroup(double xs, int group)`  
+setSigmaTByGroup(double xs, int group)  
 
 Set the Material's total cross-section for some energy group.  
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the total cross-section  
-* `group` :  
+* group :  
     the energy group  
 ";
 
 %feature("docstring") Material::Material "
-`Material(int id=0, const char *name=\"\")`  
+Material(int id=0, const char *name=\"\")  
 
 Constructor sets the ID and unique ID for the Material.  
 
 Parameters
 ----------
-* `id` :  
+* id :  
     the user-specified optional Material ID  
-* `name` :  
+* name :  
     the user-specified optional Material name  
 ";
 
 %feature("docstring") Material::incrementVolume "
-`incrementVolume(double volume)`  
+incrementVolume(double volume)  
 
 Increment the volume/area of the Material by some amount.  
 
@@ -4733,23 +4579,23 @@ segmentation.
 
 Parameters
 ----------
-* `volume` :  
+* volume :  
     the amount to increment the current volume by  
 ";
 
 %feature("docstring") Material::setVolume "
-`setVolume(double volume)`  
+setVolume(double volume)  
 
 Set the volume/area of the Material.  
 
 Parameters
 ----------
-* `volume` :  
+* volume :  
     the volume/area of the Material  
 ";
 
 %feature("docstring") Material::getNumVectorGroups "
-`getNumVectorGroups() -> int`  
+getNumVectorGroups() -> int  
 
 Returns the rounded up number of energy groups to fill an integral number of
 vector lengths.  
@@ -4760,7 +4606,7 @@ The number of vector-aligned energy groups
 ";
 
 %feature("docstring") Material::getSigmaT "
-`getSigmaT() -> FP_PRECISION *`  
+getSigmaT() -> FP_PRECISION *  
 
 Return the array of the Material's total cross-sections.  
 
@@ -4770,7 +4616,7 @@ the pointer to the Material's array of total cross-sections
 ";
 
 %feature("docstring") Material::getSigmaS "
-`getSigmaS() -> FP_PRECISION *`  
+getSigmaS() -> FP_PRECISION *  
 
 Return the array of the Material's scattering cross-section matrix.  
 
@@ -4780,7 +4626,7 @@ the pointer to the Material's array of scattering cross-sections
 ";
 
 %feature("docstring") Material::transposeProductionMatrices "
-`transposeProductionMatrices()`  
+transposeProductionMatrices()  
 
 Transposes the scattering and fission matrices.  
 
@@ -4788,7 +4634,7 @@ This routine is used by the Solver when performing adjoint flux caclulations.
 ";
 
 %feature("docstring") Material::setNuSigmaFByGroup "
-`setNuSigmaFByGroup(double xs, int group)`  
+setNuSigmaFByGroup(double xs, int group)  
 
 Set the Material's fission cross-section multiplied by $ \\nu $ for some energy
 group.  
@@ -4803,27 +4649,27 @@ be called in Python is as follows:
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the fission cross-section multiplied by nu $ \\nu $  
-* `group` :  
+* group :  
     the energy group  
 ";
 
 %feature("docstring") Material::setSigmaFByGroup "
-`setSigmaFByGroup(double xs, int group)`  
+setSigmaFByGroup(double xs, int group)  
 
 Set the Material's fission cross-section for some energy group.  
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the fission cross-section  
-* `group` :  
+* group :  
     the energy group  
 ";
 
 %feature("docstring") Material::setChi "
-`setChi(double *xs, int num_groups)`  
+setChi(double *xs, int num_groups)  
 
 Set the Material's array of chi $ \\chi $ values.  
 
@@ -4837,14 +4683,14 @@ in Python is as follows:
 
 Parameters
 ----------
-* `xs` :  
+* xs :  
     the array of chi $ \\chi $ values  
-* `num_groups` :  
+* num_groups :  
     the number of energy groups  
 ";
 
 %feature("docstring") Material::getSigmaF "
-`getSigmaF() -> FP_PRECISION *`  
+getSigmaF() -> FP_PRECISION *  
 
 Return the array of the Material's fission cross-sections.  
 
@@ -4854,13 +4700,13 @@ the pointer to the Material's array of fission cross-sections
 ";
 
 %feature("docstring") Material::getSigmaTByGroup "
-`getSigmaTByGroup(int group) -> FP_PRECISION`  
+getSigmaTByGroup(int group) -> FP_PRECISION  
 
 Get the Material's total cross section for some energy group.  
 
 Parameters
 ----------
-* `group` :  
+* group :  
     the energy group  
 
 Returns
@@ -4869,7 +4715,7 @@ the total cross section
 ";
 
 %feature("docstring") Material::getNuSigmaF "
-`getNuSigmaF() -> FP_PRECISION *`  
+getNuSigmaF() -> FP_PRECISION *  
 
 Return the array of the Material's fission cross-sections multiplied by nu $
 \\nu $.  
@@ -4884,35 +4730,10 @@ the pointer to the Material's array of fission cross-sections multiplied by nu $
 
 
 %feature("docstring") Matrix "
-`Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)`  
-
-Constructors
-------------
-* `Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)`  
-    
-    Constructor initializes Matrix as a list of lists and sets the matrix
-    dimensions.  The matrix object uses a \"lists of lists\" structure
-    (implemented as a map of lists) to allow for easy setting and incrementing
-    of the values in the object. When the matrix is needed to perform linear
-    algebra operations, it is converted to compressed row storage (CSR) form.
-    The matrix is ordered by cell (as opposed to by group) on the outside. Locks
-    are used to make the matrix thread-safe against concurrent writes the same
-    value. One lock locks out multiple rows of the matrix at a time reprsenting
-    multiple groups in the same cell.  
-
-    Parameters:  
-    * `cell_locks` :  
-        Omp locks for atomic cell operations  
-    * `num_x` :  
-        The number of cells in the x direction.  
-    * `num_y` :  
-        The number of cells in the y direction.  
-    * `num_groups` :  
-        The number of energy groups in each cell.  
 ";
 
 %feature("docstring") Matrix::getNNZ "
-`getNNZ() -> int`  
+getNNZ() -> int  
 
 Get the number of non-zero values in the matrix.  
 
@@ -4922,13 +4743,13 @@ The number of non-zero values in the matrix.
 ";
 
 %feature("docstring") Matrix::printString "
-`printString()`  
+printString()  
 
 Print the matrix object to the log file.  
 ";
 
 %feature("docstring") Matrix::getNumRows "
-`getNumRows() -> int`  
+getNumRows() -> int  
 
 Get the number of rows in the matrix.  
 
@@ -4938,7 +4759,7 @@ The number of rows in the matrix.
 ";
 
 %feature("docstring") Matrix::getA "
-`getA() -> FP_PRECISION *`  
+getA() -> FP_PRECISION *  
 
 Get the A component of the CSR form of the matrix object.  
 
@@ -4948,8 +4769,8 @@ A pointer to the A component of the CSR form matrix object.
 ";
 
 %feature("docstring") Matrix::incrementValue "
-`incrementValue(int cell_from, int group_from, int cell_to, int group_to,
-    FP_PRECISION val)`  
+incrementValue(int cell_from, int group_from, int cell_to, int group_to,
+    FP_PRECISION val)  
 
 Increment a value in the matrix.  This method takes a cell and group of origin
 (cell/group from) and cell and group of destination (cell/group to) and floating
@@ -4959,21 +4780,21 @@ val; otherwise, it is set to val.
 
 Parameters
 ----------
-* `cell_from` :  
+* cell_from :  
     The origin cell.  
-* `group_from` :  
+* group_from :  
     The origin group.  
-* `cell_to` :  
+* cell_to :  
     The destination cell.  
-* `group_from` :  
+* group_from :  
     The destination group.  
-* `val` :  
+* val :  
     The value used to increment the row/column location.  
 ";
 
 %feature("docstring") Matrix::getValue "
-`getValue(int cell_from, int group_from, int cell_to, int group_to) ->
-    FP_PRECISION`  
+getValue(int cell_from, int group_from, int cell_to, int group_to) ->
+    FP_PRECISION  
 
 Get a value in the matrix.  This method takes a cell and group of origin
 (cell/group from) and cell and group of destination (cell/group to). The origin
@@ -4982,13 +4803,13 @@ at the location specified by the row/column is returned.
 
 Parameters
 ----------
-* `cell_from` :  
+* cell_from :  
     The origin cell.  
-* `group_from` :  
+* group_from :  
     The origin group.  
-* `cell_to` :  
+* cell_to :  
     The destination cell.  
-* `group_from` :  
+* group_from :  
     The destination group.  
 
 Returns
@@ -4997,7 +4818,7 @@ The value at the corresponding row/column location.
 ";
 
 %feature("docstring") Matrix::getDiag "
-`getDiag() -> FP_PRECISION *`  
+getDiag() -> FP_PRECISION *  
 
 Get the diagonal component of the matrix object.  
 
@@ -5007,7 +4828,7 @@ A pointer to the diagonal component of the matrix object.
 ";
 
 %feature("docstring") Matrix::getIA "
-`getIA() -> int *`  
+getIA() -> int *  
 
 Get the IA component of the CSR form of the matrix object.  
 
@@ -5017,7 +4838,7 @@ A pointer to the IA component of the CSR form matrix object.
 ";
 
 %feature("docstring") Matrix::getNumGroups "
-`getNumGroups() -> int`  
+getNumGroups() -> int  
 
 Get the number of groups in each cell.  
 
@@ -5027,8 +4848,8 @@ The number of groups in each cell.
 ";
 
 %feature("docstring") Matrix::setValue "
-`setValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION
-    val)`  
+setValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION
+    val)  
 
 Set a value in the matrix.  This method takes a cell and group of origin
 (cell/group from) and cell and group of destination (cell/group to) and floating
@@ -5037,20 +4858,20 @@ in the matrix. The location specified by the row/column is set to val.
 
 Parameters
 ----------
-* `cell_from` :  
+* cell_from :  
     The origin cell.  
-* `group_from` :  
+* group_from :  
     The origin group.  
-* `cell_to` :  
+* cell_to :  
     The destination cell.  
-* `group_from` :  
+* group_from :  
     The destination group.  
-* `val` :  
+* val :  
     The value used to set the row/column location.  
 ";
 
 %feature("docstring") Matrix::Matrix "
-`Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)`  
+Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
 
 Constructor initializes Matrix as a list of lists and sets the matrix
 dimensions.  The matrix object uses a \"lists of lists\" structure (implemented
@@ -5064,18 +4885,18 @@ cell.
 
 Parameters
 ----------
-* `cell_locks` :  
+* cell_locks :  
     Omp locks for atomic cell operations  
-* `num_x` :  
+* num_x :  
     The number of cells in the x direction.  
-* `num_y` :  
+* num_y :  
     The number of cells in the y direction.  
-* `num_groups` :  
+* num_groups :  
     The number of energy groups in each cell.  
 ";
 
 %feature("docstring") Matrix::getJA "
-`getJA() -> int *`  
+getJA() -> int *  
 
 Get the JA component of the CSR form of the matrix object.  
 
@@ -5085,26 +4906,26 @@ A pointer to the JA component of the CSR form matrix object.
 ";
 
 %feature("docstring") Matrix::transpose "
-`transpose()`  
+transpose()  
 
 Transpose the matrix in place.  
 ";
 
 %feature("docstring") Matrix::clear "
-`clear()`  
+clear()  
 
 Clear all values in the matrix list of lists.  
 ";
 
 %feature("docstring") Matrix::~Matrix "
-`~Matrix()`  
+~Matrix()  
 
 Destructor clears list of lists and deletes the arrays used to represent the
 matrix in CSR form.  
 ";
 
 %feature("docstring") Matrix::getCellLocks "
-`getCellLocks() -> omp_lock_t *`  
+getCellLocks() -> omp_lock_t *  
 
 Return the array of cell locks for atomic cell operations.  
 
@@ -5114,7 +4935,7 @@ an array of cell locks
 ";
 
 %feature("docstring") Matrix::getNumX "
-`getNumX() -> int`  
+getNumX() -> int  
 
 Get the number of cells in the x dimension.  
 
@@ -5124,7 +4945,7 @@ The number of cells in the x dimension.
 ";
 
 %feature("docstring") Matrix::getNumY "
-`getNumY() -> int`  
+getNumY() -> int  
 
 Get the number of cells in the y dimension.  
 
@@ -5155,71 +4976,71 @@ The number of cells in the y dimension.
 ";
 
 %feature("docstring") openmoc::process::Mesh::get_fission_rates "
-`get_fission_rates -> def`  
+get_fission_rates -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::get_mesh_cell_indices "
-`get_mesh_cell_indices -> def`  
+get_mesh_cell_indices -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::mesh_cell_volume "
-`mesh_cell_volume -> def`  
+mesh_cell_volume -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::lower_left "
-`lower_left -> def`  
-`lower_left -> def`  
+lower_left -> def  
+lower_left -> def  
 
 Overloaded function
 -------------------
-* `lower_left -> def`  
+* lower_left -> def  
 
-* `lower_left -> def`  
+* lower_left -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::num_mesh_cells "
-`num_mesh_cells -> def`  
+num_mesh_cells -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::tally_on_mesh "
-`tally_on_mesh -> def`  
+tally_on_mesh -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::dimension "
-`dimension -> def`  
-`dimension -> def`  
+dimension -> def  
+dimension -> def  
 
 Overloaded function
 -------------------
-* `dimension -> def`  
+* dimension -> def  
 
-* `dimension -> def`  
+* dimension -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::width "
-`width -> def`  
-`width -> def`  
+width -> def  
+width -> def  
 
 Overloaded function
 -------------------
-* `width -> def`  
+* width -> def  
 
-* `width -> def`  
+* width -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::__init__ "
-`__init__ -> def`  
+__init__ -> def  
 ";
 
 %feature("docstring") openmoc::process::Mesh::upper_right "
-`upper_right -> def`  
-`upper_right -> def`  
+upper_right -> def  
+upper_right -> def  
 
 Overloaded function
 -------------------
-* `upper_right -> def`  
+* upper_right -> def  
 
-* `upper_right -> def`  
+* upper_right -> def  
 ";
 
 // File: structmultiplyByConstant.xml
@@ -5231,22 +5052,22 @@ A functor to multiply all elements in a Thrust vector by a constant.
 
 Parameters
 ----------
-* `constant` :  
+* constant :  
     the constant to multiply the vector  
 
 Attributes
 ----------
-* `constant` : `const T`  
+* constant : const T  
 ";
 
 %feature("docstring") multiplyByConstant::multiplyByConstant "
-`multiplyByConstant(T constant)`  
+multiplyByConstant(T constant)  
 
 Constructor for the functor.  
 
 Parameters
 ----------
-* `constant` :  
+* constant :  
     to multiply each element in a Thrust vector  
 ";
 
@@ -5271,7 +5092,7 @@ C++ includes: openmoc/options.py
 ";
 
 %feature("docstring") openmoc::options::Options::getNumThreadBlocks "
-`getNumThreadBlocks -> def`  
+getNumThreadBlocks -> def  
 
 Returns the number of CUDA thread blocks for a GPU.  
 
@@ -5281,7 +5102,7 @@ the number of CUDA thread blocks
 ";
 
 %feature("docstring") openmoc::options::Options::__init__ "
-`__init__ -> def`  
+__init__ -> def  
 
 Options class constructor.  
 
@@ -5291,7 +5112,7 @@ appropriate value to each.
 ";
 
 %feature("docstring") openmoc::options::Options::getTrackSpacing "
-`getTrackSpacing -> def`  
+getTrackSpacing -> def  
 
 Returns the track spacing [cm].  
 
@@ -5301,7 +5122,7 @@ the track spacing [cm].
 ";
 
 %feature("docstring") openmoc::options::Options::getNumThreadsPerBlock "
-`getNumThreadsPerBlock -> def`  
+getNumThreadsPerBlock -> def  
 
 Returns the number of CUDA threads per block for a GPU.  
 
@@ -5311,7 +5132,7 @@ the number of CUDA threads per block
 ";
 
 %feature("docstring") openmoc::options::Options::getTolerance "
-`getTolerance -> def`  
+getTolerance -> def  
 
 Returns the source convergence tolerance.  
 
@@ -5321,19 +5142,19 @@ the source convergence tolerance
 ";
 
 %feature("docstring") openmoc::options::Options::parseArguments "
-`parseArguments -> def`  
+parseArguments -> def  
 
 This method parses command line options using the Python getopt module and
 assigns the appropriate values to the corresponding Options class attributes.  
 
 Parameters
 ----------
-* `self` :  
+* self :  
     the Options object pointer  
 ";
 
 %feature("docstring") openmoc::options::Options::getNumThreads "
-`getNumThreads -> def`  
+getNumThreads -> def  
 
 Returns the number of OpenMP multi-core CPU threads.  
 
@@ -5343,7 +5164,7 @@ the number of OpenMP threads
 ";
 
 %feature("docstring") openmoc::options::Options::getMaxIterations "
-`getMaxIterations -> def`  
+getMaxIterations -> def  
 
 Returns the maximum number of source iterations.  
 
@@ -5353,7 +5174,7 @@ the maximum number of source iterations
 ";
 
 %feature("docstring") openmoc::options::Options::getNumAzimAngles "
-`getNumAzimAngles -> def`  
+getNumAzimAngles -> def  
 
 Returns the number of azimuthal angles.  
 
@@ -5383,7 +5204,7 @@ C++ includes: src/ParallelHashMap.h
 ";
 
 %feature("docstring") ParallelHashMap::values "
-`values() -> V *`  
+values() -> V *  
 
 Returns an array of the values in the underlying table.  
 
@@ -5399,7 +5220,7 @@ the table.
 ";
 
 %feature("docstring") ParallelHashMap::insert_and_get_count "
-`insert_and_get_count(K key, V value) -> int`  
+insert_and_get_count(K key, V value) -> int  
 
 Insert a given key/value pair into the parallel hash map and return the order
 number.  
@@ -5412,9 +5233,9 @@ bucket.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key of the key/value pair to be inserted  
-* `value` :  
+* value :  
     value of the key/value pair to be inserted  
 
 Returns
@@ -5423,7 +5244,7 @@ order number in which the key/value pair was inserted, -1 if it already exists
 ";
 
 %feature("docstring") ParallelHashMap::size "
-`size() -> size_t`  
+size() -> size_t  
 
 Returns the number of key/value pairs in the underlying table.  
 
@@ -5433,14 +5254,14 @@ number of key/value pairs in the map
 ";
 
 %feature("docstring") ParallelHashMap::ParallelHashMap "
-`ParallelHashMap(size_t M=64, size_t L=64)`  
+ParallelHashMap(size_t M=64, size_t L=64)  
 
 Constructor generates initial underlying table as a fixed-sized hash map and
 intializes concurrency structures.  
 ";
 
 %feature("docstring") ParallelHashMap::print_buckets "
-`print_buckets()`  
+print_buckets()  
 
 Prints the contents of each bucket to the screen.  
 
@@ -5451,7 +5272,7 @@ ensure table memory is not freed during access.
 ";
 
 %feature("docstring") ParallelHashMap::update "
-`update(K key, V value)`  
+update(K key, V value)  
 
 Updates the value associated with a key in the parallel hash map.  
 
@@ -5462,14 +5283,14 @@ updated and the lock is released.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     the key of the key/value pair to be updated  
-* `value` :  
+* value :  
     the new value for the key/value pair  
 ";
 
 %feature("docstring") ParallelHashMap::keys "
-`keys() -> K *`  
+keys() -> K *  
 
 Returns an array of the keys in the underlying table.  
 
@@ -5485,7 +5306,7 @@ table.
 ";
 
 %feature("docstring") ParallelHashMap::insert "
-`insert(K key, V value)`  
+insert(K key, V value)  
 
 Insert a given key/value pair into the parallel hash map.  
 
@@ -5497,27 +5318,27 @@ bucket.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key of the key/value pair to be inserted  
-* `value` :  
+* value :  
     value of the key/value pair to be inserted  
 ";
 
 %feature("docstring") ParallelHashMap::clear "
-`clear()`  
+clear()  
 
 Clears all key/value pairs form the hash table.  
 ";
 
 %feature("docstring") ParallelHashMap::~ParallelHashMap "
-`~ParallelHashMap()`  
+~ParallelHashMap()  
 
 Destructor frees memory associated with fixed-sized hash map and concurrency
 structures.  
 ";
 
 %feature("docstring") ParallelHashMap::num_locks "
-`num_locks() -> size_t`  
+num_locks() -> size_t  
 
 Returns the number of locks in the parallel hash map.  
 
@@ -5527,7 +5348,7 @@ number of locks in the map
 ";
 
 %feature("docstring") ParallelHashMap::contains "
-`contains(K key) -> bool`  
+contains(K key) -> bool  
 
 Determine whether the parallel hash map contains a given key.  
 
@@ -5540,7 +5361,7 @@ until all threads have finished accessing the map.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key to be searched  
 
 Returns
@@ -5549,7 +5370,7 @@ boolean value referring to whether the key is contained in the map
 ";
 
 %feature("docstring") ParallelHashMap::bucket_count "
-`bucket_count() -> size_t`  
+bucket_count() -> size_t  
 
 Returns the number of buckets in the underlying table.  
 
@@ -5559,7 +5380,7 @@ number of buckets in the map
 ";
 
 %feature("docstring") ParallelHashMap::at "
-`at(K key) -> V`  
+at(K key) -> V  
 
 Determine the value associated with a given key.  
 
@@ -5572,7 +5393,7 @@ table, it releases the lock.
 
 Parameters
 ----------
-* `key` :  
+* key :  
     key to be searched  
 
 Returns
@@ -5584,43 +5405,20 @@ value associated with the key
 
 
 %feature("docstring") Plane "
-`Plane(const double A, const double B, const double C, const double D, const int
-    id=0, const char *name=\"\")`  
 
 Represents a Plane perpendicular to the xy-plane.  
-
-Constructors
-------------
-* `Plane(const double A, const double B, const double C, const double D, const
-    int id=0, const char *name=\"\")`  
-    
-    Constructor.  
-
-    Parameters:  
-    * `A` :  
-        the first coefficient in $ A * x + B * y + C * z + D = 0 $  
-    * `B` :  
-        the second coefficient in $ A * x + B * y + C * z + D = 0 $  
-    * `C` :  
-        the third coefficient in $ A * x + B * y + C * z + D = 0 $  
-    * `D` :  
-        the fourth coefficient in $ A * x + B * y + C * z + D = 0 $  
-    * `id` :  
-        the optional Surface ID  
-    * `name` :  
-        the optional name of the Surface  
 
 C++ includes: src/Surface.h
 ";
 
 %feature("docstring") Plane::getMaxZ "
-`getMaxZ(int halfspace) -> double`  
+getMaxZ(int halfspace) -> double  
 
 Returns the maximum z value of INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -5629,13 +5427,13 @@ the maximum z value of INFINITY
 ";
 
 %feature("docstring") Plane::getMaxX "
-`getMaxX(int halfspace) -> double`  
+getMaxX(int halfspace) -> double  
 
 Returns the maximum x value of INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -5644,13 +5442,13 @@ the maximum x value of INFINITY
 ";
 
 %feature("docstring") Plane::getMaxY "
-`getMaxY(int halfspace) -> double`  
+getMaxY(int halfspace) -> double  
 
 Returns the maximum y value of INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -5659,7 +5457,7 @@ the maximum y value of INFINITY
 ";
 
 %feature("docstring") Plane::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this Plane's attributes to a character array.  
 
@@ -5672,7 +5470,7 @@ a character array of this Plane's attributes
 ";
 
 %feature("docstring") Plane::getA "
-`getA() -> double`  
+getA() -> double  
 
 Returns the A coefficient multiplying x in the surface equation.  
 
@@ -5682,7 +5480,7 @@ the value for the A coefficient
 ";
 
 %feature("docstring") Plane::getC "
-`getC() -> double`  
+getC() -> double  
 
 Returns the C coefficient multiplying z in the surface equation.  
 
@@ -5692,7 +5490,7 @@ the value for the C coefficient
 ";
 
 %feature("docstring") Plane::getB "
-`getB() -> double`  
+getB() -> double  
 
 Returns the B coefficient multiplying y in the surface equation.  
 
@@ -5702,7 +5500,7 @@ the value for the B coefficient
 ";
 
 %feature("docstring") Plane::getD "
-`getD() -> double`  
+getD() -> double  
 
 Returns the D constant coefficient.  
 
@@ -5712,13 +5510,13 @@ the value for the D coefficient
 ";
 
 %feature("docstring") Plane::getMinX "
-`getMinX(int halfspace) -> double`  
+getMinX(int halfspace) -> double  
 
 Returns the minimum x value of -INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -5727,13 +5525,13 @@ the minimum x value of -INFINITY
 ";
 
 %feature("docstring") Plane::getMinY "
-`getMinY(int halfspace) -> double`  
+getMinY(int halfspace) -> double  
 
 Returns the minimum y value of -INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -5742,13 +5540,13 @@ the minimum y value of -INFINITY
 ";
 
 %feature("docstring") Plane::getMinZ "
-`getMinZ(int halfspace) -> double`  
+getMinZ(int halfspace) -> double  
 
 Returns the minimum z value of -INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -5757,35 +5555,35 @@ the minimum z value of -INFINITY
 ";
 
 %feature("docstring") Plane::Plane "
-`Plane(const double A, const double B, const double C, const double D, const int
-    id=0, const char *name=\"\")`  
+Plane(const double A, const double B, const double C, const double D, const int
+    id=0, const char *name=\"\")  
 
 Constructor.  
 
 Parameters
 ----------
-* `A` :  
+* A :  
     the first coefficient in $ A * x + B * y + C * z + D = 0 $  
-* `B` :  
+* B :  
     the second coefficient in $ A * x + B * y + C * z + D = 0 $  
-* `C` :  
+* C :  
     the third coefficient in $ A * x + B * y + C * z + D = 0 $  
-* `D` :  
+* D :  
     the fourth coefficient in $ A * x + B * y + C * z + D = 0 $  
-* `id` :  
+* id :  
     the optional Surface ID  
-* `name` :  
+* name :  
     the optional name of the Surface  
 ";
 
 %feature("docstring") Plane::evaluate "
-`evaluate(const Point *point) const  -> double`  
+evaluate(const Point *point) const  -> double  
 
 Evaluate a Point using the Plane's quadratic Surface equation.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to the Point of interest  
 
 Returns
@@ -5794,18 +5592,18 @@ the value of Point in the Plane's quadratic equation
 ";
 
 %feature("docstring") Plane::intersection "
-`intersection(Point *point, double angle, Point *points) -> int`  
+intersection(Point *point, double angle, Point *points) -> int  
 
 Finds the intersection Point with this Plane from a given Point and trajectory
 defined by an angle.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     pointer to the Point of interest  
-* `angle` :  
+* angle :  
     the angle defining the trajectory in radians  
-* `points` :  
+* points :  
     pointer to a Point to store the intersection Point  
 
 Returns
@@ -5820,7 +5618,7 @@ the number of intersection Points (0 or 1)
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::__init__ "
-`__init__ -> def`  
+__init__ -> def  
 
 PlotParams class constructor.  
 
@@ -5829,201 +5627,201 @@ Matplotlib image plots.
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::vmin "
-`vmin -> def`  
-`vmin -> def`  
+vmin -> def  
+vmin -> def  
 
 Overloaded function
 -------------------
-* `vmin -> def`  
+* vmin -> def  
 
-* `vmin -> def`  
+* vmin -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::domain_type "
-`domain_type -> def`  
-`domain_type -> def`  
+domain_type -> def  
+domain_type -> def  
 
 Overloaded function
 -------------------
-* `domain_type -> def`  
+* domain_type -> def  
 
-* `domain_type -> def`  
+* domain_type -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::cmap "
-`cmap -> def`  
-`cmap -> def`  
+cmap -> def  
+cmap -> def  
 
 Overloaded function
 -------------------
-* `cmap -> def`  
+* cmap -> def  
 
-* `cmap -> def`  
+* cmap -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::title "
-`title -> def`  
-`title -> def`  
+title -> def  
+title -> def  
 
 Overloaded function
 -------------------
-* `title -> def`  
+* title -> def  
 
-* `title -> def`  
+* title -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::norm "
-`norm -> def`  
-`norm -> def`  
+norm -> def  
+norm -> def  
 
 Overloaded function
 -------------------
-* `norm -> def`  
+* norm -> def  
 
-* `norm -> def`  
+* norm -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::interpolation "
-`interpolation -> def`  
-`interpolation -> def`  
+interpolation -> def  
+interpolation -> def  
 
 Overloaded function
 -------------------
-* `interpolation -> def`  
+* interpolation -> def  
 
-* `interpolation -> def`  
+* interpolation -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::ylim "
-`ylim -> def`  
-`ylim -> def`  
+ylim -> def  
+ylim -> def  
 
 Overloaded function
 -------------------
-* `ylim -> def`  
+* ylim -> def  
 
-* `ylim -> def`  
+* ylim -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::colorbar "
-`colorbar -> def`  
-`colorbar -> def`  
+colorbar -> def  
+colorbar -> def  
 
 Overloaded function
 -------------------
-* `colorbar -> def`  
+* colorbar -> def  
 
-* `colorbar -> def`  
+* colorbar -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::xlim "
-`xlim -> def`  
-`xlim -> def`  
+xlim -> def  
+xlim -> def  
 
 Overloaded function
 -------------------
-* `xlim -> def`  
+* xlim -> def  
 
-* `xlim -> def`  
+* xlim -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::filename "
-`filename -> def`  
-`filename -> def`  
+filename -> def  
+filename -> def  
 
 Overloaded function
 -------------------
-* `filename -> def`  
+* filename -> def  
 
-* `filename -> def`  
+* filename -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::suptitle "
-`suptitle -> def`  
-`suptitle -> def`  
+suptitle -> def  
+suptitle -> def  
 
 Overloaded function
 -------------------
-* `suptitle -> def`  
+* suptitle -> def  
 
-* `suptitle -> def`  
+* suptitle -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::zcoord "
-`zcoord -> def`  
-`zcoord -> def`  
+zcoord -> def  
+zcoord -> def  
 
 Overloaded function
 -------------------
-* `zcoord -> def`  
+* zcoord -> def  
 
-* `zcoord -> def`  
+* zcoord -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::geometry "
-`geometry -> def`  
-`geometry -> def`  
+geometry -> def  
+geometry -> def  
 
 Overloaded function
 -------------------
-* `geometry -> def`  
+* geometry -> def  
 
-* `geometry -> def`  
+* geometry -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::extension "
-`extension -> def`  
-`extension -> def`  
+extension -> def  
+extension -> def  
 
 Overloaded function
 -------------------
-* `extension -> def`  
+* extension -> def  
 
-* `extension -> def`  
+* extension -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::vmax "
-`vmax -> def`  
-`vmax -> def`  
+vmax -> def  
+vmax -> def  
 
 Overloaded function
 -------------------
-* `vmax -> def`  
+* vmax -> def  
 
-* `vmax -> def`  
+* vmax -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::library "
-`library -> def`  
-`library -> def`  
+library -> def  
+library -> def  
 
 Overloaded function
 -------------------
-* `library -> def`  
+* library -> def  
 
-* `library -> def`  
+* library -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::gridsize "
-`gridsize -> def`  
-`gridsize -> def`  
+gridsize -> def  
+gridsize -> def  
 
 Overloaded function
 -------------------
-* `gridsize -> def`  
+* gridsize -> def  
 
-* `gridsize -> def`  
+* gridsize -> def  
 ";
 
 %feature("docstring") openmoc::plotter::PlotParams::transparent_zeros "
-`transparent_zeros -> def`  
-`transparent_zeros -> def`  
+transparent_zeros -> def  
+transparent_zeros -> def  
 
 Overloaded function
 -------------------
-* `transparent_zeros -> def`  
+* transparent_zeros -> def  
 
-* `transparent_zeros -> def`  
+* transparent_zeros -> def  
 ";
 
 // File: classPlotParms.xml
@@ -6043,21 +5841,14 @@ C++ includes: openmoc/plotter.py
 
 
 %feature("docstring") Point "
-`Point()`  
 
 Class to represent a 3D point in space.  
-
-Constructors
-------------
-* `Point()`  
-    
-    Constructor initializes an empty Point.  
 
 C++ includes: src/Point.h
 ";
 
 %feature("docstring") Point::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this Point to a character representation of its attributes.  
 
@@ -6069,7 +5860,7 @@ a character array of this Point's attributes
 ";
 
 %feature("docstring") Point::getY "
-`getY() const  -> double`  
+getY() const  -> double  
 
 Returns this Point's y-coordinate.  
 
@@ -6079,7 +5870,7 @@ the y-coordinate
 ";
 
 %feature("docstring") Point::getX "
-`getX() const  -> double`  
+getX() const  -> double  
 
 Returns this Point's x-coordinate.  
 
@@ -6089,7 +5880,7 @@ the x-coordinate
 ";
 
 %feature("docstring") Point::getZ "
-`getZ() const  -> double`  
+getZ() const  -> double  
 
 Returns this Point's z-coordinate.  
 
@@ -6099,52 +5890,52 @@ the z-coordinate
 ";
 
 %feature("docstring") Point::Point "
-`Point()`  
+Point()  
 
 Constructor initializes an empty Point.  
 ";
 
 %feature("docstring") Point::setX "
-`setX(const double x)`  
+setX(const double x)  
 
 Set the Point's x-coordinate.  
 
 Parameters
 ----------
-* `x` :  
+* x :  
     the new x-coordinate  
 ";
 
 %feature("docstring") Point::setZ "
-`setZ(const double z)`  
+setZ(const double z)  
 
 Set the Point's z-coordinate.  
 
 Parameters
 ----------
-* `z` :  
+* z :  
     the new z-coordinate  
 ";
 
 %feature("docstring") Point::setY "
-`setY(const double y)`  
+setY(const double y)  
 
 Set the Point's y-coordinate.  
 
 Parameters
 ----------
-* `y` :  
+* y :  
     the new y-coordinate  
 ";
 
 %feature("docstring") Point::distanceToPoint "
-`distanceToPoint(const Point *point) -> double`  
+distanceToPoint(const Point *point) -> double  
 
 Compute the distance from this Point to another Point of interest.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to the Point of interest  
 
 Returns
@@ -6153,21 +5944,21 @@ distance to the Point of interest
 ";
 
 %feature("docstring") Point::~Point "
-`~Point()`  
+~Point()  
 
 Destructor.  
 ";
 
 %feature("docstring") Point::setCoords "
-`setCoords(const double x, const double y, const double z)`  
+setCoords(const double x, const double y, const double z)  
 
 Initializes a Point with two-dimensional coordinates.  
 
 Parameters
 ----------
-* `x` :  
+* x :  
     x-coordinate  
-* `y` :  
+* y :  
     y-coordinate  
 ";
 
@@ -6175,27 +5966,20 @@ Parameters
 
 
 %feature("docstring") PolarQuad "
-`PolarQuad()`  
 
 The arbitrary polar quadrature parent class.  
-
-Constructors
-------------
-* `PolarQuad()`  
-    
-    Dummy constructor sets the default number of angles to zero.  
 
 C++ includes: src/PolarQuad.h
 ";
 
 %feature("docstring") PolarQuad::PolarQuad "
-`PolarQuad()`  
+PolarQuad()  
 
 Dummy constructor sets the default number of angles to zero.  
 ";
 
 %feature("docstring") PolarQuad::initialize "
-`initialize()`  
+initialize()  
 
 Dummy routine to initialize the polar quadrature.  
 
@@ -6204,7 +5988,7 @@ set by the user and returns;
 ";
 
 %feature("docstring") PolarQuad::getWeights "
-`getWeights() -> FP_PRECISION *`  
+getWeights() -> FP_PRECISION *  
 
 Returns a pointer to the PolarQuad's array of polar weights.  
 
@@ -6214,7 +5998,7 @@ a pointer to the polar weights array
 ";
 
 %feature("docstring") PolarQuad::setWeights "
-`setWeights(double *weights, int num_polar)`  
+setWeights(double *weights, int num_polar)  
 
 Set the PolarQuad's array of weights for each angle.  
 
@@ -6228,14 +6012,14 @@ might be called in Python is as follows:
 
 Parameters
 ----------
-* `weights` :  
+* weights :  
     the array of weights for each polar angle  
-* `num_polar` :  
+* num_polar :  
     the number of polar angles  
 ";
 
 %feature("docstring") PolarQuad::getQuadratureType "
-`getQuadratureType() -> quadratureType`  
+getQuadratureType() -> quadratureType  
 
 Returns the quadrature type.  
 
@@ -6245,7 +6029,7 @@ an enum corresponding to the quadrature type
 ";
 
 %feature("docstring") PolarQuad::setSinThetas "
-`setSinThetas(double *sin_thetas, int num_polar)`  
+setSinThetas(double *sin_thetas, int num_polar)  
 
 Set the PolarQuad's array of sines of each polar angle.  
 
@@ -6259,14 +6043,14 @@ called in Python is as follows:
 
 Parameters
 ----------
-* `sin_thetas` :  
+* sin_thetas :  
     the array of sines of each polar angle  
-* `num_polar` :  
+* num_polar :  
     the number of polar angles  
 ";
 
 %feature("docstring") PolarQuad::getMultiples "
-`getMultiples() -> FP_PRECISION *`  
+getMultiples() -> FP_PRECISION *  
 
 Returns a pointer to the PolarQuad's array of multiples.  
 
@@ -6278,13 +6062,13 @@ a pointer to the multiples array
 ";
 
 %feature("docstring") PolarQuad::getSinTheta "
-`getSinTheta(const int n) const  -> FP_PRECISION`  
+getSinTheta(const int n) const  -> FP_PRECISION  
 
 Returns the $ sin(\\theta)$ value for a particular polar angle.  
 
 Parameters
 ----------
-* `n` :  
+* n :  
     index of the polar angle of interest  
 
 Returns
@@ -6293,7 +6077,7 @@ the value of $ \\sin(\\theta) $ for this polar angle
 ";
 
 %feature("docstring") PolarQuad::getSinThetas "
-`getSinThetas() -> FP_PRECISION *`  
+getSinThetas() -> FP_PRECISION *  
 
 Returns a pointer to the PolarQuad's array of $ sin\\theta_{p} $.  
 
@@ -6303,7 +6087,7 @@ a pointer to the array of $ sin\\theta_{p} $
 ";
 
 %feature("docstring") PolarQuad::getNumPolarAngles "
-`getNumPolarAngles() const  -> int`  
+getNumPolarAngles() const  -> int  
 
 Returns the number of polar angles.  
 
@@ -6313,18 +6097,18 @@ the number of polar angles
 ";
 
 %feature("docstring") PolarQuad::setNumPolarAngles "
-`setNumPolarAngles(const int num_polar)`  
+setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
 
 Parameters
 ----------
-* `num_polar` :  
+* num_polar :  
     the number of polar angles  
 ";
 
 %feature("docstring") PolarQuad::getMultiple "
-`getMultiple(const int n) const  -> FP_PRECISION`  
+getMultiple(const int n) const  -> FP_PRECISION  
 
 Returns the multiple value for a particular polar angle.  
 
@@ -6332,7 +6116,7 @@ A multiple is the sine of a polar angle multiplied by its weight.
 
 Parameters
 ----------
-* `n` :  
+* n :  
     index of the polar angle of interest  
 
 Returns
@@ -6341,7 +6125,7 @@ the value of the sine of the polar angle multiplied with its weight
 ";
 
 %feature("docstring") PolarQuad::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this Quadrature to a character array of its attributes.  
 
@@ -6355,20 +6139,20 @@ a character array of the PolarQuad's attributes
 ";
 
 %feature("docstring") PolarQuad::~PolarQuad "
-`~PolarQuad()`  
+~PolarQuad()  
 
 Destructor deletes arrray of sines of the polar angles, the weights of the polar
 angles and the products of the sines and weights.  
 ";
 
 %feature("docstring") PolarQuad::getWeight "
-`getWeight(const int n) const  -> FP_PRECISION`  
+getWeight(const int n) const  -> FP_PRECISION  
 
 Returns the weight value for a particular polar angle.  
 
 Parameters
 ----------
-* `n` :  
+* n :  
     index of the polar angle of interest  
 
 Returns
@@ -6394,39 +6178,32 @@ C++ includes: Universe.h
 
 
 %feature("docstring") segment "
-`segment()`  
 
 A segment represents a line segment within a single flat source region along a
 track.  
 
-Constructors
-------------
-* `segment()`  
-    
-    Constructor initializes CMFD surfaces  
-
 Attributes
 ----------
-* `_length` : `FP_PRECISION`  
+* _length : FP_PRECISION  
     The length of the segment (cm)  
 
-* `_material` : `Material *`  
+* _material : Material *  
     A pointer to the material in which this segment resides  
 
-* `_region_id` : `int`  
+* _region_id : int  
     The ID for flat source region in which this segment resides  
 
-* `_cmfd_surface_fwd` : `int`  
+* _cmfd_surface_fwd : int  
     The ID for the mesh surface crossed by the Track end point  
 
-* `_cmfd_surface_bwd` : `int`  
+* _cmfd_surface_bwd : int  
     The ID for the mesh surface crossed by the Track start point  
 
 C++ includes: Track.h
 ";
 
 %feature("docstring") segment::segment "
-`segment()`  
+segment()  
 
 Constructor initializes CMFD surfaces  
 ";
@@ -6435,27 +6212,15 @@ Constructor initializes CMFD surfaces
 
 
 %feature("docstring") Solver "
-`Solver(TrackGenerator *track_generator=NULL)`  
 
 This is an abstract base class which different Solver subclasses implement for
 different architectures or source iteration algorithms.  
-
-Constructors
-------------
-* `Solver(TrackGenerator *track_generator=NULL)`  
-    
-    Constructor initializes an empty Solver class with array pointers set to
-    NULL.  
-
-    Parameters:  
-    * `track_generator` :  
-        an optional pointer to a TrackGenerator object  
 
 C++ includes: src/Solver.h
 ";
 
 %feature("docstring") Solver::setConvergenceThreshold "
-`setConvergenceThreshold(FP_PRECISION threshold)`  
+setConvergenceThreshold(FP_PRECISION threshold)  
 
 Sets the threshold for source/flux convergence.  
 
@@ -6463,13 +6228,13 @@ The default threshold for convergence is 1E-5.
 
 Parameters
 ----------
-* `source_thresh` :  
+* source_thresh :  
     the threshold for source/flux convergence  
 ";
 
 %feature("docstring") Solver::computeFlux "
-`computeFlux(int max_iters=1000, solverMode mode=FORWARD, bool
-    only_fixed_source=true)`  
+computeFlux(int max_iters=1000, solverMode mode=FORWARD, bool
+    only_fixed_source=true)  
 
 Computes the scalar flux distribution by performing a series of transport
 sweeps.  
@@ -6503,16 +6268,16 @@ source distribution from Python as follows:
 
 Parameters
 ----------
-* `max_iters` :  
+* max_iters :  
     the maximum number of source iterations to allow  
-* `mode` :  
+* mode :  
     the solution type (FORWARD or ADJOINT)  
-* `only_fixed_source` :  
+* only_fixed_source :  
     use only fixed sources (true by default)  
 ";
 
 %feature("docstring") Solver::countFissionableFSRs "
-`countFissionableFSRs()`  
+countFissionableFSRs()  
 
 Counts the number of fissionable flat source regions.  
 
@@ -6522,7 +6287,7 @@ distribution.
 ";
 
 %feature("docstring") Solver::setExpPrecision "
-`setExpPrecision(FP_PRECISION precision)`  
+setExpPrecision(FP_PRECISION precision)  
 
 Set the precision, or maximum allowable approximation error, of the the
 exponential interpolation table.  
@@ -6532,12 +6297,12 @@ paper.
 
 Parameters
 ----------
-* `precision` :  
+* precision :  
     the precision of the exponential interpolation table,  
 ";
 
 %feature("docstring") Solver::getTotalTime "
-`getTotalTime() -> double`  
+getTotalTime() -> double  
 
 Returns the total time to converge the source (seconds).  
 
@@ -6547,7 +6312,7 @@ the time to converge the source (seconds)
 ";
 
 %feature("docstring") Solver::getTrackGenerator "
-`getTrackGenerator() -> TrackGenerator *`  
+getTrackGenerator() -> TrackGenerator *  
 
 Returns a pointer to the TrackGenerator.  
 
@@ -6557,43 +6322,43 @@ a pointer to the TrackGenerator
 ";
 
 %feature("docstring") Solver::setFixedSourceByCell "
-`setFixedSourceByCell(Cell *cell, int group, FP_PRECISION source)`  
+setFixedSourceByCell(Cell *cell, int group, FP_PRECISION source)  
 
 Assign a fixed source for a Cell and energy group.  
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     the Cell of interest  
-* `group` :  
+* group :  
     the energy group  
-* `source` :  
+* source :  
     the volume-averaged source in this group  
 ";
 
 %feature("docstring") Solver::computeFSRFissionSources "
-`computeFSRFissionSources()=0`  
+computeFSRFissionSources()=0  
 
 Computes the total fission source for each FSR and energy group.  
 ";
 
 %feature("docstring") Solver::normalizeFluxes "
-`normalizeFluxes()=0`  
+normalizeFluxes()=0  
 
 Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
 fission source (times $ \\nu $).  
 ";
 
 %feature("docstring") Solver::getFlux "
-`getFlux(int fsr_id, int group) -> FP_PRECISION`  
+getFlux(int fsr_id, int group) -> FP_PRECISION  
 
 Returns the scalar flux for some FSR and energy group.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the ID for the FSR of interest  
-* `group` :  
+* group :  
     the energy group of interest  
 
 Returns
@@ -6602,18 +6367,18 @@ the FSR scalar flux
 ";
 
 %feature("docstring") Solver::Solver "
-`Solver(TrackGenerator *track_generator=NULL)`  
+Solver(TrackGenerator *track_generator=NULL)  
 
 Constructor initializes an empty Solver class with array pointers set to NULL.  
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     an optional pointer to a TrackGenerator object  
 ";
 
 %feature("docstring") Solver::getPolarQuad "
-`getPolarQuad() -> PolarQuad *`  
+getPolarQuad() -> PolarQuad *  
 
 Returns a pointer to the PolarQuad.  
 
@@ -6623,7 +6388,7 @@ a pointer to the PolarQuad
 ";
 
 %feature("docstring") Solver::getMaxOpticalLength "
-`getMaxOpticalLength() -> FP_PRECISION`  
+getMaxOpticalLength() -> FP_PRECISION  
 
 Get the maximum allowable optical length for a track segment.  
 
@@ -6633,8 +6398,8 @@ The max optical length
 ";
 
 %feature("docstring") Solver::computeEigenvalue "
-`computeEigenvalue(int max_iters=1000, solverMode mode=FORWARD, residualType
-    res_type=FISSION_SOURCE)`  
+computeEigenvalue(int max_iters=1000, solverMode mode=FORWARD, residualType
+    res_type=FISSION_SOURCE)  
 
 Computes keff by performing a series of transport sweep and source updates.  
 
@@ -6654,16 +6419,16 @@ in OpenMOC at this time.
 
 Parameters
 ----------
-* `max_iters` :  
+* max_iters :  
     the maximum number of source iterations to allow  
-* `mode` :  
+* mode :  
     the solution type (FORWARD or ADJOINT)  
-* `res_type` :  
+* res_type :  
     the type of residual used for the convergence criterion  
 ";
 
 %feature("docstring") Solver::isUsingExponentialInterpolation "
-`isUsingExponentialInterpolation() -> bool`  
+isUsingExponentialInterpolation() -> bool  
 
 Returns whether the Solver uses linear interpolation to compute exponentials.  
 
@@ -6673,15 +6438,15 @@ true if using linear interpolation to compute exponentials
 ";
 
 %feature("docstring") Solver::setFluxes "
-`setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)=0`  
+setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)=0  
 ";
 
 %feature("docstring") Solver::getFluxes "
-`getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)=0`  
+getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)=0  
 ";
 
 %feature("docstring") Solver::getGeometry "
-`getGeometry() -> Geometry *`  
+getGeometry() -> Geometry *  
 
 Returns a pointer to the Geometry.  
 
@@ -6691,7 +6456,7 @@ a pointer to the Geometry
 ";
 
 %feature("docstring") Solver::setPolarQuadrature "
-`setPolarQuadrature(PolarQuad *polar_quad)`  
+setPolarQuadrature(PolarQuad *polar_quad)  
 
 Assign a PolarQuad object to the Solver.  
 
@@ -6704,18 +6469,18 @@ Users may assign a PolarQuad object to the Solver from Python script as follows:
 
 Parameters
 ----------
-* `polar_quad` :  
+* polar_quad :  
     a pointer to a PolarQuad object  
 ";
 
 %feature("docstring") Solver::initializeSourceArrays "
-`initializeSourceArrays()=0`  
+initializeSourceArrays()=0  
 
 Allocates memory for FSR source arrays.  
 ";
 
 %feature("docstring") Solver::getNumPolarAngles "
-`getNumPolarAngles() -> int`  
+getNumPolarAngles() -> int  
 
 Returns the number of angles used for the polar quadrature.  
 
@@ -6725,23 +6490,23 @@ the number of polar angles
 ";
 
 %feature("docstring") Solver::setFixedSourceByFSR "
-`setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source)`  
+setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source)  
 
 Assign a fixed source for a flat source region and energy group.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the flat source region ID  
-* `group` :  
+* group :  
     the energy group  
-* `source` :  
+* source :  
     the volume-averaged source in this group  
 ";
 
 %feature("docstring") Solver::computeSource "
-`computeSource(int max_iters=1000, solverMode mode=FORWARD, double k_eff=1.0,
-    residualType res_type=TOTAL_SOURCE)`  
+computeSource(int max_iters=1000, solverMode mode=FORWARD, double k_eff=1.0,
+    residualType res_type=TOTAL_SOURCE)  
 
 Computes the total source distribution by performing a series of transport sweep
 and source updates.  
@@ -6769,35 +6534,35 @@ This method may be called by the user from Python as follows:
 
 Parameters
 ----------
-* `max_iters` :  
+* max_iters :  
     the maximum number of source iterations to allow  
-* `mode` :  
+* mode :  
     the solution type (FORWARD or ADJOINT)  
-* `k_eff` :  
+* k_eff :  
     the sub/super-critical eigenvalue (default 1.0)  
-* `res_type` :  
+* res_type :  
     the type of residual used for the convergence criterion  
 ";
 
 %feature("docstring") Solver::flattenFSRFluxes "
-`flattenFSRFluxes(FP_PRECISION value)=0`  
+flattenFSRFluxes(FP_PRECISION value)=0  
 
 Set the scalar flux for each FSR and energy group to some value.  
 
 Parameters
 ----------
-* `value` :  
+* value :  
     the value to assign to each FSR scalar flux  
 ";
 
 %feature("docstring") Solver::getFSRVolume "
-`getFSRVolume(int fsr_id) -> FP_PRECISION`  
+getFSRVolume(int fsr_id) -> FP_PRECISION  
 
 Returns the calculated volume for a flat source region.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the flat source region ID of interest  
 
 Returns
@@ -6806,7 +6571,7 @@ the flat source region volume
 ";
 
 %feature("docstring") Solver::initializeFixedSources "
-`initializeFixedSources()`  
+initializeFixedSources()  
 
 Assigns fixed sources assigned by Cell, Material to FSRs.  
 
@@ -6814,7 +6579,7 @@ Fixed sources assigned by Material
 ";
 
 %feature("docstring") Solver::getKeff "
-`getKeff() -> FP_PRECISION`  
+getKeff() -> FP_PRECISION  
 
 Returns the converged eigenvalue $ k_{eff} $.  
 
@@ -6824,20 +6589,20 @@ the converged eigenvalue $ k_{eff} $
 ";
 
 %feature("docstring") Solver::useExponentialIntrinsic "
-`useExponentialIntrinsic()`  
+useExponentialIntrinsic()  
 
 Informs the Solver to use the exponential intrinsic exp(...) function to compute
 the exponential in the transport equation.  
 ";
 
 %feature("docstring") Solver::computeResidual "
-`computeResidual(residualType res_type)=0 -> double`  
+computeResidual(residualType res_type)=0 -> double  
 
 Computes the residual between successive flux/source iterations.  
 
 Parameters
 ----------
-* `res_type` :  
+* res_type :  
     the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)  
 
 Returns
@@ -6846,13 +6611,13 @@ the total residual summed over FSRs and energy groups
 ";
 
 %feature("docstring") Solver::transportSweep "
-`transportSweep()=0`  
+transportSweep()=0  
 
 This method performs one transport swep.  
 ";
 
 %feature("docstring") Solver::initializeMaterials "
-`initializeMaterials(solverMode mode=FORWARD)`  
+initializeMaterials(solverMode mode=FORWARD)  
 
 Initializes the Material fission matrices.  
 
@@ -6861,12 +6626,12 @@ fission matrices in each material.
 
 Parameters
 ----------
-* `mode` :  
+* mode :  
     the solution type (FORWARD or ADJOINT)  
 ";
 
 %feature("docstring") Solver::isUsingDoublePrecision "
-`isUsingDoublePrecision() -> bool`  
+isUsingDoublePrecision() -> bool  
 
 Returns whether the solver is using double floating point precision.  
 
@@ -6876,7 +6641,7 @@ true if using double precision float point arithmetic
 ";
 
 %feature("docstring") Solver::getConvergenceThreshold "
-`getConvergenceThreshold() -> FP_PRECISION`  
+getConvergenceThreshold() -> FP_PRECISION  
 
 Returns the threshold for source/flux convergence.  
 
@@ -6886,13 +6651,13 @@ the threshold for source/flux convergence
 ";
 
 %feature("docstring") Solver::printTimerReport "
-`printTimerReport()`  
+printTimerReport()  
 
 Prints a report of the timing statistics to the console.  
 ";
 
 %feature("docstring") Solver::initializeCmfd "
-`initializeCmfd()`  
+initializeCmfd()  
 
 Initializes a Cmfd object for acceleratiion prior to source iteration.  
 
@@ -6902,40 +6667,40 @@ for internal use only and should not be called directly by the user.
 ";
 
 %feature("docstring") Solver::setFixedSourceByMaterial "
-`setFixedSourceByMaterial(Material *material, int group, FP_PRECISION source)`  
+setFixedSourceByMaterial(Material *material, int group, FP_PRECISION source)  
 
 Assign a fixed source for a Material and energy group.  
 
 Parameters
 ----------
-* `material` :  
+* material :  
     the Material of interest  
-* `group` :  
+* group :  
     the energy group  
-* `source` :  
+* source :  
     the volume-averaged source in this group  
 ";
 
 %feature("docstring") Solver::setMaxOpticalLength "
-`setMaxOpticalLength(FP_PRECISION max_optical_length)`  
+setMaxOpticalLength(FP_PRECISION max_optical_length)  
 
 Set the maximum allowable optical length for a track segment.  
 
 Parameters
 ----------
-* `max_optical_length` :  
+* max_optical_length :  
     The max optical length  
 ";
 
 %feature("docstring") Solver::computeKeff "
-`computeKeff()=0`  
+computeKeff()=0  
 
 Compute $ k_{eff} $ from total fission and absorption rates in each FSR and
 energy group.  
 ";
 
 %feature("docstring") Solver::getFSRSource "
-`getFSRSource(int fsr_id, int group) -> FP_PRECISION`  
+getFSRSource(int fsr_id, int group) -> FP_PRECISION  
 
 Returns the source for some energy group for a flat source region.  
 
@@ -6943,9 +6708,9 @@ This is a helper routine used by the openmoc.process module.
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the ID for the FSR of interest  
-* `group` :  
+* group :  
     the energy group of interest  
 
 Returns
@@ -6954,7 +6719,7 @@ the flat source region source
 ";
 
 %feature("docstring") Solver::initializePolarQuadrature "
-`initializePolarQuadrature()`  
+initializePolarQuadrature()  
 
 Initializes a new PolarQuad object.  
 
@@ -6962,7 +6727,7 @@ Deletes memory old PolarQuad if one was previously allocated.
 ";
 
 %feature("docstring") Solver::scatterTransportSweep "
-`scatterTransportSweep()`  
+scatterTransportSweep()  
 
 This method performs one transport sweep using the scatter source.  
 
@@ -6970,14 +6735,14 @@ This is a helper routine used for Krylov subspace methods.
 ";
 
 %feature("docstring") Solver::addSourceToScalarFlux "
-`addSourceToScalarFlux()=0`  
+addSourceToScalarFlux()=0  
 
 Add the source term contribution in the transport equation to the FSR scalar
 flux.  
 ";
 
 %feature("docstring") Solver::initializeFSRs "
-`initializeFSRs()`  
+initializeFSRs()  
 
 Initializes the FSR volumes and Materials array.  
 
@@ -6987,7 +6752,7 @@ all of the segments inside the FSR.
 ";
 
 %feature("docstring") Solver::setTrackGenerator "
-`setTrackGenerator(TrackGenerator *track_generator)`  
+setTrackGenerator(TrackGenerator *track_generator)  
 
 Sets the Solver's TrackGenerator with characteristic Tracks.  
 
@@ -6998,12 +6763,12 @@ to assigning the TrackGenerator to the Solver:
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     a pointer to a TrackGenerator object  
 ";
 
 %feature("docstring") Solver::getNumIterations "
-`getNumIterations() -> int`  
+getNumIterations() -> int  
 
 Returns the number of source iterations to converge the source.  
 
@@ -7013,20 +6778,20 @@ the number of iterations
 ";
 
 %feature("docstring") Solver::storeFSRFluxes "
-`storeFSRFluxes()=0`  
+storeFSRFluxes()=0  
 
 Stores the current scalar fluxes in the old scalar flux array.  
 ";
 
 %feature("docstring") Solver::zeroTrackFluxes "
-`zeroTrackFluxes()=0`  
+zeroTrackFluxes()=0  
 
 Zero each Track's boundary fluxes for each energy group and polar angle in the
 \"forward\" and \"reverse\" directions.  
 ";
 
 %feature("docstring") Solver::fissionTransportSweep "
-`fissionTransportSweep()`  
+fissionTransportSweep()  
 
 This method performs one transport sweep using the fission source.  
 
@@ -7034,7 +6799,7 @@ This is a helper routine used for Krylov subspace methods.
 ";
 
 %feature("docstring") Solver::~Solver "
-`~Solver()`  
+~Solver()  
 
 Destructor deletes arrays of boundary angular fluxes, scalar fluxes and sources
 for each FSR and energy group.  
@@ -7044,14 +6809,14 @@ sources, quadrature weights, and exponential linear interpolation table.
 ";
 
 %feature("docstring") Solver::computeFSRSources "
-`computeFSRSources()=0`  
+computeFSRSources()=0  
 
 Computes the total source (fission, scattering, fixed) for each FSR and energy
 group.  
 ";
 
 %feature("docstring") Solver::setGeometry "
-`setGeometry(Geometry *geometry)`  
+setGeometry(Geometry *geometry)  
 
 Sets the Geometry for the Solver.  
 
@@ -7060,12 +6825,12 @@ by the user.
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a pointer to a Geometry object  
 ";
 
 %feature("docstring") Solver::resetMaterials "
-`resetMaterials(solverMode mode=FORWARD)`  
+resetMaterials(solverMode mode=FORWARD)  
 
 Returns the Material data to its original state.  
 
@@ -7075,37 +6840,37 @@ their original (FORWARD) state at the end of a calculation.
 
 Parameters
 ----------
-* `mode` :  
+* mode :  
     the solution type (FORWARD or ADJOINT)  
 ";
 
 %feature("docstring") Solver::useExponentialInterpolation "
-`useExponentialInterpolation()`  
+useExponentialInterpolation()  
 
 Informs the Solver to use linear interpolation to compute the exponential in the
 transport equation.  
 ";
 
 %feature("docstring") Solver::initializeExpEvaluator "
-`initializeExpEvaluator()`  
+initializeExpEvaluator()  
 
 Initializes new ExpEvaluator object to compute exponentials.  
 ";
 
 %feature("docstring") Solver::initializeFluxArrays "
-`initializeFluxArrays()=0`  
+initializeFluxArrays()=0  
 
 Initializes Track boundary angular and FSR scalar flux arrays.  
 ";
 
 %feature("docstring") Solver::computeFSRScatterSources "
-`computeFSRScatterSources()=0`  
+computeFSRScatterSources()=0  
 
 Computes the total scattering source for each FSR and energy group.  
 ";
 
 %feature("docstring") Solver::computeFSRFissionRates "
-`computeFSRFissionRates(double *fission_rates, int num_FSRs)=0`  
+computeFSRFissionRates(double *fission_rates, int num_FSRs)=0  
 
 Computes the volume-weighted, energy integrated fission rate in each FSR and
 stores them in an array indexed by FSR ID.  
@@ -7117,10 +6882,10 @@ follows:
 
 Parameters
 ----------
-* `fission_rates` :  
+* fission_rates :  
     an array to store the fission rates (implicitly passed in as a NumPy array
     from Python)  
-* `num_FSRs` :  
+* num_FSRs :  
     the number of FSRs passed in from Python  
 ";
 
@@ -7131,11 +6896,11 @@ Parameters
 
 Attributes
 ----------
-* `stride` : `difference_type`  
+* stride : difference_type  
 ";
 
 %feature("docstring") strided_range::stride_functor::stride_functor "
-`stride_functor(difference_type stride)`  
+stride_functor(difference_type stride)  
 ";
 
 // File: classstrided__range.xml
@@ -7145,7 +6910,7 @@ Attributes
 ";
 
 %feature("docstring") strided_range::end "
-`end(void) const  -> iterator`  
+end(void) const  -> iterator  
 
 Get the last element in the iterator.  
 
@@ -7155,13 +6920,13 @@ the last element in the iterator
 ";
 
 %feature("docstring") strided_range::strided_range "
-`strided_range(Iterator first, Iterator last, difference_type stride)`  
+strided_range(Iterator first, Iterator last, difference_type stride)  
 
 The strided iterator constructor.  
 ";
 
 %feature("docstring") strided_range::begin "
-`begin(void) const  -> iterator`  
+begin(void) const  -> iterator  
 
 Get the first element in the iterator.  
 
@@ -7174,7 +6939,6 @@ the first element in the iterator
 
 
 %feature("docstring") Surface "
-`Surface(const int id=0, const char *name=\"\")`  
 
 Represents a general Surface in 3D.  
 
@@ -7182,25 +6946,11 @@ The Surface class and its subclasses are used to define the geometry for an
 OpenMOC simulation using a constructive solid geometry (CSG) formalism. Surfaces
 are used during ray tracing of charateristic tracks across the geometry.  
 
-Constructors
-------------
-* `Surface(const int id=0, const char *name=\"\")`  
-    
-    Constructor assigns unique ID and user-defined ID for a Surface.  
-
-    Assigns a default boundary condition for this Surface to BOUNDARY_NONE.  
-
-    Parameters:  
-    * `id` :  
-        an optional user-defined Surface ID  
-    * `name` :  
-        an optional user-defined Surface name  
-
 C++ includes: src/Surface.h
 ";
 
 %feature("docstring") Surface::getUid "
-`getUid() const  -> int`  
+getUid() const  -> int  
 
 Return the Surface's unique ID.  
 
@@ -7210,19 +6960,19 @@ the Surface's unique ID
 ";
 
 %feature("docstring") Surface::~Surface "
-`~Surface()`  
+~Surface()  
 
 Destructor.  
 ";
 
 %feature("docstring") Surface::getMaxY "
-`getMaxY(int halfspace)=0 -> double`  
+getMaxY(int halfspace)=0 -> double  
 
 Returns the maximum y value for one of this Surface's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -7231,13 +6981,13 @@ the maximum y value
 ";
 
 %feature("docstring") Surface::getMaxX "
-`getMaxX(int halfspace)=0 -> double`  
+getMaxX(int halfspace)=0 -> double  
 
 Returns the maximum x value for one of this Surface's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -7246,7 +6996,7 @@ the maximum x value
 ";
 
 %feature("docstring") Surface::Surface "
-`Surface(const int id=0, const char *name=\"\")`  
+Surface(const int id=0, const char *name=\"\")  
 
 Constructor assigns unique ID and user-defined ID for a Surface.  
 
@@ -7254,20 +7004,20 @@ Assigns a default boundary condition for this Surface to BOUNDARY_NONE.
 
 Parameters
 ----------
-* `id` :  
+* id :  
     an optional user-defined Surface ID  
-* `name` :  
+* name :  
     an optional user-defined Surface name  
 ";
 
 %feature("docstring") Surface::getMaxZ "
-`getMaxZ(int halfspace)=0 -> double`  
+getMaxZ(int halfspace)=0 -> double  
 
 Returns the maximum z value for one of this Surface's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -7276,13 +7026,13 @@ the maximum z value
 ";
 
 %feature("docstring") Surface::getMinZ "
-`getMinZ(int halfspace)=0 -> double`  
+getMinZ(int halfspace)=0 -> double  
 
 Returns the minimum z value for one of this Surface's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -7291,13 +7041,13 @@ the minimum z value
 ";
 
 %feature("docstring") Surface::getMinY "
-`getMinY(int halfspace)=0 -> double`  
+getMinY(int halfspace)=0 -> double  
 
 Returns the minimum y value for one of this Surface's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -7306,13 +7056,13 @@ the minimum y value
 ";
 
 %feature("docstring") Surface::getMinX "
-`getMinX(int halfspace)=0 -> double`  
+getMinX(int halfspace)=0 -> double  
 
 Returns the minimum x value for one of this Surface's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the Surface to consider  
 
 Returns
@@ -7321,7 +7071,7 @@ the minimum x value
 ";
 
 %feature("docstring") Surface::evaluate "
-`evaluate(const Point *point) const =0 -> double`  
+evaluate(const Point *point) const =0 -> double  
 
 Evaluate a Point using the Surface's potential equation.  
 
@@ -7330,7 +7080,7 @@ representing this Surface.
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to the Soint of interest  
 
 Returns
@@ -7339,7 +7089,7 @@ the value of Point in the Plane's potential equation.
 ";
 
 %feature("docstring") Surface::getId "
-`getId() const  -> int`  
+getId() const  -> int  
 
 Return the Surface's user-defined ID.  
 
@@ -7349,7 +7099,7 @@ the Surface's user-defined ID
 ";
 
 %feature("docstring") Surface::getBoundaryType "
-`getBoundaryType() -> boundaryType`  
+getBoundaryType() -> boundaryType  
 
 Returns the type of boundary conditions for this Surface (REFLECTIVE, VACUUM or
 BOUNDARY_NONE)  
@@ -7360,26 +7110,26 @@ the type of boundary condition type for this Surface
 ";
 
 %feature("docstring") Surface::addNeighborCell "
-`addNeighborCell(int halfspace, Cell *cell)`  
+addNeighborCell(int halfspace, Cell *cell)  
 
 Adds a neighbor Cell to this Surface's collection of neighbors.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the +/-1 halfspace for the neighboring Cell  
-* `cell` :  
+* cell :  
     a pointer to the neighboring Cell  
 ";
 
 %feature("docstring") Surface::isPointOnSurface "
-`isPointOnSurface(Point *point) -> bool`  
+isPointOnSurface(Point *point) -> bool  
 
 Return true or false if a Point is on or off of a Surface.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     pointer to the Point of interest  
 
 Returns
@@ -7388,7 +7138,7 @@ on (true) or off (false) the Surface
 ";
 
 %feature("docstring") Surface::getMinDistance "
-`getMinDistance(LocalCoords *coords) -> double`  
+getMinDistance(LocalCoords *coords) -> double  
 
 Finds the minimum distance to a Surface.  
 
@@ -7398,7 +7148,7 @@ Surface, returns INFINITY.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a pointer to a localcoords object  
 
 Returns
@@ -7407,18 +7157,18 @@ the minimum distance to the Surface
 ";
 
 %feature("docstring") Surface::setBoundaryType "
-`setBoundaryType(const boundaryType boundary_type)`  
+setBoundaryType(const boundaryType boundary_type)  
 
 Sets the boundary condition type (ie, VACUUM or REFLECTIVE) for this Surface.  
 
 Parameters
 ----------
-* `boundary_type` :  
+* boundary_type :  
     the boundary condition type for this Surface  
 ";
 
 %feature("docstring") Surface::getSurfaceType "
-`getSurfaceType() -> surfaceType`  
+getSurfaceType() -> surfaceType  
 
 Return the type of Surface (ie, XPLANE, ZCYLINDER, etc).  
 
@@ -7428,7 +7178,7 @@ the Surface type
 ";
 
 %feature("docstring") Surface::getName "
-`getName() const  -> char *`  
+getName() const  -> char *  
 
 Return the user-defined name of the Surface.  
 
@@ -7438,13 +7188,13 @@ the Surface name
 ";
 
 %feature("docstring") Surface::isCoordOnSurface "
-`isCoordOnSurface(LocalCoords *coord) -> bool`  
+isCoordOnSurface(LocalCoords *coord) -> bool  
 
 Return true or false if a LocalCoord is on or off of a Surface.  
 
 Parameters
 ----------
-* `coord` :  
+* coord :  
     pointer to the LocalCoord of interest  
 
 Returns
@@ -7453,7 +7203,7 @@ on (true) or off (false) the Surface
 ";
 
 %feature("docstring") Surface::toString "
-`toString()=0 -> std::string`  
+toString()=0 -> std::string  
 
 Converts this Surface's attributes to a character array.  
 
@@ -7466,35 +7216,35 @@ a character array of this Surface's attributes
 ";
 
 %feature("docstring") Surface::printString "
-`printString()`  
+printString()  
 
 Prints a string representation of all of the Surface's objects to the console.  
 ";
 
 %feature("docstring") Surface::setName "
-`setName(const char *name)`  
+setName(const char *name)  
 
 Sets the name of the Surface.  
 
 Parameters
 ----------
-* `name` :  
+* name :  
     the Surface name string  
 ";
 
 %feature("docstring") Surface::intersection "
-`intersection(Point *point, double angle, Point *points)=0 -> int`  
+intersection(Point *point, double angle, Point *points)=0 -> int  
 
 Finds the intersection Point with this Surface from a given Point and trajectory
 defined by an angle.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     pointer to the Point of interest  
-* `angle` :  
+* angle :  
     the angle defining the trajectory in radians  
-* `points` :  
+* points :  
     pointer to a Point to store the intersection Point  
 
 Returns
@@ -7511,10 +7261,10 @@ A surface_halfspace represents a surface pointer with associated halfspace.
 
 Attributes
 ----------
-* `_surface` : `Surface *`  
+* _surface : Surface *  
     A pointer to the Surface object  
 
-* `_halfspace` : `int`  
+* _halfspace : int  
     The halfspace associated with this surface  
 
 C++ includes: Cell.h
@@ -7535,21 +7285,14 @@ https://github.com/thrust/thrust/blob/master/examples/strided_range.cu
 
 
 %feature("docstring") Timer "
-`Timer()`  
 
 The Timer class is for timing and profiling regions of code.  
-
-Constructors
-------------
-* `Timer()`  
-    
-    Constructor sets the current split elapsed time to zero.  
 
 C++ includes: src/Timer.cpp
 ";
 
 %feature("docstring") Timer::getTime "
-`getTime() -> double`  
+getTime() -> double  
 
 Returns the time elapsed from startTimer() to stopTimer().  
 
@@ -7559,7 +7302,7 @@ the elapsed time in seconds
 ";
 
 %feature("docstring") Timer::recordSplit "
-`recordSplit(const char *msg)`  
+recordSplit(const char *msg)  
 
 Records a message corresponding to a time for the current split.  
 
@@ -7568,18 +7311,18 @@ the current time for the process corresponding to the message.
 
 Parameters
 ----------
-* `msg` :  
+* msg :  
     a msg corresponding to this time split  
 ";
 
 %feature("docstring") Timer::~Timer "
-`~Timer()`  
+~Timer()  
 
 Destructor.  
 ";
 
 %feature("docstring") Timer::Get "
-`Get() -> Timer *`  
+Get() -> Timer *  
 
 Returns a static instance of the Timer class.  
 
@@ -7589,7 +7332,7 @@ a pointer to the static Timer class
 ";
 
 %feature("docstring") Timer::printSplits "
-`printSplits()`  
+printSplits()  
 
 Prints the times and messages for each split to the console.  
 
@@ -7599,13 +7342,13 @@ time corresponding to that message.
 ";
 
 %feature("docstring") Timer::Timer "
-`Timer()`  
+Timer()  
 
 Constructor sets the current split elapsed time to zero.  
 ";
 
 %feature("docstring") Timer::getSplit "
-`getSplit(const char *msg) -> double`  
+getSplit(const char *msg) -> double  
 
 Returns the time associated with a particular split.  
 
@@ -7613,7 +7356,7 @@ If the split does not exist, returns 0.
 
 Parameters
 ----------
-* `msg` :  
+* msg :  
     the message tag for the split  
 
 Returns
@@ -7622,7 +7365,7 @@ the time recorded for the split (seconds)
 ";
 
 %feature("docstring") Timer::startTimer "
-`startTimer()`  
+startTimer()  
 
 Starts the Timer.  
 
@@ -7630,7 +7373,7 @@ This method is similar to starting a stopwatch.
 ";
 
 %feature("docstring") Timer::stopTimer "
-`stopTimer()`  
+stopTimer()  
 
 Stops the Timer.  
 
@@ -7638,19 +7381,19 @@ This method is similar to stopping a stopwatch.
 ";
 
 %feature("docstring") Timer::clearSplit "
-`clearSplit(const char *msg)`  
+clearSplit(const char *msg)  
 
 Clears the time split for this message and deletes the message's entry in the
 Timer's splits log.  
 
 Parameters
 ----------
-* `msg` :  
+* msg :  
     the message tag for the split  
 ";
 
 %feature("docstring") Timer::clearSplits "
-`clearSplits()`  
+clearSplits()  
 
 Clears all times split messages from the Timer.  
 ";
@@ -7659,22 +7402,17 @@ Clears all times split messages from the Timer.
 
 
 %feature("docstring") Track "
-`Track()`  
 
 A Track represents a characteristic line across the geometry.  
 
 A Track has particular starting and ending points on the boundaries of the
 geometry and an azimuthal angle.  
 
-Constructors
-------------
-* `Track()`  
-
 C++ includes: src/Track.h
 ";
 
 %feature("docstring") Track::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Convert this Track's attributes to a character array.  
 
@@ -7687,7 +7425,7 @@ a character array of this Track's attributes
 ";
 
 %feature("docstring") Track::setAzimAngleIndex "
-`setAzimAngleIndex(const int index)`  
+setAzimAngleIndex(const int index)  
 
 Set the index for the Track's azimuthal angle index.  
 
@@ -7696,18 +7434,18 @@ $ \\theta \\in [0, \\pi] $ owned by the TrackGenerator class.
 
 Parameters
 ----------
-* `index` :  
+* index :  
     the azimuthal angle index  
 ";
 
 %feature("docstring") Track::clearSegments "
-`clearSegments()`  
+clearSegments()  
 
 Deletes each of this Track's segments.  
 ";
 
 %feature("docstring") Track::getAzimAngleIndex "
-`getAzimAngleIndex() const  -> int`  
+getAzimAngleIndex() const  -> int  
 
 Return the index for the Track's azimuthal angle (with respect to the x-axis).  
 
@@ -7717,7 +7455,7 @@ th azimuthal angle index
 ";
 
 %feature("docstring") Track::setPeriodicTrackIndex "
-`setPeriodicTrackIndex(const int index)`  
+setPeriodicTrackIndex(const int index)  
 
 Set the index of a track in a periodic cycle.  
 
@@ -7727,12 +7465,12 @@ index in a particular cycle.
 
 Parameters
 ----------
-* `index` :  
+* index :  
     of the track in a periodic cycle  
 ";
 
 %feature("docstring") Track::setUid "
-`setUid(int uid)`  
+setUid(int uid)  
 
 Initializes a Track's unique ID.  
 
@@ -7741,12 +7479,12 @@ ragged array of all tracks.
 
 Parameters
 ----------
-* `uid` :  
+* uid :  
     the Track's unique ID  
 ";
 
 %feature("docstring") Track::getSegment "
-`getSegment(int s) -> segment *`  
+getSegment(int s) -> segment *  
 
 Returns a pointer to a segment with a given index.  
 
@@ -7755,7 +7493,7 @@ requested segment.
 
 Parameters
 ----------
-* `segment` :  
+* segment :  
     index into the Track's segments container  
 
 Returns
@@ -7764,7 +7502,7 @@ a pointer to the requested segment
 ";
 
 %feature("docstring") Track::isNextOut "
-`isNextOut() const  -> bool`  
+isNextOut() const  -> bool  
 
 Returns whether to give the outgoing flux to the \"forward\" (false) or
 \"reverse\" (true) direction of the next Track when traveling along this Track's
@@ -7776,22 +7514,22 @@ Returns
 ";
 
 %feature("docstring") Track::setPhi "
-`setPhi(const double phi)`  
+setPhi(const double phi)  
 
 Set the Track's azimuthal angle.  
 
 Parameters
 ----------
-* `phi` :  
+* phi :  
     the azimuthal angle  
 ";
 
 %feature("docstring") Track::Track "
-`Track()`  
+Track()  
 ";
 
 %feature("docstring") Track::getPeriodicTrackIndex "
-`getPeriodicTrackIndex() const  -> int`  
+getPeriodicTrackIndex() const  -> int  
 
 Get the index of a track in a periodic cycle.  
 
@@ -7801,18 +7539,18 @@ index of the track in a periodic cycle
 ";
 
 %feature("docstring") Track::setTrackOut "
-`setTrackOut(Track *track_out)`  
+setTrackOut(Track *track_out)  
 
 Sets the track going out along this Track's \"reverse\" direction.  
 
 Parameters
 ----------
-* `track_out` :  
+* track_out :  
     pointer to the Track going out in the \"reverse\" direction  
 ";
 
 %feature("docstring") Track::getTransferFluxOut "
-`getTransferFluxOut() const  -> bool`  
+getTransferFluxOut() const  -> bool  
 
 Returns a boolean to indicate whether the outgoing flux along this Track's
 \"reverse\" direction should be transferred to the incoming Track.  
@@ -7826,7 +7564,7 @@ bool indicating whether the flux should be passed when tracking in the
 ";
 
 %feature("docstring") Track::setNextOut "
-`setNextOut(const bool next_out)`  
+setNextOut(const bool next_out)  
 
 Sets the direction in which the flux leaving this Track along its \"reverse\"
 direction is passed.  
@@ -7838,12 +7576,12 @@ boundary.
 
 Parameters
 ----------
-* `next_out` :  
+* next_out :  
     the \"forward\" (false) or \"reverse (true) direction  
 ";
 
 %feature("docstring") Track::getStart "
-`getStart() -> Point *`  
+getStart() -> Point *  
 
 Returns a pointer to the Track's start Point.  
 
@@ -7853,7 +7591,7 @@ a pointer to the Track's start Point
 ";
 
 %feature("docstring") Track::getTransferFluxIn "
-`getTransferFluxIn() const  -> bool`  
+getTransferFluxIn() const  -> bool  
 
 Returns a boolean to indicate whether the outgoing flux along this Track's
 \"forward\" direction should be transferred to the outgoing Track.  
@@ -7867,7 +7605,7 @@ bool indicating whether the flux should be passed when tracking in the
 ";
 
 %feature("docstring") Track::setBCOut "
-`setBCOut(const boundaryType bc_out)`  
+setBCOut(const boundaryType bc_out)  
 
 Sets the boundary condition for the incoming flux along the Track's \"reverse\"
 direction.  
@@ -7877,12 +7615,12 @@ conditions.
 
 Parameters
 ----------
-* `bc_out` :  
+* bc_out :  
     boundary condition for the incoming flux in the \"reverse\" direction  
 ";
 
 %feature("docstring") Track::getUid "
-`getUid() -> int`  
+getUid() -> int  
 
 Return the Track's unique ID.  
 
@@ -7892,18 +7630,18 @@ the Track's unique ID
 ";
 
 %feature("docstring") Track::removeSegment "
-`removeSegment(int index)`  
+removeSegment(int index)  
 
 Removes a segment from this Track's list of segments.  
 
 Parameters
 ----------
-* `index` :  
+* index :  
     the index of the segment to remove  
 ";
 
 %feature("docstring") Track::getSegments "
-`getSegments() -> segment *`  
+getSegments() -> segment *  
 
 Returns a vector of pointers to the Track's segments.  
 
@@ -7913,7 +7651,7 @@ vector of segment pointers
 ";
 
 %feature("docstring") Track::getTrackIn "
-`getTrackIn() const  -> Track *`  
+getTrackIn() const  -> Track *  
 
 Returns the incoming Track.  
 
@@ -7923,7 +7661,7 @@ a pointer to the incoming Track
 ";
 
 %feature("docstring") Track::isNextIn "
-`isNextIn() const  -> bool`  
+isNextIn() const  -> bool  
 
 Returns whether to give the outgoing flux to the \"forward\" (false) or
 \"reverse\" (true) direction of the next Track when traveling along this
@@ -7935,7 +7673,7 @@ Returns
 ";
 
 %feature("docstring") Track::setNextIn "
-`setNextIn(const bool next_in)`  
+setNextIn(const bool next_in)  
 
 Sets the direction in which the flux leaving this Track along its \"forward\"
 direction is passed.  
@@ -7947,12 +7685,12 @@ boundary.
 
 Parameters
 ----------
-* `next_in` :  
+* next_in :  
     the \"forward\" (false) or \"reverse (true) direction  
 ";
 
 %feature("docstring") Track::getBCOut "
-`getBCOut() const  -> boundaryType`  
+getBCOut() const  -> boundaryType  
 
 Returns the boundary condition for the flux along the Track's \"reverse\"
 direction.  
@@ -7963,7 +7701,7 @@ vacuum (0), reflective (1), or periodic (2) reflective boundary conditions
 ";
 
 %feature("docstring") Track::getReflectiveTrackIndex "
-`getReflectiveTrackIndex() const  -> int`  
+getReflectiveTrackIndex() const  -> int  
 
 Get the index of a track in a reflective cycle.  
 
@@ -7973,7 +7711,7 @@ index of the track in a reflective cycle
 ";
 
 %feature("docstring") Track::getEnd "
-`getEnd() -> Point *`  
+getEnd() -> Point *  
 
 Returns a pointer to the Track's end Point.  
 
@@ -7983,7 +7721,7 @@ a pointer to the Track's end Point
 ";
 
 %feature("docstring") Track::addSegment "
-`addSegment(segment *to_add)`  
+addSegment(segment *to_add)  
 
 Adds a segment pointer to this Track's list of segments.  
 
@@ -7992,37 +7730,37 @@ from the Track's start point.
 
 Parameters
 ----------
-* `to_add` :  
+* to_add :  
     a pointer to the segment to add  
 ";
 
 %feature("docstring") Track::setValues "
-`setValues(const double start_x, const double start_y, const double start_z,
+setValues(const double start_x, const double start_y, const double start_z,
     const double end_x, const double end_y, const double end_z, const double
-    phi)`  
+    phi)  
 
 Set the values for the Track's start and end point and angle.  
 
 Parameters
 ----------
-* `start_x` :  
+* start_x :  
     the x-coordinate at the starting point  
-* `start_y` :  
+* start_y :  
     the y-coordinate at the starting point  
-* `start_z` :  
+* start_z :  
     the z-coordinate at the starting point  
-* `end_x` :  
+* end_x :  
     the x-coordinate at the ending point  
-* `end_y` :  
+* end_y :  
     the y-coordinate at the ending point  
-* `end_z` :  
+* end_z :  
     the z-coordinate at the ending point  
-* `phi` :  
+* phi :  
     the track's azimuthal angle ( $ \\theta \\in [0, \\pi] $)  
 ";
 
 %feature("docstring") Track::insertSegment "
-`insertSegment(int index, segment *segment)`  
+insertSegment(int index, segment *segment)  
 
 Inserts a segment pointer into this Track's list of segments.  
 
@@ -8031,14 +7769,14 @@ Track. This is a helper method for the TrackGenerator::splitTracks(...) routine.
 
 Parameters
 ----------
-* `index` :  
+* index :  
     the index of the segment to insert behind in the list  
-* `segment` :  
+* segment :  
     a pointer to the segment to insert  
 ";
 
 %feature("docstring") Track::getPhi "
-`getPhi() const  -> double`  
+getPhi() const  -> double  
 
 Return the Track's azimuthal angle (with respect to the x-axis).  
 
@@ -8048,7 +7786,7 @@ the azimuthal angle $ \\theta \\in [0, \\pi] $
 ";
 
 %feature("docstring") Track::getNumSegments "
-`getNumSegments() -> int`  
+getNumSegments() -> int  
 
 Return the number of segments along this Track.  
 
@@ -8058,7 +7796,7 @@ the number of segments
 ";
 
 %feature("docstring") Track::setReflectiveTrackIndex "
-`setReflectiveTrackIndex(const int index)`  
+setReflectiveTrackIndex(const int index)  
 
 Set the index of a track in a reflective cycle.  
 
@@ -8068,18 +7806,18 @@ index in a particular cycle.
 
 Parameters
 ----------
-* `index` :  
+* index :  
     of the track in a reflective cycle  
 ";
 
 %feature("docstring") Track::~Track "
-`~Track()`  
+~Track()  
 
 Destructor clears the Track segments container.  
 ";
 
 %feature("docstring") Track::getTrackOut "
-`getTrackOut() const  -> Track *`  
+getTrackOut() const  -> Track *  
 
 Returns the outgoing Track.  
 
@@ -8089,18 +7827,18 @@ a pointer to the outgoing Track
 ";
 
 %feature("docstring") Track::setTrackIn "
-`setTrackIn(Track *track_in)`  
+setTrackIn(Track *track_in)  
 
 Sets the track going out along this Track's \"forward\" direction.  
 
 Parameters
 ----------
-* `track_in` :  
+* track_in :  
     pointer to the Track going out in the \"forward\" direction  
 ";
 
 %feature("docstring") Track::setBCIn "
-`setBCIn(const boundaryType bc_in)`  
+setBCIn(const boundaryType bc_in)  
 
 Sets the boundary condition for the incoming flux along the Track's \"forward\"
 direction.  
@@ -8110,12 +7848,12 @@ conditions.
 
 Parameters
 ----------
-* `bc_in` :  
+* bc_in :  
     boundary condition for the incoming flux in the \"forward\" direction  
 ";
 
 %feature("docstring") Track::getBCIn "
-`getBCIn() const  -> boundaryType`  
+getBCIn() const  -> boundaryType  
 
 Returns the boundary condition for the flux along the Track's \"forward\"
 direction.  
@@ -8129,7 +7867,6 @@ vacuum (0), reflective (1), or periodic (2) reflective boundary conditions
 
 
 %feature("docstring") TrackGenerator "
-`TrackGenerator(Geometry *geometry, int num_azim, double spacing)`  
 
 The TrackGenerator is dedicated to generating and storing Tracks which
 cyclically wrap across the Geometry.  
@@ -8137,25 +7874,11 @@ cyclically wrap across the Geometry.
 The TrackGenerator creates Track and initializes boundary conditions (vacuum or
 reflective) for each Track.  
 
-Constructors
-------------
-* `TrackGenerator(Geometry *geometry, int num_azim, double spacing)`  
-    
-    Constructor for the TrackGenerator assigns default values.  
-
-    Parameters:  
-    * `geometry` :  
-        a pointer to a Geometry object  
-    * `num_azim` :  
-        number of azimuthal angles in $ [0, 2\\pi] $  
-    * `spacing` :  
-        track spacing (cm)  
-
 C++ includes: src/TrackGenerator.h
 ";
 
 %feature("docstring") TrackGenerator::retrieveTrackCoords "
-`retrieveTrackCoords(double *coords, int num_tracks)`  
+retrieveTrackCoords(double *coords, int num_tracks)  
 
 Fills an array with the x,y,z coordinates for each Track.  
 
@@ -8167,26 +7890,26 @@ be called from within Python as follows:
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     an array of coords of length NUM_VALUES_PER_RETRIEVED_TRACK times the number
     of Tracks  
-* `length_coords` :  
+* length_coords :  
     the total number of Tracks times NUM_VALUES_PER_RETRIEVED_TRACK  
 ";
 
 %feature("docstring") TrackGenerator::setNumAzim "
-`setNumAzim(int num_azim)`  
+setNumAzim(int num_azim)  
 
 Set the number of azimuthal angles in $ [0, 2\\pi] $.  
 
 Parameters
 ----------
-* `num_azim` :  
+* num_azim :  
     the number of azimuthal angles in $ 2\\pi $  
 ";
 
 %feature("docstring") TrackGenerator::getZCoord "
-`getZCoord() -> double`  
+getZCoord() -> double  
 
 Returns the z-coord where the 2D Tracks should be created.  
 
@@ -8196,7 +7919,7 @@ the z-coord where the 2D Tracks should be created.
 ";
 
 %feature("docstring") TrackGenerator::getTracks "
-`getTracks() -> Track **`  
+getTracks() -> Track **  
 
 Returns a 2D jagged array of the Tracks.  
 
@@ -8209,7 +7932,7 @@ the 2D jagged array of Tracks
 ";
 
 %feature("docstring") TrackGenerator::initializeSegments "
-`initializeSegments()`  
+initializeSegments()  
 
 Initialize track segments with pointers to FSR Materials.  
 
@@ -8220,7 +7943,7 @@ the current Material found in each FSR.
 ";
 
 %feature("docstring") TrackGenerator::getFSRLocks "
-`getFSRLocks() -> omp_lock_t *`  
+getFSRLocks() -> omp_lock_t *  
 
 Return the array of FSR locks for atomic FSR operations.  
 
@@ -8230,18 +7953,18 @@ an array of FSR locks
 ";
 
 %feature("docstring") TrackGenerator::setZCoord "
-`setZCoord(double z_coord)`  
+setZCoord(double z_coord)  
 
 Sets the z-coord where the 2D Tracks should be created.  
 
 Parameters
 ----------
-* `z_coord` :  
+* z_coord :  
     the z-coord where the 2D Tracks should be created.  
 ";
 
 %feature("docstring") TrackGenerator::generateFSRCentroids "
-`generateFSRCentroids()`  
+generateFSRCentroids()  
 
 Generates the numerical centroids of the FSRs.  
 
@@ -8253,13 +7976,13 @@ al. \"Linear Source
 ";
 
 %feature("docstring") TrackGenerator::getFSRVolume "
-`getFSRVolume(int fsr_id) -> FP_PRECISION`  
+getFSRVolume(int fsr_id) -> FP_PRECISION  
 
 Computes and returns the volume of an FSR.  
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the ID for the FSR of interest  
 
 Returns
@@ -8268,7 +7991,7 @@ the FSR volume
 ";
 
 %feature("docstring") TrackGenerator::retrieveSegmentCoords "
-`retrieveSegmentCoords(double *coords, int num_segments)`  
+retrieveSegmentCoords(double *coords, int num_segments)  
 
 Fills an array with the x,y,z coordinates for each Track segment.  
 
@@ -8280,15 +8003,15 @@ be called from within Python as follows:
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     an array of coords of length NUM_VALUES_PER_RETRIEVED_SEGMENT times the
     number of segments  
-* `length_coords` :  
+* length_coords :  
     the total number of Track segments times NUM_VALUES_PER_RETRIEVED_SEGMENT  
 ";
 
 %feature("docstring") TrackGenerator::correctFSRVolume "
-`correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume)`  
+correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume)  
 
 Assign a correct volume for some FSR.  
 
@@ -8297,25 +8020,25 @@ the integrated volume is identical to the true volume assigned by the user.
 
 Parameters
 ----------
-* `fsr_id` :  
+* fsr_id :  
     the ID of the FSR of interest  
-* `fsr_volume` :  
+* fsr_volume :  
     the correct FSR volume to use  
 ";
 
 %feature("docstring") TrackGenerator::setTrackSpacing "
-`setTrackSpacing(double spacing)`  
+setTrackSpacing(double spacing)  
 
 Set the suggested track spacing (cm).  
 
 Parameters
 ----------
-* `spacing` :  
+* spacing :  
     the suggested track spacing  
 ";
 
 %feature("docstring") TrackGenerator::getNumTracksByParallelGroup "
-`getNumTracksByParallelGroup(int group) -> int`  
+getNumTracksByParallelGroup(int group) -> int  
 
 Return the number of tracks in a given parallel track group.  
 
@@ -8325,7 +8048,7 @@ the number of tracks in a given parallel track group.
 ";
 
 %feature("docstring") TrackGenerator::getFSRVolumes "
-`getFSRVolumes() -> FP_PRECISION *`  
+getFSRVolumes() -> FP_PRECISION *  
 
 Computes and returns an array of volumes indexed by FSR.  
 
@@ -8338,13 +8061,13 @@ a pointer to the array of FSR volumes
 ";
 
 %feature("docstring") TrackGenerator::getPhi "
-`getPhi(int azim) -> double`  
+getPhi(int azim) -> double  
 
 Returns the azimuthal angle for a given azimuthal angle index.  
 
 Parameters
 ----------
-* `the` :  
+* the :  
     azimuthal angle index.  
 
 Returns
@@ -8353,7 +8076,7 @@ the desired azimuthal angle.
 ";
 
 %feature("docstring") TrackGenerator::splitSegments "
-`splitSegments(FP_PRECISION max_optical_length)`  
+splitSegments(FP_PRECISION max_optical_length)  
 
 Splits Track segments into sub-segments for a user-defined maximum optical
 length for the problem.  
@@ -8363,18 +8086,18 @@ interpolation table used in the MOC transport sweep.
 
 Parameters
 ----------
-* `max_optical_length` :  
+* max_optical_length :  
     the maximum optical length  
 ";
 
 %feature("docstring") TrackGenerator::getNumY "
-`getNumY(int azim) -> int`  
+getNumY(int azim) -> int  
 
 Return the number of tracks on the y-axis for a given azimuthal angle.  
 
 Parameters
 ----------
-* `azim` :  
+* azim :  
     An azimuthal angle index  
 
 Returns
@@ -8383,13 +8106,13 @@ The number of Tracks on the y-axis
 ";
 
 %feature("docstring") TrackGenerator::getNumX "
-`getNumX(int azim) -> int`  
+getNumX(int azim) -> int  
 
 Return the number of tracks on the x-axis for a given azimuthal angle.  
 
 Parameters
 ----------
-* `azim` :  
+* azim :  
     An azimuthal angle index  
 
 Returns
@@ -8398,7 +8121,7 @@ The number of Tracks on the x-axis
 ";
 
 %feature("docstring") TrackGenerator::getTracksByParallelGroup "
-`getTracksByParallelGroup() -> Track **`  
+getTracksByParallelGroup() -> Track **  
 
 Returns a 1D array of Track pointers.  
 
@@ -8411,18 +8134,18 @@ The 1D array of Track pointers
 ";
 
 %feature("docstring") TrackGenerator::setGeometry "
-`setGeometry(Geometry *geometry)`  
+setGeometry(Geometry *geometry)  
 
 Set a pointer to the Geometry to use for track generation.  
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a pointer to the Geometry  
 ";
 
 %feature("docstring") TrackGenerator::getMaxOpticalLength "
-`getMaxOpticalLength() -> FP_PRECISION`  
+getMaxOpticalLength() -> FP_PRECISION  
 
 Finds and returns the maximum optical length amongst all segments.  
 
@@ -8432,13 +8155,13 @@ the maximum optical path length
 ";
 
 %feature("docstring") TrackGenerator::~TrackGenerator "
-`~TrackGenerator()`  
+~TrackGenerator()  
 
 Destructor frees memory for all Tracks.  
 ";
 
 %feature("docstring") TrackGenerator::generateTracks "
-`generateTracks(bool neighbor_cells=false)`  
+generateTracks(bool neighbor_cells=false)  
 
 Generates tracks for some number of azimuthal angles and track spacing.  
 
@@ -8449,7 +8172,7 @@ quadrature weight. neighbor_cells whether to use neighbor cell optimizations
 ";
 
 %feature("docstring") TrackGenerator::getAzimWeights "
-`getAzimWeights() -> FP_PRECISION *`  
+getAzimWeights() -> FP_PRECISION *  
 
 Return a pointer to the array of azimuthal angle quadrature weights.  
 
@@ -8459,7 +8182,7 @@ the array of azimuthal angle quadrature weights
 ";
 
 %feature("docstring") TrackGenerator::getNumSegments "
-`getNumSegments() -> int`  
+getNumSegments() -> int  
 
 Return the total number of Track segments across the Geometry.  
 
@@ -8469,7 +8192,7 @@ the total number of Track segments
 ";
 
 %feature("docstring") TrackGenerator::getNumThreads "
-`getNumThreads() -> int`  
+getNumThreads() -> int  
 
 Returns the number of shared memory OpenMP threads in use.  
 
@@ -8479,7 +8202,7 @@ the number of threads
 ";
 
 %feature("docstring") TrackGenerator::getNumAzim "
-`getNumAzim() -> int`  
+getNumAzim() -> int  
 
 Return the number of azimuthal angles in $ [0, 2\\pi] $.  
 
@@ -8489,18 +8212,18 @@ the number of azimuthal angles in $ 2\\pi $
 ";
 
 %feature("docstring") TrackGenerator::setNumThreads "
-`setNumThreads(int num_threads)`  
+setNumThreads(int num_threads)  
 
 Sets the number of shared memory OpenMP threads to use (>0).  
 
 Parameters
 ----------
-* `num_threads` :  
+* num_threads :  
     the number of threads  
 ";
 
 %feature("docstring") TrackGenerator::getGeometry "
-`getGeometry() -> Geometry *`  
+getGeometry() -> Geometry *  
 
 Return the Geometry for this TrackGenerator if one has been set.  
 
@@ -8510,7 +8233,7 @@ a pointer to the Geometry
 ";
 
 %feature("docstring") TrackGenerator::getTrackSpacing "
-`getTrackSpacing() -> double`  
+getTrackSpacing() -> double  
 
 Return the track spacing (cm).  
 
@@ -8523,7 +8246,7 @@ the track spacing (cm)
 ";
 
 %feature("docstring") TrackGenerator::getNumParallelTrackGroups "
-`getNumParallelTrackGroups() -> int`  
+getNumParallelTrackGroups() -> int  
 
 Return the number of parallel track groups.  
 
@@ -8533,22 +8256,22 @@ The number of parallel track groups
 ";
 
 %feature("docstring") TrackGenerator::TrackGenerator "
-`TrackGenerator(Geometry *geometry, int num_azim, double spacing)`  
+TrackGenerator(Geometry *geometry, int num_azim, double spacing)  
 
 Constructor for the TrackGenerator assigns default values.  
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a pointer to a Geometry object  
-* `num_azim` :  
+* num_azim :  
     number of azimuthal angles in $ [0, 2\\pi] $  
-* `spacing` :  
+* spacing :  
     track spacing (cm)  
 ";
 
 %feature("docstring") TrackGenerator::getNumTracks "
-`getNumTracks() -> int`  
+getNumTracks() -> int  
 
 Return the total number of Tracks generated.  
 
@@ -8558,7 +8281,7 @@ The number of Tracks generated
 ";
 
 %feature("docstring") TrackGenerator::containsTracks "
-`containsTracks() -> bool`  
+containsTracks() -> bool  
 
 Returns whether or not the TrackGenerator contains Track that are for its
 current number of azimuthal angles, track spacing and geometry.  
@@ -8572,38 +8295,31 @@ true if the TrackGenerator conatains Tracks; false otherwise
 
 
 %feature("docstring") TYPolarQuad "
-`TYPolarQuad()`  
 
 Tabuchi-Yamamoto's polar quadrature.  
-
-Constructors
-------------
-* `TYPolarQuad()`  
-    
-    Dummy constructor calls the parent constructor.  
 
 C++ includes: src/PolarQuad.h
 ";
 
 %feature("docstring") TYPolarQuad::setNumPolarAngles "
-`setNumPolarAngles(const int num_polar)`  
+setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
 
 Parameters
 ----------
-* `num_polar` :  
+* num_polar :  
     the number of polar angles (maximum 3)  
 ";
 
 %feature("docstring") TYPolarQuad::TYPolarQuad "
-`TYPolarQuad()`  
+TYPolarQuad()  
 
 Dummy constructor calls the parent constructor.  
 ";
 
 %feature("docstring") TYPolarQuad::initialize "
-`initialize()`  
+initialize()  
 
 Routine to initialize the polar quadrature.  
 
@@ -8615,7 +8331,6 @@ quadrature, including the sine thetas and weights.
 
 
 %feature("docstring") Universe "
-`Universe(const int id=-1, const char *name=\"\")`  
 
 A Universe represents an unbounded space in the 3D.  
 
@@ -8623,23 +8338,11 @@ A Universe contains cell which are bounded subspaces in 3D which together form
 the Universe. Universes allow for complex, repeating (i.e. lattices) geometries
 to be simply represented with as few data structures as possible.  
 
-Constructors
-------------
-* `Universe(const int id=-1, const char *name=\"\")`  
-    
-    Constructor assigns a unique and user-specified ID for the Universe.  
-
-    Parameters:  
-    * `id` :  
-        the user-specified optional Universe ID  
-    * `name` :  
-        the user-specified optional Universe ID  
-
 C++ includes: src/Universe.h
 ";
 
 %feature("docstring") Universe::getNumCells "
-`getNumCells() const  -> int`  
+getNumCells() const  -> int  
 
 Return the number of Cells in this Universe.  
 
@@ -8649,18 +8352,18 @@ the number of Cells
 ";
 
 %feature("docstring") Universe::setType "
-`setType(universeType type)`  
+setType(universeType type)  
 
 Sets the Universe type to SIMPLE or LATTICE.  
 
 Parameters
 ----------
-* `type` :  
+* type :  
     the Universe type  
 ";
 
 %feature("docstring") Universe::getMinZ "
-`getMinZ() -> double`  
+getMinZ() -> double  
 
 Returns the minimum reachable z-coordinate in the Universe.  
 
@@ -8670,7 +8373,7 @@ the minimum reachable z-coordinate
 ";
 
 %feature("docstring") Universe::getType "
-`getType() -> universeType`  
+getType() -> universeType  
 
 Return the Universe type (SIMPLE or LATTICE).  
 
@@ -8680,7 +8383,7 @@ the Universe type
 ";
 
 %feature("docstring") Universe::getMinX "
-`getMinX() -> double`  
+getMinX() -> double  
 
 Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type
 Cells filling this Universe.  
@@ -8694,7 +8397,7 @@ a vector of Material IDs
 ";
 
 %feature("docstring") Universe::getMinY "
-`getMinY() -> double`  
+getMinY() -> double  
 
 Returns the minimum reachable y-coordinate in the Universe.  
 
@@ -8704,7 +8407,7 @@ the minimum reachable y-coordinate
 ";
 
 %feature("docstring") Universe::getMaxX "
-`getMaxX() -> double`  
+getMaxX() -> double  
 
 Returns the maximum reachable x-coordinate in the Universe.  
 
@@ -8714,7 +8417,7 @@ the maximum reachable x-coordinate
 ";
 
 %feature("docstring") Universe::getMaxY "
-`getMaxY() -> double`  
+getMaxY() -> double  
 
 Returns the maximum reachable y-coordinate in the Universe.  
 
@@ -8724,7 +8427,7 @@ the maximum reachable y-coordinate
 ";
 
 %feature("docstring") Universe::getMaxZ "
-`getMaxZ() -> double`  
+getMaxZ() -> double  
 
 Returns the maximum reachable z-coordinate in the Universe.  
 
@@ -8734,13 +8437,13 @@ the maximum reachable z-coordinate
 ";
 
 %feature("docstring") Universe::printString "
-`printString()`  
+printString()  
 
 Prints a string representation of the Universe's attributes to the console.  
 ";
 
 %feature("docstring") Universe::getMinYBoundaryType "
-`getMinYBoundaryType() -> boundaryType`  
+getMinYBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum reachable
 y-coordinate in the Universe.  
@@ -8751,14 +8454,14 @@ the boundary conditions at the minimum reachable y-coordinate
 ";
 
 %feature("docstring") Universe::buildNeighbors "
-`buildNeighbors()`  
+buildNeighbors()  
 
 Builds collections of neighboring Cells for all Cells in this Universe for
 optimized ray tracing.  
 ";
 
 %feature("docstring") Universe::getAllCells "
-`getAllCells() -> std::map< int, Cell * >`  
+getAllCells() -> std::map< int, Cell * >  
 
 Returns the std::map of Cell IDs and Cell pointers in this Universe at all
 nested Universe levels.  
@@ -8769,7 +8472,7 @@ std::map of Cell IDs and pointers
 ";
 
 %feature("docstring") Universe::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Convert the member attributes of this Universe to a character array.  
 
@@ -8779,19 +8482,19 @@ a character array representing the Universe's attributes
 ";
 
 %feature("docstring") Universe::subdivideCells "
-`subdivideCells(double max_radius=INFINITY)`  
+subdivideCells(double max_radius=INFINITY)  
 
 Subdivides all of the Material-filled Cells within this Universe into rings and
 angular sectors aligned with the z-axis.  
 
 Parameters
 ----------
-* `max_radius` :  
+* max_radius :  
     the maximum allowable radius used in the subdivisions  
 ";
 
 %feature("docstring") Universe::getMaxYBoundaryType "
-`getMaxYBoundaryType() -> boundaryType`  
+getMaxYBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum reachable
 y-coordinate in the Universe.  
@@ -8802,31 +8505,31 @@ the boundary conditions at the maximum reachable y-coordinate
 ";
 
 %feature("docstring") Universe::Universe "
-`Universe(const int id=-1, const char *name=\"\")`  
+Universe(const int id=-1, const char *name=\"\")  
 
 Constructor assigns a unique and user-specified ID for the Universe.  
 
 Parameters
 ----------
-* `id` :  
+* id :  
     the user-specified optional Universe ID  
-* `name` :  
+* name :  
     the user-specified optional Universe ID  
 ";
 
 %feature("docstring") Universe::removeCell "
-`removeCell(Cell *cell)`  
+removeCell(Cell *cell)  
 
 Removes a Cell from this Universe's container of Cells.  
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     a pointer to the Cell to remove  
 ";
 
 %feature("docstring") Universe::getId "
-`getId() const  -> int`  
+getId() const  -> int  
 
 Return the user-specified ID for this Universe.  
 
@@ -8836,7 +8539,7 @@ the user-specified Universe ID
 ";
 
 %feature("docstring") Universe::getMaxXBoundaryType "
-`getMaxXBoundaryType() -> boundaryType`  
+getMaxXBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum reachable
 x-coordinate in the Universe.  
@@ -8847,7 +8550,7 @@ the boundary conditions at the maximum reachable x-coordinate
 ";
 
 %feature("docstring") Universe::getName "
-`getName() const  -> char *`  
+getName() const  -> char *  
 
 Return the user-defined name of the Universe.  
 
@@ -8857,13 +8560,13 @@ the Universe name
 ";
 
 %feature("docstring") Universe::~Universe "
-`~Universe()`  
+~Universe()  
 
 Destructor clears the Cell pointers container.  
 ";
 
 %feature("docstring") Universe::getUid "
-`getUid() const  -> int`  
+getUid() const  -> int  
 
 Returns the Universe's unique ID.  
 
@@ -8873,7 +8576,7 @@ the Universe's unique ID.
 ";
 
 %feature("docstring") Universe::getMinXBoundaryType "
-`getMinXBoundaryType() -> boundaryType`  
+getMinXBoundaryType() -> boundaryType  
 
 Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum reachable
 x-coordinate in the Universe.  
@@ -8884,7 +8587,7 @@ the boundary conditions at the minimum reachable x-coordinate
 ";
 
 %feature("docstring") Universe::getCells "
-`getCells() const  -> std::map< int, Cell * >`  
+getCells() const  -> std::map< int, Cell * >  
 
 Return the container of Cell IDs and Cell pointers in this Universe.  
 
@@ -8894,7 +8597,7 @@ std::map of Cell IDs
 ";
 
 %feature("docstring") Universe::isFissionable "
-`isFissionable() -> bool`  
+isFissionable() -> bool  
 
 Returns true if the Universe contains a Cell filled by a fissionable Material
 and false otherwise.  
@@ -8908,7 +8611,7 @@ true if contains a fissionable Material
 ";
 
 %feature("docstring") Universe::getAllMaterials "
-`getAllMaterials() -> std::map< int, Material * >`  
+getAllMaterials() -> std::map< int, Material * >  
 
 Returns the std::map of all IDs and Material pointers filling this Universe.  
 
@@ -8918,7 +8621,7 @@ std::map of Material IDs and pointers
 ";
 
 %feature("docstring") Universe::addCell "
-`addCell(Cell *cell)`  
+addCell(Cell *cell)  
 
 Adds a Cell to this Universe.  
 
@@ -8927,12 +8630,12 @@ of other Cells added to this Universe.
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     the Cell pointer  
 ";
 
 %feature("docstring") Universe::setFissionability "
-`setFissionability(bool fissionable)`  
+setFissionability(bool fissionable)  
 
 Sets whether or not this Universe contains a fissionable Material with a non-
 zero fission cross-section.  
@@ -8941,12 +8644,12 @@ This method is called by the Geometry::computeFissionability() class method.
 
 Parameters
 ----------
-* `fissionable` :  
+* fissionable :  
     true if the Universe contains a fissionable Material; false otherwise  
 ";
 
 %feature("docstring") Universe::findCell "
-`findCell(LocalCoords *coords) -> Cell *`  
+findCell(LocalCoords *coords) -> Cell *  
 
 Finds the Cell for which a LocalCoords object resides.  
 
@@ -8956,7 +8659,7 @@ Cells.
 
 Parameters
 ----------
-* `coords` :  
+* coords :  
     a pointer to the LocalCoords of interest  
 
 Returns
@@ -8965,13 +8668,13 @@ a pointer the Cell where the LocalCoords is located
 ";
 
 %feature("docstring") Universe::getCell "
-`getCell(int cell_id) -> Cell *`  
+getCell(int cell_id) -> Cell *  
 
 Returns a Cell in this universe.  
 
 Parameters
 ----------
-* `cell_id` :  
+* cell_id :  
     the integer the cell_id  
 
 Returns
@@ -8980,7 +8683,7 @@ Returns the cell pointer.
 ";
 
 %feature("docstring") Universe::clone "
-`clone() -> Universe *`  
+clone() -> Universe *  
 
 Clones this Universe and copy cells map.  
 
@@ -8990,7 +8693,7 @@ a pointer to the Universe clone
 ";
 
 %feature("docstring") Universe::getAllUniverses "
-`getAllUniverses() -> std::map< int, Universe * >`  
+getAllUniverses() -> std::map< int, Universe * >  
 
 Returns the std::map of all nested Universe IDs and Universe pointers filling
 this Universe.  
@@ -9001,13 +8704,13 @@ std::map of Universe IDs and pointers
 ";
 
 %feature("docstring") Universe::setName "
-`setName(const char *name)`  
+setName(const char *name)  
 
 Sets the name of the Universe.  
 
 Parameters
 ----------
-* `name` :  
+* name :  
     the Universe name string  
 ";
 
@@ -9015,32 +8718,10 @@ Parameters
 
 
 %feature("docstring") Vector "
-`Vector(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)`  
-
-Constructors
-------------
-* `Vector(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)`  
-    
-    Constructor initializes Vector object as a floating point array and sets the
-    vector dimensions.  The vector is ordered by cell (as opposed to by group)
-    on the outside to be consistent with the Matrix object. Locks are used to
-    make the vector object thread-safe against concurrent writes the same value.
-    One lock locks out multiple rows of the vector at a time representing
-    multiple groups in the same cell.  
-
-    Parameters:  
-    * `cell_locks` :  
-        OpenMP locks for atomic cell operations.  
-    * `num_x` :  
-        The number of cells in the x direction.  
-    * `num_y` :  
-        The number of cells in the y direction.  
-    * `num_groups` :  
-        The number of energy groups in each cell.  
 ";
 
 %feature("docstring") Vector::getNumX "
-`getNumX() -> int`  
+getNumX() -> int  
 
 Get the number of cells in the x dimension.  
 
@@ -9050,7 +8731,7 @@ The number of cells in the x dimension.
 ";
 
 %feature("docstring") Vector::getNumY "
-`getNumY() -> int`  
+getNumY() -> int  
 
 Get the number of cells in the y dimension.  
 
@@ -9060,7 +8741,7 @@ The number of cells in the y dimension.
 ";
 
 %feature("docstring") Vector::getSum "
-`getSum() -> FP_PRECISION`  
+getSum() -> FP_PRECISION  
 
 Get the sum of all the values in the vector.  
 
@@ -9070,7 +8751,7 @@ The sum of all the values in the vector.
 ";
 
 %feature("docstring") Vector::getNumRows "
-`getNumRows() -> int`  
+getNumRows() -> int  
 
 Get the number of rows in the vector.  
 
@@ -9080,7 +8761,7 @@ The number of rows in the vector.
 ";
 
 %feature("docstring") Vector::setValues "
-`setValues(int cell, int group_start, int group_end, FP_PRECISION *vals)`  
+setValues(int cell, int group_start, int group_end, FP_PRECISION *vals)  
 
 Set values in the vector.  This method takes a cell, first group, last group,
 and floating point value. The cell and groups are used to compute the rows in
@@ -9088,18 +8769,18 @@ the vector. If a values exist for the rows, the values are overwritten.
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     The cell location.  
-* `group_first` :  
+* group_first :  
     The first group location to set.  
-* `group_last` :  
+* group_last :  
     The last group location to set.  
-* `vals` :  
+* vals :  
     The values used to set the row locations.  
 ";
 
 %feature("docstring") Vector::incrementValue "
-`incrementValue(int cell, int group, FP_PRECISION val)`  
+incrementValue(int cell, int group, FP_PRECISION val)  
 
 Increment a value in the vector.  This method takes a cell and group and
 floating point value. The cell and group are used to compute the row and column
@@ -9108,16 +8789,16 @@ otherwise, it is set to val.
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     The cell location.  
-* `group` :  
+* group :  
     The group location.  
-* `val` :  
+* val :  
     The value used to increment the row location.  
 ";
 
 %feature("docstring") Vector::Vector "
-`Vector(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)`  
+Vector(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
 
 Constructor initializes Vector object as a floating point array and sets the
 vector dimensions.  The vector is ordered by cell (as opposed to by group) on
@@ -9128,18 +8809,18 @@ the same cell.
 
 Parameters
 ----------
-* `cell_locks` :  
+* cell_locks :  
     OpenMP locks for atomic cell operations.  
-* `num_x` :  
+* num_x :  
     The number of cells in the x direction.  
-* `num_y` :  
+* num_y :  
     The number of cells in the y direction.  
-* `num_groups` :  
+* num_groups :  
     The number of energy groups in each cell.  
 ";
 
 %feature("docstring") Vector::getCellLocks "
-`getCellLocks() -> omp_lock_t *`  
+getCellLocks() -> omp_lock_t *  
 
 Return the array of cell locks for atomic cell operations.  
 
@@ -9149,54 +8830,54 @@ an array of cell locks
 ";
 
 %feature("docstring") Vector::clear "
-`clear()`  
+clear()  
 
 Clear all values in the vector.  
 ";
 
 %feature("docstring") Vector::printString "
-`printString()`  
+printString()  
 
 Print the vector object to the log file.  
 ";
 
 %feature("docstring") Vector::copyTo "
-`copyTo(Vector *vector)`  
+copyTo(Vector *vector)  
 
 Copy the values from the current vector to an input vector.  
 
 Parameters
 ----------
-* `vector` :  
+* vector :  
     The vector to copy values to.  
 ";
 
 %feature("docstring") Vector::getValue "
-`getValue(int cell, int group) -> FP_PRECISION`  
+getValue(int cell, int group) -> FP_PRECISION  
 
 Get a value at location described by a given cell and group index.  
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     The cell location index.  
-* `group` :  
+* group :  
     The group location index.  
 ";
 
 %feature("docstring") Vector::scaleByValue "
-`scaleByValue(FP_PRECISION val)`  
+scaleByValue(FP_PRECISION val)  
 
 Scales the vector by a given value.  
 
 Parameters
 ----------
-* `val` :  
+* val :  
     The value to scale the vector by.  
 ";
 
 %feature("docstring") Vector::getArray "
-`getArray() -> FP_PRECISION *`  
+getArray() -> FP_PRECISION *  
 
 Get the array describing the vector.  
 
@@ -9206,7 +8887,7 @@ The array describing the vector.
 ";
 
 %feature("docstring") Vector::getNumGroups "
-`getNumGroups() -> int`  
+getNumGroups() -> int  
 
 Get the number of groups in each cell.  
 
@@ -9216,11 +8897,11 @@ The number of groups in each cell.
 ";
 
 %feature("docstring") Vector::setAll "
-`setAll(FP_PRECISION val)`  
+setAll(FP_PRECISION val)  
 ";
 
 %feature("docstring") Vector::incrementValues "
-`incrementValues(int cell, int group_start, int group_end, FP_PRECISION *vals)`  
+incrementValues(int cell, int group_start, int group_end, FP_PRECISION *vals)  
 
 Increment values in the vector.  This method takes a cell, first group, last
 group, and floating point value. The cell and groups are used to compute the
@@ -9229,18 +8910,18 @@ vals; otherwise, they are set.
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     The cell location.  
-* `group_first` :  
+* group_first :  
     The first group location to increment.  
-* `group_last` :  
+* group_last :  
     The last group location to increment.  
-* `vals` :  
+* vals :  
     The values used to increment the row locations.  
 ";
 
 %feature("docstring") Vector::setValue "
-`setValue(int cell, int group, FP_PRECISION val)`  
+setValue(int cell, int group, FP_PRECISION val)  
 
 Set a value in the vector.  This method takes a cell and group and floating
 point value. The cell and group are used to compute the row and column in the
@@ -9248,16 +8929,16 @@ vector. The location of the corresponding row is set to val.
 
 Parameters
 ----------
-* `cell` :  
+* cell :  
     The cell location.  
-* `group` :  
+* group :  
     The group location.  
-* `val` :  
+* val :  
     The value used to set the row location.  
 ";
 
 %feature("docstring") Vector::~Vector "
-`~Vector()`  
+~Vector()  
 
 Destructor deletes the arrays used to represent the vector.  
 ";
@@ -9266,7 +8947,6 @@ Destructor deletes the arrays used to represent the vector.
 
 
 %feature("docstring") VectorizedSolver "
-`VectorizedSolver(TrackGenerator *track_generator=NULL)`  
 
 This is a subclass of the CPUSolver class which uses memory-aligned data
 structures and Intel's auto-vectorization.  
@@ -9276,21 +8956,11 @@ note: This class is only compiled if the Intel compiler is used when building
     will be available in the \"openmoc.intel.single\" or
     \"openmoc.intel.double\" Python module.  
 
-Constructors
-------------
-* `VectorizedSolver(TrackGenerator *track_generator=NULL)`  
-    
-    Constructor initializes NULL arrays for source, flux, etc.  
-
-    Parameters:  
-    * `track_generator` :  
-        an optional pointer to a TrackGenerator object  
-
 C++ includes: src/VectorizedSolver.h
 ";
 
 %feature("docstring") VectorizedSolver::initializeSourceArrays "
-`initializeSourceArrays()`  
+initializeSourceArrays()  
 
 Allocates memory for FSR source arrays.  
 
@@ -9299,7 +8969,7 @@ simulation.
 ";
 
 %feature("docstring") VectorizedSolver::getNumVectorWidths "
-`getNumVectorWidths() -> int`  
+getNumVectorWidths() -> int  
 
 Returns the number of vector lengths required to fit the number of energy
 groups.  
@@ -9313,7 +8983,7 @@ The number of vector widths
 ";
 
 %feature("docstring") VectorizedSolver::initializeFluxArrays "
-`initializeFluxArrays()`  
+initializeFluxArrays()  
 
 Allocates memory for Track boundary angular and FSR scalar fluxes.  
 
@@ -9322,85 +8992,85 @@ simulation.
 ";
 
 %feature("docstring") VectorizedSolver::VectorizedSolver "
-`VectorizedSolver(TrackGenerator *track_generator=NULL)`  
+VectorizedSolver(TrackGenerator *track_generator=NULL)  
 
 Constructor initializes NULL arrays for source, flux, etc.  
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     an optional pointer to a TrackGenerator object  
 ";
 
 %feature("docstring") VectorizedSolver::initializeExpEvaluator "
-`initializeExpEvaluator()`  
+initializeExpEvaluator()  
 
 Allocates memory for the exponential linear interpolation table.  
 ";
 
 %feature("docstring") VectorizedSolver::initializeMaterials "
-`initializeMaterials(solverMode mode=ADJOINT)`  
+initializeMaterials(solverMode mode=ADJOINT)  
 
 Aligns all Material cross-section data for SIMD vector instructions.  
 
 Parameters
 ----------
-* `mode` :  
+* mode :  
     the solution type (FORWARD or ADJOINT)  
 ";
 
 %feature("docstring") VectorizedSolver::~VectorizedSolver "
-`~VectorizedSolver()`  
+~VectorizedSolver()  
 
 Destructor deletes Track boundary angular flux and and FSR scalar flux and
 source arrays.  
 ";
 
 %feature("docstring") VectorizedSolver::initializeFixedSources "
-`initializeFixedSources()`  
+initializeFixedSources()  
 
 Populates array of fixed sources assigned by FSR.  
 ";
 
 %feature("docstring") VectorizedSolver::setGeometry "
-`setGeometry(Geometry *geometry)`  
+setGeometry(Geometry *geometry)  
 
 Sets the Geometry for the Solver.  
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a pointer to the Geometry  
 ";
 
 %feature("docstring") VectorizedSolver::initializeFSRs "
-`initializeFSRs()`  
+initializeFSRs()  
 
 Initializes the FSR volumes and Materials array.  
 ";
 
 %feature("docstring") VectorizedSolver::computeKeff "
-`computeKeff()`  
+computeKeff()  
 
 Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") VectorizedSolver::normalizeFluxes "
-`normalizeFluxes()`  
+normalizeFluxes()  
 
 Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
 fission source (times $ \\nu $).  
 ";
 
 %feature("docstring") VectorizedSolver::addSourceToScalarFlux "
-`addSourceToScalarFlux()`  
+addSourceToScalarFlux()  
 
 Add the source term contribution in the transport equation to the FSR scalar
 flux.  
 ";
 
 %feature("docstring") VectorizedSolver::computeFSRSources "
-`computeFSRSources()`  
+computeFSRSources()  
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
@@ -9412,55 +9082,40 @@ current approximation to the scalar flux.
 
 
 %feature("docstring") XPlane "
-`XPlane(const double x, const int id=0, const char *name=\"\")`  
 
 Represents a Plane perpendicular to the x-axis.  
-
-Constructors
-------------
-* `XPlane(const double x, const int id=0, const char *name=\"\")`  
-    
-    Constructor for a Plane perpendicular to the x-axis.  
-
-    Parameters:  
-    * `x` :  
-        the location of the Plane along the x-axis  
-    * `id` :  
-        the optional Surface id  
-    * `name` :  
-        the optional name of the XPlane  
 
 C++ includes: src/Surface.h
 ";
 
 %feature("docstring") XPlane::XPlane "
-`XPlane(const double x, const int id=0, const char *name=\"\")`  
+XPlane(const double x, const int id=0, const char *name=\"\")  
 
 Constructor for a Plane perpendicular to the x-axis.  
 
 Parameters
 ----------
-* `x` :  
+* x :  
     the location of the Plane along the x-axis  
-* `id` :  
+* id :  
     the optional Surface id  
-* `name` :  
+* name :  
     the optional name of the XPlane  
 ";
 
 %feature("docstring") XPlane::setX "
-`setX(const double x)`  
+setX(const double x)  
 
 Set the location of this XPlane on the x-axis.  
 
 Parameters
 ----------
-* `x` :  
+* x :  
     the location of the XPlane on the x-axis  
 ";
 
 %feature("docstring") XPlane::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this XPlane's attributes to a character array.  
 
@@ -9474,13 +9129,13 @@ a character array of this XPlane's attributes
 ";
 
 %feature("docstring") XPlane::getMinX "
-`getMinX(int halfspace) -> double`  
+getMinX(int halfspace) -> double  
 
 Returns the minimum x value for one of this XPlane's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the XPlane to consider  
 
 Returns
@@ -9489,13 +9144,13 @@ the minimum x value
 ";
 
 %feature("docstring") XPlane::getMaxX "
-`getMaxX(int halfspace) -> double`  
+getMaxX(int halfspace) -> double  
 
 Returns the maximum x value for one of this XPlane's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the XPlane to consider  
 
 Returns
@@ -9504,7 +9159,7 @@ the maximum x value
 ";
 
 %feature("docstring") XPlane::getX "
-`getX() -> double`  
+getX() -> double  
 
 Returns the location of the XPlane on the x-axis.  
 
@@ -9517,40 +9172,25 @@ the location of the XPlane on the x-axis
 
 
 %feature("docstring") YPlane "
-`YPlane(const double y, const int id=0, const char *name=\"\")`  
 
 Represents a Plane perpendicular to the y-axis.  
-
-Constructors
-------------
-* `YPlane(const double y, const int id=0, const char *name=\"\")`  
-    
-    Constructor for a Plane perpendicular to the y-axis.  
-
-    Parameters:  
-    * `y` :  
-        the location of the Plane along the y-axis  
-    * `id` :  
-        the optional Surface id  
-    * `name` :  
-        the optional Surface name  
 
 C++ includes: src/Surface.h
 ";
 
 %feature("docstring") YPlane::setY "
-`setY(const double y)`  
+setY(const double y)  
 
 Set the location of this YPlane on the y-axis.  
 
 Parameters
 ----------
-* `y` :  
+* y :  
     the location of the YPlane on the y-axis  
 ";
 
 %feature("docstring") YPlane::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this yplane's attributes to a character array.  
 
@@ -9564,7 +9204,7 @@ a character array of this YPlane's attributes
 ";
 
 %feature("docstring") YPlane::getY "
-`getY() -> double`  
+getY() -> double  
 
 Returns the location of the YPlane on the y-axis.  
 
@@ -9574,28 +9214,28 @@ the location of the YPlane on the y-axis
 ";
 
 %feature("docstring") YPlane::YPlane "
-`YPlane(const double y, const int id=0, const char *name=\"\")`  
+YPlane(const double y, const int id=0, const char *name=\"\")  
 
 Constructor for a Plane perpendicular to the y-axis.  
 
 Parameters
 ----------
-* `y` :  
+* y :  
     the location of the Plane along the y-axis  
-* `id` :  
+* id :  
     the optional Surface id  
-* `name` :  
+* name :  
     the optional Surface name  
 ";
 
 %feature("docstring") YPlane::getMaxY "
-`getMaxY(int halfspace) -> double`  
+getMaxY(int halfspace) -> double  
 
 Returns the maximum y value for one of this YPlane's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the YPlane to consider  
 
 Returns
@@ -9604,13 +9244,13 @@ the maximum y value
 ";
 
 %feature("docstring") YPlane::getMinY "
-`getMinY(int halfspace) -> double`  
+getMinY(int halfspace) -> double  
 
 Returns the minimum y value for one of this YPlane's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the YPlane to consider  
 
 Returns
@@ -9622,41 +9262,20 @@ the minimum y value
 
 
 %feature("docstring") ZCylinder "
-`ZCylinder(const double x, const double y, const double radius, const int id=0,
-    const char *name=\"\")`  
 
 Represents a Cylinder with axis parallel to the z-axis.  
-
-Constructors
-------------
-* `ZCylinder(const double x, const double y, const double radius, const int
-    id=0, const char *name=\"\")`  
-    
-    constructor.  
-
-    Parameters:  
-    * `x` :  
-        the x-coordinte of the ZCylinder center  
-    * `y` :  
-        the y-coordinate of the ZCylinder center  
-    * `radius` :  
-        the radius of the ZCylinder  
-    * `id` :  
-        the optional Surface ID  
-    * `name` :  
-        the optional Surface name  
 
 C++ includes: src/Surface.h
 ";
 
 %feature("docstring") ZCylinder::getMinZ "
-`getMinZ(int halfspace) -> double`  
+getMinZ(int halfspace) -> double  
 
 Returns the minimum z value of -INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZCylinder to consider  
 
 Returns
@@ -9665,7 +9284,7 @@ the minimum z value of -INFINITY
 ";
 
 %feature("docstring") ZCylinder::getRadius "
-`getRadius() -> double`  
+getRadius() -> double  
 
 Return the radius of the ZCylinder.  
 
@@ -9675,13 +9294,13 @@ the radius of the ZCylinder
 ";
 
 %feature("docstring") ZCylinder::getMinX "
-`getMinX(int halfspace) -> double`  
+getMinX(int halfspace) -> double  
 
 Returns the minimum x value for one of this ZCylinder's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZCylinder to consider  
 
 Returns
@@ -9690,13 +9309,13 @@ the minimum x value
 ";
 
 %feature("docstring") ZCylinder::getMinY "
-`getMinY(int halfspace) -> double`  
+getMinY(int halfspace) -> double  
 
 Returns the minimum y value for one of this ZCylinder's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZCylinder to consider  
 
 Returns
@@ -9705,7 +9324,7 @@ the minimum y value
 ";
 
 %feature("docstring") ZCylinder::getX0 "
-`getX0() -> double`  
+getX0() -> double  
 
 Return the x-coordinate of the ZCylinder's center Point.  
 
@@ -9715,7 +9334,7 @@ the x-coordinate of the ZCylinder center
 ";
 
 %feature("docstring") ZCylinder::getY0 "
-`getY0() -> double`  
+getY0() -> double  
 
 Return the y-coordinate of the ZCylinder's center Point.  
 
@@ -9725,13 +9344,13 @@ the y-coordinate of the ZCylinder center
 ";
 
 %feature("docstring") ZCylinder::evaluate "
-`evaluate(const Point *point) const  -> double`  
+evaluate(const Point *point) const  -> double  
 
 Evaluate a Point using the ZCylinder's quadratic Surface equation.  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     a pointer to the Point of interest  
 
 Returns
@@ -9740,7 +9359,7 @@ the value of Point in the equation
 ";
 
 %feature("docstring") ZCylinder::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this ZCylinder's attributes to a character array.  
 
@@ -9753,13 +9372,13 @@ a character array of this ZCylinder's attributes
 ";
 
 %feature("docstring") ZCylinder::getMaxX "
-`getMaxX(int halfspace) -> double`  
+getMaxX(int halfspace) -> double  
 
 Returns the maximum x value for one of this ZCylinder's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZCylinder to consider  
 
 Returns
@@ -9768,13 +9387,13 @@ the maximum x value
 ";
 
 %feature("docstring") ZCylinder::getMaxY "
-`getMaxY(int halfspace) -> double`  
+getMaxY(int halfspace) -> double  
 
 Returns the maximum y value for one of this ZCylinder's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZCylinder to consider  
 
 Returns
@@ -9783,13 +9402,13 @@ the maximum y value
 ";
 
 %feature("docstring") ZCylinder::getMaxZ "
-`getMaxZ(int halfspace) -> double`  
+getMaxZ(int halfspace) -> double  
 
 Returns the maximum z value of INFINITY.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZCylinder to consider  
 
 Returns
@@ -9798,40 +9417,40 @@ the maximum z value of INFINITY
 ";
 
 %feature("docstring") ZCylinder::ZCylinder "
-`ZCylinder(const double x, const double y, const double radius, const int id=0,
-    const char *name=\"\")`  
+ZCylinder(const double x, const double y, const double radius, const int id=0,
+    const char *name=\"\")  
 
 constructor.  
 
 Parameters
 ----------
-* `x` :  
+* x :  
     the x-coordinte of the ZCylinder center  
-* `y` :  
+* y :  
     the y-coordinate of the ZCylinder center  
-* `radius` :  
+* radius :  
     the radius of the ZCylinder  
-* `id` :  
+* id :  
     the optional Surface ID  
-* `name` :  
+* name :  
     the optional Surface name  
 ";
 
 %feature("docstring") ZCylinder::intersection "
-`intersection(Point *point, double angle, Point *points) -> int`  
+intersection(Point *point, double angle, Point *points) -> int  
 
 Finds the intersection Point with this zcylinder from a given Point and
 trajectory defined by an angle (0, 1, or 2 points).  
 
 Parameters
 ----------
-* `point` :  
+* point :  
     pointer to the Point of interest  
-* `angle` :  
+* angle :  
     the angle defining the trajectory in radians  
-* `points` :  
+* points :  
     pointer to a an array of Points to store intersection Points  
-* `polar` :  
+* polar :  
     the polar angle defining the trajectory in radians  
 
 Returns
@@ -9843,35 +9462,20 @@ the number of intersection Points (0 or 1)
 
 
 %feature("docstring") ZPlane "
-`ZPlane(const double z, const int id=0, const char *name=\"\")`  
 
 Represents a Plane perpendicular to the z-axis.  
-
-Constructors
-------------
-* `ZPlane(const double z, const int id=0, const char *name=\"\")`  
-    
-    Constructor for a Plane perpendicular to the z-axis.  
-
-    Parameters:  
-    * `z` :  
-        the location of the Plane along the z-axis  
-    * `id` :  
-        the optional Surface ID  
-    * `name` :  
-        the optional Surface name  
 
 C++ includes: src/Surface.h
 ";
 
 %feature("docstring") ZPlane::getMinZ "
-`getMinZ(int halfspace) -> double`  
+getMinZ(int halfspace) -> double  
 
 Returns the minimum z value for one of this ZPlane's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZPlane to consider  
 
 Returns
@@ -9880,28 +9484,28 @@ the minimum z value
 ";
 
 %feature("docstring") ZPlane::ZPlane "
-`ZPlane(const double z, const int id=0, const char *name=\"\")`  
+ZPlane(const double z, const int id=0, const char *name=\"\")  
 
 Constructor for a Plane perpendicular to the z-axis.  
 
 Parameters
 ----------
-* `z` :  
+* z :  
     the location of the Plane along the z-axis  
-* `id` :  
+* id :  
     the optional Surface ID  
-* `name` :  
+* name :  
     the optional Surface name  
 ";
 
 %feature("docstring") ZPlane::getMaxZ "
-`getMaxZ(int halfspace) -> double`  
+getMaxZ(int halfspace) -> double  
 
 Returns the maximum z value for one of this ZPlane's halfspaces.  
 
 Parameters
 ----------
-* `halfspace` :  
+* halfspace :  
     the halfspace of the ZPlane to consider  
 
 Returns
@@ -9910,7 +9514,7 @@ the maximum z value
 ";
 
 %feature("docstring") ZPlane::toString "
-`toString() -> std::string`  
+toString() -> std::string  
 
 Converts this ZPlane's attributes to a character array.  
 
@@ -9924,18 +9528,18 @@ a character array of this ZPlane's attributes
 ";
 
 %feature("docstring") ZPlane::setZ "
-`setZ(const double z)`  
+setZ(const double z)  
 
 Set the location of this ZPlane on the z-axis.  
 
 Parameters
 ----------
-* `z` :  
+* z :  
     the location of the ZPlane on the z-axis  
 ";
 
 %feature("docstring") ZPlane::getZ "
-`getZ() -> double`  
+getZ() -> double  
 
 Returns the location of the ZPlane on the z-axis.  
 
@@ -9951,73 +9555,73 @@ the location of the ZPlane on the z-axis
 // File: namespaceopenmoc_1_1compatible_1_1opencg__compatible.xml
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_openmoc_surface "
-`get_openmoc_surface -> def`  
+get_openmoc_surface -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_compatible_opencg_surfaces "
-`get_compatible_opencg_surfaces -> def`  
+get_compatible_opencg_surfaces -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_opencg_surface "
-`get_opencg_surface -> def`  
+get_opencg_surface -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_opencg_lattice "
-`get_opencg_lattice -> def`  
+get_opencg_lattice -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::is_opencg_surface_compatible "
-`is_opencg_surface_compatible -> def`  
+is_opencg_surface_compatible -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_compatible_opencg_cells "
-`get_compatible_opencg_cells -> def`  
+get_compatible_opencg_cells -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_opencg_material "
-`get_opencg_material -> def`  
+get_opencg_material -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::make_opencg_cells_compatible "
-`make_opencg_cells_compatible -> def`  
+make_opencg_cells_compatible -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_opencg_geometry "
-`get_opencg_geometry -> def`  
+get_opencg_geometry -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_openmoc_universe "
-`get_openmoc_universe -> def`  
+get_openmoc_universe -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_openmoc_material "
-`get_openmoc_material -> def`  
+get_openmoc_material -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_openmoc_geometry "
-`get_openmoc_geometry -> def`  
+get_openmoc_geometry -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_opencg_universe "
-`get_opencg_universe -> def`  
+get_opencg_universe -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_opencg_cell "
-`get_opencg_cell -> def`  
+get_opencg_cell -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_openmoc_lattice "
-`get_openmoc_lattice -> def`  
+get_openmoc_lattice -> def  
 ";
 
 %feature("docstring") openmoc::compatible::opencg_compatible::get_openmoc_cell "
-`get_openmoc_cell -> def`  
+get_openmoc_cell -> def  
 ";
 
 // File: namespaceopenmoc_1_1log.xml
 
 %feature("docstring") openmoc::log::set_log_level "
-`set_log_level -> def`  
+set_log_level -> def  
 
 Assigns the lowest level logging message.  
 
@@ -10029,12 +9633,12 @@ of the input file as follows:
 
 Parameters
 ----------
-* `level` :  
+* level :  
     the minimum logging level ('DEBUG', 'INFO', etc)  
 ";
 
 %feature("docstring") openmoc::log::py_printf "
-`py_printf -> def`  
+py_printf -> def  
 
 Function to print a log message to the screen.  
 
@@ -10047,18 +9651,18 @@ follows:
 
 Parameters
 ----------
-* `level` :  
+* level :  
     the logging level for this message  
-* `my_str` :  
+* my_str :  
     the string to print to the screen  
-* `*args` :  
+* *args :  
     a variable length list of values for the message string  
 ";
 
 // File: namespaceopenmoc_1_1materialize.xml
 
 %feature("docstring") openmoc::materialize::load_from_hdf5 "
-`load_from_hdf5 -> def`  
+load_from_hdf5 -> def  
 
 This routine loads an HDF5 file of multi-group cross section data.  
 
@@ -10073,16 +9677,16 @@ cell in the HDF5 binary file.
 
 Parameters
 ----------
-* `filename` :  
+* filename :  
     filename for cross sections HDF5 file (default is 'mgxs.h5')  
-* `directory` :  
+* directory :  
     directory for cross sections HDF5 file (default is 'mgxs')  
-* `geometry` :  
+* geometry :  
     an optional geometry populated with materials, cells, etc.  
-* `domain_type` :  
+* domain_type :  
     the domain type ('material' or 'cell') upon which the cross sections are
     defined (default is 'material')  
-* `suffix` :  
+* suffix :  
     an optional string suffix to index the HDF5 file beyond the assumed
     domain_type/domain_id/mgxs_type group sequence (default is '')  
 
@@ -10092,7 +9696,7 @@ a dictionary of Material objects keyed by ID
 ";
 
 %feature("docstring") openmoc::materialize::load_openmc_mgxs_lib "
-`load_openmc_mgxs_lib -> def`  
+load_openmc_mgxs_lib -> def  
 
 This routine loads an OpenMC Library of multi-group cross section data.  
 
@@ -10105,9 +9709,9 @@ instantiated by this routine.
 
 Parameters
 ----------
-* `mgxs_lib` :  
+* mgxs_lib :  
     an openmc.mgxs.Library object with cross section data  
-* `geometry` :  
+* geometry :  
     an optional geometry populated with materials, cells, etc.  
 
 Returns
@@ -10116,7 +9720,7 @@ a dictionary of Material objects keyed by ID
 ";
 
 %feature("docstring") openmoc::materialize::compute_sph_factors "
-`compute_sph_factors -> def`  
+compute_sph_factors -> def  
 
 Compute SPH factors for an OpenMC multi-group cross section library.  
 
@@ -10135,22 +9739,22 @@ dependence of the flux.
 
 Parameters
 ----------
-* `mgxs_lib` :  
+* mgxs_lib :  
     an openmc.mgxs.Library object  max_sph_iters the maximum number of SPH
     iterations  
-* `sph_tol` :  
+* sph_tol :  
     the tolerance on the SPH factor convergence  
-* `fix_src_tol` :  
+* fix_src_tol :  
     the tolerance on the MOC fixed source calculations  
-* `num_azim` :  
+* num_azim :  
     number of azimuthal angles to use in fixed source calculations  
-* `track_spacing` :  
+* track_spacing :  
     the track spacing to use in fixed source calculations  
-* `zcoord` :  
+* zcoord :  
     the coordinate on the z-axis to use for 2D MOC calculations  
-* `num_threads` :  
+* num_threads :  
     the number of threads to use during the calculation  
-* `throttle_output` :  
+* throttle_output :  
     suppress the output from fixed source calculations  
 
 Returns
@@ -10164,7 +9768,7 @@ factors applied to each MGXS object
 // File: namespaceopenmoc_1_1plotter.xml
 
 %feature("docstring") openmoc::plotter::plot_segments "
-`plot_segments -> def`  
+plot_segments -> def  
 
 Plots the characteristic Track segments from an OpenMOC simulation.  
 
@@ -10175,14 +9779,14 @@ A user may invoke this function from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     the TrackGenerator which has generated Tracks  
-* `get_figure` :  
+* get_figure :  
     whether or not to return the Matplotlib figure  
 ";
 
 %feature("docstring") openmoc::plotter::plot_cells "
-`plot_cells -> def`  
+plot_cells -> def  
 
 This method takes in a Geometry object and plots a color-coded 2D surface plot
 representing the Cells in the Geometry.  
@@ -10194,25 +9798,25 @@ from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a Geometry object which has been initialized with Materials, Cells,
     Universes and Lattices  
-* `gridsize` :  
+* gridsize :  
     an optional number of grid cells for the plot  
-* `xlim` :  
+* xlim :  
     optional list/tuple of the minimim/maximum x-coordinates  
-* `ylim` :  
+* ylim :  
     optional list/tuple of the minimim/maximum y-coordinates  
-* `zcoord` :  
+* zcoord :  
     optional the z coordinate (default is 0.0)  
-* `get_figure` :  
+* get_figure :  
     whether to return the Matplotlib figure  
-* `library` :  
+* library :  
     the plotting library ('matplotlib' or 'pil')  
 ";
 
 %feature("docstring") openmoc::plotter::plot_fission_rates "
-`plot_fission_rates -> def`  
+plot_fission_rates -> def  
 
 This method plots a color-coded 2D surface plot representing the FSR fission
 rates in the Geometry.  
@@ -10223,26 +9827,26 @@ routine. A user may invoke this function from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `solver` :  
+* solver :  
     a Solver object that has converged the source for the Geometry  
-* `norm` :  
+* norm :  
     normalize the fission rates to the maximum fission rate  
-* `transparent_zeros` :  
+* transparent_zeros :  
     make regions without fission transparent  
-* `gridsize` :  
+* gridsize :  
     an optional number of grid cells for the plot  
-* `xlim` :  
+* xlim :  
     optional list/tuple of the minimim/maximum x-coordinates  
-* `ylim` :  
+* ylim :  
     optional list/tuple of the minimim/maximum y-coordinates  
-* `get_figure` :  
+* get_figure :  
     whether to return the Matplotlib figure  
-* `library` :  
+* library :  
     the plotting library ('matplotlib' or 'pil')  
 ";
 
 %feature("docstring") openmoc::plotter::plot_spatial_fluxes "
-`plot_spatial_fluxes -> def`  
+plot_spatial_fluxes -> def  
 
 This method takes in a Solver object and plots a color-coded 2D surface plot
 representing the flat source region scalar fluxes.  
@@ -10253,26 +9857,26 @@ routine. A user may invoke this function from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `solver` :  
+* solver :  
     a Solver object that has converged the source for the Geometry  
-* `energy_groups` :  
+* energy_groups :  
     a Python list of integer energy groups to plot  
-* `norm` :  
+* norm :  
     normalize the fluxes to the maximum flux  
-* `gridsize` :  
+* gridsize :  
     an optional number of grid cells for the plot  
-* `xlim` :  
+* xlim :  
     optional list/tuple of the minimim/maximum x-coordinates  
-* `ylim` :  
+* ylim :  
     optional list/tuple of the minimim/maximum y-coordinates  
-* `get_figure` :  
+* get_figure :  
     whether to a return a list of Matplotlib figures  
-* `library` :  
+* library :  
     the plotting library ('matplotlib' or 'pil')  
 ";
 
 %feature("docstring") openmoc::plotter::plot_eigenmode_fluxes "
-`plot_eigenmode_fluxes -> def`  
+plot_eigenmode_fluxes -> def  
 
 This method plots a color-coded 2D surface plot representing the FSR scalar
 fluxes for various eigenmodes from an IRAMSolver.  
@@ -10283,28 +9887,28 @@ A user may invoke this function from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `iramsolver` :  
+* iramsolver :  
     an IRAMSolver object that has computed the eigenmodes  
-* `eigenmodes` :  
+* eigenmodes :  
     a Python list of integer eigenmodes to plot  
-* `energy_groups` :  
+* energy_groups :  
     a Python list of integer energy groups to plot  
-* `norm` :  
+* norm :  
     normalize the fluxes to the maximum flux  
-* `gridsize` :  
+* gridsize :  
     an optional number of grid cells for the plot  
-* `xlim` :  
+* xlim :  
     optional list/tuple of the minimim/maximum x-coordinates  
-* `ylim` :  
+* ylim :  
     optional list/tuple of the minimim/maximum y-coordinates  
-* `get_figure` :  
+* get_figure :  
     whether to return a list of Matplotlib figures  
-* `library` :  
+* library :  
     the plotting library ('matplotlib' or 'pil')  
 ";
 
 %feature("docstring") openmoc::plotter::plot_quadrature "
-`plot_quadrature -> def`  
+plot_quadrature -> def  
 
 Plots the quadrature set used for an OpenMOC simulation.  
 
@@ -10315,14 +9919,14 @@ as follows:
 
 Parameters
 ----------
-* `solver` :  
+* solver :  
     the Solver which has a TrackGenerator containing tracks and PolarQuad object  
-* `get_figure` :  
+* get_figure :  
     whether to return the Matplotlib figure  
 ";
 
 %feature("docstring") openmoc::plotter::plot_cmfd_cells "
-`plot_cmfd_cells -> def`  
+plot_cmfd_cells -> def  
 
 This method takes in a Geometry and Cmfd object and plots a color-coded 2D
 surface plot representing the CMFD cells in a geometry.  
@@ -10335,28 +9939,28 @@ regions. A user may invoke this function from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a geometry object which has been initialized with Materials, Cells,
     Universes and Lattices. Segments must have been created or extracted from a
     file.  
-* `cmfd` :  
+* cmfd :  
     a Cmfd object which has been used with the geometry in generating segments.
     The Cmfd object must have the _overlay_mesh flag set to true; otherwise, the
     map linking FSR IDs to CMFD cells would not have been created.  
-* `gridsize` :  
+* gridsize :  
     an optional number of grid cells for the plot  
-* `xlim` :  
+* xlim :  
     optional list/tuple of the minimim/maximum x-coordinates  
-* `ylim` :  
+* ylim :  
     optional list/tuple of the minimim/maximum y-coordinates  
-* `get_figure` :  
+* get_figure :  
     whether to return the Matplotlib figure  
-* `library` :  
+* library :  
     the plotting library ('matplotlib' or 'pil')  
 ";
 
 %feature("docstring") openmoc::plotter::plot_energy_fluxes "
-`plot_energy_fluxes -> def`  
+plot_energy_fluxes -> def  
 
 This method takes in a Solver object and plots the scalar flux vs.  
 
@@ -10375,22 +9979,22 @@ A user may invoke this function from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `solver` :  
+* solver :  
     a Solver object that has converged the source for the Geometry  
-* `fsrs` :  
+* fsrs :  
     the flat source region IDs of interest  
-* `group_bounds` :  
+* group_bounds :  
     an optional Python list of the energy group bounds (eV)  
-* `norm` :  
+* norm :  
     normalize the fluxes to the total energy-integrated flux  
-* `loglog` :  
+* loglog :  
     boolean indicating whether to plot use a log-log scale  
-* `get_figure` :  
+* get_figure :  
     return a list of the Matplotlib figures  
 ";
 
 %feature("docstring") openmoc::plotter::plot_flat_source_regions "
-`plot_flat_source_regions -> def`  
+plot_flat_source_regions -> def  
 
 This method takes in a Geometry object and plots a color-coded 2D surface plot
 representing the flat source regions in the Geometry.  
@@ -10405,29 +10009,29 @@ from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a geometry object which has been initialized with Materials, Cells,
     Universes and Lattices  
-* `gridsize` :  
+* gridsize :  
     an optional number of grid cells for the plot  
-* `xlim` :  
+* xlim :  
     optional list/tuple of the minimim/maximum x-coordinates  
-* `ylim` :  
+* ylim :  
     optional list/tuple of the minimim/maximum y-coordinates  
-* `centroids` :  
+* centroids :  
     optional boolean to plot the FSR centroids  
-* `marker_type` :  
+* marker_type :  
     optional string to set the centroids marker type  
-* `marker_size` :  
+* marker_size :  
     optional int/float to set the centroids marker size  
-* `get_figure` :  
+* get_figure :  
     whether to return the Matplotlib figure  
-* `library` :  
+* library :  
     the plotting library ('matplotlib' or 'pil')  
 ";
 
 %feature("docstring") openmoc::plotter::plot_materials "
-`plot_materials -> def`  
+plot_materials -> def  
 
 This method takes in a Geometry object and plots a color-coded 2D surface plot
 representing the Materials in the Geometry.  
@@ -10439,25 +10043,25 @@ from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `geometry` :  
+* geometry :  
     a geometry object which has been initialized with Materials, Cells,
     Universes and Lattices  
-* `gridsize` :  
+* gridsize :  
     an optional number of grid cells for the plot  
-* `xlim` :  
+* xlim :  
     optional list/tuple of the minimim/maximum x-coordinates  
-* `ylim` :  
+* ylim :  
     optional list/tuple of the minimim/maximum y-coordinates  
-* `zcoord` :  
+* zcoord :  
     optional the z coordinate (default is 0.0)  
-* `get_figure` :  
+* get_figure :  
     whether to return the Matplotlib figure  
-* `library` :  
+* library :  
     the plotting library ('matplotlib' or 'pil')  
 ";
 
 %feature("docstring") openmoc::plotter::plot_tracks "
-`plot_tracks -> def`  
+plot_tracks -> def  
 
 Plots the characteristic tracks from an OpenMOC simulation.  
 
@@ -10467,14 +10071,14 @@ A user may invoke this function from an OpenMOC Python file as follows:
 
 Parameters
 ----------
-* `track_generator` :  
+* track_generator :  
     the TrackGenerator which has generated Tracks  
-* `get_figure` :  
+* get_figure :  
     whether or not to return the Matplotlib figure  
 ";
 
 %feature("docstring") openmoc::plotter::plot_spatial_data "
-`plot_spatial_data -> def`  
+plot_spatial_data -> def  
 
 This method plots a color-coded 2D surface plot representing the arbitrary data
 mapped to each domain in the geometry.  
@@ -10492,11 +10096,11 @@ A user may invoke this function from an Python file as follows:
 
 Parameters
 ----------
-* `domains_to_data` :  
+* domains_to_data :  
     a mapping between spatial domain IDs and numerical data  
-* `plot_params` :  
+* plot_params :  
     a PlotParams object initialized with a Geometry  
-* `get_figure` :  
+* get_figure :  
     whether to return a list of Matplotlib figures  
 
 Returns
@@ -10507,7 +10111,7 @@ a list of Matplotlib figures, if requested
 // File: namespaceopenmoc_1_1process.xml
 
 %feature("docstring") openmoc::process::store_simulation_state "
-`store_simulation_state -> def`  
+store_simulation_state -> def  
 
 This method stores all of the data for an OpenMOC simulation to a a binary file
 for downstream data processing.  
@@ -10530,28 +10134,28 @@ This method may be called from Python as follows:
 
 Parameters
 ----------
-* `solver` :  
+* solver :  
     a pointer to a Solver object  
-* `fluxes` :  
+* fluxes :  
     whether to store FSR scalar fluxes (false by default)  
-* `sources` :  
+* sources :  
     whether to store FSR sources (false by default)  
-* `fission_rates` :  
+* fission_rates :  
     whether to store fission rates (false by default)  
-* `use_hdf5` :  
+* use_hdf5 :  
     whether to export to HDF5 (default) or Python pickle file  
-* `filename` :  
+* filename :  
     the filename to use (default is 'simulation-state.h5')  
-* `directory` :  
+* directory :  
     the directory to use (default is 'simulation-states')  
-* `append` :  
+* append :  
     append to existing file or create new one (false by default)  
-* `note` :  
+* note :  
     an additional string note to include in state file  
 ";
 
 %feature("docstring") openmoc::process::get_scalar_fluxes "
-`get_scalar_fluxes -> def`  
+get_scalar_fluxes -> def  
 
 Return an array of scalar fluxes in one or more FSRs and groups.  
 
@@ -10564,11 +10168,11 @@ in the associated paramters.
 
 Parameters
 ----------
-* `solver` :  
+* solver :  
     an OpenMOC Solver object  
-* `fsrs` :  
+* fsrs :  
     a list of integer FSRs or 'all' (default)  
-* `groups` :  
+* groups :  
     a list of integer energy groups or 'all' (default)  
 
 Returns
@@ -10576,7 +10180,7 @@ Returns
 ";
 
 %feature("docstring") openmoc::process::compute_fission_rates "
-`compute_fission_rates -> def`  
+compute_fission_rates -> def  
 
 This routine computes the fission rate in each flat source region, and combines
 the rates based on their hierarchical universe/lattice structure.  
@@ -10592,29 +10196,29 @@ hierarchy. This routine may be called from a Python script as follows:
 
 Parameters
 ----------
-* `solver` :  
+* solver :  
     a pointer to a Solver class object  
-* `use_hdf5` :  
+* use_hdf5 :  
     whether or not to export fission rates to an HDF5 file  
 ";
 
 %feature("docstring") openmoc::process::parse_convergence_data "
-`parse_convergence_data -> def`  
+parse_convergence_data -> def  
 
 Parse an OpenMOC log file to obtain a simulation's convergence data.  
 
 This method compiles the eigenvalue and source residuals from each iteration of
 an OpenMOC simulation. This data is inserted into a Python dictionary under the
-key names 'eigenvalues' and 'residuals', along with an integer `# iters`, and
+key names 'eigenvalues' and 'residuals', along with an integer # iters, and
 returned to the user.  
 
 This method may be called from Python as follows:  
 
 Parameters
 ----------
-* `filename` :  
+* filename :  
     the OpenMOC log filename string  
-* `directory` :  
+* directory :  
     the directory where to find the log file  
 
 Returns
@@ -10623,7 +10227,7 @@ a Python dictionary of key/value pairs for convergence data
 ";
 
 %feature("docstring") openmoc::process::restore_simulation_state "
-`restore_simulation_state -> def`  
+restore_simulation_state -> def  
 
 This method restores all of the data for an OpenMOC simulation from a a binary
 file for downstream data processing to a Python dictionary.  
@@ -10646,9 +10250,9 @@ This method may be called from Python as follows:
 
 Parameters
 ----------
-* `filename` :  
+* filename :  
     the simulation state filename string  
-* `directory` :  
+* directory :  
     the directory where to find the simulation state file  
 
 Returns
@@ -10657,35 +10261,35 @@ a Python dictionary of key/value pairs for simulation state data
 ";
 
 %feature("docstring") openmoc::process::is_float "
-`is_float -> def`  
+is_float -> def  
 
 This routine checks if a given value is an float data type.  
 
 Parameters
 ----------
-* `val` :  
+* val :  
     a value to check  
 ";
 
 %feature("docstring") openmoc::process::is_string "
-`is_string -> def`  
+is_string -> def  
 
 This routine checks if a given value is a string data type.  
 
 Parameters
 ----------
-* `val` :  
+* val :  
     a value to check  
 ";
 
 %feature("docstring") openmoc::process::is_integer "
-`is_integer -> def`  
+is_integer -> def  
 
 This routine checks if a given value is an integer data type.  
 
 Parameters
 ----------
-* `val` :  
+* val :  
     a value to check  
 ";
 
@@ -10704,8 +10308,8 @@ Parameters
 // File: clone_8cu.xml
 
 %feature("docstring") clone_track "
-`clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
-    &material_IDs_to_indices)`  
+clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
+    &material_IDs_to_indices)  
 
 Given a pointer to a Track on the host, a dev_track on the GPU, and the map of
 material IDs to indices in the _materials array, copy all of the class
@@ -10716,16 +10320,16 @@ and is not intended to be called directly.
 
 Parameters
 ----------
-* `track_h` :  
+* track_h :  
     pointer to a Track on the host  
-* `track_d` :  
+* track_d :  
     pointer to a dev_track on the GPU  
-* `material_IDs_to_indices` :  
+* material_IDs_to_indices :  
     map of material IDs to indices in the _materials array.  
 ";
 
 %feature("docstring") clone_material "
-`clone_material(Material *material_h, dev_material *material_d)`  
+clone_material(Material *material_h, dev_material *material_d)  
 
 Given a pointer to a Material on the host and a dev_material on the GPU, copy
 all of the properties from the Material object on the host struct to the GPU.  
@@ -10735,17 +10339,17 @@ method and is not intended to be called directly.
 
 Parameters
 ----------
-* `material_h` :  
+* material_h :  
     pointer to a Material on the host  
-* `material_d` :  
+* material_d :  
     pointer to a dev_material on the GPU  
 ";
 
 // File: clone_8h.xml
 
 %feature("docstring") clone_track "
-`clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
-    &material_IDs_to_indices)`  
+clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
+    &material_IDs_to_indices)  
 
 Given a pointer to a Track on the host, a dev_track on the GPU, and the map of
 material IDs to indices in the _materials array, copy all of the class
@@ -10756,16 +10360,16 @@ and is not intended to be called directly.
 
 Parameters
 ----------
-* `track_h` :  
+* track_h :  
     pointer to a Track on the host  
-* `track_d` :  
+* track_d :  
     pointer to a dev_track on the GPU  
-* `material_IDs_to_indices` :  
+* material_IDs_to_indices :  
     map of material IDs to indices in the _materials array.  
 ";
 
 %feature("docstring") clone_material "
-`clone_material(Material *material_h, dev_material *material_d)`  
+clone_material(Material *material_h, dev_material *material_d)  
 
 Given a pointer to a Material on the host and a dev_material on the GPU, copy
 all of the properties from the Material object on the host struct to the GPU.  
@@ -10775,16 +10379,16 @@ method and is not intended to be called directly.
 
 Parameters
 ----------
-* `material_h` :  
+* material_h :  
     pointer to a Material on the host  
-* `material_d` :  
+* material_d :  
     pointer to a dev_material on the GPU  
 ";
 
 // File: GPUExpEvaluator_8cu.xml
 
 %feature("docstring") clone_exp_evaluator "
-`clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)`  
+clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
 
 Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU,
 copy all of the properties from the ExpEvaluator object on the host to the GPU.  
@@ -10794,16 +10398,16 @@ method and is not intended to be called directly.
 
 Parameters
 ----------
-* `eavluator_h` :  
+* eavluator_h :  
     pointer to a ExpEvaluator on the host  
-* `evaluator_d` :  
+* evaluator_d :  
     pointer to a GPUExpEvaluator on the GPU  
 ";
 
 // File: GPUExpEvaluator_8h.xml
 
 %feature("docstring") clone_exp_evaluator "
-`clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)`  
+clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
 
 Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU,
 copy all of the properties from the ExpEvaluator object on the host to the GPU.  
@@ -10813,22 +10417,22 @@ method and is not intended to be called directly.
 
 Parameters
 ----------
-* `eavluator_h` :  
+* eavluator_h :  
     pointer to a ExpEvaluator on the host  
-* `evaluator_d` :  
+* evaluator_d :  
     pointer to a GPUExpEvaluator on the GPU  
 ";
 
 // File: GPUQuery_8cu.xml
 
 %feature("docstring") get_num_threads_per_warp "
-`get_num_threads_per_warp() -> int`  
+get_num_threads_per_warp() -> int  
 
 Returns the number of threads in a CUDA warp for the attached GPU.  
 ";
 
 %feature("docstring") machine_contains_gpu "
-`machine_contains_gpu() -> bool`  
+machine_contains_gpu() -> bool  
 
 Queries a node to determine whether it contains one or more GPUs.  
 
@@ -10838,7 +10442,7 @@ True if the node contains a GPU, false otherwise.
 ";
 
 %feature("docstring") print_basic_gpu_info "
-`print_basic_gpu_info()`  
+print_basic_gpu_info()  
 
 Prints the basic device info for the CUDA-enabled device in use.  
 
@@ -10847,7 +10451,7 @@ device.
 ";
 
 %feature("docstring") print_detailed_gpu_info "
-`print_detailed_gpu_info()`  
+print_detailed_gpu_info()  
 
 Prints the detailed device info for the CUDA-enabled device in use.  
 
@@ -10858,26 +10462,26 @@ dimensions.
 ";
 
 %feature("docstring") attach_gpu "
-`attach_gpu(int id)`  
+attach_gpu(int id)  
 
 Sets the primary CUDA-enabled device to be the GPU with a given ID.  
 
 Parameters
 ----------
-* `id` :  
+* id :  
     the ID for the GPU to attache  
 ";
 
 // File: GPUQuery_8h.xml
 
 %feature("docstring") get_num_threads_per_warp "
-`get_num_threads_per_warp() -> int`  
+get_num_threads_per_warp() -> int  
 
 Returns the number of threads in a CUDA warp for the attached GPU.  
 ";
 
 %feature("docstring") machine_contains_gpu "
-`machine_contains_gpu() -> bool`  
+machine_contains_gpu() -> bool  
 
 Queries a node to determine whether it contains one or more GPUs.  
 
@@ -10887,7 +10491,7 @@ True if the node contains a GPU, false otherwise.
 ";
 
 %feature("docstring") print_basic_gpu_info "
-`print_basic_gpu_info()`  
+print_basic_gpu_info()  
 
 Prints the basic device info for the CUDA-enabled device in use.  
 
@@ -10896,7 +10500,7 @@ device.
 ";
 
 %feature("docstring") print_detailed_gpu_info "
-`print_detailed_gpu_info()`  
+print_detailed_gpu_info()  
 
 Prints the detailed device info for the CUDA-enabled device in use.  
 
@@ -10907,66 +10511,66 @@ dimensions.
 ";
 
 %feature("docstring") attach_gpu "
-`attach_gpu(int id=0)`  
+attach_gpu(int id=0)  
 
 Sets the primary CUDA-enabled device to be the GPU with a given ID.  
 
 Parameters
 ----------
-* `id` :  
+* id :  
     the ID for the GPU to attache  
 ";
 
 // File: GPUSolver_8cu.xml
 
 %feature("docstring") addSourceToScalarFluxOnDevice "
-`addSourceToScalarFluxOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION
+addSourceToScalarFluxOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION
     *reduced_sources, FP_PRECISION *FSR_volumes, int *FSR_materials,
-    dev_material *materials) -> __global__ void`  
+    dev_material *materials) -> __global__ void  
 
 Add the source term contribution in the transport equation to the FSR scalar
 flux on the GPU.  
 
 Parameters
 ----------
-* `scalar_flux` :  
+* scalar_flux :  
     an array of FSR scalar fluxes  
-* `reduced_sources` :  
+* reduced_sources :  
     an array of FSR sources / total xs  
-* `FSR_volumes` :  
+* FSR_volumes :  
     an array of FSR volumes  
-* `FSR_materials` :  
+* FSR_materials :  
     an array of FSR material indices  
-* `materials` :  
+* materials :  
     an array of dev_material pointers  
 ";
 
 %feature("docstring") computeFSRFissionRatesOnDevice "
-`computeFSRFissionRatesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials,
+computeFSRFissionRatesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials,
     dev_material *materials, FP_PRECISION *scalar_flux, FP_PRECISION *fission)
-    -> __global__ void`  
+    -> __global__ void  
 
 Compute the total volume-intergrated fission source from all FSRs and energy
 groups.  
 
 Parameters
 ----------
-* `FSR_volumes` :  
+* FSR_volumes :  
     an array of the FSR volumes  
-* `FSR_materials` :  
+* FSR_materials :  
     an array of the FSR Material indices  
-* `materials` :  
+* materials :  
     an array of the dev_material pointers  
-* `scalar_flux` :  
+* scalar_flux :  
     an array of FSR scalar fluxes  
-* `fission` :  
+* fission :  
     an array of FSR nu-fission rates  
 ";
 
 %feature("docstring") transferBoundaryFlux "
-`transferBoundaryFlux(dev_track *curr_track, int azim_index, FP_PRECISION
+transferBoundaryFlux(dev_track *curr_track, int azim_index, FP_PRECISION
     *track_flux, FP_PRECISION *boundary_flux, FP_PRECISION *polar_weights, int
-    energy_angle_index, bool direction) -> __device__ void`  
+    energy_angle_index, bool direction) -> __device__ void  
 
 Updates the boundary flux for a Track given boundary conditions.  
 
@@ -10977,26 +10581,26 @@ energy group is transferred by this routine.
 
 Parameters
 ----------
-* `curr_track` :  
+* curr_track :  
     a pointer to the Track of interest  
-* `azim_index` :  
+* azim_index :  
     a pointer to the azimuthal angle index for this segment  
-* `track_flux` :  
+* track_flux :  
     an array of the outgoing Track flux  
-* `boundary_flux` :  
+* boundary_flux :  
     an array of all angular fluxes  
-* `polar_weights` :  
+* polar_weights :  
     an array of polar Quadrature weights  
-* `energy_angle_index` :  
+* energy_angle_index :  
     the energy group index  
-* `direction` :  
+* direction :  
     the Track direction (forward - true, reverse - false)  
 ";
 
 %feature("docstring") computeFSRFissionSourcesOnDevice "
-`computeFSRFissionSourcesOnDevice(int *FSR_materials, dev_material *materials,
+computeFSRFissionSourcesOnDevice(int *FSR_materials, dev_material *materials,
     bool divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION
-    *reduced_sources) -> __global__ void`  
+    *reduced_sources) -> __global__ void  
 
 Computes the total fission source in each FSR in each energy group.  
 
@@ -11007,20 +10611,20 @@ each FSR.
 
 Parameters
 ----------
-* `FSR_materials` :  
+* FSR_materials :  
     an array of FSR Material indices  
-* `materials` :  
+* materials :  
     an array of dev_material pointers  
-* `divide_sigma_t` :  
+* divide_sigma_t :  
     a boolean indicating whether to divide by the total xs  
-* `scalar_flux` :  
+* scalar_flux :  
     an array of FSR scalar fluxes  
-* `reduced_sources` :  
+* reduced_sources :  
     an array of FSR fission sources  
 ";
 
 %feature("docstring") atomicAdd "
-`atomicAdd(double *address, double val) -> __device__ double`  
+atomicAdd(double *address, double val) -> __device__ double  
 
 Perform an atomic addition in double precision to an array address.  
 
@@ -11028,9 +10632,9 @@ This method is straight out of CUDA C Developers Guide (cc 2013).
 
 Parameters
 ----------
-* `address` :  
+* address :  
     the array memory address  
-* `val` :  
+* val :  
     the value to add to the array  
 
 Returns
@@ -11039,31 +10643,31 @@ the atomically added array value and input value
 ";
 
 %feature("docstring") computeFissionSourcesOnDevice "
-`computeFissionSourcesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials,
+computeFissionSourcesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials,
     dev_material *materials, FP_PRECISION *scalar_flux, FP_PRECISION
-    *fission_sources) -> __global__ void`  
+    *fission_sources) -> __global__ void  
 
 Compute the total fission source from all FSRs.  
 
 Parameters
 ----------
-* `FSR_volumes` :  
+* FSR_volumes :  
     an array of FSR volumes  
-* `FSR_materials` :  
+* FSR_materials :  
     an array of FSR Material indices  
-* `materials` :  
+* materials :  
     an array of dev_materials on the device  
-* `scalar_flux` :  
+* scalar_flux :  
     the scalar flux in each FSR and energy group  
-* `fission_sources` :  
+* fission_sources :  
     array of fission sources in each FSR and energy group  
 ";
 
 %feature("docstring") tallyScalarFlux "
-`tallyScalarFlux(dev_segment *curr_segment, int azim_index, int energy_group,
+tallyScalarFlux(dev_segment *curr_segment, int azim_index, int energy_group,
     dev_material *materials, FP_PRECISION *track_flux, FP_PRECISION
     *reduced_sources, FP_PRECISION *polar_weights, FP_PRECISION *scalar_flux) ->
-    __device__ void`  
+    __device__ void  
 
 Computes the contribution to the FSR scalar flux from a Track segment in a
 single energy group.  
@@ -11074,28 +10678,28 @@ Track's angular flux.
 
 Parameters
 ----------
-* `curr_segment` :  
+* curr_segment :  
     a pointer to the Track segment of interest  
-* `azim_index` :  
+* azim_index :  
     a pointer to the azimuthal angle index for this segment  
-* `energy_group` :  
+* energy_group :  
     the energy group of interest  
-* `materials` :  
+* materials :  
     the array of dev_material pointers  
-* `track_flux` :  
+* track_flux :  
     a pointer to the Track's angular flux  
-* `reduced_sources` :  
+* reduced_sources :  
     the array of FSR sources / total xs  
-* `polar_weights` :  
+* polar_weights :  
     the array of polar Quadrature weights  
-* `scalar_flux` :  
+* scalar_flux :  
     the array of FSR scalar fluxes  
 ";
 
 %feature("docstring") computeFSRScatterSourcesOnDevice "
-`computeFSRScatterSourcesOnDevice(int *FSR_materials, dev_material *materials,
+computeFSRScatterSourcesOnDevice(int *FSR_materials, dev_material *materials,
     bool divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION
-    *reduced_sources) -> __global__ void`  
+    *reduced_sources) -> __global__ void  
 
 Computes the total scattering source in each FSR and energy group.  
 
@@ -11106,22 +10710,22 @@ each FSR.
 
 Parameters
 ----------
-* `FSR_materials` :  
+* FSR_materials :  
     an array of FSR Material indices  
-* `materials` :  
+* materials :  
     an array of dev_material pointers  
-* `divide_sigma_t` :  
+* divide_sigma_t :  
     a boolean indicating whether to divide by the total xs  
-* `scalar_flux` :  
+* scalar_flux :  
     an array of FSR scalar fluxes  
-* `reduced_sources` :  
+* reduced_sources :  
     an array of FSR scatter sources  
 ";
 
 %feature("docstring") transportSweepOnDevice "
-`transportSweepOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION *boundary_flux,
+transportSweepOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION *boundary_flux,
     FP_PRECISION *reduced_sources, dev_material *materials, dev_track *tracks,
-    int tid_offset, int tid_max) -> __global__ void`  
+    int tid_offset, int tid_max) -> __global__ void  
 
 This method performs one transport sweep of one halfspace of all azimuthal
 angles, tracks, segments, polar angles and energy groups.  
@@ -11131,26 +10735,26 @@ for the corresponding output Track, while updating the scalar flux in each FSR.
 
 Parameters
 ----------
-* `scalar_flux` :  
+* scalar_flux :  
     an array of FSR scalar fluxes  
-* `boundary_flux` :  
+* boundary_flux :  
     an array of Track boundary fluxes  
-* `reduced_sources` :  
+* reduced_sources :  
     an array of FSR sources / total xs  
-* `materials` :  
+* materials :  
     an array of dev_material pointers  
-* `tracks` :  
+* tracks :  
     an array of Tracks  
-* `tid_offset` :  
+* tid_offset :  
     the Track offset for azimuthal angle halfspace  
-* `tid_max` :  
+* tid_max :  
     the upper bound on the Track IDs for this azimuthal angle halfspace  
 ";
 
 %feature("docstring") computeFSRSourcesOnDevice "
-`computeFSRSourcesOnDevice(int *FSR_materials, dev_material *materials,
+computeFSRSourcesOnDevice(int *FSR_materials, dev_material *materials,
     FP_PRECISION *scalar_flux, FP_PRECISION *fixed_sources, FP_PRECISION
-    *reduced_sources, FP_PRECISION inverse_k_eff) -> __global__ void`  
+    *reduced_sources, FP_PRECISION inverse_k_eff) -> __global__ void  
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
@@ -11159,17 +10763,17 @@ current approximation to the scalar flux.
 
 Parameters
 ----------
-* `FSR_materials` :  
+* FSR_materials :  
     an array of FSR Material indices  
-* `materials` :  
+* materials :  
     an array of dev_material pointers  
-* `scalar_flux` :  
+* scalar_flux :  
     an array of FSR scalar fluxes  
-* `fixed_sources` :  
+* fixed_sources :  
     an array of fixed (user-defined) sources  
-* `reduced_sources` :  
+* reduced_sources :  
     an array of FSR sources / total xs  
-* `inverse_k_eff` :  
+* inverse_k_eff :  
     the inverse of keff  
 ";
 
@@ -11184,7 +10788,7 @@ Parameters
 // File: Cell_8cpp.xml
 
 %feature("docstring") maximize_cell_id "
-`maximize_cell_id(int cell_id)`  
+maximize_cell_id(int cell_id)  
 
 Maximize the auto-generated unique Cell ID counter.  
 
@@ -11195,18 +10799,18 @@ with those created in OpenCG.
 
 Parameters
 ----------
-* `cell_id` :  
+* cell_id :  
     the id assigned to the auto-generated counter  
 ";
 
 %feature("docstring") reset_cell_id "
-`reset_cell_id()`  
+reset_cell_id()  
 
 Resets the auto-generated unique Cell ID counter to 10000.  
 ";
 
 %feature("docstring") cell_id "
-`cell_id() -> int`  
+cell_id() -> int  
 
 Returns an auto-generated unique Cell ID.  
 
@@ -11220,7 +10824,7 @@ than or equal to 10000 are prohibited.
 // File: Cell_8h.xml
 
 %feature("docstring") maximize_cell_id "
-`maximize_cell_id(int cell_id)`  
+maximize_cell_id(int cell_id)  
 
 Maximize the auto-generated unique Cell ID counter.  
 
@@ -11231,18 +10835,18 @@ with those created in OpenCG.
 
 Parameters
 ----------
-* `cell_id` :  
+* cell_id :  
     the id assigned to the auto-generated counter  
 ";
 
 %feature("docstring") reset_cell_id "
-`reset_cell_id()`  
+reset_cell_id()  
 
 Resets the auto-generated unique Cell ID counter to 10000.  
 ";
 
 %feature("docstring") cell_id "
-`cell_id() -> int`  
+cell_id() -> int  
 
 Returns an auto-generated unique Cell ID.  
 
@@ -11258,8 +10862,8 @@ than or equal to 10000 are prohibited.
 // File: Cmfd_8h.xml
 
 %feature("docstring") stencilCompare "
-`stencilCompare(const std::pair< int, FP_PRECISION > &firstElem, const
-    std::pair< int, FP_PRECISION > &secondElem) -> bool`  
+stencilCompare(const std::pair< int, FP_PRECISION > &firstElem, const std::pair<
+    int, FP_PRECISION > &secondElem) -> bool  
 
 Comparitor for sorting k-nearest stencil std::pair objects  
 ";
@@ -11277,7 +10881,7 @@ Comparitor for sorting k-nearest stencil std::pair objects
 // File: Geometry_8cpp.xml
 
 %feature("docstring") reset_auto_ids "
-`reset_auto_ids()`  
+reset_auto_ids()  
 
 Resets the auto-generated unique IDs for Materials, Surfaces, Cells and
 Universes/Lattices to 10000.  
@@ -11286,7 +10890,7 @@ Universes/Lattices to 10000.
 // File: Geometry_8h.xml
 
 %feature("docstring") reset_auto_ids "
-`reset_auto_ids()`  
+reset_auto_ids()  
 
 Resets the auto-generated unique IDs for Materials, Surfaces, Cells and
 Universes/Lattices to 10000.  
@@ -11295,7 +10899,7 @@ Universes/Lattices to 10000.
 // File: linalg_8cpp.xml
 
 %feature("docstring") matrixMultiplication "
-`matrixMultiplication(Matrix *A, Vector *X, Vector *B)`  
+matrixMultiplication(Matrix *A, Vector *X, Vector *B)  
 
 Performs a matrix vector multiplication.  
 
@@ -11305,17 +10909,17 @@ modified in place.
 
 Parameters
 ----------
-* `A` :  
+* A :  
     a Matrix object  
-* `X` :  
+* X :  
     the variable Vector object  
-* `B` :  
+* B :  
     the solution Vector object  
 ";
 
 %feature("docstring") eigenvalueSolve "
-`eigenvalueSolve(Matrix *A, Matrix *M, Vector *X, FP_PRECISION tol, FP_PRECISION
-    SOR_factor) -> FP_PRECISION`  
+eigenvalueSolve(Matrix *A, Matrix *M, Vector *X, FP_PRECISION tol, FP_PRECISION
+    SOR_factor) -> FP_PRECISION  
 
 Solves a generalized eigenvalue problem using the Power method.  
 
@@ -11328,15 +10932,15 @@ corresponding eigenvector.
 
 Parameters
 ----------
-* `A` :  
+* A :  
     the loss + streaming Matrix object  
-* `M` :  
+* M :  
     the fission gain Matrix object  
-* `X` :  
+* X :  
     the flux Vector object  
-* `tol` :  
+* tol :  
     the power method and linear solve source convergence threshold  
-* `SOR_factor` :  
+* SOR_factor :  
     the successive over-relaxation factor  
 
 Returns
@@ -11345,7 +10949,7 @@ k_eff the dominant eigenvalue
 ";
 
 %feature("docstring") computeRMSE "
-`computeRMSE(Vector *X, Vector *Y, bool integrated) -> FP_PRECISION`  
+computeRMSE(Vector *X, Vector *Y, bool integrated) -> FP_PRECISION  
 
 Computes the Root Mean Square Error of two Vectors.  
 
@@ -11356,17 +10960,17 @@ integrated before performing the RMSE operation.
 
 Parameters
 ----------
-* `X` :  
+* X :  
     a Vector object  
-* `Y` :  
+* Y :  
     a second Vector object  
-* `integrated` :  
+* integrated :  
     a boolean indicating whether to group-wise integrate.  
 ";
 
 %feature("docstring") linearSolve "
-`linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol,
-    FP_PRECISION SOR_factor)`  
+linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol,
+    FP_PRECISION SOR_factor)  
 
 Solves a linear system using Red-Black Gauss Seidel with successive over-
 relaxation.  
@@ -11379,39 +10983,39 @@ vector.
 
 Parameters
 ----------
-* `A` :  
+* A :  
     the loss + streaming Matrix object  
-* `M` :  
+* M :  
     the fission gain Matrix object  
-* `X` :  
+* X :  
     the flux Vector object  
-* `B` :  
+* B :  
     the source Vector object  
-* `tol` :  
+* tol :  
     the power method and linear solve source convergence threshold  
-* `SOR_factor` :  
+* SOR_factor :  
     the successive over-relaxation factor  
 ";
 
 // File: linalg_8h.xml
 
 %feature("docstring") matrix_transpose "
-`matrix_transpose(T *matrix, int dim1, int dim2)`  
+matrix_transpose(T *matrix, int dim1, int dim2)  
 
 Transpose a 2D matrix.  
 
 Parameters
 ----------
-* `matrix` :  
+* matrix :  
     array to transpose  
-* `dim1` :  
+* dim1 :  
     first dimension length  
-* `dim2` :  
+* dim2 :  
     second dimension length  
 ";
 
 %feature("docstring") matrixMultiplication "
-`matrixMultiplication(Matrix *A, Vector *X, Vector *B)`  
+matrixMultiplication(Matrix *A, Vector *X, Vector *B)  
 
 Performs a matrix vector multiplication.  
 
@@ -11421,17 +11025,17 @@ modified in place.
 
 Parameters
 ----------
-* `A` :  
+* A :  
     a Matrix object  
-* `X` :  
+* X :  
     the variable Vector object  
-* `B` :  
+* B :  
     the solution Vector object  
 ";
 
 %feature("docstring") eigenvalueSolve "
-`eigenvalueSolve(Matrix *A, Matrix *M, Vector *X, FP_PRECISION tol, FP_PRECISION
-    SOR_factor=1.5) -> FP_PRECISION`  
+eigenvalueSolve(Matrix *A, Matrix *M, Vector *X, FP_PRECISION tol, FP_PRECISION
+    SOR_factor=1.5) -> FP_PRECISION  
 
 Solves a generalized eigenvalue problem using the Power method.  
 
@@ -11444,15 +11048,15 @@ corresponding eigenvector.
 
 Parameters
 ----------
-* `A` :  
+* A :  
     the loss + streaming Matrix object  
-* `M` :  
+* M :  
     the fission gain Matrix object  
-* `X` :  
+* X :  
     the flux Vector object  
-* `tol` :  
+* tol :  
     the power method and linear solve source convergence threshold  
-* `SOR_factor` :  
+* SOR_factor :  
     the successive over-relaxation factor  
 
 Returns
@@ -11461,7 +11065,7 @@ k_eff the dominant eigenvalue
 ";
 
 %feature("docstring") computeRMSE "
-`computeRMSE(Vector *x, Vector *y, bool integrated) -> FP_PRECISION`  
+computeRMSE(Vector *x, Vector *y, bool integrated) -> FP_PRECISION  
 
 Computes the Root Mean Square Error of two Vectors.  
 
@@ -11472,17 +11076,17 @@ integrated before performing the RMSE operation.
 
 Parameters
 ----------
-* `X` :  
+* X :  
     a Vector object  
-* `Y` :  
+* Y :  
     a second Vector object  
-* `integrated` :  
+* integrated :  
     a boolean indicating whether to group-wise integrate.  
 ";
 
 %feature("docstring") linearSolve "
-`linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol,
-    FP_PRECISION SOR_factor=1.5)`  
+linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol,
+    FP_PRECISION SOR_factor=1.5)  
 
 Solves a linear system using Red-Black Gauss Seidel with successive over-
 relaxation.  
@@ -11495,17 +11099,17 @@ vector.
 
 Parameters
 ----------
-* `A` :  
+* A :  
     the loss + streaming Matrix object  
-* `M` :  
+* M :  
     the fission gain Matrix object  
-* `X` :  
+* X :  
     the flux Vector object  
-* `B` :  
+* B :  
     the source Vector object  
-* `tol` :  
+* tol :  
     the power method and linear solve source convergence threshold  
-* `SOR_factor` :  
+* SOR_factor :  
     the successive over-relaxation factor  
 ";
 
@@ -11516,7 +11120,7 @@ Parameters
 // File: log_8cpp.xml
 
 %feature("docstring") initialize_logger "
-`initialize_logger()`  
+initialize_logger()  
 
 Initializes the logger for use.  
 
@@ -11527,7 +11131,7 @@ when an ERROR message is reported and program execution is terminated.
 ";
 
 %feature("docstring") get_header_character "
-`get_header_character() -> char`  
+get_header_character() -> char  
 
 Returns the character used to format HEADER type log messages.  
 
@@ -11537,7 +11141,7 @@ the character used for HEADER type log messages
 ";
 
 %feature("docstring") set_line_length "
-`set_line_length(int length)`  
+set_line_length(int length)  
 
 Sets the maximum line length for log messages.  
 
@@ -11545,12 +11149,12 @@ Messages longer than this amount will be broken up into multiline messages.
 
 Parameters
 ----------
-* `length` :  
+* length :  
     the maximum log message line length in characters  
 ";
 
 %feature("docstring") get_log_filename "
-`get_log_filename() -> const char *`  
+get_log_filename() -> const char *  
 
 Returns the log filename.  
 
@@ -11560,30 +11164,30 @@ a character array for the log filename
 ";
 
 %feature("docstring") set_separator_character "
-`set_separator_character(char c)`  
+set_separator_character(char c)  
 
 Sets the character to be used when printing SEPARATOR log messages.  
 
 Parameters
 ----------
-* `c` :  
+* c :  
     the character for SEPARATOR log messages  
 ";
 
 %feature("docstring") set_log_level "
-`set_log_level(const char *new_level)`  
+set_log_level(const char *new_level)  
 
 Sets the minimum log message level which will be printed to the console and to
 the log file.  
 
 Parameters
 ----------
-* `new_level` :  
+* new_level :  
     the minimum logging level as a character array  
 ";
 
 %feature("docstring") get_separator_character "
-`get_separator_character() -> char`  
+get_separator_character() -> char  
 
 Returns the character used to format SEPARATOR log messages.  
 
@@ -11593,7 +11197,7 @@ the character used for SEPARATOR log messages
 ";
 
 %feature("docstring") log_printf "
-`log_printf(logLevel level, const char *format,...)`  
+log_printf(logLevel level, const char *format,...)  
 
 Print a formatted message to the console.  
 
@@ -11601,14 +11205,14 @@ If the logging level is ERROR, this function will throw a runtime exception
 
 Parameters
 ----------
-* `level` :  
+* level :  
     the logging level for this message  
-* `format` :  
+* format :  
     variable list of C++ formatted arguments  
 ";
 
 %feature("docstring") get_output_directory "
-`get_output_directory() -> const char *`  
+get_output_directory() -> const char *  
 
 Returns the output directory for log files.  
 
@@ -11618,18 +11222,18 @@ a character array for the log file directory
 ";
 
 %feature("docstring") set_log_filename "
-`set_log_filename(char *filename)`  
+set_log_filename(char *filename)  
 
 Sets the name for the log file.  
 
 Parameters
 ----------
-* `filename` :  
+* filename :  
     a character array for log filename  
 ";
 
 %feature("docstring") get_log_level "
-`get_log_level() -> const char *`  
+get_log_level() -> const char *  
 
 Return the minimum level for log messages printed to the screen.  
 
@@ -11639,7 +11243,7 @@ the minimum level for log messages
 ";
 
 %feature("docstring") set_output_directory "
-`set_output_directory(char *directory)`  
+set_output_directory(char *directory)  
 
 Sets the output directory for log files.  
 
@@ -11647,34 +11251,34 @@ If the directory does not exist, it creates it for the user.
 
 Parameters
 ----------
-* `directory` :  
+* directory :  
     a character array for the log file directory  
 ";
 
 %feature("docstring") set_header_character "
-`set_header_character(char c)`  
+set_header_character(char c)  
 
 Sets the character to be used when printing HEADER log messages.  
 
 Parameters
 ----------
-* `c` :  
+* c :  
     the character for HEADER log messages  
 ";
 
 %feature("docstring") set_title_character "
-`set_title_character(char c)`  
+set_title_character(char c)  
 
 Sets the character to be used when printing TITLE log messages.  
 
 Parameters
 ----------
-* `c` :  
+* c :  
     the character for TITLE log messages  
 ";
 
 %feature("docstring") get_title_character "
-`get_title_character() -> char`  
+get_title_character() -> char  
 
 Returns the character used to format TITLE log messages.  
 
@@ -11684,7 +11288,7 @@ the character used for TITLE log messages
 ";
 
 %feature("docstring") create_multiline_msg "
-`create_multiline_msg(std::string level, std::string message) -> std::string`  
+create_multiline_msg(std::string level, std::string message) -> std::string  
 
 Breaks up a message which is too long for a single line into a multiline
 message.  
@@ -11694,9 +11298,9 @@ called directly by the user.
 
 Parameters
 ----------
-* `level` :  
+* level :  
     a string containing log level prefix  
-* `message` :  
+* message :  
     a string containing the log message  
 
 Returns
@@ -11707,7 +11311,7 @@ a string with a formatted multiline message
 // File: log_8h.xml
 
 %feature("docstring") initialize_logger "
-`initialize_logger()`  
+initialize_logger()  
 
 Initializes the logger for use.  
 
@@ -11718,7 +11322,7 @@ when an ERROR message is reported and program execution is terminated.
 ";
 
 %feature("docstring") get_header_character "
-`get_header_character() -> char`  
+get_header_character() -> char  
 
 Returns the character used to format HEADER type log messages.  
 
@@ -11728,7 +11332,7 @@ the character used for HEADER type log messages
 ";
 
 %feature("docstring") set_line_length "
-`set_line_length(int length)`  
+set_line_length(int length)  
 
 Sets the maximum line length for log messages.  
 
@@ -11736,12 +11340,12 @@ Messages longer than this amount will be broken up into multiline messages.
 
 Parameters
 ----------
-* `length` :  
+* length :  
     the maximum log message line length in characters  
 ";
 
 %feature("docstring") get_log_filename "
-`get_log_filename() -> const char *`  
+get_log_filename() -> const char *  
 
 Returns the log filename.  
 
@@ -11751,30 +11355,30 @@ a character array for the log filename
 ";
 
 %feature("docstring") set_separator_character "
-`set_separator_character(char c)`  
+set_separator_character(char c)  
 
 Sets the character to be used when printing SEPARATOR log messages.  
 
 Parameters
 ----------
-* `c` :  
+* c :  
     the character for SEPARATOR log messages  
 ";
 
 %feature("docstring") set_log_level "
-`set_log_level(const char *new_level)`  
+set_log_level(const char *new_level)  
 
 Sets the minimum log message level which will be printed to the console and to
 the log file.  
 
 Parameters
 ----------
-* `new_level` :  
+* new_level :  
     the minimum logging level as a character array  
 ";
 
 %feature("docstring") get_separator_character "
-`get_separator_character() -> char`  
+get_separator_character() -> char  
 
 Returns the character used to format SEPARATOR log messages.  
 
@@ -11784,7 +11388,7 @@ the character used for SEPARATOR log messages
 ";
 
 %feature("docstring") log_printf "
-`log_printf(logLevel level, const char *format,...)`  
+log_printf(logLevel level, const char *format,...)  
 
 Print a formatted message to the console.  
 
@@ -11792,14 +11396,14 @@ If the logging level is ERROR, this function will throw a runtime exception
 
 Parameters
 ----------
-* `level` :  
+* level :  
     the logging level for this message  
-* `format` :  
+* format :  
     variable list of C++ formatted arguments  
 ";
 
 %feature("docstring") get_output_directory "
-`get_output_directory() -> const char *`  
+get_output_directory() -> const char *  
 
 Returns the output directory for log files.  
 
@@ -11809,18 +11413,18 @@ a character array for the log file directory
 ";
 
 %feature("docstring") set_log_filename "
-`set_log_filename(char *filename)`  
+set_log_filename(char *filename)  
 
 Sets the name for the log file.  
 
 Parameters
 ----------
-* `filename` :  
+* filename :  
     a character array for log filename  
 ";
 
 %feature("docstring") get_log_level "
-`get_log_level() -> const char *`  
+get_log_level() -> const char *  
 
 Return the minimum level for log messages printed to the screen.  
 
@@ -11830,7 +11434,7 @@ the minimum level for log messages
 ";
 
 %feature("docstring") set_output_directory "
-`set_output_directory(char *directory)`  
+set_output_directory(char *directory)  
 
 Sets the output directory for log files.  
 
@@ -11838,23 +11442,23 @@ If the directory does not exist, it creates it for the user.
 
 Parameters
 ----------
-* `directory` :  
+* directory :  
     a character array for the log file directory  
 ";
 
 %feature("docstring") set_header_character "
-`set_header_character(char c)`  
+set_header_character(char c)  
 
 Sets the character to be used when printing HEADER log messages.  
 
 Parameters
 ----------
-* `c` :  
+* c :  
     the character for HEADER log messages  
 ";
 
 %feature("docstring") set_err "
-`set_err(const char *msg)`  
+set_err(const char *msg)  
 
 A function stub used to convert C++ exceptions into Python exceptions through
 SWIG.  
@@ -11864,23 +11468,23 @@ files (i.e., openmoc/openmoc.i)
 
 Parameters
 ----------
-* `msg` :  
+* msg :  
     a character array for the exception message  
 ";
 
 %feature("docstring") set_title_character "
-`set_title_character(char c)`  
+set_title_character(char c)  
 
 Sets the character to be used when printing TITLE log messages.  
 
 Parameters
 ----------
-* `c` :  
+* c :  
     the character for TITLE log messages  
 ";
 
 %feature("docstring") get_title_character "
-`get_title_character() -> char`  
+get_title_character() -> char  
 
 Returns the character used to format TITLE log messages.  
 
@@ -11890,7 +11494,7 @@ the character used for TITLE log messages
 ";
 
 %feature("docstring") create_multiline_msg "
-`create_multiline_msg(std::string level, std::string message) -> std::string`  
+create_multiline_msg(std::string level, std::string message) -> std::string  
 
 Breaks up a message which is too long for a single line into a multiline
 message.  
@@ -11900,9 +11504,9 @@ called directly by the user.
 
 Parameters
 ----------
-* `level` :  
+* level :  
     a string containing log level prefix  
-* `message` :  
+* message :  
     a string containing the log message  
 
 Returns
@@ -11913,13 +11517,13 @@ a string with a formatted multiline message
 // File: Material_8cpp.xml
 
 %feature("docstring") reset_material_id "
-`reset_material_id()`  
+reset_material_id()  
 
 Resets the auto-generated unique Material ID counter to 10000.  
 ";
 
 %feature("docstring") maximize_material_id "
-`maximize_material_id(int material_id)`  
+maximize_material_id(int material_id)  
 
 Maximize the auto-generated unique Material ID counter.  
 
@@ -11930,12 +11534,12 @@ collide with those created in OpenCG.
 
 Parameters
 ----------
-* `material_id` :  
+* material_id :  
     the id assigned to the auto-generated counter  
 ";
 
 %feature("docstring") material_id "
-`material_id() -> int`  
+material_id() -> int  
 
 Returns an auto-generated unique Material ID.  
 
@@ -11949,13 +11553,13 @@ material IDs greater than or equal to 10000 is prohibited.
 // File: Material_8h.xml
 
 %feature("docstring") reset_material_id "
-`reset_material_id()`  
+reset_material_id()  
 
 Resets the auto-generated unique Material ID counter to 10000.  
 ";
 
 %feature("docstring") maximize_material_id "
-`maximize_material_id(int material_id)`  
+maximize_material_id(int material_id)  
 
 Maximize the auto-generated unique Material ID counter.  
 
@@ -11966,12 +11570,12 @@ collide with those created in OpenCG.
 
 Parameters
 ----------
-* `material_id` :  
+* material_id :  
     the id assigned to the auto-generated counter  
 ";
 
 %feature("docstring") material_id "
-`material_id() -> int`  
+material_id() -> int  
 
 Returns an auto-generated unique Material ID.  
 
@@ -11989,7 +11593,7 @@ material IDs greater than or equal to 10000 is prohibited.
 // File: pairwise__sum_8h.xml
 
 %feature("docstring") pairwise_sum "
-`pairwise_sum(T *vector, int length) -> T`  
+pairwise_sum(T *vector, int length) -> T  
 
 Performs a pairwise sum of an array of numbers.  
 
@@ -11998,9 +11602,9 @@ bound the error for summations of large sequences of numbers.
 
 Parameters
 ----------
-* `vector` :  
+* vector :  
     an array of numbers  
-* `length` :  
+* length :  
     the length of the array  
 
 Returns
@@ -12025,7 +11629,7 @@ the sum of all numbers in the array
 // File: Surface_8cpp.xml
 
 %feature("docstring") surface_id "
-`surface_id() -> int`  
+surface_id() -> int  
 
 Returns an auto-generated unique surface ID.  
 
@@ -12037,13 +11641,13 @@ surface IDs greater than or equal to 10000 are prohibited.
 ";
 
 %feature("docstring") reset_surface_id "
-`reset_surface_id()`  
+reset_surface_id()  
 
 Resets the auto-generated unique Surface ID counter to 10000.  
 ";
 
 %feature("docstring") maximize_surface_id "
-`maximize_surface_id(int surface_id)`  
+maximize_surface_id(int surface_id)  
 
 Maximize the auto-generated unique Surface ID counter.  
 
@@ -12054,14 +11658,14 @@ collide with those created in OpenCG.
 
 Parameters
 ----------
-* `surface_id` :  
+* surface_id :  
     the id assigned to the auto-generated counter  
 ";
 
 // File: Surface_8h.xml
 
 %feature("docstring") surface_id "
-`surface_id() -> int`  
+surface_id() -> int  
 
 Returns an auto-generated unique surface ID.  
 
@@ -12073,13 +11677,13 @@ surface IDs greater than or equal to 10000 are prohibited.
 ";
 
 %feature("docstring") reset_surface_id "
-`reset_surface_id()`  
+reset_surface_id()  
 
 Resets the auto-generated unique Surface ID counter to 10000.  
 ";
 
 %feature("docstring") maximize_surface_id "
-`maximize_surface_id(int surface_id)`  
+maximize_surface_id(int surface_id)  
 
 Maximize the auto-generated unique Surface ID counter.  
 
@@ -12090,7 +11694,7 @@ collide with those created in OpenCG.
 
 Parameters
 ----------
-* `surface_id` :  
+* surface_id :  
     the id assigned to the auto-generated counter  
 ";
 
@@ -12109,7 +11713,7 @@ Parameters
 // File: Universe_8cpp.xml
 
 %feature("docstring") universe_id "
-`universe_id() -> int`  
+universe_id() -> int  
 
 Returns an auto-generated unique Universe ID.  
 
@@ -12121,13 +11725,13 @@ Universe IDs greater than or equal to 10000 is prohibited.
 ";
 
 %feature("docstring") reset_universe_id "
-`reset_universe_id()`  
+reset_universe_id()  
 
 Resets the auto-generated unique Universe ID counter to 10000.  
 ";
 
 %feature("docstring") maximize_universe_id "
-`maximize_universe_id(int universe_id)`  
+maximize_universe_id(int universe_id)  
 
 Maximize the auto-generated unique Universe ID counter.  
 
@@ -12138,14 +11742,14 @@ collide with those created in OpenCG.
 
 Parameters
 ----------
-* `universe_id` :  
+* universe_id :  
     the id assigned to the auto-generated counter  
 ";
 
 // File: Universe_8h.xml
 
 %feature("docstring") universe_id "
-`universe_id() -> int`  
+universe_id() -> int  
 
 Returns an auto-generated unique Universe ID.  
 
@@ -12157,7 +11761,7 @@ Universe IDs greater than or equal to 10000 is prohibited.
 ";
 
 %feature("docstring") pair_second "
-`pair_second(const tMap &map) -> second_t< typename tMap::value_type >`  
+pair_second(const tMap &map) -> second_t< typename tMap::value_type >  
 
 A helper routine for the Universe::findCell() method.  
 
@@ -12167,7 +11771,7 @@ struct template defined above.
 
 Parameters
 ----------
-* `map` :  
+* map :  
     a std::map iterator  
 
 Returns
@@ -12176,13 +11780,13 @@ the second element in the iterator (e.g., map value)
 ";
 
 %feature("docstring") reset_universe_id "
-`reset_universe_id()`  
+reset_universe_id()  
 
 Resets the auto-generated unique Universe ID counter to 10000.  
 ";
 
 %feature("docstring") maximize_universe_id "
-`maximize_universe_id(int universe_id)`  
+maximize_universe_id(int universe_id)  
 
 Maximize the auto-generated unique Universe ID counter.  
 
@@ -12193,7 +11797,7 @@ collide with those created in OpenCG.
 
 Parameters
 ----------
-* `universe_id` :  
+* universe_id :  
     the id assigned to the auto-generated counter  
 ";
 

@@ -50,7 +50,6 @@ import re
 import textwrap
 import sys
 import os.path
-import optparse
 
 
 def my_open_read(source):
@@ -104,14 +103,7 @@ class Doxy2SWIG:
 
     """
 
-    def __init__(self, src,
-                 with_function_signature = False,
-                 with_type_info = False,
-                 with_constructor_list = False,
-                 with_attribute_list = False,
-                 with_overloaded_functions = False,
-                 textwidth = 80,
-                 quiet = False):
+    def __init__(self, src):
         """Initialize the instance given a source object.  `src` can
         be a file or filename.  If you do not want to include function
         definitions from doxygen then set
@@ -120,14 +112,15 @@ class Doxy2SWIG:
         using %feature("autodoc", [0,1]).
 
         """
+
         # options:
-        self.with_function_signature = with_function_signature
-        self.with_type_info = with_type_info
-        self.with_constructor_list = with_constructor_list
-        self.with_attribute_list = with_attribute_list
-        self.with_overloaded_functions = with_overloaded_functions
-        self.textwidth = textwidth
-        self.quiet = quiet
+        self.with_function_signature = True
+        self.with_type_info = True
+        self.with_constructor_list = False
+        self.with_attribute_list = True
+        self.with_overloaded_functions = True
+        self.textwidth = 80
+        self.quiet = False
 
         # state:
         self.indent = 0
@@ -356,7 +349,7 @@ class Doxy2SWIG:
         function_definition = name + argsstring
         if type != '' and type != 'void':
             function_definition = function_definition + ' -> ' + type
-        return '`' + function_definition + '`  '
+        return function_definition + '  '
 
 # MARK: Special parsing tasks (need to be called manually)
     def make_constructor_list(self, constructor_nodes, classname):
@@ -385,8 +378,8 @@ class Doxy2SWIG:
                        '\n', '----------'])
         for n in atr_nodes:
             name = self.extract_text(self.get_specific_subnodes(n, 'name'))
-            self.add_text(['\n* ', '`', name, '`', ' : '])
-            self.add_text(['`', self.extract_text(self.get_specific_subnodes(n, 'type')), '`'])
+            self.add_text(['\n* ', name,' : '])
+            self.add_text([self.extract_text(self.get_specific_subnodes(n, 'type'))])
             self.add_text('  \n')
             restrict = ['briefdescription', 'detaileddescription']
             self.subnode_parse(n, pieces=[''], indent=4, restrict=restrict)
@@ -478,7 +471,7 @@ class Doxy2SWIG:
         self.surround_parse(node, '**', '**')
     
     def do_computeroutput(self, node):
-        self.surround_parse(node, '`', '`')
+        self.surround_parse(node, '', '')
 
     def do_heading(self, node):
         self.start_new_paragraph()
@@ -617,7 +610,7 @@ class Doxy2SWIG:
         if self.pieces != [] and self.pieces != ['* ', '']:
             self.add_text(', ')
         data = self.extract_text(node)
-        self.add_text(['`', data, '`'])
+        self.add_text([data])
 
     def do_parameterdescription(self, node):
         self.subnode_parse(node, pieces=[''], indent=4)
@@ -770,71 +763,16 @@ class Doxy2SWIG:
                 fname = os.path.join(self.my_dir,  fname)
             if not self.quiet:
                 print("parsing file: %s" % fname)
-            p = Doxy2SWIG(fname,
-                          with_function_signature = self.with_function_signature,
-                          with_type_info = self.with_type_info,
-                          with_constructor_list = self.with_constructor_list,
-                          with_attribute_list = self.with_attribute_list,
-                          with_overloaded_functions = self.with_overloaded_functions,
-                          textwidth = self.textwidth,
-                          quiet = self.quiet)
+            p = Doxy2SWIG(fname)
             p.generate()
             self.pieces.extend(p.pieces)
 
 # MARK: main
 def main():
     usage = __doc__
-    parser = optparse.OptionParser(usage)
-    parser.add_option("-f", '--function-signature',
-                      action='store_true',
-                      default=False,
-                      dest='f',
-                      help='include function signature in the documentation. This is handy when not using swig auto-generated function definitions %feature("autodoc", [0,1])')
-    parser.add_option("-t", '--type-info',
-                      action='store_true',
-                      default=False,
-                      dest='t',
-                      help='include type information for arguments in function signatures. This is similar to swig autodoc level 1')
-    parser.add_option("-c", '--constructor-list',
-                      action='store_true',
-                      default=False,
-                      dest='c',
-                      help='generate a constructor list for class documentation. Useful for target languages where the object construction should be documented in the class documentation.')
-    parser.add_option("-a", '--attribute-list',
-                      action='store_true',
-                      default=False,
-                      dest='a',
-                      help='generate an attributes list for class documentation. Useful for target languages where class attributes should be documented in the class documentation.')
-    parser.add_option("-o", '--overloaded-functions',
-                      action='store_true',
-                      default=False,
-                      dest='o',
-                      help='collect all documentation for overloaded functions. Useful for target languages that have no concept of overloaded functions, but also to avoid having to attach the correct docstring to each function overload manually')
-    parser.add_option("-w", '--width', type="int",
-                      action='store',
-                      dest='w',
-                      default=80,
-                      help='textwidth for wrapping (default: 80). Note that the generated lines may include 2 additional spaces (for markdown).')
-    parser.add_option("-q", '--quiet',
-                      action='store_true',
-                      default=False,
-                      dest='q',
-                      help='be quiet and minimize output')
-    
-    options, args = parser.parse_args()
-    if len(args) != 2:
-        parser.error("no input and output specified")
-    
-    p = Doxy2SWIG(args[0],
-                  with_function_signature = options.f,
-                  with_type_info = options.t,
-                  with_constructor_list = options.c,
-                  with_attribute_list = options.a,
-                  with_overloaded_functions = options.o,
-                  textwidth = options.w,
-                  quiet = options.q)
+    p = Doxy2SWIG('xml/index.xml')
     p.generate()
-    p.write(args[1])
+    p.write('../../openmoc/docstring.i')
 
 if __name__ == '__main__':
     main()
