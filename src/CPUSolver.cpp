@@ -243,8 +243,8 @@ void CPUSolver::zeroTrackFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int e=0; e < _num_groups; e++) {
-        for (int p=0; p < _num_polar; p++)
+      for (int p=0; p < _num_polar; p++) {
+        for (int e=0; e < _num_groups; e++)
           _boundary_flux(t,d,p,e) = 0.0;
       }
     }
@@ -329,8 +329,8 @@ void CPUSolver::normalizeFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int e=0; e < _num_groups; e++) {
-        for (int p=0; p < _num_polar; p++)
+      for (int p=0; p < _num_polar; p++) {
+        for (int e=0; e < _num_groups; e++)
           _boundary_flux(t,d,p,e) *= norm_factor;
       }
     }
@@ -745,7 +745,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exp_F1, tau, dt, dt2;
-  int i;
+  int exp_index;
   FP_PRECISION inv_spacing = _exp_evaluator->getInverseTableSpacing();
   FP_PRECISION spacing = _exp_evaluator->getTableSpacing();
 
@@ -754,17 +754,38 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
   /* Compute change in angular flux along segment in this FSR */
   for (int e=0; e < _num_groups; e++) {
+
+    /* Compute the optical length */
     tau = sigma_t[e] * length;
-    i = floor(tau * inv_spacing);
-    dt = tau - i * spacing;
-    i *= 3 * _num_polar;
+
+    /* Get the location of the optical length in the exp look-up table */
+    exp_index = floor(tau * inv_spacing);
+
+    /* Compute the distance and distance squared from the optical length to the
+     * nearest tau in the table */
+    dt = tau - exp_index * spacing;
     dt2 = dt * dt;
 
+    /* Increment the exp index to account for the staggered values in the
+     * exp table */
+    exp_index *= 3 * _num_polar;
+
     for (int p=0; p < _num_polar; p++) {
-      exp_F1 = _exp_table[i] + _exp_table[i + 1] * dt + _exp_table[i + 2] * dt2;
-      i += 3;
+
+      /* Compute the exponential terms */
+      exp_F1 = _exp_table[exp_index] + _exp_table[exp_index + 1] * dt +
+          _exp_table[exp_index + 2] * dt2;
+
+      /* Increment the exp index for the next polar angle */
+      exp_index += 3;
+
+      /* Compute the change in flux across the segment */
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exp_F1;
+
+      /* Increment the fsr scalar flux */
       fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
+
+      /* Decrement the track flux */
       track_flux(p,e) -= delta_psi;
     }
   }
@@ -772,7 +793,6 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);
 
-#pragma omp simd
   for (int e=0; e < _num_groups; e++)
     _scalar_flux(fsr_id,e) += fsr_flux[e];
 

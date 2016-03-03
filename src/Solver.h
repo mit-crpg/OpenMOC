@@ -41,7 +41,7 @@
  *  reverse direction for a given track */
 #define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups \
                                                 + (j)*_polar_times_groups \
-                                                + (e)*_num_polar + (p)])
+                                                + (p)*_num_groups + (e)])
 
 /** Indexing scheme for fixed sources for each FSR and energy group */
 #define _fixed_sources(r,e) (_fixed_sources[(r)*_num_groups + (e)])

@@ -211,8 +211,8 @@ void CPULSSolver::normalizeFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int e=0; e < _num_groups; e++) {
-        for (int p=0; p < _num_polar; p++)
+      for (int p=0; p < _num_polar; p++) {
+        for (int e=0; e < _num_groups; e++)
           _boundary_flux(t,d,p,e) *= norm_factor;
       }
     }
@@ -288,7 +288,7 @@ void CPULSSolver::computeFSRSources() {
       }
     }
 
-    int ax, ay;
+    FP_PRECISION ax, ay;
 
     /* Compute the total source for each FSR */
 #pragma omp for schedule(guided)
@@ -455,7 +455,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exp_F1, exp_F2, exp_H, tau;
   FP_PRECISION src_flat, dt, dt2;
-  int i;
+  int exp_index;
 
   FP_PRECISION* directional_sources_sr = &_directional_sources
       [(azim_index + fsr_id * _num_azim) * _num_groups * _num_polar];
@@ -472,26 +472,42 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   /* Compute change in angular flux along segment in this LSR */
   for (int e=0; e < _num_groups; e++) {
 
+    /* Compute the optical length */
     tau = sigma_t[e] * length;
-    i = floor(tau * _inv_spacing);
-    dt = tau - i * _spacing;
-    i *= 9 * _num_polar;
+
+    /* Get the location of the optical length in the exp look-up table */
+    exp_index = floor(tau * _inv_spacing);
+
+    /* Compute the distance and distance squared from the optical length to the
+     * nearest tau in the table */
+    dt = tau - exp_index * _spacing;
     dt2 = dt * dt;
 
+    /* Increment the exp index to account for the staggered values in the
+     * exp table */
+    exp_index *= 9 * _num_polar;
+
+    /* Compute the flat component of the reduced source */
     src_flat = _reduced_sources(fsr_id, e) +
         _reduced_sources_xy(fsr_id, e, 0) * xc +
         _reduced_sources_xy(fsr_id, e, 1) * yc;
 
     for (int p=0; p < _num_polar; p++) {
 
-      exp_F1 = _exp_table[i    ] + _exp_table[i + 1] * dt + _exp_table[i + 2] * dt2;
-      exp_F2 = _exp_table[i + 3] + _exp_table[i + 4] * dt + _exp_table[i + 5] * dt2;
-      exp_H  = _exp_table[i + 6] + _exp_table[i + 7] * dt + _exp_table[i + 8] * dt2;
-      i += 9;
+      /* Compute the exponential terms */
+      exp_F1 =  _exp_table[exp_index    ] + _exp_table[exp_index + 1] * dt +
+          _exp_table[exp_index + 2] * dt2;
+      exp_F2 =  _exp_table[exp_index + 3] + _exp_table[exp_index + 4] * dt +
+          _exp_table[exp_index + 5] * dt2;
+      exp_H  = (_exp_table[exp_index + 6] + _exp_table[exp_index + 7] * dt +
+                _exp_table[exp_index + 8] * dt2) * length * track_flux(p,e);
+
+      /* Increment the exp index for the next polar angle */
+      exp_index += 9;
 
       /* Compute the change in flux across the segment */
       delta_psi = (track_flux(p,e) - src_flat) * exp_F1 -
-          directional_sources_sr[e*_num_polar + p] * exp_F2;
+          fwd * directional_sources_sr[e*_num_polar + p] * exp_F2;
 
       /* Increment the fsr scalar flux and scalar flux moments */
       fsr_flux[e*3    ] += _polar_weights(azim_index,p) * delta_psi;
@@ -508,7 +524,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);
 
-#pragma omp simd
   for (int e=0; e < _num_groups; e++) {
     _scalar_flux   (fsr_id,e)   += fsr_flux[e*3    ];
     _scalar_flux_xy(fsr_id,e,0) += fsr_flux[e*3 + 1];
@@ -527,7 +542,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 
 #pragma omp parallel
   {
-    FP_PRECISION volume, flux_const;
+    FP_PRECISION volume;
     FP_PRECISION* sigma_t;
 
     /* Add in source term and normalize flux to volume for each FSR */
@@ -539,25 +554,23 @@ void CPULSSolver::addSourceToScalarFlux() {
 
       for (int e=0; e < _num_groups; e++) {
 
-        flux_const = FOUR_PI * 2 * sigma_t[e];
-
         _scalar_flux(r,e) *= 0.5;
         _scalar_flux(r,e) /= (sigma_t[e] * volume);
         _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
 
         _scalar_flux_xy(r,e,0) *= 0.5;
         _scalar_flux_xy(r,e,0) /= (sigma_t[e] * volume);
-        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,0) /
-            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e];
-        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,1) /
-            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
+        _scalar_flux_xy(r,e,0) += FOUR_PI * _reduced_sources_xy(r,e,0)
+            * _FSR_source_constants[r*_num_groups*3 + 3*e];
+        _scalar_flux_xy(r,e,0) += FOUR_PI * _reduced_sources_xy(r,e,1)
+            * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
 
         _scalar_flux_xy(r,e,1) *= 0.5;
         _scalar_flux_xy(r,e,1) /= (sigma_t[e] * volume);
-        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,1) /
-            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e + 1];
-        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,0) /
-            (2 * sigma_t[e]) * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
+        _scalar_flux_xy(r,e,1) += FOUR_PI * _reduced_sources_xy(r,e,1)
+            * _FSR_source_constants[r*_num_groups*3 + 3*e + 1];
+        _scalar_flux_xy(r,e,1) += FOUR_PI * _reduced_sources_xy(r,e,0)
+            * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
       }
     }
   }
