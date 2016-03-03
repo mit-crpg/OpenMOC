@@ -604,7 +604,7 @@ def restore_simulation_state(filename='simulation-state.h5',
                     state['note'] = str(dataset['note'])
 
                 if 'fission-rates' in dataset:
-                    py_printf('WARNING', 'The process.restore_simulation_state(...)'+ \
+                    py_printf('WARNING', 'The process.restore_simulation_state(...)'+
                               'method does not yet support fission rates')
 
         return states
@@ -622,8 +622,8 @@ def restore_simulation_state(filename='simulation-state.h5',
 
     # If file does not have a recognizable extension
     else:
-        py_printf('WARNING', 'Unable to restore the simulation states file %s' + \
-                  ' since it does not have a supported file extension. Only ' + \
+        py_printf('WARNING', 'Unable to restore the simulation states file %s' +
+                  ' since it does not have a supported file extension. Only ' +
                   '*.h5, *.hdf5, and *.pkl files are supported', filename)
 
         return {}
@@ -651,7 +651,7 @@ def parse_convergence_data(filename, directory=''):
         filename = directory + '/' + filename
 
     if not os.path.isfile(filename):
-        py_printf('ERROR', 'Unable to parse convergence data since "{0}" is ' + \
+        py_printf('ERROR', 'Unable to parse convergence data since "{0}" is ' +
                   'not an existing OpenMOC log file'.format(filename))
 
     # Compile regular expressions to find the residual and eigenvalue data
@@ -778,18 +778,25 @@ class Mesh(object):
         x, y, z = point.getX(), point.getY(), point.getZ()
 
         # Translate the point with respect to the center of the mesh
-        x -= (self.upper_right[0] - self.lower_left[0]) / 2.
-        y -= (self.upper_right[1] - self.lower_left[1]) / 2.
-        z -= (self.upper_right[2] - self.lower_left[2]) / 2.
+        x -= (self.upper_right[0] + self.lower_left[0]) / 2.
+        y -= (self.upper_right[1] + self.lower_left[1]) / 2.
+        if len(self.dimension) != 2:
+            z -= (self.upper_right[2] + self.lower_left[2]) / 2.
 
         # Compute the mesh cell indices
-        mesh_x = math.floor((x + self.dimension[0] * self.width[0] * 0.5) / self.width[0])
-        mesh_y = math.floor((y + self.dimension[1] * self.width[1] * 0.5) / self.width[1])
+        mesh_x = (x + self.dimension[0] * self.width[0] * 0.5) / self.width[0]
+        mesh_y = (y + self.dimension[1] * self.width[1] * 0.5) / self.width[1]
         if len(self.dimension) == 2:
             mesh_z = 0
         else:
-            mesh_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5) / self.width[2])
+            mesh_z = (z + self.dimension[2] * self.width[2] * 0.5) / self.width[2]
 
+        # Round the mesh cell indices down
+        mesh_x = math.floor(mesh_x)
+        mesh_y = math.floor(mesh_y)
+        mesh_z = math.floor(mesh_z)
+
+        '''
         # Compute the distance to the mesh cell boundaries
         distance_x = math.fabs(math.fabs(x) - self.dimension[0] *
                                self.width[0] * 0.5)
@@ -819,6 +826,7 @@ class Mesh(object):
                 mesh_z = self.dimension[2] - 1
             else:
                 mesh_z = 0
+        '''
 
         # Cast the mesh cell indices as integers
         lat_x = int(mesh_x)
@@ -829,17 +837,14 @@ class Mesh(object):
         if len(self.dimension) == 2:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]):
-                py_printf('ERROR', 'Unable to find cell since indices ({0},' + \
-                          '{1},{2}) are outside mesh', lat_x, lat_y, lat_z)
+                py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
+                          '%d, %d) are outside mesh', lat_x, lat_y, lat_z)
         else:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]) or \
                (mesh_z < 0 or mesh_z >= self.dimension[2]):
-                print(x,y,z)
-                print(mesh_x,mesh_y,mesh_z)
-                print(self.dimension, self.width)
-                py_printf('ERROR', 'Unable to find cell since indices ({0},' + \
-                          '{1},{2}) are outside mesh', lat_x, lat_y, lat_z)
+                py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
+                          '%d, %d) are outside mesh', lat_x, lat_y, lat_z)
 
         # Return mesh cell indices
         if len(self.dimension) == 2:
@@ -847,7 +852,7 @@ class Mesh(object):
         else:
             return mesh_x, mesh_y, mesh_z
 
-    def get_fission_rates(self, solver, volume='integrated', energy='integrated'):
+    def get_fission_rates(self, solver, volume='integrated'):
         """Compute the fission rates in each mesh cell.
 
         NOTE: This method assumes that the mesh perfectly aligns with the
@@ -862,10 +867,8 @@ class Mesh(object):
         ----------
         solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
             The solver used to compute the flux
-        volume : 'averaged' or 'integrated'
+        volume : {'averaged' ,'integrated'}
             Compute volume-averaged or volume-integrated fission rates
-        energy : 'by_group' or 'integrated'
-            Compute fission rates by energy group or integrate across groups
 
         Returns
         -------
@@ -874,11 +877,8 @@ class Mesh(object):
 
         """
 
-        solver_types = (openmoc.CPUSolver,
-                        openmoc.GPUSolver,
-                        openmoc.VectorizedSolver)
-        cv.check_type('solver', solver, solver_types)
-        cv.check_value('volume', volume, ('integrated', 'averaged'))
+        cv.check_type('solver', solver, openmoc.Solver)
+        cv.check_value('volume', volume, ('averaged', 'integrated'))
 
         geometry = solver.getGeometry()
         num_fsrs = geometry.getNumFSRs()
@@ -889,18 +889,20 @@ class Mesh(object):
         # Initialize a 2D or 3D NumPy array in which to tally
         tally = np.zeros(tuple(self.dimension), dtype=np.float)
 
-        # Compute sum of product of fluxes with domains-to-coeffs mapping by group, FSR
+        # Tally the fission rates in each FSR to the corresponding mesh cell
         for fsr in range(num_fsrs):
             point = geometry.getFSRPoint(fsr)
-            indices = self.get_mesh_cell_indices(point)
-            tally[indices] += fission_rates[fsr]
+            mesh_indices = self.get_mesh_cell_indices(point)
+            tally[mesh_indices] += fission_rates[fsr]
 
         # Average the fission rates by mesh cell volume if needed
         if volume == 'averaged':
             tally /= self.mesh_cell_volume
 
-        return tally
+        # Flip the tally array so it is indexed as one expects for the geometry
+        tally = np.fliplr(tally)
 
+        return tally
 
     def tally_on_mesh(self, solver, domains_to_coeffs, domain_type='fsr',
                       volume='integrated', energy='integrated'):
@@ -918,18 +920,20 @@ class Mesh(object):
         ----------
         solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
             The solver used to compute the flux
-        domains_to_coeffs : numpy.ndarray or pandas.DataFrame
+        domains_to_coeffs : dict or numpy.ndarray of Real
             A mapping of spatial domains and energy groups to the coefficients
             to multiply the flux in each domain. If domain_type is 'material'
-            or 'cell' then the coefficients must be a Pandas DataFrame with
-            material/cell IDs as one column. If the domain type is 'fsr' then
-            the coefficients may be a NumPy array or a Pandas DataFrame indexed
-            by FSR ID.
-        domain_type : {'material', 'cell', 'fsr'}
+            or 'cell' then the coefficients must be a Python dictionary indexed
+            by material/cell ID mapped to NumPy arrays indexed by energy group.
+            If domain_type is 'fsr' then the coefficients may be a dictionary
+            or NumPy array indexed by FSR ID and energy group. Note that the
+            energy group indexing should start at 0 rather than 1 for high
+            energies to ensure accurate array indexing in Python.
+        domain_type : {'fsr', 'cell', 'material'}
             The type of domain for which the coefficients are defined
-        volume : 'averaged' or 'integrated'
+        volume : {'averaged', 'integrated'}
             Compute volume-averaged or volume-integrated tallies
-        energy : 'by_group' or 'integrated'
+        energy : {'by_group', 'integrated'}
             Compute tallies by energy group or integrate across groups
 
         Returns
@@ -940,21 +944,38 @@ class Mesh(object):
 
         """
 
-        solver_types = (openmoc.CPUSolver,
-                        openmoc.GPUSolver,
-                        openmoc.VectorizedSolver)
-        cv.check_type('solver', solver, solver_types)
+        cv.check_type('solver', solver, openmoc.Solver)
         cv.check_value('domain_type', domain_type, ('fsr', 'cell', 'material'))
-        cv.check_value('volume', volume, ('integrated', 'averaged'))
+        cv.check_value('volume', volume, ('averaged', 'integrated'))
+        cv.check_value('energy', energy, ('by_group', 'integrated'))
 
-        if 'DataFrame' in type(domains_to_coeffs):
-            pandas_df = True
-        else:
-            cv.check_type('domains_to_coeffs', domains_to_coeffs, np.ndarray)
-
+        # Extract parameters from the Geometry
         geometry = solver.getGeometry()
         num_groups = solver.getNumEnergyGroups()
         num_fsrs = geometry.getNumFSRs()
+
+        # Coefficients must be specified as a dict, ndarray or DataFrame
+        if domain_type in ['material', 'cell']:
+            cv.check_type('domains_to_coeffs', domains_to_coeffs, dict)
+        else:
+            cv.check_type('domains_to_coeffs',
+                          domains_to_coeffs, (dict, np.ndarray))
+
+        # Determine expected number of spatial domains in coefficients mapping
+        if domain_type == 'material':
+            num_domains = len(geometry.getAllMaterials())
+        elif domain_type == 'cell':
+            num_domains = len(geometry.getAllMaterialCells())
+        else:
+            num_domains = num_fsrs
+
+        # Determine the expected number of coefficients
+        num_coeffs = num_domains * num_groups
+
+        # Check the length of the coefficients mapping
+        cv.check_length('domains_to_coeffs', domains_to_coeffs, num_coeffs)
+
+        # Extract the FSR fluxes from the Solver
         fluxes = get_scalar_fluxes(solver)
 
         # Initialize a 2D or 3D NumPy array in which to tally
@@ -964,24 +985,40 @@ class Mesh(object):
         # Compute product of fluxes with domains-to-coeffs mapping by group, FSR
         for fsr in range(num_fsrs):
             point = geometry.getFSRPoint(fsr)
-            indices = self.get_mesh_cell_indices(point)
+            mesh_indices = self.get_mesh_cell_indices(point)
             volume = solver.getFSRVolume()
             fsr_tally = np.zeros(num_groups, dtype=np.float)
 
-            for group in range(1, num_groups+1):
-                # FIXME: Make this work for cells, materials or FSR mappings
-                if pandas_df:
-                    fsr_tally[group-1] = \
-                        fluxes[fsr,group-1] * domains_to_coeffs.iloc[fsr, group]
+            # Determine domain ID (material, cell or FSR) for this FSR
+            if domain_type == 'fsr':
+                domain_id = fsr
+            else:
+                coords = \
+                    openmoc.LocalCoords(point.getX(), point.getY(), point.getZ())
+                coords.setUniverse(geometry.getRootUniverse())
+                cell = geometry.findCellContainingCoords(coords)
+                if domain_type == 'cell':
+                    domain_id = cell.getId()
                 else:
-                    fsr_tally[group-1] = \
-                        fluxes[fsr,group-1] * domains_to_coeffs[fsr, group]
+                    domain_id = cell.getFillMaterial().getId()
 
-                # Increment mesh tally with volume-integrated FSR tally
-                tally[indices] += fsr_tally * volume
+            # Tally flux multiplied by coefficients by energy group
+            for group in range(num_groups):
+                fsr_tally[group] = \
+                    fluxes[fsr, group] * domains_to_coeffs[domain_id][group]
+
+            # Increment mesh tally with volume-integrated FSR tally
+            tally[mesh_indices, :] += fsr_tally * volume
+
+        # Integrate the energy groups if needed
+        if energy == 'integrated':
+            tally = np.sum(tally, axis=1)
 
         # Average the fission rates by mesh cell volume if needed
         if volume == 'averaged':
             tally /= self.mesh_cell_volume
+
+        # Flip the tally array so it is indexed as one expects for the geometry
+        tally = np.fliplr(tally)
 
         return tally
