@@ -285,6 +285,10 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     cos_theta = cos(theta);
   }
 
+  /* Pre-compute azimuthal angles for efficiency */
+  double sin_phi = sin(phi);
+  double cos_phi = cos(phi);
+
   /* Loop over segments to accumlate contribution to centroids */
   for (int s=0; s < track->getNumSegments(); s++) {
     segment* curr_segment = &segments[s];
@@ -312,8 +316,8 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     /* Unset the lock for this FSR */
     omp_unset_lock(&_FSR_locks[fsr]);
 
-    xx += cos(phi) * sin_theta * curr_segment->_length;
-    yy += sin(phi) * cos_theta * curr_segment->_length;
+    xx += cos_phi * sin_theta * curr_segment->_length;
+    yy += sin_phi * cos_theta * curr_segment->_length;
     zz += cos_theta * curr_segment->_length;
   }
 }
