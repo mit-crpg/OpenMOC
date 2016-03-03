@@ -615,7 +615,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
 
 /**
- * @brief Subdivides all of the Material-filled Cells within this Universe 
+ * @brief Subdivides all of the Material-filled Cells within this Universe
  *        into rings and angular sectors aligned with the z-axis.
  * @param max_radius the maximum allowable radius used in the subdivisions
  */
@@ -627,11 +627,11 @@ void Universe::subdivideCells(double max_radius) {
   std::map<int, Cell*>::iterator iter;
 
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    
+
     /* Cells filled with Material */
     if (iter->second->getType() == MATERIAL) {
       Cell* cell = iter->second;
-      
+
       if (cell->getNumRings() > 0 || cell->getNumSectors() > 0)
         cell->subdivideCell(max_radius);
     }
@@ -1176,26 +1176,26 @@ void Lattice::setUniverses3D(int num_z, int num_y, int num_x,
 
 
 /**
- * @brief Subdivides all of the Material-filled Cells within this Lattice 
+ * @brief Subdivides all of the Material-filled Cells within this Lattice
  *        into rings and angular sectors aligned with the z-axis.
  * @param max_radius the maximum allowable radius used in the subdivisions
  */
 void Lattice::subdivideCells(double max_radius) {
-  
+
   log_printf(DEBUG, "Subdividing Cells for Lattice ID=%d "
              "with max radius %f", _id, max_radius);
-  
+
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> universes = getUniqueUniverses();
-  
+
   /* Compute equivalent radius with the same area of a lattice cell */
   /* This is used as the maximum radius for all ringified Cells */
   double radius = sqrt(_width_x * _width_y / M_PI);
-  
+
   /* If the lattice pitch is smaller than max_radius parameter, over-ride it */
   if (radius < max_radius)
     max_radius = radius;
-  
+
   /* Subdivide all Cells */
   for (iter = universes.begin(); iter != universes.end(); ++iter)
     iter->second->subdivideCells(max_radius);
@@ -1390,7 +1390,8 @@ int Lattice::getLatX(Point* point) {
     lat_x = _num_x - 1;
   else if (lat_x < 0 || lat_x > _num_x-1)
     log_printf(ERROR, "Trying to get lattice x index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f", lat_x, _num_x, dist_to_left, _width_x, point->getX());
+               "outside lattice bounds: %i, %i, %f, %f, %f", lat_x, _num_x,
+               dist_to_left, _width_x, point->getX());
 
   return lat_x;
 }
@@ -1418,7 +1419,8 @@ int Lattice::getLatY(Point* point) {
     lat_y = _num_y - 1;
   else if (lat_y < 0 || lat_y > _num_y-1)
     log_printf(ERROR, "Trying to get lattice y index for point that is "
-               "outside lattice bounds.");
+               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_y, _num_y,
+               dist_to_bottom, _width_y, point->getY(), _offset.getY());
 
   return lat_y;
 }
@@ -1446,7 +1448,8 @@ int Lattice::getLatZ(Point* point) {
     lat_z = _num_z - 1;
   else if (lat_z < 0 || lat_z > _num_z-1)
     log_printf(ERROR, "Trying to get lattice z index for point that is "
-               "outside lattice bounds.");
+               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_z, _num_z,
+               dist_to_bottom, _width_z, point->getZ(), _offset.getZ());
 
   return lat_z;
 }
@@ -1634,21 +1637,14 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
 
 
 /**
- * @brief Finds the 3D Lattice cell surface that a point lies on.
+ * @brief Finds the Lattice cell surface that a point lies on.
  *        If the point is not on a surface, -1 is returned.
- * @details This is intended for use in axial on-the-fly rat tracing, requiring
- *          the ID of the 2D surface intersected to be provided. This routine
- *          returns the same value as Lattice::getLatticeSurface but in much
- *          less computational time, making it suitable for axial on-the-fly
- *          ray tracing where computational efficiency is a primary concern.
- *          The surface indices for a lattice cell are 0 (left),
- *          1, (bottom), 2 (right), 3 (top), 4 (bottom-left corner),
- *          5 (bottom-right corner), 6 (top-right corner), and
- *          7 (top-left corner). The index returned takes into account
- *          the cell index and returns 8*cell_index + surface_index.
+ * @details The surface indices are defined in constants.h as they
+ *          need to be consistent with the surface constant definitions
+ *          used in Cmfd. The index returned takes into account
+ *         the cell index and returns NUM_SURFACES*cell_index + surface_index.
  * @param cell the cell index that the point is in.
- * @param z the axial height of the point being evaluated.
- * @param surface_2D The surface intersected by the 2D projection of the point.
+ * @param point a pointer to a point being evaluated.
  * @return the Lattice surface index.
  */
 int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {

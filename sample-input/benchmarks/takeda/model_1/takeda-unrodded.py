@@ -42,9 +42,7 @@ lattices['Root'].setUniverses3D([[np.repeat([r, r, r, r, r], refines).tolist()] 
 ###############################################################################
 
 cmfd = openmoc.Cmfd()
-cmfd.setMOCRelaxationFactor(1.0)
 cmfd.setSORRelaxationFactor(1.5)
-cmfd.setOpticallyThick(True)
 cmfd.setLatticeStructure(5*refines, 5*refines, 5*refines)
 cmfd.setCentroidUpdateOn(False)
 

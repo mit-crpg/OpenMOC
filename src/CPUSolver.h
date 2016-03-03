@@ -90,9 +90,9 @@ public:
    * @param track_flux a pointer to the Track's angular flux
    * @param fwd the direction of integration along the segment
    */
-  virtual void tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                   int polar_index, FP_PRECISION* track_flux,
-                                   bool fwd);
+  virtual void tallyCurrent(segment* curr_segment, int azim_index,
+                            int polar_index, FP_PRECISION* track_flux,
+                            bool fwd);
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.

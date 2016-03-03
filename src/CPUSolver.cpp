@@ -571,11 +571,11 @@ void CPUSolver::computeKeff() {
  */
 void CPUSolver::transportSweep() {
 
-  log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads",
+  log_printf(DEBUG, "Transport sweep with %d OpenMP threads",
       _num_threads);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->zeroSurfaceCurrents();
+    _cmfd->zeroCurrents();
 
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
@@ -588,7 +588,6 @@ void CPUSolver::transportSweep() {
   TransportSweep sweep_tracks(_track_generator);
   sweep_tracks.setCPUSolver(this);
   sweep_tracks.execute();
-
 }
 
 
@@ -669,14 +668,13 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
  */
-void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                    int polar_index, FP_PRECISION* track_flux,
-                                    bool fwd) {
+void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
+                             int polar_index, FP_PRECISION* track_flux,
+                             bool fwd) {
 
   /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->tallySurfaceCurrent
-      (curr_segment, track_flux, azim_index, polar_index, fwd);
+    _cmfd->tallyCurrent(curr_segment, track_flux, azim_index, polar_index, fwd);
 }
 
 
