@@ -1,21 +1,12 @@
-##
-# @file plotter.py
-# @package openmoc.plotter
-# @brief The plotter module provides utility functions to plot data from
-#        OpenMOCs C++ classes, in particular, the geomery, including Material,
-#        Cells and flat source regions, and fluxes and pin powers.
-# @author William Boyd (wboyd@mit.edu)
-# @date December 14, 2015
-
 import os
 import sys
+
 import numpy as np
 import numpy.random
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
 
-# force headless backend, or set 'backend' to 'Agg'
-# in your ~/.matplotlib/matplotlibrc
+# Force headless backend for plotting on clusters
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
@@ -33,11 +24,10 @@ else:
     from openmoc.log import *
     from openmoc.process import *
 
-# Force non-interactive mode, or set 'interactive' to False
-# in your ~/.matplotlib/matplotlibrc
+# Force non-interactive mode for plotting on clusters
 plt.ioff()
 
-## Default matplotlib parameters to use in all plots
+# Default matplotlib parameters to use in all plots
 matplotlib_rcparams = matplotlib.rcParamsDefault
 matplotlib_rcparams['font.family'] = 'sans-serif'
 matplotlib_rcparams['font.weight'] = 'normal'
@@ -45,7 +35,7 @@ matplotlib_rcparams['font.size'] = 15
 matplotlib_rcparams['savefig.dpi'] = 500
 matplotlib_rcparams['figure.dpi'] = 500
 
-## A static variable for the output directory in which to save plots
+# A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
 TINY_MOVE = openmoc.TINY_MOVE

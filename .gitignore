@@ -25,7 +25,7 @@ log
 tracks
 plots
 fission-rates
-simulation-state
+simulation-states
 *.data
 *.png
 *.ppm
