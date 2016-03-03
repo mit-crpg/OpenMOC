@@ -160,7 +160,7 @@ private:
   int _max_num_tracks_per_stack;
   int _num_rows;
 
-  /** A matrix of temporary segmnents are created for on-the-fly methods to
+  /** A matrix of temporary segments are created for on-the-fly methods to
     * improve efficiency */
   std::vector<segment**> _temporary_segments;
   bool _contains_temporary_segments;

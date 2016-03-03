@@ -5,7 +5,7 @@
  * @details The classes defined within this file extend the TraverseSegments
  *          class so that they are capable of using the abstract looping
  *          defined in TraverseSegments::loopOverTracks(...). Each class
- *          contains a constructor which pull data from a provided
+ *          contains a constructor which pulls data from a provided
  *          TrackGenerator, an onTrack(...) function which specifies what to do
  *          on each Track, and an execute() function which applies the
  *          algorithm. The execute() function should contain a call to

@@ -36,10 +36,10 @@ TraverseSegments::~TraverseSegments() {
 void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
 
   switch (_segment_formation) {
-    case TWO_DIM:
+    case EXPLICIT_2D:
       loopOverTracks2D(kernels);
       break;
-    case EXPLICIT:
+    case EXPLICIT_3D:
       loopOverTracksExplicit(kernels);
       break;
     case OTF_TRACKS:
@@ -49,6 +49,7 @@ void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
       loopOverTracksByStackOTF(kernels);
       break;
   }
+
   if (kernels != NULL) {
     int num_rows = _track_generator->getNumRows();
     for (int z=0; z < num_rows; z++)

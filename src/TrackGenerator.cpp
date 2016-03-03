@@ -30,7 +30,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _quadrature = NULL;
   _z_coord = 0.0;
   _solve_3D = true;
-  _segment_formation = EXPLICIT;
+  _segment_formation = EXPLICIT_3D;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _max_num_segments = 0;
   _max_num_tracks_per_stack = 0;
@@ -295,7 +295,7 @@ int TrackGenerator::getNum2DSegments() {
  */
 int TrackGenerator::getNum3DSegments() {
 
-  if (_segment_formation == EXPLICIT && !contains3DSegments())
+  if (_segment_formation == EXPLICIT_3D && !contains3DSegments())
     log_printf(ERROR, "Cannot get the number of 3D segments since they "
                "have not been generated.");
 
@@ -886,7 +886,7 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
  */
 void TrackGenerator::setSolve2D() {
   _solve_3D = false;
-  _segment_formation = TWO_DIM;
+  _segment_formation = EXPLICIT_2D;
 }
 
 
@@ -902,7 +902,7 @@ void TrackGenerator::setSolve3D() {
  * @brief sets the type of segmentation used for segment formation
  * @param segmentation_type a segmentationType defining the type of
  *        segmentation to be used in segment formation. Options are:
- *          - EXPLICIT: explicit 2D/3D segment formation
+ *          - EXPLICIT_3D: explicit 2D/3D segment formation
  *          - OTF_TRACKS: axial on-the-fly ray tracing by individaul tracks
  *          - OTF_STACKS: axial on-the-fly ray tracing by entire z-stacks
  */
@@ -1587,7 +1587,7 @@ void TrackGenerator::generateTracks() {
     if (_use_input_file == false) {
 
       /* Segmentize the tracks */
-      if (_segment_formation == EXPLICIT || _segment_formation == TWO_DIM) {
+      if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D) {
         if (_solve_3D)
           segmentize3D();
         else
@@ -3693,7 +3693,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
   /* Check to see if a Track file exists for this geometry, number of azimuthal
    * angles, and track spacing, and if so, import the ray tracing data */
   if (!stat(_tracks_filename.c_str(), &buffer)) {
-    if (_segment_formation == EXPLICIT || _segment_formation == TWO_DIM) {
+    if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D) {
       if (readSegmentsFromFile()) {
         _use_input_file = true;
         if (_solve_3D)
@@ -4097,7 +4097,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
     log_printf(ERROR, "Unable to split segments since "
 	       "segments have not yet been generated");
 
-  if (_segment_formation != EXPLICIT && _segment_formation != TWO_DIM)
+  if (_segment_formation != EXPLICIT_3D && _segment_formation != EXPLICIT_2D)
     log_printf(ERROR, "Segments cannot be split for on-the-fly ray tracing");
 
   /* Split all segments along all Tracks */
@@ -4274,7 +4274,7 @@ void TrackGenerator::countSegments() {
   counter.execute();
 
   /* Allocate new temporary segments if necessary */
-  if (_segment_formation != EXPLICIT && _segment_formation != TWO_DIM) {
+  if (_segment_formation != EXPLICIT_3D && _segment_formation != EXPLICIT_2D) {
     if (_max_num_segments > _num_columns) {
 
       /* Widen the number of columns in the temporary segments matrix */
@@ -4448,7 +4448,7 @@ void TrackGenerator::initializeTracksArray() {
    * guaranteed to contain tracks that do not transport into other tracks both
    * reflectively and periodically. This is done to guarantee reproducability
    * in parallel runs. */
-  if (!_solve_3D || _segment_formation != EXPLICIT) {
+  if (!_solve_3D || _segment_formation != EXPLICIT_3D) {
     for (int g = 0; g < _num_parallel_track_groups; g++) {
 
       /* Set the azimuthal and periodic group ids */

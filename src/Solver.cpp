@@ -21,7 +21,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
-  _segment_formation = EXPLICIT;
+  _segment_formation = EXPLICIT_3D;
 
   _tracks = NULL;
   _azim_spacings = NULL;
@@ -342,8 +342,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   segmentationType segment_formation = track_generator->getSegmentFormation();
   if ((!track_generator->contains2DSegments() && (track_generator->isSolve2D()
-      || segment_formation != EXPLICIT)) || (track_generator->isSolve3D() &&
-      segment_formation == EXPLICIT && !track_generator->contains3DSegments()))
+      || segment_formation != EXPLICIT_3D)) || (track_generator->isSolve3D() &&
+      segment_formation == EXPLICIT_3D && !track_generator->contains3DSegments()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
@@ -519,7 +519,7 @@ void Solver::initializeExpEvaluator() {
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
-    if (_segment_formation == EXPLICIT)
+    if (_segment_formation == EXPLICIT_3D)
       _track_generator->splitSegments(max_tau);
     else
       _track_generator->countSegments();

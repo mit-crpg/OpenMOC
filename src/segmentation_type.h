@@ -15,10 +15,10 @@
 enum segmentationType {
 
   /** Explicit 2D segments (required for 2D simulations) */
-  TWO_DIM,
+  EXPLICIT_2D,
 
   /** Explicit 3D segments */
-  EXPLICIT,
+  EXPLICIT_3D,
 
   /** Axial on-the-fly 3D segment formation by 3D track */
   OTF_TRACKS,
