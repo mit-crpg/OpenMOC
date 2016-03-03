@@ -756,21 +756,39 @@ class Mesh(object):
         self._width = width
 
     def get_mesh_cell_indices(self, point):
+        """Get the mesh cell indices for a point within the geometry.
+
+        Parameters
+        ----------
+        point : openmoc.Point
+            A point within the geometry
+
+        Returns
+        -------
+        indices : 2- or 3-tuple of Integral
+            The mesh cell indices for the point. If the mesh is 2D then indices
+            for x and y are returned; if the mesh is 3d indices for x, y, and z
+            are returned.
+
+        """
 
         cv.check_type('point', point, openmoc.Point)
 
         # Extract the x,y,z coordinates from the OpenMOC Point
         x, y, z = point.getX(), point.getY(), point.getZ()
 
+        # Translate the point with respect to the center of the mesh
+        x -= (self.upper_right[0] - self.lower_left[0]) / 2.
+        y -= (self.upper_right[1] - self.lower_left[1]) / 2.
+        z -= (self.upper_right[2] - self.lower_left[2]) / 2.
+
         # Compute the mesh cell indices
         mesh_x = math.floor((x + self.dimension[0] * self.width[0] * 0.5) / self.width[0])
         mesh_y = math.floor((y + self.dimension[1] * self.width[1] * 0.5) / self.width[1])
-#        if len(self.dimension) == 2:
-#            mesh_z = 0
-#        else:
-#            mesh_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5) / self.width[2])
-        # FIXME
-        mesh_z = 0
+        if len(self.dimension) == 2:
+            mesh_z = 0
+        else:
+            mesh_z = math.floor((z + self.dimension[2] * self.width[2] * 0.5) / self.width[2])
 
         # Compute the distance to the mesh cell boundaries
         distance_x = math.fabs(math.fabs(x) - self.dimension[0] *
@@ -829,11 +847,37 @@ class Mesh(object):
         else:
             return mesh_x, mesh_y, mesh_z
 
-    def get_fission_rates(self, solver, volume='integrated'):
+    def get_fission_rates(self, solver, volume='integrated', energy='integrated'):
+        """Compute the fission rates in each mesh cell.
 
-        # NOTE: This assumes that the mesh perfectly aligns with the FSR mesh
+        NOTE: This method assumes that the mesh perfectly aligns with the
+        flat source region mesh used in the OpenMOC calculation.
 
-#        cv.check_type('solver', solver, openmoc.Solver)
+        NOTE: The user must supply 'fission' as well as 'nu-fission' multi-group
+        cross sections to each material in the geometry. Although 'nu-fission'
+        is all that is required for an MOC calculation, 'fission' is what is
+        used to compute the fission rates.
+
+        Parameters
+        ----------
+        solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
+            The solver used to compute the flux
+        volume : 'averaged' or 'integrated'
+            Compute volume-averaged or volume-integrated fission rates
+        energy : 'by_group' or 'integrated'
+            Compute fission rates by energy group or integrate across groups
+
+        Returns
+        -------
+        tally : numpy.ndarray of Real
+            A NumPy array of the fission rates tallied in each mesh cell
+
+        """
+
+        solver_types = (openmoc.CPUSolver,
+                        openmoc.GPUSolver,
+                        openmoc.VectorizedSolver)
+        cv.check_type('solver', solver, solver_types)
         cv.check_value('volume', volume, ('integrated', 'averaged'))
 
         geometry = solver.getGeometry()
@@ -859,11 +903,47 @@ class Mesh(object):
 
 
     def tally_on_mesh(self, solver, domains_to_coeffs, domain_type='fsr',
-                      volume='integrated'):
+                      volume='integrated', energy='integrated'):
+        """Compute the fission rates in each mesh cell.
 
-        # NOTE: This assumes that the mesh perfectly aligns with the FSR mesh
+        NOTE: This method assumes that the mesh perfectly aligns with the
+        flat source region mesh used in the OpenMOC calculation.
 
-#        cv.check_type('solver', solver, openmoc.openmoc.Solver)
+        NOTE: The user must supply 'fission' as well as 'nu-fission' multi-group
+        cross sections to each material in the geometry. Although 'nu-fission'
+        is all that is required for an MOC calculation, 'fission' is what is
+        used to compute the fission rates.
+
+        Parameters
+        ----------
+        solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
+            The solver used to compute the flux
+        domains_to_coeffs : numpy.ndarray or pandas.DataFrame
+            A mapping of spatial domains and energy groups to the coefficients
+            to multiply the flux in each domain. If domain_type is 'material'
+            or 'cell' then the coefficients must be a Pandas DataFrame with
+            material/cell IDs as one column. If the domain type is 'fsr' then
+            the coefficients may be a NumPy array or a Pandas DataFrame indexed
+            by FSR ID.
+        domain_type : {'material', 'cell', 'fsr'}
+            The type of domain for which the coefficients are defined
+        volume : 'averaged' or 'integrated'
+            Compute volume-averaged or volume-integrated tallies
+        energy : 'by_group' or 'integrated'
+            Compute tallies by energy group or integrate across groups
+
+        Returns
+        -------
+        tally : numpy.ndarray of Real
+            A NumPy array of the fission rates tallied in each mesh cell indexed
+            by FSR ID and energy group (if energy is 'by_group')
+
+        """
+
+        solver_types = (openmoc.CPUSolver,
+                        openmoc.GPUSolver,
+                        openmoc.VectorizedSolver)
+        cv.check_type('solver', solver, solver_types)
         cv.check_value('domain_type', domain_type, ('fsr', 'cell', 'material'))
         cv.check_value('volume', volume, ('integrated', 'averaged'))
 
