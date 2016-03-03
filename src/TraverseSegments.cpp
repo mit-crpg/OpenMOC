@@ -232,9 +232,19 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
 
       /* Trace all tracks in the z-stack if necessary */
       if (kernels != NULL) {
+
+        /* Reset all kernels to their new Track */
         for (int z = 0; z < tracks_per_stack[a][i][p]; z++)
           kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
+
+        /* Trace all segments in the z-stack */
         traceStackOTF(flattened_track, p, kernels);
+
+        /* Set the number of segments computed for each Track */
+        for (int z = 0; z < tracks_per_stack[a][i][p]; z++) {
+          Track* track_3D = &tracks_3D[a][i][p][z];
+          track_3D->setNumSegments(kernels[z]->getCount());
+        }
       }
 
       /* Loop over tracks in the z-stack */
@@ -242,7 +252,6 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
 
         /* Extract 3D track and initialize segments pointer */
         Track* track_3D = &tracks_3D[a][i][p][z];
-        track_3D->setNumSegments(kernels[z]->getCount());
         segment* segments = _track_generator->getTemporarySegments(tid, z);
 
         /* Operate on the Track */
