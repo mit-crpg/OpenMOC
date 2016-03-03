@@ -76,9 +76,6 @@ typedef enum logLevels {
   /** A message containing program results */
   RESULT,
 
-  /** A messsage for unit testing */
-  UNITTEST,
-
   /** A message reporting error conditions */
   ERROR
 } logLevel;
