@@ -773,8 +773,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
     for (int p=0; p < _num_polar; p++) {
 
       /* Compute the exponential terms */
-      exp_F1 = _exp_table[exp_index] + _exp_table[exp_index + 1] * dt +
-          _exp_table[exp_index + 2] * dt2;
+      exp_F1 = _exp_evaluator->computeExponentialFast(exp_index, p, dt, dt2);
 
       /* Increment the exp index for the next polar angle */
       exp_index += 3;

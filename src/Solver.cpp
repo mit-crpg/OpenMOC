@@ -542,7 +542,6 @@ void Solver::initializeExpEvaluator() {
   /* Initialize exponential interpolation table */
   _exp_evaluator->setMaxOpticalLength(max_tau);
   _exp_evaluator->initialize();
-  _exp_table = _exp_evaluator->getExpTable();
 }
 
 

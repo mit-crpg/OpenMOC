@@ -197,9 +197,6 @@ protected:
    *  without data races between threads */
   int _num_parallel_track_groups;
 
-  /** The exponential linear interpolation table */
-  FP_PRECISION* _exp_table;
-
   void clearTimerSplits();
 
 public:
