@@ -950,7 +950,7 @@ void Cmfd::initializeMaterials() {
       for (int y = 0; y < _num_y; y++) {
         for (int x = 0; x < _num_x; x++) {
           material = new Material(z*_num_x*_num_y + y*_num_x + x);
-          material->setNumEnergyGroups(_num_CMFD_groups);
+          material->setNumEnergyGroups(_num_cmfd_groups);
           _materials[z*_num_x*_num_y + y*_num_x + x] = material;
         }
       }
