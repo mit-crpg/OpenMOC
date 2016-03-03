@@ -792,59 +792,22 @@ class Mesh(object):
             mesh_z = (z + self.dimension[2] * self.width[2] * 0.5) / self.width[2]
 
         # Round the mesh cell indices down
-        mesh_x = math.floor(mesh_x)
-        mesh_y = math.floor(mesh_y)
-        mesh_z = math.floor(mesh_z)
-
-        '''
-        # Compute the distance to the mesh cell boundaries
-        distance_x = math.fabs(math.fabs(x) - self.dimension[0] *
-                               self.width[0] * 0.5)
-        distance_y = math.fabs(math.fabs(y) - self.dimension[1] *
-                               self.width[1]*0.5)
-        if len(self.dimension) == 2:
-            distance_z = np.inf
-        else:
-            distance_z = math.fabs(math.fabs(z) - self.dimension[2] *
-                                   self.width[2] * 0.5)
-
-        # Check if the point is on the mesh boundaries - if so, adjust indices
-        if distance_x < openmoc.ON_LATTICE_CELL_THRESH:
-            if x > 0:
-                mesh_x = self.dimension[0] - 1
-            else:
-                mesh_x = 0
-
-        if distance_y < openmoc.ON_LATTICE_CELL_THRESH:
-            if y > 0:
-                mesh_y = self.dimension[1] - 1
-            else:
-                mesh_y = 0
-
-        if distance_z < openmoc.ON_LATTICE_CELL_THRESH:
-            if z > 0:
-                mesh_z = self.dimension[2] - 1
-            else:
-                mesh_z = 0
-        '''
-
-        # Cast the mesh cell indices as integers
-        lat_x = int(mesh_x)
-        lat_y = int(mesh_y)
-        lat_z = int(mesh_z)
+        mesh_x = int(math.floor(mesh_x))
+        mesh_y = int(math.floor(mesh_y))
+        mesh_z = int(math.floor(mesh_z))
 
         # Throw error if indices are outside of the Mesh
         if len(self.dimension) == 2:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]):
                 py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
-                          '%d, %d) are outside mesh', lat_x, lat_y, lat_z)
+                          '%d, %d) are outside mesh', mesh_x, mesh_y, mesh_z)
         else:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]) or \
                (mesh_z < 0 or mesh_z >= self.dimension[2]):
                 py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
-                          '%d, %d) are outside mesh', lat_x, lat_y, lat_z)
+                          '%d, %d) are outside mesh', mesh_x, mesh_y, mesh_z)
 
         # Return mesh cell indices
         if len(self.dimension) == 2:
@@ -852,7 +815,7 @@ class Mesh(object):
         else:
             return mesh_x, mesh_y, mesh_z
 
-    def get_fission_rates(self, solver, volume='integrated'):
+    def tally_fission_rates(self, solver, volume='integrated'):
         """Compute the fission rates in each mesh cell.
 
         NOTE: This method assumes that the mesh perfectly aligns with the
@@ -951,7 +914,7 @@ class Mesh(object):
 
         # Extract parameters from the Geometry
         geometry = solver.getGeometry()
-        num_groups = solver.getNumEnergyGroups()
+        num_groups = geometry.getNumEnergyGroups()
         num_fsrs = geometry.getNumFSRs()
 
         # Coefficients must be specified as a dict, ndarray or DataFrame
@@ -960,20 +923,6 @@ class Mesh(object):
         else:
             cv.check_type('domains_to_coeffs',
                           domains_to_coeffs, (dict, np.ndarray))
-
-        # Determine expected number of spatial domains in coefficients mapping
-        if domain_type == 'material':
-            num_domains = len(geometry.getAllMaterials())
-        elif domain_type == 'cell':
-            num_domains = len(geometry.getAllMaterialCells())
-        else:
-            num_domains = num_fsrs
-
-        # Determine the expected number of coefficients
-        num_coeffs = num_domains * num_groups
-
-        # Check the length of the coefficients mapping
-        cv.check_length('domains_to_coeffs', domains_to_coeffs, num_coeffs)
 
         # Extract the FSR fluxes from the Solver
         fluxes = get_scalar_fluxes(solver)
@@ -986,7 +935,7 @@ class Mesh(object):
         for fsr in range(num_fsrs):
             point = geometry.getFSRPoint(fsr)
             mesh_indices = self.get_mesh_cell_indices(point)
-            volume = solver.getFSRVolume()
+            volume = solver.getFSRVolume(fsr)
             fsr_tally = np.zeros(num_groups, dtype=np.float)
 
             # Determine domain ID (material, cell or FSR) for this FSR
@@ -1008,11 +957,11 @@ class Mesh(object):
                     fluxes[fsr, group] * domains_to_coeffs[domain_id][group]
 
             # Increment mesh tally with volume-integrated FSR tally
-            tally[mesh_indices, :] += fsr_tally * volume
+            tally[mesh_indices] += fsr_tally * volume
 
         # Integrate the energy groups if needed
         if energy == 'integrated':
-            tally = np.sum(tally, axis=1)
+            tally = np.sum(tally, axis=2)
 
         # Average the fission rates by mesh cell volume if needed
         if volume == 'averaged':
