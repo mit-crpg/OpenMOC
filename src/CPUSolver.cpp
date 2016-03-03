@@ -595,7 +595,7 @@ void CPUSolver::transportSweep() {
   flattenFSRFluxes(0.0);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->zeroSurfaceCurrents();
+    _cmfd->zeroCurrents();
 
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
@@ -634,8 +634,7 @@ void CPUSolver::transportSweep() {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
                         thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux,
-                            true);
+        tallyCurrent(curr_segment, azim_index, polar_index, track_flux, true);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -649,8 +648,7 @@ void CPUSolver::transportSweep() {
         curr_segment = &segments[s];
         tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
                         thread_fsr_flux);
-        tallySurfaceCurrent(curr_segment, azim_index, polar_index, track_flux,
-                            false);
+        tallyCurrent(curr_segment, azim_index, polar_index, track_flux, false);
       }
 
       /* Transfer boundary angular flux to outgoing Track */
@@ -677,7 +675,7 @@ void CPUSolver::transportSweepOTF() {
       _num_threads);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->zeroSurfaceCurrents();
+    _cmfd->zeroCurrents();
 
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
@@ -741,8 +739,7 @@ void CPUSolver::transportSweepOTF() {
           tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
 
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
-              track_flux, true);
+          tallyCurrent(&segments[s], azim_index, polar_index, track_flux, true);
         }
 
         /* Transfer boundary angular flux to outgoing Track */
@@ -758,8 +755,8 @@ void CPUSolver::transportSweepOTF() {
           tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
               thread_fsr_flux);
 
-          tallySurfaceCurrent(&segments[s], azim_index, polar_index,
-              track_flux, false);
+          tallyCurrent(&segments[s], azim_index, polar_index, track_flux,
+              false);
         }
 
         /* Transfer boundary angular flux to outgoing Track */
@@ -848,14 +845,13 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
  */
-void CPUSolver::tallySurfaceCurrent(segment* curr_segment, int azim_index,
-                                    int polar_index, FP_PRECISION* track_flux,
-                                    bool fwd) {
+void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
+                             int polar_index, FP_PRECISION* track_flux,
+                             bool fwd) {
 
   /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->tallySurfaceCurrent
-      (curr_segment, track_flux, azim_index, polar_index, fwd);
+    _cmfd->tallyCurrent(curr_segment, track_flux, azim_index, polar_index, fwd);
 }
 
 

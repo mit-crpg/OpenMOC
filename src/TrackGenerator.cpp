@@ -1549,8 +1549,8 @@ void TrackGenerator::generateTracks() {
                "has been set for the TrackGenerator");
 
   /* Check to make sure that height, width of the Geometry are nonzero */
-  if (_geometry->getHeight() <= 0 || _geometry->getHeight() <= 0 ||
-      _geometry->getDepth() <= 0)
+  if (_geometry->getWidthX() <= 0 || _geometry->getWidthY() <= 0 ||
+      _geometry->getWidthZ() <= 0)
     log_printf(ERROR, "The total height, width, and depth of the Geometry must"
                " be nonzero for Track generation. Create a CellFill which "
                "is filled by the entire geometry and bounded by XPlanes, "
@@ -1741,8 +1741,8 @@ void TrackGenerator::initialize2DTracks() {
 
   double x1, x2, y1, y2;
   double phi;
-  double width  = _geometry->getWidth();
-  double height = _geometry->getHeight();
+  double width  = _geometry->getWidthX();
+  double height = _geometry->getWidthY();
 
   /* Determine angular quadrature and track spacing */
   for (int a = 0; a < _num_azim/4; a++) {
@@ -2069,7 +2069,7 @@ void TrackGenerator::initialize3DTracks() {
 
   double x1, x2, y1, y2, z1, z2;
   double theta;
-  double depth  = _geometry->getDepth();
+  double depth  = _geometry->getWidthZ();
 
   /* Determine angular quadrature and track spacing */
   for (int i = 0; i < _num_azim/4; i++) {
@@ -3827,19 +3827,19 @@ void TrackGenerator::dump2DSegmentsToFile() {
 
   /* Write cmfd_fsrs vector of vectors to file */
   if (cmfd != NULL) {
-    std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
+    std::vector< std::vector<int> >* cell_fsrs = cmfd->getCellFSRs();
     std::vector<int>::iterator iter;
     int num_cells = cmfd->getNumCells();
     fwrite(&num_cells, sizeof(int), 1, out);
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
-      num_FSRs = cell_fsrs.at(cell).size();
+      num_FSRs = cell_fsrs->at(cell).size();
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
       /* Loop over FSRs within cell */
-      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
-           ++iter)
+      for (iter = cell_fsrs->at(cell).begin();
+           iter != cell_fsrs->at(cell).end(); ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
     }
   }
@@ -3985,19 +3985,19 @@ void TrackGenerator::dump3DSegmentsToFile() {
 
   /* Write cmfd_fsrs vector of vectors to file */
   if (cmfd != NULL) {
-    std::vector< std::vector<int> > cell_fsrs = cmfd->getCellFSRs();
+    std::vector< std::vector<int> >* cell_fsrs = cmfd->getCellFSRs();
     std::vector<int>::iterator iter;
     int num_cells = cmfd->getNumCells();
     fwrite(&num_cells, sizeof(int), 1, out);
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
-      num_FSRs = cell_fsrs.at(cell).size();
+      num_FSRs = cell_fsrs->at(cell).size();
       fwrite(&num_FSRs, sizeof(int), 1, out);
 
       /* Loop over FSRs within cell */
-      for (iter = cell_fsrs.at(cell).begin(); iter != cell_fsrs.at(cell).end();
-           ++iter)
+      for (iter = cell_fsrs->at(cell).begin();
+           iter != cell_fsrs->at(cell).end(); ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
     }
   }
@@ -4169,7 +4169,7 @@ bool TrackGenerator::read2DSegmentsFromFile() {
     }
 
     /* Set CMFD cell_fsrs vector of vectors */
-    cmfd->setCellFSRs(cell_fsrs);
+    cmfd->setCellFSRs(&cell_fsrs);
   }
 
   /* Close the Track file */
@@ -4331,7 +4331,7 @@ bool TrackGenerator::read3DSegmentsFromFile() {
     }
 
     /* Set CMFD cell_fsrs vector of vectors */
-    cmfd->setCellFSRs(cell_fsrs);
+    cmfd->setCellFSRs(&cell_fsrs);
   }
 
   /* Close the Track file */
@@ -4493,6 +4493,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
  *          FSR by the segment's length and azimuthal weight. The numerical
  *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
  *          Approximation in CASMO 5", PHYSOR 2012.
+ * @param FSR_volumes An array of FSR volumes.
  */
 void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 

@@ -76,14 +76,14 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
     /* Compute the residual */
     residual = computeRMSE(&new_source, &old_source, true);
 
-    /* Normalize the new source to have an average value of 1.0 */
+    /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
     log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
                "%f", iter, _k_eff, residual);
 
     /* Check for convergence */
-    if (residual < tol && iter > 10)
+    if (residual < tol && iter > MIN_LINALG_POWER_ITERATIONS)
       break;
   }
 
@@ -221,7 +221,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
     log_printf(INFO, "SOR iter: %d, residual: %f", iter, residual);
 
-    if (residual < tol && iter > 10)
+    if (residual < tol && iter > MIN_LINEAR_SOLVE_ITERATIONS)
       break;
   }
 
@@ -295,7 +295,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
     log_printf(ERROR, "Cannot compute RMSE with different vector dimensions: "
                "(%d, %d, %d, %d) and (%d, %d, %d, %d)",
                X->getNumX(), X->getNumY(), X->getNumZ(), X->getNumGroups(),
-               Y->getNumX(), Y->getNumY(), Y->getNumY(), Y->getNumGroups());
+               Y->getNumX(), Y->getNumY(), Y->getNumZ(), Y->getNumGroups());
 
   FP_PRECISION rmse;
   int num_x = X->getNumX();

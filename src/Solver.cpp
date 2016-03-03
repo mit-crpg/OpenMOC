@@ -312,15 +312,6 @@ void Solver::setGeometry(Geometry* geometry) {
                "Geometry has not yet initialized FSRs");
 
   _geometry = geometry;
-  _cmfd = geometry->getCmfd();
-  _num_FSRs = _geometry->getNumFSRs();
-  _num_groups = _geometry->getNumEnergyGroups();
-  _num_materials = _geometry->getNumMaterials();
-
-  if (_solve_3D)
-    _fluxes_per_track = _num_groups;
-  else
-    _fluxes_per_track = _num_groups * _num_polar/2;
 }
 
 
@@ -548,31 +539,29 @@ void Solver::initializeFSRs() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  /* Get an array of volumes indexed by FSR  */
-  if (_solve_3D)
-    _FSR_volumes = _track_generator->get3DFSRVolumes();
+  /* Retrieve simulation parameters from the Geometry */
+  _num_FSRs = _geometry->getNumFSRs();
+  _num_groups = _geometry->getNumEnergyGroups();
+  _num_materials = _geometry->getNumMaterials();
 
-  else
+  if (_solve_3D) {
+    _fluxes_per_track = _num_groups;
+    _FSR_volumes = _track_generator->get3DFSRVolumes();
+  }
+  else {
+    _fluxes_per_track = _num_groups * _num_polar/2;
     _FSR_volumes = _track_generator->get2DFSRVolumes();
+  }
 
   /* Generate the FSR centroids */
-  if (_cmfd != NULL) {
-    if (_cmfd->isCentroidUpdateOn())
-      _track_generator->generateFSRCentroids(_FSR_volumes);
-  }
+  _track_generator->generateFSRCentroids(_FSR_volumes);
 
   /* Allocate an array of Material pointers indexed by FSR */
   _FSR_materials = new Material*[_num_FSRs];
 
-  /* Compute the number of fissionable Materials */
-  _num_fissionable_FSRs = 0;
-
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
-
-    /* Assign the Material corresponding to this FSR */
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
@@ -611,13 +600,26 @@ void Solver::initializeCmfd() {
 
   log_printf(INFO, "Initializing CMFD...");
 
+  /* Retrieve CMFD from the Geometry */
+  _cmfd = _geometry->getCmfd();
+
+  /* If the user did not initialize Cmfd, simply return */
+  if (_cmfd == NULL)
+    return;
+  else if (!_cmfd->isFluxUpdateOn())
+    return;
+
   /* If 2D Solve, set CMFD z-direction mesh size to 1 and depth to 1.0 */
   if (!_solve_3D) {
     _cmfd->setNumZ(1);
-    _cmfd->setDepth(1.0);
     _cmfd->setBoundary(SURFACE_Z_MIN, REFLECTIVE);
     _cmfd->setBoundary(SURFACE_Z_MAX, REFLECTIVE);
   }
+
+  /* Intialize the CMFD energy group structure */
+  _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1);
+  _cmfd->setNumMOCGroups(_num_groups);
+  _cmfd->initializeGroupMap();
 
   /* Give CMFD number of FSRs and FSR property arrays */
   _cmfd->setSolve3D(_solve_3D);
@@ -627,9 +629,8 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setQuadrature(_quad);
   _cmfd->setGeometry(_geometry);
-  _cmfd->generateKNearestStencils();
   _cmfd->setAzimSpacings(_track_generator->getAzimSpacings(), _num_azim);
-  _cmfd->initializeSurfaceCurrents();
+  _cmfd->initialize();
 
   if (_solve_3D)
     _cmfd->setPolarSpacings
@@ -700,7 +701,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
-  FP_PRECISION residual;
+  FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
   initializeExpEvaluator();
@@ -803,7 +804,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   clearTimerSplits();
 
   _k_eff = k_eff;
-  FP_PRECISION residual;
+  FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
   initializeExpEvaluator();
@@ -879,27 +880,28 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
-  FP_PRECISION residual;
+
+  /* Start the timer to record the total time to converge the source */
+  _timer->startTimer();
+
+  _num_iterations = 0;
+  FP_PRECISION residual = 0.;
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
 
   /* Initialize data structures */
+  initializeFSRs();
+  countFissionableFSRs();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeFSRs();
-  countFissionableFSRs();
-
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-      initializeCmfd();
+  initializeCmfd();
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
-
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
+  storeFSRFluxes();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -908,8 +910,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     computeFSRSources();
     transportSweep();
     addSourceToScalarFlux();
-    residual = computeResidual(res_type);
-    storeFSRFluxes();
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
@@ -920,18 +920,18 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);
 
+    residual = computeResidual(res_type);
+    storeFSRFluxes();
+    _num_iterations++;
+
     /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh) {
-      _num_iterations = i;
-      _timer->stopTimer();
-      _timer->recordSplit("Total time");
-      return;
-    }
+    if (i > 1 && residual < _converge_thresh)
+      break;
   }
 
-  log_printf(WARNING, "Unable to converge the source distribution");
+  if (_num_iterations == max_iters-1)
+    log_printf(WARNING, "Unable to converge the source distribution");
 
-  _num_iterations = max_iters;
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 }

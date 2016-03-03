@@ -134,7 +134,7 @@ template = [[[m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m],
 
 lattices['MOX Rodded Assembly'].setUniverses3D(template)
 
-# reflector unrodded 17 x 17 assemblies
+# Reflector unrodded 17 x 17 assemblies
 lattices['Reflector Unrodded Assembly'].setWidth(width_x=1.26, width_y=1.26, width_z=100.)
 template = [[[p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p],
              [p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p],
@@ -156,7 +156,7 @@ template = [[[p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p],
 
 lattices['Reflector Unrodded Assembly'].setUniverses3D(template)
 
-# reflector rodded 17 x 17 assemblies
+# Reflector rodded 17 x 17 assemblies
 lattices['Reflector Rodded Assembly'].setWidth(width_x=1.26, width_y=1.26, width_z=100.)
 template = [[[p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p],
              [p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p],
@@ -178,19 +178,19 @@ template = [[[p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p],
 
 lattices['Reflector Rodded Assembly'].setUniverses3D(template)
 
-# reflector right 17 x 17 assemblies
+# Reflector right 17 x 17 assemblies
 lattices['Reflector Right Assembly'].setWidth(width_x=1.26, width_y=1.26, width_z=100.)
 template = [[[a] * 11 + [r] * 6] * 17]
 lattices['Reflector Right Assembly'].setUniverses3D(template)
 
-# reflector bottom 17 x 17 assemblies
+# Reflector bottom 17 x 17 assemblies
 lattices['Reflector Bottom Assembly'].setWidth(width_x=1.26, width_y=1.26, width_z=100.)
 template = [[a] * 17] * 11
 template += [[r] * 17] * 6
 template = [template]
 lattices['Reflector Bottom Assembly'].setUniverses3D(template)
 
-# reflector corner 17 x 17 assemblies
+# Reflector corner 17 x 17 assemblies
 lattices['Reflector Corner Assembly'].setWidth(width_x=1.26, width_y=1.26, width_z=100.)
 template = [[a] * 11 + [r] * 6] * 11
 template += [[r] * 17] * 6

@@ -172,9 +172,9 @@ public:
   virtual ~Geometry();
 
   /* Get parameters */
-  double getWidth();
-  double getHeight();
-  double getDepth();
+  double getWidthX();
+  double getWidthY();
+  double getWidthZ();
   double getMinX();
   double getMaxX();
   double getMinY();
