@@ -395,7 +395,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                  track_flux, thread_fsr_flux);
-    _cpu_solver->tallySurfaceCurrent(curr_segment, azim_index, polar_index,
+    _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
                                      track_flux, true);
   }
 
@@ -411,7 +411,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                  track_flux, thread_fsr_flux);
-    _cpu_solver->tallySurfaceCurrent(curr_segment, azim_index, polar_index,
+    _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
                                      track_flux, false);
   }
 

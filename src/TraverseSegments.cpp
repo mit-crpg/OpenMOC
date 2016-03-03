@@ -85,7 +85,7 @@ void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
       }
 
       /* Operate on the Track */
-      semgent* segments = track_2D->getSegments();
+      segment* segments = track_2D->getSegments();
       onTrack(track_2D, segments);
     }
   }
