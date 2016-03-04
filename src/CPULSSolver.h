@@ -65,10 +65,6 @@ protected:
   /** An array of the reduced source x and y terms */
   FP_PRECISION* _reduced_sources_xy;
 
-  /** An array of the directional source terms cached for each SR,
-   *  azim angle, energy group, and polar angle. */
-  FP_PRECISION* _directional_sources;
-
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
    * @param curr_segment a pointer to the Track segment of interest

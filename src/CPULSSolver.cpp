@@ -16,7 +16,6 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xy = NULL;
   _reduced_sources_xy = NULL;
-  _directional_sources = NULL;
   _sin_phi = NULL;
   _cos_phi = NULL;
 }
@@ -40,9 +39,6 @@ CPULSSolver::~CPULSSolver() {
 
   if (_reduced_sources_xy != NULL)
     delete [] _reduced_sources_xy;
-
-  if (_directional_sources != NULL)
-    delete [] _directional_sources;
 
   if (_sin_phi != NULL)
     delete [] _sin_phi;
@@ -87,24 +83,18 @@ void CPULSSolver::initializeSourceArrays() {
   if (_reduced_sources_xy != NULL)
     delete [] _reduced_sources_xy;
 
-  if (_directional_sources != NULL)
-    delete [] _directional_sources;
-
-  int size1 = _num_FSRs * _num_groups * 2;
-  int size2 = _num_FSRs * _num_azim * _num_polar * _num_groups;
+  int size = _num_FSRs * _num_groups * 2;
 
   /* Allocate memory for all source arrays */
-  try{
-    _reduced_sources_xy = new FP_PRECISION[size1];
-    _directional_sources = new FP_PRECISION[size2];
+  try {
+    _reduced_sources_xy = new FP_PRECISION[size];
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR source moments");
   }
 
   /* Initialize source moments to zero */
-  memset(_reduced_sources_xy, 0.0, sizeof(FP_PRECISION) * size1);
-  memset(_directional_sources, 0.0, sizeof(FP_PRECISION) * size2);
+  memset(_reduced_sources_xy, 0.0, sizeof(FP_PRECISION) * size);
 
   /* Delete old sin(phi) and cos(phi) arrays if they exist */
   if (_sin_phi != NULL)
@@ -288,30 +278,6 @@ void CPULSSolver::computeFSRSources() {
       }
     }
 
-    FP_PRECISION ax, ay;
-
-    /* Compute the total source for each FSR */
-#pragma omp for schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
-
-      material = _FSR_materials[r];
-      sigma_t = material->getSigmaT();
-
-      for (int a=0; a < _num_azim; a++) {
-        for (int e=0; e < _num_groups; e++) {
-          for (int p=0; p < _num_polar; p++) {
-            ax = _cos_phi[a] * _sin_thetas[p];
-            ay = _sin_phi[a] * _sin_thetas[p];
-            _directional_sources
-                [p + (e + (a + r * _num_azim) * _num_groups) * _num_polar] =
-                (ax * _reduced_sources_xy(r,e,0) +
-                 ay * _reduced_sources_xy(r,e,1)) / (2 * sigma_t[e]);
-          }
-        }
-      }
-    }
-
-
     delete [] fission_sources_x;
     delete [] scatter_sources_x;
     delete [] fission_sources_y;
@@ -454,11 +420,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exp_F1, exp_F2, exp_H, tau;
-  FP_PRECISION src_flat, dt, dt2;
+  FP_PRECISION src_flat, src_linear, dt, dt2, ax, ay;
+  FP_PRECISION polar_wgt_d_psi;
+  FP_PRECISION polar_wgt_exp_h;
   int exp_index;
-
-  FP_PRECISION* directional_sources_sr = &_directional_sources
-      [(azim_index + fsr_id * _num_azim) * _num_groups * _num_polar];
+  int azim_times_polar = azim_index * _num_polar;
 
   /* Compute the segment midpoint */
   double cos_phi = fwd * _cos_phi[azim_index];
@@ -487,6 +453,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
      * exp table */
     exp_index *= 9 * _num_polar;
 
+    polar_wgt_d_psi = 0.0;
+    polar_wgt_exp_h = 0.0;
+
     /* Compute the flat component of the reduced source */
     src_flat = _reduced_sources(fsr_id, e) +
         _reduced_sources_xy(fsr_id, e, 0) * xc +
@@ -502,20 +471,27 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       /* Increment the exp index for the next polar angle */
       exp_index += 9;
 
-      /* Compute the change in flux across the segment */
-      delta_psi = (track_flux(p,e) - src_flat) * exp_F1 -
-          fwd * directional_sources_sr[e*_num_polar + p] * exp_F2;
+      ax = cos_phi * _sin_thetas[p];
+      ay = sin_phi * _sin_thetas[p];
 
-      /* Increment the fsr scalar flux and scalar flux moments */
-      fsr_flux[e*3    ] += _polar_weights(azim_index,p) * delta_psi;
-      fsr_flux[e*3 + 1] += _polar_weights(azim_index,p) *
-          (cos_phi * exp_H + x * delta_psi);
-      fsr_flux[e*3 + 2] += _polar_weights(azim_index,p) *
-          (sin_phi * exp_H + y * delta_psi);
+      /* Compute the moment component of the source */
+      src_linear = (ax * _reduced_sources_xy(fsr_id, e, 0) +
+                    ay * _reduced_sources_xy(fsr_id, e, 1)) * exp_F2;
+
+      /* Compute the change in flux across the segment */
+      delta_psi = (track_flux(p,e) - src_flat) * exp_F1 - src_linear * exp_F2;
+
+      polar_wgt_d_psi += _polar_weights[azim_times_polar + p] * delta_psi;
+      polar_wgt_exp_h += _polar_weights[azim_times_polar + p] * exp_H;
 
       /* Decrement the track flux */
       track_flux(p,e) -= delta_psi;
     }
+
+    /* Increment the fsr scalar flux and scalar flux moments */
+    fsr_flux[e*3    ] += polar_wgt_d_psi;
+    fsr_flux[e*3 + 1] += polar_wgt_exp_h * cos_phi + polar_wgt_d_psi * x;
+    fsr_flux[e*3 + 2] += polar_wgt_exp_h * sin_phi + polar_wgt_d_psi * y;
   }
 
   /* Atomically increment the FSR scalar flux from the temporary array */
