@@ -245,9 +245,3 @@ Finally, the approximation to the exponential is computed using linear interpola
    :label: exponential-approx
 
    e^{-\tau_{k,i,g,p}} \;\; \approx \;\; q_{n,p}\tau_{k,i,g,p} - b_{n,p}
-
-
-References
-==========
-
-.. [Yamamoto] A. Yamamoto, Y. Kitamura and Y. Yamane, "Computational Efficiencies of Approximated Exponential Functions for Transport Calculations of the Characteristics Method." *Annals of Nuclear Energy*, **2**, pp. 1027-1037 (2004).
