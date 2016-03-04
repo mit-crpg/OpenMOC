@@ -23,34 +23,34 @@ The ``openmoc.options`` module provides functionality to parse arguments defined
 
 .. code-block:: python
 
-    import openmoc.options as opt
+    import openmoc.options
 
     # Instantiate and Options object
-    options = opt.Options()
+    options = openmoc.options.Options()
 
     # Retrieve runtime options parsed in by the Options object
-    num_threads = options.getNumThreads()
-    track_spacing = options.getTrackSpacing()
-    num_azim = options.getNumAzimAngles()
-    tolerance = options.getTolerance()
-    max_iters = options.getMaxIterations()
+    num_threads = options.num_omp_threads
+    track_spacing = options.track_spacing
+    num_azim = options.num_azim
+    tolerance = options.tolerance
+    max_iters = options.max_iters
     ...
 
-:ref:`Table 1 <table_log_levels>` below itemizes each of the runtime options and the corresponding command line arguments and getter methods for the Options class in the ``openmoc.options`` module.
+:ref:`Table 1 <table_log_levels>` below itemizes each of the runtime options and the corresponding command line arguments and Options class property attributes in the ``openmoc.options`` module.
 
 .. _table_runtime_options:
 
 =============================  =============================================  ======================================================
-Runtime Option                 Command Line Argument                          Options Class Getter Method
+Runtime Option                 Command Line Argument                          Options Class Property Attribute
 =============================  =============================================  ======================================================
 Help                           :option:`-h`, :option:`--help`                 N/A
-No. Azimuthal Angles           :option:`-a`, :option:`--num-azim=`            getNumAzimAngles()
-Track Spacing [cm]             :option:`-s`, :option:`--track-spacing=`       getTrackSpacing()
-Max. No. Source Iterations     :option:`-i`, :option:`--max-iters=`           getMaxIterations()
-Source Convergence Tolerance   :option:`-c`, :option:`--tolerance=`           getTolerance()
-No. OpenMP Threads             :option:`-t`, :option:`--num-omp-threads=`     getNumThreads()
-No. CUDA Thread Blocks         :option:`-b`, :option:`--num-thread-blocks=`   getNumThreadBlocks()
-No. CUDA Threads per Block     :option:`-g`, :option:`--num-gpu-threads=`     getNumThreadsPerBlock()
+No. Azimuthal Angles           :option:`-a`, :option:`--num-azim=`            num_azim
+Track Spacing [cm]             :option:`-s`, :option:`--track-spacing=`       track_spacing
+Max. No. Source Iterations     :option:`-i`, :option:`--max-iters=`           max_iters
+Source Convergence Tolerance   :option:`-c`, :option:`--tolerance=`           tolerance
+No. OpenMP Threads             :option:`-t`, :option:`--num-omp-threads=`     num_omp_threads
+No. CUDA Thread Blocks         :option:`-b`, :option:`--num-thread-blocks=`   num_thread_blocks
+No. CUDA Threads per Block     :option:`-g`, :option:`--num-gpu-threads=`     num_threads_per_block
 =============================  =============================================  ======================================================
 
 **Table 1**: Runtime options and command line arguments supported by the ``openmoc.options`` module.
@@ -78,7 +78,6 @@ Log Level             Note
 :envvar:`WARNING`     A message to warn the user
 :envvar:`CRITICAL`    A message to warn of critical program conditions
 :envvar:`RESULT`      A message containing program results
-:envvar:`UNITTEST`    A message for unit testing
 :envvar:`ERROR`       A message reporting error conditions
 ===================   =======================================================
 
@@ -104,7 +103,6 @@ The following code snippet illustrates how to import the logging module into Pyt
     log.py_printf('TITLE', 'This is a TITLE message')
     log.py_printf('WARNING', 'This is a WARNING message')
     log.py_printf('CRITICAL', 'This is a CRITICAL message')
-    log.py_printf('UNITTEST', 'This is a UNITTEST message')
     log.py_printf('ERROR', 'This is an ERROR message')
 
 And the following is the output displayed to the console and recorded in the log file::
@@ -119,7 +117,6 @@ And the following is the output displayed to the console and recorded in the log
   [  TITLE  ]  *******************************************************************
   [ WARNING ]  This is a WARNING message
   [ CRITICAL]  This is a CRITICAL message
-  [ UNITTEST]  This is a UNITTEST message
   [  ERROR  ]  This is an ERROR message
 
 It should be noted that the ``py_printf(...)`` routine in the logging module is based on the printf_ routine in C/C++ and accepts a variable number of arguments. In particular, this is intended to accept `formatted data`_ to embed formatted integers, floats, strings, etc. in the output message. An example of this feature in use is given below:
