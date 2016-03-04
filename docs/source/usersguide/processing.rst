@@ -28,7 +28,7 @@ Parameter          Type                Default               Optional    Note
 ``fluxes``         boolean             False                 Yes         Whether to store the FSR fluxes
 ``sources``        boolean             False                 Yes         Whether to store the FSR sources
 ``fission_rates``  boolean             False                 Yes         Whether to store the fission rates
-``use_hdf5``       boolean             False (pickle file)   Yes         Whether to use HDF5_ 
+``use_hdf5``       boolean             False (pickle file)   Yes         Whether to use HDF5_
 ``filename``       string              'simulation-state'    Yes         The filename for storage
 ``directory``      string              'simulation-states'   Yes         The directory for storage
 ``append``         boolean             True                  Yes         Append to a file or create a new one
@@ -43,7 +43,7 @@ Parameter          Type                Default               Optional    Note
 Output Variable            Type            Note
 =========================  ==============  =========================================
 solver type                string          'CPUSolver', 'GPUSolver', etc.
-# FSRs                     integer         
+# FSRs                     integer
 # materials                integer
 # energy groups            integer
 # tracks                   integer
@@ -395,15 +395,15 @@ A depiction of the flat source regions and CMFD cells for the :file:`/OpenMOC/sa
 
 .. _figure_cmfd_cells:
 
-.. table:: 
+.. table::
 
    +------------------------------------------+---------------------------------------------+
-   | .. _figa:                                | .. _figb:                                   |
+   | .. _figure_cmfd_cells_a:                 | .. _figure_cmfd_cells_b:                    |
    |                                          |                                             |
    | .. image:: ../../img/c5g7-fsrs.png       | .. image:: ../../img/c5g7-cmfd-cells.png    |
    |   :width: 70 %                           |   :width: 64 %                              |
    |   :align: center                         |   :align: center                            |
-   +------------------------------------------+---------------------------------------------+ 
+   +------------------------------------------+---------------------------------------------+
 
 **Figure 6**: The flat source regions and CMFD cells for the C5G7 benchmark problem.
 
@@ -455,15 +455,15 @@ A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/
 
 .. _figure_spatial_fluxes:
 
-.. table:: 
+.. table::
 
    +------------------------------------------+-----------------------------------------+
-   | .. _figa:                                | .. _figb:                               |
+   | .. _figure_spatial_fluxes_a:             | .. _figure_spatial_fluxes_b:            |
    |                                          |                                         |
    | .. image:: ../../img/flux-group-1.png    | .. image:: ../../img/flux-group-7.png   |
    |   :width: 72 %                           |   :width: 75 %                          |
    |   :align: center                         |   :align: center                        |
-   +------------------------------------------+-----------------------------------------+ 
+   +------------------------------------------+-----------------------------------------+
 
 **Figure 7**: The fast and thermal fluxes in the C5G7 benchmark problem.
 
@@ -509,7 +509,7 @@ A depiction of the normalized 7-group fluxes for the sample pin cell problem (:f
 
 .. _figure_energy_fluxes:
 
-.. table:: 
+.. table::
 
    +------------------------------------------+-----------------------------------------+
    | .. _figa:                                | .. _figb:                               |
@@ -517,7 +517,7 @@ A depiction of the normalized 7-group fluxes for the sample pin cell problem (:f
    | .. image:: ../../img/flux-fsr-0.png      | .. image:: ../../img/flux-fsr-1.png     |
    |   :width: 72 %                           |   :width: 75 %                          |
    |   :align: center                         |   :align: center                        |
-   +------------------------------------------+-----------------------------------------+ 
+   +------------------------------------------+-----------------------------------------+
 
 **Figure 8**: The normalized moderator and fuel flux for a simple PWR pin cell problem.
 

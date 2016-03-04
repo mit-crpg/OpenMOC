@@ -372,13 +372,13 @@ Rings for cases 1 and 2 are create such that each ring is of **equal volume**. R
 
 .. table::
 
-   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+--------------------------------------------------+
-   | .. _figa:                                      | .. _figb:                                        | .. _figc:                                       | .. _figd:                                        |
-   |                                                |                                                  |                                                 |                                                  |
-   | .. image:: ../../img/annular_pin_materials.png | .. image:: ../../img/annular_pin_inner_rings.png | .. image:: ../../img/annular_pin_fuel_rings.png | .. image:: ../../img/annular_pin_outer_rings.png |
-   |   :width: 90 %                                 |   :width: 90 %                                   |   :width: 90 %                                  |   :width: 90 %                                   |
-   |   :align: left                                 |   :align: left                                   |   :align: left                                  |   :align: left                                   |
-   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+--------------------------------------------------+
+   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+----------------------------------------------------+
+   | .. _figure_annular_pin_rings_a:                | .. _figure_annular_pin_rings_b:                  | .. _figure_annular_pin_rings_c:                 | .. _figure_annular_pin_rings_d:                    |
+   |                                                |                                                  |                                                 |                                                    |
+   | .. image:: ../../img/annular_pin_materials.png | .. image:: ../../img/annular_pin_inner_rings.png | .. image:: ../../img/annular_pin_fuel_rings.png | .. image:: ../../img/annular_pin_outer_rings.png   |
+   |   :width: 90 %                                 |   :width: 90 %                                   |   :width: 90 %                                  |   :width: 90 %                                     |
+   |   :align: left                                 |   :align: left                                   |   :align: left                                  |   :align: left                                     |
+   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+----------------------------------------------------+
 
 The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin ``Cells`` and a positive integral number of sectors with no rings for moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
 
@@ -398,7 +398,7 @@ The plots shown below illustrate the pin cell material layout (left) and flat so
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_pin_cell_fsrs_a:                            | .. _figure_pin_cell_fsrs_b:                            |
    |                                                        |                                                        |
    | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs.png                 |
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -424,7 +424,7 @@ Again, the pin cell materials are illustrated below on the left, while the flat 
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_pin_cell_fsrs_moderator_rings_a:            | .. _figure_pin_cell_fsrs_moderator_rings_b:            |
    |                                                        |                                                        |
    | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs-moderator-rings.png |
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -453,7 +453,7 @@ The annular pin cell materials are illustrated below on the left, with the resul
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_pin_cell_fsrs_moderator_annular_a:          | .. _figure_pin_cell_fsrs_moderator_annular_b:          |
    |                                                        |                                                        |
    | .. image:: ../../img/pin-cell-materials-annular.png    | .. image:: ../../img/pin-cell-fsrs-annular.png         |
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -628,7 +628,7 @@ The first group flux is plotted below. All other flux plots are zero throughout 
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_fixed_source_flux_calc_a:                   | .. _figure_fixed_source_flux_calc_b:                   |
    |                                                        |                                                        |
    | .. image:: ../../img/fs-flux-calc-4-angles-group-1.png | .. image:: ../../img/fs-flux-calc-32-angles-group-1.png|
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -642,7 +642,7 @@ While this case seems ill-suited for the ``computeFlux(...)`` routine, ``compute
 
 where the geometry spans :math:`x \in (-L, L)` and :math:`y \in (-H, H)`. The source can be set using ``setFixedSourceByFSR(...)`` as described above. If the geometry is filled entirely with water and the ``computeFlux(...)`` routine is used to resolve the flux, the solver accurately computes the flux distribution as plotted below.
 
-.. _figure_tracks:
+.. _figure_cosine_flux_distribution:
 
 .. figure:: ../../img/cosine_flux_distribution.png
    :align: center
@@ -666,7 +666,7 @@ The resulting flux distribution in the third energy group (which previously was 
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_fixed_source_calc_a:                        | .. _figure_fixed_source_calc_b:                        |
    |                                                        |                                                        |
    | .. image:: ../../img/fs-4-angles-group-3.png           | .. image:: ../../img/fs-32-angles-group-3.png          |
    |   :width: 50 %                                         |   :width: 50 %                                         |
