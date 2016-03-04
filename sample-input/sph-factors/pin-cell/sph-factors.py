@@ -15,13 +15,7 @@ plt.ioff()
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = openmoc.options.Options()
-
-num_threads = options.getNumThreads()
-spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+opts = openmoc.options.Options()
 
 openmoc.log.set_log_level('NORMAL')
 
@@ -42,13 +36,14 @@ openmoc_materials = \
     openmoc.materialize.load_openmc_mgxs_lib(mgxs_lib, openmoc_geometry)
 
 # Initialize an OpenMOC TrackGenerator and Solver
-track_generator = openmoc.TrackGenerator(openmoc_geometry, num_azim, spacing)
+track_generator = openmoc.TrackGenerator(openmoc_geometry, opts.num_azim,
+                                         opts.track_spacing)
 track_generator.generateTracks()
 
 # Initialize an OpenMOC Solver
 solver = openmoc.CPUSolver(track_generator)
-solver.setConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
+solver.setConvergenceThreshold(opts.tolerance)
+solver.setNumThreads(opts.num_omp_threads)
 
 # Run an eigenvalue calulation with the MGXS from OpenMC
 solver.computeEigenvalue()
@@ -65,9 +60,10 @@ fluxes_no_sph = openmoc.process.get_scalar_fluxes(solver)
 
 # Compute SPH factors
 sph, sph_mgxs_lib, sph_indices = \
-    openmoc.materialize.compute_sph_factors(mgxs_lib, track_spacing=spacing,
-                                            num_azim=num_azim,
-                                            num_threads=num_threads)
+    openmoc.materialize.compute_sph_factors(mgxs_lib,
+                                            track_spacing=opts.track_spacing,
+                                            num_azim=opts.num_azim,
+                                            num_threads=opts.num_omp_threads)
 
 # Load the SPH-corrected MGXS library data
 materials = \

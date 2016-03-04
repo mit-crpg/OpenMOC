@@ -7,13 +7,7 @@ from lattices import universes
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = Options()
-
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+opts = Options()
 
 openmoc.log.set_log_level('NORMAL')
 
@@ -35,8 +29,9 @@ geometry.setRootUniverse(universes['Root'])
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.track_spacing)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
 
@@ -45,9 +40,9 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = openmoc.CPUSolver(track_generator)
-solver.setConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.computeEigenvalue(max_iters)
+solver.setConvergenceThreshold(opts.tolerance)
+solver.setNumThreads(opts.num_omp_threads)
+solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 
 

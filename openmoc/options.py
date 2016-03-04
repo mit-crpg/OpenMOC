@@ -1,11 +1,3 @@
-##
-# @file options.py
-# @package openmoc.options
-# @brief The options module provides the Options class to parse, interpret
-#        and encapsulate command line arguments for OpenMOC runtime options.
-# @author William Boyd (wboyd@mit.edu)
-# @date July 24, 2013
-
 import sys
 import getopt
 import multiprocessing
@@ -18,72 +10,67 @@ else:
     from openmoc.log import py_printf
 
 
-##
-# @class Options process.py "openmoc/options.py"
-# @brief Command-line options for runtime configuration of OpenMOC.
-# @details This class parses, interprets and encapsulates the runtime options
-#          for OpenMOC. This class can be instantiate in any OpenMOC Python
-#          script which imports the openmoc.process module. The user may
-#          request the value of any or all command line options and use them
-#          as they wish. An example of how the Options class would be used
-#          is given as follows:
-#
-# @code
-#          import from openmoc.options import Options
-#
-#          # Create an Options object which will parse all arguments
-#          # from the command line
-#          options = Options()
-#
-#          # Retrieve useful command line options
-#          num_azim = options.num_azim
-#          ...
-#
-#          # Do something useful with command line arguments
-#          ...
-# @endcode
-#
 class Options:
+    """Command-line options for runtime configuration of OpenMOC.
 
-    ##
-    # @brief Options class constructor.
-    # @details This method initializes an Options object with default values
-    #          for each runtime parameter, and then parses the arguments
-    #          passed in at runtime and assigns the appropriate value to each.
-    #
+    This class parses, interprets and encapsulates the runtime options for
+    OpenMOC. This class can be instantiate in any OpenMOC Python script which
+    imports the openmoc.process module. The user may request the value of any
+    or all command line options and use them as they wish.
+
+    Attributes
+    ----------
+    num_azim : Integral
+        The number of azimuthal angles (default is 4)
+    track_spacing : Real
+        The track spacing in centimeters (default is 0.1 cm)
+    max_iters : Integral
+        The maximum number of source iterations (default is 1000)
+    tolerance : Real
+        The tolerance on convergence (default is 1E-5)
+    num_omp_threads : Integral
+        The number of OpenMP threads (default is the # of CPU cores)
+    num_thread_blocks : Integral
+        The number of GPU threadblocks (default is 64)
+    num_gpu_threads : Integral
+        The number of GPU threads per threadblock (default is 64)
+
+    Examples
+    --------
+    An example of how the Options class would be used is given as follows:
+
+        >>> import from openmoc.options import Options
+
+        >>> # Create an Options object which will parse all arguments
+        >>> # from the command line
+        >>> options = Options()
+
+        >>> # Retrieve useful command line options
+        >>> num_azim = options.num_azim
+        >>> ...
+
+        >>> # Do something useful with command line arguments
+        >>> ...
+
+    """
+
     def __init__(self):
+        """Initialize default values for each runtime parameter and parses the
+        command line arguments assigns the appropriate value to each."""
 
-        ## The default number of azimuthal angles
         self._num_azim = 4
-
-        ## The default track spacing
         self._track_spacing = 0.1
-
-        ## The default maximum number of source iterations
         self._max_iters = 1000
-
-        ## The default tolerance on the source distribution convergence
         self._tolerance = 1E-5
-
-        ## The default number of OpenMP threads
         self._num_omp_threads = multiprocessing.cpu_count()
-
-        ## The default number of GPU threadblocks
         self._num_thread_blocks = 64
-
-        ## The default number of GPU threads per threadblock
         self._num_gpu_threads = 64
-
-        # Parse in arguments from the command line
         self.parseArguments()
 
-
-    ##
-    # @brief This method parses command line options using the Python getopt
-    #        module and assigns the appropriate values to the corresponding
-    #        Options class attributes.
-    # @param self the Options object pointer
     def parseArguments(self):
+        """This method parses command line options and assigns the appropriate
+        values to the corresponding class attributes."""
+
         try:
             opts, args = getopt.getopt(sys.argv[1:],
                                       'hfa:s:i:c:t:b:g:r:l:',
@@ -161,44 +148,30 @@ class Options:
             elif opt in ('-g', '--num-gpu-threads'):
                 self._num_gpu_threads = int(arg)
 
-    ##
-    # @brief Returns the number of azimuthal angles.
-    # @return the number of azimuthal angles
-    def getNumAzimAngles(self):
+    @property
+    def num_azim(self):
         return self._num_azim
 
-    ##
-    # @brief Returns the track spacing [cm].
-    # @return the track spacing [cm].
-    def getTrackSpacing(self):
+    @property
+    def track_spacing(self):
         return self._track_spacing
 
-    ##
-    # @brief Returns the maximum number of source iterations.
-    # @return the maximum number of source iterations
-    def getMaxIterations(self):
+    @property
+    def max_iters(self):
         return self._max_iters
 
-    ##
-    # @brief Returns the source convergence tolerance.
-    # @return the source convergence tolerance
-    def getTolerance(self):
+    @property
+    def tolerance(self):
         return self._tolerance
 
-    ##
-    # @brief Returns the number of OpenMP multi-core CPU threads.
-    # @return the number of OpenMP threads
-    def getNumThreads(self):
+    @property
+    def num_omp_threads(self):
         return self._num_omp_threads
 
-    ##
-    # @brief Returns the number of CUDA thread blocks for a GPU.
-    # @return the number of CUDA thread blocks
-    def getNumThreadBlocks(self):
+    @property
+    def num_thread_blocks(self):
         return self._num_thread_blocks
 
-    ##
-    # @brief Returns the number of CUDA threads per block for a GPU.
-    # @return the number of CUDA threads per block
-    def getNumThreadsPerBlock(self):
+    @property
+    def num_threads_per_block(self):
         return self._num_gpu_threads
