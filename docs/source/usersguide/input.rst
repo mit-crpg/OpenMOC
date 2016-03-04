@@ -46,8 +46,8 @@ Runtime Option                 Command Line Argument                          Op
 Help                           :option:`-h`, :option:`--help`                 N/A
 No. Azimuthal Angles           :option:`-a`, :option:`--num-azim=`            num_azim
 Track Spacing [cm]             :option:`-s`, :option:`--track-spacing=`       track_spacing
-Max. No. Source Iterations     :option:`-i`, :option:`--max-iters=`           max_iters
-Source Convergence Tolerance   :option:`-c`, :option:`--tolerance=`           tolerance
+Max. No. Transport Sweeps      :option:`-i`, :option:`--max-iters=`           max_iters
+Convergence Tolerance          :option:`-c`, :option:`--tolerance=`           tolerance
 No. OpenMP Threads             :option:`-t`, :option:`--num-omp-threads=`     num_omp_threads
 No. CUDA Thread Blocks         :option:`-b`, :option:`--num-thread-blocks=`   num_thread_blocks
 No. CUDA Threads per Block     :option:`-g`, :option:`--num-gpu-threads=`     num_threads_per_block
@@ -500,9 +500,6 @@ The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` c
     # Register the root universe with the geometry
     geometry.setRootUniverse(root_univ)
 
-    # Initialize the flat source regions in the geometry
-    geometry.initializeFlatSourceRegions()
-
 
 ----------------
 Track Generation
@@ -542,7 +539,7 @@ The following code snippet illustrates the instantiation of the ``CPUSolver`` fo
     # threads and source convergence threshold
     solver = openmoc.CPUSolver(track_generator)
     solver.setNumThreads(4)
-    solver.setSourceConvergenceThreshold(1E-5)
+    solver.setConvergenceThreshold(1E-5)
 
     # Converge the source with up to a maximum of 1000 source iterations
     solver.computeEigenvalue(1000)
@@ -793,7 +790,7 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
     cmfd.setOpticallyThick(False)
     cmfd.setSORRelaxationFactor(1.5)
     cmfd.setMOCRelaxationFactor(0.66)
-    cmfd.setSourceConvergenceThreshold(1.E-8)
+    cmfd.setConvergenceThreshold(1.E-8)
     cmfd.setFluxUpdateOn(True)
 
     # Initialize the Geometry object
@@ -808,7 +805,7 @@ These lines of code should be placed in your input file at the location where th
   * ``setGroupStructure`` (default: same as MOC group structure) - OpenMOC is able to perform CMFD on a coarse energy group structure to allow fine energy group problems to be accelerated with CMFD without incurring a significant computational overhead for CMFD. This function takes a python list as input with the first value of 1 (to indicate the first energy group) followed by an increasing values ending with the number of energy groups plus 1. In the example above, a 7 group MOC problem is broken up into 2 energy groups for CMFD.
   * ``setOpticallyThick`` (default: False) - OpenMOC uses an correction factor on the material diffusion coefficients as described in the Theory and Methodology section. This correction factor is turned off by default.
   * ``setSORRelaxationFactor`` (default: 1.0) - As described in the Theory and Methodology section, OpenMOC use the successive over-relaxation method (SOR) to solve the CMFD diffusion eigenvalue problem. The SOR method can use an over-relaxation factor to speed up the convergence of problems. Valid input for the SOR relaxation factor are values between 0 and 2. By default the SOR factor is set to 1.0, reducing the SOR method to the Gauss-Seidel method.
-  * ``setSourceConvergenceThreshold`` (default: 1.E-7) - This method is used to set the convergence of the root-mean-square-error on the region and group wise fission source of the CMFD diffusion eigenvalue problem. By default, the convergence threshold is set at 1.E-7 and is sufficient for most problems.
+  * ``setConvergenceThreshold`` (default: 1.E-7) - This method is used to set the convergence of the root-mean-square-error on the region and group wise fission source of the CMFD diffusion eigenvalue problem. By default, the convergence threshold is set at 1.E-7 and is sufficient for most problems.
 
 With those few additional lines of code, you should be able to create an input file for any problem and utilize CMFD acceleration. The input file ``c5g7-cmfd.py`` provides a good example of how an input file is constructed that uses CMFD acceleration.
 
