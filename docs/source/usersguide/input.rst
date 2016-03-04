@@ -150,16 +150,16 @@ This will result in the following output messages to be printed to the console a
 Materials Specification
 -----------------------
 
-OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the user. OpenMOC does not perform self-shielding or depletion calculations, so isotropic concentrations are not used. In OpenMOC, cross-section data is encapsulated by the ``Material`` class in the main ``openmoc`` Python module. A ``Material`` class may be instantiated in Python and cross-sections may be loaded into it using NumPy_ data arrays as illustrated by the following code snippet:
+OpenMOC uses multi-group macroscopic nuclear cross sections, provided by the user. OpenMOC does not perform self-shielding or depletion calculations, so isotropic concentrations are not used. In OpenMOC, cross section data is encapsulated by the ``Material`` class in the main ``openmoc`` Python module. A ``Material`` class may be instantiated in Python and cross sections may be loaded into it using NumPy_ data arrays as illustrated by the following code snippet:
 
 .. code-block:: python
 
    import openmoc
    import numpy
 
-   # Initialize material cross-sections using NumPy data arrays
+   # Initialize material cross sections using NumPy data arrays
    num_groups = 8
-   sigma_a = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
+   sigma_t = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
    sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
    ...
 
@@ -169,71 +169,63 @@ OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the use
    # Set the number of energy groups in the material
    material.setNumEnergyGroups(num_groups)
 
-   # Load the cross-section data into the material
-   material.setSigmaA(sigma_a)
-   material.setSigmaT(sigma_f)
+   # Load the cross section data into the material
+   material.setSigmaT(sigma_t)
+   material.setSigmaF(sigma_f)
    ...
 
-For many simulations, defining the nuclear data cross-sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross-sections from an HDF5_ or a Python pickle_ binary file. The ``materialize(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 and pickle binary files is illusrated in the following snippet:
+For many simulations, defining the nuclear data cross sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross sections from an HDF5_ binary file. The ``load_from_hdf5(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 binary files is illusrated in the following snippet:
 
 .. code-block:: python
 
     import openmoc
-    import openmoc.materialize as mat
+    import openmoc.materialize as materialize
 
-    # Import cross-section data from an HDF5 file. This instantiates
+    # Import cross section data from an HDF5 file. This instantiates
     # objects for each material and returns them in a dictionary
-    # indexed by a name string defined in the pickle file.
-    hdf5_materials = mat.materialize('materials-data.h5')
+    # indexed by a string name or integer ID
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+                                                directory='/home/myuser')
 
     # Retrieve the material called 'moderator' in the HDF5 file
     moderator = hdf5_materials['moderator']
 
-    # Import cross-section data from a pickle file. This instantiates
-    # objects for each material and returns them in a dictionary
-    # indexed by a name string defined in the pickle file
-    pickle_materials = mat.materialize('materials-data.pkl')
+The ``openmoc.materialize`` module defines a standard for cross section data stored in binary files. First, HDF5 files must include an ``'# groups'`` attribute with the integer number of groups in the top level of the file hierarchy. Second, the string domain type - ``'material'`` or ``'cell'`` - must be specified in the top level of the file hierarchy. This must match the ``domain_type`` keyword argument passed to ``load_from_hdf5(...)`` which can be either ``'material'`` (default) or ``'cell'``. The ``domain_type`` keyword argument is discussed in more detail at the end of this section. Finally, multi-group cross sections to assign by material or cell must be defined as an `HDF5 group`_ with a string name or integer ID to identify the material or cell. The material group must contain the following floating point `HDF5 datasets`_ of multi-group cross section data:
 
-    # Retrieve the material called 'fuel' in the pickle file
-    fuel = pickle_materials['fuel']
+  - ``'transport'`` or ``'total'``
+  - ``'nu-scatter matrix'`` or ``'scatter matrix'``
+  - ``'chi'``
+  - ``'nu-fission'``
+  - ``'fission'`` (optional)
 
-The ``openmoc.materialize`` module defines a standard for cross-section data stored in binary files. First, each HDF5 file must end with the '.h5' or '.hdf5' extension. HDF5 files must include an `Energy Groups` attribute with the integer number of groups in the top level of the file data hierarchy. Each material must be defined as an `HDF5 group`_ with a string name to identify the material. Finally, the material group must contain the following floating point `HDF5 datasets`_:
+Each dataset should be a 1D array of floating point values ordered by increasing energy group (*i.e.*, from highest to lowest energies). This includes the scattering matrix which should be inner strided by outgoing energy group and outer strided by incoming energy group.
 
-  - 'Total XS'
-  - 'Absorption XS'
-  - 'Scattering XS'
-  - 'Fission XS'
-  - 'Nu Fission XS'
-  - 'Chi'
-  - 'Diffusion Coefficient' (optional)
-  - 'Buckling' (optional)
-
-To better understand the necessary HDF file structure, it may be useful to visualize the ``OpenMOC/sample-input/c5g7-materials.h5`` HDF5 file using the HDFView_ graphical tool. The following code snippet illustrates the use of the h5py_ Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
+To better understand the necessary HDF file structure, it may be useful to visualize the ``OpenMOC/sample-input/c5g7-mgxs.h5`` HDF5 file using the HDFView_ graphical tool. The following code snippet illustrates the use of the h5py_ Python HDF5 interface to write an HDF5 file with material cross section data adhering to the standard expected by the ``openmoc.materialize`` module:
 
 .. code-block:: python
 
    import numpy
    import h5py
 
-   # Create an HDF5 file to store multi-groups cross-sections
+   # Create an HDF5 file to store multi-groups cross sections
    f = h5py.File('materials-data.h5')
 
    # Set the number of energy groups
-   f.attrs['Energy Groups'] = 8
+   f.attrs['# groups'] = 8
 
    # Material 1
 
    # Create an HDF5 group for this material
    material_group = f.create_group('Material 1')
 
-   # Initialize cross-sections as NumPy data arrays
-   sigma_a = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
-   sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
+   # Initialize cross sections as NumPy data arrays
+   sigma_t = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
+   nu_sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
    ...
 
-   # Create datasets for each cross-section type
-   material_group.create_dataset('Absorption XS', data=sigma_a)
-   material_group.create_dataset('Fission XS', data=sigma_f)
+   # Create datasets for each cross section type
+   material_group.create_dataset('total', data=sigma_t)
+   material_group.create_dataset('nu-fission', data=nu_sigma_f)
    ...
 
    # Material 2
@@ -242,41 +234,34 @@ To better understand the necessary HDF file structure, it may be useful to visua
    # Close and save the HDF5 file
    f.close()
 
-Alternatively, for machines without HDF5 and/or h5py, materials data may be imported from a pickle_ binary file using the ``openmoc.materialize`` module. For pickle files, the materials data should be stored as a Python dictionary_. The dictionary must contain a key/value pair for the number of energy groups, and sub-dictionaries for each material's cross-sections. The following code snippet illustrates how one might populate a pickle file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
+Lastly, the ``'domain_type'`` parameter may be specified in conjuction with the optional ``geometry`` keyword argument. The ``load_from_hdf5(...)`` routine may be used to load multi-group cross sections directly into a pre-existing OpenMOC ``Geometry`` constructed with ``Materials`` with the same string names *or* integer IDs used as keys in the HDF5 binary file. Likewise, the ``load_from_hdf5(...)`` routine may be used to load multi-group cross sections directly into a pre-existing OpenMOC ``Geometry`` constructed with ``Cells`` with the same string names *or* integer IDs used as keys in the HDF5 binary file. The latter case may be useful when multiple ``Cells`` share the same ``Materials``. This is illustrated with the following code snippet:
 
 .. code-block:: python
 
-   import numpy
-   import pickle
+    import openmoc
+    import openmoc.materialize as materialize
 
-   # Initialize a Python dictionary to store the materials data
-   data = dict()
+    # Build an OpenMOC Geommetry with Materials, Surfaces, Cells, etc.
+    # The Cells must have the same IDs as those used in the HDF5 file
+    ...
+    geometry = openmoc.Geometry()
+    ...
 
-   # Set the number of energy groups
-   data['Energy Groups'] = 8
+    # Import cross section data from an HDF5 file. This instantiates
+    # objects for each material and returns them in a dictionary
+    # indexed by a string name or integer ID
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+                                                directory='/home/myuser',
+						domain_type='cell',
+						geometry=geometry)
 
-   # Material 1
+In this case there is no need to assign the ``Materials`` in the ``hdf5_materials`` dictionary to ``Cells`` since they are already incorporated into the ``Geometry``.
 
-   # Create a sub-dictoinary for this material
-   data['Material 1'] = dict()
+.. note:: If datasets for both ``'transport'`` and ``'total'`` are defined for a material in the HDF5 file, ``openmoc.materialize`` will give precedence to the ``'transport'`` dataset and assign it as the total multi-group cross section.
 
-   # Initialize cross-sections as NumPy data arrays
-   sigma_a = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
-   sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
-   ...
+.. note:: If datasets for both ``'nu-scatter matrix'`` and ``'scatter matrix'`` are defined for a material in the HDF5 file, ``openmoc.materialize`` will give precedence to the ``'nu-scatter matrix'`` dataset and assign it as the multi-group scattering matrix cross section.
 
-   # Create datasets for each cross-section type
-   data['Material 1']['Absorption XS'] = sigma_a
-   data['Material 1']['Fission XS'] = sigma_f
-   ...
-
-   # Material 2
-   ...
-
-   # Dump the Python dictionary of materials data to a pickle file
-   pickle.dump(data, open('materials-data.pkl', 'wb'))
-
-.. note:: Users should note that OpenMOC will assign a minimum value of 1E-10 to all total cross-sections assigned to a ``Material`` object. This prevents numerical divide-by-zero issues in the ``Solver``, and is a useful sanity check when modeling (nearly) void regions - *e.g.*, a fuel pin cell "gap."
+.. note:: Users should note that OpenMOC will assign a minimum value of 1E-10 to all total cross sections assigned to a ``Material`` object. This prevents numerical divide-by-zero issues in the ``Solver``, and is a useful sanity check when modeling (nearly) void regions - *e.g.*, a fuel pin cell "gap."
 
 ----------------------
 Geometry Specification
@@ -837,12 +822,11 @@ With those few additional lines of code, you should be able to create an input f
 .. _C5G7 benchmark problem: https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/benchmarks/c5g7
 .. _NumPy: http://www.numpy.org/
 .. _HDF5: http://www.hdfgroup.org/HDF5/
-.. _pickle: http://docs.python.org/2/library/pickle.html
 .. _dictionary: http://docs.python.org/2/tutorial/datastructures.html#dictionaries
 .. _HDFView: http://www.hdfgroup.org/products/java/hdfview/
 .. _h5py: http://www.h5py.org/
-.. _HDF5 group: http://www.hdfgroup.org/HDF5/doc/UG/UG_frame09Groups.html
-.. _HDF5 datasets: http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html
+.. _HDF5 group: http://docs.h5py.org/en/latest/high/group.html
+.. _HDF5 datasets: http://docs.h5py.org/en/latest/high/dataset.html
 .. _discretization: http://en.wikipedia.org/wiki/Discretization
 .. _polar coordinates: http://en.wikipedia.org/wiki/Polar_coordinate_system
 .. _unstructured mesh: http://en.wikipedia.org/wiki/Unstructured_grid
