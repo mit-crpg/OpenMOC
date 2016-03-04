@@ -283,6 +283,4 @@ This algorithm relies upon the use of a small numerical parameter :math:`\epsilo
 References
 ==========
 
-.. [Yamamoto] A. Yamamoto, M. Tabuchi, N. Sugimura, T. Ushio and M. Mori, "Derivation of Optimum Polar Angle Quadrature Set for the Method of Characteristics Based on Approximation Error for the Bickley Function." *Journal of Nuclear Science and Engineering*, **44(2)**, pp. 129-136 (2007).
-
 .. [Cacuci] D. Cacuci, et. al. "Handbook of Nuclear Engineering" *Springer Science+Business Media*, New York, NY, pp. 1111-1113 (2010).
