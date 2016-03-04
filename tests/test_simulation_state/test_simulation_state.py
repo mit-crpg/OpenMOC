@@ -12,15 +12,15 @@ import numpy as np
 
 
 class SimulationStateTestHarness(TestHarness):
-    """An eigenvalue calculation for a 4x4 lattice with 7-group C5G7
-    cross section data."""
+    """An eigenvalue calculation with storage and retrieval of the simulation
+    state using the openmoc.process module."""
 
     def __init__(self):
         super(SimulationStateTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
 
     def _run_openmoc(self):
-        """Run an OpenMOC eigenvalue or fixed source calculation."""
+        """Run an eigenvalue calculation and store the simulation state."""
         super(SimulationStateTestHarness, self)._run_openmoc()
 
         # Store the simulatiation state in HDF5 and pickled binary files
@@ -80,11 +80,11 @@ class SimulationStateTestHarness(TestHarness):
                     else:
                         outstr += '{0}:\t{1}\n'.format(key3, value)
 
-        # Hash the results if necessary.
-#        if hash_output:
-#            sha512 = hashlib.sha512()
-#            sha512.update(outstr.encode('utf-8'))
-#            outstr = sha512.hexdigest()
+        # Hash the results if necessary
+        if hash_output:
+            sha512 = hashlib.sha512()
+            sha512.update(outstr.encode('utf-8'))
+            outstr = sha512.hexdigest()
 
         return outstr
 
