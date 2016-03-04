@@ -279,12 +279,12 @@ The following sections detail how to create surfaces, cells, universes and latti
 Surfaces
 --------
 
-In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in :ref:`Surfaces and Halfspaces <surfaces-halfspaces>`. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the ``Circle``, ``XPlane``, and ``YPlane`` classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 :math:`\times` 4 lattice.
+In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in :ref:`Surfaces and Halfspaces <surfaces-halfspaces>`. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the ``ZCylinder``, ``XPlane``, and ``YPlane`` classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 :math:`\times` 4 lattice.
 
 .. code-block:: python
 
     # Initialize circular fuel pin surface with an optional string name
-    circle = openmoc.Circle(x=0.0, y=0.0, radius=0.45, name='fuel radius')
+    circle = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.45, name='fuel radius')
 
     # Initialize the planar surfaces bounding the entire geometry
     # with optional string names
