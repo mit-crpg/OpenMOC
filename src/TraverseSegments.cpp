@@ -347,7 +347,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
   }
 
   /* Get the starting z index */
-  int z_ind = binarySearch(axial_mesh, num_fsrs+1, z_coord, sign);
+  int z_ind = findMeshIndex(axial_mesh, num_fsrs+1, z_coord, sign);
 
   /* Loop over 2D segments */
   bool first_segment = true;
@@ -366,7 +366,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
       /* Determine the axial region */
       num_fsrs = extruded_FSR->_num_fsrs;
       axial_mesh = extruded_FSR->_mesh;
-      z_ind = binarySearch(axial_mesh, num_fsrs+1, z_coord, sign);
+      z_ind = findMeshIndex(axial_mesh, num_fsrs+1, z_coord, sign);
     }
 
     /* Extract 2D segment length */
@@ -791,7 +791,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
  * @param val the level to be searched for in the mesh
  * @param sign the direction of the ray in the z-direction
  */
-int TraverseSegments::binarySearch(FP_PRECISION* values, int size,
+int TraverseSegments::findMeshIndex(FP_PRECISION* values, int size,
                                  FP_PRECISION val, int sign) {
 
   /* Initialize indexes into the values array */

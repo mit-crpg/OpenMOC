@@ -50,7 +50,8 @@ private:
                      MOCKernel** kernels);
 
 
-  int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
+  int findMeshIndex(FP_PRECISION* values, int size, FP_PRECISION val,
+                    int sign);
 
 protected:
 
