@@ -1,5 +1,4 @@
 import openmoc
-import openmoc.compatible
 import openmc.mgxs
 
 import numpy as np
@@ -29,7 +28,7 @@ mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='.')
 
 # Create an OpenMOC Geometry from the OpenCG Geometry
 openmoc_geometry = \
-    openmoc.compatible.get_openmoc_geometry(mgxs_lib.opencg_geometry)
+    openmoc.opencg_compatible.get_openmoc_geometry(mgxs_lib.opencg_geometry)
 
 # Load cross section data
 openmoc_materials = \
