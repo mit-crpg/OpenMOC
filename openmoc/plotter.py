@@ -1349,7 +1349,7 @@ class PlotParams(object):
     title : str
         The minor title string
     suptitle : str
-        The minor title string
+        The major title string
     norm : bool
         Normalize the plotted data to unity
     transparent_zeros : bool

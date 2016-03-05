@@ -119,7 +119,7 @@ class Doxy2SWIG:
         self.with_constructor_list = False
         self.with_attribute_list = True
         self.with_overloaded_functions = True
-        self.textwidth = 80
+        self.textwidth = 90
         self.quiet = False
 
         # state:

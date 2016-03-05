@@ -16,8 +16,7 @@ incrementVolume(double volume)
 
 Increment the volume/area of the Cell by some amount.  
 
-This routine is called by the TrackGenerator during track generation and
-segmentation.  
+This routine is called by the TrackGenerator during track generation and segmentation.  
 
 Parameters
 ----------
@@ -40,10 +39,9 @@ retrieveTranslation(double *translations, int num_axes)
 
 Fills an array with the translations along x, y and z.  
 
-This class method is intended to be called by the OpenMOC Python OpenCG
-compatiblity module. Although this method appears to require two arguments, in
-reality it only requires one due to SWIG and would be called from within Python
-as follows:  
+This class method is intended to be called by the OpenMOC Python OpenCG compatiblity
+module. Although this method appears to require two arguments, in reality it only requires
+one due to SWIG and would be called from within Python as follows:  
 
 
 Parameters
@@ -184,11 +182,10 @@ Parameters
 %feature("docstring") Cell::minSurfaceDist "
 minSurfaceDist(LocalCoords *coords) -> double  
 
-Computes the minimum distance to a Surface from a point with a given trajectory
-at a certain angle stored in a LocalCoords object.  
+Computes the minimum distance to a Surface from a point with a given trajectory at a
+certain angle stored in a LocalCoords object.  
 
-If the trajectory will not intersect any of the Surfaces in the Cell returns
-INFINITY.  
+If the trajectory will not intersect any of the Surfaces in the Cell returns INFINITY.  
 
 Parameters
 ----------
@@ -201,8 +198,8 @@ getVolume() -> double
 
 Return the aggregate volume/area of all instances of this Cell.  
 
-The volume/area of the Cell is computed from track segments which overlap this
-Cell during track generation.  
+The volume/area of the Cell is computed from track segments which overlap this Cell during
+track generation.  
 
 Returns
 -------
@@ -246,8 +243,8 @@ Parameters
 %feature("docstring") Cell::getAllCells "
 getAllCells() -> std::map< int, Cell * >  
 
-Returns the std::map of Cell IDs and Cell pointers within any nested Universes
-filling this Cell.  
+Returns the std::map of Cell IDs and Cell pointers within any nested Universes filling
+this Cell.  
 
 Returns
 -------
@@ -273,8 +270,7 @@ Destructor clears vector of Surface pointers bounding the Cell.
 %feature("docstring") Cell::getAllUniverses "
 getAllUniverses() -> std::map< int, Universe * >  
 
-Returns the std::map of all nested Universe IDs and Universe pointers filling
-this Cell.  
+Returns the std::map of all nested Universe IDs and Universe pointers filling this Cell.  
 
 Returns
 -------
@@ -286,11 +282,10 @@ setTranslation(double *translation, int num_axes)
 
 Set the Cell's translation along the x, y and z axes.  
 
-This method is a helper function to allow OpenMOC users to assign the Cell's
-translations in Python. A user must initialize a length 3 NumPy array as input
-to this function. This function then stores the data values in the NumPy array
-in the Cell's translation array. An example of how this function might be called
-in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the Cell's translations
+in Python. A user must initialize a length 3 NumPy array as input to this function. This
+function then stores the data values in the NumPy array in the Cell's translation array.
+An example of how this function might be called in Python is as follows:  
 
 
 Parameters
@@ -306,10 +301,9 @@ retrieveRotation(double *rotations, int num_axes, std::string units=\"degrees\")
 
 Fills an array with the rotation angles for x, y and z.  
 
-This class method is intended to be called by the OpenMOC Python OpenCG
-compatiblity module. Although this method appears to require two arguments, in
-reality it only requires one due to SWIG and would be called from within Python
-as follows:  
+This class method is intended to be called by the OpenMOC Python OpenCG compatiblity
+module. Although this method appears to require two arguments, in reality it only requires
+one due to SWIG and would be called from within Python as follows:  
 
 
 Parameters
@@ -357,8 +351,8 @@ the Cell type
 %feature("docstring") Cell::getMinXBoundaryType "
 getMinXBoundaryType() -> boundaryType  
 
-Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the minimum
-reachable x-coordinate in the Cell.  
+Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the minimum reachable
+x-coordinate in the Cell.  
 
 Returns
 -------
@@ -368,8 +362,8 @@ the boundary condition at the minimum x-coordinate
 %feature("docstring") Cell::getMaxXBoundaryType "
 getMaxXBoundaryType() -> boundaryType  
 
-Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the maximum
-reachable x-coordinate in the Cell.  
+Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the maximum reachable
+x-coordinate in the Cell.  
 
 Returns
 -------
@@ -447,8 +441,8 @@ subdivideCell(double max_radius)
 
 Subdivides a Cell into rings and sectors aligned with the z-axis.  
 
-This method uses the Cell's clone method to produce a vector of this Cell's
-subdivided ring and sector Cells.  
+This method uses the Cell's clone method to produce a vector of this Cell's subdivided
+ring and sector Cells.  
 
 Parameters
 ----------
@@ -475,8 +469,8 @@ the number of rings
 %feature("docstring") Cell::getMaxYBoundaryType "
 getMaxYBoundaryType() -> boundaryType  
 
-Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the maximum
-reachable y-coordinate in the Cell.  
+Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the maximum reachable
+y-coordinate in the Cell.  
 
 Returns
 -------
@@ -488,9 +482,9 @@ containsPoint(Point *point) -> bool
 
 Determines whether a Point is contained inside a Cell.  
 
-Queries each Surface inside the Cell to determine if the Point is on the same
-side of the Surface. This point is only inside the Cell if it is on the same
-side of every Surface in the Cell.  
+Queries each Surface inside the Cell to determine if the Point is on the same side of the
+Surface. This point is only inside the Cell if it is on the same side of every Surface in
+the Cell.  
 
 Parameters
 ----------
@@ -584,8 +578,8 @@ Parameters
 %feature("docstring") Cell::getSurfaces "
 getSurfaces() const  -> std::map< int, surface_halfspace * >  
 
-Return the std::map of Surface pointers and halfspaces (+/-1) for all surfaces
-bounding the Cell.  
+Return the std::map of Surface pointers and halfspaces (+/-1) for all surfaces bounding
+the Cell.  
 
 Returns
 -------
@@ -607,11 +601,10 @@ setRotation(double *rotation, int num_axes, std::string units=\"degrees\")
 
 Set the Cell's rotation angles about the x, y and z axes.  
 
-This method is a helper function to allow OpenMOC users to assign the Cell's
-rotation angles in Python. A user must initialize a length 3 NumPy array as
-input to this function. This function then stores the data values in the NumPy
-array in the Cell's rotation array. An example of how this function might be
-called in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the Cell's rotation
+angles in Python. A user must initialize a length 3 NumPy array as input to this function.
+This function then stores the data values in the NumPy array in the Cell's rotation array.
+An example of how this function might be called in Python is as follows:  
 
 
 Parameters
@@ -639,8 +632,7 @@ incrementNumInstances()
 
 Increment the number of instances of this Cell.  
 
-This routine is called by the TrackGenerator during track generation and
-segmentation.  
+This routine is called by the TrackGenerator during track generation and segmentation.  
 ";
 
 %feature("docstring") Cell::printString "
@@ -654,11 +646,10 @@ isFissionable() -> bool
 
 Returns true if this Cell is filled with a fissionable Material.  
 
-If the Cell is filled by a Material, this method will simply query the filling
-Material. If the Cell is filled by a Universe, this method will consider any
-Materials filling those Cells contained by the filling Universe. This method
-should not be called prior to the calling of the
-Geometry::computeFissionability() method.  
+If the Cell is filled by a Material, this method will simply query the filling Material.
+If the Cell is filled by a Universe, this method will consider any Materials filling those
+Cells contained by the filling Universe. This method should not be called prior to the
+calling of the Geometry::computeFissionability() method.  
 
 Returns
 -------
@@ -668,8 +659,8 @@ true if contains a fissionable Material
 %feature("docstring") Cell::getMinYBoundaryType "
 getMinYBoundaryType() -> boundaryType  
 
-Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the minimum
-reachable y-coordinate in the Cell.  
+Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at the minimum reachable
+y-coordinate in the Cell.  
 
 Returns
 -------
@@ -701,9 +692,9 @@ containsCoords(LocalCoords *coords) -> bool
 
 Determines whether a Point is contained inside a Cell.  
 
-Queries each Surface inside the Cell to determine if the Point is on the same
-side of the Surface. This Point is only inside the Cell if it is on the same
-side of every Surface in the Cell.  
+Queries each Surface inside the Cell to determine if the Point is on the same side of the
+Surface. This Point is only inside the Cell if it is on the same side of every Surface in
+the Cell.  
 
 Parameters
 ----------
@@ -724,13 +715,11 @@ C++ includes: src/Cmfd.h
 %feature("docstring") Cmfd::initializeGroupMap "
 initializeGroupMap()  
 
-Initialize and set array that links the MOC energy groups to the CMFD energy
-groups.  
+Initialize and set array that links the MOC energy groups to the CMFD energy groups.  
 
 This method initializes the _group_indices_map, which is a 1D array of length
-_num_moc_groups that maps the MOC energy groups to CMFD energy groups. The
-indices into _group_indices_map are the MOC energy groups and the values are the
-CMFD energy groups.  
+_num_moc_groups that maps the MOC energy groups to CMFD energy groups. The indices into
+_group_indices_map are the MOC energy groups and the values are the CMFD energy groups.  
 ";
 
 %feature("docstring") Cmfd::getNumY "
@@ -834,8 +823,8 @@ Cmfd()
 
 Constructor initializes boundaries and variables that describe the Cmfd object.  
 
-The construcor initializes the many variables that describe the CMFD mesh and
-are used to solve the nonlinear diffusion acceleration problem.  
+The construcor initializes the many variables that describe the CMFD mesh and are used to
+solve the nonlinear diffusion acceleration problem.  
 ";
 
 %feature("docstring") Cmfd::setGeometry "
@@ -860,9 +849,9 @@ setGroupStructure(int *group_indices, int length_group_indices)
 
 Set the CMFD energy group structure.  
 
-CMFD does not necessarily need to have the same energy group structure as the
-MOC problem. This function can be used to set a sparse energy group structure to
-speed up the CMFD solve.  
+CMFD does not necessarily need to have the same energy group structure as the MOC problem.
+This function can be used to set a sparse energy group structure to speed up the CMFD
+solve.  
 
 Parameters
 ----------
@@ -908,8 +897,7 @@ Parameters
 %feature("docstring") Cmfd::getCellFSRs "
 getCellFSRs() -> std::vector< std::vector< int > > *  
 
-Return a pointer to the vector of vectors that contains the FSRs that lie in
-each cell.  
+Return a pointer to the vector of vectors that contains the FSRs that lie in each cell.  
 
 Returns
 -------
@@ -938,11 +926,11 @@ convertFSRIdToCmfdCell(int fsr_id) -> int
 
 Return the CMFD cell ID that an FSR lies in.  
 
-Note that a CMFD cell is not an actual Cell object; rather, a CMFD cell is just
-a way of describing each of the rectangular regions that make up a CMFD lattice.
-CMFD cells are numbered with 0 in the lower left corner and monotonically
-increasing from left to right and from bottom to top. For example, the indices
-for a 4 x 4 lattice are: 12 13 14 15 8 9 10 11 4 5 6 7 0 1 2 3  
+Note that a CMFD cell is not an actual Cell object; rather, a CMFD cell is just a way of
+describing each of the rectangular regions that make up a CMFD lattice. CMFD cells are
+numbered with 0 in the lower left corner and monotonically increasing from left to right
+and from bottom to top. For example, the indices for a 4 x 4 lattice are: 12 13 14 15 8 9
+10 11 4 5 6 7 0 1 2 3  
 
 Parameters
 ----------
@@ -966,11 +954,11 @@ Parameters
 ";
 
 %feature("docstring") Cmfd::tallyCurrent "
-tallyCurrent(segment *curr_segment, FP_PRECISION *track_flux, FP_PRECISION
-    *polar_weights, bool fwd)  
+tallyCurrent(segment *curr_segment, FP_PRECISION *track_flux, FP_PRECISION *polar_weights,
+    bool fwd)  
 
-Tallies the current contribution from this segment across the the appropriate
-CMFD mesh cell surface.  
+Tallies the current contribution from this segment across the the appropriate CMFD mesh
+cell surface.  
 
 Parameters
 ----------
@@ -1000,8 +988,7 @@ findCmfdSurface(int cell_id, LocalCoords *coords) -> int
 
 Find the cmfd surface that a LocalCoords object lies on.  
 
-If the coords is not on a surface, -1 is returned. Otherwise, the surface ID is
-returned.  
+If the coords is not on a surface, -1 is returned. Otherwise, the surface ID is returned.  
 
 Parameters
 ----------
@@ -1044,8 +1031,8 @@ Parameters
 %feature("docstring") Cmfd::setSORRelaxationFactor "
 setSORRelaxationFactor(FP_PRECISION SOR_factor)  
 
-Set the successive over-relaxation factor for the linear solve within the
-diffusion eigenvalue solve.  
+Set the successive over-relaxation factor for the linear solve within the diffusion
+eigenvalue solve.  
 
 Parameters
 ----------
@@ -1056,8 +1043,8 @@ Parameters
 %feature("docstring") Cmfd::initialize "
 initialize()  
 
-Initialize the Matrix and Vector objects, k-nearest stencils, the CMFD cell
-currents and MOC materials.  
+Initialize the Matrix and Vector objects, k-nearest stencils, the CMFD cell currents and
+MOC materials.  
 ";
 
 %feature("docstring") Cmfd::setKNearest "
@@ -1117,8 +1104,7 @@ A pointer to a Lattice object.
 %feature("docstring") Cmfd::addFSRToCell "
 addFSRToCell(int cell_id, int fsr_id)  
 
-Add an FSR ID to a vector that contains all the FSR IDs contained within a CMFD
-mesh cell.  
+Add an FSR ID to a vector that contains all the FSR IDs contained within a CMFD mesh cell.  
 
 Parameters
 ----------
@@ -1159,9 +1145,9 @@ updateBoundaryFlux(Track **tracks, FP_PRECISION *boundary_flux, int num_tracks)
 
 Update the MOC boundary fluxes.  
 
-The MOC boundary fluxes are updated using the P0 approximation. With this
-approximation, the boundary fluxes are updated using the ratio of new to old
-flux for the cell that the outgoing flux from the track enters.  
+The MOC boundary fluxes are updated using the P0 approximation. With this approximation,
+the boundary fluxes are updated using the ratio of new to old flux for the cell that the
+outgoing flux from the track enters.  
 
 Parameters
 ----------
@@ -1180,8 +1166,8 @@ setBoundary(int side, boundaryType boundary)
 
 Set the CMFD boundary type for a given surface.  
 
-The CMFD boundary is assumed to be rectangular with the surfaces identified by
-constants in the constants.h file.  
+The CMFD boundary is assumed to be rectangular with the surfaces identified by constants
+in the constants.h file.  
 
 Parameters
 ----------
@@ -1215,13 +1201,12 @@ Boolean saying whether to update MOC flux.
 %feature("docstring") Cmfd::computeKeff "
 computeKeff(int moc_iteration) -> FP_PRECISION  
 
-Solve the nonlinear diffusion acceleration problem to accelerate the convergence
-of the MOC problem.  
+Solve the nonlinear diffusion acceleration problem to accelerate the convergence of the
+MOC problem.  
 
-This method uses the information from the last MOC transport sweep and solves a
-simplified nonlinear diffusion problem. The diffusion problem is tightly
-converged and the solution is used to update the the solution of the MOC
-problem.  
+This method uses the information from the last MOC transport sweep and solves a simplified
+nonlinear diffusion problem. The diffusion problem is tightly converged and the solution
+is used to update the the solution of the MOC problem.  
 
 Parameters
 ----------
@@ -1238,9 +1223,9 @@ initializeCellMap()
 
 Initializes the vector of vectors that links CMFD cells with FSRs.  
 
-This method is called by the geometry once the CMFD mesh has been initialized by
-the geometry. This method allocates a vector for each CMFD cell that is used to
-store the FSR ids contained within that cell.  
+This method is called by the geometry once the CMFD mesh has been initialized by the
+geometry. This method allocates a vector for each CMFD cell that is used to store the FSR
+ids contained within that cell.  
 ";
 
 %feature("docstring") Cmfd::isCentroidUpdateOn "
@@ -1268,8 +1253,7 @@ The number of CMFD cells
 
 %feature("docstring") CPUSolver "
 
-This a subclass of the Solver class for multi-core CPUs using OpenMP multi-
-threading.  
+This a subclass of the Solver class for multi-core CPUs using OpenMP multi-threading.  
 
 C++ includes: src/CPUSolver.h
 ";
@@ -1277,9 +1261,8 @@ C++ includes: src/CPUSolver.h
 %feature("docstring") CPUSolver::~CPUSolver "
 ~CPUSolver()  
 
-Destructor deletes array for OpenMP mutual exclusion locks for FSR scalar flux
-updates, and calls Solver parent class destructor to deletes arrays for fluxes
-and sources.  
+Destructor deletes array for OpenMP mutual exclusion locks for FSR scalar flux updates,
+and calls Solver parent class destructor to deletes arrays for fluxes and sources.  
 ";
 
 %feature("docstring") CPUSolver::computeFSRScatterSources "
@@ -1295,8 +1278,7 @@ initializeFluxArrays()
 
 Allocates memory for Track boundary angular and FSR scalar fluxes.  
 
-Deletes memory for old flux arrays if they were allocated for a previous
-simulation.  
+Deletes memory for old flux arrays if they were allocated for a previous simulation.  
 ";
 
 %feature("docstring") CPUSolver::flattenFSRFluxes "
@@ -1313,21 +1295,19 @@ Parameters
 %feature("docstring") CPUSolver::transportSweep "
 transportSweep()  
 
-This method performs one transport sweep of all azimuthal angles, Tracks, Track
-segments, polar angles and energy groups.  
+This method performs one transport sweep of all azimuthal angles, Tracks, Track segments,
+polar angles and energy groups.  
 
-The method integrates the flux along each Track and updates the boundary fluxes
-for the corresponding output Track, while updating the scalar flux in each flat
-source region.  
+The method integrates the flux along each Track and updates the boundary fluxes for the
+corresponding output Track, while updating the scalar flux in each flat source region.  
 ";
 
 %feature("docstring") CPUSolver::setFluxes "
 setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)  
 
-Set the flux array for use in transport sweep source calculations.  This is a
-helper method for the checkpoint restart capabilities, as well as the IRAMSolver
-in the openmoc.krylov submodule. This routine may be used as follows from within
-Python:  
+Set the flux array for use in transport sweep source calculations.  This is a helper
+method for the checkpoint restart capabilities, as well as the IRAMSolver in the
+openmoc.krylov submodule. This routine may be used as follows from within Python:  
 
   
 
@@ -1366,8 +1346,7 @@ Populates array of fixed sources assigned by FSR.
 %feature("docstring") CPUSolver::addSourceToScalarFlux "
 addSourceToScalarFlux()  
 
-Add the source term contribution in the transport equation to the FSR scalar
-flux.  
+Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::getFluxes "
@@ -1375,10 +1354,10 @@ getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)
 
 Fills an array with the scalar fluxes.  
 
-This class method is a helper routine called by the OpenMOC Python
-\"openmoc.krylov\" module for Krylov subspace methods. Although this method
-appears to require two arguments, in reality it only requires one due to SWIG
-and would be called from within Python as follows:  
+This class method is a helper routine called by the OpenMOC Python \"openmoc.krylov\"
+module for Krylov subspace methods. Although this method appears to require two arguments,
+in reality it only requires one due to SWIG and would be called from within Python as
+follows:  
 
 
 Parameters
@@ -1392,8 +1371,8 @@ Parameters
 %feature("docstring") CPUSolver::zeroTrackFluxes "
 zeroTrackFluxes()  
 
-Zero each Track's boundary fluxes for each energy group and polar angle in the
-\"forward\" and \"reverse\" directions.  
+Zero each Track's boundary fluxes for each energy group and polar angle in the \"forward\"
+and \"reverse\" directions.  
 ";
 
 %feature("docstring") CPUSolver::CPUSolver "
@@ -1401,9 +1380,9 @@ CPUSolver(TrackGenerator *track_generator=NULL)
 
 Constructor initializes array pointers for Tracks and Materials.  
 
-The constructor retrieves the number of energy groups and FSRs and azimuthal
-angles from the Geometry and TrackGenerator if passed in as parameters by the
-user. The constructor initalizes the number of OpenMP threads to a default of 1.  
+The constructor retrieves the number of energy groups and FSRs and azimuthal angles from
+the Geometry and TrackGenerator if passed in as parameters by the user. The constructor
+initalizes the number of OpenMP threads to a default of 1.  
 
 Parameters
 ----------
@@ -1414,8 +1393,8 @@ Parameters
 %feature("docstring") CPUSolver::normalizeFluxes "
 normalizeFluxes()  
 
-Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
-fission source (times $ \\nu $).  
+Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission
+source (times $ \\nu $).  
 ";
 
 %feature("docstring") CPUSolver::setNumThreads "
@@ -1444,8 +1423,8 @@ initializeFSRs()
 
 Initializes the FSR volumes and Materials array.  
 
-This method gets an array of OpenMP mutual exclusion locks for each FSR for use
-in the transport sweep algorithm.  
+This method gets an array of OpenMP mutual exclusion locks for each FSR for use in the
+transport sweep algorithm.  
 ";
 
 %feature("docstring") CPUSolver::computeResidual "
@@ -1468,8 +1447,7 @@ initializeSourceArrays()
 
 Allocates memory for FSR source arrays.  
 
-Deletes memory for old source arrays if they were allocated for a previous
-simulation.  
+Deletes memory for old source arrays if they were allocated for a previous simulation.  
 ";
 
 %feature("docstring") CPUSolver::computeFSRSources "
@@ -1477,8 +1455,8 @@ computeFSRSources()
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
-This method computes the total source in each FSR based on this iteration's
-current approximation to the scalar flux.  
+This method computes the total source in each FSR based on this iteration's current
+approximation to the scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::storeFSRFluxes "
@@ -1490,19 +1468,18 @@ Stores the FSR scalar fluxes in the old scalar flux array.
 %feature("docstring") CPUSolver::computeFSRFissionRates "
 computeFSRFissionRates(double *fission_rates, int num_FSRs)  
 
-Computes the volume-integrated, energy-integrated nu-fission rate in each FSR
-and stores them in an array indexed by FSR ID.  
+Computes the volume-integrated, energy-integrated nu-fission rate in each FSR and stores
+them in an array indexed by FSR ID.  
 
-This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates
-as a NumPy array. An example of how this method can be called from Python is as
-follows:  
+This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
+NumPy array. An example of how this method can be called from Python is as follows:  
 
 
 Parameters
 ----------
 * fission_rates :  
-    an array to store the nu-fission rates (implicitly passed in as a NumPy
-    array from Python)  
+    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
+    Python)  
 * num_FSRs :  
     the number of FSRs passed in from Python  
 ";
@@ -1523,12 +1500,11 @@ Attributes
     An array of the total cross-sections for each energy group  
 
 * _sigma_f : FP_PRECISION *  
-    A 2D array of the scattering cross-section matrix. The first index is row
-    number and second index is column number  
+    A 2D array of the scattering cross-section matrix. The first index is row number and
+    second index is column number  
 
 * _nu_sigma_f : FP_PRECISION *  
-    An array of the fission cross-sections multiplied by nu $ \\nu $ for each
-    energy group  
+    An array of the fission cross-sections multiplied by nu $ \\nu $ for each energy group  
 
 * _chi : FP_PRECISION *  
     An array of the chi $ \\chi $ values for each energy group  
@@ -1559,8 +1535,7 @@ Destructor releases data for all Material's cross-sections on GPU.
 
 %feature("docstring") dev_segment "
 
-A dev_segment represents a line segment within a single flat source region along
-a track.  
+A dev_segment represents a line segment within a single flat source region along a track.  
 
 The dev_segment is intended for use on the GPU.  
 
@@ -1585,8 +1560,8 @@ C++ includes: DeviceTrack.h
 
 A dev_track represents a characteristic line across the geometry.  
 
-A dev_track has particular starting and ending points on the boundaries of the
-geometry and an azimuthal angle. The dev_track is intended for use on the GPU.  
+A dev_track has particular starting and ending points on the boundaries of the geometry
+and an azimuthal angle. The dev_track is intended for use on the GPU.  
 
 Attributes
 ----------
@@ -1603,30 +1578,26 @@ Attributes
     The number of segments making up this Track  
 
 * _track_in : int  
-    Index of the next Track when traveling along this Track in the \"forward\"
-    direction.  
+    Index of the next Track when traveling along this Track in the \"forward\" direction.  
 
 * _track_out : int  
-    Index of the next Track when traveling along this Track in the \"reverse\"
-    direction.  
+    Index of the next Track when traveling along this Track in the \"reverse\" direction.  
 
 * _next_in : bool  
     A boolean to indicate whether to give the flux to the \"forward\" (false) or
-    \"reverse\" (true) direction of the next Track going in the \"forward\"
-    direction.  
+    \"reverse\" (true) direction of the next Track going in the \"forward\" direction.  
 
 * _next_out : bool  
     A boolean to indicate whether to give the flux to the \"forward\" (false) or
-    \"reverse\" (true) direction of the next Track going in the \"reverse\"
-    direction.  
+    \"reverse\" (true) direction of the next Track going in the \"reverse\" direction.  
 
 * _transfer_flux_in : bool  
-    A boolean to indicate whether the outgoing angular flux along this Track's
-    \"forward\" direction should be transferred to the outgoing Track.  
+    A boolean to indicate whether the outgoing angular flux along this Track's \"forward\"
+    direction should be transferred to the outgoing Track.  
 
 * _transfer_flux_out : bool  
-    A boolean to indicate whether the outgoing angular flux along this Track's
-    \"reverse\" direction should be transferred to the incoming Track.  
+    A boolean to indicate whether the outgoing angular flux along this Track's \"reverse\"
+    direction should be transferred to the incoming Track.  
 
 C++ includes: DeviceTrack.h
 ";
@@ -1708,9 +1679,9 @@ Parameters
 
 This is a class for evaluating exponentials.  
 
-The ExpEvaluator includes different algorithms to evaluate exponentials with
-varying degrees of accuracy and speed. This is a helper class for the Solver and
-its subclasses and it not intended to be initialized as a standalone object.  
+The ExpEvaluator includes different algorithms to evaluate exponentials with varying
+degrees of accuracy and speed. This is a helper class for the Solver and its subclasses
+and it not intended to be initialized as a standalone object.  
 
 C++ includes: src/ExpEvaluator.h
 ";
@@ -1753,8 +1724,8 @@ setExpPrecision(FP_PRECISION exp_precision)
 Sets the maximum acceptable approximation error for exponentials.  
 
 This routine only affects the construction of the linear interpolation table for
-exponentials, if in use. By default, a value of 1E-5 is used for the table, as
-recommended by the analysis of Yamamoto in his 2004 paper on the subject.  
+exponentials, if in use. By default, a value of 1E-5 is used for the table, as recommended
+by the analysis of Yamamoto in his 2004 paper on the subject.  
 
 Parameters
 ----------
@@ -1818,8 +1789,7 @@ the maximum exponential approximation error
 %feature("docstring") ExpEvaluator::getMaxOpticalLength "
 getMaxOpticalLength() -> FP_PRECISION  
 
-Gets the maximum optical length covered with the exponential interpolation
-table.  
+Gets the maximum optical length covered with the exponential interpolation table.  
 
 Returns
 -------
@@ -1831,8 +1801,7 @@ ExpEvaluator()
 
 Constructor initializes array pointers to NULL.  
 
-The constructor sets the interpolation scheme as the default for computing
-exponentials.  
+The constructor sets the interpolation scheme as the default for computing exponentials.  
 ";
 
 %feature("docstring") ExpEvaluator::computeExponential "
@@ -1840,9 +1809,9 @@ computeExponential(FP_PRECISION tau, int polar) -> FP_PRECISION
 
 Computes the exponential term for a optical length and polar angle.  
 
-This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path
-length and polar angle. This method uses either a linear interpolation table
-(default) or the exponential intrinsic exp(...) function.  
+This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path length and
+polar angle. This method uses either a linear interpolation table (default) or the
+exponential intrinsic exp(...) function.  
 
 Parameters
 ----------
@@ -1880,13 +1849,12 @@ Destructor deletes table for linear interpolation of exponentials.
 
 A fixed-size hash map supporting insertion and lookup operations.  
 
-The FixedHashMap class supports insertion and lookup operations but not deletion
-as deletion is not needed in the OpenMOC application. This hash table uses
-chaining for collisions and does not incorporate concurrency objects except for
-tracking the number of entries in the table for which an atomic increment is
-used. This hash table is not thread safe but is used as a building block for the
-ParallelHashMap class. This table guarantees O(1) insertions and lookups on
-average.  
+The FixedHashMap class supports insertion and lookup operations but not deletion as
+deletion is not needed in the OpenMOC application. This hash table uses chaining for
+collisions and does not incorporate concurrency objects except for tracking the number of
+entries in the table for which an atomic increment is used. This hash table is not thread
+safe but is used as a building block for the ParallelHashMap class. This table guarantees
+O(1) insertions and lookups on average.  
 
 C++ includes: src/ParallelHashMap.h
 ";
@@ -1902,14 +1870,13 @@ keys() -> K *
 
 Returns an array of the keys in the fixed-size table.  
 
-All buckets are scanned in order to form a list of all keys present in the table
-and then the list is returned. WARNING: The user is responsible for freeing the
-allocated memory once the array is no longer needed.  
+All buckets are scanned in order to form a list of all keys present in the table and then
+the list is returned. WARNING: The user is responsible for freeing the allocated memory
+once the array is no longer needed.  
 
 Returns
 -------
-an array of keys in the map whose length is the number of key/value pairs in the
-table.  
+an array of keys in the map whose length is the number of key/value pairs in the table.  
 ";
 
 %feature("docstring") FixedHashMap::bucket_count "
@@ -1927,14 +1894,13 @@ values() -> V *
 
 Returns an array of the values in the fixed-size table.  
 
-All buckets are scanned in order to form a list of all values present in the
-table and then the list is returned. WARNING: The user is responsible for
-freeing the allocated memory once the array is no longer needed.  
+All buckets are scanned in order to form a list of all values present in the table and
+then the list is returned. WARNING: The user is responsible for freeing the allocated
+memory once the array is no longer needed.  
 
 Returns
 -------
-an array of values in the map whose length is the number of key/value pairs in
-the table.  
+an array of values in the map whose length is the number of key/value pairs in the table.  
 ";
 
 %feature("docstring") FixedHashMap::at "
@@ -1942,9 +1908,9 @@ at(K key) -> V &
 
 Determine the value associated with a given key in the fixed-size table.  
 
-The linked list in the bucket associated with the key is searched and once the
-key is found, the corresponding value is returned. An exception is thrown if the
-key is not present in the map.  
+The linked list in the bucket associated with the key is searched and once the key is
+found, the corresponding value is returned. An exception is thrown if the key is not
+present in the map.  
 
 Parameters
 ----------
@@ -1969,12 +1935,11 @@ number of key/value pairs in the map
 %feature("docstring") FixedHashMap::insert_and_get_count "
 insert_and_get_count(K key, V value) -> int  
 
-Inserts a key/value pair into the fixed-size table and returns the order number
-with which it was inserted.  
+Inserts a key/value pair into the fixed-size table and returns the order number with which
+it was inserted.  
 
-The specified key value pair is inserted into the fixed-size table. If the key
-already exists in the table, the pair is not inserted and the function returns
--1.  
+The specified key value pair is inserted into the fixed-size table. If the key already
+exists in the table, the pair is not inserted and the function returns -1.  
 
 Parameters
 ----------
@@ -1985,8 +1950,8 @@ Parameters
 
 Returns
 -------
-order number in which key/value pair was inserted, -1 is returned if key was
-already present in map.  
+order number in which key/value pair was inserted, -1 is returned if key was already
+present in map.  
 ";
 
 %feature("docstring") FixedHashMap::insert "
@@ -1994,8 +1959,8 @@ insert(K key, V value)
 
 Inserts a key/value pair into the fixed-size table.  
 
-The specified key value pair is inserted into the fixed-size table. If the key
-already exists in the table, the pair is not inserted and the function returns.  
+The specified key value pair is inserted into the fixed-size table. If the key already
+exists in the table, the pair is not inserted and the function returns.  
 
 Parameters
 ----------
@@ -2008,8 +1973,8 @@ Parameters
 %feature("docstring") FixedHashMap::~FixedHashMap "
 ~FixedHashMap()  
 
-Destructor deletes all nodes in the linked lists associated with each bucket in
-the fixed-size table and their pointers.  
+Destructor deletes all nodes in the linked lists associated with each bucket in the fixed-
+size table and their pointers.  
 ";
 
 %feature("docstring") FixedHashMap::print_buckets "
@@ -2017,9 +1982,9 @@ print_buckets()
 
 Prints the contents of each bucket to the screen.  
 
-All buckets are scanned and the contents of the buckets are printed, which are
-pointers to linked lists. If the pointer is NULL suggesting that the linked list
-is empty, NULL is printed to the screen.  
+All buckets are scanned and the contents of the buckets are printed, which are pointers to
+linked lists. If the pointer is NULL suggesting that the linked list is empty, NULL is
+printed to the screen.  
 ";
 
 %feature("docstring") FixedHashMap::contains "
@@ -2027,8 +1992,8 @@ contains(K key) -> bool
 
 Determine whether the fixed-size table contains a given key.  
 
-The linked list in the bucket associated with the key is searched to determine
-whether the key is present.  
+The linked list in the bucket associated with the key is searched to determine whether the
+key is present.  
 
 Parameters
 ----------
@@ -2043,12 +2008,11 @@ boolean value referring to whether the key is contained in the map
 %feature("docstring") FixedHashMap::FixedHashMap "
 FixedHashMap(size_t M=64)  
 
-Constructor initializes fixed-size table of buckets filled with empty linked
-lists.  
+Constructor initializes fixed-size table of buckets filled with empty linked lists.  
 
-The constructor initializes a fixed-size hash map with the size as an input
-parameter. If no size is given the default size (64) is used. Buckets are filled
-with empty linked lists presented as NULL pointers.  
+The constructor initializes a fixed-size hash map with the size as an input parameter. If
+no size is given the default size (64) is used. Buckets are filled with empty linked lists
+presented as NULL pointers.  
 
 Parameters
 ----------
@@ -2061,9 +2025,9 @@ Parameters
 
 %feature("docstring") fsr_data "
 
-A fsr_data struct represents an FSR with a unique FSR ID and a characteristic
-point that lies within the FSR that can be used to recompute the hierarchical
-LocalCoords linked list.  
+A fsr_data struct represents an FSR with a unique FSR ID and a characteristic point that
+lies within the FSR that can be used to recompute the hierarchical LocalCoords linked
+list.  
 
 Attributes
 ----------
@@ -2102,12 +2066,12 @@ Constructor for FSR data initializes centroids and points to NULL
 
 %feature("docstring") Geometry "
 
-The master class containing references to all geometry-related objects -
-Surfaces, Cells, Universes and Lattices - and Materials.  
+The master class containing references to all geometry-related objects - Surfaces, Cells,
+Universes and Lattices - and Materials.  
 
-The primary purpose for the geometry is to serve as a collection of all
-geometry-related objects, as well as for ray tracing of characteristic tracks
-across the Geometry and computing FSR-to-cell offset maps.  
+The primary purpose for the geometry is to serve as a collection of all geometry-related
+objects, as well as for ray tracing of characteristic tracks across the Geometry and
+computing FSR-to-cell offset maps.  
 
 C++ includes: src/Geometry.h
 ";
@@ -2115,8 +2079,7 @@ C++ includes: src/Geometry.h
 %feature("docstring") Geometry::getAllUniverses "
 getAllUniverses() -> std::map< int, Universe * >  
 
-Return a std::map container of Universe IDs (keys) with Unierses pointers
-(values).  
+Return a std::map container of Universe IDs (keys) with Unierses pointers (values).  
 
 Returns
 -------
@@ -2126,11 +2089,11 @@ a std::map of Universes indexed by Universe ID in the geometry
 %feature("docstring") Geometry::initializeFSRVectors "
 initializeFSRVectors()  
 
-Initialize key and material ID vectors for lookup by FSR ID  This function
-initializes and sets reverse lookup vectors by FSR ID. This is called after the
-FSRs have all been identified and allocated during segmentation. This function
-must be called after Geometry::segmentize() has completed. It should not be
-called if tracks are loaded from a file.  
+Initialize key and material ID vectors for lookup by FSR ID  This function initializes and
+sets reverse lookup vectors by FSR ID. This is called after the FSRs have all been
+identified and allocated during segmentation. This function must be called after
+Geometry::segmentize() has completed. It should not be called if tracks are loaded from a
+file.  
 ";
 
 %feature("docstring") Geometry::findCellContainingFSR "
@@ -2189,21 +2152,20 @@ initializeFSRs(bool neighbor_cells=false)
 
 Compute the number of flat source regions in the Geometry and initialize CMFD.  
 
-This method is intended to be called by the user before initiating source
-iteration. This method first subdivides all Cells by calling the
-Geometry::subdivideCells() method. Then it initializes the CMFD object.
-neighbor_cells whether to use neighbor cell optimizations  
+This method is intended to be called by the user before initiating source iteration. This
+method first subdivides all Cells by calling the Geometry::subdivideCells() method. Then
+it initializes the CMFD object. neighbor_cells whether to use neighbor cell optimizations  
 ";
 
 %feature("docstring") Geometry::segmentize "
 segmentize(Track *track)  
 
-This method performs ray tracing to create Track segments within each flat
-source region in the Geometry.  
+This method performs ray tracing to create Track segments within each flat source region
+in the Geometry.  
 
-This method starts at the beginning of a Track and finds successive intersection
-points with FSRs as the Track crosses through the Geometry and creates segment
-structs and adds them to the Track.  
+This method starts at the beginning of a Track and finds successive intersection points
+with FSRs as the Track crosses through the Geometry and creates segment structs and adds
+them to the Track.  
 
 Parameters
 ----------
@@ -2235,8 +2197,7 @@ Parameters
 %feature("docstring") Geometry::getFSRId "
 getFSRId(LocalCoords *coords) -> int  
 
-Return the ID of the flat source region that a given LocalCoords object resides
-within.  
+Return the ID of the flat source region that a given LocalCoords object resides within.  
 
 Parameters
 ----------
@@ -2306,8 +2267,8 @@ the minimum z-coordinate (cm)
 %feature("docstring") Geometry::getMaxYBoundaryType "
 getMaxYBoundaryType() -> boundaryType  
 
-Returns the boundary conditions (REFLECTIVE or VACUUM) at the maximum
-y-coordinate in the Geometry.  
+Returns the boundary conditions (REFLECTIVE or VACUUM) at the maximum y-coordinate in the
+Geometry.  
 
 Returns
 -------
@@ -2340,10 +2301,10 @@ getFSRKey(LocalCoords *coords) -> std::string
 Generate a string FSR \"key\" that identifies an FSR by its unique hierarchical
 lattice/universe/cell structure.  
 
-Since not all FSRs will reside on the absolute lowest universe level and Cells
-might overlap other cells, it is important to have a method for uniquely
-identifying FSRs. This method creates a unique FSR key by constructing a
-structured string that describes the hierarchy of lattices/universes/cells.  
+Since not all FSRs will reside on the absolute lowest universe level and Cells might
+overlap other cells, it is important to have a method for uniquely identifying FSRs. This
+method creates a unique FSR key by constructing a structured string that describes the
+hierarchy of lattices/universes/cells.  
 
 Parameters
 ----------
@@ -2358,11 +2319,11 @@ the FSR key
 %feature("docstring") Geometry::subdivideCells "
 subdivideCells()  
 
-Subdivides all Cells in the Geometry into rings and angular sectors aligned with
-the z-axis.  
+Subdivides all Cells in the Geometry into rings and angular sectors aligned with the
+z-axis.  
 
-This method is called by the Geometry::initializeFSRs() method but may also be
-called by the user in Python if needed:  
+This method is called by the Geometry::initializeFSRs() method but may also be called by
+the user in Python if needed:  
 
   
 ";
@@ -2393,11 +2354,11 @@ computeFissionability(Universe *univ=NULL)
 
 Determines the fissionability of each Universe within this Geometry.  
 
-A Universe is determined fissionable if it contains a Cell filled by a Material
-with a non-zero fission cross-section. Note that this method recurses through
-all Universes at each level in the nested Universe hierarchy. Users should only
-call this method without a parameter (the default) from Python as follows to
-ensure that the recursion starts from the uppermost Universe level:  
+A Universe is determined fissionable if it contains a Cell filled by a Material with a
+non-zero fission cross-section. Note that this method recurses through all Universes at
+each level in the nested Universe hierarchy. Users should only call this method without a
+parameter (the default) from Python as follows to ensure that the recursion starts from
+the uppermost Universe level:  
 
 
 Parameters
@@ -2425,18 +2386,17 @@ Constructor initializes an empty Geometry.
 %feature("docstring") Geometry::findCellContainingCoords "
 findCellContainingCoords(LocalCoords *coords) -> Cell *  
 
-Find the Cell that this LocalCoords object is in at the lowest level of the
-nested Universe hierarchy.  
+Find the Cell that this LocalCoords object is in at the lowest level of the nested
+Universe hierarchy.  
 
-This method assumes that the LocalCoords has been initialized with coordinates
-and a Universe ID. The method will recursively find the Cell on the lowest level
-of the nested Universe hierarchy by building a linked list of LocalCoords from
-the LocalCoord passed in as an argument down to the lowest level Cell found. In
-the process it will set the coordinates at each level of the hierarchy for each
-LocalCoord in the linked list for the Lattice or Universe that it is in. If the
-LocalCoords is outside the bounds of the Geometry or on the boundaries this
-method will return NULL; otherwise it will return a pointer to the Cell that is
-found by the recursive Geometry::findCell(...) method.  
+This method assumes that the LocalCoords has been initialized with coordinates and a
+Universe ID. The method will recursively find the Cell on the lowest level of the nested
+Universe hierarchy by building a linked list of LocalCoords from the LocalCoord passed in
+as an argument down to the lowest level Cell found. In the process it will set the
+coordinates at each level of the hierarchy for each LocalCoord in the linked list for the
+Lattice or Universe that it is in. If the LocalCoords is outside the bounds of the
+Geometry or on the boundaries this method will return NULL; otherwise it will return a
+pointer to the Cell that is found by the recursive Geometry::findCell(...) method.  
 
 Parameters
 ----------
@@ -2496,11 +2456,10 @@ a pointer to the Material that this FSR is in
 %feature("docstring") Geometry::printString "
 printString()  
 
-Prints a string representation of all of the Geometry's attributes to the
-console.  
+Prints a string representation of all of the Geometry's attributes to the console.  
 
-This method calls the printString() method for all Materials, Surfaces, Cell,
-Universes and Lattices contained by the Geometry.  
+This method calls the printString() method for all Materials, Surfaces, Cell, Universes
+and Lattices contained by the Geometry.  
 ";
 
 %feature("docstring") Geometry::getNumFSRs "
@@ -2516,8 +2475,8 @@ number of FSRs
 %feature("docstring") Geometry::findFSRId "
 findFSRId(LocalCoords *coords) -> int  
 
-Find and return the ID of the flat source region that a given LocalCoords object
-resides within.  
+Find and return the ID of the flat source region that a given LocalCoords object resides
+within.  
 
 Parameters
 ----------
@@ -2557,8 +2516,8 @@ boolean indicating whether the coords is within the geometry
 %feature("docstring") Geometry::getMaxXBoundaryType "
 getMaxXBoundaryType() -> boundaryType  
 
-Returns the boundary conditions (REFLECTIVE or VACUUM) at the maximum
-x-coordinate in the Geometry.  
+Returns the boundary conditions (REFLECTIVE or VACUUM) at the maximum x-coordinate in the
+Geometry.  
 
 Returns
 -------
@@ -2568,8 +2527,8 @@ the boundary conditions for the maximum z-coordinate in the Geometry
 %feature("docstring") Geometry::getMinYBoundaryType "
 getMinYBoundaryType() -> boundaryType  
 
-Returns the boundary conditions (REFLECTIVE or VACUUM) at the minimum
-y-coordinate in the Geometry.  
+Returns the boundary conditions (REFLECTIVE or VACUUM) at the minimum y-coordinate in the
+Geometry.  
 
 Returns
 -------
@@ -2579,8 +2538,7 @@ the boundary conditions for the minimum y-coordinate in the Geometry
 %feature("docstring") Geometry::getAllMaterials "
 getAllMaterials() -> std::map< int, Material * >  
 
-Return a std::map container of Material IDs (keys) with Materials pointers
-(values).  
+Return a std::map container of Material IDs (keys) with Materials pointers (values).  
 
 Returns
 -------
@@ -2590,8 +2548,7 @@ a std::map of Materials indexed by Material ID in the geometry
 %feature("docstring") Geometry::getAllSurfaces "
 getAllSurfaces() -> std::map< int, Surface * >  
 
-Return a std::map container of Surface IDs (keys) with Surfaces pointers
-(values).  
+Return a std::map container of Surface IDs (keys) with Surfaces pointers (values).  
 
 Returns
 -------
@@ -2601,8 +2558,8 @@ a std::map of Surfaces indexed by Surface ID in the geometry
 %feature("docstring") Geometry::getMinXBoundaryType "
 getMinXBoundaryType() -> boundaryType  
 
-Returns the boundary conditions (REFLECTIVE or VACUUM) at the minimum
-x-coordinate in the Geometry.  
+Returns the boundary conditions (REFLECTIVE or VACUUM) at the minimum x-coordinate in the
+Geometry.  
 
 Returns
 -------
@@ -2635,10 +2592,10 @@ toString() -> std::string
 
 Converts this Geometry's attributes to a character array.  
 
-This method calls the toString() method for all Surfaces, Cells, Universes and
-Lattices contained by the Geometry. Since this routine provides the metadata
-used by the TrackGenerator to discriminate between geometries when exporting /
-importing binary track files.  
+This method calls the toString() method for all Surfaces, Cells, Universes and Lattices
+contained by the Geometry. Since this routine provides the metadata used by the
+TrackGenerator to discriminate between geometries when exporting / importing binary track
+files.  
 
 Returns
 -------
@@ -2666,13 +2623,12 @@ setFSRCentroid(int fsr, Point *centroid)
 
 Sets the centroid for an FSR.  
 
-The _FSR_keys_map stores a hash of a std::string representing the
-Lattice/Cell/Universe hierarchy for a unique region and the associated FSR data.
-_centroid is a point that represents the numerical centroid of an FSR computed
-using all segments contained in the FSR. This method is used by the
-TrackGenerator to set the centroid after segments have been created. It is
-important to note that this method is a helper function for the TrackGenerator
-and should not be explicitly called by the user.  
+The _FSR_keys_map stores a hash of a std::string representing the Lattice/Cell/Universe
+hierarchy for a unique region and the associated FSR data. _centroid is a point that
+represents the numerical centroid of an FSR computed using all segments contained in the
+FSR. This method is used by the TrackGenerator to set the centroid after segments have
+been created. It is important to note that this method is a helper function for the
+TrackGenerator and should not be explicitly called by the user.  
 
 Parameters
 ----------
@@ -2720,8 +2676,8 @@ initialize()
 
 Routine to initialize the polar quadrature.  
 
-This routine uses the tabulated values for the Gauss-Legendre polar angle
-quadrature, including the sine thetas and weights.  
+This routine uses the tabulated values for the Gauss-Legendre polar angle quadrature,
+including the sine thetas and weights.  
 ";
 
 // File: classGPUExpEvaluator.xml
@@ -2731,9 +2687,9 @@ quadrature, including the sine thetas and weights.
 
 This is a class for evaluating exponentials on GPUs.  
 
-The ExpEvaluator includes different algorithms to evaluate exponentials with
-varying degrees of accuracy and speed. This is a helper class for the Solver and
-its subclasses and it not intended to be initialized as a standalone object.  
+The ExpEvaluator includes different algorithms to evaluate exponentials with varying
+degrees of accuracy and speed. This is a helper class for the Solver and its subclasses
+and it not intended to be initialized as a standalone object.  
 
 Attributes
 ----------
@@ -2748,9 +2704,9 @@ computeExponential(FP_PRECISION tau, int polar) -> __device__ FP_PRECISION
 
 Computes the exponential term for a optical length and polar angle.  
 
-This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path
-length and polar angle. This method uses either a linear interpolation table
-(default) or the exponential intrinsic exp(...) function.  
+This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path length and
+polar angle. This method uses either a linear interpolation table (default) or the
+exponential intrinsic exp(...) function.  
 
 Parameters
 ----------
@@ -2771,8 +2727,8 @@ the evaluated exponential
 
 This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs).  
 
-The source code for this class includes C++ coupled with compute intensive CUDA
-kernels for execution on the GPU.  
+The source code for this class includes C++ coupled with compute intensive CUDA kernels
+for execution on the GPU.  
 
 C++ includes: openmoc/src/dev/gpu/GPUSolver.h
 ";
@@ -2782,23 +2738,23 @@ initializeFSRs()
 
 Initializes the FSR volumes and dev_materials array on the GPU.  
 
-This method assigns each FSR a unique, monotonically increasing ID, sets the
-Material for each FSR, and assigns a volume based on the cumulative length of
-all of the segments inside the FSR.  
+This method assigns each FSR a unique, monotonically increasing ID, sets the Material for
+each FSR, and assigns a volume based on the cumulative length of all of the segments
+inside the FSR.  
 ";
 
 %feature("docstring") GPUSolver::zeroTrackFluxes "
 zeroTrackFluxes()  
 
-Zero each Track's boundary fluxes for each energy group and polar angle in the
-\"forward\" and \"reverse\" directions.  
+Zero each Track's boundary fluxes for each energy group and polar angle in the \"forward\"
+and \"reverse\" directions.  
 ";
 
 %feature("docstring") GPUSolver::normalizeFluxes "
 normalizeFluxes()  
 
-Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
-fission source (times $ \\nu $).  
+Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission
+source (times $ \\nu $).  
 
 Create Thrust vector of fission sources in each FSR  
 ";
@@ -2848,8 +2804,8 @@ Creates a polar quadrature object for the GPUSolver on the GPU.
 %feature("docstring") GPUSolver::~GPUSolver "
 ~GPUSolver()  
 
-Solver destructor frees all memory on the device, including arrays for the FSR
-scalar fluxes and sources and Track boundary fluxes.  
+Solver destructor frees all memory on the device, including arrays for the FSR scalar
+fluxes and sources and Track boundary fluxes.  
 ";
 
 %feature("docstring") GPUSolver::setNumThreadBlocks "
@@ -2876,8 +2832,7 @@ the number of thread blocks
 %feature("docstring") GPUSolver::addSourceToScalarFlux "
 addSourceToScalarFlux()  
 
-Add the source term contribution in the transport equation to the FSR scalar
-flux.  
+Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") GPUSolver::initializeTracks "
@@ -2916,11 +2871,11 @@ initializeMaterials(solverMode mode=ADJOINT)
 
 Allocates all Materials data on the GPU.  
 
-This method loops over the materials in the host_materials map. Since CUDA does
-not support std::map data types on the device, the materials map must be
-converted to an array and a map created that maps a material ID to an indice in
-the new materials array. In initializeTracks, this map is used to convert the
-Material ID associated with every segment to an index in the materials array.  
+This method loops over the materials in the host_materials map. Since CUDA does not
+support std::map data types on the device, the materials map must be converted to an array
+and a map created that maps a material ID to an indice in the new materials array. In
+initializeTracks, this map is used to convert the Material ID associated with every
+segment to an index in the materials array.  
 
 Parameters
 ----------
@@ -2933,8 +2888,8 @@ GPUSolver(TrackGenerator *track_generator=NULL)
 
 Constructor initializes arrays for dev_tracks and dev_materials..  
 
-The constructor initalizes the number of CUDA threads and thread blocks each to
-a default of 64.  
+The constructor initalizes the number of CUDA threads and thread blocks each to a default
+of 64.  
 
 Parameters
 ----------
@@ -2964,8 +2919,8 @@ computeFSRFissionSources()
 
 Computes the fission source in each FSR.  
 
-This method computes the fission source in each FSR based on this iteration's
-current approximation to the scalar flux.  
+This method computes the fission source in each FSR based on this iteration's current
+approximation to the scalar flux.  
 ";
 
 %feature("docstring") GPUSolver::computeKeff "
@@ -2973,22 +2928,21 @@ computeKeff()
 
 Compute $ k_{eff} $ from successive fission sources.  
 
-This method computes the current approximation to the multiplication factor on
-this iteration as follows: $ k_{eff} = \\frac{\\displaystyle\\sum_{i \\in I}
-\\displaystyle\\sum_{g \\in G} \\nu \\Sigma^F_g \\Phi V_{i}}
-{\\displaystyle\\sum_{i \\in I} \\displaystyle\\sum_{g \\in G} (\\Sigma^T_g
-\\Phi V_{i} - \\Sigma^S_g \\Phi V_{i} - L_{i,g})} $  
+This method computes the current approximation to the multiplication factor on this
+iteration as follows: $ k_{eff} = \\frac{\\displaystyle\\sum_{i \\in I}
+\\displaystyle\\sum_{g \\in G} \\nu \\Sigma^F_g \\Phi V_{i}} {\\displaystyle\\sum_{i \\in
+I} \\displaystyle\\sum_{g \\in G} (\\Sigma^T_g \\Phi V_{i} - \\Sigma^S_g \\Phi V_{i} -
+L_{i,g})} $  
 ";
 
 %feature("docstring") GPUSolver::transportSweep "
 transportSweep()  
 
-This method performs one transport sweep of all azimuthal angles, Tracks, Track
-segments, polar angles and energy groups.  
+This method performs one transport sweep of all azimuthal angles, Tracks, Track segments,
+polar angles and energy groups.  
 
-The method integrates the flux along each Track and updates the boundary fluxes
-for the corresponding output Track, while updating the scalar flux in each flat
-source region.  
+The method integrates the flux along each Track and updates the boundary fluxes for the
+corresponding output Track, while updating the scalar flux in each flat source region.  
 ";
 
 %feature("docstring") GPUSolver::computeFSRSources "
@@ -2996,8 +2950,8 @@ computeFSRSources()
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
-This method computes the total source in each FSR based on this iteration's
-current approximation to the scalar flux.  
+This method computes the total source in each FSR based on this iteration's current
+approximation to the scalar flux.  
 ";
 
 %feature("docstring") GPUSolver::initializeFixedSources "
@@ -3017,8 +2971,8 @@ computeFSRScatterSources()
 
 Computes the scatter source in each FSR.  
 
-This method computes the scatter source in each FSR based on this iteration's
-current approximation to the scalar flux.  
+This method computes the scatter source in each FSR based on this iteration's current
+approximation to the scalar flux.  
 ";
 
 %feature("docstring") GPUSolver::initializeFluxArrays "
@@ -3026,8 +2980,7 @@ initializeFluxArrays()
 
 Allocates memory for Track boundary angular and FSR scalar fluxes.  
 
-Deletes memory for old flux vectors if they were allocated for a previous
-simulation.  
+Deletes memory for old flux vectors if they were allocated for a previous simulation.  
 ";
 
 %feature("docstring") GPUSolver::setGeometry "
@@ -3035,8 +2988,8 @@ setGeometry(Geometry *geometry)
 
 Sets the Geometry for the Solver.  
 
-This is a private setter method for the Solver and is not intended to be called
-by the user.  
+This is a private setter method for the Solver and is not intended to be called by the
+user.  
 
 Parameters
 ----------
@@ -3049,10 +3002,10 @@ getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)
 
 Fills an array with the scalar fluxes on the GPU.  
 
-This class method is a helper routine called by the OpenMOC Python
-\"openmoc.krylov\" module for Krylov subspace methods. Although this method
-appears to require two arguments, in reality it only requires one due to SWIG
-and would be called from within Python as follows:  
+This class method is a helper routine called by the OpenMOC Python \"openmoc.krylov\"
+module for Krylov subspace methods. Although this method appears to require two arguments,
+in reality it only requires one due to SWIG and would be called from within Python as
+follows:  
 
 
 Parameters
@@ -3066,10 +3019,9 @@ Parameters
 %feature("docstring") GPUSolver::setFluxes "
 setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)  
 
-Set the flux array for use in transport sweep source calculations.  This is a
-helper method for the checkpoint restart capabilities, as well as the IRAMSolver
-in the openmoc.krylov submodule. This routine may be used as follows from within
-Python:  
+Set the flux array for use in transport sweep source calculations.  This is a helper
+method for the checkpoint restart capabilities, as well as the IRAMSolver in the
+openmoc.krylov submodule. This routine may be used as follows from within Python:  
 
   
 
@@ -3099,19 +3051,18 @@ Parameters
 %feature("docstring") GPUSolver::computeFSRFissionRates "
 computeFSRFissionRates(double *fission_rates, int num_FSRs)  
 
-Computes the volume-averaged, energy-integrated nu-fission rate in each FSR and
-stores them in an array indexed by FSR ID.  
+Computes the volume-averaged, energy-integrated nu-fission rate in each FSR and stores
+them in an array indexed by FSR ID.  
 
-This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates
-as a NumPy array. An example of how this method can be called from Python is as
-follows:  
+This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
+NumPy array. An example of how this method can be called from Python is as follows:  
 
 
 Parameters
 ----------
 * fission_rates :  
-    an array to store the nu-fission rates (implicitly passed in as a NumPy
-    array from Python)  
+    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
+    Python)  
 * num_FSRs :  
     the number of FSRs passed in from Python  
 ";
@@ -3121,8 +3072,7 @@ initializeSourceArrays()
 
 Allocates memory for FSR source vectors on the GPU.  
 
-Deletes memory for old source vectors if they were allocated for a previous
-simulation.  
+Deletes memory for old source vectors if they were allocated for a previous simulation.  
 ";
 
 %feature("docstring") GPUSolver::setTrackGenerator "
@@ -3130,9 +3080,9 @@ setTrackGenerator(TrackGenerator *track_generator)
 
 Sets the Solver's TrackGenerator with characteristic Tracks.  
 
-The TrackGenerator must already have generated Tracks and have used ray tracing
-to segmentize them across the Geometry. This should be initated in Python prior
-to assigning the TrackGenerator to the Solver:  
+The TrackGenerator must already have generated Tracks and have used ray tracing to
+segmentize them across the Geometry. This should be initated in Python prior to assigning
+the TrackGenerator to the Solver:  
 
 
 Parameters
@@ -3189,15 +3139,14 @@ true if the Point is in the bounds, false if not
 %feature("docstring") Lattice::printString "
 printString()  
 
-Prints a string representation of all of the Lattice's attributes to the
-console.  
+Prints a string representation of all of the Lattice's attributes to the console.  
 ";
 
 %feature("docstring") Lattice::subdivideCells "
 subdivideCells(double max_radius=INFINITY)  
 
-Subdivides all of the Material-filled Cells within this Lattice into rings and
-angular sectors aligned with the z-axis.  
+Subdivides all of the Material-filled Cells within this Lattice into rings and angular
+sectors aligned with the z-axis.  
 
 Parameters
 ----------
@@ -3206,8 +3155,8 @@ Parameters
 ";
 
 %feature("docstring") Lattice::getUniverses "
-getUniverses() -> std::vector< std::vector< std::vector< std::pair< int,
-    Universe * > > > > *  
+getUniverses() -> std::vector< std::vector< std::vector< std::pair< int, Universe * > > >
+    > *  
 
 Return a 3D vector of the Universes in the Lattice.  
 
@@ -3251,8 +3200,8 @@ minSurfaceDist(LocalCoords *coords) -> double
 
 Finds the distance to the nearest surface.  
 
-Knowing that a Lattice must be cartesian, this function computes the distance to
-the nearest boundary between lattice cells in the direction of the track.  
+Knowing that a Lattice must be cartesian, this function computes the distance to the
+nearest boundary between lattice cells in the direction of the track.  
 
 Parameters
 ----------
@@ -3269,9 +3218,8 @@ findCell(LocalCoords *coords) -> Cell *
 
 Finds the Cell within this Lattice that a LocalCoords is in.  
 
-This method first find the Lattice cell, then searches the Universe inside that
-Lattice cell. If LocalCoords is outside the bounds of the Lattice, this method
-will return NULL.  
+This method first find the Lattice cell, then searches the Universe inside that Lattice
+cell. If LocalCoords is outside the bounds of the Lattice, this method will return NULL.  
 
 Parameters
 ----------
@@ -3318,9 +3266,9 @@ setUniverses(int num_z, int num_y, int num_x, Universe **universes)
 
 Sets the array of Universe pointers filling each Lattice cell.  
 
-This is a helper method for SWIG to allow users to assign Universes to a Lattice
-using a 3D Python list (list of lists of lists). An example how this method can
-be called from Python is as follows:  
+This is a helper method for SWIG to allow users to assign Universes to a Lattice using a
+3D Python list (list of lists of lists). An example how this method can be called from
+Python is as follows:  
 
 
 Parameters
@@ -3368,8 +3316,8 @@ pointer to a Universe filling the Lattice cell
 %feature("docstring") Lattice::buildNeighbors "
 buildNeighbors()  
 
-Builds collections of neighboring Cells for all Cells in each Universe in the
-Lattice for optimized ray tracing.  
+Builds collections of neighboring Cells for all Cells in each Universe in the Lattice for
+optimized ray tracing.  
 ";
 
 %feature("docstring") Lattice::Lattice "
@@ -3438,11 +3386,10 @@ setOffset(double x, double y, double z)
 
 Set the offset in global coordinates for this Lattice.  
 
-A lattice is assumed to be a rectilinear grid with the center/origin of the grid
-located in the center of the Lattice's parent universe. The offset represents
-the offset of the lattice center/origin with respect to the center of the parent
-universe. Therefore an offset of (-1,2) would move the center/origin of the
-lattice to the left 1 cm and up 2 cm.  
+A lattice is assumed to be a rectilinear grid with the center/origin of the grid located
+in the center of the Lattice's parent universe. The offset represents the offset of the
+lattice center/origin with respect to the center of the parent universe. Therefore an
+offset of (-1,2) would move the center/origin of the lattice to the left 1 cm and up 2 cm.  
 
 Parameters
 ----------
@@ -3514,8 +3461,8 @@ the offset of the Cell
 ";
 
 %feature("docstring") Lattice::setWidth "
-setWidth(double width_x, double width_y, double width_z=std::numeric_limits<
-    double >::infinity())  
+setWidth(double width_x, double width_y, double width_z=std::numeric_limits< double
+    >::infinity())  
 
 Set the width of each Lattice cell.  
 
@@ -3532,11 +3479,11 @@ Parameters
 %feature("docstring") Lattice::getUniqueUniverses "
 getUniqueUniverses() -> std::map< int, Universe * >  
 
-Aggregates a list (vector) of the IDs of all Universes within the FILL type
-Cells filling this Universe.  
+Aggregates a list (vector) of the IDs of all Universes within the FILL type Cells filling
+this Universe.  
 
-Note that this method only searches the first level of Cells below this Universe
-within the nested Universe coordinate system.  
+Note that this method only searches the first level of Cells below this Universe within
+the nested Universe coordinate system.  
 
 Returns
 -------
@@ -3546,12 +3493,12 @@ a vector of Universe IDs
 %feature("docstring") Lattice::getLatticeSurface "
 getLatticeSurface(int cell, Point *point) -> int  
 
-Finds the Lattice cell surface that a point lies on. If the point is not on a
-surface, -1 is returned.  
+Finds the Lattice cell surface that a point lies on. If the point is not on a surface, -1
+is returned.  
 
-The surface indices are defined in constants.h as they need to be consistent
-with the surface constant definitions used in Cmfd. The index returned takes
-into account the cell index and returns NUM_SURFACES*cell_index + surface_index.  
+The surface indices are defined in constants.h as they need to be consistent with the
+surface constant definitions used in Cmfd. The index returned takes into account the cell
+index and returns NUM_SURFACES*cell_index + surface_index.  
 
 Parameters
 ----------
@@ -3568,8 +3515,8 @@ the Lattice surface index.
 %feature("docstring") Lattice::getAllUniverses "
 getAllUniverses() -> std::map< int, Universe * >  
 
-Returns the std::map of all nested Universe IDs and Universe pointers filling
-this Lattice.  
+Returns the std::map of all nested Universe IDs and Universe pointers filling this
+Lattice.  
 
 Returns
 -------
@@ -3609,8 +3556,8 @@ the number of Lattice cells along y
 %feature("docstring") Lattice::getAllCells "
 getAllCells() -> std::map< int, Cell * >  
 
-Returns the std::map of Cell IDs and Cell pointers in this Lattice at all nested
-Universe levels.  
+Returns the std::map of Cell IDs and Cell pointers in this Lattice at all nested Universe
+levels.  
 
 Returns
 -------
@@ -3622,11 +3569,10 @@ getLatticeCell(Point *point) -> int
 
 Finds the Lattice cell index that a point lies in.  
 
-Lattice cells are numbered starting with 0 x-min/y-min/z-min corner. Lattice
-cell IDs then increase monotonically from x-min to x-max, y-min to y-max, and
-z-min to z-max. Note that values increase first on the x-axis, followed by the
-y-axis, then on the z-axis. For example, the indices for a 4 x 4 x 1 lattice: 12
-13 14 15 8 9 10 11 4 5 6 7 0 1 2 3  
+Lattice cells are numbered starting with 0 x-min/y-min/z-min corner. Lattice cell IDs then
+increase monotonically from x-min to x-max, y-min to y-max, and z-min to z-max. Note that
+values increase first on the x-axis, followed by the y-axis, then on the z-axis. For
+example, the indices for a 4 x 4 x 1 lattice: 12 13 14 15 8 9 10 11 4 5 6 7 0 1 2 3  
 
 Parameters
 ----------
@@ -3699,8 +3645,8 @@ initialize()
 
 Routine to initialize the polar quadrature.  
 
-This routine uses the tabulated values for the Leonard polar angle quadrature,
-including the sine thetas and weights.  
+This routine uses the tabulated values for the Leonard polar angle quadrature, including
+the sine thetas and weights.  
 ";
 
 %feature("docstring") LeonardPolarQuad::setNumPolarAngles "
@@ -3725,8 +3671,8 @@ Dummy constructor calls the parent constructor.
 
 %feature("docstring") LocalCoords "
 
-The LocalCoords represents a set of local coordinates on some level of nested
-Universes making up the geometry.  
+The LocalCoords represents a set of local coordinates on some level of nested Universes
+making up the geometry.  
 
 C++ includes: openmoc/src/host/LocalCoords.h
 ";
@@ -3782,8 +3728,7 @@ Parameters
 %feature("docstring") LocalCoords::getPrev "
 getPrev() const  -> LocalCoords *  
 
-Return a pointer to the LocalCoord at the next higher nested Universe level if
-one exists.  
+Return a pointer to the LocalCoord at the next higher nested Universe level if one exists.  
 
 Returns
 -------
@@ -3830,8 +3775,7 @@ the z-coordinate of this LocalCoords location
 %feature("docstring") LocalCoords::getNext "
 getNext() const  -> LocalCoords *  
 
-Return a pointer to the LocalCoord at the next lower nested Universe level if
-one exists.  
+Return a pointer to the LocalCoord at the next lower nested Universe level if one exists.  
 
 Returns
 -------
@@ -3874,11 +3818,11 @@ Parameters
 %feature("docstring") LocalCoords::getLowestLevel "
 getLowestLevel() -> LocalCoords *  
 
-Find and return the last LocalCoords in the linked list which represents the
-local coordinates on the lowest level of a geometry of nested universes.  
+Find and return the last LocalCoords in the linked list which represents the local
+coordinates on the lowest level of a geometry of nested universes.  
 
-Traverses a linked list of LocalCoords to find the one at the lowest nested
-Universe level.  
+Traverses a linked list of LocalCoords to find the one at the lowest nested Universe
+level.  
 
 Returns
 -------
@@ -3921,8 +3865,7 @@ Parameters
 %feature("docstring") LocalCoords::getLatticeZ "
 getLatticeZ() const  -> int  
 
-Return the third index of the Lattice cell within which this LocalCoords
-resides.  
+Return the third index of the Lattice cell within which this LocalCoords resides.  
 
 Returns
 -------
@@ -3932,8 +3875,7 @@ the third Lattice cell index
 %feature("docstring") LocalCoords::getLatticeY "
 getLatticeY() const  -> int  
 
-Return the second index of the Lattice cell within which this LocalCoords
-resides.  
+Return the second index of the Lattice cell within which this LocalCoords resides.  
 
 Returns
 -------
@@ -3943,8 +3885,7 @@ the second Lattice cell index
 %feature("docstring") LocalCoords::getLatticeX "
 getLatticeX() const  -> int  
 
-Return the first index of the Lattice cell within which this LocalCoords
-resides.  
+Return the first index of the Lattice cell within which this LocalCoords resides.  
 
 Returns
 -------
@@ -3964,8 +3905,8 @@ the Universe
 %feature("docstring") LocalCoords::updateMostLocal "
 updateMostLocal(Point *point)  
 
-Update the last element in the linked list (the one at the lowest level of
-nested Universes) to have the same coordinates as a given point.  
+Update the last element in the linked list (the one at the lowest level of nested
+Universes) to have the same coordinates as a given point.  
 
 Parameters
 ----------
@@ -3997,9 +3938,9 @@ Parameters
 %feature("docstring") LocalCoords::copyCoords "
 copyCoords(LocalCoords *coords)  
 
-Copies a LocalCoords' values to this one. details Given a pointer to a
-LocalCoords, it first prunes it and then creates a copy of the linked list of
-LocalCoords in the linked list below this one to give to the input LocalCoords.  
+Copies a LocalCoords' values to this one. details Given a pointer to a LocalCoords, it
+first prunes it and then creates a copy of the linked list of LocalCoords in the linked
+list below this one to give to the input LocalCoords.  
 
 Parameters
 ----------
@@ -4021,11 +3962,10 @@ Parameters
 %feature("docstring") LocalCoords::adjustCoords "
 adjustCoords(double delta)  
 
-Translate all of the x,y coordinates for each LocalCoords object in the linked
-list.  
+Translate all of the x,y coordinates for each LocalCoords object in the linked list.  
 
-This method will traverse the entire linked list and apply the translation to
-each element.  
+This method will traverse the entire linked list and apply the translation to each
+element.  
 
 Parameters
 ----------
@@ -4036,11 +3976,11 @@ Parameters
 %feature("docstring") LocalCoords::getHighestLevel "
 getHighestLevel() -> LocalCoords *  
 
-Find and return the first LocalCoords in the linked list which represents the
-local coordinates on the highest level of a geometry of nested universes.  
+Find and return the first LocalCoords in the linked list which represents the local
+coordinates on the highest level of a geometry of nested universes.  
 
-Traverses a linked list of LocalCoords to find the one at the highest nested
-Universe level.  
+Traverses a linked list of LocalCoords to find the one at the highest nested Universe
+level.  
 
 Returns
 -------
@@ -4138,8 +4078,8 @@ Parameters
 
 %feature("docstring") Material "
 
-The Material class represents a unique material and its relevant nuclear data
-(i.e., multigroup cross-sections) for neutron transport.  
+The Material class represents a unique material and its relevant nuclear data (i.e.,
+multigroup cross-sections) for neutron transport.  
 
 C++ includes: src/Material.h
 ";
@@ -4202,12 +4142,11 @@ setSigmaF(double *xs, int num_groups)
 
 Set the Material's array of fission cross-sections.  
 
-This method is a helper function to allow OpenMOC users to assign the Material's
-nuclear data in Python. A user must initialize a NumPy array of the correct size
-(e.g., a float64 array the length of the number of energy groups) as input to
-this function. This function then fills the NumPy array with the data values for
-the Material's fission cross-sections. An example of how this function might be
-called in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the Material's nuclear
+data in Python. A user must initialize a NumPy array of the correct size (e.g., a float64
+array the length of the number of energy groups) as input to this function. This function
+then fills the NumPy array with the data values for the Material's fission cross-sections.
+An example of how this function might be called in Python is as follows:  
 
 
 Parameters
@@ -4223,9 +4162,9 @@ toString() -> std::string
 
 Converts this Material's attributes to a character array representation.  
 
-The character array returned includes the user-defined ID, and each of the
-absorption, total, fission, nu multiplied by fission and scattering cross-
-sections and chi for all energy groups.  
+The character array returned includes the user-defined ID, and each of the absorption,
+total, fission, nu multiplied by fission and scattering cross-sections and chi for all
+energy groups.  
 
 Returns
 -------
@@ -4237,9 +4176,9 @@ buildFissionMatrix()
 
 Builds the fission matrix from chi and the fission cross-section.  
 
-The fission matrix is constructed as the outer product of the chi and fission
-cross-section vectors. This routine is intended for internal use and is called
-by the Solver at runtime.  
+The fission matrix is constructed as the outer product of the chi and fission cross-
+section vectors. This routine is intended for internal use and is called by the Solver at
+runtime.  
 ";
 
 %feature("docstring") Material::getId "
@@ -4272,23 +4211,23 @@ setSigmaS(double *xs, int num_groups)
 
 Set the Material's 2D array of scattering cross-sections.  
 
-The array should be passed to OpenMOC as a 1D array in column-major order. This
-assumes the standard convention, where column index is the origin group and the
-row index is the destination group. That is, the array should be ordered as
-follows: 1 -> 1 1 -> 2 1 -> 3 ... 2 -> 1 2 -> 2 ...  
+The array should be passed to OpenMOC as a 1D array in column-major order. This assumes
+the standard convention, where column index is the origin group and the row index is the
+destination group. That is, the array should be ordered as follows: 1 -> 1 1 -> 2 1 -> 3
+... 2 -> 1 2 -> 2 ...  
 
-Note that if the scattering matrix is defined in NumPy by the standard
-convention, \"flat\" will put the matrix into row major order. Thus, one should
-transpose the matrix before flattening.  
+Note that if the scattering matrix is defined in NumPy by the standard convention,
+\"flat\" will put the matrix into row major order. Thus, one should transpose the matrix
+before flattening.  
 
 For cache efficiency, the transpose of the input is actually stored in OpenMOC.  
 
-This method is a helper function to allow OpenMOC users to assign the Material's
-nuclear data in Python. A user must initialize a NumPy array of the correct size
-(e.g., a float64 array the length of the square of the number of energy groups)
-as input to this function. This function then fills the NumPy array with the
-data values for the Material's scattering cross-sections. An example of how this
-function might be called in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the Material's nuclear
+data in Python. A user must initialize a NumPy array of the correct size (e.g., a float64
+array the length of the square of the number of energy groups) as input to this function.
+This function then fills the NumPy array with the data values for the Material's
+scattering cross-sections. An example of how this function might be called in Python is as
+follows:  
 
 
 Parameters
@@ -4314,12 +4253,11 @@ setSigmaT(double *xs, int num_groups)
 
 Set the Material's array of total cross-sections.  
 
-This method is a helper function to allow OpenMOC users to assign the Material's
-nuclear data in Python. A user must initialize a NumPy array of the correct size
-(e.g., a float64 array the length of the number of energy groups) as input to
-this function. This function then fills the NumPy array with the data values for
-the Material's total cross-sections. An example of how this function might be
-called in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the Material's nuclear
+data in Python. A user must initialize a NumPy array of the correct size (e.g., a float64
+array the length of the number of energy groups) as input to this function. This function
+then fills the NumPy array with the data values for the Material's total cross-sections.
+An example of how this function might be called in Python is as follows:  
 
   
 
@@ -4359,15 +4297,14 @@ Parameters
 %feature("docstring") Material::alignData "
 alignData()  
 
-Reallocates the Material's cross-section data structures along word-aligned
-boundaries.  
+Reallocates the Material's cross-section data structures along word-aligned boundaries.  
 
-This method is used to assist with SIMD auto-vectorization of the MOC routines
-in the Solver classes. Rather than using the assigned number of energy groups,
-this method adds \"dummy\" energy groups such that the total number of groups is
-some multiple of VEC_LENGTH (typically 4, 8, or 16). As a result, the SIMD-
-vectorized Solver subclasses can break up loops over energy groups in such a way
-to \"expose\" the SIMD nature of the algorithm.  
+This method is used to assist with SIMD auto-vectorization of the MOC routines in the
+Solver classes. Rather than using the assigned number of energy groups, this method adds
+\"dummy\" energy groups such that the total number of groups is some multiple of
+VEC_LENGTH (typically 4, 8, or 16). As a result, the SIMD-vectorized Solver subclasses can
+break up loops over energy groups in such a way to \"expose\" the SIMD nature of the
+algorithm.  
 ";
 
 %feature("docstring") Material::getName "
@@ -4383,8 +4320,7 @@ the Material name
 %feature("docstring") Material::printString "
 printString()  
 
-Prints a string representation of all of the Material's attributes to the
-console.  
+Prints a string representation of all of the Material's attributes to the console.  
 ";
 
 %feature("docstring") Material::~Material "
@@ -4415,8 +4351,8 @@ getNumInstances() -> int
 
 Return the number of instances of this Material in the Geometry.  
 
-The number of instances of this Material in the Geometry is determined during
-track generation.  
+The number of instances of this Material in the Geometry is determined during track
+generation.  
 
 Returns
 -------
@@ -4451,8 +4387,8 @@ the number of energy groups
 %feature("docstring") Material::isFissionable "
 isFissionable() -> bool  
 
-Returns whether or not the Material contains a fissionable (non-zero) fission
-cross-section.  
+Returns whether or not the Material contains a fissionable (non-zero) fission cross-
+section.  
 
 Returns
 -------
@@ -4492,8 +4428,8 @@ getVolume() -> double
 
 Return the aggregate volume/area of all instances of this Material.  
 
-The volume/area of the Material is computed from track segments which overlap
-this Material during track generation.  
+The volume/area of the Material is computed from track segments which overlap this
+Material during track generation.  
 
 Returns
 -------
@@ -4516,8 +4452,7 @@ incrementNumInstances()
 
 Increment the number of instances of this Material.  
 
-This routine is called by the TrackGenerator during track generation and
-segmentation.  
+This routine is called by the TrackGenerator during track generation and segmentation.  
 ";
 
 %feature("docstring") Material::getChi "
@@ -4574,8 +4509,7 @@ incrementVolume(double volume)
 
 Increment the volume/area of the Material by some amount.  
 
-This routine is called by the TrackGenerator during track generation and
-segmentation.  
+This routine is called by the TrackGenerator during track generation and segmentation.  
 
 Parameters
 ----------
@@ -4597,8 +4531,8 @@ Parameters
 %feature("docstring") Material::getNumVectorGroups "
 getNumVectorGroups() -> int  
 
-Returns the rounded up number of energy groups to fill an integral number of
-vector lengths.  
+Returns the rounded up number of energy groups to fill an integral number of vector
+lengths.  
 
 Returns
 -------
@@ -4636,15 +4570,13 @@ This routine is used by the Solver when performing adjoint flux caclulations.
 %feature("docstring") Material::setNuSigmaFByGroup "
 setNuSigmaFByGroup(double xs, int group)  
 
-Set the Material's fission cross-section multiplied by $ \\nu $ for some energy
-group.  
+Set the Material's fission cross-section multiplied by $ \\nu $ for some energy group.  
 
-This method is a helper function to allow OpenMOC users to assign the Material's
-nuclear data in Python. A user must initialize a NumPy array of the correct size
-(e.g., a float64 array the length of the number of energy groups) as input to
-this function. This function then fills the NumPy array with the data values for
-the Material's nu*fission cross-sections. An example of how this function might
-be called in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the Material's nuclear
+data in Python. A user must initialize a NumPy array of the correct size (e.g., a float64
+array the length of the number of energy groups) as input to this function. This function
+then fills the NumPy array with the data values for the Material's nu*fission cross-
+sections. An example of how this function might be called in Python is as follows:  
 
 
 Parameters
@@ -4673,12 +4605,11 @@ setChi(double *xs, int num_groups)
 
 Set the Material's array of chi $ \\chi $ values.  
 
-This method is a helper function to allow OpenMOC users to assign the Material's
-nuclear data in Python. A user must initialize a NumPy array of the correct size
-(e.g., a float64 array the length of the number of energy groups) as input to
-this function. This function then fills the NumPy array with the data values for
-the Material's chi distribution. An example of how this function might be called
-in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the Material's nuclear
+data in Python. A user must initialize a NumPy array of the correct size (e.g., a float64
+array the length of the number of energy groups) as input to this function. This function
+then fills the NumPy array with the data values for the Material's chi distribution. An
+example of how this function might be called in Python is as follows:  
 
 
 Parameters
@@ -4717,13 +4648,11 @@ the total cross section
 %feature("docstring") Material::getNuSigmaF "
 getNuSigmaF() -> FP_PRECISION *  
 
-Return the array of the Material's fission cross-sections multiplied by nu $
-\\nu $.  
+Return the array of the Material's fission cross-sections multiplied by nu $ \\nu $.  
 
 Returns
 -------
-the pointer to the Material's array of fission cross-sections multiplied by nu $
-\\nu $  
+the pointer to the Material's array of fission cross-sections multiplied by nu $ \\nu $  
 ";
 
 // File: classMatrix.xml
@@ -4769,14 +4698,12 @@ A pointer to the A component of the CSR form matrix object.
 ";
 
 %feature("docstring") Matrix::incrementValue "
-incrementValue(int cell_from, int group_from, int cell_to, int group_to,
-    FP_PRECISION val)  
+incrementValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION val)  
 
-Increment a value in the matrix.  This method takes a cell and group of origin
-(cell/group from) and cell and group of destination (cell/group to) and floating
-point value. The origin and destination are used to compute the row and column
-in the matrix. If a value exists for the row/column, the value is incremented by
-val; otherwise, it is set to val.  
+Increment a value in the matrix.  This method takes a cell and group of origin (cell/group
+from) and cell and group of destination (cell/group to) and floating point value. The
+origin and destination are used to compute the row and column in the matrix. If a value
+exists for the row/column, the value is incremented by val; otherwise, it is set to val.  
 
 Parameters
 ----------
@@ -4793,13 +4720,12 @@ Parameters
 ";
 
 %feature("docstring") Matrix::getValue "
-getValue(int cell_from, int group_from, int cell_to, int group_to) ->
-    FP_PRECISION  
+getValue(int cell_from, int group_from, int cell_to, int group_to) -> FP_PRECISION  
 
-Get a value in the matrix.  This method takes a cell and group of origin
-(cell/group from) and cell and group of destination (cell/group to). The origin
-and destination are used to compute the row and column in the matrix. The value
-at the location specified by the row/column is returned.  
+Get a value in the matrix.  This method takes a cell and group of origin (cell/group from)
+and cell and group of destination (cell/group to). The origin and destination are used to
+compute the row and column in the matrix. The value at the location specified by the
+row/column is returned.  
 
 Parameters
 ----------
@@ -4848,13 +4774,12 @@ The number of groups in each cell.
 ";
 
 %feature("docstring") Matrix::setValue "
-setValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION
-    val)  
+setValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION val)  
 
-Set a value in the matrix.  This method takes a cell and group of origin
-(cell/group from) and cell and group of destination (cell/group to) and floating
-point value. The origin and destination are used to compute the row and column
-in the matrix. The location specified by the row/column is set to val.  
+Set a value in the matrix.  This method takes a cell and group of origin (cell/group from)
+and cell and group of destination (cell/group to) and floating point value. The origin and
+destination are used to compute the row and column in the matrix. The location specified
+by the row/column is set to val.  
 
 Parameters
 ----------
@@ -4873,14 +4798,13 @@ Parameters
 %feature("docstring") Matrix::Matrix "
 Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
 
-Constructor initializes Matrix as a list of lists and sets the matrix
-dimensions.  The matrix object uses a \"lists of lists\" structure (implemented
-as a map of lists) to allow for easy setting and incrementing of the values in
-the object. When the matrix is needed to perform linear algebra operations, it
-is converted to compressed row storage (CSR) form. The matrix is ordered by cell
-(as opposed to by group) on the outside. Locks are used to make the matrix
-thread-safe against concurrent writes the same value. One lock locks out
-multiple rows of the matrix at a time reprsenting multiple groups in the same
+Constructor initializes Matrix as a list of lists and sets the matrix dimensions.  The
+matrix object uses a \"lists of lists\" structure (implemented as a map of lists) to allow
+for easy setting and incrementing of the values in the object. When the matrix is needed
+to perform linear algebra operations, it is converted to compressed row storage (CSR)
+form. The matrix is ordered by cell (as opposed to by group) on the outside. Locks are
+used to make the matrix thread-safe against concurrent writes the same value. One lock
+locks out multiple rows of the matrix at a time reprsenting multiple groups in the same
 cell.  
 
 Parameters
@@ -4920,8 +4844,8 @@ Clear all values in the matrix list of lists.
 %feature("docstring") Matrix::~Matrix "
 ~Matrix()  
 
-Destructor clears list of lists and deletes the arrays used to represent the
-matrix in CSR form.  
+Destructor clears list of lists and deletes the arrays used to represent the matrix in CSR
+form.  
 ";
 
 %feature("docstring") Matrix::getCellLocks "
@@ -4993,13 +4917,12 @@ Parameters
 
 A thread-safe hash map supporting insertion and lookup operations.  
 
-The ParallelHashMap class is built on top of the FixedHashMap class, supporting
-insertion and lookup operations but not deletion as deletion is not needed in
-the OpenMOC application. This hash table uses chaining for collisions, as
-defined in FixedHashMap. It offers lock free lookups in O(1) time on average and
-fine-grained locking for insertions in O(1) time on average as well. Resizing is
-conducted periodically during inserts, although the starting table size can be
-chosen to limit the number of resizing operations.  
+The ParallelHashMap class is built on top of the FixedHashMap class, supporting insertion
+and lookup operations but not deletion as deletion is not needed in the OpenMOC
+application. This hash table uses chaining for collisions, as defined in FixedHashMap. It
+offers lock free lookups in O(1) time on average and fine-grained locking for insertions
+in O(1) time on average as well. Resizing is conducted periodically during inserts,
+although the starting table size can be chosen to limit the number of resizing operations.  
 
 C++ includes: src/ParallelHashMap.h
 ";
@@ -5009,28 +4932,25 @@ values() -> V *
 
 Returns an array of the values in the underlying table.  
 
-All buckets are scanned in order to form a list of all values present in the
-table and then the list is returned. Threads announce their presence to ensure
-table memory is not freed during access. WARNING: The user is responsible for
-freeing the allocated memory once the array is no longer needed.  
+All buckets are scanned in order to form a list of all values present in the table and
+then the list is returned. Threads announce their presence to ensure table memory is not
+freed during access. WARNING: The user is responsible for freeing the allocated memory
+once the array is no longer needed.  
 
 Returns
 -------
-an array of values in the map whose length is the number of key/value pairs in
-the table.  
+an array of values in the map whose length is the number of key/value pairs in the table.  
 ";
 
 %feature("docstring") ParallelHashMap::insert_and_get_count "
 insert_and_get_count(K key, V value) -> int  
 
-Insert a given key/value pair into the parallel hash map and return the order
-number.  
+Insert a given key/value pair into the parallel hash map and return the order number.  
 
-First the underlying table is checked to determine if a resize should be
-conducted. Then, the table is checked to see if it already contains the key. If
-so, the key/value pair is not inserted and the function returns. Otherwise, the
-lock of the associated bucket is acquired and the key/value pair is added to the
-bucket.  
+First the underlying table is checked to determine if a resize should be conducted. Then,
+the table is checked to see if it already contains the key. If so, the key/value pair is
+not inserted and the function returns. Otherwise, the lock of the associated bucket is
+acquired and the key/value pair is added to the bucket.  
 
 Parameters
 ----------
@@ -5057,8 +4977,8 @@ number of key/value pairs in the map
 %feature("docstring") ParallelHashMap::ParallelHashMap "
 ParallelHashMap(size_t M=64, size_t L=64)  
 
-Constructor generates initial underlying table as a fixed-sized hash map and
-intializes concurrency structures.  
+Constructor generates initial underlying table as a fixed-sized hash map and intializes
+concurrency structures.  
 ";
 
 %feature("docstring") ParallelHashMap::print_buckets "
@@ -5066,10 +4986,10 @@ print_buckets()
 
 Prints the contents of each bucket to the screen.  
 
-All buckets are scanned and the contents of the buckets are printed, which are
-pointers to linked lists. If the pointer is NULL suggesting that the linked list
-is empty, NULL is printed to the screen. Threads announce their presence to
-ensure table memory is not freed during access.  
+All buckets are scanned and the contents of the buckets are printed, which are pointers to
+linked lists. If the pointer is NULL suggesting that the linked list is empty, NULL is
+printed to the screen. Threads announce their presence to ensure table memory is not freed
+during access.  
 ";
 
 %feature("docstring") ParallelHashMap::update "
@@ -5077,10 +4997,10 @@ update(K key, V value)
 
 Updates the value associated with a key in the parallel hash map.  
 
-The thread first acquires the lock for the bucket associated with the key is
-acquired, then the linked list in the bucket is searched for the key. If the key
-is not found, an exception is returned. When the key is found, the value is
-updated and the lock is released.  
+The thread first acquires the lock for the bucket associated with the key is acquired,
+then the linked list in the bucket is searched for the key. If the key is not found, an
+exception is returned. When the key is found, the value is updated and the lock is
+released.  
 
 Parameters
 ----------
@@ -5095,15 +5015,14 @@ keys() -> K *
 
 Returns an array of the keys in the underlying table.  
 
-All buckets are scanned in order to form a list of all keys present in the table
-and then the list is returned. Threads announce their presence to ensure table
-memory is not freed during access. WARNING: The user is responsible for freeing
-the allocated memory once the array is no longer needed.  
+All buckets are scanned in order to form a list of all keys present in the table and then
+the list is returned. Threads announce their presence to ensure table memory is not freed
+during access. WARNING: The user is responsible for freeing the allocated memory once the
+array is no longer needed.  
 
 Returns
 -------
-an array of keys in the map whose length is the number of key/value pairs in the
-table.  
+an array of keys in the map whose length is the number of key/value pairs in the table.  
 ";
 
 %feature("docstring") ParallelHashMap::insert "
@@ -5111,11 +5030,10 @@ insert(K key, V value)
 
 Insert a given key/value pair into the parallel hash map.  
 
-First the underlying table is checked to determine if a resize should be
-conducted. Then, the table is checked to see if it already contains the key. If
-so, the key/value pair is not inserted and the function returns. Otherwise, the
-lock of the associated bucket is acquired and the key/value pair is added to the
-bucket.  
+First the underlying table is checked to determine if a resize should be conducted. Then,
+the table is checked to see if it already contains the key. If so, the key/value pair is
+not inserted and the function returns. Otherwise, the lock of the associated bucket is
+acquired and the key/value pair is added to the bucket.  
 
 Parameters
 ----------
@@ -5134,8 +5052,7 @@ Clears all key/value pairs form the hash table.
 %feature("docstring") ParallelHashMap::~ParallelHashMap "
 ~ParallelHashMap()  
 
-Destructor frees memory associated with fixed-sized hash map and concurrency
-structures.  
+Destructor frees memory associated with fixed-sized hash map and concurrency structures.  
 ";
 
 %feature("docstring") ParallelHashMap::num_locks "
@@ -5153,12 +5070,11 @@ contains(K key) -> bool
 
 Determine whether the parallel hash map contains a given key.  
 
-First the thread accessing the table announces its presence and which table it
-is reading. Then the linked list in the bucket associated with the key is
-searched without setting any locks to determine whether the key is present. When
-the thread has finished accessing the table, the announcement is reset to NULL.
-The announcement ensures that the data in the map is not freed during a resize
-until all threads have finished accessing the map.  
+First the thread accessing the table announces its presence and which table it is reading.
+Then the linked list in the bucket associated with the key is searched without setting any
+locks to determine whether the key is present. When the thread has finished accessing the
+table, the announcement is reset to NULL. The announcement ensures that the data in the
+map is not freed during a resize until all threads have finished accessing the map.  
 
 Parameters
 ----------
@@ -5185,12 +5101,11 @@ at(K key) -> V
 
 Determine the value associated with a given key.  
 
-This function follows the same algorithm as <contains> except that the value
-associated with the searched key is returned. First the thread accessing the
-table acquires the lock corresponding with the associated bucket based on the
-key. Then the linked list in the bucket is searched for the key. An exception is
-thrown if the key is not found. When the thread has finished accessing the
-table, it releases the lock.  
+This function follows the same algorithm as <contains> except that the value associated
+with the searched key is returned. First the thread accessing the table acquires the lock
+corresponding with the associated bucket based on the key. Then the linked list in the
+bucket is searched for the key. An exception is thrown if the key is not found. When the
+thread has finished accessing the table, it releases the lock.  
 
 Parameters
 ----------
@@ -5262,8 +5177,8 @@ toString() -> std::string
 
 Converts this Plane's attributes to a character array.  
 
-The character array returned conatins the type of Plane (ie, PLANE) and the A,
-B, and C coefficients in the quadratic Surface equation.  
+The character array returned conatins the type of Plane (ie, PLANE) and the A, B, and C
+coefficients in the quadratic Surface equation.  
 
 Returns
 -------
@@ -5356,8 +5271,8 @@ the minimum z value of -INFINITY
 ";
 
 %feature("docstring") Plane::Plane "
-Plane(const double A, const double B, const double C, const double D, const int
-    id=0, const char *name=\"\")  
+Plane(const double A, const double B, const double C, const double D, const int id=0,
+    const char *name=\"\")  
 
 Constructor.  
 
@@ -5395,8 +5310,8 @@ the value of Point in the Plane's quadratic equation
 %feature("docstring") Plane::intersection "
 intersection(Point *point, double angle, Point *points) -> int  
 
-Finds the intersection Point with this Plane from a given Point and trajectory
-defined by an angle.  
+Finds the intersection Point with this Plane from a given Point and trajectory defined by
+an angle.  
 
 Parameters
 ----------
@@ -5558,8 +5473,8 @@ initialize()
 
 Dummy routine to initialize the polar quadrature.  
 
-The parent class routine simply checks that the number of polar angles has been
-set by the user and returns;  
+The parent class routine simply checks that the number of polar angles has been set by the
+user and returns;  
 ";
 
 %feature("docstring") PolarQuad::getWeights "
@@ -5577,12 +5492,11 @@ setWeights(double *weights, int num_polar)
 
 Set the PolarQuad's array of weights for each angle.  
 
-This method is a helper function to allow OpenMOC users to assign the
-PolarQuad's angular weights in Python. A user must initialize a NumPy array of
-the correct size (e.g., a float64 array the length of the number of polar
-angles) as input to this function. This function then fills the NumPy array with
-the data values for the PolarQuad's weights. An example of how this function
-might be called in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the PolarQuad's angular
+weights in Python. A user must initialize a NumPy array of the correct size (e.g., a
+float64 array the length of the number of polar angles) as input to this function. This
+function then fills the NumPy array with the data values for the PolarQuad's weights. An
+example of how this function might be called in Python is as follows:  
 
 
 Parameters
@@ -5608,12 +5522,11 @@ setSinThetas(double *sin_thetas, int num_polar)
 
 Set the PolarQuad's array of sines of each polar angle.  
 
-This method is a helper function to allow OpenMOC users to assign the
-PolarQuad's sin thetas in Python. A user must initialize a NumPy array of the
-correct size (e.g., a float64 array the length of the number of polar angles) as
-input to this function. This function then fills the NumPy array with the data
-values for the PolarQuad's sin thetas. An example of how this function might be
-called in Python is as follows:  
+This method is a helper function to allow OpenMOC users to assign the PolarQuad's sin
+thetas in Python. A user must initialize a NumPy array of the correct size (e.g., a
+float64 array the length of the number of polar angles) as input to this function. This
+function then fills the NumPy array with the data values for the PolarQuad's sin thetas.
+An example of how this function might be called in Python is as follows:  
 
 
 Parameters
@@ -5704,9 +5617,8 @@ toString() -> std::string
 
 Converts this Quadrature to a character array of its attributes.  
 
-The character array includes the number of polar angles, the the values of the
-sine and weight of each polar angle, and the product of the sine and weight of
-each polar angle.  
+The character array includes the number of polar angles, the the values of the sine and
+weight of each polar angle, and the product of the sine and weight of each polar angle.  
 
 Returns
 -------
@@ -5716,8 +5628,8 @@ a character array of the PolarQuad's attributes
 %feature("docstring") PolarQuad::~PolarQuad "
 ~PolarQuad()  
 
-Destructor deletes arrray of sines of the polar angles, the weights of the polar
-angles and the products of the sines and weights.  
+Destructor deletes arrray of sines of the polar angles, the weights of the polar angles
+and the products of the sines and weights.  
 ";
 
 %feature("docstring") PolarQuad::getWeight "
@@ -5742,9 +5654,9 @@ the weight for a polar angle
 
 A helper struct for the Universe::findCell() method.  
 
-This is used to insert a Universe's Cells to the back of a vector of neighbor
-Cells in Universe::findCell() routine. This works in symbiosis with the
-pair_second method template defined below.  
+This is used to insert a Universe's Cells to the back of a vector of neighbor Cells in
+Universe::findCell() routine. This works in symbiosis with the pair_second method template
+defined below.  
 
 C++ includes: Universe.h
 ";
@@ -5754,8 +5666,7 @@ C++ includes: Universe.h
 
 %feature("docstring") segment "
 
-A segment represents a line segment within a single flat source region along a
-track.  
+A segment represents a line segment within a single flat source region along a track.  
 
 Attributes
 ----------
@@ -5788,8 +5699,8 @@ Constructor initializes CMFD surfaces
 
 %feature("docstring") Solver "
 
-This is an abstract base class which different Solver subclasses implement for
-different architectures or source iteration algorithms.  
+This is an abstract base class which different Solver subclasses implement for different
+architectures or source iteration algorithms.  
 
 C++ includes: src/Solver.h
 ";
@@ -5808,31 +5719,28 @@ Parameters
 ";
 
 %feature("docstring") Solver::computeFlux "
-computeFlux(int max_iters=1000, solverMode mode=FORWARD, bool
-    only_fixed_source=true)  
+computeFlux(int max_iters=1000, solverMode mode=FORWARD, bool only_fixed_source=true)  
 
-Computes the scalar flux distribution by performing a series of transport
-sweeps.  
+Computes the scalar flux distribution by performing a series of transport sweeps.  
 
-This is the main method exposed to the user through the Python interface to
-compute the scalar flux distribution, e.g., for a fixed source calculation. This
-routine makes an initial guess for scalar and boundary fluxes and performs
-transport sweep until convergence.  
+This is the main method exposed to the user through the Python interface to compute the
+scalar flux distribution, e.g., for a fixed source calculation. This routine makes an
+initial guess for scalar and boundary fluxes and performs transport sweep until
+convergence.  
 
-By default, this method will perform a maximum of 1000 transport sweeps with a
-1E-5 threshold on the average FSR scalar flux. These values may be freely
-modified by the user at runtime.  
+By default, this method will perform a maximum of 1000 transport sweeps with a 1E-5
+threshold on the average FSR scalar flux. These values may be freely modified by the user
+at runtime.  
 
-The only_fixed_source runtime parameter may be used to control the type of
-source distribution used in the calculation. By default, this paramter is true
-and only the fixed sources specified by the user will be considered.
-Alternatively, when the parameter is false, the source will be computed as the
-scattering and fission sources resulting from a previously computed flux
-distribution (e.g., an eigenvalue calculation) in addition to any user-defined
-fixed sources.  
+The only_fixed_source runtime parameter may be used to control the type of source
+distribution used in the calculation. By default, this paramter is true and only the fixed
+sources specified by the user will be considered. Alternatively, when the parameter is
+false, the source will be computed as the scattering and fission sources resulting from a
+previously computed flux distribution (e.g., an eigenvalue calculation) in addition to any
+user-defined fixed sources.  
 
-This method may be called by the user to compute the scalar flux for a fixed
-source distribution from Python as follows:  
+This method may be called by the user to compute the scalar flux for a fixed source
+distribution from Python as follows:  
 
   
 
@@ -5856,19 +5764,17 @@ countFissionableFSRs()
 
 Counts the number of fissionable flat source regions.  
 
-This routine is used by the Solver::computeEigenvalue(...) routine which uses
-the number of fissionable FSRs to normalize the residual on the fission source
-distribution.  
+This routine is used by the Solver::computeEigenvalue(...) routine which uses the number
+of fissionable FSRs to normalize the residual on the fission source distribution.  
 ";
 
 %feature("docstring") Solver::setExpPrecision "
 setExpPrecision(FP_PRECISION precision)  
 
-Set the precision, or maximum allowable approximation error, of the the
-exponential interpolation table.  
+Set the precision, or maximum allowable approximation error, of the the exponential
+interpolation table.  
 
-By default, the precision is 1E-5 based on the analysis in Yamamoto's 2003
-paper.  
+By default, the precision is 1E-5 based on the analysis in Yamamoto's 2003 paper.  
 
 Parameters
 ----------
@@ -5920,8 +5826,8 @@ Computes the total fission source for each FSR and energy group.
 %feature("docstring") Solver::normalizeFluxes "
 normalizeFluxes()=0  
 
-Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
-fission source (times $ \\nu $).  
+Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission
+source (times $ \\nu $).  
 ";
 
 %feature("docstring") Solver::getFlux "
@@ -5978,18 +5884,17 @@ computeEigenvalue(int max_iters=1000, solverMode mode=FORWARD, residualType
 
 Computes keff by performing a series of transport sweep and source updates.  
 
-This is the main method exposed to the user through the Python interface to
-perform an eigenvalue calculation. The method makes an initial guess for the
-scalar and boundary fluxes and performs transport sweeps and source updates
-until convergence.  
+This is the main method exposed to the user through the Python interface to perform an
+eigenvalue calculation. The method makes an initial guess for the scalar and boundary
+fluxes and performs transport sweeps and source updates until convergence.  
 
-By default, this method will perform a maximum of 1000 transport sweeps with a
-1E-5 threshold on the integrated FSR fission source. These values may be freely
-modified by the user at runtime.  
+By default, this method will perform a maximum of 1000 transport sweeps with a 1E-5
+threshold on the integrated FSR fission source. These values may be freely modified by the
+user at runtime.  
 
-The res_type parameter may be used to control the convergence criterion -
-SCALAR_FLUX, TOTAL_SOURCE and FISSION_SOURCE (default) are all supported options
-in OpenMOC at this time.  
+The res_type parameter may be used to control the convergence criterion - SCALAR_FLUX,
+TOTAL_SOURCE and FISSION_SOURCE (default) are all supported options in OpenMOC at this
+time.  
 
 
 Parameters
@@ -6035,9 +5940,9 @@ setPolarQuadrature(PolarQuad *polar_quad)
 
 Assign a PolarQuad object to the Solver.  
 
-This routine allows use of a PolarQuad with any polar angle quadrature.
-Alternatively, this routine may take in any subclass of the PolarQuad parent
-class, including TYPolarQuad (default), LeonardPolarQuad, GLPolarQuad, etc.  
+This routine allows use of a PolarQuad with any polar angle quadrature. Alternatively,
+this routine may take in any subclass of the PolarQuad parent class, including TYPolarQuad
+(default), LeonardPolarQuad, GLPolarQuad, etc.  
 
 Users may assign a PolarQuad object to the Solver from Python script as follows:  
 
@@ -6080,29 +5985,28 @@ Parameters
 ";
 
 %feature("docstring") Solver::computeSource "
-computeSource(int max_iters=1000, solverMode mode=FORWARD, double k_eff=1.0,
-    residualType res_type=TOTAL_SOURCE)  
+computeSource(int max_iters=1000, solverMode mode=FORWARD, double k_eff=1.0, residualType
+    res_type=TOTAL_SOURCE)  
 
-Computes the total source distribution by performing a series of transport sweep
-and source updates.  
+Computes the total source distribution by performing a series of transport sweep and
+source updates.  
 
-This is the main method exposed to the user through the Python interface to
-compute the source distribution, e.g., for a fixed and/or external source
-calculation. This routine makes an initial guess for the scalar and boundary
-fluxes and performs transport sweeps and source updates until convergence.  
+This is the main method exposed to the user through the Python interface to compute the
+source distribution, e.g., for a fixed and/or external source calculation. This routine
+makes an initial guess for the scalar and boundary fluxes and performs transport sweeps
+and source updates until convergence.  
 
-By default, this method will perform a maximum of 1000 transport sweeps with a
-1E-5 threshold on the integrated FSR total source. These values may be freely
-modified by the user at runtime.  
+By default, this method will perform a maximum of 1000 transport sweeps with a 1E-5
+threshold on the integrated FSR total source. These values may be freely modified by the
+user at runtime.  
 
-The k_eff parameter may be used for fixed source calculations with fissionable
-material (e.g., start-up in a reactor from a fixed external source). In this
-case, the user must \"guess\" the critical eigenvalue to be be used to scale the
-fission source.  
+The k_eff parameter may be used for fixed source calculations with fissionable material
+(e.g., start-up in a reactor from a fixed external source). In this case, the user must
+\"guess\" the critical eigenvalue to be be used to scale the fission source.  
 
-The res_type parameter may be used to control the convergence criterion -
-SCALAR_FLUX, TOTAL_SOURCE (default) and FISSION_SOURCE are all supported options
-in OpenMOC at this time.  
+The res_type parameter may be used to control the convergence criterion - SCALAR_FLUX,
+TOTAL_SOURCE (default) and FISSION_SOURCE are all supported options in OpenMOC at this
+time.  
 
 This method may be called by the user from Python as follows:  
 
@@ -6166,8 +6070,8 @@ the converged eigenvalue $ k_{eff} $
 %feature("docstring") Solver::useExponentialIntrinsic "
 useExponentialIntrinsic()  
 
-Informs the Solver to use the exponential intrinsic exp(...) function to compute
-the exponential in the transport equation.  
+Informs the Solver to use the exponential intrinsic exp(...) function to compute the
+exponential in the transport equation.  
 ";
 
 %feature("docstring") Solver::computeResidual "
@@ -6196,8 +6100,8 @@ initializeMaterials(solverMode mode=FORWARD)
 
 Initializes the Material fission matrices.  
 
-In an adjoint calculation, this routine will transpose the scattering and
-fission matrices in each material.  
+In an adjoint calculation, this routine will transpose the scattering and fission matrices
+in each material.  
 
 Parameters
 ----------
@@ -6236,9 +6140,9 @@ initializeCmfd()
 
 Initializes a Cmfd object for acceleratiion prior to source iteration.  
 
-Instantiates a dummy Cmfd object if one was not assigned to the Solver by the
-user and initializes FSRs, materials, fluxes and the Mesh object. This method is
-for internal use only and should not be called directly by the user.  
+Instantiates a dummy Cmfd object if one was not assigned to the Solver by the user and
+initializes FSRs, materials, fluxes and the Mesh object. This method is for internal use
+only and should not be called directly by the user.  
 ";
 
 %feature("docstring") Solver::setFixedSourceByMaterial "
@@ -6270,8 +6174,7 @@ Parameters
 %feature("docstring") Solver::computeKeff "
 computeKeff()=0  
 
-Compute $ k_{eff} $ from total fission and absorption rates in each FSR and
-energy group.  
+Compute $ k_{eff} $ from total fission and absorption rates in each FSR and energy group.  
 ";
 
 %feature("docstring") Solver::getFSRSource "
@@ -6312,8 +6215,7 @@ This is a helper routine used for Krylov subspace methods.
 %feature("docstring") Solver::addSourceToScalarFlux "
 addSourceToScalarFlux()=0  
 
-Add the source term contribution in the transport equation to the FSR scalar
-flux.  
+Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") Solver::initializeFSRs "
@@ -6321,9 +6223,9 @@ initializeFSRs()
 
 Initializes the FSR volumes and Materials array.  
 
-This method assigns each FSR a unique, monotonically increasing ID, sets the
-Material for each FSR, and assigns a volume based on the cumulative length of
-all of the segments inside the FSR.  
+This method assigns each FSR a unique, monotonically increasing ID, sets the Material for
+each FSR, and assigns a volume based on the cumulative length of all of the segments
+inside the FSR.  
 ";
 
 %feature("docstring") Solver::setTrackGenerator "
@@ -6331,9 +6233,9 @@ setTrackGenerator(TrackGenerator *track_generator)
 
 Sets the Solver's TrackGenerator with characteristic Tracks.  
 
-The TrackGenerator must already have generated Tracks and have used ray tracing
-to segmentize them across the Geometry. This should be initated in Python prior
-to assigning the TrackGenerator to the Solver:  
+The TrackGenerator must already have generated Tracks and have used ray tracing to
+segmentize them across the Geometry. This should be initated in Python prior to assigning
+the TrackGenerator to the Solver:  
 
 
 Parameters
@@ -6361,8 +6263,8 @@ Stores the current scalar fluxes in the old scalar flux array.
 %feature("docstring") Solver::zeroTrackFluxes "
 zeroTrackFluxes()=0  
 
-Zero each Track's boundary fluxes for each energy group and polar angle in the
-\"forward\" and \"reverse\" directions.  
+Zero each Track's boundary fluxes for each energy group and polar angle in the \"forward\"
+and \"reverse\" directions.  
 ";
 
 %feature("docstring") Solver::fissionTransportSweep "
@@ -6376,18 +6278,17 @@ This is a helper routine used for Krylov subspace methods.
 %feature("docstring") Solver::~Solver "
 ~Solver()  
 
-Destructor deletes arrays of boundary angular fluxes, scalar fluxes and sources
-for each FSR and energy group.  
+Destructor deletes arrays of boundary angular fluxes, scalar fluxes and sources for each
+FSR and energy group.  
 
-Deallocates memory for all arrays allocated for the Solver, including fluxes,
-sources, quadrature weights, and exponential linear interpolation table.  
+Deallocates memory for all arrays allocated for the Solver, including fluxes, sources,
+quadrature weights, and exponential linear interpolation table.  
 ";
 
 %feature("docstring") Solver::computeFSRSources "
 computeFSRSources()=0  
 
-Computes the total source (fission, scattering, fixed) for each FSR and energy
-group.  
+Computes the total source (fission, scattering, fixed) for each FSR and energy group.  
 ";
 
 %feature("docstring") Solver::setGeometry "
@@ -6395,8 +6296,8 @@ setGeometry(Geometry *geometry)
 
 Sets the Geometry for the Solver.  
 
-This is a private setter method for the Solver and is not intended to be called
-by the user.  
+This is a private setter method for the Solver and is not intended to be called by the
+user.  
 
 Parameters
 ----------
@@ -6409,9 +6310,9 @@ resetMaterials(solverMode mode=FORWARD)
 
 Returns the Material data to its original state.  
 
-In an adjoint calculation, the scattering and fission matrices in each material
-are transposed during initialization. This routine returns both matrices to
-their original (FORWARD) state at the end of a calculation.  
+In an adjoint calculation, the scattering and fission matrices in each material are
+transposed during initialization. This routine returns both matrices to their original
+(FORWARD) state at the end of a calculation.  
 
 Parameters
 ----------
@@ -6422,8 +6323,8 @@ Parameters
 %feature("docstring") Solver::useExponentialInterpolation "
 useExponentialInterpolation()  
 
-Informs the Solver to use linear interpolation to compute the exponential in the
-transport equation.  
+Informs the Solver to use linear interpolation to compute the exponential in the transport
+equation.  
 ";
 
 %feature("docstring") Solver::initializeExpEvaluator "
@@ -6447,19 +6348,18 @@ Computes the total scattering source for each FSR and energy group.
 %feature("docstring") Solver::computeFSRFissionRates "
 computeFSRFissionRates(double *fission_rates, int num_FSRs)=0  
 
-Computes the volume-weighted, energy integrated fission rate in each FSR and
-stores them in an array indexed by FSR ID.  
+Computes the volume-weighted, energy integrated fission rate in each FSR and stores them
+in an array indexed by FSR ID.  
 
-This is a helper method for SWIG to allow users to retrieve FSR fission rates as
-a NumPy array. An example of how this method can be called from Python is as
-follows:  
+This is a helper method for SWIG to allow users to retrieve FSR fission rates as a NumPy
+array. An example of how this method can be called from Python is as follows:  
 
 
 Parameters
 ----------
 * fission_rates :  
-    an array to store the fission rates (implicitly passed in as a NumPy array
-    from Python)  
+    an array to store the fission rates (implicitly passed in as a NumPy array from
+    Python)  
 * num_FSRs :  
     the number of FSRs passed in from Python  
 ";
@@ -6517,9 +6417,9 @@ the first element in the iterator
 
 Represents a general Surface in 3D.  
 
-The Surface class and its subclasses are used to define the geometry for an
-OpenMOC simulation using a constructive solid geometry (CSG) formalism. Surfaces
-are used during ray tracing of charateristic tracks across the geometry.  
+The Surface class and its subclasses are used to define the geometry for an OpenMOC
+simulation using a constructive solid geometry (CSG) formalism. Surfaces are used during
+ray tracing of charateristic tracks across the geometry.  
 
 C++ includes: src/Surface.h
 ";
@@ -6650,8 +6550,8 @@ evaluate(const Point *point) const =0 -> double
 
 Evaluate a Point using the Surface's potential equation.  
 
-This method returns the values $ f(x,y) $ for the potential function $f$
-representing this Surface.  
+This method returns the values $ f(x,y) $ for the potential function $f$ representing this
+Surface.  
 
 Parameters
 ----------
@@ -6717,9 +6617,9 @@ getMinDistance(LocalCoords *coords) -> double
 
 Finds the minimum distance to a Surface.  
 
-Finds the miniumum distance to a Surface from a LocalCoords with a trajectory
-defined by an angle to this Surface. If the trajectory will not intersect the
-Surface, returns INFINITY.  
+Finds the miniumum distance to a Surface from a LocalCoords with a trajectory defined by
+an angle to this Surface. If the trajectory will not intersect the Surface, returns
+INFINITY.  
 
 Parameters
 ----------
@@ -6782,8 +6682,8 @@ toString()=0 -> std::string
 
 Converts this Surface's attributes to a character array.  
 
-The character array returned conatins the type of Surface (ie, PLANE) and the
-coefficients in the potential equation.  
+The character array returned conatins the type of Surface (ie, PLANE) and the coefficients
+in the potential equation.  
 
 Returns
 -------
@@ -6810,8 +6710,8 @@ Parameters
 %feature("docstring") Surface::intersection "
 intersection(Point *point, double angle, Point *points)=0 -> int  
 
-Finds the intersection Point with this Surface from a given Point and trajectory
-defined by an angle.  
+Finds the intersection Point with this Surface from a given Point and trajectory defined
+by an angle.  
 
 Parameters
 ----------
@@ -6881,8 +6781,8 @@ recordSplit(const char *msg)
 
 Records a message corresponding to a time for the current split.  
 
-When this method is called it assumes that the Timer has been stopped and has
-the current time for the process corresponding to the message.  
+When this method is called it assumes that the Timer has been stopped and has the current
+time for the process corresponding to the message.  
 
 Parameters
 ----------
@@ -6911,9 +6811,9 @@ printSplits()
 
 Prints the times and messages for each split to the console.  
 
-This method will loop through all of the Timer's splits and print a formatted
-message string (80 characters in length) to the console with the message and the
-time corresponding to that message.  
+This method will loop through all of the Timer's splits and print a formatted message
+string (80 characters in length) to the console with the message and the time
+corresponding to that message.  
 ";
 
 %feature("docstring") Timer::Timer "
@@ -6958,8 +6858,8 @@ This method is similar to stopping a stopwatch.
 %feature("docstring") Timer::clearSplit "
 clearSplit(const char *msg)  
 
-Clears the time split for this message and deletes the message's entry in the
-Timer's splits log.  
+Clears the time split for this message and deletes the message's entry in the Timer's
+splits log.  
 
 Parameters
 ----------
@@ -6980,8 +6880,8 @@ Clears all times split messages from the Timer.
 
 A Track represents a characteristic line across the geometry.  
 
-A Track has particular starting and ending points on the boundaries of the
-geometry and an azimuthal angle.  
+A Track has particular starting and ending points on the boundaries of the geometry and an
+azimuthal angle.  
 
 C++ includes: src/Track.h
 ";
@@ -6991,8 +6891,8 @@ toString() -> std::string
 
 Convert this Track's attributes to a character array.  
 
-The character array returned includes the Track's starting and ending
-coordinates, the azimuthal angle and azimuthal weight.  
+The character array returned includes the Track's starting and ending coordinates, the
+azimuthal angle and azimuthal weight.  
 
 Returns
 -------
@@ -7004,8 +6904,8 @@ setAzimAngleIndex(const int index)
 
 Set the index for the Track's azimuthal angle index.  
 
-The azimuthal angle index corresponds to a an array of all azimuthal angles for
-$ \\theta \\in [0, \\pi] $ owned by the TrackGenerator class.  
+The azimuthal angle index corresponds to a an array of all azimuthal angles for $ \\theta
+\\in [0, \\pi] $ owned by the TrackGenerator class.  
 
 Parameters
 ----------
@@ -7034,9 +6934,9 @@ setPeriodicTrackIndex(const int index)
 
 Set the index of a track in a periodic cycle.  
 
-Tracks form periodic track cycles as they traverse the geometry. Tracks can be
-arbitrarily decomposed into periodic track cycles and this index indicates the
-index in a particular cycle.  
+Tracks form periodic track cycles as they traverse the geometry. Tracks can be arbitrarily
+decomposed into periodic track cycles and this index indicates the index in a particular
+cycle.  
 
 Parameters
 ----------
@@ -7049,8 +6949,8 @@ setUid(int uid)
 
 Initializes a Track's unique ID.  
 
-This is set by the trackgenerator to correspond to the Track's location in a 2D
-ragged array of all tracks.  
+This is set by the trackgenerator to correspond to the Track's location in a 2D ragged
+array of all tracks.  
 
 Parameters
 ----------
@@ -7063,8 +6963,8 @@ getSegment(int s) -> segment *
 
 Returns a pointer to a segment with a given index.  
 
-Returns a pointer to the segment or ends program if Track does not have the
-requested segment.  
+Returns a pointer to the segment or ends program if Track does not have the requested
+segment.  
 
 Parameters
 ----------
@@ -7079,9 +6979,8 @@ a pointer to the requested segment
 %feature("docstring") Track::isNextOut "
 isNextOut() const  -> bool  
 
-Returns whether to give the outgoing flux to the \"forward\" (false) or
-\"reverse\" (true) direction of the next Track when traveling along this Track's
-\"reverse\" direction.  
+Returns whether to give the outgoing flux to the \"forward\" (false) or \"reverse\" (true)
+direction of the next Track when traveling along this Track's \"reverse\" direction.  
 
 Returns
 -------
@@ -7127,27 +7026,26 @@ Parameters
 %feature("docstring") Track::getTransferFluxOut "
 getTransferFluxOut() const  -> bool  
 
-Returns a boolean to indicate whether the outgoing flux along this Track's
-\"reverse\" direction should be transferred to the incoming Track.  
+Returns a boolean to indicate whether the outgoing flux along this Track's \"reverse\"
+direction should be transferred to the incoming Track.  
 
 The bool with be false for vacuum BCs and true for all other BCs.  
 
 Returns
 -------
-bool indicating whether the flux should be passed when tracking in the
-\"reverse\" direction.  
+bool indicating whether the flux should be passed when tracking in the \"reverse\"
+direction.  
 ";
 
 %feature("docstring") Track::setNextOut "
 setNextOut(const bool next_out)  
 
-Sets the direction in which the flux leaving this Track along its \"reverse\"
-direction is passed.  
+Sets the direction in which the flux leaving this Track along its \"reverse\" direction is
+passed.  
 
-Sets whether or not to pass the outgoing flux from this Track along its
-\"reverse\" direction to the \"forward\" direction (false) or \"reverse\"
-direction (true) of the next Track after intersection with the geometry
-boundary.  
+Sets whether or not to pass the outgoing flux from this Track along its \"reverse\"
+direction to the \"forward\" direction (false) or \"reverse\" direction (true) of the next
+Track after intersection with the geometry boundary.  
 
 Parameters
 ----------
@@ -7168,22 +7066,21 @@ a pointer to the Track's start Point
 %feature("docstring") Track::getTransferFluxIn "
 getTransferFluxIn() const  -> bool  
 
-Returns a boolean to indicate whether the outgoing flux along this Track's
-\"forward\" direction should be transferred to the outgoing Track.  
+Returns a boolean to indicate whether the outgoing flux along this Track's \"forward\"
+direction should be transferred to the outgoing Track.  
 
 The bool with be false for vacuum BCs and true for all other BCs.  
 
 Returns
 -------
-bool indicating whether the flux should be passed when tracking in the
-\"forward\" direction.  
+bool indicating whether the flux should be passed when tracking in the \"forward\"
+direction.  
 ";
 
 %feature("docstring") Track::setBCOut "
 setBCOut(const boundaryType bc_out)  
 
-Sets the boundary condition for the incoming flux along the Track's \"reverse\"
-direction.  
+Sets the boundary condition for the incoming flux along the Track's \"reverse\" direction.  
 
 The boundaryType represents vacuum (0), reflective (1), or periodic (2) boundary
 conditions.  
@@ -7238,9 +7135,8 @@ a pointer to the incoming Track
 %feature("docstring") Track::isNextIn "
 isNextIn() const  -> bool  
 
-Returns whether to give the outgoing flux to the \"forward\" (false) or
-\"reverse\" (true) direction of the next Track when traveling along this
-Tracks's \"forward\" direction.  
+Returns whether to give the outgoing flux to the \"forward\" (false) or \"reverse\" (true)
+direction of the next Track when traveling along this Tracks's \"forward\" direction.  
 
 Returns
 -------
@@ -7250,13 +7146,12 @@ Returns
 %feature("docstring") Track::setNextIn "
 setNextIn(const bool next_in)  
 
-Sets the direction in which the flux leaving this Track along its \"forward\"
-direction is passed.  
+Sets the direction in which the flux leaving this Track along its \"forward\" direction is
+passed.  
 
-Sets whether or not to pass the outgoing flux from this Track along its
-\"forward\" direction to the \"forward\" direction (false) or \"reverse\"
-direction (true) of the next Track after intersection with the geometry
-boundary.  
+Sets whether or not to pass the outgoing flux from this Track along its \"forward\"
+direction to the \"forward\" direction (false) or \"reverse\" direction (true) of the next
+Track after intersection with the geometry boundary.  
 
 Parameters
 ----------
@@ -7267,8 +7162,7 @@ Parameters
 %feature("docstring") Track::getBCOut "
 getBCOut() const  -> boundaryType  
 
-Returns the boundary condition for the flux along the Track's \"reverse\"
-direction.  
+Returns the boundary condition for the flux along the Track's \"reverse\" direction.  
 
 Returns
 -------
@@ -7300,8 +7194,8 @@ addSegment(segment *to_add)
 
 Adds a segment pointer to this Track's list of segments.  
 
-This method assumes that segments are added in order of their starting location
-from the Track's start point.  
+This method assumes that segments are added in order of their starting location from the
+Track's start point.  
 
 Parameters
 ----------
@@ -7310,9 +7204,8 @@ Parameters
 ";
 
 %feature("docstring") Track::setValues "
-setValues(const double start_x, const double start_y, const double start_z,
-    const double end_x, const double end_y, const double end_z, const double
-    phi)  
+setValues(const double start_x, const double start_y, const double start_z, const double
+    end_x, const double end_y, const double end_z, const double phi)  
 
 Set the values for the Track's start and end point and angle.  
 
@@ -7339,8 +7232,8 @@ insertSegment(int index, segment *segment)
 
 Inserts a segment pointer into this Track's list of segments.  
 
-This method appends the new segment directly behind another segment in the
-Track. This is a helper method for the TrackGenerator::splitTracks(...) routine.  
+This method appends the new segment directly behind another segment in the Track. This is
+a helper method for the TrackGenerator::splitTracks(...) routine.  
 
 Parameters
 ----------
@@ -7376,8 +7269,8 @@ setReflectiveTrackIndex(const int index)
 Set the index of a track in a reflective cycle.  
 
 Tracks form reflective track cycles as they traverse the geometry. Tracks can be
-arbitrarily decomposed into reflective track cycles and this index indicates the
-index in a particular cycle.  
+arbitrarily decomposed into reflective track cycles and this index indicates the index in
+a particular cycle.  
 
 Parameters
 ----------
@@ -7415,8 +7308,7 @@ Parameters
 %feature("docstring") Track::setBCIn "
 setBCIn(const boundaryType bc_in)  
 
-Sets the boundary condition for the incoming flux along the Track's \"forward\"
-direction.  
+Sets the boundary condition for the incoming flux along the Track's \"forward\" direction.  
 
 The boundaryType represents vacuum (0), reflective (1), or periodic (2) boundary
 conditions.  
@@ -7430,8 +7322,7 @@ Parameters
 %feature("docstring") Track::getBCIn "
 getBCIn() const  -> boundaryType  
 
-Returns the boundary condition for the flux along the Track's \"forward\"
-direction.  
+Returns the boundary condition for the flux along the Track's \"forward\" direction.  
 
 Returns
 -------
@@ -7443,8 +7334,8 @@ vacuum (0), reflective (1), or periodic (2) reflective boundary conditions
 
 %feature("docstring") TrackGenerator "
 
-The TrackGenerator is dedicated to generating and storing Tracks which
-cyclically wrap across the Geometry.  
+The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap
+across the Geometry.  
 
 The TrackGenerator creates Track and initializes boundary conditions (vacuum or
 reflective) for each Track.  
@@ -7457,17 +7348,16 @@ retrieveTrackCoords(double *coords, int num_tracks)
 
 Fills an array with the x,y,z coordinates for each Track.  
 
-This class method is intended to be called by the OpenMOC Python \"plotter\"
-module as a utility to assist in plotting tracks. Although this method appears
-to require two arguments, in reality it only requires on due to SWIG and would
-be called from within Python as follows:  
+This class method is intended to be called by the OpenMOC Python \"plotter\" module as a
+utility to assist in plotting tracks. Although this method appears to require two
+arguments, in reality it only requires on due to SWIG and would be called from within
+Python as follows:  
 
 
 Parameters
 ----------
 * coords :  
-    an array of coords of length NUM_VALUES_PER_RETRIEVED_TRACK times the number
-    of Tracks  
+    an array of coords of length NUM_VALUES_PER_RETRIEVED_TRACK times the number of Tracks  
 * length_coords :  
     the total number of Tracks times NUM_VALUES_PER_RETRIEVED_TRACK  
 ";
@@ -7498,8 +7388,8 @@ getTracks() -> Track **
 
 Returns a 2D jagged array of the Tracks.  
 
-The first index into the array is the azimuthal angle and the second index is
-the Track number for a given azimuthal angle.  
+The first index into the array is the azimuthal angle and the second index is the Track
+number for a given azimuthal angle.  
 
 Returns
 -------
@@ -7511,10 +7401,10 @@ initializeSegments()
 
 Initialize track segments with pointers to FSR Materials.  
 
-This is called by the Solver at simulation time. This initialization is
-necessary since Materials in each FSR may be interchanged by the user in between
-different simulations. This method links each segment and fsr_data struct with
-the current Material found in each FSR.  
+This is called by the Solver at simulation time. This initialization is necessary since
+Materials in each FSR may be interchanged by the user in between different simulations.
+This method links each segment and fsr_data struct with the current Material found in each
+FSR.  
 ";
 
 %feature("docstring") TrackGenerator::getFSRLocks "
@@ -7543,10 +7433,9 @@ generateFSRCentroids()
 
 Generates the numerical centroids of the FSRs.  
 
-This routine generates the numerical centroids of the FSRs by weighting the
-average x and y values of each segment in the FSR by the segment's length and
-azimuthal weight. The numerical centroid fomula can be found in R. Ferrer et.
-al. \"Linear Source
+This routine generates the numerical centroids of the FSRs by weighting the average x and
+y values of each segment in the FSR by the segment's length and azimuthal weight. The
+numerical centroid fomula can be found in R. Ferrer et. al. \"Linear Source
          Approximation in CASMO 5\", PHYSOR 2012.  
 ";
 
@@ -7570,17 +7459,17 @@ retrieveSegmentCoords(double *coords, int num_segments)
 
 Fills an array with the x,y,z coordinates for each Track segment.  
 
-This class method is intended to be called by the OpenMOC Python \"plotter\"
-module as a utility to assist in plotting segments. Although this method appears
-to require two arguments, in reality it only requires one due to SWIG and would
-be called from within Python as follows:  
+This class method is intended to be called by the OpenMOC Python \"plotter\" module as a
+utility to assist in plotting segments. Although this method appears to require two
+arguments, in reality it only requires one due to SWIG and would be called from within
+Python as follows:  
 
 
 Parameters
 ----------
 * coords :  
-    an array of coords of length NUM_VALUES_PER_RETRIEVED_SEGMENT times the
-    number of segments  
+    an array of coords of length NUM_VALUES_PER_RETRIEVED_SEGMENT times the number of
+    segments  
 * length_coords :  
     the total number of Track segments times NUM_VALUES_PER_RETRIEVED_SEGMENT  
 ";
@@ -7590,8 +7479,8 @@ correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume)
 
 Assign a correct volume for some FSR.  
 
-This routine adjusts the length of each track segment crossing a FSR such that
-the integrated volume is identical to the true volume assigned by the user.  
+This routine adjusts the length of each track segment crossing a FSR such that the
+integrated volume is identical to the true volume assigned by the user.  
 
 Parameters
 ----------
@@ -7627,8 +7516,8 @@ getFSRVolumes() -> FP_PRECISION *
 
 Computes and returns an array of volumes indexed by FSR.  
 
-Note: It is the function caller's responsibility to deallocate the memory
-reserved for the FSR volume array.  
+Note: It is the function caller's responsibility to deallocate the memory reserved for the
+FSR volume array.  
 
 Returns
 -------
@@ -7653,8 +7542,8 @@ the desired azimuthal angle.
 %feature("docstring") TrackGenerator::splitSegments "
 splitSegments(FP_PRECISION max_optical_length)  
 
-Splits Track segments into sub-segments for a user-defined maximum optical
-length for the problem.  
+Splits Track segments into sub-segments for a user-defined maximum optical length for the
+problem.  
 
 This routine is needed so that all segment lengths fit within the exponential
 interpolation table used in the MOC transport sweep.  
@@ -7700,8 +7589,8 @@ getTracksByParallelGroup() -> Track **
 
 Returns a 1D array of Track pointers.  
 
-The tracks in the _tracks_by_parallel_group array are organized by parallel
-track group. The index into the array is also the corresponding Track's UID.  
+The tracks in the _tracks_by_parallel_group array are organized by parallel track group.
+The index into the array is also the corresponding Track's UID.  
 
 Returns
 -------
@@ -7740,10 +7629,10 @@ generateTracks(bool neighbor_cells=false)
 
 Generates tracks for some number of azimuthal angles and track spacing.  
 
-Computes the effective angles and track spacing. Computes the number of Tracks
-for each azimuthal angle, allocates memory for all Tracks at each angle and sets
-each Track's starting and ending Points, azimuthal angle, and azimuthal angle
-quadrature weight. neighbor_cells whether to use neighbor cell optimizations  
+Computes the effective angles and track spacing. Computes the number of Tracks for each
+azimuthal angle, allocates memory for all Tracks at each angle and sets each Track's
+starting and ending Points, azimuthal angle, and azimuthal angle quadrature weight.
+neighbor_cells whether to use neighbor cell optimizations  
 ";
 
 %feature("docstring") TrackGenerator::getAzimWeights "
@@ -7812,8 +7701,8 @@ getTrackSpacing() -> double
 
 Return the track spacing (cm).  
 
-This will return the user-specified track spacing and NOT the effective track
-spacing which is computed and used to generate cyclic tracks.  
+This will return the user-specified track spacing and NOT the effective track spacing
+which is computed and used to generate cyclic tracks.  
 
 Returns
 -------
@@ -7858,8 +7747,8 @@ The number of Tracks generated
 %feature("docstring") TrackGenerator::containsTracks "
 containsTracks() -> bool  
 
-Returns whether or not the TrackGenerator contains Track that are for its
-current number of azimuthal angles, track spacing and geometry.  
+Returns whether or not the TrackGenerator contains Track that are for its current number
+of azimuthal angles, track spacing and geometry.  
 
 Returns
 -------
@@ -7898,8 +7787,8 @@ initialize()
 
 Routine to initialize the polar quadrature.  
 
-This routine uses the tabulated values for the Tabuchi-Yamamoto polar angle
-quadrature, including the sine thetas and weights.  
+This routine uses the tabulated values for the Tabuchi-Yamamoto polar angle quadrature,
+including the sine thetas and weights.  
 ";
 
 // File: classUniverse.xml
@@ -7909,9 +7798,9 @@ quadrature, including the sine thetas and weights.
 
 A Universe represents an unbounded space in the 3D.  
 
-A Universe contains cell which are bounded subspaces in 3D which together form
-the Universe. Universes allow for complex, repeating (i.e. lattices) geometries
-to be simply represented with as few data structures as possible.  
+A Universe contains cell which are bounded subspaces in 3D which together form the
+Universe. Universes allow for complex, repeating (i.e. lattices) geometries to be simply
+represented with as few data structures as possible.  
 
 C++ includes: src/Universe.h
 ";
@@ -7960,11 +7849,11 @@ the Universe type
 %feature("docstring") Universe::getMinX "
 getMinX() -> double  
 
-Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type
-Cells filling this Universe.  
+Aggregates a list (vector) of the IDs of all Materials within the MATERIAL type Cells
+filling this Universe.  
 
-Note that this method only searches the first level of Cells below this Universe
-within the nested Universe coordinate system.  
+Note that this method only searches the first level of Cells below this Universe within
+the nested Universe coordinate system.  
 
 Returns
 -------
@@ -8031,15 +7920,15 @@ the boundary conditions at the minimum reachable y-coordinate
 %feature("docstring") Universe::buildNeighbors "
 buildNeighbors()  
 
-Builds collections of neighboring Cells for all Cells in this Universe for
-optimized ray tracing.  
+Builds collections of neighboring Cells for all Cells in this Universe for optimized ray
+tracing.  
 ";
 
 %feature("docstring") Universe::getAllCells "
 getAllCells() -> std::map< int, Cell * >  
 
-Returns the std::map of Cell IDs and Cell pointers in this Universe at all
-nested Universe levels.  
+Returns the std::map of Cell IDs and Cell pointers in this Universe at all nested Universe
+levels.  
 
 Returns
 -------
@@ -8059,8 +7948,8 @@ a character array representing the Universe's attributes
 %feature("docstring") Universe::subdivideCells "
 subdivideCells(double max_radius=INFINITY)  
 
-Subdivides all of the Material-filled Cells within this Universe into rings and
-angular sectors aligned with the z-axis.  
+Subdivides all of the Material-filled Cells within this Universe into rings and angular
+sectors aligned with the z-axis.  
 
 Parameters
 ----------
@@ -8174,8 +8063,8 @@ std::map of Cell IDs
 %feature("docstring") Universe::isFissionable "
 isFissionable() -> bool  
 
-Returns true if the Universe contains a Cell filled by a fissionable Material
-and false otherwise.  
+Returns true if the Universe contains a Cell filled by a fissionable Material and false
+otherwise.  
 
 This method should not be called prior to the calling of the
 Geometry::computeFissionability() method.  
@@ -8200,8 +8089,8 @@ addCell(Cell *cell)
 
 Adds a Cell to this Universe.  
 
-Stores the user-specified Cell ID and Cell pointer in a std::map along with all
-of other Cells added to this Universe.  
+Stores the user-specified Cell ID and Cell pointer in a std::map along with all of other
+Cells added to this Universe.  
 
 Parameters
 ----------
@@ -8212,8 +8101,8 @@ Parameters
 %feature("docstring") Universe::setFissionability "
 setFissionability(bool fissionable)  
 
-Sets whether or not this Universe contains a fissionable Material with a non-
-zero fission cross-section.  
+Sets whether or not this Universe contains a fissionable Material with a non-zero fission
+cross-section.  
 
 This method is called by the Geometry::computeFissionability() class method.  
 
@@ -8228,9 +8117,8 @@ findCell(LocalCoords *coords) -> Cell *
 
 Finds the Cell for which a LocalCoords object resides.  
 
-Finds the Cell that a LocalCoords object is located inside by checking each of
-this Universe's Cells. Returns NULL if the LocalCoords is not in any of the
-Cells.  
+Finds the Cell that a LocalCoords object is located inside by checking each of this
+Universe's Cells. Returns NULL if the LocalCoords is not in any of the Cells.  
 
 Parameters
 ----------
@@ -8270,8 +8158,8 @@ a pointer to the Universe clone
 %feature("docstring") Universe::getAllUniverses "
 getAllUniverses() -> std::map< int, Universe * >  
 
-Returns the std::map of all nested Universe IDs and Universe pointers filling
-this Universe.  
+Returns the std::map of all nested Universe IDs and Universe pointers filling this
+Universe.  
 
 Returns
 -------
@@ -8338,9 +8226,9 @@ The number of rows in the vector.
 %feature("docstring") Vector::setValues "
 setValues(int cell, int group_start, int group_end, FP_PRECISION *vals)  
 
-Set values in the vector.  This method takes a cell, first group, last group,
-and floating point value. The cell and groups are used to compute the rows in
-the vector. If a values exist for the rows, the values are overwritten.  
+Set values in the vector.  This method takes a cell, first group, last group, and floating
+point value. The cell and groups are used to compute the rows in the vector. If a values
+exist for the rows, the values are overwritten.  
 
 Parameters
 ----------
@@ -8357,10 +8245,9 @@ Parameters
 %feature("docstring") Vector::incrementValue "
 incrementValue(int cell, int group, FP_PRECISION val)  
 
-Increment a value in the vector.  This method takes a cell and group and
-floating point value. The cell and group are used to compute the row and column
-in the vector. If a value exists for the row, the value is incremented by val;
-otherwise, it is set to val.  
+Increment a value in the vector.  This method takes a cell and group and floating point
+value. The cell and group are used to compute the row and column in the vector. If a value
+exists for the row, the value is incremented by val; otherwise, it is set to val.  
 
 Parameters
 ----------
@@ -8375,12 +8262,11 @@ Parameters
 %feature("docstring") Vector::Vector "
 Vector(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
 
-Constructor initializes Vector object as a floating point array and sets the
-vector dimensions.  The vector is ordered by cell (as opposed to by group) on
-the outside to be consistent with the Matrix object. Locks are used to make the
-vector object thread-safe against concurrent writes the same value. One lock
-locks out multiple rows of the vector at a time representing multiple groups in
-the same cell.  
+Constructor initializes Vector object as a floating point array and sets the vector
+dimensions.  The vector is ordered by cell (as opposed to by group) on the outside to be
+consistent with the Matrix object. Locks are used to make the vector object thread-safe
+against concurrent writes the same value. One lock locks out multiple rows of the vector
+at a time representing multiple groups in the same cell.  
 
 Parameters
 ----------
@@ -8478,10 +8364,9 @@ setAll(FP_PRECISION val)
 %feature("docstring") Vector::incrementValues "
 incrementValues(int cell, int group_start, int group_end, FP_PRECISION *vals)  
 
-Increment values in the vector.  This method takes a cell, first group, last
-group, and floating point value. The cell and groups are used to compute the
-rows in the vector. If values exist for the rows, the values are incremented by
-vals; otherwise, they are set.  
+Increment values in the vector.  This method takes a cell, first group, last group, and
+floating point value. The cell and groups are used to compute the rows in the vector. If
+values exist for the rows, the values are incremented by vals; otherwise, they are set.  
 
 Parameters
 ----------
@@ -8498,9 +8383,9 @@ Parameters
 %feature("docstring") Vector::setValue "
 setValue(int cell, int group, FP_PRECISION val)  
 
-Set a value in the vector.  This method takes a cell and group and floating
-point value. The cell and group are used to compute the row and column in the
-vector. The location of the corresponding row is set to val.  
+Set a value in the vector.  This method takes a cell and group and floating point value.
+The cell and group are used to compute the row and column in the vector. The location of
+the corresponding row is set to val.  
 
 Parameters
 ----------
@@ -8523,13 +8408,12 @@ Destructor deletes the arrays used to represent the vector.
 
 %feature("docstring") VectorizedSolver "
 
-This is a subclass of the CPUSolver class which uses memory-aligned data
-structures and Intel's auto-vectorization.  
+This is a subclass of the CPUSolver class which uses memory-aligned data structures and
+Intel's auto-vectorization.  
 
-note: This class is only compiled if the Intel compiler is used when building
-    OpenMOC. If building OpenMOC with the \"--with-icpc\" flag, then this class
-    will be available in the \"openmoc.intel.single\" or
-    \"openmoc.intel.double\" Python module.  
+note: This class is only compiled if the Intel compiler is used when building OpenMOC. If
+    building OpenMOC with the \"--with-icpc\" flag, then this class will be available in
+    the \"openmoc.intel.single\" or \"openmoc.intel.double\" Python module.  
 
 C++ includes: src/VectorizedSolver.h
 ";
@@ -8539,18 +8423,16 @@ initializeSourceArrays()
 
 Allocates memory for FSR source arrays.  
 
-Deletes memory for old source arrays if they were allocated for a previous
-simulation.  
+Deletes memory for old source arrays if they were allocated for a previous simulation.  
 ";
 
 %feature("docstring") VectorizedSolver::getNumVectorWidths "
 getNumVectorWidths() -> int  
 
-Returns the number of vector lengths required to fit the number of energy
-groups.  
+Returns the number of vector lengths required to fit the number of energy groups.  
 
-If the number of energy groups is 35 and the vector width is 4, this method will
-return 9 since 9*4 = 36 is the nearest integer greater than or equal to 35.  
+If the number of energy groups is 35 and the vector width is 4, this method will return 9
+since 9*4 = 36 is the nearest integer greater than or equal to 35.  
 
 Returns
 -------
@@ -8562,8 +8444,7 @@ initializeFluxArrays()
 
 Allocates memory for Track boundary angular and FSR scalar fluxes.  
 
-Deletes memory for old flux arrays if they were allocated for a previous
-simulation.  
+Deletes memory for old flux arrays if they were allocated for a previous simulation.  
 ";
 
 %feature("docstring") VectorizedSolver::VectorizedSolver "
@@ -8597,8 +8478,7 @@ Parameters
 %feature("docstring") VectorizedSolver::~VectorizedSolver "
 ~VectorizedSolver()  
 
-Destructor deletes Track boundary angular flux and and FSR scalar flux and
-source arrays.  
+Destructor deletes Track boundary angular flux and and FSR scalar flux and source arrays.  
 ";
 
 %feature("docstring") VectorizedSolver::initializeFixedSources "
@@ -8633,15 +8513,14 @@ Compute $ k_{eff} $ from successive fission sources.
 %feature("docstring") VectorizedSolver::normalizeFluxes "
 normalizeFluxes()  
 
-Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total
-fission source (times $ \\nu $).  
+Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission
+source (times $ \\nu $).  
 ";
 
 %feature("docstring") VectorizedSolver::addSourceToScalarFlux "
 addSourceToScalarFlux()  
 
-Add the source term contribution in the transport equation to the FSR scalar
-flux.  
+Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") VectorizedSolver::computeFSRSources "
@@ -8649,8 +8528,8 @@ computeFSRSources()
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
-This method computes the total source in each FSR based on this iteration's
-current approximation to the scalar flux.  
+This method computes the total source in each FSR based on this iteration's current
+approximation to the scalar flux.  
 ";
 
 // File: classXPlane.xml
@@ -8694,9 +8573,9 @@ toString() -> std::string
 
 Converts this XPlane's attributes to a character array.  
 
-The character array returned conatins the type of Plane (ie, XPLANE) and the A,
-B, C, and D coefficients in the quadratic Surface equation and the location of
-the Plane on the x-axis.  
+The character array returned conatins the type of Plane (ie, XPLANE) and the A, B, C, and
+D coefficients in the quadratic Surface equation and the location of the Plane on the
+x-axis.  
 
 Returns
 -------
@@ -8769,9 +8648,9 @@ toString() -> std::string
 
 Converts this yplane's attributes to a character array.  
 
-The character array returned conatins the type of Plane (ie, YPLANE) and the A,
-B, C, and D coefficients in the quadratic Surface equation and the location of
-the Plane on the y-axis.  
+The character array returned conatins the type of Plane (ie, YPLANE) and the A, B, C, and
+D coefficients in the quadratic Surface equation and the location of the Plane on the
+y-axis.  
 
 Returns
 -------
@@ -8938,8 +8817,8 @@ toString() -> std::string
 
 Converts this ZCylinder's attributes to a character array.  
 
-The character array returned conatins the type of Plane (ie, ZCYLINDER) and the
-A, B, C, D and E coefficients in the quadratic Surface equation.  
+The character array returned conatins the type of Plane (ie, ZCYLINDER) and the A, B, C, D
+and E coefficients in the quadratic Surface equation.  
 
 Returns
 -------
@@ -8992,8 +8871,8 @@ the maximum z value of INFINITY
 ";
 
 %feature("docstring") ZCylinder::ZCylinder "
-ZCylinder(const double x, const double y, const double radius, const int id=0,
-    const char *name=\"\")  
+ZCylinder(const double x, const double y, const double radius, const int id=0, const char
+    *name=\"\")  
 
 constructor.  
 
@@ -9014,8 +8893,8 @@ Parameters
 %feature("docstring") ZCylinder::intersection "
 intersection(Point *point, double angle, Point *points) -> int  
 
-Finds the intersection Point with this zcylinder from a given Point and
-trajectory defined by an angle (0, 1, or 2 points).  
+Finds the intersection Point with this zcylinder from a given Point and trajectory defined
+by an angle (0, 1, or 2 points).  
 
 Parameters
 ----------
@@ -9093,9 +8972,9 @@ toString() -> std::string
 
 Converts this ZPlane's attributes to a character array.  
 
-The character array returned conatins the type of Plane (ie, ZPLANE) and the A,
-B, C, and D coefficients in the quadratic Surface equation and the location of
-the Plane along the z-axis.  
+The character array returned conatins the type of Plane (ie, ZPLANE) and the A, B, C, and
+D coefficients in the quadratic Surface equation and the location of the Plane along the
+z-axis.  
 
 Returns
 -------
@@ -9129,12 +9008,12 @@ the location of the ZPlane on the z-axis
 clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
     &material_IDs_to_indices)  
 
-Given a pointer to a Track on the host, a dev_track on the GPU, and the map of
-material IDs to indices in the _materials array, copy all of the class
-attributes and segments from the Track object on the host to the GPU.  
+Given a pointer to a Track on the host, a dev_track on the GPU, and the map of material
+IDs to indices in the _materials array, copy all of the class attributes and segments from
+the Track object on the host to the GPU.  
 
-This routine is called by the GPUSolver::initializeTracks() private class method
-and is not intended to be called directly.  
+This routine is called by the GPUSolver::initializeTracks() private class method and is
+not intended to be called directly.  
 
 Parameters
 ----------
@@ -9149,11 +9028,11 @@ Parameters
 %feature("docstring") clone_material "
 clone_material(Material *material_h, dev_material *material_d)  
 
-Given a pointer to a Material on the host and a dev_material on the GPU, copy
-all of the properties from the Material object on the host struct to the GPU.  
+Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the
+properties from the Material object on the host struct to the GPU.  
 
-This routine is called by the GPUSolver::initializeMaterials() private class
-method and is not intended to be called directly.  
+This routine is called by the GPUSolver::initializeMaterials() private class method and is
+not intended to be called directly.  
 
 Parameters
 ----------
@@ -9169,12 +9048,12 @@ Parameters
 clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
     &material_IDs_to_indices)  
 
-Given a pointer to a Track on the host, a dev_track on the GPU, and the map of
-material IDs to indices in the _materials array, copy all of the class
-attributes and segments from the Track object on the host to the GPU.  
+Given a pointer to a Track on the host, a dev_track on the GPU, and the map of material
+IDs to indices in the _materials array, copy all of the class attributes and segments from
+the Track object on the host to the GPU.  
 
-This routine is called by the GPUSolver::initializeTracks() private class method
-and is not intended to be called directly.  
+This routine is called by the GPUSolver::initializeTracks() private class method and is
+not intended to be called directly.  
 
 Parameters
 ----------
@@ -9189,11 +9068,11 @@ Parameters
 %feature("docstring") clone_material "
 clone_material(Material *material_h, dev_material *material_d)  
 
-Given a pointer to a Material on the host and a dev_material on the GPU, copy
-all of the properties from the Material object on the host struct to the GPU.  
+Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the
+properties from the Material object on the host struct to the GPU.  
 
-This routine is called by the GPUSolver::initializeMaterials() private class
-method and is not intended to be called directly.  
+This routine is called by the GPUSolver::initializeMaterials() private class method and is
+not intended to be called directly.  
 
 Parameters
 ----------
@@ -9208,11 +9087,11 @@ Parameters
 %feature("docstring") clone_exp_evaluator "
 clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
 
-Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU,
-copy all of the properties from the ExpEvaluator object on the host to the GPU.  
+Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all
+of the properties from the ExpEvaluator object on the host to the GPU.  
 
-This routine is called by the GPUSolver::initializeExpEvaluator() private class
-method and is not intended to be called directly.  
+This routine is called by the GPUSolver::initializeExpEvaluator() private class method and
+is not intended to be called directly.  
 
 Parameters
 ----------
@@ -9227,11 +9106,11 @@ Parameters
 %feature("docstring") clone_exp_evaluator "
 clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
 
-Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU,
-copy all of the properties from the ExpEvaluator object on the host to the GPU.  
+Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all
+of the properties from the ExpEvaluator object on the host to the GPU.  
 
-This routine is called by the GPUSolver::initializeExpEvaluator() private class
-method and is not intended to be called directly.  
+This routine is called by the GPUSolver::initializeExpEvaluator() private class method and
+is not intended to be called directly.  
 
 Parameters
 ----------
@@ -9264,8 +9143,7 @@ print_basic_gpu_info()
 
 Prints the basic device info for the CUDA-enabled device in use.  
 
-Prints the name, compute capability, # multiprocessors and the clock rate of the
-device.  
+Prints the name, compute capability, # multiprocessors and the clock rate of the device.  
 ";
 
 %feature("docstring") print_detailed_gpu_info "
@@ -9274,9 +9152,8 @@ print_detailed_gpu_info()
 Prints the detailed device info for the CUDA-enabled device in use.  
 
 Prints the total global and constant memory, shared memory and registers per
-multiprocessor, # threads per warp, maximum # threads per multiprocessor,
-maximum # threads per block, maximum threadblock dimensions, and maximum grid
-dimensions.  
+multiprocessor, # threads per warp, maximum # threads per multiprocessor, maximum #
+threads per block, maximum threadblock dimensions, and maximum grid dimensions.  
 ";
 
 %feature("docstring") attach_gpu "
@@ -9313,8 +9190,7 @@ print_basic_gpu_info()
 
 Prints the basic device info for the CUDA-enabled device in use.  
 
-Prints the name, compute capability, # multiprocessors and the clock rate of the
-device.  
+Prints the name, compute capability, # multiprocessors and the clock rate of the device.  
 ";
 
 %feature("docstring") print_detailed_gpu_info "
@@ -9323,9 +9199,8 @@ print_detailed_gpu_info()
 Prints the detailed device info for the CUDA-enabled device in use.  
 
 Prints the total global and constant memory, shared memory and registers per
-multiprocessor, # threads per warp, maximum # threads per multiprocessor,
-maximum # threads per block, maximum threadblock dimensions, and maximum grid
-dimensions.  
+multiprocessor, # threads per warp, maximum # threads per multiprocessor, maximum #
+threads per block, maximum threadblock dimensions, and maximum grid dimensions.  
 ";
 
 %feature("docstring") attach_gpu "
@@ -9342,12 +9217,12 @@ Parameters
 // File: GPUSolver_8cu.xml
 
 %feature("docstring") addSourceToScalarFluxOnDevice "
-addSourceToScalarFluxOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION
-    *reduced_sources, FP_PRECISION *FSR_volumes, int *FSR_materials,
-    dev_material *materials) -> __global__ void  
+addSourceToScalarFluxOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION *reduced_sources,
+    FP_PRECISION *FSR_volumes, int *FSR_materials, dev_material *materials) -> __global__
+    void  
 
-Add the source term contribution in the transport equation to the FSR scalar
-flux on the GPU.  
+Add the source term contribution in the transport equation to the FSR scalar flux on the
+GPU.  
 
 Parameters
 ----------
@@ -9364,12 +9239,10 @@ Parameters
 ";
 
 %feature("docstring") computeFSRFissionRatesOnDevice "
-computeFSRFissionRatesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials,
-    dev_material *materials, FP_PRECISION *scalar_flux, FP_PRECISION *fission)
-    -> __global__ void  
+computeFSRFissionRatesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials, dev_material
+    *materials, FP_PRECISION *scalar_flux, FP_PRECISION *fission) -> __global__ void  
 
-Compute the total volume-intergrated fission source from all FSRs and energy
-groups.  
+Compute the total volume-intergrated fission source from all FSRs and energy groups.  
 
 Parameters
 ----------
@@ -9386,16 +9259,16 @@ Parameters
 ";
 
 %feature("docstring") transferBoundaryFlux "
-transferBoundaryFlux(dev_track *curr_track, int azim_index, FP_PRECISION
-    *track_flux, FP_PRECISION *boundary_flux, FP_PRECISION *polar_weights, int
-    energy_angle_index, bool direction) -> __device__ void  
+transferBoundaryFlux(dev_track *curr_track, int azim_index, FP_PRECISION *track_flux,
+    FP_PRECISION *boundary_flux, FP_PRECISION *polar_weights, int energy_angle_index, bool
+    direction) -> __device__ void  
 
 Updates the boundary flux for a Track given boundary conditions.  
 
-For reflective and periodic boundary conditions, the outgoing boundary flux for
-the Track is given to the corresponding reflecting or periodic Track. For vacuum
-boundary conditions, the outgoing flux is tallied as leakage. Note: Only one
-energy group is transferred by this routine.  
+For reflective and periodic boundary conditions, the outgoing boundary flux for the Track
+is given to the corresponding reflecting or periodic Track. For vacuum boundary
+conditions, the outgoing flux is tallied as leakage. Note: Only one energy group is
+transferred by this routine.  
 
 Parameters
 ----------
@@ -9416,16 +9289,15 @@ Parameters
 ";
 
 %feature("docstring") computeFSRFissionSourcesOnDevice "
-computeFSRFissionSourcesOnDevice(int *FSR_materials, dev_material *materials,
-    bool divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION
-    *reduced_sources) -> __global__ void  
+computeFSRFissionSourcesOnDevice(int *FSR_materials, dev_material *materials, bool
+    divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION *reduced_sources) ->
+    __global__ void  
 
 Computes the total fission source in each FSR in each energy group.  
 
-This method is a helper routine for the openmoc.krylov submodule. This routine
-computes the total fission source in each FSR. If the divide_sigma_t parameter
-is true then the fission source will be divided by the total cross-section in
-each FSR.  
+This method is a helper routine for the openmoc.krylov submodule. This routine computes
+the total fission source in each FSR. If the divide_sigma_t parameter is true then the
+fission source will be divided by the total cross-section in each FSR.  
 
 Parameters
 ----------
@@ -9461,9 +9333,9 @@ the atomically added array value and input value
 ";
 
 %feature("docstring") computeFissionSourcesOnDevice "
-computeFissionSourcesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials,
-    dev_material *materials, FP_PRECISION *scalar_flux, FP_PRECISION
-    *fission_sources) -> __global__ void  
+computeFissionSourcesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials, dev_material
+    *materials, FP_PRECISION *scalar_flux, FP_PRECISION *fission_sources) -> __global__
+    void  
 
 Compute the total fission source from all FSRs.  
 
@@ -9482,17 +9354,15 @@ Parameters
 ";
 
 %feature("docstring") tallyScalarFlux "
-tallyScalarFlux(dev_segment *curr_segment, int azim_index, int energy_group,
-    dev_material *materials, FP_PRECISION *track_flux, FP_PRECISION
-    *reduced_sources, FP_PRECISION *polar_weights, FP_PRECISION *scalar_flux) ->
-    __device__ void  
+tallyScalarFlux(dev_segment *curr_segment, int azim_index, int energy_group, dev_material
+    *materials, FP_PRECISION *track_flux, FP_PRECISION *reduced_sources, FP_PRECISION
+    *polar_weights, FP_PRECISION *scalar_flux) -> __device__ void  
 
-Computes the contribution to the FSR scalar flux from a Track segment in a
-single energy group.  
+Computes the contribution to the FSR scalar flux from a Track segment in a single energy
+group.  
 
-This method integrates the angular flux for a Track segment across energy groups
-and polar angles, and tallies it into the FSR scalar flux, and updates the
-Track's angular flux.  
+This method integrates the angular flux for a Track segment across energy groups and polar
+angles, and tallies it into the FSR scalar flux, and updates the Track's angular flux.  
 
 Parameters
 ----------
@@ -9515,16 +9385,15 @@ Parameters
 ";
 
 %feature("docstring") computeFSRScatterSourcesOnDevice "
-computeFSRScatterSourcesOnDevice(int *FSR_materials, dev_material *materials,
-    bool divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION
-    *reduced_sources) -> __global__ void  
+computeFSRScatterSourcesOnDevice(int *FSR_materials, dev_material *materials, bool
+    divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION *reduced_sources) ->
+    __global__ void  
 
 Computes the total scattering source in each FSR and energy group.  
 
-This method is a helper routine for the openmoc.krylov submodule. This routine
-computes the total scatter source in each FSR. If the divide_sigma_t parameter
-is true then the scatter source will be divided by the total cross-section in
-each FSR.  
+This method is a helper routine for the openmoc.krylov submodule. This routine computes
+the total scatter source in each FSR. If the divide_sigma_t parameter is true then the
+scatter source will be divided by the total cross-section in each FSR.  
 
 Parameters
 ----------
@@ -9542,14 +9411,14 @@ Parameters
 
 %feature("docstring") transportSweepOnDevice "
 transportSweepOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION *boundary_flux,
-    FP_PRECISION *reduced_sources, dev_material *materials, dev_track *tracks,
-    int tid_offset, int tid_max) -> __global__ void  
+    FP_PRECISION *reduced_sources, dev_material *materials, dev_track *tracks, int
+    tid_offset, int tid_max) -> __global__ void  
 
-This method performs one transport sweep of one halfspace of all azimuthal
-angles, tracks, segments, polar angles and energy groups.  
+This method performs one transport sweep of one halfspace of all azimuthal angles, tracks,
+segments, polar angles and energy groups.  
 
-The method integrates the flux along each track and updates the boundary fluxes
-for the corresponding output Track, while updating the scalar flux in each FSR.  
+The method integrates the flux along each track and updates the boundary fluxes for the
+corresponding output Track, while updating the scalar flux in each FSR.  
 
 Parameters
 ----------
@@ -9570,14 +9439,14 @@ Parameters
 ";
 
 %feature("docstring") computeFSRSourcesOnDevice "
-computeFSRSourcesOnDevice(int *FSR_materials, dev_material *materials,
-    FP_PRECISION *scalar_flux, FP_PRECISION *fixed_sources, FP_PRECISION
-    *reduced_sources, FP_PRECISION inverse_k_eff) -> __global__ void  
+computeFSRSourcesOnDevice(int *FSR_materials, dev_material *materials, FP_PRECISION
+    *scalar_flux, FP_PRECISION *fixed_sources, FP_PRECISION *reduced_sources, FP_PRECISION
+    inverse_k_eff) -> __global__ void  
 
 Computes the total source (fission, scattering, fixed) in each FSR.  
 
-This method computes the total source in each region based on this iteration's
-current approximation to the scalar flux.  
+This method computes the total source in each region based on this iteration's current
+approximation to the scalar flux.  
 
 Parameters
 ----------
@@ -9610,10 +9479,9 @@ maximize_cell_id(int cell_id)
 
 Maximize the auto-generated unique Cell ID counter.  
 
-This method updates the auto-generated unique Cell ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Cell IDs do not collide
-with those created in OpenCG.  
+This method updates the auto-generated unique Cell ID counter if the input parameter is
+greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Cell IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
@@ -9632,11 +9500,10 @@ cell_id() -> int
 
 Returns an auto-generated unique Cell ID.  
 
-This method is intended as a utility method for users writing OpenMOC input
-files. The method makes use of a static Cell ID which is incremented each time
-the method is called to enable unique generation of monotonically increasing
-IDs. The method's first ID begins at 10000. Hence, user-defined Cell IDs greater
-than or equal to 10000 are prohibited.  
+This method is intended as a utility method for users writing OpenMOC input files. The
+method makes use of a static Cell ID which is incremented each time the method is called
+to enable unique generation of monotonically increasing IDs. The method's first ID begins
+at 10000. Hence, user-defined Cell IDs greater than or equal to 10000 are prohibited.  
 ";
 
 // File: Cell_8h.xml
@@ -9646,10 +9513,9 @@ maximize_cell_id(int cell_id)
 
 Maximize the auto-generated unique Cell ID counter.  
 
-This method updates the auto-generated unique Cell ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Cell IDs do not collide
-with those created in OpenCG.  
+This method updates the auto-generated unique Cell ID counter if the input parameter is
+greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Cell IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
@@ -9668,11 +9534,10 @@ cell_id() -> int
 
 Returns an auto-generated unique Cell ID.  
 
-This method is intended as a utility method for users writing OpenMOC input
-files. The method makes use of a static Cell ID which is incremented each time
-the method is called to enable unique generation of monotonically increasing
-IDs. The method's first ID begins at 10000. Hence, user-defined Cell IDs greater
-than or equal to 10000 are prohibited.  
+This method is intended as a utility method for users writing OpenMOC input files. The
+method makes use of a static Cell ID which is incremented each time the method is called
+to enable unique generation of monotonically increasing IDs. The method's first ID begins
+at 10000. Hence, user-defined Cell IDs greater than or equal to 10000 are prohibited.  
 ";
 
 // File: Cmfd_8cpp.xml
@@ -9680,8 +9545,8 @@ than or equal to 10000 are prohibited.
 // File: Cmfd_8h.xml
 
 %feature("docstring") stencilCompare "
-stencilCompare(const std::pair< int, FP_PRECISION > &firstElem, const std::pair<
-    int, FP_PRECISION > &secondElem) -> bool  
+stencilCompare(const std::pair< int, FP_PRECISION > &firstElem, const std::pair< int,
+    FP_PRECISION > &secondElem) -> bool  
 
 Comparitor for sorting k-nearest stencil std::pair objects  
 ";
@@ -9701,8 +9566,8 @@ Comparitor for sorting k-nearest stencil std::pair objects
 %feature("docstring") reset_auto_ids "
 reset_auto_ids()  
 
-Resets the auto-generated unique IDs for Materials, Surfaces, Cells and
-Universes/Lattices to 10000.  
+Resets the auto-generated unique IDs for Materials, Surfaces, Cells and Universes/Lattices
+to 10000.  
 ";
 
 // File: Geometry_8h.xml
@@ -9710,8 +9575,8 @@ Universes/Lattices to 10000.
 %feature("docstring") reset_auto_ids "
 reset_auto_ids()  
 
-Resets the auto-generated unique IDs for Materials, Surfaces, Cells and
-Universes/Lattices to 10000.  
+Resets the auto-generated unique IDs for Materials, Surfaces, Cells and Universes/Lattices
+to 10000.  
 ";
 
 // File: linalg_8cpp.xml
@@ -9721,9 +9586,8 @@ matrixMultiplication(Matrix *A, Vector *X, Vector *B)
 
 Performs a matrix vector multiplication.  
 
-This function takes in a Matrix (A), a variable Vector (X), and a solution
-Vector (B) and computes the matrix vector product. The solution Vector is
-modified in place.  
+This function takes in a Matrix (A), a variable Vector (X), and a solution Vector (B) and
+computes the matrix vector product. The solution Vector is modified in place.  
 
 Parameters
 ----------
@@ -9741,12 +9605,11 @@ eigenvalueSolve(Matrix *A, Matrix *M, Vector *X, FP_PRECISION tol, FP_PRECISION
 
 Solves a generalized eigenvalue problem using the Power method.  
 
-This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M),
-a flux Vector (X), a tolerance used for both the power method and linear solve
-convergence (tol), and a successive over-relaxation factor (SOR_factor) and
-computes the dominant eigenvalue and eigenvector using the Power method. The
-eigenvalue is returned and the input X Vector is modified in place to be the
-corresponding eigenvector.  
+This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M), a flux
+Vector (X), a tolerance used for both the power method and linear solve convergence (tol),
+and a successive over-relaxation factor (SOR_factor) and computes the dominant eigenvalue
+and eigenvector using the Power method. The eigenvalue is returned and the input X Vector
+is modified in place to be the corresponding eigenvector.  
 
 Parameters
 ----------
@@ -9771,10 +9634,10 @@ computeRMSE(Vector *X, Vector *Y, bool integrated) -> FP_PRECISION
 
 Computes the Root Mean Square Error of two Vectors.  
 
-This function takes in two vectors (X and Y) and computes the Root Mean Square
-Error of the Vector Y with respect to Vector X. The boolean integrated must also
-be given to indicate whether the operation on the vector should be group-wise
-integrated before performing the RMSE operation.  
+This function takes in two vectors (X and Y) and computes the Root Mean Square Error of
+the Vector Y with respect to Vector X. The boolean integrated must also be given to
+indicate whether the operation on the vector should be group-wise integrated before
+performing the RMSE operation.  
 
 Parameters
 ----------
@@ -9787,17 +9650,15 @@ Parameters
 ";
 
 %feature("docstring") linearSolve "
-linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol,
-    FP_PRECISION SOR_factor)  
+linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol, FP_PRECISION
+    SOR_factor)  
 
-Solves a linear system using Red-Black Gauss Seidel with successive over-
-relaxation.  
+Solves a linear system using Red-Black Gauss Seidel with successive over-relaxation.  
 
-This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M),
-a flux Vector (X), a source Vector (B), a source convergence tolerance (tol) and
-a successive over-relaxation factor (SOR_factor) and computes the solution to
-the linear system. The input X Vector is modified in place to be the solution
-vector.  
+This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M), a flux
+Vector (X), a source Vector (B), a source convergence tolerance (tol) and a successive
+over-relaxation factor (SOR_factor) and computes the solution to the linear system. The
+input X Vector is modified in place to be the solution vector.  
 
 Parameters
 ----------
@@ -9837,9 +9698,8 @@ matrixMultiplication(Matrix *A, Vector *X, Vector *B)
 
 Performs a matrix vector multiplication.  
 
-This function takes in a Matrix (A), a variable Vector (X), and a solution
-Vector (B) and computes the matrix vector product. The solution Vector is
-modified in place.  
+This function takes in a Matrix (A), a variable Vector (X), and a solution Vector (B) and
+computes the matrix vector product. The solution Vector is modified in place.  
 
 Parameters
 ----------
@@ -9857,12 +9717,11 @@ eigenvalueSolve(Matrix *A, Matrix *M, Vector *X, FP_PRECISION tol, FP_PRECISION
 
 Solves a generalized eigenvalue problem using the Power method.  
 
-This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M),
-a flux Vector (X), a tolerance used for both the power method and linear solve
-convergence (tol), and a successive over-relaxation factor (SOR_factor) and
-computes the dominant eigenvalue and eigenvector using the Power method. The
-eigenvalue is returned and the input X Vector is modified in place to be the
-corresponding eigenvector.  
+This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M), a flux
+Vector (X), a tolerance used for both the power method and linear solve convergence (tol),
+and a successive over-relaxation factor (SOR_factor) and computes the dominant eigenvalue
+and eigenvector using the Power method. The eigenvalue is returned and the input X Vector
+is modified in place to be the corresponding eigenvector.  
 
 Parameters
 ----------
@@ -9887,10 +9746,10 @@ computeRMSE(Vector *x, Vector *y, bool integrated) -> FP_PRECISION
 
 Computes the Root Mean Square Error of two Vectors.  
 
-This function takes in two vectors (X and Y) and computes the Root Mean Square
-Error of the Vector Y with respect to Vector X. The boolean integrated must also
-be given to indicate whether the operation on the vector should be group-wise
-integrated before performing the RMSE operation.  
+This function takes in two vectors (X and Y) and computes the Root Mean Square Error of
+the Vector Y with respect to Vector X. The boolean integrated must also be given to
+indicate whether the operation on the vector should be group-wise integrated before
+performing the RMSE operation.  
 
 Parameters
 ----------
@@ -9903,17 +9762,15 @@ Parameters
 ";
 
 %feature("docstring") linearSolve "
-linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol,
-    FP_PRECISION SOR_factor=1.5)  
+linearSolve(Matrix *A, Matrix *M, Vector *X, Vector *B, FP_PRECISION tol, FP_PRECISION
+    SOR_factor=1.5)  
 
-Solves a linear system using Red-Black Gauss Seidel with successive over-
-relaxation.  
+Solves a linear system using Red-Black Gauss Seidel with successive over-relaxation.  
 
-This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M),
-a flux Vector (X), a source Vector (B), a source convergence tolerance (tol) and
-a successive over-relaxation factor (SOR_factor) and computes the solution to
-the linear system. The input X Vector is modified in place to be the solution
-vector.  
+This function takes in a loss + streaming Matrix (A), a fission gain Matrix (M), a flux
+Vector (X), a source Vector (B), a source convergence tolerance (tol) and a successive
+over-relaxation factor (SOR_factor) and computes the solution to the linear system. The
+input X Vector is modified in place to be the solution vector.  
 
 Parameters
 ----------
@@ -9942,10 +9799,10 @@ initialize_logger()
 
 Initializes the logger for use.  
 
-This should be immediately called when the logger is imported into Python and
-before any of its other routines are called. The routine initializes an OpenMP
-mutual exclusion lock which is used to preclude race conditions from occurring
-when an ERROR message is reported and program execution is terminated.  
+This should be immediately called when the logger is imported into Python and before any
+of its other routines are called. The routine initializes an OpenMP mutual exclusion lock
+which is used to preclude race conditions from occurring when an ERROR message is reported
+and program execution is terminated.  
 ";
 
 %feature("docstring") get_header_character "
@@ -9995,8 +9852,8 @@ Parameters
 %feature("docstring") set_log_level "
 set_log_level(const char *new_level)  
 
-Sets the minimum log message level which will be printed to the console and to
-the log file.  
+Sets the minimum log message level which will be printed to the console and to the log
+file.  
 
 Parameters
 ----------
@@ -10108,11 +9965,10 @@ the character used for TITLE log messages
 %feature("docstring") create_multiline_msg "
 create_multiline_msg(std::string level, std::string message) -> std::string  
 
-Breaks up a message which is too long for a single line into a multiline
-message.  
+Breaks up a message which is too long for a single line into a multiline message.  
 
-This is an internal function which is called by log_printf and should not be
-called directly by the user.  
+This is an internal function which is called by log_printf and should not be called
+directly by the user.  
 
 Parameters
 ----------
@@ -10133,10 +9989,10 @@ initialize_logger()
 
 Initializes the logger for use.  
 
-This should be immediately called when the logger is imported into Python and
-before any of its other routines are called. The routine initializes an OpenMP
-mutual exclusion lock which is used to preclude race conditions from occurring
-when an ERROR message is reported and program execution is terminated.  
+This should be immediately called when the logger is imported into Python and before any
+of its other routines are called. The routine initializes an OpenMP mutual exclusion lock
+which is used to preclude race conditions from occurring when an ERROR message is reported
+and program execution is terminated.  
 ";
 
 %feature("docstring") get_header_character "
@@ -10186,8 +10042,8 @@ Parameters
 %feature("docstring") set_log_level "
 set_log_level(const char *new_level)  
 
-Sets the minimum log message level which will be printed to the console and to
-the log file.  
+Sets the minimum log message level which will be printed to the console and to the log
+file.  
 
 Parameters
 ----------
@@ -10278,11 +10134,10 @@ Parameters
 %feature("docstring") set_err "
 set_err(const char *msg)  
 
-A function stub used to convert C++ exceptions into Python exceptions through
-SWIG.  
+A function stub used to convert C++ exceptions into Python exceptions through SWIG.  
 
-This method is not defined in the C++ source. It is defined in the SWIG inteface
-files (i.e., openmoc/openmoc.i)  
+This method is not defined in the C++ source. It is defined in the SWIG inteface files
+(i.e., openmoc/openmoc.i)  
 
 Parameters
 ----------
@@ -10314,11 +10169,10 @@ the character used for TITLE log messages
 %feature("docstring") create_multiline_msg "
 create_multiline_msg(std::string level, std::string message) -> std::string  
 
-Breaks up a message which is too long for a single line into a multiline
-message.  
+Breaks up a message which is too long for a single line into a multiline message.  
 
-This is an internal function which is called by log_printf and should not be
-called directly by the user.  
+This is an internal function which is called by log_printf and should not be called
+directly by the user.  
 
 Parameters
 ----------
@@ -10345,10 +10199,9 @@ maximize_material_id(int material_id)
 
 Maximize the auto-generated unique Material ID counter.  
 
-This method updates the auto-generated unique Material ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Material IDs do not
-collide with those created in OpenCG.  
+This method updates the auto-generated unique Material ID counter if the input parameter
+is greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Material IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
@@ -10361,11 +10214,11 @@ material_id() -> int
 
 Returns an auto-generated unique Material ID.  
 
-This method is intended as a utility method for user's writing OpenMOC input
-files. The method makes use of a static Material ID which is incremented each
-time the method is called to enable unique generation of monotonically
-increasing IDs. The method's first ID begins at 10000. Hence, user-defined
-material IDs greater than or equal to 10000 is prohibited.  
+This method is intended as a utility method for user's writing OpenMOC input files. The
+method makes use of a static Material ID which is incremented each time the method is
+called to enable unique generation of monotonically increasing IDs. The method's first ID
+begins at 10000. Hence, user-defined material IDs greater than or equal to 10000 is
+prohibited.  
 ";
 
 // File: Material_8h.xml
@@ -10381,10 +10234,9 @@ maximize_material_id(int material_id)
 
 Maximize the auto-generated unique Material ID counter.  
 
-This method updates the auto-generated unique Material ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Material IDs do not
-collide with those created in OpenCG.  
+This method updates the auto-generated unique Material ID counter if the input parameter
+is greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Material IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
@@ -10397,11 +10249,11 @@ material_id() -> int
 
 Returns an auto-generated unique Material ID.  
 
-This method is intended as a utility method for user's writing OpenMOC input
-files. The method makes use of a static Material ID which is incremented each
-time the method is called to enable unique generation of monotonically
-increasing IDs. The method's first ID begins at 10000. Hence, user-defined
-material IDs greater than or equal to 10000 is prohibited.  
+This method is intended as a utility method for user's writing OpenMOC input files. The
+method makes use of a static Material ID which is incremented each time the method is
+called to enable unique generation of monotonically increasing IDs. The method's first ID
+begins at 10000. Hence, user-defined material IDs greater than or equal to 10000 is
+prohibited.  
 ";
 
 // File: Matrix_8cpp.xml
@@ -10415,8 +10267,8 @@ pairwise_sum(T *vector, int length) -> T
 
 Performs a pairwise sum of an array of numbers.  
 
-This type of summation uses a divide-and-conquer algorithm which is necessary to
-bound the error for summations of large sequences of numbers.  
+This type of summation uses a divide-and-conquer algorithm which is necessary to bound the
+error for summations of large sequences of numbers.  
 
 Parameters
 ----------
@@ -10451,11 +10303,11 @@ surface_id() -> int
 
 Returns an auto-generated unique surface ID.  
 
-This method is intended as a utility mehtod for user's writing OpenMOC input
-files. The method makes use of a static surface ID which is incremented each
-time the method is called to enable unique generation of monotonically
-increasing IDs. The method's first ID begins at 10000. Hence, user-defined
-surface IDs greater than or equal to 10000 are prohibited.  
+This method is intended as a utility mehtod for user's writing OpenMOC input files. The
+method makes use of a static surface ID which is incremented each time the method is
+called to enable unique generation of monotonically increasing IDs. The method's first ID
+begins at 10000. Hence, user-defined surface IDs greater than or equal to 10000 are
+prohibited.  
 ";
 
 %feature("docstring") reset_surface_id "
@@ -10469,10 +10321,9 @@ maximize_surface_id(int surface_id)
 
 Maximize the auto-generated unique Surface ID counter.  
 
-This method updates the auto-generated unique Surface ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Surface IDs do not
-collide with those created in OpenCG.  
+This method updates the auto-generated unique Surface ID counter if the input parameter is
+greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Surface IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
@@ -10487,11 +10338,11 @@ surface_id() -> int
 
 Returns an auto-generated unique surface ID.  
 
-This method is intended as a utility mehtod for user's writing OpenMOC input
-files. The method makes use of a static surface ID which is incremented each
-time the method is called to enable unique generation of monotonically
-increasing IDs. The method's first ID begins at 10000. Hence, user-defined
-surface IDs greater than or equal to 10000 are prohibited.  
+This method is intended as a utility mehtod for user's writing OpenMOC input files. The
+method makes use of a static surface ID which is incremented each time the method is
+called to enable unique generation of monotonically increasing IDs. The method's first ID
+begins at 10000. Hence, user-defined surface IDs greater than or equal to 10000 are
+prohibited.  
 ";
 
 %feature("docstring") reset_surface_id "
@@ -10505,10 +10356,9 @@ maximize_surface_id(int surface_id)
 
 Maximize the auto-generated unique Surface ID counter.  
 
-This method updates the auto-generated unique Surface ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Surface IDs do not
-collide with those created in OpenCG.  
+This method updates the auto-generated unique Surface ID counter if the input parameter is
+greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Surface IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
@@ -10535,11 +10385,11 @@ universe_id() -> int
 
 Returns an auto-generated unique Universe ID.  
 
-This method is intended as a utility method for user's writing OpenMOC input
-files. The method makes use of a static Universe ID which is incremented each
-time the method is called to enable unique generation of monotonically
-increasing IDs. The method's first ID begins at 10000. Hence, user-defined
-Universe IDs greater than or equal to 10000 is prohibited.  
+This method is intended as a utility method for user's writing OpenMOC input files. The
+method makes use of a static Universe ID which is incremented each time the method is
+called to enable unique generation of monotonically increasing IDs. The method's first ID
+begins at 10000. Hence, user-defined Universe IDs greater than or equal to 10000 is
+prohibited.  
 ";
 
 %feature("docstring") reset_universe_id "
@@ -10553,10 +10403,9 @@ maximize_universe_id(int universe_id)
 
 Maximize the auto-generated unique Universe ID counter.  
 
-This method updates the auto-generated unique Universe ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Universe IDs do not
-collide with those created in OpenCG.  
+This method updates the auto-generated unique Universe ID counter if the input parameter
+is greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Universe IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
@@ -10571,11 +10420,11 @@ universe_id() -> int
 
 Returns an auto-generated unique Universe ID.  
 
-This method is intended as a utility method for user's writing OpenMOC input
-files. The method makes use of a static Universe ID which is incremented each
-time the method is called to enable unique generation of monotonically
-increasing IDs. The method's first ID begins at 10000. Hence, user-defined
-Universe IDs greater than or equal to 10000 is prohibited.  
+This method is intended as a utility method for user's writing OpenMOC input files. The
+method makes use of a static Universe ID which is incremented each time the method is
+called to enable unique generation of monotonically increasing IDs. The method's first ID
+begins at 10000. Hence, user-defined Universe IDs greater than or equal to 10000 is
+prohibited.  
 ";
 
 %feature("docstring") pair_second "
@@ -10583,9 +10432,9 @@ pair_second(const tMap &map) -> second_t< typename tMap::value_type >
 
 A helper routine for the Universe::findCell() method.  
 
-This is used to insert a Universe's Cells to the back of a vector of neighbor
-Cells in Universe::findCell() routine. This works in symbiosis with the second_t
-struct template defined above.  
+This is used to insert a Universe's Cells to the back of a vector of neighbor Cells in
+Universe::findCell() routine. This works in symbiosis with the second_t struct template
+defined above.  
 
 Parameters
 ----------
@@ -10608,10 +10457,9 @@ maximize_universe_id(int universe_id)
 
 Maximize the auto-generated unique Universe ID counter.  
 
-This method updates the auto-generated unique Universe ID counter if the input
-parameter is greater than the present value. This is useful for the OpenCG
-compatibility module to ensure that the auto-generated Universe IDs do not
-collide with those created in OpenCG.  
+This method updates the auto-generated unique Universe ID counter if the input parameter
+is greater than the present value. This is useful for the OpenCG compatibility module to
+ensure that the auto-generated Universe IDs do not collide with those created in OpenCG.  
 
 Parameters
 ----------
