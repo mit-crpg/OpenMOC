@@ -62,7 +62,7 @@ class LoggerTestHarness(TestHarness):
         logfilename = glob.glob('log/openmoc-*')
 
         # Read the file into a list of strings for each line
-        with open(logfilenames[0], 'r') as myfile:
+        with open(logfilename[0], 'r') as myfile:
             lines = myfile.readlines()
         
         # Concatenate all strings in the file into a single string
