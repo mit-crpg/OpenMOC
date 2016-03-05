@@ -155,11 +155,12 @@ To plot the tracks crossing the geometry, use the ``plot_tracks(...)`` routine i
 
 .. _table_plot_tracks:
 
-===================  =========================  =========  =========  =========================
+===================  =========================  =========  =========  ===========================================
 Parameter            Type                       Default    Optional   Note
-===================  =========================  =========  =========  =========================
-``track_generator``  ``TrackGenerator`` object  None       No         The tracks of interest
-===================  =========================  =========  =========  =========================
+===================  =========================  =========  =========  ===========================================
+``track_generator``  ``TrackGenerator``         None       No         The tracks of interest
+``get_figure``       boolean                    False      Yes        Whether to return the Matplotlib ``Figure``
+===================  =========================  =========  =========  ===========================================
 
 **Table 5**: Parameters for the ``openmoc.plotter.plot_tracks(...)`` routine.
 
@@ -195,11 +196,12 @@ To plot the segments crossing the geometry color-coded by flat source region, us
 
 .. _table_plot_segments:
 
-===================  =========================  =========  =========  =========================
+===================  =========================  =========  =========  ===========================================
 Parameter            Type                       Default    Optional   Note
-===================  =========================  =========  =========  =========================
-``track_generator``  ``TrackGenerator`` object  None       No         The tracks of interest
-===================  =========================  =========  =========  =========================
+===================  =========================  =========  =========  ===========================================
+``track_generator``  ``TrackGenerator``         None       No         The tracks of interest
+``get_figure``       boolean                    False      Yes        Whether to return the Matplotlib ``Figure``
+===================  =========================  =========  =========  ===========================================
 
 **Table 6**: Parameters for the ``openmoc.plotter.plot_segments(...)`` routine.
 
@@ -236,14 +238,17 @@ To plot the geometry color-coded by the material ID's throughout the geometry, u
 
 .. _table_plot_materials:
 
-============  ===================  =========  =========  ========================================
-Parameter     Type                 Default    Optional   Note
-============  ===================  =========  =========  ========================================
-``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
-``gridsize``  integer              250        Yes        The pixel resolution
-``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
-``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
-============  ===================  =========  =========  ========================================
+===============  ===============  =============  =========  ============================================================
+Parameter        Type             Default        Optional   Note
+===============  ===============  =============  =========  ============================================================
+``geometry``     ``Geometry``     None           No         The ``Geometry`` of interest
+``gridsize``     integer          250            Yes        The pixel resolution
+``xlim``         2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
+``ylim``         2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``zcoord``       float            None           Yes        The level along the :math:`z`-axis to plot
+``get_figure``   boolean          False          Yes        Whether to return the Matplotlib ``Figure``
+``library``      string           'matplotlib'   Yes        The plotting library to use (``'matplotlib'`` or ``'pil'``)
+===============  ===============  =============  =========  ============================================================
 
 **Table 7**: Parameters for the ``openmoc.plotter.plot_materials(...)`` routine.
 
@@ -279,14 +284,17 @@ To plot the geometry color-coded by the cell ID's throughout the geometry, use t
 
 .. _table_plot_cells:
 
-============  ===================  =========  =========  ========================================
-Parameter     Type                 Default    Optional   Note
-============  ===================  =========  =========  ========================================
-``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
-``gridsize``  integer              250        Yes        The pixel resolution
-``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
-``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
-============  ===================  =========  =========  ========================================
+===============  ===============  =============  =========  ============================================================
+Parameter        Type             Default        Optional   Note
+===============  ===============  =============  =========  ============================================================
+``geometry``     ``Geometry``     None           No         The ``Geometry`` of interest
+``gridsize``     integer          250            Yes        The pixel resolution
+``xlim``         2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
+``ylim``         2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``zcoord``       float            None           Yes        The level along the :math:`z`-axis to plot
+``get_figure``   boolean          False          Yes        Whether to return the Matplotlib ``Figure``
+``library``      string           'matplotlib'   Yes        The plotting library to use (``'matplotlib'`` or ``'pil'``)
+===============  ===============  =============  =========  ============================================================
 
 **Table 8**: Parameters for the ``openmoc.plotter.plot_cells(...)`` routine.
 
@@ -323,14 +331,19 @@ To plot the geometry color-coded by the flat source region ID's throughout the g
 
 .. _table_plot_fsrs:
 
-============  ===================  =========  =========  ========================================
-Parameter     Type                 Default    Optional   Note
-============  ===================  =========  =========  ========================================
-``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
-``gridsize``  integer              250        Yes        The pixel resolution
-``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
-``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
-============  ===================  =========  =========  ========================================
+=================  ===============  =============  =========  ============================================================
+Parameter          Type             Default        Optional   Note
+=================  ===============  =============  =========  ============================================================
+``geometry``       ``Geometry``     None           No         The ``Geometry`` of interest
+``gridsize``       integer          250            Yes        The pixel resolution
+``xlim``           2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
+``ylim``           2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``centroids``      boolean          False          Yes        Whether to plot the FSR centroids
+``marker_type``    string           ``'o'``        Yes        The marker type to use for FSR centroids
+``marker_size``    integer          2              Yes        The marker size to use for FSR centroids
+``get_figure``     boolean          False          Yes        Whether to return the Matplotlib ``Figure``
+``library``        string           'matplotlib'   Yes        The plotting library to use (``'matplotlib'`` or ``'pil'``)
+=================  ===============  =============  =========  ============================================================
 
 **Table 9**: Parameters for the ``openmoc.plotter.plot_flat_source_regions(...)`` routine.
 
@@ -367,15 +380,16 @@ To plot the geometry color-coded by the CMFD cells throughout the geometry, use 
 
 .. _table_plot_cmfd_cells:
 
-============  ===================  =========  =========  ========================================
-Parameter     Type                 Default    Optional   Note
-============  ===================  =========  =========  ========================================
-``geometry``  ``Geometry`` object  None       No         The ``Geometry`` of interest
-``cmfd``      ``Cmfd`` object      None       No         The ``Cmfd`` of interest
-``gridsize``  integer              250        Yes        The pixel resolution
-``xlim``      float                None       Yes        The maximum :math:`x`-coordinate to plot
-``ylim``      float                None       Yes        The maximum :math:`y`-coordinate to plot
-============  ===================  =========  =========  ========================================
+===============  ===============  =============  =========  ============================================================
+Parameter        Type             Default        Optional   Note
+===============  ===============  =============  =========  ============================================================
+``geometry``     ``Geometry``     None           No         The ``Geometry`` of interest
+``gridsize``     integer          250            Yes        The pixel resolution
+``xlim``         2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
+``ylim``         2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``get_figure``   boolean          False          Yes        Whether to return the Matplotlib ``Figure``
+``library``      string           'matplotlib'   Yes        The plotting library to use (``'matplotlib'`` or ``'pil'``)
+===============  ===============  =============  =========  ============================================================
 
 **Table 10**: Parameters for the ``openmoc.plotter.plot_cmfd_cells(...)`` routine.
 
@@ -424,15 +438,18 @@ To plot the flat source region scalar fluxes in space, use the ``plot_spatial_fl
 
 .. _table_plot_fluxes_space:
 
-=================  ===================  =========  =========  ============================================
-Parameter          Type                 Default    Optional   Note
-=================  ===================  =========  =========  ============================================
-``solver``         ``Solver`` object    None       No         The ``Solver`` used to converge the source
-``energy_groups``  list                 [1]        No         Create separate plots for each energy group
-``gridsize``       integer              250        Yes        The pixel resolution
-``xlim``           float                None       Yes        The maximum :math:`x`-coordinate to plot
-``ylim``           float                None       Yes        The maximum :math:`y`-coordinate to plot
-=================  ===================  =========  =========  ============================================
+==================  ===============  =============  =========  ============================================================
+Parameter           Type             Default        Optional   Note
+==================  ===============  =============  =========  ============================================================
+``solver``          ``Solver``       None           No         The ``Solver`` used to converge the source
+``energy_groups``   list             [1]            No         Create separate plots for each energy group
+``norm``            boolean          False          Yes        Whether to normalize fluxes to the mean
+``gridsize``        integer          250            Yes        The pixel resolution
+``xlim``            2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
+``ylim``            2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``get_figure``      boolean          False          Yes        Whether to return the Matplotlib ``Figure``
+``library``         string           'matplotlib'   Yes        The plotting library to use (``'matplotlib'`` or ``'pil'``)
+==================  ===============  =============  =========  ============================================================
 
 **Table 11**: Parameters for the ``openmoc.plotter.plot_spatial_fluxes(...)`` routine.
 
@@ -486,6 +503,7 @@ Parameter          Type                 Default    Optional   Note
 ``group_bounds``   list                 None       Yes        The sequential bounds for each energy group
 ``norm``           boolean              True       Yes        Whether to normalize the flux across energy
 ``loglog``         boolean              True       Yes        Whether to use a log-log plotting scale
+``get_figure``     boolean              False      Yes        Whether to return the Matplotlib ``Figure``
 =================  ===================  =========  =========  ============================================
 
 **Table 12**: Parameters for the ``openmoc.plotter.plot_energy_fluxes(...)`` routine.
@@ -530,14 +548,18 @@ The ``openmoc.plotter`` module includes routines to plot the energy-integrated f
 
 .. _table_plot_fission_rates:
 
-=================  ===================  =========  =========  ============================================
-Parameter          Type                 Default    Optional   Note
-=================  ===================  =========  =========  ============================================
-``solver``         ``Solver`` object    None       No         The ``Solver`` used to converge the source
-``gridsize``       integer              250        Yes        The pixel resolution
-``xlim``           float                None       Yes        The maximum :math:`x`-coordinate to plot
-``ylim``           float                None       Yes        The maximum :math:`y`-coordinate to plot
-=================  ===================  =========  =========  ============================================
+======================  ===================  =============  =========  ============================================================
+Parameter               Type                 Default        Optional   Note
+======================  ===================  =============  =========  ============================================================
+``solver``              ``Solver``           None           No         The ``Solver`` used to converge the source
+``norm``                boolean              False          Yes        Whether to normalize fluxes to the mean
+``transparent_zeros``   boolean              True           Yes        Whether to make all non-fissionable FSRs transparent
+``gridsize``            integer              250            Yes        The pixel resolution
+``xlim``                2-tuple              None           Yes        The min/max :math:`x`-coordinates to plot
+``ylim``                2-tuple              None           Yes        The min/max :math:`y`-coordinates to plot
+``get_figure``          boolean              False          Yes        Whether to return the Matplotlib ``Figure``
+``library``             string               'matplotlib'   Yes        The plotting library to use (``'matplotlib'`` or ``'pil'``)
+======================  ===================  =============  =========  ============================================================
 
 **Table 11**: Parameters for the ``openmoc.plotter.plot_fission_rates(...)`` routine.
 
