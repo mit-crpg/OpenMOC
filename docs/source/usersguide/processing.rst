@@ -168,12 +168,12 @@ The code snippet below illustrates the use of this routine.
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry and generate tracks
     ...
 
-    plot.plot_tracks(geometry)
+    openmoc.plotter.plot_tracks(geometry)
 
 A depiction of the tracks for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in :ref:`Figure 1 <figure_tracks>`.
 
@@ -209,12 +209,12 @@ The code snippet below illustrates the use of this routine.
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry and generate tracks
     ...
 
-    plot.plot_segments(geometry)
+    openmoc.plotter.plot_segments(geometry)
 
 A depiction of the segments for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in :ref:`Figure 2 <figure_segments>`.
 
@@ -256,13 +256,13 @@ The code snippet below illustrates one possible configuration of parameters to t
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry
     ...
 
     # Plot a 500 x 500 pixel image of the materials
-    plot.plot_materials(geometry, gridsize=500)
+    openmoc.plotter.plot_materials(geometry, gridsize=500)
 
 A depiction of the materials for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file is illustrated in :ref:`Figure 3 <figure_materials>`.
 
@@ -302,13 +302,13 @@ The code snippet below illustrates one possible configuration of parameters to t
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry
     ...
 
     # Plot a 500 x 500 pixel image of the cells
-    plot.plot_cells(geometry, gridsize=500)
+    openmoc.plotter.plot_cells(geometry, gridsize=500)
 
 A depiction of the cells for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file is illustrated in :ref:`Figure 4 <figure_cells>`.
 
@@ -351,13 +351,13 @@ The code snippet below illustrates one possible configuration of parameters to t
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry
     ...
 
     # Plot a 500 x 500 pixel image of the flat source regions
-    plot.plot_flat_source_regions(geometry, gridsize=500)
+    openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500)
 
 A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/large-lattice.py` example input file is illustrated in :ref:`Figure 5 <figure_flat_source_regions>`.
 
@@ -397,13 +397,13 @@ The code snippet below illustrates one possible configuration of parameters to t
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry and cmfd
     ...
 
     # Plot a 500 x 500 pixel image of the CMFD cells
-    plot.plot_cmfd_cells(geometry, cmfd, gridsize=500)
+    openmoc.plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 
 A depiction of the flat source regions and CMFD cells for the :file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7-cmfd.py` example input file is illustrated in :ref:`Figure 6 <figure_cmfd_cells>`.
 
@@ -457,7 +457,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry and generate tracks
     ...
@@ -466,7 +466,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot the fluxes for energy groups 1 and 7 in 500 x 500 pixel images
-    plot.plot_spatial_fluxes(solver, energy_groups=[1,7], gridsize=500)
+    openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,7], gridsize=500)
 
 A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7`) is illustrated in :ref:`Figure 7 <figure_spatial_fluxes>`.
 
@@ -512,7 +512,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry and generate tracks
     ...
@@ -521,7 +521,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot the fluxes vs. energy for flat source regions 0 and 1
-    plot.plot_energy_fluxes(solver, fsrs=[0,1])
+    openmoc.plotter.plot_energy_fluxes(solver, fsrs=[0,1])
 
 A depiction of the normalized 7-group fluxes for the sample pin cell problem (:file:`/OpenMOC/sample-input/pin-cell/pin-cell.py`) is illustrated in :ref:`Figure 8 <figure_energy_fluxes>`.
 
@@ -567,7 +567,7 @@ The code snippet below illustrates one possible configuration of parameters to t
 
 .. code-block:: python
 
-    import openmoc.plotter as plot
+    import openmoc.plotter
 
     # Setup geometry and generate tracks
     ...
@@ -576,7 +576,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     ...
 
     # Plot the fission rates in each FSR in a 500 x 500 pixel image
-    plot.plot_fission_rates(solver, gridsize=500)
+    openmoc.plotter.plot_fission_rates(solver, gridsize=500)
 
 A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7`) is illustrated in :ref:`Figure 9 <figure_fission_rates>`.
 
@@ -611,9 +611,7 @@ Parameter               Type                                                   D
 
 **Table 12**: Parameters for the ``openmoc.plotter.plot_spatial_data(...)`` routine.
 
-
 :ref:`Table 13 <table_general_plotting>` below itemizes each of the property attributes of the ``PlotParams`` class which can be used to customize images with generalized spatial plotting.
-
 
 .. _table_plot_params:
 
@@ -666,7 +664,6 @@ The generalied spatial plotter may be applied in a myriad of ways to create spat
 
     openmoc.plotter.plot_spatial_data(df, plot_params)
 
-
 .. _figure_general_plotting:
 
 .. table::
@@ -682,6 +679,47 @@ The generalied spatial plotter may be applied in a myriad of ways to create spat
 **Figure 10**: The randomized spatial data for each of the three columns in a Pandas DataFrame for the C5G7 benchmark problem.
 
 
+--------------------------------
+Angular Quadrature Visualization
+--------------------------------
+
+To plot the angular quadrature deployed by a ``Solver`` in an MOC simulation, use the ``plot_quadrature(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 14 <table_plot_quadrature>`.
+
+.. _table_plot_quadrature:
+
+===================  =========================  =========  =========  ===============================================
+Parameter            Type                       Default    Optional   Note
+===================  =========================  =========  =========  ===============================================
+``solver``           ``Solver``                 None       No         The ``Solver`` with the quadrature of interest
+``get_figure``       boolean                    False      Yes        Whether to return the Matplotlib ``Figure``
+===================  =========================  =========  =========  ===============================================
+
+**Table 14**: Parameters for the ``openmoc.plotter.plot_quadrature(...)`` routine.
+
+The code snippet below illustrates the use of this routine.
+
+.. code-block:: python
+
+    import openmoc.plotter
+
+    # Setup geometry and generate tracks
+    ...
+
+    # Setup solver
+    ...
+
+    openmoc.plotter.plot_quadrature(solver)
+
+A depiction of the Tabuchi-Yamamoto polar quadrature used by default in OpenMOC is illustrated in :ref:`Figure 11 <figure_quadrature>`.
+
+.. _figure_quadrature:
+
+.. figure:: ../../img/polar-quad-ty.png
+   :align: center
+   :figclass: align-center
+   :width: 400px
+
+   **Figure 11**: The Tabuchi-Yamamoto polar quadrature used as the default in OpenMOC.
 
 
 .. _dictionary: http://docs.python.org/2/library/stdtypes.html#mapping-types-dict
