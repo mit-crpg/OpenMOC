@@ -58,7 +58,7 @@ openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
 openmoc.plotter.plot_materials(geometry, gridsize=100)
 openmoc.plotter.plot_cells(geometry, gridsize=100)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=100)
+openmoc.plotter.plot_source_regions(geometry, gridsize=100)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1])
 
 openmoc.log.py_printf('TITLE', 'Finished')

@@ -136,9 +136,9 @@ PolarQuad* Solver::getPolarQuad() {
 
 
 /**
- * @brief Returns the calculated volume for a flat source region.
- * @param sr_id the flat source region ID of interest
- * @return the flat source region volume
+ * @brief Returns the calculated volume for a source region.
+ * @param sr_id the source region ID of interest
+ * @return the source region volume
  */
 FP_PRECISION Solver::getSRVolume(int sr_id) {
 
@@ -232,11 +232,11 @@ bool Solver::isUsingExponentialInterpolation() {
 
 
 /**
- * @brief Returns the source for some energy group for a flat source region
+ * @brief Returns the source for some energy group for a source region
  * @details This is a helper routine used by the openmoc.process module.
  * @param sr_id the ID for the SR of interest
  * @param group the energy group of interest
- * @return the flat source region source
+ * @return the source region source
  */
 FP_PRECISION Solver::getSRSource(int sr_id, int group) {
 
@@ -413,8 +413,8 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
 
 
 /**
- * @brief Assign a fixed source for a flat source region and energy group.
- * @param sr_id the flat source region ID
+ * @brief Assign a fixed source for a source region and energy group.
+ * @param sr_id the source region ID
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
@@ -577,7 +577,7 @@ void Solver::initializeMaterials(solverMode mode) {
  */
 void Solver::initializeSRs() {
 
-  log_printf(INFO, "Initializing flat source regions...");
+  log_printf(INFO, "Initializing source regions...");
 
   /* Delete old SR arrays if they exist */
   if (_SR_volumes != NULL)
@@ -614,7 +614,7 @@ void Solver::initializeSRs() {
 
 
 /**
- * @brief Counts the number of fissionable flat source regions.
+ * @brief Counts the number of fissionable source regions.
  * @details This routine is used by the Solver::computeEigenvalue(...)
  *          routine which uses the number of fissionable SRs to normalize
  *          the residual on the fission source distribution.

@@ -184,7 +184,7 @@ boundaryType Geometry::getMaxYBoundaryType() {
 
 
 /**
- * @brief Returns the number of flat source regions in the Geometry.
+ * @brief Returns the number of source regions in the Geometry.
  * @return number of SRs
  */
 int Geometry::getNumSRs() {
@@ -463,7 +463,7 @@ Cell* Geometry::findFirstCell(LocalCoords* coords) {
 
 
 /**
- * @brief Find the Material for a flat source region ID.
+ * @brief Find the Material for a source region ID.
  * @param sr_id a SR id
  * @return a pointer to the Material that this SR is in
  */
@@ -552,7 +552,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
 
 
 /**
- * @brief Find and return the ID of the flat source region that a given
+ * @brief Find and return the ID of the source region that a given
  *        LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
  * @return the SR ID for a given LocalCoords object
@@ -617,7 +617,7 @@ int Geometry::findSRId(LocalCoords* coords) {
 
 
 /**
- * @brief Return the ID of the flat source region that a given
+ * @brief Return the ID of the source region that a given
  *        LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
  * @return the SR ID for a given LocalCoords object
@@ -777,7 +777,7 @@ void Geometry::subdivideCells() {
 
 
 /**
- * @brief Compute the number of flat source regions in the Geometry and
+ * @brief Compute the number of source regions in the Geometry and
  *        initialize CMFD.
  * @details This method is intended to be called by the user before initiating
  *          source iteration. This method first subdivides all Cells by calling
@@ -797,7 +797,7 @@ void Geometry::initializeSRs(bool neighbor_cells) {
 
 /**
  * @brief This method performs ray tracing to create Track segments within each
- *        flat source region in the Geometry.
+ *        source region in the Geometry.
  * @details This method starts at the beginning of a Track and finds successive
  *          intersection points with SRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.

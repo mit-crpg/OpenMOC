@@ -101,10 +101,10 @@ protected:
   /** The number of energy groups */
   int _num_groups;
 
-  /** The number of flat source regions */
+  /** The number of source regions */
   int _num_SRs;
 
-  /** The number of fissionable flat source regions */
+  /** The number of fissionable source regions */
   int _num_fissionable_SRs;
 
   /** The SR "volumes" (i.e., areas) indexed by SR UID */

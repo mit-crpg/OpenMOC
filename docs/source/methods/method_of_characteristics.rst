@@ -18,9 +18,9 @@ The method of characteristics (MOC) is a widely used technique for solving parti
 * track area approximation (:ref:`Section 2.9 <track-area-approximation>`)
 * azimuthal planar projection (:ref:`Section 2.10 <projection-azimuthal-plane>`)
 
-The final equations applied in OpenMOC to solve for the FSR source and scalar flux derived in the following sections are summarized below:
+The final equations applied in OpenMOC to solve for the SR source and scalar flux derived in the following sections are summarized below:
 
-**The source in each flat source region**
+**The source in each source region**
 
 .. math::
    \boxed{Q_{i,g} = \frac{1}{4\pi}\left(\displaystyle\sum\limits_{g'=1}^G \Sigma^S_{i,g'\rightarrow g}\Phi_{i,g'} + \frac{\chi_{i,g}}{k_{eff}}\displaystyle\sum\limits_{g'=1}^G\nu\Sigma^F_{i,g'}\Phi_{i,g'}\right)}
@@ -30,7 +30,7 @@ The final equations applied in OpenMOC to solve for the FSR source and scalar fl
 .. math::
    \boxed{\Delta\Psi_{k,i,g,p} = \Psi_{k,g,p}(s') - \Psi_{k,g,p}(s'') = \left(\Psi_{k,g,p}(s') - \frac{Q_{i,g}}{\Sigma^T_{i,g}}\right)(1 - e^{-\tau_{k,i,g,p}})}
 
-**Scalar flux in each flat source region**
+**Scalar flux in each source region**
 
 .. math::
    \boxed{\Phi_{i,g} = \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\displaystyle\sum\limits_{p=1}^{P}\omega_{m(k)}\omega_{p}\omega_{k}\sin\theta_{p}\Delta\Psi_{k,i,g,p}\right]}
@@ -42,7 +42,7 @@ The final equations applied in OpenMOC to solve for the FSR source and scalar fl
 Introduction to the Boltzmann Equation
 ======================================
 
-The Boltzmann form of the steady-state neutron transport equation is given by the following: 
+The Boltzmann form of the steady-state neutron transport equation is given by the following:
 
 .. math::
    :label: boltzmann-eqn
@@ -66,7 +66,7 @@ Variable                  Description
 :math:`\Sigma^F`          Neutron fission cross-section
 :math:`\chi`              Energy spectrum for fission neutrons
 :math:`\nu`               Average number of neutrons emitted per fission
-=======================   ===========  
+=======================   ===========
 
 **Table 1**: Variables in the Boltzmann equation.
 
@@ -235,8 +235,8 @@ Equations :eq:`source-angular-quadrature` and :eq:`angular-flux-angular-quadratu
 
    Q_{m,p,g}(s) = \displaystyle\sum\limits_{g'=1}^G \displaystyle\sum\limits_{m'=1}^{M} \displaystyle\sum\limits_{p'=1}^{P} w_{m'}w_{p'}\Sigma_{g'\rightarrow g}^S(s,{\mathbf{\Omega_{m',p'}}\rightarrow\mathbf{\Omega_{m,p}}}) \Psi_{g'}(s,\mathbf{\Omega_{m',p'}}) + \frac{\chi_{g}(s)}{4\pi k_{eff}} \displaystyle\sum\limits_{g'=1}^G \displaystyle\sum\limits_{m'=1}^{M} \displaystyle\sum\limits_{p'=1}^{P} w_{m'}w_{p'} \nu\Sigma_{g'}^F(s)\Psi_{g'}(s,\mathbf{\Omega_{m',p'}})
 
-.. math:: 
-   :label: angular-flux-azimuthal-polar 
+.. math::
+   :label: angular-flux-azimuthal-polar
 
    \Psi_{m,p,g}(s) = \Psi_{m,p,g}(\mathbf{r_{0}})e^{-\int_{0}^s\mathrm{d}s'\Sigma_g^T(s')} + \int_0^s\mathrm{d}s''Q_{m,p,g}(s'')e^{-\int_{s''}^s\mathrm{d}s'\Sigma_g^T(s')}
 
@@ -261,7 +261,7 @@ The subscripts :math:`m` and :math:`p` for the azimuthal and polar angles, respe
 The Flat Source Region Approximation
 ====================================
 
-Another common approximation for MOC is to assume that the source :math:`Q_g` is constant across discrete spatial cells termed *flat source regions* (FSRs). This implies that the source does not vary along a characteristic :math:`k` entering FSR :math:`i` at :math:`s'` and exiting at :math:`s''`: 
+Another common approximation for MOC is to assume that the source :math:`Q_g` is constant across discrete spatial cells termed *source regions* (SRs). This implies that the source does not vary along a characteristic :math:`k` entering FSR :math:`i` at :math:`s'` and exiting at :math:`s''`:
 
 .. math::
    :label: flat-source
@@ -274,7 +274,7 @@ Another common approximation for MOC is to assume that the source :math:`Q_g` is
 The Constant Cross-Section Approximation
 ========================================
 
-In addition to the flat source approximation, it is assumed that the material properties are constant across each FSR. The area-averaged cross-sections for FSR :math:`i \in \{1, 2, ..., I\}` with area :math:`A_{i}` are defined as:
+In addition to the flat source approximation, it is assumed that the material properties are constant across each SR. The area-averaged cross-sections for SR :math:`i \in \{1, 2, ..., I\}` with area :math:`A_{i}` are defined as:
 
 .. math::
    :label: area-averaged-total-xs
@@ -296,7 +296,7 @@ In addition to the flat source approximation, it is assumed that the material pr
 
    \chi_{i,g} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\chi_{g}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}}
 
-The flat source term :math:`Q_{i,g}` for FSR :math:`i` with area :math:`A_i` is defined in terms of both fission and scattering from the area-averaged scalar flux :math:`\Phi_{g,i}` within the FSR:
+The flat source term :math:`Q_{i,g}` for SR :math:`i` with area :math:`A_i` is defined in terms of both fission and scattering from the area-averaged scalar flux :math:`\Phi_{g,i}` within the SR:
 
 .. math::
    :label: final-source
@@ -308,7 +308,7 @@ The flat source term :math:`Q_{i,g}` for FSR :math:`i` with area :math:`A_i` is 
 
    \Phi_{i,g} = \frac{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}\Phi_{g}(\mathbf{r})}{\int_{\mathbf{r}\in A_{i}}\mathrm{d}\mathbf{r}}
 
-The multi-group nuclear cross-sections for each FSR are an input to OpenMOC. As a result, the area-averaging integrals must be performed by some pre-processing method such as Monte Carlo.
+The multi-group nuclear cross-sections for each SR are an input to OpenMOC. As a result, the area-averaging integrals must be performed by some pre-processing method such as Monte Carlo.
 
 
 .. _integrating-factor-solution:
@@ -316,7 +316,7 @@ The multi-group nuclear cross-sections for each FSR are an input to OpenMOC. As 
 The Integrating Factor Solution
 ===============================
 
-Each chracteristic may be discretized into *segments* across individual FSRs. This approximation allows :eq:`angular-flux-azimuthal-polar` to be localized to a segment of characteristic :math:`k` across FSR :math:`i` from its entry point at :math:`s'` to exit point at :math:`s''`. By defining the integrating factor in terms of the optical length :math:`\tau_{k,i,g} = \Sigma^T_{i,g}(s''-s')` one may analytically evaluate the integrals in :eq:`angular-flux-azimuthal-polar` and express the outgoing flux along the characteristic as follows:
+Each chracteristic may be discretized into *segments* across individual SRs. This approximation allows :eq:`angular-flux-azimuthal-polar` to be localized to a segment of characteristic :math:`k` across SR :math:`i` from its entry point at :math:`s'` to exit point at :math:`s''`. By defining the integrating factor in terms of the optical length :math:`\tau_{k,i,g} = \Sigma^T_{i,g}(s''-s')` one may analytically evaluate the integrals in :eq:`angular-flux-azimuthal-polar` and express the outgoing flux along the characteristic as follows:
 
 .. math::
    :label: angular-flux-fsr
@@ -336,9 +336,9 @@ With minor algebraic rearrangement, the change in angular flux along the charact
 The Track Area Approximation
 ============================
 
-The key quantity remaining to be determined is the integral over area for the FSR area-averaged scalar flux :math:`\Phi_{g,i}` in :eq:`area-averaged-scalar-flux`. The track area approximation is used to compute this value numerically. 
+The key quantity remaining to be determined is the integral over area for the SR area-averaged scalar flux :math:`\Phi_{g,i}` in :eq:`area-averaged-scalar-flux`. The track area approximation is used to compute this value numerically.
 
-First, define :math:`l_{k,i}=s''-s'` such that the average angular flux in FSR :math:`i` along characteristic :math:`k` is the following integral:
+First, define :math:`l_{k,i}=s''-s'` such that the average angular flux in SR :math:`i` along characteristic :math:`k` is the following integral:
 
 .. math::
    :label: avg-angular-flux-integral
@@ -352,7 +352,7 @@ Upon evaluating the integral, the average angular flux along the characteristic 
 
    \overline{\Psi}_{k,i,g} = \frac{1}{l_{k,i}}\left[\frac{\Psi_{k,g}(s')}{\Sigma_{i,g}^T}(1 - e^{-\tau_{k,i,g}}) + \frac{l_{k,i}Q_{i,g}}{\Sigma_{i,g}^T}\left(1 - \frac{(1 - e^{-\tau_{k,i,g}})}{\tau_{k,i,g}}\right)\right]
 
-Assuming a constant source and cross-sections in FSR :math:`i`, the value given for the average angular flux in :eq:`avg-angular-flux` is exact. In order to exactly compute the area-averaged scalar flux, the average angular flux from every characteristic crossing FSR :math:`i` must be taken into account. This is numerically intractable; hence, an appropriate subset :math:`K` of characteristics, henceforth known as *tracks*, is chosen and the integral over the area of the FSR is performed using quadrature rules with a weight :math:`w_{k}` for each track :math:`k \in K` crossing through the FSR :math:`k \in A_{i}`. The contribution :math:`\overline{\Psi}_{k,i,g}` of track :math:`k` with azimuthal and polar quadrature weights denoted by :math:`w_{m(k)}` and :math:`w_{p(k)}`, respectively, is then integrated to find the area-averaged scalar flux in FSR :math:`i` as follows:
+Assuming a constant source and cross-sections in SR :math:`i`, the value given for the average angular flux in :eq:`avg-angular-flux` is exact. In order to exactly compute the area-averaged scalar flux, the average angular flux from every characteristic crossing SR :math:`i` must be taken into account. This is numerically intractable; hence, an appropriate subset :math:`K` of characteristics, henceforth known as *tracks*, is chosen and the integral over the area of the SR is performed using quadrature rules with a weight :math:`w_{k}` for each track :math:`k \in K` crossing through the SR :math:`k \in A_{i}`. The contribution :math:`\overline{\Psi}_{k,i,g}` of track :math:`k` with azimuthal and polar quadrature weights denoted by :math:`w_{m(k)}` and :math:`w_{p(k)}`, respectively, is then integrated to find the area-averaged scalar flux in SR :math:`i` as follows:
 
 .. math::
    :label: area-averaged-scalar-flux-quadrature
@@ -388,7 +388,7 @@ The final form for the scalar flux can be simplified in terms of the change in a
 Projection from the Azimuthal Plane
 ===================================
 
-The preceding sections used track segment lengths :math:`l_{k,i}` in 3D. In practice, the memory footprint for storing track segment data is greatly reduced if the polar angle quadrature is replicated for each azimuthal quadrature point. Such a quadrature allows for track segments to be stored in the 2D azimuthal plane and projected into 3D for each polar angle when necessary. The projection results in some minor changes to the equations presented in the previous sections. 
+The preceding sections used track segment lengths :math:`l_{k,i}` in 3D. In practice, the memory footprint for storing track segment data is greatly reduced if the polar angle quadrature is replicated for each azimuthal quadrature point. Such a quadrature allows for track segments to be stored in the 2D azimuthal plane and projected into 3D for each polar angle when necessary. The projection results in some minor changes to the equations presented in the previous sections.
 
 In what follows, each track segment length :math:`l_{k,i}` will be assumed to reside within the azimuthal plane. Likewise, the optical length :math:`\tau_{k,i,g} = \Sigma^T_{k,i,g}l_{k,i}` also resides in the azimuthal plane. For notational simplicity, the 3D projection of the track segment length for polar angle :math:`p` will be denoted by :math:`l_{k,i,p} = \frac{l_{k,i}}{\sin\theta_{p}}` and the optical length by :math:`\tau_{k,i,g,p} = \Sigma^T_{k,i,g}l_{k,i,p}`.
 
@@ -428,5 +428,4 @@ References
 
 .. [Askew] J. Askew, "A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries." Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).
 
-.. [Boyd] W. Boyd, "Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures." M.S. Thesis, Massachusetts Institute of Technology (2014). 
-
+.. [Boyd] W. Boyd, "Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures." M.S. Thesis, Massachusetts Institute of Technology (2014).

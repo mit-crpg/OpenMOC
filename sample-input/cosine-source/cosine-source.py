@@ -139,7 +139,7 @@ for sr_id in xrange(solver.getGeometry().getNumSRs()):
     solver.setFixedSourceBySR(sr_id, group, source_value)
 
   # NOTE: A more precise definition of the source would calculate the same
-  # source values for all points within each flat source region. In this
+  # source values for all points within each source region. In this
   # example that is not the case. However, since the SR discretization is
   # reasonably fine in this case, the slight error introduced from defining the
   # source based on one point in the SR does not have a large impact on the
@@ -158,7 +158,7 @@ openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
 openmoc.plotter.plot_materials(geometry, gridsize=250)
 openmoc.plotter.plot_cells(geometry, gridsize=250)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=250)
+openmoc.plotter.plot_source_regions(geometry, gridsize=250)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 openmoc.log.py_printf('TITLE', 'Finished')

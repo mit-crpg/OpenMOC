@@ -34,7 +34,7 @@ class PlotCmfdCellsTestHarness(PlottingTestHarness):
         self.input_set.geometry.setCmfd(self.cmfd)
 
     def _run_openmoc(self):
-        """Plot the flat source regions in the geometry."""
+        """Plot the source regions in the geometry."""
 
         # Run an eigenvalue calculation to setup CMFD cells
         super(PlotCmfdCellsTestHarness, self)._run_openmoc()
@@ -50,7 +50,7 @@ class PlotCmfdCellsTestHarness(PlottingTestHarness):
         self.figures.append(
             plot_cmfd_cells(self.input_set.geometry, self.cmfd, gridsize=100,
                             get_figure=True, library='pil'))
- 
+
 
 if __name__ == '__main__':
     harness = PlotCmfdCellsTestHarness()

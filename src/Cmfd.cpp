@@ -729,7 +729,7 @@ void Cmfd::updateMOCFlux() {
  *          to preserve reaction rates and surface net currents for any choice
  *          of diffusion coefficient, convergence (and convergence rate) of the
  *          nonlinear iteration acceleration of CMFD is affected by the choice
- *          of diffusion coefficient. All flat source methods, when applied for
+ *          of diffusion coefficient. All source methods, when applied for
  *          thick optical meshes, artificially distribute neutrons in space.
  *          This is the reason that Larsen’s effective diffusion coefficient is
  *          useful in assuring that the CMFD acceleration equations have a

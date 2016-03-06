@@ -88,7 +88,7 @@ def get_scalar_fluxes(solver, srs='all', groups='all'):
 
 
 ##
-# @brief This routine computes the fission rate in each flat source region,
+# @brief This routine computes the fission rate in each source region,
 #        and combines the rates based on their hierarchical universe/lattice
 #        structure. The fission rates are then exported to a binary HDF5
 #        or python pickle file.

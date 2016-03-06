@@ -16,7 +16,7 @@
 
 /**
  * @struct dev_segment
- * @brief A dev_segment represents a line segment within a single flat source
+ * @brief A dev_segment represents a line segment within a single source
  *        region along a track.
  * @details The dev_segment is intended for use on the GPU.
  */
@@ -28,7 +28,7 @@ struct dev_segment {
   /** An index into the _materials array that contains Material pointers */
   int _material_index;
 
-  /** The ID for flat source region in which this segment resides */
+  /** The ID for source region in which this segment resides */
   int _region_uid;
 };
 

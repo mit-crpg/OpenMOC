@@ -650,7 +650,7 @@ void CPUSolver::computeKeff() {
  *        Tracks, Track segments, polar angles and energy groups.
  * @details The method integrates the flux along each Track and updates the
  *          boundary fluxes for the corresponding output Track, while updating
- *          the scalar flux in each flat source region.
+ *          the scalar flux in each source region.
  */
 void CPUSolver::transportSweep() {
 

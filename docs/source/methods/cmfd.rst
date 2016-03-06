@@ -6,9 +6,9 @@ Coarse Mesh Finite Difference Acceleration
 
 While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD [Smith-1983]_, coarse mesh rebalance (CMR) [Yamamoto-2002]_, [Yamamoto-2005]_, [Yamamoto-2008]_, [Lewis]_, and low order transport operator acceleration [Li]_ with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith [1]_ and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives :math:`>` 100x speedups on large LWR problems [Smith-2002]_.
 
-CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an FSR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
+CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an SR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the SR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
 
-CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an unstructured FSR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
+CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an unstructured SR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the SR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
 
 .. _figure-fsr-mesh-regions:
 
@@ -17,7 +17,7 @@ CMFD acceleration functions by using the solution of a coarse mesh diffusion pro
    :figclass: align-center
    :width: 700 px
 
-   **Figure 1**: Flat source region (left) and CMFD (right) mesh layout for a 17 x 17 PWR assembly where each colored cell denotes a different region.
+   **Figure 1**: Source region (left) and CMFD (right) mesh layout for a 17 x 17 PWR assembly where each colored cell denotes a different region.
 
 To derive the CMFD equations, we begin with the 2D, steady state multi-group neutron diffusion equation:
 
@@ -255,7 +255,7 @@ Where :math:`\tilde{D}` is the nonlinear diffusion coefficient correction factor
 Treatment of optically thick regions
 ====================================
 
-As shown in :ref:`Figure 1 <figure-fsr-mesh-regions>` the CMFD mesh is often applied at the pin cell level with cells on the order of 1-2 cm. By conserving reaction and leakage rates within cells, CMFD guarantees preservation of area-averaged scalar fluxes and net surface currents from the MOC fixed source iteration if the CMFD equations can be converged. However, when the fine mesh cell size becomes significantly larger than the neutron mean free path in that cell, the step characteristics no longer preserve the linear infinite medium solution to the transport equation [Larsen]_. While the nonlinear diffusion correction term in CMFD is guaranteed to preserve reaction rates and surface net currents for any choice of diffusion coefficient, convergence (and convergence rate) of the nonlinear iteration acceleration of CMFD is affected by the choice of diffusion coefficient. All flat source methods, when applied for thick optical meshes, artificially distribute neutrons in space. This is the reason that Larsen's effective diffusion coefficient is useful in assuring that the CMFD acceleration equations have a diffusion coefficient (on the flux gradient term) that is consistent, not with the physical transport problem, but with the transport problem that is being accelerated by the CMFD equations. Larsen's effective diffusion coefficient is precisely this term in the one-dimensional limit. The effective diffusion coefficient in the x-direction for cell :math:`(i,j)` can be expressed as:
+As shown in :ref:`Figure 1 <figure-fsr-mesh-regions>` the CMFD mesh is often applied at the pin cell level with cells on the order of 1-2 cm. By conserving reaction and leakage rates within cells, CMFD guarantees preservation of area-averaged scalar fluxes and net surface currents from the MOC fixed source iteration if the CMFD equations can be converged. However, when the fine mesh cell size becomes significantly larger than the neutron mean free path in that cell, the step characteristics no longer preserve the linear infinite medium solution to the transport equation [Larsen]_. While the nonlinear diffusion correction term in CMFD is guaranteed to preserve reaction rates and surface net currents for any choice of diffusion coefficient, convergence (and convergence rate) of the nonlinear iteration acceleration of CMFD is affected by the choice of diffusion coefficient. All source methods, when applied for thick optical meshes, artificially distribute neutrons in space. This is the reason that Larsen's effective diffusion coefficient is useful in assuring that the CMFD acceleration equations have a diffusion coefficient (on the flux gradient term) that is consistent, not with the physical transport problem, but with the transport problem that is being accelerated by the CMFD equations. Larsen's effective diffusion coefficient is precisely this term in the one-dimensional limit. The effective diffusion coefficient in the x-direction for cell :math:`(i,j)` can be expressed as:
 
 .. math::
    :label: eqn-optic-thick-d
@@ -392,7 +392,7 @@ The general flowchart for MOC algorithm and CMFD acceleration are shown in :ref:
 
    **Figure 6**: The solution procedure for CMFD accelerated MOC.
 
-CMFD acceleration is implemented in OpenMOC by overlaying a regular grid on top of the unstructured flat source region mesh as shown in :ref:`Figure 1 <figure-fsr-mesh-regions>`. During an MOC fixed source iteration, OpenMOC tallies the net currents across the surfaces of each mesh cell. The fixed source iteration algorithm then becomes :ref:`Algorithm 1 <alg-transport-sweep-CMFD>`.
+CMFD acceleration is implemented in OpenMOC by overlaying a regular grid on top of the unstructured source region mesh as shown in :ref:`Figure 1 <figure-fsr-mesh-regions>`. During an MOC fixed source iteration, OpenMOC tallies the net currents across the surfaces of each mesh cell. The fixed source iteration algorithm then becomes :ref:`Algorithm 1 <alg-transport-sweep-CMFD>`.
 
 .. _alg-transport-sweep-CMFD:
 
@@ -410,7 +410,7 @@ At the end of the fixed source iteration, OpenMOC proceeds to condense the cross
 
     \tilde{D}^{i+\frac{1}{2},j,(n)}_{\mathbf{g}} = (1 - \omega_d) \tilde{D}^{i+\frac{1}{2},j,(n-1)}_{\mathbf{g}} + \omega_d \frac{- \hat{D}^{i+\frac{1}{2},j,(n)}_{\mathbf{g}} (\phi^{i+1,j,(n)}_{\mathbf{g}} - \phi^{i,j,(n)}_{\mathbf{g}}) - \frac{\tilde{J}_{\mathbf{g}}^{i+\frac{1}{2},j,(n)}}{\Delta y^{i,j}}}{(\phi_{\mathbf{g}}^{i+1,j,(n)} + \phi^{i,j,(n)}_{\mathbf{g}})}
 
-Where :math:`\omega_d` is the under-relaxation dampening factor and :math:`(n)` is the fixed source iteration. OpenMOC uses power iterations to solve the generalized non-Hermitian eigenvalue problem as shown in :ref:`Algorithm 2 <alg-CMFD-solve>`. In each power iteration, the linear system is solved using a parallel (red-black) implementation of the successive over-relaxation method as shown in :ref:`Figure 9 <alg-SOR-solve>`. Upon convergence of the CMFD diffusion problem, OpenMOC performs prolongation by multiplying each FSR's scalar flux by the ratio of the converged coarse mesh scalar flux to the initial coarse mesh scalar flux in the acceleration step:
+Where :math:`\omega_d` is the under-relaxation dampening factor and :math:`(n)` is the fixed source iteration. OpenMOC uses power iterations to solve the generalized non-Hermitian eigenvalue problem as shown in :ref:`Algorithm 2 <alg-CMFD-solve>`. In each power iteration, the linear system is solved using a parallel (red-black) implementation of the successive over-relaxation method as shown in :ref:`Figure 9 <alg-SOR-solve>`. Upon convergence of the CMFD diffusion problem, OpenMOC performs prolongation by multiplying each SR's scalar flux by the ratio of the converged coarse mesh scalar flux to the initial coarse mesh scalar flux in the acceleration step:
 
 .. math::
    :label: eqn-cmfd-prolongation

@@ -129,7 +129,7 @@ Users can also input a custom polar quadrature set by manually setting the weigh
 Spatial Quadrature
 ==================
 
-Track segments are used to approximate the area integral across each flat source region. In particular, the effective track spacing :math:`t_{s,m,eff}` defines the quadrature weights used in the spatial integral in the transport equation.
+Track segments are used to approximate the area integral across each source region. In particular, the effective track spacing :math:`t_{s,m,eff}` defines the quadrature weights used in the spatial integral in the transport equation.
 
 .. math::
    :label:
@@ -142,7 +142,7 @@ Track segments are used to approximate the area integral across each flat source
 Ray Tracing
 ===========
 
-Ray tracing is a technique for computing the intersection points of trajectories with surfaces. The image processing and graphics communities have been the primary users and developers of ray tracing techniques over the years, and a subset of these algorithms have been applied to neutron transport. In the case of the method of characteristics, ray tracing is used to intersect characteristic tracks with the surfaces used to make up a model. In particular, ray tracing is used to compute the length :math:`l_{k,i}` of a segment for track :math:`k` across each flat source region :math:`i`.
+Ray tracing is a technique for computing the intersection points of trajectories with surfaces. The image processing and graphics communities have been the primary users and developers of ray tracing techniques over the years, and a subset of these algorithms have been applied to neutron transport. In the case of the method of characteristics, ray tracing is used to intersect characteristic tracks with the surfaces used to make up a model. In particular, ray tracing is used to compute the length :math:`l_{k,i}` of a segment for track :math:`k` across each source region :math:`i`.
 
 The primary computation in ray tracing for MOC is to take a track segment's starting location :math:`(x,y)` and direction vector :math:`\hat{u}` and compute the distance that the track spans across a given cell. The *track segmentation* process repeatedly performs this computation for each track from its start to end point on the boundaries of the geometry. There are four primary operations that one must be able to perform to ray trace a track across the geometry:
 
@@ -266,7 +266,7 @@ The final algorithm needed for ray tracing is to compute the intersection point 
 Track Segmentation Algorithm
 ----------------------------
 
-Each of the preceding algorithms collectively define all of the logic that is necessary for ray tracing in the constructive solid geometry formulation. :ref:`Algorithm 5 <algorithm-ray-tracing>` defines the complete process of track segmentation for each track in the geometry. The algorithm defines a nested loop over all azimuthal angles :math:`m` and tracks :math:`k`. For each track, the algorithm begins with the track starting location and trajectory vector and ray traces across the geometry by computing intersection points with each surface along the trajectory's path. At each step, the length of each track segment in each cell (FSR) is computed and a pair of the segment length :math:`l_{k,i}` and flat source region index :math:`i` is appended to an ordered list of track segments within the track.
+Each of the preceding algorithms collectively define all of the logic that is necessary for ray tracing in the constructive solid geometry formulation. :ref:`Algorithm 5 <algorithm-ray-tracing>` defines the complete process of track segmentation for each track in the geometry. The algorithm defines a nested loop over all azimuthal angles :math:`m` and tracks :math:`k`. For each track, the algorithm begins with the track starting location and trajectory vector and ray traces across the geometry by computing intersection points with each surface along the trajectory's path. At each step, the length of each track segment in each cell (FSR) is computed and a pair of the segment length :math:`l_{k,i}` and source region index :math:`i` is appended to an ordered list of track segments within the track.
 
 This algorithm relies upon the use of a small numerical parameter :math:`\epsilon` which is typically chosen to be :math:`10^{-6}` for single precision and :math:`10^{-12}` for double precision floating point numbers. This parameter allows the end point for each track segment to be perturbed slightly to force it to lie within the adjacent cell in order to meet the assumption that no point lies directly on a surface (declared in order for :ref:`Algorithm 5 <algorithm-find-cell>` to perform properly).
 

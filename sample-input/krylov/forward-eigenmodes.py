@@ -54,7 +54,7 @@ openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
 openmoc.plotter.plot_materials(geometry, gridsize=500)
 openmoc.plotter.plot_cells(geometry, gridsize=500)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500)
+openmoc.plotter.plot_source_regions(geometry, gridsize=500)
 openmoc.plotter.plot_eigenmode_fluxes(iram_solver, gridsize=250,
                                       energy_groups=[1,2,3,4,5,6,7])
 

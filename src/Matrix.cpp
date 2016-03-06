@@ -216,7 +216,7 @@ void Matrix::convertToCSR() {
 
   _IA[_num_rows] = NNZ;
 
-  /* Reset flat indicating the CSR objects have the same values as the
+  /* Reset flag indicating the CSR objects have the same values as the
    * LIL object */
   _modified = false;
 }

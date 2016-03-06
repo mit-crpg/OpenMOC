@@ -1750,7 +1750,7 @@ void TrackGenerator::correctSRVolume(int sr_id, FP_PRECISION sr_volume) {
     log_printf(ERROR, "Unable to correct SR volume since "
 	       "tracks have not yet been generated");
 
-  /* Compute the current volume approximation for the flat source region */
+  /* Compute the current volume approximation for the source region */
   FP_PRECISION curr_volume = getSRVolume(sr_id);
 
   log_printf(INFO, "Correcting SR %d volume from %f to %f",
