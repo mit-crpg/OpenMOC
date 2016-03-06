@@ -123,6 +123,8 @@ class configuration:
                     'src/linalg.cpp',
                     'src/Progress.cpp',
                     'src/TrackGenerator.cpp',
+                    'src/TraverseSegments.cpp',
+                    'src/TrackTraversingAlgorithms.cpp',
                     'src/MOCKernel.cpp',
                     'src/Universe.cpp',
                     'src/Cmfd.cpp']
@@ -148,6 +150,8 @@ class configuration:
                       'src/linalg.cpp',
                       'src/Progress.cpp',
                       'src/TrackGenerator.cpp',
+                      'src/TraverseSegments.cpp',
+                      'src/TrackTraversingAlgorithms.cpp',
                       'src/MOCKernel.cpp',
                       'src/Universe.cpp',
                       'src/Cmfd.cpp']
@@ -170,6 +174,8 @@ class configuration:
                      'src/Track2D.cpp',
                      'src/Track3D.cpp',
                      'src/TrackGenerator.cpp',
+                     'src/TraverseSegments.cpp',
+                     'src/TrackTraversingAlgorithms.cpp',
                      'src/MOCKernel.cpp',
                      'src/Universe.cpp',
                      'src/Cmfd.cpp']
@@ -191,6 +197,8 @@ class configuration:
                       'src/Track2D.cpp',
                       'src/Track3D.cpp',
                       'src/TrackGenerator.cpp',
+                      'src/TraverseSegments.cpp',
+                      'src/TrackTraversingAlgorithms.cpp',
                       'src/MOCKernel.cpp',
                       'src/Universe.cpp',
                       'src/Cmfd.cpp']
