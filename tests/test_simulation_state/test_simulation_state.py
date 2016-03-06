@@ -18,7 +18,6 @@ class SimulationStateTestHarness(TestHarness):
     def __init__(self):
         super(SimulationStateTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
-        self.num_threads = 4
 
     def _run_openmoc(self):
         """Run an eigenvalue calculation and store the simulation state."""
