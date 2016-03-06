@@ -891,8 +891,6 @@ class Mesh(object):
         if volume == 'averaged':
             tally /= self.mesh_cell_volume
 
-        # Flip the tally array so it is indexed as one expects for the geometry
-        tally = np.fliplr(tally)
         return tally
 
     def tally_on_mesh(self, solver, domains_to_coeffs, domain_type='fsr',
@@ -990,6 +988,4 @@ class Mesh(object):
         if volume == 'averaged':
             tally /= self.mesh_cell_volume
 
-        # Flip the tally array so it is indexed as one expects for the geometry
-        tally = np.fliplr(tally)
         return tally
