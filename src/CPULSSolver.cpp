@@ -464,9 +464,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     for (int p=0; p < _num_polar; p++) {
 
       /* Compute the exponential terms */
-      exp_F1 = _exp_evaluator->computeExponentialInline(exp_index    , p, dt, dt2);
-      exp_F2 = _exp_evaluator->computeExponentialInline(exp_index + 3, p, dt, dt2);
-      exp_H  = _exp_evaluator->computeExponentialInline(exp_index + 6, p, dt, dt2) * length * track_flux(p,e);
+      exp_F1 = _exp_evaluator->computeExponentialF1(exp_index, dt, dt2);
+      exp_F2 = _exp_evaluator->computeExponentialF2(exp_index, dt, dt2);
+      exp_H  = _exp_evaluator->computeExponentialH (exp_index, dt, dt2)
+          * length * track_flux(p,e);
 
       /* Increment the exp index for the next polar angle */
       exp_index += 9;

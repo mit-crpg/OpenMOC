@@ -180,14 +180,19 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
  */
 void ExpEvaluator::initialize() {
 
+  log_printf(INFO, "Initializing exponential evaluator...");
+
   _sin_theta = _polar_quad->getSinThetas();
   _inv_sin_theta = _polar_quad->getInverseSinThetas();
 
-  log_printf(INFO, "Initializing exponential interpolation table...");
-
   /* Set size of interpolation table */
-  int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
-  //int num_array_values = _max_optical_length * pow(1. / (72. * sqrt(3.0) * _exp_precision), 1.0/3.0);
+  int num_array_values;
+  if (_linear_source)
+    num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
+  else
+    num_array_values = _max_optical_length *
+        pow(1. / (72. * sqrt(3.0) * _exp_precision), 1.0/3.0);
+
   _exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Increment the number of vaues in the array to ensure that a tau equal to
@@ -210,10 +215,13 @@ void ExpEvaluator::initialize() {
   FP_PRECISION st, ist;
   FP_PRECISION tau_a, tau_m;
   FP_PRECISION exp_const_1, exp_const_2, exp_const_3;
+  int index;
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < _num_polar; p++) {
+
+      index = _three_times_num_exp * (_num_polar * i + p);
 
       st = _sin_theta[p];
       ist = _inv_sin_theta[p];
@@ -226,9 +234,9 @@ void ExpEvaluator::initialize() {
       exp_const_1 = (1.0 - expon);
       exp_const_2 = expon * ist;
       exp_const_3 = -0.5 * exp_const_2 * ist;
-      _exp_table[_three_times_num_exp * (_num_polar * i + p)    ] = exp_const_1;
-      _exp_table[_three_times_num_exp * (_num_polar * i + p) + 1] = exp_const_2;
-      _exp_table[_three_times_num_exp * (_num_polar * i + p) + 2] = exp_const_3;
+      _exp_table[index    ] = exp_const_1;
+      _exp_table[index + 1] = exp_const_2;
+      _exp_table[index + 2] = exp_const_3;
 
       if (_linear_source) {
 
@@ -236,9 +244,9 @@ void ExpEvaluator::initialize() {
         exp_const_1 = 2 * expon - 2 + tau_m + tau_m * expon;
         exp_const_2 = (-expon * (tau_a + st) + st) * ist * ist;
         exp_const_3 = 0.5 * tau_a * expon * ist * ist * ist;
-        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 3] = exp_const_1;
-        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 4] = exp_const_2;
-        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 5] = exp_const_3;
+        _exp_table[index + 3] = exp_const_1;
+        _exp_table[index + 4] = exp_const_2;
+        _exp_table[index + 5] = exp_const_3;
 
         /* Compute H */
         if (tau_a == 0.0) {
@@ -248,14 +256,16 @@ void ExpEvaluator::initialize() {
         }
         else {
           exp_const_1 = (-expon * (tau_a + st) + st) / tau_a;
-          exp_const_2 = (expon * (tau_a * tau_a + tau_a * st + st * st) - st * st) / (tau_a * tau_a * st);
+          exp_const_2 = (expon * (tau_a * tau_a + tau_a * st + st * st)
+                         - st * st) / (tau_a * tau_a * st);
           exp_const_3 = 1.0 / (2 * tau_a * tau_a * tau_a * st * st) *
               (-expon * (tau_a * tau_a * tau_a + tau_a * tau_a * st +
-                         2 * tau_a * st * st + 2 * st * st * st) + 2 * st * st * st);
+                         2 * tau_a * st * st + 2 * st * st * st) +
+               2 * st * st * st);
         }
-        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 6] = exp_const_1;
-        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 7] = exp_const_2;
-        _exp_table[_three_times_num_exp * (_num_polar * i + p) + 8] = exp_const_3;
+        _exp_table[index + 6] = exp_const_1;
+        _exp_table[index + 7] = exp_const_2;
+        _exp_table[index + 8] = exp_const_3;
       }
     }
   }
@@ -263,60 +273,20 @@ void ExpEvaluator::initialize() {
 
 
 /**
- * @brief Computes the exponential term for a optical length and polar angle.
- * @details This method computes \f$ 1 - exp(-\tau/sin(\theta_p)) \f$
+ * @brief Computes the G2 exponential term for a optical length and polar angle.
+ * @details This method computes the H exponential term from Ferrer [1]
  *          for some optical path length and polar angle. This method
  *          uses either a linear interpolation table (default) or the
  *          exponential intrinsic exp(...) function.
+ *
+ *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
+ *                Scheme for the Method of Characteristics", Nuclear Science and
+ *                Engineering, Volume 182, February 2016.
+ *
  * @param tau the optical path length (e.g., sigma_t times length)
  * @param polar the polar angle index
  * @return the evaluated exponential
  */
-FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
-
-  FP_PRECISION exponential;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    int i = floor(tau * _inverse_exp_table_spacing);
-    FP_PRECISION dt = tau - i * _exp_table_spacing;
-    exponential = _exp_table[_three_times_num_exp * (_num_polar * i + polar)] +
-        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 1] * dt +
-        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 2] * dt * dt;
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else
-    exponential = 1.0 - exp(- tau * _inv_sin_theta[polar]);
-
-  return exponential;
-}
-
-
-FP_PRECISION ExpEvaluator::computeExponentialF2(FP_PRECISION tau, int polar) {
-
-  FP_PRECISION exponential;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    int i = floor(tau * _inverse_exp_table_spacing);
-    FP_PRECISION dt = tau - i * _exp_table_spacing;
-    exponential = _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 3] +
-        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 4] * dt +
-        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 5] * dt * dt;
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
-    FP_PRECISION F1 = 1.0 - exp(- tau_m);
-    exponential = 2 * (tau_m - F1) - tau_m * F1;
-  }
-
-  return exponential;
-}
-
-
 FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau, int polar) {
 
   if (tau == 0.0)
@@ -326,29 +296,4 @@ FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau, int polar) {
   return 2.0 * tau_m / 3.0 - (1 + 2.0 / tau_m)
       * (1.0 + tau_m / 2.0 - (1.0 + 1.0 / tau_m) *
          (1.0 - exp(- tau_m)));
-}
-
-
-FP_PRECISION ExpEvaluator::computeExponentialH(FP_PRECISION tau, int polar) {
-
-  FP_PRECISION exponential;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    int i = floor(tau * _inverse_exp_table_spacing);
-    FP_PRECISION dt = tau - i * _exp_table_spacing;
-    exponential = _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 6] +
-        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 7] * dt +
-        _exp_table[_three_times_num_exp * (_num_polar * i + polar) + 8] * dt * dt;
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
-    FP_PRECISION F1 = 1.0 - exp(- tau_m);
-    FP_PRECISION G1 = 1 + 0.5 * tau_m - (1 + 1.0 / tau_m) * F1;
-    exponential = 0.5 * tau_m - G1;
-  }
-
-  return exponential;
 }
