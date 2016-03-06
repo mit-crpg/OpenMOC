@@ -12,7 +12,6 @@ if (sys.version_info[0] == 2):
     import plotter
     import process
     import krylov
-    import opencg_compatible
 # For Python 3.X.X
 else:
     from openmoc.openmoc import *
@@ -22,7 +21,6 @@ else:
     import openmoc.plotter
     import openmoc.process
     import openmoc.krylov
-    import openmoc.opencg_compatible
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module
 # when this is passed in from the keyboard
