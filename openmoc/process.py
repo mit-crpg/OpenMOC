@@ -895,7 +895,7 @@ class Mesh(object):
 
     def tally_on_mesh(self, solver, domains_to_coeffs, domain_type='fsr',
                       volume='integrated', energy='integrated'):
-        """Compute the fission rates in each mesh cell.
+        """Compute arbitrary reaction rates in each mesh cell.
 
         NOTE: This method assumes that the mesh perfectly aligns with the
         flat source region mesh used in the OpenMOC calculation.
