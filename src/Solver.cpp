@@ -272,9 +272,9 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
   /* Compute total scattering and fission sources for this FSR */
   for (int g=0; g < _num_groups; g++) {
     scatter_source += sigma_s[(group-1)*(_num_groups)+g]
-                      * _scalar_flux(fsr_id-1,g);
+                      * _scalar_flux(fsr_id,g);
     fission_source += fiss_mat[(group-1)*(_num_groups)+g]
-                      * _scalar_flux(fsr_id-1,g);
+                      * _scalar_flux(fsr_id,g);
   }
 
   fission_source /= _k_eff;

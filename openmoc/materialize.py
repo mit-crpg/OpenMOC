@@ -1,11 +1,3 @@
-##
-# @file materialize.py
-# @package openmoc.materialize
-# @brief The materialize module provides utility functions to read and write
-#        multi-group materials cross section data from HDF5 binary file format.
-# @author William Boyd (wboyd@mit.edu)
-# @date October 9, 2015
-
 import sys
 import os
 import copy
@@ -19,9 +11,14 @@ import openmoc
 # For Python 2.X.X
 if sys.version_info[0] == 2:
     from log import py_printf
+    import checkvalue as cv
 # For Python 3.X.X
 else:
     from openmoc.log import py_printf
+    import openmoc.checkvalue as cv
+
+if sys.version_info[0] >= 3:
+    basestring = str
 
 
 def _get_domain(domains, domain_spec):
@@ -32,7 +29,7 @@ def _get_domain(domains, domain_spec):
         return domains[domain_spec]
 
     # If domain_spec is a string, it must be a domain name
-    elif isinstance(domain_spec, str):
+    elif isinstance(domain_spec, basestring):
         for domain_id, domain in domains.items():
             if domain_spec == domain.getName():
                 return domain
@@ -50,27 +47,45 @@ def _get_numpy_array(hdf5_group, key, suffix):
     return sigma
 
 
-##
-# @brief This routine loads an HDF5 file of multi-group cross section data.
-# @details The routine instantiates Material objects with multi-group cross
-#          section data and returns a dictionary of each Material object keyed
-#          by its ID. An OpenMOC Geometry may optionally be given and the
-#          routine will directly insert the multi-group cross sections into each
-#          Material in the Geometry. If a Geometry is passed in, Material
-#          objects from the Geometry will be used in place of those instantiated
-#          by this routine. An optional parameter for the domain types may be
-#          used to define whether multi-group cross sections are tabulated by
-#          material or cell in the HDF5 binary file.
-# @param filename filename for cross sections HDF5 file (default is 'mgxs.h5')
-# @param directory directory for cross sections HDF5 file (default is 'mgxs')
-# @param geometry an optional geometry populated with materials, cells, etc.
-# @param domain_type the domain type ('material' or 'cell') upon which the
-#        cross sections are defined (default is 'material')
-# @param suffix an optional string suffix to index the HDF5 file beyond the
-#        assumed domain_type/domain_id/mgxs_type group sequence (default is '')
-# @return a dictionary of Material objects keyed by ID
 def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                    geometry=None, domain_type='material', suffix=''):
+    """This routine loads an HDF5 file of multi-group cross section data.
+
+    The routine instantiates material with multi-group cross section data and
+    returns a dictionary of each Material object keyed by its ID. An OpenMOC
+    geometry may optionally be given and the routine will directly insert the
+    multi-group cross sections into each material in the geometry. If a geometry
+    is passed in, materials from the geometry will be used in place of those
+    instantiated by this routine.
+
+    Parameters
+    ----------
+    filename : str
+        Filename for cross sections HDF5 file (default is 'mgxs.h5')
+    directory : str
+        Directory for cross sections HDF5 file (default is 'mgxs')
+    geometry : openmoc.Geometry, optional
+        An optional geometry populated with materials, cells, etc.
+    domain_type : str
+        The domain type ('material' or 'cell') upon which the cross sections
+        are defined (default is 'material')
+    suffix : str, optional
+        An optional string suffix to index the HDF5 file beyond the assumed
+        domain_type/domain_id/mgxs_type group sequence (default is '')
+
+    Returns
+    -------
+    materials : dict
+        A dictionary of Materials keyed by ID
+
+    """
+
+    cv.check_type('filename', filename, basestring)
+    cv.check_type('directory', directory, basestring)
+    cv.check_value('domain_type', domain_type, ('material', 'cell'))
+    cv.check_type('suffix', suffix, basestring)
+    if geometry:
+        cv.check_type('geometry', geometry, openmoc.Geometry)
 
     # Create a h5py file handle for the file
     import h5py
@@ -80,15 +95,11 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
     # Check that the file has an 'energy groups' attribute
     if '# groups' not in f.attrs:
         py_printf('ERROR', 'Unable to load HDF5 file "%s" since it does '
-                           'not contain an \'# groups\' attribute', filename)
+                  'not contain an \'# groups\' attribute', filename)
 
     if domain_type not in f.keys():
         py_printf('ERROR', 'Unable to load HDF5 file "%s" since it does '
-                           'not contain domain type "%s"', filename, domain_type)
-
-    if geometry and 'openmoc.Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to load HDF5 file "%s" for "%s" which is not '
-                           'an OpenMOC Geometry', filename, str(type(geometry)))
+                  'not contain domain type "%s"', filename, domain_type)
 
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
@@ -177,7 +188,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
-                                 '"%s %s"', domain_type, str(domain_spec))
+                      '"%s %s"', domain_type, str(domain_spec))
 
         # Search for the fission production cross section
         if 'nu-fission' in domain_group:
@@ -187,7 +198,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
-                                 '"%s %s"', domain_type, str(domain_spec))
+                      '"%s %s"', domain_type, str(domain_spec))
 
         # Search for the scattering matrix cross section
         if 'nu-scatter matrix' in domain_group:
@@ -212,7 +223,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %s"',
-                                 domain_type, str(domain_spec))
+                      domain_type, str(domain_spec))
 
         # Search for optional cross sections
         if 'fission' in domain_group:
@@ -229,19 +240,29 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
     return materials
 
 
-##
-# @brief This routine loads an OpenMC Library of multi-group cross section data.
-# @details The routine instantiates Material objects with multi-group cross
-#          section data and returns a dictionary of each Material object keyed
-#          by its ID. An OpenMOC Geometry may optionally be given and the
-#          routine will directly insert the multi-group cross sections into each
-#          Material in the Geometry. If a Geometry is passed in, Material
-#          objects from the Geometry will be used in place of those instantiated
-#          by this routine.
-# @param mgxs_lib an openmc.mgxs.Library object with cross section data
-# @param geometry an optional geometry populated with materials, cells, etc.
-# @return a dictionary of Material objects keyed by ID
 def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
+    """This routine loads an OpenMC Library of multi-group cross section data.
+
+    The routine instantiates materials with multi-group cross section data and
+    returns a dictionary of each material keyed by its ID. An OpenMOC geometry
+    may optionally be given and the routine will directly insert the multi-group
+    cross sections into each material in the geometry. If a geometry is passed
+    in, materials from the geometry will be used in place of those instantiated
+    by this routine.
+
+    Parameters
+    ----------
+    mgxs_lib : openmc.mgxs.Library
+        An OpenMC multi-group cross section library library
+    geometry : openmoc.Geometry, optional
+        An optional geometry populated with materials, cells, etc.
+
+    Returns
+    -------
+    materials : dict
+        A dictionary of Materials keyed by ID
+
+    """
 
     # Attempt to import openmc
     try:
@@ -249,13 +270,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
     except ImportError:
         py_printf('ERROR', 'The OpenMC code must be installed on your system')
 
-    if not isinstance(mgxs_lib, openmc.mgxs.Library):
-        py_printf('ERROR', 'Unable to load cross sections from %s which is not '
-                           'an openmc.mgxs.Library object', str(type(mgxs_lib)))
-
-    if geometry and 'openmoc.Geometry' not in str(type(geometry)):
-        py_printf('ERROR', 'Unable to load cross sections for "%s" which '
-                           'is not an OpenMOC Geometry', str(type(geometry)))
+    cv.check_type('mgxs_lib', mgxs_lib, openmc.mgxs.Library)
+    if geometry:
+        cv.check_type('geometry', geometry, openmoc.Geometry)
 
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
@@ -271,13 +288,13 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             domains = geometry.getAllMaterialCells()
         else:
             py_printf('ERROR', 'Unable to load a cross sections library with '
-                               'domain type %s', mgxs_lib.domain_type)
+                      'domain type %s', mgxs_lib.domain_type)
 
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
     for domain in mgxs_lib.domains:
 
         py_printf('INFO', 'Importing cross sections for %s "%d"',
-                          domain_type, domain.id)
+                  domain_type, domain.id)
 
         # If using an OpenMOC Geometry, extract a Material from it
         if geometry:
@@ -335,7 +352,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
-                                 '"%s %d"', domain_type, domain.id)
+                      '"%s %d"', domain_type, domain.id)
 
         # Search for the fission production cross section
         if 'nu-fission' in mgxs_lib.mgxs_types:
@@ -343,10 +360,10 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             sigma = mgxs.get_xs(nuclides='sum')
             material.setNuSigmaF(sigma)
             py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %d"',
-                               domain_type, domain.id)
+                      domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
-                                 '"%s %d"', domain_type, domain.id)
+                      '"%s %d"', domain_type, domain.id)
 
         # Search for the scattering matrix cross section
         if 'nu-scatter matrix' in mgxs_lib.mgxs_types:
@@ -363,7 +380,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '
-                                 'found for "%s %d"', domain_type, domain.id)
+                      'found for "%s %d"', domain_type, domain.id)
 
         # Search for chi (fission spectrum)
         if 'chi' in mgxs_lib.mgxs_types:
@@ -374,7 +391,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %d"',
-                                 domain_type, domain.id)
+                      domain_type, domain.id)
 
         # Search for optional cross sections
         if 'fission' in mgxs_lib.mgxs_types:
@@ -392,50 +409,68 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
     return materials
 
 
-##
-# @brief Compute SPH factors for an OpenMC multi-group cross section library
-# @details This routine coputes SuPerHomogenisation (SPH) factors for an
-#          an OpenMC MGXS library. The SPH scheme is outlined by Alain Hebert
-#          in the following paper:
-#
-#          Hebert, A., "A Consistent Technique for the Pin-by-Pin
-#          Homogenization of a Pressurized Water Reactor Assembly."
-#          Nuclear Science and Engineering, 113 (3), pp. 227-233, 1993.
-#
-#          The SPH factors are needed to preserve reaction rates in
-#          heterogeneous geometries. The energy condensation process leads
-#          to a bias between ultrafine and coarse energy group calculations.
-#          This bias is a result of the use of scalar flux-weighting to compute
-#          MGXS without properly accounting for angular-dependence of the flux.
-# @param mgxs_lib an openmc.mgxs.Library object
-# @parma max_sph_iters the maximum number of SPH iterations
-# @param sph_tol the tolerance on the SPH factor convergence
-# @param fix_src_tol the tolerance on the MOC fixed source calculations
-# @param num_azim number of azimuthal angles to use in fixed source calculations
-# @param track_spacing the track spacing to use in fixed source calculations
-# @param zcoord the coordinate on the z-axis to use for 2D MOC calculations
-# @param num_threads the number of threads to use during the calculation
-# @param throttle_output suppress the output from fixed source calculations
-# @return a NumPy array of SPH factors and a new openmc.mgxs.Library object
-#         with the SPH factors applied to each MGXS object
 def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                         fix_src_tol=1E-5, num_azim=4, track_spacing=0.1,
                         zcoord=0.0, num_threads=1, throttle_output=True):
+    """Compute SPH factors for an OpenMC multi-group cross section library.
+
+    This routine coputes SuPerHomogenisation (SPH) factors for an OpenMC MGXS
+    library. The SPH scheme is outlined by Alain Hebert in the following paper:
+
+        Hebert, A., "A Consistent Technique for the Pin-by-Pin
+        Homogenization of a Pressurized Water Reactor Assembly."
+        Nuclear Science and Engineering, 113 (3), pp. 227-233, 1993.
+
+    The SPH factors are needed to preserve reaction rates in heterogeneous
+    geometries. The energy condensation process leads to a bias between
+    ultrafine and coarse energy group calculations. This bias is a result of the
+    use of scalar flux-weighting to compute MGXS without properly accounting for
+    angular-dependence of the flux.
+
+    Parameters
+    ----------
+    mgxs_lib : openmc.mgxs.Library
+        An OpenMC multi-group cross section library
+    max_sph_iters : Integral
+        The maximum number of SPH iterations (default is 30)
+    sph_tol : Real
+        The tolerance on the SPH factor convergence (default is 1E-5)
+    fix_src_tol : Real
+        The tolerance on the MOC fixed source calculations (default is 1E-5_
+    num_azim : Integral
+        The number of azimuthal angles (default is 4)
+    track_spacing : Real
+        The track spacing (default is 0.1 centimeters)
+    zcoord : Real
+        The coordinate on the z-axis (default is 0.)
+    num_threads : Real
+        The number of OpenMP threads (default is 1)
+    throttle_output : bool
+        Whether to suppress output from fixed source calculations (default is True)
+
+    Returns
+    -------
+    fsrs_to_sph : numpy.ndarray of Real
+        A NumPy array of SPH factors indexed by FSR and energy group
+    sph_mgxs_lib : openmc.mgxs.Library
+        A OpenMC MGXS library with the SPH factors applied to each MGXS
+    sph_to_fsrs_indices : numpy.ndarray of Integral
+        A NumPy array of all fissionable FSRs to which SPH factors were applied
+
+    """
 
     import openmc.mgxs
 
+    cv.check_type('mgxs_lib', mgxs_lib, openmc.mgxs.Library)
+
     # For Python 2.X.X
     if sys.version_info[0] == 2:
-        from compatible import get_openmoc_geometry
+        from opencg_compatible import get_openmoc_geometry
         from process import get_scalar_fluxes
     # For Python 3.X.X
     else:
-        from openmoc.compatible import get_openmoc_geometry
+        from openmoc.opencg_compatible import get_openmoc_geometry
         from openmoc.process import get_scalar_fluxes
-
-    if not isinstance(mgxs_lib, openmc.mgxs.Library):
-        py_printf('ERROR', 'Unable to compute SPH factors with %s which is '
-                  'not an openmc.mgxs.Library', str(openmc.mgxs.Library))
 
     py_printf('NORMAL', 'Computing SPH factors...')
 
@@ -486,7 +521,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         openmoc_domains = geometry.getAllMaterialCells()
     else:
         py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
-                           'library of domain type %s', mgxs_lib.domain_type)
+                  'library of domain type %s', mgxs_lib.domain_type)
 
     # Build a list of indices into the SPH array for fissionable domains
     sph_to_domain_indices = []
@@ -497,7 +532,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                 sph_to_domain_indices.append(i)
 
     py_printf('NORMAL', 'Computing SPH factors for %d "%s" domains',
-                        len(sph_to_domain_indices), mgxs_lib.domain_type)
+               len(sph_to_domain_indices), mgxs_lib.domain_type)
 
     # Initialize array of domain-averaged fluxes and SPH factors
     num_domains = len(mgxs_lib.domains)
@@ -570,16 +605,28 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
 
-##
-# @brief Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.
-# @detail this routine computes the fission production and scattering source
-#         in each domain in an OpenMC MGXS library and assigns it as a fixed
-#         source for an OpenMOC calculation. This is a helper routine for
-#         openmoc.process.compute_sph_factors(...).
-# @param mgxs_lib an openmc.mgxs.Library object
-# @param solver an OpenMOC Solver object
-# @return a NumPy array of the OpenMC fluxes indexed by domain and energy group
+
 def _load_openmc_src(mgxs_lib, solver):
+    """Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.
+
+    This routine computes the fission production and scattering source in
+    each domain in an OpenMC MGXS library and assigns it as a fixed source
+    for an OpenMOC calculation. This is a helper routine for the
+    compute_sph_factors(...) routine.
+
+    Parameters
+    ----------
+    mgxs_lib : openmc.mgxs.Library object
+        An OpenMC multi-group cross section library
+    solver : openmoc.Solver
+        An OpenMOC solver into which to load the fixed sources
+
+    Returns
+    -------
+    openmc_fluxes : numpy.ndarray of Real
+        A NumPy array of the OpenMC fluxes indexed by domain and energy group
+
+    """
 
     # Retrieve dictionary of OpenMOC domains corresponding to OpenMC domains
     geometry = solver.getGeometry()
@@ -630,21 +677,21 @@ def _load_openmc_src(mgxs_lib, solver):
                                         'scatter matrix')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
-                               'MGXS library without scattering matrices')
+                      'MGXS library without scattering matrices')
 
         # Extract an openmc.mgxs.MGXS object for the nu-fission cross section
         if 'nu-fission' in mgxs_lib.mgxs_types:
             nu_fission = mgxs_lib.get_mgxs(openmoc_domain.getId(), 'nu-fission')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
-                               'MGXS library without nu-fission cross sections')
+                      'MGXS library without nu-fission cross sections')
 
         # Extract an openmc.mgxs.MGXS object for the chi fission spectrum
         if 'chi' in mgxs_lib.mgxs_types:
             chi = mgxs_lib.get_mgxs(openmoc_domain.getId(), 'chi')
         else:
             py_printf('ERROR', 'Unable to compute SPH factors for an OpenMC '
-                               'MGXS library without chi fission spectrum')
+                      'MGXS library without chi fission spectrum')
 
         # Retrieve the OpenMC volume-integrated flux for this domain from
         # the nu-fission MGXS and store it for SPH factor calculation
@@ -673,14 +720,26 @@ def _load_openmc_src(mgxs_lib, solver):
     return openmc_fluxes
 
 
-##
-# @brief Apply SPH factors to an OpenMC MGXS library
-# @details This is a helper routine for openmoc.process.compute_sph_factors(...)
-# @param mgxs_lib an openmc.mgxs.Library object
-# @param geometry an OpenMOC Geometry object
-# @param sph a NumpPy array of SPH factors for each energy group for this domain
-# @return a new openmc.mgxs.Library with SPH factors applied to all MGXS
 def _apply_sph_factors(mgxs_lib, geometry, sph):
+    """Apply SPH factors to an OpenMC MGXS library.
+
+    This is a helper routine for the compute_sph_factors(...) routine.
+
+    Parameters
+    ----------
+    mgxs_lib : openmc.mgxs.Library
+        An OpenMC multi-group cross section library
+    geometry : openmoc.Geometry
+        An OpenMOC geometry
+    sph : numpy.ndarray of Real
+        A NumpPy array of SPH factors for each domain and energy group
+
+    Returns
+    -------
+    sph_mgxs_lib : openmc.mgxs.Library
+        A new OpenMC MGXS library with SPH factors applied to all MGXS
+
+    """
 
     # Create a copy of the MGXS library to apply SPH factors
     sph_mgxs_lib = copy.deepcopy(mgxs_lib)

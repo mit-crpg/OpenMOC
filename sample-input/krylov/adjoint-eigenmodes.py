@@ -5,12 +5,6 @@ import openmoc
 ###############################################################################
 
 options = openmoc.options.Options()
-
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
 num_modes = 5
 
 openmoc.log.set_log_level('NORMAL')
@@ -25,8 +19,9 @@ openmoc.log.py_printf('TITLE', 'Computing %d adjoint eigenmodes', num_modes)
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 from geometry import geometry
-track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.track_spacing)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
 
@@ -36,7 +31,7 @@ track_generator.generateTracks()
 
 # Initialize a CPUSolver to perform adjoint fixed source calculations
 cpu_solver = openmoc.CPUSolver(track_generator)
-cpu_solver.setNumThreads(num_threads)
+cpu_solver.setNumThreads(opts.num_omp_threads)
 
 # Initialize IRAMSolver to perform adjoint eigenmode calculation
 iram_solver = openmoc.krylov.IRAMSolver(cpu_solver)
