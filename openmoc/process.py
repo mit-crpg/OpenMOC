@@ -982,7 +982,7 @@ class Mesh(object):
 
         # Integrate the energy groups if needed
         if energy == 'integrated':
-            tally = np.sum(tally, axis=2)
+            tally = np.sum(tally, axis=len(self.dimension))
 
         # Average the fission rates by mesh cell volume if needed
         if volume == 'averaged':
