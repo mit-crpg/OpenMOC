@@ -18,6 +18,7 @@ class SimulationStateTestHarness(TestHarness):
     def __init__(self):
         super(SimulationStateTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
+        self.num_threads = 4
 
     def _run_openmoc(self):
         """Run an eigenvalue calculation and store the simulation state."""
@@ -50,6 +51,9 @@ class SimulationStateTestHarness(TestHarness):
                     # Ignore runtime since it changes for each run
                     if 'time' in key3:
                         continue
+                    # Ignore thread counts for sequential/parallel runs
+                    if 'threads' in key3:
+                        continue
 
                     # Create a list of the floating point flux values
                     if isinstance(value, np.ndarray):
@@ -69,6 +73,9 @@ class SimulationStateTestHarness(TestHarness):
 
                     # Ignore runtime since it changes for each run
                     if 'time' in key3:
+                        continue
+                    # Ignore thread counts for sequential/parallel runs
+                    if 'threads' in key3:
                         continue
 
                     # Create a list of the floating point flux values
