@@ -174,7 +174,7 @@ OpenMOC uses multi-group macroscopic nuclear cross sections, provided by the use
    material.setSigmaF(sigma_f)
    ...
 
-For many simulations, defining the nuclear data cross sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross sections from an HDF5_ binary file. The ``load_from_hdf5(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 binary files is illusrated in the following snippet:
+For many simulations, defining the nuclear data cross sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross sections from an HDF5_ binary file. The ``load_from_hdf5(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 binary files is illustrated in the following snippet:
 
 .. code-block:: python
 
@@ -190,7 +190,7 @@ For many simulations, defining the nuclear data cross sections by hand in a Pyth
     # Retrieve the material called 'moderator' in the HDF5 file
     moderator = hdf5_materials['moderator']
 
-The ``openmoc.materialize`` module defines a standard for cross section data stored in binary files. First, HDF5 files must include an ``'# groups'`` attribute with the integer number of groups in the top level of the file hierarchy. Second, the string domain type - ``'material'`` or ``'cell'`` - must be specified in the top level of the file hierarchy. This must match the ``domain_type`` keyword argument passed to ``load_from_hdf5(...)`` which can be either ``'material'`` (default) or ``'cell'``. The ``domain_type`` keyword argument is discussed in more detail at the end of this section. Finally, multi-group cross sections to assign by material or cell must be defined as an `HDF5 group`_ with a string name or integer ID to identify the material or cell. The material group must contain the following floating point `HDF5 datasets`_ of multi-group cross section data:
+The ``openmoc.materialize`` module defines a standard for cross section data stored in binary files. First, HDF5 files must include a ``'# groups'`` attribute with the integer number of groups in the top level of the file hierarchy. Second, the string domain type - ``'material'`` or ``'cell'`` - must be specified in the top level of the file hierarchy. This must match the ``domain_type`` keyword argument passed to ``load_from_hdf5(...)`` which can be either ``'material'`` (default) or ``'cell'``. The ``domain_type`` keyword argument is discussed in more detail at the end of this section. Finally, multi-group cross sections to assign by material or cell must be defined as an `HDF5 group`_ with a string name or integer ID to identify the material or cell. The material group must contain the following floating point `HDF5 datasets`_ of multi-group cross section data:
 
   - ``'transport'`` or ``'total'``
   - ``'nu-scatter matrix'`` or ``'scatter matrix'``
@@ -789,7 +789,6 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
     cmfd.setGroupStructure([1,4,8])
     cmfd.setOpticallyThick(False)
     cmfd.setSORRelaxationFactor(1.5)
-    cmfd.setMOCRelaxationFactor(0.66)
     cmfd.setConvergenceThreshold(1.E-8)
     cmfd.setFluxUpdateOn(True)
 
@@ -800,10 +799,9 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
 
 These lines of code should be placed in your input file at the location where the geometry object would be initialize had your problem been set up without CMFD acceleration. In this code, the cmfd object is initialized and the CMFD mesh lattice structure is set. In is generally best to have the CMFD mesh overlap with either the assembly or pincell mesh of the problem, but OpenMOC is designed to accept any regular mesh structure. The optional parameters are described below:
 
-  * ``setMOCRelaxationFactor`` (default: 0.6) - Our formulation of CMFD acceleration requires a static relaxation factor with a float argument between 0 and 1.0 that provides a relaxation on the nonlinear diffusion coefficient as described in the Theory and Methodology section of the OpenMOC documentation. A default value of 0.6 is used and is sufficient for most problems we have tested. If CMFD accelerated MOC seems to diverge, it is suggested that the relaxation factor be reduced until the problem begins to stabilize.
   * ``setFluxUpdateOn`` (default: True) - This function is included to give the users the option to overlay the CMFD mesh, but toggle the CMFD update. If the CMFD mesh breaks up any parts of the geometry, this function be can be used to overlay the CMFD mesh for segmentation, but not perform a CMFD solve and flux update after each MOC iteration. This is useful in comparing runs with and without CMFD and ensuring the exact same segments are used.
   * ``setGroupStructure`` (default: same as MOC group structure) - OpenMOC is able to perform CMFD on a coarse energy group structure to allow fine energy group problems to be accelerated with CMFD without incurring a significant computational overhead for CMFD. This function takes a python list as input with the first value of 1 (to indicate the first energy group) followed by an increasing values ending with the number of energy groups plus 1. In the example above, a 7 group MOC problem is broken up into 2 energy groups for CMFD.
-  * ``setOpticallyThick`` (default: False) - OpenMOC uses an correction factor on the material diffusion coefficients as described in the Theory and Methodology section. This correction factor is turned off by default.
+  * ``setOpticallyThick`` (default: False) - OpenMOC uses a correction factor on the material diffusion coefficients as described in the Theory and Methodology section. This correction factor is turned off by default.
   * ``setSORRelaxationFactor`` (default: 1.0) - As described in the Theory and Methodology section, OpenMOC use the successive over-relaxation method (SOR) to solve the CMFD diffusion eigenvalue problem. The SOR method can use an over-relaxation factor to speed up the convergence of problems. Valid input for the SOR relaxation factor are values between 0 and 2. By default the SOR factor is set to 1.0, reducing the SOR method to the Gauss-Seidel method.
   * ``setConvergenceThreshold`` (default: 1.E-7) - This method is used to set the convergence of the root-mean-square-error on the region and group wise fission source of the CMFD diffusion eigenvalue problem. By default, the convergence threshold is set at 1.E-7 and is sufficient for most problems.
 
