@@ -213,36 +213,3 @@ void ExpEvaluator::initialize() {
     }
   }
 }
-
-
-/**
- * @brief Computes the exponential term for a optical length and polar angle.
- * @details This method computes \f$ 1 - exp(-\tau/sin(\theta_p)) \f$
- *          for some optical path length and polar angle. This method
- *          uses either a linear interpolation table (default) or the
- *          exponential intrinsic exp(...) function.
- * @param tau the optical path length (e.g., sigma_t times length)
- * @param polar the polar angle index
- * @return the evaluated exponential
- */
-FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
-
-  FP_PRECISION exponential;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    tau = std::min(tau, (_max_optical_length));
-    int index = floor(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = (1. - (_exp_table[index + 2 * polar] * tau +
-                  _exp_table[index + 2 * polar + 1]));
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
-    exponential = 1.0 - exp(- tau / sintheta);
-  }
-
-  return exponential;
-}
