@@ -4,14 +4,6 @@ import openmoc
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = openmoc.options.Options()
-
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
-
 openmoc.log.set_log_level('NORMAL')
 
 

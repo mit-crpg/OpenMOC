@@ -25,7 +25,7 @@ log
 tracks
 plots
 fission-rates
-simulation-state
+simulation-states
 *.data
 *.png
 *.ppm
@@ -87,3 +87,6 @@ results_test.dat
 # Test build files
 openmoc/
 *.log
+
+# Doxygen
+docs/doxygen/html/*

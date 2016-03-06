@@ -5,13 +5,8 @@ import math
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = openmoc.options.Options()
+opts = openmoc.options.Options()
 
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
 openmoc.log.set_log_level('NORMAL')
 
 
@@ -108,8 +103,9 @@ geometry.setRootUniverse(root_universe)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.track_spacing)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
 
@@ -119,8 +115,8 @@ track_generator.generateTracks()
 
 # initialize the solver
 solver = openmoc.CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
-solver.setConvergenceThreshold(tolerance)
+solver.setNumThreads(opts.num_omp_threads)
+solver.setConvergenceThreshold(opts.tolerance)
 
 # Set the source in every cell to a cosine distribution
 for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
@@ -146,7 +142,7 @@ for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
   # resulting flux shapes.
 
 # Run the solver for the provided source
-solver.computeFlux(max_iters)
+solver.computeFlux(opts.max_iters)
 solver.printTimerReport()
 
 

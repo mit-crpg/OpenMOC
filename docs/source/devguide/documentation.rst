@@ -46,14 +46,15 @@ This command will use the Sphinx tool to generate HTML in the :file:`/docs/build
 
 The reStructuredText source files that should be updated with each pull request are located in the :file:`/docs/source` directory. If developers wish to add new pictures to the documentation, image files should be added to the :file:`/docs/img` directory in either png or svg format. Developers can test out their changes to the documentation by recompiling the Sphinx documentation into HTML and viewing the updated HTML files.
 
-Likewise, in order to build a revised version of the :ref:`OpenMOC API <api>` from Doxygen-style comments in the Python and C++ source code, you may use the following console command from within the :file:`/docs` directory:
+Likewise, in order to build a revised version of the :ref:`OpenMOC API <api>` from Doxygen-style comments in the Python and C++ source code, you may use the following console commands from within the :file:`/docs` directory:
 
 .. code-block:: none
 
     cd doxygen
     doxygen Doxyfile
+    ./doxy2swig.py
 
-This will build a new version of the API in the :file:`/docs/doxygen/html` directory. From within the :file:`/docs/doxygen` directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:
+This will build a new version of the API in the :file:`/docs/doxygen/html` directory. In addition, the :file:`docs/doxy2swig.py` script will parse the Doxygen-style comments and generate Python docstring-equivalents in an updated :file:`openmoc/docstring.i` file for SWIG to inject into the :code:`openmoc` Python module. From within the :file:`/docs/doxygen` directory, you may use a web browser, such as Mozilla Firefox, to view your newly generated documentation as follows:
 
 .. code-block:: none
 
