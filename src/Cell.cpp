@@ -646,7 +646,7 @@ std::vector<Cell*> Cell::getNeighbors() const {
 
 /**
  * @brief Return true if the Cell has a parent and false otherwise.
- * @return whehter the Cell has a parent Cell
+ * @return whether the Cell has a parent Cell
  */
 bool Cell::hasParent() {
   if (_parent == NULL)
