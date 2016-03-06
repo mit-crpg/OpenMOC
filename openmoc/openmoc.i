@@ -31,7 +31,6 @@
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
   #include "../src/boundary_type.h"
-  #include "../src/segmentation_type.h"
 
   #ifdef ICPC
   #include "../src/VectorizedSolver.h"
@@ -516,7 +515,6 @@ namespace std {
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/boundary_type.h
-%include ../src/segmentation_type.h
 
 #ifdef ICPC
 %include ../src/VectorizedSolver.h
