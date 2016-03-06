@@ -107,17 +107,17 @@ private:
   /** If the user specified fine-to-coarse group indices */
   bool _user_group_indices;
 
-  /** Number of FSRs */
-  int _num_FSRs;
+  /** Number of SRs */
+  int _num_SRs;
 
-  /** The volumes (areas) for each FSR */
-  FP_PRECISION* _FSR_volumes;
+  /** The volumes (areas) for each SR */
+  FP_PRECISION* _SR_volumes;
 
-  /** Pointers to Materials for each FSR */
-  Material** _FSR_materials;
+  /** Pointers to Materials for each SR */
+  Material** _SR_materials;
 
-  /** The FSR scalar flux in each energy group */
-  FP_PRECISION* _FSR_fluxes;
+  /** The SR scalar flux in each energy group */
+  FP_PRECISION* _SR_fluxes;
 
   /** Vector of CMFD cell volumes */
   Vector* _volumes;
@@ -137,8 +137,8 @@ private:
   /** Vector of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
-  /** Vector of vectors of FSRs containing in each cell */
-  std::vector< std::vector<int> > _cell_fsrs;
+  /** Vector of vectors of SRs containing in each cell */
+  std::vector< std::vector<int> > _cell_srs;
 
   /** Pointer to Lattice object representing the CMFD mesh */
   Lattice* _lattice;
@@ -152,7 +152,7 @@ private:
   /** Number of cells used in updating MOC flux (default 3) */
   int _k_nearest;
 
-  /** Map storing the k-nearest stencil for each fsr */
+  /** Map storing the k-nearest stencil for each sr */
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
 
@@ -175,7 +175,7 @@ private:
   /* Private getter functions */
   int getCellNext(int cell_id, int surface_id);
   int getCellByStencil(int cell_id, int stencil_id);
-  FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
+  FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int sr);
   FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
   FP_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
@@ -199,7 +199,7 @@ public:
   void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);
-  void addFSRToCell(int cell_id, int fsr_id);
+  void addSRToCell(int cell_id, int sr_id);
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     FP_PRECISION* polar_weights, bool fwd);
@@ -215,8 +215,8 @@ public:
   Lattice* getLattice();
   int getNumX();
   int getNumY();
-  int convertFSRIdToCmfdCell(int fsr_id);
-  std::vector< std::vector<int> >* getCellFSRs();
+  int convertSRIdToCmfdCell(int sr_id);
+  std::vector< std::vector<int> >* getCellSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();
 
@@ -227,7 +227,7 @@ public:
   void setWidthY(double width);
   void setNumX(int num_x);
   void setNumY(int num_y);
-  void setNumFSRs(int num_fsrs);
+  void setNumSRs(int num_srs);
   void setNumMOCGroups(int num_moc_groups);
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y);
@@ -238,11 +238,11 @@ public:
   void setPolarQuadrature(PolarQuad* polar_quad);
   void setKNearest(int k_nearest);
 
-  /* Set FSR parameters */
-  void setFSRMaterials(Material** FSR_materials);
-  void setFSRVolumes(FP_PRECISION* FSR_volumes);
-  void setFSRFluxes(FP_PRECISION* scalar_flux);
-  void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
+  /* Set SR parameters */
+  void setSRMaterials(Material** SR_materials);
+  void setSRVolumes(FP_PRECISION* SR_volumes);
+  void setSRFluxes(FP_PRECISION* scalar_flux);
+  void setCellSRs(std::vector< std::vector<int> >* cell_srs);
 };
 
 #endif /* CMFD_H_ */

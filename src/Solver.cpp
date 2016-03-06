@@ -12,10 +12,10 @@ Solver::Solver(TrackGenerator* track_generator) {
   _num_azim = 0;
   _num_parallel_track_groups = 0;
 
-  _num_FSRs = 0;
-  _num_fissionable_FSRs = 0;
-  _FSR_volumes = NULL;
-  _FSR_materials = NULL;
+  _num_SRs = 0;
+  _num_fissionable_SRs = 0;
+  _SR_volumes = NULL;
+  _SR_materials = NULL;
 
   _track_generator = NULL;
   _geometry = NULL;
@@ -50,18 +50,18 @@ Solver::Solver(TrackGenerator* track_generator) {
 
 /**
  * @brief Destructor deletes arrays of boundary angular fluxes,
- *        scalar fluxes and sources for each FSR and energy group.
+ *        scalar fluxes and sources for each SR and energy group.
  * @details Deallocates memory for all arrays allocated for the Solver,
  *          including fluxes, sources, quadrature weights, and exponential
  *          linear interpolation table.
  */
 Solver::~Solver() {
 
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
+  if (_SR_volumes != NULL)
+    delete [] _SR_volumes;
 
-  if (_FSR_materials != NULL)
-    delete [] _FSR_materials;
+  if (_SR_materials != NULL)
+    delete [] _SR_materials;
 
   if (_polar_weights != NULL)
     delete [] _polar_weights;
@@ -137,20 +137,20 @@ PolarQuad* Solver::getPolarQuad() {
 
 /**
  * @brief Returns the calculated volume for a flat source region.
- * @param fsr_id the flat source region ID of interest
+ * @param sr_id the flat source region ID of interest
  * @return the flat source region volume
  */
-FP_PRECISION Solver::getFSRVolume(int fsr_id) {
+FP_PRECISION Solver::getSRVolume(int sr_id) {
 
-  if (fsr_id < 0 || fsr_id > _num_FSRs)
-    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
-               "IDs lie in the range (0, %d)", fsr_id, _num_FSRs);
+  if (sr_id < 0 || sr_id > _num_SRs)
+    log_printf(ERROR, "Unable to get the volume for SR %d since the SR "
+               "IDs lie in the range (0, %d)", sr_id, _num_SRs);
 
-  else if (_FSR_volumes == NULL)
-    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
-               "volumes have not yet been computed", fsr_id);
+  else if (_SR_volumes == NULL)
+    log_printf(ERROR, "Unable to get the volume for SR %d since the SR "
+               "volumes have not yet been computed", sr_id);
 
-  return _FSR_volumes[fsr_id];
+  return _SR_volumes[sr_id];
 }
 
 
@@ -234,19 +234,19 @@ bool Solver::isUsingExponentialInterpolation() {
 /**
  * @brief Returns the source for some energy group for a flat source region
  * @details This is a helper routine used by the openmoc.process module.
- * @param fsr_id the ID for the FSR of interest
+ * @param sr_id the ID for the SR of interest
  * @param group the energy group of interest
  * @return the flat source region source
  */
-FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
+FP_PRECISION Solver::getSRSource(int sr_id, int group) {
 
-  if (fsr_id >= _num_FSRs)
-    log_printf(ERROR, "Unable to return a source for FSR ID = %d "
-               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
+  if (sr_id >= _num_SRs)
+    log_printf(ERROR, "Unable to return a source for SR ID = %d "
+               "since the max SR ID = %d", sr_id, _num_SRs-1);
 
-  else if (fsr_id < 0)
-    log_printf(ERROR, "Unable to return a source for FSR ID = %d "
-               "since FSRs do not have negative IDs", fsr_id);
+  else if (sr_id < 0)
+    log_printf(ERROR, "Unable to return a source for SR ID = %d "
+               "since SRs do not have negative IDs", sr_id);
 
   else if (group-1 >= _num_groups)
     log_printf(ERROR, "Unable to return a source in group %d "
@@ -261,7 +261,7 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
                "since it has not yet been computed");
 
   /* Get Material and cross-sections */
-  Material* material = _FSR_materials[fsr_id];
+  Material* material = _SR_materials[sr_id];
   FP_PRECISION* sigma_s = material->getSigmaS();
   FP_PRECISION* fiss_mat = material->getFissionMatrix();
 
@@ -269,12 +269,12 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
   FP_PRECISION scatter_source = 0.0;
   FP_PRECISION total_source;
 
-  /* Compute total scattering and fission sources for this FSR */
+  /* Compute total scattering and fission sources for this SR */
   for (int g=0; g < _num_groups; g++) {
     scatter_source += sigma_s[(group-1)*(_num_groups)+g]
-                      * _scalar_flux(fsr_id-1,g);
+                      * _scalar_flux(sr_id-1,g);
     fission_source += fiss_mat[(group-1)*(_num_groups)+g]
-                      * _scalar_flux(fsr_id-1,g);
+                      * _scalar_flux(sr_id-1,g);
   }
 
   fission_source /= _k_eff;
@@ -283,7 +283,7 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
   total_source = fission_source + scatter_source;
 
   /* Add in fixed source (if specified by user) */
-  total_source += _fixed_sources(fsr_id,group-1);
+  total_source += _fixed_sources(sr_id,group-1);
 
   /* Normalize to solid angle for isotropic approximation */
   total_source *= ONE_OVER_FOUR_PI;
@@ -293,20 +293,20 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 
 
 /**
- * @brief Returns the scalar flux for some FSR and energy group.
- * @param fsr_id the ID for the FSR of interest
+ * @brief Returns the scalar flux for some SR and energy group.
+ * @param sr_id the ID for the SR of interest
  * @param group the energy group of interest
- * @return the FSR scalar flux
+ * @return the SR scalar flux
  */
-FP_PRECISION Solver::getFlux(int fsr_id, int group) {
+FP_PRECISION Solver::getFlux(int sr_id, int group) {
 
-  if (fsr_id >= _num_FSRs)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since the max FSR ID = %d", fsr_id, _num_FSRs-1);
+  if (sr_id >= _num_SRs)
+    log_printf(ERROR, "Unable to return a scalar flux for SR ID = %d "
+               "since the max SR ID = %d", sr_id, _num_SRs-1);
 
-  else if (fsr_id < 0)
-    log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
-               "since FSRs do not have negative IDs", fsr_id);
+  else if (sr_id < 0)
+    log_printf(ERROR, "Unable to return a scalar flux for SR ID = %d "
+               "since SRs do not have negative IDs", sr_id);
 
   else if (group-1 >= _num_groups)
     log_printf(ERROR, "Unable to return a scalar flux in group %d "
@@ -320,7 +320,7 @@ FP_PRECISION Solver::getFlux(int fsr_id, int group) {
     log_printf(ERROR, "Unable to return a scalar flux "
              "since it has not yet been computed");
 
-  return _scalar_flux(fsr_id,group-1);
+  return _scalar_flux(sr_id,group-1);
 }
 
 
@@ -332,9 +332,9 @@ FP_PRECISION Solver::getFlux(int fsr_id, int group) {
  */
 void Solver::setGeometry(Geometry* geometry) {
 
-  if (geometry->getNumFSRs() == 0)
+  if (geometry->getNumSRs() == 0)
     log_printf(ERROR, "Unable to set the Geometry for the Solver since the "
-               "Geometry has not yet initialized FSRs");
+               "Geometry has not yet initialized SRs");
 
   _geometry = geometry;
 }
@@ -414,12 +414,12 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
 
 /**
  * @brief Assign a fixed source for a flat source region and energy group.
- * @param fsr_id the flat source region ID
+ * @param sr_id the flat source region ID
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
-  _fix_src_FSR_map[std::pair<int, int>(fsr_id, group)] = source;
+void Solver::setFixedSourceBySR(int sr_id, int group, FP_PRECISION source) {
+  _fix_src_SR_map[std::pair<int, int>(sr_id, group)] = source;
 }
 
 
@@ -570,45 +570,45 @@ void Solver::initializeMaterials(solverMode mode) {
 
 
 /**
- * @brief Initializes the FSR volumes and Materials array.
- * @details This method assigns each FSR a unique, monotonically increasing
- *          ID, sets the Material for each FSR, and assigns a volume based on
- *          the cumulative length of all of the segments inside the FSR.
+ * @brief Initializes the SR volumes and Materials array.
+ * @details This method assigns each SR a unique, monotonically increasing
+ *          ID, sets the Material for each SR, and assigns a volume based on
+ *          the cumulative length of all of the segments inside the SR.
  */
-void Solver::initializeFSRs() {
+void Solver::initializeSRs() {
 
   log_printf(INFO, "Initializing flat source regions...");
 
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
+  /* Delete old SR arrays if they exist */
+  if (_SR_volumes != NULL)
+    delete [] _SR_volumes;
 
-  if (_FSR_materials != NULL)
-    delete [] _FSR_materials;
+  if (_SR_materials != NULL)
+    delete [] _SR_materials;
 
   /* Retrieve simulation parameters from the Geometry */
-  _num_FSRs = _geometry->getNumFSRs();
+  _num_SRs = _geometry->getNumSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
 
-  /* Get an array of volumes indexed by FSR  */
-  _FSR_volumes = _track_generator->getFSRVolumes();
+  /* Get an array of volumes indexed by SR  */
+  _SR_volumes = _track_generator->getSRVolumes();
 
-  /* Generate the FSR centroids */
-  _track_generator->generateFSRCentroids();
+  /* Generate the SR centroids */
+  _track_generator->generateSRCentroids();
 
   /* Attach the correct materials to each track segment */
   _track_generator->initializeSegments();
 
-  /* Allocate an array of Material pointers indexed by FSR */
-  _FSR_materials = new Material*[_num_FSRs];
+  /* Allocate an array of Material pointers indexed by SR */
+  _SR_materials = new Material*[_num_SRs];
 
-  /* Loop over all FSRs to extract FSR material pointers */
-  for (int r=0; r < _num_FSRs; r++) {
-    _FSR_materials[r] = _geometry->findFSRMaterial(r);
-    log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
-               r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
+  /* Loop over all SRs to extract SR material pointers */
+  for (int r=0; r < _num_SRs; r++) {
+    _SR_materials[r] = _geometry->findSRMaterial(r);
+    log_printf(INFO, "SR ID = %d has Material ID = %d and volume = %f ",
+               r, _SR_materials[r]->getId(), _SR_volumes[r]);
   }
 }
 
@@ -616,29 +616,29 @@ void Solver::initializeFSRs() {
 /**
  * @brief Counts the number of fissionable flat source regions.
  * @details This routine is used by the Solver::computeEigenvalue(...)
- *          routine which uses the number of fissionable FSRs to normalize
+ *          routine which uses the number of fissionable SRs to normalize
  *          the residual on the fission source distribution.
  */
-void Solver::countFissionableFSRs() {
+void Solver::countFissionableSRs() {
 
-  log_printf(INFO, "Counting fissionable FSRs...");
+  log_printf(INFO, "Counting fissionable SRs...");
 
-  /* Count the number of fissionable FSRs */
-  _num_fissionable_FSRs = 0;
-  for (int r=0; r < _num_FSRs; r++) {
-    if (_FSR_materials[r]->isFissionable())
-      _num_fissionable_FSRs++;
+  /* Count the number of fissionable SRs */
+  _num_fissionable_SRs = 0;
+  for (int r=0; r < _num_SRs; r++) {
+    if (_SR_materials[r]->isFissionable())
+      _num_fissionable_SRs++;
   }
 }
 
 
 /**
- * @brief Assigns fixed sources assigned by Cell, Material to FSRs.
+ * @brief Assigns fixed sources assigned by Cell, Material to SRs.
  */
 void Solver::initializeFixedSources() {
 
-  Cell* fsr_cell;
-  Material* fsr_material;
+  Cell* sr_cell;
+  Material* sr_material;
   int group;
   FP_PRECISION source;
   std::pair<Cell*, int> cell_group_key;
@@ -655,11 +655,11 @@ void Solver::initializeFixedSources() {
     group = cell_group_key.second;
     source = _fix_src_cell_map[cell_group_key];
 
-    /* Search for this Cell in all FSRs */
-    for (int r=0; r < _num_FSRs; r++) {
-      fsr_cell = _geometry->findCellContainingFSR(r);
-      if (cell_group_key.first->getId() == fsr_cell->getId())
-        setFixedSourceByFSR(r, group, source);
+    /* Search for this Cell in all SRs */
+    for (int r=0; r < _num_SRs; r++) {
+      sr_cell = _geometry->findCellContainingSR(r);
+      if (cell_group_key.first->getId() == sr_cell->getId())
+        setFixedSourceBySR(r, group, source);
     }
   }
 
@@ -672,10 +672,10 @@ void Solver::initializeFixedSources() {
     group = mat_group_key.second;
     source = _fix_src_material_map[mat_group_key];
 
-    for (int r=0; r < _num_FSRs; r++) {
-      fsr_material = _geometry->findFSRMaterial(r);
-      if (mat_group_key.first->getId() == fsr_material->getId())
-        setFixedSourceByFSR(r, group, source);
+    for (int r=0; r < _num_SRs; r++) {
+      sr_material = _geometry->findSRMaterial(r);
+      if (mat_group_key.first->getId() == sr_material->getId())
+        setFixedSourceBySR(r, group, source);
     }
   }
 }
@@ -684,7 +684,7 @@ void Solver::initializeFixedSources() {
 /**
  * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
- *          the Solver by the user and initializes FSRs, materials, fluxes
+ *          the Solver by the user and initializes SRs, materials, fluxes
  *          and the Mesh object. This method is for internal use only
  *          and should not be called directly by the user.
  */
@@ -706,11 +706,11 @@ void Solver::initializeCmfd() {
   _cmfd->setNumMOCGroups(_num_groups);
   _cmfd->initializeGroupMap();
 
-  /* Give CMFD number of FSRs and FSR property arrays */
-  _cmfd->setNumFSRs(_num_FSRs);
-  _cmfd->setFSRVolumes(_FSR_volumes);
-  _cmfd->setFSRMaterials(_FSR_materials);
-  _cmfd->setFSRFluxes(_scalar_flux);
+  /* Give CMFD number of SRs and SR property arrays */
+  _cmfd->setNumSRs(_num_SRs);
+  _cmfd->setSRVolumes(_SR_volumes);
+  _cmfd->setSRMaterials(_SR_materials);
+  _cmfd->setSRFluxes(_scalar_flux);
   _cmfd->setPolarQuadrature(_polar_quad);
   _cmfd->setGeometry(_geometry);
   _cmfd->initialize();
@@ -745,7 +745,7 @@ void Solver::resetMaterials(solverMode mode) {
  * @details This is a helper routine used for Krylov subspace methods.
  */
 void Solver::fissionTransportSweep() {
-  computeFSRFissionSources();
+  computeSRFissionSources();
   transportSweep();
   addSourceToScalarFlux();
 }
@@ -756,7 +756,7 @@ void Solver::fissionTransportSweep() {
  * @details This is a helper routine used for Krylov subspace methods.
  */
 void Solver::scatterTransportSweep() {
-  computeFSRScatterSources();
+  computeSRScatterSources();
   transportSweep();
   addSourceToScalarFlux();
 }
@@ -772,7 +772,7 @@ void Solver::scatterTransportSweep() {
  *          convergence.
  *
  *          By default, this method will perform a maximum of 1000 transport
- *          sweeps with a 1E-5 threshold on the average FSR scalar flux. These
+ *          sweeps with a 1E-5 threshold on the average SR scalar flux. These
  *          values may be freely modified by the user at runtime.
  *
  *          The only_fixed_source runtime parameter may be used to control
@@ -830,16 +830,16 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
 
-  /* Initialize keff to 1 for FSR source calculations */
+  /* Initialize keff to 1 for SR source calculations */
   _k_eff = 1.;
 
   _num_iterations = 0;
   FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
-  initializeFSRs();
+  initializeSRs();
   initializeMaterials(mode);
-  countFissionableFSRs();
+  countFissionableSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
 
@@ -848,15 +848,15 @@ void Solver::computeFlux(int max_iters, solverMode mode,
    * initialized and computed the flux (e.g., an eigenvalue calculation) */
   if (only_fixed_source || _num_iterations == 0) {
     initializeFluxArrays();
-    flattenFSRFluxes(0.0);
-    storeFSRFluxes();
+    flattenSRFluxes(0.0);
+    storeSRFluxes();
   }
 
   initializeSourceArrays();
   zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */
-  computeFSRSources();
+  computeSRSources();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -864,7 +864,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(SCALAR_FLUX);
-    storeFSRFluxes();
+    storeSRFluxes();
     _num_iterations++;
 
     log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
@@ -894,7 +894,7 @@ void Solver::computeFlux(int max_iters, solverMode mode,
  *          sweeps and source updates until convergence.
  *
  *          By default, this method will perform a maximum of 1000 transport
- *          sweeps with a 1E-5 threshold on the integrated FSR total source.
+ *          sweeps with a 1E-5 threshold on the integrated SR total source.
  *          These values may be freely modified by the user at runtime.
  *
  *          The k_eff parameter may be used for fixed source calculations
@@ -947,7 +947,7 @@ void Solver::computeSource(int max_iters, solverMode mode,
   FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
-  initializeFSRs();
+  initializeSRs();
   initializeMaterials(mode);
   initializePolarQuadrature();
   initializeExpEvaluator();
@@ -955,18 +955,18 @@ void Solver::computeSource(int max_iters, solverMode mode,
   initializeSourceArrays();
 
   /* Guess unity scalar flux for each region */
-  flattenFSRFluxes(1.0);
-  storeFSRFluxes();
+  flattenSRFluxes(1.0);
+  storeSRFluxes();
   zeroTrackFluxes();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    computeFSRSources();
+    computeSRSources();
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
-    storeFSRFluxes();
+    storeSRFluxes();
     _num_iterations++;
 
     log_printf(NORMAL, "Iteration %d:\tres = %1.3E", i, residual);
@@ -995,7 +995,7 @@ void Solver::computeSource(int max_iters, solverMode mode,
  *          transport sweeps and source updates until convergence.
  *
  *          By default, this method will perform a maximum of 1000 transport
- *          sweeps with a 1E-5 threshold on the integrated FSR fission source.
+ *          sweeps with a 1E-5 threshold on the integrated SR fission source.
  *          These values may be freely modified by the user at runtime.
  *
  *          The res_type parameter may be used to control the convergence
@@ -1032,9 +1032,9 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   _k_eff = 1.0;
 
   /* Initialize data structures */
-  initializeFSRs();
+  initializeSRs();
   initializeMaterials(mode);
-  countFissionableFSRs();
+  countFissionableSRs();
   initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
@@ -1042,14 +1042,14 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   initializeCmfd();
 
   /* Set scalar flux to unity for each region */
-  flattenFSRFluxes(1.0);
-  storeFSRFluxes();
+  flattenSRFluxes(1.0);
+  storeSRFluxes();
   zeroTrackFluxes();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
     normalizeFluxes();
-    computeFSRSources();
+    computeSRSources();
     transportSweep();
     addSourceToScalarFlux();
 
@@ -1065,7 +1065,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
                "\tres = %1.3E", i, _k_eff, residual);
 
     residual = computeResidual(res_type);
-    storeFSRFluxes();
+    storeSRFluxes();
     _num_iterations++;
 
     /* Check for convergence */
@@ -1124,13 +1124,13 @@ void Solver::printTimerReport() {
   set_separator_character('-');
   log_printf(SEPARATOR, "-");
 
-  msg_string = "           # tracks          # segments          # FSRs";
+  msg_string = "           # tracks          # segments          # SRs";
   log_printf(RESULT, "%s", msg_string.c_str());
   log_printf(SEPARATOR, "-");
 
   int num_digits = (int) log10((double) _tot_num_tracks);
   num_digits += (int) log10((double) num_segments);
-  num_digits += (int) log10((double) _num_FSRs);
+  num_digits += (int) log10((double) _num_SRs);
 
   num_digits = 66 - num_digits;
   num_digits /= 4;
@@ -1146,7 +1146,7 @@ void Solver::printTimerReport() {
     else if (i == 1)
       msg << num_segments;
     else if (i == 2)
-      msg << _num_FSRs;
+      msg << _num_SRs;
   }
 
   log_printf(RESULT, "%s", msg.str().c_str());

@@ -166,7 +166,7 @@ def plot_segments(track_generator, get_figure=False):
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getTrackSpacing()
     num_segments = track_generator.getNumSegments()
-    num_fsrs = track_generator.getGeometry().getNumFSRs()
+    num_srs = track_generator.getGeometry().getNumSRs()
     coords = \
         track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
 
@@ -175,10 +175,10 @@ def plot_segments(track_generator, get_figure=False):
     x = np.zeros(num_segments*2)
     y = np.zeros(num_segments*2)
     z = np.zeros(num_segments*2)
-    fsrs = np.zeros(num_segments)
+    srs = np.zeros(num_segments)
 
     for i in range(num_segments):
-        fsrs[i] = coords[i*vals_per_segment]
+        srs[i] = coords[i*vals_per_segment]
         x[i*2] = coords[i*vals_per_segment+1]
         y[i*2] = coords[i*vals_per_segment+2]
         z[i*2] = coords[i*vals_per_segment+3]
@@ -189,18 +189,18 @@ def plot_segments(track_generator, get_figure=False):
     # Create array of equally spaced randomized floats as a color map for plots
     # Seed the NumPy random number generator to ensure reproducible color maps
     numpy.random.seed(1)
-    color_map = np.linspace(0., 1., num_fsrs, endpoint=False)
+    color_map = np.linspace(0., 1., num_srs, endpoint=False)
     numpy.random.shuffle(color_map)
 
     # Make figure of line segments for each track
     fig = plt.figure()
     fig.patch.set_facecolor('none')
 
-    # Create a color map corresponding to FSR IDs
+    # Create a color map corresponding to SR IDs
     for i in range(num_segments):
         cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
         scalarMap = cmx.ScalarMappable(norm=cNorm)
-        color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+        color = scalarMap.to_rgba(color_map[srs[i] % num_srs])
         plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], c=color)
 
     plt.xlim([x.min(), x.max()])
@@ -340,7 +340,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
 ##
 # @brief This method takes in a Geometry object and plots a color-coded 2D
 #        surface plot representing the flat source regions in the Geometry.
-#        The FSR centroids are plotted as black circles on top of the FSRs if
+#        The SR centroids are plotted as black circles on top of the SRs if
 #        the centroids boolean is set to True.
 # @details The Geometry object must be initialized with Materials, Cells,
 #          Universes and Lattices before being passed into this method. A user
@@ -355,7 +355,7 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None,
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
-# @param centroids optional boolean to plot the FSR centroids
+# @param centroids optional boolean to plot the SR centroids
 # @param marker_type optional string to set the centroids marker type
 # @param marker_size optional int/float to set the centroids marker size
 # @param get_figure whether to return the Matplotlib figure
@@ -387,18 +387,18 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
         py_printf('ERROR', 'Unable to plot the flat source regions ' +
                   'with a negative marker_size (%d)', marker_size)
 
-    if geometry.getNumFSRs() == 0:
+    if geometry.getNumSRs() == 0:
         py_printf('ERROR', 'Unable to plot the flat source regions ' +
                   'since no tracks have been generated.')
 
     py_printf('NORMAL', 'Plotting the flat source regions...')
 
-    num_fsrs = geometry.getNumFSRs()
-    fsrs_to_fsrs = np.arange(num_fsrs, dtype=np.int64)
-    fsrs_to_fsrs = _colorize(fsrs_to_fsrs, num_fsrs)
+    num_srs = geometry.getNumSRs()
+    srs_to_srs = np.arange(num_srs, dtype=np.int64)
+    srs_to_srs = _colorize(srs_to_srs, num_srs)
 
     # Initialize plotting parameters
-    zcoord = geometry.getFSRPoint(0).getZ()
+    zcoord = geometry.getSRPoint(0).getZ()
     plot_params = PlotParams()
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
@@ -411,20 +411,20 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.filename = 'flat-source-regions-z-{0}'.format(zcoord)
     plot_params.interpolation = 'nearest'
     plot_params.vmin = 0
-    plot_params.vmax = num_fsrs
+    plot_params.vmax = num_srs
 
     # Plot a 2D color map of the flat source regions
-    figures = plot_spatial_data(fsrs_to_fsrs, plot_params, get_figure=True)
+    figures = plot_spatial_data(srs_to_srs, plot_params, get_figure=True)
     fig = figures[0]
 
     # Plot centroids on top of 2D flat source region color map
     if centroids:
 
-        # Populate a NumPy array with the FSR centroid coordinates
-        centroids = np.zeros((num_fsrs, 2), dtype=np.float)
-        for fsr_id in range(num_fsrs):
-            point = geometry.getFSRCentroid(fsr_id)
-            centroids[fsr_id,:] = [point.getX(), point.getY()]
+        # Populate a NumPy array with the SR centroid coordinates
+        centroids = np.zeros((num_srs, 2), dtype=np.float)
+        for sr_id in range(num_srs):
+            point = geometry.getSRCentroid(sr_id)
+            centroids[sr_id,:] = [point.getX(), point.getY()]
 
         # Plot centroids on figure using matplotlib
         if library == 'pil':
@@ -437,9 +437,9 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
             from PIL import ImageDraw
             draw = ImageDraw.Draw(fig)
 
-            for fsr_id in range(num_fsrs):
+            for sr_id in range(num_srs):
                 # Retrieve the pixel coordinates for this centroid
-                x, y = centroids[fsr_id,:]
+                x, y = centroids[sr_id,:]
 
                 # Only plot centroid if it is within the plot bounds
                 if x < coords['bounds'][0] or x > coords['bounds'][1]:
@@ -479,7 +479,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 # @details The Geometry object must be initialized with Materials, Cells,
 #          Universes and Lattices before being passed into this method.
 #          Plotting the CMFD cells requires that segments must have been
-#          created for the geometry and FSR IDs assigned to regions. A user
+#          created for the geometry and SR IDs assigned to regions. A user
 #          may invoke this function from an OpenMOC Python file as follows:
 #
 # @code
@@ -491,14 +491,14 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 #        extracted from a file.
 # @param cmfd a Cmfd object which has been used with the geometry in
 #        generating segments. The Cmfd object must have the _overlay_mesh
-#        flag set to true; otherwise, the map linking FSR IDs to CMFD cells
+#        flag set to true; otherwise, the map linking SR IDs to CMFD cells
 #        would not have been created.
 # @param gridsize an optional number of grid cells for the plot
 # @param xlim optional list/tuple of the minimim/maximum x-coordinates
 # @param ylim optional list/tuple of the minimim/maximum y-coordinates
 # @param get_figure whether to return the Matplotlib figure
 # @param library the plotting library ('matplotlib' or 'pil')
-def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None, 
+def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
                     get_figure=False, library='matplotlib'):
 
     py_printf('NORMAL', 'Plotting the CMFD cells...')
@@ -507,18 +507,18 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
         py_printf('ERROR', 'Unable to plot the CMFD cells since %s ' +
                   'input is not a CMFD class object', str(cmfd))
 
-    # Create a NumPy array to map FSRs to CMFD cells
-    num_fsrs = geometry.getNumFSRs()
-    fsrs_to_cmfd_cells = np.zeros(num_fsrs, dtype=np.int64)
-    for fsr_id in range(num_fsrs):
-        fsrs_to_cmfd_cells[fsr_id] = cmfd.convertFSRIdToCmfdCell(fsr_id)
+    # Create a NumPy array to map SRs to CMFD cells
+    num_srs = geometry.getNumSRs()
+    srs_to_cmfd_cells = np.zeros(num_srs, dtype=np.int64)
+    for sr_id in range(num_srs):
+        srs_to_cmfd_cells[sr_id] = cmfd.convertSRIdToCmfdCell(sr_id)
 
     # Assign random color scheme to CMFD cells
     num_cmfd_cells = cmfd.getNumCells()
-    fsrs_to_cmfd_cells = _colorize(fsrs_to_cmfd_cells, num_cmfd_cells)
+    srs_to_cmfd_cells = _colorize(srs_to_cmfd_cells, num_cmfd_cells)
 
     # Initialize plotting parameters
-    zcoord = geometry.getFSRPoint(0).getZ()
+    zcoord = geometry.getSRPoint(0).getZ()
     plot_params = PlotParams()
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
@@ -534,7 +534,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
     plot_params.vmax = num_cmfd_cells
 
     # Plot the CMFD cells
-    figures = plot_spatial_data(fsrs_to_cmfd_cells, plot_params, get_figure)
+    figures = plot_spatial_data(srs_to_cmfd_cells, plot_params, get_figure)
 
     # Return the figure to the user if requested
     if get_figure:
@@ -561,22 +561,22 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
 # @param get_figure whether to a return a list of Matplotlib figures
 # @param library the plotting library ('matplotlib' or 'pil')
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
-                        xlim=None, ylim=None, get_figure=False, 
+                        xlim=None, ylim=None, get_figure=False,
                         library='matplotlib'):
 
     if 'Solver' not in str(type(solver)):
-        py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
+        py_printf('ERROR', 'Unable to plot the SR flux since the ' +
                   'input did not contain a solver class object')
 
     if not isinstance(energy_groups, (list, tuple, np.ndarray)):
-        py_printf('ERROR', 'Unable to plot the FSR flux since the ' +
+        py_printf('ERROR', 'Unable to plot the SR flux since the ' +
                   'energy_groups is not a Python tuple/list or NumPy array')
 
-    py_printf('NORMAL', 'Plotting the FSR scalar fluxes...')
+    py_printf('NORMAL', 'Plotting the SR scalar fluxes...')
 
     # Initialize plotting parameters
     geometry = solver.getGeometry()
-    zcoord = geometry.getFSRPoint(0).getZ()
+    zcoord = geometry.getSRPoint(0).getZ()
     plot_params = PlotParams()
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
@@ -588,7 +588,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
     plot_params.cmap = plt.get_cmap('jet')
     plot_params.norm = norm
 
-    # Get array of FSR energy-dependent fluxes
+    # Get array of SR energy-dependent fluxes
     fluxes = get_scalar_fluxes(solver)
 
     # Initialize an empty list of Matplotlib figures if requestd by the user
@@ -596,9 +596,9 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 
     # Loop over all energy group and create a plot
     for index, group in enumerate(energy_groups):
-        plot_params.suptitle = 'FSR Scalar Flux (Group {0})'.format(group)
+        plot_params.suptitle = 'SR Scalar Flux (Group {0})'.format(group)
         plot_params.title = 'z = {0}'.format(zcoord)
-        plot_params.filename = 'fsr-flux-group-{0}-z-{1}'.format(group, zcoord)
+        plot_params.filename = 'sr-flux-group-{0}-z-{1}'.format(group, zcoord)
         fig = plot_spatial_data(fluxes[:,index], plot_params, get_figure)
 
         if get_figure:
@@ -625,17 +625,17 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 #          as follows:
 #
 # @code
-#         openmoc.plotter.plot_energy_fluxes(solver, fsrs=[1,5,20],
+#         openmoc.plotter.plot_energy_fluxes(solver, srs=[1,5,20],
 #                                            group_bounds=[0., 0.625, 2e7])
 # @endcode
 #
 # @param solver a Solver object that has converged the source for the Geometry
-# @param fsrs the flat source region IDs of interest
+# @param srs the flat source region IDs of interest
 # @param group_bounds an optional Python list of the energy group bounds (eV)
 # @param norm normalize the fluxes to the total energy-integrated flux
 # @param loglog boolean indicating whether to plot use a log-log scale
 # @param get_figure return a list of the Matplotlib figures
-def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True, 
+def plot_energy_fluxes(solver, srs, group_bounds=None, norm=True,
                        loglog=True, get_figure=False):
 
     global subdirectory, matplotlib_rcparams
@@ -654,26 +654,26 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
                 'since input did not contain a Solver class object')
 
     geometry = solver.getGeometry()
-    num_fsrs = geometry.getNumFSRs()
+    num_srs = geometry.getNumSRs()
     num_groups = geometry.getNumEnergyGroups()
 
-    if isinstance(fsrs, (tuple, list, np.ndarray)):
-        for fsr in fsrs:
-            if not is_integer(fsr):
+    if isinstance(srs, (tuple, list, np.ndarray)):
+        for sr in srs:
+            if not is_integer(sr):
                 py_printf('ERROR', 'Unable to plot the flux vs. energy ' +
-                          'non-integer FSR %s', str(fsr))
+                          'non-integer SR %s', str(sr))
 
-            elif fsr < 0:
+            elif sr < 0:
                 py_printf('ERROR', 'Unable to plot the flux vs. energy ' +
-                          'for negative FSR %d', fsr)
+                          'for negative SR %d', sr)
 
-            elif fsr >= num_fsrs:
+            elif sr >= num_srs:
                 py_printf('ERROR', 'Unable to plot the flux vs. energy ' +
-                          'for FSR %d in problem with %d FSRs', fsr, num_fsrs)
+                          'for SR %d in problem with %d SRs', sr, num_srs)
 
     else:
         py_printf('ERROR', 'Unable to plot the flux vs. energy since ' +
-                  'the fsrs is not a Python tuple, list or NumPy array')
+                  'the srs is not a Python tuple, list or NumPy array')
 
     if isinstance(group_bounds, (tuple, list, np.ndarray)):
 
@@ -688,7 +688,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
         for bound in group_bounds:
             if not is_integer(bound) and not is_float(bound):
                 py_printf('ERROR', 'Unable to plot the flux vs. energy ' +
-                          'with group bound %s', str(fsr))
+                          'with group bound %s', str(sr))
 
             elif bound < 0:
                 py_printf('ERROR', 'Unable to plot the flux vs. energy ' +
@@ -713,20 +713,20 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     figures = []
 
     # Iterate over all flat source regions
-    for fsr in fsrs:
+    for sr in srs:
 
-        # Allocate memory for an array of this FSR's fluxes
+        # Allocate memory for an array of this SR's fluxes
         fluxes = np.zeros(num_groups, dtype=np.float)
 
         # Extract the flux in each energy group
         for group in range(num_groups):
-            fluxes[group] = solver.getFlux(fsr, group+1)
+            fluxes[group] = solver.getFlux(sr, group+1)
 
         # Normalize fluxes to the total integrated flux
         if norm:
             fluxes /= np.sum(group_deltas * fluxes)
 
-        # Initialize a separate plot for this FSR's fluxes
+        # Initialize a separate plot for this SR's fluxes
         fig = plt.figure()
         fig.patch.set_facecolor('none')
 
@@ -754,13 +754,13 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
         plt.ylabel('Flux')
         plt.xlim((min(group_bounds), max(group_bounds)))
         plt.grid()
-        plt.title('FSR {0} Flux ({1} groups)'.format(fsr, num_groups))
+        plt.title('SR {0} Flux ({1} groups)'.format(sr, num_groups))
 
         # Save the figure to a file or return to user if requested
         if get_figure:
             figures.append(fig)
         else:
-            filename = 'flux-fsr-{0}.png'.format(fsr)
+            filename = 'flux-sr-{0}.png'.format(sr)
             plt.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 
@@ -774,7 +774,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
 ##
 # @brief This method plots a color-coded 2D surface plot representing the
-#        FSR fission rates in the Geometry.
+#        SR fission rates in the Geometry.
 # @details The Solver must have converged the flat source sources prior to
 #          calling this routine. A user may invoke this function from an
 #          OpenMOC Python file as follows:
@@ -801,12 +801,12 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
         py_printf('ERROR', 'Unable to plot the fission rates ' +
                   'since input did not contain a solver class object')
 
-    # Compute the volume-weighted fission rates for each FSR
+    # Compute the volume-weighted fission rates for each SR
     geometry = solver.getGeometry()
-    fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+    fission_rates = solver.computeSRFissionRates(geometry.getNumSRs())
 
     # Initialize plotting parameters
-    zcoord = geometry.getFSRPoint(0).getZ()
+    zcoord = geometry.getSRPoint(0).getZ()
     plot_params = PlotParams()
     plot_params.geometry = geometry
     plot_params.zcoord = zcoord
@@ -832,7 +832,7 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
 ##
 # @brief This method plots a color-coded 2D surface plot representing the
-#        FSR scalar fluxes for various eigenmodes from an IRAMSolver.
+#        SR scalar fluxes for various eigenmodes from an IRAMSolver.
 # @details The IRAMSolver must have computed the eigenmodes prior to
 #          calling this routine. A user may invoke this function from
 #          an OpenMOC Python file as follows:
@@ -943,18 +943,18 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 #          domain type encoded in the domains_to_data parameter. In the case
 #          of 'material' and 'cell' domain types, the domains-to-data map must
 #          be a Python dictionary with keys representing each Material/Cell ID
-#          and values indicating the data to plot. In the case of the 'fsr'
+#          and values indicating the data to plot. In the case of the 'sr'
 #          domain type, the domains-to-data map may be a dictionary, NumPy array
-#          or a Pandas DataFrame with indices representing FSR IDs and values
+#          or a Pandas DataFrame with indices representing SR IDs and values
 #          representing the data to plot.
 #
 #          A user may invoke this function from an Python file as follows:
 #
 # @code
-#         fsrs_to_data = numpy.random.rand(geometry.getNumFSRS())
+#         srs_to_data = numpy.random.rand(geometry.getNumSRS())
 #         plot_params = PlotParams()
-#         plot_params.domain_type = 'fsr'
-#         openmoc.plotter.plot_spatial_data(fsrs_to_data, plot_params)
+#         plot_params.domain_type = 'sr'
+#         openmoc.plotter.plot_spatial_data(srs_to_data, plot_params)
 # @endcode
 #
 # @param domains_to_data a mapping between spatial domain IDs and numerical data
@@ -980,7 +980,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     elif plot_params.domain_type == 'cell':
         num_domains = len(plot_params.geometry.getAllMaterialCells())
     else:
-        num_domains = plot_params.geometry.getNumFSRs()
+        num_domains = plot_params.geometry.getNumSRs()
 
     if isinstance(domains_to_data, (np.ndarray, dict)):
         pandas_df = False
@@ -989,7 +989,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
                       'there are %d domains', len(domains_to_data), num_domains)
     elif 'DataFrame' in str(type(domains_to_data)):
         pandas_df = True
-        if len(domains_to_data) != plot_params.geometry.getNumFSRs():
+        if len(domains_to_data) != plot_params.geometry.getNumSRs():
             py_printf('ERROR', 'The domains_to_data DataFrame is length %d ' +
                       'but there are %d domains in the Geometry',
                       len(domains_to_data), num_domains)
@@ -1014,8 +1014,8 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             point.setUniverse(plot_params.geometry.getRootUniverse())
             cell = plot_params.geometry.findCellContainingCoords(point)
 
-            if plot_params.domain_type == 'fsr':
-                domain_id = plot_params.geometry.getFSRId(point)
+            if plot_params.domain_type == 'sr':
+                domain_id = plot_params.geometry.getSRId(point)
             elif plot_params.domain_type == 'material':
                 domain_id = cell.getFillMaterial().getId()
             else:
@@ -1043,7 +1043,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     # Loop over all columns in NumPy array or Pandas DataFrame input
     for i in range(num_plots):
 
-        # Use domain IDs to appropriately index into FSR data
+        # Use domain IDs to appropriately index into SR data
         # If domains-to-data was input as a Pandas DataFrame
         if pandas_df:
             surface = domains_to_data.ix[:,i].values
@@ -1087,7 +1087,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         # Use Python Imaging Library (PIL) to plot 2D color map of domain data
         if plot_params.library == 'pil':
             img = _get_pil_image(np.flipud(surface), plot_params)
-            
+
             if get_figure:
                 figures.append(img)
             else:
@@ -1278,7 +1278,7 @@ class PlotParams(object):
         self._geometry = None
 
         ## The domain type used to map spatial data to the geometry
-        self._domain_type = 'fsr'
+        self._domain_type = 'sr'
 
         ## The filename string
         self._filename = None
@@ -1410,7 +1410,7 @@ class PlotParams(object):
 
     @domain_type.setter
     def domain_type(self, domain_type):
-        if domain_type not in ['material', 'cell', 'fsr']:
+        if domain_type not in ['material', 'cell', 'sr']:
             py_printf('ERROR', '%s is not a domain type', str(domain_type))
 
         self._domain_type = domain_type

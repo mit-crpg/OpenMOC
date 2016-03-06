@@ -41,18 +41,18 @@ protected:
   /** The number of shared memory OpenMP threads */
   int _num_threads;
 
-  /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
-  omp_lock_t* _FSR_locks;
+  /** OpenMP mutual exclusion locks for atomic SR scalar flux updates */
+  omp_lock_t* _SR_locks;
 
   /**
-   * @brief Computes the contribution to the FSR flux from a Track segment.
+   * @brief Computes the contribution to the SR flux from a Track segment.
    * @param curr_segment a pointer to the Track segment of interest
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
-   * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
+   * @param sr_flux a pointer to the temporary SR scalar flux buffer
    */
   virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
-                               FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
+                               FP_PRECISION* track_flux, FP_PRECISION* sr_flux);
 
   /**
    * @brief Computes the contribution to surface current from a segment.
@@ -87,21 +87,21 @@ public:
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeFixedSources();
-  void initializeFSRs();
+  void initializeSRs();
 
   void zeroTrackFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
-  void storeFSRFluxes();
+  void flattenSRFluxes(FP_PRECISION value);
+  void storeSRFluxes();
   void normalizeFluxes();
-  void computeFSRSources();
-  void computeFSRFissionSources();
-  void computeFSRScatterSources();
+  void computeSRSources();
+  void computeSRFissionSources();
+  void computeSRScatterSources();
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
 
-  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+  void computeSRFissionRates(double* fission_rates, int num_SRs);
 };
 
 

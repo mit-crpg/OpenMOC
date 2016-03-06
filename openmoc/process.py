@@ -50,26 +50,26 @@ def is_float(val):
 
 
 ##
-# @brief Return an array of scalar fluxes in one or more FSRs and groups.
-# @details This routine builds a 2D NumPy array indexed by FSR and energy
+# @brief Return an array of scalar fluxes in one or more SRs and groups.
+# @details This routine builds a 2D NumPy array indexed by SR and energy
 #          group for the corresponding scalar fluxes. The fluxes are organized
-#          in the array in order of increasing FSR and enery group if 'all'
-#          FSRs or energy groups are requested (the default). If the user
-#          requests fluxes for specific FSRs or energy groups, then the
-#          fluxes are returned in the order in which the FSRs and groups
+#          in the array in order of increasing SR and enery group if 'all'
+#          SRs or energy groups are requested (the default). If the user
+#          requests fluxes for specific SRs or energy groups, then the
+#          fluxes are returned in the order in which the SRs and groups
 #          are enumerated in the associated paramters.
 # @param solver an OpenMOC Solver object
-# @param fsrs a list of integer FSRs or 'all' (default)
+# @param srs a list of integer SRs or 'all' (default)
 # @param groups a list of integer energy groups or 'all' (default)
 # @return
-def get_scalar_fluxes(solver, fsrs='all', groups='all'):
+def get_scalar_fluxes(solver, srs='all', groups='all'):
 
-  # Build a list of FSRs to iterate over
-  if fsrs == 'all':
-    num_fsrs = solver.getGeometry().getNumFSRs()
-    fsrs = np.arange(num_fsrs)
+  # Build a list of SRs to iterate over
+  if srs == 'all':
+    num_srs = solver.getGeometry().getNumSRs()
+    srs = np.arange(num_srs)
   else:
-    num_fsrs = len(fsrs)
+    num_srs = len(srs)
 
   # Build a list of enery groups to iterate over
   if groups == 'all':
@@ -78,11 +78,11 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
   else:
     num_groups = len(groups)
 
-  # Extract the FSR scalar fluxes
-  fluxes = np.zeros((num_fsrs, num_groups))
-  for fsr in fsrs:
+  # Extract the SR scalar fluxes
+  fluxes = np.zeros((num_srs, num_groups))
+  for sr in srs:
     for group in groups:
-      fluxes[fsr, group-1] = solver.getFlux(int(fsr), int(group))
+      fluxes[sr, group-1] = solver.getFlux(int(sr), int(group))
 
   return fluxes
 
@@ -118,19 +118,19 @@ def compute_fission_rates(solver, use_hdf5=False):
   # Get geometry
   geometry = solver.getGeometry()
 
-  # Compute the volume-weighted fission rates for each FSR
-  fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+  # Compute the volume-weighted fission rates for each SR
+  sr_fission_rates = solver.computeSRFissionRates(geometry.getNumSRs())
 
   # Initialize fission rates dictionary
   fission_rates_sum = {}
 
-  # Loop over FSRs and populate fission rates dictionary
-  for fsr in range(geometry.getNumFSRs()):
+  # Loop over SRs and populate fission rates dictionary
+  for sr in range(geometry.getNumSRs()):
 
-    if geometry.findFSRMaterial(fsr).isFissionable():
+    if geometry.findSRMaterial(sr).isFissionable():
 
       # Get the linked list of LocalCoords
-      point = geometry.getFSRPoint(fsr)
+      point = geometry.getSRPoint(sr)
       coords = openmoc.LocalCoords(point.getX(), point.getY(), point.getZ())
       coords.setUniverse(geometry.getRootUniverse())
       geometry.findCellContainingCoords(coords)
@@ -139,7 +139,7 @@ def compute_fission_rates(solver, use_hdf5=False):
       # initialize dictionary key
       key = 'UNIV = 0 : '
 
-      # Parse through the linked list and create fsr key.
+      # Parse through the linked list and create sr key.
       # If lowest level sub dictionary already exists, then increment
       # fission rate; otherwise, set the fission rate.
       while True:
@@ -160,9 +160,9 @@ def compute_fission_rates(solver, use_hdf5=False):
 
       # Increment or set fission rate
       if key in fission_rates_sum:
-        fission_rates_sum[key] += fsr_fission_rates[fsr]
+        fission_rates_sum[key] += sr_fission_rates[sr]
       else:
-        fission_rates_sum[key] = fsr_fission_rates[fsr]
+        fission_rates_sum[key] = sr_fission_rates[sr]
 
   # If using HDF5
   if use_hdf5:
@@ -191,13 +191,13 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @brief This method stores all of the data for an OpenMOC simulation to a
 #        a binary file for downstream data processing.
 # @details The method may be used to store the type of Solver used, floating
-#          point precision, exponential evaluation method, number of FSRs,
+#          point precision, exponential evaluation method, number of SRs,
 #          number of materials, number of energy groups, number of azimuthal
 #          angles, number of polar angles, track spacing, number of Tracks,
 #          number of Track segments, number of source iterations, source
 #          convergence tolerance, converged \f$ k_{eff} \f$, total runtime,
 #          and number of OpenMP or CUDA threads. In addition, the routine
-#          can store the FSR flux array, FSR source array, and pin and
+#          can store the SR flux array, SR source array, and pin and
 #          assembly fission rates.
 #
 #          The routine may export the simulation data to either an HDF5 or
@@ -214,8 +214,8 @@ def compute_fission_rates(solver, use_hdf5=False):
 # @endcode
 #
 # @param solver a pointer to a Solver object
-# @param fluxes whether to store FSR scalar fluxes (false by default)
-# @param sources whether to store FSR sources (false by default)
+# @param fluxes whether to store SR scalar fluxes (false by default)
+# @param sources whether to store SR sources (false by default)
 # @param fission_rates whether to store fission rates (false by default)
 # @param use_hdf5 whether to export to HDF5 (default) or Python pickle file
 # @param filename the filename to use (default is 'simulation-state.h5')
@@ -282,7 +282,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   track_generator = solver.getTrackGenerator()
 
   # Retrieve useful data from the Solver, Geometry and TrackGenerator
-  num_FSRs = geometry.getNumFSRs()
+  num_SRs = geometry.getNumSRs()
   num_materials = geometry.getNumMaterials()
   num_groups = geometry.getNumEnergyGroups()
   zcoord = track_generator.getZCoord()
@@ -302,27 +302,27 @@ def store_simulation_state(solver, fluxes=False, sources=False,
   else:
     num_threads = solver.getNumThreads()
 
-  # If the user requested to store the FSR fluxes
+  # If the user requested to store the SR fluxes
   if fluxes:
 
     # Allocate array
-    scalar_fluxes = np.zeros((num_FSRs, num_groups))
+    scalar_fluxes = np.zeros((num_SRs, num_groups))
 
-    # Get the scalar flux for each FSR and energy group
-    for i in range(num_FSRs):
+    # Get the scalar flux for each SR and energy group
+    for i in range(num_SRs):
       for j in range(num_groups):
         scalar_fluxes[i,j] = solver.getFlux(i,j+1)
 
-  # If the user requested to store the FSR sources
+  # If the user requested to store the SR sources
   if sources:
 
     # Allocate array
-    sources_array = np.zeros((num_FSRs, num_groups))
+    sources_array = np.zeros((num_SRs, num_groups))
 
-    # Get the scalar flux for each FSR and energy group
-    for i in range(num_FSRs):
+    # Get the scalar flux for each SR and energy group
+    for i in range(num_SRs):
       for j in range(num_groups):
-        sources_array[i,j] = solver.getFSRSource(i,j+1)
+        sources_array[i,j] = solver.getSRSource(i,j+1)
 
   # If using HDF5
   if use_hdf5:
@@ -355,7 +355,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 
     # Store simulation data to the HDF5 file
     time_group.create_dataset('solver type', data=solver_type)
-    time_group.create_dataset('# FSRs', data=num_FSRs)
+    time_group.create_dataset('# SRs', data=num_SRs)
     time_group.create_dataset('# materials', data=num_materials)
     time_group.create_dataset('# energy groups', data=num_groups)
     time_group.create_dataset('z coord', data=zcoord)
@@ -379,10 +379,10 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       time_group.create_dataset('# threads', data=num_threads)
 
     if fluxes:
-      time_group.create_dataset('FSR scalar fluxes', data=scalar_fluxes)
+      time_group.create_dataset('SR scalar fluxes', data=scalar_fluxes)
 
     if sources:
-      time_group.create_dataset('FSR sources', data=sources_array)
+      time_group.create_dataset('SR sources', data=sources_array)
 
     if fission_rates:
 
@@ -429,7 +429,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 
     # Store simulation data to a Python dictionary
     state['solver type'] = solver_type
-    state['# FSRs'] = num_FSRs
+    state['# SRs'] = num_SRs
     state['# materials'] = num_materials
     state['# energy groups'] = num_groups
     state['z coord'] = zcoord
@@ -453,10 +453,10 @@ def store_simulation_state(solver, fluxes=False, sources=False,
       state['# threads'] = num_threads
 
     if fluxes:
-      state['FSR scalar fluxes'] = scalar_fluxes
+      state['SR scalar fluxes'] = scalar_fluxes
 
     if sources:
-      state['FSR sources'] = sources_array
+      state['SR sources'] = sources_array
 
     if fission_rates:
       compute_fission_rates(solver, False)
@@ -477,12 +477,12 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 #          Python pickle binary file created by the store_simulation_state(...)
 #          method. The method may be used to restore the type of Solver used,
 #          floating point precision, exponential evaluation method, number of
-#          FSRs, number of materials, number of energy groups, number of
+#          SRs, number of materials, number of energy groups, number of
 #          azimuthal angles, number of polar angles, track spacing, number of
 #          Tracks, number of Track segments, number of source iterations, source
 #          convergence tolerance, converged \f$ k_{eff} \f$, total runtime,
 #          and number of OpenMP or CUDA threads. In addition, the routine
-#          can restore the FSR flux array, FSR source array.
+#          can restore the SR flux array, SR source array.
 #
 #          Note: If the fission rates were stored in a hdf5 binary file,
 #          they are not restored and returned in this method.
@@ -533,8 +533,8 @@ def restore_simulation_state(filename='simulation-state.h5',
         solver_type = str(dataset['solver type'])
         state['solver type'] = solver_type
 
-        num_FSRs = int(dataset['# FSRs'][...])
-        state['# FSRs'] = num_FSRs
+        num_SRs = int(dataset['# SRs'][...])
+        state['# SRs'] = num_SRs
 
         num_materials = int(dataset['# materials'][...])
         state['# materials'] = num_materials
@@ -581,13 +581,13 @@ def restore_simulation_state(filename='simulation-state.h5',
         else:
           num_threads = int(dataset['# threads'][...])
 
-        if 'FSR scalar fluxes' in dataset:
-          fluxes = dataset['FSR scalar fluxes'][...]
-          state['FSR scalar fluxes'] = fluxes
+        if 'SR scalar fluxes' in dataset:
+          fluxes = dataset['SR scalar fluxes'][...]
+          state['SR scalar fluxes'] = fluxes
 
-        if 'FSR sources' in dataset:
-          sources_array = dataset['FSR sources'][...]
-          state['FSR sources'] = sources_array
+        if 'SR sources' in dataset:
+          sources_array = dataset['SR sources'][...]
+          state['SR sources'] = sources_array
 
         if 'note' in dataset:
           state['note'] = str(dataset['note'])

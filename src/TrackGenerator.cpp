@@ -19,7 +19,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _tracks_filename = "";
   _z_coord = 0.0;
   _phi = NULL;
-  _FSR_locks = NULL;
+  _SR_locks = NULL;
 }
 
 
@@ -44,8 +44,8 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks_by_parallel_group;
   }
 
-  if (_FSR_locks != NULL)
-    delete [] _FSR_locks;
+  if (_SR_locks != NULL)
+    delete [] _SR_locks;
 }
 
 
@@ -84,15 +84,15 @@ Geometry* TrackGenerator::getGeometry() {
 
 
 /**
- * @brief Return the array of FSR locks for atomic FSR operations.
- * @return an array of FSR locks
+ * @brief Return the array of SR locks for atomic SR operations.
+ * @return an array of SR locks
  */
-omp_lock_t* TrackGenerator::getFSRLocks() {
-  if (_FSR_locks == NULL)
-    log_printf(ERROR, "Unable to return the TrackGenerator's FSR locks "
+omp_lock_t* TrackGenerator::getSRLocks() {
+  if (_SR_locks == NULL)
+    log_printf(ERROR, "Unable to return the TrackGenerator's SR locks "
                "since they have not yet been created");
 
-  return _FSR_locks;
+  return _SR_locks;
 }
 
 
@@ -264,29 +264,29 @@ double TrackGenerator::getZCoord() {
 
 
 /**
- * @brief Computes and returns an array of volumes indexed by FSR.
+ * @brief Computes and returns an array of volumes indexed by SR.
  * @details Note: It is the function caller's responsibility to deallocate
- *          the memory reserved for the FSR volume array.
- * @return a pointer to the array of FSR volumes
+ *          the memory reserved for the SR volume array.
+ * @return a pointer to the array of SR volumes
  */
-FP_PRECISION* TrackGenerator::getFSRVolumes() {
+FP_PRECISION* TrackGenerator::getSRVolumes() {
 
   if (!containsTracks())
-    log_printf(ERROR, "Unable to get the FSR volumes since tracks "
+    log_printf(ERROR, "Unable to get the SR volumes since tracks "
                "have not yet been generated");
 
-  int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
-  memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+  int num_SRs = _geometry->getNumSRs();
+  FP_PRECISION* SR_volumes = new FP_PRECISION[num_SRs];
+  memset(SR_volumes, 0., num_SRs*sizeof(FP_PRECISION));
 
 #pragma omp parallel
   {
-    int azim_index, fsr_id;
+    int azim_index, sr_id;
     segment* curr_segment;
     FP_PRECISION volume;
 
-    /* Calculate each FSR's "volume" by accumulating the total length of *
-     * all Track segments multipled by the Track "widths" for each FSR.  */
+    /* Calculate each SR's "volume" by accumulating the total length of *
+     * all Track segments multipled by the Track "widths" for each SR.  */
     for (int i=0; i < _num_azim; i++) {
 #pragma omp for
       for (int j=0; j < _num_tracks[i]; j++) {
@@ -296,50 +296,50 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
           curr_segment = _tracks[i][j].getSegment(s);
           volume = curr_segment->_length * _azim_weights[azim_index];
-          fsr_id = curr_segment->_region_id;
+          sr_id = curr_segment->_region_id;
 
-          /* Set FSR mutual exclusion lock */
-          omp_set_lock(&_FSR_locks[fsr_id]);
+          /* Set SR mutual exclusion lock */
+          omp_set_lock(&_SR_locks[sr_id]);
 
-          FSR_volumes[fsr_id] += volume;
+          SR_volumes[sr_id] += volume;
 
-          /* Release FSR mutual exclusion lock */
-          omp_unset_lock(&_FSR_locks[fsr_id]);
+          /* Release SR mutual exclusion lock */
+          omp_unset_lock(&_SR_locks[sr_id]);
         }
       }
     }
   }
 
-  return FSR_volumes;
+  return SR_volumes;
 }
 
 
 /**
- * @brief Computes and returns the volume of an FSR.
- * @param fsr_id the ID for the FSR of interest
- * @return the FSR volume
+ * @brief Computes and returns the volume of an SR.
+ * @param sr_id the ID for the SR of interest
+ * @return the SR volume
  */
-FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
+FP_PRECISION TrackGenerator::getSRVolume(int sr_id) {
 
   if (!containsTracks())
-    log_printf(ERROR, "Unable to get the FSR %d volume since tracks "
+    log_printf(ERROR, "Unable to get the SR %d volume since tracks "
                "have not yet been generated");
 
-  else if (fsr_id < 0 || fsr_id > _geometry->getNumFSRs())
-    log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR IDs "
-               "lie in the range (0, %d)", fsr_id, _geometry->getNumFSRs());
+  else if (sr_id < 0 || sr_id > _geometry->getNumSRs())
+    log_printf(ERROR, "Unable to get the volume for SR %d since the SR IDs "
+               "lie in the range (0, %d)", sr_id, _geometry->getNumSRs());
 
   segment* curr_segment;
   FP_PRECISION volume = 0;
 
-  /* Calculate the FSR's "volume" by accumulating the total length of *
-   * all Track segments multipled by the Track "widths" for the FSR.  */
+  /* Calculate the SR's "volume" by accumulating the total length of *
+   * all Track segments multipled by the Track "widths" for the SR.  */
   for (int i=0; i < _num_azim; i++) {
 #pragma omp parallel for reduction(+:volume) private(curr_segment)
     for (int j=0; j < _num_tracks[i]; j++) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
-        if (curr_segment->_region_id == fsr_id)
+        if (curr_segment->_region_id == sr_id)
           volume += curr_segment->_length * _azim_weights[i];
       }
     }
@@ -553,7 +553,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int length_coords) {
 
   int counter = 0;
 
-  /* Loop over Track segments and populate array with their FSR ID and *
+  /* Loop over Track segments and populate array with their SR ID and *
    * start/end points */
   for (int i=0; i < _num_azim; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -627,8 +627,8 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   if (_geometry->getCmfd() != NULL)
     _geometry->initializeCmfd();
 
-  /* Initialize FSRs with pin cell discretization and neighbor cell lists */
-  _geometry->initializeFSRs(neighbor_cells);
+  /* Initialize SRs with pin cell discretization and neighbor cell lists */
+  _geometry->initializeSRs(neighbor_cells);
 
   initializeTrackFileDirectory();
 
@@ -673,7 +673,7 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   initializeBoundaryConditions();
   initializeTrackCycleIndices(PERIODIC);
   initializeTrackUids();
-  initializeFSRLocks();
+  initializeSRLocks();
   initializeVolumes();
 
   return;
@@ -681,25 +681,25 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
 
 
 /**
- * @brief Create an array of OpenMP mutual exclusion locks for each FSR.
+ * @brief Create an array of OpenMP mutual exclusion locks for each SR.
  * @details This method allocates and initializes an array of OpenMP
- *          mutual exclusion locks for each FSR for use in loops that
- *          set or update values by FSR.
+ *          mutual exclusion locks for each SR for use in loops that
+ *          set or update values by SR.
  */
-void TrackGenerator::initializeFSRLocks() {
+void TrackGenerator::initializeSRLocks() {
 
-  /* Delete old FSR locks, if they exist */
-  if (_FSR_locks != NULL)
-    delete [] _FSR_locks;
+  /* Delete old SR locks, if they exist */
+  if (_SR_locks != NULL)
+    delete [] _SR_locks;
 
-  /* Allocate array of mutex locks for each FSR */
-  int num_FSRs = _geometry->getNumFSRs();
-  _FSR_locks = new omp_lock_t[num_FSRs];
+  /* Allocate array of mutex locks for each SR */
+  int num_SRs = _geometry->getNumSRs();
+  _SR_locks = new omp_lock_t[num_SRs];
 
-  /* Loop over all FSRs to initialize OpenMP locks */
+  /* Loop over all SRs to initialize OpenMP locks */
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < num_FSRs; r++)
-    omp_init_lock(&_FSR_locks[r]);
+  for (int r=0; r < num_SRs; r++)
+    omp_init_lock(&_SR_locks[r]);
 }
 
 
@@ -1144,21 +1144,21 @@ void TrackGenerator::initializeVolumes() {
 
   Cell* cell;
   Material* material;
-  int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* fsr_volumes = getFSRVolumes();
+  int num_SRs = _geometry->getNumSRs();
+  FP_PRECISION* sr_volumes = getSRVolumes();
 
   /* Compute volume and number of instances for each Cell and Material */
-  for (int i=0; i < num_FSRs; i++) {
-    cell = _geometry->findCellContainingFSR(i);
-    cell->incrementVolume(fsr_volumes[i]);
+  for (int i=0; i < num_SRs; i++) {
+    cell = _geometry->findCellContainingSR(i);
+    cell->incrementVolume(sr_volumes[i]);
     cell->incrementNumInstances();
 
     material = cell->getFillMaterial();
-    material->incrementVolume(fsr_volumes[i]);
+    material->incrementVolume(sr_volumes[i]);
     material->incrementNumInstances();
   }
 
-  delete [] fsr_volumes;
+  delete [] sr_volumes;
 }
 
 
@@ -1337,7 +1337,7 @@ void TrackGenerator::segmentize() {
     }
   }
 
-  _geometry->initializeFSRVectors();
+  _geometry->initializeSRVectors();
 
   _contains_tracks = true;
 
@@ -1452,68 +1452,68 @@ void TrackGenerator::dumpTracksToFile() {
     }
   }
 
-  /* Get FSR vector maps */
-  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
-      _geometry->getFSRKeysMap();
-  std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::string fsr_key;
-  int fsr_id;
+  /* Get SR vector maps */
+  ParallelHashMap<std::string, sr_data*>& SR_keys_map =
+      _geometry->getSRKeysMap();
+  std::vector<std::string>& SRs_to_keys = _geometry->getSRsToKeys();
+  std::string sr_key;
+  int sr_id;
   double x, y, z;
 
-  /* Write number of FSRs */
-  int num_FSRs = _geometry->getNumFSRs();
-  fwrite(&num_FSRs, sizeof(int), 1, out);
+  /* Write number of SRs */
+  int num_SRs = _geometry->getNumSRs();
+  fwrite(&num_SRs, sizeof(int), 1, out);
 
-  /* Write FSR vector maps to file */
-  std::string* fsr_key_list = FSR_keys_map.keys();
-  fsr_data** fsr_data_list = FSR_keys_map.values();
-  for (int i=0; i < num_FSRs; i++) {
+  /* Write SR vector maps to file */
+  std::string* sr_key_list = SR_keys_map.keys();
+  sr_data** sr_data_list = SR_keys_map.values();
+  for (int i=0; i < num_SRs; i++) {
 
-    /* Write key to file from FSR_keys_map */
-    fsr_key = fsr_key_list[i];
-    string_length = fsr_key.length() + 1;
+    /* Write key to file from SR_keys_map */
+    sr_key = sr_key_list[i];
+    string_length = sr_key.length() + 1;
     fwrite(&string_length, sizeof(int), 1, out);
-    fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
+    fwrite(sr_key.c_str(), sizeof(char)*string_length, 1, out);
 
-    /* Write data to file from FSR_keys_map */
-    fsr_id = fsr_data_list[i]->_fsr_id;
-    x = fsr_data_list[i]->_point->getX();
-    y = fsr_data_list[i]->_point->getY();
-    z = fsr_data_list[i]->_point->getZ();
-    fwrite(&fsr_id, sizeof(int), 1, out);
+    /* Write data to file from SR_keys_map */
+    sr_id = sr_data_list[i]->_sr_id;
+    x = sr_data_list[i]->_point->getX();
+    y = sr_data_list[i]->_point->getY();
+    z = sr_data_list[i]->_point->getZ();
+    fwrite(&sr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
     fwrite(&y, sizeof(double), 1, out);
     fwrite(&z, sizeof(double), 1, out);
 
-    /* Write data to file from FSRs_to_keys */
-    fsr_key = FSRs_to_keys.at(i);
-    string_length = fsr_key.length() + 1;
+    /* Write data to file from SRs_to_keys */
+    sr_key = SRs_to_keys.at(i);
+    string_length = sr_key.length() + 1;
     fwrite(&string_length, sizeof(int), 1, out);
-    fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
+    fwrite(sr_key.c_str(), sizeof(char)*string_length, 1, out);
   }
 
-  /* Write cmfd_fsrs vector of vectors to file */
+  /* Write cmfd_srs vector of vectors to file */
   if (cmfd != NULL) {
-    std::vector< std::vector<int> >* cell_fsrs = cmfd->getCellFSRs();
+    std::vector< std::vector<int> >* cell_srs = cmfd->getCellSRs();
     std::vector<int>::iterator iter;
     int num_cells = cmfd->getNumCells();
     fwrite(&num_cells, sizeof(int), 1, out);
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
-      num_FSRs = cell_fsrs->at(cell).size();
-      fwrite(&num_FSRs, sizeof(int), 1, out);
+      num_SRs = cell_srs->at(cell).size();
+      fwrite(&num_SRs, sizeof(int), 1, out);
 
-      /* Loop over FSRs within cell */
-      for (iter = cell_fsrs->at(cell).begin();
-           iter != cell_fsrs->at(cell).end(); ++iter)
+      /* Loop over SRs within cell */
+      for (iter = cell_srs->at(cell).begin();
+           iter != cell_srs->at(cell).end(); ++iter)
         fwrite(&(*iter), sizeof(int), 1, out);
     }
   }
 
   /* Delete key and value lists */
-  delete [] fsr_key_list;
-  delete [] fsr_data_list;
+  delete [] sr_key_list;
+  delete [] sr_data_list;
 
   /* Close the Track file */
   fclose(out);
@@ -1659,70 +1659,70 @@ bool TrackGenerator::readTracksFromFile() {
     }
   }
 
-  /* Create FSR vector maps */
-  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
-      _geometry->getFSRKeysMap();
-  std::vector<std::string>& FSRs_to_keys =
-      _geometry->getFSRsToKeys();
-  FSR_keys_map.clear();
-  FSRs_to_keys.clear();
-  int num_FSRs;
-  std::string fsr_key;
-  int fsr_key_id;
+  /* Create SR vector maps */
+  ParallelHashMap<std::string, sr_data*>& SR_keys_map =
+      _geometry->getSRKeysMap();
+  std::vector<std::string>& SRs_to_keys =
+      _geometry->getSRsToKeys();
+  SR_keys_map.clear();
+  SRs_to_keys.clear();
+  int num_SRs;
+  std::string sr_key;
+  int sr_key_id;
   double x, y, z;
 
-  /* Get number of FSRs */
-  ret = fread(&num_FSRs, sizeof(int), 1, in);
+  /* Get number of SRs */
+  ret = fread(&num_SRs, sizeof(int), 1, in);
 
-  /* Read FSR vector maps from file */
-  for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
+  /* Read SR vector maps from file */
+  for (int sr_id=0; sr_id < num_SRs; sr_id++) {
 
-    /* Read key for FSR_keys_map */
+    /* Read key for SR_keys_map */
     ret = fread(&string_length, sizeof(int), 1, in);
     char* char_buffer1 = new char[string_length];
     ret = fread(char_buffer1, sizeof(char)*string_length, 1, in);
-    fsr_key = std::string(char_buffer1);
+    sr_key = std::string(char_buffer1);
 
-    /* Read data from file for FSR_keys_map */
-    ret = fread(&fsr_key_id, sizeof(int), 1, in);
+    /* Read data from file for SR_keys_map */
+    ret = fread(&sr_key_id, sizeof(int), 1, in);
     ret = fread(&x, sizeof(double), 1, in);
     ret = fread(&y, sizeof(double), 1, in);
     ret = fread(&z, sizeof(double), 1, in);
-    fsr_data* fsr = new fsr_data;
-    fsr->_fsr_id = fsr_key_id;
+    sr_data* sr = new sr_data;
+    sr->_sr_id = sr_key_id;
     Point* point = new Point();
     point->setCoords(x,y,z);
-    fsr->_point = point;
-    FSR_keys_map.insert(fsr_key, fsr);
+    sr->_point = point;
+    SR_keys_map.insert(sr_key, sr);
 
-    /* Read data from file for FSR_to_keys */
+    /* Read data from file for SR_to_keys */
     ret = fread(&string_length, sizeof(int), 1, in);
     char* char_buffer2 = new char[string_length];
     ret = fread(char_buffer2, sizeof(char)*string_length, 1, in);
-    fsr_key = std::string(char_buffer2);
-    FSRs_to_keys.push_back(fsr_key);
+    sr_key = std::string(char_buffer2);
+    SRs_to_keys.push_back(sr_key);
   }
 
-  /* Read cmfd cell_fsrs vector of vectors from file */
+  /* Read cmfd cell_srs vector of vectors from file */
   if (cmfd != NULL) {
-    std::vector< std::vector<int> > cell_fsrs;
-    int num_cells, fsr_id;
+    std::vector< std::vector<int> > cell_srs;
+    int num_cells, sr_id;
     ret = fread(&num_cells, sizeof(int), 1, in);
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
-      cell_fsrs.push_back(std::vector<int>());
-      ret = fread(&num_FSRs, sizeof(int), 1, in);
+      cell_srs.push_back(std::vector<int>());
+      ret = fread(&num_SRs, sizeof(int), 1, in);
 
       /* Loop over FRSs within cell */
-      for (int fsr = 0; fsr < num_FSRs; fsr++) {
-        ret = fread(&fsr_id, sizeof(int), 1, in);
-        cell_fsrs.at(cell).push_back(fsr_id);
+      for (int sr = 0; sr < num_SRs; sr++) {
+        ret = fread(&sr_id, sizeof(int), 1, in);
+        cell_srs.at(cell).push_back(sr_id);
       }
     }
 
-    /* Set CMFD cell_fsrs vector of vectors */
-    cmfd->setCellFSRs(&cell_fsrs);
+    /* Set CMFD cell_srs vector of vectors */
+    cmfd->setCellSRs(&cell_srs);
   }
 
   /* Inform the rest of the class methods that Tracks have been initialized */
@@ -1737,24 +1737,24 @@ bool TrackGenerator::readTracksFromFile() {
 
 
 /**
- * @brief Assign a correct volume for some FSR.
+ * @brief Assign a correct volume for some SR.
  * @details This routine adjusts the length of each track segment crossing
- *          a FSR such that the integrated volume is identical to the true
+ *          a SR such that the integrated volume is identical to the true
  *          volume assigned by the user.
- * @param fsr_id the ID of the FSR of interest
- * @param fsr_volume the correct FSR volume to use
+ * @param sr_id the ID of the SR of interest
+ * @param sr_volume the correct SR volume to use
  */
-void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
+void TrackGenerator::correctSRVolume(int sr_id, FP_PRECISION sr_volume) {
 
   if (!_contains_tracks)
-    log_printf(ERROR, "Unable to correct FSR volume since "
+    log_printf(ERROR, "Unable to correct SR volume since "
 	       "tracks have not yet been generated");
 
   /* Compute the current volume approximation for the flat source region */
-  FP_PRECISION curr_volume = getFSRVolume(fsr_id);
+  FP_PRECISION curr_volume = getSRVolume(sr_id);
 
-  log_printf(INFO, "Correcting FSR %d volume from %f to %f",
-             fsr_id, curr_volume, fsr_volume);
+  log_printf(INFO, "Correcting SR %d volume from %f to %f",
+             sr_id, curr_volume, sr_volume);
 
   int num_segments, azim_index;
   double dx_eff, d_eff;
@@ -1772,7 +1772,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
     dx_eff = (_geometry->getWidthX() / _num_x[i]);
     d_eff = (dx_eff * sin(_tracks[i][0].getPhi()));
 
-    /* Compute the current estimated volume of the FSR for this angle */
+    /* Compute the current estimated volume of the SR for this angle */
 #pragma omp parallel for  private(num_segments, segments, curr_segment) \
   reduction(+:volume)
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -1782,18 +1782,18 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
 
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
-        if (curr_segment->_region_id == fsr_id)
+        if (curr_segment->_region_id == sr_id)
           volume += curr_segment->_length * d_eff;
       }
     }
 
     /* Compute correction factor to the volume */
-    corr_factor = fsr_volume / volume;
+    corr_factor = sr_volume / volume;
 
-    log_printf(DEBUG, "Volume correction factor for FSR %d and azim "
-               "angle %d is %f", fsr_id, i, corr_factor);
+    log_printf(DEBUG, "Volume correction factor for SR %d and azim "
+               "angle %d is %f", sr_id, i, corr_factor);
 
-    /* Correct the length of each segment which crosses the FSR */
+    /* Correct the length of each segment which crosses the SR */
 #pragma omp parallel for  private(num_segments, segments, curr_segment)
     for (int j=0; j < _num_tracks[i]; j++) {
 
@@ -1802,7 +1802,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
 
       for (int s=0; s < num_segments; s++) {
         curr_segment = &segments[s];
-        if (curr_segment->_region_id == fsr_id)
+        if (curr_segment->_region_id == sr_id)
           curr_segment->_length *= corr_factor;
       }
     }
@@ -1811,27 +1811,27 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
 
 
 /**
- * @brief Generates the numerical centroids of the FSRs.
- * @details This routine generates the numerical centroids of the FSRs
+ * @brief Generates the numerical centroids of the SRs.
+ * @details This routine generates the numerical centroids of the SRs
  *          by weighting the average x and y values of each segment in the
- *          FSR by the segment's length and azimuthal weight. The numerical
+ *          SR by the segment's length and azimuthal weight. The numerical
  *          centroid fomula can be found in R. Ferrer et. al. "Linear Source
  *          Approximation in CASMO 5", PHYSOR 2012.
  */
-void TrackGenerator::generateFSRCentroids() {
+void TrackGenerator::generateSRCentroids() {
 
-  int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = getFSRVolumes();
+  int num_SRs = _geometry->getNumSRs();
+  FP_PRECISION* SR_volumes = getSRVolumes();
 
   /* Create array of centroids and initialize to origin */
-  Point** centroids = new Point*[num_FSRs];
+  Point** centroids = new Point*[num_SRs];
 #pragma omp parallel for
-  for (int r=0; r < num_FSRs; r++) {
+  for (int r=0; r < num_SRs; r++) {
     centroids[r] = new Point();
     centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
 
-  /* Generate the fsr centroids */
+  /* Generate the sr centroids */
   for (int i=0; i < _num_azim; i++) {
 #pragma omp parallel for
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -1845,22 +1845,22 @@ void TrackGenerator::generateFSRCentroids() {
 
       for (int s=0; s < num_segments; s++) {
         segment* curr_segment = &segments[s];
-        int fsr = curr_segment->_region_id;
-        double volume = FSR_volumes[fsr];
+        int sr = curr_segment->_region_id;
+        double volume = SR_volumes[sr];
 
-        /* Set FSR mutual exclusion lock */
-        omp_set_lock(&_FSR_locks[fsr]);
+        /* Set SR mutual exclusion lock */
+        omp_set_lock(&_SR_locks[sr]);
 
-        centroids[fsr]->setX(centroids[fsr]->getX() + _azim_weights[i] *
+        centroids[sr]->setX(centroids[sr]->getX() + _azim_weights[i] *
                              (x + cos(phi) * curr_segment->_length / 2.0) *
-                             curr_segment->_length / FSR_volumes[fsr]);
-        centroids[fsr]->setY(centroids[fsr]->getY() + _azim_weights[i] *
+                             curr_segment->_length / SR_volumes[sr]);
+        centroids[sr]->setY(centroids[sr]->getY() + _azim_weights[i] *
                              (y + sin(phi) * curr_segment->_length / 2.0) *
-                             curr_segment->_length / FSR_volumes[fsr]);
-        centroids[fsr]->setZ(z);
+                             curr_segment->_length / SR_volumes[sr]);
+        centroids[sr]->setZ(z);
 
-        /* Release FSR mutual exclusion lock */
-        omp_unset_lock(&_FSR_locks[fsr]);
+        /* Release SR mutual exclusion lock */
+        omp_unset_lock(&_SR_locks[sr]);
 
         x += cos(phi) * curr_segment->_length;
         y += sin(phi) * curr_segment->_length;
@@ -1868,14 +1868,14 @@ void TrackGenerator::generateFSRCentroids() {
     }
   }
 
-  /* Set the centroid for the FSR */
+  /* Set the centroid for the SR */
 #pragma omp parallel for
-  for (int r=0; r < num_FSRs; r++)
-    _geometry->setFSRCentroid(r, centroids[r]);
+  for (int r=0; r < num_SRs; r++)
+    _geometry->setSRCentroid(r, centroids[r]);
 
-  /* Delete temporary array of FSR volumes and centroids */
+  /* Delete temporary array of SR volumes and centroids */
   delete [] centroids;
-  delete [] FSR_volumes;
+  delete [] SR_volumes;
 }
 
 
@@ -1900,7 +1900,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
     segment* curr_segment;
 
     FP_PRECISION length, tau;
-    int fsr_id;
+    int sr_id;
     Material* material;
     FP_PRECISION* sigma_t;
     int num_groups;
@@ -1916,7 +1916,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
           curr_segment = _tracks[i][j].getSegment(s);
           material = curr_segment->_material;
           length = curr_segment->_length;
-          fsr_id = curr_segment->_region_id;
+          sr_id = curr_segment->_region_id;
           cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
           cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
 
@@ -1942,7 +1942,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
             segment* new_segment = new segment;
             new_segment->_material = material;
             new_segment->_length = length / FP_PRECISION(min_num_cuts);
-            new_segment->_region_id = fsr_id;
+            new_segment->_region_id = sr_id;
 
             /* Assign CMFD surface boundaries */
             if (k == 0)
@@ -1965,12 +1965,12 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
 
 /**
- * @brief Initialize track segments with pointers to FSR Materials.
+ * @brief Initialize track segments with pointers to SR Materials.
  * @details This is called by the Solver at simulation time. This
- *          initialization is necessary since Materials in each FSR
+ *          initialization is necessary since Materials in each SR
  *          may be interchanged by the user in between different
- *          simulations. This method links each segment and fsr_data
- *          struct with the current Material found in each FSR.
+ *          simulations. This method links each segment and sr_data
+ *          struct with the current Material found in each SR.
  */
 void TrackGenerator::initializeSegments() {
 
@@ -1981,10 +1981,10 @@ void TrackGenerator::initializeSegments() {
   /* Get all of the Materials from the Geometry */
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
-  /* Get the mappings of FSR to keys to fsr_data to update Materials */
-  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
-      _geometry->getFSRKeysMap();
-  std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
+  /* Get the mappings of SR to keys to sr_data to update Materials */
+  ParallelHashMap<std::string, sr_data*>& SR_keys_map =
+      _geometry->getSRKeysMap();
+  std::vector<std::string>& SRs_to_keys = _geometry->getSRsToKeys();
 
 #pragma omp parallel
   {
@@ -1993,11 +1993,11 @@ void TrackGenerator::initializeSegments() {
     segment* curr_segment;
     Material* mat;
 
-    /* Set the Material for each FSR */
+    /* Set the Material for each SR */
 #pragma omp for
-    for (int r=0; r < _geometry->getNumFSRs(); r++) {
-      mat = _geometry->findFSRMaterial(r);
-      FSR_keys_map.at(FSRs_to_keys.at(r))->_mat_id = mat->getId();
+    for (int r=0; r < _geometry->getNumSRs(); r++) {
+      mat = _geometry->findSRMaterial(r);
+      SR_keys_map.at(SRs_to_keys.at(r))->_mat_id = mat->getId();
     }
 
     /* Set the Material for each segment */
@@ -2007,7 +2007,7 @@ void TrackGenerator::initializeSegments() {
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
           curr_segment = _tracks[i][j].getSegment(s);
           region_id = curr_segment->_region_id;
-          mat_id = FSR_keys_map.at(FSRs_to_keys.at(region_id))->_mat_id;
+          mat_id = SR_keys_map.at(SRs_to_keys.at(region_id))->_mat_id;
           curr_segment->_material = materials[mat_id];
         }
       }

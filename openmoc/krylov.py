@@ -58,9 +58,9 @@ class IRAMSolver(object):
 
     # Compute the size of the LinearOperators used in the eigenvalue problem
     geometry = self._moc_solver.getGeometry()
-    num_FSRs = geometry.getNumFSRs()
+    num_SRs = geometry.getNumSRs()
     num_groups = geometry.getNumEnergyGroups()
-    self._op_size = num_FSRs * num_groups
+    self._op_size = num_SRs * num_groups
 
     # Initialize solution-dependent class attributes to None
     self._num_modes = None
@@ -118,8 +118,8 @@ class IRAMSolver(object):
     self._moc_solver.initializeMaterials(solver_mode)
     self._moc_solver.initializeFluxArrays()
     self._moc_solver.initializeSourceArrays()
-    self._moc_solver.initializeFSRs()
-    self._moc_solver.countFissionableFSRs()
+    self._moc_solver.initializeSRs()
+    self._moc_solver.countFissionableSRs()
     self._moc_solver.zeroTrackFluxes()
 
     # Initialize SciPy operators

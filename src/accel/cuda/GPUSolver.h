@@ -35,17 +35,17 @@
 #include "clone.h"
 #include "GPUExpEvaluator.h"
 
-/** Indexing macro for the scalar flux in each FSR and energy group */
+/** Indexing macro for the scalar flux in each SR and energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
 
-/** Indexing macro for the old scalar flux in each FSR and energy group */
+/** Indexing macro for the old scalar flux in each SR and energy group */
 #define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section,
- *  \f$ \frac{Q}{\Sigma_t} \f$, in each FSR and energy group */
+ *  \f$ \frac{Q}{\Sigma_t} \f$, in each SR and energy group */
 #define reduced_sources(tid,e) (reduced_sources[(tid)*(*num_groups) + (e)])
 
-/** Indexing scheme for fixed sources for each FSR and energy group */
+/** Indexing scheme for fixed sources for each SR and energy group */
 #define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
@@ -76,8 +76,8 @@ private:
   /** Twice the number of polar angles */
   int _two_times_num_polar;
 
-  /** The FSR Material pointers index by FSR ID */
-  int* _FSR_materials;
+  /** The SR Material pointers index by SR ID */
+  int* _SR_materials;
 
   /** A pointer to an array of the Materials on the device */
   dev_material* _materials;
@@ -88,16 +88,16 @@ private:
   /** Thrust vector of angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _boundary_flux;
 
-  /** Thrust vector of FSR scalar fluxes */
+  /** Thrust vector of SR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _scalar_flux;
 
-  /** Thrust vector of old FSR scalar fluxes */
+  /** Thrust vector of old SR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _old_scalar_flux;
 
-  /** Thrust vector of fixed sources in each FSR */
+  /** Thrust vector of fixed sources in each SR */
   thrust::device_vector<FP_PRECISION> _fixed_sources;
 
-  /** Thrust vector of source / sigma_t in each FSR */
+  /** Thrust vector of source / sigma_t in each SR */
   thrust::device_vector<FP_PRECISION> _reduced_sources;
 
   /** Map of Material IDs to indices in _materials array */
@@ -115,8 +115,8 @@ public:
    * @return the number of threads per block
    */
   int getNumThreadsPerBlock();
-  FP_PRECISION getFSRSource(int fsr_id, int group);
-  FP_PRECISION getFlux(int fsr_id, int group);
+  FP_PRECISION getSRSource(int sr_id, int group);
+  FP_PRECISION getFlux(int sr_id, int group);
   void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreadBlocks(int num_blocks);
@@ -128,25 +128,25 @@ public:
   void initializePolarQuadrature();
   void initializeExpEvaluator();
   void initializeMaterials(solverMode mode=ADJOINT);
-  void initializeFSRs();
+  void initializeSRs();
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeFixedSources();
 
   void zeroTrackFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
-  void storeFSRFluxes();
+  void flattenSRFluxes(FP_PRECISION value);
+  void storeSRFluxes();
   void normalizeFluxes();
-  void computeFSRSources();
-  void computeFSRFissionSources();
-  void computeFSRScatterSources();
+  void computeSRSources();
+  void computeSRFissionSources();
+  void computeSRScatterSources();
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
 
-  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+  void computeSRFissionRates(double* fission_rates, int num_SRs);
 };
 
 

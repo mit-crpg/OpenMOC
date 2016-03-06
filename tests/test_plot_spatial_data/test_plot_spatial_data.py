@@ -23,15 +23,15 @@ class PlotSpatialDataTestHarness(PlottingTestHarness):
     def _run_openmoc(self):
         """Plot spatial data from Pandas DataFrames."""
 
-        # Run an eigenvalue calculation to setup FSR centroids
+        # Run an eigenvalue calculation to setup SR centroids
         super(PlotSpatialDataTestHarness, self)._run_openmoc()
 
         # Seed NumPy's random number generator to ensure reproducible results
         np.random.seed(1)
 
         # Initialize a Pandas DataFrame with normally distributed random data
-        num_fsrs = self.input_set.geometry.getNumFSRs()
-        df = pd.DataFrame(np.random.randn(num_fsrs,3), columns=list('ABC'))
+        num_srs = self.input_set.geometry.getNumSRs()
+        df = pd.DataFrame(np.random.randn(num_srs,3), columns=list('ABC'))
 
         # Initialize a PlotParams object
         plot_params = PlotParams()
@@ -43,7 +43,7 @@ class PlotSpatialDataTestHarness(PlottingTestHarness):
         # Enforce consistent color scheme across figures
         plot_params.vmin = df.values.min()
         plot_params.vmax = df.values.max()
-        
+
         # Create a series Matplotlib Figures / PIL Images for different
         # plotting parameters and append to figures list
         self.figures.extend(plot_spatial_data(df, plot_params, get_figure=True))

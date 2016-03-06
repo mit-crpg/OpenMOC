@@ -73,7 +73,7 @@ class TestHarness(object):
 
     def _generate_tracks(self):
         """Generate Tracks and segments."""
-        # Always use 1 thread for FSR reproducibility
+        # Always use 1 thread for SR reproducibility
         self.track_generator.setNumThreads(1)
         self.track_generator.generateTracks()
 
@@ -131,7 +131,7 @@ class TestHarness(object):
             raise ValueError(msg)
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
-                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     num_srs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
         """Digest info in the solver and return as a string."""
 
@@ -148,7 +148,7 @@ class TestHarness(object):
             outstr += 'keff: {0:12.5E}\n'.format(keff)
 
         if fluxes:
-            # Get the fluxes for each FSR and energy group
+            # Get the fluxes for each SR and energy group
             fluxes = openmoc.process.get_scalar_fluxes(self.solver)
 
             # Create a list of the floating point flux values
@@ -158,10 +158,10 @@ class TestHarness(object):
             outstr += 'fluxes:\n'
             outstr += '\n'.join(fluxes) + '\n'
 
-        # Write out the number of FSRs
-        if num_fsrs:
-            num_fsrs = self.input_set.geometry.getNumFSRs()
-            outstr += '# FSRs: {0}\n'.format(num_fsrs)
+        # Write out the number of SRs
+        if num_srs:
+            num_srs = self.input_set.geometry.getNumSRs()
+            outstr += '# SRs: {0}\n'.format(num_srs)
 
         # Write out the number of tracks
         if num_tracks:
@@ -226,7 +226,7 @@ class HashedTestHarness(TestHarness):
 
 class TrackingTestHarness(TestHarness):
     """Specialized TestHarness for testing tracking."""
-    
+
     def __init__(self):
         super(TrackingTestHarness, self).__init__()
         self.tracks = OrderedDict()
@@ -262,7 +262,7 @@ class TrackingTestHarness(TestHarness):
                                                 self.input_set.geometry)
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
-                     num_fsrs=True, num_segments=True, num_tracks=True,
+                     num_srs=True, num_segments=True, num_tracks=True,
                      hash_output=False):
         """Return the result string"""
         return self._result
@@ -274,13 +274,13 @@ class PlottingTestHarness(TestHarness):
     def __init__(self):
         super(PlottingTestHarness, self).__init__()
         self.figures = []
-        
+
         # Use standardized default matplotlib rcparams
         rcparams = pickle.load(open('../rcparams.pkl', 'rb'))
         openmoc.plotter.matplotlib_rcparams = rcparams
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
-                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     num_srs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
 
         # Store each each Matplotlib figure / PIL Image
@@ -359,7 +359,7 @@ class PlottingTestHarness(TestHarness):
         hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
         hist1 = np.array([hr1, hg1, hb1]).ravel()
         hist2 = np.array([hr2, hg2, hb2]).ravel()
-        
+
         # Compute cartesian distance between histograms in RGB space
         diff = hist1 - hist2
         distance = np.sqrt(np.dot(diff, diff))
@@ -379,12 +379,12 @@ class MultiSimTestHarness(TestHarness):
         """Run multiple OpenMOC eigenvalue calculations."""
 
         for i in range(self.num_simulations):
-            super(MultiSimTestHarness, self)._run_openmoc()            
+            super(MultiSimTestHarness, self)._run_openmoc()
             self.num_iters.append(self.solver.getNumIterations())
             self.keffs.append(self.solver.getKeff())
 
     def _get_results(self, num_iterations=True, keff=True, fluxes=False,
-                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     num_srs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
         """Return eigenvalues from each simulation into a string."""
 

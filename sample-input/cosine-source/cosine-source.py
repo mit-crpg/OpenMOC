@@ -123,26 +123,26 @@ solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
 
 # Set the source in every cell to a cosine distribution
-for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+for sr_id in xrange(solver.getGeometry().getNumSRs()):
 
-  # Get the coordinates of some point within the FSR
-  pt = solver.getGeometry().getFSRPoint(fsr_id)
+  # Get the coordinates of some point within the SR
+  pt = solver.getGeometry().getSRPoint(sr_id)
   x_pt = pt.getX()
   y_pt = pt.getY()
 
-  # Set the FSR source for every group
+  # Set the SR source for every group
   L = num_x * width_x / 2
   H = num_y * width_y / 2
   for g in range(materials['Water'].getNumEnergyGroups()):
     group = g + 1
     source_value = math.cos(x_pt/L) * math.cos(y_pt/H)
-    solver.setFixedSourceByFSR(fsr_id, group, source_value)
-  
+    solver.setFixedSourceBySR(sr_id, group, source_value)
+
   # NOTE: A more precise definition of the source would calculate the same
   # source values for all points within each flat source region. In this
-  # example that is not the case. However, since the FSR discretization is
+  # example that is not the case. However, since the SR discretization is
   # reasonably fine in this case, the slight error introduced from defining the
-  # source based on one point in the FSR does not have a large impact on the
+  # source based on one point in the SR does not have a large impact on the
   # resulting flux shapes.
 
 # Run the solver for the provided source

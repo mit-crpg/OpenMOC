@@ -27,16 +27,16 @@
 class Cmfd;
 
 /**
- * @struct fsr_data
- * @brief A fsr_data struct represents an FSR with a unique FSR ID
- *        and a characteristic point that lies within the FSR that
+ * @struct sr_data
+ * @brief A sr_data struct represents an SR with a unique SR ID
+ *        and a characteristic point that lies within the SR that
  *        can be used to recompute the hierarchical LocalCoords
  *        linked list.
  */
-struct fsr_data {
+struct sr_data {
 
-  /** The FSR ID */
-  int _fsr_id;
+  /** The SR ID */
+  int _sr_id;
 
   /** The CMFD Cell */
   int _cmfd_cell;
@@ -44,20 +44,20 @@ struct fsr_data {
   /** The Material ID */
   int _mat_id;
 
-  /** Characteristic point in Root Universe that lies in FSR */
+  /** Characteristic point in Root Universe that lies in SR */
   Point* _point;
 
   /** Global numerical centroid in Root Universe */
   Point* _centroid;
 
-  /** Constructor for FSR data initializes centroids and points to NULL */
-  fsr_data() {
+  /** Constructor for SR data initializes centroids and points to NULL */
+  sr_data() {
     _centroid = NULL;
     _point = NULL;
   }
 
-  /** Destructor for fsr_data */
-  ~fsr_data() {
+  /** Destructor for sr_data */
+  ~sr_data() {
     if (_point != NULL)
       delete _point;
 
@@ -76,7 +76,7 @@ void reset_auto_ids();
  * @details The primary purpose for the geometry is to serve as a collection
  *          of all geometry-related objects, as well as for ray tracing
  *          of characteristic tracks across the Geometry and computing
- *          FSR-to-cell offset maps.
+ *          SR-to-cell offset maps.
  */
 class Geometry {
 
@@ -98,11 +98,11 @@ private:
    *  containing the Geometry. */
   boundaryType _y_max_bc;
 
-  /** An map of FSR key hashes to unique fsr_data structs */
-  ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
+  /** An map of SR key hashes to unique sr_data structs */
+  ParallelHashMap<std::string, sr_data*> _SR_keys_map;
 
-  /** An vector of FSR key hashes indexed by FSR ID */
-  std::vector<std::string> _FSRs_to_keys;
+  /** An vector of SR key hashes indexed by SR ID */
+  std::vector<std::string> _SRs_to_keys;
 
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
@@ -136,7 +136,7 @@ public:
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
   Universe* getRootUniverse();
-  int getNumFSRs();
+  int getNumSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
@@ -148,28 +148,28 @@ public:
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::string>& getFSRsToKeys();
-  int getFSRId(LocalCoords* coords);
-  Point* getFSRPoint(int fsr_id);
-  Point* getFSRCentroid(int fsr_id);
-  std::string getFSRKey(LocalCoords* coords);
-  ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
+  std::vector<std::string>& getSRsToKeys();
+  int getSRId(LocalCoords* coords);
+  Point* getSRPoint(int sr_id);
+  Point* getSRCentroid(int sr_id);
+  std::string getSRKey(LocalCoords* coords);
+  ParallelHashMap<std::string, sr_data*>& getSRKeysMap();
 
   /* Set parameters */
   void setCmfd(Cmfd* cmfd);
-  void setFSRCentroid(int fsr, Point* centroid);
+  void setSRCentroid(int sr, Point* centroid);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
-  Material* findFSRMaterial(int fsr_id);
-  int findFSRId(LocalCoords* coords);
-  Cell* findCellContainingFSR(int fsr_id);
+  Material* findSRMaterial(int sr_id);
+  int findSRId(LocalCoords* coords);
+  Cell* findCellContainingSR(int sr_id);
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeFSRs(bool neighbor_cells=false);
+  void initializeSRs(bool neighbor_cells=false);
   void segmentize(Track* track);
-  void initializeFSRVectors();
+  void initializeSRVectors();
   void computeFissionability(Universe* univ=NULL);
 
   std::string toString();

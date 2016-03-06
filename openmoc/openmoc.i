@@ -61,12 +61,12 @@
 %warnfilter(511) Cell::setFill;
 
 /* Methods for SWIG to ignore in generating Python API */
-%ignore setFSRCentroid(int fsr, Point* centroid);
-%ignore setFSRKeysMap(std::unordered_map<std::size_t, fsr_data>* FSR_keys_map);
-%ignore setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
-%ignore setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
-%ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
-%ignore initializeFSRVectors();
+%ignore setSRCentroid(int sr, Point* centroid);
+%ignore setSRKeysMap(std::unordered_map<std::size_t, sr_data>* SR_keys_map);
+%ignore setSRsToKeys(std::vector<std::size_t>* SRs_to_keys);
+%ignore setSRsToMaterialIDs(std::vector<int>* SRs_to_material_IDs);
+%ignore setSRKeysMap(ParallelHashMap<std::size_t, sr_data*>* SR_keys_map);
+%ignore initializeSRVectors();
 
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
  * attributes. These attributes should be used internally only by the Matrix and

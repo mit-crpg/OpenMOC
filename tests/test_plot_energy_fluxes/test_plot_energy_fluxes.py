@@ -22,15 +22,15 @@ class PlotEnergyFluxesTestHarness(PlottingTestHarness):
         # Run an eigenvalue calculation
         super(PlotEnergyFluxesTestHarness, self)._run_openmoc()
 
-        # Extract the FSR count from the geometry
-        num_fsrs = self.input_set.geometry.getNumFSRs()
-        fsrs = tuple(range(num_fsrs))
+        # Extract the SR count from the geometry
+        num_srs = self.input_set.geometry.getNumSRs()
+        srs = tuple(range(num_srs))
 
         # Create a series of Matplotlib Figures / PIL Images for different
         # plotting parameters and append to figures list
-        self.figures.extend(plot_energy_fluxes(self.solver, fsrs,
+        self.figures.extend(plot_energy_fluxes(self.solver, srs,
                     get_figure=True))
-        self.figures.extend(plot_energy_fluxes(self.solver, fsrs,
+        self.figures.extend(plot_energy_fluxes(self.solver, srs,
                     get_figure=True, loglog=True))
 
 

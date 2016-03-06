@@ -24,20 +24,20 @@ Geometry::Geometry() {
 
 
 /**
- * @brief Destructor clears FSR to Cells and Materials maps.
+ * @brief Destructor clears SR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
 
-  /* Free FSR maps if they were initialized */
-  if (_FSR_keys_map.size() != 0) {
-    fsr_data **values = _FSR_keys_map.values();
+  /* Free SR maps if they were initialized */
+  if (_SR_keys_map.size() != 0) {
+    sr_data **values = _SR_keys_map.values();
 
-    for (int i=0; i<_FSR_keys_map.size(); i++)
+    for (int i=0; i<_SR_keys_map.size(); i++)
       delete values[i];
     delete[] values;
 
-    _FSR_keys_map.clear();
-    _FSRs_to_keys.clear();
+    _SR_keys_map.clear();
+    _SRs_to_keys.clear();
   }
 
   /* Remove all Materials in the Geometry */
@@ -185,10 +185,10 @@ boundaryType Geometry::getMaxYBoundaryType() {
 
 /**
  * @brief Returns the number of flat source regions in the Geometry.
- * @return number of FSRs
+ * @return number of SRs
  */
-int Geometry::getNumFSRs() {
-  return _FSRs_to_keys.size();
+int Geometry::getNumSRs() {
+  return _SRs_to_keys.size();
 }
 
 /**
@@ -445,7 +445,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  *          with coordinates and a Universe ID. This method will move the
  *          initial starting point by a small amount along the direction of
  *          the Track in order to ensure that the track starts inside of a
- *          distinct FSR rather than on the boundary between two of them.
+ *          distinct SR rather than on the boundary between two of them.
  *          The method will recursively find the LocalCoords by building a
  *          linked list of LocalCoords from the LocalCoords passed in as an
  *          argument down to the Cell found in the lowest level of the nested
@@ -464,11 +464,11 @@ Cell* Geometry::findFirstCell(LocalCoords* coords) {
 
 /**
  * @brief Find the Material for a flat source region ID.
- * @param fsr_id a FSR id
- * @return a pointer to the Material that this FSR is in
+ * @param sr_id a SR id
+ * @return a pointer to the Material that this SR is in
  */
-Material* Geometry::findFSRMaterial(int fsr_id) {
-  Cell* cell = findCellContainingFSR(fsr_id);
+Material* Geometry::findSRMaterial(int sr_id) {
+  Cell* cell = findCellContainingSR(sr_id);
   return cell->getFillMaterial();
 }
 
@@ -555,37 +555,37 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
  * @brief Find and return the ID of the flat source region that a given
  *        LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
- * @return the FSR ID for a given LocalCoords object
+ * @return the SR ID for a given LocalCoords object
  */
-int Geometry::findFSRId(LocalCoords* coords) {
+int Geometry::findSRId(LocalCoords* coords) {
 
-  int fsr_id;
+  int sr_id;
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
 
-  /* Generate unique FSR key */
-  std::string fsr_key = getFSRKey(coords);
+  /* Generate unique SR key */
+  std::string sr_key = getSRKey(coords);
 
-  /* If FSR has not been encountered, update FSR maps and vectors */
-  if (!_FSR_keys_map.contains(fsr_key)) {
+  /* If SR has not been encountered, update SR maps and vectors */
+  if (!_SR_keys_map.contains(sr_key)) {
 
-    /* Try to get a clean copy of the fsr_id, adding the FSR data
+    /* Try to get a clean copy of the sr_id, adding the SR data
        if necessary where -1 indicates the key was already added */
-    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key, NULL);
-    if (fsr_id == -1)
+    sr_id = _SR_keys_map.insert_and_get_count(sr_key, NULL);
+    if (sr_id == -1)
     {
-      fsr_data volatile* fsr;
+      sr_data volatile* sr;
       do {
-        fsr = _FSR_keys_map.at(fsr_key);
-      } while (fsr == NULL);
-      fsr_id = fsr->_fsr_id;
+        sr = _SR_keys_map.at(sr_key);
+      } while (sr == NULL);
+      sr_id = sr->_sr_id;
     }
     else {
 
-      /* Add FSR information to FSR key map and FSR_to vectors */
-      fsr_data* fsr = new fsr_data;
-      fsr->_fsr_id = fsr_id;
-      _FSR_keys_map.update(fsr_key, fsr);
+      /* Add SR information to SR key map and SR_to vectors */
+      sr_data* sr = new sr_data;
+      sr->_sr_id = sr_id;
+      _SR_keys_map.update(sr_key, sr);
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(),
                        coords->getHighestLevel()->getY(),
@@ -593,26 +593,26 @@ int Geometry::findFSRId(LocalCoords* coords) {
 
       /* Get the cell that contains coords */
       Cell* cell = findCellContainingCoords(curr);
-      fsr->_point = point;
-      fsr->_mat_id = cell->getFillMaterial()->getId();
+      sr->_point = point;
+      sr->_mat_id = cell->getFillMaterial()->getId();
 
-      /* If CMFD acceleration is on, add FSR CMFD cell to FSR data */
+      /* If CMFD acceleration is on, add SR CMFD cell to SR data */
       if (_cmfd != NULL)
-        fsr->_cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
+        sr->_cmfd_cell = _cmfd->findCmfdCell(coords->getHighestLevel());
     }
   }
 
-  /* If FSR has already been encountered, get the fsr id from map */
+  /* If SR has already been encountered, get the sr id from map */
   else {
-    fsr_data volatile* fsr;
+    sr_data volatile* sr;
     do {
-      fsr = _FSR_keys_map.at(fsr_key);
-    } while (fsr == NULL);
+      sr = _SR_keys_map.at(sr_key);
+    } while (sr == NULL);
 
-    fsr_id = fsr->_fsr_id;
+    sr_id = sr->_sr_id;
   }
 
-  return fsr_id;
+  return sr_id;
 }
 
 
@@ -620,40 +620,40 @@ int Geometry::findFSRId(LocalCoords* coords) {
  * @brief Return the ID of the flat source region that a given
  *        LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
- * @return the FSR ID for a given LocalCoords object
+ * @return the SR ID for a given LocalCoords object
  */
-int Geometry::getFSRId(LocalCoords* coords) {
+int Geometry::getSRId(LocalCoords* coords) {
 
-  int fsr_id = 0;
-  std::string fsr_key;
+  int sr_id = 0;
+  std::string sr_key;
 
   try{
-    fsr_key = getFSRKey(coords);
-    fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
+    sr_key = getSRKey(coords);
+    sr_id = _SR_keys_map.at(sr_key)->_sr_id;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
-               "geometry with finer track spacing", fsr_key.c_str());
+    log_printf(ERROR, "Could not find SR ID with key: %s. Try creating "
+               "geometry with finer track spacing", sr_key.c_str());
   }
 
-  return fsr_id;
+  return sr_id;
 }
 
 
 /**
- * @brief Return the characteristic point for a given FSR ID
- * @param fsr_id the FSR ID
- * @return the FSR's characteristic point
+ * @brief Return the characteristic point for a given SR ID
+ * @param sr_id the SR ID
+ * @return the SR's characteristic point
  */
-Point* Geometry::getFSRPoint(int fsr_id) {
+Point* Geometry::getSRPoint(int sr_id) {
 
   Point* point;
 
   try{
-    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
+    point = _SR_keys_map.at(_SRs_to_keys.at(sr_id))->_point;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find characteristic point in FSR: %d", fsr_id);
+    log_printf(ERROR, "Could not find characteristic point in SR: %d", sr_id);
   }
 
   return point;
@@ -661,19 +661,19 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 
 
 /**
- * @brief Return the centroid for a given FSR ID
- * @param fsr_id the FSR ID
- * @return the FSR's centroid
+ * @brief Return the centroid for a given SR ID
+ * @param sr_id the SR ID
+ * @return the SR's centroid
  */
-Point* Geometry::getFSRCentroid(int fsr_id) {
+Point* Geometry::getSRCentroid(int sr_id) {
 
   Point* point;
 
   try{
-    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
+    point = _SR_keys_map.at(_SRs_to_keys.at(sr_id))->_centroid;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find centroid in FSR: %d.", fsr_id);
+    log_printf(ERROR, "Could not find centroid in SR: %d.", sr_id);
   }
 
   return point;
@@ -681,17 +681,17 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
 
 
 /**
- * @brief Generate a string FSR "key" that identifies an FSR by its
+ * @brief Generate a string SR "key" that identifies an SR by its
  *        unique hierarchical lattice/universe/cell structure.
- * @details Since not all FSRs will reside on the absolute lowest universe
+ * @details Since not all SRs will reside on the absolute lowest universe
  *          level and Cells might overlap other cells, it is important to
- *          have a method for uniquely identifying FSRs. This method
- *          creates a unique FSR key by constructing a structured string
+ *          have a method for uniquely identifying SRs. This method
+ *          creates a unique SR key by constructing a structured string
  *          that describes the hierarchy of lattices/universes/cells.
  * @param coords a LocalCoords object pointer
- * @return the FSR key
+ * @return the SR key
  */
-std::string Geometry::getFSRKey(LocalCoords* coords) {
+std::string Geometry::getSRKey(LocalCoords* coords) {
 
   std::stringstream key;
   LocalCoords* curr = coords->getHighestLevel();
@@ -756,7 +756,7 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 /**
  * @brief Subdivides all Cells in the Geometry into rings and angular sectors
  *        aligned with the z-axis.
- * @details This method is called by the Geometry::initializeFSRs()
+ * @details This method is called by the Geometry::initializeSRs()
  *          method but may also be called by the user in Python if needed:
  *
  * @code
@@ -785,7 +785,7 @@ void Geometry::subdivideCells() {
  *          object.
  * @brief neighbor_cells whether to use neighbor cell optimizations
  */
-void Geometry::initializeFSRs(bool neighbor_cells) {
+void Geometry::initializeSRs(bool neighbor_cells) {
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
@@ -799,7 +799,7 @@ void Geometry::initializeFSRs(bool neighbor_cells) {
  * @brief This method performs ray tracing to create Track segments within each
  *        flat source region in the Geometry.
  * @details This method starts at the beginning of a Track and finds successive
- *          intersection points with FSRs as the Track crosses through the
+ *          intersection points with SRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
  */
@@ -815,7 +815,7 @@ void Geometry::segmentize(Track* track) {
   /* Length of each segment */
   FP_PRECISION length;
   Material* material;
-  int fsr_id;
+  int sr_id;
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
@@ -852,16 +852,16 @@ void Geometry::segmentize(Track* track) {
       log_printf(ERROR, "Created segment with same start and end "
                  "point: x = %f, y = %f", start.getX(), start.getY());
 
-    /* Find the segment length, Material and FSR ID */
+    /* Find the segment length, Material and SR ID */
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
-    fsr_id = findFSRId(&start);
+    sr_id = findSRId(&start);
 
     /* Create a new Track segment */
     segment* new_segment = new segment;
     new_segment->_material = material;
     new_segment->_length = length;
-    new_segment->_region_id = fsr_id;
+    new_segment->_region_id = sr_id;
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
@@ -900,38 +900,38 @@ void Geometry::segmentize(Track* track) {
 
 
 /**
- * @brief Initialize key and material ID vectors for lookup by FSR ID
- * @detail This function initializes and sets reverse lookup vectors by FSR ID.
- *      This is called after the FSRs have all been identified and allocated
+ * @brief Initialize key and material ID vectors for lookup by SR ID
+ * @detail This function initializes and sets reverse lookup vectors by SR ID.
+ *      This is called after the SRs have all been identified and allocated
  *      during segmentation. This function must be called after
  *      Geometry::segmentize() has completed. It should not be called if tracks
  *      are loaded from a file.
  */
-void Geometry::initializeFSRVectors() {
+void Geometry::initializeSRVectors() {
 
   /* get keys and values from map */
-  std::string *key_list = _FSR_keys_map.keys();
-  fsr_data **value_list = _FSR_keys_map.values();
+  std::string *key_list = _SR_keys_map.keys();
+  sr_data **value_list = _SR_keys_map.values();
 
   /* allocate vectors */
-  int num_FSRs = _FSR_keys_map.size();
-  _FSRs_to_keys = std::vector<std::string>(num_FSRs);
+  int num_SRs = _SR_keys_map.size();
+  _SRs_to_keys = std::vector<std::string>(num_SRs);
 
   /* fill vectors key and material ID information */
 #pragma omp parallel for
-  for (int i=0; i < num_FSRs; i++) {
+  for (int i=0; i < num_SRs; i++) {
     std::string key = key_list[i];
-    fsr_data* fsr = value_list[i];
-    int fsr_id = fsr->_fsr_id;
-    _FSRs_to_keys.at(fsr_id) = key;
+    sr_data* sr = value_list[i];
+    int sr_id = sr->_sr_id;
+    _SRs_to_keys.at(sr_id) = key;
   }
 
   /* add cmfd information serially */
   if (_cmfd != NULL) {
-    for (int i=0; i < num_FSRs; i++) {
-      fsr_data* fsr = value_list[i];
-      int fsr_id = fsr->_fsr_id;
-      _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);
+    for (int i=0; i < num_SRs; i++) {
+      sr_data* sr = value_list[i];
+      int sr_id = sr->_sr_id;
+      _cmfd->addSRToCell(sr->_cmfd_cell, sr_id);
     }
   }
 
@@ -1109,20 +1109,20 @@ void Geometry::initializeCmfd() {
 
 
 /**
- * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
- * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
+ * @brief Returns a pointer to the map that maps SR keys to SR IDs
+ * @return pointer to _SR_keys_map map of SR keys to SR IDs
  */
-ParallelHashMap<std::string, fsr_data*>& Geometry::getFSRKeysMap() {
-  return _FSR_keys_map;
+ParallelHashMap<std::string, sr_data*>& Geometry::getSRKeysMap() {
+  return _SR_keys_map;
 }
 
 
 /**
- * @brief Returns the vector that maps FSR IDs to FSR key hashes
- * @return _FSR_keys_map map of FSR keys to FSR IDs
+ * @brief Returns the vector that maps SR IDs to SR key hashes
+ * @return _SR_keys_map map of SR keys to SR IDs
  */
-std::vector<std::string>& Geometry::getFSRsToKeys() {
-  return _FSRs_to_keys;
+std::vector<std::string>& Geometry::getSRsToKeys() {
+  return _SRs_to_keys;
 }
 
 
@@ -1146,30 +1146,30 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 
 
 /**
- * @brief Sets the centroid for an FSR
- * @details The _FSR_keys_map stores a hash of a std::string representing
+ * @brief Sets the centroid for an SR
+ * @details The _SR_keys_map stores a hash of a std::string representing
  *          the Lattice/Cell/Universe hierarchy for a unique region
- *          and the associated FSR data. _centroid is a point that represents
- *          the numerical centroid of an FSR computed using all segments
- *          contained in the FSR. This method is used by the TrackGenerator
+ *          and the associated SR data. _centroid is a point that represents
+ *          the numerical centroid of an SR computed using all segments
+ *          contained in the SR. This method is used by the TrackGenerator
  *          to set the centroid after segments have been created. It is
  *          important to note that this method is a helper function for the
  *          TrackGenerator and should not be explicitly called by the user.
- * @param fsr a FSR ID
- * @param centroid a Point representing the FSR centroid
+ * @param sr a SR ID
+ * @param centroid a Point representing the SR centroid
  */
-void Geometry::setFSRCentroid(int fsr, Point* centroid) {
-  _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
+void Geometry::setSRCentroid(int sr, Point* centroid) {
+  _SR_keys_map.at(_SRs_to_keys[sr])->_centroid = centroid;
 }
 
 
 /**
- * @brief Finds the Cell containing a given fsr ID.
- * @param fsr_id an FSR ID.
+ * @brief Finds the Cell containing a given sr ID.
+ * @param sr_id an SR ID.
  */
-Cell* Geometry::findCellContainingFSR(int fsr_id) {
+Cell* Geometry::findCellContainingSR(int sr_id) {
 
-  Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
+  Point* point = _SR_keys_map.at(_SRs_to_keys[sr_id])->_point;
   LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
                                         point->getZ());
   coords->setUniverse(_root_universe);

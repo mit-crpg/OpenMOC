@@ -30,13 +30,13 @@ class SectorTestHarness(TestHarness):
         self._generate_tracks()
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
-                     num_fsrs=True, num_segments=True, num_tracks=True,
+                     num_srs=True, num_segments=True, num_tracks=True,
                      hash_output=False):
         """Digest info from geometry and return as a string."""
 
         return super(SectorTestHarness, self)._get_results(
                 num_iters=num_iters, keff=keff, fluxes=fluxes,
-                num_fsrs=num_fsrs, num_segments=num_segments,
+                num_srs=num_srs, num_segments=num_segments,
                 num_tracks=num_tracks, hash_output=hash_output)
 
 
