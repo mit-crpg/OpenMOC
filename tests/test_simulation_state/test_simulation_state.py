@@ -60,6 +60,8 @@ class SimulationStateTestHarness(TestHarness):
                         values = \
                             ['{0:12.6E}'.format(val) for val in value.ravel()]
                         outstr += '\n'.join(values) + '\n'
+                    elif isinstance(value, float):
+                        outstr += '{0}:\t{1:.10f}\n'.format(key3, value)
                     else:
                         outstr += '{0}:\t{1}\n'.format(key3, value)
 
@@ -83,6 +85,8 @@ class SimulationStateTestHarness(TestHarness):
                         values = \
                             ['{0:12.6E}'.format(val) for val in value.ravel()]
                         outstr += '\n'.join(values) + '\n'
+                    elif isinstance(value, float):
+                        outstr += '{0}:\t{1:.10f}\n'.format(key3, value)
                     else:
                         outstr += '{0}:\t{1}\n'.format(key3, value)
 
