@@ -14,10 +14,6 @@
 #include "Geometry.h"
 
 
-/* Forward declaration of TrackGenerator */
-class TrackGenerator;
-
-
 /**
  * @class MOCKernel MOCKernel.h "src/MOCKernel.h"
  * @brief An MOCKernel object specifies a functionality to apply to MOC
@@ -37,25 +33,36 @@ class MOCKernel {
 
 protected:
 
+  /** Pointer to segment data */
+  segment* _segments;
+
   /** Count referring to the segment number */
   int _count;
+
+  /** Pointer to floating point data */
+  FP_PRECISION* _buffer;
+
+  /** A weight to be applied to segmentation data, if applicable */
+  FP_PRECISION _weight;
 
   /** Maximum optical path length when forming segments */
   FP_PRECISION _max_tau;
 
 public:
 
-  MOCKernel(TrackGenerator* track_generator, int row_num);
+  MOCKernel();
   virtual ~MOCKernel();
 
-  /* Function to get the current segment count */
+  /* Set parameters */
+  void setSegments(segment* segments);
+  void setWeight(FP_PRECISION weight);
+  void setMaxVal(FP_PRECISION max_tau);
+  void resetCount();
+  void setBuffer(FP_PRECISION* buffer);
+  void setFSRLocks(omp_lock_t* fsr_locks);
+
+  /* Get parameters */
   int getCount();
-
-  /* Sets the max optical path length to a different value */
-  void setMaxOpticalLength(FP_PRECISION max_tau);
-
-  /* Prepare MOCKernel for handling a new track */
-  virtual void newTrack(Track* track);
 
   /* Executing function describes kernel behavior */
   virtual void execute(FP_PRECISION length, Material* mat, int id,
@@ -74,7 +81,6 @@ public:
  */
 class CounterKernel: public MOCKernel {
 public:
-  CounterKernel(TrackGenerator* track_generator, int row_num);
   void execute(FP_PRECISION length, Material* mat, int id,
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
@@ -91,21 +97,18 @@ public:
  */
 class VolumeKernel: public MOCKernel {
 
-private:
+protected:
 
   /** Array of FSR locks */
   omp_lock_t* _FSR_locks;
 
-  /** Pointer to array of FSR volumes */
-  FP_PRECISION* _FSR_volumes;
-
-  /** A weight to be applied to segmentation data, if applicable */
-  FP_PRECISION _weight;
+  /** Maximum optical path length when forming segments */
+  FP_PRECISION _max_tau;
 
 public:
 
-  VolumeKernel(TrackGenerator* track_generator, int row_num);
-  void newTrack(Track* track);
+  VolumeKernel(omp_lock_t* FSR_locks);
+  virtual ~VolumeKernel();
   void execute(FP_PRECISION length, Material* mat, int id,
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
@@ -120,14 +123,7 @@ public:
  *          segments.
  */
 class SegmentationKernel: public MOCKernel {
-
-private:
-
-  /** Pointer to segment data */
-  segment* _segments;
-
 public:
-  SegmentationKernel(TrackGenerator* track_generator, int row_num);
   void execute(FP_PRECISION length, Material* mat, int id,
       int cmfd_surface_fwd, int cmfd_surface_bwd);
 };

@@ -38,6 +38,7 @@ int CPUSolver::getNumThreads() {
  * @param num_threads the number of threads
  */
 void CPUSolver::setNumThreads(int num_threads) {
+
   if (num_threads <= 0)
     log_printf(ERROR, "Unable to set the number of threads to %d "
                "since it is less than or equal to 0", num_threads);
@@ -71,7 +72,7 @@ void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
 
   /* Warn the user if a fixed source has already been assigned to this FSR */
   if (_fixed_sources(fsr_id,group-1) != 0.)
-    log_printf(WARNING, "Overriding fixed source %f in FSR ID=%d with %f",
+    log_printf(WARNING, "Over-riding fixed source %f in FSR ID=%d with %f",
                _fixed_sources(fsr_id,group-1), fsr_id, source);
 
   /* Store the fixed source for this FSR and energy group */
@@ -571,7 +572,106 @@ void CPUSolver::computeKeff() {
  */
 void CPUSolver::transportSweep() {
 
-  log_printf(DEBUG, "Transport sweep with %d OpenMP threads",
+  if (_OTF) {
+    transportSweepOTF();
+    return;
+  }
+
+  int min_track, max_track;
+  Track* curr_track;
+  int azim_index, polar_index;
+  int num_segments;
+  segment* curr_segment;
+  segment* segments;
+  FP_PRECISION* track_flux;
+  FP_PRECISION thread_fsr_flux[_num_groups];
+
+  for (int g=0; g < _num_groups; g++)
+    thread_fsr_flux[g] = 0.0;
+
+  log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
+
+  /* Initialize flux in each FSR to zero */
+  flattenFSRFluxes(0.0);
+
+  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
+    _cmfd->zeroCurrents();
+
+  /* Copy starting flux to current flux */
+  copyBoundaryFluxes();
+
+  /* Loop over all parallel track groups */
+  for (int i=0; i < _num_parallel_track_groups; i++) {
+
+    /* Compute the minimum and maximum Track IDs corresponding to
+     * the current parallel tracks group */
+    min_track = _num_tracks_by_parallel_group[i];
+    max_track = _num_tracks_by_parallel_group[i+1];
+
+    #pragma omp parallel for private(curr_track, azim_index, polar_index, \
+                                     num_segments, curr_segment,        \
+                                     segments, track_flux) schedule(guided)
+    for (int track_id=min_track; track_id < max_track; track_id++) {
+
+      FP_PRECISION thread_fsr_flux[_num_groups];
+      curr_track = _tracks[track_id];
+      azim_index = _quad->getFirstOctantAzim(curr_track->getAzimIndex());
+
+      /* Get the polar index */
+      if (_solve_3D)
+        polar_index = static_cast<Track3D*>(_tracks[track_id])->
+          getPolarIndex();
+      else
+        polar_index = 0;
+
+      /* Initialize local pointers to important data structures */
+      num_segments = curr_track->getNumSegments();
+      segments = curr_track->getSegments();
+      track_flux = &_boundary_flux(track_id, 0, 0);
+
+      /* Loop over each Track segment in forward direction */
+      for (int s=0; s < num_segments; s++) {
+        curr_segment = &segments[s];
+        tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
+                        thread_fsr_flux);
+        tallyCurrent(curr_segment, azim_index, polar_index, track_flux, true);
+      }
+
+      /* Transfer boundary angular flux to outgoing Track */
+      transferBoundaryFlux(track_id, azim_index, polar_index, true, track_flux);
+
+      /* Get the backward track flux */
+      track_flux = &_boundary_flux(track_id,1,0);
+
+      /* Loop over each Track segment in reverse direction */
+      for (int s=num_segments-1; s > -1; s--) {
+        curr_segment = &segments[s];
+        tallyScalarFlux(curr_segment, azim_index, polar_index, track_flux,
+                        thread_fsr_flux);
+        tallyCurrent(curr_segment, azim_index, polar_index, track_flux, false);
+      }
+
+      /* Transfer boundary angular flux to outgoing Track */
+      transferBoundaryFlux
+        (track_id, azim_index, polar_index, false, track_flux);
+    }
+  }
+}
+
+
+/**
+ * @brief This method performs one transport sweep of all azimuthal angles,
+ *        Tracks, Track segments, polar angles and energy groups using
+ *        on-the-fly axial ray tracing.
+ * @details The method integrates the flux along each Track and updates the
+ *          boundary fluxes for the corresponding output Track, while updating
+ *          the scalar flux in each flat source region. Computation is
+ *          parallelized over 2D tracks and 3D segments are formed with
+ *          on-the-fly axial ray tracing.
+ */
+void CPUSolver::transportSweepOTF() {
+
+  log_printf(DEBUG, "On-the-fly transport sweep with %d OpenMP threads",
       _num_threads);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
@@ -580,14 +680,91 @@ void CPUSolver::transportSweep() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
+  /* Allocate array of segments */
+  int max_num_segments = _track_generator->getMaxNumSegments();
+  segment segments[max_num_segments];
+
+  /* Create MOC segmentation kernel */
+  SegmentationKernel kernel;
+  kernel.setMaxVal(_track_generator->retrieveMaxOpticalLength());
+
+  /* Unpack information from track generator */
+  int num_2D_tracks = _track_generator->getNum2DTracks();
+  Track** flattened_tracks = _track_generator->getFlattenedTracksArray();
+  Track3D**** tracks_3D = _track_generator->get3DTracks();
+
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
 
-  /* Tracks are traversed and the MOC equations from this CPUSolver are applied
-     to all Tracks and corresponding segments */
-  TransportSweep sweep_tracks(_track_generator);
-  sweep_tracks.setCPUSolver(this);
-  sweep_tracks.execute();
+  /* Parallelize over 2D extruded tracks */
+  #pragma omp parallel for firstprivate(segments, kernel)
+  for (int track_id=0; track_id < num_2D_tracks; track_id++) {
+
+    /* Set the segments of this thread's kernel to its segments */
+    kernel.setSegments(segments);
+
+    /* Extract indices of 3D tracks associated with the extruded track */
+    Track* flattened_track = flattened_tracks[track_id];
+    int a = flattened_track->getAzimIndex();
+    int azim_index = _quad->getFirstOctantAzim(a);
+    int i = flattened_track->getXYIndex();
+
+    FP_PRECISION* track_flux;
+    FP_PRECISION thread_fsr_flux[_num_groups];
+
+    /* Loop over polar angles */
+    for (int p=0; p < _num_polar; p++) {
+
+      /* Loop over z-stacked rays */
+      for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+
+        /* Extract track and flux data */
+        Track3D* curr_track = &tracks_3D[a][i][p][z];
+        int track_id = curr_track->getUid();
+        track_flux = &_boundary_flux(track_id, 0, 0);
+        double theta = curr_track->getTheta();
+
+        /* Follow track to determine segments */
+        kernel.resetCount();
+        Point* start = curr_track->getStart();
+        _track_generator->traceSegmentsOTF(flattened_track, start, theta,
+            &kernel);
+
+        int polar_index = curr_track->getPolarIndex();
+        int num_segments = curr_track->getNumSegments();
+
+        /* Transport segments forward */
+        for (int s=0; s < num_segments; s++) {
+
+          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
+              thread_fsr_flux);
+
+          tallyCurrent(&segments[s], azim_index, polar_index, track_flux, true);
+        }
+
+        /* Transfer boundary angular flux to outgoing Track */
+        transferBoundaryFlux(track_id, azim_index, polar_index, true,
+            track_flux);
+
+        /* Get the backward track flux */
+        track_flux = &_boundary_flux(track_id, 1, 0);
+
+        /* Transport segments backwards */
+        for (int s=num_segments-1; s > -1; s--) {
+
+          tallyScalarFlux(&segments[s], azim_index, polar_index, track_flux,
+              thread_fsr_flux);
+
+          tallyCurrent(&segments[s], azim_index, polar_index, track_flux,
+              false);
+        }
+
+        /* Transfer boundary angular flux to outgoing Track */
+        transferBoundaryFlux(track_id, azim_index, polar_index, false,
+            track_flux);
+      }
+    }
+  }
 }
 
 
