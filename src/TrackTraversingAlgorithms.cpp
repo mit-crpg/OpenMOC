@@ -269,9 +269,9 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
   /* Extract track information */
   Point* start = track->getStart();
-  double xx = start->getX();
-  double yy = start->getY();
-  double zz = start->getZ();
+  double x = start->getX();
+  double y = start->getY();
+  double z = start->getZ();
   double wgt = track->getWeight();
   double phi = track->getPhi();
 
@@ -300,25 +300,25 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
     _centroids[fsr]->
         setX(_centroids[fsr]->getX() + wgt *
-        (xx + cos(phi) * sin_theta * curr_segment->_length / 2.0)
+        (x + cos_phi * sin_theta * curr_segment->_length / 2.0)
         * curr_segment->_length / _FSR_volumes[fsr]);
 
     _centroids[fsr]->
         setY(_centroids[fsr]->getY() + wgt *
-        (yy + sin(phi) * sin_theta * curr_segment->_length / 2.0)
+        (y + sin_phi * sin_theta * curr_segment->_length / 2.0)
         * curr_segment->_length / _FSR_volumes[fsr]);
 
     _centroids[fsr]->
         setZ(_centroids[fsr]->getZ() + wgt *
-        (zz + cos_theta * curr_segment->_length / 2.0)
+        (z + cos_theta * curr_segment->_length / 2.0)
         * curr_segment->_length / _FSR_volumes[fsr]);
 
     /* Unset the lock for this FSR */
     omp_unset_lock(&_FSR_locks[fsr]);
 
-    xx += cos_phi * sin_theta * curr_segment->_length;
-    yy += sin_phi * cos_theta * curr_segment->_length;
-    zz += cos_theta * curr_segment->_length;
+    x += cos_phi * sin_theta * curr_segment->_length;
+    y += sin_phi * sin_theta * curr_segment->_length;
+    z += cos_theta * curr_segment->_length;
   }
 }
 
