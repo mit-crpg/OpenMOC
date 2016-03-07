@@ -165,7 +165,7 @@ private:
   /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
   omp_lock_t* _cell_locks;
 
-  /** Flag indicating whether to the problem is 2D or 3D */
+  /** Flag indicating whether the problem is 2D or 3D */
   bool _solve_3D;
 
   /** Array of azimuthal track spacings */
