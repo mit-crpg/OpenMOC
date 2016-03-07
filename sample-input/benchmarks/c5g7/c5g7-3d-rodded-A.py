@@ -56,10 +56,8 @@ lattices['Root'].setUniverses3D([[[rr, rr, ri],
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = openmoc.Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,9*axial_refines)
-cmfd.setOpticallyThick(True)
 cmfd.setGroupStructure([1,4,8])
 cmfd.setCentroidUpdateOn(False)
 
