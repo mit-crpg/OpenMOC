@@ -12,8 +12,10 @@ from openmoc.options import Options
 options = Options()
 
 num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
+azim_spacing = options.getAzimSpacing()
 num_azim = options.getNumAzimAngles()
+polar_spacing = options.getPolarSpacing()
+num_polar = options.getNumPolarAngles()
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
 
@@ -202,7 +204,7 @@ root_cell.setFill(core_lattice)
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = Cmfd()
-cmfd.setLatticeStructure(110,110)
+cmfd.setLatticeStructure(55,55)
 
 
 ###############################################################################
@@ -223,8 +225,10 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
+                                         azim_spacing, polar_spacing)
 track_generator.setNumThreads(num_threads)
+track_generator.setSolve2D()
 track_generator.generateTracks()
 
 
@@ -252,4 +256,3 @@ plotter.plot_spatial_fluxes(solver, energy_groups=[1,2])
 plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 
 log.py_printf('TITLE', 'Finished')
-

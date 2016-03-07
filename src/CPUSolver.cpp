@@ -730,8 +730,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   int a = azim_index;
 
   /* The change in angular flux along this Track segment in the FSR */
-  FP_PRECISION delta_psi;
-  FP_PRECISION exponential;
+  FP_PRECISION delta_psi, exponential, tau;
 
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
@@ -754,10 +753,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
 
+      tau = sigma_t[e] * length;
+
       /* Loop over polar angles */
       for (p=0; p < _num_polar/2; p++) {
-        exponential = _exp_evaluator->computeExponential
-          (sigma_t[e] * length, a, p);
+        exponential = _exp_evaluator->computeExponential(tau, a, p);
         delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
         fsr_flux[e] += delta_psi * 2.0 * _azim_spacings[a] *
           _quad->getMultiple(a, p) * 4.0 * M_PI;
