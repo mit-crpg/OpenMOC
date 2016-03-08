@@ -446,6 +446,23 @@ void Track::setPeriodicTrackIndex(int index) {
   _periodic_track_index = index;
 }
 
+/**
+ * @brief Sets the direction of the Track in the cycle
+ * @param fwd Whether the Track is pointed in the same direction as the forward
+ *        cycle traversal
+ */
+void Track::setDirectionInCycle(bool fwd) {
+  _direction_in_cycle = fwd;
+}
+
+/**
+ * @brief Sets the weight for the Track
+ * @param weight The weight of the Track
+ */
+void Track::setWeight(FP_PRECISION weight) {
+  _weight = weight;
+}
+
 
 /**
  * @brief Get this Track's periodic cycle id.
@@ -499,11 +516,20 @@ int Track::getReflectiveCycleId() {
 }
 
 
-void Track::setDirectionInCycle(bool fwd) {
-  _direction_in_cycle = fwd;
+/**
+ * @brief Returns the direction of the Track in the cycle
+ * @param _direction_in_cycle A boolean determining if the Track is pointed in
+ *        the same direction as the forward cycle traversal
+ */
+bool Track::getDirectionInCycle() {
+  return _direction_in_cycle;
 }
 
 
-bool Track::getDirectionInCycle() {
-  return _direction_in_cycle;
+/**
+ * @brief Returns the weight for the Track
+ * @return _weight The weight of the Track
+ */
+FP_PRECISION Track::getWeight() {
+  return _weight;
 }

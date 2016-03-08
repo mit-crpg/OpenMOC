@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <omp.h>
 #include <tuple>
+#include "segmentation_type.h"
 #endif
 
 
@@ -126,9 +127,8 @@ private:
   /** Boolean for whether to solve 3D (true) or 2D (false) problem */
   bool _solve_3D;
 
-  /** Boolean for whether to ray trace on the fly (true) or explicitly generate
-   *  segments (false) */
-  bool _OTF;
+  /** Determines the type of track segmentation to use for 3D MOC */
+  segmentationType _segment_formation;
 
   /** The z coord where the 2D tracks should be generated */
   double _z_coord;
@@ -151,14 +151,28 @@ private:
   FP_PRECISION _max_optical_length;
 
   /** Maximum number of track segmenets in a single 3D track for on-the-fly
-    computation */
+   *  computation */
   int _max_num_segments;
+  int _num_columns;
+
+  /** Maximum number of tracks a single 3D track stack for on-the-fly
+   *  computation */
+  int _max_num_tracks_per_stack;
+  int _num_rows;
+
+  /** A matrix of temporary segments are created for on-the-fly methods to
+    * improve efficiency */
+  std::vector<segment**> _temporary_segments;
+  bool _contains_temporary_segments;
 
   /** Boolean to indicate whether the segments should be dumped */
   bool _dump_segments;
 
   /** OpenMP mutual exclusion locks for atomic FSR operations */
   omp_lock_t* _FSR_locks;
+
+  /** A buffer holding the computed FSR volumes */
+  FP_PRECISION* _FSR_volumes;
 
   /** Booleans to indicate whether the Tracks and segments have been generated
    *  (true) or not (false) */
@@ -216,8 +230,13 @@ public:
   double getAzimSpacing(int azim);
   double** getPolarSpacings();
   double getPolarSpacing(int azim, int polar);
+  double getZSpacing(int azim, int polar);
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
+  int getMaxNumTracksPerStack();
+  int getNumRows();
+  int getNumColumns();
+  segment* getTemporarySegments(int thread_id, int row_num);
   int getNumThreads();
   int* getTracksPerCycle();
   int*** getTracksPerStack();
@@ -229,12 +248,10 @@ public:
   int getNumL(int azim, int polar);
   double getDxEff(int azim);
   double getDyEff(int azim);
-  FP_PRECISION* get2DFSRVolumes();
-  FP_PRECISION get2DFSRVolume(int fsr_id);
-  void export3DFSRVolumes(double* out_volumes, int num_fsrs);
-  FP_PRECISION* get3DFSRVolumes();
-  FP_PRECISION* get3DFSRVolumesOTF();
-  FP_PRECISION get3DFSRVolume(int fsr_id);
+  void exportFSRVolumes(double* out_volumes, int num_fsrs);
+  FP_PRECISION* getFSRVolumesBuffer();
+  FP_PRECISION* getFSRVolumes();
+  FP_PRECISION getFSRVolume(int fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
   int getTrackGenerationMethod();
@@ -251,13 +268,15 @@ public:
   void setGeometry(Geometry* geometry);
   void setSolve2D();
   void setSolve3D();
-  void setOTF();
+  void setSegmentFormation(segmentationType segmentation_type);
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setTrackGenerationMethod(int method);
   void setSegmentationHeights(std::vector<double> z_mesh);
   void setGlobalZMesh();
+  void retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs);
   void setMaxOpticalLength(FP_PRECISION tau);
+  void setMaxNumSegments(int max_num_segments);
   void setDumpSegments(bool dump_segments);
 
   /* Worker functions */
@@ -279,17 +298,13 @@ public:
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);
-  int binarySearch(FP_PRECISION* values, int size, FP_PRECISION val, int sign);
   bool isSolve2D();
   bool isSolve3D();
-  bool isOTF();
+  segmentationType getSegmentFormation();
   void dump2DSegmentsToFile();
-  void dump3DSegmentsToFile();
-  bool read2DSegmentsFromFile();
-  bool read3DSegmentsFromFile();
+  void dumpSegmentsToFile();
+  bool readSegmentsFromFile();
   void initializeTrackFileDirectory();
-  void traceSegmentsOTF(Track* flattened_track, Point* start,
-    double theta, MOCKernel* kernel);
   void initialize2DTrackPeriodicIndices();
   void initialize3DTrackPeriodicIndices();
   void initializeTracksArray();

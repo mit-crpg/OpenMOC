@@ -17,6 +17,7 @@
 #include "TrackGenerator.h"
 #include "Cmfd.h"
 #include "ExpEvaluator.h"
+#include "segmentation_type.h"
 #include <math.h>
 #endif
 
@@ -125,10 +126,11 @@ protected:
   int* _num_tracks_by_parallel_group;
   int _num_parallel_track_groups;
 
-  /** Boolean for whether to ray trace on the fly (true) or explicitly generate
-   *  segments (false) */
-  bool _OTF;
+  /** Boolean for whether to solve in 3D (true) or 2D (false) */
   bool _solve_3D;
+
+  /** Determines the type of track segmentation to use for 3D MOC */
+  segmentationType _segment_formation;
 
   /** The total number of Tracks */
   int _tot_num_tracks;
@@ -271,9 +273,9 @@ public:
   bool isUsingExponentialInterpolation();
 
 
-
   virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
+  virtual FP_PRECISION* getBoundaryFlux(int track_id, bool fwd);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
