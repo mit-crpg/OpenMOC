@@ -202,7 +202,7 @@ def compute_material_fluxes(solver, use_hdf5=False):
     all_materials = geometry.getAllMaterials()
     num_groups = all_materials.values()[0].getNumEnergyGroups()
     num_FSRs = geometry.getNumFSRs()
-    fsr_volumes = track_generator.export3DFSRVolumes(num_FSRs)
+    fsr_volumes = track_generator.exportFSRVolumes(num_FSRs)
 
     # Initialize fission rates dictionary
     fluxes = {}
