@@ -82,8 +82,9 @@ track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
                                          azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setOTF()
+track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 track_generator.setSegmentationHeights([0.1])
+track_generator.setGlobalZMesh()
 track_generator.generateTracks()
 
 ###############################################################################

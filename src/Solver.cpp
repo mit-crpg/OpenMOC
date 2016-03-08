@@ -21,7 +21,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _cmfd = NULL;
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
-  _OTF = false;
+  _segment_formation = EXPLICIT_2D;
 
   _tracks = NULL;
   _azim_spacings = NULL;
@@ -56,9 +56,6 @@ Solver::Solver(TrackGenerator* track_generator) {
  *          linear interpolation table.
  */
 Solver::~Solver() {
-
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
 
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
@@ -300,6 +297,17 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 
 
 /**
+ * @brief Returns the boundary flux array at the requested indexes
+ * @param track_id The Track's Unique ID
+ * @param fwd Whether the direction of the angular flux along the track is
+ *        forward (True) or backward (False)
+ */
+FP_PRECISION* Solver::getBoundaryFlux(int track_id, bool fwd) {
+  return &_boundary_flux(track_id, !fwd, 0);
+}
+
+
+/**
  * @brief Sets the Geometry for the Solver.
  * @details This is a private setter method for the Solver and is not
  *          intended to be called by the user.
@@ -332,15 +340,16 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
-  if ((!track_generator->contains2DSegments() && (track_generator->isSolve2D()
-      || track_generator->isOTF())) || (track_generator->isSolve3D() &&
-      !track_generator->isOTF() && !track_generator->contains3DSegments()))
+  segmentationType segment_formation = track_generator->getSegmentFormation();
+  if ((!track_generator->contains2DSegments() &&
+      segment_formation == EXPLICIT_2D) || (segment_formation == EXPLICIT_3D &&
+      !track_generator->contains3DSegments()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
   _solve_3D = _track_generator->isSolve3D();
-  _OTF = _track_generator->isOTF();
+  _segment_formation = _track_generator->getSegmentFormation();
   _num_azim = _track_generator->getNumAzim();
   _tracks_per_stack = _track_generator->getTracksPerStack();
   _azim_spacings = _track_generator->getAzimSpacings();
@@ -510,7 +519,7 @@ void Solver::initializeExpEvaluator() {
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
-    if (!_OTF)
+    if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D)
       _track_generator->splitSegments(max_tau);
     else
       _track_generator->countSegments();
@@ -533,25 +542,21 @@ void Solver::initializeFSRs() {
   log_printf(INFO, "Initializing flat source regions...");
 
   /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
+
+  /* Get an array of volumes indexed by FSR  */
+  _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _num_materials = _geometry->getNumMaterials();
 
-  if (_solve_3D) {
+  if (_solve_3D)
     _fluxes_per_track = _num_groups;
-    _FSR_volumes = _track_generator->get3DFSRVolumes();
-  }
-  else {
+  else
     _fluxes_per_track = _num_groups * _num_polar/2;
-    _FSR_volumes = _track_generator->get2DFSRVolumes();
-  }
 
   /* Generate the FSR centroids */
   _track_generator->generateFSRCentroids(_FSR_volumes);

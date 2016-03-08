@@ -31,6 +31,7 @@
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
   #include "../src/boundary_type.h"
+  #include "../src/segmentation_type.h"
 
   #ifdef ICPC
   #include "../src/VectorizedSolver.h"
@@ -292,7 +293,8 @@ namespace std {
  * quadrature weights using a NumPy array */
 %apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
 
-/* The typemap used to match the method signature for TrackGenerator::export3DFSRVolumes() */
+/* The typemap used to match the method signature for
+ * TrackGenerator::exportFSRVolumes() */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* out_volumes, int num_fsrs)}
 
 
@@ -515,6 +517,7 @@ namespace std {
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/boundary_type.h
+%include ../src/segmentation_type.h
 
 #ifdef ICPC
 %include ../src/VectorizedSolver.h

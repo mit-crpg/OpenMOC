@@ -212,7 +212,7 @@ void ExpEvaluator::initialize() {
       _exp_table[i * 2 + 1] = intercept;
     }
   }
-  else{
+  else {
     _table_size = _num_polar * num_array_values;
     _exp_table = new FP_PRECISION[_table_size];
 
