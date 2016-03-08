@@ -84,7 +84,7 @@ A generalized quadratic surface in 2D is a second order surface with following f
 
    f(x,y) = Ax^2 + By^2 + Fxy + Px + Qy + D = 0
 
-Quadratic surfaces include planes, circles and ellipses. The quadratic surface primitives available in OpenMOC at the date of this writing are displayed in :ref:`Table 1 <table-openmoc-surface-primitives>`.
+Quadratic surfaces include planes, cylinders and ellipsoids. The quadratic surface primitives available in OpenMOC at the date of this writing are displayed in :ref:`Table 1 <table-openmoc-surface-primitives>`.
 
 .. _table-openmoc-surface-primitives:
 
@@ -99,7 +99,7 @@ Quadratic surfaces include planes, circles and ellipses. The quadratic surface p
 | Plane perpendicular  | YPlane     | :math:`y - y_0 = 0`                      | :math:`{y_0}`           |
 | to :math:`y`-axis    |            |                                          |                         |
 +----------------------+------------+------------------------------------------+-------------------------+
-| Circle in the        | Circle     | :math:`(x-x_0)^2 + (y-y_0)^2 - R^2 = 0`  | :math:`{x_0, y_0, R}`   |
+| Circle in the        | ZCylinder  | :math:`(x-x_0)^2 + (y-y_0)^2 - R^2 = 0`  | :math:`{x_0, y_0, R}`   |
 | :math:`xy`-plane     |            |                                          |                         |
 +----------------------+------------+------------------------------------------+-------------------------+
 
@@ -168,10 +168,10 @@ To find the intersection point along some trajectory with a YPlane, substitute t
    f(x+du, y+dv) = (y + dv) - y_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{y-y_0}{v}
 
 
-.. _circle:
+.. _zcylinder:
 
-Circle
-------
+ZCylinder
+---------
 
 A circle in the :math:`xy`-plane centered at :math:`(x_0, y_0)` with radius :math:`R` is described by the following potential equation:
 
@@ -180,7 +180,7 @@ A circle in the :math:`xy`-plane centered at :math:`(x_0, y_0)` with radius :mat
 
    f(x,y) = (x-x_0)^2 + (y-y_0)^2 - R^2 = 0
 
-To find the intersection point along some trajectory with a Circle, substitute the intersection point on the surface :math:`(x+du, y+dv)` into the potential equation, define :math:`\Delta_{x} = x - x_0` and :math:`\Delta_{y} = y - y_0`, and rearrange to find the following parametrized distance :math:`d`:
+To find the intersection point along some trajectory with a ZCylinder, substitute the intersection point on the surface :math:`(x+du, y+dv)` into the potential equation, define :math:`\Delta_{x} = x - x_0` and :math:`\Delta_{y} = y - y_0`, and rearrange to find the following parametrized distance :math:`d`:
 
 .. math::
    :label: circle-distance
@@ -192,7 +192,7 @@ To find the intersection point along some trajectory with a Circle, substitute t
 
    d = \frac{-\Delta_{x}y - \Delta_{y}v \pm \sqrt{[-\Delta_{x}u - \Delta_{y}v]^2 - (u^2+v^2)[\Delta_{x}^2 + \Delta_{y}^2 - R^2]}}{(u^2 + v^2)}
 
-The parametrized distance is in the form of the quadratic formula, and there may be one or two real solutions, or two complex solutions. In the case of one solution, it indicates that the trajectory vector :math:`\hat{n}` merely glances the surface of the Circle. The two solution case represents a trajectory vector that intersects the Circle surface and passes through on the opposite side. Complex solutions are unphysical and represent the fact that the trajectory will not pass through the circle at all.
+The parametrized distance is in the form of the quadratic formula, and there may be one or two real solutions, or two complex solutions. In the case of one solution, it indicates that the trajectory vector :math:`\hat{n}` merely glances the surface of the ZCylinder. The two solution case represents a trajectory vector that intersects the ZCylinder surface and passes through on the opposite side. Complex solutions are unphysical and represent the fact that the trajectory will not pass through the circle at all.
 
 
 .. _cells:
@@ -203,7 +203,7 @@ Cells
 
 A *cell* is defined to be the region bounded by a boolean combination of surface halfspaces. Presently, OpenMOC only permits the use of halfspace intersections and does not support other boolean operations such as unions and differences. The region defined by the cell is subsequently filled by either a material or a *universe*, described in the following section.
 
-:ref:`Figure 5 <figure-cells-pin-cell>` illustrates the use of five surface halfspaces to make up a simple pin cell. The halfspace for each surface is indicated by ":math:`+`" or ":math:`-`" symbols, while each cell is uniquely identified by a color and number. The fuel pin is described by the negative halfspace of the Circle surface, while the moderator is made up of the intersection of the positive halfspace of the Circle and positive/negative halfspaces of the left/right and bottom/top XPlanes and YPlanes, respectively.
+:ref:`Figure 5 <figure-cells-pin-cell>` illustrates the use of five surface halfspaces to make up a simple pin cell. The halfspace for each surface is indicated by ":math:`+`" or ":math:`-`" symbols, while each cell is uniquely identified by a color and number. The fuel pin is described by the negative halfspace of the ZCylinder surface, while the moderator is made up of the intersection of the positive halfspace of the ZCylinder and positive/negative halfspaces of the left/right and bottom/top XPlanes and YPlanes, respectively.
 
 .. _figure-cells-pin-cell:
 
@@ -223,7 +223,7 @@ Universes
 
 A *universe* is a collection of one or more cells that fill the entirety of the :math:`xy`-plane. Each cell may be filled with a material or a separate universe. Universes allow unique structures to be created from cells, and for simple replication of that structure throughout a model by placing it in various locations throughout the geometry. The universe-based CSG formulation in OpenMOC is similar to that used in Monte Carlo neutron transport codes such as [OpenMC]_, [MCNP]_ and [Serpent]_.
 
-A universe of 10 cells constructed from the halfspace intersections of two XPlanes, two YPlanes and one Circle surface is depicted in :ref:`Figure 6 <figure-universe-cells>`. The halfspace for each surface is indicated by ":math:`+`" or ":math:`-`" symbols, while each cell is uniquely identified by a color and number.
+A universe of 10 cells constructed from the halfspace intersections of two XPlanes, two YPlanes and one ZCylinder surface is depicted in :ref:`Figure 6 <figure-universe-cells>`. The halfspace for each surface is indicated by ":math:`+`" or ":math:`-`" symbols, while each cell is uniquely identified by a color and number.
 
 .. _figure-universe-cells:
 

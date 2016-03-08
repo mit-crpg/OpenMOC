@@ -4,13 +4,7 @@ import openmoc
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-options = openmoc.options.Options()
-
-num_threads = options.getNumThreads()
-azim_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+opts = openmoc.options.Options()
 
 openmoc.log.set_log_level('NORMAL')
 
@@ -477,9 +471,10 @@ geometry.setCmfd(cmfd)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim, 
+                                         opts.track_spacing)
 track_generator.setZCoord(-20.0)
-track_generator.setNumThreads(num_threads)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
 
@@ -488,9 +483,9 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = openmoc.CPUSolver(track_generator)
-solver.setConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.computeEigenvalue(max_iters)
+solver.setConvergenceThreshold(opts.tolerance)
+solver.setNumThreads(opts.num_omp_threads)
+solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 
 

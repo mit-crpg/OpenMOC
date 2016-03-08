@@ -243,10 +243,6 @@ void set_log_level(const char* new_level) {
     log_level = RESULT;
     log_printf(INFO, "Logging level set to RESULT");
   }
-  else if (strcmp("UNITTEST", new_level) == 0) {
-    log_level = UNITTEST;
-    log_printf(INFO, "Logging level set to UNITTEST");
-  }
   else if (strcmp("ERROR", new_level) == 0) {
       log_level = ERROR;
       log_printf(INFO, "Logging level set to ERROR");
@@ -289,9 +285,6 @@ const char* get_log_level() {
     break;
   case (RESULT):
     level = "RESULT";
-    break;
-  case (UNITTEST):
-    level = "UNITTEST";
     break;
   case (ERROR):
     level = "ERROR";
@@ -440,20 +433,6 @@ void log_printf(logLevel level, const char* format, ...) {
     case (RESULT):
       {
         std::string level_prefix = "[  RESULT ]  ";
-
-        /* If message is too long for a line, split into many lines */
-        if (int(msg.length()) > line_length)
-          msg_string = create_multiline_msg(level_prefix, msg);
-
-        /* Puts message on single line */
-        else
-          msg_string = level_prefix + msg + "\n";
-
-        break;
-      }
-    case (UNITTEST):
-      {
-        std::string level_prefix = "[   TEST  ]  ";
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)

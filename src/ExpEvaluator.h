@@ -206,5 +206,4 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
   }
 }
 
-
 #endif /* EXPEVALUATOR_H_ */

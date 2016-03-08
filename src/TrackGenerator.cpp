@@ -1704,9 +1704,9 @@ void TrackGenerator::dumpTracksToFile() {
   }
 
   /* Get FSR vector maps */
-  ParallelHashMap<std::string, fsr_data*> & FSR_keys_map =
+  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
-  std::vector<std::string> & FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
   std::string fsr_key;
   int fsr_id;
   double x, y, z;
@@ -1911,9 +1911,9 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Create FSR vector maps */
-  ParallelHashMap<std::string, fsr_data*> & FSR_keys_map =
+  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
-  std::vector<std::string> & FSRs_to_keys =
+  std::vector<std::string>& FSRs_to_keys =
       _geometry->getFSRsToKeys();
   FSR_keys_map.clear();
   FSRs_to_keys.clear();
@@ -2232,9 +2232,9 @@ void TrackGenerator::initializeSegments() {
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
   /* Get the mappings of FSR to keys to fsr_data to update Materials */
-  ParallelHashMap<std::string, fsr_data*> & FSR_keys_map =
+  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
-  std::vector<std::string> & FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
 
 #pragma omp parallel
   {

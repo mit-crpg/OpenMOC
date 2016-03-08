@@ -23,34 +23,34 @@ The ``openmoc.options`` module provides functionality to parse arguments defined
 
 .. code-block:: python
 
-    import openmoc.options as opt
+    import openmoc.options
 
     # Instantiate and Options object
-    options = opt.Options()
+    options = openmoc.options.Options()
 
     # Retrieve runtime options parsed in by the Options object
-    num_threads = options.getNumThreads()
-    track_spacing = options.getTrackSpacing()
-    num_azim = options.getNumAzimAngles()
-    tolerance = options.getTolerance()
-    max_iters = options.getMaxIterations()
+    num_threads = options.num_omp_threads
+    track_spacing = options.track_spacing
+    num_azim = options.num_azim
+    tolerance = options.tolerance
+    max_iters = options.max_iters
     ...
 
-:ref:`Table 1 <table_log_levels>` below itemizes each of the runtime options and the corresponding command line arguments and getter methods for the Options class in the ``openmoc.options`` module.
+:ref:`Table 1 <table_log_levels>` below itemizes each of the runtime options and the corresponding command line arguments and Options class property attributes in the ``openmoc.options`` module.
 
 .. _table_runtime_options:
 
 =============================  =============================================  ======================================================
-Runtime Option                 Command Line Argument                          Options Class Getter Method
+Runtime Option                 Command Line Argument                          Options Class Property Attribute
 =============================  =============================================  ======================================================
 Help                           :option:`-h`, :option:`--help`                 N/A
-No. Azimuthal Angles           :option:`-a`, :option:`--num-azim=`            getNumAzimAngles()
-Track Spacing [cm]             :option:`-s`, :option:`--track-spacing=`       getTrackSpacing()
-Max. No. Source Iterations     :option:`-i`, :option:`--max-iters=`           getMaxIterations()
-Source Convergence Tolerance   :option:`-c`, :option:`--tolerance=`           getTolerance()
-No. OpenMP Threads             :option:`-t`, :option:`--num-omp-threads=`     getNumThreads()
-No. CUDA Thread Blocks         :option:`-b`, :option:`--num-thread-blocks=`   getNumThreadBlocks()
-No. CUDA Threads per Block     :option:`-g`, :option:`--num-gpu-threads=`     getNumThreadsPerBlock()
+No. Azimuthal Angles           :option:`-a`, :option:`--num-azim=`            num_azim
+Track Spacing [cm]             :option:`-s`, :option:`--track-spacing=`       track_spacing
+Max. No. Transport Sweeps      :option:`-i`, :option:`--max-iters=`           max_iters
+Convergence Tolerance          :option:`-c`, :option:`--tolerance=`           tolerance
+No. OpenMP Threads             :option:`-t`, :option:`--num-omp-threads=`     num_omp_threads
+No. CUDA Thread Blocks         :option:`-b`, :option:`--num-thread-blocks=`   num_thread_blocks
+No. CUDA Threads per Block     :option:`-g`, :option:`--num-gpu-threads=`     num_threads_per_block
 =============================  =============================================  ======================================================
 
 **Table 1**: Runtime options and command line arguments supported by the ``openmoc.options`` module.
@@ -78,7 +78,6 @@ Log Level             Note
 :envvar:`WARNING`     A message to warn the user
 :envvar:`CRITICAL`    A message to warn of critical program conditions
 :envvar:`RESULT`      A message containing program results
-:envvar:`UNITTEST`    A message for unit testing
 :envvar:`ERROR`       A message reporting error conditions
 ===================   =======================================================
 
@@ -104,7 +103,6 @@ The following code snippet illustrates how to import the logging module into Pyt
     log.py_printf('TITLE', 'This is a TITLE message')
     log.py_printf('WARNING', 'This is a WARNING message')
     log.py_printf('CRITICAL', 'This is a CRITICAL message')
-    log.py_printf('UNITTEST', 'This is a UNITTEST message')
     log.py_printf('ERROR', 'This is an ERROR message')
 
 And the following is the output displayed to the console and recorded in the log file::
@@ -119,7 +117,6 @@ And the following is the output displayed to the console and recorded in the log
   [  TITLE  ]  *******************************************************************
   [ WARNING ]  This is a WARNING message
   [ CRITICAL]  This is a CRITICAL message
-  [ UNITTEST]  This is a UNITTEST message
   [  ERROR  ]  This is an ERROR message
 
 It should be noted that the ``py_printf(...)`` routine in the logging module is based on the printf_ routine in C/C++ and accepts a variable number of arguments. In particular, this is intended to accept `formatted data`_ to embed formatted integers, floats, strings, etc. in the output message. An example of this feature in use is given below:
@@ -153,16 +150,16 @@ This will result in the following output messages to be printed to the console a
 Materials Specification
 -----------------------
 
-OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the user. OpenMOC does not perform self-shielding or depletion calculations, so isotropic concentrations are not used. In OpenMOC, cross-section data is encapsulated by the ``Material`` class in the main ``openmoc`` Python module. A ``Material`` class may be instantiated in Python and cross-sections may be loaded into it using NumPy_ data arrays as illustrated by the following code snippet:
+OpenMOC uses multi-group macroscopic nuclear cross sections, provided by the user. OpenMOC does not perform self-shielding or depletion calculations, so isotropic concentrations are not used. In OpenMOC, cross section data is encapsulated by the ``Material`` class in the main ``openmoc`` Python module. A ``Material`` class may be instantiated in Python and cross sections may be loaded into it using NumPy_ data arrays as illustrated by the following code snippet:
 
 .. code-block:: python
 
    import openmoc
    import numpy
 
-   # Initialize material cross-sections using NumPy data arrays
+   # Initialize material cross sections using NumPy data arrays
    num_groups = 8
-   sigma_a = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
+   sigma_t = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
    sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
    ...
 
@@ -172,71 +169,63 @@ OpenMOC uses multi-group macroscopic nuclear cross-sections, provided by the use
    # Set the number of energy groups in the material
    material.setNumEnergyGroups(num_groups)
 
-   # Load the cross-section data into the material
-   material.setSigmaA(sigma_a)
-   material.setSigmaT(sigma_f)
+   # Load the cross section data into the material
+   material.setSigmaT(sigma_t)
+   material.setSigmaF(sigma_f)
    ...
 
-For many simulations, defining the nuclear data cross-sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross-sections from an HDF5_ or a Python pickle_ binary file. The ``materialize(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 and pickle binary files is illusrated in the following snippet:
+For many simulations, defining the nuclear data cross sections by hand in a Python script is cumbersome and error-prone. As a result, OpenMOC includes the ``openmoc.materialize`` module for importing nuclear data cross sections from an HDF5_ binary file. The ``load_from_hdf5(...)`` routine is used to import data and instantiate ``Material`` objects returned via a Python dictionary_. The use of the ``openmoc.materialize`` module to import HDF5 binary files is illustrated in the following snippet:
 
 .. code-block:: python
 
     import openmoc
-    import openmoc.materialize as mat
+    import openmoc.materialize as materialize
 
-    # Import cross-section data from an HDF5 file. This instantiates
+    # Import cross section data from an HDF5 file. This instantiates
     # objects for each material and returns them in a dictionary
-    # indexed by a name string defined in the pickle file.
-    hdf5_materials = mat.materialize('materials-data.h5')
+    # indexed by a string name or integer ID
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+                                                directory='/home/myuser')
 
     # Retrieve the material called 'moderator' in the HDF5 file
     moderator = hdf5_materials['moderator']
 
-    # Import cross-section data from a pickle file. This instantiates
-    # objects for each material and returns them in a dictionary
-    # indexed by a name string defined in the pickle file
-    pickle_materials = mat.materialize('materials-data.pkl')
+The ``openmoc.materialize`` module defines a standard for cross section data stored in binary files. First, HDF5 files must include a ``'# groups'`` attribute with the integer number of groups in the top level of the file hierarchy. Second, the string domain type - ``'material'`` or ``'cell'`` - must be specified in the top level of the file hierarchy. This must match the ``domain_type`` keyword argument passed to ``load_from_hdf5(...)`` which can be either ``'material'`` (default) or ``'cell'``. The ``domain_type`` keyword argument is discussed in more detail at the end of this section. Finally, multi-group cross sections to assign by material or cell must be defined as an `HDF5 group`_ with a string name or integer ID to identify the material or cell. The material group must contain the following floating point `HDF5 datasets`_ of multi-group cross section data:
 
-    # Retrieve the material called 'fuel' in the pickle file
-    fuel = pickle_materials['fuel']
+  - ``'transport'`` or ``'total'``
+  - ``'nu-scatter matrix'`` or ``'scatter matrix'``
+  - ``'chi'``
+  - ``'nu-fission'``
+  - ``'fission'`` (optional)
 
-The ``openmoc.materialize`` module defines a standard for cross-section data stored in binary files. First, each HDF5 file must end with the '.h5' or '.hdf5' extension. HDF5 files must include an `Energy Groups` attribute with the integer number of groups in the top level of the file data hierarchy. Each material must be defined as an `HDF5 group`_ with a string name to identify the material. Finally, the material group must contain the following floating point `HDF5 datasets`_:
+Each dataset should be a 1D array of floating point values ordered by increasing energy group (*i.e.*, from highest to lowest energies). This includes the scattering matrix which should be inner strided by outgoing energy group and outer strided by incoming energy group.
 
-  - 'Total XS'
-  - 'Absorption XS'
-  - 'Scattering XS'
-  - 'Fission XS'
-  - 'Nu Fission XS'
-  - 'Chi'
-  - 'Diffusion Coefficient' (optional)
-  - 'Buckling' (optional)
-
-To better understand the necessary HDF file structure, it may be useful to visualize the ``OpenMOC/sample-input/c5g7-materials.h5`` HDF5 file using the HDFView_ graphical tool. The following code snippet illustrates the use of the h5py_ Python HDF5 interface to write an HDF5 file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
+To better understand the necessary HDF file structure, it may be useful to visualize the ``OpenMOC/sample-input/c5g7-mgxs.h5`` HDF5 file using the HDFView_ graphical tool. The following code snippet illustrates the use of the h5py_ Python HDF5 interface to write an HDF5 file with material cross section data adhering to the standard expected by the ``openmoc.materialize`` module:
 
 .. code-block:: python
 
    import numpy
    import h5py
 
-   # Create an HDF5 file to store multi-groups cross-sections
+   # Create an HDF5 file to store multi-groups cross sections
    f = h5py.File('materials-data.h5')
 
    # Set the number of energy groups
-   f.attrs['Energy Groups'] = 8
+   f.attrs['# groups'] = 8
 
    # Material 1
 
    # Create an HDF5 group for this material
    material_group = f.create_group('Material 1')
 
-   # Initialize cross-sections as NumPy data arrays
-   sigma_a = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
-   sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
+   # Initialize cross sections as NumPy data arrays
+   sigma_t = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
+   nu_sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
    ...
 
-   # Create datasets for each cross-section type
-   material_group.create_dataset('Absorption XS', data=sigma_a)
-   material_group.create_dataset('Fission XS', data=sigma_f)
+   # Create datasets for each cross section type
+   material_group.create_dataset('total', data=sigma_t)
+   material_group.create_dataset('nu-fission', data=nu_sigma_f)
    ...
 
    # Material 2
@@ -245,41 +234,34 @@ To better understand the necessary HDF file structure, it may be useful to visua
    # Close and save the HDF5 file
    f.close()
 
-Alternatively, for machines without HDF5 and/or h5py, materials data may be imported from a pickle_ binary file using the ``openmoc.materialize`` module. For pickle files, the materials data should be stored as a Python dictionary_. The dictionary must contain a key/value pair for the number of energy groups, and sub-dictionaries for each material's cross-sections. The following code snippet illustrates how one might populate a pickle file with material cross-section data adhering to the standard expected by the ``openmoc.materialize`` module:
+Lastly, the ``'domain_type'`` parameter may be specified in conjuction with the optional ``geometry`` keyword argument. The ``load_from_hdf5(...)`` routine may be used to load multi-group cross sections directly into a pre-existing OpenMOC ``Geometry`` constructed with ``Materials`` with the same string names *or* integer IDs used as keys in the HDF5 binary file. Likewise, the ``load_from_hdf5(...)`` routine may be used to load multi-group cross sections directly into a pre-existing OpenMOC ``Geometry`` constructed with ``Cells`` with the same string names *or* integer IDs used as keys in the HDF5 binary file. The latter case may be useful when multiple ``Cells`` share the same ``Materials``. This is illustrated with the following code snippet:
 
 .. code-block:: python
 
-   import numpy
-   import pickle
+    import openmoc
+    import openmoc.materialize as materialize
 
-   # Initialize a Python dictionary to store the materials data
-   data = dict()
+    # Build an OpenMOC Geommetry with Materials, Surfaces, Cells, etc.
+    # The Cells must have the same IDs as those used in the HDF5 file
+    ...
+    geometry = openmoc.Geometry()
+    ...
 
-   # Set the number of energy groups
-   data['Energy Groups'] = 8
+    # Import cross section data from an HDF5 file. This instantiates
+    # objects for each material and returns them in a dictionary
+    # indexed by a string name or integer ID
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+                                                directory='/home/myuser',
+						domain_type='cell',
+						geometry=geometry)
 
-   # Material 1
+In this case there is no need to assign the ``Materials`` in the ``hdf5_materials`` dictionary to ``Cells`` since they are already incorporated into the ``Geometry``.
 
-   # Create a sub-dictoinary for this material
-   data['Material 1'] = dict()
+.. note:: If datasets for both ``'transport'`` and ``'total'`` are defined for a material in the HDF5 file, ``openmoc.materialize`` will give precedence to the ``'transport'`` dataset and assign it as the total multi-group cross section.
 
-   # Initialize cross-sections as NumPy data arrays
-   sigma_a = numpy.array([0.1,0.15,0.2,0.25,0.35,0.4,0.45,0.5])
-   sigma_f = numpy.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4])
-   ...
+.. note:: If datasets for both ``'nu-scatter matrix'`` and ``'scatter matrix'`` are defined for a material in the HDF5 file, ``openmoc.materialize`` will give precedence to the ``'nu-scatter matrix'`` dataset and assign it as the multi-group scattering matrix cross section.
 
-   # Create datasets for each cross-section type
-   data['Material 1']['Absorption XS'] = sigma_a
-   data['Material 1']['Fission XS'] = sigma_f
-   ...
-
-   # Material 2
-   ...
-
-   # Dump the Python dictionary of materials data to a pickle file
-   pickle.dump(data, open('materials-data.pkl', 'wb'))
-
-.. note:: Users should note that OpenMOC will assign a minimum value of 1E-10 to all total cross-sections assigned to a ``Material`` object. This prevents numerical divide-by-zero issues in the ``Solver``, and is a useful sanity check when modeling (nearly) void regions - *e.g.*, a fuel pin cell "gap."
+.. note:: Users should note that OpenMOC will assign a minimum value of 1E-10 to all total cross sections assigned to a ``Material`` object. This prevents numerical divide-by-zero issues in the ``Solver``, and is a useful sanity check when modeling (nearly) void regions - *e.g.*, a fuel pin cell "gap."
 
 ----------------------
 Geometry Specification
@@ -297,12 +279,12 @@ The following sections detail how to create surfaces, cells, universes and latti
 Surfaces
 --------
 
-In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in :ref:`Surfaces and Halfspaces <surfaces-halfspaces>`. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the ``Circle``, ``XPlane``, and ``YPlane`` classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 :math:`\times` 4 lattice.
+In most cases, the first step towards building a reactor geometry is to create the surfaces defining boundaries between distinct regions. The CSG formulation for surfaces in OpenMOC is described in detail in :ref:`Surfaces and Halfspaces <surfaces-halfspaces>`. For LWRs, the most typical surfaces needed to model 2D rectangular lattices are the ``ZCylinder``, ``XPlane``, and ``YPlane`` classes. The following code snippet illustrates how to create a circle to represent a fuel pin and reflective boundary planes to surround a 4 :math:`\times` 4 lattice.
 
 .. code-block:: python
 
     # Initialize circular fuel pin surface with an optional string name
-    circle = openmoc.Circle(x=0.0, y=0.0, radius=0.45, name='fuel radius')
+    circle = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.45, name='fuel radius')
 
     # Initialize the planar surfaces bounding the entire geometry
     # with optional string names
@@ -390,13 +372,13 @@ Rings for cases 1 and 2 are create such that each ring is of **equal volume**. R
 
 .. table::
 
-   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+--------------------------------------------------+
-   | .. _figa:                                      | .. _figb:                                        | .. _figc:                                       | .. _figd:                                        |
-   |                                                |                                                  |                                                 |                                                  |
-   | .. image:: ../../img/annular_pin_materials.png | .. image:: ../../img/annular_pin_inner_rings.png | .. image:: ../../img/annular_pin_fuel_rings.png | .. image:: ../../img/annular_pin_outer_rings.png |
-   |   :width: 90 %                                 |   :width: 90 %                                   |   :width: 90 %                                  |   :width: 90 %                                   |
-   |   :align: left                                 |   :align: left                                   |   :align: left                                  |   :align: left                                   |
-   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+--------------------------------------------------+
+   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+----------------------------------------------------+
+   | .. _figure_annular_pin_rings_a:                | .. _figure_annular_pin_rings_b:                  | .. _figure_annular_pin_rings_c:                 | .. _figure_annular_pin_rings_d:                    |
+   |                                                |                                                  |                                                 |                                                    |
+   | .. image:: ../../img/annular_pin_materials.png | .. image:: ../../img/annular_pin_inner_rings.png | .. image:: ../../img/annular_pin_fuel_rings.png | .. image:: ../../img/annular_pin_outer_rings.png   |
+   |   :width: 90 %                                 |   :width: 90 %                                   |   :width: 90 %                                  |   :width: 90 %                                     |
+   |   :align: left                                 |   :align: left                                   |   :align: left                                  |   :align: left                                     |
+   +------------------------------------------------+--------------------------------------------------+-------------------------------------------------+----------------------------------------------------+
 
 The following code snippet illustrates how a user may designate a positive integral number of rings and sectors for fuel pin ``Cells`` and a positive integral number of sectors with no rings for moderator ``Cells`` using the ``Cell.setNumRings(...)`` and ``Cell.setNumSectors(...)`` class methods.
 
@@ -416,7 +398,7 @@ The plots shown below illustrate the pin cell material layout (left) and flat so
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_pin_cell_fsrs_a:                            | .. _figure_pin_cell_fsrs_b:                            |
    |                                                        |                                                        |
    | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs.png                 |
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -442,7 +424,7 @@ Again, the pin cell materials are illustrated below on the left, while the flat 
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_pin_cell_fsrs_moderator_rings_a:            | .. _figure_pin_cell_fsrs_moderator_rings_b:            |
    |                                                        |                                                        |
    | .. image:: ../../img/pin-cell-materials.png            | .. image:: ../../img/pin-cell-fsrs-moderator-rings.png |
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -471,7 +453,7 @@ The annular pin cell materials are illustrated below on the left, with the resul
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_pin_cell_fsrs_moderator_annular_a:          | .. _figure_pin_cell_fsrs_moderator_annular_b:          |
    |                                                        |                                                        |
    | .. image:: ../../img/pin-cell-materials-annular.png    | .. image:: ../../img/pin-cell-fsrs-annular.png         |
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -518,9 +500,6 @@ The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` c
     # Register the root universe with the geometry
     geometry.setRootUniverse(root_univ)
 
-    # Initialize the flat source regions in the geometry
-    geometry.initializeFlatSourceRegions()
-
 
 ----------------
 Track Generation
@@ -560,7 +539,7 @@ The following code snippet illustrates the instantiation of the ``CPUSolver`` fo
     # threads and source convergence threshold
     solver = openmoc.CPUSolver(track_generator)
     solver.setNumThreads(4)
-    solver.setSourceConvergenceThreshold(1E-5)
+    solver.setConvergenceThreshold(1E-5)
 
     # Converge the source with up to a maximum of 1000 source iterations
     solver.computeEigenvalue(1000)
@@ -646,7 +625,7 @@ The first group flux is plotted below. All other flux plots are zero throughout 
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_fixed_source_flux_calc_a:                   | .. _figure_fixed_source_flux_calc_b:                   |
    |                                                        |                                                        |
    | .. image:: ../../img/fs-flux-calc-4-angles-group-1.png | .. image:: ../../img/fs-flux-calc-32-angles-group-1.png|
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -660,7 +639,7 @@ While this case seems ill-suited for the ``computeFlux(...)`` routine, ``compute
 
 where the geometry spans :math:`x \in (-L, L)` and :math:`y \in (-H, H)`. The source can be set using ``setFixedSourceByFSR(...)`` as described above. If the geometry is filled entirely with water and the ``computeFlux(...)`` routine is used to resolve the flux, the solver accurately computes the flux distribution as plotted below.
 
-.. _figure_tracks:
+.. _figure_cosine_flux_distribution:
 
 .. figure:: ../../img/cosine_flux_distribution.png
    :align: center
@@ -684,7 +663,7 @@ The resulting flux distribution in the third energy group (which previously was 
 .. table::
 
    +--------------------------------------------------------+--------------------------------------------------------+
-   | .. _figa:                                              | .. _figb:                                              |
+   | .. _figure_fixed_source_calc_a:                        | .. _figure_fixed_source_calc_b:                        |
    |                                                        |                                                        |
    | .. image:: ../../img/fs-4-angles-group-3.png           | .. image:: ../../img/fs-32-angles-group-3.png          |
    |   :width: 50 %                                         |   :width: 50 %                                         |
@@ -810,8 +789,7 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
     cmfd.setGroupStructure([1,4,8])
     cmfd.setOpticallyThick(False)
     cmfd.setSORRelaxationFactor(1.5)
-    cmfd.setMOCRelaxationFactor(0.66)
-    cmfd.setSourceConvergenceThreshold(1.E-8)
+    cmfd.setConvergenceThreshold(1.E-8)
     cmfd.setFluxUpdateOn(True)
 
     # Initialize the Geometry object
@@ -821,12 +799,11 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
 
 These lines of code should be placed in your input file at the location where the geometry object would be initialize had your problem been set up without CMFD acceleration. In this code, the cmfd object is initialized and the CMFD mesh lattice structure is set. In is generally best to have the CMFD mesh overlap with either the assembly or pincell mesh of the problem, but OpenMOC is designed to accept any regular mesh structure. The optional parameters are described below:
 
-  * ``setMOCRelaxationFactor`` (default: 0.6) - Our formulation of CMFD acceleration requires a static relaxation factor with a float argument between 0 and 1.0 that provides a relaxation on the nonlinear diffusion coefficient as described in the Theory and Methodology section of the OpenMOC documentation. A default value of 0.6 is used and is sufficient for most problems we have tested. If CMFD accelerated MOC seems to diverge, it is suggested that the relaxation factor be reduced until the problem begins to stabilize.
   * ``setFluxUpdateOn`` (default: True) - This function is included to give the users the option to overlay the CMFD mesh, but toggle the CMFD update. If the CMFD mesh breaks up any parts of the geometry, this function be can be used to overlay the CMFD mesh for segmentation, but not perform a CMFD solve and flux update after each MOC iteration. This is useful in comparing runs with and without CMFD and ensuring the exact same segments are used.
   * ``setGroupStructure`` (default: same as MOC group structure) - OpenMOC is able to perform CMFD on a coarse energy group structure to allow fine energy group problems to be accelerated with CMFD without incurring a significant computational overhead for CMFD. This function takes a python list as input with the first value of 1 (to indicate the first energy group) followed by an increasing values ending with the number of energy groups plus 1. In the example above, a 7 group MOC problem is broken up into 2 energy groups for CMFD.
-  * ``setOpticallyThick`` (default: False) - OpenMOC uses an correction factor on the material diffusion coefficients as described in the Theory and Methodology section. This correction factor is turned off by default.
+  * ``setOpticallyThick`` (default: False) - OpenMOC uses a correction factor on the material diffusion coefficients as described in the Theory and Methodology section. This correction factor is turned off by default.
   * ``setSORRelaxationFactor`` (default: 1.0) - As described in the Theory and Methodology section, OpenMOC use the successive over-relaxation method (SOR) to solve the CMFD diffusion eigenvalue problem. The SOR method can use an over-relaxation factor to speed up the convergence of problems. Valid input for the SOR relaxation factor are values between 0 and 2. By default the SOR factor is set to 1.0, reducing the SOR method to the Gauss-Seidel method.
-  * ``setSourceConvergenceThreshold`` (default: 1.E-7) - This method is used to set the convergence of the root-mean-square-error on the region and group wise fission source of the CMFD diffusion eigenvalue problem. By default, the convergence threshold is set at 1.E-7 and is sufficient for most problems.
+  * ``setConvergenceThreshold`` (default: 1.E-7) - This method is used to set the convergence of the root-mean-square-error on the region and group wise fission source of the CMFD diffusion eigenvalue problem. By default, the convergence threshold is set at 1.E-7 and is sufficient for most problems.
 
 With those few additional lines of code, you should be able to create an input file for any problem and utilize CMFD acceleration. The input file ``c5g7-cmfd.py`` provides a good example of how an input file is constructed that uses CMFD acceleration.
 
@@ -840,12 +817,11 @@ With those few additional lines of code, you should be able to create an input f
 .. _C5G7 benchmark problem: https://github.com/mit-crpg/OpenMOC/tree/master/sample-input/benchmarks/c5g7
 .. _NumPy: http://www.numpy.org/
 .. _HDF5: http://www.hdfgroup.org/HDF5/
-.. _pickle: http://docs.python.org/2/library/pickle.html
 .. _dictionary: http://docs.python.org/2/tutorial/datastructures.html#dictionaries
 .. _HDFView: http://www.hdfgroup.org/products/java/hdfview/
 .. _h5py: http://www.h5py.org/
-.. _HDF5 group: http://www.hdfgroup.org/HDF5/doc/UG/UG_frame09Groups.html
-.. _HDF5 datasets: http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html
+.. _HDF5 group: http://docs.h5py.org/en/latest/high/group.html
+.. _HDF5 datasets: http://docs.h5py.org/en/latest/high/dataset.html
 .. _discretization: http://en.wikipedia.org/wiki/Discretization
 .. _polar coordinates: http://en.wikipedia.org/wiki/Polar_coordinate_system
 .. _unstructured mesh: http://en.wikipedia.org/wiki/Unstructured_grid

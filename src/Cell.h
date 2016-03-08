@@ -116,6 +116,9 @@ private:
   /** The number of sectors sub-dividing this Cell */
   int _num_sectors;
 
+  /** A parent Cell if cloned by another Cell */
+  Cell* _parent;
+
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
   std::map<int, surface_halfspace*> _surfaces;
 
@@ -161,6 +164,9 @@ public:
   int getNumSurfaces() const;
   std::map<int, surface_halfspace*> getSurfaces() const;
   std::vector<Cell*> getNeighbors() const;
+  bool hasParent();
+  Cell* getParent();
+  Cell* getOldestAncestor();
 
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
@@ -176,6 +182,7 @@ public:
   void setTranslation(double* translation, int num_axes);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
+  void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
   void removeSurface(Surface* surface);
   void addNeighborCell(Cell* cell);

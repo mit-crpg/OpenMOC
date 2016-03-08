@@ -107,7 +107,7 @@ The maximum number of source convergence iterations. The MOC solvers will execut
 
 .. option:: -c, --tolerance=<1E-5>
 
-The tolerance on the source convergence. The default is 1E-5.
+The tolerance on the convergence. The default is 1E-5.
 
 
 .. option:: -t, --num-omp-threads=<# CPU cores>
@@ -131,11 +131,11 @@ The number of CUDA threads per threadblock. This option only applies to scripts 
      import openmoc.cuda as cuda
 
      if cuda.machine_contains_gpu():
-       num_threads = cuda.get_num_threads_per_warp()
-       print 'This machines GPU contains %d threads per warp' % (num_threads)
+         num_threads = cuda.get_num_threads_per_warp()
+         print 'This machines GPU contains %d threads per warp' % (num_threads)
   
      else:
-       print 'This machine does not contain an NVIDIA CUDA-enabled GPU'
+         print 'This machine does not contain an NVIDIA CUDA-enabled GPU'
 
 
 -------------------------------
