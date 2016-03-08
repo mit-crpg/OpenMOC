@@ -269,10 +269,12 @@ void CPULSSolver::computeFSRSources() {
         src_y = scatter_source_y + fission_source_y;
 
         /* Compute total (scatter+fission+fixed) reduced source moments */
-        _reduced_sources_xy(r,g,0) = ONE_OVER_FOUR_PI / (det * sigma_t[g]) *
+        _reduced_sources_xy(r,g,0) = ONE_OVER_FOUR_PI /
+            (2 * det * sigma_t[g] * sigma_t[g]) *
             (_FSR_lin_exp_matrix[r*3+1] * src_x -
              _FSR_lin_exp_matrix[r*3+2] * src_y);
-        _reduced_sources_xy(r,g,1) = ONE_OVER_FOUR_PI / (det * sigma_t[g]) *
+        _reduced_sources_xy(r,g,1) = ONE_OVER_FOUR_PI /
+            (2 * det * sigma_t[g] * sigma_t[g]) *
             (_FSR_lin_exp_matrix[r*3  ] * src_y -
              _FSR_lin_exp_matrix[r*3+2] * src_x);
       }
@@ -457,9 +459,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     polar_wgt_exp_h = 0.0;
 
     /* Compute the flat component of the reduced source */
-    src_flat = _reduced_sources(fsr_id, e) +
-        _reduced_sources_xy(fsr_id, e, 0) * xc +
-        _reduced_sources_xy(fsr_id, e, 1) * yc;
+    src_flat = _reduced_sources(fsr_id, e) + 2 * sigma_t[e] *
+        (_reduced_sources_xy(fsr_id, e, 0) * xc +
+         _reduced_sources_xy(fsr_id, e, 1) * yc);
 
     for (int p=0; p < _num_polar; p++) {
 
@@ -516,7 +518,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 
 #pragma omp parallel
   {
-    FP_PRECISION volume;
+    FP_PRECISION volume, flux_const;
     FP_PRECISION* sigma_t;
 
     /* Add in source term and normalize flux to volume for each FSR */
@@ -528,22 +530,24 @@ void CPULSSolver::addSourceToScalarFlux() {
 
       for (int e=0; e < _num_groups; e++) {
 
+        flux_const = FOUR_PI * 2 * sigma_t[e];
+
         _scalar_flux(r,e) *= 0.5;
         _scalar_flux(r,e) /= (sigma_t[e] * volume);
         _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
 
         _scalar_flux_xy(r,e,0) *= 0.5;
         _scalar_flux_xy(r,e,0) /= (sigma_t[e] * volume);
-        _scalar_flux_xy(r,e,0) += FOUR_PI * _reduced_sources_xy(r,e,0)
+        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,0)
             * _FSR_source_constants[r*_num_groups*3 + 3*e];
-        _scalar_flux_xy(r,e,0) += FOUR_PI * _reduced_sources_xy(r,e,1)
+        _scalar_flux_xy(r,e,0) += flux_const * _reduced_sources_xy(r,e,1)
             * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
 
         _scalar_flux_xy(r,e,1) *= 0.5;
         _scalar_flux_xy(r,e,1) /= (sigma_t[e] * volume);
-        _scalar_flux_xy(r,e,1) += FOUR_PI * _reduced_sources_xy(r,e,1)
+        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,1)
             * _FSR_source_constants[r*_num_groups*3 + 3*e + 1];
-        _scalar_flux_xy(r,e,1) += FOUR_PI * _reduced_sources_xy(r,e,0)
+        _scalar_flux_xy(r,e,1) += flux_const * _reduced_sources_xy(r,e,0)
             * _FSR_source_constants[r*_num_groups*3 + 3*e + 2];
       }
     }
