@@ -450,12 +450,12 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     Returns
     -------
-    fsrs_to_sph : numpy.ndarray of Real
-        A NumPy array of SPH factors indexed by FSR and energy group
+    srs_to_sph : numpy.ndarray of Real
+        A NumPy array of SPH factors indexed by SR and energy group
     sph_mgxs_lib : openmc.mgxs.Library
         A OpenMC MGXS library with the SPH factors applied to each MGXS
-    sph_to_fsrs_indices : numpy.ndarray of Integral
-        A NumPy array of all fissionable FSRs to which SPH factors were applied
+    sph_to_srs_indices : numpy.ndarray of Integral
+        A NumPy array of all fissionable SRs to which SPH factors were applied
 
     """
 

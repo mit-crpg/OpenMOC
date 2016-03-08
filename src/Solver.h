@@ -296,7 +296,7 @@ public:
   /**
    * @brief Computes the residual between successive flux/source iterations.
    * @param res_type the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)
-   * @return the total residual summed over FSRs and energy groups
+   * @return the total residual summed over SRs and energy groups
    */
   virtual double computeResidual(residualType res_type) = 0;
 

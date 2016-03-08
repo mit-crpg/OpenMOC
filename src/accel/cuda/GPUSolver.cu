@@ -778,11 +778,11 @@ int GPUSolver::getNumThreadsPerBlock() {
 
 
 /**
- * @brief Returns the source for some energy group for a flat source region
+ * @brief Returns the source for some energy group for a source region
  * @details This is a helper routine used by the openmoc.process module.
  * @param sr_id the ID for the SR of interest
  * @param group the energy group of interest
- * @return the flat source region source
+ * @return the source region source
  */
 FP_PRECISION GPUSolver::getSRSource(int sr_id, int group) {
 
@@ -1473,7 +1473,7 @@ void GPUSolver::computeSRScatterSources() {
  *        Tracks, Track segments, polar angles and energy groups.
  * @details The method integrates the flux along each Track and updates the
  *          boundary fluxes for the corresponding output Track, while updating
- *          the scalar flux in each flat source region.
+ *          the scalar flux in each source region.
  */
 void GPUSolver::transportSweep() {
 
@@ -1566,7 +1566,7 @@ void GPUSolver::computeKeff() {
  * @brief Computes the residual between source/flux iterations.
  * @param res_type the type of residuals to compute
  *        (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)
- * @return the average residual in each flat source region
+ * @return the average residual in each source region
  */
 double GPUSolver::computeResidual(residualType res_type) {
 
