@@ -10,6 +10,9 @@
 
 
 #ifdef __cplusplus
+#ifdef SWIG
+#include "Python.h"
+#endif
 #include <math.h>
 #include <map>
 #include <vector>

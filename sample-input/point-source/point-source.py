@@ -4,13 +4,7 @@ import openmoc
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = openmoc.options.Options()
-
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+opts = openmoc.options.Options()
 
 openmoc.log.set_log_level('NORMAL')
 
@@ -120,8 +114,9 @@ geometry.setRootUniverse(root_universe)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.track_spacing)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
 
@@ -130,10 +125,10 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = openmoc.CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
-solver.setConvergenceThreshold(tolerance)
+solver.setNumThreads(opts.num_omp_threads)
+solver.setConvergenceThreshold(opts.tolerance)
 solver.setFixedSourceByCell(source_cell, 1, 1.0)
-solver.computeSource(max_iters)
+solver.computeSource(opts.max_iters)
 solver.printTimerReport()
 
 

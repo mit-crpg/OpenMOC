@@ -1,4 +1,4 @@
-#include "GPUSolver.h"
+include "GPUSolver.h"
 
 /** The number of azimuthal angles */
 __constant__ int num_azim[1];
@@ -685,9 +685,9 @@ __global__ void computeSRFissionRatesOnDevice(FP_PRECISION* SR_volumes,
 
     FP_PRECISION curr_fiss = 0.;
 
-    /* Compute nu-fission rates rates for this thread block */
+    /* Compute fission rates rates for this thread block */
     for (int e=0; e < *num_groups; e++)
-      curr_fiss += nu_sigma_f[e] * scalar_flux(tid,e);
+      curr_fiss += sigma_f[e] * scalar_flux(tid,e);
 
     fiss += curr_fiss * volume;
 

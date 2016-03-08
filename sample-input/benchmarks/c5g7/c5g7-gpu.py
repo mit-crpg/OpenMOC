@@ -5,13 +5,7 @@ from openmoc.cuda import GPUSolver
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = openmoc.options.Options()
-
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+opts = openmoc.options.Options()
 
 openmoc.log.set_log_level('NORMAL')
 
@@ -26,7 +20,8 @@ openmoc.log.py_printf('TITLE', \
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 from geometry import geometry
-track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim, 
+                                         opts.track_spacing)
 track_generator.generateTracks()
 
 
@@ -35,8 +30,8 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = GPUSolver(track_generator)
-solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
+solver.setConvergenceThreshold(opts.tolerance)
+solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 
 

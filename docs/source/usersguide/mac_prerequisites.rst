@@ -54,9 +54,6 @@ There are a few prerequisites which must be installed on your machine before you
 
 	sudo port install py27-numpy
 
-      .. note:: Although NumPy is considered a required dependency, OpenMOC can be built using the :option:`--no-numpy` compile time option. This will build an OpenMOC distribution without embedding the NumPy C API into the source code. When built in this mode, users will be unable to pass NumPy arrays from Python into OpenMOC's C++ extension modules (i.e., assigning multigroup nuclear cross-section data) or retrieve data from OpenMOC into NumPy arrays for data analysis (i.e., scalar fluxes or pin powers). The :option:`--no-numpy` mode is useful, however, on machines such as IBM's BlueGene_ supercomputers which may not have NumPy installations.
-
-
 .. admonition:: Optional
 
     * matplotlib_

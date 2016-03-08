@@ -102,7 +102,8 @@ class TestHarness(object):
             self._write_results(results)
             self._compare_results()
         finally:
-            self._cleanup()
+            a = 1
+            #self._cleanup()
 
     def _update_results(self):
         """Update the results_true using the current version of OpenMOC."""
@@ -204,7 +205,7 @@ class TestHarness(object):
         outputs = [os.path.join(os.getcwd(), 'tracks')]
         outputs.append(os.path.join(os.getcwd(), 'log'))
         outputs.append(os.path.join(os.getcwd(), 'plots'))
-        outputs.append(os.path.join(os.getcwd(), 'simulation-state'))
+        outputs.append(os.path.join(os.getcwd(), 'simulation-states'))
         outputs.append(os.path.join(os.getcwd(), 'fission-rates'))
         outputs.append(os.path.join(os.getcwd(), 'results_test.dat'))
 

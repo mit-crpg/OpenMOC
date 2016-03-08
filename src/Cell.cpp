@@ -80,6 +80,7 @@ Cell::Cell(int id, const char* name) {
 
   _num_rings = 0;
   _num_sectors = 0;
+  _parent = NULL;
 }
 
 
@@ -644,6 +645,56 @@ std::vector<Cell*> Cell::getNeighbors() const {
 
 
 /**
+ * @brief Return true if the Cell has a parent and false otherwise.
+ * @return whether the Cell has a parent Cell
+ */
+bool Cell::hasParent() {
+  if (_parent == NULL)
+    return false;
+  else
+    return true;
+}
+
+
+/**
+ * @brief Return this Cell's parent Cell.
+ * @details If no parent Cell has been assigned from Cell cloning, then
+ *          NULL is returned.
+ * @return a pointer to the parent Cell
+ */
+Cell* Cell::getParent() {
+  return _parent;
+}
+
+
+/**
+ * @brief Get the oldest ancestor Cell for this Cell.
+ * @details This method traverses the linked list of parent Cells to find
+ *          the one at the root node. The oldest ancestor Cell is likely the
+ *          one created by the user at runtime, while intermediate ancestors
+ *          were created during radial and angular spatial discretization.
+ * @return this Cell's oldest ancestor Cell
+ */
+Cell* Cell::getOldestAncestor() {
+
+  /* If this Cell has no parent, return NULL */
+  if (_parent == NULL)
+    return _parent;
+
+  /* Otherwise, navigate to the first parent Cell */
+  else {
+    /* Traverse linked list to the root node */
+    Cell* curr = _parent;
+    while (curr->hasParent())
+      curr = curr->getParent();
+
+    return curr;
+  }
+}
+
+
+
+/**
  * @brief Returns the std::map of Cell IDs and Cell pointers within any
  *        nested Universes filling this Cell.
  * @return std::map of Cell IDs and pointers
@@ -896,6 +947,17 @@ void Cell::setNumSectors(int num_sectors) {
 
 
 /**
+ * @brief Assign a parent Cell to this Cell.
+ * @details This is used by Cell cloning when applied for radial and
+ *          angular discretization.
+ * @param parent a pointer to the parent Cell
+ */
+void Cell::setParent(Cell* parent) {
+  _parent = parent;
+}
+
+
+/**
  * @brief Insert a Surface into this Cell's container of bounding Surfaces.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
@@ -1036,6 +1098,7 @@ Cell* Cell::clone() {
   new_cell->setName(_name);
   new_cell->setNumRings(_num_rings);
   new_cell->setNumSectors(_num_sectors);
+  new_cell->setParent(this);
 
   if (_cell_type == MATERIAL)
     new_cell->setFill((Material*)_fill);
