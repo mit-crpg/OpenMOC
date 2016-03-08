@@ -212,7 +212,7 @@ void ExpEvaluator::initialize() {
       _exp_table[i * 2 + 1] = intercept;
     }
   }
-  else{
+  else {
     _table_size = _num_polar * num_array_values;
     _exp_table = new FP_PRECISION[_table_size];
 
@@ -259,7 +259,7 @@ FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim,
       exponential = (1. - (_exp_table[index * 2] * tau +
                            _exp_table[index * 2 + 1]));
     }
-    else{
+    else {
       index *= _num_polar;
       exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                            _exp_table[index + 2 * polar + 1]));

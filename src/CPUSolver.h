@@ -12,6 +12,7 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "Solver.h"
+#include "TrackTraversingAlgorithms.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
@@ -58,10 +59,18 @@ protected:
   void normalizeFluxes();
   void computeFSRSources();
   void transportSweep();
-  void transportSweepOTF();
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
+
+public:
+  CPUSolver(TrackGenerator* track_generator=NULL);
+  virtual ~CPUSolver();
+
+  int getNumThreads();
+  void setNumThreads(int num_threads);
+  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
@@ -95,15 +104,6 @@ protected:
   virtual void transferBoundaryFlux(int track_id, int azim_index,
                                     int polar_index, bool direction,
                                     FP_PRECISION* track_flux);
-
-public:
-  CPUSolver(TrackGenerator* track_generator=NULL);
-  virtual ~CPUSolver();
-
-  int getNumThreads();
-  void setNumThreads(int num_threads);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
-  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
 };
 
 
