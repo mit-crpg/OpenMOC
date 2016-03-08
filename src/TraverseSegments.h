@@ -77,11 +77,21 @@ protected:
   /* Returns a matrix of kernels of the requested type */
   template <class KernelType>
   MOCKernel** getKernels() {
-    int num_rows = _track_generator->getNumRows();
-    MOCKernel** kernels = new MOCKernel*[num_rows];
-    for (int z=0; z < num_rows; z++)
-      kernels[z] = new KernelType(_track_generator, z);
-    return kernels;
+
+    /* Check for segmentation kernels in explicit methods */
+    if ((typeid(KernelType) != typeid(SegmentationKernel)) ||
+        ((_segment_formation != EXPLICIT_2D) &&
+        (_segment_formation != EXPLICIT_3D))) {
+
+      /* Allocate kernels */
+      int num_rows = _track_generator->getNumRows();
+      MOCKernel** kernels = new MOCKernel*[num_rows];
+      for (int z=0; z < num_rows; z++)
+        kernels[z] = new KernelType(_track_generator, z);
+      return kernels;
+    }
+    else
+      return NULL;
   }
 
 public:
