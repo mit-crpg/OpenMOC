@@ -559,8 +559,8 @@ void CPUSolver::transportSweep() {
 
       /* Get the polar index */
       if (_solve_3D)
-        polar_index = static_cast<Track3D*>(_tracks[track_id])->
-          getPolarIndex();
+        polar_index = _quad->getFirstOctantPolar
+            (static_cast<Track3D*>(_tracks[track_id])->getPolarIndex());
       else
         polar_index = 0;
 
@@ -728,6 +728,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   int p, pe;
   int a = azim_index;
+  FP_PRECISION** multiples = _quad->getMultiples();
+  FP_PRECISION azim_wgt = _azim_spacings[a] * 4 * M_PI;
 
   /* The change in angular flux along this Track segment in the FSR */
   FP_PRECISION delta_psi, exponential, tau;
@@ -736,17 +738,18 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
   if (_solve_3D) {
-    p = _quad->getFirstOctantPolar(polar_index);
+
     for (int e=0; e < _num_groups; e++) {
       exponential = _exp_evaluator->computeExponential
         (sigma_t[e] * length, a, p);
       delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi * _azim_spacings[a] * _polar_spacings[a][p] *
-        _quad->getMultiple(a, p) * 4.0 * M_PI;
-      track_flux(e) -= delta_psi;
+      fsr_flux[e] += delta_psi * azim_wgt * _polar_spacings[a][p] *
+          multiples[a][p];
+      track_flux[e] -= delta_psi;
     }
   }
   else{
+    azim_wgt *= 2;
 
     pe = 0;
 
@@ -759,9 +762,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       for (p=0; p < _num_polar/2; p++) {
         exponential = _exp_evaluator->computeExponential(tau, a, p);
         delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * 2.0 * _azim_spacings[a] *
-          _quad->getMultiple(a, p) * 4.0 * M_PI;
-        track_flux(pe) -= delta_psi;
+        fsr_flux[e] += delta_psi * azim_wgt * multiples[a][p];
+        track_flux[pe] -= delta_psi;
         pe++;
       }
     }
