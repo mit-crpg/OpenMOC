@@ -102,8 +102,7 @@ class TestHarness(object):
             self._write_results(results)
             self._compare_results()
         finally:
-            a = 1
-            #self._cleanup()
+            self._cleanup()
 
     def _update_results(self):
         """Update the results_true using the current version of OpenMOC."""
