@@ -70,6 +70,27 @@ static int line_length = 67;
 
 
 /**
+ * @var log_error_lock
+ * @brief OpenMP mutex lock for ERROR messages which throw exceptions
+ */
+static omp_lock_t log_error_lock;
+
+
+/**
+ * @brief Initializes the logger for use.
+ * @details This should be immediately called when the logger is imported
+ *          into Python and before any of its other routines are called. The
+ *          routine initializes an OpenMP mutual exclusion lock which is used
+ *          to preclude race conditions from occurring when an ERROR message
+ *          is reported and program execution is terminated.
+ */
+void initialize_logger() {
+  /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
+  omp_init_lock(&log_error_lock);
+}
+
+
+/**
  * @brief Sets the output directory for log files.
  * @details If the directory does not exist, it creates it for the user.
  * @param directory a character array for the log file directory
@@ -77,15 +98,14 @@ static int line_length = 67;
 void set_output_directory(char* directory) {
 
   output_directory = std::string(directory);
+  std::string log_directory;
 
   /* Check to see if directory exists - if not, create it */
   struct stat st;
-  if (!stat(directory, &st) == 0) {
-    mkdir(directory, S_IRWXU);
-    mkdir((output_directory+"/log").c_str(), S_IRWXU);
+  if ((stat(directory, &st)) == 0) {
+    log_directory = std::string("") + directory + std::string("/log");
+    mkdir(log_directory.c_str(), S_IRWXU);
   }
-
-  return;
 }
 
 
@@ -223,16 +243,10 @@ void set_log_level(const char* new_level) {
     log_level = RESULT;
     log_printf(INFO, "Logging level set to RESULT");
   }
-  else if (strcmp("UNITTEST", new_level) == 0) {
-    log_level = UNITTEST;
-    log_printf(INFO, "Logging level set to UNITTEST");
-  }
   else if (strcmp("ERROR", new_level) == 0) {
       log_level = ERROR;
       log_printf(INFO, "Logging level set to ERROR");
   }
-
-  return;
 }
 
 
@@ -240,8 +254,44 @@ void set_log_level(const char* new_level) {
  * @brief Return the minimum level for log messages printed to the screen.
  * @return the minimum level for log messages
  */
-int get_log_level(){
-  return log_level;
+const char* get_log_level() {
+
+  std::string level;
+
+  switch (log_level) {
+  case (DEBUG):
+    level = "DEBUG";
+    break;
+  case (INFO):
+    level = "INFO";
+    break;
+  case (NORMAL):
+    level = "NORMAL";
+    break;
+  case (SEPARATOR):
+    level = "SEPARATOR";
+    break;
+  case (HEADER):
+    level = "HEADER";
+    break;
+  case (TITLE):
+    level = "TITLE";
+    break;
+  case (WARNING):
+    level = "WARNING";
+    break;
+  case (CRITICAL):
+    level = "CRITICAL";
+    break;
+  case (RESULT):
+    level = "RESULT";
+    break;
+  case (ERROR):
+    level = "ERROR";
+    break;
+  }
+
+  return level.c_str();
 }
 
 
@@ -254,20 +304,29 @@ int get_log_level(){
  */
 void log_printf(logLevel level, const char* format, ...) {
 
-  char message[1024];
-  std::string msg_string;
   if (level >= log_level) {
     va_list args;
-
     va_start(args, format);
-    vsprintf(message, format, args);
+
+    int size = 256;
+    char* buffer = new char[size];
+    std::string msg_string;
+    int n = vsnprintf(buffer, size, format, args);
+
+    /* Resize buffer as needed for strings longer than 256 characters */
+    if (size <= n) {
+      delete [] buffer;
+      buffer = new char[n+1];
+      n = vsnprintf(buffer, n+1, format, args);
+    }
+
+    std::string msg = std::string(buffer);
     va_end(args);
 
     /* Append the log level to the message */
     switch (level) {
     case (DEBUG):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  DEBUG  ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -282,7 +341,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (INFO):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  INFO   ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -297,7 +355,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (NORMAL):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  NORMAL ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -321,33 +378,32 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (HEADER):
       {
-        int size = strlen(message);
+        int size = strlen(buffer);
         int halfpad = (line_length - 4 - size) / 2;
         std::string pad1 = std::string(halfpad, header_char);
         std::string pad2 = std::string(halfpad +
                            (line_length - 4 - size) % 2, header_char);
         std::string prefix = std::string("[  HEADER ]  ");
         std::stringstream ss;
-        ss << prefix << pad1 << "  " << message << "  " << pad2 << "\n";
+        ss << prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
         msg_string = ss.str();
         break;
       }
     case (TITLE):
       {
-        int size = strlen(message);
+        int size = strlen(buffer);
         int halfpad = (line_length - size) / 2;
         std::string pad = std::string(halfpad, ' ');
         std::string prefix = std::string("[  TITLE  ]  ");
         std::stringstream ss;
         ss << prefix << std::string(line_length, title_char) << "\n";
-        ss << prefix << pad << message << pad << "\n";
+        ss << prefix << pad << buffer << pad << "\n";
         ss << prefix << std::string(line_length, title_char) << "\n";
         msg_string = ss.str();
         break;
       }
     case (WARNING):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[ WARNING ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -362,7 +418,6 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (CRITICAL):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[ CRITICAL]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -377,23 +432,7 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (RESULT):
       {
-        std::string msg = std::string(message);
         std::string level_prefix = "[  RESULT ]  ";
-
-        /* If message is too long for a line, split into many lines */
-        if (int(msg.length()) > line_length)
-          msg_string = create_multiline_msg(level_prefix, msg);
-
-        /* Puts message on single line */
-        else
-          msg_string = level_prefix + msg + "\n";
-
-        break;
-      }
-    case (UNITTEST):
-      {
-        std::string msg = std::string(message);
-        std::string level_prefix = "[   TEST  ]  ";
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)
@@ -408,11 +447,7 @@ void log_printf(logLevel level, const char* format, ...) {
     case (ERROR):
       {
         /* Create message based on runtime error stack */
-        va_start(args, format);
-        vsprintf(message, format, args);
-        va_end(args);
-        std::string msg = std::string(message);
-        std::string level_prefix = "[  ERROR  ]  ";
+        std::string level_prefix = "";
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)
@@ -429,15 +464,12 @@ void log_printf(logLevel level, const char* format, ...) {
 
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */
-      if (output_directory.compare(".") == 0) {
-        struct stat st;
-        if (!stat("log", &st) == 0)
-          mkdir("log", S_IRWXU);
-      }
+      if (output_directory.compare(".") == 0)
+        set_output_directory((char*)".");
 
       /* Write the message to the output file */
       std::ofstream log_file;
-      log_file.open((output_directory + "/" + log_filename).c_str(),
+      log_file.open((output_directory + "/log/" + log_filename).c_str(),
                    std::ios::app);
 
       /* Append date, time to the top of log output file */
@@ -453,19 +485,22 @@ void log_printf(logLevel level, const char* format, ...) {
 
     /* Write the log message to the log_file */
     std::ofstream log_file;
-    log_file.open((output_directory + "/" + log_filename).c_str(),
+    log_file.open((output_directory + "/log/" + log_filename).c_str(),
                   std::ios::app);
     log_file << msg_string;
     log_file.close();
 
     /* Write the log message to the shell */
-    std::cout << msg_string;
+    if (level == ERROR) {
+      omp_set_lock(&log_error_lock);
+      {
+        throw std::logic_error(msg_string.c_str());
+      }
+      omp_unset_lock(&log_error_lock);
+    }
+    else
+      printf("%s", msg_string.c_str());
   }
-
-
-  /* If the message was a runtime error, exit the program */
-  if (level == ERROR)
-    exit(1);
 }
 
 
@@ -489,7 +524,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
   std::string msg_string;
 
   /* Loop over msg creating substrings for each line */
-  while (end < size + line_length) {
+  while (end <= size + line_length) {
 
     /* Append log level to the beginning of each line */
     msg_string += level;
@@ -502,7 +537,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
     substring = message.substr(start, line_length);
 
     /* Truncate substring to last complete word */
-    if (end < size-1) {
+    if (end <= size) {
       int endspace = substring.find_last_of(" ");
       if (message.at(endspace+1) != ' ' &&
           endspace != int(std::string::npos)) {
@@ -519,7 +554,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
       line_length -= 4;
 
     /* Update substring indices */
-    start = end + 1;
+    start = end;
     end += line_length + 1;
   }
 
