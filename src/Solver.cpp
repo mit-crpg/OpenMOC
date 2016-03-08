@@ -342,7 +342,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   segmentationType segment_formation = track_generator->getSegmentFormation();
   if ((!track_generator->contains2DSegments() &&
-      segment_formation != EXPLICIT_2D) || (segment_formation == EXPLICIT_3D &&
+      segment_formation == EXPLICIT_2D) || (segment_formation == EXPLICIT_3D &&
       !track_generator->contains3DSegments()))
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");

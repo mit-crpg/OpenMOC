@@ -108,9 +108,6 @@ Cmfd::~Cmfd() {
   if (_surface_currents != NULL)
     delete _surface_currents;
 
-  if (_volumes != NULL)
-    delete _volumes;
-
   if (_azim_spacings != NULL)
     delete [] _azim_spacings;
 
