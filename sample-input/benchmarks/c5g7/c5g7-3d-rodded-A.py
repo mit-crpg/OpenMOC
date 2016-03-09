@@ -56,10 +56,8 @@ lattices['Root'].setUniverses3D([[[rr, rr, ri],
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = openmoc.Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,9*axial_refines)
-cmfd.setOpticallyThick(True)
 cmfd.setGroupStructure([1,4,8])
 cmfd.setCentroidUpdateOn(False)
 
@@ -87,7 +85,7 @@ track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
                                          azim_spacing, polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setOTF()
+track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
 

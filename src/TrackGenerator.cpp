@@ -4138,6 +4138,8 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   for (int r=0; r < num_FSRs; r++) {
     _geometry->setFSRCentroid(r, centroids[r]);
   }
+
+  delete [] centroids;
 }
 
 
