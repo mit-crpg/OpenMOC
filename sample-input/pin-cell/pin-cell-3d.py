@@ -31,7 +31,10 @@ track_generator.setNumThreads(num_threads)
 track_generator.setSegmentFormation(OTF_STACKS)
 track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
-
+#FIXME
+tracks3d = track_generator.get3DTracks()
+start = tracks3d[0][0][0][0].getStart()
+print start.getX()
 
 ###############################################################################
 #                            Running a Simulation

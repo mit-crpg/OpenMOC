@@ -174,8 +174,8 @@ int TrackGenerator::getNum2DSegments() {
 
 
 /**
- * @brief Returns an array of the Track pointers by increasing UID.
- * @details An array of pointers to all Track objects in the Geometry is
+ * @brief Returns an array of the Track pointers by increasing UID
+ * @details An array of pointers to all 2D Track objects in the Geometry is
  *          returned, arranged by increasing unique identifier (UID).
  * @return the array of Track pointers
  */
@@ -186,6 +186,16 @@ Track** TrackGenerator::get2DTracksArray() {
                "since Tracks have not yet been generated.");
 
   return _tracks_2D_array;
+}
+
+
+/**
+ * @brief Returns an array of the Track pointers by increasing UID.
+ * @details Calls TrackGenerator::get2DTracksArray to return all 2D Tracks
+ * @return the array of Track pointers
+ */
+Track** TrackGenerator::getTracksArray() {
+  return get2DTracksArray();
 }
 
 
@@ -203,7 +213,6 @@ Track2D** TrackGenerator::get2DTracks() {
 
   return _tracks_2D;
 }
-
 
 
 /**
@@ -471,7 +480,6 @@ void TrackGenerator::setNumAzim(int num_azim) {
 
   _num_azim = num_azim;
   _contains_2D_tracks = false;
-  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
@@ -496,7 +504,6 @@ void TrackGenerator::setNumPolar(int num_polar) {
 
   _num_polar = num_polar;
   _contains_2D_tracks = false;
-  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
@@ -516,7 +523,6 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
 
   _azim_spacing = spacing;
   _contains_2D_tracks = false;
-  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
@@ -532,7 +538,6 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
   _contains_2D_tracks = false;
-  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
@@ -807,6 +812,7 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
  * @brief Checks boundary conditions for inconsistent periodic boundary
  *        conditions
  */
+//FIXME: abstract for 2D / 3D
 void TrackGenerator::checkBoundaryConditions() {
 
   if ((_geometry->getMinXBoundaryType() == PERIODIC &&
@@ -847,6 +853,33 @@ void TrackGenerator::checkBoundaryConditions() {
 }
 
 
+//FIXME: description
+void TrackGenerator::trackLaydown2D() {
+
+  if (_geometry == NULL)
+    log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
+               "has been set for the TrackGenerator");
+
+  /* Make sure that the width and height of the Geometry are nonzero */
+  if (_geometry->getWidthX() <= 0 || _geometry->getWidthY() <= 0)
+    log_printf(ERROR, "The total height and width of the Geometry must"
+               " be nonzero for Track generation. Create a CellFill which "
+               "is filled by the entire geometry and bounded by XPlanes "
+               "and YPlanes to enable the Geometry to determine the "
+               "total width and height of the model.");
+
+  /* Initialize the 2D tracks */
+  initialize2DTracks();
+
+  /* Recalibrate the 2D tracks back to the geometry origin */
+  recalibrate2DTracksToOrigin();
+
+  /* Initialize the 1D array of Tracks for all 2D Tracks */
+  initializeTracks2DArray();
+}
+
+
+
 /**
  * @brief Generates tracks for some number of azimuthal angles and track spacing
  * @details Computes the effective angles and track spacing. Computes the
@@ -856,48 +889,14 @@ void TrackGenerator::checkBoundaryConditions() {
  */
 void TrackGenerator::generateTracks() {
 
-  if (_geometry == NULL)
-    log_printf(ERROR, "Unable to generate Tracks since no Geometry "
-               "has been set for the TrackGenerator");
-
-  /* Check to make sure that height, width of the Geometry are nonzero */
-  if (_geometry->getWidthX() <= 0 || _geometry->getWidthY() <= 0 ||
-      _geometry->getWidthZ() <= 0)
-    log_printf(ERROR, "The total height, width, and depth of the Geometry must"
-               " be nonzero for Track generation. Create a CellFill which "
-               "is filled by the entire geometry and bounded by XPlanes, "
-               "YPlanes, and ZPlanes to enable the Geometry to determine the "
-               "total width, height, and depth of the model.");
-
   /* Generate Tracks, perform ray tracing across the geometry, and store
    * the data to a Track file */
+  //FIXME: why try?
   try {
 
     /* Create default quadrature set if user one has not been set */
-    if (_quadrature == NULL) {
-      if (_solve_3D)
-        _quadrature = new EqualWeightPolarQuad();
-      else
-        _quadrature = new TYPolarQuad();
-    }
-
-    if (false) {
-      log_printf(NORMAL, "num azim : %d", _num_azim);
-      log_printf(NORMAL, "num polar: %d", _num_polar);
-      log_printf(NORMAL, "azim spacing : %f", _azim_spacing);
-      log_printf(NORMAL, "polar spacing: %f", _polar_spacing);
-
-      if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO)
-        log_printf(NORMAL, "quadrature type = TABUCHI_YAMAMOTO");
-      else if (_quadrature->getQuadratureType() == LEONARD)
-        log_printf(NORMAL, "quadrature type = LEONARD");
-      else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
-        log_printf(NORMAL, "quadrature type = GAUSS_LEGENDRE");
-      else if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
-        log_printf(NORMAL, "quadrature type = EQUAL_WEIGHT");
-      else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
-        log_printf(NORMAL, "quadrature type = EQUAL_ANGLE");
-    }
+    if (_quadrature == NULL)
+      createDefaultQuadrature();
 
     /* Initialize the quadrature set */
     _quadrature->setNumPolarAngles(_num_polar);
@@ -907,40 +906,18 @@ void TrackGenerator::generateTracks() {
     /* Check periodic BCs for symmetry */
     checkBoundaryConditions();
 
-    /* Initialize the 2D tracks */
-    initialize2DTracks();
-
-    /* If 3D problem, initialize the 3D tracks */
-    if (_solve_3D)
-      initialize3DTracks();
-
-    /* Recalibrate the 2D tracks back to the geometry origin */
-    recalibrate2DTracksToOrigin();
-
-    /* If 3D problem, recalibrate the 3D tracks back to the geometry origin */
-    if (_solve_3D)
-      recalibrate3DTracksToOrigin();
+    /* Lay down Tracks accross the Geometry */
+    trackLaydown(); // FIXME
 
     /* Initialize the track file directory and read in tracks if they exist */
     initializeTrackFileDirectory();
-
-    /* Initialize the 1D array of Tracks */
-    initializeTracksArray();
 
     /* If track file not present, generate segments */
     if (_use_input_file == false) {
 
       /* Segmentize the tracks */
-      if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D) {
-        if (_solve_3D)
-          segmentize3D();
-        else
-          segmentize2D();
-        dumpSegmentsToFile();
-      }
-      else {
-        segmentizeExtruded();
-      }
+      segmentize();
+      dumpSegmentsToFile();
     }
 
     /* Allocate array of mutex locks for each FSR */
@@ -953,38 +930,10 @@ void TrackGenerator::generateTracks() {
       omp_init_lock(&_FSR_locks[r]);
 
     /* Precompute the quadrature weights */
-    _quadrature->precomputeWeights(_solve_3D);
+    _quadrature->precomputeWeights(_segment_formation != EXPLICIT_2D);
 
     /* Set the weights of every track */
-
-    /* Set the weight on every Track */
-    if (_solve_3D) {
-      for (int a=0; a < _num_azim/2; a++) {
-        for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-          for (int p=0; p < _num_polar; p++) {
-            for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-              int azim_index = _quadrature->getFirstOctantAzim(a);
-              int polar_index = _quadrature->getFirstOctantPolar(p);
-              FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-                      * _quadrature->getPolarWeight(azim_index, polar_index)
-                      * getAzimSpacing(azim_index)
-                      * getPolarSpacing(azim_index, polar_index);
-              _tracks_3D[a][i][p][z].setWeight(weight);
-            }
-          }
-        }
-      }
-    }
-    else {
-      for (int a=0; a < _num_azim/2; a++) {
-        for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-          int azim_index = _quadrature->getFirstOctantAzim(a);
-          FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-                                * getAzimSpacing(azim_index);
-          _tracks_2D[a][i].setWeight(weight);
-        }
-      }
-    }
+    setTotalWeights();
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
@@ -992,6 +941,25 @@ void TrackGenerator::generateTracks() {
   }
 
   return;
+}
+
+
+//FIXME: description
+void TrackGenerator::initializeDefaultQuadrature() {
+  _quadrature = new TYPolarQuad();
+}
+
+
+// FIXME: description, make virtual
+void TrackGenerator::setTotalWeights() {
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      int azim_index = _quadrature->getFirstOctantAzim(a);
+      FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
+                            * getAzimSpacing(azim_index);
+      _tracks_2D[a][i].setWeight(weight);
+    }
+  }
 }
 
 
@@ -1385,7 +1353,7 @@ void TrackGenerator::recalibrate2DTracksToOrigin() {
 /**
  * @brief Generate segments for each Track across the Geometry.
  */
-void TrackGenerator::segmentize2D() {
+void TrackGenerator::segmentize() {
 
   log_printf(NORMAL, "Ray tracing for 2D track segmentation...");
 
@@ -1422,249 +1390,54 @@ void TrackGenerator::segmentize2D() {
  */
 void TrackGenerator::initializeTrackFileDirectory() {
 
-  std::stringstream directory;
   struct stat buffer;
-  std::stringstream test_filename;
+  std::stringstream directory;
 
   /** Create directory to store Track files with pre-generated ray tracing data
    *  if the directory does not yet exist */
-
   directory << get_output_directory() << "/tracks";
   struct stat st;
   if (!stat(directory.str().c_str(), &st) == 0)
     mkdir(directory.str().c_str(), S_IRWXU);
 
-  if (_solve_3D) {
-
-    /* Get the quadrature and track method types */
-    std::string quad_type;
-    std::string track_method;
-
-    if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
-      quad_type = "EQ_WGT";
-    else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
-      quad_type = "EQ_ANG";
-    if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO)
-      quad_type = "TABUCHI_YAMAMOTO";
-    else if (_quadrature->getQuadratureType() == LEONARD)
-      quad_type = "LEONARD";
-    else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
-      quad_type = "GAUSS_LEGENDRE";
-
-    if (_track_generation_method == GLOBAL_TRACKING)
-      track_method = "GT";
-    else if (_track_generation_method == MODULAR_RAY_TRACING)
-      track_method = "MRT";
-    else if (_track_generation_method == SIMPLIFIED_MODULAR_RAY_TRACING)
-      track_method = "sMRT";
-
-    if (_geometry->getCmfd() != NULL) {
-      test_filename << directory.str() << "/3D_"
-                    << _num_azim << "_azim_"
-                    << _num_polar << "_polar_"
-                    << _azim_spacing << "x" << _polar_spacing
-                    << "_cm_spacing_cmfd_"
-                    << _geometry->getCmfd()->getNumX()
-                    << "x" << _geometry->getCmfd()->getNumY()
-                    << "x" << _geometry->getCmfd()->getNumZ()
-                    << "_quad_" << quad_type << "_track_" << track_method
-                    << ".data";
-    }
-    else{
-      test_filename << directory.str() << "/3D_"
-                    << _num_azim << "_azim_"
-                    << _num_polar << "_polar_"
-                    << _azim_spacing << "x" << _polar_spacing
-                    << "_cm_spacing_quad_"
-                    << quad_type << "_track_" << track_method << ".data";
-    }
-  }
-  else{
-    if (_geometry->getCmfd() != NULL) {
-      test_filename << directory.str() << "/2D_"
-                    << _num_azim << "_azim_"
-                    << _azim_spacing << "_cm_spacing_cmfd_"
-                    << _geometry->getCmfd()->getNumX()
-                    << "x" << _geometry->getCmfd()->getNumY()
-                    << ".data";
-    }
-    else{
-      test_filename << directory.str() << "/2D_"
-                    << _num_azim << "_angles_"
-                    << _azim_spacing << "_cm_spacing.data";
-    }
-  }
-
-  _tracks_filename = test_filename.str();
-
   /* Check to see if a Track file exists for this geometry, number of azimuthal
    * angles, and track spacing, and if so, import the ray tracing data */
+  _tracks_filename = getTestFilename();
   if (!stat(_tracks_filename.c_str(), &buffer)) {
     if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D) {
       if (readSegmentsFromFile()) {
         _use_input_file = true;
-        if (_solve_3D)
-          _contains_3D_segments = true;
-        else
-        _contains_2D_segments = true;
+        setContainsSegments(true);
       }
     }
   }
 }
 
 
-/**
- * @brief Writes all Track and segment data to a "*.tracks" binary file.
- * @details Storing Tracks in a binary file saves time by eliminating ray
- *          tracing for Track segmentation in commonly simulated geometries.
- */
-void TrackGenerator::dump2DSegmentsToFile() {
+//FIXME
+std::string TrackGenerator::getTestFilename() {
 
-  /* Check whether the segments should be dumped */
-  if (!_dump_segments)
-    return;
+  std::stringstream test_filename;
 
-  log_printf(NORMAL, "Dumping 2D segments to file...");
+  if (_geometry->getCmfd() != NULL)
+    test_filename << directory.str() << "/2D_"
+                  << _num_azim << "_azim_"
+                  << _azim_spacing << "_cm_spacing_cmfd_"
+                  << _geometry->getCmfd()->getNumX()
+                  << "x" << _geometry->getCmfd()->getNumY()
+                  << ".data";
+  else
+    test_filename << directory.str() << "/2D_"
+                  << _num_azim << "_angles_"
+                  << _azim_spacing << "_cm_spacing.data";
 
-  if (!_contains_2D_segments)
-    log_printf(ERROR, "Unable to dump 2D Segments to a file since no Segments "
-               "have been generated for %d azimuthal angles and %f track "
-               "spacing", _num_azim, _azim_spacing);
+  return test_filename.str();
+}
 
-  FILE* out;
-  out = fopen(_tracks_filename.c_str(), "w");
 
-  /* Get a string representation of the Geometry's attributes. This is used to
-   * check whether or not ray tracing has been performed for this Geometry */
-  std::string geometry_to_string = _geometry->toString();
-  int string_length = geometry_to_string.length() + 1;
-
-  /* Write geometry metadata to the Track file */
-  fwrite(&string_length, sizeof(int), 1, out);
-  fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
-  fwrite(&_z_coord, sizeof(double), 1, out);
-
-  Track2D* curr_track;
-  int num_segments;
-  std::vector<segment*> _segments;
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  segment* curr_segment;
-  double length;
-  int material_id;
-  int region_id;
-  int cmfd_surface_fwd;
-  int cmfd_surface_bwd;
-
-  /* Loop over all Tracks */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-
-      /* Get data for this Track */
-      curr_track = &_tracks_2D[a][i];
-      num_segments = curr_track->getNumSegments();
-
-      /* Write data for this Track to the Track file */
-      fwrite(&num_segments, sizeof(int), 1, out);
-
-      /* Loop over all segments for this Track */
-      for (int s=0; s < num_segments; s++) {
-
-        /* Get data for this segment */
-        curr_segment = curr_track->getSegment(s);
-        length = curr_segment->_length;
-        material_id = curr_segment->_material->getId();
-        region_id = curr_segment->_region_id;
-
-        /* Write data for this segment to the Track file */
-        fwrite(&length, sizeof(double), 1, out);
-        fwrite(&material_id, sizeof(int), 1, out);
-        fwrite(&region_id, sizeof(int), 1, out);
-
-        /* Write CMFD-related data for the Track if needed */
-        if (cmfd != NULL) {
-          cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-          cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-          fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
-          fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
-        }
-      }
-    }
-  }
-
-  /* Get FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
-      _geometry->getFSRKeysMap();
-  std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
-  std::size_t fsr_key;
-  int fsr_id;
-  int fsr_counter = 0;
-  double x, y, z;
-
-  /* Write number of FSRs */
-  int num_FSRs = _geometry->getNumFSRs();
-  fwrite(&num_FSRs, sizeof(int), 1, out);
-
-  /* Write FSR vector maps to file */
-  std::size_t* fsr_key_list = FSR_keys_map->keys();
-  fsr_data** fsr_data_list = FSR_keys_map->values();
-  for (int i=0; i < num_FSRs; i++) {
-
-    /* Write data to file from FSR_keys_map */
-    fsr_key = fsr_key_list[i];
-    fsr_id = fsr_data_list[i]->_fsr_id;
-    x = fsr_data_list[i]->_point->getX();
-    y = fsr_data_list[i]->_point->getY();
-    z = fsr_data_list[i]->_point->getZ();
-    fwrite(&fsr_key, sizeof(std::size_t), 1, out);
-    fwrite(&fsr_id, sizeof(int), 1, out);
-    fwrite(&x, sizeof(double), 1, out);
-    fwrite(&y, sizeof(double), 1, out);
-    fwrite(&z, sizeof(double), 1, out);
-
-    /* Write data to file from FSRs_to_material_IDs */
-    fwrite(&(FSRs_to_material_IDs->at(fsr_counter)), sizeof(int), 1, out);
-
-    /* Write data to file from FSRs_to_keys */
-    fwrite(&(FSRs_to_keys->at(fsr_counter)), sizeof(std::size_t), 1, out);
-
-    /* Increment FSR ID counter */
-    fsr_counter++;
-  }
-
-  /* Write cmfd_fsrs vector of vectors to file */
-  if (cmfd != NULL) {
-    std::vector< std::vector<int> >* cell_fsrs = cmfd->getCellFSRs();
-    std::vector<int>::iterator iter;
-    int num_cells = cmfd->getNumCells();
-    fwrite(&num_cells, sizeof(int), 1, out);
-
-    /* Loop over CMFD cells */
-    for (int cell=0; cell < num_cells; cell++) {
-      num_FSRs = cell_fsrs->at(cell).size();
-      fwrite(&num_FSRs, sizeof(int), 1, out);
-
-      /* Loop over FSRs within cell */
-      for (iter = cell_fsrs->at(cell).begin();
-           iter != cell_fsrs->at(cell).end(); ++iter)
-        fwrite(&(*iter), sizeof(int), 1, out);
-    }
-  }
-
-  /* Delete key and value lists */
-  delete [] fsr_key_list;
-  delete [] fsr_data_list;
-
-  /* Close the Track file */
-  fclose(out);
-
-  /* Inform other the TrackGenerator::generateTracks() method that it may
-   * import ray tracing data from this file if it is called and the ray
-   * tracing parameters have not changed */
-  _use_input_file = true;
-
-  return;
+// FIXME
+TrackGenerator::setContainsSegments(bool contains_segments) {
+  _contains_2D_segments = contains_segments;
 }
 
 
@@ -1942,9 +1715,8 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
 
   /* Set the centroid for the FSR */
-  for (int r=0; r < num_FSRs; r++) {
+  for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
-  }
 
   delete [] centroids;
 }
@@ -2089,7 +1861,6 @@ void TrackGenerator::initialize2DTrackPeriodicIndices() {
 }
 
 
-
 /**
  * @brief Creates a Track array by increasing uid
  * @details An array is created which indexes Tracks by increasing uid.
@@ -2099,43 +1870,33 @@ void TrackGenerator::initialize2DTrackPeriodicIndices() {
  */
 void TrackGenerator::initializeTracksArray() {
 
-  log_printf(NORMAL, "Initializing tracks array...");
+  log_printf(NORMAL, "Initializing 2D tracks array...");
 
   Track* track;
   int uid = 0;
-  int num_tracks;
   int azim_group_id, periodic_group_id, polar_group_id;
   int track_azim_group_id, track_periodic_group_id, track_polar_group_id;
   int track_periodic_index;
 
   /* Set the number of parallel track groups */
-  if (_solve_3D) {
-    if (_periodic)
-      _num_parallel_track_groups = 12;
-    else
-      _num_parallel_track_groups = 4;
-  }
-  else {
-    if (_periodic)
-      _num_parallel_track_groups = 6;
-    else
-      _num_parallel_track_groups = 2;
-  }
+  if (_periodic)
+    _num_parallel_track_groups = 6;
+  else
+    _num_parallel_track_groups = 2;
 
   /* Create the array of track ids separating the parallel groups */
+  if (_num_tracks_by_parallel_group != NULL)
+    delete [] _num_tracks_by_parallel_group;
   _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
 
   /* Set the first index in the num tracks by parallel group array to 0 */
   _num_tracks_by_parallel_group[0] = 0;
 
-  /* Set the number of tracks to allocate pointers for in tracks array */
-  if (_solve_3D)
-    num_tracks = getNum3DTracks();
-  else
-    num_tracks = getNum2DTracks();
-
   /* Allocate memory for tracks array */
-  _tracks = new Track*[num_tracks];
+  if (_tracks_2D_array != NULL)
+    delete [] _tracks_2D_array;
+  int num_2D_tracks = getNum2DTracks();
+  _tracks_2D_array = new Track*[num_2D_tracks];
 
   /* Recalibrate the tracks to the origin and set the uid. Note that the
    * loop structure is unconventional in order to preserve a monotonically
@@ -2144,111 +1905,49 @@ void TrackGenerator::initializeTracksArray() {
    * guaranteed to contain tracks that do not transport into other tracks both
    * reflectively and periodically. This is done to guarantee reproducability
    * in parallel runs. */
-  if (!_solve_3D || _segment_formation != EXPLICIT_3D) {
-    for (int g = 0; g < _num_parallel_track_groups; g++) {
+  //FIXME
+  for (int g = 0; g < _num_parallel_track_groups; g++) {
 
-      /* Set the azimuthal and periodic group ids */
-      azim_group_id = g % 2;
-      periodic_group_id = g / 2;
+    /* Set the azimuthal and periodic group ids */
+    azim_group_id = g % 2;
+    periodic_group_id = g / 2;
 
-      /* Loop over all 2D tracks */
-      for (int a = 0; a < _num_azim / 2; a++) {
-        for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+    /* Loop over all 2D tracks */
+    for (int a = 0; a < _num_azim / 2; a++) {
+      for (int i=0; i < getNumX(a) + getNumY(a); i++) {
 
-          /* Get current track and azim group ids */
-          track = &_tracks_2D[a][i];
+        /* Get current track and azim group ids */
+        track = &_tracks_2D[a][i];
 
-          /* Get the track azim group id */
-          track_azim_group_id = a / (_num_azim / 4);
+        /* Get the track azim group id */
+        track_azim_group_id = a / (_num_azim / 4);
 
-          /* Get the track periodic group id */
-          if (_periodic) {
-            track_periodic_index = track->getPeriodicTrackIndex();
+        /* Get the track periodic group id */
+        if (_periodic) {
+          track_periodic_index = track->getPeriodicTrackIndex();
 
-            if (track_periodic_index == 0)
-              track_periodic_group_id = 0;
-            else if (track_periodic_index % 2 == 1)
-              track_periodic_group_id = 1;
-            else
-              track_periodic_group_id = 2;
-          }
-          else
+          if (track_periodic_index == 0)
             track_periodic_group_id = 0;
+          else if (track_periodic_index % 2 == 1)
+            track_periodic_group_id = 1;
+          else
+            track_periodic_group_id = 2;
+        }
+        else
+          track_periodic_group_id = 0;
 
-          /* Check if track has current azim_group_id and periodic_group_id */
-          if (azim_group_id == track_azim_group_id &&
-              periodic_group_id == track_periodic_group_id) {
-            track->setUid(uid);
-            _tracks[uid] = track;
-            uid++;
-          }
+        /* Check if track has current azim_group_id and periodic_group_id */
+        if (azim_group_id == track_azim_group_id &&
+            periodic_group_id == track_periodic_group_id) {
+          track->setUid(uid);
+          _tracks_2D_array[uid] = track;
+          uid++;
         }
       }
-
-      /* Set the track index boundary for this parallel group */
-      _num_tracks_by_parallel_group[g + 1] = uid;
     }
-  }
-  if(_solve_3D) {
 
-    /* Reset UID in case 2D tracks were intiialized */
-    uid = 0;
-
-    for (int g = 0; g < _num_parallel_track_groups; g++) {
-
-      /* Set the azimuthal, polar, and periodic group ids */
-      azim_group_id = g % 2;
-      polar_group_id = g % 4 / 2;
-      periodic_group_id = g / 4;
-
-      for (int a = 0; a < _num_azim / 2; a++) {
-        for (int i = 0; i < getNumX(a) + getNumY(a); i++) {
-          for (int p = 0; p < _num_polar; p++) {
-            for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
-
-              /* Get current track and azim group ids */
-              track = &_tracks_3D[a][i][p][z];
-
-              /* Get the track azim group id */
-              track_azim_group_id = a / (_num_azim / 4);
-
-              /* Get the track polar group id */
-              track_polar_group_id = p / (_num_polar / 2);
-
-              /* Get the track periodic group id */
-              if (_periodic) {
-                track_periodic_index = track->getPeriodicTrackIndex();
-
-                if (track_periodic_index == 0)
-                  track_periodic_group_id = 0;
-                else if (track_periodic_index % 2 == 1)
-                  track_periodic_group_id = 1;
-                else
-                  track_periodic_group_id = 2;
-              }
-              else
-                track_periodic_group_id = 0;
-
-              /* Check if track has current azim_group_id
-                 and periodic_group_id */
-              if (azim_group_id == track_azim_group_id &&
-                  polar_group_id == track_polar_group_id &&
-                  periodic_group_id == track_periodic_group_id) {
-                int azim_index = _quadrature->getFirstOctantAzim(a);
-                int polar_index = _quadrature->getFirstOctantPolar(p);
-                track->setUid(uid);
-                _tracks[uid] = track;
-                uid++;
-
-              }
-            }
-          }
-        }
-      }
-
-      /* Set the track index boundary for this parallel group */
-      _num_tracks_by_parallel_group[g + 1] = uid;
-    }
+    /* Set the track index boundary for this parallel group */
+    _num_tracks_by_parallel_group[g + 1] = uid;
   }
 }
 

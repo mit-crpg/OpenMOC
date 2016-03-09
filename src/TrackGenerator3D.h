@@ -89,7 +89,6 @@ private:
   void initialize3DTracks();
   void initialize3DTrackReflections();
   void recalibrate3DTracksToOrigin();
-  void segmentize3D();
   void segmentizeExtruded();
   void decomposeLZTrack(Track3D* track, double l_start, double l_end,
                         int azim, int cycle, int polar, int lz_index,
@@ -139,6 +138,7 @@ public:
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void dump2DSegmentsToFile();
+  void initialize3DTracksArray();
   void initialize3DTrackPeriodicIndices();
   void initialize3DTrackCycleIds();
   void create3DTracksArrays();
