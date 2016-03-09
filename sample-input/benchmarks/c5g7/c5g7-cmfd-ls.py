@@ -25,7 +25,7 @@ cmfd.setLatticeStructure(51,51)
 cmfd.setKNearest(3)
 
 from geometry_ls import geometry
-#geometry.setCmfd(cmfd)
+geometry.setCmfd(cmfd)
 
 
 ###############################################################################
