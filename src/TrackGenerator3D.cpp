@@ -97,10 +97,6 @@ TrackGenerator3D::~TrackGenerator3D() {
       }
     }
   }
-
-  /* Delete flattened tracks used in OTF calculations */
-  if (_contains_2D_tracks_array)
-    delete [] _flattened_tracks; // FIXME
 }
 
 
@@ -349,7 +345,6 @@ void TrackGenerator::setDesiredPolarSpacing(double spacing) {
 
   _polar_spacing = spacing;
   _contains_2D_tracks = false;
-  _contains_flattened_tracks = false;
   _contains_3D_tracks = false;
   _contains_2D_segments = false;
   _contains_3D_segments = false;
@@ -2001,15 +1996,6 @@ void TrackGenerator::segmentizeExtruded() {
 
   log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
 
-  /* Allocate and initialize the flattened tracks array */
-  _flattened_tracks = new Track*[_num_2D_tracks];
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      int id = _tracks_2D[a][i].getUid();
-      _flattened_tracks[id] = &_tracks_2D[a][i];
-    }
-  }
-
   /* Get all unique z-coords at which 2D radial segementation is performed */
   std::vector<FP_PRECISION> z_coords;
   if (_contains_segmentation_heights)
@@ -2020,13 +2006,12 @@ void TrackGenerator::segmentizeExtruded() {
   /* Loop over all extruded Tracks */
   #pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++)
-    _geometry->segmentizeExtruded(_flattened_tracks[index], z_coords);
+    _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
 
   /* Initialize 3D FSRs and their associated vectors*/
   log_printf(NORMAL, "Initializing FSRs axially...");
   _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
-  _contains_flattened_tracks = true;
   _contains_2D_segments = true;
 
   /* Count the number of segments in each track */
@@ -2039,7 +2024,13 @@ void TrackGenerator::segmentizeExtruded() {
 /**
  * @brief Generate segments for each Track across the Geometry.
  */
-void TrackGenerator::segmentize3D() {
+void TrackGenerator3D::segmentize() {
+
+  /* Check for on-the-fly methods */
+  if (_segment_formation != EXPLICIT_3D) {
+    segmentize_extruded();
+    return;
+  }
 
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
@@ -2310,6 +2301,216 @@ void TrackGenerator::create3DTracksArrays() {
         for (int i=0; i < getNumZ(a,p) + getNumL(a,p); i++)
           _tracks_3D_cycle[a][c][p][i] =
             new Track3D*[_tracks_per_train[a][c][p][i]];
+      }
+    }
+  }
+}
+
+
+//FIXME: description
+void TrackGenerator3D::trackLaydown3D() {
+
+  /* Lay down 2D Tracks first */
+  trackLaydown2D();
+
+  /* Make sure that the depth of the Geometry is nonzero */
+  if (_geometry->getWidthZ() <= 0)
+    log_printf(ERROR, "The total depth of the Geometry must"
+               " be nonzero for 3D Track generation. Create a CellFill which "
+               "is filled by the entire geometry and bounded by XPlanes, "
+               "YPlanes, and ZPlanes to enable the Geometry to determine the "
+               "total width, height, and depth of the model.");
+
+  /* Initialize the 3D tracks */
+  initialize3DTracks();
+
+  /* Recalibrate the 3D tracks back to the Geometry origin */
+  recalibrate3DTracksToOrigin();
+
+  /* Initialize the 1D array of Tracks for all 3D Tracks */
+  initializeTracks3DArray();
+
+
+
+
+
+/**
+ * @brief Creates a Track array by increasing uid
+ * @details An array is created which indexes Tracks by increasing uid.
+ *          Parallel groups are also initialized -- groups of Tracks that can
+ *          be computed in parallel without the potential of overwriting
+ *          angular fluxes of connecting tracks prematurely.
+ */
+//FIXME: description??
+void TrackGenerator3D::initializeTracksArray() {
+
+  /* First initialize 2D Tracks */
+  TrackGenerator::initializeTracksArray();
+  //FIXME: MAYBE REMOVE ABOVE???
+
+  log_printf(NORMAL, "Initializing 3D tracks array...");
+
+  Track* track;
+  int uid = 0;
+  int azim_group_id, periodic_group_id, polar_group_id;
+  int track_azim_group_id, track_periodic_group_id, track_polar_group_id;
+  int track_periodic_index;
+
+  /* Set the number of parallel track groups */
+  if (_periodic)
+    _num_parallel_track_groups = 12;
+  else
+    _num_parallel_track_groups = 4;
+
+  /* Create the array of track ids separating the parallel groups */
+  if (_num_tracks_by_parallel_group != NULL)
+    delete [] _num_tracks_by_parallel_group;
+  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
+
+  /* Set the first index in the num tracks by parallel group array to 0 */
+  _num_tracks_by_parallel_group[0] = 0;
+
+  /* Reset UID in case 2D tracks were intiialized */
+  uid = 0;
+
+  /* Allocate memory for tracks array */
+  if (_tracks_3D_array != NULL)
+    delete [] _tracks_3D_array;
+  int num_3D_tracks = getNum3DTracks();
+  _tracks = new Track*[num_3D_tracks];
+
+  for (int g = 0; g < _num_parallel_track_groups; g++) {
+
+    /* Set the azimuthal, polar, and periodic group ids */
+    azim_group_id = g % 2;
+    polar_group_id = g % 4 / 2;
+    periodic_group_id = g / 4;
+
+    for (int a = 0; a < _num_azim / 2; a++) {
+      for (int i = 0; i < getNumX(a) + getNumY(a); i++) {
+        for (int p = 0; p < _num_polar; p++) {
+          for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
+
+            /* Get current track and azim group ids */
+            track = &_tracks_3D[a][i][p][z];
+
+            /* Get the track azim group id */
+            track_azim_group_id = a / (_num_azim / 4);
+
+            /* Get the track polar group id */
+            track_polar_group_id = p / (_num_polar / 2);
+
+            /* Get the track periodic group id */
+            if (_periodic) {
+              track_periodic_index = track->getPeriodicTrackIndex();
+
+              if (track_periodic_index == 0)
+                track_periodic_group_id = 0;
+              else if (track_periodic_index % 2 == 1)
+                track_periodic_group_id = 1;
+              else
+                track_periodic_group_id = 2;
+            }
+            else
+              track_periodic_group_id = 0;
+
+            /* Check if track has current azim_group_id
+               and periodic_group_id */
+            if (azim_group_id == track_azim_group_id &&
+                polar_group_id == track_polar_group_id &&
+                periodic_group_id == track_periodic_group_id) {
+              int azim_index = _quadrature->getFirstOctantAzim(a);
+              int polar_index = _quadrature->getFirstOctantPolar(p);
+              track->setUid(uid);
+              _tracks_3D_array[uid] = track;
+              uid++;
+            }
+          }
+        }
+      }
+    }
+
+    /* Set the track index boundary for this parallel group */
+    _num_tracks_by_parallel_group[g + 1] = uid;
+  }
+}
+
+//FIXME: description
+void TrackGenerator::setDefaultQuadrature() {
+  _quadrature = new EqualWeightPolarQuad();
+}
+
+
+//FIXME
+std::string TrackGenerator3D::getTestFilename() {
+
+  std::stringstream test_filename;
+
+  /* Get the quadrature and track method types */
+  std::string quad_type;
+  std::string track_method;
+
+  if (_quadrature->getQuadratureType() == EQUAL_WEIGHT)
+    quad_type = "EQ_WGT";
+  else if (_quadrature->getQuadratureType() == EQUAL_ANGLE)
+    quad_type = "EQ_ANG";
+  if (_quadrature->getQuadratureType() == TABUCHI_YAMAMOTO)
+    quad_type = "TABUCHI_YAMAMOTO";
+  else if (_quadrature->getQuadratureType() == LEONARD)
+    quad_type = "LEONARD";
+  else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
+    quad_type = "GAUSS_LEGENDRE";
+
+  if (_track_generation_method == GLOBAL_TRACKING)
+    track_method = "GT";
+  else if (_track_generation_method == MODULAR_RAY_TRACING)
+    track_method = "MRT";
+  else if (_track_generation_method == SIMPLIFIED_MODULAR_RAY_TRACING)
+    track_method = "sMRT";
+
+  if (_geometry->getCmfd() != NULL)
+    test_filename << directory.str() << "/3D_"
+                  << _num_azim << "_azim_"
+                  << _num_polar << "_polar_"
+                  << _azim_spacing << "x" << _polar_spacing
+                  << "_cm_spacing_cmfd_"
+                  << _geometry->getCmfd()->getNumX()
+                  << "x" << _geometry->getCmfd()->getNumY()
+                  << "x" << _geometry->getCmfd()->getNumZ()
+                  << "_quad_" << quad_type << "_track_" << track_method
+                  << ".data";
+  else
+    test_filename << directory.str() << "/3D_"
+                  << _num_azim << "_azim_"
+                  << _num_polar << "_polar_"
+                  << _azim_spacing << "x" << _polar_spacing
+                  << "_cm_spacing_quad_"
+                  << quad_type << "_track_" << track_method << ".data";
+
+  return test_filename.str();
+}
+
+
+// FIXME
+TrackGenerator3D::setContainsSegments(bool contains_segments) {
+  _contains_3D_segments = contains_segments;
+}
+
+
+// FIXME: description, make virtual
+void TrackGenerator3D::setTotalWeights() {
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p=0; p < _num_polar; p++) {
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
+          int azim_index = _quadrature->getFirstOctantAzim(a);
+          int polar_index = _quadrature->getFirstOctantPolar(p);
+          FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
+                  * _quadrature->getPolarWeight(azim_index, polar_index)
+                  * getAzimSpacing(azim_index)
+                  * getPolarSpacing(azim_index, polar_index);
+          _tracks_3D[a][i][p][z].setWeight(weight);
+        }
       }
     }
   }

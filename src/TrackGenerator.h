@@ -133,7 +133,7 @@ private:
   void initialize2DTrackReflections();
   void initialize2DTrackCycles();
   void recalibrate2DTracksToOrigin();
-  void segmentize2D();
+  virtual void segmentize();
 
 public:
 
@@ -153,6 +153,7 @@ public:
   int getNumParallelTrackGroups();
   bool getPeriodic();
   Track** get2DTracksArray();
+  virtual Track** getTracksArray();
   Track2D** get2DTracks();
   double* getAzimSpacings();
   double getAzimSpacing(int azim);
@@ -194,6 +195,7 @@ public:
   void setDumpSegments(bool dump_segments);
 
   /* Worker functions */
+  virtual void createDefaultQuadrature();
   void retrieve2DTrackCoords(double* coords, int num_tracks);
   void retrieve2DPeriodicCycleCoords(double* coords, int num_tracks);
   void retrieve2DReflectiveCycleCoords(double* coords, int num_tracks);
@@ -206,7 +208,7 @@ public:
   bool readSegmentsFromFile();
   void initializeTrackFileDirectory();
   void initialize2DTrackPeriodicIndices();
-  void initializeTracksArray();
+  void initialize2DTracksArray();
   void checkBoundaryConditions();
   void initialize2DTrackCycleIds();
 };
