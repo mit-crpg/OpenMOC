@@ -35,7 +35,7 @@
  */
 class TrackGenerator {
 
-private:
+protected:
 
   /** The number of shared memory OpenMP threads */
   int _num_threads;
@@ -129,11 +129,18 @@ private:
   bool _contains_2D_segments;
 
   /** Private class methods */
-  void initialize2DTracks();
-  void initialize2DTrackReflections();
-  void initialize2DTrackCycles();
-  void recalibrate2DTracksToOrigin();
+  virtual void initializeTracks();
+  virtual void initializeTrackReflections();
+  void initializeTrackCycles();
+  virtual void recalibrateTracksToOrigin();
+  virtual void setTotalWeights();
   virtual void segmentize();
+  virtual void setContainsSegments(bool contains_segments);
+  virtual void allocateTemporarySegments();
+  virtual void resetStatus();
+  virtual void trackLaydown();
+  virtual void initializeDefaultQuadrature();
+  virtual std::string getTestFilename(std::string directory);
 
 public:
 
@@ -159,10 +166,8 @@ public:
   double getAzimSpacing(int azim);
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
-  int getMaxNumTracksPerStack();
   int getNumThreads();
   int* getTracksPerCycle();
-  int*** getTracksPerStack();
   int* getCyclesPerAzim();
   double getCycleLength(int azim);
   int getNumX(int azim);
@@ -178,9 +183,9 @@ public:
   bool getCycleDirection(int azim, int cycle, int track_index);
   FP_PRECISION retrieveMaxOpticalLength();
   omp_lock_t* getFSRLocks();
-  bool contains2DTracksArray();
-  bool contains2DTracks();
-  bool contains2DSegments();
+  segmentationType getSegmentFormation();
+  virtual bool containsTracks();
+  virtual bool containsSegments();
 
   /* Set parameters */
   void setNumThreads(int num_threads);
@@ -195,7 +200,6 @@ public:
   void setDumpSegments(bool dump_segments);
 
   /* Worker functions */
-  virtual void createDefaultQuadrature();
   void retrieve2DTrackCoords(double* coords, int num_tracks);
   void retrieve2DPeriodicCycleCoords(double* coords, int num_tracks);
   void retrieve2DReflectiveCycleCoords(double* coords, int num_tracks);
@@ -207,10 +211,10 @@ public:
   void dumpSegmentsToFile();
   bool readSegmentsFromFile();
   void initializeTrackFileDirectory();
-  void initialize2DTrackPeriodicIndices();
-  void initialize2DTracksArray();
-  void checkBoundaryConditions();
-  void initialize2DTrackCycleIds();
+  virtual void initializeTrackPeriodicIndices();
+  virtual void initializeTracksArray();
+  virtual void checkBoundaryConditions();
+  virtual void initializeTrackCycleIds();
 };
 
 

@@ -20,7 +20,7 @@ FIXME
  * @details The TrackGenerator creates Track and initializes boundary
  *          conditions (vacuum or reflective) for each Track.
  */
-class TrackGenerator3D {
+class TrackGenerator3D : public TrackGenerator {
 
 private:
 
@@ -86,9 +86,20 @@ private:
   bool _contains_segmentation_heights;
 
   /** Private class methods */
-  void initialize3DTracks();
-  void initialize3DTrackReflections();
-  void recalibrate3DTracksToOrigin();
+  void initializeTracks();
+  void initializeTracksArray();
+  void initializeTrackReflections();
+  void initializeTrackPeriodicIndices();
+  void recalibrateTracksToOrigin();
+  void setTotalWeights();
+  void segmentize();
+  void setContainsSegments(bool contains_segments);
+  void allocateTemporarySegments();
+  void resetStatus();
+  void trackLaydown();
+  void initializeDefaultQuadrature();
+  std::string getTestFilename(std::string directory);
+
   void segmentizeExtruded();
   void decomposeLZTrack(Track3D* track, double l_start, double l_end,
                         int azim, int cycle, int polar, int lz_index,
@@ -98,9 +109,9 @@ private:
 
 public:
 
-  TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
-                 double azim_spacing, double polar_spacing);
-  virtual ~TrackGenerator();
+  TrackGenerator3D(Geometry* geometry, int num_azim, int num_polar,
+                   double azim_spacing, double polar_spacing);
+  virtual ~TrackGenerator3D();
 
 
   /* Get parameters */
@@ -118,10 +129,10 @@ public:
   int getNumZ(int azim, int polar);
   int getNumL(int azim, int polar);
   int getTrackGenerationMethod();
-  segmentationType getSegmentFormation();
-  bool contains3DTracksArray();
-  bool contains3DTracks();
-  bool contains3DSegments();
+  int*** getTracksPerStack();
+  int getMaxNumTracksPerStack();
+  bool containsTracks();
+  bool containsSegments();
 
   /* Set parameters */
   void setDesiredPolarSpacing(double spacing);
@@ -137,11 +148,9 @@ public:
   void retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs);
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
-  void dump2DSegmentsToFile();
-  void initialize3DTracksArray();
-  void initialize3DTrackPeriodicIndices();
-  void initialize3DTrackCycleIds();
   void create3DTracksArrays();
+  void initializeTrackCycleIds();
+  void checkBoundaryConditions();
 };
 
 #endif /* TRACKGENERATOR3D_H_ */

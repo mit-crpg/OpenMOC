@@ -340,20 +340,20 @@ void Solver::setGeometry(Geometry* geometry) {
  */
 void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
+  /* Retrieve the segmentation type and get the 3D track generator */
   segmentationType segment_formation = track_generator->getSegmentFormation();
-  if ((!track_generator->contains2DSegments() &&
-      segment_formation == EXPLICIT_2D) || (segment_formation == EXPLICIT_3D &&
-      !track_generator->contains3DSegments()))
+  TrackGenerator3D* track_generator_3D =
+    dynamic_cast<TrackGenerator3D*>(track_generator);
+
+  /* Check to make sure proper segments have been generated */
+  if (!track_generator->containsSegments())
     log_printf(ERROR, "Unable to set the TrackGenerator for the Solver "
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _solve_3D = _track_generator->isSolve3D();
   _segment_formation = _track_generator->getSegmentFormation();
   _num_azim = _track_generator->getNumAzim();
-  _tracks_per_stack = _track_generator->getTracksPerStack();
   _azim_spacings = _track_generator->getAzimSpacings();
-  _polar_spacings = _track_generator->getPolarSpacings();
   _quad = _track_generator->getQuadrature();
   _num_polar = _quad->getNumPolarAngles();
   _num_tracks_by_parallel_group = _track_generator->getNumTracksByParallelGroupArray();
@@ -361,13 +361,17 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _tracks = _track_generator->getTracksArray();
 
   /* Set the number of tracks and fluxes per track */
-  if (_solve_3D) {
+  if (track_generator_3D != NULL) {
     _fluxes_per_track = _num_groups;
-    _tot_num_tracks = _track_generator->getNum3DTracks();
+    _tot_num_tracks = track_generator_3D->getNum3DTracks();
+    _polar_spacings = track_generator_3D->getPolarSpacings();
+    _tracks_per_stack = track_generator_3D->getTracksPerStack();
+    _solve_3D = true;
   }
   else {
     _fluxes_per_track = _num_groups * _num_polar/2;
     _tot_num_tracks = _track_generator->getNum2DTracks();
+    _solve_3D = false;
   }
 
   /* Retrieve and store the Geometry from the TrackGenerator */
@@ -637,9 +641,12 @@ void Solver::initializeCmfd() {
   _cmfd->setAzimSpacings(_track_generator->getAzimSpacings(), _num_azim);
   _cmfd->initialize();
 
-  if (_solve_3D)
+
+  TrackGenerator3D* track_generator_3D =
+    dynamic_cast<TrackGenerator3D*>(_track_generator);
+  if (track_generator_3D != NULL)
     _cmfd->setPolarSpacings
-      (_track_generator->getPolarSpacings(), _num_azim, _num_polar);
+      (track_generator_3D->getPolarSpacings(), _num_azim, _num_polar);
 }
 
 
@@ -974,8 +981,10 @@ void Solver::printTimerReport() {
 
   /* Time per segment */
   int num_segments = 0;
-  if (_solve_3D)
-    num_segments = _track_generator->getNum3DSegments();
+  TrackGenerator3D* track_generator_3D =
+    dynamic_cast<TrackGenerator3D*>(_track_generator);
+  if (track_generator_3D != NULL)
+    num_segments = track_generator_3D->getNum3DSegments();
   else
     num_segments = _track_generator->getNum2DSegments();
 

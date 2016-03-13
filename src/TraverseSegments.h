@@ -15,6 +15,7 @@
 #include "Track3D.h"
 #include "Geometry.h"
 #include "TrackGenerator.h"
+#include "TrackGenerator3D.h"
 
 
 /**
@@ -57,6 +58,7 @@ protected:
 
   /** Pointer to the associated TrackGenerator */
   TrackGenerator* _track_generator;
+  TrackGenerator3D* _track_generator_3D;
 
   /** A pointer to the associated global z-mesh (if applicable) */
   FP_PRECISION* _global_z_mesh;
@@ -84,7 +86,9 @@ protected:
         (_segment_formation != EXPLICIT_3D))) {
 
       /* Allocate kernels */
-      int num_rows = _track_generator->getNumRows();
+      int num_rows = 1;
+      if (_track_generator_3D != NULL)
+        num_rows = _track_generator_3D->getNumRows();
       MOCKernel** kernels = new MOCKernel*[num_rows];
       for (int z=0; z < num_rows; z++)
         kernels[z] = new KernelType(_track_generator, z);
