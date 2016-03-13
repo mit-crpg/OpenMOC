@@ -120,7 +120,6 @@ protected:
   segmentationType _segment_formation;
 
   /** Max optical segment length for Tracks before splitting */
-  //FIXME: make this true
   FP_PRECISION _max_optical_length;
 
   /** Maximum number of track segmenets in a single Track */
