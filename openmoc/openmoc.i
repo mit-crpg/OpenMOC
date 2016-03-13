@@ -28,6 +28,7 @@
   #include "../src/linalg.h"
   #include "../src/Progress.h"
   #include "../src/TrackGenerator.h"
+  #include "../src/TrackGenerator3D.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
   #include "../src/boundary_type.h"
@@ -514,6 +515,7 @@ namespace std {
 %include ../src/linalg.h
 %include ../src/Progress.h
 %include ../src/TrackGenerator.h
+%include ../src/TrackGenerator3D.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/boundary_type.h

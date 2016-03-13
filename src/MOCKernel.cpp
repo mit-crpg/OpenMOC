@@ -1,5 +1,6 @@
 #include "MOCKernel.h"
 #include "TrackGenerator.h"
+#include "TrackGenerator3D.h"
 
 /**
  * @brief Constructor for the MOCKernel assigns default values
@@ -27,8 +28,8 @@ VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
   _FSR_locks = track_generator->getFSRLocks();
 
   if (_FSR_locks == NULL)
-    log_printf(ERROR, "Unable to create a VolumeKernel without "
-               "first creating FSR locks");
+    log_printf(ERROR, "Unable to create a VolumeKernel without first creating "
+               "FSR locks");
 
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _weight = 0;
@@ -48,7 +49,12 @@ SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator,
                                        : MOCKernel(track_generator, row_num) {
 
   int thread_id = omp_get_thread_num();
-  _segments = track_generator->getTemporarySegments(thread_id, row_num);
+  TrackGenerator3D* track_generator_3D =
+    dynamic_cast<TrackGenerator3D*>(track_generator);
+  if (track_generator_3D != NULL)
+    _segments = track_generator_3D->getTemporarySegments(thread_id, row_num);
+  else
+    _segments = NULL;
 }
 
 

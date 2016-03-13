@@ -27,6 +27,8 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _FSR_volumes = NULL;
   _dump_segments = true;
   _FSR_locks = NULL;
+  _num_tracks_by_parallel_group = NULL;
+  _tracks_2D_array = NULL;
 }
 
 
@@ -156,7 +158,7 @@ int TrackGenerator::getNum2DTracks() {
  */
 int TrackGenerator::getNum2DSegments() {
 
-  if (!contains2DSegments())
+  if (!TrackGenerator::containsSegments())
     log_printf(ERROR, "Cannot get the number of 2D segments since they "
                "have not been generated.");
 
@@ -181,7 +183,7 @@ int TrackGenerator::getNum2DSegments() {
  */
 Track** TrackGenerator::get2DTracksArray() {
 
-  if (!contains2DTracks())
+  if (!TrackGenerator::containsTracks())
     log_printf(ERROR, "Unable to return the 1D array of Tracks "
                "since Tracks have not yet been generated.");
 
@@ -207,7 +209,7 @@ Track** TrackGenerator::getTracksArray() {
  */
 Track2D** TrackGenerator::get2DTracks() {
 
-  if (!contains2DTracks())
+  if (!TrackGenerator::containsTracks())
     log_printf(ERROR, "Unable to return the 3D ragged array of the 2D Tracks "
                "since Tracks have not yet been generated.");
 
@@ -479,12 +481,7 @@ void TrackGenerator::setNumAzim(int num_azim) {
                "the TrackGenerator since it is not a multiple of 4", num_azim);
 
   _num_azim = num_azim;
-  _contains_2D_tracks = false;
-  _contains_3D_tracks = false;
-  _contains_2D_segments = false;
-  _contains_3D_segments = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -503,12 +500,7 @@ void TrackGenerator::setNumPolar(int num_polar) {
                "TrackGenerator since it is not a multiple of 2", num_polar);
 
   _num_polar = num_polar;
-  _contains_2D_tracks = false;
-  _contains_3D_tracks = false;
-  _contains_2D_segments = false;
-  _contains_3D_segments = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -522,12 +514,7 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
                "%f for the TrackGenerator.", spacing);
 
   _azim_spacing = spacing;
-  _contains_2D_tracks = false;
-  _contains_3D_tracks = false;
-  _contains_2D_segments = false;
-  _contains_3D_segments = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -537,13 +524,7 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
  */
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
-  _contains_2D_tracks = false;
-  _contains_3D_tracks = false;
-  _contains_2D_segments = false;
-  _contains_3D_segments = false;
-  _contains_global_z_mesh = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -566,46 +547,24 @@ void TrackGenerator::setQuadrature(Quadrature* quadrature) {
 
 
 /**
- * @brief Returns whether or not the TrackGenerator contains 2D Tracks
+ * @brief Returns whether or not the TrackGenerator contains Tracks
  *        for its current number of azimuthal angles, track spacing and
  *        geometry.
- * @return true if the TrackGenerator conatains 2D Tracks; false otherwise
+ * @return true if the TrackGenerator conatains Tracks; false otherwise
  */
-bool TrackGenerator::contains2DTracks() {
+bool TrackGenerator::containsTracks() {
   return _contains_2D_tracks;
 }
 
 
 /**
- * @brief Returns whether or not the TrackGenerator contains 3D Tracks
+ * @brief Returns whether or not the TrackGenerator contains segments
  *        for its current number of azimuthal angles, track spacing and
- *        geometry.
- * @return true if the TrackGenerator conatains 3D Tracks; false otherwise
+ *        geometry for it's current segmentation type.
+ * @return true if the TrackGenerator conatains segments; false otherwise
  */
-bool TrackGenerator::contains3DTracks() {
-  return _contains_3D_tracks;
-}
-
-
-/**
- * @brief Returns whether or not the TrackGenerator contains 2D segments
- *        for its current number of azimuthal angles, track spacing and
- *        geometry.
- * @return true if the TrackGenerator conatains 2D segments; false otherwise
- */
-bool TrackGenerator::contains2DSegments() {
+bool TrackGenerator::containsSegments() {
   return _contains_2D_segments;
-}
-
-
-/**
- * @brief Returns whether or not the TrackGenerator contains 3D segments
- *        for its current number of azimuthal angles, track spacing and
- *        geometry.
- * @return true if the TrackGenerator conatains 3D segments; false otherwise
- */
-bool TrackGenerator::contains3DSegments() {
-  return _contains_3D_segments;
 }
 
 
@@ -815,6 +774,7 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
 //FIXME: abstract for 2D / 3D
 void TrackGenerator::checkBoundaryConditions() {
 
+  /* Check X and Y boundaries for consistency */
   if ((_geometry->getMinXBoundaryType() == PERIODIC &&
        _geometry->getMaxXBoundaryType() != PERIODIC) ||
       (_geometry->getMinXBoundaryType() != PERIODIC &&
@@ -827,34 +787,20 @@ void TrackGenerator::checkBoundaryConditions() {
             _geometry->getMaxYBoundaryType() == PERIODIC))
     log_printf(ERROR, "Cannot create tracks with only one y boundary"
                " set to PERIODIC");
-  else if ((_geometry->getMinZBoundaryType() == PERIODIC &&
-            _geometry->getMaxZBoundaryType() != PERIODIC) ||
-           (_geometry->getMinZBoundaryType() != PERIODIC &&
-            _geometry->getMaxZBoundaryType() == PERIODIC))
-    log_printf(ERROR, "Cannot create tracks with only one z boundary"
-               " set to PERIODIC");
 
   /* Check for correct track method if a PERIODIC bc is present */
   if (_geometry->getMinXBoundaryType() == PERIODIC ||
-      _geometry->getMinYBoundaryType() == PERIODIC ||
-      _geometry->getMinZBoundaryType() == PERIODIC) {
+      _geometry->getMinYBoundaryType() == PERIODIC)
 
     _periodic = true;
 
-    if (_track_generation_method != MODULAR_RAY_TRACING &&
-        _track_generation_method != SIMPLIFIED_MODULAR_RAY_TRACING &&
-        _solve_3D)
-      log_printf(ERROR, "Cannot create tracks for a geometry containing a"
-                 " periodic BC with a track generation method that is not"
-                 " modular");
-  }
   else
     _periodic = false;
 }
 
 
 //FIXME: description
-void TrackGenerator::trackLaydown2D() {
+void TrackGenerator::trackLaydown() {
 
   if (_geometry == NULL)
     log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
@@ -869,13 +815,13 @@ void TrackGenerator::trackLaydown2D() {
                "total width and height of the model.");
 
   /* Initialize the 2D tracks */
-  initialize2DTracks();
+  TrackGenerator::initializeTracks();
 
   /* Recalibrate the 2D tracks back to the geometry origin */
-  recalibrate2DTracksToOrigin();
+  TrackGenerator::recalibrateTracksToOrigin();
 
   /* Initialize the 1D array of Tracks for all 2D Tracks */
-  initializeTracks2DArray();
+  TrackGenerator::initializeTracksArray();
 }
 
 
@@ -891,12 +837,11 @@ void TrackGenerator::generateTracks() {
 
   /* Generate Tracks, perform ray tracing across the geometry, and store
    * the data to a Track file */
-  //FIXME: why try?
   try {
 
     /* Create default quadrature set if user one has not been set */
     if (_quadrature == NULL)
-      createDefaultQuadrature();
+      initializeDefaultQuadrature();
 
     /* Initialize the quadrature set */
     _quadrature->setNumPolarAngles(_num_polar);
@@ -907,7 +852,7 @@ void TrackGenerator::generateTracks() {
     checkBoundaryConditions();
 
     /* Lay down Tracks accross the Geometry */
-    trackLaydown(); // FIXME
+    trackLaydown();
 
     /* Initialize the track file directory and read in tracks if they exist */
     initializeTrackFileDirectory();
@@ -950,7 +895,7 @@ void TrackGenerator::initializeDefaultQuadrature() {
 }
 
 
-// FIXME: description, make virtual
+// FIXME: description
 void TrackGenerator::setTotalWeights() {
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
@@ -1014,7 +959,7 @@ segmentationType TrackGenerator::getSegmentFormation() {
  *          angles and spacing, the number of Tracks per angle and the start
  *          and end Points for each Track are computed.
  */
-void TrackGenerator::initialize2DTracks() {
+void TrackGenerator::initializeTracks() {
 
   log_printf(NORMAL, "Initializing 2D tracks...");
 
@@ -1125,10 +1070,10 @@ void TrackGenerator::initialize2DTracks() {
   _contains_2D_tracks = true;
 
   /* Initialize the track reflections and cycle ids */
-  initialize2DTrackReflections();
-  initialize2DTrackCycleIds();
-  initialize2DTrackPeriodicIndices();
-  initialize2DTrackCycles();
+  TrackGenerator::initializeTrackReflections();
+  TrackGenerator::initializeTrackCycleIds();
+  TrackGenerator::initializeTrackPeriodicIndices();
+  initializeTrackCycles();
 }
 
 
@@ -1137,7 +1082,7 @@ void TrackGenerator::initialize2DTracks() {
  * @details This method creates an array of 2D Tracks ordered by azimuthal
  *          angle, cycle index, and train index.
  */
-void TrackGenerator::initialize2DTrackCycles() {
+void TrackGenerator::initializeTrackCycles() {
 
   _tracks_2D_cycle  = new Track2D***[_num_azim/4];
   for (int a=0; a < _num_azim/4; a++) {
@@ -1182,7 +1127,7 @@ void TrackGenerator::initialize2DTrackCycles() {
  *          the TrackGenerator analytically, handling both reflective and
  *          periodic boundaries.
  */
-void TrackGenerator::initialize2DTrackReflections() {
+void TrackGenerator::initializeTrackReflections() {
 
   log_printf(NORMAL, "Initializing 2D tracks reflections...");
 
@@ -1258,7 +1203,7 @@ void TrackGenerator::initialize2DTrackReflections() {
  *          numbers until all 2D Tracks are traversed. This is done for both
  *          periodic and reflective connections.
  */
-void TrackGenerator::initialize2DTrackCycleIds() {
+void TrackGenerator::initializeTrackCycleIds() {
 
   log_printf(NORMAL, "Initializing 2D track cycle ids...");
 
@@ -1322,7 +1267,7 @@ void TrackGenerator::initialize2DTrackCycleIds() {
  *          at the bottom right corner for simplicity. This method corrects
  *          for this by re-assigning the start and end Point coordinates.
  */
-void TrackGenerator::recalibrate2DTracksToOrigin() {
+void TrackGenerator::recalibrateTracksToOrigin() {
 
   /* Recalibrate the tracks to the origin and set the uid. Note that the
    * loop structure is unconventional in order to preserve an increasing
@@ -1402,7 +1347,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
   /* Check to see if a Track file exists for this geometry, number of azimuthal
    * angles, and track spacing, and if so, import the ray tracing data */
-  _tracks_filename = getTestFilename();
+  _tracks_filename = getTestFilename(directory.str());
   if (!stat(_tracks_filename.c_str(), &buffer)) {
     if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D) {
       if (readSegmentsFromFile()) {
@@ -1415,19 +1360,19 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
 
 //FIXME
-std::string TrackGenerator::getTestFilename() {
+std::string TrackGenerator::getTestFilename(std::string directory) {
 
   std::stringstream test_filename;
 
   if (_geometry->getCmfd() != NULL)
-    test_filename << directory.str() << "/2D_"
+    test_filename << directory << "/2D_"
                   << _num_azim << "_azim_"
                   << _azim_spacing << "_cm_spacing_cmfd_"
                   << _geometry->getCmfd()->getNumX()
                   << "x" << _geometry->getCmfd()->getNumY()
                   << ".data";
   else
-    test_filename << directory.str() << "/2D_"
+    test_filename << directory << "/2D_"
                   << _num_azim << "_angles_"
                   << _azim_spacing << "_cm_spacing.data";
 
@@ -1436,7 +1381,7 @@ std::string TrackGenerator::getTestFilename() {
 
 
 // FIXME
-TrackGenerator::setContainsSegments(bool contains_segments) {
+void TrackGenerator::setContainsSegments(bool contains_segments) {
   _contains_2D_segments = contains_segments;
 }
 
@@ -1454,7 +1399,7 @@ void TrackGenerator::dumpSegmentsToFile() {
 
   log_printf(NORMAL, "Dumping segments to file...");
 
-  if (!_contains_3D_segments && !_contains_2D_segments)
+  if (!containsSegments())
     log_printf(ERROR, "Unable to dump Segments to a file since no Segments "
                "have been generated for %d azimuthal angles and %f track "
                "spacing", _num_azim, _azim_spacing);
@@ -1673,9 +1618,9 @@ bool TrackGenerator::readSegmentsFromFile() {
  */
 void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
-  if (!_contains_2D_segments && !_contains_3D_segments)
-    log_printf(ERROR, "Unable to split segments since "
-	       "segments have not yet been generated");
+  if (!containsSegments())
+    log_printf(ERROR, "Unable to split segments since segments have not yet "
+                      "been generated");
 
   if (_segment_formation != EXPLICIT_3D && _segment_formation != EXPLICIT_2D)
     log_printf(ERROR, "Segments cannot be split for on-the-fly ray tracing");
@@ -1779,39 +1724,19 @@ FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
 void TrackGenerator::countSegments() {
 
   std::string msg = "Counting segments";
+  std::cout << "Check CSx0" << std::endl;
   Progress progress(_num_2D_tracks, msg);
 
   /* Count the number of segments on each track and update the maximium */
   SegmentCounter counter(this);
+  std::cout << "Check CSx1" << std::endl;
   counter.execute();
+  std::cout << "Check CSx2" << std::endl;
 
   /* Allocate new temporary segments if necessary */
-  //FIXME
-  if (_segment_formation != EXPLICIT_3D && _segment_formation != EXPLICIT_2D) {
-    if (_max_num_segments > _num_columns) {
-
-      /* Widen the number of columns in the temporary segments matrix */
-      _num_columns = _max_num_segments;
-
-      /* Delete temporary segments if already allocated */
-      if (_contains_temporary_segments) {
-        for (int t = 0; t < _num_threads; t++)
-          for (int z = 0; z < _num_rows; z++)
-            delete [] _temporary_segments.at(t)[z];
-      }
-      else {
-        _temporary_segments.resize(_num_threads);
-        for (int t = 0; t < _num_threads; t++)
-          _temporary_segments.at(t) = new segment*[_num_rows];
-        _contains_temporary_segments = true;
-      }
-
-      /* Allocate new temporary segments */
-      for (int t = 0; t < _num_threads; t++)
-        for (int z = 0; z < _num_rows; z++)
-          _temporary_segments.at(t)[z] = new segment[_num_columns];
-    }
-  }
+  if (_segment_formation != EXPLICIT_3D && _segment_formation != EXPLICIT_2D)
+    allocateTemporarySegments();
+  std::cout << "Check CSx3" << std::endl;
 }
 
 
@@ -1820,7 +1745,7 @@ void TrackGenerator::countSegments() {
  * @details Periodic cylces are traversed until all 2D Tracks are visited and
  *          their periodic indices are set
  */
-void TrackGenerator::initialize2DTrackPeriodicIndices() {
+void TrackGenerator::initializeTrackPeriodicIndices() {
 
   log_printf(NORMAL, "Initializing track periodic indices...");
 
@@ -1905,7 +1830,6 @@ void TrackGenerator::initializeTracksArray() {
    * guaranteed to contain tracks that do not transport into other tracks both
    * reflectively and periodically. This is done to guarantee reproducability
    * in parallel runs. */
-  //FIXME
   for (int g = 0; g < _num_parallel_track_groups; g++) {
 
     /* Set the azimuthal and periodic group ids */
@@ -1959,7 +1883,7 @@ void TrackGenerator::initializeTracksArray() {
  *         halfspaces
  */
 int* TrackGenerator::getNumTracksByParallelGroupArray() {
-  if (!_contains_2D_tracks && !_contains_3D_tracks)
+  if (!containsTracks())
     log_printf(ERROR, "Unable to return the array with the Track uid "
                "separating the azimuthal and periodic halspaces since "
                "Tracks have not yet been generated.");
@@ -1995,3 +1919,15 @@ bool TrackGenerator::getPeriodic() {
 void TrackGenerator::setDumpSegments(bool dump_segments) {
   _dump_segments = dump_segments;
 }
+
+
+//FIXME: description
+void TrackGenerator::resetStatus() {
+  _contains_2D_tracks = false;
+  _contains_2D_segments = false;
+  _use_input_file = false;
+  _tracks_filename = "";
+}
+
+// FIXME: description
+void TrackGenerator::allocateTemporarySegments() {}
