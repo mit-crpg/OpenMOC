@@ -5,6 +5,7 @@
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
 
+
 #ifndef TRACKGENERATOR_H_
 #define TRACKGENERATOR_H_
 
@@ -16,13 +17,13 @@
 #include "Track2D.h"
 #include "Geometry.h"
 #include "MOCKernel.h"
+#include "segmentation_type.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
 #include <omp.h>
 #include <tuple>
-#include "segmentation_type.h"
 #endif
 
 
@@ -49,9 +50,6 @@ protected:
   /** The requested track azimuthal spacing (cm) */
   double _azim_spacing;
 
-  /** The actual track azimuthal spacing for each azimuthal angle (cm) */
-  double* _azim_spacings;
-
   /** An integer array of the number of Tracks in a cycle for each azim angle */
   int* _tracks_per_cycle;
 
@@ -64,32 +62,28 @@ protected:
   /** The total number of Tracks for all azimuthal angles */
   int _num_2D_tracks;
 
-  /** An integer array with the Track uid separating the azimuthal, polar, and
-   * periodic halfspaces */
+  /** An integer array with the number of Tracks in each parallel track group */
   int* _num_tracks_by_parallel_group;
 
-  /** The number of parallel groups of tracks */
+  /** The number of the track groups needed to ensure data races don't occur
+   *  during the Solver's transportSweep */
   int _num_parallel_track_groups;
 
-  /** Boolen to indicate whether a periodic BC exists */
-  bool _periodic;
-
-  /** An integer array of the number of Tracks starting on each axis */
+  /** An integer array of the number of Tracks starting on the x-axis for each
+   *  azimuthal angle */
   int* _num_x;
-  int* _num_y;
-  double* _dx_eff;
-  double* _dy_eff;
 
-  /** The quadrature set */
-  Quadrature* _quadrature;
+  /** An integer array of the number of Tracks starting on the y-axis for each
+   *  azimuthal angle */
+  int* _num_y;
+
+  /** An array of the azimuthal angle quadrature weights */
+  FP_PRECISION* _azim_spacings;
 
   /** A 2D ragged array of 2D tracks (azim, track index) */
   Track2D** _tracks_2D;
 
-  /** A 2D ragged array of 2D tracks (azim, cycle, train index) */
-  Track2D**** _tracks_2D_cycle;
-
-  /** An array of track pointers used in the Solver */
+  /** A 1D array of Track pointers arranged by parallel group */
   Track** _tracks_2D_array;
 
   /** Pointer to the Geometry */
@@ -98,14 +92,32 @@ protected:
   /** Boolean for whether to use Track input file (true) or not (false) */
   bool _use_input_file;
 
-  /** Determines the type of track segmentation to use */
-  segmentationType _segment_formation;
-
-  /** The z coord where the 2D tracks should be generated */
-  double _z_coord;
-
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
+
+  /** OpenMP mutual exclusion locks for atomic FSR operations */
+  omp_lock_t* _FSR_locks;
+
+  /** Boolean whether the Tracks have been generated (true) or not (false) */
+  bool _contains_2D_tracks;
+
+  /** Boolean whether 2D segments have been generated (true) or not (false) */
+  bool _contains_2D_segments;
+
+  /** The quadrature set */
+  Quadrature* _quadrature;
+
+  /** The z-coord where the 2D Tracks should be created */
+  double _z_coord;
+
+  /** Boolen to indicate whether a periodic BC exists */
+  bool _periodic;
+
+  /** A 2D ragged array of 2D tracks (azim, cycle, train index) */
+  Track2D**** _tracks_2D_cycle;
+
+  /** Determines the type of track segmentation to use */
+  segmentationType _segment_formation;
 
   /** Max optical segment length for Tracks before splitting */
   //FIXME: make this true
@@ -117,16 +129,8 @@ protected:
   /** Boolean to indicate whether the segments should be dumped to file */
   bool _dump_segments;
 
-  /** OpenMP mutual exclusion locks for atomic FSR operations */
-  omp_lock_t* _FSR_locks;
-
   /** A buffer holding the computed FSR volumes */
   FP_PRECISION* _FSR_volumes;
-
-  /** Booleans to indicate whether the Tracks and segments have been generated
-   *  (true) or not (false) */
-  bool _contains_2D_tracks;
-  bool _contains_2D_segments;
 
   /** Private class methods */
   virtual void initializeTracks();
@@ -138,7 +142,6 @@ protected:
   virtual void setContainsSegments(bool contains_segments);
   virtual void allocateTemporarySegments();
   virtual void resetStatus();
-  virtual void trackLaydown();
   virtual void initializeDefaultQuadrature();
   virtual std::string getTestFilename(std::string directory);
 
@@ -172,8 +175,6 @@ public:
   double getCycleLength(int azim);
   int getNumX(int azim);
   int getNumY(int azim);
-  double getDxEff(int azim);
-  double getDyEff(int azim);
   void exportFSRVolumes(double* out_volumes, int num_fsrs);
   FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();

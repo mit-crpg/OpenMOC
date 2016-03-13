@@ -1,5 +1,5 @@
 #include "TrackGenerator3D.h"
-//FIXME
+
 
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
@@ -82,13 +82,11 @@ TrackGenerator3D::~TrackGenerator3D() {
     for (int a=0; a < _num_azim/4; a++) {
       delete [] _num_l[a];
       delete [] _num_z[a];
-      delete [] _dl_eff[a];
       delete [] _dz_eff[a];
       delete [] _polar_spacings[a];
     }
     delete [] _num_l;
     delete [] _num_z;
-    delete [] _dl_eff;
     delete [] _dz_eff;
     delete [] _polar_spacings;
 
@@ -167,7 +165,7 @@ int TrackGenerator3D::getNum3DSegments() {
  *          returned, arranged by increasing unique identifier (UID).
  * @return the array of Track pointers
  */
-Track** TrackGenerator3D::get3DTracksArray() {
+Track** TrackGenerator3D::getTracksArray() {
 
   if (!containsTracks())
     log_printf(ERROR, "Unable to return the 1D array of Tracks "
@@ -654,6 +652,17 @@ void TrackGenerator3D::retrieve3DSegmentCoords(double* coords, int num_segments)
  */
 void TrackGenerator3D::initializeTracks() {
 
+  /* Initialize the 2D tracks */
+  TrackGenerator::initializeTracks();
+
+  /* Make sure that the depth of the Geometry is nonzero */
+  if (_geometry->getWidthZ() <= 0)
+    log_printf(ERROR, "The total depth of the Geometry must"
+               " be nonzero for 3D Track generation. Create a CellFill which "
+               "is filled by the entire geometry and bounded by XPlanes, "
+               "YPlanes, and ZPlanes to enable the Geometry to determine the "
+               "total width, height, and depth of the model.");
+
   if (!_contains_2D_tracks)
     log_printf(ERROR, "Cannot initialize 3D tracks since the 2D tracks "
                "have not been created");
@@ -662,7 +671,6 @@ void TrackGenerator3D::initializeTracks() {
 
   /* Allocate memory for arrays */
   _dz_eff    = new double*[_num_azim/4];
-  _dl_eff    = new double*[_num_azim/4];
   _num_z            = new int*[_num_azim/4];
   _num_l            = new int*[_num_azim/4];
   _polar_spacings   = new double*[_num_azim/4];
@@ -672,7 +680,6 @@ void TrackGenerator3D::initializeTracks() {
 
   for (int i=0; i < _num_azim/4; i++) {
     _dz_eff[i]         = new double[_num_polar/2];
-    _dl_eff[i]         = new double[_num_polar/2];
     _num_z[i]          = new int[_num_polar/2];
     _num_l[i]          = new int[_num_polar/2];
     _polar_spacings[i] = new double[_num_polar/2];
@@ -691,7 +698,10 @@ void TrackGenerator3D::initializeTracks() {
 
   double x1, x2, y1, y2, z1, z2;
   double theta;
+  double width  = _geometry->getWidthX();
+  double height = _geometry->getWidthY();
   double depth  = _geometry->getWidthZ();
+  double dl_eff[_num_azim/4][_num_polar/2];
 
   /* Determine angular quadrature and track spacing */
   for (int i = 0; i < _num_azim/4; i++) {
@@ -713,11 +723,12 @@ void TrackGenerator3D::initializeTracks() {
                 * sin(theta) / _polar_spacing) + 1);
       }
       else if (_track_generation_method == SIMPLIFIED_MODULAR_RAY_TRACING) {
-        double cycle_length = sqrt(_dx_eff[i]*_dx_eff[i]
-                                   + _dy_eff[i]*_dy_eff[i]);
+        double dx = width / _num_x[i];
+        double dy = height / _num_y[i];
+        double dl = sqrt(dx*dx + dy*dy);
         _num_l[i][j] =  (int)
-          round(_cycle_length[i] / cycle_length *
-                ceil(fabs(cycle_length * tan(M_PI_2 - theta)
+          round(_cycle_length[i] / dl *
+                ceil(fabs(dl * tan(M_PI_2 - theta)
                           * sin(theta) / _polar_spacing)));
       }
 
@@ -726,9 +737,9 @@ void TrackGenerator3D::initializeTracks() {
                                  / _cycle_length[i])) + 1;
 
       /* Effective track spacing */
-      _dl_eff[i][j]          = _cycle_length[i] / _num_l[i][j];
+      dl_eff[i][j]          = _cycle_length[i] / _num_l[i][j];
       _dz_eff[i][j]          = depth            / _num_z[i][j];
-      _quadrature->setTheta(atan(_dl_eff[i][j] / _dz_eff[i][j]), i, j);
+      _quadrature->setTheta(atan(dl_eff[i][j] / _dz_eff[i][j]), i, j);
       _polar_spacings[i][j] = _dz_eff[i][j] * sin(_quadrature->getTheta(i, j));
     }
   }
@@ -812,7 +823,7 @@ void TrackGenerator3D::initializeTracks() {
 
           /* Get the starting point */
           if (i < _num_l[a][p]) {
-            l_start = _cycle_length[a] - (i + 0.5) * _dl_eff[a][p];
+            l_start = _cycle_length[a] - (i + 0.5) * dl_eff[a][p];
             x1 = convertLtoX(l_start, a, c);
             y1 = convertLtoY(l_start, a, c);
             z1 = 0.0;
@@ -834,7 +845,7 @@ void TrackGenerator3D::initializeTracks() {
             z2 = _dz_eff[a][p] * (i + 0.5);
           }
           else{
-            l_end = _cycle_length[a] - _dl_eff[a][p] *
+            l_end = _cycle_length[a] - dl_eff[a][p] *
                 (i - _num_z[a][p] + 0.5);
             x2 = convertLtoX(l_end, a, c);
             y2 = convertLtoY(l_end, a, c);
@@ -878,7 +889,7 @@ void TrackGenerator3D::initializeTracks() {
             z1 = _dz_eff[a][p] * (i + 0.5);
           }
           else{
-            l_start = _dl_eff[a][p] * (i - _num_z[a][p] + 0.5);
+            l_start = dl_eff[a][p] * (i - _num_z[a][p] + 0.5);
             x1 = convertLtoX(l_start, a, c);
             y1 = convertLtoY(l_start, a, c);
             z1 = depth;
@@ -886,7 +897,7 @@ void TrackGenerator3D::initializeTracks() {
 
           /* Get the end point */
           if (i < _num_l[a][p]) {
-            l_end = _dl_eff[a][p] * (i + 0.5);
+            l_end = dl_eff[a][p] * (i + 0.5);
             x2 = convertLtoX(l_end, a, c);
             y2 = convertLtoY(l_end, a, c);
             z2 = 0.0;
@@ -1945,6 +1956,9 @@ void TrackGenerator3D::recalibrateTracksToOrigin() {
    * for parallel runs.
    */
 
+  /* Recalibrate the 2D tracks back to the geometry origin */
+  TrackGenerator::recalibrateTracksToOrigin();
+
   /* Loop over azim reflective halfspaces */
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
@@ -2017,11 +2031,9 @@ void TrackGenerator3D::segmentizeExtruded() {
   _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
-  std::cout << "CHECK 1" << std::endl;
 
   /* Count the number of segments in each track */
   countSegments();
-  std::cout << "CHECK 2" << std::endl;
 
   return;
 }
@@ -2314,31 +2326,6 @@ void TrackGenerator3D::create3DTracksArrays() {
 }
 
 
-//FIXME: description
-void TrackGenerator3D::trackLaydown() {
-
-  /* Lay down 2D Tracks first */
-  TrackGenerator::trackLaydown();
-
-  /* Make sure that the depth of the Geometry is nonzero */
-  if (_geometry->getWidthZ() <= 0)
-    log_printf(ERROR, "The total depth of the Geometry must"
-               " be nonzero for 3D Track generation. Create a CellFill which "
-               "is filled by the entire geometry and bounded by XPlanes, "
-               "YPlanes, and ZPlanes to enable the Geometry to determine the "
-               "total width, height, and depth of the model.");
-
-  /* Initialize the 3D tracks */
-  initializeTracks();
-
-  /* Recalibrate the 3D tracks back to the Geometry origin */
-  recalibrateTracksToOrigin();
-
-  /* Initialize the 1D array of Tracks for all 3D Tracks */
-  initializeTracksArray();
-}
-
-
 /**
  * @brief Creates a Track array by increasing uid
  * @details An array is created which indexes Tracks by increasing uid.
@@ -2351,10 +2338,8 @@ void TrackGenerator3D::initializeTracksArray() {
 
   /* First initialize 2D Tracks */
   TrackGenerator::initializeTracksArray();
-  //FIXME: MAYBE REMOVE ABOVE???
 
   log_printf(NORMAL, "Initializing 3D tracks array...");
-  std::cout << "Check 0" << std::endl;
 
   Track* track;
   int uid = 0;
@@ -2372,7 +2357,6 @@ void TrackGenerator3D::initializeTracksArray() {
   if (_num_tracks_by_parallel_group != NULL)
     delete [] _num_tracks_by_parallel_group;
   _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
-  std::cout << "Check 1" << std::endl;
 
   /* Set the first index in the num tracks by parallel group array to 0 */
   _num_tracks_by_parallel_group[0] = 0;
@@ -2385,7 +2369,6 @@ void TrackGenerator3D::initializeTracksArray() {
     delete [] _tracks_3D_array;
   int num_3D_tracks = getNum3DTracks();
   _tracks_3D_array = new Track*[num_3D_tracks];
-  std::cout << "Check 2" << std::endl;
 
   for (int g = 0; g < _num_parallel_track_groups; g++) {
 
@@ -2441,7 +2424,6 @@ void TrackGenerator3D::initializeTracksArray() {
     /* Set the track index boundary for this parallel group */
     _num_tracks_by_parallel_group[g + 1] = uid;
   }
-  std::cout << "Check 3" << std::endl;
 }
 
 //FIXME: description
@@ -2514,10 +2496,11 @@ void TrackGenerator3D::setTotalWeights() {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
           int azim_index = _quadrature->getFirstOctantAzim(a);
           int polar_index = _quadrature->getFirstOctantPolar(p);
-          FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-                  * _quadrature->getPolarWeight(azim_index, polar_index)
-                  * getAzimSpacing(azim_index)
-                  * getPolarSpacing(azim_index, polar_index);
+          FP_PRECISION weight =
+                  _quadrature->getPolarWeight(azim_index, polar_index)
+                  * getPolarSpacing(azim_index, polar_index)
+                  * _quadrature->getAzimWeight(azim_index)
+                  * getAzimSpacing(azim_index);
           _tracks_3D[a][i][p][z].setWeight(weight);
         }
       }

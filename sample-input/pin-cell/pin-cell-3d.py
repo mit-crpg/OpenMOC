@@ -29,7 +29,6 @@ track_generator = TrackGenerator3D(geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.setSegmentFormation(OTF_STACKS)
-track_generator.setSegmentFormation(EXPLICIT_3D)
 track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
 

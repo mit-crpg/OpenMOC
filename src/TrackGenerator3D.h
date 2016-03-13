@@ -1,9 +1,8 @@
 /**
- * @file TrackGenerator.h
- * @brief The TrackGenerator class.
- * @date January 23, 2012
- * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
-FIXME
+ * @file TrackGenerator3D.h
+ * @brief The TrackGenerator3D class.
+ * @date March 13, 2016
+ * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
  */
 
 #ifndef TRACKGENERATOR3D_H_
@@ -96,7 +95,6 @@ private:
   void setContainsSegments(bool contains_segments);
   void allocateTemporarySegments();
   void resetStatus();
-  void trackLaydown();
   void initializeDefaultQuadrature();
   std::string getTestFilename(std::string directory);
 
@@ -118,7 +116,7 @@ public:
   double getDesiredPolarSpacing();
   int getNum3DTracks();
   int getNum3DSegments();
-  Track** get3DTracksArray();
+  Track** getTracksArray();
   Track3D**** get3DTracks();
   double** getPolarSpacings();
   double getPolarSpacing(int azim, int polar);
