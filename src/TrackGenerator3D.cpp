@@ -2333,7 +2333,6 @@ void TrackGenerator3D::create3DTracksArrays() {
  *          be computed in parallel without the potential of overwriting
  *          angular fluxes of connecting tracks prematurely.
  */
-//FIXME: description??
 void TrackGenerator3D::initializeTracksArray() {
 
   /* First initialize 2D Tracks */
@@ -2426,13 +2425,19 @@ void TrackGenerator3D::initializeTracksArray() {
   }
 }
 
-//FIXME: description
+
+/**
+ * @brief Allocates a new Quadrature with the default Quadrature
+ * @details The defualt quadrature for 3D calculations is equal weight
+ */
 void TrackGenerator3D::initializeDefaultQuadrature() {
   _quadrature = new EqualWeightPolarQuad();
 }
 
 
-//FIXME
+/**
+ * @brief Returns the filename for writing tracking data
+ */
 std::string TrackGenerator3D::getTestFilename(std::string directory) {
 
   std::stringstream test_filename;
@@ -2482,13 +2487,18 @@ std::string TrackGenerator3D::getTestFilename(std::string directory) {
 }
 
 
-// FIXME
+/**
+ * @brief Updates whether the TrackGenerator contains segments
+ * @param contains_segments whether the TrackGenerator contains segments
+ */
 void TrackGenerator3D::setContainsSegments(bool contains_segments) {
   _contains_3D_segments = contains_segments;
 }
 
 
-// FIXME: description, make virtual
+/**
+ * @brief Calculates and assigns the weight for every Track
+ */
 void TrackGenerator3D::setTotalWeights() {
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
@@ -2509,7 +2519,10 @@ void TrackGenerator3D::setTotalWeights() {
 }
 
 
-//FIXME: abstract for 2D / 3D
+/**
+ * @brief Checks the boundary conditions for all 3D surfaces for inconsistent
+ *        periodic boundary conditions
+ */
 void TrackGenerator3D::checkBoundaryConditions() {
 
   /* Check X and Y boundaries */
@@ -2536,7 +2549,11 @@ void TrackGenerator3D::checkBoundaryConditions() {
 }
 
 
-// FIXME: description
+/**
+ * @brief Allocates memory for temporary segment storage if necessary
+ * @details New memory is only allocated if _max_num_segments exceeds
+ *          _num_columns (the maximum when the segments were allocated)
+ */
 void TrackGenerator3D::allocateTemporarySegments() {
 
   /* Check if a resize is unnecessary */
@@ -2566,7 +2583,9 @@ void TrackGenerator3D::allocateTemporarySegments() {
 }
 
 
-//FIXME: description
+/**
+ * @brief Resets the TrackGenerator to not contain tracks or segments
+ */
 void TrackGenerator3D::resetStatus() {
   TrackGenerator::resetStatus();
   _contains_3D_tracks = false;

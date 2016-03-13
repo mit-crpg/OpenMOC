@@ -742,10 +742,9 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
 
 
 /**
- * @brief Checks boundary conditions for inconsistent periodic boundary
- *        conditions
+ * @brief Checks the boundary conditions for all 2D surfaces for inconsistent
+ *        periodic boundary conditions
  */
-//FIXME: abstract for 2D / 3D
 void TrackGenerator::checkBoundaryConditions() {
 
   /* Check X and Y boundaries for consistency */
@@ -847,13 +846,18 @@ void TrackGenerator::generateTracks() {
 }
 
 
-//FIXME: description
+/**
+ * @brief Allocates a new Quadrature with the default Quadrature
+ * @details The defualt quadrature for 2D calculations is the TY quadrature
+ */
 void TrackGenerator::initializeDefaultQuadrature() {
   _quadrature = new TYPolarQuad();
 }
 
 
-// FIXME: description
+/**
+ * @brief Calculates and assigns the weight for every Track
+ */
 void TrackGenerator::setTotalWeights() {
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
@@ -1327,7 +1331,9 @@ void TrackGenerator::initializeTrackFileDirectory() {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the filename for writing tracking data
+ */
 std::string TrackGenerator::getTestFilename(std::string directory) {
 
   std::stringstream test_filename;
@@ -1348,7 +1354,10 @@ std::string TrackGenerator::getTestFilename(std::string directory) {
 }
 
 
-// FIXME
+/**
+ * @brief Updates whether the TrackGenerator contains segments
+ * @param contains_segments whether the TrackGenerator contains segments
+ */
 void TrackGenerator::setContainsSegments(bool contains_segments) {
   _contains_2D_segments = contains_segments;
 }
@@ -1885,7 +1894,9 @@ void TrackGenerator::setDumpSegments(bool dump_segments) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Resets the TrackGenerator to not contain tracks or segments
+ */
 void TrackGenerator::resetStatus() {
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
@@ -1893,5 +1904,9 @@ void TrackGenerator::resetStatus() {
   _tracks_filename = "";
 }
 
-// FIXME: description
+
+/**
+ * @brief Allocates memory for temporary segment storage if necessary
+ * @details Temporary segments are not allocated for 2D calculations
+ */
 void TrackGenerator::allocateTemporarySegments() {}
