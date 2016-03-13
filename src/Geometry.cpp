@@ -980,14 +980,12 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
 void Geometry::segmentize3D(Track3D* track) {
 
   /* Track starting Point coordinates and azimuthal angle */
-  std::cout << "CHECK 0" << std::endl;
   double x0 = track->getStart()->getX();
   double y0 = track->getStart()->getY();
   double z0 = track->getStart()->getZ();
   double phi = track->getPhi();
   double theta = track->getTheta();
   double delta_x, delta_y, delta_z;
-  std::cout << "CHECK 0x1" << std::endl;
 
   /* Length of each segment */
   FP_PRECISION length;
@@ -1000,12 +998,10 @@ void Geometry::segmentize3D(Track3D* track) {
   LocalCoords end(x0, y0, z0);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
-  std::cout << "CHECK 0x2" << std::endl;
 
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi, theta);
   Cell* prev;
-  std::cout << "CHECK 0x3" << std::endl;
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -1015,7 +1011,6 @@ void Geometry::segmentize3D(Track3D* track) {
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
    * Geometry */
-  std::cout << "CHECK 1" << std::endl;
   while (curr != NULL) {
 
     end.copyCoords(&start);
@@ -1023,7 +1018,6 @@ void Geometry::segmentize3D(Track3D* track) {
     /* Find the next Cell along the Track's trajectory */
     prev = curr;
     curr = findNextCell(&end, phi, theta);
-    std::cout << "CHECK 2" << std::endl;
 
     /* Checks to make sure that new Segment does not have the same start
      * and end Points */
@@ -1040,7 +1034,6 @@ void Geometry::segmentize3D(Track3D* track) {
     length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
-    std::cout << "CHECK 3" << std::endl;
 
     /* Create a new Track segment */
     segment* new_segment = new segment;
@@ -1076,11 +1069,9 @@ void Geometry::segmentize3D(Track3D* track) {
       start.adjustCoords(delta_x, delta_y, delta_z);
       end.adjustCoords(delta_x, delta_y, delta_z);
     }
-    std::cout << "CHECK 4" << std::endl;
 
     /* Add the segment to the Track */
     track->addSegment(new_segment);
-    std::cout << "CHECK 5" << std::endl;
   }
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
@@ -1089,7 +1080,6 @@ void Geometry::segmentize3D(Track3D* track) {
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
-  std::cout << "CHECK 6" << std::endl;
 }
 
 

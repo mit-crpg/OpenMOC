@@ -47,8 +47,6 @@ TrackGenerator::~TrackGenerator() {
     /* Delete track laydown information */
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _dx_eff;
-    delete [] _dy_eff;
     delete [] _azim_spacings;
     delete [] _cycles_per_azim;
     delete [] _tracks_per_cycle;
@@ -243,7 +241,6 @@ double TrackGenerator::getAzimSpacing(int azim) {
 }
 
 
-
 /**
  * @breif Calculates and returns the maximum optcial length for any segment
  *        in the Geomtry.
@@ -342,29 +339,6 @@ int TrackGenerator::getNumY(int azim) {
   return _num_y[azim];
 }
 
-
-/**
- * @brief Returns the spacing between Tracks in the x-direction for a given
- *        azimuthal angle index
- * @param azim the azimuthal angle index
- * @return the spacing between Tracks in the x-direction
- */
-double TrackGenerator::getDxEff(int azim) {
-  azim = _quadrature->getFirstOctantAzim(azim);
-  return _dx_eff[azim];
-}
-
-
-/**
- * @brief Returns the spacing between Tracks in the y-direction for a given
- *        azimuthal angle index
- * @param azim the azimuthal angle index
- * @return the spacing between Tracks in the y-direction
- */
-double TrackGenerator::getDyEff(int azim) {
-  azim = _quadrature->getFirstOctantAzim(azim);
-  return _dy_eff[azim];
-}
 
 /**
  * @brief FSR volumes are coppied to an array input by the user
@@ -799,33 +773,6 @@ void TrackGenerator::checkBoundaryConditions() {
 }
 
 
-//FIXME: description
-void TrackGenerator::trackLaydown() {
-
-  if (_geometry == NULL)
-    log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
-               "has been set for the TrackGenerator");
-
-  /* Make sure that the width and height of the Geometry are nonzero */
-  if (_geometry->getWidthX() <= 0 || _geometry->getWidthY() <= 0)
-    log_printf(ERROR, "The total height and width of the Geometry must"
-               " be nonzero for Track generation. Create a CellFill which "
-               "is filled by the entire geometry and bounded by XPlanes "
-               "and YPlanes to enable the Geometry to determine the "
-               "total width and height of the model.");
-
-  /* Initialize the 2D tracks */
-  TrackGenerator::initializeTracks();
-
-  /* Recalibrate the 2D tracks back to the geometry origin */
-  TrackGenerator::recalibrateTracksToOrigin();
-
-  /* Initialize the 1D array of Tracks for all 2D Tracks */
-  TrackGenerator::initializeTracksArray();
-}
-
-
-
 /**
  * @brief Generates tracks for some number of azimuthal angles and track spacing
  * @details Computes the effective angles and track spacing. Computes the
@@ -852,7 +799,18 @@ void TrackGenerator::generateTracks() {
     checkBoundaryConditions();
 
     /* Lay down Tracks accross the Geometry */
-    trackLaydown();
+    if (_geometry == NULL)
+    log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
+               "has been set for the TrackGenerator");
+
+    /* Initialize the Tracks */
+    initializeTracks();
+
+    /* Recalibrate the Tracks back to the geometry origin */
+    recalibrateTracksToOrigin();
+
+    /* Initialize the 1D array of Tracks for all Tracks */
+    initializeTracksArray();
 
     /* Initialize the track file directory and read in tracks if they exist */
     initializeTrackFileDirectory();
@@ -961,11 +919,17 @@ segmentationType TrackGenerator::getSegmentFormation() {
  */
 void TrackGenerator::initializeTracks() {
 
+  /* Make sure that the width and height of the Geometry are nonzero */
+  if (_geometry->getWidthX() <= 0 || _geometry->getWidthY() <= 0)
+    log_printf(ERROR, "The total height and width of the Geometry must"
+               " be nonzero for Track generation. Create a CellFill which "
+               "is filled by the entire geometry and bounded by XPlanes "
+               "and YPlanes to enable the Geometry to determine the "
+               "total width and height of the model.");
+
   log_printf(NORMAL, "Initializing 2D tracks...");
 
   /* Allocate memory for arrays */
-  _dx_eff    = new double[_num_azim/4];
-  _dy_eff    = new double[_num_azim/4];
   _tracks_per_cycle = new int[_num_azim/4];
   _cycles_per_azim  = new int[_num_azim/4];
   _tracks_2D        = new Track2D*[_num_azim/2];
@@ -979,6 +943,8 @@ void TrackGenerator::initializeTracks() {
   double phi;
   double width  = _geometry->getWidthX();
   double height = _geometry->getWidthY();
+  double dx_eff[_num_azim/4];
+  double dy_eff[_num_azim/4];
 
   /* Determine angular quadrature and track spacing */
   for (int a = 0; a < _num_azim/4; a++) {
@@ -994,14 +960,14 @@ void TrackGenerator::initializeTracks() {
     _quadrature->setPhi(atan((height * _num_x[a]) / (width * _num_y[a])), a);
 
     /* Effective Track spacing (not spacing we desire, but close) */
-    _dx_eff[a]   = (width / _num_x[a]);
-    _dy_eff[a]   = (height / _num_y[a]);
-    _azim_spacings[a] = (_dx_eff[a] * sin(_quadrature->getPhi(a)));
+    dx_eff[a]   = (width / _num_x[a]);
+    dy_eff[a]   = (height / _num_y[a]);
+    _azim_spacings[a] = dx_eff[a] * sin(_quadrature->getPhi(a));
 
     /* The length of all tracks in a 2D cycle */
-    _cycle_length[a] = _dx_eff[a] / cos(_quadrature->getPhi(a)) *
+    _cycle_length[a] = dx_eff[a] / cos(_quadrature->getPhi(a)) *
       leastCommonMultiple(2 * _num_x[a], 2 * height /
-                          (tan(_quadrature->getPhi(a)) * _dx_eff[a]));
+                          (tan(_quadrature->getPhi(a)) * dx_eff[a]));
 
     /* Get the number of tracks per cycle */
     _tracks_per_cycle[a] = (int)
@@ -1020,6 +986,7 @@ void TrackGenerator::initializeTracks() {
     /* Allocate memory for the 2D tracks array */
     _tracks_2D[a] = new Track2D[getNumX(a) + getNumY(a)];
     _num_2D_tracks += getNumX(a) + getNumY(a);
+    int azim_index = _quadrature->getFirstOctantAzim(a);
 
     /* Get the azimuthal angle for all tracks with this azimuthal angle */
     phi = _quadrature->getPhi(a);
@@ -1035,33 +1002,34 @@ void TrackGenerator::initializeTracks() {
       /* Set start point */
       if (a < _num_azim/4) {
         if (i < getNumX(a))
-          track->getStart()->setCoords(width - getDxEff(a) * (i + 0.5), 0.0);
+          track->getStart()->setCoords(width - dx_eff[azim_index]
+                                       * (i + 0.5), 0.0);
         else
-          track->getStart()->setCoords(0.0, getDyEff(a) *
-                                        ((i-getNumX(a)) + 0.5));
+          track->getStart()->setCoords(0.0, dy_eff[azim_index]
+                                       * (i-getNumX(a) + 0.5));
       }
-      else{
+      else {
         if (i < getNumX(a))
-          track->getStart()->setCoords(getDxEff(a) * (i + 0.5), 0.0);
+          track->getStart()->setCoords(dx_eff[azim_index] * (i + 0.5), 0.0);
         else
-          track->getStart()->setCoords(width, getDyEff(a) *
-                                       ((i-getNumX(a)) + 0.5));
+          track->getStart()->setCoords(width, dy_eff[azim_index] *
+                                      ((i-getNumX(a)) + 0.5));
       }
 
       /* Set end point */
       if (a < _num_azim/4) {
         if (i < getNumY(a))
-          track->getEnd()->setCoords(width, getDyEff(a) * (i + 0.5));
+          track->getEnd()->setCoords(width, dy_eff[azim_index] * (i + 0.5));
         else
-          track->getEnd()->setCoords(width - getDxEff(a) *
+          track->getEnd()->setCoords(width - dx_eff[azim_index] *
                                       ((i-getNumY(a)) + 0.5), height);
       }
       else{
         if (i < getNumY(a))
-          track->getEnd()->setCoords(0.0, getDyEff(a) * (i + 0.5));
+          track->getEnd()->setCoords(0.0, dy_eff[azim_index] * (i + 0.5));
         else
-          track->getEnd()->setCoords(getDxEff(a) * ((i-getNumY(a)) + 0.5),
-                                     height);
+          track->getEnd()->setCoords(dx_eff[azim_index]
+                                     * (i-getNumY(a) + 0.5), height);
       }
     }
   }
@@ -1148,7 +1116,7 @@ void TrackGenerator::initializeTrackReflections() {
         track->setTrackReflFwd(&_tracks_2D[ac][i + getNumX(a)]);
         track->setTrackPrdcFwd(&_tracks_2D[a][i + getNumX(a)]);
       }
-      else{
+      else {
         track->setReflFwdFwd(false);
         track->setTrackReflFwd
           (&_tracks_2D[ac][(getNumX(a) + getNumY(a)) - (i - getNumY(a)) - 1]);
@@ -1161,7 +1129,7 @@ void TrackGenerator::initializeTrackReflections() {
         track->setTrackReflBwd(&_tracks_2D[ac][getNumX(a) - i - 1]);
         track->setTrackPrdcBwd(&_tracks_2D[a][i + getNumY(a)]);
       }
-      else{
+      else {
         track->setReflBwdFwd(false);
         track->setTrackReflBwd(&_tracks_2D[ac][i - getNumX(a)]);
         track->setTrackPrdcBwd(&_tracks_2D[a][i - getNumX(a)]);
@@ -1724,19 +1692,15 @@ FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
 void TrackGenerator::countSegments() {
 
   std::string msg = "Counting segments";
-  std::cout << "Check CSx0" << std::endl;
   Progress progress(_num_2D_tracks, msg);
 
   /* Count the number of segments on each track and update the maximium */
   SegmentCounter counter(this);
-  std::cout << "Check CSx1" << std::endl;
   counter.execute();
-  std::cout << "Check CSx2" << std::endl;
 
   /* Allocate new temporary segments if necessary */
   if (_segment_formation != EXPLICIT_3D && _segment_formation != EXPLICIT_2D)
     allocateTemporarySegments();
-  std::cout << "Check CSx3" << std::endl;
 }
 
 
