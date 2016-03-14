@@ -104,12 +104,6 @@ public:
   double** getPolarSpacings();
   double getPolarSpacing(int azim, int polar);
 
-  //FIXME: remove
-  double* getAzimSpacings();
-  double getAzimSpacing(int azim);
-  double** getPolarSpacings();
-  double getPolarSpacing(int azim, int polar);
-
   virtual void setNumAzimAngles(const int num_azim);
   virtual void setNumPolarAngles(const int num_polar);
   void setThetas(double* thetas, int num_azim_times_polar);
