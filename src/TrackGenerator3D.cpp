@@ -21,8 +21,8 @@ TrackGenerator3D::TrackGenerator3D(Geometry* geometry, const int num_azim,
   _contains_temporary_segments = false;
   _segment_formation = EXPLICIT_3D;
   _max_num_tracks_per_stack = 0;
-  _num_rows = 0;
-  _num_columns = 0;
+  _num_seg_matrix_rows = 0;
+  _num_seg_matrix_columns = 0;
   _track_generation_method = GLOBAL_TRACKING;
   _tracks_3D_array = NULL;
 }
@@ -93,7 +93,7 @@ TrackGenerator3D::~TrackGenerator3D() {
     /* Delete temporary segments if they exist */
     if (_contains_temporary_segments) {
       for (int t = 0; t < _num_threads; t++) {
-        for (int z = 0; z < _num_rows; z++)
+        for (int z = 0; z < _num_seg_matrix_rows; z++)
           delete [] _temporary_segments.at(t)[z];
         delete [] _temporary_segments.at(t);
       }
@@ -250,14 +250,14 @@ int TrackGenerator3D::getMaxNumTracksPerStack() {
  *          index (row) and the segment number (column). For ray tracing by
  *          individual Tracks the number of rows is always one since temporary
  *          segments only need to be stored for one Track at a time.
- * @return _num_rows the number of rows in the temporary segment storage matrix
+ * @return _num_seg_matrix_rows the number of rows in the temporary segment storage matrix
  */
 int TrackGenerator3D::getNumRows() {
   if (_segment_formation == OTF_STACKS)
-    _num_rows = _max_num_tracks_per_stack;
+    _num_seg_matrix_rows = _max_num_tracks_per_stack;
   else
-    _num_rows = 1;
-  return _num_rows;
+    _num_seg_matrix_rows = 1;
+  return _num_seg_matrix_rows;
 }
 
 
@@ -268,11 +268,11 @@ int TrackGenerator3D::getNumRows() {
  *          index (row) and the segment number (column). The number of columns
  *          is equal to the maximum number of segments per Track at the time of
  *          allocation.
- * @return _num_columns the number of columns in the temporary segment storage
+ * @return _num_seg_matrix_columns the number of columns in the temporary segment storage
  *         matrix
  */
 int TrackGenerator3D::getNumColumns() {
-  return _num_columns;
+  return _num_seg_matrix_columns;
 }
 
 
@@ -2552,34 +2552,34 @@ void TrackGenerator3D::checkBoundaryConditions() {
 /**
  * @brief Allocates memory for temporary segment storage if necessary
  * @details New memory is only allocated if _max_num_segments exceeds
- *          _num_columns (the maximum when the segments were allocated)
+ *          _num_seg_matrix_columns (the maximum when the segments were allocated)
  */
 void TrackGenerator3D::allocateTemporarySegments() {
 
   /* Check if a resize is unnecessary */
-  if (_max_num_segments <= _num_columns)
+  if (_max_num_segments <= _num_seg_matrix_columns)
     return;
 
   /* Widen the number of columns in the temporary segments matrix */
-  _num_columns = _max_num_segments;
+  _num_seg_matrix_columns = _max_num_segments;
 
   /* Delete temporary segments if already allocated */
   if (_contains_temporary_segments) {
     for (int t = 0; t < _num_threads; t++)
-      for (int z = 0; z < _num_rows; z++)
+      for (int z = 0; z < _num_seg_matrix_rows; z++)
         delete [] _temporary_segments.at(t)[z];
   }
   else {
     _temporary_segments.resize(_num_threads);
     for (int t = 0; t < _num_threads; t++)
-      _temporary_segments.at(t) = new segment*[_num_rows];
+      _temporary_segments.at(t) = new segment*[_num_seg_matrix_rows];
     _contains_temporary_segments = true;
   }
 
   /* Allocate new temporary segments */
   for (int t = 0; t < _num_threads; t++)
-    for (int z = 0; z < _num_rows; z++)
-      _temporary_segments.at(t)[z] = new segment[_num_columns];
+    for (int z = 0; z < _num_seg_matrix_rows; z++)
+      _temporary_segments.at(t)[z] = new segment[_num_seg_matrix_columns];
 }
 
 

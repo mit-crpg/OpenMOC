@@ -14,7 +14,6 @@
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
-#include "TrackGenerator.h"
 #include "TrackGenerator3D.h"
 
 
@@ -86,11 +85,11 @@ protected:
         (_segment_formation != EXPLICIT_3D))) {
 
       /* Allocate kernels */
-      int num_rows = 1;
+      int num_segment_matrix_rows = 1;
       if (_track_generator_3D != NULL)
-        num_rows = _track_generator_3D->getNumRows();
-      MOCKernel** kernels = new MOCKernel*[num_rows];
-      for (int z=0; z < num_rows; z++)
+        num_segment_matrix_rows = _track_generator_3D->getNumRows();
+      MOCKernel** kernels = new MOCKernel*[num_segment_matrix_rows];
+      for (int z=0; z < num_segment_matrix_rows; z++)
         kernels[z] = new KernelType(_track_generator, z);
       return kernels;
     }

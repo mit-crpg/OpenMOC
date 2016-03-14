@@ -14,7 +14,6 @@
 #include "constants.h"
 #include "Timer.h"
 #include "Quadrature.h"
-#include "TrackGenerator.h"
 #include "TrackGenerator3D.h"
 #include "Cmfd.h"
 #include "ExpEvaluator.h"

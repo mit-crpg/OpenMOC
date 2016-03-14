@@ -98,10 +98,12 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR operations */
   omp_lock_t* _FSR_locks;
 
-  /** Boolean whether the Tracks have been generated (true) or not (false) */
+  /** Boolean indicating whether the Tracks have been generated (true) or not
+    * (false) */
   bool _contains_2D_tracks;
 
-  /** Boolean whether 2D segments have been generated (true) or not (false) */
+  /** Boolean indicating whether 2D segments have been generated (true) or not
+    * (false) */
   bool _contains_2D_segments;
 
   /** The quadrature set */
