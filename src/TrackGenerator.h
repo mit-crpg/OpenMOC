@@ -32,7 +32,7 @@
  * @brief The TrackGenerator is dedicated to generating and storing Tracks
  *        which cyclically wrap across the Geometry.
  * @details The TrackGenerator creates Track and initializes boundary
- *          conditions (vacuum or reflective) for each Track.
+ *          conditions (vacuum, reflective, or periodic) for each Track.
  */
 class TrackGenerator {
 
