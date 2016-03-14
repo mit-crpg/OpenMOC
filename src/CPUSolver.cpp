@@ -571,7 +571,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       track_flux[e] -= delta_psi;
     }
   }
-  else{
+  else {
     azim_wgt *= 2;
 
     pe = 0;
@@ -651,7 +651,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
       start = 0;
       track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();
     }
-    else{
+    else {
       start = _fluxes_per_track * (!_tracks[track_id]->getReflFwdFwd());
       track_out_id = _tracks[track_id]->getTrackReflFwd()->getUid();
     }
@@ -686,7 +686,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
         _quad->getMultiple(a, p) * 4.0 * M_PI;
     }
   }
-  else{
+  else {
 
     int pe = 0;
 

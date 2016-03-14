@@ -102,7 +102,7 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim,
       exponential = (1. - (_exp_table[index * 2] * tau +
                            _exp_table[index * 2 + 1]));
     }
-    else{
+    else {
       index *= _num_polar;
       exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                            _exp_table[index + 2 * polar + 1]));
@@ -112,10 +112,10 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim,
   /* Evalute the exponential using the intrinsic exp(...) function */
   else {
     if (_solve_3D)
-      exponential = 1.0 - exp(- tau);
-    else{
+      exponential = 1.0 - exp(-tau);
+    else {
       FP_PRECISION sintheta = _quadrature->getSinTheta(azim, polar);
-      exponential = 1.0 - exp(- tau / sintheta);
+      exponential = 1.0 - exp(-tau / sintheta);
     }
   }
 
