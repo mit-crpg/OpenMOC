@@ -126,6 +126,7 @@ private:
   Point** _centroids;
   FP_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
+  Quadrature* _quadrature;
 
 public:
 

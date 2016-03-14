@@ -12,6 +12,7 @@
 #include "Track2D.h"
 #include "Track3D.h"
 #include "Geometry.h"
+#include "Quadrature.h"
 
 
 /* Forward declaration of TrackGenerator */
@@ -99,8 +100,11 @@ private:
   /** Pointer to array of FSR volumes */
   FP_PRECISION* _FSR_volumes;
 
-  /** A weight to be applied to segmentation data, if applicable */
+  /** The Track cross-sectional area used as the weight */
   FP_PRECISION _weight;
+
+  /** The associated quadrature from which weights are derived */
+  Quadrature* _quadrature;
 
 public:
 

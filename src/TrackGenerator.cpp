@@ -807,8 +807,6 @@ void TrackGenerator::generateTracks() {
     /* Precompute the quadrature weights */
     _quadrature->precomputeWeights(_segment_formation != EXPLICIT_2D);
 
-    /* Set the weights of every track */
-    setTotalWeights();
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
@@ -825,21 +823,6 @@ void TrackGenerator::generateTracks() {
  */
 void TrackGenerator::initializeDefaultQuadrature() {
   _quadrature = new TYPolarQuad();
-}
-
-
-/**
- * @brief Calculates and assigns the weight for every Track
- */
-void TrackGenerator::setTotalWeights() {
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      int azim_index = _quadrature->getFirstOctantAzim(a);
-      FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-                            * _quadrature->getAzimSpacing(azim_index);
-      _tracks_2D[a][i].setWeight(weight);
-    }
-  }
 }
 
 
