@@ -2445,10 +2445,21 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
   polar_index = _quadrature->getFirstOctantPolar(polar_index);
 
+  /* Check if the current needs to be tallied */
+  bool tally_current = false;
   if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {
-
     surf_id = curr_segment->_cmfd_surface_fwd % NUM_SURFACES;
     cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
+    tally_current = true;
+  }
+  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
+    surf_id = curr_segment->_cmfd_surface_bwd % NUM_SURFACES;
+    cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
+    tally_current = true;
+  }
+
+  /* Tally current if necessary */
+  if (tally_current) {
 
     if (_solve_3D) {
       for (int e=0; e < _num_moc_groups; e++) {
@@ -2457,48 +2468,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         cmfd_group = getCmfdGroup(e);
 
         /* Increment the surface group */
-        currents[cmfd_group] += track_flux[e] * _azim_spacings[azim_index]
-            * _polar_spacings[azim_index][polar_index]
-            * _quadrature->getMultiple(azim_index, polar_index) * 2.0 * M_PI;
-      }
-
-      /* Increment currents */
-      _surface_currents->incrementValues
-          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
-    }
-    else{
-      int pe = 0;
-      for (int e=0; e < _num_moc_groups; e++) {
-
-        /* Get the CMFD group */
-        cmfd_group = getCmfdGroup(e);
-
-        for (int p = 0; p < _num_polar/2; p++) {
-          currents[cmfd_group] += track_flux[pe] * _azim_spacings[azim_index]
-              * _quadrature->getMultiple(azim_index, p) * 4.0 * M_PI;
-          pe++;
-        }
-      }
-
-      /* Increment currents */
-      _surface_currents->incrementValues
-          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
-    }
-  }
-  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
-
-    surf_id = curr_segment->_cmfd_surface_bwd % NUM_SURFACES;
-    cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
-
-    if (_solve_3D) {
-      for (int e=0; e < _num_moc_groups; e++) {
-
-        /* Get the CMFD group */
-        cmfd_group = getCmfdGroup(e);
-
-        currents[cmfd_group] += track_flux[e] * _azim_spacings[azim_index]
-            * _polar_spacings[azim_index][polar_index]
-            * _quadrature->getMultiple(azim_index, polar_index) * 2.0 * M_PI;
+        currents[cmfd_group] += 0.5 * track_flux[e]
+            * _quadrature->getWeight(azim_index, polar_index);
       }
 
       /* Increment currents */
@@ -2513,8 +2484,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         cmfd_group = getCmfdGroup(e);
 
         for (int p = 0; p < _num_polar/2; p++) {
-          currents[cmfd_group] += track_flux[pe] * _azim_spacings[azim_index]
-              * _quadrature->getMultiple(azim_index, p) * 4.0 * M_PI;
+          currents[cmfd_group] += 0.5 * track_flux[pe]
+              * _quadrature->getWeight(azim_index, p);
           pe++;
         }
       }

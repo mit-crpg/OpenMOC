@@ -47,7 +47,6 @@ TrackGenerator::~TrackGenerator() {
     /* Delete track laydown information */
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _azim_spacings;
     delete [] _cycles_per_azim;
     delete [] _tracks_per_cycle;
     delete [] _cycle_length;
@@ -212,32 +211,6 @@ Track2D** TrackGenerator::get2DTracks() {
                "since Tracks have not yet been generated.");
 
   return _tracks_2D;
-}
-
-
-/**
- * @brief Returns an array of adjusted azimuthal spacings
- * @details An array of azimuthal spacings after adjustment is returned,
- *          indexed by azimuthal angle
- * @return the array of azimuthal spacings
- */
-double* TrackGenerator::getAzimSpacings() {
-  return _azim_spacings;
-}
-
-
-/**
- * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
- *        angle index
- * @details The aziumthal spacing depends on the azimuthal angle. This function
- *          returns the azimuthal spacing used at the desired azimuthal angle
- *          index.
- * @param azim the requested azimuthal angle index
- * @return the requested azimuthal spacing
- */
-double TrackGenerator::getAzimSpacing(int azim) {
-  azim = _quadrature->getFirstOctantAzim(azim);
-  return _azim_spacings[azim];
 }
 
 
@@ -863,7 +836,7 @@ void TrackGenerator::setTotalWeights() {
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       int azim_index = _quadrature->getFirstOctantAzim(a);
       FP_PRECISION weight = _quadrature->getAzimWeight(azim_index)
-                            * getAzimSpacing(azim_index);
+                            * _quadrature->getAzimSpacing(azim_index);
       _tracks_2D[a][i].setWeight(weight);
     }
   }
@@ -940,7 +913,6 @@ void TrackGenerator::initializeTracks() {
   _num_x            = new int[_num_azim/4];
   _num_y            = new int[_num_azim/4];
   _cycle_length     = new double[_num_azim/4];
-  _azim_spacings    = new double[_num_azim/4];
   _num_2D_tracks    = 0;
 
   double x1, x2, y1, y2;
@@ -961,12 +933,13 @@ void TrackGenerator::initializeTracks() {
     _num_y[a] = (int) (fabs(height / _azim_spacing * cos(phi))) + 1;
 
     /* Effective/actual angle (not the angle we desire, but close) */
-    _quadrature->setPhi(atan((height * _num_x[a]) / (width * _num_y[a])), a);
+    double phi = atan((height * _num_x[a]) / (width * _num_y[a]));
+    _quadrature->setPhi(phi, a);
 
     /* Effective Track spacing (not spacing we desire, but close) */
     dx_eff[a]   = (width / _num_x[a]);
     dy_eff[a]   = (height / _num_y[a]);
-    _azim_spacings[a] = dx_eff[a] * sin(_quadrature->getPhi(a));
+    _quadrature->setAzimSpacing(dx_eff[a] * sin(phi), a);
 
     /* The length of all tracks in a 2D cycle */
     _cycle_length[a] = dx_eff[a] / cos(_quadrature->getPhi(a)) *
