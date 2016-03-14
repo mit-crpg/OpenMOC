@@ -230,13 +230,13 @@ FP_PRECISION Quadrature::getPolarWeight(int azim, int polar) {
 
 
 /**
- * @brief Returns the multiple value for a particular azimuthal and polar angle.
- * @details A multiple is the sine of a polar angle multiplied by its weight.
+ * @brief Returns the total weight for Tracks with the given azimuthal and
+ *        polar indexes
+ * @details Angular weights are multiplied by Track spcings
  * @param azim index of the azimuthal angle of interest
  * @param polar index of the polar angle of interest
- * @return the value of the sine of the polar angle multiplied with its weight
+ * @return the total weight of each Track with the given indexes
  */
-//FIXME: description
 FP_PRECISION Quadrature::getWeight(int azim, int polar) {
 
   if (polar < 0 || polar >= _num_polar)
@@ -330,8 +330,12 @@ FP_PRECISION** Quadrature::getPolarWeights() {
   return _polar_weights;
 }
 
-
-//FIXME
+/**
+ * @brief Returns the azimuthal index in the first octant associated with the
+ *        given azimuthal index
+ * @param azim the aziumthal index of interest
+ * @return the first octant azimuthal index
+ */
 int Quadrature::getFirstOctantAzim(int azim) {
   if (azim < _num_azim/4)
     return azim;
@@ -344,46 +348,18 @@ int Quadrature::getFirstOctantAzim(int azim) {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the polar index in the first octant associated with the given
+ *        polar index
+ * @param polar the polar index of interest
+ * @return the first octant polar index
+ */
+
 int Quadrature::getFirstOctantPolar(int polar) {
   if (polar < _num_polar/2)
     return polar;
   else
     return (_num_polar - polar - 1);
-}
-
-
-//FIXME
-int Quadrature::getOrthant(int azim, int polar) {
-
-  int orthant;
-
-  if (azim < _num_azim/4) {
-    if (polar < _num_polar/2)
-      orthant = 0;
-    else
-      orthant = 2;
-  }
-  else if (azim < _num_azim/2) {
-    if (polar < _num_polar/2)
-      orthant = 4;
-    else
-      orthant = 6;
-  }
-  else if (azim < 3*_num_azim/4) {
-    if (polar < _num_polar/2)
-      orthant = 3;
-    else
-      orthant = 1;
-  }
-  else{
-    if (polar < _num_polar/2)
-      orthant = 7;
-    else
-      orthant = 5;
-  }
-
-  return orthant;
 }
 
 
@@ -478,7 +454,11 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
 }
 
 
-//FIXME
+/**
+ * @brief Set the Quadrature's array of polar weights
+ * @param weights The polar weights
+ * @param num_polar the total number of angles (azimuthal x polar)
+ */
 void Quadrature::setPolarWeights(double* weights, int num_azim_times_polar) {
 
   if (_num_polar/2 * _num_azim/4 != num_azim_times_polar)
@@ -514,7 +494,12 @@ void Quadrature::setPolarWeights(double* weights, int num_azim_times_polar) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Sets the polar angle for the given indexes
+ * @param theta the value of the polar angle to be set
+ * @param azim the azimuthal index of the angle of interest
+ * @param polar the polar index of the angle of interest
+ */
 void Quadrature::setTheta(double theta, int azim, int polar) {
 
   if (theta <= 0.0 || theta >= M_PI_2)
@@ -542,7 +527,11 @@ void Quadrature::setTheta(double theta, int azim, int polar) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Sets the azimuthal angle for the given index
+ * @param phi the value of the azimuthal angle to be set
+ * @param azim the azimuthal index
+ */
 void Quadrature::setPhi(double phi, int azim) {
 
   if (phi <= 0.0 || phi >= M_PI_2)
@@ -560,7 +549,11 @@ void Quadrature::setPhi(double phi, int azim) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Sets the azimuthal spacing for the given index
+ * @param spacing the spacing in the azimuthal direction to be set
+ * @param azim the azimuthal index
+ */
 void Quadrature::setAzimSpacing(FP_PRECISION spacing, int azim) {
 
   if (spacing <= 0.0)
@@ -579,8 +572,11 @@ void Quadrature::setAzimSpacing(FP_PRECISION spacing, int azim) {
 }
 
 
-
-//FIXME: description
+/**
+ * @brief Sets the azimuthal weight for the given index
+ * @param weight the weight of the azimuthal angle
+ * @param azim the azimuthal index
+ */
 void Quadrature::setAzimWeight(double weight, int azim) {
 
   if (weight <= 0.0 || weight >= M_PI_2)
@@ -598,7 +594,12 @@ void Quadrature::setAzimWeight(double weight, int azim) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Sets the polar spacing for the given indexes
+ * @param spacing the spacing in the polar direction to be set
+ * @param azim the azimuthal index corresponding to the angle
+ * @param azim the polar index corresponding to the angle
+ */
 void Quadrature::setPolarSpacing(FP_PRECISION spacing, int azim, int polar) {
 
   if (spacing <= 0)
@@ -627,7 +628,12 @@ void Quadrature::setPolarSpacing(FP_PRECISION spacing, int azim, int polar) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Sets the polar weight for the given indexes
+ * @param weight the weight of the polar angle
+ * @param azim the azimuthal index corresponding to the angle
+ * @param azim the polar index corresponding to the angle
+ */
 void Quadrature::setPolarWeight(double weight, int azim, int polar) {
 
   if (weight <= 0.0 || weight >= M_PI_2)
@@ -882,7 +888,11 @@ void TYPolarQuad::initialize() {
 }
 
 
-//FIXME
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the TY quadrature
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void TYPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
@@ -982,7 +992,11 @@ void LeonardPolarQuad::initialize() {
 }
 
 
-//FIXME
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the Leonard polar quadrature
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
