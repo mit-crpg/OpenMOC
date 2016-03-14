@@ -77,9 +77,6 @@ protected:
    *  azimuthal angle */
   int* _num_y;
 
-  /** An array of the azimuthal angle quadrature weights */
-  FP_PRECISION* _azim_spacings;
-
   /** A 2D ragged array of 2D tracks (azim, track index) */
   Track2D** _tracks_2D;
 
@@ -166,8 +163,6 @@ public:
   Track** get2DTracksArray();
   virtual Track** getTracksArray();
   Track2D** get2DTracks();
-  double* getAzimSpacings();
-  double getAzimSpacing(int azim);
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
   int getNumThreads();

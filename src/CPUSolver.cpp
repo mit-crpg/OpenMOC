@@ -569,13 +569,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       exponential = _exp_evaluator->computeExponential
         (sigma_t[e] * length, a, p);
       delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi * azim_wgt * _polar_spacings[a][p] *
-          multiples[a][p];
-      track_flux[e] -= delta_psi;
+      fsr_flux[e] += delta_psi * _quad->getWeight(a, p);
+      track_flux(e) -= delta_psi;
     }
   }
   else {
-    azim_wgt *= 2;
 
     pe = 0;
 
@@ -588,8 +586,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       for (p=0; p < _num_polar/2; p++) {
         exponential = _exp_evaluator->computeExponential(tau, a, p);
         delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * azim_wgt * multiples[a][p];
-        track_flux[pe] -= delta_psi;
+        fsr_flux[e] += delta_psi * _quad->getWeight(a, p);
+        track_flux(pe) -= delta_psi;
         pe++;
       }
     }
@@ -684,9 +682,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     int p = _quad->getFirstOctantPolar(polar_index);
     for (int e=0; e < _num_groups; e++) {
       track_out_flux(e) = track_flux(e) * bc;
-      track_leakage(e) = track_flux(e) * (!bc) *
-        _azim_spacings[a] * _polar_spacings[a][p] *
-        _quad->getMultiple(a, p) * 4.0 * M_PI;
+      track_leakage(e) = track_flux(e) * (!bc) * _quad->getWeight(a, p);
     }
   }
   else {
@@ -697,9 +693,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     for (int e=0; e < _num_groups; e++) {
       for (int p=0; p < _num_polar/2; p++) {
         track_out_flux(pe) = track_flux(pe) * bc;
-        track_leakage(pe) = track_flux(pe) * (!bc) *
-          2.0 * _azim_spacings[a] * _quad->getMultiple(a, p)
-          * 4.0 * M_PI;
+        track_leakage(pe) = track_flux(pe) * (!bc) * _quad->getWeight(a, p);
         pe++;
       }
     }
