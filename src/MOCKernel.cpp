@@ -31,6 +31,7 @@ VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
                "FSR locks");
 
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
+  _quadrature = track_generator->getQuadrature();
   _weight = 0;
 }
 
@@ -84,7 +85,20 @@ void MOCKernel::newTrack(Track* track) {
  * @param track The new Track the MOCKernel prepares to handle
  */
 void VolumeKernel::newTrack(Track* track) {
-  _weight = track->getWeight();
+
+  /* Compute the Track cross-sectional area */
+  int azim_index = track->getAzimIndex();
+  _weight = _quadrature->getAzimSpacing(azim_index)
+      * _quadrature->getAzimWeight(azim_index);
+
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  if (track_3D != NULL) {
+    int polar_index = track_3D->getPolarIndex();
+    _weight *= _quadrature->getPolarSpacing(azim_index, polar_index)
+        * _quadrature->getPolarWeight(azim_index, polar_index);
+  }
+
+  /* Reset the count */
   _count = 0;
 }
 

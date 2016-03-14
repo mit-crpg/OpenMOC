@@ -2401,29 +2401,6 @@ void TrackGenerator3D::setContainsSegments(bool contains_segments) {
 
 
 /**
- * @brief Calculates and assigns the weight for every Track
- */
-void TrackGenerator3D::setTotalWeights() {
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
-      for (int p=0; p < _num_polar; p++) {
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
-          int azim_index = _quadrature->getFirstOctantAzim(a);
-          int polar_index = _quadrature->getFirstOctantPolar(p);
-          FP_PRECISION weight =
-                  _quadrature->getPolarWeight(azim_index, polar_index)
-                  * _quadrature->getPolarSpacing(azim_index, polar_index)
-                  * _quadrature->getAzimWeight(azim_index)
-                  * _quadrature->getAzimSpacing(azim_index);
-          _tracks_3D[a][i][p][z].setWeight(weight);
-        }
-      }
-    }
-  }
-}
-
-
-/**
  * @brief Checks the boundary conditions for all 3D surfaces for inconsistent
  *        periodic boundary conditions
  */

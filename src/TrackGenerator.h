@@ -128,7 +128,6 @@ protected:
   virtual void initializeTrackReflections();
   void initializeTrackCycles();
   virtual void recalibrateTracksToOrigin();
-  virtual void setTotalWeights();
   virtual void segmentize();
   virtual void setContainsSegments(bool contains_segments);
   virtual void allocateTemporarySegments();
