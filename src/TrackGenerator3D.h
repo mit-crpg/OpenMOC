@@ -65,8 +65,8 @@ private:
   int _track_generation_method;
 
   /** Dimensions of temporary segments storage matrix */
-  int _num_rows;
-  int _num_columns;
+  int _num_seg_matix_rows;
+  int _num_seg_matrix_columns;
 
   /** A matrix of temporary segments are created for on-the-fly methods to
     * improve efficiency */
