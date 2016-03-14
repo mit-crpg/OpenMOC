@@ -17,7 +17,8 @@
  * @brief The TrackGenerator3D is dedicated to generating and storing Tracks
  *        which cyclically wrap across the Geometry in three dimensions.
  * @details The TrackGenerator creates Track and initializes boundary
- *          conditions (vacuum or reflective) for each Track.
+ *          conditions (vacuum, reflective, or periodic) for each Track in
+ *          three dimensions.
  */
 class TrackGenerator3D : public TrackGenerator {
 
