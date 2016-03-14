@@ -354,7 +354,6 @@ int Quadrature::getFirstOctantAzim(int azim) {
  * @param polar the polar index of interest
  * @return the first octant polar index
  */
-
 int Quadrature::getFirstOctantPolar(int polar) {
   if (polar < _num_polar/2)
     return polar;
