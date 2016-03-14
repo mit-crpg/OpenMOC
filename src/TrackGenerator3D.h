@@ -89,7 +89,6 @@ private:
   void initializeTrackReflections();
   void initializeTrackPeriodicIndices();
   void recalibrateTracksToOrigin();
-  void setTotalWeights();
   void segmentize();
   void setContainsSegments(bool contains_segments);
   void allocateTemporarySegments();

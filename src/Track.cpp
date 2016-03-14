@@ -455,14 +455,6 @@ void Track::setDirectionInCycle(bool fwd) {
   _direction_in_cycle = fwd;
 }
 
-/**
- * @brief Sets the weight for the Track
- * @param weight The weight of the Track
- */
-void Track::setWeight(FP_PRECISION weight) {
-  _weight = weight;
-}
-
 
 /**
  * @brief Get this Track's periodic cycle id.
@@ -523,13 +515,4 @@ int Track::getReflectiveCycleId() {
  */
 bool Track::getDirectionInCycle() {
   return _direction_in_cycle;
-}
-
-
-/**
- * @brief Returns the weight for the Track
- * @return _weight The weight of the Track
- */
-FP_PRECISION Track::getWeight() {
-  return _weight;
 }

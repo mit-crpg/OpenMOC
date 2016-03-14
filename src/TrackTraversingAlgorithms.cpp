@@ -1,6 +1,6 @@
 #include "TrackTraversingAlgorithms.h"
 #include "CPUSolver.h"
-
+#include "Quadrature.h"
 
 /**
  * @brief Constructor for MaxOpticalLength calls the TraverseSegments
@@ -232,6 +232,7 @@ CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
 
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _FSR_locks = track_generator->getFSRLocks();
+  _quadrature = track_generator->getQuadrature();
 }
 
 
@@ -272,8 +273,12 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   double x = start->getX();
   double y = start->getY();
   double z = start->getZ();
-  double wgt = track->getWeight();
+  int azim_index = track->getAzimIndex();
   double phi = track->getPhi();
+
+  /* Compute the Track cross-sectional area */
+  double wgt = _quadrature->getAzimSpacing(azim_index)
+      * _quadrature->getAzimWeight(azim_index);
 
   /* Get polar angles depending on the dimensionality */
   double sin_theta = 1;
@@ -283,6 +288,9 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     double theta = track_3D->getTheta();
     sin_theta = sin(theta);
     cos_theta = cos(theta);
+    int polar_index = track_3D->getPolarIndex();
+    wgt *= _quadrature->getPolarSpacing(azim_index, polar_index)
+        *_quadrature->getPolarWeight(azim_index, polar_index);
   }
 
   /* Pre-compute azimuthal angles for efficiency */
