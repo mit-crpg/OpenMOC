@@ -27,8 +27,6 @@ private:
   /** The requested track polar spacing (cm) */
   double _polar_spacing;
 
-  /** The actual track polar spacing (cm) by (azim, polar) */
-  double** _polar_spacings;
 
   /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;
@@ -119,8 +117,6 @@ public:
   int getNum3DSegments();
   Track** getTracksArray();
   Track3D**** get3DTracks();
-  double** getPolarSpacings();
-  double getPolarSpacing(int azim, int polar);
   double getZSpacing(int azim, int polar);
   int getNumRows();
   int getNumColumns();

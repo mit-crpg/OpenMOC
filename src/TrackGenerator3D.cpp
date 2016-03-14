@@ -82,12 +82,10 @@ TrackGenerator3D::~TrackGenerator3D() {
       delete [] _num_l[a];
       delete [] _num_z[a];
       delete [] _dz_eff[a];
-      delete [] _polar_spacings[a];
     }
     delete [] _num_l;
     delete [] _num_z;
     delete [] _dz_eff;
-    delete [] _polar_spacings;
 
     /* Delete temporary segments if they exist */
     if (_contains_temporary_segments) {
@@ -188,34 +186,6 @@ Track3D**** TrackGenerator3D::get3DTracks() {
                "since Tracks have not yet been generated.");
 
   return _tracks_3D;
-}
-
-
-/**
- * @brief Returns a 2D array of adjusted polar spacings
- * @details An array of polar spacings after adjustment is returned,
- *          indexed first by azimuthal angle and then by polar angle
- * @return the 2D array of polar spacings
- */
-double** TrackGenerator3D::getPolarSpacings() {
-  return _polar_spacings;
-}
-
-
-/**
- * @brief Returns the adjusted polar spacing at the requested azimuthal
- *        angle index and polar angle index
- * @details The polar spacing depends on the azimuthal angle and the polar
- *          angle. This function returns the azimuthal spacing used at the
- *          desired azimuthal angle and polar angle indexes.
- * @param azim the requested azimuthal angle index
- * @param polar the requested polar angle index
- * @return the requested polar spacing
- */
-double TrackGenerator3D::getPolarSpacing(int azim, int polar) {
-  azim = _quadrature->getFirstOctantAzim(azim);
-  polar = _quadrature->getFirstOctantPolar(polar);
-  return _polar_spacings[azim][polar];
 }
 
 
@@ -667,7 +637,6 @@ void TrackGenerator3D::initializeTracks() {
   _dz_eff    = new double*[_num_azim/4];
   _num_z            = new int*[_num_azim/4];
   _num_l            = new int*[_num_azim/4];
-  _polar_spacings   = new double*[_num_azim/4];
   _tracks_3D_cycle  = new Track3D*****[_num_azim/4];
   _tracks_per_train = new int***[_num_azim/4];
   _num_3D_tracks    = 0;
@@ -676,7 +645,6 @@ void TrackGenerator3D::initializeTracks() {
     _dz_eff[i]         = new double[_num_polar/2];
     _num_z[i]          = new int[_num_polar/2];
     _num_l[i]          = new int[_num_polar/2];
-    _polar_spacings[i] = new double[_num_polar/2];
   }
 
   /* Allocate memory for tracks per stack */
@@ -732,9 +700,10 @@ void TrackGenerator3D::initializeTracks() {
 
       /* Effective track spacing */
       dl_eff[i][j]          = _cycle_length[i] / _num_l[i][j];
-      _dz_eff[i][j]          = depth            / _num_z[i][j];
-      _quadrature->setTheta(atan(dl_eff[i][j] / _dz_eff[i][j]), i, j);
-      _polar_spacings[i][j] = _dz_eff[i][j] * sin(_quadrature->getTheta(i, j));
+      _dz_eff[i][j]         = depth            / _num_z[i][j];
+      FP_PRECISION theta = atan(dl_eff[i][j] / _dz_eff[i][j]);
+      _quadrature->setTheta(theta, i, j);
+      _quadrature->setPolarSpacing(_dz_eff[i][j] * sin(theta), i, j);
     }
   }
 
@@ -896,7 +865,7 @@ void TrackGenerator3D::initializeTracks() {
             y2 = convertLtoY(l_end, a, c);
             z2 = 0.0;
           }
-          else{
+          else {
             l_end = _cycle_length[a];
             track_2D = _tracks_2D_cycle[a][c][0];
             x2 = track_2D->getStart()->getX();
@@ -2443,9 +2412,9 @@ void TrackGenerator3D::setTotalWeights() {
           int polar_index = _quadrature->getFirstOctantPolar(p);
           FP_PRECISION weight =
                   _quadrature->getPolarWeight(azim_index, polar_index)
-                  * getPolarSpacing(azim_index, polar_index)
+                  * _quadrature->getPolarSpacing(azim_index, polar_index)
                   * _quadrature->getAzimWeight(azim_index)
-                  * getAzimSpacing(azim_index);
+                  * _quadrature->getAzimSpacing(azim_index);
           _tracks_3D[a][i][p][z].setWeight(weight);
         }
       }

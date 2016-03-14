@@ -353,8 +353,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _track_generator = track_generator;
   _segment_formation = _track_generator->getSegmentFormation();
   _num_azim = _track_generator->getNumAzim();
-  _azim_spacings = _track_generator->getAzimSpacings();
   _quad = _track_generator->getQuadrature();
+  _azim_spacings = _quad->getAzimSpacings();
   _num_polar = _quad->getNumPolarAngles();
   _tracks = _track_generator->getTracksArray();
 
@@ -362,7 +362,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   if (track_generator_3D != NULL) {
     _fluxes_per_track = _num_groups;
     _tot_num_tracks = track_generator_3D->getNum3DTracks();
-    _polar_spacings = track_generator_3D->getPolarSpacings();
+    _polar_spacings = _quad->getPolarSpacings();
     _tracks_per_stack = track_generator_3D->getTracksPerStack();
     _solve_3D = true;
   }
@@ -636,15 +636,14 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setQuadrature(_quad);
   _cmfd->setGeometry(_geometry);
-  _cmfd->setAzimSpacings(_track_generator->getAzimSpacings(), _num_azim);
+  _cmfd->setAzimSpacings(_quad->getAzimSpacings(), _num_azim);
   _cmfd->initialize();
 
 
   TrackGenerator3D* track_generator_3D =
     dynamic_cast<TrackGenerator3D*>(_track_generator);
   if (track_generator_3D != NULL)
-    _cmfd->setPolarSpacings
-      (track_generator_3D->getPolarSpacings(), _num_azim, _num_polar);
+    _cmfd->setPolarSpacings(_quad->getPolarSpacings(), _num_azim, _num_polar);
 }
 
 

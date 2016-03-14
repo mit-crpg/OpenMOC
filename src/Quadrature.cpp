@@ -10,9 +10,11 @@ Quadrature::Quadrature() {
   _sin_thetas = NULL;
   _thetas = NULL;
   _phis = NULL;
+  _azim_spacings = NULL;
   _azim_weights = NULL;
+  _polar_spacings = NULL;
   _polar_weights = NULL;
-  _multiples = NULL;
+  _total_weights = NULL;
 }
 
 
@@ -23,33 +25,42 @@ Quadrature::Quadrature() {
 Quadrature::~Quadrature() {
 
   if (_sin_thetas != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _sin_thetas[i];
+    for (int a=0; a < _num_azim/4; a++)
+      delete [] _sin_thetas[a];
     delete [] _sin_thetas;
   }
 
   if (_thetas != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _thetas[i];
+    for (int a=0; a < _num_azim/4; a++)
+      delete [] _thetas[a];
     delete [] _thetas;
   }
 
   if (_phis != NULL)
     delete [] _phis;
 
+  if (_azim_spacings != NULL)
+    delete [] _azim_spacings;
+
   if (_azim_weights != NULL)
     delete [] _azim_weights;
 
+  if (_polar_spacings != NULL) {
+    for (int a=0; a < _num_azim/4; a++)
+      delete [] _polar_spacings[a];
+    delete [] _polar_spacings;
+  }
+
   if (_polar_weights != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _polar_weights[i];
+    for (int a=0; a < _num_azim/4; a++)
+      delete [] _polar_weights[a];
     delete [] _polar_weights;
   }
 
-  if (_multiples != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _multiples[i];
-    delete [] _multiples;
+  if (_total_weights != NULL) {
+    for (int a=0; a < _num_azim/4; a++)
+      delete [] _total_weights[a];
+    delete [] _total_weights;
   }
 }
 
@@ -225,7 +236,8 @@ FP_PRECISION Quadrature::getPolarWeight(int azim, int polar) {
  * @param polar index of the polar angle of interest
  * @return the value of the sine of the polar angle multiplied with its weight
  */
-FP_PRECISION Quadrature::getMultiple(int azim, int polar) {
+//FIXME: description
+FP_PRECISION Quadrature::getWeight(int azim, int polar) {
 
   if (polar < 0 || polar >= _num_polar)
     log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = "
@@ -237,7 +249,7 @@ FP_PRECISION Quadrature::getMultiple(int azim, int polar) {
                "%d and azimuthal angle = %d but only %d azimuthal angles are "
                "defined", polar, azim, _num_azim);
 
-  else if (_multiples == NULL)
+  else if (_total_weights == NULL)
     log_printf(ERROR, "Attempted to retrieve multiple for polar angle = %d "
                "and azimuthal angle = %d but the multiples have not been "
                "initialized", polar, azim);
@@ -245,7 +257,7 @@ FP_PRECISION Quadrature::getMultiple(int azim, int polar) {
   azim = getFirstOctantAzim(azim);
   polar = getFirstOctantPolar(polar);
 
-  return _multiples[azim][polar];
+  return _total_weights[azim][polar];
 }
 
 
@@ -319,21 +331,7 @@ FP_PRECISION** Quadrature::getPolarWeights() {
 }
 
 
-/**
- * @brief Returns a pointer to the Quadrature's array of multiples.
- * @details A multiple is the sine of a polar angle multiplied by its weight.
- * @return a pointer to the multiples array
- */
-FP_PRECISION** Quadrature::getMultiples() {
-
-  if (_multiples == NULL)
-    log_printf(ERROR, "Attempted to retrieve the multiples array "
-               "but it has not been initialized");
-
-  return _multiples;
-}
-
-
+//FIXME
 int Quadrature::getFirstOctantAzim(int azim) {
   if (azim < _num_azim/4)
     return azim;
@@ -346,6 +344,7 @@ int Quadrature::getFirstOctantAzim(int azim) {
 }
 
 
+//FIXME
 int Quadrature::getFirstOctantPolar(int polar) {
   if (polar < _num_polar/2)
     return polar;
@@ -354,6 +353,7 @@ int Quadrature::getFirstOctantPolar(int polar) {
 }
 
 
+//FIXME
 int Quadrature::getOrthant(int azim, int polar) {
 
   int orthant;
@@ -478,6 +478,7 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
 }
 
 
+//FIXME
 void Quadrature::setPolarWeights(double* weights, int num_azim_times_polar) {
 
   if (_num_polar/2 * _num_azim/4 != num_azim_times_polar)
@@ -488,8 +489,8 @@ void Quadrature::setPolarWeights(double* weights, int num_azim_times_polar) {
 
   /* Deallocate memory if it was allocated previously */
   if (_polar_weights != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _polar_weights[i];
+    for (int a=0; a < _num_azim/4; a++)
+      delete [] _polar_weights[a];
     delete [] _polar_weights;
   }
 
@@ -513,6 +514,7 @@ void Quadrature::setPolarWeights(double* weights, int num_azim_times_polar) {
 }
 
 
+//FIXME: description
 void Quadrature::setTheta(double theta, int azim, int polar) {
 
   if (theta <= 0.0 || theta >= M_PI_2)
@@ -540,6 +542,7 @@ void Quadrature::setTheta(double theta, int azim, int polar) {
 }
 
 
+//FIXME: description
 void Quadrature::setPhi(double phi, int azim) {
 
   if (phi <= 0.0 || phi >= M_PI_2)
@@ -557,6 +560,27 @@ void Quadrature::setPhi(double phi, int azim) {
 }
 
 
+//FIXME: description
+void Quadrature::setAzimSpacing(FP_PRECISION spacing, int azim) {
+
+  if (spacing <= 0.0)
+    log_printf(ERROR, "Unable to set azimuthal spacing for azim = %d to %f "
+                      "which is not strictly greater than zero", azim,
+                      spacing);
+
+  else if (azim >= _num_azim/4)
+    log_printf(ERROR, "Unable to set azimuthal spacing for azim = %d since "
+                      " azim is not in the range (0, _num_azim/4)", azim);
+
+  else if (_azim_spacings == NULL)
+    _azim_spacings = new FP_PRECISION[_num_azim/4];
+
+  _azim_spacings[azim] = spacing;
+}
+
+
+
+//FIXME: description
 void Quadrature::setAzimWeight(double weight, int azim) {
 
   if (weight <= 0.0 || weight >= M_PI_2)
@@ -574,6 +598,36 @@ void Quadrature::setAzimWeight(double weight, int azim) {
 }
 
 
+//FIXME: description
+void Quadrature::setPolarSpacing(FP_PRECISION spacing, int azim, int polar) {
+
+  if (spacing <= 0)
+    log_printf(ERROR, "Unable to set polar spacing for azim = %d and polar = "
+                      "%d to %f which is not strictly greater than zero", azim,
+                      polar, spacing);
+
+  else if (azim >= _num_azim/4)
+    log_printf(ERROR, "Unable to set polar spacing for azim = %d and polar = "
+                      "%d since azim is not in the range (0, _num_azim/4)",
+                      azim, polar);
+
+  else if (polar >= _num_polar/2)
+    log_printf(ERROR, "Unable to set polar spacing for azim = %d and polar = "
+                      "%d since polar is not in the range (0, _num_polar/2)",
+                      azim, polar);
+
+
+  if (_polar_spacings == NULL) {
+    _polar_spacings = new double*[_num_azim/4];
+    for (int a=0; a < _num_azim/4; a++)
+      _polar_spacings[a] = new double[_num_polar/2];
+  }
+
+  _polar_spacings[azim][polar] = spacing;
+}
+
+
+//FIXME: description
 void Quadrature::setPolarWeight(double weight, int azim, int polar) {
 
   if (weight <= 0.0 || weight >= M_PI_2)
@@ -592,8 +646,8 @@ void Quadrature::setPolarWeight(double weight, int azim, int polar) {
 
   else if (_polar_weights == NULL) {
     _polar_weights = new FP_PRECISION*[_num_azim/4];
-    for (int i=0; i < _num_azim/4; i++)
-      _polar_weights[i] = new FP_PRECISION[_num_polar/2];
+    for (int a=0; a < _num_azim/4; a++)
+      _polar_weights[a] = new FP_PRECISION[_num_polar/2];
   }
 
   _polar_weights[azim][polar] = FP_PRECISION(weight);
@@ -664,17 +718,17 @@ void Quadrature::precomputeWeights(bool solve_3D) {
   }
 
   /* Deallocate memory if it was allocated previously */
-  if (_multiples != NULL) {
+  if (_total_weights != NULL) {
     for (int a=0; a < _num_azim/4; a++)
-      delete [] _multiples[a];
-    delete [] _multiples;
+      delete [] _total_weights[a];
+    delete [] _total_weights;
   }
 
   /* Initialize memory for arrays */
-  _multiples = new FP_PRECISION*[_num_azim/4];
+  _total_weights = new FP_PRECISION*[_num_azim/4];
   _sin_thetas = new FP_PRECISION*[_num_azim/4];
   for (int a=0; a < _num_azim/4; a++) {
-    _multiples[a] = new FP_PRECISION[_num_polar/2];
+    _total_weights[a] = new FP_PRECISION[_num_polar/2];
     _sin_thetas[a] = new FP_PRECISION[_num_polar/2];
   }
 
@@ -683,9 +737,12 @@ void Quadrature::precomputeWeights(bool solve_3D) {
   for (int a=0; a < _num_azim/4; a++) {
     for (int p=0; p < _num_polar/2; p++) {
       _sin_thetas[a][p] = sin(_thetas[a][p]);
-      _multiples[a][p] = _azim_weights[a] * _polar_weights[a][p];
-      if (!solve_3D)
-        _multiples[a][p] *= _sin_thetas[a][p];
+      _total_weights[a][p] = 4.0 * M_PI * _azim_weights[a] * _azim_spacings[a]
+                             * _polar_weights[a][p];
+      if (solve_3D)
+        _total_weights[a][p] *= _polar_spacings[a][p];
+      else
+        _total_weights[a][p] *= 2.0 * _sin_thetas[a][p];
     }
   }
 }
@@ -742,11 +799,11 @@ std::string Quadrature::toString() {
     }
   }
 
-  string << "\n\tmultiples = ";
-  if (_multiples != NULL) {
+  string << "\n\ttotal weights = ";
+  if (_total_weights != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
       for (int p = 0; p < _num_polar/2; p)
-        string << " (" << a << "," << p << "): " << _multiples[a][p] << ", ";
+        string << " (" << a << "," << p << "): " << _total_weights[a][p] << ", ";
     }
   }
 
@@ -825,6 +882,7 @@ void TYPolarQuad::initialize() {
 }
 
 
+//FIXME
 void TYPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
@@ -924,6 +982,7 @@ void LeonardPolarQuad::initialize() {
 }
 
 
+//FIXME
 void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
@@ -1297,4 +1356,58 @@ void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);
+}
+
+
+/**
+ * @brief Returns a 2D array of adjusted polar spacings
+ * @details An array of polar spacings after adjustment is returned,
+ *          indexed first by azimuthal angle and then by polar angle
+ * @return the 2D array of polar spacings
+ */
+FP_PRECISION** Quadrature::getPolarSpacings() {
+  return _polar_spacings;
+}
+
+
+/**
+ * @brief Returns the adjusted polar spacing at the requested azimuthal
+ *        angle index and polar angle index
+ * @details The polar spacing depends on the azimuthal angle and the polar
+ *          angle. This function returns the azimuthal spacing used at the
+ *          desired azimuthal angle and polar angle indexes.
+ * @param azim the requested azimuthal angle index
+ * @param polar the requested polar angle index
+ * @return the requested polar spacing
+ */
+FP_PRECISION Quadrature::getPolarSpacing(int azim, int polar) {
+  azim = getFirstOctantAzim(azim);
+  polar = getFirstOctantPolar(polar);
+  return _polar_spacings[azim][polar];
+}
+
+
+/**
+ * @brief Returns an array of adjusted azimuthal spacings
+ * @details An array of azimuthal spacings after adjustment is returned,
+ *          indexed by azimuthal angle
+ * @return the array of azimuthal spacings
+ */
+FP_PRECISION* Quadrature::getAzimSpacings() {
+  return _azim_spacings;
+}
+
+
+/**
+ * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
+ *        angle index
+ * @details The aziumthal spacing depends on the azimuthal angle. This function
+ *          returns the azimuthal spacing used at the desired azimuthal angle
+ *          index.
+ * @param azim the requested azimuthal angle index
+ * @return the requested azimuthal spacing
+ */
+FP_PRECISION Quadrature::getAzimSpacing(int azim) {
+  azim = getFirstOctantAzim(azim);
+  return _azim_spacings[azim];
 }

@@ -59,14 +59,20 @@ protected:
   /** An array of the quadrature azimuthal angles */
   double* _phis;
 
+  /** The actual track azimuthal spacing (cm) by azimuthal angle */
+  FP_PRECISION* _azim_spacings;
+
   /** An array of the quadrature azimuthal weights */
   FP_PRECISION* _azim_weights;
+
+  /** The actual track polar spacing (cm) by (azim, polar) */
+  FP_PRECISION** _polar_spacings;
 
   /** An array of the quadrature polar weights */
   FP_PRECISION** _polar_weights;
 
-  /** An array of the sines multipled by the weights */
-  FP_PRECISION** _multiples;
+  /** An array of the total weights for each azimuthal/polar angle pair */
+  FP_PRECISION** _total_weights;
 
 public:
 
@@ -80,17 +86,22 @@ public:
   double getPhi(int azim);
   FP_PRECISION getAzimWeight(int azim);
   FP_PRECISION getPolarWeight(int azim, int polar);
-  FP_PRECISION getMultiple(int azim, int polar);
+  FP_PRECISION getWeight(int azim, int polar);
   FP_PRECISION** getSinThetas();
   double** getThetas();
   double* getPhis();
   FP_PRECISION* getAzimWeights();
   FP_PRECISION** getPolarWeights();
-  FP_PRECISION** getMultiples();
   int getFirstOctantPolar(int polar);
   int getFirstOctantAzim(int azim);
   quadratureType getQuadratureType();
   int getOrthant(int azim, int polar);
+
+  //FIXME: remove
+  double* getAzimSpacings();
+  double getAzimSpacing(int azim);
+  double** getPolarSpacings();
+  double getPolarSpacing(int azim, int polar);
 
   virtual void setNumAzimAngles(const int num_azim);
   virtual void setNumPolarAngles(const int num_polar);
@@ -98,7 +109,9 @@ public:
   void setPolarWeights(double* weights, int num_azim_times_polar);
   void setTheta(double theta, int azim, int polar);
   void setPhi(double phi, int azim);
+  void setAzimSpacing(FP_PRECISION spacing, int azim);
   void setAzimWeight(double weight, int azim);
+  void setPolarSpacing(FP_PRECISION spacing, int azim, int polar);
   void setPolarWeight(double weight, int azim, int polar);
 
   virtual void initialize();
