@@ -95,7 +95,6 @@ public:
   int getFirstOctantPolar(int polar);
   int getFirstOctantAzim(int azim);
   quadratureType getQuadratureType();
-  int getOrthant(int azim, int polar);
 
   //FIXME: remove
   double* getAzimSpacings();
