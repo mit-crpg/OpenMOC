@@ -495,6 +495,9 @@ void CPUSolver::computeKeff() {
   /* Reduce new fission rates across FSRs */
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
+  /* The old_source is normalized to sum to _k_eff; therefore, the new
+   * _k_eff is the old _k_eff * sum(new_source). Implicitly, we are just doing
+   * _k_eff = sum(new_source) / sum(old_source). */
   _k_eff *= fission;
 
   delete [] FSR_rates;
