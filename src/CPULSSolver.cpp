@@ -229,7 +229,7 @@ void CPULSSolver::computeFSRSources() {
     FP_PRECISION* scatter_sources_x = new FP_PRECISION[_num_groups];
     FP_PRECISION* fission_sources_y = new FP_PRECISION[_num_groups];
     FP_PRECISION* scatter_sources_y = new FP_PRECISION[_num_groups];
-    FP_PRECISION det, src_x, src_y;
+    FP_PRECISION src_x, src_y;
 
     /* Compute the total source for each FSR */
 #pragma omp for schedule(guided)
@@ -237,11 +237,6 @@ void CPULSSolver::computeFSRSources() {
 
       material = _FSR_materials[r];
       sigma_t = material->getSigmaT();
-
-      /* Compute the determinat of the linear expansion coefficient matrix
-       * for this FSR */
-      det = _FSR_lin_exp_matrix[r*3  ] * _FSR_lin_exp_matrix[r*3+1] -
-          _FSR_lin_exp_matrix[r*3+2] * _FSR_lin_exp_matrix[r*3+2];
 
       /* Compute scatter + fission source for group g */
       for (int g=0; g < _num_groups; g++) {
@@ -270,12 +265,12 @@ void CPULSSolver::computeFSRSources() {
 
         /* Compute total (scatter+fission+fixed) reduced source moments */
         _reduced_sources_xy(r,g,0) = ONE_OVER_FOUR_PI /
-            (2 * det * sigma_t[g] * sigma_t[g]) *
-            (_FSR_lin_exp_matrix[r*3+1] * src_x -
+            (2 * sigma_t[g] * sigma_t[g]) *
+            (_FSR_lin_exp_matrix[r*3  ] * src_x +
              _FSR_lin_exp_matrix[r*3+2] * src_y);
         _reduced_sources_xy(r,g,1) = ONE_OVER_FOUR_PI /
-            (2 * det * sigma_t[g] * sigma_t[g]) *
-            (_FSR_lin_exp_matrix[r*3  ] * src_y -
+            (2 * sigma_t[g] * sigma_t[g]) *
+            (_FSR_lin_exp_matrix[r*3+1] * src_y +
              _FSR_lin_exp_matrix[r*3+2] * src_x);
       }
     }
@@ -573,17 +568,12 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
   xc = centroid->getX();
   yc = centroid->getY();
 
-  det = _FSR_lin_exp_matrix[fsr_id*3] * _FSR_lin_exp_matrix[fsr_id*3+1] -
-      _FSR_lin_exp_matrix[fsr_id*3+2] * _FSR_lin_exp_matrix[fsr_id*3+2];
-
   FP_PRECISION flux = _scalar_flux(fsr_id, group);
-  flux += 1.0 / det *
-      (_FSR_lin_exp_matrix[fsr_id*3+1] * _scalar_flux_xy(fsr_id, group, 0) -
-       _FSR_lin_exp_matrix[fsr_id*3+2] * _scalar_flux_xy(fsr_id, group, 1))
+  flux += (_FSR_lin_exp_matrix[fsr_id*3  ] * _scalar_flux_xy(fsr_id, group, 0) +
+           _FSR_lin_exp_matrix[fsr_id*3+2] * _scalar_flux_xy(fsr_id, group, 1))
       * (x - xc);
-  flux += 1.0 / det *
-      (_FSR_lin_exp_matrix[fsr_id*3  ] * _scalar_flux_xy(fsr_id, group, 1) -
-       _FSR_lin_exp_matrix[fsr_id*3+2] * _scalar_flux_xy(fsr_id, group, 0))
+  flux += (_FSR_lin_exp_matrix[fsr_id*3+1] * _scalar_flux_xy(fsr_id, group, 1) +
+           _FSR_lin_exp_matrix[fsr_id*3+2] * _scalar_flux_xy(fsr_id, group, 0))
       * (y - yc);
 
   return flux;

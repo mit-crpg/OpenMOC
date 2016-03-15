@@ -412,8 +412,12 @@ FP_PRECISION* TrackGenerator::getFSRLinearExpansionCoeffs(
   /* Delete temporary array of FSR volumes */
   delete [] FSR_volumes;
 
+  /* Initialize an array to store the values of the inv linear expansion matrix */
+  FP_PRECISION* inv_lin_exp_matrix = new FP_PRECISION[num_FSRs*3];
+  memset(inv_lin_exp_matrix, 0., num_FSRs*3*sizeof(FP_PRECISION));
+
   /* Check to make sure none of the source expansion matrices are singular */
-  double determinant;
+  FP_PRECISION determinant;
   for (int r=0; r < num_FSRs; r++) {
     determinant = lin_exp_matrix[r*3  ] * lin_exp_matrix[r*3+1] -
         lin_exp_matrix[r*3+2] * lin_exp_matrix[r*3+2];
@@ -421,9 +425,15 @@ FP_PRECISION* TrackGenerator::getFSRLinearExpansionCoeffs(
     if (determinant == 0.0)
       log_printf(ERROR, "Encountered singular source expansion matrix for"
                  " FSR %d", r);
+
+    inv_lin_exp_matrix[r*3    ] =  lin_exp_matrix[r*3 + 1] / determinant;
+    inv_lin_exp_matrix[r*3 + 1] =  lin_exp_matrix[r*3    ] / determinant;
+    inv_lin_exp_matrix[r*3 + 2] = -lin_exp_matrix[r*3 + 2] / determinant;
   }
 
-  return lin_exp_matrix;
+  delete [] lin_exp_matrix;
+
+  return inv_lin_exp_matrix;
 }
 
 
