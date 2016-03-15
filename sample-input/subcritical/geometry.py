@@ -1,5 +1,5 @@
 import numpy as np
-from openmoc import *
+import openmoc
 import openmoc.log as log
 import openmoc.plotter as plotter
 import openmoc.materialize as materialize
@@ -13,7 +13,7 @@ log.set_log_level('NORMAL')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.h5')
+materials = materialize.materialize('../c5g7-materials.py')
 
 
 ###############################################################################
@@ -22,19 +22,19 @@ materials = materialize.materialize('../c5g7-materials.h5')
 
 log.py_printf('NORMAL', 'Creating surfaces...')
 
-xmin = XPlane(x=-5.0, name='xmin')
-xmax = XPlane(x= 5.0, name='xmax')
-ymin = YPlane(y=-5.0, name='ymin')
-ymax = YPlane(y= 5.0, name='ymax')
-zmin = ZPlane(z=-5.0, name='zmin')
-zmax = ZPlane(z= 5.0, name='zmax')
+xmin = openmoc.XPlane(x=-5.0, name='xmin')
+xmax = openmoc.XPlane(x= 5.0, name='xmax')
+ymin = openmoc.YPlane(y=-5.0, name='ymin')
+ymax = openmoc.YPlane(y= 5.0, name='ymax')
+zmin = openmoc.ZPlane(z=-5.0, name='zmin')
+zmax = openmoc.ZPlane(z= 5.0, name='zmax')
 
-xmin.setBoundaryType(VACUUM)
-xmax.setBoundaryType(VACUUM)
-ymin.setBoundaryType(VACUUM)
-ymax.setBoundaryType(VACUUM)
-zmin.setBoundaryType(VACUUM)
-zmax.setBoundaryType(VACUUM)
+xmin.setBoundaryType(openmoc.VACUUM)
+xmax.setBoundaryType(openmoc.VACUUM)
+ymin.setBoundaryType(openmoc.VACUUM)
+ymax.setBoundaryType(openmoc.VACUUM)
+zmin.setBoundaryType(openmoc.VACUUM)
+zmax.setBoundaryType(openmoc.VACUUM)
 
 
 ###############################################################################
@@ -43,16 +43,16 @@ zmax.setBoundaryType(VACUUM)
 
 log.py_printf('NORMAL', 'Creating cells...')
 
-water_cell = Cell(name='water')
+water_cell = openmoc.Cell(name='water')
 water_cell.setFill(materials['Water'])
 
-fuel_cell = Cell(name='fuel')
+fuel_cell = openmoc.Cell(name='fuel')
 fuel_cell.setFill(materials['UO2'])
 
-source_cell = Cell(name='source')
+source_cell = openmoc.Cell(name='source')
 source_cell.setFill(materials['Water'])
 
-root_cell = Cell(name='root cell')
+root_cell = openmoc.Cell(name='root cell')
 root_cell.addSurface(halfspace=+1, surface=xmin)
 root_cell.addSurface(halfspace=-1, surface=xmax)
 root_cell.addSurface(halfspace=+1, surface=ymin)
@@ -67,10 +67,10 @@ root_cell.addSurface(halfspace=-1, surface=zmax)
 
 log.py_printf('NORMAL', 'Creating universes...')
 
-water_univ = Universe(name='water')
-fuel_univ = Universe(name='fuel')
-source_univ = Universe(name='source')
-root_universe = Universe(name='root universe')
+water_univ = openmoc.Universe(name='water')
+fuel_univ = openmoc.Universe(name='fuel')
+source_univ = openmoc.Universe(name='source')
+root_universe = openmoc.Universe(name='root universe')
 
 water_univ.addCell(water_cell)
 fuel_univ.addCell(fuel_cell)
@@ -121,7 +121,7 @@ for k in np.arange(lat_z[1], lat_z[0], dtype=np.int):
 log.py_printf('NORMAL', 'Creating a {0}x{1}x{2} lattice...'.\
               format(num_x, num_y, num_z))
 
-lattice = Lattice(name='{0}x{1}x{2} lattice'.format(num_x, num_y, num_z))
+lattice = openmoc.Lattice(name='{0}x{1}x{2} lattice'.format(num_x, num_y, num_z))
 lattice.setWidth(width_x=width_x, width_y=width_y, width_z=width_z)
 lattice.setUniverses3D(universes)
 root_cell.setFill(lattice)
@@ -133,6 +133,6 @@ root_cell.setFill(lattice)
 
 log.py_printf('NORMAL', 'Creating geometry...')
 
-geometry = Geometry()
+geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()

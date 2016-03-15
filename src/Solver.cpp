@@ -913,7 +913,10 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     normalizeFluxes();
     computeFSRSources();
+    _timer->startTimer();
     transportSweep();
+    _timer->stopTimer();
+    _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
 
     /* Solve CMFD diffusion problem and update MOC flux */
@@ -972,6 +975,11 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
 
+  double transport_sweep = _timer->getSplit("Transport Sweep");
+  msg_string = "Transport Sweep";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep);
+
   /* Time per segment */
   int num_segments = 0;
   if (_solve_3D)
@@ -979,8 +987,8 @@ void Solver::printTimerReport() {
   else
     num_segments = _track_generator->getNum2DSegments();
 
-  int num_integrations = _fluxes_per_track * num_segments;
-  double time_per_integration = (time_per_iter / num_integrations);
+  int num_integrations = _fluxes_per_track * num_segments * _num_iterations;
+  double time_per_integration = (transport_sweep / num_integrations);
   msg_string = "Integration time per segment integration";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);

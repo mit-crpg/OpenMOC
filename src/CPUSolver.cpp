@@ -462,15 +462,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
 
 /**
- * @brief Compute \f$ k_{eff} \f$ from the total, fission and scattering
- *        reaction rates and leakage.
- * @details This method computes the current approximation to the
- *          multiplication factor on this iteration as follows:
- *          \f$ k_{eff} = \frac{\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}}
- *                        {\displaystyle\sum_{i \in I}
- *                        \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} -
- *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
+ * @brief Compute \f$ k_{eff} \f$ from successive fission sources.
  */
 void CPUSolver::computeKeff() {
 
@@ -479,31 +471,11 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION total, fission, scatter, leakage;
+  FP_PRECISION fission;
   FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
 
   /* Loop over all FSRs and compute the volume-integrated total rates */
-  #pragma omp parallel for private(tid, volume, \
-    material, sigma) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
-
-    tid = omp_get_thread_num() * _num_groups;
-    volume = _FSR_volumes[r];
-    material = _FSR_materials[r];
-    sigma = material->getSigmaT();
-
-    for (int e=0; e < _num_groups; e++)
-      group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
-
-    FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
-    FSR_rates[r] *= volume;
-  }
-
-  /* Reduce total rates across FSRs */
-  total = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
-
-  /* Loop over all FSRs and compute the volume-integrated nu-fission rates */
   #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
@@ -520,42 +492,13 @@ void CPUSolver::computeKeff() {
     FSR_rates[r] *= volume;
   }
 
-  /* Reduce fission rates across FSRs */
+  /* Reduce new fission rates across FSRs */
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
-  /* Loop over all FSRs and compute the volume-integrated scattering rates */
-  #pragma omp parallel for private(tid, volume, \
-    material) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
-
-    tid = omp_get_thread_num() * _num_groups;
-    volume = _FSR_volumes[r];
-    material = _FSR_materials[r];
-
-    FSR_rates[r] = 0.;
-
-    for (int G=0; G < _num_groups; G++) {
-      for (int g=0; g < _num_groups; g++)
-        group_rates[tid+g] = material->getSigmaSByGroupInline(g,G)
-                             * _scalar_flux(r,g);
-
-      FSR_rates[r]+=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
-    }
-
-    FSR_rates[r] *= volume;
-  }
-
-  /* Reduce scattering rates across FSRs */
-  scatter = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
-
-  /* Reduce leakage array across Tracks, energy groups, polar angles */
-  int size = 2 * _tot_num_tracks * _fluxes_per_track;
-  leakage = pairwise_sum<FP_PRECISION>(_boundary_leakage, size) * 0.5;
-
-  _k_eff = fission / (total - scatter + leakage);
-
-  log_printf(DEBUG, "tot = %f, fiss = %f, scatt = %f, leak = %f,"
-             "k_eff = %f", total, fission, scatter, leakage, _k_eff);
+  /* The old_source is normalized to sum to _k_eff; therefore, the new
+   * _k_eff is the old _k_eff * sum(new_source). Implicitly, we are just doing
+   * _k_eff = sum(new_source) / sum(old_source). */
+  _k_eff *= fission;
 
   delete [] FSR_rates;
   delete [] group_rates;
@@ -611,40 +554,42 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   int p, pe;
   int a = azim_index;
+  FP_PRECISION** multiples = _quad->getMultiples();
+  FP_PRECISION azim_wgt = _azim_spacings[a] * 4 * M_PI;
 
   /* The change in angular flux along this Track segment in the FSR */
-  FP_PRECISION delta_psi;
-  FP_PRECISION exponential;
+  FP_PRECISION delta_psi, exponential, tau;
 
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
   if (_solve_3D) {
-    p = _quad->getFirstOctantPolar(polar_index);
+
     for (int e=0; e < _num_groups; e++) {
       exponential = _exp_evaluator->computeExponential
         (sigma_t[e] * length, a, p);
       delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi * _azim_spacings[a] * _polar_spacings[a][p] *
-        _quad->getMultiple(a, p) * 4.0 * M_PI;
-      track_flux(e) -= delta_psi;
+      fsr_flux[e] += delta_psi * azim_wgt * _polar_spacings[a][p] *
+          multiples[a][p];
+      track_flux[e] -= delta_psi;
     }
   }
-  else{
+  else {
+    azim_wgt *= 2;
 
     pe = 0;
 
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
 
+      tau = sigma_t[e] * length;
+
       /* Loop over polar angles */
       for (p=0; p < _num_polar/2; p++) {
-        exponential = _exp_evaluator->computeExponential
-          (sigma_t[e] * length, a, p);
+        exponential = _exp_evaluator->computeExponential(tau, a, p);
         delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * 2.0 * _azim_spacings[a] *
-          _quad->getMultiple(a, p) * 4.0 * M_PI;
-        track_flux(pe) -= delta_psi;
+        fsr_flux[e] += delta_psi * azim_wgt * multiples[a][p];
+        track_flux[pe] -= delta_psi;
         pe++;
       }
     }
@@ -709,7 +654,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
       start = 0;
       track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();
     }
-    else{
+    else {
       start = _fluxes_per_track * (!_tracks[track_id]->getReflFwdFwd());
       track_out_id = _tracks[track_id]->getTrackReflFwd()->getUid();
     }
@@ -744,7 +689,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
         _quad->getMultiple(a, p) * 4.0 * M_PI;
     }
   }
-  else{
+  else {
 
     int pe = 0;
 

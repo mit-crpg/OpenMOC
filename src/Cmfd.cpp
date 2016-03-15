@@ -108,9 +108,6 @@ Cmfd::~Cmfd() {
   if (_surface_currents != NULL)
     delete _surface_currents;
 
-  if (_volumes != NULL)
-    delete _volumes;
-
   if (_azim_spacings != NULL)
     delete [] _azim_spacings;
 
@@ -2441,9 +2438,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   int surf_id, cell_id, cmfd_group;
   int ncg = _num_cmfd_groups;
   FP_PRECISION currents[_num_cmfd_groups];
+  FP_PRECISION** multiples = _quadrature->getMultiples();
   memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
-
-  polar_index = _quadrature->getFirstOctantPolar(polar_index);
 
   if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {
 
@@ -2459,7 +2455,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         /* Increment the surface group */
         currents[cmfd_group] += track_flux[e] * _azim_spacings[azim_index]
             * _polar_spacings[azim_index][polar_index]
-            * _quadrature->getMultiple(azim_index, polar_index) * 2.0 * M_PI;
+            * multiples[azim_index][polar_index] * 2.0 * M_PI;
       }
 
       /* Increment currents */
@@ -2475,7 +2471,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
         for (int p = 0; p < _num_polar/2; p++) {
           currents[cmfd_group] += track_flux[pe] * _azim_spacings[azim_index]
-              * _quadrature->getMultiple(azim_index, p) * 4.0 * M_PI;
+              * multiples[azim_index][p] * 4.0 * M_PI;
           pe++;
         }
       }
