@@ -2438,7 +2438,6 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   int surf_id, cell_id, cmfd_group;
   int ncg = _num_cmfd_groups;
   FP_PRECISION currents[_num_cmfd_groups];
-  FP_PRECISION** multiples = _quadrature->getMultiples();
   memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
 
   polar_index = _quadrature->getFirstOctantPolar(polar_index);
