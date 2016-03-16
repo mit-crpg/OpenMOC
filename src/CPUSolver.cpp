@@ -554,7 +554,6 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   int p, pe;
   int a = azim_index;
-  FP_PRECISION azim_wgt = _azim_spacings[a] * 4 * M_PI;
 
   /* The change in angular flux along this Track segment in the FSR */
   FP_PRECISION delta_psi, exponential, tau;
