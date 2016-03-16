@@ -524,12 +524,10 @@ int main() {
   log_printf(NORMAL, "Creating CMFD mesh...");
 
   Cmfd* cmfd = new Cmfd();
-  cmfd->setMOCRelaxationFactor(1.0);
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(51, 51, 3);
   int cmfd_group_structure[3] = {1,4,8};
   cmfd->setGroupStructure(cmfd_group_structure, 3);
-  cmfd->setOpticallyThick(true);
   cmfd->setKNearest(4);
 
   /* Create the geometry */
@@ -543,8 +541,8 @@ int main() {
   log_printf(NORMAL, "Initializing the track generator...");
   Quadrature* quad = new EqualAnglePolarQuad();
   quad->setNumPolarAngles(num_polar);
-  TrackGenerator track_generator(&geometry, num_azim, num_polar, azim_spacing,
-                                 polar_spacing);
+  TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
+                                   polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);

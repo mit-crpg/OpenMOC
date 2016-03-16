@@ -530,8 +530,8 @@ int main() {
   log_printf(NORMAL, "Initializing the track generator...");
   Quadrature* quad = new EqualAnglePolarQuad();
   quad->setNumPolarAngles(num_polar);
-  TrackGenerator track_generator(&geometry, num_azim, num_polar, azim_spacing,
-                                 polar_spacing);
+  TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
+                                   polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);

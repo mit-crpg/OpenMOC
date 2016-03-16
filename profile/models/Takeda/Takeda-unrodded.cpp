@@ -195,9 +195,7 @@ int main() {
   /* Create CMFD mesh */
   log_printf(NORMAL, "Creating Cmfd mesh...");
   Cmfd* cmfd = new Cmfd();
-  cmfd->setMOCRelaxationFactor(0.6);
   cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setOpticallyThick(true);
   cmfd->setLatticeStructure(5, 5, 5);
   cmfd->setKNearest(4);
   cmfd->setCentroidUpdateOn(false);
@@ -215,8 +213,8 @@ int main() {
 
   Quadrature* quad = new EqualAnglePolarQuad();
   quad->setNumPolarAngles(num_polar);
-  TrackGenerator track_generator(&geometry, num_azim, num_polar, azim_spacing,
-                                 polar_spacing);
+  TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
+                                   polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);

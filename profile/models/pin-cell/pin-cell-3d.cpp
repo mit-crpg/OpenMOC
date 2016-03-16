@@ -135,8 +135,8 @@ int main() {
   /* Create the track generator */
   log_printf(NORMAL, "Initializing the track generator...");
 
-  TrackGenerator track_generator(geometry, num_azim, num_polar, azim_spacing,
-                                 polar_spacing);
+  TrackGenerator3D track_generator(geometry, num_azim, num_polar, azim_spacing,
+                                   polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
   track_generator.setGlobalZMesh();

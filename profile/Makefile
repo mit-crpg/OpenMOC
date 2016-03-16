@@ -37,6 +37,9 @@ Track.cpp \
 Track2D.cpp \
 Track3D.cpp \
 TrackGenerator.cpp \
+TrackGenerator3D.cpp \
+TrackTraversingAlgorithms.cpp \
+TraverseSegments.cpp \
 Universe.cpp \
 Vector.cpp
 
