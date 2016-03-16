@@ -12,6 +12,7 @@
   #include "../src/Geometry.h"
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
+  #include "../src/linalg.h"
   #include "../src/Material.h"
   #include "../src/Point.h"
   #include "../src/Quadrature.h"
@@ -499,6 +500,7 @@ namespace std {
 %include ../src/Geometry.h
 %include ../src/LocalCoords.h
 %include ../src/log.h
+%include ../src/linalg.h
 %include ../src/Material.h
 %include ../src/Point.h
 %include ../src/Quadrature.h

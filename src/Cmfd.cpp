@@ -2524,7 +2524,7 @@ void Cmfd::initialize() {
   if (_cell_locks != NULL)
     delete [] _cell_locks;
 
-  try{
+  try {
 
     /* Allocate array of OpenMP locks for each CMFD cell */
     _cell_locks = new omp_lock_t[num_cells];
