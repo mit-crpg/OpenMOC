@@ -66,7 +66,7 @@ class Options(object):
                            'max-iters=',
                            'num-omp-threads=',
                            'num-thread-blocks=',
-                           'num-gpu-threads=']
+                           'num-threads-per-block=']
 
         self._num_azim = 4
         self._track_spacing = 0.1
@@ -172,12 +172,12 @@ class Options(object):
                 print(num_omp_threads)
 
                 num_threadblocks = '\t{: <35}'.format('-b, ' + \
-                                       '--num-gpu-threadblocks=<64>')
+                                       '--num-thread-blocks=<64>')
                 num_threadblocks += 'The number of GPU threadblocks\n'
                 print(num_threadblocks)
 
                 num_threads_per_block = \
-                    '\t{: <35}'.format('-g, --num-gpu-threads=<64>')
+                    '\t{: <35}'.format('-g, --num-threads-per-block=<64>')
                 num_threads_per_block += 'The number of GPU threads per block\n'
                 print(num_threads_per_block)
 
@@ -195,5 +195,5 @@ class Options(object):
                 self._num_omp_threads = int(arg)
             elif opt in ('-b', '--num-thread-blocks'):
                 self._num_thread_blocks = int(arg)
-            elif opt in ('-g', '--num-gpu-threads'):
+            elif opt in ('-g', '--num-threads-per-block'):
                 self._num_threads_per_block = int(arg)
