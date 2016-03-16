@@ -10,7 +10,7 @@ else:
     from openmoc.log import py_printf
 
 
-class Options:
+class Options(object):
     """Command-line options for runtime configuration of OpenMOC.
 
     This class parses, interprets and encapsulates the runtime options for
@@ -58,6 +58,16 @@ class Options:
         """Initialize default values for each runtime parameter and parses the
         command line arguments assigns the appropriate value to each."""
 
+        self._short_args = 'hfa:s:i:c:t:b:g:r:l:'
+        self._long_args = ['help',
+                           'num-azim=',
+                           'track-spacing=',
+                           'tolerance=',
+                           'max-iters=',
+                           'num-omp-threads=',
+                           'num-thread-blocks=',
+                           'num-gpu-threads=']
+
         self._num_azim = 4
         self._track_spacing = 0.1
         self._max_iters = 1000
@@ -65,30 +75,73 @@ class Options:
         self._num_omp_threads = multiprocessing.cpu_count()
         self._num_thread_blocks = 64
         self._num_gpu_threads = 64
+
+        self._opts = None
+        self._args = None
+
         self.parseArguments()
+
+    @property
+    def short_args(self):
+        return self._short_args
+
+    @property
+    def long_args(self):
+        return self._long_args
+
+    @property
+    def opts(self):
+        return self._opts
+
+    @property
+    def args(self):
+        return self._args
+
+    @property
+    def num_azim(self):
+        return self._num_azim
+
+    @property
+    def track_spacing(self):
+        return self._track_spacing
+
+    @property
+    def max_iters(self):
+        return self._max_iters
+
+    @property
+    def tolerance(self):
+        return self._tolerance
+
+    @property
+    def num_omp_threads(self):
+        return self._num_omp_threads
+
+    @property
+    def num_thread_blocks(self):
+        return self._num_thread_blocks
+
+    @property
+    def num_threads_per_block(self):
+        return self._num_gpu_threads
 
     def parseArguments(self):
         """This method parses command line options and assigns the appropriate
         values to the corresponding class attributes."""
 
-        try:
-            opts, args = getopt.getopt(sys.argv[1:],
-                                      'hfa:s:i:c:t:b:g:r:l:',
-                                      ['help',
-                                       'num-azim=',
-                                       'track-spacing=',
-                                       'tolerance=',
-                                       'max-iters=',
-                                       'num-omp-threads=',
-                                       'num-thread-blocks=',
-                                       'num-gpu-threads='])
+        print(sys.argv[1:])
+        print(self.short_args)
+        print(self.long_args)
 
+        try:
+            self._opts, self._args = \
+                getopt.getopt(sys.argv[1:], self.short_args, self.long_args)
         except getopt.GetoptError as err:
             py_printf('ERROR', str(err))
 
         # Parse the command line arguments - error checking will occur
         # at the setter method level in C++
-        for opt, arg in opts:
+        for opt, arg in self.opts:
 
             # Print a report of all supported runtime options and exit
             if opt in ('-h', '--help'):
@@ -147,31 +200,3 @@ class Options:
                 self._num_thread_blocks = int(arg)
             elif opt in ('-g', '--num-gpu-threads'):
                 self._num_gpu_threads = int(arg)
-
-    @property
-    def num_azim(self):
-        return self._num_azim
-
-    @property
-    def track_spacing(self):
-        return self._track_spacing
-
-    @property
-    def max_iters(self):
-        return self._max_iters
-
-    @property
-    def tolerance(self):
-        return self._tolerance
-
-    @property
-    def num_omp_threads(self):
-        return self._num_omp_threads
-
-    @property
-    def num_thread_blocks(self):
-        return self._num_thread_blocks
-
-    @property
-    def num_threads_per_block(self):
-        return self._num_gpu_threads
