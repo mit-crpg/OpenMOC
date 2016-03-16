@@ -39,7 +39,7 @@
 #define POLAR_WEIGHT_SUM_TOL 1E-5
 
 /** The default maximum optical path length */
-#define MAX_OPTICAL_LENGTH FP_PRECISION(10.)
+#define MAX_OPTICAL_LENGTH FP_PRECISION(5.)
 
 /** A small amount to increment the tau, the max optical path length, to ensure
  *  that tracks with the max optical path length are not split. */

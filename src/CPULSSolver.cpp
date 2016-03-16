@@ -202,10 +202,8 @@ void CPULSSolver::normalizeFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
-          _boundary_flux_copy(t,d,p,e) *= norm_factor;
-          _boundary_flux(t,d,p,e) = _boundary_flux_copy(t,d,p,e);
-        }
+        for (int e=0; e < _num_groups; e++)
+          _boundary_flux(t,d,p,e) *= norm_factor;
       }
     }
   }

@@ -147,9 +147,6 @@ void CPUSolver::initializeFluxArrays() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
-  if (_boundary_flux_copy != NULL)
-    delete [] _boundary_flux_copy;
-
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
@@ -160,7 +157,6 @@ void CPUSolver::initializeFluxArrays() {
   try{
     int size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux = new FP_PRECISION[size];
-    _boundary_flux_copy = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
@@ -248,10 +244,8 @@ void CPUSolver::zeroTrackFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
+        for (int e=0; e < _num_groups; e++)
           _boundary_flux(t,d,p,e) = 0.0;
-          _boundary_flux_copy(t,d,p,e) = 0.0;
-        }
       }
     }
   }
@@ -336,10 +330,8 @@ void CPUSolver::normalizeFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++) {
-          _boundary_flux_copy(t,d,p,e) *= norm_factor;
-          _boundary_flux(t,d,p,e) = _boundary_flux_copy(t,d,p,e);
-        }
+        for (int e=0; e < _num_groups; e++)
+          _boundary_flux(t,d,p,e) *= norm_factor;
       }
     }
   }
@@ -858,7 +850,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
-  FP_PRECISION* track_out_flux = &_boundary_flux_copy(track_out_id,0,0,start);
+  FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
 
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
