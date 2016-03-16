@@ -108,11 +108,11 @@ void CPULSSolver::initializeSourceArrays() {
   _inv_sin_thetas = _polar_quad->getInverseSinThetas();
 
   /* Generate the sin(phi) and cos(phi) arrays */
-  int num_azim = _track_generator->getNumAzim();
-  _sin_phi = new FP_PRECISION[num_azim];
-  _cos_phi = new FP_PRECISION[num_azim];
+  int num_azim_2 = _track_generator->getNumAzim() / 2;
+  _sin_phi = new FP_PRECISION[num_azim_2];
+  _cos_phi = new FP_PRECISION[num_azim_2];
 
-  for (int i=0; i < num_azim; i++) {
+  for (int i=0; i < num_azim_2; i++) {
     _sin_phi[i] = FP_PRECISION(sin(_track_generator->getPhi(i)));
     _cos_phi[i] = FP_PRECISION(cos(_track_generator->getPhi(i)));
   }
@@ -202,8 +202,10 @@ void CPULSSolver::normalizeFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int p=0; p < _num_polar; p++) {
-        for (int e=0; e < _num_groups; e++)
-          _boundary_flux(t,d,p,e) *= norm_factor;
+        for (int e=0; e < _num_groups; e++) {
+          _boundary_flux_copy(t,d,p,e) *= norm_factor;
+          _boundary_flux(t,d,p,e) = _boundary_flux_copy(t,d,p,e);
+        }
       }
     }
   }

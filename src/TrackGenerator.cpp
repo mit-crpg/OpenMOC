@@ -469,7 +469,7 @@ FP_PRECISION* TrackGenerator::getFSRSourceConstants(PolarQuad* polar_quad,
 
 #pragma omp parallel
   {
-    int azim_index, polar_index, fsr_id;
+    int azim_index, fsr_id;
     segment* curr_segment;
     FP_PRECISION length, tau, wgt, multiple, G2;
     FP_PRECISION* sigma_t;
@@ -2294,5 +2294,5 @@ double TrackGenerator::getPhi(int azim) {
   if (azim < _num_azim)
     return _phi[azim];
   else
-    return 2 * M_PI - _phi[azim - _num_azim];
+    return M_PI + _phi[azim - _num_azim];
 }

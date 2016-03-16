@@ -100,7 +100,7 @@ public:
 
 
 inline int ExpEvaluator::getPolar(int index) {
-  return (index % (_three_times_num_exp * _num_polar)) / (3 * _num_polar);
+  return (index % (_three_times_num_exp * _num_polar)) / _three_times_num_exp;
 }
 
 
