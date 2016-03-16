@@ -334,7 +334,7 @@ void CPUSolver::computeFSRSources() {
     /* Compute total (fission+scatter+fixed) source for group G */
     for (int G=0; G < _num_groups; G++) {
       for (int g=0; g < _num_groups; g++)
-        scatter_sources(tid,g) = material->getSigmaSByGroupInline(g,G)
+        scatter_sources(tid,g) = material->getSigmaSByGroup(g+1,G+1)
                                   * _scalar_flux(r,g);
       scatter_source = pairwise_sum<FP_PRECISION>(&scatter_sources(tid,0),
                                                 _num_groups);
@@ -437,9 +437,9 @@ double CPUSolver::computeResidual(residualType res_type) {
       /* Compute total scattering source for group G */
       for (int G=0; G < _num_groups; G++) {
         for (int g=0; g < _num_groups; g++) {
-          new_total_source += material->getSigmaSByGroupInline(g,G)
+          new_total_source += material->getSigmaSByGroup(g+1,G+1)
                               * _scalar_flux(r,g);
-          old_total_source += material->getSigmaSByGroupInline(g,G)
+          old_total_source += material->getSigmaSByGroup(g+1,G+1)
                               * _old_scalar_flux(r,g);
         }
       }
