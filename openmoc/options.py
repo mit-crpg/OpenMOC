@@ -32,7 +32,7 @@ class Options(object):
         The number of OpenMP threads (default is the # of CPU cores)
     num_thread_blocks : Integral
         The number of GPU threadblocks (default is 64)
-    num_gpu_threads : Integral
+    num_threads_per_block : Integral
         The number of GPU threads per threadblock (default is 64)
 
     Examples
@@ -74,7 +74,7 @@ class Options(object):
         self._tolerance = 1E-5
         self._num_omp_threads = multiprocessing.cpu_count()
         self._num_thread_blocks = 64
-        self._num_gpu_threads = 64
+        self._num_threads_per_block = 64
 
         self._opts = None
         self._args = None
@@ -123,7 +123,7 @@ class Options(object):
 
     @property
     def num_threads_per_block(self):
-        return self._num_gpu_threads
+        return self._num_threads_per_block
 
     def parseArguments(self):
         """This method parses command line options and assigns the appropriate
@@ -171,14 +171,15 @@ class Options(object):
                 num_omp_threads += 'The number of OpenMP threads\n'
                 print(num_omp_threads)
 
-                num_gpu_threadblocks = '\t{: <35}'.format('-b, ' + \
+                num_threadblocks = '\t{: <35}'.format('-b, ' + \
                                        '--num-gpu-threadblocks=<64>')
-                num_gpu_threadblocks += 'The number of GPU threadblocks\n'
-                print(num_gpu_threadblocks)
+                num_threadblocks += 'The number of GPU threadblocks\n'
+                print(num_threadblocks)
 
-                num_gpu_threads = '\t{: <35}'.format('-g, --num-gpu-threads=<64>')
-                num_gpu_threads += 'The number of GPU threads per block\n'
-                print(num_gpu_threads)
+                num_threads_per_block = \
+                    '\t{: <35}'.format('-g, --num-gpu-threads=<64>')
+                num_threads_per_block += 'The number of GPU threads per block\n'
+                print(num_threads_per_block)
 
                 sys.exit()
 
@@ -195,4 +196,4 @@ class Options(object):
             elif opt in ('-b', '--num-thread-blocks'):
                 self._num_thread_blocks = int(arg)
             elif opt in ('-g', '--num-gpu-threads'):
-                self._num_gpu_threads = int(arg)
+                self._num_threads_per_block = int(arg)
