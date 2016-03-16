@@ -129,10 +129,6 @@ class Options(object):
         """This method parses command line options and assigns the appropriate
         values to the corresponding class attributes."""
 
-        print(sys.argv[1:])
-        print(self.short_args)
-        print(self.long_args)
-
         try:
             self._opts, self._args = \
                 getopt.getopt(sys.argv[1:], self.short_args, self.long_args)
