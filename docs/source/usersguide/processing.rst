@@ -428,7 +428,7 @@ A depiction of the cells for the :file:`/OpenMOC/sample-input/simple-lattice.py`
 Plotting by SR
 --------------
 
-To plot the geometry color-coded by the Source region ID's throughout the geometry, use the ``plot_source_regions(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 12 <table_plot_fsrs>`.
+To plot the geometry color-coded by the source region ID's throughout the geometry, use the ``plot_source_regions(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 12 <table_plot_fsrs>`.
 
 .. _table_plot_fsrs:
 

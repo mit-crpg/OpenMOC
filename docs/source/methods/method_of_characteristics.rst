@@ -20,7 +20,7 @@ The method of characteristics (MOC) is a widely used technique for solving parti
 
 The final equations applied in OpenMOC to solve for the SR source and scalar flux derived in the following sections are summarized below:
 
-**The source in each source region**
+**The source in each source flat region**
 
 .. math::
    \boxed{Q_{i,g} = \frac{1}{4\pi}\left(\displaystyle\sum\limits_{g'=1}^G \Sigma^S_{i,g'\rightarrow g}\Phi_{i,g'} + \frac{\chi_{i,g}}{k_{eff}}\displaystyle\sum\limits_{g'=1}^G\nu\Sigma^F_{i,g'}\Phi_{i,g'}\right)}
@@ -261,7 +261,7 @@ The subscripts :math:`m` and :math:`p` for the azimuthal and polar angles, respe
 The Flat Source Region Approximation
 ====================================
 
-Another common approximation for MOC is to assume that the source :math:`Q_g` is constant across discrete spatial cells termed *source regions* (SRs). This implies that the source does not vary along a characteristic :math:`k` entering FSR :math:`i` at :math:`s'` and exiting at :math:`s''`:
+Another common approximation for MOC is to assume that the source :math:`Q_g` is constant across discrete spatial cells termed *flat source regions* (FSRs). This implies that the source does not vary along a characteristic :math:`k` entering FSR :math:`i` at :math:`s'` and exiting at :math:`s''`:
 
 .. math::
    :label: flat-source

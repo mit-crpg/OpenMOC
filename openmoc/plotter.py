@@ -1014,7 +1014,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
     Examples
     --------
-    A user may invoke this function from an Python file as follows:
+    A user may invoke this function from a Python file as follows:
         >>> srs_to_data = numpy.random.rand(geometry.getNumSRS())
         >>> plot_params = PlotParams()
         >>> plot_params.domain_type = 'sr'

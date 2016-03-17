@@ -659,7 +659,7 @@ void CPUSolver::transportSweep() {
   int min_track = 0;
   int max_track = 0;
 
-  /* Initialize flux in each Sr to zero */
+  /* Initialize flux in each SR to zero */
   flattenSRFluxes(0.0);
 
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
@@ -858,10 +858,10 @@ void CPUSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Computes the volume-integrated, energy-integrated nu-fission rate in
+ * @brief Computes the volume-integrated, energy-integrated fission rate in
  *        each SR and stores them in an array indexed by SR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
- *          SR nu-fission rates as a NumPy array. An example of how this
+ *          SR fission rates as a NumPy array. An example of how this
  *          method can be called from Python is as follows:
  *
  * @code
@@ -869,7 +869,7 @@ void CPUSolver::addSourceToScalarFlux() {
  *          fission_rates = solver.computeSRFissionRates(num_SRs)
  * @endcode
  *
- * @param fission_rates an array to store the nu-fission rates (implicitly
+ * @param fission_rates an array to store the fission rates (implicitly
  *                      passed in as a NumPy array from Python)
  * @param num_SRs the number of SRs passed in from Python
  */
@@ -888,7 +888,7 @@ void CPUSolver::computeSRFissionRates(double* fission_rates, int num_SRs) {
   for (int r=0; r < _num_SRs; r++)
     fission_rates[r] = 0.0;
 
-  /* Loop over all SRs and compute the volume-averaged nu-fission rate */
+  /* Loop over all SRs and compute the volume-averaged fission rate */
 #pragma omp parallel for private (sigma_f, volume) schedule(guided)
   for (int r=0; r < _num_SRs; r++) {
     sigma_f = _SR_materials[r]->getSigmaF();
