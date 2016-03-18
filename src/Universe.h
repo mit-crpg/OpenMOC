@@ -192,6 +192,7 @@ public:
   void setWidth(double width_x, double width_y,
                 double width_z=std::numeric_limits<double>::infinity());
   void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
+  void updateUniverse(int lat_x, int lat_y, int lat_z, Universe* universe);
   void removeUniverse(Universe* universe);
   void subdivideCells(double max_radius=INFINITY);
   void buildNeighbors();
