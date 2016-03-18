@@ -1243,7 +1243,8 @@ void Lattice::updateUniverse(int lat_x, int lat_y, int lat_z,
 	       "array of Universes", universe->getId(), _id, lat_z);
 
   /* Assign the Universe to the array */
-  _universes.at(lat_z).at(lat_y).at(lat_x).second = universe;
+  _universes.at(lat_z).at(lat_y).at(lat_x) =
+    std::pair<int, Universe*>(universe->getId(), universe);
 }
 
 
