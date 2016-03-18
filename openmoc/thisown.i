@@ -119,7 +119,7 @@
 
   # SWIG 2
   else:
-    universe = locals()['args'][0]
+    universe = locals()['args'][3]
 
   universe.thisown = False
 %}
