@@ -1084,6 +1084,10 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             else:
                 domains[j][i] = domain_id
 
+            # Deallocate memory for LocalCoords
+            point = point.getHighestLevel()
+            point.prune()
+
     # Make domains-to-data array 2D to mirror a Pandas DataFrame
     if isinstance(domains_to_data, np.ndarray):
         domains_to_data.shape += (1,)
