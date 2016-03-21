@@ -14,20 +14,11 @@
 #include "Python.h"
 #endif
 #include "log.h"
-#include "Timer.h"
 #include "Universe.h"
 #include "Track.h"
 #include "PolarQuad.h"
 #include "linalg.h"
 #include "Geometry.h"
-#include <utility>
-#include <math.h>
-#include <limits.h>
-#include <string>
-#include <sstream>
-#include <queue>
-#include <iostream>
-#include <fstream>
 #endif
 
 /** Forward declaration of Geometry class */
@@ -42,7 +33,7 @@ inline bool stencilCompare(const std::pair<int, FP_PRECISION>& firstElem,
 #undef track_flux
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
- *  group for either the forward or reverse direction for a given Track */ 
+ *  group for either the forward or reverse direction for a given Track */
 #define track_flux(p,e) (track_flux[(p)*_num_moc_groups + (e)])
 
 /**
@@ -74,11 +65,11 @@ private:
   /** The new source vector */
   Vector* _new_source;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at 
+  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
@@ -113,6 +104,9 @@ private:
   /** Map of MOC groups to CMFD groups */
   int* _group_indices_map;
 
+  /** If the user specified fine-to-coarse group indices */
+  bool _user_group_indices;
+
   /** Number of FSRs */
   int _num_FSRs;
 
@@ -132,10 +126,10 @@ private:
   Material** _materials;
 
   /** Physical dimensions of the geometry and each CMFD cell */
-  double _width;
-  double _height;
-  double _cell_width;
-  double _cell_height;
+  double _width_x;
+  double _width_y;
+  double _cell_width_x;
+  double _cell_width_y;
 
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
@@ -143,17 +137,8 @@ private:
   /** Vector of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
-  /** Vector of corner currents for each CMFD cell */
-  Vector* _corner_currents;
-
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
-
-  /** MOC flux update relaxation factor */
-  FP_PRECISION _relax_factor;
-
-  /** Flag indicating whether to use optically thick correction factor */
-  bool _optically_thick;
 
   /** Pointer to Lattice object representing the CMFD mesh */
   Lattice* _lattice;
@@ -171,14 +156,18 @@ private:
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
     _k_nearest_stencils;
 
+  /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
+  omp_lock_t* _cell_locks;
+
   /* Private worker functions */
-  FP_PRECISION computeDiffCorrect(FP_PRECISION d, FP_PRECISION h);
-  void constructMatrices();
-  void computeDs(int moc_iteration);
-  void computeXS();
+  FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
+                                       FP_PRECISION delta);
+  void constructMatrices(int moc_iteration);
+  void collapseXS();
   void updateMOCFlux();
   void rescaleFlux();
-  void splitCorners();
+  void splitEdgeCurrents();
+  void getEdgeSplitSurfaces(int cell, int edge, std::vector<int>* surfaces);
   void initializeMaterials();
   void initializeCurrents();
   void generateKNearestStencils();
@@ -189,6 +178,13 @@ private:
   FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
   FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
+  FP_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
+                                              int group, int moc_iteration,
+                                              bool correction);
+  FP_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
+  FP_PRECISION getSurfaceWidth(int surface);
+  FP_PRECISION getPerpendicularSurfaceWidth(int surface);
+  int getSense(int surface);
 
 public:
 
@@ -203,12 +199,11 @@ public:
   void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);
-  int findCmfdCorner(int cell_id, LocalCoords* coords);
   void addFSRToCell(int cell_id, int fsr_id);
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     FP_PRECISION* polar_weights, bool fwd);
-  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux, 
+  void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
                           int num_tracks);
 
   /* Get parameters */
@@ -216,8 +211,6 @@ public:
   int getNumMOCGroups();
   int getNumCells();
   int getCmfdGroup(int group);
-  bool isOpticallyThick();
-  FP_PRECISION getMOCRelaxationFactor();
   int getBoundary(int side);
   Lattice* getLattice();
   int getNumX();
@@ -230,14 +223,12 @@ public:
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
   void setGeometry(Geometry* geometry);
-  void setWidth(double width);
-  void setHeight(double height);
+  void setWidthX(double width);
+  void setWidthY(double width);
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumFSRs(int num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
-  void setOpticallyThick(bool thick);
-  void setMOCRelaxationFactor(FP_PRECISION relax_factor);
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y);
   void setFluxUpdateOn(bool flux_update_on);

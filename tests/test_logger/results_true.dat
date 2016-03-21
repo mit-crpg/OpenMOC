@@ -1,0 +1,18 @@
+[  NORMAL ]  This is a normal message
+[SEPARATOR]  *******************************************************************
+[  HEADER ]  *******************  This is a header message  ********************
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                        This is a title message                      
+[  TITLE  ]  *******************************************************************
+[ WARNING ]  This is a warning message
+[ CRITICAL]  This is a critical message
+[  RESULT ]  This is a result message
+[  NORMAL ]  This is a normal message
+[SEPARATOR]  *******************************************************************
+[  HEADER ]  *******************  This is a header message  ********************
+[  TITLE  ]  *******************************************************************
+[  TITLE  ]                        This is a title message                      
+[  TITLE  ]  *******************************************************************
+[ WARNING ]  This is a warning message
+[ CRITICAL]  This is a critical message
+[  RESULT ]  This is a result message: 5

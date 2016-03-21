@@ -65,13 +65,14 @@ public:
 
   int getNumVectorWidths();
 
-  void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   void setGeometry(Geometry* geometry);
 
   void initializeExpEvaluator();
-  void initializeMaterials();
+  void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFluxArrays();
   void initializeSourceArrays();
+  void initializeFixedSources();
+  void initializeFSRs();
 
   void normalizeFluxes();
   void computeFSRSources();

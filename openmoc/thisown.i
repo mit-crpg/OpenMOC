@@ -4,7 +4,7 @@
 
 /* A Cell owns the memory for each Surface it contains */
 %pythonappend Cell::addSurface %{
-  # SWIG 3 
+  # SWIG 3
   if 'surface'in locals():
     surface = locals()['surface']
   elif 'args' in locals() and 'surface' in locals()['args']:
@@ -16,7 +16,7 @@
   else:
     surface = locals()['args'][1]
 
-  surface.thisown = 0
+  surface.thisown = False
 %}
 
 /* Python must free memory for each Surface that is not in a Cell */
@@ -33,7 +33,7 @@
   else:
     surface = locals()['args'][0]
 
-  surface.thisown = 1
+  surface.thisown = True
 %}
 
 /* A Cell owns the memory for its Material/Universe fill */
@@ -50,7 +50,7 @@
   else:
     fill = locals()['args'][0]
 
-  fill.thisown = 1
+  fill.thisown = False
 %}
 
 /* A Universe owns the memory for each Cell it contains */
@@ -67,7 +67,7 @@
   else:
     cell = locals()['args'][0]
 
-  cell.thisown = 0
+  cell.thisown = False
 %}
 
 /* Python must free memory for each Cell that is not in a Universe */
@@ -84,18 +84,18 @@
   else:
     cell = locals()['args'][0]
 
-  cell.thisown = 1
+  cell.thisown = True
 %}
 
 /* A Lattice owns the memory for each Universe it contains */
 %pythonappend Lattice::setUniverses %{
   # SWIG 3
-  if 'num_x' in locals():
-    universes = locals()['num_x']
-  elif 'args' in locals() and 'num_x' in locals()['args']:
-    universes = locals()['args']['num_x']
-  elif 'kwargs' in locals() and 'num_x' in locals()['kwargs']:
-    universes = locals()['kwargs']['num_x']
+  if 'num_z' in locals():
+    universes = locals()['num_z']
+  elif 'args' in locals() and 'num_z' in locals()['args']:
+    universes = locals()['args']['num_z']
+  elif 'kwargs' in locals() and 'num_z' in locals()['kwargs']:
+    universes = locals()['kwargs']['num_z']
 
   # SWIG 2
   else:
@@ -103,7 +103,8 @@
 
   for i in range(len(universes)):
     for j in range(len(universes[i])):
-      universes[i][j].thisown = 0
+      for k in range(len(universes[i][j])):
+        universes[i][j][k].thisown = False
 %}
 
 /* Python must free memory for each Universe that is not in a Lattice */
@@ -120,7 +121,7 @@
   else:
     universe = locals()['args'][0]
 
-  universe.thisown = 1
+  universe.thisown = True
 %}
 
 /* A TrackGenerator owns the memory for the Geometry it contains */
@@ -137,7 +138,7 @@
   else:
     geometry = locals()['args'][0]
 
-  geometry.thisown = 0
+  geometry.thisown = False
 %}
 
 /* A TrackGenerator owns the memory for the Geometry it contains */
@@ -154,7 +155,7 @@
   else:
     geometry = locals()['args'][0]
 
-  geometry.thisown = 0
+  geometry.thisown = False
 %}
 
 /* A Geometry owns the memory for the root Universe it contains */
@@ -171,7 +172,7 @@
   else:
     root_universe = locals()['args'][0]
 
-  root_universe.thisown = 0
+  root_universe.thisown = False
 %}
 
 /* A Solver owns the memory for the PolarQuadrature it contains */
@@ -188,7 +189,7 @@
   else:
     polar_quad = locals()['args'][0]
 
-  polar_quad.thisown = 0
+  polar_quad.thisown = False
 %}
 
 /* A Solver owns the memory for the TrackGenerator it contains */
@@ -205,7 +206,7 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
 %}
 
 /* A Solver owns the memory for the TrackGenerator it contains */
@@ -222,7 +223,7 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
 %}
 
 /* A CPUSolver owns the memory for the TrackGenerator it contains */
@@ -239,7 +240,9 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  # Only disown if user specified optional track_generator parameter
+  if track_generator:
+    track_generator.thisown = False
 %}
 
 /* A GPUSolver owns the memory for the TrackGenerator it contains */
@@ -256,7 +259,7 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
 %}
 
 /* A VectorizedSolver owns the memory for the TrackGenerator it contains */
@@ -273,5 +276,23 @@
   else:
     track_generator = locals()['args'][0]
 
-  track_generator.thisown = 0
+  track_generator.thisown = False
+%}
+
+
+/* A Geometry owns the memory for its Cmfd (if any) */
+%pythonappend Geometry::setCmfd %{
+  # SWIG 3
+  if 'cmfd' in locals():
+    cmfd = locals()['cmfd']
+  elif 'args' in locals() and 'cmfd' in locals()['args']:
+    cmfd = locals()['args']['cmfd']
+  elif 'kwargs' in locals() and 'cmfd' in locals()['kwargs']:
+    cmfd = locals()['kwargs']['cmfd']
+
+  # SWIG 2
+  else:
+    cmfd = locals()['args'][0]
+
+  cmfd.thisown = False
 %}

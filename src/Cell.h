@@ -17,6 +17,7 @@
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
+#include <string>
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -25,6 +26,7 @@ class Surface;
 
 int cell_id();
 void reset_cell_id();
+void maximize_cell_id(int cell_id);
 
 
 /**
@@ -87,56 +89,44 @@ private:
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
+  /** The volume / area of the Cell computed from overlapping segments */
+  double _volume;
+
+  /** The total number of instances of this Cell in the Geometry */
+  int _num_instances;
+
+  /* A boolean indicating whether to cell is rotated */
+  bool _rotated;
+
+  /* An array with angles in degrees for rotations about x, y, and z */
+  double _rotation[3];
+
+  /* A rotation matrix defined in terms of the rotation angles */
+  double _rotation_matrix[9];
+
+  /* A boolean indicating whether to cell is translated */
+  bool _translated;
+
+  /* An array with translations in x, y and z */
+  double _translation[3];
+
   /** The number of rings sub-dividing this Cell */
   int _num_rings;
 
   /** The number of sectors sub-dividing this Cell */
   int _num_sectors;
 
+  /** A parent Cell if cloned by another Cell */
+  Cell* _parent;
+
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
   std::map<int, surface_halfspace*> _surfaces;
-
-  /** The minimum reachable x-coordinate within the Cell */
-  double _min_x;
-
-  /** The maximum reachable x-coordinate within the Cell */
-  double _max_x;
-
-  /** The minimum reachable y-coordinate within the Cell */
-  double _min_y;
-
-  /** The maximum reachable y-coordinate within the Cell */
-  double _max_y;
-
-  /** The minimum reachable z-coordinate within the Cell */
-  double _min_z;
-
-  /** The maximum reachable z-coordinate within the Cell */
-  double _max_z;
-
-  /** The boundary condition at the minimum reachable x-coordinate */
-  boundaryType _min_x_bc;
-
-  /** The boundary condition at the maximum reachable x-coordinate */
-  boundaryType _max_x_bc;
-
-  /** The boundary condition at the minimum reachable y-coordinate */
-  boundaryType _min_y_bc;
-
-  /** The boundary condition at the maximum reachable y-coordinate */
-  boundaryType _max_y_bc;
-
-  /** The boundary condition at the minimum reachable z-coordinate */
-  boundaryType _min_z_bc;
-
-  /** The boundary condition at the maximum reachable z-coordinate */
-  boundaryType _max_z_bc;
 
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
 
-  void ringify(std::vector<Cell*>* subcells);
-  void sectorize(std::vector<Cell*>* subcells);
+  void ringify(std::vector<Cell*>& subcells, double max_radius);
+  void sectorize(std::vector<Cell*>& subcells);
 
 public:
   Cell(int id=0, const char* name="");
@@ -147,6 +137,18 @@ public:
   cellType getType() const;
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  double getVolume();
+  int getNumInstances();
+  bool isRotated();
+  bool isTranslated();
+  double getPhi(std::string units="degrees");
+  double getTheta(std::string units="degrees");
+  double getPsi(std::string units="degrees");
+  double* getRotationMatrix();
+  double* getTranslation();
+  void retrieveRotation(double* rotations, int num_axes,
+			std::string units="degrees");
+  void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();
   double getMinX();
@@ -159,11 +161,12 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  boundaryType getMinZBoundaryType();
-  boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace*> getSurfaces() const;
   std::vector<Cell*> getNeighbors() const;
+  bool hasParent();
+  Cell* getParent();
+  Cell* getOldestAncestor();
 
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
@@ -171,19 +174,26 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setVolume(double volume);
+  void incrementVolume(double volume);
+  void setNumInstances(int num_instances);
+  void incrementNumInstances();
+  void setRotation(double* rotation, int num_axes, std::string units="degrees");
+  void setTranslation(double* translation, int num_axes);
   void setNumRings(int num_rings);
   void setNumSectors(int num_sectors);
+  void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
   void removeSurface(Surface* surface);
   void addNeighborCell(Cell* cell);
 
-  void findBoundingBox();
+  bool isFissionable();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
-  double minSurfaceDist(Point* point, double angle);
+  double minSurfaceDist(LocalCoords* coords);
 
   Cell* clone();
-  void subdivideCell();
+  void subdivideCell(double max_radius);
   void buildNeighbors();
 
   std::string toString();

@@ -1,12 +1,12 @@
 #include "ExpEvaluator.h"
- 
+
 
 /**
  * @brief Constructor initializes array pointers to NULL.
  * @details The constructor sets the interpolation scheme as the default
  *          for computing exponentials.
  */
-ExpEvaluator::ExpEvaluator() { 
+ExpEvaluator::ExpEvaluator() {
   _interpolate = true;
   _exp_table = NULL;
   _polar_quad = NULL;
@@ -16,7 +16,7 @@ ExpEvaluator::ExpEvaluator() {
 
 
 /**
- * @brief Destructor deletes table for linear interpolation of exponentials 
+ * @brief Destructor deletes table for linear interpolation of exponentials
  */
 ExpEvaluator::~ExpEvaluator() {
   if (_exp_table != NULL)
@@ -43,7 +43,7 @@ void ExpEvaluator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
 
   if (max_optical_length <= 0)
     log_printf(ERROR, "Cannot set max optical length to %f because it "
-               "must be positive.", max_optical_length); 
+               "must be positive.", max_optical_length);
 
   _max_optical_length = max_optical_length;
 }
@@ -61,7 +61,7 @@ void ExpEvaluator::setExpPrecision(FP_PRECISION exp_precision) {
 
   if (exp_precision <= 0)
     log_printf(ERROR, "Cannot set exp precision to %f because it "
-               "must be positive.", exp_precision); 
+               "must be positive.", exp_precision);
 
   _exp_precision = exp_precision;
 }
@@ -84,7 +84,7 @@ void ExpEvaluator::useIntrinsic() {
 
 
 /**
- * @brief Gets the maximum optical length covered with the exponential 
+ * @brief Gets the maximum optical length covered with the exponential
  *        interpolation table.
  * @return max_optical_length the maximum optical length
  */
@@ -189,49 +189,27 @@ void ExpEvaluator::initialize() {
   FP_PRECISION intercept;
   FP_PRECISION slope;
   FP_PRECISION sin_theta;
+  FP_PRECISION tau;
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < num_polar; p++) {
       sin_theta = _polar_quad->getSinTheta(p);
-      expon = exp(- (i * exp_table_spacing) / sin_theta);
+
+      /* Use the optical length at the start of the interval for the first value
+       * to avoid exponential values greater than one. */
+      if (i == 0)
+        tau = i * exp_table_spacing;
+
+      /* Use the optical length at the interval mid-point to reduce error. */
+      else
+        tau = (i + 0.5) * exp_table_spacing;
+
+      expon = exp(- tau / sin_theta);
+      intercept = expon * (1 + tau / sin_theta);
       slope = - expon / sin_theta;
-      intercept = expon * (1 + (i * exp_table_spacing) / sin_theta);
       _exp_table[_two_times_num_polar * i + 2 * p] = slope;
       _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
     }
   }
-}
-
-
-/**
- * @brief Computes the exponential term for a optical length and polar angle. 
- * @details This method computes \f$ 1 - exp(-\tau/sin(\theta_p)) \f$
- *          for some optical path length and polar angle. This method
- *          uses either a linear interpolation table (default) or the
- *          exponential intrinsic exp(...) function.
- * @param tau the optical path length (e.g., sigma_t times length)
- * @param polar the polar angle index
- * @return the evaluated exponential
- */
-FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int polar) {
-
-  FP_PRECISION exponential;
-
-  /* Evaluate the exponential using the lookup table - linear interpolation */
-  if (_interpolate) {
-    tau = std::min(tau, (_max_optical_length));
-    int index = floor(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
-    exponential = (1. - (_exp_table[index + 2 * polar] * tau +
-                  _exp_table[index + 2 * polar + 1]));
-  }
-
-  /* Evalute the exponential using the intrinsic exp(...) function */
-  else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
-    exponential = 1.0 - exp(- tau / sintheta);
-  }
-
-  return exponential;
 }

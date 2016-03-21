@@ -26,22 +26,46 @@
 }
 
 
-/* Typemap for all methods which return a std::map<int, surface_halfspace>.
- * This includes the Cell::getSurfaces() method, which is useful for OpenCG
- * compatibility. */
-%clear std::map<int, surface_halfspace>;
-%typemap(out) std::map<int, surface_halfspace> {
+/* Typemap for all methods which return a std::map<int, Surface*>. This
+ * includes the Geometry::getAllSurfaces() method, which is useful for 
+ * OpenCG compatibility. */
+%clear std::map<int, Surface*>;
+%typemap(out) std::map<int, Surface*> {
 
   $result = PyDict_New();
   int size = $1.size();
 
-  std::map<int, surface_halfspace>::iterator iter;
+  std::map<int, Surface*>::iterator iter;
+  Surface* surf;
+  int surf_id;
+
+  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+    surf_id = iter->first;
+    surf = iter->second;
+    PyObject* value =
+         SWIG_NewPointerObj(SWIG_as_voidptr(surf),
+                            $descriptor(Surface*), 0);
+    PyDict_SetItem($result, PyInt_FromLong(surf_id), value);
+  }
+}
+
+
+/* Typemap for all methods which return a std::map<int, surface_halfspace>.
+ * This includes the Cell::getSurfaces() method, which is useful for OpenCG
+ * compatibility. */
+%clear std::map<int, surface_halfspace*>;
+%typemap(out) std::map<int, surface_halfspace*> {
+
+  $result = PyDict_New();
+  int size = $1.size();
+
+  std::map<int, surface_halfspace*>::iterator iter;
   surface_halfspace* surf;
   int surf_id;
 
   for (iter = $1.begin(); iter != $1.end(); ++iter) {
     surf_id = iter->first;
-    surf = &iter->second;
+    surf = iter->second;
     PyObject* value =
          SWIG_NewPointerObj(SWIG_as_voidptr(surf),
                             $descriptor(surface_halfspace*), 0);
@@ -51,7 +75,7 @@
 
 
 /* Typemap for all methods which return a std::map<int, Material*>.
- * This includes the Geometry::getAllMaterials() method, which is useful 
+ * This includes the Geometry::getAllMaterials() method, which is useful
  * for OpenCG compatibility. */
 %clear std::map<int, Material*>;
 %typemap(out) std::map<int, Material*> {
@@ -96,10 +120,11 @@
 }
 
 
-/* Typemap for Lattice::setUniverses(int num_x, int num_y, Universe** universes)
+/* Typemap for Lattice::setUniverses(int num_z, int num_y, int num_x,
+ *                                     Universe** universes)
  * method - allows users to pass in Python lists of Universes for each
  * lattice cell */
-%typemap(in) (int num_x, int num_y, Universe** universes) {
+%typemap(in) (int num_z, int num_y, int num_x, Universe** universes) {
 
   if (!PyList_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a Python list of integers "
@@ -107,32 +132,42 @@
     return NULL;
   }
 
-  $1 = PySequence_Length($input);  // num_x
+  $1 = PySequence_Length($input);  // num_z
   $2 = PySequence_Length(PyList_GetItem($input,0)); // num_y
-  $3 = (Universe**) malloc(($1 * $2) * sizeof(Universe*)); // universes
+  $3 = PySequence_Length(PyList_GetItem(PyList_GetItem($input,0), 0)); // num_x
+  $4 = (Universe**) malloc(($1 * $2 * $3) * sizeof(Universe*)); // universes
 
-  /* Loop over x */
-  for (int i = 0; i < $1; i++) {
+  /* Loop over the xy-planes */
+  for (int k = 0; k < $1; k++) {
 
-    /* Get the inner list in the nested list for the lattice */
-    PyObject* outer_list = PyList_GetItem($input,i);
-
-    /* Check that the length of this list is the same as the length
-     * of the first list */
-    if (PySequence_Length(outer_list) != $2) {
-      PyErr_SetString(PyExc_ValueError, "Size mismatch in Universes "
-                      "list for Lattice which must be a 2D list of lists");
-      return NULL;
-    }
+    /* Get the 2D list of universes in the k-th xy-plane */
+    PyObject* outer_outer_list = PyList_GetItem($input,k);
 
     /* Loop over y */
     for (int j = 0; j < $2; j++) {
-      /* Extract the value from the list at this location and convert
-       * SWIG wrapper to pointer to underlying C++ class instance */
-      PyObject* o = PyList_GetItem(outer_list, j);
-      void *p1 = 0;
-      SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
-      $3[i*$2+j] = (Universe*) p1;
+
+      /* Get the list of universes in the j-th row of the k-th xy-plane */
+      PyObject* outer_list = PyList_GetItem(outer_outer_list, j);
+
+      /* Check that the number of universes in the j-th row of the k-th xy-plane
+       * is the same as the number of universes in the 1st row of the 1st
+       * xy-plane */
+      if (PySequence_Length(outer_list) != $3) {
+        PyErr_SetString(PyExc_ValueError, "Size mismatch in dimensions of 3D "
+                        "list of Universes in input to Lattice:setUniverses"
+                        " method");
+        return NULL;
+      }
+
+      /* Loop over universes in j-th row of the k-th xy-plane */
+      for (int i =0; i < $3; i++) {
+        /* Extract the value from the list at this location and convert
+         * SWIG wrapper to pointer to underlying C++ class instance */
+        PyObject* o = PyList_GetItem(outer_list, i);
+        void *p1 = 0;
+        SWIG_ConvertPtr(o, &p1, SWIGTYPE_p_Universe, 0 | 0);
+        $4[k*($2*$3) + j*$3 + i] = (Universe*) p1;
+      }
     }
   }
 }

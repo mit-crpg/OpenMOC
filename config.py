@@ -71,10 +71,6 @@ class configuration:
   # Build the openmoc.cuda module
   with_cuda = False
 
-  # Compile with NumPy typemaps and the C API to allow users to pass NumPy
-  # arrays to/from the C++ source code
-  with_numpy = True
-
   # The vector length used for the VectorizedSolver class. This will used
   # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector
   # instructions. This is accomplished by adding "dummy" energy groups such
@@ -165,7 +161,7 @@ class configuration:
                      'src/Cmfd.cpp',
                      'src/Vector.cpp',
                      'src/Matrix.cpp',
-                     'src/linalg/cpp']
+                     'src/linalg.cpp']
 
 
   sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
@@ -206,20 +202,20 @@ class configuration:
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
-  compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11', 
+  compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
                              '-fopenmp', '-fvectorize', '-fpic',
                              '-Qunused-arguments',
                              '-Wno-deprecated-register',
                              '-Wno-parentheses-equality']
-  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip', 
-                           '-openmp', '-xhost', '-std=c++11', 
+  compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip',
+                           '-openmp', '-xhost', '-std=c++11',
                            '--ccache-skip', '-fpic',
                            '-openmp-report', '-vec-report']
   compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport',
                              '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
                              '-qsmp=omp', '-qpic']
   compiler_flags['nvcc'] =  ['--relocatable-device-code', 'true',
-                             '-c', '-O3',  '-std=c++11', 
+                             '-c', '-O3',  '-std=c++11',
                              '--compiler-options', '-fpic',
                              '-arch=compute_20']
 
@@ -415,23 +411,16 @@ class configuration:
         self.compiler_flags[k].append('-pg')
         self.compiler_flags[k].append('-g')
 
-    # If the user passed in the --no-numpy flag, tell SWIG not to embed
-    # NumPy typemaps in the source code
-    if not self.with_numpy:
-      self.swig_flags.append('-DNO_NUMPY')
+    # Obtain the NumPy include directory
+    try:
+      numpy_include = numpy.get_include()
+    except AttributeError:
+      numpy_include = numpy.get_numpy_include()
 
-    # Otherwise, obtain the NumPy include directory
-    else:
-      try:
-        numpy_include = numpy.get_include()
-
-      except AttributeError:
-        numpy_include = numpy.get_numpy_include()
-
-      # Add the NumPy include directory to the include directories
-      # list for each type of compiler
-      for cc in self.include_directories.keys():
-        self.include_directories[cc].append(numpy_include)
+    # Add the NumPy include directory to the include directories
+    # list for each type of compiler
+    for cc in self.include_directories.keys():
+      self.include_directories[cc].append(numpy_include)
 
 
     # The main openmoc extension (defaults are gcc and single precision)

@@ -2,7 +2,7 @@
  * @file PolarQuad.h
  * @brief The PolarQuad abstract class and subclasses.
  * @details The PolarQuad subclasses are defined with tabulated or functional
- *          quadrature sets given in the "Lattice Physics Computations", 
+ *          quadrature sets given in the "Lattice Physics Computations",
  *          Handbook of Nuclear Engineering, Dave Knott, Akio Yamamoto, 2010.
  * @date April 6, 2015
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
@@ -23,12 +23,29 @@
 
 
 /**
+ * @enum quadratureType
+ * @brief The types of quadrature sets supported by OpenMOC.
+ */
+enum quadratureType {
+  TABUCHI_YAMAMOTO,
+  LEONARD,
+  GAUSS_LEGENDRE,
+  EQUAL_WEIGHTS,
+  EQUAL_ANGLES,
+  CUSTOM
+};
+
+
+/**
  * @class PolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief The arbitrary polar quadrature parent class.
  */
 class PolarQuad {
 
 protected:
+
+  /** The quadrature type being used */
+  quadratureType _quad_type;
 
   /** The number of polar angles */
   int _num_polar;
@@ -56,6 +73,7 @@ public:
   FP_PRECISION* getSinThetas();
   FP_PRECISION* getWeights();
   FP_PRECISION* getMultiples();
+  quadratureType getQuadratureType();
 
   virtual void setNumPolarAngles(const int num_polar);
   void setSinThetas(double* sin_thetas, int num_polar);
@@ -87,7 +105,7 @@ public:
  * @class LeonardPolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief Leonard's polar quadrature.
  */
-class LeonardPolarQuad: public PolarQuad { 
+class LeonardPolarQuad: public PolarQuad {
 
 private:
 
@@ -103,7 +121,7 @@ public:
  * @class GLPolarQuad PolarQuad.h "src/PolarQuad.h"
  * @brief Gauss-Legendre's polar quadrature.
  */
-class GLPolarQuad: public PolarQuad { 
+class GLPolarQuad: public PolarQuad {
 
 private:
 
@@ -116,15 +134,15 @@ public:
 
 
 /**
- * @class EqualWeightPolarQuad PolarQuad.h "src/PolarQuad.h"
- * @brief Equal weight polar quadrature.
+ * @class EqualWeightsPolarQuad PolarQuad.h "src/PolarQuad.h"
+ * @brief Equal weights polar quadrature.
  */
-class EqualWeightPolarQuad: public PolarQuad { 
+class EqualWeightsPolarQuad: public PolarQuad {
 
 private:
 
 public:
-  EqualWeightPolarQuad();
+  EqualWeightsPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
 };
@@ -132,15 +150,15 @@ public:
 
 
 /**
- * @class EqualAnglePolarQuad PolarQuad.h "src/PolarQuad.h"
- * @brief Equal angle polar quadrature.
+ * @class EqualAnglesPolarQuad PolarQuad.h "src/PolarQuad.h"
+ * @brief Equal angles polar quadrature.
  */
-class EqualAnglePolarQuad: public PolarQuad { 
+class EqualAnglesPolarQuad: public PolarQuad {
 
 private:
 
 public:
-  EqualAnglePolarQuad();
+  EqualAnglesPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
 };

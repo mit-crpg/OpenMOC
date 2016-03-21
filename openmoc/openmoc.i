@@ -1,6 +1,9 @@
-%define DOCSTRING 
+%define DOCSTRING
 "A method of characteristics code for nuclear reactor physics calculations."
 %enddef
+
+/* Include docstrings generated from Doxygen and doxy2swig.py */
+%include docstring.i
 
 %module(docstring=DOCSTRING) openmoc
 
@@ -71,11 +74,11 @@
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
  * attributes. These attributes should be used internally only by the Matrix and
  * Vector class methods and linear algrebra (linalg.h/linalg.cpp) methods. */
-%ignore getArray();
-%ignore getA();
-%ignore getIA();
-%ignore getJA();
-%ignore getDiag();
+%ignore Matrix::getArray();
+%ignore Matrix::getA();
+%ignore Matrix::getIA();
+%ignore Matrix::getJA();
+%ignore Matrix::getDiag();
 
 %exception {
   try {
@@ -91,17 +94,8 @@
 /* Routines which convert std::map return types to Python dictionaries */
 %include map_to_dict.i
 
-/* If the user uses the --no-numpy flag, then NumPy typemaps will not be used
- * and the NumPy C API will not be embedded in the source code. The NumPy
- * typemaps are used to allow users to pass NumPy arrays to/from the C++ source
- * code. This does not work well on BGQ, and some users may prefer not to embed
- * this into their code, so if --no-numpy is passed in we use SWIG typemaps to
- * allow users to pass in arrays of data as Python lists. */
-#ifdef NO_NUMPY
-%include swig_typemaps.i
-#else
+/* Routines which pass / return NumPy arrays to / from C++ routine **/
 %include numpy_typemaps.i
-#endif
 
 %include <exception.i>
 %include ../src/constants.h

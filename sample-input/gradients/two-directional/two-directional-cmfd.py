@@ -1,34 +1,24 @@
-from openmoc import *
-import openmoc.log as log
-import openmoc.plotter as plotter
-from openmoc.options import Options
 import sys
 sys.path.append('..')
 from cube import geometry, root_cell, left, right, top, bottom
+import openmoc
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-options = Options()
+opts = openmoc.options.Options()
 
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
-
-log.set_log_level('NORMAL')
-log.py_printf('TITLE', 'Simulating a one group homogeneous, two directional'
-    ' gradient...')
+openmoc.log.set_log_level('NORMAL')
+openmoc.log.py_printf('TITLE', \
+  'Simulating a one group homogeneous, two directional gradient...')
 
 ###############################################################################
 ###########################   Creating CMFD Mesh    ###########################
 ###############################################################################
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
+openmoc.log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
-cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(0.6)
+cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(25,1)
 
@@ -36,12 +26,12 @@ cmfd.setLatticeStructure(25,1)
 #########################   Load the Cubic Geometry   #########################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Importing cubic geometry...')
+openmoc.log.py_printf('NORMAL', 'Importing cubic geometry...')
 
-left.setBoundaryType(VACUUM)
-right.setBoundaryType(VACUUM)
-top.setBoundaryType(REFLECTIVE)
-bottom.setBoundaryType(REFLECTIVE)
+left.setBoundaryType(openmoc.VACUUM)
+right.setBoundaryType(openmoc.VACUUM)
+top.setBoundaryType(openmoc.REFLECTIVE)
+bottom.setBoundaryType(openmoc.REFLECTIVE)
 
 geometry.setCmfd(cmfd)
 
@@ -49,31 +39,32 @@ geometry.setCmfd(cmfd)
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Initializing the track generator...')
+openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
-track_generator.setNumThreads(num_threads)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.track_spacing)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
 ###############################################################################
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = CPUSolver(track_generator)
-solver.setNumThreads(num_threads)
-solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
+solver = openmoc.CPUSolver(track_generator)
+solver.setNumThreads(opts.num_omp_threads)
+solver.setConvergenceThreshold(opts.tolerance)
+solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 
 ###############################################################################
 ############################    Generating Plots   ############################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Plotting data...')
+openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plot_materials(geometry, gridsize=100)
-plotter.plot_cells(geometry, gridsize=100)
-plotter.plot_flat_source_regions(geometry, gridsize=100)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1])
+openmoc.plotter.plot_materials(geometry, gridsize=100)
+openmoc.plotter.plot_cells(geometry, gridsize=100)
+openmoc.plotter.plot_flat_source_regions(geometry, gridsize=100)
+openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1])
 
-log.py_printf('TITLE', 'Finished')
+openmoc.log.py_printf('TITLE', 'Finished')

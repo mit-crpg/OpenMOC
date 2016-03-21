@@ -5,31 +5,31 @@
  *        and sets the vector dimensions.
  * @detail The vector is ordered by cell (as opposed to by group) on the
  *         outside to be consistent with the Matrix object. Locks are used to
- *         make the vector object thread-safe against concurrent writes the 
+ *         make the vector object thread-safe against concurrent writes the
  *          same value. One lock locks out multiple rows of
  *         the vector at a time representing multiple groups in the same cell.
+ * @param cell_locks OpenMP locks for atomic cell operations.
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
  * @param num_groups The number of energy groups in each cell.
  */
-Vector::Vector(int num_x, int num_y, int num_groups) {
+Vector::Vector(omp_lock_t* cell_locks, int num_x, int num_y, int num_groups) {
 
   setNumX(num_x);
   setNumY(num_y);
-  setNumGroups(num_groups);  
+  setNumGroups(num_groups);
   _num_rows = _num_x*_num_y*_num_groups;
 
   /* Initialize array and set all to 0.0 */
   _array = new FP_PRECISION[_num_rows];
   setAll(0.0);
 
-  /* Allocate memory for OpenMP locks for each Vector cell */ 
-  _cell_locks = new omp_lock_t[_num_x*_num_y];
+  /* Set OpenMP locks for each Vector cell */
+  if (cell_locks == NULL)
+    log_printf(ERROR, "Unable to create a Vector without an array of cell "
+               "locks");
 
-  /* Loop over all Vector cells to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_x*_num_y; r++)
-    omp_init_lock(&_cell_locks[r]);
+  _cell_locks = cell_locks;
 }
 
 
@@ -40,9 +40,6 @@ Vector::~Vector() {
 
   if (_array != NULL)
     delete [] _array;
-
-  if (_cell_locks != NULL)
-    delete [] _cell_locks;  
 }
 
 
@@ -82,6 +79,46 @@ void Vector::setAll(FP_PRECISION val) {
 
 
 /**
+ * @brief Increment values in the vector.
+ * @detail This method takes a cell, first group, last group, and floating
+ *         point value. The cell and groups are used to compute the
+ *         rows in the vector. If values exist for the rows,
+ *         the values are incremented by vals; otherwise, they are set.
+ * @param cell The cell location.
+ * @param group_first The first group location to increment.
+ * @param group_last The last group location to increment.
+ * @param vals The values used to increment the row locations.
+ */
+void Vector::incrementValues(int cell, int group_first, int group_last,
+                             FP_PRECISION* vals) {
+
+  if (cell >= _num_x*_num_y || cell < 0)
+    log_printf(ERROR, "Unable to increment Vector values for cell %d"
+               " which is not between 0 and %d", cell, _num_x*_num_y-1);
+  else if (group_first >= _num_groups || group_first < 0)
+    log_printf(ERROR, "Unable to increment Vector values for first group %d"
+               " which is not between 0 and %d", group_first, _num_groups-1);
+  else if (group_last >= _num_groups || group_last < 0)
+    log_printf(ERROR, "Unable to increment Vector values for last group %d"
+               " which is not between 0 and %d", group_last, _num_groups-1);
+  else if (group_first > group_last)
+    log_printf(ERROR, "Unable to increment Vector values with first group %d"
+               " greater than last group %d", group_first, group_last);
+
+  /* Atomically increment the Vector values from the
+   * temporary array using mutual exclusion locks */
+  omp_set_lock(&_cell_locks[cell]);
+
+#pragma omp simd
+  for (int g=group_first; g <= group_last; g++)
+    _array[cell*_num_groups + g] += vals[g-group_first];
+
+  /* Release Vector cell mutual exclusion lock */
+  omp_unset_lock(&_cell_locks[cell]);
+}
+
+
+/**
  * @brief Set a value in the vector.
  * @detail This method takes a cell and group and floating
  *         point value. The cell and group are used to compute the
@@ -112,6 +149,46 @@ void Vector::setValue(int cell, int group, FP_PRECISION val) {
 
 
 /**
+ * @brief Set values in the vector.
+ * @detail This method takes a cell, first group, last group, and floating
+ *         point value. The cell and groups are used to compute the
+ *         rows in the vector. If a values exist for the rows,
+ *         the values are overwritten.
+ * @param cell The cell location.
+ * @param group_first The first group location to set.
+ * @param group_last The last group location to set.
+ * @param vals The values used to set the row locations.
+ */
+void Vector::setValues(int cell, int group_first, int group_last,
+                             FP_PRECISION* vals) {
+
+  if (cell >= _num_x*_num_y || cell < 0)
+    log_printf(ERROR, "Unable to set Vector values for cell %d"
+               " which is not between 0 and %d", cell, _num_x*_num_y-1);
+  else if (group_first >= _num_groups || group_first < 0)
+    log_printf(ERROR, "Unable to set Vector values for first group %d"
+               " which is not between 0 and %d", group_first, _num_groups-1);
+  else if (group_last >= _num_groups || group_last < 0)
+    log_printf(ERROR, "Unable to set Vector values for last group %d"
+               " which is not between 0 and %d", group_last, _num_groups-1);
+  else if (group_first > group_last)
+    log_printf(ERROR, "Unable to set Vector values with first group %d"
+               " greater than last group %d", group_first, group_last);
+
+  /* Atomically set the Vector values from the
+   * temporary array using mutual exclusion locks */
+  omp_set_lock(&_cell_locks[cell]);
+
+#pragma omp simd
+  for (int g=group_first; g <= group_last; g++)
+    _array[cell*_num_groups + g] = vals[g-group_first];
+
+  /* Release Vector cell mutual exclusion lock */
+  omp_unset_lock(&_cell_locks[cell]);
+}
+
+
+/**
  * @brief Clear all values in the vector.
  */
 void Vector::clear() {
@@ -125,7 +202,7 @@ void Vector::clear() {
  */
 void Vector::scaleByValue(FP_PRECISION val) {
 
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int i=0; i < _num_rows; i++)
     _array[i] *= val;
 }
@@ -162,7 +239,7 @@ void Vector::copyTo(Vector* vector) {
 
 
 /**
- * @brief Get a value at location described by a given cell and 
+ * @brief Get a value at location described by a given cell and
  *        group index.
  * @param cell The cell location index.
  * @param group The group location index.
@@ -265,4 +342,13 @@ void Vector::setNumGroups(int num_groups) {
                " %d", num_groups);
 
   _num_groups = num_groups;
+}
+
+
+/**
+ * @brief Return the array of cell locks for atomic cell operations.
+ * @return an array of cell locks
+ */
+omp_lock_t* Vector::getCellLocks() {
+  return _cell_locks;
 }

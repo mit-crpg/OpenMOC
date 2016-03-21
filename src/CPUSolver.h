@@ -21,7 +21,7 @@
 #undef track_flux
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
- *  group for either the forward or reverse direction for a given Track */ 
+ *  group for either the forward or reverse direction for a given Track */
 #define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
@@ -55,8 +55,7 @@ protected:
                                FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
 
   /**
-   * @brief Computes the contribution to surface or corner current from a Track
-   *        segment.
+   * @brief Computes the contribution to surface current from a segment.
    * @param curr_segment a pointer to the Track segment of interest
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
@@ -83,11 +82,11 @@ public:
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreads(int num_threads);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
   void initializeFluxArrays();
   void initializeSourceArrays();
+  void initializeFixedSources();
   void initializeFSRs();
 
   void zeroTrackFluxes();

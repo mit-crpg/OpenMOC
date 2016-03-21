@@ -18,6 +18,9 @@
 
 #define PySys_WriteStdout printf
 
+#include <thrust/copy.h>
+#include <iostream>
+
 #include <thrust/device_vector.h>
 #include <thrust/copy.h>
 #include <thrust/fill.h>
@@ -25,6 +28,9 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/iterator/constant_iterator.h>
+#include <thrust/iterator/counting_iterator.h>
+#include <thrust/iterator/transform_iterator.h>
+#include <thrust/iterator/permutation_iterator.h>
 #include <sm_20_atomic_functions.h>
 #include "clone.h"
 #include "GPUExpEvaluator.h"
@@ -97,8 +103,6 @@ private:
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
 
-  int computeScalarTrackIndex(int i, int j);
-
 public:
 
   GPUSolver(TrackGenerator* track_generator=NULL);
@@ -117,19 +121,18 @@ public:
 
   void setNumThreadBlocks(int num_blocks);
   void setNumThreadsPerBlock(int num_threads);
-  void setFixedSourceByFSR(int fsr_id, int group, 
-                           FP_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
   void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
   void initializePolarQuadrature();
   void initializeExpEvaluator();
-  void initializeMaterials();
+  void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFSRs();
   void initializeTracks();
   void initializeFluxArrays();
   void initializeSourceArrays();
+  void initializeFixedSources();
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);

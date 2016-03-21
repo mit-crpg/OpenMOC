@@ -10,6 +10,9 @@
 
 
 #ifdef __cplusplus
+#ifdef SWIG
+#include "Python.h"
+#endif
 #include <math.h>
 #include <map>
 #include <vector>
@@ -34,7 +37,7 @@ private:
   int* _IA;
   int* _JA;
   FP_PRECISION* _DIAG;
-  
+
   bool _modified;
   int _num_x;
   int _num_y;
@@ -43,14 +46,14 @@ private:
 
   /** OpenMP mutual exclusion locks for atomic cell updates */
   omp_lock_t* _cell_locks;
-  
+
   void convertToCSR();
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumGroups(int num_groups);
-  
+
 public:
-  Matrix(int num_x=1, int num_y=1, int num_groups=1);
+  Matrix(omp_lock_t* cell_locks, int num_x=1, int num_y=1, int num_groups=1);
   virtual ~Matrix();
 
   /* Worker functions */
@@ -72,6 +75,7 @@ public:
   int getNumGroups();
   int getNumRows();
   int getNNZ();
+  omp_lock_t* getCellLocks();
 
   /* Setter functions */
   void setValue(int cell_from, int group_from, int cell_to, int group_to,

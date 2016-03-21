@@ -56,6 +56,20 @@
 
 
 /**
+ * @enum solverMode
+ * @brief The solution mode used by the MOC solver.
+*/
+enum solverMode {
+
+  /** The forward flux distribution */
+  FORWARD,
+
+  /** The adjoint flux distribution */
+  ADJOINT,
+};
+
+
+/**
  * @enum residualType
  * @brief The type of residual used for the convergence criterion.
 */
@@ -126,10 +140,6 @@ protected:
   /** The total number of Tracks */
   int _tot_num_tracks;
 
-  /** An integer array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  int* _num_tracks_by_halfspace;
-
   /** The weights for each polar angle in the polar angle quadrature */
   FP_PRECISION* _polar_weights;
 
@@ -146,6 +156,15 @@ protected:
 
   /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
+
+  /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
+  std::map< std::pair<int, int>, FP_PRECISION > _fix_src_FSR_map;
+
+  /** A mapping of fixed sources keyed by the pair (Cell*, energy group) */
+  std::map< std::pair<Cell*, int>, FP_PRECISION > _fix_src_cell_map;
+
+  /** A mapping of fixed sources keyed by the pair (Material*, energy group) */
+  std::map< std::pair<Material*, int>, FP_PRECISION > _fix_src_material_map;
 
   /** Ratios of source to total cross-section for each FSR and energy group */
   FP_PRECISION* _reduced_sources;
@@ -171,6 +190,10 @@ protected:
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
 
+  /** The number of groups of tracks that can be looped over in parallel
+   *  without data races between threads */
+  int _num_parallel_track_groups;
+
   void clearTimerSplits();
 
 public:
@@ -181,6 +204,7 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
+  PolarQuad* getPolarQuad();
   FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
@@ -198,10 +222,10 @@ public:
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
+  void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
-  void setFixedSourceByMaterial(Material* material, int group, 
+  void setFixedSourceByMaterial(Material* material, int group,
                                 FP_PRECISION source);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setExpPrecision(FP_PRECISION precision);
@@ -210,11 +234,13 @@ public:
 
   virtual void initializePolarQuadrature();
   virtual void initializeExpEvaluator();
+  virtual void initializeMaterials(solverMode mode=FORWARD);
   virtual void initializeFSRs();
-  virtual void initializeMaterials();
   virtual void countFissionableFSRs();
+  virtual void initializeFixedSources();
   virtual void initializeCmfd();
 
+  virtual void resetMaterials(solverMode mode=FORWARD);
   virtual void fissionTransportSweep();
   virtual void scatterTransportSweep();
 
@@ -252,7 +278,7 @@ public:
   virtual void normalizeFluxes() = 0;
 
   /**
-   * @brief Computes the total source (fission, scattering, fixed) for 
+   * @brief Computes the total source (fission, scattering, fixed) for
    *        each FSR and energy group.
    */
   virtual void computeFSRSources() = 0;
@@ -268,8 +294,8 @@ public:
   virtual void computeFSRScatterSources() = 0;
 
   /**
-   * @brief Computes the residual between successive flux/source iterations. 
-   * @param res_type the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)
+   * @brief Computes the residual between successive flux/source iterations.
+   * @param res_type the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)
    * @return the total residual summed over FSRs and energy groups
    */
   virtual double computeResidual(residualType res_type) = 0;
@@ -291,18 +317,18 @@ public:
    */
   virtual void transportSweep() = 0;
 
-  void computeFlux(int max_iters=1000, bool only_fixed_source=true);
-
-  void computeSource(int max_iters=1000, double k_eff=1.0, 
-                     residualType res_type=TOTAL_SOURCE);
-  void computeEigenvalue(int max_iters=1000, 
+  void computeFlux(int max_iters=1000, solverMode mode=FORWARD,
+                   bool only_fixed_source=true);
+  void computeSource(int max_iters=1000, solverMode mode=FORWARD,
+                     double k_eff=1.0, residualType res_type=TOTAL_SOURCE);
+  void computeEigenvalue(int max_iters=1000, solverMode mode=FORWARD,
                          residualType res_type=FISSION_SOURCE);
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in
   *        each FSR and stores them in an array indexed by FSR ID.
   * @details This is a helper method for SWIG to allow users to retrieve
-  *          FSR fission rates as a NumPy array. An example of how this method 
+  *          FSR fission rates as a NumPy array. An example of how this method
   *          can be called from Python is as follows:
   *
   * @code

@@ -63,8 +63,15 @@ private:
    *  resides */
   int _lattice_y;
 
-  /** A Point representing the 2D coordinates of this LocalCoords */
+  /** The third index of the Lattice cell within which this LocalCoords
+   *  resides */
+  int _lattice_z;
+
+  /** A Point representing the 3D coordinates of this LocalCoords */
   Point _coords;
+
+  /** The direction angle in radians with respect to the x-axis */
+  double _phi;
 
   /** A pointer to the LocalCoords at the next lower nested Universe level */
   LocalCoords* _next;
@@ -73,7 +80,7 @@ private:
   LocalCoords* _prev;
 
 public:
-  LocalCoords(double x, double y);
+  LocalCoords(double x, double y, double z);
   virtual ~LocalCoords();
   coordType getType();
   Universe* getUniverse() const;
@@ -81,8 +88,11 @@ public:
   Lattice* getLattice() const;
   int getLatticeX() const;
   int getLatticeY() const;
+  int getLatticeZ() const;
   double getX() const;
   double getY() const;
+  double getZ() const;
+  double getPhi() const;
   Point* getPoint();
   LocalCoords* getNext() const;
   LocalCoords* getPrev() const;
@@ -93,14 +103,18 @@ public:
   void setLattice(Lattice* lattice);
   void setLatticeX(int lattice_x);
   void setLatticeY(int lattice_y);
+  void setLatticeZ(int lattice_z);
   void setX(double x);
   void setY(double y);
+  void setZ(double z);
+  void setPhi(double phi);
+  void incrementPhi(double phi);
   void setNext(LocalCoords *next);
   void setPrev(LocalCoords* coords);
 
   LocalCoords* getLowestLevel();
   LocalCoords* getHighestLevel();
-  void adjustCoords(double delta_x, double delta_y);
+  void adjustCoords(double delta);
   void updateMostLocal(Point* point);
   void prune();
   void copyCoords(LocalCoords* coords);

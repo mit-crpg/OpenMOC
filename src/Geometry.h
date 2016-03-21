@@ -37,10 +37,10 @@ struct fsr_data {
 
   /** The FSR ID */
   int _fsr_id;
- 
+
   /** The CMFD Cell */
   int _cmfd_cell;
-  
+
   /** The Material ID */
   int _mat_id;
 
@@ -49,6 +49,12 @@ struct fsr_data {
 
   /** Global numerical centroid in Root Universe */
   Point* _centroid;
+
+  /** Constructor for FSR data initializes centroids and points to NULL */
+  fsr_data() {
+    _centroid = NULL;
+    _point = NULL;
+  }
 
   /** Destructor for fsr_data */
   ~fsr_data() {
@@ -76,30 +82,27 @@ class Geometry {
 
 private:
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _top_bc;
+  /** The boundary conditions at the x-min surface of the bounding box
+   *  containing the Geometry. */
+  boundaryType _x_min_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _bottom_bc;
+  /** The boundary conditions at the y-min surface of the bounding box
+   *  containing the Geometry. */
+  boundaryType _y_min_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _left_bc;
+  /** The boundary conditions at the x-max surface of the bounding box
+   *  containing the Geometry. */
+  boundaryType _x_max_bc;
 
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _right_bc;
+  /** The boundary conditions at the y-max surface of the bounding box
+   *  containing the Geometry. */
+  boundaryType _y_max_bc;
 
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
 
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::string> _FSRs_to_keys;
-
-  /** A vector of Material IDs indexed by FSR IDs */
-  std::vector<int> _FSRs_to_material_IDs;
 
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
@@ -110,8 +113,8 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  Cell* findFirstCell(LocalCoords* coords, double angle);
-  Cell* findNextCell(LocalCoords* coords, double angle);
+  Cell* findFirstCell(LocalCoords* coords);
+  Cell* findNextCell(LocalCoords* coords);
 
 public:
 
@@ -119,8 +122,9 @@ public:
   virtual ~Geometry();
 
   /* Get parameters */
-  double getWidth();
-  double getHeight();
+  double getWidthX();
+  double getWidthY();
+  double getWidthZ();
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -131,34 +135,29 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  boundaryType getMinZBoundaryType();
-  boundaryType getMaxZBoundaryType();
   Universe* getRootUniverse();
   int getNumFSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
-  std::map<int, Universe*> getAllUniverses();
+  std::map<int, Material*> getAllMaterials();
+  std::map<int, Surface*> getAllSurfaces();
   std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
-  std::map<int, Material*> getAllMaterials();
+  std::map<int, Universe*> getAllUniverses();
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::string>* getFSRsToKeys();
-  std::vector<int>* getFSRsToMaterialIDs();
+  std::vector<std::string>& getFSRsToKeys();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-  ParallelHashMap<std::string, fsr_data*>* getFSRKeysMap();
+  ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
 
   /* Set parameters */
-  void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
-  void setFSRsToKeys(std::vector<std::string>* FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
-  void setFSRKeysMap(ParallelHashMap<std::string, fsr_data*>* FSR_keys_map);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
@@ -168,7 +167,7 @@ public:
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeFlatSourceRegions();
+  void initializeFSRs(bool neighbor_cells=false);
   void segmentize(Track* track);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);

@@ -76,9 +76,6 @@ typedef enum logLevels {
   /** A message containing program results */
   RESULT,
 
-  /** A messsage for unit testing */
-  UNITTEST,
-
   /** A message reporting error conditions */
   ERROR
 } logLevel;
@@ -107,7 +104,7 @@ void set_title_character(char c);
 char get_title_character();
 void set_line_length(int length);
 void set_log_level(const char* new_level);
-int get_log_level();
+const char* get_log_level();
 
 void log_printf(logLevel level, const char *format, ...);
 std::string create_multiline_msg(std::string level, std::string message);

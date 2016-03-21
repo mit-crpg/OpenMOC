@@ -28,8 +28,9 @@ class LocalCoords;
 class Cell;
 
 
-int surf_id();
-void reset_surf_id();
+int surface_id();
+void reset_surface_id();
+void maximize_surface_id(int surface_id);
 
 
 /**
@@ -37,11 +38,11 @@ void reset_surf_id();
  * @brief The types of surfaces supported by OpenMOC.
  */
 enum surfaceType {
-  /** A general plane perpendicular to the 2D xy plane */
+  /** A general plane */
   PLANE,
 
-  /** A circle with axis parallel to the z-axis */
-  CIRCLE,
+  /** A cylinder with axis parallel to the z-axis */
+  ZCYLINDER,
 
   /** A plane perpendicular to the x-axis */
   XPLANE,
@@ -60,7 +61,7 @@ enum surfaceType {
 
 /**
  * @class Surface Surface.h "src/Surface.h"
- * @brief Represents a general Surface in the 2D xy-plane
+ * @brief Represents a general Surface in 3D.
  * @details The Surface class and its subclasses are used to define the
  *          geometry for an OpenMOC simulation using a constructive solid
  *          geometry (CSG) formalism. Surfaces are used during ray tracing
@@ -82,7 +83,7 @@ protected:
   /** A user-defined name for the Surface */
   char* _name;
 
-  /** The type of Surface (ie, XPLANE, CIRCLE, etc) */
+  /** The type of Surface (ie, XPLANE, ZCYLINDER, etc) */
   surfaceType _surface_type;
 
   /** The type of boundary condition to be used for this Surface
@@ -169,7 +170,7 @@ public:
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, double angle);
+  double getMinDistance(LocalCoords* coords);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -197,18 +198,21 @@ protected:
   /** The coefficient for the linear term in y */
   double _B;
 
-  /** The constant offset */
+  /** The coefficient for the linear term in z */
   double _C;
+
+  /** The constant offset */
+  double _D;
 
   /** The Plane is a friend of class Surface */
   friend class Surface;
 
-  /** The Plane is a friend of class Circle */
-  friend class Circle;
+  /** The Plane is a friend of class Zcylinder */
+  friend class ZCylinder;
 
 public:
 
-  Plane(const double A, const double B, const double C,
+  Plane(const double A, const double B, const double C, const double D,
         const int id=0, const char* name="");
 
   double getMinX(int halfspace);
@@ -220,6 +224,7 @@ public:
   double getA();
   double getB();
   double getC();
+  double getD();
 
   double evaluate(const Point* point) const;
   int intersection(Point* point, double angle, Point* points);
@@ -301,17 +306,17 @@ public:
 
 
 /**
- * @class Circle Surface.h "src/Surface.h"
- * @brief Represents a Circle in the xy-plane.
+ * @class ZCylinder Surface.h "src/Surface.h"
+ * @brief Represents a Cylinder with axis parallel to the z-axis.
  */
-class Circle: public Surface {
+class ZCylinder: public Surface {
 
 private:
 
-  /** A 2D point for the Circle's center */
+  /** A point for the ZCylinder's center */
   Point _center;
 
-  /** The Circle's radius */
+  /** The ZCylinder's radius */
   double _radius;
 
   /** The coefficient of the x-squared term */
@@ -329,15 +334,15 @@ private:
   /** The constant offset */
   double _E;
 
-  /** The Circle is a friend of the Surface class */
+  /** The ZCylinder is a friend of the Surface class */
   friend class Surface;
 
-  /** The Circle is a friend of the Plane class */
+  /** The ZCylinder is a friend of the Plane class */
   friend class Plane;
 
 public:
-  Circle(const double x, const double y, const double radius,
-         const int id=0, const char* name="");
+  ZCylinder(const double x, const double y, const double radius,
+            const int id=0, const char* name="");
 
   double getX0();
   double getY0();
@@ -357,44 +362,6 @@ public:
 
 
 /**
- * @brief Finds the minimum distance to a Surface.
- * @details Finds the miniumum distance to a Surface from a Point with a
- *          given trajectory defined by an angle to this Surface. If the
- *          trajectory will not intersect the Surface, returns INFINITY.
- * @param point a pointer to the Point of interest
- * @param angle the angle defining the trajectory in radians
- * @return the minimum distance to the Surface
- */
-inline double Surface::getMinDistance(Point* point, double angle) {
-
-  /* Point array for intersections with this Surface */
-  Point intersections[2];
-
-  /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, angle, intersections);
-  double distance = INFINITY;
-
-  /* If there is one intersection Point */
-  if (num_inters == 1)
-    distance = intersections[0].distanceToPoint(point);
-
-  /* If there are two intersection Points */
-  else if (num_inters == 2) {
-    double dist1 = intersections[0].distanceToPoint(point);
-    double dist2 = intersections[1].distanceToPoint(point);
-
-    /* Determine which intersection Point is nearest */
-    if (dist1 < dist2)
-      distance = dist1;
-    else
-      distance = dist2;
-  }
-
-  return distance;
-}
-
-
-/**
  * @brief Evaluate a Point using the Plane's quadratic Surface equation.
  * @param point a pointer to the Point of interest
  * @return the value of Point in the Plane's quadratic equation
@@ -402,27 +369,27 @@ inline double Surface::getMinDistance(Point* point, double angle) {
 inline double Plane::evaluate(const Point* point) const {
   double x = point->getX();
   double y = point->getY();
+  double z = point->getZ();
 
-  //TODO: does not support ZPlanes
-  return (_A * x + _B * y + _C);
+  return (_A * x + _B * y + _C * z + _D);
 }
 
 
 /**
- * @brief Return the radius of the Circle.
- * @return the radius of the Circle
+ * @brief Return the radius of the ZCylinder.
+ * @return the radius of the ZCylinder
  */
-inline double Circle::getRadius() {
+inline double ZCylinder::getRadius() {
   return this->_radius;
 }
 
 
 /**
- * @brief Evaluate a Point using the Circle's quadratic Surface equation.
+ * @brief Evaluate a Point using the ZCylinder's quadratic Surface equation.
  * @param point a pointer to the Point of interest
  * @return the value of Point in the equation
  */
-inline double Circle::evaluate(const Point* point) const {
+inline double ZCylinder::evaluate(const Point* point) const {
   double x = point->getX();
   double y = point->getY();
   return (_A * x * x + _B * y * y + _C * x + _D * y + _E);

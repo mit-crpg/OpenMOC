@@ -44,12 +44,18 @@ private:
   /** The track spacing (cm) */
   double _spacing;
 
+  /** The azimuthal angles (radians) */
+  double* _phi;
+
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
-  /** An integer array with the Track uid separating the azimuthal and periodic
-   * halfspaces */
-  int* _num_tracks_by_halfspace;
+  /** An integer array with the number of Tracks in each parallel track group */
+  int* _num_tracks_by_parallel_group;
+
+  /** The number of the track groups needed to ensure data races don't occur
+   *  during the Solver's transportSweep */
+  int _num_parallel_track_groups;
 
   /** An integer array of the number of Tracks starting on the x-axis for each
    *  azimuthal angle */
@@ -65,6 +71,9 @@ private:
   /** A 2D ragged array of Tracks */
   Track** _tracks;
 
+  /** A 1D array of Track pointers arranged by parallel group */
+  Track** _tracks_by_parallel_group;
+
   /** Pointer to the Geometry */
   Geometry* _geometry;
 
@@ -74,17 +83,26 @@ private:
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
+  /** OpenMP mutual exclusion locks for atomic FSR operations */
+  omp_lock_t* _FSR_locks;
+
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_tracks;
 
+  /** The z-coord where the 2D Tracks should be created */
+  double _z_coord;
+
   void computeEndPoint(Point* start, Point* end,  const double phi,
-                       const double width, const double height);
+                       const double width_x, const double width_y);
 
   void initializeTrackFileDirectory();
   void initializeTracks();
   void recalibrateTracksToOrigin();
-  void initializeTrackUIDs();
+  void initializeTrackUids();
   void initializeBoundaryConditions();
+  void initializeTrackCycleIndices(boundaryType bc);
+  void initializeVolumes();
+  void initializeFSRLocks();
   void segmentize();
   void dumpTracksToFile();
   bool readTracksFromFile();
@@ -96,35 +114,41 @@ public:
 
   /* Get parameters */
   int getNumAzim();
+  double getPhi(int azim);
   double getTrackSpacing();
   Geometry* getGeometry();
   int getNumTracks();
   int getNumX(int azim);
   int getNumY(int azim);
-  int* getNumTracksArray();
-  int* getNumTracksByHalfspaceArray();
+  int getNumTracksByParallelGroup(int group);
+  int getNumParallelTrackGroups();
   int getNumSegments();
   Track** getTracks();
+  Track** getTracksByParallelGroup();
   FP_PRECISION* getAzimWeights();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
+  double getZCoord();
+  omp_lock_t* getFSRLocks();
 
   /* Set parameters */
   void setNumAzim(int num_azim);
   void setTrackSpacing(double spacing);
   void setGeometry(Geometry* geometry);
   void setNumThreads(int num_threads);
+  void setZCoord(double z_coord);
 
   /* Worker functions */
   bool containsTracks();
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieveSegmentCoords(double* coords, int num_segments);
-  void generateTracks();
+  void generateTracks(bool neighbor_cells=false);
   void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
   void generateFSRCentroids();
   void splitSegments(FP_PRECISION max_optical_length);
+  void initializeSegments();
 };
 
 #endif /* TRACKGENERATOR_H_ */

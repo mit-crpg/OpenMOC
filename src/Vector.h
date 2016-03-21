@@ -10,6 +10,9 @@
 
 
 #ifdef __cplusplus
+#ifdef SWIG
+#include "Python.h"
+#endif
 #include <math.h>
 #include <map>
 #include <vector>
@@ -41,18 +44,20 @@ private:
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumGroups(int num_groups);
-  
+
 public:
-  Vector(int num_x=1, int num_y=1, int num_groups=1);
+  Vector(omp_lock_t* cell_locks, int num_x=1, int num_y=1, int num_groups=1);
   virtual ~Vector();
 
   /* Worker functions */
   void incrementValue(int cell, int group, FP_PRECISION val);
+  void incrementValues(int cell, int group_start, int group_end,
+      FP_PRECISION* vals);
   void clear();
-  void scaleByValue(FP_PRECISION val);  
+  void scaleByValue(FP_PRECISION val);
   void printString();
   void copyTo(Vector* vector);
-  
+
   /* Getter functions */
   FP_PRECISION getValue(int cell, int group);
   FP_PRECISION* getArray();
@@ -61,9 +66,11 @@ public:
   int getNumGroups();
   int getNumRows();
   FP_PRECISION getSum();
-  
+  omp_lock_t* getCellLocks();
+
   /* Setter functions */
   void setValue(int cell, int group, FP_PRECISION val);
+  void setValues(int cell, int group_start, int group_end, FP_PRECISION* vals);
   void setAll(FP_PRECISION val);
 };
 

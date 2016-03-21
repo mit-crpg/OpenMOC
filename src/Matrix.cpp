@@ -4,24 +4,25 @@
  * @brief Constructor initializes Matrix as a list of lists
  *        and sets the matrix dimensions.
  * @detail The matrix object uses a "lists of lists" structure (implemented as
- *         a map of lists) to allow for easy setting and incrementing of the 
+ *         a map of lists) to allow for easy setting and incrementing of the
  *         values in the object. When the matrix is needed to perform linear
  *         algebra operations, it is converted to compressed row storage (CSR)
  *         form. The matrix is ordered by cell (as opposed to by group) on the
- *         outside. Locks are used to make the matrix thread-safe against 
+ *         outside. Locks are used to make the matrix thread-safe against
  *         concurrent writes the same value. One lock locks out multiple rows of
  *         the matrix at a time reprsenting multiple groups in the same cell.
+ * @param cell_locks Omp locks for atomic cell operations
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
  * @param num_groups The number of energy groups in each cell.
  */
-Matrix::Matrix(int num_x, int num_y, int num_groups) {
+Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_groups) {
 
   setNumX(num_x);
   setNumY(num_y);
-  setNumGroups(num_groups);  
+  setNumGroups(num_groups);
   _num_rows = _num_x*_num_y*_num_groups;
-  
+
   /* Initialize variables */
   for (int i=0; i < _num_rows; i++)
     _LIL.push_back(std::map<int, FP_PRECISION>());
@@ -32,13 +33,12 @@ Matrix::Matrix(int num_x, int num_y, int num_groups) {
   _DIAG = NULL;
   _modified = true;
 
-  /* Allocate memory for OpenMP locks for each Matrix cell */ 
-  _cell_locks = new omp_lock_t[_num_x*_num_y];
+  /* Set OpenMP locks for each Matrix cell */
+  if (cell_locks == NULL)
+    log_printf(ERROR, "Unable to create a Matrix without an array of cell "
+               "locks");
 
-  /* Loop over all Matrix cells to initialize OpenMP locks */
-  #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_x*_num_y; r++)
-    omp_init_lock(&_cell_locks[r]);  
+  _cell_locks = cell_locks;
 }
 
 
@@ -59,13 +59,10 @@ Matrix::~Matrix() {
 
   if (_DIAG != NULL)
     delete [] _DIAG;
-  
+
   for (int i=0; i < _num_rows; i++)
     _LIL[i].clear();
   _LIL.clear();
-
-  if (_cell_locks != NULL)
-    delete [] _cell_locks;
 }
 
 
@@ -97,7 +94,7 @@ void Matrix::incrementValue(int cell_from, int group_from,
   else if (group_to >= _num_groups || group_to < 0)
     log_printf(ERROR, "Unable to increment Matrix value for group_to %d"
                " which is not between 0 and %d", group_to, _num_groups-1);
-  
+
   /* Atomically increment the Matrix value from the
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell_to]);
@@ -105,7 +102,7 @@ void Matrix::incrementValue(int cell_from, int group_from,
   int row = cell_to*_num_groups + group_to;
   int col = cell_from*_num_groups + group_from;
   _LIL[row][col] += val;
-  
+
   /* Release Matrix cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell_to]);
 
@@ -142,7 +139,7 @@ void Matrix::setValue(int cell_from, int group_from,
   else if (group_to >= _num_groups || group_to < 0)
     log_printf(ERROR, "Unable to set Matrix value for group_to %d"
                " which is not between 0 and %d", group_to, _num_groups-1);
-  
+
   /* Atomically set the Matrix value from the
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell_to]);
@@ -150,12 +147,12 @@ void Matrix::setValue(int cell_from, int group_from,
   int row = cell_to*_num_groups + group_to;
   int col = cell_from*_num_groups + group_from;
   _LIL[row][col] = val;
-  
+
   /* Release Matrix cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell_to]);
 
   /* Set global modified flag to true */
-  _modified = true;  
+  _modified = true;
 }
 
 
@@ -171,24 +168,24 @@ void Matrix::clear() {
 
 
 /**
- * @brief Convert the matrix lists of lists to compressed row (CSR) storage 
+ * @brief Convert the matrix lists of lists to compressed row (CSR) storage
  *        form.
  */
 void Matrix::convertToCSR() {
-  
+
   /* Get number of nonzero values */
   int NNZ = getNNZ();
-  
+
   /* Deallocate memory for arrays if previously allocated */
   if (_A != NULL)
     delete [] _A;
-  
+
   if (_IA != NULL)
     delete [] _IA;
-  
+
   if (_JA != NULL)
     delete [] _JA;
-  
+
   if (_DIAG != NULL)
     delete [] _DIAG;
 
@@ -197,8 +194,8 @@ void Matrix::convertToCSR() {
   _IA = new int[_num_rows+1];
   _JA = new int[NNZ];
   _DIAG = new FP_PRECISION[_num_rows];
-  std::fill_n(_DIAG, _num_rows, 0.0);  
-  
+  std::fill_n(_DIAG, _num_rows, 0.0);
+
   /* Form arrays */
   int j = 0;
   std::map<int, FP_PRECISION>::iterator iter;
@@ -208,18 +205,18 @@ void Matrix::convertToCSR() {
       if (iter->second != 0.0) {
         _JA[j] = iter->first;
         _A[j] = iter->second;
-        
+
         if (row == iter->first)
           _DIAG[row] = iter->second;
-        
+
         j++;
       }
     }
   }
-  
+
   _IA[_num_rows] = NNZ;
 
-  /* Reset flat indicating the CSR objects have the same values as the 
+  /* Reset flat indicating the CSR objects have the same values as the
    * LIL object */
   _modified = false;
 }
@@ -246,7 +243,7 @@ void Matrix::printString() {
   }
 
   string << "End Matrix " << std::endl;
-  
+
   log_printf(NORMAL, string.str().c_str());
 }
 
@@ -256,7 +253,7 @@ void Matrix::printString() {
  * @detail This method takes a cell and group of origin (cell/group from)
  *         and cell and group of destination (cell/group to).
  *         The origin and destination are used to compute the
- *         row and column in the matrix. The value at the location specified 
+ *         row and column in the matrix. The value at the location specified
  *         by the row/column is returned.
  * @param cell_from The origin cell.
  * @param group_from The origin group.
@@ -280,7 +277,7 @@ FP_PRECISION* Matrix::getA() {
 
   if (_modified)
     convertToCSR();
-  
+
   return _A;
 }
 
@@ -306,7 +303,7 @@ int* Matrix::getJA() {
 
   if (_modified)
     convertToCSR();
-    
+
   return _JA;
 }
 
@@ -319,7 +316,7 @@ FP_PRECISION* Matrix::getDiag() {
 
   if (_modified)
     convertToCSR();
-    
+
   return _DIAG;
 }
 
@@ -426,7 +423,7 @@ void Matrix::setNumGroups(int num_groups) {
  */
 void Matrix::transpose() {
 
-  Matrix temp(_num_x, _num_y, _num_groups);
+  Matrix temp(_cell_locks, _num_x, _num_y, _num_groups);
   convertToCSR();
   int col, cell_to, cell_from, group_to, group_from;
   FP_PRECISION val;
@@ -462,4 +459,13 @@ void Matrix::transpose() {
       setValue(cell_from, group_from, cell_to, group_to, val);
     }
   }
+}
+
+
+/**
+ * @brief Return the array of cell locks for atomic cell operations.
+ * @return an array of cell locks
+ */
+omp_lock_t* Matrix::getCellLocks() {
+  return _cell_locks;
 }

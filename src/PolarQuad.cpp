@@ -9,6 +9,7 @@ PolarQuad::PolarQuad() {
   _sin_thetas = NULL;
   _weights = NULL;
   _multiples = NULL;
+  _quad_type = CUSTOM;
 }
 
 
@@ -235,7 +236,7 @@ void PolarQuad::setWeights(double* weights, int num_polar) {
   for (int p=0; p < _num_polar; p++) {
     _weights[p] = FP_PRECISION(weights[p]);
     tot_weight += _weights[p];
-  }  
+  }
 
   /* Check that weights sum to 1 (half of the symmetric polar domain) */
   if (fabs(tot_weight - 1.0) > POLAR_WEIGHT_SUM_TOL)
@@ -282,7 +283,7 @@ void PolarQuad::precomputeMultiples() {
 /**
  * @brief Converts this Quadrature to a character array of its attributes.
  * @details The character array includes the number of polar angles, the
- *          the values of the sine and weight of each polar angle, and the 
+ *          the values of the sine and weight of each polar angle, and the
  *          product of the sine and weight of each polar angle.
  * @return a character array of the PolarQuad's attributes
  */
@@ -315,11 +316,22 @@ std::string PolarQuad::toString() {
 }
 
 
+/**
+ * @brief Returns the quadrature type.
+ * @return an enum corresponding to the quadrature type
+ */
+quadratureType PolarQuad::getQuadratureType() {
+  return _quad_type;
+}
+
+
 
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-TYPolarQuad::TYPolarQuad(): PolarQuad() { }
+TYPolarQuad::TYPolarQuad(): PolarQuad() {
+  _quad_type = TABUCHI_YAMAMOTO;
+}
 
 
 /**
@@ -389,7 +401,9 @@ void TYPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-LeonardPolarQuad::LeonardPolarQuad(): PolarQuad() { }
+LeonardPolarQuad::LeonardPolarQuad(): PolarQuad() {
+  _quad_type = LEONARD;
+}
 
 
 /**
@@ -455,7 +469,9 @@ void LeonardPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-GLPolarQuad::GLPolarQuad(): PolarQuad() { }
+GLPolarQuad::GLPolarQuad(): PolarQuad() {
+  _quad_type = GAUSS_LEGENDRE;
+}
 
 
 /**
@@ -560,14 +576,16 @@ void GLPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-EqualWeightPolarQuad::EqualWeightPolarQuad(): PolarQuad() { }
+EqualWeightsPolarQuad::EqualWeightsPolarQuad(): PolarQuad() {
+  _quad_type = EQUAL_WEIGHTS;
+}
 
 
 /**
  * @brief Set the number of polar angles to initialize.
  * @param num_polar the number of polar angles
  */
-void EqualWeightPolarQuad::setNumPolarAngles(const int num_polar) {
+void EqualWeightsPolarQuad::setNumPolarAngles(const int num_polar) {
   PolarQuad::setNumPolarAngles(num_polar);
 }
 
@@ -576,7 +594,7 @@ void EqualWeightPolarQuad::setNumPolarAngles(const int num_polar) {
  * @brief Routine to initialize the polar quadrature.
  * @details This routine generates the sine thetas and weights.
  */
-void EqualWeightPolarQuad::initialize() {
+void EqualWeightsPolarQuad::initialize() {
 
   /* Call parent class initialize routine */
   PolarQuad::initialize();
@@ -614,14 +632,16 @@ void EqualWeightPolarQuad::initialize() {
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
-EqualAnglePolarQuad::EqualAnglePolarQuad(): PolarQuad() { }
+EqualAnglesPolarQuad::EqualAnglesPolarQuad(): PolarQuad() {
+  _quad_type = EQUAL_ANGLES;
+}
 
 
 /**
  * @brief Set the number of polar angles to initialize.
  * @param num_polar the number of polar angles
  */
-void EqualAnglePolarQuad::setNumPolarAngles(const int num_polar) {
+void EqualAnglesPolarQuad::setNumPolarAngles(const int num_polar) {
   PolarQuad::setNumPolarAngles(num_polar);
 }
 
@@ -630,7 +650,7 @@ void EqualAnglePolarQuad::setNumPolarAngles(const int num_polar) {
  * @brief Routine to initialize the polar quadrature.
  * @details This routine generates the sine thetas and weights.
  */
-void EqualAnglePolarQuad::initialize() {
+void EqualAnglesPolarQuad::initialize() {
 
   /* Call parent class initialize routine */
   PolarQuad::initialize();
