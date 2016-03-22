@@ -8,9 +8,8 @@
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @param spacing track spacing (cm)
  */
-TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
-                               const int num_polar,
-                               const double azim_spacing) {
+TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
+                               double azim_spacing) {
 
   setNumThreads(1);
   _geometry = geometry;
@@ -826,7 +825,7 @@ void TrackGenerator::generateTracks() {
     _FSR_locks = new omp_lock_t[num_FSRs];
 
     /* Loop over all FSRs to initialize OpenMP locks */
-    #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
     for (int r=0; r < num_FSRs; r++)
       omp_init_lock(&_FSR_locks[r]);
 
@@ -850,6 +849,8 @@ void TrackGenerator::generateTracks() {
  * @details The defualt quadrature for 2D calculations is the TY quadrature
  */
 void TrackGenerator::initializeDefaultQuadrature() {
+  if (_quadrature != NULL)
+    delete _quadrature;
   _quadrature = new TYPolarQuad();
 }
 
@@ -1280,7 +1281,7 @@ void TrackGenerator::segmentize() {
   for (int a=0; a < _num_azim/2; a++) {
     log_printf(NORMAL, "segmenting 2D tracks - Percent complete: %5.2f %%",
                double(tracks_segmented) / num_2D_tracks * 100.0);
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int i=0; i < getNumX(a) + getNumY(a); i++)
       _geometry->segmentize2D(&_tracks_2D[a][i], _z_coord);
 

@@ -7,10 +7,9 @@
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @param spacing track spacing (cm)
  */
-TrackGenerator3D::TrackGenerator3D(Geometry* geometry, const int num_azim,
-                                   const int num_polar,
-                                   const double azim_spacing,
-                                   const double polar_spacing) :
+TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
+                                   int num_polar, double azim_spacing,
+                                   double polar_spacing) :
                     TrackGenerator(geometry, num_azim, num_polar,
                                    azim_spacing) {
   setDesiredPolarSpacing(polar_spacing);
@@ -346,12 +345,7 @@ void TrackGenerator3D::setDesiredPolarSpacing(double spacing) {
                "%f for the TrackGenerator.", spacing);
 
   _polar_spacing = spacing;
-  _contains_2D_tracks = false;
-  _contains_3D_tracks = false;
-  _contains_2D_segments = false;
-  _contains_3D_segments = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -796,7 +790,7 @@ void TrackGenerator3D::initializeTracks() {
       create3DTracksArrays();
 
     /* Loop over 3D track cycles */
-    #pragma omp parallel for private(l_start, x1, y1, z1, track_2D, x2, y2, \
+#pragma omp parallel for private(l_start, x1, y1, z1, track_2D, x2, y2, \
       z2, l_end, track_3D, pc, a, c, p, d)
     for (int ac = 0; ac < tot_num_cycles; ac++) {
 
@@ -1949,13 +1943,6 @@ void TrackGenerator3D::decomposeLZTrack(Track3D* track, double l_start,
  */
 void TrackGenerator3D::recalibrateTracksToOrigin() {
 
-  /* Recalibrate the tracks to the origin and set the uid. Note that the
-   * loop structure is unconventional in order to preserve an increasing
-   * track uid value in the Solver's tracks array. The tracks array is
-   * oriented with this loop structure in order to maintain reproducability
-   * for parallel runs.
-   */
-
   /* Recalibrate the 2D tracks back to the geometry origin */
   TrackGenerator::recalibrateTracksToOrigin();
 
@@ -1989,7 +1976,7 @@ void TrackGenerator3D::recalibrateTracksToOrigin() {
   double max_z = _geometry->getMaxZ();
   double min_z = _geometry->getMinZ();
   for (int a=0; a < _num_azim/2; a++) {
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
@@ -2022,7 +2009,7 @@ void TrackGenerator3D::segmentizeExtruded() {
     z_coords = _geometry->getUniqueZPlanes();
 
   /* Loop over all extruded Tracks */
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++)
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
 
@@ -2061,7 +2048,7 @@ void TrackGenerator3D::segmentize() {
     log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%",
                double(tracks_segmented) / num_3D_tracks * 100.0);
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int i=0; i < getNumX(a) + getNumY(a); i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++)
@@ -2223,10 +2210,10 @@ void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
                                                  int track_id) {
 
   /* Find 3D track associated with track_id */
-  for (int a=0; a < _num_azim/2; a++)
-    for (int i=0; i < getNumX(a) + getNumY(a); i++)
-      for (int p=0; p < _num_polar; p++)
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++)
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p=0; p < _num_polar; p++) {
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
           if (_tracks_3D[a][i][p][z].getUid() == track_id) {
 
             coords[0] = _tracks_3D[a][i][p][z].getStart()->getX();
@@ -2237,6 +2224,10 @@ void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
             coords[5] = _tracks_3D[a][i][p][z].getEnd()->getZ();
             return;
           }
+        }
+      }
+    }
+  }
   log_printf(ERROR, "Unable to find a 3D track associated with the given track"
                     "ID during coordinate retrieval");
   return;
@@ -2373,6 +2364,8 @@ void TrackGenerator3D::initializeTracksArray() {
  * @details The defualt quadrature for 3D calculations is equal weight
  */
 void TrackGenerator3D::initializeDefaultQuadrature() {
+  if (_quadrature != NULL)
+    delete _quadrature;
   _quadrature = new EqualWeightPolarQuad();
 }
 
@@ -2507,9 +2500,11 @@ void TrackGenerator3D::allocateTemporarySegments() {
 
   /* Delete temporary segments if already allocated */
   if (_contains_temporary_segments) {
-    for (int t = 0; t < _num_threads; t++)
-      for (int z = 0; z < _num_seg_matrix_rows; z++)
+    for (int t = 0; t < _num_threads; t++) {
+      for (int z = 0; z < _num_seg_matrix_rows; z++) {
         delete [] _temporary_segments.at(t)[z];
+      }
+    }
   }
   else {
     _temporary_segments.resize(_num_threads);
@@ -2519,9 +2514,11 @@ void TrackGenerator3D::allocateTemporarySegments() {
   }
 
   /* Allocate new temporary segments */
-  for (int t = 0; t < _num_threads; t++)
-    for (int z = 0; z < _num_seg_matrix_rows; z++)
+  for (int t = 0; t < _num_threads; t++) {
+    for (int z = 0; z < _num_seg_matrix_rows; z++) {
       _temporary_segments.at(t)[z] = new segment[_num_seg_matrix_columns];
+    }
+  }
 }
 
 
