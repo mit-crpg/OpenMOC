@@ -49,6 +49,7 @@ solver.printTimerReport()
 log.py_printf('NORMAL', 'Plotting data...')
 
 plotter.plot_periodic_cycles_2D(track_generator)
+plotter.plot_quadrature(track_generator)
 plotter.plot_reflective_cycles_2D(track_generator)
 plotter.plot_tracks_2D(track_generator)
 plotter.plot_segments_2D(track_generator)
