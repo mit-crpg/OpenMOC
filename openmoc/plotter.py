@@ -1640,7 +1640,6 @@ def plot_quadrature(track_generator):
   title = ''
   filename = 'quadrature.png'
   quad_type = ''
-  track_method = ''
   if quadrature.getQuadratureType() is openmoc.TABUCHI_YAMAMOTO:
     quad_type = 'TABUCHI-YAMAMOTO'
   elif quadrature.getQuadratureType() is openmoc.LEONARD:
@@ -1652,17 +1651,20 @@ def plot_quadrature(track_generator):
   elif quadrature.getQuadratureType() is openmoc.EQUAL_ANGLE:
     quad_type = 'EQUAL-ANGLE'
 
-  if track_generator.getTrackGenerationMethod() is openmoc.GLOBAL_TRACKING:
-    track_method = '3DGT'
-  elif track_generator.getTrackGenerationMethod() \
-  is openmoc.MODULAR_RAY_TRACING:
-    track_method = 'MRT'
-  elif track_generator.getTrackGenerationMethod() \
-  is openmoc.SIMPLIFIED_MODULAR_RAY_TRACING:
-    track_method = 'sMRT'
+  track_method = ''
+  polar_spacing = 0
+  if 'TrackGenerator3D' in str(type(track_generator)):
+    polar_spacing = track_generator.getDesiredPolarSpacing()
+    if track_generator.getTrackGenerationMethod() is openmoc.GLOBAL_TRACKING:
+      track_method = '3DGT'
+    elif track_generator.getTrackGenerationMethod() \
+    is openmoc.MODULAR_RAY_TRACING:
+      track_method = 'MRT'
+    elif track_generator.getTrackGenerationMethod() \
+    is openmoc.SIMPLIFIED_MODULAR_RAY_TRACING:
+      track_method = 'sMRT'
 
   azim_spacing = track_generator.getDesiredAzimSpacing()
-  polar_spacing = track_generator.getDesiredPolarSpacing()
 
   title = track_method + ' + ' + quad_type + ' with ' + str(num_azim) + \
           '-' + '{:5.3f}'.format(azim_spacing) + ' azim ' + str(num_polar) + \
