@@ -148,9 +148,9 @@ def plot_tracks_3D(track_generator):
     os.makedirs(directory)
 
   # Error checking
-  if not 'TrackGenerator' in str(type(track_generator)):
+  if not 'TrackGenerator3D' in str(type(track_generator)):
     py_printf('ERROR', 'Unable to plot Tracks since %s was input rather ' + \
-              'than a TrackGenerator', str(type(track_generator)))
+              'than a TrackGenerator3D', str(type(track_generator)))
 
   if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Tracks since the track ' + \
@@ -162,7 +162,6 @@ def plot_tracks_3D(track_generator):
   num_azim = track_generator.getNumAzim()
   num_polar = track_generator.getNumPolar()
   azim_spacing = track_generator.getDesiredAzimSpacing()
-  polar_spacing = track_generator.getDesiredPolarSpacing()
   num_tracks = track_generator.getNum3DTracks()
   coords = track_generator.retrieve3DTrackCoords(num_tracks*6)
 
@@ -352,9 +351,10 @@ def plot_periodic_cycles_3D(track_generator):
     os.makedirs(directory)
 
   # Error checking
-  if not 'TrackGenerator' in str(type(track_generator)):
-    py_printf('ERROR', 'Unable to plot 3D Track periodic cycles since %s was input ' + \
-              'rather than a TrackGenerator', str(type(track_generator)))
+  if not 'TrackGenerator3D' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot 3D Track periodic cycles since %s was' +
+              'input ' + 'rather than a TrackGenerator3D',
+              str(type(track_generator)))
 
   if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Track periodic cycles since the ' + \
@@ -432,9 +432,10 @@ def plot_reflective_cycles_3D(track_generator):
     os.makedirs(directory)
 
   # Error checking
-  if not 'TrackGenerator' in str(type(track_generator)):
-    py_printf('ERROR', 'Unable to plot 3D Track reflective cycles since %s was input ' + \
-              'rather than a TrackGenerator', str(type(track_generator)))
+  if not 'TrackGenerator3D' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot 3D Track periodic cycles since %s was' +
+              'input ' + 'rather than a TrackGenerator3D',
+              str(type(track_generator)))
 
   if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Track reflective cycles since the ' + \
