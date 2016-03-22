@@ -138,7 +138,7 @@ public:
   void setSegmentFormation(segmentationType segmentation_type);
   void setTrackGenerationMethod(int method);
   void setSegmentationHeights(std::vector<double> z_mesh);
-  void setGlobalZMesh();
+  void useGlobalZMesh();
 
   /* Worker functions */
   void retrieve3DPeriodicCycleCoords(double* coords, int num_tracks);

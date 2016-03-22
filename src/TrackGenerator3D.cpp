@@ -390,7 +390,7 @@ void TrackGenerator3D::setSegmentationHeights(std::vector<double> z_mesh) {
  *          binary searches must only be conducted at the beginning of the
  *          track.
  */
-void TrackGenerator3D::setGlobalZMesh() {
+void TrackGenerator3D::useGlobalZMesh() {
   _contains_global_z_mesh = true;
   _global_z_mesh = _geometry->getUniqueZHeights();
 }
@@ -2342,23 +2342,6 @@ void TrackGenerator3D::initializeTracksArray() {
 
   Track* track;
   int uid = 0;
-  int azim_group_id, periodic_group_id, polar_group_id;
-  int track_azim_group_id, track_periodic_group_id, track_polar_group_id;
-  int track_periodic_index;
-
-  /* Set the number of parallel track groups */
-  if (_periodic)
-    _num_parallel_track_groups = 12;
-  else
-    _num_parallel_track_groups = 4;
-
-  /* Create the array of track ids separating the parallel groups */
-  if (_num_tracks_by_parallel_group != NULL)
-    delete [] _num_tracks_by_parallel_group;
-  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
-
-  /* Set the first index in the num tracks by parallel group array to 0 */
-  _num_tracks_by_parallel_group[0] = 0;
 
   /* Reset UID in case 2D tracks were intiialized */
   uid = 0;
@@ -2369,59 +2352,18 @@ void TrackGenerator3D::initializeTracksArray() {
   int num_3D_tracks = getNum3DTracks();
   _tracks_3D_array = new Track*[num_3D_tracks];
 
-  for (int g = 0; g < _num_parallel_track_groups; g++) {
-
-    /* Set the azimuthal, polar, and periodic group ids */
-    azim_group_id = g % 2;
-    polar_group_id = g % 4 / 2;
-    periodic_group_id = g / 4;
-
-    for (int a = 0; a < _num_azim / 2; a++) {
-      for (int i = 0; i < getNumX(a) + getNumY(a); i++) {
-        for (int p = 0; p < _num_polar; p++) {
-          for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
-
-            /* Get current track and azim group ids */
-            track = &_tracks_3D[a][i][p][z];
-
-            /* Get the track azim group id */
-            track_azim_group_id = a / (_num_azim / 4);
-
-            /* Get the track polar group id */
-            track_polar_group_id = p / (_num_polar / 2);
-
-            /* Get the track periodic group id */
-            if (_periodic) {
-              track_periodic_index = track->getPeriodicTrackIndex();
-
-              if (track_periodic_index == 0)
-                track_periodic_group_id = 0;
-              else if (track_periodic_index % 2 == 1)
-                track_periodic_group_id = 1;
-              else
-                track_periodic_group_id = 2;
-            }
-            else
-              track_periodic_group_id = 0;
-
-            /* Check if track has current azim_group_id
-               and periodic_group_id */
-            if (azim_group_id == track_azim_group_id &&
-                polar_group_id == track_polar_group_id &&
-                periodic_group_id == track_periodic_group_id) {
-              int azim_index = _quadrature->getFirstOctantAzim(a);
-              int polar_index = _quadrature->getFirstOctantPolar(p);
-              track->setUid(uid);
-              _tracks_3D_array[uid] = track;
-              uid++;
-            }
-          }
+  /* Loop over all tracks and set indexes */
+  for (int a = 0; a < _num_azim / 2; a++) {
+    for (int i = 0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p = 0; p < _num_polar; p++) {
+        for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
+          track = &_tracks_3D[a][i][p][z];
+          track->setUid(uid);
+          _tracks_3D_array[uid] = track;
+          uid++;
         }
       }
     }
-
-    /* Set the track index boundary for this parallel group */
-    _num_tracks_by_parallel_group[g + 1] = uid;
   }
 }
 
