@@ -162,6 +162,7 @@ def plot_tracks_3D(track_generator):
   num_azim = track_generator.getNumAzim()
   num_polar = track_generator.getNumPolar()
   azim_spacing = track_generator.getDesiredAzimSpacing()
+  polar_spacing = track_generator.getDesiredPolarSpacing()
   num_tracks = track_generator.getNum3DTracks()
   coords = track_generator.retrieve3DTrackCoords(num_tracks*6)
 
