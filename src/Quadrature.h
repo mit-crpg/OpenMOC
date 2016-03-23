@@ -76,6 +76,23 @@ protected:
   /** An array of the total weights for each azimuthal/polar angle pair */
   FP_PRECISION** _total_weights;
 
+
+  /* Templates for setting the same values to complimentary or supplimentary
+   * angles */
+  template <typename T>
+  void setPolarValues(T** array, int azim_index, int polar_index, T value) {
+    array[azim_index][polar_index] = value;
+    array[_num_azim/2 - azim_index - 1][polar_index] = value;
+    array[azim_index][_num_polar - polar_index - 1] = value;
+    array[_num_azim/2 - azim_index - 1][_num_polar - polar_index - 1] = value;
+  }
+  template <typename T>
+  void setAzimuthalValues(T* array, int azim_index, T value) {
+    array[azim_index] = value;
+    array[_num_azim/2 - azim_index - 1] = value;
+  }
+
+
 public:
 
   Quadrature();
@@ -94,11 +111,8 @@ public:
   double* getPhis();
   FP_PRECISION* getAzimWeights();
   FP_PRECISION** getPolarWeights();
-  int getFirstOctantPolar(int polar);
-  int getFirstOctantAzim(int azim);
   quadratureType getQuadratureType();
 
-  //FIXME: remove
   double* getAzimSpacings();
   double getAzimSpacing(int azim);
   double** getPolarSpacings();

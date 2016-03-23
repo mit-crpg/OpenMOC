@@ -2443,8 +2443,6 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   FP_PRECISION currents[_num_cmfd_groups];
   memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
 
-  polar_index = _quadrature->getFirstOctantPolar(polar_index);
-
   /* Check if the current needs to be tallied */
   bool tally_current = false;
   if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {

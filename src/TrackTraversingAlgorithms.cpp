@@ -397,7 +397,6 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Correct azimuthal index to first octant */
   Quadrature* quad = _track_generator->getQuadrature();
-  azim_index = quad->getFirstOctantAzim(azim_index);
 
   /* Get the forward track flux */
   track_flux = _cpu_solver->getBoundaryFlux(track_id, true);
