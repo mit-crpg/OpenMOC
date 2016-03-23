@@ -356,8 +356,6 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _quad = _track_generator->getQuadrature();
   _azim_spacings = _quad->getAzimSpacings();
   _num_polar = _quad->getNumPolarAngles();
-  _num_tracks_by_parallel_group = _track_generator->getNumTracksByParallelGroupArray();
-  _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tracks = _track_generator->getTracksArray();
 
   /* Set the number of tracks and fluxes per track */
