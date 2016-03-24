@@ -13,7 +13,7 @@ int main() {
   #endif
   double azim_spacing = 0.1;
   int num_azim = 4;
-  double polar_spacing = 0.1;
+  double polar_spacing = 1.0;
   int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 1000;
@@ -192,19 +192,19 @@ int main() {
   }
 
   /* Create surfaces */
-  XPlane xmin(-32.13);
-  XPlane xmax( 32.13);
-  YPlane ymin(-32.13);
-  YPlane ymax( 32.13);
-  ZPlane zmin(-32.13);
-  ZPlane zmax( 32.13);
+  XPlane xmin(-10.71);
+  XPlane xmax( 10.71);
+  YPlane ymin(-10.71);
+  YPlane ymax( 10.71);
+  ZPlane zmin(-10.71);
+  ZPlane zmax( 10.71);
 
   xmin.setBoundaryType(REFLECTIVE);
-  xmax.setBoundaryType(VACUUM);
-  ymin.setBoundaryType(VACUUM);
+  xmax.setBoundaryType(REFLECTIVE);
+  ymin.setBoundaryType(REFLECTIVE);
   ymax.setBoundaryType(REFLECTIVE);
   zmin.setBoundaryType(REFLECTIVE);
-  zmax.setBoundaryType(VACUUM);
+  zmax.setBoundaryType(REFLECTIVE);
 
   /* Create z-cylinders for the fuel as well as to discretize the moderator
    * into rings */
@@ -525,7 +525,7 @@ int main() {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setLatticeStructure(51, 51, 3);
+  cmfd->setLatticeStructure(17, 17, 1);
   int cmfd_group_structure[3] = {1,4,8};
   cmfd->setGroupStructure(cmfd_group_structure, 3);
   cmfd->setKNearest(4);
@@ -546,7 +546,7 @@ int main() {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<double> seg_heights {0.0, 20.0};
+  std::vector<double> seg_heights {0.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.generateTracks();
 

@@ -171,7 +171,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Iteration over red/black cells */
     for (int color = 0; color < 2; color++) {
       for (int oct = 0; oct < 8; oct++) {
-        #pragma omp parallel for private(row, col) collapse(3)
+#pragma omp parallel for private(row, col) collapse(3)
         for (int cz = (oct / 4) * num_z/2; cz < (oct / 4 + 1) * num_z/2;
              cz++) {
           for (int cy = (oct % 4 / 2) * num_y/2;

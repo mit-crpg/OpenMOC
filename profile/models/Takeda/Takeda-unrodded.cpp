@@ -17,7 +17,7 @@ int main() {
   int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 1000;
-  int refines = 5;
+  int refines = 1;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -220,7 +220,6 @@ int main() {
   track_generator.setSegmentFormation(OTF_STACKS);
   std::vector<double> seg_heights {0.0};
   track_generator.setSegmentationHeights(seg_heights);
-  track_generator.setGlobalZMesh();
   track_generator.generateTracks();
 
   /* Run simulation */

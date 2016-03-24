@@ -4,16 +4,16 @@
 
 COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = yes
+OPTIMIZE    = no
 DEBUG       = no
-PROFILE     = no
+PROFILE     = yes
 PRECISION   = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-3d-cmfd.cpp
+case = c5g7/single-assembly.cpp
 
 source = \
 Cell.cpp \
@@ -47,7 +47,8 @@ cases = \
 Takeda/Takeda-unrodded.cpp \
 pin-cell/pin-cell-3d.cpp \
 c5g7/c5g7-3d.cpp \
-c5g7/c5g7-3d-cmfd.cpp
+c5g7/c5g7-3d-cmfd.cpp \
+c5g7/single-assembly.cpp
 
 #===============================================================================
 # Sets Flags
@@ -98,6 +99,7 @@ endif
 # Profiling Flags
 ifeq ($(PROFILE),yes)
   CFLAGS += -pg
+  CFLAGS += -fno-omit-frame-pointer
 endif
 
 # Precision Flags

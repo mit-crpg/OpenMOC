@@ -106,7 +106,7 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell]);
 
-  #pragma omp simd
+#pragma omp simd
   for (int g=group_first; g <= group_last; g++)
     _array[cell*_num_groups + g] += vals[g-group_first];
 
