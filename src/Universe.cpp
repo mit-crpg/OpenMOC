@@ -589,7 +589,7 @@ void Universe::addCell(Cell* cell) {
 
   try {
     _cells.insert(std::pair<int, Cell*>(cell->getId(), cell));
-    log_printf(INFO, "Added Cell with ID = %d to Universe with ID = %d",
+    log_printf(DEBUG, "Added Cell with ID = %d to Universe with ID = %d",
                cell->getId(), _id);
   }
   catch (std::exception &e) {

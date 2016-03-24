@@ -607,7 +607,7 @@ void Solver::initializeFSRs() {
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-    log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
+    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
 }
