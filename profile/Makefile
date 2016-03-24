@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/single-assembly.cpp
+case = single-assembly/quarter-c5g7-assembly.cpp
 
 source = \
 Cell.cpp \
@@ -48,7 +48,8 @@ Takeda/Takeda-unrodded.cpp \
 pin-cell/pin-cell-3d.cpp \
 c5g7/c5g7-3d.cpp \
 c5g7/c5g7-3d-cmfd.cpp \
-c5g7/single-assembly.cpp
+single-assembly/quarter-c5g7-assembly.cpp \
+single-assembly/single-c5g7-assembly.cpp
 
 #===============================================================================
 # Sets Flags
