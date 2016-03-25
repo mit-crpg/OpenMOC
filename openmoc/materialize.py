@@ -293,9 +293,6 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
     for domain in mgxs_lib.domains:
 
-        py_printf('INFO', 'Importing cross sections for %s "%d"',
-                  domain_type, domain.id)
-
         # If using an OpenMOC Geometry, extract a Material from it
         if geometry:
 
@@ -304,6 +301,8 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
                 # Ignore materials which cannot be found in the OpenMOC Geometry
                 if material is None:
+                    py_printf('WARNING', 'Ignoring cross sections for %s "%d" "%s"',
+                              domain_type, domain.id, str(domain.name))
                     continue
 
             elif domain_type == 'cell':
@@ -311,8 +310,8 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
                 # Ignore cells which cannot be found in the OpenMOC Geometry
                 if cell is None:
-                    py_printf('WARNING', 'Ignoring cross sections for %s "%d"',
-                              domain_type, domain.id)
+                    py_printf('WARNING', 'Ignoring cross sections for %s "%d" "%s"',
+                              domain_type, domain.id, str(domain.name))
                     continue
                 else:
                     material = cell.getFillMaterial()
@@ -334,6 +333,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         # If not Geometry, instantiate a new Material with the ID/name
         else:
             material = openmoc.Material(id=domain.id)
+
+        py_printf('INFO', 'Importing cross sections for %s "%d" "%s"',
+                  domain_type, domain.id, str(domain.name))
 
         # Add material to the collection
         materials[domain.id] = material
