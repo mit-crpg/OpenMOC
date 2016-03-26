@@ -342,6 +342,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   _track_generator = track_generator;
   _num_azim = _track_generator->getNumAzim() / 2; //FIXME
+  _num_polar = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
   _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = _track_generator->getTracksByParallelGroup();
