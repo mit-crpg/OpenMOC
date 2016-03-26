@@ -656,7 +656,6 @@ void Quadrature::precomputeWeights(bool solve_3D) {
       FP_PRECISION weight = 4.0 * M_PI * _azim_weights[a]
                             * _azim_spacings[a] * _polar_weights[a][p];
       weight *= 2.0 * _sin_thetas[a][p];
-
       setPolarValues(_total_weights, a, p, weight);
     }
   }

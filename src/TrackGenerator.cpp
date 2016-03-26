@@ -696,6 +696,19 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
     }
   }
+  else {
+
+    /* Determine azimuthal spacings */
+    for (int i = 0; i < _num_azim/2; i++) {
+
+      /* Get the azimuthal angle */
+      double phi = _quad->getPhi(i);
+
+      /* Recompute track spacing */
+      double dx = _geometry->getWidthX() / _num_x[i];
+      _quad->setAzimSpacing(dx * sin(phi), i);
+    }
+  }
 
   /* Precompute quadrature weights */
   _quad->precomputeWeights(false);
@@ -1627,7 +1640,8 @@ bool TrackGenerator::readTracksFromFile() {
       curr_track = &_tracks[i][j];
       curr_track->setValues(x0, y0, z0, x1, y1, z1, phi);
       curr_track->setAzimAngleIndex(azim_angle_index);
-      _quad->setPhi(phi, azim_angle_index);
+      if (azim_angle_index < _num_azim / 4)
+        _quad->setPhi(phi, azim_angle_index);
 
       /* Loop over all segments in this Track */
       for (int s=0; s < num_segments; s++) {
