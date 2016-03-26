@@ -39,7 +39,7 @@ protected:
   /** The number of shared memory OpenMP threads */
   int _num_threads;
 
-  /** Number of azimuthal angles in \f$ [0, \pi] \f$ */
+  /** Number of azimuthal angles in \f$ [0, 2\pi] \f$ */
   int _num_azim;
 
   /** The requested track azimuthal spacing (cm) */

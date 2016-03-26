@@ -35,7 +35,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _num_y;
     delete [] _num_tracks_by_parallel_group;
 
-    for (int i = 0; i < _num_azim; i++)
+    for (int i = 0; i < _num_azim/2; i++)
       delete [] _tracks[i];
 
     delete [] _tracks;
@@ -55,7 +55,7 @@ TrackGenerator::~TrackGenerator() {
  * @return the number of azimuthal angles in \f$ 2\pi \f$
  */
 int TrackGenerator::getNumAzim() {
-  return _num_azim * 2;
+  return _num_azim;
 }
 
 
@@ -108,7 +108,7 @@ int TrackGenerator::getNumTracks() {
 
   int num_tracks = 0;
 
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
     num_tracks += _num_tracks[i];
   }
 
@@ -191,7 +191,7 @@ int TrackGenerator::getNumSegments() {
 
   int num_segments = 0;
 
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
 #pragma omp parallel for reduction(+:num_segments)
     for (int j=0; j < _num_tracks[i]; j++)
       num_segments += _tracks[i][j].getNumSegments();
@@ -289,7 +289,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
     /* Calculate each FSR's "volume" by accumulating the total length of *
      * all Track segments multipled by the Track "widths" for each FSR.  */
-    for (int i=0; i < _num_azim; i++) {
+    for (int i=0; i < _num_azim/2; i++) {
 #pragma omp for
       for (int j=0; j < _num_tracks[i]; j++) {
 
@@ -336,7 +336,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
 
   /* Calculate the FSR's "volume" by accumulating the total length of *
    * all Track segments multipled by the Track "widths" for the FSR.  */
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
 #pragma omp parallel for reduction(+:volume) private(curr_segment)
     for (int j=0; j < _num_tracks[i]; j++) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
@@ -367,7 +367,7 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
     FP_PRECISION* sigma_t;
 
     /* Iterate over all tracks, segments, groups to find max optical length */
-    for (int i=0; i < _num_azim; i++) {
+    for (int i=0; i < _num_azim/2; i++) {
 #pragma omp for reduction(max:max_optical_length)
       for (int j=0; j < _num_tracks[i]; j++) {
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
@@ -428,9 +428,7 @@ void TrackGenerator::setNumAzim(int num_azim) {
     log_printf(ERROR, "Unable to set the number of azimuthal angles to %d for "
                "the TrackGenerator since it is not a multiple of 4", num_azim);
 
-  /* Subdivide out angles in [pi,2pi] */
-  _num_azim = num_azim / 2;
-
+  _num_azim = num_azim;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -529,7 +527,7 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int length_coords) {
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
       coords[counter] = _tracks[i][j].getStart()->getX();
       coords[counter+1] = _tracks[i][j].getStart()->getY();
@@ -581,7 +579,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int length_coords) {
 
   /* Loop over Track segments and populate array with their FSR ID and *
    * start/end points */
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
 
       x0 = _tracks[i][j].getStart()->getX();
@@ -649,7 +647,7 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
     delete [] _num_y;
     delete [] _tracks_by_parallel_group;
 
-    for (int i = 0; i < _num_azim; i++)
+    for (int i = 0; i < _num_azim/2; i++)
       delete [] _tracks[i];
 
     delete [] _tracks;
@@ -669,10 +667,10 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
 
     /* Allocate memory for the Tracks */
     try {
-      _num_tracks = new int[_num_azim];
-      _num_x = new int[_num_azim];
-      _num_y = new int[_num_azim];
-      _tracks = new Track*[_num_azim];
+      _num_tracks = new int[_num_azim/2];
+      _num_x = new int[_num_azim/2];
+      _num_y = new int[_num_azim/2];
+      _tracks = new Track*[_num_azim/2];
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for TrackGenerator");
@@ -762,7 +760,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
   if (_geometry->getCmfd() != NULL) {
     test_filename << directory.str() << "/"
-                  << _num_azim*2.0 << "_angles_"
+                  << _num_azim << "_angles_"
                   << _azim_spacing << "_cm_spacing_z_"
                   << _z_coord << "_("
                   << _geometry->getCmfd()->getNumX()
@@ -771,7 +769,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
     }
   else{
     test_filename << directory.str() << "/"
-                  << _num_azim*2.0 << "_angles_"
+                  << _num_azim << "_angles_"
                   << _azim_spacing << "_cm_spacing_z_"
                   << _z_coord << ".data";
   }
@@ -802,17 +800,17 @@ void TrackGenerator::initializeTracks() {
 
   /* Each element in arrays corresponds to an angle in phi_eff */
   /* Track spacing along x,y-axes, and perpendicular to each Track */
-  double* dx_eff = new double[_num_azim];
-  double* dy_eff = new double[_num_azim];
-  double* d_eff = new double[_num_azim];
+  double* dx_eff = new double[_num_azim/2];
+  double* dy_eff = new double[_num_azim/2];
+  double* d_eff = new double[_num_azim/2];
 
   double x1, x2;
-  double iazim = _num_azim*2.0;
+  double iazim = _num_azim;
   double width_x = _geometry->getWidthX();
   double width_y = _geometry->getWidthY();
 
   /* Determine azimuthal angles and track spacing */
-  for (int i = 0; i < _num_azim; i++) {
+  for (int i = 0; i < _num_azim/2; i++) {
 
     /* A desired azimuthal angle for the user-specified number of
      * azimuthal angles */
@@ -840,7 +838,7 @@ void TrackGenerator::initializeTracks() {
   log_printf(INFO, "Generating Track start and end points...");
 
   /* Compute Track starting and end points */
-  for (int i = 0; i < _num_azim; i++) {
+  for (int i = 0; i < _num_azim/2; i++) {
 
     /* Extract the azimuthal angle */
     double phi = _quad->getPhi(2*i);
@@ -850,7 +848,7 @@ void TrackGenerator::initializeTracks() {
 
     /* Compute start points for Tracks starting on x-axis */
     for (int j = 0; j < _num_x[i]; j++) {
-      if (i < _num_azim / 2)
+      if (i < _num_azim / 4)
         _tracks[i][j].getStart()->setCoords(
             dx_eff[i] * (_num_x[i] - j - 0.5), 0, _z_coord);
       else
@@ -861,7 +859,7 @@ void TrackGenerator::initializeTracks() {
     for (int j = 0; j < _num_y[i]; j++) {
 
       /* If Track points to the upper right */
-      if (i < _num_azim / 2)
+      if (i < _num_azim / 4)
         _tracks[i][_num_x[i]+j].getStart()->setCoords(
             0, dy_eff[i] * (0.5 + j), _z_coord);
 
@@ -900,7 +898,7 @@ void TrackGenerator::initializeTracks() {
 void TrackGenerator::recalibrateTracksToOrigin() {
 
   /* Recalibrate the tracks to the origin. */
-  for (int a=0; a < _num_azim; a++) {
+  for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < _num_tracks[a]; i++) {
 
       double x0 = _tracks[a][i].getStart()->getX();
@@ -947,7 +945,7 @@ void TrackGenerator::initializeTrackCycleIndices(boundaryType bc) {
   bool fwd;
 
   /* Loop over all tracks */
-  for (int a=0; a < _num_azim; a++) {
+  for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < _num_tracks[a]; i++) {
 
       /* Get the current track */
@@ -1004,7 +1002,7 @@ void TrackGenerator::initializeTrackCycleIndices(boundaryType bc) {
             track->setReflectiveTrackIndex(track_index);
 
             /* Set the azimuthal angle of the next track in the cycle */
-            next_a = _num_azim - next_a - 1;
+            next_a = _num_azim/2 - next_a - 1;
 
             /* Set the xy index and direction of the next track in the cycle */
             if (fwd) {
@@ -1094,14 +1092,14 @@ void TrackGenerator::initializeTrackUids() {
 
     /* Loop over all tracks and add all tracks belonging to the current
      * parallel group to the tracks by parallel groups array */
-    for (int a=0; a < _num_azim; a++) {
+    for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < _num_tracks[a]; i++) {
 
         /* Get current track */
         track = &_tracks[a][i];
 
         /* Get the track azim group id */
-        track_azim_group_id = a / (_num_azim / 2);
+        track_azim_group_id = a / (_num_azim / 4);
 
         /* Get the track periodic group id */
         if (periodic) {
@@ -1255,15 +1253,15 @@ void TrackGenerator::initializeBoundaryConditions() {
 
   /* Loop over the all the tracks and set the incoming and outgoing tracks
    * and incoming and outgoing boundary conditions. */
-  for (int i=0; i < _num_azim; i++) {
-    ic = _num_azim - i - 1;
+  for (int i=0; i < _num_azim/2; i++) {
+    ic = _num_azim/2 - i - 1;
     for (int j=0; j < _num_tracks[i]; j++) {
 
       /* Get current track */
       track = &_tracks[i][j];
 
       /* Set boundary conditions for tracks in [0, PI/2] */
-      if (i < _num_azim/2) {
+      if (i < _num_azim/4) {
         if (j < _num_y[i])
           track->setBCOut(_geometry->getMaxXBoundaryType());
         else
@@ -1346,7 +1344,7 @@ void TrackGenerator::segmentize() {
   if (!_use_input_file) {
 
     /* Loop over all Tracks */
-    for (int i=0; i < _num_azim; i++) {
+    for (int i=0; i < _num_azim/2; i++) {
 #pragma omp parallel for private(track)
       for (int j=0; j < _num_tracks[i]; j++) {
         track = &_tracks[i][j];
@@ -1392,9 +1390,9 @@ void TrackGenerator::dumpTracksToFile() {
   /* Write ray tracing metadata to the Track file */
   fwrite(&_num_azim, sizeof(int), 1, out);
   fwrite(&_azim_spacing, sizeof(double), 1, out);
-  fwrite(_num_tracks, sizeof(int), _num_azim, out);
-  fwrite(_num_x, sizeof(int), _num_azim, out);
-  fwrite(_num_y, sizeof(int), _num_azim, out);
+  fwrite(_num_tracks, sizeof(int), _num_azim/2, out);
+  fwrite(_num_x, sizeof(int), _num_azim/2, out);
+  fwrite(_num_y, sizeof(int), _num_azim/2, out);
 
   Track* curr_track;
   double x0, y0, z0, x1, y1, z1;
@@ -1412,7 +1410,7 @@ void TrackGenerator::dumpTracksToFile() {
   int cmfd_surface_bwd;
 
   /* Loop over all Tracks */
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
     for (int j=0; j < _num_tracks[i]; j++) {
 
       /* Get data for this Track */
@@ -1552,7 +1550,7 @@ bool TrackGenerator::readTracksFromFile() {
     delete [] _num_x;
     delete [] _num_y;
 
-    for (int i = 0; i < _num_azim; i++)
+    for (int i = 0; i < _num_azim/2; i++)
       delete [] _tracks[i];
 
     delete [] _tracks;
@@ -1582,14 +1580,14 @@ bool TrackGenerator::readTracksFromFile() {
   ret = fread(&_azim_spacing, sizeof(double), 1, in);
 
   /* Initialize data structures for Tracks */
-  _num_tracks = new int[_num_azim];
-  _num_x = new int[_num_azim];
-  _num_y = new int[_num_azim];
-  _tracks = new Track*[_num_azim];
+  _num_tracks = new int[_num_azim/2];
+  _num_x = new int[_num_azim/2];
+  _num_y = new int[_num_azim/2];
+  _tracks = new Track*[_num_azim/2];
 
-  ret = fread(_num_tracks, sizeof(int), _num_azim, in);
-  ret = fread(_num_x, sizeof(int), _num_azim, in);
-  ret = fread(_num_y, sizeof(int), _num_azim, in);
+  ret = fread(_num_tracks, sizeof(int), _num_azim/2, in);
+  ret = fread(_num_x, sizeof(int), _num_azim/2, in);
+  ret = fread(_num_y, sizeof(int), _num_azim/2, in);
 
   Track* curr_track;
   double x0, y0, z0, x1, y1, z1;
@@ -1609,7 +1607,7 @@ bool TrackGenerator::readTracksFromFile() {
   std::map<int, Material*> materials = _geometry->getAllMaterials();
 
   /* Loop over Tracks */
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
     _tracks[i] = new Track[_num_tracks[i]];
 
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -1762,7 +1760,7 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
   segment* segments;
 
   /* Correct volume separately for each azimuthal angle */
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
 
     /* Initialize volume to zero for this azimuthal angle */
     volume = 0;
@@ -1831,7 +1829,7 @@ void TrackGenerator::generateFSRCentroids() {
   }
 
   /* Generate the fsr centroids */
-  for (int i=0; i < _num_azim; i++) {
+  for (int i=0; i < _num_azim/2; i++) {
     FP_PRECISION azim_weight = _quad->getAzimWeight(i);
 #pragma omp parallel for
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -1907,7 +1905,7 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
     int cmfd_surface_fwd, cmfd_surface_bwd;
 
     /* Iterate over all Tracks */
-    for (int i=0; i < _num_azim; i++) {
+    for (int i=0; i < _num_azim/2; i++) {
 #pragma omp for
       for (int j=0; j < _num_tracks[i]; j++) {
         for (int s=0; s < _tracks[i][j].getNumSegments(); s+=min_num_cuts) {
@@ -2001,7 +1999,7 @@ void TrackGenerator::initializeSegments() {
     }
 
     /* Set the Material for each segment */
-    for (int i=0; i < _num_azim; i++) {
+    for (int i=0; i < _num_azim/2; i++) {
 #pragma omp for
       for (int j=0; j < _num_tracks[i]; j++) {
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
@@ -2027,9 +2025,9 @@ double TrackGenerator::getPhi(int azim) {
     log_printf(ERROR, "Unable to get Phi since the TrackGenerator does not"
                " contain tracks.");
 
-  if (azim < 0 || azim >= _num_azim*2)
+  if (azim < 0 || azim >= _num_azim)
     log_printf(ERROR, "Unable to get Phi for azimuthal angle %d since there"
-               " %d azimuthal angles", azim, _num_azim*2);
+               " %d azimuthal angles", azim, _num_azim);
 
   return _quad->getPhi(azim);
 }
