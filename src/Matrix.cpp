@@ -28,10 +28,15 @@ Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_groups) {
     _LIL.push_back(std::map<int, FP_PRECISION>());
 
   _A = NULL;
+  _AD = NULL;
   _IA = NULL;
   _JA = NULL;
+  _IAD = NULL;
+  _JAD = NULL;
   _DIAG = NULL;
   _modified = true;
+  _NNZ = 0;
+  _NNZD = 0;
 
   /* Set OpenMP locks for each Matrix cell */
   if (cell_locks == NULL)
@@ -51,11 +56,20 @@ Matrix::~Matrix() {
   if (_A != NULL)
     delete [] _A;
 
+  if (_AD != NULL)
+    delete [] _AD;
+
   if (_IA != NULL)
     delete [] _IA;
 
   if (_JA != NULL)
     delete [] _JA;
+
+  if (_IAD != NULL)
+    delete [] _IAD;
+
+  if (_JAD != NULL)
+    delete [] _JAD;
 
   if (_DIAG != NULL)
     delete [] _DIAG;
@@ -175,32 +189,53 @@ void Matrix::convertToCSR() {
 
   /* Get number of nonzero values */
   int NNZ = getNNZ();
+  int NNZD = getNNZD();
 
   /* Deallocate memory for arrays if previously allocated */
-  if (_A != NULL)
-    delete [] _A;
+  if (NNZ != _NNZ || NNZD != _NNZD) {
+    if (_A != NULL)
+      delete [] _A;
 
-  if (_IA != NULL)
-    delete [] _IA;
+    if (_AD != NULL)
+      delete [] _AD;
 
-  if (_JA != NULL)
-    delete [] _JA;
+    if (_IA != NULL)
+      delete [] _IA;
 
-  if (_DIAG != NULL)
-    delete [] _DIAG;
+    if (_JA != NULL)
+      delete [] _JA;
 
-  /* Allocate memory for arrays */
-  _A = new FP_PRECISION[NNZ];
-  _IA = new int[_num_rows+1];
-  _JA = new int[NNZ];
-  _DIAG = new FP_PRECISION[_num_rows];
+    if (_IAD != NULL)
+      delete [] _IAD;
+
+    if (_JAD != NULL)
+      delete [] _JAD;
+
+    if (_DIAG != NULL)
+      delete [] _DIAG;
+
+    /* Allocate memory for arrays */
+    _A = new FP_PRECISION[NNZ];
+    _AD = new FP_PRECISION[NNZD];
+    _IA = new int[_num_rows+1];
+    _JA = new int[NNZ];
+    _IAD = new int[_num_rows+1];
+    _JAD = new int[NNZD];
+    _DIAG = new FP_PRECISION[_num_rows];
+
+    _NNZ = NNZ;
+    _NNZD = NNZD;
+  }
+
   std::fill_n(_DIAG, _num_rows, 0.0);
 
   /* Form arrays */
   int j = 0;
+  int jd = 0;
   std::map<int, FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     _IA[row] = j;
+    _IAD[row] = jd;
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
       if (iter->second != 0.0) {
         _JA[j] = iter->first;
@@ -208,6 +243,11 @@ void Matrix::convertToCSR() {
 
         if (row == iter->first)
           _DIAG[row] = iter->second;
+        else {
+          _JAD[jd] = iter->first;
+          _AD[jd] = iter->second;
+          jd++;
+        }
 
         j++;
       }
@@ -215,6 +255,7 @@ void Matrix::convertToCSR() {
   }
 
   _IA[_num_rows] = NNZ;
+  _IAD[_num_rows] = NNZD;
 
   /* Reset flat indicating the CSR objects have the same values as the
    * LIL object */
@@ -283,6 +324,19 @@ FP_PRECISION* Matrix::getA() {
 
 
 /**
+ * @brief Get the A component of the CSR form of the matrix object.
+ * @return A pointer to the A component of the CSR form matrix object.
+ */
+FP_PRECISION* Matrix::getAD() {
+
+  if (_modified)
+    convertToCSR();
+
+  return _AD;
+}
+
+
+/**
  * @brief Get the IA component of the CSR form of the matrix object.
  * @return A pointer to the IA component of the CSR form matrix object.
  */
@@ -305,6 +359,32 @@ int* Matrix::getJA() {
     convertToCSR();
 
   return _JA;
+}
+
+
+/**
+ * @brief Get the IA component of the CSR form of the matrix object.
+ * @return A pointer to the IA component of the CSR form matrix object.
+ */
+int* Matrix::getIAD() {
+
+  if (_modified)
+    convertToCSR();
+
+  return _IAD;
+}
+
+
+/**
+ * @brief Get the JA component of the CSR form of the matrix object.
+ * @return A pointer to the JA component of the CSR form matrix object.
+ */
+int* Matrix::getJAD() {
+
+  if (_modified)
+    convertToCSR();
+
+  return _JAD;
 }
 
 
@@ -373,6 +453,25 @@ int Matrix::getNNZ() {
   }
 
   return NNZ;
+}
+
+
+/**
+ * @brief Get the number of non-zero values in the matrix.
+ * @return The number of non-zero values in the matrix.
+ */
+int Matrix::getNNZD() {
+
+  int NNZD = 0;
+  std::map<int, FP_PRECISION>::iterator iter;
+  for (int row=0; row < _num_rows; row++) {
+    for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
+      if (iter->second != 0.0 && row != iter->first)
+        NNZD++;
+    }
+  }
+
+  return NNZD;
 }
 
 

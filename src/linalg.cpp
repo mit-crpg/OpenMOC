@@ -138,15 +138,17 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   int num_rows = X->getNumRows();
   Vector X_old(cell_locks, num_x, num_y, num_groups);
   FP_PRECISION* x_old = X_old.getArray();
-  int* IA = A->getIA();
-  int* JA = A->getJA();
+  int* IAD = A->getIAD();
+  int* JAD = A->getJAD();
   FP_PRECISION* DIAG = A->getDiag();
-  FP_PRECISION* a = A->getA();
+  FP_PRECISION* ad = A->getAD();
   FP_PRECISION* x = X->getArray();
   FP_PRECISION* b = B->getArray();
-  int row, col;
   Vector old_source(cell_locks, num_x, num_y, num_groups);
   Vector new_source(cell_locks, num_x, num_y, num_groups);
+  int num_cells = num_x * num_y;
+  int row;
+  FP_PRECISION xi;
 
   /* Compute initial source */
   matrixMultiplication(M, X, &old_source);
@@ -156,37 +158,17 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Pass new flux to old flux */
     X->copyTo(&X_old);
 
-    /* Iteration over red/black cells */
-    for (int color = 0; color < 2; color++) {
-      for (int quad = 0; quad < 4; quad++) {
-#pragma omp parallel for private(row, col)
-        for (int cy = (quad % 2) * num_y/2; cy < (quad % 2 + 1) * num_y/2;
-             cy++) {
-          for (int cx = (quad / 2) * num_x/2; cx < (quad / 2 + 1) * num_x/2;
-               cx++) {
-
-            /* check for correct color */
-            if (((cx % 2)+(cy % 2)) % 2 == color) {
-
-              for (int g = 0; g < num_groups; g++) {
-
-                row = (cy*num_x + cx)*num_groups + g;
-
-                /* Over-relax the x array */
-                x[row] = (1.0 - SOR_factor) * x[row];
-
-                for (int i = IA[row]; i < IA[row+1]; i++) {
-
-                  /* Get the column index */
-                  col = JA[i];
-
-                  if (row == col)
-                    x[row] += SOR_factor * b[row] / DIAG[row];
-                  else
-                    x[row] -= SOR_factor * a[i] * x[col] / DIAG[row];
-                }
-              }
-            }
+    /* Perform SOR iteration */
+    for (int color=0; color < 2; color++) {
+#pragma omp parallel for private(row)
+      for (int y=0; y < num_y; y++) {
+        for (int c=(y+color)%2; c < num_x; c+=2) {
+          for (int g=0; g < num_groups; g++) {
+            row = (y*num_x + c)*num_groups + g;
+            xi = 0.0;
+            for (int i = IAD[row]; i < IAD[row+1]; i++)
+              xi += ad[i] * x[JAD[i]];
+            x[row] = x[row] + SOR_factor * ((b[row] - xi) / DIAG[row] - x[row]);
           }
         }
       }
