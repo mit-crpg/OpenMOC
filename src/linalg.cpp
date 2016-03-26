@@ -144,11 +144,10 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   FP_PRECISION* ad = A->getAD();
   FP_PRECISION* x = X->getArray();
   FP_PRECISION* b = B->getArray();
+  int row;
   Vector old_source(cell_locks, num_x, num_y, num_groups);
   Vector new_source(cell_locks, num_x, num_y, num_groups);
-  int num_cells = num_x * num_y;
-  int row;
-  FP_PRECISION xi;
+  FP_PRECISION val;
 
   /* Compute initial source */
   matrixMultiplication(M, X, &old_source);
@@ -158,17 +157,23 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Pass new flux to old flux */
     X->copyTo(&X_old);
 
-    /* Perform SOR iteration */
+    /* Perform parallel red/black SOR iteration */
     for (int color=0; color < 2; color++) {
-#pragma omp parallel for private(row)
-      for (int y=0; y < num_y; y++) {
-        for (int c=(y+color)%2; c < num_x; c+=2) {
+#pragma omp parallel for private(row, val)
+      for (int yc=0; yc < num_y; yc++) {
+        for (int xc=(yc + color) % 2; xc < num_x; xc+=2) {
           for (int g=0; g < num_groups; g++) {
-            row = (y*num_x + c)*num_groups + g;
-            xi = 0.0;
+
+            /* Get the current matrix row */
+            row = (yc * num_x + xc) * num_groups + g;
+
+            /* Accumulate off diagonals multiplied by corresponding fluxes */
+            val = 0.0;
             for (int i = IAD[row]; i < IAD[row+1]; i++)
-              xi += ad[i] * x[JAD[i]];
-            x[row] = x[row] + SOR_factor * ((b[row] - xi) / DIAG[row] - x[row]);
+              val += ad[i] * x[JAD[i]];
+
+            /* Update the flux for this row */
+            x[row] += SOR_factor * ((b[row] - val) / DIAG[row] - x[row]);
           }
         }
       }

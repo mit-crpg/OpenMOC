@@ -30,8 +30,8 @@ Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_groups) {
   _A = NULL;
   _AD = NULL;
   _IA = NULL;
-  _JA = NULL;
   _IAD = NULL;
+  _JA = NULL;
   _JAD = NULL;
   _DIAG = NULL;
   _modified = true;
@@ -62,11 +62,11 @@ Matrix::~Matrix() {
   if (_IA != NULL)
     delete [] _IA;
 
-  if (_JA != NULL)
-    delete [] _JA;
-
   if (_IAD != NULL)
     delete [] _IAD;
+
+  if (_JA != NULL)
+    delete [] _JA;
 
   if (_JAD != NULL)
     delete [] _JAD;
@@ -191,8 +191,9 @@ void Matrix::convertToCSR() {
   int NNZ = getNNZ();
   int NNZD = getNNZD();
 
-  /* Deallocate memory for arrays if previously allocated */
   if (NNZ != _NNZ || NNZD != _NNZD) {
+
+    /* Deallocate memory for arrays if previously allocated */
     if (_A != NULL)
       delete [] _A;
 
@@ -202,11 +203,11 @@ void Matrix::convertToCSR() {
     if (_IA != NULL)
       delete [] _IA;
 
-    if (_JA != NULL)
-      delete [] _JA;
-
     if (_IAD != NULL)
       delete [] _IAD;
+
+    if (_JA != NULL)
+      delete [] _JA;
 
     if (_JAD != NULL)
       delete [] _JAD;
@@ -218,8 +219,8 @@ void Matrix::convertToCSR() {
     _A = new FP_PRECISION[NNZ];
     _AD = new FP_PRECISION[NNZD];
     _IA = new int[_num_rows+1];
-    _JA = new int[NNZ];
     _IAD = new int[_num_rows+1];
+    _JA = new int[NNZ];
     _JAD = new int[NNZD];
     _DIAG = new FP_PRECISION[_num_rows];
 
@@ -324,8 +325,10 @@ FP_PRECISION* Matrix::getA() {
 
 
 /**
- * @brief Get the A component of the CSR form of the matrix object.
- * @return A pointer to the A component of the CSR form matrix object.
+ * @brief Get the A component (excluding the diagonal) of the CSR form of the
+ *        matrix object.
+ * @return A pointer to the A component (excluding the diagonal) of the CSR
+ *         form matrix object.
  */
 FP_PRECISION* Matrix::getAD() {
 
@@ -350,21 +353,10 @@ int* Matrix::getIA() {
 
 
 /**
- * @brief Get the JA component of the CSR form of the matrix object.
- * @return A pointer to the JA component of the CSR form matrix object.
- */
-int* Matrix::getJA() {
-
-  if (_modified)
-    convertToCSR();
-
-  return _JA;
-}
-
-
-/**
- * @brief Get the IA component of the CSR form of the matrix object.
- * @return A pointer to the IA component of the CSR form matrix object.
+ * @brief Get the IA component (excluding the diagonal) of the CSR form of the
+ *        matrix object.
+ * @return A pointer to the IA component (excluding the diagonal) of the CSR
+ *         form matrix object.
  */
 int* Matrix::getIAD() {
 
@@ -378,6 +370,21 @@ int* Matrix::getIAD() {
 /**
  * @brief Get the JA component of the CSR form of the matrix object.
  * @return A pointer to the JA component of the CSR form matrix object.
+ */
+int* Matrix::getJA() {
+
+  if (_modified)
+    convertToCSR();
+
+  return _JA;
+}
+
+
+/**
+ * @brief Get the JA component (excluding the diagonal) of the CSR form of the
+ *        matrix object.
+ * @return A pointer to the JA component (excluding the diagonal) of the CSR
+ *         form matrix object.
  */
 int* Matrix::getJAD() {
 
@@ -457,8 +464,9 @@ int Matrix::getNNZ() {
 
 
 /**
- * @brief Get the number of non-zero values in the matrix.
- * @return The number of non-zero values in the matrix.
+ * @brief Get the number of non-zero values in the matrix, excluding the
+ *        diagonal.
+ * @return The number of non-zero values in the matrix, excluding the diagonal.
  */
 int Matrix::getNNZD() {
 
@@ -466,7 +474,7 @@ int Matrix::getNNZD() {
   std::map<int, FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
-      if (iter->second != 0.0 && row != iter->first)
+      if (iter->second != 0.0 && iter->first != row)
         NNZD++;
     }
   }

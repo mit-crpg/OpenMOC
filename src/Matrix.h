@@ -74,8 +74,8 @@ public:
   FP_PRECISION* getA();
   FP_PRECISION* getAD();
   int* getIA();
-  int* getJA();
   int* getIAD();
+  int* getJA();
   int* getJAD();
   FP_PRECISION* getDiag();
   int getNumX();
