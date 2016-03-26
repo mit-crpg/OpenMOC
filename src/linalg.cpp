@@ -159,7 +159,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
     /* Perform parallel red/black SOR iteration */
     for (int color=0; color < 2; color++) {
-#pragma omp parallel for private(row)
+#pragma omp parallel for private(row, val)
       for (int yc=0; yc < num_y; yc++) {
         for (int xc=(yc + color) % 2; xc < num_x; xc+=2) {
           for (int g=0; g < num_groups; g++) {
