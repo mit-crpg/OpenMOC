@@ -10,7 +10,7 @@
 Cmfd::Cmfd() {
 
   /* Initialize Geometry and Mesh-related attribute */
-  _polar_quad = NULL;
+  _quadrature = NULL;
   _geometry = NULL;
   _materials = NULL;
 
@@ -759,10 +759,10 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
 
   /* Loop over polar angles */
   for (int p = 0; p < _num_polar; p++) {
-    mu = cos(asin(_polar_quad->getSinTheta(p)));
+    mu = cos(asin(_quadrature->getSinTheta(0,p)));
     expon = exp(-delta / (3 * dif_coef * mu));
     alpha = (1 + expon) / (1 - expon) - 2 * (3 * dif_coef * mu) / delta;
-    rho += mu * _polar_quad->getWeight(p) * alpha;
+    rho += mu * _quadrature->getWeight(0,p) * alpha;
   }
 
   /* Compute the correction factor */
@@ -1426,12 +1426,12 @@ void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 
 /**
- * @brief Sets the PolarQuad object in use by the MOC Solver.
- * @param polar_quad A PolarQuad object pointer from the Solver
+ * @brief Sets the Quadrature object in use by the MOC Solver.
+ * @param quadrature A Quadrature object pointer from the Solver
  */
-void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
-  _polar_quad = polar_quad;
-  _num_polar = polar_quad->getNumPolarAngles();
+void Cmfd::setQuadrature(Quadrature* quadrature) {
+  _quadrature = quadrature;
+  _num_polar = quadrature->getNumPolarAngles();
 }
 
 
@@ -1840,11 +1840,12 @@ void Cmfd::zeroCurrents() {
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment The current Track segment
  * @param track_flux The outgoing angular flux for this segment
+ ///FIXME
  * @param polar_weights Array of polar weights for some azimuthal angle
  * @param fwd Boolean indicating direction of integration along segment
  */
 void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
-                        FP_PRECISION* polar_weights, bool fwd) {
+                        int azim_index, bool fwd) {
 
   int surf_id, cell_id;
   int ncg = _num_cmfd_groups;
@@ -1862,7 +1863,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          currents[g] += track_flux(p, e) * polar_weights[p] / 2.;
+          currents[g] += track_flux(p, e) * _quadrature->getWeight(azim_index,
+                                                                   p) / 2.;
       }
 
       /* Increment currents */
@@ -1881,7 +1883,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          currents[g] += track_flux(p, e) * polar_weights[p] / 2.;
+          currents[g] += track_flux(p, e) * _quadrature->getWeight(azim_index,
+                                                                   p) / 2.;
       }
 
       /* Increment currents */

@@ -23,21 +23,21 @@ Solver::Solver(TrackGenerator* track_generator) {
   _exp_evaluator = new ExpEvaluator();
 
   _tracks = NULL;
-  _polar_weights = NULL;
   _boundary_flux = NULL;
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
+  _quad = NULL;
+  _num_polar = 0;
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
+  else
+    log_printf(ERROR, "ERROR: An invalid TrackGenerator was supplied to the "
+                      "Solver");
 
-  /* Default polar quadrature */
-  _user_polar_quad = false;
-  _polar_quad = new TYPolarQuad();
-  _num_polar = 3;
   _polar_times_groups = 0;
 
   _num_iterations = 0;
@@ -63,9 +63,6 @@ Solver::~Solver() {
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
@@ -86,9 +83,6 @@ Solver::~Solver() {
 
   if (_timer != NULL)
     delete _timer;
-
-  if (_polar_quad != NULL && !_user_polar_quad)
-    delete _polar_quad;
 }
 
 
@@ -118,20 +112,6 @@ TrackGenerator* Solver::getTrackGenerator() {
                "since it has not yet been set");
 
   return _track_generator;
-}
-
-
-/**
- * @brief Returns a pointer to the PolarQuad.
- * @return a pointer to the PolarQuad
- */
-PolarQuad* Solver::getPolarQuad() {
-
-  if (_polar_quad == NULL)
-    log_printf(ERROR, "Unable to return the Solver's PolarQuad "
-               "since it has not yet been set");
-
-  return _polar_quad;
 }
 
 
@@ -361,40 +341,18 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _num_azim = _track_generator->getNumAzim() / 2;
+  _num_azim = _track_generator->getNumAzim() / 2; //FIXME
   _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = _track_generator->getTracksByParallelGroup();
+  _quad = track_generator->getQuadrature();
 
   /* Retrieve and store the Geometry from the TrackGenerator */
   setGeometry(_track_generator->getGeometry());
+
 }
 
 
-/**
- * @brief Assign a PolarQuad object to the Solver.
- * @details This routine allows use of a PolarQuad with any polar angle
- *          quadrature. Alternatively, this routine may take in any subclass
- *          of the PolarQuad parent class, including TYPolarQuad (default),
- *          LeonardPolarQuad, GLPolarQuad, etc.
- *
- *          Users may assign a PolarQuad object to the Solver from
- *          Python script as follows:
- *
- * @code
- *          polar_quad = openmoc.LeonardPolarQuad()
- *          polar_quad.setNumPolarAngles(2)
- *          solver.setPolarQuadrature(polar_quad)
- * @endcode
- *
- * @param polar_quad a pointer to a PolarQuad object
- */
-void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
-  _user_polar_quad = true;
-  _polar_quad = polar_quad;
-  _num_polar = _polar_quad->getNumPolarAngles();
-  _polar_times_groups = _num_groups * _num_polar;
-}
 
 
 /**
@@ -495,40 +453,11 @@ void Solver::useExponentialIntrinsic() {
 
 
 /**
- * @brief Initializes a new PolarQuad object.
- * @details Deletes memory old PolarQuad if one was previously allocated.
- */
-void Solver::initializePolarQuadrature() {
-
-  FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-  /* Initialize the PolarQuad object */
-  _polar_quad->setNumPolarAngles(_num_polar);
-  _polar_quad->initialize();
-  _polar_times_groups = _num_groups * _num_polar;
-
-  /* Deallocate polar weights if previously assigned */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-
-  /* Compute the total azimuthal weight for tracks at each polar angle */
-#pragma omp parallel for schedule(guided)
-  for (int i=0; i < _num_azim; i++) {
-    for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) =
-           azim_weights[i] * _polar_quad->getMultiple(p) * FOUR_PI;
-  }
-}
-
-
-/**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
 
-  _exp_evaluator->setPolarQuadrature(_polar_quad);
+  _exp_evaluator->setQuadrature(_quad);
 
   if (_exp_evaluator->isUsingInterpolation()) {
 
@@ -711,7 +640,7 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
-  _cmfd->setPolarQuadrature(_polar_quad);
+  _cmfd->setQuadrature(_quad);
   _cmfd->setGeometry(_geometry);
   _cmfd->initialize();
 }
@@ -840,7 +769,6 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   initializeFSRs();
   initializeMaterials(mode);
   countFissionableFSRs();
-  initializePolarQuadrature();
   initializeExpEvaluator();
 
   /* Initialize new flux arrays if a) the user requested the use of
@@ -949,7 +877,6 @@ void Solver::computeSource(int max_iters, solverMode mode,
   /* Initialize data structures */
   initializeFSRs();
   initializeMaterials(mode);
-  initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
@@ -1035,7 +962,6 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   initializeFSRs();
   initializeMaterials(mode);
   countFissionableFSRs();
-  initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();

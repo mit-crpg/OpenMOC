@@ -6,19 +6,19 @@
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @param spacing track spacing (cm)
  */
-TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
-                               const double spacing) {
+TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
+                               double spacing) {
 
   setNumThreads(1);
-
   _geometry = geometry;
   setNumAzim(num_azim);
-  setTrackSpacing(spacing);
+  setDesiredAzimSpacing(spacing);
+  _quad = NULL;
+  _user_quad = false;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
   _z_coord = 0.0;
-  _phi = NULL;
   _FSR_locks = NULL;
 }
 
@@ -33,9 +33,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _num_tracks;
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _azim_weights;
     delete [] _num_tracks_by_parallel_group;
-    delete [] _phi;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -46,6 +44,9 @@ TrackGenerator::~TrackGenerator() {
 
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
+
+  if (_quad != NULL && !_user_quad)
+    delete _quad;
 }
 
 
@@ -65,8 +66,8 @@ int TrackGenerator::getNumAzim() {
  *          cyclic tracks.
  * @return the track spacing (cm)
  */
-double TrackGenerator::getTrackSpacing() {
-  return _spacing;
+double TrackGenerator::getDesiredAzimSpacing() {
+  return _azim_spacing;
 }
 
 
@@ -233,15 +234,16 @@ Track **TrackGenerator::getTracksByParallelGroup() {
 
 
 /**
- * @brief Return a pointer to the array of azimuthal angle quadrature weights.
- * @return the array of azimuthal angle quadrature weights
+ * @brief Returns a pointer to the Quadrature.
+ * @return a pointer to the Quadrature
  */
-FP_PRECISION* TrackGenerator::getAzimWeights() {
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return Track azimuthal angle quadrature "
-               "weights since Tracks have not yet been generated.");
+Quadrature* TrackGenerator::getQuadrature() {
 
-  return _azim_weights;
+  if (_quad == NULL)
+    log_printf(ERROR, "Unable to return the Solver's Quadrature "
+               "since it has not yet been set");
+
+  return _quad;
 }
 
 
@@ -295,7 +297,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
           curr_segment = _tracks[i][j].getSegment(s);
-          volume = curr_segment->_length * _azim_weights[azim_index];
+          volume = curr_segment->_length * _quad->getAzimWeight(azim_index);
           fsr_id = curr_segment->_region_id;
 
           /* Set FSR mutual exclusion lock */
@@ -340,7 +342,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
         if (curr_segment->_region_id == fsr_id)
-          volume += curr_segment->_length * _azim_weights[i];
+          volume += curr_segment->_length * _quad->getAzimWeight(i);
       }
     }
   }
@@ -439,12 +441,12 @@ void TrackGenerator::setNumAzim(int num_azim) {
  * @brief Set the suggested track spacing (cm).
  * @param spacing the suggested track spacing
  */
-void TrackGenerator::setTrackSpacing(double spacing) {
+void TrackGenerator::setDesiredAzimSpacing(double spacing) {
   if (spacing < 0)
     log_printf(ERROR, "Unable to set a negative track spacing %f for the "
                "TrackGenerator.", spacing);
 
-  _spacing = spacing;
+  _azim_spacing = spacing;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -460,6 +462,30 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
+}
+
+
+/**
+ * @brief Assign a Quadrature object to the Solver.
+ * @details This routine allows use of a Quadrature with any polar angle
+ *          quadrature. Alternatively, this routine may take in any subclass
+ *          of the Quadrature parent class, including TYPolarQuad (default),
+ *          LeonardPolarQuad, GLPolarQuad, etc.
+ *
+ *          Users may assign a Quadrature object to the Solver from
+ *          Python script as follows:
+ *
+ * @code
+ *          quadrature = openmoc.LeonardPolarQuad()
+ *          quadrature.setNumPolarAngles(2)
+ *          track_generator.setQuadrature(quadrature)
+ * @endcode
+ *
+ * @param quadrature a pointer to a Quadrature object
+ */
+void TrackGenerator::setQuadrature(Quadrature* quadrature) {
+  _quad = quadrature;
+  _user_quad = true;
 }
 
 
@@ -607,15 +633,21 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
     log_printf(ERROR, "Unable to generate Tracks since no Geometry "
                "has been set for the TrackGenerator");
 
+  /* Initialize quadrature */
+  if (_quad == NULL) {
+    _quad = new TYPolarQuad();
+    _quad->setNumAzimAngles(2*getNumAzim());
+    _quad->setNumPolarAngles(6);
+  }
+  _quad->initialize();
+
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
     delete [] _num_tracks_by_parallel_group;
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _azim_weights;
     delete [] _tracks_by_parallel_group;
-    delete [] _phi;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -640,9 +672,7 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
       _num_tracks = new int[_num_azim];
       _num_x = new int[_num_azim];
       _num_y = new int[_num_azim];
-      _azim_weights = new FP_PRECISION[_num_azim];
       _tracks = new Track*[_num_azim];
-      _phi = new double[_num_azim];
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for TrackGenerator");
@@ -668,6 +698,9 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
     }
   }
+
+  /* Precompute quadrature weights */
+  _quad->precomputeWeights(false);
 
   /* Initialize the track boundary conditions and set the track UIDs */
   initializeBoundaryConditions();
@@ -730,7 +763,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
   if (_geometry->getCmfd() != NULL) {
     test_filename << directory.str() << "/"
                   << _num_azim*2.0 << "_angles_"
-                  << _spacing << "_cm_spacing_z_"
+                  << _azim_spacing << "_cm_spacing_z_"
                   << _z_coord << "_("
                   << _geometry->getCmfd()->getNumX()
                   << "x" << _geometry->getCmfd()->getNumY()
@@ -739,7 +772,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
   else{
     test_filename << directory.str() << "/"
                   << _num_azim*2.0 << "_angles_"
-                  << _spacing << "_cm_spacing_z_"
+                  << _azim_spacing << "_cm_spacing_z_"
                   << _z_coord << ".data";
   }
 
@@ -783,49 +816,34 @@ void TrackGenerator::initializeTracks() {
 
     /* A desired azimuthal angle for the user-specified number of
      * azimuthal angles */
-    double phi = 2.0 * M_PI / iazim * (0.5 + i);
+    double phi = 2.0 * M_PI / iazim * (0.5 + i); // FIXME
 
     /* The number of intersections with x,y-axes */
-    _num_x[i] = (int) (fabs(width_x / _spacing * sin(phi))) + 1;
-    _num_y[i] = (int) (fabs(width_y / _spacing * cos(phi))) + 1;
+    _num_x[i] = (int) (fabs(width_x / _azim_spacing * sin(phi))) + 1;
+    _num_y[i] = (int) (fabs(width_y / _azim_spacing * cos(phi))) + 1;
 
     /* Total number of Tracks */
     _num_tracks[i] = _num_x[i] + _num_y[i];
 
     /* Effective/actual angle (not the angle we desire, but close) */
-    _phi[i] = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
-
-    /* Fix angles in range(pi/2, pi) */
-    if (phi > M_PI / 2)
-      _phi[i] = M_PI - _phi[i];
+    phi = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
+    _quad->setPhi(phi, i);
 
     /* Effective Track spacing (not spacing we desire, but close) */
-    dx_eff[i] = (width_x / _num_x[i]);
-    dy_eff[i] = (width_y / _num_y[i]);
-    d_eff[i] = (dx_eff[i] * sin(_phi[i]));
-  }
+    dx_eff[i] = width_x / _num_x[i];
+    dy_eff[i] = width_y / _num_y[i];
+    d_eff[i] = dx_eff[i] * sin(phi);
 
-  /* Compute azimuthal angle quadrature weights */
-  for (int i = 0; i < _num_azim; i++) {
-
-    if (i < _num_azim - 1)
-      x1 = 0.5 * (_phi[i+1] - _phi[i]);
-    else
-      x1 = 2 * M_PI / 2.0 - _phi[i];
-
-    if (i >= 1)
-      x2 = 0.5 * (_phi[i] - _phi[i-1]);
-    else
-      x2 = _phi[i];
-
-    /* Multiply weight by 2 because angles are in [0, Pi] */
-    _azim_weights[i] = (x1 + x2) / (2 * M_PI) * d_eff[i] * 2;
+    _quad->setAzimSpacing(d_eff[i], i);
   }
 
   log_printf(INFO, "Generating Track start and end points...");
 
   /* Compute Track starting and end points */
   for (int i = 0; i < _num_azim; i++) {
+
+    /* Extract the azimuthal angle */
+    double phi = _quad->getPhi(2*i);
 
     /* Tracks for azimuthal angle i */
     _tracks[i] = new Track[_num_tracks[i]];
@@ -859,10 +877,10 @@ void TrackGenerator::initializeTracks() {
       /* Set the Track's end point */
       Point* start = _tracks[i][j].getStart();
       Point* end = _tracks[i][j].getEnd();
-      computeEndPoint(start, end, _phi[i], width_x, width_y);
+      computeEndPoint(start, end, phi, width_x, width_y);
 
       /* Set the Track's azimuthal angle */
-      _tracks[i][j].setPhi(_phi[i]);
+      _tracks[i][j].setPhi(phi);
     }
   }
 
@@ -1357,7 +1375,7 @@ void TrackGenerator::dumpTracksToFile() {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to dump Tracks to a file since no Tracks have "
       "been generated for %d azimuthal angles and %f track spacing",
-      _num_azim, _spacing);
+      _num_azim, _azim_spacing);
 
   FILE* out;
   out = fopen(_tracks_filename.c_str(), "w");
@@ -1373,17 +1391,10 @@ void TrackGenerator::dumpTracksToFile() {
 
   /* Write ray tracing metadata to the Track file */
   fwrite(&_num_azim, sizeof(int), 1, out);
-  fwrite(&_spacing, sizeof(double), 1, out);
+  fwrite(&_azim_spacing, sizeof(double), 1, out);
   fwrite(_num_tracks, sizeof(int), _num_azim, out);
   fwrite(_num_x, sizeof(int), _num_azim, out);
   fwrite(_num_y, sizeof(int), _num_azim, out);
-
-  /* Write the azimuthal angle quadrature weights to the Track file */
-  double* azim_weights = new double[_num_azim];
-  for (int i=0; i < _num_azim; i++)
-    azim_weights[i] = _azim_weights[i];
-  fwrite(azim_weights, sizeof(double), _num_azim, out);
-  delete [] azim_weights;
 
   Track* curr_track;
   double x0, y0, z0, x1, y1, z1;
@@ -1540,8 +1551,6 @@ bool TrackGenerator::readTracksFromFile() {
     delete [] _num_tracks;
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _azim_weights;
-    delete [] _phi;
 
     for (int i = 0; i < _num_azim; i++)
       delete [] _tracks[i];
@@ -1570,27 +1579,17 @@ bool TrackGenerator::readTracksFromFile() {
 
   /* Import ray tracing metadata from the Track file */
   ret = fread(&_num_azim, sizeof(int), 1, in);
-  ret = fread(&_spacing, sizeof(double), 1, in);
+  ret = fread(&_azim_spacing, sizeof(double), 1, in);
 
   /* Initialize data structures for Tracks */
   _num_tracks = new int[_num_azim];
   _num_x = new int[_num_azim];
   _num_y = new int[_num_azim];
-  _phi = new double[_num_azim];
-  _azim_weights = new FP_PRECISION[_num_azim];
-  double* azim_weights = new double[_num_azim];
   _tracks = new Track*[_num_azim];
 
   ret = fread(_num_tracks, sizeof(int), _num_azim, in);
   ret = fread(_num_x, sizeof(int), _num_azim, in);
   ret = fread(_num_y, sizeof(int), _num_azim, in);
-  ret = fread(azim_weights, sizeof(double), _num_azim, in);
-
-  /* Import azimuthal angle quadrature weights from Track file */
-  for (int i=0; i < _num_azim; i++)
-    _azim_weights[i] = azim_weights[i];
-
-  delete [] azim_weights;
 
   Track* curr_track;
   double x0, y0, z0, x1, y1, z1;
@@ -1630,7 +1629,7 @@ bool TrackGenerator::readTracksFromFile() {
       curr_track = &_tracks[i][j];
       curr_track->setValues(x0, y0, z0, x1, y1, z1, phi);
       curr_track->setAzimAngleIndex(azim_angle_index);
-      _phi[azim_angle_index] = phi;
+      _quad->setPhi(phi, azim_angle_index);
 
       /* Loop over all segments in this Track */
       for (int s=0; s < num_segments; s++) {
@@ -1833,6 +1832,7 @@ void TrackGenerator::generateFSRCentroids() {
 
   /* Generate the fsr centroids */
   for (int i=0; i < _num_azim; i++) {
+    FP_PRECISION azim_weight = _quad->getAzimWeight(i);
 #pragma omp parallel for
     for (int j=0; j < _num_tracks[i]; j++) {
 
@@ -1851,10 +1851,10 @@ void TrackGenerator::generateFSRCentroids() {
         /* Set FSR mutual exclusion lock */
         omp_set_lock(&_FSR_locks[fsr]);
 
-        centroids[fsr]->setX(centroids[fsr]->getX() + _azim_weights[i] *
+        centroids[fsr]->setX(centroids[fsr]->getX() + azim_weight *
                              (x + cos(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
-        centroids[fsr]->setY(centroids[fsr]->getY() + _azim_weights[i] *
+        centroids[fsr]->setY(centroids[fsr]->getY() + azim_weight *
                              (y + sin(phi) * curr_segment->_length / 2.0) *
                              curr_segment->_length / FSR_volumes[fsr]);
         centroids[fsr]->setZ(z);
@@ -2031,8 +2031,5 @@ double TrackGenerator::getPhi(int azim) {
     log_printf(ERROR, "Unable to get Phi for azimuthal angle %d since there"
                " %d azimuthal angles", azim, _num_azim*2);
 
-  if (azim < _num_azim)
-    return _phi[azim];
-  else
-    return 2 * M_PI - _phi[azim - _num_azim];
+  return _quad->getPhi(azim);
 }

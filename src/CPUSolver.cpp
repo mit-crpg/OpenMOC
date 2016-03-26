@@ -756,7 +756,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
     for (int p=0; p < _num_polar; p++) {
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
-      fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
+      fsr_flux[e] += delta_psi * _quad->getWeight(azim_index,p);
       track_flux(p,e) -= delta_psi;
     }
   }
@@ -784,8 +784,7 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
 
   /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->tallyCurrent(curr_segment, track_flux,
-                        &_polar_weights(azim_index,0), fwd);
+    _cmfd->tallyCurrent(curr_segment, track_flux, azim_index, fwd);
 }
 
 

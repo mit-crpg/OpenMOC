@@ -11,7 +11,7 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "log.h"
-#include "PolarQuad.h"
+#include "Quadrature.h"
 #include <math.h>
 #endif
 
@@ -40,8 +40,8 @@ private:
   /** The exponential linear interpolation table */
   FP_PRECISION* _exp_table;
 
-  /** The PolarQuad object of interest */
-  PolarQuad* _polar_quad;
+  /** The Quadrature object of interest */
+  Quadrature* _quad;
 
   /** Twice the number of polar angles */
   int _two_times_num_polar;
@@ -57,7 +57,7 @@ public:
   ExpEvaluator();
   virtual ~ExpEvaluator();
 
-  void setPolarQuadrature(PolarQuad* polar_quad);
+  void setQuadrature(Quadrature* quadrature);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setExpPrecision(FP_PRECISION exp_precision);
   void useInterpolation();
@@ -101,8 +101,8 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
 
   /* Evalute the exponential using the intrinsic exp(...) function */
   else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
-    exponential = 1.0 - exp(- tau / sintheta);
+    FP_PRECISION sin_theta = _quad->getSinTheta(0, polar);
+    exponential = 1.0 - exp(- tau / sin_theta);
   }
 
   return exponential;

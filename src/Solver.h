@@ -15,7 +15,7 @@
 #endif
 #include "constants.h"
 #include "Timer.h"
-#include "PolarQuad.h"
+#include "Quadrature.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
 #include "ExpEvaluator.h"
@@ -31,10 +31,6 @@
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources(r,e) (_reduced_sources[(r)*_num_groups + (e)])
-
-/** Indexing macro for the polar quadrature weights multiplied by the
- *  azimuthal angle quadrature weights */
-#define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track for both the forward and
@@ -122,14 +118,11 @@ protected:
   /** The number of Materials */
   int _num_materials;
 
-  /** A pointer to a polar quadrature */
-  PolarQuad* _polar_quad;
-
-  /** A boolean indicating if a user-defined PolarQuad was assigned */
-  bool _user_polar_quad;
-
   /** The number of polar angles */
   int _num_polar;
+
+  //FIXME
+  Quadrature* _quad;
 
   /** The number of polar angles times energy groups */
   int _polar_times_groups;
@@ -139,9 +132,6 @@ protected:
 
   /** The total number of Tracks */
   int _tot_num_tracks;
-
-  /** The weights for each polar angle in the polar angle quadrature */
-  FP_PRECISION* _polar_weights;
 
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
@@ -204,7 +194,6 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
-  PolarQuad* getPolarQuad();
   FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
@@ -220,7 +209,6 @@ public:
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
   void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
@@ -232,7 +220,6 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
-  virtual void initializePolarQuadrature();
   virtual void initializeExpEvaluator();
   virtual void initializeMaterials(solverMode mode=FORWARD);
   virtual void initializeFSRs();
