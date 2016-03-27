@@ -34,11 +34,11 @@ private:
 
   /** The CSR matrix variables */
   FP_PRECISION* _A;
-  FP_PRECISION* _AD;
+  FP_PRECISION* _LU;
   int* _IA;
   int* _JA;
-  int* _IAD;
-  int* _JAD;
+  int* _ILU;
+  int* _JLU;
   FP_PRECISION* _DIAG;
 
   bool _modified;
@@ -47,7 +47,7 @@ private:
   int _num_groups;
   int _num_rows;
   int _NNZ;
-  int _NNZD;
+  int _NNZLU;
 
   /** OpenMP mutual exclusion locks for atomic cell updates */
   omp_lock_t* _cell_locks;
@@ -72,18 +72,18 @@ public:
   FP_PRECISION getValue(int cell_from, int group_from, int cell_to,
                         int group_to);
   FP_PRECISION* getA();
-  FP_PRECISION* getAD();
+  FP_PRECISION* getLU();
   int* getIA();
-  int* getIAD();
+  int* getILU();
   int* getJA();
-  int* getJAD();
+  int* getJLU();
   FP_PRECISION* getDiag();
   int getNumX();
   int getNumY();
   int getNumGroups();
   int getNumRows();
   int getNNZ();
-  int getNNZD();
+  int getNNZLU();
   omp_lock_t* getCellLocks();
 
   /* Setter functions */

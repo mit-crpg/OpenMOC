@@ -7,10 +7,14 @@
  *         a map of lists) to allow for easy setting and incrementing of the
  *         values in the object. When the matrix is needed to perform linear
  *         algebra operations, it is converted to compressed row storage (CSR)
- *         form. The matrix is ordered by cell (as opposed to by group) on the
- *         outside. Locks are used to make the matrix thread-safe against
+ *         form [1]. The matrix is ordered by cell (as opposed to by group) on
+ *         the outside. Locks are used to make the matrix thread-safe against
  *         concurrent writes the same value. One lock locks out multiple rows of
  *         the matrix at a time reprsenting multiple groups in the same cell.
+ *
+ *            [1] "Sparse matrix", Wikipedia,
+ *                https://en.wikipedia.org/wiki/Sparse_matrix.
+ *
  * @param cell_locks Omp locks for atomic cell operations
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
@@ -28,15 +32,15 @@ Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_groups) {
     _LIL.push_back(std::map<int, FP_PRECISION>());
 
   _A = NULL;
-  _AD = NULL;
+  _LU = NULL;
   _IA = NULL;
-  _IAD = NULL;
+  _ILU = NULL;
   _JA = NULL;
-  _JAD = NULL;
+  _JLU = NULL;
   _DIAG = NULL;
   _modified = true;
   _NNZ = 0;
-  _NNZD = 0;
+  _NNZLU = 0;
 
   /* Set OpenMP locks for each Matrix cell */
   if (cell_locks == NULL)
@@ -56,20 +60,20 @@ Matrix::~Matrix() {
   if (_A != NULL)
     delete [] _A;
 
-  if (_AD != NULL)
-    delete [] _AD;
+  if (_LU != NULL)
+    delete [] _LU;
 
   if (_IA != NULL)
     delete [] _IA;
 
-  if (_IAD != NULL)
-    delete [] _IAD;
+  if (_ILU != NULL)
+    delete [] _ILU;
 
   if (_JA != NULL)
     delete [] _JA;
 
-  if (_JAD != NULL)
-    delete [] _JAD;
+  if (_JLU != NULL)
+    delete [] _JLU;
 
   if (_DIAG != NULL)
     delete [] _DIAG;
@@ -189,54 +193,54 @@ void Matrix::convertToCSR() {
 
   /* Get number of nonzero values */
   int NNZ = getNNZ();
-  int NNZD = getNNZD();
+  int NNZLU = getNNZLU();
 
-  if (NNZ != _NNZ || NNZD != _NNZD) {
+  if (NNZ != _NNZ || NNZLU != _NNZLU) {
 
     /* Deallocate memory for arrays if previously allocated */
     if (_A != NULL)
       delete [] _A;
 
-    if (_AD != NULL)
-      delete [] _AD;
+    if (_LU != NULL)
+      delete [] _LU;
 
     if (_IA != NULL)
       delete [] _IA;
 
-    if (_IAD != NULL)
-      delete [] _IAD;
+    if (_ILU != NULL)
+      delete [] _ILU;
 
     if (_JA != NULL)
       delete [] _JA;
 
-    if (_JAD != NULL)
-      delete [] _JAD;
+    if (_JLU != NULL)
+      delete [] _JLU;
 
     if (_DIAG != NULL)
       delete [] _DIAG;
 
     /* Allocate memory for arrays */
     _A = new FP_PRECISION[NNZ];
-    _AD = new FP_PRECISION[NNZD];
+    _LU = new FP_PRECISION[NNZLU];
     _IA = new int[_num_rows+1];
-    _IAD = new int[_num_rows+1];
+    _ILU = new int[_num_rows+1];
     _JA = new int[NNZ];
-    _JAD = new int[NNZD];
+    _JLU = new int[NNZLU];
     _DIAG = new FP_PRECISION[_num_rows];
 
     _NNZ = NNZ;
-    _NNZD = NNZD;
+    _NNZLU = NNZLU;
   }
 
   std::fill_n(_DIAG, _num_rows, 0.0);
 
   /* Form arrays */
   int j = 0;
-  int jd = 0;
+  int jlu = 0;
   std::map<int, FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     _IA[row] = j;
-    _IAD[row] = jd;
+    _ILU[row] = jlu;
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
       if (iter->second != 0.0) {
         _JA[j] = iter->first;
@@ -245,9 +249,9 @@ void Matrix::convertToCSR() {
         if (row == iter->first)
           _DIAG[row] = iter->second;
         else {
-          _JAD[jd] = iter->first;
-          _AD[jd] = iter->second;
-          jd++;
+          _JLU[jlu] = iter->first;
+          _LU[jlu] = iter->second;
+          jlu++;
         }
 
         j++;
@@ -256,7 +260,7 @@ void Matrix::convertToCSR() {
   }
 
   _IA[_num_rows] = NNZ;
-  _IAD[_num_rows] = NNZD;
+  _ILU[_num_rows] = NNZLU;
 
   /* Reset flat indicating the CSR objects have the same values as the
    * LIL object */
@@ -312,11 +316,13 @@ FP_PRECISION Matrix::getValue(int cell_from, int group_from,
 
 
 /**
- * @brief Get the A component of the CSR form of the matrix object.
+ * @brief Get the full matrix (A) component of the CSR form of the matrix
+ *        object.
  * @return A pointer to the A component of the CSR form matrix object.
  */
 FP_PRECISION* Matrix::getA() {
 
+  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
@@ -325,26 +331,29 @@ FP_PRECISION* Matrix::getA() {
 
 
 /**
- * @brief Get the A component (excluding the diagonal) of the CSR form of the
- *        matrix object.
- * @return A pointer to the A component (excluding the diagonal) of the CSR
- *         form matrix object.
+ * @brief Get the lower + upper (LU) component of the CSR form of the matrix
+ *        object.
+ * @return A pointer to the lower + upper (LU) component of the CSR form matrix
+ *         object.
  */
-FP_PRECISION* Matrix::getAD() {
+FP_PRECISION* Matrix::getLU() {
 
+  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
-  return _AD;
+  return _LU;
 }
 
 
 /**
- * @brief Get the IA component of the CSR form of the matrix object.
- * @return A pointer to the IA component of the CSR form matrix object.
+ * @brief Get an array of the row indices (I) component of the CSR form of the
+ *        full matrix (A).
+ * @return A pointer to the I component of the CSR form of the full matrix (A).
  */
 int* Matrix::getIA() {
 
+  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
@@ -353,26 +362,29 @@ int* Matrix::getIA() {
 
 
 /**
- * @brief Get the IA component (excluding the diagonal) of the CSR form of the
- *        matrix object.
- * @return A pointer to the IA component (excluding the diagonal) of the CSR
- *         form matrix object.
+ * @brief Get an array of the row indices (I) component of the CSR form of the
+ *        lower + upper (LU) components of the matrix.
+ * @return A pointer to the I component of the CSR form of the LU components
+ *         of the matrix.
  */
-int* Matrix::getIAD() {
+int* Matrix::getILU() {
 
+  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
-  return _IAD;
+  return _ILU;
 }
 
 
 /**
- * @brief Get the JA component of the CSR form of the matrix object.
- * @return A pointer to the JA component of the CSR form matrix object.
+ * @brief Get an array of the column indices (J) component of the CSR form of
+ *        the full matrix (A).
+ * @return A pointer to the J component of the CSR form of the full matrix (A).
  */
 int* Matrix::getJA() {
 
+  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
@@ -381,17 +393,18 @@ int* Matrix::getJA() {
 
 
 /**
- * @brief Get the JA component (excluding the diagonal) of the CSR form of the
- *        matrix object.
- * @return A pointer to the JA component (excluding the diagonal) of the CSR
- *         form matrix object.
+ * @brief Get an array of the column indices (J) component of the CSR form of
+ *        the lower + upper (LU) components of the matrix.
+ * @return A pointer to the J component of the CSR form of the LU components
+ *         of the matrix.
  */
-int* Matrix::getJAD() {
+int* Matrix::getJLU() {
 
+  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
-  return _JAD;
+  return _JLU;
 }
 
 
@@ -445,8 +458,8 @@ int Matrix::getNumRows() {
 
 
 /**
- * @brief Get the number of non-zero values in the matrix.
- * @return The number of non-zero values in the matrix.
+ * @brief Get the number of non-zero values in the full matrix.
+ * @return The number of non-zero values in the full matrix.
  */
 int Matrix::getNNZ() {
 
@@ -464,22 +477,23 @@ int Matrix::getNNZ() {
 
 
 /**
- * @brief Get the number of non-zero values in the matrix, excluding the
- *        diagonal.
- * @return The number of non-zero values in the matrix, excluding the diagonal.
+ * @brief Get the number of non-zero values in the lower + upper components of
+ *        the matrix.
+ * @return The number of non-zero values in the lower + upper components of the
+ *         matrix.
  */
-int Matrix::getNNZD() {
+int Matrix::getNNZLU() {
 
-  int NNZD = 0;
+  int NNZLU = 0;
   std::map<int, FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
       if (iter->second != 0.0 && iter->first != row)
-        NNZD++;
+        NNZLU++;
     }
   }
 
-  return NNZD;
+  return NNZLU;
 }
 
 
