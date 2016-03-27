@@ -297,7 +297,8 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
           curr_segment = _tracks[i][j].getSegment(s);
-          volume = curr_segment->_length * _quad->getAzimWeight(azim_index);
+          volume = curr_segment->_length * _quad->getAzimWeight(i)
+            * _quad->getAzimSpacing(i);
           fsr_id = curr_segment->_region_id;
 
           /* Set FSR mutual exclusion lock */
@@ -342,7 +343,8 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
         if (curr_segment->_region_id == fsr_id)
-          volume += curr_segment->_length * _quad->getAzimWeight(i);
+          volume += curr_segment->_length * _quad->getAzimWeight(i)
+            * _quad->getAzimSpacing(i);
       }
     }
   }
@@ -634,7 +636,7 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   /* Initialize quadrature */
   if (_quad == NULL) {
     _quad = new TYPolarQuad();
-    _quad->setNumAzimAngles(2*getNumAzim());
+    _quad->setNumAzimAngles(getNumAzim()); //FIXME
     _quad->setNumPolarAngles(6);
   }
   _quad->initialize();
@@ -699,7 +701,7 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   else {
 
     /* Determine azimuthal spacings */
-    for (int i = 0; i < _num_azim/2; i++) {
+    for (int i = 0; i < _num_azim/4; i++) {
 
       /* Get the azimuthal angle */
       double phi = _quad->getPhi(i);
@@ -838,14 +840,16 @@ void TrackGenerator::initializeTracks() {
 
     /* Effective/actual angle (not the angle we desire, but close) */
     phi = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
-    _quad->setPhi(phi, i);
+    if (i < _num_azim/4)
+      _quad->setPhi(phi, i);
 
     /* Effective Track spacing (not spacing we desire, but close) */
     dx_eff[i] = width_x / _num_x[i];
     dy_eff[i] = width_y / _num_y[i];
     d_eff[i] = dx_eff[i] * sin(phi);
 
-    _quad->setAzimSpacing(d_eff[i], i);
+    if (i < _num_azim/4)
+      _quad->setAzimSpacing(d_eff[i], i);
   }
 
   log_printf(INFO, "Generating Track start and end points...");
@@ -854,7 +858,7 @@ void TrackGenerator::initializeTracks() {
   for (int i = 0; i < _num_azim/2; i++) {
 
     /* Extract the azimuthal angle */
-    double phi = _quad->getPhi(2*i);
+    double phi = _quad->getPhi(i);
 
     /* Tracks for azimuthal angle i */
     _tracks[i] = new Track[_num_tracks[i]];

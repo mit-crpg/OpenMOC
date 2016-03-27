@@ -757,12 +757,9 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
       fsr_flux[e] += delta_psi * _quad->getWeight(azim_index,p);
-      std::cout << "Tallying " << delta_psi << " x " <<
-        _quad->getWeight(azim_index,p) << " for ep = " << e << p << std::endl;
       track_flux(p,e) -= delta_psi;
     }
   }
-  exit(1);
 
   /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);

@@ -648,7 +648,6 @@ void Quadrature::precomputeWeights(bool solve_3D) {
     _sin_thetas[a] = new FP_PRECISION[_num_polar];
   }
 
-
   /* Compute multiples of sine thetas and weights */
   for (int a=0; a < _num_azim/4; a++) {
     for (int p=0; p < _num_polar/2; p++) {
