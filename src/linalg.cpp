@@ -138,15 +138,16 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   int num_rows = X->getNumRows();
   Vector X_old(cell_locks, num_x, num_y, num_groups);
   FP_PRECISION* x_old = X_old.getArray();
-  int* IA = A->getIA();
-  int* JA = A->getJA();
+  int* ILU = A->getILU();
+  int* JLU = A->getJLU();
   FP_PRECISION* DIAG = A->getDiag();
-  FP_PRECISION* a = A->getA();
+  FP_PRECISION* lu = A->getLU();
   FP_PRECISION* x = X->getArray();
   FP_PRECISION* b = B->getArray();
-  int row, col;
+  int row;
   Vector old_source(cell_locks, num_x, num_y, num_groups);
   Vector new_source(cell_locks, num_x, num_y, num_groups);
+  FP_PRECISION val;
 
   /* Compute initial source */
   matrixMultiplication(M, X, &old_source);
@@ -156,37 +157,23 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Pass new flux to old flux */
     X->copyTo(&X_old);
 
-    /* Iteration over red/black cells */
-    for (int color = 0; color < 2; color++) {
-      for (int quad = 0; quad < 4; quad++) {
-#pragma omp parallel for private(row, col)
-        for (int cy = (quad % 2) * num_y/2; cy < (quad % 2 + 1) * num_y/2;
-             cy++) {
-          for (int cx = (quad / 2) * num_x/2; cx < (quad / 2 + 1) * num_x/2;
-               cx++) {
+    /* Perform parallel red/black SOR iteration */
+    for (int color=0; color < 2; color++) {
+#pragma omp parallel for private(row, val)
+      for (int yc=0; yc < num_y; yc++) {
+        for (int xc=(yc + color) % 2; xc < num_x; xc+=2) {
+          for (int g=0; g < num_groups; g++) {
 
-            /* check for correct color */
-            if (((cx % 2)+(cy % 2)) % 2 == color) {
+            /* Get the current matrix row */
+            row = (yc * num_x + xc) * num_groups + g;
 
-              for (int g = 0; g < num_groups; g++) {
+            /* Accumulate off diagonals multiplied by corresponding fluxes */
+            val = 0.0;
+            for (int i = ILU[row]; i < ILU[row+1]; i++)
+              val += lu[i] * x[JLU[i]];
 
-                row = (cy*num_x + cx)*num_groups + g;
-
-                /* Over-relax the x array */
-                x[row] = (1.0 - SOR_factor) * x[row];
-
-                for (int i = IA[row]; i < IA[row+1]; i++) {
-
-                  /* Get the column index */
-                  col = JA[i];
-
-                  if (row == col)
-                    x[row] += SOR_factor * b[row] / DIAG[row];
-                  else
-                    x[row] -= SOR_factor * a[i] * x[col] / DIAG[row];
-                }
-              }
-            }
+            /* Update the flux for this row */
+            x[row] += SOR_factor * ((b[row] - val) / DIAG[row] - x[row]);
           }
         }
       }

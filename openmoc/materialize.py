@@ -377,8 +377,8 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             py_printf('DEBUG', 'Loaded "nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
-            mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix').flatten()
-            sigma = mgxs.get_xs(nuclides='sum')
+            mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix')
+            sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
