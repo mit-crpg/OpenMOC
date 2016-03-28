@@ -1054,39 +1054,15 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # Initialize a numpy array for the spatial data
-    domains = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
-
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(plot_params)
 
-    for i in range(plot_params.gridsize):
-        for j in range(plot_params.gridsize):
-
-            # Find the domain IDs for each grid point
-            x = coords['x'][i]
-            y = coords['y'][j]
-
-            point = openmoc.LocalCoords(x, y, plot_params.zcoord)
-            point.setUniverse(plot_params.geometry.getRootUniverse())
-            cell = plot_params.geometry.findCellContainingCoords(point)
-
-            if plot_params.domain_type == 'fsr':
-                domain_id = plot_params.geometry.getFSRId(point)
-            elif plot_params.domain_type == 'material':
-                domain_id = cell.getFillMaterial().getId()
-            else:
-                domain_id = cell.getId()
-
-            # If we did not find a domain, use a -1 "bad" number color
-            if np.isnan(domain_id):
-                domains[j][i] = -1
-            else:
-                domains[j][i] = domain_id
-
-            # Deallocate memory for LocalCoords
-            point = point.getHighestLevel()
-            point.prune()
+    # Query the geometry for the data on the spatial grid
+    domains = plot_params.geometry.getSpatialDataOnGrid(
+        coords['x'], coords['y'], plot_params.gridsize**2,
+        zcoord=plot_params.zcoord, domain_type=plot_params.domain_type)
+    domains = np.reshape(domains, tuple(([plot_params.gridsize]*2)))
+    domains[domains == np.nan] = -1
 
     # Make domains-to-data array 2D to mirror a Pandas DataFrame
     if isinstance(domains_to_data, np.ndarray):

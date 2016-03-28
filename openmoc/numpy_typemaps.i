@@ -75,3 +75,9 @@
 
 /* The typemap used to match the method signature for Solver::setFluxes */
 %apply (FP_PRECISION* INPLACE_ARRAY1, int DIM1) {(FP_PRECISION* in_fluxes, int num_fluxes)}
+
+/* The typemap used to match the method signature for
+ * Geometry::getSpatialDataOnGrid */
+%apply (double* IN_ARRAY1, int DIM1) {(double* gridx, int numx)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* gridy, int numy)}
+%apply (int* ARGOUT_ARRAY1, int DIM1) {(int* domains, int numxy)}

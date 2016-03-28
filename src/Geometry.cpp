@@ -1011,6 +1011,114 @@ void Geometry::computeFissionability(Universe* univ) {
 
 
 /**
+ * @brief Get the material, cell or FSR IDs on a 2D spatial grid.
+ * @details This is a helper method for the openmoc.plotter module.
+ *          This method may also be called by the user in Python if needed.
+ *           A user must initialize NumPy arrays with the x and y grid
+ *          coordinates input to this function. This function then fills
+ *          a NumPy array with the domain IDs for each coordinate. An example
+ *          of how this function might be called in Python is as follows:
+ *
+ * @code
+ *          gridx = numpy.arange(-2., +2., 100)
+ *          gridy = numpy.arange(-2., +2., 100)
+ *          numxy = 100**2
+ *          zcoord = 20.
+ *          domain_type = 'material'
+ *          domain_ids = geometry.getSpatialDataOnGrid(
+ *              gridx, gridy, numxy, zcoord, domain_type)
+ * @endcode
+ *
+ * @param gridx a NumPy array of the x-coordinates
+ * @param numx the number of x-coordinates in the grid
+ * @param gridy a NumPy array of the y-coordinates
+ * @param numy the number of y-coordinates in the grid
+ * @param domains a NumPy array of the domain IDs
+ * @param numxy the number of coordinates in the 2D grid
+ * @param zcoord the z-coordinate to use to find the domain IDs
+ * @param domain_type the type of domain ('fsr', 'material', 'cell')
+ */
+void Geometry::getSpatialDataOnGrid(double* gridx, int numx,
+				    double* gridy, int numy,
+				    int* domains, int numxy,
+				    double zcoord, const char* domain_type) {
+
+  LocalCoords* point;
+  Cell* cell;
+
+  /* Extract the source region IDs */
+  if (strcmp(domain_type, "fsr") == 0) {
+
+#pragma omp parallel for private(point, cell)
+    for (int i=0; i < numx; i++) {
+      for (int j=0; j < numy; j++) {
+
+	/* Find the Cell containing this point */
+	point = new LocalCoords(gridx[i], gridy[j], zcoord);
+	point->setUniverse(_root_universe);
+	cell = findCellContainingCoords(point);
+
+	/* Extract the ID of the domain of interest */
+	domains[i+j*numx] = getFSRId(point);
+
+	/* Deallocate memory for LocalCoords */
+	point = point->getHighestLevel();
+	point->prune();
+      }
+    }
+  }
+
+  /* Extract the material IDs */
+  else if (strcmp(domain_type, "material") == 0) {
+
+#pragma omp parallel for private(point, cell)
+    for (int i=0; i < numx; i++) {
+      for (int j=0; j < numy; j++) {
+
+	/* Find the Cell containing this point */
+	point = new LocalCoords(gridx[i], gridy[j], zcoord);
+	point->setUniverse(_root_universe);
+	cell = findCellContainingCoords(point);
+
+	/* Extract the ID of the domain of interest */
+	domains[i+j*numx] = cell->getFillMaterial()->getId();
+
+	/* Deallocate memory for LocalCoords */
+	point = point->getHighestLevel();
+	point->prune();
+      }
+    }
+  }
+
+  /* Extract the cell IDs */
+  else if (strcmp(domain_type, "cell") == 0) {
+
+#pragma omp parallel for private(point, cell)
+    for (int i=0; i < numx; i++) {
+      for (int j=0; j < numy; j++) {
+
+	/* Find the Cell containing this point */
+	point = new LocalCoords(gridx[i], gridy[j], zcoord);
+	point->setUniverse(_root_universe);
+	cell = findCellContainingCoords(point);
+
+	/* Extract the ID of the domain of interest */
+	domains[i+j*numx] = cell->getId();
+
+	/* Deallocate memory for LocalCoords */
+	point = point->getHighestLevel();
+	point->prune();
+      }
+    }
+  }
+
+ else
+   log_printf(ERROR, "Unable to extract spatial data for "
+	      "unsupported domain type %s", domain_type);
+}
+
+
+/**
  * @brief Converts this Geometry's attributes to a character array.
  * @details This method calls the toString() method for all Surfaces,
  *          Cells, Universes and Lattices contained by the Geometry.
