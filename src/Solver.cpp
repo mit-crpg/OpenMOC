@@ -34,9 +34,6 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
-  else
-    log_printf(ERROR, "ERROR: An invalid TrackGenerator was supplied to the "
-                      "Solver");
 
   _polar_times_groups = 0;
 

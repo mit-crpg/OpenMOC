@@ -322,7 +322,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     zcoord = track_generator.getZCoord()
     num_tracks = track_generator.getNumTracks()
     num_segments = track_generator.getNumSegments()
-    spacing = track_generator.getTrackSpacing()
+    spacing = track_generator.getDesiredAzimSpacing()
     num_azim = track_generator.getNumAzim()
     num_polar = solver.getNumPolarAngles()
     num_iters = solver.getNumIterations()

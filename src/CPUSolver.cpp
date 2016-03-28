@@ -748,6 +748,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   FP_PRECISION delta_psi, exponential;
 
+  /* Extract weights for all polar angles */
+  FP_PRECISION weights[_num_polar];
+  for (int p=0; p < _num_polar; p++)
+    weights[p] = _quad->getWeight(azim_index, p);
+
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
@@ -756,7 +761,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
     for (int p=0; p < _num_polar; p++) {
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
-      fsr_flux[e] += delta_psi * _quad->getWeight(azim_index,p);
+      fsr_flux[e] += delta_psi * weights[p];
       track_flux(p,e) -= delta_psi;
     }
   }

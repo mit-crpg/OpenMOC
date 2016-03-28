@@ -762,7 +762,7 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
     mu = cos(asin(_quadrature->getSinTheta(0,p)));
     expon = exp(-delta / (3 * dif_coef * mu));
     alpha = (1 + expon) / (1 - expon) - 2 * (3 * dif_coef * mu) / delta;
-    rho += mu * _quadrature->getWeight(0,p) * alpha;
+    rho += 2.0 * mu * _quadrature->getPolarWeight(0,p) * alpha;
   }
 
   /* Compute the correction factor */
@@ -1431,7 +1431,7 @@ void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  */
 void Cmfd::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
-  _num_polar = quadrature->getNumPolarAngles();
+  _num_polar = quadrature->getNumPolarAngles() / 2;
 }
 
 
@@ -1631,7 +1631,7 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
     /* INTERNAL */
     if (_k_nearest_stencils[fsr].size() == 1)
       ratio += _flux_ratio->getValue(cell_id, group);
-    else{
+    else {
       ratio += _k_nearest_stencils[fsr][0].second *
         _flux_ratio->getValue(cell_id, group);
       ratio /= (_k_nearest_stencils[fsr].size() - 1);
@@ -1864,7 +1864,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
         for (int p=0; p < _num_polar; p++)
           currents[g] += track_flux(p, e) * _quadrature->getWeight(azim_index,
-                                                                   p) / 2.;
+                                                                   p) / 2.0;
       }
 
       /* Increment currents */
@@ -1884,7 +1884,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
         for (int p=0; p < _num_polar; p++)
           currents[g] += track_flux(p, e) * _quadrature->getWeight(azim_index,
-                                                                   p) / 2.;
+                                                                   p) / 2.0;
       }
 
       /* Increment currents */
