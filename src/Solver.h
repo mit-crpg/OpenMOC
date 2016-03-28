@@ -294,14 +294,13 @@ public:
 
   /**
    * @brief Computes the residual between successive flux/source iterations.
-   * @param res_type the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)
+   * @param res_type the residual type (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)
    * @return the total residual summed over FSRs and energy groups
    */
   virtual double computeResidual(residualType res_type) = 0;
 
   /**
-   * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
-   *        in each FSR and energy group.
+   * @brief Compute \f$ k_{eff} \f$ from successive fission sources.
    */
   virtual void computeKeff() = 0;
 

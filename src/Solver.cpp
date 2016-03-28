@@ -496,7 +496,7 @@ void Solver::useExponentialIntrinsic() {
 
 /**
  * @brief Initializes a new PolarQuad object.
- * @details Deletes memory old PolarQuad if one was previously allocated.
+ * @details Deletes memory of old PolarQuad if one was previously allocated.
  */
 void Solver::initializePolarQuadrature() {
 

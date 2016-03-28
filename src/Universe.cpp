@@ -1215,7 +1215,7 @@ void Lattice::setUniverses(int num_z, int num_y, int num_x,
 
 /**
  * @brief Update the Universe in a particular Lattice cell.
- * @details This method may only be used after an array of Universe
+ * @details This method may only be used after an array of Universes
  *          has been assigned with the Lattice::setUniverses(...) method.
  * @param lat_x the Lattice cell index along x
  * @param lat_y the Lattice cell index along y

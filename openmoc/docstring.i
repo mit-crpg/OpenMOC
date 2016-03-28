@@ -1307,11 +1307,70 @@ This a subclass of the Solver class for multi-core CPUs using OpenMP multi-threa
 C++ includes: src/CPUSolver.h
 ";
 
-%feature("docstring") CPUSolver::~CPUSolver "
-~CPUSolver()  
+%feature("docstring") CPUSolver::initializeFSRs "
+initializeFSRs()  
 
-Destructor deletes array for OpenMP mutual exclusion locks for FSR scalar flux updates,
-and calls Solver parent class destructor to deletes arrays for fluxes and sources.  
+Initializes the FSR volumes and Materials array.  
+
+This method gets an array of OpenMP mutual exclusion locks for each FSR for use in the
+transport sweep algorithm.  
+";
+
+%feature("docstring") CPUSolver::computeResidual "
+computeResidual(residualType res_type) -> double  
+
+Computes the residual between source/flux iterations.  
+
+Parameters
+----------
+* res_type :  
+    the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+
+Returns
+-------
+the average residual in each FSR  
+";
+
+%feature("docstring") CPUSolver::initializeSourceArrays "
+initializeSourceArrays()  
+
+Allocates memory for FSR source arrays.  
+
+Deletes memory for old source arrays if they were allocated for a previous simulation.  
+";
+
+%feature("docstring") CPUSolver::computeFSRFissionRates "
+computeFSRFissionRates(double *fission_rates, int num_FSRs)  
+
+Computes the volume-integrated, energy-integrated nu-fission rate in each FSR and stores
+them in an array indexed by FSR ID.  
+
+This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
+NumPy array. An example of how this method can be called from Python is as follows:  
+
+
+Parameters
+----------
+* fission_rates :  
+    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
+    Python)  
+* num_FSRs :  
+    the number of FSRs passed in from Python  
+";
+
+%feature("docstring") CPUSolver::computeFSRSources "
+computeFSRSources()  
+
+Computes the total source (fission, scattering, fixed) in each FSR.  
+
+This method computes the total source in each FSR based on this iteration's current
+approximation to the scalar flux.  
+";
+
+%feature("docstring") CPUSolver::storeFSRFluxes "
+storeFSRFluxes()  
+
+Stores the FSR scalar fluxes in the old scalar flux array.  
 ";
 
 %feature("docstring") CPUSolver::computeFSRScatterSources "
@@ -1339,6 +1398,18 @@ Parameters
 ----------
 * value :  
     the value to assign to each FSR scalar flux  
+";
+
+%feature("docstring") CPUSolver::initializeFixedSources "
+initializeFixedSources()  
+
+Populates array of fixed sources assigned by FSR.  
+";
+
+%feature("docstring") CPUSolver::addSourceToScalarFlux "
+addSourceToScalarFlux()  
+
+Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::transportSweep "
@@ -1378,24 +1449,6 @@ computeFSRFissionSources()
 Computes the total fission source in each FSR.  
 
 This method is a helper routine for the openmoc.krylov submodule.  
-";
-
-%feature("docstring") CPUSolver::computeKeff "
-computeKeff()  
-
-Compute $ k_{eff} $ from successive fission sources.  
-";
-
-%feature("docstring") CPUSolver::initializeFixedSources "
-initializeFixedSources()  
-
-Populates array of fixed sources assigned by FSR.  
-";
-
-%feature("docstring") CPUSolver::addSourceToScalarFlux "
-addSourceToScalarFlux()  
-
-Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::getFluxes "
@@ -1446,15 +1499,10 @@ Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total 
 source (times $ \\nu $).  
 ";
 
-%feature("docstring") CPUSolver::setNumThreads "
-setNumThreads(int num_threads)  
+%feature("docstring") CPUSolver::computeKeff "
+computeKeff()  
 
-Sets the number of shared memory OpenMP threads to use (>0).  
-
-Parameters
-----------
-* num_threads :  
-    the number of threads  
+Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") CPUSolver::getNumThreads "
@@ -1467,70 +1515,15 @@ Returns
 the number of threads  
 ";
 
-%feature("docstring") CPUSolver::initializeFSRs "
-initializeFSRs()  
+%feature("docstring") CPUSolver::setNumThreads "
+setNumThreads(int num_threads)  
 
-Initializes the FSR volumes and Materials array.  
-
-This method gets an array of OpenMP mutual exclusion locks for each FSR for use in the
-transport sweep algorithm.  
-";
-
-%feature("docstring") CPUSolver::computeResidual "
-computeResidual(residualType res_type) -> double  
-
-Computes the residual between source/flux iterations.  
+Sets the number of shared memory OpenMP threads to use (>0).  
 
 Parameters
 ----------
-* res_type :  
-    the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
-
-Returns
--------
-the average residual in each FSR  
-";
-
-%feature("docstring") CPUSolver::initializeSourceArrays "
-initializeSourceArrays()  
-
-Allocates memory for FSR source arrays.  
-
-Deletes memory for old source arrays if they were allocated for a previous simulation.  
-";
-
-%feature("docstring") CPUSolver::computeFSRSources "
-computeFSRSources()  
-
-Computes the total source (fission, scattering, fixed) in each FSR.  
-
-This method computes the total source in each FSR based on this iteration's current
-approximation to the scalar flux.  
-";
-
-%feature("docstring") CPUSolver::storeFSRFluxes "
-storeFSRFluxes()  
-
-Stores the FSR scalar fluxes in the old scalar flux array.  
-";
-
-%feature("docstring") CPUSolver::computeFSRFissionRates "
-computeFSRFissionRates(double *fission_rates, int num_FSRs)  
-
-Computes the volume-integrated, energy-integrated nu-fission rate in each FSR and stores
-them in an array indexed by FSR ID.  
-
-This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
-NumPy array. An example of how this method can be called from Python is as follows:  
-
-
-Parameters
-----------
-* fission_rates :  
-    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
-    Python)  
-* num_FSRs :  
-    the number of FSRs passed in from Python  
+* num_threads :  
+    the number of threads  
 ";
 
 // File: structdev__material.xml
@@ -2387,6 +2380,39 @@ Returns
 the root Universe  
 ";
 
+%feature("docstring") Geometry::getSpatialDataOnGrid "
+getSpatialDataOnGrid(double *gridx, int numx, double *gridy, int numy, int *domains, int
+    numxy, double zcoord, const char *domain_type=\"material\")  
+
+Get the material, cell or FSR IDs on a 2D spatial grid.  
+
+This is a helper method for the openmoc.plotter module. This method may also be called by
+the user in Python if needed. A user must initialize NumPy arrays with the x and y grid
+coordinates input to this function. This function then fills a NumPy array with the domain
+IDs for each coordinate. An example of how this function might be called in Python is as
+follows:  
+
+
+Parameters
+----------
+* gridx :  
+    a NumPy array of the x-coordinates  
+* numx :  
+    the number of x-coordinates in the grid  
+* gridy :  
+    a NumPy array of the y-coordinates  
+* numy :  
+    the number of y-coordinates in the grid  
+* domains :  
+    a NumPy array of the domain IDs  
+* numxy :  
+    the number of coordinates in the 2D grid  
+* zcoord :  
+    the z-coordinate to use to find the domain IDs  
+* domain_type :  
+    the type of domain ('fsr', 'material', 'cell')  
+";
+
 %feature("docstring") Geometry::setRootUniverse "
 setRootUniverse(Universe *root_universe)  
 
@@ -2807,7 +2833,7 @@ Computes the residual between successive flux/source iterations.
 Parameters
 ----------
 * res_type :  
-    the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+    the residual type (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
 
 Returns
 -------
@@ -2823,7 +2849,7 @@ initializePolarQuadrature()
 
 Initializes a new PolarQuad object.  
 
-Deletes memory old PolarQuad if one was previously allocated.  
+Deletes memory of old PolarQuad if one was previously allocated.  
 ";
 
 %feature("docstring") GPUSolver::~GPUSolver "
@@ -2917,7 +2943,7 @@ Computes the total fission source for each FSR and energy group.
 %feature("docstring") GPUSolver::computeKeff "
 computeKeff()  
 
-Compute $ k_{eff} $ from total fission and absorption rates in each FSR and energy group.  
+Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") GPUSolver::transportSweep "
@@ -3386,7 +3412,7 @@ updateUniverse(int lat_x, int lat_y, int lat_z, Universe *universe)
 
 Update the Universe in a particular Lattice cell.  
 
-This method may only be used after an array of Universe has been assigned with the
+This method may only be used after an array of Universes has been assigned with the
 Lattice::setUniverses(...) method.  
 
 Parameters
@@ -4602,22 +4628,6 @@ the pointer to the Material's array of fission cross-sections multiplied by nu $
 %feature("docstring") Matrix "
 ";
 
-%feature("docstring") Matrix::getNNZ "
-getNNZ() -> int  
-
-Get the number of non-zero values in the matrix.  
-
-Returns
--------
-The number of non-zero values in the matrix.  
-";
-
-%feature("docstring") Matrix::printString "
-printString()  
-
-Print the matrix object to the log file.  
-";
-
 %feature("docstring") Matrix::getNumRows "
 getNumRows() -> int  
 
@@ -4628,14 +4638,175 @@ Returns
 The number of rows in the matrix.  
 ";
 
+%feature("docstring") Matrix::getIA "
+getIA() -> int *  
+
+Get an array of the row indices (I) component of the CSR form of the full matrix (A).  
+
+Returns
+-------
+A pointer to the I component of the CSR form of the full matrix (A).  
+";
+
+%feature("docstring") Matrix::getNNZLU "
+getNNZLU() -> int  
+
+Get the number of non-zero values in the lower + upper components of the matrix.  
+
+Returns
+-------
+The number of non-zero values in the lower + upper components of the matrix.  
+";
+
+%feature("docstring") Matrix::clear "
+clear()  
+
+Clear all values in the matrix list of lists.  
+";
+
+%feature("docstring") Matrix::~Matrix "
+~Matrix()  
+
+Destructor clears list of lists and deletes the arrays used to represent the matrix in CSR
+form.  
+";
+
+%feature("docstring") Matrix::getNumX "
+getNumX() -> int  
+
+Get the number of cells in the x dimension.  
+
+Returns
+-------
+The number of cells in the x dimension.  
+";
+
+%feature("docstring") Matrix::getNumY "
+getNumY() -> int  
+
+Get the number of cells in the y dimension.  
+
+Returns
+-------
+The number of cells in the y dimension.  
+";
+
+%feature("docstring") Matrix::getCellLocks "
+getCellLocks() -> omp_lock_t *  
+
+Return the array of cell locks for atomic cell operations.  
+
+Returns
+-------
+an array of cell locks  
+";
+
+%feature("docstring") Matrix::Matrix "
+Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
+
+Constructor initializes Matrix as a list of lists and sets the matrix dimensions.  The
+matrix object uses a \"lists of lists\" structure (implemented as a map of lists) to allow
+for easy setting and incrementing of the values in the object. When the matrix is needed
+to perform linear algebra operations, it is converted to compressed row storage (CSR) form
+[1]. The matrix is ordered by cell (as opposed to by group) on the outside. Locks are used
+to make the matrix thread-safe against concurrent writes the same value. One lock locks
+out multiple rows of the matrix at a time reprsenting multiple groups in the same cell.  
+
+[1] \"Sparse matrix\", Wikipedia, https://en.wikipedia.org/wiki/Sparse_matrix.  
+
+Parameters
+----------
+* cell_locks :  
+    Omp locks for atomic cell operations  
+* num_x :  
+    The number of cells in the x direction.  
+* num_y :  
+    The number of cells in the y direction.  
+* num_groups :  
+    The number of energy groups in each cell.  
+";
+
+%feature("docstring") Matrix::getDiag "
+getDiag() -> FP_PRECISION *  
+
+Get the diagonal component of the matrix object.  
+
+Returns
+-------
+A pointer to the diagonal component of the matrix object.  
+";
+
+%feature("docstring") Matrix::transpose "
+transpose()  
+
+Transpose the matrix in place.  
+";
+
+%feature("docstring") Matrix::getNumGroups "
+getNumGroups() -> int  
+
+Get the number of groups in each cell.  
+
+Returns
+-------
+The number of groups in each cell.  
+";
+
+%feature("docstring") Matrix::printString "
+printString()  
+
+Print the matrix object to the log file.  
+";
+
+%feature("docstring") Matrix::getILU "
+getILU() -> int *  
+
+Get an array of the row indices (I) component of the CSR form of the lower + upper (LU)
+components of the matrix.  
+
+Returns
+-------
+A pointer to the I component of the CSR form of the LU components of the matrix.  
+";
+
 %feature("docstring") Matrix::getA "
 getA() -> FP_PRECISION *  
 
-Get the A component of the CSR form of the matrix object.  
+Get the full matrix (A) component of the CSR form of the matrix object.  
 
 Returns
 -------
 A pointer to the A component of the CSR form matrix object.  
+";
+
+%feature("docstring") Matrix::getLU "
+getLU() -> FP_PRECISION *  
+
+Get the lower + upper (LU) component of the CSR form of the matrix object.  
+
+Returns
+-------
+A pointer to the lower + upper (LU) component of the CSR form matrix object.  
+";
+
+%feature("docstring") Matrix::getJA "
+getJA() -> int *  
+
+Get an array of the column indices (J) component of the CSR form of the full matrix (A).  
+
+Returns
+-------
+A pointer to the J component of the CSR form of the full matrix (A).  
+";
+
+%feature("docstring") Matrix::getNNZ "
+getNNZ() -> int  
+
+Get the number of non-zero values in the full matrix.  
+
+Returns
+-------
+The number of non-zero values in the full matrix.  
 ";
 
 %feature("docstring") Matrix::incrementValue "
@@ -4684,36 +4855,6 @@ Returns
 The value at the corresponding row/column location.  
 ";
 
-%feature("docstring") Matrix::getDiag "
-getDiag() -> FP_PRECISION *  
-
-Get the diagonal component of the matrix object.  
-
-Returns
--------
-A pointer to the diagonal component of the matrix object.  
-";
-
-%feature("docstring") Matrix::getIA "
-getIA() -> int *  
-
-Get the IA component of the CSR form of the matrix object.  
-
-Returns
--------
-A pointer to the IA component of the CSR form matrix object.  
-";
-
-%feature("docstring") Matrix::getNumGroups "
-getNumGroups() -> int  
-
-Get the number of groups in each cell.  
-
-Returns
--------
-The number of groups in each cell.  
-";
-
 %feature("docstring") Matrix::setValue "
 setValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION val)  
 
@@ -4736,87 +4877,15 @@ Parameters
     The value used to set the row/column location.  
 ";
 
-%feature("docstring") Matrix::Matrix "
-Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
+%feature("docstring") Matrix::getJLU "
+getJLU() -> int *  
 
-Constructor initializes Matrix as a list of lists and sets the matrix dimensions.  The
-matrix object uses a \"lists of lists\" structure (implemented as a map of lists) to allow
-for easy setting and incrementing of the values in the object. When the matrix is needed
-to perform linear algebra operations, it is converted to compressed row storage (CSR)
-form. The matrix is ordered by cell (as opposed to by group) on the outside. Locks are
-used to make the matrix thread-safe against concurrent writes the same value. One lock
-locks out multiple rows of the matrix at a time reprsenting multiple groups in the same
-cell.  
-
-Parameters
-----------
-* cell_locks :  
-    Omp locks for atomic cell operations  
-* num_x :  
-    The number of cells in the x direction.  
-* num_y :  
-    The number of cells in the y direction.  
-* num_groups :  
-    The number of energy groups in each cell.  
-";
-
-%feature("docstring") Matrix::getJA "
-getJA() -> int *  
-
-Get the JA component of the CSR form of the matrix object.  
+Get an array of the column indices (J) component of the CSR form of the lower + upper (LU)
+components of the matrix.  
 
 Returns
 -------
-A pointer to the JA component of the CSR form matrix object.  
-";
-
-%feature("docstring") Matrix::transpose "
-transpose()  
-
-Transpose the matrix in place.  
-";
-
-%feature("docstring") Matrix::clear "
-clear()  
-
-Clear all values in the matrix list of lists.  
-";
-
-%feature("docstring") Matrix::~Matrix "
-~Matrix()  
-
-Destructor clears list of lists and deletes the arrays used to represent the matrix in CSR
-form.  
-";
-
-%feature("docstring") Matrix::getCellLocks "
-getCellLocks() -> omp_lock_t *  
-
-Return the array of cell locks for atomic cell operations.  
-
-Returns
--------
-an array of cell locks  
-";
-
-%feature("docstring") Matrix::getNumX "
-getNumX() -> int  
-
-Get the number of cells in the x dimension.  
-
-Returns
--------
-The number of cells in the x dimension.  
-";
-
-%feature("docstring") Matrix::getNumY "
-getNumY() -> int  
-
-Get the number of cells in the y dimension.  
-
-Returns
--------
-The number of cells in the y dimension.  
+A pointer to the J component of the CSR form of the LU components of the matrix.  
 ";
 
 // File: structFixedHashMap_1_1node.xml
@@ -5995,7 +6064,7 @@ Computes the residual between successive flux/source iterations.
 Parameters
 ----------
 * res_type :  
-    the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+    the residual type (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
 
 Returns
 -------
@@ -6087,7 +6156,7 @@ Parameters
 %feature("docstring") Solver::computeKeff "
 computeKeff()=0  
 
-Compute $ k_{eff} $ from total fission and absorption rates in each FSR and energy group.  
+Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") Solver::getFSRSource "
@@ -6114,7 +6183,7 @@ initializePolarQuadrature()
 
 Initializes a new PolarQuad object.  
 
-Deletes memory old PolarQuad if one was previously allocated.  
+Deletes memory of old PolarQuad if one was previously allocated.  
 ";
 
 %feature("docstring") Solver::scatterTransportSweep "
@@ -7472,6 +7541,12 @@ Finds and returns the maximum optical length amongst all segments.
 Returns
 -------
 the maximum optical path length  
+";
+
+%feature("docstring") TrackGenerator::printTimerReport "
+printTimerReport()  
+
+Prints a report of the timing statistics to the console.  
 ";
 
 %feature("docstring") TrackGenerator::~TrackGenerator "
