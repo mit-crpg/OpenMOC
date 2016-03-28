@@ -2056,7 +2056,7 @@ double TrackGenerator::getPhi(int azim) {
  *        code in the loop over track for ray tracing.
  */
 void TrackGenerator::clearTimerSplits() {
-  _timer->clearSplit("Total time");
+  _timer->clearSplits();
 }
 
 

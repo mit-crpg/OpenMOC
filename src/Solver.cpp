@@ -1088,7 +1088,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
  *        code in the source convergence loop.
  */
 void Solver::clearTimerSplits() {
-  _timer->clearSplit("Total time");
+  _timer->clearSplits();
 }
 
 
