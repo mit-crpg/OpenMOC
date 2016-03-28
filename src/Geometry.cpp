@@ -1020,27 +1020,27 @@ void Geometry::computeFissionability(Universe* univ) {
  *          of how this function might be called in Python is as follows:
  *
  * @code
- *          gridx = numpy.arange(-2., +2., 100)
- *          gridy = numpy.arange(-2., +2., 100)
- *          numxy = 100**2
+ *          grid_x = numpy.arange(-2., +2., 100)
+ *          grid_y = numpy.arange(-2., +2., 100)
+ *          num_xy = 100**2
  *          zcoord = 20.
  *          domain_type = 'material'
  *          domain_ids = geometry.getSpatialDataOnGrid(
- *              gridx, gridy, numxy, zcoord, domain_type)
+ *              grid_x, grid_y, num_xy, zcoord, domain_type)
  * @endcode
  *
- * @param gridx a NumPy array of the x-coordinates
- * @param numx the number of x-coordinates in the grid
- * @param gridy a NumPy array of the y-coordinates
- * @param numy the number of y-coordinates in the grid
+ * @param grid_x a NumPy array of the x-coordinates
+ * @param num_x the number of x-coordinates in the grid
+ * @param grid_y a NumPy array of the y-coordinates
+ * @param num_y the number of y-coordinates in the grid
  * @param domains a NumPy array of the domain IDs
- * @param numxy the number of coordinates in the 2D grid
+ * @param num_xy the number of coordinates in the 2D grid
  * @param zcoord the z-coordinate to use to find the domain IDs
  * @param domain_type the type of domain ('fsr', 'material', 'cell')
  */
-void Geometry::getSpatialDataOnGrid(double* gridx, int numx,
-				    double* gridy, int numy,
-				    int* domains, int numxy,
+void Geometry::getSpatialDataOnGrid(double* grid_x, int num_x,
+				    double* grid_y, int num_y,
+				    int* domains, int num_xy,
 				    double zcoord, const char* domain_type) {
 
   LocalCoords* point;
@@ -1050,16 +1050,16 @@ void Geometry::getSpatialDataOnGrid(double* gridx, int numx,
   if (strcmp(domain_type, "fsr") == 0) {
 
 #pragma omp parallel for private(point, cell)
-    for (int i=0; i < numx; i++) {
-      for (int j=0; j < numy; j++) {
+    for (int i=0; i < num_x; i++) {
+      for (int j=0; j < num_y; j++) {
 
 	/* Find the Cell containing this point */
-	point = new LocalCoords(gridx[i], gridy[j], zcoord);
+	point = new LocalCoords(grid_x[i], grid_y[j], zcoord);
 	point->setUniverse(_root_universe);
 	cell = findCellContainingCoords(point);
 
 	/* Extract the ID of the domain of interest */
-	domains[i+j*numx] = getFSRId(point);
+	domains[i+j*num_x] = getFSRId(point);
 
 	/* Deallocate memory for LocalCoords */
 	point = point->getHighestLevel();
@@ -1072,16 +1072,16 @@ void Geometry::getSpatialDataOnGrid(double* gridx, int numx,
   else if (strcmp(domain_type, "material") == 0) {
 
 #pragma omp parallel for private(point, cell)
-    for (int i=0; i < numx; i++) {
-      for (int j=0; j < numy; j++) {
+    for (int i=0; i < num_x; i++) {
+      for (int j=0; j < num_y; j++) {
 
 	/* Find the Cell containing this point */
-	point = new LocalCoords(gridx[i], gridy[j], zcoord);
+	point = new LocalCoords(grid_x[i], grid_y[j], zcoord);
 	point->setUniverse(_root_universe);
 	cell = findCellContainingCoords(point);
 
 	/* Extract the ID of the domain of interest */
-	domains[i+j*numx] = cell->getFillMaterial()->getId();
+	domains[i+j*num_x] = cell->getFillMaterial()->getId();
 
 	/* Deallocate memory for LocalCoords */
 	point = point->getHighestLevel();
@@ -1094,16 +1094,16 @@ void Geometry::getSpatialDataOnGrid(double* gridx, int numx,
   else if (strcmp(domain_type, "cell") == 0) {
 
 #pragma omp parallel for private(point, cell)
-    for (int i=0; i < numx; i++) {
-      for (int j=0; j < numy; j++) {
+    for (int i=0; i < num_x; i++) {
+      for (int j=0; j < num_y; j++) {
 
 	/* Find the Cell containing this point */
-	point = new LocalCoords(gridx[i], gridy[j], zcoord);
+	point = new LocalCoords(grid_x[i], grid_y[j], zcoord);
 	point->setUniverse(_root_universe);
 	cell = findCellContainingCoords(point);
 
 	/* Extract the ID of the domain of interest */
-	domains[i+j*numx] = cell->getId();
+	domains[i+j*num_x] = cell->getId();
 
 	/* Deallocate memory for LocalCoords */
 	point = point->getHighestLevel();

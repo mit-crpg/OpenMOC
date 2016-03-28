@@ -171,8 +171,9 @@ public:
   void segmentize(Track* track);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
-  void getSpatialDataOnGrid(double* gridx, int numx, double* gridy, int numy,
-			    int* domains, int numxy, double zcoord,
+  void getSpatialDataOnGrid(double* grid_x, int num_x,
+			    double* grid_y, int num_y,
+			    int* domains, int num_xy, double zcoord,
 			    const char* domain_type="material");
 
   std::string toString();
