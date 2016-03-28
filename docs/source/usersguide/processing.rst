@@ -25,8 +25,8 @@ OpenMOC's ``openmoc.process`` module provides the ``store_simulation_state(...)`
 Parameter          Type                Default               Optional    Note
 =================  ==================  ====================  ==========  ====================================
 ``solver``         ``Solver`` object   None                  No
-``fluxes``         boolean             False                 Yes         Whether to store the FSR fluxes
-``sources``        boolean             False                 Yes         Whether to store the FSR sources
+``fluxes``         boolean             False                 Yes         Whether to store the SR fluxes
+``sources``        boolean             False                 Yes         Whether to store the SR sources
 ``fission_rates``  boolean             False                 Yes         Whether to store the fission rates
 ``use_hdf5``       boolean             False (pickle file)   Yes         Whether to use HDF5_
 ``filename``       string              'simulation-state'    Yes         The filename for storage
@@ -43,7 +43,7 @@ Parameter          Type                Default               Optional    Note
 Output Variable            Type            Note
 =========================  ==============  =========================================
 solver type                string          'CPUSolver', 'GPUSolver', etc.
-# FSRs                     integer
+# SRs                      integer
 # materials                integer
 # energy groups            integer
 # tracks                   integer
@@ -61,8 +61,8 @@ keff                       float
 note                       string          If requested by user
 # threads                  integer         For solvers on multi-core CPUs
 # threads per block        integer         For solvers on GPUs
-FSR scalar fluxes          float array     If requested by user
-FSR sources                float array     If requested by user
+SR scalar fluxes           float array     If requested by user
+SR sources                 float array     If requested by user
 fission rates              float array(s)  If requested by user
 =========================  ==============  =========================================
 
@@ -133,7 +133,7 @@ Property                  Type                 Default     Note
 
 **Table 4**: The ``Mesh`` class property attributes for tallying reaction rates.
 
-.. note:: The ``Mesh`` is assumed to be perfectly coincident with the FSR mesh used in the OpenMOC calculation.
+.. note:: The ``Mesh`` is assumed to be perfectly coincident with the SR mesh used in the OpenMOC calculation.
 
 The ``Mesh.tally_fission_rates(...)`` class method is designed to compute fission rates using the ``'fission'`` cross section in each ``Material`` in a simulation. The parameters accepted by this method are described in :ref:`Table 5 <table_mesh_fiss_rates>`.
 
@@ -148,7 +148,7 @@ Parameter      Type         Default         Optional
 
 **Table 5**: Parameters for the ``Mesh.tally_fission_rates(...)`` method.
 
-The code snippet below illustrates how one may compute a mesh fission rate tally for the :file:`/OpenMOC/sample-input/simple-lattice.py` file. The fission rates are returned as a ``numpy.ndarray`` indexed by FSR.
+The code snippet below illustrates how one may compute a mesh fission rate tally for the :file:`/OpenMOC/sample-input/simple-lattice.py` file. The fission rates are returned as a ``numpy.ndarray`` indexed by SR.
 
 .. code-block:: python
 
@@ -169,7 +169,7 @@ The code snippet below illustrates how one may compute a mesh fission rate tally
 
 .. note:: The ``'fission'`` cross section must be supplied to each ``Material`` to compute fission rates even though it is *not* needed to perform a simulation.
 
-The ``Mesh.tally_on_mesh(...)`` class method is designed to compute reaction rates more generally from a user-specified mapping of coefficients (*e.g.*, cross sections) to each material, cell or FSR.  The parameters accepted by this method are described in :ref:`Table 6 <table_mesh_rxn_rates>`.
+The ``Mesh.tally_on_mesh(...)`` class method is designed to compute reaction rates more generally from a user-specified mapping of coefficients (*e.g.*, cross sections) to each material, cell or SR.  The parameters accepted by this method are described in :ref:`Table 6 <table_mesh_rxn_rates>`.
 
 .. _table_mesh_rxn_rates:
 
@@ -178,14 +178,14 @@ Parameter               Type         Default         Optional
 ======================  ===========  ==============  ========
 ``solver``              ``Solver``   None            No
 ``domains_to_coeffs``   ``dict``     None            No
-``domain_type``         string       'fsr'           Yes
+``domain_type``         string       'sr'            Yes
 ``volume``              string       'integrated'    Yes
 ``energy``              string       'integrated'    Yes
 ======================  ===========  ==============  ========
 
 **Table 6**: Parameters for the ``Mesh.tally_on_mesh(...)`` method.
 
-The code snippet below illustrates how one may compile the groupwise coefficients (total cross sections) for each ``Material`` in a Python ``dict`` to supply to ``Mesh.tally_on_mesh(...)`` to compute a total reaction rate tally for the :file:`/OpenMOC/sample-input/simple-lattice.py` file. The reaction rates are returned as a ``numpy.ndarray`` indexed by FSR.
+The code snippet below illustrates how one may compile the groupwise coefficients (total cross sections) for each ``Material`` in a Python ``dict`` to supply to ``Mesh.tally_on_mesh(...)`` to compute a total reaction rate tally for the :file:`/OpenMOC/sample-input/simple-lattice.py` file. The reaction rates are returned as a ``numpy.ndarray`` indexed by SR.
 
 .. code-block:: python
 
@@ -215,7 +215,7 @@ The code snippet below illustrates how one may compile the groupwise coefficient
 Fission Rates by Universe Level
 -------------------------------
 
-The ``compute_fission_rates(...)`` routine in the ``openmoc.process`` module  computes the fission rate for each ``Universe`` in the ``Geometry`` by summing up the fission rates in each ``Cell`` in the ``Universe``. In most cases, a ``Universe`` is replicated in many places throughout the ``Geometry``. To account for this, the routine will separately compute the fission rates for each unique placement of that ``Universe`` in the ``Geometry``. By default, the fission rates will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5_ binary file. Each fission rate will be indexed by a string representing the "path" of ``Universes``, ``Lattices`` and ``Lattice`` cell indices traversed through the ``Geometry`` to reach the flat source region of interest. :ref:`Table 7 <table_fission_rates>` describes the parameters accepted by the routine.
+The ``compute_fission_rates(...)`` routine in the ``openmoc.process`` module  computes the fission rate for each ``Universe`` in the ``Geometry`` by summing up the fission rates in each ``Cell`` in the ``Universe``. In most cases, a ``Universe`` is replicated in many places throughout the ``Geometry``. To account for this, the routine will separately compute the fission rates for each unique placement of that ``Universe`` in the ``Geometry``. By default, the fission rates will be exported to a Python pickle_ file, but may alternatively be exported to an HDF5_ binary file. Each fission rate will be indexed by a string representing the "path" of ``Universes``, ``Lattices`` and ``Lattice`` cell indices traversed through the ``Geometry`` to reach the source region of interest. :ref:`Table 7 <table_fission_rates>` describes the parameters accepted by the routine.
 
 .. _table_fission_rates:
 
@@ -237,7 +237,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Setup and run simulation
     ...
 
-    # Compute and export the flat source region fission rates
+    # Compute and export the source region fission rates
     openmoc.process.compute_fission_rates(solver, use_hdf5=True)
 
 .. note:: The fission rates are computed for each nested universe level in the hierarchical geometry model.
@@ -293,7 +293,7 @@ A depiction of the tracks for the :file:`/OpenMOC/sample-input/simple-lattice.py
 Plotting Segments
 -----------------
 
-To plot the segments crossing the geometry color-coded by flat source region, use the ``plot_segments(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 9 <table_plot_segments>`.
+To plot the segments crossing the geometry color-coded by source region, use the ``plot_segments(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 9 <table_plot_segments>`.
 
 .. _table_plot_segments:
 
@@ -329,7 +329,7 @@ A depiction of the segments for the :file:`/OpenMOC/sample-input/simple-lattice.
    **Figure 2**: The segments crossing a a 4 :math:`\times` 4 lattice.
 
 .. warning:: This routine will require a long time for large geometries or fine track discretization. In addition, Matplotlib consumes a substantial amount of memory to plot the segments and may throw a `segmentation fault`_ for large geometries.
-.. note:: The runtime required by the plotting routine scales with the number of segments, which is proportional to the number of flat source regions and number of azimuthal angles and inversely proportional the track spacing.
+.. note:: The runtime required by the plotting routine scales with the number of segments, which is proportional to the number of source regions and number of azimuthal angles and inversely proportional the track spacing.
 
 
 Plotting by Material
@@ -425,10 +425,10 @@ A depiction of the cells for the :file:`/OpenMOC/sample-input/simple-lattice.py`
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
 
 
-Plotting by FSR
----------------
+Plotting by SR
+--------------
 
-To plot the geometry color-coded by the flat source region ID's throughout the geometry, use the ``plot_flat_source_regions(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 12 <table_plot_fsrs>`.
+To plot the geometry color-coded by the source region ID's throughout the geometry, use the ``plot_source_regions(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 12 <table_plot_fsrs>`.
 
 .. _table_plot_fsrs:
 
@@ -439,14 +439,14 @@ Parameter          Type             Default        Optional   Note
 ``gridsize``       integer          250            Yes        The pixel resolution
 ``xlim``           2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``           2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
-``centroids``      boolean          False          Yes        Whether to plot the FSR centroids
-``marker_type``    string           ``'o'``        Yes        The marker type to use for FSR centroids
-``marker_size``    integer          2              Yes        The marker size to use for FSR centroids
+``centroids``      boolean          False          Yes        Whether to plot the SR centroids
+``marker_type``    string           ``'o'``        Yes        The marker type to use for SR centroids
+``marker_size``    integer          2              Yes        The marker size to use for SR centroids
 ``get_figure``     boolean          False          Yes        Whether to return the Matplotlib ``Figure``
 ``library``        string           'matplotlib'   Yes        The plotting library to use ('matplotlib' or 'pil')
 =================  ===============  =============  =========  ========================================================
 
-**Table 12**: Parameters for the ``openmoc.plotter.plot_flat_source_regions(...)`` routine.
+**Table 12**: Parameters for the ``openmoc.plotter.plot_source_regions(...)`` routine.
 
 The code snippet below illustrates one possible configuration of parameters to the routine.
 
@@ -457,10 +457,10 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Setup geometry
     ...
 
-    # Plot a 500 x 500 pixel image of the flat source regions
-    openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500)
+    # Plot a 500 x 500 pixel image of the source regions
+    openmoc.plotter.plot_source_regions(geometry, gridsize=500)
 
-A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/simple-lattice.py` example input file is illustrated in :ref:`Figure 5 <figure_flat_source_regions>`.
+A depiction of the source regions for the :file:`/OpenMOC/sample-input/simple-lattice.py` example input file is illustrated in :ref:`Figure 5 <figure_flat_source_regions>`.
 
 .. _figure_flat_source_regions:
 
@@ -469,7 +469,7 @@ A depiction of the flat source regions for the :file:`/OpenMOC/sample-input/simp
    :figclass: align-center
    :width: 400px
 
-   **Figure 5**: A 4 :math:`\times` 4 lattice color-coded by flat source region.
+   **Figure 5**: A 4 :math:`\times` 4 lattice color-coded by source region.
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
 
@@ -506,7 +506,7 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Plot a 500 x 500 pixel image of the CMFD cells
     openmoc.plotter.plot_cmfd_cells(geometry, cmfd, gridsize=500)
 
-A depiction of the flat source regions and CMFD cells for the :file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7-cmfd.py` example input file is illustrated in :ref:`Figure 6 <figure_cmfd_cells>`.
+A depiction of the source regions and CMFD cells for the :file:`/OpenMOC/sample-input/benchmarks/c5g7/c5g7-cmfd.py` example input file is illustrated in :ref:`Figure 6 <figure_cmfd_cells>`.
 
 .. _figure_cmfd_cells:
 
@@ -520,7 +520,7 @@ A depiction of the flat source regions and CMFD cells for the :file:`/OpenMOC/sa
    |   :align: center                         |   :align: center                            |
    +------------------------------------------+---------------------------------------------+
 
-**Figure 6**: The flat source regions and CMFD cells for the C5G7 benchmark problem.
+**Figure 6**: The source regions and CMFD cells for the C5G7 benchmark problem.
 
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
@@ -535,7 +535,7 @@ The ``openmoc.plotter`` module includes routines to plot the scalar flux in spac
 Flux in Space
 -------------
 
-To plot the flat source region scalar fluxes in space, use the ``plot_spatial_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 14 <table_plot_fluxes_space>`.
+To plot the source region scalar fluxes in space, use the ``plot_spatial_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 14 <table_plot_fluxes_space>`.
 
 .. _table_plot_fluxes_space:
 
@@ -592,7 +592,7 @@ A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (:file:`/OpenMOC/
 Flux in Energy
 --------------
 
-To plot the flux in energy for one or more flat source regions, use the ``plot_energy_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 15 <table_plot_fluxes_energy>`.
+To plot the flux in energy for one or more source regions, use the ``plot_energy_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 15 <table_plot_fluxes_energy>`.
 
 .. _table_plot_fluxes_energy:
 
@@ -600,7 +600,7 @@ To plot the flux in energy for one or more flat source regions, use the ``plot_e
 Parameter          Type                 Default    Optional   Note
 =================  ===================  =========  =========  ============================================
 ``solver``         ``Solver`` object    None       No         The ``Solver`` used to converge the source
-``fsrs``           list                 None       No         The flat source region IDs of interest
+``srs``            list                 None       No         The source region IDs of interest
 ``group_bounds``   list                 None       Yes        The sequential bounds for each energy group
 ``norm``           boolean              True       Yes        Whether to normalize the flux across energy
 ``loglog``         boolean              True       Yes        Whether to use a log-log plotting scale
@@ -621,8 +621,8 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Setup solver and converge the source
     ...
 
-    # Plot the fluxes vs. energy for flat source regions 0 and 1
-    openmoc.plotter.plot_energy_fluxes(solver, fsrs=[0,1])
+    # Plot the fluxes vs. energy for source regions 0 and 1
+    openmoc.plotter.plot_energy_fluxes(solver, srs=[0,1])
 
 A depiction of the normalized 7-group fluxes for the sample pin cell problem (:file:`/OpenMOC/sample-input/pin-cell/pin-cell.py`) is illustrated in :ref:`Figure 8 <figure_energy_fluxes>`.
 
@@ -645,7 +645,7 @@ A depiction of the normalized 7-group fluxes for the sample pin cell problem (:f
 Fission Rate Visualization
 --------------------------
 
-The ``openmoc.plotter`` module includes routines to plot the energy-integrated fission rates in each flat source region. To plot the fission rates, use the ``plot_fission_rates(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 16 <table_plot_fission_rates>`.
+The ``openmoc.plotter`` module includes routines to plot the energy-integrated fission rates in each source region. To plot the fission rates, use the ``plot_fission_rates(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 16 <table_plot_fission_rates>`.
 
 .. _table_plot_fission_rates:
 
@@ -654,7 +654,7 @@ Parameter               Type                 Default        Optional   Note
 ======================  ===================  =============  =========  =====================================================
 ``solver``              ``Solver``           None           No         The ``Solver`` used to converge the source
 ``norm``                boolean              False          Yes        Whether to normalize fluxes to the mean
-``transparent_zeros``   boolean              True           Yes        Whether to make all non-fissionable FSRs transparent
+``transparent_zeros``   boolean              True           Yes        Whether to make all non-fissionable SRs transparent
 ``gridsize``            integer              250            Yes        The pixel resolution
 ``xlim``                2-tuple              None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``                2-tuple              None           Yes        The min/max :math:`y`-coordinates to plot
@@ -676,10 +676,10 @@ The code snippet below illustrates one possible configuration of parameters to t
     # Setup solver and converge the source
     ...
 
-    # Plot the fission rates in each FSR in a 500 x 500 pixel image
+    # Plot the fission rates in each SR in a 500 x 500 pixel image
     openmoc.plotter.plot_fission_rates(solver, gridsize=500)
 
-A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7`) is illustrated in :ref:`Figure 9 <figure_fission_rates>`.
+A depiction of the energy-integrated SR fission rates for the C5G7 benchmark (:file:`/OpenMOC/sample-input/benchmarks/c5g7`) is illustrated in :ref:`Figure 9 <figure_fission_rates>`.
 
 .. _figure_fission_rates:
 
@@ -688,7 +688,7 @@ A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (:
    :figclass: align-center
    :width: 400px
 
-**Figure 9**: The energy-integrated FSR fission rates in the C5G7 benchmark problem.
+**Figure 9**: The energy-integrated SR fission rates in the C5G7 benchmark problem.
 
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
@@ -698,7 +698,7 @@ A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (:
 Generalized Spatial Visualization
 ---------------------------------
 
-The ``openmoc.plotter`` module includes a generalized method to plot spatially-varying indexed by ``Material``, ``Cell``, or FSR. For general spatial plotting, use the ``plot_spatial_data(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 17 <table_general_plotting>`.
+The ``openmoc.plotter`` module includes a generalized method to plot spatially-varying indexed by ``Material``, ``Cell``, or SR. For general spatial plotting, use the ``plot_spatial_data(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 17 <table_general_plotting>`.
 
 .. _table_general_plotting:
 
@@ -720,7 +720,7 @@ Parameter               Type                                                   D
 Property                  Type                      Default                 Note
 ========================  ========================  ======================  ==========================================================
 ``geometry``              ``Geometry``              None                    The Geometry to query when generating the spatial map
-``domain_type``           string                    'fsr'                   The domain type used to map spatial data to the geometry
+``domain_type``           string                    'sr'                    The domain type used to map spatial data to the geometry
 ``filename``              string                    None                    The filename string
 ``extension``             string                    '.png'                  The image file extension (e.g., '.png')
 ``library``               string                    'matplotlib'            The plotting library to use ('matplotlib' or 'pil')
@@ -741,7 +741,7 @@ Property                  Type                      Default                 Note
 
 **Table 18**: The ``PlotParams`` class property attributes for plot customization.
 
-The generalied spatial plotter may be applied in a myriad of ways to create spatial plots of the geometry with user-defined data mapped to materials, cells or FSRs. The following code snippet illustrates the generation of three plots for three columns of randomized data mapped by FSR in a Pandas_ ``DataFrame``:
+The generalied spatial plotter may be applied in a myriad of ways to create spatial plots of the geometry with user-defined data mapped to materials, cells or SRs. The following code snippet illustrates the generation of three plots for three columns of randomized data mapped by SR in a Pandas_ ``DataFrame``:
 
 .. code-block:: python
 
@@ -749,8 +749,8 @@ The generalied spatial plotter may be applied in a myriad of ways to create spat
     import pandas as pd
 
     # Initialize a Pandas DataFrame with normally distributed random data
-    num_fsrs = geometry.getNumFSRs()
-    df = pd.DataFrame(np.random.randn(num_fsrs,3), columns=list('ABC'))
+    num_srs = geometry.getNumSRs()
+    df = pd.DataFrame(np.random.randn(num_srs,3), columns=list('ABC'))
 
     # Initialize a PlotParams object
     plot_params = openmoc.plotter.PlotParams()

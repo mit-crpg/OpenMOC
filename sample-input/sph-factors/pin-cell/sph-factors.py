@@ -93,27 +93,27 @@ fluxes_sph = openmoc.process.get_scalar_fluxes(solver)
 fluxes_sph *= sph
 
 # Extract the OpenMC scalar fluxes
-num_fsrs = openmoc_geometry.getNumFSRs()
+num_srs = openmoc_geometry.getNumSRs()
 num_groups = openmoc_geometry.getNumEnergyGroups()
-openmc_fluxes = np.zeros((num_fsrs, num_groups), dtype=np.float64)
+openmc_fluxes = np.zeros((num_srs, num_groups), dtype=np.float64)
 
-# Get the OpenMC flux in each FSR
-for fsr in range(num_fsrs):
+# Get the OpenMC flux in each SR
+for sr in range(num_srs):
 
-    # Find the OpenMOC cell and volume for this FSR
-    openmoc_cell = openmoc_geometry.findCellContainingFSR(fsr)
+    # Find the OpenMOC cell and volume for this SR
+    openmoc_cell = openmoc_geometry.findCellContainingSR(sr)
     cell_id = openmoc_cell.getId()
-    fsr_volume = track_generator.getFSRVolume(fsr)
+    sr_volume = track_generator.getSRVolume(sr)
 
     # Store the volume-averaged flux
     mgxs = mgxs_lib.get_mgxs(cell_id, 'nu-fission')
     flux = mgxs.tallies['flux'].mean.flatten()
-    flux = np.flipud(flux) / fsr_volume
-    openmc_fluxes[fsr, :] = flux
+    flux = np.flipud(flux) / sr_volume
+    openmc_fluxes[sr, :] = flux
 
 # Extract energy group edges
 group_edges = mgxs_lib.energy_groups.group_edges
-group_edges *= 1e6      # Convert to units of eV 
+group_edges *= 1e6      # Convert to units of eV
 group_edges += 1e-5     # Adjust lower bound to 1e-3 eV (for loglog scaling)
 
 # Compute difference in energy bounds for each group
@@ -136,20 +136,20 @@ openmc_fluxes = np.insert(openmc_fluxes, 0, openmc_fluxes[:,0], axis=1)
 fluxes_no_sph = np.insert(fluxes_no_sph, 0, fluxes_no_sph[:,0], axis=1)
 fluxes_sph = np.insert(fluxes_sph, 0, fluxes_sph[:,0], axis=1)
 
-# Plot OpenMOC and OpenMC fluxes in each FSR
-for fsr in range(num_fsrs):
+# Plot OpenMOC and OpenMC fluxes in each SR
+for sr in range(num_srs):
 
-    # Get the OpenMOC cell and material for this FSR
-    cell = openmoc_geometry.findCellContainingFSR(fsr)
+    # Get the OpenMOC cell and material for this SR
+    cell = openmoc_geometry.findCellContainingSR(sr)
     material_name = cell.getFillMaterial().getName()
 
     # Create a step plot for the MGXS
     fig = plt.figure()
-    plt.plot(group_edges, openmc_fluxes[fsr,:],
+    plt.plot(group_edges, openmc_fluxes[sr,:],
              drawstyle='steps', color='r', linewidth=2)
-    plt.plot(group_edges, fluxes_no_sph[fsr,:], 
+    plt.plot(group_edges, fluxes_no_sph[sr,:],
              drawstyle='steps', color='b', linewidth=2)
-    plt.plot(group_edges, fluxes_sph[fsr,:], 
+    plt.plot(group_edges, fluxes_sph[sr,:],
              drawstyle='steps', color='g', linewidth=2)
 
     plt.yscale('log')
@@ -173,25 +173,25 @@ for fsr in range(num_fsrs):
 rel_err_no_sph = np.zeros(openmc_fluxes.shape)
 rel_err_sph = np.zeros(openmc_fluxes.shape)
 
-for fsr in range(num_fsrs):
-    delta_flux_no_sph = fluxes_no_sph[fsr,:] - openmc_fluxes[fsr,:]
-    delta_flux_sph = fluxes_sph[fsr,:] - openmc_fluxes[fsr,:]
-    rel_err_no_sph[fsr,:] = delta_flux_no_sph / openmc_fluxes[fsr,:] * 100.
-    rel_err_sph[fsr,:] = delta_flux_sph / openmc_fluxes[fsr,:] * 100.
+for sr in range(num_srs):
+    delta_flux_no_sph = fluxes_no_sph[sr,:] - openmc_fluxes[sr,:]
+    delta_flux_sph = fluxes_sph[sr,:] - openmc_fluxes[sr,:]
+    rel_err_no_sph[sr,:] = delta_flux_no_sph / openmc_fluxes[sr,:] * 100.
+    rel_err_sph[sr,:] = delta_flux_sph / openmc_fluxes[sr,:] * 100.
 
-# Plot OpenMOC relative flux errors in each FSR
-for fsr in range(num_fsrs):
+# Plot OpenMOC relative flux errors in each SR
+for sr in range(num_srs):
 
-    # Get the OpenMOC cell and material for this FSR
-    cell = openmoc_geometry.findCellContainingFSR(fsr)
+    # Get the OpenMOC cell and material for this SR
+    cell = openmoc_geometry.findCellContainingSR(sr)
     material_name = cell.getFillMaterial().getName()
 
 
     # Create a step plot for the MGXS
     fig = plt.figure()
-    plt.plot(group_edges, rel_err_no_sph[fsr,:],
+    plt.plot(group_edges, rel_err_no_sph[sr,:],
              drawstyle='steps', color='r', linewidth=2)
-    plt.plot(group_edges, rel_err_sph[fsr,:], 
+    plt.plot(group_edges, rel_err_sph[sr,:],
              drawstyle='steps', color='b', linewidth=2)
 
     plt.xscale('log')

@@ -25,7 +25,7 @@ Cmfd::Cmfd() {
   _centroid_update_on = true;
   _k_nearest = 3;
   _SOR_factor = 1.0;
-  _num_FSRs = 0;
+  _num_SRs = 0;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -113,11 +113,11 @@ Cmfd::~Cmfd() {
   if (_lattice != NULL)
     delete _lattice;
 
-  /* Clear the _cell_fsrs vector of vectors */
+  /* Clear the _cell_srs vector of vectors */
   std::vector< std::vector<int> >::iterator iter1;
-  for (iter1 = _cell_fsrs.begin(); iter1 != _cell_fsrs.end(); ++iter1)
+  for (iter1 = _cell_srs.begin(); iter1 != _cell_srs.end(); ++iter1)
     iter1->clear();
-  _cell_fsrs.clear();
+  _cell_srs.clear();
 
   /* Clear the _k_nearest_stencils map of vectors */
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >::iterator iter2;
@@ -205,7 +205,7 @@ void Cmfd::setWidthY(double width) {
  *        energy condensing and volume averaging cross sections from
  *        the MOC sweep.
  * @details This method performs a cell-wise energy condensation and volume
- *          average of the cross sections of the fine, unstructured FSR mesh.
+ *          average of the cross sections of the fine, unstructured SR mesh.
  *          The cross sections are condensed such that all reaction rates and
  *          the neutron production rate from fission are conserved. It is
  *          important to note that the volume averaging is performed before
@@ -222,7 +222,7 @@ void Cmfd::collapseXS() {
 #pragma omp parallel
   {
 
-    /* Initialize variables for FSR properties*/
+    /* Initialize variables for SR properties*/
     FP_PRECISION volume, flux, tot, nu_fis, chi;
     FP_PRECISION* scat;
 
@@ -233,7 +233,7 @@ void Cmfd::collapseXS() {
     FP_PRECISION chi_tally[_num_cmfd_groups];
 
     /* Pointers to material objects */
-    Material* fsr_material;
+    Material* sr_material;
     Material* cell_material;
 
     /* Loop over cmfd cells */
@@ -259,12 +259,12 @@ void Cmfd::collapseXS() {
           chi_tally[g] = 0.0;
         }
 
-        /* Loop over FSRs in cmfd cell to compute chi */
-        for (iter = _cell_fsrs.at(i).begin();
-             iter != _cell_fsrs.at(i).end(); ++iter) {
+        /* Loop over SRs in cmfd cell to compute chi */
+        for (iter = _cell_srs.at(i).begin();
+             iter != _cell_srs.at(i).end(); ++iter) {
 
-          fsr_material = _FSR_materials[*iter];
-          volume = _FSR_volumes[*iter];
+          sr_material = _SR_materials[*iter];
+          volume = _SR_volumes[*iter];
 
           /* Chi tallies */
           for (int b = 0; b < _num_cmfd_groups; b++) {
@@ -272,13 +272,13 @@ void Cmfd::collapseXS() {
 
             /* Compute the chi for group b */
             for (int h = _group_indices[b]; h < _group_indices[b + 1]; h++)
-              chi += fsr_material->getChiByGroup(h+1);
+              chi += sr_material->getChiByGroup(h+1);
 
             for (int h = 0; h < _num_moc_groups; h++) {
-              chi_tally[b] += chi * fsr_material->getNuSigmaFByGroup(h+1) *
-                  _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-              neut_prod_tally += chi * fsr_material->getNuSigmaFByGroup(h+1) *
-                  _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
+              chi_tally[b] += chi * sr_material->getNuSigmaFByGroup(h+1) *
+                  _SR_fluxes[(*iter)*_num_moc_groups+h] * volume;
+              neut_prod_tally += chi * sr_material->getNuSigmaFByGroup(h+1) *
+                  _SR_fluxes[(*iter)*_num_moc_groups+h] * volume;
             }
           }
         }
@@ -289,17 +289,17 @@ void Cmfd::collapseXS() {
           /* Reset volume tally for this MOC group */
           vol_tally = 0.0;
 
-          /* Loop over FSRs in cmfd cell */
-          for (iter = _cell_fsrs.at(i).begin();
-               iter != _cell_fsrs.at(i).end(); ++iter) {
+          /* Loop over SRs in cmfd cell */
+          for (iter = _cell_srs.at(i).begin();
+               iter != _cell_srs.at(i).end(); ++iter) {
 
-            /* Gets FSR volume, material, and cross sections */
-            fsr_material = _FSR_materials[*iter];
-            volume = _FSR_volumes[*iter];
-            scat = fsr_material->getSigmaS();
-            flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
-            tot = fsr_material->getSigmaTByGroup(h+1);
-            nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
+            /* Gets SR volume, material, and cross sections */
+            sr_material = _SR_materials[*iter];
+            volume = _SR_volumes[*iter];
+            scat = sr_material->getSigmaS();
+            flux = _SR_fluxes[(*iter)*_num_moc_groups+h];
+            tot = sr_material->getSigmaTByGroup(h+1);
+            nu_fis = sr_material->getNuSigmaFByGroup(h+1);
 
             /* Increment tallies for this group */
             tot_tally += tot * flux * volume;
@@ -343,7 +343,7 @@ void Cmfd::collapseXS() {
  *        energy group.
  * @details This method computes the diffusion coefficient for a cmfd cell and
  *          cmfd energy group by spatially collapsing the total/transport xs
- *          in each FSR contained within the cmfd cell and then energy
+ *          in each SR contained within the cmfd cell and then energy
  *          collapsing the diffusion coefficient (\f$1 / (3 * \Sigma_t)\f$) for
  *          all MOC groups in the given cmfd energy group.
  * @param cmfd_cell A Cmfd cell
@@ -353,7 +353,7 @@ void Cmfd::collapseXS() {
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
 
   /* Pointers to material objects */
-  Material* fsr_material;
+  Material* sr_material;
   Material* cell_material = _materials[cmfd_cell];
   std::vector<int>::iterator iter;
 
@@ -370,14 +370,14 @@ FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
     trans_tally_group = 0.0;
     rxn_tally_group = 0.0;
 
-    /* Loop over FSRs in cmfd cell */
-    for (iter = _cell_fsrs.at(cmfd_cell).begin();
-         iter != _cell_fsrs.at(cmfd_cell).end(); ++iter) {
+    /* Loop over SRs in cmfd cell */
+    for (iter = _cell_srs.at(cmfd_cell).begin();
+         iter != _cell_srs.at(cmfd_cell).end(); ++iter) {
 
-      fsr_material = _FSR_materials[*iter];
-      volume = _FSR_volumes[*iter];
-      flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
-      tot = fsr_material->getSigmaTByGroup(h+1);
+      sr_material = _SR_materials[*iter];
+      volume = _SR_volumes[*iter];
+      flux = _SR_fluxes[(*iter)*_num_moc_groups+h];
+      tot = sr_material->getSigmaTByGroup(h+1);
 
       /* Increment tallies for this group */
       rxn_tally += flux * volume;
@@ -669,10 +669,10 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
 
 /**
- * @brief Update the MOC flux in each FSR.
+ * @brief Update the MOC flux in each SR.
  * @details This method uses the condensed flux from the last MOC transport
  *          sweep and the converged flux from the eigenvalue problem to
- *          update the MOC flux in each FSR.
+ *          update the MOC flux in each SR.
  */
 void Cmfd::updateMOCFlux() {
 
@@ -696,18 +696,18 @@ void Cmfd::updateMOCFlux() {
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Loop over FRSs in mesh cell */
-      for (iter = _cell_fsrs.at(i).begin();
-           iter != _cell_fsrs.at(i).end(); ++iter) {
+      for (iter = _cell_srs.at(i).begin();
+           iter != _cell_srs.at(i).end(); ++iter) {
 
         FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
 
         for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
-          /* Update FSR flux using ratio of old and new CMFD flux */
-          _FSR_fluxes[*iter*_num_moc_groups + h] = update_ratio
-            * _FSR_fluxes[*iter*_num_moc_groups + h];
+          /* Update SR flux using ratio of old and new CMFD flux */
+          _SR_fluxes[*iter*_num_moc_groups + h] = update_ratio
+            * _SR_fluxes[*iter*_num_moc_groups + h];
 
-          log_printf(DEBUG, "Updating flux in FSR: %d, cell: %d, MOC group: "
+          log_printf(DEBUG, "Updating flux in SR: %d, cell: %d, MOC group: "
             "%d, CMFD group: %d, ratio: %f", *iter ,i, h, e, update_ratio);
         }
       }
@@ -729,7 +729,7 @@ void Cmfd::updateMOCFlux() {
  *          to preserve reaction rates and surface net currents for any choice
  *          of diffusion coefficient, convergence (and convergence rate) of the
  *          nonlinear iteration acceleration of CMFD is affected by the choice
- *          of diffusion coefficient. All flat source methods, when applied for
+ *          of diffusion coefficient. All source methods, when applied for
  *          thick optical meshes, artificially distribute neutrons in space.
  *          This is the reason that Larsen’s effective diffusion coefficient is
  *          useful in assuring that the CMFD acceleration equations have a
@@ -773,29 +773,29 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
 
 
 /**
- * @brief Set the FSR materials array pointer.
- * @param FSR_materials Pointer to FSR_materials array
+ * @brief Set the SR materials array pointer.
+ * @param SR_materials Pointer to SR_materials array
  */
-void Cmfd::setFSRMaterials(Material** FSR_materials) {
-  _FSR_materials = FSR_materials;
+void Cmfd::setSRMaterials(Material** SR_materials) {
+  _SR_materials = SR_materials;
 }
 
 
 /**
- * @brief Set the pointer to the array of FSR_volumes.
- * @param FSR_volumes Array of FSR volumes
+ * @brief Set the pointer to the array of SR_volumes.
+ * @param SR_volumes Array of SR volumes
  */
-void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
-  _FSR_volumes = FSR_volumes;
+void Cmfd::setSRVolumes(FP_PRECISION* SR_volumes) {
+  _SR_volumes = SR_volumes;
 }
 
 
 /**
- * @brief Set pointer to FSR flux array.
- * @param scalar_flux Pointer to FSR flux array
+ * @brief Set pointer to SR flux array.
+ * @param scalar_flux Pointer to SR flux array
  */
-void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
-  _FSR_fluxes = scalar_flux;
+void Cmfd::setSRFluxes(FP_PRECISION* scalar_flux) {
+  _SR_fluxes = scalar_flux;
 }
 
 
@@ -926,18 +926,18 @@ void Cmfd::initializeCurrents() {
 
 
 /**
- * @brief Initializes the vector of vectors that links CMFD cells with FSRs.
+ * @brief Initializes the vector of vectors that links CMFD cells with SRs.
  * @details This method is called by the geometry once the CMFD mesh has been
  *          initialized by the geometry. This method allocates a vector for
- *          each CMFD cell that is used to store the FSR ids contained within
+ *          each CMFD cell that is used to store the SR ids contained within
  *          that cell.
  */
 void Cmfd::initializeCellMap() {
 
-  /* Allocate memory for mesh cell FSR vectors */
+  /* Allocate memory for mesh cell SR vectors */
   for (int y = 0; y < _num_y; y++) {
     for (int x = 0; x < _num_x; x++)
-      _cell_fsrs.push_back(std::vector<int>());
+      _cell_srs.push_back(std::vector<int>());
   }
 }
 
@@ -1021,13 +1021,13 @@ Lattice* Cmfd::getLattice() {
 
 
 /**
- * @brief Add an FSR ID to a vector that contains all the FSR IDs
+ * @brief Add an SR ID to a vector that contains all the SR IDs
  *        contained within a CMFD mesh cell.
  * @param cell_id The CMFD cell ID.
- * @param fsr_id The FSR ID.
+ * @param sr_id The SR ID.
  */
-void Cmfd::addFSRToCell(int cell_id, int fsr_id) {
-  _cell_fsrs.at(cell_id).push_back(fsr_id);
+void Cmfd::addSRToCell(int cell_id, int sr_id) {
+  _cell_srs.at(cell_id).push_back(sr_id);
 }
 
 
@@ -1059,11 +1059,11 @@ int Cmfd::getNumCells() {
 
 
 /**
- * @brief Set the number of FSRs.
- * @param num_fsrs The number of FSRs
+ * @brief Set the number of SRs.
+ * @param num_srs The number of SRs
  */
-void Cmfd::setNumFSRs(int num_fsrs) {
-  _num_FSRs = num_fsrs;
+void Cmfd::setNumSRs(int num_srs) {
+  _num_SRs = num_srs;
 }
 
 
@@ -1314,7 +1314,7 @@ int Cmfd::getBoundary(int side) {
 
 
 /**
- * @brief Return the CMFD cell ID that an FSR lies in.
+ * @brief Return the CMFD cell ID that an SR lies in.
  * @details Note that a CMFD cell is not an actual Cell object; rather, a CMFD
  *          cell is just a way of describing each of the rectangular regions
  *          that make up a CMFD lattice. CMFD cells are numbered with 0 in the
@@ -1325,17 +1325,17 @@ int Cmfd::getBoundary(int side) {
  *                  8    9  10  11
  *                  4    5   6   7
  *                  0    1   2   3
- * @param fsr_id The FSR ID.
+ * @param sr_id The SR ID.
  * @return The CMFD cell ID. Return -1 if cell is not found.
  */
-int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
+int Cmfd::convertSRIdToCmfdCell(int sr_id) {
 
   std::vector<int>::iterator iter;
   for (int cell_id=0; cell_id < _num_x * _num_y; cell_id++) {
 
-    for (iter = _cell_fsrs.at(cell_id).begin();
-         iter != _cell_fsrs.at(cell_id).end(); ++iter) {
-      if (*iter  == fsr_id)
+    for (iter = _cell_srs.at(cell_id).begin();
+         iter != _cell_srs.at(cell_id).end(); ++iter) {
+      if (*iter  == sr_id)
         return cell_id;
     }
   }
@@ -1346,29 +1346,29 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
 /**
  * @brief Return a pointer to the vector of vectors that contains
- *        the FSRs that lie in each cell.
- * @return Vector of vectors containing FSR IDs in each cell.
+ *        the SRs that lie in each cell.
+ * @return Vector of vectors containing SR IDs in each cell.
  */
-std::vector< std::vector<int> >* Cmfd::getCellFSRs() {
-  return &_cell_fsrs;
+std::vector< std::vector<int> >* Cmfd::getCellSRs() {
+  return &_cell_srs;
 }
 
 
 /**
- * @brief Set the vector of vectors that contains the FSRs that lie in
+ * @brief Set the vector of vectors that contains the SRs that lie in
  *        each cell.
- * @param cell_fsrs Vector of vectors containing FSR IDs in each cell.
+ * @param cell_srs Vector of vectors containing SR IDs in each cell.
  */
-void Cmfd::setCellFSRs(std::vector< std::vector<int> >* cell_fsrs) {
+void Cmfd::setCellSRs(std::vector< std::vector<int> >* cell_srs) {
 
-  if (!_cell_fsrs.empty()) {
+  if (!_cell_srs.empty()) {
     std::vector< std::vector<int> >::iterator iter;
-    for (iter = _cell_fsrs.begin(); iter != _cell_fsrs.end(); ++iter)
+    for (iter = _cell_srs.begin(); iter != _cell_srs.end(); ++iter)
       iter->clear();
-    _cell_fsrs.clear();
+    _cell_srs.clear();
   }
 
-  _cell_fsrs = *cell_fsrs;
+  _cell_srs = *cell_srs;
 }
 
 
@@ -1391,7 +1391,7 @@ bool Cmfd::isFluxUpdateOn() {
 
 
 /**
- * @brief Set flag indicating whether to use FSR centroids to update
+ * @brief Set flag indicating whether to use SR centroids to update
  *        the MOC flux.
  * @param centroid_update_on Flag saying whether to use centroids to
  *        update MOC flux.
@@ -1402,7 +1402,7 @@ void Cmfd::setCentroidUpdateOn(bool centroid_update_on) {
 
 
 /**
- * @brief Get flag indicating whether to use FSR centroids to update
+ * @brief Get flag indicating whether to use SR centroids to update
  *        the MOC flux.
  * @return Flag saying whether to use centroids to update MOC flux.
  */
@@ -1436,8 +1436,8 @@ void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
 
 
 /**
- * @brief Generate the k-nearest neighbor CMFD cell stencil for each FSR.
- * @details This method finds the k-nearest CMFD cell stencil for each FSR
+ * @brief Generate the k-nearest neighbor CMFD cell stencil for each SR.
+ * @details This method finds the k-nearest CMFD cell stencil for each SR
  *          and saves the stencil, ordered from the closest-to-furthest
  *          CMFD cell, in the _k_nearest_stencils map. The stencil of cells
  *          surrounding the current cell is defined as:
@@ -1456,58 +1456,58 @@ void Cmfd::generateKNearestStencils() {
     return;
 
   std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
-  std::vector<int>::iterator fsr_iter;
+  std::vector<int>::iterator sr_iter;
   Point* centroid;
-  int fsr_id;
+  int sr_id;
 
   /* Loop over mesh cells */
   for (int i = 0; i < _num_x*_num_y; i++) {
 
     /* Loop over FRSs in mesh cell */
-    for (fsr_iter = _cell_fsrs.at(i).begin();
-         fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
+    for (sr_iter = _cell_srs.at(i).begin();
+         sr_iter != _cell_srs.at(i).end(); ++sr_iter) {
 
-      fsr_id = *fsr_iter;
+      sr_id = *sr_iter;
 
       /* Get centroid */
-      centroid = _geometry->getFSRCentroid(fsr_id);
+      centroid = _geometry->getSRCentroid(sr_id);
 
       /* Create new stencil */
-      _k_nearest_stencils[fsr_id] =
+      _k_nearest_stencils[sr_id] =
         std::vector< std::pair<int, FP_PRECISION> >();
 
       /* Get distance to all cells that touch current cell */
       for (int j=0; j <= NUM_SURFACES; j++)
-        _k_nearest_stencils[fsr_id]
+        _k_nearest_stencils[sr_id]
           .push_back(std::make_pair<int, FP_PRECISION>
                      (int(j), getDistanceToCentroid(centroid, i, j)));
 
       /* Sort the distances */
-      std::sort(_k_nearest_stencils[fsr_id].begin(),
-                _k_nearest_stencils[fsr_id].end(), stencilCompare);
+      std::sort(_k_nearest_stencils[sr_id].begin(),
+                _k_nearest_stencils[sr_id].end(), stencilCompare);
 
       /* Remove ghost cells that are outside the geometry boundaries */
-      stencil_iter = _k_nearest_stencils[fsr_id].begin();
-      while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
+      stencil_iter = _k_nearest_stencils[sr_id].begin();
+      while (stencil_iter != _k_nearest_stencils[sr_id].end()) {
         if (stencil_iter->second == std::numeric_limits<FP_PRECISION>::max())
-          stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
+          stencil_iter = _k_nearest_stencils[sr_id].erase(stencil_iter++);
         else
           ++stencil_iter;
       }
 
       /* Resize stencil to be of size <= _k_nearest */
-      _k_nearest_stencils[fsr_id].resize
-        (std::min(_k_nearest, int(_k_nearest_stencils[fsr_id].size())));
+      _k_nearest_stencils[sr_id].resize
+        (std::min(_k_nearest, int(_k_nearest_stencils[sr_id].size())));
     }
   }
 
-  /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
+  /* Precompute (1.0 - cell distance / total distance) of each SR centroid to
    * its k-nearest CMFD cells */
   FP_PRECISION total_distance;
-  for (int i=0; i < _num_FSRs; i++) {
+  for (int i=0; i < _num_SRs; i++) {
     total_distance = 1.e-10;
 
-    /* Compute the total distance of each FSR centroid to its k-nearest CMFD
+    /* Compute the total distance of each SR centroid to its k-nearest CMFD
      * cells */
     for (stencil_iter = _k_nearest_stencils[i].begin();
          stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
@@ -1589,9 +1589,9 @@ int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
 
 
 /**
- * @brief Get the ratio used to update the FSR flux after converging CMFD.
- * @details This method takes in a cmfd cell, a MOC energy group, and a FSR
- *          and returns the ratio used to update the FSR flux. There are two
+ * @brief Get the ratio used to update the SR flux after converging CMFD.
+ * @details This method takes in a cmfd cell, a MOC energy group, and a SR
+ *          and returns the ratio used to update the SR flux. There are two
  *          methods that can be used to update the flux, conventional and
  *          k-nearest centroid updating. The k-nearest centroid updating uses
  *          the k-nearest cells (with k between 1 and 9) of the current CMFD
@@ -1605,12 +1605,12 @@ int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
  *          where 4 is the given CMFD cell. If the cell is on the edge or corner
  *          of the geometry and there are less than k nearest neighbor cells,
  *          k is reduced to the number of neighbor cells for that instance.
- * @param cell_id The cmfd cell ID containing the FSR.
+ * @param cell_id The cmfd cell ID containing the SR.
  * @param group The CMFD energy group being updated.
- * @param fsr The fsr being updated.
- * @return the ratio used to update the FSR flux.
+ * @param sr The sr being updated.
+ * @return the ratio used to update the SR flux.
  */
-FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
+FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int sr) {
 
   FP_PRECISION ratio = 0.0;
   std::vector< std::pair<int, FP_PRECISION> >::iterator iter;
@@ -1619,8 +1619,8 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
   if (_centroid_update_on) {
 
     /* Compute the ratio for all the surrounding cells */
-    for (iter = _k_nearest_stencils[fsr].begin();
-         iter != _k_nearest_stencils[fsr].end(); ++iter) {
+    for (iter = _k_nearest_stencils[sr].begin();
+         iter != _k_nearest_stencils[sr].end(); ++iter) {
 
       if (iter->first != 4) {
         cell_next_id = getCellByStencil(cell_id, iter->first);
@@ -1629,12 +1629,12 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
     }
 
     /* INTERNAL */
-    if (_k_nearest_stencils[fsr].size() == 1)
+    if (_k_nearest_stencils[sr].size() == 1)
       ratio += _flux_ratio->getValue(cell_id, group);
     else{
-      ratio += _k_nearest_stencils[fsr][0].second *
+      ratio += _k_nearest_stencils[sr][0].second *
         _flux_ratio->getValue(cell_id, group);
-      ratio /= (_k_nearest_stencils[fsr].size() - 1);
+      ratio /= (_k_nearest_stencils[sr].size() - 1);
     }
   }
   else
@@ -1645,8 +1645,8 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
 
 /**
- * @brief Get the distances from an FSR centroid to a given cmfd cell.
- * @details This method takes in a FSR centroid, a cmfd cell, and a stencil index
+ * @brief Get the distances from an SR centroid to a given cmfd cell.
+ * @details This method takes in a SR centroid, a cmfd cell, and a stencil index
  *          to a cell located in the 9-point stencil encompassing the cmfd
  *          cell an all its possible neighbors. The CMFD cell stencil is:
  *
@@ -1657,11 +1657,11 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  *          where 4 is the given CMFD cell. If a CMFD edge or corner cells is
  *          given and the stencil indexed cell lies outside the geometry, the
  *          maximum allowable FP_PRECISION value is returned.
- * @param centroid The numerical centroid an FSR in the cell.
- * @param cell_id The cmfd cell containing the FSR.
+ * @param centroid The numerical centroid an SR in the cell.
+ * @param cell_id The cmfd cell containing the SR.
  * @param stencil_index The index of the cell in the stencil that we want to
  *        get the distance from.
- * @return the distance from the CMFD cell centroid to the FSR centroid.
+ * @return the distance from the CMFD cell centroid to the SR centroid.
  */
 FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
                                          int stencil_index) {
@@ -1776,7 +1776,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     bc = (int)tracks[i]->getBCOut();
     curr_segment = &segments[0];
     track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar];
-    cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
+    cell_id = convertSRIdToCmfdCell(curr_segment->_region_id);
 
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
@@ -1813,7 +1813,7 @@ void Cmfd::setGeometry(Geometry* geometry) {
 
 
 /** @brief Set a number of k-nearest neighbor cells to use in updating
- *         the FSR flux.
+ *         the SR flux.
  * @param k_nearest The number of nearest neighbor CMFD cells.
  */
 void Cmfd::setKNearest(int k_nearest) {

@@ -89,12 +89,12 @@ class MultiSimFixedSourceTestHarness(MultiSimTestHarness):
         """Run multiple OpenMOC fixed source calculations."""
 
         for i in range(self.num_simulations):
-            super(MultiSimTestHarness, self)._run_openmoc()            
+            super(MultiSimTestHarness, self)._run_openmoc()
             self.num_iters.append(self.solver.getNumIterations())
             self.fluxes.append(openmoc.process.get_scalar_fluxes(self.solver))
 
     def _get_results(self, num_iterations=True, keff=True, fluxes=False,
-                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     num_srs=False, num_tracks=False, num_segments=False,
                      hash_output=True):
         """Return eigenvalues from each simulation into a string."""
 

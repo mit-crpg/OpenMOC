@@ -21,7 +21,7 @@
 
 /**
  * @struct segment
- * @brief A segment represents a line segment within a single flat source
+ * @brief A segment represents a line segment within a single source
  *        region along a track.
  */
 struct segment {
@@ -32,7 +32,7 @@ struct segment {
   /** A pointer to the material in which this segment resides */
   Material* _material;
 
-  /** The ID for flat source region in which this segment resides */
+  /** The ID for source region in which this segment resides */
   int _region_id;
 
   /** The ID for the mesh surface crossed by the Track end point */

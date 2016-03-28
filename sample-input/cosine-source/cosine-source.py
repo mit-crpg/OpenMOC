@@ -119,26 +119,26 @@ solver.setNumThreads(opts.num_omp_threads)
 solver.setConvergenceThreshold(opts.tolerance)
 
 # Set the source in every cell to a cosine distribution
-for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+for sr_id in xrange(solver.getGeometry().getNumSRs()):
 
-  # Get the coordinates of some point within the FSR
-  pt = solver.getGeometry().getFSRPoint(fsr_id)
+  # Get the coordinates of some point within the SR
+  pt = solver.getGeometry().getSRPoint(sr_id)
   x_pt = pt.getX()
   y_pt = pt.getY()
 
-  # Set the FSR source for every group
+  # Set the SR source for every group
   L = num_x * width_x / 2
   H = num_y * width_y / 2
   for g in range(materials['Water'].getNumEnergyGroups()):
     group = g + 1
     source_value = math.cos(x_pt/L) * math.cos(y_pt/H)
-    solver.setFixedSourceByFSR(fsr_id, group, source_value)
-  
+    solver.setFixedSourceBySR(sr_id, group, source_value)
+
   # NOTE: A more precise definition of the source would calculate the same
-  # source values for all points within each flat source region. In this
-  # example that is not the case. However, since the FSR discretization is
+  # source values for all points within each source region. In this
+  # example that is not the case. However, since the SR discretization is
   # reasonably fine in this case, the slight error introduced from defining the
-  # source based on one point in the FSR does not have a large impact on the
+  # source based on one point in the SR does not have a large impact on the
   # resulting flux shapes.
 
 # Run the solver for the provided source
@@ -154,7 +154,7 @@ openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
 openmoc.plotter.plot_materials(geometry, gridsize=250)
 openmoc.plotter.plot_cells(geometry, gridsize=250)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=250)
+openmoc.plotter.plot_source_regions(geometry, gridsize=250)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 openmoc.log.py_printf('TITLE', 'Finished')

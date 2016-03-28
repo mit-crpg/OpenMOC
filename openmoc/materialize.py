@@ -450,12 +450,12 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     Returns
     -------
-    fsrs_to_sph : numpy.ndarray of Real
-        A NumPy array of SPH factors indexed by FSR and energy group
+    srs_to_sph : numpy.ndarray of Real
+        A NumPy array of SPH factors indexed by SR and energy group
     sph_mgxs_lib : openmc.mgxs.Library
         A OpenMC MGXS library with the SPH factors applied to each MGXS
-    sph_to_fsrs_indices : numpy.ndarray of Integral
-        A NumPy array of all fissionable FSRs to which SPH factors were applied
+    sph_to_srs_indices : numpy.ndarray of Integral
+        A NumPy array of all fissionable SRs to which SPH factors were applied
 
     """
 
@@ -493,26 +493,26 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     # Initialize SPH factors
     num_groups = geometry.getNumEnergyGroups()
-    num_fsrs = geometry.getNumFSRs()
+    num_srs = geometry.getNumSRs()
 
-    # Map FSRs to domains (and vice versa) to compute domain-averaged fluxes
-    fsrs_to_domains = np.zeros(num_fsrs)
-    domains_to_fsrs = collections.defaultdict(list)
-    sph_to_fsr_indices = []
+    # Map SRs to domains (and vice versa) to compute domain-averaged fluxes
+    srs_to_domains = np.zeros(num_srs)
+    domains_to_srs = collections.defaultdict(list)
+    sph_to_sr_indices = []
 
-    for fsr in range(num_fsrs):
-        cell = geometry.findCellContainingFSR(fsr)
+    for sr in range(num_srs):
+        cell = geometry.findCellContainingSR(sr)
 
         if mgxs_lib.domain_type == 'material':
             domain = cell.getFillMaterial()
         else:
             domain = cell
 
-        fsrs_to_domains[fsr] = domain.getId()
-        domains_to_fsrs[domain.getId()].append(fsr)
+        srs_to_domains[sr] = domain.getId()
+        domains_to_srs[domain.getId()].append(sr)
 
         if domain.isFissionable():
-            sph_to_fsr_indices.append(fsr)
+            sph_to_sr_indices.append(sr)
 
     # Get all OpenMOC domains
     if mgxs_lib.domain_type == 'material':
@@ -556,12 +556,12 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         if throttle_output:
             openmoc.set_log_level(log_level)
 
-        # Extract the FSR scalar fluxes
-        fsr_fluxes = get_scalar_fluxes(solver)
+        # Extract the SR scalar fluxes
+        sr_fluxes = get_scalar_fluxes(solver)
 
         # Compute the domain-averaged flux in each energy group
         for j, openmc_domain in enumerate(mgxs_lib.domains):
-            domain_fluxes = fsr_fluxes[fsrs_to_domains == openmc_domain.id, :]
+            domain_fluxes = sr_fluxes[srs_to_domains == openmc_domain.id, :]
             openmoc_fluxes[j, :] = np.mean(domain_fluxes, axis=0)
 
         # Compute SPH factors
@@ -594,16 +594,16 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     else:
         py_printf('WARNING', 'SPH factors did not converge')
 
-    # Collect SPH factors for each FSR, energy group
-    fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
+    # Collect SPH factors for each SR, energy group
+    srs_to_sph = np.ones((num_srs, num_groups), dtype=np.float)
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
             openmoc_domain = openmoc_domains[openmc_domain.id]
             if openmoc_domain.isFissionable():
-                fsr_ids = domains_to_fsrs[openmc_domain.id]
-                fsrs_to_sph[fsr_ids,:] = sph[i,:]
+                sr_ids = domains_to_srs[openmc_domain.id]
+                srs_to_sph[sr_ids,:] = sph[i,:]
 
-    return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
+    return srs_to_sph, sph_mgxs_lib, np.array(sph_to_sr_indices)
 
 
 def _load_openmc_src(mgxs_lib, solver):
@@ -641,15 +641,15 @@ def _load_openmc_src(mgxs_lib, solver):
     openmc_fluxes = np.zeros((num_domains, num_groups))
     keff = mgxs_lib.keff
 
-    # Create mapping of FSRs-to-domains to optimize fixed source setup
-    domains_to_fsrs = collections.defaultdict(list)
-    for fsr_id in range(geometry.getNumFSRs()):
-        cell = geometry.findCellContainingFSR(fsr_id)
+    # Create mapping of SRs-to-domains to optimize fixed source setup
+    domains_to_srs = collections.defaultdict(list)
+    for sr_id in range(geometry.getNumSRs()):
+        cell = geometry.findCellContainingSR(sr_id)
         if mgxs_lib.domain_type == 'material':
             domain = cell.getFillMaterial()
         else:
             domain = cell
-        domains_to_fsrs[domain.getId()].append(fsr_id)
+        domains_to_srs[domain.getId()].append(sr_id)
 
     # Compute fixed sources for all domains in the MGXS library
     for i, openmc_domain in enumerate(mgxs_lib.domains):
@@ -713,9 +713,9 @@ def _load_openmc_src(mgxs_lib, solver):
             source = np.sum(in_scatter) + np.sum(fission)
 
             # Assign the source to this domain
-            fsr_ids = domains_to_fsrs[openmoc_domain.getId()]
-            for fsr_id in fsr_ids:
-                solver.setFixedSourceByFSR(fsr_id, group+1, source)
+            sr_ids = domains_to_srs[openmoc_domain.getId()]
+            for sr_id in sr_ids:
+                solver.setFixedSourceBySR(sr_id, group+1, source)
 
     return openmc_fluxes
 

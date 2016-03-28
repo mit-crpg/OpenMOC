@@ -184,7 +184,7 @@ For many simulations, defining the nuclear data cross sections by hand in a Pyth
     # Import cross section data from an HDF5 file. This instantiates
     # objects for each material and returns them in a dictionary
     # indexed by a string name or integer ID
-    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5',
                                                 directory='/home/myuser')
 
     # Retrieve the material called 'moderator' in the HDF5 file
@@ -250,7 +250,7 @@ Lastly, the ``'domain_type'`` parameter may be specified in conjuction with the 
     # Import cross section data from an HDF5 file. This instantiates
     # objects for each material and returns them in a dictionary
     # indexed by a string name or integer ID
-    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5',
                                                 directory='/home/myuser',
 						domain_type='cell',
 						geometry=geometry)
@@ -391,7 +391,7 @@ The following code snippet illustrates how a user may designate a positive integ
     # Subdivide the moderator region into 4 angular sectors
     moderator.setNumSectors(4)
 
-The plots shown below illustrate the pin cell material layout (left) and flat source region layout (right) where the flat source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 16 sectors in the moderator.
+The plots shown below illustrate the pin cell material layout (left) and source region layout (right) where the source regions have been discretized using 3 equal volume rings and 12 sectors in the fuel and 16 sectors in the moderator.
 
 .. _figure_pin_cell_fsrs:
 
@@ -417,7 +417,7 @@ As seen in the figure above, the sector divisions start along the plane :math:`\
     moderator.setNumRings(2)
     moderator.setNumSectors(16)
 
-Again, the pin cell materials are illustrated below on the left, while the flat source regions are displayed on the right with 2 rings now present in the moderator.
+Again, the pin cell materials are illustrated below on the left, while the source regions are displayed on the right with 2 rings now present in the moderator.
 
 .. _figure_pin_cell_fsrs_moderator_rings:
 
@@ -486,7 +486,7 @@ Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class m
 Geometry
 --------
 
-The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class is the *root* node in a tree data structure which encapsulates all ``Materials``, ``Surfaces``, ``Cells``, ``Universes`` and ``Lattices``. The following code snippet illustrates the creation of a *root* ``Cell`` and ``Universe`` as well as a ``Geometry`` object. Next, the root universe is registered with the geometry. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the flat source regions in the geometry.
+The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` class. The ``Geometry`` class is the *root* node in a tree data structure which encapsulates all ``Materials``, ``Surfaces``, ``Cells``, ``Universes`` and ``Lattices``. The following code snippet illustrates the creation of a *root* ``Cell`` and ``Universe`` as well as a ``Geometry`` object. Next, the root universe is registered with the geometry. The last line of the script is called once all primitives have been registered and is used to traverse the CSG hierarchy and index the source regions in the geometry.
 
 .. code-block:: python
 
@@ -551,7 +551,7 @@ The following code snippet illustrates the instantiation of the ``CPUSolver`` fo
 Fixed Source Calculations
 -------------------------
 
-It is also possible to add a fixed source to any region in OpenMOC. During computation of the total source, a fixed source is added together with the calculated scattering source and fission source for each flat source region. By default, the fixed source is set to zero everywhere. The ``setFixedSourceByFSR(...)`` routine allows the user to set the fixed source in a given flat source region using its unique ID. For most calcuations, setting the fixed source for every flat source region of interest individually can be cumbersome. In addition, this would require retreiving the unique ID for every flat source region in which the user desires to set the fixed source. Therefore, the ``setFixedSourceByCell(...)`` routine allows the user to set the fixed source for every flat source region within a cell to a common value. An example is given below for setting the fixed source of a ``Cell`` with a point source of unity in the first energy group.
+It is also possible to add a fixed source to any region in OpenMOC. During computation of the total source, a fixed source is added together with the calculated scattering source and fission source for each source region. By default, the fixed source is set to zero everywhere. The ``setFixedSourceBySR(...)`` routine allows the user to set the fixed source in a given source region using its unique ID. For most calcuations, setting the fixed source for every source region of interest individually can be cumbersome. In addition, this would require retreiving the unique ID for every source region in which the user desires to set the fixed source. Therefore, the ``setFixedSourceByCell(...)`` routine allows the user to set the fixed source for every source region within a cell to a common value. An example is given below for setting the fixed source of a ``Cell`` with a point source of unity in the first energy group.
 
 .. code-block:: python
 
@@ -559,42 +559,42 @@ It is also possible to add a fixed source to any region in OpenMOC. During compu
   solver.setFixedSourceByCell(source_cell, 1, 1.0)
 
 
-The equivalent code for setting the point source of all flat source regions within the source cell using ``setFixedSourceByFSR(...)`` is given below.
+The equivalent code for setting the point source of all source regions within the source cell using ``setFixedSourceBySR(...)`` is given below.
 
 .. code-block:: python
 
   # Get the unique ID of the cell containing the point source
   point_source_cell_id = source_cell.getId()
 
-  # Loop over all FSRs and test if the FSR is within the point source cell
-  for fsr_id in range(solver.getGeometry().getNumFSRs()):
-    cell = solver.getGeometry().findCellContainingFSR(fsr_id)
+  # Loop over all SRs and test if the SR is within the point source cell
+  for sr_id in range(solver.getGeometry().getNumSRs()):
+    cell = solver.getGeometry().findCellContainingSR(sr_id)
 
-    # If the FSR is within the point source cell, set the fixed source
+    # If the SR is within the point source cell, set the fixed source
     if cell.getId() == point_source_cell_id:
-      solver.setFixedSourceByFSR(fsr_id, 1, 1.0)
+      solver.setFixedSourceBySR(sr_id, 1, 1.0)
 
-In this case, it is far simpler to set the fixed source by ``Cell``. However, there may be cases where the user may wish to set the fixed source within a ``Cell`` to different values. For instance, if the user wishes to model a continuously varying fixed source and there are multiple flat source regions within some ``Cell``, then for each flat source region within the cell the fixed source would need to be set individually.
+In this case, it is far simpler to set the fixed source by ``Cell``. However, there may be cases where the user may wish to set the fixed source within a ``Cell`` to different values. For instance, if the user wishes to model a continuously varying fixed source and there are multiple source regions within some ``Cell``, then for each source region within the cell the fixed source would need to be set individually.
 
-For instance, if the user desires to input a source based on the location within the geometry, setting the source with ``setFixedSourceByFSR(...)`` could be useful. In particular if a user has defined a fucntion ``source_distribution`` which provides the source over the flat source regions that depends on the coordinates within the geometry and the energy group, the following code will set the source to the appropriate values.
+For instance, if the user desires to input a source based on the location within the geometry, setting the source with ``setFixedSourceBySR(...)`` could be useful. In particular if a user has defined a fucntion ``source_distribution`` which provides the source over the source regions that depends on the coordinates within the geometry and the energy group, the following code will set the source to the appropriate values.
 
 .. code-block:: python
 
   # Set the source every cell to the desired distribution
-  for fsr_id in range(solver.getGeometry().getNumFSRs()):
+  for sr_id in range(solver.getGeometry().getNumSRs()):
 
-    # Get the coordinates of some point within the FSR
-    pt = solver.getGeometry().getFSRPoint(fsr_id)
+    # Get the coordinates of some point within the SR
+    pt = solver.getGeometry().getSRPoint(sr_id)
     x_pt = pt.getX()
     y_pt = pt.getY()
 
-    # Set the FSR source for every group
+    # Set the SR source for every group
     L = num_x * width_x / 2
     H = num_y * width_y / 2
     for g in range(materials['Water'].getNumEnergyGroups()):
       group = g + 1
       source_value = source_distribution(x_pt, y_pt, group)
-      solver.setFixedSourceByFSR(fsr_id, group, source_value)
+      solver.setFixedSourceBySR(sr_id, group, source_value)
 
 The OpenMOC ``Solver`` has other solution options in addition to the eigenvalue solver which can be very useful for fixed source calculations. Specifically, the ``computeFlux(...)`` and ``computeSource(...)`` routines solve neutron transport over the problem without computing an eigenvalue.
 
@@ -637,7 +637,7 @@ While this case seems ill-suited for the ``computeFlux(...)`` routine, ``compute
 .. math::
   S_g(x,y) = S_g(0,0) \cos{\frac{x}{L}} \cos{\frac{y}{H}}
 
-where the geometry spans :math:`x \in (-L, L)` and :math:`y \in (-H, H)`. The source can be set using ``setFixedSourceByFSR(...)`` as described above. If the geometry is filled entirely with water and the ``computeFlux(...)`` routine is used to resolve the flux, the solver accurately computes the flux distribution as plotted below.
+where the geometry spans :math:`x \in (-L, L)` and :math:`y \in (-H, H)`. The source can be set using ``setFixedSourceBySR(...)`` as described above. If the geometry is filled entirely with water and the ``computeFlux(...)`` routine is used to resolve the flux, the solver accurately computes the flux distribution as plotted below.
 
 .. _figure_cosine_flux_distribution:
 
@@ -650,7 +650,7 @@ where the geometry spans :math:`x \in (-L, L)` and :math:`y \in (-H, H)`. The so
 Source Calculations
 -------------------
 
-In other problems, the source distribution is desired for a set eigenvalue. For this case, the ``computeSource(...)`` routine can be used, which calculates the total source (including any fixed source) in each flat source region iteratively. At the end of each transport sweep, the eigenvalue is reset to the eigenvalue set by the user. By default this value is 1.0. Returning to the first problem discussed using the ``computeFlux(...)`` routine where a fixed source was placed in a geometry filled with water, the ``computeFlux(...)`` routine could not account for scattering. Since the ``computeSource(...)`` routine computes both scattering and fission sources during transport sweeps, it is able to account for scattering and compute the correct flux distribution. The line below shows how the ``computeSource(...)`` routine can be called.
+In other problems, the source distribution is desired for a set eigenvalue. For this case, the ``computeSource(...)`` routine can be used, which calculates the total source (including any fixed source) in each source region iteratively. At the end of each transport sweep, the eigenvalue is reset to the eigenvalue set by the user. By default this value is 1.0. Returning to the first problem discussed using the ``computeFlux(...)`` routine where a fixed source was placed in a geometry filled with water, the ``computeFlux(...)`` routine could not account for scattering. Since the ``computeSource(...)`` routine computes both scattering and fission sources during transport sweeps, it is able to account for scattering and compute the correct flux distribution. The line below shows how the ``computeSource(...)`` routine can be called.
 
 .. code-block:: python
 
@@ -678,9 +678,9 @@ Convergence Options
 
 There are a variety of convergence options available in OpenMOC. These options can be set in the ``res_type`` optional parameter of the ``computeEigenvalue(...)`` and ``computeSource(...)`` solvers. The options for ``res_type`` are:
 
-- **SCALAR_FLUX** - Sets the convergence based on the enegy-integrated scalar flux by each flat source region. This is the convergence criteria for ``computeFlux(...)``.
-- **TOTAL_SOURCE** - Sets the convergence based on the energy-integrated total source by each flat source region. This is the default for ``computeSource(...)``.
-- **FISSION_SOURCE** - Sets the convergence based on the energy-integrated fission source by each flat source region. This is the default for ``computeEigenvalue(...)``.
+- **SCALAR_FLUX** - Sets the convergence based on the enegy-integrated scalar flux by each source region. This is the convergence criteria for ``computeFlux(...)``.
+- **TOTAL_SOURCE** - Sets the convergence based on the energy-integrated total source by each source region. This is the default for ``computeSource(...)``.
+- **FISSION_SOURCE** - Sets the convergence based on the energy-integrated fission source by each source region. This is the default for ``computeEigenvalue(...)``.
 
 An example of setting the convergence option of a criticality calculation to the scalar flux is given below.
 
@@ -767,8 +767,8 @@ Plots of the six quadrature sets with 3 polar angles and 16 azimuthal angles are
 
 The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC.
 
-FSR Volume Correction
----------------------
+SR Volume Correction
+--------------------
 
 To be updated...
 

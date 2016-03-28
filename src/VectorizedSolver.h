@@ -54,7 +54,7 @@ protected:
   FP_PRECISION* _thread_exponentials;
 
   void tallyScalarFlux(segment* curr_segment, int azim_index,
-                       FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
+                       FP_PRECISION* track_flux, FP_PRECISION* sr_flux);
   void transferBoundaryFlux(int track_id, int azim_index, bool direction,
                             FP_PRECISION* track_flux);
   void computeExponentials(segment* curr_segment, FP_PRECISION* exponentials);
@@ -72,10 +72,10 @@ public:
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeFixedSources();
-  void initializeFSRs();
+  void initializeSRs();
 
   void normalizeFluxes();
-  void computeFSRSources();
+  void computeSRSources();
   void addSourceToScalarFlux();
   void computeKeff();
 };

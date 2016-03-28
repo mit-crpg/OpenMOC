@@ -88,18 +88,18 @@ fluxes_sph = openmoc.process.get_scalar_fluxes(solver) * sph
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-# Allocate arrays for FSR-specific data to extract from OpenMOC model
-num_fsrs = openmoc_geometry.getNumFSRs()
-cell_ids = np.zeros(num_fsrs, dtype=np.int)
-centroids = np.zeros(num_fsrs, dtype=np.float)
-volumes = np.zeros(num_fsrs, dtype=np.float)
+# Allocate arrays for SR-specific data to extract from OpenMOC model
+num_srs = openmoc_geometry.getNumSRs()
+cell_ids = np.zeros(num_srs, dtype=np.int)
+centroids = np.zeros(num_srs, dtype=np.float)
+volumes = np.zeros(num_srs, dtype=np.float)
 
-# Find the cell IDs, volumes, centroids and fluxes for each FSR
-for fsr_id in range(num_fsrs):
-    cell = openmoc_geometry.findCellContainingFSR(fsr_id)
-    cell_ids[fsr_id] = cell.getId()
-    volumes[fsr_id] = solver.getFSRVolume(fsr_id)
-    centroids[fsr_id] = cell.getMinX()
+# Find the cell IDs, volumes, centroids and fluxes for each SR
+for sr_id in range(num_srs):
+    cell = openmoc_geometry.findCellContainingSR(sr_id)
+    cell_ids[sr_id] = cell.getId()
+    volumes[sr_id] = solver.getSRVolume(sr_id)
+    centroids[sr_id] = cell.getMinX()
 
 # Organize cell IDs, volumes and fluxes in order of increasing centroid
 indices = np.argsort(centroids)
@@ -111,15 +111,15 @@ fluxes_sph = fluxes_sph[indices,:]
 
 # Get OpenMC fluxes
 tot_fiss_src = 0.
-openmc_fluxes = np.zeros((num_fsrs, mgxs_lib.num_groups))
-for fsr_id, cell_id in enumerate(cell_ids):
+openmc_fluxes = np.zeros((num_srs, mgxs_lib.num_groups))
+for sr_id, cell_id in enumerate(cell_ids):
 
     # Get NuFissionXS for cell from MGXS Library
     mgxs = mgxs_lib.get_mgxs(cell_id, 'nu-fission')
 
     # Store this cell's flux
     flux_tally = mgxs.tallies['flux']
-    openmc_fluxes[fsr_id, :] = flux_tally.get_values().flatten()
+    openmc_fluxes[sr_id, :] = flux_tally.get_values().flatten()
 
     # Increment the total fission source
     nu_fission = mgxs.tallies['nu-fission']

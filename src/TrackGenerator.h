@@ -83,8 +83,8 @@ private:
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
-  /** OpenMP mutual exclusion locks for atomic FSR operations */
-  omp_lock_t* _FSR_locks;
+  /** OpenMP mutual exclusion locks for atomic SR operations */
+  omp_lock_t* _SR_locks;
 
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_tracks;
@@ -102,7 +102,7 @@ private:
   void initializeBoundaryConditions();
   void initializeTrackCycleIndices(boundaryType bc);
   void initializeVolumes();
-  void initializeFSRLocks();
+  void initializeSRLocks();
   void segmentize();
   void dumpTracksToFile();
   bool readTracksFromFile();
@@ -127,11 +127,11 @@ public:
   Track** getTracksByParallelGroup();
   FP_PRECISION* getAzimWeights();
   int getNumThreads();
-  FP_PRECISION* getFSRVolumes();
-  FP_PRECISION getFSRVolume(int fsr_id);
+  FP_PRECISION* getSRVolumes();
+  FP_PRECISION getSRVolume(int sr_id);
   FP_PRECISION getMaxOpticalLength();
   double getZCoord();
-  omp_lock_t* getFSRLocks();
+  omp_lock_t* getSRLocks();
 
   /* Set parameters */
   void setNumAzim(int num_azim);
@@ -145,8 +145,8 @@ public:
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieveSegmentCoords(double* coords, int num_segments);
   void generateTracks(bool neighbor_cells=false);
-  void correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume);
-  void generateFSRCentroids();
+  void correctSRVolume(int sr_id, FP_PRECISION sr_volume);
+  void generateSRCentroids();
   void splitSegments(FP_PRECISION max_optical_length);
   void initializeSegments();
 };

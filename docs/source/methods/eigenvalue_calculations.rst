@@ -18,7 +18,7 @@ MOC Iteration Scheme
 
 The MOC algorithm for the OpenMOC code uses a nested iteration scheme to solve for the source and scalar flux. The inner iteration solves for an approximate scalar flux assuming a fixed source. The outer iteration computes an updated source based on the inner iteration's approximation to the flux that results from the fixed source. The remainder of this section develops the methodology for this nested iteration scheme.
 
-First, define vectors of the scalar flux and source in each energy group and flat source region:
+First, define vectors of the scalar flux and source in each energy group and source region:
 
 .. math::
    :label: vector-scalar-flux
@@ -111,7 +111,7 @@ The inner iteration in OpenMOC solves the fixed source problem given in :eq:`moc
 
    \forall \; k, g, p \;\;\;\;\;\;\; \Psi_{k,g,p}^{(n+1)}(0) = \frac{1}{||\mathbf{Q}^{(n)}||_{2}}
 
-A single inner iteration to compute :math:`\Phi_{g,i}` for all FSRs and energy groups will henceforth be termed a *transport sweep*. Each transport sweep integrates the flux (from the previous iteration) along each track for each energy group while tallying a new flux contribution to each flat source region. A single transport sweep involves five nested loops over azimuthal angles, tracks for each azimuthal angle, segments for each track, energy groups and polar angles. The sets of all azimuthal angles, tracks, track segments, FSRs, energy groups and polar angles are denoted by :math:`M`, :math:`K`, :math:`S`, :math:`I`, :math:`G` and :math:`P`, respectively. For notational simplicity, the subset of tracks for azimuthal angle :math:`m` is denoted by :math:`K(m)`, the subset of segments for track :math:`k` is given by :math:`S(k)`, and the FSR for segment :math:`s` is represented as :math:`I(s)`. The leakage tally for vacuum boundary conditions is designated as :math:`L`. A description of the OpenMOC solver's transport sweep is given by :ref:`Algorithm 2 <figure-transport-sweep-algorithm>`.
+A single inner iteration to compute :math:`\Phi_{g,i}` for all FSRs and energy groups will henceforth be termed a *transport sweep*. Each transport sweep integrates the flux (from the previous iteration) along each track for each energy group while tallying a new flux contribution to each source region. A single transport sweep involves five nested loops over azimuthal angles, tracks for each azimuthal angle, segments for each track, energy groups and polar angles. The sets of all azimuthal angles, tracks, track segments, FSRs, energy groups and polar angles are denoted by :math:`M`, :math:`K`, :math:`S`, :math:`I`, :math:`G` and :math:`P`, respectively. For notational simplicity, the subset of tracks for azimuthal angle :math:`m` is denoted by :math:`K(m)`, the subset of segments for track :math:`k` is given by :math:`S(k)`, and the FSR for segment :math:`s` is represented as :math:`I(s)`. The leakage tally for vacuum boundary conditions is designated as :math:`L`. A description of the OpenMOC solver's transport sweep is given by :ref:`Algorithm 2 <figure-transport-sweep-algorithm>`.
 
 .. _figure-transport-sweep-algorithm:
 
