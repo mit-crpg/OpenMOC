@@ -1099,7 +1099,7 @@ void Solver::printTimerReport() {
 
   std::string msg_string;
 
-  log_printf(TITLE, "TIMING REPORT");
+  log_printf(TITLE, "SOLVER TIMING REPORT");
 
   /* Get the total runtime */
   double tot_time = _timer->getSplit("Total time");

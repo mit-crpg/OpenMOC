@@ -14,7 +14,6 @@
 #include "Python.h"
 #endif
 #include "constants.h"
-#include "Timer.h"
 #include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"

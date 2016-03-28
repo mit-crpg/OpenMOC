@@ -16,6 +16,7 @@
 #endif
 #include "Track.h"
 #include "Geometry.h"
+#include "Timer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -92,6 +93,9 @@ private:
   /** The z-coord where the 2D Tracks should be created */
   double _z_coord;
 
+  /** A timer to record timing data for ray tracing */
+  Timer* _timer;
+
   void computeEndPoint(Point* start, Point* end,  const double phi,
                        const double width_x, const double width_y);
 
@@ -106,6 +110,7 @@ private:
   void segmentize();
   void dumpTracksToFile();
   bool readTracksFromFile();
+  void clearTimerSplits();
 
 public:
 
@@ -149,6 +154,7 @@ public:
   void generateFSRCentroids();
   void splitSegments(FP_PRECISION max_optical_length);
   void initializeSegments();
+  void printTimerReport();
 };
 
 #endif /* TRACKGENERATOR_H_ */
