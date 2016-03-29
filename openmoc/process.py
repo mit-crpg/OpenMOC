@@ -807,8 +807,8 @@ class Mesh(object):
         x, y, z = point.getX(), point.getY(), point.getZ()
 
         # Translate the point with respect to the center of the mesh
-        x -= (self.upper_right[0] + self.lower_left[0]) / 2.
-        y -= (self.upper_right[1] + self.lower_left[1]) / 2.
+        x -= (self.upper_right[0] - self.lower_left[0]) / 2.
+        y -= (self.upper_right[1] - self.lower_left[1]) / 2.
         if len(self.dimension) != 2:
             z -= (self.upper_right[2] + self.lower_left[2]) / 2.
 
@@ -829,14 +829,12 @@ class Mesh(object):
         if len(self.dimension) == 2:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]):
-                py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
-                          '%d, %d) are outside mesh', mesh_x, mesh_y, mesh_z)
+                return np.nan, np.nan, np.nan
         else:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]) or \
                (mesh_z < 0 or mesh_z >= self.dimension[2]):
-                py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
-                          '%d, %d) are outside mesh', mesh_x, mesh_y, mesh_z)
+                return np.nan, np.nan, np.nan
 
         # Return mesh cell indices
         if len(self.dimension) == 2:
@@ -885,7 +883,9 @@ class Mesh(object):
         for fsr in range(num_fsrs):
             point = geometry.getFSRPoint(fsr)
             mesh_indices = self.get_mesh_cell_indices(point)
-            tally[mesh_indices] += fission_rates[fsr]
+
+            if np.nan not in mesh_indices:
+                tally[mesh_indices] += fission_rates[fsr]
 
         # Average the fission rates by mesh cell volume if needed
         if volume == 'averaged':
@@ -956,6 +956,10 @@ class Mesh(object):
         for fsr in range(num_fsrs):
             point = geometry.getFSRPoint(fsr)
             mesh_indices = self.get_mesh_cell_indices(point)
+
+            if np.nan in mesh_indices:
+                continue
+
             volume = solver.getFSRVolume(fsr)
             fsr_tally = np.zeros(num_groups, dtype=np.float)
 
