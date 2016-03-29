@@ -807,8 +807,8 @@ class Mesh(object):
         x, y, z = point.getX(), point.getY(), point.getZ()
 
         # Translate the point with respect to the center of the mesh
-        x -= (self.upper_right[0] - self.lower_left[0]) / 2.
-        y -= (self.upper_right[1] - self.lower_left[1]) / 2.
+        x -= (self.upper_right[0] + self.lower_left[0]) / 2.
+        y -= (self.upper_right[1] + self.lower_left[1]) / 2.
         if len(self.dimension) != 2:
             z -= (self.upper_right[2] + self.lower_left[2]) / 2.
 
