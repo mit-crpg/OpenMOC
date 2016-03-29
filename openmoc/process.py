@@ -67,6 +67,15 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
     else:
         cv.check_type('groups', Iterable, Integral)
 
+    # Extract all of the FSR scalar fluxes
+    if groups == 'all' and fsrs == 'all':
+        num_fsrs = solver.getGeometry().getNumFSRs()
+        num_groups = solver.getGeometry().getNumEnergyGroups()
+        num_fluxes = num_groups * num_fsrs
+        fluxes = solver.getFluxes(num_fluxes)
+        fluxes = np.reshape(fluxes, (num_fsrs, num_groups))
+        return fluxes
+
     # Build a list of FSRs to iterate over
     if fsrs == 'all':
         num_fsrs = solver.getGeometry().getNumFSRs()
@@ -81,7 +90,7 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
     else:
         num_groups = len(groups)
 
-    # Extract the FSR scalar fluxes
+    # Extract some of the FSR scalar fluxes
     fluxes = np.zeros((num_fsrs, num_groups))
     for fsr in fsrs:
         for group in groups:
