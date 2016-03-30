@@ -1,11 +1,14 @@
 var searchData=
 [
-  ['eigenvaluesolve',['eigenvalueSolve',['../linalg_8h.html#ab178264b14008c7adb808ffe7da90daa',1,'linalg.cpp']]],
-  ['equalanglepolarquad',['EqualAnglePolarQuad',['../classEqualAnglePolarQuad.html#ad9bd741fea608849f8ffe675b72d81da',1,'EqualAnglePolarQuad']]],
-  ['equalweightpolarquad',['EqualWeightPolarQuad',['../classEqualWeightPolarQuad.html#ab9c23dd704b62f949f052355dda58cb8',1,'EqualWeightPolarQuad']]],
-  ['evaluate',['evaluate',['../classSurface.html#a2e0aaef635a7392806d27fb4999a9168',1,'Surface::evaluate()'],['../classPlane.html#a18dcfc28a7d08e18983d3f906943bc82',1,'Plane::evaluate()'],['../classZCylinder.html#a2a6e76be07f40c022c76d9cf4cb58f13',1,'ZCylinder::evaluate()']]],
-  ['expevaluator',['ExpEvaluator',['../classExpEvaluator.html#a8ef6a77f6ea377127ca93da2d4d7f65d',1,'ExpEvaluator']]],
-  ['export',['export',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a7314df8c39fdd32a641c041325ed591a',1,'openmoc::compatible::casmo::Casmo']]],
-  ['exportallxstohdf5',['exportAllXSToHDF5',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a232683aca5bcc0b1793a50d1f3894dfc',1,'openmoc::compatible::casmo::Casmo']]],
-  ['exportavgxstohdf5',['exportAvgXSToHDF5',['../classopenmoc_1_1compatible_1_1casmo_1_1Casmo.html#a4c37d450051d766aab19a72ff1aa50a9',1,'openmoc::compatible::casmo::Casmo']]]
+  ['findcell',['findCell',['../classUniverse.html#a2fb122abbc8f47165642d8457f700733',1,'Universe::findCell()'],['../classLattice.html#a6ee2ee63e17bbfff4bc7de3b04a598fe',1,'Lattice::findCell()']]],
+  ['findcellcontainingcoords',['findCellContainingCoords',['../classGeometry.html#ab09d1ee4b8da5d3e60d5745d2a044185',1,'Geometry']]],
+  ['findcellcontainingfsr',['findCellContainingFSR',['../classGeometry.html#ae41e24b98d4216c44984c77ef95fc05f',1,'Geometry']]],
+  ['findcmfdcell',['findCmfdCell',['../classCmfd.html#a676f7fcd8476cda7c4f4c42d44c266da',1,'Cmfd']]],
+  ['findcmfdsurface',['findCmfdSurface',['../classCmfd.html#ad58b5b64841b7d8bc28b48acbc0b4790',1,'Cmfd']]],
+  ['findfsrid',['findFSRId',['../classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05',1,'Geometry']]],
+  ['findfsrmaterial',['findFSRMaterial',['../classGeometry.html#ae4c38f0407ddfd91427c63420bb41c48',1,'Geometry']]],
+  ['fissiontransportsweep',['fissionTransportSweep',['../classSolver.html#a4c8be124257c94a96b1d82a6fb8c4c23',1,'Solver']]],
+  ['fixedhashmap',['FixedHashMap',['../classFixedHashMap.html#a41d89acbbe577da87c1b912a30e55ab5',1,'FixedHashMap']]],
+  ['flattenfsrfluxes',['flattenFSRFluxes',['../classGPUSolver.html#ad9da754a6838a033f78023ae39fb0402',1,'GPUSolver::flattenFSRFluxes()'],['../classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102',1,'CPUSolver::flattenFSRFluxes()'],['../classSolver.html#a148137c97310ee2df94a4fd3fe35456f',1,'Solver::flattenFSRFluxes()']]],
+  ['fsr_5fdata',['fsr_data',['../structfsr__data.html#afbeae6688429aa7808678a8db65c3442',1,'fsr_data']]]
 ];

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Desktop/OpenMOC/src/accel/cuda/GPUSolver.h File Reference</title>
+<title>/home/geogunow/OpenMOC/OpenMOC/src/accel/cuda/GPUSolver.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -44,7 +44,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -91,7 +90,7 @@ $(document).ready(function(){initNavTree('GPUSolver_8h.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -111,13 +110,17 @@ $(document).ready(function(){initNavTree('GPUSolver_8h.html','');});
 
 <p>The <a class="el" href="classGPUSolver.html" title="This a subclass of the Solver class for NVIDIA Graphics Processing Units (GPUs). ">GPUSolver</a> class and CUDA physics kernels.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;thrust/device_vector.h&gt;</code><br/>
-<code>#include &lt;thrust/copy.h&gt;</code><br/>
+<div class="textblock"><code>#include &lt;thrust/copy.h&gt;</code><br/>
+<code>#include &lt;iostream&gt;</code><br/>
+<code>#include &lt;thrust/device_vector.h&gt;</code><br/>
 <code>#include &lt;thrust/fill.h&gt;</code><br/>
 <code>#include &lt;thrust/reduce.h&gt;</code><br/>
 <code>#include &lt;thrust/replace.h&gt;</code><br/>
 <code>#include &lt;thrust/functional.h&gt;</code><br/>
 <code>#include &lt;thrust/iterator/constant_iterator.h&gt;</code><br/>
+<code>#include &lt;thrust/iterator/counting_iterator.h&gt;</code><br/>
+<code>#include &lt;thrust/iterator/transform_iterator.h&gt;</code><br/>
+<code>#include &lt;thrust/iterator/permutation_iterator.h&gt;</code><br/>
 <code>#include &lt;sm_20_atomic_functions.h&gt;</code><br/>
 <code>#include &quot;<a class="el" href="clone_8h_source.html">clone.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="GPUExpEvaluator_8h_source.html">GPUExpEvaluator.h</a>&quot;</code><br/>
@@ -127,7 +130,7 @@ $(document).ready(function(){initNavTree('GPUSolver_8h.html','');});
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGPUSolver.html">GPUSolver</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This a subclass of the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> class for NVIDIA Graphics Processing Units (GPUs).  <a href="classGPUSolver.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classThis.html">This</a> a subclass of the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> class for NVIDIA Graphics Processing Units (GPUs).  <a href="classGPUSolver.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
@@ -284,7 +287,7 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Indexing macro for the total source divided by the total cross-section, <img class="formulaInl" alt="$ \frac{Q}{\Sigma_t} $" src="form_6.png"/>, in each FSR and energy group </p>
+<p>Indexing macro for the total source divided by the total cross-section, <img class="formulaInl" alt="$ \frac{Q}{\Sigma_t} $" src="form_4.png"/>, in each FSR and energy group </p>
 
 </div>
 </div>
@@ -321,7 +324,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_1ea949864ab1faf245facc269e7b2721.html">accel</a></li><li class="navelem"><a class="el" href="dir_e42498f83ad2e028b83ea18abff69fa1.html">cuda</a></li><li class="navelem"><a class="el" href="GPUSolver_8h.html">GPUSolver.h</a></li>
-    <li class="footer">Generated on Tue Sep 22 2015 13:26:38 by
+    <li class="footer">Generated on Tue Mar 29 2016 20:25:46 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

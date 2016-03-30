@@ -44,7 +44,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,7 +92,7 @@ $(document).ready(function(){initNavTree('classPoint.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -113,10 +112,12 @@ $(document).ready(function(){initNavTree('classPoint.html','');});
   <tr class="even"><td class="entry"><a class="el" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">distanceToPoint</a>(const Point *point)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr><td class="entry"><a class="el" href="classPoint.html#af52a20a376f8f31e87658837565d3812">getX</a>() const </td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7">getY</a>() const </td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classPoint.html#ad92f2337b839a94ce97dcdb439b4325a">Point</a>()</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a">setCoords</a>(const double x, const double y)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">setX</a>(const double x)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">setY</a>(const double y)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classPoint.html#abe872ef564e9bb5600fa40f87d324dea">getZ</a>() const </td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classPoint.html#ad92f2337b839a94ce97dcdb439b4325a">Point</a>()</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classPoint.html#ae3c298ae6b6176ae0a4c3c9f464ff063">setCoords</a>(const double x, const double y, const double z)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">setX</a>(const double x)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">setY</a>(const double y)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classPoint.html#a402ed79bd6e615d0380a8f0bb149c2b0">setZ</a>(const double z)</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr><td class="entry"><a class="el" href="classPoint.html#a1b3a350eb0e65c9b6605e00134771225">toString</a>()</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classPoint.html#a395fa04b4ec126b66fc053f829a30cc1">~Point</a>()</td><td class="entry"><a class="el" href="classPoint.html">Point</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
@@ -124,7 +125,7 @@ $(document).ready(function(){initNavTree('classPoint.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
+    <li class="footer">Generated on Tue Mar 29 2016 20:25:46 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

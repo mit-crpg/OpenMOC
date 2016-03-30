@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['residualtype',['residualType',['../Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be',1,'Solver.h']]]
+  ['quadraturetype',['quadratureType',['../PolarQuad_8h.html#abaf5f877e7f8a13548058dcb876c4de1',1,'PolarQuad.h']]]
 ];

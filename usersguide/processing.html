@@ -28,8 +28,8 @@
     <link rel="next" title="5. Running OpenMOC" href="running.html" />
     <link rel="prev" title="3. Writing Python Input Files" href="input.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,15 +41,15 @@
         <li class="right" >
           <a href="input.html" title="3. Writing Python Input Files"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="data-processing-and-visualization">
 <span id="usersguide-processing"></span><h1>4. Data Processing and Visualization<a class="headerlink" href="#data-processing-and-visualization" title="Permalink to this headline">¶</a></h1>
@@ -62,7 +62,7 @@
 <p>Each of these are easily obtainable in Ubuntu through the package manager.</p>
 <div class="section" id="exporting-simulation-data">
 <h2>4.1. Exporting Simulation Data<a class="headerlink" href="#exporting-simulation-data" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC&#8217;s <code class="docutils literal"><span class="pre">openmoc.process</span></code> module provides the <code class="docutils literal"><span class="pre">store_simulation_state(...)</span></code> routine to export simulation data to binary output files. The only required parameter for the routine is a <code class="docutils literal"><span class="pre">Solver</span></code> object. Optional parameters may be used to indicate whether to store the data in <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> or as a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file (default), store the fluxes, sources, fission rates and more. All of the supported parameters are listed in <a class="reference internal" href="#table-store-simulation-state"><span>Table 1</span></a>, and the output variables stored in the binary file are tabulated in <a class="reference internal" href="#table-output-variables"><span>Table 2</span></a>.</p>
+<p>OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module provides the <tt class="docutils literal"><span class="pre">store_simulation_state(...)</span></tt> routine to export simulation data to binary output files. The only required parameter for the routine is a <tt class="docutils literal"><span class="pre">Solver</span></tt> object. Optional parameters may be used to indicate whether to store the data in <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> or as a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file (default), store the fluxes, sources, fission rates and more. All of the supported parameters are listed in <a class="reference internal" href="#table-store-simulation-state"><em>Table 1</em></a>, and the output variables stored in the binary file are tabulated in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
 <table border="1" class="docutils" id="table-store-simulation-state">
 <colgroup>
 <col width="17%" />
@@ -80,55 +80,55 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">solver</span></code></td>
-<td><code class="docutils literal"><span class="pre">Solver</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
 <td>None</td>
 <td>No</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">fluxes</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fluxes</span></tt></td>
 <td>boolean</td>
 <td>False</td>
 <td>Yes</td>
 <td>Whether to store the FSR fluxes</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">sources</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">sources</span></tt></td>
 <td>boolean</td>
 <td>False</td>
 <td>Yes</td>
 <td>Whether to store the FSR sources</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">fission_rates</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fission_rates</span></tt></td>
 <td>boolean</td>
 <td>False</td>
 <td>Yes</td>
 <td>Whether to store the fission rates</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">use_hdf5</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">use_hdf5</span></tt></td>
 <td>boolean</td>
 <td>False (pickle file)</td>
 <td>Yes</td>
 <td>Whether to use <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">filename</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">filename</span></tt></td>
 <td>string</td>
 <td>&#8216;simulation-state&#8217;</td>
 <td>Yes</td>
 <td>The filename for storage</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">directory</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">directory</span></tt></td>
 <td>string</td>
 <td>&#8216;simulation-states&#8217;</td>
 <td>Yes</td>
 <td>The directory for storage</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">append</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">append</span></tt></td>
 <td>boolean</td>
 <td>True</td>
 <td>Yes</td>
 <td>Append to a file or create a new one</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">note</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">note</span></tt></td>
 <td>string</td>
 <td>None</td>
 <td>Yes</td>
@@ -136,7 +136,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 1</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.proces.store_simulation_state(...)</span></code> routine.</p>
+<p><strong>Table 1</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.proces.store_simulation_state(...)</span></tt> routine.</p>
 <table border="1" class="docutils" id="table-output-variables">
 <colgroup>
 <col width="31%" />
@@ -240,21 +240,21 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Table 2</strong>: Output variables in a binary file created by the <code class="docutils literal"><span class="pre">openmoc.proces.store_simulation_state(...)</span></code> routine.</p>
+<p><strong>Table 2</strong>: Output variables in a binary file created by the <tt class="docutils literal"><span class="pre">openmoc.proces.store_simulation_state(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span>
 
 <span class="c"># Setup and run simulation</span>
 <span class="o">...</span>
 
 <span class="c"># Export the simulation data to an output file</span>
-<span class="n">proc</span><span class="o">.</span><span class="n">store_simulation_state</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">store_simulation_state</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="retrieving-simulation-data">
 <h2>4.2. Retrieving Simulation Data<a class="headerlink" href="#retrieving-simulation-data" title="Permalink to this headline">¶</a></h2>
-<p>Exporting simulation data is only useful if there is a straightforward means to retrieve it for data processing at a later time. OpenMOC&#8217;s <code class="docutils literal"><span class="pre">restore_simulation_state(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.process</span></code> module can be used for this purpose. This routine takes a binary data file created by the <code class="docutils literal"><span class="pre">store_simulation_state(...)</span></code> routine, parses the file and catalogues the data in a Python <a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#mapping-types-dict">dictionary</a>, which it returns to the user. The parameters accepted by the routine are described in <a class="reference internal" href="#table-restore-simulation-states"><span>Table 3</span></a>, while the dictionary keys are identical to the output variables given in <a class="reference internal" href="#table-output-variables"><span>Table 2</span></a>.</p>
+<p>Exporting simulation data is only useful if there is a straightforward means to retrieve it for data processing at a later time. OpenMOC&#8217;s <tt class="docutils literal"><span class="pre">restore_simulation_state(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module can be used for this purpose. This routine takes a binary data file created by the <tt class="docutils literal"><span class="pre">store_simulation_state(...)</span></tt> routine, parses the file and catalogues the data in a Python <a class="reference external" href="http://docs.python.org/2/library/stdtypes.html#mapping-types-dict">dictionary</a>, which it returns to the user. The parameters accepted by the routine are described in <a class="reference internal" href="#table-restore-simulation-states"><em>Table 3</em></a>, while the dictionary keys are identical to the output variables given in <a class="reference internal" href="#table-output-variables"><em>Table 2</em></a>.</p>
 <table border="1" class="docutils" id="table-restore-simulation-states">
 <colgroup>
 <col width="27%" />
@@ -270,31 +270,197 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">filename</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">filename</span></tt></td>
 <td>string</td>
 <td>&#8216;simulation-state.pkl&#8217;</td>
 <td>Yes</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">directory</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">directory</span></tt></td>
 <td>string</td>
 <td>&#8216;simulation-states&#8217;</td>
 <td>Yes</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 3</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.process.restore_simulation_state(...)</span></code> routine.</p>
+<p><strong>Table 3</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.restore_simulation_state(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span>
 
 <span class="c"># Retrieve the simulation state(s) stored in the &#39;states.h5&#39; file</span>
 <span class="c"># and returns the data in a Python dictionary</span>
-<span class="n">simulation_state</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">restore_simulation_state</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;states.h5&#39;</span><span class="p">)</span>
+<span class="n">simulation_state</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">restore_simulation_state</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;states.h5&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="computing-fission-rates">
-<h2>4.3. Computing Fission Rates<a class="headerlink" href="#computing-fission-rates" title="Permalink to this headline">¶</a></h2>
-<p>In some cases, a user may wish to only compute and export the fission rates in each flat source region for a simulation. In this case, the <code class="docutils literal"><span class="pre">compute_fission_rates(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.process</span></code> module  may be used. The routine takes in a <code class="docutils literal"><span class="pre">Solver</span></code> subclass (e.g., <code class="docutils literal"><span class="pre">CPUSolver</span></code>, <code class="docutils literal"><span class="pre">VectorizedSolver</span></code>, <code class="docutils literal"><span class="pre">GPUSolver</span></code>, etc.) and computes the fission rate for each <code class="docutils literal"><span class="pre">Universe</span></code> in the <code class="docutils literal"><span class="pre">Geometry</span></code> by summing up the fission rates in each <code class="docutils literal"><span class="pre">Cell</span></code> in the <code class="docutils literal"><span class="pre">Universe</span></code>. In most cases, a <code class="docutils literal"><span class="pre">Universe</span></code> is replicated in many places throughout the <code class="docutils literal"><span class="pre">Geometry</span></code>. To account for this, the routine will separately compute the fission rates for each unique placement of that <code class="docutils literal"><span class="pre">Universe</span></code> in the <code class="docutils literal"><span class="pre">Geometry</span></code>. By default, the fission rates will be exported to a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file, but may alternatively be exported to an <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary file. Each fission rate will be indexed by a string representing the &#8220;path&#8221; of <code class="docutils literal"><span class="pre">Universes</span></code>, <code class="docutils literal"><span class="pre">Lattices</span></code> and <code class="docutils literal"><span class="pre">Lattice</span></code> cell indices traversed through the <code class="docutils literal"><span class="pre">Geometry</span></code> to reach the flat source region of interest. <a class="reference internal" href="#table-fission-rates"><span>Table 4</span></a> describes the parameters accepted by the routine.</p>
+<div class="section" id="computing-reaction-rates">
+<h2>4.3. Computing Reaction Rates<a class="headerlink" href="#computing-reaction-rates" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="reaction-rates-by-tally-mesh">
+<h3>4.3.1. Reaction Rates By Tally Mesh<a class="headerlink" href="#reaction-rates-by-tally-mesh" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module supports reaction rate through structured Cartesian mesh tallies, similar to how one might compute such quantities in a Monte Carlo code such as MCNP, Serpent or OpenMC. The <tt class="docutils literal"><span class="pre">Mesh</span></tt> class allows one to tally a reaction rate in each of its structured cells. <a class="reference internal" href="#table-mesh-params"><em>Table 4</em></a> below itemizes each of the property attributes of the <tt class="docutils literal"><span class="pre">Mesh</span></tt> class which can be used to tally reaction rates.</p>
+<table border="1" class="docutils" id="table-mesh-params">
+<colgroup>
+<col width="22%" />
+<col width="17%" />
+<col width="9%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dimension</span></tt></td>
+<td>list of integers</td>
+<td>None</td>
+<td>The number of mesh cells in each direction</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">lower_left</span></tt></td>
+<td>list of floats</td>
+<td>None</td>
+<td>The lower-left corner of the structured mesh</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">upper_right</span></tt></td>
+<td>list of floats</td>
+<td>None</td>
+<td>The upper-right corner of the structrued mesh</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">width</span></tt></td>
+<td>list of floats</td>
+<td>None</td>
+<td>The width of mesh cells in each direction (centimeters)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 4</strong>: The <tt class="docutils literal"><span class="pre">Mesh</span></tt> class property attributes for tallying reaction rates.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">Mesh</span></tt> is assumed to be perfectly coincident with the FSR mesh used in the OpenMOC calculation.</p>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">Mesh.tally_fission_rates(...)</span></tt> class method is designed to compute fission rates using the <tt class="docutils literal"><span class="pre">'fission'</span></tt> cross section in each <tt class="docutils literal"><span class="pre">Material</span></tt> in a simulation. The parameters accepted by this method are described in <a class="reference internal" href="#table-mesh-fiss-rates"><em>Table 5</em></a>.</p>
+<table border="1" class="docutils" id="table-mesh-fiss-rates">
+<colgroup>
+<col width="28%" />
+<col width="24%" />
+<col width="30%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
+<td>None</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">volume</span></tt></td>
+<td>string</td>
+<td>&#8216;integrated&#8217;</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5</strong>: Parameters for the <tt class="docutils literal"><span class="pre">Mesh.tally_fission_rates(...)</span></tt> method.</p>
+<p>The code snippet below illustrates how one may compute a mesh fission rate tally for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice.py</span></tt> file. The fission rates are returned as a <tt class="docutils literal"><span class="pre">numpy.ndarray</span></tt> indexed by FSR.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span>
+
+<span class="c"># Setup and run simulation</span>
+<span class="o">...</span>
+
+<span class="c"># Create OpenMOC Mesh on which to tally fission rates</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">Mesh</span><span class="p">()</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">lower_left</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.</span><span class="p">]</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">upper_right</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+
+<span class="c"># Tally OpenMOC fission rates on the Mesh and return NumPy array</span>
+<span class="n">fiss_rates</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">tally_fission_rates</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">'fission'</span></tt> cross section must be supplied to each <tt class="docutils literal"><span class="pre">Material</span></tt> to compute fission rates even though it is <em>not</em> needed to perform a simulation.</p>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">Mesh.tally_on_mesh(...)</span></tt> class method is designed to compute reaction rates more generally from a user-specified mapping of coefficients (<em>e.g.</em>, cross sections) to each material, cell or FSR.  The parameters accepted by this method are described in <a class="reference internal" href="#table-mesh-rxn-rates"><em>Table 6</em></a>.</p>
+<table border="1" class="docutils" id="table-mesh-rxn-rates">
+<colgroup>
+<col width="40%" />
+<col width="20%" />
+<col width="25%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
+<td>None</td>
+<td>No</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">domains_to_coeffs</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">dict</span></tt></td>
+<td>None</td>
+<td>No</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">domain_type</span></tt></td>
+<td>string</td>
+<td>&#8216;fsr&#8217;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">volume</span></tt></td>
+<td>string</td>
+<td>&#8216;integrated&#8217;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">energy</span></tt></td>
+<td>string</td>
+<td>&#8216;integrated&#8217;</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 6</strong>: Parameters for the <tt class="docutils literal"><span class="pre">Mesh.tally_on_mesh(...)</span></tt> method.</p>
+<p>The code snippet below illustrates how one may compile the groupwise coefficients (total cross sections) for each <tt class="docutils literal"><span class="pre">Material</span></tt> in a Python <tt class="docutils literal"><span class="pre">dict</span></tt> to supply to <tt class="docutils literal"><span class="pre">Mesh.tally_on_mesh(...)</span></tt> to compute a total reaction rate tally for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice.py</span></tt> file. The reaction rates are returned as a <tt class="docutils literal"><span class="pre">numpy.ndarray</span></tt> indexed by FSR.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c"># Setup and run simulation</span>
+<span class="o">...</span>
+
+<span class="c"># Retrieve the Materials and number of groups from the geometry</span>
+<span class="n">materials</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">getAllMaterials</span><span class="p">()</span>
+<span class="n">num_groups</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">getNumEnergyGroups</span><span class="p">()</span>
+
+<span class="c"># Aggregate the total cross sections for each Material</span>
+<span class="c"># into a dictionary to pass to the mesh tally</span>
+<span class="n">domains_to_coeffs</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">material_id</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">:</span>
+    <span class="n">domains_to_coeffs</span><span class="p">[</span><span class="n">material_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_groups</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_groups</span><span class="p">):</span>
+        <span class="n">domains_to_coeffs</span><span class="p">[</span><span class="n">material_id</span><span class="p">][</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">materials</span><span class="p">[</span><span class="n">material_id</span><span class="p">]</span><span class="o">.</span><span class="n">getSigmaTByGroup</span><span class="p">(</span><span class="n">group</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c"># Tally volume-averaged OpenMOC total rates on the Mesh</span>
+<span class="n">tot_rates</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">tally_on_mesh</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">domains_to_coeffs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fission-rates-by-universe-level">
+<h3>4.3.2. Fission Rates by Universe Level<a class="headerlink" href="#fission-rates-by-universe-level" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">compute_fission_rates(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module  computes the fission rate for each <tt class="docutils literal"><span class="pre">Universe</span></tt> in the <tt class="docutils literal"><span class="pre">Geometry</span></tt> by summing up the fission rates in each <tt class="docutils literal"><span class="pre">Cell</span></tt> in the <tt class="docutils literal"><span class="pre">Universe</span></tt>. In most cases, a <tt class="docutils literal"><span class="pre">Universe</span></tt> is replicated in many places throughout the <tt class="docutils literal"><span class="pre">Geometry</span></tt>. To account for this, the routine will separately compute the fission rates for each unique placement of that <tt class="docutils literal"><span class="pre">Universe</span></tt> in the <tt class="docutils literal"><span class="pre">Geometry</span></tt>. By default, the fission rates will be exported to a Python <a class="reference external" href="http://docs.python.org/2/library/pickle.html">pickle</a> file, but may alternatively be exported to an <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary file. Each fission rate will be indexed by a string representing the &#8220;path&#8221; of <tt class="docutils literal"><span class="pre">Universes</span></tt>, <tt class="docutils literal"><span class="pre">Lattices</span></tt> and <tt class="docutils literal"><span class="pre">Lattice</span></tt> cell indices traversed through the <tt class="docutils literal"><span class="pre">Geometry</span></tt> to reach the flat source region of interest. <a class="reference internal" href="#table-fission-rates"><em>Table 7</em></a> describes the parameters accepted by the routine.</p>
 <table border="1" class="docutils" id="table-fission-rates">
 <colgroup>
 <col width="26%" />
@@ -310,27 +476,27 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">solver</span></code></td>
-<td><code class="docutils literal"><span class="pre">Solver</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
 <td>None</td>
 <td>No</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">use_hdf5</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">use_hdf5</span></tt></td>
 <td>boolean</td>
 <td>False</td>
 <td>Yes</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 4</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.process.compute_fission_rates(...)</span></code> routine.</p>
+<p><strong>Table 7</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.process.compute_fission_rates(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span> <span class="kn">as</span> <span class="nn">proc</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.process</span>
 
 <span class="c"># Setup and run simulation</span>
 <span class="o">...</span>
 
 <span class="c"># Compute and export the flat source region fission rates</span>
-<span class="n">proc</span><span class="o">.</span><span class="n">compute_fission_rates</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">compute_fission_rates</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">use_hdf5</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -342,18 +508,19 @@
 <p class="last">The fission rates are not normalized in any way - this is left to the user&#8217;s discretion during data processing.</p>
 </div>
 </div>
+</div>
 <div class="section" id="geometry-visualization">
 <h2>4.4. Geometry Visualization<a class="headerlink" href="#geometry-visualization" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="plotting-tracks">
 <h3>4.4.1. Plotting Tracks<a class="headerlink" href="#plotting-tracks" title="Permalink to this headline">¶</a></h3>
-<p>To plot the tracks crossing the geometry, use the <code class="docutils literal"><span class="pre">plot_tracks(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-tracks"><span>Table 5</span></a>.</p>
+<p>To plot the tracks crossing the geometry, use the <tt class="docutils literal"><span class="pre">plot_tracks(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-tracks"><em>Table 8</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-tracks">
 <colgroup>
-<col width="22%" />
-<col width="29%" />
-<col width="10%" />
-<col width="10%" />
-<col width="29%" />
+<col width="18%" />
+<col width="24%" />
+<col width="9%" />
+<col width="9%" />
+<col width="41%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -364,28 +531,34 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">track_generator</span></code></td>
-<td><code class="docutils literal"><span class="pre">TrackGenerator</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">track_generator</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">TrackGenerator</span></tt></td>
 <td>None</td>
 <td>No</td>
 <td>The tracks of interest</td>
 </tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
 </tbody>
 </table>
-<p><strong>Table 5</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_tracks(...)</span></code> routine.</p>
+<p><strong>Table 8</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_tracks(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates the use of this routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry and generate tracks</span>
 <span class="o">...</span>
 
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_tracks</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_tracks</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the tracks for the <code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></code> example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in <a class="reference internal" href="#figure-tracks"><span>Figure 1</span></a>.</p>
-<div class="align-center figure" id="id5">
-<span id="figure-tracks"></span><a class="reference internal image-reference" href="../_images/tracks.png"><img alt="../_images/tracks.png" src="../_images/tracks.png" style="width: 400px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Figure 1</strong>: The tracks crossing a a 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice.</span></p>
+<p>A depiction of the tracks for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice.py</span></tt> example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in <a class="reference internal" href="#figure-tracks"><em>Figure 1</em></a>.</p>
+<div class="align-center figure" id="figure-tracks">
+<a class="reference internal image-reference" href="../_images/tracks.png"><img alt="../_images/tracks.png" src="../_images/tracks.png" style="width: 400px;" /></a>
+<p class="caption"><strong>Figure 1</strong>: The tracks crossing a a 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -394,14 +567,14 @@
 </div>
 <div class="section" id="plotting-segments">
 <h3>4.4.2. Plotting Segments<a class="headerlink" href="#plotting-segments" title="Permalink to this headline">¶</a></h3>
-<p>To plot the segments crossing the geometry color-coded by flat source region, use the <code class="docutils literal"><span class="pre">plot_segments(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-segments"><span>Table 6</span></a>.</p>
+<p>To plot the segments crossing the geometry color-coded by flat source region, use the <tt class="docutils literal"><span class="pre">plot_segments(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-segments"><em>Table 9</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-segments">
 <colgroup>
-<col width="22%" />
-<col width="29%" />
-<col width="10%" />
-<col width="10%" />
-<col width="29%" />
+<col width="18%" />
+<col width="24%" />
+<col width="9%" />
+<col width="9%" />
+<col width="41%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -412,28 +585,34 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">track_generator</span></code></td>
-<td><code class="docutils literal"><span class="pre">TrackGenerator</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">track_generator</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">TrackGenerator</span></tt></td>
 <td>None</td>
 <td>No</td>
 <td>The tracks of interest</td>
 </tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
 </tbody>
 </table>
-<p><strong>Table 6</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_segments(...)</span></code> routine.</p>
+<p><strong>Table 9</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_segments(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates the use of this routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry and generate tracks</span>
 <span class="o">...</span>
 
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_segments</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_segments</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the segments for the <code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></code> example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in <a class="reference internal" href="#figure-segments"><span>Figure 2</span></a>.</p>
-<div class="align-center figure" id="id6">
-<span id="figure-segments"></span><a class="reference internal image-reference" href="../_images/segments.png"><img alt="../_images/segments.png" src="../_images/segments.png" style="width: 400px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Figure 2</strong>: The segments crossing a a 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice.</span></p>
+<p>A depiction of the segments for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice.py</span></tt> example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in <a class="reference internal" href="#figure-segments"><em>Figure 2</em></a>.</p>
+<div class="align-center figure" id="figure-segments">
+<a class="reference internal image-reference" href="../_images/segments.png"><img alt="../_images/segments.png" src="../_images/segments.png" style="width: 400px;" /></a>
+<p class="caption"><strong>Figure 2</strong>: The segments crossing a a 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -446,14 +625,14 @@
 </div>
 <div class="section" id="plotting-by-material">
 <h3>4.4.3. Plotting by Material<a class="headerlink" href="#plotting-by-material" title="Permalink to this headline">¶</a></h3>
-<p>To plot the geometry color-coded by the material ID&#8217;s throughout the geometry, use the <code class="docutils literal"><span class="pre">plot_materials(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-materials"><span>Table 7</span></a>.</p>
+<p>To plot the geometry color-coded by the material ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_materials(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-materials"><em>Table 10</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-materials">
 <colgroup>
-<col width="13%" />
-<col width="21%" />
-<col width="10%" />
-<col width="10%" />
-<col width="45%" />
+<col width="14%" />
+<col width="14%" />
+<col width="12%" />
+<col width="8%" />
+<col width="52%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -464,63 +643,81 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">geometry</span></code></td>
-<td><code class="docutils literal"><span class="pre">Geometry</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt></td>
 <td>None</td>
 <td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Geometry</span></code> of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">gridsize</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">xlim</span></code></td>
-<td>float</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinates to plot</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ylim</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>2-tuple</td>
+<td>None</td>
+<td>Yes</td>
+<td>The min/max <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinates to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">zcoord</span></tt></td>
 <td>float</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+<td>The level along the <img class="math" src="../_images/math/84d7271dd9e78c1e05d6c3c6ecb60309ef7dfc73.png" alt="z"/>-axis to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">library</span></tt></td>
+<td>string</td>
+<td>&#8216;matplotlib&#8217;</td>
+<td>Yes</td>
+<td>The plotting library to use (&#8216;matplotlib&#8217; or &#8216;pil&#8217;)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 7</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_materials(...)</span></code> routine.</p>
+<p><strong>Table 10</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_materials(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry</span>
 <span class="o">...</span>
 
 <span class="c"># Plot a 500 x 500 pixel image of the materials</span>
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_materials</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_materials</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the materials for the <code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></code> example input file is illustrated in <a class="reference internal" href="#figure-materials"><span>Figure 3</span></a>.</p>
-<div class="align-center figure" id="id7">
-<span id="figure-materials"></span><a class="reference internal image-reference" href="../_images/materials.png"><img alt="../_images/materials.png" src="../_images/materials.png" style="width: 400px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Figure 3</strong>: A 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice color-coded by material.</span></p>
+<p>A depiction of the materials for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-materials"><em>Figure 3</em></a>.</p>
+<div class="align-center figure" id="figure-materials">
+<a class="reference internal image-reference" href="../_images/materials.png"><img alt="../_images/materials.png" src="../_images/materials.png" style="width: 400px;" /></a>
+<p class="caption"><strong>Figure 3</strong>: A 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice color-coded by material.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <code class="docutils literal"><span class="pre">gridsize</span></code> parameter).</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
 </div>
 <div class="section" id="plotting-by-cell">
 <h3>4.4.4. Plotting by Cell<a class="headerlink" href="#plotting-by-cell" title="Permalink to this headline">¶</a></h3>
-<p>To plot the geometry color-coded by the cell ID&#8217;s throughout the geometry, use the <code class="docutils literal"><span class="pre">plot_cells(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-cells"><span>Table 8</span></a>.</p>
+<p>To plot the geometry color-coded by the cell ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_cells(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-cells"><em>Table 11</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-cells">
 <colgroup>
-<col width="13%" />
-<col width="21%" />
-<col width="10%" />
-<col width="10%" />
-<col width="45%" />
+<col width="14%" />
+<col width="14%" />
+<col width="12%" />
+<col width="8%" />
+<col width="52%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -531,63 +728,81 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">geometry</span></code></td>
-<td><code class="docutils literal"><span class="pre">Geometry</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt></td>
 <td>None</td>
 <td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Geometry</span></code> of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">gridsize</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">xlim</span></code></td>
-<td>float</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinates to plot</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ylim</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>2-tuple</td>
+<td>None</td>
+<td>Yes</td>
+<td>The min/max <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinates to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">zcoord</span></tt></td>
 <td>float</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+<td>The level along the <img class="math" src="../_images/math/84d7271dd9e78c1e05d6c3c6ecb60309ef7dfc73.png" alt="z"/>-axis to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">library</span></tt></td>
+<td>string</td>
+<td>&#8216;matplotlib&#8217;</td>
+<td>Yes</td>
+<td>The plotting library to use (&#8216;matplotlib&#8217; or &#8216;pil&#8217;)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 8</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_cells(...)</span></code> routine.</p>
+<p><strong>Table 11</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_cells(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry</span>
 <span class="o">...</span>
 
 <span class="c"># Plot a 500 x 500 pixel image of the cells</span>
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_cells</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_cells</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the cells for the <code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></code> example input file is illustrated in <a class="reference internal" href="#figure-cells"><span>Figure 4</span></a>.</p>
-<div class="align-center figure" id="id8">
-<span id="figure-cells"></span><a class="reference internal image-reference" href="../_images/cells.png"><img alt="../_images/cells.png" src="../_images/cells.png" style="width: 400px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Figure 4</strong>: A 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice color-coded by cell.</span></p>
+<p>A depiction of the cells for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-cells"><em>Figure 4</em></a>.</p>
+<div class="align-center figure" id="figure-cells">
+<a class="reference internal image-reference" href="../_images/cells.png"><img alt="../_images/cells.png" src="../_images/cells.png" style="width: 400px;" /></a>
+<p class="caption"><strong>Figure 4</strong>: A 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice color-coded by cell.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <code class="docutils literal"><span class="pre">gridsize</span></code> parameter).</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
 </div>
 <div class="section" id="plotting-by-fsr">
 <h3>4.4.5. Plotting by FSR<a class="headerlink" href="#plotting-by-fsr" title="Permalink to this headline">¶</a></h3>
-<p>To plot the geometry color-coded by the flat source region ID&#8217;s throughout the geometry, use the <code class="docutils literal"><span class="pre">plot_flat_source_regions(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fsrs"><span>Table 9</span></a>.</p>
+<p>To plot the geometry color-coded by the flat source region ID&#8217;s throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_flat_source_regions(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fsrs"><em>Table 12</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-fsrs">
 <colgroup>
-<col width="13%" />
-<col width="21%" />
-<col width="10%" />
-<col width="10%" />
-<col width="45%" />
+<col width="15%" />
+<col width="14%" />
+<col width="12%" />
+<col width="8%" />
+<col width="51%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -598,63 +813,93 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">geometry</span></code></td>
-<td><code class="docutils literal"><span class="pre">Geometry</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt></td>
 <td>None</td>
 <td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Geometry</span></code> of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">gridsize</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">xlim</span></code></td>
-<td>float</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinates to plot</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ylim</span></code></td>
-<td>float</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinates to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">centroids</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to plot the FSR centroids</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">marker_type</span></tt></td>
+<td>string</td>
+<td><tt class="docutils literal"><span class="pre">'o'</span></tt></td>
+<td>Yes</td>
+<td>The marker type to use for FSR centroids</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">marker_size</span></tt></td>
+<td>integer</td>
+<td>2</td>
+<td>Yes</td>
+<td>The marker size to use for FSR centroids</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">library</span></tt></td>
+<td>string</td>
+<td>&#8216;matplotlib&#8217;</td>
+<td>Yes</td>
+<td>The plotting library to use (&#8216;matplotlib&#8217; or &#8216;pil&#8217;)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 9</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_flat_source_regions(...)</span></code> routine.</p>
+<p><strong>Table 12</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_flat_source_regions(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry</span>
 <span class="o">...</span>
 
 <span class="c"># Plot a 500 x 500 pixel image of the flat source regions</span>
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_flat_source_regions</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_flat_source_regions</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the flat source regions for the <code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/large-lattice.py</span></code> example input file is illustrated in <a class="reference internal" href="#figure-flat-source-regions"><span>Figure 5</span></a>.</p>
-<div class="align-center figure" id="id9">
-<span id="figure-flat-source-regions"></span><a class="reference internal image-reference" href="../_images/flat-source-regions.png"><img alt="../_images/flat-source-regions.png" src="../_images/flat-source-regions.png" style="width: 400px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Figure 5</strong>: A 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice color-coded by flat source region.</span></p>
+<p>A depiction of the flat source regions for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-flat-source-regions"><em>Figure 5</em></a>.</p>
+<div class="align-center figure" id="figure-flat-source-regions">
+<a class="reference internal image-reference" href="../_images/flat-source-regions.png"><img alt="../_images/flat-source-regions.png" src="../_images/flat-source-regions.png" style="width: 400px;" /></a>
+<p class="caption"><strong>Figure 5</strong>: A 4 <img class="math" src="../_images/math/c69691d64985442217922c8d34e835a9dea60178.png" alt="\times"/> 4 lattice color-coded by flat source region.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <code class="docutils literal"><span class="pre">gridsize</span></code> parameter).</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
 </div>
 <div class="section" id="plotting-by-cmfd-cell">
 <h3>4.4.6. Plotting by CMFD Cell<a class="headerlink" href="#plotting-by-cmfd-cell" title="Permalink to this headline">¶</a></h3>
-<p>To plot the geometry color-coded by the CMFD cells throughout the geometry, use the <code class="docutils literal"><span class="pre">plot_cmfd_cells(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-cmfd-cells"><span>Table 10</span></a>.</p>
+<p>To plot the geometry color-coded by the CMFD cells throughout the geometry, use the <tt class="docutils literal"><span class="pre">plot_cmfd_cells(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-cmfd-cells"><em>Table 13</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-cmfd-cells">
 <colgroup>
-<col width="13%" />
-<col width="21%" />
-<col width="10%" />
-<col width="10%" />
-<col width="45%" />
+<col width="14%" />
+<col width="14%" />
+<col width="12%" />
+<col width="8%" />
+<col width="52%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -665,59 +910,65 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">geometry</span></code></td>
-<td><code class="docutils literal"><span class="pre">Geometry</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt></td>
 <td>None</td>
 <td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Geometry</span></code> of interest</td>
+<td>The <tt class="docutils literal"><span class="pre">Geometry</span></tt> of interest</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">cmfd</span></code></td>
-<td><code class="docutils literal"><span class="pre">Cmfd</span></code> object</td>
-<td>None</td>
-<td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Cmfd</span></code> of interest</td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">gridsize</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">xlim</span></code></td>
-<td>float</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinates to plot</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">ylim</span></code></td>
-<td>float</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinates to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">library</span></tt></td>
+<td>string</td>
+<td>&#8216;matplotlib&#8217;</td>
+<td>Yes</td>
+<td>The plotting library to use (&#8216;matplotlib&#8217; or &#8216;pil&#8217;)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 10</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_cmfd_cells(...)</span></code> routine.</p>
+<p><strong>Table 13</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_cmfd_cells(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry and cmfd</span>
 <span class="o">...</span>
 
 <span class="c"># Plot a 500 x 500 pixel image of the CMFD cells</span>
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_cmfd_cells</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">cmfd</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_cmfd_cells</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">cmfd</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the flat source regions and CMFD cells for the <code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7-cmfd.py</span></code> example input file is illustrated in <a class="reference internal" href="#figure-cmfd-cells"><span>Figure 6</span></a>.</p>
+<p>A depiction of the flat source regions and CMFD cells for the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7/c5g7-cmfd.py</span></tt> example input file is illustrated in <a class="reference internal" href="#figure-cmfd-cells"><em>Figure 6</em></a>.</p>
 <table border="1" class="docutils" id="figure-cmfd-cells">
 <colgroup>
 <col width="48%" />
 <col width="52%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/c5g7-fsrs.png" id="figa"><img alt="../_images/c5g7-fsrs.png" class="align-center" id="figa" src="../_images/c5g7-fsrs.png" style="width: 70%;" /></a>
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/c5g7-fsrs.png" id="figure-cmfd-cells-a"><img alt="../_images/c5g7-fsrs.png" class="align-center" id="figure-cmfd-cells-a" src="../_images/c5g7-fsrs.png" style="width: 70%;" /></a>
 </td>
-<td><a class="first last reference internal image-reference" href="../_images/c5g7-cmfd-cells.png" id="figb"><img alt="../_images/c5g7-cmfd-cells.png" class="align-center" id="figb" src="../_images/c5g7-cmfd-cells.png" style="width: 64%;" /></a>
+<td><a class="first last reference internal image-reference" href="../_images/c5g7-cmfd-cells.png" id="figure-cmfd-cells-b"><img alt="../_images/c5g7-cmfd-cells.png" class="align-center" id="figure-cmfd-cells-b" src="../_images/c5g7-cmfd-cells.png" style="width: 64%;" /></a>
 </td>
 </tr>
 </tbody>
@@ -725,23 +976,23 @@
 <p><strong>Figure 6</strong>: The flat source regions and CMFD cells for the C5G7 benchmark problem.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <code class="docutils literal"><span class="pre">gridsize</span></code> parameter).</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
 </div>
 </div>
 <div class="section" id="flux-visualization">
 <h2>4.5. Flux Visualization<a class="headerlink" href="#flux-visualization" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module includes routines to plot the scalar flux in space and energy, as detailed in the following sections.</p>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module includes routines to plot the scalar flux in space and energy, as detailed in the following sections.</p>
 <div class="section" id="flux-in-space">
 <h3>4.5.1. Flux in Space<a class="headerlink" href="#flux-in-space" title="Permalink to this headline">¶</a></h3>
-<p>To plot the flat source region scalar fluxes in space, use the <code class="docutils literal"><span class="pre">plot_spatial_fluxes(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-space"><span>Table 11</span></a>.</p>
+<p>To plot the flat source region scalar fluxes in space, use the <tt class="docutils literal"><span class="pre">plot_spatial_fluxes(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-space"><em>Table 14</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-fluxes-space">
 <colgroup>
-<col width="17%" />
-<col width="19%" />
-<col width="9%" />
-<col width="9%" />
-<col width="45%" />
+<col width="16%" />
+<col width="14%" />
+<col width="12%" />
+<col width="8%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -752,41 +1003,59 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">solver</span></code></td>
-<td><code class="docutils literal"><span class="pre">Solver</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
 <td>None</td>
 <td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Solver</span></code> used to converge the source</td>
+<td>The <tt class="docutils literal"><span class="pre">Solver</span></tt> used to converge the source</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">energy_groups</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">energy_groups</span></tt></td>
 <td>list</td>
 <td>[1]</td>
 <td>No</td>
 <td>Create separate plots for each energy group</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">gridsize</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">norm</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to normalize fluxes to the mean</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">xlim</span></code></td>
-<td>float</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinates to plot</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">ylim</span></code></td>
-<td>float</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinates to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">library</span></tt></td>
+<td>string</td>
+<td>&#8216;matplotlib&#8217;</td>
+<td>Yes</td>
+<td>The plotting library to use (&#8216;matplotlib&#8217; or &#8216;pil&#8217;)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 11</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_spatial_fluxes(...)</span></code> routine.</p>
+<p><strong>Table 14</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_spatial_fluxes(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry and generate tracks</span>
 <span class="o">...</span>
@@ -795,19 +1064,19 @@
 <span class="o">...</span>
 
 <span class="c"># Plot the fluxes for energy groups 1 and 7 in 500 x 500 pixel images</span>
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_spatial_fluxes</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">energy_groups</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_spatial_fluxes</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">energy_groups</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7</span></code>) is illustrated in <a class="reference internal" href="#figure-spatial-fluxes"><span>Figure 7</span></a>.</p>
+<p>A depiction of the group 1 and 7 fluxes for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7</span></tt>) is illustrated in <a class="reference internal" href="#figure-spatial-fluxes"><em>Figure 7</em></a>.</p>
 <table border="1" class="docutils" id="figure-spatial-fluxes">
 <colgroup>
 <col width="51%" />
 <col width="49%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-group-1.png" id="id1"><img alt="../_images/flux-group-1.png" class="align-center" id="id1" src="../_images/flux-group-1.png" style="width: 72%;" /></a>
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-group-1.png" id="figure-spatial-fluxes-a"><img alt="../_images/flux-group-1.png" class="align-center" id="figure-spatial-fluxes-a" src="../_images/flux-group-1.png" style="width: 72%;" /></a>
 </td>
-<td><a class="first last reference internal image-reference" href="../_images/flux-group-7.png" id="id2"><img alt="../_images/flux-group-7.png" class="align-center" id="id2" src="../_images/flux-group-7.png" style="width: 75%;" /></a>
+<td><a class="first last reference internal image-reference" href="../_images/flux-group-7.png" id="figure-spatial-fluxes-b"><img alt="../_images/flux-group-7.png" class="align-center" id="figure-spatial-fluxes-b" src="../_images/flux-group-7.png" style="width: 75%;" /></a>
 </td>
 </tr>
 </tbody>
@@ -815,12 +1084,12 @@
 <p><strong>Figure 7</strong>: The fast and thermal fluxes in the C5G7 benchmark problem.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <code class="docutils literal"><span class="pre">gridsize</span></code> parameter).</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
 </div>
 </div>
 <div class="section" id="flux-in-energy">
 <h3>4.5.2. Flux in Energy<a class="headerlink" href="#flux-in-energy" title="Permalink to this headline">¶</a></h3>
-<p>To plot the flux in energy for one or more flat source regions, use the <code class="docutils literal"><span class="pre">plot_energy_fluxes(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-energy"><span>Table 12</span></a>.</p>
+<p>To plot the flux in energy for one or more flat source regions, use the <tt class="docutils literal"><span class="pre">plot_energy_fluxes(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fluxes-energy"><em>Table 15</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-fluxes-energy">
 <colgroup>
 <col width="17%" />
@@ -838,41 +1107,47 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">solver</span></code></td>
-<td><code class="docutils literal"><span class="pre">Solver</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt> object</td>
 <td>None</td>
 <td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Solver</span></code> used to converge the source</td>
+<td>The <tt class="docutils literal"><span class="pre">Solver</span></tt> used to converge the source</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">fsrs</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">fsrs</span></tt></td>
 <td>list</td>
 <td>None</td>
 <td>No</td>
 <td>The flat source region IDs of interest</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">group_bounds</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">group_bounds</span></tt></td>
 <td>list</td>
 <td>None</td>
 <td>Yes</td>
 <td>The sequential bounds for each energy group</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">norm</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">norm</span></tt></td>
 <td>boolean</td>
 <td>True</td>
 <td>Yes</td>
 <td>Whether to normalize the flux across energy</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">loglog</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">loglog</span></tt></td>
 <td>boolean</td>
 <td>True</td>
 <td>Yes</td>
 <td>Whether to use a log-log plotting scale</td>
 </tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
 </tbody>
 </table>
-<p><strong>Table 12</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_energy_fluxes(...)</span></code> routine.</p>
+<p><strong>Table 15</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_energy_fluxes(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry and generate tracks</span>
 <span class="o">...</span>
@@ -881,19 +1156,19 @@
 <span class="o">...</span>
 
 <span class="c"># Plot the fluxes vs. energy for flat source regions 0 and 1</span>
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_energy_fluxes</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">fsrs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_energy_fluxes</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">fsrs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>A depiction of the normalized 7-group fluxes for the sample pin cell problem (<code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/pin-cell/pin-cell.py</span></code>) is illustrated in <a class="reference internal" href="#figure-energy-fluxes"><span>Figure 8</span></a>.</p>
+<p>A depiction of the normalized 7-group fluxes for the sample pin cell problem (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/pin-cell/pin-cell.py</span></tt>) is illustrated in <a class="reference internal" href="#figure-energy-fluxes"><em>Figure 8</em></a>.</p>
 <table border="1" class="docutils" id="figure-energy-fluxes">
 <colgroup>
 <col width="51%" />
 <col width="49%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-fsr-0.png" id="id3"><img alt="../_images/flux-fsr-0.png" class="align-center" id="id3" src="../_images/flux-fsr-0.png" style="width: 72%;" /></a>
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/flux-fsr-0.png" id="figa"><img alt="../_images/flux-fsr-0.png" class="align-center" id="figa" src="../_images/flux-fsr-0.png" style="width: 72%;" /></a>
 </td>
-<td><a class="first last reference internal image-reference" href="../_images/flux-fsr-1.png" id="id4"><img alt="../_images/flux-fsr-1.png" class="align-center" id="id4" src="../_images/flux-fsr-1.png" style="width: 75%;" /></a>
+<td><a class="first last reference internal image-reference" href="../_images/flux-fsr-1.png" id="figb"><img alt="../_images/flux-fsr-1.png" class="align-center" id="figb" src="../_images/flux-fsr-1.png" style="width: 75%;" /></a>
 </td>
 </tr>
 </tbody>
@@ -903,14 +1178,14 @@
 </div>
 <div class="section" id="fission-rate-visualization">
 <h2>4.6. Fission Rate Visualization<a class="headerlink" href="#fission-rate-visualization" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module includes routines to plot the energy-integrated fission rates in each flat source region. To plot the fission rates, use the <code class="docutils literal"><span class="pre">plot_fission_rates(...)</span></code> routine in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fission-rates"><span>Table 11</span></a>.</p>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module includes routines to plot the energy-integrated fission rates in each flat source region. To plot the fission rates, use the <tt class="docutils literal"><span class="pre">plot_fission_rates(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-fission-rates"><em>Table 16</em></a>.</p>
 <table border="1" class="docutils" id="table-plot-fission-rates">
 <colgroup>
-<col width="17%" />
 <col width="19%" />
-<col width="9%" />
-<col width="9%" />
-<col width="45%" />
+<col width="16%" />
+<col width="11%" />
+<col width="8%" />
+<col width="46%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Parameter</th>
@@ -921,35 +1196,59 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">solver</span></code></td>
-<td><code class="docutils literal"><span class="pre">Solver</span></code> object</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
 <td>None</td>
 <td>No</td>
-<td>The <code class="docutils literal"><span class="pre">Solver</span></code> used to converge the source</td>
+<td>The <tt class="docutils literal"><span class="pre">Solver</span></tt> used to converge the source</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">gridsize</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">norm</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to normalize fluxes to the mean</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">transparent_zeros</span></tt></td>
+<td>boolean</td>
+<td>True</td>
+<td>Yes</td>
+<td>Whether to make all non-fissionable FSRs transparent</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
 <td>integer</td>
 <td>250</td>
 <td>Yes</td>
 <td>The pixel resolution</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">xlim</span></code></td>
-<td>float</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinates to plot</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">ylim</span></code></td>
-<td>float</td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>2-tuple</td>
 <td>None</td>
 <td>Yes</td>
-<td>The maximum <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinate to plot</td>
+<td>The min/max <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinates to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">library</span></tt></td>
+<td>string</td>
+<td>&#8216;matplotlib&#8217;</td>
+<td>Yes</td>
+<td>The plotting library to use (&#8216;matplotlib&#8217; or &#8216;pil&#8217;)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Table 11</strong>: Parameters for the <code class="docutils literal"><span class="pre">openmoc.plotter.plot_fission_rates(...)</span></code> routine.</p>
+<p><strong>Table 16</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_fission_rates(...)</span></tt> routine.</p>
 <p>The code snippet below illustrates one possible configuration of parameters to the routine.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span> <span class="kn">as</span> <span class="nn">plot</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
 
 <span class="c"># Setup geometry and generate tracks</span>
 <span class="o">...</span>
@@ -958,17 +1257,260 @@
 <span class="o">...</span>
 
 <span class="c"># Plot the fission rates in each FSR in a 500 x 500 pixel image</span>
-<span class="n">plot</span><span class="o">.</span><span class="n">plot_fission_rates</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_fission_rates</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">gridsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (<code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7</span></code>) is illustrated in <a class="reference internal" href="#figure-fission-rates"><span>Figure 9</span></a>.</p>
+<p>A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (<tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/benchmarks/c5g7</span></tt>) is illustrated in <a class="reference internal" href="#figure-fission-rates"><em>Figure 9</em></a>.</p>
 <div class="align-center figure" id="figure-fission-rates">
 <a class="reference internal image-reference" href="../_images/fission-rates.png"><img alt="../_images/fission-rates.png" src="../_images/fission-rates.png" style="width: 400px;" /></a>
 </div>
 <p><strong>Figure 9</strong>: The energy-integrated FSR fission rates in the C5G7 benchmark problem.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <code class="docutils literal"><span class="pre">gridsize</span></code> parameter).</p>
+<p class="last">The runtime required by the plotting routine scales with the number of pixels in the image (the square of the <tt class="docutils literal"><span class="pre">gridsize</span></tt> parameter).</p>
+</div>
+</div>
+<div class="section" id="generalized-spatial-visualization">
+<h2>4.7. Generalized Spatial Visualization<a class="headerlink" href="#generalized-spatial-visualization" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module includes a generalized method to plot spatially-varying indexed by <tt class="docutils literal"><span class="pre">Material</span></tt>, <tt class="docutils literal"><span class="pre">Cell</span></tt>, or FSR. For general spatial plotting, use the <tt class="docutils literal"><span class="pre">plot_spatial_data(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-general-plotting"><em>Table 17</em></a>.</p>
+<table border="1" class="docutils" id="table-general-plotting">
+<colgroup>
+<col width="14%" />
+<col width="34%" />
+<col width="8%" />
+<col width="6%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">domains_to_data</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">dict</span></tt>, <tt class="docutils literal"><span class="pre">numpy.ndarray</span></tt>, or <tt class="docutils literal"><span class="pre">pandas.DataFrame</span></tt></td>
+<td>None</td>
+<td>No</td>
+<td>Spatial domains-to-data mapping</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">plot_params</span></tt></td>
+<td>boolean</td>
+<td>None</td>
+<td>No</td>
+<td>Plotting parametetrs</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 17</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_spatial_data(...)</span></tt> routine.</p>
+<p><a class="reference internal" href="#table-general-plotting"><em>Table 18</em></a> below itemizes each of the property attributes of the <tt class="docutils literal"><span class="pre">PlotParams</span></tt> class which can be used to customize images with generalized spatial plotting.</p>
+<table border="1" class="docutils" id="table-plot-params">
+<colgroup>
+<col width="19%" />
+<col width="19%" />
+<col width="17%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">geometry</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Geometry</span></tt></td>
+<td>None</td>
+<td>The Geometry to query when generating the spatial map</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">domain_type</span></tt></td>
+<td>string</td>
+<td>&#8216;fsr&#8217;</td>
+<td>The domain type used to map spatial data to the geometry</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">filename</span></tt></td>
+<td>string</td>
+<td>None</td>
+<td>The filename string</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">extension</span></tt></td>
+<td>string</td>
+<td>&#8216;.png&#8217;</td>
+<td>The image file extension (e.g., &#8216;.png&#8217;)</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">library</span></tt></td>
+<td>string</td>
+<td>&#8216;matplotlib&#8217;</td>
+<td>The plotting library to use (&#8216;matplotlib&#8217; or &#8216;pil&#8217;)</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">zcoord</span></tt></td>
+<td>float</td>
+<td>0</td>
+<td>The level along the <img class="math" src="../_images/math/84d7271dd9e78c1e05d6c3c6ecb60309ef7dfc73.png" alt="z"/>-axis to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">gridsize</span></tt></td>
+<td>integer</td>
+<td>250</td>
+<td>The pixel resolution</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">xlim</span></tt></td>
+<td>2-tuple</td>
+<td>None</td>
+<td>The min/max <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/>-coordinates to plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ylim</span></tt></td>
+<td>2-tuple</td>
+<td>None</td>
+<td>The min/max <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-coordinates to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">title</span></tt></td>
+<td>string</td>
+<td>None</td>
+<td>The minor title string</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">suptitle</span></tt></td>
+<td>string</td>
+<td>None</td>
+<td>The major title string</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">norm</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Normalize the plotted data to unity</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">transparent_zeros</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Make zeros in the data appear transparent</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">interpolation</span></tt></td>
+<td>string</td>
+<td>None</td>
+<td>Interpolation used between points (e.g., &#8216;nearest&#8217;)</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">colorbar</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Include a colorbar to the right of the plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">cmap</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">matplotlib.colormap</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">cmap('spectral')</span></tt></td>
+<td>A Matplotlib colormap for the plot</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">vmin</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>The minimum value used in colormapping the data</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">vmax</span></tt></td>
+<td>float</td>
+<td>None</td>
+<td>The maximum value used in colormapping the data</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 18</strong>: The <tt class="docutils literal"><span class="pre">PlotParams</span></tt> class property attributes for plot customization.</p>
+<p>The generalied spatial plotter may be applied in a myriad of ways to create spatial plots of the geometry with user-defined data mapped to materials, cells or FSRs. The following code snippet illustrates the generation of three plots for three columns of randomized data mapped by FSR in a <a class="reference external" href="http://pandas.pydata.org/">Pandas</a> <tt class="docutils literal"><span class="pre">DataFrame</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="c"># Initialize a Pandas DataFrame with normally distributed random data</span>
+<span class="n">num_fsrs</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">getNumFSRs</span><span class="p">()</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">num_fsrs</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s">&#39;ABC&#39;</span><span class="p">))</span>
+
+<span class="c"># Initialize a PlotParams object</span>
+<span class="n">plot_params</span> <span class="o">=</span> <span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">PlotParams</span><span class="p">()</span>
+<span class="n">plot_params</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span>
+<span class="n">plot_params</span><span class="o">.</span><span class="n">suptitle</span> <span class="o">=</span> <span class="s">&#39;Pandas DataFrame&#39;</span>
+<span class="n">plot_params</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="s">&#39;pandas-df&#39;</span>
+<span class="n">plot_params</span><span class="o">.</span><span class="n">colorbar</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="c"># Enforce consistent color scheme across figures</span>
+<span class="n">plot_params</span><span class="o">.</span><span class="n">vmin</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">plot_params</span><span class="o">.</span><span class="n">vmax</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_spatial_data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">)</span>
+</pre></div>
+</div>
+<table border="1" class="docutils" id="figure-general-plotting">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="34%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="first last reference internal image-reference" href="../_images/spatial-a.png" id="figure-spatials-a"><img alt="../_images/spatial-a.png" class="align-center" id="figure-spatials-a" src="../_images/spatial-a.png" style="width: 85%;" /></a>
+</td>
+<td><a class="first last reference internal image-reference" href="../_images/spatial-b.png" id="figure-spatial-b"><img alt="../_images/spatial-b.png" class="align-center" id="figure-spatial-b" src="../_images/spatial-b.png" style="width: 85%;" /></a>
+</td>
+<td><a class="first last reference internal image-reference" href="../_images/spatial-c.png" id="figure-spatial-c"><img alt="../_images/spatial-c.png" class="align-center" id="figure-spatial-c" src="../_images/spatial-c.png" style="width: 85%;" /></a>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Figure 10</strong>: The randomized spatial data for each of the three columns in a Pandas DataFrame for the C5G7 benchmark problem.</p>
+</div>
+<div class="section" id="angular-quadrature-visualization">
+<h2>4.8. Angular Quadrature Visualization<a class="headerlink" href="#angular-quadrature-visualization" title="Permalink to this headline">¶</a></h2>
+<p>To plot the angular quadrature deployed by a <tt class="docutils literal"><span class="pre">Solver</span></tt> in an MOC simulation, use the <tt class="docutils literal"><span class="pre">plot_quadrature(...)</span></tt> routine in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module. The parameters accepted by this routine are described in <a class="reference internal" href="#table-plot-quadrature"><em>Table 19</em></a>.</p>
+<table border="1" class="docutils" id="table-plot-quadrature">
+<colgroup>
+<col width="17%" />
+<col width="23%" />
+<col width="8%" />
+<col width="8%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Optional</th>
+<th class="head">Note</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">solver</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
+<td>None</td>
+<td>No</td>
+<td>The <tt class="docutils literal"><span class="pre">Solver</span></tt> with the quadrature of interest</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_figure</span></tt></td>
+<td>boolean</td>
+<td>False</td>
+<td>Yes</td>
+<td>Whether to return the Matplotlib <tt class="docutils literal"><span class="pre">Figure</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 19</strong>: Parameters for the <tt class="docutils literal"><span class="pre">openmoc.plotter.plot_quadrature(...)</span></tt> routine.</p>
+<p>The code snippet below illustrates the use of this routine.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc.plotter</span>
+
+<span class="c"># Setup geometry and generate tracks</span>
+<span class="o">...</span>
+
+<span class="c"># Setup solver</span>
+<span class="o">...</span>
+
+<span class="n">openmoc</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">plot_quadrature</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A depiction of the Tabuchi-Yamamoto polar quadrature used by default in OpenMOC is illustrated in <a class="reference internal" href="#figure-quadrature"><em>Figure 11</em></a>.</p>
+<div class="align-center figure" id="figure-quadrature">
+<a class="reference internal image-reference" href="../_images/polar-quad-ty.png"><img alt="../_images/polar-quad-ty.png" src="../_images/polar-quad-ty.png" style="width: 400px;" /></a>
+<p class="caption"><strong>Figure 11</strong>: The Tabuchi-Yamamoto polar quadrature used as the default in OpenMOC.</p>
 </div>
 </div>
 </div>
@@ -977,7 +1519,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -987,7 +1529,11 @@
 <li><a class="reference internal" href="#">4. Data Processing and Visualization</a><ul>
 <li><a class="reference internal" href="#exporting-simulation-data">4.1. Exporting Simulation Data</a></li>
 <li><a class="reference internal" href="#retrieving-simulation-data">4.2. Retrieving Simulation Data</a></li>
-<li><a class="reference internal" href="#computing-fission-rates">4.3. Computing Fission Rates</a></li>
+<li><a class="reference internal" href="#computing-reaction-rates">4.3. Computing Reaction Rates</a><ul>
+<li><a class="reference internal" href="#reaction-rates-by-tally-mesh">4.3.1. Reaction Rates By Tally Mesh</a></li>
+<li><a class="reference internal" href="#fission-rates-by-universe-level">4.3.2. Fission Rates by Universe Level</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#geometry-visualization">4.4. Geometry Visualization</a><ul>
 <li><a class="reference internal" href="#plotting-tracks">4.4.1. Plotting Tracks</a></li>
 <li><a class="reference internal" href="#plotting-segments">4.4.2. Plotting Segments</a></li>
@@ -1003,6 +1549,8 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#fission-rate-visualization">4.6. Fission Rate Visualization</a></li>
+<li><a class="reference internal" href="#generalized-spatial-visualization">4.7. Generalized Spatial Visualization</a></li>
+<li><a class="reference internal" href="#angular-quadrature-visualization">4.8. Angular Quadrature Visualization</a></li>
 </ul>
 </li>
 </ul>
@@ -1013,14 +1561,12 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="running.html"
                         title="next chapter">5. Running OpenMOC</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/usersguide/processing.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/usersguide/processing.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -1037,7 +1583,7 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -1049,14 +1595,14 @@
         <li class="right" >
           <a href="input.html" title="3. Writing Python Input Files"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 

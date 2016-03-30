@@ -28,8 +28,8 @@
     <link rel="next" title="2. Method of Characteristics" href="method_of_characteristics.html" />
     <link rel="prev" title="Theory and Methodology" href="index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,20 +41,20 @@
         <li class="right" >
           <a href="index.html" title="Theory and Methodology"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="introduction">
 <span id="methods-introduction"></span><h1>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>The method of characteristics is one technique for solving partial differential equations.  MOC is one of the most common methods with real world applications in production lattice physics tools used today <a class="reference internal" href="#smith" id="id1">[Smith]</a>. The prospects for the MOC algorithm as an eventual successor to low-order diffusion-based method for reactor analysis are promising, and extensive research efforts into the efficient use of the algorithm are ongoing <a class="reference internal" href="#wu" id="id2">[Wu]</a>, <a class="reference internal" href="#taylor" id="id3">[Taylor]</a>, <a class="reference internal" href="#liu" id="id4">[Liu]</a>, <a class="reference internal" href="#talamo" id="id5">[Talamo]</a>. As a result, there is an opportunity for advanced parallel algorithms for high performance computing machines and nonlinear acceleration schemes to propel the application of MOC to full-core reactor physics calculations.</p>
-<p><a class="reference internal" href="method_of_characteristics.html#method-of-characteristics"><span>Section 2</span></a> describes how the method of characteristics is applied to solve the steady-state neutron transport equation in OpenMOC. <a class="reference internal" href="eigenvalue_calculations.html#eigenvalue-calculations"><span>Section 3</span></a> presents the algorithms implemented in OpenMOC to solve the MOC equations. <a class="reference internal" href="constructive_solid_geometry.html#constructive-solid-geometry"><span>Section 4</span></a> discusses the constructive solid geometry formulation used to represent geometric models in OpenMOC. <a class="reference internal" href="track_generation.html#track-generation"><span>Section 5</span></a> reviews the angular quadrature and track generation algorithm in OpenMOC. Finally, <span class="xref std std-ref">Section 5</span> outlines the parallel algorithms in OpenMOC for high performance computing platforms while <a class="reference internal" href="cmfd.html#cmfd"><span>Section 6</span></a> describes CMFD, a nonlinear acceleration method in OpenMOC.</p>
+<p><a class="reference internal" href="method_of_characteristics.html#method-of-characteristics"><em>Section 2</em></a> describes how the method of characteristics is applied to solve the steady-state neutron transport equation in OpenMOC. <a class="reference internal" href="eigenvalue_calculations.html#eigenvalue-calculations"><em>Section 3</em></a> presents the algorithms implemented in OpenMOC to solve the MOC equations. <a class="reference internal" href="constructive_solid_geometry.html#constructive-solid-geometry"><em>Section 4</em></a> discusses the constructive solid geometry formulation used to represent geometric models in OpenMOC. <a class="reference internal" href="track_generation.html#track-generation"><em>Section 5</em></a> reviews the angular quadrature and track generation algorithm in OpenMOC. Finally, <em class="xref std std-ref">Section 5</em> outlines the parallel algorithms in OpenMOC for high performance computing platforms while <a class="reference internal" href="cmfd.html#cmfd"><em>Section 6</em></a> describes CMFD, a nonlinear acceleration method in OpenMOC.</p>
 <div class="section" id="references">
 <h2>1.1. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <table class="docutils citation" frame="void" id="smith" rules="none">
@@ -109,7 +109,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -128,14 +128,12 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="method_of_characteristics.html"
                         title="next chapter">2. Method of Characteristics</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/methods/introduction.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/methods/introduction.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -152,7 +150,7 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -164,14 +162,14 @@
         <li class="right" >
           <a href="index.html" title="Theory and Methodology"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
 <script type="text/javascript">
 

@@ -1,9 +1,10 @@
 var classMatrix =
 [
-    [ "Matrix", "classMatrix.html#afec818abc8fbc641994515e5eca74f31", null ],
+    [ "Matrix", "classMatrix.html#ae7ee7294fa5fafdf39e9a584afde2e61", null ],
     [ "~Matrix", "classMatrix.html#a9b1c3627f573d78a2f08623fdfef990f", null ],
     [ "clear", "classMatrix.html#ac0e2adb05e204d5a40cd129d9fb0593f", null ],
     [ "getA", "classMatrix.html#a6df5f7703fc419eafe8292f2987c5ff3", null ],
+    [ "getCellLocks", "classMatrix.html#a214edb4cfb927583f81d02c717cbe598", null ],
     [ "getDiag", "classMatrix.html#a43dd1822d4852d4253eb5a7d505980d7", null ],
     [ "getIA", "classMatrix.html#ad62f2eca7e95d5a7373d444152022b1b", null ],
     [ "getJA", "classMatrix.html#ac136f841c67a741d8490cf388421711c", null ],

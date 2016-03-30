@@ -371,8 +371,6 @@ SWIG Typemaps
 
 On some machines - such as some leadership class supercomputing clusters - NumPy may not be available. As a result it may be preferable to input/output data from Python using standard Python data structures (*e.g.*, lists, tuples). SWIG provides it's own library of typemaps for this purpose in the :file:`typemaps.i` file which is included in the standard SWIG installation.
 
-.. note:: For machines without NumPy, OpenMOC provides the :option:`--no-numpy` build option. This option will not embed the NumPy C API into the code.
-
 In order to utilize `SWIG typemaps`_, the following include should be appended to the SWIG interface file used for the C/C++ extension module of interest:
 
 .. code-block:: none

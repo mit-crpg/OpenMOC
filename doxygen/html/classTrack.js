@@ -4,7 +4,6 @@ var classTrack =
     [ "~Track", "classTrack.html#a416e75e66accc8eb9e3fafc3e8555216", null ],
     [ "addSegment", "classTrack.html#af10963fb25999a8d7763deb52d6ecdd8", null ],
     [ "clearSegments", "classTrack.html#a1b0805ef586042609ee71ca07f41a85c", null ],
-    [ "contains", "classTrack.html#a99ae10a8b0b25640a9041f85a1acd663", null ],
     [ "getAzimAngleIndex", "classTrack.html#ad200ad729b952101b48a99b695c81a1b", null ],
     [ "getBCIn", "classTrack.html#a14b1d1eb3c3ffa0f43d3afeb31e1900f", null ],
     [ "getBCOut", "classTrack.html#a77fbe291cc0e86e9ccdb546af7e10051", null ],
@@ -36,6 +35,6 @@ var classTrack =
     [ "setTrackIn", "classTrack.html#ad0293cc00910aa44f5d5d98af66f16a3", null ],
     [ "setTrackOut", "classTrack.html#a4303af0eaea8bb86f3faa5506b042766", null ],
     [ "setUid", "classTrack.html#a3d6a4e83e7ea6b28be81b9344d6bcd92", null ],
-    [ "setValues", "classTrack.html#a321e6d98cba4d260b7ca787013f85186", null ],
+    [ "setValues", "classTrack.html#a19ba1cad5ceb840bf431d8865d60f5cf", null ],
     [ "toString", "classTrack.html#abc465cc8bc4d568c7031667cb831825e", null ]
 ];
