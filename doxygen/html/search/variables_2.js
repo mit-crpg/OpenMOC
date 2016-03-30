@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['subdirectory',['subdirectory',['../namespaceopenmoc_1_1plotter.html#a73f3d44767f961058c38ba1daab1037b',1,'openmoc::plotter']]]
+  ['last',['last',['../classstrided__range.html#a9fc39d970e757dfc487ad9febae56d49',1,'strided_range']]]
 ];

@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['max_5flinalg_5fpower_5fiterations',['MAX_LINALG_POWER_ITERATIONS',['../constants_8h.html#ab9d6d130fffcefc8215c5d48594ed04d',1,'constants.h']]],
-  ['max_5flinear_5fsolve_5fiterations',['MAX_LINEAR_SOLVE_ITERATIONS',['../constants_8h.html#a73685171fdeb5dc1dc7bd573e0a25f4c',1,'constants.h']]],
-  ['max_5foptical_5flength',['MAX_OPTICAL_LENGTH',['../constants_8h.html#a895b93c581aefe76e1ccc425bb95a8c5',1,'constants.h']]],
-  ['mm_5ffree',['MM_FREE',['../Material_8h.html#afda8a5444c5cccc2ecc9b27267d50941',1,'Material.h']]],
-  ['mm_5fmalloc',['MM_MALLOC',['../Material_8h.html#a220714f7c065824989b348cfa4f211dd',1,'Material.h']]]
+  ['fission_5fsources',['fission_sources',['../Solver_8h.html#a11f42402c5f44216def0ab6d5c564843',1,'Solver.h']]],
+  ['fixed_5fsources',['fixed_sources',['../GPUSolver_8h.html#ac94c3f974b76a8708623f6c394415a62',1,'GPUSolver.h']]],
+  ['four_5fpi',['FOUR_PI',['../constants_8h.html#ac6b39b7a27b735f3a62be33f38041985',1,'constants.h']]]
 ];

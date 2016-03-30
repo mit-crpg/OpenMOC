@@ -2,7 +2,9 @@ var searchData=
 [
   ['tallycurrent',['tallyCurrent',['../classCmfd.html#a7cfa9324576f273b5329f2b9cee3f769',1,'Cmfd::tallyCurrent()'],['../classCPUSolver.html#a71240b0a132aef4725614dfeb0af7470',1,'CPUSolver::tallyCurrent()']]],
   ['tallyscalarflux',['tallyScalarFlux',['../classCPUSolver.html#a4ec079d6fe1ad40fdf2f124e106c4f0a',1,'CPUSolver::tallyScalarFlux()'],['../classVectorizedSolver.html#a79482c301560318bc3f0c7670783c0fc',1,'VectorizedSolver::tallyScalarFlux()']]],
+  ['tau_5fnudge',['TAU_NUDGE',['../constants_8h.html#ad99beed34771945367db1ddf11136983',1,'constants.h']]],
   ['taus',['taus',['../VectorizedSolver_8h.html#a3c1eee3367b6bf3d9a00f66369aba5ed',1,'VectorizedSolver.h']]],
+  ['this',['This',['../classThis.html',1,'']]],
   ['timer',['Timer',['../classTimer.html',1,'Timer'],['../classTimer.html#a5f16e8da27d2a5a5242dead46de05d97',1,'Timer::Timer()']]],
   ['timer_2eh',['Timer.h',['../Timer_8h.html',1,'']]],
   ['tiny_5fmove',['TINY_MOVE',['../constants_8h.html#a481c7dad5dc2bb9070235752daa421c6',1,'constants.h']]],
@@ -15,9 +17,11 @@ var searchData=
   ['track_5fout_5fflux',['track_out_flux',['../CPUSolver_8h.html#a1ada87108681a86ec25d66c3644e04e3',1,'CPUSolver.h']]],
   ['trackgenerator',['TrackGenerator',['../classTrackGenerator.html',1,'TrackGenerator'],['../classTrackGenerator.html#a19c16de624bb489a4757772f08c078c3',1,'TrackGenerator::TrackGenerator()']]],
   ['trackgenerator_2eh',['TrackGenerator.h',['../TrackGenerator_8h.html',1,'']]],
+  ['tracktraversingalgorithms_2eh',['TrackTraversingAlgorithms.h',['../TrackTraversingAlgorithms_8h.html',1,'']]],
   ['transferboundaryflux',['transferBoundaryFlux',['../classCPUSolver.html#aad866245497967dd5a834fb987c8f6d1',1,'CPUSolver::transferBoundaryFlux()'],['../classVectorizedSolver.html#a8870d66ff12cad16d893d9f1dad0c799',1,'VectorizedSolver::transferBoundaryFlux()']]],
-  ['transportsweep',['transportSweep',['../classGPUSolver.html#ad2f08dce3f23fcaa7c1774861770b279',1,'GPUSolver::transportSweep()'],['../classCPUSolver.html#a9aac0098d2d8969d87212aad0cb9c54e',1,'CPUSolver::transportSweep()'],['../classSolver.html#ab029744c3532b239fab583c4f8d8ea98',1,'Solver::transportSweep()']]],
+  ['transportsweep',['TransportSweep',['../classTransportSweep.html',1,'TransportSweep'],['../classGPUSolver.html#ad2f08dce3f23fcaa7c1774861770b279',1,'GPUSolver::transportSweep()'],['../classCPUSolver.html#a9aac0098d2d8969d87212aad0cb9c54e',1,'CPUSolver::transportSweep()'],['../classSolver.html#ab029744c3532b239fab583c4f8d8ea98',1,'Solver::transportSweep()'],['../classTransportSweep.html#a5f4c72e4c169916c51a673e2f0b76bd6',1,'TransportSweep::TransportSweep()']]],
   ['transpose',['transpose',['../classMatrix.html#aa753de1a2ed37c8eb934e06823fee179',1,'Matrix']]],
   ['transposeproductionmatrices',['transposeProductionMatrices',['../classMaterial.html#a4e0a978917873eec4ce53c1169772462',1,'Material']]],
+  ['traversesegments',['TraverseSegments',['../classTraverseSegments.html',1,'TraverseSegments'],['../classTraverseSegments.html#ac04e6493cf4046e88851e579d44f0245',1,'TraverseSegments::TraverseSegments()']]],
   ['typolarquad',['TYPolarQuad',['../classTYPolarQuad.html',1,'TYPolarQuad'],['../classTYPolarQuad.html#a733dbc8cc0419173d1a20fd840c3c223',1,'TYPolarQuad::TYPolarQuad()']]]
 ];

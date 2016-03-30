@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['readsegments',['ReadSegments',['../classReadSegments.html',1,'ReadSegments'],['../classReadSegments.html#a81b359acf5cf72931523786f6428b511',1,'ReadSegments::ReadSegments()']]],
   ['recordsplit',['recordSplit',['../classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7',1,'Timer']]],
   ['reduced_5fsources',['reduced_sources',['../GPUSolver_8h.html#af16043dabfde8edf630658d1a93906fb',1,'GPUSolver.h']]],
   ['reflective',['REFLECTIVE',['../boundary__type_8h.html#a94f2bdaf8e1769faec72dbd9e7486341a45e171c3bba46047336203d2aed3775d',1,'boundary_type.h']]],
@@ -10,11 +11,10 @@ var searchData=
   ['reset_5fauto_5fids',['reset_auto_ids',['../Geometry_8h.html#a8fc5282936b42f4031b8a41d5c24b7e7',1,'Geometry.cpp']]],
   ['reset_5fcell_5fid',['reset_cell_id',['../Cell_8h.html#a7acf0ca75c4752095bc0a7f4f2918e00',1,'Cell.cpp']]],
   ['reset_5fmaterial_5fid',['reset_material_id',['../Material_8h.html#ac302c7b523c507299ef6c02a37c5cbad',1,'Material.cpp']]],
-  ['reset_5fsurf_5fid',['reset_surf_id',['../Surface_8h.html#a1427b307e4ad78897e551270bc112c29',1,'Surface.cpp']]],
+  ['reset_5fsurface_5fid',['reset_surface_id',['../Surface_8h.html#a2b778be0240aa21aec571e4d7088cb93',1,'Surface.cpp']]],
   ['reset_5funiverse_5fid',['reset_universe_id',['../Universe_8h.html#aa28b6af91940e7a6d3ab828bb0cebe3f',1,'Universe.cpp']]],
   ['resetmaterials',['resetMaterials',['../classSolver.html#ae283d5e199fb47d604d13d0f9cd3d4cb',1,'Solver']]],
   ['residualtype',['residualType',['../Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be',1,'Solver.h']]],
-  ['restore_5fsimulation_5fstate',['restore_simulation_state',['../namespaceopenmoc_1_1process.html#a20436071e0dfd32af17c67bf86636a93',1,'openmoc::process']]],
   ['result',['RESULT',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b',1,'log.h']]],
   ['retrieverotation',['retrieveRotation',['../classCell.html#a8a25a500988c028462ee9bd2594414e9',1,'Cell']]],
   ['retrievesegmentcoords',['retrieveSegmentCoords',['../classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504',1,'TrackGenerator']]],

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['universe_2eh',['Universe.h',['../Universe_8h.html',1,'']]]
+  ['vector_2eh',['Vector.h',['../Vector_8h.html',1,'']]],
+  ['vectorizedsolver_2eh',['VectorizedSolver.h',['../VectorizedSolver_8h.html',1,'']]]
 ];

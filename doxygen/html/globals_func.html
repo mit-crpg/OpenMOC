@@ -44,7 +44,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -116,7 +115,7 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -172,7 +171,7 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 : <a class="el" href="log_8h.html#a33f351d9db349876f941f91fafceb91d">log.h</a>
 </li>
 <li>get_log_level()
-: <a class="el" href="log_8h.html#a7043e0770fe19ffbf292c4b06f3190a4">log.h</a>
+: <a class="el" href="log_8h.html#a652596adf84047b2b43394b4a9b85224">log.h</a>
 </li>
 <li>get_num_threads_per_warp()
 : <a class="el" href="GPUQuery_8h.html#a93ec0e8bac2ee064927ddfbbbfe06fcf">GPUQuery.h</a>
@@ -213,8 +212,23 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 <li>material_id()
 : <a class="el" href="Material_8h.html#ab3edf20a0bb542abb3162f8b0891b221">Material.h</a>
 </li>
+<li>matrix_transpose()
+: <a class="el" href="linalg_8h.html#a31bbd69ae5f7b211ea3fa686de8f5b26">linalg.h</a>
+</li>
 <li>matrixMultiplication()
 : <a class="el" href="linalg_8h.html#a5a7c44247e67fea309b6f9040f0b265e">linalg.h</a>
+</li>
+<li>maximize_cell_id()
+: <a class="el" href="Cell_8h.html#a4b24ffca9cd3cda233b0ce0f4cb636cf">Cell.h</a>
+</li>
+<li>maximize_material_id()
+: <a class="el" href="Material_8h.html#a53c886897c21a26cf81d34724617aaa6">Material.h</a>
+</li>
+<li>maximize_surface_id()
+: <a class="el" href="Surface_8h.html#aa4f25d1b9406d7089e15c7b033260e66">Surface.h</a>
+</li>
+<li>maximize_universe_id()
+: <a class="el" href="Universe_8h.html#a7383635a49ea42399cb2f26b79641f32">Universe.h</a>
 </li>
 </ul>
 
@@ -245,8 +259,8 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 <li>reset_material_id()
 : <a class="el" href="Material_8h.html#ac302c7b523c507299ef6c02a37c5cbad">Material.h</a>
 </li>
-<li>reset_surf_id()
-: <a class="el" href="Surface_8h.html#a1427b307e4ad78897e551270bc112c29">Surface.h</a>
+<li>reset_surface_id()
+: <a class="el" href="Surface_8h.html#a2b778be0240aa21aec571e4d7088cb93">Surface.h</a>
 </li>
 <li>reset_universe_id()
 : <a class="el" href="Universe_8h.html#aa28b6af91940e7a6d3ab828bb0cebe3f">Universe.h</a>
@@ -282,8 +296,8 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 <li>stencilCompare()
 : <a class="el" href="Cmfd_8h.html#aef9fa9ff1066a46f27172accd2c6955d">Cmfd.h</a>
 </li>
-<li>surf_id()
-: <a class="el" href="Surface_8h.html#aa0ccb834fb6c557e9713707f95ee10f0">Surface.h</a>
+<li>surface_id()
+: <a class="el" href="Surface_8h.html#a0a8ef73f74ac61719cf2a90c44ca960d">Surface.h</a>
 </li>
 </ul>
 
@@ -298,7 +312,7 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Sep 22 2015 13:26:42 by
+    <li class="footer">Generated on Tue Mar 29 2016 20:25:58 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

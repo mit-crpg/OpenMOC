@@ -6,7 +6,6 @@ var structdev__material =
     [ "_fiss_matrix", "structdev__material.html#a9ab7245715f0f1eca24094afbe3e6364", null ],
     [ "_id", "structdev__material.html#a456560b989333fb14e63593bedf745f9", null ],
     [ "_nu_sigma_f", "structdev__material.html#a4da54eab9513b0d5a51afc867ed20520", null ],
-    [ "_sigma_a", "structdev__material.html#a8ce73ccc101b0ab9b8c7fa770c101980", null ],
     [ "_sigma_f", "structdev__material.html#a8fbd6f04e4aacd09933c1feeafc90fff", null ],
     [ "_sigma_s", "structdev__material.html#ae3bff1238df4a0525fdeb62b6844e00d", null ],
     [ "_sigma_t", "structdev__material.html#a0732a4eb6589a5d81b5e8224f8650e6e", null ]

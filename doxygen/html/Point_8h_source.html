@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>/home/wboyd/Desktop/OpenMOC/src/Point.h Source File</title>
+<title>/home/geogunow/OpenMOC/OpenMOC/src/Point.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -44,7 +44,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -91,7 +90,7 @@ $(document).ready(function(){initNavTree('Point_8h_source.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -122,75 +121,89 @@ $(document).ready(function(){initNavTree('Point_8h_source.html','');});
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keywordtype">double</span> _x;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keywordtype">double</span>* _xyz;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keywordtype">double</span> _y;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <a class="code" href="classPoint.html#ad92f2337b839a94ce97dcdb439b4325a">Point</a>();</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="classPoint.html#a395fa04b4ec126b66fc053f829a30cc1">~Point</a>();</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a">setCoords</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x, <span class="keyword">const</span> <span class="keywordtype">double</span> y);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classPoint.html#af52a20a376f8f31e87658837565d3812">getX</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7">getY</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">setX</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">setY</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> y);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">distanceToPoint</a>(<span class="keyword">const</span> <a class="code" href="classPoint.html">Point</a>* point);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  std::string <a class="code" href="classPoint.html#a1b3a350eb0e65c9b6605e00134771225">toString</a>();</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;};</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <a class="code" href="classPoint.html#ad92f2337b839a94ce97dcdb439b4325a">Point</a>();</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="classPoint.html#a395fa04b4ec126b66fc053f829a30cc1">~Point</a>();</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPoint.html#ae3c298ae6b6176ae0a4c3c9f464ff063">setCoords</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x, <span class="keyword">const</span> <span class="keywordtype">double</span> y, <span class="keyword">const</span> <span class="keywordtype">double</span> z);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classPoint.html#af52a20a376f8f31e87658837565d3812">getX</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7">getY</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classPoint.html#abe872ef564e9bb5600fa40f87d324dea">getZ</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">setX</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">setY</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> y);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a402ed79bd6e615d0380a8f0bb149c2b0">setZ</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> z);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">distanceToPoint</a>(<span class="keyword">const</span> <a class="code" href="classPoint.html">Point</a>* point);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  std::string <a class="code" href="classPoint.html#a1b3a350eb0e65c9b6605e00134771225">toString</a>();</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;};</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a">   52</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a">Point::setCoords</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x, <span class="keyword">const</span> <span class="keywordtype">double</span> y) {</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  _x = x;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  _y = y;</div>
+<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classPoint.html#ae3c298ae6b6176ae0a4c3c9f464ff063">   51</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classPoint.html#ae3c298ae6b6176ae0a4c3c9f464ff063">Point::setCoords</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x, <span class="keyword">const</span> <span class="keywordtype">double</span> y, <span class="keyword">const</span> <span class="keywordtype">double</span> z) {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  _xyz[0] = x;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  _xyz[1] = y;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  _xyz[2] = z;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
 <div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classPoint.html#af52a20a376f8f31e87658837565d3812">   62</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code" href="classPoint.html#af52a20a376f8f31e87658837565d3812">Point::getX</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordflow">return</span> _x;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordflow">return</span> _xyz[0];</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
 <div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7">   71</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7">Point::getY</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keywordflow">return</span> _y;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keywordflow">return</span> _xyz[1];</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;}</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">   80</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">Point::setX</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x) {</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  _x = x;</div>
+<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="classPoint.html#abe872ef564e9bb5600fa40f87d324dea">   80</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code" href="classPoint.html#abe872ef564e9bb5600fa40f87d324dea">Point::getZ</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keywordflow">return</span> _xyz[2];</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;}</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno"><a class="line" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">   89</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">Point::setY</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> y) {</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  _y = y;</div>
+<div class="line"><a name="l00089"></a><span class="lineno"><a class="line" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">   89</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">Point::setX</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> x) {</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  _xyz[0] = x;</div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;}</div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno"><a class="line" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">   99</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">Point::distanceToPoint</a>(<span class="keyword">const</span> <a class="code" href="classPoint.html">Point</a>* point) {</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keywordtype">double</span> deltax = _x - point-&gt;_x;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordtype">double</span> deltay = _y - point-&gt;_y;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordflow">return</span> sqrt(deltax*deltax + deltay*deltay);</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;}</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* POINT_H_ */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="classPoint_html_ad8bedf2cc41f2414728d83d6976fb55f"><div class="ttname"><a href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">Point::setX</a></div><div class="ttdeci">void setX(const double x)</div><div class="ttdoc">Set the Point&#39;s x-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:80</div></div>
+<div class="line"><a name="l00098"></a><span class="lineno"><a class="line" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">   98</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">Point::setY</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> y) {</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  _xyz[1] = y;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;}</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00107"></a><span class="lineno"><a class="line" href="classPoint.html#a402ed79bd6e615d0380a8f0bb149c2b0">  107</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="classPoint.html#a402ed79bd6e615d0380a8f0bb149c2b0">Point::setZ</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> z) {</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  _xyz[2] = z;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;}</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
+<div class="line"><a name="l00117"></a><span class="lineno"><a class="line" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">  117</a></span>&#160;<span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code" href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">Point::distanceToPoint</a>(<span class="keyword">const</span> <a class="code" href="classPoint.html">Point</a>* point) {</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="keywordtype">double</span> deltax = _xyz[0] - point-&gt;<a class="code" href="classPoint.html#af52a20a376f8f31e87658837565d3812">getX</a>();</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="keywordtype">double</span> deltay = _xyz[1] - point-&gt;<a class="code" href="classPoint.html#aac5008459bf0e0053ce744a69187bae7">getY</a>();</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="keywordtype">double</span> deltaz = _xyz[2] - point-&gt;<a class="code" href="classPoint.html#abe872ef564e9bb5600fa40f87d324dea">getZ</a>();</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="keywordflow">return</span> sqrt(deltax*deltax + deltay*deltay + deltaz*deltaz);</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;}</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* POINT_H_ */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="classPoint_html_ad8bedf2cc41f2414728d83d6976fb55f"><div class="ttname"><a href="classPoint.html#ad8bedf2cc41f2414728d83d6976fb55f">Point::setX</a></div><div class="ttdeci">void setX(const double x)</div><div class="ttdoc">Set the Point&#39;s x-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:89</div></div>
 <div class="ttc" id="classPoint_html_af52a20a376f8f31e87658837565d3812"><div class="ttname"><a href="classPoint.html#af52a20a376f8f31e87658837565d3812">Point::getX</a></div><div class="ttdeci">double getX() const </div><div class="ttdoc">Returns this Point&#39;s x-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:62</div></div>
 <div class="ttc" id="classPoint_html_aac5008459bf0e0053ce744a69187bae7"><div class="ttname"><a href="classPoint.html#aac5008459bf0e0053ce744a69187bae7">Point::getY</a></div><div class="ttdeci">double getY() const </div><div class="ttdoc">Returns this Point&#39;s y-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:71</div></div>
-<div class="ttc" id="classPoint_html"><div class="ttname"><a href="classPoint.html">Point</a></div><div class="ttdoc">Class to represent a 2D point in space. </div><div class="ttdef"><b>Definition:</b> Point.h:24</div></div>
-<div class="ttc" id="classPoint_html_a395fa04b4ec126b66fc053f829a30cc1"><div class="ttname"><a href="classPoint.html#a395fa04b4ec126b66fc053f829a30cc1">Point::~Point</a></div><div class="ttdeci">virtual ~Point()</div><div class="ttdoc">Destructor. </div><div class="ttdef"><b>Definition:</b> Point.cpp:13</div></div>
-<div class="ttc" id="classPoint_html_a1000c6590f93653b2d8d3b45991f60c9"><div class="ttname"><a href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">Point::distanceToPoint</a></div><div class="ttdeci">double distanceToPoint(const Point *point)</div><div class="ttdoc">Compute the distance from this Point to another Point of interest. </div><div class="ttdef"><b>Definition:</b> Point.h:99</div></div>
+<div class="ttc" id="classPoint_html"><div class="ttname"><a href="classPoint.html">Point</a></div><div class="ttdoc">Class to represent a 3D point in space. </div><div class="ttdef"><b>Definition:</b> Point.h:24</div></div>
+<div class="ttc" id="classPoint_html_abe872ef564e9bb5600fa40f87d324dea"><div class="ttname"><a href="classPoint.html#abe872ef564e9bb5600fa40f87d324dea">Point::getZ</a></div><div class="ttdeci">double getZ() const </div><div class="ttdoc">Returns this Point&#39;s z-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:80</div></div>
+<div class="ttc" id="classPoint_html_ae3c298ae6b6176ae0a4c3c9f464ff063"><div class="ttname"><a href="classPoint.html#ae3c298ae6b6176ae0a4c3c9f464ff063">Point::setCoords</a></div><div class="ttdeci">void setCoords(const double x, const double y, const double z)</div><div class="ttdoc">Initializes a Point with two-dimensional coordinates. </div><div class="ttdef"><b>Definition:</b> Point.h:51</div></div>
+<div class="ttc" id="classPoint_html_a395fa04b4ec126b66fc053f829a30cc1"><div class="ttname"><a href="classPoint.html#a395fa04b4ec126b66fc053f829a30cc1">Point::~Point</a></div><div class="ttdeci">virtual ~Point()</div><div class="ttdoc">Destructor. </div><div class="ttdef"><b>Definition:</b> Point.cpp:18</div></div>
+<div class="ttc" id="classPoint_html_a402ed79bd6e615d0380a8f0bb149c2b0"><div class="ttname"><a href="classPoint.html#a402ed79bd6e615d0380a8f0bb149c2b0">Point::setZ</a></div><div class="ttdeci">void setZ(const double z)</div><div class="ttdoc">Set the Point&#39;s z-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:107</div></div>
+<div class="ttc" id="classPoint_html_a1000c6590f93653b2d8d3b45991f60c9"><div class="ttname"><a href="classPoint.html#a1000c6590f93653b2d8d3b45991f60c9">Point::distanceToPoint</a></div><div class="ttdeci">double distanceToPoint(const Point *point)</div><div class="ttdoc">Compute the distance from this Point to another Point of interest. </div><div class="ttdef"><b>Definition:</b> Point.h:117</div></div>
 <div class="ttc" id="classPoint_html_ad92f2337b839a94ce97dcdb439b4325a"><div class="ttname"><a href="classPoint.html#ad92f2337b839a94ce97dcdb439b4325a">Point::Point</a></div><div class="ttdeci">Point()</div><div class="ttdoc">Constructor initializes an empty Point. </div><div class="ttdef"><b>Definition:</b> Point.cpp:7</div></div>
-<div class="ttc" id="classPoint_html_a91ab67528ea9e1311d408237448e16c5"><div class="ttname"><a href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">Point::setY</a></div><div class="ttdeci">void setY(const double y)</div><div class="ttdoc">Set the Point&#39;s y-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:89</div></div>
+<div class="ttc" id="classPoint_html_a91ab67528ea9e1311d408237448e16c5"><div class="ttname"><a href="classPoint.html#a91ab67528ea9e1311d408237448e16c5">Point::setY</a></div><div class="ttdeci">void setY(const double y)</div><div class="ttdoc">Set the Point&#39;s y-coordinate. </div><div class="ttdef"><b>Definition:</b> Point.h:98</div></div>
 <div class="ttc" id="log_8h_html"><div class="ttname"><a href="log_8h.html">log.h</a></div><div class="ttdoc">Utility functions for writing log messages to the screen. </div></div>
-<div class="ttc" id="classPoint_html_a21046f7efa6623eb78ae1ffc46b1820a"><div class="ttname"><a href="classPoint.html#a21046f7efa6623eb78ae1ffc46b1820a">Point::setCoords</a></div><div class="ttdeci">void setCoords(const double x, const double y)</div><div class="ttdoc">Initializes a Point with two-dimensional coordinates. </div><div class="ttdef"><b>Definition:</b> Point.h:52</div></div>
-<div class="ttc" id="classPoint_html_a1b3a350eb0e65c9b6605e00134771225"><div class="ttname"><a href="classPoint.html#a1b3a350eb0e65c9b6605e00134771225">Point::toString</a></div><div class="ttdeci">std::string toString()</div><div class="ttdoc">Converts this Point to a character representation of its attributes. </div><div class="ttdef"><b>Definition:</b> Point.cpp:21</div></div>
+<div class="ttc" id="classPoint_html_a1b3a350eb0e65c9b6605e00134771225"><div class="ttname"><a href="classPoint.html#a1b3a350eb0e65c9b6605e00134771225">Point::toString</a></div><div class="ttdeci">std::string toString()</div><div class="ttdoc">Converts this Point to a character representation of its attributes. </div><div class="ttdef"><b>Definition:</b> Point.cpp:29</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="Point_8h.html">Point.h</a></li>
-    <li class="footer">Generated on Tue Sep 22 2015 13:26:38 by
+    <li class="footer">Generated on Tue Mar 29 2016 20:25:46 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

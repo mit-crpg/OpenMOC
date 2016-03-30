@@ -44,7 +44,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,7 +92,7 @@ $(document).ready(function(){initNavTree('classSolver.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -113,7 +112,7 @@ $(document).ready(function(){initNavTree('classSolver.html','');});
 </div><!--header-->
 <div class="contents">
 
-<p>This is an abstract base class which different <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> subclasses implement for different architectures or source iteration algorithms.  
+<p><a class="el" href="classThis.html">This</a> is an abstract base class which different <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> subclasses implement for different architectures or source iteration algorithms.  
  <a href="classSolver.html#details">More...</a></p>
 
 <p><code>#include &quot;<a class="el" href="Solver_8h_source.html">src/Solver.h</a>&quot;</code></p>
@@ -135,6 +134,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac47a004e88d7fde15880ab8c2b08e754"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classTrackGenerator.html">TrackGenerator</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac47a004e88d7fde15880ab8c2b08e754">getTrackGenerator</a> ()</td></tr>
 <tr class="memdesc:ac47a004e88d7fde15880ab8c2b08e754"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a>.  <a href="#ac47a004e88d7fde15880ab8c2b08e754">More...</a><br/></td></tr>
 <tr class="separator:ac47a004e88d7fde15880ab8c2b08e754"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a259826c79da9cfb33c099bf908d353b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classPolarQuad.html">PolarQuad</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a259826c79da9cfb33c099bf908d353b2">getPolarQuad</a> ()</td></tr>
+<tr class="memdesc:a259826c79da9cfb33c099bf908d353b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>.  <a href="#a259826c79da9cfb33c099bf908d353b2">More...</a><br/></td></tr>
+<tr class="separator:a259826c79da9cfb33c099bf908d353b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad14694fca25ade5e6841916e22354e87"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ad14694fca25ade5e6841916e22354e87">getFSRVolume</a> (int fsr_id)</td></tr>
 <tr class="memdesc:ad14694fca25ade5e6841916e22354e87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the calculated volume for a flat source region.  <a href="#ad14694fca25ade5e6841916e22354e87">More...</a><br/></td></tr>
 <tr class="separator:ad14694fca25ade5e6841916e22354e87"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,7 +150,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a023343c843dcbe719051b3ce533294e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the total time to converge the source (seconds).  <a href="#a023343c843dcbe719051b3ce533294e5">More...</a><br/></td></tr>
 <tr class="separator:a023343c843dcbe719051b3ce533294e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2532dfb695dc80b50b559cd93fdd384"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aa2532dfb695dc80b50b559cd93fdd384">getKeff</a> ()</td></tr>
-<tr class="memdesc:aa2532dfb695dc80b50b559cd93fdd384"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the converged eigenvalue <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/>.  <a href="#aa2532dfb695dc80b50b559cd93fdd384">More...</a><br/></td></tr>
+<tr class="memdesc:aa2532dfb695dc80b50b559cd93fdd384"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the converged eigenvalue <img class="formulaInl" alt="$ k_{eff} $" src="form_2.png"/>.  <a href="#aa2532dfb695dc80b50b559cd93fdd384">More...</a><br/></td></tr>
 <tr class="separator:aa2532dfb695dc80b50b559cd93fdd384"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a622ff81c4e51709dad402ec2d67d843d"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a622ff81c4e51709dad402ec2d67d843d">getConvergenceThreshold</a> ()</td></tr>
 <tr class="memdesc:a622ff81c4e51709dad402ec2d67d843d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the threshold for source/flux convergence.  <a href="#a622ff81c4e51709dad402ec2d67d843d">More...</a><br/></td></tr>
@@ -180,12 +182,12 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>getFluxes</b>
 <tr class="memitem:a235919c465bd0b4d9c976acd06efafeb"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a235919c465bd0b4d9c976acd06efafeb">setConvergenceThreshold</a> (FP_PRECISION threshold)</td></tr>
 <tr class="memdesc:a235919c465bd0b4d9c976acd06efafeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the threshold for source/flux convergence.  <a href="#a235919c465bd0b4d9c976acd06efafeb">More...</a><br/></td></tr>
 <tr class="separator:a235919c465bd0b4d9c976acd06efafeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a555f77789f36a78cad34df412300e6e7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a555f77789f36a78cad34df412300e6e7">setFixedSourceByFSR</a> (int fsr_id, int group, FP_PRECISION source)</td></tr>
-<tr class="memdesc:a555f77789f36a78cad34df412300e6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a fixed source for a flat source region and energy group.  <a href="#a555f77789f36a78cad34df412300e6e7">More...</a><br/></td></tr>
-<tr class="separator:a555f77789f36a78cad34df412300e6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ee2dfd0a65bb697cdd3f5f8afb36d2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ee2dfd0a65bb697cdd3f5f8afb36d2a"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setFluxes</b> (FP_PRECISION *in_fluxes, int num_fluxes)=0</td></tr>
 <tr class="separator:a3ee2dfd0a65bb697cdd3f5f8afb36d2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a555f77789f36a78cad34df412300e6e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a555f77789f36a78cad34df412300e6e7">setFixedSourceByFSR</a> (int fsr_id, int group, FP_PRECISION source)</td></tr>
+<tr class="memdesc:a555f77789f36a78cad34df412300e6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a fixed source for a flat source region and energy group.  <a href="#a555f77789f36a78cad34df412300e6e7">More...</a><br/></td></tr>
+<tr class="separator:a555f77789f36a78cad34df412300e6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cae18c37e49e7a947069b765fd73fd1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a8cae18c37e49e7a947069b765fd73fd1">setFixedSourceByCell</a> (<a class="el" href="classCell.html">Cell</a> *cell, int group, FP_PRECISION source)</td></tr>
 <tr class="memdesc:a8cae18c37e49e7a947069b765fd73fd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a fixed source for a <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> and energy group.  <a href="#a8cae18c37e49e7a947069b765fd73fd1">More...</a><br/></td></tr>
 <tr class="separator:a8cae18c37e49e7a947069b765fd73fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -213,24 +215,29 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac9fcaef2cfecf9eca6a0ddc2895064c5">initializeExpEvaluator</a> ()</td></tr>
 <tr class="memdesc:ac9fcaef2cfecf9eca6a0ddc2895064c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes new <a class="el" href="classExpEvaluator.html" title="This is a class for evaluating exponentials. ">ExpEvaluator</a> object to compute exponentials. <br/></td></tr>
 <tr class="separator:ac9fcaef2cfecf9eca6a0ddc2895064c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acefb1a0ac2922f65e97fd20f22e1cefb"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#acefb1a0ac2922f65e97fd20f22e1cefb">initializeMaterials</a> (<a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a> mode=<a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a>)</td></tr>
+<tr class="memdesc:acefb1a0ac2922f65e97fd20f22e1cefb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> fission matrices.  <a href="#acefb1a0ac2922f65e97fd20f22e1cefb">More...</a><br/></td></tr>
+<tr class="separator:acefb1a0ac2922f65e97fd20f22e1cefb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2699642abb92e66bf17be4d9009ee6c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ad2699642abb92e66bf17be4d9009ee6c">initializeFSRs</a> ()</td></tr>
 <tr class="memdesc:ad2699642abb92e66bf17be4d9009ee6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the FSR volumes and Materials array.  <a href="#ad2699642abb92e66bf17be4d9009ee6c">More...</a><br/></td></tr>
 <tr class="separator:ad2699642abb92e66bf17be4d9009ee6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba9ac4c39cfd25d836672312b410bd27"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba9ac4c39cfd25d836672312b410bd27"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aba9ac4c39cfd25d836672312b410bd27">initializeMaterials</a> ()</td></tr>
-<tr class="memdesc:aba9ac4c39cfd25d836672312b410bd27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> fission matrices. <br/></td></tr>
-<tr class="separator:aba9ac4c39cfd25d836672312b410bd27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43d38c4f178863d57fa5957180906851"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a43d38c4f178863d57fa5957180906851">countFissionableFSRs</a> ()</td></tr>
 <tr class="memdesc:a43d38c4f178863d57fa5957180906851"><td class="mdescLeft">&#160;</td><td class="mdescRight">Counts the number of fissionable flat source regions.  <a href="#a43d38c4f178863d57fa5957180906851">More...</a><br/></td></tr>
 <tr class="separator:a43d38c4f178863d57fa5957180906851"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b91fb89a8d6a0877019bfe6556276db"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a1b91fb89a8d6a0877019bfe6556276db">initializeFixedSources</a> ()</td></tr>
+<tr class="memdesc:a1b91fb89a8d6a0877019bfe6556276db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns fixed sources assigned by <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a>, <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> to FSRs.  <a href="#a1b91fb89a8d6a0877019bfe6556276db">More...</a><br/></td></tr>
+<tr class="separator:a1b91fb89a8d6a0877019bfe6556276db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeab07b86fb26ba8be22d525cba33c4f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#afeab07b86fb26ba8be22d525cba33c4f">initializeCmfd</a> ()</td></tr>
 <tr class="memdesc:afeab07b86fb26ba8be22d525cba33c4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object for acceleratiion prior to source iteration.  <a href="#afeab07b86fb26ba8be22d525cba33c4f">More...</a><br/></td></tr>
 <tr class="separator:afeab07b86fb26ba8be22d525cba33c4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae283d5e199fb47d604d13d0f9cd3d4cb"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae283d5e199fb47d604d13d0f9cd3d4cb">resetMaterials</a> (<a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a> mode=<a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a>)</td></tr>
+<tr class="memdesc:ae283d5e199fb47d604d13d0f9cd3d4cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> data to its original state.  <a href="#ae283d5e199fb47d604d13d0f9cd3d4cb">More...</a><br/></td></tr>
+<tr class="separator:ae283d5e199fb47d604d13d0f9cd3d4cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c8be124257c94a96b1d82a6fb8c4c23"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a4c8be124257c94a96b1d82a6fb8c4c23">fissionTransportSweep</a> ()</td></tr>
-<tr class="memdesc:a4c8be124257c94a96b1d82a6fb8c4c23"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs one transport sweep using the fission source.  <a href="#a4c8be124257c94a96b1d82a6fb8c4c23">More...</a><br/></td></tr>
+<tr class="memdesc:a4c8be124257c94a96b1d82a6fb8c4c23"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classThis.html">This</a> method performs one transport sweep using the fission source.  <a href="#a4c8be124257c94a96b1d82a6fb8c4c23">More...</a><br/></td></tr>
 <tr class="separator:a4c8be124257c94a96b1d82a6fb8c4c23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a291ec2929b42d337f1a21639564056"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a1a291ec2929b42d337f1a21639564056">scatterTransportSweep</a> ()</td></tr>
-<tr class="memdesc:a1a291ec2929b42d337f1a21639564056"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs one transport sweep using the scatter source.  <a href="#a1a291ec2929b42d337f1a21639564056">More...</a><br/></td></tr>
+<tr class="memdesc:a1a291ec2929b42d337f1a21639564056"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classThis.html">This</a> method performs one transport sweep using the scatter source.  <a href="#a1a291ec2929b42d337f1a21639564056">More...</a><br/></td></tr>
 <tr class="separator:a1a291ec2929b42d337f1a21639564056"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a916eb7ef96140e1ea2d22bb9d1c86240"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a916eb7ef96140e1ea2d22bb9d1c86240"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a916eb7ef96140e1ea2d22bb9d1c86240">initializeFluxArrays</a> ()=0</td></tr>
@@ -253,7 +260,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:ab8f98e89b175f356512ab112e04d07b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb89db6a6b624b222494625613b2ed57"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeb89db6a6b624b222494625613b2ed57"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#aeb89db6a6b624b222494625613b2ed57">normalizeFluxes</a> ()=0</td></tr>
-<tr class="memdesc:aeb89db6a6b624b222494625613b2ed57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalizes all FSR scalar fluxes and <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular fluxes to the total fission source (times <img class="formulaInl" alt="$ \nu $" src="form_0.png"/>). <br/></td></tr>
+<tr class="memdesc:aeb89db6a6b624b222494625613b2ed57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalizes all FSR scalar fluxes and <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> boundary angular fluxes to the total fission source (times <img class="formulaInl" alt="$ \nu $" src="form_1.png"/>). <br/></td></tr>
 <tr class="separator:aeb89db6a6b624b222494625613b2ed57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2cd5efe819275adf36380121c9064d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae2cd5efe819275adf36380121c9064d1"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ae2cd5efe819275adf36380121c9064d1">computeFSRSources</a> ()=0</td></tr>
@@ -272,7 +279,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:a512f94968837c403b90ed20af326036a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d0c4632edff104979002eb21d38d794"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7d0c4632edff104979002eb21d38d794"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a7d0c4632edff104979002eb21d38d794">computeKeff</a> ()=0</td></tr>
-<tr class="memdesc:a7d0c4632edff104979002eb21d38d794"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/> from total fission and absorption rates in each FSR and energy group. <br/></td></tr>
+<tr class="memdesc:a7d0c4632edff104979002eb21d38d794"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute <img class="formulaInl" alt="$ k_{eff} $" src="form_2.png"/> from total fission and absorption rates in each FSR and energy group. <br/></td></tr>
 <tr class="separator:a7d0c4632edff104979002eb21d38d794"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a431c793e0164e134d35fecf9e1e56434"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a431c793e0164e134d35fecf9e1e56434"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a431c793e0164e134d35fecf9e1e56434">addSourceToScalarFlux</a> ()=0</td></tr>
@@ -280,17 +287,17 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="separator:a431c793e0164e134d35fecf9e1e56434"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab029744c3532b239fab583c4f8d8ea98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab029744c3532b239fab583c4f8d8ea98"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ab029744c3532b239fab583c4f8d8ea98">transportSweep</a> ()=0</td></tr>
-<tr class="memdesc:ab029744c3532b239fab583c4f8d8ea98"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method performs one transport swep. <br/></td></tr>
+<tr class="memdesc:ab029744c3532b239fab583c4f8d8ea98"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classThis.html">This</a> method performs one transport swep. <br/></td></tr>
 <tr class="separator:ab029744c3532b239fab583c4f8d8ea98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a277d69530a46b6d42fdf1e968cf768b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a277d69530a46b6d42fdf1e968cf768b6">computeFlux</a> (int max_iters=1000, bool only_fixed_source=true)</td></tr>
-<tr class="memdesc:a277d69530a46b6d42fdf1e968cf768b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the scalar flux distribution by performing a series of transport sweeps.  <a href="#a277d69530a46b6d42fdf1e968cf768b6">More...</a><br/></td></tr>
-<tr class="separator:a277d69530a46b6d42fdf1e968cf768b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a63f18f0140ee0dc90a18757bce9734a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a63f18f0140ee0dc90a18757bce9734a8">computeSource</a> (int max_iters=1000, double k_eff=1.0, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828">TOTAL_SOURCE</a>)</td></tr>
-<tr class="memdesc:a63f18f0140ee0dc90a18757bce9734a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the total source distribution by performing a series of transport sweep and source updates.  <a href="#a63f18f0140ee0dc90a18757bce9734a8">More...</a><br/></td></tr>
-<tr class="separator:a63f18f0140ee0dc90a18757bce9734a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18bf2e85828184e7df442b7d31296d99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a18bf2e85828184e7df442b7d31296d99">computeEigenvalue</a> (int max_iters=1000, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea">FISSION_SOURCE</a>)</td></tr>
-<tr class="memdesc:a18bf2e85828184e7df442b7d31296d99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes keff by performing a series of transport sweep and source updates.  <a href="#a18bf2e85828184e7df442b7d31296d99">More...</a><br/></td></tr>
-<tr class="separator:a18bf2e85828184e7df442b7d31296d99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9d8cadcbc40e6968628ea16d0a699db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ab9d8cadcbc40e6968628ea16d0a699db">computeFlux</a> (int max_iters=1000, <a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a> mode=<a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a>, bool only_fixed_source=true)</td></tr>
+<tr class="memdesc:ab9d8cadcbc40e6968628ea16d0a699db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the scalar flux distribution by performing a series of transport sweeps.  <a href="#ab9d8cadcbc40e6968628ea16d0a699db">More...</a><br/></td></tr>
+<tr class="separator:ab9d8cadcbc40e6968628ea16d0a699db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9af14a1fc69db72bfe0c3a666ce48b6b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a9af14a1fc69db72bfe0c3a666ce48b6b">computeSource</a> (int max_iters=1000, <a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a> mode=<a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a>, double k_eff=1.0, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828">TOTAL_SOURCE</a>)</td></tr>
+<tr class="memdesc:a9af14a1fc69db72bfe0c3a666ce48b6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the total source distribution by performing a series of transport sweep and source updates.  <a href="#a9af14a1fc69db72bfe0c3a666ce48b6b">More...</a><br/></td></tr>
+<tr class="separator:a9af14a1fc69db72bfe0c3a666ce48b6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0fd819a6d1f1fbea6724e2e957bd71e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#af0fd819a6d1f1fbea6724e2e957bd71e">computeEigenvalue</a> (int max_iters=1000, <a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a> mode=<a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a>, <a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be">residualType</a> res_type=<a class="el" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea">FISSION_SOURCE</a>)</td></tr>
+<tr class="memdesc:af0fd819a6d1f1fbea6724e2e957bd71e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes keff by performing a series of transport sweep and source updates.  <a href="#af0fd819a6d1f1fbea6724e2e957bd71e">More...</a><br/></td></tr>
+<tr class="separator:af0fd819a6d1f1fbea6724e2e957bd71e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a1bb7fc290b71e0010d9ab17c1e3fb6e8">computeFSRFissionRates</a> (double *fission_rates, int num_FSRs)=0</td></tr>
 <tr class="memdesc:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the volume-weighted, energy integrated fission rate in each FSR and stores them in an array indexed by FSR ID.  <a href="#a1bb7fc290b71e0010d9ab17c1e3fb6e8">More...</a><br/></td></tr>
 <tr class="separator:a1bb7fc290b71e0010d9ab17c1e3fb6e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -348,6 +355,15 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ae6f30b9636dbae2a9abc471e5e026bfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a198f498aa60f97b7226a26fb5bf5442c"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a198f498aa60f97b7226a26fb5bf5442c">_fixed_sources</a></td></tr>
 <tr class="separator:a198f498aa60f97b7226a26fb5bf5442c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b50bec1e8f4e893c5514008e252a197"><td class="memItemLeft" align="right" valign="top">std::map&lt; std::pair&lt; int, int &gt;<br class="typebreak"/>
+, FP_PRECISION &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a2b50bec1e8f4e893c5514008e252a197">_fix_src_FSR_map</a></td></tr>
+<tr class="separator:a2b50bec1e8f4e893c5514008e252a197"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ac1966afdb385edf09b11af2f466f9d"><td class="memItemLeft" align="right" valign="top">std::map&lt; std::pair&lt; <a class="el" href="classCell.html">Cell</a> <br class="typebreak"/>
+*, int &gt;, FP_PRECISION &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a7ac1966afdb385edf09b11af2f466f9d">_fix_src_cell_map</a></td></tr>
+<tr class="separator:a7ac1966afdb385edf09b11af2f466f9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d40d47942a2f7dcf65ffa3e847dd176"><td class="memItemLeft" align="right" valign="top">std::map&lt; std::pair&lt; <a class="el" href="classMaterial.html">Material</a> <br class="typebreak"/>
+*, int &gt;, FP_PRECISION &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a8d40d47942a2f7dcf65ffa3e847dd176">_fix_src_material_map</a></td></tr>
+<tr class="separator:a8d40d47942a2f7dcf65ffa3e847dd176"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac445e2199893a9bf003f754aab0320f3"><td class="memItemLeft" align="right" valign="top">FP_PRECISION *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#ac445e2199893a9bf003f754aab0320f3">_reduced_sources</a></td></tr>
 <tr class="separator:ac445e2199893a9bf003f754aab0320f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c52f5e2ecbe44ebca20e6696a09e447"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSolver.html#a3c52f5e2ecbe44ebca20e6696a09e447">_k_eff</a></td></tr>
@@ -368,7 +384,7 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a9e84f40ecede91b27e6b05c30519d071"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This is an abstract base class which different <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> subclasses implement for different architectures or source iteration algorithms. </p>
+<div class="textblock"><p><a class="el" href="classThis.html">This</a> is an abstract base class which different <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> subclasses implement for different architectures or source iteration algorithms. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="ac87af9a410e4f9f819268f7dc434f001"></a>
 <div class="memitem">
@@ -421,7 +437,7 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a18bf2e85828184e7df442b7d31296d99"></a>
+<a class="anchor" id="af0fd819a6d1f1fbea6724e2e957bd71e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -430,6 +446,12 @@ Protected Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>max_iters</em> = <code>1000</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a></code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -446,13 +468,14 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes keff by performing a series of transport sweep and source updates. </p>
-<p>This is the main method exposed to the user through the Python interface to perform an eigenvalue calculation. The method makes an initial guess for the scalar and boundary fluxes and performs transport sweeps and source updates until convergence.</p>
+<p><a class="el" href="classThis.html">This</a> is the main method exposed to the user through the Python interface to perform an eigenvalue calculation. The method makes an initial guess for the scalar and boundary fluxes and performs transport sweeps and source updates until convergence.</p>
 <p>By default, this method will perform a maximum of 1000 transport sweeps with a 1E-5 threshold on the integrated FSR fission source. These values may be freely modified by the user at runtime.</p>
 <p>The res_type parameter may be used to control the convergence criterion - SCALAR_FLUX, TOTAL_SOURCE and FISSION_SOURCE (default) are all supported options in OpenMOC at this time.</p>
 <div class="fragment"><div class="line">solver.computeEigenvalue(max_iters=100, res_type=<a class="code" href="Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea">FISSION_SOURCE</a>)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">max_iters</td><td>the maximum number of source iterations to allow </td></tr>
+    <tr><td class="paramname">mode</td><td>the solution type (FORWARD or ADJOINT) </td></tr>
     <tr><td class="paramname">res_type</td><td>the type of residual used for the convergence criterion </td></tr>
   </table>
   </dd>
@@ -460,7 +483,7 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a277d69530a46b6d42fdf1e968cf768b6"></a>
+<a class="anchor" id="ab9d8cadcbc40e6968628ea16d0a699db"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -469,6 +492,12 @@ Protected Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>max_iters</em> = <code>1000</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a></code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -485,10 +514,10 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the scalar flux distribution by performing a series of transport sweeps. </p>
-<p>This is the main method exposed to the user through the Python interface to compute the scalar flux distribution, e.g., for a fixed source calculation. This routine makes an initial guess for scalar and boundary fluxes and performs transport sweep until convergence.</p>
+<p><a class="el" href="classThis.html">This</a> is the main method exposed to the user through the Python interface to compute the scalar flux distribution, e.g., for a fixed source calculation. <a class="el" href="classThis.html">This</a> routine makes an initial guess for scalar and boundary fluxes and performs transport sweep until convergence.</p>
 <p>By default, this method will perform a maximum of 1000 transport sweeps with a 1E-5 threshold on the average FSR scalar flux. These values may be freely modified by the user at runtime.</p>
 <p>The only_fixed_source runtime parameter may be used to control the type of source distribution used in the calculation. By default, this paramter is true and only the fixed sources specified by the user will be considered. Alternatively, when the parameter is false, the source will be computed as the scattering and fission sources resulting from a previously computed flux distribution (e.g., an eigenvalue calculation) in addition to any user-defined fixed sources.</p>
-<p>This method may be called by the user to compute the scalar flux for a fixed source distribution from Python as follows:</p>
+<p><a class="el" href="classThis.html">This</a> method may be called by the user to compute the scalar flux for a fixed source distribution from Python as follows:</p>
 <div class="fragment"><div class="line"><span class="comment">// Assign fixed sources</span></div>
 <div class="line"><span class="comment">// ...</span></div>
 <div class="line"></div>
@@ -508,6 +537,7 @@ Protected Attributes</h2></td></tr>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">max_iters</td><td>the maximum number of source iterations to allow </td></tr>
+    <tr><td class="paramname">mode</td><td>the solution type (FORWARD or ADJOINT) </td></tr>
     <tr><td class="paramname">only_fixed_source</td><td>use only fixed sources (true by default) </td></tr>
   </table>
   </dd>
@@ -548,7 +578,7 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the volume-weighted, energy integrated fission rate in each FSR and stores them in an array indexed by FSR ID. </p>
-<p>This is a helper method for SWIG to allow users to retrieve FSR fission rates as a NumPy array. An example of how this method can be called from Python is as follows:</p>
+<p><a class="el" href="classThis.html">This</a> is a helper method for SWIG to allow users to retrieve FSR fission rates as a NumPy array. An example of how this method can be called from Python is as follows:</p>
 <div class="fragment"><div class="line">num_FSRs = geometry.getNumFSRs()</div>
 <div class="line">fission_rates = solver.computeFSRFissionRates(num_FSRs)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
@@ -588,7 +618,7 @@ Protected Attributes</h2></td></tr>
 <p>Computes the residual between successive flux/source iterations. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">res_type</td><td>the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE) </td></tr>
+    <tr><td class="paramname">res_type</td><td>the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE) </td></tr>
   </table>
   </dd>
 </dl>
@@ -598,7 +628,7 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a63f18f0140ee0dc90a18757bce9734a8"></a>
+<a class="anchor" id="a9af14a1fc69db72bfe0c3a666ce48b6b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -607,6 +637,12 @@ Protected Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>max_iters</em> = <code>1000</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a></code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -629,11 +665,11 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the total source distribution by performing a series of transport sweep and source updates. </p>
-<p>This is the main method exposed to the user through the Python interface to compute the source distribution, e.g., for a fixed and/or external source calculation. This routine makes an initial guess for the scalar and boundary fluxes and performs transport sweeps and source updates until convergence.</p>
+<p><a class="el" href="classThis.html">This</a> is the main method exposed to the user through the Python interface to compute the source distribution, e.g., for a fixed and/or external source calculation. <a class="el" href="classThis.html">This</a> routine makes an initial guess for the scalar and boundary fluxes and performs transport sweeps and source updates until convergence.</p>
 <p>By default, this method will perform a maximum of 1000 transport sweeps with a 1E-5 threshold on the integrated FSR total source. These values may be freely modified by the user at runtime.</p>
 <p>The k_eff parameter may be used for fixed source calculations with fissionable material (e.g., start-up in a reactor from a fixed external source). In this case, the user must "guess" the critical eigenvalue to be be used to scale the fission source.</p>
 <p>The res_type parameter may be used to control the convergence criterion - SCALAR_FLUX, TOTAL_SOURCE (default) and FISSION_SOURCE are all supported options in OpenMOC at this time.</p>
-<p>This method may be called by the user from Python as follows:</p>
+<p><a class="el" href="classThis.html">This</a> method may be called by the user from Python as follows:</p>
 <div class="fragment"><div class="line"><span class="comment">// Assign fixed sources</span></div>
 <div class="line"><span class="comment">// ...</span></div>
 <div class="line"></div>
@@ -642,6 +678,7 @@ Protected Attributes</h2></td></tr>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">max_iters</td><td>the maximum number of source iterations to allow </td></tr>
+    <tr><td class="paramname">mode</td><td>the solution type (FORWARD or ADJOINT) </td></tr>
     <tr><td class="paramname">k_eff</td><td>the sub/super-critical eigenvalue (default 1.0) </td></tr>
     <tr><td class="paramname">res_type</td><td>the type of residual used for the convergence criterion </td></tr>
   </table>
@@ -672,7 +709,7 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Counts the number of fissionable flat source regions. </p>
-<p>This routine is used by the <a class="el" href="classSolver.html#a18bf2e85828184e7df442b7d31296d99" title="Computes keff by performing a series of transport sweep and source updates. ">Solver::computeEigenvalue</a>(...) routine which uses the number of fissionable FSRs to normalize the residual on the fission source distribution. </p>
+<p><a class="el" href="classThis.html">This</a> routine is used by the <a class="el" href="classSolver.html#af0fd819a6d1f1fbea6724e2e957bd71e" title="Computes keff by performing a series of transport sweep and source updates. ">Solver::computeEigenvalue</a>(...) routine which uses the number of fissionable FSRs to normalize the residual on the fission source distribution. </p>
 
 </div>
 </div>
@@ -697,8 +734,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>This method performs one transport sweep using the fission source. </p>
-<p>This is a helper routine used for Krylov subspace methods. </p>
+<p><a class="el" href="classThis.html">This</a> method performs one transport sweep using the fission source. </p>
+<p><a class="el" href="classThis.html">This</a> is a helper routine used for Krylov subspace methods. </p>
 
 </div>
 </div>
@@ -833,7 +870,7 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Returns the source for some energy group for a flat source region. </p>
-<p>This is a helper routine used by the <a class="el" href="namespaceopenmoc_1_1process.html" title="The process module provides utility functions for processing of OpenMOC simulations. ">openmoc.process</a> module. </p>
+<p><a class="el" href="classThis.html">This</a> is a helper routine used by the openmoc.process module. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fsr_id</td><td>the ID for the FSR of interest </td></tr>
@@ -903,8 +940,8 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Returns the converged eigenvalue <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/>. </p>
-<dl class="section return"><dt>Returns</dt><dd>the converged eigenvalue <img class="formulaInl" alt="$ k_{eff} $" src="form_4.png"/> </dd></dl>
+<p>Returns the converged eigenvalue <img class="formulaInl" alt="$ k_{eff} $" src="form_2.png"/>. </p>
+<dl class="section return"><dt>Returns</dt><dd>the converged eigenvalue <img class="formulaInl" alt="$ k_{eff} $" src="form_2.png"/> </dd></dl>
 
 </div>
 </div>
@@ -959,6 +996,24 @@ Protected Attributes</h2></td></tr>
 
 <p>Returns the number of angles used for the polar quadrature. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of polar angles </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a259826c79da9cfb33c099bf908d353b2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classPolarQuad.html">PolarQuad</a> * Solver::getPolarQuad </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a pointer to the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a>. </p>
+<dl class="section return"><dt>Returns</dt><dd>a pointer to the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> </dd></dl>
 
 </div>
 </div>
@@ -1020,7 +1075,35 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Initializes a <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object for acceleratiion prior to source iteration. </p>
-<p>Instantiates a dummy <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object if one was not assigned to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> by the user and initializes FSRs, materials, fluxes and the Mesh object. This method is for internal use only and should not be called directly by the user. </p>
+<p>Instantiates a dummy <a class="el" href="classCmfd.html" title="A class for Coarse Mesh Finite Difference (CMFD) acceleration. ">Cmfd</a> object if one was not assigned to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> by the user and initializes FSRs, materials, fluxes and the Mesh object. <a class="el" href="classThis.html">This</a> method is for internal use only and should not be called directly by the user. </p>
+
+</div>
+</div>
+<a class="anchor" id="a1b91fb89a8d6a0877019bfe6556276db"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::initializeFixedSources </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assigns fixed sources assigned by <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a>, <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> to FSRs. </p>
+<p>Fixed sources assigned by <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> </p>
+
+<p>Reimplemented in <a class="el" href="classGPUSolver.html#aeba3c0ac34ad06958bb95561f00906c2">GPUSolver</a>, <a class="el" href="classCPUSolver.html#a65e4f675a25a58535f8da3fc4001cd75">CPUSolver</a>, and <a class="el" href="classVectorizedSolver.html#a1fc99892ad78512c163697ba76f9184e">VectorizedSolver</a>.</p>
 
 </div>
 </div>
@@ -1046,9 +1129,44 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Initializes the FSR volumes and Materials array. </p>
-<p>This method assigns each FSR a unique, monotonically increasing ID, sets the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> for each FSR, and assigns a volume based on the cumulative length of all of the segments inside the FSR. </p>
+<p><a class="el" href="classThis.html">This</a> method assigns each FSR a unique, monotonically increasing ID, sets the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> for each FSR, and assigns a volume based on the cumulative length of all of the segments inside the FSR. </p>
 
-<p>Reimplemented in <a class="el" href="classGPUSolver.html#ab3c55b3861d4ec4064630a417cf210eb">GPUSolver</a>, and <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>.</p>
+<p>Reimplemented in <a class="el" href="classGPUSolver.html#ab3c55b3861d4ec4064630a417cf210eb">GPUSolver</a>, <a class="el" href="classCPUSolver.html#aafc9bf9eb416a12cbe21ddde4b5f9f1c">CPUSolver</a>, and <a class="el" href="classVectorizedSolver.html#a7041a7c07ed1afee39e48c8cd32607fc">VectorizedSolver</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="acefb1a0ac2922f65e97fd20f22e1cefb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::initializeMaterials </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a></code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Initializes the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> fission matrices. </p>
+<p>In an adjoint calculation, this routine will transpose the scattering and fission matrices in each material. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mode</td><td>the solution type (FORWARD or ADJOINT) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented in <a class="el" href="classGPUSolver.html#ac93ff23e71069a624f3573884e033ca1">GPUSolver</a>, and <a class="el" href="classVectorizedSolver.html#a4581d8ab67e488b34674f41e1bcc4899">VectorizedSolver</a>.</p>
 
 </div>
 </div>
@@ -1116,6 +1234,39 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ae283d5e199fb47d604d13d0f9cd3d4cb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Solver::resetMaterials </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6">solverMode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1">FORWARD</a></code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> data to its original state. </p>
+<p>In an adjoint calculation, the scattering and fission matrices in each material are transposed during initialization. <a class="el" href="classThis.html">This</a> routine returns both matrices to their original (FORWARD) state at the end of a calculation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mode</td><td>the solution type (FORWARD or ADJOINT) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a1a291ec2929b42d337f1a21639564056"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1137,8 +1288,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>This method performs one transport sweep using the scatter source. </p>
-<p>This is a helper routine used for Krylov subspace methods. </p>
+<p><a class="el" href="classThis.html">This</a> method performs one transport sweep using the scatter source. </p>
+<p><a class="el" href="classThis.html">This</a> is a helper routine used for Krylov subspace methods. </p>
 
 </div>
 </div>
@@ -1231,10 +1382,9 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Assign a fixed source for a <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> and energy group. </p>
-<p>This routine will add the fixed source to all instances of the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> in the geometry (e.g., all FSRs for this <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a>). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fsr_id</td><td>the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> of interest </td></tr>
+    <tr><td class="paramname">cell</td><td>the <a class="el" href="classCell.html" title="Represents a Cell inside of a Universe. ">Cell</a> of interest </td></tr>
     <tr><td class="paramname">group</td><td>the energy group </td></tr>
     <tr><td class="paramname">source</td><td>the volume-averaged source in this group </td></tr>
   </table>
@@ -1246,9 +1396,6 @@ Protected Attributes</h2></td></tr>
 <a class="anchor" id="a555f77789f36a78cad34df412300e6e7"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void Solver::setFixedSourceByFSR </td>
@@ -1274,15 +1421,9 @@ Protected Attributes</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Assign a fixed source for a flat source region and energy group. </p>
-<p>This is a helper routine to perform error checking for the subclasses which store the source in the appropriate array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fsr_id</td><td>the flat source region ID </td></tr>
@@ -1291,8 +1432,6 @@ Protected Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-
-<p>Reimplemented in <a class="el" href="classGPUSolver.html#aec246df7ad4feefeecfb8e55d4d04a79">GPUSolver</a>, <a class="el" href="classCPUSolver.html#a18c43c545aef7cea6807c07ea3ca803d">CPUSolver</a>, and <a class="el" href="classVectorizedSolver.html#a7beb263e020c0ff2d32f6f16c4f99378">VectorizedSolver</a>.</p>
 
 </div>
 </div>
@@ -1327,10 +1466,9 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Assign a fixed source for a <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> and energy group. </p>
-<p>This routine will add the fixed source to all instances of the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> in the geometry (e.g., all FSRs with this <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a>). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fsr_id</td><td>the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> of interest </td></tr>
+    <tr><td class="paramname">material</td><td>the <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> of interest </td></tr>
     <tr><td class="paramname">group</td><td>the energy group </td></tr>
     <tr><td class="paramname">source</td><td>the volume-averaged source in this group </td></tr>
   </table>
@@ -1362,7 +1500,7 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Sets the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> for the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>. </p>
-<p>This is a private setter method for the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> and is not intended to be called by the user. </p>
+<p><a class="el" href="classThis.html">This</a> is a private setter method for the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> and is not intended to be called by the user. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">geometry</td><td>a pointer to a <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a> object </td></tr>
@@ -1421,7 +1559,7 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Assign a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>. </p>
-<p>This routine allows use of a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> with any polar angle quadrature. Alternatively, this routine may take in any subclass of the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> parent class, including <a class="el" href="classTYPolarQuad.html" title="Tabuchi-Yamamoto&#39;s polar quadrature. ">TYPolarQuad</a> (default), <a class="el" href="classLeonardPolarQuad.html" title="Leonard&#39;s polar quadrature. ">LeonardPolarQuad</a>, <a class="el" href="classGLPolarQuad.html" title="Gauss-Legendre&#39;s polar quadrature. ">GLPolarQuad</a>, etc.</p>
+<p><a class="el" href="classThis.html">This</a> routine allows use of a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> with any polar angle quadrature. Alternatively, this routine may take in any subclass of the <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> parent class, including <a class="el" href="classTYPolarQuad.html" title="Tabuchi-Yamamoto&#39;s polar quadrature. ">TYPolarQuad</a> (default), <a class="el" href="classLeonardPolarQuad.html" title="Leonard&#39;s polar quadrature. ">LeonardPolarQuad</a>, <a class="el" href="classGLPolarQuad.html" title="Gauss-Legendre&#39;s polar quadrature. ">GLPolarQuad</a>, etc.</p>
 <p>Users may assign a <a class="el" href="classPolarQuad.html" title="The arbitrary polar quadrature parent class. ">PolarQuad</a> object to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> from Python script as follows:</p>
 <div class="fragment"><div class="line">polar_quad = openmoc.LeonardPolarQuad()</div>
 <div class="line">polar_quad.setNumPolarAngles(2)</div>
@@ -1458,9 +1596,8 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Sets the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>'s <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> with characteristic Tracks. </p>
-<p>The <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> must already have generated Tracks and have used ray tracing to segmentize them across the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>. This should be initated in Python prior to assigning the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>:</p>
-<div class="fragment"><div class="line">geometry.initializeFlatSourceRegions()</div>
-<div class="line">track_generator.generateTracks()</div>
+<p>The <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> must already have generated Tracks and have used ray tracing to segmentize them across the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>. <a class="el" href="classThis.html">This</a> should be initated in Python prior to assigning the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> to the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a>:</p>
+<div class="fragment"><div class="line">track_generator.generateTracks()</div>
 <div class="line">solver.setTrackGenerator(track_generator)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1491,7 +1628,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>The angular fluxes for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> for all energy groups, polar angles, and azimuthal angles. This array stores the boundary fluxes for a a <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> along both "forward" and "reverse" directions. </p>
+<p>The angular fluxes for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> for all energy groups, polar angles, and azimuthal angles. <a class="el" href="classThis.html">This</a> array stores the boundary fluxes for a a <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> along both "forward" and "reverse" directions. </p>
 
 </div>
 </div>
@@ -1555,6 +1692,69 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p>An <a class="el" href="classExpEvaluator.html" title="This is a class for evaluating exponentials. ">ExpEvaluator</a> to compute exponentials in the transport equation </p>
+
+</div>
+</div>
+<a class="anchor" id="a7ac1966afdb385edf09b11af2f466f9d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt; std::pair&lt;<a class="el" href="classCell.html">Cell</a>*, int&gt;, FP_PRECISION &gt; Solver::_fix_src_cell_map</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A mapping of fixed sources keyed by the pair (Cell*, energy group) </p>
+
+</div>
+</div>
+<a class="anchor" id="a2b50bec1e8f4e893c5514008e252a197"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt; std::pair&lt;int, int&gt;, FP_PRECISION &gt; Solver::_fix_src_FSR_map</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A mapping of fixed sources keyed by the pair (FSR ID, energy group) </p>
+
+</div>
+</div>
+<a class="anchor" id="a8d40d47942a2f7dcf65ffa3e847dd176"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt; std::pair&lt;<a class="el" href="classMaterial.html">Material</a>*, int&gt;, FP_PRECISION &gt; Solver::_fix_src_material_map</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A mapping of fixed sources keyed by the pair (Material*, energy group) </p>
 
 </div>
 </div>
@@ -2084,8 +2284,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
-<li>/home/wboyd/Desktop/OpenMOC/src/Solver.cpp</li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="Solver_8h_source.html">Solver.h</a></li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/Solver.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -2093,7 +2293,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classSolver.html">Solver</a></li>
-    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
+    <li class="footer">Generated on Tue Mar 29 2016 20:25:46 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

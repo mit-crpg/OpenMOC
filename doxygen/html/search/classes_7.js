@@ -1,4 +1,8 @@
 var searchData=
 [
-  ['options',['Options',['../classopenmoc_1_1options_1_1Options.html',1,'openmoc::options']]]
+  ['material',['Material',['../classMaterial.html',1,'']]],
+  ['matrix',['Matrix',['../classMatrix.html',1,'']]],
+  ['maxopticallength',['MaxOpticalLength',['../classMaxOpticalLength.html',1,'']]],
+  ['mockernel',['MOCKernel',['../classMOCKernel.html',1,'']]],
+  ['multiplybyconstant',['multiplyByConstant',['../structmultiplyByConstant.html',1,'']]]
 ];

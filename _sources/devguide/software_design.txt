@@ -31,7 +31,7 @@ Class                        Parent Class             Category
 ``Plane``                    ``Surface``              Constructive Solid Geometry
 ``XPlane``                   ``Plane``                Constructive Solid Geometry
 ``YPlane``                   ``Plane``                Constructive Solid Geometry
-``Circle``                   ``Surface``              Constructive Solid Geometry
+``ZCylinder``                ``Surface``              Constructive Solid Geometry
 ``Cell``                     N/A                      Constructive Solid Geometry
 ``Universe``                 ``Universe``             Constructive Solid Geometry
 ``Lattice``                  N/A                      Constructive Solid Geometry

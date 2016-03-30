@@ -13,5 +13,9 @@ var Solver_8h =
       [ "SCALAR_FLUX", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea64f8e8426d0253e204dc87806fdfdb1e", null ],
       [ "FISSION_SOURCE", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea", null ],
       [ "TOTAL_SOURCE", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5beab4e45e4756d98c5d8a86e6bb41934828", null ]
+    ] ],
+    [ "solverMode", "Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6", [
+      [ "FORWARD", "Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6aa26736999186daf8146f809e863712a1", null ],
+      [ "ADJOINT", "Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6a9de8670f73522a2526f9dababeaf852a", null ]
     ] ]
 ];

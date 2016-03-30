@@ -9,7 +9,7 @@ var classSurface =
     [ "getMaxX", "classSurface.html#a1edd456367a3d7d918582a466734a86b", null ],
     [ "getMaxY", "classSurface.html#ada5c0bfb9edf3b61f98efed900e07714", null ],
     [ "getMaxZ", "classSurface.html#a9a644e77deac15dceef35f80a6ed410d", null ],
-    [ "getMinDistance", "classSurface.html#a7a5989ca8b58293132edd0226489c4aa", null ],
+    [ "getMinDistance", "classSurface.html#af26d145a8407d79499afa3da51d60545", null ],
     [ "getMinX", "classSurface.html#abd73088b89103f309c66e870a4e1527a", null ],
     [ "getMinY", "classSurface.html#a86a0c7de2e637eb806ba549b9f782e76", null ],
     [ "getMinZ", "classSurface.html#ad11132eeb2897e976e2733f046017367", null ],

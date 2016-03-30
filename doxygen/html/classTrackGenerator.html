@@ -44,7 +44,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,7 +92,7 @@ $(document).ready(function(){initNavTree('classTrackGenerator.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -128,6 +127,9 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a9c9661635df90ab658b17517548e7cc2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a9c9661635df90ab658b17517548e7cc2">getNumAzim</a> ()</td></tr>
 <tr class="memdesc:a9c9661635df90ab658b17517548e7cc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of azimuthal angles in <img class="formulaInl" alt="$ [0, 2\pi] $" src="form_27.png"/>.  <a href="#a9c9661635df90ab658b17517548e7cc2">More...</a><br/></td></tr>
 <tr class="separator:a9c9661635df90ab658b17517548e7cc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac311f6c0a17ad42518668517be9a7307"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ac311f6c0a17ad42518668517be9a7307">getPhi</a> (int azim)</td></tr>
+<tr class="memdesc:ac311f6c0a17ad42518668517be9a7307"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the azimuthal angle for a given azimuthal angle index.  <a href="#ac311f6c0a17ad42518668517be9a7307">More...</a><br/></td></tr>
+<tr class="separator:ac311f6c0a17ad42518668517be9a7307"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa96bffdf881ca6142007a5716077bb9e"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#aa96bffdf881ca6142007a5716077bb9e">getTrackSpacing</a> ()</td></tr>
 <tr class="memdesc:aa96bffdf881ca6142007a5716077bb9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the track spacing (cm).  <a href="#aa96bffdf881ca6142007a5716077bb9e">More...</a><br/></td></tr>
 <tr class="separator:aa96bffdf881ca6142007a5716077bb9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -173,6 +175,12 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:a4ac96dc85f87896ec9e78c9a004f031b"><td class="memItemLeft" align="right" valign="top">FP_PRECISION&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a4ac96dc85f87896ec9e78c9a004f031b">getMaxOpticalLength</a> ()</td></tr>
 <tr class="memdesc:a4ac96dc85f87896ec9e78c9a004f031b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds and returns the maximum optical length amongst all segments.  <a href="#a4ac96dc85f87896ec9e78c9a004f031b">More...</a><br/></td></tr>
 <tr class="separator:a4ac96dc85f87896ec9e78c9a004f031b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb89a217659f69424f8278183718423d"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#aeb89a217659f69424f8278183718423d">getZCoord</a> ()</td></tr>
+<tr class="memdesc:aeb89a217659f69424f8278183718423d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the z-coord where the 2D Tracks should be created.  <a href="#aeb89a217659f69424f8278183718423d">More...</a><br/></td></tr>
+<tr class="separator:aeb89a217659f69424f8278183718423d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ec81c8fa002e2acacf3ea8635a28814"><td class="memItemLeft" align="right" valign="top">omp_lock_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a4ec81c8fa002e2acacf3ea8635a28814">getFSRLocks</a> ()</td></tr>
+<tr class="memdesc:a4ec81c8fa002e2acacf3ea8635a28814"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the array of FSR locks for atomic FSR operations.  <a href="#a4ec81c8fa002e2acacf3ea8635a28814">More...</a><br/></td></tr>
+<tr class="separator:a4ec81c8fa002e2acacf3ea8635a28814"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a646dd957a791ae40d9319d50d87bd596"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a646dd957a791ae40d9319d50d87bd596">setNumAzim</a> (int num_azim)</td></tr>
 <tr class="memdesc:a646dd957a791ae40d9319d50d87bd596"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the number of azimuthal angles in <img class="formulaInl" alt="$ [0, 2\pi] $" src="form_27.png"/>.  <a href="#a646dd957a791ae40d9319d50d87bd596">More...</a><br/></td></tr>
 <tr class="separator:a646dd957a791ae40d9319d50d87bd596"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,18 +193,21 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:abab25773e4b8fbe3a77e3b8b6205c447"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#abab25773e4b8fbe3a77e3b8b6205c447">setNumThreads</a> (int num_threads)</td></tr>
 <tr class="memdesc:abab25773e4b8fbe3a77e3b8b6205c447"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the number of shared memory OpenMP threads to use (&gt;0).  <a href="#abab25773e4b8fbe3a77e3b8b6205c447">More...</a><br/></td></tr>
 <tr class="separator:abab25773e4b8fbe3a77e3b8b6205c447"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0146c8329c24bad0a9e57051c4a4190"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ac0146c8329c24bad0a9e57051c4a4190">setZCoord</a> (double z_coord)</td></tr>
+<tr class="memdesc:ac0146c8329c24bad0a9e57051c4a4190"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the z-coord where the 2D Tracks should be created.  <a href="#ac0146c8329c24bad0a9e57051c4a4190">More...</a><br/></td></tr>
+<tr class="separator:ac0146c8329c24bad0a9e57051c4a4190"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ec836ced3479a5aae51132809a3d7b4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a5ec836ced3479a5aae51132809a3d7b4">containsTracks</a> ()</td></tr>
 <tr class="memdesc:a5ec836ced3479a5aae51132809a3d7b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether or not the <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> contains <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> that are for its current number of azimuthal angles, track spacing and geometry.  <a href="#a5ec836ced3479a5aae51132809a3d7b4">More...</a><br/></td></tr>
 <tr class="separator:a5ec836ced3479a5aae51132809a3d7b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b61a46a4dfd62aa13cab68e454ed935"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935">retrieveTrackCoords</a> (double *coords, int num_tracks)</td></tr>
-<tr class="memdesc:a6b61a46a4dfd62aa13cab68e454ed935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills an array with the x,y coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>.  <a href="#a6b61a46a4dfd62aa13cab68e454ed935">More...</a><br/></td></tr>
+<tr class="memdesc:a6b61a46a4dfd62aa13cab68e454ed935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills an array with the x,y,z coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>.  <a href="#a6b61a46a4dfd62aa13cab68e454ed935">More...</a><br/></td></tr>
 <tr class="separator:a6b61a46a4dfd62aa13cab68e454ed935"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad18b94b9307680cf9e7053d3c03e4504"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504">retrieveSegmentCoords</a> (double *coords, int num_segments)</td></tr>
-<tr class="memdesc:ad18b94b9307680cf9e7053d3c03e4504"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills an array with the x,y coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment.  <a href="#ad18b94b9307680cf9e7053d3c03e4504">More...</a><br/></td></tr>
+<tr class="memdesc:ad18b94b9307680cf9e7053d3c03e4504"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills an array with the x,y,z coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment.  <a href="#ad18b94b9307680cf9e7053d3c03e4504">More...</a><br/></td></tr>
 <tr class="separator:ad18b94b9307680cf9e7053d3c03e4504"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8012954f5eeeae9dfb4fd445937884ee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a8012954f5eeeae9dfb4fd445937884ee">generateTracks</a> ()</td></tr>
-<tr class="memdesc:a8012954f5eeeae9dfb4fd445937884ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates tracks for some number of azimuthal angles and track spacing.  <a href="#a8012954f5eeeae9dfb4fd445937884ee">More...</a><br/></td></tr>
-<tr class="separator:a8012954f5eeeae9dfb4fd445937884ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a008c67febc888ef2b7b0392a9ee8952e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a008c67febc888ef2b7b0392a9ee8952e">generateTracks</a> (bool neighbor_cells=false)</td></tr>
+<tr class="memdesc:a008c67febc888ef2b7b0392a9ee8952e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates tracks for some number of azimuthal angles and track spacing.  <a href="#a008c67febc888ef2b7b0392a9ee8952e">More...</a><br/></td></tr>
+<tr class="separator:a008c67febc888ef2b7b0392a9ee8952e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada93a9235bb47415053c65245dbd8568"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ada93a9235bb47415053c65245dbd8568">correctFSRVolume</a> (int fsr_id, FP_PRECISION fsr_volume)</td></tr>
 <tr class="memdesc:ada93a9235bb47415053c65245dbd8568"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a correct volume for some FSR.  <a href="#ada93a9235bb47415053c65245dbd8568">More...</a><br/></td></tr>
 <tr class="separator:ada93a9235bb47415053c65245dbd8568"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,6 +217,9 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="memitem:ad9d0376ab33786f99fb3d2afadae3314"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#ad9d0376ab33786f99fb3d2afadae3314">splitSegments</a> (FP_PRECISION max_optical_length)</td></tr>
 <tr class="memdesc:ad9d0376ab33786f99fb3d2afadae3314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Splits <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segments into sub-segments for a user-defined maximum optical length for the problem.  <a href="#ad9d0376ab33786f99fb3d2afadae3314">More...</a><br/></td></tr>
 <tr class="separator:ad9d0376ab33786f99fb3d2afadae3314"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a377a6c3c8798ef9cfc544658a4410a37"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classTrackGenerator.html#a377a6c3c8798ef9cfc544658a4410a37">initializeSegments</a> ()</td></tr>
+<tr class="memdesc:a377a6c3c8798ef9cfc544658a4410a37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize track segments with pointers to FSR Materials.  <a href="#a377a6c3c8798ef9cfc544658a4410a37">More...</a><br/></td></tr>
+<tr class="separator:a377a6c3c8798ef9cfc544658a4410a37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classTrackGenerator.html" title="The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap across the Geo...">TrackGenerator</a> is dedicated to generating and storing Tracks which cyclically wrap across the <a class="el" href="classGeometry.html" title="The master class containing references to all geometry-related objects - Surfaces, Cells, Universes and Lattices - and Materials. ">Geometry</a>. </p>
@@ -297,7 +311,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </div><div class="memdoc">
 
 <p>Assign a correct volume for some FSR. </p>
-<p>This routine adjusts the length of each track segment crossing a FSR such that the integrated volume is identical to the true volume assigned by the user. </p>
+<p><a class="el" href="classThis.html">This</a> routine adjusts the length of each track segment crossing a FSR such that the integrated volume is identical to the true volume assigned by the user. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fsr_id</td><td>the ID of the FSR of interest </td></tr>
@@ -322,26 +336,27 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </div><div class="memdoc">
 
 <p>Generates the numerical centroids of the FSRs. </p>
-<p>This routine generates the numerical centroids of the FSRs by weighting the average x and y values of each segment in the FSR by the segment's length and azimuthal weight. The numerical centroid fomula can be found in R. Ferrer et. al. "Linear Source
+<p><a class="el" href="classThis.html">This</a> routine generates the numerical centroids of the FSRs by weighting the average x and y values of each segment in the FSR by the segment's length and azimuthal weight. The numerical centroid fomula can be found in R. Ferrer et. al. "Linear Source
          Approximation in CASMO 5", PHYSOR 2012. </p>
 
 </div>
 </div>
-<a class="anchor" id="a8012954f5eeeae9dfb4fd445937884ee"></a>
+<a class="anchor" id="a008c67febc888ef2b7b0392a9ee8952e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void TrackGenerator::generateTracks </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>neighbor_cells</em> = <code>false</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Generates tracks for some number of azimuthal angles and track spacing. </p>
-<p>Computes the effective angles and track spacing. Computes the number of Tracks for each azimuthal angle, allocates memory for all Tracks at each angle and sets each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s starting and ending Points, azimuthal angle, and azimuthal angle quadrature weight. </p>
+<p>Computes the effective angles and track spacing. Computes the number of Tracks for each azimuthal angle, allocates memory for all Tracks at each angle and sets each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>'s starting and ending Points, azimuthal angle, and azimuthal angle quadrature weight. neighbor_cells whether to use neighbor cell optimizations </p>
 
 </div>
 </div>
@@ -360,6 +375,24 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Return a pointer to the array of azimuthal angle quadrature weights. </p>
 <dl class="section return"><dt>Returns</dt><dd>the array of azimuthal angle quadrature weights </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4ec81c8fa002e2acacf3ea8635a28814"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">omp_lock_t * TrackGenerator::getFSRLocks </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the array of FSR locks for atomic FSR operations. </p>
+<dl class="section return"><dt>Returns</dt><dd>an array of FSR locks </dd></dl>
 
 </div>
 </div>
@@ -602,6 +635,31 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 </div>
 </div>
+<a class="anchor" id="ac311f6c0a17ad42518668517be9a7307"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double TrackGenerator::getPhi </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>azim</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the azimuthal angle for a given azimuthal angle index. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">the</td><td>azimuthal angle index. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the desired azimuthal angle. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a293c6a25a694bfcb8187cfd679fa3639"></a>
 <div class="memitem">
 <div class="memproto">
@@ -654,8 +712,44 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </div><div class="memdoc">
 
 <p>Return the track spacing (cm). </p>
-<p>This will return the user-specified track spacing and NOT the effective track spacing which is computed and used to generate cyclic tracks. </p>
+<p><a class="el" href="classThis.html">This</a> will return the user-specified track spacing and NOT the effective track spacing which is computed and used to generate cyclic tracks. </p>
 <dl class="section return"><dt>Returns</dt><dd>the track spacing (cm) </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aeb89a217659f69424f8278183718423d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double TrackGenerator::getZCoord </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the z-coord where the 2D Tracks should be created. </p>
+<dl class="section return"><dt>Returns</dt><dd>the z-coord where the 2D Tracks should be created. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a377a6c3c8798ef9cfc544658a4410a37"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TrackGenerator::initializeSegments </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize track segments with pointers to FSR Materials. </p>
+<p><a class="el" href="classThis.html">This</a> is called by the <a class="el" href="classSolver.html" title="This is an abstract base class which different Solver subclasses implement for different architecture...">Solver</a> at simulation time. <a class="el" href="classThis.html">This</a> initialization is necessary since Materials in each FSR may be interchanged by the user in between different simulations. <a class="el" href="classThis.html">This</a> method links each segment and <a class="el" href="structfsr__data.html" title="A fsr_data struct represents an FSR with a unique FSR ID and a characteristic point that lies within ...">fsr_data</a> struct with the current <a class="el" href="classMaterial.html" title="The Material class represents a unique material and its relevant nuclear data (i.e., multigroup cross-sections) for neutron transport. ">Material</a> found in each FSR. </p>
 
 </div>
 </div>
@@ -673,7 +767,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_segments</em>&#160;</td>
+          <td class="paramname"><em>length_coords</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -683,14 +777,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
       </table>
 </div><div class="memdoc">
 
-<p>Fills an array with the x,y coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment. </p>
-<p>This class method is intended to be called by the OpenMOC Python "plotter" module as a utility to assist in plotting segments. Although this method appears to require two arguments, in reality it only requires one due to SWIG and would be called from within Python as follows:</p>
+<p>Fills an array with the x,y,z coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segment. </p>
+<p><a class="el" href="classThis.html">This</a> class method is intended to be called by the OpenMOC Python "plotter" module as a utility to assist in plotting segments. Although this method appears to require two arguments, in reality it only requires one due to SWIG and would be called from within Python as follows:</p>
 <div class="fragment"><div class="line">num_segments = track_generator.getNumSegments()</div>
-<div class="line">coords = track_generator.retrieveSegmentCoords(num_segments*5)</div>
+<div class="line">coords = track_generator.retrieveSegmentCoords</div>
+<div class="line">           (num_segments*<a class="code" href="constants_8h.html#aea52b0deb6a8027af3d8775beeecd367">NUM_VALUES_PER_RETRIEVED_SEGMENT</a>)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">coords</td><td>an array of coords of length 5 times the number of segments </td></tr>
-    <tr><td class="paramname">num_segments</td><td>the total number of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segments </td></tr>
+    <tr><td class="paramname">coords</td><td>an array of coords of length NUM_VALUES_PER_RETRIEVED_SEGMENT times the number of segments </td></tr>
+    <tr><td class="paramname">length_coords</td><td>the total number of <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segments times NUM_VALUES_PER_RETRIEVED_SEGMENT </td></tr>
   </table>
   </dd>
 </dl>
@@ -711,7 +806,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>num_tracks</em>&#160;</td>
+          <td class="paramname"><em>length_coords</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -721,14 +816,15 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
       </table>
 </div><div class="memdoc">
 
-<p>Fills an array with the x,y coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>. </p>
-<p>This class method is intended to be called by the OpenMOC Python "plotter" module as a utility to assist in plotting tracks. Although this method appears to require two arguments, in reality it only requires on due to SWIG and would be called from within Python as follows:</p>
+<p>Fills an array with the x,y,z coordinates for each <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a>. </p>
+<p><a class="el" href="classThis.html">This</a> class method is intended to be called by the OpenMOC Python "plotter" module as a utility to assist in plotting tracks. Although this method appears to require two arguments, in reality it only requires on due to SWIG and would be called from within Python as follows:</p>
 <div class="fragment"><div class="line">num_tracks = track_generator.getNumTracks()</div>
-<div class="line">coords = track_generator.retrieveTrackCoords(num_tracks*4)</div>
+<div class="line">coords = track_generator.retrieveTrackCoords</div>
+<div class="line">           (num_tracks*<a class="code" href="constants_8h.html#a6217f122191af9ef96d319988bb162b9">NUM_VALUES_PER_RETRIEVED_TRACK</a>)</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">coords</td><td>an array of coords of length 4 times the number of Tracks </td></tr>
-    <tr><td class="paramname">num_tracks</td><td>the total number of Tracks </td></tr>
+    <tr><td class="paramname">coords</td><td>an array of coords of length NUM_VALUES_PER_RETRIEVED_TRACK times the number of Tracks </td></tr>
+    <tr><td class="paramname">length_coords</td><td>the total number of Tracks times NUM_VALUES_PER_RETRIEVED_TRACK </td></tr>
   </table>
   </dd>
 </dl>
@@ -831,6 +927,30 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 </div>
 </div>
+<a class="anchor" id="ac0146c8329c24bad0a9e57051c4a4190"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TrackGenerator::setZCoord </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>z_coord</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the z-coord where the 2D Tracks should be created. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">z_coord</td><td>the z-coord where the 2D Tracks should be created. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="ad9d0376ab33786f99fb3d2afadae3314"></a>
 <div class="memitem">
 <div class="memproto">
@@ -846,7 +966,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </div><div class="memdoc">
 
 <p>Splits <a class="el" href="classTrack.html" title="A Track represents a characteristic line across the geometry. ">Track</a> segments into sub-segments for a user-defined maximum optical length for the problem. </p>
-<p>This routine is needed so that all segment lengths fit within the exponential interpolation table used in the MOC transport sweep. </p>
+<p><a class="el" href="classThis.html">This</a> routine is needed so that all segment lengths fit within the exponential interpolation table used in the MOC transport sweep. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">max_optical_length</td><td>the maximum optical length </td></tr>
@@ -857,8 +977,8 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/wboyd/Desktop/OpenMOC/src/<a class="el" href="TrackGenerator_8h_source.html">TrackGenerator.h</a></li>
-<li>/home/wboyd/Desktop/OpenMOC/src/TrackGenerator.cpp</li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/<a class="el" href="TrackGenerator_8h_source.html">TrackGenerator.h</a></li>
+<li>/home/geogunow/OpenMOC/OpenMOC/src/TrackGenerator.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -866,7 +986,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classTrackGenerator.html">TrackGenerator</a></li>
-    <li class="footer">Generated on Tue Sep 22 2015 13:26:39 by
+    <li class="footer">Generated on Tue Mar 29 2016 20:25:46 by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

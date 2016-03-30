@@ -9,8 +9,8 @@ The method of characteristics uses tracks across the geometry to discretize the 
 
 .. _cyclic-tracks:
 
-Cylic Tracks
-============
+Cyclic Tracks
+=============
 
 OpenMOC uses *global tracking* such that each track spans the entire extent of the simulation domain. By symmetry, tracks only need to be represented for azimuthal angles in the range :math:`\phi \in [0, \pi]` since a track with angle :math:`\phi` will have the same start and end points as a track with angle :math:`\phi + \pi`. *Complementary angles* are pairs of angles :math:`(\phi, \alpha)` in the azimuthal quadrature where :math:`\alpha = \pi - \phi`. Tracks for complementary angles have a *track spacing* such that they intersect at the boundaries of the geometry and form closed cycles. An illustration of OpenMOC's track layout for eight azimuthal angles is given in :ref:`Figure 1 <figure-cyclic-tracks>`.
 
@@ -21,7 +21,7 @@ OpenMOC uses *global tracking* such that each track spans the entire extent of t
    :figclass: align-center
    :width: 300px
 
-   **Figure 1**: Global cylic tracks across a square.
+   **Figure 1**: Global cyclic tracks across a square.
 
 
 Cyclic tracking is important since it allows for a simple treatment of reflective boundary conditions. Boundary conditions must be respected for the track outgoing fluxes at each iteration. Vacuum boundary conditions on a surface can be implemented for the MOC formulation by ensuring that each track originating along that surface has zero incoming flux, while tallying outgoing flux as leakage. Reflective boundary conditions are easily implemented since complementary angles guarantee that tracks wrap around the geometry in closed cycles. No approximations need to be made for each track's incoming flux since it is exactly the outgoing flux of another track in the cycle.
@@ -67,12 +67,12 @@ The reader should note that this method for computing the effective track spacin
    t_{s,m,eff} \;\;\; \le \;\;\; t_{s}
 
 
-.. _azimuthal-polar-angle-quadrature:
+.. _azimuthal-angle-quadrature:
 
-Azimuthal and Polar Angle Quadrature
-====================================
+Azimuthal Angle Quadrature
+==========================
 
-The azimuthal angle quadrature set is computed based on the fraction of azimuthal angular space "owned" by each azimuthal angle. In this section, the variable transformation :math:`\phi_{m} \gets \phi_{m,eff}` has been made such that the effective azimuthal angle is used throughout. The azimuthal angle quadrature weight specification is given in :eq:`azimuthal-quadrature-1`, :eq:`azimuthal-quadrature-2`, and :eq:`azimuthal-quadrature-3`.
+OpenMOC uses a product quadrature set that uncouples the azimuthal angle quadrature from the polar angle quadrature. The azimuthal angle quadrature set is computed based on the fraction of azimuthal angular space "owned" by each azimuthal angle. In this section, the variable transformation :math:`\phi_{m} \gets \phi_{m,eff}` has been made such that the effective azimuthal angle is used throughout. The azimuthal angle quadrature weight specification is given in :eq:`azimuthal-quadrature-1`, :eq:`azimuthal-quadrature-2`, and :eq:`azimuthal-quadrature-3`.
 
 .. math::
    :label: azimuthal-quadrature-1
@@ -80,16 +80,48 @@ The azimuthal angle quadrature set is computed based on the fraction of azimutha
    w_{m} = \frac{1}{2\pi}\left[\frac{\phi_{m+1} - \phi_{m}}{2} + \phi_{m}\right] & \;\; \text{if} \;\;\; m = 1
 
 .. math::
-   :label: azimuthal-quadrature-2 
+   :label: azimuthal-quadrature-2
 
-   w_{m} = \frac{1}{2\pi}\left[\frac{\phi_{m+1} - \phi_{m}}{2} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] & \;\; \text{if} \;\;\; 1 < m < M 
+   w_{m} = \frac{1}{2\pi}\left[\frac{\phi_{m+1} - \phi_{m}}{2} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] & \;\; \text{if} \;\;\; 1 < m < M
 
 .. math::
    :label: azimuthal-quadrature-3
 
    w_{m} = \frac{1}{2\pi}\left[2\pi - \phi_{m} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] & \;\; \text{if} \;\;\; m = M
 
-The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC.
+
+.. _polar-angle-quadrature:
+
+Polar Angle Quadrature
+======================
+
+In OpenMOC, there are five polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard, and Tabuchi Yamamoto polar quadrature sets. The formulas for computing the angles and weights of the equal angles and equal weights quadrature sets, given below, are described in the Handbook of Nuclear Engineering [Cacuci]_. The angles and weights for the Gauss Legendre, Leonard, and Tabuchi Yamamoto quadrature sets were taken from reference without modification [Yamamoto]_, [Cacuci]_.
+
+For the equal angles and equal weights quadrature sets, the user inputs the number of polar angles in :math:`[0,\frac{\pi}{2}]`, P, and then the angles and corresponding weights are computed. The relations for computing the angles, :math:`\theta_p`, and corresponding weights are given as equations :eq:`equal-angles-quad-1`, :eq:`equal-angles-quad-2`, and :eq:`equal-angles-quad-3`. The angle boundaries used to compute the angles and weights start at :math:`\bar{\theta}_p = 0`.
+
+.. math::
+   :label: equal-angles-quad-1
+
+   \bar{\theta}_p = \bar{\theta}_{p-1} + \frac{\pi}{2 \cdot P}
+
+.. math::
+   :label: equal-angles-quad-2
+
+   \theta_p = cos^{-1} \bigg\{ \frac{1}{2} \Big[ cos \big(\bar{\theta}_p\big) + cos \big(\bar{\theta}_{p-1}\big) \Big] \bigg\}
+
+.. math::
+   :label: equal-angles-quad-3
+
+   w_p = cos \big(\theta_{p-1}\big) - cos \big(\theta_p\big)
+
+The equations for the equal weights quadrature set are the same as the equations for the equal angles quadrature set, except for the recursion relation for the angle boundaries, which is given in :eq:`equal-weights-quad-1`. The angle boundaries also start at :math:`\bar{\theta}_p = 0`.
+
+.. math::
+   :label: equal-weights-quad-1
+
+   \bar{\theta}_p = cos^{-1} \bigg\{ cos \big(\bar{\theta}_{p-1}\big) - \frac{1}{P} \bigg\}
+
+Users can also input a custom polar quadrature set by manually setting the weights and sines of the polar angles. The quadrature recommended by [Yamamoto]_ is used by default for the polar angles and weights in OpenMOC. Example code on how to instantiate the different polar quadrature objects is provided in the :ref:`Users Guide <usersguide>`.
 
 
 .. _spatial-quadrature:
@@ -110,7 +142,7 @@ Track segments are used to approximate the area integral across each flat source
 Ray Tracing
 ===========
 
-Ray tracing is a technique for computing the intersection points of trajectories with surfaces. The image processing and graphics communities have been the primary users and developers of ray tracing techniques over the years, and a subset of these algorithms have been applied to neutron transport. In the case of the method of characteristics, ray tracing is used to intersect characteristic tracks with the surfaces used to make up a model. In particular, ray tracing is used to compute the length :math:`l_{k,i}` of a segment for track :math:`k` across each flat source region :math:`i`. 
+Ray tracing is a technique for computing the intersection points of trajectories with surfaces. The image processing and graphics communities have been the primary users and developers of ray tracing techniques over the years, and a subset of these algorithms have been applied to neutron transport. In the case of the method of characteristics, ray tracing is used to intersect characteristic tracks with the surfaces used to make up a model. In particular, ray tracing is used to compute the length :math:`l_{k,i}` of a segment for track :math:`k` across each flat source region :math:`i`.
 
 The primary computation in ray tracing for MOC is to take a track segment's starting location :math:`(x,y)` and direction vector :math:`\hat{u}` and compute the distance that the track spans across a given cell. The *track segmentation* process repeatedly performs this computation for each track from its start to end point on the boundaries of the geometry. There are four primary operations that one must be able to perform to ray trace a track across the geometry:
 
@@ -139,7 +171,7 @@ The first algorithm needed for track segmentation is the ability to find the uni
 
    **Algorithm 1**: Universe-finding algorithm.
 
-:ref:`Figure 2 <figure-nested-lattice-coordinates>` illustrates one possible model with two *nested lattices* and the local coordinate transformations made using this algorithm. Here, :math:`n_{x}` and :math:`n_{y}` represent the number of lattice cells along the :math:`x` and :math:`y` axes, while :math:`h` and :math:`w` represent the total height and width of the lattice, respectively. Numerical subscripts are used to identify the appropriate lattice level.
+:ref:`Figure 3 <figure-nested-lattice-coordinates>` illustrates one possible model with two *nested lattices* and the local coordinate transformations made using this algorithm. Here, :math:`n_{x}` and :math:`n_{y}` represent the number of lattice cells along the :math:`x` and :math:`y` axes, while :math:`h` and :math:`w` represent the total height and width of the lattice, respectively. Numerical subscripts are used to identify the appropriate lattice level.
 
 .. _figure-nested-lattice-coordinates:
 
@@ -148,7 +180,7 @@ The first algorithm needed for track segmentation is the ability to find the uni
    :figclass: align-center
    :width: 400px
 
-   **Figure 2**: Local coordinates within nested lattices.
+   **Figure 3**: Local coordinates within nested lattices.
 
 The reader should note that this algorithm assumes that :math:`(x,y)` is within the bounds of the lattice. In practice, a significant amount of error checking is involved to ensure that this algorithm is robust to user input as well as floating point roundoff errors from the coordinate transformations at each recursive call.
 
@@ -196,7 +228,7 @@ The reader should note that :math:`L_{base}` in the following algorithm refers t
 Distance-to-Nearest Surface Algorithm
 -------------------------------------
 
-The third algorithm that is needed for ray tracing is used to find the distance to the nearest surface to :math:`(x,y)` along the trajectory vector :math:`\hat{n}`. This algorithm builds upon each of the previous two as it only evaluates surfaces bounding the cell in which :math:`(x,y)` resides. 
+The third algorithm that is needed for ray tracing is used to find the distance to the nearest surface to :math:`(x,y)` along the trajectory vector :math:`\hat{n}`. This algorithm builds upon each of the previous two as it only evaluates surfaces bounding the cell in which :math:`(x,y)` resides.
 
 The distance-to-nearest surface algorithm is described in :ref:`Algorithm 3 <algorithm-minimum-surface-distance>`. The algorithm simply iterates over each surface :math:`s` in the cell :math:`c` and solves for the distance(s) to the surface. The algorithm keeps track of the minimum distance :math:`d_{min}` it has evaluated to a surface at each step and returns the final value after iterating through all of the surfaces.
 
@@ -216,7 +248,7 @@ The distance-to-nearest surface algorithm is described in :ref:`Algorithm 3 <alg
 Next Intersection Point Algorithm
 ---------------------------------
 
-The final algorithm needed for ray tracing is to compute the intersection point of a point :math:`(x,y)` along a trajectory vector :math:`\hat{u}` with the nearest surface. The preceding algorithm is used to compute the parametrized distance to the intersection. This algorithm simply adds the parametrized distance multiplied by the trajectory vector to :math:`(x,y)` as described in :ref:`Algorithm 4 <algorithm-next-intersection-point>`. 
+The final algorithm needed for ray tracing is to compute the intersection point of a point :math:`(x,y)` along a trajectory vector :math:`\hat{u}` with the nearest surface. The preceding algorithm is used to compute the parametrized distance to the intersection. This algorithm simply adds the parametrized distance multiplied by the trajectory vector to :math:`(x,y)` as described in :ref:`Algorithm 4 <algorithm-next-intersection-point>`.
 
 .. _algorithm-next-intersection-point:
 
@@ -251,4 +283,4 @@ This algorithm relies upon the use of a small numerical parameter :math:`\epsilo
 References
 ==========
 
-.. [Yamamoto] A. Yamamoto, M. Tabuchi, N. Sugimura, T. Ushio and M. Mori, "Derivation of Optimum Polar Angle Quadrature Set for the Method of Characteristics Based on Approximation Error for the Bickley Function." *Journal of Nuclear Science and Engineering*, **44(2)**, pp. 129-136 (2007).
+.. [Cacuci] D. Cacuci, et. al. "Handbook of Nuclear Engineering" *Springer Science+Business Media*, New York, NY, pp. 1111-1113 (2010).
