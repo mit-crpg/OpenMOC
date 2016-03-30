@@ -9,9 +9,14 @@
 #define TRACK_H_
 
 #ifdef __cplusplus
-#include <vector>
+#ifdef SWIG
+#include "Python.h"
+#endif
 #include "Point.h"
 #include "Material.h"
+#include "boundary_type.h"
+#include <vector>
+#include <algorithm>
 #endif
 
 /**
@@ -35,6 +40,12 @@ struct segment {
 
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
+
+  /** Constructor initializes CMFD surfaces */
+  segment() {
+    _cmfd_surface_fwd = -1;
+    _cmfd_surface_bwd = -1;
+  }
 };
 
 
@@ -62,97 +73,79 @@ private:
   /** The azimuthal angle index into the global 2D ragged array of Tracks */
   int _azim_angle_index;
 
+  /** The track index in the periodic cycle */
+  int _periodic_track_index;
+
+  /** The track index in the reflective cycle */
+  int _reflective_track_index;
+
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
-  /** The Track which reflects out of this Track along its "forward"
-   * direction for reflective boundary conditions. */
+  /** The next Track when traveling along this Track in the "forward"
+   * direction. */
   Track* _track_in;
 
-  /** The Track which reflects out of this Track along its "reverse"
-   * direction for reflective boundary conditions. */
+  /** The next Track when traveling along this Track in the "reverse"
+   * direction. */
   Track* _track_out;
 
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int _track_in_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "forward" direction for
-   *  reflective boundary conditions. */
-  int  _track_in_j;
-
-  /** The first index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions. */
-  int _track_out_i;
-
-  /** The second index into the global 2D ragged array of Tracks for the Track
-   *  that reflects out of this Track along its "reverse" direction for
-   *  reflective boundary conditions */
-  int _track_out_j;
+  /** A boolean to indicate whether to give the flux to the "forward" (false)
+   *  or "reverse" (true) direction of the next Track going in the "forward"
+   *  direction. */
+  bool _next_in;
 
   /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions.*/
-  bool _refl_in;
+   *  or "reverse" (true) direction of the next Track going in the "reverse"
+   *  direction. */
+  bool _next_out;
 
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the Track reflecting out of this one
-   *  along its "forward" direction for reflective boundary conditions. */
-  bool _refl_out;
+  /** An enum to indicate the boundary condition in the "forward" direction. */
+  boundaryType _bc_in;
 
-  /** A boolean to indicate whether the outgoing angular flux along this
-   *  Track's "forward" direction should be zeroed out for vacuum boundary
-   *  conditions. */
-  bool _bc_in;
-
-  /** A boolean to indicate whether the outgoing angular flux along this
-   *  Track's "reverse" direction should be zeroed out for vacuum boundary
-   *  conditions. */
-  bool  _bc_out;
+  /** An enum to indicate the boundary condition in the "reverse" direction. */
+  boundaryType  _bc_out;
 
 public:
   Track();
   virtual ~Track();
   void setValues(const double start_x, const double start_y,
-                 const double end_x, const double end_y, const double phi);
+                 const double start_z, const double end_x,
+                 const double end_y, const double end_z, const double phi);
   void setUid(int uid);
   void setPhi(const double phi);
   void setAzimAngleIndex(const int index);
-  void setReflIn(const bool refl_in);
-  void setReflOut(const bool refl_out);
-  void setBCIn(const bool bc_in);
-  void setBCOut(const bool bc_out);
+  void setPeriodicTrackIndex(const int index);
+  void setReflectiveTrackIndex(const int index);
+  void setNextIn(const bool next_in);
+  void setNextOut(const bool next_out);
+  void setBCIn(const boundaryType bc_in);
+  void setBCOut(const boundaryType bc_out);
   void setTrackIn(Track *track_in);
   void setTrackOut(Track *track_out);
-  void setTrackInI(int i);
-  void setTrackInJ(int j);
-  void setTrackOutI(int i);
-  void setTrackOutJ(int j);
 
   int getUid();
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
   int getAzimAngleIndex() const;
+  int getPeriodicTrackIndex() const;
+  int getReflectiveTrackIndex() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
   Track *getTrackIn() const;
   Track *getTrackOut() const;
-  int getTrackInI() const;
-  int getTrackInJ() const;
-  int getTrackOutI() const;
-  int getTrackOutJ() const;
-  bool isReflIn() const;
-  bool isReflOut() const;
-  bool getBCIn() const;
-  bool getBCOut() const;
+  bool isNextIn() const;
+  bool isNextOut() const;
+  boundaryType getBCIn() const;
+  boundaryType getBCOut() const;
+  bool getTransferFluxIn() const;
+  bool getTransferFluxOut() const;
 
-  bool contains(Point* point);
-  void addSegment(segment* segment);
+  void addSegment(segment* to_add);
+  void removeSegment(int index);
+  void insertSegment(int index, segment* segment);
   void clearSegments();
   std::string toString();
 };
@@ -196,7 +189,7 @@ inline segment* Track::getSegment(int segment) {
 
   /* If Track doesn't contain this segment, exits program */
   if (segment >= (int)_segments.size())
-    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only"
+    log_printf(ERROR, "Attempted to retrieve segment s = %d but Track only "
                "has %d segments", segment, _segments.size());
 
   return &_segments[segment];

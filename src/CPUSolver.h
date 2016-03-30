@@ -11,23 +11,22 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "Solver.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
-#include "Solver.h"
 #endif
 
+
+#undef track_flux
+
 /** Indexing macro for the angular fluxes for each polar angle and energy
- *  group for either the forward or reverse direction for a given Track */ 
+ *  group for either the forward or reverse direction for a given Track */
 #define track_flux(p,e) (track_flux[(p)*_num_groups + (e)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track from a given Track */
 #define track_out_flux(p,e) (track_out_flux[(p)*_num_groups + (e)])
-
-/** Indexing macro for the leakage for each polar angle and energy group
- *  for either the forward or reverse direction for a given Track */
-#define track_leakage(p,e) (track_leakage[(p)*_num_groups + (e)])
 
 
 /**
@@ -45,34 +44,25 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
-  /** OpenMP mutual exclusion locks for atomic surface current updates */
-  omp_lock_t* _cmfd_surface_locks;
-
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-  void initializePolarQuadrature();
-  void buildExpInterpTable();
-  void initializeFSRs();
-  void initializeCmfd();
-
-  void zeroTrackFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
-  void zeroSurfaceCurrents();
-  void flattenFSRSources(FP_PRECISION value);
-  void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
-
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
    * @param curr_segment a pointer to the Track segment of interest
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param track_flux a pointer to the Track's angular flux
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
-   * @param fwd
    */
-  virtual void scalarFluxTally(segment* curr_segment, int azim_index,
-                               FP_PRECISION* track_flux, FP_PRECISION* fsr_flux,
-                               bool fwd);
+  virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
+                               FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
+
+  /**
+   * @brief Computes the contribution to surface current from a segment.
+   * @param curr_segment a pointer to the Track segment of interest
+   * @param azim_index a pointer to the azimuthal angle index for this segment
+   * @param track_flux a pointer to the Track's angular flux
+   * @param fwd the direction of integration along the segment
+   */
+  virtual void tallyCurrent(segment* curr_segment, int azim_index,
+                            FP_PRECISION* track_flux, bool fwd);
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.
@@ -82,41 +72,36 @@ protected:
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
   virtual void transferBoundaryFlux(int track_id, int azim_index,
-                                    bool direction,
-                                    FP_PRECISION* track_flux);
-  void addSourceToScalarFlux();
-  void computeKeff();
-  void transportSweep();
-
-  /**
-   * @brief Computes the exponential term in the transport equation for a
-   *        track segment.
-   * @details This method uses either a linear interpolation table (default)
-   *          or the exponential intrinsic exp(...) function if requested by
-   *          the user through a call to the Solver::useExponentialIntrinsic()
-   *          routine.
-   * @param sigma_t the total group cross-section at this energy
-   * @param length the length of the Track segment projected in the xy-plane
-   * @param p the polar angle index
-   * @return the evaluated exponential
-   */
-  virtual FP_PRECISION computeExponential(FP_PRECISION sigma_t,
-                                          FP_PRECISION length, int p);
+                                    bool direction, FP_PRECISION* track_flux);
 
 public:
-  CPUSolver(Geometry* geometry=NULL, TrackGenerator* track_generator=NULL);
+  CPUSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPUSolver();
 
   int getNumThreads();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int energy_group);
-  FP_PRECISION* getFSRScalarFluxes();
-  FP_PRECISION getFSRSource(int fsr_id, int energy_group);
-  FP_PRECISION* getSurfaceCurrents();
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void setNumThreads(int num_threads);
+  virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
+
+  void initializeFluxArrays();
+  void initializeSourceArrays();
+  void initializeFixedSources();
+  void initializeFSRs();
+
+  void zeroTrackFluxes();
+  void flattenFSRFluxes(FP_PRECISION value);
+  void storeFSRFluxes();
+  void normalizeFluxes();
+  void computeFSRSources();
+  void computeFSRFissionSources();
+  void computeFSRScatterSources();
+  void transportSweep();
+  void addSourceToScalarFlux();
+  void computeKeff();
+  double computeResidual(residualType res_type);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);
-
 };
 
 

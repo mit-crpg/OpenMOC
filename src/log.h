@@ -12,6 +12,9 @@
 #define LOG_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
+#include "Python.h"
+#endif
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -25,7 +28,13 @@
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <omp.h>
 #endif
+
+#ifdef SWIG
+#define printf PySys_WriteStdout
+#endif
+
 
 /**
  * @enum logLevels
@@ -67,9 +76,6 @@ typedef enum logLevels {
   /** A message containing program results */
   RESULT,
 
-  /** A messsage for unit testing */
-  UNITTEST,
-
   /** A message reporting error conditions */
   ERROR
 } logLevel;
@@ -84,6 +90,7 @@ typedef enum logLevels {
  */
 extern void set_err(const char *msg);
 
+void initialize_logger();
 void set_output_directory(char* directory);
 const char* get_output_directory();
 void set_log_filename(char* filename);
@@ -97,7 +104,7 @@ void set_title_character(char c);
 char get_title_character();
 void set_line_length(int length);
 void set_log_level(const char* new_level);
-int get_log_level();
+const char* get_log_level();
 
 void log_printf(logLevel level, const char *format, ...);
 std::string create_multiline_msg(std::string level, std::string message);

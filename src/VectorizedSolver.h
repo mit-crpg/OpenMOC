@@ -11,11 +11,11 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#include "CPUSolver.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
 #include <mkl.h>
-#include "CPUSolver.h"
 #endif
 
 /** Indexing scheme for the optical length (\f$ l\Sigma_t \f$) for a
@@ -53,40 +53,31 @@ protected:
    *  each thread in each energy group and polar angle */
   FP_PRECISION* _thread_exponentials;
 
-  void buildExpInterpTable();
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-
-  void normalizeFluxes();
-  FP_PRECISION computeFSRSources();
-  void scalarFluxTally(segment* curr_segment, int azim_index,
-                       FP_PRECISION* track_flux,
-                       FP_PRECISION* fsr_flux, bool fwd);
+  void tallyScalarFlux(segment* curr_segment, int azim_index,
+                       FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
   void transferBoundaryFlux(int track_id, int azim_index, bool direction,
                             FP_PRECISION* track_flux);
-  void addSourceToScalarFlux();
-  void computeKeff();
-
-
-  /**
-   * @brief Computes an array of the exponentials in the transport equation,
-   *        \f$ exp(-\frac{\Sigma_t * l}{sin(\theta)}) \f$, for each
-   *        energy group and polar angle for a given segment.
-   * @param curr_segment pointer to the segment of interest
-   * @param exponentials the array to store the exponential values
-   */
-  virtual void computeExponentials(segment* curr_segment,
-                                   FP_PRECISION* exponentials);
+  void computeExponentials(segment* curr_segment, FP_PRECISION* exponentials);
 
 public:
-  VectorizedSolver(Geometry* geometry=NULL,
-                   TrackGenerator* track_generator=NULL);
-
+  VectorizedSolver(TrackGenerator* track_generator=NULL);
   virtual ~VectorizedSolver();
 
   int getNumVectorWidths();
 
   void setGeometry(Geometry* geometry);
+
+  void initializeExpEvaluator();
+  void initializeMaterials(solverMode mode=ADJOINT);
+  void initializeFluxArrays();
+  void initializeSourceArrays();
+  void initializeFixedSources();
+  void initializeFSRs();
+
+  void normalizeFluxes();
+  void computeFSRSources();
+  void addSourceToScalarFlux();
+  void computeKeff();
 };
 
 

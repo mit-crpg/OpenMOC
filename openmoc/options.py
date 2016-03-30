@@ -1,218 +1,199 @@
-##
-# @file options.py
-# @package openmoc.options
-# @brief The options module provides the Options class to parse, interpret
-#        and encapsulate command line arguments for OpenMOC runtime options.
-# @author William Boyd (wboyd@mit.edu)
-# @date July 24, 2013
-
-import getopt, sys
+import sys
+import getopt
 import multiprocessing
 
 # For Python 2.X.X
-if (sys.version_info[0] == 2):
-  from log import *
+if sys.version_info[0] == 2:
+    from log import py_printf
 # For Python 3.X.X
 else:
-  from openmoc.log import *
+    from openmoc.log import py_printf
 
 
-##
-# @class Options process.py "openmoc/options.py"
-# @brief Command-line options for runtime configuration of OpenMOC.
-# @details This class parses, interprets and encapsulates the runtime options
-#          for OpenMOC. This class can be instantiate in any OpenMOC Python
-#          script which imports the openmoc.process module. The user may
-#          request the value of any or all command line options and use them
-#          as they wish. An example of how the Options class would be used
-#          is given as follows:
-#
-# @code
-#          import from openmoc.options import Options
-#
-#          # Create an Options object which will parse all arguments
-#          # from the command line
-#          options = Options()
-#
-#          # Retrieve useful command line options
-#          num_azim = options.num_azim
-#          ...
-#
-#          # Do something useful with command line arguments
-#          ...
-# @endcode
-#
-class Options:
+class Options(object):
+    """Command-line options for runtime configuration of OpenMOC.
 
+    This class parses, interprets and encapsulates the runtime options for
+    OpenMOC. This class can be instantiate in any OpenMOC Python script which
+    imports the openmoc.process module. The user may request the value of any
+    or all command line options and use them as they wish.
 
-  ##
-  # @brief Options class constructor.
-  # @details This method initializes an Options object with default values
-  #          for each runtime parameter, and then parses the arguments
-  #          passed in at runtime and assigns the appropriate value to each.
-  #
-  def __init__(self):
+    Attributes
+    ----------
+    num_azim : Integral
+        The number of azimuthal angles (default is 4)
+    track_spacing : Real
+        The track spacing in centimeters (default is 0.1 cm)
+    max_iters : Integral
+        The maximum number of source iterations (default is 1000)
+    tolerance : Real
+        The tolerance on convergence (default is 1E-5)
+    num_omp_threads : Integral
+        The number of OpenMP threads (default is the # of CPU cores)
+    num_thread_blocks : Integral
+        The number of GPU threadblocks (default is 64)
+    num_threads_per_block : Integral
+        The number of GPU threads per threadblock (default is 64)
 
-    ## The default number of azimuthal angles
-    self._num_azim = 4
+    Examples
+    --------
+    An example of how the Options class would be used is given as follows:
 
-    ## The default track spacing
-    self._track_spacing = 0.1
+        >>> import from openmoc.options import Options
 
-    ## The default maximum number of source iterations
-    self._max_iters = 1000
+        >>> # Create an Options object which will parse all arguments
+        >>> # from the command line
+        >>> options = Options()
 
-    ## The default tolerance on the source distribution convergence
-    self._tolerance = 1E-5
+        >>> # Retrieve useful command line options
+        >>> num_azim = options.num_azim
+        >>> ...
 
-    ## The default number of OpenMP threads
-    self._num_omp_threads = multiprocessing.cpu_count()
+        >>> # Do something useful with command line arguments
+        >>> ...
 
-    ## The default number of GPU threadblocks
-    self._num_thread_blocks = 64
+    """
 
-    ## The default number of GPU threads per threadblock
-    self._num_gpu_threads = 64
+    def __init__(self):
+        """Initialize default values for each runtime parameter and parses the
+        command line arguments assigns the appropriate value to each."""
 
-    # Parse in arguments from the command line
-    self.parseArguments()
+        self._short_args = 'hfa:s:i:c:t:b:g:r:l:'
+        self._long_args = ['help',
+                           'num-azim=',
+                           'track-spacing=',
+                           'tolerance=',
+                           'max-iters=',
+                           'num-omp-threads=',
+                           'num-thread-blocks=',
+                           'num-threads-per-block=']
 
+        self._num_azim = 4
+        self._track_spacing = 0.1
+        self._max_iters = 1000
+        self._tolerance = 1E-5
+        self._num_omp_threads = multiprocessing.cpu_count()
+        self._num_thread_blocks = 64
+        self._num_threads_per_block = 64
 
-  ##
-  # @brief This method parses command line options using the Python getopt
-  #        module and assigns the appropriate values to the corresponding
-  #        Options class attributes.
-  # @param self the Options object pointer
-  def parseArguments(self):
-    try:
-      opts, args = getopt.getopt(sys.argv[1:],
-                                 'hfa:s:i:c:t:b:g:r:l:',
-                                 ['help',
-                                  'num-azim=',
-                                  'track-spacing=',
-                                  'tolerance=',
-                                  'max-iters=',
-                                  'num-omp-threads=',
-                                  'num-thread-blocks=',
-                                  'num-gpu-threads='])
+        self._opts = None
+        self._args = None
 
-    except getopt.GetoptError as err:
-      py_printf('ERROR', str(err))
-      pass
+        self.parseArguments()
 
+    @property
+    def short_args(self):
+        return self._short_args
 
-    # Parse the command line arguments - error checking will occur
-    # at the setter method level in C++
-    for opt, arg in opts:
+    @property
+    def long_args(self):
+        return self._long_args
 
-      # Print a report of all supported runtime options and exit
-      if opt in ('-h', '--help'):
+    @property
+    def opts(self):
+        return self._opts
 
-        print('{:-^80}'.format(''))
-        print('{: ^80}'.format('OpenMOC v.0.1.1 runtime options'))
-        print('{:-^80}'.format(''))
-        print('')
+    @property
+    def args(self):
+        return self._args
 
-        help_msg = '\t{: <35}'.format('-h, --help')
-        help_msg = 'Report OpenMOC runtime options\n'
-        print(help_msg)
+    @property
+    def num_azim(self):
+        return self._num_azim
 
-        num_azim = '\t{: <35}'.format('-a, --num-azim=<4>')
-        num_azim += 'the number of azimuthal angles\n'
-        print(num_azim)
+    @property
+    def track_spacing(self):
+        return self._track_spacing
 
-        track_spacing = '\t{: <35}'.format('-s, --track-spacing=<0.1>')
-        track_spacing += 'The track spacing [cm]\n'
-        print(track_spacing)
+    @property
+    def max_iters(self):
+        return self._max_iters
 
-        max_iters = '\t{: <35}'.format('-i, --max-iters=<1000>')
-        max_iters += 'The max number of source iterations\n'
-        print(max_iters)
+    @property
+    def tolerance(self):
+        return self._tolerance
 
-        tolerance = '\t{: <35}'.format('-c, --tolerance=<1E-5>')
-        tolerance += 'The source convergence tolerance\n'
-        print(tolerance)
+    @property
+    def num_omp_threads(self):
+        return self._num_omp_threads
 
-        num_omp_threads = '\t{: <35}'.format('-t, --num-omp-threads=<1>')
-        num_omp_threads += 'The number of OpenMP threads\n'
-        print(num_omp_threads)
+    @property
+    def num_thread_blocks(self):
+        return self._num_thread_blocks
 
-        num_gpu_threadblocks = '\t{: <35}'.format('-b, ' + \
-                               '--num-gpu-threadblocks=<64>')
-        num_gpu_threadblocks += 'The number of GPU threadblocks\n'
-        print(num_gpu_threadblocks)
+    @property
+    def num_threads_per_block(self):
+        return self._num_threads_per_block
 
-        num_gpu_threads = '\t{: <35}'.format('-g, --num-gpu-threads=<64>')
-        num_gpu_threads += 'The number of GPU threads per block\n'
-        print(num_gpu_threads)
+    def parseArguments(self):
+        """This method parses command line options and assigns the appropriate
+        values to the corresponding class attributes."""
 
-        sys.exit()
+        try:
+            self._opts, self._args = \
+                getopt.getopt(sys.argv[1:], self.short_args, self.long_args)
+        except getopt.GetoptError as err:
+            py_printf('ERROR', str(err))
 
-      elif opt in ('-a', '--num-azim'):
-        self._num_azim = int(arg)
+        # Parse the command line arguments - error checking will occur
+        # at the setter method level in C++
+        for opt, arg in self.opts:
 
-      elif opt in ('-s', '--track-spacing'):
-        self._track_spacing = float(arg)
+            # Print a report of all supported runtime options and exit
+            if opt in ('-h', '--help'):
 
-      elif opt in ('-i', '--max-iters'):
-        self._max_iters = int(arg)
+                print('{:-^80}'.format(''))
+                print('{: ^80}'.format('OpenMOC v.0.1.1 runtime options'))
+                print('{:-^80}'.format(''))
+                print('')
 
-      elif opt in ('-c', '--tolerance'):
-        self._tolerance = float(arg)
+                help_msg = '\t{: <35}'.format('-h, --help')
+                help_msg += 'Report OpenMOC runtime options\n'
+                print(help_msg)
 
-      elif opt in ('-t', '--num-omp-threads'):
-        self._num_omp_threads = int(arg)
+                num_azim = '\t{: <35}'.format('-a, --num-azim=<4>')
+                num_azim += 'the number of azimuthal angles\n'
+                print(num_azim)
 
-      elif opt in ('-b', '--num-thread-blocks'):
-        self._num_thread_blocks = int(arg)
+                track_spacing = '\t{: <35}'.format('-s, --track-spacing=<0.1>')
+                track_spacing += 'The track spacing [cm]\n'
+                print(track_spacing)
 
-      elif opt in ('-g', '--num-gpu-threads'):
-        self._num_gpu_threads = int(arg)
+                max_iters = '\t{: <35}'.format('-i, --max-iters=<1000>')
+                max_iters += 'The max number of source iterations\n'
+                print(max_iters)
 
-  ##
-  # @brief Returns the number of azimuthal angles.
-  # @return the number of azimuthal angles
-  def getNumAzimAngles(self):
-    return self._num_azim
+                tolerance = '\t{: <35}'.format('-c, --tolerance=<1E-5>')
+                tolerance += 'The source convergence tolerance\n'
+                print(tolerance)
 
+                num_omp_threads = '\t{: <35}'.format('-t, --num-omp-threads=<1>')
+                num_omp_threads += 'The number of OpenMP threads\n'
+                print(num_omp_threads)
 
-  ##
-  # @brief Returns the track spacing [cm].
-  # @return the track spacing [cm].
-  def getTrackSpacing(self):
-    return self._track_spacing
+                num_threadblocks = '\t{: <35}'.format('-b, ' + \
+                                       '--num-thread-blocks=<64>')
+                num_threadblocks += 'The number of GPU threadblocks\n'
+                print(num_threadblocks)
 
+                num_threads_per_block = \
+                    '\t{: <35}'.format('-g, --num-threads-per-block=<64>')
+                num_threads_per_block += 'The number of GPU threads per block\n'
+                print(num_threads_per_block)
 
-  ##
-  # @brief Returns the maximum number of source iterations.
-  # @return the maximum number of source iterations
-  def getMaxIterations(self):
-    return self._max_iters
+                sys.exit()
 
-
-  ##
-  # @brief Returns the source convergence tolerance.
-  # @return the source convergence tolerance
-  def getTolerance(self):
-    return self._tolerance
-
-
-  ##
-  # @brief Returns the number of OpenMP multi-core CPU threads.
-  # @return the number of OpenMP threads
-  def getNumThreads(self):
-    return self._num_omp_threads
-
-
-  ##
-  # @brief Returns the number of CUDA thread blocks for a GPU.
-  # @return the number of CUDA thread blocks
-  def getNumThreadBlocks(self):
-    return self._num_thread_blocks
-
-
-  ##
-  # @brief Returns the number of CUDA threads per block for a GPU.
-  # @return the number of CUDA threads per block
-  def getNumThreadsPerBlock(self):
-    return self._num_gpu_threads
+            elif opt in ('-a', '--num-azim'):
+                    self._num_azim = int(arg)
+            elif opt in ('-s', '--track-spacing'):
+                self._track_spacing = float(arg)
+            elif opt in ('-i', '--max-iters'):
+                self._max_iters = int(arg)
+            elif opt in ('-c', '--tolerance'):
+                self._tolerance = float(arg)
+            elif opt in ('-t', '--num-omp-threads'):
+                self._num_omp_threads = int(arg)
+            elif opt in ('-b', '--num-thread-blocks'):
+                self._num_thread_blocks = int(arg)
+            elif opt in ('-g', '--num-threads-per-block'):
+                self._num_threads_per_block = int(arg)
