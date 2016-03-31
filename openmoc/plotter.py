@@ -86,8 +86,10 @@ def plot_tracks(track_generator, get_figure=False):
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     py_printf('NORMAL', 'Plotting the tracks...')
 
@@ -167,8 +169,10 @@ def plot_segments(track_generator, get_figure=False):
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     py_printf('NORMAL', 'Plotting the track segments...')
 
@@ -747,8 +751,10 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     # Compute difference in energy bounds for each group
     group_deltas = np.ediff1d(group_bounds)
@@ -941,8 +947,10 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
     directory = openmoc.get_output_directory() + subdirectory
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     # Extract the MOC Solver from the IRAMSolver
     moc_solver = iramsolver._moc_solver
@@ -1051,8 +1059,10 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(plot_params)
@@ -1215,8 +1225,10 @@ def plot_quadrature(solver, get_figure=False):
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     # Retrieve data from TrackGenerator
     track_generator = solver.getTrackGenerator()
