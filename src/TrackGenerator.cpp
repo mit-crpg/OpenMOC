@@ -820,16 +820,16 @@ void TrackGenerator::initializeTracks() {
   double* d_eff = new double[_num_azim/2];
 
   double x1, x2;
-  double iazim = _num_azim;
   double width_x = _geometry->getWidthX();
   double width_y = _geometry->getWidthY();
 
   /* Determine azimuthal angles and track spacing */
+  //FIXME: reduce to _num_azim/4
   for (int i = 0; i < _num_azim/2; i++) {
 
     /* A desired azimuthal angle for the user-specified number of
      * azimuthal angles */
-    double phi = 2.0 * M_PI / iazim * (0.5 + i); // FIXME
+    double phi = 2.0 * M_PI / _num_azim * (0.5 + i);
 
     /* The number of intersections with x,y-axes */
     _num_x[i] = (int) (fabs(width_x / _azim_spacing * sin(phi))) + 1;
