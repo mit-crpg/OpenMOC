@@ -627,7 +627,7 @@ int Geometry::getFSRId(LocalCoords* coords) {
   int fsr_id = 0;
   std::string fsr_key;
 
-  try{
+  try {
     fsr_key = getFSRKey(coords);
     fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
@@ -649,7 +649,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
   }
   catch(std::exception &e) {
@@ -899,8 +899,24 @@ void Geometry::segmentize(Track* track) {
       std::cout << "New intersection = " << end.getPoint()->toString() << std::endl;
       if (curr != NULL)
         std::cout << "New cell = " << curr->getUid() << std::endl;
+      int fsr_id = new_segment->_region_id;
       std::cout << "Segment = " << new_segment->_length << ", " <<
-        new_segment->_region_id << std::endl;
+        fsr_id << std::endl;
+      if (new_segment->_region_id == 102660) {
+
+        std::string* keys = _FSR_keys_map.keys();
+        fsr_data** values = _FSR_keys_map.values();
+        std::string key1 = "x", key2 = "x";
+        for (int k = 0; k < _FSR_keys_map.size(); k++) {
+          if (values[k]->_fsr_id == 102600)
+            key1 = keys[k];
+          if (values[k]->_fsr_id == 102660)
+            key2 = keys[k];
+        }
+        std::cout << "FSR 102600 = " << key1 << std::endl;
+        std::cout << "FSR 102660 = " << key2 << std::endl;
+        exit(0);
+      }
     }
     track->addSegment(new_segment);
   }
