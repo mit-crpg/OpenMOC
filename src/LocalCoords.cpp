@@ -443,8 +443,10 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
  */
 std::string LocalCoords::toString() {
 
+  std::cout << "IN TOSTRING" << std::endl;
   std::stringstream string;
   LocalCoords* curr = this;
+  std::cout << "check 1" << std::endl;
 
   /* Loops over all LocalCoords lower than this one in the list */
   while (curr != NULL) {
@@ -483,5 +485,6 @@ std::string LocalCoords::toString() {
     curr = curr->getNext();
   }
 
+  std::cout << "check X" << std::endl;
   return string.str();
 }

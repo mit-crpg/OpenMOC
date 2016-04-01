@@ -691,8 +691,10 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
     try {
       initializeTracks();
       recalibrateTracksToOrigin();
-      segmentize();
-      dumpTracksToFile();
+      //FIXME
+      _contains_tracks = true;
+      //segmentize();
+      //dumpTracksToFile();
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
@@ -721,6 +723,21 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   initializeTrackUids();
   initializeFSRLocks();
   initializeVolumes();
+
+  //FIXME
+  segmentize();
+  dumpTracksToFile();
+  //FIXME
+  if (_tracks_by_parallel_group[565]->getUid() == 565) {
+    Track* track = _tracks_by_parallel_group[565];
+    for (int s=0; s < track->getNumSegments(); s++) {
+      segment* seg = track->getSegment(s);
+      std::cout << "Segment " << s << " = " << seg->_length <<
+        ", ID = " << seg->_region_id << std::endl;
+    }
+    std::cout << "HERE" << std::endl;
+    exit(1);
+  }
 
   return;
 }

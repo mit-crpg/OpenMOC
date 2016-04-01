@@ -829,6 +829,13 @@ void Geometry::segmentize(Track* track) {
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end);
   Cell* prev;
+  bool here = false;
+  if (track->getUid() == 565) {
+    std::cout << "HERE" << std::endl;
+    std::cout << "Starting coords = " << start.getPoint()->toString() << std::endl;
+    std::cout << "Starting cell = " << curr->getUid() << std::endl;
+    here = true;
+  }
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -887,6 +894,14 @@ void Geometry::segmentize(Track* track) {
     }
 
     /* Add the segment to the Track */
+    if (here) {
+      std::cout << "Segment " << track->getNumSegments() << std::endl;
+      std::cout << "New intersection = " << end.getPoint()->toString() << std::endl;
+      if (curr != NULL)
+        std::cout << "New cell = " << curr->getUid() << std::endl;
+      std::cout << "Segment = " << new_segment->_length << ", " <<
+        new_segment->_region_id << std::endl;
+    }
     track->addSegment(new_segment);
   }
 
@@ -896,6 +911,8 @@ void Geometry::segmentize(Track* track) {
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
+  if (here)
+    exit(1);
 }
 
 

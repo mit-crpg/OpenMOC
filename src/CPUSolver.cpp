@@ -697,8 +697,20 @@ void CPUSolver::transportSweep() {
         segments = curr_track->getSegments();
         track_flux = &_boundary_flux(track_id,0,0,0);
 
+        if (track_id == 565) {
+          std::cout << "Found Track 565" << std::endl;
+          for (int s=0; s < num_segments; s++) {
+            std::cout << "Segment " << s << " = " << segments[s]._length
+              << ", ID = "<< segments[s]._region_id << std::endl;
+          }
+          std::cout << curr_track->toString() << std::endl;
+          exit(1);
+        }
+
         /* Loop over each Track segment in forward direction */
         for (int s=0; s < num_segments; s++) {
+          if (segments[s]._region_id == 102668)
+            std::cout << "Track ID (fwd) = " << track_id << std::endl;
           curr_segment = &segments[s];
           tallyScalarFlux(curr_segment, azim_index, track_flux,
                           thread_fsr_flux);
@@ -712,6 +724,8 @@ void CPUSolver::transportSweep() {
         track_flux += _polar_times_groups;
 
         for (int s=num_segments-1; s > -1; s--) {
+          if (segments[s]._region_id == 102668)
+            std::cout << "Track ID (bwd) = " << track_id << std::endl;
           curr_segment = &segments[s];
           tallyScalarFlux(curr_segment, azim_index, track_flux,
                           thread_fsr_flux);
@@ -761,6 +775,10 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
     for (int p=0; p < _num_polar; p++) {
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
+      if (fsr_id == 102668 && e == 0) {
+        std::cout << "Adding " << delta_psi << " x " << weights[p] << " = "
+          << delta_psi * weights[p] << " to " << fsr_flux[e] << std::endl;
+      }
       fsr_flux[e] += delta_psi * weights[p];
       track_flux(p,e) -= delta_psi;
     }
