@@ -669,7 +669,7 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
   }
   catch(std::exception &e) {
@@ -829,13 +829,6 @@ void Geometry::segmentize(Track* track) {
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end);
   Cell* prev;
-  bool here = false;
-  if (track->getUid() == 565) {
-    std::cout << "HERE" << std::endl;
-    std::cout << "Starting coords = " << start.getPoint()->toString() << std::endl;
-    std::cout << "Starting cell = " << curr->getUid() << std::endl;
-    here = true;
-  }
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -894,30 +887,6 @@ void Geometry::segmentize(Track* track) {
     }
 
     /* Add the segment to the Track */
-    if (here) {
-      std::cout << "Segment " << track->getNumSegments() << std::endl;
-      std::cout << "New intersection = " << end.getPoint()->toString() << std::endl;
-      if (curr != NULL)
-        std::cout << "New cell = " << curr->getUid() << std::endl;
-      int fsr_id = new_segment->_region_id;
-      std::cout << "Segment = " << new_segment->_length << ", " <<
-        fsr_id << std::endl;
-      if (new_segment->_region_id == 102660) {
-
-        std::string* keys = _FSR_keys_map.keys();
-        fsr_data** values = _FSR_keys_map.values();
-        std::string key1 = "x", key2 = "x";
-        for (int k = 0; k < _FSR_keys_map.size(); k++) {
-          if (values[k]->_fsr_id == 102600)
-            key1 = keys[k];
-          if (values[k]->_fsr_id == 102660)
-            key2 = keys[k];
-        }
-        std::cout << "FSR 102600 = " << key1 << std::endl;
-        std::cout << "FSR 102660 = " << key2 << std::endl;
-        exit(0);
-      }
-    }
     track->addSegment(new_segment);
   }
 
@@ -927,8 +896,6 @@ void Geometry::segmentize(Track* track) {
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
-  if (here)
-    exit(1);
 }
 
 

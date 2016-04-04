@@ -218,7 +218,6 @@ void Cmfd::collapseXS() {
 
   /* Split edge currents to side surfaces */
   splitEdgeCurrents();
-  double rxn_tot = 0;
 
 #pragma omp parallel
   {
@@ -336,7 +335,6 @@ void Cmfd::collapseXS() {
       }
     }
   }
-  std::cout << "RXN TOT = " << rxn_tot << std::endl;
 }
 
 

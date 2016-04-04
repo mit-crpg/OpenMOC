@@ -978,9 +978,6 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
     addSourceToScalarFlux();
 
     /* Solve CMFD diffusion problem and update MOC flux */
-    std::cout << "Flux = " << _scalar_flux[718676] << std::endl;
-    std::cout << "Flux = " << _scalar_flux(102668,0) << std::endl;
-    exit(1);
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
       _k_eff = _cmfd->computeKeff(i);
       _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
