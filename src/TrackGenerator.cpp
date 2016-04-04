@@ -1356,6 +1356,7 @@ void TrackGenerator::segmentize() {
 
   Track* track;
 
+
   /* This section loops over all Track and segmentizes each one if the
    * Tracks were not read in from an input file */
   if (!_use_input_file) {
@@ -1848,7 +1849,9 @@ void TrackGenerator::generateFSRCentroids() {
 
   /* Generate the fsr centroids */
   for (int i=0; i < _num_azim/2; i++) {
-    FP_PRECISION azim_weight = _quad->getAzimWeight(i);
+    FP_PRECISION azim_weight = _quad->getAzimWeight(i)
+            * _quad->getAzimSpacing(i);
+
 #pragma omp parallel for
     for (int j=0; j < _num_tracks[i]; j++) {
 
