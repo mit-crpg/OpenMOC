@@ -838,8 +838,7 @@ void TrackGenerator::initializeTracks() {
   double width_y = _geometry->getWidthY();
 
   /* Determine azimuthal angles and track spacing */
-  //FIXME: reduce to _num_azim/4
-  for (int i = 0; i < _num_azim/2; i++) {
+  for (int i = 0; i < _num_azim/4; i++) {
 
     /* A desired azimuthal angle for the user-specified number of
      * azimuthal angles */
@@ -854,16 +853,21 @@ void TrackGenerator::initializeTracks() {
 
     /* Effective/actual angle (not the angle we desire, but close) */
     phi = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
-    if (i < _num_azim/4)
-      _quad->setPhi(phi, i);
+    _quad->setPhi(phi, i);
 
     /* Effective Track spacing (not spacing we desire, but close) */
     dx_eff[i] = width_x / _num_x[i];
     dy_eff[i] = width_y / _num_y[i];
     d_eff[i] = dx_eff[i] * sin(phi);
+    _quad->setAzimSpacing(d_eff[i], i);
 
-    if (i < _num_azim/4)
-      _quad->setAzimSpacing(d_eff[i], i);
+    /* Set attributes for complimentary angles */
+    _num_x[_num_azim/2-i-1] = _num_x[i];
+    _num_y[_num_azim/2-i-1] = _num_y[i];
+    _num_tracks[_num_azim/2-i-1] = _num_tracks[i];
+    dx_eff[_num_azim/2-i-1] = dx_eff[i];
+    dy_eff[_num_azim/2-i-1] = dy_eff[i];
+    d_eff[_num_azim/2-i-1] = d_eff[i];
   }
 
   log_printf(INFO, "Generating Track start and end points...");

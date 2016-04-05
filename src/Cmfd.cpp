@@ -1840,8 +1840,7 @@ void Cmfd::zeroCurrents() {
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment The current Track segment
  * @param track_flux The outgoing angular flux for this segment
- ///FIXME
- * @param polar_weights Array of polar weights for some azimuthal angle
+ * @param azim_index Azimuthal angle index of the current Track
  * @param fwd Boolean indicating direction of integration along segment
  */
 void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
