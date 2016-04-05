@@ -138,10 +138,10 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   int num_rows = X->getNumRows();
   Vector X_old(cell_locks, num_x, num_y, num_groups);
   FP_PRECISION* x_old = X_old.getArray();
-  int* IAD = A->getIAD();
-  int* JAD = A->getJAD();
+  int* ILU = A->getILU();
+  int* JLU = A->getJLU();
   FP_PRECISION* DIAG = A->getDiag();
-  FP_PRECISION* ad = A->getAD();
+  FP_PRECISION* lu = A->getLU();
   FP_PRECISION* x = X->getArray();
   FP_PRECISION* b = B->getArray();
   int row;
@@ -169,8 +169,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
             /* Accumulate off diagonals multiplied by corresponding fluxes */
             val = 0.0;
-            for (int i = IAD[row]; i < IAD[row+1]; i++)
-              val += ad[i] * x[JAD[i]];
+            for (int i = ILU[row]; i < ILU[row+1]; i++)
+              val += lu[i] * x[JLU[i]];
 
             /* Update the flux for this row */
             x[row] += SOR_factor * ((b[row] - val) / DIAG[row] - x[row]);
