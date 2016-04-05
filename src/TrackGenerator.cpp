@@ -633,10 +633,24 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
     log_printf(ERROR, "Unable to generate Tracks since no Geometry "
                "has been set for the TrackGenerator");
 
+  /* Check for valid quadrature */
+  if (_quad != NULL) {
+    if (_quad->getNumAzimAngles() != _num_azim) {
+      if (_user_quad) {
+        log_printf(ERROR, "User defined quadrature does not match the "
+                          " number of azimuthal angles in the TrackGenertor");
+      }
+      else {
+        delete _quad;
+        _quad = NULL;
+      }
+    }
+  }
+
   /* Initialize quadrature */
   if (_quad == NULL) {
     _quad = new TYPolarQuad();
-    _quad->setNumAzimAngles(getNumAzim()); //FIXME
+    _quad->setNumAzimAngles(_num_azim);
     _quad->setNumPolarAngles(6);
   }
   _quad->initialize();
