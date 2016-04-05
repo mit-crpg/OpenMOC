@@ -477,7 +477,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                     ay * _reduced_sources_xy(fsr_id, e, 1)) * exp_F2;
 
       /* Compute the change in flux across the segment */
-      delta_psi = (track_flux(p,e) - src_flat) * exp_F1 - src_linear * exp_F2;
+      delta_psi = (track_flux(p,e) - src_flat) * exp_F1 - src_linear;
 
       polar_wgt_d_psi += _polar_weights[azim_times_polar + p] * delta_psi;
       polar_wgt_exp_h += _polar_weights[azim_times_polar + p] * exp_H;
