@@ -12,7 +12,6 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
 #include <limits>

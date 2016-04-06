@@ -106,7 +106,7 @@ void Timer::printSplits() {
     curr_msg = (*iter).first;
     curr_split = (*iter).second;
 
-    curr_msg.resize(53, '.');
+    curr_msg.resize(REPORT_WIDTH, '.');
     formatted_msg << curr_msg;
 
     log_printf(RESULT, "%s%1.4E sec", formatted_msg.str().c_str(), curr_split);

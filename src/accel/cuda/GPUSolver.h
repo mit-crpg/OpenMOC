@@ -12,7 +12,6 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "../../constants.h"
 #include "../../Solver.h"
 #endif
 

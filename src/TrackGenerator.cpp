@@ -2072,13 +2072,13 @@ void TrackGenerator::printTimerReport() {
   /* Get the total runtime */
   double tot_time = _timer->getSplit("Total time");
   msg_string = "Total time for ray tracing";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
   /* Time per segment */
   double time_per_segment = (tot_time / getNumSegments());
   msg_string = "Time per segment";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_segment);
 
   set_separator_character('-');

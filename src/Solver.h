@@ -13,7 +13,6 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "constants.h"
 #include "PolarQuad.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
