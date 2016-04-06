@@ -62,6 +62,7 @@
 %warnfilter(506) log_printf(logLevel level, const char *format, ...);
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
+%warnfilter(511) std::vector;
 
 /* Methods for SWIG to ignore in generating Python API */
 %ignore setFSRCentroid(int fsr, Point* centroid);
@@ -96,6 +97,14 @@
 
 /* Routines which pass / return NumPy arrays to / from C++ routine **/
 %include numpy_typemaps.i
+
+/* Include standard vector library for SWIG */
+%include "std_vector.i"
+
+namespace std {
+  %template(DoubleVector) vector<double>;
+  %template(IntVector) vector<int>;
+}
 
 %include <exception.i>
 %include ../src/constants.h

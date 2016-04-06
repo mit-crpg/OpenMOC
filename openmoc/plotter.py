@@ -1069,8 +1069,8 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
     # Query the geometry for the data on the spatial grid
     domains = plot_params.geometry.getSpatialDataOnGrid(
-        coords['x'], coords['y'], plot_params.gridsize**2,
-        zcoord=plot_params.zcoord, domain_type=plot_params.domain_type)
+        coords['x'], coords['y'], zcoord=plot_params.zcoord,
+        domain_type=plot_params.domain_type)
     domains = np.reshape(domains, tuple(([plot_params.gridsize]*2)))
     domains[domains == np.nan] = -1
 
@@ -1185,6 +1185,9 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     # Return Matplotlib figures if requested by user
     if get_figure:
         return figures
+
+    # Delete the memory allocated for the domains std::vector
+    del domains
 
 
 def plot_quadrature(solver, get_figure=False):
