@@ -940,7 +940,7 @@ double Lattice::getWidthZ() const {
  * @return the minimum reachable x-coordinate
  */
 double Lattice::getMinX() {
-  return _offset.getX() - (_num_x + _width_x / 2.);
+  return _offset.getX() - (_num_x * _width_x / 2.);
 }
 
 
