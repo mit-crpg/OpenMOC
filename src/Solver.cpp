@@ -9,7 +9,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   /* Default values */
   _num_materials = 0;
   _num_groups = 0;
-  _num_azim = 0;
   _num_parallel_track_groups = 0;
 
   _num_FSRs = 0;
@@ -338,7 +337,6 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _num_azim = _track_generator->getNumAzim() / 2; //FIXME
   _num_polar = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
   _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();

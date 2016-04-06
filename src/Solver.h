@@ -91,9 +91,6 @@ class Solver {
 
 protected:
 
-  /** The number of azimuthal angles */
-  int _num_azim;
-
   /** The number of energy groups */
   int _num_groups;
 
@@ -121,7 +118,7 @@ protected:
   /** The number of polar angles */
   int _num_polar;
 
-  //FIXME
+  /** A pointer to the quadrature */
   Quadrature* _quad;
 
   /** The number of polar angles times energy groups */
