@@ -109,7 +109,6 @@ public:
   FP_PRECISION* getAzimWeights();
   FP_PRECISION** getPolarWeights();
   quadratureType getQuadratureType();
-
   FP_PRECISION* getAzimSpacings();
   FP_PRECISION getAzimSpacing(int azim);
 

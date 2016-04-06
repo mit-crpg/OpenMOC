@@ -18,11 +18,11 @@ __constant__ int two_times_num_polar[1];
 /** The number of polar angles times energy groups */
 __constant__ int polar_times_groups[1];
 
-/** An array for the sines of the polar angle in the polar Quadrature set */
+/** An array for the sines of the polar angle in the Quadrature set */
 __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 
-/** An array of the weights for the polar angles from the Quadrature set */
-__constant__ FP_PRECISION polar_weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
+/** An array of the weights from the Quadrature set */
+__constant__ FP_PRECISION weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 
 /** The total number of Tracks */
 __constant__ int tot_num_tracks[1];
@@ -127,24 +127,24 @@ public:
 
     stride_functor(difference_type stride) : stride(stride) { }
 
-    __host__ __device__ difference_type operator()(const difference_type& i) const { 
+    __host__ __device__ difference_type operator()(const difference_type& i) const {
       return stride * i;
     }
   };
 
   typedef typename thrust::counting_iterator<difference_type> CountingIterator;
-  typedef typename thrust::transform_iterator<stride_functor, CountingIterator> 
+  typedef typename thrust::transform_iterator<stride_functor, CountingIterator>
     TransformIterator;
-  typedef typename thrust::permutation_iterator<Iterator,TransformIterator> 
+  typedef typename thrust::permutation_iterator<Iterator,TransformIterator>
     PermutationIterator;
   typedef PermutationIterator iterator;
 
   /**
    * @brief The strided iterator constructor.
    */
-  strided_range(Iterator first, Iterator last, difference_type stride) 
+  strided_range(Iterator first, Iterator last, difference_type stride)
     : first(first), last(last), stride(stride) { }
-   
+
   /**
    * @brief Get the first element in the iterator.
    * @return the first element in the iterator
@@ -430,7 +430,7 @@ __device__ double atomicAdd(double* address, double val) {
  * @param materials the array of dev_material pointers
  * @param track_flux a pointer to the Track's angular flux
  * @param reduced_sources the array of FSR sources / total xs
- * @param polar_weights the array of polar Quadrature weights
+ * @param weights the array of Quadrature weights
  * @param scalar_flux the array of FSR scalar fluxes
  */
 __device__ void tallyScalarFlux(dev_segment* curr_segment,
@@ -439,7 +439,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
                                 dev_material* materials,
                                 FP_PRECISION* track_flux,
                                 FP_PRECISION* reduced_sources,
-                                FP_PRECISION* polar_weights,
+                                FP_PRECISION* weights,
                                 FP_PRECISION* scalar_flux) {
 
   int fsr_id = curr_segment->_region_uid;
@@ -460,7 +460,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
       exp_evaluator.computeExponential(sigma_t[energy_group] * length, p);
     delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group));
     delta_psi *= exponential;
-    fsr_flux += delta_psi * polar_weights(azim_index,p);
+    fsr_flux += delta_psi * weights(azim_index,p);
     track_flux[p] -= delta_psi;
   }
 
@@ -480,7 +480,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
  * @param azim_index a pointer to the azimuthal angle index for this segment
  * @param track_flux an array of the outgoing Track flux
  * @param boundary_flux an array of all angular fluxes
- * @param polar_weights an array of polar Quadrature weights
+ * @param weights an array of Quadrature weights
  * @param energy_angle_index the energy group index
  * @param direction the Track direction (forward - true, reverse - false)
  */
@@ -488,7 +488,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
                                      int azim_index,
                                      FP_PRECISION* track_flux,
                                      FP_PRECISION* boundary_flux,
-                                     FP_PRECISION* polar_weights,
+                                     FP_PRECISION* weights,
                                      int energy_angle_index,
                                      bool direction) {
 
@@ -582,12 +582,12 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=0; i < num_segments; i++) {
       curr_segment = &curr_track->_segments[i];
       tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_sources, polar_weights, scalar_flux);
+                      track_flux, reduced_sources, weights, scalar_flux);
     }
 
     /* Transfer boundary angular flux to outgoing Track */
     transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
-                         polar_weights, energy_angle_index, true);
+                         weights, energy_angle_index, true);
 
     /* Loop over each Track segment in reverse direction */
     track_flux = &temp_flux[track_flux_index + (*num_polar)];
@@ -595,12 +595,12 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=num_segments-1; i > -1; i--) {
       curr_segment = &curr_track->_segments[i];
       tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_sources, polar_weights, scalar_flux);
+                      track_flux, reduced_sources, weights, scalar_flux);
     }
 
     /* Transfer boundary angular flux to outgoing Track */
     transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
-                         polar_weights, energy_angle_index, false);
+                         weights, energy_angle_index, false);
 
     /* Update the indices for this thread to the next Track, energy group */
     tid += blockDim.x * gridDim.x;
@@ -1056,13 +1056,18 @@ void GPUSolver::initializePolarQuadrature() {
   cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
-  /* Copy the polar weights to constant memory on the GPU */
-  cudaMemcpyToSymbol(polar_weights, (void*)_polar_weights,
-      _num_polar * _num_azim * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+  /* Copy the weights to constant memory on the GPU */
+  int num_azim = _quad->getNumAzimAngles();
+  FP_PRECISION total_weights[num_azim * _num_polar];
+  for (int a=0; a < num_azim; a++)
+    for (int p=0; p < _num_polar; p++)
+      total_weights[a*_num_polar + p] = _quad->getWeight(a,p);
+  cudaMemcpyToSymbol(weights, (void*)total_weights,
+      _num_polar * num_azim * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
   /* Copy the sines of the polar angles which is needed if the user
    * requested the use of the exp intrinsic to evaluate exponentials */
-  cudaMemcpyToSymbol(sin_thetas, (void*)_polar_quad->getSinThetas(),
+  cudaMemcpyToSymbol(sin_thetas, (void*)_quad->getSinThetas(),
                      _num_polar * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 }
@@ -1238,10 +1243,6 @@ void GPUSolver::initializeTracks() {
     /* Copy the total number of Tracks into constant memory on GPU */
     cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
                        sizeof(int), 0, cudaMemcpyHostToDevice);
-
-    /* Copy the number of azimuthal angles into constant memory on GPU */
-    cudaMemcpyToSymbol(num_azim, (void*)&_num_azim, sizeof(int), 0,
-                       cudaMemcpyHostToDevice);
   }
 
   catch(std::exception &e) {
@@ -1323,7 +1324,7 @@ void GPUSolver::initializeFixedSources() {
   std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
 
   /* Populate fixed source array with any user-defined sources */
-  for (fsr_iter = _fix_src_FSR_map.begin(); 
+  for (fsr_iter = _fix_src_FSR_map.begin();
        fsr_iter != _fix_src_FSR_map.end(); ++fsr_iter) {
 
     /* Get the FSR with an assigned fixed source */
@@ -1668,15 +1669,15 @@ double GPUSolver::computeResidual(residualType res_type) {
 
     /* Reduce nu-fission sources across energy groups within each FSR */
     for (int e=0; e < _num_groups; e++) {
-      strided_range<Iterator> old_strider(old_fission_sources_vec.begin() + e, 
+      strided_range<Iterator> old_strider(old_fission_sources_vec.begin() + e,
                                           old_fission_sources_vec.end(), _num_groups);
-      strided_range<Iterator> new_strider(new_fission_sources_vec.begin() + e, 
+      strided_range<Iterator> new_strider(new_fission_sources_vec.begin() + e,
                                           new_fission_sources_vec.end(), _num_groups);
-      thrust::transform(FSR_old_fiss_src.begin(), FSR_old_fiss_src.end(), 
-                        old_strider.begin(), FSR_old_fiss_src.begin(), 
+      thrust::transform(FSR_old_fiss_src.begin(), FSR_old_fiss_src.end(),
+                        old_strider.begin(), FSR_old_fiss_src.begin(),
                         thrust::plus<FP_PRECISION>());
-      thrust::transform(FSR_new_fiss_src.begin(), FSR_new_fiss_src.end(), 
-                        new_strider.begin(), FSR_new_fiss_src.begin(), 
+      thrust::transform(FSR_new_fiss_src.begin(), FSR_new_fiss_src.end(),
+                        new_strider.begin(), FSR_new_fiss_src.begin(),
                         thrust::plus<FP_PRECISION>());
     }
 
