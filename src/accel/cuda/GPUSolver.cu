@@ -680,14 +680,14 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
   while (tid < *num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
-    sigma_f = curr_material->_sigma_f;
+    nu_sigma_f = curr_material->_nu_sigma_f;
     volume = FSR_volumes[tid];
 
     FP_PRECISION curr_fiss = 0.;
 
     /* Compute fission rates rates for this thread block */
     for (int e=0; e < *num_groups; e++)
-      curr_fiss += sigma_f[e] * scalar_flux(tid,e);
+      curr_fiss += nu_sigma_f[e] * scalar_flux(tid,e);
 
     fiss += curr_fiss * volume;
 
