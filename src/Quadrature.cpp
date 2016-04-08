@@ -154,7 +154,8 @@ double Quadrature::getPhi(int azim) {
 
 
 /**
- * @brief Returns the azimuthal angle weight value for a particular azimuthal angle.
+ * @brief Returns the azimuthal angle weight value for a particular azimuthal
+ *        angle.
  * @param azim index of the azimuthal angle of interest
  * @return the weight for an azimuthal angle
  */
@@ -341,12 +342,12 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
 /**
  * @brief Sets the Quadrature's array of polar angles.
  * @details This method is a helper function to allow OpenMOC users to assign
- *          the Quadrature's sin thetas in Python. A user must initialize a
+ *          the Quadrature's polar angles in Python. A user must initialize a
  *          NumPy array of the correct size (e.g., a float64 array the length
- *          of the number of polar angles) as input to this function. This
- *          function then fills the Quadrature's polar angles with the given
- *          values. An example of how this function might be called in Python
- *          is as follows:
+ *          of the number of azimuthal times polar angles) as input to this
+ *          function. This function then fills the Quadrature's polar angles
+ *          with the given values. An example of how this function might be
+ *          called in Python is as follows:
  *
  * @code
  *          thetas = numpy.array([pi/6, pi/4, pi/3, ... ])
@@ -358,8 +359,7 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
  *
  * @param thetas the array of polar angle for each azimuthal/polar angle
  *        combination
- * @param num_azim_times_polar the number of azimuthal angles times the number
- *        of polar angles
+ * @param num_azim_times_polar the total number of angles (azimuthal x polar)
  */
 void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
 
@@ -400,7 +400,23 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
 
 
 /**
- * @brief Set the Quadrature's array of polar weights
+ * @brief Set the Quadrature's array of polar weights.
+ * @details This method is a helper function to allow OpenMOC users to assign
+ *          the Quadrature's polar weights in Python. A user must initialize a
+ *          NumPy array of the correct size (e.g., a float64 array the length
+ *          of the number of azimuthal times polar angles) as input to this
+ *          function. This function then fills the Quadrature's polar weights
+ *          with the given values. An example of how this function might be
+ *          called in Python is as follows:
+ *
+ * @code
+ *          polar_weights = numpy.array([0.1, 0.2, 0.05, ... ])
+ *          polar_quad = openmoc.Quadrature()
+ *          polar_quad.setNumAzimAngles(num_azim)
+ *          polar_quad.setNumPolarAngles(len(polar_weights) / num_azim)
+ *          polar_quad.setPolarWeights(polar_weights)
+ * @endcode
+ *
  * @param weights The polar weights
  * @param num_azim_times_polar the total number of angles (azimuthal x polar)
  */
@@ -430,7 +446,7 @@ void Quadrature::setPolarWeights(FP_PRECISION* weights,
   for (int a=0; a < _num_azim/4; a++) {
     for (int p=0; p < _num_polar/2; p++) {
       if (weights[ap] < 0. || weights[ap] > M_PI_2)
-        log_printf(ERROR, "Unable to polar weight to %f which is "
+        log_printf(ERROR, "Unable to set polar weight to %f which is "
                    "not in the range [0,PI/2]", weights[ap]);
 
       setPolarValues(_polar_weights, a, p, weights[ap]);
@@ -441,8 +457,8 @@ void Quadrature::setPolarWeights(FP_PRECISION* weights,
 
 
 /**
- * @brief Sets the polar angle for the given indexes
- * @param theta the value of the polar angle to be set
+ * @brief Sets the polar angle for the given indexes.
+ * @param theta the value in radians of the polar angle to be set
  * @param azim the azimuthal index of the angle of interest
  * @param polar the polar index of the angle of interest
  */
@@ -477,7 +493,7 @@ void Quadrature::setTheta(double theta, int azim, int polar) {
 
 
 /**
- * @brief Sets the azimuthal angle for the given index
+ * @brief Sets the azimuthal angle for the given index.
  * @param phi the value in radians of the azimuthal angle to be set
  * @param azim the azimuthal index
  */
@@ -487,11 +503,11 @@ void Quadrature::setPhi(double phi, int azim) {
     log_printf(ERROR, "Unable to set phi for azim = %d to %f which is not "
                "in the range (0.0, PI/2)", azim, phi);
 
-  else if (azim >= _num_azim/4)
+  if (azim >= _num_azim/4)
     log_printf(ERROR, "Unable to set phi for azim = %d since azim is not in"
                " the range (0, _num_azim/4)", azim);
 
-  else if (_phis == NULL)
+  if (_phis == NULL)
     _phis = new double[_num_azim/2];
 
   _phis[azim] = phi;
@@ -500,8 +516,8 @@ void Quadrature::setPhi(double phi, int azim) {
 
 
 /**
- * @brief Sets the azimuthal spacing for the given index
- * @param spacing the spacing in the azimuthal direction to be set
+ * @brief Sets the azimuthal spacing for the given index.
+ * @param spacing the spacing (cm) in the azimuthal direction to be set
  * @param azim the azimuthal index
  */
 void Quadrature::setAzimSpacing(FP_PRECISION spacing, int azim) {
@@ -511,11 +527,11 @@ void Quadrature::setAzimSpacing(FP_PRECISION spacing, int azim) {
                       "which is not strictly greater than zero", azim,
                       spacing);
 
-  else if (azim >= _num_azim/4)
+  if (azim >= _num_azim/4)
     log_printf(ERROR, "Unable to set azimuthal spacing for azim = %d since "
                       " azim is not in the range (0, _num_azim/4)", azim);
 
-  else if (_azim_spacings == NULL)
+  if (_azim_spacings == NULL)
     _azim_spacings = new FP_PRECISION[_num_azim/2];
 
   setAzimuthalValues(_azim_spacings, azim, spacing);
@@ -523,7 +539,7 @@ void Quadrature::setAzimSpacing(FP_PRECISION spacing, int azim) {
 
 
 /**
- * @brief Sets the azimuthal weight for the given index
+ * @brief Sets the azimuthal weight for the given index.
  * @param weight the weight of the azimuthal angle
  * @param azim the azimuthal index
  */
@@ -533,11 +549,11 @@ void Quadrature::setAzimWeight(double weight, int azim) {
     log_printf(ERROR, "Unable to set azim weight for azim = %d to %f which is "
                "not in the range (0.0, PI/2)", azim, weight);
 
-  else if (azim >= _num_azim/4)
+  if (azim >= _num_azim/4)
     log_printf(ERROR, "Unable to set azim weight for azim = %d since azim is "
                "not in the range (0, _num_azim/4)", azim);
 
-  else if (_azim_weights == NULL)
+  if (_azim_weights == NULL)
     _azim_weights = new FP_PRECISION[_num_azim/2];
 
   setAzimuthalValues(_azim_weights, azim, FP_PRECISION(weight));
@@ -545,7 +561,7 @@ void Quadrature::setAzimWeight(double weight, int azim) {
 
 
 /**
- * @brief Sets the polar weight for the given indexes
+ * @brief Sets the polar weight for the given indexes.
  * @param weight the weight of the polar angle
  * @param azim the azimuthal index corresponding to the angle
  * @param azim the polar index corresponding to the angle
@@ -557,16 +573,16 @@ void Quadrature::setPolarWeight(FP_PRECISION weight, int azim, int polar) {
                "polar = %d to %f which is not in the range (0.0, PI/2)",
                azim, polar, weight);
 
-  else if (azim >= _num_azim/4)
+  if (azim >= _num_azim/4)
     log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
                "since azim is not in the range (0, _num_azim/4)", azim, polar);
 
-  else if (polar >= _num_polar/2)
+  if (polar >= _num_polar/2)
     log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
                "since polar is not in the range (0, _num_polar/2)", \
                azim, polar);
 
-  else if (_polar_weights == NULL) {
+  if (_polar_weights == NULL) {
     _polar_weights = new FP_PRECISION*[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++)
       _polar_weights[a] = new FP_PRECISION[_num_polar];
@@ -578,8 +594,9 @@ void Quadrature::setPolarWeight(FP_PRECISION weight, int azim, int polar) {
 
 /**
  * @brief Dummy routine to initialize the polar quadrature.
- * @details The parent class routine simply checks that the number of polar
- *          angles has been set by the user and returns;
+ * @details The parent class routine simply checks that number of polar and
+ *          azimuthal angles have been set by the user and generates the
+ *          azimuthal angles.
  */
 void Quadrature::initialize() {
 
@@ -587,7 +604,7 @@ void Quadrature::initialize() {
     log_printf(ERROR, "Unable to initialize Quadrature with zero polar angles. "
                "Set the number of polar angles before initialization.");
 
-  else if (_num_azim == 0)
+  if (_num_azim == 0)
     log_printf(ERROR, "Unable to initialize Quadrature with zero azimuthal angles. "
                "Set the number of azimuthal angles before initialization.");
 
@@ -803,7 +820,7 @@ void TYPolarQuad::initialize() {
 
 /**
  * @brief Calculates total weights for every azimuthal/polar combination based
- *        on the TY quadrature
+ *        on the TY quadrature.
  * @param solve_3D Boolean indicating whether this is a 3D quadrature
  */
 void TYPolarQuad::precomputeWeights(bool solve_3D) {
@@ -907,7 +924,7 @@ void LeonardPolarQuad::initialize() {
 
 /**
  * @brief Calculates total weights for every azimuthal/polar combination based
- *        on the Leonard polar quadrature
+ *        on the Leonard polar quadrature.
  * @param solve_3D Boolean indicating whether this is a 3D quadrature
  */
 void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
@@ -1287,7 +1304,7 @@ void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
 
 /**
- * @brief Returns an array of adjusted azimuthal spacings
+ * @brief Returns an array of adjusted azimuthal spacings.
  * @details An array of azimuthal spacings after adjustment is returned,
  *          indexed by azimuthal angle
  * @return the array of azimuthal spacings
@@ -1299,7 +1316,7 @@ FP_PRECISION* Quadrature::getAzimSpacings() {
 
 /**
  * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
- *        angle index
+ *        angle index.
  * @details The aziumthal spacing depends on the azimuthal angle. This function
  *          returns the azimuthal spacing used at the desired azimuthal angle
  *          index.
