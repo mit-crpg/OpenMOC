@@ -28,8 +28,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _old_scalar_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
-  _quad = NULL;
-  _num_polar = 0;
+  _quadrature = NULL;
+  _num_polar_2 = 0;
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
@@ -135,7 +135,7 @@ FP_PRECISION Solver::getFSRVolume(int fsr_id) {
  * @return the number of polar angles
  */
 int Solver::getNumPolarAngles() {
-  return _num_polar;
+  return 2 * _num_polar_2;
 }
 
 
@@ -337,11 +337,11 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _num_polar = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
+  _num_polar_2 = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
   _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = _track_generator->getTracksByParallelGroup();
-  _quad = track_generator->getQuadrature();
+  _quadrature = track_generator->getQuadrature();
 
   /* Retrieve and store the Geometry from the TrackGenerator */
   setGeometry(_track_generator->getGeometry());
@@ -453,7 +453,7 @@ void Solver::useExponentialIntrinsic() {
  */
 void Solver::initializeExpEvaluator() {
 
-  _exp_evaluator->setQuadrature(_quad);
+  _exp_evaluator->setQuadrature(_quadrature);
 
   if (_exp_evaluator->isUsingInterpolation()) {
 
@@ -514,7 +514,7 @@ void Solver::initializeFSRs() {
   /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
-  _polar_times_groups = _num_groups * _num_polar;
+  _polar_times_groups = _num_groups * _num_polar_2;
   _num_materials = _geometry->getNumMaterials();
 
   /* Get an array of volumes indexed by FSR  */
@@ -636,7 +636,7 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
-  _cmfd->setQuadrature(_quad);
+  _cmfd->setQuadrature(_quadrature);
   _cmfd->setGeometry(_geometry);
   _cmfd->initialize();
 }
@@ -1037,7 +1037,7 @@ void Solver::printTimerReport() {
 
   /* Time per segment */
   int num_segments = _track_generator->getNumSegments();
-  int num_integrations = 2 * _num_polar * _num_groups * num_segments;
+  int num_integrations = 2 * _num_polar_2 * _num_groups * num_segments;
   double time_per_integration = (time_per_iter / num_integrations);
   msg_string = "Time per segment integration";
   msg_string.resize(53, '.');

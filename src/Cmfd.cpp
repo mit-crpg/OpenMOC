@@ -30,7 +30,7 @@ Cmfd::Cmfd() {
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
   _num_cmfd_groups = 0;
-  _num_polar = 0;
+  _num_polar_2 = 0;
 
   /* Set matrices and arrays to NULL */
   _A = NULL;
@@ -758,11 +758,11 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
   FP_PRECISION rho = 0.0;
 
   /* Loop over polar angles */
-  for (int p = 0; p < _num_polar; p++) {
-    mu = cos(asin(_quadrature->getSinTheta(0,p)));
+  for (int p = 0; p < _num_polar_2; p++) {
+    mu = cos(asin(_quadrature->getSinTheta(0, p)));
     expon = exp(-delta / (3 * dif_coef * mu));
     alpha = (1 + expon) / (1 - expon) - 2 * (3 * dif_coef * mu) / delta;
-    rho += 2.0 * mu * _quadrature->getPolarWeight(0,p) * alpha;
+    rho += 2.0 * mu * _quadrature->getPolarWeight(0, p) * alpha;
   }
 
   /* Compute the correction factor */
@@ -1431,7 +1431,7 @@ void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
  */
 void Cmfd::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
-  _num_polar = quadrature->getNumPolarAngles() / 2;
+  _num_polar_2 = quadrature->getNumPolarAngles() / 2;
 }
 
 
@@ -1775,12 +1775,12 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     /* Update boundary flux in forward direction */
     bc = (int)tracks[i]->getBCOut();
     curr_segment = &segments[0];
-    track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar];
+    track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar_2];
     cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
 
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
-        for (int p=0; p < _num_polar; p++) {
+        for (int p=0; p < _num_polar_2; p++) {
           track_flux[p*_num_moc_groups + e] *= _flux_ratio->getValue
             (cell_id, e);
         }
@@ -1790,11 +1790,11 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     /* Update boundary flux in backwards direction */
     bc = (int)tracks[i]->getBCIn();
     curr_segment = &segments[num_segments - 1];
-    track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar];
+    track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar_2];
 
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
-        for (int p=0; p < _num_polar; p++) {
+        for (int p=0; p < _num_polar_2; p++) {
           track_flux[p*_num_moc_groups + e] *= _flux_ratio->getValue
             (cell_id, e);
         }
@@ -1861,7 +1861,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
         int g = getCmfdGroup(e);
 
-        for (int p=0; p < _num_polar; p++)
+        for (int p=0; p < _num_polar_2; p++)
           currents[g] += track_flux(p, e) *
                          _quadrature->getWeightInline(azim_index, p);
       }
@@ -1881,7 +1881,7 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
         int g = getCmfdGroup(e);
 
-        for (int p=0; p < _num_polar; p++)
+        for (int p=0; p < _num_polar_2; p++)
           currents[g] += track_flux(p, e) *
                          _quadrature->getWeightInline(azim_index, p);
       }

@@ -9,7 +9,7 @@
 ExpEvaluator::ExpEvaluator() {
   _interpolate = true;
   _exp_table = NULL;
-  _quad = NULL;
+  _quadrature = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
   _exp_precision = EXP_PRECISION;
 }
@@ -29,8 +29,8 @@ ExpEvaluator::~ExpEvaluator() {
  * @param quadrature a Quadrature object pointer
  */
 void ExpEvaluator::setQuadrature(Quadrature* quadrature) {
-  _quad = quadrature;
-  _two_times_num_polar = 2 * _quad->getNumPolarAngles();
+  _quadrature = quadrature;
+  _num_polar = _quadrature->getNumPolarAngles();
 }
 
 
@@ -167,7 +167,7 @@ void ExpEvaluator::initialize() {
   log_printf(INFO, "Initializing exponential interpolation table...");
 
   /* Set size of interpolation table */
-  int num_polar = _quad->getNumPolarAngles();
+  int num_polar = _quadrature->getNumPolarAngles();
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
   FP_PRECISION exp_table_spacing = _max_optical_length / num_array_values;
 
@@ -194,7 +194,7 @@ void ExpEvaluator::initialize() {
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
     for (int p=0; p < num_polar; p++) {
-      sin_theta = _quad->getSinTheta(0, p);
+      sin_theta = _quadrature->getSinTheta(0, p);
 
       /* Use the optical length at the start of the interval for the first value
        * to avoid exponential values greater than one. */
@@ -208,8 +208,8 @@ void ExpEvaluator::initialize() {
       expon = exp(- tau / sin_theta);
       intercept = expon * (1 + tau / sin_theta);
       slope = - expon / sin_theta;
-      _exp_table[_two_times_num_polar * i + 2 * p] = slope;
-      _exp_table[_two_times_num_polar * i + 2 * p + 1] = intercept;
+      _exp_table[_num_polar * i + 2 * p] = slope;
+      _exp_table[_num_polar * i + 2 * p + 1] = intercept;
     }
   }
 }

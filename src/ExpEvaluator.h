@@ -41,10 +41,10 @@ private:
   FP_PRECISION* _exp_table;
 
   /** The Quadrature object of interest */
-  Quadrature* _quad;
+  Quadrature* _quadrature;
 
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
+  /** The number of polar angles */
+  int _num_polar;
 
   /** The maximum optical length a track is allowed to have */
   FP_PRECISION _max_optical_length;
@@ -94,14 +94,14 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
   if (_interpolate) {
     tau = std::min(tau, (_max_optical_length));
     int index = floor(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
+    index *= _num_polar;
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                   _exp_table[index + 2 * polar + 1]));
   }
 
   /* Evalute the exponential using the intrinsic exp(...) function */
   else {
-    FP_PRECISION sin_theta = _quad->getSinTheta(0, polar);
+    FP_PRECISION sin_theta = _quadrature->getSinTheta(0, polar);
     exponential = 1.0 - exp(- tau / sin_theta);
   }
 

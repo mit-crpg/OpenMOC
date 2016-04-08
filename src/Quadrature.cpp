@@ -105,7 +105,7 @@ FP_PRECISION Quadrature::getSinTheta(int azim, int polar) {
 
 
 /**
- * @brief Returns the polar angle value for a given azimuthal and polar
+ * @brief Returns the polar angle in radians for a given azimuthal and polar
  *        angle index.
  * @param azim index of the azimthal angle of interest
  * @param polar index of the polar angle of interest
@@ -133,7 +133,7 @@ double Quadrature::getTheta(int azim, int polar) {
 
 
 /**
- * @brief Returns the azimuthal angle value.
+ * @brief Returns the azimuthal angle value in radians.
  * @param azim index of the azimthal angle of interest
  * @return the value of the azimuthal angle
  */
@@ -211,17 +211,17 @@ FP_PRECISION Quadrature::getPolarWeight(int azim, int polar) {
 FP_PRECISION Quadrature::getWeight(int azim, int polar) {
 
   if (polar < 0 || polar >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = "
+    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = "
                "%d and azimuthal angle = %d but only %d polar angles are "
                "defined", polar, azim, _num_polar);
 
   else if (azim < 0 || azim >= _num_azim)
-    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = "
+    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = "
                "%d and azimuthal angle = %d but only %d azimuthal angles are "
                "defined", polar, azim, _num_azim);
 
   else if (_total_weights == NULL)
-    log_printf(ERROR, "Attempted to retrieve multiple for polar angle = %d "
+    log_printf(ERROR, "Attempted to retrieve weight for polar angle = %d "
                "and azimuthal angle = %d but the multiples have not been "
                "initialized", polar, azim);
 
@@ -230,7 +230,8 @@ FP_PRECISION Quadrature::getWeight(int azim, int polar) {
 
 
 /**
- * @brief Returns a pointer to the Quadrature's array of \f$ sin\theta_{p} \f$.
+ * @brief Returns a pointer to the Quadrature's array of polar angle sines
+          \f$ sin\theta_{p} \f$.
  * @return a pointer to the array of \f$ sin\theta_{p} \f$
  */
 FP_PRECISION** Quadrature::getSinThetas() {
@@ -244,7 +245,8 @@ FP_PRECISION** Quadrature::getSinThetas() {
 
 
 /**
- * @brief Returns a pointer to the Quadrature's array of \f$ \theta_{p} \f$.
+ * @brief Returns a pointer to the Quadrature's array of polar angles
+          \f$ \theta_{p} \f$.
  * @return a pointer to the array of \f$ \theta_{p} \f$
  */
 double** Quadrature::getThetas() {
@@ -258,7 +260,8 @@ double** Quadrature::getThetas() {
 
 
 /**
- * @brief Returns a pointer to the Quadrature's array of \f$ \phi \f$.
+ * @brief Returns a pointer to the Quadrature's array of azimuthal angles
+          \f$ \phi \f$.
  * @return a pointer to the array of \f$ \phi \f$
  */
 double* Quadrature::getPhis() {
@@ -336,24 +339,27 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
 
 
 /**
- * @brief Set the Quadrature's array of sines of each polar angle.
+ * @brief Sets the Quadrature's array of polar angles.
  * @details This method is a helper function to allow OpenMOC users to assign
  *          the Quadrature's sin thetas in Python. A user must initialize a
  *          NumPy array of the correct size (e.g., a float64 array the length
  *          of the number of polar angles) as input to this function. This
- *          function then fills the NumPy array with the data values for the
- *          Quadrature's sin thetas. An example of how this function might be
- *          called in Python is as follows:
+ *          function then fills the Quadrature's polar angles with the given
+ *          values. An example of how this function might be called in Python
+ *          is as follows:
  *
  * @code
- *          sin_thetas= numpy.array([0.05, 0.1, 0.15, ... ])
+ *          thetas = numpy.array([pi/6, pi/4, pi/3, ... ])
  *          polar_quad = openmoc.Quadrature()
- *          polar_quad.setNumPolarAngles(len(sin_thetas))
- *          polar_quad.setSinThetas(sin_thetas)
+ *          polar_quad.setNumAzimAngles(num_azim)
+ *          polar_quad.setNumPolarAngles(len(thetas) / num_azim)
+ *          polar_quad.setThetas(thetas)
  * @endcode
  *
- * @param sin_thetas the array of sines of each polar angle
- * @param num_polar the number of polar angles
+ * @param thetas the array of polar angle for each azimuthal/polar angle
+ *        combination
+ * @param num_azim_times_polar the number of azimuthal angles times the number
+ *        of polar angles
  */
 void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
 
@@ -472,7 +478,7 @@ void Quadrature::setTheta(double theta, int azim, int polar) {
 
 /**
  * @brief Sets the azimuthal angle for the given index
- * @param phi the value of the azimuthal angle to be set
+ * @param phi the value in radians of the azimuthal angle to be set
  * @param azim the azimuthal index
  */
 void Quadrature::setPhi(double phi, int azim) {

@@ -243,7 +243,7 @@ void CPUSolver::zeroTrackFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
+      for (int p=0; p < _num_polar_2; p++) {
         for (int e=0; e < _num_groups; e++) {
           _boundary_flux(t,d,p,e) = 0.0;
         }
@@ -330,7 +330,7 @@ void CPUSolver::normalizeFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
+      for (int p=0; p < _num_polar_2; p++) {
         for (int e=0; e < _num_groups; e++) {
           _boundary_flux(t,d,p,e) *= norm_factor;
         }
@@ -753,10 +753,10 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
   /* Compute change in angular flux along segment in this FSR */
   for (int e=0; e < _num_groups; e++) {
-    for (int p=0; p < _num_polar; p++) {
+    for (int p=0; p < _num_polar_2; p++) {
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, p);
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exponential;
-      fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
+      fsr_flux[e] += delta_psi * _quadrature->getWeightInline(azim_index, p);
       track_flux(p,e) -= delta_psi;
     }
   }
@@ -825,7 +825,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
-    for (int p=0; p < _num_polar; p++)
+    for (int p=0; p < _num_polar_2; p++)
       track_out_flux(p,e) = track_flux(p,e) * transfer_flux;
   }
 }

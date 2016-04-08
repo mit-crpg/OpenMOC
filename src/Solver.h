@@ -115,11 +115,11 @@ protected:
   /** The number of Materials */
   int _num_materials;
 
-  /** The number of polar angles */
-  int _num_polar;
+  /** Half the number of polar angles */
+  int _num_polar_2;
 
   /** A pointer to the quadrature */
-  Quadrature* _quad;
+  Quadrature* _quadrature;
 
   /** The number of polar angles times energy groups */
   int _polar_times_groups;

@@ -12,8 +12,8 @@ __constant__ int num_FSRs[1];
 /** The number of polar angles */
 __constant__ int num_polar[1];
 
-/** Twice the number of polar angles */
-__constant__ int two_times_num_polar[1];
+/** Half the number of polar angles */
+__constant__ int num_polar_2[1];
 
 /** The number of polar angles times energy groups */
 __constant__ int polar_times_groups[1];
@@ -455,7 +455,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
   FP_PRECISION fsr_flux = 0.0;
 
   /* Loop over polar angles */
-  for (int p=0; p < *num_polar; p++) {
+  for (int p=0; p < *num_polar_2; p++) {
     exponential =
       exp_evaluator.computeExponential(sigma_t[energy_group] * length, p);
     delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group));
@@ -513,7 +513,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
   FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
 
   /* Put Track's flux in the shared memory temporary flux array */
-  for (int p=0; p < *num_polar; p++)
+  for (int p=0; p < *num_polar_2; p++)
     track_out_flux[p] = track_flux[p] * transfer_flux;
 }
 
@@ -547,9 +547,9 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
   int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
   int track_id = tid / *num_groups;
-  int track_flux_index = threadIdx.x * (*two_times_num_polar);
+  int track_flux_index = threadIdx.x * (*num_polar);
   int energy_group = tid % (*num_groups);
-  int energy_angle_index = energy_group * (*num_polar);
+  int energy_angle_index = energy_group * (*num_polar_2);
 
   dev_track* curr_track;
   int azim_index;
@@ -568,13 +568,13 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     track_flux = &temp_flux[track_flux_index];
 
     /* Put Track's flux in the shared memory temporary flux array */
-    for (int p=0; p < *num_polar; p++) {
+    for (int p=0; p < *num_polar_2; p++) {
 
       /* Forward flux along this Track */
       track_flux[p] = boundary_flux(track_id,p+energy_angle_index);
 
       /* Reverse flux along this Track */
-      track_flux[(*num_polar) + p] =
+      track_flux[(*num_polar_2) + p] =
             boundary_flux(track_id,p+energy_angle_index+(*polar_times_groups));
     }
 
@@ -590,7 +590,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
                          weights, energy_angle_index, true);
 
     /* Loop over each Track segment in reverse direction */
-    track_flux = &temp_flux[track_flux_index + (*num_polar)];
+    track_flux = &temp_flux[track_flux_index + (*num_polar_2)];
 
     for (int i=num_segments-1; i > -1; i--) {
       curr_segment = &curr_track->_segments[i];
@@ -606,7 +606,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     tid += blockDim.x * gridDim.x;
     track_id = tid / *num_groups;
     energy_group = tid % (*num_groups);
-    energy_angle_index = energy_group * (*num_polar);
+    energy_angle_index = energy_group * (*num_polar_2);
   }
 }
 
@@ -1036,19 +1036,19 @@ void GPUSolver::initializePolarQuadrature() {
 
   Solver::initializePolarQuadrature();
 
-  if (_num_polar > MAX_POLAR_ANGLES_GPU)
+  if (_num_polar_2 > MAX_POLAR_ANGLES_GPU)
     log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
                "angles for the GPUSolver which is limited to %d polar "
                "angles. Update the MAX_POLAR_ANGLES_GPU macro in constants.h "
-               "and recompile.", _num_polar, MAX_POLAR_ANGLES_GPU);
+               "and recompile.", _num_polar_2, MAX_POLAR_ANGLES_GPU);
 
   /* Copy the number of polar angles to constant memory on the GPU */
-  cudaMemcpyToSymbol(num_polar, (void*)&_num_polar, sizeof(int), 0,
+  cudaMemcpyToSymbol(num_polar_2, (void*)&_num_polar_2, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
   /* Copy twice the number of polar angles to constant memory on the GPU */
-  _two_times_num_polar = 2 * _num_polar;
-  cudaMemcpyToSymbol(two_times_num_polar, (void*)&_two_times_num_polar,
+  _num_polar = 2 * _num_polar_2;
+  cudaMemcpyToSymbol(num_polar, (void*)&_num_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
   /* Copy the number of polar angles times energy groups to constant memory
@@ -1057,18 +1057,18 @@ void GPUSolver::initializePolarQuadrature() {
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
   /* Copy the weights to constant memory on the GPU */
-  int num_azim = _quad->getNumAzimAngles();
-  FP_PRECISION total_weights[num_azim * _num_polar];
+  int num_azim = _quadrature->getNumAzimAngles();
+  FP_PRECISION total_weights[num_azim * _num_polar_2];
   for (int a=0; a < num_azim; a++)
-    for (int p=0; p < _num_polar; p++)
-      total_weights[a*_num_polar + p] = _quad->getWeight(a,p);
+    for (int p=0; p < _num_polar_2; p++)
+      total_weights[a*_num_polar_2 + p] = _quadrature->getWeight(a,p);
   cudaMemcpyToSymbol(weights, (void*)total_weights,
-      _num_polar * num_azim * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+      _num_polar_2 * num_azim * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
   /* Copy the sines of the polar angles which is needed if the user
    * requested the use of the exp intrinsic to evaluate exponentials */
-  cudaMemcpyToSymbol(sin_thetas, (void*)_quad->getSinThetas(),
-                     _num_polar * sizeof(FP_PRECISION), 0,
+  cudaMemcpyToSymbol(sin_thetas, (void*)_quadrature->getSinThetas(),
+                     _num_polar_2 * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 }
 
@@ -1478,7 +1478,7 @@ void GPUSolver::computeFSRScatterSources() {
  */
 void GPUSolver::transportSweep() {
 
-  int shared_mem = _T * _two_times_num_polar * sizeof(FP_PRECISION);
+  int shared_mem = _T * _num_polar * sizeof(FP_PRECISION);
   int tid_offset = 0;
   int tid_max = 0;
 

@@ -91,8 +91,8 @@ private:
   /** Number of energy groups */
   int _num_moc_groups;
 
-  /** Number of polar angles */
-  int _num_polar;
+  /** Half the number of polar angles */
+  int _num_polar_2;
 
   /** Number of energy groups used in cmfd solver. Note that cmfd supports
    * energy condensation from the MOC */
