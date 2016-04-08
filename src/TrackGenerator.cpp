@@ -12,7 +12,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   setNumThreads(1);
   _geometry = geometry;
   setNumAzim(num_azim);
-  setDesiredAzimSpacing(spacing);
+  setDesiredAzimSpacing(azim_spacing);
   _quadrature = NULL;
   _user_quadrature = false;
   _contains_tracks = false;
