@@ -593,10 +593,10 @@ void Quadrature::setPolarWeight(FP_PRECISION weight, int azim, int polar) {
 
 
 /**
- * @brief Dummy routine to initialize the polar quadrature.
+ * @brief Initialize the polar quadrature azimuthal angles.
  * @details The parent class routine simply checks that number of polar and
  *          azimuthal angles have been set by the user and generates the
- *          azimuthal angles.
+ *          azimuthal angles if not already generated.
  */
 void Quadrature::initialize() {
 
@@ -618,7 +618,7 @@ void Quadrature::initialize() {
 
 
 /**
- * @brief This private routine computes the produce of the sine thetas and
+ * @brief This private routine computes the product of the sine thetas and
  *        weights for each angle in the polar quadrature.
  * @details Note that this routine must be called after populating the
  *          sine thetas and weights arrays.
@@ -747,6 +747,10 @@ std::string Quadrature::toString() {
 }
 
 
+/**
+ * @breif Returns the type of Quadrature created.
+ * @return The quadrature type
+ */
 quadratureType Quadrature::getQuadratureType() {
   return _quad_type;
 }
@@ -762,7 +766,7 @@ TYPolarQuad::TYPolarQuad(): Quadrature() {
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 3)
+ * @param num_polar the number of polar angles (maximum 6)
  */
 void TYPolarQuad::setNumPolarAngles(const int num_polar) {
 
@@ -872,7 +876,7 @@ LeonardPolarQuad::LeonardPolarQuad(): Quadrature() {
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (2 or 3)
+ * @param num_polar the number of polar angles (4 or 6)
  */
 void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
 
@@ -970,7 +974,7 @@ GLPolarQuad::GLPolarQuad(): Quadrature() {
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 6)
+ * @param num_polar the number of polar angles (maximum 12)
  */
 void GLPolarQuad::setNumPolarAngles(const int num_polar) {
 
@@ -1051,6 +1055,11 @@ void GLPolarQuad::initialize() {
 }
 
 
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the Gauss-Legendre polar quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
@@ -1167,6 +1176,11 @@ void EqualWeightPolarQuad::initialize() {
 }
 
 
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the equal weight polar quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
@@ -1206,7 +1220,6 @@ void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
 }
 
 
-
 /**
  * @brief Dummy constructor calls the parent constructor.
  */
@@ -1240,7 +1253,6 @@ void EqualAnglePolarQuad::initialize() {
   double theta_a, theta_b;
   double delta_theta = M_PI / (_num_polar);
 
-
   /* Generate the sin thetas and weights using equations 420-422 of the
    * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
   int ap = 0;
@@ -1264,6 +1276,11 @@ void EqualAnglePolarQuad::initialize() {
 }
 
 
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the equal angle polar quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */

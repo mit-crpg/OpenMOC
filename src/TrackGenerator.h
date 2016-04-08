@@ -64,10 +64,10 @@ protected:
   int* _num_y;
 
   /** A boolean indicating if a user-defined Quadrature was assigned */
-  bool _user_quad;
+  bool _user_quadrature;
 
   /** The associated Quadrature object */
-  Quadrature* _quad;
+  Quadrature* _quadrature;
 
   /** A 2D ragged array of Tracks */
   Track** _tracks;
@@ -110,7 +110,7 @@ protected:
 
 public:
 
-  TrackGenerator(Geometry* geometry, int num_azim, double spacing);
+  TrackGenerator(Geometry* geometry, int num_azim, double azim_spacing);
   virtual ~TrackGenerator();
 
   /* Get parameters */
@@ -136,7 +136,7 @@ public:
 
   /* Set parameters */
   void setNumAzim(int num_azim);
-  void setDesiredAzimSpacing(double spacing);
+  void setDesiredAzimSpacing(double azim_spacing);
   void setGeometry(Geometry* geometry);
   void setQuadrature(Quadrature* quadrature);
   void setNumThreads(int num_threads);

@@ -4,17 +4,17 @@
  * @brief Constructor for the TrackGenerator assigns default values.
  * @param geometry a pointer to a Geometry object
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
- * @param spacing track spacing (cm)
+ * @param azim_spacing azimuthal track spacing (cm)
  */
 TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
-                               double spacing) {
+                               double azim_spacing) {
 
   setNumThreads(1);
   _geometry = geometry;
   setNumAzim(num_azim);
   setDesiredAzimSpacing(spacing);
-  _quad = NULL;
-  _user_quad = false;
+  _quadrature = NULL;
+  _user_quadrature = false;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -45,8 +45,8 @@ TrackGenerator::~TrackGenerator() {
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
 
-  if (_quad != NULL && !_user_quad)
-    delete _quad;
+  if (_quadrature != NULL && !_user_quadrature)
+    delete _quadrature;
 }
 
 
@@ -60,11 +60,11 @@ int TrackGenerator::getNumAzim() {
 
 
 /**
- * @brief Return the track spacing (cm).
- * @details This will return the user-specified track spacing and NOT the
- *          effective track spacing which is computed and used to generate
+ * @brief Return the azimuthal track spacing (cm).
+ * @details This will return the user-specified azimuthal track spacing and NOT
+ *          the effective track spacing which is computed and used to generate
  *          cyclic tracks.
- * @return the track spacing (cm)
+ * @return the azimuthal track spacing (cm)
  */
 double TrackGenerator::getDesiredAzimSpacing() {
   return _azim_spacing;
@@ -239,11 +239,11 @@ Track **TrackGenerator::getTracksByParallelGroup() {
  */
 Quadrature* TrackGenerator::getQuadrature() {
 
-  if (_quad == NULL)
-    log_printf(ERROR, "Unable to return the Solver's Quadrature "
+  if (_quadrature == NULL)
+    log_printf(ERROR, "Unable to return the TrackGenerator's Quadrature "
                "since it has not yet been set");
 
-  return _quad;
+  return _quadrature;
 }
 
 
@@ -297,8 +297,8 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
         for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
           curr_segment = _tracks[i][j].getSegment(s);
-          volume = curr_segment->_length * _quad->getAzimWeight(i)
-            * _quad->getAzimSpacing(i);
+          volume = curr_segment->_length * _quadrature->getAzimWeight(i)
+            * _quadrature->getAzimSpacing(i);
           fsr_id = curr_segment->_region_id;
 
           /* Set FSR mutual exclusion lock */
@@ -343,8 +343,8 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
       for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
         curr_segment = _tracks[i][j].getSegment(s);
         if (curr_segment->_region_id == fsr_id)
-          volume += curr_segment->_length * _quad->getAzimWeight(i)
-            * _quad->getAzimSpacing(i);
+          volume += curr_segment->_length * _quadrature->getAzimWeight(i)
+            * _quadrature->getAzimSpacing(i);
       }
     }
   }
@@ -438,15 +438,15 @@ void TrackGenerator::setNumAzim(int num_azim) {
 
 
 /**
- * @brief Set the suggested track spacing (cm).
- * @param spacing the suggested track spacing
+ * @brief Set the suggested azimuthal track spacing (cm).
+ * @param azim_spacing the suggested azimuthal track spacing
  */
-void TrackGenerator::setDesiredAzimSpacing(double spacing) {
-  if (spacing < 0)
-    log_printf(ERROR, "Unable to set a negative track spacing %f for the "
-               "TrackGenerator.", spacing);
+void TrackGenerator::setDesiredAzimSpacing(double azim_spacing) {
+  if (azim_spacing < 0)
+    log_printf(ERROR, "Unable to set a negative azimuthal track spacing %f for"
+               " the TrackGenerator.", azim_spacing);
 
-  _azim_spacing = spacing;
+  _azim_spacing = azim_spacing;
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
@@ -484,8 +484,8 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
  * @param quadrature a pointer to a Quadrature object
  */
 void TrackGenerator::setQuadrature(Quadrature* quadrature) {
-  _quad = quadrature;
-  _user_quad = true;
+  _quadrature = quadrature;
+  _user_quadrature = true;
 }
 
 
@@ -634,26 +634,26 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
                "has been set for the TrackGenerator");
 
   /* Check for valid quadrature */
-  if (_quad != NULL) {
-    if (_quad->getNumAzimAngles() != 2*_num_azim_2) {
-      if (_user_quad) {
+  if (_quadrature != NULL) {
+    if (_quadrature->getNumAzimAngles() != 2*_num_azim_2) {
+      if (_user_quadrature) {
         log_printf(ERROR, "User defined quadrature does not match the "
-                          " number of azimuthal angles in the TrackGenertor");
+                          " number of azimuthal angles in the TrackGenerator");
       }
       else {
-        delete _quad;
-        _quad = NULL;
+        delete _quadrature;
+        _quadrature = NULL;
       }
     }
   }
 
   /* Initialize quadrature */
-  if (_quad == NULL) {
-    _quad = new TYPolarQuad();
-    _quad->setNumAzimAngles(2*_num_azim_2);
-    _quad->setNumPolarAngles(6);
+  if (_quadrature == NULL) {
+    _quadrature = new TYPolarQuad();
+    _quadrature->setNumAzimAngles(2*_num_azim_2);
+    _quadrature->setNumPolarAngles(6);
   }
-  _quad->initialize();
+  _quadrature->initialize();
 
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
@@ -718,16 +718,16 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
     for (int i = 0; i < _num_azim_2/2; i++) {
 
       /* Get the azimuthal angle */
-      double phi = _quad->getPhi(i);
+      double phi = _quadrature->getPhi(i);
 
-      /* Recompute track spacing */
+      /* Recompute azimuthal track spacing */
       double dx = _geometry->getWidthX() / _num_x[i];
-      _quad->setAzimSpacing(dx * sin(phi), i);
+      _quadrature->setAzimSpacing(dx * sin(phi), i);
     }
   }
 
   /* Precompute quadrature weights */
-  _quad->precomputeWeights(false);
+  _quadrature->precomputeWeights(false);
 
   /* Initialize the track boundary conditions and set the track UIDs */
   initializeBoundaryConditions();
@@ -853,13 +853,13 @@ void TrackGenerator::initializeTracks() {
 
     /* Effective/actual angle (not the angle we desire, but close) */
     phi = atan((width_y * _num_x[i]) / (width_x * _num_y[i]));
-    _quad->setPhi(phi, i);
+    _quadrature->setPhi(phi, i);
 
     /* Effective Track spacing (not spacing we desire, but close) */
     dx_eff[i] = width_x / _num_x[i];
     dy_eff[i] = width_y / _num_y[i];
     d_eff[i] = dx_eff[i] * sin(phi);
-    _quad->setAzimSpacing(d_eff[i], i);
+    _quadrature->setAzimSpacing(d_eff[i], i);
 
     /* Set attributes for complimentary angles */
     _num_x[_num_azim_2-i-1] = _num_x[i];
@@ -876,7 +876,7 @@ void TrackGenerator::initializeTracks() {
   for (int i = 0; i < _num_azim_2; i++) {
 
     /* Extract the azimuthal angle */
-    double phi = _quad->getPhi(i);
+    double phi = _quadrature->getPhi(i);
 
     /* Tracks for azimuthal angle i */
     _tracks[i] = new Track[_num_tracks[i]];
@@ -1408,7 +1408,7 @@ void TrackGenerator::dumpTracksToFile() {
 
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to dump Tracks to a file since no Tracks have "
-      "been generated for %d azimuthal angles and %f track spacing",
+      "been generated for %d azimuthal angles and %f azimuthal track spacing",
       2*_num_azim_2, _azim_spacing);
 
   FILE* out;
@@ -1667,7 +1667,7 @@ bool TrackGenerator::readTracksFromFile() {
       curr_track->setValues(x0, y0, z0, x1, y1, z1, phi);
       curr_track->setAzimAngleIndex(azim_angle_index);
       if (azim_angle_index < _num_azim_2 / 2)
-        _quad->setPhi(phi, azim_angle_index);
+        _quadrature->setPhi(phi, azim_angle_index);
 
       /* Loop over all segments in this Track */
       for (int s=0; s < num_segments; s++) {
@@ -1870,8 +1870,8 @@ void TrackGenerator::generateFSRCentroids() {
 
   /* Generate the fsr centroids */
   for (int i=0; i < _num_azim_2; i++) {
-    FP_PRECISION azim_weight = _quad->getAzimWeight(i)
-            * _quad->getAzimSpacing(i);
+    FP_PRECISION azim_weight = _quadrature->getAzimWeight(i)
+            * _quadrature->getAzimSpacing(i);
 
 #pragma omp parallel for
     for (int j=0; j < _num_tracks[i]; j++) {
@@ -2068,8 +2068,8 @@ double TrackGenerator::getPhi(int azim) {
                " contain tracks.");
 
   if (azim < 0 || azim >= 2*_num_azim_2)
-    log_printf(ERROR, "Unable to get Phi for azimuthal angle %d since there"
-               " %d azimuthal angles", azim, 2*_num_azim_2);
+    log_printf(ERROR, "Unable to get phi for azimuthal angle %d since there"
+               "are  %d azimuthal angles", azim, 2*_num_azim_2);
 
-  return _quad->getPhi(azim);
+  return _quadrature->getPhi(azim);
 }

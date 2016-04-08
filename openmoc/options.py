@@ -22,8 +22,8 @@ class Options:
     ----------
     num_azim : Integral
         The number of azimuthal angles (default is 4)
-    track_spacing : Real
-        The track spacing in centimeters (default is 0.1 cm)
+    azim_spacing : Real
+        The azimuthal track spacing in centimeters (default is 0.1 cm)
     max_iters : Integral
         The maximum number of source iterations (default is 1000)
     tolerance : Real
@@ -59,7 +59,7 @@ class Options:
         command line arguments assigns the appropriate value to each."""
 
         self._num_azim = 4
-        self._track_spacing = 0.1
+        self._azim_spacing = 0.1
         self._max_iters = 1000
         self._tolerance = 1E-5
         self._num_omp_threads = multiprocessing.cpu_count()
@@ -106,9 +106,9 @@ class Options:
                 num_azim += 'the number of azimuthal angles\n'
                 print(num_azim)
 
-                track_spacing = '\t{: <35}'.format('-s, --track-spacing=<0.1>')
-                track_spacing += 'The track spacing [cm]\n'
-                print(track_spacing)
+                azim_spacing = '\t{: <35}'.format('-s, --track-spacing=<0.1>')
+                azim_spacing += 'The azimuthal track spacing [cm]\n'
+                print(azim_spacing)
 
                 max_iters = '\t{: <35}'.format('-i, --max-iters=<1000>')
                 max_iters += 'The max number of source iterations\n'
@@ -136,7 +136,7 @@ class Options:
             elif opt in ('-a', '--num-azim'):
                     self._num_azim = int(arg)
             elif opt in ('-s', '--track-spacing'):
-                self._track_spacing = float(arg)
+                self._azim_spacing = float(arg)
             elif opt in ('-i', '--max-iters'):
                 self._max_iters = int(arg)
             elif opt in ('-c', '--tolerance'):
@@ -153,8 +153,8 @@ class Options:
         return self._num_azim
 
     @property
-    def track_spacing(self):
-        return self._track_spacing
+    def azim_spacing(self):
+        return self._azim_spacing
 
     @property
     def max_iters(self):

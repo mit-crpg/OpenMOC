@@ -4,8 +4,10 @@
  * @details The Quadrature subclasses are defined with tabulated or functional
  *          quadrature sets given in the "Lattice Physics Computations",
  *          Handbook of Nuclear Engineering, Dave Knott, Akio Yamamoto, 2010.
- * @date April 6, 2015
+ * @date April 8, 2016
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
+ * @author Samuel Shaner, MIT, Course 22 (shaner@mit.edu)
+ * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
 */
 
 
@@ -83,6 +85,7 @@ protected:
     array[azim_index][_num_polar - polar_index - 1] = value;
     array[_num_azim/2 - azim_index - 1][_num_polar - polar_index - 1] = value;
   }
+
   template <typename T>
   void setAzimuthalValues(T* array, int azim_index, T value) {
     array[azim_index] = value;

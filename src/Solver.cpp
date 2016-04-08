@@ -337,15 +337,14 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _num_polar_2 = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
+  _quadrature = track_generator->getQuadrature();
+  _num_polar_2 = _quadrature->getNumPolarAngles() / 2;
   _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = _track_generator->getTracksByParallelGroup();
-  _quadrature = track_generator->getQuadrature();
 
   /* Retrieve and store the Geometry from the TrackGenerator */
   setGeometry(_track_generator->getGeometry());
-
 }
 
 
