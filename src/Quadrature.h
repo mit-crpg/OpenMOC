@@ -103,6 +103,7 @@ public:
   FP_PRECISION getAzimWeight(int azim);
   FP_PRECISION getPolarWeight(int azim, int polar);
   FP_PRECISION getWeight(int azim, int polar);
+  FP_PRECISION getWeightInline(int azim, int polar);
   FP_PRECISION** getSinThetas();
   double** getThetas();
   double* getPhis();
@@ -212,5 +213,17 @@ public:
   void precomputeWeights(bool solve_3D);
 };
 
+
+/**
+ * @brief Returns the total weight for Tracks with the given azimuthal and
+ *        polar indexes without error checking and inlined
+ * @details Angular weights are multiplied by Track spcings
+ * @param azim index of the azimuthal angle of interest
+ * @param polar index of the polar angle of interest
+ * @return the total weight of each Track with the given indexes
+ */
+inline FP_PRECISION Quadrature::getWeightInline(int azim, int polar) {
+  return _total_weights[azim][polar];
+}
 
 #endif /* QUADRATURE_H_ */

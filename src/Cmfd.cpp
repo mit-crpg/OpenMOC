@@ -1862,8 +1862,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          currents[g] += track_flux(p, e) * _quadrature->getWeight(azim_index,
-                                                                   p) / 2.0;
+          currents[g] += track_flux(p, e) *
+                         _quadrature->getWeightInline(azim_index, p);
       }
 
       /* Increment currents */
@@ -1882,8 +1882,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)
-          currents[g] += track_flux(p, e) * _quadrature->getWeight(azim_index,
-                                                                   p) / 2.0;
+          currents[g] += track_flux(p, e) *
+                         _quadrature->getWeightInline(azim_index, p);
       }
 
       /* Increment currents */
