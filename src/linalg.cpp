@@ -19,7 +19,7 @@
 FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
                              FP_PRECISION SOR_factor) {
 
-  log_printf(INFO, "Computing the Matrix-Vector eigenvalue...");
+  log_printf(DEBUG, "Computing the Matrix-Vector eigenvalue...");
 
   /* Check for consistency of matrix and vector dimensions */
   if (A->getNumX() != M->getNumX() || A->getNumX() != X->getNumX())
@@ -74,7 +74,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
-    log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
+    log_printf(DEBUG, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
                "%f", iter, _k_eff, residual);
 
     /* Check for convergence */
@@ -82,7 +82,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
       break;
   }
 
-  log_printf(INFO, "Matrix-Vector eigenvalue solve iterations: %d", iter);
+  log_printf(DEBUG, "Matrix-Vector eigenvalue solve iterations: %d", iter);
 
   return _k_eff;
 }
@@ -191,13 +191,13 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Increment the interations counter */
     iter++;
 
-    log_printf(INFO, "SOR iter: %d, residual: %f", iter, residual);
+    log_printf(DEBUG, "SOR iter: %d, residual: %f", iter, residual);
 
     if (residual < tol && iter > MIN_LINEAR_SOLVE_ITERATIONS)
       break;
   }
 
-  log_printf(INFO, "linear solve iterations: %d", iter);
+  log_printf(DEBUG, "Linear solve iterations: %d", iter);
 }
 
 

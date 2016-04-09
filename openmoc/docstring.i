@@ -1307,11 +1307,70 @@ This a subclass of the Solver class for multi-core CPUs using OpenMP multi-threa
 C++ includes: src/CPUSolver.h
 ";
 
-%feature("docstring") CPUSolver::~CPUSolver "
-~CPUSolver()  
+%feature("docstring") CPUSolver::initializeFSRs "
+initializeFSRs()  
 
-Destructor deletes array for OpenMP mutual exclusion locks for FSR scalar flux updates,
-and calls Solver parent class destructor to deletes arrays for fluxes and sources.  
+Initializes the FSR volumes and Materials array.  
+
+This method gets an array of OpenMP mutual exclusion locks for each FSR for use in the
+transport sweep algorithm.  
+";
+
+%feature("docstring") CPUSolver::computeResidual "
+computeResidual(residualType res_type) -> double  
+
+Computes the residual between source/flux iterations.  
+
+Parameters
+----------
+* res_type :  
+    the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+
+Returns
+-------
+the average residual in each FSR  
+";
+
+%feature("docstring") CPUSolver::initializeSourceArrays "
+initializeSourceArrays()  
+
+Allocates memory for FSR source arrays.  
+
+Deletes memory for old source arrays if they were allocated for a previous simulation.  
+";
+
+%feature("docstring") CPUSolver::computeFSRFissionRates "
+computeFSRFissionRates(double *fission_rates, int num_FSRs)  
+
+Computes the volume-integrated, energy-integrated nu-fission rate in each FSR and stores
+them in an array indexed by FSR ID.  
+
+This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
+NumPy array. An example of how this method can be called from Python is as follows:  
+
+
+Parameters
+----------
+* fission_rates :  
+    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
+    Python)  
+* num_FSRs :  
+    the number of FSRs passed in from Python  
+";
+
+%feature("docstring") CPUSolver::computeFSRSources "
+computeFSRSources()  
+
+Computes the total source (fission, scattering, fixed) in each FSR.  
+
+This method computes the total source in each FSR based on this iteration's current
+approximation to the scalar flux.  
+";
+
+%feature("docstring") CPUSolver::storeFSRFluxes "
+storeFSRFluxes()  
+
+Stores the FSR scalar fluxes in the old scalar flux array.  
 ";
 
 %feature("docstring") CPUSolver::computeFSRScatterSources "
@@ -1339,6 +1398,18 @@ Parameters
 ----------
 * value :  
     the value to assign to each FSR scalar flux  
+";
+
+%feature("docstring") CPUSolver::initializeFixedSources "
+initializeFixedSources()  
+
+Populates array of fixed sources assigned by FSR.  
+";
+
+%feature("docstring") CPUSolver::addSourceToScalarFlux "
+addSourceToScalarFlux()  
+
+Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::transportSweep "
@@ -1378,24 +1449,6 @@ computeFSRFissionSources()
 Computes the total fission source in each FSR.  
 
 This method is a helper routine for the openmoc.krylov submodule.  
-";
-
-%feature("docstring") CPUSolver::computeKeff "
-computeKeff()  
-
-Compute $ k_{eff} $ from successive fission sources.  
-";
-
-%feature("docstring") CPUSolver::initializeFixedSources "
-initializeFixedSources()  
-
-Populates array of fixed sources assigned by FSR.  
-";
-
-%feature("docstring") CPUSolver::addSourceToScalarFlux "
-addSourceToScalarFlux()  
-
-Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::getFluxes "
@@ -1446,15 +1499,10 @@ Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total 
 source (times $ \\nu $).  
 ";
 
-%feature("docstring") CPUSolver::setNumThreads "
-setNumThreads(int num_threads)  
+%feature("docstring") CPUSolver::computeKeff "
+computeKeff()  
 
-Sets the number of shared memory OpenMP threads to use (>0).  
-
-Parameters
-----------
-* num_threads :  
-    the number of threads  
+Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") CPUSolver::getNumThreads "
@@ -1467,70 +1515,15 @@ Returns
 the number of threads  
 ";
 
-%feature("docstring") CPUSolver::initializeFSRs "
-initializeFSRs()  
+%feature("docstring") CPUSolver::setNumThreads "
+setNumThreads(int num_threads)  
 
-Initializes the FSR volumes and Materials array.  
-
-This method gets an array of OpenMP mutual exclusion locks for each FSR for use in the
-transport sweep algorithm.  
-";
-
-%feature("docstring") CPUSolver::computeResidual "
-computeResidual(residualType res_type) -> double  
-
-Computes the residual between source/flux iterations.  
+Sets the number of shared memory OpenMP threads to use (>0).  
 
 Parameters
 ----------
-* res_type :  
-    the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
-
-Returns
--------
-the average residual in each FSR  
-";
-
-%feature("docstring") CPUSolver::initializeSourceArrays "
-initializeSourceArrays()  
-
-Allocates memory for FSR source arrays.  
-
-Deletes memory for old source arrays if they were allocated for a previous simulation.  
-";
-
-%feature("docstring") CPUSolver::computeFSRSources "
-computeFSRSources()  
-
-Computes the total source (fission, scattering, fixed) in each FSR.  
-
-This method computes the total source in each FSR based on this iteration's current
-approximation to the scalar flux.  
-";
-
-%feature("docstring") CPUSolver::storeFSRFluxes "
-storeFSRFluxes()  
-
-Stores the FSR scalar fluxes in the old scalar flux array.  
-";
-
-%feature("docstring") CPUSolver::computeFSRFissionRates "
-computeFSRFissionRates(double *fission_rates, int num_FSRs)  
-
-Computes the volume-integrated, energy-integrated nu-fission rate in each FSR and stores
-them in an array indexed by FSR ID.  
-
-This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
-NumPy array. An example of how this method can be called from Python is as follows:  
-
-
-Parameters
-----------
-* fission_rates :  
-    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
-    Python)  
-* num_FSRs :  
-    the number of FSRs passed in from Python  
+* num_threads :  
+    the number of threads  
 ";
 
 // File: structdev__material.xml
@@ -2387,6 +2380,39 @@ Returns
 the root Universe  
 ";
 
+%feature("docstring") Geometry::getSpatialDataOnGrid "
+getSpatialDataOnGrid(double *gridx, int numx, double *gridy, int numy, int *domains, int
+    numxy, double zcoord, const char *domain_type=\"material\")  
+
+Get the material, cell or FSR IDs on a 2D spatial grid.  
+
+This is a helper method for the openmoc.plotter module. This method may also be called by
+the user in Python if needed. A user must initialize NumPy arrays with the x and y grid
+coordinates input to this function. This function then fills a NumPy array with the domain
+IDs for each coordinate. An example of how this function might be called in Python is as
+follows:  
+
+
+Parameters
+----------
+* gridx :  
+    a NumPy array of the x-coordinates  
+* numx :  
+    the number of x-coordinates in the grid  
+* gridy :  
+    a NumPy array of the y-coordinates  
+* numy :  
+    the number of y-coordinates in the grid  
+* domains :  
+    a NumPy array of the domain IDs  
+* numxy :  
+    the number of coordinates in the 2D grid  
+* zcoord :  
+    the z-coordinate to use to find the domain IDs  
+* domain_type :  
+    the type of domain ('fsr', 'material', 'cell')  
+";
+
 %feature("docstring") Geometry::setRootUniverse "
 setRootUniverse(Universe *root_universe)  
 
@@ -2750,23 +2776,6 @@ C++ includes: src/accel/cuda/ExpEvaluator.h
 
 %feature("docstring") GPUExpEvaluator::computeExponential "
 computeExponential(FP_PRECISION tau, int polar) -> __device__ FP_PRECISION  
-
-Computes the exponential term for a optical length and polar angle.  
-
-This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path length and
-polar angle. This method uses either a linear interpolation table (default) or the
-exponential intrinsic exp(...) function.  
-
-Parameters
-----------
-* tau :  
-    the optical path length (e.g., sigma_t times length)  
-* polar :  
-    the polar angle index  
-
-Returns
--------
-the evaluated exponential  
 ";
 
 // File: classGPUSolver.xml
@@ -2785,7 +2794,7 @@ C++ includes: openmoc/src/dev/gpu/GPUSolver.h
 %feature("docstring") GPUSolver::initializeFSRs "
 initializeFSRs()  
 
-Initializes the FSR volumes and dev_materials array on the GPU.  
+Initializes the FSR volumes and Materials array.  
 
 This method assigns each FSR a unique, monotonically increasing ID, sets the Material for
 each FSR, and assigns a volume based on the cumulative length of all of the segments
@@ -2804,8 +2813,6 @@ normalizeFluxes()
 
 Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total fission
 source (times $ \\nu $).  
-
-Create Thrust vector of fission sources in each FSR  
 ";
 
 %feature("docstring") GPUSolver::getNumThreadsPerBlock "
@@ -2821,61 +2828,40 @@ the number of threads per block
 %feature("docstring") GPUSolver::computeResidual "
 computeResidual(residualType res_type) -> double  
 
-Computes the residual between source/flux iterations.  
+Computes the residual between successive flux/source iterations.  
 
 Parameters
 ----------
 * res_type :  
-    the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+    the residual type (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
 
 Returns
 -------
-the average residual in each flat source region  
+the total residual summed over FSRs and energy groups  
 ";
 
 %feature("docstring") GPUSolver::setNumThreadsPerBlock "
 setNumThreadsPerBlock(int num_threads)  
-
-Sets the number of threads per block (>0) for CUDA kernels.  
-
-Parameters
-----------
-* num_threads :  
-    the number of threads per block  
 ";
 
 %feature("docstring") GPUSolver::initializePolarQuadrature "
 initializePolarQuadrature()  
 
-Creates a polar quadrature object for the GPUSolver on the GPU.  
+Initializes a new PolarQuad object.  
+
+Deletes memory of old PolarQuad if one was previously allocated.  
 ";
 
 %feature("docstring") GPUSolver::~GPUSolver "
 ~GPUSolver()  
-
-Solver destructor frees all memory on the device, including arrays for the FSR scalar
-fluxes and sources and Track boundary fluxes.  
 ";
 
 %feature("docstring") GPUSolver::setNumThreadBlocks "
 setNumThreadBlocks(int num_blocks)  
-
-Sets the number of thread blocks (>0) for CUDA kernels.  
-
-Parameters
-----------
-* num_blocks :  
-    the number of thread blocks  
 ";
 
 %feature("docstring") GPUSolver::getNumThreadBlocks "
 getNumThreadBlocks() -> int  
-
-Returns the number of thread blocks to execute on the GPU.  
-
-Returns
--------
-the number of thread blocks  
 ";
 
 %feature("docstring") GPUSolver::addSourceToScalarFlux "
@@ -2886,14 +2872,12 @@ Add the source term contribution in the transport equation to the FSR scalar flu
 
 %feature("docstring") GPUSolver::initializeTracks "
 initializeTracks()  
-
-Allocates memory for all Tracks on the GPU.  
 ";
 
 %feature("docstring") GPUSolver::storeFSRFluxes "
 storeFSRFluxes()  
 
-Stores the FSR scalar fluxes in the old scalar flux array.  
+Stores the current scalar fluxes in the old scalar flux array.  
 ";
 
 %feature("docstring") GPUSolver::getFSRSource "
@@ -2918,13 +2902,10 @@ the flat source region source
 %feature("docstring") GPUSolver::initializeMaterials "
 initializeMaterials(solverMode mode=ADJOINT)  
 
-Allocates all Materials data on the GPU.  
+Initializes the Material fission matrices.  
 
-This method loops over the materials in the host_materials map. Since CUDA does not
-support std::map data types on the device, the materials map must be converted to an array
-and a map created that maps a material ID to an indice in the new materials array. In
-initializeTracks, this map is used to convert the Material ID associated with every
-segment to an index in the materials array.  
+In an adjoint calculation, this routine will transpose the scattering and fission matrices
+in each material.  
 
 Parameters
 ----------
@@ -2934,16 +2915,6 @@ Parameters
 
 %feature("docstring") GPUSolver::GPUSolver "
 GPUSolver(TrackGenerator *track_generator=NULL)  
-
-Constructor initializes arrays for dev_tracks and dev_materials..  
-
-The constructor initalizes the number of CUDA threads and thread blocks each to a default
-of 64.  
-
-Parameters
-----------
-* track_generator :  
-    an optional pointer to the TrackjGenerator  
 ";
 
 %feature("docstring") GPUSolver::getFlux "
@@ -2966,70 +2937,51 @@ the FSR scalar flux
 %feature("docstring") GPUSolver::computeFSRFissionSources "
 computeFSRFissionSources()  
 
-Computes the fission source in each FSR.  
-
-This method computes the fission source in each FSR based on this iteration's current
-approximation to the scalar flux.  
+Computes the total fission source for each FSR and energy group.  
 ";
 
 %feature("docstring") GPUSolver::computeKeff "
 computeKeff()  
 
 Compute $ k_{eff} $ from successive fission sources.  
-
-This method computes the current approximation to the multiplication factor on this
-iteration as follows: $ k_{eff} = \\frac{\\displaystyle\\sum_{i \\in I}
-\\displaystyle\\sum_{g \\in G} \\nu \\Sigma^F_g \\Phi V_{i}} {\\displaystyle\\sum_{i \\in
-I} \\displaystyle\\sum_{g \\in G} (\\Sigma^T_g \\Phi V_{i} - \\Sigma^S_g \\Phi V_{i} -
-L_{i,g})} $  
 ";
 
 %feature("docstring") GPUSolver::transportSweep "
 transportSweep()  
 
-This method performs one transport sweep of all azimuthal angles, Tracks, Track segments,
-polar angles and energy groups.  
-
-The method integrates the flux along each Track and updates the boundary fluxes for the
-corresponding output Track, while updating the scalar flux in each flat source region.  
+This method performs one transport swep.  
 ";
 
 %feature("docstring") GPUSolver::computeFSRSources "
 computeFSRSources()  
 
-Computes the total source (fission, scattering, fixed) in each FSR.  
-
-This method computes the total source in each FSR based on this iteration's current
-approximation to the scalar flux.  
+Computes the total source (fission, scattering, fixed) for each FSR and energy group.  
 ";
 
 %feature("docstring") GPUSolver::initializeFixedSources "
 initializeFixedSources()  
 
-Populates array of fixed sources assigned by FSR.  
+Assigns fixed sources assigned by Cell, Material to FSRs.  
+
+Fixed sources assigned by Material  
 ";
 
 %feature("docstring") GPUSolver::initializeExpEvaluator "
 initializeExpEvaluator()  
 
-Initializes new GPUExpEvaluator object to compute exponentials.  
+Initializes new ExpEvaluator object to compute exponentials.  
 ";
 
 %feature("docstring") GPUSolver::computeFSRScatterSources "
 computeFSRScatterSources()  
 
-Computes the scatter source in each FSR.  
-
-This method computes the scatter source in each FSR based on this iteration's current
-approximation to the scalar flux.  
+Computes the total scattering source for each FSR and energy group.  
 ";
 
 %feature("docstring") GPUSolver::initializeFluxArrays "
 initializeFluxArrays()  
 
-Allocates memory for Track boundary angular and FSR scalar fluxes.  
-
-Deletes memory for old flux vectors if they were allocated for a previous simulation.  
+Initializes Track boundary angular and FSR scalar flux arrays.  
 ";
 
 %feature("docstring") GPUSolver::setGeometry "
@@ -3048,42 +3000,10 @@ Parameters
 
 %feature("docstring") GPUSolver::getFluxes "
 getFluxes(FP_PRECISION *out_fluxes, int num_fluxes)  
-
-Fills an array with the scalar fluxes on the GPU.  
-
-This class method is a helper routine called by the OpenMOC Python \"openmoc.krylov\"
-module for Krylov subspace methods. Although this method appears to require two arguments,
-in reality it only requires one due to SWIG and would be called from within Python as
-follows:  
-
-
-Parameters
-----------
-* fluxes :  
-    an array of FSR scalar fluxes in each energy group  
-* num_fluxes :  
-    the total number of FSR flux values  
 ";
 
 %feature("docstring") GPUSolver::setFluxes "
 setFluxes(FP_PRECISION *in_fluxes, int num_fluxes)  
-
-Set the flux array for use in transport sweep source calculations.  This is a helper
-method for the checkpoint restart capabilities, as well as the IRAMSolver in the
-openmoc.krylov submodule. This routine may be used as follows from within Python:  
-
-  
-
-         NOTE: This routine stores a pointer to the fluxes for the Solver
-         to use during transport sweeps and other calculations. Hence, the
-         flux array pointer is shared between NumPy and the Solver.  
-
-Parameters
-----------
-* in_fluxes :  
-    an array with the fluxes to use  
-* num_fluxes :  
-    the number of flux values (# groups x # FSRs)  
 ";
 
 %feature("docstring") GPUSolver::flattenFSRFluxes "
@@ -3100,17 +3020,17 @@ Parameters
 %feature("docstring") GPUSolver::computeFSRFissionRates "
 computeFSRFissionRates(double *fission_rates, int num_FSRs)  
 
-Computes the volume-averaged, energy-integrated nu-fission rate in each FSR and stores
-them in an array indexed by FSR ID.  
+Computes the volume-weighted, energy integrated fission rate in each FSR and stores them
+in an array indexed by FSR ID.  
 
-This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
-NumPy array. An example of how this method can be called from Python is as follows:  
+This is a helper method for SWIG to allow users to retrieve FSR fission rates as a NumPy
+array. An example of how this method can be called from Python is as follows:  
 
 
 Parameters
 ----------
 * fission_rates :  
-    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
+    an array to store the fission rates (implicitly passed in as a NumPy array from
     Python)  
 * num_FSRs :  
     the number of FSRs passed in from Python  
@@ -3119,9 +3039,7 @@ Parameters
 %feature("docstring") GPUSolver::initializeSourceArrays "
 initializeSourceArrays()  
 
-Allocates memory for FSR source vectors on the GPU.  
-
-Deletes memory for old source vectors if they were allocated for a previous simulation.  
+Allocates memory for FSR source arrays.  
 ";
 
 %feature("docstring") GPUSolver::setTrackGenerator "
@@ -3138,26 +3056,6 @@ Parameters
 ----------
 * track_generator :  
     a pointer to a TrackGenerator object  
-";
-
-// File: structisinf__test.xml
-
-
-%feature("docstring") isinf_test "
-
-A struct used to check if a value on the GPU is equal to INF.  
-
-This is used as a predicate in Thrust routines.  
-";
-
-// File: structisnan__test.xml
-
-
-%feature("docstring") isnan_test "
-
-A struct used to check if a value on the GPU is equal to NaN.  
-
-This is used as a predicate in Thrust routines.  
 ";
 
 // File: classLattice.xml
@@ -3507,6 +3405,26 @@ Return a pointer to the offset for this Cell (in global coordinates).
 Returns
 -------
 the offset of the Cell  
+";
+
+%feature("docstring") Lattice::updateUniverse "
+updateUniverse(int lat_x, int lat_y, int lat_z, Universe *universe)  
+
+Update the Universe in a particular Lattice cell.  
+
+This method may only be used after an array of Universes has been assigned with the
+Lattice::setUniverses(...) method.  
+
+Parameters
+----------
+* lat_x :  
+    the Lattice cell index along x  
+* lat_y :  
+    the Lattice cell index along y  
+* lat_z :  
+    the Lattice cell index along z  
+* universe :  
+    the Universe to insert into the Lattice  
 ";
 
 %feature("docstring") Lattice::setWidth "
@@ -4710,22 +4628,6 @@ the pointer to the Material's array of fission cross-sections multiplied by nu $
 %feature("docstring") Matrix "
 ";
 
-%feature("docstring") Matrix::getNNZ "
-getNNZ() -> int  
-
-Get the number of non-zero values in the matrix.  
-
-Returns
--------
-The number of non-zero values in the matrix.  
-";
-
-%feature("docstring") Matrix::printString "
-printString()  
-
-Print the matrix object to the log file.  
-";
-
 %feature("docstring") Matrix::getNumRows "
 getNumRows() -> int  
 
@@ -4736,14 +4638,175 @@ Returns
 The number of rows in the matrix.  
 ";
 
+%feature("docstring") Matrix::getIA "
+getIA() -> int *  
+
+Get an array of the row indices (I) component of the CSR form of the full matrix (A).  
+
+Returns
+-------
+A pointer to the I component of the CSR form of the full matrix (A).  
+";
+
+%feature("docstring") Matrix::getNNZLU "
+getNNZLU() -> int  
+
+Get the number of non-zero values in the lower + upper components of the matrix.  
+
+Returns
+-------
+The number of non-zero values in the lower + upper components of the matrix.  
+";
+
+%feature("docstring") Matrix::clear "
+clear()  
+
+Clear all values in the matrix list of lists.  
+";
+
+%feature("docstring") Matrix::~Matrix "
+~Matrix()  
+
+Destructor clears list of lists and deletes the arrays used to represent the matrix in CSR
+form.  
+";
+
+%feature("docstring") Matrix::getNumX "
+getNumX() -> int  
+
+Get the number of cells in the x dimension.  
+
+Returns
+-------
+The number of cells in the x dimension.  
+";
+
+%feature("docstring") Matrix::getNumY "
+getNumY() -> int  
+
+Get the number of cells in the y dimension.  
+
+Returns
+-------
+The number of cells in the y dimension.  
+";
+
+%feature("docstring") Matrix::getCellLocks "
+getCellLocks() -> omp_lock_t *  
+
+Return the array of cell locks for atomic cell operations.  
+
+Returns
+-------
+an array of cell locks  
+";
+
+%feature("docstring") Matrix::Matrix "
+Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
+
+Constructor initializes Matrix as a list of lists and sets the matrix dimensions.  The
+matrix object uses a \"lists of lists\" structure (implemented as a map of lists) to allow
+for easy setting and incrementing of the values in the object. When the matrix is needed
+to perform linear algebra operations, it is converted to compressed row storage (CSR) form
+[1]. The matrix is ordered by cell (as opposed to by group) on the outside. Locks are used
+to make the matrix thread-safe against concurrent writes the same value. One lock locks
+out multiple rows of the matrix at a time reprsenting multiple groups in the same cell.  
+
+[1] \"Sparse matrix\", Wikipedia, https://en.wikipedia.org/wiki/Sparse_matrix.  
+
+Parameters
+----------
+* cell_locks :  
+    Omp locks for atomic cell operations  
+* num_x :  
+    The number of cells in the x direction.  
+* num_y :  
+    The number of cells in the y direction.  
+* num_groups :  
+    The number of energy groups in each cell.  
+";
+
+%feature("docstring") Matrix::getDiag "
+getDiag() -> FP_PRECISION *  
+
+Get the diagonal component of the matrix object.  
+
+Returns
+-------
+A pointer to the diagonal component of the matrix object.  
+";
+
+%feature("docstring") Matrix::transpose "
+transpose()  
+
+Transpose the matrix in place.  
+";
+
+%feature("docstring") Matrix::getNumGroups "
+getNumGroups() -> int  
+
+Get the number of groups in each cell.  
+
+Returns
+-------
+The number of groups in each cell.  
+";
+
+%feature("docstring") Matrix::printString "
+printString()  
+
+Print the matrix object to the log file.  
+";
+
+%feature("docstring") Matrix::getILU "
+getILU() -> int *  
+
+Get an array of the row indices (I) component of the CSR form of the lower + upper (LU)
+components of the matrix.  
+
+Returns
+-------
+A pointer to the I component of the CSR form of the LU components of the matrix.  
+";
+
 %feature("docstring") Matrix::getA "
 getA() -> FP_PRECISION *  
 
-Get the A component of the CSR form of the matrix object.  
+Get the full matrix (A) component of the CSR form of the matrix object.  
 
 Returns
 -------
 A pointer to the A component of the CSR form matrix object.  
+";
+
+%feature("docstring") Matrix::getLU "
+getLU() -> FP_PRECISION *  
+
+Get the lower + upper (LU) component of the CSR form of the matrix object.  
+
+Returns
+-------
+A pointer to the lower + upper (LU) component of the CSR form matrix object.  
+";
+
+%feature("docstring") Matrix::getJA "
+getJA() -> int *  
+
+Get an array of the column indices (J) component of the CSR form of the full matrix (A).  
+
+Returns
+-------
+A pointer to the J component of the CSR form of the full matrix (A).  
+";
+
+%feature("docstring") Matrix::getNNZ "
+getNNZ() -> int  
+
+Get the number of non-zero values in the full matrix.  
+
+Returns
+-------
+The number of non-zero values in the full matrix.  
 ";
 
 %feature("docstring") Matrix::incrementValue "
@@ -4792,36 +4855,6 @@ Returns
 The value at the corresponding row/column location.  
 ";
 
-%feature("docstring") Matrix::getDiag "
-getDiag() -> FP_PRECISION *  
-
-Get the diagonal component of the matrix object.  
-
-Returns
--------
-A pointer to the diagonal component of the matrix object.  
-";
-
-%feature("docstring") Matrix::getIA "
-getIA() -> int *  
-
-Get the IA component of the CSR form of the matrix object.  
-
-Returns
--------
-A pointer to the IA component of the CSR form matrix object.  
-";
-
-%feature("docstring") Matrix::getNumGroups "
-getNumGroups() -> int  
-
-Get the number of groups in each cell.  
-
-Returns
--------
-The number of groups in each cell.  
-";
-
 %feature("docstring") Matrix::setValue "
 setValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION val)  
 
@@ -4844,115 +4877,15 @@ Parameters
     The value used to set the row/column location.  
 ";
 
-%feature("docstring") Matrix::Matrix "
-Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
+%feature("docstring") Matrix::getJLU "
+getJLU() -> int *  
 
-Constructor initializes Matrix as a list of lists and sets the matrix dimensions.  The
-matrix object uses a \"lists of lists\" structure (implemented as a map of lists) to allow
-for easy setting and incrementing of the values in the object. When the matrix is needed
-to perform linear algebra operations, it is converted to compressed row storage (CSR)
-form. The matrix is ordered by cell (as opposed to by group) on the outside. Locks are
-used to make the matrix thread-safe against concurrent writes the same value. One lock
-locks out multiple rows of the matrix at a time reprsenting multiple groups in the same
-cell.  
-
-Parameters
-----------
-* cell_locks :  
-    Omp locks for atomic cell operations  
-* num_x :  
-    The number of cells in the x direction.  
-* num_y :  
-    The number of cells in the y direction.  
-* num_groups :  
-    The number of energy groups in each cell.  
-";
-
-%feature("docstring") Matrix::getJA "
-getJA() -> int *  
-
-Get the JA component of the CSR form of the matrix object.  
+Get an array of the column indices (J) component of the CSR form of the lower + upper (LU)
+components of the matrix.  
 
 Returns
 -------
-A pointer to the JA component of the CSR form matrix object.  
-";
-
-%feature("docstring") Matrix::transpose "
-transpose()  
-
-Transpose the matrix in place.  
-";
-
-%feature("docstring") Matrix::clear "
-clear()  
-
-Clear all values in the matrix list of lists.  
-";
-
-%feature("docstring") Matrix::~Matrix "
-~Matrix()  
-
-Destructor clears list of lists and deletes the arrays used to represent the matrix in CSR
-form.  
-";
-
-%feature("docstring") Matrix::getCellLocks "
-getCellLocks() -> omp_lock_t *  
-
-Return the array of cell locks for atomic cell operations.  
-
-Returns
--------
-an array of cell locks  
-";
-
-%feature("docstring") Matrix::getNumX "
-getNumX() -> int  
-
-Get the number of cells in the x dimension.  
-
-Returns
--------
-The number of cells in the x dimension.  
-";
-
-%feature("docstring") Matrix::getNumY "
-getNumY() -> int  
-
-Get the number of cells in the y dimension.  
-
-Returns
--------
-The number of cells in the y dimension.  
-";
-
-// File: structmultiplyByConstant.xml
-
-
-%feature("docstring") multiplyByConstant "
-
-A functor to multiply all elements in a Thrust vector by a constant.  
-
-Parameters
-----------
-* constant :  
-    the constant to multiply the vector  
-
-Attributes
-----------
-* constant : const T  
-";
-
-%feature("docstring") multiplyByConstant::multiplyByConstant "
-multiplyByConstant(T constant)  
-
-Constructor for the functor.  
-
-Parameters
-----------
-* constant :  
-    to multiply each element in a Thrust vector  
+A pointer to the J component of the CSR form of the LU components of the matrix.  
 ";
 
 // File: structFixedHashMap_1_1node.xml
@@ -6131,7 +6064,7 @@ Computes the residual between successive flux/source iterations.
 Parameters
 ----------
 * res_type :  
-    the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+    the residual type (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
 
 Returns
 -------
@@ -6223,7 +6156,7 @@ Parameters
 %feature("docstring") Solver::computeKeff "
 computeKeff()=0  
 
-Compute $ k_{eff} $ from total fission and absorption rates in each FSR and energy group.  
+Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") Solver::getFSRSource "
@@ -6250,7 +6183,7 @@ initializePolarQuadrature()
 
 Initializes a new PolarQuad object.  
 
-Deletes memory old PolarQuad if one was previously allocated.  
+Deletes memory of old PolarQuad if one was previously allocated.  
 ";
 
 %feature("docstring") Solver::scatterTransportSweep "
@@ -6411,52 +6344,6 @@ Parameters
     Python)  
 * num_FSRs :  
     the number of FSRs passed in from Python  
-";
-
-// File: structstrided__range_1_1stride__functor.xml
-
-
-%feature("docstring") strided_range::stride_functor "
-
-Attributes
-----------
-* stride : difference_type  
-";
-
-%feature("docstring") strided_range::stride_functor::stride_functor "
-stride_functor(difference_type stride)  
-";
-
-// File: classstrided__range.xml
-
-
-%feature("docstring") strided_range "
-";
-
-%feature("docstring") strided_range::end "
-end(void) const  -> iterator  
-
-Get the last element in the iterator.  
-
-Returns
--------
-the last element in the iterator  
-";
-
-%feature("docstring") strided_range::strided_range "
-strided_range(Iterator first, Iterator last, difference_type stride)  
-
-The strided iterator constructor.  
-";
-
-%feature("docstring") strided_range::begin "
-begin(void) const  -> iterator  
-
-Get the first element in the iterator.  
-
-Returns
--------
-the first element in the iterator  
 ";
 
 // File: classSurface.xml
@@ -6792,17 +6679,6 @@ Attributes
     The halfspace associated with this surface  
 
 C++ includes: Cell.h
-";
-
-// File: classThis.xml
-
-
-%feature("docstring") This "
-
-templated interface for a strided iterator over a Thrust device_vector on a GPU.  
-
-This code is taken from the Thrust examples site on 1/20/2015:
-https://github.com/thrust/thrust/blob/master/examples/strided_range.cu  
 ";
 
 // File: classTimer.xml
@@ -7665,6 +7541,12 @@ Finds and returns the maximum optical length amongst all segments.
 Returns
 -------
 the maximum optical path length  
+";
+
+%feature("docstring") TrackGenerator::printTimerReport "
+printTimerReport()  
+
+Prints a report of the timing statistics to the console.  
 ";
 
 %feature("docstring") TrackGenerator::~TrackGenerator "
@@ -9053,465 +8935,50 @@ the location of the ZPlane on the z-axis
 
 // File: clone_8cu.xml
 
-%feature("docstring") clone_track "
-clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
-    &material_IDs_to_indices)  
-
-Given a pointer to a Track on the host, a dev_track on the GPU, and the map of material
-IDs to indices in the _materials array, copy all of the class attributes and segments from
-the Track object on the host to the GPU.  
-
-This routine is called by the GPUSolver::initializeTracks() private class method and is
-not intended to be called directly.  
-
-Parameters
-----------
-* track_h :  
-    pointer to a Track on the host  
-* track_d :  
-    pointer to a dev_track on the GPU  
-* material_IDs_to_indices :  
-    map of material IDs to indices in the _materials array.  
-";
-
-%feature("docstring") clone_material "
-clone_material(Material *material_h, dev_material *material_d)  
-
-Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the
-properties from the Material object on the host struct to the GPU.  
-
-This routine is called by the GPUSolver::initializeMaterials() private class method and is
-not intended to be called directly.  
-
-Parameters
-----------
-* material_h :  
-    pointer to a Material on the host  
-* material_d :  
-    pointer to a dev_material on the GPU  
-";
-
 // File: clone_8h.xml
 
 %feature("docstring") clone_track "
 clone_track(Track *track_h, dev_track *track_d, std::map< int, int >
     &material_IDs_to_indices)  
-
-Given a pointer to a Track on the host, a dev_track on the GPU, and the map of material
-IDs to indices in the _materials array, copy all of the class attributes and segments from
-the Track object on the host to the GPU.  
-
-This routine is called by the GPUSolver::initializeTracks() private class method and is
-not intended to be called directly.  
-
-Parameters
-----------
-* track_h :  
-    pointer to a Track on the host  
-* track_d :  
-    pointer to a dev_track on the GPU  
-* material_IDs_to_indices :  
-    map of material IDs to indices in the _materials array.  
 ";
 
 %feature("docstring") clone_material "
 clone_material(Material *material_h, dev_material *material_d)  
-
-Given a pointer to a Material on the host and a dev_material on the GPU, copy all of the
-properties from the Material object on the host struct to the GPU.  
-
-This routine is called by the GPUSolver::initializeMaterials() private class method and is
-not intended to be called directly.  
-
-Parameters
-----------
-* material_h :  
-    pointer to a Material on the host  
-* material_d :  
-    pointer to a dev_material on the GPU  
 ";
 
 // File: GPUExpEvaluator_8cu.xml
-
-%feature("docstring") clone_exp_evaluator "
-clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
-
-Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all
-of the properties from the ExpEvaluator object on the host to the GPU.  
-
-This routine is called by the GPUSolver::initializeExpEvaluator() private class method and
-is not intended to be called directly.  
-
-Parameters
-----------
-* eavluator_h :  
-    pointer to a ExpEvaluator on the host  
-* evaluator_d :  
-    pointer to a GPUExpEvaluator on the GPU  
-";
 
 // File: GPUExpEvaluator_8h.xml
 
 %feature("docstring") clone_exp_evaluator "
 clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
-
-Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all
-of the properties from the ExpEvaluator object on the host to the GPU.  
-
-This routine is called by the GPUSolver::initializeExpEvaluator() private class method and
-is not intended to be called directly.  
-
-Parameters
-----------
-* eavluator_h :  
-    pointer to a ExpEvaluator on the host  
-* evaluator_d :  
-    pointer to a GPUExpEvaluator on the GPU  
 ";
 
 // File: GPUQuery_8cu.xml
-
-%feature("docstring") get_num_threads_per_warp "
-get_num_threads_per_warp() -> int  
-
-Returns the number of threads in a CUDA warp for the attached GPU.  
-";
-
-%feature("docstring") machine_contains_gpu "
-machine_contains_gpu() -> bool  
-
-Queries a node to determine whether it contains one or more GPUs.  
-
-Returns
--------
-True if the node contains a GPU, false otherwise.  
-";
-
-%feature("docstring") print_basic_gpu_info "
-print_basic_gpu_info()  
-
-Prints the basic device info for the CUDA-enabled device in use.  
-
-Prints the name, compute capability, # multiprocessors and the clock rate of the device.  
-";
-
-%feature("docstring") print_detailed_gpu_info "
-print_detailed_gpu_info()  
-
-Prints the detailed device info for the CUDA-enabled device in use.  
-
-Prints the total global and constant memory, shared memory and registers per
-multiprocessor, # threads per warp, maximum # threads per multiprocessor, maximum #
-threads per block, maximum threadblock dimensions, and maximum grid dimensions.  
-";
-
-%feature("docstring") attach_gpu "
-attach_gpu(int id)  
-
-Sets the primary CUDA-enabled device to be the GPU with a given ID.  
-
-Parameters
-----------
-* id :  
-    the ID for the GPU to attache  
-";
 
 // File: GPUQuery_8h.xml
 
 %feature("docstring") get_num_threads_per_warp "
 get_num_threads_per_warp() -> int  
-
-Returns the number of threads in a CUDA warp for the attached GPU.  
 ";
 
 %feature("docstring") machine_contains_gpu "
 machine_contains_gpu() -> bool  
-
-Queries a node to determine whether it contains one or more GPUs.  
-
-Returns
--------
-True if the node contains a GPU, false otherwise.  
 ";
 
 %feature("docstring") print_basic_gpu_info "
 print_basic_gpu_info()  
-
-Prints the basic device info for the CUDA-enabled device in use.  
-
-Prints the name, compute capability, # multiprocessors and the clock rate of the device.  
 ";
 
 %feature("docstring") print_detailed_gpu_info "
 print_detailed_gpu_info()  
-
-Prints the detailed device info for the CUDA-enabled device in use.  
-
-Prints the total global and constant memory, shared memory and registers per
-multiprocessor, # threads per warp, maximum # threads per multiprocessor, maximum #
-threads per block, maximum threadblock dimensions, and maximum grid dimensions.  
 ";
 
 %feature("docstring") attach_gpu "
 attach_gpu(int id=0)  
-
-Sets the primary CUDA-enabled device to be the GPU with a given ID.  
-
-Parameters
-----------
-* id :  
-    the ID for the GPU to attache  
 ";
 
 // File: GPUSolver_8cu.xml
-
-%feature("docstring") addSourceToScalarFluxOnDevice "
-addSourceToScalarFluxOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION *reduced_sources,
-    FP_PRECISION *FSR_volumes, int *FSR_materials, dev_material *materials) -> __global__
-    void  
-
-Add the source term contribution in the transport equation to the FSR scalar flux on the
-GPU.  
-
-Parameters
-----------
-* scalar_flux :  
-    an array of FSR scalar fluxes  
-* reduced_sources :  
-    an array of FSR sources / total xs  
-* FSR_volumes :  
-    an array of FSR volumes  
-* FSR_materials :  
-    an array of FSR material indices  
-* materials :  
-    an array of dev_material pointers  
-";
-
-%feature("docstring") computeFSRFissionRatesOnDevice "
-computeFSRFissionRatesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials, dev_material
-    *materials, FP_PRECISION *scalar_flux, FP_PRECISION *fission) -> __global__ void  
-
-Compute the total volume-intergrated fission source from all FSRs and energy groups.  
-
-Parameters
-----------
-* FSR_volumes :  
-    an array of the FSR volumes  
-* FSR_materials :  
-    an array of the FSR Material indices  
-* materials :  
-    an array of the dev_material pointers  
-* scalar_flux :  
-    an array of FSR scalar fluxes  
-* fission :  
-    an array of FSR nu-fission rates  
-";
-
-%feature("docstring") transferBoundaryFlux "
-transferBoundaryFlux(dev_track *curr_track, int azim_index, FP_PRECISION *track_flux,
-    FP_PRECISION *boundary_flux, FP_PRECISION *polar_weights, int energy_angle_index, bool
-    direction) -> __device__ void  
-
-Updates the boundary flux for a Track given boundary conditions.  
-
-For reflective and periodic boundary conditions, the outgoing boundary flux for the Track
-is given to the corresponding reflecting or periodic Track. For vacuum boundary
-conditions, the outgoing flux is tallied as leakage. Note: Only one energy group is
-transferred by this routine.  
-
-Parameters
-----------
-* curr_track :  
-    a pointer to the Track of interest  
-* azim_index :  
-    a pointer to the azimuthal angle index for this segment  
-* track_flux :  
-    an array of the outgoing Track flux  
-* boundary_flux :  
-    an array of all angular fluxes  
-* polar_weights :  
-    an array of polar Quadrature weights  
-* energy_angle_index :  
-    the energy group index  
-* direction :  
-    the Track direction (forward - true, reverse - false)  
-";
-
-%feature("docstring") computeFSRFissionSourcesOnDevice "
-computeFSRFissionSourcesOnDevice(int *FSR_materials, dev_material *materials, bool
-    divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION *reduced_sources) ->
-    __global__ void  
-
-Computes the total fission source in each FSR in each energy group.  
-
-This method is a helper routine for the openmoc.krylov submodule. This routine computes
-the total fission source in each FSR. If the divide_sigma_t parameter is true then the
-fission source will be divided by the total cross-section in each FSR.  
-
-Parameters
-----------
-* FSR_materials :  
-    an array of FSR Material indices  
-* materials :  
-    an array of dev_material pointers  
-* divide_sigma_t :  
-    a boolean indicating whether to divide by the total xs  
-* scalar_flux :  
-    an array of FSR scalar fluxes  
-* reduced_sources :  
-    an array of FSR fission sources  
-";
-
-%feature("docstring") atomicAdd "
-atomicAdd(double *address, double val) -> __device__ double  
-
-Perform an atomic addition in double precision to an array address.  
-
-This method is straight out of CUDA C Developers Guide (cc 2013).  
-
-Parameters
-----------
-* address :  
-    the array memory address  
-* val :  
-    the value to add to the array  
-
-Returns
--------
-the atomically added array value and input value  
-";
-
-%feature("docstring") computeFissionSourcesOnDevice "
-computeFissionSourcesOnDevice(FP_PRECISION *FSR_volumes, int *FSR_materials, dev_material
-    *materials, FP_PRECISION *scalar_flux, FP_PRECISION *fission_sources) -> __global__
-    void  
-
-Compute the total fission source from all FSRs.  
-
-Parameters
-----------
-* FSR_volumes :  
-    an array of FSR volumes  
-* FSR_materials :  
-    an array of FSR Material indices  
-* materials :  
-    an array of dev_materials on the device  
-* scalar_flux :  
-    the scalar flux in each FSR and energy group  
-* fission_sources :  
-    array of fission sources in each FSR and energy group  
-";
-
-%feature("docstring") tallyScalarFlux "
-tallyScalarFlux(dev_segment *curr_segment, int azim_index, int energy_group, dev_material
-    *materials, FP_PRECISION *track_flux, FP_PRECISION *reduced_sources, FP_PRECISION
-    *polar_weights, FP_PRECISION *scalar_flux) -> __device__ void  
-
-Computes the contribution to the FSR scalar flux from a Track segment in a single energy
-group.  
-
-This method integrates the angular flux for a Track segment across energy groups and polar
-angles, and tallies it into the FSR scalar flux, and updates the Track's angular flux.  
-
-Parameters
-----------
-* curr_segment :  
-    a pointer to the Track segment of interest  
-* azim_index :  
-    a pointer to the azimuthal angle index for this segment  
-* energy_group :  
-    the energy group of interest  
-* materials :  
-    the array of dev_material pointers  
-* track_flux :  
-    a pointer to the Track's angular flux  
-* reduced_sources :  
-    the array of FSR sources / total xs  
-* polar_weights :  
-    the array of polar Quadrature weights  
-* scalar_flux :  
-    the array of FSR scalar fluxes  
-";
-
-%feature("docstring") computeFSRScatterSourcesOnDevice "
-computeFSRScatterSourcesOnDevice(int *FSR_materials, dev_material *materials, bool
-    divide_sigma_t, FP_PRECISION *scalar_flux, FP_PRECISION *reduced_sources) ->
-    __global__ void  
-
-Computes the total scattering source in each FSR and energy group.  
-
-This method is a helper routine for the openmoc.krylov submodule. This routine computes
-the total scatter source in each FSR. If the divide_sigma_t parameter is true then the
-scatter source will be divided by the total cross-section in each FSR.  
-
-Parameters
-----------
-* FSR_materials :  
-    an array of FSR Material indices  
-* materials :  
-    an array of dev_material pointers  
-* divide_sigma_t :  
-    a boolean indicating whether to divide by the total xs  
-* scalar_flux :  
-    an array of FSR scalar fluxes  
-* reduced_sources :  
-    an array of FSR scatter sources  
-";
-
-%feature("docstring") transportSweepOnDevice "
-transportSweepOnDevice(FP_PRECISION *scalar_flux, FP_PRECISION *boundary_flux,
-    FP_PRECISION *reduced_sources, dev_material *materials, dev_track *tracks, int
-    tid_offset, int tid_max) -> __global__ void  
-
-This method performs one transport sweep of one halfspace of all azimuthal angles, tracks,
-segments, polar angles and energy groups.  
-
-The method integrates the flux along each track and updates the boundary fluxes for the
-corresponding output Track, while updating the scalar flux in each FSR.  
-
-Parameters
-----------
-* scalar_flux :  
-    an array of FSR scalar fluxes  
-* boundary_flux :  
-    an array of Track boundary fluxes  
-* reduced_sources :  
-    an array of FSR sources / total xs  
-* materials :  
-    an array of dev_material pointers  
-* tracks :  
-    an array of Tracks  
-* tid_offset :  
-    the Track offset for azimuthal angle halfspace  
-* tid_max :  
-    the upper bound on the Track IDs for this azimuthal angle halfspace  
-";
-
-%feature("docstring") computeFSRSourcesOnDevice "
-computeFSRSourcesOnDevice(int *FSR_materials, dev_material *materials, FP_PRECISION
-    *scalar_flux, FP_PRECISION *fixed_sources, FP_PRECISION *reduced_sources, FP_PRECISION
-    inverse_k_eff) -> __global__ void  
-
-Computes the total source (fission, scattering, fixed) in each FSR.  
-
-This method computes the total source in each region based on this iteration's current
-approximation to the scalar flux.  
-
-Parameters
-----------
-* FSR_materials :  
-    an array of FSR Material indices  
-* materials :  
-    an array of dev_material pointers  
-* scalar_flux :  
-    an array of FSR scalar fluxes  
-* fixed_sources :  
-    an array of fixed (user-defined) sources  
-* reduced_sources :  
-    an array of FSR sources / total xs  
-* inverse_k_eff :  
-    the inverse of keff  
-";
 
 // File: GPUSolver_8h.xml
 

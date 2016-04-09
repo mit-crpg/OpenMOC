@@ -18,14 +18,6 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
 
 
 /**
- * @brief Destructor deletes array for OpenMP mutual exclusion locks for
- *        FSR scalar flux updates, and calls Solver parent class destructor
- *        to deletes arrays for fluxes and sources.
- */
-CPUSolver::~CPUSolver() {}
-
-
-/**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */

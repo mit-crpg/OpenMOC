@@ -531,7 +531,7 @@ void Solver::initializeFSRs() {
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-    log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
+    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
 }
@@ -1009,7 +1009,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
  *        code in the source convergence loop.
  */
 void Solver::clearTimerSplits() {
-  _timer->clearSplit("Total time");
+  _timer->clearSplits();
 }
 
 
@@ -1020,18 +1020,18 @@ void Solver::printTimerReport() {
 
   std::string msg_string;
 
-  log_printf(TITLE, "TIMING REPORT");
+  log_printf(TITLE, "SOLVER TIMING REPORT");
 
   /* Get the total runtime */
   double tot_time = _timer->getSplit("Total time");
   msg_string = "Total time to solution";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
   /* Time per iteration */
   double time_per_iter = tot_time / _num_iterations;
   msg_string = "Solution time per iteration";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
 
   /* Time per segment */
@@ -1039,7 +1039,7 @@ void Solver::printTimerReport() {
   int num_integrations = 2 * _num_polar_2 * _num_groups * num_segments;
   double time_per_integration = (time_per_iter / num_integrations);
   msg_string = "Time per segment integration";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 
   set_separator_character('-');

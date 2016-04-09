@@ -76,7 +76,6 @@ protected:
 
 public:
   CPUSolver(TrackGenerator* track_generator=NULL);
-  virtual ~CPUSolver();
 
   int getNumThreads();
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);

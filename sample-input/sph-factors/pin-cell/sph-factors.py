@@ -1,4 +1,5 @@
 import openmoc
+import openmoc.opencg_compatible
 import openmc.mgxs
 
 import numpy as np

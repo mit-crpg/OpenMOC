@@ -9,6 +9,9 @@
 #define CONSTANTS_H_
 
 
+/* The single line width permissible for timer / memory logger reports */
+#define REPORT_WIDTH 53
+
 /** The minimum auto ID used for Surfaces, Cells, Materials and Universes */
 #define DEFAULT_INIT_ID 10000
 

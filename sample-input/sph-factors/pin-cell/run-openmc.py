@@ -173,4 +173,4 @@ tallies_file.export_to_xml()
 
 # Run OpenMC
 executor = openmc.Executor()
-executor.run_simulation(output=True, mpi_procs=4)
+executor.run_simulation(output=True, mpi_procs=8)

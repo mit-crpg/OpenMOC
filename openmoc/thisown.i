@@ -107,6 +107,23 @@
         universes[i][j][k].thisown = False
 %}
 
+/* A Lattice owns the memory for each Universe it contains */
+%pythonappend Lattice::updateUniverse %{
+  # SWIG 3
+  if 'universe' in locals():
+    universe = locals()['universe']
+  elif 'args' in locals() and 'universe' in locals()['args']:
+    universe = locals()['args']['universe']
+  elif 'kwargs' in locals() and 'universe' in locals()['kwargs']:
+    universe = locals()['kwargs']['universe']
+
+  # SWIG 2
+  else:
+    universe = locals()['args'][3]
+
+  universe.thisown = False
+%}
+
 /* Python must free memory for each Universe that is not in a Lattice */
 %pythonappend Lattice::removeUniverse %{
   # SWIG 3
