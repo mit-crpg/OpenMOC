@@ -486,7 +486,6 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
                                      int azim_index,
                                      FP_PRECISION* track_flux,
                                      FP_PRECISION* boundary_flux,
-                                     FP_PRECISION* weights,
                                      int energy_angle_index,
                                      bool direction) {
 
@@ -580,12 +579,12 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=0; i < num_segments; i++) {
       curr_segment = &curr_track->_segments[i];
       tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_sources, weights, scalar_flux);
+                      track_flux, reduced_sources, scalar_flux);
     }
 
     /* Transfer boundary angular flux to outgoing Track */
     transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
-                         weights, energy_angle_index, true);
+                         energy_angle_index, true);
 
     /* Loop over each Track segment in reverse direction */
     track_flux = &temp_flux[track_flux_index + (*num_polar_2)];
@@ -593,12 +592,12 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     for (int i=num_segments-1; i > -1; i--) {
       curr_segment = &curr_track->_segments[i];
       tallyScalarFlux(curr_segment, azim_index, energy_group, materials,
-                      track_flux, reduced_sources, weights, scalar_flux);
+                      track_flux, reduced_sources, scalar_flux);
     }
 
     /* Transfer boundary angular flux to outgoing Track */
     transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
-                         weights, energy_angle_index, false);
+                         energy_angle_index, false);
 
     /* Update the indices for this thread to the next Track, energy group */
     tid += blockDim.x * gridDim.x;
