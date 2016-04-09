@@ -14,7 +14,7 @@ __constant__ FP_PRECISION inverse_exp_table_spacing[1];
 extern __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 
 /** Twice the number of polar angles */
-extern __constant__ int two_times_num_polar[1];
+extern __constant__ int num_polar[1];
 
 
 /**
@@ -83,7 +83,7 @@ __device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
   if (*interpolate) {
     tau = min(tau, (*max_optical_length));
     int index = floor(tau * (*inverse_exp_table_spacing));
-    index *= (*two_times_num_polar);
+    index *= (*num_polar);
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                          _exp_table[index + 2 * polar +1]));
   }
