@@ -184,7 +184,7 @@ class Options(object):
                 sys.exit()
 
             elif opt in ('-a', '--num-azim'):
-                    self._num_azim = int(arg)
+                self._num_azim = int(arg)
             elif opt in ('-s', '--track-spacing'):
                 self._track_spacing = float(arg)
             elif opt in ('-i', '--max-iters'):

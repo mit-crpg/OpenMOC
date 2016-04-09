@@ -214,7 +214,7 @@ void Cmfd::setWidthY(double width) {
  */
 void Cmfd::collapseXS() {
 
-  log_printf(INFO, "Collapsing cross-sections onto CMFD mesh...");
+  log_printf(DEBUG, "Collapsing cross-sections onto CMFD mesh...");
 
   /* Split edge currents to side surfaces */
   splitEdgeCurrents();
@@ -536,7 +536,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
  */
 FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
-  log_printf(INFO, "Running diffusion solver...");
+  log_printf(DEBUG, "Running diffusion solver...");
 
   /* Create matrix and vector objects */
   if (_A == NULL) {
@@ -597,7 +597,7 @@ void Cmfd::rescaleFlux() {
  */
 void Cmfd::constructMatrices(int moc_iteration) {
 
-  log_printf(INFO,"Constructing matrices...");
+  log_printf(DEBUG,"Constructing matrices...");
 
   /* Zero _A and _M matrices */
   _A->clear();
@@ -663,8 +663,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
       }
     }
   }
-
-  log_printf(INFO, "Done constructing matrices...");
 }
 
 
@@ -676,7 +674,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
  */
 void Cmfd::updateMOCFlux() {
 
-  log_printf(INFO, "Updating MOC flux...");
+  log_printf(DEBUG, "Updating MOC flux...");
 
   /* Precompute the CMFD flux ratios */
 #pragma omp parallel for
@@ -871,7 +869,7 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
         log_printf(ERROR, "The group indices must be increasing!");
 
       _group_indices[i] = group_indices[i] - 1;
-      log_printf(INFO, "group indices %d: %d", i, group_indices[i]);
+      log_printf(DEBUG, "group indices %d: %d", i, group_indices[i]);
     }
   }
 
@@ -1092,7 +1090,7 @@ void Cmfd::setNumFSRs(int num_fsrs) {
  */
 void Cmfd::splitEdgeCurrents() {
 
-  log_printf(INFO, "Splitting CMFD edge currents...");
+  log_printf(DEBUG, "Splitting CMFD edge currents...");
 
   int ncg = _num_cmfd_groups;
   int nf = NUM_FACES;
@@ -1764,7 +1762,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
   FP_PRECISION ratio;
   int cell_id;
 
-  log_printf(INFO, "updating boundary flux");
+  log_printf(DEBUG, "Updating boundary flux...");
 
   /* Loop over Tracks */
   for (int i=0; i < num_tracks; i++) {

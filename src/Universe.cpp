@@ -589,7 +589,7 @@ void Universe::addCell(Cell* cell) {
 
   try {
     _cells.insert(std::pair<int, Cell*>(cell->getId(), cell));
-    log_printf(INFO, "Added Cell with ID = %d to Universe with ID = %d",
+    log_printf(DEBUG, "Added Cell with ID = %d to Universe with ID = %d",
                cell->getId(), _id);
   }
   catch (std::exception &e) {
@@ -1210,6 +1210,41 @@ void Lattice::setUniverses(int num_z, int num_y, int num_x,
       }
     }
   }
+}
+
+
+/**
+ * @brief Update the Universe in a particular Lattice cell.
+ * @details This method may only be used after an array of Universes
+ *          has been assigned with the Lattice::setUniverses(...) method.
+ * @param lat_x the Lattice cell index along x
+ * @param lat_y the Lattice cell index along y
+ * @param lat_z the Lattice cell index along z
+ * @param universe the Universe to insert into the Lattice
+ */
+void Lattice::updateUniverse(int lat_x, int lat_y, int lat_z,
+                             Universe* universe) {
+
+  if (_num_x == -1 || _num_y == -1 || _num_z == -1)
+    log_printf(ERROR, "Unable to set Universe %d in Lattice %d which "
+	       "has not yet been assigned an array of Universes",
+	       universe->getId(), _id);
+  if (lat_x < 0 || lat_x >= _num_x)
+    log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
+	       "Lattice cell index lat_x=%d which is outside the "
+	       "array of Universes", universe->getId(), _id, lat_x);
+  if (lat_y < 0 || lat_y >= _num_y)
+    log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
+	       "Lattice cell index lat_z=%d which is outside the "
+	       "array of Universes", universe->getId(), _id, lat_z);
+  if (lat_z < 0 || lat_z >= _num_z)
+    log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
+	       "Lattice cell index lat_z=%d which is outside the "
+	       "array of Universes", universe->getId(), _id, lat_z);
+
+  /* Assign the Universe to the array */
+  _universes.at(lat_z).at(lat_y).at(lat_x) =
+    std::pair<int, Universe*>(universe->getId(), universe);
 }
 
 

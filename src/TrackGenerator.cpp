@@ -20,6 +20,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, const int num_azim,
   _z_coord = 0.0;
   _phi = NULL;
   _FSR_locks = NULL;
+  _timer = new Timer();
 }
 
 
@@ -46,6 +47,9 @@ TrackGenerator::~TrackGenerator() {
 
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
+
+  if (_timer != NULL)
+    delete _timer;
 }
 
 
@@ -600,12 +604,19 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int length_coords) {
  *          all Tracks at each angle and sets each Track's starting and ending
  *          Points, azimuthal angle, and azimuthal angle quadrature weight.
  * @brief neighbor_cells whether to use neighbor cell optimizations
+ * @brief store whether to store the tracks to a file for reuse
  */
-void TrackGenerator::generateTracks(bool neighbor_cells) {
+void TrackGenerator::generateTracks(bool store, bool neighbor_cells) {
 
   if (_geometry == NULL)
     log_printf(ERROR, "Unable to generate Tracks since no Geometry "
                "has been set for the TrackGenerator");
+
+  /* Clear all timing data from previous track generation */
+  clearTimerSplits();
+
+  /* Start the timer to record the total time to generate tracks */
+  _timer->startTimer();
 
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
@@ -662,7 +673,8 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
       initializeTracks();
       recalibrateTracksToOrigin();
       segmentize();
-      dumpTracksToFile();
+      if (store)
+	dumpTracksToFile();
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
@@ -675,6 +687,9 @@ void TrackGenerator::generateTracks(bool neighbor_cells) {
   initializeTrackUids();
   initializeFSRLocks();
   initializeVolumes();
+
+  _timer->stopTimer();
+  _timer->recordSplit("Total time");
 
   return;
 }
@@ -2035,4 +2050,39 @@ double TrackGenerator::getPhi(int azim) {
     return _phi[azim];
   else
     return 2 * M_PI - _phi[azim - _num_azim];
+}
+
+
+/**
+ * @brief Deletes the Timer's timing entries for each timed code section
+ *        code in the loop over track for ray tracing.
+ */
+void TrackGenerator::clearTimerSplits() {
+  _timer->clearSplits();
+}
+
+
+/**
+ * @brief Prints a report of the timing statistics to the console.
+ */
+void TrackGenerator::printTimerReport() {
+
+  std::string msg_string;
+
+  log_printf(TITLE, "TRACKGENERATOR TIMING REPORT");
+
+  /* Get the total runtime */
+  double tot_time = _timer->getSplit("Total time");
+  msg_string = "Total time for ray tracing";
+  msg_string.resize(REPORT_WIDTH, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
+
+  /* Time per segment */
+  double time_per_segment = (tot_time / getNumSegments());
+  msg_string = "Time per segment";
+  msg_string.resize(REPORT_WIDTH, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_segment);
+
+  set_separator_character('-');
+  log_printf(SEPARATOR, "-");
 }

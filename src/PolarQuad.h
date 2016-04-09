@@ -16,7 +16,6 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "constants.h"
 #include "log.h"
 #include <sstream>
 #endif
