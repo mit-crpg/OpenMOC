@@ -48,7 +48,7 @@
 #define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
-#define weights(i,p) (weights[(i)*(*num_polar) + (p)])
+#define weights(i,p) (weights[(i)*(*num_polar_2) + (p)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */

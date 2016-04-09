@@ -1051,13 +1051,13 @@ void GPUSolver::initializePolarQuadrature() {
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
   /* Copy the weights to constant memory on the GPU */
-  int num_azim = _quadrature->getNumAzimAngles();
-  FP_PRECISION total_weights[num_azim * _num_polar_2];
-  for (int a=0; a < num_azim; a++)
+  int num_azim_2 = _quadrature->getNumAzimAngles() / 2;
+  FP_PRECISION total_weights[num_azim_2 * _num_polar_2];
+  for (int a=0; a < num_azim_2; a++)
     for (int p=0; p < _num_polar_2; p++)
       total_weights[a*_num_polar_2 + p] = _quadrature->getWeight(a,p);
   cudaMemcpyToSymbol(weights, (void*)total_weights,
-      _num_polar_2 * num_azim * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+      _num_polar_2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
   /* Copy the sines of the polar angles which is needed if the user
    * requested the use of the exp intrinsic to evaluate exponentials */
