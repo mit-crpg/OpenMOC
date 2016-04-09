@@ -1034,8 +1034,6 @@ void GPUSolver::initializePolarQuadrature() {
 
   log_printf(INFO, "Initializing polar quadrature on the GPU...");
 
-  Solver::initializePolarQuadrature();
-
   if (_num_polar_2 > MAX_POLAR_ANGLES_GPU)
     log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
                "angles for the GPUSolver which is limited to %d polar "
@@ -1047,8 +1045,8 @@ void GPUSolver::initializePolarQuadrature() {
                      cudaMemcpyHostToDevice);
 
   /* Copy twice the number of polar angles to constant memory on the GPU */
-  _num_polar = 2 * _num_polar_2;
-  cudaMemcpyToSymbol(num_polar, (void*)&_num_polar,
+  int n_polar = 2 * _num_polar_2;
+  cudaMemcpyToSymbol(num_polar, (void*)&n_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
   /* Copy the number of polar angles times energy groups to constant memory
@@ -1478,7 +1476,7 @@ void GPUSolver::computeFSRScatterSources() {
  */
 void GPUSolver::transportSweep() {
 
-  int shared_mem = _T * _num_polar * sizeof(FP_PRECISION);
+  int shared_mem = _T * _num_polar_2 * 2 * sizeof(FP_PRECISION);
   int tid_offset = 0;
   int tid_max = 0;
 
