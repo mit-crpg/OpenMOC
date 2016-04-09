@@ -11,12 +11,6 @@ if (sys.version_info[0] == 2):
 else:
     from openmoc.log import *
 
-# Import OpenMOC's CUDA module if possible
-#try:
-#    import openmoc.cuda
-#except ImportError:
-#    pass
-
 
 def _isinstance(value, expected_type):
     """A Numpy-aware replacement for isinstance
