@@ -102,8 +102,8 @@ class Options(object):
         return self._num_azim
 
     @property
-    def track_spacing(self):
-        return self._track_spacing
+    def azim_spacing(self):
+        return self._azim_spacing
 
     @property
     def max_iters(self):
