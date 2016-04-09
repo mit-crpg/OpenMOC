@@ -430,7 +430,6 @@ __device__ double atomicAdd(double* address, double val) {
  * @param materials the array of dev_material pointers
  * @param track_flux a pointer to the Track's angular flux
  * @param reduced_sources the array of FSR sources / total xs
- * @param weights the array of Quadrature weights
  * @param scalar_flux the array of FSR scalar fluxes
  */
 __device__ void tallyScalarFlux(dev_segment* curr_segment,
@@ -439,7 +438,6 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
                                 dev_material* materials,
                                 FP_PRECISION* track_flux,
                                 FP_PRECISION* reduced_sources,
-                                FP_PRECISION* weights,
                                 FP_PRECISION* scalar_flux) {
 
   int fsr_id = curr_segment->_region_uid;
@@ -641,7 +639,6 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 
     /* Iterate over all energy groups */
     for (int i=0; i < *num_groups; i++) {
-      scalar_flux(tid,i) *= 0.5;
       scalar_flux(tid,i) = __fdividef(scalar_flux(tid,i),
                                      (sigma_t[i] * volume));
       scalar_flux(tid,i) += FOUR_PI * reduced_sources(tid,i);
