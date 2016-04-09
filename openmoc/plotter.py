@@ -28,6 +28,18 @@ else:
     from openmoc.process import get_scalar_fluxes
     import openmoc.checkvalue as cv
 
+# Store viable OpenMOC solver types for type checking
+solver_types = (openmoc.Solver,)
+try:
+    # Try to import OpenMOC's CUDA module
+    if (sys.version_info[0] == 2):
+        from cuda import GPUSolver
+    else:
+        from openmoc.cuda import GPUSolver
+    solver_types += (GPUSolver,)
+except ImportError:
+    pass
+
 # Force non-interactive mode for plotting on clusters
 plt.ioff()
 
@@ -643,7 +655,8 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
     cv.check_type('energy_groups', energy_groups, Iterable, Integral)
 
     py_printf('NORMAL', 'Plotting the FSR scalar fluxes...')
@@ -723,7 +736,9 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
+#    cv.check_type('solver', solver, (openmoc.Solver, openmoc.cuda.GPUSolver))
     cv.check_type('fsrs', fsrs, Iterable, Integral)
     cv.check_type('norm', norm, bool)
     cv.check_type('loglog', loglog, bool)
@@ -865,7 +880,9 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
+#    cv.check_type('solver', solver, (openmoc.Solver, openmoc.cuda.GPUSolver))
 
     py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
@@ -1216,7 +1233,9 @@ def plot_quadrature(solver, get_figure=False):
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
+#    cv.check_type('solver', solver, (openmoc.Solver, openmoc.cuda.GPUSolver))
 
     py_printf('NORMAL', 'Plotting the quadrature...')
 
