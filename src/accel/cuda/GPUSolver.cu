@@ -1046,11 +1046,6 @@ void GPUSolver::copyQuadrature() {
   cudaMemcpyToSymbol(num_polar, (void*)&n_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
-  /* Copy the number of polar angles times energy groups to constant memory
-   * on the GPU */
-  cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
-                     sizeof(int), 0, cudaMemcpyHostToDevice);
-
   /* Copy the weights to constant memory on the GPU */
   int num_azim_2 = _quadrature->getNumAzimAngles() / 2;
   FP_PRECISION total_weights[num_azim_2 * _num_polar_2];
@@ -1176,6 +1171,11 @@ void GPUSolver::initializeMaterials(solverMode mode) {
   cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
+  /* Copy the number of polar angles times energy groups to constant memory
+   * on the GPU */
+  cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
+                     sizeof(int), 0, cudaMemcpyHostToDevice);
+
   /* Delete old materials array if it exists */
   if (_materials != NULL)
     cudaFree(_materials);
@@ -1261,7 +1261,7 @@ void GPUSolver::initializeFluxArrays() {
   _old_scalar_flux.clear();
 
   /* Allocate memory for all flux arrays on the device */
-  try{
+  try {
     int size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux.resize(size);
 
