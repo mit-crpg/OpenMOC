@@ -868,8 +868,8 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
       if (group_indices[i] <= group_indices[i-1])
         log_printf(ERROR, "The group indices must be increasing!");
 
-      _group_indices[i] = group_indices[i] - 1;
-      log_printf(DEBUG, "group indices %d: %d", i, group_indices[i]);
+      _group_indices[i] = group_indices[i]; // - 1;
+      log_printf(DEBUG, "group indices %d: %d", i, _group_indices[i]);
     }
   }
 
@@ -1856,7 +1856,6 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
 
       for (int e=0; e < _num_moc_groups; e++) {
-
         int g = getCmfdGroup(e);
 
         for (int p=0; p < _num_polar; p++)

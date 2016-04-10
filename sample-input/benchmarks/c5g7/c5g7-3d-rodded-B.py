@@ -451,7 +451,7 @@ openmoc.log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.0)
 cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([1,4,7])
 
 
 ###############################################################################
