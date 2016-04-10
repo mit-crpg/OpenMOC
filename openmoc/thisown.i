@@ -192,7 +192,7 @@
   root_universe.thisown = False
 %}
 
-/* A Solver owns the memory for the PolarQuadrature it contains */
+/* A Solver owns the memory for the Quadrature it contains */
 %pythonappend TrackGenerator::setQuadrature %{
   # SWIG 3
   if 'quadrature' in locals():
