@@ -193,20 +193,20 @@
 %}
 
 /* A Solver owns the memory for the PolarQuadrature it contains */
-%pythonappend Solver::setPolarQuadrature %{
+%pythonappend TrackGenerator::setQuadrature %{
   # SWIG 3
-  if 'polar_quad' in locals():
-    polar_quad = locals()['polar_quad']
-  elif 'args' in locals() and 'polar_quad' in locals()['args']:
-    polar_quad = locals()['args']['polar_quad']
-  elif 'kwargs' in locals() and 'polar_quad' in locals()['kwargs']:
-    polar_quad = locals()['kwargs']['polar_quad']
+  if 'quadrature' in locals():
+    quadrature = locals()['quadrature']
+  elif 'args' in locals() and 'quadrature' in locals()['args']:
+    quadrature = locals()['args']['quadrature']
+  elif 'kwargs' in locals() and 'quadrature' in locals()['kwargs']:
+    quadrature = locals()['kwargs']['quadrature']
 
   # SWIG 2
   else:
-    polar_quad = locals()['args'][0]
+    quadrature = locals()['args'][0]
 
-  polar_quad.thisown = False
+  quadrature.thisown = False
 %}
 
 /* A Solver owns the memory for the TrackGenerator it contains */
