@@ -72,9 +72,6 @@ private:
   /** The number of threads per thread block */
   int _T;
 
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
-
   /** The FSR Material pointers index by FSR ID */
   int* _FSR_materials;
 
@@ -101,6 +98,8 @@ private:
 
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
+  
+  void copyQuadrature();
 
 public:
 
@@ -124,7 +123,6 @@ public:
   void setTrackGenerator(TrackGenerator* track_generator);
   void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
-  void initializePolarQuadrature();
   void initializeExpEvaluator();
   void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFSRs();

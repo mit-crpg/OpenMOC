@@ -981,6 +981,7 @@ void GPUSolver::setGeometry(Geometry* geometry) {
 void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
   Solver::setTrackGenerator(track_generator);
   initializeTracks();
+  copyQuadrature();
 }
 
 
@@ -1026,9 +1027,9 @@ void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
 /**
  * @brief Creates a polar quadrature object for the GPUSolver on the GPU.
  */
-void GPUSolver::initializePolarQuadrature() {
+void GPUSolver::copyQuadrature() {
 
-  log_printf(INFO, "Initializing polar quadrature on the GPU...");
+  log_printf(INFO, "Copying quadrature on the GPU...");
 
   if (_num_polar_2 > MAX_POLAR_ANGLES_GPU)
     log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
@@ -1036,11 +1037,11 @@ void GPUSolver::initializePolarQuadrature() {
                "angles. Update the MAX_POLAR_ANGLES_GPU macro in constants.h "
                "and recompile.", _num_polar_2, MAX_POLAR_ANGLES_GPU);
 
-  /* Copy the number of polar angles to constant memory on the GPU */
+  /* Copy half the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar_2, (void*)&_num_polar_2, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
-  /* Copy twice the number of polar angles to constant memory on the GPU */
+  /* Copy the number of polar angles to constant memory on the GPU */
   int n_polar = 2 * _num_polar_2;
   cudaMemcpyToSymbol(num_polar, (void*)&n_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
@@ -1055,7 +1056,7 @@ void GPUSolver::initializePolarQuadrature() {
   FP_PRECISION total_weights[num_azim_2 * _num_polar_2];
   for (int a=0; a < num_azim_2; a++)
     for (int p=0; p < _num_polar_2; p++)
-      total_weights[a*_num_polar_2 + p] = _quadrature->getWeight(a,p);
+      total_weights[a*_num_polar_2 + p] = _quadrature->getWeight(a, p);
   cudaMemcpyToSymbol(weights, (void*)total_weights,
       _num_polar_2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
