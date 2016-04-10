@@ -345,6 +345,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 
   /* Retrieve and store the Geometry from the TrackGenerator */
   setGeometry(_track_generator->getGeometry());
+  _num_groups = _geometry->getNumEnergyGroups();
+  _polar_times_groups = _num_groups * _num_polar_2;
 }
 
 
@@ -512,8 +514,6 @@ void Solver::initializeFSRs() {
 
   /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();
-  _num_groups = _geometry->getNumEnergyGroups();
-  _polar_times_groups = _num_groups * _num_polar_2;
   _num_materials = _geometry->getNumMaterials();
 
   /* Get an array of volumes indexed by FSR  */
