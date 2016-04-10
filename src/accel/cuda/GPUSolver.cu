@@ -981,6 +981,7 @@ void GPUSolver::setGeometry(Geometry* geometry) {
 void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
   Solver::setTrackGenerator(track_generator);
   initializeTracks();
+  copyQuadrature();
 }
 
 
@@ -1026,9 +1027,9 @@ void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
 /**
  * @brief Creates a polar quadrature object for the GPUSolver on the GPU.
  */
-void GPUSolver::initializePolarQuadrature() {
+void GPUSolver::copyQuadrature() {
 
-  log_printf(INFO, "Initializing polar quadrature on the GPU...");
+  log_printf(INFO, "Copying quadrature on the GPU...");
 
   if (_num_polar_2 > MAX_POLAR_ANGLES_GPU)
     log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
@@ -1056,6 +1057,11 @@ void GPUSolver::initializePolarQuadrature() {
   for (int a=0; a < num_azim_2; a++)
     for (int p=0; p < _num_polar_2; p++)
       total_weights[a*_num_polar_2 + p] = _quadrature->getWeight(a, p);
+ 
+  std::cout << "COPY!!!" << std::endl; 
+  for (int a=0;  a < num_azim_2; a++)
+    for (int p=0; p < _num_polar_2; p++)
+      std::cout << "Weight = " << total_weights[a*_num_polar_2+p] << std::endl;
   cudaMemcpyToSymbol(weights, (void*)total_weights,
       _num_polar_2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
