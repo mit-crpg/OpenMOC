@@ -37,7 +37,7 @@ openmoc_materials = \
 
 # Initialize an OpenMOC TrackGenerator and Solver
 track_generator = openmoc.TrackGenerator(openmoc_geometry, opts.num_azim,
-                                         opts.track_spacing)
+                                         opts.azim_spacing)
 track_generator.generateTracks()
 
 # Initialize an OpenMOC Solver
@@ -60,8 +60,8 @@ fluxes_no_sph = openmoc.process.get_scalar_fluxes(solver)
 
 # Compute SPH factors
 sph, sph_mgxs_lib, sph_indices = \
-    openmoc.materialize.compute_sph_factors(mgxs_lib, 
-                                            track_spacing=opts.track_spacing,
+    openmoc.materialize.compute_sph_factors(mgxs_lib,
+                                            azim_spacing=opts.azim_spacing,
                                             num_azim=opts.num_azim,
                                             num_threads=opts.num_omp_threads)
 
