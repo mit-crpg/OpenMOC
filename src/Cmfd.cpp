@@ -868,7 +868,7 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
       if (group_indices[i] <= group_indices[i-1])
         log_printf(ERROR, "The group indices must be increasing!");
 
-      _group_indices[i] = group_indices[i]; // - 1;
+      _group_indices[i] = group_indices[i];
       log_printf(DEBUG, "group indices %d: %d", i, _group_indices[i]);
     }
   }
