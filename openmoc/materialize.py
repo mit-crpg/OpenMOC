@@ -118,7 +118,6 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
     for domain_spec in sorted(f[domain_type]):
 
-        domain_spec = domain_spec.replace('%', '%%')
         py_printf('INFO', 'Importing cross sections for %s "%s"',
                           domain_type, str(domain_spec))
 
