@@ -865,7 +865,7 @@ void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
     /* Set MOC group bounds for rest of CMFD energy groups */
     for (int i = 1; i < length_group_indices; i++) {
       /* Check that the group indices are always increasing */
-      if (group_indices[i] < group_indices[i-1])
+      if (group_indices[i] <= group_indices[i-1])
         log_printf(ERROR, "The group indices must be increasing!");
 
       _group_indices[i] = group_indices[i];
