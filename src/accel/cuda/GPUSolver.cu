@@ -638,6 +638,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
 
     /* Iterate over all energy groups */
     for (int i=0; i < *num_groups; i++) {
+      scalar_flux(tid,i) *= 0.5;
       scalar_flux(tid,i) = __fdividef(scalar_flux(tid,i),
                                      (sigma_t[i] * volume));
       scalar_flux(tid,i) += FOUR_PI * reduced_sources(tid,i);
@@ -1056,12 +1057,7 @@ void GPUSolver::copyQuadrature() {
   FP_PRECISION total_weights[num_azim_2 * _num_polar_2];
   for (int a=0; a < num_azim_2; a++)
     for (int p=0; p < _num_polar_2; p++)
-      total_weights[a*_num_polar_2 + p] = _quadrature->getWeight(a, p);
- 
-  std::cout << "COPY!!!" << std::endl; 
-  for (int a=0;  a < num_azim_2; a++)
-    for (int p=0; p < _num_polar_2; p++)
-      std::cout << "Weight = " << total_weights[a*_num_polar_2+p] << std::endl;
+      total_weights[a*_num_polar_2 + p] = 2*_quadrature->getWeight(a, p);
   cudaMemcpyToSymbol(weights, (void*)total_weights,
       _num_polar_2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 

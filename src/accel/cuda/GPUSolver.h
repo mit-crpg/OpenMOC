@@ -72,9 +72,6 @@ private:
   /** The number of threads per thread block */
   int _T;
 
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
-
   /** The FSR Material pointers index by FSR ID */
   int* _FSR_materials;
 
