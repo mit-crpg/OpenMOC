@@ -100,6 +100,9 @@ FP_PRECISION Quadrature::getSinTheta(int azim, int polar) {
                "and azim angle = %d but the sin thetas have not been "
                "initialized", polar, azim);
 
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+
   return _sin_thetas[azim][polar];
 }
 
@@ -128,6 +131,9 @@ double Quadrature::getTheta(int azim, int polar) {
                "and azim angle = %d but the thetas have not been "
                "initialized", polar, azim);
 
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+
   return _thetas[azim][polar];
 }
 
@@ -148,6 +154,9 @@ double Quadrature::getPhi(int azim) {
     log_printf(ERROR, "Attempted to retrieve phi for "
                "azim angle = %d but the phis have not been "
                "initialized", azim);
+
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
   return _phis[azim];
 }
@@ -170,6 +179,9 @@ FP_PRECISION Quadrature::getAzimWeight(int azim) {
     log_printf(ERROR, "Attempted to retrieve weight for azimuthal angle = %d "
                "but the azimuthal weights have not been initialized", azim);
 
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+
   return _azim_weights[azim];
 }
 
@@ -187,15 +199,18 @@ FP_PRECISION Quadrature::getPolarWeight(int azim, int polar) {
                "%d and azim angle = %d when only %d polar angles are "
                "defined", polar, azim, _num_polar);
 
-  else if (azim < 0 || azim >= _num_azim)
+  if (azim < 0 || azim >= _num_azim)
     log_printf(ERROR, "Attempted to retrieve polar weight for polar angle = "
                "%d and azim angle = %d when only %d azim angles are "
                "defined", polar, azim, _num_azim);
 
-  else if (_polar_weights == NULL)
+  if (_polar_weights == NULL)
     log_printf(ERROR, "Attempted to retrieve polar weight for polar angle = %d "
                "and azim angle = %d but the thetas have not been "
                "initialized", polar, azim);
+
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
   return _polar_weights[azim][polar];
 }
@@ -225,6 +240,9 @@ FP_PRECISION Quadrature::getWeight(int azim, int polar) {
     log_printf(ERROR, "Attempted to retrieve weight for polar angle = %d "
                "and azimuthal angle = %d but the multiples have not been "
                "initialized", polar, azim);
+
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
   return _total_weights[azim][polar];
 }
@@ -379,6 +397,8 @@ FP_PRECISION* Quadrature::getAzimSpacings() {
  * @return the requested azimuthal spacing
  */
 FP_PRECISION Quadrature::getAzimSpacing(int azim) {
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
   return _azim_spacings[azim];
 }
 
