@@ -92,6 +92,10 @@ protected:
     array[_num_azim/2 - azim_index - 1] = value;
   }
 
+  /* Functions to delete and reset allocated arrays */
+  void deletePolarArrays();
+  void deleteAllArrays();
+
 
 public:
 

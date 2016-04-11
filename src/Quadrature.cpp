@@ -22,41 +22,64 @@ Quadrature::Quadrature() {
  *        of the polar angles and the products of the sines and weights.
  */
 Quadrature::~Quadrature() {
+  deleteAllArrays();
+}
+
+
+/**
+ * @brief Deletes all arrays indexed by polar angle
+ */
+void Quadrature::deletePolarArrays() {
 
   if (_sin_thetas != NULL) {
     for (int a=0; a < _num_azim/2; a++)
       delete [] _sin_thetas[a];
     delete [] _sin_thetas;
+    _sin_thetas = NULL;
   }
 
   if (_thetas != NULL) {
     for (int a=0; a < _num_azim/2; a++)
       delete [] _thetas[a];
     delete [] _thetas;
+    _thetas = NULL;
   }
-
-  if (_phis != NULL)
-    delete [] _phis;
-
-  if (_azim_spacings != NULL)
-    delete [] _azim_spacings;
-
-  if (_azim_weights != NULL)
-    delete [] _azim_weights;
 
   if (_polar_weights != NULL) {
     for (int a=0; a < _num_azim/2; a++)
       delete [] _polar_weights[a];
     delete [] _polar_weights;
+    _polar_weights = NULL;
   }
 
   if (_total_weights != NULL) {
     for (int a=0; a < _num_azim/2; a++)
       delete [] _total_weights[a];
     delete [] _total_weights;
+    _total_weights = NULL;
   }
 }
 
+
+/**
+ * @brief Deletes all arrays allocated by the Quadrature
+ */
+void Quadrature::deleteAllArrays() {
+
+  if (_phis != NULL)
+    delete [] _phis;
+  _phis = NULL;
+
+  if (_azim_spacings != NULL)
+    delete [] _azim_spacings;
+  _azim_spacings = NULL;
+
+  if (_azim_weights != NULL)
+    delete [] _azim_weights;
+  _azim_weights = NULL;
+
+  deletePolarArrays();
+}
 
 
 /**
@@ -338,39 +361,7 @@ void Quadrature::setNumAzimAngles(const int num_azim) {
   if (num_azim != _num_azim) {
 
     /* Delete arrays with old settings */
-    if (_phis != NULL)
-      delete [] _phis;
-    _phis = NULL;
-    if (_azim_spacings != NULL)
-      delete [] _azim_spacings;
-    _azim_spacings = NULL;
-    if (_azim_weights != NULL)
-      delete [] _azim_weights;
-    _azim_weights = NULL;
-    if (_thetas != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _thetas[a];
-      delete _thetas;
-      _thetas = NULL;
-    }
-    if (_polar_weights != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _polar_weights[a];
-      delete _polar_weights;
-      _polar_weights = NULL;
-    }
-    if (_total_weights != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _total_weights[a];
-      delete _total_weights;
-      _total_weights = NULL;
-    }
-    if (_sin_thetas != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _sin_thetas[a];
-      delete _sin_thetas;
-      _sin_thetas = NULL;
-    }
+    deleteAllArrays();
     _num_azim = num_azim;
   }
 }
@@ -420,30 +411,7 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
   if (num_polar != _num_polar) {
 
     /* Delete arrays with old settings */
-    if (_thetas != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _thetas[a];
-      delete _thetas;
-      _thetas = NULL;
-    }
-    if (_polar_weights != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _polar_weights[a];
-      delete _polar_weights;
-      _polar_weights = NULL;
-    }
-    if (_total_weights != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _total_weights[a];
-      delete _total_weights;
-      _total_weights = NULL;
-    }
-    if (_sin_thetas != NULL) {
-      for (int a=0; a < _num_azim/2; a++)
-        delete [] _sin_thetas[a];
-      delete _sin_thetas;
-      _sin_thetas = NULL;
-    }
+    deletePolarArrays();
     _num_polar = num_polar;
   }
 }
