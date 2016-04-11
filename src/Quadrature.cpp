@@ -322,6 +322,31 @@ void Quadrature::setNumAzimAngles(const int num_azim) {
 
 
 /**
+ * @brief Returns an array of adjusted azimuthal spacings.
+ * @details An array of azimuthal spacings after adjustment is returned,
+ *          indexed by azimuthal angle
+ * @return the array of azimuthal spacings
+ */
+FP_PRECISION* Quadrature::getAzimSpacings() {
+  return _azim_spacings;
+}
+
+
+/**
+ * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
+ *        angle index.
+ * @details The aziumthal spacing depends on the azimuthal angle. This function
+ *          returns the azimuthal spacing used at the desired azimuthal angle
+ *          index.
+ * @param azim the requested azimuthal angle index
+ * @return the requested azimuthal spacing
+ */
+FP_PRECISION Quadrature::getAzimSpacing(int azim) {
+  return _azim_spacings[azim];
+}
+
+
+/**
  * @brief Set the number of polar angles to initialize.
  * @param num_polar the number of polar angles
  */
@@ -761,6 +786,7 @@ quadratureType Quadrature::getQuadratureType() {
  */
 TYPolarQuad::TYPolarQuad(): Quadrature() {
   _quad_type = TABUCHI_YAMAMOTO;
+  _num_polar = 6;
 }
 
 
@@ -871,6 +897,7 @@ void TYPolarQuad::precomputeWeights(bool solve_3D) {
  */
 LeonardPolarQuad::LeonardPolarQuad(): Quadrature() {
   _quad_type = LEONARD;
+  _num_polar = 6;
 }
 
 
@@ -969,6 +996,7 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
  */
 GLPolarQuad::GLPolarQuad(): Quadrature() {
   _quad_type = GAUSS_LEGENDRE;
+  _num_polar = 6;
 }
 
 
@@ -1129,6 +1157,7 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
  */
 EqualWeightPolarQuad::EqualWeightPolarQuad(): Quadrature() {
   _quad_type = EQUAL_WEIGHT;
+  _num_polar = 6;
 }
 
 
@@ -1225,6 +1254,7 @@ void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
  */
 EqualAnglePolarQuad::EqualAnglePolarQuad(): Quadrature() {
   _quad_type = EQUAL_ANGLE;
+  _num_polar = 6;
 }
 
 
@@ -1317,29 +1347,4 @@ void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);
-}
-
-
-/**
- * @brief Returns an array of adjusted azimuthal spacings.
- * @details An array of azimuthal spacings after adjustment is returned,
- *          indexed by azimuthal angle
- * @return the array of azimuthal spacings
- */
-FP_PRECISION* Quadrature::getAzimSpacings() {
-  return _azim_spacings;
-}
-
-
-/**
- * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
- *        angle index.
- * @details The aziumthal spacing depends on the azimuthal angle. This function
- *          returns the azimuthal spacing used at the desired azimuthal angle
- *          index.
- * @param azim the requested azimuthal angle index
- * @return the requested azimuthal spacing
- */
-FP_PRECISION Quadrature::getAzimSpacing(int azim) {
-  return _azim_spacings[azim];
 }
