@@ -16,7 +16,7 @@ class QuadratureTestHarness(TestHarness):
     def __init__(self):
         super(QuadratureTestHarness, self).__init__()
         self.quadratures = list()
-        quadratures = sorted(openmoc.Quadrature.__subclasses__())
+        quadratures = openmoc.Quadrature.__subclasses__()
         for quadrature in quadratures:
           self.quadratures.append(quadrature())
         self._result = ''
@@ -36,10 +36,10 @@ class QuadratureTestHarness(TestHarness):
                     quad.setNumAzimAngles(azim)
                     quad.setNumPolarAngles(polar)
                     quad.initialize()
-                    for a in range(azim/4):
+                    for a in range(int(azim/4)):
                         quad.setAzimSpacing(1.0, a)
                     quad.precomputeWeights(False)
-                    for a in range(azim/2):
+                    for a in range(int(azim/2)):
                         for p in range(polar):
                             sum_weights += quad.getWeight(a, p) / \
                                 math.sin(quad.getTheta(a, p))
