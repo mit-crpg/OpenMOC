@@ -317,7 +317,44 @@ void Quadrature::setNumAzimAngles(const int num_azim) {
     log_printf(ERROR, "Unable to set the number of azimuthal angles to %d "
                "which is not divisible by 4", num_azim);
 
-  _num_azim = num_azim;
+  if (num_azim != _num_azim) {
+
+    /* Delete arrays with old settings */
+    if (_phis != NULL)
+      delete [] _phis;
+    _phis = NULL;
+    if (_azim_spacings != NULL)
+      delete [] _azim_spacings;
+    _azim_spacings = NULL;
+    if (_azim_weights != NULL)
+      delete [] _azim_weights;
+    _azim_weights = NULL;
+    if (_thetas != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _thetas[a];
+      delete _thetas;
+      _thetas = NULL;
+    }
+    if (_polar_weights != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _polar_weights[a];
+      delete _polar_weights;
+      _polar_weights = NULL;
+    }
+    if (_total_weights != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _total_weights[a];
+      delete _total_weights;
+      _total_weights = NULL;
+    }
+    if (_sin_thetas != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _sin_thetas[a];
+      delete _sin_thetas;
+      _sin_thetas = NULL;
+    }
+    _num_azim = num_azim;
+  }
 }
 
 
@@ -356,11 +393,39 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "which is less than or equal to zero", num_polar);
 
-  else if (num_polar % 2 != 0)
+  if (num_polar % 2 != 0)
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "which is not divisible by 2", num_polar);
 
-  _num_polar = num_polar;
+  if (num_polar != _num_polar) {
+
+    /* Delete arrays with old settings */
+    if (_thetas != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _thetas[a];
+      delete _thetas;
+      _thetas = NULL;
+    }
+    if (_polar_weights != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _polar_weights[a];
+      delete _polar_weights;
+      _polar_weights = NULL;
+    }
+    if (_total_weights != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _total_weights[a];
+      delete _total_weights;
+      _total_weights = NULL;
+    }
+    if (_sin_thetas != NULL) {
+      for (int a=0; a < _num_azim/2; a++)
+        delete [] _sin_thetas[a];
+      delete _sin_thetas;
+      _sin_thetas = NULL;
+    }
+    _num_polar = num_polar;
+  }
 }
 
 
@@ -394,17 +459,12 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
                " in each octant",
                num_azim_times_polar, _num_polar/2, _num_azim/4);
 
-  /* Deallocate memory if it was allocated previously */
-  if (_thetas != NULL) {
-    for (int i=0; i < _num_azim/2; i++)
-      delete [] _thetas[i];
-    delete [] _thetas;
-  }
-
   /* Initialize memory for arrays */
-  _thetas = new double*[_num_azim/2];
-  for (int i=0; i < _num_azim/2; i++)
-    _thetas[i] = new double[_num_polar];
+  if (_thetas == NULL) {
+    _thetas = new double*[_num_azim/2];
+    for (int i=0; i < _num_azim/2; i++)
+      _thetas[i] = new double[_num_polar];
+  }
 
   /* Extract sin thetas from user input */
   int ap=0;
@@ -454,17 +514,12 @@ void Quadrature::setPolarWeights(FP_PRECISION* weights,
                " in each octant",
                num_azim_times_polar, _num_polar/2, _num_azim/4);
 
-  /* Deallocate memory if it was allocated previously */
-  if (_polar_weights != NULL) {
-    for (int a=0; a < _num_azim/2; a++)
-      delete [] _polar_weights[a];
-    delete [] _polar_weights;
-  }
-
   /* Initialize memory for arrays */
-  _polar_weights = new FP_PRECISION*[_num_azim/2];
-  for (int i=0; i < _num_azim/2; i++)
-    _polar_weights[i] = new FP_PRECISION[_num_polar];
+  if (_polar_weights == NULL) {
+    _polar_weights = new FP_PRECISION*[_num_azim/2];
+    for (int i=0; i < _num_azim/2; i++)
+      _polar_weights[i] = new FP_PRECISION[_num_polar];
+  }
 
   /* Extract polar weights from user input */
   int ap=0;
@@ -650,14 +705,32 @@ void Quadrature::initialize() {
  */
 void Quadrature::precomputeWeights(bool solve_3D) {
 
-  double x1, x2;
+  /* Check that track spacings have been set */
+  if (_azim_spacings == NULL)
+    log_printf(ERROR, "Unable to precompute weights since track spacings have "
+                      "not yet been set");
 
-  if (_azim_weights != NULL)
-    delete [] _azim_weights;
+  /* Check that polar angles have been set */
+  if (_thetas == NULL)
+    log_printf(ERROR, "Unable to precompute weights since polar angles have "
+                      "not yet been set");
 
-  _azim_weights = new FP_PRECISION[_num_azim/2];
+  /* Clear azimuthal weights */
+  if (_azim_weights == NULL)
+    _azim_weights = new FP_PRECISION[_num_azim/2];
+
+  /* Create uncorrected weights if no angles have been set yet */
+  if (_phis == NULL) {
+    log_printf(NORMAL, "WARNING: Using uncorrected angles for weights");
+    double phi = M_PI / _num_azim;
+    for (int a = 0; a < _num_azim/4; a++) {
+      setPhi(phi, a);
+      phi += 2*M_PI / _num_azim;
+    }
+  }
 
   /* Compute the azimuthal weights */
+  double x1, x2;
   for (int a = 0; a < _num_azim/4; a++) {
 
     /* The azimuthal weights (in radians) using equal weight quadrature */
@@ -674,26 +747,18 @@ void Quadrature::precomputeWeights(bool solve_3D) {
     setAzimuthalValues(_azim_weights, a, FP_PRECISION((x1 + x2) / M_PI));
   }
 
-  /* Deallocate memory if it was allocated previously */
-  if (_sin_thetas != NULL) {
+  /* Allocate memory if it was not allocated previously */
+  if (_sin_thetas == NULL) {
+    _sin_thetas = new FP_PRECISION*[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++)
-      delete [] _sin_thetas[a];
-    delete [] _sin_thetas;
+      _sin_thetas[a] = new FP_PRECISION[_num_polar];
   }
 
-  /* Deallocate memory if it was allocated previously */
-  if (_total_weights != NULL) {
+  /* Allocate memory if it was not allocated previously */
+  if (_total_weights == NULL) {
+    _total_weights = new FP_PRECISION*[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++)
-      delete [] _total_weights[a];
-    delete [] _total_weights;
-  }
-
-  /* Initialize memory for arrays */
-  _total_weights = new FP_PRECISION*[_num_azim/2];
-  _sin_thetas = new FP_PRECISION*[_num_azim/2];
-  for (int a=0; a < _num_azim/2; a++) {
     _total_weights[a] = new FP_PRECISION[_num_polar];
-    _sin_thetas[a] = new FP_PRECISION[_num_polar];
   }
 
   /* Compute multiples of sine thetas and weights */
@@ -815,7 +880,7 @@ void TYPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
@@ -842,9 +907,6 @@ void TYPolarQuad::initialize() {
 
   /* Set the arrays of thetas */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
@@ -856,7 +918,7 @@ void TYPolarQuad::initialize() {
 void TYPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
@@ -883,10 +945,6 @@ void TYPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
-
   Quadrature::precomputeWeights(solve_3D);
 }
 
@@ -926,7 +984,7 @@ void LeonardPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -947,9 +1005,6 @@ void LeonardPolarQuad::initialize() {
 
   /* Set the arrays of thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
@@ -961,7 +1016,7 @@ void LeonardPolarQuad::initialize() {
 void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -982,10 +1037,6 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
-
   Quadrature::precomputeWeights(solve_3D);
 }
 
@@ -1025,7 +1076,7 @@ void GLPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -1077,9 +1128,6 @@ void GLPolarQuad::initialize() {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
@@ -1091,7 +1139,7 @@ void GLPolarQuad::initialize() {
 void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -1143,10 +1191,6 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
-
   Quadrature::precomputeWeights(solve_3D);
 }
 
@@ -1180,7 +1224,7 @@ void EqualWeightPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   double cos_theta_a, cos_theta_b;
 
@@ -1199,9 +1243,6 @@ void EqualWeightPolarQuad::initialize() {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
@@ -1213,7 +1254,7 @@ void EqualWeightPolarQuad::initialize() {
 void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   double y1, y2;
 
@@ -1240,9 +1281,6 @@ void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);
@@ -1277,7 +1315,7 @@ void EqualAnglePolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   double cos_theta_a, cos_theta_b;
   double theta_a, theta_b;
@@ -1300,9 +1338,6 @@ void EqualAnglePolarQuad::initialize() {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
@@ -1314,7 +1349,7 @@ void EqualAnglePolarQuad::initialize() {
 void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   double y1, y2;
 
@@ -1341,9 +1376,6 @@ void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);
