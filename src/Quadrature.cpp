@@ -491,7 +491,8 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
  * @endcode
  *
  * @param weights The polar weights
- * @param num_azim_times_polar the total number of angles (azimuthal x polar)
+ * @param num_azim_times_polar the total number of angles in one octant
+ *        (azimuthal x polar)
  */
 void Quadrature::setPolarWeights(FP_PRECISION* weights,
                                  int num_azim_times_polar) {
