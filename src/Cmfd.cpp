@@ -864,20 +864,24 @@ void Cmfd::setGroupStructure(std::vector< std::vector<int> > group_indices) {
 
   /* Set first group index to 0 */
   _group_indices[0] = 0;
+  int last_moc_group = group_indices[0][group_indices[0].size()];
 
   /* Set MOC group bounds for rest of CMFD energy groups */
   for (int i=1; i < _num_cmfd_groups; i++) {
-    if (group_indices[i][0] <= _group_indices[i-1])
-      log_printf(ERROR, "The CMFD coarse group indices are not "
-                 "monotonically increasing");
+    for (int j=0; j < group_indices[i].size(); j++) {
+      if (group_indices[i][j] <= last_moc_group)
+	log_printf(ERROR, "The CMFD coarse group indices are not "
+		   "monotonically increasing");
+    }
     _group_indices[i] = group_indices[i][0] - 1;
-    log_printf(DEBUG, "group indices %d: %d", i, _group_indices[i]);
+    last_moc_group = _group_indices[i];
+    log_printf(DEBUG, "CMFD group indices %d: %d", i, _group_indices[i]);
   }
 
   /* Set the last group index */
   _group_indices[_num_cmfd_groups] =
     group_indices[_num_cmfd_groups-1].back();
-  log_printf(DEBUG, "group indices %d: %d",
+  log_printf(DEBUG, "CMFD group indices %d: %d",
 	     _num_cmfd_groups, _group_indices[_num_cmfd_groups]);
 }
 
