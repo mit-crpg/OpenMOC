@@ -867,9 +867,9 @@ void Cmfd::setGroupStructure(std::vector< std::vector<int> > group_indices) {
       if (group_indices[i][j] <= last_moc_group)
 	log_printf(ERROR, "The CMFD coarse group indices are not "
 		   "monotonically increasing");
+      last_moc_group = group_indices[i][j];
     }
     _group_indices[i] = group_indices[i][0] - 1;
-    last_moc_group = _group_indices[i];
     log_printf(DEBUG, "CMFD group indices %d: %d", i, _group_indices[i]);
   }
 
