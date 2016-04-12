@@ -858,16 +858,11 @@ void Cmfd::setGroupStructure(std::vector< std::vector<int> > group_indices) {
   _num_cmfd_groups = group_indices.size();
   _group_indices = new int[_num_cmfd_groups+1];
 
-  if (group_indices[0][0] != 1)
-    log_printf(WARNING, "The first CMFD coarse group index is %d but "
-	       "is being over-ridden to 1", group_indices[0][0]);
-
   /* Set first group index to 0 */
-  _group_indices[0] = 0;
   int last_moc_group = group_indices[0][group_indices[0].size()];
 
   /* Set MOC group bounds for rest of CMFD energy groups */
-  for (int i=1; i < _num_cmfd_groups; i++) {
+  for (int i=0; i < _num_cmfd_groups; i++) {
     for (int j=0; j < group_indices[i].size(); j++) {
       if (group_indices[i][j] <= last_moc_group)
 	log_printf(ERROR, "The CMFD coarse group indices are not "
