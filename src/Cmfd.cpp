@@ -971,6 +971,12 @@ void Cmfd::initializeGroupMap() {
       _group_indices[i] = i;
     }
   }
+  else {
+    if (_num_moc_groups != _group_indices[_num_cmfd_groups])
+      log_printf(ERROR, "The CMFD coarse group mapping is specified for "
+		 "%d groups, but the MOC problem contains %d groups",
+		 _group_indices[_num_cmfd_groups], _num_moc_groups);
+  }
 
   /* Delete old group indices map if it exists */
   if (_group_indices_map != NULL)
