@@ -61,7 +61,7 @@ class Options(object):
         self._short_args = 'hfa:s:i:c:t:b:g:r:l:'
         self._long_args = ['help',
                            'num-azim=',
-                           'track-spacing=',
+                           'azim-spacing=',
                            'tolerance=',
                            'max-iters=',
                            'num-omp-threads=',
@@ -155,7 +155,7 @@ class Options(object):
                 num_azim += 'the number of azimuthal angles\n'
                 print(num_azim)
 
-                azim_spacing = '\t{: <35}'.format('-s, --track-spacing=<0.1>')
+                azim_spacing = '\t{: <35}'.format('-s, --azim-spacing=<0.1>')
                 azim_spacing += 'The azimuthal track spacing [cm]\n'
                 print(azim_spacing)
 
@@ -185,7 +185,7 @@ class Options(object):
 
             elif opt in ('-a', '--num-azim'):
                 self._num_azim = int(arg)
-            elif opt in ('-s', '--track-spacing'):
+            elif opt in ('-s', '--azim-spacing'):
                 self._azim_spacing = float(arg)
             elif opt in ('-i', '--max-iters'):
                 self._max_iters = int(arg)
