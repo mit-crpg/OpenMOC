@@ -1238,12 +1238,12 @@ def plot_quadrature(solver, get_figure=False):
     quad = track_generator.getQuadrature()
     num_azim = track_generator.getNumAzim()
     azim_spacing = track_generator.getDesiredAzimSpacing()
-    num_polar = quad.getNumPolarAngles()
+    num_polar_2 = quad.getNumPolarAngles() / 2
     phis = np.zeros(num_azim/4)
-    thetas = np.zeros(num_polar)
+    thetas = np.zeros(num_polar_2)
 
     # Get the polar angles
-    for p in range(num_polar):
+    for p in range(num_polar_2):
         thetas[p] = np.arcsin(quad.getSinTheta(0,p))
 
     # Get the azimuthal angles
@@ -1265,7 +1265,7 @@ def plot_quadrature(solver, get_figure=False):
 
     # Plot the quadrature points on the octant unit sphere
     for a in range(int(num_azim / 4)):
-        for p in range(num_polar):
+        for p in range(num_polar_2):
             ax.scatter(np.cos(phis[a]) * np.sin(thetas[p]), np.sin(phis[a]) *
                        np.sin(thetas[p]), np.cos(thetas[p]), s=50, color='b')
 
@@ -1295,11 +1295,11 @@ def plot_quadrature(solver, get_figure=False):
 
     title += ' with ' + str(num_azim) + ' azim, ' + \
              '{:5.3f}'.format(azim_spacing) + ' spacing and ' \
-             + str(num_polar) + ' polar'
+             + str(2*num_polar_2) + ' polar'
 
     filename = directory + 'quad_' + quad_type + '_' + \
                str(num_azim) + '_azim_' + '{:5.3f}'.format(azim_spacing) + \
-               '_cm_spacing_' + str(num_polar) + '_polar.png'
+               '_cm_spacing_' + str(2*num_polar_2) + '_polar.png'
 
     ax.view_init(elev=30, azim=45)
     ax.set_xlim([0,1])

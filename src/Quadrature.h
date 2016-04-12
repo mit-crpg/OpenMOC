@@ -76,7 +76,7 @@ protected:
   FP_PRECISION** _total_weights;
 
 
-  /* Templates for setting the same values to complimentary or supplimentary
+  /* Templates for setting the same values to complimentary and supplimentary
    * angles */
   template <typename T>
   void setPolarValues(T** array, int azim_index, int polar_index, T value) {
