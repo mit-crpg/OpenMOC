@@ -23,7 +23,6 @@
 #include <sstream>
 #include <unistd.h>
 #include <omp.h>
-#include <tuple>
 #endif
 
 
@@ -62,13 +61,6 @@ protected:
   /** The total number of Tracks for all azimuthal angles */
   int _num_2D_tracks;
 
-  /** An integer array with the number of Tracks in each parallel track group */
-  int* _num_tracks_by_parallel_group;
-
-  /** The number of the track groups needed to ensure data races don't occur
-   *  during the Solver's transportSweep */
-  int _num_parallel_track_groups;
-
   /** An integer array of the number of Tracks starting on the x-axis for each
    *  azimuthal angle */
   int* _num_x;
@@ -80,7 +72,7 @@ protected:
   /** A 2D ragged array of 2D tracks (azim, track index) */
   Track2D** _tracks_2D;
 
-  /** A 1D array of Track pointers arranged by parallel group */
+  /** A 1D array of Track pointers arranged by UID */
   Track** _tracks_2D_array;
 
   /** Pointer to the Geometry */
@@ -156,8 +148,6 @@ public:
   int getNum2DTracks();
   int getNum2DSegments();
   void countSegments();
-  int* getNumTracksByParallelGroupArray();
-  int getNumParallelTrackGroups();
   bool getPeriodic();
   Track** get2DTracksArray();
   virtual Track** getTracksArray();

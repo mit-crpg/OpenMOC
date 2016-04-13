@@ -139,7 +139,6 @@ int main() {
                                    polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
-  track_generator.setGlobalZMesh();
   track_generator.generateTracks();
 
   /* Run simulation */

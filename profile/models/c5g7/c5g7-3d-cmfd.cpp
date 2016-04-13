@@ -548,7 +548,6 @@ int main() {
   track_generator.setSegmentFormation(OTF_STACKS);
   std::vector<double> seg_heights {0.0, 20.0};
   track_generator.setSegmentationHeights(seg_heights);
-  track_generator.setGlobalZMesh();
   track_generator.generateTracks();
 
   /* Run simulation */

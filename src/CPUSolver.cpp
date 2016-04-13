@@ -563,11 +563,12 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
   if (_solve_3D) {
 
+    FP_PRECISION weight = _quad->getWeight(a, p);
     for (int e=0; e < _num_groups; e++) {
-      exponential = _exp_evaluator->computeExponential
-        (sigma_t[e] * length, a, p);
+      exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, a,
+                                                       p);
       delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi * _quad->getWeight(a, p);
+      fsr_flux[e] += delta_psi * weight;
       track_flux(e) -= delta_psi;
     }
   }
@@ -677,10 +678,10 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     bc = REFLECTIVE;
 
   if (_solve_3D) {
-    int p = _quad->getFirstOctantPolar(polar_index);
+    FP_PRECISION weight = _quad->getWeight(a, polar_index);
     for (int e=0; e < _num_groups; e++) {
       track_out_flux(e) = track_flux(e) * bc;
-      track_leakage(e) = track_flux(e) * (!bc) * _quad->getWeight(a, p);
+      track_leakage(e) = track_flux(e) * (!bc) * weight;
     }
   }
   else {
