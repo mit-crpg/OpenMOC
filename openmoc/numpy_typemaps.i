@@ -14,11 +14,6 @@
  * cells (universe IDs) using a 2D NumPy array */
 %apply (int DIM1, int DIM2, int* IN_ARRAY2) {(int num_x, int num_y, int* universes)}
 
-/* The typemap used to match the method signature for the
- * Cmfd::setGroupStructure method. This allows users to set the CMFD group
- * structure using a NumPy array */
-%apply (int* IN_ARRAY1, int DIM1) {(int* group_indices, int length_group_indices)}
-
 /* The typemap used to match the method signature for the Material
  * cross-section setter methods. This allows users to set the cross-sections
  * using NumPy arrays */
