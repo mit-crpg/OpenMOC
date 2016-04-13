@@ -858,8 +858,8 @@ void Cmfd::setGroupStructure(std::vector< std::vector<int> > group_indices) {
   _num_cmfd_groups = group_indices.size();
   _group_indices = new int[_num_cmfd_groups+1];
 
-  /* Set first group index to 0 */
-  int last_moc_group = group_indices[0][group_indices[0].size()];
+  /* Initialize first group index to 0 */
+  int last_moc_group = 0;
 
   /* Set MOC group bounds for rest of CMFD energy groups */
   for (int i=0; i < _num_cmfd_groups; i++) {
