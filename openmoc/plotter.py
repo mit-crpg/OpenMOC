@@ -738,7 +738,6 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
     global solver_types
     cv.check_type('solver', solver, solver_types)
-#    cv.check_type('solver', solver, (openmoc.Solver, openmoc.cuda.GPUSolver))
     cv.check_type('fsrs', fsrs, Iterable, Integral)
     cv.check_type('norm', norm, bool)
     cv.check_type('loglog', loglog, bool)
@@ -882,7 +881,6 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
     global solver_types
     cv.check_type('solver', solver, solver_types)
-#    cv.check_type('solver', solver, (openmoc.Solver, openmoc.cuda.GPUSolver))
 
     py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
@@ -1235,7 +1233,6 @@ def plot_quadrature(solver, get_figure=False):
 
     global solver_types
     cv.check_type('solver', solver, solver_types)
-#    cv.check_type('solver', solver, (openmoc.Solver, openmoc.cuda.GPUSolver))
 
     py_printf('NORMAL', 'Plotting the quadrature...')
 
