@@ -301,8 +301,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
                 # Ignore materials which cannot be found in the OpenMOC Geometry
                 if material is None:
+                    domain_name = domain.name.replace('%', '%%')
                     py_printf('WARNING', 'Ignoring cross sections for %s "%d" "%s"',
-                              domain_type, domain.id, str(domain.name))
+                              domain_type, domain.id, str(domain_name))
                     continue
 
             elif domain_type == 'cell':
@@ -310,8 +311,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
                 # Ignore cells which cannot be found in the OpenMOC Geometry
                 if cell is None:
+                    domain_name = domain.name.replace('%', '%%')
                     py_printf('WARNING', 'Ignoring cross sections for %s "%d" "%s"',
-                              domain_type, domain.id, str(domain.name))
+                              domain_type, domain.id, str(domain_name))
                     continue
                 else:
                     material = cell.getFillMaterial()
@@ -334,8 +336,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         else:
             material = openmoc.Material(id=domain.id)
 
+        domain_name = domain.name.replace('%', '%%')
         py_printf('INFO', 'Importing cross sections for %s "%d" "%s"',
-                  domain_type, domain.id, str(domain.name))
+                  domain_type, domain.id, str(domain_name))
 
         # Add material to the collection
         materials[domain.id] = material
