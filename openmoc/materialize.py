@@ -417,7 +417,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
 
 def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
-                        fix_src_tol=1E-5, num_azim=4, track_spacing=0.1,
+                        fix_src_tol=1E-5, num_azim=4, azim_spacing=0.1,
                         zcoord=0.0, num_threads=1, throttle_output=True):
     """Compute SPH factors for an OpenMC multi-group cross section library.
 
@@ -446,7 +446,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         The tolerance on the MOC fixed source calculations (default is 1E-5_
     num_azim : Integral
         The number of azimuthal angles (default is 4)
-    track_spacing : Real
+    azim_spacing : Real
         The track spacing (default is 0.1 centimeters)
     zcoord : Real
         The coordinate on the z-axis (default is 0.)
@@ -488,7 +488,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     load_openmc_mgxs_lib(mgxs_lib, geometry)
 
     # Initialize an OpenMOC TrackGenerator
-    track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
+    track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
     track_generator.setZCoord(zcoord)
     track_generator.generateTracks()
 

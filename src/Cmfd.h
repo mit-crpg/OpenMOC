@@ -16,7 +16,7 @@
 #include "log.h"
 #include "Universe.h"
 #include "Track.h"
-#include "PolarQuad.h"
+#include "Quadrature.h"
 #include "linalg.h"
 #include "Geometry.h"
 #endif
@@ -45,7 +45,7 @@ class Cmfd {
 private:
 
   /** Pointer to polar quadrature object */
-  PolarQuad* _polar_quad;
+  Quadrature* _quadrature;
 
   /** Pointer to geometry object */
   Geometry* _geometry;
@@ -91,8 +91,8 @@ private:
   /** Number of energy groups */
   int _num_moc_groups;
 
-  /** Number of polar angles */
-  int _num_polar;
+  /** Half the number of polar angles */
+  int _num_polar_2;
 
   /** Number of energy groups used in cmfd solver. Note that cmfd supports
    * energy condensation from the MOC */
@@ -202,7 +202,7 @@ public:
   void addFSRToCell(int cell_id, int fsr_id);
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
-                    FP_PRECISION* polar_weights, bool fwd);
+                    int azim_index, bool fwd);
   void updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
                           int num_tracks);
 
@@ -235,7 +235,7 @@ public:
   void setCentroidUpdateOn(bool centroid_update_on);
   void setGroupStructure(std::vector< std::vector<int> > group_indices);
   void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
-  void setPolarQuadrature(PolarQuad* polar_quad);
+  void setQuadrature(Quadrature* quadrature);
   void setKNearest(int k_nearest);
 
   /* Set FSR parameters */

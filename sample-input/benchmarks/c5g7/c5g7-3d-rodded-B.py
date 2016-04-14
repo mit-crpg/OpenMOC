@@ -471,8 +471,8 @@ geometry.setCmfd(cmfd)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, opts.num_azim, 
-                                         opts.track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.azim_spacing)
 track_generator.setZCoord(-20.0)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()

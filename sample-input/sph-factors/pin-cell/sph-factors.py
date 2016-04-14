@@ -37,7 +37,7 @@ openmoc_materials = \
 
 # Initialize an OpenMOC TrackGenerator and Solver
 track_generator = openmoc.TrackGenerator(openmoc_geometry, opts.num_azim,
-                                         opts.track_spacing)
+                                         opts.azim_spacing)
 track_generator.generateTracks()
 
 # Initialize an OpenMOC Solver
@@ -61,7 +61,7 @@ fluxes_no_sph = openmoc.process.get_scalar_fluxes(solver)
 # Compute SPH factors
 sph, sph_mgxs_lib, sph_indices = \
     openmoc.materialize.compute_sph_factors(mgxs_lib,
-                                            track_spacing=opts.track_spacing,
+                                            azim_spacing=opts.azim_spacing,
                                             num_azim=opts.num_azim,
                                             num_threads=opts.num_omp_threads)
 
@@ -114,7 +114,7 @@ for fsr in range(num_fsrs):
 
 # Extract energy group edges
 group_edges = mgxs_lib.energy_groups.group_edges
-group_edges *= 1e6      # Convert to units of eV 
+group_edges *= 1e6      # Convert to units of eV
 group_edges += 1e-5     # Adjust lower bound to 1e-3 eV (for loglog scaling)
 
 # Compute difference in energy bounds for each group
@@ -148,9 +148,9 @@ for fsr in range(num_fsrs):
     fig = plt.figure()
     plt.plot(group_edges, openmc_fluxes[fsr,:],
              drawstyle='steps', color='r', linewidth=2)
-    plt.plot(group_edges, fluxes_no_sph[fsr,:], 
+    plt.plot(group_edges, fluxes_no_sph[fsr,:],
              drawstyle='steps', color='b', linewidth=2)
-    plt.plot(group_edges, fluxes_sph[fsr,:], 
+    plt.plot(group_edges, fluxes_sph[fsr,:],
              drawstyle='steps', color='g', linewidth=2)
 
     plt.yscale('log')
@@ -192,7 +192,7 @@ for fsr in range(num_fsrs):
     fig = plt.figure()
     plt.plot(group_edges, rel_err_no_sph[fsr,:],
              drawstyle='steps', color='r', linewidth=2)
-    plt.plot(group_edges, rel_err_sph[fsr,:], 
+    plt.plot(group_edges, rel_err_sph[fsr,:],
              drawstyle='steps', color='b', linewidth=2)
 
     plt.xscale('log')

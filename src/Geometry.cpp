@@ -627,7 +627,7 @@ int Geometry::getFSRId(LocalCoords* coords) {
   int fsr_id = 0;
   std::string fsr_key;
 
-  try{
+  try {
     fsr_key = getFSRKey(coords);
     fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
@@ -649,7 +649,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
   }
   catch(std::exception &e) {
@@ -669,7 +669,7 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
   }
   catch(std::exception &e) {

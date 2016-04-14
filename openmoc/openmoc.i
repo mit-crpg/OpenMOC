@@ -20,7 +20,7 @@
   #include "../src/log.h"
   #include "../src/Material.h"
   #include "../src/Point.h"
-  #include "../src/PolarQuad.h"
+  #include "../src/Quadrature.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
   #include "../src/boundary_type.h"
@@ -115,7 +115,7 @@ namespace std {
 %include ../src/log.h
 %include ../src/Material.h
 %include ../src/Point.h
-%include ../src/PolarQuad.h
+%include ../src/Quadrature.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
 %include ../src/boundary_type.h

@@ -16,6 +16,7 @@
 #endif
 #include "Track.h"
 #include "Geometry.h"
+#include "Quadrature.h"
 #include "Timer.h"
 #include <iostream>
 #include <fstream>
@@ -30,23 +31,20 @@
  * @brief The TrackGenerator is dedicated to generating and storing Tracks
  *        which cyclically wrap across the Geometry.
  * @details The TrackGenerator creates Track and initializes boundary
- *          conditions (vacuum or reflective) for each Track.
+ *          conditions (vacuum, reflective, or periodic) for each Track.
  */
 class TrackGenerator {
 
-private:
+protected:
 
   /** The number of shared memory OpenMP threads */
   int _num_threads;
 
-  /** Number of azimuthal angles in \f$ [0, \pi] \f$ */
-  int _num_azim;
+  /** Half the number of azimuthal angles in \f$ [0, 2\pi] \f$ */
+  int _num_azim_2;
 
-  /** The track spacing (cm) */
-  double _spacing;
-
-  /** The azimuthal angles (radians) */
-  double* _phi;
+  /** The requested track azimuthal spacing (cm) */
+  double _azim_spacing;
 
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
@@ -66,8 +64,11 @@ private:
    *  azimuthal angle */
   int* _num_y;
 
-  /** An array of the azimuthal angle quadrature weights */
-  FP_PRECISION* _azim_weights;
+  /** A boolean indicating if a user-defined Quadrature was assigned */
+  bool _user_quadrature;
+
+  /** The associated Quadrature object */
+  Quadrature* _quadrature;
 
   /** A 2D ragged array of Tracks */
   Track** _tracks;
@@ -114,14 +115,15 @@ private:
 
 public:
 
-  TrackGenerator(Geometry* geometry, int num_azim, double spacing);
+  TrackGenerator(Geometry* geometry, int num_azim, double azim_spacing);
   virtual ~TrackGenerator();
 
   /* Get parameters */
   int getNumAzim();
+  double getDesiredAzimSpacing();
   double getPhi(int azim);
-  double getTrackSpacing();
   Geometry* getGeometry();
+  Quadrature* getQuadrature();
   int getNumTracks();
   int getNumX(int azim);
   int getNumY(int azim);
@@ -130,7 +132,6 @@ public:
   int getNumSegments();
   Track** getTracks();
   Track** getTracksByParallelGroup();
-  FP_PRECISION* getAzimWeights();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(int fsr_id);
@@ -140,8 +141,9 @@ public:
 
   /* Set parameters */
   void setNumAzim(int num_azim);
-  void setTrackSpacing(double spacing);
+  void setDesiredAzimSpacing(double azim_spacing);
   void setGeometry(Geometry* geometry);
+  void setQuadrature(Quadrature* quadrature);
   void setNumThreads(int num_threads);
   void setZCoord(double z_coord);
 

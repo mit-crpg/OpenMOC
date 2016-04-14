@@ -108,7 +108,7 @@ def plot_tracks(track_generator, get_figure=False):
     # Retrieve data from TrackGenerator
     vals_per_track = openmoc.NUM_VALUES_PER_RETRIEVED_TRACK
     num_azim = track_generator.getNumAzim()
-    spacing = track_generator.getTrackSpacing()
+    spacing = track_generator.getDesiredAzimSpacing()
     num_tracks = track_generator.getNumTracks()
     coords = track_generator.retrieveTrackCoords(num_tracks*vals_per_track)
 
@@ -191,7 +191,7 @@ def plot_segments(track_generator, get_figure=False):
     # Retrieve data from TrackGenerator
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
-    spacing = track_generator.getTrackSpacing()
+    spacing = track_generator.getDesiredAzimSpacing()
     num_segments = track_generator.getNumSegments()
     num_fsrs = track_generator.getGeometry().getNumFSRs()
     coords = \
@@ -616,7 +616,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
 
 
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
-                        xlim=None, ylim=None, get_figure=False, 
+                        xlim=None, ylim=None, get_figure=False,
                         library='matplotlib'):
     """Plot a color-coded 2D surface plot of the FSR scalar fluxes for one or
     more energy groups.
@@ -1149,7 +1149,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         # Use Python Imaging Library (PIL) to plot 2D color map of domain data
         if plot_params.library == 'pil':
             img = _get_pil_image(np.flipud(surface), plot_params)
-            
+
             if get_figure:
                 figures.append(img)
             else:
@@ -1251,16 +1251,16 @@ def plot_quadrature(solver, get_figure=False):
 
     # Retrieve data from TrackGenerator
     track_generator = solver.getTrackGenerator()
-    polar_quad = solver.getPolarQuad()
+    quad = track_generator.getQuadrature()
     num_azim = track_generator.getNumAzim()
-    azim_spacing = track_generator.getTrackSpacing()
-    num_polar = polar_quad.getNumPolarAngles()
+    azim_spacing = track_generator.getDesiredAzimSpacing()
+    num_polar_2 = int(quad.getNumPolarAngles() / 2)
     phis = np.zeros(num_azim/4)
-    thetas = np.zeros(num_polar)
+    thetas = np.zeros(num_polar_2)
 
     # Get the polar angles
-    for p in range(num_polar):
-        thetas[p] = np.arcsin(polar_quad.getSinTheta(p))
+    for p in range(num_polar_2):
+        thetas[p] = np.arcsin(quad.getSinTheta(0,p))
 
     # Get the azimuthal angles
     for a in range(int(num_azim / 4)):
@@ -1281,28 +1281,28 @@ def plot_quadrature(solver, get_figure=False):
 
     # Plot the quadrature points on the octant unit sphere
     for a in range(int(num_azim / 4)):
-        for p in range(num_polar):
+        for p in range(num_polar_2):
             ax.scatter(np.cos(phis[a]) * np.sin(thetas[p]), np.sin(phis[a]) *
                        np.sin(thetas[p]), np.cos(thetas[p]), s=50, color='b')
 
     # Get the quadrature type
     quad_type = ''
-    if polar_quad.getQuadratureType() is openmoc.TABUCHI_YAMAMOTO:
+    if quad.getQuadratureType() is openmoc.TABUCHI_YAMAMOTO:
         quad_type = 'TABUCHI_YAMAMOTO'
         title = 'TABUCHI YAMAMOTO'
-    elif polar_quad.getQuadratureType() is openmoc.LEONARD:
+    elif quad.getQuadratureType() is openmoc.LEONARD:
         quad_type = 'LEONARD'
         title = 'LEONARD'
-    elif polar_quad.getQuadratureType() is openmoc.GAUSS_LEGENDRE:
+    elif quad.getQuadratureType() is openmoc.GAUSS_LEGENDRE:
         quad_type = 'GAUSS_LEGENDRE'
         title = 'GAUSS LEGENDRE'
-    elif polar_quad.getQuadratureType() is openmoc.EQUAL_WEIGHTS:
+    elif quad.getQuadratureType() is openmoc.EQUAL_WEIGHTS:
         quad_type = 'EQUAL_WEIGHTS'
         title = 'EQUAL WEIGHTS'
-    elif polar_quad.getQuadratureType() is openmoc.EQUAL_ANGLES:
+    elif quad.getQuadratureType() is openmoc.EQUAL_ANGLES:
         quad_type = 'EQUAL_ANGLES'
         title = 'EQUAL ANGLES'
-    elif polar_quad.getQuadratureType() is openmoc.CUSTOM:
+    elif quad.getQuadratureType() is openmoc.CUSTOM:
         quad_type = 'CUSTOM'
         title = 'CUSTOM'
     else:
@@ -1311,11 +1311,11 @@ def plot_quadrature(solver, get_figure=False):
 
     title += ' with ' + str(num_azim) + ' azim, ' + \
              '{:5.3f}'.format(azim_spacing) + ' spacing and ' \
-             + str(num_polar) + ' polar'
+             + str(2*num_polar_2) + ' polar'
 
     filename = directory + 'quad_' + quad_type + '_' + \
                str(num_azim) + '_azim_' + '{:5.3f}'.format(azim_spacing) + \
-               '_cm_spacing_' + str(num_polar) + '_polar.png'
+               '_cm_spacing_' + str(2*num_polar_2) + '_polar.png'
 
     ax.view_init(elev=30, azim=45)
     ax.set_xlim([0,1])
