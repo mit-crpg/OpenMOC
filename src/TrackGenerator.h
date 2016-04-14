@@ -18,6 +18,7 @@
 #include "Geometry.h"
 #include "Quadrature.h"
 #include "Timer.h"
+#include "segmentation_type.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
