@@ -19,7 +19,6 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _use_input_file = false;
   _tracks_filename = "";
   _z_coord = 0.0;
-  _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _FSR_volumes = NULL;
   _FSR_locks = NULL;
   _timer = new Timer();
@@ -53,6 +52,7 @@ TrackGenerator::~TrackGenerator() {
 
   if (_quadrature != NULL && !_user_quadrature)
     delete _quadrature;
+
   if (_timer != NULL)
     delete _timer;
 }
@@ -299,8 +299,8 @@ FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
 FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   if (!containsTracks())
-  log_printf(ERROR, "Unable to get the FSR volumes since tracks "
-             "have not yet been generated");
+    log_printf(ERROR, "Unable to get the FSR volumes since tracks "
+               "have not yet been generated");
 
   /* Reset FSR volumes to zero */
   int num_FSRs = _geometry->getNumFSRs();
@@ -340,7 +340,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   }
 
   return FSR_volumes;
-  }
+}
 
 
 /**
@@ -1245,8 +1245,6 @@ void TrackGenerator::initializeVolumes() {
     material->incrementVolume(fsr_volumes[i]);
     material->incrementNumInstances();
   }
-
-  delete [] fsr_volumes;
 }
 
 
@@ -1952,7 +1950,6 @@ void TrackGenerator::generateFSRCentroids() {
 
   /* Delete temporary array of FSR volumes and centroids */
   delete [] centroids;
-  delete [] FSR_volumes;
 }
 
 
