@@ -19,6 +19,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _use_input_file = false;
   _tracks_filename = "";
   _z_coord = 0.0;
+  _FSR_volumes = NULL;
   _FSR_locks = NULL;
   _timer = new Timer();
 }
@@ -46,8 +47,12 @@ TrackGenerator::~TrackGenerator() {
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
 
+  if (_FSR_volumes != NULL)
+    delete [] _FSR_volumes;
+
   if (_quadrature != NULL && !_user_quadrature)
     delete _quadrature;
+
   if (_timer != NULL)
     delete _timer;
 }
@@ -268,9 +273,27 @@ double TrackGenerator::getZCoord() {
 
 
 /**
+ * @brief Return the array used to store the FSR volumes
+ * @return _FSR_volumes the FSR volumes array indexed by FSR ID
+ */
+FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
+#pragma omp critical
+  {
+    if (_FSR_volumes == NULL) {
+      int num_FSRs = _geometry->getNumFSRs();
+      _FSR_volumes = new FP_PRECISION[num_FSRs];
+      memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+    }
+  }
+
+  return _FSR_volumes;
+}
+
+
+/**
  * @brief Computes and returns an array of volumes indexed by FSR.
- * @details Note: It is the function caller's responsibility to deallocate
- *          the memory reserved for the FSR volume array.
+ * @details Note: The memory is stored in the FSR volumes buffer of the
+ *          TrackGenerator and is freed during deconstruction.
  * @return a pointer to the array of FSR volumes
  */
 FP_PRECISION* TrackGenerator::getFSRVolumes() {
@@ -279,8 +302,9 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
     log_printf(ERROR, "Unable to get the FSR volumes since tracks "
                "have not yet been generated");
 
+  /* Reset FSR volumes to zero */
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = new FP_PRECISION[num_FSRs];
+  FP_PRECISION* FSR_volumes = getFSRVolumesBuffer();
   memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
 #pragma omp parallel
@@ -1221,8 +1245,6 @@ void TrackGenerator::initializeVolumes() {
     material->incrementVolume(fsr_volumes[i]);
     material->incrementNumInstances();
   }
-
-  delete [] fsr_volumes;
 }
 
 
@@ -1928,7 +1950,6 @@ void TrackGenerator::generateFSRCentroids() {
 
   /* Delete temporary array of FSR volumes and centroids */
   delete [] centroids;
-  delete [] FSR_volumes;
 }
 
 

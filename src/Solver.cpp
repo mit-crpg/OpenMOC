@@ -53,9 +53,6 @@ Solver::Solver(TrackGenerator* track_generator) {
  */
 Solver::~Solver() {
 
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
@@ -503,10 +500,7 @@ void Solver::initializeFSRs() {
 
   log_printf(INFO, "Initializing flat source regions...");
 
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
+  /* Delete old FSR materials array if it exists */
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
