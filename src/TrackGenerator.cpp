@@ -19,6 +19,8 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _use_input_file = false;
   _tracks_filename = "";
   _z_coord = 0.0;
+  _segment_formation = EXPLICIT_2D;
+  _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _FSR_volumes = NULL;
   _FSR_locks = NULL;
   _timer = new Timer();
@@ -378,8 +380,13 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
 
 
 /**
- * @brief Finds and returns the maximum optical length amongst all segments.
- * @return the maximum optical path length
+ * @breif Calculates and returns the maximum optcial length for any segment
+ *        in the Geomtry.
+ * @details The _max_optical_length value is recomputed, updated, and returned.
+ *          This value determines the when segments must be split during ray
+ *          tracing.
+ * @return _max_optical_length the maximum optical length of any segment in the
+ *         Geometry
  */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
@@ -403,13 +410,27 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
           sigma_t = material->getSigmaT();
 
           for (int e=0; e < material->getNumEnergyGroups(); e++)
-            max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+            max_optical_length = std::max(max_optical_length,
+                                          length*sigma_t[e]);
         }
       }
     }
   }
 
-  return max_optical_length;
+  /* Update maximum optical path length */
+  _max_optical_length = max_optical_length;
+
+  return _max_optical_length;
+}
+
+
+/**
+ * @brief Retrieves the max optical path length of 3D segments for use in
+ *        on-the-fly computation
+ * @return maximum optical path length
+ */
+FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
+  return _max_optical_length;
 }
 
 
@@ -848,6 +869,15 @@ void TrackGenerator::initializeTrackFileDirectory() {
       _contains_tracks = true;
     }
   }
+}
+
+
+/**
+ * @brief Returns the type of ray tracing used for segment formation
+ * @return the segmentation type
+ */
+segmentationType TrackGenerator::getSegmentFormation() {
+  return _segment_formation;
 }
 
 

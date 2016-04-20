@@ -95,6 +95,12 @@ protected:
   /** The z-coord where the 2D Tracks should be created */
   double _z_coord;
 
+  /** Determines the type of track segmentation to use */
+  segmentationType _segment_formation;
+
+  /** Max optical segment length for Tracks before splitting */
+  FP_PRECISION _max_optical_length;
+
   /** A timer to record timing data for ray tracing */
   Timer* _timer;
 
@@ -136,6 +142,7 @@ public:
   int getNumSegments();
   Track** getTracks();
   Track** getTracksByParallelGroup();
+  FP_PRECISION retrieveMaxOpticalLength();
   int getNumThreads();
   FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();
@@ -143,6 +150,7 @@ public:
   FP_PRECISION getMaxOpticalLength();
   double getZCoord();
   omp_lock_t* getFSRLocks();
+  segmentationType getSegmentFormation();
 
   /* Set parameters */
   void setNumAzim(int num_azim);

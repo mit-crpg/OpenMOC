@@ -298,6 +298,17 @@ FP_PRECISION Solver::getFlux(int fsr_id, int group) {
 
 
 /**
+ * @brief Returns the boundary flux array at the requested indexes
+ * @param track_id The Track's Unique ID
+ * @param fwd Whether the direction of the angular flux along the track is
+ *        forward (True) or backward (False)
+ */
+FP_PRECISION* Solver::getBoundaryFlux(int track_id, bool fwd) {
+  return &_boundary_flux(track_id, !fwd, 0, 0);
+}
+
+
+/**
  * @brief Sets the Geometry for the Solver.
  * @details This is a private setter method for the Solver and is not
  *          intended to be called by the user.
