@@ -23,6 +23,18 @@ else:
     from openmoc.log import *
     import openmoc.checkvalue as cv
 
+# Store viable OpenMOC solver types for type checking
+solver_types = (openmoc.Solver,)
+try:
+    # Try to import OpenMOC's CUDA module
+    if (sys.version_info[0] == 2):
+        from cuda import GPUSolver
+    else:
+        from openmoc.cuda import GPUSolver
+    solver_types += (GPUSolver,)
+except ImportError:
+    pass
+
 if sys.version_info[0] >= 3:
     basestring = str
 
@@ -55,7 +67,8 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
 
     if isinstance('fsrs', basestring):
         cv.check_value('fsrs', fsrs, 'all')
@@ -127,7 +140,8 @@ def compute_fission_rates(solver, use_hdf5=False):
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
     cv.check_type('use_hdf5', use_hdf5, bool)
 
     # Make directory if it does not exist
@@ -267,7 +281,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
     cv.check_type('fluxes', fluxes, bool)
     cv.check_type('sources', sources, bool)
     cv.check_type('fission_rates', fission_rates, bool)
@@ -876,7 +891,8 @@ class Mesh(object):
 
         """
 
-        cv.check_type('solver', solver, openmoc.Solver)
+        global solver_types
+        cv.check_type('solver', solver, solver_types)
         cv.check_value('volume', volume, ('averaged', 'integrated'))
 
         geometry = solver.getGeometry()
@@ -937,7 +953,8 @@ class Mesh(object):
 
         """
 
-        cv.check_type('solver', solver, openmoc.Solver)
+        global solver_types
+        cv.check_type('solver', solver, solver_types)
         cv.check_value('domain_type', domain_type, ('fsr', 'cell', 'material'))
         cv.check_value('volume', volume, ('averaged', 'integrated'))
         cv.check_value('energy', energy, ('by_group', 'integrated'))

@@ -98,6 +98,9 @@ protected:
   /** A timer to record timing data for ray tracing */
   Timer* _timer;
 
+  /** A buffer holding the computed FSR volumes */
+  FP_PRECISION* _FSR_volumes;
+
   void computeEndPoint(Point* start, Point* end,  const double phi,
                        const double width_x, const double width_y);
 
@@ -134,6 +137,7 @@ public:
   Track** getTracks();
   Track** getTracksByParallelGroup();
   int getNumThreads();
+  FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
