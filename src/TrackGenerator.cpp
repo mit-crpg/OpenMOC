@@ -292,8 +292,6 @@ FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
 
 /**
  * @brief Computes and returns an array of volumes indexed by FSR.
- * @details Note: The memory is stored in the FSR volumes buffer of the
- *          TrackGenerator and is freed during deconstruction.
  * @return a pointer to the array of FSR volumes
  */
 FP_PRECISION* TrackGenerator::getFSRVolumes() {
