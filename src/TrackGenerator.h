@@ -122,6 +122,8 @@ protected:
   void dumpTracksToFile();
   bool readTracksFromFile();
   void clearTimerSplits();
+  void calculateFSRVolumes();
+  void resetStatus();
 
 public:
 
@@ -144,7 +146,6 @@ public:
   Track** getTracksByParallelGroup();
   FP_PRECISION retrieveMaxOpticalLength();
   int getNumThreads();
-  FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
@@ -170,6 +171,7 @@ public:
   void splitSegments(FP_PRECISION max_optical_length);
   void initializeSegments();
   void printTimerReport();
+  void resetFSRVolumes();
 };
 
 #endif /* TRACKGENERATOR_H_ */
