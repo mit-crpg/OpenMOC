@@ -273,25 +273,7 @@ double TrackGenerator::getZCoord() {
 
 
 /**
- * @brief Return the array used to store the FSR volumes
- * @return _FSR_volumes the FSR volumes array indexed by FSR ID
- */
-FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
-#pragma omp critical
-  {
-    if (_FSR_volumes == NULL) {
-      int num_FSRs = _geometry->getNumFSRs();
-      _FSR_volumes = new FP_PRECISION[num_FSRs];
-      memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-    }
-  }
-
-  return _FSR_volumes;
-}
-
-
-/**
- * @brief Computes and returns an array of volumes indexed by FSR.
+ * @brief Returns an array of volumes indexed by FSR.
  * @return a pointer to the array of FSR volumes
  */
 FP_PRECISION* TrackGenerator::getFSRVolumes() {
@@ -300,10 +282,35 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
     log_printf(ERROR, "Unable to get the FSR volumes since tracks "
                "have not yet been generated");
 
+#pragma omp critical
+  {
+    if (_FSR_volumes == NULL) {
+      int num_FSRs = _geometry->getNumFSRs();
+      _FSR_volumes = new FP_PRECISION[num_FSRs];
+      calculateFSRVolumes();
+    }
+  }
+
+  return _FSR_volumes;
+}
+
+
+/**
+ * @brief Calculates the volume of each FSR
+ * @details The _FSR_volumes array is reset to zero and then FSR
+ *          volumes are re-computed.
+ */
+void TrackGenerator::calculateFSRVolumes() {
+
+
+  if (_FSR_volumes == NULL)
+    log_printf(ERROR, "Unable to calculate the FSR volumes since the FSR "
+               "volumes array has not yet been allocated");
+
+
   /* Reset FSR volumes to zero */
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = getFSRVolumesBuffer();
-  memset(FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+  memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
 #pragma omp parallel
   {
@@ -328,7 +335,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
           /* Set FSR mutual exclusion lock */
           omp_set_lock(&_FSR_locks[fsr_id]);
 
-          FSR_volumes[fsr_id] += volume;
+          _FSR_volumes[fsr_id] += volume;
 
           /* Release FSR mutual exclusion lock */
           omp_unset_lock(&_FSR_locks[fsr_id]);
@@ -336,8 +343,21 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
       }
     }
   }
+}
 
-  return FSR_volumes;
+
+/**
+ * @brief Deletes the memory associated with the FSR volumes and resets it NULL
+ */
+void TrackGenerator::resetFSRVolumes() {
+
+#pragma omp critical
+  {
+    if (_FSR_volumes != NULL) {
+      delete [] _FSR_volumes;
+      _FSR_volumes = NULL;
+    }
+  }
 }
 
 
@@ -455,9 +475,7 @@ void TrackGenerator::setNumAzim(int num_azim) {
                "the TrackGenerator since it is not a multiple of 4", num_azim);
 
   _num_azim_2 = num_azim/2;
-  _contains_tracks = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -471,9 +489,7 @@ void TrackGenerator::setDesiredAzimSpacing(double azim_spacing) {
                " the TrackGenerator.", azim_spacing);
 
   _azim_spacing = azim_spacing;
-  _contains_tracks = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -483,9 +499,7 @@ void TrackGenerator::setDesiredAzimSpacing(double azim_spacing) {
  */
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
-  _contains_tracks = false;
-  _use_input_file = false;
-  _tracks_filename = "";
+  resetStatus();
 }
 
 
@@ -1231,6 +1245,7 @@ void TrackGenerator::initializeVolumes() {
   Cell* cell;
   Material* material;
   int num_FSRs = _geometry->getNumFSRs();
+  resetFSRVolumes();
   FP_PRECISION* fsr_volumes = getFSRVolumes();
 
   /* Compute volume and number of instances for each Cell and Material */
@@ -1342,7 +1357,7 @@ void TrackGenerator::initializeBoundaryConditions() {
       }
 
       /* Set boundary conditions for tracks in [PI/2, PI] */
-      else{
+      else {
         if (j < _num_y[i])
           track->setBCOut(_geometry->getMinXBoundaryType());
         else
@@ -1362,12 +1377,12 @@ void TrackGenerator::initializeBoundaryConditions() {
         else
           track->setTrackOut(&_tracks[ic][j + _num_x[i]]);
       }
-      else{
+      else {
         if (track->getBCOut() == PERIODIC) {
           track->setNextOut(false);
           track->setTrackOut(&_tracks[i][j - _num_y[i]]);
         }
-        else{
+        else {
           track->setNextOut(true);
           track->setTrackOut(&_tracks[ic][_num_x[i] + 2*_num_y[i] - j - 1]);
         }
@@ -1379,12 +1394,12 @@ void TrackGenerator::initializeBoundaryConditions() {
           track->setNextIn(true);
           track->setTrackIn(&_tracks[i][j + _num_y[i]]);
         }
-        else{
+        else {
           track->setNextIn(false);
           track->setTrackIn(&_tracks[ic][_num_x[i] - j - 1]);
         }
       }
-      else{
+      else {
         track->setNextIn(true);
         if (track->getBCIn() == PERIODIC)
           track->setTrackIn(&_tracks[i][j - _num_x[i]]);
@@ -1405,19 +1420,15 @@ void TrackGenerator::segmentize() {
 
   log_printf(NORMAL, "Ray tracing for track segmentation...");
 
-  Track* track;
-
-
   /* This section loops over all Track and segmentizes each one if the
    * Tracks were not read in from an input file */
   if (!_use_input_file) {
 
     /* Loop over all Tracks */
     for (int i=0; i < _num_azim_2; i++) {
-#pragma omp parallel for private(track)
+#pragma omp parallel for
       for (int j=0; j < _num_tracks[i]; j++) {
-        track = &_tracks[i][j];
-        _geometry->segmentize(track);
+        _geometry->segmentize(&_tracks[i][j]);
       }
     }
   }
@@ -2139,4 +2150,14 @@ void TrackGenerator::printTimerReport() {
 
   set_separator_character('-');
   log_printf(SEPARATOR, "-");
+}
+
+
+/**
+ * @brief Resets the TrackGenerator to not contain tracks or segments
+ */
+void TrackGenerator::resetStatus() {
+  _contains_tracks = false;
+  _use_input_file = false;
+  _tracks_filename = "";
 }
