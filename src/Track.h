@@ -48,6 +48,7 @@ struct segment {
   }
 };
 
+
 /**
  * @class Track Track.h "src/Track.h"
  * @brief A Track represents a characteristic line across the geometry.
@@ -70,6 +71,15 @@ protected:
   /** The azimuthal angle for the Track */
   double _phi;
 
+  /** The azimuthal angle index into the global 2D ragged array of Tracks */
+  int _azim_angle_index;
+
+  /** The track index in the periodic cycle */
+  int _periodic_track_index;
+
+  /** The track index in the reflective cycle */
+  int _reflective_track_index;
+
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
@@ -87,11 +97,9 @@ protected:
   boundaryType _bc_bwd;
 
   /* Indices that are used to locate the track in the various track arrays */
-  int _azim_index;
   int _xy_index;
   int _periodic_cycle_id;
   int _reflective_cycle_id;
-  int _periodic_track_index;
 
   /** Pointers to reflective and periodic Tracks in the forward and reverse
    *  directions */
@@ -115,6 +123,11 @@ public:
   virtual ~Track();
 
   /* Setter methods */
+  virtual void setValues(const double start_x, const double start_y,
+                         const double end_x, const double end_y,
+                         const double phi);
+  virtual void setCoords(double x0, double y0,
+                         double x1, double y1);
   void setUid(int uid);
   void setPhi(const double phi);
   void setBCFwd(const boundaryType bc_fwd);
@@ -162,7 +175,7 @@ public:
   void insertSegment(int index, segment* segment);
   void clearSegments();
   void setNumSegments(int num_segments);
-  virtual std::string toString()=0;
+  virtual std::string toString();
 };
 
 

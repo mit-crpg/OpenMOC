@@ -36,6 +36,37 @@ Track::~Track() {
 
 
 /**
+ * @brief Set the values for the Track's start and end point and angle.
+ * @param start_x the x-coordinate at the starting point
+ * @param start_y the y-coordinate at the starting point
+ * @param end_x the x-coordinate at the ending point
+ * @param end_y the y-coordinate at the ending point
+ * @param phi the track's azimuthal angle (\f$ \phi \in [0, 2 \pi] \f$)
+ */
+void Track::setValues(const double start_x, const double start_y,
+                      const double end_x, const double end_y,
+                      const double phi) {
+   _start.setCoords(start_x, start_y);
+   _end.setCoords(end_x, end_y);
+   _phi = phi;
+}
+
+
+/**
+ * @brief Set the values for the Track's start and end point.
+ * @param x0 the x-coordinate at the starting point
+ * @param y0 the y-coordinate at the starting point
+ * @param x1 the x-coordinate at the ending point
+ * @param y1 the y-coordinate at the ending point
+ */
+void Track::setCoords(double x0, double y0,
+                      double x1, double y1) {
+  _start.setCoords(x0, y0);
+  _end.setCoords(x1, y1);
+}
+
+
+/**
  * @brief Initializes a Track's unique ID.
  * @details This is set by the trackgenerator to correspond to the Track's
  *          location in a 2D ragged array of all tracks.
@@ -199,7 +230,7 @@ void Track::clearSegments() {
  * @param index The azimuthal angle index
  */
 void Track::setAzimIndex(int index) {
-  _azim_index = index;
+  _azim_angle_index = index;
 }
 
 
@@ -208,7 +239,7 @@ void Track::setAzimIndex(int index) {
  * @return The azimuthal angle index
  */
 int Track::getAzimIndex() {
-  return _azim_index;
+  return _azim_angle_index;
 }
 
 
@@ -515,4 +546,19 @@ int Track::getReflectiveCycleId() {
  */
 bool Track::getDirectionInCycle() {
   return _direction_in_cycle;
+}
+
+/**
+ * @brief Convert this Track's attributes to a character array.
+ * @details The character array returned includes the Track's starting and
+ *          ending coordinates, the azimuthal angle and azimuthal weight.
+ * @return a character array of this Track's attributes
+ */
+std::string Track::toString() {
+  std::stringstream string;
+  string << "Track: start, x = " << _start.getX() << ", y = " <<
+    _start.getY() << ", z = " << ", end, x = " <<
+    _end.getX() << ", y = " << _end.getY() <<
+    ", phi = " << _phi;
+  return string.str();
 }

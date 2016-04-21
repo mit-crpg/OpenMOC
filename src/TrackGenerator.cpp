@@ -202,7 +202,7 @@ Track** TrackGenerator::getTracksArray() {
  *          second index is the Track number.
  * @return the 2D jagged array of 2D Tracks
  */
-Track2D** TrackGenerator::get2DTracks() {
+Track** TrackGenerator::get2DTracks() {
 
   if (!TrackGenerator::containsTracks())
     log_printf(ERROR, "Unable to return the 3D ragged array of the 2D Tracks "
@@ -324,6 +324,7 @@ void TrackGenerator::exportFSRVolumes(double* out_volumes, int num_fsrs) {
     out_volumes[i] = _FSR_volumes[i];
 
 }
+
 
 /**
  * @brief Computes and returns an array of volumes indexed by FSR.
@@ -893,7 +894,7 @@ void TrackGenerator::initializeTracks() {
   /* Allocate memory for arrays */
   _tracks_per_cycle = new int[_num_azim/4];
   _cycles_per_azim  = new int[_num_azim/4];
-  _tracks_2D        = new Track2D*[_num_azim/2];
+  _tracks_2D        = new Track*[_num_azim/2];
   _num_x            = new int[_num_azim/2];
   _num_y            = new int[_num_azim/2];
   _cycle_length     = new double[_num_azim/4];
@@ -948,13 +949,13 @@ void TrackGenerator::initializeTracks() {
     _cycles_per_azim[a] = (_num_x[a] + _num_y[a]) * 2 / _tracks_per_cycle[a];
   }
 
-  Track2D* track;
+  Track* track;
 
   /* Generate 2D tracks */
   for (int a=0; a < _num_azim/2; a++) {
 
     /* Allocate memory for the 2D tracks array */
-    _tracks_2D[a] = new Track2D[_num_x[a] + _num_y[a]];
+    _tracks_2D[a] = new Track[_num_x[a] + _num_y[a]];
     _num_2D_tracks += _num_x[a] + _num_y[a];
 
     /* Get the azimuthal angle for all tracks with this azimuthal angle */
@@ -1017,17 +1018,17 @@ void TrackGenerator::initializeTracks() {
  */
 void TrackGenerator::initializeTrackCycles() {
 
-  _tracks_2D_cycle  = new Track2D***[_num_azim/4];
+  _tracks_2D_cycle  = new Track***[_num_azim/4];
   for (int a=0; a < _num_azim/4; a++) {
-    _tracks_2D_cycle[a] = new Track2D**[_cycles_per_azim[a]];
+    _tracks_2D_cycle[a] = new Track**[_cycles_per_azim[a]];
     for (int c=0; c < _cycles_per_azim[a]; c++) {
-      _tracks_2D_cycle[a][c] = new Track2D*[_tracks_per_cycle[a]];
+      _tracks_2D_cycle[a][c] = new Track*[_tracks_per_cycle[a]];
     }
   }
 
   bool fwd;
-  Track2D* track;
-  Track2D* track_prev;
+  Track* track;
+  Track* track_prev;
 
   for (int a=0; a < _num_azim/4; a++) {
     for (int c=0; c < _cycles_per_azim[a]; c++) {
@@ -1042,11 +1043,11 @@ void TrackGenerator::initializeTrackCycles() {
         track->setDirectionInCycle(fwd);
 
         if (fwd) {
-          track = static_cast<Track2D*>(track_prev->getTrackReflFwd());
+          track = static_cast<Track*>(track_prev->getTrackReflFwd());
           fwd = track_prev->getReflFwdFwd();
         }
         else {
-          track = static_cast<Track2D*>(track_prev->getTrackReflBwd());
+          track = static_cast<Track*>(track_prev->getTrackReflBwd());
           fwd = track_prev->getReflBwdFwd();
         }
       }

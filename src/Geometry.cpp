@@ -868,7 +868,7 @@ void Geometry::initializeFlatSourceRegions() {
  * @param z_coord the axial height at which the 2D plane of the geometry is
  *        formed
  */
-void Geometry::segmentize2D(Track2D* track, double z_coord) {
+void Geometry::segmentize2D(Track* track, double z_coord) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -896,7 +896,7 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track2D: %s", track->toString().c_str());
+               "of this Track: %s", track->toString().c_str());
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
@@ -956,7 +956,7 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
 
   }
 
-  log_printf(DEBUG, "Created %d segments for Track2D: %s",
+  log_printf(DEBUG, "Created %d segments for Track: %s",
              track->getNumSegments(), track->toString().c_str());
 
   /* Truncate the linked list for the LocalCoords */
@@ -1128,7 +1128,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track2D: %s", flattened_track->toString().c_str());
+               "of this Track: %s", flattened_track->toString().c_str());
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the

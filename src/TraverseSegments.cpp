@@ -74,7 +74,7 @@ void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
 void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
 
   /* Loop over all parallel tracks for each azimuthal angle */
-  Track2D** tracks_2D = _track_generator->get2DTracks();
+  Track** tracks_2D = _track_generator->get2DTracks();
   int num_azim = _track_generator->getNumAzim();
   for (int a=0; a < num_azim/2; a++) {
     int num_xy = _track_generator->getNumX(a) + _track_generator->getNumY(a);

@@ -22,7 +22,6 @@
   #include "../src/ExpEvaluator.h"
   #include "../src/Timer.h"
   #include "../src/Track.h"
-  #include "../src/Track2D.h"
   #include "../src/Track3D.h"
   #include "../src/Vector.h"
   #include "../src/Matrix.h"
@@ -510,7 +509,6 @@ namespace std {
 %include ../src/ExpEvaluator.h
 %include ../src/Timer.h
 %include ../src/Track.h
-%include ../src/Track2D.h
 %include ../src/Track3D.h
 %include ../src/Vector.h
 %include ../src/Matrix.h

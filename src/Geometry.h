@@ -229,7 +229,7 @@ public:
   void subdivideCells();
   void initializeAxialFSRs(std::vector<double> global_z_mesh);
   void initializeFlatSourceRegions();
-  void segmentize2D(Track2D* track, double z_coord);
+  void segmentize2D(Track* track, double z_coord);
   void segmentize3D(Track3D* track);
   void segmentizeExtruded(Track* flattened_track,
       std::vector<double> z_coords);

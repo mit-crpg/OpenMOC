@@ -11,7 +11,7 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "Track2D.h"
+#include "Track.h"
 #include "Track3D.h"
 #include "Geometry.h"
 #include "TrackGenerator3D.h"

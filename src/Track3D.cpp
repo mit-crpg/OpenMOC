@@ -86,9 +86,9 @@ void Track3D::setCycleIndex(int index) {
 
 
 /**
- * @brief Set the index into the reflective Track2D cycle that this
+ * @brief Set the index into the reflective Track cycle that this
  *        Track lies above.
- * @param index The Track's index into the reflective Track2D cycle that this
+ * @param index The Track's index into the reflective Track cycle that this
  *        Track lies above.
  */
 void Track3D::setCycleTrackIndex(int index) {
@@ -155,9 +155,9 @@ int Track3D::getCycleIndex() {
 
 
 /**
- * @brief Get the index into the reflective Track2D cycle that this
+ * @brief Get the index into the reflective Track cycle that this
  *        Track lies above.
- * @return The Track's index into the reflective Track2D cycle that this
+ * @return The Track's index into the reflective Track cycle that this
  *         Track lies above.
  */
 int Track3D::getCycleTrackIndex() {

@@ -14,7 +14,7 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "Track2D.h"
+#include "Track.h"
 #include "Geometry.h"
 #include "MOCKernel.h"
 #include "segmentation_type.h"
@@ -70,7 +70,7 @@ protected:
   int* _num_y;
 
   /** A 2D ragged array of 2D tracks (azim, track index) */
-  Track2D** _tracks_2D;
+  Track** _tracks_2D;
 
   /** A 1D array of Track pointers arranged by UID */
   Track** _tracks_2D_array;
@@ -105,7 +105,7 @@ protected:
   bool _periodic;
 
   /** A 2D ragged array of 2D tracks (azim, cycle, train index) */
-  Track2D**** _tracks_2D_cycle;
+  Track**** _tracks_2D_cycle;
 
   /** Determines the type of track segmentation to use */
   segmentationType _segment_formation;
@@ -151,7 +151,7 @@ public:
   bool getPeriodic();
   Track** get2DTracksArray();
   virtual Track** getTracksArray();
-  Track2D** get2DTracks();
+  Track** get2DTracks();
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
   int getNumThreads();
