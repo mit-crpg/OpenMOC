@@ -3,6 +3,9 @@
 
 /**
  * @brief Constructor for the MOCKernel assigns default values
+ * @details The count for the number of segments traversed is set to zero and
+ *          the maximum optical path length is retrieved from the
+ *          TrackGenerator
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
  * @param row_num the row index into the temporary segments matrix
@@ -43,7 +46,7 @@ VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
  * @param row_num the row index into the temporary segments matrix
  */
 CounterKernel::CounterKernel(TrackGenerator* track_generator, int row_num) :
-                           MOCKernel(track_generator, row_num) {}
+                             MOCKernel(track_generator, row_num) {}
 
 
 /**
@@ -84,7 +87,7 @@ MOCKernel::~MOCKernel() {};
  * @details MOC kernels count how many times they are accessed. This value
  *          returns the value of the counter (number of execute accesses)
  *          since kernel creation or last call to newTrack.
- * @return _count the counter value
+ * @return the number of segments traversed
  */
 int MOCKernel::getCount() {
   return _count;
@@ -95,7 +98,7 @@ int MOCKernel::getCount() {
  * @details MOC kernels ensure that there are no segments with an optical path
  *          length greater than the maximum optical path length by splitting
  *          then when they get too large.
- * @param the maximum optical path length for a segment
+ * @param max_tau the maximum optical path length for a segment
  */
 void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
   _max_tau = max_tau;
@@ -123,17 +126,8 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
   /* Unset lock */
   omp_unset_lock(&_FSR_locks[id]);
 
-  /* Determine the number of cuts on the segment */
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
-    if (sigma_t[e] > max_sigma_t)
-      max_sigma_t = sigma_t[e];
-
-  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
-
   /* Increment count */
-  _count += num_cuts;
+  _count++;
 }
 
 

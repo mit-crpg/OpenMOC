@@ -19,7 +19,6 @@
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
-  #include "../src/MOCKernel.h"
   #include "../src/Point.h"
   #include "../src/Quadrature.h"
   #include "../src/Solver.h"
@@ -29,8 +28,6 @@
   #include "../src/Timer.h"
   #include "../src/Track.h"
   #include "../src/TrackGenerator.h"
-  #include "../src/TrackTraversingAlgorithms.h"
-  #include "../src/TraverseTracks.h"
   #include "../src/Universe.h"
   #include "../src/Cmfd.h"
   #include "../src/Vector.h"
@@ -117,7 +114,6 @@ namespace std {
 %include ../src/LocalCoords.h
 %include ../src/log.h
 %include ../src/Material.h
-%include ../src/MOCKernel.h
 %include ../src/Point.h
 %include ../src/Quadrature.h
 %include ../src/Solver.h
@@ -127,8 +123,6 @@ namespace std {
 %include ../src/Timer.h
 %include ../src/Track.h
 %include ../src/TrackGenerator.h
-%include ../src/TrackTraversingAlgorithms.h
-%include ../src/TraverseTracks.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/Vector.h
