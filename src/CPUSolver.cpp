@@ -648,75 +648,17 @@ void CPUSolver::transportSweep() {
 
   log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
-  int min_track = 0;
-  int max_track = 0;
-
-  /* Initialize flux in each FSr to zero */
-  flattenFSRFluxes(0.0);
-
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroCurrents();
 
-  /* Loop over the parallel track groups */
-  for (int i=0; i < _num_parallel_track_groups; i++) {
+  /* Initialize flux in each FSR to zero */
+  flattenFSRFluxes(0.0);
 
-    /* Compute the minimum and maximum Track IDs corresponding to
-     * this parallel track group */
-    min_track = max_track;
-    max_track += _track_generator->getNumTracksByParallelGroup(i);
-
-#pragma omp parallel
-    {
-
-      int tid = omp_get_thread_num();
-      int azim_index, num_segments;
-      Track* curr_track;
-      segment* curr_segment;
-      segment* segments;
-      FP_PRECISION* track_flux;
-
-      /* Use local array accumulator to prevent false sharing */
-      FP_PRECISION thread_fsr_flux[_num_groups];
-
-      /* Loop over each thread within this azimuthal angle halfspace */
-#pragma omp for schedule(guided)
-      for (int track_id=min_track; track_id < max_track; track_id++) {
-
-        /* Initialize local pointers to important data structures */
-        curr_track = _tracks[track_id];
-        azim_index = curr_track->getAzimAngleIndex();
-        num_segments = curr_track->getNumSegments();
-        segments = curr_track->getSegments();
-        track_flux = &_boundary_flux(track_id,0,0,0);
-
-        /* Loop over each Track segment in forward direction */
-        for (int s=0; s < num_segments; s++) {
-          curr_segment = &segments[s];
-          tallyScalarFlux(curr_segment, azim_index, track_flux,
-                          thread_fsr_flux);
-          tallyCurrent(curr_segment, azim_index, track_flux, true);
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, true, track_flux);
-
-        /* Loop over each Track segment in reverse direction */
-        track_flux += _polar_times_groups;
-
-        for (int s=num_segments-1; s > -1; s--) {
-          curr_segment = &segments[s];
-          tallyScalarFlux(curr_segment, azim_index, track_flux,
-                          thread_fsr_flux);
-          tallyCurrent(curr_segment, azim_index, track_flux, false);
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, false, track_flux);
-      }
-    }
-  }
-
-  return;
+  /* Tracks are traversed and the MOC equations from this CPUSolver are applied
+     to all Tracks and corresponding segments */
+  TransportSweep sweep_tracks(_track_generator);
+  sweep_tracks.setCPUSolver(this);
+  sweep_tracks.execute();
 }
 
 

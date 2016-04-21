@@ -12,6 +12,7 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "Solver.h"
+#include "TrackTraversingAlgorithms.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
