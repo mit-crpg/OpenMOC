@@ -97,6 +97,9 @@ protected:
   /** A timer to record timing data for ray tracing */
   Timer* _timer;
 
+  /** A buffer holding the computed FSR volumes */
+  FP_PRECISION* _FSR_volumes;
+
   void computeEndPoint(Point* start, Point* end,  const double phi,
                        const double width_x, const double width_y);
 
@@ -112,6 +115,8 @@ protected:
   void dumpTracksToFile();
   bool readTracksFromFile();
   void clearTimerSplits();
+  void calculateFSRVolumes();
+  void resetStatus();
 
 public:
 
@@ -157,6 +162,7 @@ public:
   void splitSegments(FP_PRECISION max_optical_length);
   void initializeSegments();
   void printTimerReport();
+  void resetFSRVolumes();
 };
 
 #endif /* TRACKGENERATOR_H_ */

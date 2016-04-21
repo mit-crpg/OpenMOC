@@ -53,9 +53,6 @@ Solver::Solver(TrackGenerator* track_generator) {
  */
 Solver::~Solver() {
 
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
@@ -122,7 +119,7 @@ FP_PRECISION Solver::getFSRVolume(int fsr_id) {
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
                "IDs lie in the range (0, %d)", fsr_id, _num_FSRs);
 
-  else if (_FSR_volumes == NULL)
+  if (_FSR_volumes == NULL)
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
                "volumes have not yet been computed", fsr_id);
 
@@ -503,10 +500,7 @@ void Solver::initializeFSRs() {
 
   log_printf(INFO, "Initializing flat source regions...");
 
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
+  /* Delete old FSR materials array if it exists */
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
@@ -517,6 +511,7 @@ void Solver::initializeFSRs() {
   _polar_times_groups = _num_groups * _num_polar_2;
 
   /* Get an array of volumes indexed by FSR  */
+  _track_generator->resetFSRVolumes();
   _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Generate the FSR centroids */
