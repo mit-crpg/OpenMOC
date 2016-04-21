@@ -751,66 +751,6 @@ Parameters
     a pointer to a localcoord  
 ";
 
-// File: classCentroidGenerator.xml
-
-
-%feature("docstring") CentroidGenerator "
-
-A class used to calculate the centroids of each FSR.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-A CentroidGenerator imports FSR Volumes and associated locks form the provided
-TrackGenerator, then centroids are calculated and stored in the provided buffer by first
-allocating SegmentationKernels to temporarily store segments and then looping over all
-segments and adding their contribution to each FSR centroid.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") CentroidGenerator::setCentroids "
-setCentroids(Point **centroids)  
-
-Specifies an array to save calculated FSR centroids.  
-
-centroids The array of FSR centroids pointers  
-";
-
-%feature("docstring") CentroidGenerator::execute "
-execute()  
-
-Calculates the centroid of every FSR.  
-
-SegmentationKernels are created to temporarily save segments for on-the-fly methods. Then
-on each segment, onTrack(...) calculates the contribution to each FSR centroid and saves
-the centroids in the centroids array provided by setCentroids(...).  
-";
-
-%feature("docstring") CentroidGenerator::CentroidGenerator "
-CentroidGenerator(TrackGenerator *track_generator)  
-
-Constructor for CentroidGenerator calls the TraverseSegments constructor and imports
-refernces to both the FSR volumes and FSR locks arrays.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
-";
-
-%feature("docstring") CentroidGenerator::onTrack "
-onTrack(Track *track, segment *segments)  
-
-Centroid contributions are calculated for every segment in the Track.  
-
-Parameters
-----------
-* track :  
-    The Track associated with the segments  
-* segments :  
-    The segments whose contributions are added to the centroids  
-";
-
 // File: classCmfd.xml
 
 
@@ -954,20 +894,20 @@ Zero the surface currents for each mesh cell and energy group.
 ";
 
 %feature("docstring") Cmfd::setGroupStructure "
-setGroupStructure(int *group_indices, int length_group_indices)  
+setGroupStructure(std::vector< std::vector< int > > group_indices)  
 
-Set the CMFD energy group structure.  
+Set a coarse energy group structure for CMFD.  
 
 CMFD does not necessarily need to have the same energy group structure as the MOC problem.
 This function can be used to set a sparse energy group structure to speed up the CMFD
-solve.  
+solve. An example of how this may be called from Python to use a coarse 2-group CMFD
+structure atop a fine 7-group MOC structure is illustrated below:  
+
 
 Parameters
 ----------
 * group_indices :  
-    An array of the CMFD group boundaries  
-* length_group_indices :  
-    The length of the group_indices array  
+    A nested vector of MOC-to-CMFD group mapping  
 ";
 
 %feature("docstring") Cmfd::setWidthY "
@@ -1356,39 +1296,6 @@ Returns
 The number of CMFD cells  
 ";
 
-// File: classCounterKernel.xml
-
-
-%feature("docstring") CounterKernel "
-
-Counts the number of segments of a track.  
-
-A CounterKernel inherets from MOCKernel and is a kernel which counts the number of
-segments in a track by incrementing the _count variable by the number of legitimate
-segment lengths (less than the max optical path length) in the input length.  
-
-C++ includes: src/MOCKernel.h
-";
-
-%feature("docstring") CounterKernel::execute "
-execute(FP_PRECISION length, Material *mat, int id, int cmfd_surface_fwd, int
-    cmfd_surface_bwd)  
-";
-
-%feature("docstring") CounterKernel::CounterKernel "
-CounterKernel(TrackGenerator *track_generator, int row_num)  
-
-Constructor for the CounterKernel assigns default values and calls the MOCKernel
-constructor.  
-
-Parameters
-----------
-* track_generator :  
-    the TrackGenerator used to pull relevant tracking data from  
-* row_num :  
-    the row index into the temporary segments matrix  
-";
-
 // File: classCPUSolver.xml
 
 
@@ -1734,66 +1641,6 @@ Attributes
     direction should be transferred to the incoming Track.  
 
 C++ includes: DeviceTrack.h
-";
-
-// File: classDumpSegments.xml
-
-
-%feature("docstring") DumpSegments "
-
-A class used to write tracking data to a file.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-DumpSegments imports Track data from the provided TrackGenerator and writes the tracking
-data to the provided file.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") DumpSegments::execute "
-execute()  
-
-Wrties all tracking information to file.  
-
-SegmentationKernels are created to temporarily store segments for on-the-fly method. For
-each Track, onTrack(...) writes the tracking information to file.  
-";
-
-%feature("docstring") DumpSegments::setOutputFile "
-setOutputFile(FILE *out)  
-
-Sets the file which to write tracking information.  
-
-Parameters
-----------
-* out :  
-    the file which to write tracking infmormation  
-";
-
-%feature("docstring") DumpSegments::onTrack "
-onTrack(Track *track, segment *segments)  
-
-Writes tracking information to file for a Track and associated segments.  
-
-Parameters
-----------
-* track :  
-    The Track whose information is written to file  
-* segments :  
-    The segments associated with the Track whose information is written to file  
-";
-
-%feature("docstring") DumpSegments::DumpSegments "
-DumpSegments(TrackGenerator *track_generator)  
-
-Constructor for DumpSegments calls the TraverseSegments constructor and initializes the
-output FILE to NULL.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
 ";
 
 // File: classEqualAnglePolarQuad.xml
@@ -5210,124 +5057,6 @@ Returns
 A pointer to the J component of the CSR form of the LU components of the matrix.  
 ";
 
-// File: classMaxOpticalLength.xml
-
-
-%feature("docstring") MaxOpticalLength "
-
-A class used to calculate the maximum optical path length across all segments in the
-Geometry.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-A MaxOpticalLength allocates SegmentationKernels to temporarily store segment data. The
-segments are then traversed afterwards and the maximium optical path length is calculated.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") MaxOpticalLength::MaxOpticalLength "
-MaxOpticalLength(TrackGenerator *track_generator)  
-
-Constructor for MaxOpticalLength calls the TraverseSegments constructor and sets the max
-optical path length to zero.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
-";
-
-%feature("docstring") MaxOpticalLength::onTrack "
-onTrack(Track *track, segment *segments)  
-
-Calculates the optical path length for the provided segments and updates the maximum
-optical path length if necessary.  
-
-Parameters
-----------
-* track :  
-    The track associated with the segments  
-* segments :  
-    The segments for which the optical path length is calculated  
-";
-
-%feature("docstring") MaxOpticalLength::execute "
-execute()  
-
-Determines the maximum optical path length for the TrackGenerator provided during
-construction.  
-
-The maximum optical path length is initialized to infinity for segmentation within the
-TrackGenerator and then SegmentationKernels are allocated to store temporary segmnents.
-Tracks are traversed and onTrack(...) is applied, calculating a maximum optical length and
-setting it on the TrackGenerator.  
-";
-
-// File: classMOCKernel.xml
-
-
-%feature("docstring") MOCKernel "
-
-An MOCKernel object specifies a functionality to apply to MOC segments.  
-
-An MOCKernel is an object that owns some specified data and contains an \"execute\"
-function which applies some functionality to the data. This is useful in MOC where it is
-very common to apply some function to segment data in either a nested loop structure or
-from on-the-fly calculations. Kernels specify the actions applied to the segments,
-reducing the need for repeated code. This class is the parent class of CounterKernel,
-VolumeKernel, and SegmentationKernel. A generic MOCKernel should not be explicity
-instantiated. Instead, an inhereting class should be instantiated which describes the
-\"execute\" function.  
-
-C++ includes: src/MOCKernel.h
-";
-
-%feature("docstring") MOCKernel::getCount "
-getCount() -> int  
-";
-
-%feature("docstring") MOCKernel::setMaxOpticalLength "
-setMaxOpticalLength(FP_PRECISION max_tau)  
-";
-
-%feature("docstring") MOCKernel::newTrack "
-newTrack(Track *track)  
-
-Prepares an MOCKernel for a new Track.  
-
-Resets the segment count  
-
-Parameters
-----------
-* track :  
-    The new Track the MOCKernel prepares to handle  
-";
-
-%feature("docstring") MOCKernel::execute "
-execute(FP_PRECISION length, Material *mat, int id, int cmfd_surface_fwd, int
-    cmfd_surface_bwd)=0  
-";
-
-%feature("docstring") MOCKernel::MOCKernel "
-MOCKernel(TrackGenerator *track_generator, int row_num)  
-
-Constructor for the MOCKernel assigns default values.  
-
-Parameters
-----------
-* track_generator :  
-    the TrackGenerator used to pull relevant tracking data from  
-* row_num :  
-    the row index into the temporary segments matrix  
-";
-
-%feature("docstring") MOCKernel::~MOCKernel "
-~MOCKernel()  
-
-Destructor for MOCKernel.  
-";
-
 // File: structmultiplyByConstant.xml
 
 
@@ -5939,7 +5668,7 @@ Parameters
 * weights :  
     The polar weights  
 * num_azim_times_polar :  
-    the total number of angles (azimuthal x polar)  
+    the total number of angles in one octant (azimuthal x polar)  
 ";
 
 %feature("docstring") Quadrature::setPolarWeight "
@@ -6317,66 +6046,6 @@ Parameters
     the number of polar angles  
 ";
 
-// File: classReadSegments.xml
-
-
-%feature("docstring") ReadSegments "
-
-A class used to read tracking data from a file.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-ReadSegments imports Track data from the provided file and writes the tracking data to the
-Tracks in the provided TrackGenerator.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") ReadSegments::execute "
-execute()  
-
-Reads a tracking file and saves the information explicitly for every Track in the
-TrackGenerator.  
-
-The tracking file is set by setInputFile(...)  
-";
-
-%feature("docstring") ReadSegments::setInputFile "
-setInputFile(FILE *in)  
-
-Sets the input file to read in tracking information.  
-
-Parameters
-----------
-* in :  
-    The input tracking file  
-";
-
-%feature("docstring") ReadSegments::ReadSegments "
-ReadSegments(TrackGenerator *track_generator)  
-
-Constructor for ReadSegments calls the TraverseSegments constructor and initializes the
-input FILE to NULL.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
-";
-
-%feature("docstring") ReadSegments::onTrack "
-onTrack(Track *track, segment *segments)  
-
-Saves tracking information to the corresponding Track explicity.  
-
-Parameters
-----------
-* track :  
-    The track for which all tracking information is explicitly saved (including segments)  
-* segments :  
-    The segments associated with the Track  
-";
-
 // File: structsecond__t.xml
 
 
@@ -6422,142 +6091,6 @@ C++ includes: Track.h
 segment()  
 
 Constructor initializes CMFD surfaces  
-";
-
-// File: classSegmentationKernel.xml
-
-
-%feature("docstring") SegmentationKernel "
-
-Forms segment data associated with a 3D track.  
-
-A SegmentationKernel inherets from MOCKernel and is a kernel which is initialized with a
-pointer to segment data. Input data of the \"execute\" function is saved to the segment
-data, forming explicit segments.  
-
-C++ includes: src/MOCKernel.h
-";
-
-%feature("docstring") SegmentationKernel::execute "
-execute(FP_PRECISION length, Material *mat, int id, int cmfd_surface_fwd, int
-    cmfd_surface_bwd)  
-";
-
-%feature("docstring") SegmentationKernel::SegmentationKernel "
-SegmentationKernel(TrackGenerator *track_generator, int row_num)  
-
-Constructor for the SegmentationKernel assigns default values, calls the MOCKernel
-constructor, and pulls a reference to temporary segment data from the provided
-TrackGenerator.  
-
-Parameters
-----------
-* track_generator :  
-    the TrackGenerator used to pull relevant tracking data from  
-* row_num :  
-    the row index into the temporary segments matrix  
-";
-
-// File: classSegmentCounter.xml
-
-
-%feature("docstring") SegmentCounter "
-
-A class used to count the number of segments on each Track and the maximum number of
-segments per Track.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-A SegmentCounter allocates CounterKernels to count segments along each Track given a
-maximum optical path length imported from the provided TrackGenerator and the maximum
-number of segments per Track in the TrackGenerator is updated.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") SegmentCounter::execute "
-execute()  
-
-Determines the maximum number of segments per Track.  
-
-CounterKernels are initialized to count segments along each Track. Then Tracks are
-traversed, saving the maximum number of segments and setting the corresponding parameter
-on the TrackGenerator.  
-";
-
-%feature("docstring") SegmentCounter::SegmentCounter "
-SegmentCounter(TrackGenerator *track_generator)  
-
-Constructor for SegmentCounter calls the TraverseSegments constructor and sets the max
-number of segments per Track to zero.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
-";
-
-%feature("docstring") SegmentCounter::onTrack "
-onTrack(Track *track, segment *segments)  
-
-Updates the maximum number of segments per Track if a Track with a larger number of
-segments is observed.  
-
-Parameters
-----------
-* track :  
-    The Track whose segments are counted  
-* segments :  
-    The segments associated with the Track  
-";
-
-// File: classSegmentSplitter.xml
-
-
-%feature("docstring") SegmentSplitter "
-
-A class used to split explicit segments along Tracks.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-A SegmentSplitter imports a maximum optical path length from the provided TrackGenerator
-and then ensures all segments have an optical path length less than the maximum optical
-path length by splitting segments stored in the Tracks.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") SegmentSplitter::SegmentSplitter "
-SegmentSplitter(TrackGenerator *track_generator)  
-
-Constructor for SegmentSplitter calls the TraverseSegments constructor.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
-";
-
-%feature("docstring") SegmentSplitter::onTrack "
-onTrack(Track *track, segment *segments)  
-
-Segments for the provided Track are split so that no segment has a larger optical path
-length than the maximum optical path length.  
-
-Parameters
-----------
-* track :  
-    The Track whose segments are potentially split  
-* segments :  
-    The segments associated with the Track  
-";
-
-%feature("docstring") SegmentSplitter::execute "
-execute()  
-
-Splits segments stored explicity along each Track.  
-
-No MOCKernels are initialized for this function.  
 ";
 
 // File: classSolver.xml
@@ -8255,6 +7788,12 @@ Parameters
     the z-coord where the 2D Tracks should be created.  
 ";
 
+%feature("docstring") TrackGenerator::resetFSRVolumes "
+resetFSRVolumes()  
+
+Deletes the memory associated with the FSR volumes and resets it NULL.  
+";
+
 %feature("docstring") TrackGenerator::generateFSRCentroids "
 generateFSRCentroids()  
 
@@ -8332,10 +7871,7 @@ the number of tracks in a given parallel track group.
 %feature("docstring") TrackGenerator::getFSRVolumes "
 getFSRVolumes() -> FP_PRECISION *  
 
-Computes and returns an array of volumes indexed by FSR.  
-
-Note: It is the function caller's responsibility to deallocate the memory reserved for the
-FSR volume array.  
+Returns an array of volumes indexed by FSR.  
 
 Returns
 -------
@@ -8608,96 +8144,6 @@ of azimuthal angles, track spacing and geometry.
 Returns
 -------
 true if the TrackGenerator conatains Tracks; false otherwise  
-";
-
-// File: classTransportSweep.xml
-
-
-%feature("docstring") TransportSweep "
-
-A class used to apply the MOC transport equations to all segments.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-TransportSweep imports data from the provided TrackGenerator and using a provided
-CPUSolver, it applies the MOC equations to each segment, tallying the contributions to
-each FSR. At the end of each Track, boundary fluxes are exchanged based on boundary
-conditions.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") TransportSweep::onTrack "
-onTrack(Track *track, segment *segments)  
-
-Applies the MOC equations the Track and segments.  
-
-The MOC equations are applied to each segment, attenuating the Track's angular flux and
-tallying FSR contributions. Finally, Track boundary fluxes are transferred.  
-
-Parameters
-----------
-* track :  
-    The Track for which the angular flux is attenuated and transferred  
-* segments :  
-    The segments over which the MOC equations are applied  
-";
-
-%feature("docstring") TransportSweep::setCPUSolver "
-setCPUSolver(CPUSolver *cpu_solver)  
-
-Sets the CPUSolver so that TransportSweep can apply MOC equations.  
-
-This allows TransportSweep to transfer boundary fluxes from the CPUSolver and tally scalar
-fluxes  
-
-Parameters
-----------
-* cpu_solver :  
-    The CPUSolver which applies the MOC equations  
-";
-
-%feature("docstring") TransportSweep::TransportSweep "
-TransportSweep(TrackGenerator *track_generator)  
-
-Constructor for TransportSweep calls the TraverseSegments constructor and initializes the
-associated CPUSolver to NULL.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
-";
-
-%feature("docstring") TransportSweep::execute "
-execute()  
-
-MOC equations are applied to every segment in the TrackGenerator.  
-
-SegmntationKernels are allocated to temporarily save segments. Then onTrack(...) applies
-the MOC equations to each segment and transfers boundary fluxes for the corresponding
-Track.  
-";
-
-// File: classTraverseSegments.xml
-
-
-%feature("docstring") TraverseSegments "
-
-An TraverseSegments object defines how to loop over Tracks given various different
-segmentation schemes and how to apply algorithms to the Tracks and associated segments.  
-
-A TraverseSegments object sketches how to loop over Tracks for various different
-segmentation schemes such as 2D explicit, 3D explicit, and on-the-fly ray tracing. A
-TraverseSegments object is an abstract class meant to be extended by classes defined in
-TrackTraversingAlgorithms.h. This parent class's main purpose is to abstract the looping
-procedure and apply a function onTrack(...) to each Track and apply supplied MOCKernels to
-each segment. If NULL is provided for the MOCKernels, only the functionality defined in
-onTrack(...) is applied to each Track.  
-";
-
-%feature("docstring") TraverseSegments::execute "
-execute()=0  
 ";
 
 // File: classTYPolarQuad.xml
@@ -9486,102 +8932,6 @@ Computes the total source (fission, scattering, fixed) in each FSR.
 
 This method computes the total source in each FSR based on this iteration's current
 approximation to the scalar flux.  
-";
-
-// File: classVolumeCalculator.xml
-
-
-%feature("docstring") VolumeCalculator "
-
-A class used to calculate FSR volumes.  
-
-\"src/TrackTraversingAlgorithms.h\"  
-
-A VolumeCalculator imports a buffer to store FSR volumes from the provided TrackGenerator
-and the allocates VolumeKernels to calculate and update the volumes in each FSR,
-implicitly writing the calculated volumes back to the TrackGenerator.  
-
-C++ includes: TrackTraversingAlgorithms.h
-";
-
-%feature("docstring") VolumeCalculator::VolumeCalculator "
-VolumeCalculator(TrackGenerator *track_generator)  
-
-Constructor for SegmentSplitter calls the TraverseSegments constructor.  
-
-Parameters
-----------
-* track_generator :  
-    The TrackGenerator to pull tracking information from  
-";
-
-%feature("docstring") VolumeCalculator::onTrack "
-onTrack(Track *track, segment *segments)  
-
-No functionality is applied for each Track during the execution of the VolumeCalculator.  
-
-Parameters
-----------
-* track :  
-    The current Track  
-* segments :  
-    The segments associated with the Track  
-";
-
-%feature("docstring") VolumeCalculator::execute "
-execute()  
-
-FSR volumes are calculated and saved in the TrackGenerator's FSR volumes buffer.  
-
-VolumeKernels are created and used to loop over all segments and tally each segments
-contribution to FSR volumes.  
-";
-
-// File: classVolumeKernel.xml
-
-
-%feature("docstring") VolumeKernel "
-
-Calculates the volume in FSRs by adding weighted segment lengths.  
-
-A VolumeKernel inherets from MOCKernel and is a kernel which is initialized with a pointer
-to floating point data and adds the product of the length and the weight to the floating
-point data at an input index. The weight corresponds to the weight of the track associated
-with the segments.  
-
-C++ includes: src/MOCKernel.h
-";
-
-%feature("docstring") VolumeKernel::newTrack "
-newTrack(Track *track)  
-
-Prepares a VolumeKernel for a new Track.  
-
-Resets the segment count and updates the weight for the new Track  
-
-Parameters
-----------
-* track :  
-    The new Track the MOCKernel prepares to handle  
-";
-
-%feature("docstring") VolumeKernel::VolumeKernel "
-VolumeKernel(TrackGenerator *track_generator, int row_num)  
-
-Constructor for the VolumeKernel assigns default values, calls the MOCKernel constructor,
-and pulls refernces to FSR locks and FSR volumes from the provided TrackGenerator.  
-
-Parameters
-----------
-* track_generator :  
-    the TrackGenerator used to pull relevant tracking data from  
-* row_num :  
-    the row index into the temporary segments matrix  
-";
-
-%feature("docstring") VolumeKernel::execute "
-execute(FP_PRECISION length, Material *mat, int id, int cmfd_surface_fwd, int
-    cmfd_surface_bwd)  
 ";
 
 // File: classXPlane.xml
@@ -11310,10 +10660,6 @@ prohibited.
 
 // File: Matrix_8h.xml
 
-// File: MOCKernel_8cpp.xml
-
-// File: MOCKernel_8h.xml
-
 // File: pairwise__sum_8h.xml
 
 %feature("docstring") pairwise_sum "
@@ -11345,8 +10691,6 @@ the sum of all numbers in the array
 // File: Quadrature_8cpp.xml
 
 // File: Quadrature_8h.xml
-
-// File: segmentation__type_8h.xml
 
 // File: Solver_8cpp.xml
 
@@ -11433,14 +10777,6 @@ Parameters
 // File: TrackGenerator_8cpp.xml
 
 // File: TrackGenerator_8h.xml
-
-// File: TrackTraversingAlgorithms_8cpp.xml
-
-// File: TrackTraversingAlgorithms_8h.xml
-
-// File: TraverseTracks_8cpp.xml
-
-// File: TraverseTracks_8h.xml
 
 // File: Universe_8cpp.xml
 
