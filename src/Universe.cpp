@@ -729,6 +729,7 @@ void Universe::subdivideCells(double max_radius) {
       else
         static_cast<Lattice*>(fill)->subdivideCells(max_radius);
     }
+    
   }
 }
 

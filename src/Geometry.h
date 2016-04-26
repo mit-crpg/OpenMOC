@@ -113,13 +113,14 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  Cell* findFirstCell(LocalCoords* coords);
   Cell* findNextCell(LocalCoords* coords);
 
 public:
 
   Geometry();
   virtual ~Geometry();
+
+  Cell* findFirstCell(LocalCoords* coords);
 
   /* Get parameters */
   double getWidthX();
