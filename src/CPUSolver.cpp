@@ -677,10 +677,10 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     bc = REFLECTIVE;
 
   if (_solve_3D) {
-    FP_PRECISION weight = _quad->getWeight(a, polar_index);
     for (int e=0; e < _num_groups; e++) {
       track_out_flux(e) = track_flux(e) * bc;
-      track_leakage(e) = track_flux(e) * (!bc) * _quad->getWeightInline(a, p);
+      track_leakage(e) = track_flux(e) * (!bc) *
+                         _quad->getWeightInline(a, polar_index);
     }
   }
   else {
