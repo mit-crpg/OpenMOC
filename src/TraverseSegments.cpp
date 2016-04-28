@@ -54,8 +54,6 @@ void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
 
   if (kernels != NULL) {
     int num_rows = 1;
-    if (_track_generator_3D != NULL)
-      num_rows = _track_generator_3D->getNumRows();
     for (int z=0; z < num_rows; z++)
       delete kernels[z];
     delete [] kernels;
@@ -82,6 +80,7 @@ void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
     for (int i=0; i < num_xy; i++) {
 
       Track* track_2D = &tracks_2D[a][i];
+      segment* segments = track_2D->getSegments();
 
       /* Operate on segments if necessary */
       if (kernels != NULL) {
@@ -90,7 +89,6 @@ void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
       }
 
       /* Operate on the Track */
-      segment* segments = track_2D->getSegments();
       onTrack(track_2D, segments);
     }
   }
@@ -235,32 +233,20 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
     for (int p=0; p < num_polar; p++) {
 
       /* Trace all tracks in the z-stack if necessary */
+      Track* track_3D = &tracks_3D[a][i][p][0];
       if (kernels != NULL) {
 
-        /* Reset all kernels to their new Track */
-        for (int z = 0; z < tracks_per_stack[a][i][p]; z++)
-          kernels[z]->newTrack(&tracks_3D[a][i][p][z]);
+        /* Reset kernels to their new Track */
+        kernels[0]->newTrack(&tracks_3D[a][i][p][0]);
 
         /* Trace all segments in the z-stack */
         traceStackOTF(flattened_track, p, kernels);
-
-        /* Set the number of segments computed for each Track */
-        for (int z = 0; z < tracks_per_stack[a][i][p]; z++) {
-          Track* track_3D = &tracks_3D[a][i][p][z];
-          track_3D->setNumSegments(kernels[z]->getCount());
-        }
+        track_3D->setNumSegments(kernels[0]->getCount());
       }
 
-      /* Loop over tracks in the z-stack */
-      for (int z=0; z < tracks_per_stack[a][i][p]; z++) {
-
-        /* Extract 3D track and initialize segments pointer */
-        Track* track_3D = &tracks_3D[a][i][p][z];
-        segment* segments = _track_generator_3D->getTemporarySegments(tid, z);
-
-        /* Operate on the Track */
-        onTrack(track_3D, segments);
-      }
+      /* Operate on the Track */
+      segment* segments = _track_generator_3D->getTemporarySegments(tid, 0);
+      onTrack(track_3D, segments);
     }
   }
 }
@@ -276,7 +262,7 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
 void TraverseSegments::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
   for (int s=0; s < track->getNumSegments(); s++) {
     segment* seg = track->getSegment(s);
-    kernel->execute(seg->_length, seg->_material, seg->_region_id,
+    kernel->execute(seg->_length, seg->_material, seg->_region_id, 0,
                     seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd);
   }
 }
@@ -445,7 +431,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
 
       /* Operate on segment */
       if (dist_3D > TINY_MOVE)
-        kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], fsr_id,
+        kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], fsr_id, 0,
                         cmfd_surface_fwd, cmfd_surface_bwd);
 
       /* Shorten remaining 2D segment length and move axial level */
@@ -632,7 +618,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
           }
 
           /* Operate on segment */
-          kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+          kernels[0]->execute(seg_len_3D, material, fsr_id, i, cmfd_surface_fwd,
                               cmfd_surface_bwd);
         }
       }
@@ -666,7 +652,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             }
 
             /* Operate on segment */
-            kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+            kernels[0]->execute(seg_len_3D, material, fsr_id, i, cmfd_surface_fwd,
                                 cmfd_surface_bwd);
           }
         }
@@ -726,7 +712,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             }
 
             /* Operate on segment */
-            kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+            kernels[0]->execute(seg_len_3D, material, fsr_id, i, cmfd_surface_fwd,
                                 cmfd_surface_bwd);
           }
         }
@@ -772,7 +758,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
           }
 
           /* Operate on segment */
-          kernels[i]->execute(seg_len_3D, material, fsr_id, cmfd_surface_fwd,
+          kernels[0]->execute(seg_len_3D, material, fsr_id, i, cmfd_surface_fwd,
                               cmfd_surface_bwd);
         }
       }

@@ -35,6 +35,9 @@ struct segment {
   /** The ID for flat source region in which this segment resides */
   int _region_id;
 
+  // FIXME
+  int _track_idx;
+
   /** The ID for the mesh surface crossed by the Track end point */
   int _cmfd_surface_fwd;
 
@@ -43,6 +46,7 @@ struct segment {
 
   /** Constructor initializes CMFD surfaces */
   segment() {
+    _track_idx = 0;
     _cmfd_surface_fwd = -1;
     _cmfd_surface_bwd = -1;
   }

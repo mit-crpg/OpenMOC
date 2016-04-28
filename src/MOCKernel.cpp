@@ -141,17 +141,18 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+void VolumeKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+                           int track_idx, int cmfd_surface_fwd,
+                           int cmfd_surface_bwd) {
 
   /* Set omp lock for FSRs */
-  omp_set_lock(&_FSR_locks[id]);
+  omp_set_lock(&_FSR_locks[fsr_id]);
 
   /* Add value to buffer */
-  _FSR_volumes[id] += _weight * length;
+  _FSR_volumes[fsr_id] += _weight * length;
 
   /* Unset lock */
-  omp_unset_lock(&_FSR_locks[id]);
+  omp_unset_lock(&_FSR_locks[fsr_id]);
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
@@ -178,8 +179,9 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+void CounterKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+                            int track_idx, int cmfd_surface_fwd,
+                            int cmfd_surface_bwd) {
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
@@ -206,8 +208,9 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+                                int track_idx, int cmfd_surface_fwd,
+                                int cmfd_surface_bwd) {
 
   /* Check if segments have not been set, if so return */
   if (_segments == NULL)
@@ -227,7 +230,8 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
     FP_PRECISION temp_length = _max_tau / max_sigma_t;
     _segments[_count]._length = temp_length;
     _segments[_count]._material = mat;
-    _segments[_count]._region_id = id;
+    _segments[_count]._region_id = fsr_id;
+    _segments[_count]._track_idx = track_idx;
     _segments[_count]._cmfd_surface_fwd = -1;
     if (i == 0)
       _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
@@ -238,7 +242,8 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
   }
   _segments[_count]._length = length;
   _segments[_count]._material = mat;
-  _segments[_count]._region_id = id;
+  _segments[_count]._region_id = fsr_id;
+  _segments[_count]._track_idx = track_idx;
   _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
   if (num_cuts > 1)
     _segments[_count]._cmfd_surface_bwd = -1;

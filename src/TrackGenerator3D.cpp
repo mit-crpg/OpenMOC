@@ -263,6 +263,7 @@ segment* TrackGenerator3D::getTemporarySegments(int thread_id, int row_num) {
     return NULL;
 }
 
+
 /**
  * @brief Returns a 3D array of the number of 3D Tracks in each z-stack
  * @details A 3D array is returned indexed first by azimuthal angle, second by

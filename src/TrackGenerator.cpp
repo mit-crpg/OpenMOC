@@ -1359,6 +1359,7 @@ void TrackGenerator::dumpSegmentsToFile() {
   DumpSegments dump_segments(this);
   dump_segments.setOutputFile(out);
   dump_segments.execute();
+  std::cout << "Done executing" << std::endl;
 
   /* Get FSR vector maps */
   ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
@@ -1373,11 +1374,16 @@ void TrackGenerator::dumpSegmentsToFile() {
   /* Write number of FSRs */
   int num_FSRs = _geometry->getNumFSRs();
   fwrite(&num_FSRs, sizeof(int), 1, out);
+  std::cout << "CHeck 1" << std::endl;
 
+  std::cout << "CHeck 1A" << std::endl;
   /* Write FSR vector maps to file */
   std::size_t* fsr_key_list = FSR_keys_map->keys();
+  std::cout << "CHeck 1X" << std::endl;
   fsr_data** fsr_data_list = FSR_keys_map->values();
+  std::cout << "CHeck 1XX" << std::endl;
   Cmfd* cmfd = _geometry->getCmfd();
+  std::cout << "CHeck 2" << std::endl;
   for (int i=0; i < num_FSRs; i++) {
 
     /* Write data to file from FSR_keys_map */
@@ -1401,6 +1407,7 @@ void TrackGenerator::dumpSegmentsToFile() {
     /* Increment FSR ID counter */
     fsr_counter++;
   }
+  std::cout << "CHeck 3" << std::endl;
 
   /* Write cmfd_fsrs vector of vectors to file */
   if (cmfd != NULL) {
@@ -1422,6 +1429,7 @@ void TrackGenerator::dumpSegmentsToFile() {
   }
 
   /* Delete key and value lists */
+  std::cout << "CHeck 4" << std::endl;
   delete [] fsr_key_list;
   delete [] fsr_data_list;
 
@@ -1432,6 +1440,7 @@ void TrackGenerator::dumpSegmentsToFile() {
    * import ray tracing data from this file if it is called and the ray
    * tracing parameters have not changed */
   _use_input_file = true;
+  std::cout << "CHeck 5" << std::endl;
 
   return;
 }

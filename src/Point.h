@@ -41,6 +41,7 @@ public:
   void setZ(const double z);
   double distance(const double x, const double y, const double z) const;
   double distanceToPoint(const Point* point);
+  void copyCoords(Point* point);
   std::string toString();
 };
 
@@ -145,6 +146,14 @@ inline double Point::distanceToPoint(const Point* point) {
   double deltay = _xyz[1] - point->getY();
   double deltaz = _xyz[2] - point->getZ();
   return sqrt(deltax*deltax + deltay*deltay + deltaz*deltaz);
+}
+
+
+//FIXME
+inline void Point::copyCoords(Point* point) {
+  _xyz[0] = point->getX();
+  _xyz[1] = point->getY();
+  _xyz[2] = point->getZ();
 }
 
 

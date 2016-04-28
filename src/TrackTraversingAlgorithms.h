@@ -127,10 +127,13 @@ private:
   FP_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
   Quadrature* _quadrature;
+  Point* _starting_points;
+  bool* _new_track;
 
 public:
 
   CentroidGenerator(TrackGenerator* track_generator);
+  virtual ~CentroidGenerator();
   void setCentroids(Point** centroids);
   void execute();
   void onTrack(Track* track, segment* segments);

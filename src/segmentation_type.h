@@ -25,7 +25,6 @@ enum segmentationType {
 
   /** Axial on-the-fly 3D segment formation by z-stack */
   OTF_STACKS
-
 };
 
 #endif /* SEGMENTATION_TYPE_H_ */
