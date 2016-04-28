@@ -563,12 +563,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
   if (_solve_3D) {
 
-    FP_PRECISION weight = _quad->getWeight(a, p);
     for (int e=0; e < _num_groups; e++) {
       exponential = _exp_evaluator->computeExponential(sigma_t[e] * length, a,
                                                        p);
       delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi * weight;
+      fsr_flux[e] += delta_psi * _quad->getWeightInline(a, p);
       track_flux(e) -= delta_psi;
     }
   }
@@ -585,7 +584,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       for (p=0; p < _num_polar/2; p++) {
         exponential = _exp_evaluator->computeExponential(tau, a, p);
         delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * _quad->getWeight(a, p);
+        fsr_flux[e] += delta_psi * _quad->getWeightInline(a, p);
         track_flux(pe) -= delta_psi;
         pe++;
       }
@@ -681,7 +680,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     FP_PRECISION weight = _quad->getWeight(a, polar_index);
     for (int e=0; e < _num_groups; e++) {
       track_out_flux(e) = track_flux(e) * bc;
-      track_leakage(e) = track_flux(e) * (!bc) * weight;
+      track_leakage(e) = track_flux(e) * (!bc) * _quad->getWeightInline(a, p);
     }
   }
   else {
@@ -692,7 +691,8 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     for (int e=0; e < _num_groups; e++) {
       for (int p=0; p < _num_polar/2; p++) {
         track_out_flux(pe) = track_flux(pe) * bc;
-        track_leakage(pe) = track_flux(pe) * (!bc) * _quad->getWeight(a, p);
+        track_leakage(pe) = track_flux(pe) * (!bc) *
+                            _quad->getWeightInline(a, p);
         pe++;
       }
     }
@@ -717,7 +717,6 @@ void CPUSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r, e) *= 0.5;
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e);
     }
