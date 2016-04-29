@@ -54,6 +54,8 @@ void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
 
   if (kernels != NULL) {
     int num_rows = 1;
+    if (_track_generator_3D != NULL)
+      num_rows = _track_generator_3D->getNumRows();
     for (int z=0; z < num_rows; z++)
       delete kernels[z];
     delete [] kernels;
@@ -237,7 +239,7 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
       if (kernels != NULL) {
 
         /* Reset kernels to their new Track */
-        kernels[0]->newTrack(&tracks_3D[a][i][p][0]);
+        kernels[0]->newTrack(track_3D);
 
         /* Trace all segments in the z-stack */
         traceStackOTF(flattened_track, p, kernels);

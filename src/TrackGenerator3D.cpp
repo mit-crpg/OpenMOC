@@ -220,10 +220,13 @@ int TrackGenerator3D::getMaxNumTracksPerStack() {
  * @return _num_seg_matrix_rows the number of rows in the temporary segment storage matrix
  */
 int TrackGenerator3D::getNumRows() {
+  /*
   if (_segment_formation == OTF_STACKS)
     _num_seg_matrix_rows = _max_num_tracks_per_stack;
   else
     _num_seg_matrix_rows = 1;
+  */
+  _num_seg_matrix_rows = 1;
   return _num_seg_matrix_rows;
 }
 

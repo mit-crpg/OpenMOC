@@ -1,4 +1,5 @@
 #include "Solver.h"
+
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
  *        set to NULL.
@@ -878,10 +879,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
-
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
-
   _num_iterations = 0;
   FP_PRECISION residual = 0.;
 
@@ -900,6 +897,16 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   flattenFSRFluxes(1.0);
   zeroTrackFluxes();
   storeFSRFluxes();
+
+  /* Print memory report */
+  double vm;
+  double rm;
+  _timer->processMemUsage(vm, rm);
+  log_printf(NORMAL, "Using %f MB virtual memory and %f MB resident "
+                      "memory ", vm, rm);
+
+  /* Start the timer to record the total time to converge the source */
+  _timer->startTimer();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
