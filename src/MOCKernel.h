@@ -20,6 +20,8 @@
 /* Forward declaration of TrackGenerator */
 class TrackGenerator;
 
+//FIXME
+class CPUSolver;
 
 /**
  * @class MOCKernel MOCKernel.h "src/MOCKernel.h"
@@ -138,5 +140,51 @@ public:
   void execute(FP_PRECISION length, Material* mat, int fsr_id,
                int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
+
+/**
+ * @class TransportKernel MOCKernel.h "src/MOCKernel.h"
+ * @brief Applies transport equations to segment data
+ * @details A TransportKernel inherets from MOCKernel and is a kernel which
+ *          is initialized with a pointer to a CPU Solver. Input data of the
+ *          "execute" function is used to apply the MOC equations in CPUSolver.
+ */
+class TransportKernel: public MOCKernel {
+private:
+
+  /** Pointer to CPUSolver enabling use of transport functions */
+  CPUSolver* _cpu_solver;
+
+  /** Pointer to angular flux data in the current direction */
+  FP_PRECISION* _thread_fsr_flux;
+
+  /** Azimuthal index of the current track */
+  int _azim_index;
+
+  /** Polar index of the current track */
+  int _polar_index;
+
+  /** Unique ID of the current track */
+  int _track_id;
+
+  /** Direction of the current track (true = Forward / false = Backward) */
+  bool _direction;
+
+  int _min_track_idx;
+  int _max_track_idx;
+
+public:
+  TransportKernel(TrackGenerator* track_generator, int row_num);
+  virtual ~TransportKernel();
+  void newTrack(Track* track);
+  void setCPUSolver(CPUSolver* cpu_solver);
+  void setTrackFlux(FP_PRECISION* fwd_flux, FP_PRECISION* bwd_flux,
+                    int track_id);
+  void setTrackIndexes(int azim_index, int polar_index);
+  void setDirection(bool direction);
+  void execute(FP_PRECISION length, Material* mat, int fsr_id,
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd);
+  void post();
+};
+
 
 #endif /* MOCKERNEL_H_ */

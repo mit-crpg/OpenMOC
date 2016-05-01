@@ -528,9 +528,16 @@ void CPUSolver::transportSweep() {
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
-  TransportSweep sweep_tracks(_track_generator);
-  sweep_tracks.setCPUSolver(this);
-  sweep_tracks.execute();
+  if (_OTF_transport) {
+    TransportSweepOTF sweep_tracks(_track_generator);
+    sweep_tracks.setCPUSolver(this);
+    sweep_tracks.execute();
+  }
+  else {
+    TransportSweep sweep_tracks(_track_generator);
+    sweep_tracks.setCPUSolver(this);
+    sweep_tracks.execute();
+  }
 }
 
 

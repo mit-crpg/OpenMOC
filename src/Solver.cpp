@@ -46,6 +46,9 @@ Solver::Solver(TrackGenerator* track_generator) {
   _converge_thresh = 1E-5;
 
   _timer = new Timer();
+
+  //FIXME
+  _OTF_transport = false;
 }
 
 

@@ -49,6 +49,9 @@ private:
   void traceStackOTF(Track* flattened_track, int polar_index,
                      MOCKernel** kernels);
 
+  void traceStackTwoWay(Track* flattened_track, int polar_index,
+                        TransportKernel* kernel);
+
 
   int findMeshIndex(FP_PRECISION* values, int size, FP_PRECISION val,
                     int sign);
@@ -74,6 +77,9 @@ protected:
   /* Functions defining how to loop over and operate on Tracks */
   void loopOverTracks(MOCKernel** kernels);
   virtual void onTrack(Track* track, segment* segments) = 0;
+
+  //FIXME
+  void loopOverTracksByStackTwoWay(TransportKernel* kernel);
 
   /* Returns a matrix of kernels of the requested type */
   template <class KernelType>

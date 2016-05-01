@@ -250,6 +250,11 @@ CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
 
 //FIXME
 CentroidGenerator::~CentroidGenerator() {
+  int num_threads = omp_get_max_threads();
+  for (int i=0; i < num_threads; i++) {
+    delete [] _starting_points[i];
+    delete [] _new_track[i];
+  }
   delete [] _starting_points;
   delete [] _new_track;
 }
@@ -438,9 +443,6 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   Track3D* track_3D = dynamic_cast<Track3D*>(track);
   if (track_3D != NULL)
     polar_index = track_3D->getPolarIndex();
-
-  /* Correct azimuthal index to first octant */
-  Quadrature* quad = _track_generator->getQuadrature();
 
   /* Check for minimum/maximum track ID's */
   int min_track_idx = 0;
@@ -652,4 +654,31 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     /* Add this segment to the Track */
     track->addSegment(curr_segment);
   }
+}
+
+//FIXME
+TransportSweepOTF::TransportSweepOTF(TrackGenerator* track_generator)
+                                   : TraverseSegments(track_generator) {
+  _cpu_solver = NULL;
+}
+
+
+//FIXME
+void TransportSweepOTF::execute() {
+#pragma omp parallel
+  {
+    TransportKernel kernel(_track_generator, 0);
+    kernel.setCPUSolver(_cpu_solver);
+    loopOverTracksByStackTwoWay(&kernel);
+  }
+}
+
+
+//FIXME
+void TransportSweepOTF::setCPUSolver(CPUSolver* cpu_solver) {
+  _cpu_solver = cpu_solver;
+}
+
+//FIXME
+void TransportSweepOTF::onTrack(Track* track, segment* segments) {
 }

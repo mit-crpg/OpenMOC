@@ -208,4 +208,22 @@ public:
 };
 
 
+//FIXME
+class TransportSweepOTF: public TraverseSegments {
+
+private:
+
+  CPUSolver* _cpu_solver;
+
+public:
+
+  TransportSweepOTF(TrackGenerator* track_generator);
+  void setCPUSolver(CPUSolver* cpu_solver);
+  void onTrack(Track* track, segment* segments);
+  void execute();
+};
+
+
+
+
 #endif

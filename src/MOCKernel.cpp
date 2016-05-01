@@ -1,5 +1,6 @@
 #include "MOCKernel.h"
 #include "TrackGenerator3D.h"
+#include "CPUSolver.h"
 
 /**
  * @brief Constructor for the MOCKernel assigns default values
@@ -250,4 +251,129 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
   else
     _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
   _count++;
+}
+
+
+//FIXME
+TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
+                                 : MOCKernel(track_generator, row_num) {
+  _direction = true;
+  _min_track_idx = 0;
+  _max_track_idx = 0;
+  _azim_index = 0;
+  _polar_index = 0;
+  _track_id = 0;
+  int num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+  _thread_fsr_flux = new FP_PRECISION[num_groups];
+}
+
+TransportKernel::~TransportKernel() {
+  delete [] _thread_fsr_flux;
+}
+
+
+/**
+ * @brief Sets a pointer to the CPUSolver to enable use of transport functions
+ * @param cpu_solver pointer to the CPUSolver
+ */
+//FIXME
+void TransportKernel::setCPUSolver(CPUSolver* cpu_solver) {
+  _cpu_solver = cpu_solver;
+}
+
+
+/**
+ * @brief Sets the indexes of the current Track
+ * @param axim_index the Track's azimuthal index
+ * @param polar_index the Track's polar index
+ */
+//FIXME: delete?
+void TransportKernel::newTrack(Track* track) {
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  _azim_index = track_3D->getAzimIndex();
+  _polar_index = track_3D->getPolarIndex();
+  _track_id = track_3D->getUid();
+  _count = 0;
+}
+
+
+/**
+ * @brief Sets the direction of the current track
+ * @param direction the direction of the track: true = Forward, false = Backward
+ */
+//FIXME: delete?
+void TransportKernel::setDirection(bool direction) {
+  _direction = direction;
+}
+
+
+//FIXME document
+void TransportKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+                              int track_idx, int cmfd_surface_fwd,
+                              int cmfd_surface_bwd) {
+
+  if (track_idx < _min_track_idx)
+    _min_track_idx = track_idx;
+  else if (track_idx > _max_track_idx)
+    _max_track_idx = track_idx;
+
+  /* Determine the number of cuts on the segment */
+  FP_PRECISION* sigma_t = mat->getSigmaT();
+  double max_sigma_t = 0;
+  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+    if (sigma_t[e] > max_sigma_t)
+      max_sigma_t = sigma_t[e];
+
+  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
+
+  /* Determine common length */
+  FP_PRECISION temp_length = std::min(_max_tau / max_sigma_t, length);
+
+  /* Apply MOC equations to segments */
+  for (int i=0; i < num_cuts; i++) {
+
+    /* Copy data into segment */
+    segment curr_segment;
+    curr_segment._length = temp_length;
+    curr_segment._material = mat;
+    curr_segment._region_id = fsr_id;
+    curr_segment._track_idx = track_idx; //FIXME
+
+    /* Determine CMFD surfaces */
+    if (i == 0)
+      curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+    else
+      curr_segment._cmfd_surface_bwd = -1;
+    if (i == num_cuts - 1)
+      curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+    else
+      curr_segment._cmfd_surface_fwd = -1;
+
+    /* Get the backward track flux */
+    int curr_track_id = _track_id + track_idx;
+    FP_PRECISION* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
+                                                            _direction);
+
+    /* Apply MOC equations */
+    _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
+                                 track_flux, _thread_fsr_flux);
+    _cpu_solver->tallyCurrent(&curr_segment, _azim_index, _polar_index,
+                                     track_flux, true);
+
+    /* Shorten remaining 3D length */
+    length -= temp_length;
+  }
+}
+
+
+//FIXME
+void TransportKernel::post() {
+  for (int i=_min_track_idx; i <= _max_track_idx; i++) {
+    FP_PRECISION* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,
+                                                            _direction);
+    _cpu_solver->transferBoundaryFlux(_track_id+i, _azim_index, _polar_index,
+                                      _direction, track_flux);
+  }
+  _min_track_idx = 0;
+  _max_track_idx = 0;
 }

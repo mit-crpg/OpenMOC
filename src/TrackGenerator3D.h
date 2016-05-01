@@ -145,6 +145,7 @@ public:
   void create3DTracksArrays();
   void initializeTrackCycleIds();
   void checkBoundaryConditions();
+  void deleteTemporarySegments();
 };
 
 #endif /* TRACKGENERATOR3D_H_ */

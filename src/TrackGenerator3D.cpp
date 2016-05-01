@@ -2516,3 +2516,18 @@ bool TrackGenerator3D::containsSegments() {
   else
     return _contains_2D_segments;
 }
+
+
+//FIXME
+void TrackGenerator3D::deleteTemporarySegments() {
+  /* Delete temporary segments if they exist */
+  if (_contains_temporary_segments) {
+    for (int t = 0; t < _num_threads; t++) {
+      for (int z = 0; z < _num_seg_matrix_rows; z++)
+        delete [] _temporary_segments.at(t)[z];
+      delete [] _temporary_segments.at(t);
+    }
+  }
+  _contains_temporary_segments = false;
+}
+

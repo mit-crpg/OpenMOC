@@ -43,6 +43,7 @@ public:
   double distanceToPoint(const Point* point);
   void copyCoords(Point* point);
   std::string toString();
+  void setXYZ(double* xyz);
 };
 
 
@@ -119,6 +120,13 @@ inline void Point::setY(const double y) {
  */
 inline void Point::setZ(const double z) {
   _xyz[2] = z;
+}
+
+//FIXME
+inline void Point::setXYZ(double* xyz) {
+  _xyz[0] = xyz[0];
+  _xyz[1] = xyz[1];
+  _xyz[2] = xyz[2];
 }
 
 

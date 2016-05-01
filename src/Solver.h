@@ -254,6 +254,9 @@ protected:
 
   void clearTimerSplits();
 
+  //FIXME
+  bool _OTF_transport;
+
 public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
@@ -322,6 +325,11 @@ public:
   }
 
   void printTimerReport();
+
+  //FIXME
+  inline void setOTFTransport() {
+    _OTF_transport = true;
+  }
 };
 
 
