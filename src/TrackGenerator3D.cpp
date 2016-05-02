@@ -2483,6 +2483,7 @@ void TrackGenerator3D::allocateTemporarySegments() {
 }
 
 
+
 /**
  * @brief Resets the TrackGenerator to not contain tracks or segments
  */

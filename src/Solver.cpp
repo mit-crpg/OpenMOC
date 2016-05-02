@@ -892,6 +892,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeFSRs();
   countFissionableFSRs();
   initializeExpEvaluator();
+
+  //FIXME
+  TrackGenerator3D* track_generator_3D =
+    dynamic_cast<TrackGenerator3D*>(_track_generator);
+  if (track_generator_3D != NULL && _OTF_transport)
+    track_generator_3D->deleteTemporarySegments();
+
   initializeFluxArrays();
   initializeSourceArrays();
   initializeCmfd();
