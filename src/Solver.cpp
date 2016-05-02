@@ -919,7 +919,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   _timer->startTimer();
 
   /* Source iteration loop */
-  for (int i=0; i < max_iters; i++) {
+  // FIXME for (int i=0; i < max_iters; i++) {
+  for (int i=0; i < 20; i++) {
 
     normalizeFluxes();
     computeFSRSources();
@@ -943,8 +944,11 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
+    //FIXME
+    /*
     if (i > 1 && residual < _converge_thresh)
       break;
+      */
   }
 
   if (_num_iterations == max_iters-1)
