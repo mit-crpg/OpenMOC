@@ -483,13 +483,13 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
 
   /* Extract information about the z-stack */
   int azim_index = flattened_track->getAzimIndex();
-  double z_spacing = _track_generator_3D->getZSpacing(azim_index, polar_index);
   int track_index = flattened_track->getXYIndex();
   int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
   int num_z_stack = tracks_per_stack[azim_index][track_index][polar_index];
   Track3D**** tracks_3D = _track_generator_3D->get3DTracks();
   Track3D* first = &tracks_3D[azim_index][track_index][polar_index][0];
   double theta = first->getTheta();
+  double z_spacing = _track_generator_3D->getZSpacing(azim_index, polar_index);
 
   /* Create unit vector */
   double phi = flattened_track->getPhi();
@@ -497,6 +497,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   double sin_theta = sin(theta);
   double tan_theta = sin_theta / cos_theta;
   int sign = (cos_theta > 0) - (cos_theta < 0);
+  double track_spacing_3D = z_spacing / std::abs(cos_theta);
 
   /* Find 2D distance from 2D edge to start of track */
   double x_start_3D = first->getStart()->getX();
@@ -507,7 +508,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   double z0 = first->getStart()->getZ();
   double start_z = z0 - start_dist_2D / tan_theta;
 
-
+  /* Get the Geometry and CMFD mesh */
   Geometry* geometry = _track_generator_3D->getGeometry();
   Cmfd* cmfd = geometry->getCmfd();
 
@@ -551,6 +552,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
     }
 
     /* Loop over all 3D FSRs in the Extruded FSR to find intersections */
+    double first_seg_len_3D;
     for (int z_iter = 0; z_iter < num_fsrs; z_iter++) {
 
       /* If traveling in negative-z direction, loop through FSRs from top */
@@ -583,11 +585,11 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
 
       /* Treat lower tracks that do not cross the entire 2D length */
       int min_lower = std::min(start_full, end_full);
+      first_seg_len_3D = (first_track_upper_z - z_min) / std::abs(cos_theta);
       for (int i = start_track; i < min_lower; i++) {
 
         /* Calculate distance traveled in 3D FSR */
-        double end_z = first_track_upper_z + i * z_spacing;
-        double seg_len_3D = (end_z - z_min) / std::abs(cos_theta);
+        double seg_len_3D = first_seg_len_3D + i * track_spacing_3D;
 
         /* Determine if segment length is large enough to operate on */
         if (seg_len_3D > TINY_MOVE) {
@@ -599,6 +601,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
           /* Get CMFD surface if necessary */
           if (cmfd != NULL) {
             double start_z = first_track_lower_z + i * z_spacing;
+            double end_z = first_track_upper_z + i * z_spacing;
             double dist_to_corner = std::abs((z_min - start_z) / cos_theta);
             if (sign > 0) {
               cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
@@ -723,11 +726,11 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
 
       /* Treat upper tracks that do not cross the entire 2D length */
       int min_upper = std::max(start_full, end_full);
+      first_seg_len_3D = (z_max - first_track_lower_z) / std::abs(cos_theta);
       for (int i = min_upper; i < end_track; i++) {
 
         /* Calculate distance traveled in 3D FSR */
-        double start_z = first_track_lower_z + i * z_spacing;
-        double seg_len_3D = (z_max - start_z) / std::abs(cos_theta);
+        double seg_len_3D = first_seg_len_3D - i * track_spacing_3D;
 
         /* Determine if segment length is large enough to operate on */
         if (seg_len_3D > TINY_MOVE) {
@@ -738,6 +741,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
 
           /* Get CMFD surface if necessary */
           if (cmfd != NULL) {
+            double start_z = first_track_lower_z + i * z_spacing;
             double end_z = first_track_upper_z + i * z_spacing;
             double dist_to_corner = (end_z - z_max) / std::abs(cos_theta);
             if (sign > 0) {

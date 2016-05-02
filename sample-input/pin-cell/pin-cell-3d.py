@@ -39,7 +39,7 @@ track_generator.generateTracks()
 solver = CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.setOTFTransport()
+#solver.setOTFTransport()
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 
