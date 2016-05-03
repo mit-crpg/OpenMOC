@@ -11,13 +11,13 @@ from assemblies import *
 options = Options()
 
 num_threads = options.getNumThreads()
-azim_spacing = 0.05
-num_azim = 32
+azim_spacing = 0.1
+num_azim = 16
 polar_spacing = 0.1
-num_polar = 10
+num_polar = 6
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines_z = 7
+refines_z = 9
 
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(Lattice(name='Full Geometry'))
