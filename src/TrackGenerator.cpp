@@ -792,7 +792,7 @@ void TrackGenerator::generateTracks() {
 
       /* Segmentize the tracks */
       segmentize();
-      dumpSegmentsToFile();
+      //dumpSegmentsToFile();
     }
 
     /* Allocate array of mutex locks for each FSR */

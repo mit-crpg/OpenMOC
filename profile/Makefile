@@ -34,7 +34,6 @@ Solver.cpp \
 Surface.cpp \
 Timer.cpp \
 Track.cpp \
-Track2D.cpp \
 Track3D.cpp \
 TrackGenerator.cpp \
 TrackGenerator3D.cpp \
