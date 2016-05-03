@@ -123,7 +123,6 @@ int main() {
     materials[name]->setNumEnergyGroups(num_groups);
     id_num++;
 
-    materials[name]->setSigmaA(sigma_a[name].data(), num_groups);
     materials[name]->setSigmaF(sigma_f[name].data(), num_groups);
     materials[name]->setNuSigmaF(nu_sigma_f[name].data(), num_groups);
     materials[name]->setSigmaS(sigma_s[name].data(), num_groups*num_groups);
@@ -257,7 +256,7 @@ int main() {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.setCmfd(cmfd);
+  //geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
@@ -268,7 +267,7 @@ int main() {
                                    polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
-  track_generator.setSegmentFormation(OTF_STACKS);
+  track_generator.setSegmentFormation(OTF_TRACKS);
   std::vector<double> seg_heights {0.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.generateTracks();

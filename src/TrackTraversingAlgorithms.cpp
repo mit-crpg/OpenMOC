@@ -388,7 +388,24 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 TransportSweep::TransportSweep(TrackGenerator* track_generator)
                               : TraverseSegments(track_generator) {
   _cpu_solver = NULL;
+
+  /* Allocate temporary storage of FSR fluxes */
+  int num_threads = omp_get_max_threads();
+  int num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+  _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
+  for (int i=0; i < num_threads; i++)
+    _thread_fsr_fluxes[i] = new FP_PRECISION[num_groups];
 }
+
+
+//FIXME
+TransportSweep::~TransportSweep() {
+  int num_threads = omp_get_max_threads();
+  for (int i=0; i < num_threads; i++)
+    delete [] _thread_fsr_fluxes[i];
+  delete [] _thread_fsr_fluxes;
+}
+
 
 
 /**
@@ -428,9 +445,9 @@ void TransportSweep::setCPUSolver(CPUSolver* cpu_solver) {
  */
 void TransportSweep::onTrack(Track* track, segment* segments) {
 
-  /* Allocate temporary FSR flux locally */
-  int num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
-  FP_PRECISION thread_fsr_flux[num_groups];
+  /* Get the temporary FSR flux */
+  int tid = omp_get_thread_num();
+  FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
 
   /* Extract Track information */
   int track_id = track->getUid();
