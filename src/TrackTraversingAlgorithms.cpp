@@ -394,7 +394,7 @@ TransportSweep::TransportSweep(TrackGenerator* track_generator)
   int num_groups = track_generator->getGeometry()->getNumEnergyGroups();
   _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new FP_PRECISION[num_groups];
+    _thread_fsr_fluxes[i] = new FP_PRECISION[2*num_groups];
 }
 
 

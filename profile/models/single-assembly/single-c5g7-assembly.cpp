@@ -11,10 +11,10 @@ int main() {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.2;
-  int num_azim = 4;
-  double polar_spacing = 1.0;
-  int num_polar = 4;
+  double azim_spacing = 0.1;
+  int num_azim = 16;
+  double polar_spacing = 0.1;
+  int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 1000;
   int axial_refines = 1;
@@ -135,15 +135,15 @@ int main() {
   XPlane xmax( 10.71);
   YPlane ymin(-10.71);
   YPlane ymax( 10.71);
-  ZPlane zmin(-10.71);
-  ZPlane zmax( 10.71);
+  ZPlane zmin(-32.13);
+  ZPlane zmax( 32.13);
 
   xmin.setBoundaryType(REFLECTIVE);
   xmax.setBoundaryType(REFLECTIVE);
   ymin.setBoundaryType(REFLECTIVE);
   ymax.setBoundaryType(REFLECTIVE);
   zmin.setBoundaryType(REFLECTIVE);
-  zmax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(VACUUM);
 
   /* Create z-cylinders for the fuel as well as to discretize the moderator
    * into rings */

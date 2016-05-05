@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = single-assembly/quarter-c5g7-assembly.cpp
+case = single-assembly/single-c5g7-assembly.cpp
 
 source = \
 Cell.cpp \

@@ -17,7 +17,7 @@ polar_spacing = 0.1
 num_polar = 6
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines_z = 9
+refines_z = 1
 
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(Lattice(name='Full Geometry'))

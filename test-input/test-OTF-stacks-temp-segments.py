@@ -17,7 +17,7 @@ polar_spacing = 0.1
 num_polar = 6
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines_z = 9
+refines_z = 1
 
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(Lattice(name='Full Geometry'))
@@ -83,7 +83,7 @@ track_generator = TrackGenerator3D(geometry, num_azim, num_polar, azim_spacing,
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setSegmentFormation(OTF_STACKS)
-track_generator.setSegmentationHeights([0.0, 20.0])
+track_generator.setSegmentationHeights([0.0])
 track_generator.useGlobalZMesh()
 track_generator.generateTracks()
 
