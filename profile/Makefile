@@ -6,14 +6,14 @@ COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = no
 DEBUG       = no
-PROFILE     = yes
+PROFILE     = no
 PRECISION   = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = single-assembly/quarter-c5g7-assembly.cpp
+case = c5g7/c5g7-3d-cmfd.cpp
 
 source = \
 Cell.cpp \

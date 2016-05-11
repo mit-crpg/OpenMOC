@@ -22,6 +22,7 @@ int main() {
   log_printf(NORMAL, "Defining material properties...");
 
   const size_t num_groups = 7;
+  std::map<std::string, std::array<double, num_groups> > sigma_a;
   std::map<std::string, std::array<double, num_groups> > nu_sigma_f;
   std::map<std::string, std::array<double, num_groups> > sigma_f;
   std::map<std::string, std::array<double, num_groups*num_groups> > sigma_s;
@@ -29,6 +30,8 @@ int main() {
   std::map<std::string, std::array<double, num_groups> > sigma_t;
 
   /* Define water cross-sections */
+  sigma_a["Water"] = std::array<double, num_groups> {6.0105E-4, 1.5793E-5,
+      3.3716E-4, 0.0019406, 0.0057416, 0.015001, 0.037239};
   nu_sigma_f["Water"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
   sigma_f["Water"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
   sigma_s["Water"] = std::array<double, num_groups*num_groups>
@@ -44,6 +47,8 @@ int main() {
     0.59031, 0.58435, 0.718, 1.25445, 2.65038};
 
   /* Define UO2 cross-sections */
+  sigma_a["UO2"] = std::array<double, num_groups> {0.0080248, 0.0037174,
+    0.026769, 0.096236, 0.03002, 0.11126, 0.28278};
   nu_sigma_f["UO2"] = std::array<double, num_groups> {0.02005998, 0.002027303,
     0.01570599, 0.04518301, 0.04334208, 0.2020901, 0.5257105};
   sigma_f["UO2"] = std::array<double, num_groups> {0.00721206, 8.19301E-4,
@@ -73,6 +78,7 @@ int main() {
     materials[name]->setNumEnergyGroups(num_groups);
     id_num++;
 
+    materials[name]->setSigmaA(sigma_a[name].data(), num_groups);
     materials[name]->setSigmaT(sigma_t[name].data(), num_groups);
     materials[name]->setSigmaS(sigma_s[name].data(), num_groups*num_groups);
     materials[name]->setSigmaF(sigma_f[name].data(), num_groups);
