@@ -78,7 +78,6 @@ int main() {
     materials[name]->setNumEnergyGroups(num_groups);
     id_num++;
 
-    materials[name]->setSigmaA(sigma_a[name].data(), num_groups);
     materials[name]->setSigmaT(sigma_t[name].data(), num_groups);
     materials[name]->setSigmaS(sigma_s[name].data(), num_groups*num_groups);
     materials[name]->setSigmaF(sigma_f[name].data(), num_groups);
