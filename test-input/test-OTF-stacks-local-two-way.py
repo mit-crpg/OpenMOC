@@ -17,7 +17,7 @@ polar_spacing = 0.1
 num_polar = 6
 tolerance = options.getTolerance()
 max_iters = options.getMaxIterations()
-refines_z = 9
+refines_z = 1
 
 # 3 x 3 x 9 core to represent 3D core
 lattices.append(Lattice(name='Full Geometry'))
@@ -59,19 +59,6 @@ root_cell.setFill(lattices[-1])
 
 
 ###############################################################################
-##########################     Creating Cmfd mesh    ##########################
-###############################################################################
-'''
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
-cmfd = Cmfd()
-cmfd.setMOCRelaxationFactor(1.0)
-cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51,3)
-cmfd.setGroupStructure([1,4,8])
-cmfd.setOpticallyThick(True)
-cmfd.setKNearest(4)
-'''
-###############################################################################
 ##########################   Creating the Geometry   ##########################
 ###############################################################################
 
@@ -79,7 +66,6 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = Geometry()
 geometry.setRootUniverse(root_universe)
-#geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
 
@@ -97,7 +83,7 @@ track_generator = TrackGenerator3D(geometry, num_azim, num_polar, azim_spacing,
 track_generator.setSegmentFormation(OTF_STACKS)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
-track_generator.setSegmentationHeights([0.0, 20.0])
+track_generator.setSegmentationHeights([0.0])
 track_generator.generateTracks()
 
 
@@ -111,27 +97,5 @@ solver.setNumThreads(num_threads)
 solver.setOTFTransport()
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
-
-
-###############################################################################
-############################   Generating Plots   #############################
-###############################################################################
-
-log.py_printf('NORMAL', 'Plotting data...')
-
-plotter.plot_materials(geometry, gridsize=500, plane='xy')
-plotter.plot_materials(geometry, gridsize=500, plane='xz', offset=-10.0)
-plotter.plot_materials(geometry, gridsize=500, plane='yz')
-plotter.plot_cells(geometry, gridsize=500)
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy')
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xz')
-plotter.plot_flat_source_regions(geometry, gridsize=500, plane='yz')
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7],
-                            gridsize=500, plane='xy', offset=0.)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7],
-                            gridsize=500, plane='xz', offset=0.)
-plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7],
-                            gridsize=500, plane='yz', offset=0.)
-
 
 log.py_printf('TITLE', 'Finished')

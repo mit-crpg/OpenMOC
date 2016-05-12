@@ -12,8 +12,8 @@ int main() {
   int num_threads = 1;
   #endif
   double azim_spacing = 0.1;
-  int num_azim = 4;
-  double polar_spacing = 0.1;
+  int num_azim = 16;
+  double polar_spacing = 0.2;
   int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 1000;
