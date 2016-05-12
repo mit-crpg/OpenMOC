@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = pin-cell/pin-cell-3d.cpp
+case = single-assembly/single-c5g7-assembly.cpp
 
 source = \
 Cell.cpp \

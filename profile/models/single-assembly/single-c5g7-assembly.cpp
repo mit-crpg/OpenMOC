@@ -11,10 +11,10 @@ int main() {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.2;
+  double azim_spacing = 0.1;
   int num_azim = 4;
-  double polar_spacing = 1.0;
-  int num_polar = 4;
+  double polar_spacing = 0.1;
+  int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 1000;
   int axial_refines = 1;
@@ -70,6 +70,66 @@ int main() {
     1.1761E-7, 0.0, 0.0, 0.0};
   sigma_t["UO2"] = std::array<double, num_groups> {0.177949, 0.329805,
     0.480388, 0.554367, 0.311801, 0.395168, 0.564406};
+
+  /* Define MOX-4.3% cross-sections */
+  sigma_a["MOX-4.3%%"] = std::array<double, num_groups> {0.0084339, 0.0037577,
+    0.02797, 0.10421, 0.13994, 0.40918, 0.40935};
+  nu_sigma_f["MOX-4.3%%"] = std::array<double, num_groups> {0.021753,
+    0.002535103, 0.01626799, 0.0654741, 0.03072409, 0.666651, 0.7139904};
+  sigma_f["MOX-4.3%%"] = std::array<double, num_groups> {0.00762704,
+    8.76898E-4, 0.00569835, 0.0228872, 0.0107635, 0.232757, 0.248968};
+  sigma_s["MOX-4.3%%"] = std::array<double, num_groups*num_groups>
+      {0.128876, 0.041413, 8.229E-6, 5.0405E-9, 0.0, 0.0, 0.0,
+      0.0, 0.325452, 0.0016395, 1.5982E-9, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.453188, 0.0026142, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.457173, 0.0055394, 0.0, 0.0,
+      0.0, 0.0, 0.0, 1.6046E-4, 0.276814, 0.0093127, 9.1656E-9,
+      0.0, 0.0, 0.0, 0.0, 0.0020051, 0.252962, 0.01485,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0084948, 0.265007};
+  chi["MOX-4.3%%"] = std::array<double, num_groups> {0.58791, 0.41176,
+    3.3906E-4, 1.1761E-7, 0.0, 0.0, 0.0};
+  sigma_t["MOX-4.3%%"] = std::array<double, num_groups> {0.178731, 0.330849,
+    0.483772, 0.566922, 0.426227, 0.678997, 0.68285};
+
+  /* Define MOX-7% cross-sections */
+  sigma_a["MOX-7%%"] = std::array<double, num_groups> {0.0090657, 0.0042967,
+    0.032881, 0.12203, 0.18298, 0.56846, 0.58521};
+  nu_sigma_f["MOX-7%%"] = std::array<double, num_groups> {0.02381395,
+    0.003858689, 0.024134, 0.09436622, 0.04576988, 0.9281814, 1.0432};
+  sigma_f["MOX-7%%"] = std::array<double, num_groups> {0.00825446, 0.00132565,
+    0.00842156, 0.032873, 0.0159636, 0.323794, 0.362803};
+  sigma_s["MOX-7%%"] = std::array<double, num_groups*num_groups>
+      {0.130457, 0.041792, 8.5105E-6, 5.1329E-9, 0.0, 0.0, 0.0,
+      0.0, 0.328428, 0.0016436, 2.2017E-9, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.458371, 0.0025331, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.463709, 0.0054766, 0.0, 0.0,
+      0.0, 0.0, 0.0, 1.7619E-4, 0.282313, 0.0087289, 9.0016E-9,
+      0.0, 0.0, 0.0, 0.0, 0.002276, 0.249751, 0.013114,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0088645, 0.259529};
+  chi["MOX-7%%"] = std::array<double, num_groups> {0.58791, 0.41176, 3.3906E-4,
+    1.1761E-7, 0.0, 0.0, 0.0};
+  sigma_t["MOX-7%%"] = std::array<double, num_groups> {0.181323, 0.334368,
+    0.493785, 0.591216, 0.474198, 0.833601, 0.853603};
+
+  /* Define MOX-8.7% cross-sections */
+  sigma_a["MOX-8.7%%"] = std::array<double, num_groups> {0.0094862, 0.0046556,
+    0.03624, 0.13272, 0.2084, 0.6587, 0.69017};
+  nu_sigma_f["MOX-8.7%%"] = std::array<double, num_groups> {0.025186,
+    0.004739509, 0.02947805, 0.11225, 0.05530301, 1.074999, 1.239298};
+  sigma_f["MOX-8.7%%"] = std::array<double, num_groups> {0.00867209,
+    0.00162426, 0.0102716, 0.0390447, 0.0192576, 0.374888, 0.430599};
+  sigma_s["MOX-8.7%%"] = std::array<double, num_groups*num_groups>
+      {0.131504, 0.042046, 8.6972E-6, 5.1938E-9, 0.0, 0.0, 0.0,
+      0.0, 0.330403, 0.0016463, 2.6006E-9, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.461792, 0.0024749, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.468021, 0.005433, 0.0, 0.0,
+      0.0, 0.0, 0.0, 1.8597E-4, 0.285771, 0.0083973, 8.928E-9,
+      0.0, 0.0, 0.0, 0.0, 0.0023916, 0.247614, 0.012322,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0089681, 0.256093};
+  chi["MOX-8.7%%"] = std::array<double, num_groups> {0.58791, 0.41176,
+    3.3906E-4, 1.1761E-7, 0.0, 0.0, 0.0};
+  sigma_t["MOX-8.7%%"] = std::array<double, num_groups> {0.183045, 0.336705,
+    0.500507, 0.606174, 0.502754, 0.921028, 0.955231};
 
   /* Define fission chamber cross-sections */
   sigma_a["Fission Chamber"] = std::array<double, num_groups> {5.1132E-4,
@@ -135,15 +195,15 @@ int main() {
   XPlane xmax( 10.71);
   YPlane ymin(-10.71);
   YPlane ymax( 10.71);
-  ZPlane zmin(-10.71);
-  ZPlane zmax( 10.71);
+  ZPlane zmin(-32.13);
+  ZPlane zmax( 32.13);
 
   xmin.setBoundaryType(REFLECTIVE);
   xmax.setBoundaryType(REFLECTIVE);
   ymin.setBoundaryType(REFLECTIVE);
   ymax.setBoundaryType(REFLECTIVE);
   zmin.setBoundaryType(REFLECTIVE);
-  zmax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(VACUUM);
 
   /* Create z-cylinders for the fuel as well as to discretize the moderator
    * into rings */
@@ -172,6 +232,39 @@ int main() {
   uo2->addCell(uo2_cell);
   uo2->addCell(moderator);
 
+  /* 4.3% MOX pin cell */
+  Cell* mox43_cell = new Cell(4, "mox43");
+  mox43_cell->setNumRings(3);
+  mox43_cell->setNumSectors(8);
+  mox43_cell->setFill(materials["MOX-4.3%%"]);
+  mox43_cell->addSurface(-1, &fuel_radius);
+
+  Universe* mox43 = new Universe();
+  mox43->addCell(mox43_cell);
+  mox43->addCell(moderator);
+
+  /* 7% MOX pin cell */
+  Cell* mox7_cell = new Cell(5, "mox7");
+  mox7_cell->setNumRings(3);
+  mox7_cell->setNumSectors(8);
+  mox7_cell->setFill(materials["MOX-7%%"]);
+  mox7_cell->addSurface(-1, &fuel_radius);
+
+  Universe* mox7 = new Universe();
+  mox7->addCell(mox7_cell);
+  mox7->addCell(moderator);
+
+  /* 8.7% MOX pin cell */
+  Cell* mox87_cell = new Cell(6, "mox87");
+  mox87_cell->setNumRings(3);
+  mox87_cell->setNumSectors(8);
+  mox87_cell->setFill(materials["MOX-8.7%%"]);
+  mox87_cell->addSurface(-1, &fuel_radius);
+
+  Universe* mox87 = new Universe();
+  mox87->addCell(mox87_cell);
+  mox87->addCell(moderator);
+
   /* Fission chamber pin cell */
   Cell* fission_chamber_cell = new Cell(7, "fc");
   fission_chamber_cell->setNumRings(3);
@@ -194,10 +287,37 @@ int main() {
   guide_tube->addCell(guide_tube_cell);
   guide_tube->addCell(moderator);
 
+  /* Reflector */
+  Cell* reflector_cell = new Cell(9, "rc");
+  reflector_cell->setFill(materials["Water"]);
+
+  Universe* reflector = new Universe();
+  reflector->addCell(reflector_cell);
+
   /* Cells */
   Cell* assembly1_cell = new Cell(10, "ac1");
+  Cell* assembly2_cell = new Cell(11, "ac2");
+  Cell* refined_reflector_cell = new Cell(12, "rrc");
+  Cell* right_reflector_cell = new Cell(13,"rrc2");
+  Cell* corner_reflector_cell = new Cell(14, "crc");
+  Cell* bottom_reflector_cell = new Cell(15, "brc");
+  Cell* assembly_reflector_cell = new Cell(16, "arc");
+
   Universe* assembly1 = new Universe();
+  Universe* assembly2 = new Universe();
+  Universe* refined_reflector = new Universe();
+  Universe* right_reflector = new Universe();
+  Universe* corner_reflector = new Universe();
+  Universe* bottom_reflector = new Universe();
+  Universe* assembly_reflector = new Universe();
+
   assembly1->addCell(assembly1_cell);
+  assembly2->addCell(assembly2_cell);
+  refined_reflector->addCell(refined_reflector_cell);
+  right_reflector->addCell(right_reflector_cell);
+  corner_reflector->addCell(corner_reflector_cell);
+  bottom_reflector->addCell(bottom_reflector_cell);
+  assembly_reflector->addCell(assembly_reflector_cell);
 
   /* Root Cell* */
   Cell* root_cell = new Cell(16, "root");
@@ -216,7 +336,7 @@ int main() {
 
   /* Top left, bottom right 17 x 17 assemblies */
   Lattice* assembly1_lattice = new Lattice();
-  assembly1_lattice->setWidth(1.26, 1.26, 21.42/axial_refines);
+  assembly1_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
   Universe* matrix1[17*17*axial_refines];
   {
     int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -247,24 +367,162 @@ int main() {
   }
   assembly1_cell->setFill(assembly1_lattice);
 
+  /* Top right, bottom left 17 x 17 assemblies */
+  Lattice* assembly2_lattice = new Lattice();
+  assembly2_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* matrix2[17*17*axial_refines];
+  {
+    int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+                        1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1,
+                        1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1,
+                        1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1,
+                        1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 4, 3, 3, 4, 3, 3, 5, 3, 3, 4, 3, 3, 4, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1,
+                        1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1,
+                        1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1,
+                        1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1,
+                        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+    std::map<int, Universe*> names = {{1, mox43}, {2, mox7}, {3, mox87},
+                                      {4, guide_tube}, {5, fission_chamber}};
+    for (int z=0; z < axial_refines; z++)
+      for (int n=0; n<17*17; n++)
+        matrix2[z*17*17 + n] = names[mold[n]];
+
+    assembly2_lattice->setUniverses3D(axial_refines, 17, 17, matrix2);
+  }
+  assembly2_cell->setFill(assembly2_lattice);
+
+  /* Sliced up water cells - semi finely spaced */
+  Lattice* refined_ref_lattice = new Lattice();
+  refined_ref_lattice->setWidth(0.126, 0.126, 7.14/axial_refines);
+  Universe* refined_ref_matrix[10*10*axial_refines];
+  for (int z=0; z < axial_refines; z++)
+    for (int n=0; n<10*10; n++)
+      refined_ref_matrix[z*10*10 + n] = reflector;
+  refined_ref_lattice->setUniverses3D(axial_refines, 10, 10, refined_ref_matrix);
+  refined_reflector_cell->setFill(refined_ref_lattice);
+
+  /* Sliced up water cells - right side of geometry */
+  Lattice* right_ref_lattice = new Lattice();
+  right_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* right_ref_matrix[17*17*axial_refines];
+  for (int z=0; z < axial_refines; z++) {
+    for (int i=0; i<17; i++) {
+      for (int j=0; j<17; j++) {
+        int index =  17*j + i;
+        if (i<11)
+          right_ref_matrix[17*17*z + index] = refined_reflector;
+        else
+          right_ref_matrix[17*17*z + index] = reflector;
+      }
+    }
+  }
+  right_ref_lattice->setUniverses3D(axial_refines, 17, 17, right_ref_matrix);
+  right_reflector_cell->setFill(right_ref_lattice);
+
+  /* Sliced up water cells for bottom corner of geometry */
+  Lattice* corner_ref_lattice = new Lattice();
+  corner_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* corner_ref_matrix[17*17*axial_refines];
+  for (int z=0; z < axial_refines; z++) {
+    for (int i=0; i<17; i++) {
+      for (int j=0; j<17; j++) {
+        int index = 17*j + i;
+        if (i<11 && j<11)
+          corner_ref_matrix[17*17*z + index] = refined_reflector;
+        else
+          corner_ref_matrix[17*17*z + index] = reflector;
+      }
+    }
+  }
+  corner_ref_lattice->setUniverses3D(axial_refines, 17, 17, corner_ref_matrix);
+  corner_reflector_cell->setFill(corner_ref_lattice);
+
+  /* Sliced up water cells for bottom of geometry */
+  Lattice* bottom_ref_lattice = new Lattice();
+  bottom_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* bottom_ref_matrix[17*17*axial_refines];
+  for (int z=0; z < axial_refines; z++) {
+    for (int i=0; i<17; i++) {
+      for (int j=0; j<17; j++) {
+        int index = 17*j + i;
+        if (j<11)
+          bottom_ref_matrix[17*17*z + index] = refined_reflector;
+        else
+          bottom_ref_matrix[17*17*z + index] = reflector;
+      }
+    }
+  }
+  bottom_ref_lattice->setUniverses3D(axial_refines, 17, 17, bottom_ref_matrix);
+  bottom_reflector_cell->setFill(bottom_ref_lattice);
+
+  /* Reflector assembly (unrodded) */
+  Lattice* assembly_ref_lattice = new Lattice();
+  assembly_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* assembly_ref_matrix[17*17*axial_refines];
+  for (int n=0; n < axial_refines*17*17; n++)
+    assembly_ref_matrix[n] = refined_reflector;
+
+  assembly_ref_lattice->setUniverses3D(axial_refines, 17, 17, assembly_ref_matrix);
+  assembly_reflector_cell->setFill(assembly_ref_lattice);
+
+  /* 3 x 3 x 9 core to represent two bundles and water */
+  Lattice* full_geometry = new Lattice();
+  full_geometry->setWidth(21.42, 21.42, 7.14);
+  Universe* universes[] = {
+    assembly_reflector, assembly_reflector, right_reflector,
+    assembly_reflector, assembly_reflector, right_reflector,
+    bottom_reflector,   bottom_reflector,   corner_reflector,
+
+    assembly_reflector, assembly_reflector, right_reflector,
+    assembly_reflector, assembly_reflector, right_reflector,
+    bottom_reflector,   bottom_reflector,   corner_reflector,
+
+    assembly_reflector, assembly_reflector, right_reflector,
+    assembly_reflector, assembly_reflector, right_reflector,
+    bottom_reflector,   bottom_reflector,   corner_reflector,
+
+    assembly1,        assembly2,        right_reflector,
+    assembly2,        assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector,
+
+    assembly1,        assembly2,        right_reflector,
+    assembly2,        assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector,
+
+    assembly1,        assembly2,        right_reflector,
+    assembly2,        assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector,
+
+    assembly1,        assembly2,        right_reflector,
+    assembly2,        assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector,
+
+    assembly1,        assembly2,        right_reflector,
+    assembly2,        assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector,
+
+    assembly1,        assembly2,        right_reflector,
+    assembly2,        assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector};
+
+  full_geometry->setUniverses3D(9, 3, 3, universes);
+
   /* Fill root cell with lattice */
-  root_cell->setFill(assembly1);
-
-  /* Create CMFD mesh */
-  log_printf(NORMAL, "Creating CMFD mesh...");
-
-  Cmfd* cmfd = new Cmfd();
-  cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setLatticeStructure(17, 17, 3);
-  int cmfd_group_structure[3] = {1,4,8};
-  cmfd->setGroupStructure(cmfd_group_structure, 3);
-  cmfd->setCentroidUpdateOn(false);
+  root_cell->setFill(full_geometry);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
@@ -276,7 +534,7 @@ int main() {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<double> seg_heights {0.0};
+  std::vector<double> seg_heights {0.0, 20.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.generateTracks();
 
