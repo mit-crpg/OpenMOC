@@ -517,7 +517,7 @@ FP_PRECISION* TrackGenerator::getFSRSourceConstants(PolarQuad* polar_quad,
             /* store the tau for this segment and total xs */
             tau = length * sigma_t[g];
 
-            src_constant *= length / (2.0 * sigma_t[g]);
+            src_constant *= length * length;
 
             for (int p=0; p < polar_quad->getNumPolarAngles(); p++) {
 

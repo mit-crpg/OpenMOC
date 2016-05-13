@@ -212,8 +212,9 @@ void ExpEvaluator::initialize() {
   FP_PRECISION expon;
   FP_PRECISION intercept;
   FP_PRECISION slope_F1;
-  FP_PRECISION st, ist;
-  FP_PRECISION tau_a, tau_m;
+  FP_PRECISION st, ist, ist2, ist3;
+  FP_PRECISION tau_a, tau_m, tau_a2, tau_a3;
+  FP_PRECISION itau_a, itau_a2, itau_a3;
   FP_PRECISION exp_const_1, exp_const_2, exp_const_3;
   int index;
 
@@ -225,8 +226,15 @@ void ExpEvaluator::initialize() {
 
       st = _sin_theta[p];
       ist = _inv_sin_theta[p];
+      ist2 = ist * ist;
+      ist3 = ist * ist * ist;
 
       tau_a = i * _exp_table_spacing;
+      tau_a2 = tau_a * tau_a;
+      tau_a3 = tau_a * tau_a * tau_a;
+      itau_a = 1.0 / tau_a;
+      itau_a2 = itau_a * itau_a;
+      itau_a3 = itau_a * itau_a * itau_a;
       tau_m = tau_a * ist;
       expon = exp(- tau_m);
 
@@ -241,9 +249,19 @@ void ExpEvaluator::initialize() {
       if (_linear_source) {
 
         /* Compute F2 */
-        exp_const_1 = 2 * expon - 2 + tau_m + tau_m * expon;
-        exp_const_2 = (-expon * (tau_a + st) + st) * ist * ist;
-        exp_const_3 = 0.5 * tau_a * expon * ist * ist * ist;
+        if (tau_a == 0.0) {
+          exp_const_1 = 0.0;
+          exp_const_2 = 0.0;
+          exp_const_3 = ist3 / 6.0;
+        }
+        else {
+          exp_const_1 = 2.0 * itau_a * (expon - 1) + ist * (expon + 1);
+          exp_const_2 = 2.0 * itau_a2 +
+              expon * (- ist2 - 2.0 * ist * itau_a - 2.0 * itau_a2);
+          exp_const_3 = 2.0 * itau_a3 +
+              expon * (- ist3 / 2.0 - ist2 * itau_a - 2.0 * itau_a2 * ist -
+                       2.0 * itau_a3);
+        }
         _exp_table[index + 3] = exp_const_1;
         _exp_table[index + 4] = exp_const_2;
         _exp_table[index + 5] = exp_const_3;
@@ -289,11 +307,14 @@ void ExpEvaluator::initialize() {
  */
 FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau, int polar) {
 
+  tau = std::max(tau, 1.e-10);
+
+
   if (tau == 0.0)
     return 0.0;
 
   FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
-  return 2.0 * tau_m / 3.0 - (1 + 2.0 / tau_m)
+  return _inv_sin_theta[polar] / 3.0 - (0.5 / tau + 1.0 / (tau_m * tau))
       * (1.0 + tau_m / 2.0 - (1.0 + 1.0 / tau_m) *
          (1.0 - exp(- tau_m)));
 }

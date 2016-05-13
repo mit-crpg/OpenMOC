@@ -265,11 +265,11 @@ void CPULSSolver::computeFSRSources() {
 
         /* Compute total (scatter+fission+fixed) reduced source moments */
         _reduced_sources_xy(r,g,0) = ONE_OVER_FOUR_PI /
-            (2 * sigma_t[g] * sigma_t[g]) *
+            (2 * sigma_t[g]) *
             (_FSR_lin_exp_matrix[r*3  ] * src_x +
              _FSR_lin_exp_matrix[r*3+2] * src_y);
         _reduced_sources_xy(r,g,1) = ONE_OVER_FOUR_PI /
-            (2 * sigma_t[g] * sigma_t[g]) *
+            (2 * sigma_t[g]) *
             (_FSR_lin_exp_matrix[r*3+1] * src_y +
              _FSR_lin_exp_matrix[r*3+2] * src_x);
       }
@@ -454,7 +454,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     polar_wgt_exp_h = 0.0;
 
     /* Compute the flat component of the reduced source */
-    src_flat = _reduced_sources(fsr_id, e) + 2 * sigma_t[e] *
+    src_flat = _reduced_sources(fsr_id, e) + 2 *
         (_reduced_sources_xy(fsr_id, e, 0) * xc +
          _reduced_sources_xy(fsr_id, e, 1) * yc);
 
@@ -474,7 +474,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
       /* Compute the moment component of the source */
       src_linear = (ax * _reduced_sources_xy(fsr_id, e, 0) +
-                    ay * _reduced_sources_xy(fsr_id, e, 1)) * exp_F2;
+                    ay * _reduced_sources_xy(fsr_id, e, 1)) * exp_F2 * length;
 
       /* Compute the change in flux across the segment */
       delta_psi = (track_flux(p,e) - src_flat) * exp_F1 - src_linear;
@@ -525,7 +525,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 
       for (int e=0; e < _num_groups; e++) {
 
-        flux_const = FOUR_PI * 2 * sigma_t[e];
+        flux_const = FOUR_PI * 2;
 
         _scalar_flux(r,e) *= 0.5;
         _scalar_flux(r,e) /= (sigma_t[e] * volume);

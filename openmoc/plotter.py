@@ -901,18 +901,18 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
         return figures
 
 
-def plot_exp_evaluator(precision=1.e-5, max_tau=10.0):
+def plot_exp_evaluator(precision=1.e-5, max_tau=10.0, max_g2=0.1):
 
     exp_eval = openmoc.ExpEvaluator()
     polar_quad = openmoc.TYPolarQuad()
-    polar_quad.setNumPolarAngles(3)
+    polar_quad.setNumPolarAngles(1)
     polar_quad.initialize()
     exp_eval.setPolarQuadrature(polar_quad)
     exp_eval.setMaxOpticalLength(max_tau)
     exp_eval.setExpPrecision(precision)
     exp_eval.useLinearSource()
     exp_eval.initialize()
-    table_size = exp_eval.getTableSize() / 27
+    table_size = exp_eval.getTableSize() / 9
     table_spacing = exp_eval.getTableSpacing()
 
     py_printf('NORMAL', 'table size %d', table_size)
@@ -924,19 +924,43 @@ def plot_exp_evaluator(precision=1.e-5, max_tau=10.0):
     exp_error = np.zeros((3,test_size))
     test_tau = np.linspace(0.0, max_tau, test_size)
 
+    test_tau_g2 = np.linspace(0.0, max_g2, 1000)
+    exp_g2 = np.zeros(1000)
+
+
+    # query interpolated values
+    for i,t in enumerate(test_tau_g2):
+        exp_g2[i] = exp_eval.computeExponentialG2(t, 0)
+
+    fig = plt.figure()
+    plt.semilogy(test_tau_g2, exp_g2, label='G2')
+    plt.ylabel('Exponential G2')
+    plt.xlabel('Tau')
+    plt.legend(loc=2)
+    plt.savefig('plots/exp_g2.png')
+
+
     # query interpolated values
     for i,t in enumerate(test_tau):
-        exp_interp[0][i] = exp_eval.computeExponential(t,0)
-        exp_interp[1][i] = exp_eval.computeExponentialF2(t,0)
-        exp_interp[2][i] = exp_eval.computeExponentialH(t,0)
+        exp_index = int(np.floor(t / table_spacing))
+        dt = t - table_spacing * exp_index
+        dt2 = dt * dt
+        exp_index *= 9
+        exp_interp[0][i] = exp_eval.computeExponentialF1(exp_index  , dt, dt2)
+        exp_interp[1][i] = exp_eval.computeExponentialF2(exp_index+3, dt, dt2)
+        exp_interp[2][i] = exp_eval.computeExponentialH (exp_index+9, dt, dt2)
 
     exp_eval.useIntrinsic()
 
     # query intrinsic values
     for i,t in enumerate(test_tau):
-        exp_intrin[0][i] = exp_eval.computeExponential(t,0)
-        exp_intrin[1][i] = exp_eval.computeExponentialF2(t,0)
-        exp_intrin[2][i] = exp_eval.computeExponentialH(t,0)
+        exp_index = int(np.floor(t / table_spacing))
+        dt = t - table_spacing * exp_index
+        dt2 = dt * dt
+        exp_index *= 9
+        exp_interp[0][i] = exp_eval.computeExponentialF1(exp_index  , dt, dt2)
+        exp_interp[1][i] = exp_eval.computeExponentialF2(exp_index+3, dt, dt2)
+        exp_interp[2][i] = exp_eval.computeExponentialH (exp_index+9, dt, dt2)
 
     exp_error = np.abs(exp_interp - exp_intrin)
 
