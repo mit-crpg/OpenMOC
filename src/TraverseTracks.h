@@ -37,8 +37,8 @@ class TraverseTracks {
 private:
 
   /* Functions defining how to loop over Tracks */
-  void loopOverTracks2D(MOCKernel** kernels);
-  void loopOverTracksByParallelGroup2D(MOCKernel** kernels);
+  void loopOverTracks2D(MOCKernel* kernel);
+  void loopOverTracksByParallelGroup2D(MOCKernel* kernel);
 
   /* Functions defining how to traverse segments */
   void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
@@ -55,19 +55,9 @@ protected:
   virtual ~TraverseTracks();
 
   /* Functions defining how to loop over and operate on Tracks */
-  void loopOverTracks(MOCKernel** kernels);
-  void loopOverTracksByParallelGroup(MOCKernel** kernels);
+  void loopOverTracks(MOCKernel* kernel);
+  void loopOverTracksByParallelGroup(MOCKernel* kernel);
   virtual void onTrack(Track* track, segment* segments) = 0;
-
-  /* Returns a matrix of kernels of the requested type */
-  template <class KernelType>
-  MOCKernel** getKernels() {
-
-    /* Allocate kernels */
-    MOCKernel** kernels = new MOCKernel*[1];
-    kernels[0] = new KernelType(_track_generator, 0);
-    return kernels;
-  }
 
 public:
   virtual void execute() = 0;

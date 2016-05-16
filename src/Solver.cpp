@@ -298,7 +298,7 @@ FP_PRECISION Solver::getFlux(int fsr_id, int group) {
 
 
 /**
- * @brief Returns the boundary flux array at the requested indexes
+ * @brief Returns the boundary flux array for a Track
  * @param track_id The Track's Unique ID
  * @param fwd Whether the direction of the angular flux along the track is
  *        forward (True) or backward (False)

@@ -78,8 +78,6 @@ public:
   virtual void transferBoundaryFlux(int track_id, int azim_index,
                                     bool direction, FP_PRECISION* track_flux);
 
-
-
   int getNumThreads();
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 

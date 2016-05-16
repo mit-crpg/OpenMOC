@@ -2,15 +2,14 @@
 #include "TrackGenerator.h"
 
 /**
- * @brief Constructor for the MOCKernel assigns default values
+ * @brief Constructor for the MOCKernel
  * @details The count for the number of segments traversed is set to zero and
  *          the maximum optical path length is retrieved from the
  *          TrackGenerator
  * @param track_generator the TrackGenerator used to pull relevant tracking
- *        data from
- * @param row_num the row index into the temporary segments matrix
+ *        data
  */
-MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
+MOCKernel::MOCKernel(TrackGenerator* track_generator) {
   _count = 0;
   _max_tau = track_generator->retrieveMaxOpticalLength();
 }
@@ -21,16 +20,15 @@ MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
  *        the MOCKernel constructor, and pulls refernces to FSR locks and FSR
  *        volumes from the provided TrackGenerator.
  * @param track_generator the TrackGenerator used to pull relevant tracking
- *        data from
- * @param row_num the row index into the temporary segments matrix
+ *        data
  */
-VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
-                           MOCKernel(track_generator, row_num) {
+VolumeKernel::VolumeKernel(TrackGenerator* track_generator) :
+                           MOCKernel(track_generator) {
   _FSR_locks = track_generator->getFSRLocks();
 
   if (_FSR_locks == NULL)
     log_printf(ERROR, "Unable to create a VolumeKernel without first creating "
-               "FSR locks");
+               "FSR locks which are normally created during Track generation");
 
   _FSR_volumes = track_generator->getFSRVolumes();
   _quadrature = track_generator->getQuadrature();
@@ -42,11 +40,10 @@ VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
  * @brief Constructor for the CounterKernel assigns default values and calls
  *        the MOCKernel constructor
  * @param track_generator the TrackGenerator used to pull relevant tracking
- *        data from
- * @param row_num the row index into the temporary segments matrix
+ *        data
  */
-CounterKernel::CounterKernel(TrackGenerator* track_generator, int row_num) :
-                             MOCKernel(track_generator, row_num) {}
+CounterKernel::CounterKernel(TrackGenerator* track_generator) :
+                             MOCKernel(track_generator) {}
 
 
 /**

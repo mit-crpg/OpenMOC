@@ -98,7 +98,7 @@ protected:
   /** Determines the type of track segmentation to use */
   segmentationType _segment_formation;
 
-  /** Max optical segment length for Tracks before splitting */
+  /** Max optical path length for segments before splitting */
   FP_PRECISION _max_optical_length;
 
   /** A timer to record timing data for ray tracing */

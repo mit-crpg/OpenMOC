@@ -10,9 +10,8 @@
  *          on each Track, and an execute() function which applies the
  *          algorithm. The execute() function should contain a call to
  *          TraverseTracks::loopOverTracks(...). To specify a behavior to
- *          be applied once for each segment, kernels should be initialized
- *          using the TraverseTracks::getKernels<KernelType>() function and
- *          passed to TraverseTracks::loopOverTracks().
+ *          be applied once for each segment, a kernel should be passed to
+ *          TraverseTracks::loopOverTracks().
  * @date February 23, 2016
  * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
  */

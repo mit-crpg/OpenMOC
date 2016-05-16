@@ -22,53 +22,48 @@ TraverseTracks::~TraverseTracks() {
 
 
 /**
- * @breif Loops over Tracks, applying the provided kernels to all segments and
+ * @breif Loops over Tracks, applying the provided kernel to all segments and
  *        the functionality described in onTrack(...) to all Tracks.
  * @details The segment formation method imported from the TrackGenerator
  *          during construction is used to redirect to the appropriate looping
- *          scheme. If kernels are provided (not NULL) then they are deleted at
- *          the end of the looping scheme.
- * @param kernels MOCKernels to apply to all segments
+ *          scheme.
+ * @param kernel The MOCKernel to apply to all segments
  */
-void TraverseTracks::loopOverTracks(MOCKernel** kernels) {
-
+void TraverseTracks::loopOverTracks(MOCKernel* kernel) {
   switch (_segment_formation) {
     case EXPLICIT_2D:
-      loopOverTracks2D(kernels);
+      loopOverTracks2D(kernel);
       break;
-  }
-
-  if (kernels != NULL) {
-    delete kernels[0];
-    delete [] kernels;
   }
 }
 
 
 /**
  * @breif Loops over Tracks by parallel groups to avoid potential conflicts,
- *        applying the provided kernels to all segments and the functionality
+ *        applying the provided kernel to all segments and the functionality
  *        described in onTrack(...) to all Tracks.
  * @details The segment formation method imported from the TrackGenerator
  *          during construction is used to redirect to the appropriate looping
- *          scheme. If kernels are provided (not NULL) then they are deleted at
- *          the end of the looping scheme.
- * @param kernels MOCKernels to apply to all segments
+ *          scheme.
+ * @param kernel The MOCKernel to apply to all segments
  */
-void TraverseTracks::loopOverTracksByParallelGroup(MOCKernel** kernels) {
-  loopOverTracksByParallelGroup2D(kernels);
+void TraverseTracks::loopOverTracksByParallelGroup(MOCKernel* kernel) {
+  switch (_segment_formation) {
+    case EXPLICIT_2D:
+      loopOverTracksByParallelGroup2D(kernel);
+      break;
+  }
 }
 
 
 /**
  * @brief Loops over all explicit 2D Tracks
  * @details The onTrack(...) function is applied to all 2D Tracks and the
- *          specified kernels are applied to all segments. If NULL is provided
- *          for the kernels, only the onTrack(...) functionality is applied.
- * @param kernels The MOCKernels dictating the functionality to apply to
- *        segments
+ *          specified kernel is applied to all segments. If NULL is provided
+ *          for the kernel, only the onTrack(...) functionality is applied.
+ * @param kernel The MOCKernel to apply to all segments
  */
-void TraverseTracks::loopOverTracks2D(MOCKernel** kernels) {
+void TraverseTracks::loopOverTracks2D(MOCKernel* kernel) {
 
   /* Loop over all parallel tracks for each azimuthal angle */
   Track** tracks_2D = _track_generator->getTracks();
@@ -80,10 +75,10 @@ void TraverseTracks::loopOverTracks2D(MOCKernel** kernels) {
 
       Track* track_2D = &tracks_2D[a][i];
 
-      /* Operate on segments if necessary */
-      if (kernels != NULL) {
-        kernels[0]->newTrack(track_2D);
-        traceSegmentsExplicit(track_2D, kernels[0]);
+      /* Apply the kernel to segments if necessary */
+      if (kernel != NULL) {
+        kernel->newTrack(track_2D);
+        traceSegmentsExplicit(track_2D, kernel);
       }
 
       /* Operate on the Track */
@@ -96,13 +91,12 @@ void TraverseTracks::loopOverTracks2D(MOCKernel** kernels) {
 
 /**
  * @brief Loops over all explicit 2D Tracks by parallel group
- * @details The onTrack(...) function is applied to all 2D Tracks and the
- *          specified kernels are applied to all segments. If NULL is provided
- *          for the kernels, only the onTrack(...) functionality is applied.
- * @param kernels The MOCKernels dictating the functionality to apply to
- *        segments
+ * @details This function is the same as loopOverTracks2D except that
+ *          Tracks are traversed in a safe order such that there are no
+ *          conflicts in exchanging data between Tracks in parallel.
+ * @param kernel The MOCKernel to apply to all segments
  */
-void TraverseTracks::loopOverTracksByParallelGroup2D(MOCKernel** kernels) {
+void TraverseTracks::loopOverTracksByParallelGroup2D(MOCKernel* kernel) {
 
   int min_track = 0;
   int max_track = 0;
@@ -124,9 +118,9 @@ void TraverseTracks::loopOverTracksByParallelGroup2D(MOCKernel** kernels) {
       Track* track = tracks[track_id];
 
       /* Operate on segments if necessary */
-      if (kernels != NULL) {
-        kernels[0]->newTrack(track);
-        traceSegmentsExplicit(track, kernels[0]);
+      if (kernel != NULL) {
+        kernel->newTrack(track);
+        traceSegmentsExplicit(track, kernel);
       }
 
       /* Operate on the Track */

@@ -37,7 +37,8 @@ class MOCKernel {
 
 protected:
 
-  /** Count referring to the segment number */
+  /** Count referring to the number of segments the MOCKernel has handled since
+   *  the creation or the last reset */
   int _count;
 
   /** Maximum optical path length when forming segments */
@@ -45,7 +46,7 @@ protected:
 
 public:
 
-  MOCKernel(TrackGenerator* track_generator, int row_num);
+  MOCKernel(TrackGenerator* track_generator);
   virtual ~MOCKernel();
 
   /* Function to get the current segment count */
@@ -59,7 +60,7 @@ public:
 
   /* Executing function describes kernel behavior */
   virtual void execute(FP_PRECISION length, Material* mat, int id,
-      int cmfd_surface_fwd, int cmfd_surface_bwd)=0;
+                       int cmfd_surface_fwd, int cmfd_surface_bwd)=0;
 
 };
 
@@ -68,15 +69,15 @@ public:
  * @class CounterKernel MOCKernel.h "src/MOCKernel.h"
  * @brief Counts the number of segments of a track
  * @details A CounterKernel inherets from MOCKernel and is a kernel which
- *          counts the number of segments in a track by incrementing the
- *          _count variable by the number of legitimate segment lengths
- *          (less than the max optical path length) in the input length.
+ *          tallies the number of legitamte segment lengths (less than the max
+ *          optical path length) encountered. This is useful for determining
+ *          the number of segments in a Track if the number is not yet known.
  */
 class CounterKernel: public MOCKernel {
 public:
-  CounterKernel(TrackGenerator* track_generator, int row_num);
+  CounterKernel(TrackGenerator* track_generator);
   void execute(FP_PRECISION length, Material* mat, int id,
-      int cmfd_surface_fwd, int cmfd_surface_bwd);
+               int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
 
@@ -99,7 +100,8 @@ private:
   /** Pointer to array of FSR volumes */
   FP_PRECISION* _FSR_volumes;
 
-  /** The Track cross-sectional area used as the weight */
+  /** The cross-sectional area of the Track used to weight segment length
+   *  contributions to the volume */
   FP_PRECISION _weight;
 
   /** The associated quadrature from which weights are derived */
@@ -107,10 +109,10 @@ private:
 
 public:
 
-  VolumeKernel(TrackGenerator* track_generator, int row_num);
+  VolumeKernel(TrackGenerator* track_generator);
   void newTrack(Track* track);
   void execute(FP_PRECISION length, Material* mat, int id,
-      int cmfd_surface_fwd, int cmfd_surface_bwd);
+               int cmfd_surface_fwd, int cmfd_surface_bwd);
 };
 
 
