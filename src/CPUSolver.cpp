@@ -125,10 +125,7 @@ void CPUSolver::initializeFluxArrays() {
     size = 2 * _tot_num_tracks * _fluxes_per_track;
 
     _boundary_flux = new FP_PRECISION[size];
-    if (_point_jacobi)
-      _start_flux = new FP_PRECISION[size];
-    else
-      _start_flux = _boundary_flux;
+    _start_flux = new FP_PRECISION[size];
     _boundary_leakage = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */

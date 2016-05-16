@@ -2331,74 +2331,25 @@ void TrackGenerator3D::initializeTracksArray() {
 
   log_printf(NORMAL, "Initializing 3D tracks array...");
 
-  /* Set the number of parallel track groups */
-  if (_periodic)
-    _num_parallel_track_groups = 12;
-  else
-    _num_parallel_track_groups = 4;
-
-  /* Create the array of track ids separating the parallel groups */
-  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
-
-  /* Set the first index in the num tracks by parallel group array to 0 */
-  _num_tracks_by_parallel_group[0] = 0;
-
-
   /* Allocate memory for tracks array */
   if (_tracks_3D_array != NULL)
     delete [] _tracks_3D_array;
   int num_3D_tracks = getNum3DTracks();
   _tracks_3D_array = new Track*[num_3D_tracks];
 
-  /* Recalibrate the tracks to the origin and set the uid. Note that the
-   * loop structure is unconventional in order to preserve a monotonically
-   * increasing track uid value in the Solver's tracks array. The tracks array
-   * is oriented such the tracks can be broken up into sub arrays that are
-   * guaranteed to contain tracks that do not transport into other tracks both
-   * reflectively and periodically. This is done to guarantee reproducability
-   * in parallel runs. */
+  /* Loop over all 3D Tracks */
   int uid = 0;
-  for (int g = 0; g < _num_parallel_track_groups; g++) {
+  for (int a = 0; a < _num_azim / 2; a++) {
+    for (int i = 0; i < getNumX(a) + getNumY(a); i++) {
+      for (int p = 0; p < _num_polar; p++) {
+        for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
 
-    /* Set the azimuthal, polar, and periodic group IDs */
-    int azim_group_id = g % 2;
-    int polar_group_id = g % 4 / 2;
-    int periodic_group_id = g / 4;
+          /* Get the current track */
+          Track* track = &_tracks_3D[a][i][p][z];
 
-    /* Loop over all 3D Tracks */
-    for (int a = 0; a < _num_azim / 2; a++) {
-      for (int i = 0; i < getNumX(a) + getNumY(a); i++) {
-        for (int p = 0; p < _num_polar; p++) {
-          for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
-
-            /* Get the current track */
-            Track* track = &_tracks_3D[a][i][p][z];
-
-            /* Get the track azim group id */
-            int track_azim_group_id = a / (_num_azim / 4);
-
-            /* Get the track polar group id */
-            int track_polar_group_id = p / (_num_polar / 2);
-
-            /* Get the track periodic group id */
-            int track_periodic_group_id = 0;
-            if (_periodic) {
-              int track_periodic_index = track->getPeriodicTrackIndex();
-              track_periodic_group_id = track_periodic_index % 2;
-              if (track_periodic_group_id == 0 && track_periodic_index != 0)
-                track_periodic_group_id = 2;
-            }
-
-            /* Check if track has the current parallel groups */
-            if (azim_group_id == track_azim_group_id &&
-                periodic_group_id == track_periodic_group_id &&
-                polar_group_id == track_polar_group_id) {
-
-              track->setUid(uid);
-              _tracks_3D_array[uid] = track;
-              uid++;
-            }
-          }
+          track->setUid(uid);
+          _tracks_3D_array[uid] = track;
+          uid++;
         }
       }
     }

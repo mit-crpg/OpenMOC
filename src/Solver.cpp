@@ -22,7 +22,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   _exp_evaluator = new ExpEvaluator();
   _solve_3D = false;
   _segment_formation = EXPLICIT_2D;
-  _point_jacobi = true;
 
   _tracks = NULL;
   _azim_spacings = NULL;
