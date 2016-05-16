@@ -817,7 +817,9 @@ void TrackGenerator::generateTracks() {
 
       /* Segmentize the tracks */
       segmentize();
-      dumpSegmentsToFile();
+      if (_segment_formation == EXPLICIT_2D ||
+          _segment_formation == EXPLICIT_3D)
+        dumpSegmentsToFile();
     }
 
     /* Allocate array of mutex locks for each FSR */
