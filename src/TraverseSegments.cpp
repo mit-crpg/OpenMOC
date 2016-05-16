@@ -27,51 +27,45 @@ TraverseSegments::~TraverseSegments() {
 
 
 /**
- * @breif Loops over Tracks, applying the provided kernels to all segments and
+ * @breif Loops over Tracks, applying the provided kernel to all segments and
  *        the functionality described in onTrack(...) to all Tracks.
  * @details The segment formation method imported from the TrackGenerator
  *          during construction is used to redirect to the appropriate looping
- *          scheme. If kernels are provided (not NULL) then they are deleted at
+ *          scheme. If a kernel is provided (not NULL) then it is deleted at
  *          the end of the looping scheme.
- * @param kernels MOCKernels to apply to all segments
+ * @param kernel MOCKernel to apply to all segments
  */
-void TraverseSegments::loopOverTracks(MOCKernel** kernels) {
+void TraverseSegments::loopOverTracks(MOCKernel* kernel) {
 
   switch (_segment_formation) {
     case EXPLICIT_2D:
-      loopOverTracks2D(kernels);
+      loopOverTracks2D(kernel);
       break;
     case EXPLICIT_3D:
-      loopOverTracksExplicit(kernels);
+      loopOverTracksExplicit(kernel);
       break;
     case OTF_TRACKS:
-      loopOverTracksByTrackOTF(kernels);
+      loopOverTracksByTrackOTF(kernel);
       break;
     case OTF_STACKS:
-      loopOverTracksByStackOTF(kernels);
+      loopOverTracksByStackOTF(kernel);
       break;
   }
 
-  if (kernels != NULL) {
-    int num_rows = 1;
-    if (_track_generator_3D != NULL)
-      num_rows = _track_generator_3D->getNumRows();
-    for (int z=0; z < num_rows; z++)
-      delete kernels[z];
-    delete [] kernels;
-  }
+  if (kernel != NULL)
+    delete kernel;
 }
 
 
 /**
  * @brief Loops over all explicit 2D Tracks
  * @details The onTrack(...) function is applied to all 2D Tracks and the
- *          specified kernels are applied to all segments. If NULL is provided
- *          for the kernels, only the onTrack(...) functionality is applied.
- * @param kernels The MOCKernels dictating the functionality to apply to
+ *          specified kernel is applied to all segments. If NULL is provided
+ *          for the kernel, only the onTrack(...) functionality is applied.
+ * @param kernel The MOCKernel dictating the functionality to apply to
  *        segments
  */
-void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
+void TraverseSegments::loopOverTracks2D(MOCKernel* kernel) {
 
   /* Loop over all parallel tracks for each azimuthal angle */
   Track** tracks_2D = _track_generator->get2DTracks();
@@ -85,9 +79,9 @@ void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
       segment* segments = track_2D->getSegments();
 
       /* Operate on segments if necessary */
-      if (kernels != NULL) {
-        kernels[0]->newTrack(track_2D);
-        traceSegmentsExplicit(track_2D, kernels[0]);
+      if (kernel != NULL) {
+        kernel->newTrack(track_2D);
+        traceSegmentsExplicit(track_2D, kernel);
       }
 
       /* Operate on the Track */
@@ -100,12 +94,12 @@ void TraverseSegments::loopOverTracks2D(MOCKernel** kernels) {
 /**
  * @brief Loops over all explicit 3D Tracks
  * @details The onTrack(...) function is applied to all 3D Tracks and the
- *          specified kernels are applied to all segments. If NULL is provided
- *          for the kernels, only the onTrack(...) functionality is applied.
- * @param kernels The MOCKernels dictating the functionality to apply to
+ *          specified kernel is applied to all segments. If NULL is provided
+ *          for the kernel, only the onTrack(...) functionality is applied.
+ * @param kernel The MOCKernel dictating the functionality to apply to
  *        segments
  */
-void TraverseSegments::loopOverTracksExplicit(MOCKernel** kernels) {
+void TraverseSegments::loopOverTracksExplicit(MOCKernel* kernel) {
 
   Track3D**** tracks_3D = _track_generator_3D->get3DTracks();
   int num_azim = _track_generator_3D->getNumAzim();
@@ -128,13 +122,13 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel** kernels) {
           Track* track_3D = &tracks_3D[a][i][p][z];
 
           /* Operate on segments if necessary */
-          if (kernels != NULL) {
+          if (kernel != NULL) {
 
             /* Reset kernel for a new Track */
-            kernels[0]->newTrack(track_3D);
+            kernel->newTrack(track_3D);
 
             /* Trace the segments on the track */
-            traceSegmentsExplicit(track_3D, kernels[0]);
+            traceSegmentsExplicit(track_3D, kernel);
           }
 
           /* Operate on the Track */
@@ -150,12 +144,12 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel** kernels) {
 /**
  * @brief Loops over all 3D Tracks using axial on-the-fly ray tracking by Track
  * @details The onTrack(...) function is applied to all 3D Tracks and the
- *          specified kernels are applied to all segments. If NULL is provided
- *          for the kernels, only the onTrack(...) functionality is applied.
- * @param kernels The MOCKernels dictating the functionality to apply to
+ *          specified kernel is applied to all segments. If NULL is provided
+ *          for the kernel, only the onTrack(...) functionality is applied.
+ * @param kernel The MOCKernel dictating the functionality to apply to
  *        segments
  */
-void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel** kernels) {
+void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
 
   int num_2D_tracks = _track_generator_3D->getNum2DTracks();
   Track** flattened_tracks = _track_generator_3D->get2DTracksArray();
@@ -183,20 +177,20 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel** kernels) {
         Track* track_3D = &tracks_3D[a][i][p][z];
 
         /* Operate on segments if necessary */
-        if (kernels != NULL) {
+        if (kernel != NULL) {
 
           /* Reset kernel for a new Track */
-          kernels[0]->newTrack(track_3D);
+          kernel->newTrack(track_3D);
           double theta = tracks_3D[a][i][p][z].getTheta();
           Point* start = track_3D->getStart();
 
           /* Trace the segments on the track */
-          traceSegmentsOTF(flattened_track, start, theta, kernels[0]);
-          track_3D->setNumSegments(kernels[0]->getCount());
+          traceSegmentsOTF(flattened_track, start, theta, kernel);
+          track_3D->setNumSegments(kernel->getCount());
         }
 
         /* Operate on the Track */
-        segment* segments = _track_generator_3D->getTemporarySegments(tid, 0);
+        segment* segments = _track_generator_3D->getTemporarySegments(tid);
         onTrack(track_3D, segments);
       }
     }
@@ -208,12 +202,12 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel** kernels) {
  * @brief Loops over all 3D Tracks using axial on-the-fly ray tracking by
  *        z-stack
  * @details The onTrack(...) function is applied to all 3D Tracks and the
- *          specified kernels are applied to all segments. If NULL is provided
- *          for the kernels, only the onTrack(...) functionality is applied.
- * @param kernels The MOCKernels dictating the functionality to apply to
+ *          specified kernel is applied to all segments. If NULL is provided
+ *          for the kernel, only the onTrack(...) functionality is applied.
+ * @param kernel The MOCKernel dictating the functionality to apply to
  *        segments
  */
-void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
+void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
 
   int num_2D_tracks = _track_generator_3D->getNum2DTracks();
   Track** flattened_tracks = _track_generator_3D->get2DTracksArray();
@@ -236,18 +230,18 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel** kernels) {
 
       /* Trace all tracks in the z-stack if necessary */
       Track* track_3D = &tracks_3D[a][i][p][0];
-      if (kernels != NULL) {
+      if (kernel != NULL) {
 
-        /* Reset kernels to their new Track */
-        kernels[0]->newTrack(track_3D);
+        /* Reset kernel to for the new base Track */
+        kernel->newTrack(track_3D);
 
         /* Trace all segments in the z-stack */
-        traceStackOTF(flattened_track, p, kernels);
-        track_3D->setNumSegments(kernels[0]->getCount());
+        traceStackOTF(flattened_track, p, kernel);
+        track_3D->setNumSegments(kernel->getCount());
       }
 
       /* Operate on the Track */
-      segment* segments = _track_generator_3D->getTemporarySegments(tid, 0);
+      segment* segments = _track_generator_3D->getTemporarySegments(tid);
       onTrack(track_3D, segments);
     }
   }
@@ -278,7 +272,7 @@ void TraverseSegments::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
  *          stored in a 2D Track object and 1D meshes from the extruded
  *          FSRs. Note: before calling this funciton with a SegmentationKernel,
  *          the memory for the segments should be allocated and referenced by
- *          the kernel using the setSegments routine in the kernels.
+ *          the kernel using the setSegments routine in the kernel.
  * @param flattened_track the 2D track associated with the 3D track for which
  *        3D segments are computed
  * @param start the starting coordinates of the 3D track
@@ -465,21 +459,20 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
 /**
  * @brief Computes 3D segment lengths on-the-fly for all tracks in a z-stack
  *        for a given associated 2D Track and a polar index on-the-fly and
- *        passes the computed segments to the provided kernels.
+ *        passes the computed segments to the provided kernel.
  * @details Segment lengths are computed on-the-fly using 2D segment lengths
  *          stored in a 2D Track object and 1D meshes from the extruded
  *          FSRs. Note: before calling this funciton with SegmentationKernels,
  *          the memory for the segments should be allocated and referenced by
- *          the kernels using the setSegments routine in the kernels.
+ *          the kernel using the setSegments routine.
  * @param flattened_track the 2D track associated with the z-stack for which
  *        3D segments are computed
  * @param polar_index the index into the polar angles which is associated with
  *        the polar angle of the z-stack
- * @param kernels An array of MOCKernel objects to apply to the calculated 3D
- *        segments
+ * @param kernel The MOCKernel to apply to the calculated 3D segments
  */
 void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
-                                     MOCKernel** kernels) {
+                                     MOCKernel* kernel) {
 
   /* Extract information about the z-stack */
   int azim_index = flattened_track->getAzimIndex();
@@ -624,8 +617,8 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
           }
 
           /* Operate on segment */
-          kernels[0]->execute(seg_len_3D, material, fsr_id, i,
-                              cmfd_surface_fwd, cmfd_surface_bwd);
+          kernel->execute(seg_len_3D, material, fsr_id, i,
+                          cmfd_surface_fwd, cmfd_surface_bwd);
         }
       }
 
@@ -658,8 +651,8 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             }
 
             /* Operate on segment */
-            kernels[0]->execute(seg_len_3D, material, fsr_id, i,
-                                cmfd_surface_fwd, cmfd_surface_bwd);
+            kernel->execute(seg_len_3D, material, fsr_id, i,
+                            cmfd_surface_fwd, cmfd_surface_bwd);
           }
         }
       }
@@ -718,8 +711,8 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             }
 
             /* Operate on segment */
-            kernels[0]->execute(seg_len_3D, material, fsr_id, i,
-                                cmfd_surface_fwd, cmfd_surface_bwd);
+            kernel->execute(seg_len_3D, material, fsr_id, i,
+                            cmfd_surface_fwd, cmfd_surface_bwd);
           }
         }
       }
@@ -765,8 +758,8 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
           }
 
           /* Operate on segment */
-          kernels[0]->execute(seg_len_3D, material, fsr_id, i,
-                              cmfd_surface_fwd, cmfd_surface_bwd);
+          kernel->execute(seg_len_3D, material, fsr_id, i,
+                          cmfd_surface_fwd, cmfd_surface_bwd);
         }
       }
     }
@@ -851,7 +844,7 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
       Track* track_3D = &tracks_3D[a][i][p][0];
       if (kernel != NULL) {
 
-        /* Reset kernels to their new Track */
+        /* Reset kernel for a new base Track */
         kernel->newTrack(track_3D);
 
         /* Trace all segments in the z-stack */
@@ -860,7 +853,7 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
       }
 
       /* Operate on the Track */
-      segment* segments = _track_generator_3D->getTemporarySegments(tid, 0);
+      segment* segments = _track_generator_3D->getTemporarySegments(tid);
       onTrack(track_3D, segments);
     }
   }
@@ -869,7 +862,7 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
 
 /**
  * @brief Traces the 3D segments of 3D Tracks in a z-stack both forward and
- *        backward across the geometry, applying the kernels provided to the
+ *        backward across the geometry, applying the kernel provided by the
  *        user when the segment information is calcuated.
  * @details This function copies information of the 3D z-stack, ray traces the
  *          z-stack forward using TrackGenerator::traceStackOTF, then reverses
@@ -879,9 +872,7 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
  * @param flattened_track the 2D track associated with the z-stack for which
  *        3D segments are computed
  * @param polar_index the polar index of the 3D Track z-stack
- * @param kernels An array of MOCKernel pointers of size greater than or equal
- *        to the number of 3D Tracks in the z-stack which are applied to the
- *        calculated 3D segments
+ * @param kernel The TransportKernel applied to the calculated 3D segments
  */
 //FIXME
 void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
@@ -914,7 +905,7 @@ void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
 
   /* Trace stack forwards */
   kernel->setDirection(true);
-  traceStackOTF(flattened_track, polar_index, &moc_kernel);
+  traceStackOTF(flattened_track, polar_index, moc_kernel);
   kernel->post();
 
   /* Reflect track stack */
@@ -942,7 +933,7 @@ void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
 
   /* Trace stack backwards */
   kernel->setDirection(false);
-  traceStackOTF(flattened_track, polar_index, &moc_kernel);
+  traceStackOTF(flattened_track, polar_index, moc_kernel);
   kernel->post();
 
   /* Reflect track stack back to forwards */

@@ -27,8 +27,8 @@ void MaxOpticalLength::execute() {
   _track_generator->setMaxOpticalLength(infinity);
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<SegmentationKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
   }
   _track_generator->setMaxOpticalLength(_max_tau);
 }
@@ -77,8 +77,8 @@ SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
 void SegmentCounter::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<CounterKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<CounterKernel>();
+    loopOverTracks(kernel);
   }
   _track_generator->setMaxNumSegments(_max_num_segments);
 }
@@ -205,8 +205,8 @@ VolumeCalculator::VolumeCalculator(TrackGenerator* track_generator)
 void VolumeCalculator::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<VolumeKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<VolumeKernel>();
+    loopOverTracks(kernel);
   }
 }
 
@@ -270,8 +270,8 @@ CentroidGenerator::~CentroidGenerator() {
 void CentroidGenerator::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<SegmentationKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
   }
 }
 
@@ -417,8 +417,8 @@ TransportSweep::~TransportSweep() {
 void TransportSweep::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<SegmentationKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
   }
 }
 
@@ -536,8 +536,8 @@ DumpSegments::DumpSegments(TrackGenerator* track_generator)
  *          information to file.
  */
 void DumpSegments::execute() {
-  MOCKernel** kernels = getKernels<SegmentationKernel>();
-  loopOverTracks(kernels);
+  MOCKernel* kernel = getKernel<SegmentationKernel>();
+  loopOverTracks(kernel);
 }
 
 

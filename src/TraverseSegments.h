@@ -28,26 +28,26 @@
  *          is an abstract class meant to be extended by classes defined in
  *          TrackTraversingAlgorithms.h. This parent class's main purpose is to
  *          abstract the looping procedure and apply a function onTrack(...) to
- *          each Track and apply supplied MOCKernels to each segment. If NULL
- *          is provided for the MOCKernels, only the functionality defined in
- *          onTrack(...) is applied to each Track.
+ *          each Track and apply the supplied MOCKernel to each segment. If
+ *          NULL is provided for the MOCKernel, only the functionality defined
+ *          in onTrack(...) is applied to each Track.
  */
 class TraverseSegments {
 
 private:
 
   /* Functions defining how to loop over Tracks */
-  void loopOverTracks2D(MOCKernel** kernels);
-  void loopOverTracksExplicit(MOCKernel** kernels);
-  void loopOverTracksByTrackOTF(MOCKernel** kernels);
-  void loopOverTracksByStackOTF(MOCKernel** kernels);
+  void loopOverTracks2D(MOCKernel* kernel);
+  void loopOverTracksExplicit(MOCKernel* kernel);
+  void loopOverTracksByTrackOTF(MOCKernel* kernel);
+  void loopOverTracksByStackOTF(MOCKernel* kernel);
 
   /* Functions defining how to traverse segments */
   void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
   void traceSegmentsOTF(Track* flattened_track, Point* start,
                         double theta, MOCKernel* kernel);
   void traceStackOTF(Track* flattened_track, int polar_index,
-                     MOCKernel** kernels);
+                     MOCKernel* kernel);
 
   void traceStackTwoWay(Track* flattened_track, int polar_index,
                         TransportKernel* kernel);
@@ -75,29 +75,24 @@ protected:
   virtual ~TraverseSegments();
 
   /* Functions defining how to loop over and operate on Tracks */
-  void loopOverTracks(MOCKernel** kernels);
+  void loopOverTracks(MOCKernel* kernel);
   virtual void onTrack(Track* track, segment* segments) = 0;
 
   //FIXME
   void loopOverTracksByStackTwoWay(TransportKernel* kernel);
 
-  /* Returns a matrix of kernels of the requested type */
+  /* Returns a kernel of the requested type */
   template <class KernelType>
-  MOCKernel** getKernels() {
+  MOCKernel* getKernel() {
 
-    /* Check for segmentation kernels in explicit methods */
+    /* Check for segmentation kernel in explicit methods */
     if ((typeid(KernelType) != typeid(SegmentationKernel)) ||
         ((_segment_formation != EXPLICIT_2D) &&
         (_segment_formation != EXPLICIT_3D))) {
 
-      /* Allocate kernels */
-      int num_segment_matrix_rows = 1;
-      if (_track_generator_3D != NULL)
-        num_segment_matrix_rows = _track_generator_3D->getNumRows();
-      MOCKernel** kernels = new MOCKernel*[num_segment_matrix_rows];
-      for (int z=0; z < num_segment_matrix_rows; z++)
-        kernels[z] = new KernelType(_track_generator, z);
-      return kernels;
+      /* Allocate kernel */
+      MOCKernel* kernel = new KernelType(_track_generator, 0);
+      return kernel;
     }
     else
       return NULL;

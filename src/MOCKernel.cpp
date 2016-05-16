@@ -53,7 +53,7 @@ SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator,
   TrackGenerator3D* track_generator_3D =
     dynamic_cast<TrackGenerator3D*>(track_generator);
   if (track_generator_3D != NULL)
-    _segments = track_generator_3D->getTemporarySegments(thread_id, row_num);
+    _segments = track_generator_3D->getTemporarySegments(thread_id);
   else
     _segments = NULL;
 }

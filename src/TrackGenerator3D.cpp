@@ -90,8 +90,6 @@ TrackGenerator3D::~TrackGenerator3D() {
     /* Delete temporary segments if they exist */
     if (_contains_temporary_segments) {
       for (int t = 0; t < _num_threads; t++) {
-        for (int z = 0; z < _num_seg_matrix_rows; z++)
-          delete [] _temporary_segments.at(t)[z];
         delete [] _temporary_segments.at(t);
       }
     }
@@ -256,12 +254,11 @@ int TrackGenerator3D::getNumColumns() {
  *          given time. If the segmentation method is not an on-the-fly method,
  *          NULL is returned.
  * @param thread_id The thread ID, as assigned by OpenMP
- * @param num_row The requested row number associated with the z-stack index
  * @return a pointer to the array of temporary segments
  */
-segment* TrackGenerator3D::getTemporarySegments(int thread_id, int row_num) {
+segment* TrackGenerator3D::getTemporarySegments(int thread_id) {
   if (_contains_temporary_segments)
-    return _temporary_segments.at(thread_id)[row_num];
+    return _temporary_segments.at(thread_id);
   else
     return NULL;
 }
@@ -2462,24 +2459,17 @@ void TrackGenerator3D::allocateTemporarySegments() {
   /* Delete temporary segments if already allocated */
   if (_contains_temporary_segments) {
     for (int t = 0; t < _num_threads; t++) {
-      for (int z = 0; z < _num_seg_matrix_rows; z++) {
-        delete [] _temporary_segments.at(t)[z];
-      }
+      delete [] _temporary_segments.at(t);
     }
   }
   else {
     _temporary_segments.resize(_num_threads);
-    for (int t = 0; t < _num_threads; t++)
-      _temporary_segments.at(t) = new segment*[_num_seg_matrix_rows];
     _contains_temporary_segments = true;
   }
 
   /* Allocate new temporary segments */
-  for (int t = 0; t < _num_threads; t++) {
-    for (int z = 0; z < _num_seg_matrix_rows; z++) {
-      _temporary_segments.at(t)[z] = new segment[_num_seg_matrix_columns];
-    }
-  }
+  for (int t = 0; t < _num_threads; t++)
+    _temporary_segments.at(t) = new segment[_num_seg_matrix_columns];
 }
 
 
@@ -2524,8 +2514,6 @@ void TrackGenerator3D::deleteTemporarySegments() {
   /* Delete temporary segments if they exist */
   if (_contains_temporary_segments) {
     for (int t = 0; t < _num_threads; t++) {
-      for (int z = 0; z < _num_seg_matrix_rows; z++)
-        delete [] _temporary_segments.at(t)[z];
       delete [] _temporary_segments.at(t);
     }
   }
