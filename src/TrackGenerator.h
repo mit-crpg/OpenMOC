@@ -70,6 +70,13 @@ protected:
    *  azimuthal angle */
   int* _num_y;
 
+  /** The number of parallel groups of tracks */
+  int _num_parallel_track_groups;
+
+  /** An integer array with the Track uid separating the azimuthal, polar, and
+    * periodic halfspaces */
+  int* _num_tracks_by_parallel_group;
+
   /** An array of the azimuthal angle quadrature weights */
   FP_PRECISION* _azim_spacings;
 
@@ -177,6 +184,8 @@ public:
   FP_PRECISION retrieveMaxOpticalLength();
   omp_lock_t* getFSRLocks();
   segmentationType getSegmentFormation();
+  int getNumParallelTrackGroups();
+  int* getNumTracksByParallelGroupArray();
   virtual bool containsTracks();
   virtual bool containsSegments();
 

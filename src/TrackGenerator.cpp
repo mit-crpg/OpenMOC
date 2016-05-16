@@ -27,6 +27,8 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
   _dump_segments = true;
   _FSR_locks = NULL;
   _tracks_2D_array = NULL;
+  _num_tracks_by_parallel_group = NULL;
+  _num_parallel_track_groups = 0;
 }
 
 
@@ -50,6 +52,9 @@ TrackGenerator::~TrackGenerator() {
     delete [] _tracks_per_cycle;
     delete [] _cycle_length;
   }
+
+  if (_num_tracks_by_parallel_group != NULL)
+    delete [] _num_tracks_by_parallel_group;
 
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
@@ -1770,8 +1775,17 @@ void TrackGenerator::initializeTracksArray() {
 
   log_printf(NORMAL, "Initializing 2D tracks array...");
 
-  Track* track;
-  int uid = 0;
+  /* Set the number of parallel track groups */
+  if (_periodic)
+    _num_parallel_track_groups = 6;
+  else
+    _num_parallel_track_groups = 2;
+
+  /* Create the array of track ids separating the parallel groups */
+  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups + 1];
+
+  /* Set the first index in the num tracks by parallel group array to 0 */
+  _num_tracks_by_parallel_group[0] = 0;
 
   /* Allocate memory for tracks array */
   if (_tracks_2D_array != NULL)
@@ -1779,15 +1793,48 @@ void TrackGenerator::initializeTracksArray() {
   int num_2D_tracks = getNum2DTracks();
   _tracks_2D_array = new Track*[num_2D_tracks];
 
-  /* Loop over all 2D tracks */
-  for (int a = 0; a < _num_azim / 2; a++) {
-    for (int i=0; i < getNumX(a) + getNumY(a); i++) {
 
-      /* Get current track and azim group ids */
-      track = &_tracks_2D[a][i];
-      track->setUid(uid);
-      _tracks_2D_array[uid] = track;
-      uid++;
+  /* Recalibrate the tracks to the origin and set the uid. Note that the
+   * loop structure is unconventional in order to preserve a monotonically
+   * increasing track uid value in the Solver's tracks array. The tracks array
+   * is oriented such the tracks can be broken up into sub arrays that are
+   * guaranteed to contain tracks that do not transport into other tracks both
+   * reflectively and periodically. This is done to guarantee reproducability
+   * in parallel runs. */
+  int uid = 0;
+  for (int g = 0; g < _num_parallel_track_groups; g++) {
+
+    /* Set the azimuthal and periodic group IDs */
+    int azim_group_id = g % 2;
+    int periodic_group_id = g / 2;
+
+    /* Loop over all 2D tracks */
+    for (int a = 0; a < _num_azim / 2; a++) {
+      for (int i=0; i < getNumX(a) + getNumY(a); i++) {
+
+        /* Get current track and azim group ids */
+        Track* track = &_tracks_2D[a][i];
+
+        /* Get the track azim group id */
+        int track_azim_group_id = a / (_num_azim / 4);
+
+        /* Get the track periodic group id */
+        int track_periodic_group_id = 0;
+        if (_periodic) {
+          int track_periodic_index = track->getPeriodicTrackIndex();
+          track_periodic_group_id = track_periodic_index % 2;
+          if (track_periodic_group_id == 0 && track_periodic_index != 0)
+            track_periodic_group_id = 2;
+        }
+
+        /* Check if track has the current parallel groups */
+        if (azim_group_id == track_azim_group_id &&
+            periodic_group_id == track_periodic_group_id) {
+          track->setUid(uid);
+          _tracks_2D_array[uid] = track;
+          uid++;
+        }
+      }
     }
   }
 }
@@ -1799,6 +1846,32 @@ void TrackGenerator::initializeTracksArray() {
  */
 bool TrackGenerator::getPeriodic() {
   return _periodic;
+}
+
+
+/**
+ * @brief Return an array with the Track uid separating the azimuthal and
+ * periodic halfspaces
+ * @return array with the Track uid separating the azimuthal and periodic
+ *         halfspaces
+ */
+int* TrackGenerator::getNumTracksByParallelGroupArray() {
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to return the array with the Track uid "
+               "separating the azimuthal and periodic halspaces since "
+               "Tracks have not yet been generated.");
+
+  return _num_tracks_by_parallel_group;
+}
+
+
+/**
+ * @brief Returns the number of Track groups which can be executed in parallel
+ *        without conflicts
+ * @return the number of parallel grooups
+ */
+int TrackGenerator::getNumParallelTrackGroups() {
+  return _num_parallel_track_groups;
 }
 
 

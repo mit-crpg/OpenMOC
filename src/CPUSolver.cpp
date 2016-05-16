@@ -125,7 +125,10 @@ void CPUSolver::initializeFluxArrays() {
     size = 2 * _tot_num_tracks * _fluxes_per_track;
 
     _boundary_flux = new FP_PRECISION[size];
-    _start_flux = new FP_PRECISION[size];
+    if (_point_jacobi)
+      _start_flux = new FP_PRECISION[size];
+    else
+      _start_flux = _boundary_flux;
     _boundary_leakage = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
@@ -135,7 +138,7 @@ void CPUSolver::initializeFluxArrays() {
     memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
     memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
   }
-  catch(std::exception &e) {
+  catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the fluxes");
   }
 }

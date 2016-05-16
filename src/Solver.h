@@ -127,6 +127,9 @@ protected:
   /** Boolean for whether to solve in 3D (true) or 2D (false) */
   bool _solve_3D;
 
+  /** Boolean for whether to use point jacobi iterating scheme */
+  bool _point_jacobi;
+
   /** Determines the type of track segmentation to use for 3D MOC */
   segmentationType _segment_formation;
 
