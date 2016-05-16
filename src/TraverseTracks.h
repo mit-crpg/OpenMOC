@@ -60,6 +60,7 @@ protected:
   virtual void onTrack(Track* track, segment* segments) = 0;
 
 public:
+
   virtual void execute() = 0;
 
 };

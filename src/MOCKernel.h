@@ -74,7 +74,9 @@ public:
  *          the number of segments in a Track if the number is not yet known.
  */
 class CounterKernel: public MOCKernel {
+
 public:
+
   CounterKernel(TrackGenerator* track_generator);
   void execute(FP_PRECISION length, Material* mat, int id,
                int cmfd_surface_fwd, int cmfd_surface_bwd);
