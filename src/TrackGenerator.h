@@ -177,8 +177,6 @@ public:
   FP_PRECISION retrieveMaxOpticalLength();
   omp_lock_t* getFSRLocks();
   segmentationType getSegmentFormation();
-  int getNumParallelTrackGroups();
-  int* getNumTracksByParallelGroupArray();
   virtual bool containsTracks();
   virtual bool containsSegments();
 
