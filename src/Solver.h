@@ -14,7 +14,7 @@
 #include "constants.h"
 #include "Timer.h"
 #include "Quadrature.h"
-#include "TrackGenerator.h"
+#include "TrackGenerator3D.h"
 #include "Cmfd.h"
 #include "ExpEvaluator.h"
 #include "segmentation_type.h"
@@ -123,8 +123,6 @@ protected:
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
-  int* _num_tracks_by_parallel_group;
-  int _num_parallel_track_groups;
 
   /** Boolean for whether to solve in 3D (true) or 2D (false) */
   bool _solve_3D;

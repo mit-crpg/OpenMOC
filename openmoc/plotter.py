@@ -92,7 +92,7 @@ def plot_tracks_2D(track_generator):
     py_printf('ERROR', 'Unable to plot Tracks since %s was input rather ' + \
               'than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains2DTracks():
+  if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Tracks since the track ' + \
               'generator has not yet generated 2D tracks')
 
@@ -148,11 +148,11 @@ def plot_tracks_3D(track_generator):
     os.makedirs(directory)
 
   # Error checking
-  if not 'TrackGenerator' in str(type(track_generator)):
+  if not 'TrackGenerator3D' in str(type(track_generator)):
     py_printf('ERROR', 'Unable to plot Tracks since %s was input rather ' + \
-              'than a TrackGenerator', str(type(track_generator)))
+              'than a TrackGenerator3D', str(type(track_generator)))
 
-  if not track_generator.contains3DTracks():
+  if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Tracks since the track ' + \
               'generator has not yet generated tracks')
 
@@ -206,7 +206,7 @@ def plot_periodic_cycles_2D(track_generator):
     py_printf('ERROR', 'Unable to plot Track 2D periodic cycles since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains2DTracks():
+  if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Track periodic cycles since the ' + \
               'TrackGenerator has not yet generated 2D Tracks.')
 
@@ -281,7 +281,7 @@ def plot_reflective_cycles_2D(track_generator):
     py_printf('ERROR', 'Unable to plot Track 2D reflective cycles since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains2DTracks():
+  if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Track reflective cycles since the ' + \
               'TrackGenerator has not yet generated 2D Tracks.')
 
@@ -352,11 +352,12 @@ def plot_periodic_cycles_3D(track_generator):
     os.makedirs(directory)
 
   # Error checking
-  if not 'TrackGenerator' in str(type(track_generator)):
-    py_printf('ERROR', 'Unable to plot 3D Track periodic cycles since %s was input ' + \
-              'rather than a TrackGenerator', str(type(track_generator)))
+  if not 'TrackGenerator3D' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot 3D Track periodic cycles since %s was' +
+              'input ' + 'rather than a TrackGenerator3D',
+              str(type(track_generator)))
 
-  if not track_generator.contains3DTracks():
+  if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Track periodic cycles since the ' + \
               'TrackGenerator has not yet generated 3D Tracks.')
 
@@ -432,11 +433,12 @@ def plot_reflective_cycles_3D(track_generator):
     os.makedirs(directory)
 
   # Error checking
-  if not 'TrackGenerator' in str(type(track_generator)):
-    py_printf('ERROR', 'Unable to plot 3D Track reflective cycles since %s was input ' + \
-              'rather than a TrackGenerator', str(type(track_generator)))
+  if not 'TrackGenerator3D' in str(type(track_generator)):
+    py_printf('ERROR', 'Unable to plot 3D Track periodic cycles since %s was' +
+              'input ' + 'rather than a TrackGenerator3D',
+              str(type(track_generator)))
 
-  if not track_generator.contains3DTracks():
+  if not track_generator.containsTracks():
     py_printf('ERROR', 'Unable to plot Track reflective cycles since the ' + \
               'TrackGenerator has not yet generated 3D Tracks.')
 
@@ -529,7 +531,7 @@ def plot_segments_2D(track_generator):
     py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains2DSegments():
+  if not track_generator.containsSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
               'TrackGenerator has not yet generated 2D Segments.')
 
@@ -615,7 +617,7 @@ def plot_segments_3D(track_generator):
     py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains3DSegments():
+  if not track_generator.containsSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
               'TrackGenerator has not yet generated explicit 3D segments.')
 
@@ -1640,7 +1642,6 @@ def plot_quadrature(track_generator):
   title = ''
   filename = 'quadrature.png'
   quad_type = ''
-  track_method = ''
   if quadrature.getQuadratureType() is openmoc.TABUCHI_YAMAMOTO:
     quad_type = 'TABUCHI-YAMAMOTO'
   elif quadrature.getQuadratureType() is openmoc.LEONARD:
@@ -1652,17 +1653,20 @@ def plot_quadrature(track_generator):
   elif quadrature.getQuadratureType() is openmoc.EQUAL_ANGLE:
     quad_type = 'EQUAL-ANGLE'
 
-  if track_generator.getTrackGenerationMethod() is openmoc.GLOBAL_TRACKING:
-    track_method = '3DGT'
-  elif track_generator.getTrackGenerationMethod() \
-  is openmoc.MODULAR_RAY_TRACING:
-    track_method = 'MRT'
-  elif track_generator.getTrackGenerationMethod() \
-  is openmoc.SIMPLIFIED_MODULAR_RAY_TRACING:
-    track_method = 'sMRT'
+  track_method = ''
+  polar_spacing = 0
+  if 'TrackGenerator3D' in str(type(track_generator)):
+    polar_spacing = track_generator.getDesiredPolarSpacing()
+    if track_generator.getTrackGenerationMethod() is openmoc.GLOBAL_TRACKING:
+      track_method = '3DGT'
+    elif track_generator.getTrackGenerationMethod() \
+    is openmoc.MODULAR_RAY_TRACING:
+      track_method = 'MRT'
+    elif track_generator.getTrackGenerationMethod() \
+    is openmoc.SIMPLIFIED_MODULAR_RAY_TRACING:
+      track_method = 'sMRT'
 
   azim_spacing = track_generator.getDesiredAzimSpacing()
-  polar_spacing = track_generator.getDesiredPolarSpacing()
 
   title = track_method + ' + ' + quad_type + ' with ' + str(num_azim) + \
           '-' + '{:5.3f}'.format(azim_spacing) + ' azim ' + str(num_polar) + \
@@ -1780,7 +1784,7 @@ def plot_flattened_segments(track_generator, xlim=None, ylim=None):
     py_printf('ERROR', 'Unable to plot Track segments since %s was input ' + \
               'rather than a TrackGenerator', str(type(track_generator)))
 
-  if not track_generator.contains2DSegments():
+  if not track_generator.containsSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
               'TrackGenerator has not yet generated 2D Segments.')
 
@@ -2025,7 +2029,7 @@ def plot_segments_on_fsrs(geometry, track_generator, track_id=0, gridsize=250,
     plt.ylim(min(coords['y']), max(coords['y']))
 
 
-  if not track_generator.contains2DSegments():
+  if not track_generator.containsSegments():
     py_printf('ERROR', 'Unable to plot Track segments since the ' + \
               'TrackGenerator has not yet generated 2D Segments.')
 
