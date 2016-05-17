@@ -4,9 +4,9 @@
 
 
 /**
- * @brief Constructor for SegmentSplitter calls the TraverseTracks
+ * @brief Constructor for VolumeCalculator calls the TraverseTracks
  *        constructor
- * @param track_generator The TrackGenerator to pull tracking information from
+ * @param track_generator The TrackGenerator to pull tracking information
  */
 VolumeCalculator::VolumeCalculator(TrackGenerator* track_generator)
                                   : TraverseTracks(track_generator) {
