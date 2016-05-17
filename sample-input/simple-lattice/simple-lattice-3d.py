@@ -29,6 +29,7 @@ track_generator = openmoc.TrackGenerator3D(geometry, num_azim, num_polar,
                                            azim_spacing, polar_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.setTrackGenerationMethod(openmoc.MODULAR_RAY_TRACING)
+track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 track_generator.generateTracks()
 
 ###############################################################################
