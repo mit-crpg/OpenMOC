@@ -203,6 +203,8 @@ def get_opencg_surface(openmoc_surface):
         boundary = 'vacuum'
     elif boundary == openmoc.REFLECTIVE:
         boundary = 'reflective'
+    elif boundary == openmoc.PERIODIC:
+        boundary = 'periodic'
     elif boundary == openmoc.BOUNDARY_NONE:
         boundary = 'interface'
 
@@ -281,6 +283,8 @@ def get_openmoc_surface(opencg_surface):
         boundary = openmoc.VACUUM
     elif boundary == 'reflective':
         boundary = openmoc.REFLECTIVE
+    elif boundary == 'periodic':
+        boundary = openmoc.PERIODIC
     elif boundary == 'interface':
         boundary = openmoc.BOUNDARY_NONE
 
