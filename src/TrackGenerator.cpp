@@ -791,7 +791,9 @@ void TrackGenerator::generateTracks() {
 
       /* Segmentize the tracks */
       segmentize();
-      dumpSegmentsToFile();
+      if (_segment_formation == EXPLICIT_2D ||
+          _segment_formation == EXPLICIT_3D)
+        dumpSegmentsToFile();
     }
 
     /* Allocate array of mutex locks for each FSR */
@@ -1731,9 +1733,6 @@ void TrackGenerator::initializeTracksArray() {
 
   log_printf(NORMAL, "Initializing 2D tracks array...");
 
-  Track* track;
-  int uid = 0;
-
   /* Allocate memory for tracks array */
   if (_tracks_2D_array != NULL)
     delete [] _tracks_2D_array;
@@ -1741,11 +1740,13 @@ void TrackGenerator::initializeTracksArray() {
   _tracks_2D_array = new Track*[num_2D_tracks];
 
   /* Loop over all 2D tracks */
+  int uid = 0;
   for (int a = 0; a < _num_azim / 2; a++) {
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
 
       /* Get current track and azim group ids */
-      track = &_tracks_2D[a][i];
+      Track* track = &_tracks_2D[a][i];
+
       track->setUid(uid);
       _tracks_2D_array[uid] = track;
       uid++;

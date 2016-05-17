@@ -997,7 +997,7 @@ void TrackGenerator3D::initializeTrackReflections() {
               }
 
               /* SURFACE_Z_MAX */
-              else{
+              else {
                 if (polar_group[i][t]->getCycleFwd()) {
 
                   polar_group[i][t]->setBCFwd
@@ -1017,7 +1017,7 @@ void TrackGenerator3D::initializeTrackReflections() {
                       (polar_group[i - _num_z[a][p]][0]);
                   }
                 }
-                else{
+                else {
 
                   polar_group[i][t]->setBCBwd
                     (_geometry->getMaxZBoundaryType());
@@ -2311,24 +2311,22 @@ void TrackGenerator3D::initializeTracksArray() {
 
   log_printf(NORMAL, "Initializing 3D tracks array...");
 
-  Track* track;
-  int uid = 0;
-
-  /* Reset UID in case 2D tracks were intiialized */
-  uid = 0;
-
   /* Allocate memory for tracks array */
   if (_tracks_3D_array != NULL)
     delete [] _tracks_3D_array;
   int num_3D_tracks = getNum3DTracks();
   _tracks_3D_array = new Track*[num_3D_tracks];
 
-  /* Loop over all tracks and set indexes */
+  /* Loop over all 3D Tracks */
+  int uid = 0;
   for (int a = 0; a < _num_azim / 2; a++) {
     for (int i = 0; i < _num_x[a] + _num_y[a]; i++) {
       for (int p = 0; p < _num_polar; p++) {
         for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
-          track = &_tracks_3D[a][i][p][z];
+
+          /* Get the current track */
+          Track* track = &_tracks_3D[a][i][p][z];
+
           track->setUid(uid);
           _tracks_3D_array[uid] = track;
           uid++;
