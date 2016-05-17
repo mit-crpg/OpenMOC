@@ -57,7 +57,7 @@ protected:
   /* Functions defining how to loop over and operate on Tracks */
   void loopOverTracks(MOCKernel* kernel);
   void loopOverTracksByParallelGroup(MOCKernel* kernel);
-  virtual void onTrack(Track* track, segment* segments) = 0;
+  virtual void onTrack(Track* track, segment* segments);
 
 public:
 

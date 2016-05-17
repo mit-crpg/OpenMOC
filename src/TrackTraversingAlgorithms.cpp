@@ -4,6 +4,16 @@
 
 
 /**
+ * @brief Constructor for SegmentSplitter calls the TraverseTracks
+ *        constructor
+ * @param track_generator The TrackGenerator to pull tracking information from
+ */
+VolumeCalculator::VolumeCalculator(TrackGenerator* track_generator)
+                                  : TraverseTracks(track_generator) {
+}
+
+
+/**
  * @brief FSR volumes are calculated and saved in the TrackGenerator's FSR
  *        volumes buffer
  * @details VolumeKernels are created and used to loop over all segments and

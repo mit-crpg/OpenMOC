@@ -145,3 +145,10 @@ void TraverseTracks::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
                     seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd);
   }
 }
+
+
+/**
+ * @brief Dummy function for default onTrack implementation
+ */
+void TraverseTracks::onTrack(Track* track, segment* segments) {
+}

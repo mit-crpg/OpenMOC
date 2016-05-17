@@ -112,7 +112,7 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  * @param id the FSR ID of the FSR associated with the segment
  */
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+                           int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
   /* Set omp lock for FSRs */
   omp_set_lock(&_FSR_locks[id]);

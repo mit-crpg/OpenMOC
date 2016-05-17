@@ -41,7 +41,6 @@ public:
 
   VolumeCalculator(TrackGenerator* track_generator);
   void execute();
-  void onTrack(Track* track, segment* segments);
 };
 
 
