@@ -892,13 +892,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeFSRs();
   countFissionableFSRs();
   initializeExpEvaluator();
-
-  //FIXME
-  TrackGenerator3D* track_generator_3D =
-    dynamic_cast<TrackGenerator3D*>(_track_generator);
-  if (track_generator_3D != NULL && _OTF_transport)
-    track_generator_3D->deleteTemporarySegments();
-
   initializeFluxArrays();
   initializeSourceArrays();
   initializeCmfd();
@@ -919,8 +912,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   _timer->startTimer();
 
   /* Source iteration loop */
-  // FIXME for (int i=0; i < max_iters; i++) {
-  for (int i=0; i < 20; i++) {
+  for (int i=0; i < max_iters; i++) {
 
     normalizeFluxes();
     computeFSRSources();
@@ -944,11 +936,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
-    //FIXME
-    /*
     if (i > 1 && residual < _converge_thresh)
       break;
-      */
   }
 
   if (_num_iterations == max_iters-1)

@@ -388,6 +388,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 TransportSweep::TransportSweep(TrackGenerator* track_generator)
                               : TraverseSegments(track_generator) {
   _cpu_solver = NULL;
+  _tracks_per_stack = NULL;
 
   /* Allocate temporary storage of FSR fluxes */
   int num_threads = omp_get_max_threads();
@@ -395,6 +396,11 @@ TransportSweep::TransportSweep(TrackGenerator* track_generator)
   _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
     _thread_fsr_fluxes[i] = new FP_PRECISION[2*num_groups];
+
+  /* Get the number of tracks per stack if 3D calculation */
+  TrackGenerator3D* TG_3D = dynamic_cast<TrackGenerator3D*>(track_generator);
+  if (TG_3D != NULL)
+    _tracks_per_stack = TG_3D->getTracksPerStack();
 }
 
 
@@ -461,15 +467,11 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   if (track_3D != NULL)
     polar_index = track_3D->getPolarIndex();
 
-  /* Check for minimum/maximum track ID's */
-  int min_track_idx = 0;
-  int max_track_idx = 0;
-  for (int s=0; s < num_segments; s++) {
-    int track_idx = segments[s]._track_idx;
-    if (track_idx < min_track_idx)
-      min_track_idx = track_idx;
-    else if (track_idx > max_track_idx)
-      max_track_idx = track_idx;
+  /* Extract the maximum track index */
+  int max_track_index = 0;
+  if (_tracks_per_stack != NULL) {
+    int xy_index = track->getXYIndex();
+    max_track_index = _tracks_per_stack[azim_index][xy_index][polar_index] - 1;
   }
 
   /* Loop over each Track segment in forward direction */
@@ -488,7 +490,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   }
 
   /* Transfer boundary angular flux to outgoing Track */
-  for (int i=min_track_idx; i <= max_track_idx; i++) {
+  for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, true);
     _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, true,
                                       track_flux);
@@ -510,7 +512,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   }
 
   /* Transfer boundary angular flux to outgoing Track */
-  for (int i=min_track_idx; i <= max_track_idx; i++) {
+  for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, false);
     _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, false,
                                       track_flux);

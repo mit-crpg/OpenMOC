@@ -155,6 +155,7 @@ private:
 
   CPUSolver* _cpu_solver;
   FP_PRECISION** _thread_fsr_fluxes;
+  int*** _tracks_per_stack;
 
 public:
 
