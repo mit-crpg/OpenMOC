@@ -552,8 +552,6 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  int p, pe;
-  int a = azim_index;
 
   /* The change in angular flux along this Track segment in the FSR */
   FP_PRECISION delta_psi, exponential, tau;
@@ -565,15 +563,16 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
     for (int e=0; e < _num_groups; e++) {
       exponential = _exp_evaluator->computeExponential
-        (sigma_t[e] * length, a, p);
+        (sigma_t[e] * length, azim_index, polar_index);
       delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi * _quad->getWeightInline(a, p);
+      fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
+                                                        polar_index);
       track_flux(e) -= delta_psi;
     }
   }
   else {
 
-    pe = 0;
+    int pe = 0;
 
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
@@ -581,10 +580,10 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       tau = sigma_t[e] * length;
 
       /* Loop over polar angles */
-      for (p=0; p < _num_polar/2; p++) {
-        exponential = _exp_evaluator->computeExponential(tau, a, p);
+      for (int p=0; p < _num_polar/2; p++) {
+        exponential = _exp_evaluator->computeExponential(tau, azim_index, p);
         delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * _quad->getWeightInline(a, p);
+        fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
         track_flux(pe) -= delta_psi;
         pe++;
       }
