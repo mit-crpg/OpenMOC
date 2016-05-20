@@ -465,7 +465,7 @@ int main() {
   Cmfd cmfd;
   cmfd.setSORRelaxationFactor(1.5);
   cmfd.setLatticeStructure(51, 51);
-  std::vector< std::vector<int> > cmfd_group_structure = {{1,4,7}};
+  std::vector< std::vector<int> > cmfd_group_structure = {{1,2,3}, {4,5,6,7}};
   cmfd.setGroupStructure(cmfd_group_structure);
 
   /* Create the geometry */
