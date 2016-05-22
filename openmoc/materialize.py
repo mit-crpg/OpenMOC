@@ -351,6 +351,12 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             material.setSigmaT(sigma)
             py_printf('DEBUG', 'Loaded "transport" MGXS for "%s %d"',
                       domain_type, domain.id)
+        elif 'nu-transport' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'nu-transport')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaT(sigma)
+            py_printf('DEBUG', 'Loaded "nu-transport" MGXS for "%s %d"',
+                      domain_type, domain.id)
         elif 'total' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'total')
             sigma = mgxs.get_xs(nuclides='sum')
