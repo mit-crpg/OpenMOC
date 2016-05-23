@@ -22,7 +22,7 @@ TraverseTracks::~TraverseTracks() {
 
 
 /**
- * @breif Loops over Tracks, applying the provided kernel to all segments and
+ * @brief Loops over Tracks, applying the provided kernel to all segments and
  *        the functionality described in onTrack(...) to all Tracks.
  * @details The segment formation method imported from the TrackGenerator
  *          during construction is used to redirect to the appropriate looping
@@ -34,12 +34,14 @@ void TraverseTracks::loopOverTracks(MOCKernel* kernel) {
     case EXPLICIT_2D:
       loopOverTracks2D(kernel);
       break;
+    default:
+      log_printf(ERROR, "Segment formation type not currently supported");
   }
 }
 
 
 /**
- * @breif Loops over Tracks by parallel groups to avoid potential conflicts,
+ * @brief Loops over Tracks by parallel groups to avoid potential conflicts,
  *        applying the provided kernel to all segments and the functionality
  *        described in onTrack(...) to all Tracks.
  * @details The segment formation method imported from the TrackGenerator
@@ -52,6 +54,8 @@ void TraverseTracks::loopOverTracksByParallelGroup(MOCKernel* kernel) {
     case EXPLICIT_2D:
       loopOverTracksByParallelGroup2D(kernel);
       break;
+    default:
+      log_printf(ERROR, "Segment formation type not currently supported");
   }
 }
 

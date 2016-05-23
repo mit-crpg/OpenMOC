@@ -17,7 +17,7 @@ MOCKernel::MOCKernel(TrackGenerator* track_generator) {
 
 /**
  * @brief Constructor for the VolumeKernel assigns default values, calls
- *        the MOCKernel constructor, and pulls refernces to FSR locks and FSR
+ *        the MOCKernel constructor, and pulls references to FSR locks and FSR
  *        volumes from the provided TrackGenerator.
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data
@@ -94,7 +94,7 @@ int MOCKernel::getCount() {
 /* @brief Resets the maximum optcal path length for a segment
  * @details MOC kernels ensure that there are no segments with an optical path
  *          length greater than the maximum optical path length by splitting
- *          then when they get too large.
+ *          them when they get too large.
  * @param max_tau the maximum optical path length for a segment
  */
 void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
@@ -140,7 +140,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
  * @param id the FSR ID of the FSR associated with the segment
  */
 void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+                            int cmfd_surface_fwd, int cmfd_surface_bwd) {
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();

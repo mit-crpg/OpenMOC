@@ -8,10 +8,12 @@
 #ifndef MOCKERNEL_H_
 #define MOCKERNEL_H_
 
-#include "Python.h"
 #include "Track.h"
 #include "Geometry.h"
 #include "Quadrature.h"
+#ifdef SWIG
+#include "Python.h"
+#endif
 
 
 /* Forward declaration of TrackGenerator */
@@ -30,8 +32,8 @@ class TrackGenerator;
  *          actions applied to the segments, reducing the need for repeated
  *          code. This class is the parent class of CounterKernel and
  *          VolumeKernel. A generic MOCKernel should not be explicity
- *          instantiated. Instead, an inhereting class should
- *          be instantiated which describes the "execute" function.
+ *          instantiated. Instead, an inheriting class should
+ *          be instantiated which implements the "execute" function.
  */
 class MOCKernel {
 
@@ -69,7 +71,7 @@ public:
  * @class CounterKernel MOCKernel.h "src/MOCKernel.h"
  * @brief Counts the number of segments of a track
  * @details A CounterKernel inherets from MOCKernel and is a kernel which
- *          tallies the number of legitamte segment lengths (less than the max
+ *          tallies the number of legitimate segment lengths (less than the max
  *          optical path length) encountered. This is useful for determining
  *          the number of segments in a Track if the number is not yet known.
  */

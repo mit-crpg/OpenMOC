@@ -376,7 +376,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
 
 
 /**
- * @breif Calculates and returns the maximum optical length for any segment
+ * @brief Calculates and returns the maximum optical length for any segment
  *        in the Geomtry.
  * @details The maximum optical length is recomputed, updated, and returned.
  *          This value determines when segments must be split during ray
