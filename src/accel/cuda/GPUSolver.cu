@@ -1139,7 +1139,6 @@ void GPUSolver::initializeFSRs() {
       cudaMemcpyHostToDevice);
 
     /* Free the array of FSRs data allocated by the Solver parent class */
-    free(host_FSR_volumes);
     free(host_FSR_materials);
 
     /* Free the temporary array of FSRs to material indices on the host */
