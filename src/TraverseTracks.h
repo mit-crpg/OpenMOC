@@ -38,7 +38,6 @@ private:
 
   /* Functions defining how to loop over Tracks */
   void loopOverTracks2D(MOCKernel* kernel);
-  void loopOverTracksByParallelGroup2D(MOCKernel* kernel);
 
   /* Functions defining how to traverse segments */
   void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
@@ -56,7 +55,6 @@ protected:
 
   /* Functions defining how to loop over and operate on Tracks */
   void loopOverTracks(MOCKernel* kernel);
-  void loopOverTracksByParallelGroup(MOCKernel* kernel);
   virtual void onTrack(Track* track, segment* segments);
 
 public:

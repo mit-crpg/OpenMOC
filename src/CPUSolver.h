@@ -90,6 +90,7 @@ public:
   void initializeFSRs();
 
   void zeroTrackFluxes();
+  void copyBoundaryFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();

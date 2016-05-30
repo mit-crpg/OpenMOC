@@ -47,7 +47,7 @@ TransportSweep::TransportSweep(TrackGenerator* track_generator)
 void TransportSweep::execute() {
 #pragma omp parallel
   {
-    loopOverTracksByParallelGroup(NULL);
+    loopOverTracks(NULL);
   }
 }
 

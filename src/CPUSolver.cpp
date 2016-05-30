@@ -139,6 +139,9 @@ void CPUSolver::initializeFluxArrays() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
+  if (_start_flux != NULL)
+    delete [] _start_flux;
+
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
@@ -146,9 +149,10 @@ void CPUSolver::initializeFluxArrays() {
     delete [] _old_scalar_flux;
 
   /* Allocate memory for the Track boundary flux arrays */
-  try{
+  try {
     int size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux = new FP_PRECISION[size];
+    _start_flux = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
@@ -238,6 +242,26 @@ void CPUSolver::zeroTrackFluxes() {
       for (int p=0; p < _num_polar_2; p++) {
         for (int e=0; e < _num_groups; e++) {
           _boundary_flux(t,d,p,e) = 0.0;
+          _start_flux(t,d,p,e) = 0.0;
+        }
+      }
+    }
+  }
+}
+
+
+/**
+ * @brief Copies values from the start flux into the boundary flux array
+ *        for both the "forward" and "reverse" directions.
+ */
+void CPUSolver::copyBoundaryFluxes() {
+
+  #pragma omp parallel for schedule(guided)
+  for (int t=0; t < _tot_num_tracks; t++) {
+    for (int d=0; d < 2; d++) {
+      for (int p=0; p < _num_polar_2; p++) {
+        for (int e=0; e < _num_groups; e++) {
+          _boundary_flux(t, d, p, e) = _start_flux(t, d, p, e);
         }
       }
     }
@@ -325,6 +349,7 @@ void CPUSolver::normalizeFluxes() {
       for (int p=0; p < _num_polar_2; p++) {
         for (int e=0; e < _num_groups; e++) {
           _boundary_flux(t,d,p,e) *= norm_factor;
+          _start_flux(t,d,p,e) *= norm_factor;
         }
       }
     }
@@ -654,6 +679,9 @@ void CPUSolver::transportSweep() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
+  /* Copy starting flux to current flux */
+  copyBoundaryFluxes();
+
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
   TransportSweep sweep_tracks(_track_generator);
@@ -755,7 +783,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
-  FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
+  FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, 0, start);
 
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
