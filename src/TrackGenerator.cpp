@@ -1106,7 +1106,6 @@ void TrackGenerator::initializeTrackUids() {
       Track* track = &_tracks[a][i];
       track->setUid(uid);
       uid++;
-      }
     }
   }
 }
