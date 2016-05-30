@@ -987,7 +987,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn()) {
       _k_eff = _cmfd->computeKeff(i);
-      _cmfd->updateBoundaryFlux(_tracks, _start_flux, _tot_num_tracks);
+      _cmfd->updateBoundaryFlux(_tracks, _boundary_flux, _tot_num_tracks);
     }
     else
       computeKeff();
