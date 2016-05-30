@@ -23,6 +23,7 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _tracks = NULL;
   _boundary_flux = NULL;
+  _start_flux = NULL;
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
@@ -58,6 +59,9 @@ Solver::~Solver() {
 
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
+
+  if (_start_flux != NULL)
+    delete [] _start_flux;
 
   if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
@@ -294,6 +298,17 @@ FP_PRECISION Solver::getFlux(int fsr_id, int group) {
              "since it has not yet been computed");
 
   return _scalar_flux(fsr_id,group-1);
+}
+
+
+/**
+ * @brief Returns the boundary flux array for a Track
+ * @param track_id The Track's unique ID
+ * @param fwd Whether the direction of the angular flux along the track is
+ *        forward (True) or backward (False)
+ */
+FP_PRECISION* Solver::getBoundaryFlux(int track_id, bool fwd) {
+  return &_boundary_flux(track_id, !fwd, 0, 0);
 }
 
 

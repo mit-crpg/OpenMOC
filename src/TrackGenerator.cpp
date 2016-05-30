@@ -1,4 +1,5 @@
 #include "TrackGenerator.h"
+#include "TrackTraversingAlgorithms.h"
 
 /**
  * @brief Constructor for the TrackGenerator assigns default values.
@@ -19,6 +20,8 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _use_input_file = false;
   _tracks_filename = "";
   _z_coord = 0.0;
+  _segment_formation = EXPLICIT_2D;
+  _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _FSR_volumes = NULL;
   _FSR_locks = NULL;
   _timer = new Timer();
@@ -282,6 +285,9 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
     log_printf(ERROR, "Unable to get the FSR volumes since tracks "
                "have not yet been generated");
 
+ if (_FSR_volumes != NULL)
+   return _FSR_volumes;
+
 #pragma omp critical
   {
     if (_FSR_volumes == NULL) {
@@ -307,42 +313,14 @@ void TrackGenerator::calculateFSRVolumes() {
     log_printf(ERROR, "Unable to calculate the FSR volumes since the FSR "
                "volumes array has not yet been allocated");
 
-
   /* Reset FSR volumes to zero */
   int num_FSRs = _geometry->getNumFSRs();
-  memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
+  if (_FSR_volumes != NULL)
+    memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
-#pragma omp parallel
-  {
-    int azim_index, fsr_id;
-    segment* curr_segment;
-    FP_PRECISION volume;
-
-    /* Calculate each FSR's "volume" by accumulating the total length of *
-     * all Track segments multipled by the Track "widths" for each FSR.  */
-    for (int i=0; i < _num_azim_2; i++) {
-#pragma omp for
-      for (int j=0; j < _num_tracks[i]; j++) {
-
-        azim_index = _tracks[i][j].getAzimAngleIndex();
-
-        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-          curr_segment = _tracks[i][j].getSegment(s);
-          volume = curr_segment->_length * _quadrature->getAzimWeight(i)
-            * _quadrature->getAzimSpacing(i);
-          fsr_id = curr_segment->_region_id;
-
-          /* Set FSR mutual exclusion lock */
-          omp_set_lock(&_FSR_locks[fsr_id]);
-
-          _FSR_volumes[fsr_id] += volume;
-
-          /* Release FSR mutual exclusion lock */
-          omp_unset_lock(&_FSR_locks[fsr_id]);
-        }
-      }
-    }
-  }
+  /* Create volume calculator and calculate new FSR volumes */
+  VolumeCalculator volume_calculator(this);
+  volume_calculator.execute();
 }
 
 
@@ -398,8 +376,12 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
 
 
 /**
- * @brief Finds and returns the maximum optical length amongst all segments.
- * @return the maximum optical path length
+ * @brief Calculates and returns the maximum optical length for any segment
+ *        in the Geomtry.
+ * @details The maximum optical length is recomputed, updated, and returned.
+ *          This value determines when segments must be split during ray
+ *          tracing.
+ * @return The maximum optical length of any segment in the Geometry
  */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
@@ -423,13 +405,27 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
           sigma_t = material->getSigmaT();
 
           for (int e=0; e < material->getNumEnergyGroups(); e++)
-            max_optical_length = std::max(max_optical_length, length*sigma_t[e]);
+            max_optical_length = std::max(max_optical_length,
+                                          length*sigma_t[e]);
         }
       }
     }
   }
 
-  return max_optical_length;
+  /* Update maximum optical path length */
+  _max_optical_length = max_optical_length;
+
+  return _max_optical_length;
+}
+
+
+/**
+ * @brief Retrieves the max optical path length of 3D segments for use in
+ *        on-the-fly computation
+ * @return maximum optical path length
+ */
+FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
+  return _max_optical_length;
 }
 
 
@@ -862,6 +858,15 @@ void TrackGenerator::initializeTrackFileDirectory() {
       _contains_tracks = true;
     }
   }
+}
+
+
+/**
+ * @brief Returns the type of ray tracing used for segment formation
+ * @return the segmentation type
+ */
+segmentationType TrackGenerator::getSegmentFormation() {
+  return _segment_formation;
 }
 
 

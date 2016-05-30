@@ -12,6 +12,7 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "Solver.h"
+#include "TrackTraversingAlgorithms.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
@@ -44,6 +45,9 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
+public:
+  CPUSolver(TrackGenerator* track_generator=NULL);
+
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
    * @param curr_segment a pointer to the Track segment of interest
@@ -74,9 +78,6 @@ protected:
   virtual void transferBoundaryFlux(int track_id, int azim_index,
                                     bool direction, FP_PRECISION* track_flux);
 
-public:
-  CPUSolver(TrackGenerator* track_generator=NULL);
-
   int getNumThreads();
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
@@ -89,6 +90,7 @@ public:
   void initializeFSRs();
 
   void zeroTrackFluxes();
+  void copyBoundaryFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();
