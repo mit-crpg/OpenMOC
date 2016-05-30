@@ -16,10 +16,10 @@
 #define DEFAULT_INIT_ID 10000
 
 /** The value of 4pi: \f$ 4\pi \f$ */
-#define FOUR_PI 12.5663706143
+#define FOUR_PI 12.566370614359172
 
 /** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
-#define ONE_OVER_FOUR_PI 0.0795774715
+#define ONE_OVER_FOUR_PI 0.07957747154594767
 
 /** A negligible cross-section value to over-ride user-defined
  *  cross-sections very near zero (e.g., within (-1E-10, 1E-10)) */
