@@ -182,10 +182,6 @@ protected:
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
 
-  /** The number of groups of tracks that can be looped over in parallel
-   *  without data races between threads */
-  int _num_parallel_track_groups;
-
   void clearTimerSplits();
 
 public:
