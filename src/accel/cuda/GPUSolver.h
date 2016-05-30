@@ -53,6 +53,7 @@
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */
 #define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])
+#define start_flux(t,pe2) (start_flux[2*(t)*(*polar_times_groups)+(pe2)])
 
 
 /**
@@ -98,7 +99,7 @@ private:
 
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
-  
+
   void copyQuadrature();
 
 public:
