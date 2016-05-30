@@ -84,6 +84,7 @@ private:
 
   /** Thrust vector of angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _boundary_flux;
+  thrust::device_vector<FP_PRECISION> _start_flux;
 
   /** Thrust vector of FSR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _scalar_flux;
