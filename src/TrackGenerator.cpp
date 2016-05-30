@@ -38,13 +38,12 @@ TrackGenerator::~TrackGenerator() {
     delete [] _num_tracks;
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _num_tracks_by_parallel_group;
 
     for (int i = 0; i < _num_azim_2; i++)
       delete [] _tracks[i];
 
     delete [] _tracks;
-    delete [] _tracks_by_parallel_group;
+    delete [] _tracks_array;
   }
 
   if (_FSR_locks != NULL)
@@ -194,8 +193,7 @@ Track **TrackGenerator::getTracks() {
 
 /**
  * @brief Returns a 1D array of Track pointers.
- * @details The tracks in the _tracks_by_parallel_group array are organized
- *          by UID.
+ * @details The tracks in the tracks array are organized by UID.
  * @return The 1D array of Track pointers
  */
 Track **TrackGenerator::getTracksArray() {
@@ -663,10 +661,9 @@ void TrackGenerator::generateTracks(bool store, bool neighbor_cells) {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_tracks_by_parallel_group;
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _tracks_by_parallel_group;
+    delete [] _tracks_array;
 
     for (int i = 0; i < _num_azim_2; i++)
       delete [] _tracks[i];
