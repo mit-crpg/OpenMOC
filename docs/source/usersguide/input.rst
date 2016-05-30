@@ -192,7 +192,7 @@ For many simulations, defining the nuclear data cross sections by hand in a Pyth
 
 The ``openmoc.materialize`` module defines a standard for cross section data stored in binary files. First, HDF5 files must include a ``'# groups'`` attribute with the integer number of groups in the top level of the file hierarchy. Second, the string domain type - ``'material'`` or ``'cell'`` - must be specified in the top level of the file hierarchy. This must match the ``domain_type`` keyword argument passed to ``load_from_hdf5(...)`` which can be either ``'material'`` (default) or ``'cell'``. The ``domain_type`` keyword argument is discussed in more detail at the end of this section. Finally, multi-group cross sections to assign by material or cell must be defined as an `HDF5 group`_ with a string name or integer ID to identify the material or cell. The material group must contain the following floating point `HDF5 datasets`_ of multi-group cross section data:
 
-  - ``'transport'`` or ``'total'``
+  - ``'total'`` or ``'transport'`` or ``'nu-transport'``
   - ``'nu-scatter matrix'`` or ``'scatter matrix'``
   - ``'chi'``
   - ``'nu-fission'``

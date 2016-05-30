@@ -1555,7 +1555,7 @@ class PlotParams(object):
 
     @cmap.setter
     def cmap(self, cmap):
-        cv.check_type('cmap', cmap, matplotlib.colors.Colormap)
+        cv.check_type('cmap', cmap, (matplotlib.colors.Colormap, type(None)))
         self._cmap = cmap
 
     @vmin.setter
