@@ -1481,8 +1481,6 @@ void GPUSolver::computeFSRScatterSources() {
 void GPUSolver::transportSweep() {
 
   int shared_mem = _T * _num_polar_2 * 2 * sizeof(FP_PRECISION);
-  int tid_offset = 0;
-  int tid_max = 0;
 
   log_printf(DEBUG, "Transport sweep on device with %d blocks and %d threads",
              _B, _T);
