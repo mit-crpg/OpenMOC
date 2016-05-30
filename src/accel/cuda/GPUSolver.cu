@@ -1214,7 +1214,7 @@ void GPUSolver::initializeTracks() {
     cudaFree(_dev_tracks);
 
   /* Allocate memory for all Tracks and Track offset indices on the device */
-  try{
+  try {
 
     /* Allocate array of dev_tracks */
     cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
@@ -1502,8 +1502,7 @@ void GPUSolver::transportSweep() {
   cudaMemcpy((void*)boundary_flux, (void*)start_flux, _tot_num_tracks
              * sizeof(FP_PRECISION), cudaMemcpyDeviceToDevice);
 
-  /* Loop over the parallel track groups and perform transport sweep on tracks
-   * in that group */
+  /* Perform transport sweep on all tracks */
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
                                                  start_flux, reduced_sources,
                                                  _materials, _dev_tracks,
