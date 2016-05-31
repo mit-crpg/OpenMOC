@@ -21,10 +21,10 @@ openmoc.log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
+#cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
 cmfd.setKNearest(3)
 
-from geometry import geometry
+from geometry_ls import geometry
 geometry.setCmfd(cmfd)
 
 
@@ -44,7 +44,7 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = openmoc.CPUSolver(track_generator)
+solver = openmoc.CPUFSSolver(track_generator)
 solver.setConvergenceThreshold(opts.tolerance)
 solver.setNumThreads(opts.num_omp_threads)
 solver.computeEigenvalue(opts.max_iters)

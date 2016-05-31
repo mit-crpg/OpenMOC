@@ -139,6 +139,9 @@ void CPUSolver::initializeFluxArrays() {
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
 
+  if (_start_flux != NULL)
+    delete [] _start_flux;
+
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
@@ -146,9 +149,10 @@ void CPUSolver::initializeFluxArrays() {
     delete [] _old_scalar_flux;
 
   /* Allocate memory for the Track boundary flux arrays */
-  try{
+  try {
     int size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux = new FP_PRECISION[size];
+    _start_flux = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
@@ -236,8 +240,28 @@ void CPUSolver::zeroTrackFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int p=0; p < _num_polar_2; p++) {
-        for (int e=0; e < _num_groups; e++)
+        for (int e=0; e < _num_groups; e++) {
           _boundary_flux(t,d,p,e) = 0.0;
+          _start_flux(t,d,p,e) = 0.0;
+        }
+      }
+    }
+  }
+}
+
+
+/**
+ * @brief Copies values from the start flux into the boundary flux array
+ *        for both the "forward" and "reverse" directions.
+ */
+void CPUSolver::copyBoundaryFluxes() {
+
+  #pragma omp parallel for schedule(guided)
+  for (int t=0; t < _tot_num_tracks; t++) {
+    for (int d=0; d < 2; d++) {
+      for (int p=0; p < _num_polar_2; p++) {
+        for (int e=0; e < _num_groups; e++)
+          _boundary_flux(t, d, p, e) = _start_flux(t, d, p, e);
       }
     }
   }
@@ -322,8 +346,10 @@ void CPUSolver::normalizeFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int p=0; p < _num_polar_2; p++) {
-        for (int e=0; e < _num_groups; e++)
+        for (int e=0; e < _num_groups; e++) {
           _boundary_flux(t,d,p,e) *= norm_factor;
+          _start_flux(t,d,p,e) *= norm_factor;
+        }
       }
     }
   }
@@ -646,148 +672,14 @@ void CPUSolver::transportSweep() {
 
   log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
 
-  int min_track = 0;
-  int max_track = 0;
-
-  /* Initialize flux in each FSr to zero */
-  flattenFSRFluxes(0.0);
-
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
     _cmfd->zeroCurrents();
 
-  /* Loop over the parallel track groups */
-  for (int i=0; i < _num_parallel_track_groups; i++) {
+  /* Initialize flux in each FSR to zero */
+  flattenFSRFluxes(0.0);
 
-    /* Compute the minimum and maximum Track IDs corresponding to
-     * this parallel track group */
-    min_track = max_track;
-    max_track += _track_generator->getNumTracksByParallelGroup(i);
-
-    #pragma omp parallel
-    {
-
-      int tid = omp_get_thread_num();
-      int azim_index, num_segments;
-      Track* curr_track;
-      segment* curr_segment;
-      segment* segments;
-      FP_PRECISION* track_flux;
-
-      /* Use local array accumulator to prevent false sharing */
-      FP_PRECISION thread_fsr_flux[_num_groups];
-
-      /* Loop over each thread within this azimuthal angle halfspace */
-#pragma omp for schedule(guided)
-      for (int track_id=min_track; track_id < max_track; track_id++) {
-
-        /* Initialize local pointers to important data structures */
-        curr_track = _tracks[track_id];
-        azim_index = curr_track->getAzimAngleIndex();
-        num_segments = curr_track->getNumSegments();
-        segments = curr_track->getSegments();
-        track_flux = &_boundary_flux(track_id,0,0,0);
-
-        /* Loop over each Track segment in forward direction */
-        for (int s=0; s < num_segments; s++) {
-          curr_segment = &segments[s];
-          tallyScalarFlux(curr_segment, azim_index, track_flux,
-                          thread_fsr_flux);
-          tallyCurrent(curr_segment, azim_index, track_flux, true);
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, true, track_flux);
-
-        /* Loop over each Track segment in reverse direction */
-        track_flux += _polar_times_groups;
-
-        for (int s=num_segments-1; s > -1; s--) {
-          curr_segment = &segments[s];
-          tallyScalarFlux(curr_segment, azim_index, track_flux,
-                          thread_fsr_flux);
-          tallyCurrent(curr_segment, azim_index, track_flux, false);
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, false, track_flux);
-      }
-    }
-  }
-
-  return;
-}
-
-
-/**
- * @brief Computes the contribution to the FSR scalar flux from a Track segment.
- * @details This method integrates the angular flux for a Track segment across
- *          energy groups and polar angles, and tallies it into the FSR
- *          scalar flux, and updates the Track's angular flux.
- * @param curr_segment a pointer to the Track segment of interest
- * @param azim_index a pointer to the azimuthal angle index for this segment
- * @param track_flux a pointer to the Track's angular flux
- * @param fsr_flux a pointer to the temporary FSR flux buffer
- * @param fwd
- */
-void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
-                                FP_PRECISION* track_flux,
-                                FP_PRECISION* fsr_flux) {
-
-  int fsr_id = curr_segment->_region_id;
-  FP_PRECISION length = curr_segment->_length;
-  FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  FP_PRECISION delta_psi, exp_F1, tau, dt, dt2;
-  int exp_index;
-  FP_PRECISION inv_spacing = _exp_evaluator->getInverseTableSpacing();
-  FP_PRECISION spacing = _exp_evaluator->getTableSpacing();
-
-  /* Set the FSR scalar flux buffer to zero */
-  memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
-
-  /* Compute change in angular flux along segment in this FSR */
-  for (int e=0; e < _num_groups; e++) {
-
-    /* Compute the optical length */
-    tau = sigma_t[e] * length;
-
-    /* Get the location of the optical length in the exp look-up table */
-    exp_index = floor(tau * inv_spacing);
-
-    /* Compute the distance and distance squared from the optical length to the
-     * nearest tau in the table */
-    dt = tau - exp_index * spacing;
-    dt2 = dt * dt;
-
-    /* Increment the exp index to account for the staggered values in the
-     * exp table */
-    exp_index *= 3 * _num_polar_2;
-
-    for (int p=0; p < _num_polar_2; p++) {
-
-      /* Compute the exponential terms */
-      exp_F1 = _exp_evaluator->computeExponentialF1(exp_index, dt, dt2);
-
-      /* Increment the exp index for the next polar angle */
-      exp_index += 3;
-
-      /* Compute the change in flux across the segment */
-      delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exp_F1;
-
-      /* Increment the fsr scalar flux */
-      fsr_flux[e] += delta_psi * _quadrature->getWeightInline(azim_index, p);
-
-      /* Decrement the track flux */
-      track_flux(p,e) -= delta_psi;
-    }
-  }
-
-  /* Atomically increment the FSR scalar flux from the temporary array */
-  omp_set_lock(&_FSR_locks[fsr_id]);
-
-  for (int e=0; e < _num_groups; e++)
-    _scalar_flux(fsr_id,e) += fsr_flux[e];
-
-  omp_unset_lock(&_FSR_locks[fsr_id]);
+  /* Copy starting flux to current flux */
+  copyBoundaryFluxes();
 }
 
 
@@ -841,7 +733,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     track_out_id = _tracks[track_id]->getTrackIn()->getUid();
   }
 
-  FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
+  FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, 0, start);
 
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {

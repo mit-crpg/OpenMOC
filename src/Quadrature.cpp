@@ -693,7 +693,7 @@ void Quadrature::initialize() {
   /* Compute a desired azimuthal angles */
   for (int a = 0; a < _num_azim/2; a++) {
     _phis[a]             = 2.0 * M_PI / _num_azim * (0.5 + a);
-    _phis[_num_azim + a] = _phis[a] + M_PI;
+    _phis[_num_azim - a] = _phis[a] + M_PI;
   }
 }
 

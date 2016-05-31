@@ -12,11 +12,13 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "CPUSolver.h"
+#include "TrackTraversingAlgorithms.h"
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
 #endif
 
+class TransportSweepLS;
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define _scalar_flux_xy(r,e,x) (_scalar_flux_xy[(r)*_num_groups*2 + (e)*2 + (x)])
@@ -59,22 +61,6 @@ protected:
   /** An array of the reduced source x and y terms */
   FP_PRECISION* _reduced_sources_xy;
 
-  /**
-   * @brief Computes the contribution to the FSR flux from a Track segment.
-   * @param curr_segment a pointer to the Track segment of interest
-   * @param azim_index a pointer to the azimuthal angle index for this segment
-   * @param track_flux a pointer to the Track's angular flux
-   * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
-   * @param x the x-coord of the segment starting point
-   * @param y the y-coord of the segment starting point
-   * @param fwd int indicating whether the segment is pointing forward (1) or
-   *            backwards (-1)
-   */
-  void tallyLSScalarFlux(segment* curr_segment, int azim_index,
-                         FP_PRECISION* track_flux,
-                         FP_PRECISION* fsr_flux, double x, double y,
-                         int fwd);
-
 public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPULSSolver();
@@ -91,6 +77,22 @@ public:
   void addSourceToScalarFlux();
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
+
+  /**
+   * @brief Computes the contribution to the FSR flux from a Track segment.
+   * @param curr_segment a pointer to the Track segment of interest
+   * @param azim_index a pointer to the azimuthal angle index for this segment
+   * @param track_flux a pointer to the Track's angular flux
+   * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
+   * @param x the x-coord of the segment starting point
+   * @param y the y-coord of the segment starting point
+   * @param fwd int indicating whether the segment is pointing forward (1) or
+   *            backwards (-1)
+   */
+  void tallyLSScalarFlux(segment* curr_segment, int azim_index,
+                         FP_PRECISION* track_flux,
+                         FP_PRECISION* fsr_flux, double x, double y,
+                         int fwd);
 };
 
 

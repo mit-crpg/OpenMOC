@@ -44,15 +44,8 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
-  /**
-   * @brief Computes the contribution to the FSR flux from a Track segment.
-   * @param curr_segment a pointer to the Track segment of interest
-   * @param azim_index a pointer to the azimuthal angle index for this segment
-   * @param track_flux a pointer to the Track's angular flux
-   * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
-   */
-  virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
-                               FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
+public:
+  CPUSolver(TrackGenerator* track_generator=NULL);
 
   /**
    * @brief Computes the contribution to surface current from a segment.
@@ -74,9 +67,6 @@ protected:
   virtual void transferBoundaryFlux(int track_id, int azim_index,
                                     bool direction, FP_PRECISION* track_flux);
 
-public:
-  CPUSolver(TrackGenerator* track_generator=NULL);
-
   int getNumThreads();
   void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
@@ -89,13 +79,14 @@ public:
   void initializeFSRs();
 
   void zeroTrackFluxes();
+  void copyBoundaryFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();
   void computeFSRSources();
   void computeFSRFissionSources();
   void computeFSRScatterSources();
-  void transportSweep();
+  virtual void transportSweep() = 0;
   void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);

@@ -1807,7 +1807,7 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
  * @return The number of Tracks
  */
 void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
-			      int num_tracks) {
+                              int num_tracks) {
 
   segment* segments;
   segment* curr_segment;
@@ -1826,7 +1826,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     segments = tracks[i]->getSegments();
 
     /* Update boundary flux in forward direction */
-    bc = (int)tracks[i]->getBCOut();
+    bc = (int)tracks[i]->getBCIn();
     curr_segment = &segments[0];
     track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar_2];
     cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
@@ -1841,9 +1841,10 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     }
 
     /* Update boundary flux in backwards direction */
-    bc = (int)tracks[i]->getBCIn();
+    bc = (int)tracks[i]->getBCOut();
     curr_segment = &segments[num_segments - 1];
     track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar_2];
+    cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
 
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {

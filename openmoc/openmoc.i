@@ -20,11 +20,13 @@
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
+  #include "../src/ExpEvaluator.h"
   #include "../src/Point.h"
   #include "../src/Quadrature.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
   #include "../src/CPULSSolver.h"
+  #include "../src/CPUFSSolver.h"
   #include "../src/boundary_type.h"
   #include "../src/Surface.h"
   #include "../src/Timer.h"
@@ -122,11 +124,13 @@ namespace std {
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
 %include ../src/CPULSSolver.h
+%include ../src/CPUFSSolver.h
 %include ../src/boundary_type.h
 %include ../src/Surface.h
 %include ../src/Timer.h
 %include ../src/Track.h
 %include ../src/TrackGenerator.h
+%include ../src/ExpEvaluator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/Vector.h

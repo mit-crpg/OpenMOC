@@ -39,6 +39,10 @@
                                                 + (j)*_polar_times_groups \
                                                 + (p)*_num_groups + (e)])
 
+#define _start_flux(i,j,p,e) (_start_flux[(i)*2*_polar_times_groups \
+                                                + (j)*_polar_times_groups \
+                                                + (p)*_num_groups + (e)])
+
 /** Indexing scheme for fixed sources for each FSR and energy group */
 #define _fixed_sources(r,e) (_fixed_sources[(r)*_num_groups + (e)])
 
@@ -137,6 +141,7 @@ protected:
    *  and azimuthal angles. This array stores the boundary fluxes for a
    *  a Track along both "forward" and "reverse" directions. */
   FP_PRECISION* _boundary_flux;
+  FP_PRECISION* _start_flux;
 
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
@@ -194,6 +199,7 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
+  Point** getFSRCentroids();
   FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
@@ -207,6 +213,7 @@ public:
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
+  virtual FP_PRECISION* getBoundaryFlux(int track_id, bool fwd);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);

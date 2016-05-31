@@ -19,6 +19,7 @@
 #include "ExpEvaluator.h"
 #include "Quadrature.h"
 #include "Timer.h"
+#include "segmentation_type.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -95,6 +96,12 @@ protected:
   /** The z-coord where the 2D Tracks should be created */
   double _z_coord;
 
+  /** Determines the type of track segmentation to use */
+  segmentationType _segment_formation;
+
+  /** Max optical path length for segments before splitting */
+  FP_PRECISION _max_optical_length;
+
   /** A timer to record timing data for ray tracing */
   Timer* _timer;
 
@@ -138,15 +145,16 @@ public:
   int getNumSegments();
   Track** getTracks();
   Track** getTracksByParallelGroup();
+  FP_PRECISION retrieveMaxOpticalLength();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
-  FP_PRECISION* getFSRLinearExpansionCoeffs(Quadrature* quad);
-  FP_PRECISION* getFSRSourceConstants(Quadrature* quad,
-                                      ExpEvaluator* exp_eval);
+  FP_PRECISION* getFSRLinearExpansionCoeffs();
+  FP_PRECISION* getFSRSourceConstants(ExpEvaluator* exp_eval);
   FP_PRECISION getFSRVolume(int fsr_id);
   FP_PRECISION getMaxOpticalLength();
   double getZCoord();
   omp_lock_t* getFSRLocks();
+  segmentationType getSegmentFormation();
 
   /* Set parameters */
   void setNumAzim(int num_azim);

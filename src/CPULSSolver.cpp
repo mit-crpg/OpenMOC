@@ -113,29 +113,19 @@ void CPULSSolver::initializeSourceArrays() {
     _cos_phi[i] = FP_PRECISION(cos(_track_generator->getPhi(i)));
   }
 
-  log_printf(NORMAL, "1");
-
   /* Delete old FSR source constant and lin exp matrix arrays if they exist */
   if (_FSR_source_constants != NULL)
     delete [] _FSR_source_constants;
 
-  log_printf(NORMAL, "2");
-
   if (_FSR_lin_exp_matrix != NULL)
     delete [] _FSR_lin_exp_matrix;
 
-  log_printf(NORMAL, "3");
-
   /* Get the FSR lin exp matrix and source constants arrays */
   _FSR_lin_exp_matrix =
-      _track_generator->getFSRLinearExpansionCoeffs(_quadrature);
-
-  log_printf(NORMAL, "4");
+      _track_generator->getFSRLinearExpansionCoeffs();
 
   _FSR_source_constants =
-      _track_generator->getFSRSourceConstants(_quadrature, _exp_evaluator);
-
-  log_printf(NORMAL, "5");
+      _track_generator->getFSRSourceConstants(_exp_evaluator);
 }
 
 
@@ -209,8 +199,10 @@ void CPULSSolver::normalizeFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int p=0; p < _num_polar_2; p++) {
-        for (int e=0; e < _num_groups; e++)
+        for (int e=0; e < _num_groups; e++) {
           _boundary_flux(t,d,p,e) *= norm_factor;
+          _start_flux(t,d,p,e) *= norm_factor;
+        }
       }
     }
   }
@@ -299,105 +291,13 @@ void CPULSSolver::computeFSRSources() {
  */
 void CPULSSolver::transportSweep() {
 
-  log_printf(DEBUG, "Transport sweep with %d OpenMP threads", _num_threads);
+  CPUSolver::transportSweep();
 
-  int min_track = 0;
-  int max_track = 0;
-
-  /* Initialize flux in each FSR to zero */
-  flattenFSRFluxes(0.0);
-
-  if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->zeroCurrents();
-
-  /* Loop over the parallel track groups */
-  for (int i=0; i < _num_parallel_track_groups; i++) {
-
-    /* Compute the minimum and maximum Track IDs corresponding to
-     * this parallel track group */
-    min_track = max_track;
-    max_track += _track_generator->getNumTracksByParallelGroup(i);
-
-#pragma omp parallel
-    {
-
-      int azim_index, num_segments;
-      Track* curr_track;
-      segment* curr_segment;
-      segment* segments;
-      FP_PRECISION* track_flux;
-      FP_PRECISION length;
-      double X, Y, x, y;
-      Point* centroid;
-
-      /* Use local array accumulator to prevent false sharing */
-      FP_PRECISION thread_fsr_flux[_num_groups*3];
-
-      /* Loop over each thread within this azimuthal angle halfspace */
-#pragma omp for schedule(guided)
-      for (int track_id=min_track; track_id < max_track; track_id++) {
-
-        /* Initialize local pointers to important data structures */
-        curr_track = _tracks[track_id];
-        azim_index = curr_track->getAzimAngleIndex();
-        num_segments = curr_track->getNumSegments();
-        segments = curr_track->getSegments();
-        track_flux = &_boundary_flux(track_id,0,0,0);
-
-        /* Get the starting point for the first sesgment in the global
-         * coordinate system */
-        X = curr_track->getStart()->getX();
-        Y = curr_track->getStart()->getY();
-
-        /* Loop over each Track segment in forward direction */
-        for (int s=0; s < num_segments; s++) {
-          curr_segment = &segments[s];
-          length = curr_segment->_length;
-          centroid = _FSR_centroids[curr_segment->_region_id];
-
-          /* Get the starting point of the segment in local coordinates */
-          x = X - centroid->getX();
-          y = Y - centroid->getY();
-
-          tallyLSScalarFlux(curr_segment, azim_index, track_flux,
-                            thread_fsr_flux, x, y, 1);
-          tallyCurrent(curr_segment, azim_index, track_flux, true);
-
-          /* Increment the segment starting point to the next segment */
-          X += length * _cos_phi[azim_index];
-          Y += length * _sin_phi[azim_index];
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, true, track_flux);
-
-        /* Loop over each Track segment in reverse direction */
-        track_flux += _polar_times_groups;
-
-        for (int s=num_segments-1; s > -1; s--) {
-          curr_segment = &segments[s];
-          length = curr_segment->_length;
-          centroid = _FSR_centroids[curr_segment->_region_id];
-
-          /* Get the starting point of the segment in local coordinates */
-          x = X - centroid->getX();
-          y = Y - centroid->getY();
-
-          tallyLSScalarFlux(curr_segment, azim_index, track_flux,
-                            thread_fsr_flux, x, y, -1);
-          tallyCurrent(curr_segment, azim_index, track_flux, false);
-
-          X -= length * _cos_phi[azim_index];
-          Y -= length * _sin_phi[azim_index];
-        }
-
-        /* Transfer boundary angular flux to outgoing Track */
-        transferBoundaryFlux(track_id, azim_index, false, track_flux);
-      }
-    }
-  }
-
-  return;
+  /* Tracks are traversed and the MOC equations from this CPUSolver are applied
+     to all Tracks and corresponding segments */
+  TransportSweepLS sweep_tracks(_track_generator);
+  sweep_tracks.setCPULSSolver(this);
+  sweep_tracks.execute();
 }
 
 
