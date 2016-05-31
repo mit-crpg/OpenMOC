@@ -1099,7 +1099,7 @@ void TrackGenerator::initializeTrackUids() {
   /* Allocate memory for the 1D tracks array */
   _tracks_array = new Track*[getNumTracks()];
 
-  /* Loop over all tracks and assigns UIDs */
+  /* Loop over all tracks and assign UIDs */
   int uid = 0;
   for (int a=0; a < _num_azim_2; a++) {
     for (int i=0; i < _num_tracks[a]; i++) {
