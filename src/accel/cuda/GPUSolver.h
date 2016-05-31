@@ -53,8 +53,11 @@
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */
 #define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])
-#define start_flux(t,pe2) (start_flux[2*(t)*(*polar_times_groups)+(pe2)])
 
+/** Indexing macro for the starting angular fluxes for each polar angle and
+ *  energy group for a given Track. These are copied to the boundary fluxes
+ *  array at the beginning of each transport sweep */
+#define start_flux(t,pe2) (start_flux[2*(t)*(*polar_times_groups)+(pe2)])
 
 /**
  * @class GPUSolver GPUSolver.h "openmoc/src/dev/gpu/GPUSolver.h"
@@ -84,6 +87,8 @@ private:
 
   /** Thrust vector of angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _boundary_flux;
+
+  /** Thrust vector of starting angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _start_flux;
 
   /** Thrust vector of FSR scalar fluxes */
