@@ -47,12 +47,6 @@ protected:
   /** Array of cos(phi) */
   double* _cos_phi;
 
-  /** Array of sin(theta) */
-  FP_PRECISION* _sin_thetas;
-
-  /** Array of 1.0 / sin(theta) */
-  FP_PRECISION* _inv_sin_thetas;
-
   /** The spacing between tau in the exp table */
   FP_PRECISION _spacing;
 

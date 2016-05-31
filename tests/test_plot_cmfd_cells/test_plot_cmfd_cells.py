@@ -27,7 +27,7 @@ class PlotCmfdCellsTestHarness(PlottingTestHarness):
         self.cmfd = openmoc.Cmfd()
         self.cmfd.setSORRelaxationFactor(1.5)
         self.cmfd.setLatticeStructure(17,17)
-        self.cmfd.setGroupStructure([1,4,8])
+        self.cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
         self.cmfd.setKNearest(3)
 
         # Add CMFD to the Geometry

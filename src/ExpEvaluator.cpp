@@ -10,7 +10,7 @@ ExpEvaluator::ExpEvaluator() {
   _interpolate = true;
   _linear_source = false;
   _exp_table = NULL;
-  _polar_quad = NULL;
+  _quadrature = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
   _exp_precision = EXP_PRECISION;
   _three_times_num_exp = 3;
@@ -27,12 +27,12 @@ ExpEvaluator::~ExpEvaluator() {
 
 
 /**
- * @brief Set the PolarQuad to use when computing exponentials.
- * @param polar_quad a PolarQuad object pointer
+ * @brief Set the Quadrature to use when computing exponentials.
+ * @param quadrature a Quadrature object pointer
  */
-void ExpEvaluator::setPolarQuadrature(PolarQuad* polar_quad) {
-  _polar_quad = polar_quad;
-  _num_polar = _polar_quad->getNumPolarAngles();
+void ExpEvaluator::setQuadrature(Quadrature* quadrature) {
+  _quadrature = quadrature;
+  _num_polar = _quadrature->getNumPolarAngles();
 }
 
 
@@ -182,8 +182,7 @@ void ExpEvaluator::initialize() {
 
   log_printf(INFO, "Initializing exponential evaluator...");
 
-  _sin_theta = _polar_quad->getSinThetas();
-  _inv_sin_theta = _polar_quad->getInverseSinThetas();
+  _sin_theta = _quadrature->getSinThetas();
 
   /* Set size of interpolation table */
   int num_array_values;
@@ -206,7 +205,7 @@ void ExpEvaluator::initialize() {
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  _table_size = _three_times_num_exp * _num_polar * num_array_values;
+  _table_size = _three_times_num_exp * _num_polar / 2 * num_array_values;
   _exp_table = new FP_PRECISION[_table_size];
 
   FP_PRECISION expon;
@@ -220,12 +219,12 @@ void ExpEvaluator::initialize() {
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
-    for (int p=0; p < _num_polar; p++) {
+    for (int p=0; p < _num_polar/2; p++) {
 
-      index = _three_times_num_exp * (_num_polar * i + p);
+      index = _three_times_num_exp * (_num_polar / 2 * i + p);
 
-      st = _sin_theta[p];
-      ist = _inv_sin_theta[p];
+      st = _sin_theta[0][p];
+      ist = 1.0 / st;
       ist2 = ist * ist;
       ist3 = ist * ist * ist;
 
@@ -313,8 +312,8 @@ FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau, int polar) {
   if (tau == 0.0)
     return 0.0;
 
-  FP_PRECISION tau_m = tau * _inv_sin_theta[polar];
-  return _inv_sin_theta[polar] / 3.0 - (0.5 / tau + 1.0 / (tau_m * tau))
+  FP_PRECISION tau_m = tau / _sin_theta[0][polar];
+  return 1.0 / (3.0 * _sin_theta[0][polar]) - (0.5 / tau + 1.0 / (tau_m * tau))
       * (1.0 + tau_m / 2.0 - (1.0 + 1.0 / tau_m) *
          (1.0 - exp(- tau_m)));
 }

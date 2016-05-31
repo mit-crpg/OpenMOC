@@ -41,7 +41,7 @@ geometry.setRootUniverse(universes['Root'])
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
-                                         opts.track_spacing)
+                                         opts.azim_spacing)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 

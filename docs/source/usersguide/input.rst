@@ -17,7 +17,7 @@ The following sections describe the essential portions of the OpenMOC API needed
 Simulation Parameters
 ---------------------
 
-The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user's discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, track spacing, number of threads, etc.
+The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user's discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, azimuthal track spacing, number of threads, etc.
 
 The ``openmoc.options`` module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in :ref:`Runtime Options <runtime_options>`. The following code snippet illutrates how to instantiate an ``Options`` object and extract data from command line arguments.
 
@@ -30,7 +30,7 @@ The ``openmoc.options`` module provides functionality to parse arguments defined
 
     # Retrieve runtime options parsed in by the Options object
     num_threads = options.num_omp_threads
-    track_spacing = options.track_spacing
+    azim_spacing = options.azim_spacing
     num_azim = options.num_azim
     tolerance = options.tolerance
     max_iters = options.max_iters
@@ -45,7 +45,7 @@ Runtime Option                 Command Line Argument                          Op
 =============================  =============================================  ======================================================
 Help                           :option:`-h`, :option:`--help`                 N/A
 No. Azimuthal Angles           :option:`-a`, :option:`--num-azim=`            num_azim
-Track Spacing [cm]             :option:`-s`, :option:`--track-spacing=`       track_spacing
+Track Spacing [cm]             :option:`-s`, :option:`--azim-spacing=`        azim_spacing
 Max. No. Transport Sweeps      :option:`-i`, :option:`--max-iters=`           max_iters
 Convergence Tolerance          :option:`-c`, :option:`--tolerance=`           tolerance
 No. OpenMP Threads             :option:`-t`, :option:`--num-omp-threads=`     num_omp_threads
@@ -184,7 +184,7 @@ For many simulations, defining the nuclear data cross sections by hand in a Pyth
     # Import cross section data from an HDF5 file. This instantiates
     # objects for each material and returns them in a dictionary
     # indexed by a string name or integer ID
-    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5',
                                                 directory='/home/myuser')
 
     # Retrieve the material called 'moderator' in the HDF5 file
@@ -192,7 +192,7 @@ For many simulations, defining the nuclear data cross sections by hand in a Pyth
 
 The ``openmoc.materialize`` module defines a standard for cross section data stored in binary files. First, HDF5 files must include a ``'# groups'`` attribute with the integer number of groups in the top level of the file hierarchy. Second, the string domain type - ``'material'`` or ``'cell'`` - must be specified in the top level of the file hierarchy. This must match the ``domain_type`` keyword argument passed to ``load_from_hdf5(...)`` which can be either ``'material'`` (default) or ``'cell'``. The ``domain_type`` keyword argument is discussed in more detail at the end of this section. Finally, multi-group cross sections to assign by material or cell must be defined as an `HDF5 group`_ with a string name or integer ID to identify the material or cell. The material group must contain the following floating point `HDF5 datasets`_ of multi-group cross section data:
 
-  - ``'transport'`` or ``'total'``
+  - ``'total'`` or ``'transport'`` or ``'nu-transport'``
   - ``'nu-scatter matrix'`` or ``'scatter matrix'``
   - ``'chi'``
   - ``'nu-fission'``
@@ -250,7 +250,7 @@ Lastly, the ``'domain_type'`` parameter may be specified in conjuction with the 
     # Import cross section data from an HDF5 file. This instantiates
     # objects for each material and returns them in a dictionary
     # indexed by a string name or integer ID
-    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5', 
+    hdf5_materials = materialize.load_from_hdf5(filename='materials-data.h5',
                                                 directory='/home/myuser',
 						domain_type='cell',
 						geometry=geometry)
@@ -512,7 +512,7 @@ Once the geometry has been initialized for a simulation, the next step is to per
     # Initialize the track generator after the geometry has been
     # constructed. Use 64 azimuthal angles and 0.05 cm track spacing.
     track_generator = openmoc.TrackGenerator(geometry, num_azim=64, \
-                                             spacing=0.05)
+                                             azim_spacing=0.05)
 
     # Generate tracks using ray tracing across the geometry
     track_generator.generateTracks()

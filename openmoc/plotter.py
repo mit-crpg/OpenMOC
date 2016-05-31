@@ -28,6 +28,18 @@ else:
     from openmoc.process import get_scalar_fluxes
     import openmoc.checkvalue as cv
 
+# Store viable OpenMOC solver types for type checking
+solver_types = (openmoc.Solver,)
+try:
+    # Try to import OpenMOC's CUDA module
+    if (sys.version_info[0] == 2):
+        from cuda import GPUSolver
+    else:
+        from openmoc.cuda import GPUSolver
+    solver_types += (GPUSolver,)
+except ImportError:
+    pass
+
 # Force non-interactive mode for plotting on clusters
 plt.ioff()
 
@@ -86,15 +98,17 @@ def plot_tracks(track_generator, get_figure=False):
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     py_printf('NORMAL', 'Plotting the tracks...')
 
     # Retrieve data from TrackGenerator
     vals_per_track = openmoc.NUM_VALUES_PER_RETRIEVED_TRACK
     num_azim = track_generator.getNumAzim()
-    spacing = track_generator.getTrackSpacing()
+    spacing = track_generator.getDesiredAzimSpacing()
     num_tracks = track_generator.getNumTracks()
     coords = track_generator.retrieveTrackCoords(num_tracks*vals_per_track)
 
@@ -167,15 +181,17 @@ def plot_segments(track_generator, get_figure=False):
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     py_printf('NORMAL', 'Plotting the track segments...')
 
     # Retrieve data from TrackGenerator
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
-    spacing = track_generator.getTrackSpacing()
+    spacing = track_generator.getDesiredAzimSpacing()
     num_segments = track_generator.getNumSegments()
     num_fsrs = track_generator.getGeometry().getNumFSRs()
     coords = \
@@ -639,7 +655,8 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
     cv.check_type('energy_groups', energy_groups, Iterable, Integral)
 
     py_printf('NORMAL', 'Plotting the FSR scalar fluxes...')
@@ -802,7 +819,8 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
     cv.check_type('fsrs', fsrs, Iterable, Integral)
     cv.check_type('norm', norm, bool)
     cv.check_type('loglog', loglog, bool)
@@ -830,8 +848,10 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     # Compute difference in energy bounds for each group
     group_deltas = np.ediff1d(group_bounds)
@@ -1044,7 +1064,8 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
 
     py_printf('NORMAL', 'Plotting the flat source region fission rates...')
 
@@ -1126,8 +1147,10 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
     directory = openmoc.get_output_directory() + subdirectory
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     # Extract the MOC Solver from the IRAMSolver
     moc_solver = iramsolver._moc_solver
@@ -1236,38 +1259,20 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
-
-    # Initialize a numpy array for the spatial data
-    domains = np.zeros((plot_params.gridsize, plot_params.gridsize), dtype=np.int)
+    except OSError:
+        pass
 
     # Retrieve the pixel coordinates
     coords = _get_pixel_coords(plot_params)
 
-    for i in range(plot_params.gridsize):
-        for j in range(plot_params.gridsize):
-
-            # Find the domain IDs for each grid point
-            x = coords['x'][i]
-            y = coords['y'][j]
-
-            point = openmoc.LocalCoords(x, y, plot_params.zcoord)
-            point.setUniverse(plot_params.geometry.getRootUniverse())
-            cell = plot_params.geometry.findCellContainingCoords(point)
-
-            if plot_params.domain_type == 'fsr':
-                domain_id = plot_params.geometry.getFSRId(point)
-            elif plot_params.domain_type == 'material':
-                domain_id = cell.getFillMaterial().getId()
-            else:
-                domain_id = cell.getId()
-
-            # If we did not find a domain, use a -1 "bad" number color
-            if np.isnan(domain_id):
-                domains[j][i] = -1
-            else:
-                domains[j][i] = domain_id
+    # Query the geometry for the data on the spatial grid
+    domains = plot_params.geometry.getSpatialDataOnGrid(
+        coords['x'], coords['y'], zcoord=plot_params.zcoord,
+        domain_type=plot_params.domain_type)
+    domains = np.reshape(domains, tuple(([plot_params.gridsize]*2)))
+    domains[domains == np.nan] = -1
 
     # Make domains-to-data array 2D to mirror a Pandas DataFrame
     if isinstance(domains_to_data, np.ndarray):
@@ -1381,6 +1386,9 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     if get_figure:
         return figures
 
+    # Delete the memory allocated for the domains std::vector
+    del domains
+
 
 def plot_quadrature(solver, get_figure=False):
     """Plots the quadrature set used for an OpenMOC simulation.
@@ -1408,7 +1416,8 @@ def plot_quadrature(solver, get_figure=False):
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
 
     py_printf('NORMAL', 'Plotting the quadrature...')
 
@@ -1420,21 +1429,23 @@ def plot_quadrature(solver, get_figure=False):
     matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
-    if not os.path.exists(directory):
+    try:
         os.makedirs(directory)
+    except OSError:
+        pass
 
     # Retrieve data from TrackGenerator
     track_generator = solver.getTrackGenerator()
-    polar_quad = solver.getPolarQuad()
+    quad = track_generator.getQuadrature()
     num_azim = track_generator.getNumAzim()
-    azim_spacing = track_generator.getTrackSpacing()
-    num_polar = polar_quad.getNumPolarAngles()
+    azim_spacing = track_generator.getDesiredAzimSpacing()
+    num_polar_2 = int(quad.getNumPolarAngles() / 2)
     phis = np.zeros(num_azim/4)
-    thetas = np.zeros(num_polar)
+    thetas = np.zeros(num_polar_2)
 
     # Get the polar angles
-    for p in range(num_polar):
-        thetas[p] = np.arcsin(polar_quad.getSinTheta(p))
+    for p in range(num_polar_2):
+        thetas[p] = np.arcsin(quad.getSinTheta(0,p))
 
     # Get the azimuthal angles
     for a in range(int(num_azim / 4)):
@@ -1455,28 +1466,28 @@ def plot_quadrature(solver, get_figure=False):
 
     # Plot the quadrature points on the octant unit sphere
     for a in range(int(num_azim / 4)):
-        for p in range(num_polar):
+        for p in range(num_polar_2):
             ax.scatter(np.cos(phis[a]) * np.sin(thetas[p]), np.sin(phis[a]) *
                        np.sin(thetas[p]), np.cos(thetas[p]), s=50, color='b')
 
     # Get the quadrature type
     quad_type = ''
-    if polar_quad.getQuadratureType() is openmoc.TABUCHI_YAMAMOTO:
+    if quad.getQuadratureType() is openmoc.TABUCHI_YAMAMOTO:
         quad_type = 'TABUCHI_YAMAMOTO'
         title = 'TABUCHI YAMAMOTO'
-    elif polar_quad.getQuadratureType() is openmoc.LEONARD:
+    elif quad.getQuadratureType() is openmoc.LEONARD:
         quad_type = 'LEONARD'
         title = 'LEONARD'
-    elif polar_quad.getQuadratureType() is openmoc.GAUSS_LEGENDRE:
+    elif quad.getQuadratureType() is openmoc.GAUSS_LEGENDRE:
         quad_type = 'GAUSS_LEGENDRE'
         title = 'GAUSS LEGENDRE'
-    elif polar_quad.getQuadratureType() is openmoc.EQUAL_WEIGHTS:
+    elif quad.getQuadratureType() is openmoc.EQUAL_WEIGHTS:
         quad_type = 'EQUAL_WEIGHTS'
         title = 'EQUAL WEIGHTS'
-    elif polar_quad.getQuadratureType() is openmoc.EQUAL_ANGLES:
+    elif quad.getQuadratureType() is openmoc.EQUAL_ANGLES:
         quad_type = 'EQUAL_ANGLES'
         title = 'EQUAL ANGLES'
-    elif polar_quad.getQuadratureType() is openmoc.CUSTOM:
+    elif quad.getQuadratureType() is openmoc.CUSTOM:
         quad_type = 'CUSTOM'
         title = 'CUSTOM'
     else:
@@ -1485,11 +1496,11 @@ def plot_quadrature(solver, get_figure=False):
 
     title += ' with ' + str(num_azim) + ' azim, ' + \
              '{:5.3f}'.format(azim_spacing) + ' spacing and ' \
-             + str(num_polar) + ' polar'
+             + str(2*num_polar_2) + ' polar'
 
     filename = directory + 'quad_' + quad_type + '_' + \
                str(num_azim) + '_azim_' + '{:5.3f}'.format(azim_spacing) + \
-               '_cm_spacing_' + str(num_polar) + '_polar.png'
+               '_cm_spacing_' + str(2*num_polar_2) + '_polar.png'
 
     ax.view_init(elev=30, azim=45)
     ax.set_xlim([0,1])
@@ -1729,7 +1740,7 @@ class PlotParams(object):
 
     @cmap.setter
     def cmap(self, cmap):
-        cv.check_type('cmap', cmap, matplotlib.colors.Colormap)
+        cv.check_type('cmap', cmap, (matplotlib.colors.Colormap, type(None)))
         self._cmap = cmap
 
     @vmin.setter

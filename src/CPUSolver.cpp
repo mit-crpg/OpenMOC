@@ -18,14 +18,6 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
 
 
 /**
- * @brief Destructor deletes array for OpenMP mutual exclusion locks for
- *        FSR scalar flux updates, and calls Solver parent class destructor
- *        to deletes arrays for fluxes and sources.
- */
-CPUSolver::~CPUSolver() {}
-
-
-/**
  * @brief Returns the number of shared memory OpenMP threads in use.
  * @return the number of threads
  */
@@ -185,7 +177,7 @@ void CPUSolver::initializeSourceArrays() {
   int size = _num_FSRs * _num_groups;
 
   /* Allocate memory for all source arrays */
-  try{
+  try {
     _reduced_sources = new FP_PRECISION[size];
     _fixed_sources = new FP_PRECISION[size];
   }
@@ -243,7 +235,7 @@ void CPUSolver::zeroTrackFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
+      for (int p=0; p < _num_polar_2; p++) {
         for (int e=0; e < _num_groups; e++)
           _boundary_flux(t,d,p,e) = 0.0;
       }
@@ -329,7 +321,7 @@ void CPUSolver::normalizeFluxes() {
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
-      for (int p=0; p < _num_polar; p++) {
+      for (int p=0; p < _num_polar_2; p++) {
         for (int e=0; e < _num_groups; e++)
           _boundary_flux(t,d,p,e) *= norm_factor;
       }
@@ -671,7 +663,7 @@ void CPUSolver::transportSweep() {
     min_track = max_track;
     max_track += _track_generator->getNumTracksByParallelGroup(i);
 
-#pragma omp parallel
+    #pragma omp parallel
     {
 
       int tid = omp_get_thread_num();
@@ -768,9 +760,9 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
 
     /* Increment the exp index to account for the staggered values in the
      * exp table */
-    exp_index *= 3 * _num_polar;
+    exp_index *= 3 * _num_polar_2;
 
-    for (int p=0; p < _num_polar; p++) {
+    for (int p=0; p < _num_polar_2; p++) {
 
       /* Compute the exponential terms */
       exp_F1 = _exp_evaluator->computeExponentialF1(exp_index, dt, dt2);
@@ -782,7 +774,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment, int azim_index,
       delta_psi = (track_flux(p,e)-_reduced_sources(fsr_id,e)) * exp_F1;
 
       /* Increment the fsr scalar flux */
-      fsr_flux[e] += delta_psi * _polar_weights(azim_index,p);
+      fsr_flux[e] += delta_psi * _quadrature->getWeightInline(azim_index, p);
 
       /* Decrement the track flux */
       track_flux(p,e) -= delta_psi;
@@ -812,8 +804,7 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
 
   /* Tally surface currents if CMFD is in use */
   if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-    _cmfd->tallyCurrent(curr_segment, track_flux,
-                        &_polar_weights(azim_index,0), fwd);
+    _cmfd->tallyCurrent(curr_segment, track_flux, azim_index, fwd);
 }
 
 
@@ -854,7 +845,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   /* Loop over polar angles and energy groups */
   for (int e=0; e < _num_groups; e++) {
-    for (int p=0; p < _num_polar; p++)
+    for (int p=0; p < _num_polar_2; p++)
       track_out_flux(p,e) = track_flux(p,e) * transfer_flux;
   }
 }
@@ -877,7 +868,6 @@ void CPUSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r,e) *= 0.5;
       _scalar_flux(r,e) /= (sigma_t[e] * volume);
       _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
     }

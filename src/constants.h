@@ -9,18 +9,21 @@
 #define CONSTANTS_H_
 
 
+/* The single line width permissible for timer / memory logger reports */
+#define REPORT_WIDTH 53
+
 /** The minimum auto ID used for Surfaces, Cells, Materials and Universes */
 #define DEFAULT_INIT_ID 10000
 
 /** The value of 4pi: \f$ 4\pi \f$ */
-#define FOUR_PI 12.5663706143
+#define FOUR_PI 12.566370614359172
 
 /** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
-#define ONE_OVER_FOUR_PI 0.0795774715
+#define ONE_OVER_FOUR_PI 0.07957747154594767
 
 /** A negligible cross-section value to over-ride user-defined
  *  cross-sections very near zero (e.g., within (-1E-10, 1E-10)) */
-#define ZERO_SIGMA_T 1E-10
+#define ZERO_SIGMA_T 1E-7
 
 /** Threshold to determine how close the sum of \f$ \Sigma_a \f$ and
  *  \f$ \Sigma_s \f$ must match \f$ \Sigma_t \f$ for each energy group */

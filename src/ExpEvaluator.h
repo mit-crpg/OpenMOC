@@ -11,7 +11,7 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "log.h"
-#include "PolarQuad.h"
+#include "Quadrature.h"
 #include <math.h>
 #endif
 
@@ -43,11 +43,10 @@ private:
 
   /** The exponential linear interpolation table */
   FP_PRECISION* _exp_table;
-  FP_PRECISION* _sin_theta;
-  FP_PRECISION* _inv_sin_theta;
+  FP_PRECISION** _sin_theta;
 
-  /** The PolarQuad object of interest */
-  PolarQuad* _polar_quad;
+  /** The Quadrature object of interest */
+  Quadrature* _quadrature;
 
   /** The number of polar angles */
   int _num_polar;
@@ -72,7 +71,7 @@ public:
   ExpEvaluator();
   virtual ~ExpEvaluator();
 
-  void setPolarQuadrature(PolarQuad* polar_quad);
+  void setQuadrature(Quadrature* quadrature);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setExpPrecision(FP_PRECISION exp_precision);
   void useInterpolation();
@@ -100,12 +99,12 @@ public:
 
 
 inline int ExpEvaluator::getPolar(int index) {
-  return (index % (_three_times_num_exp * _num_polar)) / _three_times_num_exp;
+  return (index % (_three_times_num_exp * _num_polar / 2)) / _three_times_num_exp;
 }
 
 
 inline FP_PRECISION ExpEvaluator::getTau(int index, FP_PRECISION dt) {
-  index /= (_three_times_num_exp * _num_polar);
+  index /= (_three_times_num_exp * _num_polar / 2);
   return index * _exp_table_spacing + dt;
 }
 
@@ -136,7 +135,7 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
   else {
     int polar = getPolar(index);
     FP_PRECISION tau = getTau(index, dt);
-    return 1.0 - exp(- tau * _inv_sin_theta[polar]);
+    return 1.0 - exp(- tau / _sin_theta[0][polar]);
   }
 }
 
@@ -167,7 +166,7 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF2(int index,
         _exp_table[index + 5] * dt2;
   else {
     int polar = getPolar(index);
-    FP_PRECISION tau_m = getTau(index, dt) * _inv_sin_theta[polar];
+    FP_PRECISION tau_m = getTau(index, dt) / _sin_theta[0][polar];
     FP_PRECISION F1 = 1.0 - exp(- tau_m);
     return 2 * (tau_m - F1) - tau_m * F1;
   }
@@ -199,7 +198,7 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
         _exp_table[index + 8] * dt2;
   else {
     int polar = getPolar(index);
-    FP_PRECISION tau_m = getTau(index, dt) * _inv_sin_theta[polar];
+    FP_PRECISION tau_m = getTau(index, dt) / _sin_theta[0][polar];
     FP_PRECISION F1 = 1.0 - exp(- tau_m);
     FP_PRECISION G1 = 1 + 0.5 * tau_m - (1 + 1.0 / tau_m) * F1;
     return 0.5 * tau_m - G1;

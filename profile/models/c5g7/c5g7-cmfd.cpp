@@ -11,7 +11,7 @@ int main() {
   #else
   int num_threads = 1;
   #endif
-  double track_spacing = 0.1;
+  double azim_spacing = 0.1;
   int num_azim = 4;
   double tolerance = 1e-5;
   int max_iters = 1000;
@@ -465,8 +465,8 @@ int main() {
   Cmfd cmfd;
   cmfd.setSORRelaxationFactor(1.5);
   cmfd.setLatticeStructure(51, 51);
-  int cmfd_group_structure[3] = {1,4,8};
-  cmfd.setGroupStructure(cmfd_group_structure, 3);
+  std::vector< std::vector<int> > cmfd_group_structure = {{1,2,3}, {4,5,6,7}};
+  cmfd.setGroupStructure(cmfd_group_structure);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -476,7 +476,7 @@ int main() {
 
   /* Generate tracks */
   log_printf(NORMAL, "Initializing the track generator...");
-  TrackGenerator track_generator(&geometry, num_azim, track_spacing);
+  TrackGenerator track_generator(&geometry, num_azim, azim_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.generateTracks();
 
