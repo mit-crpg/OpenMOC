@@ -1499,7 +1499,7 @@ void GPUSolver::transportSweep() {
   flattenFSRFluxes(0.0);
 
   /* Copy starting flux to current flux */
-  cudaMemcpy((void*)boundary_flux, (void*)start_flux, _tot_num_tracks *
+  cudaMemcpy((void*)boundary_flux, (void*)start_flux, 2 * _tot_num_tracks *
              _polar_times_groups * sizeof(FP_PRECISION),
              cudaMemcpyDeviceToDevice);
 
