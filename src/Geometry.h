@@ -113,9 +113,9 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
-  Cell* findNextCell(LocalCoords* coords);
 
 public:
+  Cell* findNextCell(LocalCoords* coords);
 
   Geometry();
   virtual ~Geometry();
