@@ -451,7 +451,7 @@ openmoc.log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.0)
 cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
 
 
 ###############################################################################
@@ -471,8 +471,8 @@ geometry.setCmfd(cmfd)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, opts.num_azim, 
-                                         opts.track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.azim_spacing)
 track_generator.setZCoord(-20.0)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()

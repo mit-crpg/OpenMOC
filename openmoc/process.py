@@ -23,6 +23,18 @@ else:
     from openmoc.log import *
     import openmoc.checkvalue as cv
 
+# Store viable OpenMOC solver types for type checking
+solver_types = (openmoc.Solver,)
+try:
+    # Try to import OpenMOC's CUDA module
+    if (sys.version_info[0] == 2):
+        from cuda import GPUSolver
+    else:
+        from openmoc.cuda import GPUSolver
+    solver_types += (GPUSolver,)
+except ImportError:
+    pass
+
 if sys.version_info[0] >= 3:
     basestring = str
 
@@ -55,7 +67,8 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
 
     if isinstance('fsrs', basestring):
         cv.check_value('fsrs', fsrs, 'all')
@@ -66,6 +79,15 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
         cv.check_value('groups', fsrs, 'all')
     else:
         cv.check_type('groups', Iterable, Integral)
+
+    # Extract all of the FSR scalar fluxes
+    if groups == 'all' and fsrs == 'all':
+        num_fsrs = solver.getGeometry().getNumFSRs()
+        num_groups = solver.getGeometry().getNumEnergyGroups()
+        num_fluxes = num_groups * num_fsrs
+        fluxes = solver.getFluxes(num_fluxes)
+        fluxes = np.reshape(fluxes, (num_fsrs, num_groups))
+        return fluxes
 
     # Build a list of FSRs to iterate over
     if fsrs == 'all':
@@ -81,7 +103,7 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
     else:
         num_groups = len(groups)
 
-    # Extract the FSR scalar fluxes
+    # Extract some of the FSR scalar fluxes
     fluxes = np.zeros((num_fsrs, num_groups))
     for fsr in fsrs:
         for group in groups:
@@ -118,7 +140,8 @@ def compute_fission_rates(solver, use_hdf5=False):
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
     cv.check_type('use_hdf5', use_hdf5, bool)
 
     # Make directory if it does not exist
@@ -258,7 +281,8 @@ def store_simulation_state(solver, fluxes=False, sources=False,
 
     """
 
-    cv.check_type('solver', solver, openmoc.Solver)
+    global solver_types
+    cv.check_type('solver', solver, solver_types)
     cv.check_type('fluxes', fluxes, bool)
     cv.check_type('sources', sources, bool)
     cv.check_type('fission_rates', fission_rates, bool)
@@ -322,7 +346,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     zcoord = track_generator.getZCoord()
     num_tracks = track_generator.getNumTracks()
     num_segments = track_generator.getNumSegments()
-    spacing = track_generator.getTrackSpacing()
+    spacing = track_generator.getDesiredAzimSpacing()
     num_azim = track_generator.getNumAzim()
     num_polar = solver.getNumPolarAngles()
     num_iters = solver.getNumIterations()
@@ -829,14 +853,12 @@ class Mesh(object):
         if len(self.dimension) == 2:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]):
-                py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
-                          '%d, %d) are outside mesh', mesh_x, mesh_y, mesh_z)
+                return np.nan, np.nan, np.nan
         else:
             if (mesh_x < 0 or mesh_x >= self.dimension[0]) or \
                (mesh_y < 0 or mesh_y >= self.dimension[1]) or \
                (mesh_z < 0 or mesh_z >= self.dimension[2]):
-                py_printf('ERROR', 'Unable to find cell since indices (%d, ' +
-                          '%d, %d) are outside mesh', mesh_x, mesh_y, mesh_z)
+                return np.nan, np.nan, np.nan
 
         # Return mesh cell indices
         if len(self.dimension) == 2:
@@ -869,7 +891,8 @@ class Mesh(object):
 
         """
 
-        cv.check_type('solver', solver, openmoc.Solver)
+        global solver_types
+        cv.check_type('solver', solver, solver_types)
         cv.check_value('volume', volume, ('averaged', 'integrated'))
 
         geometry = solver.getGeometry()
@@ -885,7 +908,9 @@ class Mesh(object):
         for fsr in range(num_fsrs):
             point = geometry.getFSRPoint(fsr)
             mesh_indices = self.get_mesh_cell_indices(point)
-            tally[mesh_indices] += fission_rates[fsr]
+
+            if np.nan not in mesh_indices:
+                tally[mesh_indices] += fission_rates[fsr]
 
         # Average the fission rates by mesh cell volume if needed
         if volume == 'averaged':
@@ -928,7 +953,8 @@ class Mesh(object):
 
         """
 
-        cv.check_type('solver', solver, openmoc.Solver)
+        global solver_types
+        cv.check_type('solver', solver, solver_types)
         cv.check_value('domain_type', domain_type, ('fsr', 'cell', 'material'))
         cv.check_value('volume', volume, ('averaged', 'integrated'))
         cv.check_value('energy', energy, ('by_group', 'integrated'))
@@ -956,6 +982,10 @@ class Mesh(object):
         for fsr in range(num_fsrs):
             point = geometry.getFSRPoint(fsr)
             mesh_indices = self.get_mesh_cell_indices(point)
+
+            if np.nan in mesh_indices:
+                continue
+
             volume = solver.getFSRVolume(fsr)
             fsr_tally = np.zeros(num_groups, dtype=np.float)
 

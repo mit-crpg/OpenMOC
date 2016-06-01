@@ -4,59 +4,32 @@ import openmc
 import openmc.mgxs
 import openmc.opencg_compatible
 
-###############################################################################
-#                      Simulation Input File Parameters
-###############################################################################
-
-# OpenMC simulation parameters
-batches = 100
-inactive = 10
-particles = 10000
-
 
 ###############################################################################
 #                 Exporting to OpenMC materials.xml File
 ###############################################################################
 
-# Instantiate some Nuclides
-h1 = openmc.Nuclide('H-1')
-b10 = openmc.Nuclide('B-10')
-b11 = openmc.Nuclide('B-11')
-o16 = openmc.Nuclide('O-16')
-u235 = openmc.Nuclide('U-235')
-u238 = openmc.Nuclide('U-238')
-zr90 = openmc.Nuclide('Zr-90')
-zr91 = openmc.Nuclide('Zr-91')
-zr92 = openmc.Nuclide('Zr-92')
-zr94 = openmc.Nuclide('Zr-94')
-zr96 = openmc.Nuclide('Zr-96')
-
 # Instantiate some Materials and register the appropriate Nuclides
 fuel = openmc.Material(name='3.1 w/o enriched UO2')
 fuel.set_density('sum')
-fuel.add_nuclide(u235, 7.18132E-4,)
-fuel.add_nuclide(u238, 2.21546E-2)
-fuel.add_nuclide(o16, 4.57642E-2)
+fuel.add_nuclide('U-235', 7.18132E-4,)
+fuel.add_nuclide('U-238', 2.21546E-2)
+fuel.add_nuclide('O-16', 4.57642E-2)
 
 clad = openmc.Material(name='Cladding')
 clad.set_density('sum')
-clad.add_nuclide(zr90, 2.18865E-2)
-clad.add_nuclide(zr91, 4.77292E-3)
-clad.add_nuclide(zr92, 7.29551E-3)
-clad.add_nuclide(zr94, 7.39335E-3)
-clad.add_nuclide(zr96, 1.19110E-3)
+clad.add_element('Zr', 4.98349e-2)
 
 water = openmc.Material(name='Borated Water')
 water.set_density('sum')
-water.add_nuclide(h1, 4.41459E-2)
-water.add_nuclide(o16, 2.20729E-2)
-water.add_nuclide(b10, 9.52537E-6)
-water.add_nuclide(b11, 3.83408E-5)
+water.add_nuclide('H-1', 4.41459E-2)
+water.add_nuclide('O-16', 2.20729E-2)
+water.add_nuclide('B-10', 9.52537E-6)
+water.add_nuclide('B-11', 3.83408E-5)
 water.add_s_alpha_beta(name='HH2O', xs='71t')
 
 # Instantiate a MaterialsFile, add Materials
-materials_file = openmc.MaterialsFile()
-materials_file.add_materials([fuel, clad, water])
+materials_file = openmc.Materials([fuel, clad, water])
 materials_file.make_isotropic_in_lab()
 materials_file.default_xs = '71c'
 
@@ -141,11 +114,7 @@ opencg_geometry.root_universe = root_universe
 
 # Get an OpenMC version of this OpenCG geometry
 openmc_geometry = openmc.opencg_compatible.get_openmc_geometry(opencg_geometry)
-
-# Instantiate a GeometryFile, register Geometry, and export to XML
-geometry_file = openmc.GeometryFile()
-geometry_file.geometry = openmc_geometry
-geometry_file.export_to_xml()
+openmc_geometry.export_to_xml()
 
 
 ###############################################################################
@@ -158,16 +127,14 @@ upper_right = opencg_geometry.bounds[3:]
 source = openmc.source.Source(space=openmc.stats.Box(lower_left, upper_right))
 source.only_fissionable = True
 
-# Instantiate a SettingsFile
-settings_file = openmc.SettingsFile()
-settings_file.batches = batches
-settings_file.inactive = inactive
-settings_file.particles = particles
+# Instantiate a Settings collection
+settings_file = openmc.Settings()
+settings_file.batches = 100
+settings_file.inactive = 10
+settings_file.particles = 10000
 settings_file.output = {'tallies': False, 'summary': True}
 settings_file.source = source
 settings_file.sourcepoint_write = False
-
-# Export to "settings.xml"
 settings_file.export_to_xml()
 
 
@@ -187,9 +154,8 @@ plot.width = [delta_x, delta_z]
 plot.pixels = [250, 250]
 plot.color = 'cell'
 
-# Instantiate a PlotsFile, add Plot, and export to "plots.xml"
-plot_file = openmc.PlotsFile()
-plot_file.add_plot(plot)
+# Instantiate a Plots collection and export to "plots.xml"
+plot_file = openmc.Plots([plot])
 plot_file.export_to_xml()
 
 
@@ -211,7 +177,7 @@ mgxs_lib.domains = openmc_geometry.get_all_material_cells()
 mgxs_lib.build_library()
 
 # Create a "tallies.xml" file for the MGXS Library
-tallies_file = openmc.TalliesFile()
+tallies_file = openmc.Tallies()
 mgxs_lib.add_to_tallies_file(tallies_file, merge=True)
 tallies_file.export_to_xml()
 
@@ -221,5 +187,4 @@ tallies_file.export_to_xml()
 ###############################################################################
 
 # Run OpenMC
-executor = openmc.Executor()
-executor.run_simulation(output=True, mpi_procs=3)
+openmc.run(output=True, mpi_procs=3)

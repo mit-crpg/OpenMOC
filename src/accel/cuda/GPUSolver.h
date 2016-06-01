@@ -12,7 +12,6 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "../../constants.h"
 #include "../../Solver.h"
 #endif
 
@@ -49,7 +48,7 @@
 #define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
-#define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
+#define weights(i,p) (weights[(i)*(*num_polar_2) + (p)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */
@@ -72,9 +71,6 @@ private:
 
   /** The number of threads per thread block */
   int _T;
-
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
 
   /** The FSR Material pointers index by FSR ID */
   int* _FSR_materials;
@@ -102,6 +98,8 @@ private:
 
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
+  
+  void copyQuadrature();
 
 public:
 
@@ -125,7 +123,6 @@ public:
   void setTrackGenerator(TrackGenerator* track_generator);
   void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
-  void initializePolarQuadrature();
   void initializeExpEvaluator();
   void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFSRs();

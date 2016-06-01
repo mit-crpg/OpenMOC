@@ -19,8 +19,9 @@
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
   #include "../src/Material.h"
+  #include "../src/ExpEvaluator.h"
   #include "../src/Point.h"
-  #include "../src/PolarQuad.h"
+  #include "../src/Quadrature.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
   #include "../src/boundary_type.h"
@@ -62,6 +63,7 @@
 %warnfilter(506) log_printf(logLevel level, const char *format, ...);
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
+%warnfilter(511) std::vector;
 
 /* Methods for SWIG to ignore in generating Python API */
 %ignore setFSRCentroid(int fsr, Point* centroid);
@@ -97,6 +99,15 @@
 /* Routines which pass / return NumPy arrays to / from C++ routine **/
 %include numpy_typemaps.i
 
+/* Include standard vector library for SWIG */
+%include "std_vector.i"
+
+namespace std {
+  %template(DoubleVector) vector<double>;
+  %template(IntVector) vector<int>;
+  %template(Array) vector< vector<int> >;
+}
+
 %include <exception.i>
 %include ../src/constants.h
 %include ../src/Cell.h
@@ -105,7 +116,7 @@
 %include ../src/log.h
 %include ../src/Material.h
 %include ../src/Point.h
-%include ../src/PolarQuad.h
+%include ../src/Quadrature.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
 %include ../src/boundary_type.h
@@ -113,6 +124,7 @@
 %include ../src/Timer.h
 %include ../src/Track.h
 %include ../src/TrackGenerator.h
+%include ../src/ExpEvaluator.h
 %include ../src/Universe.h
 %include ../src/Cmfd.h
 %include ../src/Vector.h

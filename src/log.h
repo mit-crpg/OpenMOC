@@ -15,6 +15,7 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
+#include "constants.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>

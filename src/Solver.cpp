@@ -9,7 +9,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   /* Default values */
   _num_materials = 0;
   _num_groups = 0;
-  _num_azim = 0;
   _num_parallel_track_groups = 0;
 
   _num_FSRs = 0;
@@ -23,21 +22,19 @@ Solver::Solver(TrackGenerator* track_generator) {
   _exp_evaluator = new ExpEvaluator();
 
   _tracks = NULL;
-  _polar_weights = NULL;
   _boundary_flux = NULL;
+  _start_flux = NULL;
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
+  _quadrature = NULL;
+  _num_polar_2 = 0;
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
 
-  /* Default polar quadrature */
-  _user_polar_quad = false;
-  _polar_quad = new TYPolarQuad();
-  _num_polar = 3;
   _polar_times_groups = 0;
 
   _num_iterations = 0;
@@ -57,17 +54,14 @@ Solver::Solver(TrackGenerator* track_generator) {
  */
 Solver::~Solver() {
 
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
   if (_boundary_flux != NULL)
     delete [] _boundary_flux;
+
+  if (_start_flux != NULL)
+    delete [] _start_flux;
 
   if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
@@ -86,9 +80,6 @@ Solver::~Solver() {
 
   if (_timer != NULL)
     delete _timer;
-
-  if (_polar_quad != NULL && !_user_polar_quad)
-    delete _polar_quad;
 }
 
 
@@ -122,20 +113,6 @@ TrackGenerator* Solver::getTrackGenerator() {
 
 
 /**
- * @brief Returns a pointer to the PolarQuad.
- * @return a pointer to the PolarQuad
- */
-PolarQuad* Solver::getPolarQuad() {
-
-  if (_polar_quad == NULL)
-    log_printf(ERROR, "Unable to return the Solver's PolarQuad "
-               "since it has not yet been set");
-
-  return _polar_quad;
-}
-
-
-/**
  * @brief Returns the calculated volume for a flat source region.
  * @param fsr_id the flat source region ID of interest
  * @return the flat source region volume
@@ -146,7 +123,7 @@ FP_PRECISION Solver::getFSRVolume(int fsr_id) {
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
                "IDs lie in the range (0, %d)", fsr_id, _num_FSRs);
 
-  else if (_FSR_volumes == NULL)
+  if (_FSR_volumes == NULL)
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
                "volumes have not yet been computed", fsr_id);
 
@@ -159,7 +136,7 @@ FP_PRECISION Solver::getFSRVolume(int fsr_id) {
  * @return the number of polar angles
  */
 int Solver::getNumPolarAngles() {
-  return _num_polar;
+  return 2 * _num_polar_2;
 }
 
 
@@ -325,6 +302,17 @@ FP_PRECISION Solver::getFlux(int fsr_id, int group) {
 
 
 /**
+ * @brief Returns the boundary flux array for a Track
+ * @param track_id The Track's unique ID
+ * @param fwd Whether the direction of the angular flux along the track is
+ *        forward (True) or backward (False)
+ */
+FP_PRECISION* Solver::getBoundaryFlux(int track_id, bool fwd) {
+  return &_boundary_flux(track_id, !fwd, 0, 0);
+}
+
+
+/**
  * @brief Sets the Geometry for the Solver.
  * @details This is a private setter method for the Solver and is not
  *          intended to be called by the user.
@@ -361,7 +349,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
                "since the TrackGenerator has not yet generated tracks");
 
   _track_generator = track_generator;
-  _num_azim = _track_generator->getNumAzim() / 2;
+  _quadrature = track_generator->getQuadrature();
+  _num_polar_2 = _quadrature->getNumPolarAngles() / 2;
   _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
   _tracks = _track_generator->getTracksByParallelGroup();
@@ -371,30 +360,6 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 }
 
 
-/**
- * @brief Assign a PolarQuad object to the Solver.
- * @details This routine allows use of a PolarQuad with any polar angle
- *          quadrature. Alternatively, this routine may take in any subclass
- *          of the PolarQuad parent class, including TYPolarQuad (default),
- *          LeonardPolarQuad, GLPolarQuad, etc.
- *
- *          Users may assign a PolarQuad object to the Solver from
- *          Python script as follows:
- *
- * @code
- *          polar_quad = openmoc.LeonardPolarQuad()
- *          polar_quad.setNumPolarAngles(2)
- *          solver.setPolarQuadrature(polar_quad)
- * @endcode
- *
- * @param polar_quad a pointer to a PolarQuad object
- */
-void Solver::setPolarQuadrature(PolarQuad* polar_quad) {
-  _user_polar_quad = true;
-  _polar_quad = polar_quad;
-  _num_polar = _polar_quad->getNumPolarAngles();
-  _polar_times_groups = _num_groups * _num_polar;
-}
 
 
 /**
@@ -495,40 +460,11 @@ void Solver::useExponentialIntrinsic() {
 
 
 /**
- * @brief Initializes a new PolarQuad object.
- * @details Deletes memory old PolarQuad if one was previously allocated.
- */
-void Solver::initializePolarQuadrature() {
-
-  FP_PRECISION* azim_weights = _track_generator->getAzimWeights();
-
-  /* Initialize the PolarQuad object */
-  _polar_quad->setNumPolarAngles(_num_polar);
-  _polar_quad->initialize();
-  _polar_times_groups = _num_groups * _num_polar;
-
-  /* Deallocate polar weights if previously assigned */
-  if (_polar_weights != NULL)
-    delete [] _polar_weights;
-
-  _polar_weights = new FP_PRECISION[_num_azim*_num_polar];
-
-  /* Compute the total azimuthal weight for tracks at each polar angle */
-#pragma omp parallel for schedule(guided)
-  for (int i=0; i < _num_azim; i++) {
-    for (int p=0; p < _num_polar; p++)
-      _polar_weights(i,p) =
-           azim_weights[i] * _polar_quad->getMultiple(p) * FOUR_PI;
-  }
-}
-
-
-/**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
 void Solver::initializeExpEvaluator() {
 
-  _exp_evaluator->setPolarQuadrature(_polar_quad);
+  _exp_evaluator->setQuadrature(_quadrature);
 
   if (_exp_evaluator->isUsingInterpolation()) {
 
@@ -579,20 +515,18 @@ void Solver::initializeFSRs() {
 
   log_printf(INFO, "Initializing flat source regions...");
 
-  /* Delete old FSR arrays if they exist */
-  if (_FSR_volumes != NULL)
-    delete [] _FSR_volumes;
-
+  /* Delete old FSR materials array if it exists */
   if (_FSR_materials != NULL)
     delete [] _FSR_materials;
 
   /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();
-  _num_groups = _geometry->getNumEnergyGroups();
-  _polar_times_groups = _num_groups * _num_polar;
   _num_materials = _geometry->getNumMaterials();
+  _num_groups = _geometry->getNumEnergyGroups();
+  _polar_times_groups = _num_groups * _num_polar_2;
 
   /* Get an array of volumes indexed by FSR  */
+  _track_generator->resetFSRVolumes();
   _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Generate the FSR centroids */
@@ -607,7 +541,7 @@ void Solver::initializeFSRs() {
   /* Loop over all FSRs to extract FSR material pointers */
   for (int r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-    log_printf(INFO, "FSR ID = %d has Material ID = %d and volume = %f ",
+    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
 }
@@ -711,7 +645,7 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
-  _cmfd->setPolarQuadrature(_polar_quad);
+  _cmfd->setQuadrature(_quadrature);
   _cmfd->setGeometry(_geometry);
   _cmfd->initialize();
 }
@@ -840,7 +774,6 @@ void Solver::computeFlux(int max_iters, solverMode mode,
   initializeFSRs();
   initializeMaterials(mode);
   countFissionableFSRs();
-  initializePolarQuadrature();
   initializeExpEvaluator();
 
   /* Initialize new flux arrays if a) the user requested the use of
@@ -949,7 +882,6 @@ void Solver::computeSource(int max_iters, solverMode mode,
   /* Initialize data structures */
   initializeFSRs();
   initializeMaterials(mode);
-  initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
@@ -1035,7 +967,6 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   initializeFSRs();
   initializeMaterials(mode);
   countFissionableFSRs();
-  initializePolarQuadrature();
   initializeExpEvaluator();
   initializeFluxArrays();
   initializeSourceArrays();
@@ -1088,7 +1019,7 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
  *        code in the source convergence loop.
  */
 void Solver::clearTimerSplits() {
-  _timer->clearSplit("Total time");
+  _timer->clearSplits();
 }
 
 
@@ -1099,26 +1030,26 @@ void Solver::printTimerReport() {
 
   std::string msg_string;
 
-  log_printf(TITLE, "TIMING REPORT");
+  log_printf(TITLE, "SOLVER TIMING REPORT");
 
   /* Get the total runtime */
   double tot_time = _timer->getSplit("Total time");
   msg_string = "Total time to solution";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
   /* Time per iteration */
   double time_per_iter = tot_time / _num_iterations;
   msg_string = "Solution time per iteration";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
 
   /* Time per segment */
   int num_segments = _track_generator->getNumSegments();
-  int num_integrations = 2 * _num_polar * _num_groups * num_segments;
+  int num_integrations = 2 * _num_polar_2 * _num_groups * num_segments;
   double time_per_integration = (time_per_iter / num_integrations);
   msg_string = "Time per segment integration";
-  msg_string.resize(53, '.');
+  msg_string.resize(REPORT_WIDTH, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 
   set_separator_character('-');

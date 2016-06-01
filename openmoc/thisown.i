@@ -107,6 +107,23 @@
         universes[i][j][k].thisown = False
 %}
 
+/* A Lattice owns the memory for each Universe it contains */
+%pythonappend Lattice::updateUniverse %{
+  # SWIG 3
+  if 'universe' in locals():
+    universe = locals()['universe']
+  elif 'args' in locals() and 'universe' in locals()['args']:
+    universe = locals()['args']['universe']
+  elif 'kwargs' in locals() and 'universe' in locals()['kwargs']:
+    universe = locals()['kwargs']['universe']
+
+  # SWIG 2
+  else:
+    universe = locals()['args'][3]
+
+  universe.thisown = False
+%}
+
 /* Python must free memory for each Universe that is not in a Lattice */
 %pythonappend Lattice::removeUniverse %{
   # SWIG 3
@@ -175,21 +192,21 @@
   root_universe.thisown = False
 %}
 
-/* A Solver owns the memory for the PolarQuadrature it contains */
-%pythonappend Solver::setPolarQuadrature %{
+/* A Solver owns the memory for the Quadrature it contains */
+%pythonappend TrackGenerator::setQuadrature %{
   # SWIG 3
-  if 'polar_quad' in locals():
-    polar_quad = locals()['polar_quad']
-  elif 'args' in locals() and 'polar_quad' in locals()['args']:
-    polar_quad = locals()['args']['polar_quad']
-  elif 'kwargs' in locals() and 'polar_quad' in locals()['kwargs']:
-    polar_quad = locals()['kwargs']['polar_quad']
+  if 'quadrature' in locals():
+    quadrature = locals()['quadrature']
+  elif 'args' in locals() and 'quadrature' in locals()['args']:
+    quadrature = locals()['args']['quadrature']
+  elif 'kwargs' in locals() and 'quadrature' in locals()['kwargs']:
+    quadrature = locals()['kwargs']['quadrature']
 
   # SWIG 2
   else:
-    polar_quad = locals()['args'][0]
+    quadrature = locals()['args'][0]
 
-  polar_quad.thisown = False
+  quadrature.thisown = False
 %}
 
 /* A Solver owns the memory for the TrackGenerator it contains */

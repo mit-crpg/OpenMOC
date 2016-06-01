@@ -894,20 +894,20 @@ Zero the surface currents for each mesh cell and energy group.
 ";
 
 %feature("docstring") Cmfd::setGroupStructure "
-setGroupStructure(int *group_indices, int length_group_indices)  
+setGroupStructure(std::vector< std::vector< int > > group_indices)  
 
-Set the CMFD energy group structure.  
+Set a coarse energy group structure for CMFD.  
 
 CMFD does not necessarily need to have the same energy group structure as the MOC problem.
 This function can be used to set a sparse energy group structure to speed up the CMFD
-solve.  
+solve. An example of how this may be called from Python to use a coarse 2-group CMFD
+structure atop a fine 7-group MOC structure is illustrated below:  
+
 
 Parameters
 ----------
 * group_indices :  
-    An array of the CMFD group boundaries  
-* length_group_indices :  
-    The length of the group_indices array  
+    A nested vector of MOC-to-CMFD group mapping  
 ";
 
 %feature("docstring") Cmfd::setWidthY "
@@ -1003,8 +1003,7 @@ Parameters
 ";
 
 %feature("docstring") Cmfd::tallyCurrent "
-tallyCurrent(segment *curr_segment, FP_PRECISION *track_flux, FP_PRECISION *polar_weights,
-    bool fwd)  
+tallyCurrent(segment *curr_segment, FP_PRECISION *track_flux, int azim_index, bool fwd)  
 
 Tallies the current contribution from this segment across the the appropriate CMFD mesh
 cell surface.  
@@ -1015,8 +1014,8 @@ Parameters
     The current Track segment  
 * track_flux :  
     The outgoing angular flux for this segment  
-* polar_weights :  
-    Array of polar weights for some azimuthal angle  
+* azim_index :  
+    Azimuthal angle index of the current Track  
 * fwd :  
     Boolean indicating direction of integration along segment  
 ";
@@ -1178,17 +1177,6 @@ Returns
 The CMFD cell ID.  
 ";
 
-%feature("docstring") Cmfd::setPolarQuadrature "
-setPolarQuadrature(PolarQuad *polar_quad)  
-
-Sets the PolarQuad object in use by the MOC Solver.  
-
-Parameters
-----------
-* polar_quad :  
-    A PolarQuad object pointer from the Solver  
-";
-
 %feature("docstring") Cmfd::updateBoundaryFlux "
 updateBoundaryFlux(Track **tracks, FP_PRECISION *boundary_flux, int num_tracks)  
 
@@ -1224,6 +1212,17 @@ Parameters
     The CMFD surface UID.  
 * boundary :  
     The boundaryType of the surface.  
+";
+
+%feature("docstring") Cmfd::setQuadrature "
+setQuadrature(Quadrature *quadrature)  
+
+Sets the Quadrature object in use by the MOC Solver.  
+
+Parameters
+----------
+* quadrature :  
+    A Quadrature object pointer from the Solver  
 ";
 
 %feature("docstring") Cmfd::setSourceConvergenceThreshold "
@@ -1307,11 +1306,70 @@ This a subclass of the Solver class for multi-core CPUs using OpenMP multi-threa
 C++ includes: src/CPUSolver.h
 ";
 
-%feature("docstring") CPUSolver::~CPUSolver "
-~CPUSolver()  
+%feature("docstring") CPUSolver::initializeFSRs "
+initializeFSRs()  
 
-Destructor deletes array for OpenMP mutual exclusion locks for FSR scalar flux updates,
-and calls Solver parent class destructor to deletes arrays for fluxes and sources.  
+Initializes the FSR volumes and Materials array.  
+
+This method gets an array of OpenMP mutual exclusion locks for each FSR for use in the
+transport sweep algorithm.  
+";
+
+%feature("docstring") CPUSolver::computeResidual "
+computeResidual(residualType res_type) -> double  
+
+Computes the residual between source/flux iterations.  
+
+Parameters
+----------
+* res_type :  
+    the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+
+Returns
+-------
+the average residual in each FSR  
+";
+
+%feature("docstring") CPUSolver::initializeSourceArrays "
+initializeSourceArrays()  
+
+Allocates memory for FSR source arrays.  
+
+Deletes memory for old source arrays if they were allocated for a previous simulation.  
+";
+
+%feature("docstring") CPUSolver::computeFSRFissionRates "
+computeFSRFissionRates(double *fission_rates, int num_FSRs)  
+
+Computes the volume-integrated, energy-integrated nu-fission rate in each FSR and stores
+them in an array indexed by FSR ID.  
+
+This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
+NumPy array. An example of how this method can be called from Python is as follows:  
+
+
+Parameters
+----------
+* fission_rates :  
+    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
+    Python)  
+* num_FSRs :  
+    the number of FSRs passed in from Python  
+";
+
+%feature("docstring") CPUSolver::computeFSRSources "
+computeFSRSources()  
+
+Computes the total source (fission, scattering, fixed) in each FSR.  
+
+This method computes the total source in each FSR based on this iteration's current
+approximation to the scalar flux.  
+";
+
+%feature("docstring") CPUSolver::storeFSRFluxes "
+storeFSRFluxes()  
+
+Stores the FSR scalar fluxes in the old scalar flux array.  
 ";
 
 %feature("docstring") CPUSolver::computeFSRScatterSources "
@@ -1339,6 +1397,18 @@ Parameters
 ----------
 * value :  
     the value to assign to each FSR scalar flux  
+";
+
+%feature("docstring") CPUSolver::initializeFixedSources "
+initializeFixedSources()  
+
+Populates array of fixed sources assigned by FSR.  
+";
+
+%feature("docstring") CPUSolver::addSourceToScalarFlux "
+addSourceToScalarFlux()  
+
+Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::transportSweep "
@@ -1378,24 +1448,6 @@ computeFSRFissionSources()
 Computes the total fission source in each FSR.  
 
 This method is a helper routine for the openmoc.krylov submodule.  
-";
-
-%feature("docstring") CPUSolver::computeKeff "
-computeKeff()  
-
-Compute $ k_{eff} $ from successive fission sources.  
-";
-
-%feature("docstring") CPUSolver::initializeFixedSources "
-initializeFixedSources()  
-
-Populates array of fixed sources assigned by FSR.  
-";
-
-%feature("docstring") CPUSolver::addSourceToScalarFlux "
-addSourceToScalarFlux()  
-
-Add the source term contribution in the transport equation to the FSR scalar flux.  
 ";
 
 %feature("docstring") CPUSolver::getFluxes "
@@ -1446,15 +1498,10 @@ Normalizes all FSR scalar fluxes and Track boundary angular fluxes to the total 
 source (times $ \\nu $).  
 ";
 
-%feature("docstring") CPUSolver::setNumThreads "
-setNumThreads(int num_threads)  
+%feature("docstring") CPUSolver::computeKeff "
+computeKeff()  
 
-Sets the number of shared memory OpenMP threads to use (>0).  
-
-Parameters
-----------
-* num_threads :  
-    the number of threads  
+Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") CPUSolver::getNumThreads "
@@ -1467,70 +1514,15 @@ Returns
 the number of threads  
 ";
 
-%feature("docstring") CPUSolver::initializeFSRs "
-initializeFSRs()  
+%feature("docstring") CPUSolver::setNumThreads "
+setNumThreads(int num_threads)  
 
-Initializes the FSR volumes and Materials array.  
-
-This method gets an array of OpenMP mutual exclusion locks for each FSR for use in the
-transport sweep algorithm.  
-";
-
-%feature("docstring") CPUSolver::computeResidual "
-computeResidual(residualType res_type) -> double  
-
-Computes the residual between source/flux iterations.  
+Sets the number of shared memory OpenMP threads to use (>0).  
 
 Parameters
 ----------
-* res_type :  
-    the type of residuals to compute (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
-
-Returns
--------
-the average residual in each FSR  
-";
-
-%feature("docstring") CPUSolver::initializeSourceArrays "
-initializeSourceArrays()  
-
-Allocates memory for FSR source arrays.  
-
-Deletes memory for old source arrays if they were allocated for a previous simulation.  
-";
-
-%feature("docstring") CPUSolver::computeFSRSources "
-computeFSRSources()  
-
-Computes the total source (fission, scattering, fixed) in each FSR.  
-
-This method computes the total source in each FSR based on this iteration's current
-approximation to the scalar flux.  
-";
-
-%feature("docstring") CPUSolver::storeFSRFluxes "
-storeFSRFluxes()  
-
-Stores the FSR scalar fluxes in the old scalar flux array.  
-";
-
-%feature("docstring") CPUSolver::computeFSRFissionRates "
-computeFSRFissionRates(double *fission_rates, int num_FSRs)  
-
-Computes the volume-integrated, energy-integrated nu-fission rate in each FSR and stores
-them in an array indexed by FSR ID.  
-
-This is a helper method for SWIG to allow users to retrieve FSR nu-fission rates as a
-NumPy array. An example of how this method can be called from Python is as follows:  
-
-
-Parameters
-----------
-* fission_rates :  
-    an array to store the nu-fission rates (implicitly passed in as a NumPy array from
-    Python)  
-* num_FSRs :  
-    the number of FSRs passed in from Python  
+* num_threads :  
+    the number of threads  
 ";
 
 // File: structdev__material.xml
@@ -1651,31 +1643,17 @@ Attributes
 C++ includes: DeviceTrack.h
 ";
 
-// File: classEqualAnglesPolarQuad.xml
+// File: classEqualAnglePolarQuad.xml
 
 
-%feature("docstring") EqualAnglesPolarQuad "
+%feature("docstring") EqualAnglePolarQuad "
 
-Equal angles polar quadrature.  
+Equal angle polar quadrature.  
 
-C++ includes: src/PolarQuad.h
+C++ includes: src/Quadrature.h
 ";
 
-%feature("docstring") EqualAnglesPolarQuad::EqualAnglesPolarQuad "
-EqualAnglesPolarQuad()  
-
-Dummy constructor calls the parent constructor.  
-";
-
-%feature("docstring") EqualAnglesPolarQuad::initialize "
-initialize()  
-
-Routine to initialize the polar quadrature.  
-
-This routine generates the sine thetas and weights.  
-";
-
-%feature("docstring") EqualAnglesPolarQuad::setNumPolarAngles "
+%feature("docstring") EqualAnglePolarQuad::setNumPolarAngles "
 setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
@@ -1686,23 +1664,7 @@ Parameters
     the number of polar angles  
 ";
 
-// File: classEqualWeightsPolarQuad.xml
-
-
-%feature("docstring") EqualWeightsPolarQuad "
-
-Equal weights polar quadrature.  
-
-C++ includes: src/PolarQuad.h
-";
-
-%feature("docstring") EqualWeightsPolarQuad::EqualWeightsPolarQuad "
-EqualWeightsPolarQuad()  
-
-Dummy constructor calls the parent constructor.  
-";
-
-%feature("docstring") EqualWeightsPolarQuad::initialize "
+%feature("docstring") EqualAnglePolarQuad::initialize "
 initialize()  
 
 Routine to initialize the polar quadrature.  
@@ -1710,7 +1672,49 @@ Routine to initialize the polar quadrature.
 This routine generates the sine thetas and weights.  
 ";
 
-%feature("docstring") EqualWeightsPolarQuad::setNumPolarAngles "
+%feature("docstring") EqualAnglePolarQuad::EqualAnglePolarQuad "
+EqualAnglePolarQuad()  
+
+Dummy constructor calls the parent constructor.  
+";
+
+%feature("docstring") EqualAnglePolarQuad::precomputeWeights "
+precomputeWeights(bool solve_3D)  
+
+Calculates total weights for every azimuthal/polar combination based on the equal angle
+polar quadrature.  
+
+Parameters
+----------
+* solve_3D :  
+    Boolean indicating whether this is a 3D quadrature  
+";
+
+// File: classEqualWeightPolarQuad.xml
+
+
+%feature("docstring") EqualWeightPolarQuad "
+
+Equal weight polar quadrature.  
+
+C++ includes: src/Quadrature.h
+";
+
+%feature("docstring") EqualWeightPolarQuad::EqualWeightPolarQuad "
+EqualWeightPolarQuad()  
+
+Dummy constructor calls the parent constructor.  
+";
+
+%feature("docstring") EqualWeightPolarQuad::initialize "
+initialize()  
+
+Routine to initialize the polar quadrature.  
+
+This routine generates the sine thetas and weights.  
+";
+
+%feature("docstring") EqualWeightPolarQuad::setNumPolarAngles "
 setNumPolarAngles(const int num_polar)  
 
 Set the number of polar angles to initialize.  
@@ -1719,6 +1723,18 @@ Parameters
 ----------
 * num_polar :  
     the number of polar angles  
+";
+
+%feature("docstring") EqualWeightPolarQuad::precomputeWeights "
+precomputeWeights(bool solve_3D)  
+
+Calculates total weights for every azimuthal/polar combination based on the equal weight
+polar quadrature.  
+
+Parameters
+----------
+* solve_3D :  
+    Boolean indicating whether this is a 3D quadrature  
 ";
 
 // File: classExpEvaluator.xml
@@ -1746,15 +1762,25 @@ Parameters
     in the interpolation table  
 ";
 
-%feature("docstring") ExpEvaluator::setPolarQuadrature "
-setPolarQuadrature(PolarQuad *polar_quad)  
+%feature("docstring") ExpEvaluator::computeExponential "
+computeExponential(FP_PRECISION tau, int polar) -> FP_PRECISION  
 
-Set the PolarQuad to use when computing exponentials.  
+Computes the exponential term for a optical length and polar angle.  
+
+This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path length and
+polar angle. This method uses either a linear interpolation table (default) or the
+exponential intrinsic exp(...) function.  
 
 Parameters
 ----------
-* polar_quad :  
-    a PolarQuad object pointer  
+* tau :  
+    the optical path length (e.g., sigma_t times length)  
+* polar :  
+    the polar angle index  
+
+Returns
+-------
+the evaluated exponential  
 ";
 
 %feature("docstring") ExpEvaluator::getTableSpacing "
@@ -1835,6 +1861,17 @@ Returns
 the maximum exponential approximation error  
 ";
 
+%feature("docstring") ExpEvaluator::setQuadrature "
+setQuadrature(Quadrature *quadrature)  
+
+Set the Quadrature to use when computing exponentials.  
+
+Parameters
+----------
+* quadrature :  
+    a Quadrature object pointer  
+";
+
 %feature("docstring") ExpEvaluator::getMaxOpticalLength "
 getMaxOpticalLength() -> FP_PRECISION  
 
@@ -1851,27 +1888,6 @@ ExpEvaluator()
 Constructor initializes array pointers to NULL.  
 
 The constructor sets the interpolation scheme as the default for computing exponentials.  
-";
-
-%feature("docstring") ExpEvaluator::computeExponential "
-computeExponential(FP_PRECISION tau, int polar) -> FP_PRECISION  
-
-Computes the exponential term for a optical length and polar angle.  
-
-This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path length and
-polar angle. This method uses either a linear interpolation table (default) or the
-exponential intrinsic exp(...) function.  
-
-Parameters
-----------
-* tau :  
-    the optical path length (e.g., sigma_t times length)  
-* polar :  
-    the polar angle index  
-
-Returns
--------
-the evaluated exponential  
 ";
 
 %feature("docstring") ExpEvaluator::initialize "
@@ -2387,6 +2403,39 @@ Returns
 the root Universe  
 ";
 
+%feature("docstring") Geometry::getSpatialDataOnGrid "
+getSpatialDataOnGrid(std::vector< double > grid_x, std::vector< double > grid_y, double
+    zcoord, const char *domain_type=\"material\") -> std::vector< int >  
+
+Get the material, cell or FSR IDs on a 2D spatial grid.  
+
+This is a helper method for the openmoc.plotter module. This method may also be called by
+the user in Python if needed. A user must initialize NumPy arrays with the x and y grid
+coordinates input to this function. This function then fills a NumPy array with the domain
+IDs for each coordinate. An example of how this function might be called in Python is as
+follows:  
+
+
+Parameters
+----------
+* grid_x :  
+    a NumPy array or list of the x-coordinates  
+* num_x :  
+    the number of x-coordinates in the grid  
+* grid_y :  
+    a NumPy array or list of the y-coordinates  
+* num_y :  
+    the number of y-coordinates in the grid  
+* zcoord :  
+    the z-coordinate to use to find the domain IDs  
+* domain_type :  
+    the type of domain ('fsr', 'material', 'cell')  
+
+Returns
+-------
+a NumPy array or list of the domain IDs  
+";
+
 %feature("docstring") Geometry::setRootUniverse "
 setRootUniverse(Universe *root_universe)  
 
@@ -2700,7 +2749,7 @@ Destructor clears FSR to Cells and Materials maps.
 
 Gauss-Legendre's polar quadrature.  
 
-C++ includes: src/PolarQuad.h
+C++ includes: src/Quadrature.h
 ";
 
 %feature("docstring") GLPolarQuad::GLPolarQuad "
@@ -2717,7 +2766,7 @@ Set the number of polar angles to initialize.
 Parameters
 ----------
 * num_polar :  
-    the number of polar angles (maximum 6)  
+    the number of polar angles (maximum 12)  
 ";
 
 %feature("docstring") GLPolarQuad::initialize "
@@ -2727,6 +2776,18 @@ Routine to initialize the polar quadrature.
 
 This routine uses the tabulated values for the Gauss-Legendre polar angle quadrature,
 including the sine thetas and weights.  
+";
+
+%feature("docstring") GLPolarQuad::precomputeWeights "
+precomputeWeights(bool solve_3D)  
+
+Calculates total weights for every azimuthal/polar combination based on the Gauss-Legendre
+polar quadrature.  
+
+Parameters
+----------
+* solve_3D :  
+    Boolean indicating whether this is a 3D quadrature  
 ";
 
 // File: classGPUExpEvaluator.xml
@@ -2842,12 +2903,6 @@ Parameters
 ----------
 * num_threads :  
     the number of threads per block  
-";
-
-%feature("docstring") GPUSolver::initializePolarQuadrature "
-initializePolarQuadrature()  
-
-Creates a polar quadrature object for the GPUSolver on the GPU.  
 ";
 
 %feature("docstring") GPUSolver::~GPUSolver "
@@ -3509,6 +3564,26 @@ Returns
 the offset of the Cell  
 ";
 
+%feature("docstring") Lattice::updateUniverse "
+updateUniverse(int lat_x, int lat_y, int lat_z, Universe *universe)  
+
+Update the Universe in a particular Lattice cell.  
+
+This method may only be used after an array of Universes has been assigned with the
+Lattice::setUniverses(...) method.  
+
+Parameters
+----------
+* lat_x :  
+    the Lattice cell index along x  
+* lat_y :  
+    the Lattice cell index along y  
+* lat_z :  
+    the Lattice cell index along z  
+* universe :  
+    the Universe to insert into the Lattice  
+";
+
 %feature("docstring") Lattice::setWidth "
 setWidth(double width_x, double width_y, double width_z=std::numeric_limits< double
     >::infinity())  
@@ -3686,7 +3761,7 @@ Destructor clears memory for all of Universes pointers.
 
 Leonard's polar quadrature.  
 
-C++ includes: src/PolarQuad.h
+C++ includes: src/Quadrature.h
 ";
 
 %feature("docstring") LeonardPolarQuad::initialize "
@@ -3698,6 +3773,18 @@ This routine uses the tabulated values for the Leonard polar angle quadrature, i
 the sine thetas and weights.  
 ";
 
+%feature("docstring") LeonardPolarQuad::precomputeWeights "
+precomputeWeights(bool solve_3D)  
+
+Calculates total weights for every azimuthal/polar combination based on the Leonard polar
+quadrature.  
+
+Parameters
+----------
+* solve_3D :  
+    Boolean indicating whether this is a 3D quadrature  
+";
+
 %feature("docstring") LeonardPolarQuad::setNumPolarAngles "
 setNumPolarAngles(const int num_polar)  
 
@@ -3706,7 +3793,7 @@ Set the number of polar angles to initialize.
 Parameters
 ----------
 * num_polar :  
-    the number of polar angles (2 or 3)  
+    the number of polar angles (4 or 6)  
 ";
 
 %feature("docstring") LeonardPolarQuad::LeonardPolarQuad "
@@ -4710,22 +4797,6 @@ the pointer to the Material's array of fission cross-sections multiplied by nu $
 %feature("docstring") Matrix "
 ";
 
-%feature("docstring") Matrix::getNNZ "
-getNNZ() -> int  
-
-Get the number of non-zero values in the matrix.  
-
-Returns
--------
-The number of non-zero values in the matrix.  
-";
-
-%feature("docstring") Matrix::printString "
-printString()  
-
-Print the matrix object to the log file.  
-";
-
 %feature("docstring") Matrix::getNumRows "
 getNumRows() -> int  
 
@@ -4736,14 +4807,175 @@ Returns
 The number of rows in the matrix.  
 ";
 
+%feature("docstring") Matrix::getIA "
+getIA() -> int *  
+
+Get an array of the row indices (I) component of the CSR form of the full matrix (A).  
+
+Returns
+-------
+A pointer to the I component of the CSR form of the full matrix (A).  
+";
+
+%feature("docstring") Matrix::getNNZLU "
+getNNZLU() -> int  
+
+Get the number of non-zero values in the lower + upper components of the matrix.  
+
+Returns
+-------
+The number of non-zero values in the lower + upper components of the matrix.  
+";
+
+%feature("docstring") Matrix::clear "
+clear()  
+
+Clear all values in the matrix list of lists.  
+";
+
+%feature("docstring") Matrix::~Matrix "
+~Matrix()  
+
+Destructor clears list of lists and deletes the arrays used to represent the matrix in CSR
+form.  
+";
+
+%feature("docstring") Matrix::getNumX "
+getNumX() -> int  
+
+Get the number of cells in the x dimension.  
+
+Returns
+-------
+The number of cells in the x dimension.  
+";
+
+%feature("docstring") Matrix::getNumY "
+getNumY() -> int  
+
+Get the number of cells in the y dimension.  
+
+Returns
+-------
+The number of cells in the y dimension.  
+";
+
+%feature("docstring") Matrix::getCellLocks "
+getCellLocks() -> omp_lock_t *  
+
+Return the array of cell locks for atomic cell operations.  
+
+Returns
+-------
+an array of cell locks  
+";
+
+%feature("docstring") Matrix::Matrix "
+Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
+
+Constructor initializes Matrix as a list of lists and sets the matrix dimensions.  The
+matrix object uses a \"lists of lists\" structure (implemented as a map of lists) to allow
+for easy setting and incrementing of the values in the object. When the matrix is needed
+to perform linear algebra operations, it is converted to compressed row storage (CSR) form
+[1]. The matrix is ordered by cell (as opposed to by group) on the outside. Locks are used
+to make the matrix thread-safe against concurrent writes the same value. One lock locks
+out multiple rows of the matrix at a time reprsenting multiple groups in the same cell.  
+
+[1] \"Sparse matrix\", Wikipedia, https://en.wikipedia.org/wiki/Sparse_matrix.  
+
+Parameters
+----------
+* cell_locks :  
+    Omp locks for atomic cell operations  
+* num_x :  
+    The number of cells in the x direction.  
+* num_y :  
+    The number of cells in the y direction.  
+* num_groups :  
+    The number of energy groups in each cell.  
+";
+
+%feature("docstring") Matrix::getDiag "
+getDiag() -> FP_PRECISION *  
+
+Get the diagonal component of the matrix object.  
+
+Returns
+-------
+A pointer to the diagonal component of the matrix object.  
+";
+
+%feature("docstring") Matrix::transpose "
+transpose()  
+
+Transpose the matrix in place.  
+";
+
+%feature("docstring") Matrix::getNumGroups "
+getNumGroups() -> int  
+
+Get the number of groups in each cell.  
+
+Returns
+-------
+The number of groups in each cell.  
+";
+
+%feature("docstring") Matrix::printString "
+printString()  
+
+Print the matrix object to the log file.  
+";
+
+%feature("docstring") Matrix::getILU "
+getILU() -> int *  
+
+Get an array of the row indices (I) component of the CSR form of the lower + upper (LU)
+components of the matrix.  
+
+Returns
+-------
+A pointer to the I component of the CSR form of the LU components of the matrix.  
+";
+
 %feature("docstring") Matrix::getA "
 getA() -> FP_PRECISION *  
 
-Get the A component of the CSR form of the matrix object.  
+Get the full matrix (A) component of the CSR form of the matrix object.  
 
 Returns
 -------
 A pointer to the A component of the CSR form matrix object.  
+";
+
+%feature("docstring") Matrix::getLU "
+getLU() -> FP_PRECISION *  
+
+Get the lower + upper (LU) component of the CSR form of the matrix object.  
+
+Returns
+-------
+A pointer to the lower + upper (LU) component of the CSR form matrix object.  
+";
+
+%feature("docstring") Matrix::getJA "
+getJA() -> int *  
+
+Get an array of the column indices (J) component of the CSR form of the full matrix (A).  
+
+Returns
+-------
+A pointer to the J component of the CSR form of the full matrix (A).  
+";
+
+%feature("docstring") Matrix::getNNZ "
+getNNZ() -> int  
+
+Get the number of non-zero values in the full matrix.  
+
+Returns
+-------
+The number of non-zero values in the full matrix.  
 ";
 
 %feature("docstring") Matrix::incrementValue "
@@ -4792,36 +5024,6 @@ Returns
 The value at the corresponding row/column location.  
 ";
 
-%feature("docstring") Matrix::getDiag "
-getDiag() -> FP_PRECISION *  
-
-Get the diagonal component of the matrix object.  
-
-Returns
--------
-A pointer to the diagonal component of the matrix object.  
-";
-
-%feature("docstring") Matrix::getIA "
-getIA() -> int *  
-
-Get the IA component of the CSR form of the matrix object.  
-
-Returns
--------
-A pointer to the IA component of the CSR form matrix object.  
-";
-
-%feature("docstring") Matrix::getNumGroups "
-getNumGroups() -> int  
-
-Get the number of groups in each cell.  
-
-Returns
--------
-The number of groups in each cell.  
-";
-
 %feature("docstring") Matrix::setValue "
 setValue(int cell_from, int group_from, int cell_to, int group_to, FP_PRECISION val)  
 
@@ -4844,87 +5046,15 @@ Parameters
     The value used to set the row/column location.  
 ";
 
-%feature("docstring") Matrix::Matrix "
-Matrix(omp_lock_t *cell_locks, int num_x=1, int num_y=1, int num_groups=1)  
+%feature("docstring") Matrix::getJLU "
+getJLU() -> int *  
 
-Constructor initializes Matrix as a list of lists and sets the matrix dimensions.  The
-matrix object uses a \"lists of lists\" structure (implemented as a map of lists) to allow
-for easy setting and incrementing of the values in the object. When the matrix is needed
-to perform linear algebra operations, it is converted to compressed row storage (CSR)
-form. The matrix is ordered by cell (as opposed to by group) on the outside. Locks are
-used to make the matrix thread-safe against concurrent writes the same value. One lock
-locks out multiple rows of the matrix at a time reprsenting multiple groups in the same
-cell.  
-
-Parameters
-----------
-* cell_locks :  
-    Omp locks for atomic cell operations  
-* num_x :  
-    The number of cells in the x direction.  
-* num_y :  
-    The number of cells in the y direction.  
-* num_groups :  
-    The number of energy groups in each cell.  
-";
-
-%feature("docstring") Matrix::getJA "
-getJA() -> int *  
-
-Get the JA component of the CSR form of the matrix object.  
+Get an array of the column indices (J) component of the CSR form of the lower + upper (LU)
+components of the matrix.  
 
 Returns
 -------
-A pointer to the JA component of the CSR form matrix object.  
-";
-
-%feature("docstring") Matrix::transpose "
-transpose()  
-
-Transpose the matrix in place.  
-";
-
-%feature("docstring") Matrix::clear "
-clear()  
-
-Clear all values in the matrix list of lists.  
-";
-
-%feature("docstring") Matrix::~Matrix "
-~Matrix()  
-
-Destructor clears list of lists and deletes the arrays used to represent the matrix in CSR
-form.  
-";
-
-%feature("docstring") Matrix::getCellLocks "
-getCellLocks() -> omp_lock_t *  
-
-Return the array of cell locks for atomic cell operations.  
-
-Returns
--------
-an array of cell locks  
-";
-
-%feature("docstring") Matrix::getNumX "
-getNumX() -> int  
-
-Get the number of cells in the x dimension.  
-
-Returns
--------
-The number of cells in the x dimension.  
-";
-
-%feature("docstring") Matrix::getNumY "
-getNumY() -> int  
-
-Get the number of cells in the y dimension.  
-
-Returns
--------
-The number of cells in the y dimension.  
+A pointer to the J component of the CSR form of the LU components of the matrix.  
 ";
 
 // File: structmultiplyByConstant.xml
@@ -5501,129 +5631,128 @@ Parameters
     y-coordinate  
 ";
 
-// File: classPolarQuad.xml
+// File: classQuadrature.xml
 
 
-%feature("docstring") PolarQuad "
+%feature("docstring") Quadrature "
 
-The arbitrary polar quadrature parent class.  
+The arbitrary quadrature parent class.  
 
-C++ includes: src/PolarQuad.h
+C++ includes: src/Quadrature.h
 ";
 
-%feature("docstring") PolarQuad::PolarQuad "
-PolarQuad()  
+%feature("docstring") Quadrature::getPolarWeights "
+getPolarWeights() -> FP_PRECISION **  
 
-Dummy constructor sets the default number of angles to zero.  
-";
-
-%feature("docstring") PolarQuad::initialize "
-initialize()  
-
-Dummy routine to initialize the polar quadrature.  
-
-The parent class routine simply checks that the number of polar angles has been set by the
-user and returns;  
-";
-
-%feature("docstring") PolarQuad::getWeights "
-getWeights() -> FP_PRECISION *  
-
-Returns a pointer to the PolarQuad's array of polar weights.  
+Returns a pointer to the Quadrature's array of polar weights.  
 
 Returns
 -------
 a pointer to the polar weights array  
 ";
 
-%feature("docstring") PolarQuad::setWeights "
-setWeights(double *weights, int num_polar)  
+%feature("docstring") Quadrature::setPolarWeights "
+setPolarWeights(FP_PRECISION *weights, int num_azim_times_polar)  
 
-Set the PolarQuad's array of weights for each angle.  
+Set the Quadrature's array of polar weights.  
 
-This method is a helper function to allow OpenMOC users to assign the PolarQuad's angular
+This method is a helper function to allow OpenMOC users to assign the Quadrature's polar
 weights in Python. A user must initialize a NumPy array of the correct size (e.g., a
-float64 array the length of the number of polar angles) as input to this function. This
-function then fills the NumPy array with the data values for the PolarQuad's weights. An
-example of how this function might be called in Python is as follows:  
-
-
-Parameters
-----------
-* weights :  
-    the array of weights for each polar angle  
-* num_polar :  
-    the number of polar angles  
-";
-
-%feature("docstring") PolarQuad::getQuadratureType "
-getQuadratureType() -> quadratureType  
-
-Returns the quadrature type.  
-
-Returns
--------
-an enum corresponding to the quadrature type  
-";
-
-%feature("docstring") PolarQuad::setSinThetas "
-setSinThetas(double *sin_thetas, int num_polar)  
-
-Set the PolarQuad's array of sines of each polar angle.  
-
-This method is a helper function to allow OpenMOC users to assign the PolarQuad's sin
-thetas in Python. A user must initialize a NumPy array of the correct size (e.g., a
-float64 array the length of the number of polar angles) as input to this function. This
-function then fills the NumPy array with the data values for the PolarQuad's sin thetas.
+float64 array the length of the number of azimuthal times polar angles) as input to this
+function. This function then fills the Quadrature's polar weights with the given values.
 An example of how this function might be called in Python is as follows:  
 
 
 Parameters
 ----------
-* sin_thetas :  
-    the array of sines of each polar angle  
-* num_polar :  
-    the number of polar angles  
+* weights :  
+    The polar weights  
+* num_azim_times_polar :  
+    the total number of angles in one octant (azimuthal x polar)  
 ";
 
-%feature("docstring") PolarQuad::getMultiples "
-getMultiples() -> FP_PRECISION *  
+%feature("docstring") Quadrature::setPolarWeight "
+setPolarWeight(FP_PRECISION weight, int azim, int polar)  
 
-Returns a pointer to the PolarQuad's array of multiples.  
-
-A multiple is the sine of a polar angle multiplied by its weight.  
-
-Returns
--------
-a pointer to the multiples array  
-";
-
-%feature("docstring") PolarQuad::getSinTheta "
-getSinTheta(const int n) const  -> FP_PRECISION  
-
-Returns the $ sin(\\theta)$ value for a particular polar angle.  
+Sets the polar weight for the given indexes.  
 
 Parameters
 ----------
-* n :  
-    index of the polar angle of interest  
+* weight :  
+    the weight of the polar angle  
+* azim :  
+    the azimuthal index corresponding to the angle  
+* azim :  
+    the polar index corresponding to the angle  
+";
+
+%feature("docstring") Quadrature::getAzimWeights "
+getAzimWeights() -> FP_PRECISION *  
+
+Returns a pointer to the Quadrature's array of azimuthal weights.  
 
 Returns
 -------
-the value of $ \\sin(\\theta) $ for this polar angle  
+a pointer to the azimuthal weights array  
 ";
 
-%feature("docstring") PolarQuad::getSinThetas "
-getSinThetas() -> FP_PRECISION *  
+%feature("docstring") Quadrature::~Quadrature "
+~Quadrature()  
 
-Returns a pointer to the PolarQuad's array of $ sin\\theta_{p} $.  
+Destructor deletes arrray of sines of the polar angles, the weights of the polar angles
+and the products of the sines and weights.  
+";
+
+%feature("docstring") Quadrature::getThetas "
+getThetas() -> double **  
+
+Returns a pointer to the Quadrature's array of polar angles $ \\theta_{p} $.  
 
 Returns
 -------
-a pointer to the array of $ sin\\theta_{p} $  
+a pointer to the array of $ \\theta_{p} $  
 ";
 
-%feature("docstring") PolarQuad::getNumPolarAngles "
+%feature("docstring") Quadrature::getNumAzimAngles "
+getNumAzimAngles() const  -> int  
+
+Returns the number of azimuthal angles.  
+
+Returns
+-------
+the number of azimuthal angles  
+";
+
+%feature("docstring") Quadrature::precomputeWeights "
+precomputeWeights(bool solve_3D)  
+
+This private routine computes the product of the sine thetas and weights for each angle in
+the polar quadrature.  
+
+Note that this routine must be called after populating the sine thetas and weights arrays.  
+";
+
+%feature("docstring") Quadrature::setThetas "
+setThetas(double *thetas, int num_azim_times_polar)  
+
+Sets the Quadrature's array of polar angles.  
+
+This method is a helper function to allow OpenMOC users to assign the Quadrature's polar
+angles in Python. A user must initialize a NumPy array of the correct size (e.g., a
+float64 array the length of the number of azimuthal times polar angles) as input to this
+function. This function then fills the Quadrature's polar angles with the given values. An
+example of how this function might be called in Python is as follows:  
+
+
+Parameters
+----------
+* thetas :  
+    the array of polar angle for each azimuthal/polar angle combination  
+* num_azim_times_polar :  
+    the total number of angles (azimuthal x polar)  
+";
+
+%feature("docstring") Quadrature::getNumPolarAngles "
 getNumPolarAngles() const  -> int  
 
 Returns the number of polar angles.  
@@ -5633,35 +5762,183 @@ Returns
 the number of polar angles  
 ";
 
-%feature("docstring") PolarQuad::setNumPolarAngles "
-setNumPolarAngles(const int num_polar)  
+%feature("docstring") Quadrature::getAzimWeight "
+getAzimWeight(int azim) -> FP_PRECISION  
 
-Set the number of polar angles to initialize.  
+Returns the azimuthal angle weight value for a particular azimuthal angle.  
 
 Parameters
 ----------
-* num_polar :  
-    the number of polar angles  
+* azim :  
+    index of the azimuthal angle of interest  
+
+Returns
+-------
+the weight for an azimuthal angle  
 ";
 
-%feature("docstring") PolarQuad::getMultiple "
-getMultiple(const int n) const  -> FP_PRECISION  
+%feature("docstring") Quadrature::initialize "
+initialize()  
 
-Returns the multiple value for a particular polar angle.  
+Initialize the polar quadrature azimuthal angles.  
 
-A multiple is the sine of a polar angle multiplied by its weight.  
+The parent class routine simply checks that number of polar and azimuthal angles have been
+set by the user and generates the azimuthal angles if not already generated.  
+";
+
+%feature("docstring") Quadrature::getSinThetas "
+getSinThetas() -> FP_PRECISION **  
+
+Returns a pointer to the Quadrature's array of polar angle sines $ sin\\theta_{p} $.  
+
+Returns
+-------
+a pointer to the array of $ sin\\theta_{p} $  
+";
+
+%feature("docstring") Quadrature::getAzimSpacings "
+getAzimSpacings() -> FP_PRECISION *  
+
+Returns an array of adjusted azimuthal spacings.  
+
+An array of azimuthal spacings after adjustment is returned, indexed by azimuthal angle  
+
+Returns
+-------
+the array of azimuthal spacings  
+";
+
+%feature("docstring") Quadrature::getPolarWeight "
+getPolarWeight(int azim, int polar) -> FP_PRECISION  
+
+Returns the polar weight for a particular azimuthal and polar angle.  
 
 Parameters
 ----------
-* n :  
+* azim :  
+    index of the azimthal angle of interest  
+* polar :  
     index of the polar angle of interest  
 
 Returns
 -------
-the value of the sine of the polar angle multiplied with its weight  
+the value of the polar weight for this azimuthal and polar angle  
 ";
 
-%feature("docstring") PolarQuad::toString "
+%feature("docstring") Quadrature::setPhi "
+setPhi(double phi, int azim)  
+
+Sets the azimuthal angle for the given index.  
+
+Parameters
+----------
+* phi :  
+    the value in radians of the azimuthal angle to be set  
+* azim :  
+    the azimuthal index  
+";
+
+%feature("docstring") Quadrature::getPhi "
+getPhi(int azim) -> double  
+
+Returns the azimuthal angle value in radians.  
+
+Parameters
+----------
+* azim :  
+    index of the azimthal angle of interest  
+
+Returns
+-------
+the value of the azimuthal angle  
+";
+
+%feature("docstring") Quadrature::getWeight "
+getWeight(int azim, int polar) -> FP_PRECISION  
+
+Returns the total weight for Tracks with the given azimuthal and polar indexes.  
+
+Angular weights are multiplied by Track spcings  
+
+Parameters
+----------
+* azim :  
+    index of the azimuthal angle of interest  
+* polar :  
+    index of the polar angle of interest  
+
+Returns
+-------
+the total weight of each Track with the given indexes  
+";
+
+%feature("docstring") Quadrature::setAzimSpacing "
+setAzimSpacing(FP_PRECISION spacing, int azim)  
+
+Sets the azimuthal spacing for the given index.  
+
+Parameters
+----------
+* spacing :  
+    the spacing (cm) in the azimuthal direction to be set  
+* azim :  
+    the azimuthal index  
+";
+
+%feature("docstring") Quadrature::getSinTheta "
+getSinTheta(int azim, int polar) -> FP_PRECISION  
+
+Returns the $ sin(\\theta)$ value for a particular polar angle.  
+
+Parameters
+----------
+* azim :  
+    index of the azimthal angle of interest  
+* polar :  
+    index of the polar angle of interest  
+
+Returns
+-------
+the value of $ \\sin(\\theta) $ for this azimuthal and polar angle  
+";
+
+%feature("docstring") Quadrature::getPhis "
+getPhis() -> double *  
+
+Returns a pointer to the Quadrature's array of azimuthal angles $ \\phi $.  
+
+Returns
+-------
+a pointer to the array of $ \\phi $  
+";
+
+%feature("docstring") Quadrature::setTheta "
+setTheta(double theta, int azim, int polar)  
+
+Sets the polar angle for the given indexes.  
+
+Parameters
+----------
+* theta :  
+    the value in radians of the polar angle to be set  
+* azim :  
+    the azimuthal index of the angle of interest  
+* polar :  
+    the polar index of the angle of interest  
+";
+
+%feature("docstring") Quadrature::setNumAzimAngles "
+setNumAzimAngles(const int num_azim)  
+
+Set the number of azimuthal angles to initialize.  
+
+Parameters
+----------
+* num_azim :  
+    the number of azimuthal angles  
+";
+
+%feature("docstring") Quadrature::toString "
 toString() -> std::string  
 
 Converts this Quadrature to a character array of its attributes.  
@@ -5671,29 +5948,102 @@ weight of each polar angle, and the product of the sine and weight of each polar
 
 Returns
 -------
-a character array of the PolarQuad's attributes  
+a character array of the Quadrature's attributes  
 ";
 
-%feature("docstring") PolarQuad::~PolarQuad "
-~PolarQuad()  
+%feature("docstring") Quadrature::getAzimSpacing "
+getAzimSpacing(int azim) -> FP_PRECISION  
 
-Destructor deletes arrray of sines of the polar angles, the weights of the polar angles
-and the products of the sines and weights.  
-";
+Returns the adjusted azimuthal spacing at the requested azimuthal angle index.  
 
-%feature("docstring") PolarQuad::getWeight "
-getWeight(const int n) const  -> FP_PRECISION  
-
-Returns the weight value for a particular polar angle.  
+The aziumthal spacing depends on the azimuthal angle. This function returns the azimuthal
+spacing used at the desired azimuthal angle index.  
 
 Parameters
 ----------
-* n :  
+* azim :  
+    the requested azimuthal angle index  
+
+Returns
+-------
+the requested azimuthal spacing  
+";
+
+%feature("docstring") Quadrature::setAzimWeight "
+setAzimWeight(double weight, int azim)  
+
+Sets the azimuthal weight for the given index.  
+
+Parameters
+----------
+* weight :  
+    the weight of the azimuthal angle  
+* azim :  
+    the azimuthal index  
+";
+
+%feature("docstring") Quadrature::Quadrature "
+Quadrature()  
+
+Dummy constructor sets the default number of angles to zero.  
+";
+
+%feature("docstring") Quadrature::getQuadratureType "
+getQuadratureType() -> quadratureType  
+
+Returns the type of Quadrature created.  
+
+Returns
+-------
+The quadrature type  
+";
+
+%feature("docstring") Quadrature::getWeightInline "
+getWeightInline(int azim, int polar) -> FP_PRECISION  
+
+Returns the total weight for Tracks with the given azimuthal and polar indexes without
+error checking and inlined.  
+
+Angular weights are multiplied by Track spcings  
+
+Parameters
+----------
+* azim :  
+    index of the azimuthal angle of interest  
+* polar :  
     index of the polar angle of interest  
 
 Returns
 -------
-the weight for a polar angle  
+the total weight of each Track with the given indexes  
+";
+
+%feature("docstring") Quadrature::getTheta "
+getTheta(int azim, int polar) -> double  
+
+Returns the polar angle in radians for a given azimuthal and polar angle index.  
+
+Parameters
+----------
+* azim :  
+    index of the azimthal angle of interest  
+* polar :  
+    index of the polar angle of interest  
+
+Returns
+-------
+the value of the polar angle for this azimuthal and polar angle index  
+";
+
+%feature("docstring") Quadrature::setNumPolarAngles "
+setNumPolarAngles(const int num_polar)  
+
+Set the number of polar angles to initialize.  
+
+Parameters
+----------
+* num_polar :  
+    the number of polar angles  
 ";
 
 // File: structsecond__t.xml
@@ -5907,16 +6257,6 @@ Parameters
     an optional pointer to a TrackGenerator object  
 ";
 
-%feature("docstring") Solver::getPolarQuad "
-getPolarQuad() -> PolarQuad *  
-
-Returns a pointer to the PolarQuad.  
-
-Returns
--------
-a pointer to the PolarQuad  
-";
-
 %feature("docstring") Solver::getMaxOpticalLength "
 getMaxOpticalLength() -> FP_PRECISION  
 
@@ -5982,24 +6322,6 @@ Returns a pointer to the Geometry.
 Returns
 -------
 a pointer to the Geometry  
-";
-
-%feature("docstring") Solver::setPolarQuadrature "
-setPolarQuadrature(PolarQuad *polar_quad)  
-
-Assign a PolarQuad object to the Solver.  
-
-This routine allows use of a PolarQuad with any polar angle quadrature. Alternatively,
-this routine may take in any subclass of the PolarQuad parent class, including TYPolarQuad
-(default), LeonardPolarQuad, GLPolarQuad, etc.  
-
-Users may assign a PolarQuad object to the Solver from Python script as follows:  
-
-
-Parameters
-----------
-* polar_quad :  
-    a pointer to a PolarQuad object  
 ";
 
 %feature("docstring") Solver::initializeSourceArrays "
@@ -6131,7 +6453,7 @@ Computes the residual between successive flux/source iterations.
 Parameters
 ----------
 * res_type :  
-    the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
+    the residual type (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)  
 
 Returns
 -------
@@ -6223,7 +6545,7 @@ Parameters
 %feature("docstring") Solver::computeKeff "
 computeKeff()=0  
 
-Compute $ k_{eff} $ from total fission and absorption rates in each FSR and energy group.  
+Compute $ k_{eff} $ from successive fission sources.  
 ";
 
 %feature("docstring") Solver::getFSRSource "
@@ -6245,12 +6567,10 @@ Returns
 the flat source region source  
 ";
 
-%feature("docstring") Solver::initializePolarQuadrature "
-initializePolarQuadrature()  
+%feature("docstring") Solver::initializeFluxArrays "
+initializeFluxArrays()=0  
 
-Initializes a new PolarQuad object.  
-
-Deletes memory old PolarQuad if one was previously allocated.  
+Initializes Track boundary angular and FSR scalar flux arrays.  
 ";
 
 %feature("docstring") Solver::scatterTransportSweep "
@@ -6380,12 +6700,6 @@ equation.
 initializeExpEvaluator()  
 
 Initializes new ExpEvaluator object to compute exponentials.  
-";
-
-%feature("docstring") Solver::initializeFluxArrays "
-initializeFluxArrays()=0  
-
-Initializes Track boundary angular and FSR scalar flux arrays.  
 ";
 
 %feature("docstring") Solver::computeFSRScatterSources "
@@ -7386,8 +7700,8 @@ vacuum (0), reflective (1), or periodic (2) reflective boundary conditions
 The TrackGenerator is dedicated to generating and storing Tracks which cyclically wrap
 across the Geometry.  
 
-The TrackGenerator creates Track and initializes boundary conditions (vacuum or
-reflective) for each Track.  
+The TrackGenerator creates Track and initializes boundary conditions (vacuum, reflective,
+or periodic) for each Track.  
 
 C++ includes: src/TrackGenerator.h
 ";
@@ -7432,17 +7746,14 @@ Returns
 the z-coord where the 2D Tracks should be created.  
 ";
 
-%feature("docstring") TrackGenerator::getTracks "
-getTracks() -> Track **  
+%feature("docstring") TrackGenerator::getQuadrature "
+getQuadrature() -> Quadrature *  
 
-Returns a 2D jagged array of the Tracks.  
-
-The first index into the array is the azimuthal angle and the second index is the Track
-number for a given azimuthal angle.  
+Returns a pointer to the Quadrature.  
 
 Returns
 -------
-the 2D jagged array of Tracks  
+a pointer to the Quadrature  
 ";
 
 %feature("docstring") TrackGenerator::initializeSegments "
@@ -7475,6 +7786,12 @@ Parameters
 ----------
 * z_coord :  
     the z-coord where the 2D Tracks should be created.  
+";
+
+%feature("docstring") TrackGenerator::resetFSRVolumes "
+resetFSRVolumes()  
+
+Deletes the memory associated with the FSR volumes and resets it NULL.  
 ";
 
 %feature("docstring") TrackGenerator::generateFSRCentroids "
@@ -7523,31 +7840,22 @@ Parameters
     the total number of Track segments times NUM_VALUES_PER_RETRIEVED_SEGMENT  
 ";
 
-%feature("docstring") TrackGenerator::correctFSRVolume "
-correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume)  
+%feature("docstring") TrackGenerator::setQuadrature "
+setQuadrature(Quadrature *quadrature)  
 
-Assign a correct volume for some FSR.  
+Assign a Quadrature object to the Solver.  
 
-This routine adjusts the length of each track segment crossing a FSR such that the
-integrated volume is identical to the true volume assigned by the user.  
+This routine allows use of a Quadrature with any polar angle quadrature. Alternatively,
+this routine may take in any subclass of the Quadrature parent class, including
+TYPolarQuad (default), LeonardPolarQuad, GLPolarQuad, etc.  
 
-Parameters
-----------
-* fsr_id :  
-    the ID of the FSR of interest  
-* fsr_volume :  
-    the correct FSR volume to use  
-";
+Users may assign a Quadrature object to the Solver from Python script as follows:  
 
-%feature("docstring") TrackGenerator::setTrackSpacing "
-setTrackSpacing(double spacing)  
-
-Set the suggested track spacing (cm).  
 
 Parameters
 ----------
-* spacing :  
-    the suggested track spacing  
+* quadrature :  
+    a pointer to a Quadrature object  
 ";
 
 %feature("docstring") TrackGenerator::getNumTracksByParallelGroup "
@@ -7563,10 +7871,7 @@ the number of tracks in a given parallel track group.
 %feature("docstring") TrackGenerator::getFSRVolumes "
 getFSRVolumes() -> FP_PRECISION *  
 
-Computes and returns an array of volumes indexed by FSR.  
-
-Note: It is the function caller's responsibility to deallocate the memory reserved for the
-FSR volume array.  
+Returns an array of volumes indexed by FSR.  
 
 Returns
 -------
@@ -7601,6 +7906,19 @@ Parameters
 ----------
 * max_optical_length :  
     the maximum optical length  
+";
+
+%feature("docstring") TrackGenerator::getTracks "
+getTracks() -> Track **  
+
+Returns a 2D jagged array of the Tracks.  
+
+The first index into the array is the azimuthal angle and the second index is the Track
+number for a given azimuthal angle.  
+
+Returns
+-------
+the 2D jagged array of Tracks  
 ";
 
 %feature("docstring") TrackGenerator::getNumY "
@@ -7667,31 +7985,57 @@ Returns
 the maximum optical path length  
 ";
 
+%feature("docstring") TrackGenerator::printTimerReport "
+printTimerReport()  
+
+Prints a report of the timing statistics to the console.  
+";
+
 %feature("docstring") TrackGenerator::~TrackGenerator "
 ~TrackGenerator()  
 
 Destructor frees memory for all Tracks.  
 ";
 
+%feature("docstring") TrackGenerator::correctFSRVolume "
+correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume)  
+
+Assign a correct volume for some FSR.  
+
+This routine adjusts the length of each track segment crossing a FSR such that the
+integrated volume is identical to the true volume assigned by the user.  
+
+Parameters
+----------
+* fsr_id :  
+    the ID of the FSR of interest  
+* fsr_volume :  
+    the correct FSR volume to use  
+";
+
+%feature("docstring") TrackGenerator::getDesiredAzimSpacing "
+getDesiredAzimSpacing() -> double  
+
+Return the azimuthal track spacing (cm).  
+
+This will return the user-specified azimuthal track spacing and NOT the effective track
+spacing which is computed and used to generate cyclic tracks.  
+
+Returns
+-------
+the azimuthal track spacing (cm)  
+";
+
 %feature("docstring") TrackGenerator::generateTracks "
-generateTracks(bool neighbor_cells=false)  
+generateTracks(bool store=true, bool neighbor_cells=false)  
 
 Generates tracks for some number of azimuthal angles and track spacing.  
 
 Computes the effective angles and track spacing. Computes the number of Tracks for each
 azimuthal angle, allocates memory for all Tracks at each angle and sets each Track's
 starting and ending Points, azimuthal angle, and azimuthal angle quadrature weight.
-neighbor_cells whether to use neighbor cell optimizations  
-";
-
-%feature("docstring") TrackGenerator::getAzimWeights "
-getAzimWeights() -> FP_PRECISION *  
-
-Return a pointer to the array of azimuthal angle quadrature weights.  
-
-Returns
--------
-the array of azimuthal angle quadrature weights  
+neighbor_cells whether to use neighbor cell optimizations store whether to store the
+tracks to a file for reuse  
 ";
 
 %feature("docstring") TrackGenerator::getNumSegments "
@@ -7745,19 +8089,6 @@ Returns
 a pointer to the Geometry  
 ";
 
-%feature("docstring") TrackGenerator::getTrackSpacing "
-getTrackSpacing() -> double  
-
-Return the track spacing (cm).  
-
-This will return the user-specified track spacing and NOT the effective track spacing
-which is computed and used to generate cyclic tracks.  
-
-Returns
--------
-the track spacing (cm)  
-";
-
 %feature("docstring") TrackGenerator::getNumParallelTrackGroups "
 getNumParallelTrackGroups() -> int  
 
@@ -7768,8 +8099,19 @@ Returns
 The number of parallel track groups  
 ";
 
+%feature("docstring") TrackGenerator::setDesiredAzimSpacing "
+setDesiredAzimSpacing(double azim_spacing)  
+
+Set the suggested azimuthal track spacing (cm).  
+
+Parameters
+----------
+* azim_spacing :  
+    the suggested azimuthal track spacing  
+";
+
 %feature("docstring") TrackGenerator::TrackGenerator "
-TrackGenerator(Geometry *geometry, int num_azim, double spacing)  
+TrackGenerator(Geometry *geometry, int num_azim, double azim_spacing)  
 
 Constructor for the TrackGenerator assigns default values.  
 
@@ -7779,8 +8121,8 @@ Parameters
     a pointer to a Geometry object  
 * num_azim :  
     number of azimuthal angles in $ [0, 2\\pi] $  
-* spacing :  
-    track spacing (cm)  
+* azim_spacing :  
+    azimuthal track spacing (cm)  
 ";
 
 %feature("docstring") TrackGenerator::getNumTracks "
@@ -7811,7 +8153,18 @@ true if the TrackGenerator conatains Tracks; false otherwise
 
 Tabuchi-Yamamoto's polar quadrature.  
 
-C++ includes: src/PolarQuad.h
+C++ includes: src/Quadrature.h
+";
+
+%feature("docstring") TYPolarQuad::precomputeWeights "
+precomputeWeights(bool solve_3D)  
+
+Calculates total weights for every azimuthal/polar combination based on the TY quadrature.  
+
+Parameters
+----------
+* solve_3D :  
+    Boolean indicating whether this is a 3D quadrature  
 ";
 
 %feature("docstring") TYPolarQuad::setNumPolarAngles "
@@ -7822,7 +8175,7 @@ Set the number of polar angles to initialize.
 Parameters
 ----------
 * num_polar :  
-    the number of polar angles (maximum 3)  
+    the number of polar angles (maximum 6)  
 ";
 
 %feature("docstring") TYPolarQuad::TYPolarQuad "
@@ -9309,8 +9662,8 @@ Parameters
 
 %feature("docstring") transferBoundaryFlux "
 transferBoundaryFlux(dev_track *curr_track, int azim_index, FP_PRECISION *track_flux,
-    FP_PRECISION *boundary_flux, FP_PRECISION *polar_weights, int energy_angle_index, bool
-    direction) -> __device__ void  
+    FP_PRECISION *boundary_flux, int energy_angle_index, bool direction) -> __device__
+    void  
 
 Updates the boundary flux for a Track given boundary conditions.  
 
@@ -9329,8 +9682,8 @@ Parameters
     an array of the outgoing Track flux  
 * boundary_flux :  
     an array of all angular fluxes  
-* polar_weights :  
-    an array of polar Quadrature weights  
+* weights :  
+    an array of Quadrature weights  
 * energy_angle_index :  
     the energy group index  
 * direction :  
@@ -9405,7 +9758,7 @@ Parameters
 %feature("docstring") tallyScalarFlux "
 tallyScalarFlux(dev_segment *curr_segment, int azim_index, int energy_group, dev_material
     *materials, FP_PRECISION *track_flux, FP_PRECISION *reduced_sources, FP_PRECISION
-    *polar_weights, FP_PRECISION *scalar_flux) -> __device__ void  
+    *scalar_flux) -> __device__ void  
 
 Computes the contribution to the FSR scalar flux from a Track segment in a single energy
 group.  
@@ -9427,8 +9780,6 @@ Parameters
     a pointer to the Track's angular flux  
 * reduced_sources :  
     the array of FSR sources / total xs  
-* polar_weights :  
-    the array of polar Quadrature weights  
 * scalar_flux :  
     the array of FSR scalar fluxes  
 ";
@@ -10337,9 +10688,9 @@ the sum of all numbers in the array
 
 // File: Point_8h.xml
 
-// File: PolarQuad_8cpp.xml
+// File: Quadrature_8cpp.xml
 
-// File: PolarQuad_8h.xml
+// File: Quadrature_8h.xml
 
 // File: Solver_8cpp.xml
 
