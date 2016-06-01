@@ -9,7 +9,6 @@ Solver::Solver(TrackGenerator* track_generator) {
   /* Default values */
   _num_materials = 0;
   _num_groups = 0;
-  _num_parallel_track_groups = 0;
 
   _num_FSRs = 0;
   _num_fissionable_FSRs = 0;
@@ -351,9 +350,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _track_generator = track_generator;
   _quadrature = track_generator->getQuadrature();
   _num_polar_2 = _quadrature->getNumPolarAngles() / 2;
-  _num_parallel_track_groups = _track_generator->getNumParallelTrackGroups();
   _tot_num_tracks = _track_generator->getNumTracks();
-  _tracks = _track_generator->getTracksByParallelGroup();
+  _tracks = _track_generator->getTracksArray();
 
   /* Retrieve and store the Geometry from the TrackGenerator */
   setGeometry(_track_generator->getGeometry());
