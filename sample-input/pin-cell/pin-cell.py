@@ -93,10 +93,16 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = openmoc.CPUSolver(track_generator)
-solver.setNumThreads(opts.num_omp_threads)
+#solver = openmoc.CPUSolver(track_generator)
+solver = openmoc.MCSolver(track_generator)
+#solver.setNumThreads(opts.num_omp_threads)
 solver.setConvergenceThreshold(opts.tolerance)
-solver.computeEigenvalue(opts.max_iters)
+#solver.computeEigenvalue(opts.max_iters)
+solver.setGeometry(geometry)
+solver.setRootCell(root_cell)
+solver.initializeFSRs()
+solver.initializeFlux()
+solver.computeEigenvalue(1000,1000,7)
 solver.printTimerReport()
 
 
