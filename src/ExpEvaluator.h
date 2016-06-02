@@ -11,7 +11,7 @@
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
 #include "log.h"
-#include "PolarQuad.h"
+#include "Quadrature.h"
 #include <math.h>
 #endif
 
@@ -40,11 +40,11 @@ private:
   /** The exponential linear interpolation table */
   FP_PRECISION* _exp_table;
 
-  /** The PolarQuad object of interest */
-  PolarQuad* _polar_quad;
+  /** The Quadrature object of interest */
+  Quadrature* _quadrature;
 
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
+  /** The number of polar angles */
+  int _num_polar;
 
   /** The maximum optical length a track is allowed to have */
   FP_PRECISION _max_optical_length;
@@ -57,7 +57,7 @@ public:
   ExpEvaluator();
   virtual ~ExpEvaluator();
 
-  void setPolarQuadrature(PolarQuad* polar_quad);
+  void setQuadrature(Quadrature* quadrature);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setExpPrecision(FP_PRECISION exp_precision);
   void useInterpolation();
@@ -94,15 +94,15 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
   if (_interpolate) {
     tau = std::min(tau, (_max_optical_length));
     int index = floor(tau * _inverse_exp_table_spacing);
-    index *= _two_times_num_polar;
+    index *= _num_polar;
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                   _exp_table[index + 2 * polar + 1]));
   }
 
   /* Evalute the exponential using the intrinsic exp(...) function */
   else {
-    FP_PRECISION sintheta = _polar_quad->getSinTheta(polar);
-    exponential = 1.0 - exp(- tau / sintheta);
+    FP_PRECISION sin_theta = _quadrature->getSinTheta(0, polar);
+    exponential = 1.0 - exp(- tau / sin_theta);
   }
 
   return exponential;

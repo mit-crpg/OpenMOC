@@ -18,7 +18,6 @@
 #include "log.h"
 #include "Matrix.h"
 #include "Vector.h"
-#include "constants.h"
 #include <math.h>
 #include <vector>
 #include <omp.h>

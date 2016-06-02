@@ -20,8 +20,8 @@ openmoc.log.py_printf('TITLE', \
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 from geometry import geometry
-track_generator = openmoc.TrackGenerator(geometry, opts.num_azim, 
-                                         opts.track_spacing)
+track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
+                                         opts.azim_spacing)
 track_generator.generateTracks()
 
 

@@ -10,7 +10,7 @@
 Cmfd::Cmfd() {
 
   /* Initialize Geometry and Mesh-related attribute */
-  _polar_quad = NULL;
+  _quadrature = NULL;
   _geometry = NULL;
   _materials = NULL;
 
@@ -30,7 +30,7 @@ Cmfd::Cmfd() {
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
   _num_cmfd_groups = 0;
-  _num_polar = 0;
+  _num_polar_2 = 0;
 
   /* Set matrices and arrays to NULL */
   _A = NULL;
@@ -214,7 +214,7 @@ void Cmfd::setWidthY(double width) {
  */
 void Cmfd::collapseXS() {
 
-  log_printf(INFO, "Collapsing cross-sections onto CMFD mesh...");
+  log_printf(DEBUG, "Collapsing cross-sections onto CMFD mesh...");
 
   /* Split edge currents to side surfaces */
   splitEdgeCurrents();
@@ -536,7 +536,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
  */
 FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
-  log_printf(INFO, "Running diffusion solver...");
+  log_printf(DEBUG, "Running diffusion solver...");
 
   /* Create matrix and vector objects */
   if (_A == NULL) {
@@ -597,7 +597,7 @@ void Cmfd::rescaleFlux() {
  */
 void Cmfd::constructMatrices(int moc_iteration) {
 
-  log_printf(INFO,"Constructing matrices...");
+  log_printf(DEBUG,"Constructing matrices...");
 
   /* Zero _A and _M matrices */
   _A->clear();
@@ -663,8 +663,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
       }
     }
   }
-
-  log_printf(INFO, "Done constructing matrices...");
 }
 
 
@@ -676,7 +674,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
  */
 void Cmfd::updateMOCFlux() {
 
-  log_printf(INFO, "Updating MOC flux...");
+  log_printf(DEBUG, "Updating MOC flux...");
 
   /* Precompute the CMFD flux ratios */
 #pragma omp parallel for
@@ -758,11 +756,11 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
   FP_PRECISION rho = 0.0;
 
   /* Loop over polar angles */
-  for (int p = 0; p < _num_polar; p++) {
-    mu = cos(asin(_polar_quad->getSinTheta(p)));
+  for (int p = 0; p < _num_polar_2; p++) {
+    mu = cos(asin(_quadrature->getSinTheta(0, p)));
     expon = exp(-delta / (3 * dif_coef * mu));
     alpha = (1 + expon) / (1 - expon) - 2 * (3 * dif_coef * mu) / delta;
-    rho += mu * _polar_quad->getWeight(p) * alpha;
+    rho += 2.0 * mu * _quadrature->getPolarWeight(0, p) * alpha;
   }
 
   /* Compute the correction factor */
@@ -834,48 +832,52 @@ int Cmfd::getCmfdGroup(int group) {
 
 
 /**
- * @brief Set the CMFD energy group structure.
+ * @brief Set a coarse energy group structure for CMFD.
  * @details CMFD does not necessarily need to have the same energy group
  *          structure as the MOC problem. This function can be used to set
- *          a sparse energy group structure to speed up the CMFD solve.
- * @param group_indices An array of the CMFD group boundaries
- * @param length_group_indices The length of the group_indices array
+ *          a sparse energy group structure to speed up the CMFD solve. An
+ *          example of how this may be called from Python to use a coarse
+ *          2-group CMFD structure atop a fine 7-group MOC structure is
+ *          illustrated below:
+ *
+ * @code
+ *          cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
+ * @endcode
+ *
+ * @param group_indices A nested vector of MOC-to-CMFD group mapping
  */
-void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
+void Cmfd::setGroupStructure(std::vector< std::vector<int> > group_indices) {
 
-  _num_cmfd_groups = length_group_indices - 1;
+  _user_group_indices = true;
 
   /* Delete old group indices array if it exists */
   if (_group_indices != NULL)
     delete [] _group_indices;
 
   /* Allocate memory for new group indices */
-  _group_indices = new int[length_group_indices];
+  _num_cmfd_groups = group_indices.size();
+  _group_indices = new int[_num_cmfd_groups+1];
 
-  if (group_indices == NULL) {
-    for (int i = 0; i < length_group_indices; i++) {
-      _group_indices[i] = i;
+  /* Initialize first group index to 0 */
+  int last_moc_group = 0;
+
+  /* Set MOC group bounds for rest of CMFD energy groups */
+  for (int i=0; i < _num_cmfd_groups; i++) {
+    for (int j=0; j < group_indices[i].size(); j++) {
+      if (group_indices[i][j] <= last_moc_group)
+	log_printf(ERROR, "The CMFD coarse group indices are not "
+		   "monotonically increasing");
+      last_moc_group = group_indices[i][j];
     }
-  }
-  else{
-    if (group_indices[0] != 1)
-      log_printf(ERROR, "The first value in group indices must be 1!");
-
-    /* Set first group indice to 0 */
-    _group_indices[0] = 0;
-
-    /* Set MOC group bounds for rest of CMFD energy groups */
-    for (int i = 1; i < length_group_indices; i++) {
-      /* Check that the group indices are always increasing */
-      if (group_indices[i] <= group_indices[i-1])
-        log_printf(ERROR, "The group indices must be increasing!");
-
-      _group_indices[i] = group_indices[i] - 1;
-      log_printf(INFO, "group indices %d: %d", i, group_indices[i]);
-    }
+    _group_indices[i] = group_indices[i][0] - 1;
+    log_printf(DEBUG, "CMFD group indices %d: %d", i, _group_indices[i]);
   }
 
-  _user_group_indices = true;
+  /* Set the last group index */
+  _group_indices[_num_cmfd_groups] =
+    group_indices[_num_cmfd_groups-1].back();
+  log_printf(DEBUG, "CMFD group indices %d: %d",
+	     _num_cmfd_groups, _group_indices[_num_cmfd_groups]);
 }
 
 
@@ -954,8 +956,25 @@ void Cmfd::initializeGroupMap() {
 
   /* Setup one-to-one fine-to-coarse group map if not specified by user */
   if (!_user_group_indices) {
-    setGroupStructure(NULL, _num_moc_groups+1);
-    _user_group_indices = false;
+    _num_cmfd_groups = _num_moc_groups;
+
+    /* Delete old group indices array if it exists */
+    if (_group_indices != NULL)
+      delete [] _group_indices;
+
+    /* Allocate memory for new group indices */
+    _group_indices = new int[_num_cmfd_groups+1];
+
+    /* Populate a 1-to-1 mapping from MOC to CMFD groups */
+    for (int i = 0; i <= _num_cmfd_groups; i++) {
+      _group_indices[i] = i;
+    }
+  }
+  else {
+    if (_num_moc_groups != _group_indices[_num_cmfd_groups])
+      log_printf(ERROR, "The CMFD coarse group mapping is specified for "
+		 "%d groups, but the MOC problem contains %d groups",
+		 _group_indices[_num_cmfd_groups], _num_moc_groups);
   }
 
   /* Delete old group indices map if it exists */
@@ -1092,7 +1111,7 @@ void Cmfd::setNumFSRs(int num_fsrs) {
  */
 void Cmfd::splitEdgeCurrents() {
 
-  log_printf(INFO, "Splitting CMFD edge currents...");
+  log_printf(DEBUG, "Splitting CMFD edge currents...");
 
   int ncg = _num_cmfd_groups;
   int nf = NUM_FACES;
@@ -1426,12 +1445,12 @@ void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
 
 
 /**
- * @brief Sets the PolarQuad object in use by the MOC Solver.
- * @param polar_quad A PolarQuad object pointer from the Solver
+ * @brief Sets the Quadrature object in use by the MOC Solver.
+ * @param quadrature A Quadrature object pointer from the Solver
  */
-void Cmfd::setPolarQuadrature(PolarQuad* polar_quad) {
-  _polar_quad = polar_quad;
-  _num_polar = polar_quad->getNumPolarAngles();
+void Cmfd::setQuadrature(Quadrature* quadrature) {
+  _quadrature = quadrature;
+  _num_polar_2 = quadrature->getNumPolarAngles() / 2;
 }
 
 
@@ -1631,7 +1650,7 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
     /* INTERNAL */
     if (_k_nearest_stencils[fsr].size() == 1)
       ratio += _flux_ratio->getValue(cell_id, group);
-    else{
+    else {
       ratio += _k_nearest_stencils[fsr][0].second *
         _flux_ratio->getValue(cell_id, group);
       ratio /= (_k_nearest_stencils[fsr].size() - 1);
@@ -1754,7 +1773,7 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
  * @return The number of Tracks
  */
 void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
-			      int num_tracks) {
+                              int num_tracks) {
 
   segment* segments;
   segment* curr_segment;
@@ -1764,7 +1783,7 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
   FP_PRECISION ratio;
   int cell_id;
 
-  log_printf(INFO, "updating boundary flux");
+  log_printf(DEBUG, "Updating boundary flux...");
 
   /* Loop over Tracks */
   for (int i=0; i < num_tracks; i++) {
@@ -1773,14 +1792,14 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     segments = tracks[i]->getSegments();
 
     /* Update boundary flux in forward direction */
-    bc = (int)tracks[i]->getBCOut();
+    bc = (int)tracks[i]->getBCIn();
     curr_segment = &segments[0];
-    track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar];
+    track_flux = &boundary_flux[i*2*_num_moc_groups*_num_polar_2];
     cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
 
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
-        for (int p=0; p < _num_polar; p++) {
+        for (int p=0; p < _num_polar_2; p++) {
           track_flux[p*_num_moc_groups + e] *= _flux_ratio->getValue
             (cell_id, e);
         }
@@ -1788,13 +1807,14 @@ void Cmfd::updateBoundaryFlux(Track** tracks, FP_PRECISION* boundary_flux,
     }
 
     /* Update boundary flux in backwards direction */
-    bc = (int)tracks[i]->getBCIn();
+    bc = (int)tracks[i]->getBCOut();
     curr_segment = &segments[num_segments - 1];
-    track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar];
+    track_flux = &boundary_flux[(i*2 + 1)*_num_moc_groups*_num_polar_2];
+    cell_id = convertFSRIdToCmfdCell(curr_segment->_region_id);
 
     if (bc) {
       for (int e=0; e < _num_moc_groups; e++) {
-        for (int p=0; p < _num_polar; p++) {
+        for (int p=0; p < _num_polar_2; p++) {
           track_flux[p*_num_moc_groups + e] *= _flux_ratio->getValue
             (cell_id, e);
         }
@@ -1840,11 +1860,11 @@ void Cmfd::zeroCurrents() {
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment The current Track segment
  * @param track_flux The outgoing angular flux for this segment
- * @param polar_weights Array of polar weights for some azimuthal angle
+ * @param azim_index Azimuthal angle index of the current Track
  * @param fwd Boolean indicating direction of integration along segment
  */
 void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
-                        FP_PRECISION* polar_weights, bool fwd) {
+                        int azim_index, bool fwd) {
 
   int surf_id, cell_id;
   int ncg = _num_cmfd_groups;
@@ -1858,11 +1878,11 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
 
       for (int e=0; e < _num_moc_groups; e++) {
-
         int g = getCmfdGroup(e);
 
-        for (int p=0; p < _num_polar; p++)
-          currents[g] += track_flux(p, e) * polar_weights[p] / 2.;
+        for (int p=0; p < _num_polar_2; p++)
+          currents[g] += track_flux(p, e) *
+                         _quadrature->getWeightInline(azim_index, p);
       }
 
       /* Increment currents */
@@ -1880,8 +1900,9 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
         int g = getCmfdGroup(e);
 
-        for (int p=0; p < _num_polar; p++)
-          currents[g] += track_flux(p, e) * polar_weights[p] / 2.;
+        for (int p=0; p < _num_polar_2; p++)
+          currents[g] += track_flux(p, e) *
+                         _quadrature->getWeightInline(azim_index, p);
       }
 
       /* Increment currents */
@@ -1920,7 +1941,7 @@ void Cmfd::initialize() {
   if (_cell_locks != NULL)
     delete [] _cell_locks;
 
-  try{
+  try {
 
     /* Allocate array of OpenMP locks for each CMFD cell */
     _cell_locks = new omp_lock_t[num_cells];

@@ -15,7 +15,7 @@
 #endif
 #include "constants.h"
 #include "Timer.h"
-#include "PolarQuad.h"
+#include "Quadrature.h"
 #include "TrackGenerator.h"
 #include "Cmfd.h"
 #include "ExpEvaluator.h"
@@ -32,14 +32,14 @@
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources(r,e) (_reduced_sources[(r)*_num_groups + (e)])
 
-/** Indexing macro for the polar quadrature weights multiplied by the
- *  azimuthal angle quadrature weights */
-#define _polar_weights(i,p) (_polar_weights[(i)*_num_polar + (p)])
-
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for the outgoing reflective track for both the forward and
  *  reverse direction for a given track */
 #define _boundary_flux(i,j,p,e) (_boundary_flux[(i)*2*_polar_times_groups \
+                                                + (j)*_polar_times_groups \
+                                                + (p)*_num_groups + (e)])
+
+#define _start_flux(i,j,p,e) (_start_flux[(i)*2*_polar_times_groups \
                                                 + (j)*_polar_times_groups \
                                                 + (p)*_num_groups + (e)])
 
@@ -95,9 +95,6 @@ class Solver {
 
 protected:
 
-  /** The number of azimuthal angles */
-  int _num_azim;
-
   /** The number of energy groups */
   int _num_groups;
 
@@ -122,14 +119,11 @@ protected:
   /** The number of Materials */
   int _num_materials;
 
-  /** A pointer to a polar quadrature */
-  PolarQuad* _polar_quad;
+  /** Half the number of polar angles */
+  int _num_polar_2;
 
-  /** A boolean indicating if a user-defined PolarQuad was assigned */
-  bool _user_polar_quad;
-
-  /** The number of polar angles */
-  int _num_polar;
+  /** A pointer to the quadrature */
+  Quadrature* _quadrature;
 
   /** The number of polar angles times energy groups */
   int _polar_times_groups;
@@ -140,13 +134,11 @@ protected:
   /** The total number of Tracks */
   int _tot_num_tracks;
 
-  /** The weights for each polar angle in the polar angle quadrature */
-  FP_PRECISION* _polar_weights;
-
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
    *  a Track along both "forward" and "reverse" directions. */
   FP_PRECISION* _boundary_flux;
+  FP_PRECISION* _start_flux;
 
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
@@ -204,7 +196,6 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
-  PolarQuad* getPolarQuad();
   FP_PRECISION getFSRVolume(int fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
@@ -218,9 +209,9 @@ public:
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
+  virtual FP_PRECISION* getBoundaryFlux(int track_id, bool fwd);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setPolarQuadrature(PolarQuad* polar_quad);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
   void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
@@ -232,7 +223,6 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
 
-  virtual void initializePolarQuadrature();
   virtual void initializeExpEvaluator();
   virtual void initializeMaterials(solverMode mode=FORWARD);
   virtual void initializeFSRs();
@@ -295,14 +285,13 @@ public:
 
   /**
    * @brief Computes the residual between successive flux/source iterations.
-   * @param res_type the type of residual (FLUX, FISSION_SOURCE, TOTAL_SOURCE)
+   * @param res_type the residual type (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)
    * @return the total residual summed over FSRs and energy groups
    */
   virtual double computeResidual(residualType res_type) = 0;
 
   /**
-   * @brief Compute \f$ k_{eff} \f$ from total fission and absorption rates
-   *        in each FSR and energy group.
+   * @brief Compute \f$ k_{eff} \f$ from successive fission sources.
    */
   virtual void computeKeff() = 0;
 

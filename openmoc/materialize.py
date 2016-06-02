@@ -179,12 +179,12 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'transport' in domain_group:
             sigma = _get_numpy_array(domain_group, 'transport', suffix)
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "transport" MGXS for "%s %s"',
+            py_printf('DEBUG', 'Loaded "transport" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         elif 'total' in domain_group:
             sigma = _get_numpy_array(domain_group, 'total', suffix)
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "total" MGXS for "%s %s"',
+            py_printf('DEBUG', 'Loaded "total" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
@@ -194,7 +194,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'nu-fission' in domain_group:
             sigma = _get_numpy_array(domain_group, 'nu-fission', suffix)
             material.setNuSigmaF(sigma)
-            py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %s"',
+            py_printf('DEBUG', 'Loaded "nu-fission" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
@@ -204,12 +204,12 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'nu-scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'nu-scatter matrix', suffix)
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "nu-scatter matrix" MGXS for "%s %s"',
+            py_printf('DEBUG', 'Loaded "nu-scatter matrix" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         elif 'scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'scatter matrix', suffix)
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "scatter matrix" MGXS for "%s %s"',
+            py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "scatter matrix" found for "%s %s"',
@@ -219,7 +219,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'chi' in domain_group:
             chi = _get_numpy_array(domain_group, 'chi', suffix)
             material.setChi(chi)
-            py_printf('INFO', 'Loaded "chi" MGXS for "%s %s"',
+            py_printf('DEBUG', 'Loaded "chi" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %s"',
@@ -229,7 +229,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         if 'fission' in domain_group:
             sigma = _get_numpy_array(domain_group, 'fission', suffix)
             material.setSigmaF(sigma)
-            py_printf('INFO', 'Loaded "fission" MGXS for "%s %s"',
+            py_printf('DEBUG', 'Loaded "fission" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
 
     # Inform SWIG to garbage collect any old Materials from the Geometry
@@ -293,9 +293,6 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
     for domain in mgxs_lib.domains:
 
-        py_printf('INFO', 'Importing cross sections for %s "%d"',
-                  domain_type, domain.id)
-
         # If using an OpenMOC Geometry, extract a Material from it
         if geometry:
 
@@ -304,6 +301,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
                 # Ignore materials which cannot be found in the OpenMOC Geometry
                 if material is None:
+                    domain_name = domain.name.replace('%', '%%')
+                    py_printf('WARNING', 'Ignoring cross sections for %s "%d" "%s"',
+                              domain_type, domain.id, str(domain_name))
                     continue
 
             elif domain_type == 'cell':
@@ -311,6 +311,9 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
                 # Ignore cells which cannot be found in the OpenMOC Geometry
                 if cell is None:
+                    domain_name = domain.name.replace('%', '%%')
+                    py_printf('WARNING', 'Ignoring cross sections for %s "%d" "%s"',
+                              domain_type, domain.id, str(domain_name))
                     continue
                 else:
                     material = cell.getFillMaterial()
@@ -333,6 +336,10 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         else:
             material = openmoc.Material(id=domain.id)
 
+        domain_name = domain.name.replace('%', '%%')
+        py_printf('INFO', 'Importing cross sections for %s "%d" "%s"',
+                  domain_type, domain.id, str(domain_name))
+
         # Add material to the collection
         materials[domain.id] = material
         material.setNumEnergyGroups(num_groups)
@@ -342,13 +349,19 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'transport')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "transport" MGXS for "%s %d"',
+            py_printf('DEBUG', 'Loaded "transport" MGXS for "%s %d"',
+                      domain_type, domain.id)
+        elif 'nu-transport' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'nu-transport')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaT(sigma)
+            py_printf('DEBUG', 'Loaded "nu-transport" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'total' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'total')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaT(sigma)
-            py_printf('INFO', 'Loaded "total" MGXS for "%s %d"',
+            py_printf('DEBUG', 'Loaded "total" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "total" or "transport" MGXS found for'
@@ -359,7 +372,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-fission')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setNuSigmaF(sigma)
-            py_printf('INFO', 'Loaded "nu-fission" MGXS for "%s %d"',
+            py_printf('DEBUG', 'Loaded "nu-fission" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "nu-fission" MGXS found for'
@@ -370,13 +383,13 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "nu-scatter matrix" MGXS for "%s %d"',
+            py_printf('DEBUG', 'Loaded "nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
-            py_printf('INFO', 'Loaded "scatter matrix" MGXS for "%s %d"',
+            py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '
@@ -387,7 +400,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'chi')
             chi = mgxs.get_xs(nuclides='sum')
             material.setChi(chi)
-            py_printf('INFO', 'Loaded "chi" MGXS for "%s %d"',
+            py_printf('DEBUG', 'Loaded "chi" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "chi" MGXS found for "%s %d"',
@@ -398,7 +411,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'fission')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaF(sigma)
-            py_printf('INFO', 'Loaded "fission" MGXS for "%s %d"',
+            py_printf('DEBUG', 'Loaded "fission" MGXS for "%s %d"',
                       domain_type, domain.id)
 
     # Inform SWIG to garbage collect any old Materials from the Geometry
@@ -410,7 +423,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
 
 def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
-                        fix_src_tol=1E-5, num_azim=4, track_spacing=0.1,
+                        fix_src_tol=1E-5, num_azim=4, azim_spacing=0.1,
                         zcoord=0.0, num_threads=1, throttle_output=True):
     """Compute SPH factors for an OpenMC multi-group cross section library.
 
@@ -439,7 +452,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         The tolerance on the MOC fixed source calculations (default is 1E-5_
     num_azim : Integral
         The number of azimuthal angles (default is 4)
-    track_spacing : Real
+    azim_spacing : Real
         The track spacing (default is 0.1 centimeters)
     zcoord : Real
         The coordinate on the z-axis (default is 0.)
@@ -481,7 +494,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     load_openmc_mgxs_lib(mgxs_lib, geometry)
 
     # Initialize an OpenMOC TrackGenerator
-    track_generator = openmoc.TrackGenerator(geometry, num_azim, track_spacing)
+    track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
     track_generator.setZCoord(zcoord)
     track_generator.generateTracks()
 

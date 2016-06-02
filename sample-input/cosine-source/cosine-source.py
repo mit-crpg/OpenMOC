@@ -104,7 +104,7 @@ geometry.setRootUniverse(root_universe)
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
-                                         opts.track_spacing)
+                                         opts.azim_spacing)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
@@ -133,7 +133,7 @@ for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
     group = g + 1
     source_value = math.cos(x_pt/L) * math.cos(y_pt/H)
     solver.setFixedSourceByFSR(fsr_id, group, source_value)
-  
+
   # NOTE: A more precise definition of the source would calculate the same
   # source values for all points within each flat source region. In this
   # example that is not the case. However, since the FSR discretization is
