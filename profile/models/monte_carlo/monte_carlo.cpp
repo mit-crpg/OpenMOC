@@ -131,15 +131,13 @@ int main() {
     
     // create solver
     MCSolver solver;
-    solver.setGeometry(geometry);
-    solver.setRootCell(root_cell);
+    solver.setGeometry(geometry, root_cell);
 
     // initialize solver function
-    solver.initializeFSRs(lattice);
-    solver.initializeFlux();
+    solver.initialize(lattice);
 
     // simulate neutrons
-    solver.computeEigenValue(num_neutrons, num_batches, num_groups);
+    solver.computeEigenValue(num_neutrons, num_batches);
 
     std::cout << std::endl;
 

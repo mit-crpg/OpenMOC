@@ -15,6 +15,7 @@ Fission::Fission() {
     _new_fission_bank = new std::vector <Point*>;
 }
 
+
 /*
  @brief     desconstructor for Fission Class
 */
@@ -22,6 +23,7 @@ Fission::~Fission() {
     delete _old_fission_bank;
     delete _new_fission_bank;
 }
+
 
 /*
  @brief     sets the old fission bank to contain the locations from the most
@@ -36,6 +38,7 @@ void Fission::newBatch() {
     _new_fission_bank->clear();
 }
 
+
 /*
  @brief     assigns a given neutron a position sampled from the fission bank
  @param     neutron a pointer to a Neutron object
@@ -48,6 +51,7 @@ void Fission::sampleSite(Neutron *neutron) {
     neutron->setPosition(1, site->getY());
     neutron->setPosition(2, site->getZ());
 }
+
 
 /*
  @brief     add a location to new_fission_bank

@@ -37,17 +37,15 @@ public:
     MCSolver(TrackGenerator* track_generator=NULL);
     virtual ~MCSolver();
 
-    void setGeometry(Geometry* geometry);
-    void setRootCell(Cell* root_cell);
-    void initializeFlux();
-    void initializeFSRs(Lattice* lattice);
+    void setGeometry(Geometry* geometry, Cell* root_cell);
+    void initialize(Lattice* lattice);
 
     void sampleLocation(Neutron* neutron);
 
-    void computeEigenValue(int n_histories, int num_batches, int num_groups);
+    void computeEigenValue(int n_histories, int num_batches);
 
     void transportNeutron(std::vector <Tally> &tallies, bool first_round,
-            Fission* fission_banks, int num_groups, int neutron_num);
+            Fission* fission_banks, int neutron_num);
     
     Geometry* getGeometry();
     virtual FP_PRECISION getFlux(int fsr_id, int group);

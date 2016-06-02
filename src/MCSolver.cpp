@@ -12,30 +12,27 @@
 */
 MCSolver::MCSolver(TrackGenerator* track_generator) : Solver(track_generator) {}
 
+
 /*
  @brief     deconstructor for MCSolver
 */
 MCSolver::~MCSolver() {}
 
+
 /*
  @brief     set the geometry and root universe for the solver
  @param     geometry the geometry of the solver
 */
-void MCSolver::setGeometry(Geometry* geometry) {
+void MCSolver::setGeometry(Geometry* geometry, Cell* root_cell) {
     _geometry = geometry;
     _root_universe = geometry->getRootUniverse();
+
+    // assumes root cell's id is 0
+    _root_cell = root_cell;
+
 }
 
-/*
- @brief     set the flux for the solver
- @param     geometry the flux of the solver
-*/
-void MCSolver::initializeFlux() {
 
-    _scalar_flux = new FP_PRECISION 
-        [_geometry->getNumFSRs()*_geometry->getNumEnergyGroups()];
-}
-    
 /*
  @brief     generates and transports neutron histories, calculates the mean
             crow distance
@@ -44,10 +41,8 @@ void MCSolver::initializeFlux() {
             about the material
  @param     flux a Flux object containing information about the flux
  @param     num_batches the number of batches to be tested
- @param     num_groups the number of neutron energy groups
 */
-void MCSolver::computeEigenValue(int n_histories, int num_batches,
-        int num_groups) {
+void MCSolver::computeEigenValue(int n_histories, int num_batches) {
 
     // initialize fsid
     _geometry->initializeFSRs();
@@ -61,9 +56,9 @@ void MCSolver::computeEigenValue(int n_histories, int num_batches,
     for (int batch=1; batch <= num_batches; ++batch) {
 
         // clear flux data
-        for (int i=0; i<_num_groups; ++i) {
-            for (int j=0; j<_geometry->getNumFSRs(); ++j) {
-                _scalar_flux(j,i) = 0.0;
+        for (int i=0; i<_geometry->getNumFSRs(); ++i) {
+            for (int g=0; g<_num_groups; ++g) {
+                _scalar_flux(i,g) = 0.0;
             }
         }
 
@@ -77,8 +72,7 @@ void MCSolver::computeEigenValue(int n_histories, int num_batches,
 
         // simulate neutron behavior
         for (int i=0; i<n_histories; ++i) {
-            transportNeutron(tallies, first_round, &fission_banks, num_groups,
-                    i);
+            transportNeutron(tallies, first_round, &fission_banks, i);
         }
 
         // give results
@@ -107,6 +101,7 @@ void MCSolver::computeEigenValue(int n_histories, int num_batches,
 
 }
 
+
 /*
  @brief     function that generates a neutron and measures how 
             far it travels before being absorbed.
@@ -126,12 +121,10 @@ void MCSolver::computeEigenValue(int n_histories, int num_batches,
  @param     flux a Flux object containing information about the flux
  @param     old_fission_banks containing the old fission bank
  @param     new_fission_banks containing the new fission bank
- @param     num_groups the number of neutron energy groups
  @param     neutron_num an int used for indexing neutrons
 */
 void MCSolver::transportNeutron(std::vector <Tally> &tallies,
-        bool first_round, Fission* fission_banks,
-        int num_groups, int neutron_num) {
+        bool first_round, Fission* fission_banks, int neutron_num) {
 
     const double BOUNDARY_ERROR = 1e-8;
     
@@ -164,8 +157,8 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
     cell_obj = _geometry->findCellContainingCoords(neutron_coord_position);
     cell_mat = cell_obj->getFillMaterial();
   
-    std::vector <double> chi(num_groups);
-    for (int g=0; g<num_groups; ++g) {
+    std::vector <double> chi(_num_groups);
+    for (int g=0; g<_num_groups; ++g) {
         chi[g] = cell_mat->getChiByGroup(g+1);
     }
     group = neutron.sampleNeutronEnergyGroup(chi);
@@ -446,6 +439,7 @@ FP_PRECISION MCSolver::getKeff() {
     return _k_eff;
 }
 
+
 /*
  @brief     returns the geometry used by the solver
  @return    the geometry used by the solver
@@ -453,6 +447,7 @@ FP_PRECISION MCSolver::getKeff() {
 Geometry* MCSolver::getGeometry() {
     return _geometry;
 }
+
 
 /*
  @brief     returns the flux value for neutrons of a given group in a fsr
@@ -463,6 +458,7 @@ Geometry* MCSolver::getGeometry() {
 FP_PRECISION MCSolver::getFlux(int fsr_id, int group) {
     return _scalar_flux(_geometry->getNumFSRs(), _num_groups);
 }
+
 
 // functions that allow MCSolver to be compativle with Solver
 void MCSolver::computeFSRFissionRates(
@@ -485,10 +481,11 @@ double MCSolver::computeResidual(residualType res_type){
     return 0;
 }
 
+
 /*
  @brief initialize the fsrs
 */
-void MCSolver::initializeFSRs(Lattice* lattice) {
+void MCSolver::initialize(Lattice* lattice) {
 
     // retrieve simulation parameters from the Geometry
     _num_FSRs = _geometry->getNumCells();
@@ -516,15 +513,12 @@ void MCSolver::initializeFSRs(Lattice* lattice) {
         }
     }
     _geometry->initializeFSRVectors();
+
+    // initialize flux
+    _scalar_flux = new FP_PRECISION 
+        [_geometry->getNumFSRs()*_geometry->getNumEnergyGroups()];
 }
 
-/*
- @brief     set the rool cell for the solver
- @param     the root cell for the solver
-*/
-void MCSolver::setRootCell(Cell* root_cell) {
-    _root_cell = root_cell;
-}
 
 /*
  @brief     function that samples a random location within the root cell.

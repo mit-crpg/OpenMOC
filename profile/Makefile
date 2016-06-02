@@ -35,11 +35,9 @@ Track.cpp \
 TrackGenerator.cpp \
 Universe.cpp \
 Vector.cpp \
-\
 TraverseTracks.cpp \
 TrackTraversingAlgorithms.cpp \
 MOCKernel.cpp \
-\
 Tally.cpp \
 Neutron.cpp \
 MCSolver.cpp \
@@ -52,7 +50,6 @@ homogeneous/homogeneous-one-group.cpp \
 c5g7/c5g7.cpp \
 c5g7/c5g7-cmfd.cpp \
 monte_carlo/monte_carlo.cpp
-
 
 #===============================================================================
 # Sets Flags

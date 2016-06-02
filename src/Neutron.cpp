@@ -20,10 +20,12 @@ Neutron::Neutron(int neutron_num) {
     rand_r(&_seed);
 }
 
+
 /*
  @brief     deconstructor for Neutron class
 */
 Neutron::~Neutron() {}
+
 
 /*
  @brief     tells if the neutron is alive
@@ -33,6 +35,7 @@ bool Neutron::alive(){
     return _neutron_alive;
 }
 
+
 /*
  @brief     returns the energy group of the neutron
  @return    an int: the energy group of the neutron
@@ -40,6 +43,7 @@ bool Neutron::alive(){
 int Neutron::getGroup() {
     return _neutron_group;
 }
+
 
 /*
  @brief     moves the neutron a given distance
@@ -51,6 +55,7 @@ void Neutron::move(double distance) {
     _xyz.setZ(_xyz.getZ() + _neutron_direction[2] * distance);
 }
 
+
 /*
  @brief     moves the neutron a given distance
  @param     distance the distance the neutron should be moved
@@ -58,6 +63,7 @@ void Neutron::move(double distance) {
 void Neutron::reflect(int axis) {
     _neutron_direction[axis] *= -1;
 }
+
 
 /*
  @brief     changes the neutron's cell
@@ -70,6 +76,7 @@ void Neutron::changeCell(int axis, int side) {
     else
         _neutron_cell[axis]++;
 }
+
 
 /*
  @brief     sets the neutron's position along an axis
@@ -85,6 +92,7 @@ void Neutron::setPosition(int axis, double value) {
         _xyz.setZ(value);
 }
 
+
 /*
  @brief     sets the cell of the neutron
  @param     cell_number the cell to which the nuetron will be set
@@ -93,12 +101,14 @@ void Neutron::setCell(std::vector <int> &cell_number) {
     _neutron_cell = cell_number;
 }
 
+
 /*
  @brief     kills the neutron
 */
 void Neutron::kill() {
     _neutron_alive = false;
 }
+
 
 /*
  @brief     returns the neutron's cell
@@ -107,6 +117,7 @@ void Neutron::kill() {
 std::vector <int> Neutron::getCell() {
     return _neutron_cell;
 }
+
 
 /*
  @brief     gets the position of the neutron along a certain axis
@@ -125,6 +136,7 @@ double Neutron::getPosition(int axis) {
     return pos;
 }
 
+
 /*
  @brief     gets the position vector of the neutron
  @param     a Point* to be pointed at a Point containing the neutron's position
@@ -132,6 +144,7 @@ double Neutron::getPosition(int axis) {
 void Neutron::getPositionVector(Point* &position) {
     position = &_xyz;
 }
+
 
 /*
  @brief     gets the direction of the neutron along a certain axis
@@ -143,6 +156,7 @@ double Neutron::getDirection(int axis) {
     return _neutron_direction[axis];
 }
 
+
 /*
  @brief     gets the direction vector of the neutron
  @return    a vector containing the neutron's direction
@@ -150,6 +164,7 @@ double Neutron::getDirection(int axis) {
 std::vector <double> Neutron::getDirectionVector() {
     return _neutron_direction;
 }
+
 
 /*
  @brief     gets the neutron's distance from a given point
@@ -162,6 +177,7 @@ double Neutron::getDistance(Point* coord) {
     return dis;
 }
 
+
 /*
  @brief     set the neutron's group
  @param     new_group the new energy group of the neutron
@@ -169,6 +185,7 @@ double Neutron::getDistance(Point* coord) {
 void Neutron::setGroup(int new_group) {
     _neutron_group = new_group;
 }
+
 
 /*
  @brief     sets the neutron's direction to a random direction based on
@@ -188,6 +205,7 @@ void Neutron::sampleDirection() {
     _neutron_direction[2] = mu;
 }
 
+
 /*
  @brief     sets the neutron's position
  @param     position the position of the neutron
@@ -195,6 +213,7 @@ void Neutron::sampleDirection() {
 void Neutron::setPositionVector(Point &position) {
     _xyz = position;
 }
+
 
 /*
  @brief     returns a pseudo-random number using the seed between 0 and 1
@@ -205,6 +224,7 @@ double Neutron::arand() {
     return (double) r / (double) RAND_MAX;
 }
 
+
 /*
  @brief     returns a pseudo-random number using the seed
  @return    a psuedo-random number
@@ -212,6 +232,7 @@ double Neutron::arand() {
 int Neutron::rand() {
     return rand_r(&_seed);
 }
+
 
 /*
  @brief     samples the neutron energy group after a scattering event
@@ -241,6 +262,7 @@ int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix,
     // return the last group if no group has been found yet 
     return num_groups - 1;
 }
+
 
 /*
  @brief     samples an initial neutron energy group after fission
