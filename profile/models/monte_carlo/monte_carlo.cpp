@@ -1,4 +1,4 @@
-/* 
+/*
  @file      Main.cpp
  @brief     creates geometry and materials to run a Monte Carlo simulation
  @author    Luke Eure
@@ -24,7 +24,7 @@ int main() {
 
     // number of energy groups
     int num_groups = 2;
-    
+
     // create fuel
     Material* fuel = new Material(1, "fuel");
     fuel->setNumEnergyGroups(num_groups);
@@ -74,10 +74,10 @@ int main() {
     root_cell->addSurface(-1, x_max);
     root_cell->addSurface(1, y_min);
     root_cell->addSurface(-1, y_max);
-    
+
     Cell* moderator_cell = new Cell(1, "moderator");
     moderator_cell->setFill(moderator);
-    
+
     Cell* fuel_cell = new Cell(2, "fuel");
     fuel_cell->setFill(fuel);
 
@@ -100,8 +100,8 @@ int main() {
 
     // fill latice with universes
     Universe* matrix[numXLat*numYLat];
-    
-    int mold[numXLat*numYLat] = {   1, 1, 1, 1, 1, 1, 1, 1, 1, 
+
+    int mold[numXLat*numYLat] = {   1, 1, 1, 1, 1, 1, 1, 1, 1,
                                     1, 1, 1, 1, 1, 1, 1, 1, 1,
                                     1, 1, 1, 1, 1, 1, 1, 1, 1,
                                     1, 1, 1, 2, 2, 2, 1, 1, 1,
@@ -124,19 +124,18 @@ int main() {
     // create geometry
     Geometry* geometry = new Geometry();
     geometry->setRootUniverse(root_universe);
-    
+
     // simulate neutron histories
     int num_neutrons = 100000;
     int num_batches = 3;
-    
+
     // create solver
     MCSolver solver;
     solver.setGeometry(geometry);
     solver.setRootCell(root_cell);
 
     // initialize solver function
-    solver.initializeFSRs(lattice);
-    solver.initializeFlux();
+    solver.initialize();
 
     // simulate neutrons
     solver.computeEigenValue(num_neutrons, num_batches, num_groups);

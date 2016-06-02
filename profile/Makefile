@@ -4,8 +4,8 @@
 
 COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = yes
-DEBUG       = no
+OPTIMIZE    = no
+DEBUG       = yes
 PROFILE     = no
 PRECISION   = single
 
@@ -13,7 +13,7 @@ PRECISION   = single
 # Source Code List
 #===============================================================================
 
-case = monte_carlo/monte_carlo.cpp 
+case = monte_carlo/monte_carlo.cpp
 
 source = \
 Cell.cpp \
