@@ -34,16 +34,15 @@ enum fission_bank_names {OLD, NEW};
 
 public:
 
-  MCSolver(TrackGenerator* track_generator=NULL);
+  MCSolver();
   virtual ~MCSolver();
 
   void setGeometry(Geometry* geometry);
-  void setRootCell(Cell* root_cell);
   void initializeFSRs(Lattice* lattice);
 
   void sampleLocation(Neutron* neutron);
 
-  void computeEigenValue(int n_histories, int num_batches, int num_groups);
+  void computeEigenvalue(int n_histories, int num_batches, int num_groups);
 
   void transportNeutron(std::vector <Tally> &tallies, bool first_round,
       Fission* fission_banks, int num_groups, int neutron_num);

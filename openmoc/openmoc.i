@@ -33,6 +33,7 @@
   #include "../src/Cmfd.h"
   #include "../src/Vector.h"
   #include "../src/Matrix.h"
+  #include "../src/MCSolver.h"
   #include "../src/linalg.h"
 
   #ifdef ICPC
@@ -129,6 +130,7 @@ namespace std {
 %include ../src/Cmfd.h
 %include ../src/Vector.h
 %include ../src/Matrix.h
+%include ../src/MCSolver.h
 %include ../src/linalg.h
 
 #ifdef ICPC

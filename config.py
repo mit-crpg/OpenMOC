@@ -119,6 +119,10 @@ class configuration:
                     'src/Universe.cpp',
                     'src/Vector.cpp',
                     'src/Matrix.cpp',
+                    'src/MCSolver.cpp',
+                    'src/Tally.cpp',
+                    'src/Neutron.cpp',
+                    'src/Fission.cpp',
                     'src/Cmfd.cpp',
                     'src/linalg.cpp']
 
@@ -144,6 +148,10 @@ class configuration:
                       'src/Cmfd.cpp',
                       'src/Vector.cpp',
                       'src/Matrix.cpp',
+                      'src/MCSolver.cpp',
+                      'src/Tally.cpp',
+                      'src/Neutron.cpp',
+                      'src/Fission.cpp',
                       'src/linalg.cpp']
 
 
@@ -170,6 +178,10 @@ class configuration:
                      'src/Cmfd.cpp',
                      'src/Vector.cpp',
                      'src/Matrix.cpp',
+                     'src/MCSolver.cpp',
+                     'src/Tally.cpp',
+                     'src/Neutron.cpp',
+                     'src/Fission.cpp',
                      'src/linalg.cpp']
 
 
@@ -195,6 +207,10 @@ class configuration:
                       'src/Cmfd.cpp',
                       'src/Vector.cpp',
                       'src/Matrix.cpp',
+                      'src/MCSolver.cpp',
+                      'src/Tally.cpp',
+                      'src/Neutron.cpp',
+                      'src/Fission.cpp',
                       'src/linalg.cpp']
 
 

@@ -10,7 +10,7 @@
 /*
  @brief   constructor for MCSolver
 */
-MCSolver::MCSolver(TrackGenerator* track_generator) : Solver(track_generator) {}
+MCSolver::MCSolver() : Solver(NULL) {}
 
 
 /*
@@ -195,8 +195,8 @@ void MCSolver::initialize() {
  @param   num_batches the number of batches to be tested
  @param   num_groups the number of neutron energy groups
 */
-void MCSolver::computeEigenValue(int n_histories, int num_batches,
-    int num_groups) {
+void MCSolver::computeEigenvalue(int n_histories, int num_batches,
+                                 int num_groups) {
 
   // initialize fsid
   _geometry->initializeFSRs();
@@ -226,6 +226,7 @@ void MCSolver::computeEigenValue(int n_histories, int num_batches,
 
     // simulate neutron behavior
     for (int i=0; i<n_histories; ++i) {
+      std::cout << "Trans " << i << std::endl;
       transportNeutron(tallies, first_round, &fission_banks, num_groups,
           i);
     }
@@ -332,7 +333,7 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
       -log(neutron.arand()) / cell_mat->getSigmaTByGroup(group+1);
 
     // track neutron until collision or escape
-    while (neutron_distance > 0.000001) {
+    while (neutron_distance > 0.00000) {
 
       double x0 = neutron.getPosition(0);
       double y0 = neutron.getPosition(1);
@@ -432,32 +433,32 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
       std::vector <int> box_lim_bound;
       box_lim_bound.clear();
       if (std::abs(neutron.getPosition(0)
-            - _root_cell->getMinX()) < BOUNDARY_ERROR)
+            - _geometry->getMinX()) < BOUNDARY_ERROR)
         box_lim_bound.push_back(0);
       if (std::abs(neutron.getPosition(0)
-            - _root_cell->getMaxX()) < BOUNDARY_ERROR)
+            - _geometry->getMaxX()) < BOUNDARY_ERROR)
         box_lim_bound.push_back(1);
       if (std::abs(neutron.getPosition(1)
-            - _root_cell->getMinY()) < BOUNDARY_ERROR)
+            - _geometry->getMinY()) < BOUNDARY_ERROR)
         box_lim_bound.push_back(2);
       if (std::abs(neutron.getPosition(1)
-            - _root_cell->getMaxY()) < BOUNDARY_ERROR)
+            - _geometry->getMaxY()) < BOUNDARY_ERROR)
         box_lim_bound.push_back(3);
 
 
       // put boundaryTypes into vector for easy iteration
       std::vector <boundaryType> bound_types (4);
-      bound_types[0] = _root_cell->getMinXBoundaryType();
-      bound_types[1] = _root_cell->getMaxXBoundaryType();
-      bound_types[2] = _root_cell->getMinYBoundaryType();
-      bound_types[3] = _root_cell->getMaxYBoundaryType();
+      bound_types[0] = _geometry->getMinXBoundaryType();
+      bound_types[1] = _geometry->getMaxXBoundaryType();
+      bound_types[2] = _geometry->getMinYBoundaryType();
+      bound_types[3] = _geometry->getMaxYBoundaryType();
 
       // put boundary locations into vector for easy iteration
       std::vector <double> bound_locations (4);
-      bound_locations[0] = _root_cell->getMinX();
-      bound_locations[1] = _root_cell->getMaxX();
-      bound_locations[2] = _root_cell->getMinY();
-      bound_locations[3] = _root_cell->getMaxY();
+      bound_locations[0] = _geometry->getMinX();
+      bound_locations[1] = _geometry->getMaxX();
+      bound_locations[2] = _geometry->getMinY();
+      bound_locations[3] = _geometry->getMaxY();
 
       // check boundary conditions on all hit surfaces
       for (int sur_side=0; sur_side <4; ++sur_side) {
@@ -651,15 +652,6 @@ void MCSolver::initializeFSRs(Lattice* lattice) {
 
 
 /*
- @brief   set the rool cell for the solver
- @param   the root cell for the solver
-*/
-void MCSolver::setRootCell(Cell* root_cell) {
-  _root_cell = root_cell;
-}
-
-
-/*
  @brief   function that samples a random location within the root cell.
  @details   a position along each axis is randomly and uniformally sampled in
       the bounding box. Each positin is set as the neutron's position
@@ -668,11 +660,11 @@ void MCSolver::setRootCell(Cell* root_cell) {
 */
 void MCSolver::sampleLocation(Neutron* neutron) {
   Point sampled_location;
-  double width = _root_cell->getMaxX() - _root_cell->getMinX();
-  double coord = _root_cell->getMinX() + width * neutron->arand();
+  double width = _geometry->getMaxX() - _geometry->getMinX();
+  double coord = _geometry->getMinX() + width * neutron->arand();
   neutron->setPosition(0, coord);
 
-  width = _root_cell->getMaxY() - _root_cell->getMinY();
-  coord = _root_cell->getMinY() + width * neutron->arand();
+  width = _geometry->getMaxY() - _geometry->getMinY();
+  coord = _geometry->getMinY() + width * neutron->arand();
   neutron->setPosition(1, coord);
 }
