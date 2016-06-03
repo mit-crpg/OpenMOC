@@ -138,7 +138,7 @@ int main() {
   solver.initialize();
 
   // simulate neutrons
-  solver.computeEigenValue(num_neutrons, num_batches, num_groups);
+  solver.computeEigenvalue(num_neutrons, num_batches, num_groups);
 
   std::cout << std::endl;
 
