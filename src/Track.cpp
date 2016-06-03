@@ -330,7 +330,7 @@ double Track::getPhi() const {
  *        x-axis).
  * @return th azimuthal angle index
  */
-int Track::getAzimAngleIndex() const {
+int Track::getAzimIndex() const {
   return _azim_angle_index;
 }
 

@@ -92,6 +92,14 @@ protected:
   /** Boolean whether the Tracks have been generated (true) or not (false) */
   bool _contains_tracks;
 
+  /** Boolean whether segments have been generated for every Track (true) or
+      not (false) */
+  bool _contains_segments;
+
+  /** Boolean whether to print segments to a tracking file (true) or not
+   *  (false) */
+  bool _dump_segments;
+
   /** The z-coord where the 2D Tracks should be created */
   double _z_coord;
 
@@ -160,9 +168,11 @@ public:
   void setQuadrature(Quadrature* quadrature);
   void setNumThreads(int num_threads);
   void setZCoord(double z_coord);
+  void setMaxOpticalLength(FP_PRECISION tau);
 
   /* Worker functions */
   bool containsTracks();
+  bool containsSegments();
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieveSegmentCoords(double* coords, int num_segments);
   void generateTracks(bool store=true, bool neighbor_cells=false);

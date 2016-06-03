@@ -128,7 +128,7 @@ public:
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
-  int getAzimAngleIndex() const;
+  int getAzimIndex() const;
   int getPeriodicTrackIndex() const;
   int getReflectiveTrackIndex() const;
   segment* getSegment(int s);

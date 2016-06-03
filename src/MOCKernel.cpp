@@ -64,7 +64,7 @@ void MOCKernel::newTrack(Track* track) {
 void VolumeKernel::newTrack(Track* track) {
 
   /* Compute the Track cross-sectional area */
-  int azim_index = track->getAzimAngleIndex();
+  int azim_index = track->getAzimIndex();
   _weight = _quadrature->getAzimSpacing(azim_index)
       * _quadrature->getAzimWeight(azim_index);
 

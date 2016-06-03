@@ -17,7 +17,9 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _quadrature = NULL;
   _user_quadrature = false;
   _contains_tracks = false;
+  _contains_segments = false;
   _use_input_file = false;
+  _dump_segments = true;
   _tracks_filename = "";
   _z_coord = 0.0;
   _segment_formation = EXPLICIT_2D;
@@ -195,7 +197,7 @@ int TrackGenerator::getNumTracksByParallelGroup(int group) {
  * @return the total number of Track segments
  */
 int TrackGenerator::getNumSegments() {
-  if (!_contains_tracks)
+  if (!_contains_segments)
     log_printf(ERROR, "Unable to return the total number of segments since "
                "Tracks have not yet been generated.");
 
@@ -376,45 +378,16 @@ FP_PRECISION TrackGenerator::getFSRVolume(int fsr_id) {
 
 
 /**
- * @brief Calculates and returns the maximum optical length for any segment
+ * @breif Calculates and returns the maximum optcial length for any segment
  *        in the Geomtry.
  * @details The maximum optical length is recomputed, updated, and returned.
- *          This value determines when segments must be split during ray
+ *          This value determines the when segments must be split during ray
  *          tracing.
  * @return The maximum optical length of any segment in the Geometry
  */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
-
-  FP_PRECISION max_optical_length = 0.;
-
-#pragma omp parallel
-  {
-    segment* curr_segment;
-    FP_PRECISION length;
-    Material* material;
-    FP_PRECISION* sigma_t;
-
-    /* Iterate over all tracks, segments, groups to find max optical length */
-    for (int i=0; i < _num_azim_2; i++) {
-#pragma omp for reduction(max:max_optical_length)
-      for (int j=0; j < _num_tracks[i]; j++) {
-        for (int s=0; s < _tracks[i][j].getNumSegments(); s++) {
-          curr_segment = _tracks[i][j].getSegment(s);
-          length = curr_segment->_length;
-          material = curr_segment->_material;
-          sigma_t = material->getSigmaT();
-
-          for (int e=0; e < material->getNumEnergyGroups(); e++)
-            max_optical_length = std::max(max_optical_length,
-                                          length*sigma_t[e]);
-        }
-      }
-    }
-  }
-
-  /* Update maximum optical path length */
-  _max_optical_length = max_optical_length;
-
+  MaxOpticalLength update_max_optical_length(this);
+  update_max_optical_length.execute();
   return _max_optical_length;
 }
 
@@ -532,6 +505,17 @@ void TrackGenerator::setQuadrature(Quadrature* quadrature) {
 bool TrackGenerator::containsTracks() {
   return _contains_tracks;
 }
+
+
+/**
+ * @brief Returns whether or not the TrackGenerator contains segments for
+ *        the current Track laydown.
+ * @return true if the TrackGenerator conatains segments; false otherwise
+ */
+bool TrackGenerator::containsSegments() {
+  return _contains_segments;
+}
+
 
 
 /**
@@ -748,7 +732,7 @@ void TrackGenerator::generateTracks(bool store, bool neighbor_cells) {
       recalibrateTracksToOrigin();
       segmentize();
       if (store)
-	dumpTracksToFile();
+	      dumpTracksToFile();
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
@@ -856,6 +840,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
     if (readTracksFromFile()) {
       _use_input_file = true;
       _contains_tracks = true;
+      _contains_segments = true;
     }
   }
 }
@@ -971,6 +956,8 @@ void TrackGenerator::initializeTracks() {
     }
   }
 
+  _contains_tracks = true;
+  _contains_segments = true;
   delete [] dx_eff;
   delete [] dy_eff;
   delete [] d_eff;
@@ -1440,7 +1427,7 @@ void TrackGenerator::segmentize() {
 
   _geometry->initializeFSRVectors();
 
-  _contains_tracks = true;
+  _contains_segments = true;
 
   return;
 }
@@ -1453,12 +1440,16 @@ void TrackGenerator::segmentize() {
  */
 void TrackGenerator::dumpTracksToFile() {
 
-  log_printf(NORMAL, "Dumping tracks to file...");
+  /* Check whether the segments should be dumped */
+  if (!_dump_segments)
+    return;
 
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to dump Tracks to a file since no Tracks have "
-      "been generated for %d azimuthal angles and %f azimuthal track spacing",
-      2*_num_azim_2, _azim_spacing);
+  log_printf(NORMAL, "Dumping segments to file...");
+
+  if (!containsSegments())
+    log_printf(ERROR, "Unable to dump Segments to a file since no Segments "
+               "have been generated for %d azimuthal angles and %f track "
+               "spacing", 2*_num_azim_2, _azim_spacing);
 
   FILE* out;
   out = fopen(_tracks_filename.c_str(), "w");
@@ -1472,82 +1463,13 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(&string_length, sizeof(int), 1, out);
   fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
 
-  /* Write ray tracing metadata to the Track file */
-  int num_azim = 2 * _num_azim_2;
-  fwrite(&num_azim, sizeof(int), 1, out);
-  fwrite(&_azim_spacing, sizeof(double), 1, out);
-  fwrite(_num_tracks, sizeof(int), _num_azim_2, out);
-  fwrite(_num_x, sizeof(int), _num_azim_2, out);
-  fwrite(_num_y, sizeof(int), _num_azim_2, out);
-
-  Track* curr_track;
-  double x0, y0, z0, x1, y1, z1;
-  double phi;
-  int azim_angle_index;
-  int num_segments;
-  std::vector<segment*> _segments;
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  segment* curr_segment;
-  double length;
-  int material_id;
-  int region_id;
-  int cmfd_surface_fwd;
-  int cmfd_surface_bwd;
-
-  /* Loop over all Tracks */
-  for (int i=0; i < _num_azim_2; i++) {
-    for (int j=0; j < _num_tracks[i]; j++) {
-
-      /* Get data for this Track */
-      curr_track = &_tracks[i][j];
-      x0 = curr_track->getStart()->getX();
-      y0 = curr_track->getStart()->getY();
-      z0 = curr_track->getStart()->getZ();
-      x1 = curr_track->getEnd()->getX();
-      y1 = curr_track->getEnd()->getY();
-      z1 = curr_track->getEnd()->getZ();
-      phi = curr_track->getPhi();
-      azim_angle_index = curr_track->getAzimAngleIndex();
-      num_segments = curr_track->getNumSegments();
-
-      /* Write data for this Track to the Track file */
-      fwrite(&x0, sizeof(double), 1, out);
-      fwrite(&y0, sizeof(double), 1, out);
-      fwrite(&z0, sizeof(double), 1, out);
-      fwrite(&x1, sizeof(double), 1, out);
-      fwrite(&y1, sizeof(double), 1, out);
-      fwrite(&z1, sizeof(double), 1, out);
-      fwrite(&phi, sizeof(double), 1, out);
-      fwrite(&azim_angle_index, sizeof(int), 1, out);
-      fwrite(&num_segments, sizeof(int), 1, out);
-
-      /* Loop over all segments for this Track */
-      for (int s=0; s < num_segments; s++) {
-
-        /* Get data for this segment */
-        curr_segment = curr_track->getSegment(s);
-        length = curr_segment->_length;
-        material_id = curr_segment->_material->getId();
-        region_id = curr_segment->_region_id;
-
-        /* Write data for this segment to the Track file */
-        fwrite(&length, sizeof(double), 1, out);
-        fwrite(&material_id, sizeof(int), 1, out);
-        fwrite(&region_id, sizeof(int), 1, out);
-
-        /* Write CMFD-related data for the Track if needed */
-        if (cmfd != NULL) {
-          cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-          cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-          fwrite(&cmfd_surface_fwd, sizeof(int), 1, out);
-          fwrite(&cmfd_surface_bwd, sizeof(int), 1, out);
-        }
-      }
-    }
-  }
+  /* Write segment data to Track file */
+  DumpSegments dump_segments(this);
+  dump_segments.setOutputFile(out);
+  dump_segments.execute();
 
   /* Get FSR vector maps */
+  Cmfd* cmfd = _geometry->getCmfd();
   ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
   std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
@@ -1617,8 +1539,6 @@ void TrackGenerator::dumpTracksToFile() {
    * import ray tracing data from this file if it is called and the ray
    * tracing parameters have not changed */
   _use_input_file = true;
-
-  return;
 }
 
 
@@ -1630,21 +1550,10 @@ void TrackGenerator::dumpTracksToFile() {
  */
 bool TrackGenerator::readTracksFromFile() {
 
-  /* Deletes Tracks arrays if tracks have been generated */
-  if (_contains_tracks) {
-    delete [] _num_tracks;
-    delete [] _num_x;
-    delete [] _num_y;
-
-    for (int i = 0; i < _num_azim_2; i++)
-      delete [] _tracks[i];
-
-    delete [] _tracks;
-  }
-
   int ret;
   FILE* in;
   in = fopen(_tracks_filename.c_str(), "r");
+
   int string_length;
 
   /* Import Geometry metadata from the Track file */
@@ -1661,95 +1570,17 @@ bool TrackGenerator::readTracksFromFile() {
 
   log_printf(NORMAL, "Importing ray tracing data from file...");
 
-  /* Import ray tracing metadata from the Track file */
-  int num_azim;
-  ret = fread(&num_azim, sizeof(int), 1, in);
-  _num_azim_2 = num_azim/2;
-  ret = fread(&_azim_spacing, sizeof(double), 1, in);
-
-  /* Initialize data structures for Tracks */
-  _num_tracks = new int[_num_azim_2];
-  _num_x = new int[_num_azim_2];
-  _num_y = new int[_num_azim_2];
-  _tracks = new Track*[_num_azim_2];
-
-  ret = fread(_num_tracks, sizeof(int), _num_azim_2, in);
-  ret = fread(_num_x, sizeof(int), _num_azim_2, in);
-  ret = fread(_num_y, sizeof(int), _num_azim_2, in);
-
-  Track* curr_track;
-  double x0, y0, z0, x1, y1, z1;
-  double phi;
-  int azim_angle_index;
-  int num_segments;
-  Cmfd* cmfd = _geometry->getCmfd();
-
-  double length;
-  int material_id;
-  int region_id;
-
-  int cmfd_surface_fwd;
-  int cmfd_surface_bwd;
-  segment curr_segment;
-
-  std::map<int, Material*> materials = _geometry->getAllMaterials();
-
-  /* Loop over Tracks */
-  for (int i=0; i < _num_azim_2; i++) {
-    _tracks[i] = new Track[_num_tracks[i]];
-
-    for (int j=0; j < _num_tracks[i]; j++) {
-
-      /* Import data for this Track from Track file */
-      ret = fread(&x0, sizeof(double), 1, in);
-      ret = fread(&y0, sizeof(double), 1, in);
-      ret = fread(&z0, sizeof(double), 1, in);
-      ret = fread(&x1, sizeof(double), 1, in);
-      ret = fread(&y1, sizeof(double), 1, in);
-      ret = fread(&z1, sizeof(double), 1, in);
-      ret = fread(&phi, sizeof(double), 1, in);
-      ret = fread(&azim_angle_index, sizeof(int), 1, in);
-      ret = fread(&num_segments, sizeof(int), 1, in);
-
-      /* Initialize a Track with this data */
-      curr_track = &_tracks[i][j];
-      curr_track->setValues(x0, y0, z0, x1, y1, z1, phi);
-      curr_track->setAzimAngleIndex(azim_angle_index);
-      if (azim_angle_index < _num_azim_2 / 2)
-        _quadrature->setPhi(phi, azim_angle_index);
-
-      /* Loop over all segments in this Track */
-      for (int s=0; s < num_segments; s++) {
-
-        /* Import data for this segment from Track file */
-        ret = fread(&length, sizeof(double), 1, in);
-        ret = fread(&material_id, sizeof(int), 1, in);
-        ret = fread(&region_id, sizeof(int), 1, in);
-
-        /* Initialize segment with the data */
-        curr_segment._length = length;
-        curr_segment._material = materials[material_id];
-        curr_segment._region_id = region_id;
-
-        /* Import CMFD-related data if needed */
-        if (cmfd != NULL) {
-          ret = fread(&cmfd_surface_fwd, sizeof(int), 1, in);
-          ret = fread(&cmfd_surface_bwd, sizeof(int), 1, in);
-          curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
-          curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
-        }
-
-        /* Add this segment to the Track */
-        curr_track->addSegment(&curr_segment);
-      }
-    }
-  }
+  /* Load all segment data into Tracks */
+  ReadSegments read_segments(this);
+  read_segments.setInputFile(in);
+  read_segments.execute();
 
   /* Create FSR vector maps */
   ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
   std::vector<std::string>& FSRs_to_keys =
       _geometry->getFSRsToKeys();
+  Cmfd* cmfd = _geometry->getCmfd();
   FSR_keys_map.clear();
   FSRs_to_keys.clear();
   int num_FSRs;
@@ -1906,64 +1737,34 @@ void TrackGenerator::correctFSRVolume(int fsr_id, FP_PRECISION fsr_volume) {
  */
 void TrackGenerator::generateFSRCentroids() {
 
+  /* Create temporary array of centroids and initialize to origin */
   int num_FSRs = _geometry->getNumFSRs();
-  FP_PRECISION* FSR_volumes = getFSRVolumes();
-
-  /* Create array of centroids and initialize to origin */
   Point** centroids = new Point*[num_FSRs];
-#pragma omp parallel for
   for (int r=0; r < num_FSRs; r++) {
     centroids[r] = new Point();
     centroids[r]->setCoords(0.0, 0.0, 0.0);
   }
 
-  /* Generate the fsr centroids */
-  for (int i=0; i < _num_azim_2; i++) {
-    FP_PRECISION azim_weight = _quadrature->getAzimWeight(i)
-            * _quadrature->getAzimSpacing(i);
-
-#pragma omp parallel for
-    for (int j=0; j < _num_tracks[i]; j++) {
-
-      int num_segments = _tracks[i][j].getNumSegments();
-      segment* segments = _tracks[i][j].getSegments();
-      double x = _tracks[i][j].getStart()->getX();
-      double y = _tracks[i][j].getStart()->getY();
-      double z = _tracks[i][j].getStart()->getZ();
-      double phi = _tracks[i][j].getPhi();
-
-      for (int s=0; s < num_segments; s++) {
-        segment* curr_segment = &segments[s];
-        int fsr = curr_segment->_region_id;
-        double volume = FSR_volumes[fsr];
-
-        /* Set FSR mutual exclusion lock */
-        omp_set_lock(&_FSR_locks[fsr]);
-
-        centroids[fsr]->setX(centroids[fsr]->getX() + azim_weight *
-                             (x + cos(phi) * curr_segment->_length / 2.0) *
-                             curr_segment->_length / FSR_volumes[fsr]);
-        centroids[fsr]->setY(centroids[fsr]->getY() + azim_weight *
-                             (y + sin(phi) * curr_segment->_length / 2.0) *
-                             curr_segment->_length / FSR_volumes[fsr]);
-        centroids[fsr]->setZ(z);
-
-        /* Release FSR mutual exclusion lock */
-        omp_unset_lock(&_FSR_locks[fsr]);
-
-        x += cos(phi) * curr_segment->_length;
-        y += sin(phi) * curr_segment->_length;
-      }
-    }
-  }
+  /* Generate FSR centroids by looping over all Tracks */
+  CentroidGenerator centroid_generator(this);
+  centroid_generator.setCentroids(centroids);
+  centroid_generator.execute();
 
   /* Set the centroid for the FSR */
-#pragma omp parallel for
   for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
 
   /* Delete temporary array of FSR volumes and centroids */
   delete [] centroids;
+}
+
+
+/**
+ * @brief Sets the max optical path length of segments during computation
+ * @param tau maximum optical path length
+ */
+void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
+  _max_optical_length = tau;
 }
 
 
@@ -1977,78 +1778,17 @@ void TrackGenerator::generateFSRCentroids() {
  */
 void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to split segments since "
-	       "tracks have not yet been generated");
+  if (!containsSegments())
+    log_printf(ERROR, "Unable to split segments since segments have not yet "
+                      "been generated");
 
-#pragma omp parallel
-  {
+  if (_segment_formation != EXPLICIT_3D && _segment_formation != EXPLICIT_2D)
+    log_printf(ERROR, "Segments cannot be split for on-the-fly ray tracing");
 
-    int num_cuts, min_num_cuts;
-    segment* curr_segment;
-
-    FP_PRECISION length, tau;
-    int fsr_id;
-    Material* material;
-    FP_PRECISION* sigma_t;
-    int num_groups;
-    int cmfd_surface_fwd, cmfd_surface_bwd;
-
-    /* Iterate over all Tracks */
-    for (int i=0; i < _num_azim_2; i++) {
-#pragma omp for
-      for (int j=0; j < _num_tracks[i]; j++) {
-        for (int s=0; s < _tracks[i][j].getNumSegments(); s+=min_num_cuts) {
-
-          /* Extract data from this segment to compute it optical length */
-          curr_segment = _tracks[i][j].getSegment(s);
-          material = curr_segment->_material;
-          length = curr_segment->_length;
-          fsr_id = curr_segment->_region_id;
-          cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
-          cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
-
-          /* Compute number of segments to split this segment into */
-          min_num_cuts = 1;
-          num_groups = material->getNumEnergyGroups();
-          sigma_t = material->getSigmaT();
-
-          for (int g=0; g < num_groups; g++) {
-            tau = length * sigma_t[g];
-            num_cuts = ceil(tau / max_optical_length);
-            min_num_cuts = std::max(num_cuts, min_num_cuts);
-          }
-
-          /* If the segment does not need subdivisions, go to next segment */
-          if (min_num_cuts == 1)
-            continue;
-
-          /* Split the segment into sub-segments */
-          for (int k=0; k < min_num_cuts; k++) {
-
-            /* Create a new Track segment */
-            segment* new_segment = new segment;
-            new_segment->_material = material;
-            new_segment->_length = length / FP_PRECISION(min_num_cuts);
-            new_segment->_region_id = fsr_id;
-
-            /* Assign CMFD surface boundaries */
-            if (k == 0)
-              new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
-
-            if (k == min_num_cuts-1)
-              new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
-
-            /* Insert the new segment to the Track */
-            _tracks[i][j].insertSegment(s+k+1, new_segment);
-          }
-
-          /* Remove the original segment from the Track */
-          _tracks[i][j].removeSegment(s);
-        }
-      }
-    }
-  }
+  /* Split all segments along all Tracks */
+  _max_optical_length = max_optical_length;
+  SegmentSplitter segment_splitter(this);
+  segment_splitter.execute();
 }
 
 
@@ -2062,9 +1802,9 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
  */
 void TrackGenerator::initializeSegments() {
 
-  if (!_contains_tracks)
+  if (!_contains_segments)
     log_printf(ERROR, "Unable to initialize segments since "
-	       "tracks have not yet been generated");
+	       "segments have not yet been generated");
 
   /* Get all of the Materials from the Geometry */
   std::map<int, Material*> materials = _geometry->getAllMaterials();
