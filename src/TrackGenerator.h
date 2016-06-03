@@ -50,13 +50,6 @@ protected:
   /** An integer array of the number of Tracks for each azimuthal angle */
   int* _num_tracks;
 
-  /** An integer array with the number of Tracks in each parallel track group */
-  int* _num_tracks_by_parallel_group;
-
-  /** The number of the track groups needed to ensure data races don't occur
-   *  during the Solver's transportSweep */
-  int _num_parallel_track_groups;
-
   /** An integer array of the number of Tracks starting on the x-axis for each
    *  azimuthal angle */
   int* _num_x;
@@ -74,8 +67,8 @@ protected:
   /** A 2D ragged array of Tracks */
   Track** _tracks;
 
-  /** A 1D array of Track pointers arranged by parallel group */
-  Track** _tracks_by_parallel_group;
+  /** A 1D array of Track pointers arranged by UID */
+  Track** _tracks_array;
 
   /** Pointer to the Geometry */
   Geometry* _geometry;
@@ -147,11 +140,9 @@ public:
   int getNumTracks();
   int getNumX(int azim);
   int getNumY(int azim);
-  int getNumTracksByParallelGroup(int group);
-  int getNumParallelTrackGroups();
   int getNumSegments();
   Track** getTracks();
-  Track** getTracksByParallelGroup();
+  Track** getTracksArray();
   FP_PRECISION retrieveMaxOpticalLength();
   int getNumThreads();
   FP_PRECISION* getFSRVolumes();
