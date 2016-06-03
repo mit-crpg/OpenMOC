@@ -4,8 +4,8 @@
 
 COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = yes
-DEBUG       = no
+OPTIMIZE    = no
+DEBUG       = yes
 PROFILE     = no
 PRECISION   = single
 
@@ -13,7 +13,7 @@ PRECISION   = single
 # Source Code List
 #===============================================================================
 
-case = monte_carlo/monte_carlo.cpp 
+case = monte_carlo/monte_carlo.cpp
 
 source = \
 Cell.cpp \
@@ -35,11 +35,9 @@ Track.cpp \
 TrackGenerator.cpp \
 Universe.cpp \
 Vector.cpp \
-\
 TraverseTracks.cpp \
 TrackTraversingAlgorithms.cpp \
 MOCKernel.cpp \
-\
 Tally.cpp \
 Neutron.cpp \
 MCSolver.cpp \
@@ -52,7 +50,6 @@ homogeneous/homogeneous-one-group.cpp \
 c5g7/c5g7.cpp \
 c5g7/c5g7-cmfd.cpp \
 monte_carlo/monte_carlo.cpp
-
 
 #===============================================================================
 # Sets Flags
