@@ -169,6 +169,8 @@ class ReadSegments: public TraverseTracks {
 private:
 
   FILE* _in;
+  Quadrature* _quadrature;
+  int _num_azim_2;
 
 public:
 

@@ -917,6 +917,7 @@ void TrackGenerator::initializeTracks() {
     }
   }
 
+  std::cout << "Tracks contained!!!" << std::endl;
   _contains_tracks = true;
   _contains_segments = true;
   delete [] dx_eff;
@@ -1342,6 +1343,14 @@ void TrackGenerator::dumpTracksToFile() {
   fwrite(&string_length, sizeof(int), 1, out);
   fwrite(geometry_to_string.c_str(), sizeof(char)*string_length, 1, out);
 
+  /* Write ray tracing metadata to the Track file */
+  int num_azim = 2 * _num_azim_2;
+  fwrite(&num_azim, sizeof(int), 1, out);
+  fwrite(&_azim_spacing, sizeof(double), 1, out);
+  fwrite(_num_tracks, sizeof(int), _num_azim_2, out);
+  fwrite(_num_x, sizeof(int), _num_azim_2, out);
+  fwrite(_num_y, sizeof(int), _num_azim_2, out);
+
   /* Write segment data to Track file */
   DumpSegments dump_segments(this);
   dump_segments.setOutputFile(out);
@@ -1449,6 +1458,26 @@ bool TrackGenerator::readTracksFromFile() {
 
   log_printf(NORMAL, "Importing ray tracing data from file...");
 
+  /* Import ray tracing metadata from the Track file */
+  int num_azim;
+  ret = fread(&num_azim, sizeof(int), 1, in);
+  _num_azim_2 = num_azim/2;
+  ret = fread(&_azim_spacing, sizeof(double), 1, in);
+
+  /* Initialize data structures for Tracks */
+  _num_tracks = new int[_num_azim_2];
+  _num_x = new int[_num_azim_2];
+  _num_y = new int[_num_azim_2];
+  _tracks = new Track*[_num_azim_2];
+
+  ret = fread(_num_tracks, sizeof(int), _num_azim_2, in);
+  ret = fread(_num_x, sizeof(int), _num_azim_2, in);
+  ret = fread(_num_y, sizeof(int), _num_azim_2, in);
+
+  for (int i=0; i < _num_azim_2; i++)
+    _tracks[i] = new Track[_num_tracks[i]];
+  _contains_tracks = true;
+
   /* Load all segment data into Tracks */
   ReadSegments read_segments(this);
   read_segments.setInputFile(in);
@@ -1522,8 +1551,12 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Inform the rest of the class methods that Tracks have been initialized */
-  if (ret)
-    _contains_tracks = true;
+  if (ret) {
+    _contains_segments = true;
+  }
+  else {
+    _contains_tracks = false;
+  }
 
   /* Close the Track file */
   fclose(in);
@@ -1782,6 +1815,7 @@ void TrackGenerator::printTimerReport() {
  */
 void TrackGenerator::resetStatus() {
   _contains_tracks = false;
+  _contains_segments = false;
   _use_input_file = false;
   _tracks_filename = "";
 }

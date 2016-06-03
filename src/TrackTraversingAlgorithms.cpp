@@ -388,12 +388,31 @@ void DumpSegments::setOutputFile(FILE* out) {
  */
 void DumpSegments::onTrack(Track* track, segment* segments) {
 
-  /* Write data for this Track to the Track file */
+  /* Get data for this Track */
+  double x0 = track->getStart()->getX();
+  double y0 = track->getStart()->getY();
+  double z0 = track->getStart()->getZ();
+  double x1 = track->getEnd()->getX();
+  double y1 = track->getEnd()->getY();
+  double z1 = track->getEnd()->getZ();
+  double phi = track->getPhi();
+  int azim_angle_index = track->getAzimIndex();
   int num_segments = track->getNumSegments();
+
+  /* Write data for this Track to the Track file */
+  fwrite(&x0, sizeof(double), 1, _out);
+  fwrite(&y0, sizeof(double), 1, _out);
+  fwrite(&z0, sizeof(double), 1, _out);
+  fwrite(&x1, sizeof(double), 1, _out);
+  fwrite(&y1, sizeof(double), 1, _out);
+  fwrite(&z1, sizeof(double), 1, _out);
+  fwrite(&phi, sizeof(double), 1, _out);
+  fwrite(&azim_angle_index, sizeof(int), 1, _out);
   fwrite(&num_segments, sizeof(int), 1, _out);
 
   /* Get CMFD mesh object */
   Cmfd* cmfd = _track_generator->getGeometry()->getCmfd();
+  Quadrature* quad = _track_generator->getQuadrature();
 
   /* Loop over all segments for this Track */
   for (int s=0; s < num_segments; s++) {
@@ -428,6 +447,8 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
 ReadSegments::ReadSegments(TrackGenerator* track_generator)
                            : TraverseTracks(track_generator) {
   _in = NULL;
+  _quadrature = track_generator->getQuadrature();
+  _num_azim_2 = track_generator->getNumAzim() / 2;
 }
 
 
@@ -467,8 +488,25 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
   std::map<int, Material*> materials = geometry->getAllMaterials();
 
   /* Import data for this Track from Track file */
+  double x0, y0, z0, x1, y1, z1;
+  ret = fread(&x0, sizeof(double), 1, _in);
+  ret = fread(&y0, sizeof(double), 1, _in);
+  ret = fread(&z0, sizeof(double), 1, _in);
+  ret = fread(&x1, sizeof(double), 1, _in);
+  ret = fread(&y1, sizeof(double), 1, _in);
+  ret = fread(&z1, sizeof(double), 1, _in);
+  double phi;
+  ret = fread(&phi, sizeof(double), 1, _in);
+  int azim_angle_index;
+  ret = fread(&azim_angle_index, sizeof(int), 1, _in);
   int num_segments;
   ret = fread(&num_segments, sizeof(int), 1, _in);
+
+  /* Initialize a Track with this data */
+  track->setValues(x0, y0, z0, x1, y1, z1, phi);
+  track->setAzimAngleIndex(azim_angle_index);
+  if (azim_angle_index < _num_azim_2 / 2)
+    _quadrature->setPhi(phi, azim_angle_index);
 
   /* Loop over all segments in this Track */
   for (int s=0; s < num_segments; s++) {
