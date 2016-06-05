@@ -693,7 +693,7 @@ void TrackGenerator::generateTracks(bool store, bool neighbor_cells) {
       recalibrateTracksToOrigin();
       segmentize();
       if (store)
-	      dumpTracksToFile();
+        dumpTracksToFile();
     }
     catch (std::exception &e) {
       log_printf(ERROR, "Unable to allocate memory for Tracks");
@@ -1441,7 +1441,6 @@ bool TrackGenerator::readTracksFromFile() {
   int ret;
   FILE* in;
   in = fopen(_tracks_filename.c_str(), "r");
-
   int string_length;
 
   /* Import Geometry metadata from the Track file */
@@ -1551,12 +1550,10 @@ bool TrackGenerator::readTracksFromFile() {
   }
 
   /* Inform the rest of the class methods that Tracks have been initialized */
-  if (ret) {
+  if (ret)
     _contains_segments = true;
-  }
-  else {
+  else
     _contains_tracks = false;
-  }
 
   /* Close the Track file */
   fclose(in);
