@@ -697,7 +697,7 @@ void TrackGenerator3D::initializeTracks() {
       _quadrature->setTheta(theta, i, j);
       _quadrature->setPolarSpacing(_dz_eff[i][j] * sin(theta), i, j);
 
-      /* Save information for supplimentary angles */
+      /* Save information for supplementary angles */
       int supp_azim = _num_azim/2 - i - 1;
       _num_z[supp_azim][j] = _num_z[i][j];
       _dz_eff[supp_azim][j] = _dz_eff[i][j];
