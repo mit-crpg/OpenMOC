@@ -1115,7 +1115,7 @@ GLPolarQuad::GLPolarQuad(): Quadrature() {
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 12)
+ * @param num_polar the number of polar angles (maximum 20)
  */
 void GLPolarQuad::setNumPolarAngles(const int num_polar) {
 
