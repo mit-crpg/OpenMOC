@@ -824,8 +824,8 @@ void Quadrature::precomputeWeights(bool solve_3D) {
   for (int a=0; a < _num_azim/4; a++) {
     for (int p=0; p < _num_polar/2; p++) {
       _sin_thetas[a][p] = sin(_thetas[a][p]);
-      FP_PRECISION weight = 2.0 * M_PI * _azim_weights[a]
-                            * _azim_spacings[a] * _polar_weights[a][p];
+      FP_PRECISION weight = 2.0 * M_PI * _azim_weights[a] * _azim_spacings[a]
+          * _polar_weights[a][p];
       if (solve_3D)
         weight *= _polar_spacings[a][p];
       else
