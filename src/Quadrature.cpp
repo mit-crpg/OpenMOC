@@ -250,7 +250,7 @@ FP_PRECISION Quadrature::getPolarWeight(int azim, int polar) {
 /**
  * @brief Returns the total weight for Tracks with the given azimuthal and
  *        polar indexes
- * @details Angular weights are multiplied by Track spcings
+ * @details Angular weights are multiplied by Track spacings
  * @param azim index of the azimuthal angle of interest
  * @param polar index of the polar angle of interest
  * @return the total weight of each Track with the given indexes
@@ -465,10 +465,10 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
  *
  * @code
  *          thetas = numpy.array([pi/6, pi/4, pi/3, ... ])
- *          polar_quad = openmoc.Quadrature()
- *          polar_quad.setNumAzimAngles(num_azim)
- *          polar_quad.setNumPolarAngles(len(thetas) / num_azim)
- *          polar_quad.setThetas(thetas)
+ *          quad = openmoc.Quadrature()
+ *          quad.setNumAzimAngles(num_azim)
+ *          quad.setNumPolarAngles(len(thetas) / num_azim)
+ *          quad.setThetas(thetas)
  * @endcode
  *
  * @param thetas the array of polar angle for each azimuthal/polar angle
@@ -520,10 +520,10 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
  *
  * @code
  *          polar_weights = numpy.array([0.1, 0.2, 0.05, ... ])
- *          polar_quad = openmoc.Quadrature()
- *          polar_quad.setNumAzimAngles(num_azim)
- *          polar_quad.setNumPolarAngles(len(polar_weights) / num_azim)
- *          polar_quad.setPolarWeights(polar_weights)
+ *          quad = openmoc.Quadrature()
+ *          quad.setNumAzimAngles(num_azim)
+ *          quad.setNumPolarAngles(len(polar_weights) / num_azim)
+ *          quad.setPolarWeights(polar_weights)
  * @endcode
  *
  * @param weights The polar weights

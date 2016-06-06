@@ -704,7 +704,7 @@ void TrackGenerator3D::initializeTracks() {
       _num_l[supp_azim][j] = _num_l[i][j];
       dl_eff[supp_azim][j] = dl_eff[i][j];
 
-      /* Save information for complimentary angles */
+      /* Save information for complementary angles */
       int comp_polar = _num_polar - j - 1;
       _num_z[i][comp_polar] = _num_z[i][j];
       _dz_eff[i][comp_polar] = _dz_eff[i][j];
