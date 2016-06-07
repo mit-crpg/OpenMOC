@@ -256,7 +256,7 @@ int main() {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  //geometry.setCmfd(cmfd);
+  geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
