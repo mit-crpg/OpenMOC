@@ -134,10 +134,10 @@ protected:
   int _tot_num_tracks;
 
   /** The weights for each azimuthal angle */
-  double* _azim_spacings;
+  FP_PRECISION* _azim_spacings;
 
   /** The weights for each polar angle in the polar angle quadrature */
-  double** _polar_spacings;
+  FP_PRECISION** _polar_spacings;
 
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a

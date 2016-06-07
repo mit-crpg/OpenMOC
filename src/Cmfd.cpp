@@ -2648,7 +2648,7 @@ void Cmfd::setSolve3D(bool solve_3D) {
  * @param azim_spacings An array of azimuthal spacings for each azimuthal angle.
  * @param num_azim the number of azimuthal angles.
  */
-void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim) {
+void Cmfd::setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim) {
 
   if (_azim_spacings != NULL)
     delete [] _azim_spacings;
@@ -2667,7 +2667,7 @@ void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim) {
  * @param num_azim the number of azimuthal angles.
  * @param num_polar the number of polar angles.
  */
-void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
+void Cmfd::setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                             int num_polar) {
 
   if (_polar_spacings != NULL) {

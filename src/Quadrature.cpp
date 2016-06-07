@@ -668,9 +668,9 @@ void Quadrature::setPolarSpacing(FP_PRECISION spacing, int azim, int polar) {
 
 
   if (_polar_spacings == NULL) {
-    _polar_spacings = new double*[_num_azim/2];
+    _polar_spacings = new FP_PRECISION*[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++)
-      _polar_spacings[a] = new double[_num_polar];
+      _polar_spacings[a] = new FP_PRECISION[_num_polar];
   }
 
   setPolarValues(_polar_spacings, azim, polar, spacing);

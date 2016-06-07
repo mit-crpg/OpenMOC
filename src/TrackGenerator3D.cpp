@@ -332,7 +332,8 @@ void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
  * @param z_mesh the z-coordinates defining the height of the radial
  *        segmentation planes
  */
-void TrackGenerator3D::setSegmentationHeights(std::vector<double> z_mesh) {
+void TrackGenerator3D::setSegmentationHeights(std::vector<FP_PRECISION>
+                                              z_mesh) {
   _contains_segmentation_heights = true;
   _segmentation_heights = z_mesh;
 }
@@ -364,7 +365,8 @@ void TrackGenerator3D::useGlobalZMesh() {
  * @param z_mesh The global z-mesh to be updated
  * @param num_fsrs The number of FSRs in the z-mesh
  */
-void TrackGenerator3D::retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs) {
+void TrackGenerator3D::retrieveGlobalZMesh(FP_PRECISION*& z_mesh,
+                                           int& num_fsrs) {
   if (_contains_global_z_mesh) {
     z_mesh = &_global_z_mesh[0];
     num_fsrs = _global_z_mesh.size() - 1;
