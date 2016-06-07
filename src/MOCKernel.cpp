@@ -86,11 +86,12 @@ void MOCKernel::newTrack(Track* track) {
  */
 void VolumeKernel::newTrack(Track* track) {
 
-  /* Compute the Track cross-sectional area */
+  /* Compute the Track azimuthal weight */
   int azim_index = track->getAzimIndex();
   _weight = _quadrature->getAzimSpacing(azim_index)
       * _quadrature->getAzimWeight(azim_index);
 
+  /* Multiply by polar weight if 3D */
   Track3D* track_3D = dynamic_cast<Track3D*>(track);
   if (track_3D != NULL) {
     int polar_index = track_3D->getPolarIndex();

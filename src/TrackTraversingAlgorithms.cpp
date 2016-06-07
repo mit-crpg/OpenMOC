@@ -276,7 +276,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   int azim_index = track->getAzimIndex();
   double phi = track->getPhi();
 
-  /* Compute the Track cross-sectional area */
+  /* Compute the Track azimuthal weight */
   double wgt = _quadrature->getAzimSpacing(azim_index)
       * _quadrature->getAzimWeight(azim_index);
 

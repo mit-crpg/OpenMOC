@@ -1101,7 +1101,7 @@ void Geometry::segmentize3D(Track3D* track) {
  *        the Geometry is segmentized radially
  */
 void Geometry::segmentizeExtruded(Track* flattened_track,
-    std::vector<double> z_coords) {
+    std::vector<FP_PRECISION> z_coords) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = flattened_track->getStart()->getX();
@@ -1834,7 +1834,7 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
   }
 
   /* Get a vector of the unique z-heights in the Geometry */
-  std::vector<double> unique_heights;
+  std::vector<FP_PRECISION> unique_heights;
   std::set<double>::iterator iter;
   for (iter = unique_mesh.begin(); iter != unique_mesh.end(); ++iter)
     unique_heights.push_back(static_cast<FP_PRECISION>(*iter));
