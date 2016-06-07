@@ -29,6 +29,7 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 track_generator = openmoc.TrackGenerator3D(geometry, num_azim, num_polar,
                                            azim_spacing, polar_spacing)
 track_generator.setNumThreads(num_threads)
+track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 track_generator.generateTracks()
 
 

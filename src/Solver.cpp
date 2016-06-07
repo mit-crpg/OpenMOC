@@ -909,8 +909,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
-  zeroTrackFluxes();
   storeFSRFluxes();
+  zeroTrackFluxes();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {

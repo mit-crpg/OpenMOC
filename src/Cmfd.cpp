@@ -2466,8 +2466,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         cmfd_group = getCmfdGroup(e);
 
         /* Increment the surface group */
-        currents[cmfd_group] += 0.5 * track_flux[e]
-            * _quadrature->getWeight(azim_index, polar_index);
+        currents[cmfd_group] += track_flux[e]
+            * _quadrature->getWeightInline(azim_index, polar_index);
       }
 
       /* Increment currents */
@@ -2482,8 +2482,8 @@ void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         cmfd_group = getCmfdGroup(e);
 
         for (int p = 0; p < _num_polar/2; p++) {
-          currents[cmfd_group] += 0.5 * track_flux[pe]
-              * _quadrature->getWeight(azim_index, p);
+          currents[cmfd_group] += track_flux[pe]
+              * _quadrature->getWeightInline(azim_index, p);
           pe++;
         }
       }
@@ -2648,7 +2648,7 @@ void Cmfd::setSolve3D(bool solve_3D) {
  * @param azim_spacings An array of azimuthal spacings for each azimuthal angle.
  * @param num_azim the number of azimuthal angles.
  */
-void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim) {
+void Cmfd::setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim) {
 
   if (_azim_spacings != NULL)
     delete [] _azim_spacings;
@@ -2667,7 +2667,7 @@ void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim) {
  * @param num_azim the number of azimuthal angles.
  * @param num_polar the number of polar angles.
  */
-void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
+void Cmfd::setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                             int num_polar) {
 
   if (_polar_spacings != NULL) {
