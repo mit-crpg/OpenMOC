@@ -333,7 +333,8 @@ void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
  * @param z_mesh the z-coordinates defining the height of the radial
  *        segmentation planes
  */
-void TrackGenerator3D::setSegmentationHeights(std::vector<double> z_mesh) {
+void TrackGenerator3D::setSegmentationHeights(std::vector<FP_PRECISION>
+                                              z_mesh) {
   _contains_segmentation_heights = true;
   _segmentation_heights = z_mesh;
 }
@@ -365,7 +366,8 @@ void TrackGenerator3D::useGlobalZMesh() {
  * @param z_mesh The global z-mesh to be updated
  * @param num_fsrs The number of FSRs in the z-mesh
  */
-void TrackGenerator3D::retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs) {
+void TrackGenerator3D::retrieveGlobalZMesh(FP_PRECISION*& z_mesh,
+                                           int& num_fsrs) {
   if (_contains_global_z_mesh) {
     z_mesh = &_global_z_mesh[0];
     num_fsrs = _global_z_mesh.size() - 1;
@@ -698,14 +700,14 @@ void TrackGenerator3D::initializeTracks() {
       _quadrature->setTheta(theta, i, j);
       _quadrature->setPolarSpacing(_dz_eff[i][j] * sin(theta), i, j);
 
-      /* Save information for supplimentary angles */
+      /* Save information for supplementary angles */
       int supp_azim = _num_azim/2 - i - 1;
       _num_z[supp_azim][j] = _num_z[i][j];
       _dz_eff[supp_azim][j] = _dz_eff[i][j];
       _num_l[supp_azim][j] = _num_l[i][j];
       dl_eff[supp_azim][j] = dl_eff[i][j];
 
-      /* Save information for complimentary angles */
+      /* Save information for complementary angles */
       int comp_polar = _num_polar - j - 1;
       _num_z[i][comp_polar] = _num_z[i][j];
       _dz_eff[i][comp_polar] = _dz_eff[i][j];
@@ -998,7 +1000,7 @@ void TrackGenerator3D::initializeTrackReflections() {
               }
 
               /* SURFACE_Z_MAX */
-              else{
+              else {
                 if (polar_group[i][t]->getCycleFwd()) {
 
                   polar_group[i][t]->setBCFwd
@@ -1018,7 +1020,7 @@ void TrackGenerator3D::initializeTrackReflections() {
                       (polar_group[i - _num_z[a][p]][0]);
                   }
                 }
-                else{
+                else {
 
                   polar_group[i][t]->setBCBwd
                     (_geometry->getMaxZBoundaryType());
@@ -2312,24 +2314,22 @@ void TrackGenerator3D::initializeTracksArray() {
 
   log_printf(NORMAL, "Initializing 3D tracks array...");
 
-  Track* track;
-  int uid = 0;
-
-  /* Reset UID in case 2D tracks were intiialized */
-  uid = 0;
-
   /* Allocate memory for tracks array */
   if (_tracks_3D_array != NULL)
     delete [] _tracks_3D_array;
   int num_3D_tracks = getNum3DTracks();
   _tracks_3D_array = new Track*[num_3D_tracks];
 
-  /* Loop over all tracks and set indexes */
+  /* Loop over all 3D Tracks */
+  int uid = 0;
   for (int a = 0; a < _num_azim / 2; a++) {
     for (int i = 0; i < _num_x[a] + _num_y[a]; i++) {
       for (int p = 0; p < _num_polar; p++) {
         for (int z = 0; z < _tracks_per_stack[a][i][p]; z++) {
-          track = &_tracks_3D[a][i][p][z];
+
+          /* Get the current track */
+          Track* track = &_tracks_3D[a][i][p][z];
+
           track->setUid(uid);
           _tracks_3D_array[uid] = track;
           uid++;

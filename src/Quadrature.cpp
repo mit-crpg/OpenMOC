@@ -250,7 +250,7 @@ FP_PRECISION Quadrature::getPolarWeight(int azim, int polar) {
 /**
  * @brief Returns the total weight for Tracks with the given azimuthal and
  *        polar indexes
- * @details Angular weights are multiplied by Track spcings
+ * @details Angular weights are multiplied by Track spacings
  * @param azim index of the azimuthal angle of interest
  * @param polar index of the polar angle of interest
  * @return the total weight of each Track with the given indexes
@@ -465,10 +465,10 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
  *
  * @code
  *          thetas = numpy.array([pi/6, pi/4, pi/3, ... ])
- *          polar_quad = openmoc.Quadrature()
- *          polar_quad.setNumAzimAngles(num_azim)
- *          polar_quad.setNumPolarAngles(len(thetas) / num_azim)
- *          polar_quad.setThetas(thetas)
+ *          quad = openmoc.Quadrature()
+ *          quad.setNumAzimAngles(num_azim)
+ *          quad.setNumPolarAngles(len(thetas) / num_azim)
+ *          quad.setThetas(thetas)
  * @endcode
  *
  * @param thetas the array of polar angle for each azimuthal/polar angle
@@ -520,10 +520,10 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
  *
  * @code
  *          polar_weights = numpy.array([0.1, 0.2, 0.05, ... ])
- *          polar_quad = openmoc.Quadrature()
- *          polar_quad.setNumAzimAngles(num_azim)
- *          polar_quad.setNumPolarAngles(len(polar_weights) / num_azim)
- *          polar_quad.setPolarWeights(polar_weights)
+ *          quad = openmoc.Quadrature()
+ *          quad.setNumAzimAngles(num_azim)
+ *          quad.setNumPolarAngles(len(polar_weights) / num_azim)
+ *          quad.setPolarWeights(polar_weights)
  * @endcode
  *
  * @param weights The polar weights
@@ -668,9 +668,9 @@ void Quadrature::setPolarSpacing(FP_PRECISION spacing, int azim, int polar) {
 
 
   if (_polar_spacings == NULL) {
-    _polar_spacings = new double*[_num_azim/2];
+    _polar_spacings = new FP_PRECISION*[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++)
-      _polar_spacings[a] = new double[_num_polar];
+      _polar_spacings[a] = new FP_PRECISION[_num_polar];
   }
 
   setPolarValues(_polar_spacings, azim, polar, spacing);
@@ -824,8 +824,8 @@ void Quadrature::precomputeWeights(bool solve_3D) {
   for (int a=0; a < _num_azim/4; a++) {
     for (int p=0; p < _num_polar/2; p++) {
       _sin_thetas[a][p] = sin(_thetas[a][p]);
-      FP_PRECISION weight = 2.0 * M_PI * _azim_weights[a]
-                            * _azim_spacings[a] * _polar_weights[a][p];
+      FP_PRECISION weight = 2.0 * M_PI * _azim_weights[a] * _azim_spacings[a]
+          * _polar_weights[a][p];
       if (solve_3D)
         weight *= _polar_spacings[a][p];
       else
@@ -1115,13 +1115,13 @@ GLPolarQuad::GLPolarQuad(): Quadrature() {
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 12)
+ * @param num_polar the number of polar angles (maximum 20)
  */
 void GLPolarQuad::setNumPolarAngles(const int num_polar) {
 
-  if (num_polar > 12)
+  if (num_polar > 20)
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
-               "for GLPolarQuad (max 12 angles)", num_polar);
+               "for GLPolarQuad (max 20 angles)", num_polar);
 
   Quadrature::setNumPolarAngles(num_polar);
 }
@@ -1187,6 +1187,56 @@ void GLPolarQuad::initialize() {
       thetas[a*(_num_polar/2)+5] = acos(0.9815606342);
     }
   }
+  else if (_num_polar == 14) {
+    for (int a=0; a < _num_azim/4; a++) {
+      thetas[a*(_num_polar/2)] = acos(0.1080549487073436620662447);
+      thetas[a*(_num_polar/2)+1] = acos(0.3191123689278897604356718);
+      thetas[a*(_num_polar/2)+2] = acos(0.5152486363581540919652907);
+      thetas[a*(_num_polar/2)+3] = acos(0.6872929048116854701480198);
+      thetas[a*(_num_polar/2)+4] = acos(0.8272013150697649931897947);
+      thetas[a*(_num_polar/2)+5] = acos(0.9284348836635735173363911);
+      thetas[a*(_num_polar/2)+6] = acos(0.9862838086968123388415973);
+    }
+  }
+  else if (_num_polar == 16) {
+    for (int a=0; a < _num_azim/4; a++) {
+      thetas[a*(_num_polar/2)] = acos(0.0950125098376374401853193);
+      thetas[a*(_num_polar/2)+1] = acos(0.2816035507792589132304605);
+      thetas[a*(_num_polar/2)+2] = acos(0.4580167776572273863424194);
+      thetas[a*(_num_polar/2)+3] = acos(0.6178762444026437484466718);
+      thetas[a*(_num_polar/2)+4] = acos(0.7554044083550030338951012);
+      thetas[a*(_num_polar/2)+5] = acos(0.8656312023878317438804679);
+      thetas[a*(_num_polar/2)+6] = acos(0.9445750230732325760779884);
+      thetas[a*(_num_polar/2)+7] = acos(0.9894009349916499325961542);
+    }
+  }
+  else if (_num_polar == 18) {
+    for (int a=0; a < _num_azim/4; a++) {
+      thetas[a*(_num_polar/2)] = acos(0.0847750130417353012422619);
+      thetas[a*(_num_polar/2)+1] = acos(0.2518862256915055095889729);
+      thetas[a*(_num_polar/2)+2] = acos(0.4117511614628426460359318);
+      thetas[a*(_num_polar/2)+3] = acos(0.5597708310739475346078715);
+      thetas[a*(_num_polar/2)+4] = acos(0.6916870430603532078748911);
+      thetas[a*(_num_polar/2)+5] = acos(0.8037049589725231156824175);
+      thetas[a*(_num_polar/2)+6] = acos(0.8926024664975557392060606);
+      thetas[a*(_num_polar/2)+7] = acos(0.9558239495713977551811959);
+      thetas[a*(_num_polar/2)+8] = acos(0.9915651684209309467300160);
+    }
+  }
+  else if (_num_polar == 20) {
+    for (int a=0; a < _num_azim/4; a++) {
+      thetas[a*(_num_polar/2)]   = acos(0.0765265211334973337546404);
+      thetas[a*(_num_polar/2)+1] = acos(0.2277858511416450780804962);
+      thetas[a*(_num_polar/2)+2] = acos(0.3737060887154195606725482);
+      thetas[a*(_num_polar/2)+3] = acos(0.5108670019508270980043641);
+      thetas[a*(_num_polar/2)+4] = acos(0.6360536807265150254528367);
+      thetas[a*(_num_polar/2)+5] = acos(0.7463319064601507926143051);
+      thetas[a*(_num_polar/2)+6] = acos(0.8391169718222188233945291);
+      thetas[a*(_num_polar/2)+7] = acos(0.9122344282513259058677524);
+      thetas[a*(_num_polar/2)+8] = acos(0.9639719272779137912676661);
+      thetas[a*(_num_polar/2)+9] = acos(0.9931285991850949247861224);
+    }
+  }
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
@@ -1248,6 +1298,56 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
       weights[a*(_num_polar/2)+3] = 0.1600783286 / 2.0;
       weights[a*(_num_polar/2)+4] = 0.1069393260 / 2.0;
       weights[a*(_num_polar/2)+5] = 0.0471753364 / 2.0;
+    }
+  }
+  else if (_num_polar == 14) {
+    for (int a=0; a < _num_azim/4; a++) {
+      weights[a*(_num_polar/2)]   = 0.2152638534631577901958764 / 2.0;
+      weights[a*(_num_polar/2)+1] = 0.2051984637212956039659241 / 2.0;
+      weights[a*(_num_polar/2)+2] = 0.1855383974779378137417166 / 2.0;
+      weights[a*(_num_polar/2)+3] = 0.1572031671581935345696019 / 2.0;
+      weights[a*(_num_polar/2)+4] = 0.1215185706879031846894148 / 2.0;
+      weights[a*(_num_polar/2)+5] = 0.0801580871597602098056333 / 2.0;
+      weights[a*(_num_polar/2)+6] = 0.0351194603317518630318329 / 2.0;
+    }
+  }
+  else if (_num_polar == 16) {
+    for (int a=0; a < _num_azim/4; a++) {
+      weights[a*(_num_polar/2)]   = 0.1894506104550684962853967 / 2.0;
+      weights[a*(_num_polar/2)+1] = 0.1826034150449235888667637 / 2.0;
+      weights[a*(_num_polar/2)+2] = 0.1691565193950025381893121 / 2.0;
+      weights[a*(_num_polar/2)+3] = 0.1495959888165767320815017 / 2.0;
+      weights[a*(_num_polar/2)+4] = 0.1246289712555338720524763 / 2.0;
+      weights[a*(_num_polar/2)+5] = 0.0951585116824927848099251 / 2.0;
+      weights[a*(_num_polar/2)+6] = 0.0622535239386478928628438 / 2.0;
+      weights[a*(_num_polar/2)+7] = 0.0271524594117540948517806 / 2.0;
+    }
+  }
+  else if (_num_polar == 18) {
+    for (int a=0; a < _num_azim/4; a++) {
+      weights[a*(_num_polar/2)]   = 0.1691423829631435918406565 / 2.0;
+      weights[a*(_num_polar/2)+1] = 0.1642764837458327229860538 / 2.0;
+      weights[a*(_num_polar/2)+2] = 0.1546846751262652449254180 / 2.0;
+      weights[a*(_num_polar/2)+3] = 0.1406429146706506512047313 / 2.0;
+      weights[a*(_num_polar/2)+4] = 0.1225552067114784601845191 / 2.0;
+      weights[a*(_num_polar/2)+5] = 0.1009420441062871655628140 / 2.0;
+      weights[a*(_num_polar/2)+6] = 0.0764257302548890565291297 / 2.0;
+      weights[a*(_num_polar/2)+7] = 0.0497145488949697964533349 / 2.0;
+      weights[a*(_num_polar/2)+8] = 0.0216160135264833103133427 / 2.0;
+    }
+  }
+  else if (_num_polar == 20) {
+    for (int a=0; a < _num_azim/4; a++) {
+      weights[a*(_num_polar/2)]   = 0.1527533871307258506980843 / 2.0;
+      weights[a*(_num_polar/2)+1] = 0.1491729864726037467878287 / 2.0;
+      weights[a*(_num_polar/2)+2] = 0.1420961093183820513292983 / 2.0;
+      weights[a*(_num_polar/2)+3] = 0.1316886384491766268984945 / 2.0;
+      weights[a*(_num_polar/2)+4] = 0.1181945319615184173123774 / 2.0;
+      weights[a*(_num_polar/2)+5] = 0.1019301198172404350367501 / 2.0;
+      weights[a*(_num_polar/2)+6] = 0.0832767415767047487247581 / 2.0;
+      weights[a*(_num_polar/2)+7] = 0.0626720483341090635695065 / 2.0;
+      weights[a*(_num_polar/2)+8] = 0.0406014298003869413310400 / 2.0;
+      weights[a*(_num_polar/2)+9] = 0.0176140071391521183118620 / 2.0;
     }
   }
 

@@ -258,8 +258,8 @@ public:
   void setQuadrature(Quadrature* quadrature);
   void setKNearest(int k_nearest);
   void setSolve3D(bool solve_3d);
-  void setAzimSpacings(double* azim_spacings, int num_azim);
-  void setPolarSpacings(double** polar_spacings, int num_azim,
+  void setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim);
+  void setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                         int num_polar);
 
   /* Set FSR parameters */

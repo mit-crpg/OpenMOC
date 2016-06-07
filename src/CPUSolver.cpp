@@ -135,7 +135,7 @@ void CPUSolver::initializeFluxArrays() {
     memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
     memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
   }
-  catch(std::exception &e) {
+  catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the fluxes");
   }
 }
@@ -257,7 +257,6 @@ void CPUSolver::normalizeFluxes() {
   }
 
   /* Compute the total fission source */
-
   tot_fission_source = pairwise_sum<FP_PRECISION>(fission_sources,size);
 
   /* Deallocate memory for fission source array */
@@ -271,8 +270,10 @@ void CPUSolver::normalizeFluxes() {
 
   #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) *= norm_factor;
+      _old_scalar_flux(r, e) *= norm_factor;
+    }
   }
 
   /* Normalize angular boundary fluxes for each Track */
@@ -569,12 +570,12 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   if (_solve_3D) {
 
     for (int e=0; e < _num_groups; e++) {
-      exponential = _exp_evaluator->computeExponential(sigma_t[e] * length,
-                                                       azim_index, polar_index);
-      delta_psi = (track_flux(e)-_reduced_sources(fsr_id, e)) * exponential;
+      exponential = _exp_evaluator->computeExponential
+        (sigma_t[e] * length, azim_index, polar_index);
+      delta_psi = (track_flux[e]-_reduced_sources(fsr_id, e)) * exponential;
       fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
-      track_flux(e) -= delta_psi;
+      track_flux[e] -= delta_psi;
     }
   }
   else {
@@ -588,12 +589,10 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
       /* Loop over polar angles */
       for (int p=0; p < _num_polar/2; p++) {
-        exponential = _exp_evaluator->computeExponential(tau, azim_index,
-                                                         polar_index);
-        delta_psi = (track_flux(pe)-_reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
-                                                          polar_index);
-        track_flux(pe) -= delta_psi;
+        exponential = _exp_evaluator->computeExponential(tau, azim_index, p);
+        delta_psi = (track_flux[pe]-_reduced_sources(fsr_id,e)) * exponential;
+        fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
+        track_flux[pe] -= delta_psi;
         pe++;
       }
     }
@@ -686,9 +685,9 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   if (_solve_3D) {
     for (int e=0; e < _num_groups; e++) {
-      track_out_flux(e) = track_flux(e) * bc;
-      track_leakage(e) = track_flux(e) * (!bc) *
-                         _quad->getWeightInline(a, polar_index);
+      track_out_flux[e] = track_flux[e] * bc;
+      track_leakage[e] = track_flux[e] * (!bc) *
+          _quad->getWeightInline(a, polar_index);
     }
   }
   else {
@@ -698,9 +697,9 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     /* Loop over polar angles and energy groups */
     for (int e=0; e < _num_groups; e++) {
       for (int p=0; p < _num_polar/2; p++) {
-        track_out_flux(pe) = track_flux(pe) * bc;
-        track_leakage(pe) = track_flux(pe) * (!bc) *
-                            _quad->getWeightInline(a, p);
+        track_out_flux[pe] = track_flux[pe] * bc;
+        track_leakage[pe] = track_flux[pe] * (!bc) *
+            _quad->getWeightInline(a, p);
         pe++;
       }
     }

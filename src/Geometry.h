@@ -227,12 +227,12 @@ public:
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeAxialFSRs(std::vector<double> global_z_mesh);
+  void initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh);
   void initializeFlatSourceRegions();
   void segmentize2D(Track* track, double z_coord);
   void segmentize3D(Track3D* track);
   void segmentizeExtruded(Track* flattened_track,
-      std::vector<double> z_coords);
+      std::vector<FP_PRECISION> z_coords);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
 

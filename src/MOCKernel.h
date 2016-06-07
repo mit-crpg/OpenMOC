@@ -105,7 +105,7 @@ private:
   /** Pointer to array of FSR volumes */
   FP_PRECISION* _FSR_volumes;
 
-  /** The Track cross-sectional area used as the weight */
+  /** The Track's volume weight */
   FP_PRECISION _weight;
 
   /** The associated quadrature from which weights are derived */

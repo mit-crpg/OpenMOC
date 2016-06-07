@@ -79,7 +79,7 @@ protected:
   FP_PRECISION** _total_weights;
 
 
-  /* Templates for setting the same values to complimentary and supplimentary
+  /* Templates for setting the same values to complimentary and supplementary
    * angles */
   template <typename T>
   void setPolarValues(T** array, int azim_index, int polar_index, T value) {
@@ -230,7 +230,7 @@ public:
 /**
  * @brief Returns the total weight for Tracks with the given azimuthal and
  *        polar indexes without error checking and inlined
- * @details Angular weights are multiplied by Track spcings
+ * @details Angular weights are multiplied by Track spacings
  * @param azim index of the azimuthal angle of interest
  * @param polar index of the polar angle of interest
  * @return the total weight of each Track with the given indexes

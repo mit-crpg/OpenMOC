@@ -132,14 +132,14 @@ public:
   void setDesiredPolarSpacing(double spacing);
   void setSegmentFormation(segmentationType segmentation_type);
   void setTrackGenerationMethod(int method);
-  void setSegmentationHeights(std::vector<double> z_mesh);
+  void setSegmentationHeights(std::vector<FP_PRECISION> z_mesh);
   void useGlobalZMesh();
 
   /* Worker functions */
   void retrieve3DPeriodicCycleCoords(double* coords, int num_tracks);
   void retrieve3DReflectiveCycleCoords(double* coords, int num_tracks);
   void retrieve3DTrackCoords(double* coords, int num_tracks);
-  void retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs);
+  void retrieveGlobalZMesh(FP_PRECISION*& z_mesh, int& num_fsrs);
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void create3DTracksArrays();
