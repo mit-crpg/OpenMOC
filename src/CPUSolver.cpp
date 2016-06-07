@@ -679,7 +679,8 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   if (_solve_3D) {
     for (int e=0; e < _num_groups; e++) {
       track_out_flux[e] = track_flux[e] * bc;
-      track_leakage[e] = track_flux[e] * (!bc) * _quad->getWeightInline(a, p);
+      track_leakage[e] = track_flux[e] * (!bc) *
+          _quad->getWeightInline(a, polar_index);
     }
   }
   else {
