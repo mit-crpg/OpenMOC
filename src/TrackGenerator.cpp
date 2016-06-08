@@ -1450,7 +1450,7 @@ void TrackGenerator::dumpSegmentsToFile() {
     fsr_key = fsr_key_list[i];
     string_length = fsr_key.length() + 1;
     fwrite(&string_length, sizeof(int), 1, out);
-    fwrite(&fsr_key.c_str(), sizeof(char)*string_length, 1, out);
+    fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
 
     fsr_id = fsr_data_list[i]->_fsr_id;
     x = fsr_data_list[i]->_point->getX();
@@ -1462,7 +1462,7 @@ void TrackGenerator::dumpSegmentsToFile() {
     fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_material_IDs */
-    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
+    fwrite(&(FSRs_to_material_IDs.at(i)), sizeof(int), 1, out);
 
     /* Write data to file from FSRs_to_keys */
     fsr_key = FSRs_to_keys.at(i);
