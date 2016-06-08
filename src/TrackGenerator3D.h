@@ -69,7 +69,7 @@ private:
 
   /** A matrix of temporary segments are created for on-the-fly methods to
     * improve efficiency */
-  std::vector<segment**> _temporary_segments;
+  std::vector<segment*> _temporary_segments;
   bool _contains_temporary_segments;
 
   /** Maximum number of tracks a single 3D track stack for on-the-fly
@@ -121,7 +121,7 @@ public:
   double getZSpacing(int azim, int polar);
   int getNumRows();
   int getNumColumns();
-  segment* getTemporarySegments(int thread_id, int row_num);
+  segment* getTemporarySegments(int thread_id);
   int getNumZ(int azim, int polar);
   int getNumL(int azim, int polar);
   int getTrackGenerationMethod();
@@ -149,6 +149,7 @@ public:
   void create3DTracksArrays();
   void initializeTrackCycleIds();
   void checkBoundaryConditions();
+  void deleteTemporarySegments();
 };
 
 #endif /* TRACKGENERATOR3D_H_ */

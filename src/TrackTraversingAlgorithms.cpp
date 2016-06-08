@@ -27,8 +27,8 @@ void MaxOpticalLength::execute() {
   _track_generator->setMaxOpticalLength(infinity);
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<SegmentationKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
   }
   _track_generator->setMaxOpticalLength(_max_tau);
 }
@@ -77,8 +77,8 @@ SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
 void SegmentCounter::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<CounterKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<CounterKernel>();
+    loopOverTracks(kernel);
   }
   _track_generator->setMaxNumSegments(_max_num_segments);
 }
@@ -205,8 +205,8 @@ VolumeCalculator::VolumeCalculator(TrackGenerator* track_generator)
 void VolumeCalculator::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<VolumeKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<VolumeKernel>();
+    loopOverTracks(kernel);
   }
 }
 
@@ -233,6 +233,30 @@ CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _FSR_locks = track_generator->getFSRLocks();
   _quadrature = track_generator->getQuadrature();
+
+  int num_threads = omp_get_max_threads();
+  _starting_points = new Point*[num_threads];
+  _new_track = new bool*[num_threads];
+
+  int num_rows = 1;
+  if (_track_generator_3D != NULL)
+    num_rows = _track_generator_3D->getMaxNumTracksPerStack();
+  for (int i=0; i < num_threads; i++) {
+    _starting_points[i] = new Point[num_rows];
+    _new_track[i] = new bool[num_rows];
+  }
+}
+
+
+//FIXME
+CentroidGenerator::~CentroidGenerator() {
+  int num_threads = omp_get_max_threads();
+  for (int i=0; i < num_threads; i++) {
+    delete [] _starting_points[i];
+    delete [] _new_track[i];
+  }
+  delete [] _starting_points;
+  delete [] _new_track;
 }
 
 
@@ -246,8 +270,8 @@ CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
 void CentroidGenerator::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<SegmentationKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
   }
 }
 
@@ -268,11 +292,17 @@ void CentroidGenerator::setCentroids(Point** centroids) {
  */
 void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
-  /* Extract track information */
+  //FIXME
+  int tid = omp_get_thread_num();
+  int num_rows = 1;
+  if (_track_generator_3D != NULL)
+    num_rows = _track_generator_3D->getMaxNumTracksPerStack();
+  for (int i=0; i < num_rows; i++)
+    _new_track[tid][i] = true;
+  Track** tracks_array = _track_generator->getTracksArray();
+
+  /* Extract common information from the Track */
   Point* start = track->getStart();
-  double x = start->getX();
-  double y = start->getY();
-  double z = start->getZ();
   int azim_index = track->getAzimIndex();
   double phi = track->getPhi();
 
@@ -299,9 +329,24 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
   /* Loop over segments to accumlate contribution to centroids */
   for (int s=0; s < track->getNumSegments(); s++) {
+
     segment* curr_segment = &segments[s];
     int fsr = curr_segment->_region_id;
+    int track_idx = curr_segment->_track_idx;
+
+    // FIXME
+    if (_new_track[track_idx]) {
+
+      Track* curr_track = tracks_array[track->getUid() + track_idx];
+      _starting_points[tid][track_idx].copyCoords(curr_track->getStart());
+      _new_track[tid][track_idx] = false;
+    }
+
+    /* Extract information */
     double volume = _FSR_volumes[fsr];
+    double x = _starting_points[tid][track_idx].getX();
+    double y = _starting_points[tid][track_idx].getY();
+    double z = _starting_points[tid][track_idx].getZ();
 
     /* Set the lock for this FSR */
     omp_set_lock(&_FSR_locks[fsr]);
@@ -327,6 +372,10 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     x += cos_phi * sin_theta * curr_segment->_length;
     y += sin_phi * sin_theta * curr_segment->_length;
     z += cos_theta * curr_segment->_length;
+
+    _starting_points[tid][track_idx].setX(x);
+    _starting_points[tid][track_idx].setY(y);
+    _starting_points[tid][track_idx].setZ(z);
   }
 }
 
@@ -339,7 +388,30 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 TransportSweep::TransportSweep(TrackGenerator* track_generator)
                               : TraverseSegments(track_generator) {
   _cpu_solver = NULL;
+  _tracks_per_stack = NULL;
+
+  /* Allocate temporary storage of FSR fluxes */
+  int num_threads = omp_get_max_threads();
+  int num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+  _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
+  for (int i=0; i < num_threads; i++)
+    _thread_fsr_fluxes[i] = new FP_PRECISION[2*num_groups];
+
+  /* Get the number of tracks per stack if 3D calculation */
+  TrackGenerator3D* TG_3D = dynamic_cast<TrackGenerator3D*>(track_generator);
+  if (TG_3D != NULL)
+    _tracks_per_stack = TG_3D->getTracksPerStack();
 }
+
+
+//FIXME
+TransportSweep::~TransportSweep() {
+  int num_threads = omp_get_max_threads();
+  for (int i=0; i < num_threads; i++)
+    delete [] _thread_fsr_fluxes[i];
+  delete [] _thread_fsr_fluxes;
+}
+
 
 
 /**
@@ -351,8 +423,8 @@ TransportSweep::TransportSweep(TrackGenerator* track_generator)
 void TransportSweep::execute() {
 #pragma omp parallel
   {
-    MOCKernel** kernels = getKernels<SegmentationKernel>();
-    loopOverTracks(kernels);
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
   }
 }
 
@@ -379,9 +451,9 @@ void TransportSweep::setCPUSolver(CPUSolver* cpu_solver) {
  */
 void TransportSweep::onTrack(Track* track, segment* segments) {
 
-  /* Allocate temporary FSR flux locally */
-  int num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
-  FP_PRECISION thread_fsr_flux[num_groups];
+  /* Get the temporary FSR flux */
+  int tid = omp_get_thread_num();
+  FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
 
   /* Extract Track information */
   int track_id = track->getUid();
@@ -395,15 +467,22 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   if (track_3D != NULL)
     polar_index = track_3D->getPolarIndex();
 
-  /* Correct azimuthal index to first octant */
-  Quadrature* quad = _track_generator->getQuadrature();
-
-  /* Get the forward track flux */
-  track_flux = _cpu_solver->getBoundaryFlux(track_id, true);
+  /* Extract the maximum track index */
+  int max_track_index = 0;
+  if (_tracks_per_stack != NULL) {
+    int xy_index = track->getXYIndex();
+    max_track_index = _tracks_per_stack[azim_index][xy_index][polar_index] - 1;
+  }
 
   /* Loop over each Track segment in forward direction */
   for (int s=0; s < num_segments; s++) {
+
+    /* Get the forward track flux */
     segment* curr_segment = &segments[s];
+    int curr_track_id = track_id + curr_segment->_track_idx;
+    track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, true);
+
+    /* Apply MOC equations */
     _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                  track_flux, thread_fsr_flux);
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
@@ -411,15 +490,21 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   }
 
   /* Transfer boundary angular flux to outgoing Track */
-  _cpu_solver->transferBoundaryFlux(track_id, azim_index, polar_index, true,
-                                    track_flux);
-
-  /* Get the backward track flux */
-  track_flux = _cpu_solver->getBoundaryFlux(track_id, false);
+  for (int i=0; i <= max_track_index; i++) {
+    track_flux = _cpu_solver->getBoundaryFlux(track_id+i, true);
+    _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, true,
+                                      track_flux);
+  }
 
   /* Loop over each Track segment in reverse direction */
   for (int s=num_segments-1; s >= 0; s--) {
+
+    /* Get the backward track flux */
     segment* curr_segment = &segments[s];
+    int curr_track_id = track_id + curr_segment->_track_idx;
+    track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, false);
+
+    /* Apply MOC equations */
     _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                  track_flux, thread_fsr_flux);
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
@@ -427,8 +512,11 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   }
 
   /* Transfer boundary angular flux to outgoing Track */
-  _cpu_solver->transferBoundaryFlux(track_id, azim_index, polar_index, false,
-                                    track_flux);
+  for (int i=0; i <= max_track_index; i++) {
+    track_flux = _cpu_solver->getBoundaryFlux(track_id+i, false);
+    _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, false,
+                                      track_flux);
+  }
 }
 
 
@@ -450,8 +538,8 @@ DumpSegments::DumpSegments(TrackGenerator* track_generator)
  *          information to file.
  */
 void DumpSegments::execute() {
-  MOCKernel** kernels = getKernels<SegmentationKernel>();
-  loopOverTracks(kernels);
+  MOCKernel* kernel = getKernel<SegmentationKernel>();
+  loopOverTracks(kernel);
 }
 
 
@@ -587,3 +675,29 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
   }
 }
 
+//FIXME
+TransportSweepOTF::TransportSweepOTF(TrackGenerator* track_generator)
+                                   : TraverseSegments(track_generator) {
+  _cpu_solver = NULL;
+}
+
+
+//FIXME
+void TransportSweepOTF::execute() {
+#pragma omp parallel
+  {
+    TransportKernel kernel(_track_generator, 0);
+    kernel.setCPUSolver(_cpu_solver);
+    loopOverTracksByStackTwoWay(&kernel);
+  }
+}
+
+
+//FIXME
+void TransportSweepOTF::setCPUSolver(CPUSolver* cpu_solver) {
+  _cpu_solver = cpu_solver;
+}
+
+//FIXME
+void TransportSweepOTF::onTrack(Track* track, segment* segments) {
+}

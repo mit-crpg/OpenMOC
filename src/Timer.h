@@ -17,11 +17,14 @@
 #include <omp.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <utility>
 #include <map>
 #include <vector>
 #include <string>
+#include <ios>
+#include <unistd.h>
 #endif
 
 
@@ -90,6 +93,7 @@ public:
   void printSplits();
   void clearSplit(const char* msg);
   void clearSplits();
+  void processMemUsage(double& vm_usage, double& resident_set);
 };
 
 #endif /* TIMER_H_ */

@@ -1,4 +1,5 @@
 #include "Solver.h"
+
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
  *        set to NULL.
@@ -45,6 +46,9 @@ Solver::Solver(TrackGenerator* track_generator) {
   _converge_thresh = 1E-5;
 
   _timer = new Timer();
+
+  //FIXME
+  _OTF_transport = false;
 }
 
 
@@ -293,17 +297,6 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
   source *= ONE_OVER_FOUR_PI;
 
   return source;
-}
-
-
-/**
- * @brief Returns the boundary flux array at the requested indexes
- * @param track_id The Track's Unique ID
- * @param fwd Whether the direction of the angular flux along the track is
- *        forward (True) or backward (False)
- */
-FP_PRECISION* Solver::getBoundaryFlux(int track_id, bool fwd) {
-  return &_boundary_flux(track_id, !fwd, 0);
 }
 
 
@@ -889,10 +882,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
-
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
-
   _num_iterations = 0;
   FP_PRECISION residual = 0.;
 
@@ -911,6 +900,16 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   flattenFSRFluxes(1.0);
   storeFSRFluxes();
   zeroTrackFluxes();
+
+  /* Print memory report */
+  double vm;
+  double rm;
+  _timer->processMemUsage(vm, rm);
+  log_printf(NORMAL, "Using %f MB virtual memory and %f MB resident "
+                      "memory ", vm, rm);
+
+  /* Start the timer to record the total time to converge the source */
+  _timer->startTimer();
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {

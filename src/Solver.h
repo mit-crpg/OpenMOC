@@ -269,6 +269,9 @@ protected:
 
   void clearTimerSplits();
 
+  //FIXME
+  bool _OTF_transport;
+
 public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
@@ -288,7 +291,6 @@ public:
   bool isUsingExponentialInterpolation();
 
 
-  virtual FP_PRECISION getFSRSource(int fsr_id, int group);
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
   virtual FP_PRECISION* getBoundaryFlux(int track_id, bool fwd);
@@ -328,7 +330,22 @@ public:
   */
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
 
+  /**
+   * @brief Returns the boundary flux array at the requested indexes
+   * @param track_id The Track's Unique ID
+   * @param fwd Whether the direction of the angular flux along the track is
+   *        forward (True) or backward (False)
+   */
+  inline FP_PRECISION* getBoundaryFlux(int track_id, bool fwd) {
+    return &_boundary_flux(track_id, !fwd, 0);
+  }
+
   void printTimerReport();
+
+  //FIXME
+  inline void setOTFTransport() {
+    _OTF_transport = true;
+  }
 };
 
 

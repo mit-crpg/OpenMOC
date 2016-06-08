@@ -275,6 +275,7 @@ int main() {
   /* Run simulation */
   CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
+  //solver.setOTFTransport();
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();

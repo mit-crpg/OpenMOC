@@ -10,8 +10,8 @@
  *          on each Track, and an execute() function which applies the
  *          algorithm. The execute() function should contain a call to
  *          TraverseSegments::loopOverTracks(...). To specify a behavior to
- *          be applied once for each segment, kernels should be initialized
- *          using the TraverseSegments::getKernels<KernelType>() function and
+ *          be applied once for each segment, the kernel should be initialized
+ *          using the TraverseSegments::getKernel<KernelType>() function and
  *          passed to TraverseSegments::loopOverTracks().
  * @date February 23, 2016
  * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
@@ -127,10 +127,13 @@ private:
   FP_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
   Quadrature* _quadrature;
+  Point** _starting_points;
+  bool** _new_track;
 
 public:
 
   CentroidGenerator(TrackGenerator* track_generator);
+  virtual ~CentroidGenerator();
   void setCentroids(Point** centroids);
   void execute();
   void onTrack(Track* track, segment* segments);
@@ -151,10 +154,13 @@ class TransportSweep: public TraverseSegments {
 private:
 
   CPUSolver* _cpu_solver;
+  FP_PRECISION** _thread_fsr_fluxes;
+  int*** _tracks_per_stack;
 
 public:
 
   TransportSweep(TrackGenerator* track_generator);
+  virtual ~TransportSweep();
   void setCPUSolver(CPUSolver* cpu_solver);
   void execute();
   void onTrack(Track* track, segment* segments);
@@ -203,6 +209,24 @@ public:
   void execute();
   void onTrack(Track* track, segment* segments);
 };
+
+
+//FIXME
+class TransportSweepOTF: public TraverseSegments {
+
+private:
+
+  CPUSolver* _cpu_solver;
+
+public:
+
+  TransportSweepOTF(TrackGenerator* track_generator);
+  void setCPUSolver(CPUSolver* cpu_solver);
+  void onTrack(Track* track, segment* segments);
+  void execute();
+};
+
+
 
 
 #endif
