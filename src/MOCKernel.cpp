@@ -320,7 +320,7 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
-  double max_sigma_t = 0;
+  FP_PRECISION max_sigma_t = 0;
   for (int e=0; e < mat->getNumEnergyGroups(); e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
