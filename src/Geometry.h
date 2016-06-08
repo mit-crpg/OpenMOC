@@ -144,11 +144,11 @@ private:
   boundaryType _z_max_bc;
 
   /** An map of FSR key hashes to unique fsr_data structs */
-  ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
-  ParallelHashMap<std::size_t, ExtrudedFSR*> _extruded_FSR_keys_map;
+  ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
+  ParallelHashMap<std::string, ExtrudedFSR*> _extruded_FSR_keys_map;
 
   /** An vector of FSR key hashes indexed by FSR ID */
-  std::vector<std::size_t> _FSRs_to_keys;
+  std::vector<std::string> _FSRs_to_keys;
 
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
@@ -201,7 +201,7 @@ public:
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::size_t>& getFSRsToKeys();
+  std::vector<std::string>& getFSRsToKeys();
   std::vector<int>& getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
@@ -209,14 +209,11 @@ public:
   int getCmfdCell(int fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-  ParallelHashMap<std::size_t, fsr_data*>& getFSRKeysMap();
+  ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
 
   /* Set parameters */
-  void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
-  void setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
-  void setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);

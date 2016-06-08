@@ -1428,13 +1428,12 @@ void TrackGenerator::dumpSegmentsToFile() {
   dump_segments.execute();
 
   /* Get FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>& FSR_keys_map =
+  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
-  std::vector<std::size_t>& FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int>& FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
-  std::size_t fsr_key;
+  std::string fsr_key;
   int fsr_id;
-  int fsr_counter = 0;
   double x, y, z;
 
   /* Write number of FSRs */
@@ -1442,18 +1441,21 @@ void TrackGenerator::dumpSegmentsToFile() {
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  std::size_t* fsr_key_list = FSR_keys_map.keys();
+  std::string* fsr_key_list = FSR_keys_map.keys();
   fsr_data** fsr_data_list = FSR_keys_map.values();
   Cmfd* cmfd = _geometry->getCmfd();
   for (int i=0; i < num_FSRs; i++) {
 
     /* Write data to file from FSR_keys_map */
     fsr_key = fsr_key_list[i];
+    string_length = fsr_key.length() + 1;
+    fwrite(&string_length, sizeof(int), 1, out);
+    fwrite(&fsr_key.c_str(), sizeof(char)*string_length, 1, out);
+
     fsr_id = fsr_data_list[i]->_fsr_id;
     x = fsr_data_list[i]->_point->getX();
     y = fsr_data_list[i]->_point->getY();
     z = fsr_data_list[i]->_point->getZ();
-    fwrite(&fsr_key, sizeof(std::size_t), 1, out);
     fwrite(&fsr_id, sizeof(int), 1, out);
     fwrite(&x, sizeof(double), 1, out);
     fwrite(&y, sizeof(double), 1, out);
@@ -1463,10 +1465,10 @@ void TrackGenerator::dumpSegmentsToFile() {
     fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
 
     /* Write data to file from FSRs_to_keys */
-    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
-
-    /* Increment FSR ID counter */
-    fsr_counter++;
+    fsr_key = FSRs_to_keys.at(i);
+    string_length = fsr_key.length() + 1;
+    fwrite(&string_length, sizeof(int), 1, out);
+    fwrite(fsr_key.c_str(), sizeof(char)*string_length, 1, out);
   }
 
   /* Write cmfd_fsrs vector of vectors to file */
@@ -1538,12 +1540,12 @@ bool TrackGenerator::readSegmentsFromFile() {
   read_segments.execute();
 
   /* Create FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>& FSR_keys_map =
+  ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
     _geometry->getFSRKeysMap();
   std::vector<int>& FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
-  std::vector<std::size_t>& FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
   int num_FSRs;
-  std::size_t fsr_key;
+  std::string fsr_key;
   int fsr_key_id;
   double x, y, z;
 
@@ -1553,8 +1555,13 @@ bool TrackGenerator::readSegmentsFromFile() {
   /* Read FSR vector maps from file */
   for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
 
+    /* Read key for FSR_keys_map */
+    ret = fread(&string_length, sizeof(int), 1, in);
+    char* char_buffer1 = new char[string_length];
+    ret = fread(&char_buffer1, sizeof(char)*string_length, 1, in);
+    fsr_key = std::string(char_buffer1);
+
     /* Read data from file for FSR_keys_map */
-    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
     ret = fread(&fsr_key_id, sizeof(int), 1, in);
     ret = fread(&x, sizeof(double), 1, in);
     ret = fread(&y, sizeof(double), 1, in);
@@ -1572,7 +1579,10 @@ bool TrackGenerator::readSegmentsFromFile() {
     FSRs_to_material_IDs.push_back(material_id);
 
     /* Read data from file for FSR_to_keys */
-    ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
+    ret = fread(&string_length, sizeof(int), 1, in);
+    char* char_buffer2 = new char[string_length];
+    ret = fread(&char_buffer2, sizeof(char)*string_length, 1, in);
+    fsr_key = std::string(char_buffer2);
     FSRs_to_keys.push_back(fsr_key);
   }
 

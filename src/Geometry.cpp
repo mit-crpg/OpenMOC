@@ -534,21 +534,20 @@ int Geometry::findFSRId(LocalCoords* coords) {
   int fsr_id;
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
-  std::hash<std::string> key_hash_function;
 
   /* Generate faulty FSR key */
-  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+  std::string fsr_key = getFSRKey(coords);
 
   /* If FSR has not been encountered, update FSR maps and vectors */
-  if (!_FSR_keys_map.contains(fsr_key_hash)) {
+  if (!_FSR_keys_map.contains(fsr_key)) {
 
     /* Try to get a clean copy of the fsr_id, adding the FSR data
        if necessary where -1 indicates the key was already added */
-    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
+    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key, NULL);
     if (fsr_id == -1) {
       fsr_data volatile* fsr;
       do {
-        fsr = _FSR_keys_map.at(fsr_key_hash);
+        fsr = _FSR_keys_map.at(fsr_key);
       } while (fsr == NULL);
       fsr_id = fsr->_fsr_id;
     }
@@ -557,7 +556,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       /* Add FSR information to FSR key map and FSR_to vectors */
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
-      _FSR_keys_map.at(fsr_key_hash) = fsr;
+      _FSR_keys_map.update(fsr_key, fsr);
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(),
                        coords->getHighestLevel()->getY(),
@@ -578,7 +577,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   else {
     fsr_data volatile* fsr;
     do {
-      fsr = _FSR_keys_map.at(fsr_key_hash);
+      fsr = _FSR_keys_map.at(fsr_key);
     } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;
@@ -599,21 +598,20 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
   int fsr_id;
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
-  std::hash<std::string> key_hash_function;
 
   /* Generate unique FSR key */
-  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+  std::string fsr_key = getFSRKey(coords);
 
   /* If FSR has not been encountered, update FSR maps and vectors */
-  if (!_extruded_FSR_keys_map.contains(fsr_key_hash)) {
+  if (!_extruded_FSR_keys_map.contains(fsr_key)) {
 
     /* Try to get a clean copy of the fsr_id, adding the FSR data
        if necessary where -1 indicates the key was already added */
-    fsr_id = _extruded_FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
+    fsr_id = _extruded_FSR_keys_map.insert_and_get_count(fsr_key, NULL);
     if (fsr_id == -1) {
       ExtrudedFSR volatile* fsr;
       do {
-        fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
+        fsr = _extruded_FSR_keys_map.at(fsr_key);
       } while (fsr == NULL);
       fsr_id = fsr->_fsr_id;
     }
@@ -624,7 +622,7 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
       fsr->_fsr_id = fsr_id;
       fsr->_num_fsrs = 0;
       fsr->_coords = new LocalCoords(0, 0, 0);
-      _extruded_FSR_keys_map.at(fsr_key_hash) = fsr;
+      _extruded_FSR_keys_map.update(fsr_key, fsr);
       coords->copyCoords(fsr->_coords);
     }
   }
@@ -633,7 +631,7 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
   else {
     ExtrudedFSR volatile* fsr;
     do {
-      fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
+      fsr = _extruded_FSR_keys_map.at(fsr_key);
     } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;
@@ -653,11 +651,10 @@ int Geometry::getFSRId(LocalCoords* coords) {
 
   int fsr_id = 0;
   std::string fsr_key;
-  std::hash<std::string> key_hash_function;
 
-  try{
+  try {
     fsr_key = getFSRKey(coords);
-    fsr_id = _FSR_keys_map.at(key_hash_function(fsr_key))->_fsr_id;
+    fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
@@ -1332,19 +1329,19 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
 void Geometry::initializeFSRVectors() {
 
   /* get keys and values from map */
-  std::size_t *key_list = _FSR_keys_map.keys();
+  std::string *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
 
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
-  _FSRs_to_keys = std::vector<std::size_t>(num_FSRs);
+  _FSRs_to_keys = std::vector<std::string>(num_FSRs);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
   for (int i=0; i < num_FSRs; i++)
   {
-    std::size_t key = key_list[i];
+    std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
     int fsr_id = fsr->_fsr_id;
     _FSRs_to_keys.at(fsr_id) = key;
@@ -1614,7 +1611,7 @@ void Geometry::initializeCmfd() {
  * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
  * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
  */
-ParallelHashMap<std::size_t, fsr_data*>& Geometry::getFSRKeysMap() {
+ParallelHashMap<std::string, fsr_data*>& Geometry::getFSRKeysMap() {
   return _FSR_keys_map;
 }
 
@@ -1623,7 +1620,7 @@ ParallelHashMap<std::size_t, fsr_data*>& Geometry::getFSRKeysMap() {
  * @brief Returns the vector that maps FSR IDs to FSR key hashes
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::vector<std::size_t>& Geometry::getFSRsToKeys() {
+std::vector<std::string>& Geometry::getFSRsToKeys() {
   return _FSRs_to_keys;
 }
 
@@ -1635,39 +1632,6 @@ std::vector<std::size_t>& Geometry::getFSRsToKeys() {
 std::vector<int>& Geometry::getFSRsToMaterialIDs() {
   return _FSRs_to_material_IDs;
 }
-
-/**
- * @brief Sets the _FSR_keys_map map
- * @details The _FSR_keys_map stores a hash of a std::string representing
- *          the Lattice/Cell/Universe hierarchy for a unique region
- *          and the associated FSR data. fsr_data is a struct that contains
- *          a unique FSR id and a Point located in the highest level Universe
- *          that is contained in the FSR. This method is used when the tracks
- *          are read from file to avoid unnecessary segmentation.
- * @param FSR_keys_map map of FSR keys to FSR data
- */
-void Geometry::setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>*
-                             FSR_keys_map) {
-  _FSR_keys_map = *FSR_keys_map;
-}
-
-/**
- * @brief Sets the _FSRs_to_keys vector
- * @param FSRs_to_keys vector of FSR key hashes indexed by FSR IDs
- */
-void Geometry::setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys) {
-  _FSRs_to_keys = *FSRs_to_keys;
-}
-
-
-/**
- * @brief Sets the _FSRs_to_material_IDs vector
- * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
- */
-void Geometry::setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs) {
-  _FSRs_to_material_IDs = *FSRs_to_material_IDs;
-}
-
 
 /**
  * @brief Determins whether a point is within the bounding box of the geometry.
