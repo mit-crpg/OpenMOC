@@ -59,6 +59,21 @@
  *  for each FSR and energy group */
 #define scatter_sources(r,e) (scatter_sources[(r)*_num_groups + (e)])
 
+
+/**
+ * @enum solverMode
+ * @brief The solution mode used by the MOC solver.
+*/
+enum solverMode {
+
+  /** The forward flux distribution */
+  FORWARD,
+
+  /** The adjoint flux distribution */
+  ADJOINT,
+};
+
+
 /**
  * @enum residualType
  * @brief The type of residual used for the convergence criterion.

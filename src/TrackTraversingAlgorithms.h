@@ -199,7 +199,7 @@ private:
 public:
 
   ReadSegments(TrackGenerator* track_generator);
-  void setInputFile(FILE* in);
+  void setInputFile(FILE* input);
   void execute();
   void onTrack(Track* track, segment* segments);
 };

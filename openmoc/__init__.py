@@ -5,21 +5,34 @@ import signal
 
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
-  from openmoc import *
+    from openmoc import *
+    import log
+    import options
+    import materialize
+    import plotter
+    import process
+    import krylov
 # For Python 3.X.X
 else:
-  from openmoc.openmoc import *
+    from openmoc.openmoc import *
+    import openmoc.log
+    import openmoc.options
+    import openmoc.materialize
+    import openmoc.plotter
+    import openmoc.process
+    import openmoc.krylov
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module
 # when this is passed in from the keyboard
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-# Set a log file name using a date and time
+# Build a log file name using the date and time
+left_pad = lambda x: x.zfill(2)
 now = datetime.datetime.now()
-current_time = str(now.month).zfill(2) + '-' + str(now.day).zfill(2) + '-' + str(now.year) + '--'
-current_time = current_time + str(now.hour).zfill(2) + ':' + str(now.minute).zfill(2)
-current_time = current_time + ':' + str(now.second).zfill(2)
+time = (now.month, now.day, now.year, now.hour, now.minute, now.second)
+year_string = '-'.join(map(left_pad, map(str, (now.month, now.day, now.year))))
+today_string = ':'.join(map(left_pad, map(str, (now.hour, now.minute, now.second))))
+today_string += ':' + str(now.microsecond)[:2]
+time_string = year_string + '--' + today_string
 initialize_logger()
-set_log_filename('openmoc-' + current_time + '.log');
-
-Timer = Timer()
+set_log_filename('openmoc-' + time_string + '.log');

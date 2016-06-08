@@ -1,54 +1,50 @@
-from openmoc import *
-import openmoc.log as log
-import openmoc.plotter as plotter
-import openmoc.materialize as materialize
-
-log.set_log_level('NORMAL')
+import openmoc
+openmoc.log.set_log_level('NORMAL')
 
 
 ###############################################################################
 #                            Creating Materials
 ###############################################################################
 
-log.py_printf('NORMAL', 'Importing materials data from HDF5...')
+openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
+materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 
 ###############################################################################
 #                            Creating Surfaces
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating surfaces...')
+openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-zcylinder = ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
-xmin = XPlane(x=-2.0, name='xmin')
-ymin = YPlane(y=-2.0, name='ymin')
-zmin = ZPlane(z=-2.0, name='zmin')
-xmax = XPlane(x=2.0, name='xmax')
-ymax = YPlane(y=2.0, name='ymax')
-zmax = ZPlane(z=2.0, name='zmax')
+zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
+xmin = openmoc.XPlane(x=-2.0, name='xmin')
+ymin = openmoc.YPlane(y=-2.0, name='ymin')
+zmin = openmoc.ZPlane(z=-2.0, name='zmin')
+xmax = openmoc.XPlane(x=2.0, name='xmax')
+ymax = openmoc.YPlane(y=2.0, name='ymax')
+zmax = openmoc.ZPlane(z=2.0, name='zmax')
 
-xmin.setBoundaryType(REFLECTIVE)
-ymin.setBoundaryType(REFLECTIVE)
-zmin.setBoundaryType(REFLECTIVE)
-xmax.setBoundaryType(REFLECTIVE)
-ymax.setBoundaryType(REFLECTIVE)
-zmax.setBoundaryType(REFLECTIVE)
+xmin.setBoundaryType(openmoc.REFLECTIVE)
+ymin.setBoundaryType(openmoc.REFLECTIVE)
+zmin.setBoundaryType(openmoc.REFLECTIVE)
+xmax.setBoundaryType(openmoc.REFLECTIVE)
+ymax.setBoundaryType(openmoc.REFLECTIVE)
+zmax.setBoundaryType(openmoc.REFLECTIVE)
 
 ###############################################################################
 #                             Creating Cells
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating cells...')
+openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
-fuel = Cell(name='fuel')
+fuel = openmoc.Cell(name='fuel')
 fuel.setFill(materials['UO2'])
 fuel.addSurface(halfspace=-1, surface=zcylinder)
 fuel.addSurface(halfspace=+1, surface=zmin)
 fuel.addSurface(halfspace=-1, surface=zmax)
 
-moderator = Cell(name='moderator')
+moderator = openmoc.Cell(name='moderator')
 moderator.setFill(materials['Water'])
 moderator.addSurface(halfspace=+1, surface=zcylinder)
 moderator.addSurface(halfspace=+1, surface=xmin)
@@ -62,9 +58,9 @@ moderator.addSurface(halfspace=-1, surface=zmax)
 #                            Creating Universes
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating universes...')
+openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
-root_universe = Universe(name='root universe')
+root_universe = openmoc.Universe(name='root universe')
 root_universe.addCell(fuel)
 root_universe.addCell(moderator)
 
@@ -73,9 +69,8 @@ root_universe.addCell(moderator)
 #                         Creating the Geometry
 ###############################################################################
 
+openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
-log.py_printf('NORMAL', 'Creating geometry...')
-
-geometry = Geometry()
+geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.initializeFlatSourceRegions()

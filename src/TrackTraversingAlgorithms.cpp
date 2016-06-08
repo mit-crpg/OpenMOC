@@ -530,8 +530,8 @@ void ReadSegments::execute() {
  * @brief Sets the input file to read in tracking information
  * @param in The input tracking file
  */
-void ReadSegments::setInputFile(FILE* in) {
-  _in = in;
+void ReadSegments::setInputFile(FILE* input) {
+  _in = input;
 }
 
 
