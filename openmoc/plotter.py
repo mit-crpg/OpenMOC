@@ -1386,7 +1386,7 @@ def plot_quadrature(solver, get_figure=False):
 
     # Get the azimuthal angles
     for a in range(int(num_azim / 4)):
-        phis[a] = track_generator.getPhi(a)
+        phis[a] = quad.getPhi(a)
 
     # Make a 3D figure
     fig = plt.figure()

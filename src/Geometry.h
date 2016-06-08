@@ -235,7 +235,11 @@ public:
       std::vector<FP_PRECISION> z_coords);
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
-
+  std::vector<int> getSpatialDataOnGrid(std::vector<double> dim1,
+                                        std::vector<double> dim2,
+                                        double offset,
+                                        const char* plane,
+                                        const char* domain_type);
   std::string toString();
   void printString();
   void initializeCmfd();

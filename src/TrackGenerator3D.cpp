@@ -115,6 +115,15 @@ double TrackGenerator3D::getDesiredPolarSpacing() {
  * @brief Return the total number of 3D Tracks across the Geometry.
  * @return the total number of 3D Tracks
  */
+int TrackGenerator3D::getNumTracks() {
+  return getNum3DTracks();
+}
+
+
+/**
+ * @brief Return the total number of 3D Tracks across the Geometry.
+ * @return the total number of 3D Tracks
+ */
 int TrackGenerator3D::getNum3DTracks() {
 
   int num_3D_tracks = 0;
@@ -133,6 +142,15 @@ int TrackGenerator3D::getNum3DTracks() {
 /**
  * @brief Return the total number of Track segments across the Geometry.
  * @return the total number of Track segments
+ */
+int TrackGenerator3D::getNumSegments() {
+  return getNum3DSegments();
+}
+
+
+/**
+ * @brief Return the total number of 3D Track segments across the Geometry.
+ * @return the total number of 3D Track segments
  */
 int TrackGenerator3D::getNum3DSegments() {
 
@@ -398,11 +416,12 @@ void TrackGenerator3D::retrieveGlobalZMesh(FP_PRECISION*& z_mesh,
 void TrackGenerator3D::retrieve3DPeriodicCycleCoords(double* coords,
                                                    int num_tracks) {
 
-  if (num_tracks != 7*getNum3DTracks())
+  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum3DTracks())
     log_printf(ERROR, "Unable to retrieve the 3D Track periodic cycle "
                "coordinates since the TrackGenerator contains %d Tracks with "
                "%d coordinates but an array of length %d was input",
-               getNum3DTracks(), 7*getNum3DTracks(), num_tracks);
+               getNum3DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
+               getNum3DTracks(), num_tracks);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -418,7 +437,7 @@ void TrackGenerator3D::retrieve3DPeriodicCycleCoords(double* coords,
           coords[counter+4] = _tracks_3D[a][i][p][z].getEnd()->getY();
           coords[counter+5] = _tracks_3D[a][i][p][z].getEnd()->getZ();
           coords[counter+6] = _tracks_3D[a][i][p][z].getPeriodicCycleId();
-          counter += 7;
+          counter += 7; //FIXME
         }
       }
     }
@@ -448,11 +467,12 @@ void TrackGenerator3D::retrieve3DPeriodicCycleCoords(double* coords,
 void TrackGenerator3D::retrieve3DReflectiveCycleCoords(double* coords,
                                                      int num_tracks) {
 
-  if (num_tracks != 7*getNum3DTracks())
+  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum3DTracks())
     log_printf(ERROR, "Unable to retrieve the 3D Track reflective cycle "
                "coordinates since the TrackGenerator contains %d Tracks with "
                "%d coordinates but an array of length %d was input",
-               getNum3DTracks(), 7*getNum3DTracks(), num_tracks);
+               getNum3DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
+               getNum3DTracks(), num_tracks);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -468,13 +488,11 @@ void TrackGenerator3D::retrieve3DReflectiveCycleCoords(double* coords,
           coords[counter+4] = _tracks_3D[a][i][p][z].getEnd()->getY();
           coords[counter+5] = _tracks_3D[a][i][p][z].getEnd()->getZ();
           coords[counter+6] = _tracks_3D[a][i][p][z].getReflectiveCycleId();
-          counter += 7;
+          counter += 7; //FIXME
         }
       }
     }
   }
-
-  return;
 }
 
 
@@ -494,13 +512,35 @@ void TrackGenerator3D::retrieve3DReflectiveCycleCoords(double* coords,
  * @param coords an array of coords of length 6 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
+void TrackGenerator3D::retrieveTrackCoords(double* coords, int num_tracks) {
+  retrieve3DTrackCoords(coords, num_tracks);
+}
+
+
+/**
+ * @brief Fills an array with the x,y coordinates for each Track.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          tracks. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_tracks = track_generator.getNum3DTracks()
+ *          coords = track_generator.retrieve3DTrackCoords(num_tracks*6)
+ * @endcode
+ *
+ * @param coords an array of coords of length 6 times the number of Tracks
+ * @param num_tracks the total number of Tracks
+ */
 void TrackGenerator3D::retrieve3DTrackCoords(double* coords, int num_tracks) {
 
-  if (num_tracks != 6*getNum3DTracks())
+  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum3DTracks())
     log_printf(ERROR, "Unable to retrieve the Track coordinates since the "
                "TrackGenerator contains %d Tracks with %d coordinates but an "
                "array of length %d was input",
-               getNum3DTracks(), 6*getNum3DTracks(), num_tracks);
+               getNum3DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
+               getNum3DTracks(), num_tracks);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -514,13 +554,11 @@ void TrackGenerator3D::retrieve3DTrackCoords(double* coords, int num_tracks) {
           coords[counter+3] = _tracks_3D[a][i][p][z].getEnd()->getX();
           coords[counter+4] = _tracks_3D[a][i][p][z].getEnd()->getY();
           coords[counter+5] = _tracks_3D[a][i][p][z].getEnd()->getZ();
-          counter += 6;
+          counter += NUM_VALUES_PER_RETRIEVED_TRACK;
         }
       }
     }
   }
-
-  return;
 }
 
 
@@ -540,13 +578,35 @@ void TrackGenerator3D::retrieve3DTrackCoords(double* coords, int num_tracks) {
  * @param coords an array of coords of length 7 times the number of segments
  * @param num_segments the total number of Track segments
  */
+void TrackGenerator3D::retrieveSegmentCoords(double* coords, int num_segments) {
+  retrieve3DSegmentCoords(coords, num_segments);
+}
+
+
+/**
+ * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          segments. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_segments = track_generator.getNum3DSegments()
+ *          coords = track_generator.retrieve3DSegmentCoords(num_segments*7)
+ * @endcode
+ *
+ * @param coords an array of coords of length 7 times the number of segments
+ * @param num_segments the total number of Track segments
+ */
 void TrackGenerator3D::retrieve3DSegmentCoords(double* coords, int num_segments) {
 
-  if (num_segments != 7*getNum3DSegments())
+  if (num_segments != NUM_VALUES_PER_RETRIEVED_SEGMENT * getNum3DSegments())
     log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
                "the TrackGenerator contains %d segments with %d coordinates "
                "but an array of length %d was input",
-               getNum3DSegments(), 7*getNum3DSegments(), num_segments);
+               getNum3DSegments(), NUM_VALUES_PER_RETRIEVED_SEGMENT *
+               getNum3DSegments(), num_segments);
 
   segment* curr_segment = NULL;
   double x0, x1, y0, y1, z0, z1;
@@ -592,14 +652,12 @@ void TrackGenerator3D::retrieve3DSegmentCoords(double* coords, int num_segments)
             y0 = y1;
             z0 = z1;
 
-            counter += 7;
+            counter += NUM_VALUES_PER_RETRIEVED_SEGMENT;
           }
         }
       }
     }
   }
-
-  return;
 }
 
 

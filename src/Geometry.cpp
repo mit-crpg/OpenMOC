@@ -1451,6 +1451,83 @@ void Geometry::computeFissionability(Universe* univ) {
 
 
 /**
+ * @brief Get the material, cell or FSR IDs on a 2D spatial grid.
+ * @details This is a helper method for the openmoc.plotter module.
+ *          This method may also be called by the user in Python if needed.
+ *          A user must initialize NumPy arrays with the x and y grid
+ *          coordinates input to this function. This function then fills
+ *          a NumPy array with the domain IDs for each coordinate. An example
+ *          of how this function might be called in Python is as follows:
+ *
+ * @code
+ *          grid_x = numpy.arange(-2., +2., 100)
+ *          grid_y = numpy.arange(-2., +2., 100)
+ *          domain_ids = geometry.getSpatialDataOnGrid(
+ *              grid_x, grid_y, 20., 'xy', 'material')
+ * @endcode
+ *
+ * @param dim1 a numpy array of the first dimension's coordinates
+ * @param dim2 a numpy array of the second dimension's coordinates
+ * @param offset The coordinate at which the plane is located
+ * @param plane The plane for which data is gathered ('xy', 'xz', 'yz')
+ * @param domain_type the type of domain ('fsr', 'material', 'cell')
+ * @return a NumPy array or list of the domain IDs
+ */
+std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
+						std::vector<double> dim2,
+						double offset,
+            const char* plane,
+						const char* domain_type) {
+
+  LocalCoords* point;
+  Cell* cell;
+
+  /* Instantiate a vector to hold the domain IDs */
+  std::vector<int> domains(dim1.size() * dim2.size());
+
+  /* Extract the source region IDs */
+#pragma omp parallel for private(point, cell)
+  for (int i=0; i < dim1.size(); i++) {
+    for (int j=0; j < dim2.size(); j++) {
+
+      /* Find the Cell containing this point */
+      if (strcmp(plane, "xy") == 0)
+        point = new LocalCoords(dim1[i], dim2[j], offset);
+      else if (strcmp(plane, "xz") == 0)
+        point = new LocalCoords(dim1[i], offset, dim2[j]);
+      else if (strcmp(plane, "yz") == 0)
+        point = new LocalCoords(offset, dim1[i], dim2[j]);
+      else
+        log_printf(ERROR, "Unable to extract spatial data for "
+                          "unsupported plane %s", plane);
+
+      point->setUniverse(_root_universe);
+      cell = findCellContainingCoords(point);
+
+      /* Extract the ID of the domain of interest */
+      if (strcmp(domain_type, "fsr") == 0)
+        domains[i+j*dim1.size()] = getFSRId(point);
+      else if (strcmp(domain_type, "material") == 0)
+        domains[i+j*dim2.size()] = cell->getFillMaterial()->getId();
+      else if (strcmp(domain_type, "cell") == 0)
+        domains[i+j*dim1.size()] = cell->getId();
+      else
+        log_printf(ERROR, "Unable to extract spatial data for "
+                          "unsupported domain type %s", domain_type);
+
+      /* Deallocate memory for LocalCoords */
+      point = point->getHighestLevel();
+      point->prune();
+      delete point;
+    }
+  }
+
+  /* Return the domain IDs */
+  return domains;
+}
+
+
+/**
  * @brief Converts this Geometry's attributes to a character array.
  * @details This method calls the toString() method for all Materials,
  *          Surfaces, Cell, Universes and Lattices contained by the Geometry.

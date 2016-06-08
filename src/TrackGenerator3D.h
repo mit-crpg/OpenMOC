@@ -112,6 +112,8 @@ public:
 
   /* Get parameters */
   double getDesiredPolarSpacing();
+  int getNumTracks();
+  int getNumSegments();
   int getNum3DTracks();
   int getNum3DSegments();
   Track** getTracksArray();
@@ -138,9 +140,11 @@ public:
   /* Worker functions */
   void retrieve3DPeriodicCycleCoords(double* coords, int num_tracks);
   void retrieve3DReflectiveCycleCoords(double* coords, int num_tracks);
+  void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieve3DTrackCoords(double* coords, int num_tracks);
   void retrieveGlobalZMesh(FP_PRECISION*& z_mesh, int& num_fsrs);
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
+  void retrieveSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void create3DTracksArrays();
   void initializeTrackCycleIds();

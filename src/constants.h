@@ -9,14 +9,17 @@
 #define CONSTANTS_H_
 
 
+/* The single line width permissible for timer / memory logger reports */
+#define REPORT_WIDTH 53
+
 /** The minimum auto ID used for Surfaces, Cells, Materials and Universes */
 #define DEFAULT_INIT_ID 10000
 
 /** The value of 4pi: \f$ 4\pi \f$ */
-#define FOUR_PI 12.5663706143
+#define FOUR_PI 12.566370614359172
 
 /** The values of 1 divided by 4pi: \f$ \frac{1}{4\pi} \f$ */
-#define ONE_OVER_FOUR_PI 0.0795774715
+#define ONE_OVER_FOUR_PI 0.07957747154594767
 
 /** A negligible cross-section value to over-ride user-defined
  *  cross-sections very near zero (e.g., within (-1E-10, 1E-10)) */
@@ -120,6 +123,14 @@
 #define SURFACE_X_MAX_Y_MAX_Z_MIN 24
 #define SURFACE_X_MAX_Y_MAX_Z_MAX 25
 
+/** The number of values used in representing a Track when the Tracks are
+   *  retrieved from the TrackGenerator. */
+#define NUM_VALUES_PER_RETRIEVED_TRACK 6
+
+/** The number of values used in representing a Segment when the Segments are
+   *  retrieved from the TrackGenerator. */
+#define NUM_VALUES_PER_RETRIEVED_SEGMENT 7
+
 /** Least common multiple tolerance */
 #define LCM_TOLERANCE 1.e-8
 
@@ -127,5 +138,16 @@
 #define GLOBAL_TRACKING 0
 #define MODULAR_RAY_TRACING 1
 #define SIMPLIFIED_MODULAR_RAY_TRACING 2
+
+
+#ifdef NVCC
+
+/** The maximum number of polar angles to reserve constant memory on GPU */
+#define MAX_POLAR_ANGLES_GPU 10
+
+/** The maximum number of azimuthal angles to reserve constant memory on GPU */
+#define MAX_AZIM_ANGLES_GPU 256
+
+#endif
 
 #endif /* CONSTANTS_H_ */

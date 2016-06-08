@@ -133,6 +133,15 @@ FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
 
 
 /**
+ * @brief Return the total number of Tracks across the Geometry.
+ * @return the total number of Tracks
+ */
+int TrackGenerator::getNumTracks() {
+  return getNum2DTracks();
+}
+
+
+/**
  * @brief Return the total number of 2D Tracks across the Geometry.
  * @return the total number of 2D Tracks
  */
@@ -151,6 +160,15 @@ int TrackGenerator::getNum2DTracks() {
  * @brief Return the total number of Track segments across the Geometry.
  * @return the total number of Track segments
  */
+int TrackGenerator::getNumSegments() {
+  return getNum2DSegments();
+}
+
+
+/**
+ * @brief Return the total number of 2D Track segments across the Geometry.
+ * @return the total number of 2D Track segments
+ */
 int TrackGenerator::getNum2DSegments() {
 
   if (!TrackGenerator::containsSegments())
@@ -167,7 +185,6 @@ int TrackGenerator::getNum2DSegments() {
 
   return num_2D_segments;
 }
-
 
 
 /**
@@ -531,13 +548,35 @@ bool TrackGenerator::containsSegments() {
  * @param coords an array of coords of length 4 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
+void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
+  retrieve2DTrackCoords(coords, num_tracks);
+}
+
+
+/**
+ * @brief Fills an array with the x,y coordinates for each Track.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          tracks. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_tracks = track_generator.getNum2DTracks()
+ *          coords = track_generator.retrieve2DTrackCoords(num_tracks*4)
+ * @endcode
+ *
+ * @param coords an array of coords of length 4 times the number of Tracks
+ * @param num_tracks the total number of Tracks
+ */
 void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
 
-  if (num_tracks != 4*getNum2DTracks())
+  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum2DTracks())
     log_printf(ERROR, "Unable to retrieve the Track coordinates since the "
                "TrackGenerator contains %d Tracks with %d coordinates but an "
                "array of length %d was input",
-               getNum2DTracks(), 4*getNum2DTracks(), num_tracks);
+               getNum2DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
+               getNum2DTracks(), num_tracks);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -576,11 +615,12 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
 void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
                                                    int num_tracks) {
 
-  if (num_tracks != 5*getNum2DTracks())
+  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum2DTracks())
     log_printf(ERROR, "Unable to retrieve the 2D Track periodic cycle "
                "coordinates since the TrackGenerator contains %d Tracks with "
                "%d coordinates but an array of length %d was input",
-               getNum2DTracks(), 5*getNum2DTracks(), num_tracks);
+               getNum2DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
+               getNum2DTracks(), num_tracks);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -596,8 +636,6 @@ void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
       counter += 5;
     }
   }
-
-  return;
 }
 
 
@@ -621,11 +659,12 @@ void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
 void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
                                                      int num_tracks) {
 
-  if (num_tracks != 5*getNum2DTracks())
+  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum2DTracks())
     log_printf(ERROR, "Unable to retrieve the 2D Track reflective cycle "
                "coordinates since the TrackGenerator contains %d Tracks with "
                "%d coordinates but an array of length %d was input",
-               getNum2DTracks(), 5*getNum2DTracks(), num_tracks);
+               getNum2DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
+               getNum2DTracks(), num_tracks);
 
   /* Fill the array of coordinates with the Track start and end points */
   int counter = 0;
@@ -641,8 +680,6 @@ void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
       counter += 5;
     }
   }
-
-  return;
 }
 
 
@@ -662,13 +699,35 @@ void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
  * @param coords an array of coords of length 5 times the number of segments
  * @param num_segments the total number of Track segments
  */
+void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
+  retrieve2DSegmentCoords(coords, num_segments);
+}
+
+
+/**
+ * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @details This class method is intended to be called by the OpenMOC
+ *          Python "plotter" module as a utility to assist in plotting
+ *          segments. Although this method appears to require two arguments,
+ *          in reality it only requires one due to SWIG and would be called
+ *          from within Python as follows:
+ *
+ * @code
+ *          num_segments = track_generator.getNum2DSegments()
+ *          coords = track_generator.retrieve2DSegmentCoords(num_segments*5)
+ * @endcode
+ *
+ * @param coords an array of coords of length 5 times the number of segments
+ * @param num_segments the total number of Track segments
+ */
 void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
 
-  if (num_segments != 5*getNum2DSegments())
+  if (num_segments != NUM_VALUES_PER_RETRIEVED_SEGMENT * getNum2DSegments())
     log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
                "the TrackGenerator contains %d segments with %d coordinates "
                "but an array of length %d was input",
-               getNum2DSegments(), 5*getNum2DSegments(), num_segments);
+               getNum2DSegments(), NUM_VALUES_PER_RETRIEVED_SEGMENT *
+               getNum2DSegments(), num_segments);
 
   segment* curr_segment = NULL;
   double x0, x1, y0, y1;
