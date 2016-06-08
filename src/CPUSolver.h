@@ -104,6 +104,8 @@ public:
   virtual void transferBoundaryFlux(int track_id, int azim_index,
                                     int polar_index, bool direction,
                                     FP_PRECISION* track_flux);
+
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 };
 
 

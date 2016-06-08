@@ -584,10 +584,12 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       coords[counter]   = _tracks_2D[a][i].getStart()->getX();
       coords[counter+1] = _tracks_2D[a][i].getStart()->getY();
-      coords[counter+2] = _tracks_2D[a][i].getEnd()->getX();
-      coords[counter+3] = _tracks_2D[a][i].getEnd()->getY();
+      coords[counter+2] = _tracks_2D[a][i].getStart()->getZ();
+      coords[counter+3] = _tracks_2D[a][i].getEnd()->getX();
+      coords[counter+4] = _tracks_2D[a][i].getEnd()->getY();
+      coords[counter+5] = _tracks_2D[a][i].getEnd()->getZ();
 
-      counter += 4;
+      counter += NUM_VALUES_PER_RETRIEVED_TRACK;
     }
   }
 
@@ -730,7 +732,7 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
                getNum2DSegments(), num_segments);
 
   segment* curr_segment = NULL;
-  double x0, x1, y0, y1;
+  double x0, x1, y0, y1, z0, z1;
   double phi;
   segment* segments;
 
@@ -743,6 +745,7 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
 
       x0    = _tracks_2D[a][i].getStart()->getX();
       y0    = _tracks_2D[a][i].getStart()->getY();
+      z0    = _tracks_2D[a][i].getStart()->getZ();
       phi   = _tracks_2D[a][i].getPhi();
 
       segments = _tracks_2D[a][i].getSegments();
@@ -754,17 +757,20 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
 
         coords[counter+1] = x0;
         coords[counter+2] = y0;
+        coords[counter+3] = z0;
 
         x1 = x0 + cos(phi) * curr_segment->_length;
         y1 = y0 + sin(phi) * curr_segment->_length;
 
-        coords[counter+3] = x1;
-        coords[counter+4] = y1;
+        coords[counter+4] = x1;
+        coords[counter+5] = y1;
+        coords[counter+6] = z1;
 
         x0 = x1;
         y0 = y1;
+        z0 = z1;
 
-        counter += 5;
+        counter += NUM_VALUES_PER_RETRIEVED_SEGMENT;
       }
     }
   }
@@ -1422,10 +1428,10 @@ void TrackGenerator::dumpSegmentsToFile() {
   dump_segments.execute();
 
   /* Get FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
+  ParallelHashMap<std::size_t, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
-  std::vector<std::size_t>* FSRs_to_keys = _geometry->getFSRsToKeys();
-  std::vector<int>* FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+  std::vector<std::size_t>& FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<int>& FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::size_t fsr_key;
   int fsr_id;
   int fsr_counter = 0;
@@ -1436,8 +1442,8 @@ void TrackGenerator::dumpSegmentsToFile() {
   fwrite(&num_FSRs, sizeof(int), 1, out);
 
   /* Write FSR vector maps to file */
-  std::size_t* fsr_key_list = FSR_keys_map->keys();
-  fsr_data** fsr_data_list = FSR_keys_map->values();
+  std::size_t* fsr_key_list = FSR_keys_map.keys();
+  fsr_data** fsr_data_list = FSR_keys_map.values();
   Cmfd* cmfd = _geometry->getCmfd();
   for (int i=0; i < num_FSRs; i++) {
 
@@ -1454,10 +1460,10 @@ void TrackGenerator::dumpSegmentsToFile() {
     fwrite(&z, sizeof(double), 1, out);
 
     /* Write data to file from FSRs_to_material_IDs */
-    fwrite(&(FSRs_to_material_IDs->at(fsr_counter)), sizeof(int), 1, out);
+    fwrite(&(FSRs_to_material_IDs.at(fsr_counter)), sizeof(int), 1, out);
 
     /* Write data to file from FSRs_to_keys */
-    fwrite(&(FSRs_to_keys->at(fsr_counter)), sizeof(std::size_t), 1, out);
+    fwrite(&(FSRs_to_keys.at(fsr_counter)), sizeof(std::size_t), 1, out);
 
     /* Increment FSR ID counter */
     fsr_counter++;
@@ -1532,12 +1538,10 @@ bool TrackGenerator::readSegmentsFromFile() {
   read_segments.execute();
 
   /* Create FSR vector maps */
-  ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map =
-      new ParallelHashMap<std::size_t, fsr_data*>;
-  std::vector<int>* FSRs_to_material_IDs
-    = new std::vector<int>;
-  std::vector<std::size_t>* FSRs_to_keys
-    = new std::vector<std::size_t>;
+  ParallelHashMap<std::size_t, fsr_data*>& FSR_keys_map =
+    _geometry->getFSRKeysMap();
+  std::vector<int>& FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+  std::vector<std::size_t>& FSRs_to_keys = _geometry->getFSRsToKeys();
   int num_FSRs;
   std::size_t fsr_key;
   int fsr_key_id;
@@ -1560,22 +1564,17 @@ bool TrackGenerator::readSegmentsFromFile() {
     Point* point = new Point();
     point->setCoords(x,y,z);
     fsr->_point = point;
-    FSR_keys_map->insert(fsr_key, fsr);
+    FSR_keys_map.insert(fsr_key, fsr);
 
     /* Read data from file for FSR_to_materials_IDs */
     int material_id;
     ret = fread(&material_id, sizeof(int), 1, in);
-    FSRs_to_material_IDs->push_back(material_id);
+    FSRs_to_material_IDs.push_back(material_id);
 
     /* Read data from file for FSR_to_keys */
     ret = fread(&fsr_key, sizeof(std::size_t), 1, in);
-    FSRs_to_keys->push_back(fsr_key);
+    FSRs_to_keys.push_back(fsr_key);
   }
-
-  /* Set FSR vector maps */
-  _geometry->setFSRKeysMap(FSR_keys_map);
-  _geometry->setFSRsToMaterialIDs(FSRs_to_material_IDs);
-  _geometry->setFSRsToKeys(FSRs_to_keys);
 
   /* Read cmfd cell_fsrs vector of vectors from file */
   Cmfd* cmfd = _geometry->getCmfd();

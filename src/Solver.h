@@ -288,8 +288,9 @@ public:
   bool isUsingExponentialInterpolation();
 
 
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
   virtual FP_PRECISION getFSRSource(int fsr_id, int group);
+  virtual FP_PRECISION getFlux(int fsr_id, int group);
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
   virtual FP_PRECISION* getBoundaryFlux(int track_id, bool fwd);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);

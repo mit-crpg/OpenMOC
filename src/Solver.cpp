@@ -214,7 +214,7 @@ bool Solver::isUsingExponentialInterpolation() {
  * @param group the energy group of interest
  * @return the FSR scalar flux
  */
-FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int group) {
+FP_PRECISION Solver::getFlux(int fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "

@@ -58,4 +58,4 @@ plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7], \
   plane='xy', offset=0.)
 plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 
-log.py_printf('TITLE', 'Finished')
+openmoc.log.py_printf('TITLE', 'Finished')

@@ -201,15 +201,15 @@ public:
   void setRootUniverse(Universe* root_universe);
 
   Cmfd* getCmfd();
-  std::vector<std::size_t>* getFSRsToKeys();
-  std::vector<int>* getFSRsToMaterialIDs();
+  std::vector<std::size_t>& getFSRsToKeys();
+  std::vector<int>& getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   int getCmfdCell(int fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-  ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
+  ParallelHashMap<std::size_t, fsr_data*>& getFSRKeysMap();
 
   /* Set parameters */
   void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);

@@ -1614,8 +1614,8 @@ void Geometry::initializeCmfd() {
  * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
  * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
  */
-ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap() {
-  return &_FSR_keys_map;
+ParallelHashMap<std::size_t, fsr_data*>& Geometry::getFSRKeysMap() {
+  return _FSR_keys_map;
 }
 
 
@@ -1623,8 +1623,8 @@ ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap() {
  * @brief Returns the vector that maps FSR IDs to FSR key hashes
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::vector<std::size_t>* Geometry::getFSRsToKeys() {
-  return &_FSRs_to_keys;
+std::vector<std::size_t>& Geometry::getFSRsToKeys() {
+  return _FSRs_to_keys;
 }
 
 /**
@@ -1632,12 +1632,8 @@ std::vector<std::size_t>* Geometry::getFSRsToKeys() {
  *        the corresponding Material IDs.
  * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
-std::vector<int>* Geometry::getFSRsToMaterialIDs() {
-  if (_FSR_keys_map.size() == 0)
-    log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
-               "the Geometry has not initialized FSRs.");
-
-  return &_FSRs_to_material_IDs;
+std::vector<int>& Geometry::getFSRsToMaterialIDs() {
+  return _FSRs_to_material_IDs;
 }
 
 /**
