@@ -3,7 +3,15 @@
 #include <array>
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
+
+  int nranks;
+  int mype;
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &nranks);
+  MPI_Comm_rank(MPI_COMM_WORLD, &mype);
+  std::cout << "Rank " << mype << " out of " << nranks << std::endl;
+
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -135,6 +143,7 @@ int main() {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
+  geometry->setDomainDecomposition(1, 1, 2);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -154,5 +163,6 @@ int main() {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
+  MPI_Finalize();
   return 0;
 }

@@ -58,7 +58,7 @@ class custom_install(install):
 
   # The user options for a customized OpenMOC build
   user_options = [
-    ('cc=', None, "Compiler (gcc, icpc, or bgxlc) for main openmoc module"),
+    ('cc=', None, "Compiler (gcc, icpc, bgxlc, mpicc) for main openmoc module"),
     ('fp=', None, "Floating point precision (single or double) for " + \
                   "main openmoc module"),
     ('with-cuda', None, "Build openmoc.cuda module for NVIDIA GPUs"),
@@ -96,7 +96,7 @@ class custom_install(install):
     install.initialize_options(self)
 
     # Default compiler and precision level for the main openmoc module
-    self.cc = 'gcc'
+    self.cc = 'mpicc'
     self.fp = 'single'
 
     # Set defaults for each of the newly defined compile time options
@@ -128,10 +128,10 @@ class custom_install(install):
     config.with_ccache = self.with_ccache
 
     # Check that the user specified a supported C++ compiler
-    if self.cc not in ['gcc', 'clang', 'icpc', 'bgxlc']:
+    if self.cc not in ['gcc', 'clang', 'icpc', 'bgxlc', 'mpicc']:
       raise DistutilsOptionError \
             ('Must supply the -cc flag with one of the supported ' +
-             'C++ compilers: gcc, clang, icpc, bgxlc')
+             'C++ compilers: gcc, clang, icpc, bgxlc, mpicc')
     else:
       config.cc = self.cc
 
@@ -178,6 +178,17 @@ def customize_compiler(self):
         self.set_executable('compiler_so', 'gcc')
 
       postargs = config.compiler_flags['gcc']
+
+    # If compiler is GNU's gcc and the source is C++, use gcc
+    if config.cc == 'mpicc' and os.path.splitext(src)[1] == '.cpp':
+      if config.with_ccache:
+        self.set_executable('compiler_so', 'ccache mpicc')
+      else:
+        self.set_executable('compiler_so', 'mpicc')
+
+      postargs = config.compiler_flags['mpicc']
+
+
 
     # If compiler is Apple's clang and the source is C++, use clang
     elif config.cc == 'clang' and os.path.splitext(src)[1] == '.cpp':
@@ -261,6 +272,10 @@ def customize_linker(self):
     if config.cc == 'gcc':
       self.set_executable('linker_so', 'gcc')
       self.set_executable('linker_exe', 'gcc')
+
+    if config.cc == 'mpicc':
+      self.set_executable('linker_so', 'mpicc')
+      self.set_executable('linker_exe', 'mpicc')
 
     elif config.cc == 'clang':
       self.set_executable('linker_so', 'clang')

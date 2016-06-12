@@ -217,7 +217,7 @@ int main() {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<double> seg_heights {0.0};
+  std::vector<FP_PRECISION> seg_heights {0.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.generateTracks();
 

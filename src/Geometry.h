@@ -25,6 +25,11 @@
 #include "ParallelHashMap.h"
 #endif
 
+#ifdef MPIx
+#include <mpi.h>
+#endif
+
+
 /** Forward declaration of Cmfd class */
 class Cmfd;
 
@@ -199,6 +204,9 @@ public:
   std::vector<FP_PRECISION> getUniqueZHeights();
   std::vector<FP_PRECISION> getUniqueZPlanes();
   void setRootUniverse(Universe* root_universe);
+#ifdef MPIx
+  void setDomainDecomposition(int nx, int ny, int nz);
+#endif
 
   Cmfd* getCmfd();
   std::vector<std::string>& getFSRsToKeys();

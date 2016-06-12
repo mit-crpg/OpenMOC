@@ -68,6 +68,9 @@ static char title_char = '*';
  */
 static int line_length = 67;
 
+//FIXME
+static int rank = 1;
+static int num_ranks = 1;
 
 /**
  * @var log_error_lock
@@ -152,6 +155,7 @@ void set_separator_character(char c) {
 char get_separator_character() {
   return separator_char;
 }
+
 
 /**
  * @brief Sets the character to be used when printing HEADER log messages.
@@ -272,6 +276,16 @@ int get_log_level() {
  */
 void log_printf(logLevel level, const char* format, ...) {
 
+  std::string node = "Node 0";
+#ifdef MPIx
+  std::stringstream mpiss;
+  mpiss << rank;
+  mpiss >> node;
+  node = "Node " + node;
+
+#endif
+
+
   char message[1024];
   std::string msg_string;
   if (level >= log_level) {
@@ -324,7 +338,7 @@ void log_printf(logLevel level, const char* format, ...) {
 
         /* Puts message on single line */
         else
-          msg_string = level_prefix + msg + "\n";
+          msg_string = node + level_prefix + msg + "\n";
 
         break;
       }
@@ -543,3 +557,12 @@ std::string create_multiline_msg(std::string level, std::string message) {
 
   return msg_string;
 }
+
+
+//FIXME
+#ifdef MPIx
+void log_set_ranks(MPI_Comm comm) {
+  MPI_Comm_size(comm, &num_ranks);
+  MPI_Comm_rank(comm, &rank);
+}
+#endif

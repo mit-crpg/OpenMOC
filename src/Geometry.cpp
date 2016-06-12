@@ -347,6 +347,23 @@ void Geometry::setRootUniverse(Universe* root_universe) {
 }
 
 
+//FIXME
+#ifdef MPIx
+void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
+
+  int num_domains = nx*ny*nz;
+  log_set_ranks(MPI_COMM_WORLD);
+  int nr, mype;
+  MPI_Comm_size(MPI_COMM_WORLD, &nr);
+  MPI_Comm_rank(MPI_COMM_WORLD, &mype);
+  if (nr != num_domains)
+    log_printf(ERROR, "Number of ranks is %d and number of domains is %d"
+               " on domain %d", nr, num_domains, mype);
+
+}
+#endif
+
+
 /**
  * @brief Sets the pointer to a CMFD object used for acceleration.
  * @param cmfd a pointer to the CMFD object

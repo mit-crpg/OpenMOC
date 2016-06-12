@@ -31,6 +31,10 @@
 #include <omp.h>
 #endif
 
+#ifdef MPIx
+#include <mpi.h>
+#endif
+
 #ifdef SWIG
 #define printf PySys_WriteStdout
 #endif
@@ -111,6 +115,8 @@ int get_log_level();
 
 void log_printf(logLevel level, const char *format, ...);
 std::string create_multiline_msg(std::string level, std::string message);
-
+#ifdef MPIx
+void log_set_ranks(MPI_Comm comm);
+#endif
 
 #endif /* LOG_H_ */

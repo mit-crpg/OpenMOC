@@ -2,18 +2,18 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = no
 DEBUG       = no
 PROFILE     = no
-PRECISION   = double
+PRECISION   = single
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = single-assembly/single-c5g7-assembly.cpp
+case = pin-cell/pin-cell-3d.cpp
 
 source = \
 Cell.cpp \
@@ -58,8 +58,19 @@ CFLAGS = -std=gnu++0x
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
-  CC = g++
+  CC = gcc
   CFLAGS += -DGNU
+  #CFLAGS += -v
+  LDFLAGS += -lm
+  LDFLAGS += -lstdc++
+endif
+
+# Regular gcc Compiler
+ifeq ($(COMPILER),mpi)
+  CC = mpicc
+  CFLAGS += -DMPIx
+  LDFLAGS += -lm
+  LDFLAGS += -lstdc++
 endif
 
 # intel Compiler
@@ -121,6 +132,9 @@ ifeq ($(OPTIMIZE),yes)
 ifeq ($(COMPILER),gnu)
   CFLAGS += -O3 -ffast-math -fpic
 endif
+ifeq ($(COMPILER),mpi)
+  CFLAGS += -O3 -ffast-math -fpic
+endif
 ifeq ($(COMPILER),intel)
   CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
 endif
@@ -135,6 +149,9 @@ endif
 # OpenMP
 ifeq ($(OPENMP),yes)
 ifeq ($(COMPILER), gnu)
+  CFLAGS += -fopenmp
+endif
+ifeq ($(COMPILER), mpi)
   CFLAGS += -fopenmp
 endif
 ifeq ($(COMPILER), bluegene)
@@ -192,4 +209,4 @@ edit:
 	vim -p $(cases)
 
 run:
-	./$(program)
+	mpirun -np 2 ./$(program)
