@@ -110,6 +110,7 @@
 
 namespace std {
   %template(DoubleVector) vector<double>;
+  %template(FloatVector) vector<float>;
   %template(IntVector) vector<int>;
   %template(Array) vector< vector<int> >;
 }

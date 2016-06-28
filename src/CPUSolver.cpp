@@ -214,7 +214,7 @@ void CPUSolver::initializeSourceArrays() {
  */
 void CPUSolver::zeroTrackFluxes() {
 
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++) {
@@ -232,7 +232,7 @@ void CPUSolver::zeroTrackFluxes() {
  */
 void CPUSolver::copyBoundaryFluxes() {
 
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++)
@@ -248,7 +248,7 @@ void CPUSolver::copyBoundaryFluxes() {
  */
 void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
       _scalar_flux(r,e) = value;
@@ -261,7 +261,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
  */
 void CPUSolver::storeFSRFluxes() {
 
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
       _old_scalar_flux(r,e) = _scalar_flux(r,e);
@@ -284,7 +284,7 @@ void CPUSolver::normalizeFluxes() {
   FP_PRECISION* fission_sources = new FP_PRECISION[_num_FSRs * _num_groups];
 
   /* Compute total fission source for each FSR, energy group */
-  #pragma omp parallel for private(volume, nu_sigma_f) schedule(guided)
+#pragma omp parallel for private(volume, nu_sigma_f) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
     /* Get pointers to important data structures */
@@ -307,7 +307,7 @@ void CPUSolver::normalizeFluxes() {
   log_printf(DEBUG, "Tot. Fiss. Src. = %f, Norm. factor = %f",
              tot_fission_source, norm_factor);
 
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) *= norm_factor;
@@ -316,7 +316,7 @@ void CPUSolver::normalizeFluxes() {
   }
 
   /* Normalize angular boundary fluxes for each Track */
-  #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int i=0; i < _tot_num_tracks; i++) {
     for (int j=0; j < 2; j++) {
       for (int pe=0; pe < _fluxes_per_track; pe++) {
@@ -348,7 +348,7 @@ void CPUSolver::computeFSRSources() {
   FP_PRECISION* scatter_sources = new FP_PRECISION[size];
 
   /* For all FSRs, find the source */
-  #pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
+#pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
     sigma_t, fission_source, scatter_source) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
@@ -516,7 +516,7 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
 
   /* Loop over all FSRs and compute the volume-integrated total rates */
-  #pragma omp parallel for private(tid, volume, \
+#pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
@@ -757,7 +757,7 @@ void CPUSolver::addSourceToScalarFlux() {
 
   /* Add in source term and normalize flux to volume for each FSR */
   /* Loop over FSRs, energy groups */
-  #pragma omp parallel for private(volume, sigma_t) schedule(guided)
+#pragma omp parallel for private(volume, sigma_t) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     volume = _FSR_volumes[r];
     sigma_t = _FSR_materials[r]->getSigmaT();
@@ -803,7 +803,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     fission_rates[r] = 0.0;
 
   /* Loop over all FSRs and compute the volume-weighted fission rate */
-  #pragma omp parallel for private (nu_sigma_f) schedule(guided)
+#pragma omp parallel for private (nu_sigma_f) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
 

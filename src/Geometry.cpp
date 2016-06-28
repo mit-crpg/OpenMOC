@@ -33,17 +33,17 @@ Geometry::~Geometry() {
     fsr_data **values = _FSR_keys_map.values();
     for (int i=0; i<_FSR_keys_map.size(); i++)
       delete values[i];
-    delete[] values;
+    delete [] values;
 
     ExtrudedFSR **extruded_fsrs = _extruded_FSR_keys_map.values();
     for (int i=0; i<_extruded_FSR_keys_map.size(); i++) {
       if (extruded_fsrs[i]->_mesh != NULL)
-        delete[] extruded_fsrs[i]->_mesh;
-      delete[] extruded_fsrs[i]->_fsr_ids;
-      delete[] extruded_fsrs[i]->_materials;
+        delete [] extruded_fsrs[i]->_mesh;
+      delete [] extruded_fsrs[i]->_fsr_ids;
+      delete [] extruded_fsrs[i]->_materials;
       delete extruded_fsrs[i];
     }
-    delete[] extruded_fsrs;
+    delete [] extruded_fsrs;
 
     _FSR_keys_map.clear();
     _extruded_FSR_keys_map.clear();

@@ -90,36 +90,31 @@ public:
  * @return the evaluated exponential
  */
 inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau, int azim,
-                                              int polar) {
-
-  FP_PRECISION exponential;
+                                                     int polar) {
 
   /* Evaluate the exponential using the lookup table - linear interpolation */
   if (_interpolate) {
     tau = std::min(tau, (_max_optical_length));
     int index = floor(tau * _inverse_exp_table_spacing);
     if (_solve_3D) {
-      exponential = (1. - (_exp_table[index * 2] * tau +
-                           _exp_table[index * 2 + 1]));
+      return 1.0 - (_exp_table[index * 2] * tau + _exp_table[index * 2 + 1]);
     }
     else {
       index *= _num_polar;
-      exponential = (1. - (_exp_table[index + 2 * polar] * tau +
-                           _exp_table[index + 2 * polar + 1]));
+      return 1.0 - (_exp_table[index + 2 * polar] * tau +
+              _exp_table[index + 2 * polar + 1]);
     }
   }
 
   /* Evalute the exponential using the intrinsic exp(...) function */
   else {
     if (_solve_3D)
-      exponential = 1.0 - exp(-tau);
+      return 1.0 - exp(-tau);
     else {
       FP_PRECISION sintheta = _quadrature->getSinTheta(azim, polar);
-      exponential = 1.0 - exp(-tau / sintheta);
+      return 1.0 - exp(-tau / sintheta);
     }
   }
-
-  return exponential;
 }
 
 #endif /* EXPEVALUATOR_H_ */
