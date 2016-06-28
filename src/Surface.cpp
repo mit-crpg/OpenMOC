@@ -123,6 +123,48 @@ boundaryType Surface::getBoundaryType() {
 
 
 /**
+ * @brief Returns the minimum coordinate in the axis direction of the
+ *        surface
+ * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+ * @param halfspace the halfspace to consider
+ * @return the minimum coordinate in the axis direction
+ */
+double Surface::getMin(int axis, int halfspace) {
+  if (axis == 0)
+    return getMinX(halfspace);
+  else if (axis == 1)
+    return getMinY(halfspace);
+  else if (axis == 2)
+    return getMinZ(halfspace);
+  else
+    log_printf(ERROR, "Could not retrieve minimum Surface coordinate since axis"
+                      " is not recognized");
+  return 0;
+}
+
+
+/**
+ * @brief Returns the maximum coordinate in the axis direction of the
+ *        surface
+ * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+ * @param halfspace the halfspace to consider
+ * @return the maximum coordinate in the axis direction
+ */
+double Surface::getMax(int axis, int halfspace) {
+  if (axis == 0)
+    return getMaxX(halfspace);
+  else if (axis == 1)
+    return getMaxY(halfspace);
+  else if (axis == 2)
+    return getMaxZ(halfspace);
+  else
+    log_printf(ERROR, "Could not retrieve minimum Surface coordinate since axis"
+                      " is not recognized");
+  return 0;
+}
+
+
+/**
  * @brief Sets the name of the Surface
  * @param name the Surface name string
  */

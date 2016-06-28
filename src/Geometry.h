@@ -170,6 +170,16 @@ private:
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
+  //FIXME
+  bool _domain_decomposed;
+  int _num_domains_x;
+  int _num_domains_y;
+  int _num_domains_z;
+  int _domain_index_x;
+  int _domain_index_y;
+  int _domain_index_z;
+  Lattice* _domain_bounds;
+
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
@@ -203,6 +213,7 @@ public:
   std::map<int, Cell*> getAllMaterialCells();
   std::vector<FP_PRECISION> getUniqueZHeights();
   std::vector<FP_PRECISION> getUniqueZPlanes();
+  bool isDomainDecomposed();
   void setRootUniverse(Universe* root_universe);
 #ifdef MPIx
   void setDomainDecomposition(int nx, int ny, int nz);
@@ -218,6 +229,7 @@ public:
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
   ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
+  int getNeighborDomain(int offset_x, int offset_y, int offset_z);
 
   /* Set parameters */
   void setCmfd(Cmfd* cmfd);

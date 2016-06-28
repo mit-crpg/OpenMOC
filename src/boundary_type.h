@@ -22,6 +22,9 @@ enum boundaryType {
   /** A periodic boundary condition */
   PERIODIC,
 
+  // FIXME
+  INTERFACE,
+
   /** No boundary type (typically an interface between flat source regions) */
   BOUNDARY_NONE
 };

@@ -180,7 +180,7 @@ public:
   void setNumAzim(int num_azim);
   void setNumPolar(int num_polar);
   void setDesiredAzimSpacing(double spacing);
-  void setGeometry(Geometry* geometry);
+  virtual void setGeometry(Geometry* geometry);
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setMaxOpticalLength(FP_PRECISION tau);

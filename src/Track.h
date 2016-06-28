@@ -122,6 +122,10 @@ protected:
    *  (False) in the cycle of tracks */
   bool _direction_in_cycle;
 
+  //FIXME
+  int _surface_in;
+  int _surface_out;
+
 public:
   Track();
   virtual ~Track();
@@ -148,6 +152,9 @@ public:
   void setReflectiveCycleId(int id);
   void setPeriodicTrackIndex(int index);
   void setDirectionInCycle(bool fwd);
+  void setDomainSurfaces(int surface_in, int surface_out);
+  void setDomainSurfaceIn(int surface_in);
+  void setDomainSurfaceOut(int surface_out);
 
   /* Getter methods */
   int getUid();
@@ -172,6 +179,10 @@ public:
   int getNumSegments();
   int getPeriodicTrackIndex();
   bool getDirectionInCycle();
+  int getDomainSurfaceIn();
+  int getDomainSurfaceOut();
+  int getSurfaceIn();
+  int getSurfaceOut();
 
   /* Worker methods */
   void addSegment(segment* segment);

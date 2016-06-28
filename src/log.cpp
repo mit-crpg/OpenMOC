@@ -69,7 +69,7 @@ static char title_char = '*';
 static int line_length = 67;
 
 //FIXME
-static int rank = 1;
+static int rank = 0;
 static int num_ranks = 1;
 
 /**
@@ -276,14 +276,6 @@ int get_log_level() {
  */
 void log_printf(logLevel level, const char* format, ...) {
 
-  std::string node = "Node 0";
-#ifdef MPIx
-  std::stringstream mpiss;
-  mpiss << rank;
-  mpiss >> node;
-  node = "Node " + node;
-
-#endif
 
 
   char message[1024];
@@ -329,6 +321,9 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (NORMAL):
       {
+        if (rank != 0)
+          return;
+
         std::string msg = std::string(message);
         std::string level_prefix = "[  NORMAL ]  ";
 
@@ -338,12 +333,14 @@ void log_printf(logLevel level, const char* format, ...) {
 
         /* Puts message on single line */
         else
-          msg_string = node + level_prefix + msg + "\n";
+          msg_string = level_prefix + msg + "\n";
 
         break;
       }
     case (SEPARATOR):
       {
+        if (rank != 0)
+          return;
         std::string pad = std::string(line_length, separator_char);
         std::string prefix = std::string("[SEPARATOR]  ");
         std::stringstream ss;
@@ -353,6 +350,8 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (HEADER):
       {
+        if (rank != 0)
+          return;
         int size = strlen(message);
         int halfpad = (line_length - 4 - size) / 2;
         std::string pad1 = std::string(halfpad, header_char);
@@ -366,6 +365,8 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (TITLE):
       {
+        if (rank != 0)
+          return;
         int size = strlen(message);
         int halfpad = (line_length - size) / 2;
         std::string pad = std::string(halfpad, ' ');
@@ -409,6 +410,8 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (RESULT):
       {
+        if (rank != 0)
+          return;
         std::string msg = std::string(message);
         std::string level_prefix = "[  RESULT ]  ";
 
@@ -455,6 +458,9 @@ void log_printf(logLevel level, const char* format, ...) {
 
     /* If this is our first time logging, add a header with date, time */
     if (!logging) {
+
+      if (rank != 0)
+        return;
 
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */

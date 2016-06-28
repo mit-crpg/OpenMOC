@@ -232,6 +232,9 @@ void CPUSolver::zeroTrackFluxes() {
  */
 void CPUSolver::copyBoundaryFluxes() {
 
+  if (_track_generator->getGeometry()->isDomainDecomposed())
+    communicateBoundaryFluxes();
+
   #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
@@ -239,6 +242,96 @@ void CPUSolver::copyBoundaryFluxes() {
         _boundary_flux(t,d,pe) = _start_flux(t, d, pe);
     }
   }
+}
+
+
+//FIXME: optimize track ordering, etc
+//TODO: check to make sure passing to periodic index
+void CPUSolver::communicateBoundaryFluxes() {
+
+  /* Initialize buffer for MPI communication */
+  FP_PRECISION buffer[2*_fluxes_per_track];
+  MPI_Datatype flux_type;
+  if (sizeof(FP_PRECISION) == 4)
+    flux_type = MPI_FLOAT;
+  else
+    flux_type = MPI_DOUBLE;
+
+  /* Initialize MPI requests and status */
+  MPI_Status stat;
+  MPI_Request request[4];
+  int active[2] = {0};
+  int mpi_send[2] = {0};
+  int mpi_recv[2] = {0};
+
+  /* Loop over all tracks and exchange fluxes */
+  for (int t=0; t < _tot_num_tracks; t++) {
+
+    /* Get connecting domain surfaces */
+    int surface_in = _tracks[t]->getDomainSurfaceIn();
+    int surface_out = _tracks[t]->getDomainSurfaceOut();
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (rank == 0) {
+      std::cout << "Round = " << t << " / " << _tot_num_tracks << std::endl;
+    }
+
+    /* Send outgoing flux */
+    if (surface_out != -1) {
+      MPI_Isend(&_boundary_flux(t,0,0), _fluxes_per_track, flux_type,
+                surface_out, 0, MPI_COMM_WORLD, &request[0]);
+      mpi_send[0] = 1;
+    }
+
+    /* Receive incoming flux, send backward flux */
+    if (surface_in != -1) {
+      MPI_Irecv(&buffer[0], _fluxes_per_track, flux_type, surface_in, 0,
+                MPI_COMM_WORLD, &request[2]);
+      mpi_recv[0] = 1;
+      active[0] = 1;
+
+      MPI_Isend(&_boundary_flux(t,1,0), _fluxes_per_track, flux_type,
+                surface_in, 1, MPI_COMM_WORLD, &request[1]);
+      mpi_send[1] = 1;
+    }
+
+    /* Receive backward flux */
+    if (surface_out != -1) {
+      MPI_Irecv(&buffer[_fluxes_per_track], _fluxes_per_track, flux_type,
+                surface_in, 0, MPI_COMM_WORLD, &request[3]);
+      mpi_recv[1] = 1;
+
+      active[1] = 1;
+    }
+
+    /* Block for communication round to complete */
+    for (int d=0; d<2; d++) {
+
+      /* Wait for send to complete */
+      if (mpi_send[d] == 1) {
+        MPI_Wait(&request[d], &stat);
+      }
+
+      /* Wait for receive to complete */
+      if (mpi_recv[d] == 1) {
+        MPI_Wait(&request[2+d], &stat);
+      }
+
+      /* Copy down fluxes from buffer */
+      if (active[d] == 1)
+        for (int pe=0; pe < _fluxes_per_track; pe++)
+          _start_flux(t,d,pe) = buffer[pe];
+
+      /* Reset status for next communication round */
+      mpi_send[d] = 0;
+      mpi_recv[d] = 0;
+      active[d] = 0;
+    }
+  }
+
+  /* Join MPI at the end of communication */
+  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 
@@ -692,7 +785,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   if (direction) {
     bc = _tracks[track_id]->getBCFwd();
     track_leakage = &_boundary_leakage(track_id, 0);
-    if (bc == PERIODIC) {
+    if (bc == PERIODIC || bc == INTERFACE) {
       start = 0;
       track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();
     }
@@ -706,7 +799,7 @@ void CPUSolver::transferBoundaryFlux(int track_id,
   else {
     bc = _tracks[track_id]->getBCBwd();
     track_leakage = &_boundary_leakage(track_id,_fluxes_per_track);
-    if (bc == PERIODIC) {
+    if (bc == PERIODIC || bc == INTERFACE) {
       start = _fluxes_per_track;
       track_out_id = _tracks[track_id]->getTrackPrdcBwd()->getUid();
     }
@@ -718,14 +811,13 @@ void CPUSolver::transferBoundaryFlux(int track_id,
 
   FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start);
 
-  /* Set bc to 1 if bc is PERIODIC (bc == 2) */
-  if (bc == PERIODIC)
-    bc = REFLECTIVE;
+  /* Determine if angular fluxes are transfered */
+  FP_PRECISION transfer = (FP_PRECISION) (bc != VACUUM);
 
   if (_solve_3D) {
     for (int e=0; e < _num_groups; e++) {
-      track_out_flux[e] = track_flux[e] * bc;
-      track_leakage[e] = track_flux[e] * (!bc) *
+      track_out_flux[e] = track_flux[e] * transfer;
+      track_leakage[e] = track_flux[e] * (!transfer) *
           _quad->getWeightInline(a, polar_index);
     }
   }
@@ -736,8 +828,8 @@ void CPUSolver::transferBoundaryFlux(int track_id,
     /* Loop over polar angles and energy groups */
     for (int e=0; e < _num_groups; e++) {
       for (int p=0; p < _num_polar/2; p++) {
-        track_out_flux[pe] = track_flux[pe] * bc;
-        track_leakage[pe] = track_flux[pe] * (!bc) *
+        track_out_flux[pe] = track_flux[pe] * transfer;
+        track_leakage[pe] = track_flux[pe] * (!transfer) *
             _quad->getWeightInline(a, p);
         pe++;
       }

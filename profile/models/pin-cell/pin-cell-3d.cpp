@@ -5,17 +5,12 @@
 
 int main(int argc, char* argv[]) {
 
-  int nranks;
-  int mype;
   MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &nranks);
-  MPI_Comm_rank(MPI_COMM_WORLD, &mype);
-  std::cout << "Rank " << mype << " out of " << nranks << std::endl;
-
+  log_set_ranks(MPI_COMM_WORLD); //FIXME
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = 1; // FIXME omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -137,13 +132,12 @@ int main(int argc, char* argv[]) {
   root_universe->addCell(fuel);
   root_universe->addCell(moderator);
 
-
   /* Creat the geometry */
   log_printf(NORMAL, "Creating geometry...");
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(1, 1, 2);
+  geometry->setDomainDecomposition(2, 2, 1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -151,6 +145,7 @@ int main(int argc, char* argv[]) {
 
   TrackGenerator3D track_generator(geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
+  track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
   track_generator.generateTracks();

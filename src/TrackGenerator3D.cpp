@@ -984,6 +984,7 @@ void TrackGenerator3D::initializeTracks() {
  *          the TrackGenerator analytically, handling both reflective and
  *          periodic boundaries.
  */
+//TODO
 void TrackGenerator3D::initializeTrackReflections() {
 
   int pc;
@@ -1030,6 +1031,12 @@ void TrackGenerator3D::initializeTrackReflections() {
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                         (&_tracks_3D[ai][xp][pi][zp]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                  }
                 }
                 else {
 
@@ -1054,6 +1061,12 @@ void TrackGenerator3D::initializeTrackReflections() {
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D[ai][xp][pi][zp]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                  }
                 }
               }
 
@@ -1077,6 +1090,32 @@ void TrackGenerator3D::initializeTrackReflections() {
                     polar_group[i][t]->setTrackPrdcFwd
                       (polar_group[i - _num_z[a][p]][0]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcFwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceOut();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, +1);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                  }
                 }
                 else {
 
@@ -1096,17 +1135,43 @@ void TrackGenerator3D::initializeTrackReflections() {
                     polar_group[i][t]->setTrackPrdcBwd
                       (polar_group[i - _num_z[a][p]][0]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcBwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, +1);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                  }
                 }
               }
             }
 
             /* SURFACE_X_MIN, SURFACE_X_MAX, SURFACE_Y_MIN, SURAFCE_Y_MAX */
-            else{
+            else {
               if (polar_group[i][t]->getCycleFwd()) {
 
+                ci = polar_group[i][t]->getCycleTrackIndex();
                 polar_group[i][t]->setBCFwd
-                    (_tracks_2D_cycle[a][c]
-                     [polar_group[i][t]->getCycleTrackIndex()]->getBCFwd());
+                    (_tracks_2D_cycle[a][c][ci]->getBCFwd());
 
                 /* REFLECTIVE */
                 polar_group[i][t]->setReflFwdFwd
@@ -1120,19 +1185,30 @@ void TrackGenerator3D::initializeTrackReflections() {
                   xi = polar_group[i][t]->getXYIndex();
                   pi = polar_group[i][t]->getPolarIndex();
                   zi = polar_group[i][t]->getZIndex();
-                  ci = polar_group[i][t]->getCycleTrackIndex();
                   xp = _tracks_2D_cycle[a][c][ci]
                     ->getTrackPrdcFwd()->getXYIndex();
                   zp = polar_group[i][t+1]->getZIndex();
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D[ai][xp][pi][zp]);
                 }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceOut();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                }
               }
               else {
 
+                ci = polar_group[i][t]->getCycleTrackIndex();
                 polar_group[i][t]->setBCBwd
-                    (_tracks_2D_cycle[a][c]
-                     [polar_group[i][t]->getCycleTrackIndex()]->getBCBwd());
+                    (_tracks_2D_cycle[a][c][ci]->getBCBwd());
 
                 /* REFLECTIVE */
                 polar_group[i][t]->setReflBwdFwd
@@ -1146,12 +1222,22 @@ void TrackGenerator3D::initializeTrackReflections() {
                   xi = polar_group[i][t]->getXYIndex();
                   pi = polar_group[i][t]->getPolarIndex();
                   zi = polar_group[i][t]->getZIndex();
-                  ci = polar_group[i][t]->getCycleTrackIndex();
                   xp = _tracks_2D_cycle[a][c][ci]
                     ->getTrackPrdcBwd()->getXYIndex();
                   zp = polar_group[i][t+1]->getZIndex();
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D[ai][xp][pi][zp]);
+                }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceIn(neighbor);
                 }
               }
             }
@@ -1180,6 +1266,32 @@ void TrackGenerator3D::initializeTrackReflections() {
                       (polar_group[i + _num_z[a][p]]
                        [_tracks_per_train[a][c][p][i + _num_z[a][p]]-1]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcBwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, -1);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                  }
                 }
                 else {
 
@@ -1200,6 +1312,32 @@ void TrackGenerator3D::initializeTrackReflections() {
                     polar_group[i][t]->setTrackPrdcFwd
                       (polar_group[i + _num_z[a][p]]
                        [_tracks_per_train[a][c][p][i + _num_z[a][p]]-1]);
+                  }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcFwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceOut();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, -1);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
                   }
                 }
               }
@@ -1236,6 +1374,12 @@ void TrackGenerator3D::initializeTrackReflections() {
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D[ai][xp][pi][zp]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                  }
                 }
                 else {
 
@@ -1266,6 +1410,12 @@ void TrackGenerator3D::initializeTrackReflections() {
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                       (&_tracks_3D[ai][xp][pi][zp]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                  }
                 }
               }
             }
@@ -1274,9 +1424,9 @@ void TrackGenerator3D::initializeTrackReflections() {
             else {
               if (polar_group[i][t]->getCycleFwd()) {
 
+                ci = polar_group[i][t]->getCycleTrackIndex();
                 polar_group[i][t]->setBCBwd
-                    (_tracks_2D_cycle[a][c]
-                     [polar_group[i][t]->getCycleTrackIndex()]->getBCBwd());
+                    (_tracks_2D_cycle[a][c][ci]->getBCBwd());
 
                 /* REFLECTIVE */
                 polar_group[i][t]->setReflBwdFwd
@@ -1290,19 +1440,29 @@ void TrackGenerator3D::initializeTrackReflections() {
                   xi = polar_group[i][t]->getXYIndex();
                   pi = polar_group[i][t]->getPolarIndex();
                   zi = polar_group[i][t]->getZIndex();
-                  ci = polar_group[i][t]->getCycleTrackIndex();
                   xp = _tracks_2D_cycle[a][c][ci]
                     ->getTrackPrdcBwd()->getXYIndex();
                   zp = polar_group[i][t-1]->getZIndex();
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D[ai][xp][pi][zp]);
                 }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                }
               }
               else {
 
+                ci = polar_group[i][t]->getCycleTrackIndex();
                 polar_group[i][t]->setBCFwd
-                    (_tracks_2D_cycle[a][c]
-                     [polar_group[i][t]->getCycleTrackIndex()]->getBCFwd());
+                    (_tracks_2D_cycle[a][c][ci]->getBCFwd());
 
                 /* REFLECTIVE */
                 polar_group[i][t]->setReflFwdFwd
@@ -1316,12 +1476,23 @@ void TrackGenerator3D::initializeTrackReflections() {
                   xi = polar_group[i][t]->getXYIndex();
                   pi = polar_group[i][t]->getPolarIndex();
                   zi = polar_group[i][t]->getZIndex();
-                  ci = polar_group[i][t]->getCycleTrackIndex();
                   xp = _tracks_2D_cycle[a][c][ci]
                     ->getTrackPrdcFwd()->getXYIndex();
                   zp = polar_group[i][t-1]->getZIndex();
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D[ai][xp][pi][zp]);
+                }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceOut();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  //FIXME
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceOut(neighbor);
                 }
               }
             }
@@ -1355,10 +1526,36 @@ void TrackGenerator3D::initializeTrackReflections() {
                     (_tracks_3D_cycle[a][c][pc][_num_l[a][pc] - i - 1][0]);
 
                   /* PERIODIC */
-                 if (_periodic) {
+                  if (_periodic) {
                    polar_group[i][t]->setTrackPrdcFwd
                      (polar_group[i + _num_z[a][pc]][0]);
-                 }
+                  }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcFwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceOut();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, -1);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                  }
                 }
                 else {
 
@@ -1377,11 +1574,37 @@ void TrackGenerator3D::initializeTrackReflections() {
                     polar_group[i][t]->setTrackPrdcBwd
                       (polar_group[i + _num_z[a][pc]][0]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcBwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, -1);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                  }
                 }
               }
 
               /* SURFACE_Y_MIN */
-              else{
+              else {
                 if (polar_group[i][t]->getCycleFwd()) {
 
                   polar_group[i][t]->setBCFwd
@@ -1405,6 +1628,12 @@ void TrackGenerator3D::initializeTrackReflections() {
                     zp = polar_group[i - _num_l[a][pc]][0]->getZIndex();
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                       (&_tracks_3D[ai][xp][pi][zp]);
+                  }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
                   }
                 }
                 else {
@@ -1431,17 +1660,23 @@ void TrackGenerator3D::initializeTrackReflections() {
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D[ai][xp][pi][zp]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                  }
                 }
               }
             }
 
             /* SURFACE_X_MIN, SURFACE_X_MAX, SURFACE_Y_MIN, or SURFACE_Y_MAX */
-            else{
+            else {
               if (polar_group[i][t]->getCycleFwd()) {
 
+                ci = polar_group[i][t]->getCycleTrackIndex();
                 polar_group[i][t]->setBCFwd
-                    (_tracks_2D_cycle[a][c]
-                     [polar_group[i][t]->getCycleTrackIndex()]->getBCFwd());
+                    (_tracks_2D_cycle[a][c][ci]->getBCFwd());
 
                 /* REFLECTIVE */
                 polar_group[i][t]->setReflFwdFwd
@@ -1455,19 +1690,29 @@ void TrackGenerator3D::initializeTrackReflections() {
                   xi = polar_group[i][t]->getXYIndex();
                   pi = polar_group[i][t]->getPolarIndex();
                   zi = polar_group[i][t]->getZIndex();
-                  ci = polar_group[i][t]->getCycleTrackIndex();
                   xp = _tracks_2D_cycle[a][c][ci]
                     ->getTrackPrdcFwd()->getXYIndex();
                   zp = polar_group[i][t+1]->getZIndex();
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D[ai][xp][pi][zp]);
                 }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceOut();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                }
               }
               else {
 
+                ci = polar_group[i][t]->getCycleTrackIndex();
                 polar_group[i][t]->setBCBwd
-                    (_tracks_2D_cycle[a][c]
-                     [polar_group[i][t]->getCycleTrackIndex()]->getBCBwd());
+                    (_tracks_2D_cycle[a][c][ci]->getBCBwd());
 
                 /* REFLECTIVE */
                 polar_group[i][t]->setReflBwdFwd
@@ -1481,12 +1726,22 @@ void TrackGenerator3D::initializeTrackReflections() {
                   xi = polar_group[i][t]->getXYIndex();
                   pi = polar_group[i][t]->getPolarIndex();
                   zi = polar_group[i][t]->getZIndex();
-                  ci = polar_group[i][t]->getCycleTrackIndex();
                   xp = _tracks_2D_cycle[a][c][ci]
                     ->getTrackPrdcBwd()->getXYIndex();
                   zp = polar_group[i][t+1]->getZIndex();
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D[ai][xp][pi][zp]);
+                }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceIn(neighbor);
                 }
               }
             }
@@ -1525,6 +1780,12 @@ void TrackGenerator3D::initializeTrackReflections() {
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                       (&_tracks_3D[ai][xp][pi][zp]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                  }
                 }
                 else {
 
@@ -1543,7 +1804,8 @@ void TrackGenerator3D::initializeTrackReflections() {
                       [_num_l[a][pc] +_num_z[a][pc] - i - 1] - 1]);
 
                   /* PERIODIC */
-                  if (_periodic) {ai = polar_group[i][t]->getAzimIndex();
+                  if (_periodic) {
+                    ai = polar_group[i][t]->getAzimIndex();
                     xi = polar_group[i][t]->getXYIndex();
                     pi = polar_group[i][t]->getPolarIndex();
                     zi = polar_group[i][t]->getZIndex();
@@ -1556,11 +1818,17 @@ void TrackGenerator3D::initializeTrackReflections() {
                     _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                       (&_tracks_3D[ai][xp][pi][zp]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+                    int neighbor = _geometry->getNeighborDomain(0, -1, 0);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                  }
                 }
               }
 
               /* SURFACE_Z_MAX */
-              else{
+              else {
                 if (polar_group[i][t]->getCycleFwd()) {
 
                   polar_group[i][t]->setBCBwd
@@ -1580,6 +1848,32 @@ void TrackGenerator3D::initializeTrackReflections() {
                     polar_group[i][t]->setTrackPrdcBwd
                       (polar_group[i - _num_z[a][pc]]
                        [_tracks_per_train[a][c][p][i - _num_z[a][pc]]-1]);
+                  }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcBwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, +1);
+                    polar_group[i][t]->setDomainSurfaceIn(neighbor);
                   }
                 }
                 else {
@@ -1602,12 +1896,38 @@ void TrackGenerator3D::initializeTrackReflections() {
                       (polar_group[i - _num_z[a][pc]]
                        [_tracks_per_train[a][c][p][i - _num_z[a][pc]]-1]);
                   }
+
+                  /* INTERFACE */
+                  if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+
+                    /* Extract indexes */
+                    xi = polar_group[i][t]->getXYIndex();
+                    int delta_x = 0;
+                    int delta_y = 0;
+
+                    /* See if the connecting Track has the same XY index */
+                    Track* connecting_track =
+                      polar_group[i][t]->getTrackPrdcFwd();
+                    int connecting_xi = connecting_track->getXYIndex();
+
+                    /* Correct Track surfaces to account for edge */
+                    if (connecting_xi != xi) {
+                      ci = polar_group[i][t]->getCycleTrackIndex();
+                      int surface =
+                        _tracks_2D_cycle[a][c][ci]->getDomainSurfaceOut();
+                      delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                      delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                    }
+                    int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                                delta_y, +1);
+                    polar_group[i][t]->setDomainSurfaceOut(neighbor);
+                  }
                 }
               }
             }
 
             /* SURFACE_X_MIN, SURFACE_X_MAX, SURFACE_Y_MIN, or SURFACE_Y_MAX */
-            else{
+            else {
               if (polar_group[i][t]->getCycleFwd()) {
 
                 polar_group[i][t]->setBCBwd
@@ -1633,12 +1953,24 @@ void TrackGenerator3D::initializeTrackReflections() {
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcBwd
                     (&_tracks_3D[ai][xp][pi][zp]);
                 }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCBwd() == INTERFACE) {
+                  ci = polar_group[i][t]->getCycleTrackIndex();
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceIn(neighbor);
+                }
               }
               else {
 
+                ci = polar_group[i][t]->getCycleTrackIndex();
                 polar_group[i][t]->setBCFwd
-                    (_tracks_2D_cycle[a][c]
-                     [polar_group[i][t]->getCycleTrackIndex()]->getBCFwd());
+                    (_tracks_2D_cycle[a][c][ci]->getBCFwd());
 
                 /* REFLECTIVE */
                 polar_group[i][t]->setReflFwdFwd
@@ -1652,12 +1984,22 @@ void TrackGenerator3D::initializeTrackReflections() {
                   xi = polar_group[i][t]->getXYIndex();
                   pi = polar_group[i][t]->getPolarIndex();
                   zi = polar_group[i][t]->getZIndex();
-                  ci = polar_group[i][t]->getCycleTrackIndex();
                   xp = _tracks_2D_cycle[a][c][ci]->getTrackPrdcFwd()
                     ->getXYIndex();
                   zp = polar_group[i][t-1]->getZIndex();
                   _tracks_3D[ai][xi][pi][zi].setTrackPrdcFwd
                     (&_tracks_3D[ai][xp][pi][zp]);
+                }
+
+                /* INTERFACE */
+                if (polar_group[i][t]->getBCFwd() == INTERFACE) {
+                  int surface =
+                    _tracks_2D_cycle[a][c][ci]->getDomainSurfaceIn();
+                  int delta_x = (surface % 3 == 0) * (2 * (surface/3) - 1);
+                  int delta_y = (surface % 3 == 1) * (2 * (surface/3) - 1);
+                  int neighbor = _geometry->getNeighborDomain(delta_x,
+                                                              delta_y, 0);
+                  polar_group[i][t]->setDomainSurfaceOut(neighbor);
                 }
               }
             }
@@ -2205,6 +2547,19 @@ double TrackGenerator3D::convertLtoY(double l, int azim, int cycle) {
 
 
 /**
+ * @brief Set a pointer to the Geometry to use for track generation.
+ * @details If the Geometry is domain decomposed, the ray tracing method is set
+ *          to modular ray tracing.
+ * @param geometry a pointer to the Geometry
+ */
+void TrackGenerator3D::setGeometry(Geometry* geometry) {
+  if (geometry->isDomainDecomposed())
+    _track_generation_method = MODULAR_RAY_TRACING;
+  TrackGenerator::setGeometry(geometry);
+}
+
+
+/**
  * @brief Sets the track laydown method for generation of 3D Tracks
  * @details Options for the track laydown are GLOBAL_TRACKING,
  *          MODULAR_RAY_TRACING, and SIMPLIFIED_MODULAR_RAY_TRACING
@@ -2488,7 +2843,8 @@ void TrackGenerator3D::checkBoundaryConditions() {
                " set to PERIODIC");
 
   /* Check for correct track method if a PERIODIC bc is present */
-  if (_geometry->getMinZBoundaryType() == PERIODIC)
+  boundaryType min_z_boundary = _geometry->getMinZBoundaryType();
+  if (min_z_boundary == PERIODIC || min_z_boundary == INTERFACE)
     _periodic = true;
 
   /* Check if 3D track generation method allows periodic boundaries */

@@ -131,6 +131,7 @@ public:
   bool containsSegments();
 
   /* Set parameters */
+  void setGeometry(Geometry* geometry);
   void setDesiredPolarSpacing(double spacing);
   void setSegmentFormation(segmentationType segmentation_type);
   void setTrackGenerationMethod(int method);

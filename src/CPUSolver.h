@@ -54,6 +54,7 @@ protected:
 
   void zeroTrackFluxes();
   void copyBoundaryFluxes();
+  void communicateBoundaryFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();

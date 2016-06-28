@@ -19,6 +19,7 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+  _domain_decomposed = false;
 }
 
 
@@ -85,7 +86,15 @@ double Geometry::getWidthZ() {
  * @return the minimum x-coordinate (cm)
  */
 double Geometry::getMinX() {
-  return _root_universe->getMinX();
+  if (_domain_decomposed) {
+    double geometry_min_x = _root_universe->getMinX();
+    double geometry_max_x = _root_universe->getMaxX();
+    double domain_width_x = (geometry_max_x - geometry_min_x) / _num_domains_x;
+    return geometry_min_x + _domain_index_x * domain_width_x;
+  }
+  else {
+    return _root_universe->getMinX();
+  }
 }
 
 
@@ -94,7 +103,16 @@ double Geometry::getMinX() {
  * @return the maximum x-coordinate (cm)
  */
 double Geometry::getMaxX() {
-  return _root_universe->getMaxX();
+  if (_domain_decomposed) {
+    double geometry_min_x = _root_universe->getMinX();
+    double geometry_max_x = _root_universe->getMaxX();
+    double domain_width_x = (geometry_max_x - geometry_min_x) / _num_domains_x;
+    int reverse_index_x = _num_domains_x - _domain_index_x - 1;
+    return geometry_max_x - reverse_index_x * domain_width_x;
+  }
+  else {
+    return _root_universe->getMaxX();
+  }
 }
 
 
@@ -103,7 +121,15 @@ double Geometry::getMaxX() {
  * @return the minimum y-coordinate (cm)
  */
 double Geometry::getMinY() {
-  return _root_universe->getMinY();
+  if (_domain_decomposed) {
+    double geometry_min_y = _root_universe->getMinY();
+    double geometry_max_y = _root_universe->getMaxY();
+    double domain_width_y = (geometry_max_y - geometry_min_y) / _num_domains_y;
+    return geometry_min_y + _domain_index_y * domain_width_y;
+  }
+  else {
+    return _root_universe->getMinY();
+  }
 }
 
 
@@ -112,7 +138,16 @@ double Geometry::getMinY() {
  * @return the maximum y-coordinate (cm)
  */
 double Geometry::getMaxY() {
-  return _root_universe->getMaxY();
+  if (_domain_decomposed) {
+    double geometry_min_y = _root_universe->getMinY();
+    double geometry_max_y = _root_universe->getMaxY();
+    double domain_width_y = (geometry_max_y - geometry_min_y) / _num_domains_y;
+    int reverse_index_y = _num_domains_y - _domain_index_y - 1;
+    return geometry_max_y - reverse_index_y * domain_width_y;
+  }
+  else {
+    return _root_universe->getMaxY();
+  }
 }
 
 
@@ -121,7 +156,15 @@ double Geometry::getMaxY() {
  * @return the minimum z-coordinate (cm)
  */
 double Geometry::getMinZ() {
-  return _root_universe->getMinZ();
+  if (_domain_decomposed) {
+    double geometry_min_z = _root_universe->getMinZ();
+    double geometry_max_z = _root_universe->getMaxZ();
+    double domain_width_z = (geometry_max_z - geometry_min_z) / _num_domains_z;
+    return geometry_min_z + _domain_index_z * domain_width_z;
+  }
+  else {
+    return _root_universe->getMinZ();
+  }
 }
 
 
@@ -130,7 +173,16 @@ double Geometry::getMinZ() {
  * @return the maximum z-coordinate (cm)
  */
 double Geometry::getMaxZ() {
-  return _root_universe->getMaxZ();
+  if (_domain_decomposed) {
+    double geometry_min_z = _root_universe->getMinZ();
+    double geometry_max_z = _root_universe->getMaxZ();
+    double domain_width_z = (geometry_max_z - geometry_min_z) / _num_domains_z;
+    int reverse_index_z = _num_domains_z - _domain_index_z - 1;
+    return geometry_max_z - reverse_index_z * domain_width_z;
+  }
+  else {
+    return _root_universe->getMaxZ();
+  }
 }
 
 
@@ -140,7 +192,10 @@ double Geometry::getMaxZ() {
  * @return the boundary conditions for the minimum x-coordinate in the Geometry
  */
 boundaryType Geometry::getMinXBoundaryType() {
-  return _root_universe->getMinXBoundaryType();
+  if (_domain_decomposed && _domain_index_x > 0)
+   return INTERFACE;
+  else
+    return _root_universe->getMinXBoundaryType();
 }
 
 
@@ -150,7 +205,10 @@ boundaryType Geometry::getMinXBoundaryType() {
  * @return the boundary conditions for the maximum z-coordinate in the Geometry
  */
 boundaryType Geometry::getMaxXBoundaryType() {
-  return _root_universe->getMaxXBoundaryType();
+  if (_domain_decomposed && _domain_index_x < _num_domains_x-1)
+    return INTERFACE;
+  else
+    return _root_universe->getMaxXBoundaryType();
 }
 
 
@@ -160,7 +218,10 @@ boundaryType Geometry::getMaxXBoundaryType() {
  * @return the boundary conditions for the minimum y-coordinate in the Geometry
  */
 boundaryType Geometry::getMinYBoundaryType() {
-  return _root_universe->getMinYBoundaryType();
+  if (_domain_decomposed && _domain_index_y > 0)
+   return INTERFACE;
+  else
+    return _root_universe->getMinYBoundaryType();
 }
 
 
@@ -170,7 +231,10 @@ boundaryType Geometry::getMinYBoundaryType() {
  * @return the boundary conditions for the maximum y-coordinate in the Geometry
  */
 boundaryType Geometry::getMaxYBoundaryType() {
-  return _root_universe->getMaxYBoundaryType();
+  if (_domain_decomposed && _domain_index_y < _num_domains_y-1)
+    return INTERFACE;
+  else
+    return _root_universe->getMaxYBoundaryType();
 }
 
 
@@ -180,7 +244,10 @@ boundaryType Geometry::getMaxYBoundaryType() {
  * @return the boundary conditions for the minimum z-coordinate in the Geometry
  */
 boundaryType Geometry::getMinZBoundaryType() {
-  return _root_universe->getMinZBoundaryType();
+  if (_domain_decomposed && _domain_index_z > 0)
+   return INTERFACE;
+  else
+    return _root_universe->getMinZBoundaryType();
 }
 
 
@@ -190,7 +257,10 @@ boundaryType Geometry::getMinZBoundaryType() {
  * @return the boundary conditions for the maximum z-coordinate in the Geometry
  */
 boundaryType Geometry::getMaxZBoundaryType() {
-  return _root_universe->getMaxZBoundaryType();
+  if (_domain_decomposed && _domain_index_z < _num_domains_z-1)
+    return INTERFACE;
+  else
+    return _root_universe->getMaxZBoundaryType();
 }
 
 
@@ -201,6 +271,7 @@ boundaryType Geometry::getMaxZBoundaryType() {
 int Geometry::getNumFSRs() {
   return _FSRs_to_keys.size();
 }
+
 
 /**
  * @brief Returns the number of energy groups for each Material's nuclear data.
@@ -339,6 +410,15 @@ Cmfd* Geometry::getCmfd() {
 
 
 /**
+ * @breif Returns whether the Geometry is domain decomposed
+ * @return If the domain is decomposed (true) or not (false)
+ */
+bool Geometry::isDomainDecomposed() {
+  return _domain_decomposed;
+}
+
+
+/**
  * @brief Sets the root Universe for the CSG tree.
  * @param root_universe the root Universe of the CSG tree.
  */
@@ -347,19 +427,66 @@ void Geometry::setRootUniverse(Universe* root_universe) {
 }
 
 
+//FIXME: add setDefaultDomainDecomposition() function
+
+
 //FIXME
 #ifdef MPIx
 void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
 
+  /* Calculate number of domains and get the number of MPI ranks */
   int num_domains = nx*ny*nz;
-  log_set_ranks(MPI_COMM_WORLD);
-  int nr, mype;
-  MPI_Comm_size(MPI_COMM_WORLD, &nr);
-  MPI_Comm_rank(MPI_COMM_WORLD, &mype);
-  if (nr != num_domains)
-    log_printf(ERROR, "Number of ranks is %d and number of domains is %d"
-               " on domain %d", nr, num_domains, mype);
+  int num_ranks;
+  MPI_Comm_size(MPI_COMM_WORLD, &num_ranks);
 
+  /* Check that the number of domains equals the number of ranks */
+  if (num_ranks != num_domains)
+    log_printf(ERROR, "Number of ranks is %d and number of domains is %d",
+               num_ranks, num_domains);
+
+  //FIXME
+  log_set_ranks(MPI_COMM_WORLD);
+
+  //FIXME: check that root universe has been set
+
+  /* Check that the Geometry needs to be decomposed */
+  if (num_domains > 1) {
+
+    /* Make note of the domain decomposition */
+    _domain_decomposed = true;
+    _num_domains_x = nx;
+    _num_domains_y = ny;
+    _num_domains_z = nz;
+
+    /* Determine the domain indexes */
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    _domain_index_x = rank % nx;
+    _domain_index_y = (rank / nx) % ny;
+    _domain_index_z = rank / (nx*ny);
+
+    /* Set the bounds in a 1x1x1 Lattice object */
+    _domain_bounds = new Lattice();
+    _domain_bounds->setNumX(1);
+    _domain_bounds->setNumY(1);
+    _domain_bounds->setNumZ(1);
+    double width_x = getWidthX();
+    double width_y = getWidthY();
+    double width_z = getWidthZ();
+    _domain_bounds->setWidth(width_x, width_y, width_z);
+    double offset_x = width_x / 2.0 + getMinX();
+    double offset_y = width_y / 2.0 + getMinY();
+    double offset_z = width_z / 2.0 + getMinZ();
+    _domain_bounds->setOffset(offset_x, offset_y, offset_z);
+  }
+}
+
+
+//FIXME
+int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
+  int neighbor = (_domain_index_x + offset_x) + ((_domain_index_y + offset_y)
+       + (_domain_index_z + offset_z) * _num_domains_y) * _num_domains_x;
+  return neighbor;
 }
 #endif
 
@@ -485,6 +612,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   /* Get the current Cell */
   cell = coords->getCell();
 
+  /* If the current coords is outside the domain, return NULL */
+  if (_domain_decomposed) {
+    Point* point = coords->getHighestLevel()->getPoint();
+    if (!_domain_bounds->withinBounds(point))
+      return NULL;
+  }
+
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
     return NULL;
@@ -505,7 +639,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
-      else{
+      else {
         Cell* cell = coords->getCell();
         dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
       }
@@ -529,13 +663,26 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       min_dist = std::min(dist, min_dist);
     }
 
+    /* Check for distance to nearest domain boundary */
+    bool domain_boundary = false;
+    if (_domain_decomposed) {
+      dist = _domain_bounds->minSurfaceDist(coords->getPoint(), azim, polar);
+      if (dist - min_dist < ON_SURFACE_THRESH) {
+        min_dist = dist;
+        domain_boundary = true;
+      }
+    }
+
     /* Move point and get next cell */
     double delta_x = cos(azim) * sin(polar) * (min_dist + TINY_MOVE);
     double delta_y = sin(azim) * sin(polar) * (min_dist + TINY_MOVE);
     double delta_z = cos(polar) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y, delta_z);
 
-    return findCellContainingCoords(coords);
+    if (domain_boundary)
+      return NULL;
+    else
+      return findCellContainingCoords(coords);
   }
 }
 
@@ -691,7 +838,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
   }
   catch(std::exception &e) {
@@ -861,6 +1008,7 @@ void Geometry::initializeFlatSourceRegions() {
   subdivideCells();
 
   /* Build collections of neighbor Cells for optimized ray tracing */
+  //FIXME
   _root_universe->buildNeighbors();
 
   /* Create map of Material IDs to Material pointers */
@@ -882,6 +1030,8 @@ void Geometry::initializeFlatSourceRegions() {
  * @param z_coord the axial height at which the 2D plane of the geometry is
  *        formed
  */
+//FIXME: Maybe build a domain cell and check that point is in domain, calculate
+// intersection
 void Geometry::segmentize2D(Track* track, double z_coord) {
 
   /* Track starting Point coordinates and azimuthal angle */
@@ -1140,9 +1290,22 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   Cell* curr = findFirstCell(&end, phi);
 
   /* If starting Point was outside the bounds of the Geometry */
-  if (curr == NULL)
+  if (curr == NULL) {
+    //log_printf(ERROR, "Could not find a Cell containing the start Point "
+    //           "of this Track: %s", flattened_track->toString().c_str());
+    int dom = _domain_index_x + _domain_index_y * _num_domains_x +
+      _domain_index_z * _num_domains_x * _num_domains_y;
+    double min_x = getMinX();
+    double max_x = getMaxX();
+    double min_y = getMinY();
+    double max_y = getMaxY();
+    double min_z = getMinZ();
+    double max_z = getMaxZ();
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track: %s", flattened_track->toString().c_str());
+               "of this Track: %s on domain %d with bounds (%f, %f) x (%f, %f)"
+               "(%f, %f)", flattened_track->toString().c_str(), dom, min_x, max_x,
+               min_y, max_y, min_z, max_z);
+  }
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the

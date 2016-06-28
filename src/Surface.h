@@ -102,6 +102,11 @@ public:
   surfaceType getSurfaceType();
   boundaryType getBoundaryType();
 
+
+  //FIXME
+  double getMin(int axis, int halfspace);
+  double getMax(int axis, int halfspace);
+
   /**
    * @brief Returns the minimum x value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
