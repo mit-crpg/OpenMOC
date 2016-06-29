@@ -10,13 +10,13 @@ from lattices import lattices, universes, cells, surfaces
 
 options = Options()
 
-num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+num_threads = options.num_omp_threads
+azim_spacing = options.azim_spacing
+num_azim = options.num_azim
+polar_spacing = options.polar_spacing
+num_polar = options.num_polar
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 uu = universes['UO2 Unrodded Assembly']
 ur = universes['UO2 Rodded Assembly']

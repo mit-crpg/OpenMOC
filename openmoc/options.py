@@ -22,8 +22,12 @@ class Options(object):
     ----------
     num_azim : Integral
         The number of azimuthal angles (default is 4)
+    num_polar : Integral
+        The number of azimuthal angles (default is 6)
     azim_spacing : Real
         The azimuthal track spacing in centimeters (default is 0.1 cm)
+    polar_spacing : Real
+        The polar track spacing in centimeters (default is 0.1 cm)
     max_iters : Integral
         The maximum number of source iterations (default is 1000)
     tolerance : Real
@@ -69,7 +73,9 @@ class Options(object):
                            'num-threads-per-block=']
 
         self._num_azim = 4
+        self._num_polar = 6
         self._azim_spacing = 0.1
+        self._polar_spacing = 0.1
         self._max_iters = 1000
         self._tolerance = 1E-5
         self._num_omp_threads = multiprocessing.cpu_count()
@@ -102,8 +108,16 @@ class Options(object):
         return self._num_azim
 
     @property
+    def num_polar(self):
+        return self._num_polar
+
+    @property
     def azim_spacing(self):
         return self._azim_spacing
+
+    @property
+    def polar_spacing(self):
+        return self._polar_spacing
 
     @property
     def max_iters(self):
@@ -155,9 +169,17 @@ class Options(object):
                 num_azim += 'the number of azimuthal angles\n'
                 print(num_azim)
 
+                num_polar = '\t{: <35}'.format('-a, --num-polar=<6>')
+                num_polar += 'the number of polar angles\n'
+                print(num_polar)
+
                 azim_spacing = '\t{: <35}'.format('-s, --azim-spacing=<0.1>')
                 azim_spacing += 'The azimuthal track spacing [cm]\n'
                 print(azim_spacing)
+
+                polar_spacing = '\t{: <35}'.format('-s, --polar-spacing=<0.1>')
+                polar_spacing += 'The polar track spacing [cm]\n'
+                print(polar_spacing)
 
                 max_iters = '\t{: <35}'.format('-i, --max-iters=<1000>')
                 max_iters += 'The max number of source iterations\n'
@@ -185,8 +207,12 @@ class Options(object):
 
             elif opt in ('-a', '--num-azim'):
                 self._num_azim = int(arg)
+            elif opt in ('-a', '--num-polar'):
+                self._num_polar = int(arg)
             elif opt in ('-s', '--azim-spacing'):
                 self._azim_spacing = float(arg)
+            elif opt in ('-s', '--polar-spacing'):
+                self._polar_spacing = float(arg)
             elif opt in ('-i', '--max-iters'):
                 self._max_iters = int(arg)
             elif opt in ('-c', '--tolerance'):

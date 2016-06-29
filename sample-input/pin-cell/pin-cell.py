@@ -11,7 +11,7 @@ options = openmoc.options.Options()
 num_threads = options.num_omp_threads
 azim_spacing = options.azim_spacing
 num_azim = options.num_azim
-num_polar = 6
+num_polar = options.num_polar
 tolerance = options.tolerance
 max_iters = options.max_iters
 

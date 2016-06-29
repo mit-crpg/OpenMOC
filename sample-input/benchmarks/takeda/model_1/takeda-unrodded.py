@@ -60,7 +60,7 @@ track_generator = openmoc.TrackGenerator3D(geometry, opts.num_azim,
                                            opts.azim_spacing,
                                            opts.polar_spacing)
 track_generator.setQuadrature(quad)
-track_generator.setNumThreads(num_threads)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
@@ -70,9 +70,9 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = openmoc.CPUSolver(track_generator)
-solver.setConvergenceThreshold(tolerance)
-solver.setNumThreads(opts.num_threads)
-solver.computeEigenvalue(max_iters)
+solver.setConvergenceThreshold(opts.tolerance)
+solver.setNumThreads(opts.num_omp_threads)
+solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 
 ###############################################################################
