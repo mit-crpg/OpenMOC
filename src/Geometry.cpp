@@ -535,7 +535,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
 
-  /* Generate faulty FSR key */
+  /* Generate unique FSR key */
   std::string fsr_key = getFSRKey(coords);
 
   /* If FSR has not been encountered, update FSR maps and vectors */
