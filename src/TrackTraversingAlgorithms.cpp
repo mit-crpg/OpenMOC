@@ -492,6 +492,11 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, true);
+    //FIXME
+    if (track_id+i > _track_generator->getNumTracks()) {
+      std::cout << "BAD PANDA!" << std::endl;
+      exit(1);
+    }
     _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, true,
                                       track_flux);
   }

@@ -11,13 +11,13 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+num_threads = options.num_omp_threads
+azim_spacing = options.azim_spacing
+num_azim = options.num_azim
+polar_spacing = options.polar_spacing
+num_polar = options.num_polar
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 log.set_log_level('NORMAL')
 
@@ -33,7 +33,7 @@ log.py_printf('NORMAL', 'Creating materials...')
 
 infinite_medium = Material(name='1-group infinite medium')
 infinite_medium.setNumEnergyGroups(1)
-infinite_medium.setSigmaA(numpy.array([0.069389522]))
+#infinite_medium.setSigmaA(numpy.array([0.069389522]))
 infinite_medium.setSigmaF(numpy.array([0.0414198575]))
 infinite_medium.setNuSigmaF(numpy.array([0.0994076580]))
 infinite_medium.setSigmaS(numpy.array([0.383259177]))
