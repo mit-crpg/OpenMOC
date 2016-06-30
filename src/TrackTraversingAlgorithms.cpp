@@ -469,7 +469,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Extract the maximum track index */
   int max_track_index = 0;
-  if (_tracks_per_stack != NULL) {
+  if (_segment_formation == OTF_STACKS) {
     int xy_index = track->getXYIndex();
     max_track_index = _tracks_per_stack[azim_index][xy_index][polar_index] - 1;
   }
@@ -492,11 +492,6 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, true);
-    //FIXME
-    if (track_id+i > _track_generator->getNumTracks()) {
-      std::cout << "BAD PANDA!" << std::endl;
-      exit(1);
-    }
     _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, true,
                                       track_flux);
   }

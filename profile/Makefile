@@ -4,7 +4,7 @@
 
 COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = no
+OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
 PRECISION   = double
@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = single-assembly/single-c5g7-assembly.cpp
+case = Takeda/Takeda-unrodded.cpp
 
 source = \
 Cell.cpp \
