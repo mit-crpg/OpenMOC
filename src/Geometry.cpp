@@ -1494,7 +1494,7 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       }
     }
   }
-  delete[] extruded_FSRs;
+  delete [] extruded_FSRs;
 }
 
 

@@ -774,8 +774,6 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
       }
     }
   }
-
-  return;
 }
 
 
@@ -802,8 +800,11 @@ void TrackGenerator::checkBoundaryConditions() {
   /* Check for correct track method if a PERIODIC bc is present */
   boundaryType min_x_boundary = _geometry->getMinXBoundaryType();
   boundaryType min_y_boundary = _geometry->getMinYBoundaryType();
+  boundaryType max_x_boundary = _geometry->getMaxXBoundaryType();
+  boundaryType max_y_boundary = _geometry->getMaxYBoundaryType();
   if (min_x_boundary == PERIODIC || min_x_boundary == INTERFACE ||
-      min_y_boundary == PERIODIC || min_y_boundary == INTERFACE)
+      min_y_boundary == PERIODIC || min_y_boundary == INTERFACE ||
+      max_x_boundary == INTERFACE || max_y_boundary == INTERFACE)
 
     _periodic = true;
 
@@ -823,66 +824,57 @@ void TrackGenerator::generateTracks() {
 
   /* Generate Tracks, perform ray tracing across the geometry, and store
    * the data to a Track file */
-  try {
 
-    /* Create default quadrature set if user one has not been set */
-    if (_quadrature == NULL)
-      initializeDefaultQuadrature();
+  /* Create default quadrature set if user one has not been set */
+  if (_quadrature == NULL)
+    initializeDefaultQuadrature();
 
-    /* Initialize the quadrature set */
-    _quadrature->setNumPolarAngles(_num_polar);
-    _quadrature->setNumAzimAngles(_num_azim);
-    _quadrature->initialize();
+  /* Initialize the quadrature set */
+  _quadrature->setNumPolarAngles(_num_polar);
+  _quadrature->setNumAzimAngles(_num_azim);
+  _quadrature->initialize();
 
-    /* Check periodic BCs for symmetry */
-    checkBoundaryConditions();
+  /* Check periodic BCs for symmetry */
+  checkBoundaryConditions();
 
-    /* Lay down Tracks accross the Geometry */
-    if (_geometry == NULL)
-    log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
-               "has been set for the TrackGenerator");
+  /* Lay down Tracks accross the Geometry */
+  if (_geometry == NULL)
+  log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
+             "has been set for the TrackGenerator");
 
-    /* Initialize the Tracks */
-    initializeTracks();
+  /* Initialize the Tracks */
+  initializeTracks();
 
-    /* Recalibrate the Tracks back to the geometry origin */
-    recalibrateTracksToOrigin();
+  /* Recalibrate the Tracks back to the geometry origin */
+  recalibrateTracksToOrigin();
 
-    /* Initialize the 1D array of Tracks for all Tracks */
-    initializeTracksArray();
+  /* Initialize the 1D array of Tracks for all Tracks */
+  initializeTracksArray();
 
-    /* Initialize the track file directory and read in tracks if they exist */
-    initializeTrackFileDirectory();
+  /* Initialize the track file directory and read in tracks if they exist */
+  initializeTrackFileDirectory();
 
-    /* If track file not present, generate segments */
-    if (_use_input_file == false) {
+  /* If track file not present, generate segments */
+  if (_use_input_file == false) {
 
-      /* Segmentize the tracks */
-      segmentize();
-      if (_segment_formation == EXPLICIT_2D ||
-          _segment_formation == EXPLICIT_3D)
-        dumpSegmentsToFile();
-    }
+    /* Segmentize the tracks */
+    segmentize();
+    if (_segment_formation == EXPLICIT_2D ||
+        _segment_formation == EXPLICIT_3D)
+      dumpSegmentsToFile();
+  }
 
-    /* Allocate array of mutex locks for each FSR */
-    int num_FSRs = _geometry->getNumFSRs();
-    _FSR_locks = new omp_lock_t[num_FSRs];
+  /* Allocate array of mutex locks for each FSR */
+  int num_FSRs = _geometry->getNumFSRs();
+  _FSR_locks = new omp_lock_t[num_FSRs];
 
-    /* Loop over all FSRs to initialize OpenMP locks */
+  /* Loop over all FSRs to initialize OpenMP locks */
 #pragma omp parallel for schedule(guided)
-    for (int r=0; r < num_FSRs; r++)
-      omp_init_lock(&_FSR_locks[r]);
+  for (int r=0; r < num_FSRs; r++)
+    omp_init_lock(&_FSR_locks[r]);
 
-    /* Precompute the quadrature weights */
-    _quadrature->precomputeWeights(_segment_formation != EXPLICIT_2D);
-
-  }
-  catch (std::exception &e) {
-    log_printf(ERROR, "Unable to allocate memory needed to generate "
-               "Tracks. Backtrace:\n%s", e.what());
-  }
-
-  return;
+  /* Precompute the quadrature weights */
+  _quadrature->precomputeWeights(_segment_formation != EXPLICIT_2D);
 }
 
 
@@ -1005,14 +997,13 @@ void TrackGenerator::initializeTracks() {
     dy_eff[_num_azim/2 - a - 1] = dy_eff[a];
 
     /* The length of all tracks in a 2D cycle */
-    _cycle_length[a] = dx_eff[a] / cos(_quadrature->getPhi(a)) *
-      leastCommonMultiple(2 * _num_x[a], 2 * height /
-                          (tan(_quadrature->getPhi(a)) * dx_eff[a]));
+    _cycle_length[a] = dx_eff[a] / cos(phi) *
+      leastCommonMultiple(2 * _num_x[a], 2 * height / (tan(phi) * dx_eff[a]));
 
     /* Get the number of tracks per cycle */
     _tracks_per_cycle[a] = (int)
-      (round(_cycle_length[a] * sin(_quadrature->getPhi(a)) / width) +
-       round(_cycle_length[a] * cos(_quadrature->getPhi(a)) / height));
+      (round(_cycle_length[a] * sin(phi) / height) +
+       round(_cycle_length[a] * cos(phi) / width));
 
     /* Compute the number of cycles */
     _cycles_per_azim[a] = (_num_x[a] + _num_y[a]) * 2 / _tracks_per_cycle[a];

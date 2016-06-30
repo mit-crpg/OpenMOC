@@ -863,7 +863,7 @@ void TrackGenerator3D::initializeTracks() {
             y1 = convertLtoY(l_start, a, c);
             z1 = 0.0;
           }
-          else{
+          else {
             l_start = 0.0;
             track_2D = _tracks_2D_cycle[a][c][0];
             x1 = track_2D->getStart()->getX();
@@ -2137,7 +2137,7 @@ void TrackGenerator3D::decomposeLZTrack(Track3D* track, double l_start,
       last_stack = i;
       break;
     }
-    else{
+    else {
       length_sum += track_2d->getLength();
     }
   }
@@ -2153,7 +2153,7 @@ void TrackGenerator3D::decomposeLZTrack(Track3D* track, double l_start,
       first_stack = i;
       break;
     }
-    else{
+    else {
       length_sum += track_2d->getLength();
     }
   }
@@ -2195,7 +2195,7 @@ void TrackGenerator3D::decomposeLZTrack(Track3D* track, double l_start,
         y1 = track->getStart()->getY();
         z1 = track->getStart()->getZ();
       }
-      else{
+      else {
         x1 = x2;
         y1 = y2;
         z1 = z2;
@@ -2844,7 +2844,9 @@ void TrackGenerator3D::checkBoundaryConditions() {
 
   /* Check for correct track method if a PERIODIC bc is present */
   boundaryType min_z_boundary = _geometry->getMinZBoundaryType();
-  if (min_z_boundary == PERIODIC || min_z_boundary == INTERFACE)
+  boundaryType max_z_boundary = _geometry->getMaxZBoundaryType();
+  if (min_z_boundary == PERIODIC || min_z_boundary == INTERFACE
+      || max_z_boundary == INTERFACE)
     _periodic = true;
 
   /* Check if 3D track generation method allows periodic boundaries */

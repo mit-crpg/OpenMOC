@@ -308,8 +308,8 @@ void Track::setTrackPrdcFwd(Track* track) {
   double dx = fabs(_end.getX() - track->getStart()->getX());
   double dy = fabs(_end.getY() - track->getStart()->getY());
   double dz = fabs(_end.getZ() - track->getStart()->getZ());
-  if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-      (dy > 1.e-8 && dz > 1.e-8))
+  if ((dx > 1.e-6 && dy > 1.e-6) || (dx > 1.e-6 && dz > 1.e-6) ||
+      (dy > 1.e-6 && dz > 1.e-6))
     log_printf(NORMAL, "INCORRECT TRACK PRDC FWD: (%.4f, %.4f, %.4f) -> "
                "(%.4f, %.4f, %.4f)", _end.getX(), _end.getY(), _end.getZ(),
                track->getStart()->getX(), track->getStart()->getY(),
@@ -351,8 +351,8 @@ void Track::setTrackPrdcBwd(Track* track) {
   double dx = fabs(_start.getX() - track->getEnd()->getX());
   double dy = fabs(_start.getY() - track->getEnd()->getY());
   double dz = fabs(_start.getZ() - track->getEnd()->getZ());
-  if ((dx > 1.e-8 && dy > 1.e-8) || (dx > 1.e-8 && dz > 1.e-8) ||
-      (dy > 1.e-8 && dz > 1.e-8))
+  if ((dx > 1.e-6 && dy > 1.e-6) || (dx > 1.e-6 && dz > 1.e-6) ||
+      (dy > 1.e-6 && dz > 1.e-6))
     log_printf(NORMAL, "INCORRECT TRACK PRDC BWD: (%.4f, %.4f, %.4f) -> "
                "(%.4f, %.4f, %.4f)", _start.getX(), _start.getY(),
                _start.getZ(), track->getEnd()->getX(),

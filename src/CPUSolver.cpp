@@ -273,7 +273,7 @@ void CPUSolver::communicateBoundaryFluxes() {
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    if (rank == 0) {
+    if (rank == 3) {
       std::cout << "Round = " << t << " / " << _tot_num_tracks << std::endl;
     }
 
@@ -305,25 +305,40 @@ void CPUSolver::communicateBoundaryFluxes() {
       active[1] = 1;
     }
 
+
     /* Block for communication round to complete */
+    bool complete = false;
+    while (!complete) {
+
+      complete = true;
+      int flag;
+
+      for (int d=0; d<2; d++) {
+
+        /* Wait for send to complete */
+        if (mpi_send[d] == 1) {
+          MPI_Test(&request[d], &flag, &stat);
+          if (flag == 0)
+            complete = false;
+        }
+
+        /* Wait for receive to complete */
+        if (mpi_recv[d] == 1) {
+          MPI_Test(&request[2+d], &flag, &stat);
+          if (flag == 0)
+            complete = false;
+        }
+
+        /* Copy down fluxes from buffer */
+        if (active[d] == 1)
+          for (int pe=0; pe < _fluxes_per_track; pe++)
+            _start_flux(t,d,pe) = buffer[pe];
+
+      }
+    }
+
+    /* Reset status for next communication round */
     for (int d=0; d<2; d++) {
-
-      /* Wait for send to complete */
-      if (mpi_send[d] == 1) {
-        MPI_Wait(&request[d], &stat);
-      }
-
-      /* Wait for receive to complete */
-      if (mpi_recv[d] == 1) {
-        MPI_Wait(&request[2+d], &stat);
-      }
-
-      /* Copy down fluxes from buffer */
-      if (active[d] == 1)
-        for (int pe=0; pe < _fluxes_per_track; pe++)
-          _start_flux(t,d,pe) = buffer[pe];
-
-      /* Reset status for next communication round */
       mpi_send[d] = 0;
       mpi_recv[d] = 0;
       active[d] = 0;

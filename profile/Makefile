@@ -5,7 +5,7 @@
 COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = no
-DEBUG       = no
+DEBUG       = yes
 PROFILE     = no
 PRECISION   = single
 
@@ -209,4 +209,4 @@ edit:
 	vim -p $(cases)
 
 run:
-	mpirun -np 4 ./$(program)
+	mpirun -np 2 ./$(program)
