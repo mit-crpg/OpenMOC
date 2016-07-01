@@ -887,48 +887,52 @@ int Cmfd::getCmfdGroup(int group) {
 
 
 /**
- * @brief Set the CMFD energy group structure.
+ * @brief Set a coarse energy group structure for CMFD.
  * @details CMFD does not necessarily need to have the same energy group
  *          structure as the MOC problem. This function can be used to set
- *          a sparse energy group structure to speed up the CMFD solve.
- * @param group_indices An array of the CMFD group boundaries
- * @param length_group_indices The length of the group_indices array
+ *          a sparse energy group structure to speed up the CMFD solve. An
+ *          example of how this may be called from Python to use a coarse
+ *          2-group CMFD structure atop a fine 7-group MOC structure is
+ *          illustrated below:
+ *
+ * @code
+ *          cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
+ * @endcode
+ *
+ * @param group_indices A nested vector of MOC-to-CMFD group mapping
  */
-void Cmfd::setGroupStructure(int* group_indices, int length_group_indices) {
+void Cmfd::setGroupStructure(std::vector< std::vector<int> > group_indices) {
 
-  _num_cmfd_groups = length_group_indices - 1;
+  _user_group_indices = true;
 
   /* Delete old group indices array if it exists */
   if (_group_indices != NULL)
     delete [] _group_indices;
 
   /* Allocate memory for new group indices */
-  _group_indices = new int[length_group_indices];
+  _num_cmfd_groups = group_indices.size();
+  _group_indices = new int[_num_cmfd_groups+1];
 
-  if (group_indices == NULL) {
-    for (int i = 0; i < length_group_indices; i++) {
-      _group_indices[i] = i;
+  /* Initialize first group index to 0 */
+  int last_moc_group = 0;
+
+  /* Set MOC group bounds for rest of CMFD energy groups */
+  for (int i=0; i < _num_cmfd_groups; i++) {
+    for (int j=0; j < group_indices[i].size(); j++) {
+      if (group_indices[i][j] <= last_moc_group)
+  log_printf(ERROR, "The CMFD coarse group indices are not "
+       "monotonically increasing");
+      last_moc_group = group_indices[i][j];
     }
-  }
-  else {
-    if (group_indices[0] != 1)
-      log_printf(ERROR, "The first value in group indices must be 1!");
-
-    /* Set first group indice to 0 */
-    _group_indices[0] = 0;
-
-    /* Set MOC group bounds for rest of CMFD energy groups */
-    for (int i = 1; i < length_group_indices; i++) {
-      /* Check that the group indices are always increasing */
-      if (group_indices[i] <= group_indices[i-1])
-        log_printf(ERROR, "The group indices must be increasing!");
-
-      _group_indices[i] = group_indices[i] - 1;
-      log_printf(INFO, "group indices %d: %d", i, group_indices[i]);
-    }
+    _group_indices[i] = group_indices[i][0] - 1;
+    log_printf(DEBUG, "CMFD group indices %d: %d", i, _group_indices[i]);
   }
 
-  _user_group_indices = true;
+  /* Set the last group index */
+  _group_indices[_num_cmfd_groups] =
+    group_indices[_num_cmfd_groups-1].back();
+  log_printf(DEBUG, "CMFD group indices %d: %d",
+       _num_cmfd_groups, _group_indices[_num_cmfd_groups]);
 }
 
 
@@ -1003,16 +1007,33 @@ void Cmfd::initializeCellMap() {
  * @brief Initialize and set array that links the MOC energy groups to the
  *        CMFD energy groups.
  * @details This method initializes the _group_indices_map, which is a 1D array
- *          of length _num_moc_groups that maps the MOC energy groups to CMFD
- *          energy groups. The indices into _group_indices_map are the MOC
- *          energy groups and the values are the CMFD energy groups.
+ *           of length _num_moc_groups that maps the MOC energy groups to CMFD
+ *           energy groups. The indices into _group_indices_map are the MOC
+ *           energy groups and the values are the CMFD energy groups.
  */
 void Cmfd::initializeGroupMap() {
 
   /* Setup one-to-one fine-to-coarse group map if not specified by user */
   if (!_user_group_indices) {
-    setGroupStructure(NULL, _num_moc_groups+1);
-    _user_group_indices = false;
+    _num_cmfd_groups = _num_moc_groups;
+
+    /* Delete old group indices array if it exists */
+    if (_group_indices != NULL)
+      delete [] _group_indices;
+
+    /* Allocate memory for new group indices */
+    _group_indices = new int[_num_cmfd_groups+1];
+
+    /* Populate a 1-to-1 mapping from MOC to CMFD groups */
+    for (int i = 0; i <= _num_cmfd_groups; i++) {
+      _group_indices[i] = i;
+    }
+  }
+  else {
+    if (_num_moc_groups != _group_indices[_num_cmfd_groups])
+      log_printf(ERROR, "The CMFD coarse group mapping is specified for "
+     "%d groups, but the MOC problem contains %d groups",
+     _group_indices[_num_cmfd_groups], _num_moc_groups);
   }
 
   /* Delete old group indices map if it exists */
