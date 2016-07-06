@@ -1,12 +1,12 @@
 import openmoc
-from surfaces import surfaces
 import openmoc.materialize as materialize
+from surfaces import surfaces
 
 ###############################################################################
 #                           Creating Materials
 ###############################################################################
 
-materials = materialize.materialize('materials.py')
+materials = materialize.load_from_hdf5('takeda-mgxs.h5', '')
 
 ###############################################################################
 #                   Create dictionary of all cells
