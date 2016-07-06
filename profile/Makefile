@@ -6,7 +6,7 @@ COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
-PROFILE     = no
+PROFILE     = yes
 PRECISION   = double
 
 #===============================================================================

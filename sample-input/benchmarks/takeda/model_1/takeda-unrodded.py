@@ -5,7 +5,7 @@ from openmoc.options import Options
 from lattices import lattices, universes, cells
 import numpy as np
 
-refines = 5
+refines = 1
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################

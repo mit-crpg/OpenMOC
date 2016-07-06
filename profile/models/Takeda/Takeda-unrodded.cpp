@@ -196,7 +196,7 @@ int main() {
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(5, 5, 5);
-  cmfd->setKNearest(4);
+  cmfd->setKNearest(3);
   cmfd->setCentroidUpdateOn(false);
 
   /* Create the geometry */
@@ -204,7 +204,7 @@ int main() {
 
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.setCmfd(cmfd);
+  //geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
