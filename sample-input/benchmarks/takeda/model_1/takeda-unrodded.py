@@ -95,3 +95,4 @@ plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='xz', offset=0.)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='yz', offset=0.)
+
