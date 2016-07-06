@@ -25,13 +25,11 @@ material_group = f.create_group('material')
 # Create a subgroup for core materials data
 core = material_group.create_group('Core')
 
-# Create a subdictionary for region 1 material data
-sigma_t = np.array([0.223775, 1.03864])
-sigma_s = np.array([0.192423, 0.0228253, 0.00, 0.880439])
-sigma_f = np.array([0.0004, 0.1])
-nu_sigma_f = np.array([0.00909319, 0.290183])
-chi = np.array([1.0, 0.0])
-# takeda_materials['Core']['Absorption XS'] = [0.00852709, 0.158196]
+sigma_t = numpy.array([0.223775, 1.03864])
+sigma_s = numpy.array([0.192423, 0.0228253, 0.00, 0.880439])
+sigma_f = numpy.array([0.0004, 0.1])
+nu_sigma_f = numpy.array([0.00909319, 0.290183])
+chi = numpy.array([1.0, 0.0])
 
 # Create datasets for each cross-section type
 core.create_dataset('total', data=sigma_t)
@@ -48,12 +46,11 @@ core.create_dataset('chi', data=chi)
 # Create a subgroup for reflector materials data
 reflector = material_group.create_group('Reflector')
 
-#takeda_materials['Reflector']['Absorption XS'] = [0.000416392, 0.0202999]
-simga_t = np.array([0.250367, 1.64482])
-sigma_s = np.array([0.193446, 0.0565042, 0.00, 1.62452])
-sigma_f = np.array([0.0, 0.0])
-nu_sigma_f = np.array([0.0, 0.0])
-chi = np.array([1.0, 0.0])
+sigma_t = numpy.array([0.250367, 1.64482])
+sigma_s = numpy.array([0.193446, 0.0565042, 0.00, 1.62452])
+sigma_f = numpy.array([0.0, 0.0])
+nu_sigma_f = numpy.array([0.0, 0.0])
+chi = numpy.array([1.0, 0.0])
 
 # Create datasets for each cross-section type
 reflector.create_dataset('total', data=sigma_t)
@@ -62,6 +59,7 @@ reflector.create_dataset('fission', data=sigma_f)
 reflector.create_dataset('nu-fission', data=nu_sigma_f)
 reflector.create_dataset('chi', data=chi)
 
+
 ###############################################################################
 ################################   control rod    #############################
 ###############################################################################
@@ -69,12 +67,11 @@ reflector.create_dataset('chi', data=chi)
 # Create a subgroup for control rod materials data
 control_rod = material_group.create_group('Control Rod')
 
-#takeda_materials['Control Rod']['Absorption XS'] = [0.0174439, 0.182224]
-sigma_t = np.array([0.0852325, 0.217460])
-sigma_s = np.array([0.0677241, 0.0000645461, 0.00, 0.0352358])
-sigma_f = np.array([0.0, 0.0])
-nu_sigma_f = np.array([0.0, 0.0])
-chi = np.array([1.0, 0.0])
+sigma_t = numpy.array([0.0852325, 0.217460])
+sigma_s = numpy.array([0.0677241, 0.0000645461, 0.00, 0.0352358])
+sigma_f = numpy.array([0.0, 0.0])
+nu_sigma_f = numpy.array([0.0, 0.0])
+chi = numpy.array([1.0, 0.0])
 
 # Create datasets for each cross-section type
 control_rod.create_dataset('total', data=sigma_t)
@@ -83,6 +80,7 @@ control_rod.create_dataset('fission', data=sigma_f)
 control_rod.create_dataset('nu-fission', data=nu_sigma_f)
 control_rod.create_dataset('chi', data=chi)
 
+
 ###############################################################################
 ################################       Void       #############################
 ###############################################################################
@@ -90,12 +88,11 @@ control_rod.create_dataset('chi', data=chi)
 # Create a subgroup for control rod materials data
 void = material_group.create_group('Void')
 
-#takeda_materials['Void']['Absorption XS'] = [0.0000465132, 0.00132890]
-sigma_t = np.array([0.0128407, 0.0120676])
-sigma_s = np.array([0.01277, 0.0000240997, 0.00, 0.0107387])
-sigma_f = np.array([0.0, 0.0])
-nu_sigma_f = np.array([0.0, 0.0])
-chi = np.array([1.0, 0.0])
+sigma_t = numpy.array([0.0128407, 0.0120676])
+sigma_s = numpy.array([0.01277, 0.0000240997, 0.00, 0.0107387])
+sigma_f = numpy.array([0.0, 0.0])
+nu_sigma_f = numpy.array([0.0, 0.0])
+chi = numpy.array([1.0, 0.0])
 
 # Create datasets for each cross-section type
 void.create_dataset('total', data=sigma_t)
