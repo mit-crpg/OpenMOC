@@ -847,10 +847,7 @@ int TrackGenerator3D::getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D) {
   /* Initialize variables */
   Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_cycle][0];
 
-  std::cout << "AZIM = " << cti->_azim << std::endl;
-  std::cout << "CYCLE = " << cti->_cycle << std::endl;
-  double phi      = track_2D->getPhi(); // FIXME HERE
-  std::cout << "COMPLETE" << std::endl;
+  double phi      = track_2D->getPhi();
   double cos_phi  = cos(phi);
   double sin_phi  = sin(phi);
 
@@ -1548,6 +1545,8 @@ Track3D**** TrackGenerator3D::get3DTracks() {
 void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
                                        CycleTrackIndexes* cti) {
 
+  std::cout << "STI: " << sti->_azim << ", " << sti->_xy << ", " << sti->_polar
+    << ", " << sti->_z << std::endl;
   Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
   cti->_azim = sti->_azim;
   cti->_cycle = track_2D->getCycleIndex();
@@ -1567,16 +1566,20 @@ void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
 void TrackGenerator3D::convertCTItoSTI(CycleTrackIndexes* cti,
                                        StackTrackIndexes* sti) {
 
+  std::cout << "CTI: " << cti->_azim << ", " << cti->_cycle << ", " << cti->_polar
+    << ", " << cti->_lz << ", " << cti->_train << std::endl;
   int stack = getStackIndex(cti);
   Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_cycle][stack];
   //FIXME HERE
+/*
   std::cout << "c2s AZIM = " << cti->_azim << std::endl;
   std::cout << "c2s CYCLE = " << cti->_cycle << std::endl;
   std::cout << "c2s stack = " << stack << std::endl;
   std::cout << "Max stack should be " << _tracks_per_cycle[cti->_azim]
     << std::endl;
+*/
   sti->_azim = track_2D->getAzimIndex();
-  std::cout << "c2s COMPLETE " << std::endl;
+//  std::cout << "c2s COMPLETE " << std::endl;
   sti->_xy = track_2D->getXYIndex();
 
   if (track_2D->getDirectionInCycle())
@@ -1593,10 +1596,12 @@ int TrackGenerator3D::getStackIndex(CycleTrackIndexes* cti) {
 
   Track3D track;
   int first_stack = getFirstStack(cti, &track);
+/*
   if (first_stack + cti->_train > 4) {
     std::cout << "First stack = " << first_stack << std::endl;
     std::cout << "Train = " << cti->_train << std::endl;
   }
+*/
   return first_stack + cti->_train;
 }
 
@@ -1762,8 +1767,8 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
 
         if (outgoing == cycle_fwd) {
           cti_next._train = cti->_train + 1; //TODO
-          std::cout << "Spot 4" << std::endl;
-          std::cout << "Computed " << cti_next._train << std::endl;
+          //std::cout << "Spot 4" << std::endl;
+          //std::cout << "Computed " << cti_next._train << std::endl;
         }
         else
           cti_next._train = cti->_train - 1;
