@@ -760,15 +760,8 @@ void TrackGenerator3D::getCycleTrackData(CycleTrackIndexes* ctis,
     for (int cycle=0; cycle < num_cycles; cycle++) {
       cti = &ctis[cycle];
       nlz = _num_l[cti->_azim][cti->_polar] + _num_z[cti->_azim][cti->_polar];
-      std::cout << "Cycle " << cycle << " NLZ = " << nlz << std::endl;
       for (int lz=0; lz < nlz; lz++) {
         cti->_lz = lz;
-        /*
-        if (lz == 94) {
-          std::cout << "SPOT 1" << std::endl;
-          exit(1);
-        }
-        */
         cti->_train = -1;
         get3DTrack(cti, &track_3D, true, save_tracks);
       }
@@ -1495,8 +1488,6 @@ void TrackGenerator3D::deleteTemporarySegments() {
 //FIXME
 void TrackGenerator3D::getTrackOTF(Track3D* track, StackTrackIndexes* sti) {
 
-  std::cout << "Called getTrackOTF with  STI XY = " << sti->_xy <<
-    " and STI POLAR = " << sti->_polar << std::endl;
   try {
     Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
     double x1, x2, y1, y2, z1, z2;
@@ -1554,12 +1545,18 @@ Track3D**** TrackGenerator3D::get3DTracks() {
 void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
                                        CycleTrackIndexes* cti) {
 
-  std::cout << "STI: " << sti->_azim << ", " << sti->_xy << ", " << sti->_polar
-    << ", " << sti->_z << std::endl;
-  if (sti->_azim == 0 && sti->_xy == 0 && sti->_polar == 3 && sti->_z == 0)
-    exit(1);
   Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
-  cti->_azim = sti->_azim;
+
+  //FIXME HERE
+  if (sti->_azim < _num_azim / 4)
+    cti->_azim = sti->_azim;
+  else if (sti->_azim < _num_azim / 2)
+    cti->_azim = _num_azim / 2 - sti->_azim - 1;
+  else if (sti->_azim < 3 * _num_azim / 4)
+    cti->_azim = sti->_azim - _num_azim / 2;
+  else
+    cti->_azim = _num_azim - sti->_azim - 1;
+
   cti->_cycle = track_2D->getCycleIndex();
 
   if (track_2D->getDirectionInCycle())
@@ -1568,17 +1565,6 @@ void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
     cti->_polar = _num_polar - sti->_polar - 1;
 
   cti->_lz = _first_lz_of_stack[sti->_azim][sti->_xy][sti->_polar] + sti->_z;
-/*
-  if (cti->_lz == 94) {
-      std::cout << "AZIM = " << sti->_azim << std::endl;
-      std::cout << "XY = " << sti->_xy << std::endl;
-      std::cout << "POLAR = " << sti->_polar << std::endl;
-      std::cout << "Z = " << sti->_z << std::endl;
-      std::cout << "FIRST LZ OF STACK = " <<
-        _first_lz_of_stack[sti->_azim][sti->_xy][sti->_polar] << std::endl;
-      exit(1);
-  }
-  */
 
   getTrainIndex(cti, sti);
 }
@@ -1588,20 +1574,9 @@ void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
 void TrackGenerator3D::convertCTItoSTI(CycleTrackIndexes* cti,
                                        StackTrackIndexes* sti) {
 
-  std::cout << "CTI: " << cti->_azim << ", " << cti->_cycle << ", " << cti->_polar
-    << ", " << cti->_lz << ", " << cti->_train << std::endl;
   int stack = getStackIndex(cti);
   Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_cycle][stack];
-  //FIXME HERE
-/*
-  std::cout << "c2s AZIM = " << cti->_azim << std::endl;
-  std::cout << "c2s CYCLE = " << cti->_cycle << std::endl;
-  std::cout << "c2s stack = " << stack << std::endl;
-  std::cout << "Max stack should be " << _tracks_per_cycle[cti->_azim]
-    << std::endl;
-*/
   sti->_azim = track_2D->getAzimIndex();
-//  std::cout << "c2s COMPLETE " << std::endl;
   sti->_xy = track_2D->getXYIndex();
 
   if (track_2D->getDirectionInCycle())
@@ -1618,12 +1593,6 @@ int TrackGenerator3D::getStackIndex(CycleTrackIndexes* cti) {
 
   Track3D track;
   int first_stack = getFirstStack(cti, &track);
-/*
-  if (first_stack + cti->_train > 4) {
-    std::cout << "First stack = " << first_stack << std::endl;
-    std::cout << "Train = " << cti->_train << std::endl;
-  }
-*/
   return first_stack + cti->_train;
 }
 
@@ -1787,11 +1756,8 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         cti_next._polar = cti->_polar;
         cti_next._lz    = lz;
 
-        if (outgoing == cycle_fwd) {
-          cti_next._train = cti->_train + 1; //TODO
-          //std::cout << "Spot 4" << std::endl;
-          //std::cout << "Computed " << cti_next._train << std::endl;
-        }
+        if (outgoing == cycle_fwd)
+          cti_next._train = cti->_train + 1;
         else
           cti_next._train = cti->_train - 1;
       }

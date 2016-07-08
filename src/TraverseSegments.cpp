@@ -14,8 +14,11 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
   /* Determine if a global z-mesh is used for 3D calculations */
   _track_generator_3D = dynamic_cast<TrackGenerator3D*>(track_generator);
-  if (_track_generator_3D != NULL)
+  if (_track_generator_3D != NULL) {
     _track_generator_3D->retrieveGlobalZMesh(_global_z_mesh, _mesh_size);
+  }
+
+  _current_stack = NULL;
 }
 
 
@@ -23,6 +26,9 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
  * @brief Destructor for TraverseSegments
  */
 TraverseSegments::~TraverseSegments() {
+  if (_current_stack != NULL)
+    delete [] _current_stack;
+  _current_stack = NULL;
 }
 
 
@@ -178,9 +184,7 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
         Track3D track_3D;
         sti._polar = p;
         sti._z = z;
-        std::cout << "Called from TS" << std::endl;
         _track_generator_3D->getTrackOTF(&track_3D, &sti);
-        std::cout << "END Called from TS" << std::endl;
 
         /* Operate on segments if necessary */
         if (kernel != NULL) {
@@ -221,6 +225,9 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
   int num_polar = _track_generator_3D->getNumPolar();
   int tid = omp_get_thread_num();
 
+  /* Allocate array of current Tracks */
+  _current_stack = new Track3D[_track_generator_3D->getMaxNumTracksPerStack()];
+
 #pragma omp for
   /* Loop over flattened 2D tracks */
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
@@ -236,25 +243,29 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
 
       /* Retrieve information for the first 3D Track in the z-stack */
       sti._polar = p;
-      sti._z = 0;
-      Track3D track_3D;
-      _track_generator_3D->getTrackOTF(&track_3D, &sti);
+      int stack_size = tracks_per_stack[sti._azim][sti._xy][sti._polar];
+      for (int z=0; z < stack_size; z++) {
+        sti._z = z;
+        _track_generator_3D->getTrackOTF(&_current_stack[z], &sti);
+      }
 
       if (kernel != NULL) {
 
         /* Reset kernel to for the new base Track */
-        kernel->newTrack(&track_3D);
+        kernel->newTrack(&_current_stack[0]);
 
         /* Trace all segments in the z-stack */
         traceStackOTF(flattened_track, p, kernel);
-        track_3D.setNumSegments(kernel->getCount());
+        _current_stack[0].setNumSegments(kernel->getCount());
       }
 
       /* Operate on the Track */
       segment* segments = _track_generator_3D->getTemporarySegments(tid);
-      onTrack(&track_3D, segments);
+      onTrack(&_current_stack[0], segments);
     }
   }
+  delete [] _current_stack;
+  _current_stack = NULL;
 }
 
 

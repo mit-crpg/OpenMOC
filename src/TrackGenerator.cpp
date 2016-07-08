@@ -1017,13 +1017,16 @@ void TrackGenerator::initializeTrackCycles() {
     for (int c=0; c < _cycles_per_azim[a]; c++) {
       Track* track = &_tracks_2D[a][c];
       bool fwd = true;
+
       for (int i=0; i < _tracks_per_cycle[a]; i++) {
 
         Track* track_prev = track;
 
         /* Add Track to 2D Track cycles array and set direction in cycle */
-        _tracks_2D_cycle[a][c][i] = track; //FIXME cycle set here
+        _tracks_2D_cycle[a][c][i] = track;
         track->setDirectionInCycle(fwd);
+        track->setCycleIndex(c);
+        track->setStackIndex(i);
 
         if (fwd) {
           track = _tracks_2D_array[track_prev->getTrackReflFwd()];
@@ -1037,6 +1040,7 @@ void TrackGenerator::initializeTrackCycles() {
     }
   }
 }
+
 
 /**
  * @brief Initializes 2D Track reflections

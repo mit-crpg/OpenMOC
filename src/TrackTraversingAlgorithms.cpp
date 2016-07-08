@@ -262,27 +262,21 @@ CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
 
   int num_threads = omp_get_max_threads();
   _starting_points = new Point*[num_threads];
-  _new_track = new bool*[num_threads];
 
   int num_rows = 1;
   if (_track_generator_3D != NULL)
     num_rows = _track_generator_3D->getMaxNumTracksPerStack();
-  for (int i=0; i < num_threads; i++) {
+  for (int i=0; i < num_threads; i++)
     _starting_points[i] = new Point[num_rows];
-    _new_track[i] = new bool[num_rows];
-  }
 }
 
 
 //FIXME
 CentroidGenerator::~CentroidGenerator() {
   int num_threads = omp_get_max_threads();
-  for (int i=0; i < num_threads; i++) {
+  for (int i=0; i < num_threads; i++)
     delete [] _starting_points[i];
-    delete [] _new_track[i];
-  }
   delete [] _starting_points;
-  delete [] _new_track;
 }
 
 
@@ -318,15 +312,6 @@ void CentroidGenerator::setCentroids(Point** centroids) {
  */
 void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
-  //FIXME
-  int tid = omp_get_thread_num();
-  int num_rows = 1;
-  if (_track_generator_3D != NULL)
-    num_rows = _track_generator_3D->getMaxNumTracksPerStack();
-  for (int i=0; i < num_rows; i++)
-    _new_track[tid][i] = true;
-  Track** tracks_array = _track_generator->getTracksArray();
-
   /* Extract common information from the Track */
   Point* start = track->getStart();
   int azim_index = track->getAzimIndex();
@@ -335,6 +320,10 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   /* Compute the Track azimuthal weight */
   double wgt = _quadrature->getAzimSpacing(azim_index)
       * _quadrature->getAzimWeight(azim_index);
+
+  //FIXME
+  int tid = omp_get_thread_num();
+  _starting_points[tid][0].copyCoords(track->getStart());
 
   /* Get polar angles depending on the dimensionality */
   double sin_theta = 1;
@@ -347,6 +336,14 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     int polar_index = track_3D->getPolarIndex();
     wgt *= _quadrature->getPolarSpacing(azim_index, polar_index)
         *_quadrature->getPolarWeight(azim_index, polar_index);
+
+    if (_segment_formation == OTF_STACKS) {
+      int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+      int xy_index = track->getXYIndex();
+      int stack_size = tracks_per_stack[azim_index][xy_index][polar_index];
+      for (int i=1; i < stack_size; i++)
+        _starting_points[tid][i].copyCoords(_current_stack[i].getStart());
+    }
   }
 
   /* Pre-compute azimuthal angles for efficiency */
@@ -359,14 +356,6 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     int fsr = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
-
-    // FIXME
-    if (_new_track[track_idx]) {
-
-      Track* curr_track = tracks_array[track->getUid() + track_idx];
-      _starting_points[tid][track_idx].copyCoords(curr_track->getStart());
-      _new_track[tid][track_idx] = false;
-    }
 
     /* Extract information */
     double volume = _FSR_volumes[fsr];
