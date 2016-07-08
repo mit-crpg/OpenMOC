@@ -27,6 +27,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
   _dump_segments = true;
   _FSR_locks = NULL;
   _tracks_2D_array = NULL;
+  _tracks_per_azim = NULL;
 }
 
 
@@ -50,11 +51,21 @@ TrackGenerator::~TrackGenerator() {
     delete [] _cycle_length;
   }
 
+  if (_tracks_per_azim != NULL) {
+    delete [] _tracks_per_azim;
+  }
+
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
 
   if (_FSR_volumes != NULL)
     delete [] _FSR_volumes;
+}
+
+
+//FIXME
+long* TrackGenerator::getTracksPerAzim() {
+  return _tracks_per_azim;
 }
 
 
@@ -364,7 +375,8 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   for (int i=0; i < num_FSRs; i++) {
     if (_FSR_volumes[i] == 0.0) {
       log_printf(NORMAL, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
-                 i, _geometry->getFSRPoint(i)->getX(), _geometry->getFSRPoint(i)->getY(),
+                 i, _geometry->getFSRPoint(i)->getX(),
+                 _geometry->getFSRPoint(i)->getY(),
                  _geometry->getFSRPoint(i)->getZ());
       log_printf(ERROR, "Zero volume calculated in an FSR region since no "
                "track traversed the FSR. Use a finer track laydown to ensure "
@@ -592,96 +604,6 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
       counter += NUM_VALUES_PER_RETRIEVED_TRACK;
     }
   }
-
-  return;
-}
-
-
-/**
- * @brief Fills an array with the x,y coordinates and the periodic cycle ID
- *        for each Track.
- * @details This class method is intended to be called by the OpenMOC
- *          Python "plotter" module as a utility to assist in plotting
- *          tracks. Although this method appears to require two arguments,
- *          in reality it only requires one due to SWIG and would be called
- *          from within Python as follows:
- *
- * @code
- *          num_tracks = track_generator.getNumTracks()
- *          coords = track_generator.retrieveTrackCoords(num_tracks*5)
- * @endcode
- *
- * @param coords an array of coords of length 5 times the number of Tracks
- * @param num_tracks the total number of Tracks
- */
-void TrackGenerator::retrieve2DPeriodicCycleCoords(double* coords,
-                                                   int num_tracks) {
-
-  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum2DTracks())
-    log_printf(ERROR, "Unable to retrieve the 2D Track periodic cycle "
-               "coordinates since the TrackGenerator contains %d Tracks with "
-               "%d coordinates but an array of length %d was input",
-               getNum2DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
-               getNum2DTracks(), num_tracks);
-
-  /* Fill the array of coordinates with the Track start and end points */
-  int counter = 0;
-
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-      coords[counter]   = _tracks_2D[a][i].getStart()->getX();
-      coords[counter+1] = _tracks_2D[a][i].getStart()->getY();
-      coords[counter+2] = _tracks_2D[a][i].getEnd()->getX();
-      coords[counter+3] = _tracks_2D[a][i].getEnd()->getY();
-      coords[counter+4] = _tracks_2D[a][i].getPeriodicCycleId();
-
-      counter += 5;
-    }
-  }
-}
-
-
-/**
- * @brief Fills an array with the x,y coordinates and the reflective cycle ID
- *        for each Track.
- * @details This class method is intended to be called by the OpenMOC
- *          Python "plotter" module as a utility to assist in plotting
- *          tracks. Although this method appears to require two arguments,
- *          in reality it only requires one due to SWIG and would be called
- *          from within Python as follows:
- *
- * @code
- *          num_tracks = track_generator.getNumTracks()
- *          coords = track_generator.retrieveTrackCoords(num_tracks*5)
- * @endcode
- *
- * @param coords an array of coords of length 5 times the number of Tracks
- * @param num_tracks the total number of Tracks
- */
-void TrackGenerator::retrieve2DReflectiveCycleCoords(double* coords,
-                                                     int num_tracks) {
-
-  if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum2DTracks())
-    log_printf(ERROR, "Unable to retrieve the 2D Track reflective cycle "
-               "coordinates since the TrackGenerator contains %d Tracks with "
-               "%d coordinates but an array of length %d was input",
-               getNum2DTracks(), NUM_VALUES_PER_RETRIEVED_TRACK *
-               getNum2DTracks(), num_tracks);
-
-  /* Fill the array of coordinates with the Track start and end points */
-  int counter = 0;
-
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-      coords[counter]   = _tracks_2D[a][i].getStart()->getX();
-      coords[counter+1] = _tracks_2D[a][i].getStart()->getY();
-      coords[counter+2] = _tracks_2D[a][i].getEnd()->getX();
-      coords[counter+3] = _tracks_2D[a][i].getEnd()->getY();
-      coords[counter+4] = _tracks_2D[a][i].getReflectiveCycleId();
-
-      counter += 5;
-    }
-  }
 }
 
 
@@ -774,8 +696,6 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
       }
     }
   }
-
-  return;
 }
 
 
@@ -843,12 +763,6 @@ void TrackGenerator::generateTracks() {
     /* Initialize the Tracks */
     initializeTracks();
 
-    /* Recalibrate the Tracks back to the geometry origin */
-    recalibrateTracksToOrigin();
-
-    /* Initialize the 1D array of Tracks for all Tracks */
-    initializeTracksArray();
-
     /* Initialize the track file directory and read in tracks if they exist */
     initializeTrackFileDirectory();
 
@@ -879,8 +793,6 @@ void TrackGenerator::generateTracks() {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
                "Tracks. Backtrace:\n%s", e.what());
   }
-
-  return;
 }
 
 
@@ -965,6 +877,7 @@ void TrackGenerator::initializeTracks() {
   _num_x            = new int[_num_azim/2];
   _num_y            = new int[_num_azim/2];
   _cycle_length     = new double[_num_azim/4];
+  _tracks_per_azim  = new long[_num_azim/2];
   _num_2D_tracks    = 0;
 
   double x1, x2, y1, y2;
@@ -973,6 +886,8 @@ void TrackGenerator::initializeTracks() {
   double height = _geometry->getWidthY();
   double dx_eff[_num_azim/2];
   double dy_eff[_num_azim/2];
+  double x_min = _geometry->getMinX();
+  double y_min = _geometry->getMinY();
 
   /* Determine angular quadrature and track spacing */
   for (int a = 0; a < _num_azim/4; a++) {
@@ -1003,20 +918,17 @@ void TrackGenerator::initializeTracks() {
     dy_eff[_num_azim/2 - a - 1] = dy_eff[a];
 
     /* The length of all tracks in a 2D cycle */
-    _cycle_length[a] = dx_eff[a] / cos(_quadrature->getPhi(a)) *
-      leastCommonMultiple(2 * _num_x[a], 2 * height /
-                          (tan(_quadrature->getPhi(a)) * dx_eff[a]));
+    _cycle_length[a] = dx_eff[a] / cos(phi) *
+      leastCommonMultiple(2 * _num_x[a], 2 * height / (tan(phi) * dx_eff[a]));
 
     /* Get the number of tracks per cycle */
     _tracks_per_cycle[a] = (int)
-      (round(_cycle_length[a] * sin(_quadrature->getPhi(a)) / width) +
-       round(_cycle_length[a] * cos(_quadrature->getPhi(a)) / height));
+      (round(_cycle_length[a] * sin(phi) / width) +
+       round(_cycle_length[a] * cos(phi) / height));
 
     /* Compute the number of cycles */
     _cycles_per_azim[a] = (_num_x[a] + _num_y[a]) * 2 / _tracks_per_cycle[a];
   }
-
-  Track* track;
 
   /* Generate 2D tracks */
   for (int a=0; a < _num_azim/2; a++) {
@@ -1031,7 +943,7 @@ void TrackGenerator::initializeTracks() {
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
 
       /* Get track and set angle and track indices */
-      track = (&_tracks_2D[a][i]);
+      Track* track = &_tracks_2D[a][i];
       track->setPhi(phi);
       track->setAzimIndex(a);
       track->setXYIndex(i);
@@ -1039,30 +951,35 @@ void TrackGenerator::initializeTracks() {
       /* Set start point */
       if (a < _num_azim/4) {
         if (i < _num_x[a])
-          track->getStart()->setCoords(width - dx_eff[a] * (i + 0.5), 0.0);
+          track->getStart()->setCoords(x_min + width - dx_eff[a] * (i + 0.5),
+                                       y_min);
         else
-          track->getStart()->setCoords(0.0, dy_eff[a] * (i-_num_x[a] + 0.5));
+          track->getStart()->setCoords(x_min, y_min + dy_eff[a] *
+                                       (i - _num_x[a] + 0.5));
       }
       else {
         if (i < _num_x[a])
-          track->getStart()->setCoords(dx_eff[a] * (i + 0.5), 0.0);
+          track->getStart()->setCoords(x_min + dx_eff[a] * (i + 0.5), y_min);
         else
-          track->getStart()->setCoords(width, dy_eff[a] * (i-_num_x[a] + 0.5));
+          track->getStart()->setCoords(x_min + width, y_min + dy_eff[a] *
+                                       (i-_num_x[a] + 0.5));
       }
 
       /* Set end point */
       if (a < _num_azim/4) {
         if (i < _num_y[a])
-          track->getEnd()->setCoords(width, dy_eff[a] * (i + 0.5));
+          track->getEnd()->setCoords(x_min + width, y_min + dy_eff[a] *
+                                     (i + 0.5));
         else
-          track->getEnd()->setCoords(width - dx_eff[a] * ((i-_num_y[a]) + 0.5),
-                                     height);
+          track->getEnd()->setCoords(x_min + width - dx_eff[a] * ((i-_num_y[a])
+                                     + 0.5), y_min + height);
       }
       else {
         if (i < _num_y[a])
-          track->getEnd()->setCoords(0.0, dy_eff[a] * (i + 0.5));
+          track->getEnd()->setCoords(x_min, y_min + dy_eff[a] * (i + 0.5));
         else
-          track->getEnd()->setCoords(dx_eff[a] * (i-_num_y[a] + 0.5), height);
+          track->getEnd()->setCoords(x_min + dx_eff[a] * (i-_num_y[a] + 0.5),
+                                     y_min + height);
       }
     }
   }
@@ -1070,10 +987,13 @@ void TrackGenerator::initializeTracks() {
   /* Set the flag indicating 2D tracks have been generated */
   _contains_2D_tracks = true;
 
-  /* Initialize the track reflections and cycle ids */
+  /* Initialize the track reflections */
   TrackGenerator::initializeTrackReflections();
-  TrackGenerator::initializeTrackCycleIds();
-  TrackGenerator::initializeTrackPeriodicIndices();
+
+  /* Initialize the 1D array of Tracks for all Tracks */
+  initializeTracksArray();
+
+  /* Initialize cycle ids */
   initializeTrackCycles();
 }
 
@@ -1093,28 +1013,24 @@ void TrackGenerator::initializeTrackCycles() {
     }
   }
 
-  bool fwd;
-  Track* track;
-  Track* track_prev;
-
   for (int a=0; a < _num_azim/4; a++) {
     for (int c=0; c < _cycles_per_azim[a]; c++) {
-      track = &_tracks_2D[a][c];
-      fwd = true;
+      Track* track = &_tracks_2D[a][c];
+      bool fwd = true;
       for (int i=0; i < _tracks_per_cycle[a]; i++) {
 
-        track_prev = track;
+        Track* track_prev = track;
 
         /* Add Track to 2D Track cycles array and set direction in cycle */
-        _tracks_2D_cycle[a][c][i] = track;
+        _tracks_2D_cycle[a][c][i] = track; //FIXME cycle set here
         track->setDirectionInCycle(fwd);
 
         if (fwd) {
-          track = static_cast<Track*>(track_prev->getTrackReflFwd());
+          track = _tracks_2D_array[track_prev->getTrackReflFwd()];
           fwd = track_prev->getReflFwdFwd();
         }
         else {
-          track = static_cast<Track*>(track_prev->getTrackReflBwd());
+          track = _tracks_2D_array[track_prev->getTrackReflBwd()];
           fwd = track_prev->getReflBwdFwd();
         }
       }
@@ -1132,41 +1048,13 @@ void TrackGenerator::initializeTrackReflections() {
 
   log_printf(NORMAL, "Initializing 2D tracks reflections...");
 
-  Track* track;
-  int ac;
-
   /* Generate the 2D track cycles */
   for (int a=0; a < _num_azim/2; a++) {
-    ac = _num_azim/2 - a - 1;
+    int ac = _num_azim/2 - a - 1;
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
 
       /* Get current track */
-      track = &_tracks_2D[a][i];
-
-      /* Set connecting tracks in forward direction */
-      if (i < _num_y[a]) {
-        track->setReflFwdFwd(true);
-        track->setTrackReflFwd(&_tracks_2D[ac][i + _num_x[a]]);
-        track->setTrackPrdcFwd(&_tracks_2D[a][i + _num_x[a]]);
-      }
-      else {
-        track->setReflFwdFwd(false);
-        track->setTrackReflFwd
-          (&_tracks_2D[ac][_num_x[a] + _num_y[a] - (i - _num_y[a]) - 1]);
-        track->setTrackPrdcFwd(&_tracks_2D[a][i - _num_y[a]]);
-      }
-
-      /* Set connecting tracks in backward direction */
-      if (i < _num_x[a]) {
-        track->setReflBwdFwd(true);
-        track->setTrackReflBwd(&_tracks_2D[ac][_num_x[a] - i - 1]);
-        track->setTrackPrdcBwd(&_tracks_2D[a][i + _num_y[a]]);
-      }
-      else {
-        track->setReflBwdFwd(false);
-        track->setTrackReflBwd(&_tracks_2D[ac][i - _num_x[a]]);
-        track->setTrackPrdcBwd(&_tracks_2D[a][i - _num_x[a]]);
-      }
+      Track* track = &_tracks_2D[a][i];
 
       /* Set the foward boundary conditions */
       if (a < _num_azim/4) {
@@ -1193,104 +1081,58 @@ void TrackGenerator::initializeTrackReflections() {
         else
           track->setBCBwd(_geometry->getMaxXBoundaryType());
       }
-    }
-  }
-}
 
+      /* Set connecting tracks in forward direction */
+      if (i < _num_y[a]) {
+        track->setNextFwdFwd(true);
+        track->setReflFwdFwd(true);
+        track->setTrackReflFwd(get2DTrackID(ac, i + _num_x[a]));
 
-/**
- * @brief Cycle IDs are created for all 2D cycles and assigned to 2D Tracks
- * @details All tracks are traversed through connecting tracks, assigning cycle
- *          numbers until all 2D Tracks are traversed. This is done for both
- *          periodic and reflective connections.
- */
-void TrackGenerator::initializeTrackCycleIds() {
-
-  log_printf(NORMAL, "Initializing 2D track cycle ids...");
-
-  int id = 0;
-  bool fwd;
-  Track* track;
-
-  /* Set the periodic track cycle ids */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-
-      track = &_tracks_2D[a][i];
-
-      if (track->getPeriodicCycleId() == -1) {
-        while (track->getPeriodicCycleId() == -1) {
-
-          /* Set the periodic cycle id */
-          track->setPeriodicCycleId(id);
-          track = track->getTrackPrdcFwd();
-        }
-        id++;
+        if (track->getBCFwd() == PERIODIC)
+          track->setTrackNextFwd(get2DTrackID(a, i + _num_x[a]));
+        else
+          track->setTrackNextFwd(get2DTrackID(ac, i + _num_x[a]));
       }
-    }
-  }
+      else {
+        track->setReflFwdFwd(false);
+        track->setTrackReflFwd
+            (get2DTrackID(ac, (_num_x[a] + _num_y[a]) - (i - _num_y[a]) - 1));
 
-  id = 0;
-
-  /* Set the reflective track cycle ids */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-
-      track = &_tracks_2D[a][i];
-      fwd = true;
-
-      if (track->getReflectiveCycleId() == -1) {
-        while (track->getReflectiveCycleId() == -1) {
-
-          /* Set the reflective cycle id */
-          track->setReflectiveCycleId(id);
-          if (fwd) {
-            fwd = track->getReflFwdFwd();
-            track = track->getTrackReflFwd();
-          }
-          else {
-            fwd = track->getReflBwdFwd();
-            track = track->getTrackReflBwd();
-          }
+        if (_geometry->getMaxYBoundaryType() == PERIODIC) {
+          track->setNextFwdFwd(true);
+          track->setTrackNextFwd(get2DTrackID(a, i - _num_y[a]));
         }
-        id++;
+        else {
+          track->setNextFwdFwd(false);
+          track->setTrackNextFwd
+              (get2DTrackID(ac, (_num_x[a] + _num_y[a]) - (i - _num_y[a]) - 1));
+        }
       }
-    }
-  }
-}
 
+      /* Set connecting tracks in backward direction */
+      if (i < _num_x[a]) {
+        track->setReflBwdFwd(true);
+        track->setTrackReflBwd(get2DTrackID(ac, _num_x[a] - i - 1));
 
+        if (_geometry->getMinYBoundaryType() == PERIODIC) {
+          track->setNextBwdFwd(false);
+          track->setTrackNextBwd(get2DTrackID(a, i + _num_y[a]));
+        }
+        else {
+          track->setTrackNextBwd(get2DTrackID(ac, _num_x[a] - i - 1));
+          track->setNextBwdFwd(true);
+        }
+      }
+      else {
+        track->setReflBwdFwd(false);
+        track->setNextBwdFwd(false);
+        track->setTrackReflBwd(get2DTrackID(ac, i - _num_x[a]));
 
-/**
- * @brief Recalibrates Track start and end points to the origin of the Geometry.
- * @details The origin of the Geometry is designated at its center by
- *          convention, but for track initialization the origin is assumed to be
- *          at the bottom right corner for simplicity. This method corrects
- *          for this by re-assigning the start and end Point coordinates.
- */
-void TrackGenerator::recalibrateTracksToOrigin() {
-
-  /* Recalibrate the tracks to the origin and set the uid. Note that the
-   * loop structure is unconventional in order to preserve an increasing
-   * track uid value in the Solver's tracks array. The tracks array is
-   * oriented with this loop structure in order to maintain reproducability
-   * for parallel runs.
-   */
-
-  /* Loop over azim reflective halfspaces */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-
-      double x0 = _tracks_2D[a][i].getStart()->getX();
-      double y0 = _tracks_2D[a][i].getStart()->getY();
-      double x1 = _tracks_2D[a][i].getEnd()->getX();
-      double y1 = _tracks_2D[a][i].getEnd()->getY();
-      double new_x0 = x0 + _geometry->getMinX();
-      double new_y0 = y0 + _geometry->getMinY();
-      double new_x1 = x1 + _geometry->getMinX();
-      double new_y1 = y1 + _geometry->getMinY();
-
-      _tracks_2D[a][i].setCoords(new_x0, new_y0, new_x1, new_y1);
+        if (track->getBCBwd() == PERIODIC)
+          track->setTrackNextBwd(get2DTrackID(a, i - _num_x[a]));
+        else
+          track->setTrackNextBwd(get2DTrackID(ac, i - _num_x[a]));
+      }
     }
   }
 }
@@ -1501,8 +1343,6 @@ void TrackGenerator::dumpSegmentsToFile() {
    * import ray tracing data from this file if it is called and the ray
    * tracing parameters have not changed */
   _use_input_file = true;
-
-  return;
 }
 
 
@@ -1515,8 +1355,7 @@ void TrackGenerator::dumpSegmentsToFile() {
 bool TrackGenerator::readSegmentsFromFile() {
 
   int ret;
-  FILE* in;
-  in = fopen(_tracks_filename.c_str(), "r");
+  FILE* in = fopen(_tracks_filename.c_str(), "r");
 
   int string_length;
 
@@ -1667,7 +1506,6 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   centroid_generator.setCentroids(centroids);
   centroid_generator.execute();
 
-
   /* Set the centroid for the FSR */
   for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
@@ -1746,52 +1584,6 @@ void TrackGenerator::countSegments() {
 
 
 /**
- * @brief Sets the track periodic indices of all 2D Tracks
- * @details Periodic cylces are traversed until all 2D Tracks are visited and
- *          their periodic indices are set
- */
-void TrackGenerator::initializeTrackPeriodicIndices() {
-
-  log_printf(NORMAL, "Initializing track periodic indices...");
-
-  if (!_periodic)
-    return;
-
-  Track* track;
-  int track_index;
-
-  /* Set the track periodic cycle indices for 2D tracks */
-  for (int a=0; a < _num_azim/2; a++) {
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-
-      /* Get the current track */
-      track = &_tracks_2D[a][i];
-
-      /* Check if periodic track index has been set */
-      if (track->getPeriodicTrackIndex() == -1) {
-
-        /* Initialize the track index counter */
-        track_index = 0;
-
-        /* Set the periodic track indexes for all tracks in periodic cycle */
-        while (track->getPeriodicTrackIndex() == -1) {
-
-          /* Set the track periodic cycle */
-          track->setPeriodicTrackIndex(track_index);
-
-          /* Get the next track in cycle */
-          track = track->getTrackPrdcFwd();
-
-          /* Increment index counter */
-          track_index++;
-        }
-      }
-    }
-  }
-}
-
-
-/**
  * @brief Creates a Track array by increasing uid
  * @details An array is created which indexes Tracks by increasing uid.
  *          Parallel groups are also initialized -- groups of Tracks that can
@@ -1809,7 +1601,7 @@ void TrackGenerator::initializeTracksArray() {
   _tracks_2D_array = new Track*[num_2D_tracks];
 
   /* Loop over all 2D tracks */
-  int uid = 0;
+  long uid = 0;
   for (int a = 0; a < _num_azim / 2; a++) {
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
 
@@ -1859,3 +1651,16 @@ void TrackGenerator::resetStatus() {
  * @details Temporary segments are not allocated for 2D calculations
  */
 void TrackGenerator::allocateTemporarySegments() {}
+
+
+//FIXME: description
+int TrackGenerator::get2DTrackID(int a, int x) {
+
+  int uid = 0;
+
+  for (int ai = 0; ai < a; ai++)
+    uid += getNumX(ai) + getNumY(ai);
+
+  uid += x;
+  return uid;
+}

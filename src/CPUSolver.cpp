@@ -675,74 +675,39 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
  * @param direction the Track direction (forward - true, reverse - false)
  * @param track_flux a pointer to the Track's outgoing angular flux
  */
-void CPUSolver::transferBoundaryFlux(int track_id,
+void CPUSolver::transferBoundaryFlux(Track* track,
                                      int azim_index, int polar_index,
                                      bool direction,
                                      FP_PRECISION* track_flux) {
-  int start;
-  boundaryType bc;
-  FP_PRECISION* track_leakage;
-  int track_out_id;
-  int a = azim_index;
 
   /* Extract boundary conditions for this Track and the pointer to the
    * outgoing reflective Track, and index into the leakage array */
+  boundaryType bc;
+  long track_out_id;
+  int start;
 
   /* For the "forward" direction */
   if (direction) {
-    bc = _tracks[track_id]->getBCFwd();
-    track_leakage = &_boundary_leakage(track_id, 0);
-    if (bc == PERIODIC) {
-      start = 0;
-      track_out_id = _tracks[track_id]->getTrackPrdcFwd()->getUid();
-    }
-    else {
-      start = _fluxes_per_track * (!_tracks[track_id]->getReflFwdFwd());
-      track_out_id = _tracks[track_id]->getTrackReflFwd()->getUid();
-    }
+    bc = track->getBCFwd();
+    track_out_id = track->getTrackNextFwd();
+    start = _fluxes_per_track * (!track->getNextFwdFwd());
   }
 
   /* For the "reverse" direction */
   else {
-    bc = _tracks[track_id]->getBCBwd();
-    track_leakage = &_boundary_leakage(track_id,_fluxes_per_track);
-    if (bc == PERIODIC) {
-      start = _fluxes_per_track;
-      track_out_id = _tracks[track_id]->getTrackPrdcBwd()->getUid();
-    }
-    else {
-      start = _fluxes_per_track * (!_tracks[track_id]->getReflBwdFwd());
-      track_out_id = _tracks[track_id]->getTrackReflBwd()->getUid();
-    }
+    bc = track->getBCBwd();
+    track_out_id = track->getTrackNextBwd();
+    start = _fluxes_per_track * (!track->getNextBwdFwd());
   }
 
+  /* Retrieve the */
   FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start);
 
-  /* Set bc to 1 if bc is PERIODIC (bc == 2) */
-  if (bc == PERIODIC)
-    bc = REFLECTIVE;
+  /* Determine if flux should be transferred */
+  int transfer = (bc != VACUUM);
 
-  if (_solve_3D) {
-    for (int e=0; e < _num_groups; e++) {
-      track_out_flux[e] = track_flux[e] * bc;
-      track_leakage[e] = track_flux[e] * (!bc) *
-          _quad->getWeightInline(a, polar_index);
-    }
-  }
-  else {
-
-    int pe = 0;
-
-    /* Loop over polar angles and energy groups */
-    for (int e=0; e < _num_groups; e++) {
-      for (int p=0; p < _num_polar/2; p++) {
-        track_out_flux[pe] = track_flux[pe] * bc;
-        track_leakage[pe] = track_flux[pe] * (!bc) *
-            _quad->getWeightInline(a, p);
-        pe++;
-      }
-    }
-  }
+  for (int pe=0; pe < _fluxes_per_track; pe++)
+    track_out_flux[pe] = track_flux[pe] * transfer;
 }
 
 

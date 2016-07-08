@@ -372,7 +372,10 @@ void TransportKernel::post() {
   for (int i=_min_track_idx; i <= _max_track_idx; i++) {
     FP_PRECISION* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,
                                                             _direction);
-    _cpu_solver->transferBoundaryFlux(_track_id+i, _azim_index, _polar_index,
+    Track track;
+    //_sti._z = i; FIXME THIS IS BROKEN
+    //_track_generator_3D->getTrackOTF(&track, &_sti);
+    _cpu_solver->transferBoundaryFlux(&track, _azim_index, _polar_index,
                                       _direction, track_flux);
   }
   _min_track_idx = 0;

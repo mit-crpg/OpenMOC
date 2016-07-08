@@ -65,6 +65,9 @@ void MaxOpticalLength::onTrack(Track* track, segment* segments) {
 SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
                                : TraverseSegments(track_generator) {
   _max_num_segments = 0;
+  _total_num_segments = 0;
+  _count_total_segments = false;
+  _total_segments_counted = false;
 }
 
 
@@ -75,12 +78,31 @@ SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
  *          and setting the corresponding parameter on the TrackGenerator.
 */
 void SegmentCounter::execute() {
+  _total_segments_counted = false;
 #pragma omp parallel
   {
     MOCKernel* kernel = getKernel<CounterKernel>();
     loopOverTracks(kernel);
   }
   _track_generator->setMaxNumSegments(_max_num_segments);
+  if (_count_total_segments)
+    _total_segments_counted = true;
+}
+
+
+//FIXME
+void SegmentCounter::countTotalNumSegments() {
+  _count_total_segments = true;
+}
+
+
+//FIXME
+long SegmentCounter::getTotalNumSegments() {
+  if (!_total_segments_counted)
+    log_printf(ERROR, "The total number of segments have not been counted. "
+               "The SegmentCounter was not instructed to count segments "
+               "before execution");
+  return _total_num_segments;
 }
 
 
@@ -94,6 +116,10 @@ void SegmentCounter::onTrack(Track* track, segment* segments) {
   if (track->getNumSegments() > _max_num_segments) {
 #pragma omp critical
     _max_num_segments = std::max(_max_num_segments, track->getNumSegments());
+  }
+  if (_count_total_segments) {
+#pragma omp critical
+    _total_num_segments += track->getNumSegments();
   }
 }
 
@@ -468,10 +494,26 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     polar_index = track_3D->getPolarIndex();
 
   /* Extract the maximum track index */
+  StackTrackIndexes sti;
   int max_track_index = 0;
   if (_segment_formation == OTF_STACKS) {
     int xy_index = track->getXYIndex();
     max_track_index = _tracks_per_stack[azim_index][xy_index][polar_index] - 1;
+    sti._azim = azim_index;
+    sti._xy = xy_index;
+    sti._polar = polar_index;
+  }
+
+  /* Get data for all tracks of interest */
+  Track* tracks_array[max_track_index+1];
+  tracks_array[0] = track;
+  for (int i=0; i < max_track_index; i++) {
+    int z = i+1;
+    sti._z = z;
+    //FIXME: could be max_tracks_per_stack array
+    Track3D* track_3D = new Track3D();
+    tracks_array[z] = track_3D;
+    _track_generator_3D->getTrackOTF(track_3D, &sti);
   }
 
   /* Loop over each Track segment in forward direction */
@@ -492,8 +534,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, true);
-    _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, true,
-                                      track_flux);
+    _cpu_solver->transferBoundaryFlux(tracks_array[i], azim_index, polar_index,
+                                      true, track_flux);
   }
 
   /* Loop over each Track segment in reverse direction */
@@ -514,8 +556,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, false);
-    _cpu_solver->transferBoundaryFlux(track_id+i, azim_index, polar_index, false,
-                                      track_flux);
+    _cpu_solver->transferBoundaryFlux(tracks_array[i], azim_index, polar_index,
+                                      false, track_flux);
   }
 }
 

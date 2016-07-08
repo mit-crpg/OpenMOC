@@ -75,15 +75,6 @@ protected:
   /** The azimuthal angle for the Track */
   double _phi;
 
-  /** The azimuthal angle index into the global 2D ragged array of Tracks */
-  int _azim_angle_index;
-
-  /** The track index in the periodic cycle */
-  int _periodic_track_index;
-
-  /** The track index in the reflective cycle */
-  int _reflective_track_index;
-
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
@@ -101,20 +92,23 @@ protected:
   boundaryType _bc_bwd;
 
   /* Indices that are used to locate the track in the various track arrays */
+  int _azim_index;
   int _xy_index;
-  int _periodic_cycle_id;
-  int _reflective_cycle_id;
+  int _cycle_index;
+  int _stack_index;
 
   /** Pointers to reflective and periodic Tracks in the forward and reverse
    *  directions */
-  Track* _track_refl_fwd;
-  Track* _track_refl_bwd;
-  Track* _track_prdc_fwd;
-  Track* _track_prdc_bwd;
+  long _track_next_fwd;
+  long _track_next_bwd;
+  long _track_refl_fwd;
+  long _track_refl_bwd;
 
   /** Booleans to indicate wheter the reflective Tracks in the forward and
    *  and backward direction enter into Tracks pointed in the forward
    *  direction. */
+  bool _next_fwd_fwd;
+  bool _next_bwd_fwd;
   bool _refl_fwd_fwd;
   bool _refl_bwd_fwd;
 
@@ -136,17 +130,18 @@ public:
   void setPhi(const double phi);
   void setBCFwd(const boundaryType bc_fwd);
   void setBCBwd(const boundaryType bc_bwd);
-  void setTrackReflFwd(Track* track);
-  void setTrackPrdcFwd(Track* track);
-  void setTrackReflBwd(Track* track);
-  void setTrackPrdcBwd(Track* track);
+  void setTrackNextFwd(long track_id);
+  void setTrackNextBwd(long track_id);
+  void setTrackReflFwd(long track_id);
+  void setTrackReflBwd(long track_id);
+  void setNextFwdFwd(bool fwd);
+  void setNextBwdFwd(bool fwd);
   void setReflFwdFwd(bool fwd);
   void setReflBwdFwd(bool fwd);
   void setXYIndex(int index);
   void setAzimIndex(int index);
-  void setPeriodicCycleId(int id);
-  void setReflectiveCycleId(int id);
-  void setPeriodicTrackIndex(int index);
+  void setCycleIndex(int index);
+  void setStackIndex(int index);
   void setDirectionInCycle(bool fwd);
 
   /* Getter methods */
@@ -155,22 +150,23 @@ public:
   Point* getStart();
   double getPhi() const;
   double getLength();
-  Track* getTrackReflFwd();
-  Track* getTrackReflBwd();
-  Track* getTrackPrdcFwd();
-  Track* getTrackPrdcBwd();
+  long getTrackNextFwd();
+  long getTrackNextBwd();
+  long getTrackReflFwd();
+  long getTrackReflBwd();
+  bool getNextFwdFwd();
+  bool getNextBwdFwd();
   bool getReflFwdFwd();
   bool getReflBwdFwd();
   int getXYIndex();
   int getAzimIndex();
-  int getPeriodicCycleId();
-  int getReflectiveCycleId();
+  int getCycleIndex();
+  int getStackIndex();
   boundaryType getBCFwd() const;
   boundaryType getBCBwd() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-  int getPeriodicTrackIndex();
   bool getDirectionInCycle();
 
   /* Worker methods */
