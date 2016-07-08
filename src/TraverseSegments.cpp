@@ -178,7 +178,9 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
         Track3D track_3D;
         sti._polar = p;
         sti._z = z;
+        std::cout << "Called from TS" << std::endl;
         _track_generator_3D->getTrackOTF(&track_3D, &sti);
+        std::cout << "END Called from TS" << std::endl;
 
         /* Operate on segments if necessary */
         if (kernel != NULL) {

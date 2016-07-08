@@ -513,7 +513,9 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     //FIXME: could be max_tracks_per_stack array
     Track3D* track_3D = new Track3D();
     tracks_array[z] = track_3D;
+    std::cout << "Called from TTA" << std::endl;
     _track_generator_3D->getTrackOTF(track_3D, &sti);
+    std::cout << "END Called from TTA" << std::endl;
   }
 
   /* Loop over each Track segment in forward direction */

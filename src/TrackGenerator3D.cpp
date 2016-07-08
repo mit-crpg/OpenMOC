@@ -1495,6 +1495,8 @@ void TrackGenerator3D::deleteTemporarySegments() {
 //FIXME
 void TrackGenerator3D::getTrackOTF(Track3D* track, StackTrackIndexes* sti) {
 
+  std::cout << "Called getTrackOTF with  STI XY = " << sti->_xy <<
+    " and STI POLAR = " << sti->_polar << std::endl;
   try {
     Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
     double x1, x2, y1, y2, z1, z2;
@@ -1554,6 +1556,8 @@ void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
 
   std::cout << "STI: " << sti->_azim << ", " << sti->_xy << ", " << sti->_polar
     << ", " << sti->_z << std::endl;
+  if (sti->_azim == 0 && sti->_xy == 0 && sti->_polar == 3 && sti->_z == 0)
+    exit(1);
   Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
   cti->_azim = sti->_azim;
   cti->_cycle = track_2D->getCycleIndex();
