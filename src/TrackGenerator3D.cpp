@@ -760,8 +760,15 @@ void TrackGenerator3D::getCycleTrackData(CycleTrackIndexes* ctis,
     for (int cycle=0; cycle < num_cycles; cycle++) {
       cti = &ctis[cycle];
       nlz = _num_l[cti->_azim][cti->_polar] + _num_z[cti->_azim][cti->_polar];
+      std::cout << "Cycle " << cycle << " NLZ = " << nlz << std::endl;
       for (int lz=0; lz < nlz; lz++) {
         cti->_lz = lz;
+        /*
+        if (lz == 94) {
+          std::cout << "SPOT 1" << std::endl;
+          exit(1);
+        }
+        */
         cti->_train = -1;
         get3DTrack(cti, &track_3D, true, save_tracks);
       }
@@ -1557,6 +1564,17 @@ void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
     cti->_polar = _num_polar - sti->_polar - 1;
 
   cti->_lz = _first_lz_of_stack[sti->_azim][sti->_xy][sti->_polar] + sti->_z;
+/*
+  if (cti->_lz == 94) {
+      std::cout << "AZIM = " << sti->_azim << std::endl;
+      std::cout << "XY = " << sti->_xy << std::endl;
+      std::cout << "POLAR = " << sti->_polar << std::endl;
+      std::cout << "Z = " << sti->_z << std::endl;
+      std::cout << "FIRST LZ OF STACK = " <<
+        _first_lz_of_stack[sti->_azim][sti->_xy][sti->_polar] << std::endl;
+      exit(1);
+  }
+  */
 
   getTrainIndex(cti, sti);
 }
