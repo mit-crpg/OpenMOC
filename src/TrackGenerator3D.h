@@ -129,6 +129,11 @@ private:
   std::vector<segment*> _temporary_segments;
   bool _contains_temporary_segments;
 
+  /** A matrix of temporary Tracks are created for on-the-fly methods to
+    * improve efficiency FIXME */
+  std::vector<Track3D*> _temporary_tracks;
+  bool _contains_temporary_tracks;
+
   /** Maximum number of tracks a single 3D track stack for on-the-fly
    *  computation */
   int _max_num_tracks_per_stack;
@@ -146,6 +151,7 @@ private:
   void segmentize();
   void setContainsSegments(bool contains_segments);
   void allocateTemporarySegments();
+  void allocateTemporaryTracks();
   void resetStatus();
   void initializeDefaultQuadrature();
   std::string getTestFilename(std::string directory);
@@ -176,6 +182,7 @@ public:
   int getNumRows();
   int getNumColumns();
   segment* getTemporarySegments(int thread_id);
+  Track3D* getTemporaryTracks(int thread_id);
   int getNumZ(int azim, int polar);
   int getNumL(int azim, int polar);
   int getTrackGenerationMethod();
@@ -183,6 +190,7 @@ public:
   int getMaxNumTracksPerStack();
   bool containsTracks();
   bool containsSegments();
+  bool containsTemporaryTracks();
   void convertCTItoSTI(CycleTrackIndexes* cti, StackTrackIndexes* sti);
   void convertSTItoCTI(StackTrackIndexes* sti, CycleTrackIndexes* cti);
   void getTrainIndex(CycleTrackIndexes* cti, StackTrackIndexes* sti);
@@ -211,7 +219,6 @@ public:
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void create3DTracksArrays();
   void checkBoundaryConditions();
-  void deleteTemporarySegments();
 };
 
 #endif /* TRACKGENERATOR3D_H_ */

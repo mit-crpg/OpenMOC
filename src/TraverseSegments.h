@@ -68,12 +68,8 @@ protected:
   /** The size of the global z-mesh */
   int _mesh_size;
 
-  /** Array of Tracks currently being handled */
-  Track3D* _current_stack;
-
   /** The type of segmentation used for segment formation */
   segmentationType _segment_formation;
-
 
   TraverseSegments(TrackGenerator* track_generator);
   virtual ~TraverseSegments();

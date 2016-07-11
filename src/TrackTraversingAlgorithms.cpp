@@ -324,6 +324,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   //FIXME
   int tid = omp_get_thread_num();
   _starting_points[tid][0].copyCoords(track->getStart());
+  Track3D* current_stack = NULL;
 
   /* Get polar angles depending on the dimensionality */
   double sin_theta = 1;
@@ -339,10 +340,11 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
     if (_segment_formation == OTF_STACKS) {
       int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+      current_stack = _track_generator_3D->getTemporaryTracks(tid);
       int xy_index = track->getXYIndex();
       int stack_size = tracks_per_stack[azim_index][xy_index][polar_index];
       for (int i=1; i < stack_size; i++)
-        _starting_points[tid][i].copyCoords(_current_stack[i].getStart());
+        _starting_points[tid][i].copyCoords(current_stack[i].getStart());
     }
   }
 
@@ -502,9 +504,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     //FIXME: could be max_tracks_per_stack array
     Track3D* track_3D = new Track3D();
     tracks_array[z] = track_3D;
-    std::cout << "Called from TTA" << std::endl;
     _track_generator_3D->getTrackOTF(track_3D, &sti);
-    std::cout << "END Called from TTA" << std::endl;
   }
 
   /* Loop over each Track segment in forward direction */

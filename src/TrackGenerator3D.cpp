@@ -19,6 +19,7 @@ TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
   _contains_global_z_mesh = false;
   _contains_segmentation_heights = false;
   _contains_temporary_segments = false;
+  _contains_temporary_tracks = false;
   _equal_z_spacing = false;
   _segment_formation = EXPLICIT_3D;
   _max_num_tracks_per_stack = 0;
@@ -88,6 +89,13 @@ TrackGenerator3D::~TrackGenerator3D() {
     if (_contains_temporary_segments) {
       for (int t = 0; t < _num_threads; t++) {
         delete [] _temporary_segments.at(t);
+      }
+    }
+
+    /* Delete temporary Tracks if they exist */
+    if (_contains_temporary_tracks) {
+      for (int t = 0; t < _num_threads; t++) {
+        delete [] _temporary_tracks.at(t);
       }
     }
   }
@@ -239,6 +247,25 @@ segment* TrackGenerator3D::getTemporarySegments(int thread_id) {
     return _temporary_segments.at(thread_id);
   else
     return NULL;
+}
+
+
+/**
+ * @brief Returns an array of temporary Tracks for use in on-the-fly
+ *        computations.
+ //FIXME
+ */
+Track3D* TrackGenerator3D::getTemporaryTracks(int thread_id) {
+  if (_contains_temporary_tracks)
+    return _temporary_tracks.at(thread_id);
+  else
+    return NULL;
+}
+
+
+//FIXME
+bool TrackGenerator3D::containsTemporaryTracks() {
+  return _contains_temporary_tracks;
 }
 
 
@@ -733,6 +760,10 @@ void TrackGenerator3D::initializeTracks() {
       for (int p=0; p < _num_polar; p++)
         if (_tracks_per_stack[a][i][p] > _max_num_tracks_per_stack)
           _max_num_tracks_per_stack = _tracks_per_stack[a][i][p];
+
+  /* Allocate temporary Tracks if necessary */
+  if (_segment_formation == OTF_STACKS)
+    allocateTemporaryTracks();
 
   _contains_3D_tracks = true;
 }
@@ -1439,6 +1470,31 @@ void TrackGenerator3D::allocateTemporarySegments() {
 
 
 /**
+ * @brief Allocates memory for temporary segment storage if necessary
+ * @details New memory is only allocated if _max_num_segments exceeds
+ *          _num_seg_matrix_columns (the maximum when the segments were allocated)
+ FIXME
+ */
+void TrackGenerator3D::allocateTemporaryTracks() {
+
+  /* Delete temporary segments if already allocated */
+  if (_contains_temporary_tracks) {
+    for (int t = 0; t < _num_threads; t++) {
+      delete [] _temporary_tracks.at(t);
+    }
+  }
+  else {
+    _temporary_tracks.resize(_num_threads);
+    _contains_temporary_tracks = true;
+  }
+
+  /* Allocate new temporary segments */
+  for (int t = 0; t < _num_threads; t++)
+    _temporary_tracks.at(t) = new Track3D[_max_num_tracks_per_stack];
+}
+
+
+/**
  * @brief Resets the TrackGenerator to not contain tracks or segments
  */
 void TrackGenerator3D::resetStatus() {
@@ -1470,18 +1526,6 @@ bool TrackGenerator3D::containsSegments() {
     return _contains_3D_segments;
   else
     return _contains_2D_segments;
-}
-
-
-//FIXME
-void TrackGenerator3D::deleteTemporarySegments() {
-  /* Delete temporary segments if they exist */
-  if (_contains_temporary_segments) {
-    for (int t = 0; t < _num_threads; t++) {
-      delete [] _temporary_segments.at(t);
-    }
-  }
-  _contains_temporary_segments = false;
 }
 
 
