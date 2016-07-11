@@ -1106,9 +1106,6 @@ void TrackGenerator::initializeTrackReflections() {
           track->setDomainSurfaceIn(SURFACE_X_MAX);
         }
       }
-    }
-  }
-}
 
       /* Set connecting tracks in forward direction */
       if (i < _num_y[a]) {
@@ -1116,7 +1113,7 @@ void TrackGenerator::initializeTrackReflections() {
         track->setReflFwdFwd(true);
         track->setTrackReflFwd(get2DTrackID(ac, i + _num_x[a]));
 
-        if (track->getBCFwd() == PERIODIC)
+        if (track->getBCFwd() == PERIODIC || track->getBCFwd() == INTERFACE)
           track->setTrackNextFwd(get2DTrackID(a, i + _num_x[a]));
         else
           track->setTrackNextFwd(get2DTrackID(ac, i + _num_x[a]));
@@ -1126,7 +1123,8 @@ void TrackGenerator::initializeTrackReflections() {
         track->setTrackReflFwd
             (get2DTrackID(ac, (_num_x[a] + _num_y[a]) - (i - _num_y[a]) - 1));
 
-        if (_geometry->getMaxYBoundaryType() == PERIODIC) {
+        if (_geometry->getMaxYBoundaryType() == PERIODIC ||
+            _geometry->getMaxYBoundaryType() == INTERFACE) {
           track->setNextFwdFwd(true);
           track->setTrackNextFwd(get2DTrackID(a, i - _num_y[a]));
         }
@@ -1142,7 +1140,8 @@ void TrackGenerator::initializeTrackReflections() {
         track->setReflBwdFwd(true);
         track->setTrackReflBwd(get2DTrackID(ac, _num_x[a] - i - 1));
 
-        if (_geometry->getMinYBoundaryType() == PERIODIC) {
+        if (_geometry->getMinYBoundaryType() == PERIODIC ||
+            _geometry->getMinYBoundaryType() == INTERFACE) {
           track->setNextBwdFwd(false);
           track->setTrackNextBwd(get2DTrackID(a, i + _num_y[a]));
         }
@@ -1156,7 +1155,7 @@ void TrackGenerator::initializeTrackReflections() {
         track->setNextBwdFwd(false);
         track->setTrackReflBwd(get2DTrackID(ac, i - _num_x[a]));
 
-        if (track->getBCBwd() == PERIODIC)
+        if (track->getBCBwd() == PERIODIC || track->getBCBwd() == INTERFACE)
           track->setTrackNextBwd(get2DTrackID(a, i - _num_x[a]));
         else
           track->setTrackNextBwd(get2DTrackID(ac, i - _num_x[a]));

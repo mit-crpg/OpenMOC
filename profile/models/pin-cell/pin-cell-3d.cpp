@@ -93,18 +93,18 @@ int main(int argc, char* argv[]) {
 
   ZCylinder* pin = new ZCylinder(0.0, 0.0, 1.0);
   XPlane xmin(-2.0);
-  XPlane xmax( 1.1);
+  XPlane xmax( 2.0);
   YPlane ymin(-2.0);
   YPlane ymax( 2.0);
   ZPlane zmin(-2.0);
   ZPlane zmax( 2.0);
 
-  xmin.setBoundaryType(PERIODIC);
-  ymin.setBoundaryType(PERIODIC);
-  zmin.setBoundaryType(PERIODIC);
-  xmax.setBoundaryType(PERIODIC);
-  ymax.setBoundaryType(PERIODIC);
-  zmax.setBoundaryType(PERIODIC);
+  xmin.setBoundaryType(REFLECTIVE);
+  ymin.setBoundaryType(REFLECTIVE);
+  zmin.setBoundaryType(REFLECTIVE);
+  xmax.setBoundaryType(REFLECTIVE);
+  ymax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(REFLECTIVE);
 
   /* Create cells */
   log_printf(NORMAL, "Creating cells...");
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-//  geometry->setDomainDecomposition(2, 1, 1);
+ // geometry->setDomainDecomposition(2, 1, 1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */

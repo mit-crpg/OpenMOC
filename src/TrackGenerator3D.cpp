@@ -1197,9 +1197,9 @@ void TrackGenerator3D::segmentize() {
         tracks_segmented += _tracks_per_stack[a][i][p];
     }
   }
-
   _geometry->initializeFSRVectors();
   _contains_3D_segments = true;
+}
 
 
 /**

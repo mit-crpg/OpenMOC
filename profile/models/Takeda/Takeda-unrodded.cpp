@@ -216,7 +216,7 @@ int main() {
                                    polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
-  track_generator.setSegmentFormation(OTF_STACKS);
+  track_generator.setSegmentFormation(OTF_TRACKS);
   std::vector<FP_PRECISION> seg_heights {0.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.generateTracks();

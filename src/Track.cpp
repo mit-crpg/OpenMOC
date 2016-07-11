@@ -112,6 +112,25 @@ void Track::setBCBwd(const boundaryType bc_bwd) {
 }
 
 
+//FIXME
+void Track::setDomainSurfaces(int surface_in, int surface_out) {
+  _surface_in = surface_in;
+  _surface_out = surface_out;
+}
+
+
+//FIXME
+void Track::setDomainSurfaceIn(int surface_in) {
+  _surface_in = surface_in;
+}
+
+
+//FIXME
+void Track::setDomainSurfaceOut(int surface_out) {
+  _surface_out = surface_out;
+}
+
+
 /**
  * @brief Returns a pointer to the Track's end Point.
  * @return A pointer to the Track's end Point
@@ -165,6 +184,18 @@ boundaryType Track::getBCFwd() const {
  */
 boundaryType Track::getBCBwd() const {
   return _bc_bwd;
+}
+
+
+//FIXME
+int Track::getDomainSurfaceIn() {
+    return _surface_in;
+}
+
+
+//FIXME
+int Track::getDomainSurfaceOut() {
+    return _surface_out;
 }
 
 
