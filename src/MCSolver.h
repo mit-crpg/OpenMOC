@@ -47,6 +47,9 @@ public:
   void transportNeutron(std::vector <Tally> &tallies, bool first_round,
       Fission* fission_banks, int num_groups, int neutron_num);
 
+  void transportNeutronWithTrack(std::vector <Tally> &tallies, bool first_round,
+      Fission* fission_banks, int num_groups, int neutron_num);
+
   Geometry* getGeometry();
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   FP_PRECISION getKeff();

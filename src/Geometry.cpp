@@ -421,6 +421,13 @@ void Geometry::setCmfd(Cmfd* cmfd) {
  */
 Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
+
+  // print full coords
+  std::cout.precision(17);
+/*  std::cout << "position in findCellContainingCoords: " 
+    << std::fixed << coords->getX() << " " << std::fixed 
+    << coords->getY() << "\n\n";
+*/
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
@@ -457,6 +464,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
 Cell* Geometry::findFirstCell(LocalCoords* coords) {
+
   coords->adjustCoords(TINY_MOVE);
   return findCellContainingCoords(coords);
 }
@@ -528,9 +536,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
 
       /* Descend one level */
       if (coords->getNext() == NULL)
-	break;
+	      break;
       else
- 	coords = coords->getNext();
+ 	      coords = coords->getNext();
     }
 
     coords = coords->getHighestLevel();

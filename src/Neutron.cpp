@@ -55,6 +55,20 @@ void Neutron::move(double distance) {
   _xyz.setZ(_xyz.getZ() + _neutron_direction[2] * distance);
 }
 
+/*
+ @brief   moves the neutron a given distance in the x y plane
+ @param   distance the distance the neutron should be moved
+*/
+void Neutron::movePlane(double distance) {
+  double x_hat = _neutron_direction[0] / 
+    sqrt(_neutron_direction[0]*_neutron_direction[0] +
+         _neutron_direction[1]*_neutron_direction[1]);
+  double y_hat = _neutron_direction[1] / 
+    sqrt(_neutron_direction[0]*_neutron_direction[0] +
+         _neutron_direction[1]*_neutron_direction[1]);
+  _xyz.setX(_xyz.getX() + x_hat * distance);
+  _xyz.setY(_xyz.getY() + y_hat * distance);
+}
 
 /*
  @brief   moves the neutron a given distance

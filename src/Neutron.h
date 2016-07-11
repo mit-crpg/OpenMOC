@@ -25,6 +25,7 @@ public:
   void changeCell(int axis, int side);
   void kill();
   void move(double distance);
+  void movePlane(double distance);
   void reflect(int axis);
   void setCell(std::vector <int> &cell_number);
   void setGroup(int new_group);
