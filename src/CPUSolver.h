@@ -97,12 +97,12 @@ public:
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.
-   * @param track_id the ID number for the Track of interest
+   * @param track_id the ID number for the Track of interest FIXME
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param direction the Track direction (forward - true, reverse - false)
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
-  virtual void transferBoundaryFlux(int track_id, int azim_index,
+  virtual void transferBoundaryFlux(Track* track, int azim_index,
                                     int polar_index, bool direction,
                                     FP_PRECISION* track_flux);
 

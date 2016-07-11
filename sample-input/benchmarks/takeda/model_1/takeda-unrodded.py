@@ -5,7 +5,7 @@ from openmoc.options import Options
 from lattices import lattices, universes, cells
 import numpy as np
 
-refines = 5
+refines = 1
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -61,7 +61,7 @@ track_generator = openmoc.TrackGenerator3D(geometry, opts.num_azim,
                                            opts.polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(opts.num_omp_threads)
-track_generator.setSegmentFormation(openmoc.OTF_TRACKS)
+track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
 
@@ -95,3 +95,4 @@ plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='xz', offset=0.)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='yz', offset=0.)
+

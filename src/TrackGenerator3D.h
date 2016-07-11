@@ -13,6 +13,68 @@
 
 
 /**
+ * @struct CycleTrackIndexes
+ * @brief A cycle track represents a track in the l-z plane and this struct
+ *        contains the azim, cycle, polar, lz, and train indices of a track.
+ */
+struct CycleTrackIndexes {
+
+  /** The azimuthal index (in 0 to _num_azim / 4) */
+  int _azim;
+
+  /** The cycle index (in 0 to _cycles_per_azim[_azim]) */
+  int _cycle;
+
+  /** The polar index (in 0 to _num_polar) */
+  int _polar;
+
+  /** The lz index (in 0 to _num_l[_azim][_polar] + _num_z[_azim][_polar]) */
+  int _lz;
+
+  /** The train index */
+  int _train;
+
+  /** Constructor initializes each attribute to -1 */
+  CycleTrackIndexes() {
+    _azim  = -1;
+    _cycle = -1;
+    _polar = -1;
+    _lz    = -1;
+    _train = -1;
+  }
+};
+
+
+/**
+ * @struct StackTrackIndexes
+ * @brief A stack track represents a track in a z-stack of tracks and this
+ *        struct contains the azim, xy, polar, and z indices of a track.
+ */
+struct StackTrackIndexes {
+
+  /** The azimuthal index (in 0 to _num_azim / 2) */
+  int _azim;
+
+  /** The xy index (in 0 to _num_x[_azim] + _num_y[_azim]) */
+  int _xy;
+
+  /** The polar index (in 0 to _num_polar) */
+  int _polar;
+
+  /** The z index in the z-stack (in 0 to _tracks_per_stack[_azim][_xy][_polar]) */
+  int _z;
+
+  /** Constructor initializes each attribute to -1 */
+  StackTrackIndexes() {
+    _azim  = -1;
+    _xy    = -1;
+    _polar = -1;
+    _z     = -1;
+  }
+};
+
+
+/**
  * @class TrackGenerator3D TrackGenerator3D.h "src/TrackGenerator3D.h"
  * @brief The TrackGenerator3D is dedicated to generating and storing Tracks
  *        which cyclically wrap across the Geometry in three dimensions.
@@ -27,13 +89,14 @@ private:
   /** The requested track polar spacing (cm) */
   double _polar_spacing;
 
-
   /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;
 
-  /** An array of the # of 3D tracks in each train
-   *  (azim, cycle, polar, lz track) */
-  int**** _tracks_per_train;
+  // FIXME
+  bool _equal_z_spacing;
+  long*** _cum_tracks_per_stack;
+  long** _cum_tracks_per_xy;
+  int*** _first_lz_of_stack;
 
   /** The total number of Tracks for all azimuthal and polar angles */
   int _num_3D_tracks;
@@ -46,12 +109,6 @@ private:
 
   /** An array of 3D tracks (azim, 2D track, polar, z-stack) */
   Track3D**** _tracks_3D;
-
-  /** An array of 3D tracks (azim, cycle, polar, lz track, train index) */
-  Track3D****** _tracks_3D_cycle;
-
-  /** An array of track pointers used in the Solver */
-  Track** _tracks_3D_array;
 
   /** The mesh defining axial heights of radial planes segmented in on-the-fly
       calculations */
@@ -72,6 +129,11 @@ private:
   std::vector<segment*> _temporary_segments;
   bool _contains_temporary_segments;
 
+  /** A matrix of temporary Tracks are created for on-the-fly methods to
+    * improve efficiency FIXME */
+  std::vector<Track3D*> _temporary_tracks;
+  bool _contains_temporary_tracks;
+
   /** Maximum number of tracks a single 3D track stack for on-the-fly
    *  computation */
   int _max_num_tracks_per_stack;
@@ -85,23 +147,23 @@ private:
 
   /** Private class methods */
   void initializeTracks();
-  void initializeTracksArray();
-  void initializeTrackReflections();
-  void initializeTrackPeriodicIndices();
   void recalibrateTracksToOrigin();
   void segmentize();
   void setContainsSegments(bool contains_segments);
   void allocateTemporarySegments();
+  void allocateTemporaryTracks();
   void resetStatus();
   void initializeDefaultQuadrature();
   std::string getTestFilename(std::string directory);
+  void getCycleTrackData(CycleTrackIndexes* ctis, int num_cycles,
+                         bool save_tracks);
 
   void segmentizeExtruded();
-  void decomposeLZTrack(Track3D* track, double l_start, double l_end,
-                        int azim, int cycle, int polar, int lz_index,
-                        bool create_tracks);
-  double convertLtoX(double l, int azim, int cycle);
-  double convertLtoY(double l, int azim, int cycle);
+  void get3DTrack(CycleTrackIndexes* cti, Track3D* track,
+                  bool create_arrays, bool save_tracks);
+  long get3DTrackID(StackTrackIndexes* sti);
+  double getLStart(CycleTrackIndexes* cti);
+  int getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D);
 
 public:
 
@@ -109,19 +171,18 @@ public:
                    double azim_spacing, double polar_spacing);
   virtual ~TrackGenerator3D();
 
-
   /* Get parameters */
   double getDesiredPolarSpacing();
   int getNumTracks();
   int getNumSegments();
   int getNum3DTracks();
-  int getNum3DSegments();
-  Track** getTracksArray();
+  long getNum3DSegments();
   Track3D**** get3DTracks();
   double getZSpacing(int azim, int polar);
   int getNumRows();
   int getNumColumns();
   segment* getTemporarySegments(int thread_id);
+  Track3D* getTemporaryTracks(int thread_id);
   int getNumZ(int azim, int polar);
   int getNumL(int azim, int polar);
   int getTrackGenerationMethod();
@@ -129,6 +190,17 @@ public:
   int getMaxNumTracksPerStack();
   bool containsTracks();
   bool containsSegments();
+  bool containsTemporaryTracks();
+  void convertCTItoSTI(CycleTrackIndexes* cti, StackTrackIndexes* sti);
+  void convertSTItoCTI(StackTrackIndexes* sti, CycleTrackIndexes* cti);
+  void getTrainIndex(CycleTrackIndexes* cti, StackTrackIndexes* sti);
+  int getStackIndex(CycleTrackIndexes* cti);
+  int getNumTracksPerLZ(CycleTrackIndexes* cti);
+  void get3DTrackData(StackTrackIndexes* sti, CycleTrackIndexes* cti,
+                      bool outgoing, Track3D* track);
+  void getSTIByIndex(long int id, StackTrackIndexes* sti);
+
+  void getTrackOTF(Track3D* track, StackTrackIndexes* sti);
 
   /* Set parameters */
   void setGeometry(Geometry* geometry);
@@ -137,10 +209,9 @@ public:
   void setTrackGenerationMethod(int method);
   void setSegmentationHeights(std::vector<FP_PRECISION> z_mesh);
   void useGlobalZMesh();
+  void useEqualZSpacing();
 
   /* Worker functions */
-  void retrieve3DPeriodicCycleCoords(double* coords, int num_tracks);
-  void retrieve3DReflectiveCycleCoords(double* coords, int num_tracks);
   void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieve3DTrackCoords(double* coords, int num_tracks);
   void retrieveGlobalZMesh(FP_PRECISION*& z_mesh, int& num_fsrs);
@@ -148,9 +219,7 @@ public:
   void retrieveSegmentCoords(double* coords, int num_segments);
   void retrieve3DSegmentCoords(double* coords, int num_segments);
   void create3DTracksArrays();
-  void initializeTrackCycleIds();
   void checkBoundaryConditions();
-  void deleteTemporarySegments();
 };
 
 #endif /* TRACKGENERATOR3D_H_ */

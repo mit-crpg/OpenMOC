@@ -253,7 +253,7 @@ public:
   void setLatticeStructure(int num_x, int num_y, int num_z=1);
   void setFluxUpdateOn(bool flux_update_on);
   void setCentroidUpdateOn(bool centroid_update_on);
-  void setGroupStructure(int* group_indices, int length_group_indices);
+  void setGroupStructure(std::vector< std::vector<int> > group_indices);
   void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
   void setQuadrature(Quadrature* quadrature);
   void setKNearest(int k_nearest);

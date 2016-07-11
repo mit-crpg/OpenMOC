@@ -69,6 +69,9 @@ protected:
    *  azimuthal angle */
   int* _num_y;
 
+  //FIXME: description
+  long* _tracks_per_azim;
+
   /** A 2D ragged array of 2D tracks (azim, track index) */
   Track** _tracks_2D;
 
@@ -126,7 +129,6 @@ protected:
   virtual void initializeTracks();
   virtual void initializeTrackReflections();
   void initializeTrackCycles();
-  virtual void recalibrateTracksToOrigin();
   virtual void segmentize();
   virtual void setContainsSegments(bool contains_segments);
   virtual void allocateTemporarySegments();
@@ -174,6 +176,8 @@ public:
   segmentationType getSegmentFormation();
   virtual bool containsTracks();
   virtual bool containsSegments();
+  int get2DTrackID(int a, int x);
+  long* getTracksPerAzim();
 
   /* Set parameters */
   void setNumThreads(int num_threads);
@@ -190,8 +194,6 @@ public:
   /* Worker functions */
   virtual void retrieveTrackCoords(double* coords, int num_tracks);
   void retrieve2DTrackCoords(double* coords, int num_tracks);
-  void retrieve2DPeriodicCycleCoords(double* coords, int num_tracks);
-  void retrieve2DReflectiveCycleCoords(double* coords, int num_tracks);
   virtual void retrieveSegmentCoords(double* coords, int num_segments);
   void retrieve2DSegmentCoords(double* coords, int num_segments);
   void generateFSRCentroids(FP_PRECISION* FSR_volumes);
@@ -201,10 +203,8 @@ public:
   void dumpSegmentsToFile();
   bool readSegmentsFromFile();
   void initializeTrackFileDirectory();
-  virtual void initializeTrackPeriodicIndices();
   virtual void initializeTracksArray();
   virtual void checkBoundaryConditions();
-  virtual void initializeTrackCycleIds();
 };
 
 

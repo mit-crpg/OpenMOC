@@ -61,12 +61,17 @@ public:
 class SegmentCounter: public TraverseSegments {
 private:
   int _max_num_segments;
+  int _total_num_segments;
+  bool _count_total_segments;
+  bool _total_segments_counted;
 
 public:
 
   SegmentCounter(TrackGenerator* track_generator);
   void execute();
   void onTrack(Track* track, segment* segments);
+  void countTotalNumSegments();
+  long getTotalNumSegments();
 };
 
 
@@ -128,7 +133,6 @@ private:
   omp_lock_t* _FSR_locks;
   Quadrature* _quadrature;
   Point** _starting_points;
-  bool** _new_track;
 
 public:
 

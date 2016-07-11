@@ -14,8 +14,9 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
   /* Determine if a global z-mesh is used for 3D calculations */
   _track_generator_3D = dynamic_cast<TrackGenerator3D*>(track_generator);
-  if (_track_generator_3D != NULL)
+  if (_track_generator_3D != NULL) {
     _track_generator_3D->retrieveGlobalZMesh(_global_z_mesh, _mesh_size);
+  }
 }
 
 
@@ -152,9 +153,9 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel* kernel) {
 void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
 
   int num_2D_tracks = _track_generator_3D->getNum2DTracks();
-  Track** flattened_tracks = _track_generator_3D->get2DTracksArray();
-  Track3D**** tracks_3D = _track_generator_3D->get3DTracks();
+  Track** tracks_2D = _track_generator_3D->get2DTracksArray();
   int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+  int num_azim = _track_generator->getNumAzim();
   int num_polar = _track_generator_3D->getNumPolar();
   int tid = omp_get_thread_num();
 
@@ -163,35 +164,39 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the flattened track */
-    Track* flattened_track = flattened_tracks[ext_id];
-    int a = flattened_track->getAzimIndex();
-    int i = flattened_track->getXYIndex();
+    Track* flattened_track = tracks_2D[ext_id];
+    StackTrackIndexes sti;
+    sti._azim = flattened_track->getAzimIndex();
+    sti._xy = flattened_track->getXYIndex();
 
     /* Loop over polar angles */
     for (int p=0; p < num_polar; p++) {
 
       /* Loop over tracks in the z-stack */
-      for (int z=0; z < tracks_per_stack[a][i][p]; z++) {
+      for (int z=0; z < tracks_per_stack[sti._azim][sti._xy][p]; z++) {
 
-        /* Extract 3D track and initialize segments pointer */
-        Track* track_3D = &tracks_3D[a][i][p][z];
+        /* Extract 3D track and retrieve its information */
+        Track3D track_3D;
+        sti._polar = p;
+        sti._z = z;
+        _track_generator_3D->getTrackOTF(&track_3D, &sti);
 
         /* Operate on segments if necessary */
         if (kernel != NULL) {
 
           /* Reset kernel for a new Track */
-          kernel->newTrack(track_3D);
-          double theta = tracks_3D[a][i][p][z].getTheta();
-          Point* start = track_3D->getStart();
+          kernel->newTrack(&track_3D);
+          double theta = track_3D.getTheta();
+          Point* start = track_3D.getStart();
 
           /* Trace the segments on the track */
           traceSegmentsOTF(flattened_track, start, theta, kernel);
-          track_3D->setNumSegments(kernel->getCount());
+          track_3D.setNumSegments(kernel->getCount());
         }
 
         /* Operate on the Track */
         segment* segments = _track_generator_3D->getTemporarySegments(tid);
-        onTrack(track_3D, segments);
+        onTrack(&track_3D, segments);
       }
     }
   }
@@ -211,38 +216,47 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
 
   int num_2D_tracks = _track_generator_3D->getNum2DTracks();
   Track** flattened_tracks = _track_generator_3D->get2DTracksArray();
-  Track3D**** tracks_3D = _track_generator_3D->get3DTracks();
   int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
   int num_polar = _track_generator_3D->getNumPolar();
   int tid = omp_get_thread_num();
+
+  /* Allocate array of current Tracks */
+  Track3D* current_stack = _track_generator_3D->getTemporaryTracks(tid);
 
 #pragma omp for
   /* Loop over flattened 2D tracks */
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the flattened track */
+    StackTrackIndexes sti;
     Track* flattened_track = flattened_tracks[ext_id];
-    int a = flattened_track->getAzimIndex();
-    int i = flattened_track->getXYIndex();
+    sti._azim = flattened_track->getAzimIndex();
+    sti._xy = flattened_track->getXYIndex();
 
     /* Loop over polar angles */
     for (int p=0; p < num_polar; p++) {
 
-      /* Trace all tracks in the z-stack if necessary */
-      Track* track_3D = &tracks_3D[a][i][p][0];
+      /* Retrieve information for the first 3D Track in the z-stack */
+      sti._polar = p;
+      int stack_size = tracks_per_stack[sti._azim][sti._xy][sti._polar];
+      for (int z=0; z < stack_size; z++) {
+        sti._z = z;
+        _track_generator_3D->getTrackOTF(&current_stack[z], &sti);
+      }
+
       if (kernel != NULL) {
 
         /* Reset kernel to for the new base Track */
-        kernel->newTrack(track_3D);
+        kernel->newTrack(&current_stack[0]);
 
         /* Trace all segments in the z-stack */
         traceStackOTF(flattened_track, p, kernel);
-        track_3D->setNumSegments(kernel->getCount());
+        current_stack[0].setNumSegments(kernel->getCount());
       }
 
       /* Operate on the Track */
       segment* segments = _track_generator_3D->getTemporarySegments(tid);
-      onTrack(track_3D, segments);
+      onTrack(&current_stack[0], segments);
     }
   }
 }
@@ -479,10 +493,17 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   int track_index = flattened_track->getXYIndex();
   int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
   int num_z_stack = tracks_per_stack[azim_index][track_index][polar_index];
-  Track3D**** tracks_3D = _track_generator_3D->get3DTracks();
-  Track3D* first = &tracks_3D[azim_index][track_index][polar_index][0];
-  double theta = first->getTheta();
   double z_spacing = _track_generator_3D->getZSpacing(azim_index, polar_index);
+
+  /* Get infromation for the first Track in the z-stack */
+  StackTrackIndexes sti;
+  Track3D first;
+  sti._azim = azim_index;
+  sti._xy = track_index;
+  sti._polar = polar_index;
+  sti._z = 0;
+  _track_generator_3D->getTrackOTF(&first, &sti);
+  double theta = first.getTheta();
 
   /* Create unit vector */
   double phi = flattened_track->getPhi();
@@ -493,12 +514,12 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   double track_spacing_3D = z_spacing / std::abs(cos_theta);
 
   /* Find 2D distance from 2D edge to start of track */
-  double x_start_3D = first->getStart()->getX();
+  double x_start_3D = first.getStart()->getX();
   double x_start_2D = flattened_track->getStart()->getX();
   double start_dist_2D = (x_start_3D - x_start_2D) / cos(phi);
 
   /* Calculate starting intersection of lowest track with z-axis */
-  double z0 = first->getStart()->getZ();
+  double z0 = first.getStart()->getZ();
   double start_z = z0 - start_dist_2D / tan_theta;
 
   /* Get the Geometry and CMFD mesh */
@@ -823,7 +844,6 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
 
   int num_2D_tracks = _track_generator_3D->getNum2DTracks();
   Track** flattened_tracks = _track_generator_3D->get2DTracksArray();
-  Track3D**** tracks_3D = _track_generator_3D->get3DTracks();
   int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
   int num_polar = _track_generator_3D->getNumPolar();
   int tid = omp_get_thread_num();
@@ -833,28 +853,33 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the flattened track */
+    StackTrackIndexes sti;
     Track* flattened_track = flattened_tracks[ext_id];
-    int a = flattened_track->getAzimIndex();
-    int i = flattened_track->getXYIndex();
+    sti._azim = flattened_track->getAzimIndex();
+    sti._xy = flattened_track->getXYIndex();
 
     /* Loop over polar angles */
     for (int p=0; p < num_polar; p++) {
 
-      /* Trace all tracks in the z-stack if necessary */
-      Track* track_3D = &tracks_3D[a][i][p][0];
+      /* Retrieve information for the first 3D Track in the z-stack */
+      sti._polar = p;
+      sti._z = 0;
+      Track3D track_3D;
+      _track_generator_3D->getTrackOTF(&track_3D, &sti);
+
       if (kernel != NULL) {
 
         /* Reset kernel for a new base Track */
-        kernel->newTrack(track_3D);
+        kernel->newTrack(&track_3D);
 
         /* Trace all segments in the z-stack */
         traceStackTwoWay(flattened_track, p, kernel);
-        track_3D->setNumSegments(kernel->getCount());
+        track_3D.setNumSegments(kernel->getCount());
       }
 
       /* Operate on the Track */
       segment* segments = _track_generator_3D->getTemporarySegments(tid);
-      onTrack(track_3D, segments);
+      onTrack(&track_3D, segments);
     }
   }
 }
@@ -880,14 +905,19 @@ void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
 
   /* Copy segments from flattened track */
   segment* segments = flattened_track->getSegments();
-  Track3D**** tracks_3D = _track_generator_3D->get3DTracks();
   int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
   MOCKernel* moc_kernel = dynamic_cast<MOCKernel*>(kernel);
 
   /* Get the first track in the 3D track stack */
   int azim_index = flattened_track->getAzimIndex();
   int track_index = flattened_track->getXYIndex();
-  Track3D* first = &tracks_3D[azim_index][track_index][polar_index][0];
+  StackTrackIndexes sti;
+  sti._azim = azim_index;
+  sti._xy = track_index;
+  sti._polar = polar_index;
+  sti._z = 0;
+  Track3D first;
+  _track_generator_3D->getTrackOTF(&first, &sti);
   int num_z_stack = tracks_per_stack[azim_index][track_index][polar_index];
 
   /* Copy spatial data from track stack */
@@ -895,13 +925,13 @@ void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
   for (int i = 0; i < 3; i++) {
     start_2D[i] = flattened_track->getStart()->getXYZ()[i];
     end_2D[i] = flattened_track->getEnd()->getXYZ()[i];
-    start_3D[i] = first->getStart()->getXYZ()[i];
-    end_3D[i] = first->getEnd()->getXYZ()[i];
+    start_3D[i] = first.getStart()->getXYZ()[i];
+    end_3D[i] = first.getEnd()->getXYZ()[i];
   }
 
   /* Copy directional data from track stack */
   double phi = flattened_track->getPhi();
-  double theta = first->getTheta();
+  double theta = first.getTheta();
 
   /* Trace stack forwards */
   kernel->setDirection(true);
@@ -909,9 +939,9 @@ void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
   kernel->post();
 
   /* Reflect track stack */
-  first->getStart()->setXYZ(end_3D);
-  first->getEnd()->setXYZ(start_3D);
-  first->setTheta(M_PI - theta);
+  first.getStart()->setXYZ(end_3D);
+  first.getEnd()->setXYZ(start_3D);
+  first.setTheta(M_PI - theta);
   flattened_track->getStart()->setXYZ(end_2D);
   flattened_track->getEnd()->setXYZ(start_2D);
   flattened_track->setPhi(M_PI + phi);
@@ -937,9 +967,9 @@ void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
   kernel->post();
 
   /* Reflect track stack back to forwards */
-  first->getStart()->setXYZ(start_3D);
-  first->getEnd()->setXYZ(end_3D);
-  first->setTheta(theta);
+  first.getStart()->setXYZ(start_3D);
+  first.getEnd()->setXYZ(end_3D);
+  first.setTheta(theta);
   flattened_track->getStart()->setXYZ(start_2D);
   flattened_track->getEnd()->setXYZ(end_2D);
   flattened_track->setPhi(phi);

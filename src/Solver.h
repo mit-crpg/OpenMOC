@@ -136,7 +136,7 @@ protected:
   int _fluxes_per_track;
 
   /** A pointer to the array of Tracks */
-  Track** _tracks;
+  Track** _tracks; //FIXME
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
