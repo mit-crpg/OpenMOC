@@ -93,6 +93,9 @@ protected:
   /* Vector of neighboring Cells */
   std::map<int, std::vector<Cell*>* > _neighbors;
 
+  /** use for subtraction */
+  double kahanSum(double a, double b, double c);
+
 public:
   Surface(const int id=0, const char* name="");
   virtual ~Surface();

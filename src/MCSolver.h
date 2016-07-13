@@ -15,6 +15,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <stdio.h>
 
 #include "Point.h"
 #include "Universe.h"
@@ -48,11 +49,16 @@ public:
       Fission* fission_banks, int num_groups, int neutron_num);
 
   void transportNeutronWithTrack(std::vector <Tally> &tallies, bool first_round,
-      Fission* fission_banks, int num_groups, int neutron_num);
+      Fission* fission_banks, int num_groups, int neutron_num, int batch,
+      int write_neutron = -1, int write_batch = -1, bool read = false, 
+      Neutron* input_neutron = NULL);
 
   Geometry* getGeometry();
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   FP_PRECISION getKeff();
+
+  void saveBadNeutron(Neutron* neutron, int neutron_num, int batch);
+  void trackSingleNeutron();
 
   // functions that make MCSolver compatable with Solver
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs);

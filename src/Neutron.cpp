@@ -71,8 +71,8 @@ void Neutron::movePlane(double distance) {
 }
 
 /*
- @brief   moves the neutron a given distance
- @param   distance the distance the neutron should be moved
+ @brief   reverses a neutron's direction of motion along an axis
+ @param   axis the axis along which the nuetron should be reflected
 */
 void Neutron::reflect(int axis) {
   _neutron_direction[axis] *= -1;
@@ -172,10 +172,20 @@ double Neutron::getDirection(int axis) {
 
 
 /*
+ @brief   sets the direction of the neutron along a certain axis
+ @param   axis the axis along which the direction will be set
+ @param   magnitude the magnitude of the nuetron's motion along axis
+*/
+void Neutron::setDirection(int axis, double magnitude) {
+  _neutron_direction[axis] = magnitude;
+}
+
+
+/*
  @brief   gets the direction vector of the neutron
  @return  a vector containing the neutron's direction
 */
-std::vector <double> Neutron::getDirectionVector() {
+std::vector<double> Neutron::getDirectionVector() {
   return _neutron_direction;
 }
 

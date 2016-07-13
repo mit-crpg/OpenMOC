@@ -33,6 +33,7 @@ public:
   void setPositionVector(Point &position);
   void sampleDirection();
   void getPositionVector(Point* &position);
+  void setDirection(int axis, double magnitude);
   double arand();
   double getDirection(int axis);
   double getDistance(Point *coord);

@@ -552,6 +552,8 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
     }
 
     /* Move point and get next cell */
+//    std::cout << "min_dist = " << min_dist << std::endl;
+//    std::cout << "min_dist with TINY = " << min_dist + TINY_MOVE << std::endl;
     coords->adjustCoords(min_dist + TINY_MOVE);
 
     return findCellContainingCoords(coords);
@@ -821,7 +823,7 @@ void Geometry::segmentize(Track* track) {
   double delta_x, delta_y;
 
   /* Length of each segment */
-  FP_PRECISION length;
+  double length;
   Material* material;
   int fsr_id;
   int num_segments;
@@ -848,6 +850,7 @@ void Geometry::segmentize(Track* track) {
    * Geometry */
   while (curr != NULL) {
 
+//    std::cout << "end in segmentize " << end.toString() << std::endl;
     end.copyCoords(&start);
     end.setPhi(phi);
 
@@ -861,7 +864,7 @@ void Geometry::segmentize(Track* track) {
                  "point: x = %f, y = %f", start.getX(), start.getY());
 
     /* Find the segment length, Material and FSR ID */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    length = double(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
 

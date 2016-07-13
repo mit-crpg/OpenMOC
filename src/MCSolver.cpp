@@ -226,12 +226,16 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
 
     // simulate neutron behavior
     for (int i=0; i<n_histories; ++i) {
-
-      // debuggin neutron 193
-      //i = 0;
-      std::cout << "Trans " << i << std::endl;
-      transportNeutronWithTrack(tallies, first_round, &fission_banks,
-          num_groups, i);
+      
+      /*
+      trackSingleNeutron();
+      std::cout << "finishes neutron\n";
+      exit(0);
+      */ 
+      i = 6039;
+      std::cout << "Trans " << batch << " " << i << std::endl;
+      transportNeutron(tallies, first_round, &fission_banks,
+          num_groups, i);// batch, 5383, 2, false);
     }
 
     // give results
@@ -284,8 +288,7 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
  @param   neutron_num an int used for indexing neutrons
 */
 void MCSolver::transportNeutron(std::vector <Tally> &tallies,
-    bool first_round, Fission* fission_banks,
-    int num_groups, int neutron_num) {
+    bool first_round, Fission* fission_banks, int num_groups, int neutron_num) {
 
   const double BOUNDARY_ERROR = 1e-8;
 
@@ -317,6 +320,9 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
   neutron_coord_position->setUniverse(_root_universe);
   cell_obj = _geometry->findCellContainingCoords(neutron_coord_position);
   cell_mat = cell_obj->getFillMaterial();
+
+  //std::cout << "neutron start position " << neutron_coord_position->toString()
+   // << std::endl;
 
   std::vector <double> chi(num_groups);
   for (int g=0; g<num_groups; ++g) {
@@ -366,8 +372,8 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
       neutron_coord_position->setUniverse(_root_universe);
       _geometry->findFirstCell(neutron_coord_position);
 
-      //  std::cout << "\n\nstart position: " << neutron_position->getX()
-       //   << " " << neutron_position->getY() << std::endl;
+        //std::cout << "\n\nstart position: " << neutron_position->getX()
+          //<< " " << neutron_position->getY() << std::endl;
 
       // if starting Point was outside the bounds of the Geometry
       if (curr == NULL)
@@ -394,14 +400,12 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
 
         curr = _geometry->findNextCell(&end);
-        if (neutron_num == 193) {
           std::cout << "phi: " << phi << std::endl;
           std::cout << "prev: " << prev->getName() << std::endl;
           if (curr != NULL)
           std::cout << "curr: " << curr->getName() << std::endl;
           std::cout << "position: " << start.getX() << " " << start.getY()
             << "\n\n";
-        }
 
         // Checks that segment does not have the same
         // start and end Points
@@ -432,6 +436,9 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
           neutron.setPosition(0, end.getX());
           neutron.setPosition(1, end.getY());
           neutron.setPosition(2, end.getZ());
+          std::cout << "continue neutron position after move "
+            << neutron.getPosition(0)
+            << " " << neutron.getPosition(1) << std::endl;
         }
 
         // if the neutron's path ends in this cell
@@ -439,12 +446,20 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
           _scalar_flux(fsr_id, neutron.getGroup())
             += neutron_distance;
           neutron.move(neutron_distance);
+          std::cout << " end in cell neutron position after move "
+            << neutron.getPosition(0)
+            << " " << neutron.getPosition(1) << std::endl;
           neutron_distance = 0;
 
           // break out of while (curr!= null)
           curr = NULL;
         }
       } // while curr != null
+
+      neutron.move(-TINY_MOVE);
+          std::cout << "continue neutron position after tiny move "
+            << neutron.getPosition(0)
+            << " " << neutron.getPosition(1) << std::endl;
 
       // find out which boundary the neutron is on
       std::vector <int> box_lim_bound;
@@ -490,7 +505,6 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
           // if the neutron is reflected
           if (bound_types[sur_side] == 1) {
             neutron.reflect(axis);
-
           }
 
           // if the neutron escapes
@@ -684,23 +698,64 @@ void MCSolver::sampleLocation(Neutron* neutron) {
   neutron->setPosition(1, coord);
 }
 
+
+/*
+ @brief   function that transports a neutron using geometry.segmentize()
+ @param   tallies a dictionary containing tallies of crow distances,
+          leakages, absorptions, and fissions
+ @param   first_round a bool that is true if this is the first round
+ @param   fission_banks containing the fission bank
+ @param   num_groups the number of neutron energy groups
+ @param   neutron_num an int used for indexing neutrons
+ @param   batch the batch number
+ @param   input_neutron to be used in debuggin bad neutrons
+*/
 void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
-    bool first_round, Fission* fission_banks, int num_groups, int neutron_num) {
-  const double BOUNDARY_ERROR = 1e-7;
+    bool first_round, Fission* fission_banks, int num_groups, int neutron_num,
+    int batch, int write_neutron, int write_batch,
+     bool read, Neutron* input_neutron) {
 
   std::cout.precision(32);
   Point* neutron_position = new Point();
 
   // new way to sample neutron and set its direction
   Neutron neutron(neutron_num);
-  neutron.sampleDirection();
 
-  // get and set neutron starting point
-  if (first_round)
-    sampleLocation(&neutron);
-  else {
-    fission_banks->sampleSite(&neutron);
+  bool debug = (input_neutron != NULL);
+
+  // if not debugging
+  if (!debug) {
+
+    neutron.sampleDirection();
+
+    // get and set neutron starting point
+    if (first_round)
+      sampleLocation(&neutron);
+    else {
+      fission_banks->sampleSite(&neutron);
+    }
   }
+
+  // if debugging
+  else {
+    std::cout << "gets to else\n";
+    neutron.setDirection(0, input_neutron->getDirection(0));
+    neutron.setDirection(1, input_neutron->getDirection(1));
+    neutron.setDirection(2, input_neutron->getDirection(2));
+    neutron.setPosition(0, input_neutron->getPosition(0));
+    neutron.setPosition(1, input_neutron->getPosition(1));
+    neutron.setPosition(2, input_neutron->getPosition(2));
+    neutron.setGroup(input_neutron->getGroup());
+    std::cout << "sets attributes\n";
+  }
+
+  if (neutron_num == write_neutron and batch == write_batch){
+    std::cout << "writing neutron " << neutron_num << " in batch " << batch
+      << std::endl;
+      saveBadNeutron(&neutron, neutron_num, batch);
+      std::cout << "saves neutron\n";
+    }
+
 
   // set neutron_position pointer
   neutron.getPositionVector(neutron_position);
@@ -724,116 +779,24 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
   }
   group = neutron.sampleNeutronEnergyGroup(chi);
   neutron.setGroup(group);
-  std::cout << "new neutron\n";
 
   // follow neutron while it's alive
   while (neutron.alive()) {
 
     // use a LocalCoords for the start and end of each segment
-    FP_PRECISION neutron_distance;
+    double neutron_distance;
 
     //sample a distance to travel in the material
     neutron_distance =
       -log(neutron.arand()) / cell_mat->getSigmaTByGroup(group+1);
 
+    bool first_boundary_check = true;
+    bool completed_track;
+
     // track neutron until collision or escape
     while (neutron_distance > 0.00000) {
 
-      FP_PRECISION x0 = neutron.getPosition(0);
-      FP_PRECISION y0 = neutron.getPosition(1);
-      FP_PRECISION z0 = neutron.getPosition(2);
-
-      // calculate phi and ensure it's in the correct quadrant
-      FP_PRECISION phi = atan(neutron.getDirection(1)/neutron.getDirection(0));
-      if (neutron.getDirection(0)<0)
-        phi += M_PI;
-      if (phi < 0)
-        phi += 2*M_PI;
-
-      Track* track = new Track();
-      track->setValues(x0, y0, 0, 0, 0, 0, phi);
-      _geometry->segmentize(track);
-      segment* segments = track->getSegments();
-      std::cout << "--------------------------------\n";
-      std::cout << "x0 yo zo: " << x0 << " " << y0 << " " << z0 << std::endl;
-      std::cout << "phi " << phi << std::endl;
-      std::cout << "neutron direction: " << neutron.getDirection(0) << " "
-        << neutron.getDirection(1) << " "
-        << neutron.getDirection(2) << std::endl;
-      std::cout << "segment lengths: " << segments[0]._length
-        << ",  " << segments[1]._length << " " << segments[2]._length
-        << std::endl;
-      std::cout << "num segs " << track->getNumSegments() << std::endl;
-      std::cout << "track: " << track->toString() << std::endl;
-
-      FP_PRECISION length;
-      FP_PRECISION length_3d; // length in three dimensions
-      bool completed_track = false; // did neutron complete segment?
-      int fsr_id;
-
-      for (int i=0; i < track->getNumSegments(); i++) {
-        std::cout << "i= " << i << std::endl;
-
-        length = segments[i]._length;
-        std::cout << " length = " << length << std::endl;
-        std::cout << "without sqrt " <<
-          neutron.getDirection(0)*neutron.getDirection(0)
-                    + neutron.getDirection(1)*neutron.getDirection(1)
-                    << std::endl;
-
-        FP_PRECISION denom =
-          sqrt(neutron.getDirection(0)*neutron.getDirection(0)
-                    + neutron.getDirection(1)*neutron.getDirection(1));
-        std::cout << "denom " << denom << std::endl;
-        std::cout << "length " << length << std::endl;
-
-        length_3d = length/denom;
-        std::cout << "length_3d       " << length_3d << std::endl;
-        std::cout << "digits divedied " << 
-          .36447432637214661/.98540509589839644 << std::endl;
-
-        fsr_id = segments[i]._region_id;
-
-        if (not neutron_distance > 0.00000)
-          break;
-
-        // if the neutron passes through this region
-        if (length_3d - neutron_distance < TINY_MOVE) {
-          neutron.move(length_3d);
-          std::cout << "\nmoving " << length_3d;
-          _scalar_flux(fsr_id, neutron.getGroup()) += length_3d;
-          neutron_distance -= length_3d;
-          std::cout << "\n1 continues through cell " << neutron.getPosition(0) 
-            << " " << neutron.getPosition(1) << std::endl;
-          std::cout << "neutron radius: "
-            << (pow(neutron.getPosition(0), 2) + pow(neutron.getPosition(1), 2))
-            << std::endl;
-          
-          // if the neutron has completed this segment
-          if (i == track->getNumSegments() - 1) {
-            completed_track = true;
-          }
-            
-        }
-
-        // if the neutron's path ends in this region
-        else {
-          std::cout << "neutron distance " << neutron_distance << std::endl;
-          neutron.move(neutron_distance);
-          _scalar_flux(fsr_id, neutron.getGroup()) += neutron_distance;
-          neutron_distance = 0;
-          std::cout << "0 path ends in cell " << neutron.getPosition(0) 
-            << " " << neutron.getPosition(1) << std::endl;
-          break;
-        }
-      } // for the Track
-
-      if (completed_track) {
-        std::cout << "neutron has completed the segment" << std::endl;
-        //neutron.move(-TINY_MOVE);
-      }
-
-      // find out which boundary the neutron is on
+      // check if the neutron is on a boundary
       std::vector <int> box_lim_bound;
       box_lim_bound.clear();
       if (std::abs(neutron.getPosition(0) - _geometry->getMinX())
@@ -848,14 +811,17 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
       if (std::abs(neutron.getPosition(1) - _geometry->getMaxY())
           < ON_SURFACE_THRESH)
         box_lim_bound.push_back(3);
-
-      // throw error if neutron did not complete segment
+  
+      if (!first_boundary_check) {
+        // throw error if neutron did not complete segment
         if (box_lim_bound.empty() and completed_track)
           log_printf(ERROR,
               "track complete but no surface found %s");
         if (!box_lim_bound.empty() and !completed_track)
           log_printf(ERROR,
               "surface found but track not completed %s");
+      }
+      first_boundary_check = false;
 
       // put boundaryTypes into vector for easy iteration
       std::vector <boundaryType> bound_types (4);
@@ -884,7 +850,6 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
           if (bound_types[sur_side] == 1) {
 
             neutron.reflect(axis);
-            std::cout << "neutron is reflected\n";
 
             //neutron.move(TINY_MOVE);
 
@@ -905,6 +870,88 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
           }
         }
       } // check boundary conditions
+      
+
+      double x0 = neutron.getPosition(0);
+      double y0 = neutron.getPosition(1);
+      double z0 = neutron.getPosition(2);
+
+      // calculate phi and ensure it's in the correct quadrant
+      double phi = atan(neutron.getDirection(1)/neutron.getDirection(0));
+      if (neutron.getDirection(0)<0)
+        phi += M_PI;
+      if (phi < 0)
+        phi += 2*M_PI;
+
+      Track* track = new Track();
+      track->setValues(x0, y0, 0, 0, 0, 0, phi);
+      _geometry->segmentize(track);
+      segment* segments = track->getSegments();
+
+if (debug) { 
+      std::cout << "--------------------------------\n";
+      std::cout << "x0 yo zo: " << x0 << " " << y0 << " " << z0 << std::endl;
+      std::cout << "phi " << phi << std::endl;
+      std::cout << "neutron direction: " << neutron.getDirection(0) << " "
+        << neutron.getDirection(1) << " "
+        << neutron.getDirection(2) << std::endl;
+      std::cout << "segment lengths: " << segments[0]._length
+        << ",  " << segments[1]._length << " " << segments[2]._length
+        << std::endl;
+      std::cout << "num segs " << track->getNumSegments() << std::endl;
+      std::cout << "track: " << track->toString() << std::endl;
+    }
+
+      double length;
+      double length_3d; // length in three dimensions
+      completed_track = false; // did neutron complete segment?
+      int fsr_id;
+
+      for (int i=0; i < track->getNumSegments(); i++) {
+
+        length = segments[i]._length;
+        double denom = sqrt(neutron.getDirection(0)*neutron.getDirection(0)
+                            + neutron.getDirection(1)*neutron.getDirection(1));
+
+        length_3d = length/denom;
+
+        fsr_id = segments[i]._region_id;
+
+        if (not neutron_distance > 0.00000)
+          break;
+
+        // if the neutron passes through this region
+        if (length_3d - neutron_distance < TINY_MOVE) {
+          neutron.move(length_3d);
+          _scalar_flux(fsr_id, neutron.getGroup()) += length_3d;
+          neutron_distance -= length_3d;
+/*          std::cout << "\n1 continues through cell " << neutron.getPosition(0) 
+            << " " << neutron.getPosition(1) << std::endl;
+         std::cout << "neutron radius: "
+            << sqrt(neutron.getPosition(0)*neutron.getPosition(0)
+                    + neutron.getPosition(1)*neutron.getPosition(1))
+            << std::endl;
+   */       
+          // if the neutron has completed this segment
+          if (i == track->getNumSegments() - 1) {
+            completed_track = true;
+          }
+        }
+
+        // if the neutron's path ends in this region
+        else {
+          neutron.move(neutron_distance);
+          _scalar_flux(fsr_id, neutron.getGroup()) += neutron_distance;
+          neutron_distance = 0;
+          break;
+        }
+      } // for the Track
+
+      if (completed_track) {
+//        std::cout << "neutron has completed the segment" << std::endl;
+        //neutron.move(-TINY_MOVE);
+      }
+
     } // while distance > 0
 
     // check interaction
@@ -949,7 +996,6 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
         neutron_coord_position->setZ(neutron.getPosition(2));
         neutron_coord_position->setUniverse(_root_universe);
         Cell* test = _geometry->findFirstCell(neutron_coord_position);
-        std::cout << "gets here\n";
 
         // if findFirstCell nudged the neutron out of the boundary nudge it
         // backwards then use findFirstCell again
@@ -1013,4 +1059,98 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
   crow_distance = neutron.getDistance(neutron_position);
   tallies[CROWS] += crow_distance;
   tallies[NUM_CROWS] += 1;
+}
+
+
+/**
+  * brief prints neutron info to binary file so it can be run again easily
+  */
+void MCSolver::saveBadNeutron(Neutron* neutron, int neutron_num, int batch) {
+  FILE* out;
+  out = fopen("neutron", "wb");
+  std::cout << "writes file\n";
+
+  double x = neutron->getPosition(0);
+  double y = neutron->getPosition(1);
+  double z = neutron->getPosition(2);
+  fwrite(&x, sizeof(double), 1, out);
+  fwrite(&y, sizeof(double), 1, out);
+  fwrite(&z, sizeof(double), 1, out);
+  std::cout << "x pos written " << x << std::endl;
+  std::cout << "y pos written " << y << std::endl;
+  std::cout << "z pos written " << z << std::endl;
+
+  double x_hat = neutron->getDirection(0);
+  double y_hat = neutron->getDirection(1);
+  double z_hat = neutron->getDirection(2);
+  fwrite(&x_hat, sizeof(double), 1, out);
+  fwrite(&y_hat, sizeof(double), 1, out);
+  fwrite(&z_hat, sizeof(double), 1, out);
+
+  int group = neutron->getGroup();
+  fwrite(&group, sizeof(int), 1, out);
+  fwrite(&neutron_num, sizeof(int), 1, out);
+  fwrite(&batch, sizeof(batch), 1, out);
+
+  fclose(out);
+}
+
+/**
+  * brief run simulation of a single neutron for debugging. Neutron is read
+  * from binary file
+  */
+void MCSolver::trackSingleNeutron() {
+
+
+  FILE* in;
+  in = fopen("neutron", "r");
+
+  int ret;
+
+  // read neutron position
+  double x, y, z;
+  ret = fread(&x, sizeof(double), 1, in);
+  ret = fread(&y, sizeof(double), 1, in);
+  ret = fread(&z, sizeof(double), 1, in);
+
+  std::cout << "x pos read " << x << std::endl;
+  std::cout << "y pos read " << y << std::endl;
+  std::cout << "z pos read " << z << std::endl;
+
+  // read neutron direction
+  double x_hat, y_hat, z_hat;
+  ret = fread(&x_hat, sizeof(double), 1, in);
+  ret = fread(&y_hat, sizeof(double), 1, in);
+  ret = fread(&z_hat, sizeof(double), 1, in);
+  
+  // read neutron group, number, and batch number
+  int group, neutron_num, batch;
+  ret = fread(&group, sizeof(int), 1, in);
+  ret = fread(&neutron_num, sizeof(int), 1, in);
+  ret = fread(&batch, sizeof(int), 1, in);
+
+  // create neutron and set its attributes
+  Neutron badNeutron(neutron_num);
+  badNeutron.setPosition(0, x);
+  badNeutron.setPosition(1, y);
+  badNeutron.setPosition(2, z);
+  badNeutron.setDirection(0, x);
+  badNeutron.setDirection(1, y);
+  badNeutron.setDirection(2, z);
+  badNeutron.setGroup(group);
+
+  fclose(in);
+
+  // create structures needed to transport
+  std::vector <Tally> tallies(5);
+  Fission fission_banks;
+  bool first_round = false;
+  
+  std::cout << "ready to transport\n";
+
+  // transport
+  transportNeutronWithTrack(tallies, first_round, &fission_banks,
+      _geometry->getNumEnergyGroups(), neutron_num, batch, neutron_num, batch,
+      false, &badNeutron);
+
 }
