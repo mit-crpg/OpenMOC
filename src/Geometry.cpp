@@ -850,7 +850,6 @@ void Geometry::segmentize(Track* track) {
    * Geometry */
   while (curr != NULL) {
 
-//    std::cout << "end in segmentize " << end.toString() << std::endl;
     end.copyCoords(&start);
     end.setPhi(phi);
 

@@ -46,13 +46,15 @@ public:
   void computeEigenvalue(int n_histories, int num_batches, int num_groups);
 
   void transportNeutron(std::vector <Tally> &tallies, bool first_round,
-      Fission* fission_banks, int num_groups, int neutron_num);
+      Fission* fission_banks, int num_groups, int neutron_num, int batch,
+      int write_neutron = -1, int write_batch = -1, bool read = false, 
+      Neutron* input_neutron = NULL);
 
   void transportNeutronWithTrack(std::vector <Tally> &tallies, bool first_round,
       Fission* fission_banks, int num_groups, int neutron_num, int batch,
       int write_neutron = -1, int write_batch = -1, bool read = false, 
       Neutron* input_neutron = NULL);
-
+  
   Geometry* getGeometry();
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   FP_PRECISION getKeff();
