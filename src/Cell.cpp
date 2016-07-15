@@ -64,6 +64,13 @@ Cell::Cell(int id, const char* name) {
   _max_y = std::numeric_limits<double>::infinity();
   _min_z = -std::numeric_limits<double>::infinity();
   _max_z = std::numeric_limits<double>::infinity();
+
+  _min_x_bc = BOUNDARY_NONE;
+  _min_y_bc = BOUNDARY_NONE;
+  _min_z_bc = BOUNDARY_NONE;
+  _max_x_bc = BOUNDARY_NONE;
+  _max_y_bc = BOUNDARY_NONE;
+  _max_z_bc = BOUNDARY_NONE;
 }
 
 

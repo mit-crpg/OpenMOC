@@ -179,6 +179,7 @@ private:
   int _domain_index_y;
   int _domain_index_z;
   Lattice* _domain_bounds;
+  MPI_Comm _MPI_cart;
 
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
@@ -217,6 +218,7 @@ public:
   void setRootUniverse(Universe* root_universe);
 #ifdef MPIx
   void setDomainDecomposition(int nx, int ny, int nz);
+  MPI_Comm getMPICart();
 #endif
 
   Cmfd* getCmfd();
@@ -230,6 +232,7 @@ public:
   std::string getFSRKey(LocalCoords* coords);
   ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
   int getNeighborDomain(int offset_x, int offset_y, int offset_z);
+  int getReverseNeighborDomain(int neighbor);
 
   /* Set parameters */
   void setCmfd(Cmfd* cmfd);

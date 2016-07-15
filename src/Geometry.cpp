@@ -219,7 +219,7 @@ boundaryType Geometry::getMaxXBoundaryType() {
  */
 boundaryType Geometry::getMinYBoundaryType() {
   if (_domain_decomposed && _domain_index_y > 0)
-   return INTERFACE;
+    return INTERFACE;
   else
     return _root_universe->getMinYBoundaryType();
 }
@@ -245,7 +245,7 @@ boundaryType Geometry::getMaxYBoundaryType() {
  */
 boundaryType Geometry::getMinZBoundaryType() {
   if (_domain_decomposed && _domain_index_z > 0)
-   return INTERFACE;
+    return INTERFACE;
   else
     return _root_universe->getMinZBoundaryType();
 }
@@ -458,12 +458,19 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
     _num_domains_y = ny;
     _num_domains_z = nz;
 
+    /* Create the MPI Communicator */
+    int dims[3] = {nx, ny, nz};
+    int wrap[3] = {false, false, false};
+    int ret = MPI_Cart_create(MPI_COMM_WORLD, 3, dims, wrap, true, &_MPI_cart);
+
     /* Determine the domain indexes */
     int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    _domain_index_x = rank % nx;
-    _domain_index_y = (rank / nx) % ny;
-    _domain_index_z = rank / (nx*ny);
+    int cart_coords[3];
+    MPI_Comm_rank(_MPI_cart, &rank);
+    MPI_Cart_coords(_MPI_cart, rank, 3, cart_coords);
+    _domain_index_x = cart_coords[0];
+    _domain_index_y = cart_coords[1];
+    _domain_index_z = cart_coords[2];
 
     /* Set the bounds in a 1x1x1 Lattice object */
     _domain_bounds = new Lattice();
@@ -483,11 +490,51 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
 
 
 //FIXME
-int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
-  int neighbor = (_domain_index_x + offset_x) + ((_domain_index_y + offset_y)
-       + (_domain_index_z + offset_z) * _num_domains_y) * _num_domains_x;
-  return neighbor;
+MPI_Comm Geometry::getMPICart() {
+  if (!_domain_decomposed)
+    log_printf(ERROR, "Tried to get MPI Cart but domain decomposition has not "
+               "yet been set");
+  return _MPI_cart;
 }
+
+
+//FIXME
+int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
+  int neighbor_rank = -1;
+  int neighbor_coords[3];
+  neighbor_coords[0] = offset_x + _domain_index_x;
+  neighbor_coords[1] = offset_y + _domain_index_y;
+  neighbor_coords[2] = offset_z + _domain_index_z;
+  if (neighbor_coords[0] >= 0 && neighbor_coords[0] < _num_domains_x &&
+      neighbor_coords[1] >= 0 && neighbor_coords[1] < _num_domains_y &&
+      neighbor_coords[2] >= 0 && neighbor_coords[2] < _num_domains_z)
+    MPI_Cart_rank(_MPI_cart, neighbor_coords, &neighbor_rank);
+  return neighbor_rank;
+}
+
+
+//FIXME
+int Geometry::getReverseNeighborDomain(int neighbor) {
+
+  int offset_x = -1 * ((neighbor % _num_domains_x) - _domain_index_x);
+  int offset_y = -1 * (((neighbor / _num_domains_x) % _num_domains_y) -
+     _domain_index_y);
+  int offset_z = -1 * (neighbor / (_num_domains_x * _num_domains_y) -
+      _domain_index_z);
+  int reverse_neighbor = -1;
+  int x = offset_x + _domain_index_x;
+  int y = offset_y + _domain_index_y;
+  int z = offset_z + _domain_index_z;
+  if (x >= 0 && x < _num_domains_x &&
+      y >= 0 && y < _num_domains_y &&
+      z >= 0 && z < _num_domains_y)
+      reverse_neighbor = x + _num_domains_x * (y + z * _num_domains_y);
+
+  return reverse_neighbor;
+}
+
+
+
 #endif
 
 
@@ -1885,6 +1932,8 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
 
   /* Initialize set for axial mesh */
   std::set<double> unique_mesh;
+  unique_mesh.insert(min_z);
+  unique_mesh.insert(max_z);
 
   /* Initialize vector of unvisited universes and add the root universe */
   std::vector<Universe*> universes;
@@ -2025,7 +2074,7 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
         * ON_SURFACE_THRESH;
 
       /* Add the rounded z-height to the set */
-      if (z_heights[i] >= min_z && z_heights[i] <= max_z)
+      if (z_heights[i] > min_z && z_heights[i] < max_z)
         unique_mesh.insert(z_heights[i]);
     }
   }

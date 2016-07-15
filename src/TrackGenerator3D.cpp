@@ -1438,7 +1438,9 @@ void TrackGenerator3D::checkBoundaryConditions() {
                " set to PERIODIC");
 
   /* Check for correct track method if a PERIODIC bc is present */
-  if (_geometry->getMinZBoundaryType() == PERIODIC)
+  if (_geometry->getMinZBoundaryType() == PERIODIC ||
+      _geometry->getMinZBoundaryType() == INTERFACE ||
+      _geometry->getMaxZBoundaryType() == INTERFACE)
     _periodic = true;
 
   /* Check if 3D track generation method allows periodic boundaries */
@@ -1727,14 +1729,21 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
   bool next_fwd;
   boundaryType bc;
 
+  int surface_2D;
   if (outgoing) {
     next_fwd = _tracks_2D[sti->_azim][sti->_xy].getNextFwdFwd();
     bc = track_2D->getBCFwd();
+    surface_2D = track_2D->getSurfaceOut();
   }
   else {
     next_fwd = _tracks_2D[sti->_azim][sti->_xy].getNextBwdFwd();
     bc = track_2D->getBCBwd();
+    surface_2D = track_2D->getSurfaceIn();
   }
+
+  int domain_delta_x = (surface_2D % 3 == 0) * (2 * (surface_2D/3) - 1);
+  int domain_delta_y = (surface_2D % 3 == 1) * (2 * (surface_2D/3) - 1);
+  int domain_delta_z = 0;
 
   /* Tracks pointing in the positive z direction in the lz plane */
   if (cti->_polar < _num_polar/2) {
@@ -1752,7 +1761,8 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         next_fwd = false;
 
       /* PERIODIC BC */
-      if (_geometry->getMaxZBoundaryType() == PERIODIC) {
+      if (_geometry->getMaxZBoundaryType() == PERIODIC ||
+          _geometry->getMaxZBoundaryType() == INTERFACE) {
         cti_next._polar = cti->_polar;
         cti_next._lz    = lz - nz;
         cti_next._train = 0;
@@ -1764,6 +1774,7 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         cti_next._lz    = nl + 2 * nz - lz - 1;
         cti_next._train = 0;
       }
+      domain_delta_z = +1;
     }
 
     /* SURFACE_Z_MIN */
@@ -1778,7 +1789,8 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         next_fwd = true;
 
       /* PERIODIC BC */
-      if (_geometry->getMinZBoundaryType() == PERIODIC) {
+      if (_geometry->getMinZBoundaryType() == PERIODIC ||
+          _geometry->getMinZBoundaryType() == INTERFACE) {
         cti_next._polar = cti->_polar;
         cti_next._lz    = lz + nz;
         cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
@@ -1790,6 +1802,7 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         cti_next._lz    = nl - lz - 1;
         cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
       }
+      domain_delta_z = -1;
     }
 
     /* SURFACE_X_MIN, SURFACE_X_MAX, SURFACE_Y_MIN, SURAFCE_Y_MAX */
@@ -1835,7 +1848,8 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         next_fwd = true;
 
       /* PERIODIC BC */
-      if (_geometry->getMaxZBoundaryType() == PERIODIC) {
+      if (_geometry->getMaxZBoundaryType() == PERIODIC ||
+          _geometry->getMaxZBoundaryType() == INTERFACE) {
         cti_next._polar = cti->_polar;
         cti_next._lz    = lz - nz;
         cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
@@ -1847,6 +1861,7 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         cti_next._lz    = nl + 2 * nz - lz - 1;
         cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
       }
+      domain_delta_z = +1;
     }
 
     /* SURFACE_Z_MIN */
@@ -1862,7 +1877,8 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         next_fwd = false;
 
       /* PERIODIC BC */
-      if (_geometry->getMinZBoundaryType() == PERIODIC) {
+      if (_geometry->getMinZBoundaryType() == PERIODIC ||
+          _geometry->getMinZBoundaryType() == INTERFACE) {
         cti_next._polar = cti->_polar;
         cti_next._lz    = lz + nz;
         cti_next._train = 0;
@@ -1874,6 +1890,7 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
         cti_next._lz    = nl - lz - 1;
         cti_next._train = 0;
       }
+      domain_delta_z = -1;
     }
 
     /* SURFACE_X_MIN, SURFACE_X_MAX, SURFACE_Y_MIN, SURAFCE_Y_MAX */
@@ -1916,11 +1933,27 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
     track->setTrackNextFwd(get3DTrackID(&sti_next));
     track->setNextFwdFwd(next_fwd);
     track->setBCFwd(bc);
+    int domain_fwd_out = _geometry->getNeighborDomain(domain_delta_x,
+                                                      domain_delta_y,
+                                                      domain_delta_z);
+    int domain_fwd_in = _geometry->getNeighborDomain(-domain_delta_x,
+                                                     -domain_delta_y,
+                                                     -domain_delta_z);
+    track->setDomainFwdOut(domain_fwd_out);
+    track->setDomainFwdIn(domain_fwd_in);
   }
   else {
     track->setTrackNextBwd(get3DTrackID(&sti_next));
     track->setNextBwdFwd(next_fwd);
     track->setBCBwd(bc);
+    int domain_bwd_out = _geometry->getNeighborDomain(domain_delta_x,
+                                                      domain_delta_y,
+                                                      domain_delta_z);
+    int domain_bwd_in = _geometry->getNeighborDomain(-domain_delta_x,
+                                                     -domain_delta_y,
+                                                     -domain_delta_z);
+    track->setDomainBwdOut(domain_bwd_out);
+    track->setDomainBwdIn(domain_bwd_in);
   }
 }
 

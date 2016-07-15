@@ -192,7 +192,7 @@ void CPUSolver::initializeSourceArrays() {
     delete [] _reduced_sources;
 
   /* Allocate memory for all source arrays */
-  try{
+  try {
     int size = _num_FSRs * _num_groups;
     _reduced_sources = new FP_PRECISION[size];
 
@@ -258,6 +258,7 @@ void CPUSolver::communicateBoundaryFluxes() {
     flux_type = MPI_DOUBLE;
 
   /* Initialize MPI requests and status */
+  MPI_Comm MPI_cart = _geometry->getMPICart();
   MPI_Status stat;
   MPI_Request request[4];
   int active[2] = {0};
@@ -267,39 +268,58 @@ void CPUSolver::communicateBoundaryFluxes() {
   /* Loop over all tracks and exchange fluxes */
   for (int t=0; t < _tot_num_tracks; t++) {
 
+    /* Get 3D Track data */
+    StackTrackIndexes sti;
+    Track3D track;
+    TrackGenerator3D* track_generator_3D =
+      dynamic_cast<TrackGenerator3D*>(_track_generator);
+    track_generator_3D->getSTIByIndex(t, &sti);
+    track_generator_3D->getTrackOTF(&track, &sti);
+
+    /* Get connecting tracks */
+    int connect[2];
+    bool connect_fwd[2];
+    connect[0] = track.getTrackNextFwd();
+    connect[1] = track.getTrackNextBwd();
+    connect_fwd[0] = track.getNextFwdFwd();
+    connect_fwd[1] = track.getNextBwdFwd();
+
     /* Get connecting domain surfaces */
-    int surface_in = _tracks[t]->getDomainSurfaceIn();
-    int surface_out = _tracks[t]->getDomainSurfaceOut();
+    int domain_fwd_in = track.getDomainFwdIn();
+    int domain_fwd_out = track.getDomainFwdOut();
+    int domain_bwd_in = track.getDomainBwdIn();
+    int domain_bwd_out = track.getDomainBwdOut();
+
 
     int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    if (rank == 3) {
-      std::cout << "Round = " << t << " / " << _tot_num_tracks << std::endl;
-    }
+    MPI_Comm_rank(MPI_cart, &rank);
 
     /* Send outgoing flux */
-    if (surface_out != -1) {
+    if (domain_fwd_out != -1) {
       MPI_Isend(&_boundary_flux(t,0,0), _fluxes_per_track, flux_type,
-                surface_out, 0, MPI_COMM_WORLD, &request[0]);
+                domain_fwd_out, 0, MPI_cart, &request[0]);
       mpi_send[0] = 1;
     }
 
-    /* Receive incoming flux, send backward flux */
-    if (surface_in != -1) {
-      MPI_Irecv(&buffer[0], _fluxes_per_track, flux_type, surface_in, 0,
-                MPI_COMM_WORLD, &request[2]);
+    /* Receive incoming flux on connecting Track */
+    if (domain_fwd_in != -1) {
+      MPI_Irecv(&buffer[0], _fluxes_per_track, flux_type, domain_fwd_in, 0,
+                MPI_cart, &request[2]);
       mpi_recv[0] = 1;
       active[0] = 1;
+    }
 
+    /* Send backward flux */
+    if (domain_bwd_out != -1) {
       MPI_Isend(&_boundary_flux(t,1,0), _fluxes_per_track, flux_type,
-                surface_in, 1, MPI_COMM_WORLD, &request[1]);
+                domain_bwd_out, 0, MPI_cart, &request[1]);
       mpi_send[1] = 1;
     }
 
-    /* Receive backward flux */
-    if (surface_out != -1) {
+    /* Receive backward flux on connecting Track */
+    if (domain_bwd_in != -1) {
       MPI_Irecv(&buffer[_fluxes_per_track], _fluxes_per_track, flux_type,
-                surface_in, 0, MPI_COMM_WORLD, &request[3]);
+                domain_bwd_in, 0, MPI_cart, &request[3]);
       mpi_recv[1] = 1;
 
       active[1] = 1;
@@ -328,25 +348,23 @@ void CPUSolver::communicateBoundaryFluxes() {
           if (flag == 0)
             complete = false;
         }
-
-        /* Copy down fluxes from buffer */
-        if (active[d] == 1)
-          for (int pe=0; pe < _fluxes_per_track; pe++)
-            _start_flux(t,d,pe) = buffer[pe];
-
       }
     }
 
-    /* Reset status for next communication round */
+    /* Reset status for next communication round and copy fluxes */
     for (int d=0; d<2; d++) {
       mpi_send[d] = 0;
       mpi_recv[d] = 0;
+      if (active[d])
+        for (int pe=0; pe < _fluxes_per_track; pe++)
+          _start_flux(connect[d],connect_fwd[d],pe) =
+            buffer[d*_fluxes_per_track + pe];
       active[d] = 0;
     }
   }
 
   /* Join MPI at the end of communication */
-  MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Barrier(MPI_cart);
 }
 
 
@@ -405,6 +423,26 @@ void CPUSolver::normalizeFluxes() {
 
   /* Compute the total fission source */
   tot_fission_source = pairwise_sum<FP_PRECISION>(fission_sources,size);
+
+  /* Reduce total fission rates across domians */
+  if (_geometry->isDomainDecomposed()) {
+
+    /* Get the communicator */
+    MPI_Comm comm = _geometry->getMPICart();
+
+    /* Determine the floating point precision */
+    FP_PRECISION reduced_fission;
+    MPI_Datatype precision;
+    if (sizeof(FP_PRECISION) == 4)
+      precision = MPI_FLOAT;
+    else
+      precision = MPI_DOUBLE;
+
+    /* Reduce fission rates */
+    MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, precision,
+                  MPI_SUM, comm);
+    tot_fission_source = reduced_fission;
+  }
 
   /* Deallocate memory for fission source array */
   delete [] fission_sources;
@@ -600,6 +638,25 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   /* Sum up the residuals from each FSR and normalize */
   residual = pairwise_sum<double>(residuals, _num_FSRs);
+
+  /* Reduce residuals across domians */
+  if (_geometry->isDomainDecomposed()) {
+
+    /* Get the communicator */
+    MPI_Comm comm = _geometry->getMPICart();
+
+    /* Reduce residuals */
+    double reduced_res;
+    MPI_Allreduce(&residual, &reduced_res, 1, MPI_DOUBLE, MPI_SUM, comm);
+    residual = reduced_res;
+
+    /* Reduce normalization factors */
+    int reduced_norm;
+    MPI_Allreduce(&norm, &reduced_norm, 1, MPI_INT, MPI_SUM, comm);
+    norm = reduced_norm;
+  }
+
+  /* Compute RMS residual */
   residual = sqrt(residual / norm);
 
   /* Deallocate memory for residuals array */
@@ -642,6 +699,25 @@ void CPUSolver::computeKeff() {
 
   /* Reduce new fission rates across FSRs */
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+
+  /* Reduce fission rates across domians */
+  if (_geometry->isDomainDecomposed()) {
+
+    /* Get the communicator */
+    MPI_Comm comm = _geometry->getMPICart();
+
+    /* Determine the floating point precision */
+    FP_PRECISION reduced_fission;
+    MPI_Datatype precision;
+    if (sizeof(FP_PRECISION) == 4)
+      precision = MPI_FLOAT;
+    else
+      precision = MPI_DOUBLE;
+
+    /* Reduce fission rates */
+    MPI_Allreduce(&fission, &reduced_fission, 1, precision, MPI_SUM, comm);
+    fission = reduced_fission;
+  }
 
   /* The old_source is normalized to sum to _k_eff; therefore, the new
    * _k_eff is the old _k_eff * sum(new_source). Implicitly, we are just doing

@@ -928,8 +928,8 @@ void TrackGenerator::initializeTracks() {
 
     /* Get the number of tracks per cycle */
     _tracks_per_cycle[a] = (int)
-      (round(_cycle_length[a] * sin(phi) / width) +
-       round(_cycle_length[a] * cos(phi) / height));
+      (round(_cycle_length[a] * sin(phi) / height) +
+       round(_cycle_length[a] * cos(phi) / width));
 
     /* Compute the number of cycles */
     _cycles_per_azim[a] = (_num_x[a] + _num_y[a]) * 2 / _tracks_per_cycle[a];
@@ -1069,20 +1069,20 @@ void TrackGenerator::initializeTrackReflections() {
       if (a < _num_azim/4) {
         if (i < _num_y[a]) {
           track->setBCFwd(_geometry->getMaxXBoundaryType());
-          track->setDomainSurfaceOut(SURFACE_X_MAX);
+          track->setSurfaceOut(SURFACE_X_MAX);
         }
         else {
           track->setBCFwd(_geometry->getMaxYBoundaryType());
-          track->setDomainSurfaceOut(SURFACE_Y_MAX);
+          track->setSurfaceOut(SURFACE_Y_MAX);
         }
 
         if (i < _num_x[a]) {
           track->setBCBwd(_geometry->getMinYBoundaryType());
-          track->setDomainSurfaceIn(SURFACE_Y_MIN);
+          track->setSurfaceIn(SURFACE_Y_MIN);
         }
         else {
           track->setBCBwd(_geometry->getMinXBoundaryType());
-          track->setDomainSurfaceIn(SURFACE_X_MIN);
+          track->setSurfaceIn(SURFACE_X_MIN);
         }
       }
 
@@ -1090,20 +1090,20 @@ void TrackGenerator::initializeTrackReflections() {
       else {
         if (i < _num_y[a]) {
           track->setBCFwd(_geometry->getMinXBoundaryType());
-          track->setDomainSurfaceOut(SURFACE_X_MIN);
+          track->setSurfaceOut(SURFACE_X_MIN);
         }
         else {
           track->setBCFwd(_geometry->getMaxYBoundaryType());
-          track->setDomainSurfaceOut(SURFACE_Y_MAX);
+          track->setSurfaceOut(SURFACE_Y_MAX);
         }
 
         if (i < _num_x[a]) {
           track->setBCBwd(_geometry->getMinYBoundaryType());
-          track->setDomainSurfaceIn(SURFACE_Y_MIN);
+          track->setSurfaceIn(SURFACE_Y_MIN);
         }
         else {
           track->setBCBwd(_geometry->getMaxXBoundaryType());
-          track->setDomainSurfaceIn(SURFACE_X_MAX);
+          track->setSurfaceIn(SURFACE_X_MAX);
         }
       }
 

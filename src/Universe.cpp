@@ -230,19 +230,20 @@ double Universe::getMaxZ() {
  */
 boundaryType Universe::getMinXBoundaryType() {
 
-  double min_x = std::numeric_limits<double>::infinity();
-  boundaryType bc_x = REFLECTIVE;
+  boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->findBoundingBox();
 
-    if (min_x > iter->second->getMinX()) {
-      min_x = iter->second->getMinX();
-      bc_x = iter->second->getMinXBoundaryType();
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (iter->second->getMaxXBoundaryType() != BOUNDARY_NONE) {
+      bc = iter->second->getMaxXBoundaryType();
+      break;
     }
   }
 
-  return bc_x;
+  return bc;
 }
 
 
@@ -253,18 +254,20 @@ boundaryType Universe::getMinXBoundaryType() {
  */
 boundaryType Universe::getMaxXBoundaryType() {
 
-  double max_x = -std::numeric_limits<double>::infinity();
-  boundaryType bc_x = REFLECTIVE;
+  boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->findBoundingBox();
+
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    if (max_x < iter->second->getMaxX()) {
-      max_x = iter->second->getMaxX();
-      bc_x = iter->second->getMaxXBoundaryType();
+    if (iter->second->getMaxXBoundaryType() != BOUNDARY_NONE) {
+      bc = iter->second->getMaxXBoundaryType();
+      break;
     }
   }
 
-  return bc_x;
+  return bc;
 }
 
 
@@ -275,19 +278,20 @@ boundaryType Universe::getMaxXBoundaryType() {
  */
 boundaryType Universe::getMinYBoundaryType() {
 
-  double min_y = std::numeric_limits<double>::infinity();
-  boundaryType bc_y = REFLECTIVE;
+  boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->findBoundingBox();
 
-    if (min_y > iter->second->getMinY()) {
-      min_y = iter->second->getMinY();
-      bc_y = iter->second->getMinYBoundaryType();
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (iter->second->getMinYBoundaryType() != BOUNDARY_NONE) {
+      bc = iter->second->getMinYBoundaryType();
+      break;
     }
   }
 
-  return bc_y;
+  return bc;
 }
 
 
@@ -298,18 +302,20 @@ boundaryType Universe::getMinYBoundaryType() {
  */
 boundaryType Universe::getMaxYBoundaryType() {
 
-  double max_y = -std::numeric_limits<double>::infinity();
-  boundaryType bc_y = REFLECTIVE;
+  boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->findBoundingBox();
+
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    if (max_y < iter->second->getMaxY()) {
-      max_y = iter->second->getMaxY();
-      bc_y = iter->second->getMaxYBoundaryType();
+    if (iter->second->getMaxYBoundaryType() != BOUNDARY_NONE) {
+      bc = iter->second->getMaxYBoundaryType();
+      break;
     }
   }
 
-  return bc_y;
+  return bc;
 }
 
 
@@ -320,19 +326,20 @@ boundaryType Universe::getMaxYBoundaryType() {
  */
 boundaryType Universe::getMinZBoundaryType() {
 
-  double min_z = std::numeric_limits<double>::infinity();
-  boundaryType bc_z = REFLECTIVE;
+  boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->findBoundingBox();
 
-    if (min_z > iter->second->getMinZ()) {
-      min_z = iter->second->getMinZ();
-      bc_z = iter->second->getMinZBoundaryType();
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (iter->second->getMinZBoundaryType() != BOUNDARY_NONE) {
+      bc = iter->second->getMinZBoundaryType();
+      break;
     }
   }
 
-  return bc_z;
+  return bc;
 }
 
 
@@ -343,18 +350,20 @@ boundaryType Universe::getMinZBoundaryType() {
  */
 boundaryType Universe::getMaxZBoundaryType() {
 
-  double max_z = -std::numeric_limits<double>::infinity();
-  boundaryType bc_z = REFLECTIVE;
+  boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    iter->second->findBoundingBox();
+
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    if (max_z < iter->second->getMaxZ()) {
-      max_z = iter->second->getMaxZ();
-      bc_z = iter->second->getMaxZBoundaryType();
+    if (iter->second->getMaxZBoundaryType() != BOUNDARY_NONE) {
+      bc = iter->second->getMaxZBoundaryType();
+      break;
     }
   }
 
-  return bc_z;
+  return bc;
 }
 
 

@@ -24,6 +24,10 @@ Track::Track() {
   _num_segments = 0;
   _surface_in = -1;
   _surface_out = -1;
+  _domain_fwd_in = -1;
+  _domain_fwd_out = -1;
+  _domain_bwd_in = -1;
+  _domain_bwd_out = -1;
 }
 
 
@@ -113,21 +117,38 @@ void Track::setBCBwd(const boundaryType bc_bwd) {
 
 
 //FIXME
-void Track::setDomainSurfaces(int surface_in, int surface_out) {
-  _surface_in = surface_in;
-  _surface_out = surface_out;
-}
-
-
-//FIXME
-void Track::setDomainSurfaceIn(int surface_in) {
+void Track::setSurfaceIn(int surface_in) {
   _surface_in = surface_in;
 }
 
 
 //FIXME
-void Track::setDomainSurfaceOut(int surface_out) {
+void Track::setSurfaceOut(int surface_out) {
   _surface_out = surface_out;
+}
+
+
+//FIXME
+void Track::setDomainFwdIn(int neighbor) {
+  _domain_fwd_in = neighbor;
+}
+
+
+//FIXME
+void Track::setDomainFwdOut(int neighbor) {
+  _domain_fwd_out = neighbor;
+}
+
+
+//FIXME
+void Track::setDomainBwdIn(int neighbor) {
+  _domain_bwd_in = neighbor;
+}
+
+
+//FIXME
+void Track::setDomainBwdOut(int neighbor) {
+  _domain_bwd_out = neighbor;
 }
 
 
@@ -188,14 +209,38 @@ boundaryType Track::getBCBwd() const {
 
 
 //FIXME
-int Track::getDomainSurfaceIn() {
+int Track::getSurfaceIn() {
     return _surface_in;
 }
 
 
 //FIXME
-int Track::getDomainSurfaceOut() {
+int Track::getSurfaceOut() {
     return _surface_out;
+}
+
+
+//FIXME
+int Track::getDomainFwdIn() {
+  return _domain_fwd_in;
+}
+
+
+//FIXME
+int Track::getDomainFwdOut() {
+  return _domain_fwd_out;
+}
+
+
+//FIXME
+int Track::getDomainBwdIn() {
+  return _domain_bwd_in;
+}
+
+
+//FIXME
+int Track::getDomainBwdOut() {
+  return _domain_bwd_out;
 }
 
 

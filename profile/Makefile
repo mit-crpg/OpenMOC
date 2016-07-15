@@ -209,5 +209,4 @@ edit:
 	vim -p $(cases)
 
 run:
-	./$(program)
-#	mpirun -np 1 ./$(program)
+	mpirun -np 1 ./$(program)
