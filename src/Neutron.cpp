@@ -55,20 +55,6 @@ void Neutron::move(double distance) {
   _xyz.setZ(_xyz.getZ() + _neutron_direction[2] * distance);
 }
 
-/*
- @brief   moves the neutron a given distance in the x y plane
- @param   distance the distance the neutron should be moved
-*/
-void Neutron::movePlane(double distance) {
-  double x_hat = _neutron_direction[0] / 
-    sqrt(_neutron_direction[0]*_neutron_direction[0] +
-         _neutron_direction[1]*_neutron_direction[1]);
-  double y_hat = _neutron_direction[1] / 
-    sqrt(_neutron_direction[0]*_neutron_direction[0] +
-         _neutron_direction[1]*_neutron_direction[1]);
-  _xyz.setX(_xyz.getX() + x_hat * distance);
-  _xyz.setY(_xyz.getY() + y_hat * distance);
-}
 
 /*
  @brief   reverses a neutron's direction of motion along an axis
@@ -76,19 +62,6 @@ void Neutron::movePlane(double distance) {
 */
 void Neutron::reflect(int axis) {
   _neutron_direction[axis] *= -1;
-}
-
-
-/*
- @brief   changes the neutron's cell
- @param   axis the axis along which the cell should be changed
- @param   side whether the cell should be increased or decreased
-*/
-void Neutron::changeCell(int axis, int side) {
-  if (side == 0)
-    _neutron_cell[axis]--;
-  else
-    _neutron_cell[axis]++;
 }
 
 
@@ -108,28 +81,10 @@ void Neutron::setPosition(int axis, double value) {
 
 
 /*
- @brief   sets the cell of the neutron
- @param   cell_number the cell to which the nuetron will be set
-*/
-void Neutron::setCell(std::vector <int> &cell_number) {
-  _neutron_cell = cell_number;
-}
-
-
-/*
  @brief   kills the neutron
 */
 void Neutron::kill() {
   _neutron_alive = false;
-}
-
-
-/*
- @brief   returns the neutron's cell
- @return  the cell in which the neutron resides
-*/
-std::vector <int> Neutron::getCell() {
-  return _neutron_cell;
 }
 
 
@@ -182,15 +137,6 @@ void Neutron::setDirection(int axis, double magnitude) {
 
 
 /*
- @brief   gets the direction vector of the neutron
- @return  a vector containing the neutron's direction
-*/
-std::vector<double> Neutron::getDirectionVector() {
-  return _neutron_direction;
-}
-
-
-/*
  @brief   gets the neutron's distance from a given point
  @param   coord a vector denoting the point to find the neutron's distance from
  @return  the neutron's distance from that point
@@ -227,15 +173,6 @@ void Neutron::sampleDirection() {
   _neutron_direction[0] = sqrt(1 - mu*mu) * cos(phi);
   _neutron_direction[1] = sqrt(1 - mu*mu) * sin(phi);
   _neutron_direction[2] = mu;
-}
-
-
-/*
- @brief   sets the neutron's position
- @param   position the position of the neutron
-*/
-void Neutron::setPositionVector(Point &position) {
-  _xyz = position;
 }
 
 

@@ -1166,7 +1166,7 @@ void MCSolver::trackSingleNeutron() {
   badNeutron.setPosition(1, y);
   badNeutron.setPosition(2, z);
   badNeutron.setDirection(0, x);
-  badNeutron.setDirection(1, y);
+  badNeutron.etDirection(1, y);
   badNeutron.setDirection(2, z);
   badNeutron.setGroup(group);
 

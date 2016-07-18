@@ -43,7 +43,7 @@ double Tally::getCount() {
   @return   the standard deviation from the amount held in the tally
 */
 double Tally::getStandardDeviation() {
-  double standardDev = 
+  double standardDev =
     _tally_squared/_n - (_tally_count / _n) * (_tally_count / _n);
   return standardDev;
 }
