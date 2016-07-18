@@ -1292,3 +1292,18 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
 
   return cell;
 }
+
+
+/**
+  * @brief  Resets the boundaries of each Universe in the Geometry
+  */
+void Geometry::resetBoundaries() {
+
+  std::map<int, Universe*> universes = getAllUniverses();
+  std::map<int, Universe*>::iterator u_iter;
+
+  /* Reset the boundaries in each Universe */
+  for (u_iter = universes.begin(); u_iter != universes.end(); ++u_iter)
+    u_iter->second->resetBoundaries();
+
+}

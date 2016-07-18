@@ -175,6 +175,7 @@ public:
 					std::vector<double> grid_y,
 					double zcoord,
 					const char* domain_type="material");
+  void resetBoundaries();
 
   std::string toString();
   void printString();

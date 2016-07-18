@@ -842,6 +842,8 @@ void TrackGenerator::initializeTracks() {
 
   log_printf(INFO, "Computing azimuthal angles and track spacing...");
 
+  _geometry->resetBoundaries();
+
   /* Each element in arrays corresponds to an angle in phi_eff */
   /* Track spacing along x,y-axes, and perpendicular to each Track */
   double* dx_eff = new double[_num_azim_2];
