@@ -13,7 +13,7 @@ PRECISION   = single
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-cmfd.cpp 
+case = c5g7/c5g7-cmfd.cpp
 
 source = \
 Cell.cpp \
@@ -26,6 +26,7 @@ linalg.cpp \
 log.cpp \
 Material.cpp \
 Matrix.cpp \
+MOCKernel.cpp \
 Point.cpp \
 Quadrature.cpp \
 Solver.cpp \
@@ -33,6 +34,8 @@ Surface.cpp \
 Timer.cpp \
 Track.cpp \
 TrackGenerator.cpp \
+TrackTraversingAlgorithms.cpp \
+TraverseTracks.cpp \
 Universe.cpp \
 Vector.cpp
 
