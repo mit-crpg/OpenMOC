@@ -1656,7 +1656,7 @@ void Universe::calculateExtrema() {
 
       if (surf->getSurfaceType() == XPLANE && halfspace == +1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
-        return surf->getMinX(halfspace);
+        min_x = surf->getMinX(halfspace);
     }
   }
 
@@ -1680,7 +1680,7 @@ void Universe::calculateExtrema() {
       halfspace = s_iter->second->_halfspace;
       if (surf->getSurfaceType() == XPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
-        return surf->getMaxX(halfspace);
+        max_x = surf->getMaxX(halfspace);
     }
   }
 
@@ -1705,7 +1705,7 @@ void Universe::calculateExtrema() {
 
       if (surf->getSurfaceType() == YPLANE && halfspace == +1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
-        return surf->getMinY(halfspace);
+        min_y = surf->getMinY(halfspace);
     }
   }
 
@@ -1728,7 +1728,7 @@ void Universe::calculateExtrema() {
       halfspace = s_iter->second->_halfspace;
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
-        return surf->getMaxY(halfspace);
+        max_y = surf->getMaxY(halfspace);
     }
   }
 
