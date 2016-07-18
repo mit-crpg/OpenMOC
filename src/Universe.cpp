@@ -1639,7 +1639,8 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   */
 void Universe::calculateExtrema() {
 
-  // min x
+  /* Calculate the minimum reachable x-coordinate in the geometry and store it
+   * in _x_min */
   double min_x = -std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator c_iter;
   std::map<int, surface_halfspace*>::iterator s_iter;
@@ -1667,8 +1668,8 @@ void Universe::calculateExtrema() {
 
   _min_x = min_x;
 
-
-  // max x
+  /* Calculate the maximum reachable x-coordinate in the geometry and store it
+   * in _x_max */
   double max_x = std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an x-max boundary */
@@ -1692,7 +1693,8 @@ void Universe::calculateExtrema() {
   _max_x = max_x;
 
 
-  // min y
+  /* Calculate the minimum reachable y-coordinate in the geometry and store it
+   * in _y_min */
   double min_y = -std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an y-min boundary */
@@ -1716,7 +1718,8 @@ void Universe::calculateExtrema() {
 
   _min_y = min_y;
 
-  // max y
+  /* Calculate the maximum reachable y-coordinate in the geometry and store it
+   * in _y_max */
   double max_y = std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an y-max boundary */
@@ -1739,7 +1742,8 @@ void Universe::calculateExtrema() {
 
   _max_y = max_y;
 
-  //min z
+  /* Calculate the minimum reachable z-coordinate in the geometry and store it
+   * in _z_min */
   double min_z = -std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator iter;
 
@@ -1748,7 +1752,8 @@ void Universe::calculateExtrema() {
 
   _min_z = min_z;
 
-  // max z
+  /* Calculate the maximum reachable z-coordinate in the geometry and store it
+   * in _z_max */
   double max_z = std::numeric_limits<double>::infinity();
 
   for (iter = _cells.begin(); iter != _cells.end(); ++iter)
