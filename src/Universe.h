@@ -92,6 +92,15 @@ protected:
   /** A flag for determining if extrema are up to date */
   bool _cell_added;
 
+  /** The boundaryTypes of the universe */
+  boundaryType _min_x_bound;
+  boundaryType _max_x_bound;
+  boundaryType _min_y_bound;
+  boundaryType _max_y_bound;
+
+  /** A flag for determining if boundaries are up to date */
+  bool _boundary_types_not_updated;
+
 public:
 
   Universe(const int id=-1, const char* name="");
@@ -120,6 +129,7 @@ public:
   bool isFissionable();
 
   void calculateExtrema();
+  void calculateBoundaryTypes();
   void setName(const char* name);
   void setType(universeType type);
   void addCell(Cell* cell);
