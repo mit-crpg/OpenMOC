@@ -90,7 +90,7 @@ protected:
   double _max_z;
 
   /** A flag for determining if boundaries are up to date */
-  bool _boundaries_not_updated;
+  bool _boundaries_inspected;
 
   /** The boundaryTypes of the universe */
   boundaryType _min_x_bound;
