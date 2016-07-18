@@ -89,8 +89,8 @@ protected:
   double _min_z;
   double _max_z;
 
-  /** A flag for determining if extrema are up to date */
-  bool _cell_added;
+  /** A flag for determining if boundaries are up to date */
+  bool _boundaries_not_updated;
 
   /** The boundaryTypes of the universe */
   boundaryType _min_x_bound;
@@ -98,8 +98,6 @@ protected:
   boundaryType _min_y_bound;
   boundaryType _max_y_bound;
 
-  /** A flag for determining if boundaries are up to date */
-  bool _boundary_types_not_updated;
 
 public:
 
@@ -128,8 +126,8 @@ public:
   std::map<int, Universe*> getAllUniverses();
   bool isFissionable();
 
-  void calculateExtrema();
-  void calculateBoundaryTypes();
+  void resetBoundaries();
+  void calculateBoundaries();
   void setName(const char* name);
   void setType(universeType type);
   void addCell(Cell* cell);
