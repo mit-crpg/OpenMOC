@@ -67,8 +67,7 @@ Universe::Universe(const int id, const char* name) {
 
   _type = SIMPLE;
 
-  _cell_added = true;
-  _boundary_types_not_updated = true;
+  _boundaries_not_updated = true;
 
 
   /* By default, the Universe's fissionability is unknown */
@@ -139,8 +138,8 @@ int Universe::getNumCells() const {
  */
 double Universe::getMinX() {
 
-  if (_cell_added)
-    calculateExtrema();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _min_x;
 }
@@ -152,8 +151,8 @@ double Universe::getMinX() {
  */
 double Universe::getMaxX() {
 
-  if (_cell_added)
-    calculateExtrema();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _max_x;
 }
@@ -165,8 +164,8 @@ double Universe::getMaxX() {
  */
 double Universe::getMinY() {
 
-  if (_cell_added)
-    calculateExtrema();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _min_y;
 }
@@ -178,8 +177,8 @@ double Universe::getMinY() {
  */
 double Universe::getMaxY() {
 
-  if (_cell_added)
-    calculateExtrema();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _max_y;
 }
@@ -191,8 +190,8 @@ double Universe::getMaxY() {
  */
 double Universe::getMinZ() {
 
-  if (_cell_added)
-    calculateExtrema();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _min_z;
 }
@@ -204,8 +203,8 @@ double Universe::getMinZ() {
  */
 double Universe::getMaxZ() {
 
-  if (_cell_added)
-    calculateExtrema();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _max_z;
 }
@@ -218,8 +217,8 @@ double Universe::getMaxZ() {
  */
 boundaryType Universe::getMinXBoundaryType() {
 
-  if (_boundary_types_not_updated)
-    calculateBoundaryTypes();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _min_x_bound;
 }
@@ -232,8 +231,8 @@ boundaryType Universe::getMinXBoundaryType() {
  */
 boundaryType Universe::getMaxXBoundaryType() {
 
-  if (_boundary_types_not_updated)
-    calculateBoundaryTypes();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _max_x_bound;
 }
@@ -246,8 +245,8 @@ boundaryType Universe::getMaxXBoundaryType() {
  */
 boundaryType Universe::getMinYBoundaryType() {
 
-  if (_boundary_types_not_updated)
-    calculateBoundaryTypes();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _min_y_bound;
 }
@@ -260,8 +259,8 @@ boundaryType Universe::getMinYBoundaryType() {
  */
 boundaryType Universe::getMaxYBoundaryType() {
 
-  if (_boundary_types_not_updated)
-    calculateBoundaryTypes();
+  if (_boundaries_not_updated)
+    calculateBoundaries();
 
   return _max_y_bound;
 }
@@ -438,8 +437,7 @@ void Universe::addCell(Cell* cell) {
                " ID = %d. Backtrace:\n%s", cell, _id, e.what());
   }
 
-  _cell_added = true;
-  _boundary_types_not_updated = true;
+  _boundaries_not_updated = true;
 }
 
 
@@ -451,8 +449,7 @@ void Universe::removeCell(Cell* cell) {
   if (_cells.find(cell->getId()) != _cells.end())
     _cells.erase(cell->getId());
 
-  _cell_added = true;
-  _boundary_types_not_updated = true;
+  _boundaries_not_updated = true;
 }
 
 
@@ -1570,10 +1567,11 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
 
 
 /**
-  * @brief  Calculates the extrema of the geometry and saves them to local
-  *         variables. _cell_added is set to false
+  * @brief  Calculates the boundary locations and 
+  *         conditions (VACUUM or REFLECTIVE) at the
+  *         maximum and minimum reachable coordinates in the Universe
   */
-void Universe::calculateExtrema() {
+void Universe::calculateBoundaries() {
 
   /* Calculate the minimum reachable x-coordinate in the geometry and store it
    * in _x_min */
@@ -1697,23 +1695,9 @@ void Universe::calculateExtrema() {
 
   _max_z = max_z;
 
-  _cell_added = false;
-}
-
-
-/**
-  * @brief  Calculates the boundary conditions (VACUUM or REFLECTIVE at the
-  *         maximum and minimum reachable coordinates in the Universe
-  */
-void Universe::calculateBoundaryTypes() {
-
   /* Calculate the boundary condition at the minimum 
    * reachable x-coordinate in the Universe and store it in _min_x_bound.
    */
-  std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
-  Surface* surf;
-  int halfspace;
   boundaryType bc_x_min = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an x-min boundary */
@@ -1795,6 +1779,14 @@ void Universe::calculateBoundaryTypes() {
 
   _max_y_bound = bc_y_max;
 
-  _boundary_types_not_updated = false;
+  _boundaries_not_updated = false;
 }
 
+/**
+  * @brief  sets _boundaries_not_updated to true so boundaries will be
+  *         recalculated if needed
+  */
+void Universe::resetBoundaries() {
+
+  _boundaries_not_updated = true;
+}

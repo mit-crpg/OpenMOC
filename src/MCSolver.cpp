@@ -199,6 +199,9 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
                                  int num_groups) {
   std::cout << "[  NORMAL ]  Computing Eigenvalue\n";
 
+  // reset the boundaries in the geometry
+  _geometry->resetBoundaries();
+
   // initialize fsid
   _geometry->initializeFSRs();
 

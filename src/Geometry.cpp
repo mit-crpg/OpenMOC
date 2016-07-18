@@ -421,13 +421,6 @@ void Geometry::setCmfd(Cmfd* cmfd) {
  */
 Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
 
-
-  // print full coords
-  std::cout.precision(17);
-/*  std::cout << "position in findCellContainingCoords: " 
-    << std::fixed << coords->getX() << " " << std::fixed 
-    << coords->getY() << "\n\n";
-*/
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
@@ -441,7 +434,6 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
   else
     cell = static_cast<Lattice*>(univ)->findCell(coords);
 
-//  std::cout << "returns cell\n";
   return cell;
 }
 
@@ -1302,4 +1294,18 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
   delete coords;
 
   return cell;
+}
+
+/**
+  * @brief  Resets the boundaries of each Universe in the Geometry
+  */
+void Geometry::resetBoundaries() {
+
+  std::map<int, Universe*> universes = getAllUniverses();
+  std::map<int, Universe*>::iterator u_iter;
+
+  /* Reset the boundaries in each Universe */
+  for (u_iter = universes.begin(); u_iter != universes.end(); ++u_iter)
+    u_iter->resetBoundaries();
+
 }
