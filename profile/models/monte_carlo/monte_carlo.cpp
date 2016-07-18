@@ -239,7 +239,7 @@ int main() {
   geometry->setRootUniverse(root_universe);
 
   // simulate neutron histories
-  int num_neutrons = 10000;
+  int num_neutrons = 1000;
   int num_batches = 3;
 
   // create solver and run simulation
