@@ -532,6 +532,7 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
  */
 __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
                                        FP_PRECISION* boundary_flux,
+                                       FP_PRECISION* start_flux,
                                        FP_PRECISION* reduced_sources,
                                        dev_material* materials,
                                        dev_track* tracks,
@@ -583,7 +584,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     }
 
     /* Transfer boundary angular flux to outgoing Track */
-    transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
+    transferBoundaryFlux(curr_track, azim_index, track_flux, start_flux,
                          energy_angle_index, true);
 
     /* Loop over each Track segment in reverse direction */
@@ -596,7 +597,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     }
 
     /* Transfer boundary angular flux to outgoing Track */
-    transferBoundaryFlux(curr_track, azim_index, track_flux, boundary_flux,
+    transferBoundaryFlux(curr_track, azim_index, track_flux, start_flux,
                          energy_angle_index, false);
 
     /* Update the indices for this thread to the next Track, energy group */
@@ -748,6 +749,7 @@ GPUSolver::~GPUSolver() {
 
   /* Clear Thrust vectors's memory on the device */
   _boundary_flux.clear();
+  _start_flux.clear();
   _scalar_flux.clear();
   _old_scalar_flux.clear();
   _fixed_sources.clear();
@@ -1212,7 +1214,7 @@ void GPUSolver::initializeTracks() {
     cudaFree(_dev_tracks);
 
   /* Allocate memory for all Tracks and Track offset indices on the device */
-  try{
+  try {
 
     /* Allocate array of dev_tracks */
     cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
@@ -1256,6 +1258,7 @@ void GPUSolver::initializeFluxArrays() {
 
   /* Clear Thrust vectors' memory if previously allocated */
   _boundary_flux.clear();
+  _start_flux.clear();
   _scalar_flux.clear();
   _old_scalar_flux.clear();
 
@@ -1263,6 +1266,7 @@ void GPUSolver::initializeFluxArrays() {
   try {
     int size = 2 * _tot_num_tracks * _polar_times_groups;
     _boundary_flux.resize(size);
+    _start_flux.resize(size);
 
     size = _num_FSRs * _num_groups;
     _scalar_flux.resize(size);
@@ -1345,6 +1349,7 @@ void GPUSolver::initializeFixedSources() {
  */
 void GPUSolver::zeroTrackFluxes() {
   thrust::fill(_boundary_flux.begin(), _boundary_flux.end(), 0.0);
+  thrust::fill(_start_flux.begin(), _start_flux.end(), 0.0);
 }
 
 
@@ -1403,6 +1408,9 @@ void GPUSolver::normalizeFluxes() {
   thrust::transform(_boundary_flux.begin(), _boundary_flux.end(),
                     thrust::constant_iterator<FP_PRECISION>(norm_factor),
                     _boundary_flux.begin(), thrust::multiplies<FP_PRECISION>());
+  thrust::transform(_start_flux.begin(), _start_flux.end(),
+                    thrust::constant_iterator<FP_PRECISION>(norm_factor),
+                    _start_flux.begin(), thrust::multiplies<FP_PRECISION>());
 
   /* Clear Thrust vector of FSR fission sources */
   fission_sources_vec.clear();
@@ -1473,8 +1481,6 @@ void GPUSolver::computeFSRScatterSources() {
 void GPUSolver::transportSweep() {
 
   int shared_mem = _T * _num_polar_2 * 2 * sizeof(FP_PRECISION);
-  int tid_offset = 0;
-  int tid_max = 0;
 
   log_printf(DEBUG, "Transport sweep on device with %d blocks and %d threads",
              _B, _T);
@@ -1484,25 +1490,25 @@ void GPUSolver::transportSweep() {
        thrust::raw_pointer_cast(&_scalar_flux[0]);
   FP_PRECISION* boundary_flux =
        thrust::raw_pointer_cast(&_boundary_flux[0]);
+  FP_PRECISION* start_flux =
+       thrust::raw_pointer_cast(&_start_flux[0]);
   FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
-  /* Loop over the parallel track groups and perform transport sweep on tracks
-   * in that group */
-  for (int g=0; g < _num_parallel_track_groups; g++) {
-    tid_offset = tid_max * _num_groups;
-    tid_max += _track_generator->getNumTracksByParallelGroup(g);
+  /* Copy starting flux to current flux */
+  cudaMemcpy((void*)boundary_flux, (void*)start_flux, 2 * _tot_num_tracks *
+             _polar_times_groups * sizeof(FP_PRECISION),
+             cudaMemcpyDeviceToDevice);
 
-    transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
-                                                   reduced_sources,
-                                                   _materials, _dev_tracks,
-                                                   tid_offset, tid_max);
-
-    cudaDeviceSynchronize();
-  }
+  /* Perform transport sweep on all tracks */
+  transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
+                                                 start_flux, reduced_sources,
+                                                 _materials, _dev_tracks,
+                                                 0, _tot_num_tracks);
+  cudaDeviceSynchronize();
 }
 
 
