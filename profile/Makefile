@@ -6,8 +6,8 @@ COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = no
 DEBUG       = yes
-PROFILE     = no
-PRECISION   = single
+PROFILE     = yes
+PRECISION   = double
 
 #===============================================================================
 # Source Code List

@@ -81,20 +81,22 @@ geometry.setRootUniverse(root_universe)
 #                            Running a Simulation
 ###############################################################################
 
+
 solver = openmoc.MCSolver()
 #solver.setConvergenceThreshold(opts.tolerance)
 solver.setGeometry(geometry)
 solver.initialize()
 solver.computeEigenvalue(10000,10000,7)
-solver.printTimerReport()
+#solver.printTimerReport()
 
 
 ###############################################################################
 #                             Generating Plots
 ###############################################################################
-'''
+
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
+'''
 openmoc.plotter.plot_quadrature(solver)
 openmoc.plotter.plot_tracks(track_generator)
 openmoc.plotter.plot_segments(track_generator)
@@ -102,6 +104,7 @@ openmoc.plotter.plot_materials(geometry)
 openmoc.plotter.plot_cells(geometry)
 openmoc.plotter.plot_flat_source_regions(geometry)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-openmoc.plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 '''
+openmoc.plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
+
 openmoc.log.py_printf('TITLE', 'Finished')

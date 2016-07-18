@@ -106,13 +106,10 @@ solver.printTimerReport()
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-openmoc.plotter.plot_quadrature(solver)
-openmoc.plotter.plot_tracks(track_generator)
 openmoc.plotter.plot_segments(track_generator)
-openmoc.plotter.plot_materials(geometry)
-openmoc.plotter.plot_cells(geometry)
-openmoc.plotter.plot_flat_source_regions(geometry)
+openmoc.plotter.plot_materials(geometry, gridsize=500)
+openmoc.plotter.plot_cells(geometry, gridsize=500)
+openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500, centroids=True)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-openmoc.plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 
 openmoc.log.py_printf('TITLE', 'Finished')

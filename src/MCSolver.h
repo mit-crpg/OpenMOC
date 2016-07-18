@@ -39,7 +39,6 @@ public:
   virtual ~MCSolver();
 
   void setGeometry(Geometry* geometry);
-  void initializeFSRs(Lattice* lattice);
 
   void sampleLocation(Neutron* neutron);
 
@@ -47,12 +46,12 @@ public:
 
   void transportNeutron(std::vector <Tally> &tallies, bool first_round,
       Fission* fission_banks, int num_groups, int neutron_num, int batch,
-      int write_neutron = -1, int write_batch = -1, bool read = false, 
+      int write_neutron = -1, int write_batch = -1, 
       Neutron* input_neutron = NULL);
 
   void transportNeutronWithTrack(std::vector <Tally> &tallies, bool first_round,
       Fission* fission_banks, int num_groups, int neutron_num, int batch,
-      int write_neutron = -1, int write_batch = -1, bool read = false, 
+      int write_neutron = -1, int write_batch = -1, 
       Neutron* input_neutron = NULL);
   
   Geometry* getGeometry();

@@ -407,7 +407,7 @@ void Geometry::setCmfd(Cmfd* cmfd) {
  *        of the nested Universe hierarchy.
  * @details This method assumes that the LocalCoords has been initialized
  *          with coordinates and a Universe ID. The method will recursively
- *          find the Cell on the lowest level of the nested Universe hierarchy
+ *          
  *          by building a linked list of LocalCoords from the LocalCoord
  *          passed in as an argument down to the lowest level Cell found. In
  *          the process it will set the coordinates at each level of the
@@ -441,6 +441,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
   else
     cell = static_cast<Lattice*>(univ)->findCell(coords);
 
+//  std::cout << "returns cell\n";
   return cell;
 }
 

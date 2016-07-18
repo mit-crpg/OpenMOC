@@ -16,12 +16,12 @@
 
 class Fission {
 public:
-  Fission();
+  Fission(int num_sites);
   virtual ~Fission();
 
   void newBatch();
   void sampleSite(Neutron *neutron);
-  void add(Point* position);
+  void add(Point* position, Neutron* neutron);
 
 private:
 
@@ -33,6 +33,18 @@ private:
   
   /** a placeholder used when switching banks */
   std::vector <Point*>* _temp_fission_bank;
+
+  /** the number of locations, the size of the fission banks */
+  int _num_sites;
+
+  /** the number of fission sites currently populating the vector */
+  int _current_num_sites;
+
+  /** the actual number of fission sites in the old fission bank */
+  int _old_actual_num_sites;
+
+  /** the site being sampled by a neutron */
+  int _site_sampled;
 
 };
 #endif
