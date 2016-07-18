@@ -377,6 +377,7 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
       // check if the neutron is on a boundary
       std::vector <int> box_lim_bound;
+      box_lim_bound.reserve(2);
       box_lim_bound.clear();
       if (std::abs(neutron.getPosition(0) - _geometry->getMinX())
           < ON_SURFACE_THRESH)
@@ -564,6 +565,7 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
       // calculate sigma_s for a group in order to sample an interaction
       std::vector <double> sigma_s_group;
+      sigma_s_group.reserve(8);
       double sum_sigma_s_group=0;
       for (int g=1; g<=cell_mat->getNumEnergyGroups(); ++g) {
         sigma_s_group.push_back(cell_mat->getSigmaSByGroup(group+1, g));
