@@ -431,11 +431,13 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
             neutron.reflect(axis);
 
+            /*
             neutron_coord_position->setX(neutron.getPosition(0));
             neutron_coord_position->setY(neutron.getPosition(1));
             neutron_coord_position->setZ(neutron.getPosition(2));
             neutron_coord_position->setUniverse(_root_universe);
             Cell* test = _geometry->findFirstCell(neutron_coord_position);
+            */
   
           }
 
@@ -587,15 +589,18 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
         neutron.setGroup(new_group);
 
         // findfirstcell
+        /*
         neutron_coord_position->setX(neutron.getPosition(0));
         neutron_coord_position->setY(neutron.getPosition(1));
         neutron_coord_position->setZ(neutron.getPosition(2));
         neutron_coord_position->setUniverse(_root_universe);
         Cell* test = _geometry->findFirstCell(neutron_coord_position);
+*/
 
         // if findFirstCell nudged the neutron out of the boundary nudge it
         // backwards then use findFirstCell again
-        if (test == NULL) {
+        //if (test == NULL) {
+          /*
           neutron.move(-TINY_MOVE);
           neutron_coord_position->setX(neutron.getPosition(0));
           neutron_coord_position->setY(neutron.getPosition(1));
@@ -603,7 +608,8 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
           neutron_coord_position->setUniverse(_root_universe);
           _geometry->findFirstCell(neutron_coord_position);
           neutron.move(TINY_MOVE);
-        }
+          */
+       // }
       }
 
       // absorption event
@@ -885,12 +891,13 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
 
             neutron.reflect(axis);
 
+            /*
             neutron_coord_position->setX(neutron.getPosition(0));
             neutron_coord_position->setY(neutron.getPosition(1));
             neutron_coord_position->setZ(neutron.getPosition(2));
             neutron_coord_position->setUniverse(_root_universe);
             Cell* test = _geometry->findFirstCell(neutron_coord_position);
-  
+  */
           }
 
           // if the neutron escapes
@@ -1166,7 +1173,7 @@ void MCSolver::trackSingleNeutron() {
   badNeutron.setPosition(1, y);
   badNeutron.setPosition(2, z);
   badNeutron.setDirection(0, x);
-  badNeutron.etDirection(1, y);
+  badNeutron.setDirection(1, y);
   badNeutron.setDirection(2, z);
   badNeutron.setGroup(group);
 
