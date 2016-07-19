@@ -1296,6 +1296,7 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
   return cell;
 }
 
+
 /**
   * @brief  Resets the boundaries of each Universe in the Geometry
   */

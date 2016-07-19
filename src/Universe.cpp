@@ -67,8 +67,7 @@ Universe::Universe(const int id, const char* name) {
 
   _type = SIMPLE;
 
-  _boundaries_not_updated = true;
-
+  _boundaries_inspected = false;
 
   /* By default, the Universe's fissionability is unknown */
   _fissionable = false;
@@ -138,7 +137,7 @@ int Universe::getNumCells() const {
  */
 double Universe::getMinX() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_x;
@@ -151,7 +150,7 @@ double Universe::getMinX() {
  */
 double Universe::getMaxX() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_x;
@@ -164,7 +163,7 @@ double Universe::getMaxX() {
  */
 double Universe::getMinY() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_y;
@@ -177,7 +176,7 @@ double Universe::getMinY() {
  */
 double Universe::getMaxY() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_y;
@@ -190,7 +189,7 @@ double Universe::getMaxY() {
  */
 double Universe::getMinZ() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_z;
@@ -203,7 +202,7 @@ double Universe::getMinZ() {
  */
 double Universe::getMaxZ() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_z;
@@ -217,7 +216,7 @@ double Universe::getMaxZ() {
  */
 boundaryType Universe::getMinXBoundaryType() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_x_bound;
@@ -231,7 +230,7 @@ boundaryType Universe::getMinXBoundaryType() {
  */
 boundaryType Universe::getMaxXBoundaryType() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_x_bound;
@@ -245,7 +244,7 @@ boundaryType Universe::getMaxXBoundaryType() {
  */
 boundaryType Universe::getMinYBoundaryType() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_y_bound;
@@ -259,7 +258,7 @@ boundaryType Universe::getMinYBoundaryType() {
  */
 boundaryType Universe::getMaxYBoundaryType() {
 
-  if (_boundaries_not_updated)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_y_bound;
@@ -437,7 +436,7 @@ void Universe::addCell(Cell* cell) {
                " ID = %d. Backtrace:\n%s", cell, _id, e.what());
   }
 
-  _boundaries_not_updated = true;
+  _boundaries_inspected = false;
 }
 
 
@@ -449,7 +448,7 @@ void Universe::removeCell(Cell* cell) {
   if (_cells.find(cell->getId()) != _cells.end())
     _cells.erase(cell->getId());
 
-  _boundaries_not_updated = true;
+  _boundaries_inspected = false;
 }
 
 
@@ -1779,7 +1778,7 @@ void Universe::calculateBoundaries() {
 
   _max_y_bound = bc_y_max;
 
-  _boundaries_not_updated = false;
+  _boundaries_inspected = true;
 }
 
 /**
@@ -1788,5 +1787,5 @@ void Universe::calculateBoundaries() {
   */
 void Universe::resetBoundaries() {
 
-  _boundaries_not_updated = true;
+  _boundaries_inspected = false;
 }
