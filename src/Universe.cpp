@@ -137,7 +137,7 @@ int Universe::getNumCells() const {
  */
 double Universe::getMinX() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_x;
@@ -150,7 +150,7 @@ double Universe::getMinX() {
  */
 double Universe::getMaxX() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_x;
@@ -163,7 +163,7 @@ double Universe::getMaxX() {
  */
 double Universe::getMinY() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_y;
@@ -176,7 +176,7 @@ double Universe::getMinY() {
  */
 double Universe::getMaxY() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_y;
@@ -189,7 +189,7 @@ double Universe::getMaxY() {
  */
 double Universe::getMinZ() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_z;
@@ -202,7 +202,7 @@ double Universe::getMinZ() {
  */
 double Universe::getMaxZ() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_z;
@@ -216,7 +216,7 @@ double Universe::getMaxZ() {
  */
 boundaryType Universe::getMinXBoundaryType() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_x_bound;
@@ -230,7 +230,7 @@ boundaryType Universe::getMinXBoundaryType() {
  */
 boundaryType Universe::getMaxXBoundaryType() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_x_bound;
@@ -244,7 +244,7 @@ boundaryType Universe::getMaxXBoundaryType() {
  */
 boundaryType Universe::getMinYBoundaryType() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _min_y_bound;
@@ -258,7 +258,7 @@ boundaryType Universe::getMinYBoundaryType() {
  */
 boundaryType Universe::getMaxYBoundaryType() {
 
-  if (!boundaries_inspected)
+  if (!_boundaries_inspected)
     calculateBoundaries();
 
   return _max_y_bound;
