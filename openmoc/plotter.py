@@ -150,6 +150,8 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
         fig.savefig(directory+filename, bbox_inches='tight')
         plt.close(fig)
 
+    del coords
+
 
 def plot_segments(track_generator, get_figure=False, plot_3D=False):
     """Plot the characteristic track segments from an OpenMOC simulation.
@@ -1418,12 +1420,12 @@ def plot_quadrature(solver, get_figure=False):
     elif quad.getQuadratureType() is openmoc.GAUSS_LEGENDRE:
         quad_type = 'GAUSS_LEGENDRE'
         title = 'GAUSS LEGENDRE'
-    elif quad.getQuadratureType() is openmoc.EQUAL_WEIGHTS:
-        quad_type = 'EQUAL_WEIGHTS'
-        title = 'EQUAL WEIGHTS'
-    elif quad.getQuadratureType() is openmoc.EQUAL_ANGLES:
-        quad_type = 'EQUAL_ANGLES'
-        title = 'EQUAL ANGLES'
+    elif quad.getQuadratureType() is openmoc.EQUAL_WEIGHT:
+        quad_type = 'EQUAL_WEIGHT'
+        title = 'EQUAL WEIGHT'
+    elif quad.getQuadratureType() is openmoc.EQUAL_ANGLE:
+        quad_type = 'EQUAL_ANGLE'
+        title = 'EQUAL ANGLE'
     elif quad.getQuadratureType() is openmoc.CUSTOM:
         quad_type = 'CUSTOM'
         title = 'CUSTOM'

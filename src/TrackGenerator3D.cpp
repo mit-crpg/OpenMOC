@@ -95,7 +95,8 @@ TrackGenerator3D::~TrackGenerator3D() {
     /* Delete temporary Tracks if they exist */
     if (_contains_temporary_tracks) {
       for (int t = 0; t < _num_threads; t++) {
-        delete [] _temporary_tracks.at(t);
+        delete [] _temporary_3D_tracks.at(t);
+        delete [] _temporary_tracks_array.at(t);
       }
     }
   }
@@ -251,19 +252,35 @@ segment* TrackGenerator3D::getTemporarySegments(int thread_id) {
 
 
 /**
- * @brief Returns an array of temporary Tracks for use in on-the-fly
+ * @brief Returns an array of temporary 3D Tracks for use in on-the-fly
  *        computations.
- //FIXME
+ * @param thread_id The thread ID, as assigned by OpenMP
  */
-Track3D* TrackGenerator3D::getTemporaryTracks(int thread_id) {
+Track3D* TrackGenerator3D::getTemporary3DTracks(int thread_id) {
   if (_contains_temporary_tracks)
-    return _temporary_tracks.at(thread_id);
+    return _temporary_3D_tracks.at(thread_id);
   else
     return NULL;
 }
 
 
-//FIXME
+/**
+ * @brief Returns an array of pointers to temporary Tracks for use in
+ *        on-the-fly computations.
+ * @param thread_id The thread ID, as assigned by OpenMP
+ */
+Track** TrackGenerator3D::getTemporaryTracksArray(int thread_id) {
+  if (_contains_temporary_tracks)
+    return _temporary_tracks_array.at(thread_id);
+  else
+    return NULL;
+}
+
+
+/**
+ * @brief Returns whether or not the TrackGenerator contains an allocation
+ *        for temporary Tracks to be filled on-the-fly.
+ */
 bool TrackGenerator3D::containsTemporaryTracks() {
   return _contains_temporary_tracks;
 }
@@ -1330,7 +1347,11 @@ void TrackGenerator3D::create3DTracksArrays() {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the 3D Track ID based on its indexes
+ * @param sti The indexes of the Track of interest (azimuthal, xy track, polar,
+ *        and z stack)
+ */
 long TrackGenerator3D::get3DTrackID(StackTrackIndexes* sti) {
   return _cum_tracks_per_stack[sti->_azim][sti->_xy][sti->_polar] + sti->_z;
 }
@@ -1445,7 +1466,7 @@ void TrackGenerator3D::checkBoundaryConditions() {
  */
 void TrackGenerator3D::allocateTemporarySegments() {
 
-  /* Check if a resize is unnecessary */
+  /* Check if a risize is unnecessary */
   if (_max_num_segments <= _num_seg_matrix_columns)
     return;
 
@@ -1470,27 +1491,30 @@ void TrackGenerator3D::allocateTemporarySegments() {
 
 
 /**
- * @brief Allocates memory for temporary segment storage if necessary
- * @details New memory is only allocated if _max_num_segments exceeds
- *          _num_seg_matrix_columns (the maximum when the segments were allocated)
- FIXME
+ * @brief Allocates memory for temporary Track storage if necessary
  */
 void TrackGenerator3D::allocateTemporaryTracks() {
 
   /* Delete temporary segments if already allocated */
   if (_contains_temporary_tracks) {
     for (int t = 0; t < _num_threads; t++) {
-      delete [] _temporary_tracks.at(t);
+      delete [] _temporary_3D_tracks.at(t);
+      delete [] _temporary_tracks_array.at(t);
     }
   }
   else {
-    _temporary_tracks.resize(_num_threads);
+    _temporary_3D_tracks.resize(_num_threads);
+    _temporary_tracks_array.resize(_num_threads);
     _contains_temporary_tracks = true;
   }
 
   /* Allocate new temporary segments */
-  for (int t = 0; t < _num_threads; t++)
-    _temporary_tracks.at(t) = new Track3D[_max_num_tracks_per_stack];
+  for (int t = 0; t < _num_threads; t++) {
+    _temporary_3D_tracks.at(t) = new Track3D[_max_num_tracks_per_stack];
+    _temporary_tracks_array.at(t) = new Track*[_max_num_tracks_per_stack];
+    for (int i=0; i < _max_num_tracks_per_stack; i++)
+      _temporary_tracks_array.at(t)[i] = &_temporary_3D_tracks.at(t)[i];
+  }
 }
 
 
@@ -1529,7 +1553,12 @@ bool TrackGenerator3D::containsSegments() {
 }
 
 
-//FIXME
+/**
+ * @brief Updates the provided Track with the correct information based on the
+ *        Track indexes
+ * @param track The 3D Track whose information is updated
+ * @param sti The indexes of the 3D Track
+ */
 void TrackGenerator3D::getTrackOTF(Track3D* track, StackTrackIndexes* sti) {
 
   try {
@@ -1585,13 +1614,17 @@ Track3D**** TrackGenerator3D::get3DTracks() {
 }
 
 
-//FIXME
+/**
+ * @brief Converts StackTrackIndexes to CycleTrackIndexes
+ * @param sti The StackTrackIndexes of the 3D Track
+ * @param cti The CycleTrackIndexes of the 3D Track to be updated
+ */
 void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
                                        CycleTrackIndexes* cti) {
 
   Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
 
-  //FIXME HERE
+  /* Determine the first quadrant azimuthal index */
   if (sti->_azim < _num_azim / 4)
     cti->_azim = sti->_azim;
   else if (sti->_azim < _num_azim / 2)
@@ -1601,20 +1634,27 @@ void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
   else
     cti->_azim = _num_azim - sti->_azim - 1;
 
+  /* Extract the cycle index from the 2D Track */
   cti->_cycle = track_2D->getCycleIndex();
 
+  /* Get the polar index based on the direction */
   if (track_2D->getDirectionInCycle())
     cti->_polar = sti->_polar;
   else
     cti->_polar = _num_polar - sti->_polar - 1;
 
+  /* Calculate the l-z plane index */
   cti->_lz = _first_lz_of_stack[sti->_azim][sti->_xy][sti->_polar] + sti->_z;
 
   getTrainIndex(cti, sti);
 }
 
 
-//FIXME
+/**
+ * @brief Converts CycleTrackIndexes to StackTrackIndexes
+ * @param cti The CycleTrackIndexes of the 3D Track
+ * @param sti The StackTrackIndexes of the 3D Track to be updated
+ */
 void TrackGenerator3D::convertCTItoSTI(CycleTrackIndexes* cti,
                                        StackTrackIndexes* sti) {
 
@@ -1632,7 +1672,11 @@ void TrackGenerator3D::convertCTItoSTI(CycleTrackIndexes* cti,
 }
 
 
-//FIXME
+/**
+ * @brief Returns the index into the 3D z-stack based on cycle indexes
+ * @param cti The cycle indexes
+ * @return the index into the 3D z-stack
+ */
 int TrackGenerator3D::getStackIndex(CycleTrackIndexes* cti) {
 
   Track3D track;
@@ -1641,7 +1685,11 @@ int TrackGenerator3D::getStackIndex(CycleTrackIndexes* cti) {
 }
 
 
-//FIXME
+/**
+ * @brief Updates the index into the 3D cycle based on cycle and stack indexes
+ * @param cti The cycle indexes to be updated
+ * @param sti The stack indexes
+ */
 void TrackGenerator3D::getTrainIndex(CycleTrackIndexes* cti,
                                      StackTrackIndexes* sti) {
 
@@ -1652,7 +1700,11 @@ void TrackGenerator3D::getTrainIndex(CycleTrackIndexes* cti,
 }
 
 
-//FIXME
+/**
+ * @brief Calculates the number of Tracks in the l-z traversal
+ * @param cti The cycle indexes
+ * @return the number of Tracks in the l-z traversal
+ */
 int TrackGenerator3D::getNumTracksPerLZ(CycleTrackIndexes* cti) {
 
   Track3D track_3D;
@@ -1695,7 +1747,14 @@ int TrackGenerator3D::getNumTracksPerLZ(CycleTrackIndexes* cti) {
 }
 
 
-//FIXME description
+/**
+ * @brief Fills the provided 3D Track with its tracking information
+ * @param sti The stack indexes
+ * @param cti The cycle indexes
+ * @param cti outgoing A boolean indicating the direction of the Track
+ *        (True = forward, False = Backward)
+ * @param track The 3D Track whose information is updated
+ */
 void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
                                       CycleTrackIndexes* cti,
                                       bool outgoing,
@@ -1913,7 +1972,11 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
 }
 
 
-//FIXME
+/**
+ * @breif Updates stack indexes to reflect those from the given Track ID
+ * @param id The 3D Track ID
+ * @param sti The stack indexes to be updated
+ */
 void TrackGenerator3D::getSTIByIndex(long id, StackTrackIndexes* sti) {
 
   long int cum_track_index = 0;

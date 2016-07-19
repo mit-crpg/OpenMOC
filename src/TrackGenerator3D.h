@@ -129,9 +129,10 @@ private:
   std::vector<segment*> _temporary_segments;
   bool _contains_temporary_segments;
 
-  /** A matrix of temporary Tracks are created for on-the-fly methods to
-    * improve efficiency FIXME */
-  std::vector<Track3D*> _temporary_tracks;
+  /** An array temporary Tracks are created for on-the-fly methods to
+    * improve efficiency for every thread */
+  std::vector<Track3D*> _temporary_3D_tracks;
+  std::vector<Track**> _temporary_tracks_array;
   bool _contains_temporary_tracks;
 
   /** Maximum number of tracks a single 3D track stack for on-the-fly
@@ -182,7 +183,8 @@ public:
   int getNumRows();
   int getNumColumns();
   segment* getTemporarySegments(int thread_id);
-  Track3D* getTemporaryTracks(int thread_id);
+  Track3D* getTemporary3DTracks(int thread_id);
+  Track** getTemporaryTracksArray(int thread_id);
   int getNumZ(int azim, int polar);
   int getNumL(int azim, int polar);
   int getTrackGenerationMethod();

@@ -221,7 +221,7 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
   int tid = omp_get_thread_num();
 
   /* Allocate array of current Tracks */
-  Track3D* current_stack = _track_generator_3D->getTemporaryTracks(tid);
+  Track3D* current_stack = _track_generator_3D->getTemporary3DTracks(tid);
 
 #pragma omp for
   /* Loop over flattened 2D tracks */
