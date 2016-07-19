@@ -1306,6 +1306,6 @@ void Geometry::resetBoundaries() {
 
   /* Reset the boundaries in each Universe */
   for (u_iter = universes.begin(); u_iter != universes.end(); ++u_iter)
-    u_iter->resetBoundaries();
+    u_iter->second->resetBoundaries();
 
 }

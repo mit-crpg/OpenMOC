@@ -185,15 +185,51 @@ void MCSolver::initialize() {
 }
 
 
-/*
- @brief   generates and transports neutron histories, calculates the mean
-      crow distance
- @param   n_histories number of neutron histories to run
- @param   mat a Material object containing information
-      about the material
- @param   flux a Flux object containing information about the flux
- @param   num_batches the number of batches to be tested
- @param   num_groups the number of neutron energy groups
+/**
+  * @brief  initialize fission, absorption, and leakage locks for 
+  *         each fsr, as well as a fission bank lock.
+  */
+void MCSolver::initializeLocks() {
+  
+  // delete old locks if they exist 
+  if (_leak_locks != NULL)
+    delete [] _leak_locks;
+  if (_absorption_locks != NULL)
+    delete [] _absorption_locks;
+  if (_fission_locks != NULL)
+    delete [] _fission_locks;
+  if (_fission_bank_lock != NULL)
+    delete _fission_bank_lock;
+
+  // allocate array of locks for each leaks absorptions and fission
+  int num_FSRs = _geometry->getNumFSRs();
+
+  _leak_locks = new omp_lock_t;
+  _absorption_locks = new omp_lock_t;
+  _fission_locks = new omp_lock_t;
+  _crow_locks = new omp_lock_t;
+
+  // Loop over all FSRs to initialize OpenMP locks
+#pragma omp parallel for schedule(guided)
+  for (int r=0; r < num_FSRs; r++) {
+  }
+
+  omp_init_lock(&_leak_locks);
+  omp_init_lock(&_absorption_locks);
+  omp_init_lock(&_fission_locks);
+  omp_init_lock(&_crow_lock);
+}
+
+
+/**
+  * @brief  generates and transports neutron histories, calculates the mean
+            crow distance
+  * @param  n_histories number of neutron histories to run
+  * @param  mat a Material object containing information
+            about the material
+  * @param  flux a Flux object containing information about the flux
+  * @param  num_batches the number of batches to be tested
+  * @param  num_groups the number of neutron energy groups
 */
 void MCSolver::computeEigenvalue(int n_histories, int num_batches,
                                  int num_groups) {
@@ -229,6 +265,7 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
     tallies[FISSIONS].clear();
 
     // simulate neutron behavior
+#pragma omp parallel for
     for (int i=0; i<n_histories; ++i) {
       
      /* 
@@ -357,6 +394,8 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
       neutron_position->getZ());
   neutron_coord_position->setUniverse(_root_universe);
   cell_obj = _geometry->findCellContainingCoords(neutron_coord_position);
+  delete neutron_coord_position;
+
   cell_mat = cell_obj->getFillMaterial();
 
   std::vector <double> chi(num_groups);
@@ -377,8 +416,7 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
       // check if the neutron is on a boundary
       std::vector <int> box_lim_bound;
-      box_lim_bound.reserve(2);
-      box_lim_bound.clear();
+      //box_lim_bound.clear();
       if (std::abs(neutron.getPosition(0) - _geometry->getMinX())
           < ON_SURFACE_THRESH)
         box_lim_bound.push_back(0);
@@ -408,18 +446,14 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
       first_boundary_check = false;
 
       // put boundaryTypes into vector for easy iteration
-      std::vector <boundaryType> bound_types (4);
-      bound_types[0] = _geometry->getMinXBoundaryType();
-      bound_types[1] = _geometry->getMaxXBoundaryType();
-      bound_types[2] = _geometry->getMinYBoundaryType();
-      bound_types[3] = _geometry->getMaxYBoundaryType();
+      boundaryType bound_types [4] = { _geometry->getMinXBoundaryType(),
+        _geometry->getMaxXBoundaryType(), _geometry->getMinYBoundaryType(),
+        _geometry->getMaxYBoundaryType() };
 
       // put boundary locations into vector for easy iteration
-      std::vector <double> bound_locations (4);
-      bound_locations[0] = _geometry->getMinX();
-      bound_locations[1] = _geometry->getMaxX();
-      bound_locations[2] = _geometry->getMinY();
-      bound_locations[3] = _geometry->getMaxY();
+      double bound_locations [4] = { _geometry->getMinX(),
+        _geometry->getMaxX(), _geometry->getMinY(),
+        _geometry->getMaxY() };
 
       // check boundary conditions on all hit surfaces
       for (int sur_side=0; sur_side <4; ++sur_side) {
@@ -432,24 +466,18 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
           // if the neutron is reflected
           if (bound_types[sur_side] == 1) {
-
             neutron.reflect(axis);
-
-            /*
-            neutron_coord_position->setX(neutron.getPosition(0));
-            neutron_coord_position->setY(neutron.getPosition(1));
-            neutron_coord_position->setZ(neutron.getPosition(2));
-            neutron_coord_position->setUniverse(_root_universe);
-            Cell* test = _geometry->findFirstCell(neutron_coord_position);
-            */
-  
           }
 
           // if the neutron escapes
           if (bound_types[sur_side] == 0) {
             neutron.kill();
             neutron_traveling - false;
+
+            // lock before tallying
+            omp_set_lock(&_leak_lock);
             tallies[LEAKS] += 1;
+            omp_unset_lock(&_leak_lock);
             break;
           }
         }
@@ -477,12 +505,6 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
       Cell* curr = _geometry->findFirstCell(&end);
       Cell* prev;
 
-      neutron_coord_position->setX(neutron.getPosition(0));
-      neutron_coord_position->setY(neutron.getPosition(1));
-      neutron_coord_position->setZ(neutron.getPosition(2));
-      neutron_coord_position->setUniverse(_root_universe);
-      _geometry->findFirstCell(neutron_coord_position);
-
       // if starting Point was outside the bounds of the Geometry
       if (curr == NULL)
         log_printf(ERROR,
@@ -500,6 +522,7 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
         // Find the next Cell along the Track's trajectory
         prev = curr;
         curr = _geometry->findNextCell(&end);
+        cell_obj = prev;
 
         // if curr
         if (curr == NULL)
@@ -555,21 +578,14 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
     // check interaction
     if (neutron.alive()) {
-      neutron_coord_position->setX(neutron.getPosition(0));
-      neutron_coord_position->setY(neutron.getPosition(1));
-      neutron_coord_position->setZ(neutron.getPosition(2));
-      neutron_coord_position->setUniverse(_root_universe);
-      cell_obj = _geometry->findCellContainingCoords(neutron_coord_position);
-
       cell_mat = cell_obj->getFillMaterial();
 
       // calculate sigma_s for a group in order to sample an interaction
-      std::vector <double> sigma_s_group;
-      sigma_s_group.reserve(8);
+      std::vector <double> sigma_s_group (num_groups);
       double sum_sigma_s_group=0;
-      for (int g=1; g<=cell_mat->getNumEnergyGroups(); ++g) {
-        sigma_s_group.push_back(cell_mat->getSigmaSByGroup(group+1, g));
-        sum_sigma_s_group += cell_mat->getSigmaSByGroup(group+1, g);
+      for (int g=0; g<num_groups; ++g) {
+        sigma_s_group[g] = cell_mat->getSigmaSByGroup(group+1, g+1);
+        sum_sigma_s_group += sigma_s_group[g];
       }
 
       // calculate sigma_a in order to sample an interaction
@@ -593,44 +609,18 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
         // set new group
         neutron.setGroup(new_group);
 
-        // findfirstcell
-        /*
-        neutron_coord_position->setX(neutron.getPosition(0));
-        neutron_coord_position->setY(neutron.getPosition(1));
-        neutron_coord_position->setZ(neutron.getPosition(2));
-        neutron_coord_position->setUniverse(_root_universe);
-        Cell* test = _geometry->findFirstCell(neutron_coord_position);
-*/
-
-        // if findFirstCell nudged the neutron out of the boundary nudge it
-        // backwards then use findFirstCell again
-        //if (test == NULL) {
-          /*
-          neutron.move(-TINY_MOVE);
-          neutron_coord_position->setX(neutron.getPosition(0));
-          neutron_coord_position->setY(neutron.getPosition(1));
-          neutron_coord_position->setZ(neutron.getPosition(2));
-          neutron_coord_position->setUniverse(_root_universe);
-          _geometry->findFirstCell(neutron_coord_position);
-          neutron.move(TINY_MOVE);
-          */
-       // }
       }
 
       // absorption event
       else {
 
-        // tally absorption
+        // lock and tally absorption
+        omp_set_lock(&_absorption_lock);
         tallies[ABSORPTIONS] += 1;
+        omp_unset_lock(&_absorption_lock);
 
         // sample for fission event
         group = neutron.getGroup();
-        neutron_coord_position->setX(neutron.getPosition(0));
-        neutron_coord_position->setY(neutron.getPosition(1));
-        neutron_coord_position->setZ(neutron.getPosition(2));
-        neutron_coord_position->setUniverse(_root_universe);
-        cell_obj = _geometry->findCellContainingCoords(neutron_coord_position);
-        cell_mat = cell_obj->getFillMaterial();
         neutron.getPositionVector(neutron_position);
 
         // sample whether fission event occurs
@@ -647,8 +637,12 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
           int add = (int) (neutron.arand() < nu -lower);
           int num_neutrons = lower + add;
           for (int i=0; i<num_neutrons; ++i) {
+            
+            // lock while tallying and setting fission location
+            omp_set_lock(&_fission_lock);
             fission_banks->add(neutron_position, &neutron);
             tallies[FISSIONS] += 1;
+            omp_unset_lock(&_fission_lock);
           }
         }
 
@@ -659,13 +653,14 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
     } // if neutron alive
   } // while neutron alive
 
-  delete neutron_coord_position;
-
   // tally crow distance
   double crow_distance;
   crow_distance = neutron.getDistance(neutron_position);
+
+  omp_set_lock(&_crow_lock);
   tallies[CROWS] += crow_distance;
   tallies[NUM_CROWS] += 1;
+  omp_unset_lock(&_crow_lock);
 }
 
 
@@ -896,13 +891,6 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
 
             neutron.reflect(axis);
 
-            /*
-            neutron_coord_position->setX(neutron.getPosition(0));
-            neutron_coord_position->setY(neutron.getPosition(1));
-            neutron_coord_position->setZ(neutron.getPosition(2));
-            neutron_coord_position->setUniverse(_root_universe);
-            Cell* test = _geometry->findFirstCell(neutron_coord_position);
-  */
           }
 
           // if the neutron escapes

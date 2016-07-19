@@ -48,7 +48,6 @@ public:
       Fission* fission_banks, int num_groups, int neutron_num, int batch,
       int write_neutron = -1, int write_batch = -1, 
       Neutron* input_neutron = NULL);
-
   void transportNeutronWithTrack(std::vector <Tally> &tallies, bool first_round,
       Fission* fission_banks, int num_groups, int neutron_num, int batch,
       int write_neutron = -1, int write_batch = -1, 
@@ -60,6 +59,8 @@ public:
 
   void saveBadNeutron(Neutron* neutron, int neutron_num, int batch);
   void trackSingleNeutron();
+
+  void initializeLocks();
 
   // functions that make MCSolver compatable with Solver
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs);
@@ -92,6 +93,11 @@ private:
   int _num_FSRs;
   int _num_materials;
   FP_PRECISION* _scalar_flux;
+
+  _omp_lock_t* _leak_lock;
+  _omp_lock_t* _absorption_lock;
+  _omp_lock_t* _fission_lock;
+  _omp_lock_t* _crow_lock;
 
 };
 
