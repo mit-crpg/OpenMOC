@@ -30,7 +30,7 @@
 #define SIGMA_T_THRESH 1E-3
 
 /** Distance a Point is moved to cross over a Surface into a new Cell */
-#define TINY_MOVE 1E-8
+#define TINY_MOVE 1E-10
 
 /** Threshold to determine if a Point is on the boundary of a Lattice cell */
 #define ON_LATTICE_CELL_THRESH 1E-12

@@ -45,11 +45,11 @@ public:
   void computeEigenvalue(int n_histories, int num_batches, int num_groups);
 
   void transportNeutron(std::vector <Tally> &tallies, bool first_round,
-      Fission* fission_banks, int num_groups, int neutron_num, int batch,
+      Fission* fission_banks, int neutron_num, int batch,
       int write_neutron = -1, int write_batch = -1, 
       Neutron* input_neutron = NULL);
   void transportNeutronWithTrack(std::vector <Tally> &tallies, bool first_round,
-      Fission* fission_banks, int num_groups, int neutron_num, int batch,
+      Fission* fission_banks, int neutron_num, int batch,
       int write_neutron = -1, int write_batch = -1, 
       Neutron* input_neutron = NULL);
   
@@ -93,11 +93,13 @@ private:
   int _num_FSRs;
   int _num_materials;
   FP_PRECISION* _scalar_flux;
+  FP_PRECISION* _cumulative_scalar_flux;
 
-  _omp_lock_t* _leak_lock;
-  _omp_lock_t* _absorption_lock;
-  _omp_lock_t* _fission_lock;
-  _omp_lock_t* _crow_lock;
+  omp_lock_t* _leak_lock;
+  omp_lock_t* _absorption_lock;
+  omp_lock_t* _fission_lock;
+  omp_lock_t* _crow_lock;
+  std::vector <omp_lock_t*> _flux_locks;
 
 };
 

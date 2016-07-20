@@ -39,7 +39,7 @@ Fission::~Fission() {
 
 /*
  @brief   sets the old fission bank to contain the locations from the most
-      recent batch, clears the new fission bank for the next round
+          recent batch, clears the new fission bank for the next round
 */
 void Fission::newBatch() {
 
