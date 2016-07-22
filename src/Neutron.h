@@ -37,8 +37,8 @@ public:
   bool alive();
   int getGroup();
   int rand();
-  int sampleNeutronEnergyGroup(std::vector <double> chi);
-  int sampleScatteredGroup(std::vector <double> &scattering_matrix, int group);
+  int sampleEnergyGroup(std::vector <double> chi);
+  int sampleScatteredGroup(std::vector <double> &scattering_matrix);
 
 private:
   

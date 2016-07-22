@@ -153,6 +153,7 @@ double Neutron::getDistance(Point* coord) {
  @param   new_group the new energy group of the neutron
 */
 void Neutron::setGroup(int new_group) {
+  //std::cout << " to " << new_group << std::endl;
   _neutron_group = new_group;
 }
 
@@ -198,11 +199,9 @@ int Neutron::rand() {
 /*
  @brief   samples the neutron energy group after a scattering event
  @param   scattering_matrix the scattering cross section matrix
- @param   group the neutron energy group before scattering
  @return  the neutron group after scattering
 */
-int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix,
-    int group) {
+int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix) {
 
   // get the total scattering cross-section from this group
   int num_groups = scattering_matrix.size();
@@ -215,13 +214,13 @@ int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix,
   double scatter_sum = 0.0;
   for (int g=0; g<num_groups; ++g) {
     scatter_sum += scattering_matrix[g];
-    if (r<scatter_sum) {
+    if (r<scatter_sum)
       return g;
-    }
   }
 
-  // return the last group if no group has been found yet 
-  return num_groups - 1;
+  // throw error if no group has been found
+  log_printf(ERROR,
+      "no group found to scatter in to %s");
 }
 
 
@@ -230,7 +229,7 @@ int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix,
  @param   chi the neutron emission spectrum from fission
  @return  the group number of the emitted neutron
 */
-int Neutron::sampleNeutronEnergyGroup(std::vector <double> chi) {
+int Neutron::sampleEnergyGroup(std::vector <double> chi) {
   double r = arand();
   double chi_sum = 0.0;
   for (int g=0; g<chi.size(); ++g) {

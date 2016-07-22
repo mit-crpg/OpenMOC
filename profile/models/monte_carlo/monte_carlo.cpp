@@ -22,7 +22,7 @@
 
 int main() {
 
-  // number of energy groups
+/*  // number of energy groups
   int num_groups = 7;
 
   // create fuel
@@ -203,9 +203,19 @@ int main() {
   moderator->setNuSigmaFByGroup(0.0, 2);
   moderator->setChiByGroup(0.0, 1);
   moderator->setChiByGroup(0.0, 2);
+  */
+  int num_groups = 1;
+
+  Material* fuel = new Material(1, "UO2");
+  fuel->setNumEnergyGroups(num_groups);
+  fuel->setSigmaTByGroup(2, 1);
+  fuel->setSigmaFByGroup(1.7, 1);
+  fuel->setNuSigmaFByGroup(2, 1);
+  fuel->setChiByGroup(1, 1);
+  fuel->setSigmaSByGroup(0, 1, 1);
 
   // create openmoc surfaces and set their boundary types
-  ZCylinder* z_cylinder = new ZCylinder(0.0, 0.0, 1.0, 4, "pin");
+//  ZCylinder* z_cylinder = new ZCylinder(0.0, 0.0, 1.0, 4, "pin");
   XPlane* x_min = new XPlane(-2.0, 0, "x_min");
   XPlane* x_max = new XPlane(2.0, 1, "x_max");
   YPlane* y_min = new YPlane(-2.0, 2, "y_min");
@@ -215,7 +225,9 @@ int main() {
   x_max->setBoundaryType(REFLECTIVE);
   y_min->setBoundaryType(REFLECTIVE);
   y_max->setBoundaryType(REFLECTIVE);
+  std::cout << "num groups " << num_groups << std::endl;
 
+  /*
   // create cells
   Cell* fuel_cell = new Cell(2, "fuel");
   fuel_cell->setFill(fuel);
@@ -228,10 +240,17 @@ int main() {
   moderator_cell->addSurface(1, y_min);
   moderator_cell->addSurface(-1, y_max);
   moderator_cell->addSurface(1, z_cylinder);
+*/
+  Cell* fuel_cell = new Cell(2, "fuel");
+  fuel_cell->setFill(fuel);
+  fuel_cell->addSurface(1, x_min);
+  fuel_cell->addSurface(-1, x_max);
+  fuel_cell->addSurface(1, y_min);
+  fuel_cell->addSurface(-1, y_max);
 
   // create universes
   Universe* root_universe = new Universe(0, "root universe");
-  root_universe->addCell(moderator_cell);
+//  root_universe->addCell(moderator_cell);
   root_universe->addCell(fuel_cell);
 
   // create geometry
@@ -239,14 +258,16 @@ int main() {
   geometry->setRootUniverse(root_universe);
 
   // simulate neutron histories
-  int num_neutrons = 1000;
-  int num_batches = 3;
+  int num_neutrons = 100000;
+  int num_batches = 100;
 
+  std::cout << "makes solver\n";
   // create solver and run simulation
   MCSolver solver;
   solver.setGeometry(geometry);
   solver.initialize();
 
+  std::cout << "computes eigenvalue\n";
   solver.computeEigenvalue(num_neutrons, num_batches, num_groups);
 
   std::cout << std::endl;

@@ -54,7 +54,6 @@ moderator.addSurface(halfspace=-1, surface=right)
 moderator.addSurface(halfspace=+1, surface=bottom)
 moderator.addSurface(halfspace=-1, surface=top)
 
-
 ###############################################################################
 #                            Creating Universes
 ###############################################################################

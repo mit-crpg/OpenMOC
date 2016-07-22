@@ -1,28 +1,28 @@
-/*
- @file    MCSolver.cpp
- @brief   utility functions for monte carlo neutron simulation
- @author  Luke Eure
- @date    January 12 2016
-*/
+/**
+ * @file    MCSolver.cpp
+ * @brief   utility functions for monte carlo neutron simulation
+ * @author  Luke Eure
+ * @date    January 12 2016
+ */
 
 #include "MCSolver.h"
 
-/*
- @brief   constructor for MCSolver
-*/
+/**
+ * @brief   constructor for MCSolver
+ */
 MCSolver::MCSolver() : Solver(NULL) {}
 
 
-/*
- @brief   deconstructor for MCSolver
-*/
+/**
+ * @brief   deconstructor for MCSolver
+ */
 MCSolver::~MCSolver() {}
 
 
-/*
- @brief   set the geometry and root universe for the solver
- @param   geometry the geometry of the solver
-*/
+/**
+ * @brief   set the geometry and root universe for the solver
+ * @param   geometry the geometry of the solver
+ */
 void MCSolver::setGeometry(Geometry* geometry) {
   _geometry = geometry;
   _root_universe = geometry->getRootUniverse();
@@ -156,6 +156,7 @@ void MCSolver::initialize() {
 
         // Check cell types
         if (type == MATERIAL) {
+
           // Add the unique region to the FSR map
           _geometry->findFSRId(coords->getHighestLevel());
         }
@@ -188,12 +189,14 @@ void MCSolver::initialize() {
 
 
 /**
-  * @brief  initialize fission, absorption, and leakage locks for 
-  *         each fsr, as well as a fission bank lock.
-  */
+ * @brief  initialize fission, absorption, and leakage locks for 
+ *         each fsr, as well as a fission bank lock.
+ */
 void MCSolver::initializeLocks() {
 
+  std::cout << "starts initializeLocks()\n";
   // delete old locks if they exist 
+  /*
   if (_leak_lock != NULL)
     delete [] _leak_lock;
   if (_absorption_lock != NULL)
@@ -202,9 +205,15 @@ void MCSolver::initializeLocks() {
     delete [] _fission_lock;
   if (_crow_lock != NULL)
     delete [] _fission_lock;
-  /*if (_flux_locks != NULL)
-    delete [] _flux_locks; */
+    */
+  std::cout << "starts initializeLocks()\n";
+  
+  for (int i=0; i<_flux_locks.size(); ++i) {
+    if (_flux_locks[i] != NULL)
+      delete [] _flux_locks[i];
+  }
 
+  std::cout << "starts initializeLocks()\n";
   // allocate array of locks for each leaks absorptions and fission
   _flux_locks.resize(_num_FSRs);
   for (int i=0; i<_num_FSRs; ++i)
@@ -214,6 +223,7 @@ void MCSolver::initializeLocks() {
   _absorption_lock = new omp_lock_t;
   _fission_lock = new omp_lock_t;
   _crow_lock = new omp_lock_t;
+  std::cout << "starts initializeLocks()\n";
 
   // Loop over all FSRs to initialize OpenMP locks
 #pragma omp parallel for schedule(guided)
@@ -228,19 +238,19 @@ void MCSolver::initializeLocks() {
 
 
 /**
-  * @brief  generates and transports neutron histories, calculates the mean
-            crow distance
-  * @param  n_histories number of neutron histories to run
-  * @param  mat a Material object containing information
-            about the material
-  * @param  flux a Flux object containing information about the flux
-  * @param  num_batches the number of batches to be tested
-*/
+ * @brief  generates and transports neutron histories, calculates the mean
+ *         crow distance
+ * @param  n_histories number of neutron histories to run
+ * @param  mat a Material object containing information
+ *         about the material
+ * @param  flux a Flux object containing information about the flux
+ * @param  num_batches the number of batches to be tested
+ */
 void MCSolver::computeEigenvalue(int n_histories, int num_batches,
                                  int num_groups) {
 
-  double convergence_threshold = 1e-8;
-  double last_inactive_batch = 2;
+  double convergence_threshold = 1e-12;
+  double last_inactive_batch = 200;
   bool active_batch = false;
 
   std::cout << "[  NORMAL ]  Computing Eigenvalue\n";
@@ -305,18 +315,22 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
     double fissions;
     fissions = tallies[FISSIONS].getCount();
     
-    /*std::cout << "fissions: " << fissions/fissions << std::endl;
+    std::cout << "fissions: " << fissions/fissions << std::endl;
     std::cout << "leaks: " << tallies[LEAKS].getCount()/fissions
       << std::endl;
     std::cout << "absorptions: " << tallies[ABSORPTIONS].getCount()/fissions
       << std::endl;
-    */
+    
+
+    double running_k;
+    if (first_round) running_k = 0;
     
     first_round = false;
 
     // breaks if convergence threshold is reached
     double numerator = 0;
     double denominator = 0;
+    double num_active_batches = batch - last_inactive_batch;
     
     if (active_batch) {
 
@@ -325,23 +339,25 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
         Material* cell_mat = cell_obj->getFillMaterial(); 
         for (int g=0; g<_num_groups; ++g) {
           double sigma_f = cell_mat->getSigmaFByGroup(g+1);
-          numerator +=  
+          numerator +=
             sigma_f*(_cumulative_scalar_flux[r*_num_groups +g]
-                /(batch - last_inactive_batch)
-                      - _scalar_flux(r,g))
+                / (num_active_batches) - _scalar_flux(r,g))
             * sigma_f*(_cumulative_scalar_flux[r*_num_groups +g]
-                /(batch -last_inactive_batch)
-                        - _scalar_flux(r,g)); 
+                / (num_active_batches) - _scalar_flux(r,g)); 
           denominator +=  sigma_f*_cumulative_scalar_flux[r*_num_groups +g]
                           * sigma_f*_cumulative_scalar_flux[r*_num_groups +g]
-                          / ((batch - last_inactive_batch)
-                              *(batch-last_inactive_batch));
+                          / (num_active_batches*num_active_batches);
         }
       }
-  
+
       double convergence = numerator / denominator;
       std::cout << "convergence: " << convergence << std::endl;
-    
+
+      double old_running_k = running_k;
+      running_k =
+        (old_running_k* (num_active_batches - 1) + _k_eff) / num_active_batches;
+      std::cout << "running k_eff " << running_k << std::endl;
+
       if (convergence < convergence_threshold) {
         std::cout << "threshold of " << convergence_threshold
           << " reached.\n\n";
@@ -353,7 +369,6 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
   double mean_crow_distance = tallies[CROWS].getCount()
                               / tallies[NUM_CROWS].getCount();
   std::cout << "Mean crow fly distance = " << mean_crow_distance << std::endl;
-
 }
 
 
@@ -363,14 +378,15 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
  * @details A neutron is created in the bounding box using
  *          sample_location() for the first batch and sample_fission_site()
  *          for the rest of the batches. It moves through the geometry until it
- *          is either absorbed or scattered as determined by sample_interaction.
- *          When it is absorbed, its distance from its starting point
- *          is appended to crow_distances. If the absorption creates
- *          a fission event, the number of neutrons emited is sampled.
+ *          is either absorbed or scattered as determined by 
+ *          sample_interaction. When it is absorbed, its distance from
+ *          its starting point is appended to crow_distances. If the
+ *          absorption creates a fission event, the number of neutrons
+ *          emited is sampled.
  *          The location of the fission event is added to a list of fission
  *          events.
  * @param   tallies a dictionary containing tallies of crow distances,
-            leakages, absorptions, and fissions
+ *          leakages, absorptions, and fissions
  * @param   first_round a bool that is true if this is the first round
  * @param   fission_banks containing the fission bank
  * @param   neutron_num an int used for indexing neutrons
@@ -378,7 +394,7 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
  * @param   optional param, the number of a neutron to be written
  * @param   optional param, the batch of a neutron to be written
  * @param   input_neutron to be used in debugging bad neutrons
-*/
+ */
 void MCSolver::transportNeutron(std::vector <Tally> &tallies,
     bool first_round, Fission* fission_banks, int neutron_num,
     int batch, int write_neutron, int write_batch,
@@ -426,8 +442,8 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
     rand = neutron.arand();
   }
 
-  bool neutron_traveling = true; // is the neutron travelling?
-
+  // is the neutron travelling?
+  bool neutron_traveling = true;
   if (neutron_num == write_neutron and batch == write_batch){
     std::cout << "writing neutron " << neutron_num << " in batch " << batch
       << std::endl;
@@ -442,6 +458,7 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
   Material* cell_mat;
   Cell* cell_obj;
   int group;
+//  std::cout << "neutron born ";
 
   // get cell material
   LocalCoords neutron_coord_position( neutron_position->getX(),
@@ -455,7 +472,7 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
   for (int g=0; g<_num_groups; ++g) {
     chi[g] = cell_mat->getChiByGroup(g+1);
   }
-  group = neutron.sampleNeutronEnergyGroup(chi);
+  group = neutron.sampleEnergyGroup(chi);
   neutron.setGroup(group);
 
   // follow neutron while it's alive
@@ -467,9 +484,10 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
     // track neutron until collision or escape
     while (neutron_traveling) {
 
+      group = neutron.getGroup();
+
       // check if the neutron is on a boundary
       std::vector <int> box_lim_bound;
-      //box_lim_bound.clear();
       if (std::abs(neutron.getPosition(0) - _geometry->getMinX())
           < ON_SURFACE_THRESH)
         box_lim_bound.push_back(0);
@@ -518,9 +536,8 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
             != box_lim_bound.end()) {
 
           // if the neutron is reflected
-          if (bound_types[sur_side] == 1) {
+          if (bound_types[sur_side] == 1)
             neutron.reflect(axis);
-          }
 
           // if the neutron escapes
           if (bound_types[sur_side] == 0) {
@@ -601,17 +618,12 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
               " x = %f, y = %f",start.getX(), start.getY());
 
         // Find the segment length, Material and FSR ID of the last cell
-        FP_PRECISION length;
-        length = 
+        FP_PRECISION length = 
           FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
-
         int fsr_id = _geometry->findFSRId(&start);
-
         double denom = sqrt(neutron.getDirection(0)*neutron.getDirection(0)
                             + neutron.getDirection(1)*neutron.getDirection(1));
-
         double length_3d = length/denom;
-
         cell_mat = prev->getFillMaterial();
 
         // sample the neutron's distance to travel
@@ -665,27 +677,28 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
       double sigma_a = cell_mat->getSigmaTByGroup(group+1) - sum_sigma_s_group;
 
       // sample an interaction
-      int neutron_interaction = (int) (neutron.arand() < (sigma_a
-              / cell_mat->getSigmaTByGroup(group+1)));
+      int neutron_interaction = neutron.arand() < sigma_a
+              / cell_mat->getSigmaTByGroup(group+1);
 
       // scattering event
       if (neutron_interaction == 0) {
 
+        //std::cout << "neutron scattered";
         // sample scattered direction
         neutron.sampleDirection();
 
         // sample new energy group
-        int new_group = neutron.sampleScatteredGroup(sigma_s_group, group);
+        group = neutron.sampleScatteredGroup(sigma_s_group);
 
         neutron_traveling = true;
 
         // set new group
-        neutron.setGroup(new_group);
-
+        neutron.setGroup(group);
       }
 
       // absorption event
       else {
+        //std::cout << "neutron absorbed\n\n";
 
         // lock and tally absorption
         omp_set_lock(_absorption_lock);
@@ -693,7 +706,6 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
         omp_unset_lock(_absorption_lock);
 
         // sample for fission event
-        group = neutron.getGroup();
         neutron.getPositionVector(neutron_position);
 
         // sample whether fission event occurs
@@ -701,11 +713,11 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
           neutron.arand() < cell_mat->getSigmaFByGroup(group+1) / sigma_a;
 
         // fission event
-        if (fission_occurs == 1) {
+        if (fission_occurs) {
 
           // sample number of neutrons released during fission
-          double nu = cell_mat->getNuSigmaFByGroup(1)
-            / cell_mat->getSigmaFByGroup(1);
+          double nu = cell_mat->getNuSigmaFByGroup(group+1)
+            / cell_mat->getSigmaFByGroup(group+1);
           int lower = (int) nu;
           int add = (int) (neutron.arand() < nu -lower);
           int num_neutrons = lower + add;
@@ -738,9 +750,9 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
 
 
 /**
- * @brief   returns k, the ration of fission events to absoprtions plus leakages
+ * @brief   returns k, the ratio of fission events to absoprtions plus leakages
  * @return  the effective k-value
-*/
+ */
 FP_PRECISION MCSolver::getKeff() {
   return _k_eff;
 }
@@ -794,7 +806,7 @@ double MCSolver::computeResidual(residualType res_type){
  *          the bounding box. Each positin is set as the neutron's position
  *          along that axis.
  * @param   neutron, the Neutron whose position will be set
-*/
+ */
 void MCSolver::sampleLocation(Neutron* neutron) {
   Point sampled_location;
   double width = _geometry->getMaxX() - _geometry->getMinX();
@@ -808,9 +820,9 @@ void MCSolver::sampleLocation(Neutron* neutron) {
 
 
 /**
- * @brief   function that transports a neutron using a track geometry.segmentize
+ * @brief   function that transports a neutron using a track
  * @param   tallies a dictionary containing tallies of crow distances,
-            leakages, absorptions, and fissions
+ *          leakages, absorptions, and fissions
  * @param   first_round a bool that is true if this is the first round
  * @param   fission_banks containing the fission bank
  * @param   neutron_num an int used for indexing neutrons
@@ -888,7 +900,7 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
   for (int g=0; g<_num_groups; ++g) {
     chi[g] = cell_mat->getChiByGroup(g+1);
   }
-  group = neutron.sampleNeutronEnergyGroup(chi);
+  group = neutron.sampleEnergyGroup(chi);
   neutron.setGroup(group);
 
   // follow neutron while it's alive
@@ -1091,10 +1103,10 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
         neutron.sampleDirection();
 
         // sample new energy group
-        int new_group = neutron.sampleScatteredGroup(sigma_s_group, group);
+        group = neutron.sampleScatteredGroup(sigma_s_group);
 
         // set new group
-        neutron.setGroup(new_group);
+        neutron.setGroup(group);
 
         // findfirstcell
         neutron_coord_position->setX(neutron.getPosition(0));
@@ -1140,8 +1152,8 @@ void MCSolver::transportNeutronWithTrack(std::vector <Tally> &tallies,
         if (fission_occurs == 1) {
 
           // sample number of neutrons released during fission
-          double nu = cell_mat->getNuSigmaFByGroup(1)
-            / cell_mat->getSigmaFByGroup(1);
+          double nu = cell_mat->getNuSigmaFByGroup(group+1)
+            / cell_mat->getSigmaFByGroup(group+1);
           int lower = (int) nu;
           int add = (int) (neutron.arand() < nu -lower);
           int num_neutrons = lower + add;
