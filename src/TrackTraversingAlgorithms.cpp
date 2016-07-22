@@ -611,11 +611,13 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
     FP_PRECISION length = curr_segment->_length;
     int material_id = curr_segment->_material->getId();
     int region_id = curr_segment->_region_id;
+    int track_idx = curr_segment->_track_idx;
 
     /* Write data for this segment to the Track file */
     fwrite(&length, sizeof(double), 1, _out);
     fwrite(&material_id, sizeof(int), 1, _out);
     fwrite(&region_id, sizeof(int), 1, _out);
+    fwrite(&track_idx, sizeof(int), 1, _out);
 
     /* Write CMFD-related data for the Track if needed */
     if (cmfd != NULL) {
@@ -688,12 +690,15 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     ret = fread(&material_id, sizeof(int), 1, _in);
     int region_id;
     ret = fread(&region_id, sizeof(int), 1, _in);
+    int  track_idx;
+    ret = fread(&track_idx, sizeof(int), 1, _in);
 
     /* Initialize segment with the data */
     segment* curr_segment = new segment;
     curr_segment->_length = length;
     curr_segment->_material = materials[material_id];
     curr_segment->_region_id = region_id;
+    curr_segment->_track_idx = track_idx;
 
     /* Import CMFD-related data if needed */
     if (cmfd != NULL) {
@@ -709,6 +714,7 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     track->addSegment(curr_segment);
   }
 }
+
 
 //FIXME
 TransportSweepOTF::TransportSweepOTF(TrackGenerator* track_generator)

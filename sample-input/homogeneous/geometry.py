@@ -81,7 +81,7 @@ f = fue_univ
 
 lattice = openmoc.Lattice(name='10x10 lattice')
 lattice.setWidth(width_x=1.0, width_y=1.0, width_z=1.0)
-lattice.setUniverses3D([[[f, f, f, f, f, f, f, f, f, f],
+lattice.setUniverses([[[f, f, f, f, f, f, f, f, f, f],
                          [f, f, f, f, f, f, f, f, f, f],
                          [f, f, f, f, f, f, f, f, f, f],
                          [f, f, f, f, f, f, f, f, f, f],

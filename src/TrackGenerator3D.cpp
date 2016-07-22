@@ -11,8 +11,8 @@
 TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
                                    int num_polar, double azim_spacing,
                                    double polar_spacing) :
-                    TrackGenerator(geometry, num_azim, num_polar,
-                                   azim_spacing) {
+                    TrackGenerator(geometry, num_azim, azim_spacing) {
+  setNumPolar(num_polar);
   setDesiredPolarSpacing(polar_spacing);
   _contains_3D_tracks = false;
   _contains_3D_segments = false;
@@ -100,6 +100,15 @@ TrackGenerator3D::~TrackGenerator3D() {
       }
     }
   }
+}
+
+
+/**
+ * @brief Return the number of polar angles in \f$ [0, \pi] \f$
+ * @return the number of polar angles in \f$ \pi \f$
+ */
+int TrackGenerator3D::getNumPolar() {
+  return _num_polar;
 }
 
 
@@ -319,6 +328,25 @@ int TrackGenerator3D::getNumZ(int azim, int polar) {
  */
 int TrackGenerator3D::getNumL(int azim, int polar) {
   return _num_l[azim][polar];
+}
+
+
+/**
+ * @brief Set the number of polar angles in \f$ [0, \pi] \f$.
+ * @param num_polar the number of polar angles in \f$ \pi \f$
+ */
+void TrackGenerator3D::setNumPolar(int num_polar) {
+
+  if (num_polar < 0)
+    log_printf(ERROR, "Unable to set a negative number of polar angles "
+               "%d for the TrackGenerator.", num_polar);
+
+  if (num_polar % 2 != 0)
+    log_printf(ERROR, "Unable to set the number of polar angles to %d for the "
+               "TrackGenerator since it is not a multiple of 2", num_polar);
+
+  _num_polar = num_polar;
+  resetStatus();
 }
 
 
@@ -1365,6 +1393,8 @@ void TrackGenerator3D::initializeDefaultQuadrature() {
   if (_quadrature != NULL)
     delete _quadrature;
   _quadrature = new EqualWeightPolarQuad();
+  _quadrature->setNumAzimAngles(_num_azim);
+  _quadrature->setNumPolarAngles(_num_polar);
 }
 
 

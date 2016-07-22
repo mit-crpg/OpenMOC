@@ -187,8 +187,7 @@ public:
   void setNumY(int num_y);
   void setNumZ(int num_z);
   void setWidth(double width_x, double width_y, double width_z=1.0);
-  void setUniverses(int num_y, int num_x, Universe** universes);
-  void setUniverses3D(int num_z, int num_y, int num_x, Universe** universes);
+  void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void subdivideCells(double max_radius=INFINITY);
   void buildNeighbors();
   bool withinBounds(Point* point);

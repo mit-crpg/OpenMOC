@@ -39,7 +39,7 @@ rc = universes['Reflector Corner Assembly']
 
 # 3 x 3 x 9 core to represent 3D core
 lattices['Root'].setWidth(width_x=21.42, width_y=21.42, width_z=7.14/axial_refines)
-lattices['Root'].setUniverses3D([[[rr, rr, ri],
+lattices['Root'].setUniverses([[[rr, rr, ri],
                                   [rr, rr, ri],
                                   [rb, rb, rc]]] * 3 * axial_refines +
                                 [[[ur, mu, ri],

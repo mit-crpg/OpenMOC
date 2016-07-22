@@ -1073,70 +1073,13 @@ void Lattice::setWidth(double width_x, double width_y, double width_z) {
  *                                   [u2, u3, u2, u3]])
  * @endcode
  *
- * @param num_y the number of Lattice cells along y
- * @param num_x the number of Lattice cells along x
- * @param universes the array of Universes for each Lattice cell
- */
-void Lattice::setUniverses(int num_y, int num_x, Universe** universes) {
-
-  /* Clear any Universes in the Lattice (from a previous run) */
-  for (int k=0; k < _num_z; k++) {
-    for (int j=0; j < _num_y; j++)
-      _universes.at(k).at(j).clear();
-    _universes.at(k).clear();
-  }
-
-  _universes.clear();
-
-  /* Set the Lattice dimensions */
-  setNumX(num_x);
-  setNumY(num_y);
-  setNumZ(1);
-
-  Universe* universe;
-
-  _universes.push_back
-    (std::vector< std::vector< std::pair<int, Universe*> > >());
-
-  /* The Lattice cells are assumed input in row major order starting from the
-   * upper left corner. This double loop reorders the Lattice cells from the
-   * to start from the lower left corner */
-  for (int j = 0; j < _num_y; j++) {
-
-    _universes.at(0).push_back(std::vector< std::pair<int, Universe*> >());
-
-    for (int i = 0; i < _num_x; i++) {
-      universe = universes[(_num_y-1-j)*_num_x + i];
-      _universes.at(0).at(j).push_back(std::pair<int, Universe*>
-                                       (universe->getId(), universe));
-    }
-  }
-}
-
-
-/**
- * @brief Sets the array of Universe pointers filling each Lattice cell.
- * @details This is a helper method for SWIG to allow users to assign Universes
- *          to a Lattice using a 2D Python list (list of lists). An example
- *          how this method can be called from Python is as follows:
- *
- * @code
- *          u1 = Universe(name='Universe 1')
- *          u2 = Universe(name='Universe 2')
- *          u3 = Universe(name='Universe 3')
- *          lattice.setLatticeCells([[u1, u2, u1, u2],
- *                                   [u2, u3, u2, u3],
- *                                   [u1, u2, u1, u2],
- *                                   [u2, u3, u2, u3]])
- * @endcode
- *
  * @param num_x the number of Lattice cells along z
  * @param num_y the number of Lattice cells along y
  * @param num_z the number of Lattice cells along x
  * @param universes the array of Universes for each Lattice cell
  */
-void Lattice::setUniverses3D(int num_z, int num_y, int num_x,
-                             Universe** universes) {
+void Lattice::setUniverses(int num_z, int num_y, int num_x,
+                           Universe** universes) {
 
   /* Clear any Universes in the Lattice (from a previous run) */
   for (int k=0; k < _num_z; k++) {

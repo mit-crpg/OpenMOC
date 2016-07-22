@@ -43,9 +43,6 @@ protected:
   /** Number of azimuthal angles in \f$ [0, 2 \pi] \f$ */
   int _num_azim;
 
-  /** Number of polar angles in \f$ [0, \pi] \f$ */
-  int _num_polar;
-
   /** The requested track azimuthal spacing (cm) */
   double _azim_spacing;
 
@@ -138,13 +135,11 @@ protected:
 
 public:
 
-  TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
-                 double azim_spacing);
+  TrackGenerator(Geometry* geometry, int num_azim, double azim_spacing);
   virtual ~TrackGenerator();
 
   /* Get parameters */
   int getNumAzim();
-  int getNumPolar();
   double getDesiredAzimSpacing();
   Geometry* getGeometry();
   virtual int getNumTracks();
@@ -182,7 +177,6 @@ public:
   /* Set parameters */
   void setNumThreads(int num_threads);
   void setNumAzim(int num_azim);
-  void setNumPolar(int num_polar);
   void setDesiredAzimSpacing(double spacing);
   void setGeometry(Geometry* geometry);
   void setZCoord(double z_coord);
@@ -206,7 +200,6 @@ public:
   virtual void initializeTracksArray();
   virtual void checkBoundaryConditions();
 };
-
 
 
 #endif /* TRACKGENERATOR_H_ */

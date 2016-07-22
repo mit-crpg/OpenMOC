@@ -488,7 +488,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
-      else{
+      else {
         Cell* cell = coords->getCell();
         dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
       }
@@ -674,7 +674,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
   }
   catch(std::exception &e) {
@@ -694,7 +694,7 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
   }
   catch(std::exception &e) {
@@ -714,7 +714,7 @@ int Geometry::getCmfdCell(int fsr_id) {
 
   int cmfd_cell;
 
-  try{
+  try {
     cmfd_cell = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_cmfd_cell;
   }
   catch(std::exception &e) {
@@ -1334,7 +1334,9 @@ void Geometry::initializeFSRVectors() {
 
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
+  std::cout << "FSR keys map = " << _FSR_keys_map.size() << std::endl;
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
+  std::cout << "Vector size = " << _FSRs_to_keys.size() << std::endl;
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */

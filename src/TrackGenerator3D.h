@@ -86,6 +86,9 @@ class TrackGenerator3D : public TrackGenerator {
 
 private:
 
+  /** Number of polar angles in \f$ [0, \pi] \f$ */
+  int _num_polar;
+
   /** The requested track polar spacing (cm) */
   double _polar_spacing;
 
@@ -173,6 +176,7 @@ public:
   virtual ~TrackGenerator3D();
 
   /* Get parameters */
+  int getNumPolar();
   double getDesiredPolarSpacing();
   int getNumTracks();
   int getNumSegments();
@@ -205,6 +209,7 @@ public:
   void getTrackOTF(Track3D* track, StackTrackIndexes* sti);
 
   /* Set parameters */
+  void setNumPolar(int num_polar);
   void setDesiredPolarSpacing(double spacing);
   void setSegmentFormation(segmentationType segmentation_type);
   void setTrackGenerationMethod(int method);
