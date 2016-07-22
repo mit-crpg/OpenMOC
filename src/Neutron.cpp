@@ -57,24 +57,11 @@ void Neutron::move(double distance) {
 
 
 /*
- @brief   moves the neutron a given distance
- @param   distance the distance the neutron should be moved
+ @brief   reverses a neutron's direction of motion along an axis
+ @param   axis the axis along which the nuetron should be reflected
 */
 void Neutron::reflect(int axis) {
   _neutron_direction[axis] *= -1;
-}
-
-
-/*
- @brief   changes the neutron's cell
- @param   axis the axis along which the cell should be changed
- @param   side whether the cell should be increased or decreased
-*/
-void Neutron::changeCell(int axis, int side) {
-  if (side == 0)
-    _neutron_cell[axis]--;
-  else
-    _neutron_cell[axis]++;
 }
 
 
@@ -94,28 +81,10 @@ void Neutron::setPosition(int axis, double value) {
 
 
 /*
- @brief   sets the cell of the neutron
- @param   cell_number the cell to which the nuetron will be set
-*/
-void Neutron::setCell(std::vector <int> &cell_number) {
-  _neutron_cell = cell_number;
-}
-
-
-/*
  @brief   kills the neutron
 */
 void Neutron::kill() {
   _neutron_alive = false;
-}
-
-
-/*
- @brief   returns the neutron's cell
- @return  the cell in which the neutron resides
-*/
-std::vector <int> Neutron::getCell() {
-  return _neutron_cell;
 }
 
 
@@ -158,11 +127,12 @@ double Neutron::getDirection(int axis) {
 
 
 /*
- @brief   gets the direction vector of the neutron
- @return  a vector containing the neutron's direction
+ @brief   sets the direction of the neutron along a certain axis
+ @param   axis the axis along which the direction will be set
+ @param   magnitude the magnitude of the nuetron's motion along axis
 */
-std::vector <double> Neutron::getDirectionVector() {
-  return _neutron_direction;
+void Neutron::setDirection(int axis, double magnitude) {
+  _neutron_direction[axis] = magnitude;
 }
 
 
@@ -183,6 +153,7 @@ double Neutron::getDistance(Point* coord) {
  @param   new_group the new energy group of the neutron
 */
 void Neutron::setGroup(int new_group) {
+  //std::cout << " to " << new_group << std::endl;
   _neutron_group = new_group;
 }
 
@@ -203,15 +174,6 @@ void Neutron::sampleDirection() {
   _neutron_direction[0] = sqrt(1 - mu*mu) * cos(phi);
   _neutron_direction[1] = sqrt(1 - mu*mu) * sin(phi);
   _neutron_direction[2] = mu;
-}
-
-
-/*
- @brief   sets the neutron's position
- @param   position the position of the neutron
-*/
-void Neutron::setPositionVector(Point &position) {
-  _xyz = position;
 }
 
 
@@ -237,11 +199,9 @@ int Neutron::rand() {
 /*
  @brief   samples the neutron energy group after a scattering event
  @param   scattering_matrix the scattering cross section matrix
- @param   group the neutron energy group before scattering
  @return  the neutron group after scattering
 */
-int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix,
-    int group) {
+int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix) {
 
   // get the total scattering cross-section from this group
   int num_groups = scattering_matrix.size();
@@ -254,13 +214,13 @@ int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix,
   double scatter_sum = 0.0;
   for (int g=0; g<num_groups; ++g) {
     scatter_sum += scattering_matrix[g];
-    if (r<scatter_sum) {
+    if (r<scatter_sum)
       return g;
-    }
   }
 
-  // return the last group if no group has been found yet 
-  return num_groups - 1;
+  // throw error if no group has been found
+  log_printf(ERROR,
+      "no group found to scatter in to %s");
 }
 
 
@@ -269,7 +229,7 @@ int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix,
  @param   chi the neutron emission spectrum from fission
  @return  the group number of the emitted neutron
 */
-int Neutron::sampleNeutronEnergyGroup(std::vector <double> chi) {
+int Neutron::sampleEnergyGroup(std::vector <double> chi) {
   double r = arand();
   double chi_sum = 0.0;
   for (int g=0; g<chi.size(); ++g) {

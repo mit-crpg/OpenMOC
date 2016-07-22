@@ -22,31 +22,23 @@ public:
   Neutron(int neutron_num);
   virtual ~Neutron();
 
-  void changeCell(int axis, int side);
   void kill();
   void move(double distance);
   void reflect(int axis);
-  void setCell(std::vector <int> &cell_number);
   void setGroup(int new_group);
   void setPosition(int axis, double value);
-  void setPositionVector(Point &position);
   void sampleDirection();
   void getPositionVector(Point* &position);
+  void setDirection(int axis, double magnitude);
   double arand();
   double getDirection(int axis);
   double getDistance(Point *coord);
   double getPosition(int axis);
-  double x();
-  double y();
-  double z();
   bool alive();
   int getGroup();
   int rand();
-  int sampleNeutronEnergyGroup(std::vector <double> chi);
-  int sampleScatteredGroup(std::vector <double> &scattering_matrix,
-      int group);
-  std::vector <int> getCell();
-  std::vector <double> getDirectionVector();
+  int sampleEnergyGroup(std::vector <double> chi);
+  int sampleScatteredGroup(std::vector <double> &scattering_matrix);
 
 private:
   
@@ -61,9 +53,6 @@ private:
 
   /** direction of travel of the neutron */
   std::vector <double> _neutron_direction;
-
-  /** cell of the neutron */
-  std::vector <int> _neutron_cell;
 
   /** identification number */
   int _id;

@@ -38,13 +38,12 @@ TrackGenerator::~TrackGenerator() {
     delete [] _num_tracks;
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _num_tracks_by_parallel_group;
 
     for (int i = 0; i < _num_azim_2; i++)
       delete [] _tracks[i];
 
     delete [] _tracks;
-    delete [] _tracks_by_parallel_group;
+    delete [] _tracks_array;
   }
 
   if (_FSR_locks != NULL)
@@ -127,20 +126,6 @@ int TrackGenerator::getNumTracks() {
 
 
 /**
- * @brief Return the number of parallel track groups.
- * @return The number of parallel track groups
- */
-int TrackGenerator::getNumParallelTrackGroups() {
-
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the number of parallel track groups "
-               "since Tracks have not yet been generated.");
-
-  return _num_parallel_track_groups;
-}
-
-
-/**
  * @brief Return the number of tracks on the x-axis for a given azimuthal angle.
  * @param azim An azimuthal angle index
  * @return The number of Tracks on the x-axis
@@ -167,26 +152,6 @@ int TrackGenerator::getNumY(int azim) {
                "generated.", azim);
 
   return _num_y[azim];
-}
-
-
-/**
- * @brief Return the number of tracks in a given parallel track group.
- * @return the number of tracks in a given parallel track group.
- */
-int TrackGenerator::getNumTracksByParallelGroup(int group) {
-
-  if (group < 0 || group >= _num_parallel_track_groups)
-    log_printf(ERROR, "Unable to return the number of tracks in parallel track"
-               " group %d which is not between 0 and the number of parallel "
-               "groups, %d", group, _num_parallel_track_groups);
-
-  if (!_contains_tracks)
-    log_printf(ERROR, "Unable to return the number of tracks in the parallel "
-               "track group %d since Tracks have not yet been generated."
-               , group);
-
-  return _num_tracks_by_parallel_group[group];
 }
 
 
@@ -228,18 +193,15 @@ Track **TrackGenerator::getTracks() {
 
 /**
  * @brief Returns a 1D array of Track pointers.
- * @details The tracks in the _tracks_by_parallel_group array are organized
- *          by parallel track group. The index into the array is also the
- *          corresponding Track's UID.
+ * @details The tracks in the tracks array are organized by UID.
  * @return The 1D array of Track pointers
  */
-Track **TrackGenerator::getTracksByParallelGroup() {
+Track **TrackGenerator::getTracksArray() {
   if (!_contains_tracks)
     log_printf(ERROR, "Unable to return the 1D array of the Track pointers "
-               "arranged by parallel group since Tracks have not yet been "
-               "generated.");
+               "since Tracks have not yet been generated.");
 
-  return _tracks_by_parallel_group;
+  return _tracks_array;
 }
 
 
@@ -699,10 +661,9 @@ void TrackGenerator::generateTracks(bool store, bool neighbor_cells) {
   /* Deletes Tracks arrays if Tracks have been generated */
   if (_contains_tracks) {
     delete [] _num_tracks;
-    delete [] _num_tracks_by_parallel_group;
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _tracks_by_parallel_group;
+    delete [] _tracks_array;
 
     for (int i = 0; i < _num_azim_2; i++)
       delete [] _tracks[i];
@@ -879,7 +840,12 @@ segmentationType TrackGenerator::getSegmentFormation() {
  */
 void TrackGenerator::initializeTracks() {
 
+  /* Reset the boundaries in the geometry */
+  _geometry->resetBoundaries();
+
   log_printf(INFO, "Computing azimuthal angles and track spacing...");
+
+  _geometry->resetBoundaries();
 
   /* Each element in arrays corresponds to an angle in phi_eff */
   /* Track spacing along x,y-axes, and perpendicular to each Track */
@@ -1131,104 +1097,22 @@ void TrackGenerator::initializeTrackCycleIndices(boundaryType bc) {
 
 /**
  * @brief Set the Track UIDs for all tracks and generate the 1D array of
- *        track pointers that separates the groups of tracks by parallel group.
- * @details The Solver requires the tracks to be separated into groups of tracks
- *          that can be looped over in parallel without data races. This method
- *          creates a 1D array of Track pointers where the tracks are arranged
- *          by parallel group. If the geometry has a periodic BC, 6 periodic
- *          groups are created; otherwise, 2 periodic groups are created. The
- *          Track UIDs are also set to their index in the tracks by periodic
- *          group array.
+ *        track pointers.
  */
 void TrackGenerator::initializeTrackUids() {
 
-  Track* track;
-  bool periodic;
+  /* Allocate memory for the 1D tracks array */
+  _tracks_array = new Track*[getNumTracks()];
+
+  /* Loop over all tracks and assign UIDs */
   int uid = 0;
-  int azim_group_id, periodic_group_id;
-  int track_azim_group_id, track_periodic_group_id;
-  int track_periodic_index;
-  int num_tracks;
-
-  /* If periodic boundary conditions are present, set the number of parallel
-   * track groups to 6; else, set the number of parallel track groups to 2. Also
-   * set the periodic boolean indicating whether periodic bcs are present. */
-  if (_geometry->getMinXBoundaryType() == PERIODIC ||
-      _geometry->getMinYBoundaryType() == PERIODIC) {
-    _num_parallel_track_groups = 6;
-    periodic = true;
-  }
-  else {
-    _num_parallel_track_groups = 2;
-    periodic = false;
-  }
-
-  /* Allocate memory for the num tracks by parallel group array */
-  _num_tracks_by_parallel_group = new int[_num_parallel_track_groups];
-
-  /* Allocate memory for the tracks by parallel group array */
-  _tracks_by_parallel_group = new Track*[getNumTracks()];
-
-  /* Loop over the parallel track groups */
-  for (int g = 0; g < _num_parallel_track_groups; g++) {
-
-    /* Initialize the number of tracks counter */
-    num_tracks = 0;
-
-    /* Set the azimuthal and periodic group ids */
-    azim_group_id = g % 2;
-    periodic_group_id = g / 2;
-
-    /* Loop over all tracks and add all tracks belonging to the current
-     * parallel group to the tracks by parallel groups array */
-    for (int a=0; a < _num_azim_2; a++) {
-      for (int i=0; i < _num_tracks[a]; i++) {
-
-        /* Get current track */
-        track = &_tracks[a][i];
-
-        /* Get the track azim group id */
-        track_azim_group_id = a / (_num_azim_2 / 2);
-
-        /* Get the track periodic group id */
-        if (periodic) {
-          track_periodic_index = track->getPeriodicTrackIndex();
-
-          /* If the track is the first track in periodic cycle, assign it a
-           * periodic group id of 0 */
-          if (track_periodic_index == 0)
-            track_periodic_group_id = 0;
-
-          /* If the track has an odd periodic cycle index, assign it a periodic
-           * group id of 1 */
-          else if (track_periodic_index % 2 == 1)
-            track_periodic_group_id = 1;
-
-          /* Else the track must have an even periodic cycle index and not be
-           * the first track in the periodic cycle; assign it a periodic group
-           * id of 2 */
-          else
-            track_periodic_group_id = 2;
-        }
-
-        /* If the geometry does not have any periodic BCs, assign the track a
-         * periodic group id of 0 */
-        else
-          track_periodic_group_id = 0;
-
-        /* Check if track has current azim_group_id and periodic_group_id */
-        if (azim_group_id == track_azim_group_id &&
-            periodic_group_id == track_periodic_group_id) {
-          track->setUid(uid);
-          _tracks_by_parallel_group[uid] = track;
-          uid++;
-          num_tracks++;
-        }
-      }
+  for (int a=0; a < _num_azim_2; a++) {
+    for (int i=0; i < _num_tracks[a]; i++) {
+      Track* track = &_tracks[a][i];
+      track->setUid(uid);
+      _tracks_array[uid] = track;
+      uid++;
     }
-
-    /* Set the number of tracks in this parallel group */
-    _num_tracks_by_parallel_group[g] = num_tracks;
   }
 }
 

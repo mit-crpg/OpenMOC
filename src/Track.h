@@ -27,7 +27,7 @@
 struct segment {
 
   /** The length of the segment (cm) */
-  FP_PRECISION _length;
+  double _length;
 
   /** A pointer to the material in which this segment resides */
   Material* _material;
