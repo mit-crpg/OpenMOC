@@ -61,6 +61,7 @@ public:
   void trackSingleNeutron();
 
   void initializeLocks();
+  void setNumThreads(int num_threads);
 
   // functions that make MCSolver compatable with Solver
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs);
@@ -84,6 +85,7 @@ public:
 private:
 
   double _k_eff;
+  double _num_threads;
   Geometry* _geometry;
   Universe* _root_universe;
   FP_PRECISION* _FSR_volumes;

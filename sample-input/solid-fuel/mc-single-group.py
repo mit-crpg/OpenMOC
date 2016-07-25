@@ -15,7 +15,7 @@ openmoc.log.set_log_level('NORMAL')
 
 openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
+materials = openmoc.materialize.load_from_hdf5('single-group-materials', './')
 
 
 ###############################################################################
@@ -24,7 +24,7 @@ materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
+#zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
 left = openmoc.XPlane(x=-2.0, name='left')
 right = openmoc.XPlane(x=2.0, name='right')
 top = openmoc.YPlane(y=2.0, name='top')
@@ -43,9 +43,15 @@ bottom.setBoundaryType(openmoc.REFLECTIVE)
 openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
 fuel = openmoc.Cell(name='fuel')
-fuel.setFill(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=zcylinder)
+fuel.setFill(materials['single'])
+#fuel.addSurface(halfspace=-1, surface=zcylinder)
+#fuel.addSurface(halfspace=+1, surface=zcylinder)
+fuel.addSurface(halfspace=+1, surface=left)
+fuel.addSurface(halfspace=-1, surface=right)
+fuel.addSurface(halfspace=+1, surface=bottom)
+fuel.addSurface(halfspace=-1, surface=top)
 
+'''
 moderator = openmoc.Cell(name='moderator')
 moderator.setFill(materials['Water'])
 moderator.addSurface(halfspace=+1, surface=zcylinder)
@@ -53,6 +59,7 @@ moderator.addSurface(halfspace=+1, surface=left)
 moderator.addSurface(halfspace=-1, surface=right)
 moderator.addSurface(halfspace=+1, surface=bottom)
 moderator.addSurface(halfspace=-1, surface=top)
+'''
 
 ###############################################################################
 #                            Creating Universes
@@ -62,7 +69,7 @@ openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
 root_universe = openmoc.Universe(name='root universe')
 root_universe.addCell(fuel)
-root_universe.addCell(moderator)
+#root_universe.addCell(moderator)
 
 
 ###############################################################################
@@ -85,7 +92,7 @@ solver = openmoc.MCSolver()
 #solver.setConvergenceThreshold(opts.tolerance)
 solver.setGeometry(geometry)
 solver.initialize()
-solver.computeEigenvalue(10000000,2,7)
+solver.computeEigenvalue(100000,10000,7)
 #solver.printTimerReport()
 
 
