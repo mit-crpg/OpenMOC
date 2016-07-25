@@ -79,6 +79,7 @@ solver = openmoc.MCSolver()
 #solver.setConvergenceThreshold(opts.tolerance)
 solver.setGeometry(geometry)
 solver.initialize()
+solver.setNumThreads(opts.num_omp_threads)
 solver.computeEigenvalue(10000000,1,7)
 #solver.printTimerReport()
 

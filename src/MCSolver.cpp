@@ -10,7 +10,9 @@
 /**
  * @brief   constructor for MCSolver
  */
-MCSolver::MCSolver() : Solver(NULL) {}
+MCSolver::MCSolver() : Solver(NULL) {
+setNumThreads(1);
+}
 
 
 /**
@@ -234,6 +236,23 @@ void MCSolver::initializeLocks() {
   omp_init_lock(_absorption_lock);
   omp_init_lock(_fission_lock);
   omp_init_lock(_crow_lock);
+}
+
+
+/**
+ * @brief Sets the number of shared memory OpenMP threads to use (>0).
+ * @param num_threads the number of threads
+ */
+void MCSolver::setNumThreads(int num_threads) {
+
+  if (num_threads <= 0)
+    log_printf(ERROR, "Unable to set the number of threads to %d "
+               "since it is less than or equal to 0", num_threads);
+
+  /* Set the number of threads for OpenMP */
+  _num_threads = num_threads;
+  omp_set_num_threads(_num_threads);
+  std::cout << "num threads set to " << num_threads << std::endl;
 }
 
 
