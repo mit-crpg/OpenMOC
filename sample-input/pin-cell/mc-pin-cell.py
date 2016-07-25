@@ -85,7 +85,7 @@ solver = openmoc.MCSolver()
 #solver.setConvergenceThreshold(opts.tolerance)
 solver.setGeometry(geometry)
 solver.initialize()
-solver.computeEigenvalue(100000,10000,7)
+solver.computeEigenvalue(10000000,2,7)
 #solver.printTimerReport()
 
 

@@ -75,7 +75,7 @@ geometry.setRootUniverse(root_universe)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, 256, .025)
+track_generator = openmoc.TrackGenerator(geometry, 128, .05)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
@@ -86,7 +86,7 @@ track_generator.generateTracks()
 
 solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(opts.num_omp_threads)
-solver.setConvergenceThreshold(opts.tolerance)
+solver.setConvergenceThreshold(1e-7)
 solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 

@@ -269,7 +269,7 @@ void MCSolver::computeEigenvalue(int n_histories, int num_batches,
                                  int num_groups) {
 
   double convergence_threshold = 1e-12;
-  double last_inactive_batch = 200;
+  double last_inactive_batch = 1;
   bool active_batch = false;
 
   std::cout << "[  NORMAL ]  Computing Eigenvalue\n";
