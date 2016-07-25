@@ -1,16 +1,16 @@
-/* 
- @file    Neutron.cpp
- @brief   contains functions for the Neutron class
- @author  Luke Eure
- @date    January 8 2016
-*/
+/** 
+ * @file    Neutron.cpp
+ * @brief   contains functions for the Neutron class
+ * @author  Luke Eure
+ * @date    January 8 2016
+ */
 
 #include "Neutron.h"
 
-/*
- @brief   constructor for Neutron class
- @param   neutron_num to be saved as the neutron's id number
-*/
+/**
+ * @brief   constructor for Neutron class
+ * @param   neutron_num to be saved as the neutron's id number
+ */
 Neutron::Neutron(int neutron_num) {
   _neutron_alive = true;
   _neutron_direction.resize(3);
@@ -21,34 +21,34 @@ Neutron::Neutron(int neutron_num) {
 }
 
 
-/*
- @brief   deconstructor for Neutron class
-*/
+/**
+ * @brief   deconstructor for Neutron class
+ */
 Neutron::~Neutron() {}
 
 
-/*
- @brief   tells if the neutron is alive
- @return  a bool (true=neutron alive. false=neutron dead)
-*/
+/**
+ * @brief   tells if the neutron is alive
+ * @return  a bool (true=neutron alive. false=neutron dead)
+ */
 bool Neutron::alive(){
   return _neutron_alive;
 }
 
 
-/*
- @brief   returns the energy group of the neutron
- @return  an int: the energy group of the neutron
-*/
+/**
+ * @brief   returns the energy group of the neutron
+ * @return  an int: the energy group of the neutron
+ */
 int Neutron::getGroup() {
   return _neutron_group;
 }
 
 
-/*
- @brief   moves the neutron a given distance
- @param   distance the distance the neutron should be moved
-*/
+/**
+ * @brief   moves the neutron a given distance
+ * @param   distance the distance the neutron should be moved
+ */
 void Neutron::move(double distance) {
   _xyz.setX(_xyz.getX() + _neutron_direction[0] * distance);
   _xyz.setY(_xyz.getY() + _neutron_direction[1] * distance);
@@ -56,20 +56,20 @@ void Neutron::move(double distance) {
 }
 
 
-/*
- @brief   reverses a neutron's direction of motion along an axis
- @param   axis the axis along which the nuetron should be reflected
-*/
+/**
+ * @brief   reverses a neutron's direction of motion along an axis
+ * @param   axis the axis along which the nuetron should be reflected
+ */
 void Neutron::reflect(int axis) {
   _neutron_direction[axis] *= -1;
 }
 
 
-/*
- @brief   sets the neutron's position along an axis
- @param   axis the axis along which the position will be set
- @param   value the value to which the position will be set
-*/
+/**
+ * @brief   sets the neutron's position along an axis
+ * @param   axis the axis along which the position will be set
+ * @param   value the value to which the position will be set
+ */ 
 void Neutron::setPosition(int axis, double value) {
   if (axis==0)
     _xyz.setX(value);
@@ -80,20 +80,20 @@ void Neutron::setPosition(int axis, double value) {
 }
 
 
-/*
- @brief   kills the neutron
-*/
+/**
+ * @brief   kills the neutron
+ */
 void Neutron::kill() {
   _neutron_alive = false;
 }
 
 
-/*
- @brief   gets the position of the neutron along a certain axis
- @param   axis an int containing the axis along which the position will be
-      returned
- @return  a double denoting the neutron's position along axis
-*/
+/**
+ * @brief   gets the position of the neutron along a certain axis
+ * @param   axis an int containing the axis along which the position will be
+ *          returned
+ * @return  a double denoting the neutron's position along axis
+ */
 double Neutron::getPosition(int axis) {
   double pos;
   if (axis==0)
@@ -106,41 +106,41 @@ double Neutron::getPosition(int axis) {
 }
 
 
-/*
- @brief   gets the position vector of the neutron
- @param   a Point* to be pointed at a Point containing the neutron's position
-*/
+/**
+ * @brief   gets the position vector of the neutron
+ * @param   a Point* to be pointed at a Point containing the neutron's position
+ */
 void Neutron::getPositionVector(Point* &position) {
   position = &_xyz;
 }
 
 
-/*
- @brief   gets the direction of the neutron along a certain axis
- @param   axis an int containing the axis along which the direction will be
-      returned
- @return  a double denoting the neutron's direction along axis
-*/
+/**
+ * @brief   gets the direction of the neutron along a certain axis
+ * @param   axis an int containing the axis along which the direction will be
+ *          returned
+ * @return  a double denoting the neutron's direction along axis
+ */
 double Neutron::getDirection(int axis) {
   return _neutron_direction[axis];
 }
 
 
-/*
- @brief   sets the direction of the neutron along a certain axis
- @param   axis the axis along which the direction will be set
- @param   magnitude the magnitude of the nuetron's motion along axis
-*/
+/**
+ * @brief   sets the direction of the neutron along a certain axis
+ * @param   axis the axis along which the direction will be set
+ * @param   magnitude the magnitude of the nuetron's motion along axis
+ */
 void Neutron::setDirection(int axis, double magnitude) {
   _neutron_direction[axis] = magnitude;
 }
 
 
-/*
- @brief   gets the neutron's distance from a given point
- @param   coord a vector denoting the point to find the neutron's distance from
- @return  the neutron's distance from that point
-*/
+/**
+ * @brief   gets the neutron's distance from a given point
+ * @param   coord a vector denoting the point to find the neutron's distance from
+ * @return  the neutron's distance from that point
+ */
 double Neutron::getDistance(Point* coord) {
   double dis;
   dis = _xyz.distanceToPoint(coord);
@@ -148,20 +148,19 @@ double Neutron::getDistance(Point* coord) {
 }
 
 
-/*
- @brief   set the neutron's group
- @param   new_group the new energy group of the neutron
-*/
+/**
+ * @brief   set the neutron's group
+ * @param   new_group the new energy group of the neutron
+ */
 void Neutron::setGroup(int new_group) {
-  //std::cout << " to " << new_group << std::endl;
   _neutron_group = new_group;
 }
 
 
-/*
- @brief   sets the neutron's direction to a random direction based on
-      the neutron's random number seed
-*/
+/**
+ * @brief   sets the neutron's direction to a random direction based on
+ *          the neutron's random number seed
+ */
 void Neutron::sampleDirection() {
 
   // sample azimuthal angle
@@ -177,30 +176,30 @@ void Neutron::sampleDirection() {
 }
 
 
-/*
- @brief   returns a pseudo-random number using the seed between 0 and 1
- @return  a psuedo-random number between 0 and 1
-*/
+/**
+ * @brief   returns a pseudo-random number using the seed between 0 and 1
+ * @return  a psuedo-random number between 0 and 1
+ */
 double Neutron::arand() {
   double r = rand_r(&_seed);
   return (double) r / (double) RAND_MAX;
 }
 
 
-/*
- @brief   returns a pseudo-random number using the seed
- @return  a psuedo-random number
-*/
+/**
+ * @brief   returns a pseudo-random number using the seed
+ * @return  a psuedo-random number
+ */
 int Neutron::rand() {
   return rand_r(&_seed);
 }
 
 
-/*
- @brief   samples the neutron energy group after a scattering event
- @param   scattering_matrix the scattering cross section matrix
- @return  the neutron group after scattering
-*/
+/**
+ * @brief   samples the neutron energy group after a scattering event
+ * @param   scattering_matrix the scattering cross section matrix
+ * @return  the neutron group after scattering
+ */
 int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix) {
 
   // get the total scattering cross-section from this group
@@ -224,11 +223,11 @@ int Neutron::sampleScatteredGroup(std::vector <double> &scattering_matrix) {
 }
 
 
-/*
- @brief   samples an initial neutron energy group after fission
- @param   chi the neutron emission spectrum from fission
- @return  the group number of the emitted neutron
-*/
+/**
+ * @brief   samples an initial neutron energy group after fission
+ * @param   chi the neutron emission spectrum from fission
+ * @return  the group number of the emitted neutron
+ */
 int Neutron::sampleEnergyGroup(std::vector <double> chi) {
   double r = arand();
   double chi_sum = 0.0;

@@ -258,7 +258,7 @@ int main() {
   geometry->setRootUniverse(root_universe);
 
   // simulate neutron histories
-  int num_neutrons = 100000;
+  int num_neutrons = 1000000;
   int num_batches = 100;
 
   std::cout << "makes solver\n";
