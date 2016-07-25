@@ -1,0 +1,35 @@
+tch 518, k = 0.73675000000000001598721155460225 with standard deviation of -nan
+fissions: 1
+leaks: 0
+absorptions: 1.3573125212080081603005510260118
+convergence: -nan
+running k_eff 0.73542295366795407129956174685503
+
+For batch 519, k = 0.73614999999999997104538351777592 with standard deviation of -nan
+fissions: 1
+leaks: 0
+absorptions: 1.3584188005161992318647889987915
+convergence: -nan
+running k_eff 0.7354243545279387506141688390926
+
+For batch 520, k = 0.73179000000000005154987547939527 with standard deviation of -nan
+fissions: 1
+leaks: 0
+absorptions: 1.3665122507823281861050190855167
+convergence: -nan
+running k_eff 0.73541736538461577321612594460021
+
+For batch 521, k = 0.73407000000000000028421709430404 with standard deviation of -nan
+fissions: 1
+leaks: 0
+absorptions: 1.3622679036059230917032891738927
+convergence: -nan
+running k_eff 0.73541477927063370056970370569616
+
+For batch 522, k = 0.73343000000000002636113549669972 with standard deviation of -nan
+fissions: 1
+leaks: 0
+absorptions: 1.3634566352617154549875522207003
+convergence: -nan
+running k_eff 0.7354109770114944932828393575619
+
