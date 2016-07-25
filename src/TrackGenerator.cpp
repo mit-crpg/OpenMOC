@@ -180,8 +180,6 @@ int TrackGenerator::getNum2DSegments() {
 
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-      std::cout << "Indexes " << a << " and " << i << std::endl;
-      std::cout << "Adding " << _tracks_2D[a][i].getNumSegments() << std::endl;
       num_2D_segments += _tracks_2D[a][i].getNumSegments();
     }
   }
@@ -1140,8 +1138,9 @@ void TrackGenerator::segmentize() {
     log_printf(NORMAL, "segmenting 2D tracks - Percent complete: %5.2f %%",
                double(tracks_segmented) / num_2D_tracks * 100.0);
 #pragma omp parallel for
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++)
+    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       _geometry->segmentize2D(&_tracks_2D[a][i], _z_coord);
+    }
 
     tracks_segmented += _num_x[a] + _num_y[a];
   }

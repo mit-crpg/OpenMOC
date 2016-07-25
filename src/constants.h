@@ -44,6 +44,10 @@
 /** The default maximum optical path length */
 #define MAX_OPTICAL_LENGTH FP_PRECISION(10.)
 
+/** A small amount to increment the tau, the max optical path length, to ensure
+ *  that tracks with the max optical path length are not split. */
+#define TAU_NUDGE 1E-12
+
 /** The minimum acceptable precision for exponential evaluations from
  *  the ExpEvaluator's linear interpolation table. This default precision
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */

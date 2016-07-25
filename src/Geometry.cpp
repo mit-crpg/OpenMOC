@@ -1334,9 +1334,7 @@ void Geometry::initializeFSRVectors() {
 
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
-  std::cout << "FSR keys map = " << _FSR_keys_map.size() << std::endl;
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
-  std::cout << "Vector size = " << _FSRs_to_keys.size() << std::endl;
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
