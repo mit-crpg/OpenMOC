@@ -485,7 +485,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     polar_index = track_3D->getPolarIndex();
 
   /* Extract the maximum track index and get Track data */
-  StackTrackIndexes sti;
+  TrackStackIndexes tsi;
   Track** tracks_array;
   int max_track_index = 0;
   if (_segment_formation == OTF_STACKS) {
@@ -493,15 +493,15 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     /* Extract indexes */
     int xy_index = track->getXYIndex();
     max_track_index = _tracks_per_stack[azim_index][xy_index][polar_index] - 1;
-    sti._azim = azim_index;
-    sti._xy = xy_index;
-    sti._polar = polar_index;
+    tsi._azim = azim_index;
+    tsi._xy = xy_index;
+    tsi._polar = polar_index;
 
     /* Get Track data for the entire z-stack */
     Track3D* tracks_3D = _track_generator_3D->getTemporary3DTracks(tid);
     for (int z=0; z < max_track_index+1; z++) {
-      sti._z = z;
-      _track_generator_3D->getTrackOTF(&tracks_3D[z], &sti);
+      tsi._z = z;
+      _track_generator_3D->getTrackOTF(&tracks_3D[z], &tsi);
     }
     tracks_array = _track_generator_3D->getTemporaryTracksArray(tid);
   }

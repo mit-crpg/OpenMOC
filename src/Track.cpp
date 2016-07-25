@@ -235,20 +235,17 @@ void Track::setAzimIndex(int index) {
 
 
 /**
- * @brief Set a Track's azimuthal angle index.
- * @param index The azimuthal angle index
+ * @brief Set a Track's link index.
+ * @detail In generating 3D tracks, we need to know the tracks
+ *         linking this track with both periodic and reflective
+ *         boundary conditions. Therefore, we generate a periodic
+ *         chain of tracks that extend periodically from the y-min
+ *         to the y-max boundary. This is the index of each track in
+ *         its' periodic chain.
+ * @param index The link index
  */
-void Track::setXIndex(int index) {
-  _x_index = index;
-}
-
-
-/**
- * @brief Set a Track's azimuthal angle index.
- * @param index The azimuthal angle index
- */
-void Track::setStackIndex(int index) {
-  _stack_index = index;
+void Track::setLinkIndex(int index) {
+  _link_index = index;
 }
 
 
@@ -262,20 +259,17 @@ int Track::getAzimIndex() {
 
 
 /**
- * @brief Get a Track's azimuthal angle index.
- * @return The azimuthal angle index
+ * @brief Get a Track's link index.
+ * @detail In generating 3D tracks, we need to know the tracks
+ *         linking this track with both periodic and reflective
+ *         boundary conditions. Therefore, we generate a periodic
+ *         chain of tracks that extend periodically from the y-min
+ *         to the y-max boundary. This is the index of each track in
+ *         its' periodic chain.
+ * @return The link index
  */
-int Track::getXIndex() {
-  return _x_index;
-}
-
-
-/**
- * @brief Get a Track's azimuthal angle index.
- * @return The azimuthal angle index
- */
-int Track::getStackIndex() {
-  return _stack_index;
+int Track::getLinkIndex() {
+  return _link_index;
 }
 
 

@@ -11,8 +11,8 @@
 TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
                                    int num_polar, double azim_spacing,
                                    double polar_spacing) :
-                    TrackGenerator(geometry, num_azim, num_polar,
-                                   azim_spacing) {
+    TrackGenerator(geometry, num_azim, num_polar, azim_spacing) {
+
   setDesiredPolarSpacing(polar_spacing);
   _contains_3D_tracks = false;
   _contains_3D_segments = false;
@@ -26,7 +26,7 @@ TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
   _num_seg_matrix_columns = 0;
   _track_generation_method = GLOBAL_TRACKING; //FIXME
   _tracks_3D = NULL;
-  _tracks_2D_cycle = NULL;
+  _tracks_2D_chains = NULL;
 
   _cum_tracks_per_stack = NULL;
   _cum_tracks_per_xy = NULL;
@@ -40,14 +40,14 @@ TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
  */
 TrackGenerator3D::~TrackGenerator3D() {
 
-  /* Delete 2D cycles if created */
-  if (_tracks_2D_cycle != NULL) {
+  /* Delete 2D chains if created */
+  if (_tracks_2D_chains != NULL) {
     for (int a=0; a < _num_azim/2; a++) {
       for (int x=0; x < _num_x[a]; x++)
-        delete [] _tracks_2D_cycle[a][x];
-      delete [] _tracks_2D_cycle[a];
+        delete [] _tracks_2D_chains[a][x];
+      delete [] _tracks_2D_chains[a];
     }
-    delete [] _tracks_2D_cycle;
+    delete [] _tracks_2D_chains;
   }
 
   /* Deletes Tracks arrays if Tracks have been generated */
@@ -464,14 +464,14 @@ void TrackGenerator3D::retrieve3DTrackCoords(double* coords, int num_tracks) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
-          StackTrackIndexes sti;
-          sti._azim = a;
-          sti._xy = i;
-          sti._polar = p;
-          sti._z = z;
+          TrackStackIndexes tsi;
+          tsi._azim = a;
+          tsi._xy = i;
+          tsi._polar = p;
+          tsi._z = z;
 
           Track3D track;
-          getTrackOTF(&track, &sti);
+          getTrackOTF(&track, &tsi);
           coords[counter]   = track.getStart()->getX();
           coords[counter+1] = track.getStart()->getY();
           coords[counter+2] = track.getStart()->getZ();
@@ -545,14 +545,14 @@ void TrackGenerator3D::retrieve3DSegmentCoords(double* coords, int num_segments)
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
-          StackTrackIndexes sti;
-          sti._azim = a;
-          sti._xy = i;
-          sti._polar = p;
-          sti._z = z;
+          TrackStackIndexes tsi;
+          tsi._azim = a;
+          tsi._xy = i;
+          tsi._polar = p;
+          tsi._z = z;
 
           Track3D track;
-          getTrackOTF(&track, &sti);
+          getTrackOTF(&track, &tsi);
 
           x0    = track.getStart()->getX();
           y0    = track.getStart()->getY();
@@ -606,8 +606,8 @@ void TrackGenerator3D::initializeTracks() {
   /* Initialize the 2D Tracks */
   TrackGenerator::initializeTracks();
 
-  /* Initialize the 2D Track cycles */
-  initializeTrackCycles();
+  /* Initialize the 2D Track chains */
+  initialize2DTrackChains();
 
   /* Make sure that the depth of the Geometry is nonzero */
   if (_geometry->getWidthZ() <= 0)
@@ -623,7 +623,7 @@ void TrackGenerator3D::initializeTracks() {
 
   log_printf(NORMAL, "Initializing 3D tracks...");
 
-  /* Allocate memory for arrays */
+  /* Allocate arrays for 3D Track data */
   _dz_eff = new double*[_num_azim/2];
   _dl_eff = new double*[_num_azim/2];
   _num_z            = new int*[_num_azim/2];
@@ -691,6 +691,8 @@ void TrackGenerator3D::initializeTracks() {
       /* Effective track spacing */
       _dl_eff[i][j] = length/ _num_l[i][j];
       _dz_eff[i][j] = width_z / _num_z[i][j];
+
+      /* Set the corrected polar angle */
       FP_PRECISION theta = atan(_dl_eff[i][j] / _dz_eff[i][j]);
       _quadrature->setTheta(theta, i, j);
       _quadrature->setPolarSpacing(_dz_eff[i][j] * sin(theta), i, j);
@@ -717,24 +719,24 @@ void TrackGenerator3D::initializeTracks() {
   }
 
 
-  /* Compute the total number of cycles */
-  int num_cycles = 0;
+  /* Compute the total number of chains */
+  int num_chains = 0;
   for (int a = 0; a < _num_azim/2; a++) {
     for (int x = 0; x < _num_x[a]; x++)
-      num_cycles += _num_polar;
+      num_chains += _num_polar;
   }
 
-  /* Create array of cycle track indices */
-  CycleTrackIndexes* ctis = new CycleTrackIndexes[num_cycles];
+  /* Create array of track chain indices */
+  TrackChainIndexes* tcis = new TrackChainIndexes[num_chains];
 
-  num_cycles = 0;
+  num_chains = 0;
   for (int a = 0; a < _num_azim/2; a++) {
     for (int x = 0; x < _num_x[a]; x++) {
       for (int p = 0; p < _num_polar; p++) {
-        ctis[num_cycles]._azim  = a;
-        ctis[num_cycles]._x = x;
-        ctis[num_cycles]._polar = p;
-        num_cycles++;
+        tcis[num_chains]._azim  = a;
+        tcis[num_chains]._x = x;
+        tcis[num_chains]._polar = p;
+        num_chains++;
       }
     }
   }
@@ -751,17 +753,17 @@ void TrackGenerator3D::initializeTracks() {
    *       ------->!--->!-------->!------>!------------>|
    * l+ ->
    */
-  getCycleTrackData(ctis, num_cycles, false);
+  getCycleTrackData(tcis, num_chains, false);
 
   /* Allocate memory for 3D track stacks */
   create3DTracksArrays();
 
   /* Save explicit Track data if necessary */
   if (_segment_formation == EXPLICIT_3D)
-    getCycleTrackData(ctis, num_cycles, true);
+    getCycleTrackData(tcis, num_chains, true);
 
-  /* Delete the array of cycle track indexes */
-  delete [] ctis;
+  /* Delete the array of chain track indexes */
+  delete [] tcis;
 
   /* Record the maximum number of tracks in a single stack */
   for (int a=0; a < _num_azim/2; a++)
@@ -781,46 +783,44 @@ void TrackGenerator3D::initializeTracks() {
 
 
 /**
- * @brief Initializes 2D Track cycles array
+ * @brief Initializes 2D Track chains array
  * @details This method creates an array of 2D Tracks ordered by azimuthal
- *          angle, cycle index, and train index.
+ *          angle, x index, and link index.
  */
-void TrackGenerator3D::initializeTrackCycles() {
+void TrackGenerator3D::initialize2DTrackChains() {
 
   Track* track;
-  int stack;
+  int link_index;
 
-  _tracks_2D_cycle  = new Track***[_num_azim/2];
+  _tracks_2D_chains  = new Track***[_num_azim/2];
   for (int a=0; a < _num_azim/2; a++) {
-    _tracks_2D_cycle[a] = new Track**[_num_x[a]];
+    _tracks_2D_chains[a] = new Track**[_num_x[a]];
     for (int x=0; x < _num_x[a]; x++) {
 
-      /* Get the first track in the 2D stack */
-      stack = 0;
+      /* Get the first track in the 2D chain */
+      link_index = 0;
       track = &_tracks_2D[a][x];
-      track->setXIndex(x);
-      track->setStackIndex(stack);
+      track->setLinkIndex(link_index);
 
-      /* Cycle through the tracks in the 2D stack */
+      /* Cycle through the tracks in the 2D chain */
       while (track->getXYIndex() < _num_y[a]) {
-        stack++;
+        link_index++;
         track = _tracks_2D_array[track->getTrackPrdcFwd()];
-        track->setXIndex(x);
-        track->setStackIndex(stack);
+        track->setLinkIndex(link_index);
       }
 
-      /* Allocate memory for the track stack */
-      _tracks_2D_cycle[a][x] = new Track*[stack + 1];
+      /* Allocate memory for the track chains */
+      _tracks_2D_chains[a][x] = new Track*[link_index + 1];
 
-      /* Assign tracks to the cycle array */
-      stack = 0;
+      /* Assign tracks to the chains array */
+      link_index = 0;
       track = &_tracks_2D[a][x];
-      _tracks_2D_cycle[a][x][stack] = track;
+      _tracks_2D_chains[a][x][link_index] = track;
 
       while (track->getXYIndex() < _num_y[a]) {
-        stack++;
+        link_index++;
         track = _tracks_2D_array[track->getTrackPrdcFwd()];
-        _tracks_2D_cycle[a][x][stack] = track;
+        _tracks_2D_chains[a][x][link_index] = track;
       }
     }
   }
@@ -828,8 +828,8 @@ void TrackGenerator3D::initializeTrackCycles() {
 
 
 //FIXME: description
-void TrackGenerator3D::getCycleTrackData(CycleTrackIndexes* ctis,
-                                         int num_cycles, bool save_tracks) {
+void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
+                                         int num_chains, bool save_tracks) {
 
   /* Determine if initializing or allocating tracks */
   std::string msg;
@@ -837,23 +837,23 @@ void TrackGenerator3D::getCycleTrackData(CycleTrackIndexes* ctis,
     msg = "Saving 3D Tracks";
   else
     msg = "Initializing 3D Tracks";
-  Progress progress(num_cycles, msg);
+  Progress progress(num_chains, msg);
 
-  /* Loop over 3D track cycles */
+  /* Loop over 3D track chains */
 #pragma omp parallel
   {
     Track3D track_3D;
-    CycleTrackIndexes* cti;
+    TrackChainIndexes* tci;
     int nl, nz;
 #pragma omp for
-    for (int cycle=0; cycle < num_cycles; cycle++) {
-      cti = &ctis[cycle];
-      nl = _num_l[cti->_azim][cti->_polar];
-      nz = _num_z[cti->_azim][cti->_polar];
+    for (int chain=0; chain < num_chains; chain++) {
+      tci = &tcis[chain];
+      nl = _num_l[tci->_azim][tci->_polar];
+      nz = _num_z[tci->_azim][tci->_polar];
       for (int lz=0; lz < nl + nz; lz++) {
-        cti->_lz = lz;
-        cti->_train = -1;
-        get3DTrack(cti, &track_3D, true, save_tracks);
+        tci->_lz = lz;
+        tci->_link = -1;
+        set3DTrackData(tci, &track_3D, true, save_tracks);
       }
       progress.incrementCounter();
     }
@@ -886,18 +886,18 @@ void TrackGenerator3D::getCycleTrackData(CycleTrackIndexes* ctis,
  * l+ ->
  */
 //FIXME
-double TrackGenerator3D::getLStart(CycleTrackIndexes* cti) {
+double TrackGenerator3D::getLStart(TrackChainIndexes* tci) {
 
   double l_start;
-  int lz = cti->_lz;
-  int nl = _num_l[cti->_azim][cti->_polar];
-  int nz = _num_z[cti->_azim][cti->_polar];
-  double dl = _dl_eff[cti->_azim][cti->_polar];
-  double phi = _quadrature->getPhi(cti->_azim);
+  int lz = tci->_lz;
+  int nl = _num_l[tci->_azim][tci->_polar];
+  int nz = _num_z[tci->_azim][tci->_polar];
+  double dl = _dl_eff[tci->_azim][tci->_polar];
+  double phi = _quadrature->getPhi(tci->_azim);
   double length = _geometry->getWidthY() / sin(phi);
 
-  /* Get the length from the beginning of the cycle to the track start point */
-  if (cti->_polar < _num_polar / 2) {
+  /* Get the length from the beginning of the chain to the track start point */
+  if (tci->_polar < _num_polar / 2) {
     if (lz < nl)
       l_start = length - (lz + 0.5) * dl;
     else
@@ -912,7 +912,7 @@ double TrackGenerator3D::getLStart(CycleTrackIndexes* cti) {
 
   /* If the track starts on an edge nudge it forward */
   if (l_start != 0.0) {
-    Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_x][0];
+    Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][0];
     double phi      = track_2D->getPhi();
     double cos_phi  = cos(phi);
     double sin_phi  = sin(phi);
@@ -935,10 +935,11 @@ double TrackGenerator3D::getLStart(CycleTrackIndexes* cti) {
 
 
 //FIXME: description
-int TrackGenerator3D::getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D) {
+int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
+                                               Track3D* track_3D) {
 
   /* Initialize variables */
-  Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_x][0];
+  Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][0];
 
   double phi      = track_2D->getPhi();
   double cos_phi  = cos(phi);
@@ -946,13 +947,14 @@ int TrackGenerator3D::getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D) {
 
   double x_start  = track_2D->getStart()->getX();
   double y_start  = track_2D->getStart()->getY();
-  double l_start  = getLStart(cti);
+  double l_start  = getLStart(tci);
 
-  int lz          = cti->_lz;
-  int nl          = _num_l[cti->_azim][cti->_polar];
-  int nz          = _num_z[cti->_azim][cti->_polar];
-  double dz       = _dz_eff[cti->_azim][cti->_polar];
+  int lz          = tci->_lz;
+  int nl          = _num_l[tci->_azim][tci->_polar];
+  int nz          = _num_z[tci->_azim][tci->_polar];
+  double dz       = _dz_eff[tci->_azim][tci->_polar];
 
+  /* Get Geometry information */
   double x_min = _geometry->getMinX();
   double y_min = _geometry->getMinY();
   double z_min = _geometry->getMinZ();
@@ -967,9 +969,8 @@ int TrackGenerator3D::getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D) {
   double x_ext = x_start - x_min + l_start * cos_phi;
   double y_ext = y_start - y_min + l_start * sin_phi;
 
-  /* Get the index of the first stack */
-  int x_cell = abs(int(floor(x_ext / width_x)));
-  int y_cell = int(floor(y_ext / width_y));
+  /* Get the index of the first 2D Track link */
+  int link_index = abs(int(floor(x_ext / width_x)));
 
   /* Get the starting x-coord */
   double x1;
@@ -984,7 +985,7 @@ int TrackGenerator3D::getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D) {
   /* Get the z-coords */
   double z1;
   double z2;
-  if (cti->_polar < _num_polar / 2) {
+  if (tci->_polar < _num_polar / 2) {
     z1 = z_min + std::max(0., (lz - nl + 0.5)) * dz;
     z2 = z_max + std::min(0., (lz - nz + 0.5)) * dz;
   }
@@ -997,7 +998,7 @@ int TrackGenerator3D::getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D) {
   track_3D->getStart()->setCoords(x1, y1, z1);
   track_3D->getEnd()->setZ(z2);
 
-  return x_cell + y_cell;
+  return link_index;
 }
 
 
@@ -1016,16 +1017,17 @@ int TrackGenerator3D::getFirstStack(CycleTrackIndexes* cti, Track3D* track_3D) {
  * @param l_end The distance accross the radial or "l" direction to where the
  *        track end
  * @param azim The azimuthal index of the track
- * @param cycle The cycle index of the track
+ * @param chain The chain index of the track
  * @param polar The polar index of the track
  * @param lz_index The lz index into the Track3D cycles array
  * @param create_tracks Boolean value determining whether to create the
  *        associated decomposed tracks (true) or simply count them (false)
+ //FIXME: description
  */
-void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
-                                  Track3D* track,
-                                  bool create_arrays,
-                                  bool save_tracks) {
+void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
+                                      Track3D* track,
+                                      bool create_arrays,
+                                      bool save_tracks) {
 
   /* Extract Geometry information */
   double x_min = _geometry->getMinX();
@@ -1036,13 +1038,12 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
   double z_max = _geometry->getMaxZ();
 
   /* Initialize variables */
-  double theta = _quadrature->getTheta(cti->_azim, cti->_polar);
-  bool end_of_train = false;
+  double theta = _quadrature->getTheta(tci->_azim, tci->_polar);
+  bool end_of_chain = false;
 
-  /* Get the index of the first stack */
-  int stack = getFirstStack(cti, track);
-  int first_stack = stack;
-  int train = 0;
+  /* Get the index of the first 2D Track link */
+  int link = getFirst2DTrackLinkIndex(tci, track);
+  int first_link = link;
 
   /* Record start and end points */
   double x1;
@@ -1054,10 +1055,10 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
   double z2 = track->getStart()->getZ();
 
   /* Set the start and end point for each 3D track */
-  while (!end_of_train) {
+  while (!end_of_chain) {
 
     /* Get the 2D track associated with this 3D track */
-    Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_x][stack];
+    Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][link];
     double phi = track_2D->getPhi();
     int azim = track_2D->getAzimIndex();
     int xy = track_2D->getXYIndex();
@@ -1071,7 +1072,7 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
     double dx;
     double dy;
     double dl_xy;
-    if (stack == first_stack) {
+    if (link == first_link) {
       dx = track_2D->getEnd()->getX() - x1;
       dy = track_2D->getEnd()->getY() - y1;
       dl_xy = sqrt(dx*dx + dy*dy);
@@ -1081,7 +1082,7 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
 
     /* Get the distance to the nearest Z boundary */
     double dl_z;
-    if (cti->_polar < _num_polar / 2)
+    if (tci->_polar < _num_polar / 2)
       dl_z = (track->getEnd()->getZ() - z1) * tan(theta);
     else
       dl_z = (z1 - track->getEnd()->getZ()) / tan(theta - M_PI_2);
@@ -1093,10 +1094,10 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
     double track_theta;
     x2 = x1 + dl * cos(phi);
     y2 = y1 + dl * sin(phi);
-    polar = cti->_polar;
+    polar = tci->_polar;
     track_theta = theta;
 
-    if (cti->_polar < _num_polar / 2)
+    if (tci->_polar < _num_polar / 2)
       z2 = z1 + dl / tan(theta);
     else
       z2 = z1 - dl * tan(theta - M_PI_2);
@@ -1107,11 +1108,11 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
         fabs(z2 - z1) < TINY_MOVE)
       break;
 
-    /* If the Z boundary or last stack or the desired
-     * train has been reached, exit */
-    if (dl_z < dl_xy || track_2D->getXYIndex() >= _num_y[cti->_azim] ||
-        cti->_train == stack - first_stack)
-      end_of_train = true;
+    /* If the Z boundary or last link or the desired link has been reached,
+     * exit */
+    if (dl_z < dl_xy || track_2D->getXYIndex() >= _num_y[tci->_azim] ||
+        tci->_link == link - first_link)
+      end_of_chain = true;
 
     if (create_arrays || save_tracks) {
 
@@ -1120,7 +1121,7 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
       _tracks_per_stack[azim][xy][polar]++;
 
       if (z == 0)
-        _first_lz_of_stack[azim][xy][polar] = cti->_lz;
+        _first_lz_of_stack[azim][xy][polar] = tci->_lz;
 
       if (save_tracks && _segment_formation == EXPLICIT_3D) {
 
@@ -1140,12 +1141,12 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
       }
     }
 
-    /* Increment the stack index */
-    stack++;
+    /* Increment the link index */
+    link++;
 
-    /* Move the starting x-coord to account for periodic BCs for cycles */
-    if (!end_of_train) {
-      if (cti->_azim < _num_azim / 4)
+    /* Move the starting x-coord to account for periodic BCs for chains */
+    if (!end_of_chain) {
+      if (tci->_azim < _num_azim / 4)
         x2 = x_min;
       else
         x2 = x_max;
@@ -1164,9 +1165,9 @@ void TrackGenerator3D::get3DTrack(CycleTrackIndexes* cti,
   track->getStart()->setCoords(x1, y1, z1);
   track->getEnd()->setCoords(x2, y2, z2);
 
-  /* Set the train index, if it has not been set */
-  if (cti->_train == -1)
-    cti->_train = stack - first_stack;
+  /* Set the link index, if it has not been set */
+  if (tci->_link == -1)
+    tci->_link = link - first_link;
 }
 
 
@@ -1294,14 +1295,14 @@ void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++) {
 
-          StackTrackIndexes sti;
-          sti._azim = a;
-          sti._xy = i;
-          sti._polar = p;
-          sti._z = z;
+          TrackStackIndexes tsi;
+          tsi._azim = a;
+          tsi._xy = i;
+          tsi._polar = p;
+          tsi._z = z;
 
           Track3D track;
-          getTrackOTF(&track, &sti);
+          getTrackOTF(&track, &tsi);
           if (track.getUid() == track_id) {
             coords[0] = track.getStart()->getX();
             coords[1] = track.getStart()->getY();
@@ -1371,11 +1372,11 @@ void TrackGenerator3D::create3DTracksArrays() {
 
 /**
  * @brief Returns the 3D Track ID based on its indexes
- * @param sti The indexes of the Track of interest (azimuthal, xy track, polar,
+ * @param tsi The indexes of the Track of interest (azimuthal, xy track, polar,
  *        and z stack)
  */
-long TrackGenerator3D::get3DTrackID(StackTrackIndexes* sti) {
-  return _cum_tracks_per_stack[sti->_azim][sti->_xy][sti->_polar] + sti->_z;
+long TrackGenerator3D::get3DTrackID(TrackStackIndexes* tsi) {
+  return _cum_tracks_per_stack[tsi->_azim][tsi->_xy][tsi->_polar] + tsi->_z;
 }
 
 
@@ -1572,20 +1573,20 @@ bool TrackGenerator3D::containsSegments() {
  * @brief Updates the provided Track with the correct information based on the
  *        Track indexes
  * @param track The 3D Track whose information is updated
- * @param sti The indexes of the 3D Track
+ * @param tsi The indexes of the 3D Track
  */
-void TrackGenerator3D::getTrackOTF(Track3D* track, StackTrackIndexes* sti) {
+void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
 
   try {
-    Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
+    Track* track_2D = &_tracks_2D[tsi->_azim][tsi->_xy];
     double x1, x2, y1, y2, z1, z2;
-    CycleTrackIndexes cti;
-    convertSTItoCTI(sti, &cti);
+    TrackChainIndexes tci;
+    convertTSItoTCI(tsi, &tci);
 
     /* Set the start and end points */
     if (_segment_formation == EXPLICIT_3D) {
       Track3D* track_3D =
-        &_tracks_3D[sti->_azim][sti->_xy][sti->_polar][sti->_z];
+        &_tracks_3D[tsi->_azim][tsi->_xy][tsi->_polar][tsi->_z];
       Point* start_3d_1 = track_3D->getStart();
       Point* end_3d_1 = track_3D->getEnd();
       Point* start_3d_2 = track->getStart();
@@ -1602,26 +1603,26 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, StackTrackIndexes* sti) {
       end_3d_2->setCoords(x2, y2, z2);
     }
     else
-      get3DTrack(&cti, track, false, false);
+      set3DTrackData(&tci, track, false, false);
 
     /* Set the angles */
     track->setPhi(track_2D->getPhi());
-    track->setTheta(_quadrature->getTheta(sti->_azim, sti->_polar));
-    track->setAzimIndex(sti->_azim);
-    track->setXYIndex(sti->_xy);
-    track->setPolarIndex(sti->_polar);
+    track->setTheta(_quadrature->getTheta(tsi->_azim, tsi->_polar));
+    track->setAzimIndex(tsi->_azim);
+    track->setXYIndex(tsi->_xy);
+    track->setPolarIndex(tsi->_polar);
 
-    /* Set the connecting Track data */
-    get3DTrackData(sti, &cti, true, track);
-    get3DTrackData(sti, &cti, false, track);
+    /* Set the linking Track data */
+    setLinkingTracks(tsi, &tci, true, track);
+    setLinkingTracks(tsi, &tci, false, track);
 
     /* Set the UID for the current Track */
-    track->setUid(get3DTrackID(sti));
+    track->setUid(get3DTrackID(tsi));
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Unable to get track otf (%d, %d, %d, %d)."
-               " Backtrace:\n%s", sti->_azim, sti->_xy, sti->_polar,
-               sti->_z, e.what());
+               " Backtrace:\n%s", tsi->_azim, tsi->_xy, tsi->_polar,
+               tsi->_z, e.what());
   }
 }
 
@@ -1633,148 +1634,152 @@ Track3D**** TrackGenerator3D::get3DTracks() {
 
 
 /**
- * @brief Converts StackTrackIndexes to CycleTrackIndexes
- * @param sti The StackTrackIndexes of the 3D Track
- * @param cti The CycleTrackIndexes of the 3D Track to be updated
+ * @brief Converts TrackStackIndexes to TrackChainIndexes
+ * @param tsi The TrackStackIndexes of the 3D Track
+ * @param tci The TrackChainIndexes of the 3D Track to be updated
  */
-void TrackGenerator3D::convertSTItoCTI(StackTrackIndexes* sti,
-                                       CycleTrackIndexes* cti) {
+void TrackGenerator3D::convertTSItoTCI(TrackStackIndexes* tsi,
+                                       TrackChainIndexes* tci) {
 
-  cti->_azim = sti->_azim;
-  cti->_x = sti->_xy % _num_x[sti->_azim];
-  cti->_polar = sti->_polar;
-  cti->_lz = _first_lz_of_stack[sti->_azim][sti->_xy][sti->_polar] + sti->_z;
+  tci->_azim = tsi->_azim;
+  tci->_x = tsi->_xy % _num_x[tsi->_azim];
+  tci->_polar = tsi->_polar;
+  tci->_lz = _first_lz_of_stack[tsi->_azim][tsi->_xy][tsi->_polar] + tsi->_z;
 
-  getTrainIndex(cti, sti);
+  setLinkIndex(tci, tsi);
 }
 
 
 /**
- * @brief Converts CycleTrackIndexes to StackTrackIndexes
- * @param cti The CycleTrackIndexes of the 3D Track
- * @param sti The StackTrackIndexes of the 3D Track to be updated
+ * @brief Converts TrackChainIndexes to TrackStackIndexes
+ * @param tci The TrackChainIndexes of the 3D Track
+ * @param tsi The TrackStackIndexes of the 3D Track to be updated
  */
-void TrackGenerator3D::convertCTItoSTI(CycleTrackIndexes* cti,
-                                       StackTrackIndexes* sti) {
+void TrackGenerator3D::convertTCItoTSI(TrackChainIndexes* tci,
+                                       TrackStackIndexes* tsi) {
 
-  int stack = getStackIndex(cti);
-  Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_x][stack];
-  sti->_azim = cti->_azim;
-  sti->_xy = track_2D->getXYIndex();
-  sti->_polar = cti->_polar;
-  sti->_z = cti->_lz - _first_lz_of_stack[sti->_azim][sti->_xy][sti->_polar];
+  int link = getLinkIndex(tci);
+  Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][link];
+  tsi->_azim = tci->_azim;
+  tsi->_xy = track_2D->getXYIndex();
+  tsi->_polar = tci->_polar;
+  tsi->_z = tci->_lz - _first_lz_of_stack[tsi->_azim][tsi->_xy][tsi->_polar];
 }
 
 
 /**
- * @brief Returns the index into the 3D z-stack based on cycle indexes
- * @param cti The cycle indexes
+ * @brief Returns the index into the chain based on chain indexes
+ * @param tci The chain indexes
  * @return the index into the 3D z-stack
  */
-int TrackGenerator3D::getStackIndex(CycleTrackIndexes* cti) {
-
+int TrackGenerator3D::getLinkIndex(TrackChainIndexes* tci) {
   Track3D track;
-  int first_stack = getFirstStack(cti, &track);
-  return first_stack + cti->_train;
+  return getFirst2DTrackLinkIndex(tci, &track) + tci->_link;
 }
 
 
 /**
- * @brief Updates the index into the 3D cycle based on cycle and stack indexes
- * @param cti The cycle indexes to be updated
- * @param sti The stack indexes
+ * @brief Updates the index into the 3D chain based on chain and stack indexes
+ * @param tci The chain indexes to be updated
+ * @param tsi The stack indexes
  */
-void TrackGenerator3D::getTrainIndex(CycleTrackIndexes* cti,
-                                     StackTrackIndexes* sti) {
-
+void TrackGenerator3D::setLinkIndex(TrackChainIndexes* tci,
+                                    TrackStackIndexes* tsi) {
   Track3D track;
-  int first_stack = getFirstStack(cti, &track);
-  Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
-  cti->_train = track_2D->getStackIndex() - first_stack;
+  int first_link = getFirst2DTrackLinkIndex(tci, &track);
+  Track* track_2D = &_tracks_2D[tsi->_azim][tsi->_xy];
+  tci->_link = track_2D->getLinkIndex() - first_link;
 }
 
 
 /**
  * @brief Calculates the number of Tracks in the l-z traversal
- * @param cti The cycle indexes
+ * @param tci The chain indexes
  * @return the number of Tracks in the l-z traversal
  */
-int TrackGenerator3D::getNumTracksPerLZ(CycleTrackIndexes* cti) {
+int TrackGenerator3D::getNum3DTrackChainLinks(TrackChainIndexes* tci) {
 
   Track3D track_3D;
-  int first_stack = getFirstStack(cti, &track_3D);
-  int stack = first_stack;
-  Track* track_2D = _tracks_2D_cycle[cti->_azim][cti->_x][stack];
+  int first_link = getFirst2DTrackLinkIndex(tci, &track_3D);
+  int link = first_link;
+  Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][link];
   int azim = track_2D->getAzimIndex();
   int xy = track_2D->getXYIndex();
-  int polar = cti->_polar;
+  int polar = tci->_polar;
   int min_lz, max_lz;
-  int lz = cti->_lz;
+  int lz = tci->_lz;
 
   while (true) {
 
-    track_2D = _tracks_2D_cycle[cti->_azim][cti->_x][stack];
+    track_2D = _tracks_2D_chains[tci->_azim][tci->_x][link];
     azim = track_2D->getAzimIndex();
     xy = track_2D->getXYIndex();
 
     min_lz = _first_lz_of_stack[azim][xy][polar];
     max_lz = _tracks_per_stack[azim][xy][polar] + min_lz - 1;
 
-    if (cti->_polar < _num_polar / 2 && cti->_lz > max_lz)
+    if (tci->_polar < _num_polar / 2 && tci->_lz > max_lz)
       break;
-    else if (cti->_polar >= _num_polar / 2 && cti->_lz < min_lz)
+    else if (tci->_polar >= _num_polar / 2 && tci->_lz < min_lz)
       break;
 
-    stack++;
+    link++;
 
     if (track_2D->getXYIndex() >= _num_y[azim])
       break;
   }
 
-  return stack - first_stack;
+  return link - first_link;
 }
 
 
 /**
- * @brief Fills the provided 3D Track with its tracking information
- * @param sti The stack indexes
- * @param cti The cycle indexes
- * @param cti outgoing A boolean indicating the direction of the Track
+ * @brief Fills the provided 3D Track with its linking information
+ * @param tsi The stack indexes
+ * @param tci The chain indexes
+ * @param tci outgoing A boolean indicating the direction of the Track
  *        (True = forward, False = Backward)
  * @param track The 3D Track whose information is updated
  */
-void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
-                                      CycleTrackIndexes* cti,
-                                      bool outgoing,
-                                      Track3D* track) {
+void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
+                                        TrackChainIndexes* tci,
+                                        bool outgoing,
+                                        Track3D* track) {
 
-  Track* track_2D = &_tracks_2D[sti->_azim][sti->_xy];
-  CycleTrackIndexes cti_next;
-  CycleTrackIndexes cti_prdc;
+  Track* track_2D = &_tracks_2D[tsi->_azim][tsi->_xy];
+  TrackChainIndexes tci_next;
+  TrackChainIndexes tci_prdc;
+  TrackChainIndexes tci_refl;
 
-  /* Set the next CTI to the current CTI */
-  cti_next._azim  = cti->_azim;
-  cti_next._x = cti->_x;
-  cti_next._polar = cti->_polar;
-  cti_next._lz = cti->_lz;
-  cti_next._train = 0;
+  /* Set the next TCI to the current TCI */
+  tci_next._azim  = tci->_azim;
+  tci_next._x = tci->_x;
+  tci_next._polar = tci->_polar;
+  tci_next._lz = tci->_lz;
+  tci_next._link = 0;
 
-  /* Set the periodic CTI to the current CTI */
-  cti_prdc._azim  = cti->_azim;
-  cti_prdc._x = cti->_x;
-  cti_prdc._polar = cti->_polar;
-  cti_prdc._lz = cti->_lz;
-  cti_prdc._train = 0;
+  /* Set the periodic TCI to the current TCI */
+  tci_prdc._azim  = tci->_azim;
+  tci_prdc._x = tci->_x;
+  tci_prdc._polar = tci->_polar;
+  tci_prdc._lz = tci->_lz;
+  tci_prdc._link = 0;
 
-  int nz = _num_z[cti->_azim][cti->_polar];
-  int nl = _num_l[cti->_azim][cti->_polar];
-  int lz = cti->_lz;
-  int ac = _num_azim / 2 - cti->_azim - 1;
-  int pc = _num_polar - cti->_polar - 1;
-  int xc = _num_x[cti->_azim] - cti->_x - 1;
+  /* Set the reflective TCI to the current TCI */
+  tci_refl._azim  = tci->_azim;
+  tci_refl._x     = tci->_x;
+  tci_refl._polar = tci->_polar;
+  tci_refl._lz    = tci->_lz;
+  tci_refl._link = 0;
 
-  int tracks_per_lz = getNumTracksPerLZ(cti);
-  bool check_double_reflection = false;
+  int nz = _num_z[tci->_azim][tci->_polar];
+  int nl = _num_l[tci->_azim][tci->_polar];
+  int lz = tci->_lz;
+  int ac = _num_azim / 2 - tci->_azim - 1;
+  int pc = _num_polar - tci->_polar - 1;
+  int xc = _num_x[tci->_azim] - tci->_x - 1;
+
+  int num_links = getNum3DTrackChainLinks(tci);
   bool next_fwd = outgoing;
   boundaryType bc;
 
@@ -1783,84 +1788,102 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
   else
     bc = track_2D->getBCBwd();
 
-  if (cti->_polar < _num_polar / 2) {
+  if (tci->_polar < _num_polar / 2) {
 
     /* SURFACE_Z_MAX */
-    if (cti->_train == tracks_per_lz - 1 && lz >= nz && outgoing) {
+    if (tci->_link == num_links - 1 && lz >= nz && outgoing) {
 
       bc = _geometry->getMaxZBoundaryType();
-      check_double_reflection = true;
-      cti_prdc._lz = lz - nz;
+
+      tci_prdc._lz    = lz - nz;
+      tci_refl._polar = pc;
+      tci_refl._lz    = nl + 2 * nz - lz - 1;
 
       /* PERIODIC BC */
       if (_geometry->getMaxZBoundaryType() == PERIODIC)
-        cti_next._lz = lz - nz;
+        tci_next._lz    = lz - nz;
 
-      /* REFLECTIVE OR VACUUM BC */
+      /* REFLETCIVE OR VACUUM BC */
       else {
-        cti_next._polar = pc;
-        cti_next._lz    = nl + 2 * nz - lz - 1;
+        tci_next._polar = pc;
+        tci_next._lz    = nl + 2 * nz - lz - 1;
       }
     }
 
     /* SURFACE_Z_MIN */
-    else if (cti->_train == 0 && lz < nl && !outgoing) {
+    else if (tci->_link == 0 && lz < nl && !outgoing) {
 
       bc = _geometry->getMinZBoundaryType();
-      check_double_reflection = true;
 
-      cti_prdc._lz = lz + nz;
-      cti_prdc._train = getNumTracksPerLZ(&cti_prdc) - 1;
+      tci_prdc._lz    = lz + nz;
+      tci_prdc._link = getNum3DTrackChainLinks(&tci_prdc) - 1;
+      tci_refl._polar = pc;
+      tci_refl._lz    = nl - lz - 1;
+      tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
 
       /* PERIODIC BC */
       if (_geometry->getMinZBoundaryType() == PERIODIC) {
-        cti_next._lz    = lz + nz;
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._lz    = lz + nz;
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
 
       /* REFLECTIVE OR VACUUM BC */
       else {
-        cti_next._polar = pc;
-        cti_next._lz    = nl - lz - 1;
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._polar = pc;
+        tci_next._lz    = nl - lz - 1;
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
     }
 
-
     /* SURFACE_Y_MIN */
-    else if (cti->_train == 0 && lz >= nl && !outgoing) {
+    else if (tci->_link == 0 && lz >= nl && !outgoing) {
 
-      cti_prdc._lz    = lz - nl;
-      cti_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]->getXIndex();
-      cti_prdc._train = getNumTracksPerLZ(&cti_prdc) - 1;
-      cti_next._lz    = lz - nl;
+      tci_prdc._lz    = lz - nl;
+      tci_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_prdc._link = getNum3DTrackChainLinks(&tci_prdc) - 1;
+      tci_refl._azim  = ac;
+      tci_refl._x     = _tracks_2D_array[track_2D->getTrackReflBwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_refl._polar = pc;
+      tci_next._lz    = lz - nl;
 
       if (_geometry->getMinYBoundaryType() == PERIODIC) {
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]->getXIndex();
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
       else {
-        cti_next._azim  = ac;
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackReflBwd()]->getXIndex();
-        cti_next._polar = pc;
+        tci_next._azim  = ac;
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackReflBwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
+        tci_next._polar = pc;
         next_fwd = true;
       }
     }
 
     /* SURFACE_Y_MAX */
-    else if (cti->_train == tracks_per_lz - 1 && lz < nz && outgoing) {
+    else if (tci->_link == num_links - 1 && lz < nz && outgoing) {
 
-      cti_prdc._lz    = nl + lz;
-      cti_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]->getXIndex();
-      cti_next._lz    = nl + lz;
+      tci_prdc._lz    = nl + lz;
+      tci_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_refl._azim  = ac;
+      tci_refl._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_refl._polar = pc;
+      tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
+      tci_next._lz    = nl + lz;
 
       if (_geometry->getMaxYBoundaryType() == PERIODIC)
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]->getXIndex();
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
       else {
-        cti_next._azim  = ac;
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]->getXIndex();
-        cti_next._polar = pc;
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._azim  = ac;
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
+        tci_next._polar = pc;
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
         next_fwd = false;
       }
     }
@@ -1868,104 +1891,124 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
     /* SURFACE_X_MIN or SURFACE_X_MAX */
     else if (outgoing) {
 
-      /* Set the periodic track */
-      cti_prdc._train = cti->_train + 1;
-      cti_next._train = cti->_train + 1;
+      /* Set the link index */
+      tci_prdc._link = tci->_link + 1;
+      tci_next._link = tci->_link + 1;
+      tci_refl._azim  = ac;
 
       /* Set the next track */
       if (track_2D->getBCFwd() != PERIODIC)
-        cti_next._azim  = ac;
+        tci_next._azim  = ac;
     }
 
     /* Tracks hitting any of the four x or y surfaces */
     else {
 
-      /* Set the periodic track */
-      cti_prdc._train = cti->_train - 1;
-      cti_next._train = cti->_train - 1;
+      /* Set the link index */
+      tci_prdc._link = tci->_link - 1;
+      tci_next._link = tci->_link - 1;
+      tci_refl._azim  = ac;
 
       /* Set the next track */
       if (track_2D->getBCBwd() != PERIODIC)
-        cti_next._azim  = ac;
+        tci_next._azim  = ac;
     }
   }
   else {
 
     /* SURFACE_Z_MAX */
-    if (cti->_train == 0 && lz >= nz && !outgoing) {
+    if (tci->_link == 0 && lz >= nz && !outgoing) {
 
       bc = _geometry->getMaxZBoundaryType();
-      check_double_reflection = true;
 
-      cti_prdc._lz    = lz - nz;
-      cti_prdc._train = getNumTracksPerLZ(&cti_prdc) - 1;
+      tci_prdc._lz    = lz - nz;
+      tci_prdc._link = getNum3DTrackChainLinks(&tci_prdc) - 1;
+      tci_refl._polar = pc;
+      tci_refl._lz    = nl + 2 * nz - lz - 1;
+      tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
 
       /* PERIODIC BC */
       if (_geometry->getMaxZBoundaryType() == PERIODIC) {
-        cti_next._lz    = lz - nz;
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._lz    = lz - nz;
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
       /* REFLECTIVE OR VACUUM BC */
       else {
-        cti_next._polar = pc;
-        cti_next._lz    = nl + 2 * nz - lz - 1;
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._polar = pc;
+        tci_next._lz    = nl + 2 * nz - lz - 1;
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
     }
 
     /* SURFACE_Z_MIN */
-    else if (cti->_train == tracks_per_lz - 1 && lz < nl && outgoing) {
+    else if (tci->_link == num_links - 1 && lz < nl && outgoing) {
 
       bc = _geometry->getMinZBoundaryType();
-      check_double_reflection = true;
 
-      cti_prdc._lz    = lz + nz;
+      tci_prdc._lz    = lz + nz;
+      tci_refl._polar = pc;
+      tci_refl._lz    = nl - lz - 1;
 
       /* PERIODIC BC */
       if (_geometry->getMinZBoundaryType() == PERIODIC)
-        cti_next._lz    = lz + nz;
+        tci_next._lz    = lz + nz;
 
       /* REFLECTIVE OR VACUUM BC */
       else {
-        cti_next._polar = pc;
-        cti_next._lz    = nl - lz - 1;
+        tci_next._polar = pc;
+        tci_next._lz    = nl - lz - 1;
       }
     }
 
     /* SURFACE_Y_MIN */
-    else if (cti->_train == 0 && lz < nz && !outgoing) {
+    else if (tci->_link == 0 && lz < nz && !outgoing) {
 
-      cti_prdc._lz    = lz + nl;
-      cti_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]->getXIndex();
-      cti_prdc._train = getNumTracksPerLZ(&cti_prdc) - 1;
-      cti_next._lz    = lz + nl;
+      tci_prdc._lz    = lz + nl;
+      tci_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_prdc._link = getNum3DTrackChainLinks(&tci_prdc) - 1;
+      tci_refl._azim  = ac;
+      tci_refl._x     = _tracks_2D_array[track_2D->getTrackReflBwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_refl._polar = pc;
+      tci_next._lz    = lz + nl;
 
       if (_geometry->getMinYBoundaryType() == PERIODIC) {
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]->getXIndex();
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackPrdcBwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
       else {
-        cti_next._azim  = ac;
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackReflBwd()]->getXIndex();
-        cti_next._polar = pc;
+        tci_next._azim  = ac;
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackReflBwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
+        tci_next._polar = pc;
         next_fwd = true;
       }
     }
 
     /* SURFACE_Y_MAX */
-    else if (cti->_train == tracks_per_lz - 1 && lz >= nl && outgoing) {
+    else if (tci->_link == num_links - 1 && lz >= nl && outgoing) {
 
-      cti_prdc._lz    = lz - nl;
-      cti_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]->getXIndex();
-      cti_next._lz    = lz - nl;
+      tci_prdc._lz    = lz - nl;
+      tci_prdc._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_refl._azim  = ac;
+      tci_refl._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]
+          ->getXYIndex() % _num_x[tci->_azim];
+      tci_refl._polar = pc;
+      tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
+      tci_next._lz    = lz - nl;
 
       if (_geometry->getMaxYBoundaryType() == PERIODIC)
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]->getXIndex();
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackPrdcFwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
       else {
-        cti_next._azim  = ac;
-        cti_next._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]->getXIndex();
-        cti_next._polar = pc;
-        cti_next._train = getNumTracksPerLZ(&cti_next) - 1;
+        tci_next._azim  = ac;
+        tci_next._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]
+            ->getXYIndex() % _num_x[tci->_azim];
+        tci_next._polar = pc;
+        tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
         next_fwd = false;
       }
     }
@@ -1973,43 +2016,50 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
     /* SURFACE_X_MIN or SURFACE_X_MAX */
     else if (outgoing) {
 
-      /* Set the periodic track */
-      cti_prdc._train = cti->_train + 1;
-      cti_next._train = cti->_train + 1;
+      /* Set the link index */
+      tci_prdc._link = tci->_link + 1;
+      tci_next._link = tci->_link + 1;
+      tci_refl._azim  = ac;
 
       /* Set the next track */
       if (track_2D->getBCFwd() != PERIODIC)
-        cti_next._azim  = ac;
+        tci_next._azim  = ac;
     }
 
     /* Tracks hitting any of the four x or y surfaces */
     else {
 
-      /* Set the periodic track */
-      cti_prdc._train = cti->_train - 1;
-      cti_next._train = cti->_train - 1;
+      /* Set the link index */
+      tci_prdc._link = tci->_link - 1;
+      tci_next._link = tci->_link - 1;
+      tci_refl._azim  = ac;
 
       /* Set the next track */
       if (track_2D->getBCBwd() != PERIODIC)
-        cti_next._azim  = ac;
+        tci_next._azim  = ac;
     }
   }
 
-  StackTrackIndexes sti_next;
-  convertCTItoSTI(&cti_next, &sti_next);
+  TrackStackIndexes tsi_next;
+  convertTCItoTSI(&tci_next, &tsi_next);
 
-  StackTrackIndexes sti_prdc;
-  convertCTItoSTI(&cti_prdc, &sti_prdc);
+  TrackStackIndexes tsi_prdc;
+  convertTCItoTSI(&tci_prdc, &tsi_prdc);
+
+  TrackStackIndexes tsi_refl;
+  convertTCItoTSI(&tci_refl, &tsi_refl);
 
   if (outgoing) {
-    track->setTrackNextFwd(get3DTrackID(&sti_next));
-    track->setTrackPrdcFwd(get3DTrackID(&sti_prdc));
+    track->setTrackNextFwd(get3DTrackID(&tsi_next));
+    track->setTrackPrdcFwd(get3DTrackID(&tsi_prdc));
+    track->setTrackReflFwd(get3DTrackID(&tsi_refl));
     track->setNextFwdFwd(next_fwd);
     track->setBCFwd(bc);
   }
   else {
-    track->setTrackNextBwd(get3DTrackID(&sti_next));
-    track->setTrackPrdcBwd(get3DTrackID(&sti_prdc));
+    track->setTrackNextBwd(get3DTrackID(&tsi_next));
+    track->setTrackPrdcBwd(get3DTrackID(&tsi_prdc));
+    track->setTrackReflBwd(get3DTrackID(&tsi_refl));
     track->setNextBwdFwd(next_fwd);
     track->setBCBwd(bc);
   }
@@ -2019,38 +2069,38 @@ void TrackGenerator3D::get3DTrackData(StackTrackIndexes* sti,
 /**
  * @breif Updates stack indexes to reflect those from the given Track ID
  * @param id The 3D Track ID
- * @param sti The stack indexes to be updated
+ * @param tsi The stack indexes to be updated
  */
-void TrackGenerator3D::getSTIByIndex(long id, StackTrackIndexes* sti) {
+void TrackGenerator3D::getTSIByIndex(long id, TrackStackIndexes* tsi) {
 
-  long int cum_track_index = 0;
+  long cum_track_index = 0;
   int a;
   for (a=0; a < _num_azim/2; a++) {
     cum_track_index += _tracks_per_azim[a];
     if (id < cum_track_index)
       break;
   }
-  sti->_azim = a;
-  sti->_xy = -1;
+  tsi->_azim = a;
+  tsi->_xy = -1;
 
-  for (int xy=0; xy < _num_x[sti->_azim] + _num_y[sti->_azim]; xy++) {
-    if (id < _cum_tracks_per_xy[sti->_azim][xy]) {
-      sti->_xy = xy;
+  for (int xy=0; xy < _num_x[tsi->_azim] + _num_y[tsi->_azim]; xy++) {
+    if (id < _cum_tracks_per_xy[tsi->_azim][xy]) {
+      tsi->_xy = xy;
       break;
     }
   }
 
-  if (sti->_xy == -1)
-    log_printf(ERROR, "could not generate STI xy from track ID: %ld", id);
+  if (tsi->_xy == -1)
+    log_printf(ERROR, "could not generate TSI xy from track ID: %ld", id);
 
   for (int p=0; p < _num_polar; p++) {
-    if (id < _cum_tracks_per_stack[sti->_azim][sti->_xy][p] +
-        _tracks_per_stack[sti->_azim][sti->_xy][p]) {
-      sti->_polar = p;
-      sti->_z = id - _cum_tracks_per_stack[sti->_azim][sti->_xy][p];
+    if (id < _cum_tracks_per_stack[tsi->_azim][tsi->_xy][p] +
+        _tracks_per_stack[tsi->_azim][tsi->_xy][p]) {
+      tsi->_polar = p;
+      tsi->_z = id - _cum_tracks_per_stack[tsi->_azim][tsi->_xy][p];
       return;
     }
   }
 
-  log_printf(ERROR, "could not generate STI from track ID: %ld", id);
+  log_printf(ERROR, "could not generate TSI from track ID: %ld", id);
 }

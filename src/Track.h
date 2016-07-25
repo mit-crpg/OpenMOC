@@ -94,11 +94,10 @@ protected:
   /* Indices that are used to locate the track in the various track arrays */
   int _azim_index;
   int _xy_index;
-  int _x_index;
-  int _stack_index;
+  int _link_index;
 
-  /** Pointers to reflective and periodic Tracks in the forward and reverse
-   *  directions */
+  /** Pointers to next, reflective, and periodic Tracks in the forward and
+   *  reverse directions */
   long _track_next_fwd;
   long _track_next_bwd;
   long _track_prdc_fwd;
@@ -141,8 +140,7 @@ public:
   void setNextBwdFwd(bool fwd);
   void setXYIndex(int index);
   void setAzimIndex(int index);
-  void setXIndex(int index);
-  void setStackIndex(int index);
+  void setLinkIndex(int index);
 
   /* Getter methods */
   int getUid();
@@ -160,8 +158,7 @@ public:
   bool getNextBwdFwd();
   int getXYIndex();
   int getAzimIndex();
-  int getXIndex();
-  int getStackIndex();
+  int getLinkIndex();
   boundaryType getBCFwd() const;
   boundaryType getBCBwd() const;
   segment* getSegment(int s);
