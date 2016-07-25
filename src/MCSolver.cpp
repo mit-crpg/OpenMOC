@@ -11,7 +11,7 @@
  * @brief   constructor for MCSolver
  */
 MCSolver::MCSolver() : Solver(NULL) {
-setNumThreads(1);
+  setNumThreads(1);
 }
 
 
@@ -29,6 +29,7 @@ void MCSolver::setGeometry(Geometry* geometry) {
   _geometry = geometry;
   _root_universe = geometry->getRootUniverse();
 }
+
 
 /**
  * @brief Initializes the MCSolver fluxes and tally regions
@@ -187,6 +188,8 @@ void MCSolver::initialize() {
   _cumulative_scalar_flux = new FP_PRECISION[_num_FSRs * _num_groups];
   initializeLocks();
 
+  // no fixed sources exist until they are added
+  _fixed_sources_exist = false;
 }
 
 
@@ -248,7 +251,28 @@ void MCSolver::setNumThreads(int num_threads) {
   /* Set the number of threads for OpenMP */
   _num_threads = num_threads;
   omp_set_num_threads(_num_threads);
-  std::cout << "num threads set to " << num_threads << std::endl;
+}
+
+
+/**
+ * @brief Assign a fixed source for a flat source region and energy group.
+ * @param fsr_id the flat source region ID
+ * @param group the energy group
+ * @param source the source in this group
+ */
+void MCSolver::setFixedSourceByCell(Cell* cell, int group, float source) {
+  std::cout << "fixed source set\n";
+
+  /* Recursively add the source to all Cells within a FILL type Cell */
+  if (cell->getType() == FILL) {
+    std::map<int, Cell*> cells = cell->getAllCells();
+    std::map<int, Cell*>::iterator iter;
+    for (iter = cells.begin(); iter != cells.end(); ++iter)
+      setFixedSourceByCell(iter->second, group, source);
+  }
+  _fixed_sources_exist = true;
+
+  _fix_src_cell_map[std::pair<Cell*, int>(cell, group)] = source;
 }
 
 
@@ -423,8 +447,42 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
     neutron.sampleDirection();
 
     // get and set neutron starting point
-    if (first_round)
+    if (first_round) {
       sampleLocation(&neutron);
+      
+      
+      // if fixed sources exist, reject neutrons that are not in the source
+      if (_fixed_sources_exist) {
+
+        bool site_exists = false;
+        while (!site_exists) {
+          sampleLocation(&neutron);
+
+          LocalCoords neutron_coord_position( neutron.getPosition(0),
+            neutron.getPosition(1), neutron.getPosition(2));
+          neutron_coord_position.setUniverse(_root_universe);
+          Cell* cell_obj =
+            _geometry->findCellContainingCoords(&neutron_coord_position);
+
+          // find out if this fsr has a fixed source for any group
+          for (int g=1; g<=_num_groups; ++g) {
+            std::pair <Cell*, int> cell_g (cell_obj, g);
+            _fix_src_cell_map[cell_g];
+            if (!(_fix_src_cell_map.find(cell_g) == _fix_src_cell_map.end())) {
+
+              // find out if site is acceptable
+              site_exists = neutron.arand() < _fix_src_cell_map[cell_g];
+              if (site_exists){
+                neutron.setGroup(g);
+            
+              break;
+              }
+            }
+          }
+        }
+      }
+    }
+
     else {
 
       // lock before accessing fission bank
@@ -456,8 +514,8 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
   if (neutron_num == write_neutron and batch == write_batch){
     std::cout << "writing neutron " << neutron_num << " in batch " << batch
       << std::endl;
-      saveBadNeutron(&neutron, neutron_num, batch);
-      std::cout << "saves neutron\n";
+    saveBadNeutron(&neutron, neutron_num, batch);
+    std::cout << "saves neutron\n";
   }
 
   // set neutron_position pointer
@@ -480,8 +538,15 @@ void MCSolver::transportNeutron(std::vector <Tally> &tallies,
   for (int g=0; g<_num_groups; ++g) {
     chi[g] = cell_mat->getChiByGroup(g+1);
   }
-  group = neutron.sampleEnergyGroup(chi);
-  neutron.setGroup(group);
+
+  if (!_fixed_sources_exist) {
+    group = neutron.sampleEnergyGroup(chi);
+    neutron.setGroup(group);
+  }
+
+  std::cout << "neutron starting point " << neutron.getPosition(0) 
+    << " " << neutron.getPosition(1) << std::endl;
+  std::cout << "neutron group " << neutron.getGroup() << std::endl << std::endl;
 
   // follow neutron while it's alive
   while (neutron.alive()) {

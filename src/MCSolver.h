@@ -62,6 +62,7 @@ public:
 
   void initializeLocks();
   void setNumThreads(int num_threads);
+  void setFixedSourceByCell(Cell* cell, int group, float source);
 
   // functions that make MCSolver compatable with Solver
   virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs);
@@ -102,6 +103,11 @@ private:
   omp_lock_t* _fission_lock;
   omp_lock_t* _crow_lock;
   std::vector <omp_lock_t*> _flux_locks;
+
+  /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
+  std::map< std::pair<Cell*, int>, FP_PRECISION > _fix_src_cell_map;
+
+  bool _fixed_sources_exist;
 
 };
 
