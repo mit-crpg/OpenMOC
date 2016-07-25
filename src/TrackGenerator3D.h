@@ -22,8 +22,8 @@ struct CycleTrackIndexes {
   /** The azimuthal index (in 0 to _num_azim / 4) */
   int _azim;
 
-  /** The cycle index (in 0 to _cycles_per_azim[_azim]) */
-  int _cycle;
+  /** The x index (in 0 to _num_x[_azim]) */
+  int _x;
 
   /** The polar index (in 0 to _num_polar) */
   int _polar;
@@ -37,7 +37,7 @@ struct CycleTrackIndexes {
   /** Constructor initializes each attribute to -1 */
   CycleTrackIndexes() {
     _azim  = -1;
-    _cycle = -1;
+    _x = -1;
     _polar = -1;
     _lz    = -1;
     _train = -1;
@@ -89,11 +89,13 @@ private:
   /** The requested track polar spacing (cm) */
   double _polar_spacing;
 
+  /** A 2D ragged array of 2D tracks (azim, x index, stack index) */
+  Track**** _tracks_2D_cycle;
+
   /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;
 
   // FIXME
-  bool _equal_z_spacing;
   long*** _cum_tracks_per_stack;
   long** _cum_tracks_per_xy;
   int*** _first_lz_of_stack;
@@ -148,6 +150,7 @@ private:
 
   /** Private class methods */
   void initializeTracks();
+  void initializeTrackCycles();
   void recalibrateTracksToOrigin();
   void segmentize();
   void setContainsSegments(bool contains_segments);
@@ -210,7 +213,6 @@ public:
   void setTrackGenerationMethod(int method);
   void setSegmentationHeights(std::vector<FP_PRECISION> z_mesh);
   void useGlobalZMesh();
-  void useEqualZSpacing();
 
   /* Worker functions */
   void retrieveTrackCoords(double* coords, int num_tracks);

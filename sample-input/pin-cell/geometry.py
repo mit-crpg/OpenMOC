@@ -25,12 +25,12 @@ xmax = openmoc.XPlane(x=2.0, name='xmax')
 ymax = openmoc.YPlane(y=2.0, name='ymax')
 zmax = openmoc.ZPlane(z=2.0, name='zmax')
 
-xmin.setBoundaryType(openmoc.REFLECTIVE)
-ymin.setBoundaryType(openmoc.REFLECTIVE)
-zmin.setBoundaryType(openmoc.REFLECTIVE)
-xmax.setBoundaryType(openmoc.REFLECTIVE)
-ymax.setBoundaryType(openmoc.REFLECTIVE)
-zmax.setBoundaryType(openmoc.REFLECTIVE)
+xmin.setBoundaryType(openmoc.PERIODIC)
+ymin.setBoundaryType(openmoc.PERIODIC)
+zmin.setBoundaryType(openmoc.PERIODIC)
+xmax.setBoundaryType(openmoc.PERIODIC)
+ymax.setBoundaryType(openmoc.PERIODIC)
+zmax.setBoundaryType(openmoc.PERIODIC)
 
 ###############################################################################
 #                             Creating Cells
