@@ -94,13 +94,14 @@ protected:
   /* Indices that are used to locate the track in the various track arrays */
   int _azim_index;
   int _xy_index;
-  int _cycle_index;
-  int _stack_index;
+  int _link_index;
 
-  /** Pointers to reflective and periodic Tracks in the forward and reverse
-   *  directions */
+  /** Pointers to next, reflective, and periodic Tracks in the forward and
+   *  reverse directions */
   long _track_next_fwd;
   long _track_next_bwd;
+  long _track_prdc_fwd;
+  long _track_prdc_bwd;
   long _track_refl_fwd;
   long _track_refl_bwd;
 
@@ -109,11 +110,10 @@ protected:
    *  direction. */
   bool _next_fwd_fwd;
   bool _next_bwd_fwd;
-  bool _refl_fwd_fwd;
-  bool _refl_bwd_fwd;
 
   /** Boolean indicating whether the track is pointing fwd (True) or bwd
    *  (False) in the cycle of tracks */
+  //FIXME
   bool _direction_in_cycle;
 
   //FIXME
@@ -140,23 +140,21 @@ public:
   void setBCBwd(const boundaryType bc_bwd);
   void setTrackNextFwd(long track_id);
   void setTrackNextBwd(long track_id);
+  void setTrackPrdcFwd(long track_id);
+  void setTrackPrdcBwd(long track_id);
   void setTrackReflFwd(long track_id);
   void setTrackReflBwd(long track_id);
   void setNextFwdFwd(bool fwd);
   void setNextBwdFwd(bool fwd);
-  void setReflFwdFwd(bool fwd);
-  void setReflBwdFwd(bool fwd);
   void setXYIndex(int index);
   void setAzimIndex(int index);
-  void setCycleIndex(int index);
-  void setStackIndex(int index);
-  void setDirectionInCycle(bool fwd);
   void setSurfaceIn(int surface_in);
   void setSurfaceOut(int surface_out);
   void setDomainFwdIn(int neighbor);
   void setDomainFwdOut(int neighbor);
   void setDomainBwdIn(int neighbor);
   void setDomainBwdOut(int neighbor);
+  void setLinkIndex(int index);
 
   /* Getter methods */
   int getUid();
@@ -166,22 +164,20 @@ public:
   double getLength();
   long getTrackNextFwd();
   long getTrackNextBwd();
+  long getTrackPrdcFwd();
+  long getTrackPrdcBwd();
   long getTrackReflFwd();
   long getTrackReflBwd();
   bool getNextFwdFwd();
   bool getNextBwdFwd();
-  bool getReflFwdFwd();
-  bool getReflBwdFwd();
   int getXYIndex();
   int getAzimIndex();
-  int getCycleIndex();
-  int getStackIndex();
+  int getLinkIndex();
   boundaryType getBCFwd() const;
   boundaryType getBCBwd() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-  bool getDirectionInCycle();
   int getDomainFwdIn();
   int getDomainFwdOut();
   int getDomainBwdIn();

@@ -340,7 +340,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
     if (_segment_formation == OTF_STACKS) {
       int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
-      current_stack = _track_generator_3D->getTemporaryTracks(tid);
+      current_stack = _track_generator_3D->getTemporary3DTracks(tid);
       int xy_index = track->getXYIndex();
       int stack_size = tracks_per_stack[azim_index][xy_index][polar_index];
       for (int i=1; i < stack_size; i++)
@@ -484,27 +484,29 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   if (track_3D != NULL)
     polar_index = track_3D->getPolarIndex();
 
-  /* Extract the maximum track index */
-  StackTrackIndexes sti;
+  /* Extract the maximum track index and get Track data */
+  TrackStackIndexes tsi;
+  Track** tracks_array;
   int max_track_index = 0;
   if (_segment_formation == OTF_STACKS) {
+
+    /* Extract indexes */
     int xy_index = track->getXYIndex();
     max_track_index = _tracks_per_stack[azim_index][xy_index][polar_index] - 1;
-    sti._azim = azim_index;
-    sti._xy = xy_index;
-    sti._polar = polar_index;
-  }
+    tsi._azim = azim_index;
+    tsi._xy = xy_index;
+    tsi._polar = polar_index;
 
-  /* Get data for all tracks of interest */
-  Track* tracks_array[max_track_index+1];
-  tracks_array[0] = track;
-  for (int i=0; i < max_track_index; i++) {
-    int z = i+1;
-    sti._z = z;
-    //FIXME: could be max_tracks_per_stack array
-    Track3D* track_3D = new Track3D();
-    tracks_array[z] = track_3D;
-    _track_generator_3D->getTrackOTF(track_3D, &sti);
+    /* Get Track data for the entire z-stack */
+    Track3D* tracks_3D = _track_generator_3D->getTemporary3DTracks(tid);
+    for (int z=0; z < max_track_index+1; z++) {
+      tsi._z = z;
+      _track_generator_3D->getTrackOTF(&tracks_3D[z], &tsi);
+    }
+    tracks_array = _track_generator_3D->getTemporaryTracksArray(tid);
+  }
+  else {
+    tracks_array = &track;
   }
 
   /* Loop over each Track segment in forward direction */

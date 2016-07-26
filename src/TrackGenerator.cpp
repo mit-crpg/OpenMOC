@@ -46,14 +46,10 @@ TrackGenerator::~TrackGenerator() {
     /* Delete track laydown information */
     delete [] _num_x;
     delete [] _num_y;
-    delete [] _cycles_per_azim;
-    delete [] _tracks_per_cycle;
-    delete [] _cycle_length;
   }
 
-  if (_tracks_per_azim != NULL) {
+  if (_tracks_per_azim != NULL)
     delete [] _tracks_per_azim;
-  }
 
   if (_FSR_locks != NULL)
     delete [] _FSR_locks;
@@ -273,48 +269,6 @@ int TrackGenerator::getMaxNumSegments() {
  */
 int TrackGenerator::getNumThreads() {
   return _num_threads;
-}
-
-
-/**
- * @brief Returns an array of the number of 2D Tracks in a cycle
- * @details The number of Tracks in a 2D cycle depends on the azimuthal angle
- *          index. This function returns an array of the number of 2D Tracks in
- *          each cycle, indexed by azimuthal anlge index. NOTE: all 2D cycles
- *          with the same azimuthal angle have the same number of Tracks.
- * @return the array of cycle lengths
- */
-int* TrackGenerator::getTracksPerCycle() {
-  return _tracks_per_cycle;
-}
-
-
-/**
- * @brief Returns an array describing the number of cycles per azimuthal angle
- * @details An array of the number of cycles per azimuthal angle is returned,
- *          indexed by azimuthal index.
- * @return the number of cycles per azimuthal angle
- */
-int* TrackGenerator::getCyclesPerAzim() {
-  return _cycles_per_azim;
-}
-
-
-/**
- * @brief Returns the number of 2D Tracks in a cycle for a given azimuthal
- *        angle index
- * @details The number of Tracks in a 2D cycle depends on the azimuthal angle
- *          index. This function returns the number of 2D Tracks in for a cycle
- *          with a given azimuthal angle index.
- * @param azim the azimuthal angle index in the first quadrant
- * @return the number of 2D Tracks in the cycle
- */
-double TrackGenerator::getCycleLength(int azim) {
-  if (azim > _num_azim/4)
-    log_printf(ERROR, "Azimuthal angle index %d refers to an angle that is "
-                      "not in the first quadrant", azim);
-
-  return _cycle_length[azim];
 }
 
 
@@ -762,8 +716,8 @@ void TrackGenerator::generateTracks() {
 
     /* Lay down Tracks accross the Geometry */
     if (_geometry == NULL)
-    log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
-               "has been set for the TrackGenerator");
+      log_printf(ERROR, "Unable to lay down Tracks since no Geometry "
+                 "has been set for the TrackGenerator");
 
     /* Initialize the Tracks */
     initializeTracks();
@@ -876,12 +830,9 @@ void TrackGenerator::initializeTracks() {
   log_printf(NORMAL, "Initializing 2D tracks...");
 
   /* Allocate memory for arrays */
-  _tracks_per_cycle = new int[_num_azim/4];
-  _cycles_per_azim  = new int[_num_azim/4];
   _tracks_2D        = new Track*[_num_azim/2];
   _num_x            = new int[_num_azim/2];
   _num_y            = new int[_num_azim/2];
-  _cycle_length     = new double[_num_azim/4];
   _tracks_per_azim  = new long[_num_azim/2];
   _num_2D_tracks    = 0;
 
@@ -921,18 +872,6 @@ void TrackGenerator::initializeTracks() {
     /* Save spacings for supplementary angles */
     dx_eff[_num_azim/2 - a - 1] = dx_eff[a];
     dy_eff[_num_azim/2 - a - 1] = dy_eff[a];
-
-    /* The length of all tracks in a 2D cycle */
-    _cycle_length[a] = dx_eff[a] / cos(phi) *
-      leastCommonMultiple(2 * _num_x[a], 2 * height / (tan(phi) * dx_eff[a]));
-
-    /* Get the number of tracks per cycle */
-    _tracks_per_cycle[a] = (int)
-      (round(_cycle_length[a] * sin(phi) / height) +
-       round(_cycle_length[a] * cos(phi) / width));
-
-    /* Compute the number of cycles */
-    _cycles_per_azim[a] = (_num_x[a] + _num_y[a]) * 2 / _tracks_per_cycle[a];
   }
 
   /* Generate 2D tracks */
@@ -997,53 +936,6 @@ void TrackGenerator::initializeTracks() {
 
   /* Initialize the 1D array of Tracks for all Tracks */
   initializeTracksArray();
-
-  /* Initialize cycle ids */
-  initializeTrackCycles();
-}
-
-
-/**
- * @brief Initializes 2D Track cycles array
- * @details This method creates an array of 2D Tracks ordered by azimuthal
- *          angle, cycle index, and train index.
- */
-void TrackGenerator::initializeTrackCycles() {
-
-  _tracks_2D_cycle  = new Track***[_num_azim/4];
-  for (int a=0; a < _num_azim/4; a++) {
-    _tracks_2D_cycle[a] = new Track**[_cycles_per_azim[a]];
-    for (int c=0; c < _cycles_per_azim[a]; c++) {
-      _tracks_2D_cycle[a][c] = new Track*[_tracks_per_cycle[a]];
-    }
-  }
-
-  for (int a=0; a < _num_azim/4; a++) {
-    for (int c=0; c < _cycles_per_azim[a]; c++) {
-      Track* track = &_tracks_2D[a][c];
-      bool fwd = true;
-
-      for (int i=0; i < _tracks_per_cycle[a]; i++) {
-
-        Track* track_prev = track;
-
-        /* Add Track to 2D Track cycles array and set direction in cycle */
-        _tracks_2D_cycle[a][c][i] = track;
-        track->setDirectionInCycle(fwd);
-        track->setCycleIndex(c);
-        track->setStackIndex(i);
-
-        if (fwd) {
-          track = _tracks_2D_array[track_prev->getTrackReflFwd()];
-          fwd = track_prev->getReflFwdFwd();
-        }
-        else {
-          track = _tracks_2D_array[track_prev->getTrackReflBwd()];
-          fwd = track_prev->getReflBwdFwd();
-        }
-      }
-    }
-  }
 }
 
 
@@ -1110,7 +1002,7 @@ void TrackGenerator::initializeTrackReflections() {
       /* Set connecting tracks in forward direction */
       if (i < _num_y[a]) {
         track->setNextFwdFwd(true);
-        track->setReflFwdFwd(true);
+        track->setTrackPrdcFwd(get2DTrackID(a, i + _num_x[a]));
         track->setTrackReflFwd(get2DTrackID(ac, i + _num_x[a]));
 
         if (track->getBCFwd() == PERIODIC || track->getBCFwd() == INTERFACE)
@@ -1119,7 +1011,7 @@ void TrackGenerator::initializeTrackReflections() {
           track->setTrackNextFwd(get2DTrackID(ac, i + _num_x[a]));
       }
       else {
-        track->setReflFwdFwd(false);
+        track->setTrackPrdcFwd(get2DTrackID(a, i - _num_y[a]));
         track->setTrackReflFwd
             (get2DTrackID(ac, (_num_x[a] + _num_y[a]) - (i - _num_y[a]) - 1));
 
@@ -1137,7 +1029,7 @@ void TrackGenerator::initializeTrackReflections() {
 
       /* Set connecting tracks in backward direction */
       if (i < _num_x[a]) {
-        track->setReflBwdFwd(true);
+        track->setTrackPrdcBwd(get2DTrackID(a, i + _num_y[a]));
         track->setTrackReflBwd(get2DTrackID(ac, _num_x[a] - i - 1));
 
         if (_geometry->getMinYBoundaryType() == PERIODIC ||
@@ -1151,8 +1043,8 @@ void TrackGenerator::initializeTrackReflections() {
         }
       }
       else {
-        track->setReflBwdFwd(false);
         track->setNextBwdFwd(false);
+        track->setTrackPrdcBwd(get2DTrackID(a, i - _num_x[a]));
         track->setTrackReflBwd(get2DTrackID(ac, i - _num_x[a]));
 
         if (track->getBCBwd() == PERIODIC || track->getBCBwd() == INTERFACE)
@@ -1538,23 +1430,6 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
     _geometry->setFSRCentroid(r, centroids[r]);
 
   delete [] centroids;
-}
-
-
-/**
- * @brief Returns the direction in the cycle of the Track indexed by azimuthal
- *        index, cycle, and track index in the cycle
- * @details The 2D Track cycle indicated by the azimuthal angle and cycle
- *          number is traversed across track_index tracks, returning the
- *          direction of the Track at that position
- * @param azim The azimuthal index
- * @param cycle The 2D cycle number
- * @param track_index The track index into the cycle
- * @return the direction of the matching Track
- */
-bool TrackGenerator::getCycleDirection(int azim, int cycle, int track_index) {
-
-  return _tracks_2D_cycle[azim][cycle][track_index]->getDirectionInCycle();
 }
 
 

@@ -49,15 +49,6 @@ protected:
   /** The requested track azimuthal spacing (cm) */
   double _azim_spacing;
 
-  /** An integer array of the number of Tracks in a cycle for each azim angle */
-  int* _tracks_per_cycle;
-
-  /** An array of the number of cycles for each azimuthal angle */
-  int* _cycles_per_azim;
-
-  /** An array of the cycle length of each cycle for each azimuthal angle */
-  double* _cycle_length;
-
   /** The total number of Tracks for all azimuthal angles */
   int _num_2D_tracks;
 
@@ -107,9 +98,6 @@ protected:
   /** Boolen to indicate whether a periodic BC exists */
   bool _periodic;
 
-  /** A 2D ragged array of 2D tracks (azim, cycle, train index) */
-  Track**** _tracks_2D_cycle;
-
   /** Determines the type of track segmentation to use */
   segmentationType _segment_formation;
 
@@ -128,7 +116,6 @@ protected:
   /** Private class methods */
   virtual void initializeTracks();
   virtual void initializeTrackReflections();
-  void initializeTrackCycles();
   virtual void segmentize();
   virtual void setContainsSegments(bool contains_segments);
   virtual void allocateTemporarySegments();
@@ -159,9 +146,6 @@ public:
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
   int getNumThreads();
-  int* getTracksPerCycle();
-  int* getCyclesPerAzim();
-  double getCycleLength(int azim);
   int getNumX(int azim);
   int getNumY(int azim);
   void exportFSRVolumes(double* out_volumes, int num_fsrs);
@@ -170,7 +154,6 @@ public:
   FP_PRECISION getFSRVolume(int fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
-  bool getCycleDirection(int azim, int cycle, int track_index);
   FP_PRECISION retrieveMaxOpticalLength();
   omp_lock_t* getFSRLocks();
   segmentationType getSegmentFormation();

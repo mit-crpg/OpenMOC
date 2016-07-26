@@ -99,11 +99,11 @@ int main(int argc, char* argv[]) {
   ZPlane zmin(-2.0);
   ZPlane zmax( 2.0);
 
-  xmin.setBoundaryType(PERIODIC);
-  ymin.setBoundaryType(PERIODIC);
+  xmin.setBoundaryType(REFLECTIVE);
+  ymin.setBoundaryType(REFLECTIVE);
   zmin.setBoundaryType(REFLECTIVE);
-  xmax.setBoundaryType(PERIODIC);
-  ymax.setBoundaryType(PERIODIC);
+  xmax.setBoundaryType(REFLECTIVE);
+  ymax.setBoundaryType(REFLECTIVE);
   zmax.setBoundaryType(REFLECTIVE);
 
   /* Create cells */
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  //geometry->setDomainDecomposition(2, 2, 2);
+  geometry->setDomainDecomposition(2, 1, 1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */

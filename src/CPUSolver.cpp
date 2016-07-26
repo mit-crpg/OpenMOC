@@ -269,12 +269,12 @@ void CPUSolver::communicateBoundaryFluxes() {
   for (int t=0; t < _tot_num_tracks; t++) {
 
     /* Get 3D Track data */
-    StackTrackIndexes sti;
+    TrackStackIndexes tsi;
     Track3D track;
     TrackGenerator3D* track_generator_3D =
       dynamic_cast<TrackGenerator3D*>(_track_generator);
-    track_generator_3D->getSTIByIndex(t, &sti);
-    track_generator_3D->getTrackOTF(&track, &sti);
+    track_generator_3D->getTSIByIndex(t, &tsi);
+    track_generator_3D->getTrackOTF(&track, &tsi);
 
     /* Get connecting tracks */
     int connect[2];

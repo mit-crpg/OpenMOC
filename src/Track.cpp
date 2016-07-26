@@ -9,16 +9,16 @@ Track::Track() {
   /* Initialize the pointers to reflective and periodic tracks to NULL */
   _track_next_fwd = -1;
   _track_next_bwd = -1;
-  _track_next_fwd = -1;
-  _track_next_bwd = -1;
+  _track_prdc_fwd = -1;
+  _track_prdc_bwd = -1;
+  _track_refl_fwd = -1;
+  _track_refl_bwd = -1;
 
   /* Initialize booleans indicating whether the reflective tracks in the
    * forward and backward direction point enter the track in the forward
    * direction */
   _next_fwd_fwd = true;
   _next_bwd_fwd = false;
-  _refl_fwd_fwd = true;
-  _refl_bwd_fwd = false;
 
   /* Initialize the cycle ids and periodic track index to -1 (not set) */
   _num_segments = 0;
@@ -312,20 +312,17 @@ void Track::setAzimIndex(int index) {
 
 
 /**
- * @brief Set a Track's azimuthal angle index.
- * @param index The azimuthal angle index
+ * @brief Set a Track's link index.
+ * @detail In generating 3D tracks, we need to know the tracks
+ *         linking this track with both periodic and reflective
+ *         boundary conditions. Therefore, we generate a periodic
+ *         chain of tracks that extend periodically from the y-min
+ *         to the y-max boundary. This is the index of each track in
+ *         its' periodic chain.
+ * @param index The link index
  */
-void Track::setCycleIndex(int index) {
-  _cycle_index = index;
-}
-
-
-/**
- * @brief Set a Track's azimuthal angle index.
- * @param index The azimuthal angle index
- */
-void Track::setStackIndex(int index) {
-  _stack_index = index;
+void Track::setLinkIndex(int index) {
+  _link_index = index;
 }
 
 
@@ -339,20 +336,17 @@ int Track::getAzimIndex() {
 
 
 /**
- * @brief Get a Track's azimuthal angle index.
- * @return The azimuthal angle index
+ * @brief Get a Track's link index.
+ * @detail In generating 3D tracks, we need to know the tracks
+ *         linking this track with both periodic and reflective
+ *         boundary conditions. Therefore, we generate a periodic
+ *         chain of tracks that extend periodically from the y-min
+ *         to the y-max boundary. This is the index of each track in
+ *         its' periodic chain.
+ * @return The link index
  */
-int Track::getCycleIndex() {
-  return _cycle_index;
-}
-
-
-/**
- * @brief Get a Track's azimuthal angle index.
- * @return The azimuthal angle index
- */
-int Track::getStackIndex() {
-  return _stack_index;
+int Track::getLinkIndex() {
+  return _link_index;
 }
 
 
@@ -360,7 +354,7 @@ int Track::getStackIndex() {
  * @brief Set a pointer to the reflective Track in the forward direction.
  * @param track A pointer to the reflective track in the forward direction
  */
-void Track::setTrackNextFwd(long int track_id) {
+void Track::setTrackNextFwd(long track_id) {
   _track_next_fwd = track_id;
 }
 
@@ -369,8 +363,26 @@ void Track::setTrackNextFwd(long int track_id) {
  * @brief Set a pointer to the reflective Track in the backward direction.
  * @param track A pointer to the reflective track in the backward direction
  */
-void Track::setTrackNextBwd(long int track_id) {
+void Track::setTrackNextBwd(long track_id) {
   _track_next_bwd = track_id;
+}
+
+
+/**
+ * @brief Set a pointer to the periodic Track in the forward direction.
+ * @param track A pointer to the periodic track in the forward direction
+ */
+void Track::setTrackPrdcFwd(long track_id) {
+  _track_prdc_fwd = track_id;
+}
+
+
+/**
+ * @brief Set a pointer to the periodic Track in the backward direction.
+ * @param track A pointer to the periodic track in the backward direction
+ */
+void Track::setTrackPrdcBwd(long track_id) {
+  _track_prdc_bwd = track_id;
 }
 
 
@@ -378,7 +390,7 @@ void Track::setTrackNextBwd(long int track_id) {
  * @brief Set a pointer to the reflective Track in the forward direction.
  * @param track A pointer to the reflective track in the forward direction
  */
-void Track::setTrackReflFwd(long int track_id) {
+void Track::setTrackReflFwd(long track_id) {
   _track_refl_fwd = track_id;
 }
 
@@ -387,7 +399,7 @@ void Track::setTrackReflFwd(long int track_id) {
  * @brief Set a pointer to the reflective Track in the backward direction.
  * @param track A pointer to the reflective track in the backward direction
  */
-void Track::setTrackReflBwd(long int track_id) {
+void Track::setTrackReflBwd(long track_id) {
   _track_refl_bwd = track_id;
 }
 
@@ -396,7 +408,7 @@ void Track::setTrackReflBwd(long int track_id) {
  * @brief Get a pointer to the reflective Track in the forward direction.
  * @return A pointer to the reflective track in the forward direction
  */
-long int Track::getTrackNextFwd() {
+long Track::getTrackNextFwd() {
   return _track_next_fwd;
 }
 
@@ -405,8 +417,26 @@ long int Track::getTrackNextFwd() {
  * @brief Get a pointer to the reflective Track in the backward direction.
  * @return A pointer to the reflective track in the backward direction
  */
-long int Track::getTrackNextBwd() {
+long Track::getTrackNextBwd() {
   return _track_next_bwd;
+}
+
+
+/**
+ * @brief Get a pointer to the periodic Track in the forward direction.
+ * @return A pointer to the periodic track in the forward direction
+ */
+long Track::getTrackPrdcFwd() {
+  return _track_prdc_fwd;
+}
+
+
+/**
+ * @brief Get a pointer to the periodic Track in the backward direction.
+ * @return A pointer to the periodic track in the backward direction
+ */
+long Track::getTrackPrdcBwd() {
+  return _track_prdc_bwd;
 }
 
 
@@ -414,7 +444,7 @@ long int Track::getTrackNextBwd() {
  * @brief Get a pointer to the reflective Track in the forward direction.
  * @return A pointer to the reflective track in the forward direction
  */
-long int Track::getTrackReflFwd() {
+long Track::getTrackReflFwd() {
   return _track_refl_fwd;
 }
 
@@ -423,7 +453,7 @@ long int Track::getTrackReflFwd() {
  * @brief Get a pointer to the reflective Track in the backward direction.
  * @return A pointer to the reflective track in the backward direction
  */
-long int Track::getTrackReflBwd() {
+long Track::getTrackReflBwd() {
   return _track_refl_bwd;
 }
 
@@ -469,28 +499,6 @@ void Track::setNextBwdFwd(bool fwd) {
 
 
 /**
- * @brief Set whether the reflective track in the forward direction is pointing
- *        in forward direction.
- * @param fwd Boolean indicating whether reflective track in the forward
- *        direction is point in forward direction
- */
-void Track::setReflFwdFwd(bool fwd) {
-  _refl_fwd_fwd = fwd;
-}
-
-
-/**
- * @brief Set whether the reflective track in the backward direction is pointing
- *        in forward direction.
- * @param fwd Boolean indicating whether reflective track in the backward
- *        direction is point in forward direction
- */
-void Track::setReflBwdFwd(bool fwd) {
-  _refl_bwd_fwd = fwd;
-}
-
-
-/**
  * @brief Get whether the reflective track in the forward direction is pointing
  *        in forward direction.
  * @return Boolean indicating whether reflective track in the forward
@@ -509,48 +517,6 @@ bool Track::getNextFwdFwd() {
  */
 bool Track::getNextBwdFwd() {
   return _next_bwd_fwd;
-}
-
-
-/**
- * @brief Get whether the reflective track in the forward direction is pointing
- *        in forward direction.
- * @return Boolean indicating whether reflective track in the forward
- *         direction is point in forward direction
- */
-bool Track::getReflFwdFwd() {
-  return _refl_fwd_fwd;
-}
-
-
-/**
- * @brief Get whether the reflective track in the backward direction is pointing
- *        in forward direction.
- * @return Boolean indicating whether reflective track in the backward
- *         direction is point in forward direction
- */
-bool Track::getReflBwdFwd() {
-  return _refl_bwd_fwd;
-}
-
-
-/**
- * @brief Sets the direction of the Track in the cycle
- * @param fwd Whether the Track is pointed in the same direction as the forward
- *        cycle traversal
- */
-void Track::setDirectionInCycle(bool fwd) {
-  _direction_in_cycle = fwd;
-}
-
-
-/**
- * @brief Returns the direction of the Track in the cycle
- * @param _direction_in_cycle A boolean determining if the Track is pointed in
- *        the same direction as the forward cycle traversal
- */
-bool Track::getDirectionInCycle() {
-  return _direction_in_cycle;
 }
 
 
