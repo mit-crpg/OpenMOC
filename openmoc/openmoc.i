@@ -42,10 +42,6 @@
   #include "../src/Vector.h"
 
   #ifdef ICPC
-  #include <mpi.h>
-  #endif
-
-  #ifdef ICPC
   #include "../src/VectorizedSolver.h"
   #endif
 

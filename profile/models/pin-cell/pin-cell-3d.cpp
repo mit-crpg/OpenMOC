@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 1, 1);
+  geometry->setDomainDecomposition(1, 2, 1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -153,8 +153,8 @@ int main(int argc, char* argv[]) {
   /* Run simulation */
   CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
-  solver.setConvergenceThreshold(tolerance);
-  solver.computeEigenvalue(max_iters);
+  solver.setConvergenceThreshold(1.e-7);
+  solver.computeEigenvalue(10000);
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");

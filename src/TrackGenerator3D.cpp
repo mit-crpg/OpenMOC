@@ -1371,7 +1371,7 @@ void TrackGenerator3D::create3DTracksArrays() {
       }
     }
 
-    /* Reset the number of tracks per stack....TODO: why? */
+    /* Reset the number of tracks per stack */
     for (int a=0; a < _num_azim/2; a++) {
       for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
         for (int p=0; p < _num_polar; p++)
@@ -1807,9 +1807,12 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
     surface_2D = track_2D->getSurfaceIn();
   }
 
+  /* Initialize the Track's connecting domains with their 2D connections */
+#ifdef MPIx
   int domain_delta_x = (surface_2D % 3 == 0) * (2 * (surface_2D/3) - 1);
   int domain_delta_y = (surface_2D % 3 == 1) * (2 * (surface_2D/3) - 1);
   int domain_delta_z = 0;
+#endif
 
   /* Tracks pointing in the positive z direction in the lz plane */
   if (tci->_polar < _num_polar / 2) {
@@ -1833,7 +1836,11 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_next._polar = pc;
         tci_next._lz    = nl + 2 * nz - lz - 1;
       }
+#ifdef MPIx
+      domain_delta_x = 0;
+      domain_delta_y = 0;
       domain_delta_z = +1;
+#endif
     }
 
     /* SURFACE_Z_MIN */
@@ -1860,7 +1867,11 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_next._lz    = nl - lz - 1;
         tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
+#ifdef MPIx
+      domain_delta_x = 0;
+      domain_delta_y = 0;
       domain_delta_z = -1;
+#endif
     }
 
     /* SURFACE_Y_MIN */
@@ -1971,7 +1982,11 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_next._lz    = nl + 2 * nz - lz - 1;
         tci_next._link = getNum3DTrackChainLinks(&tci_next) - 1;
       }
+#ifdef MPIx
+      domain_delta_x = 0;
+      domain_delta_y = 0;
       domain_delta_z = +1;
+#endif
     }
 
     /* SURFACE_Z_MIN */
@@ -1993,7 +2008,11 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_next._polar = pc;
         tci_next._lz    = nl - lz - 1;
       }
+#ifdef MPIx
+      domain_delta_x = 0;
+      domain_delta_y = 0;
       domain_delta_z = -1;
+#endif
     }
 
     /* SURFACE_Y_MIN */
@@ -2095,6 +2114,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
     track->setTrackReflFwd(get3DTrackID(&tsi_refl));
     track->setNextFwdFwd(next_fwd);
     track->setBCFwd(bc);
+#ifdef MPIx
     int domain_fwd_out = _geometry->getNeighborDomain(domain_delta_x,
                                                       domain_delta_y,
                                                       domain_delta_z);
@@ -2103,6 +2123,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
                                                      -domain_delta_z);
     track->setDomainFwdOut(domain_fwd_out);
     track->setDomainFwdIn(domain_fwd_in);
+#endif
   }
   else {
     track->setTrackNextBwd(get3DTrackID(&tsi_next));
@@ -2110,6 +2131,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
     track->setTrackReflBwd(get3DTrackID(&tsi_refl));
     track->setNextBwdFwd(next_fwd);
     track->setBCBwd(bc);
+#ifdef MPIx
     int domain_bwd_out = _geometry->getNeighborDomain(domain_delta_x,
                                                       domain_delta_y,
                                                       domain_delta_z);
@@ -2118,6 +2140,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
                                                      -domain_delta_z);
     track->setDomainBwdOut(domain_bwd_out);
     track->setDomainBwdIn(domain_bwd_in);
+#endif
   }
 }
 

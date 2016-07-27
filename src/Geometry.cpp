@@ -509,32 +509,9 @@ int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
       neighbor_coords[1] >= 0 && neighbor_coords[1] < _num_domains_y &&
       neighbor_coords[2] >= 0 && neighbor_coords[2] < _num_domains_z)
     MPI_Cart_rank(_MPI_cart, neighbor_coords, &neighbor_rank);
+
   return neighbor_rank;
 }
-
-
-//FIXME
-int Geometry::getReverseNeighborDomain(int neighbor) {
-
-  int offset_x = -1 * ((neighbor % _num_domains_x) - _domain_index_x);
-  int offset_y = -1 * (((neighbor / _num_domains_x) % _num_domains_y) -
-     _domain_index_y);
-  int offset_z = -1 * (neighbor / (_num_domains_x * _num_domains_y) -
-      _domain_index_z);
-  int reverse_neighbor = -1;
-  int x = offset_x + _domain_index_x;
-  int y = offset_y + _domain_index_y;
-  int z = offset_z + _domain_index_z;
-  if (x >= 0 && x < _num_domains_x &&
-      y >= 0 && y < _num_domains_y &&
-      z >= 0 && z < _num_domains_y)
-      reverse_neighbor = x + _num_domains_x * (y + z * _num_domains_y);
-
-  return reverse_neighbor;
-}
-
-
-
 #endif
 
 

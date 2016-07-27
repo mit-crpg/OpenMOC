@@ -231,8 +231,9 @@ public:
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
   ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
+#ifdef MPIx
   int getNeighborDomain(int offset_x, int offset_y, int offset_z);
-  int getReverseNeighborDomain(int neighbor);
+#endif
 
   /* Set parameters */
   void setCmfd(Cmfd* cmfd);

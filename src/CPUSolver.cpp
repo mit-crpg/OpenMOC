@@ -232,9 +232,6 @@ void CPUSolver::zeroTrackFluxes() {
  */
 void CPUSolver::copyBoundaryFluxes() {
 
-  if (_track_generator->getGeometry()->isDomainDecomposed())
-    communicateBoundaryFluxes();
-
 #pragma omp parallel for schedule(guided)
   for (int t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
@@ -245,11 +242,170 @@ void CPUSolver::copyBoundaryFluxes() {
 }
 
 
-//FIXME: optimize track ordering, etc
-//TODO: check to make sure passing to periodic index
-void CPUSolver::communicateBoundaryFluxes() {
+#ifdef MPIx
+/**
+ * @brief Prints out tracking information for cycles, traversing domain
+ *        interfaces
+ * @details This function prints Track starting and ending points for a cycle
+ *          that traverses the entire Geometry.
+ * @param track_start The starting Track ID from which the cycle is followed
+ * @param domain_start The domain for the starting Track
+ * @param length The number of Track's to follow across the cycle
+ */
+void CPUSolver::printCycle(long track_start, int domain_start, int length) {
 
   /* Initialize buffer for MPI communication */
+  FP_PRECISION buffer[2*_fluxes_per_track];
+  int message_size = sizeof(sendInfo);
+
+  /* Initialize MPI requests and status */
+  MPI_Comm MPI_cart = _geometry->getMPICart();
+  int num_ranks;
+  MPI_Comm_size(MPI_cart, &num_ranks);
+  MPI_Status stat;
+  MPI_Request request[num_ranks];
+
+  int rank;
+  MPI_Comm_rank(MPI_cart, &rank);
+
+  /* Loop over all tracks and exchange fluxes */
+  long curr_track = track_start;
+  int curr_rank = domain_start;
+  bool fwd = true;
+  for (int t=0; t < length; t++) {
+
+    /* Check if this rank is sending the Track */
+    if (rank == curr_rank) {
+
+      /* Get 3D Track data */
+      TrackStackIndexes tsi;
+      Track3D track;
+      TrackGenerator3D* track_generator_3D =
+        dynamic_cast<TrackGenerator3D*>(_track_generator);
+      track_generator_3D->getTSIByIndex(curr_track, &tsi);
+      track_generator_3D->getTrackOTF(&track, &tsi);
+
+      /* Get connecting tracks */
+      long connect;
+      bool connect_fwd;
+      Point* start;
+      Point* end;
+      int next_domain;
+      if (fwd) {
+        connect = track.getTrackPrdcFwd();
+        connect_fwd = track.getNextFwdFwd();
+        start = track.getStart();
+        end = track.getEnd();
+        next_domain = track.getDomainFwdOut();
+      }
+      else {
+        connect = track.getTrackPrdcBwd();
+        connect_fwd = track.getNextBwdFwd();
+        start = track.getEnd();
+        end = track.getStart();
+        next_domain = track.getDomainBwdOut();
+      }
+
+      /* Write information */
+      std::cout << rank << " " << start->getX() << " " << start->getY() << " "
+        << start->getZ() << " " << end->getX() << " " << end->getY() << " "
+        << end->getZ() << std::endl;
+
+      if (fabs(end->getX() + 2) < 0.01 && fabs(end->getY() - 1) < 0.01 &&
+          fabs(end->getZ() - 2) < 0.01) {
+        std::cout << "GOT IT ";
+        if (fwd)
+          std::cout << "FWD\n";
+        else
+          std::cout << "BWD\n";
+        exit(1);
+      }
+
+      /* Check domain for reflected boundaries */
+      if (next_domain == -1) {
+        next_domain = curr_rank;
+        if (fwd)
+          connect = track.getTrackNextFwd();
+        else
+          connect = track.getTrackNextBwd();
+      }
+
+      /* Pack the information */
+      sendInfo si;
+      si.track_id = connect;
+      si.domain = next_domain;
+      si.fwd = connect_fwd;
+
+      /* Send the information */
+      for (int i=0; i < num_ranks; i++)
+        if (i != rank)
+          MPI_Isend(&si, message_size, MPI_BYTE, i, 0, MPI_cart, &request[i]);
+
+      /* Copy information */
+      curr_rank = next_domain;
+      fwd = connect_fwd;
+      curr_track = connect;
+
+      /* Wait for sends to complete */
+      bool complete = false;
+      while (!complete) {
+        complete = true;
+        for (int i=0; i < num_ranks; i++) {
+          if (i != rank) {
+            int flag;
+            MPI_Test(&request[i], &flag, &stat);
+            if (flag == 0)
+              complete = false;
+          }
+        }
+      }
+    }
+
+    /* Receiving info */
+    else {
+
+      /* Create object to receive sent information */
+      sendInfo si;
+
+      /* Issue the receive from the current node */
+      MPI_Irecv(&si, message_size, MPI_BYTE, curr_rank, 0, MPI_cart,
+                &request[0]);
+
+      /* Wait for receive to complete */
+      bool complete = false;
+      while (!complete) {
+        complete = true;
+        int flag;
+        MPI_Test(&request[0], &flag, &stat);
+        if (flag == 0)
+          complete = false;
+      }
+
+      /* Copy information */
+      curr_rank = si.domain;
+      fwd = si.fwd;
+      curr_track = si.track_id;
+    }
+
+    MPI_Barrier(MPI_cart);
+  }
+
+  /* Join MPI at the end of communication */
+  MPI_Barrier(MPI_cart);
+}
+
+
+/**
+ * @brief Transfers all angular fluxes at interfaces to their appropriate
+ *        domain neighbors
+ * @details The angular fluxes stored in the _boundary_flux array that
+ *          intersect INTERFACE boundaries are transfered to their appropriate
+ *          neighbor's _start_flux array at the periodic indexes.
+ */
+void CPUSolver::transferAllInterfaceFluxes() {
+
+  /* Initialize buffer for MPI communication */
+  //printCycle(1051,0,2000); //FIXME - this is broken for 2x2x2
   FP_PRECISION buffer[2*_fluxes_per_track];
   MPI_Datatype flux_type;
   if (sizeof(FP_PRECISION) == 4)
@@ -261,7 +417,6 @@ void CPUSolver::communicateBoundaryFluxes() {
   MPI_Comm MPI_cart = _geometry->getMPICart();
   MPI_Status stat;
   MPI_Request request[4];
-  int active[2] = {0};
   int mpi_send[2] = {0};
   int mpi_recv[2] = {0};
 
@@ -278,18 +433,14 @@ void CPUSolver::communicateBoundaryFluxes() {
 
     /* Get connecting tracks */
     int connect[2];
-    bool connect_fwd[2];
-    connect[0] = track.getTrackNextFwd();
-    connect[1] = track.getTrackNextBwd();
-    connect_fwd[0] = track.getNextFwdFwd();
-    connect_fwd[1] = track.getNextBwdFwd();
+    connect[0] = track.getTrackPrdcFwd();
+    connect[1] = track.getTrackPrdcBwd();
 
     /* Get connecting domain surfaces */
     int domain_fwd_in = track.getDomainFwdIn();
     int domain_fwd_out = track.getDomainFwdOut();
     int domain_bwd_in = track.getDomainBwdIn();
     int domain_bwd_out = track.getDomainBwdOut();
-
 
     int rank;
     MPI_Comm_rank(MPI_cart, &rank);
@@ -306,7 +457,6 @@ void CPUSolver::communicateBoundaryFluxes() {
       MPI_Irecv(&buffer[0], _fluxes_per_track, flux_type, domain_fwd_in, 0,
                 MPI_cart, &request[2]);
       mpi_recv[0] = 1;
-      active[0] = 1;
     }
 
     /* Send backward flux */
@@ -321,8 +471,6 @@ void CPUSolver::communicateBoundaryFluxes() {
       MPI_Irecv(&buffer[_fluxes_per_track], _fluxes_per_track, flux_type,
                 domain_bwd_in, 0, MPI_cart, &request[3]);
       mpi_recv[1] = 1;
-
-      active[1] = 1;
     }
 
 
@@ -333,6 +481,7 @@ void CPUSolver::communicateBoundaryFluxes() {
       complete = true;
       int flag;
 
+      /* Check forward and backward send/receive messages */
       for (int d=0; d<2; d++) {
 
         /* Wait for send to complete */
@@ -353,19 +502,25 @@ void CPUSolver::communicateBoundaryFluxes() {
 
     /* Reset status for next communication round and copy fluxes */
     for (int d=0; d<2; d++) {
+
+      /* Reset send */
       mpi_send[d] = 0;
-      mpi_recv[d] = 0;
-      if (active[d])
+
+      /* Copy angular fluxes if necessary */
+      if (mpi_recv[d])
         for (int pe=0; pe < _fluxes_per_track; pe++)
-          _start_flux(connect[d],connect_fwd[d],pe) =
+          _start_flux(connect[d],d,pe) =
             buffer[d*_fluxes_per_track + pe];
-      active[d] = 0;
+
+      /* Reset receive */
+      mpi_recv[d] = 0;
     }
   }
 
   /* Join MPI at the end of communication */
   MPI_Barrier(MPI_cart);
 }
+#endif
 
 
 /**
@@ -424,6 +579,7 @@ void CPUSolver::normalizeFluxes() {
   /* Compute the total fission source */
   tot_fission_source = pairwise_sum<FP_PRECISION>(fission_sources,size);
 
+#ifdef MPIx
   /* Reduce total fission rates across domians */
   if (_geometry->isDomainDecomposed()) {
 
@@ -443,6 +599,7 @@ void CPUSolver::normalizeFluxes() {
                   MPI_SUM, comm);
     tot_fission_source = reduced_fission;
   }
+#endif
 
   /* Deallocate memory for fission source array */
   delete [] fission_sources;
@@ -639,6 +796,7 @@ double CPUSolver::computeResidual(residualType res_type) {
   /* Sum up the residuals from each FSR and normalize */
   residual = pairwise_sum<double>(residuals, _num_FSRs);
 
+#ifdef MPIx
   /* Reduce residuals across domians */
   if (_geometry->isDomainDecomposed()) {
 
@@ -655,6 +813,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     MPI_Allreduce(&norm, &reduced_norm, 1, MPI_INT, MPI_SUM, comm);
     norm = reduced_norm;
   }
+#endif
 
   /* Compute RMS residual */
   residual = sqrt(residual / norm);
@@ -700,6 +859,7 @@ void CPUSolver::computeKeff() {
   /* Reduce new fission rates across FSRs */
   fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
+#ifdef MPIx
   /* Reduce fission rates across domians */
   if (_geometry->isDomainDecomposed()) {
 
@@ -718,6 +878,7 @@ void CPUSolver::computeKeff() {
     MPI_Allreduce(&fission, &reduced_fission, 1, precision, MPI_SUM, comm);
     fission = reduced_fission;
   }
+#endif
 
   /* The old_source is normalized to sum to _k_eff; therefore, the new
    * _k_eff is the old _k_eff * sum(new_source). Implicitly, we are just doing
@@ -762,6 +923,12 @@ void CPUSolver::transportSweep() {
     sweep_tracks.setCPUSolver(this);
     sweep_tracks.execute();
   }
+
+#ifdef MPIx
+  /* Transfer all interface fluxes after the transport sweep */
+  if (_track_generator->getGeometry()->isDomainDecomposed())
+    transferAllInterfaceFluxes();
+#endif
 }
 
 
@@ -889,8 +1056,9 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   /* Determine if flux should be transferred */
   int transfer = (bc != VACUUM);
 
-  for (int pe=0; pe < _fluxes_per_track; pe++)
-    track_out_flux[pe] = track_flux[pe] * transfer;
+  if (bc != INTERFACE)
+    for (int pe=0; pe < _fluxes_per_track; pe++)
+      track_out_flux[pe] = track_flux[pe] * transfer;
 }
 
 

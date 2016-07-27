@@ -33,6 +33,14 @@
 #define track_leakage(pe) (track_leakage[(pe)])
 
 
+//FIXME
+struct sendInfo {
+  long track_id;
+  int domain;
+  bool fwd;
+};
+
+
 /**
  * @class CPUSolver CPUSolver.h "src/CPUSolver.h"
  * @brief This a subclass of the Solver class for multi-core CPUs using
@@ -54,7 +62,10 @@ protected:
 
   void zeroTrackFluxes();
   void copyBoundaryFluxes();
-  void communicateBoundaryFluxes();
+#ifdef MPIx
+  void transferAllInterfaceFluxes();
+  void printCycle(long track_start, int domain_start, int length);
+#endif
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();
