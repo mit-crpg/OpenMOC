@@ -182,6 +182,7 @@ public:
 class GLPolarQuad: public Quadrature {
 
 private:
+  /** the roots to the Legendre polynomial of degree _num_polar */
   std::vector <double> _roots;
 
 public:
@@ -189,6 +190,7 @@ public:
   void setNumPolarAngles(const int num_polar);
   void initialize();
   void precomputeWeights(bool solve_3D);
+
   double legendrePolynomial(int n, double x);
   double logDerivLegendre(int n, double x);
   double secondLogDerivLegendre(int n, double x);
