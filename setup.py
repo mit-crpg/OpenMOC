@@ -180,7 +180,7 @@ def customize_compiler(self):
       postargs = config.compiler_flags['gcc']
 
     # If compiler is GNU's gcc and the source is C++, use gcc
-    if config.cc == 'mpicc' and os.path.splitext(src)[1] == '.cpp':
+    elif config.cc == 'mpicc' and os.path.splitext(src)[1] == '.cpp':
       if config.with_ccache:
         self.set_executable('compiler_so', 'ccache mpicc')
       else:
@@ -273,7 +273,7 @@ def customize_linker(self):
       self.set_executable('linker_so', 'gcc')
       self.set_executable('linker_exe', 'gcc')
 
-    if config.cc == 'mpicc':
+    elif config.cc == 'mpicc':
       self.set_executable('linker_so', 'mpicc')
       self.set_executable('linker_exe', 'mpicc')
 

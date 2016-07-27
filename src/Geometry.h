@@ -179,7 +179,9 @@ private:
   int _domain_index_y;
   int _domain_index_z;
   Lattice* _domain_bounds;
+#ifdef MPIx
   MPI_Comm _MPI_cart;
+#endif
 
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);

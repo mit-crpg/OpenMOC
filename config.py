@@ -189,10 +189,10 @@ class configuration:
 
   if ('macosx' in get_platform()):
     linker_flags['mpicc'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
-                           '-Wl,-install_name,' + get_openmoc_object_name()]
+                             '-Wl,-install_name,' + get_openmoc_object_name()]
   else:
     linker_flags['mpicc'] = ['-fopenmp', '-shared',
-                           '-Wl,-soname,' + get_openmoc_object_name()]
+                             '-Wl,-soname,' + get_openmoc_object_name()]
 
   if ('macosx' in get_platform()):
     linker_flags['clang'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
