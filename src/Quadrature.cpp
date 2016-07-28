@@ -1258,12 +1258,12 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
 
 /**
  * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
- * @param    n the order of the Legendre Polynomial
  * @param    roots a vector containing the roots of the Legendre polynomial
+ * @param    n the order of the Legendre Polynomial
  * @return   a vector of weights matched by index to the vector of roots
  */
 std::vector <double> GLPolarQuad::getGLWeights(std::vector <double> roots,
-    int n) {
+                                               int n) {
 
   std::vector <double> weights;
   for (int i; i<roots.size(); ++i)
@@ -1274,7 +1274,7 @@ std::vector <double> GLPolarQuad::getGLWeights(std::vector <double> roots,
   
   return weights;
 }
-  
+
 
 /**
  * @brief Dummy constructor calls the parent constructor.
