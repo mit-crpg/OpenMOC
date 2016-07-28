@@ -13,22 +13,22 @@ PRECISION   = single
 # Source Code List
 #===============================================================================
 
-case = test_quad/test_quad.cpp
+case = c5g7/c5g7-cmfd.cpp
 
 source = \
-Quadrature.cpp \
-log.cpp 
-#Cell.cpp \
+Cell.cpp \
 Cmfd.cpp \
 CPUSolver.cpp \
 ExpEvaluator.cpp \
 Geometry.cpp \
 LocalCoords.cpp \
 linalg.cpp \
+log.cpp \
 Material.cpp \
 Matrix.cpp \
 MOCKernel.cpp \
 Point.cpp \
+Quadrature.cpp \
 Solver.cpp \
 Surface.cpp \
 Timer.cpp \
@@ -44,7 +44,6 @@ gradients/one-directional/one-directional-gradient.cpp \
 gradients/two-directional/two-directional-gradient.cpp \
 homogeneous/homogeneous-one-group.cpp \
 c5g7/c5g7.cpp \
-test_quad/test_quad.cpp \
 c5g7/c5g7-cmfd.cpp
 
 #===============================================================================
