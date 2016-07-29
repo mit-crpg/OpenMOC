@@ -68,6 +68,10 @@
 
 #endif
 
+#ifdef MPIx
+#define TRACKS_PER_BUFFER 1000
+#endif
+
 /** The faces, edges, and vertices that collectively make up the surfaces of a
  *  rectangular prism. The edges denoted as "e" and vertices as "v" on the
  *  illustration below:

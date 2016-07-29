@@ -56,6 +56,18 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
+  //FIXME
+#ifdef MPIx
+  int _track_message_size;
+  std::vector<FP_PRECISION*> _send_buffers;
+  std::vector<FP_PRECISION*> _receive_buffers;
+  std::vector<int> _neighbor_domains;
+  MPI_Request* _MPI_requests;
+  bool* _MPI_sends;
+  bool* _MPI_receives;
+#endif
+
+
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeFSRs();
@@ -63,6 +75,11 @@ protected:
   void zeroTrackFluxes();
   void copyBoundaryFluxes();
 #ifdef MPIx
+  void setupMPIBuffers();
+  void deleteMPIBuffers();
+  void packBuffers(std::vector<long> &packing_indexes,
+                   std::vector<int> &buffer_indexes);
+  void transferAllInterfaceFluxesNew();
   void transferAllInterfaceFluxes();
   void printCycle(long track_start, int domain_start, int length);
 #endif

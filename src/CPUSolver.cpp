@@ -13,6 +13,12 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
 
   setNumThreads(1);
   _FSR_locks = NULL;
+#ifdef MPIx
+  _track_message_size = 0;
+  _MPI_requests = NULL;
+  _MPI_sends = NULL;
+  _MPI_receives = NULL;
+#endif
 }
 
 
@@ -21,7 +27,9 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
  *        FSR scalar flux updates, and calls Solver parent class destructor
  *        to deletes arrays for fluxes and sources.
  */
-CPUSolver::~CPUSolver() {}
+CPUSolver::~CPUSolver() {
+  deleteMPIBuffers();
+}
 
 
 /**
@@ -157,6 +165,10 @@ void CPUSolver::initializeFluxArrays() {
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
 
+#ifdef MPIx
+  deleteMPIBuffers();
+#endif
+
   int size;
 
   /* Allocate memory for the Track boundary flux and leakage arrays */
@@ -173,6 +185,11 @@ void CPUSolver::initializeFluxArrays() {
     _old_scalar_flux = new FP_PRECISION[size];
     memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
     memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
+
+#ifdef MPIx
+    /* Allocate memory for angular flux exchaning buffers */
+    setupMPIBuffers();
+#endif
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the fluxes");
@@ -243,6 +260,86 @@ void CPUSolver::copyBoundaryFluxes() {
 
 
 #ifdef MPIx
+//FIXME
+void CPUSolver::setupMPIBuffers() {
+
+  /* Determine the size of the buffers */
+  if (sizeof(FP_PRECISION) == 4)
+    _track_message_size = _fluxes_per_track + 3;
+  else
+    _track_message_size = _fluxes_per_track + 2;
+  int length = TRACKS_PER_BUFFER * _track_message_size;
+
+  /* Initialize MPI requests and status */
+  if (_geometry->isDomainDecomposed()) {
+
+    if (_send_buffers.size() > 0)
+      deleteMPIBuffers();
+
+    /* Fill the hash map of send buffers */
+    for (int dx=-1; dx <= 1; dx++) {
+      for (int dy=-1; dy <= 1; dy++) {
+        for (int dz=-1; dz <= 1; dz++) {
+          if (abs(dx) + abs(dy) == 1 ||
+              (dx == 0 && dy == 0 && dz != 0)) {
+            int domain = _geometry->getNeighborDomain(dx, dy, dz);
+            if (domain != -1) {
+              FP_PRECISION* send_buffer = new FP_PRECISION[length];
+              _send_buffers.push_back(send_buffer);
+              FP_PRECISION* receive_buffer = new FP_PRECISION[length];
+              _receive_buffers.push_back(receive_buffer);
+              _neighbor_domains.push_back(domain);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Initialize Track ID's to -1 */
+  int num_domains = _neighbor_domains.size();
+  for (int i=0; i < num_domains; i++) {
+    int start_idx = _fluxes_per_track + 1;
+    for (int idx = start_idx; idx < length; idx += _track_message_size) {
+      long* track_info_location =
+        reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
+      track_info_location[0] = -1;
+      track_info_location =
+        reinterpret_cast<long*>(&_receive_buffers.at(i)[idx]);
+      track_info_location[0] = -1;
+    }
+  }
+
+  /* Setup MPI communication bookkeeping */
+  _MPI_requests = new MPI_Request[2*num_domains];
+  _MPI_sends = new bool[num_domains];
+  _MPI_receives = new bool[num_domains];
+  for (int i=0; i < num_domains; i++) {
+    _MPI_sends[i] = false;
+    _MPI_receives[i] = false;
+  }
+}
+
+
+//FIXME
+void CPUSolver::deleteMPIBuffers() {
+  for (int i=0; i < _send_buffers.size(); i++) {
+    delete [] _send_buffers.at(i);
+  }
+  _send_buffers.clear();
+
+  for (int i=0; i < _send_buffers.size(); i++) {
+    delete [] _send_buffers.at(i);
+  }
+  _receive_buffers.clear();
+  _neighbor_domains.clear();
+
+  delete [] _MPI_requests;
+  delete [] _MPI_sends;
+  delete [] _MPI_receives;
+}
+
+
 /**
  * @brief Prints out tracking information for cycles, traversing domain
  *        interfaces
@@ -388,6 +485,318 @@ void CPUSolver::printCycle(long track_start, int domain_start, int length) {
     }
 
     MPI_Barrier(MPI_cart);
+  }
+
+  /* Join MPI at the end of communication */
+  MPI_Barrier(MPI_cart);
+}
+
+
+//FIXME
+void CPUSolver::packBuffers(std::vector<long> &packing_indexes,
+                            std::vector<int> &buffer_indexes) {
+
+
+  int num_domains = packing_indexes.size();
+#pragma omp parallel for
+  for (int i=0; i < num_domains; i++) {
+    int send_domain = _neighbor_domains.at(i);
+    for (long t=packing_indexes.at(i); t < _tot_num_tracks; t++) {
+
+      /* Get 3D Track data */
+      TrackStackIndexes tsi;
+      Track3D track;
+      TrackGenerator3D* track_generator_3D =
+        dynamic_cast<TrackGenerator3D*>(_track_generator);
+      track_generator_3D->getTSIByIndex(t, &tsi);
+      track_generator_3D->getTrackOTF(&track, &tsi);
+
+      /* Determine sending domains */
+      if (track.getDomainFwdOut() == send_domain) {
+
+        /* Send angular flux information */
+        int idx = buffer_indexes.at(i);
+        for (int pe=0; pe < _fluxes_per_track; pe++)
+          _send_buffers.at(i)[idx + pe] = _boundary_flux(t,0,pe);
+        idx += _fluxes_per_track;
+
+        /* Send direction and track index */
+        long track_id = track.getTrackPrdcFwd();
+        _send_buffers.at(i)[idx] = 0;
+        long* track_info_location =
+          reinterpret_cast<long*>(&_send_buffers.at(i)[idx+1]);
+        track_info_location[0] = track_id;
+        buffer_indexes.at(i) += _track_message_size;
+      }
+      else if (track.getDomainBwdOut() == send_domain) {
+
+        /* Send angular flux information */
+        int idx = buffer_indexes.at(i);
+        for (int pe=0; pe < _fluxes_per_track; pe++)
+          _send_buffers.at(i)[idx + pe] = _boundary_flux(t,1,pe);
+        idx += _fluxes_per_track;
+
+        /* Send direction and track index */
+        long track_id = track.getTrackPrdcBwd();
+        _send_buffers.at(i)[idx] = 1;
+        long* track_info_location =
+          reinterpret_cast<long*>(&_send_buffers.at(i)[idx+1]);
+        track_info_location[0] = track_id;
+        buffer_indexes.at(i) += _track_message_size;
+        //FIXME
+        long t2 = track_info_location[0];
+        if (track_info_location[0] == 4585) {
+          std::cout << "x2 Value = " << track_info_location[0] << std::endl;
+          std::cout << "Domain = " << i  << " and idx = " << idx << std::endl;
+          std::cout << "BI = " << buffer_indexes.at(i) << std::endl;
+          std::cout << "TMS = " << _track_message_size << std::endl;
+          std::cout << "Track = " << t << std::endl;
+        }
+      }
+
+      int rank;
+      int index = buffer_indexes.at(i);
+      MPI_Comm_rank(_geometry->getMPICart(), &rank);
+      if (i == 0 && t >= 2 && rank == 1) {
+        std::cout << "INDEX = " << index << std::endl;
+        FP_PRECISION* buffer = _send_buffers.at(i);
+        long * ti =
+          reinterpret_cast<long*>(&buffer[17 + 1]);
+        long t2 = ti[0];
+        std::cout << t2 << std::endl;
+        if (t2 != 4585) {
+          std::cout << "WTF " << std::endl;
+          exit(1);
+        }
+      }
+
+      /* Check to see if the buffer is full */
+      if (buffer_indexes.at(i) == _track_message_size * TRACKS_PER_BUFFER) {
+        packing_indexes.at(i) = t+1;
+        break;
+      }
+    }
+    /* Set any remaining spots to negate the Track ID */
+    int start_idx = buffer_indexes.at(i) + _fluxes_per_track + 1;
+    int max_idx = _track_message_size * TRACKS_PER_BUFFER;
+    for (int idx = start_idx; idx < max_idx; idx += _track_message_size) {
+      long* track_info_location =
+        reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
+      track_info_location[0] = -1;
+    }
+  }
+
+  //FIXME
+  for (int i=0; i < num_domains; i++) {
+    FP_PRECISION* buffer = _send_buffers.at(i);
+    for (int t=0; t < TRACKS_PER_BUFFER; t++) {
+      FP_PRECISION* curr_track_buffer = &buffer[t*_track_message_size];
+      long* track_idx =
+            reinterpret_cast<long*>(&curr_track_buffer[_fluxes_per_track+1]);
+      long track_id = track_idx[0];
+      if (track_id > _tot_num_tracks || track_id < -1) {
+        std::cout << "Found tid = " << track_id << std::endl;
+        std::cout << "TOT NUM TRACKS = " << _tot_num_tracks << std::endl;
+        std::cout << "ADDRESS = " << &curr_track_buffer[_fluxes_per_track+1]
+          << std::endl;
+        exit(1);
+      }
+    }
+  }
+}
+
+
+/**
+ * @brief Transfers all angular fluxes at interfaces to their appropriate
+ *        domain neighbors
+ * @details The angular fluxes stored in the _boundary_flux array that
+ *          intersect INTERFACE boundaries are transfered to their appropriate
+ *          neighbor's _start_flux array at the periodic indexes.
+ */
+void CPUSolver::transferAllInterfaceFluxesNew() {
+
+  /* Initialize buffer for MPI communication */
+  MPI_Datatype flux_type;
+  if (sizeof(FP_PRECISION) == 4)
+    flux_type = MPI_FLOAT;
+  else
+    flux_type = MPI_DOUBLE;
+
+  /* Create bookkeeping vectors */
+  std::vector<long> packing_indexes;
+  std::vector<int> buffer_indexes;
+  std::vector<bool> active;
+
+  /* Resize vectors to the number of domains */
+  int num_domains = _neighbor_domains.size();
+  packing_indexes.resize(num_domains);
+  buffer_indexes.resize(num_domains);
+  active.resize(num_domains);
+
+  /* Initialize MPI requests and status */
+  MPI_Comm MPI_cart = _geometry->getMPICart();
+  MPI_Status stat;
+
+  /* Start communication rounds */
+  while (true) {
+
+    int rank;
+    MPI_Comm_rank(MPI_cart, &rank);
+
+    if (rank == 1) {
+      FP_PRECISION* buffer = _send_buffers.at(0);
+      long * ti =
+        reinterpret_cast<long*>(&buffer[17 + 1]);
+      long t2 = ti[0];
+      std::cout << "TSF x0 " << t2 << std::endl;
+    }
+
+    /* Pack buffers with angular flux data */
+    for (int i=0; i < num_domains; i++)
+      buffer_indexes.at(i) = 0;
+    packBuffers(packing_indexes, buffer_indexes);
+
+    if (rank == 1) {
+      FP_PRECISION* buffer = _send_buffers.at(0);
+      long * ti =
+        reinterpret_cast<long*>(&buffer[17 + 1]);
+      long t2 = ti[0];
+      std::cout << "TSF " << t2 << std::endl;
+      if (t2 != 4585) {
+        std::cout << "WTF " << std::endl;
+        exit(1);
+      }
+    }
+
+
+    /* Send and receive from all neighboring domains */
+    bool communication_complete = true;
+    for (int i=0; i < num_domains; i++) {
+
+      /* Get the communicating neighbor domain */
+      int domain = _neighbor_domains.at(i);
+
+      /* Check if a send/receive needs to be created */
+      long* first_track_idx =
+        reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
+      long first_track = first_track_idx[0];
+      if (first_track != -1) {
+
+        /* Send outgoing flux */
+        MPI_Isend(&_send_buffers.at(i), _track_message_size *
+                  TRACKS_PER_BUFFER, flux_type, domain, 0, MPI_cart,
+                  &_MPI_requests[i*2]);
+        _MPI_sends[i] = true;
+
+        /* Receive incoming flux */
+        MPI_Irecv(&_receive_buffers.at(i), _track_message_size *
+                  TRACKS_PER_BUFFER, flux_type, domain, 0, MPI_cart,
+                  &_MPI_requests[i*2+1]);
+        _MPI_receives[i] = true;
+
+        /* Mark communication as ongoing */
+        communication_complete = false;
+      }
+    }
+
+    /* Check if communication is done */
+    if (communication_complete)
+      break;
+
+    if (rank == 1) {
+      FP_PRECISION* buffer = _send_buffers.at(0);
+      long * ti =
+        reinterpret_cast<long*>(&buffer[17 + 1]);
+      long t2 = ti[0];
+      std::cout << "TSF xM1 " << t2 << std::endl;
+    }
+
+    /* Block for communication round to complete */
+    bool round_complete = false;
+    while (!round_complete) {
+
+      round_complete = true;
+      int flag;
+
+      /* Check forward and backward send/receive messages */
+      for (int i=0; i < num_domains; i++) {
+
+        /* Wait for send to complete */
+        if (_MPI_sends[i] == true) {
+          MPI_Test(&_MPI_requests[i*2], &flag, &stat);
+          if (flag == 0)
+            round_complete = false;
+        }
+
+        /* Wait for receive to complete */
+        if (_MPI_receives[i] == true) {
+          MPI_Test(&_MPI_requests[i*2+1], &flag, &stat);
+          if (flag == 0)
+            round_complete = false;
+        }
+      }
+    }
+
+    if (rank == 1) {
+      FP_PRECISION* buffer = _send_buffers.at(0);
+      long * ti =
+        reinterpret_cast<long*>(&buffer[17 + 1]);
+      long t2 = ti[0];
+      std::cout << "TSF xM2 " << t2 << std::endl;
+    }
+
+    /* Reset status for next communication round and copy fluxes */
+    for (int i=0; i < num_domains; i++) {
+
+      /* Reset send */
+      _MPI_sends[i] = false;
+
+      /* Copy angular fluxes if necessary */
+      if (_MPI_receives[i]) {
+        std::cout << "RECEIVING!!!" << std::endl;
+        std::cout << "TBF = " << TRACKS_PER_BUFFER << std::endl;
+
+        /* Ge the buffer for the connecting domain */
+        FP_PRECISION* buffer = _receive_buffers.at(i);
+        for (int t=0; t < TRACKS_PER_BUFFER; t++) {
+
+          /* Get the Track ID */
+          FP_PRECISION* curr_track_buffer = &buffer[t*_track_message_size];
+          long* track_idx =
+            reinterpret_cast<long*>(&curr_track_buffer[_fluxes_per_track+1]);
+          long track_id = track_idx[0];
+
+          std::cout << "MESSAGE " << t << std::endl;
+          for (int g=0; g<_fluxes_per_track; g++)
+            std::cout << "Flux " << g << " = " << curr_track_buffer[g] << std::endl;
+          std::cout << "Direction " << curr_track_buffer[_fluxes_per_track]
+            << std::endl;
+          std::cout << "TID = " << track_id << std::endl;
+
+          /* Check if the angular fluxes are active */
+          if (track_id != -1) {
+            int dir = curr_track_buffer[_fluxes_per_track];
+            std::cout << "TRACK ID = " << track_id << std::endl;
+            std::cout << "DIR = " << dir << std::endl;
+            std::cout << "MAX TRACK = " << _tot_num_tracks << std::endl;
+            std::cout << "YADA " << buffer[(t+1)*_track_message_size] << std::endl;
+            for (int pe=0; pe < _fluxes_per_track; pe++)
+              _start_flux(track_id, dir, pe) = curr_track_buffer[pe];
+          }
+        }
+      }
+
+      /* Reset receive */
+      _MPI_receives[i] = false;
+      MPI_Barrier(MPI_cart);
+    }
+    if (rank == 1) {
+      FP_PRECISION* buffer = _send_buffers.at(0);
+      long * ti =
+        reinterpret_cast<long*>(&buffer[17 + 1]);
+      long t2 = ti[0];
+      std::cout << "TSF xF " << t2 << std::endl;
+    }
   }
 
   /* Join MPI at the end of communication */
@@ -927,7 +1336,7 @@ void CPUSolver::transportSweep() {
 #ifdef MPIx
   /* Transfer all interface fluxes after the transport sweep */
   if (_track_generator->getGeometry()->isDomainDecomposed())
-    transferAllInterfaceFluxes();
+    transferAllInterfaceFluxesNew();
 #endif
 }
 
