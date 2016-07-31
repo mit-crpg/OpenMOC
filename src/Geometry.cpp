@@ -1436,8 +1436,8 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
   log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
 
   /* Determine the extent of the axial geometry */
-  FP_PRECISION min_z = getMinZ();
-  FP_PRECISION max_z = getMaxZ();
+  double min_z = getMinZ();
+  double max_z = getMaxZ();
 
   /* Extract list of extruded FSRs */
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
