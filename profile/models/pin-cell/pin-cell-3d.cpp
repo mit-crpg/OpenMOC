@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 1; // FIXME omp_get_num_procs();
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(1, 2, 1);
+  //geometry->setDomainDecomposition(1, 2, 1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
                                    polar_spacing);
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
-  track_generator.setSegmentFormation(OTF_STACKS);
+  track_generator.setSegmentFormation(OTF_TRACKS);
   track_generator.generateTracks();
 
   /* Run simulation */

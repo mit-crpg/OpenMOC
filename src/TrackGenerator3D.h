@@ -87,6 +87,7 @@ class TrackGenerator3D : public TrackGenerator {
 
 private:
 
+  int** _flub; //FIXME
   /** The requested track polar spacing (cm) */
   double _polar_spacing;
 
