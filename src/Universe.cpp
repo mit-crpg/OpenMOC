@@ -233,9 +233,6 @@ boundaryType Universe::getMinXBoundaryType() {
   boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    iter->second->findBoundingBox();
-
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
     if (iter->second->getMaxXBoundaryType() != BOUNDARY_NONE) {
       bc = iter->second->getMaxXBoundaryType();
@@ -257,9 +254,6 @@ boundaryType Universe::getMaxXBoundaryType() {
   boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    iter->second->findBoundingBox();
-
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
     if (iter->second->getMaxXBoundaryType() != BOUNDARY_NONE) {
       bc = iter->second->getMaxXBoundaryType();
@@ -281,9 +275,6 @@ boundaryType Universe::getMinYBoundaryType() {
   boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    iter->second->findBoundingBox();
-
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
     if (iter->second->getMinYBoundaryType() != BOUNDARY_NONE) {
       bc = iter->second->getMinYBoundaryType();
@@ -305,9 +296,6 @@ boundaryType Universe::getMaxYBoundaryType() {
   boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    iter->second->findBoundingBox();
-
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
     if (iter->second->getMaxYBoundaryType() != BOUNDARY_NONE) {
       bc = iter->second->getMaxYBoundaryType();
@@ -329,9 +317,6 @@ boundaryType Universe::getMinZBoundaryType() {
   boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    iter->second->findBoundingBox();
-
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
     if (iter->second->getMinZBoundaryType() != BOUNDARY_NONE) {
       bc = iter->second->getMinZBoundaryType();
@@ -353,9 +338,6 @@ boundaryType Universe::getMaxZBoundaryType() {
   boundaryType bc = BOUNDARY_NONE;
 
   std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    iter->second->findBoundingBox();
-
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
     if (iter->second->getMaxZBoundaryType() != BOUNDARY_NONE) {
       bc = iter->second->getMaxZBoundaryType();

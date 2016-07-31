@@ -793,9 +793,7 @@ void TrackGenerator3D::initialize2DTrackChains() {
   int link_index;
 
   _tracks_2D_chains = new Track***[_num_azim/2];
-  _flub = new int*[_num_azim/2];
   for (int a=0; a < _num_azim/2; a++) {
-    _flub[a] = new int[_num_x[a]];
     _tracks_2D_chains[a] = new Track**[_num_x[a]];
     for (int x=0; x < _num_x[a]; x++) {
 
@@ -812,7 +810,6 @@ void TrackGenerator3D::initialize2DTrackChains() {
       }
 
       /* Allocate memory for the track chains */
-      _flub[a][x] = link_index + 1;
       _tracks_2D_chains[a][x] = new Track*[link_index + 1];
 
       /* Assign tracks to the chains array */
@@ -1676,15 +1673,6 @@ void TrackGenerator3D::convertTCItoTSI(TrackChainIndexes* tci,
                                        TrackStackIndexes* tsi) {
 
   int link = getLinkIndex(tci);
-
-    if (tci->_azim >= _num_azim/2 || tci->_x >= _num_x[tci->_azim] ||
-        link >= _flub[tci->_azim][tci->_x]) {
-      std::cout << "INDEXES = " << tci->_azim << " / " << _num_azim/2 << ", " <<
-        tci->_x << " / " << _num_x[tci->_azim] << ", " << link << " / " <<
-       _flub[tci->_azim][tci->_x] << std::endl;
-      exit(1);
-    }
-
   Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][link];
   tsi->_azim = tci->_azim;
   tsi->_xy = track_2D->getXYIndex();
@@ -1736,14 +1724,6 @@ int TrackGenerator3D::getNum3DTrackChainLinks(TrackChainIndexes* tci) {
   int lz = tci->_lz;
 
   while (true) {
-
-    if (tci->_azim >= _num_azim/2 || tci->_x >= _num_x[tci->_azim] ||
-        link >= _flub[tci->_azim][tci->_x]) {
-      std::cout << "INDEXES = " << tci->_azim << " / " << _num_azim/2 << ", " <<
-        tci->_x << " / " << _num_x[tci->_azim] << ", " << link << " / " <<
-       _flub[tci->_azim][tci->_x] << std::endl;
-      exit(1);
-    }
     track_2D = _tracks_2D_chains[tci->_azim][tci->_x][link];
     azim = track_2D->getAzimIndex();
     xy = track_2D->getXYIndex();

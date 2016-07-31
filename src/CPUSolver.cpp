@@ -28,7 +28,9 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
  *        to deletes arrays for fluxes and sources.
  */
 CPUSolver::~CPUSolver() {
+#ifdef MPIx
   deleteMPIBuffers();
+#endif
 }
 
 
