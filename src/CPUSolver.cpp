@@ -577,6 +577,9 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
  */
 void CPUSolver::transferAllInterfaceFluxesNew() {
 
+  /* Initialize timer for total function cost */
+  _timer->startTimer();
+
   /* Initialize buffer for MPI communication */
   MPI_Datatype flux_type;
   if (sizeof(FP_PRECISION) == 4)
@@ -602,9 +605,13 @@ void CPUSolver::transferAllInterfaceFluxesNew() {
     MPI_Comm_rank(MPI_cart, &rank);
 
     /* Pack buffers with angular flux data */
+    _timer->startTimer();
     packBuffers(packing_indexes);
+    _timer->stopTimer();
+    _timer->recordSplit("Packing time");
 
     /* Send and receive from all neighboring domains */
+    _timer->startTimer();
     bool communication_complete = true;
     for (int i=0; i < num_domains; i++) {
 
@@ -695,10 +702,14 @@ void CPUSolver::transferAllInterfaceFluxesNew() {
       /* Reset receive */
       _MPI_receives[i] = false;
     }
+    _timer->stopTimer();
+    _timer->recordSplit("Communication time");
   }
 
   /* Join MPI at the end of communication */
   MPI_Barrier(MPI_cart);
+  _timer->stopTimer();
+  _timer->recordSplit("Total transfer time");
 }
 
 

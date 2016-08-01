@@ -10,14 +10,14 @@ int main(int argc, char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = 1; // FIXME omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.1;
-  int num_azim = 4;
+  double azim_spacing = 0.05;
+  int num_azim = 32;
   double polar_spacing = 0.1;
-  int num_polar = 6;
+  int num_polar = 10;
   double tolerance = 1e-5;
   int max_iters = 1000;
 
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(1, 2, 1);
+  geometry->setDomainDecomposition(2, 2, 1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -153,8 +153,8 @@ int main(int argc, char* argv[]) {
   /* Run simulation */
   CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
-  solver.setConvergenceThreshold(1.e-7);
-  solver.computeEigenvalue(10000);
+  solver.setConvergenceThreshold(tolerance);
+  solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");

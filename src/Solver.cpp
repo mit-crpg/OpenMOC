@@ -983,6 +983,21 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep);
 
+  double transfer_time = _timer->getSplit("Total transfer time");
+  msg_string = "Angular Flux Transfer";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transfer_time);
+
+  double pack_time = _timer->getSplit("Packing time");
+  msg_string = "Angular Flux Packing Time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), pack_time);
+
+  double comm_time = _timer->getSplit("Communication time");
+  msg_string = "Angular Flux Communication Time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
+
   /* Time per segment */
   int num_segments = 0;
   TrackGenerator3D* track_generator_3D =
