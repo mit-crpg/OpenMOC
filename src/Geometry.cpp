@@ -1315,8 +1315,6 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL) {
-    //log_printf(ERROR, "Could not find a Cell containing the start Point "
-    //           "of this Track: %s", flattened_track->toString().c_str());
     int dom = _domain_index_x + _domain_index_y * _num_domains_x +
       _domain_index_z * _num_domains_x * _num_domains_y;
     double min_x = getMinX();

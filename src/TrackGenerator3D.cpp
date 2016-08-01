@@ -368,7 +368,21 @@ void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
 void TrackGenerator3D::setSegmentationHeights(std::vector<FP_PRECISION>
                                               z_mesh) {
   _contains_segmentation_heights = true;
-  _segmentation_heights = z_mesh;
+  _segmentation_heights.clear();
+  for (int i=0; i < z_mesh.size(); i++) {
+    if (z_mesh.at(i) > _geometry->getMinZ() &&
+        z_mesh.at(i) < _geometry->getMaxZ())
+      _segmentation_heights.push_back(z_mesh.at(i));
+    else if (!_geometry->isDomainDecomposed())
+      log_printf(ERROR, "Provided Z-coordinate %f is not within the Geometry "
+                "bounds", z_mesh.at(i));
+  }
+
+  /* If none of the heights within the domain, choose the Geometry midpoint */
+  if (_segmentation_heights.size() == 0) {
+    double z_mid = (_geometry->getMinZ() + _geometry->getMaxZ()) / 2;
+    _segmentation_heights.push_back(z_mid);
+  }
 }
 
 
