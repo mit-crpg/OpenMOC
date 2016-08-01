@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
   double polar_spacing = 0.1;
   int num_polar = 10;
   double tolerance = 1e-5;
-  int max_iters = 1000;
+  int max_iters = 50;
 
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties...");
@@ -114,6 +114,8 @@ int main(int argc, char* argv[]) {
   fuel->addSurface(-1, pin);
   fuel->addSurface(+1, &zmin);
   fuel->addSurface(-1, &zmax);
+  fuel->setNumRings(5);
+  fuel->setNumSectors(8);
 
   Cell* moderator = new Cell();
   moderator->setFill(materials["Water"]);
@@ -124,6 +126,8 @@ int main(int argc, char* argv[]) {
   moderator->addSurface(-1, &ymax);
   moderator->addSurface(+1, &zmin);
   moderator->addSurface(-1, &zmax);
+  moderator->setNumRings(4);
+  moderator->setNumSectors(8);
 
   /* Add universes */
   log_printf(NORMAL, "Creating universes...");

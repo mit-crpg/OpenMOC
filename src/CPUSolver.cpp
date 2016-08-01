@@ -298,9 +298,12 @@ void CPUSolver::setupMPIBuffers() {
     }
   }
 
-  /* Initialize Track ID's to -1 */
+  /* Setup Track communication information for all neighbor domains */
   int num_domains = _neighbor_domains.size();
+  _boundary_tracks.resize(num_domains);
   for (int i=0; i < num_domains; i++) {
+
+    /* Initialize Track ID's to -1 */
     int start_idx = _fluxes_per_track + 1;
     for (int idx = start_idx; idx < length; idx += _track_message_size) {
       long* track_info_location =
@@ -309,6 +312,36 @@ void CPUSolver::setupMPIBuffers() {
       track_info_location =
         reinterpret_cast<long*>(&_receive_buffers.at(i)[idx]);
       track_info_location[0] = -1;
+    }
+  }
+
+  /* Determine which Tracks communicate with each neighbor domain */
+  for (long t=0; t<_tot_num_tracks; t++) {
+
+    /* Get 3D Track data */
+    TrackStackIndexes tsi;
+    Track3D track;
+    TrackGenerator3D* track_generator_3D =
+      dynamic_cast<TrackGenerator3D*>(_track_generator);
+    track_generator_3D->getTSIByIndex(t, &tsi);
+    track_generator_3D->getTrackOTF(&track, &tsi);
+
+    /* Determine the indexes of forward connecting domains */
+    int fwd_domain = track.getDomainFwdOut();
+    if (fwd_domain != -1) {
+#pragma omp parallel for
+      for (int i=0; i<num_domains; i++)
+        if (_neighbor_domains.at(i) == fwd_domain)
+          _boundary_tracks.at(i).push_back(t);
+    }
+
+    /* Determine the indexes of backward connecting domains */
+    int bwd_domain = track.getDomainBwdOut();
+    if (bwd_domain != -1) {
+#pragma omp parallel for
+      for (int i=0; i<num_domains; i++)
+        if (_neighbor_domains.at(i) == bwd_domain)
+          _boundary_tracks.at(i).push_back(t);
     }
   }
 
@@ -335,6 +368,10 @@ void CPUSolver::deleteMPIBuffers() {
   }
   _receive_buffers.clear();
   _neighbor_domains.clear();
+
+  for (int i=0; i < _boundary_tracks.size(); i++)
+    _boundary_tracks.at(i).clear();
+  _boundary_tracks.clear();
 
   delete [] _MPI_requests;
   delete [] _MPI_sends;
@@ -514,10 +551,11 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
     }
 
     /* Fill send buffers with Track information */
-    long t;
-    for (t=packing_indexes.at(i); t < _tot_num_tracks; t++) {
+    long j;
+    for (j=packing_indexes.at(i); j < _boundary_tracks.at(i).size(); j++) {
 
       /* Get 3D Track data */
+      long t = _boundary_tracks.at(i).at(j);
       TrackStackIndexes tsi;
       Track3D track;
       TrackGenerator3D* track_generator_3D =
@@ -525,7 +563,6 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
       track_generator_3D->getTSIByIndex(t, &tsi);
       track_generator_3D->getTrackOTF(&track, &tsi);
 
-      /* Determine sending domains */
       if (track.getDomainFwdOut() == send_domain) {
 
         /* Send angular flux information */
@@ -563,7 +600,7 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
     }
 
     /* Record the next Track ID */
-    packing_indexes.at(i) = t;
+    packing_indexes.at(i) = j;
   }
 }
 
@@ -642,8 +679,11 @@ void CPUSolver::transferAllInterfaceFluxesNew() {
     }
 
     /* Check if communication is done */
-    if (communication_complete)
+    if (communication_complete) {
+      _timer->stopTimer();
+      _timer->recordSplit("Communication time");
       break;
+    }
 
     /* Block for communication round to complete */
     bool round_complete = false;
