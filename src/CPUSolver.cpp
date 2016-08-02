@@ -315,6 +315,11 @@ void CPUSolver::setupMPIBuffers() {
     }
   }
 
+  /* Build array of Track connections */
+  _track_connections.resize(2);
+  _track_connections.at(0).resize(_tot_num_tracks);
+  _track_connections.at(1).resize(_tot_num_tracks);
+
   /* Determine which Tracks communicate with each neighbor domain */
   for (long t=0; t<_tot_num_tracks; t++) {
 
@@ -332,7 +337,7 @@ void CPUSolver::setupMPIBuffers() {
 #pragma omp parallel for
       for (int i=0; i<num_domains; i++)
         if (_neighbor_domains.at(i) == fwd_domain)
-          _boundary_tracks.at(i).push_back(t);
+          _boundary_tracks.at(i).push_back(2*t);
     }
 
     /* Determine the indexes of backward connecting domains */
@@ -341,8 +346,12 @@ void CPUSolver::setupMPIBuffers() {
 #pragma omp parallel for
       for (int i=0; i<num_domains; i++)
         if (_neighbor_domains.at(i) == bwd_domain)
-          _boundary_tracks.at(i).push_back(t);
+          _boundary_tracks.at(i).push_back(2*t+1);
     }
+
+    /* Save the index of the forward and backward connecting Tracks */
+    _track_connections.at(0).at(t) = track.getTrackPrdcFwd();
+    _track_connections.at(1).at(t) = track.getTrackPrdcBwd();
   }
 
   /* Setup MPI communication bookkeeping */
@@ -536,14 +545,13 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
 
   /* Fill send buffers for every domain */
   int num_domains = packing_indexes.size();
-#pragma omp parallel for
   for (int i=0; i < num_domains; i++) {
     int send_domain = _neighbor_domains.at(i);
 
     /* Reset send buffers */
-    int buffer_index = 0;
     int start_idx = _fluxes_per_track + 1;
     int max_idx = _track_message_size * TRACKS_PER_BUFFER;
+#pragma omp parallel for
     for (int idx = start_idx; idx < max_idx; idx += _track_message_size) {
       long* track_info_location =
         reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
@@ -551,56 +559,36 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
     }
 
     /* Fill send buffers with Track information */
-    long j;
-    for (j=packing_indexes.at(i); j < _boundary_tracks.at(i).size(); j++) {
+    int max_buffer_idx = _boundary_tracks.at(i).size() -
+          packing_indexes.at(i);
+    if (max_buffer_idx > TRACKS_PER_BUFFER)
+      max_buffer_idx = TRACKS_PER_BUFFER;
+#pragma omp parallel for
+    for (int b=0; b < max_buffer_idx; b++) {
+
+      long boundary_track_idx = packing_indexes.at(i) + b;
+      long buffer_index = b * _track_message_size;
 
       /* Get 3D Track data */
-      long t = _boundary_tracks.at(i).at(j);
-      TrackStackIndexes tsi;
-      Track3D track;
-      TrackGenerator3D* track_generator_3D =
-        dynamic_cast<TrackGenerator3D*>(_track_generator);
-      track_generator_3D->getTSIByIndex(t, &tsi);
-      track_generator_3D->getTrackOTF(&track, &tsi);
+      long boundary_track = _boundary_tracks.at(i).at(boundary_track_idx);
+      long t = boundary_track / 2;
+      int d = boundary_track - 2*t;
+      int connect_track = _track_connections.at(d).at(t);
 
-      if (track.getDomainFwdOut() == send_domain) {
+      /* Fill buffer with angular fluxes */
+      for (int pe=0; pe < _fluxes_per_track; pe++)
+        _send_buffers.at(i)[buffer_index + pe] = _boundary_flux(t,d,pe);
 
-        /* Send angular flux information */
-        for (int pe=0; pe < _fluxes_per_track; pe++)
-          _send_buffers.at(i)[buffer_index + pe] = _boundary_flux(t,0,pe);
-
-        /* Send direction and track index */
-        long track_id = track.getTrackPrdcFwd();
-        int idx = buffer_index + _fluxes_per_track;
-        _send_buffers.at(i)[idx] = 0;
-        long* track_info_location =
-          reinterpret_cast<long*>(&_send_buffers.at(i)[idx+1]);
-        track_info_location[0] = track_id;
-        buffer_index += _track_message_size;
-      }
-      else if (track.getDomainBwdOut() == send_domain) {
-
-        /* Send angular flux information */
-        for (int pe=0; pe < _fluxes_per_track; pe++)
-          _send_buffers.at(i)[buffer_index + pe] = _boundary_flux(t,1,pe);
-
-        /* Send direction and track index */
-        long track_id = track.getTrackPrdcBwd();
-        int idx = buffer_index + _fluxes_per_track;
-        _send_buffers.at(i)[idx] = 1;
-        long* track_info_location =
-          reinterpret_cast<long*>(&_send_buffers.at(i)[idx+1]);
-        track_info_location[0] = track_id;
-        buffer_index += _track_message_size;
-      }
-
-      /* Check to see if the buffer is full */
-      if (buffer_index == _track_message_size * TRACKS_PER_BUFFER)
-        break;
+      /* Assign the connecting Track information */
+      int idx = buffer_index + _fluxes_per_track;
+      _send_buffers.at(i)[idx] = d;
+      long* track_info_location =
+        reinterpret_cast<long*>(&_send_buffers.at(i)[idx+1]);
+      track_info_location[0] = connect_track;
     }
 
     /* Record the next Track ID */
-    packing_indexes.at(i) = j;
+    packing_indexes.at(i) += max_buffer_idx;
   }
 }
 

@@ -62,6 +62,7 @@ protected:
   std::vector<FP_PRECISION*> _send_buffers;
   std::vector<FP_PRECISION*> _receive_buffers;
   std::vector<std::vector<long> > _boundary_tracks;
+  std::vector<std::vector<long> > _track_connections;
   std::vector<int> _neighbor_domains;
   MPI_Request* _MPI_requests;
   bool* _MPI_sends;

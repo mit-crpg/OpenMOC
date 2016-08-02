@@ -14,12 +14,12 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.05;
-  int num_azim = 32;
+  double azim_spacing = 0.1;
+  int num_azim = 4;
   double polar_spacing = 0.1;
-  int num_polar = 10;
+  int num_polar = 6;
   double tolerance = 1e-5;
-  int max_iters = 50;
+  int max_iters = 1000;
 
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties...");
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 2, 1);
+  geometry->setDomainDecomposition(2, 1, 1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
