@@ -1775,34 +1775,50 @@ void Geometry::printString() {
  */
 void Geometry::initializeCmfd() {
 
+  /* Get the global Geometry boundary conditions */
+  boundaryType min_x_bound = _root_universe->getMinXBoundaryType();
+  boundaryType max_x_bound = _root_universe->getMaxXBoundaryType();
+  boundaryType min_y_bound = _root_universe->getMinYBoundaryType();
+  boundaryType max_y_bound = _root_universe->getMaxYBoundaryType();
+  boundaryType min_z_bound = _root_universe->getMinZBoundaryType();
+  boundaryType max_z_bound = _root_universe->getMaxZBoundaryType();
+
+  /* Get the global Geometry boundaries */
+  double min_x = _root_universe->getMinX();
+  double max_x = _root_universe->getMaxX();
+  double min_y = _root_universe->getMinY();
+  double max_y = _root_universe->getMaxY();
+  double min_z = _root_universe->getMinZ();
+  double max_z = _root_universe->getMaxZ();
+
   /* Set CMFD mesh boundary conditions */
-  _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
-  _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
-  _cmfd->setBoundary(SURFACE_Z_MIN, getMinZBoundaryType());
-  _cmfd->setBoundary(SURFACE_X_MAX, getMaxXBoundaryType());
-  _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
-  _cmfd->setBoundary(SURFACE_Z_MAX, getMaxZBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MIN, min_x_bound);
+  _cmfd->setBoundary(SURFACE_Y_MIN, min_y_bound);
+  _cmfd->setBoundary(SURFACE_Z_MIN, min_z_bound);
+  _cmfd->setBoundary(SURFACE_X_MAX, max_x_bound);
+  _cmfd->setBoundary(SURFACE_Y_MAX, max_y_bound);
+  _cmfd->setBoundary(SURFACE_Z_MAX, max_z_bound);
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidthX(getWidthX());
-  _cmfd->setWidthY(getWidthY());
+  _cmfd->setWidthX(min_x);
+  _cmfd->setWidthY(min_y);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
 
   /* Initialize the CMFD lattice */
   Point offset;
-  offset.setX(getMinX() + getWidthX()/2.0);
-  offset.setY(getMinY() + getWidthY()/2.0);
+  offset.setX(min_x + (max_x - min_x)/2.0);
+  offset.setY(min_y + (max_y - min_y)/2.0);
 
   /* If geometry is infinite in z, set Cmfd z-width to 1.0 and z-offset to 0 */
-  if (getWidthZ() == std::numeric_limits<double>::infinity()) {
+  if ((max_z - min_z) == std::numeric_limits<double>::infinity()) {
     _cmfd->setWidthZ(1.0);
     offset.setZ(0.0);
   }
   else {
-    _cmfd->setWidthZ(getWidthZ());
-    offset.setZ(getMinZ() + getWidthZ()/2.0);
+    _cmfd->setWidthZ(max_z - min_z);
+    offset.setZ(min_z + (max_z - min_z)/2.0);
   }
 
   _cmfd->initializeLattice(&offset);
