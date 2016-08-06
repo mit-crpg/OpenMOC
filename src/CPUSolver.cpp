@@ -176,7 +176,6 @@ void CPUSolver::initializeFluxArrays() {
   /* Allocate memory for the Track boundary flux and leakage arrays */
   try {
     size = 2 * _tot_num_tracks * _fluxes_per_track;
-
     _boundary_flux = new FP_PRECISION[size];
     _start_flux = new FP_PRECISION[size];
     _boundary_leakage = new FP_PRECISION[size];
@@ -751,7 +750,6 @@ void CPUSolver::transferAllInterfaceFluxesNew() {
 void CPUSolver::transferAllInterfaceFluxes() {
 
   /* Initialize buffer for MPI communication */
-  //printCycle(1051,0,2000); //FIXME - this is broken for 2x2x2
   FP_PRECISION buffer[2*_fluxes_per_track];
   MPI_Datatype flux_type;
   if (sizeof(FP_PRECISION) == 4)

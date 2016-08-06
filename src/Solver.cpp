@@ -707,6 +707,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
 
   /* Initialize data structures */
   initializeExpEvaluator();
+  initializeFSRs();
+  initializeSourceArrays();
+  countFissionableFSRs();
 
   /* Initialize new flux arrays if a) the user requested the use of
    * only fixed sources or b) no previous simulation was performed which
@@ -716,9 +719,6 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
     flattenFSRFluxes(0.0);
   }
 
-  initializeSourceArrays();
-  initializeFSRs();
-  countFissionableFSRs();
   zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */

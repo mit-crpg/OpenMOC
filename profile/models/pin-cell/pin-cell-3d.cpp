@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 1, 1);
+  geometry->setDomainDecomposition(2, 2, 2);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */

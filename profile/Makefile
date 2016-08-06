@@ -13,7 +13,7 @@ PRECISION   = single
 # Source Code List
 #===============================================================================
 
-case = pin-cell/pin-cell-3d.cpp
+case = fixed-source/pin-cell-fixed-3d.cpp
 
 source = \
 Cell.cpp \
@@ -45,6 +45,7 @@ Vector.cpp
 cases = \
 Takeda/Takeda-unrodded.cpp \
 pin-cell/pin-cell-3d.cpp \
+fixed-source/pin-cell-fixed-3d.cpp \
 c5g7/c5g7-3d.cpp \
 c5g7/c5g7-3d-cmfd.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
@@ -209,4 +210,4 @@ edit:
 	vim -p $(cases)
 
 run:
-	mpirun -np 2 ./$(program)
+	mpirun -np 1 ./$(program)

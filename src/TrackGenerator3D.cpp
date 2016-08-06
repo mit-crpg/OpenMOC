@@ -700,14 +700,16 @@ void TrackGenerator3D::initializeTracks() {
       _num_l[i][j] = int(ceil(length * tan(M_PI_2 - theta) / _polar_spacing));
 
       /* Number of crossings along the z axis */
-      _num_z[i][j] = (int) ceil(width_z / _polar_spacing);
+      //FIXME _num_z[i][j] = (int) ceil(width_z / _polar_spacing);
+      _num_z[i][j] = (int) ceil(width_z * _num_l[i][j] * tan(theta)
+                                / width_y * sin(phi));
 
       /* Effective track spacing */
-      _dl_eff[i][j] = length/ _num_l[i][j];
+      _dl_eff[i][j] = length / _num_l[i][j];
       _dz_eff[i][j] = width_z / _num_z[i][j];
 
       /* Set the corrected polar angle */
-      FP_PRECISION theta = atan(_dl_eff[i][j] / _dz_eff[i][j]);
+      theta = atan(_dl_eff[i][j] / _dz_eff[i][j]);
       _quadrature->setTheta(theta, i, j);
       _quadrature->setPolarSpacing(_dz_eff[i][j] * sin(theta), i, j);
 
@@ -807,8 +809,10 @@ void TrackGenerator3D::initialize2DTrackChains() {
   int link_index;
 
   _tracks_2D_chains = new Track***[_num_azim/2];
+  _tc_x = new int*[_num_azim/2];
   for (int a=0; a < _num_azim/2; a++) {
     _tracks_2D_chains[a] = new Track**[_num_x[a]];
+    _tc_x[a] = new int[_num_x[a]];
     for (int x=0; x < _num_x[a]; x++) {
 
       /* Get the first track in the 2D chain */
@@ -825,6 +829,7 @@ void TrackGenerator3D::initialize2DTrackChains() {
 
       /* Allocate memory for the track chains */
       _tracks_2D_chains[a][x] = new Track*[link_index + 1];
+      _tc_x[a][x] = link_index + 1; //FIXME
 
       /* Assign tracks to the chains array */
       link_index = 0;
@@ -875,79 +880,6 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 }
 
 
-/* Create tracks starting on Z_MIN and L_MIN surfaces */
-/*
- *             The track layout in the lz plane
- *       _____________________________________________
- *      | /    /    /    /    /    /    /    /    /   |
- *      |/    /    /    /    /    /    /    /    /    |
- * ^  9 |    /    /    /    /    /    /    /    /    /|
- * |    |   /    /    /    /    /    /    /    /    / |
- * z+   |__/____/____/____/____/____/____/____/____/__|
- *         8    7    6    5    4    3    2    1    0
- * l+ ->
- */
-
-/* Create tracks starting on L_MIN and Z_MAX surfaces */
-/*          1    2    3    4     5    6    7    8   9
- *       ______________________________________________
- *      |   \    \    \     \    \    \    \    \    \ |
- *      |    \    \    \     \    \    \    \    \    \|
- * ^  0 |\    \    \    \     \    \    \    \    \    |
- * |    | \    \    \    \     \    \    \    \    \   |
- * z+   |__\____\____\____\ ____\____\____\____\____\__|
- *
- * l+ ->
- */
-//FIXME
-double TrackGenerator3D::getLStart(TrackChainIndexes* tci) {
-
-  double l_start;
-  int lz = tci->_lz;
-  int nl = _num_l[tci->_azim][tci->_polar];
-  int nz = _num_z[tci->_azim][tci->_polar];
-  double dl = _dl_eff[tci->_azim][tci->_polar];
-  double phi = _quadrature->getPhi(tci->_azim);
-  double length = _geometry->getWidthY() / sin(phi);
-
-  /* Get the length from the beginning of the chain to the track start point */
-  if (tci->_polar < _num_polar / 2) {
-    if (lz < nl)
-      l_start = length - (lz + 0.5) * dl;
-    else
-      l_start = 0.0;
-  }
-  else {
-    if (lz < nz)
-      l_start = 0.0;
-    else
-      l_start = dl * (lz - nz + 0.5);
-  }
-
-  /* If the track starts on an edge nudge it forward */
-  if (l_start != 0.0) {
-    Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][0];
-    double phi      = track_2D->getPhi();
-    double cos_phi  = cos(phi);
-    double sin_phi  = sin(phi);
-    double x_start  = track_2D->getStart()->getX();
-    double y_start  = track_2D->getStart()->getY();
-    double x_ext = x_start - _geometry->getMinX() + l_start * cos_phi;
-    double y_ext = y_start - _geometry->getMinY() + l_start * sin_phi;
-    int x_cell = int(round(x_ext / _geometry->getWidthX()));
-    int y_cell = int(round(y_ext / _geometry->getWidthY()));
-
-    /* If the start point is on a double reflection, nudge it to avoid track
-     * with the same start and end points */
-    if (fabs(x_cell * _geometry->getWidthX() - x_ext) < TINY_MOVE ||
-        fabs(y_cell * _geometry->getWidthY() - y_ext) < TINY_MOVE )
-      l_start += TINY_MOVE * 10;
-  }
-
-  return l_start;
-}
-
-
 //FIXME: description
 int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
                                                Track3D* track_3D) {
@@ -961,12 +893,12 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
 
   double x_start  = track_2D->getStart()->getX();
   double y_start  = track_2D->getStart()->getY();
-  double l_start  = getLStart(tci);
 
   int lz          = tci->_lz;
   int nl          = _num_l[tci->_azim][tci->_polar];
   int nz          = _num_z[tci->_azim][tci->_polar];
   double dz       = _dz_eff[tci->_azim][tci->_polar];
+  double dl       = _dl_eff[tci->_azim][tci->_polar];
 
   /* Get Geometry information */
   double x_min = _geometry->getMinX();
@@ -980,8 +912,25 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   double width_x = _geometry->getWidthX();
   double width_y = _geometry->getWidthY();
 
+  /* Get the length from the begnning of the chain to the Track start point */
+  double l_start  = 0.0;
+  if (tci->_polar < _num_polar / 2 && lz < nl)
+    l_start = width_y / sin_phi - (lz + 0.5) * dl;
+  else if (tci->_polar >= _num_polar / 2 && lz >= nz)
+    l_start = dl * (lz - nz + 0.5);
+
   double x_ext = x_start - x_min + l_start * cos_phi;
   double y_ext = y_start - y_min + l_start * sin_phi;
+
+  /* If the start point is on a double reflection, nudge it to avoid track
+   * with the same start and end points */
+  if ((fabs(int(round(x_ext / width_x)) * width_x - x_ext) < TINY_MOVE ||
+       fabs(int(round(y_ext / width_y)) * width_y - y_ext) < TINY_MOVE ) &&
+      l_start != 0.0) {
+    l_start += TINY_MOVE * 10;
+    x_ext = x_start - x_min + l_start * cos_phi;
+    y_ext = y_start - y_min + l_start * sin_phi;
+  }
 
   /* Get the index of the first 2D Track link */
   int link_index = abs(int(floor(x_ext / width_x)));
@@ -1777,6 +1726,9 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
   TrackChainIndexes tci_next;
   TrackChainIndexes tci_prdc;
   TrackChainIndexes tci_refl;
+  TrackStackIndexes tsi_next;
+  TrackStackIndexes tsi_prdc;
+  TrackStackIndexes tsi_refl;
 
   /* Set the next TCI to the current TCI */
   tci_next._azim  = tci->_azim;
@@ -1808,6 +1760,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
 
   int num_links = getNum3DTrackChainLinks(tci);
   bool next_fwd = outgoing;
+  bool refl_fwd = outgoing;
   boundaryType bc;
 
   int surface_2D;
@@ -1854,6 +1807,25 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       domain_delta_y = 0;
       domain_delta_z = +1;
 #endif
+
+      /* Check for a double reflection */
+      convertTCItoTSI(&tci_prdc, &tsi_prdc);
+
+      if (tsi_prdc._xy != tsi->_xy) {
+#ifdef MPIx
+        if (tsi->_azim < _num_azim / 4)
+          domain_delta_x = +1;
+        else
+          domain_delta_x = -1;
+#endif
+        tci_refl._azim = ac;
+
+        /* Set the next Track */
+        if (track_2D->getBCFwd() != PERIODIC &&
+            track_2D->getBCFwd() != INTERFACE) {
+          tci_next._azim = ac;
+        }
+      }
     }
 
     /* SURFACE_Z_MIN */
@@ -1885,6 +1857,25 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       domain_delta_y = 0;
       domain_delta_z = -1;
 #endif
+
+      /* Check for a double reflection */
+      convertTCItoTSI(&tci_prdc, &tsi_prdc);
+
+      if (tsi_prdc._xy != tsi->_xy) {
+#ifdef MPIx
+        if (tsi->_azim < _num_azim / 4)
+          domain_delta_x = -1;
+        else
+          domain_delta_x = +1;
+#endif
+        tci_refl._azim = ac;
+
+        /* Set the next Track */
+        if (track_2D->getBCFwd() != PERIODIC &&
+            track_2D->getBCFwd() != INTERFACE) {
+          tci_next._azim = ac;
+        }
+      }
     }
 
     /* SURFACE_Y_MIN */
@@ -1898,7 +1889,9 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       tci_refl._x     = _tracks_2D_array[track_2D->getTrackReflBwd()]
           ->getXYIndex() % _num_x[tci->_azim];
       tci_refl._polar = pc;
-      tci_next._lz    = lz - nl;
+      refl_fwd = true;
+      tci_refl._lz = lz - nl;
+      tci_next._lz = lz - nl;
 
       if (_geometry->getMinYBoundaryType() == PERIODIC ||
           _geometry->getMinYBoundaryType() == INTERFACE) {
@@ -1925,8 +1918,10 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       tci_refl._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]
           ->getXYIndex() % _num_x[tci->_azim];
       tci_refl._polar = pc;
+      tci_refl._lz = nl + lz;
       tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
-      tci_next._lz    = nl + lz;
+      tci_next._lz = nl + lz;
+      refl_fwd = false;
 
       if (_geometry->getMaxYBoundaryType() == PERIODIC ||
           _geometry->getMaxYBoundaryType() == INTERFACE)
@@ -1948,6 +1943,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       /* Set the link index */
       tci_prdc._link = tci->_link + 1;
       tci_next._link = tci->_link + 1;
+      tci_refl._link = tci->_link + 1;
       tci_refl._azim  = ac;
 
       /* Set the next track */
@@ -1962,6 +1958,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       /* Set the link index */
       tci_prdc._link = tci->_link - 1;
       tci_next._link = tci->_link - 1;
+      tci_refl._link = tci->_link - 1;
       tci_refl._azim  = ac;
 
       /* Set the next track */
@@ -2000,6 +1997,25 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       domain_delta_y = 0;
       domain_delta_z = +1;
 #endif
+
+      /* Check for a double reflection */
+      convertTCItoTSI(&tci_prdc, &tsi_prdc);
+
+      if (tsi_prdc._xy != tsi->_xy) {
+#ifdef MPIx
+        if (tsi->_azim < _num_azim / 4)
+          domain_delta_x = -1;
+        else
+          domain_delta_x = +1;
+#endif
+        tci_refl._azim = ac;
+
+        /* Set the next Track */
+        if (track_2D->getBCFwd() != PERIODIC &&
+            track_2D->getBCFwd() != INTERFACE) {
+          tci_next._azim = ac;
+        }
+      }
     }
 
     /* SURFACE_Z_MIN */
@@ -2026,6 +2042,25 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       domain_delta_y = 0;
       domain_delta_z = -1;
 #endif
+
+      /* Check for a double reflection */
+      convertTCItoTSI(&tci_prdc, &tsi_prdc);
+
+      if (tsi_prdc._xy != tsi->_xy) {
+#ifdef MPIx
+        if (tsi->_azim < _num_azim / 4)
+          domain_delta_x = -1;
+        else
+          domain_delta_x = +1;
+#endif
+        tci_refl._azim = ac;
+
+        /* Set the next Track */
+        if (track_2D->getBCFwd() != PERIODIC &&
+            track_2D->getBCFwd() != INTERFACE) {
+          tci_next._azim = ac;
+        }
+      }
     }
 
     /* SURFACE_Y_MIN */
@@ -2040,6 +2075,8 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
           ->getXYIndex() % _num_x[tci->_azim];
       tci_refl._polar = pc;
       tci_next._lz    = lz + nl;
+      tci_refl._lz    = lz + nl;
+      refl_fwd = true;
 
       if (_geometry->getMinYBoundaryType() == PERIODIC ||
           _geometry->getMinYBoundaryType() == INTERFACE) {
@@ -2066,8 +2103,10 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       tci_refl._x     = _tracks_2D_array[track_2D->getTrackReflFwd()]
           ->getXYIndex() % _num_x[tci->_azim];
       tci_refl._polar = pc;
+      tci_refl._lz    = lz - nl;
       tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
       tci_next._lz    = lz - nl;
+      refl_fwd = false;
 
       if (_geometry->getMaxYBoundaryType() == PERIODIC ||
           _geometry->getMaxYBoundaryType() == INTERFACE)
@@ -2089,6 +2128,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       /* Set the link index */
       tci_prdc._link = tci->_link + 1;
       tci_next._link = tci->_link + 1;
+      tci_refl._link = tci->_link + 1;
       tci_refl._azim  = ac;
 
       /* Set the next track */
@@ -2103,6 +2143,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       /* Set the link index */
       tci_prdc._link = tci->_link - 1;
       tci_next._link = tci->_link - 1;
+      tci_refl._link = tci->_link - 1;
       tci_refl._azim  = ac;
 
       /* Set the next track */
@@ -2112,13 +2153,8 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
     }
   }
 
-  TrackStackIndexes tsi_next;
   convertTCItoTSI(&tci_next, &tsi_next);
-
-  TrackStackIndexes tsi_prdc;
   convertTCItoTSI(&tci_prdc, &tsi_prdc);
-
-  TrackStackIndexes tsi_refl;
   convertTCItoTSI(&tci_refl, &tsi_refl);
 
   if (outgoing) {
