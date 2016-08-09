@@ -136,6 +136,14 @@ public:
                                     FP_PRECISION* track_flux);
 
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
+
+  void initializeFixedSources();
+
+  //FIXME
+  void printFSRFluxes(std::vector<double> dim1,
+                      std::vector<double> dim2, double offset,
+                      const char* plane);
+  void printFluxesTemp();
 };
 
 

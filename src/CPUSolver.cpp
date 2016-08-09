@@ -209,9 +209,10 @@ void CPUSolver::initializeSourceArrays() {
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
 
+  int size = _num_FSRs * _num_groups;
+
   /* Allocate memory for all source arrays */
   try {
-    int size = _num_FSRs * _num_groups;
     _reduced_sources = new FP_PRECISION[size];
 
     /* If no fixed sources were assigned, use a zeroes array */
@@ -222,6 +223,45 @@ void CPUSolver::initializeSourceArrays() {
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR sources");
+  }
+
+  /* Initialize fixed sources to zero */
+  memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
+
+  /* Populate fixed source array with any user-defined sources */
+  initializeFixedSources();
+}
+
+
+/**
+ * @brief Populates array of fixed sources assigned by FSR.
+ */
+void CPUSolver::initializeFixedSources() {
+
+  Solver::initializeFixedSources();
+
+  int fsr_id, group;
+  std::pair<int, int> fsr_group_key;
+  std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
+
+  /* Populate fixed source array with any user-defined sources */
+  for (fsr_iter = _fix_src_FSR_map.begin();
+       fsr_iter != _fix_src_FSR_map.end(); ++fsr_iter) {
+
+    /* Get the FSR with an assigned fixed source */
+    fsr_group_key = fsr_iter->first;
+    fsr_id = fsr_group_key.first;
+    group = fsr_group_key.second;
+
+    if (group <= 0 || group > _num_groups)
+      log_printf(ERROR,"Unable to use fixed source for group %d in "
+                 "a %d energy group problem", group, _num_groups);
+
+    if (fsr_id < 0 || fsr_id >= _num_FSRs)
+      log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
+                 "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+    _fixed_sources(fsr_id, group-1) = _fix_src_FSR_map[fsr_group_key];
   }
 }
 
@@ -1470,4 +1510,109 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     for (int e=0; e < _num_groups; e++)
       fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e);
   }
+}
+
+
+//FIXME
+void CPUSolver::printFSRFluxes(std::vector<double> dim1, std::vector<double> dim2,
+                               double offset, const char* plane) {
+
+  int rank = 0;
+#ifdef MPIx
+  MPI_Comm comm;
+  if (_geometry->isDomainDecomposed()) {
+    comm = _geometry->getMPICart();
+    MPI_Comm_rank(comm, &rank);
+  }
+
+  MPI_Datatype precision;
+  if (sizeof(FP_PRECISION) == 4)
+    precision = MPI_FLOAT;
+  else
+    precision = MPI_DOUBLE;
+#endif
+  std::vector<int> fsr_ids = _geometry->getSpatialDataOnGrid(dim1, dim2, offset,
+                                                             plane, "fsr");
+  std::vector<int> domain_contains_coords(fsr_ids.size());
+  std::vector<int> num_contains_coords(fsr_ids.size());
+#pragma omp parallel for
+  for (int r=0; r < fsr_ids.size(); r++) {
+    if (fsr_ids.at(r) != -1)
+      domain_contains_coords.at(r) = 1;
+    else
+      domain_contains_coords.at(r) = 0;
+  }
+
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Allreduce(&domain_contains_coords[0], &num_contains_coords[0],
+                  fsr_ids.size(), MPI_INT, MPI_SUM, comm);
+#endif
+  if (!_geometry->isDomainDecomposed())
+    for (int i=0; i < fsr_ids.size(); i++)
+      num_contains_coords[i] = domain_contains_coords[i];
+
+  //FIXME for (int e=0; e < _num_groups; e++) {
+  for (int e=0; e < 1; e++) {
+    if (rank == 0)
+      std::cout << "Group " << e+1 << std::endl;
+
+    std::vector<FP_PRECISION> domain_fluxes(fsr_ids.size(), 0);
+    std::vector<FP_PRECISION> total_fluxes(fsr_ids.size());
+
+#pragma omp parallel for
+    for (int r=0; r < fsr_ids.size(); r++) {
+      if (domain_contains_coords.at(r) != 0)
+        domain_fluxes.at(r) = getFlux(fsr_ids.at(r), e+1);
+    }
+
+#ifdef MPIx
+    if (_geometry->isDomainDecomposed())
+      MPI_Allreduce(&domain_fluxes[0], &total_fluxes[0],
+                    fsr_ids.size(), precision, MPI_SUM, comm);
+#endif
+    if (!_geometry->isDomainDecomposed())
+      for (int i=0; i < fsr_ids.size(); i++)
+        total_fluxes[i] = domain_fluxes[i];
+
+    if (rank == 0) {
+      for (int i=0; i<dim1.size(); i++) {
+        for (int j=0; j<dim2.size(); j++) {
+          std::cout << "(" << dim1.at(i) << ", " << dim2.at(j) << ") -> ";
+          int r = i + j*dim1.size();
+          double flux = total_fluxes.at(r) / num_contains_coords.at(r);
+          std::cout << flux << std::endl;
+        }
+      }
+    }
+  }
+}
+
+
+//FIXME
+void CPUSolver::printFluxesTemp() {
+
+  Universe* root = _geometry->getRootUniverse();
+
+  int nx = 10;
+  int ny = 10;
+  int nz = 1;
+
+  double x_min = root->getMinX();
+  double x_max = root->getMaxX();
+  double y_min = root->getMinY();
+  double y_max = root->getMaxY();
+  double z_min = root->getMinZ();
+  double z_max = root->getMaxZ();
+
+  std::vector<double> x(nx);
+  std::vector<double> y(ny);
+  for (int i=0; i < nx; i++)
+    x.at(i) = x_min + i * (x_max - x_min) / nx;
+  for (int j=0; j < ny; j++)
+    y.at(j) = y_min + j * (y_max - y_min) / ny;
+
+  double z_mid = (z_min + z_max) / 2;
+
+  printFSRFluxes(x, y, z_mid, "xy");
 }

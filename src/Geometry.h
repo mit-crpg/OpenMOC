@@ -183,6 +183,11 @@ private:
   MPI_Comm _MPI_cart;
 #endif
 
+  //FIXME
+  int _num_modules_x;
+  int _num_modules_y;
+  int _num_modules_z;
+
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
@@ -190,6 +195,12 @@ public:
 
   Geometry();
   virtual ~Geometry();
+
+  //FIXME
+  void setNumDomainModules(int num_x, int num_y, int num_z);
+  int getNumXModules();
+  int getNumYModules();
+  int getNumZModules();
 
   /* Get parameters */
   double getWidthX();
@@ -209,6 +220,7 @@ public:
   boundaryType getMaxZBoundaryType();
   Universe* getRootUniverse();
   int getNumFSRs();
+  int getNumTotalFSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();

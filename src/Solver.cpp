@@ -402,6 +402,8 @@ void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
   if (fsr_id < 0 || fsr_id >= _num_FSRs)
     log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
                "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+  _fix_src_FSR_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
 
@@ -425,13 +427,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
 
   /* Add the source to all FSRs for this MATERIAL type Cell */
   else {
-    Cell* fsr_cell;
-
-    for (int r=0; r < _num_FSRs; r++) {
-      fsr_cell = _geometry->findCellContainingFSR(r);
-      if (cell->getId() == fsr_cell->getId())
-        setFixedSourceByFSR(r, group, source);
-    }
+    _fix_src_cell_map[std::pair<Cell*, int>(cell, group)] = source;
   }
 }
 
@@ -446,15 +442,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
  */
 void Solver::setFixedSourceByMaterial(Material* material, int group,
                                       FP_PRECISION source) {
-
-  Material* fsr_material;
-
-  /* Add the source to all FSRs for this Material */
-  for (int r=0; r < _num_FSRs; r++) {
-    fsr_material = _geometry->findFSRMaterial(r);
-    if (material->getId() == fsr_material->getId())
-      setFixedSourceByFSR(r, group, source);
-  }
+  _fix_src_material_map[std::pair<Material*, int>(material, group)] = source;
 }
 
 
@@ -590,6 +578,55 @@ void Solver::countFissionableFSRs() {
 
 
 /**
+ * @brief Assigns fixed sources assigned by Cell, Material to FSRs.
+ */
+void Solver::initializeFixedSources() {
+
+  Cell* fsr_cell;
+  Material* fsr_material;
+  int group;
+  FP_PRECISION source;
+  std::pair<Cell*, int> cell_group_key;
+  std::pair<Material*, int> mat_group_key;
+  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
+  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
+
+  /* Fixed sources assigned by Cell */
+  for (cell_iter = _fix_src_cell_map.begin();
+       cell_iter != _fix_src_cell_map.end(); ++cell_iter) {
+
+    /* Get the Cell with an assigned fixed source */
+    cell_group_key = cell_iter->first;
+    group = cell_group_key.second;
+    source = _fix_src_cell_map[cell_group_key];
+
+    /* Search for this Cell in all FSRs */
+    for (int r=0; r < _num_FSRs; r++) {
+      fsr_cell = _geometry->findCellContainingFSR(r);
+      if (cell_group_key.first->getId() == fsr_cell->getId())
+        setFixedSourceByFSR(r, group, source);
+    }
+  }
+
+  /** Fixed sources assigned by Material */
+  for (mat_iter = _fix_src_material_map.begin();
+       mat_iter != _fix_src_material_map.end(); ++mat_iter) {
+
+    /* Get the Material with an assigned fixed source */
+    mat_group_key = mat_iter->first;
+    group = mat_group_key.second;
+    source = _fix_src_material_map[mat_group_key];
+
+    for (int r=0; r < _num_FSRs; r++) {
+      fsr_material = _geometry->findFSRMaterial(r);
+      if (mat_group_key.first->getId() == fsr_material->getId())
+        setFixedSourceByFSR(r, group, source);
+    }
+  }
+}
+
+
+/**
  * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, materials, fluxes
@@ -703,13 +740,16 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
+  /* Initialize keff to 1 for FSR source calcualtions */
+  _k_eff = 1.;
+
   FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
-  initializeExpEvaluator();
   initializeFSRs();
   initializeSourceArrays();
   countFissionableFSRs();
+  initializeExpEvaluator();
 
   /* Initialize new flux arrays if a) the user requested the use of
    * only fixed sources or b) no previous simulation was performed which
@@ -717,6 +757,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   if (only_fixed_source || _num_iterations == 0) {
     initializeFluxArrays();
     flattenFSRFluxes(0.0);
+    storeFSRFluxes();
   }
 
   zeroTrackFluxes();

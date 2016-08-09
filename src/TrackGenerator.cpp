@@ -852,8 +852,14 @@ void TrackGenerator::initializeTracks() {
     phi = _quadrature->getPhi(a);
 
     /* The number of intersections with x,y-axes */
-    _num_x[a] = (int) (fabs(width / _azim_spacing * sin(phi))) + 1;
-    _num_y[a] = (int) (fabs(height / _azim_spacing * cos(phi))) + 1;
+    double module_width = width / _geometry->getNumXModules();
+    double module_height = height / _geometry->getNumYModules();
+    _num_x[a] = (int) (fabs(module_width / _azim_spacing * sin(phi))) + 1;
+    _num_y[a] = (int) (fabs(module_height / _azim_spacing * cos(phi))) + 1;
+
+    /* FIXME */
+    _num_x[a] *= _geometry->getNumXModules();
+    _num_y[a] *= _geometry->getNumYModules();
 
     /* Save number of intersections for supplementary angles */
     _num_x[_num_azim/2 - a - 1] = _num_x[a];

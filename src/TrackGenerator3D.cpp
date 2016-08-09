@@ -675,12 +675,10 @@ void TrackGenerator3D::initializeTracks() {
   }
 
   double x1, x2, y1, y2, z1, z2;
-  double theta;
   double width_x  = _geometry->getWidthX();
   double width_y = _geometry->getWidthY();
   double width_z  = _geometry->getWidthZ();
   double avg_polar_spacing = 0.0;
-  double length;
 
   /* Determine angular quadrature and track spacing */
   for (int i = 0; i < _num_azim/4; i++) {
@@ -691,21 +689,26 @@ void TrackGenerator3D::initializeTracks() {
     for (int j=0; j < _num_polar/2; j++) {
 
       /* Compute the cosine weighted average angle */
-      theta = _quadrature->getTheta(i, j);
+      double theta = _quadrature->getTheta(i, j);
 
       /* Compute the length to traverse one domain y-width */
-      length = width_y / sin(phi);
+      double module_width_y = width_y / _geometry->getNumYModules();
+      double length = module_width_y / sin(phi);
 
       /* The number of intersections with xy (denoted "l") plane */
       _num_l[i][j] = int(ceil(length * tan(M_PI_2 - theta) / _polar_spacing));
 
       /* Number of crossings along the z axis */
       //FIXME _num_z[i][j] = (int) ceil(width_z / _polar_spacing);
-      _num_z[i][j] = (int) ceil(width_z * _num_l[i][j] * tan(theta)
-                                / width_y * sin(phi));
+      //FIXME
+      double module_width_z = width_z / _geometry->getNumZModules();
+      _num_z[i][j] = (int) ceil(module_width_z * _num_l[i][j] * tan(theta)
+                                / module_width_y * sin(phi));
+      _num_l[i][j] *= _geometry->getNumYModules();
+      _num_z[i][j] *= _geometry->getNumZModules();
 
       /* Effective track spacing */
-      _dl_eff[i][j] = length / _num_l[i][j];
+      _dl_eff[i][j] = width_y / (sin(phi) * _num_l[i][j]);
       _dz_eff[i][j] = width_z / _num_z[i][j];
 
       /* Set the corrected polar angle */

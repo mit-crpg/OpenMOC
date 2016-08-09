@@ -176,6 +176,15 @@ protected:
   /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
 
+  /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
+  std::map< std::pair<int, int>, FP_PRECISION > _fix_src_FSR_map;
+
+  /** A mapping of fixed sources keyed by the pair (Cell*, energy group) */
+  std::map< std::pair<Cell*, int>, FP_PRECISION > _fix_src_cell_map;
+
+  /** A mapping of fixed sources keyed by the pair (Material*, energy group) */
+  std::map< std::pair<Material*, int>, FP_PRECISION > _fix_src_material_map;
+
   /** Ratios of source to total cross-section for each FSR and energy group */
   FP_PRECISION* _reduced_sources;
 
@@ -290,6 +299,7 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
+  virtual void initializeFixedSources();
 
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;

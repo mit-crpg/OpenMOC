@@ -20,6 +20,9 @@ Geometry::Geometry() {
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
   _domain_decomposed = false;
+  _num_modules_x = 1;
+  _num_modules_y = 1;
+  _num_modules_z = 1;
 }
 
 
@@ -265,11 +268,24 @@ boundaryType Geometry::getMaxZBoundaryType() {
 
 
 /**
- * @brief Returns the number of flat source regions in the Geometry.
+ * @brief Returns the number of flat source regions in the Geometry domain.
  * @return number of FSRs
  */
 int Geometry::getNumFSRs() {
   return _FSRs_to_keys.size();
+}
+
+
+/**
+ * @brief Returns the number of flat source regions in the entire Geometry.
+ * @return number of FSRs
+ */
+int Geometry::getNumTotalFSRs() {
+  int domain_fsrs =  _FSRs_to_keys.size();
+  int total_fsrs = domain_fsrs;
+  if (_domain_decomposed)
+    MPI_Allreduce(&domain_fsrs, &total_fsrs, 1, MPI_INT, MPI_SUM, _MPI_cart);
+  return total_fsrs;
 }
 
 
@@ -431,6 +447,26 @@ void Geometry::setRootUniverse(Universe* root_universe) {
 
 
 //FIXME
+void Geometry::setNumDomainModules(int num_x, int num_y, int num_z) {
+  _num_modules_x = num_x;
+  _num_modules_y = num_y;
+  _num_modules_z = num_z;
+}
+
+int Geometry::getNumXModules() {
+  return _num_modules_x;
+}
+
+int Geometry::getNumYModules() {
+  return _num_modules_y;
+}
+
+int Geometry::getNumZModules() {
+  return _num_modules_z;
+}
+
+
+//FIXME
 #ifdef MPIx
 void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
 
@@ -440,12 +476,10 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
   MPI_Comm_size(MPI_COMM_WORLD, &num_ranks);
 
   /* Check that the number of domains equals the number of ranks */
+  log_set_ranks(MPI_COMM_WORLD);
   if (num_ranks != num_domains)
     log_printf(ERROR, "Number of ranks is %d and number of domains is %d",
                num_ranks, num_domains);
-
-  //FIXME
-  log_set_ranks(MPI_COMM_WORLD);
 
   //FIXME: check that root universe has been set
 
@@ -462,6 +496,7 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
     int dims[3] = {nx, ny, nz};
     int wrap[3] = {false, false, false};
     int ret = MPI_Cart_create(MPI_COMM_WORLD, 3, dims, wrap, true, &_MPI_cart);
+    log_set_ranks(_MPI_cart);
 
     /* Determine the domain indexes */
     int rank;
@@ -1702,17 +1737,21 @@ std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
 
       point->setUniverse(_root_universe);
       cell = findCellContainingCoords(point);
+      //FIXME: check point within Geometry
+      domains[i+j*dim1.size()] = -1;
 
       /* Extract the ID of the domain of interest */
-      if (strcmp(domain_type, "fsr") == 0)
-        domains[i+j*dim1.size()] = getFSRId(point);
-      else if (strcmp(domain_type, "material") == 0)
-        domains[i+j*dim2.size()] = cell->getFillMaterial()->getId();
-      else if (strcmp(domain_type, "cell") == 0)
-        domains[i+j*dim1.size()] = cell->getId();
-      else
-        log_printf(ERROR, "Unable to extract spatial data for "
-                          "unsupported domain type %s", domain_type);
+      if (withinBounds(point)) {
+        if (strcmp(domain_type, "fsr") == 0)
+          domains[i+j*dim1.size()] = getFSRId(point);
+        else if (strcmp(domain_type, "material") == 0)
+          domains[i+j*dim1.size()] = cell->getFillMaterial()->getId();
+        else if (strcmp(domain_type, "cell") == 0)
+          domains[i+j*dim1.size()] = cell->getId();
+        else
+          log_printf(ERROR, "Unable to extract spatial data for "
+                            "unsupported domain type %s", domain_type);
+      }
 
       /* Deallocate memory for LocalCoords */
       point = point->getHighestLevel();
