@@ -812,10 +812,8 @@ void TrackGenerator3D::initialize2DTrackChains() {
   int link_index;
 
   _tracks_2D_chains = new Track***[_num_azim/2];
-  _tc_x = new int*[_num_azim/2];
   for (int a=0; a < _num_azim/2; a++) {
     _tracks_2D_chains[a] = new Track**[_num_x[a]];
-    _tc_x[a] = new int[_num_x[a]];
     for (int x=0; x < _num_x[a]; x++) {
 
       /* Get the first track in the 2D chain */
@@ -832,7 +830,6 @@ void TrackGenerator3D::initialize2DTrackChains() {
 
       /* Allocate memory for the track chains */
       _tracks_2D_chains[a][x] = new Track*[link_index + 1];
-      _tc_x[a][x] = link_index + 1; //FIXME
 
       /* Assign tracks to the chains array */
       link_index = 0;

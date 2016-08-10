@@ -2,18 +2,18 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = no
 DEBUG       = yes
 PROFILE     = no
-PRECISION   = single
+PRECISION   = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = fixed-source/pin-cell-fixed-3d.cpp
+case = c5g7/c5g7-3d-cmfd.cpp
 
 source = \
 Cell.cpp \
@@ -210,4 +210,5 @@ edit:
 	vim -p $(cases)
 
 run:
-	mpirun -np 1 ./$(program)
+	./$(program)
+#	mpirun -np 1 ./$(program)

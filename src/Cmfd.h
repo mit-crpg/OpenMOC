@@ -174,6 +174,18 @@ private:
   /** 2D array of polar track spacings */
   FP_PRECISION** _polar_spacings;
 
+  //FIXME
+  int _total_tally_size;
+  FP_PRECISION* _tally_memory;
+  FP_PRECISION** _nu_fission_tally;
+  FP_PRECISION** _reaction_tally;
+  FP_PRECISION** _volume_tally;
+  FP_PRECISION** _total_tally;
+  FP_PRECISION** _neutron_production_tally;
+  FP_PRECISION*** _scattering_tally;
+  FP_PRECISION*** _chi_tally;
+  bool _tallies_allocated;
+
   /* Private worker functions */
   FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
                                        FP_PRECISION delta);
@@ -214,6 +226,7 @@ public:
   void initialize();
   void initializeCellMap();
   void initializeGroupMap();
+  void allocateTallies();
   void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);

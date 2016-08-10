@@ -525,8 +525,13 @@ int main() {
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(51, 51, 3);
-  int cmfd_group_structure[3] = {1,4,8};
-  cmfd->setGroupStructure(cmfd_group_structure, 3);
+  std::vector<std::vector<int> > cmfd_group_structure;
+  cmfd_group_structure.resize(2);
+  for (int g=0; g<3; g++)
+    cmfd_group_structure.at(0).push_back(g+1);
+  for (int g=3; g<7; g++)
+    cmfd_group_structure.at(1).push_back(g+1);
+  cmfd->setGroupStructure(cmfd_group_structure);
   cmfd->setKNearest(4);
 
   /* Create the geometry */

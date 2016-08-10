@@ -92,7 +92,6 @@ private:
 
   /** A 2D ragged array of 2D track chains (azim, x index, link index) */
   Track**** _tracks_2D_chains;
-  int** _tc_x; //FIXME
 
   /** An array of the # of 3D tracks in each z-stack (azim, 2D track, polar) */
   int*** _tracks_per_stack;

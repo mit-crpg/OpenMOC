@@ -31,6 +31,8 @@ Cmfd::Cmfd() {
   _SOR_factor = 1.0;
   _num_FSRs = 0;
   _solve_3D = false;
+  _total_tally_size = 0;
+  _tallies_allocated = false;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -144,6 +146,23 @@ Cmfd::~Cmfd() {
     iter2->second.clear();
   _k_nearest_stencils.clear();
 
+  /* Delete tally information */
+  if (_tallies_allocated) {
+
+    delete [] _tally_memory;
+    delete [] _nu_fission_tally;
+    delete [] _reaction_tally;
+    delete [] _volume_tally;
+    delete [] _total_tally;
+    delete [] _neutron_production_tally;
+
+    for (int i=0; i < _num_x * _num_y * _num_z; i++) {
+      delete [] _scattering_tally[i];
+      delete [] _chi_tally[i];
+    }
+    delete [] _scattering_tally;
+    delete [] _chi_tally;
+  }
 }
 
 
@@ -267,6 +286,13 @@ void Cmfd::collapseXS() {
 
   log_printf(INFO, "Collapsing cross-sections onto CMFD mesh...");
 
+  /* Check to see that CMFD tallies have been allocated */
+  if (!_tallies_allocated)
+    log_printf(ERROR, "Tallies need to be allocated before collapsing "
+               "cross-sections");
+
+  //FIXME: reduce currents
+
   /* Split vertex and edge currents to side surfaces */
   splitVertexCurrents();
   splitEdgeCurrents();
@@ -277,12 +303,6 @@ void Cmfd::collapseXS() {
     /* Initialize variables for FSR properties*/
     FP_PRECISION volume, flux, tot, nu_fis, chi;
     FP_PRECISION* scat;
-
-    /* Initialize tallies for each parameter */
-    FP_PRECISION nu_fis_tally, rxn_tally;
-    FP_PRECISION vol_tally, tot_tally, neut_prod_tally;
-    FP_PRECISION scat_tally[_num_cmfd_groups];
-    FP_PRECISION chi_tally[_num_cmfd_groups];
 
     /* Pointers to material objects */
     Material* fsr_material;
@@ -299,16 +319,16 @@ void Cmfd::collapseXS() {
       for (int e = 0; e < _num_cmfd_groups; e++) {
 
         /* Zero tallies for this group */
-        nu_fis_tally = 0.0;
-        rxn_tally = 0.0;
-        vol_tally = 0.0;
-        tot_tally = 0.0;
-        neut_prod_tally = 0.0;
+        _nu_fission_tally[i][e] = 0.0;
+        _reaction_tally[i][e] = 0.0;
+        _volume_tally[i][e] = 0.0;
+        _total_tally[i][e] = 0.0;
+        _neutron_production_tally[i][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
-          scat_tally[g] = 0;
-          chi_tally[g] = 0.0;
+          _scattering_tally[i][e][g] = 0;
+          _chi_tally[i][e][g] = 0.0;
         }
 
         /* Loop over FSRs in CMFD cell to compute chi */
@@ -327,9 +347,11 @@ void Cmfd::collapseXS() {
               chi += fsr_material->getChiByGroup(h+1);
 
             for (int h = 0; h < _num_moc_groups; h++) {
-              chi_tally[b] += chi * fsr_material->getNuSigmaFByGroup(h+1) *
+              _chi_tally[i][e][b] += chi *
+                  fsr_material->getNuSigmaFByGroup(h+1) *
                   _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-              neut_prod_tally += chi * fsr_material->getNuSigmaFByGroup(h+1) *
+              _neutron_production_tally[i][e] += chi *
+                  fsr_material->getNuSigmaFByGroup(h+1) *
                   _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
             }
           }
@@ -339,7 +361,7 @@ void Cmfd::collapseXS() {
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
 
           /* Reset volume tally for this MOC group */
-          vol_tally = 0.0;
+          _volume_tally[i][e] = 0.0;
 
           /* Loop over FSRs in CMFD cell */
           for (iter = _cell_fsrs.at(i).begin();
@@ -354,36 +376,62 @@ void Cmfd::collapseXS() {
             nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
 
             /* Increment tallies for this group */
-            tot_tally += tot * flux * volume;
-            nu_fis_tally += nu_fis * flux * volume;
-            rxn_tally += flux * volume;
-            vol_tally += volume;
+            _total_tally[i][e] += tot * flux * volume;
+            _nu_fission_tally[i][e] += nu_fis * flux * volume;
+            _reaction_tally[i][e] += flux * volume;
+            _volume_tally[i][e] += volume;
 
             /* Scattering tallies */
             for (int g = 0; g < _num_moc_groups; g++) {
-              scat_tally[getCmfdGroup(g)] +=
+              _scattering_tally[i][e][getCmfdGroup(g)] +=
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
         }
+        //FIXME
+      }
+    }
+  }
 
-        /* Set the Mesh cell properties with the tallies */
-        _volumes->setValue(i, 0, vol_tally);
-        cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e + 1);
-        cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e + 1);
-        _old_flux->setValue(i, e, rxn_tally / vol_tally);
+  /* FIXME */
+  if (_geometry->isDomainDecomposed()) {
+    int xdsaf=1;
+  }
 
-        /* Set chi */
-        if (neut_prod_tally != 0.0)
-          cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally, e + 1);
-        else
-          cell_material->setChiByGroup(0.0, e + 1);
+  /* Loop over CMFD cells and set cross sections */
+  #pragma omp for
+  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
-        /* Set scattering xs */
-        for (int g = 0; g < _num_cmfd_groups; g++) {
-          cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e + 1,
-                                          g + 1);
-        }
+    Material* cell_material = _materials[i];
+
+    /* Loop over CMFD coarse energy groups */
+    for (int e = 0; e < _num_cmfd_groups; e++) {
+
+      /* Load tallies at this cell and energy group */
+      FP_PRECISION vol_tally = _volume_tally[i][e];
+      FP_PRECISION tot_tally = _total_tally[i][e];
+      FP_PRECISION nu_fis_tally = _nu_fission_tally[i][e];
+      FP_PRECISION rxn_tally = _reaction_tally[i][e];
+      FP_PRECISION neut_prod_tally = _neutron_production_tally[i][e];
+      FP_PRECISION* scat_tally = _scattering_tally[i][e];
+      FP_PRECISION* chi_tally = _chi_tally[i][e];
+
+      /* Set the Mesh cell properties with the tallies */
+      _volumes->setValue(i, 0, vol_tally);
+      cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e + 1);
+      cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e + 1);
+      _old_flux->setValue(i, e, rxn_tally / vol_tally);
+
+      /* Set chi */
+      if (neut_prod_tally != 0.0)
+        cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally, e + 1);
+      else
+        cell_material->setChiByGroup(0.0, e + 1);
+
+      /* Set scattering xs */
+      for (int g = 0; g < _num_cmfd_groups; g++) {
+        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e + 1,
+                                        g + 1);
       }
     }
   }
@@ -920,8 +968,8 @@ void Cmfd::setGroupStructure(std::vector< std::vector<int> > group_indices) {
   for (int i=0; i < _num_cmfd_groups; i++) {
     for (int j=0; j < group_indices[i].size(); j++) {
       if (group_indices[i][j] <= last_moc_group)
-  log_printf(ERROR, "The CMFD coarse group indices are not "
-       "monotonically increasing");
+        log_printf(ERROR, "The CMFD coarse group indices are not "
+             "monotonically increasing");
       last_moc_group = group_indices[i][j];
     }
     _group_indices[i] = group_indices[i][0] - 1;
@@ -1000,6 +1048,53 @@ void Cmfd::initializeCellMap() {
         _cell_fsrs.push_back(std::vector<int>());
     }
   }
+}
+
+
+//FIXME
+void Cmfd::allocateTallies() {
+
+  /* Determine tally sizes */
+  int num_cells = _num_x * _num_y * _num_z;
+  int integrated_tally_size = num_cells * _num_cmfd_groups;
+  int total_integrated_tally_size = 5 * integrated_tally_size;
+  int groupwise_tally_size = integrated_tally_size * _num_cmfd_groups;
+  int total_groupwise_tally_size = 2 * groupwise_tally_size;
+  _total_tally_size = total_integrated_tally_size +
+      total_groupwise_tally_size;
+
+  /* Allocate memory for tallies */
+  _tally_memory = new FP_PRECISION[_total_tally_size];
+  FP_PRECISION** integrated_tallies[5];
+  for (int t=0; t<5; t++) {
+    integrated_tallies[t] = new FP_PRECISION*[num_cells];
+    for (int i=0; i < num_cells; i++) {
+      int idx = i*_num_cmfd_groups + t*integrated_tally_size;
+      integrated_tallies[t][i] = &_tally_memory[idx];
+    }
+  }
+  FP_PRECISION*** groupwise_tallies[2];
+  for (int t=0; t<2; t++) {
+    groupwise_tallies[t] = new FP_PRECISION**[num_cells];
+    for (int i=0; i < num_cells; i++) {
+      groupwise_tallies[t][i] = new FP_PRECISION*[_num_cmfd_groups];
+      for (int g=0; g < _num_cmfd_groups; g++) {
+        int idx = i*_num_cmfd_groups*_num_cmfd_groups + g*_num_cmfd_groups
+              + t*groupwise_tally_size + total_integrated_tally_size;
+        groupwise_tallies[t][i][g] = &_tally_memory[idx];
+      }
+    }
+  }
+
+  /* Assign tallies to allocated data */
+  _nu_fission_tally = integrated_tallies[0];
+  _reaction_tally = integrated_tallies[1];
+  _volume_tally = integrated_tallies[2];
+  _total_tally = integrated_tallies[3];
+  _neutron_production_tally = integrated_tallies[4];
+  _scattering_tally =  groupwise_tallies[0];
+  _chi_tally =  groupwise_tallies[1];
+  _tallies_allocated = true;
 }
 
 

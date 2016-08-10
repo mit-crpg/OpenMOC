@@ -283,8 +283,10 @@ int Geometry::getNumFSRs() {
 int Geometry::getNumTotalFSRs() {
   int domain_fsrs =  _FSRs_to_keys.size();
   int total_fsrs = domain_fsrs;
+#ifdef MPIx
   if (_domain_decomposed)
     MPI_Allreduce(&domain_fsrs, &total_fsrs, 1, MPI_INT, MPI_SUM, _MPI_cart);
+#endif
   return total_fsrs;
 }
 
@@ -1839,8 +1841,8 @@ void Geometry::initializeCmfd() {
   _cmfd->setBoundary(SURFACE_Z_MAX, max_z_bound);
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidthX(min_x);
-  _cmfd->setWidthY(min_y);
+  _cmfd->setWidthX(max_x - min_x);
+  _cmfd->setWidthY(max_y - min_y);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
@@ -1861,6 +1863,7 @@ void Geometry::initializeCmfd() {
   }
 
   _cmfd->initializeLattice(&offset);
+  _cmfd->allocateTallies();
 }
 
 
