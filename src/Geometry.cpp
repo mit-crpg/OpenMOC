@@ -919,7 +919,7 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
 
   Point* point;
 
-  try{
+  try {
     point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
   }
   catch(std::exception &e) {
@@ -939,7 +939,7 @@ int Geometry::getCmfdCell(int fsr_id) {
 
   int cmfd_cell;
 
-  try{
+  try {
     cmfd_cell = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_cmfd_cell;
   }
   catch(std::exception &e) {

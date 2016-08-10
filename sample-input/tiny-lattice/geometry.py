@@ -82,7 +82,7 @@ log.py_printf('NORMAL', 'Creating simple 2 x 2 lattice...')
 
 lattice = Lattice(name='2x2 lattice')
 lattice.setWidth(width_x=2.0, width_y=2.0, width_z=2.0)
-lattice.setUniverses([[pincell, pincell], [pincell, pincell]])
+lattice.setUniverses([[[pincell, pincell], [pincell, pincell]]])
 
 root_cell.setFill(lattice)
 

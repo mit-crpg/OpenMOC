@@ -104,7 +104,7 @@ log.py_printf('NORMAL', 'Creating a {0}x{1}x{2} lattice...'.\
 
 lattice = openmoc.Lattice(name='{0}x{1}x{2} lattice'.format(num_x, num_y, num_z))
 lattice.setWidth(width_x=width_x, width_y=width_y, width_z=width_z)
-lattice.setUniverses3D(universes)
+lattice.setUniverses(universes)
 root_cell.setFill(lattice)
 
 

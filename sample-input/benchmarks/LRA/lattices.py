@@ -25,19 +25,19 @@ u4 = universes['Region 4']
 u5 = universes['Region 5']
 
 lattices['Region 1 Assembly'].setWidth(15.0/refines, 15.0/refines)
-lattices['Region 1 Assembly'].setUniverses3D([[[u1] * refines] * refines])
+lattices['Region 1 Assembly'].setUniverses([[[u1] * refines] * refines])
 
 lattices['Region 2 Assembly'].setWidth(15.0/refines, 15.0/refines)
-lattices['Region 2 Assembly'].setUniverses3D([[[u2] * refines] * refines])
+lattices['Region 2 Assembly'].setUniverses([[[u2] * refines] * refines])
 
 lattices['Region 3 Assembly'].setWidth(15.0/refines, 15.0/refines)
-lattices['Region 3 Assembly'].setUniverses3D([[[u3] * refines] * refines])
+lattices['Region 3 Assembly'].setUniverses([[[u3] * refines] * refines])
 
 lattices['Region 4 Assembly'].setWidth(15.0/refines, 15.0/refines)
-lattices['Region 4 Assembly'].setUniverses3D([[[u4] * refines] * refines])
+lattices['Region 4 Assembly'].setUniverses([[[u4] * refines] * refines])
 
 lattices['Region 5 Assembly'].setWidth(15.0/refines, 15.0/refines)
-lattices['Region 5 Assembly'].setUniverses3D([[[u5] * refines] * refines])
+lattices['Region 5 Assembly'].setUniverses([[[u5] * refines] * refines])
 
 u1 = universes['Region 1 Assembly']
 u2 = universes['Region 2 Assembly']
@@ -52,7 +52,7 @@ template = [[u5] * 11] * 2 + \
            [[u2] + [u1] * 4 + [u2] * 2 + [u3] * 2 + [u5] * 2] * 2 + \
            [[u1] * 7 + [u3] * 2 + [u5] * 2] * 4 + \
            [[u2] + [u1] * 4 + [u2] * 2 + [u3] * 2 + [u5] * 2]
-lattices['Root'].setUniverses3D([template])
+lattices['Root'].setUniverses([template])
 
 # Fill cells with lattices
 cells['Region 1 Assembly'].setFill(lattices['Region 1 Assembly'])

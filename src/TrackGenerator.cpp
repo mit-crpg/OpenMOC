@@ -8,13 +8,12 @@
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @param spacing track spacing (cm)
  */
-TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim, int num_polar,
+TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
                                double azim_spacing) {
 
   setNumThreads(1);
   _geometry = geometry;
   setNumAzim(num_azim);
-  setNumPolar(num_polar);
   setDesiredAzimSpacing(azim_spacing);
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
@@ -71,15 +70,6 @@ long* TrackGenerator::getTracksPerAzim() {
  */
 int TrackGenerator::getNumAzim() {
   return _num_azim;
-}
-
-
-/**
- * @brief Return the number of polar angles in \f$ [0, \pi] \f$
- * @return the number of polar angles in \f$ \pi \f$
- */
-int TrackGenerator::getNumPolar() {
-  return _num_polar;
 }
 
 
@@ -393,6 +383,8 @@ void TrackGenerator::setNumThreads(int num_threads) {
 
   /* Set the number of threads for OpenMP */
   omp_set_num_threads(_num_threads);
+  _num_threads = 1;
+  omp_set_num_threads(1); //FIXME
 }
 
 
@@ -411,25 +403,6 @@ void TrackGenerator::setNumAzim(int num_azim) {
                "the TrackGenerator since it is not a multiple of 4", num_azim);
 
   _num_azim = num_azim;
-  resetStatus();
-}
-
-
-/**
- * @brief Set the number of polar angles in \f$ [0, \pi] \f$.
- * @param num_polar the number of polar angles in \f$ \pi \f$
- */
-void TrackGenerator::setNumPolar(int num_polar) {
-
-  if (num_polar < 0)
-    log_printf(ERROR, "Unable to set a negative number of polar angles "
-               "%d for the TrackGenerator.", num_polar);
-
-  if (num_polar % 2 != 0)
-    log_printf(ERROR, "Unable to set the number of polar angles to %d for the "
-               "TrackGenerator since it is not a multiple of 2", num_polar);
-
-  _num_polar = num_polar;
   resetStatus();
 }
 
@@ -698,6 +671,14 @@ void TrackGenerator::checkBoundaryConditions() {
  */
 void TrackGenerator::generateTracks() {
 
+  /* Check for valid quadrature */
+  if (_quadrature != NULL) {
+    if (_quadrature->getNumAzimAngles() != _num_azim) {
+      delete _quadrature;
+      _quadrature = NULL;
+    }
+  }
+
   /* Generate Tracks, perform ray tracing across the geometry, and store
    * the data to a Track file */
   try {
@@ -707,8 +688,6 @@ void TrackGenerator::generateTracks() {
       initializeDefaultQuadrature();
 
     /* Initialize the quadrature set */
-    _quadrature->setNumPolarAngles(_num_polar);
-    _quadrature->setNumAzimAngles(_num_azim);
     _quadrature->initialize();
 
     /* Check periodic BCs for symmetry */
@@ -763,6 +742,8 @@ void TrackGenerator::initializeDefaultQuadrature() {
   if (_quadrature != NULL)
     delete _quadrature;
   _quadrature = new TYPolarQuad();
+  _quadrature->setNumAzimAngles(_num_azim);
+  _quadrature->setNumPolarAngles(6);
 }
 
 
@@ -1078,8 +1059,9 @@ void TrackGenerator::segmentize() {
     log_printf(NORMAL, "segmenting 2D tracks - Percent complete: %5.2f %%",
                double(tracks_segmented) / num_2D_tracks * 100.0);
 #pragma omp parallel for
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++)
+    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       _geometry->segmentize2D(&_tracks_2D[a][i], _z_coord);
+    }
 
     tracks_segmented += _num_x[a] + _num_y[a];
   }
@@ -1322,7 +1304,7 @@ bool TrackGenerator::readSegmentsFromFile() {
     /* Read key for FSR_keys_map */
     ret = fread(&string_length, sizeof(int), 1, in);
     char* char_buffer1 = new char[string_length];
-    ret = fread(&char_buffer1, sizeof(char)*string_length, 1, in);
+    ret = fread(char_buffer1, sizeof(char)*string_length, 1, in);
     fsr_key = std::string(char_buffer1);
 
     /* Read data from file for FSR_keys_map */
@@ -1345,7 +1327,7 @@ bool TrackGenerator::readSegmentsFromFile() {
     /* Read data from file for FSR_to_keys */
     ret = fread(&string_length, sizeof(int), 1, in);
     char* char_buffer2 = new char[string_length];
-    ret = fread(&char_buffer2, sizeof(char)*string_length, 1, in);
+    ret = fread(char_buffer2, sizeof(char)*string_length, 1, in);
     fsr_key = std::string(char_buffer2);
     FSRs_to_keys.push_back(fsr_key);
   }

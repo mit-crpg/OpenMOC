@@ -105,10 +105,10 @@ log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
 
 lattice = openmoc.Lattice(name='4x4 lattice')
 lattice.setWidth(width_x=1.0, width_y=1.0, width_z=1.0)
-lattice.setUniverses([[pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3],
-                      [pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3]])
+lattice.setUniverses([[[pin1, pin2, pin1, pin2],
+                       [pin2, pin3, pin2, pin3],
+                       [pin1, pin2, pin1, pin2],
+                       [pin2, pin3, pin2, pin3]]])
 root_cell.setFill(lattice)
 
 
