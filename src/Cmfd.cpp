@@ -1475,12 +1475,13 @@ void Cmfd::generateKNearestStencils() {
     return;
 
   std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
-  std::vector<int>::iterator fsr_iter;
-  Point* centroid;
-  int fsr_id;
 
   /* Loop over mesh cells */
   for (int i = 0; i < _num_x*_num_y; i++) {
+
+    std::vector<int>::iterator fsr_iter;
+    Point* centroid;
+    int fsr_id;
 
     /* Loop over FRSs in mesh cell */
     for (fsr_iter = _cell_fsrs.at(i).begin();
@@ -1504,24 +1505,15 @@ void Cmfd::generateKNearestStencils() {
       std::sort(_k_nearest_stencils[fsr_id].begin(),
                 _k_nearest_stencils[fsr_id].end(), stencilCompare);
 
-      /* Remove ghost cells that are outside the geometry boundaries */
-      stencil_iter = _k_nearest_stencils[fsr_id].begin();
-      while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
-        if (stencil_iter->second == std::numeric_limits<FP_PRECISION>::max())
-          stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
-        else
-          ++stencil_iter;
-      }
-
       /* Resize stencil to be of size <= _k_nearest */
       _k_nearest_stencils[fsr_id].resize
         (std::min(_k_nearest, int(_k_nearest_stencils[fsr_id].size())));
     }
   }
-
   /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
    * its k-nearest CMFD cells */
   FP_PRECISION total_distance;
+#pragma omp parallel for private(stencil_iter, total_distance)
   for (int i=0; i < _num_FSRs; i++) {
     total_distance = 1.e-10;
 
