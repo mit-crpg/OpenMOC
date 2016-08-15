@@ -1493,13 +1493,12 @@ void Cmfd::generateKNearestStencils() {
 
       /* Create new stencil */
       _k_nearest_stencils[fsr_id] =
-        std::vector< std::pair<int, FP_PRECISION> >();
+        std::vector< std::pair<int, FP_PRECISION> >(NUM_SURFACES);
 
       /* Get distance to all cells that touch current cell */
       for (int j=0; j <= NUM_SURFACES; j++)
-        _k_nearest_stencils[fsr_id]
-          .push_back(std::make_pair<int, FP_PRECISION>
-                     (int(j), getDistanceToCentroid(centroid, i, j)));
+        _k_nearest_stencils[fsr_id][j] = std::make_pair<int, FP_PRECISION>
+             (int(j), getDistanceToCentroid(centroid, i, j));
 
       /* Sort the distances */
       std::sort(_k_nearest_stencils[fsr_id].begin(),
