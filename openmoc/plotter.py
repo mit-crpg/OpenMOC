@@ -746,7 +746,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     geometry = solver.getGeometry()
     num_groups = geometry.getNumEnergyGroups()
 
-    if group_bounds:
+    if group_bounds is not None:
         cv.check_type('group_bounds', group_bounds, Iterable, Real)
         if not all(low < up for low, up in zip(group_bounds, group_bounds[1:])):
             py_printf('ERROR', 'Unable to plot the flux vs. energy since ' +
