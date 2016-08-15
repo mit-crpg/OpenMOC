@@ -185,6 +185,10 @@ private:
   FP_PRECISION*** _scattering_tally;
   FP_PRECISION*** _chi_tally;
   bool _tallies_allocated;
+#ifdef MPIx
+  FP_PRECISION* _tally_buffer;
+  Vector* _currents_buffer;
+#endif
 
   /* Private worker functions */
   FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,

@@ -1063,7 +1063,7 @@ void Solver::printTimerReport() {
 
   int num_digits = (int) log10((double) _tot_num_tracks);
   num_digits += (int) log10((double) num_segments);
-  num_digits += (int) log10((double) _num_FSRs);
+  num_digits += (int) log10((double) _geometry->getNumTotalFSRs());
 
   num_digits = 66 - num_digits;
   num_digits /= 4;
@@ -1079,7 +1079,7 @@ void Solver::printTimerReport() {
     else if (i == 1)
       msg << num_segments;
     else if (i == 2)
-      msg << _num_FSRs;
+      msg << _geometry->getNumTotalFSRs();
   }
 
   log_printf(RESULT, "%s", msg.str().c_str());

@@ -1739,7 +1739,6 @@ std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
 
       point->setUniverse(_root_universe);
       cell = findCellContainingCoords(point);
-      //FIXME: check point within Geometry
       domains[i+j*dim1.size()] = -1;
 
       /* Extract the ID of the domain of interest */
@@ -1863,7 +1862,6 @@ void Geometry::initializeCmfd() {
   }
 
   _cmfd->initializeLattice(&offset);
-  _cmfd->allocateTallies();
 }
 
 
@@ -1904,8 +1902,8 @@ bool Geometry::withinBounds(LocalCoords* coords) {
   double y = coords->getY();
   double z = coords->getZ();
 
-  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY()
-      || z < getMinZ() || z > getMaxZ())
+  if (x <= getMinX() || x >= getMaxX() || y <= getMinY() || y >= getMaxY()
+      || z <= getMinZ() || z >= getMaxZ())
     return false;
   else
     return true;

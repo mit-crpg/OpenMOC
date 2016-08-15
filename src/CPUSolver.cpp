@@ -1600,12 +1600,12 @@ void CPUSolver::printFluxesTemp() {
   int ny = 10;
   int nz = 1;
 
-  double x_min = root->getMinX();
-  double x_max = root->getMaxX();
-  double y_min = root->getMinY();
-  double y_max = root->getMaxY();
-  double z_min = root->getMinZ();
-  double z_max = root->getMaxZ();
+  double x_min = root->getMinX() + 2*TINY_MOVE;
+  double x_max = root->getMaxX() - 2*TINY_MOVE;
+  double y_min = root->getMinY() + 2*TINY_MOVE;
+  double y_max = root->getMaxY() - 2*TINY_MOVE;
+  double z_min = root->getMinZ() + 2*TINY_MOVE;
+  double z_max = root->getMaxZ() - 2*TINY_MOVE;
 
   std::vector<double> x(nx);
   std::vector<double> y(ny);

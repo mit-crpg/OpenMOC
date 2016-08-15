@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   int num_azim = 4;
   double polar_spacing = 0.1;
   int num_polar = 6;
-  double tolerance = 1e-5;
+  double tolerance = 1e-7;
   int max_iters = 1000;
 
   /* Define material properties */
@@ -141,7 +141,8 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 2, 2);
+  //geometry->setDomainDecomposition(2, 2, 2);
+  geometry->setNumDomainModules(2,2,2);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */

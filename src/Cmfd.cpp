@@ -162,6 +162,12 @@ Cmfd::~Cmfd() {
     }
     delete [] _scattering_tally;
     delete [] _chi_tally;
+#ifdef MPIx
+    if (_geometry->isDomainDecomposed()) {
+      delete [] _tally_buffer;
+      delete _currents_buffer;
+    }
+#endif
   }
 }
 
@@ -291,13 +297,35 @@ void Cmfd::collapseXS() {
     log_printf(ERROR, "Tallies need to be allocated before collapsing "
                "cross-sections");
 
-  //FIXME: reduce currents
+  /* Reduce currents across domains if necessary */
+#ifdef MPIx
+  MPI_Comm comm;
+  MPI_Datatype precision;
+  if (_geometry->isDomainDecomposed()) {
+
+    /* Retrieve MPI information */
+    comm = _geometry->getMPICart();
+    if (sizeof(FP_PRECISION) == 4)
+      precision = MPI_FLOAT;
+    else
+      precision = MPI_DOUBLE;
+
+    /* Reduce currents form all domains */
+    FP_PRECISION* currents_array = _surface_currents->getArray();
+    FP_PRECISION* currents_buffer_array = _currents_buffer->getArray();
+    int num_currents = _num_x * _num_y * _num_z * _num_cmfd_groups
+        * NUM_SURFACES;
+    MPI_Allreduce(currents_array, currents_buffer_array, num_currents,
+                  precision, MPI_SUM, comm);
+    _currents_buffer->copyTo(_surface_currents);
+  }
+#endif
 
   /* Split vertex and edge currents to side surfaces */
   splitVertexCurrents();
   splitEdgeCurrents();
 
-  #pragma omp parallel
+#pragma omp parallel
   {
 
     /* Initialize variables for FSR properties*/
@@ -309,7 +337,7 @@ void Cmfd::collapseXS() {
     Material* cell_material;
 
     /* Loop over CMFD cells */
-    #pragma omp for
+#pragma omp for
     for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
       cell_material = _materials[i];
@@ -327,7 +355,7 @@ void Cmfd::collapseXS() {
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
-          _scattering_tally[i][e][g] = 0;
+          _scattering_tally[i][e][g] = 0.0;
           _chi_tally[i][e][g] = 0.0;
         }
 
@@ -388,15 +416,19 @@ void Cmfd::collapseXS() {
             }
           }
         }
-        //FIXME
       }
     }
   }
 
-  /* FIXME */
+  /* Reduce tallies across domains if necessary */
+#ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
-    int xdsaf=1;
+    MPI_Allreduce(_tally_memory, _tally_buffer, _total_tally_size, precision,
+                  MPI_SUM, comm);
+    for (int idx=0; idx < _total_tally_size; idx++)
+      _tally_memory[idx] = _tally_buffer[idx];
   }
+#endif
 
   /* Loop over CMFD cells and set cross sections */
   #pragma omp for
@@ -1051,8 +1083,16 @@ void Cmfd::initializeCellMap() {
 }
 
 
-//FIXME
+//FIXME XXX
 void Cmfd::allocateTallies() {
+
+  if (_num_x*_num_y*_num_z == 0)
+    log_printf(ERROR, "Zero cells in CMFD mesh. Please set CMFD mesh before "
+               "initializing CMFD tallies.");
+
+  if (_num_cmfd_groups == 0)
+    log_printf(ERROR, "Zero CMFD gropus. Please set CMFD group structure "
+               "before initializing CMFD tallies.");
 
   /* Determine tally sizes */
   int num_cells = _num_x * _num_y * _num_z;
@@ -1095,6 +1135,15 @@ void Cmfd::allocateTallies() {
   _scattering_tally =  groupwise_tallies[0];
   _chi_tally =  groupwise_tallies[1];
   _tallies_allocated = true;
+
+  /* Create copy buffer of currents and tallies for domain decomposition */
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    _tally_buffer = new FP_PRECISION[_total_tally_size];
+    _currents_buffer = new Vector(_cell_locks, _num_x, _num_y, _num_z,
+                                  _num_cmfd_groups * NUM_SURFACES);
+  }
+#endif
 }
 
 
@@ -2665,6 +2714,7 @@ void Cmfd::initialize() {
     generateKNearestStencils();
     initializeCurrents();
     initializeMaterials();
+    allocateTallies();
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "

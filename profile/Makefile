@@ -2,12 +2,12 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = no
 DEBUG       = yes
 PROFILE     = no
-PRECISION   = double
+PRECISION   = single
 
 #===============================================================================
 # Source Code List
@@ -210,5 +210,5 @@ edit:
 	vim -p $(cases)
 
 run:
-	./$(program)
-#	mpirun -np 1 ./$(program)
+#	./$(program)
+	mpirun -np 4 ./$(program)
