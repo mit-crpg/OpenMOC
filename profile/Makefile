@@ -13,7 +13,7 @@ PRECISION   = single
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-cmfd.cpp
+case = monte_carlo/monte_carlo.cpp
 
 source = \
 Cell.cpp \
@@ -37,13 +37,18 @@ TrackGenerator.cpp \
 TrackTraversingAlgorithms.cpp \
 TraverseTracks.cpp \
 Universe.cpp \
-Vector.cpp
+Vector.cpp \
+Tally.cpp \
+Fission.cpp \
+MCSolver.cpp \
+Neutron.cpp
 
 cases = \
 gradients/one-directional/one-directional-gradient.cpp \
 gradients/two-directional/two-directional-gradient.cpp \
 homogeneous/homogeneous-one-group.cpp \
 c5g7/c5g7.cpp \
+monte_carlo/monte_carlo.cpp \
 c5g7/c5g7-cmfd.cpp
 
 #===============================================================================

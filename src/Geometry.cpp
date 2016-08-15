@@ -94,6 +94,7 @@ double Geometry::getWidthZ() {
  * @return the minimum x-coordinate (cm)
  */
 double Geometry::getMinX() {
+  std::cout << "get min x\n";
   return _root_universe->getMinX();
 }
 
@@ -1305,5 +1306,4 @@ void Geometry::resetBoundaries() {
   /* Reset the boundaries in each Universe */
   for (u_iter = universes.begin(); u_iter != universes.end(); ++u_iter)
     u_iter->second->resetBoundaries();
-
 }

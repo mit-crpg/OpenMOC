@@ -1695,7 +1695,7 @@ void Universe::calculateBoundaries() {
   _max_z = max_z;
 
   /* Calculate the boundary condition at the minimum 
-   * reachable x-coordinate in the Universe and store it in _min_x_bound.
+   * reachable x-coordinate in the Universe and store it in _min_x_bound
    */
   boundaryType bc_x_min = BOUNDARY_NONE;
 
@@ -1716,7 +1716,7 @@ void Universe::calculateBoundaries() {
   _min_x_bound = bc_x_min;
 
   /* Calculate the boundary condition at the maximum 
-   * reachable x-coordinate in the Universe and store it in _max_x_bound.
+   * reachable x-coordinate in the Universe and store it in _max_x_bound
    */
   boundaryType bc_x_max = BOUNDARY_NONE;
 
@@ -1737,7 +1737,7 @@ void Universe::calculateBoundaries() {
   _max_x_bound = bc_x_max;
 
   /* Calculate the boundary condition at the minimum 
-   * reachable y-coordinate in the Universe and store it in _min_y_bound.
+   * reachable y-coordinate in the Universe and store it in _min_y_bound
    */
   boundaryType bc_y_min = BOUNDARY_NONE;
 
@@ -1758,7 +1758,7 @@ void Universe::calculateBoundaries() {
   _min_y_bound = bc_y_min;
 
   /* Calculate the boundary condition at the maximum 
-   * reachable y-coordinate in the Universe and store it in _max_y_bound.
+   * reachable y-coordinate in the Universe and store it in _max_y_bound
    */
   boundaryType bc_y_max = BOUNDARY_NONE;
 
@@ -1786,6 +1786,5 @@ void Universe::calculateBoundaries() {
   *         recalculated if needed
   */
 void Universe::resetBoundaries() {
-
   _boundaries_inspected = false;
 }

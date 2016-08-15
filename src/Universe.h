@@ -98,7 +98,6 @@ protected:
   boundaryType _min_y_bound;
   boundaryType _max_y_bound;
 
-
 public:
 
   Universe(const int id=-1, const char* name="");
