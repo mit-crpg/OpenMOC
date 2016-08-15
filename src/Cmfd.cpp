@@ -1477,6 +1477,7 @@ void Cmfd::generateKNearestStencils() {
   std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
 
   /* Loop over mesh cells */
+#pragma omp for private(stencil_iter)
   for (int i = 0; i < _num_x*_num_y; i++) {
 
     std::vector<int>::iterator fsr_iter;
