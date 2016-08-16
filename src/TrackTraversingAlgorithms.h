@@ -58,10 +58,12 @@ class TransportSweep: public TraverseTracks {
 private:
 
   CPUSolver* _cpu_solver;
+  FP_PRECISION** _thread_fsr_fluxes;
 
 public:
 
   TransportSweep(TrackGenerator* track_generator);
+  virtual ~TransportSweep();
   void setCPUSolver(CPUSolver* cpu_solver);
   void execute();
   void onTrack(Track* track, segment* segments);
