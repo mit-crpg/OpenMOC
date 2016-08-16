@@ -30,7 +30,7 @@ void VolumeCalculator::execute() {
 
 /**
  * @brief Constructor for TransportSweep calls the TraverseTracks
- *        constructor and initializes the associated CPUSolver to NULL
+ *        constructor and allocates temporary memory for local scalar fluxes
  * @param track_generator The TrackGenerator to pull tracking information from
  */
 TransportSweep::TransportSweep(TrackGenerator* track_generator)
@@ -41,12 +41,18 @@ TransportSweep::TransportSweep(TrackGenerator* track_generator)
   int num_threads = omp_get_max_threads();
   int num_groups = track_generator->getGeometry()->getNumEnergyGroups();
   _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
+
+  /* Allocate fluxes for the number of groups plus some extra space to prevent
+   * false sharing conflicts */
+  int array_width = num_groups + 8;
   for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new FP_PRECISION[2*num_groups];
+    _thread_fsr_fluxes[i] = new FP_PRECISION[array_width];
 }
 
 
-//FIXME
+/**
+ * @brief Destructor deletes temporary storage of local scalar fluxes
+ */
 TransportSweep::~TransportSweep() {
   int num_threads = omp_get_max_threads();
   for (int i=0; i < num_threads; i++)
@@ -90,13 +96,9 @@ void TransportSweep::setCPUSolver(CPUSolver* cpu_solver) {
  */
 void TransportSweep::onTrack(Track* track, segment* segments) {
 
-    /* Get the temporary FSR flux */
+  /* Get array for temporary scalar flux storage */
   int tid = omp_get_thread_num();
   FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
-
-  /* Allocate temporary FSR flux locally */
-  //  int num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
-  //  FP_PRECISION thread_fsr_flux[num_groups];
 
   /* Extract Track information */
   int track_id = track->getUid();
