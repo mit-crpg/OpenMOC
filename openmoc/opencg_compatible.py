@@ -992,13 +992,17 @@ def get_opencg_geometry(openmoc_geometry):
     return opencg_geometry
 
 
-def get_openmoc_geometry(opencg_geometry):
+def get_openmoc_geometry(opencg_geometry, compatible=True):
     """Return an OpenMOC geometry corresponding to an OpenCG geometry.
 
     Parameters
     ----------
     opencg_geometry : opencg.Geometry
         OpenCG geometry
+    compatible : bool
+        Whether the OpenCG geometry is compatible with OpenMOC's geometric
+        primitives. This should be set to False if the OpenCG geometry
+        uses SquarePrism surfaces. True by default as an optimization.
 
     Returns
     -------
@@ -1018,9 +1022,6 @@ def get_openmoc_geometry(opencg_geometry):
 
     print('starting OpenCG-to-OpenMOC conversion #2')
 
-    # Update Cell bounding boxes in Geometry
-#    opencg_geometry.update_bounding_boxes()
-
     # Clear dictionaries and auto-generated IDs
     OPENMOC_MATERIALS.clear()
     OPENCG_MATERIALS.clear()
@@ -1036,11 +1037,12 @@ def get_openmoc_geometry(opencg_geometry):
     print('starting OpenCG-to-OpenMOC conversion #3')
 
     # Make the entire geometry "compatible" before assigning auto IDs
-#    universes = opencg_geometry.get_all_universes()
-#    for universe_id, universe in universes.items():
-#        make_opencg_cells_compatible(universe)
+    if not compatible:
+        universes = opencg_geometry.get_all_universes()
+        for universe_id, universe in universes.items():
+            make_opencg_cells_compatible(universe)
 
-#    opencg_geometry.assign_auto_ids()
+        opencg_geometry.assign_auto_ids()
 
     opencg_root_universe = opencg_geometry.root_universe
     openmoc_root_universe = get_openmoc_universe(opencg_root_universe)

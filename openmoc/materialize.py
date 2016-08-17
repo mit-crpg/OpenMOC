@@ -291,10 +291,15 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                       'domain type %s', mgxs_lib.domain_type)
 
     # Iterate over all domains (e.g., materials or cells) in the HDF5 file
+    num_materials = 0
     for domain in mgxs_lib.domains:
 
         # If using an OpenMOC Geometry, extract a Material from it
         if geometry:
+
+            # Cache the number of materials as an optimization
+            if num_materials == 0:
+                num_materials = geometry.getNumMaterials()
 
             if domain_type == 'material':
                 material = _get_domain(domains, domain.id)
@@ -321,7 +326,7 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
                 # If the user filled multiple Cells with the same Material,
                 # the Material must be cloned for each unique Cell
                 if material != None:
-                    if len(domains) > geometry.getNumMaterials():
+                    if len(domains) > num_materials:
                         old_materials[material.getId()] = material
                         material = material.clone()
 
