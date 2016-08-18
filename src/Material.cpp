@@ -1038,6 +1038,12 @@ Material* Material::clone() {
 }
 
 
+/**
+ * @brief Copy another Material's cross section data into this Material.
+ * @details This method performs a deep copy of the other Material's
+ *          cross section data arrays for use by this Material.
+ * @param material a pointer to the Material with data to copy
+ */
 void Material::copy(Material* material) {
 
   /* Set the number of energy groups */
