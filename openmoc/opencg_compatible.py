@@ -1013,14 +1013,10 @@ def get_openmoc_geometry(opencg_geometry, compatible=True):
 
     cv.check_type('opencg_geometry', opencg_geometry, opencg.Geometry)
 
-    print('starting OpenCG-to-OpenMOC conversion #1')
-
     # Deep copy the goemetry since it may be modified to make all Surfaces
     # compatible with OpenMOC's specifications
-#    opencg_geometry.assign_auto_ids()
+    opencg_geometry.assign_auto_ids()
     opencg_geometry = copy.deepcopy(opencg_geometry)
-
-    print('starting OpenCG-to-OpenMOC conversion #2')
 
     # Clear dictionaries and auto-generated IDs
     OPENMOC_MATERIALS.clear()
@@ -1034,8 +1030,6 @@ def get_openmoc_geometry(opencg_geometry, compatible=True):
     OPENMOC_LATTICES.clear()
     OPENCG_LATTICES.clear()
 
-    print('starting OpenCG-to-OpenMOC conversion #3')
-
     # Make the entire geometry "compatible" before assigning auto IDs
     if not compatible:
         universes = opencg_geometry.get_all_universes()
@@ -1047,8 +1041,6 @@ def get_openmoc_geometry(opencg_geometry, compatible=True):
     opencg_root_universe = opencg_geometry.root_universe
     openmoc_root_universe = get_openmoc_universe(opencg_root_universe)
 
-    print('starting OpenCG-to-OpenMOC conversion #4')
-
     openmoc_geometry = openmoc.Geometry()
     openmoc_geometry.setRootUniverse(openmoc_root_universe)
 
@@ -1059,14 +1051,10 @@ def get_openmoc_geometry(opencg_geometry, compatible=True):
     all_cells = openmoc_geometry.getAllCells()
     all_universes = openmoc_geometry.getAllUniverses()
 
-    print('starting OpenCG-to-OpenMOC conversion #5')
-
     max_material_id = max(all_materials.keys())
     max_surface_id = max(all_surfaces.keys())
     max_cell_id = max(all_cells.keys())
     max_universe_id = max(all_universes.keys())
-
-    print('starting OpenCG-to-OpenMOC conversion #6')
 
     openmoc.maximize_material_id(max_material_id+1)
     openmoc.maximize_surface_id(max_surface_id+1)
