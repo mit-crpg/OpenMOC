@@ -94,7 +94,6 @@ double Geometry::getWidthZ() {
  * @return the minimum x-coordinate (cm)
  */
 double Geometry::getMinX() {
-  std::cout << "get min x\n";
   return _root_universe->getMinX();
 }
 

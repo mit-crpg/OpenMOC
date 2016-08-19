@@ -37,14 +37,13 @@ TrackGenerator.cpp \
 TrackTraversingAlgorithms.cpp \
 TraverseTracks.cpp \
 Universe.cpp \
-Vector.cpp 
+Vector.cpp
 
 cases = \
 gradients/one-directional/one-directional-gradient.cpp \
 gradients/two-directional/two-directional-gradient.cpp \
 homogeneous/homogeneous-one-group.cpp \
 c5g7/c5g7.cpp \
-monte_carlo/monte_carlo.cpp \
 c5g7/c5g7-cmfd.cpp
 
 #===============================================================================
