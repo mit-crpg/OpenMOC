@@ -94,8 +94,6 @@ void CPUSolver::setNumThreads(int num_threads) {
   /* Set the number of threads for OpenMP */
   _num_threads = num_threads;
   omp_set_num_threads(_num_threads);
-  _num_threads = 1; //FIXME
-  omp_set_num_threads(_num_threads);
 }
 
 

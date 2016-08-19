@@ -383,8 +383,6 @@ void TrackGenerator::setNumThreads(int num_threads) {
 
   /* Set the number of threads for OpenMP */
   omp_set_num_threads(_num_threads);
-  _num_threads = 1;
-  omp_set_num_threads(1); //FIXME
 }
 
 
