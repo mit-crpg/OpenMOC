@@ -1044,7 +1044,7 @@ Material* Material::clone() {
  *          cross section data arrays for use by this Material.
  * @param material a pointer to the Material with data to copy
  */
-void Material::copy(Material* material) {
+void Material::copyFrom(Material* material) {
 
   /* Set the number of energy groups */
   int num_groups = material->getNumEnergyGroups();

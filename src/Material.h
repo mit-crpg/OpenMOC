@@ -145,7 +145,7 @@ public:
   void transposeProductionMatrices();
   void alignData();
   Material* clone();
-  void copy(Material* material);
+  void copyFrom(Material* material);
 
   std::string toString();
   void printString();
