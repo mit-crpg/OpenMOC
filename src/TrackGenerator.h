@@ -79,6 +79,9 @@ protected:
   /** Filename for the *.tracks input / output file */
   std::string _tracks_filename;
 
+  /** Filename suffix for the *.tracks input / output file */
+  std::string _tracks_filename_suffix;
+
   /** OpenMP mutual exclusion locks for atomic FSR operations */
   omp_lock_t* _FSR_locks;
 
@@ -151,6 +154,7 @@ public:
   void setQuadrature(Quadrature* quadrature);
   void setNumThreads(int num_threads);
   void setZCoord(double z_coord);
+  void setTracksFilenameSuffix(char* suffix);
 
   /* Worker functions */
   bool containsTracks();

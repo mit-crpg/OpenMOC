@@ -19,6 +19,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _contains_tracks = false;
   _use_input_file = false;
   _tracks_filename = "";
+  _tracks_filename_suffix = "";
   _z_coord = 0.0;
   _segment_formation = EXPLICIT_2D;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
@@ -419,6 +420,15 @@ void TrackGenerator::setZCoord(double z_coord) {
 
 
 /**
+ * @brief Sets the tracks filename suffix.
+ * @param suffix the tracks filename suffix.
+ */
+void TrackGenerator::setTracksFilenameSuffix(char* suffix) {
+  _tracks_filename_suffix = suffix;
+}
+
+
+/**
  * @brief Set the number of azimuthal angles in \f$ [0, 2\pi] \f$.
  * @param num_azim the number of azimuthal angles in \f$ 2\pi \f$
  */
@@ -800,15 +810,16 @@ void TrackGenerator::initializeTrackFileDirectory() {
                   << _z_coord << "_("
                   << _geometry->getCmfd()->getNumX()
                   << "x" << _geometry->getCmfd()->getNumY()
-                  << ")_cmfd.data";
-    }
+                  << ")_cmfd_" << _tracks_filename_suffix;
+  }
   else{
     test_filename << directory.str() << "/"
                   << 2*_num_azim_2 << "_angles_"
                   << _azim_spacing << "_cm_spacing_z_"
-                  << _z_coord << ".data";
+                  << _z_coord << "_" << _tracks_filename_suffix;
   }
 
+  test_filename << ".data";
   _tracks_filename = test_filename.str();
 
   /* Check to see if a Track file exists for this geometry, number of azimuthal

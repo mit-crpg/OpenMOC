@@ -1039,6 +1039,37 @@ Material* Material::clone() {
 
 
 /**
+ * @brief Copy another Material's cross section data into this Material.
+ * @details This method performs a deep copy of the other Material's
+ *          cross section data arrays for use by this Material.
+ * @param material a pointer to the Material with data to copy
+ */
+void Material::copyFrom(Material* material) {
+
+  /* Set the number of energy groups */
+  int num_groups = material->getNumEnergyGroups();
+  setNumEnergyGroups(num_groups);
+
+  FP_PRECISION* sigma_t = material->getSigmaT();
+  FP_PRECISION* sigma_f = material->getSigmaF();
+  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+  FP_PRECISION* chi = material->getChi();
+
+  for (int i=0; i < _num_groups; i++) {
+    setSigmaTByGroup((double)sigma_t[i], i+1);
+    setSigmaFByGroup((double)sigma_f[i], i+1);
+    setNuSigmaFByGroup((double)nu_sigma_f[i], i+1);
+    setChiByGroup((double)chi[i], i+1);
+
+    for (int j=0; j < _num_groups; j++)
+      setSigmaSByGroup((double)material->getSigmaSByGroup(i+1,j+1), i+1, j+1);
+  }
+
+  buildFissionMatrix();
+}
+
+
+/**
  * @brief Converts this Material's attributes to a character array
  *        representation.
  * @details The character array returned includes the user-defined ID, and each
