@@ -88,6 +88,12 @@ private:
   /** Number of cells in y direction */
   int _num_y;
 
+  /** Minimum x-value of the geometry */
+  double _x_min;
+
+  /** Minimum y-value of the geometry */
+  double _y_min;
+
   /** Number of energy groups */
   int _num_moc_groups;
 

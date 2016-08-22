@@ -19,6 +19,8 @@ Cmfd::Cmfd() {
   _num_y = 1;
   _width_x = 0.;
   _width_y = 0.;
+  _x_min = 0.;
+  _y_min = 0.;
   _cell_width_x = 0.;
   _cell_width_y = 0.;
   _flux_update_on = true;
@@ -1694,64 +1696,64 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
 
   /* LOWER LEFT CORNER */
   if (x > 0 && y > 0 && stencil_index == 0) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x - 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y - 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),2.0);
+    dist_x = pow(centroid_x - (_x_min + (x + 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y - 0.5)*_cell_width_y),2.0);
     found = true;
   }
 
   /* LOWER RIGHT CORNER */
   else if (x < _num_x - 1 && y > 0 && stencil_index == 2) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x + 1.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y - 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* LEFT SIDE */
   else if (x > 0 && stencil_index == 3) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x - 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y + 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* CURRENT */
   else if (stencil_index == 4) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x + 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y + 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* RIGHT SIDE */
   else if (x < _num_x - 1 && stencil_index == 5) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x + 1.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y + 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* UPPER LEFT CORNER */
   else if (x > 0 && y < _num_y - 1 && stencil_index == 6) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x - 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y + 1.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* TOP SIDE */
   else if (y < _num_y - 1 && stencil_index == 7) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x + 0.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y + 1.5)*_cell_width_y), 2.0);
     found = true;
   }
 
   /* UPPER RIGHT CORNER */
   else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(centroid_x - (_x_min + (x + 1.5)*_cell_width_x), 2.0);
+    dist_y = pow(centroid_y - (_y_min + (y + 1.5)*_cell_width_y), 2.0);
     found = true;
   }
 
@@ -1960,6 +1962,10 @@ void Cmfd::initialize() {
     _new_flux = new Vector(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
     _flux_ratio = new Vector(_cell_locks, _num_x, _num_y, _num_cmfd_groups);
     _volumes = new Vector(_cell_locks, _num_x, _num_y, 1);
+
+    /* Set the minimum x and y values of the geometry */
+    _x_min = _geometry->getMinX();
+    _y_min = _geometry->getMinY();
 
     /* Initialize k-nearest stencils, currents, flux, and materials */
     generateKNearestStencils();
