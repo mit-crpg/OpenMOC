@@ -198,7 +198,7 @@ protected:
   FP_PRECISION _converge_thresh;
 
   /** En ExpEvaluator to compute exponentials in the transport equation */
-  ExpEvaluator* _exp_evaluator;
+  ExpEvaluator** _exp_evaluators;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
@@ -243,7 +243,7 @@ protected:
    * @brief Normalizes all FSR scalar fluxes and Track boundary angular
    *        fluxes to the total fission source (times \f$ \nu \f$).
    */
-  virtual void normalizeFluxes() =0;
+  virtual FP_PRECISION normalizeFluxes() =0;
 
   /**
    * @brief Computes the total source (fission, scattering, fixed) for

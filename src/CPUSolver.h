@@ -70,8 +70,8 @@ protected:
 #endif
 
 
-  void initializeFluxArrays();
-  void initializeSourceArrays();
+  virtual void initializeFluxArrays();
+  virtual void initializeSourceArrays();
   void initializeFSRs();
 
   void zeroTrackFluxes();
@@ -84,12 +84,12 @@ protected:
   void transferAllInterfaceFluxes();
   void printCycle(long track_start, int domain_start, int length);
 #endif
-  void flattenFSRFluxes(FP_PRECISION value);
+  virtual void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
-  void normalizeFluxes();
-  void computeFSRSources();
-  void transportSweep();
-  void addSourceToScalarFlux();
+  virtual FP_PRECISION normalizeFluxes();
+  virtual void computeFSRSources();
+  virtual void transportSweep();
+  virtual void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
 

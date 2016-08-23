@@ -94,8 +94,6 @@ void CPUSolver::setNumThreads(int num_threads) {
   /* Set the number of threads for OpenMP */
   _num_threads = num_threads;
   omp_set_num_threads(_num_threads);
-  _num_threads = 1; //FIXME
-  omp_set_num_threads(_num_threads);
 }
 
 
@@ -940,7 +938,7 @@ void CPUSolver::storeFSRFluxes() {
  * @brief Normalizes all FSR scalar fluxes and Track boundary angular
  *        fluxes to the total fission source (times \f$ \nu \f$).
  */
-void CPUSolver::normalizeFluxes() {
+FP_PRECISION CPUSolver::normalizeFluxes() {
 
   FP_PRECISION* nu_sigma_f;
   FP_PRECISION volume;
@@ -1014,6 +1012,7 @@ void CPUSolver::normalizeFluxes() {
       }
     }
   }
+  return norm_factor;
 }
 
 
@@ -1305,8 +1304,7 @@ void CPUSolver::transportSweep() {
     sweep_tracks.execute();
   }
   else {
-    TransportSweep sweep_tracks(_track_generator);
-    sweep_tracks.setCPUSolver(this);
+    TransportSweep sweep_tracks(this);
     sweep_tracks.execute();
   }
 
@@ -1338,6 +1336,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* The change in angular flux along this Track segment in the FSR */
+  ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
   FP_PRECISION delta_psi, exponential, tau;
 
   /* Set the FSR scalar flux buffer to zero */
@@ -1346,8 +1345,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   if (_solve_3D) {
 
     for (int e=0; e < _num_groups; e++) {
-      exponential = _exp_evaluator->computeExponential
-        (sigma_t[e] * length, azim_index, polar_index);
+      exponential = exp_evaluator->computeExponentialF1(sigma_t[e] * length, 0)
       delta_psi = (track_flux[e]-_reduced_sources(fsr_id, e)) * exponential;
       fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
@@ -1365,7 +1363,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
       /* Loop over polar angles */
       for (int p=0; p < _num_polar/2; p++) {
-        exponential = _exp_evaluator->computeExponential(tau, azim_index, p);
+        exponential = exp_evaluator->computeExponentialF1(tau, p);
         delta_psi = (track_flux[pe]-_reduced_sources(fsr_id,e)) * exponential;
         fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
         track_flux[pe] -= delta_psi;

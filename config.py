@@ -102,6 +102,7 @@ class configuration:
                     'src/Cell.cpp',
                     'src/Cmfd.cpp',
                     'src/CPUSolver.cpp',
+                    'src/CPULSSolver.cpp',
                     'src/ExpEvaluator.cpp',
                     'src/Geometry.cpp',
                     'src/linalg.cpp',

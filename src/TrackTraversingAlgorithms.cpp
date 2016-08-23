@@ -1,5 +1,6 @@
 #include "TrackTraversingAlgorithms.h"
 #include "CPUSolver.h"
+#include "CPULSSolver.h"
 #include "Quadrature.h"
 
 /**
@@ -324,7 +325,6 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   //FIXME
   int tid = omp_get_thread_num();
   _starting_points[tid][0].copyCoords(track->getStart());
-  Track3D* current_stack = NULL;
 
   /* Get polar angles depending on the dimensionality */
   double sin_theta = 1;
@@ -339,9 +339,9 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
         *_quadrature->getPolarWeight(azim_index, polar_index);
 
     if (_segment_formation == OTF_STACKS) {
-      int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
-      current_stack = _track_generator_3D->getTemporary3DTracks(tid);
       int xy_index = track->getXYIndex();
+      int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+      Track3D* current_stack = _track_generator_3D->getTemporary3DTracks(tid);
       int stack_size = tracks_per_stack[azim_index][xy_index][polar_index];
       for (int i=1; i < stack_size; i++)
         _starting_points[tid][i].copyCoords(current_stack[i].getStart());
@@ -397,27 +397,315 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 }
 
 
+//FIXME
+LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
+    : TraverseSegments(solver->getTrackGenerator()) {
+
+  _lin_exp_coeffs = solver->getLinearExpansionCoeffsBuffer();
+  _src_constants = solver->getSourceConstantsBuffer();
+  TrackGenerator* track_generator = solver->getTrackGenerator();
+  _FSR_volumes = track_generator->getFSRVolumesBuffer();
+  _FSR_locks = track_generator->getFSRLocks();
+  _quadrature = track_generator->getQuadrature();
+  _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+
+  int num_rows = 1;
+  _num_coeffs = 3;
+  if (_track_generator_3D != NULL) {
+    num_rows = _track_generator_3D->getMaxNumTracksPerStack();
+    _num_coeffs = 6;
+  }
+
+  int num_threads = omp_get_max_threads();
+  _starting_points = new Point*[num_threads];
+  _thread_source_constants = new FP_PRECISION*[num_threads];
+
+  for (int i=0; i < num_threads; i++) {
+    _thread_source_constants[i] = new FP_PRECISION[_num_coeffs * _num_groups];
+    _starting_points[i] = new Point[num_rows];
+  }
+
+  _exp_evaluator = new ExpEvaluator();
+}
+
+//FIXME destructor
+LinearExpansionGenerator::~LinearExpansionGenerator() {
+  int num_threads = omp_get_max_threads();
+  for (int i=0; i < num_threads; i++) {
+    delete [] _thread_source_constants[i];
+    delete [] _starting_points[i];
+  }
+  delete [] _thread_source_constants;
+  delete [] _starting_points;
+  delete _exp_evaluator;
+}
+
+
+//FIXME
+void LinearExpansionGenerator::execute() {
+#pragma omp parallel
+  {
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
+  }
+
+  /* Invert the expansion coefficient matrix */
+  FP_PRECISION det;
+
+  int num_FSRs = _track_generator->getGeometry()->getNumFSRs();
+  FP_PRECISION* inv_lin_exp_coeffs = new FP_PRECISION[num_FSRs*_num_coeffs];
+  memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
+
+  FP_PRECISION* lem = _lin_exp_coeffs;
+  FP_PRECISION* ilem = inv_lin_exp_coeffs;
+  int nc = _num_coeffs;
+
+  if (_track_generator_3D != NULL) {
+    for (int r=0; r < num_FSRs; r++) {
+      det = lem[r*nc + 0] * lem[r*nc + 1] * lem[r*nc + 5] +
+          lem[r*nc + 2] * lem[r*nc + 4] * lem[r*nc + 3] +
+          lem[r*nc + 3] * lem[r*nc + 2] * lem[r*nc + 4] -
+          lem[r*nc + 0] * lem[r*nc + 4] * lem[r*nc + 4] -
+          lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
+          lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
+
+      ilem[r*nc + 0] = (lem[r*nc + 1] * lem[r*nc + 5] -
+                        lem[r*nc + 4] * lem[r*nc + 4]) / det;
+      ilem[r*nc + 1] = (lem[r*nc + 0] * lem[r*nc + 5] -
+                        lem[r*nc + 3] * lem[r*nc + 3]) / det;
+      ilem[r*nc + 2] = (lem[r*nc + 3] * lem[r*nc + 4] -
+                        lem[r*nc + 2] * lem[r*nc + 5]) / det;
+      ilem[r*nc + 3] = (lem[r*nc + 2] * lem[r*nc + 4] -
+                        lem[r*nc + 3] * lem[r*nc + 1]) / det;
+      ilem[r*nc + 4] = (lem[r*nc + 3] * lem[r*nc + 2] -
+                        lem[r*nc + 0] * lem[r*nc + 4]) / det;
+      ilem[r*nc + 5] = (lem[r*nc + 0] * lem[r*nc + 1] -
+                        lem[r*nc + 2] * lem[r*nc + 2]) / det;
+    }
+  }
+  else {
+    for (int r=0; r < num_FSRs; r++) {
+      det = lem[r*nc  ] * lem[r*nc + 1] - lem[r*nc + 2] * lem[r*nc + 2];
+
+      ilem[r*nc + 0] =  lem[r*nc + 1] / det;
+      ilem[r*nc + 1] =  lem[r*nc + 0] / det;
+      ilem[r*nc + 2] = -lem[r*nc + 2] / det;
+    }
+  }
+
+  memcpy(_lin_exp_coeffs, inv_lin_exp_coeffs,
+         num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
+  delete [] inv_lin_exp_coeffs;
+}
+
+
+//FIXME
+void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
+
+  /* Extract track information */
+  Point* start = track->getStart();
+  double phi = track->getPhi();
+  double sin_phi = sin(phi);
+  double cos_phi = cos(phi);
+  int azim_index = track->getAzimIndex();
+  int xy_index = track->getXYIndex();
+
+  /* Use local array accumulator to prevent false sharing */
+  int tid = omp_get_thread_num();
+  _starting_points[tid][0].copyCoords(track->getStart());
+  FP_PRECISION* thread_src_constants = _thread_source_constants[tid];
+
+  /* Calculate the azimuthal weight */
+  double wgt = _quadrature->getAzimSpacing(azim_index)
+      * _quadrature->getAzimWeight(azim_index);
+
+  /* Get polar angles and weight depending on the dimensionality */
+  double sin_theta = 1;
+  double cos_theta = 0;
+  int polar_index = 0;
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  if (track_3D != NULL) {
+    double theta = track_3D->getTheta();
+    sin_theta = sin(theta);
+    cos_theta = cos(theta);
+    int polar_index = track_3D->getPolarIndex();
+    wgt *= _quadrature->getPolarSpacing(azim_index, polar_index)
+        *_quadrature->getPolarWeight(azim_index, polar_index);
+    if (_segment_formation == OTF_STACKS) {
+      int xy_index = track->getXYIndex();
+      int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+      Track3D* current_stack = _track_generator_3D->getTemporary3DTracks(tid);
+      int stack_size = tracks_per_stack[azim_index][xy_index][polar_index];
+      for (int i=1; i < stack_size; i++)
+        _starting_points[tid][i].copyCoords(current_stack[i].getStart());
+    }
+  }
+
+  /* Extract the maximum track index and get Track data */
+  Track** tracks_array = &track;
+  int max_track_index = 0;
+  if (_segment_formation == OTF_STACKS) {
+    int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+    max_track_index = tracks_per_stack[azim_index][xy_index][polar_index] - 1;
+    tracks_array = _track_generator_3D->getTemporaryTracksArray(tid);
+  }
+
+  /* Loop over segments to accumlate contribution to centroids */
+  Geometry* geometry = _track_generator->getGeometry();
+  for (int s=0; s < track->getNumSegments(); s++) {
+
+    /* Extract segment information */
+    segment* curr_segment = &segments[s];
+    int fsr = curr_segment->_region_id;
+    int track_idx = curr_segment->_track_idx;
+    FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
+    FP_PRECISION length = curr_segment->_length;
+    FP_PRECISION length_2 = length * length;
+
+    /* Extract FSR information */
+    double volume = _FSR_volumes[fsr];
+    Point* centroid = geometry->getFSRCentroid(fsr);
+
+    /* Extract the starting points of the segment */
+    double x = _starting_points[tid][track_idx].getX();
+    double y = _starting_points[tid][track_idx].getY();
+    double z = _starting_points[tid][track_idx].getZ();
+
+    /* Get the centroid of the segment in the local coordinate system */
+    double xc = x - centroid->getX() + length * 0.5 * cos_phi * sin_theta;
+    double yc = y - centroid->getY() + length * 0.5 * sin_phi * sin_theta;
+    double zc = z - centroid->getZ() + length * 0.5 * cos_theta;
+
+    /* Set the FSR src constants buffer to zero */
+    memset(thread_src_constants, 0.0, _num_groups * _num_coeffs *
+           sizeof(FP_PRECISION));
+
+    FP_PRECISION vol_impact = wgt * length / volume;
+    for (int g=0; g < _num_groups; g++) {
+
+      thread_src_constants[g*_num_coeffs] += vol_impact * xc * xc;
+      thread_src_constants[g*_num_coeffs + 1] += vol_impact * yc * yc;
+      thread_src_constants[g*_num_coeffs + 2] += vol_impact * xc * yc;
+
+      if (track_3D != NULL) {
+        thread_src_constants[g*_num_coeffs + 3] += vol_impact * xc * zc;
+        thread_src_constants[g*_num_coeffs + 4] += vol_impact * yc * zc;
+        thread_src_constants[g*_num_coeffs + 5] += vol_impact * zc * zc;
+      }
+
+      /* Calculate the optical path length and source contribution */
+      FP_PRECISION tau = length * sigma_t[g];
+      FP_PRECISION src_constant = vol_impact * length / (2.0 * sigma_t[g]);
+
+      if (track_3D == NULL) {
+        for (int p=0; p < _quadrature->getNumPolarAngles()/2; p++) {
+
+          FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
+          FP_PRECISION G2_src =
+              _exp_evaluator->computeExponentialG2(tau / sin_theta)
+              * src_constant * 2 * _quadrature->getPolarWeight(azim_index, p)
+              * sin_theta;
+
+          thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src;
+          thread_src_constants[g*_num_coeffs + 1] += sin_phi * sin_phi
+              * G2_src;
+          thread_src_constants[g*_num_coeffs + 2] += sin_phi * cos_phi
+              * G2_src;
+        }
+      }
+      else {
+
+        FP_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
+            src_constant;
+
+        thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src
+            * sin_theta * sin_theta;
+        thread_src_constants[g*_num_coeffs + 1] += sin_phi * sin_phi * G2_src
+            * sin_theta * sin_theta;
+        thread_src_constants[g*_num_coeffs + 2] += sin_phi * cos_phi * G2_src
+            * sin_theta * sin_theta;
+        thread_src_constants[g*_num_coeffs + 3] += cos_phi * cos_theta * G2_src
+            * sin_theta;
+        thread_src_constants[g*_num_coeffs + 4] += sin_phi * cos_theta * G2_src
+            * sin_theta;
+        thread_src_constants[g*_num_coeffs + 5] += cos_theta * cos_theta * G2_src;
+      }
+    }
+
+    /* Set the lock for this FSR */
+    omp_set_lock(&_FSR_locks[fsr]);
+
+    _lin_exp_coeffs[fsr*_num_coeffs] += wgt * length / volume *
+        (xc * xc + pow(cos_phi * sin_theta * length, 2.0) / 12.0);
+    _lin_exp_coeffs[fsr*_num_coeffs + 1] += wgt * length / volume *
+        (yc * yc + pow(sin_phi * sin_theta * length, 2.0) / 12.0);
+    _lin_exp_coeffs[fsr*_num_coeffs + 2] += wgt * length / volume *
+        (xc * yc + sin_phi * cos_phi * pow(sin_theta * length, 2.0) / 12.0);
+
+    if (track_3D != NULL) {
+      _lin_exp_coeffs[fsr*_num_coeffs + 3] += wgt * length / volume *
+          (xc * zc + cos_phi * cos_theta * sin_theta * pow(length, 2.0) / 12.0);
+      _lin_exp_coeffs[fsr*_num_coeffs + 4] += wgt * length / volume *
+          (yc * zc + sin_phi * cos_theta * sin_theta * pow(length, 2.0) / 12.0);
+      _lin_exp_coeffs[fsr*_num_coeffs + 5] += wgt * length / volume *
+          (zc * zc + pow(cos_theta * length, 2.0) / 12.0);
+    }
+
+		/* Set the source constants for all groups and coefficients */
+    for (int g=0; g < _num_groups; g++) {
+      for (int i=0; i < _num_coeffs; i++)
+        _src_constants[fsr*_num_groups*_num_coeffs + g*_num_coeffs + i] +=
+          thread_src_constants[g*_num_coeffs + i];
+    }
+
+    /* Unset the lock for this FSR */
+    omp_unset_lock(&_FSR_locks[fsr]);
+
+    x += length * cos_phi * sin_theta;
+    y += length * sin_phi * sin_theta;
+    z += length * cos_theta;
+
+    _starting_points[tid][track_idx].setX(x);
+    _starting_points[tid][track_idx].setY(y);
+    _starting_points[tid][track_idx].setZ(z);
+  }
+}
+
+
+
+
+//FIXME
+
+
 /**
  * @brief Constructor for TransportSweep calls the TraverseSegments
  *        constructor and initializes the associated CPUSolver to NULL
  * @param track_generator The TrackGenerator to pull tracking information from
  */
-TransportSweep::TransportSweep(TrackGenerator* track_generator)
-                              : TraverseSegments(track_generator) {
-  _cpu_solver = NULL;
-  _tracks_per_stack = NULL;
+TransportSweep::TransportSweep(CPUSolver* cpu_solver)
+    : TraverseSegments(cpu_solver->getTrackGenerator()) {
+
+  _cpu_solver = cpu_solver;
+  _ls_solver = dynamic_cast<CPULSSolver*>(cpu_solver);
+  TrackGenerator* track_generator = cpu_solver->getTrackGenerator();
+  _geometry = _track_generator->getGeometry();
 
   /* Allocate temporary storage of FSR fluxes */
   int num_threads = omp_get_max_threads();
-  int num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+  int num_groups = _geometry->getNumEnergyGroups();
   _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new FP_PRECISION[2*num_groups];
+    _thread_fsr_fluxes[i] = new FP_PRECISION[num_groups+8];
 
-  /* Get the number of tracks per stack if 3D calculation */
-  TrackGenerator3D* TG_3D = dynamic_cast<TrackGenerator3D*>(track_generator);
-  if (TG_3D != NULL)
-    _tracks_per_stack = TG_3D->getTracksPerStack();
+  /* Allocate storage for starting points if necessary */
+  if (_ls_solver != NULL) {
+    _starting_points = new Point*[num_threads];
+    int num_rows = 1;
+    if (_track_generator_3D != NULL)
+      num_rows = _track_generator_3D->getMaxNumTracksPerStack();
+    for (int i=0; i < num_threads; i++)
+      _starting_points[i] = new Point[num_rows];
+  }
 }
 
 
@@ -447,17 +735,6 @@ void TransportSweep::execute() {
 
 
 /**
- * @brief Sets the CPUSolver so that TransportSweep can apply MOC equations
- * @details This allows TransportSweep to transfer boundary fluxes from the
- *          CPUSolver and tally scalar fluxes
- * @param cpu_solver The CPUSolver which applies the MOC equations
- */
-void TransportSweep::setCPUSolver(CPUSolver* cpu_solver) {
-  _cpu_solver = cpu_solver;
-}
-
-
-/**
  * @brief Applies the MOC equations the Track and segments
  * @details The MOC equations are applied to each segment, attenuating the
  *          Track's angular flux and tallying FSR contributions. Finally,
@@ -475,6 +752,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Extract Track information */
   int track_id = track->getUid();
   int azim_index = track->getAzimIndex();
+  int xy_index = track->getXYIndex();
   int num_segments = track->getNumSegments();
   FP_PRECISION* track_flux;
 
@@ -484,30 +762,37 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   if (track_3D != NULL)
     polar_index = track_3D->getPolarIndex();
 
-  /* Extract the maximum track index and get Track data */
-  TrackStackIndexes tsi;
-  Track** tracks_array;
+  /* Compute unit vector if necessary */
+  double[3] direction;
+  if (_ls_solver != NULL) {
+    double phi = track->getPhi();
+    double cos_theta = 0.0;
+    double sin_theta = 1.0;
+    if (track_3D != NULL) {
+      double theta = track_3D->getTheta();
+      cos_theta = cos(theta);
+      sin_theta = sin(theta);
+    }
+    direction[0] = cos(phi) * sin_theta;
+    direction[1] = sin(phi) * sin_theta;
+    direction[2] = cos_theta;
+  }
+
+  /* Extract the maximum track index and get starting points */
+  Track** tracks_array = &track;
   int max_track_index = 0;
   if (_segment_formation == OTF_STACKS) {
-
-    /* Extract indexes */
-    int xy_index = track->getXYIndex();
-    max_track_index = _tracks_per_stack[azim_index][xy_index][polar_index] - 1;
-    tsi._azim = azim_index;
-    tsi._xy = xy_index;
-    tsi._polar = polar_index;
-
-    /* Get Track data for the entire z-stack */
-    Track3D* tracks_3D = _track_generator_3D->getTemporary3DTracks(tid);
-    for (int z=0; z < max_track_index+1; z++) {
-      tsi._z = z;
-      _track_generator_3D->getTrackOTF(&tracks_3D[z], &tsi);
-    }
+    int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+    max_track_index = tracks_per_stack[azim_index][xy_index][polar_index] - 1;
     tracks_array = _track_generator_3D->getTemporaryTracksArray(tid);
+    if (_ls_solver != NULL)
+      for (int i=1; i <= max_track_index; i++)
+        _starting_points[tid][i].copyCoords(tracks_array[i]->getStart());
   }
-  else {
-    tracks_array = &track;
-  }
+
+  /* Copy the base Track's starting point */
+  if (_ls_solver != NULL)
+    _starting_points[tid][0].copyCoords(tracks_array[0]->getStart());
 
   /* Loop over each Track segment in forward direction */
   for (int s=0; s < num_segments; s++) {
@@ -518,10 +803,16 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, true);
 
     /* Apply MOC equations */
-    _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                 track_flux, thread_fsr_flux);
+    if (_ls_solver == NULL)
+      _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
+                                   track_flux, thread_fsr_flux);
+    else
+      tallyScalarFluxLS(curr_segment, azim_index, polar_index, track_flux,
+                        thread_fsr_flux, direction);
+
+    /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
-                                     track_flux, true);
+                              track_flux, true);
   }
 
   /* Transfer boundary angular flux to outgoing Track */
@@ -530,6 +821,10 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     _cpu_solver->transferBoundaryFlux(tracks_array[i], azim_index, polar_index,
                                       true, track_flux);
   }
+
+  /* Reverse the direction */
+  for (int i=0; i<3; i++)
+    direction[i] *= -1;
 
   /* Loop over each Track segment in reverse direction */
   for (int s=num_segments-1; s >= 0; s--) {
@@ -540,10 +835,16 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, false);
 
     /* Apply MOC equations */
-    _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                 track_flux, thread_fsr_flux);
+    if (_ls_solver == NULL)
+      _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
+                                   track_flux, thread_fsr_flux);
+    else
+      tallyScalarFluxLS(curr_segment, azim_index, polar_index, track_flux,
+                        thread_fsr_flux, direction);
+
+    /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
-                                     track_flux, false);
+                              track_flux, false);
   }
 
   /* Transfer boundary angular flux to outgoing Track */
@@ -552,6 +853,40 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     _cpu_solver->transferBoundaryFlux(tracks_array[i], azim_index, polar_index,
                                       false, track_flux);
   }
+}
+
+
+//FIXME
+void TransportSweep::tallyScalarFluxLS(segment* curr_segment, int azim_index,
+                                       int polar_index,
+                                       FP_PRECISION* track_flux,
+                                       FP_PRECISION* thread_fsr_flux,
+                                       double[3] direction) {
+
+  /* Linear source approximation retrieves starting point */
+  int track_idx = curr_segment->_track_idx;
+  double x = _starting_points[tid][track_idx].getX();
+  double y = _starting_points[tid][track_idx].getY();
+  double z = _starting_points[tid][track_idx].getZ();
+
+  /* Get the centroid of the segment in the local coordinate system */
+  Point* centroid = _geometry->getFSRCentroid(fsr);
+  double[3] local_position;
+  local_position[0] = x - centroid->getX();
+  local_position[1] = y - centroid->getY();
+  local_position[2] = z - centroid->getZ();
+  _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
+                                track_flux, thread_fsr_flux, local_position,
+                                direction);
+
+  /* Update coordinates */
+  x += curr_segment->_length * direction[0];
+  y += curr_segment->_length * direction[1];
+  z += curr_segment->_length * direction[2];
+
+  _starting_points[tid][track_idx].setX(x);
+  _starting_points[tid][track_idx].setY(y);
+  _starting_points[tid][track_idx].setZ(z);
 }
 
 

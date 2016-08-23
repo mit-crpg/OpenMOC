@@ -20,7 +20,11 @@ Solver::Solver(TrackGenerator* track_generator) {
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
-  _exp_evaluator = new ExpEvaluator();
+  _num_exp_evaluators_azim = 1;
+  _num_exp_evaluators_polar = 1;
+  _exp_evaluators = new ExpEvaluator**[_num_exp_evaluators_azim];
+  _exp_evaluators = new ExpEvaluator*[_num_exp_evaluators_polar];
+  _exp_evaluators[0][0] = new ExpEvaluator();
   _solve_3D = false;
   _segment_formation = EXPLICIT_2D;
 
@@ -82,8 +86,11 @@ Solver::~Solver() {
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
 
-  if (_exp_evaluator != NULL)
-    delete _exp_evaluator;
+  for (int a=0; a < _num_exp_evaluators_azim; a++) {
+    for (int p=0; p < _num_exp_evaluators_polar; ap++)
+      delete _exp_evaluators[a][p];
+    delete [] _exp_evaluators[a]
+  delete [] exp_evaluators;
 }
 
 
@@ -185,7 +192,7 @@ FP_PRECISION Solver::getConvergenceThreshold() {
  * @return The max optical length
  */
 FP_PRECISION Solver::getMaxOpticalLength() {
-  return _exp_evaluator->getMaxOpticalLength();
+  return _exp_evaluators[0][0]->getMaxOpticalLength();
 }
 
 
@@ -208,7 +215,7 @@ bool Solver::isUsingDoublePrecision() {
  * @return true if using linear interpolation to compute exponentials
  */
 bool Solver::isUsingExponentialInterpolation() {
-  return _exp_evaluator->isUsingInterpolation();
+  return _exp_evaluators[0][0]->isUsingInterpolation();
 }
 
 
@@ -451,7 +458,9 @@ void Solver::setFixedSourceByMaterial(Material* material, int group,
  * @param max_optical_length The max optical length
  */
 void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-  _exp_evaluator->setMaxOpticalLength(max_optical_length);
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->setMaxOpticalLength(max_optical_length);
 }
 
 
@@ -463,7 +472,9 @@ void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
  * @param precision the precision of the exponential interpolation table,
  */
 void Solver::setExpPrecision(FP_PRECISION precision) {
-  _exp_evaluator->setExpPrecision(precision);
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->setExpPrecision(precision);
 }
 
 
@@ -472,7 +483,9 @@ void Solver::setExpPrecision(FP_PRECISION precision) {
  *        exponential in the transport equation.
  */
 void Solver::useExponentialInterpolation() {
-  _exp_evaluator->useInterpolation();
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->useInterpolation();
 }
 
 
@@ -481,23 +494,27 @@ void Solver::useExponentialInterpolation() {
  *        function to compute the exponential in the transport equation.
  */
 void Solver::useExponentialIntrinsic() {
-  _exp_evaluator->useIntrinsic();
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->useIntrinsic();
 }
 
 
 /**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
-void Solver::initializeExpEvaluator() {
+void Solver::initializeExpEvaluators() {
 
-  _exp_evaluator->setSolve3D(_solve_3D);
-  _exp_evaluator->setQuadrature(_quad);
+  //FIXME
+  ExpEvaluator* first_evaluator _exp_evaluators[0][0];
+  first_evaluator->setSolve3D(_solve_3D);
+  first_evaluator->setQuadrature(_quad);
 
-  if (_exp_evaluator->isUsingInterpolation()) {
+  if (first_evaluator->isUsingInterpolation()) {
 
     /* Find minimum of optional user-specified and actual max taus */
     FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
-    FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
+    FP_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
     FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
 
     /* Split Track segments so that none has a greater optical length */
@@ -507,9 +524,49 @@ void Solver::initializeExpEvaluator() {
     else
       _track_generator->countSegments();
 
+    first_evaluator->setMaxOpticalLength(max_tau);
+
+    /* Delete old exponential evaluators */
+    for (int a=0; a < _num_exp_evaluators_azim; a++) {
+      for (int p=0; p < _num_exp_evaluators_polar; p++)
+        if (_exp_evaluators[a][p] != first_evaluator)
+          delete _exp_evaluators[a][p];
+      delete [] _exp_evaluators[a];
+    delete [] _exp_evaluators;
+
+    /* Determine number of exponential evaluators */
+    _num_exp_evaluators_azim = _num_azim / 4;
+    if (_solve_3D)
+      _num_exp_evaluators_polar = _num_polar / 2;
+    else
+      _num_exp_evaluators_polar = 1;
+
+    /* Allocate new exponential evaluators */
+    _exp_evaluators = new ExpEvaluator**[_num_azim/2];
+    for (int a=0; a < _num_azim/2; a++)
+      _exp_evaluators[a] = new ExpEvaluator*[_num_polar];
+    for (int a=0; a < _num_exp_evaluators_azim; a++) {
+      for (int p=0; p < _num_azim_evaluators_polar; p++) {
+
+        /* Create a new exponential evaluator if necessary */
+        if (a == 0 && p == 0)
+          _exp_evaluators[a][p] = first_evaluator;
+        else
+          _exp_evaluators[a][p] = first_evaluator->copy();
+
+        /* Copy evaluators to supplimentary positions */
+        int sup_azim = _num_azim / 2 - a;
+        int sup_polar = _num_polar / 2 - p;
+        _exp_evaluators[sup_azim][p] = _exp_evaluators[a][p];
+        _exp_evaluators[a][sup_polar] = _exp_evaluators[a][p];
+        _exp_evaluators[sup_azim][sup_polar] = _exp_evaluators[a][p];
+      }
+    }
+
     /* Initialize exponential interpolation table */
-    _exp_evaluator->setMaxOpticalLength(max_tau);
-    _exp_evaluator->initialize();
+    for (int a=0; a < _num_exp_evaluators_azim; a++)
+      for (int p=0; p < _num_exp_evaluators_polar; p++)
+        _exp_evaluators[a][p]->initialize(a, p);
   }
 }
 

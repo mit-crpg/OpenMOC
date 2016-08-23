@@ -21,10 +21,12 @@
 #define TRACK_TRAVERSING_ALGORITHMS_H_
 
 #include "TraverseSegments.h"
+#include "ExpEvaluator.h" //FIXME
 
 
 /** Forward declaration of CPUSolver class */
 class CPUSolver;
+class CPULSSolver;
 
 
 /**
@@ -145,6 +147,42 @@ public:
 
 
 /**
+ * @class LinearExpansionGenerator TrackTraversingAlgorithms.h
+ *        "src/TrackTraversingAlgorithms.h"
+ * @brief A class used to calculate the linear expansion coeffs of each FSR
+ * @details A LinearExpansionGenerator imports FSR Volumes and associated
+ *          locks form the provided CPUSolver, then centroids are calculated
+ *          and stored in the provided buffer by first allocating
+ *          SegmentationKernels to temporarily store segments and then looping
+ *          over all segments and adding their contribution to each FSR
+ *          centroid.
+ */
+//FIXME
+class LinearExpansionGenerator: public TraverseSegments {
+
+private:
+
+  FP_PRECISION* _lin_exp_coeffs;
+  FP_PRECISION* _FSR_volumes;
+  omp_lock_t* _FSR_locks;
+  FP_PRECISION* _src_constants;
+  Quadrature* _quadrature;
+  int _num_groups;
+  int _num_coeffs;
+  Point** _starting_points;
+  FP_PRECISION** _thread_source_constants;
+  ExpEvaluator* _exp_evaluator;
+
+public:
+
+  LinearExpansionGenerator(CPULSSolver* solver);
+  virtual ~LinearExpansionGenerator();
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+
+/**
  * @class TransportSweep TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
  * @brief A class used to apply the MOC transport equations to all segments
@@ -158,16 +196,23 @@ class TransportSweep: public TraverseSegments {
 private:
 
   CPUSolver* _cpu_solver;
+  CPULSSolver* _ls_solver;
+  Geometry* _geometry;
   FP_PRECISION** _thread_fsr_fluxes;
-  int*** _tracks_per_stack;
+  Point** _starting_points;
+
+  void tallyScalarFluxLS(segment* curr_segment, int azim_index,
+                         int polar_index, FP_PRECISION* track_flux,
+                         FP_PRECISION* thread_fsr_flux, double x_unit,
+                         double y_unit, double z_unit, bool fwd);
 
 public:
 
-  TransportSweep(TrackGenerator* track_generator);
+  TransportSweep(CPUSolver* cpu_solver);
   virtual ~TransportSweep();
-  void setCPUSolver(CPUSolver* cpu_solver);
   void execute();
   void onTrack(Track* track, segment* segments);
+
 };
 
 
@@ -229,8 +274,6 @@ public:
   void onTrack(Track* track, segment* segments);
   void execute();
 };
-
-
 
 
 #endif

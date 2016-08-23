@@ -687,7 +687,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
     for (int e=0; e < _num_groups; e++) {
       tau = length * sigma_t[e];
       for (int p=0; p < _num_polar; p++)
-        exponentials(p,e) = _exp_evaluator->computeExponential(tau, p);
+        exponentials(p,e) = _exp_evaluator->computeExponentialF1(tau, p);
     }
   }
 

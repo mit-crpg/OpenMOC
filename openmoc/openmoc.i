@@ -30,6 +30,7 @@
   #include "../src/segmentation_type.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
+  #include "../src/CPULSSolver.h"
   #include "../src/Surface.h"
   #include "../src/Timer.h"
   #include "../src/Track.h"
@@ -133,6 +134,7 @@ namespace std {
 %include ../src/segmentation_type.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
+%include ../src/CPULSSolver.h
 %include ../src/Surface.h
 %include ../src/Timer.h
 %include ../src/Track.h
