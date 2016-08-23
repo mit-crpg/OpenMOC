@@ -132,6 +132,3 @@ geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
-
-print geometry.getMinZ()
-print geometry.getMaxZ()
