@@ -2,18 +2,18 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = no
 DEBUG       = yes
 PROFILE     = no
-PRECISION   = single
+PRECISION   = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-3d-cmfd.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 
 source = \
 Cell.cpp \
@@ -46,6 +46,7 @@ cases = \
 Takeda/Takeda-unrodded.cpp \
 pin-cell/pin-cell-3d.cpp \
 fixed-source/pin-cell-fixed-3d.cpp \
+simple-lattice/simple-lattice-3d.cpp \
 c5g7/c5g7-3d.cpp \
 c5g7/c5g7-3d-cmfd.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
@@ -210,5 +211,5 @@ edit:
 	vim -p $(cases)
 
 run:
-#	./$(program)
-	mpirun -np 4 ./$(program)
+	./$(program)
+#	mpirun -np 4 ./$(program)
