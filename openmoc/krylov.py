@@ -116,13 +116,12 @@ class IRAMSolver(object):
         self._a_count = 0
 
         # Initialize MOC solver
-        self._moc_solver.initializePolarQuadrature()
-        self._moc_solver.initializeExpEvaluator()
+        self._moc_solver.initializeFSRs()
         self._moc_solver.initializeMaterials(solver_mode)
+        self._moc_solver.countFissionableFSRs()
+        self._moc_solver.initializeExpEvaluator()
         self._moc_solver.initializeFluxArrays()
         self._moc_solver.initializeSourceArrays()
-        self._moc_solver.initializeFSRs()
-        self._moc_solver.countFissionableFSRs()
         self._moc_solver.zeroTrackFluxes()
 
         # Initialize SciPy operators
