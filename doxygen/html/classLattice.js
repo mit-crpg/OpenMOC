@@ -39,5 +39,6 @@ var classLattice =
     [ "setWidth", "classLattice.html#a6da8f385722eab1b84d65bbc894eaafa", null ],
     [ "subdivideCells", "classLattice.html#ad28cfd93d53c4e6a7c8e62002b26ac54", null ],
     [ "toString", "classLattice.html#a85eb51407b84e29d55f300e06b29f9b4", null ],
+    [ "updateUniverse", "classLattice.html#ae385adfa867ab697f4743f8058195049", null ],
     [ "withinBounds", "classLattice.html#aaa38ae681b8814661033c99f6410fadd", null ]
 ];

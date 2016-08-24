@@ -28,8 +28,8 @@
     <link rel="next" title="4. Constructive Solid Geometry" href="constructive_solid_geometry.html" />
     <link rel="prev" title="2. Method of Characteristics" href="method_of_characteristics.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,15 +41,15 @@
         <li class="right" >
           <a href="method_of_characteristics.html" title="2. Method of Characteristics"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="eigenvalue-calculations">
 <span id="id1"></span><h1>3. Eigenvalue Calculations<a class="headerlink" href="#eigenvalue-calculations" title="Permalink to this headline">¶</a></h1>
@@ -62,105 +62,105 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
 <p>The MOC algorithm for the OpenMOC code uses a nested iteration scheme to solve for the source and scalar flux. The inner iteration solves for an approximate scalar flux assuming a fixed source. The outer iteration computes an updated source based on the inner iteration&#8217;s approximation to the flux that results from the fixed source. The remainder of this section develops the methodology for this nested iteration scheme.</p>
 <p>First, define vectors of the scalar flux and source in each energy group and flat source region:</p>
 <div class="math" id="equation-vector-scalar-flux">
-<p><span class="eqno">(1)</span><img src="../_images/math/56d300cc07dcd220732cfc455384cf15baca56f9.png" alt="\mathbf{\Phi} = \left[\Phi_{1,1}, \Phi_{1,2}, ..., \Phi_{1,G}, \Phi_{2,1}, ..., \Phi_{I,G}\right]^T"/></p>
+<p><span class="eqno">(1)</span><img src="../_images/math/a26708012eacbaf7ab0357ffc4e81e4d386a8b6b.png" alt="\mathbf{\Phi} = \left[\Phi_{1,1}, \Phi_{1,2}, ..., \Phi_{1,G}, \Phi_{2,1}, ..., \Phi_{I,G}\right]^T"/></p>
 </div><div class="math" id="equation-vector-source">
-<p><span class="eqno">(2)</span><img src="../_images/math/573cdc603187460be9e5517eb093b84c4aa2caa9.png" alt="\mathbf{Q} = \left[Q_{1,1}, Q_{1,2}, ..., Q_{1,G}, Q_{2,1}, ..., Q_{I,G}\right]^T"/></p>
+<p><span class="eqno">(2)</span><img src="../_images/math/fab184b824ac7ba6b27f3a3baffbd2d093251940.png" alt="\mathbf{Q} = \left[Q_{1,1}, Q_{1,2}, ..., Q_{1,G}, Q_{2,1}, ..., Q_{I,G}\right]^T"/></p>
 </div><p>The generalized eigenvalue equation in reactor physics criticality calculations is given by the following:</p>
 <div class="math" id="equation-generalized-eigenvalue-eqn">
-<p><span class="eqno">(3)</span><img src="../_images/math/39bc02e13cc65dc17d6e51d485a4b2fbc2f3b039.png" alt="\mathcal{M}\mathbf{\Phi} = \frac{1}{k_{eff}}\mathcal{F}\mathbf{\Phi}"/></p>
+<p><span class="eqno">(3)</span><img src="../_images/math/6fa41fa2bd5636c628517da9c9b765d07b798c89.png" alt="\mathcal{M}\mathbf{\Phi} = \frac{1}{k_{eff}}\mathcal{F}\mathbf{\Phi}"/></p>
 </div><p>The operator <img class="math" src="../_images/math/1772c4be5bea7ac621b8620979a129f4efe9c165.png" alt="\mathcal{M}"/> can be split into two components: <img class="math" src="../_images/math/ae8256056b22b1113584d903fb66e63390cec6c1.png" alt="\mathcal{A}"/> to represent streaming and absorption and <img class="math" src="../_images/math/cc402c8515cdaa62b818e43bda2536e293d029fb.png" alt="\mathcal{S}"/> to represent in-scattering of neutrons. Equation <a href="#equation-generalized-eigenvalue-eqn">(3)</a> can now be expressed as follows:</p>
 <div class="math" id="equation-split-generalized-eigenvalue-eqn">
-<p><span class="eqno">(4)</span><img src="../_images/math/823c7f86fd4f21ffbfc5ef041701a2c0e006db78.png" alt="\left(\mathcal{A} - \mathcal{S}\right)\mathbf{\Phi} = \frac{1}{k_{eff}}\mathcal{F}\mathbf{\Phi}"/></p>
+<p><span class="eqno">(4)</span><img src="../_images/math/26b5e2eebac4803061bd1d1c5b5afb13e61c60e7.png" alt="\left(\mathcal{A} - \mathcal{S}\right)\mathbf{\Phi} = \frac{1}{k_{eff}}\mathcal{F}\mathbf{\Phi}"/></p>
 </div><p>This is rearranged such that the scattering component is on the right hand side:</p>
 <div class="math" id="equation-rearrange-generalized-eigenvalue-eqn">
-<p><span class="eqno">(5)</span><img src="../_images/math/61f66b5ec64daef70d34c8c3dc1a28a8a76ad92a.png" alt="\mathcal{A}\mathbf{\Phi} = \frac{1}{k_{eff}}\mathcal{F}\mathbf{\Phi} + \mathcal{S}\mathbf{\Phi}"/></p>
+<p><span class="eqno">(5)</span><img src="../_images/math/81e2750b007eed4a651887f25d482518488b851e.png" alt="\mathcal{A}\mathbf{\Phi} = \frac{1}{k_{eff}}\mathcal{F}\mathbf{\Phi} + \mathcal{S}\mathbf{\Phi}"/></p>
 </div><p>The right hand side is recognized to be equivalent to the total neutron source <img class="math" src="../_images/math/f9da3f81532a38c9acd8d27ab270130dec156969.png" alt="\mathbf{Q}"/>:</p>
 <div class="math" id="equation-generalized-eigenvalue-source">
-<p><span class="eqno">(6)</span><img src="../_images/math/0e3849725222a603c30b82e501a9d30bef338ebd.png" alt="\mathcal{A}\mathbf{\Phi} = \mathbf{Q}"/></p>
+<p><span class="eqno">(6)</span><img src="../_images/math/d593faf36d340eaf9a0555077894e8e308e79a2b.png" alt="\mathcal{A}\mathbf{\Phi} = \mathbf{Q}"/></p>
 </div><p>An iterative scheme can be applied to solve this equation, where <img class="math" src="../_images/math/413f8a8e40062a9090d9d50b88bc7b551b314c26.png" alt="n"/> is used to denote the outer iteration number. The outer iteration is used to compute the source based on the scalar flux approximation from the previous iteration:</p>
 <div class="math" id="equation-moc-source-iteration">
-<p><span class="eqno">(7)</span><img src="../_images/math/178924e506c4957050f62c3464c1284f6d47eb6c.png" alt="\mathbf{Q}^{(n+1)} = \frac{1}{k_{eff}^{(n)}}\mathbf{F}\mathbf{\Phi}^{(n)} + \mathcal{S}\mathbf{\Phi}^{(n)}"/></p>
+<p><span class="eqno">(7)</span><img src="../_images/math/1988b755919491a0791d79ddecd13d70e7b954fa.png" alt="\mathbf{Q}^{(n+1)} = \frac{1}{k_{eff}^{(n)}}\mathbf{F}\mathbf{\Phi}^{(n)} + \mathcal{S}\mathbf{\Phi}^{(n)}"/></p>
 </div><p>Next, an inner iteration applies the inverse operator <img class="math" src="../_images/math/9bcf543407de2386bff6d47514f6c0f19c6c9fca.png" alt="\mathcal{A}^{-1}"/> to solve a fixed source problem for the flux resulting from the source <img class="math" src="../_images/math/41934347b002a1a639358ed0c529603ca9f1128b.png" alt="\mathbf{Q}^{(n+1)}"/>:</p>
 <div class="math" id="equation-moc-flux-iteration">
-<p><span class="eqno">(8)</span><img src="../_images/math/132793a58dd481ef91dd4ffa26b445c4a6e9c648.png" alt="\mathbf{\Phi}^{(n+1)} = \mathcal{A}^{-1}\mathbf{Q}^{(n+1)}"/></p>
+<p><span class="eqno">(8)</span><img src="../_images/math/1d534ab5d2ddede15cc70523a70bdd0d296638bf.png" alt="\mathbf{\Phi}^{(n+1)} = \mathcal{A}^{-1}\mathbf{Q}^{(n+1)}"/></p>
 </div><p>Finally, the ratio of the <img class="math" src="../_images/math/0467e0003559a763cbcd16dcd0bf3c33f9c65901.png" alt="L_2"/> norm of the area-integrated fission source production to absorption and leakage (streaming) loss from iteration <img class="math" src="../_images/math/413f8a8e40062a9090d9d50b88bc7b551b314c26.png" alt="n"/> is used to compute the neutron multiplication factor for iteration <img class="math" src="../_images/math/f1299887120e51fb9e64e2a29c4ede283c9fec3c.png" alt="n+1"/>:</p>
 <div class="math" id="equation-moc-keff-iteration">
-<p><span class="eqno">(9)</span><img src="../_images/math/e2f2f12f70d57f0e52b0ce3af5fc906f952a24dd.png" alt="k_{eff}^{(n+1)} = \frac{||\mathcal{F}\mathbf{\Phi}^{(n+1)}||_2}{||(\mathcal{A-S})\mathbf{\Phi}^{(n+1)}||_2}"/></p>
-</div><p>These equations define the iterative MOC methodology applied in the OpenMOC code. <a class="reference internal" href="#source-update-algorithm"><em>Section 3.2</em></a> presents the source update algorithm used by the outer iteration to solve <a href="#equation-moc-source-iteration">(7)</a>. <a class="reference internal" href="#transport-sweep-algorithm"><em>Section 3.3</em></a> presents OpenMOC&#8217;s transport sweep algorithm used for the inner fixed source iteration defined by <a href="#equation-moc-flux-iteration">(8)</a>.</p>
+<p><span class="eqno">(9)</span><img src="../_images/math/27a81b19fb747b0a31a4e0ec455495bc3984aedc.png" alt="k_{eff}^{(n+1)} = \frac{||\mathcal{F}\mathbf{\Phi}^{(n+1)}||_2}{||(\mathcal{A-S})\mathbf{\Phi}^{(n+1)}||_2}"/></p>
+</div><p>These equations define the iterative MOC methodology applied in the OpenMOC code. <a class="reference internal" href="#source-update-algorithm"><span class="std std-ref">Section 3.2</span></a> presents the source update algorithm used by the outer iteration to solve <a href="#equation-moc-source-iteration">(7)</a>. <a class="reference internal" href="#transport-sweep-algorithm"><span class="std std-ref">Section 3.3</span></a> presents OpenMOC&#8217;s transport sweep algorithm used for the inner fixed source iteration defined by <a href="#equation-moc-flux-iteration">(8)</a>.</p>
 </div>
 <div class="section" id="source-update-algorithm">
 <span id="id3"></span><h2>3.2. Source Update Algorithm<a class="headerlink" href="#source-update-algorithm" title="Permalink to this headline">¶</a></h2>
-<p>The outer iteration updates the source according to <a href="#equation-moc-source-iteration">(7)</a> from the fixed source flux approximation computed by <a href="#equation-moc-flux-iteration">(8)</a>. This process is methodically described by <a class="reference internal" href="#figure-source-update"><em>Algorithm 1</em></a>:</p>
-<div class="align-center figure" id="figure-source-update">
-<a class="reference internal image-reference" href="../_images/source-update-algorithm.png"><img alt="../_images/source-update-algorithm.png" src="../_images/source-update-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 1</strong>: FSR source update.</p>
+<p>The outer iteration updates the source according to <a href="#equation-moc-source-iteration">(7)</a> from the fixed source flux approximation computed by <a href="#equation-moc-flux-iteration">(8)</a>. This process is methodically described by <a class="reference internal" href="#figure-source-update"><span class="std std-ref">Algorithm 1</span></a>:</p>
+<div class="align-center figure" id="id7">
+<span id="figure-source-update"></span><a class="reference internal image-reference" href="../_images/source-update-algorithm.png"><img alt="../_images/source-update-algorithm.png" src="../_images/source-update-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 1</strong>: FSR source update.</span></p>
 </div>
 </div>
 <div class="section" id="transport-sweep-algorithm">
 <span id="id4"></span><h2>3.3. Transport Sweep Algorithm<a class="headerlink" href="#transport-sweep-algorithm" title="Permalink to this headline">¶</a></h2>
 <p>The inner iteration in OpenMOC solves the fixed source problem given in <a href="#equation-moc-flux-iteration">(8)</a>. The fixed source flux is solved through the MOC formulation by integrating the angular flux across the geometry for each track. The OpenMOC solver implementation performs this integration to compute the scalar flux for each FSR in each group. By default, OpenMOC guesses a uniform incoming angular flux for each track, normalized to the total source:</p>
 <div class="math" id="equation-incoming-angular-flux">
-<p><span class="eqno">(10)</span><img src="../_images/math/4ee69732b2f8f78fda410fe73b418f4346ead50f.png" alt="\forall \; k, g, p \;\;\;\;\;\;\; \Psi_{k,g,p}^{(n+1)}(0) = \frac{1}{||\mathbf{Q}^{(n)}||_{2}}"/></p>
-</div><p>A single inner iteration to compute <img class="math" src="../_images/math/841266a62f3854e0469db74c3c1cdb4eefdf70bf.png" alt="\Phi_{g,i}"/> for all FSRs and energy groups will henceforth be termed a <em>transport sweep</em>. Each transport sweep integrates the flux (from the previous iteration) along each track for each energy group while tallying a new flux contribution to each flat source region. A single transport sweep involves five nested loops over azimuthal angles, tracks for each azimuthal angle, segments for each track, energy groups and polar angles. The sets of all azimuthal angles, tracks, track segments, FSRs, energy groups and polar angles are denoted by <img class="math" src="../_images/math/2de38926392ba23abeac75effc66c37a5f5be5fd.png" alt="M"/>, <img class="math" src="../_images/math/28e003020d0ae96250b302d7d779c791f183f707.png" alt="K"/>, <img class="math" src="../_images/math/11a85f3c69ae6702cb1d99d3de451913b8f84c04.png" alt="S"/>, <img class="math" src="../_images/math/5d9e7b2aec3287330051a115f2ea3cdc8c7a6587.png" alt="I"/>, <img class="math" src="../_images/math/b92c09a649305a0aef3239729d93cdf941e0e5cf.png" alt="G"/> and <img class="math" src="../_images/math/f48b617185733d8dd6712643f1ab17c736661a06.png" alt="P"/>, respectively. For notational simplicity, the subset of tracks for azimuthal angle <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/> is denoted by <img class="math" src="../_images/math/3b49b7b2642b90b5e6c1f5dc85e800f0f21cbfaa.png" alt="K(m)"/>, the subset of segments for track <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/> is given by <img class="math" src="../_images/math/c7320345e5e0637e4609c4f94ef9ae68a354acdf.png" alt="S(k)"/>, and the FSR for segment <img class="math" src="../_images/math/6859317dd1b439cef34131bcd4bafee8393444e0.png" alt="s"/> is represented as <img class="math" src="../_images/math/444451b6f9f9c39de16b9a85af188aa71d5013e6.png" alt="I(s)"/>. The leakage tally for vacuum boundary conditions is designated as <img class="math" src="../_images/math/0a5711c7a37994043b2bc3bb374adca232491762.png" alt="L"/>. A description of the OpenMOC solver&#8217;s transport sweep is given by <a class="reference internal" href="#figure-transport-sweep-algorithm"><em>Algorithm 2</em></a>.</p>
-<div class="align-center figure" id="figure-transport-sweep-algorithm">
-<a class="reference internal image-reference" href="../_images/transport-sweep-algorithm.png"><img alt="../_images/transport-sweep-algorithm.png" src="../_images/transport-sweep-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 2</strong>: Transport sweep algorith.</p>
+<p><span class="eqno">(10)</span><img src="../_images/math/9423d2fe88e76392cac5fb1c3d75d9f1aa5a2285.png" alt="\forall \; k, g, p \;\;\;\;\;\;\; \Psi_{k,g,p}^{(n+1)}(0) = \frac{1}{||\mathbf{Q}^{(n)}||_{2}}"/></p>
+</div><p>A single inner iteration to compute <img class="math" src="../_images/math/841266a62f3854e0469db74c3c1cdb4eefdf70bf.png" alt="\Phi_{g,i}"/> for all FSRs and energy groups will henceforth be termed a <em>transport sweep</em>. Each transport sweep integrates the flux (from the previous iteration) along each track for each energy group while tallying a new flux contribution to each flat source region. A single transport sweep involves five nested loops over azimuthal angles, tracks for each azimuthal angle, segments for each track, energy groups and polar angles. The sets of all azimuthal angles, tracks, track segments, FSRs, energy groups and polar angles are denoted by <img class="math" src="../_images/math/2de38926392ba23abeac75effc66c37a5f5be5fd.png" alt="M"/>, <img class="math" src="../_images/math/28e003020d0ae96250b302d7d779c791f183f707.png" alt="K"/>, <img class="math" src="../_images/math/11a85f3c69ae6702cb1d99d3de451913b8f84c04.png" alt="S"/>, <img class="math" src="../_images/math/5d9e7b2aec3287330051a115f2ea3cdc8c7a6587.png" alt="I"/>, <img class="math" src="../_images/math/b92c09a649305a0aef3239729d93cdf941e0e5cf.png" alt="G"/> and <img class="math" src="../_images/math/f48b617185733d8dd6712643f1ab17c736661a06.png" alt="P"/>, respectively. For notational simplicity, the subset of tracks for azimuthal angle <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/> is denoted by <img class="math" src="../_images/math/3b49b7b2642b90b5e6c1f5dc85e800f0f21cbfaa.png" alt="K(m)"/>, the subset of segments for track <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/> is given by <img class="math" src="../_images/math/c7320345e5e0637e4609c4f94ef9ae68a354acdf.png" alt="S(k)"/>, and the FSR for segment <img class="math" src="../_images/math/6859317dd1b439cef34131bcd4bafee8393444e0.png" alt="s"/> is represented as <img class="math" src="../_images/math/444451b6f9f9c39de16b9a85af188aa71d5013e6.png" alt="I(s)"/>. The leakage tally for vacuum boundary conditions is designated as <img class="math" src="../_images/math/0a5711c7a37994043b2bc3bb374adca232491762.png" alt="L"/>. A description of the OpenMOC solver&#8217;s transport sweep is given by <a class="reference internal" href="#figure-transport-sweep-algorithm"><span class="std std-ref">Algorithm 2</span></a>.</p>
+<div class="align-center figure" id="id8">
+<span id="figure-transport-sweep-algorithm"></span><a class="reference internal image-reference" href="../_images/transport-sweep-algorithm.png"><img alt="../_images/transport-sweep-algorithm.png" src="../_images/transport-sweep-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 2</strong>: Transport sweep algorith.</span></p>
 </div>
-<p><a class="reference internal" href="#figure-transport-sweep"><em>Figure 1</em></a> illustrates OpenMOC&#8217;s sequential approach to sweeping across a sequence of 12 tracks for four azimuthal angles. It is noted that each track represents two azimuthal angles for both <em>forward</em> and <em>reverse</em> directions which necessarily halves the memory requirements for track storage.</p>
-<div class="align-center figure" id="figure-transport-sweep">
-<a class="reference internal image-reference" href="../_images/transport-sweep.png"><img alt="../_images/transport-sweep.png" src="../_images/transport-sweep.png" style="width: 750px;" /></a>
-<p class="caption"><strong>Figure 1</strong>: Track sweeping order in OpenMOC.</p>
+<p><a class="reference internal" href="#figure-transport-sweep"><span class="std std-ref">Figure 1</span></a> illustrates OpenMOC&#8217;s sequential approach to sweeping across a sequence of 12 tracks for four azimuthal angles. It is noted that each track represents two azimuthal angles for both <em>forward</em> and <em>reverse</em> directions which necessarily halves the memory requirements for track storage.</p>
+<div class="align-center figure" id="id9">
+<span id="figure-transport-sweep"></span><a class="reference internal image-reference" href="../_images/transport-sweep.png"><img alt="../_images/transport-sweep.png" src="../_images/transport-sweep.png" style="width: 750px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 1</strong>: Track sweeping order in OpenMOC.</span></p>
 </div>
 </div>
 <div class="section" id="source-convergence-criterion">
 <span id="id5"></span><h2>3.4. Source Convergence Criterion<a class="headerlink" href="#source-convergence-criterion" title="Permalink to this headline">¶</a></h2>
-<p>The spatial shape and energy distribution of the flux across FSRs are iteratively solved for by transport sweeps (<a class="reference internal" href="#figure-transport-sweep"><em>Algorithm 2</em></a>) and source updates (<a class="reference internal" href="#figure-source-update"><em>Algorithm 2</em></a>) until the total source for each FSR has converged. The criterion used in OpenMOC for determining whether the source distribution has fully converged is given below:</p>
+<p>The spatial shape and energy distribution of the flux across FSRs are iteratively solved for by transport sweeps (<a class="reference internal" href="#figure-transport-sweep"><span class="std std-ref">Algorithm 2</span></a>) and source updates (<a class="reference internal" href="#figure-source-update"><span class="std std-ref">Algorithm 2</span></a>) until the total source for each FSR has converged. The criterion used in OpenMOC for determining whether the source distribution has fully converged is given below:</p>
 <div class="math" id="equation-source-convergence-criterion">
-<p><span class="eqno">(11)</span><img src="../_images/math/e2a91d111f2e204e4c561967984c3396e399e5c2.png" alt="res \;\; = \;\; \frac{1}{|G||I|}\sqrt{\displaystyle\sum\limits_{i=1}^{I}\displaystyle\sum\limits_{g=1}^{G}\left(\frac{Q_{i,g}^{(n+1)} - Q_{i,g}^{(n)}}{Q_{i,g}^{(n+1)}}\right)^{2}} \;\;\;\; &lt; \;\;\;\; tol"/></p>
-</div><p>The tolerance is generally assigned to the range <img class="math" src="../_images/math/4f09e58b43e9d6fb5c845aa2ad0554d620b295b4.png" alt="tol = [10^{-6}, 10^{-4}]"/>. The overall iterative scheme with inner transport sweep iterations and outer source update iterations, including the source distribution convergence check, is outlined by <a class="reference internal" href="#figure-overall-iterative-scheme"><em>Algorithm 3</em></a>.</p>
-<div class="align-center figure" id="figure-overall-iterative-scheme">
-<a class="reference internal image-reference" href="../_images/overall-iterative-scheme.png"><img alt="../_images/overall-iterative-scheme.png" src="../_images/overall-iterative-scheme.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 3</strong>: Overal MOC iteration scheme.</p>
+<p><span class="eqno">(11)</span><img src="../_images/math/21238174a04ed896f8abf6f15c88f283812d8a11.png" alt="res \;\; = \;\; \frac{1}{|G||I|}\sqrt{\displaystyle\sum\limits_{i=1}^{I}\displaystyle\sum\limits_{g=1}^{G}\left(\frac{Q_{i,g}^{(n+1)} - Q_{i,g}^{(n)}}{Q_{i,g}^{(n+1)}}\right)^{2}} \;\;\;\; &lt; \;\;\;\; tol"/></p>
+</div><p>The tolerance is generally assigned to the range <img class="math" src="../_images/math/4f09e58b43e9d6fb5c845aa2ad0554d620b295b4.png" alt="tol = [10^{-6}, 10^{-4}]"/>. The overall iterative scheme with inner transport sweep iterations and outer source update iterations, including the source distribution convergence check, is outlined by <a class="reference internal" href="#figure-overall-iterative-scheme"><span class="std std-ref">Algorithm 3</span></a>.</p>
+<div class="align-center figure" id="id10">
+<span id="figure-overall-iterative-scheme"></span><a class="reference internal image-reference" href="../_images/overall-iterative-scheme.png"><img alt="../_images/overall-iterative-scheme.png" src="../_images/overall-iterative-scheme.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 3</strong>: Overal MOC iteration scheme.</span></p>
 </div>
 </div>
 <div class="section" id="exponential-evaluation-method">
 <span id="exponential-evaluation"></span><h2>3.5. Exponential Evaluation Method<a class="headerlink" href="#exponential-evaluation-method" title="Permalink to this headline">¶</a></h2>
-<p>The algorithms described in this section require a number of floating point operations, including addition, subtraction, multiplication and division. The most expensive operation, however, is the exponential evaluation needed to compute <img class="math" src="../_images/math/3f6f6077bb11fc68fb59a81301b07b3068323e52.png" alt="e^{-\tau_{k,i,g,p}}"/>. All mainstream compilers provide a library with intrinsic mathematical routines, including an exponential evaluator. One method of avoiding the computational cost of explicitly evaluating exponentials is through the use of a linear interpolation table. A sequence of linear approximations to a simple exponential is illustrated in <a class="reference internal" href="#figure-exponential-tangent"><em>Figure 2</em></a>. In addition to reducing the flop count for an exponential evaluation, the table may be constructed to fit completely in <img class="math" src="../_images/math/50c49407b1ed38a648f313ae07d258ff3305e24a.png" alt="L1"/> cache and as a result, can improve the memory performance of the MOC transport sweep algorithm.</p>
-<div class="align-center figure" id="figure-exponential-tangent">
-<a class="reference internal image-reference" href="../_images/exponential-tangent.png"><img alt="../_images/exponential-tangent.png" src="../_images/exponential-tangent.png" style="width: 500px;" /></a>
-<p class="caption"><strong>Figure 2</strong>: Linear interpolation of an exponential.</p>
+<p>The algorithms described in this section require a number of floating point operations, including addition, subtraction, multiplication and division. The most expensive operation, however, is the exponential evaluation needed to compute <img class="math" src="../_images/math/3f6f6077bb11fc68fb59a81301b07b3068323e52.png" alt="e^{-\tau_{k,i,g,p}}"/>. All mainstream compilers provide a library with intrinsic mathematical routines, including an exponential evaluator. One method of avoiding the computational cost of explicitly evaluating exponentials is through the use of a linear interpolation table. A sequence of linear approximations to a simple exponential is illustrated in <a class="reference internal" href="#figure-exponential-tangent"><span class="std std-ref">Figure 2</span></a>. In addition to reducing the flop count for an exponential evaluation, the table may be constructed to fit completely in <img class="math" src="../_images/math/50c49407b1ed38a648f313ae07d258ff3305e24a.png" alt="L1"/> cache and as a result, can improve the memory performance of the MOC transport sweep algorithm.</p>
+<div class="align-center figure" id="id11">
+<span id="figure-exponential-tangent"></span><a class="reference internal image-reference" href="../_images/exponential-tangent.png"><img alt="../_images/exponential-tangent.png" src="../_images/exponential-tangent.png" style="width: 500px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 2</strong>: Linear interpolation of an exponential.</span></p>
 </div>
 <p>The OpenMOC code incorporates an option to evaluate exponentials using either the compiler&#8217;s exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> for the linear interpolation method was discussed and validated by <a class="reference internal" href="../usersguide/input.html#yamamoto" id="id6">[Yamamoto]</a>:</p>
 <div class="math" id="equation-exponential-error">
-<p><span class="eqno">(12)</span><img src="../_images/math/5c07faabb1472f3fa8e7497cd31c6ccf987d3610.png" alt="\epsilon = \frac{1}{8}\frac{l^2}{N^2} + O\left(\frac{1}{N^2}\right) \approx \frac{1}{8}\frac{l^2}{N^2}"/></p>
+<p><span class="eqno">(12)</span><img src="../_images/math/64c82fe43a2154db2540197839e19d34aaba56c5.png" alt="\epsilon = \frac{1}{8}\frac{l^2}{N^2} + O\left(\frac{1}{N^2}\right) \approx \frac{1}{8}\frac{l^2}{N^2}"/></p>
 </div><p>In this equation, <img class="math" src="../_images/math/d99efde75c84ef402a92cd4497530d2366fb112f.png" alt="l"/> represents the maximum argument (power) for the exponential and <img class="math" src="../_images/math/75e27f04188974063be3230dca208cd495b77ce1.png" alt="N"/> is the number of values in the interpolation table. With respect to the MOC algorithm, <img class="math" src="../_images/math/8304b45a2f5b748de246b7242f669d8048652524.png" alt="\tau_{max} = \displaystyle\max_{k,i,g}(\tau_{k,i,g}) = \displaystyle\max_{k,i,g}\left(\Sigma_{i,g}^Tl_{k,i}\right)"/>, where the segment length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> is kept in the 2D azimuthal plane for reasons that will follow.</p>
 <p>The interpolation table is constructed as follows. First, <a href="#equation-exponential-error">(12)</a> can be rearranged such that <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> becomes a selectable parameter for the algorithm to achieve an arbitrarily small approximation error:</p>
 <div class="math" id="equation-exponential-num-values">
-<p><span class="eqno">(13)</span><img src="../_images/math/68503865fc28074b4d233767e0a5409d53fa5d98.png" alt="N = \frac{\tau_{max}}{\sqrt{8\epsilon}}"/></p>
+<p><span class="eqno">(13)</span><img src="../_images/math/53616c132d15241fce5feec4658dd58992151b43.png" alt="N = \frac{\tau_{max}}{\sqrt{8\epsilon}}"/></p>
 </div><p>The argument to the exponential is then subdivided into <img class="math" src="../_images/math/75e27f04188974063be3230dca208cd495b77ce1.png" alt="N"/> intervals with equal spacing <img class="math" src="../_images/math/ed1e0c15c029b529f9affed698c511146abf4f05.png" alt="\Delta_{N}"/> in logarithmic space:</p>
 <div class="math" id="equation-exponential-spacing">
-<p><span class="eqno">(14)</span><img src="../_images/math/713d9782e5fd04145640da1c1ac7031c3eb40940.png" alt="\Delta_{N} = \frac{\tau_{max}}{N}"/></p>
+<p><span class="eqno">(14)</span><img src="../_images/math/aaefa3b32200212b74cfa1480858936a5cab12a9.png" alt="\Delta_{N} = \frac{\tau_{max}}{N}"/></p>
 </div><p>The final step is to compute the slope <img class="math" src="../_images/math/41afed9c3c63b25e8ad1f12a2e2d2a9a09603e66.png" alt="q_{n}"/> and y-intercept <img class="math" src="../_images/math/ef8591399a06433e65d57be7ed78fd9dbb8f0da8.png" alt="b_{n}"/> for the linear approximation to the exponential for a polar angle <img class="math" src="../_images/math/368d65753047de89cc9975429351e9b48050a49a.png" alt="\theta_{p}"/> within each interval <img class="math" src="../_images/math/d986fd340e1293d28bca80f68c553c0b7edccbcc.png" alt="n \in \{0, 1, 2, ..., N-1\}"/>:</p>
 <div class="math" id="equation-exponential-slope">
-<p><span class="eqno">(15)</span><img src="../_images/math/c605a5fdba7e37ec00d4ace132748046299128b0.png" alt="q_n = \frac{\mathrm{d}}{\mathrm{d}(\tau)}\exp\left(-\frac{\tau}{\sin\theta_p}\right)\bigg|_{\tau=(n+0.5)\Delta_{N}} = -\frac{\exp\left(-\frac{(n + 0.5)\Delta_{N}}{\sin\theta_p}\right)}{\sin\theta_{p}}"/></p>
+<p><span class="eqno">(15)</span><img src="../_images/math/747bcf5eeaa765a5ca408278c0afb5fff2731224.png" alt="q_n = \frac{\mathrm{d}}{\mathrm{d}(\tau)}\exp\left(-\frac{\tau}{\sin\theta_p}\right)\bigg|_{\tau=(n+0.5)\Delta_{N}} = -\frac{\exp\left(-\frac{(n + 0.5)\Delta_{N}}{\sin\theta_p}\right)}{\sin\theta_{p}}"/></p>
 </div><div class="math" id="equation-exponential-intercept">
-<p><span class="eqno">(16)</span><img src="../_images/math/94a64aa96e52525c0ffb76cfa968f11ca120e950.png" alt="b_n = \exp\left(-\frac{(n+0.5)\Delta_{N}}{\sin\theta_{p}}\right)\left[1 + \frac{(n+0.5)\Delta_{N}}{\sin\theta_{p}}\right]"/></p>
-</div><p>The exponential is computed at the midpoint of each interval, <img class="math" src="../_images/math/1533f0a5bbda07ac5b7c5f12539c2affa39f1a3b.png" alt="(n+0.5)\Delta_{N}"/>, to minimize the error in approximating the exponential for the values in the interval. OpenMOC modifies this process by computing array values for each polar angle quadrature point <img class="math" src="../_images/math/368d65753047de89cc9975429351e9b48050a49a.png" alt="\theta_{p}"/> which results in a table with <img class="math" src="../_images/math/e0481f5e230b34ca5a2f0fa7c2e89f45dd9a4808.png" alt="PN"/> values instead of just <img class="math" src="../_images/math/75e27f04188974063be3230dca208cd495b77ce1.png" alt="N"/>. The reason for this is cache efficiency: at each <img class="math" src="../_images/math/7effdec383135fc21813183c435893635e58e979.png" alt="n \in \{1, 2, ..., N\}"/> the values for the exponential with argument <img class="math" src="../_images/math/1533f0a5bbda07ac5b7c5f12539c2affa39f1a3b.png" alt="(n+0.5)\Delta_{N}"/> at each polar angle are contiguously stored in the table. Since the innermost loop in the transport sweep (<a class="reference internal" href="#figure-transport-sweep-algorithm"><em>Algorithm 2</em></a>) is over polar angles, the exponential values for each polar angle in the table are pre-fetched and stored in the cache on the first iteration of the loop. Finally, since both a slope and a y-intercept must be stored for each point, the total size of the table is <img class="math" src="../_images/math/c05679c8dd83b6667cb550954e134dd2e4df76c1.png" alt="2PN"/>. The procedure to construct the linear interpolation table is outlined by <a class="reference internal" href="#figure-exponential-interpolation-table"><em>Algorithm 4</em></a>.</p>
-<div class="align-center figure" id="figure-exponential-interpolation-table">
-<a class="reference internal image-reference" href="../_images/exponential-interpolation-algorithm.png"><img alt="../_images/exponential-interpolation-algorithm.png" src="../_images/exponential-interpolation-algorithm.png" style="width: 900px;" /></a>
-<p class="caption"><strong>Algorithm 4</strong>: Exponential linear interpolation table construction.</p>
+<p><span class="eqno">(16)</span><img src="../_images/math/3410234f568885384357e2d6282e54497ac05cf1.png" alt="b_n = \exp\left(-\frac{(n+0.5)\Delta_{N}}{\sin\theta_{p}}\right)\left[1 + \frac{(n+0.5)\Delta_{N}}{\sin\theta_{p}}\right]"/></p>
+</div><p>The exponential is computed at the midpoint of each interval, <img class="math" src="../_images/math/1533f0a5bbda07ac5b7c5f12539c2affa39f1a3b.png" alt="(n+0.5)\Delta_{N}"/>, to minimize the error in approximating the exponential for the values in the interval. OpenMOC modifies this process by computing array values for each polar angle quadrature point <img class="math" src="../_images/math/368d65753047de89cc9975429351e9b48050a49a.png" alt="\theta_{p}"/> which results in a table with <img class="math" src="../_images/math/e0481f5e230b34ca5a2f0fa7c2e89f45dd9a4808.png" alt="PN"/> values instead of just <img class="math" src="../_images/math/75e27f04188974063be3230dca208cd495b77ce1.png" alt="N"/>. The reason for this is cache efficiency: at each <img class="math" src="../_images/math/7effdec383135fc21813183c435893635e58e979.png" alt="n \in \{1, 2, ..., N\}"/> the values for the exponential with argument <img class="math" src="../_images/math/1533f0a5bbda07ac5b7c5f12539c2affa39f1a3b.png" alt="(n+0.5)\Delta_{N}"/> at each polar angle are contiguously stored in the table. Since the innermost loop in the transport sweep (<a class="reference internal" href="#figure-transport-sweep-algorithm"><span class="std std-ref">Algorithm 2</span></a>) is over polar angles, the exponential values for each polar angle in the table are pre-fetched and stored in the cache on the first iteration of the loop. Finally, since both a slope and a y-intercept must be stored for each point, the total size of the table is <img class="math" src="../_images/math/c05679c8dd83b6667cb550954e134dd2e4df76c1.png" alt="2PN"/>. The procedure to construct the linear interpolation table is outlined by <a class="reference internal" href="#figure-exponential-interpolation-table"><span class="std std-ref">Algorithm 4</span></a>.</p>
+<div class="align-center figure" id="id12">
+<span id="figure-exponential-interpolation-table"></span><a class="reference internal image-reference" href="../_images/exponential-interpolation-algorithm.png"><img alt="../_images/exponential-interpolation-algorithm.png" src="../_images/exponential-interpolation-algorithm.png" style="width: 900px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Algorithm 4</strong>: Exponential linear interpolation table construction.</span></p>
 </div>
 <p>To compute a linear approximation to an exponential, the following procedure is applied in OpenMOC. First, an index into the table must be computed for a track <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/> with segment of length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> in FSR <img class="math" src="../_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/> at energy group <img class="math" src="../_images/math/67f4714f065d485540ad40829e0717bf75e9dd85.png" alt="g"/> using the floor function:</p>
 <div class="math" id="equation-exponential-index">
-<p><span class="eqno">(17)</span><img src="../_images/math/dde666d60ed491897149996c03d46ae4543df6c0.png" alt="n = 2P\lfloor\frac{\Sigma^T_{i,g}l_{k,i}}{\Delta_{N}}\rfloor"/></p>
+<p><span class="eqno">(17)</span><img src="../_images/math/1357cf076df2d625c90122a0daf54a207f108c93.png" alt="n = 2P\lfloor\frac{\Sigma^T_{i,g}l_{k,i}}{\Delta_{N}}\rfloor"/></p>
 </div><p>Next, the slope and y-intercept for polar angle <img class="math" src="../_images/math/3eca8557203e86160952e1c0f735f7417f3285b1.png" alt="p"/> are extracted from the table:</p>
 <div class="math" id="equation-exponential-slope-lookup">
-<p><span class="eqno">(18)</span><img src="../_images/math/a2d099e6ec5993d4b472c48794f9404064aba1c8.png" alt="q_{n,p} = t[n+2p]"/></p>
+<p><span class="eqno">(18)</span><img src="../_images/math/9e026cb0cd1698df33b78484da75cb4c2ead048e.png" alt="q_{n,p} = t[n+2p]"/></p>
 </div><div class="math" id="equation-exponential-intercept-lookup">
-<p><span class="eqno">(19)</span><img src="../_images/math/453d70257830f9e82dc6277e047cdba4938d7c0b.png" alt="b_{n,p} = t[n+2p+1]"/></p>
+<p><span class="eqno">(19)</span><img src="../_images/math/a92274b602d83260f4a8678d3bef7379d91e3394.png" alt="b_{n,p} = t[n+2p+1]"/></p>
 </div><p>Finally, the approximation to the exponential is computed using linear interpolation from table <img class="math" src="../_images/math/ef9270877405055756d345facd044e4ab297f858.png" alt="t"/> at polar angle <img class="math" src="../_images/math/3eca8557203e86160952e1c0f735f7417f3285b1.png" alt="p"/>,</p>
 <div class="math" id="equation-exponential-approx">
-<p><span class="eqno">(20)</span><img src="../_images/math/5326611987394ec8bbc2aba6014e9deba890f259.png" alt="e^{-\tau_{k,i,g,p}} \;\; \approx \;\; q_{n,p}\tau_{k,i,g,p} - b_{n,p}"/></p>
+<p><span class="eqno">(20)</span><img src="../_images/math/592d108c6ccf125e719b1e9bd89debe33e46d350.png" alt="e^{-\tau_{k,i,g,p}} \;\; \approx \;\; q_{n,p}\tau_{k,i,g,p} - b_{n,p}"/></p>
 </div></div>
 </div>
 
@@ -168,7 +168,7 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -191,12 +191,14 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
   <h4>Next topic</h4>
   <p class="topless"><a href="constructive_solid_geometry.html"
                         title="next chapter">4. Constructive Solid Geometry</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/methods/eigenvalue_calculations.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/methods/eigenvalue_calculations.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -204,16 +206,13 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -225,14 +224,14 @@ calculations in OpenMOC by outlining the algorithms used to iteratively solve th
         <li class="right" >
           <a href="method_of_characteristics.html" title="2. Method of Characteristics"
              >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
 <script type="text/javascript">
 

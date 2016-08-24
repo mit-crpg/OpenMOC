@@ -5,6 +5,7 @@ var classMaterial =
     [ "alignData", "classMaterial.html#a68937e22f1c8369a4f03506c8a356cb6", null ],
     [ "buildFissionMatrix", "classMaterial.html#a0587782a678a2c73dbc5fba64e91f8d6", null ],
     [ "clone", "classMaterial.html#a417cf6f7c2cc82c04599e5a29b620a64", null ],
+    [ "copyFrom", "classMaterial.html#af33281617096e1a74a10928a3de11ffa", null ],
     [ "getChi", "classMaterial.html#a5d5966fb7c5718246d8d03a14c1c4564", null ],
     [ "getChiByGroup", "classMaterial.html#a8b2a80af2edc40b3cd9b0df7357d1af3", null ],
     [ "getFissionMatrix", "classMaterial.html#afd704ca5103cb36471ef69baff3684cf", null ],

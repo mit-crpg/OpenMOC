@@ -9,6 +9,7 @@ var searchData=
   ['update',['update',['../classParallelHashMap.html#a7ba0d89f6d3cc711518fe6f7f8c9f15a',1,'ParallelHashMap']]],
   ['updateboundaryflux',['updateBoundaryFlux',['../classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3',1,'Cmfd']]],
   ['updatemostlocal',['updateMostLocal',['../classLocalCoords.html#a371080a986073525f2e0572345e438c7',1,'LocalCoords']]],
+  ['updateuniverse',['updateUniverse',['../classLattice.html#ae385adfa867ab697f4743f8058195049',1,'Lattice']]],
   ['useexponentialinterpolation',['useExponentialInterpolation',['../classSolver.html#a627f677bdb8a621a632b581bc976b2a5',1,'Solver']]],
   ['useexponentialintrinsic',['useExponentialIntrinsic',['../classSolver.html#a5400c11874dac7f00ade6e7c2d573aee',1,'Solver']]],
   ['useinterpolation',['useInterpolation',['../classExpEvaluator.html#a6e61b20b470fd3e5220dc9bfd7298259',1,'ExpEvaluator']]],

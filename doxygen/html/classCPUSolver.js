@@ -1,7 +1,6 @@
 var classCPUSolver =
 [
     [ "CPUSolver", "classCPUSolver.html#a9b19a45fb3063c8feaf3642a0325b8a3", null ],
-    [ "~CPUSolver", "classCPUSolver.html#a6573957b7c5ea0b6c41b773081fd49cd", null ],
     [ "addSourceToScalarFlux", "classCPUSolver.html#a92a92ed2553ba853b9a8f63114d1a844", null ],
     [ "computeFSRFissionRates", "classCPUSolver.html#abea717cf58791486dd3201b55fa36170", null ],
     [ "computeFSRFissionSources", "classCPUSolver.html#a1ee72df94394c77b17290bee71bd17f0", null ],
@@ -9,6 +8,7 @@ var classCPUSolver =
     [ "computeFSRSources", "classCPUSolver.html#a642eef9bc24f88eefc478185f431d87b", null ],
     [ "computeKeff", "classCPUSolver.html#a230b68be081a8bd573bfdf3fabc75799", null ],
     [ "computeResidual", "classCPUSolver.html#ac6438df84b52fa1f0e3a98e6288e84c1", null ],
+    [ "copyBoundaryFluxes", "classCPUSolver.html#acc3e148de0c4d30128753c49aaa04d39", null ],
     [ "flattenFSRFluxes", "classCPUSolver.html#a154cbd82754abdadb2ca57068ec12102", null ],
     [ "getFluxes", "classCPUSolver.html#aa697a4b772c7f6824ee009376401fbcb", null ],
     [ "getNumThreads", "classCPUSolver.html#af890494e4e5353fa81f41f80d6e52cb4", null ],
