@@ -106,12 +106,9 @@ class IRAMSolver(object):
         # Set solution-dependent class attributes based on parameters
         # These are accessed and used by the LinearOperators
         self._num_modes = num_modes
-        self._inner_method = inner_method
         self._outer_tol = outer_tol
-        self._inner_tol = inner_tol
-        self._interval = interval
 
-        self.initializeOperators(solver_mode)
+        self.initializeOperators(solver_mode, inner_method, inner_tol, interval)
 
         # Solve the eigenvalue problem
         timer = openmoc.Timer()
@@ -135,13 +132,20 @@ class IRAMSolver(object):
         # Restore the material data
         self._moc_solver.resetMaterials(solver_mode)
 
-    def initializeOperators(self, solver_mode=openmoc.FORWARD):
+    def initializeOperators(self, solver_mode=openmoc.FORWARD,
+                            inner_method='gmres', inner_tol=1e-6, interval=10):
         """Initialize the operators M, A, and F.
 
         Parameters
         ----------
         solver_mode : {openmoc.FORWARD, openmoc.ADJOINT}
             The type of eigenmodes to compute (default is openmoc.FORWARD)
+        inner_method : {'gmres', 'lgmres', 'bicgstab', 'cgs'}
+            Krylov subspace method used for the Ax=b solve (default is 'gmres')
+        inner_tol : Real
+            The tolerance on the inner Ax=b solve (default is 1E-5)
+        interval : Integral
+            The inner iteration interval for logging messages (default is 10)
         """
 
         import scipy.sparse.linalg as linalg
@@ -149,6 +153,12 @@ class IRAMSolver(object):
         # Initialize inner/outer iteration counters to zero
         self._m_count = 0
         self._a_count = 0
+        
+        # Set solution-dependent class attributes based on parameters
+        # These are accessed and used by the LinearOperators
+        self._inner_method = inner_method
+        self._inner_tol = inner_tol
+        self._interval = interval
 
         # Initialize MOC solver
         self._moc_solver.initializeFSRs()
