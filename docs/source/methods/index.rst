@@ -14,3 +14,4 @@ Theory and Methodology
     constructive_solid_geometry
     track_generation
     cmfd
+    krylov
