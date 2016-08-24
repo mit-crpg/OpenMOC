@@ -111,27 +111,7 @@ class IRAMSolver(object):
         self._inner_tol = inner_tol
         self._interval = interval
 
-        # Initialize inner/outer iteration counters to zero
-        self._m_count = 0
-        self._a_count = 0
-
-        # Initialize MOC solver
-        self._moc_solver.initializeFSRs()
-        self._moc_solver.initializeMaterials(solver_mode)
-        self._moc_solver.countFissionableFSRs()
-        self._moc_solver.initializeExpEvaluator()
-        self._moc_solver.initializeFluxArrays()
-        self._moc_solver.initializeSourceArrays()
-        self._moc_solver.zeroTrackFluxes()
-
-        # Initialize SciPy operators
-        op_shape = (self._op_size, self._op_size)
-        self._A_op = linalg.LinearOperator(op_shape, self._A,
-                                           dtype=self._precision)
-        self._M_op = linalg.LinearOperator(op_shape, self._M,
-                                           dtype=self._precision)
-        self._F_op = linalg.LinearOperator(op_shape, self._F,
-                                           dtype=self._precision)
+        self.initializeOperators(solver_mode)
 
         # Solve the eigenvalue problem
         timer = openmoc.Timer()
@@ -154,6 +134,39 @@ class IRAMSolver(object):
 
         # Restore the material data
         self._moc_solver.resetMaterials(solver_mode)
+
+    def initializeOperators(self, solver_mode=openmoc.FORWARD):
+        """Initialize the operators M, A, and F.
+
+        Parameters
+        ----------
+        solver_mode : {openmoc.FORWARD, openmoc.ADJOINT}
+            The type of eigenmodes to compute (default is openmoc.FORWARD)
+        """
+
+        import scipy.sparse.linalg as linalg
+
+        # Initialize inner/outer iteration counters to zero
+        self._m_count = 0
+        self._a_count = 0
+
+        # Initialize MOC solver
+        self._moc_solver.initializeFSRs()
+        self._moc_solver.initializeMaterials(solver_mode)
+        self._moc_solver.countFissionableFSRs()
+        self._moc_solver.initializeExpEvaluator()
+        self._moc_solver.initializeFluxArrays()
+        self._moc_solver.initializeSourceArrays()
+        self._moc_solver.zeroTrackFluxes()
+
+        # Initialize SciPy operators
+        op_shape = (self._op_size, self._op_size)
+        self._A_op = linalg.LinearOperator(op_shape, self._A,
+                                           dtype=self._precision)
+        self._M_op = linalg.LinearOperator(op_shape, self._M,
+                                           dtype=self._precision)
+        self._F_op = linalg.LinearOperator(op_shape, self._F,
+                                           dtype=self._precision)
 
     def _A(self, flux):
         """Private routine for inner Ax=b solves with the scattering source.
