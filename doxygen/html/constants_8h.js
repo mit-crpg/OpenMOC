@@ -17,6 +17,7 @@ var constants_8h =
     [ "ON_SURFACE_THRESH", "constants_8h.html#a5ff2a7fbf6ba25f47f298c79f39dc4f8", null ],
     [ "ONE_OVER_FOUR_PI", "constants_8h.html#a662cb71fde841f2762641d9f82e1fbb5", null ],
     [ "POLAR_WEIGHT_SUM_TOL", "constants_8h.html#a4b8b14232fe86e7e5d8c1e7b55421137", null ],
+    [ "REPORT_WIDTH", "constants_8h.html#a494335f0403b6f268ef81014dd89c498", null ],
     [ "SIGMA_T_THRESH", "constants_8h.html#ae9c3eb98c50e150b93f8428cc6bdf3ca", null ],
     [ "SURFACE_X_MAX", "constants_8h.html#ac9fc720235ecc162307755d06d2ce597", null ],
     [ "SURFACE_X_MAX_Y_MAX", "constants_8h.html#acab00bead4c8659f28ea1652182d1295", null ],

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['last',['last',['../classstrided__range.html#a9fc39d970e757dfc487ad9febae56d49',1,'strided_range']]],
   ['lat',['LAT',['../LocalCoords_8h.html#a9b2c6f3fe231906f231afd6ae7293871a40df096e8ca19a820dbd94de79e97b3b',1,'LocalCoords.h']]],
   ['lattice',['Lattice',['../classLattice.html',1,'Lattice'],['../classLattice.html#aa6dc73412bb02ee8b50f720524e1f801',1,'Lattice::Lattice()'],['../Universe_8h.html#a123911615dcd5c50bea706d32683a02aa339a8cc891972f1e75bb948454f358be',1,'LATTICE():&#160;Universe.h']]],
   ['leonardpolarquad',['LeonardPolarQuad',['../classLeonardPolarQuad.html',1,'LeonardPolarQuad'],['../classLeonardPolarQuad.html#a8f7a05795ed34143840c2202c6622eb1',1,'LeonardPolarQuad::LeonardPolarQuad()']]],
@@ -12,5 +11,5 @@ var searchData=
   ['log_5fprintf',['log_printf',['../log_8h.html#a8abbd12e44a829a8d7a041636b170fde',1,'log.cpp']]],
   ['loglevel',['logLevel',['../log_8h.html#a474fc5e1d06d669823896ac6258fbc0d',1,'log.h']]],
   ['loglevels',['logLevels',['../log_8h.html#a5096002e05063d13577205e0bc5f0564',1,'log.h']]],
-  ['loopovertracks',['loopOverTracks',['../classTraverseSegments.html#a0da80219d8120dce9543351d97495ce9',1,'TraverseSegments']]]
+  ['loopovertracks',['loopOverTracks',['../classTraverseTracks.html#ac8bb25ca0a9d7418ad269b000ccd9a80',1,'TraverseTracks']]]
 ];

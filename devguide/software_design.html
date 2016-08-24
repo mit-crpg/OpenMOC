@@ -28,8 +28,8 @@
     <link rel="next" title="2. Simplified Wrapper Interface Generator (SWIG)" href="swig.html" />
     <link rel="prev" title="Developer’s Guide" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,26 +41,26 @@
         <li class="right" >
           <a href="index.html" title="Developer’s Guide"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="software-design">
 <span id="id1"></span><h1>1. Software Design<a class="headerlink" href="#software-design" title="Permalink to this headline">¶</a></h1>
-<p>OpenMOC uses a compiled language coupled with a scripting language &#8220;glue&#8221; <a class="reference internal" href="#sanner" id="id2">[Sanner]</a>, a methodology that has increasingly gained traction across disciplines since it enables both usability and performance. The majority of the source code is written in C/C++ as it is the most robust and well supported general purpose, high performance, compiled programming language with object-oriented features. In addition, OpenMOC&#8217;s solver routines for the GPU are written in NVIDIA&#8217;s CUDA programming language <a class="reference internal" href="#cuda" id="id3">[CUDA]</a> - a compiled language with similar syntax to C/C++. The widely adopted Simplified Wrapper Interface Generator (SWIG) <a class="reference internal" href="#beazley" id="id4">[Beazley]</a> is deployed to expose the C/C++/CUDA classes and routines to the Python scripting language. The model to couple the compiled C/C++/CUDA code to the Python scripting language is illustrated in <a class="reference internal" href="#figure-software-design"><em>Figure 1</em></a>. OpenMOC&#8217;s Python interface allows for rapid prototyping and testing of code features and tight integration with the rich ecosystem of powerful data processing and visualization tools developed for Python.</p>
-<div class="align-center figure" id="figure-software-design">
-<a class="reference internal image-reference" href="../_images/openmoc-software-design.png"><img alt="../_images/openmoc-software-design.png" src="../_images/openmoc-software-design.png" style="width: 500px;" /></a>
-<p class="caption"><strong>Figure 1</strong>: Programming model in OpenMOC.</p>
+<p>OpenMOC uses a compiled language coupled with a scripting language &#8220;glue&#8221; <a class="reference internal" href="#sanner" id="id2">[Sanner]</a>, a methodology that has increasingly gained traction across disciplines since it enables both usability and performance. The majority of the source code is written in C/C++ as it is the most robust and well supported general purpose, high performance, compiled programming language with object-oriented features. In addition, OpenMOC&#8217;s solver routines for the GPU are written in NVIDIA&#8217;s CUDA programming language <a class="reference internal" href="#cuda" id="id3">[CUDA]</a> - a compiled language with similar syntax to C/C++. The widely adopted Simplified Wrapper Interface Generator (SWIG) <a class="reference internal" href="#beazley" id="id4">[Beazley]</a> is deployed to expose the C/C++/CUDA classes and routines to the Python scripting language. The model to couple the compiled C/C++/CUDA code to the Python scripting language is illustrated in <a class="reference internal" href="#figure-software-design"><span class="std std-ref">Figure 1</span></a>. OpenMOC&#8217;s Python interface allows for rapid prototyping and testing of code features and tight integration with the rich ecosystem of powerful data processing and visualization tools developed for Python.</p>
+<div class="align-center figure" id="id5">
+<span id="figure-software-design"></span><a class="reference internal image-reference" href="../_images/openmoc-software-design.png"><img alt="../_images/openmoc-software-design.png" src="../_images/openmoc-software-design.png" style="width: 500px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 1</strong>: Programming model in OpenMOC.</span></p>
 </div>
 <div class="section" id="object-oriented-design">
 <h2>1.1. Object-Oriented Design<a class="headerlink" href="#object-oriented-design" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC is designed using the Object-Oriented (OO) programming paradigm, the standard for software development for over two decades. In OO programming, data structures called <strong>classes</strong> are used to encapsulate both attributes and subroutines. Object-oriented programming is powerful since it directly enables code generalization and requires the use of <strong>trust boundaries</strong> which lead to more resilient code. An OpenMOC simulation is created through the instantiation and manipulation of class objects. A complete listing of classes in OpenMOC is displayed in <a class="reference internal" href="#table-classes"><em>Table 1</em></a>.</p>
+<p>OpenMOC is designed using the Object-Oriented (OO) programming paradigm, the standard for software development for over two decades. In OO programming, data structures called <strong>classes</strong> are used to encapsulate both attributes and subroutines. Object-oriented programming is powerful since it directly enables code generalization and requires the use of <strong>trust boundaries</strong> which lead to more resilient code. An OpenMOC simulation is created through the instantiation and manipulation of class objects. A complete listing of classes in OpenMOC is displayed in <a class="reference internal" href="#table-classes"><span class="std std-ref">Table 1</span></a>.</p>
 <table border="1" class="docutils" id="table-classes">
 <colgroup>
 <col width="35%" />
@@ -74,68 +74,68 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Surface</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Surface</span></code></td>
 <td>N/A</td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Plane</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">Surface</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Plane</span></code></td>
+<td><code class="docutils literal"><span class="pre">Surface</span></code></td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">XPlane</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">Plane</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">XPlane</span></code></td>
+<td><code class="docutils literal"><span class="pre">Plane</span></code></td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">YPlane</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">Plane</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">YPlane</span></code></td>
+<td><code class="docutils literal"><span class="pre">Plane</span></code></td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ZCylinder</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">Surface</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ZCylinder</span></code></td>
+<td><code class="docutils literal"><span class="pre">Surface</span></code></td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Cell</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Cell</span></code></td>
 <td>N/A</td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Universe</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">Universe</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Universe</span></code></td>
+<td><code class="docutils literal"><span class="pre">Universe</span></code></td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Lattice</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Lattice</span></code></td>
 <td>N/A</td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Geometry</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Geometry</span></code></td>
 <td>N/A</td>
 <td>Constructive Solid Geometry</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">TrackGenerator</span></tt></td>
-<td>N/A</td>
-<td>Ray Tracing</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Quadrature</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TrackGenerator</span></code></td>
 <td>N/A</td>
 <td>Ray Tracing</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Material</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Quadrature</span></code></td>
+<td>N/A</td>
+<td>Ray Tracing</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Material</span></code></td>
 <td>N/A</td>
 <td>Nuclear Data</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Solver</span></code></td>
 <td>N/A</td>
 <td>Method of Characteristics</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">CPUSolver</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">CPUSolver</span></code></td>
+<td><code class="docutils literal"><span class="pre">Solver</span></code></td>
 <td>Method of Characteristics</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">GPUSolver</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">Solver</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">GPUSolver</span></code></td>
+<td><code class="docutils literal"><span class="pre">Solver</span></code></td>
 <td>Method of Characteristics</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">VectorizedSolver</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">CPUSolver</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">VectorizedSolver</span></code></td>
+<td><code class="docutils literal"><span class="pre">CPUSolver</span></code></td>
 <td>Method of Characteristics</td>
 </tr>
 </tbody>
@@ -144,7 +144,7 @@
 </div>
 <div class="section" id="python-modules">
 <h2>1.2. Python Modules<a class="headerlink" href="#python-modules" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC’s Python interface makes it relatively easy to create complicated simulation input. Generating input for an OpenMOC simulation does not involve writing an input file in the traditional sense. OpenMOC leverages the flexiblity provided by Python to allow users complete control to build their inputs in one or more scripts just as one may do for any Python program. The user imports the necessary OpenMOC modules (see <a class="reference internal" href="#table-python-modules"><em>Table 2</em></a>) into Python and “builds” a simulation using only those classes and routines which are needed.</p>
+<p>OpenMOC’s Python interface makes it relatively easy to create complicated simulation input. Generating input for an OpenMOC simulation does not involve writing an input file in the traditional sense. OpenMOC leverages the flexiblity provided by Python to allow users complete control to build their inputs in one or more scripts just as one may do for any Python program. The user imports the necessary OpenMOC modules (see <a class="reference internal" href="#table-python-modules"><span class="std std-ref">Table 2</span></a>) into Python and “builds” a simulation using only those classes and routines which are needed.</p>
 <table border="1" class="docutils" id="table-python-modules">
 <colgroup>
 <col width="37%" />
@@ -156,25 +156,25 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">openmoc</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">openmoc</span></code></td>
 <td>The main module for OpenMOC</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">openmoc.options</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">openmoc.options</span></code></td>
 <td>Command line options</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">openmoc.log</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">openmoc.log</span></code></td>
 <td>Level-based logging messages</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">openmoc.materialize</span></code></td>
 <td>Import/export multi-group nuclear data</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">openmoc.plotter</span></code></td>
 <td>Visualizations for geometry, flux, etc.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">openmoc.process</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">openmoc.process</span></code></td>
 <td>Data processing</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">openmoc.cuda</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">openmoc.cuda</span></code></td>
 <td>Solver for NVIDIA GPUs</td>
 </tr>
 </tbody>
@@ -211,7 +211,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -231,12 +231,14 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="swig.html"
                         title="next chapter">2. Simplified Wrapper Interface Generator (SWIG)</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/devguide/software_design.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/devguide/software_design.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -244,16 +246,13 @@
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -265,14 +264,14 @@
         <li class="right" >
           <a href="index.html" title="Developer’s Guide"
              >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
 <script type="text/javascript">
 

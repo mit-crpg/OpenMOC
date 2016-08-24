@@ -4,9 +4,9 @@ var Solver_8h =
     [ "_boundary_flux", "Solver_8h.html#a15b0f5dc814186a0e514b36f753d3bf6", null ],
     [ "_fixed_sources", "Solver_8h.html#a991cd83ccd910cf48245efb0aecd9b6a", null ],
     [ "_old_scalar_flux", "Solver_8h.html#ac7da59fbd14942e33392c046ecc6673a", null ],
-    [ "_polar_weights", "Solver_8h.html#a82337e9687f8a593b4b68772853353c6", null ],
     [ "_reduced_sources", "Solver_8h.html#a703206a382e1eae1bc7198894cf829ac", null ],
     [ "_scalar_flux", "Solver_8h.html#a3d16df105bf900bad9d2b5a6061aa06d", null ],
+    [ "_start_flux", "Solver_8h.html#ab09c0fc12661d78c79c30ec92aae6906", null ],
     [ "fission_sources", "Solver_8h.html#a11f42402c5f44216def0ab6d5c564843", null ],
     [ "scatter_sources", "Solver_8h.html#a04ce2f64386e3d29011f5bdc23ee7f0e", null ],
     [ "residualType", "Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be", [

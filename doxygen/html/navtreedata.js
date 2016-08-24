@@ -1,16 +1,8 @@
 var NAVTREE =
 [
   [ "Main Page", "index.html", [
-    [ "Namespaces", null, [
-      [ "Namespace List", "namespaces.html", "namespaces" ],
-      [ "Namespace Members", "namespacemembers.html", [
-        [ "All", "namespacemembers.html", null ],
-        [ "Functions", "namespacemembers_func.html", null ],
-        [ "Variables", "namespacemembers_vars.html", null ]
-      ] ]
-    ] ],
-    [ "Classes", null, [
-      [ "Class List", "annotated.html", "annotated" ],
+    [ "Classes", "annotated.html", [
+      [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
       [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
       [ "Class Members", "functions.html", [
@@ -36,12 +28,11 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-".html",
-"classCmfd.html#abb9ac33074c36e818ae1d88381ae13f1",
-"classMaterial.html#a5f0ac3401992f4d5fab3564154d21588",
-"classTrack.html#a4303af0eaea8bb86f3faa5506b042766",
-"classopenmoc_1_1plotter_1_1PlotParams.html#a09ff0f5b1ebb2c6e2fd2151fb7f81349",
-"structfsr__data.html#a725800e3793e3de9f60914cfcfdfdfbd"
+"CPUSolver_8h.html",
+"classCmfd.html#a5e424fa34563f18e5c16899d717444e1",
+"classMaterial.html",
+"classSurface.html#a017d43ba277780965b6d5aa928a635fc",
+"classVectorizedSolver.html#abcda5ede1c19f0e4c91e042c7d7a110d"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

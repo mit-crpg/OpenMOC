@@ -25,21 +25,21 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="installing-prerequisites-on-mac-os-x">
 <span id="mac-prerequisites"></span><h1>Installing Prerequisites on Mac OS X<a class="headerlink" href="#installing-prerequisites-on-mac-os-x" title="Permalink to this headline">¶</a></h1>
@@ -52,41 +52,41 @@
 <p class="first admonition-title">Required</p>
 <ul class="last">
 <li><p class="first">GNU&#8217;s C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a></p>
-<p>In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install the latest stable version of <tt class="docutils literal"><span class="pre">g++</span></tt> using MacPorts (v4.8 at the time of this writing), use the following command in the console:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install gcc48
+<p>In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install the latest stable version of <code class="docutils literal"><span class="pre">g++</span></code> using MacPorts (v4.8 at the time of this writing), use the following command in the console:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">gcc48</span>
 </pre></div>
 </div>
-<p>Finally, you must set this version of <tt class="docutils literal"><span class="pre">g++</span></tt> as the default for Macports:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port select --set gcc mp-gcc48
+<p>Finally, you must set this version of <code class="docutils literal"><span class="pre">g++</span></code> as the default for Macports:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">select</span> <span class="o">--</span><span class="nb">set</span> <span class="n">gcc</span> <span class="n">mp</span><span class="o">-</span><span class="n">gcc48</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.python.org/">Python</a></p>
 <p>OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.</p>
-<p>Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with <tt class="docutils literal"><span class="pre">g++</span></tt>. You can easily install version 2.7 using MacPorts as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install python27
+<p>Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with <code class="docutils literal"><span class="pre">g++</span></code>. You can easily install version 2.7 using MacPorts as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">python27</span>
 </pre></div>
 </div>
-<p>Finally, you must set this version of <tt class="docutils literal"><span class="pre">python</span></tt> as the default for Macports:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port select --set python python27
+<p>Finally, you must set this version of <code class="docutils literal"><span class="pre">python</span></code> as the default for Macports:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">select</span> <span class="o">--</span><span class="nb">set</span> <span class="n">python</span> <span class="n">python27</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://git-scm.com">Git</a></p>
 <p>The OpenMOC development team uses the <a class="reference external" href="http://git-scm.com">Git</a> version control software for code development and collaboration. To download the code from our <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a> repository, you must first install git. You can do so using MacPorts as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install git
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">git</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.swig.org/">SWIG</a></p>
 <p>The Simplified Wrapper Interface Generator (SWIG) is used to wrap the compiled C/C++ and CUDA source code and generate Python bindings. SWIG can be installed using MacPorts:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install swig swig-python
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">swig</span> <span class="n">swig</span><span class="o">-</span><span class="n">python</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.numpy.org/">NumPy</a></p>
 <p>NumPy is a commonly used, general purpose numerical array creation and manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer numerical data between Python and the C/C++ back-end compiled code. To install NumPy using MacPorts, use the following command:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install py27-numpy
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">py27</span><span class="o">-</span><span class="n">numpy</span>
 </pre></div>
 </div>
 </li>
@@ -96,15 +96,15 @@
 <p class="first admonition-title">Optional</p>
 <ul class="last">
 <li><p class="first"><a class="reference external" href="http://matplotlib.org/">matplotlib</a></p>
-<p>The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> module to generate plots, such as flux and power distributions. Although matplotlib and the <tt class="docutils literal"><span class="pre">openmoc.plotter</span></tt> modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib using MacPorts issue the following command:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install py27-matplotlib
+<p>The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module to generate plots, such as flux and power distributions. Although matplotlib and the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib using MacPorts issue the following command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">py27</span><span class="o">-</span><span class="n">matplotlib</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.h5py.org/">h5py</a></p>
-<p>The h5py Python package contains tools to create, retrieve, and manipulate data stored using the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary format. OpenMOC leverages the h5py functionality in its <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> module which includes routines to import/export multi-group nuclear cross-section data to/from HDF5. In addition, the <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> module contains routines to import/export simulation and performance data to/from HDF5 output files. Although h5py and the <tt class="docutils literal"><span class="pre">openmoc.materialize</span></tt> and <tt class="docutils literal"><span class="pre">openmoc.process</span></tt> modules are not required to run OpenMOC, they can facilitate fast access and storage of binary data.</p>
+<p>The h5py Python package contains tools to create, retrieve, and manipulate data stored using the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary format. OpenMOC leverages the h5py functionality in its <code class="docutils literal"><span class="pre">openmoc.materialize</span></code> module which includes routines to import/export multi-group nuclear cross-section data to/from HDF5. In addition, the <code class="docutils literal"><span class="pre">openmoc.process</span></code> module contains routines to import/export simulation and performance data to/from HDF5 output files. Although h5py and the <code class="docutils literal"><span class="pre">openmoc.materialize</span></code> and <code class="docutils literal"><span class="pre">openmoc.process</span></code> modules are not required to run OpenMOC, they can facilitate fast access and storage of binary data.</p>
 <p>To install h5py using MacPorts, issue the following command:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo port install py27-h5py
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">py27</span><span class="o">-</span><span class="n">h5py</span>
 </pre></div>
 </div>
 </li>
@@ -116,17 +116,19 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
             </a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/usersguide/mac_prerequisites.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usersguide/mac_prerequisites.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -134,28 +136,25 @@
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
 <script type="text/javascript">
 

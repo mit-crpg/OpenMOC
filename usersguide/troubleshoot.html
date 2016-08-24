@@ -28,8 +28,8 @@
     <link rel="next" title="Developer’s Guide" href="../devguide/index.html" />
     <link rel="prev" title="5. Running OpenMOC" href="running.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,15 +41,15 @@
         <li class="right" >
           <a href="running.html" title="5. Running OpenMOC"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="troubleshooting">
 <span id="usersguide-troubleshoot"></span><h1>6. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
@@ -60,17 +60,17 @@ error you are receiving is among the following options.</p>
 <div class="section" id="nameerror-is-not-defined">
 <h3>6.1.1. NameError: ... is not defined<a class="headerlink" href="#nameerror-is-not-defined" title="Permalink to this headline">¶</a></h3>
 <p>In some cases, the symbolic links for the code are not established correctly and users may receive a <cite>NameError</cite>, and example of which is given below:</p>
-<div class="highlight-python"><div class="highlight"><pre>Traceback (most recent call last):
-  File &quot;simple-lattice.py&quot;, line 1, in &lt;module&gt;
-    from openmoc import *
-  File &quot;/home/wbinventor/.local/lib/python2.7/site-packages/openmoc/__init__.py&quot;, line 15, in &lt;module&gt;
-    setLogfileName(&#39;log/openmoc-&#39; + current_time + &#39;.log&#39;);
-NameError: name &#39;setLogfileName&#39; is not defined
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">&quot;simple-lattice.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+    <span class="kn">from</span> <span class="nn">openmoc</span> <span class="k">import</span> <span class="o">*</span>
+  <span class="n">File</span> <span class="s2">&quot;/home/wbinventor/.local/lib/python2.7/site-packages/openmoc/__init__.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">15</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+    <span class="n">setLogfileName</span><span class="p">(</span><span class="s1">&#39;log/openmoc-&#39;</span> <span class="o">+</span> <span class="n">current_time</span> <span class="o">+</span> <span class="s1">&#39;.log&#39;</span><span class="p">);</span>
+<span class="ne">NameError</span><span class="p">:</span> <span class="n">name</span> <span class="s1">&#39;setLogfileName&#39;</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">defined</span>
 </pre></div>
 </div>
-<p>This error is commonly seen by new users after just installing the code. As noted in the <a class="reference internal" href="install.html#install"><em>Installation and Configuration</em></a>, some Python distributions require that OpenMOC be installed twice the first time it is installed. The recommended solution in this case would be to execute the installation command twice in sequence:</p>
-<div class="highlight-python"><div class="highlight"><pre>python setup.py install --user
-python setup.py install --user
+<p>This error is commonly seen by new users after just installing the code. As noted in the <a class="reference internal" href="install.html#install"><span class="std std-ref">Installation and Configuration</span></a>, some Python distributions require that OpenMOC be installed twice the first time it is installed. The recommended solution in this case would be to execute the installation command twice in sequence:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
 </pre></div>
 </div>
 </div>
@@ -81,7 +81,7 @@ python setup.py install --user
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -103,12 +103,14 @@ python setup.py install --user
   <h4>Next topic</h4>
   <p class="topless"><a href="../devguide/index.html"
                         title="next chapter">Developer&#8217;s Guide</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/usersguide/troubleshoot.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usersguide/troubleshoot.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -116,16 +118,13 @@ python setup.py install --user
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -137,14 +136,14 @@ python setup.py install --user
         <li class="right" >
           <a href="running.html" title="5. Running OpenMOC"
              >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
 <script type="text/javascript">
 

@@ -1,7 +1,7 @@
 var classGPUSolver =
 [
     [ "GPUSolver", "classGPUSolver.html#a76a26b09eccc6e771069babdfacf1382", null ],
-    [ "~GPUSolver", "classGPUSolver.html#ad1e93fffcb26624da0fa621248a944d2", null ],
+    [ "~GPUSolver", "classGPUSolver.html#af3b7862a266466e4a005436035b55c9b", null ],
     [ "addSourceToScalarFlux", "classGPUSolver.html#a28c2d3394b9a5f82af948dfdbfbd153f", null ],
     [ "computeFSRFissionRates", "classGPUSolver.html#a20cddb69d67c7bf64f3483259e9d90b7", null ],
     [ "computeFSRFissionSources", "classGPUSolver.html#abf3180d5d9e7a0f2d15b3f7a83a901b6", null ],
@@ -20,7 +20,6 @@ var classGPUSolver =
     [ "initializeFluxArrays", "classGPUSolver.html#a91d30ab0300fe48add4b011b0f9bec9d", null ],
     [ "initializeFSRs", "classGPUSolver.html#ab3c55b3861d4ec4064630a417cf210eb", null ],
     [ "initializeMaterials", "classGPUSolver.html#ac93ff23e71069a624f3573884e033ca1", null ],
-    [ "initializePolarQuadrature", "classGPUSolver.html#ab0035af3ba27d060628853b16d098cd4", null ],
     [ "initializeSourceArrays", "classGPUSolver.html#a59dc3efc8ba1e62143f583f1a013dfbf", null ],
     [ "initializeTracks", "classGPUSolver.html#a9ff5c289b273571e4007cd260ecea67c", null ],
     [ "normalizeFluxes", "classGPUSolver.html#a1ba8df7fc9f0817676c2152a840ba8bd", null ],

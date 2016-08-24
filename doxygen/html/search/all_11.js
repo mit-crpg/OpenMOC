@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['readsegments',['ReadSegments',['../classReadSegments.html',1,'ReadSegments'],['../classReadSegments.html#a81b359acf5cf72931523786f6428b511',1,'ReadSegments::ReadSegments()']]],
+  ['readtracksfromfile',['readTracksFromFile',['../classTrackGenerator.html#ab2c29c02bfb14d46c84c5715c98cc25b',1,'TrackGenerator']]],
+  ['recalibratetrackstoorigin',['recalibrateTracksToOrigin',['../classTrackGenerator.html#a79c7158a8dc2a79632247ab1bd4e68e0',1,'TrackGenerator']]],
   ['recordsplit',['recordSplit',['../classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7',1,'Timer']]],
   ['reduced_5fsources',['reduced_sources',['../GPUSolver_8h.html#af16043dabfde8edf630658d1a93906fb',1,'GPUSolver.h']]],
   ['reflective',['REFLECTIVE',['../boundary__type_8h.html#a94f2bdaf8e1769faec72dbd9e7486341a45e171c3bba46047336203d2aed3775d',1,'boundary_type.h']]],
@@ -13,9 +14,12 @@ var searchData=
   ['reset_5fmaterial_5fid',['reset_material_id',['../Material_8h.html#ac302c7b523c507299ef6c02a37c5cbad',1,'Material.cpp']]],
   ['reset_5fsurface_5fid',['reset_surface_id',['../Surface_8h.html#a2b778be0240aa21aec571e4d7088cb93',1,'Surface.cpp']]],
   ['reset_5funiverse_5fid',['reset_universe_id',['../Universe_8h.html#aa28b6af91940e7a6d3ab828bb0cebe3f',1,'Universe.cpp']]],
+  ['resetfsrvolumes',['resetFSRVolumes',['../classTrackGenerator.html#a9868fbd29bf31ebdeee476663063ab6d',1,'TrackGenerator']]],
   ['resetmaterials',['resetMaterials',['../classSolver.html#ae283d5e199fb47d604d13d0f9cd3d4cb',1,'Solver']]],
+  ['resetstatus',['resetStatus',['../classTrackGenerator.html#a71543706416bd0cf0c19dac6af66a381',1,'TrackGenerator']]],
   ['residualtype',['residualType',['../Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5be',1,'Solver.h']]],
   ['result',['RESULT',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a7186ecefe792fdae9fec0a42f105ad6b',1,'log.h']]],
+  ['retrievemaxopticallength',['retrieveMaxOpticalLength',['../classTrackGenerator.html#a9b48e67d2187698ab6ea4ca3e264e420',1,'TrackGenerator']]],
   ['retrieverotation',['retrieveRotation',['../classCell.html#a8a25a500988c028462ee9bd2594414e9',1,'Cell']]],
   ['retrievesegmentcoords',['retrieveSegmentCoords',['../classTrackGenerator.html#ad18b94b9307680cf9e7053d3c03e4504',1,'TrackGenerator']]],
   ['retrievetrackcoords',['retrieveTrackCoords',['../classTrackGenerator.html#a6b61a46a4dfd62aa13cab68e454ed935',1,'TrackGenerator']]],

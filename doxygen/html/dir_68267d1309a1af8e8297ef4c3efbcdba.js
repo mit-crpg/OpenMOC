@@ -20,8 +20,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "MOCKernel.h", "MOCKernel_8h.html", [
       [ "MOCKernel", "classMOCKernel.html", "classMOCKernel" ],
       [ "CounterKernel", "classCounterKernel.html", "classCounterKernel" ],
-      [ "VolumeKernel", "classVolumeKernel.html", "classVolumeKernel" ],
-      [ "SegmentationKernel", "classSegmentationKernel.html", "classSegmentationKernel" ]
+      [ "VolumeKernel", "classVolumeKernel.html", "classVolumeKernel" ]
     ] ],
     [ "pairwise_sum.h", "pairwise__sum_8h.html", "pairwise__sum_8h" ],
     [ "ParallelHashMap.h", "ParallelHashMap_8h.html", [
@@ -31,7 +30,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "Point.h", "Point_8h.html", [
       [ "Point", "classPoint.html", "classPoint" ]
     ] ],
-    [ "PolarQuad.h", "PolarQuad_8h.html", "PolarQuad_8h" ],
+    [ "Quadrature.h", "Quadrature_8h.html", "Quadrature_8h" ],
     [ "segmentation_type.h", "segmentation__type_8h.html", "segmentation__type_8h" ],
     [ "Solver.h", "Solver_8h.html", "Solver_8h" ],
     [ "Surface.h", "Surface_8h.html", "Surface_8h" ],
@@ -46,16 +45,12 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
       [ "TrackGenerator", "classTrackGenerator.html", "classTrackGenerator" ]
     ] ],
     [ "TrackTraversingAlgorithms.h", "TrackTraversingAlgorithms_8h.html", [
-      [ "MaxOpticalLength", "classMaxOpticalLength.html", "classMaxOpticalLength" ],
-      [ "SegmentCounter", "classSegmentCounter.html", "classSegmentCounter" ],
-      [ "SegmentSplitter", "classSegmentSplitter.html", "classSegmentSplitter" ],
       [ "VolumeCalculator", "classVolumeCalculator.html", "classVolumeCalculator" ],
-      [ "CentroidGenerator", "classCentroidGenerator.html", "classCentroidGenerator" ],
-      [ "TransportSweep", "classTransportSweep.html", "classTransportSweep" ],
-      [ "DumpSegments", "classDumpSegments.html", "classDumpSegments" ],
-      [ "ReadSegments", "classReadSegments.html", "classReadSegments" ]
+      [ "TransportSweep", "classTransportSweep.html", "classTransportSweep" ]
     ] ],
-    [ "TraverseTracks.h", "TraverseTracks_8h_source.html", null ],
+    [ "TraverseTracks.h", "TraverseTracks_8h.html", [
+      [ "TraverseTracks", "classTraverseTracks.html", "classTraverseTracks" ]
+    ] ],
     [ "Universe.h", "Universe_8h.html", "Universe_8h" ],
     [ "Vector.h", "Vector_8h.html", [
       [ "Vector", "classVector.html", "classVector" ]

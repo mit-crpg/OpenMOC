@@ -12,7 +12,7 @@ var classExpEvaluator =
     [ "isUsingInterpolation", "classExpEvaluator.html#ae9a355734c74f5ee9a3ae73408af5bca", null ],
     [ "setExpPrecision", "classExpEvaluator.html#a691f286cdc3fa578e29e62e8d4c574fc", null ],
     [ "setMaxOpticalLength", "classExpEvaluator.html#a5d80d3b514c570fe0319a49f402d5608", null ],
-    [ "setPolarQuadrature", "classExpEvaluator.html#adb0f2dbbfa74d27900e28199c9572c41", null ],
+    [ "setQuadrature", "classExpEvaluator.html#a46919044f8b8a4cff9c374737f650640", null ],
     [ "useInterpolation", "classExpEvaluator.html#a6e61b20b470fd3e5220dc9bfd7298259", null ],
     [ "useIntrinsic", "classExpEvaluator.html#a8bfb18e215131cdb6907f38762277275", null ]
 ];

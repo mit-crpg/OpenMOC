@@ -28,8 +28,8 @@
     <link rel="next" title="6. Style Guide for OpenMOC" href="style_guide.html" />
     <link rel="prev" title="3. Python Build System" href="build_system.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -41,28 +41,28 @@
         <li class="right" >
           <a href="build_system.html" title="3. Python Build System"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="debugging-openmoc">
 <span id="debugging"></span><h1>5. Debugging OpenMOC<a class="headerlink" href="#debugging-openmoc" title="Permalink to this headline">¶</a></h1>
-<p>This section describes some recommended debugging techniques for developers working with OpenMOC source code. Although many novice code developers are accustomed to use <strong>printf debugging</strong> with the <tt class="docutils literal"><span class="pre">printf(...)</span></tt> C/C++ routing. The printf debugging methodology is <strong>highly discouraged</strong> since it leads to a very long debug iteration cycle between source code revision, compilation, and testing. Instead, developers are advised to use some form of a debug environment for C/C++ and/or Python.</p>
-<p>In particular, this section describes <strong>GNU debugger</strong> <tt class="docutils literal"><span class="pre">gdb</span></tt> in detail with some basic examples of how to use it with the shared library C++ extension module that is built for OpenMOC. In addition, some debugging techniques for the Python source are overviewed.</p>
+<p>This section describes some recommended debugging techniques for developers working with OpenMOC source code. Although many novice code developers are accustomed to use <strong>printf debugging</strong> with the <code class="docutils literal"><span class="pre">printf(...)</span></code> C/C++ routing. The printf debugging methodology is <strong>highly discouraged</strong> since it leads to a very long debug iteration cycle between source code revision, compilation, and testing. Instead, developers are advised to use some form of a debug environment for C/C++ and/or Python.</p>
+<p>In particular, this section describes <strong>GNU debugger</strong> <code class="docutils literal"><span class="pre">gdb</span></code> in detail with some basic examples of how to use it with the shared library C++ extension module that is built for OpenMOC. In addition, some debugging techniques for the Python source are overviewed.</p>
 <div class="section" id="the-gnu-debugger-gdb">
 <h2>5.1. The GNU Debugger (GDB)<a class="headerlink" href="#the-gnu-debugger-gdb" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="https://www.gnu.org/software/gdb/">GNU Project Debugger</a> (GDB) provides the free open source <tt class="docutils literal"><span class="pre">gdb</span></tt> program for debugging of programs written in C/C++ (and other languages). The GNU debugger is typically installed when the GNU compiler collection (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">gcc</span></tt>, <tt class="docutils literal"><span class="pre">g++</span></tt>) is installed. However, if for some reason you do not have <tt class="docutils literal"><span class="pre">gdb</span></tt>, you may install it in Ubuntu using the <tt class="docutils literal"><span class="pre">apt-get</span></tt> package manager as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>sudo apt-get install gdb
+<p>The <a class="reference external" href="https://www.gnu.org/software/gdb/">GNU Project Debugger</a> (GDB) provides the free open source <code class="docutils literal"><span class="pre">gdb</span></code> program for debugging of programs written in C/C++ (and other languages). The GNU debugger is typically installed when the GNU compiler collection (<em>e.g.</em>, <code class="docutils literal"><span class="pre">gcc</span></code>, <code class="docutils literal"><span class="pre">g++</span></code>) is installed. However, if for some reason you do not have <code class="docutils literal"><span class="pre">gdb</span></code>, you may install it in Ubuntu using the <code class="docutils literal"><span class="pre">apt-get</span></code> package manager as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>sudo apt-get install gdb
 </pre></div>
 </div>
 <p>Likewise, the GNU debugger can be installed using MacPorts on machines running Mac OS X as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>sudo port install gdb
+<div class="highlight-none"><div class="highlight"><pre><span></span>sudo port install gdb
 </pre></div>
 </div>
 <p>There are a number of different ways to use to use and interact with GDB. There are a variety of graphical user interfaces for GDB, including <a class="reference external" href="http://www.gnu.org/software/ddd/">DDD</a> and <a class="reference external" href="http://www.eclipse.org/cdt/">Eclipse CDT</a> which may be helpful for advanced code developers. This section, however, will focus on using the command line interface to GDB via the console.</p>
@@ -78,15 +78,15 @@
 </ul>
 <div class="section" id="installing-openmoc-with-debug-symbols">
 <h3>5.2.1. Installing OpenMOC with Debug Symbols<a class="headerlink" href="#installing-openmoc-with-debug-symbols" title="Permalink to this headline">¶</a></h3>
-<p>In order to debug OpenMOC C/C++ source code, you must build and install the C/C++ extension module for Python with <a class="reference external" href="http://en.wikipedia.org/wiki/Debug_symbol">debug symbols</a>. This is easily done by appending the <a class="reference internal" href="../usersguide/running.html#cmdoption-g"><em class="xref std std-option">-g</em></a> command line option for the <tt class="docutils literal"><span class="pre">gcc</span></tt> compiler. The build system for OpenMOC can automatically append this flag for the compilation process with the <a class="reference internal" href="../usersguide/install.html#cmdoption--debug-mode"><em class="xref std std-option">--debug-mode</em></a> option:</p>
-<div class="highlight-none"><div class="highlight"><pre>python setup.py install --user --debug-mode
+<p>In order to debug OpenMOC C/C++ source code, you must build and install the C/C++ extension module for Python with <a class="reference external" href="http://en.wikipedia.org/wiki/Debug_symbol">debug symbols</a>. This is easily done by appending the <a class="reference internal" href="../usersguide/running.html#cmdoption-g"><code class="xref std std-option docutils literal"><span class="pre">-g</span></code></a> command line option for the <code class="docutils literal"><span class="pre">gcc</span></code> compiler. The build system for OpenMOC can automatically append this flag for the compilation process with the <a class="reference internal" href="../usersguide/install.html#cmdoption--debug-mode"><code class="xref std std-option docutils literal"><span class="pre">--debug-mode</span></code></a> option:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>python setup.py install --user --debug-mode
 </pre></div>
 </div>
 </div>
 <div class="section" id="starting-gdb">
 <h3>5.2.2. Starting GDB<a class="headerlink" href="#starting-gdb" title="Permalink to this headline">¶</a></h3>
-<p>The GNU Debugger may be started from the console with the <tt class="docutils literal"><span class="pre">gdb</span></tt> command:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ gdb
+<p>The GNU Debugger may be started from the console with the <code class="docutils literal"><span class="pre">gdb</span></code> command:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ gdb
 GNU gdb (GDB) 7.5-ubuntu
 Copyright (C) 2012 Free Software Foundation, Inc.
             License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;
@@ -100,7 +100,7 @@ For bug reporting instructions, please see:
 </pre></div>
 </div>
 <p>If you are debugging code written for the GPU, the CUDA GNU Debugger should be used:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ cuda-gdb
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cuda-gdb
 NVIDIA (R) CUDA Debugger
 5.5 release
 Portions Copyright (C) 2007-2013 NVIDIA Corporation
@@ -117,7 +117,7 @@ For bug reporting instructions, please see:
 </pre></div>
 </div>
 <p>The CUDA GDB debugger oftentimes does not fail at the exact location of the error, so it is recommended to turn cuda memcheck on:</p>
-<div class="highlight-none"><div class="highlight"><pre>(cuda-gdb) set cuda memcheck on
+<div class="highlight-none"><div class="highlight"><pre><span></span>(cuda-gdb) set cuda memcheck on
 </pre></div>
 </div>
 <p>These commands will leave you in an interactive session with GDB, complete with its own command line interface. From now on we will give all examples with gdb, but the same commands apply for cuda-gdb.</p>
@@ -125,15 +125,15 @@ For bug reporting instructions, please see:
 <div class="section" id="initializing-python">
 <h3>5.2.3. Initializing Python<a class="headerlink" href="#initializing-python" title="Permalink to this headline">¶</a></h3>
 <p>From within the interactive GDB session, you must inform GDB that you plan to use Python as your binary executable:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) file python
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) file python
 Reading symbols from /usr/bin/python...Reading symbols from /usr/lib/debug/usr/bin/python2.7...done.
 </pre></div>
 </div>
 </div>
 <div class="section" id="running-python-in-gdb">
 <h3>5.2.4. Running Python in GDB<a class="headerlink" href="#running-python-in-gdb" title="Permalink to this headline">¶</a></h3>
-<p>Next you can select a Python file to execute using the <tt class="docutils literal"><span class="pre">run</span></tt> command with the Python script as the argument. For example, to run the <tt class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice/simple-lattice.py</span></tt> from within GDB, simply execute the following:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) run simple-lattice.py -i 5
+<p>Next you can select a Python file to execute using the <code class="docutils literal"><span class="pre">run</span></code> command with the Python script as the argument. For example, to run the <code class="file docutils literal"><span class="pre">/OpenMOC/sample-input/simple-lattice/simple-lattice.py</span></code> from within GDB, simply execute the following:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) run simple-lattice.py -i 5
 Starting program: /usr/bin/python simple-lattice.py -i 5
 [Thread debugging using libthread_db enabled]
 Using host libthread_db library &quot;/lib/x86_64-linux-gnu/libthread_db.so.1&quot;.
@@ -176,8 +176,8 @@ Using host libthread_db library &quot;/lib/x86_64-linux-gnu/libthread_db.so.1&qu
 (gdb)
 </pre></div>
 </div>
-<p>To obtain more information about program execution, GDB can be run in verbose mode using the <em class="xref std std-option">-v</em> optional argument to the <tt class="docutils literal"><span class="pre">run</span></tt> command:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) run -v simple-lattice.py
+<p>To obtain more information about program execution, GDB can be run in verbose mode using the <code class="xref std std-option docutils literal"><span class="pre">-v</span></code> optional argument to the <code class="docutils literal"><span class="pre">run</span></code> command:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) run -v simple-lattice.py
 ...
 [Inferior 1 (process 25820) exited normally]
 (gdb)
@@ -186,8 +186,8 @@ Using host libthread_db library &quot;/lib/x86_64-linux-gnu/libthread_db.so.1&qu
 </div>
 <div class="section" id="set-breakpoints">
 <h3>5.2.5. Set Breakpoints<a class="headerlink" href="#set-breakpoints" title="Permalink to this headline">¶</a></h3>
-<p>A <strong>breakpoint</strong> is an intentional stopping or pausing place in a program for debugging purposes. A breakpoint can be set using <tt class="docutils literal"><span class="pre">gdb</span></tt> using the <tt class="docutils literal"><span class="pre">breakpoint</span></tt> or <tt class="docutils literal"><span class="pre">br</span></tt> commands. The <tt class="docutils literal"><span class="pre">br</span></tt> command can be set at a specific line number in a specific source file. For example, if we wanted to run an OpenMOC program until the <tt class="docutils literal"><span class="pre">Material::setNumEnergyGroups(...)</span></tt> routine was called, we could set a breakpoint to the first line in that routine and then execute <tt class="file docutils literal"><span class="pre">simple-lattice.py</span></tt> as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) br Material.cpp:349
+<p>A <strong>breakpoint</strong> is an intentional stopping or pausing place in a program for debugging purposes. A breakpoint can be set using <code class="docutils literal"><span class="pre">gdb</span></code> using the <code class="docutils literal"><span class="pre">breakpoint</span></code> or <code class="docutils literal"><span class="pre">br</span></code> commands. The <code class="docutils literal"><span class="pre">br</span></code> command can be set at a specific line number in a specific source file. For example, if we wanted to run an OpenMOC program until the <code class="docutils literal"><span class="pre">Material::setNumEnergyGroups(...)</span></code> routine was called, we could set a breakpoint to the first line in that routine and then execute <code class="file docutils literal"><span class="pre">simple-lattice.py</span></code> as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) br Material.cpp:349
 No source file named Material.cpp.
 Make breakpoint pending on future shared library load? (y or [n]) y
 
@@ -205,7 +205,7 @@ Breakpoint 1, Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </pre></div>
 </div>
 <p>As shown in the snippet above, the code executes until the breakpoint is reached and short summary of the source code is printed to the console. Alternatively, we could have set the breakpoint using the name of the routine instead:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) br Material::setNumEnergyGroups
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) br Material::setNumEnergyGroups
 Function &quot;Material::setNumEnergyGroups&quot; not defined.
 Make breakpoint pending on future shared library load? (y or [n]) y
 
@@ -226,8 +226,8 @@ Breakpoint 1, Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </div>
 <div class="section" id="set-watchpoints">
 <h3>5.2.6. Set Watchpoints<a class="headerlink" href="#set-watchpoints" title="Permalink to this headline">¶</a></h3>
-<p>A <strong>watchpoint</strong> is a <em>conditional breakpoint</em>, or a breakpoint that is only reached when a certain condition is met. The condition may be the reading, writing, or modification of a specific location in memory. For example, if we wanted to watch the value of the <tt class="docutils literal"><span class="pre">Material::_num_groups</span></tt> private class attribute we could place a watchpoint on it. First, we might start gdb and place a breakpoint on the <tt class="docutils literal"><span class="pre">Material::setNumEnergyGroups(...)</span></tt> routine as shown in the preceding section. Then we could place a watchpoint as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) watch _num_groups
+<p>A <strong>watchpoint</strong> is a <em>conditional breakpoint</em>, or a breakpoint that is only reached when a certain condition is met. The condition may be the reading, writing, or modification of a specific location in memory. For example, if we wanted to watch the value of the <code class="docutils literal"><span class="pre">Material::_num_groups</span></code> private class attribute we could place a watchpoint on it. First, we might start gdb and place a breakpoint on the <code class="docutils literal"><span class="pre">Material::setNumEnergyGroups(...)</span></code> routine as shown in the preceding section. Then we could place a watchpoint as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) watch _num_groups
 Watchpoint 2: _num_groups
 (gdb) continue
 Continuing.
@@ -241,9 +241,9 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 (gdb)
 </pre></div>
 </div>
-<p>As illustrated, GDB stepped through the program until <tt class="docutils literal"><span class="pre">_num_groups</span></tt> was modified or used and reported its value to the console. Note that this snippet made use of the <tt class="docutils literal"><span class="pre">continue</span></tt> command which is covered in th next section. At this point, it suffices to say that <tt class="docutils literal"><span class="pre">continue</span></tt> resumes program execution from a breakpoint until it a new breakpoint or watchpoint is reached.</p>
-<p>GDB provides a variety of method to <a class="reference external" href="https://sourceware.org/gdb/onlinedocs/gdb/Set-Watchpoints.html">set watchpoints</a> during a program&#8217;s execution. For example, instead of placing a watchpoint on <tt class="docutils literal"><span class="pre">_num_groups</span></tt>, we could instead have placed a watchpoint on the condition that <tt class="docutils literal"><span class="pre">_num_groups</span></tt> &gt; 0 as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) watch _num_groups &gt; 0
+<p>As illustrated, GDB stepped through the program until <code class="docutils literal"><span class="pre">_num_groups</span></code> was modified or used and reported its value to the console. Note that this snippet made use of the <code class="docutils literal"><span class="pre">continue</span></code> command which is covered in th next section. At this point, it suffices to say that <code class="docutils literal"><span class="pre">continue</span></code> resumes program execution from a breakpoint until it a new breakpoint or watchpoint is reached.</p>
+<p>GDB provides a variety of method to <a class="reference external" href="https://sourceware.org/gdb/onlinedocs/gdb/Set-Watchpoints.html">set watchpoints</a> during a program&#8217;s execution. For example, instead of placing a watchpoint on <code class="docutils literal"><span class="pre">_num_groups</span></code>, we could instead have placed a watchpoint on the condition that <code class="docutils literal"><span class="pre">_num_groups</span></code> &gt; 0 as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) watch _num_groups &gt; 0
 Watchpoint 2: _num_groups &gt; 0
 (gdb) continue
 Continuing.
@@ -264,32 +264,32 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 <p>This section highlights a few of the key commands which may be used to control program execution using GDB.</p>
 <ul>
 <li><p class="first"><strong>Continue</strong></p>
-<p>The <tt class="docutils literal"><span class="pre">continue</span></tt> or <tt class="docutils literal"><span class="pre">c</span></tt> command is used to instruct GDB to continue program execution until the next breakpoint or watchpoint is reached (<em>i.e.</em>, useful for loops). An optional integer argument <em class="xref std std-option">&lt;number&gt;</em> may be given to <tt class="docutils literal"><span class="pre">continue</span></tt> to instruct GDB to ignore the current breakpoint some number of times.</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) continue &lt;number&gt;
+<p>The <code class="docutils literal"><span class="pre">continue</span></code> or <code class="docutils literal"><span class="pre">c</span></code> command is used to instruct GDB to continue program execution until the next breakpoint or watchpoint is reached (<em>i.e.</em>, useful for loops). An optional integer argument <code class="xref std std-option docutils literal"><span class="pre">&lt;number&gt;</span></code> may be given to <code class="docutils literal"><span class="pre">continue</span></code> to instruct GDB to ignore the current breakpoint some number of times.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) continue &lt;number&gt;
 </pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Step</strong></p>
-<p>The <tt class="docutils literal"><span class="pre">step</span></tt> or <tt class="docutils literal"><span class="pre">s</span></tt> command will step to the next line of code. If the next line of code is a function call, the <tt class="docutils literal"><span class="pre">step</span></tt> command <strong>will</strong> step into the function. An optional integer argument <em class="xref std std-option">&lt;number&gt;</em> may be given to <tt class="docutils literal"><span class="pre">step</span></tt> to instruct GDB to step through some number of lines.</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) step &lt;number&gt;
+<p>The <code class="docutils literal"><span class="pre">step</span></code> or <code class="docutils literal"><span class="pre">s</span></code> command will step to the next line of code. If the next line of code is a function call, the <code class="docutils literal"><span class="pre">step</span></code> command <strong>will</strong> step into the function. An optional integer argument <code class="xref std std-option docutils literal"><span class="pre">&lt;number&gt;</span></code> may be given to <code class="docutils literal"><span class="pre">step</span></code> to instruct GDB to step through some number of lines.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) step &lt;number&gt;
 </pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Next</strong></p>
-<p>The <tt class="docutils literal"><span class="pre">next</span></tt> or <tt class="docutils literal"><span class="pre">n</span></tt> command will step to the next line of code.  If the next line of code is a function call, the <tt class="docutils literal"><span class="pre">step</span></tt> command <strong>will not</strong> step into the function. An optional integer argument <em class="xref std std-option">&lt;number&gt;</em> may be given to <tt class="docutils literal"><span class="pre">next</span></tt> to instruct GDB to step through some number of lines (without entering functions).</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) next &lt;number&gt;
+<p>The <code class="docutils literal"><span class="pre">next</span></code> or <code class="docutils literal"><span class="pre">n</span></code> command will step to the next line of code.  If the next line of code is a function call, the <code class="docutils literal"><span class="pre">step</span></code> command <strong>will not</strong> step into the function. An optional integer argument <code class="xref std std-option docutils literal"><span class="pre">&lt;number&gt;</span></code> may be given to <code class="docutils literal"><span class="pre">next</span></code> to instruct GDB to step through some number of lines (without entering functions).</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) next &lt;number&gt;
 </pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Until</strong></p>
-<p>The <tt class="docutils literal"><span class="pre">until</span></tt> command will continue processing until reaching a specifed line number <em class="xref std std-option">&lt;number&gt;</em>. This is akin to setting a breakpoint which is only used once and which is immediately deleted following its first use.</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) until &lt;number&gt;
+<p>The <code class="docutils literal"><span class="pre">until</span></code> command will continue processing until reaching a specifed line number <code class="xref std std-option docutils literal"><span class="pre">&lt;number&gt;</span></code>. This is akin to setting a breakpoint which is only used once and which is immediately deleted following its first use.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) until &lt;number&gt;
 </pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Where</strong></p>
-<p>The <tt class="docutils literal"><span class="pre">where</span></tt> command will show which line number you are at and which function you are in.</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) where
+<p>The <code class="docutils literal"><span class="pre">where</span></code> command will show which line number you are at and which function you are in.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) where
 </pre></div>
 </div>
 </li>
@@ -297,53 +297,53 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
 </div>
 <div class="section" id="examine-variables">
 <h3>5.2.8. Examine Variables<a class="headerlink" href="#examine-variables" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">print</span></tt> or <tt class="docutils literal"><span class="pre">p</span></tt> command may be used to examine variables within some scope of the code with GDB. For example, if you were interested in the value of <em class="xref std std-option">variable</em>, you might set a breakpoint at the entrance point to the code region of interest, and step through the region while printing the value as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) print variable
+<p>The <code class="docutils literal"><span class="pre">print</span></code> or <code class="docutils literal"><span class="pre">p</span></code> command may be used to examine variables within some scope of the code with GDB. For example, if you were interested in the value of <code class="xref std std-option docutils literal"><span class="pre">variable</span></code>, you might set a breakpoint at the entrance point to the code region of interest, and step through the region while printing the value as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) print variable
 </pre></div>
 </div>
 </div>
 <div class="section" id="report-the-debugger-state">
 <h3>5.2.9. Report the Debugger State<a class="headerlink" href="#report-the-debugger-state" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">info</span></tt> or <tt class="docutils literal"><span class="pre">i</span></tt> command may be used to report debugger state information to the console. For example, to list all breakpoints - including the file and line numbers where each is set - the <tt class="docutils literal"><span class="pre">info</span></tt> command is used with the <em class="xref std std-option">breakpoints</em> option:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) info breakpoints
+<p>The <code class="docutils literal"><span class="pre">info</span></code> or <code class="docutils literal"><span class="pre">i</span></code> command may be used to report debugger state information to the console. For example, to list all breakpoints - including the file and line numbers where each is set - the <code class="docutils literal"><span class="pre">info</span></code> command is used with the <code class="xref std std-option docutils literal"><span class="pre">breakpoints</span></code> option:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) info breakpoints
 </pre></div>
 </div>
-<p>To list breakpoint numbers only, <tt class="docutils literal"><span class="pre">info</span></tt> command is used with the <em class="xref std std-option">break</em> option:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) info break
+<p>To list breakpoint numbers only, <code class="docutils literal"><span class="pre">info</span></code> command is used with the <code class="xref std std-option docutils literal"><span class="pre">break</span></code> option:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) info break
 </pre></div>
 </div>
-<p>Likewise, to list all watchpints, the <tt class="docutils literal"><span class="pre">info</span></tt> command is used with the <em class="xref std std-option">watchpoints</em> option:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) info watchpoints
+<p>Likewise, to list all watchpints, the <code class="docutils literal"><span class="pre">info</span></code> command is used with the <code class="xref std std-option docutils literal"><span class="pre">watchpoints</span></code> option:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) info watchpoints
 </pre></div>
 </div>
 </div>
 <div class="section" id="disable-breakpoints">
 <h3>5.2.10. Disable Breakpoints<a class="headerlink" href="#disable-breakpoints" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">disable</span></tt> command is used to disable breakpoints with GDB. When a breakpoint is disabled, it is still retained by GDB but is not used during program execution. The <tt class="docutils literal"><span class="pre">enable</span></tt> command may be used to continue using the breakpoint again at a later time. The following illustrates how to cancel breakpoints 1, 3, 4, 5, and 6, and re-enable breakpoints 4 and 5:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) disable 1 3-6
+<p>The <code class="docutils literal"><span class="pre">disable</span></code> command is used to disable breakpoints with GDB. When a breakpoint is disabled, it is still retained by GDB but is not used during program execution. The <code class="docutils literal"><span class="pre">enable</span></code> command may be used to continue using the breakpoint again at a later time. The following illustrates how to cancel breakpoints 1, 3, 4, 5, and 6, and re-enable breakpoints 4 and 5:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) disable 1 3-6
 (gdb) enable 4-5
 </pre></div>
 </div>
 </div>
 <div class="section" id="printing-the-stack">
 <h3>5.2.11. Printing the Stack<a class="headerlink" href="#printing-the-stack" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">backtrace</span></tt> or <tt class="docutils literal"><span class="pre">bt</span></tt> command may be used to show the trace of the function the program is currently in:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) bt
+<p>The <code class="docutils literal"><span class="pre">backtrace</span></code> or <code class="docutils literal"><span class="pre">bt</span></code> command may be used to show the trace of the function the program is currently in:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) bt
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">backtrace</span></tt> command can be particularly useful when debugging <a class="reference external" href="http://en.wikipedia.org/wiki/Segmentation_fault">segmentation faults</a>. In particular, GDB may be used to run the program until the segmentation fault is reached. At this point, the use of <tt class="docutils literal"><span class="pre">backtrace</span></tt> will print the function call stack, showing where the segmentation faul occurred.</p>
+<p>The <code class="docutils literal"><span class="pre">backtrace</span></code> command can be particularly useful when debugging <a class="reference external" href="http://en.wikipedia.org/wiki/Segmentation_fault">segmentation faults</a>. In particular, GDB may be used to run the program until the segmentation fault is reached. At this point, the use of <code class="docutils literal"><span class="pre">backtrace</span></code> will print the function call stack, showing where the segmentation faul occurred.</p>
 </div>
 <div class="section" id="stop-program-execution">
 <h3>5.2.12. Stop Program Execution<a class="headerlink" href="#stop-program-execution" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">kill</span></tt> command may be used to stop a program&#8217;s execution while keeping the GDB process running:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) kill
+<p>The <code class="docutils literal"><span class="pre">kill</span></code> command may be used to stop a program&#8217;s execution while keeping the GDB process running:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) kill
 </pre></div>
 </div>
 </div>
 <div class="section" id="exiting-gdb">
 <h3>5.2.13. Exiting GDB<a class="headerlink" href="#exiting-gdb" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">quit</span></tt> or <tt class="docutils literal"><span class="pre">q</span></tt> command may be used to exit the <tt class="docutils literal"><span class="pre">gdb</span></tt> debugger and return to the console:</p>
-<div class="highlight-none"><div class="highlight"><pre>(gdb) quit()
+<p>The <code class="docutils literal"><span class="pre">quit</span></code> or <code class="docutils literal"><span class="pre">q</span></code> command may be used to exit the <code class="docutils literal"><span class="pre">gdb</span></code> debugger and return to the console:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>(gdb) quit()
 </pre></div>
 </div>
 </div>
@@ -373,7 +373,7 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -409,12 +409,14 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
   <h4>Next topic</h4>
   <p class="topless"><a href="style_guide.html"
                         title="next chapter">6. Style Guide for OpenMOC</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/devguide/debugging.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/devguide/debugging.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -422,16 +424,13 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -443,14 +442,14 @@ Material::setNumEnergyGroups (this=0x1b6ef80, num_groups=7)
         <li class="right" >
           <a href="build_system.html" title="3. Python Build System"
              >previous</a> |</li>
-        <li><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
 <script type="text/javascript">
 

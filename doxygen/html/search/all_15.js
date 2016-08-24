@@ -7,5 +7,5 @@ var searchData=
   ['vectorizedsolver',['VectorizedSolver',['../classVectorizedSolver.html',1,'VectorizedSolver'],['../classVectorizedSolver.html#a9826193ed465005fd2067de46c96e9a2',1,'VectorizedSolver::VectorizedSolver()']]],
   ['vectorizedsolver_2eh',['VectorizedSolver.h',['../VectorizedSolver_8h.html',1,'']]],
   ['volumecalculator',['VolumeCalculator',['../classVolumeCalculator.html',1,'VolumeCalculator'],['../classVolumeCalculator.html#ac14a7b24cc281d4fd1a77ab63b116698',1,'VolumeCalculator::VolumeCalculator()']]],
-  ['volumekernel',['VolumeKernel',['../classVolumeKernel.html',1,'VolumeKernel'],['../classVolumeKernel.html#a72303d7db59661ba140c2a9e58d83a4a',1,'VolumeKernel::VolumeKernel()']]]
+  ['volumekernel',['VolumeKernel',['../classVolumeKernel.html',1,'VolumeKernel'],['../classVolumeKernel.html#a15b6f752bb90786dbbaf410237f4f972',1,'VolumeKernel::VolumeKernel()']]]
 ];

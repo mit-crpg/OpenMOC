@@ -34,6 +34,7 @@ var classGeometry =
     [ "getNumFSRs", "classGeometry.html#aa6c6670cf0552fc24824f074077e994b", null ],
     [ "getNumMaterials", "classGeometry.html#aee3114c51ec090bdc73b470a93ee2b32", null ],
     [ "getRootUniverse", "classGeometry.html#a53ea985290c94c35dbe07dc7254c0ce7", null ],
+    [ "getSpatialDataOnGrid", "classGeometry.html#abc96e7f3eadfc34b653ef53e68ce16d0", null ],
     [ "getWidthX", "classGeometry.html#aa5f97b224edd8e76a03e57d1b2493593", null ],
     [ "getWidthY", "classGeometry.html#a5b10de323ba8e6cf844671e7cf209bbc", null ],
     [ "getWidthZ", "classGeometry.html#ac09481c3d8c461c9898bd7e4d1795b72", null ],

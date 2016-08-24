@@ -8,7 +8,6 @@ var searchData=
   ['findcmfdsurface',['findCmfdSurface',['../classCmfd.html#ad58b5b64841b7d8bc28b48acbc0b4790',1,'Cmfd']]],
   ['findfsrid',['findFSRId',['../classGeometry.html#ac6025e6ed8673a109e406733e3c2ca05',1,'Geometry']]],
   ['findfsrmaterial',['findFSRMaterial',['../classGeometry.html#ae4c38f0407ddfd91427c63420bb41c48',1,'Geometry']]],
-  ['first',['first',['../classstrided__range.html#ae9bf73514ea80846ab818cc547a1bef1',1,'strided_range']]],
   ['fission_5fsource',['FISSION_SOURCE',['../Solver_8h.html#a1e3b7e46901f18d439de28b7d07fe5bea3c5a6f8b21a5becfe1e6756d8b492cea',1,'Solver.h']]],
   ['fission_5fsources',['fission_sources',['../Solver_8h.html#a11f42402c5f44216def0ab6d5c564843',1,'Solver.h']]],
   ['fissiontransportsweep',['fissionTransportSweep',['../classSolver.html#a4c8be124257c94a96b1d82a6fb8c4c23',1,'Solver']]],

@@ -27,8 +27,8 @@
     <link rel="next" title="Release Notes" href="releasenotes/index.html" />
     <link rel="prev" title="The OpenMOC Method of Characteristics Code" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -40,37 +40,37 @@
         <li class="right" >
           <a href="index.html" title="The OpenMOC Method of Characteristics Code"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="quick-install-guide">
 <span id="quickinstall"></span><h1>Quick Install Guide<a class="headerlink" href="#quick-install-guide" title="Permalink to this headline">¶</a></h1>
-<p>This quick install guide outlines the basic steps needed to install OpenMOC on your computer. For more detailed instructions on configuring and installing OpenMOC, see <a class="reference internal" href="usersguide/install.html#install"><em>Installation</em></a> in the User&#8217;s Manual.</p>
+<p>This quick install guide outlines the basic steps needed to install OpenMOC on your computer. For more detailed instructions on configuring and installing OpenMOC, see <a class="reference internal" href="usersguide/install.html#install"><span class="std std-ref">Installation</span></a> in the User&#8217;s Manual.</p>
 <div class="section" id="installing-from-source-on-linux-or-mac-os-x">
 <h2>Installing from Source on Linux or Mac OS X<a class="headerlink" href="#installing-from-source-on-linux-or-mac-os-x" title="Permalink to this headline">¶</a></h2>
-<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. To download and install OpenMOC, you need to install <a class="reference external" href="http://git-scm.com">Git</a> and the GNU C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a>. In addition, you need to install <a class="reference external" href="http://www.python.org/">Python</a> version 2.6 or later and the following Python packages on your machine: <a class="reference external" href="http://www.swig.org/">SWIG</a>, <a class="reference external" href="http://www.numpy.org/">NumPy</a>, <a class="reference external" href="http://matplotlib.org/">matplotlib</a>, and <a class="reference external" href="http://www.h5py.org/">h5py</a>. These packages can easily be installed using a package manager for Linux and Mac OS (see <a class="reference internal" href="usersguide/install.html#install"><em>Installation</em></a> for more details). The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
-<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py
+<p>All OpenMOC source code is hosted on <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a>. To download and install OpenMOC, you need to install <a class="reference external" href="http://git-scm.com">Git</a> and the GNU C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a>. In addition, you need to install <a class="reference external" href="http://www.python.org/">Python</a> version 2.6 or later and the following Python packages on your machine: <a class="reference external" href="http://www.swig.org/">SWIG</a>, <a class="reference external" href="http://www.numpy.org/">NumPy</a>, <a class="reference external" href="http://matplotlib.org/">matplotlib</a>, and <a class="reference external" href="http://www.h5py.org/">h5py</a>. These packages can easily be installed using a package manager for Linux and Mac OS (see <a class="reference internal" href="usersguide/install.html#install"><span class="std std-ref">Installation</span></a> for more details). The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">git</span> <span class="n">swig</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">numpy</span> <span class="n">python</span><span class="o">-</span><span class="n">matplotlib</span> <span class="n">python</span><span class="o">-</span><span class="n">h5py</span>
 </pre></div>
 </div>
 <p>If you have already installed each of these prerequisites, you can download and install OpenMOC by entering the following commands in the console:</p>
-<div class="highlight-python"><div class="highlight"><pre>git clone https://github.com/mit-crpg/OpenMOC.git
-cd OpenMOC
-python setup.py install --user
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">mit</span><span class="o">-</span><span class="n">crpg</span><span class="o">/</span><span class="n">OpenMOC</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">OpenMOC</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
 </pre></div>
 </div>
-<p>This will build a shared library accessible as a Python package named <tt class="docutils literal"><span class="pre">openmoc</span></tt> and install it (by default in /home/YourUserName/.local/lib/pythonX.X/dist-packages). The <tt class="docutils literal"><span class="pre">openmoc</span></tt> Python package can now be imported into any Python script as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">openmoc</span>
+<p>This will build a shared library accessible as a Python package named <code class="docutils literal"><span class="pre">openmoc</span></code> and install it (by default in /home/YourUserName/.local/lib/pythonX.X/dist-packages). The <code class="docutils literal"><span class="pre">openmoc</span></code> Python package can now be imported into any Python script as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">openmoc</span>
 </pre></div>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The <a class="reference internal" href="usersguide/install.html#cmdoption--user"><em class="xref std std-option">--user</em></a> flag should be used verbatim and should <strong>NOT</strong> be replaced with your username.</p>
+<p class="last">The <a class="reference internal" href="usersguide/install.html#cmdoption--user"><code class="xref std std-option docutils literal"><span class="pre">--user</span></code></a> flag should be used verbatim and should <strong>NOT</strong> be replaced with your username.</p>
 </div>
 </div>
 </div>
@@ -79,7 +79,7 @@ python setup.py install --user
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
@@ -98,12 +98,14 @@ python setup.py install --user
   <h4>Next topic</h4>
   <p class="topless"><a href="releasenotes/index.html"
                         title="next chapter">Release Notes</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/quickinstall.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quickinstall.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -111,16 +113,13 @@ python setup.py install --user
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -132,13 +131,13 @@ python setup.py install --user
         <li class="right" >
           <a href="index.html" title="The OpenMOC Method of Characteristics Code"
              >previous</a> |</li>
-        <li><a href="index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">OpenMOC Documentation</a> &raquo;</li> 
       </ul>
     </div>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
 <script type="text/javascript">
 
