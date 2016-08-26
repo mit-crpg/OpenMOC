@@ -2228,14 +2228,10 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
     track->setNextFwdFwd(next_fwd);
     track->setBCFwd(bc);
 #ifdef MPIx
-    int domain_fwd_out = _geometry->getNeighborDomain(domain_delta_x,
-                                                      domain_delta_y,
-                                                      domain_delta_z);
-    int domain_fwd_in = _geometry->getNeighborDomain(-domain_delta_x,
-                                                     -domain_delta_y,
-                                                     -domain_delta_z);
-    track->setDomainFwdOut(domain_fwd_out);
-    track->setDomainFwdIn(domain_fwd_in);
+    int domain_fwd = _geometry->getNeighborDomain(domain_delta_x,
+                                                  domain_delta_y,
+                                                  domain_delta_z);
+    track->setDomainFwd(domain_fwd);
 #endif
   }
   else {
@@ -2245,14 +2241,10 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
     track->setNextBwdFwd(next_fwd);
     track->setBCBwd(bc);
 #ifdef MPIx
-    int domain_bwd_out = _geometry->getNeighborDomain(domain_delta_x,
-                                                      domain_delta_y,
-                                                      domain_delta_z);
-    int domain_bwd_in = _geometry->getNeighborDomain(-domain_delta_x,
-                                                     -domain_delta_y,
-                                                     -domain_delta_z);
-    track->setDomainBwdOut(domain_bwd_out);
-    track->setDomainBwdIn(domain_bwd_in);
+    int domain_bwd = _geometry->getNeighborDomain(domain_delta_x,
+                                                  domain_delta_y,
+                                                  domain_delta_z);
+    track->setDomainBwd(domain_bwd);
 #endif
   }
 }

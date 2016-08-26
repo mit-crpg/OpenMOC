@@ -80,7 +80,6 @@ protected:
   void setupMPIBuffers();
   void deleteMPIBuffers();
   void packBuffers(std::vector<long> &packing_indexes);
-  void transferAllInterfaceFluxesNew();
   void transferAllInterfaceFluxes();
   void printCycle(long track_start, int domain_start, int length);
   void boundaryFluxChecker();

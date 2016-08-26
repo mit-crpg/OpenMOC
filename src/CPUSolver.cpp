@@ -371,7 +371,7 @@ void CPUSolver::setupMPIBuffers() {
     track_generator_3D->getTrackOTF(&track, &tsi);
 
     /* Determine the indexes of forward connecting domains */
-    int fwd_domain = track.getDomainFwdOut();
+    int fwd_domain = track.getDomainFwd();
     if (fwd_domain != -1) {
 #pragma omp parallel for
       for (int i=0; i<num_domains; i++)
@@ -380,7 +380,7 @@ void CPUSolver::setupMPIBuffers() {
     }
 
     /* Determine the indexes of backward connecting domains */
-    int bwd_domain = track.getDomainBwdOut();
+    int bwd_domain = track.getDomainBwd();
     if (bwd_domain != -1) {
 #pragma omp parallel for
       for (int i=0; i<num_domains; i++)
@@ -480,14 +480,14 @@ void CPUSolver::printCycle(long track_start, int domain_start, int length) {
         connect_fwd = track.getNextFwdFwd();
         start = track.getStart();
         end = track.getEnd();
-        next_domain = track.getDomainFwdOut();
+        next_domain = track.getDomainFwd();
       }
       else {
         connect = track.getTrackPrdcBwd();
         connect_fwd = track.getNextBwdFwd();
         start = track.getEnd();
         end = track.getStart();
-        next_domain = track.getDomainBwdOut();
+        next_domain = track.getDomainBwd();
       }
 
       /* Write information */
@@ -629,7 +629,7 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
  *          intersect INTERFACE boundaries are transfered to their appropriate
  *          neighbor's _start_flux array at the periodic indexes.
  */
-void CPUSolver::transferAllInterfaceFluxesNew() {
+void CPUSolver::transferAllInterfaceFluxes() {
 
   /* Initialize timer for total function cost */
   _timer->startTimer();
@@ -828,11 +828,11 @@ void CPUSolver::boundaryFluxChecker() {
             int dest;
             long connection[2];
             if (dir == 0) {
-              dest = track.getDomainFwdOut();
+              dest = track.getDomainFwd();
               connection[0] = track.getTrackNextFwd();
             }
             else {
-              dest = track.getDomainBwdOut();
+              dest = track.getDomainBwd();
               connection[0] = track.getTrackNextBwd();
             }
             connection[1] = dir;
@@ -1120,134 +1120,6 @@ void CPUSolver::boundaryFluxChecker() {
     }
   }
   log_printf(NORMAL, "Passed boundary flux check");
-}
-
-
-
-
-/**
- * @brief Transfers all angular fluxes at interfaces to their appropriate
- *        domain neighbors
- * @details The angular fluxes stored in the _boundary_flux array that
- *          intersect INTERFACE boundaries are transfered to their appropriate
- *          neighbor's _start_flux array at the periodic indexes.
- */
-void CPUSolver::transferAllInterfaceFluxes() {
-
-  /* Initialize buffer for MPI communication */
-  FP_PRECISION buffer[2*_fluxes_per_track];
-  MPI_Datatype flux_type;
-  if (sizeof(FP_PRECISION) == 4)
-    flux_type = MPI_FLOAT;
-  else
-    flux_type = MPI_DOUBLE;
-
-  /* Initialize MPI requests and status */
-  MPI_Comm MPI_cart = _geometry->getMPICart();
-  MPI_Status stat;
-  MPI_Request request[4];
-  int mpi_send[2] = {0};
-  int mpi_recv[2] = {0};
-
-  /* Loop over all tracks and exchange fluxes */
-  for (int t=0; t < _tot_num_tracks; t++) {
-
-    /* Get 3D Track data */
-    TrackStackIndexes tsi;
-    Track3D track;
-    TrackGenerator3D* track_generator_3D =
-      dynamic_cast<TrackGenerator3D*>(_track_generator);
-    track_generator_3D->getTSIByIndex(t, &tsi);
-    track_generator_3D->getTrackOTF(&track, &tsi);
-
-    /* Get connecting tracks */
-    int connect[2];
-    connect[0] = track.getTrackPrdcFwd();
-    connect[1] = track.getTrackPrdcBwd();
-
-    /* Get connecting domain surfaces */
-    int domain_fwd_in = track.getDomainFwdIn();
-    int domain_fwd_out = track.getDomainFwdOut();
-    int domain_bwd_in = track.getDomainBwdIn();
-    int domain_bwd_out = track.getDomainBwdOut();
-
-    int rank;
-    MPI_Comm_rank(MPI_cart, &rank);
-
-    /* Send outgoing flux */
-    if (domain_fwd_out != -1) {
-      MPI_Isend(&_boundary_flux(t,0,0), _fluxes_per_track, flux_type,
-                domain_fwd_out, 0, MPI_cart, &request[0]);
-      mpi_send[0] = 1;
-    }
-
-    /* Receive incoming flux on connecting Track */
-    if (domain_fwd_in != -1) {
-      MPI_Irecv(&buffer[0], _fluxes_per_track, flux_type, domain_fwd_in, 0,
-                MPI_cart, &request[2]);
-      mpi_recv[0] = 1;
-    }
-
-    /* Send backward flux */
-    if (domain_bwd_out != -1) {
-      MPI_Isend(&_boundary_flux(t,1,0), _fluxes_per_track, flux_type,
-                domain_bwd_out, 0, MPI_cart, &request[1]);
-      mpi_send[1] = 1;
-    }
-
-    /* Receive backward flux on connecting Track */
-    if (domain_bwd_in != -1) {
-      MPI_Irecv(&buffer[_fluxes_per_track], _fluxes_per_track, flux_type,
-                domain_bwd_in, 0, MPI_cart, &request[3]);
-      mpi_recv[1] = 1;
-    }
-
-
-    /* Block for communication round to complete */
-    bool complete = false;
-    while (!complete) {
-
-      complete = true;
-      int flag;
-
-      /* Check forward and backward send/receive messages */
-      for (int d=0; d<2; d++) {
-
-        /* Wait for send to complete */
-        if (mpi_send[d] == 1) {
-          MPI_Test(&request[d], &flag, &stat);
-          if (flag == 0)
-            complete = false;
-        }
-
-        /* Wait for receive to complete */
-        if (mpi_recv[d] == 1) {
-          MPI_Test(&request[2+d], &flag, &stat);
-          if (flag == 0)
-            complete = false;
-        }
-      }
-    }
-
-    /* Reset status for next communication round and copy fluxes */
-    for (int d=0; d<2; d++) {
-
-      /* Reset send */
-      mpi_send[d] = 0;
-
-      /* Copy angular fluxes if necessary */
-      if (mpi_recv[d])
-        for (int pe=0; pe < _fluxes_per_track; pe++)
-          _start_flux(connect[d],d,pe) =
-            buffer[d*_fluxes_per_track + pe];
-
-      /* Reset receive */
-      mpi_recv[d] = 0;
-    }
-  }
-
-  /* Join MPI at the end of communication */
-  MPI_Barrier(MPI_cart);
 }
 #endif
 
@@ -1656,7 +1528,7 @@ void CPUSolver::transportSweep() {
 #ifdef MPIx
   /* Transfer all interface fluxes after the transport sweep */
   if (_track_generator->getGeometry()->isDomainDecomposed())
-    transferAllInterfaceFluxesNew(); //FIXME NEW
+    transferAllInterfaceFluxes();
 #endif
 }
 
