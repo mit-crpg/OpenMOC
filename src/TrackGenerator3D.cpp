@@ -727,8 +727,6 @@ void TrackGenerator3D::initializeTracks() {
       _num_l[i][j] = int(ceil(length * tan(M_PI_2 - theta) / _polar_spacing));
 
       /* Number of crossings along the z axis */
-      //FIXME _num_z[i][j] = (int) ceil(width_z / _polar_spacing);
-      //FIXME
       double module_width_z = width_z / _geometry->getNumZModules();
       _num_z[i][j] = (int) ceil(module_width_z * _num_l[i][j] * tan(theta)
                                 / module_width_y * sin(phi));
@@ -1843,10 +1841,12 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
 
       if (tsi_prdc._xy != tsi->_xy) {
 #ifdef MPIx
-        if (tsi->_azim < _num_azim / 4)
-          domain_delta_x = +1;
-        else
-          domain_delta_x = -1;
+        if (track_2D->getBCFwd() == INTERFACE) {
+          if (tsi->_azim < _num_azim / 4)
+            domain_delta_x = +1;
+          else
+            domain_delta_x = -1;
+        }
 #endif
         tci_refl._azim = ac;
 
@@ -1854,6 +1854,13 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         if (track_2D->getBCFwd() != PERIODIC &&
             track_2D->getBCFwd() != INTERFACE) {
           tci_next._azim = ac;
+        }
+        if (track_2D->getBCFwd() == INTERFACE) {
+#ifdef MPIx
+          if (bc != INTERFACE)
+            domain_delta_z = 0;
+#endif
+          bc = INTERFACE;
         }
       }
     }
@@ -1893,17 +1900,26 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
 
       if (tsi_prdc._xy != tsi->_xy) {
 #ifdef MPIx
-        if (tsi->_azim < _num_azim / 4)
-          domain_delta_x = -1;
-        else
-          domain_delta_x = +1;
+        if (track_2D->getBCBwd() == INTERFACE) {
+          if (tsi->_azim < _num_azim / 4)
+            domain_delta_x = -1;
+          else
+            domain_delta_x = +1;
+        }
 #endif
         tci_refl._azim = ac;
 
         /* Set the next Track */
-        if (track_2D->getBCFwd() != PERIODIC &&
-            track_2D->getBCFwd() != INTERFACE) {
+        if (track_2D->getBCBwd() != PERIODIC &&
+            track_2D->getBCBwd() != INTERFACE) {
           tci_next._azim = ac;
+        }
+        if (track_2D->getBCBwd() == INTERFACE) {
+#ifdef MPIx
+          if (bc != INTERFACE)
+            domain_delta_z = 0;
+#endif
+          bc = INTERFACE;
         }
       }
     }
@@ -2033,17 +2049,26 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
 
       if (tsi_prdc._xy != tsi->_xy) {
 #ifdef MPIx
-        if (tsi->_azim < _num_azim / 4)
-          domain_delta_x = -1;
-        else
-          domain_delta_x = +1;
+        if (track_2D->getBCBwd() == INTERFACE) {
+          if (tsi->_azim < _num_azim / 4)
+            domain_delta_x = -1;
+          else
+            domain_delta_x = +1;
+        }
 #endif
         tci_refl._azim = ac;
 
         /* Set the next Track */
-        if (track_2D->getBCFwd() != PERIODIC &&
-            track_2D->getBCFwd() != INTERFACE) {
+        if (track_2D->getBCBwd() != PERIODIC &&
+            track_2D->getBCBwd() != INTERFACE) {
           tci_next._azim = ac;
+        }
+        if (track_2D->getBCBwd() == INTERFACE) {
+#ifdef MPIx
+          if (bc != INTERFACE)
+            domain_delta_z = 0;
+#endif
+          bc = INTERFACE;
         }
       }
     }
@@ -2078,10 +2103,12 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
 
       if (tsi_prdc._xy != tsi->_xy) {
 #ifdef MPIx
-        if (tsi->_azim < _num_azim / 4)
-          domain_delta_x = -1;
-        else
-          domain_delta_x = +1;
+        if (track_2D->getBCFwd() == INTERFACE) {
+          if (tsi->_azim < _num_azim / 4)
+            domain_delta_x = +1;
+          else
+            domain_delta_x = -1;
+        }
 #endif
         tci_refl._azim = ac;
 
@@ -2089,6 +2116,13 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         if (track_2D->getBCFwd() != PERIODIC &&
             track_2D->getBCFwd() != INTERFACE) {
           tci_next._azim = ac;
+        }
+        if (track_2D->getBCFwd() == INTERFACE) {
+#ifdef MPIx
+          if (bc != INTERFACE)
+            domain_delta_z = 0;
+#endif
+          bc = INTERFACE;
         }
       }
     }

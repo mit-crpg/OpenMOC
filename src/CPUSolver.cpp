@@ -389,8 +389,8 @@ void CPUSolver::setupMPIBuffers() {
     }
 
     /* Save the index of the forward and backward connecting Tracks */
-    _track_connections.at(0).at(t) = track.getTrackPrdcFwd();
-    _track_connections.at(1).at(t) = track.getTrackPrdcBwd();
+    _track_connections.at(0).at(t) = track.getTrackNextFwd();
+    _track_connections.at(1).at(t) = track.getTrackNextBwd();
   }
 
   /* Setup MPI communication bookkeeping */
@@ -494,16 +494,6 @@ void CPUSolver::printCycle(long track_start, int domain_start, int length) {
       std::cout << rank << " " << start->getX() << " " << start->getY() << " "
         << start->getZ() << " " << end->getX() << " " << end->getY() << " "
         << end->getZ() << std::endl;
-
-      if (fabs(end->getX() + 2) < 0.01 && fabs(end->getY() - 1) < 0.01 &&
-          fabs(end->getZ() - 2) < 0.01) {
-        std::cout << "GOT IT ";
-        if (fwd)
-          std::cout << "FWD\n";
-        else
-          std::cout << "BWD\n";
-        exit(1);
-      }
 
       /* Check domain for reflected boundaries */
       if (next_domain == -1) {
@@ -760,6 +750,7 @@ void CPUSolver::transferAllInterfaceFluxesNew() {
           /* Check if the angular fluxes are active */
           if (track_id != -1) {
             int dir = curr_track_buffer[_fluxes_per_track];
+
             for (int pe=0; pe < _fluxes_per_track; pe++)
               _start_flux(track_id, dir, pe) = curr_track_buffer[pe];
           }
@@ -778,6 +769,360 @@ void CPUSolver::transferAllInterfaceFluxesNew() {
   _timer->stopTimer();
   _timer->recordSplit("Total transfer time");
 }
+
+
+//FIXME
+void CPUSolver::boundaryFluxChecker() {
+
+  /* Get MPI information */
+  MPI_Comm MPI_cart = _geometry->getMPICart();
+  MPI_Request req;
+  MPI_Status stat;
+  int my_rank;
+  MPI_Comm_rank(MPI_cart, &my_rank);
+  int num_ranks;
+  MPI_Comm_size(MPI_cart, &num_ranks);
+
+  MPI_Datatype flux_type;
+  int size_of_double;
+  if (sizeof(FP_PRECISION) == 4) {
+    flux_type = MPI_FLOAT;
+    size_of_double = 2;
+  }
+  else {
+    flux_type = MPI_DOUBLE;
+    size_of_double = 1;
+  }
+
+
+  int tester = 0;
+  int new_tester = 0;
+  while (tester < num_ranks) {
+
+    if (tester == my_rank) {
+
+      /* Loop over all tracks */
+      for (int t=0; t < _tot_num_tracks; t++) {
+
+        /* Get the Track */
+        TrackStackIndexes tsi;
+        Track3D track;
+        TrackGenerator3D* track_generator_3D =
+          dynamic_cast<TrackGenerator3D*>(_track_generator);
+        track_generator_3D->getTSIByIndex(t, &tsi);
+        track_generator_3D->getTrackOTF(&track, &tsi);
+
+        /* Check connection information on both directions */
+        for (int dir=0; dir < 2; dir++) {
+
+          boundaryType bc;
+          if (dir == 0)
+            bc = track.getBCFwd();
+          else
+            bc = track.getBCBwd();
+
+          /* Check domain boundaries */
+          if (bc == INTERFACE) {
+
+            /* Get connection information */
+            int dest;
+            long connection[2];
+            if (dir == 0) {
+              dest = track.getDomainFwdOut();
+              connection[0] = track.getTrackNextFwd();
+            }
+            else {
+              dest = track.getDomainBwdOut();
+              connection[0] = track.getTrackNextBwd();
+            }
+            connection[1] = dir;
+
+            /* Check for a valid destination */
+            if (dest == -1)
+              log_printf(ERROR, "Track %d on domain %d has been found to have "
+                         "a INTERFACE boundary but no connecting domain", t,
+                         my_rank);
+
+            /* Send a request for info */
+            MPI_Send(connection, 2, MPI_DOUBLE, dest, 0, MPI_cart);
+
+            /* Receive infomation */
+            int receive_size = _fluxes_per_track + size_of_double * 5;
+            FP_PRECISION buffer[receive_size];
+            MPI_Recv(buffer, receive_size, flux_type, dest, 0, MPI_cart, &stat);
+
+            /* Unpack received infomrmation */
+            FP_PRECISION angular_fluxes[_fluxes_per_track];
+            for (int i=0; i < _fluxes_per_track; i++)
+              angular_fluxes[i] = buffer[i];
+
+            double track_info[5];
+            for (int i=0; i < 5; i++) {
+              int idx = _fluxes_per_track + size_of_double * i;
+              double* track_info_location =
+                reinterpret_cast<double*>(&buffer[idx]);
+              track_info[i] = track_info_location[0];
+            }
+            double x = track_info[0];
+            double y = track_info[1];
+            double z = track_info[2];
+            double theta = track_info[3];
+            double phi = track_info[4];
+
+            /* Check received information */
+
+            /* Get the connecting point */
+            Point* point;
+            if (dir == 0)
+              point = track.getEnd();
+            else
+              point = track.getStart();
+
+            /* Check position */
+            if (fabs(point->getX() - x) > 1e-5 ||
+                fabs(point->getY() - y) > 1e-5 ||
+                fabs(point->getZ() - z) > 1e-5)
+              log_printf(ERROR, "Track linking error: Track %d in domain %d "
+                         "with connecting point (%f, %f, %f) does not connect "
+                         "with \n Track %d in domain %d at pont (%f, %f, %f)",
+                         t, my_rank, point->getX(), point->getY(),
+                         point->getZ(), connection[0], dest, x, y, z);
+
+            /* Check double reflection */
+            bool x_min = fabs(point->getX() - _geometry->getMinX()) < 1e-5;
+            bool x_max = fabs(point->getX() - _geometry->getMaxX()) < 1e-5;
+            bool x_bound = x_min || x_max;
+            bool z_min = fabs(point->getZ() - _geometry->getMinZ()) < 1e-5;
+            bool z_max = fabs(point->getZ() - _geometry->getMaxZ()) < 1e-5;
+            bool z_bound = z_min || z_max;
+
+            /* Forgive angle differences on double reflections */
+            if (x_bound && z_bound) {
+              phi = track.getPhi();
+              theta = track.getTheta();
+            }
+
+            if (fabs(track.getPhi() - phi) > 1e-5 ||
+                fabs(track.getTheta() - theta) > 1e-5)
+              log_printf(ERROR, "Track linking error: Track %d in domain %d "
+                         "with direction (%f, %f) does not match Track %d in "
+                         " domain %d with direction (%f, %f)",
+                         t, my_rank, track.getTheta(), track.getPhi(),
+                         connection[0], dest, theta, phi);
+
+            for (int pe=0; pe < _fluxes_per_track; pe++) {
+              if (fabs(angular_fluxes[pe] - _boundary_flux(t, dir, pe))
+                  > 1e-7) {
+                std::string dir_string;
+                if (dir == 0)
+                  dir_string = "FWD";
+                else
+                  dir_string = "BWD";
+                log_printf(ERROR, "Angular flux mismatch found on Track %d "
+                           "in domain %d in %s direction at index %d. Boundary"
+                           " angular flux at this location is %f but the "
+                           "starting flux at connecting Track %d in domain %d "
+                           "in the %s direction is %f", t, my_rank, dir_string,
+                           pe, _boundary_flux(t, dir, pe), connection[0],
+                           dest, angular_fluxes[pe]);
+              }
+            }
+          }
+
+          /* Check on-node boundaries */
+          else {
+
+            /* Get the connecting Track */
+            long connecting_idx;
+            if (dir == 0)
+              connecting_idx = track.getTrackNextFwd();
+            else
+              connecting_idx = track.getTrackNextBwd();
+
+            TrackStackIndexes connecting_tsi;
+            Track3D connecting_track;
+            track_generator_3D->getTSIByIndex(connecting_idx, &connecting_tsi);
+            track_generator_3D->getTrackOTF(&connecting_track,
+                                            &connecting_tsi);
+
+            /* Extract Track information */
+            double x, y, z;
+            bool connect_fwd;
+            Point* point;
+            if (dir == 0) {
+              connect_fwd = track.getNextFwdFwd();
+              point = track.getEnd();
+            }
+            else {
+              connect_fwd = track.getNextBwdFwd();
+              point = track.getStart();
+            }
+            if (connect_fwd) {
+              x = connecting_track.getStart()->getX();
+              y = connecting_track.getStart()->getY();
+              z = connecting_track.getStart()->getZ();
+            }
+            else {
+              x = connecting_track.getEnd()->getX();
+              y = connecting_track.getEnd()->getY();
+              z = connecting_track.getEnd()->getZ();
+            }
+            double phi = connecting_track.getPhi();
+            double theta = connecting_track.getTheta();
+
+            /* Check angular fluxes */
+            for (int pe=0; pe < _fluxes_per_track; pe++) {
+              if (fabs(_start_flux(connecting_idx, !connect_fwd, pe)
+                  - _boundary_flux(t, dir, pe)) > 1e-7) {
+                std::string dir_string;
+                if (dir == 0)
+                  dir_string = "FWD";
+                else
+                  dir_string = "BWD";
+                log_printf(ERROR, "Angular flux mismatch found on Track %d "
+                           "in domain %d in %s direction at index %d. Boundary"
+                           " angular flux at this location is %f but the "
+                           "starting flux at connecting Track %d in domain %d "
+                           "in the %s direction is %f", t, my_rank, dir_string,
+                           pe, _boundary_flux(t, dir, pe), connecting_idx,
+                           my_rank, _start_flux(connecting_idx, !connect_fwd,
+                           pe));
+              }
+            }
+
+            /* Test reflective boundaries */
+            if (bc == REFLECTIVE) {
+
+              /* Check that the reflecting Track has a different direction */
+              if (fabs(phi - track.getPhi()) < 1e-5 &&
+                  fabs(theta - track.getTheta()) < 1e-5)
+                log_printf(ERROR, "Reflective boundary found on Track %d "
+                           "with azimuthal angle %f and polar angle %f but "
+                           "the reflective Track at index %d has the same "
+                           "angles.", t, phi, theta, connecting_idx);
+
+              /* Check that the reflecting Track shares the connecting point */
+              if (fabs(point->getX() - x) > 1e-5 ||
+                  fabs(point->getY() - y) > 1e-5 ||
+                  fabs(point->getZ() - z) > 1e-5) {
+                log_printf(ERROR, "Track linking error: Reflective Track %d "
+                           "with connecting point (%f, %f, %f) does not "
+                           "connect with Track %d at point (%f, %f, %f)",
+                           t, point->getX(), point->getY(), point->getZ(),
+                           connecting_idx, x, y, z);
+              }
+            }
+
+            /* Test periodic boundaries */
+            if (bc == PERIODIC) {
+
+              /* Check that the periodic Track has the same direction */
+              if (fabs(phi - track.getPhi()) < 1e-5 ||
+                  fabs(theta - track.getTheta()) < 1e-5)
+                log_printf(ERROR, "Periodic boundary found on Track %d "
+                           "with azimuthal angle %f and polar angle %f but "
+                           "the periodic Track at index %d has azimuthal "
+                           " angle %f and polar angle %f", t, track.getPhi(),
+                           track.getTheta(), connecting_idx, phi, theta);
+
+              /* Check that the periodic Track has a does not share the same
+                 connecting point */
+              if (fabs(point->getX() - x) < 1e-5 &&
+                  fabs(point->getY() - y) < 1e-5 &&
+                  fabs(point->getZ() - z) < 1e-5)
+                log_printf(ERROR, "Periodic boundary found on Track %d "
+                           "at connecting point (%f, %f, %f) but the "
+                           "connecting periodic Track at index %d has the "
+                           "same connecting point", t, x, y, z,
+                           connecting_idx);
+            }
+          }
+        }
+      }
+
+      /* Broadcast new tester */
+      tester++;
+      long broadcast[2];
+      broadcast[0] = -1;
+      broadcast[1] = tester;
+      for (int i=0; i < my_rank; i++) {
+        MPI_Send(broadcast, 2, MPI_DOUBLE, i, 0, MPI_cart);
+      }
+      for (int i = my_rank+1; i < num_ranks; i++) {
+        MPI_Send(broadcast, 2, MPI_DOUBLE, i, 0, MPI_cart);
+      }
+    }
+    /* Responder */
+    else {
+
+      /* Look for messages */
+      int message;
+      MPI_Iprobe(tester, MPI_ANY_TAG, MPI_cart, &message, &stat);
+
+      /* Check for an information request */
+      if (message) {
+
+        /* Receive the request for information */
+        long connection[2];
+        MPI_Recv(connection, 2, MPI_DOUBLE, tester, 0, MPI_cart, &stat);
+
+        /* Check for a broadcast */
+        if (connection[0] == -1) {
+          tester = connection[1];
+        }
+        else {
+          /* Handle an information request */
+
+          /* Fill the requested information */
+          long t = connection[0];
+          int dir = connection[1];
+
+          /* Get the Track */
+          TrackStackIndexes tsi;
+          Track3D track;
+          TrackGenerator3D* track_generator_3D =
+            dynamic_cast<TrackGenerator3D*>(_track_generator);
+          track_generator_3D->getTSIByIndex(t, &tsi);
+          track_generator_3D->getTrackOTF(&track, &tsi);
+
+          /* Fill the information */
+          int send_size = _fluxes_per_track + size_of_double * 5;
+          FP_PRECISION buffer[send_size];
+          for (int pe=0; pe < _fluxes_per_track; pe++)
+            buffer[pe] = _start_flux(t, dir, pe);
+
+          /* Get the connecting point */
+          Point* point;
+          if (dir == 0)
+            point = track.getStart();
+          else
+            point = track.getEnd();
+
+          /* Fill tracking data */
+          double track_data[5];
+          track_data[0] = point->getX();
+          track_data[1] = point->getY();
+          track_data[2] = point->getZ();
+          track_data[3] = track.getTheta();
+          track_data[4] = track.getPhi();
+
+          for (int i=0; i < 5; i++) {
+            int idx = _fluxes_per_track + size_of_double * i;
+            double* track_info_location =
+              reinterpret_cast<double*>(&buffer[idx]);
+            track_info_location[0] = track_data[i];
+          }
+
+          /* Send the information */
+          MPI_Send(buffer, send_size, flux_type, tester, 0, MPI_cart);
+        }
+      }
+    }
+  }
+  log_printf(NORMAL, "Passed boundary flux check");
+}
+
+
 
 
 /**
@@ -995,9 +1340,12 @@ void CPUSolver::normalizeFluxes() {
              tot_fission_source, norm_factor);
 
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++)
-    for (int e=0; e < _num_groups; e++)
+  for (int r=0; r < _num_FSRs; r++) {
+    for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) *= norm_factor;
+      _old_scalar_flux(r, e) *= norm_factor;
+    }
+  }
 
   /* Normalize angular boundary fluxes for each Track */
 #pragma omp parallel for schedule(guided)
@@ -1591,8 +1939,8 @@ void CPUSolver::printFluxesTemp() {
 
   Universe* root = _geometry->getRootUniverse();
 
-  int nx = 10;
-  int ny = 10;
+  int nx = 100;
+  int ny = 100;
   int nz = 1;
 
   double x_min = root->getMinX() + 2*TINY_MOVE;
@@ -1609,7 +1957,7 @@ void CPUSolver::printFluxesTemp() {
   for (int j=0; j < ny; j++)
     y.at(j) = y_min + j * (y_max - y_min) / ny;
 
-  double z_mid = (z_min + z_max) / 2;
+  double z_mid = (z_min + z_max) / 2 + TINY_MOVE;
 
   printFSRFluxes(x, y, z_mid, "xy");
 }

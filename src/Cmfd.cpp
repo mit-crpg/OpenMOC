@@ -318,6 +318,7 @@ void Cmfd::collapseXS() {
     MPI_Allreduce(currents_array, currents_buffer_array, num_currents,
                   precision, MPI_SUM, comm);
     _currents_buffer->copyTo(_surface_currents);
+
   }
 #endif
 

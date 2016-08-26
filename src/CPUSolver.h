@@ -83,6 +83,7 @@ protected:
   void transferAllInterfaceFluxesNew();
   void transferAllInterfaceFluxes();
   void printCycle(long track_start, int domain_start, int length);
+  void boundaryFluxChecker();
 #endif
   void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();

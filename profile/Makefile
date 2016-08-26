@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = no
 DEBUG       = yes
@@ -44,6 +44,7 @@ Vector.cpp
 
 cases = \
 Takeda/Takeda-unrodded.cpp \
+homogeneous/homogeneous.cpp \
 pin-cell/pin-cell-3d.cpp \
 fixed-source/pin-cell-fixed-3d.cpp \
 simple-lattice/simple-lattice-3d.cpp \
@@ -122,7 +123,7 @@ ifeq ($(PRECISION),single)
 endif
 ifeq ($(PRECISION),double)
   CFLAGS += -DFP_PRECISION=double
-  CFLAGS += -DDOUBLE
+#  CFLAGS += -DDOUBLE
 endif
 
 # Vector Flags
@@ -211,5 +212,5 @@ edit:
 	vim -p $(cases)
 
 run:
-	./$(program)
-#	mpirun -np 4 ./$(program)
+#	./$(program)
+	mpirun -np 2 ./$(program)
