@@ -3,11 +3,14 @@
 #include <array>
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
+
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD); //FIXME
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = 1; //FIXME
   #else
   int num_threads = 1;
   #endif
@@ -363,7 +366,7 @@ int main() {
       for (int n=0; n<17*17; n++)
         matrix1[z*17*17 + n] = names[mold[n]];
 
-    assembly1_lattice->setUniverses3D(axial_refines, 17, 17, matrix1);
+    assembly1_lattice->setUniverses(axial_refines, 17, 17, matrix1);
   }
   assembly1_cell->setFill(assembly1_lattice);
 
@@ -396,7 +399,7 @@ int main() {
       for (int n=0; n<17*17; n++)
         matrix2[z*17*17 + n] = names[mold[n]];
 
-    assembly2_lattice->setUniverses3D(axial_refines, 17, 17, matrix2);
+    assembly2_lattice->setUniverses(axial_refines, 17, 17, matrix2);
   }
   assembly2_cell->setFill(assembly2_lattice);
 
@@ -407,7 +410,7 @@ int main() {
   for (int z=0; z < axial_refines; z++)
     for (int n=0; n<10*10; n++)
       refined_ref_matrix[z*10*10 + n] = reflector;
-  refined_ref_lattice->setUniverses3D(axial_refines, 10, 10, refined_ref_matrix);
+  refined_ref_lattice->setUniverses(axial_refines, 10, 10, refined_ref_matrix);
   refined_reflector_cell->setFill(refined_ref_lattice);
 
   /* Sliced up water cells - right side of geometry */
@@ -425,7 +428,7 @@ int main() {
       }
     }
   }
-  right_ref_lattice->setUniverses3D(axial_refines, 17, 17, right_ref_matrix);
+  right_ref_lattice->setUniverses(axial_refines, 17, 17, right_ref_matrix);
   right_reflector_cell->setFill(right_ref_lattice);
 
   /* Sliced up water cells for bottom corner of geometry */
@@ -443,7 +446,7 @@ int main() {
       }
     }
   }
-  corner_ref_lattice->setUniverses3D(axial_refines, 17, 17, corner_ref_matrix);
+  corner_ref_lattice->setUniverses(axial_refines, 17, 17, corner_ref_matrix);
   corner_reflector_cell->setFill(corner_ref_lattice);
 
   /* Sliced up water cells for bottom of geometry */
@@ -461,7 +464,7 @@ int main() {
       }
     }
   }
-  bottom_ref_lattice->setUniverses3D(axial_refines, 17, 17, bottom_ref_matrix);
+  bottom_ref_lattice->setUniverses(axial_refines, 17, 17, bottom_ref_matrix);
   bottom_reflector_cell->setFill(bottom_ref_lattice);
 
   /* Reflector assembly (unrodded) */
@@ -471,7 +474,7 @@ int main() {
   for (int n=0; n < axial_refines*17*17; n++)
     assembly_ref_matrix[n] = refined_reflector;
 
-  assembly_ref_lattice->setUniverses3D(axial_refines, 17, 17, assembly_ref_matrix);
+  assembly_ref_lattice->setUniverses(axial_refines, 17, 17, assembly_ref_matrix);
   assembly_reflector_cell->setFill(assembly_ref_lattice);
 
   /* 3 x 3 x 9 core to represent two bundles and water */
@@ -514,7 +517,7 @@ int main() {
     assembly2,        assembly1,        right_reflector,
     bottom_reflector, bottom_reflector, corner_reflector};
 
-  full_geometry->setUniverses3D(9, 3, 3, universes);
+  full_geometry->setUniverses(9, 3, 3, universes);
 
   /* Fill root cell with lattice */
   root_cell->setFill(full_geometry);
@@ -538,6 +541,8 @@ int main() {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
+  geometry.setDomainDecomposition(1,1,1);
+  geometry.setNumDomainModules(3,3,3);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -562,5 +567,6 @@ int main() {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
+  MPI_Finalize();
   return 0;
 }

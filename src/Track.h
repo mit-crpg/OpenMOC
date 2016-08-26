@@ -119,10 +119,8 @@ protected:
   //FIXME
   int _surface_in;
   int _surface_out;
-  int _domain_fwd_in;
-  int _domain_fwd_out;
-  int _domain_bwd_in;
-  int _domain_bwd_out;
+  int _domain_fwd;
+  int _domain_bwd;
 
 public:
   Track();
@@ -150,10 +148,8 @@ public:
   void setAzimIndex(int index);
   void setSurfaceIn(int surface_in);
   void setSurfaceOut(int surface_out);
-  void setDomainFwdIn(int neighbor);
-  void setDomainFwdOut(int neighbor);
-  void setDomainBwdIn(int neighbor);
-  void setDomainBwdOut(int neighbor);
+  void setDomainFwd(int neighbor);
+  void setDomainBwd(int neighbor);
   void setLinkIndex(int index);
 
   /* Getter methods */
@@ -178,10 +174,8 @@ public:
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-  int getDomainFwdIn();
-  int getDomainFwdOut();
-  int getDomainBwdIn();
-  int getDomainBwdOut();
+  int getDomainFwd();
+  int getDomainBwd();
   int getSurfaceIn();
   int getSurfaceOut();
 
