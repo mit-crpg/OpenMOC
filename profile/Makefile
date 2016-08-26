@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = simple-lattice/simple-lattice-3d.cpp
+case = c5g7/c5g7-3d-cmfd.cpp
 
 source = \
 Cell.cpp \
@@ -209,8 +209,8 @@ clean:
 	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
 
 edit:
-	vim -p $(cases)
+	vim -p $(case) $(cases)
 
 run:
 #	./$(program)
-	mpirun -np 2 ./$(program)
+	mpirun -np 4 ./$(program)

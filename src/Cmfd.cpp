@@ -500,26 +500,12 @@ FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
   /* Loop over MOC energy groups within this CMFD coarse group */
   for (int h = _group_indices[group]; h < _group_indices[group+1]; h++) {
 
-    /* Reset transport and rxn tally for this MOC group */
-    trans_tally_group = 0.0;
-    rxn_tally_group = 0.0;
-
-    /* Loop over FSRs in CMFD cell */
-    for (iter = _cell_fsrs.at(cmfd_cell).begin();
-         iter != _cell_fsrs.at(cmfd_cell).end(); ++iter) {
-
-      fsr_material = _FSR_materials[*iter];
-      volume = _FSR_volumes[*iter];
-      flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
-      tot = fsr_material->getSigmaTByGroup(h+1);
-
-      /* Increment tallies for this group */
-      rxn_tally += flux * volume;
-      trans_tally_group += tot * flux * volume;
-      rxn_tally_group += flux * volume;
-    }
+    /* Get transport and rxn tally for this MOC group */
+    trans_tally_group = _total_tally[cmfd_cell][h];
+    rxn_tally_group = _reaction_tally[cmfd_cell][h];
 
     /* Energy collapse diffusion coefficient */
+    rxn_tally += rxn_tally_group;
     dif_tally += rxn_tally_group /
         (3.0 * (trans_tally_group / rxn_tally_group));
   }
@@ -942,7 +928,7 @@ void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
 
   if (SOR_factor <= 0.0 || SOR_factor >= 2.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
-        "must be > 0 and < 2. Input value: %i", SOR_factor);
+                      "must be > 0 and < 2. Input value: %i", SOR_factor);
 
   _SOR_factor = SOR_factor;
 }
@@ -2290,6 +2276,7 @@ void Cmfd::generateKNearestStencils() {
       fsr_id = *fsr_iter;
 
       /* Get centroid */
+      //FIXME
       centroid = _geometry->getFSRCentroid(fsr_id);
 
       /* Create new stencil */
