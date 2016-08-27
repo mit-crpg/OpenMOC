@@ -139,58 +139,11 @@ void Track::setDomainBwd(int neighbor) {
 
 
 /**
- * @brief Returns a pointer to the Track's end Point.
- * @return A pointer to the Track's end Point
- */
-Point* Track::getEnd() {
-  return &_end;
-}
-
-
-/**
- * @brief Returns a pointer to the Track's start Point.
- * @return A pointer to the Track's start Point
- */
-Point* Track::getStart() {
-  return &_start;
-}
-
-
-/**
- * @brief Return the Track's azimuthal angle (with respect to the x-axis).
- * @return The azimuthal angle \f$ \phi \in [0, \pi] \f$
- */
-double Track::getPhi() const {
-  return _phi;
-}
-
-
-/**
  * @brief Return the Track's length.
  * @return The Track's length
  */
 double Track::getLength() {
   return _start.distanceToPoint(&_end);
-}
-
-
-/**
- * @brief Returns the boundary condition for the flux along the Track's
- *        "forward" direction.
- * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
- */
-boundaryType Track::getBCFwd() const {
-  return _bc_fwd;
-}
-
-
-/**
- * @brief Returns the boundary condition for the flux along the Track's
- *        "reverse" direction.
- * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
- */
-boundaryType Track::getBCBwd() const {
-  return _bc_bwd;
 }
 
 

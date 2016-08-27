@@ -110,6 +110,14 @@ protected:
   /** A buffer holding the computed FSR volumes */
   FP_PRECISION* _FSR_volumes;
 
+  /** Geometry boundaries for this domain */
+  double _x_min;
+  double _y_min;
+  double _z_min;
+  double _x_max;
+  double _y_max;
+  double _z_max;
+
   /** Private class methods */
   virtual void initializeTracks();
   virtual void initializeTrackReflections();
