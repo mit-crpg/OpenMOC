@@ -2,18 +2,18 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = no
-DEBUG       = yes
-PROFILE     = no
+OPTIMIZE    = yes
+DEBUG       = no
+PROFILE     = yes
 PRECISION   = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-3d-cmfd.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 
 source = \
 Cell.cpp \
@@ -212,5 +212,5 @@ edit:
 	vim -p $(case) $(cases)
 
 run:
-#	./$(program)
-	mpirun -np 4 ./$(program)
+	./$(program)
+	#mpirun -np 2 ./$(program)
