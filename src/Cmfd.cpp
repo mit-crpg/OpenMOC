@@ -155,6 +155,7 @@ Cmfd::~Cmfd() {
     delete [] _volume_tally;
     delete [] _total_tally;
     delete [] _neutron_production_tally;
+    delete [] _diffusion_tally;
 
     for (int i=0; i < _num_x * _num_y * _num_z; i++) {
       delete [] _scattering_tally[i];
@@ -353,6 +354,7 @@ void Cmfd::collapseXS() {
         _volume_tally[i][e] = 0.0;
         _total_tally[i][e] = 0.0;
         _neutron_production_tally[i][e] = 0.0;
+        _diffusion_tally[i][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
@@ -391,6 +393,8 @@ void Cmfd::collapseXS() {
 
           /* Reset volume tally for this MOC group */
           _volume_tally[i][e] = 0.0;
+          FP_PRECISION rxn_tally_group = 0.0;
+          FP_PRECISION trans_tally_group = 0.0;
 
           /* Loop over FSRs in CMFD cell */
           for (iter = _cell_fsrs.at(i).begin();
@@ -416,6 +420,8 @@ void Cmfd::collapseXS() {
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
+          FP_PRECISION flux_avg_sigma_t = trans_tally_group / rxn_tally_group;
+          _diffusion_tally[i][e] += rxn_tally_group / (3.0 * flux_avg_sigma_t);
         }
       }
     }
@@ -485,32 +491,8 @@ void Cmfd::collapseXS() {
  * @return The diffusion coefficient
  */
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
-
-  /* Pointers to material objects */
-  Material* fsr_material;
-  Material* cell_material = _materials[cmfd_cell];
-  std::vector<int>::iterator iter;
-
-  /* Zero tallies for this group */
-  FP_PRECISION dif_tally = 0.0;
-  FP_PRECISION rxn_tally = 0.0;
-  FP_PRECISION trans_tally_group, rxn_tally_group;
-  FP_PRECISION tot, flux, volume;
-
-  /* Loop over MOC energy groups within this CMFD coarse group */
-  for (int h = _group_indices[group]; h < _group_indices[group+1]; h++) {
-
-    /* Get transport and rxn tally for this MOC group */
-    trans_tally_group = _total_tally[cmfd_cell][h];
-    rxn_tally_group = _reaction_tally[cmfd_cell][h];
-
-    /* Energy collapse diffusion coefficient */
-    rxn_tally += rxn_tally_group;
-    dif_tally += rxn_tally_group /
-        (3.0 * (trans_tally_group / rxn_tally_group));
-  }
-
-  return dif_tally / rxn_tally;
+  return _diffusion_tally[cmfd_cell][group] /
+    _reaction_tally[cmfd_cell][group];
 }
 
 
@@ -683,6 +665,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Update the MOC flux */
   updateMOCFlux();
+  exit(1);
 
   return _k_eff;
 }
@@ -1074,7 +1057,7 @@ void Cmfd::allocateTallies() {
   /* Determine tally sizes */
   int num_cells = _num_x * _num_y * _num_z;
   int integrated_tally_size = num_cells * _num_cmfd_groups;
-  int total_integrated_tally_size = 5 * integrated_tally_size;
+  int total_integrated_tally_size = 6 * integrated_tally_size;
   int groupwise_tally_size = integrated_tally_size * _num_cmfd_groups;
   int total_groupwise_tally_size = 2 * groupwise_tally_size;
   _total_tally_size = total_integrated_tally_size +
@@ -1082,8 +1065,8 @@ void Cmfd::allocateTallies() {
 
   /* Allocate memory for tallies */
   _tally_memory = new FP_PRECISION[_total_tally_size];
-  FP_PRECISION** integrated_tallies[5];
-  for (int t=0; t<5; t++) {
+  FP_PRECISION** integrated_tallies[6];
+  for (int t=0; t<6; t++) {
     integrated_tallies[t] = new FP_PRECISION*[num_cells];
     for (int i=0; i < num_cells; i++) {
       int idx = i*_num_cmfd_groups + t*integrated_tally_size;
@@ -1109,6 +1092,7 @@ void Cmfd::allocateTallies() {
   _volume_tally = integrated_tallies[2];
   _total_tally = integrated_tallies[3];
   _neutron_production_tally = integrated_tallies[4];
+  _diffusion_tally = integrated_tallies[5];
   _scattering_tally =  groupwise_tallies[0];
   _chi_tally =  groupwise_tallies[1];
   _tallies_allocated = true;
