@@ -182,6 +182,7 @@ private:
   FP_PRECISION** _volume_tally;
   FP_PRECISION** _total_tally;
   FP_PRECISION** _neutron_production_tally;
+  FP_PRECISION** _diffusion_tally;
   FP_PRECISION*** _scattering_tally;
   FP_PRECISION*** _chi_tally;
   bool _tallies_allocated;

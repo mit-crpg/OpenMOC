@@ -6,14 +6,14 @@ COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
-PROFILE     = yes
+PROFILE     = no
 PRECISION   = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = simple-lattice/simple-lattice-3d.cpp
+case = c5g7/c5g7-3d-cmfd.cpp
 
 source = \
 Cell.cpp \
