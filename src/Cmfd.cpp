@@ -413,6 +413,10 @@ void Cmfd::collapseXS() {
             _nu_fission_tally[i][e] += nu_fis * flux * volume;
             _reaction_tally[i][e] += flux * volume;
             _volume_tally[i][e] += volume;
+            
+            /* Increment diffusion MOC group-wise tallies */
+            rxn_tally_group += flux * volume;
+            trans_tally_group += tot * flux * volume;
 
             /* Scattering tallies */
             for (int g = 0; g < _num_moc_groups; g++) {
@@ -665,7 +669,6 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Update the MOC flux */
   updateMOCFlux();
-  exit(1);
 
   return _k_eff;
 }
