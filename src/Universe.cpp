@@ -843,8 +843,8 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
 Lattice::~Lattice() {
 
   /* Clear the triple-nested vector of Universes */
-  for (int k=0; k < _num_z; k++) {
-    for (int j=0; j < _num_y; j++)
+  for (int k=0; k < _universes.size(); k++) {
+    for (int j=0; j < _universes.at(k).size(); j++)
       _universes.at(k).at(j).clear();
     _universes.at(k).clear();
   }
