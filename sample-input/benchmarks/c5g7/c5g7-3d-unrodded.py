@@ -55,7 +55,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,9*axial_refines)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([[1,2,3],[4,5,6,7]])
 cmfd.setCentroidUpdateOn(True)
 cmfd.setKNearest(3)
 

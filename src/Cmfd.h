@@ -20,6 +20,7 @@
 #include "Quadrature.h"
 #include "linalg.h"
 #include "Geometry.h"
+#include "Timer.h"
 #endif
 
 /** Forward declaration of Geometry class */
@@ -182,6 +183,7 @@ private:
   FP_PRECISION** _volume_tally;
   FP_PRECISION** _total_tally;
   FP_PRECISION** _neutron_production_tally;
+  FP_PRECISION** _diffusion_tally;
   FP_PRECISION*** _scattering_tally;
   FP_PRECISION*** _chi_tally;
   bool _tallies_allocated;
@@ -189,6 +191,9 @@ private:
   FP_PRECISION* _tally_buffer;
   Vector* _currents_buffer;
 #endif
+
+  /** A timer to record timing data for a simulation */
+  Timer* _timer;
 
   /* Private worker functions */
   FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
@@ -239,6 +244,7 @@ public:
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     int azim_index, int polar_index, bool fwd);
+  void printTimerReport();
 
   /* Get parameters */
   int getNumCmfdGroups();
@@ -285,5 +291,100 @@ public:
   void setFSRFluxes(FP_PRECISION* scalar_flux);
   void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
 };
+
+
+/**
+ * @brief Get the CMFD group given an MOC group.
+ * @param group the MOC energy group
+ * @return the CMFD energy group
+ */
+inline int Cmfd::getCmfdGroup(int group) {
+  return _group_indices_map[group];
+}
+
+
+/*
+ * @brief Quickly finds a 3D CMFD surface given a cell, global coordinate, and
+ *        2D CMFD surface. Intended for use in axial on-the-fly ray tracing.
+ * @details If the coords is not on a surface, -1 is returned. If there is
+ *          no 2D CMFD surface intersection, -1 should be input for the 2D CMFD
+ *          surface.
+ * @param cell_id The CMFD cell ID that the local coords is in.
+ * @param z the axial height in the root universe of the point being evaluated.
+ * @param surface_2D The ID of the 2D CMFD surface that the LocalCoords object
+ *        intersects. If there is no 2D intersection, -1 should be input.
+ */
+inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
+  return _lattice->getLatticeSurfaceOTF(cell_id, z, surface_2D);
+}
+
+
+/**
+ * @brief Tallies the current contribution from this segment across the
+ *        the appropriate CMFD mesh cell surface.
+ * @param curr_segment the current Track segment
+ * @param track_flux the outgoing angular flux for this segment
+ * @param polar_weights array of polar weights for some azimuthal angle
+ * @param fwd boolean indicating direction of integration along segment
+ */
+inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
+                               int azim_index, int polar_index, bool fwd) {
+
+  int surf_id, cell_id, cmfd_group;
+  int ncg = _num_cmfd_groups;
+  FP_PRECISION currents[_num_cmfd_groups];
+  memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
+
+  /* Check if the current needs to be tallied */
+  bool tally_current = false;
+  if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {
+    surf_id = curr_segment->_cmfd_surface_fwd % NUM_SURFACES;
+    cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
+    tally_current = true;
+  }
+  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
+    surf_id = curr_segment->_cmfd_surface_bwd % NUM_SURFACES;
+    cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
+    tally_current = true;
+  }
+
+  /* Tally current if necessary */
+  if (tally_current) {
+
+    if (_solve_3D) {
+      FP_PRECISION wgt = _quadrature->getWeightInline(azim_index, polar_index);
+      for (int e=0; e < _num_moc_groups; e++) {
+
+        /* Get the CMFD group */
+        cmfd_group = getCmfdGroup(e);
+
+        /* Increment the surface group */
+        currents[cmfd_group] += track_flux[e] * wgt;
+      }
+
+      /* Increment currents */
+      _surface_currents->incrementValues
+          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+    }
+    else {
+      int pe = 0;
+      for (int e=0; e < _num_moc_groups; e++) {
+
+        /* Get the CMFD group */
+        cmfd_group = getCmfdGroup(e);
+
+        for (int p = 0; p < _num_polar/2; p++) {
+          currents[cmfd_group] += track_flux[pe]
+              * _quadrature->getWeightInline(azim_index, p);
+          pe++;
+        }
+      }
+
+      /* Increment currents */
+      _surface_currents->incrementValues
+          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+    }
+  }
+}
 
 #endif /* CMFD_H_ */

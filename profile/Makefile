@@ -2,12 +2,12 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = no
-DEBUG       = yes
+OPTIMIZE    = yes
+DEBUG       = no
 PROFILE     = no
-PRECISION   = single
+PRECISION   = double
 
 #===============================================================================
 # Source Code List
@@ -44,8 +44,10 @@ Vector.cpp
 
 cases = \
 Takeda/Takeda-unrodded.cpp \
+homogeneous/homogeneous.cpp \
 pin-cell/pin-cell-3d.cpp \
 fixed-source/pin-cell-fixed-3d.cpp \
+simple-lattice/simple-lattice-3d.cpp \
 c5g7/c5g7-3d.cpp \
 c5g7/c5g7-3d-cmfd.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
@@ -121,7 +123,7 @@ ifeq ($(PRECISION),single)
 endif
 ifeq ($(PRECISION),double)
   CFLAGS += -DFP_PRECISION=double
-  CFLAGS += -DDOUBLE
+#  CFLAGS += -DDOUBLE
 endif
 
 # Vector Flags
@@ -207,8 +209,8 @@ clean:
 	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
 
 edit:
-	vim -p $(cases)
+	vim -p $(case) $(cases)
 
 run:
-#	./$(program)
-	mpirun -np 4 ./$(program)
+	./$(program)
+	#mpirun -np 2 ./$(program)

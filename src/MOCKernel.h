@@ -48,6 +48,9 @@ protected:
   /** Maximum optical path length when forming segments */
   FP_PRECISION _max_tau;
 
+  /** Number of energy groups in the current problem */
+  int _num_groups;
+
 public:
 
   MOCKernel(TrackGenerator* track_generator, int row_num);
@@ -79,6 +82,7 @@ public:
  *          (less than the max optical path length) in the input length.
  */
 class CounterKernel: public MOCKernel {
+
 public:
   CounterKernel(TrackGenerator* track_generator, int row_num);
   void execute(FP_PRECISION length, Material* mat, int fsr_id,

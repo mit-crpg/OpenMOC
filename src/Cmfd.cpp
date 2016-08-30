@@ -65,6 +65,9 @@ Cmfd::Cmfd() {
   _boundaries[SURFACE_Y_MAX] = REFLECTIVE;
   _boundaries[SURFACE_Z_MIN] = REFLECTIVE;
   _boundaries[SURFACE_Z_MAX] = REFLECTIVE;
+
+  /* Initialize CMFD timer */
+  _timer = new Timer();
 }
 
 
@@ -155,6 +158,7 @@ Cmfd::~Cmfd() {
     delete [] _volume_tally;
     delete [] _total_tally;
     delete [] _neutron_production_tally;
+    delete [] _diffusion_tally;
 
     for (int i=0; i < _num_x * _num_y * _num_z; i++) {
       delete [] _scattering_tally[i];
@@ -303,6 +307,9 @@ void Cmfd::collapseXS() {
   MPI_Datatype precision;
   if (_geometry->isDomainDecomposed()) {
 
+    /* Start recording MPI communication time */
+    _timer->startTimer();
+
     /* Retrieve MPI information */
     comm = _geometry->getMPICart();
     if (sizeof(FP_PRECISION) == 4)
@@ -318,6 +325,10 @@ void Cmfd::collapseXS() {
     MPI_Allreduce(currents_array, currents_buffer_array, num_currents,
                   precision, MPI_SUM, comm);
     _currents_buffer->copyTo(_surface_currents);
+
+    /* Tally MPI communication time */
+    _timer->stopTimer();
+    _timer->recordSplit("Total MPI communication time");
   }
 #endif
 
@@ -352,6 +363,7 @@ void Cmfd::collapseXS() {
         _volume_tally[i][e] = 0.0;
         _total_tally[i][e] = 0.0;
         _neutron_production_tally[i][e] = 0.0;
+        _diffusion_tally[i][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
@@ -390,6 +402,8 @@ void Cmfd::collapseXS() {
 
           /* Reset volume tally for this MOC group */
           _volume_tally[i][e] = 0.0;
+          FP_PRECISION rxn_tally_group = 0.0;
+          FP_PRECISION trans_tally_group = 0.0;
 
           /* Loop over FSRs in CMFD cell */
           for (iter = _cell_fsrs.at(i).begin();
@@ -409,12 +423,18 @@ void Cmfd::collapseXS() {
             _reaction_tally[i][e] += flux * volume;
             _volume_tally[i][e] += volume;
 
+            /* Increment diffusion MOC group-wise tallies */
+            rxn_tally_group += flux * volume;
+            trans_tally_group += tot * flux * volume;
+
             /* Scattering tallies */
             for (int g = 0; g < _num_moc_groups; g++) {
               _scattering_tally[i][e][getCmfdGroup(g)] +=
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
+          FP_PRECISION flux_avg_sigma_t = trans_tally_group / rxn_tally_group;
+          _diffusion_tally[i][e] += rxn_tally_group / (3.0 * flux_avg_sigma_t);
         }
       }
     }
@@ -423,10 +443,19 @@ void Cmfd::collapseXS() {
   /* Reduce tallies across domains if necessary */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
+
+    /* Start recording MPI communication time */
+    _timer->startTimer();
+
+    /* Communicate tallies for XS condensation */
     MPI_Allreduce(_tally_memory, _tally_buffer, _total_tally_size, precision,
                   MPI_SUM, comm);
     for (int idx=0; idx < _total_tally_size; idx++)
       _tally_memory[idx] = _tally_buffer[idx];
+
+    /* Tally MPI communication time */
+    _timer->stopTimer();
+    _timer->recordSplit("Total MPI communication time");
   }
 #endif
 
@@ -484,46 +513,8 @@ void Cmfd::collapseXS() {
  * @return The diffusion coefficient
  */
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
-
-  /* Pointers to material objects */
-  Material* fsr_material;
-  Material* cell_material = _materials[cmfd_cell];
-  std::vector<int>::iterator iter;
-
-  /* Zero tallies for this group */
-  FP_PRECISION dif_tally = 0.0;
-  FP_PRECISION rxn_tally = 0.0;
-  FP_PRECISION trans_tally_group, rxn_tally_group;
-  FP_PRECISION tot, flux, volume;
-
-  /* Loop over MOC energy groups within this CMFD coarse group */
-  for (int h = _group_indices[group]; h < _group_indices[group+1]; h++) {
-
-    /* Reset transport and rxn tally for this MOC group */
-    trans_tally_group = 0.0;
-    rxn_tally_group = 0.0;
-
-    /* Loop over FSRs in CMFD cell */
-    for (iter = _cell_fsrs.at(cmfd_cell).begin();
-         iter != _cell_fsrs.at(cmfd_cell).end(); ++iter) {
-
-      fsr_material = _FSR_materials[*iter];
-      volume = _FSR_volumes[*iter];
-      flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
-      tot = fsr_material->getSigmaTByGroup(h+1);
-
-      /* Increment tallies for this group */
-      rxn_tally += flux * volume;
-      trans_tally_group += tot * flux * volume;
-      rxn_tally_group += flux * volume;
-    }
-
-    /* Energy collapse diffusion coefficient */
-    dif_tally += rxn_tally_group /
-        (3.0 * (trans_tally_group / rxn_tally_group));
-  }
-
-  return dif_tally / rxn_tally;
+  return _diffusion_tally[cmfd_cell][group] /
+    _reaction_tally[cmfd_cell][group];
 }
 
 
@@ -672,14 +663,24 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   log_printf(INFO, "Running diffusion solver...");
 
+  /* Start recording total CMFD time */
+  _timer->startTimer();
+
   /* Create matrix and vector objects */
   if (_A == NULL) {
     log_printf(ERROR, "Unable to compute k-eff in CMFD since the CMFD "
                "linear algebra matrices and arrays have not been created.");
   }
 
+  /* Start recording XS collapse time */
+  _timer->startTimer();
+
   /* Collapse the cross sections onto the CMFD mesh */
   collapseXS();
+
+  /* Tally the XS collpase time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total collapse time");
 
   /* Construct matrices */
   constructMatrices(moc_iteration);
@@ -687,15 +688,26 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
 
+  /* Start recording CMFD solve time */
+  _timer->startTimer();
+
   /* Solve the eigenvalue problem */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _source_convergence_threshold,
                            _SOR_factor);
+
+  /* Tally the CMFD solver time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total solver time");
 
   /* Rescale the old and new flux */
   rescaleFlux();
 
   /* Update the MOC flux */
   updateMOCFlux();
+
+  /* Tally the total CMFD time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total CMFD time");
 
   return _k_eff;
 }
@@ -941,7 +953,7 @@ void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
 
   if (SOR_factor <= 0.0 || SOR_factor >= 2.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
-        "must be > 0 and < 2. Input value: %i", SOR_factor);
+                      "must be > 0 and < 2. Input value: %i", SOR_factor);
 
   _SOR_factor = SOR_factor;
 }
@@ -953,16 +965,6 @@ void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
  */
 int Cmfd::getNumCmfdGroups() {
   return _num_cmfd_groups;
-}
-
-
-/**
- * @brief Get the CMFD group given an MOC group.
- * @param group the MOC energy group
- * @return the CMFD energy group
- */
-int Cmfd::getCmfdGroup(int group) {
-  return _group_indices_map[group];
 }
 
 
@@ -1097,7 +1099,7 @@ void Cmfd::allocateTallies() {
   /* Determine tally sizes */
   int num_cells = _num_x * _num_y * _num_z;
   int integrated_tally_size = num_cells * _num_cmfd_groups;
-  int total_integrated_tally_size = 5 * integrated_tally_size;
+  int total_integrated_tally_size = 6 * integrated_tally_size;
   int groupwise_tally_size = integrated_tally_size * _num_cmfd_groups;
   int total_groupwise_tally_size = 2 * groupwise_tally_size;
   _total_tally_size = total_integrated_tally_size +
@@ -1105,8 +1107,8 @@ void Cmfd::allocateTallies() {
 
   /* Allocate memory for tallies */
   _tally_memory = new FP_PRECISION[_total_tally_size];
-  FP_PRECISION** integrated_tallies[5];
-  for (int t=0; t<5; t++) {
+  FP_PRECISION** integrated_tallies[6];
+  for (int t=0; t<6; t++) {
     integrated_tallies[t] = new FP_PRECISION*[num_cells];
     for (int i=0; i < num_cells; i++) {
       int idx = i*_num_cmfd_groups + t*integrated_tally_size;
@@ -1132,6 +1134,7 @@ void Cmfd::allocateTallies() {
   _volume_tally = integrated_tallies[2];
   _total_tally = integrated_tallies[3];
   _neutron_production_tally = integrated_tallies[4];
+  _diffusion_tally = integrated_tallies[5];
   _scattering_tally =  groupwise_tallies[0];
   _chi_tally =  groupwise_tallies[1];
   _tallies_allocated = true;
@@ -1207,22 +1210,6 @@ void Cmfd::initializeGroupMap() {
 int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   return _lattice->getLatticeSurface(cell, point);
-}
-
-
-/*
- * @brief Quickly finds a 3D CMFD surface given a cell, global coordinate, and
- *        2D CMFD surface. Intended for use in axial on-the-fly ray tracing.
- * @details If the coords is not on a surface, -1 is returned. If there is
- *          no 2D CMFD surface intersection, -1 should be input for the 2D CMFD
- *          surface.
- * @param cell_id The CMFD cell ID that the local coords is in.
- * @param z the axial height in the root universe of the point being evaluated.
- * @param surface_2D The ID of the 2D CMFD surface that the LocalCoords object
- *        intersects. If there is no 2D intersection, -1 should be input.
- */
-int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
-  return _lattice->getLatticeSurfaceOTF(cell_id, z, surface_2D);
 }
 
 
@@ -2289,6 +2276,7 @@ void Cmfd::generateKNearestStencils() {
       fsr_id = *fsr_iter;
 
       /* Get centroid */
+      //FIXME
       centroid = _geometry->getFSRCentroid(fsr_id);
 
       /* Create new stencil */
@@ -2592,74 +2580,6 @@ void Cmfd::zeroCurrents() {
 }
 
 
-/**
- * @brief Tallies the current contribution from this segment across the
- *        the appropriate CMFD mesh cell surface.
- * @param curr_segment the current Track segment
- * @param track_flux the outgoing angular flux for this segment
- * @param polar_weights array of polar weights for some azimuthal angle
- * @param fwd boolean indicating direction of integration along segment
- */
-void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
-                        int azim_index, int polar_index, bool fwd) {
-
-  int surf_id, cell_id, cmfd_group;
-  int ncg = _num_cmfd_groups;
-  FP_PRECISION currents[_num_cmfd_groups];
-  memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
-
-  /* Check if the current needs to be tallied */
-  bool tally_current = false;
-  if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {
-    surf_id = curr_segment->_cmfd_surface_fwd % NUM_SURFACES;
-    cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
-    tally_current = true;
-  }
-  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
-    surf_id = curr_segment->_cmfd_surface_bwd % NUM_SURFACES;
-    cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
-    tally_current = true;
-  }
-
-  /* Tally current if necessary */
-  if (tally_current) {
-
-    if (_solve_3D) {
-      for (int e=0; e < _num_moc_groups; e++) {
-
-        /* Get the CMFD group */
-        cmfd_group = getCmfdGroup(e);
-
-        /* Increment the surface group */
-        currents[cmfd_group] += track_flux[e]
-            * _quadrature->getWeightInline(azim_index, polar_index);
-      }
-
-      /* Increment currents */
-      _surface_currents->incrementValues
-          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
-    }
-    else {
-      int pe = 0;
-      for (int e=0; e < _num_moc_groups; e++) {
-
-        /* Get the CMFD group */
-        cmfd_group = getCmfdGroup(e);
-
-        for (int p = 0; p < _num_polar/2; p++) {
-          currents[cmfd_group] += track_flux[pe]
-              * _quadrature->getWeightInline(azim_index, p);
-          pe++;
-        }
-      }
-
-      /* Increment currents */
-      _surface_currents->incrementValues
-          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
-    }
-  }
-}
-
 
 /**
  * @brief Initialize the Matrix and Vector objects, k-nearest stencils, the
@@ -2850,4 +2770,35 @@ void Cmfd::setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
     for (int p=0; p < num_polar/2; p++)
       _polar_spacings[a][p] = FP_PRECISION(polar_spacings[a][p]);
   }
+}
+
+
+//FIXME
+void Cmfd::printTimerReport() {
+
+  std::string msg_string;
+
+  /* Get the total CMFD time */
+  double tot_time = _timer->getSplit("Total CMFD time");
+  msg_string = "Total CMFD computation time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
+
+  /* Get the total XS collapse time */
+  double xs_collapse_time = _timer->getSplit("Total collapse time");
+  msg_string = "Total XS collapse time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), xs_collapse_time);
+
+  /* Get the total communication time */
+  double comm_time = _timer->getSplit("Total MPI communication time");
+  msg_string = "Total MPI communication time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
+
+  /* Get the total solver time */
+  double solver_time = _timer->getSplit("Total solver time");
+  msg_string = "Total CMFD solver time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
 }

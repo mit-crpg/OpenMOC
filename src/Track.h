@@ -119,10 +119,8 @@ protected:
   //FIXME
   int _surface_in;
   int _surface_out;
-  int _domain_fwd_in;
-  int _domain_fwd_out;
-  int _domain_bwd_in;
-  int _domain_bwd_out;
+  int _domain_fwd;
+  int _domain_bwd;
 
 public:
   Track();
@@ -150,10 +148,8 @@ public:
   void setAzimIndex(int index);
   void setSurfaceIn(int surface_in);
   void setSurfaceOut(int surface_out);
-  void setDomainFwdIn(int neighbor);
-  void setDomainFwdOut(int neighbor);
-  void setDomainBwdIn(int neighbor);
-  void setDomainBwdOut(int neighbor);
+  void setDomainFwd(int neighbor);
+  void setDomainBwd(int neighbor);
   void setLinkIndex(int index);
 
   /* Getter methods */
@@ -178,10 +174,8 @@ public:
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-  int getDomainFwdIn();
-  int getDomainFwdOut();
-  int getDomainBwdIn();
-  int getDomainBwdOut();
+  int getDomainFwd();
+  int getDomainBwd();
   int getSurfaceIn();
   int getSurfaceOut();
 
@@ -252,6 +246,53 @@ inline int Track::getNumSegments() {
  */
 inline void Track::setNumSegments(int num_segments) {
     _num_segments = num_segments;
+}
+
+
+/**
+ * @brief Returns a pointer to the Track's end Point.
+ * @return A pointer to the Track's end Point
+ */
+inline Point* Track::getEnd() {
+  return &_end;
+}
+
+
+/**
+ * @brief Returns a pointer to the Track's start Point.
+ * @return A pointer to the Track's start Point
+ */
+inline Point* Track::getStart() {
+  return &_start;
+}
+
+
+/**
+ * @brief Return the Track's azimuthal angle (with respect to the x-axis).
+ * @return The azimuthal angle \f$ \phi \in [0, \pi] \f$
+ */
+inline double Track::getPhi() const {
+  return _phi;
+}
+
+
+/**
+ * @brief Returns the boundary condition for the flux along the Track's
+ *        "forward" direction.
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
+ */
+inline boundaryType Track::getBCFwd() const {
+  return _bc_fwd;
+}
+
+
+/**
+ * @brief Returns the boundary condition for the flux along the Track's
+ *        "reverse" direction.
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
+ */
+inline boundaryType Track::getBCBwd() const {
+  return _bc_bwd;
 }
 
 #endif /* TRACK_H_ */

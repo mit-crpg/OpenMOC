@@ -11,6 +11,7 @@
 MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
   _count = 0;
   _max_tau = track_generator->retrieveMaxOpticalLength();
+  _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
 }
 
 
@@ -159,7 +160,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+  for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
@@ -188,7 +189,7 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+  for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
@@ -221,7 +222,7 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+  for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
@@ -264,8 +265,7 @@ TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
   _azim_index = 0;
   _polar_index = 0;
   _track_id = 0;
-  int num_groups = track_generator->getGeometry()->getNumEnergyGroups();
-  _thread_fsr_flux = new FP_PRECISION[num_groups];
+  _thread_fsr_flux = new FP_PRECISION[_num_groups];
 }
 
 TransportKernel::~TransportKernel() {
@@ -321,7 +321,7 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   FP_PRECISION max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+  for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 

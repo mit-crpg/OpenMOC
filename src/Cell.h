@@ -151,8 +151,6 @@ public:
   void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();
-  double getMin(int axis);
-  double getMax(int axis);
   double getMinX();
   double getMaxX();
   double getMinY();

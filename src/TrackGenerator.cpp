@@ -12,7 +12,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
                                double azim_spacing) {
 
   setNumThreads(1);
-  _geometry = geometry;
+  setGeometry(geometry);
   setNumAzim(num_azim);
   setDesiredAzimSpacing(azim_spacing);
   _contains_2D_tracks = false;
@@ -383,8 +383,6 @@ void TrackGenerator::setNumThreads(int num_threads) {
 
   /* Set the number of threads for OpenMP */
   omp_set_num_threads(_num_threads);
-  _num_threads = 1;
-  omp_set_num_threads(1); //FIXME
 }
 
 
@@ -427,6 +425,12 @@ void TrackGenerator::setDesiredAzimSpacing(double spacing) {
  */
 void TrackGenerator::setGeometry(Geometry* geometry) {
   _geometry = geometry;
+  _x_min = geometry->getMinX();
+  _y_min = geometry->getMinY();
+  _z_min = geometry->getMinZ();
+  _x_max = geometry->getMaxX();
+  _y_max = geometry->getMaxY();
+  _z_max = geometry->getMaxZ();
   resetStatus();
 }
 

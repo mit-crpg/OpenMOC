@@ -28,8 +28,10 @@ class Surface;
 class Material;
 struct surface_halfspace;
 
+
 int universe_id();
 void reset_universe_id();
+void maximize_universe_id(int universe_id);
 
 
 /**
@@ -80,9 +82,28 @@ protected:
    *  with a non-zero fission cross-section and is fissionable */
   bool _fissionable;
 
+  /** The extrema of the Universe */
+  double _min_x;
+  double _max_x;
+  double _min_y;
+  double _max_y;
+  double _min_z;
+  double _max_z;
+
+  /** A flag for determining if boundaries are up to date */
+  bool _boundaries_inspected;
+
+  /** The boundaryTypes of the universe */
+  boundaryType _min_x_bound;
+  boundaryType _max_x_bound;
+  boundaryType _min_y_bound;
+  boundaryType _max_y_bound;
+  boundaryType _min_z_bound;
+  boundaryType _max_z_bound;
+
 public:
 
-  Universe(const int id=0, const char* name="");
+  Universe(const int id=-1, const char* name="");
   virtual ~Universe();
   int getUid() const;
   int getId() const;
@@ -109,6 +130,8 @@ public:
   std::map<int, Universe*> getAllUniverses();
   bool isFissionable();
 
+  void resetBoundaries();
+  void calculateBoundaries();
   void setName(const char* name);
   void setType(universeType type);
   void addCell(Cell* cell);
@@ -116,9 +139,10 @@ public:
 
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
-  void subdivideCells(double max_radius);
+  void subdivideCells(double max_radius=INFINITY);
   void buildNeighbors();
-  std::string toString();
+
+  virtual std::string toString();
   void printString();
 
   Universe* clone();
@@ -155,11 +179,12 @@ private:
   Point _offset;
 
   /** A container of Universes */
-  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > > _universes;
+  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >
+      _universes;
 
 public:
 
-  Lattice(const int id=0, const char* name="");
+  Lattice(const int id=-1, const char* name="");
   virtual ~Lattice();
 
   void setOffset(double x, double y, double z=0.0);
@@ -178,7 +203,8 @@ public:
   double getMaxZ();
 
   Universe* getUniverse(int lat_x, int lat_y, int lat_z=0) const;
-  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > > getUniverses() const;
+  std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
+      getUniverses();
   std::map<int, Universe*> getUniqueUniverses();
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
@@ -188,8 +214,11 @@ public:
   void setNumZ(int num_z);
   void setWidth(double width_x, double width_y, double width_z=1.0);
   void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
+  void updateUniverse(int lat_x, int lat_y, int lat_z, Universe* universe);
+  void removeUniverse(Universe* universe);
   void subdivideCells(double max_radius=INFINITY);
   void buildNeighbors();
+
   bool withinBounds(Point* point);
   Cell* findCell(LocalCoords* coords);
   double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
@@ -232,5 +261,9 @@ template<typename tMap>
 second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
+
+
+
+
 
 #endif /* UNIVERSE_H_ */

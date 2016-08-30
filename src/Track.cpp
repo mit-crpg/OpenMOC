@@ -24,10 +24,8 @@ Track::Track() {
   _num_segments = 0;
   _surface_in = -1;
   _surface_out = -1;
-  _domain_fwd_in = -1;
-  _domain_fwd_out = -1;
-  _domain_bwd_in = -1;
-  _domain_bwd_out = -1;
+  _domain_fwd = -1;
+  _domain_bwd = -1;
 }
 
 
@@ -129,53 +127,14 @@ void Track::setSurfaceOut(int surface_out) {
 
 
 //FIXME
-void Track::setDomainFwdIn(int neighbor) {
-  _domain_fwd_in = neighbor;
+void Track::setDomainFwd(int neighbor) {
+  _domain_fwd = neighbor;
 }
 
 
 //FIXME
-void Track::setDomainFwdOut(int neighbor) {
-  _domain_fwd_out = neighbor;
-}
-
-
-//FIXME
-void Track::setDomainBwdIn(int neighbor) {
-  _domain_bwd_in = neighbor;
-}
-
-
-//FIXME
-void Track::setDomainBwdOut(int neighbor) {
-  _domain_bwd_out = neighbor;
-}
-
-
-/**
- * @brief Returns a pointer to the Track's end Point.
- * @return A pointer to the Track's end Point
- */
-Point* Track::getEnd() {
-  return &_end;
-}
-
-
-/**
- * @brief Returns a pointer to the Track's start Point.
- * @return A pointer to the Track's start Point
- */
-Point* Track::getStart() {
-  return &_start;
-}
-
-
-/**
- * @brief Return the Track's azimuthal angle (with respect to the x-axis).
- * @return The azimuthal angle \f$ \phi \in [0, \pi] \f$
- */
-double Track::getPhi() const {
-  return _phi;
+void Track::setDomainBwd(int neighbor) {
+  _domain_bwd = neighbor;
 }
 
 
@@ -185,26 +144,6 @@ double Track::getPhi() const {
  */
 double Track::getLength() {
   return _start.distanceToPoint(&_end);
-}
-
-
-/**
- * @brief Returns the boundary condition for the flux along the Track's
- *        "forward" direction.
- * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
- */
-boundaryType Track::getBCFwd() const {
-  return _bc_fwd;
-}
-
-
-/**
- * @brief Returns the boundary condition for the flux along the Track's
- *        "reverse" direction.
- * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
- */
-boundaryType Track::getBCBwd() const {
-  return _bc_bwd;
 }
 
 
@@ -221,26 +160,14 @@ int Track::getSurfaceOut() {
 
 
 //FIXME
-int Track::getDomainFwdIn() {
-  return _domain_fwd_in;
+int Track::getDomainFwd() {
+  return _domain_fwd;
 }
 
 
 //FIXME
-int Track::getDomainFwdOut() {
-  return _domain_fwd_out;
-}
-
-
-//FIXME
-int Track::getDomainBwdIn() {
-  return _domain_bwd_in;
-}
-
-
-//FIXME
-int Track::getDomainBwdOut() {
-  return _domain_bwd_out;
+int Track::getDomainBwd() {
+  return _domain_bwd;
 }
 
 

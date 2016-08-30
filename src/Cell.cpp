@@ -353,45 +353,6 @@ int Cell::getNumSectors() {
 
 
 /**
- * @brief Returns the minimum reachable coordinate in the axis direction of the
- *        cell
- * @brief axis The axis of interest (0 = x, 1 = y, 2 = z)
- * @return the minimum coordinate in the axis direction
- */
-double Cell::getMin(int axis) {
-  if (axis == 0)
-    return getMinX();
-  else if (axis == 1)
-    return getMinY();
-  else if (axis == 2)
-    return getMinZ();
-  else
-    log_printf(ERROR, "Could not retrieve minimum Cell coordinate since axis"
-                      " is not recognized");
-  return 0;
-}
-
-
-/**
- * @brief Returns the maximum reachable coordinate in the axis direction of the
- *        cell
- * @brief axis The axis of interest (0 = x, 1 = y, 2 = z)
- * @return the maximum coordinate in the axis direction
- */
-double Cell::getMax(int axis) {
-  if (axis == 0)
-    return getMaxX();
-  else if (axis == 1)
-    return getMaxY();
-  else if (axis == 2)
-    return getMaxZ();
-  else
-    log_printf(ERROR, "Could not retrieve minimum Cell coordinate since axis"
-                      " is not recognized");
-  return 0;
-}
-
-/**
  * @brief Return the minimum reachable x-coordinate in the Cell.
  * @return the minimum x-coordinate
  */
