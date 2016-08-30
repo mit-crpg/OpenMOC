@@ -1567,13 +1567,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       FP_PRECISION tau = sigma_t[e] * length_2D;
 
       /* Compute the exponential */
-      /*
-      std::cout << "Calculated a reg tau of " << sigma_t[e] * length << std::endl;
-      std::cout << "a = " << azim_index << std::endl;
-      std::cout << "p = " << polar_index << std::endl;
-      */
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
-      //FIXME
 
       /* Attenuate and tally the flux */
       FP_PRECISION delta_psi = (track_flux[e] - _reduced_sources(fsr_id, e))

@@ -112,21 +112,12 @@ public:
 
 //FIXME
 inline int ExpEvaluator::getExponentialIndex(FP_PRECISION tau) {
-  /*
-  std::cout << "Getting index for " << tau << " with spacing " <<
-    _exp_table_spacing << std::endl;
-  std::cout << "INDEX = " << floor(tau * _inverse_exp_table_spacing) << std::endl;
-  */
   return floor(tau * _inverse_exp_table_spacing);
 }
 
 
 //FIXME
 inline FP_PRECISION ExpEvaluator::getDifference(int index, FP_PRECISION tau) {
-  /*
-  std::cout << "Gettting difference between " << tau << " and index " << index
-    << std::endl;
-    */
   return tau - index * _exp_table_spacing;
 }
 
@@ -140,8 +131,6 @@ inline FP_PRECISION ExpEvaluator::convertDistance3Dto2D(FP_PRECISION length) {
 //FIXME
 inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
                                                      int polar_offset) {
-
-  //std::cout << "Trying to get Exponential for " << tau << std::endl;
 
   /* Extract exponential indexes and differences */
   int exp_index = getExponentialIndex(tau);
@@ -180,21 +169,6 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
   if (_interpolate) {
-    /*
-    std::cout << "FULL INDEX = " << full_index << std::endl;
-    std::cout << "EXP a = " << _azim_index << std::endl;
-    std::cout << "EXP p = " << _polar_index << std::endl;
-    std::cout << "Reg index = " << index << std::endl;
-    std::cout << "DT = " << dt << std::endl;
-    std::cout << "DT2 = " << dt2 << std::endl;
-    std::cout << "IST = " << _inverse_sin_theta_no_offset << std::endl;
-    std::cout << "Term 1 = " << _exp_table[full_index] << std::endl;
-    std::cout << "Term 2 = " << _exp_table[full_index+1] << std::endl;
-    std::cout << "Term 3 = " << _exp_table[full_index+2] << std::endl;
-    std::cout << "Calcualted exponential = " << _exp_table[full_index] +
-      _exp_table[full_index + 1] * dt + _exp_table[full_index + 2] * dt2;
-    std::cout << std::endl << std::endl;
-    */
     return _exp_table[full_index] + _exp_table[full_index + 1] * dt +
         _exp_table[full_index + 2] * dt2;
   }
