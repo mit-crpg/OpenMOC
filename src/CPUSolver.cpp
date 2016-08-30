@@ -1554,16 +1554,30 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
   /* The change in angular flux along this Track segment in the FSR */
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
-  FP_PRECISION delta_psi, exponential, tau;
 
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
   if (_solve_3D) {
 
+    FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
+
     for (int e=0; e < _num_groups; e++) {
-      exponential = exp_evaluator->computeExponentialF1(sigma_t[e] * length, 0)
-      delta_psi = (track_flux[e]-_reduced_sources(fsr_id, e)) * exponential;
+
+      FP_PRECISION tau = sigma_t[e] * length_2D;
+
+      /* Compute the exponential */
+      /*
+      std::cout << "Calculated a reg tau of " << sigma_t[e] * length << std::endl;
+      std::cout << "a = " << azim_index << std::endl;
+      std::cout << "p = " << polar_index << std::endl;
+      */
+      FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
+      //FIXME
+
+      /* Attenuate and tally the flux */
+      FP_PRECISION delta_psi = (track_flux[e] - _reduced_sources(fsr_id, e))
+          * exponential;
       fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
       track_flux[e] -= delta_psi;
@@ -1576,12 +1590,17 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
 
-      tau = sigma_t[e] * length;
+      FP_PRECISION tau = sigma_t[e] * length;
 
       /* Loop over polar angles */
       for (int p=0; p < _num_polar/2; p++) {
-        exponential = exp_evaluator->computeExponentialF1(tau, p);
-        delta_psi = (track_flux[pe]-_reduced_sources(fsr_id,e)) * exponential;
+
+        /* Compute the exponential */
+        FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
+
+        /* Attenuate and tally the flux */
+        FP_PRECISION delta_psi = (track_flux[pe] - _reduced_sources(fsr_id,e))
+              * exponential;
         fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
         track_flux[pe] -= delta_psi;
         pe++;
@@ -1684,8 +1703,6 @@ void CPUSolver::addSourceToScalarFlux() {
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e);
     }
   }
-
-  return;
 }
 
 

@@ -763,7 +763,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     polar_index = track_3D->getPolarIndex();
 
   /* Compute unit vector if necessary */
-  double[3] direction;
+  double direction[3];
   if (_ls_solver != NULL) {
     double phi = track->getPhi();
     double cos_theta = 0.0;
@@ -861,17 +861,18 @@ void TransportSweep::tallyScalarFluxLS(segment* curr_segment, int azim_index,
                                        int polar_index,
                                        FP_PRECISION* track_flux,
                                        FP_PRECISION* thread_fsr_flux,
-                                       double[3] direction) {
+                                       double direction[3]) {
 
   /* Linear source approximation retrieves starting point */
+  int tid = omp_get_thread_num();
   int track_idx = curr_segment->_track_idx;
   double x = _starting_points[tid][track_idx].getX();
   double y = _starting_points[tid][track_idx].getY();
   double z = _starting_points[tid][track_idx].getZ();
 
   /* Get the centroid of the segment in the local coordinate system */
-  Point* centroid = _geometry->getFSRCentroid(fsr);
-  double[3] local_position;
+  Point* centroid = _geometry->getFSRCentroid(curr_segment->_region_id);
+  double local_position[3];
   local_position[0] = x - centroid->getX();
   local_position[1] = y - centroid->getY();
   local_position[2] = z - centroid->getZ();

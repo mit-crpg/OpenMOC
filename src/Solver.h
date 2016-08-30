@@ -197,8 +197,15 @@ protected:
   /** The tolerance for converging the source/flux */
   FP_PRECISION _converge_thresh;
 
-  /** En ExpEvaluator to compute exponentials in the transport equation */
-  ExpEvaluator** _exp_evaluators;
+  /** A matrix of ExpEvaluators to compute exponentials in the transport
+    * equation. The matrix is indexed by azimuthal index and polar index */
+  ExpEvaluator*** _exp_evaluators;
+
+  /** The number of exponential evaluators in the azimuthal direction */
+  int _num_exp_evaluators_azim;
+
+  /** The number of exponential evaluators in the polar direction */
+  int _num_exp_evaluators_polar;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
@@ -217,7 +224,7 @@ protected:
    */
   virtual void initializeSourceArrays() =0;
 
-  virtual void initializeExpEvaluator();
+  virtual void initializeExpEvaluators();
   virtual void initializeFSRs();
   virtual void countFissionableFSRs();
   virtual void initializeCmfd();

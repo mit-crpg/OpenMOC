@@ -16,7 +16,7 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xyz = NULL;
   _reduced_sources_xyz = NULL;
-  _source_type = LINEAR_SOURCE; // FIXME
+  //_source_type = LINEAR_SOURCE; // FIXME
 	_lin_exp_coeffs = NULL;
   _src_constants = NULL;
 }
@@ -120,7 +120,7 @@ void CPULSSolver::flattenFSRFluxes(FP_PRECISION value) {
  * @brief Normalizes all FSR scalar fluxes and Track boundary angular
  *        fluxes to the total fission source (times \f$ \nu \f$).
  */
-void CPULSSolver::normalizeFluxes() {
+FP_PRECISION CPULSSolver::normalizeFluxes() {
 
   /* Normalize scalar fluxes in each FSR */
   FP_PRECISION norm_factor = CPUSolver::normalizeFluxes();
@@ -133,6 +133,7 @@ void CPULSSolver::normalizeFluxes() {
       _scalar_flux_xyz(r,e,2) *= norm_factor;
     }
   }
+  return norm_factor;
 }
 
 
@@ -271,7 +272,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     FP_PRECISION* track_flux,
                                     FP_PRECISION* fsr_flux,
-                                    double[3] position, double[3] direction)
+                                    double position[3], double direction[3]) {
 
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
@@ -284,7 +285,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   if (_solve_3D) {
 
     /* Compute the segment midpoint */
-    double[3] center;
+    double center[3];
     for (int i=0; i<3; i++)
       center[i] = position[i] + 0.5 * length * direction[i];
 
@@ -306,8 +307,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       src_flat += _reduced_sources(fsr_id, e);
 
       // Compute the exponential terms
-      FP_PRECIION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, 0,
-                                                               dt, dt2);
+      FP_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, 0,
+                                                                dt, dt2);
       FP_PRECISION exp_F2 = exp_evaluator->computeExponentialF2(exp_index, 0,
                                                                 dt, dt2);
       FP_PRECISION exp_H  = exp_evaluator->computeExponentialH(exp_index, 0,
@@ -339,7 +340,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     int pe = 0;
 
     /* Compute the segment midpoint */
-    double[2] center;
+    double center[2];
     for (int i=0; i<2; i++)
       center[i] = position[i] + 0.5 * length * direction[i];
 
@@ -365,12 +366,12 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       // Loop over polar angles
       for (int p=0; p < num_polar_2; p++) {
 
-        /* dsaf */
-        FP_PRECISION sin_theta = blah(p);
+        /* Get the sine of the polar angle */
+        FP_PRECISION sin_theta = _quad->getSinTheta(azim_index, p);
 
         // Compute the exponential terms
-        FP_PRECIION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, p,
-                                                                 dt, dt2);
+        FP_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, p,
+                                                                  dt, dt2);
         FP_PRECISION exp_F2 = exp_evaluator->computeExponentialF2(exp_index, p,
                                                                   dt, dt2);
         FP_PRECISION exp_H = exp_evaluator->computeExponentialH(exp_index, p,
@@ -539,19 +540,22 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 //FIXME
 void CPULSSolver::initializeCmfd() {
   Solver::initializeCmfd();
+  //FIXME
+  /*
   if (_cmfd != NULL) {
     _cmfd->setLinearSourceOn(true);
     _cmfd->setLSRFluxMoments(_scalar_flux_xyz);
   }
+  */
 }
 
 
 //FIXME
-void CPULSSolver::initializeExpEvaluator() {
+void CPULSSolver::initializeExpEvaluators() {
   for (int a=0; a < _num_exp_evaluators_azim; a++)
     for (int p=0; p < _num_exp_evaluators_polar; p++)
       _exp_evaluators[a][p]->useLinearSource();
-  Solver::initializeExpEvaluator();
+  Solver::initializeExpEvaluators();
 }
 
 
@@ -613,6 +617,7 @@ FP_PRECISION CPULSSolver::getFluxCompByCoords(LocalCoords* coords, int group,
   }
 
   //FIXME
+  /*
   if (comp == FLUX_C)
     return flux;
   else if (comp == FLUX_X)
@@ -645,6 +650,8 @@ FP_PRECISION CPULSSolver::getFluxCompByCoords(LocalCoords* coords, int group,
   else
     return flux + flux_xx + flux_xy + flux_xz + flux_yx + flux_yy + flux_yz
         + flux_zx + flux_zy + flux_zz;
+        */
+  return 0;
 }
 
 

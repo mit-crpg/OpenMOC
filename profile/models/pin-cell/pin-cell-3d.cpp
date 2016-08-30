@@ -5,8 +5,8 @@
 
 int main(int argc, char* argv[]) {
 
-  MPI_Init(&argc, &argv);
-  log_set_ranks(MPI_COMM_WORLD); //FIXME
+//  MPI_Init(&argc, &argv);
+//  log_set_ranks(MPI_COMM_WORLD); //FIXME
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 1, 1);
+  //geometry->setDomainDecomposition(2, 1, 1);
   geometry->setNumDomainModules(1,2,2);
   geometry->initializeFlatSourceRegions();
 
@@ -163,6 +163,6 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
-  MPI_Finalize();
+  //MPI_Finalize();
   return 0;
 }

@@ -4,8 +4,8 @@
 
 COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = yes
-DEBUG       = no
+OPTIMIZE    = no
+DEBUG       = yes
 PROFILE     = no
 PRECISION   = double
 
@@ -13,11 +13,12 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-3d-cmfd.cpp
+case = pin-cell/pin-cell-3d.cpp
 
 source = \
 Cell.cpp \
 Cmfd.cpp \
+CPULSSolver.cpp \
 CPUSolver.cpp \
 ExpEvaluator.cpp \
 Geometry.cpp \

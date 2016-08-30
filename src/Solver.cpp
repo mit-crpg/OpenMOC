@@ -23,7 +23,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _num_exp_evaluators_azim = 1;
   _num_exp_evaluators_polar = 1;
   _exp_evaluators = new ExpEvaluator**[_num_exp_evaluators_azim];
-  _exp_evaluators = new ExpEvaluator*[_num_exp_evaluators_polar];
+  _exp_evaluators[0] = new ExpEvaluator*[_num_exp_evaluators_polar];
   _exp_evaluators[0][0] = new ExpEvaluator();
   _solve_3D = false;
   _segment_formation = EXPLICIT_2D;
@@ -87,10 +87,11 @@ Solver::~Solver() {
     delete [] _reduced_sources;
 
   for (int a=0; a < _num_exp_evaluators_azim; a++) {
-    for (int p=0; p < _num_exp_evaluators_polar; ap++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
       delete _exp_evaluators[a][p];
-    delete [] _exp_evaluators[a]
-  delete [] exp_evaluators;
+    delete [] _exp_evaluators[a];
+  }
+  delete [] _exp_evaluators;
 }
 
 
@@ -506,8 +507,7 @@ void Solver::useExponentialIntrinsic() {
 void Solver::initializeExpEvaluators() {
 
   //FIXME
-  ExpEvaluator* first_evaluator _exp_evaluators[0][0];
-  first_evaluator->setSolve3D(_solve_3D);
+  ExpEvaluator* first_evaluator = _exp_evaluators[0][0];
   first_evaluator->setQuadrature(_quad);
 
   if (first_evaluator->isUsingInterpolation()) {
@@ -532,6 +532,7 @@ void Solver::initializeExpEvaluators() {
         if (_exp_evaluators[a][p] != first_evaluator)
           delete _exp_evaluators[a][p];
       delete [] _exp_evaluators[a];
+    }
     delete [] _exp_evaluators;
 
     /* Determine number of exponential evaluators */
@@ -546,7 +547,7 @@ void Solver::initializeExpEvaluators() {
     for (int a=0; a < _num_azim/2; a++)
       _exp_evaluators[a] = new ExpEvaluator*[_num_polar];
     for (int a=0; a < _num_exp_evaluators_azim; a++) {
-      for (int p=0; p < _num_azim_evaluators_polar; p++) {
+      for (int p=0; p < _num_exp_evaluators_polar; p++) {
 
         /* Create a new exponential evaluator if necessary */
         if (a == 0 && p == 0)
@@ -555,8 +556,8 @@ void Solver::initializeExpEvaluators() {
           _exp_evaluators[a][p] = first_evaluator->copy();
 
         /* Copy evaluators to supplimentary positions */
-        int sup_azim = _num_azim / 2 - a;
-        int sup_polar = _num_polar / 2 - p;
+        int sup_azim = _num_azim / 2 - a - 1;
+        int sup_polar = _num_polar - p - 1;
         _exp_evaluators[sup_azim][p] = _exp_evaluators[a][p];
         _exp_evaluators[a][sup_polar] = _exp_evaluators[a][p];
         _exp_evaluators[sup_azim][sup_polar] = _exp_evaluators[a][p];
@@ -566,7 +567,7 @@ void Solver::initializeExpEvaluators() {
     /* Initialize exponential interpolation table */
     for (int a=0; a < _num_exp_evaluators_azim; a++)
       for (int p=0; p < _num_exp_evaluators_polar; p++)
-        _exp_evaluators[a][p]->initialize(a, p);
+        _exp_evaluators[a][p]->initialize(a, p, _solve_3D);
   }
 }
 
@@ -806,7 +807,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   initializeFSRs();
   initializeSourceArrays();
   countFissionableFSRs();
-  initializeExpEvaluator();
+  initializeExpEvaluators();
 
   /* Initialize new flux arrays if a) the user requested the use of
    * only fixed sources or b) no previous simulation was performed which
@@ -907,7 +908,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
-  initializeExpEvaluator();
+  initializeExpEvaluators();
   initializeFluxArrays();
   initializeSourceArrays();
   initializeFSRs();
@@ -989,7 +990,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Initialize data structures */
   initializeFSRs();
   countFissionableFSRs();
-  initializeExpEvaluator();
+  initializeExpEvaluators();
   initializeFluxArrays();
   initializeSourceArrays();
   initializeCmfd();

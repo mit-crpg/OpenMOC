@@ -60,18 +60,16 @@ public:
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeCmfd();
-  void initializeExpEvaluator();
+  void initializeExpEvaluators();
 
   void flattenFSRFluxes(FP_PRECISION value);
-  void normalizeFluxes();
+  FP_PRECISION normalizeFluxes();
   void computeFSRSources();
   void addSourceToScalarFlux();
 
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
-                         int azim_first, int polar_first,
-                         FP_PRECISION* track_flux,
-                         FP_PRECISION* fsr_flux, double x, double y,
-                         double z, int fwd);
+                         FP_PRECISION* track_flux, FP_PRECISION* fsr_flux,
+                         double position[3], double direction[3]);
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
   FP_PRECISION getFluxCompByCoords(LocalCoords* coords, int group, int comp);

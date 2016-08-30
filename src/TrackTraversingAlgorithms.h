@@ -203,8 +203,7 @@ private:
 
   void tallyScalarFluxLS(segment* curr_segment, int azim_index,
                          int polar_index, FP_PRECISION* track_flux,
-                         FP_PRECISION* thread_fsr_flux, double x_unit,
-                         double y_unit, double z_unit, bool fwd);
+                         FP_PRECISION* thread_fsr_flux, double direction[3]);
 
 public:
 
