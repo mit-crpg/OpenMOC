@@ -1054,6 +1054,9 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 
+  if (_cmfd != NULL)
+    _cmfd->printTimerReport();
+
   set_separator_character('-');
   log_printf(SEPARATOR, "-");
 

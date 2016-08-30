@@ -65,6 +65,9 @@ Cmfd::Cmfd() {
   _boundaries[SURFACE_Y_MAX] = REFLECTIVE;
   _boundaries[SURFACE_Z_MIN] = REFLECTIVE;
   _boundaries[SURFACE_Z_MAX] = REFLECTIVE;
+
+  /* Initialize CMFD timer */
+  _timer = new Timer();
 }
 
 
@@ -304,6 +307,9 @@ void Cmfd::collapseXS() {
   MPI_Datatype precision;
   if (_geometry->isDomainDecomposed()) {
 
+    /* Start recording MPI communication time */
+    _timer->startTimer();
+
     /* Retrieve MPI information */
     comm = _geometry->getMPICart();
     if (sizeof(FP_PRECISION) == 4)
@@ -320,6 +326,9 @@ void Cmfd::collapseXS() {
                   precision, MPI_SUM, comm);
     _currents_buffer->copyTo(_surface_currents);
 
+    /* Tally MPI communication time */
+    _timer->stopTimer();
+    _timer->recordSplit("Total MPI communication time");
   }
 #endif
 
@@ -413,7 +422,7 @@ void Cmfd::collapseXS() {
             _nu_fission_tally[i][e] += nu_fis * flux * volume;
             _reaction_tally[i][e] += flux * volume;
             _volume_tally[i][e] += volume;
-            
+
             /* Increment diffusion MOC group-wise tallies */
             rxn_tally_group += flux * volume;
             trans_tally_group += tot * flux * volume;
@@ -434,10 +443,19 @@ void Cmfd::collapseXS() {
   /* Reduce tallies across domains if necessary */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
+
+    /* Start recording MPI communication time */
+    _timer->startTimer();
+
+    /* Communicate tallies for XS condensation */
     MPI_Allreduce(_tally_memory, _tally_buffer, _total_tally_size, precision,
                   MPI_SUM, comm);
     for (int idx=0; idx < _total_tally_size; idx++)
       _tally_memory[idx] = _tally_buffer[idx];
+
+    /* Tally MPI communication time */
+    _timer->stopTimer();
+    _timer->recordSplit("Total MPI communication time");
   }
 #endif
 
@@ -645,14 +663,24 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   log_printf(INFO, "Running diffusion solver...");
 
+  /* Start recording total CMFD time */
+  _timer->startTimer();
+
   /* Create matrix and vector objects */
   if (_A == NULL) {
     log_printf(ERROR, "Unable to compute k-eff in CMFD since the CMFD "
                "linear algebra matrices and arrays have not been created.");
   }
 
+  /* Start recording XS collapse time */
+  _timer->startTimer();
+
   /* Collapse the cross sections onto the CMFD mesh */
   collapseXS();
+
+  /* Tally the XS collpase time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total collapse time");
 
   /* Construct matrices */
   constructMatrices(moc_iteration);
@@ -660,15 +688,26 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
 
+  /* Start recording CMFD solve time */
+  _timer->startTimer();
+
   /* Solve the eigenvalue problem */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _source_convergence_threshold,
                            _SOR_factor);
+
+  /* Tally the CMFD solver time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total solver time");
 
   /* Rescale the old and new flux */
   rescaleFlux();
 
   /* Update the MOC flux */
   updateMOCFlux();
+
+  /* Tally the total CMFD time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total CMFD time");
 
   return _k_eff;
 }
@@ -2731,4 +2770,35 @@ void Cmfd::setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
     for (int p=0; p < num_polar/2; p++)
       _polar_spacings[a][p] = FP_PRECISION(polar_spacings[a][p]);
   }
+}
+
+
+//FIXME
+void Cmfd::printTimerReport() {
+
+  std::string msg_string;
+
+  /* Get the total CMFD time */
+  double tot_time = _timer->getSplit("Total CMFD time");
+  msg_string = "Total CMFD computation time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
+
+  /* Get the total XS collapse time */
+  double xs_collapse_time = _timer->getSplit("Total collapse time");
+  msg_string = "Total XS collapse time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), xs_collapse_time);
+
+  /* Get the total communication time */
+  double comm_time = _timer->getSplit("Total MPI communication time");
+  msg_string = "Total MPI communication time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
+
+  /* Get the total solver time */
+  double solver_time = _timer->getSplit("Total solver time");
+  msg_string = "Total CMFD solver time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
 }

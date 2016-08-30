@@ -20,6 +20,7 @@
 #include "Quadrature.h"
 #include "linalg.h"
 #include "Geometry.h"
+#include "Timer.h"
 #endif
 
 /** Forward declaration of Geometry class */
@@ -191,6 +192,9 @@ private:
   Vector* _currents_buffer;
 #endif
 
+  /** A timer to record timing data for a simulation */
+  Timer* _timer;
+
   /* Private worker functions */
   FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
                                        FP_PRECISION delta);
@@ -240,6 +244,7 @@ public:
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     int azim_index, int polar_index, bool fwd);
+  void printTimerReport();
 
   /* Get parameters */
   int getNumCmfdGroups();
