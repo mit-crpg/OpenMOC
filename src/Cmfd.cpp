@@ -497,7 +497,7 @@ void Cmfd::collapseXS() {
     }
   }
   //FIXME BAL
-  checkNeutronBalance();
+  //checkNeutronBalance();
 }
 
 
