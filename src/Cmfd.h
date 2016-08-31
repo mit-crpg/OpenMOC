@@ -245,6 +245,7 @@ public:
   void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
                     int azim_index, int polar_index, bool fwd);
   void printTimerReport();
+  void checkNeutronBalance();
 
   /* Get parameters */
   int getNumCmfdGroups();
