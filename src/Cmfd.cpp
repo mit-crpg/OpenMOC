@@ -2802,3 +2802,90 @@ void Cmfd::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
 }
+
+
+//FIXME
+void Cmfd::checkNeutronBalance() {
+
+  /* Loop over CMFD cells */
+  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+
+    int x = (i % (_num_x * _num_y)) % _num_x;
+    int y = (i % (_num_x * _num_y)) / _num_x;
+    int z = i / (_num_x * _num_y);
+
+    Material* cell_material = _materials[i];
+
+    /* Loop over CMFD coarse energy groups */
+    for (int e = 0; e < _num_cmfd_groups; e++) {
+
+      /* Initialize tallies */
+      double total = 0.0;
+      double in_scattering = 0.0;
+      double fission = 0.0;
+
+      /* Loop over FSRs in CMFD cell */
+      for (int j = 0; j < _cell_fsrs.at(i).size(); j++) {
+
+        int fsr_id = _cell_fsrs.at(i).at(j);
+        Material* fsr_material = _FSR_materials[j];
+        double volume = _FSR_volumes[j];
+        FP_PRECISION* scat = fsr_material->getSigmaS();
+        FP_PRECISION* flux = &_FSR_fluxes[j*_num_moc_groups];
+
+        /* Loop over MOC energy groups within this CMFD coarse group */
+        double chi = 0.0;
+        for (int h = _group_indices[e]; h < _group_indices[e+1]; h++)
+          chi += fsr_material->getChiByGroup(h+1);
+
+        /* Calculate total fission and in-scattering in the FSR */
+        double tot_fission = 0.0;
+        for (int g = 0; g < _num_moc_groups; g++) {
+
+          /* Tally total fission */
+          double nu_fis = fsr_material->getNuSigmaFByGroup(g+1);
+          tot_fission += nu_fis * flux[g] * volume;
+
+          /* Loop over MOC energy groups within this CMFD coarse group */
+          for (int h = _group_indices[e]; h < _group_indices[e+1]; h++)
+            in_scattering += scat[h*_num_moc_groups + g] * flux[g] * volume;
+        }
+
+        /* Calculate fission contribution to this CMFD coarse group */
+        fission += chi * tot_fission / _k_eff;
+
+        /* Calcualte total reaction rate in this CMFD coarse group */
+        for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
+          double tot = fsr_material->getSigmaTByGroup(h+1);
+          total += tot * flux[h] * volume;
+        }
+      }
+
+      /* Calculate net current out of the cell */
+      double net_current = 0.0;
+
+      /* Streaming to neighboring cells */
+      for (int s = 0; s < NUM_FACES; s++) {
+        int sense = getSense(s);
+        int idx = s * _num_cmfd_groups + e;
+
+        int cmfd_cell_next = getCellNext(i, s);
+        int surface_next = (s + NUM_FACES / 2) % NUM_FACES;
+        int idx_next = surface_next * _num_cmfd_groups + e;
+        FP_PRECISION delta_interface = getSurfaceWidth(s);
+        if (cmfd_cell_next == -1) {
+          if (_boundaries[s] == VACUUM)
+            net_current += _surface_currents->getValue(i, idx);
+        }
+        else {
+          net_current += _surface_currents->getValue(i, idx) -
+              _surface_currents->getValue(cmfd_cell_next,idx_next);
+        }
+      }
+
+      double balance = in_scattering + fission - total - net_current;
+      log_printf(NORMAL, "Neutron balance in cell (%d, %d, %d) for CMFD group "
+                 "%d = %f", x, y, z, e, balance);
+    }
+  }
+}

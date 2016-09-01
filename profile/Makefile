@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = pin-cell/pin-cell-3d.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 
 source = \
 Cell.cpp \
