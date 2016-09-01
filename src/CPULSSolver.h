@@ -47,12 +47,6 @@ protected:
   /** An array of the reduced source x, y, and z terms */
   FP_PRECISION* _reduced_sources_xyz;
 
-  /** A buffer holding the computed linear expansion coefficients */
-  FP_PRECISION* _lin_exp_coeffs;
-
-  /** A buffer holding the computed source constants */
-  FP_PRECISION* _src_constants;
-
 public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPULSSolver();
@@ -61,6 +55,7 @@ public:
   void initializeSourceArrays();
   void initializeCmfd();
   void initializeExpEvaluators();
+  void initializeFSRs();
 
   void flattenFSRFluxes(FP_PRECISION value);
   FP_PRECISION normalizeFluxes();
@@ -72,7 +67,6 @@ public:
                          double position[3], double direction[3]);
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
-  FP_PRECISION getFluxCompByCoords(LocalCoords* coords, int group, int comp);
   FP_PRECISION* getLinearExpansionCoeffsBuffer();
   FP_PRECISION* getSourceConstantsBuffer();
 };

@@ -16,9 +16,6 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xyz = NULL;
   _reduced_sources_xyz = NULL;
-  //_source_type = LINEAR_SOURCE; // FIXME
-	_lin_exp_coeffs = NULL;
-  _src_constants = NULL;
 }
 
 
@@ -35,11 +32,11 @@ CPULSSolver::~CPULSSolver() {
   if (_reduced_sources_xyz != NULL)
     delete [] _reduced_sources_xyz;
 
-  if (_lin_exp_coeffs != NULL)
-    delete [] _lin_exp_coeffs;
+  if (_FSR_lin_exp_matrix != NULL)
+    delete [] _FSR_lin_exp_matrix;
 
-  if (_src_constants != NULL)
-    delete [] _src_constants;
+  if (_FSR_source_constants != NULL)
+    delete [] _FSR_source_constants;
 }
 
 
@@ -90,10 +87,22 @@ void CPULSSolver::initializeSourceArrays() {
 
   /* Initialize source moments to zero */
   memset(_reduced_sources_xyz, 0.0, sizeof(FP_PRECISION) * size);
+}
 
-  /* Get the FSR lin exp matrix and source constants arrays */
-  _FSR_lin_exp_matrix   = getLinearExpansionCoeffsBuffer();
-  _FSR_source_constants = getSourceConstantsBuffer();
+
+/**
+ * @brief Initializes the FSR volumes and Materials array.
+ * @details This method allocates and initializes an array of OpenMP
+ *          mutual exclusion locks for each FSR for use in the
+ *          transport sweep algorithm.
+ */
+void CPULSSolver::initializeFSRs() {
+
+  CPUSolver::initializeFSRs();
+
+  /* Generate linear source coefficients */
+  LinearExpansionGenerator lin_src_coeffs(this);
+  lin_src_coeffs.execute();
 }
 
 
@@ -265,9 +274,8 @@ void CPULSSolver::computeFSRSources() {
  * @param z the z-coord of the segment starting point
  * @param fwd int indicating whether the segment is pointing forward (1) or
  *            backwards (-1)
- */
 //FIXME: NOT THE CORRECT PARAMS
-//FIXME: INSPECT THIS ENTIRE FUNCTION
+ */
 void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     FP_PRECISION* track_flux,
@@ -444,18 +452,15 @@ void CPULSSolver::addSourceToScalarFlux() {
 
         flux_const = FOUR_PI * 2 * sigma_t[e];
 
-        _scalar_flux(r,e) *= 0.5;
         _scalar_flux(r,e) /= (sigma_t[e] * volume);
         _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
 
-        _scalar_flux_xyz(r,e,0) *= 0.5;
         _scalar_flux_xyz(r,e,0) /= (sigma_t[e] * volume);
         _scalar_flux_xyz(r,e,0) += flux_const * _reduced_sources_xyz(r,e,0)
             * _FSR_source_constants[r*_num_groups*nc + nc*e    ];
         _scalar_flux_xyz(r,e,0) += flux_const * _reduced_sources_xyz(r,e,1)
             * _FSR_source_constants[r*_num_groups*nc + nc*e + 2];
 
-        _scalar_flux_xyz(r,e,1) *= 0.5;
         _scalar_flux_xyz(r,e,1) /= (sigma_t[e] * volume);
         _scalar_flux_xyz(r,e,1) += flux_const * _reduced_sources_xyz(r,e,0)
             * _FSR_source_constants[r*_num_groups*nc + nc*e + 2];
@@ -468,7 +473,6 @@ void CPULSSolver::addSourceToScalarFlux() {
           _scalar_flux_xyz(r,e,1) += flux_const * _reduced_sources_xyz(r,e,2)
               * _FSR_source_constants[r*_num_groups*nc + nc*e + 4];
 
-          _scalar_flux_xyz(r,e,2) *= 0.5;
           _scalar_flux_xyz(r,e,2) /= (sigma_t[e] * volume);
           _scalar_flux_xyz(r,e,2) += flux_const * _reduced_sources_xyz(r,e,0)
               * _FSR_source_constants[r*_num_groups*nc + nc*e + 3];
@@ -559,116 +563,22 @@ void CPULSSolver::initializeExpEvaluators() {
 }
 
 
-//FIXME
-FP_PRECISION CPULSSolver::getFluxCompByCoords(LocalCoords* coords, int group,
-                                              int comp) {
-
-  coords->setUniverse(_geometry->getRootUniverse());
-  Cell* cell = _geometry->findCellContainingCoords(coords);
-  int fsr = _geometry->getFSRId(coords);
-  Point* centroid = _geometry->getFSRCentroid(fsr);
-  double x = coords->getX();
-  double y = coords->getY();
-  double z = coords->getZ();
-  double xc = centroid->getX();
-  double yc = centroid->getY();
-  double zc = centroid->getZ();
-
-  FP_PRECISION flux = _scalar_flux(fsr, group);
-  FP_PRECISION flux_xx = 0.0;
-  FP_PRECISION flux_xy = 0.0;
-  FP_PRECISION flux_xz = 0.0;
-  FP_PRECISION flux_yx = 0.0;
-  FP_PRECISION flux_yy = 0.0;
-  FP_PRECISION flux_yz = 0.0;
-  FP_PRECISION flux_zx = 0.0;
-  FP_PRECISION flux_zy = 0.0;
-  FP_PRECISION flux_zz = 0.0;
-
-  if (_solve_3D) {
-    flux_xx = (x - xc) * _FSR_lin_exp_matrix[fsr*6] *
-      _scalar_flux_xyz(fsr, group, 0);
-    flux_xy = (x - xc) * _FSR_lin_exp_matrix[fsr*6+2] *
-      _scalar_flux_xyz(fsr, group, 1);
-    flux_xz = (x - xc) * _FSR_lin_exp_matrix[fsr*6+3] *
-      _scalar_flux_xyz(fsr, group, 2);
-    flux_yx = (y - yc) * _FSR_lin_exp_matrix[fsr*6+2] *
-      _scalar_flux_xyz(fsr, group, 0);
-    flux_yy = (y - yc) * _FSR_lin_exp_matrix[fsr*6+1] *
-      _scalar_flux_xyz(fsr, group, 1);
-    flux_yz = (y - yc) * _FSR_lin_exp_matrix[fsr*6+4] *
-      _scalar_flux_xyz(fsr, group, 2);
-    flux_zx = (z - zc) * _FSR_lin_exp_matrix[fsr*6+3] *
-      _scalar_flux_xyz(fsr, group, 0);
-    flux_zy = (z - zc) * _FSR_lin_exp_matrix[fsr*6+4] *
-      _scalar_flux_xyz(fsr, group, 1);
-    flux_zz = (z - zc) * _FSR_lin_exp_matrix[fsr*6+5] *
-      _scalar_flux_xyz(fsr, group, 2);
-  }
-  else {
-    flux_xx = (x - xc) * _FSR_lin_exp_matrix[fsr*3] *
-      _scalar_flux_xyz(fsr, group, 0);
-    flux_xy = (x - xc) * _FSR_lin_exp_matrix[fsr*3+2] *
-      _scalar_flux_xyz(fsr, group, 1);
-    flux_yx = (y - yc) * _FSR_lin_exp_matrix[fsr*3+2] *
-      _scalar_flux_xyz(fsr, group, 0);
-    flux_yy = (y - yc) * _FSR_lin_exp_matrix[fsr*3+1] *
-      _scalar_flux_xyz(fsr, group, 1);
-  }
-
-  //FIXME
-  /*
-  if (comp == FLUX_C)
-    return flux;
-  else if (comp == FLUX_X)
-    return flux_xx + flux_xy + flux_xz;
-  else if (comp == FLUX_Y)
-    return flux_yx + flux_yy + flux_yz;
-  else if (comp == FLUX_Z)
-    return flux_zx + flux_zy + flux_zz;
-  else if (comp == FLUX_XX)
-    return flux_xx;
-  else if (comp == FLUX_XY)
-    return flux_xy;
-  else if (comp == FLUX_XZ)
-    return flux_xz;
-  else if (comp == FLUX_YX)
-    return flux_yx;
-  else if (comp == FLUX_YY)
-    return flux_yy;
-  else if (comp == FLUX_YZ)
-    return flux_yz;
-  else if (comp == FLUX_ZX)
-    return flux_zx;
-  else if (comp == FLUX_ZY)
-    return flux_zy;
-  else if (comp == FLUX_ZZ)
-    return flux_zz;
-  else if (comp == FLUX_V)
-    return flux_xx + flux_xy + flux_xz + flux_yx + flux_yy + flux_yz
-        + flux_zx + flux_zy + flux_zz;
-  else
-    return flux + flux_xx + flux_xy + flux_xz + flux_yx + flux_yy + flux_yz
-        + flux_zx + flux_zy + flux_zz;
-        */
-  return 0;
-}
-
-
 /**
  FIXME
  */
 FP_PRECISION* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 #pragma omp critical
   {
-    if (_lin_exp_coeffs == NULL) {
-      int num_FSRs = _geometry->getNumFSRs();
-      _lin_exp_coeffs = new FP_PRECISION[num_FSRs * 3];
-      memset(_lin_exp_coeffs, 0., num_FSRs * 3 * sizeof(FP_PRECISION));
+    if (_FSR_lin_exp_matrix == NULL) {
+      int size = _geometry->getNumFSRs() * 3;
+      if (_solve_3D)
+        size *= 2;
+      _FSR_lin_exp_matrix = new FP_PRECISION[size];
+      memset(_FSR_lin_exp_matrix, 0., size * sizeof(FP_PRECISION));
     }
   }
 
-  return _lin_exp_coeffs;
+  return _FSR_lin_exp_matrix;
 }
 
 
@@ -678,14 +588,14 @@ FIXME
 FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
 #pragma omp critical
   {
-    if (_src_constants == NULL) {
-      int num_FSRs = _geometry->getNumFSRs();
-      int num_groups = _geometry->getNumEnergyGroups();
-      _src_constants = new FP_PRECISION[num_FSRs * num_groups * 3];
-      memset(_src_constants, 0., num_FSRs * num_groups * 3 *
-             sizeof(FP_PRECISION));
+    if (_FSR_source_constants == NULL) {
+      int size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
+      if (_solve_3D)
+        size *= 2;
+      _FSR_source_constants = new FP_PRECISION[size];
+      memset(_FSR_source_constants, 0., size * sizeof(FP_PRECISION));
     }
   }
 
-  return _src_constants;
+  return _FSR_source_constants;
 }

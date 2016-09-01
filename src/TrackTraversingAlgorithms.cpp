@@ -690,12 +690,22 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   TrackGenerator* track_generator = cpu_solver->getTrackGenerator();
   _geometry = _track_generator->getGeometry();
 
-  /* Allocate temporary storage of FSR fluxes */
+  /* Determine size of temporary storage for FSR fluxes */
   int num_threads = omp_get_max_threads();
   int num_groups = _geometry->getNumEnergyGroups();
+  int size;
+  if (_ls_solver != NULL)
+    size = 4 * num_groups;
+  else
+    size = num_groups;
+
+  /* Pad the buffer to prevent false sharing */
+  size += 8;
+
+  /* Allocate temporary storage of FSR fluxes */
   _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new FP_PRECISION[num_groups+8];
+    _thread_fsr_fluxes[i] = new FP_PRECISION[size];
 
   /* Allocate storage for starting points if necessary */
   if (_ls_solver != NULL) {

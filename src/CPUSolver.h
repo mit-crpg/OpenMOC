@@ -72,7 +72,7 @@ protected:
 
   virtual void initializeFluxArrays();
   virtual void initializeSourceArrays();
-  void initializeFSRs();
+  virtual void initializeFSRs();
 
   void zeroTrackFluxes();
   void copyBoundaryFluxes();

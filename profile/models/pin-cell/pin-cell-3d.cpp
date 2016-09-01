@@ -1,4 +1,5 @@
 #include "../../../src/CPUSolver.h"
+#include "../../../src/CPULSSolver.h"
 #include "../../../src/log.h"
 #include <array>
 #include <iostream>
@@ -156,7 +157,7 @@ int main(int argc, char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);

@@ -62,6 +62,9 @@ typedef enum logLevels {
   /** A brief progress update on run progress */
   NORMAL,
 
+  /** A brief progress update by node on run progress */
+  NODAL,
+
   /** A message of a single line of characters */
   SEPARATOR,
 

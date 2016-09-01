@@ -491,9 +491,9 @@ void CPUSolver::printCycle(long track_start, int domain_start, int length) {
       }
 
       /* Write information */
-      std::cout << rank << " " << start->getX() << " " << start->getY() << " "
-        << start->getZ() << " " << end->getX() << " " << end->getY() << " "
-        << end->getZ() << std::endl;
+      log_printf(NODAL, "Rank %d: Track (%f, %f, %f) -> (%f, %f, %f)", rank
+                 start->getX(), start->getY(), start->getZ(), end->getX(),
+                 end->getY(), end->getZ());
 
       /* Check domain for reflected boundaries */
       if (next_domain == -1) {
@@ -1482,6 +1482,7 @@ void CPUSolver::computeKeff() {
   }
 #endif
 
+
   /* The old_source is normalized to sum to _k_eff; therefore, the new
    * _k_eff is the old _k_eff * sum(new_source). Implicitly, we are just doing
    * _k_eff = sum(new_source) / sum(old_source). */
@@ -1780,10 +1781,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1, std::vector<double> dim
     for (int i=0; i < fsr_ids.size(); i++)
       num_contains_coords[i] = domain_contains_coords[i];
 
-  //FIXME for (int e=0; e < _num_groups; e++) {
-  for (int e=0; e < 1; e++) {
-    if (rank == 0)
-      std::cout << "Group " << e+1 << std::endl;
+  for (int e=0; e < _num_groups; e++) {
 
     std::vector<FP_PRECISION> domain_fluxes(fsr_ids.size(), 0);
     std::vector<FP_PRECISION> total_fluxes(fsr_ids.size());
@@ -1806,10 +1804,9 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1, std::vector<double> dim
     if (rank == 0) {
       for (int i=0; i<dim1.size(); i++) {
         for (int j=0; j<dim2.size(); j++) {
-          std::cout << "(" << dim1.at(i) << ", " << dim2.at(j) << ") -> ";
           int r = i + j*dim1.size();
           double flux = total_fluxes.at(r) / num_contains_coords.at(r);
-          std::cout << flux << std::endl;
+          log_printf(NORMAL, "(%d, %d) -> %f", dim1.at(i), dim2.at(j), flux);
         }
       }
     }
