@@ -496,8 +496,6 @@ void Cmfd::collapseXS() {
       }
     }
   }
-  //FIXME BAL
-  //checkNeutronBalance();
 }
 
 
@@ -2867,7 +2865,6 @@ void Cmfd::checkNeutronBalance() {
       double net_current = 0.0;
 
       /* Streaming to neighboring cells */
-      std::cout << "-------------" << std::endl;
       for (int s = 0; s < NUM_FACES; s++) {
         int sense = getSense(s);
         int idx = s * _num_cmfd_groups + e;
@@ -2877,21 +2874,10 @@ void Cmfd::checkNeutronBalance() {
         int idx_next = surface_next * _num_cmfd_groups + e;
         FP_PRECISION delta_interface = getSurfaceWidth(s);
         if (cmfd_cell_next == -1) {
-          if (_boundaries[s] == VACUUM) {
-            std::cout << "On surface " << s << " VACUUM, sense = " <<
-              sense << " with current " << _surface_currents->getValue(i, idx)
-              << std::endl;
-            std::cout << "DI = " << delta_interface << std::endl;
+          if (_boundaries[s] == VACUUM)
             net_current += _surface_currents->getValue(i, idx);
-          }
         }
         else {
-          std::cout << "On surface " << s << " interface, sense = " <<
-              sense << " and current " << _surface_currents->getValue(i, idx)
-              << ", next cell = " << cmfd_cell_next << " and current " <<
-              _surface_currents->getValue(cmfd_cell_next, idx_next) <<
-              std::endl;
-          std::cout << "DI = " << delta_interface << std::endl;
           net_current += _surface_currents->getValue(i, idx) -
               _surface_currents->getValue(cmfd_cell_next,idx_next);
         }
@@ -2900,11 +2886,6 @@ void Cmfd::checkNeutronBalance() {
       double balance = in_scattering + fission - total - net_current;
       log_printf(NORMAL, "Neutron balance in cell (%d, %d, %d) for CMFD group "
                  "%d = %f", x, y, z, e, balance);
-      std::cout << "S = " << in_scattering << std::endl;
-      std::cout << "F = " << fission << std::endl;
-      std::cout << "T = " << total << std::endl;
-      std::cout << "L = " << net_current << std::endl;
-      std::cout << "L corr = " << in_scattering + fission - total << std::endl;
     }
   }
 }
