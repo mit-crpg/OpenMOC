@@ -111,3 +111,6 @@ if submit:
           line = line.replace('xxxEXECUTExxx', executable)
           fhw.write(line)
 
+    os.chdir(directory)
+    os.system('qsub sumbmit.pbs')
+    os.chdir('..')
