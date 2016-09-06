@@ -317,6 +317,8 @@ void CPUSolver::setupMPIBuffers() {
     if (_send_buffers.size() > 0)
       deleteMPIBuffers();
 
+    log_printf(NORMAL, "Setting up MPI Buffers for angular flux exchange...");
+
     /* Fill the hash map of send buffers */
     for (int dx=-1; dx <= 1; dx++) {
       for (int dy=-1; dy <= 1; dy++) {
@@ -360,6 +362,7 @@ void CPUSolver::setupMPIBuffers() {
   _track_connections.at(1).resize(_tot_num_tracks);
 
   /* Determine which Tracks communicate with each neighbor domain */
+  log_printf(NORMAL, "Initializing Track connections accross domains...");
   for (long t=0; t<_tot_num_tracks; t++) {
 
     /* Get 3D Track data */
@@ -392,6 +395,8 @@ void CPUSolver::setupMPIBuffers() {
     _track_connections.at(0).at(t) = track.getTrackNextFwd();
     _track_connections.at(1).at(t) = track.getTrackNextBwd();
   }
+
+  log_printf(NORMAL, "Finished setting up MPI buffers...");
 
   /* Setup MPI communication bookkeeping */
   _MPI_requests = new MPI_Request[2*num_domains];

@@ -5,8 +5,8 @@
 
 int main(int argc, char* argv[]) {
 
-  //MPI_Init(&argc, &argv);
-  //log_set_ranks(MPI_COMM_WORLD); //FIXME
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD); //FIXME
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -96,12 +96,12 @@ int main(int argc, char* argv[]) {
   ZPlane zmin(-10.0);
   ZPlane zmax( 10.0);
 
-  xmin.setBoundaryType(VACUUM);
-  ymin.setBoundaryType(VACUUM);
-  zmin.setBoundaryType(VACUUM);
-  xmax.setBoundaryType(VACUUM);
-  ymax.setBoundaryType(VACUUM);
-  zmax.setBoundaryType(VACUUM);
+  xmin.setBoundaryType(REFLECTIVE);
+  ymin.setBoundaryType(REFLECTIVE);
+  zmin.setBoundaryType(REFLECTIVE);
+  xmax.setBoundaryType(REFLECTIVE);
+  ymax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(REFLECTIVE);
 
   ZCylinder large_pin(0.0, 0.0, 0.4);
   ZCylinder medium_pin(0.0, 0.0, 0.3);
@@ -193,9 +193,9 @@ int main(int argc, char* argv[]) {
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
-  //geometry.setDomainDecomposition(1, 1, 1);
-  geometry.setNumDomainModules(1,1,1);
-  geometry.setCmfd(&cmfd);
+  geometry.setDomainDecomposition(2, 2, 1);
+  geometry.setNumDomainModules(1,1,2);
+  //geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -216,6 +216,6 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
-  //MPI_Finalize();
+  MPI_Finalize();
   return 0;
 }

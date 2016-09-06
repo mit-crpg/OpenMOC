@@ -114,7 +114,6 @@ int main(int argc, char* argv[]) {
   fuel->addSurface(-1, pin);
   fuel->addSurface(+1, &zmin);
   fuel->addSurface(-1, &zmax);
-  fuel->setNumRings(5);
   fuel->setNumSectors(8);
 
   Cell* moderator = new Cell();
@@ -126,7 +125,6 @@ int main(int argc, char* argv[]) {
   moderator->addSurface(-1, &ymax);
   moderator->addSurface(+1, &zmin);
   moderator->addSurface(-1, &zmax);
-  moderator->setNumRings(4);
   moderator->setNumSectors(8);
 
   /* Add universes */
@@ -141,8 +139,8 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 1, 1);
-  geometry->setNumDomainModules(1,2,2);
+  geometry->setDomainDecomposition(1, 1, 1);
+  geometry->setNumDomainModules(2,2,2);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
