@@ -5,8 +5,8 @@ from fractions import gcd
 comp = True
 submit = True
 
-directory = 'pin-cell'
-case = 'pin-cell-3d'
+directory = 'simple-lattice'
+case = 'simple-lattice-3d'
 
 ppn = 12
 wall = '72:00:00'
@@ -56,9 +56,8 @@ def checkQueue(req_nodes, req_tasks):
 os.system('mkdir ' + directory)
 
 dom = list()
-for i in [1, 2, 4, 8]:
+for i in [1, 2, 4]:
   dom += get_unique_variants(i, 2)
-dom += [(2,2,2)]
 print dom
 
 nd = [1,1,1]
