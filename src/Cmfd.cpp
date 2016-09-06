@@ -433,8 +433,12 @@ void Cmfd::collapseXS() {
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
-          FP_PRECISION flux_avg_sigma_t = trans_tally_group / rxn_tally_group;
-          _diffusion_tally[i][e] += rxn_tally_group / (3.0 * flux_avg_sigma_t);
+          if (rxn_tally_group != 0) {
+            FP_PRECISION flux_avg_sigma_t = trans_tally_group /
+                rxn_tally_group;
+            _diffusion_tally[i][e] += rxn_tally_group /
+                (3.0 * flux_avg_sigma_t);
+          }
         }
       }
     }
