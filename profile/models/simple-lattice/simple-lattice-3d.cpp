@@ -183,19 +183,17 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating Cmfd mesh...");
 
   Cmfd cmfd;
-  cmfd.setLatticeStructure(1,1,1);
-  cmfd.setKNearest(1);
-  //cmfd.setLatticeStructure(2,2,1);
-  //cmfd.setKNearest(3);
+  cmfd.setLatticeStructure(2,2,4);
+  cmfd.setKNearest(3);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
-  geometry.setDomainDecomposition(2, 2, 1);
-  geometry.setNumDomainModules(1,1,2);
-  //geometry.setCmfd(&cmfd);
+  geometry.setDomainDecomposition(1, 1, 1);
+  geometry.setNumDomainModules(2,2,2);
+  geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
