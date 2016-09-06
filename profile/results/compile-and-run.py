@@ -1,4 +1,5 @@
 import os
+import time
 from fractions import gcd
 
 comp = True
@@ -10,6 +11,10 @@ case = 'pin-cell-3d'
 ppn = 12
 wall = '72:00:00'
 mem = 6 #GB
+qlim = 4
+node_lim = 8
+task_lim = 96
+wait_time = 3
 
 def get_unique_variants(num, max_decomp=10**8):
   x = set()
@@ -22,6 +27,31 @@ def get_unique_variants(num, max_decomp=10**8):
 
 def lcm(a, b):
   return a * b / gcd(a, b)
+
+def checkQueue(req_nodes, req_tasks):
+  curr_queue = qlim + 1
+  curr_nodes = node_lim + 1
+  curr_tasks = task_lim + 1
+  while curr_queue > qlim or curr_nodes > node_lim or curr_tasks > task_lim:
+    os.system('qstat -u geogunow > temp_queue')
+    q_num = 0
+    task_num = 0
+    node_num = 0
+    with open('temp_queue','r') as fh:
+      lines = fh.readlines()
+      for line in lines:
+        if line.find('geogunow') != -1:
+          q_num += 1
+          words = line.split()
+          curr_tasks += int(words[-5])
+          curr_nodes += int(words[-6])
+    os.system('rm temp_queue')
+    curr_queue = q_num + 1
+    curr_tasks = task_num + req_tasks
+    curr_nodes = node_num + req_nodes
+    if curr_queue > qlim or curr_nodes > node_lim or curr_tasks > task_lim:
+      time.sleep(wait_time)
+
 
 os.system('mkdir ' + directory)
 
@@ -80,16 +110,20 @@ if comp:
 
     os.chdir(directory)
     os.system('ls')
-    os.system('make')
+    os.system('make -j')
     os.chdir('..')
-
+  os.chdir(directory)
+  os.system('mv *.o obj')
+  os.chdir('..')
 
 if submit:
   for d in dom:
+    nodes = d[0] * d[1] * d[2]
     append = str(d[0]) + '-' + str(d[1]) + '-' + str(d[2])
+    strip_file = 'strip_file-' + append + '.py'
     with open('strip_file.py', 'r') as fh:
       lines = fh.readlines()
-      with open(directory + '/strip_file.py', 'w') as fhw:
+      with open(directory + '/' + strip_file, 'w') as fhw:
         for line in lines:
           line = line.replace('xxxMACHINExxx', "'" + append + "'")
           fhw.write(line)
@@ -98,7 +132,6 @@ if submit:
       lines = fh.readlines()
       with open(directory + '/submit.pbs', 'w') as fhw:
         name = case + '-' + append
-        nodes = d[0] * d[1] * d[2]
         machine = 'machine-' + append
         executable = name
         for line in lines:
@@ -107,10 +140,20 @@ if submit:
           line = line.replace('xxxPPNxxx', str(ppn))
           line = line.replace('xxxWTxxx', wall)
           line = line.replace('xxxMEMxxx', str(mem))
+          line = line.replace('xxxSTRIPxxx', strip_file)
           line = line.replace('xxxMACHINExxx', machine)
           line = line.replace('xxxEXECUTExxx', executable)
           fhw.write(line)
 
+    checkQueue(nodes, nodes*ppn)
     os.chdir(directory)
-    os.system('qsub sumbmit.pbs')
+    os.system('qsub submit.pbs')
     os.chdir('..')
+
+if False:
+  os.chdir(directory)
+  os.system('mkdir temp')
+  os.system('mv * temp')
+  os.system('mv *.o* ..')
+  os.system('mv *.e* ..')
+  os.system('../../')

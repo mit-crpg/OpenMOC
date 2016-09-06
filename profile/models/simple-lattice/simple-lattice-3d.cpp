@@ -5,12 +5,12 @@
 
 int main(int argc, char* argv[]) {
 
-  //MPI_Init(&argc, &argv);
-  //log_set_ranks(MPI_COMM_WORLD); //FIXME
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD);
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 1; //omp_get_num_procs();
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif

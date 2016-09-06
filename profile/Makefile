@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = simple-lattice/simple-lattice-3d.cpp
+case = fixed-source/pin-cell-fixed-3d.cpp
 
 source = \
 Cell.cpp \
@@ -44,7 +44,6 @@ Vector.cpp
 
 cases = \
 Takeda/Takeda-unrodded.cpp \
-homogeneous/homogeneous.cpp \
 pin-cell/pin-cell-3d.cpp \
 fixed-source/pin-cell-fixed-3d.cpp \
 simple-lattice/simple-lattice-3d.cpp \

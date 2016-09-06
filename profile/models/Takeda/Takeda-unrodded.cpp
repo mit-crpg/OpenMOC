@@ -188,7 +188,7 @@ int main() {
       }
     }
   }
-  lattice->setUniverses3D(5*refines, 5*refines, 5*refines, refined_mold);
+  lattice->setUniverses(5*refines, 5*refines, 5*refines, refined_mold);
   root_cell->setFill(lattice);
 
   /* Create CMFD mesh */

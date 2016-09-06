@@ -22,5 +22,5 @@ PATH=$PBS_O_PATH
 
 module load gcc
 module load mpich2/gnu
-python strip_file.py
+python xxxSTRIPxxx
 mpiexec -machinefile xxxMACHINExxx ./xxxEXECUTExxx
