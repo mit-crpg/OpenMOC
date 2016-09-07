@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = simple-lattice/simple-lattice-3d.cpp
+case = Takeda/Takeda-unrodded.cpp
 
 source = \
 Cell.cpp \
