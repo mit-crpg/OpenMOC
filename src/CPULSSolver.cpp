@@ -282,7 +282,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     FP_PRECISION* fsr_flux,
                                     double position[3], double direction[3]) {
 
-  //FIXME: account for track ID
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
