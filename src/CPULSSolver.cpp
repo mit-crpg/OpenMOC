@@ -545,13 +545,8 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 //FIXME
 void CPULSSolver::initializeCmfd() {
   Solver::initializeCmfd();
-  //FIXME
-  /*
-  if (_cmfd != NULL) {
-    _cmfd->setLinearSourceOn(true);
-    _cmfd->setLSRFluxMoments(_scalar_flux_xyz);
-  }
-  */
+  if (_cmfd != NULL)
+    _cmfd->setFluxMoments(_scalar_flux_xyz);
 }
 
 

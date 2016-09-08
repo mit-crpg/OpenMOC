@@ -47,6 +47,7 @@ Cmfd::Cmfd() {
   _flux_ratio = NULL;
   _old_source = NULL;
   _new_source = NULL;
+  _flux_moments = NULL;
   _group_indices = NULL;
   _group_indices_map = NULL;
   _user_group_indices = false;
@@ -853,6 +854,13 @@ void Cmfd::updateMOCFlux() {
           _FSR_fluxes[*iter*_num_moc_groups + h] = update_ratio
             * _FSR_fluxes[*iter*_num_moc_groups + h];
 
+          /* Update flux moments if they were set */
+          if (_flux_moments != NULL) {
+            _flux_moments[(*iter)*3*_num_moc_groups + h*3] *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 1] *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 2] *= update_ratio;
+          }
+
           log_printf(DEBUG, "Updating flux in FSR: %d, cell: %d, MOC group: "
             "%d, CMFD group: %d, ratio: %f", *iter ,i, h, e, update_ratio);
         }
@@ -942,6 +950,15 @@ void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
  */
 void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
   _FSR_fluxes = scalar_flux;
+}
+
+
+/**
+ * @brief Set pointer to source region flux moments array
+ * @param pointer to source region flux moments array
+ */
+void Cmfd::setFluxMoments(FP_PRECISION* flux_moments) {
+  _flux_moments = flux_moments;
 }
 
 

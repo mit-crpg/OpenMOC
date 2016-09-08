@@ -124,6 +124,9 @@ private:
   /** The FSR scalar flux in each energy group */
   FP_PRECISION* _FSR_fluxes;
 
+  /** The source region flux moments (x, y, and z) for each energy group */
+  FP_PRECISION* _flux_moments;
+
   /** Array of CMFD cell volumes */
   Vector* _volumes;
 
@@ -291,6 +294,7 @@ public:
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
   void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
+  void setFluxMoments(FP_PRECISION* flux_moments);
 };
 
 
