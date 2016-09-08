@@ -282,6 +282,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     FP_PRECISION* fsr_flux,
                                     double position[3], double direction[3]) {
 
+  //FIXME: account for track ID
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
@@ -376,6 +377,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
         /* Get the sine of the polar angle */
         FP_PRECISION sin_theta = _quad->getSinTheta(azim_index, p);
+
 
         // Compute the exponential terms
         FP_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, p,

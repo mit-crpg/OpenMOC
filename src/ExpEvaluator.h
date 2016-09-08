@@ -138,7 +138,7 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
   FP_PRECISION dt2 = dt * dt;
 
   /* Compute the exponential */
-  return computeExponentialF1(exp_index, 0, dt, dt2);
+  return computeExponentialF1(exp_index, polar_offset, dt, dt2);
 }
 
 
@@ -246,8 +246,8 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
   if (_interpolate)
-    return _exp_table[index + 6] + _exp_table[index + 7] * dt +
-        _exp_table[index + 8] * dt2;
+    return _exp_table[full_index + 6] + _exp_table[full_index + 7] * dt +
+        _exp_table[full_index + 8] * dt2;
   else {
     int polar_index = _polar_index + polar_offset;
     FP_PRECISION tau = index * _exp_table_spacing + dt;

@@ -290,14 +290,14 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
           exp_const_3 = -1.0 * inv_sin_theta_2 / 3.0;
         }
         else {
-          exp_const_1 = (-exponential * (tau_a + sin_theta) * sin_theta) /
+          exp_const_1 = (-exponential * (tau_a + sin_theta) + sin_theta) /
               tau_a;
           exp_const_2 = (exponential * (tau_a_2 + tau_a * sin_theta +
               sin_theta_2) - sin_theta_2) / (tau_a_2 * sin_theta);
           exp_const_3 = 1.0 / (2 * tau_a_2 * tau_a * sin_theta_2) *
-              (-exponential * tau_a_2 + tau_a_2 * sin_theta + 2 * tau_a *
+              (-exponential * (tau_a_2 * tau_a + tau_a_2 * sin_theta + 2 * tau_a *
               sin_theta_2 + 2 * sin_theta_2 * sin_theta) + 2 * sin_theta_2
-              * sin_theta;
+              * sin_theta);
         }
         _exp_table[index+6] = exp_const_1;
         _exp_table[index+7] = exp_const_2;
