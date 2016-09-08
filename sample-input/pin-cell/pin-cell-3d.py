@@ -34,7 +34,7 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = openmoc.CPULSSolver(track_generator)
+solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
 #solver.setOTFTransport()
