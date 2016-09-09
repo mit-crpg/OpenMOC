@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = Takeda/Takeda-unrodded.cpp
+case = pin-cell/pin-cell-3d.cpp
 
 source = \
 Cell.cpp \
