@@ -1061,7 +1061,7 @@ void Solver::printTimerReport() {
   }
 #endif
 
-  int num_integrations = _fluxes_per_track * total_num_segments *
+  long num_integrations = _fluxes_per_track * total_num_segments *
       _num_iterations;
   double time_per_integration = (transport_sweep / num_integrations);
   msg_string = "Integration time per segment integration";

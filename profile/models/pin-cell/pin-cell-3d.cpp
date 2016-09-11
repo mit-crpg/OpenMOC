@@ -115,6 +115,7 @@ int main(int argc, char* argv[]) {
   fuel->addSurface(+1, &zmin);
   fuel->addSurface(-1, &zmax);
   fuel->setNumSectors(8);
+  fuel->setNumRings(2);
 
   Cell* moderator = new Cell();
   moderator->setFill(materials["Water"]);
@@ -126,6 +127,7 @@ int main(int argc, char* argv[]) {
   moderator->addSurface(+1, &zmin);
   moderator->addSurface(-1, &zmax);
   moderator->setNumSectors(8);
+  moderator->setNumRings(2);
 
   /* Add universes */
   log_printf(NORMAL, "Creating universes...");
