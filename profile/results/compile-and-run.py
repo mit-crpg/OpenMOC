@@ -5,8 +5,8 @@ from fractions import gcd
 comp = True
 submit = True
 
-directory = 'simple-lattice'
-case = 'simple-lattice-3d'
+directory = 'Takeda'
+case = 'Takeda-unrodded'
 
 ppn = 12
 wall = '72:00:00'

@@ -1841,7 +1841,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
+        if (bc_xy == INTERFACE && bc != VACUUM) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
@@ -1902,7 +1902,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
+        if (bc_xy == INTERFACE && bc != VACUUM) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
@@ -2053,7 +2053,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
+        if (bc_xy == INTERFACE && bc != VACUUM) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
@@ -2109,7 +2109,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
+        if (bc_xy == INTERFACE && bc != VACUUM) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
