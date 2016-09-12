@@ -1704,12 +1704,12 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 
 
   /* Determine if flux should be transferred */
-  if (bc_out == REFLECTIVE) {
+  if (bc_out == REFLECTIVE || bc_out == PERIODIC) {
     FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start_out);
     for (int pe=0; pe < _fluxes_per_track; pe++)
       track_out_flux[pe] = track_flux[pe];
   }
-  else if (bc_in == VACUUM) {
+  if (bc_in == VACUUM) {
     long track_id = track->getUid();
     FP_PRECISION* track_in_flux = &_start_flux(track_id, !direction, 0);
     for (int pe=0; pe < _fluxes_per_track; pe++)
