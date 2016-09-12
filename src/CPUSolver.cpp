@@ -1681,32 +1681,40 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 
   /* Extract boundary conditions for this Track and the pointer to the
    * outgoing reflective Track, and index into the leakage array */
-  boundaryType bc;
+  boundaryType bc_out;
+  boundaryType bc_in;
   long track_out_id;
-  int start;
+  int start_out;
 
   /* For the "forward" direction */
   if (direction) {
-    bc = track->getBCFwd();
+    bc_in = track->getBCBwd();
+    bc_out = track->getBCFwd();
     track_out_id = track->getTrackNextFwd();
-    start = _fluxes_per_track * (!track->getNextFwdFwd());
+    start_out = _fluxes_per_track * (!track->getNextFwdFwd());
   }
 
   /* For the "reverse" direction */
   else {
-    bc = track->getBCBwd();
+    bc_in = track->getBCFwd();
+    bc_out = track->getBCBwd();
     track_out_id = track->getTrackNextBwd();
-    start = _fluxes_per_track * (!track->getNextBwdFwd());
+    start_out = _fluxes_per_track * (!track->getNextBwdFwd());
   }
 
-  FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start);
 
   /* Determine if flux should be transferred */
-  int transfer = (bc != VACUUM);
-
-  if (bc != INTERFACE)
+  if (bc_out == REFLECTIVE) {
+    FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start_out);
     for (int pe=0; pe < _fluxes_per_track; pe++)
-      track_out_flux[pe] = track_flux[pe] * transfer;
+      track_out_flux[pe] = track_flux[pe];
+  }
+  else if (bc_in == VACUUM) {
+    long track_id = track->getUid();
+    FP_PRECISION* track_in_flux = &_start_flux(track_id, !direction, 0);
+    for (int pe=0; pe < _fluxes_per_track; pe++)
+      track_in_flux[pe] = 0.0;
+  }
 }
 
 

@@ -1837,17 +1837,19 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_refl._azim = ac;
 
         /* Set the next Track */
-        if (track_2D->getBCFwd() != PERIODIC &&
-            track_2D->getBCFwd() != INTERFACE) {
+        boundaryType bc_xy = track_2D->getBCFwd();
+        if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (track_2D->getBCFwd() == INTERFACE) {
+        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
 #endif
           bc = INTERFACE;
         }
+        else if (bc_xy == VACUUM)
+          bc = VACUUM;
       }
     }
 
@@ -1896,17 +1898,19 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_refl._azim = ac;
 
         /* Set the next Track */
-        if (track_2D->getBCBwd() != PERIODIC &&
-            track_2D->getBCBwd() != INTERFACE) {
+        boundaryType bc_xy = track_2D->getBCBwd();
+        if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (track_2D->getBCBwd() == INTERFACE) {
+        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
 #endif
           bc = INTERFACE;
         }
+        else if (bc_xy == VACUUM)
+          bc = VACUUM;
       }
     }
 
@@ -2045,17 +2049,19 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_refl._azim = ac;
 
         /* Set the next Track */
-        if (track_2D->getBCBwd() != PERIODIC &&
-            track_2D->getBCBwd() != INTERFACE) {
+        boundaryType bc_xy = track_2D->getBCBwd();
+        if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (track_2D->getBCBwd() == INTERFACE) {
+        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
 #endif
           bc = INTERFACE;
         }
+        else if (bc_xy == VACUUM)
+          bc = VACUUM;
       }
     }
 
@@ -2099,17 +2105,19 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
         tci_refl._azim = ac;
 
         /* Set the next Track */
-        if (track_2D->getBCFwd() != PERIODIC &&
-            track_2D->getBCFwd() != INTERFACE) {
+        boundaryType bc_xy = track_2D->getBCFwd();
+        if (bc_xy != PERIODIC && bc_xy != INTERFACE) {
           tci_next._azim = ac;
         }
-        if (track_2D->getBCFwd() == INTERFACE) {
+        if (bc_xy == INTERFACE && bc == REFLECTIVE) {
 #ifdef MPIx
           if (bc != INTERFACE)
             domain_delta_z = 0;
 #endif
           bc = INTERFACE;
         }
+        else if (bc_xy == VACUUM)
+          bc = VACUUM;
       }
     }
 
