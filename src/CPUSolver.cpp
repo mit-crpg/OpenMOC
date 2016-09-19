@@ -544,7 +544,7 @@ void CPUSolver::printCycle(long track_start, int domain_start, int length) {
       }
 
       /* Write information */
-      log_printf(NODAL, "Rank %d: Track (%f, %f, %f) -> (%f, %f, %f)", rank
+      log_printf(NODAL, "Rank %d: Track (%f, %f, %f) -> (%f, %f, %f)", rank,
                  start->getX(), start->getY(), start->getZ(), end->getX(),
                  end->getY(), end->getZ());
 
