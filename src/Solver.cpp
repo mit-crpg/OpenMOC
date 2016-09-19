@@ -1098,7 +1098,7 @@ void Solver::printTimerReport() {
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
 
   /* Time per segment */
-  int num_segments = 0;
+  long num_segments = 0;
   TrackGenerator3D* track_generator_3D =
     dynamic_cast<TrackGenerator3D*>(_track_generator);
   if (track_generator_3D != NULL)
@@ -1106,7 +1106,21 @@ void Solver::printTimerReport() {
   else
     num_segments = _track_generator->getNum2DSegments();
 
-  int num_integrations = _fluxes_per_track * num_segments * _num_iterations;
+  /* Reduce number of Tracks and segments if necessary */
+  long total_num_segments = num_segments;
+  long total_num_tracks = _tot_num_tracks;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Comm MPI_cart = _geometry->getMPICart();
+    MPI_Allreduce(&num_segments, &total_num_segments, 1, MPI_LONG,
+                  MPI_SUM, MPI_cart);
+    MPI_Allreduce(&_tot_num_tracks, &total_num_tracks, 1, MPI_LONG,
+                  MPI_SUM, MPI_cart);
+  }
+#endif
+
+  long num_integrations = _fluxes_per_track * total_num_segments *
+      _num_iterations;
   double time_per_integration = (transport_sweep / num_integrations);
   msg_string = "Integration time per segment integration";
   msg_string.resize(53, '.');
@@ -1122,8 +1136,8 @@ void Solver::printTimerReport() {
   log_printf(RESULT, "%s", msg_string.c_str());
   log_printf(SEPARATOR, "-");
 
-  int num_digits = (int) log10((double) _tot_num_tracks);
-  num_digits += (int) log10((double) num_segments);
+  int num_digits = (int) log10((double) total_num_tracks);
+  num_digits += (int) log10((double) total_num_segments);
   num_digits += (int) log10((double) _geometry->getNumTotalFSRs());
 
   num_digits = 66 - num_digits;
@@ -1136,11 +1150,11 @@ void Solver::printTimerReport() {
       msg << " ";
 
     if (i == 0)
-      msg << _tot_num_tracks;
+      msg << (int) total_num_tracks;
     else if (i == 1)
-      msg << num_segments;
+      msg << (int) total_num_segments;
     else if (i == 2)
-      msg << _geometry->getNumTotalFSRs();
+      msg << (int) _geometry->getNumTotalFSRs();
   }
 
   log_printf(RESULT, "%s", msg.str().c_str());

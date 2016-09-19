@@ -1043,7 +1043,9 @@ void Geometry::subdivideCells() {
 
   /* Compute equivalent radius with the same area as the Geometry */
   /* This is used as the maximum radius for all ringified Cells */
-  double max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
+  double width_x = _root_universe->getMaxX() - _root_universe->getMinX();
+  double width_y = _root_universe->getMaxY() - _root_universe->getMinY();
+  double max_radius = sqrt(width_x * width_y / M_PI);
 
   /* Recursively subdivide Cells into rings and sectors */
   _root_universe->subdivideCells(max_radius);

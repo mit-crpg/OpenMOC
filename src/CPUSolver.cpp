@@ -1,4 +1,5 @@
 #include "CPUSolver.h"
+#include <unordered_map>
 
 /**
  * @brief Constructor initializes array pointers for Tracks and Materials.
@@ -192,6 +193,7 @@ void CPUSolver::initializeFluxArrays() {
     setupMPIBuffers();
 #endif
   }
+
   catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the fluxes");
   }
@@ -317,7 +319,11 @@ void CPUSolver::setupMPIBuffers() {
     if (_send_buffers.size() > 0)
       deleteMPIBuffers();
 
+    log_printf(NORMAL, "Setting up MPI Buffers for angular flux exchange...");
+
     /* Fill the hash map of send buffers */
+    std::unordered_map<int, int> neighbor_connections;
+    int idx = 0;
     for (int dx=-1; dx <= 1; dx++) {
       for (int dy=-1; dy <= 1; dy++) {
         for (int dz=-1; dz <= 1; dz++) {
@@ -325,81 +331,128 @@ void CPUSolver::setupMPIBuffers() {
               (dx == 0 && dy == 0 && dz != 0)) {
             int domain = _geometry->getNeighborDomain(dx, dy, dz);
             if (domain != -1) {
+              neighbor_connections.insert({domain, idx});
               FP_PRECISION* send_buffer = new FP_PRECISION[length];
               _send_buffers.push_back(send_buffer);
               FP_PRECISION* receive_buffer = new FP_PRECISION[length];
               _receive_buffers.push_back(receive_buffer);
               _neighbor_domains.push_back(domain);
+              idx++;
             }
           }
         }
       }
     }
-  }
 
-  /* Setup Track communication information for all neighbor domains */
-  int num_domains = _neighbor_domains.size();
-  _boundary_tracks.resize(num_domains);
-  for (int i=0; i < num_domains; i++) {
+    /* Setup Track communication information for all neighbor domains */
+    int num_domains = _neighbor_domains.size();
+    _boundary_tracks.resize(num_domains);
+    for (int i=0; i < num_domains; i++) {
 
-    /* Initialize Track ID's to -1 */
-    int start_idx = _fluxes_per_track + 1;
-    for (int idx = start_idx; idx < length; idx += _track_message_size) {
-      long* track_info_location =
-        reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
-      track_info_location[0] = -1;
-      track_info_location =
-        reinterpret_cast<long*>(&_receive_buffers.at(i)[idx]);
-      track_info_location[0] = -1;
+      /* Initialize Track ID's to -1 */
+      int start_idx = _fluxes_per_track + 1;
+      for (int idx = start_idx; idx < length; idx += _track_message_size) {
+        long* track_info_location =
+          reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
+        track_info_location[0] = -1;
+        track_info_location =
+          reinterpret_cast<long*>(&_receive_buffers.at(i)[idx]);
+        track_info_location[0] = -1;
+      }
     }
-  }
 
-  /* Build array of Track connections */
-  _track_connections.resize(2);
-  _track_connections.at(0).resize(_tot_num_tracks);
-  _track_connections.at(1).resize(_tot_num_tracks);
+    /* Build array of Track connections */
+    _track_connections.resize(2);
+    _track_connections.at(0).resize(_tot_num_tracks);
+    _track_connections.at(1).resize(_tot_num_tracks);
 
-  /* Determine which Tracks communicate with each neighbor domain */
-  for (long t=0; t<_tot_num_tracks; t++) {
-
-    /* Get 3D Track data */
-    TrackStackIndexes tsi;
-    Track3D track;
-    TrackGenerator3D* track_generator_3D =
-      dynamic_cast<TrackGenerator3D*>(_track_generator);
-    track_generator_3D->getTSIByIndex(t, &tsi);
-    track_generator_3D->getTrackOTF(&track, &tsi);
-
-    /* Determine the indexes of forward connecting domains */
-    int fwd_domain = track.getDomainFwd();
-    if (fwd_domain != -1) {
+    /* Determine how many Tracks communicate with each neighbor domain */
+    log_printf(NORMAL, "Initializing Track connections accross domains...");
+    long num_tracks[num_domains];
+    for (int i=0; i < num_domains; i++)
+      num_tracks[i] = 0;
 #pragma omp parallel for
-      for (int i=0; i<num_domains; i++)
-        if (_neighbor_domains.at(i) == fwd_domain)
-          _boundary_tracks.at(i).push_back(2*t);
+    for (long t=0; t<_tot_num_tracks; t++) {
+
+      /* Get 3D Track data */
+      TrackStackIndexes tsi;
+      Track3D track;
+      TrackGenerator3D* track_generator_3D =
+        dynamic_cast<TrackGenerator3D*>(_track_generator);
+      track_generator_3D->getTSIByIndex(t, &tsi);
+      track_generator_3D->getTrackOTF(&track, &tsi);
+
+      /* Save the index of the forward and backward connecting Tracks */
+      _track_connections.at(0).at(t) = track.getTrackNextFwd();
+      _track_connections.at(1).at(t) = track.getTrackNextBwd();
+
+      /* Determine the indexes of connecting domains */
+      int domains[2];
+      domains[0] = track.getDomainFwd();
+      domains[1] = track.getDomainBwd();
+      bool interface[2];
+      interface[0] = track.getBCFwd() == INTERFACE;
+      interface[1] = track.getBCBwd() == INTERFACE;
+      for (int d=0; d < 2; d++) {
+        if (domains[d] != -1 && interface[d]) {
+          int neighbor = neighbor_connections.at(domains[d]);
+#pragma omp atomic
+          num_tracks[neighbor]++;
+        }
+      }
     }
 
-    /* Determine the indexes of backward connecting domains */
-    int bwd_domain = track.getDomainBwd();
-    if (bwd_domain != -1) {
+    /* Resize the buffers for the counted number of Tracks */
+    for (int i=0; i < num_domains; i++) {
+      _boundary_tracks.at(i).resize(num_tracks[i]);
+      num_tracks[i] = 0;
+    }
+
+    /* Determine which Tracks communicate with each neighbor domain */
 #pragma omp parallel for
-      for (int i=0; i<num_domains; i++)
-        if (_neighbor_domains.at(i) == bwd_domain)
-          _boundary_tracks.at(i).push_back(2*t+1);
+    for (long t=0; t<_tot_num_tracks; t++) {
+
+      /* Get 3D Track data */
+      TrackStackIndexes tsi;
+      Track3D track;
+      TrackGenerator3D* track_generator_3D =
+        dynamic_cast<TrackGenerator3D*>(_track_generator);
+      track_generator_3D->getTSIByIndex(t, &tsi);
+      track_generator_3D->getTrackOTF(&track, &tsi);
+
+      /* Determine the indexes of connecting domains */
+      int domains[2];
+      domains[0] = track.getDomainFwd();
+      domains[1] = track.getDomainBwd();
+      bool interface[2];
+      interface[0] = track.getBCFwd() == INTERFACE;
+      interface[1] = track.getBCBwd() == INTERFACE;
+      for (int d=0; d < 2; d++) {
+        if (domains[d] != -1 && interface[d]) {
+          int neighbor = neighbor_connections.at(domains[d]);
+
+          long slot;
+#pragma omp critical
+          {
+            slot = num_tracks[neighbor];
+            num_tracks[neighbor]++;
+          }
+
+          _boundary_tracks.at(neighbor).at(slot) = 2*t + d;
+        }
+      }
     }
 
-    /* Save the index of the forward and backward connecting Tracks */
-    _track_connections.at(0).at(t) = track.getTrackNextFwd();
-    _track_connections.at(1).at(t) = track.getTrackNextBwd();
-  }
+    log_printf(NORMAL, "Finished setting up MPI buffers...");
 
-  /* Setup MPI communication bookkeeping */
-  _MPI_requests = new MPI_Request[2*num_domains];
-  _MPI_sends = new bool[num_domains];
-  _MPI_receives = new bool[num_domains];
-  for (int i=0; i < num_domains; i++) {
-    _MPI_sends[i] = false;
-    _MPI_receives[i] = false;
+    /* Setup MPI communication bookkeeping */
+    _MPI_requests = new MPI_Request[2*num_domains];
+    _MPI_sends = new bool[num_domains];
+    _MPI_receives = new bool[num_domains];
+    for (int i=0; i < num_domains; i++) {
+      _MPI_sends[i] = false;
+      _MPI_receives[i] = false;
+    }
   }
 }
 
@@ -1648,32 +1701,40 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 
   /* Extract boundary conditions for this Track and the pointer to the
    * outgoing reflective Track, and index into the leakage array */
-  boundaryType bc;
+  boundaryType bc_out;
+  boundaryType bc_in;
   long track_out_id;
-  int start;
+  int start_out;
 
   /* For the "forward" direction */
   if (direction) {
-    bc = track->getBCFwd();
+    bc_in = track->getBCBwd();
+    bc_out = track->getBCFwd();
     track_out_id = track->getTrackNextFwd();
-    start = _fluxes_per_track * (!track->getNextFwdFwd());
+    start_out = _fluxes_per_track * (!track->getNextFwdFwd());
   }
 
   /* For the "reverse" direction */
   else {
-    bc = track->getBCBwd();
+    bc_in = track->getBCFwd();
+    bc_out = track->getBCBwd();
     track_out_id = track->getTrackNextBwd();
-    start = _fluxes_per_track * (!track->getNextBwdFwd());
+    start_out = _fluxes_per_track * (!track->getNextBwdFwd());
   }
 
-  FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start);
 
   /* Determine if flux should be transferred */
-  int transfer = (bc != VACUUM);
-
-  if (bc != INTERFACE)
+  if (bc_out == REFLECTIVE || bc_out == PERIODIC) {
+    FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start_out);
     for (int pe=0; pe < _fluxes_per_track; pe++)
-      track_out_flux[pe] = track_flux[pe] * transfer;
+      track_out_flux[pe] = track_flux[pe];
+  }
+  if (bc_in == VACUUM) {
+    long track_id = track->getUid();
+    FP_PRECISION* track_in_flux = &_start_flux(track_id, !direction, 0);
+    for (int pe=0; pe < _fluxes_per_track; pe++)
+      track_in_flux[pe] = 0.0;
+  }
 }
 
 

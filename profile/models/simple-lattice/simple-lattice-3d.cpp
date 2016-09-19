@@ -5,12 +5,12 @@
 
 int main(int argc, char* argv[]) {
 
-  //MPI_Init(&argc, &argv);
-  //log_set_ranks(MPI_COMM_WORLD); //FIXME
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD);
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 1; //omp_get_num_procs();
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -96,12 +96,12 @@ int main(int argc, char* argv[]) {
   ZPlane zmin(-10.0);
   ZPlane zmax( 10.0);
 
-  xmin.setBoundaryType(VACUUM);
-  ymin.setBoundaryType(VACUUM);
-  zmin.setBoundaryType(VACUUM);
-  xmax.setBoundaryType(VACUUM);
-  ymax.setBoundaryType(VACUUM);
-  zmax.setBoundaryType(VACUUM);
+  xmin.setBoundaryType(REFLECTIVE);
+  ymin.setBoundaryType(REFLECTIVE);
+  zmin.setBoundaryType(REFLECTIVE);
+  xmax.setBoundaryType(REFLECTIVE);
+  ymax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(REFLECTIVE);
 
   ZCylinder large_pin(0.0, 0.0, 0.4);
   ZCylinder medium_pin(0.0, 0.0, 0.3);
@@ -183,18 +183,16 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating Cmfd mesh...");
 
   Cmfd cmfd;
-  cmfd.setLatticeStructure(1,1,1);
-  cmfd.setKNearest(1);
-  //cmfd.setLatticeStructure(2,2,1);
-  //cmfd.setKNearest(3);
+  cmfd.setLatticeStructure(2,2,4);
+  cmfd.setKNearest(3);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
-  //geometry.setDomainDecomposition(1, 1, 1);
-  geometry.setNumDomainModules(1,1,1);
+  geometry.setDomainDecomposition(1, 1, 1);
+  geometry.setNumDomainModules(2,2,2);
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -216,6 +214,6 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
-  //MPI_Finalize();
+  MPI_Finalize();
   return 0;
 }

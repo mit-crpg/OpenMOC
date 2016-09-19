@@ -235,7 +235,7 @@ int main() {
       for (int n=0; n<9*9; n++)
         matrix1[z*9*9 + n] = names[mold[n]];
 
-    assembly1_lattice->setUniverses3D(axial_refines, 9, 9, matrix1);
+    assembly1_lattice->setUniverses(axial_refines, 9, 9, matrix1);
   }
   assembly1_cell->setFill(assembly1_lattice);
 

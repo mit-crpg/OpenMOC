@@ -6,12 +6,12 @@
 
 int main(int argc, char* argv[]) {
 
-//  MPI_Init(&argc, &argv);
-//  log_set_ranks(MPI_COMM_WORLD); //FIXME
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD);
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 1; // FIXME omp_get_num_procs();
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -115,8 +115,8 @@ int main(int argc, char* argv[]) {
   fuel->addSurface(-1, pin);
   fuel->addSurface(+1, &zmin);
   fuel->addSurface(-1, &zmax);
-  fuel->setNumRings(5);
   fuel->setNumSectors(8);
+  fuel->setNumRings(2);
 
   Cell* moderator = new Cell();
   moderator->setFill(materials["Water"]);
@@ -127,8 +127,8 @@ int main(int argc, char* argv[]) {
   moderator->addSurface(-1, &ymax);
   moderator->addSurface(+1, &zmin);
   moderator->addSurface(-1, &zmax);
-  moderator->setNumRings(4);
   moderator->setNumSectors(8);
+  moderator->setNumRings(2);
 
   /* Add universes */
   log_printf(NORMAL, "Creating universes...");
@@ -142,8 +142,6 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  //geometry->setDomainDecomposition(2, 1, 1);
-  geometry->setNumDomainModules(1,2,2);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -164,6 +162,6 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
-  //MPI_Finalize();
+  MPI_Finalize();
   return 0;
 }

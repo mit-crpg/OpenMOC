@@ -3,7 +3,10 @@
 #include <array>
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
+
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD);
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -15,9 +18,9 @@ int main() {
   int num_azim = 4;
   double polar_spacing = 0.1;
   int num_polar = 6;
-  double tolerance = 1e-5;
+  double tolerance = 1e-7;
   int max_iters = 1000;
-  int refines = 1;
+  int refines = 2;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -188,7 +191,7 @@ int main() {
       }
     }
   }
-  lattice->setUniverses3D(5*refines, 5*refines, 5*refines, refined_mold);
+  lattice->setUniverses(5*refines, 5*refines, 5*refines, refined_mold);
   root_cell->setFill(lattice);
 
   /* Create CMFD mesh */
@@ -197,14 +200,14 @@ int main() {
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(5, 5, 5);
   cmfd->setKNearest(3);
-  cmfd->setCentroidUpdateOn(false);
+  //cmfd->setCentroidUpdateOn(false);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
 
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  //geometry.setCmfd(cmfd);
+  geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -229,5 +232,6 @@ int main() {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
+  MPI_Finalize();
   return 0;
 }

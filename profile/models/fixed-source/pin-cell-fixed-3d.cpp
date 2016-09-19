@@ -6,11 +6,11 @@
 int main(int argc, char* argv[]) {
 
   MPI_Init(&argc, &argv);
-  log_set_ranks(MPI_COMM_WORLD); //FIXME
+  log_set_ranks(MPI_COMM_WORLD);
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 1; // omp_get_num_procs();
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -119,8 +119,6 @@ int main(int argc, char* argv[]) {
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 2, 2);
-  geometry->setNumDomainModules(1,1,1);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
