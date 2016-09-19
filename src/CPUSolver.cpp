@@ -390,8 +390,11 @@ void CPUSolver::setupMPIBuffers() {
       int domains[2];
       domains[0] = track.getDomainFwd();
       domains[1] = track.getDomainBwd();
+      bool interface[2];
+      interface[0] = track.getBCFwd() == INTERFACE;
+      interface[1] = track.getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
-        if (domains[d] != -1) {
+        if (domains[d] != -1 && interface[d]) {
           int neighbor = neighbor_connections.at(domains[d]);
 #pragma omp atomic
           num_tracks[neighbor]++;
@@ -421,8 +424,11 @@ void CPUSolver::setupMPIBuffers() {
       int domains[2];
       domains[0] = track.getDomainFwd();
       domains[1] = track.getDomainBwd();
+      bool interface[2];
+      interface[0] = track.getBCFwd() == INTERFACE;
+      interface[1] = track.getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
-        if (domains[d] != -1) {
+        if (domains[d] != -1 && interface[d]) {
           int neighbor = neighbor_connections.at(domains[d]);
 
           long slot;
