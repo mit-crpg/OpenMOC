@@ -302,11 +302,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
     for (int e=0; e < _num_groups; e++) {
 
-      FP_PRECISION tau = sigma_t[e] * length_2D;
-      int exp_index = exp_evaluator->getExponentialIndex(tau);
-      FP_PRECISION dt = exp_evaluator->getDifference(exp_index, tau);
-      FP_PRECISION dt2 = dt * dt;
-
       // Compute the flat component of the reduced source
       FP_PRECISION src_flat = 0.0;
       for (int i=0; i<3; i++)
@@ -315,13 +310,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       src_flat += _reduced_sources(fsr_id, e);
 
       // Compute the exponential terms
-      FP_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, 0,
-                                                                dt, dt2);
-      FP_PRECISION exp_F2 = exp_evaluator->computeExponentialF2(exp_index, 0,
-                                                                dt, dt2);
-      FP_PRECISION exp_H  = exp_evaluator->computeExponentialH(exp_index, 0,
-                                                               dt, dt2)
-          * length * track_flux[e];
+      FP_PRECISION exp_F1, exp_F2, exp_H;
+      FP_PRECISION tau = sigma_t[e] * length_2D;
+      exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1, &exp_F2,
+                                                   &exp_H);
+      exp_H *= length * track_flux[e];
 
       // Compute the moment component of the source
       FP_PRECISION src_linear = 0.0;
@@ -376,7 +369,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
         /* Get the sine of the polar angle */
         FP_PRECISION sin_theta = _quad->getSinTheta(azim_index, p);
-
 
         // Compute the exponential terms
         FP_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, p,
