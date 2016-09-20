@@ -1376,10 +1376,6 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   else if (res_type == FISSION_SOURCE) {
 
-    if (_num_fissionable_FSRs == 0)
-      log_printf(ERROR, "The Solver is unable to compute a "
-                 "FISSION_SOURCE residual without fissionable FSRs");
-
     norm = _num_fissionable_FSRs;
 
     double new_fission_source, old_fission_source;
@@ -1469,6 +1465,11 @@ double CPUSolver::computeResidual(residualType res_type) {
     norm = reduced_norm;
   }
 #endif
+
+  if (res_type == FISSION_SOURCE && norm == 0)
+      log_printf(ERROR, "The Solver is unable to compute a "
+                 "FISSION_SOURCE residual without fissionable FSRs");
+
 
   /* Compute RMS residual */
   residual = sqrt(residual / norm);
