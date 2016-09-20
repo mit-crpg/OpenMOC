@@ -4,8 +4,8 @@
 
 COMPILER    = mpi
 OPENMP      = yes
-OPTIMIZE    = no
-DEBUG       = yes
+OPTIMIZE    = yes
+DEBUG       = no
 PROFILE     = no
 PRECISION   = double
 
@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = pin-cell/pin-cell-3d.cpp
+case = c5g7/c5g7-3d-cmfd.cpp
 
 source = \
 Cell.cpp \
@@ -213,4 +213,4 @@ edit:
 
 run:
 	#./$(program)
-	mpirun -np 1 ./$(program)
+	mpirun -np 27 ./$(program)
