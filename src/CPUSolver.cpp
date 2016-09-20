@@ -975,7 +975,7 @@ void CPUSolver::boundaryFluxChecker() {
                            "in domain %d in %s direction at index %d. Boundary"
                            " angular flux at this location is %f but the "
                            "starting flux at connecting Track %d in domain %d "
-                           "in the %s direction is %f", t, my_rank, dir_string,
+                           "in the %s direction is %f", t, my_rank, dir_string.c_str(),
                            pe, _boundary_flux(t, dir, pe), connection[0],
                            dest, angular_fluxes[pe]);
               }
@@ -1036,7 +1036,7 @@ void CPUSolver::boundaryFluxChecker() {
                            "in domain %d in %s direction at index %d. Boundary"
                            " angular flux at this location is %f but the "
                            "starting flux at connecting Track %d in domain %d "
-                           "in the %s direction is %f", t, my_rank, dir_string,
+                           "in the %s direction is %f", t, my_rank, dir_string.c_str(),
                            pe, _boundary_flux(t, dir, pe), connecting_idx,
                            my_rank, _start_flux(connecting_idx, !connect_fwd,
                            pe));

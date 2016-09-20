@@ -5,8 +5,8 @@
 
 int main(int argc, char* argv[]) {
 
-  //MPI_Init(&argc, &argv);
-  //log_set_ranks(MPI_COMM_WORLD); //FIXME
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD); //FIXME
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -15,12 +15,12 @@ int main(int argc, char* argv[]) {
   int num_threads = 1;
   #endif
   double azim_spacing = 0.1;
-  int num_azim = 4;
+  int num_azim = 16;
   double polar_spacing = 0.1;
-  int num_polar = 6;
+  int num_polar = 14;
   double tolerance = 1e-5;
-  int max_iters = 1000;
-  int axial_refines = 1;
+  int max_iters = 40;
+  int axial_refines = 15;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -527,7 +527,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setLatticeStructure(51, 51, 9);
+  cmfd->setLatticeStructure(51, 51, 9*axial_refines);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -541,8 +541,8 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  //geometry.setDomainDecomposition(1,1,1);
-  geometry.setNumDomainModules(3,3,3);
+  geometry.setDomainDecomposition(3,3,3);
+  //geometry.setNumDomainModules(3,3,3);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -555,7 +555,7 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_heights {0.0, 20.0};
+  std::vector<FP_PRECISION> seg_heights {-20.0, 0.0, 20.0};
   track_generator.setSegmentationHeights(seg_heights);
   track_generator.generateTracks();
 
@@ -567,6 +567,6 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
-  ///MPI_Finalize();
+  MPI_Finalize();
   return 0;
 }
