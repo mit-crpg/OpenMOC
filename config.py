@@ -54,7 +54,7 @@ class configuration:
   #############################################################################
 
   # Default C++ compiler for the main openmoc module is GCC
-  cc = 'gcc'
+  cc = 'mpiCC'
 
   # Default floating point for the main openmoc module is single precision
   fp = 'single'
@@ -129,7 +129,7 @@ class configuration:
   sources['clang'] = sources['gcc']
 
 
-  sources['mpicc'] = sources['gcc']
+  sources['mpiCC'] = sources['gcc']
 
 
   sources['icpc'] = sources['gcc'] + ['src/VectorizedSolver.cpp']
@@ -154,7 +154,7 @@ class configuration:
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
-  compiler_flags['mpicc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
+  compiler_flags['mpiCC'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
   compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
                              '-fopenmp', '-fvectorize', '-fpic',
@@ -189,10 +189,10 @@ class configuration:
                            '-Wl,-soname,' + get_openmoc_object_name()]
 
   if ('macosx' in get_platform()):
-    linker_flags['mpicc'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
+    linker_flags['mpiCC'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
                              '-Wl,-install_name,' + get_openmoc_object_name()]
   else:
-    linker_flags['mpicc'] = ['-fopenmp', '-shared',
+    linker_flags['mpiCC'] = ['-fopenmp', '-shared',
                              '-Wl,-soname,' + get_openmoc_object_name()]
 
   if ('macosx' in get_platform()):
@@ -218,7 +218,7 @@ class configuration:
   shared_libraries = dict()
 
   shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
-  shared_libraries['mpicc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
+  shared_libraries['mpiCC'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['clang'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc',
                               'imf','rt', 'mkl_rt','m',]
@@ -237,7 +237,7 @@ class configuration:
   usr_lib = sys.exec_prefix + '/lib'
 
   library_directories['gcc'] = [usr_lib]
-  library_directories['mpicc'] = [usr_lib]
+  library_directories['mpiCC'] = [usr_lib]
   library_directories['clang'] = [usr_lib]
   library_directories['icpc'] = [usr_lib]
   library_directories['bgxlc'] = [usr_lib]
@@ -253,7 +253,7 @@ class configuration:
   include_directories = dict()
 
   include_directories['gcc'] = list()
-  include_directories['mpicc'] = list()
+  include_directories['mpiCC'] = list()
   include_directories['clang'] = list()
   include_directories['icpc'] = list()
   include_directories['bgxlc'] = list()
@@ -281,84 +281,71 @@ class configuration:
   macros = dict()
 
   macros['gcc'] = dict()
-  macros['mpicc'] = dict()
+  macros['mpiCC'] = dict()
   macros['clang'] = dict()
   macros['icpc'] = dict()
   macros['bgxlc'] = dict()
   macros['nvcc'] = dict()
 
   macros['gcc']['single']= [('FP_PRECISION', 'float'),
-                            ('SINGLE', None),
                             ('GCC', None),
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
-  macros['mpicc']['single']= [('FP_PRECISION', 'float'),
-                            ('SINGLE', None),
+  macros['mpiCC']['single']= [('FP_PRECISION', 'float'),
                             ('GCC', None),
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['clang']['single']= [('FP_PRECISION', 'float'),
-                              ('SINGLE', None),
                               ('CLANG', None),
                               ('VEC_LENGTH', vector_length),
                               ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['icpc']['single']= [('FP_PRECISION', 'float'),
-                             ('SINGLE', None),
                              ('ICPC', None),
                              ('MKL_ILP64', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
-                               ('SINGLE', None),
                                ('BGXLC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment),
                                ('CCACHE_CC', 'bgxlc++_r')]
 
   macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
-                              ('SINGLE', None),
                               ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
 
   macros['gcc']['double'] = [('FP_PRECISION', 'double'),
-                             ('DOUBLE', None),
                              ('GCC', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
 
-  macros['mpicc']['double'] = [('FP_PRECISION', 'double'),
-                               ('DOUBLE', None),
+  macros['mpiCC']['double'] = [('FP_PRECISION', 'double'),
                                ('GCC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['clang']['double'] = [('FP_PRECISION', 'double'),
-                               ('DOUBLE', None),
                                ('CLANG', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['icpc']['double'] = [('FP_PRECISION', 'double'),
-                              ('DOUBLE', None),
                               ('ICPC', None),
                               ('MKL_ILP64', None),
                               ('VEC_LENGTH', vector_length),
                               ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['bgxlc']['double'] = [('FP_PRECISION', 'double'),
-                               ('DOUBLE', None),
                                ('BGXLC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment),
                                ('CCACHE_CC', 'bgxlc++_r')]
 
   macros['nvcc']['double'] = [('FP_PRECISION', 'double'),
-                              ('DOUBLE', None),
-                              ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
 
   # define OPENMP and SWIG (for log output)
@@ -366,7 +353,7 @@ class configuration:
     for precision in macros[compiler]:
       macros[compiler][precision].append(('OPENMP', None))
       macros[compiler][precision].append(('SWIG', None))
-      if cc == 'mpicc':
+      if cc == 'mpiCC':
         macros[compiler][precision].append(('MPIx', None))
 
 
