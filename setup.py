@@ -98,6 +98,7 @@ class custom_install(install):
     # Default compiler and precision level for the main openmoc module
     self.cc = 'mpiCC'
     self.fp = 'single'
+    self.mpi = True
 
     # Set defaults for each of the newly defined compile time options
     self.with_cuda = False

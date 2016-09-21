@@ -468,11 +468,11 @@ int Geometry::getNumZModules() {
 }
 
 
-//FIXME
 #ifdef MPIx
 void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
 
   /* Calculate number of domains and get the number of MPI ranks */
+  std::cout << "IN HERE" << std::endl;
   int num_domains = nx*ny*nz;
   int num_ranks;
   MPI_Comm_size(MPI_COMM_WORLD, &num_ranks);

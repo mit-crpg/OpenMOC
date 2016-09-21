@@ -293,7 +293,7 @@ class configuration:
                             ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['mpiCC']['single']= [('FP_PRECISION', 'float'),
-                            ('GCC', None),
+                            ('MPICC', None),
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
@@ -324,7 +324,7 @@ class configuration:
                              ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['mpiCC']['double'] = [('FP_PRECISION', 'double'),
-                               ('GCC', None),
+                               ('MPICC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
 
@@ -395,6 +395,9 @@ class configuration:
       self.swig_flags += ['-DFP_PRECISION=double']
     else:
       self.swig_flags += ['-DFP_PRECISION=float']
+
+    if self.cc == 'mpiCC':
+      self.swig_flags += ['-DMPIx']
 
     self.extensions.append(
       Extension(name = '_openmoc',
