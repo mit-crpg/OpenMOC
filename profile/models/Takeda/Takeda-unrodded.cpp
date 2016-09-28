@@ -1,4 +1,5 @@
 #include "../../../src/CPUSolver.h"
+#include "../../../src/CPULSSolver.h"
 #include "../../../src/log.h"
 #include <array>
 #include <iostream>

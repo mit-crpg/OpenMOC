@@ -7,7 +7,7 @@
 int main(int argc, char* argv[]) {
 
   MPI_Init(&argc, &argv);
-  log_set_ranks(MPI_COMM_WORLD); //FIXME
+  log_set_ranks(MPI_COMM_WORLD);
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -15,13 +15,13 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.1;
-  int num_azim = 16;
-  double polar_spacing = 0.1;
-  int num_polar = 14;
+  double azim_spacing = 0.05;
+  int num_azim = 64;
+  double polar_spacing = 1.0;
+  int num_polar = 12;
   double tolerance = 1e-5;
   int max_iters = 40;
-  int axial_refines = 15;
+  int axial_refines = 3;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -173,6 +173,29 @@ int main(int argc, char* argv[]) {
   chi["Guide Tube"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
   sigma_t["Guide Tube"] = std::array<double, num_groups> {0.126032, 0.29316,
     0.28424, 0.28096, 0.33444, 0.56564, 1.17215};
+  
+  /* Define control rod cross-sections */
+  sigma_a["Control Rod"] = std::array<double, num_groups> {1.70490E-03, 
+    8.36224E-03,8.37901E-02, 3.97797E-01, 6.98763E-01, 9.29508E-01,
+    1.17836E+00};
+  nu_sigma_f["Control Rod"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0,
+    0};
+  sigma_f["Control Rod"] = std::array<double, num_groups>  {0, 0, 0, 0, 0, 0, 
+    0};
+  sigma_s["Control Rod"] = std::array<double, num_groups*num_groups> 
+      {1.70563E-01, 4.44012E-02, 9.83670E-05, 1.27786E-07, 0., 0., 0.,
+        0., 4.71050E-01, 6.85480E-04, 3.91395E-10, 0., 0., 0., 
+        0., 0., 8.01859E-01, 7.20132E-04, 0., 0., 0., 
+        0., 0., 0., 5.70752E-01, 1.46015E-03, 0., 0.,
+        0., 0., 0., 6.55562E-05, 2.07838E-01, 3.81486E-03, 3.69760E-09,
+        0., 0., 0., 0., 1.02427E-03, 2.02465E-01, 4.75290E-03, 
+        0., 0., 0., 0., 0., 3.53043E-03, 6.58597E-01};
+
+
+  chi["Control Rod"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
+  sigma_t["Control Rod"] = std::array<double, num_groups> {2.16768E-01, 
+    4.80098E-01, 8.86369E-01, 9.70009E-01, 9.10482E-01, 1.13775E+00,
+    1.84048E+00};
 
   /* Create materials */
   log_printf(NORMAL, "Creating materials...");
@@ -222,13 +245,11 @@ int main(int argc, char* argv[]) {
   Cell* moderator = new Cell();
   moderator->setFill(materials["Water"]);
   moderator->addSurface(+1, &fuel_radius);
-  moderator->setNumRings(2);
   moderator->setNumSectors(8);
 
   /* UO2 pin cell */
   Cell* uo2_cell = new Cell(3, "uo2");
-  uo2_cell->setNumRings(3);
-  uo2_cell->setNumSectors(8);
+  uo2_cell->setNumSectors(4);
   uo2_cell->setFill(materials["UO2"]);
   uo2_cell->addSurface(-1, &fuel_radius);
 
@@ -238,8 +259,7 @@ int main(int argc, char* argv[]) {
 
   /* 4.3% MOX pin cell */
   Cell* mox43_cell = new Cell(4, "mox43");
-  mox43_cell->setNumRings(3);
-  mox43_cell->setNumSectors(8);
+  mox43_cell->setNumSectors(4);
   mox43_cell->setFill(materials["MOX-4.3%%"]);
   mox43_cell->addSurface(-1, &fuel_radius);
 
@@ -249,8 +269,7 @@ int main(int argc, char* argv[]) {
 
   /* 7% MOX pin cell */
   Cell* mox7_cell = new Cell(5, "mox7");
-  mox7_cell->setNumRings(3);
-  mox7_cell->setNumSectors(8);
+  mox7_cell->setNumSectors(4);
   mox7_cell->setFill(materials["MOX-7%%"]);
   mox7_cell->addSurface(-1, &fuel_radius);
 
@@ -260,8 +279,7 @@ int main(int argc, char* argv[]) {
 
   /* 8.7% MOX pin cell */
   Cell* mox87_cell = new Cell(6, "mox87");
-  mox87_cell->setNumRings(3);
-  mox87_cell->setNumSectors(8);
+  mox87_cell->setNumSectors(4);
   mox87_cell->setFill(materials["MOX-8.7%%"]);
   mox87_cell->addSurface(-1, &fuel_radius);
 
@@ -271,8 +289,8 @@ int main(int argc, char* argv[]) {
 
   /* Fission chamber pin cell */
   Cell* fission_chamber_cell = new Cell(7, "fc");
-  fission_chamber_cell->setNumRings(3);
-  fission_chamber_cell->setNumSectors(8);
+  fission_chamber_cell->setNumRings(5);
+  fission_chamber_cell->setNumSectors(4);
   fission_chamber_cell->setFill(materials["Fission Chamber"]);
   fission_chamber_cell->addSurface(-1, &fuel_radius);
 
@@ -282,14 +300,25 @@ int main(int argc, char* argv[]) {
 
   /* Guide tube pin cell */
   Cell* guide_tube_cell = new Cell(8, "gtc");
-  guide_tube_cell->setNumRings(3);
-  guide_tube_cell->setNumSectors(8);
+  guide_tube_cell->setNumRings(5);
+  guide_tube_cell->setNumSectors(4);
   guide_tube_cell->setFill(materials["Guide Tube"]);
   guide_tube_cell->addSurface(-1, &fuel_radius);
 
   Universe* guide_tube = new Universe();
   guide_tube->addCell(guide_tube_cell);
   guide_tube->addCell(moderator);
+
+  /* Control rod pin cell */
+  Cell* control_rod_cell = new Cell(8, "gtc");
+  control_rod_cell->setNumRings(5);
+  control_rod_cell->setNumSectors(4);
+  control_rod_cell->setFill(materials["Control Rod"]);
+  control_rod_cell->addSurface(-1, &fuel_radius);
+
+  Universe* control_rod = new Universe();
+  control_rod->addCell(control_rod_cell);
+  control_rod->addCell(moderator);
 
   /* Reflector */
   Cell* reflector_cell = new Cell(9, "rc");
@@ -306,6 +335,8 @@ int main(int argc, char* argv[]) {
   Cell* corner_reflector_cell = new Cell(14, "crc");
   Cell* bottom_reflector_cell = new Cell(15, "brc");
   Cell* assembly_reflector_cell = new Cell(16, "arc");
+  Cell* assembly1_cell_rodded = new Cell(17, "acr1");
+  Cell* assembly2_cell_rodded = new Cell(18, "acr2");
 
   Universe* assembly1 = new Universe();
   Universe* assembly2 = new Universe();
@@ -314,6 +345,9 @@ int main(int argc, char* argv[]) {
   Universe* corner_reflector = new Universe();
   Universe* bottom_reflector = new Universe();
   Universe* assembly_reflector = new Universe();
+  Universe* reflector_rodded = new Universe();
+  Universe* assembly1_rodded = new Universe();
+  Universe* assembly2_rodded = new Universe();
 
   assembly1->addCell(assembly1_cell);
   assembly2->addCell(assembly2_cell);
@@ -322,6 +356,8 @@ int main(int argc, char* argv[]) {
   corner_reflector->addCell(corner_reflector_cell);
   bottom_reflector->addCell(bottom_reflector_cell);
   assembly_reflector->addCell(assembly_reflector_cell);
+  assembly1_rodded->addCell(assembly1_cell_rodded);
+  assembly2_rodded->addCell(assembly2_cell_rodded);
 
   /* Root Cell* */
   Cell* root_cell = new Cell(16, "root");
@@ -404,14 +440,83 @@ int main(int argc, char* argv[]) {
   }
   assembly2_cell->setFill(assembly2_lattice);
 
+  /* Top left, bottom right 17 x 17 assemblies */
+  Lattice* assembly1_lattice_rodded = new Lattice();
+  assembly1_lattice_rodded->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* matrix1_rodded[17*17*axial_refines];
+  {
+    int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
+                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 2, 1, 1, 2, 1, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
+                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+    std::map<int, Universe*> names = {{1, uo2}, {2, control_rod},
+                                      {3, fission_chamber}};
+    for (int z=0; z < axial_refines; z++)
+      for (int n=0; n<17*17; n++)
+        matrix1_rodded[z*17*17 + n] = names[mold[n]];
+
+    assembly1_lattice_rodded->setUniverses(axial_refines, 17, 17,
+                                           matrix1_rodded);
+  }
+  assembly1_cell_rodded->setFill(assembly1_lattice_rodded);
+
+  /* Top right, bottom left 17 x 17 assemblies */
+  Lattice* assembly2_lattice_rodded = new Lattice();
+  assembly2_lattice_rodded->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* matrix2_rodded[17*17*axial_refines];
+  {
+    int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+                        1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1,
+                        1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1,
+                        1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1,
+                        1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 4, 3, 3, 4, 3, 3, 5, 3, 3, 4, 3, 3, 4, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
+                        1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1,
+                        1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1,
+                        1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1,
+                        1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1,
+                        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+    std::map<int, Universe*> names = {{1, mox43}, {2, mox7}, {3, mox87},
+                                      {4, control_rod}, {5, fission_chamber}};
+    for (int z=0; z < axial_refines; z++)
+      for (int n=0; n<17*17; n++)
+        matrix2_rodded[z*17*17 + n] = names[mold[n]];
+
+    assembly2_lattice_rodded->setUniverses(axial_refines, 17, 17,
+                                           matrix2_rodded);
+  }
+  assembly2_cell_rodded->setFill(assembly2_lattice_rodded);
+
   /* Sliced up water cells - semi finely spaced */
   Lattice* refined_ref_lattice = new Lattice();
-  refined_ref_lattice->setWidth(0.126, 0.126, 7.14/axial_refines);
-  Universe* refined_ref_matrix[10*10*axial_refines];
+  int nr = 3;
+  refined_ref_lattice->setWidth(1.26/nr, 1.26/nr, 7.14/axial_refines);
+  Universe* refined_ref_matrix[nr*nr*axial_refines];
   for (int z=0; z < axial_refines; z++)
-    for (int n=0; n<10*10; n++)
-      refined_ref_matrix[z*10*10 + n] = reflector;
-  refined_ref_lattice->setUniverses(axial_refines, 10, 10, refined_ref_matrix);
+    for (int n=0; n<nr*nr; n++)
+      refined_ref_matrix[z*nr*nr + n] = reflector;
+  refined_ref_lattice->setUniverses(axial_refines, nr, nr, refined_ref_matrix);
   refined_reflector_cell->setFill(refined_ref_lattice);
 
   /* Sliced up water cells - right side of geometry */
@@ -494,19 +599,19 @@ int main(int argc, char* argv[]) {
     assembly_reflector, assembly_reflector, right_reflector,
     bottom_reflector,   bottom_reflector,   corner_reflector,
 
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
+    assembly1_rodded, assembly2_rodded, right_reflector,
+    assembly2_rodded, assembly1,        right_reflector,
+    bottom_reflector, bottom_reflector, corner_reflector,
+    
+    assembly1_rodded, assembly2_rodded, right_reflector,
+    assembly2_rodded, assembly1,        right_reflector,
     bottom_reflector, bottom_reflector, corner_reflector,
 
-    assembly1,        assembly2,        right_reflector,
+    assembly1_rodded, assembly2,        right_reflector,
     assembly2,        assembly1,        right_reflector,
     bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
+    
+    assembly1_rodded, assembly2,        right_reflector,
     assembly2,        assembly1,        right_reflector,
     bottom_reflector, bottom_reflector, corner_reflector,
 
@@ -549,7 +654,8 @@ int main(int argc, char* argv[]) {
 
   /* Generate tracks */
   log_printf(NORMAL, "Initializing the track generator...");
-  Quadrature* quad = new EqualAnglePolarQuad();
+  Quadrature* quad = new GLPolarQuad();
+  quad->setNumAzimAngles(num_azim);
   quad->setNumPolarAngles(num_polar);
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
