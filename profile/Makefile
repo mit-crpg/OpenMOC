@@ -4,8 +4,8 @@
 
 COMPILER    = mpi
 OPENMP      = yes
-OPTIMIZE    = no
-DEBUG       = yes
+OPTIMIZE    = yes
+DEBUG       = no
 PROFILE     = no
 PRECISION   = double
 
@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = pin-cell/pin-cell-3d.cpp
+case = c5g7/c5g7-rodded-B.cpp
 
 source = \
 Cell.cpp \
@@ -50,6 +50,7 @@ fixed-source/pin-cell-fixed-3d.cpp \
 simple-lattice/simple-lattice-3d.cpp \
 c5g7/c5g7-3d.cpp \
 c5g7/c5g7-3d-cmfd.cpp \
+c5g7/c5g7-rodded-B.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
 single-assembly/single-c5g7-assembly.cpp
 
@@ -213,4 +214,4 @@ edit:
 
 run:
 	#./$(program)
-	mpirun -np 1 ./$(program)
+	mpirun -np 27 ./$(program)
