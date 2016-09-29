@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
-  geometry.setDomainDecomposition(1, 1, 1);
+  geometry.setDomainDecomposition(1,1,1, MPI_COMM_WORLD);
   geometry.setNumDomainModules(2,2,2);
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
