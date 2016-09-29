@@ -42,6 +42,10 @@
   #include "../src/Universe.h"
   #include "../src/Vector.h"
 
+  #ifdef MPIx
+  #include <mpi.h>
+  #endif
+
   #ifdef ICPC
   #include "../src/VectorizedSolver.h"
   #endif
@@ -115,6 +119,11 @@ namespace std {
   %template(IntVector) vector<int>;
   %template(Array) vector< vector<int> >;
 }
+
+/* Include the MPI library */
+/* %include "/usr/local/lib/python2.7/dist-packages/mpi4py/include/mpi4py/mpi4py.i" */
+%include "mpi4py.i"
+%mpi4py_typemap(Comm, MPI_Comm);
 
 %include <exception.i>
 %include ../src/boundary_type.h

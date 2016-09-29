@@ -636,31 +636,34 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
  */
 void TrackGenerator::checkBoundaryConditions() {
 
+  /* Extract the X and Y boundaries for whole Geometry */
+  Universe* root_universe = _geometry->getRootUniverse();
+  boundaryType min_x_bound = root_universe->getMinXBoundaryType();
+  boundaryType max_x_bound = root_universe->getMaxXBoundaryType();
+  boundaryType min_y_bound = root_universe->getMinYBoundaryType();
+  boundaryType max_y_bound = root_universe->getMaxYBoundaryType();
+
   /* Check X and Y boundaries for consistency */
-  if ((_geometry->getMinXBoundaryType() == PERIODIC &&
-       _geometry->getMaxXBoundaryType() != PERIODIC) ||
-      (_geometry->getMinXBoundaryType() != PERIODIC &&
-       _geometry->getMaxXBoundaryType() == PERIODIC))
+  if ((min_x_bound == PERIODIC && max_x_bound != PERIODIC) ||
+      (min_x_bound != PERIODIC && max_x_bound == PERIODIC))
     log_printf(ERROR, "Cannot create tracks with only one x boundary"
                " set to PERIODIC");
-  else if ((_geometry->getMinYBoundaryType() == PERIODIC &&
-            _geometry->getMaxYBoundaryType() != PERIODIC) ||
-           (_geometry->getMinYBoundaryType() != PERIODIC &&
-            _geometry->getMaxYBoundaryType() == PERIODIC))
+
+  else if ((min_y_bound == PERIODIC && max_y_bound != PERIODIC) ||
+           (min_y_bound != PERIODIC && max_y_bound == PERIODIC))
     log_printf(ERROR, "Cannot create tracks with only one y boundary"
                " set to PERIODIC");
 
+  /* Check that there are no periodic boundaries if domain decomposed */
+  if (_geometry->isDomainDecomposed())
+    if (min_x_bound == PERIODIC || min_y_bound == PERIODIC)
+      log_printf(ERROR, "Periodic boundaries are not supported for domain "
+                 "decomposition");
+
   /* Check for correct track method if a PERIODIC bc is present */
-  boundaryType min_x_boundary = _geometry->getMinXBoundaryType();
-  boundaryType min_y_boundary = _geometry->getMinYBoundaryType();
-  boundaryType max_x_boundary = _geometry->getMaxXBoundaryType();
-  boundaryType max_y_boundary = _geometry->getMaxYBoundaryType();
-  if (min_x_boundary == PERIODIC || min_x_boundary == INTERFACE ||
-      min_y_boundary == PERIODIC || min_y_boundary == INTERFACE ||
-      max_x_boundary == INTERFACE || max_y_boundary == INTERFACE)
-
+  if (_geometry->isDomainDecomposed() || min_x_bound == PERIODIC ||
+      min_y_bound == PERIODIC)
     _periodic = true;
-
   else
     _periodic = false;
 }

@@ -684,6 +684,16 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
  */
 void CPUSolver::transferAllInterfaceFluxes() {
 
+  /* Initialize MPI requests and status */
+  MPI_Comm MPI_cart = _geometry->getMPICart();
+  MPI_Status stat;
+
+  /* Wait for all MPI Ranks to be done with communication */
+  _timer->startTimer();
+  MPI_Barrier(MPI_cart);
+  _timer->stopTimer();
+  _timer->recordSplit("Idle time");
+
   /* Initialize timer for total function cost */
   _timer->startTimer();
 
@@ -700,10 +710,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
   /* Resize vectors to the number of domains */
   int num_domains = _neighbor_domains.size();
   packing_indexes.resize(num_domains);
-
-  /* Initialize MPI requests and status */
-  MPI_Comm MPI_cart = _geometry->getMPICart();
-  MPI_Status stat;
 
   /* Start communication rounds */
   while (true) {

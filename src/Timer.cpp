@@ -164,3 +164,26 @@ void Timer::processMemUsage(double& vm_usage, double& resident_set) {
    vm_usage = (double) vsize / 1024.0 / 1024.0;
    resident_set = rss * page_size_kb / 1024.0;
 }
+
+
+//FIXME
+void Timer::reduceTimer(MPI_Comm comm) {
+
+  std::map<std::string, double>::iterator iter;
+  for (iter = _timer_splits.begin(); iter != _timer_splits.end(); ++iter) {
+
+    /* Collapse timing results down to one value for each category */
+    double curr_split = (*iter).second;
+    double total_split = 0;
+    MPI_Reduce(&curr_split, &total_split, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+
+    /* On the main node, average over the number of ranks, update result */
+    if (total_split != 0) {
+      int num_ranks;
+      MPI_Comm_size(comm, &num_ranks);
+      total_split /= num_ranks;
+      (*iter).second = total_split;
+    }
+  }
+}
+

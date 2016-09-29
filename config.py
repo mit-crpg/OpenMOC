@@ -388,6 +388,10 @@ class configuration:
     for cc in self.include_directories.keys():
       self.include_directories[cc].append(numpy_include)
 
+    # FIXME
+    mpi4py_include = '/usr/local/lib/python2.7/dist-packages/mpi4py/include/'
+    self.include_directories['mpiCC'].append(mpi4py_include)
+
 
     # The main openmoc extension (defaults are gcc and single precision)
     self.swig_flags += ['-D' + self.fp.upper()]

@@ -1004,7 +1004,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double vm;
   double rm;
   _timer->processMemUsage(vm, rm);
-  log_printf(NORMAL, "Using %f MB virtual memory and %f MB resident "
+  log_printf(NODAL, "Using %f MB virtual memory and %f MB resident "
                       "memory ", vm, rm);
 
   /* Start the timer to record the total time to converge the source */
@@ -1063,6 +1063,12 @@ void Solver::printTimerReport() {
 
   std::string msg_string;
 
+  /* Collapse timer to average values in domain decomposition */
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    _timer->reduceTimer(_geometry->getMPICart());
+#endif
+
   log_printf(TITLE, "TIMING REPORT");
 
   /* Get the total runtime */
@@ -1096,6 +1102,11 @@ void Solver::printTimerReport() {
   msg_string = "Angular Flux Communication Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
+
+  double idle_time = _timer->getSplit("Idle time");
+  msg_string = "Total Idle Time Between Sweeps";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), idle_time);
 
   /* Time per segment */
   long num_segments = 0;

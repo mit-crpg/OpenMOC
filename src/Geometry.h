@@ -231,7 +231,7 @@ public:
   bool isDomainDecomposed();
   void setRootUniverse(Universe* root_universe);
 #ifdef MPIx
-  void setDomainDecomposition(int nx, int ny, int nz);
+  void setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm);
   MPI_Comm getMPICart();
 #endif
 

@@ -27,6 +27,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef MPIx
+#include <mpi.h>
+#endif
+
 
 /**
  * @class Timer Timer.h "src/Timer.cpp"
@@ -94,6 +98,9 @@ public:
   void clearSplit(const char* msg);
   void clearSplits();
   void processMemUsage(double& vm_usage, double& resident_set);
+#ifdef MPIx
+  void reduceTimer(MPI_Comm comm);
+#endif
 };
 
 #endif /* TIMER_H_ */

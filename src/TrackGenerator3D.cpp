@@ -1458,6 +1458,12 @@ void TrackGenerator3D::checkBoundaryConditions() {
     log_printf(ERROR, "Cannot create tracks with only one z boundary"
                " set to PERIODIC");
 
+  /* Check that there are no periodic boundaries if domain decomposed */
+  if (_geometry->isDomainDecomposed())
+    if (_geometry->getMinZBoundaryType() == PERIODIC)
+      log_printf(ERROR, "Periodic boundaries are not supported for domain "
+                 "decomposition");
+
   /* Check for correct track method if a PERIODIC bc is present */
   if (_geometry->getMinZBoundaryType() == PERIODIC ||
       _geometry->getMinZBoundaryType() == INTERFACE ||
@@ -1811,7 +1817,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
           _geometry->getMaxZBoundaryType() == INTERFACE)
         tci_next._lz    = lz - nz;
 
-      /* REFLETCIVE OR VACUUM BC */
+      /* REFLECTIVE OR VACUUM BC */
       else {
         tci_next._polar = pc;
         tci_next._lz    = nl + 2 * nz - lz - 1;

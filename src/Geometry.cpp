@@ -469,16 +469,16 @@ int Geometry::getNumZModules() {
 
 
 #ifdef MPIx
-void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
+//FIXME
+void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
 
   /* Calculate number of domains and get the number of MPI ranks */
-  std::cout << "IN HERE" << std::endl;
   int num_domains = nx*ny*nz;
   int num_ranks;
-  MPI_Comm_size(MPI_COMM_WORLD, &num_ranks);
+  MPI_Comm_size(comm, &num_ranks);
 
   /* Check that the number of domains equals the number of ranks */
-  log_set_ranks(MPI_COMM_WORLD);
+  log_set_ranks(comm);
   if (num_ranks != num_domains)
     log_printf(ERROR, "Number of ranks is %d and number of domains is %d",
                num_ranks, num_domains);
@@ -497,7 +497,7 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz) {
     /* Create the MPI Communicator */
     int dims[3] = {nx, ny, nz};
     int wrap[3] = {false, false, false};
-    int ret = MPI_Cart_create(MPI_COMM_WORLD, 3, dims, wrap, true, &_MPI_cart);
+    int ret = MPI_Cart_create(comm, 3, dims, wrap, true, &_MPI_cart);
     log_set_ranks(_MPI_cart);
 
     /* Determine the domain indexes */
@@ -1088,8 +1088,6 @@ void Geometry::initializeFlatSourceRegions() {
  * @param z_coord the axial height at which the 2D plane of the geometry is
  *        formed
  */
-//FIXME: Maybe build a domain cell and check that point is in domain, calculate
-// intersection
 void Geometry::segmentize2D(Track* track, double z_coord) {
 
   /* Track starting Point coordinates and azimuthal angle */

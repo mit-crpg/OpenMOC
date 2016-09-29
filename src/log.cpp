@@ -71,6 +71,11 @@ static int line_length = 67;
 //FIXME
 static int rank = 0;
 static int num_ranks = 1;
+#ifdef MPIx
+static MPI_Comm _MPI_comm;
+static bool _MPI_present = false;
+#endif
+
 
 /**
  * @var log_error_lock
@@ -341,7 +346,9 @@ void log_printf(logLevel level, const char* format, ...) {
       {
 
         std::string msg = std::string(message);
-        std::string level_prefix = "[  NORMAL ]  ";
+        std::stringstream ss;
+        ss << "[  NODE " << rank << " ]  ";
+        std::string level_prefix = ss.str();
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)
@@ -511,6 +518,11 @@ void log_printf(logLevel level, const char* format, ...) {
     if (level == ERROR) {
       omp_set_lock(&log_error_lock);
       {
+        if (_MPI_present) {
+          printf("%s", "[  ERROR  ] ");
+          printf("%s", msg_string.c_str());
+          MPI_Finalize();
+        }
         throw std::logic_error(msg_string.c_str());
       }
       omp_unset_lock(&log_error_lock);
@@ -585,6 +597,8 @@ std::string create_multiline_msg(std::string level, std::string message) {
 //FIXME
 #ifdef MPIx
 void log_set_ranks(MPI_Comm comm) {
+  _MPI_comm = comm;
+  _MPI_present = true;
   MPI_Comm_size(comm, &num_ranks);
   MPI_Comm_rank(comm, &rank);
 }
