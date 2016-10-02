@@ -223,7 +223,7 @@ public:
   void setDesiredPolarSpacing(double spacing);
   void setSegmentFormation(segmentationType segmentation_type);
   void setTrackGenerationMethod(int method);
-  void setSegmentationHeights(std::vector<FP_PRECISION> z_mesh);
+  void setSegmentationZones(std::vector<FP_PRECISION> z_mesh);
   void setLinkingTracks(TrackStackIndexes* tsi, TrackChainIndexes* tci,
                         bool outgoing, Track3D* track);
   void setLinkIndex(TrackChainIndexes* tci, TrackStackIndexes* tsi);

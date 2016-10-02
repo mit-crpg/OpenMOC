@@ -393,23 +393,59 @@ void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
  * @param z_mesh the z-coordinates defining the height of the radial
  *        segmentation planes
  */
-void TrackGenerator3D::setSegmentationHeights(std::vector<FP_PRECISION>
-                                              z_mesh) {
+void TrackGenerator3D::setSegmentationZones(std::vector<FP_PRECISION> zones) {
+
+  /* Clear any previous segmentation heights and note their existence */
   _contains_segmentation_heights = true;
   _segmentation_heights.clear();
-  for (int i=0; i < z_mesh.size(); i++) {
-    if (z_mesh.at(i) > _geometry->getMinZ() &&
-        z_mesh.at(i) < _geometry->getMaxZ())
-      _segmentation_heights.push_back(z_mesh.at(i));
-    else if (!_geometry->isDomainDecomposed())
-      log_printf(ERROR, "Provided Z-coordinate %f is not within the Geometry "
-                "bounds", z_mesh.at(i));
+
+  /* Check that the zones contain the Geometry minimum and maximum */
+  double z_min = _geometry->getRootUniverse()->getMinZ();
+  double z_max = _geometry->getRootUniverse()->getMaxZ();
+  if (zones.size() >= 2) {
+    if (fabs(zones.at(0) - z_min) > TINY_MOVE)
+      log_printf(ERROR, "Segmentation zones must contain the Geometry minimum."
+                 " The first value of the segmentaiton heights is %f and the "
+                 "Geometry minimum is %f.", zones.at(0), z_min);
+    if (fabs(zones.at(zones.size()-1) - z_max) > TINY_MOVE)
+      log_printf(ERROR, "Segmentation zones must contain the Geometry maximum."
+                 " The last value of the segmentaiton heights is %f and the "
+                 "Geometry maximum is %f.", zones.at(zones.size()-1), z_max);
+  }
+  else {
+    log_printf(ERROR, "Segmentation zones must contain the Geometry minimum "
+               "and maximum. Therefore the segmentation zones must be of "
+               "length greater than or equal to 2.");
   }
 
-  /* If none of the heights within the domain, choose the Geometry midpoint */
-  if (_segmentation_heights.size() == 0) {
-    double z_mid = (_geometry->getMinZ() + _geometry->getMaxZ()) / 2;
-    _segmentation_heights.push_back(z_mid);
+  /* Check that zones are montonic and within total Geometry bounds */
+  for (int i=1; i < zones.size(); i++)
+    if (zones.at(i) < zones.at(i-1))
+      log_printf(ERROR, "Segmentation zones must be monotonically "
+                 "increasing. Axial level %f is less than axial level %f",
+                 zones.at(i), zones.at(i-1));
+
+  /* Find minimum and maximum indexes for this domain */
+  int min_idx = 0;
+  int max_idx = 0;
+  double domain_z_min = _geometry->getMinZ();
+  double domain_z_max = _geometry->getMaxZ();
+  for (int i=0; i < zones.size(); i++) {
+    if (zones.at(i) - TINY_MOVE < domain_z_min)
+      min_idx++;
+    if (zones.at(i) + TINY_MOVE < domain_z_max)
+      max_idx++;
+  }
+
+  /* Form segmentation heights */
+  if (min_idx == max_idx) {
+    _segmentation_heights.push_back((domain_z_min + domain_z_max)/2);
+  }
+  else {
+    _segmentation_heights.push_back((domain_z_min + zones.at(min_idx))/2);
+    for (int i=min_idx+1; i < max_idx; i++)
+      _segmentation_heights.push_back((zones.at(i-1) + zones.at(i))/2);
+    _segmentation_heights.push_back((zones.at(max_idx-1) + domain_z_max)/2);
   }
 }
 
