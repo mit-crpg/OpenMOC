@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-rodded-B.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 
 source = \
 Cell.cpp \
@@ -71,7 +71,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpicc
+  CC = mpiCC
   CFLAGS += -DMPIx
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
@@ -214,4 +214,4 @@ edit:
 
 run:
 	#./$(program)
-	mpirun -np 27 ./$(program)
+	mpirun -np 1 ./$(program)

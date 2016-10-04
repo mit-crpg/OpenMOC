@@ -135,20 +135,23 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     plt.ylim([y.min(), y.max()])
 
 
-    title = 'Tracks for {0} angles and {1} cm spacing'.format(num_azim, spacing)
+    title = 'Tracks for {0} angles and {1} cm spacing'\
+        .format(num_azim, spacing)
     plt.title(title)
 
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
 
     # Save the figure to a file or return to user
-    if get_figure:
-        return fig
-    else:
-        filename = \
-            'tracks-{1}-angles-{2}.png'.format(directory, num_azim, spacing)
-        fig.savefig(directory+filename, bbox_inches='tight')
-        plt.close(fig)
+    if track_generator.getGeometry().isRootDomain():
+        if get_figure:
+            return fig
+        else:
+            filename = \
+                'tracks-{1}-angles-{2}.png'.format(directory, num_azim,
+                                                   spacing)
+            fig.savefig(directory+filename, bbox_inches='tight')
+            plt.close(fig)
 
     del coords
 
@@ -203,8 +206,8 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
-    num_segments = track_generator.getNumSegments()
-    num_fsrs = track_generator.getGeometry().getNumFSRs()
+    num_segments = track_generator.getNumTotalSegments()
+    num_fsrs = track_generator.getGeometry().getNumTotalFSRs()
     coords = \
         track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
 
@@ -254,7 +257,8 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     plt.xlim([x.min(), x.max()])
     plt.ylim([y.min(), y.max()])
 
-    suptitle = 'Segments ({0} angles, {1} cm spacing)'.format(num_azim, spacing)
+    suptitle = 'Segments ({0} angles, {1} cm spacing)'.format(num_azim,
+                                                              spacing)
     title = 'z = {0}'.format(z[0])
     plt.suptitle(suptitle)
     plt.title(title)
@@ -262,13 +266,15 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
 
-    if get_figure:
-        return fig
-    else:
-        filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim, spacing)
-        filename = '{0}-z-{1}.png'.format(filename, z[0])
-        fig.savefig(directory+filename, bbox_inches='tight')
-        plt.close(fig)
+    if track_generator.getGeometry().isRootDomain():
+        if get_figure:
+            return fig
+        else:
+            filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim,
+                                                                spacing)
+            filename = '{0}-z-{1}.png'.format(filename, z[0])
+            fig.savefig(directory+filename, bbox_inches='tight')
+            plt.close(fig)
 
 
 def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None,
@@ -355,8 +361,9 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None,
     figures = plot_spatial_data(materials, plot_params, get_figure)
 
     # Return the figure to the user if requested
-    if get_figure:
-        return figures[0]
+    if plot_params.geometry.isRootDomain():
+        if get_figure:
+            return figures[0]
 
 
 def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim = None,
@@ -443,8 +450,9 @@ def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim = None,
     figures = plot_spatial_data(cells, plot_params, get_figure)
 
     # Return the figure to the user if requested
-    if get_figure:
-        return figures[0]
+    if plot_params.geometry.isRootDomain():
+        if get_figure:
+            return figures[0]
 
 
 def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
@@ -504,7 +512,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     cv.check_type('marker_size', marker_size, Real)
     cv.check_greater_than('marker_size', marker_size, 0)
 
-    if geometry.getNumFSRs() == 0:
+    if geometry.getNumTotalFSRs() == 0:
         py_printf('ERROR', 'Unable to plot the flat source regions ' +
                   'since no tracks have been generated.')
 
@@ -513,7 +521,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
 
-    num_fsrs = geometry.getNumFSRs()
+    num_fsrs = geometry.getNumTotalFSRs()
     fsrs_to_fsrs = np.arange(num_fsrs, dtype=np.int64)
     fsrs_to_fsrs = _colorize(fsrs_to_fsrs, num_fsrs)
 
@@ -546,66 +554,70 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 
     # Plot a 2D color map of the flat source regions
     figures = plot_spatial_data(fsrs_to_fsrs, plot_params, get_figure=True)
-    fig = figures[0]
 
-    # Plot centroids on top of 2D flat source region color map
-    if centroids:
+    if plot_params.geometry.isRootDomain():
 
-        # Populate a NumPy array with the FSR centroid coordinates
-        centroids = np.zeros((num_fsrs, 2), dtype=np.float)
-        for fsr_id in range(num_fsrs):
-            point = geometry.getFSRCentroid(fsr_id)
-            centroids[fsr_id,:] = [point.getX(), point.getY()]
+        fig = figures[0]
 
-        # Plot centroids on figure using matplotlib
-        if library == 'pil':
+        # Plot centroids on top of 2D flat source region color map
+        if centroids:
 
-            # Retrieve the plot bounds
-            coords = _get_pixel_coords(plot_params)
-            r = marker_size
-
-            # Open a PIL ImageDraw portal on the Image object
-            from PIL import ImageDraw
-            draw = ImageDraw.Draw(fig)
-
+            # Populate a NumPy array with the FSR centroid coordinates
+            centroids = np.zeros((num_fsrs, 2), dtype=np.float)
             for fsr_id in range(num_fsrs):
-                # Retrieve the pixel coordinates for this centroid
-                x, y = centroids[fsr_id,:]
+                coords = geometry.getGlobalFSRCentroidData(fsr_id)
+                centroids[fsr_id,:] = [coords[0], coords[1]]
 
-                # Only plot centroid if it is within the plot bounds
-                if x < coords['bounds']['x'][0] or \
-                    x > coords['bounds']['x'][1]:
-                    continue
-                elif y < coords['bounds']['y'][0] or \
-                    y > coords['bounds']['y'][1]:
-                    continue
+            # Plot centroids on figure using matplotlib
+            if library == 'pil':
 
-                # Transform the centroid into pixel coordinates
-                x = int((x-coords['dim1'][1]) / \
-                    (coords['dim1'][1]-coords['dim1'][0]))
-                y = int((y-coords['dim2'][1]) / \
-                    (coords['dim2'][1]-coords['dim2'][0]))
+                # Retrieve the plot bounds
+                coords = _get_pixel_coords(plot_params)
+                r = marker_size
 
-                # Draw circle for this centroid on the image
-                draw.ellipse((x-r, y-r, x+r, y+r), fill=(0, 0, 0))
+                # Open a PIL ImageDraw portal on the Image object
+                from PIL import ImageDraw
+                draw = ImageDraw.Draw(fig)
 
-        # Plot centroids on figure using PIL
+                for fsr_id in range(num_fsrs):
+                    # Retrieve the pixel coordinates for this centroid
+                    x, y = centroids[fsr_id,:]
+
+                    # Only plot centroid if it is within the plot bounds
+                    if x < coords['bounds']['x'][0] or \
+                        x > coords['bounds']['x'][1]:
+                        continue
+                    elif y < coords['bounds']['y'][0] or \
+                        y > coords['bounds']['y'][1]:
+                        continue
+
+                    # Transform the centroid into pixel coordinates
+                    x = int((x-coords['dim1'][1]) / \
+                        (coords['dim1'][1]-coords['dim1'][0]))
+                    y = int((y-coords['dim2'][1]) / \
+                        (coords['dim2'][1]-coords['dim2'][0]))
+
+                    # Draw circle for this centroid on the image
+                    draw.ellipse((x-r, y-r, x+r, y+r), fill=(0, 0, 0))
+
+            # Plot centroids on figure using PIL
+            else:
+                plt.scatter(centroids[:,0], centroids[:,1], color='k',
+                            marker=marker_type, s=marker_size)
+
+        # Return the figure to the user if requested
+        if get_figure:
+            return figures[0]
+        # Set the plot title and save the figure
         else:
-            plt.scatter(centroids[:,0], centroids[:,1], color='k',
-                        marker=marker_type, s=marker_size)
+            plot_filename = directory + plot_params.filename + \
+                plot_params.extension
 
-    # Return the figure to the user if requested
-    if get_figure:
-        return figures[0]
-    # Set the plot title and save the figure
-    else:
-        plot_filename = directory + plot_params.filename + plot_params.extension
-
-        if library == 'pil':
-            fig.save(plot_filename)
-        else:
-            fig.savefig(plot_filename, bbox_inches='tight')
-            plt.close(fig)
+            if library == 'pil':
+                fig.save(plot_filename)
+            else:
+                fig.savefig(plot_filename, bbox_inches='tight')
+                plt.close(fig)
 
 
 def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
@@ -660,10 +672,10 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
     # Create a NumPy array to map FSRs to CMFD cells
-    num_fsrs = geometry.getNumFSRs()
+    num_fsrs = geometry.getNumTotalFSRs()
     fsrs_to_cmfd_cells = np.zeros(num_fsrs, dtype=np.int64)
     for fsr_id in range(num_fsrs):
-        fsrs_to_cmfd_cells[fsr_id] = cmfd.convertFSRIdToCmfdCell(fsr_id)
+        fsrs_to_cmfd_cells[fsr_id] = cmfd.convertGlobalFSRIdToCmfdCell(fsr_id)
 
     # Assign random color scheme to CMFD cells
     num_cmfd_cells = cmfd.getNumCells()
@@ -697,8 +709,9 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
     figures = plot_spatial_data(fsrs_to_cmfd_cells, plot_params, get_figure)
 
     # Return the figure to the user if requested
-    if get_figure:
-        return figures[0]
+    if plot_params.geometry.isRootDomain():
+        if get_figure:
+            return figures[0]
 
 
 def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
@@ -771,6 +784,7 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 
     # Get array of FSR energy-dependent fluxes
     fluxes = get_scalar_fluxes(solver)
+    print fluxes
 
     # Initialize an empty list of Matplotlib figures if requestd by the user
     figures = []
@@ -790,10 +804,12 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
             plot_params.title = 'x = {0}'.format(offset)
             plot_params.filename = 'fsr-flux-group-{0}-x-{1}'.format(group,
                                                                      offset)
+
         fig = plot_spatial_data(fluxes[:,index], plot_params, get_figure)
 
-        if get_figure:
-            figures.append(fig[0])
+        if plot_params.geometry.isRootDomain():
+            if get_figure:
+                figures.append(fig[0])
 
     # Return figures if requested by the user
     if get_figure:
@@ -927,12 +943,13 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
         plt.title('FSR {0} Flux ({1} groups)'.format(fsr, num_groups))
 
         # Save the figure to a file or return to user if requested
-        if get_figure:
-            figures.append(fig)
-        else:
-            filename = 'flux-fsr-{0}.png'.format(fsr)
-            plt.savefig(directory+filename, bbox_inches='tight')
-            plt.close(fig)
+        if geometry.isRootDomain():
+            if get_figure:
+                figures.append(fig)
+            else:
+                filename = 'flux-fsr-{0}.png'.format(fsr)
+                plt.savefig(directory+filename, bbox_inches='tight')
+                plt.close(fig)
 
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
@@ -996,7 +1013,7 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
     # Compute the volume-weighted fission rates for each FSR
     geometry = solver.getGeometry()
-    fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+    fission_rates = solver.computeFSRFissionRates(geometry.getNumTotalFSRs())
 
     # Initialize plotting parameters
     plot_params = PlotParams()
@@ -1027,8 +1044,9 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
     figures = plot_spatial_data(fission_rates, plot_params, get_figure)
 
     # Return the figure if requested by user
-    if get_figure:
-        return figures[0]
+    if plot_params.geometry.isRootDomain():
+        if get_figure:
+            return figures[0]
 
 
 def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
@@ -1177,7 +1195,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     elif plot_params.domain_type == 'cell':
         num_domains = len(plot_params.geometry.getAllMaterialCells())
     else:
-        num_domains = plot_params.geometry.getNumFSRs()
+        num_domains = plot_params.geometry.getNumTotalFSRs()
 
     if isinstance(domains_to_data, (np.ndarray, dict)):
         pandas_df = False
@@ -1186,7 +1204,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
                       'there are %d domains', len(domains_to_data), num_domains)
     elif 'DataFrame' in str(type(domains_to_data)):
         pandas_df = True
-        if len(domains_to_data) != plot_params.geometry.getNumFSRs():
+        if len(domains_to_data) != plot_params.geometry.getNumTotalFSRs():
             py_printf('ERROR', 'The domains_to_data DataFrame is length %d ' +
                       'but there are %d domains in the Geometry',
                       len(domains_to_data), num_domains)
@@ -1310,13 +1328,14 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
             # If the user requested the Matplotlib figure handles for further
             # specialization, append the handle to this figure to a list
-            if get_figure:
-                figures.append(fig)
+            if plot_params.geometry.isRootDomain():
+                if get_figure:
+                    figures.append(fig)
 
-            # Otherwise, save this Matplotlib figure
-            else:
-                fig.savefig(plot_filename, bbox_inches='tight')
-                plt.close()
+                # Otherwise, save this Matplotlib figure
+                else:
+                    fig.savefig(plot_filename, bbox_inches='tight')
+                    plt.close()
 
             # Restore settings if called from ipython
             matplotlib.rcParams.update(curr_rc)
@@ -1451,11 +1470,12 @@ def plot_quadrature(solver, get_figure=False):
     matplotlib.rcParams.update(curr_rc)
 
     # Save the figure or return to user
-    if get_figure:
-        return fig
-    else:
-        fig.savefig(filename, bbox_inches='tight')
-        plt.close(fig)
+    if track_generator.getGeometry().isRootDomain():
+        if get_figure:
+            return fig
+        else:
+            fig.savefig(filename, bbox_inches='tight')
+            plt.close(fig)
 
 
 class PlotParams(object):
@@ -1723,21 +1743,22 @@ class PlotParams(object):
     def _check_offset(self):
         if self.offset and self.geometry and self.plane:
             cv.check_type('offset', self.offset, Real)
+            root = self.geometry.getRootUniverse()
             if self.plane == 'xy':
                 cv.check_greater_than('offset', self.offset,
-                                      self.geometry.getMinZ(), equality=True)
+                                      root.getMinZ(), equality=True)
                 cv.check_less_than('offset', self.offset,
-                                  self.geometry.getMaxZ(), equality=True)
+                                   root.getMaxZ(), equality=True)
             if self.plane == 'xz':
                 cv.check_greater_than('offset', self.offset,
-                                      self.geometry.getMinY(), equality=True)
+                                      root.getMinY(), equality=True)
                 cv.check_less_than('offset', self.offset,
-                                  self.geometry.getMaxY(), equality=True)
+                                  root.getMaxY(), equality=True)
             if self.plane == 'yz':
                 cv.check_greater_than('offset', self.offset,
-                                      self.geometry.getMinX(), equality=True)
+                                      root.getMinX(), equality=True)
                 cv.check_less_than('offset', self.offset,
-                                  self.geometry.getMaxX(), equality=True)
+                                  root.getMaxX(), equality=True)
 
 
 def _get_pixel_coords(plot_params):
@@ -1764,12 +1785,13 @@ def _get_pixel_coords(plot_params):
     coords = dict()
     bounds = dict()
 
-    bounds['x'] = [geometry.getMinX() + TINY_MOVE,
-                   geometry.getMaxX() - TINY_MOVE]
-    bounds['y'] = [geometry.getMinY() + TINY_MOVE,
-                   geometry.getMaxY() - TINY_MOVE]
-    bounds['z'] = [geometry.getMinZ() + TINY_MOVE,
-                   geometry.getMaxZ() - TINY_MOVE]
+    root = geometry.getRootUniverse()
+    bounds['x'] = [root.getMinX() + TINY_MOVE,
+                   root.getMaxX() - TINY_MOVE]
+    bounds['y'] = [root.getMinY() + TINY_MOVE,
+                   root.getMaxY() - TINY_MOVE]
+    bounds['z'] = [root.getMinZ() + TINY_MOVE,
+                   root.getMaxZ() - TINY_MOVE]
 
     if not plot_params.xlim is None:
         bounds['x'] = plot_params.xlim

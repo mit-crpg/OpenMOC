@@ -2168,6 +2168,37 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 }
 
 
+//FIXME
+int Cmfd::convertGlobalFSRIdToCmfdCell(long global_fsr_id) {
+
+  /* Determine the domain and local FSR ID */
+  int cmfd_cell = -1;
+  if (!_geometry->isDomainDecomposed()) {
+    cmfd_cell = convertFSRIdToCmfdCell(global_fsr_id);
+  }
+#ifdef MPIx
+  else {
+
+    long fsr_id;
+    int domain;
+    _geometry->getLocalFSRId(global_fsr_id, fsr_id, domain);
+
+    /* Get the FSR centroid in the correct domain */
+    int rank;
+    MPI_Comm comm = _geometry->getMPICart();
+    MPI_Comm_rank(comm, &rank);
+    int temp_cmfd_cell = 0;
+    if (rank == domain)
+      temp_cmfd_cell = convertFSRIdToCmfdCell(fsr_id);
+
+    /* Broadcast the centroid */
+    MPI_Allreduce(&temp_cmfd_cell, &cmfd_cell, 1, MPI_INT, MPI_SUM, comm);
+  }
+#endif
+  return cmfd_cell;
+}
+
+
 /**
  * @brief Return a pointer to the vector of vectors that contains
  *        the FSRs that lie in each cell.

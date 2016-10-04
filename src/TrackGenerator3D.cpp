@@ -10,10 +10,10 @@
  */
 TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
                                    int num_polar, double azim_spacing,
-                                   double polar_spacing) :
+                                   double z_spacing) :
                     TrackGenerator(geometry, num_azim, azim_spacing) {
   setNumPolar(num_polar);
-  setDesiredPolarSpacing(polar_spacing);
+  setDesiredZSpacing(z_spacing);
   _contains_3D_tracks = false;
   _contains_3D_segments = false;
   _contains_global_z_mesh = false;
@@ -129,8 +129,8 @@ int TrackGenerator3D::getNumPolar() {
  *          cyclic tracks.
  * @return the track polar spacing (cm)
  */
-double TrackGenerator3D::getDesiredPolarSpacing() {
-  return _polar_spacing;
+double TrackGenerator3D::getDesiredZSpacing() {
+  return _z_spacing;
 }
 
 
@@ -364,12 +364,12 @@ void TrackGenerator3D::setNumPolar(int num_polar) {
  * @brief Set the suggested track polar spacing (cm).
  * @param spacing the suggested track polar spacing
  */
-void TrackGenerator3D::setDesiredPolarSpacing(double spacing) {
+void TrackGenerator3D::setDesiredZSpacing(double spacing) {
   if (spacing < 0)
-    log_printf(ERROR, "Unable to set a negative track polar spacing "
+    log_printf(ERROR, "Unable to set a negative track z-spacing "
                "%f for the TrackGenerator.", spacing);
 
-  _polar_spacing = spacing;
+  _z_spacing = spacing;
   resetStatus();
 }
 
@@ -760,7 +760,7 @@ void TrackGenerator3D::initializeTracks() {
       double length = module_width_y / sin(phi);
 
       /* The number of intersections with xy (denoted "l") plane */
-      _num_l[i][j] = int(ceil(length * tan(M_PI_2 - theta) / _polar_spacing));
+      _num_l[i][j] = int(ceil(length * tan(M_PI_2 - theta) / _z_spacing));
 
       /* Number of crossings along the z axis */
       double module_width_z = width_z / _geometry->getNumZModules();
@@ -1449,7 +1449,7 @@ std::string TrackGenerator3D::getTestFilename(std::string directory) {
     test_filename << directory << "/3D_"
                   << _num_azim << "_azim_"
                   << _num_polar << "_polar_"
-                  << _azim_spacing << "x" << _polar_spacing
+                  << _azim_spacing << "x" << _z_spacing
                   << "_cm_spacing_cmfd_"
                   << _geometry->getCmfd()->getNumX()
                   << "x" << _geometry->getCmfd()->getNumY()
@@ -1460,7 +1460,7 @@ std::string TrackGenerator3D::getTestFilename(std::string directory) {
     test_filename << directory << "/3D_"
                   << _num_azim << "_azim_"
                   << _num_polar << "_polar_"
-                  << _azim_spacing << "x" << _polar_spacing
+                  << _azim_spacing << "x" << _z_spacing
                   << "_cm_spacing_quad_"
                   << quad_type << "_track_" << track_method << ".data";
 

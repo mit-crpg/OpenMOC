@@ -90,8 +90,8 @@ private:
   /** Number of polar angles in \f$ [0, \pi] \f$ */
   int _num_polar;
 
-  /** The requested track polar spacing (cm) */
-  double _polar_spacing;
+  /** The requested track z-spacing (cm) */
+  double _z_spacing;
 
   /** A 2D ragged array of 2D track chains (azim, x index, link index) */
   Track**** _tracks_2D_chains;
@@ -183,12 +183,12 @@ private:
 public:
 
   TrackGenerator3D(Geometry* geometry, int num_azim, int num_polar,
-                   double azim_spacing, double polar_spacing);
+                   double azim_spacing, double z_spacing);
   virtual ~TrackGenerator3D();
 
   /* Get parameters */
   int getNumPolar();
-  double getDesiredPolarSpacing();
+  double getDesiredZSpacing();
   int getNumTracks();
   int getNumSegments();
   int getNum3DTracks();
@@ -220,7 +220,7 @@ public:
   /* Set parameters */
   void setGeometry(Geometry* geometry);
   void setNumPolar(int num_polar);
-  void setDesiredPolarSpacing(double spacing);
+  void setDesiredZSpacing(double spacing);
   void setSegmentFormation(segmentationType segmentation_type);
   void setTrackGenerationMethod(int method);
   void setSegmentationZones(std::vector<FP_PRECISION> z_mesh);

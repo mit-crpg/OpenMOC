@@ -23,6 +23,10 @@ Geometry::Geometry() {
   _num_modules_x = 1;
   _num_modules_y = 1;
   _num_modules_z = 1;
+  _domain_index_x = 1;
+  _domain_index_y = 1;
+  _domain_index_z = 1;
+  _domain_FSRs_counted = false;
 }
 
 
@@ -433,6 +437,16 @@ Cmfd* Geometry::getCmfd() {
  */
 bool Geometry::isDomainDecomposed() {
   return _domain_decomposed;
+}
+
+
+//FIXME
+bool Geometry::isRootDomain() {
+  bool first_domain = true;
+  if (_domain_decomposed)
+    if (_domain_index_x != 0 || _domain_index_y != 0 || _domain_index_z != 0)
+      first_domain = false;
+  return first_domain;
 }
 
 
@@ -890,6 +904,67 @@ int Geometry::getFSRId(LocalCoords* coords) {
 }
 
 
+//FIXME
+int Geometry::getDomainByCoords(LocalCoords* coords) {
+  int domain = 0;
+#ifdef MPIx
+  if (_domain_decomposed) {
+    int domain_idx[3];
+    double width_x = _root_universe->getMaxX() - _root_universe->getMinX();
+    domain_idx[0] = (coords->getPoint()->getX() - _root_universe->getMinX())
+                    * _num_domains_x / width_x;
+    double width_y = _root_universe->getMaxY() - _root_universe->getMinY();
+    domain_idx[1] = (coords->getPoint()->getY() - _root_universe->getMinY())
+                    * _num_domains_y / width_y;
+    double width_z = _root_universe->getMaxZ() - _root_universe->getMinZ();
+    domain_idx[2] = (coords->getPoint()->getZ() - _root_universe->getMinZ())
+                    * _num_domains_z / width_z;
+
+    MPI_Cart_rank(_MPI_cart, domain_idx, &domain);
+  }
+#endif
+  return domain;
+}
+
+
+/**
+ * @brief Return the global ID of the flat source region that a given
+ *        LocalCoords object resides within.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR ID for a given LocalCoords object
+ */
+long Geometry::getGlobalFSRId(LocalCoords* coords) {
+
+  /* Check if the Geometry is domain decomposed */
+  if (!_domain_decomposed) {
+    return getFSRId(coords);
+  }
+  else {
+    long temp_fsr_id = 0;
+#ifdef MPIx
+    int domain = getDomainByCoords(coords);
+    int rank;
+    MPI_Comm_rank(_MPI_cart, &rank);
+    if (domain == rank)
+      temp_fsr_id = getFSRId(coords);
+    long global_fsr_id;
+    MPI_Allreduce(&temp_fsr_id, &global_fsr_id, 1, MPI_LONG, MPI_SUM,
+                  _MPI_cart);
+
+    /* Count FSRs on each domain if not already counted */
+    if (!_domain_FSRs_counted)
+      countDomainFSRs();
+
+    /* Add FSR count from prior domains */
+    for (int i=0; i < domain; i++)
+      global_fsr_id += _num_domain_FSRs.at(i);
+
+#endif
+    return global_fsr_id;
+  }
+}
+
+
 /**
  * @brief Return the characteristic point for a given FSR ID
  * @param fsr_id the FSR ID
@@ -922,6 +997,103 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
   else
     log_printf(ERROR, "Could not find centroid in FSR: %d.", fsr_id);
   return NULL;
+}
+
+
+#ifdef MPIx
+//FIXME
+void Geometry::countDomainFSRs() {
+
+  /* Gather the number of FSRs into an array */
+  int num_domains = _num_domains_x * _num_domains_y * _num_domains_z;
+  long num_domains_array[num_domains];
+  long my_fsrs = getNumFSRs();
+  MPI_Allgather(&my_fsrs, 1, MPI_LONG, num_domains_array, 1, MPI_LONG,
+                _MPI_cart);
+
+  /* Convert to a vector */
+  _num_domain_FSRs.resize(num_domains);
+  for (int i=0; i < num_domains; i++)
+    _num_domain_FSRs.at(i) = num_domains_array[i];
+  _domain_FSRs_counted = true;
+}
+
+
+//FIXME
+void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
+                             int &domain) {
+
+  /* Count FSRs on each domain if not already counted */
+  if (!_domain_FSRs_counted)
+    countDomainFSRs();
+
+  /* Determine the local domain where the global FSR resides */
+  long cum_fsrs = 0;
+  domain = -1;
+  for (int i=0; i < _num_domains_x * _num_domains_y * _num_domains_z; i++) {
+    if (cum_fsrs + _num_domain_FSRs.at(i) > global_fsr_id) {
+      domain = i;
+      break;
+    }
+    else {
+      cum_fsrs += _num_domain_FSRs.at(i);
+    }
+  }
+
+  /* Ensure a domain was found with the FSR ID */
+  if (domain == -1)
+    log_printf(ERROR, "No domain was found with the global FSR ID %d. The "
+               "total number of FSRs in the Geometry is %d.", global_fsr_id,
+               getNumTotalFSRs());
+
+  local_fsr_id = global_fsr_id - cum_fsrs;
+}
+#endif
+
+
+//FIXME
+std::vector<double> Geometry::getGlobalFSRCentroidData(long global_fsr_id) {
+  double xyz[3];
+  if (!_domain_decomposed) {
+    Point* centroid = getFSRCentroid(global_fsr_id);
+    xyz[0] = centroid->getX();
+    xyz[1] = centroid->getY();
+    xyz[2] = centroid->getZ();
+  }
+#ifdef MPIx
+  else {
+
+    /* Determine the domain and local FSR ID */
+    long fsr_id;
+    int domain;
+    getLocalFSRId(global_fsr_id, fsr_id, domain);
+
+    /* Get the FSR centroid in the correct domain */
+    int rank;
+    MPI_Comm_rank(_MPI_cart, &rank);
+    double temp_xyz[3];
+    if (rank == domain) {
+      Point* centroid = getFSRCentroid(fsr_id);
+      temp_xyz[0] = centroid->getX();
+      temp_xyz[1] = centroid->getY();
+      temp_xyz[2] = centroid->getZ();
+    }
+    else {
+      temp_xyz[0] = 0;
+      temp_xyz[1] = 0;
+      temp_xyz[2] = 0;
+    }
+
+    /* Broadcast the centroid */
+    MPI_Allreduce(temp_xyz, xyz, 3, MPI_DOUBLE, MPI_SUM, _MPI_cart);
+  }
+#endif
+
+  /* Convert centroid data into a vector */
+  std::vector<double> data(3);
+  for (int i=0; i<3; i++)
+    data.at(i) = xyz[i];
+  return data;
 }
 
 
@@ -1733,13 +1905,14 @@ std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
                           "unsupported plane %s", plane);
 
       point->setUniverse(_root_universe);
-      cell = findCellContainingCoords(point);
+      //cell = findCellContainingCoords(point);
+      cell = _root_universe->findCell(point);
       domains[i+j*dim1.size()] = -1;
 
       /* Extract the ID of the domain of interest */
-      if (withinBounds(point)) {
+      if (withinGlobalBounds(point)) {
         if (strcmp(domain_type, "fsr") == 0)
-          domains[i+j*dim1.size()] = getFSRId(point);
+          domains[i+j*dim1.size()] = getGlobalFSRId(point);
         else if (strcmp(domain_type, "material") == 0)
           domains[i+j*dim1.size()] = cell->getFillMaterial()->getId();
         else if (strcmp(domain_type, "cell") == 0)
@@ -1887,9 +2060,9 @@ std::vector<int>& Geometry::getFSRsToMaterialIDs() {
 }
 
 /**
- * @brief Determins whether a point is within the bounding box of the geometry.
+ * @brief Determins whether a point is within the bounding box of the domain.
  * @param coords a populated LocalCoords linked list
- * @return boolean indicating whether the coords is within the geometry
+ * @return boolean indicating whether the coords is within the domain
  */
 bool Geometry::withinBounds(LocalCoords* coords) {
 
@@ -1903,6 +2076,27 @@ bool Geometry::withinBounds(LocalCoords* coords) {
   else
     return true;
 }
+
+
+/**
+ * @brief Determins whether a point is within the bounding box of the Geometry.
+ * @param coords a populated LocalCoords linked list
+ * @return boolean indicating whether the coords is within the geometry
+ */
+bool Geometry::withinGlobalBounds(LocalCoords* coords) {
+
+  double x = coords->getX();
+  double y = coords->getY();
+  double z = coords->getZ();
+
+  if (x <= _root_universe->getMinX() || x >= _root_universe->getMaxX() ||
+      y <= _root_universe->getMinY() || y >= _root_universe->getMaxY() ||
+      z <= _root_universe->getMinZ() || z >= _root_universe->getMaxZ())
+    return false;
+  else
+    return true;
+}
+
 
 
 /**

@@ -62,10 +62,11 @@ int CPUSolver::getNumThreads() {
  */
 void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 
-  if (num_fluxes != _num_groups * _num_FSRs)
+  if (num_fluxes != _num_groups * _geometry->getNumTotalFSRs())
     log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
                "%d groups and %d FSRs which does not match the requested "
-               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+               "%d flux values", _num_groups, _geometry->getNumTotalFSRs(),
+               num_fluxes);
 
   else if (_scalar_flux == NULL)
     log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
@@ -79,6 +80,52 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
         out_fluxes[r*_num_groups+e] = _scalar_flux(r,e);
     }
   }
+  /* Reduce domain data for domain decomposition */
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+
+    /* Allocate buffer for communcation */
+    long num_total_FSRs = _geometry->getNumTotalFSRs();
+    FP_PRECISION* temp_fluxes = new FP_PRECISION[num_total_FSRs*_num_groups];
+
+    int rank = 0;
+    MPI_Comm comm = _geometry->getMPICart();
+    MPI_Comm_rank(comm, &rank);
+    for (long r=0; r < num_total_FSRs; r++) {
+
+      /* Determine the domain and local FSR ID */
+      long fsr_id = r;
+      int domain = 0;
+      _geometry->getLocalFSRId(r, fsr_id, domain);
+
+      /* Set data if in the correct domain */
+      if (domain == rank)
+        for (int e=0; e < _num_groups; e++)
+          temp_fluxes[r*_num_groups+e] = out_fluxes[fsr_id*_num_groups+e];
+      else
+        for (int e=0; e < _num_groups; e++)
+          temp_fluxes[r*_num_groups+e] = 0.0;
+    }
+
+    /* Determine the type of FP_PRECISION and communicate fluxes */
+    MPI_Datatype flux_type;
+    if (sizeof(FP_PRECISION) == 4)
+      flux_type = MPI_FLOAT;
+    else
+      flux_type = MPI_DOUBLE;
+
+    for (int i=0; i < num_total_FSRs*_num_groups; i++)
+      std::cout << temp_fluxes[i] << " ";
+    std::cout << std::endl;
+
+    MPI_Allreduce(temp_fluxes, out_fluxes, num_total_FSRs*_num_groups,
+                  flux_type, MPI_SUM, comm);
+    delete [] temp_fluxes;
+    for (int i=0; i < num_total_FSRs*_num_groups; i++)
+      std::cout << out_fluxes[i] << " ";
+    std::cout << std::endl;
+  }
+#endif
 }
 
 
@@ -981,9 +1028,9 @@ void CPUSolver::boundaryFluxChecker() {
                            "in domain %d in %s direction at index %d. Boundary"
                            " angular flux at this location is %f but the "
                            "starting flux at connecting Track %d in domain %d "
-                           "in the %s direction is %f", t, my_rank, dir_string.c_str(),
-                           pe, _boundary_flux(t, dir, pe), connection[0],
-                           dest, angular_fluxes[pe]);
+                           "in the %s direction is %f", t, my_rank,
+                           dir_string.c_str(), pe, _boundary_flux(t, dir, pe),
+                           connection[0], dest, angular_fluxes[pe]);
               }
             }
           }
@@ -1807,11 +1854,42 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     for (int e=0; e < _num_groups; e++)
       fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e);
   }
+
+  /* Reduce domain data for domain decomposition */
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+
+    /* Allocate buffer for communcation */
+    long num_total_FSRs = _geometry->getNumTotalFSRs();
+    double* temp_fission_rates = new double[num_total_FSRs];
+
+    int rank = 0;
+    MPI_Comm comm = _geometry->getMPICart();
+    MPI_Comm_rank(comm, &rank);
+    for (long r=0; r < num_total_FSRs; r++) {
+
+      /* Determine the domain and local FSR ID */
+      long fsr_id = r;
+      int domain = 0;
+      _geometry->getLocalFSRId(r, fsr_id, domain);
+
+      /* Set data if in the correct domain */
+      if (domain == rank)
+        temp_fission_rates[r] = fission_rates[fsr_id];
+    }
+
+    MPI_Barrier(comm);
+    MPI_Allreduce(&temp_fission_rates, &fission_rates, num_total_FSRs,
+                  MPI_DOUBLE, MPI_SUM, comm);
+    delete [] temp_fission_rates;
+  }
+#endif
 }
 
 
 //FIXME
-void CPUSolver::printFSRFluxes(std::vector<double> dim1, std::vector<double> dim2,
+void CPUSolver::printFSRFluxes(std::vector<double> dim1,
+                               std::vector<double> dim2,
                                double offset, const char* plane) {
 
   int rank = 0;

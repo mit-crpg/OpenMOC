@@ -261,6 +261,7 @@ public:
   int getNumY();
   int getNumZ();
   int convertFSRIdToCmfdCell(int fsr_id);
+  int convertGlobalFSRIdToCmfdCell(long global_fsr_id);
   std::vector< std::vector<int> >* getCellFSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();

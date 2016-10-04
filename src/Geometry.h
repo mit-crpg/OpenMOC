@@ -172,6 +172,7 @@ private:
 
   //FIXME
   bool _domain_decomposed;
+  bool _domain_FSRs_counted;
   int _num_domains_x;
   int _num_domains_y;
   int _num_domains_z;
@@ -179,6 +180,7 @@ private:
   int _domain_index_y;
   int _domain_index_z;
   Lattice* _domain_bounds;
+  std::vector<long> _num_domain_FSRs;
 #ifdef MPIx
   MPI_Comm _MPI_cart;
 #endif
@@ -229,6 +231,7 @@ public:
   std::vector<FP_PRECISION> getUniqueZHeights();
   std::vector<FP_PRECISION> getUniqueZPlanes();
   bool isDomainDecomposed();
+  bool isRootDomain();
   void setRootUniverse(Universe* root_universe);
 #ifdef MPIx
   void setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm);
@@ -239,6 +242,7 @@ public:
   std::vector<std::string>& getFSRsToKeys();
   std::vector<int>& getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
+  long getGlobalFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   int getCmfdCell(int fsr_id);
@@ -279,6 +283,11 @@ public:
   void printString();
   void initializeCmfd();
   bool withinBounds(LocalCoords* coords);
+  bool withinGlobalBounds(LocalCoords* coords);
+  void countDomainFSRs();
+  void getLocalFSRId(long global_fsr_id, long &local_fsr_id, int &domain);
+  std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
+  int getDomainByCoords(LocalCoords* coords);
 };
 
 #endif /* GEOMETRY_H_ */

@@ -1,4 +1,4 @@
-#include "../../../src/CPUSolver.h"
+#include "../../../src/CPULSSolver.h"
 #include "../../../src/log.h"
 #include <array>
 #include <iostream>
@@ -191,8 +191,8 @@ int main(int argc, char* argv[]) {
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
-  geometry.setDomainDecomposition(1,1,1, MPI_COMM_WORLD);
-  geometry.setNumDomainModules(2,2,2);
+  //geometry.setDomainDecomposition(1,1,1, MPI_COMM_WORLD);
+  //geometry.setNumDomainModules(2,2,2);
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);
