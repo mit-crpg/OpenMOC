@@ -5,7 +5,7 @@ from universes import universes, cells, surfaces
 #########################   Set Simulation Param   ############################
 ###############################################################################
 
-reflector_refines = 5
+reflector_refines = 3
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
@@ -20,6 +20,7 @@ lattices['Reflector Rodded Assembly']   = openmoc.Lattice()
 lattices['Reflector Right Assembly']    = openmoc.Lattice()
 lattices['Reflector Bottom Assembly']   = openmoc.Lattice()
 lattices['Reflector Corner Assembly']   = openmoc.Lattice()
+lattices['Reflector Assembly']          = openmoc.Lattice()
 lattices['UO2 Unrodded Assembly']       = openmoc.Lattice()
 lattices['UO2 Rodded Assembly']         = openmoc.Lattice()
 lattices['MOX Unrodded Assembly']       = openmoc.Lattice()
@@ -197,6 +198,10 @@ template += [[r] * 17] * 6
 template = [template]
 lattices['Reflector Corner Assembly'].setUniverses(template)
 
+# Reflector right 17 x 17 assemblies
+lattices['Reflector Assembly'].setWidth(width_x=1.26, width_y=1.26, width_z=100.)
+template = [[[a] * 17] * 17]
+lattices['Reflector Assembly'].setUniverses(template)
 
 # Fill cells with lattices
 cells['Refined Reflector Mesh']     .setFill(lattices['Refined Reflector Mesh'])
@@ -209,4 +214,5 @@ cells['Reflector Rodded Assembly']  .setFill(lattices['Reflector Rodded Assembly
 cells['Reflector Right Assembly']   .setFill(lattices['Reflector Right Assembly'])
 cells['Reflector Bottom Assembly']  .setFill(lattices['Reflector Bottom Assembly'])
 cells['Reflector Corner Assembly']  .setFill(lattices['Reflector Corner Assembly'])
+cells['Reflector Assembly']         .setFill(lattices['Reflector Assembly'])
 cells['Root']                       .setFill(lattices['Root'])
