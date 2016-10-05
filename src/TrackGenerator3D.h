@@ -189,9 +189,9 @@ public:
   /* Get parameters */
   int getNumPolar();
   double getDesiredZSpacing();
-  int getNumTracks();
-  int getNumSegments();
-  int getNum3DTracks();
+  long getNumTracks();
+  long getNumSegments();
+  long getNum3DTracks();
   long getNum3DSegments();
   Track3D**** get3DTracks();
   double getZSpacing(int azim, int polar);

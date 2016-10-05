@@ -133,7 +133,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
  * @brief Return the total number of Tracks across the Geometry.
  * @return the total number of Tracks
  */
-int TrackGenerator::getNumTracks() {
+long TrackGenerator::getNumTracks() {
   return getNum2DTracks();
 }
 
@@ -142,9 +142,9 @@ int TrackGenerator::getNumTracks() {
  * @brief Return the total number of 2D Tracks across the Geometry.
  * @return the total number of 2D Tracks
  */
-int TrackGenerator::getNum2DTracks() {
+long TrackGenerator::getNum2DTracks() {
 
-  int num_2D_tracks = 0;
+  long num_2D_tracks = 0;
 
   for (int a=0; a < _num_azim/2; a++)
     num_2D_tracks += _num_x[a] + _num_y[a];
@@ -157,7 +157,7 @@ int TrackGenerator::getNum2DTracks() {
  * @brief Return the total number of Track segments across the Geometry.
  * @return the total number of Track segments
  */
-int TrackGenerator::getNumSegments() {
+long TrackGenerator::getNumSegments() {
   return getNum2DSegments();
 }
 
@@ -172,7 +172,7 @@ int TrackGenerator::getNum2DSegments() {
     log_printf(ERROR, "Cannot get the number of 2D segments since they "
                "have not been generated.");
 
-  int num_2D_segments = 0;
+  long num_2D_segments = 0;
 
   for (int a=0; a < _num_azim/2; a++) {
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {

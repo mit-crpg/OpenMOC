@@ -1131,7 +1131,7 @@ void Solver::printTimerReport() {
   }
 #endif
 
-  long num_integrations = _fluxes_per_track * total_num_segments *
+  long num_integrations = 2 * _fluxes_per_track * total_num_segments *
       _num_iterations;
   double time_per_integration = (transport_sweep / num_integrations);
   msg_string = "Integration time per segment integration";
@@ -1162,11 +1162,11 @@ void Solver::printTimerReport() {
       msg << " ";
 
     if (i == 0)
-      msg << (int) total_num_tracks;
+      msg << total_num_tracks;
     else if (i == 1)
-      msg << (int) total_num_segments;
+      msg << total_num_segments;
     else if (i == 2)
-      msg << (int) _geometry->getNumTotalFSRs();
+      msg << _geometry->getNumTotalFSRs();
   }
 
   log_printf(RESULT, "%s", msg.str().c_str());

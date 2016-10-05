@@ -137,8 +137,8 @@ public:
   int getNumAzim();
   double getDesiredAzimSpacing();
   Geometry* getGeometry();
-  virtual int getNumTracks();
-  virtual int getNumSegments();
+  virtual long getNumTracks();
+  virtual long getNumSegments();
   int getNum2DTracks();
   int getNum2DSegments();
   void countSegments();

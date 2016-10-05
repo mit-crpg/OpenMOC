@@ -138,7 +138,7 @@ double TrackGenerator3D::getDesiredZSpacing() {
  * @brief Return the total number of 3D Tracks across the Geometry.
  * @return the total number of 3D Tracks
  */
-int TrackGenerator3D::getNumTracks() {
+long TrackGenerator3D::getNumTracks() {
   return getNum3DTracks();
 }
 
@@ -147,7 +147,7 @@ int TrackGenerator3D::getNumTracks() {
  * @brief Return the total number of 3D Tracks across the Geometry.
  * @return the total number of 3D Tracks
  */
-int TrackGenerator3D::getNum3DTracks() {
+long TrackGenerator3D::getNum3DTracks() {
 
   int a = _num_azim/2 - 1;
   int xy = _num_x[a] + _num_y[a] - 1;
@@ -160,7 +160,7 @@ int TrackGenerator3D::getNum3DTracks() {
  * @brief Return the total number of Track segments across the Geometry.
  * @return the total number of Track segments
  */
-int TrackGenerator3D::getNumSegments() {
+long TrackGenerator3D::getNumSegments() {
   return getNum3DSegments();
 }
 
