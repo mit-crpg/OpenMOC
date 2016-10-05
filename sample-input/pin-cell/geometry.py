@@ -1,3 +1,4 @@
+from mpi4py import MPI
 import openmoc
 openmoc.log.set_log_level('NORMAL')
 
@@ -25,12 +26,12 @@ xmax = openmoc.XPlane(x=2.0, name='xmax')
 ymax = openmoc.YPlane(y=2.0, name='ymax')
 zmax = openmoc.ZPlane(z=2.0, name='zmax')
 
-xmin.setBoundaryType(openmoc.PERIODIC)
-ymin.setBoundaryType(openmoc.PERIODIC)
-zmin.setBoundaryType(openmoc.PERIODIC)
-xmax.setBoundaryType(openmoc.PERIODIC)
-ymax.setBoundaryType(openmoc.PERIODIC)
-zmax.setBoundaryType(openmoc.PERIODIC)
+xmin.setBoundaryType(openmoc.REFLECTIVE)
+ymin.setBoundaryType(openmoc.REFLECTIVE)
+zmin.setBoundaryType(openmoc.REFLECTIVE)
+xmax.setBoundaryType(openmoc.REFLECTIVE)
+ymax.setBoundaryType(openmoc.REFLECTIVE)
+zmax.setBoundaryType(openmoc.REFLECTIVE)
 
 ###############################################################################
 #                             Creating Cells
@@ -73,4 +74,6 @@ openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
+print str(type(MPI.COMM_WORLD))
+geometry.setDomainDecomposition(2, 1, 1, MPI.COMM_WORLD)
 geometry.initializeFlatSourceRegions()

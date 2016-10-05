@@ -285,8 +285,10 @@ public:
   void initializeCmfd();
   bool withinBounds(LocalCoords* coords);
   bool withinGlobalBounds(LocalCoords* coords);
+#ifdef MPIx
   void countDomainFSRs();
   void getLocalFSRId(long global_fsr_id, long &local_fsr_id, int &domain);
+#endif
   std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
 };

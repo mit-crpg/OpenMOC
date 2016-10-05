@@ -121,9 +121,10 @@ namespace std {
 }
 
 /* Include the MPI library */
-/* %include "/usr/local/lib/python2.7/dist-packages/mpi4py/include/mpi4py/mpi4py.i" */
+#ifdef MPIx
 %include "mpi4py.i"
 %mpi4py_typemap(Comm, MPI_Comm);
+#endif
 
 %include <exception.i>
 %include ../src/boundary_type.h
