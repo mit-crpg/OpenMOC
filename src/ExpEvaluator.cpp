@@ -337,7 +337,7 @@ FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
 
 
 //FIXME
-ExpEvaluator* ExpEvaluator::copy() {
+ExpEvaluator* ExpEvaluator::deepCopy() {
 
   ExpEvaluator* new_evaluator = new ExpEvaluator();
 

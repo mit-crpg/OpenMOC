@@ -2,6 +2,7 @@ import openmoc
 import openmoc.log as log
 import openmoc.plotter as plotter
 from openmoc.options import Options
+from openmoc import process
 from lattices import lattices, universes, cells, surfaces
 
 axial_refines = 2
@@ -61,7 +62,6 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,9*axial_refines)
-cmfd.setGroupStructure([1,4,8])
 cmfd.setCentroidUpdateOn(False)
 
 ###############################################################################
@@ -89,7 +89,7 @@ track_generator = openmoc.TrackGenerator3D(geometry, num_azim, num_polar,
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setSegmentFormation(openmoc.OTF_STACKS)
-track_generator.setSegmentationHeights([0.1])
+track_generator.setSegmentationZones([-32.13, -10.71, 10.71, 32.13])
 track_generator.generateTracks()
 
 ###############################################################################
@@ -101,6 +101,22 @@ solver.setConvergenceThreshold(tolerance)
 solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
+
+mesh = process.Mesh()
+mesh.dimension = [34,34,3]
+mesh.lower_left = [-32.13, -10.71, -32.13]
+mesh.upper_right = [10.71, 32.13, 10.71]
+mesh.width = [1.26, 1.26, 14.28]
+fission_rates = mesh.tally_fission_rates(solver, volume='integrated')
+for k in range(3):
+  print 'Z = ' + str(k)
+  for i in range(34):
+    msg = ''
+    for j in range(34):
+      msg += str(fission_rates[i][j][k])
+      msg += ' '
+    print msg
+  print '...'
 
 ###############################################################################
 ############################   Generating Plots   #############################

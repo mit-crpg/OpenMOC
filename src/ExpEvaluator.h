@@ -110,7 +110,7 @@ public:
                                      FP_PRECISION* exp_H);
 
   FP_PRECISION computeExponentialG2(FP_PRECISION tau);
-  ExpEvaluator* copy();
+  ExpEvaluator* deepCopy();
 };
 
 

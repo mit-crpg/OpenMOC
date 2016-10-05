@@ -518,11 +518,13 @@ void log_printf(logLevel level, const char* format, ...) {
     if (level == ERROR) {
       omp_set_lock(&log_error_lock);
       {
+#ifdef MPIx
         if (_MPI_present) {
           printf("%s", "[  ERROR  ] ");
           printf("%s", msg_string.c_str());
           MPI_Finalize();
         }
+#endif
         throw std::logic_error(msg_string.c_str());
       }
       omp_unset_lock(&log_error_lock);

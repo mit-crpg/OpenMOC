@@ -167,6 +167,7 @@ void Timer::processMemUsage(double& vm_usage, double& resident_set) {
 
 
 //FIXME
+#ifdef MPIx
 void Timer::reduceTimer(MPI_Comm comm) {
 
   std::map<std::string, double>::iterator iter;
@@ -186,4 +187,4 @@ void Timer::reduceTimer(MPI_Comm comm) {
     }
   }
 }
-
+#endif

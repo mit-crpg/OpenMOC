@@ -941,13 +941,13 @@ long Geometry::getGlobalFSRId(LocalCoords* coords) {
   }
   else {
     long temp_fsr_id = 0;
+    long global_fsr_id = 0;
 #ifdef MPIx
     int domain = getDomainByCoords(coords);
     int rank;
     MPI_Comm_rank(_MPI_cart, &rank);
     if (domain == rank)
       temp_fsr_id = getFSRId(coords);
-    long global_fsr_id;
     MPI_Allreduce(&temp_fsr_id, &global_fsr_id, 1, MPI_LONG, MPI_SUM,
                   _MPI_cart);
 
@@ -1615,8 +1615,13 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
+}
 
-  return;
+
+//FIXME
+void Geometry::fixFSRMaps() {
+  _FSR_keys_map.setFixedSize();
+  _extruded_FSR_keys_map.setFixedSize();
 }
 
 

@@ -272,6 +272,7 @@ public:
   void segmentize3D(Track3D* track);
   void segmentizeExtruded(Track* flattened_track,
       std::vector<FP_PRECISION> z_coords);
+  void fixFSRMaps();
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
   std::vector<int> getSpatialDataOnGrid(std::vector<double> dim1,

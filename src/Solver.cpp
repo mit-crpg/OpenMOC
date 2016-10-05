@@ -553,7 +553,7 @@ void Solver::initializeExpEvaluators() {
         if (a == 0 && p == 0)
           _exp_evaluators[a][p] = first_evaluator;
         else
-          _exp_evaluators[a][p] = first_evaluator->copy();
+          _exp_evaluators[a][p] = first_evaluator->deepCopy();
 
         /* Copy evaluators to supplimentary positions */
         int sup_azim = _num_azim / 2 - a - 1;
@@ -994,6 +994,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeFluxArrays();
   initializeSourceArrays();
   initializeCmfd();
+  _geometry->fixFSRMaps();
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);

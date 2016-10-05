@@ -102,6 +102,7 @@ class ParallelHashMap {
     size_t _N;
     omp_lock_t * _locks;
     size_t _num_locks;
+    bool _fixed_size;
     void resize();
 
   public:
@@ -118,6 +119,7 @@ class ParallelHashMap {
     K* keys();
     V* values();
     void clear();
+    void setFixedSize();
     void print_buckets();
 };
 
@@ -433,6 +435,7 @@ ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L) {
 
   /* allocate table */
   _table = new FixedHashMap<K,V>(M);
+  _fixed_size = false;
 
   /* get number of threads and create concurrency structures */
   _num_threads = 1;
@@ -510,6 +513,11 @@ bool ParallelHashMap<K,V>::contains(K key) {
  */
 template <class K, class V>
 V ParallelHashMap<K,V>::at(K key) {
+
+  /* If the size is fixed, simply return the value from the fixed hash map */
+  if (_fixed_size)
+    return _table->at(key);
+
   /* get thread ID */
   size_t tid = 0;
   tid = omp_get_thread_num();
@@ -649,6 +657,10 @@ int ParallelHashMap<K,V>::insert_and_get_count(K key, V value) {
  */
 template <class K, class V>
 void ParallelHashMap<K,V>::resize() {
+
+  /* do not resize if fixed size */
+  if (_fixed_size)
+    return;
 
   /* acquire all locks in order */
   for (size_t i=0; i<_num_locks; i++)
@@ -797,6 +809,15 @@ V* ParallelHashMap<K,V>::values() {
   _announce[tid].value = NULL;
 
   return value_list;
+}
+
+
+/**
+ * @brief Prevents the parallel hash map from further resizing
+ */
+template <class K, class V>
+void ParallelHashMap<K,V>::setFixedSize() {
+  _fixed_size = true;
 }
 
 

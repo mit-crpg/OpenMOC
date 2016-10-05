@@ -114,16 +114,9 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
     else
       flux_type = MPI_DOUBLE;
 
-    for (int i=0; i < num_total_FSRs*_num_groups; i++)
-      std::cout << temp_fluxes[i] << " ";
-    std::cout << std::endl;
-
     MPI_Allreduce(temp_fluxes, out_fluxes, num_total_FSRs*_num_groups,
                   flux_type, MPI_SUM, comm);
     delete [] temp_fluxes;
-    for (int i=0; i < num_total_FSRs*_num_groups; i++)
-      std::cout << out_fluxes[i] << " ";
-    std::cout << std::endl;
   }
 #endif
 }
