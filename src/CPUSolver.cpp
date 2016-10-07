@@ -209,7 +209,8 @@ void CPUSolver::initializeFluxArrays() {
     delete [] _old_scalar_flux;
 
 #ifdef MPIx
-  deleteMPIBuffers();
+  if (_geometry->isDomainDecomposed())
+    deleteMPIBuffers();
 #endif
 
   int size;
@@ -230,7 +231,8 @@ void CPUSolver::initializeFluxArrays() {
 
 #ifdef MPIx
     /* Allocate memory for angular flux exchaning buffers */
-    setupMPIBuffers();
+    if (_geometry->isDomainDecomposed())
+      setupMPIBuffers();
 #endif
   }
 
