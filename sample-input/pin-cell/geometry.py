@@ -1,4 +1,3 @@
-from mpi4py import MPI
 import openmoc
 openmoc.log.set_log_level('NORMAL')
 
@@ -74,6 +73,4 @@ openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = openmoc.Geometry()
 geometry.setRootUniverse(root_universe)
-print str(type(MPI.COMM_WORLD))
-geometry.setDomainDecomposition(2, 1, 1, MPI.COMM_WORLD)
 geometry.initializeFlatSourceRegions()

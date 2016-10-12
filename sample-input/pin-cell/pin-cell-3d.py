@@ -1,4 +1,3 @@
-import mpi4py
 import openmoc
 from geometry import *
 from openmoc import plotter as plotter
