@@ -166,7 +166,7 @@ long TrackGenerator::getNumSegments() {
  * @brief Return the total number of 2D Track segments across the Geometry.
  * @return the total number of 2D Track segments
  */
-int TrackGenerator::getNum2DSegments() {
+long TrackGenerator::getNum2DSegments() {
 
   if (!TrackGenerator::containsSegments())
     log_printf(ERROR, "Cannot get the number of 2D segments since they "

@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
@@ -214,4 +214,4 @@ edit:
 
 run:
 	#./$(program)
-	mpirun -np 1 ./$(program)
+	mpirun -np 2 ./$(program)

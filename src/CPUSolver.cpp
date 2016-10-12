@@ -1834,18 +1834,20 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   log_printf(INFO, "Computing FSR fission rates...");
 
   FP_PRECISION* nu_sigma_f;
+  FP_PRECISION vol;
 
   /* Initialize fission rates to zero */
   for (int r=0; r < _num_FSRs; r++)
     fission_rates[r] = 0.0;
 
   /* Loop over all FSRs and compute the volume-weighted fission rate */
-#pragma omp parallel for private (nu_sigma_f) schedule(guided)
+#pragma omp parallel for private (nu_sigma_f, vol) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
     nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+    vol = _FSR_volumes[r];
 
     for (int e=0; e < _num_groups; e++)
-      fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e);
+      fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e) * vol;
   }
 
   /* Reduce domain data for domain decomposition */
@@ -1855,6 +1857,8 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     /* Allocate buffer for communcation */
     long num_total_FSRs = _geometry->getNumTotalFSRs();
     double* temp_fission_rates = new double[num_total_FSRs];
+    for (long i=0; i < num_total_FSRs; i++)
+      temp_fission_rates[i] = 0;
 
     int rank = 0;
     MPI_Comm comm = _geometry->getMPICart();
@@ -1872,8 +1876,9 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     }
 
     MPI_Barrier(comm);
-    MPI_Allreduce(&temp_fission_rates, &fission_rates, num_total_FSRs,
+    MPI_Allreduce(temp_fission_rates, fission_rates, num_total_FSRs,
                   MPI_DOUBLE, MPI_SUM, comm);
+    MPI_Barrier(comm);
     delete [] temp_fission_rates;
   }
 #endif

@@ -5,6 +5,9 @@
 
 int main(int argc, char* argv[]) {
 
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD);
+
   /* Define simulation parameters */
   #ifdef OPENMP
   int num_threads = omp_get_num_procs();
@@ -16,7 +19,7 @@ int main(int argc, char* argv[]) {
   double polar_spacing = 0.1;
   int num_polar = 6;
   double tolerance = 1e-5;
-  int max_iters = 2000;
+  int max_iters = 1000;
 
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties...");
@@ -188,6 +191,7 @@ int main(int argc, char* argv[]) {
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
+  geometry.setDomainDecomposition(2,1,1, MPI_COMM_WORLD);
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -208,6 +212,8 @@ int main(int argc, char* argv[]) {
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
+  solver.printFissionRates("temp2.txt", 4, 4, 1);
   log_printf(TITLE, "Finished");
+  MPI_Finalize();
   return 0;
 }

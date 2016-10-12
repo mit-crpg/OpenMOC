@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include <fstream>
 
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
@@ -1171,4 +1172,66 @@ void Solver::printTimerReport() {
 
   log_printf(RESULT, "%s", msg.str().c_str());
   log_printf(SEPARATOR, "-");
+}
+
+
+//FIXME
+void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
+
+  Universe* root_universe = _geometry->getRootUniverse();
+  double x_min = root_universe->getMinX();
+  double x_max = root_universe->getMaxX();
+  double y_min = root_universe->getMinY();
+  double y_max = root_universe->getMaxY();
+  double z_min = root_universe->getMinZ();
+  double z_max = root_universe->getMaxZ();
+
+  double* fission_rates = new double[nx*ny*nz];
+  for (int i=0; i < nx*ny*nz; i++)
+    fission_rates[i] = 0;
+
+  int num_fsrs = _geometry->getNumTotalFSRs();
+  double* fsr_fission_rates = new double[num_fsrs];
+  computeFSRFissionRates(fsr_fission_rates, num_fsrs);
+
+  for (long r=0; r < num_fsrs; r++) {
+
+    std::vector<double> pt = _geometry->getGlobalFSRCentroidData(r);
+
+    int x_ind = nx * (pt.at(0) - x_min) / (x_max - x_min);
+    int y_ind = ny * (pt.at(1) - y_min) / (y_max - y_min);
+    int z_ind = nz * (pt.at(2) - z_min) / (z_max - z_min);
+
+    int ind = z_ind * nx * ny + y_ind * nx + x_ind;
+
+    fission_rates[ind] += fsr_fission_rates[r];
+  }
+
+  int rank = 0;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Comm comm = _geometry->getMPICart();
+    MPI_Comm_rank(comm, &rank);
+  }
+#endif
+
+  if (rank == 0) {
+    std::ofstream out(fname.c_str());
+    out << "Fission rates for (" << nx << ", " << ny << ", " << nz <<
+      ")" << std::endl;
+    for (int i=0; i < nx; i++) {
+      for (int j=0; j < ny; j++) {
+        for (int k=0; k < nz; k++) {
+          int ind = k * nx * ny + j * nx + i;
+          out << "Region " << i << ", " << j << ", " << k << " at point " <<
+            "(" << x_min + (i+0.5) * (x_max - x_min) << ", " <<
+            y_min + (j+0.5) * (y_max - y_min) << ", " <<
+            z_min + (k+0.5) * (z_max - z_min) << ") -> " <<
+            fission_rates[ind] << std::endl;
+        }
+      }
+    }
+  }
+  delete [] fission_rates;
+  delete [] fsr_fission_rates;
 }

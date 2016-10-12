@@ -139,8 +139,8 @@ public:
   Geometry* getGeometry();
   virtual long getNumTracks();
   virtual long getNumSegments();
-  int getNum2DTracks();
-  int getNum2DSegments();
+  long getNum2DTracks();
+  long getNum2DSegments();
   void countSegments();
   bool getPeriodic();
   Track** get2DTracksArray();
