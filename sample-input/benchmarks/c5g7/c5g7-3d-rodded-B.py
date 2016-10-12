@@ -5,7 +5,7 @@ from openmoc.options import Options
 from openmoc import process
 from lattices import lattices, universes, cells, surfaces
 
-axial_refines = 2
+axial_refines = 3
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################

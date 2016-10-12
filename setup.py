@@ -96,7 +96,7 @@ class custom_install(install):
     install.initialize_options(self)
 
     # Default compiler and precision level for the main openmoc module
-    self.cc = 'mpicc'
+    self.cc = 'gcc'
     self.fp = 'single'
     self.mpi = True
 

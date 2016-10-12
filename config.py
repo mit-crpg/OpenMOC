@@ -54,7 +54,7 @@ class configuration:
   #############################################################################
 
   # Default C++ compiler for the main openmoc module is GCC
-  cc = 'mpicc'
+  cc = 'gcc'
 
   # Default floating point for the main openmoc module is single precision
   fp = 'single'

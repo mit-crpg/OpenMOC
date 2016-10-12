@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   #endif
   double azim_spacing = 0.05;
   int num_azim = 64;
-  double polar_spacing = 1.0;
+  double polar_spacing = 1.5;
   int num_polar = 12;
   double tolerance = 1e-5;
   int max_iters = 40;
@@ -235,8 +235,6 @@ int main(int argc, char* argv[]) {
   /* Create z-cylinders for the fuel as well as to discretize the moderator
    * into rings */
   ZCylinder fuel_radius(0.0, 0.0, 0.54);
-  ZCylinder moderator_inner_radius(0.0, 0.0, 0.58);
-  ZCylinder moderator_outer_radius(0.0, 0.0, 0.62);
 
   /* Create cells and universes */
   log_printf(NORMAL, "Creating cells...");
@@ -327,6 +325,17 @@ int main(int argc, char* argv[]) {
   Universe* reflector = new Universe();
   reflector->addCell(reflector_cell);
 
+  /* Moderator pin */
+  Cell* moderator_pin_cell = new Cell(21, "mpc");
+  moderator_pin_cell->setNumRings(5);
+  moderator_pin_cell->setNumSectors(4);
+  moderator_pin_cell->setFill(materials["Water"]);
+  moderator_pin_cell->addSurface(-1, &fuel_radius);
+
+  Universe* moderator_pin = new Universe();
+  moderator_pin->addCell(moderator_pin_cell);
+  moderator_pin->addCell(moderator);
+
   /* Cells */
   Cell* assembly1_cell = new Cell(10, "ac1");
   Cell* assembly2_cell = new Cell(11, "ac2");
@@ -334,9 +343,10 @@ int main(int argc, char* argv[]) {
   Cell* right_reflector_cell = new Cell(13,"rrc2");
   Cell* corner_reflector_cell = new Cell(14, "crc");
   Cell* bottom_reflector_cell = new Cell(15, "brc");
-  Cell* assembly_reflector_cell = new Cell(16, "arc");
+  Cell* reflector_assembly_cell = new Cell(16, "arc");
   Cell* assembly1_cell_rodded = new Cell(17, "acr1");
   Cell* assembly2_cell_rodded = new Cell(18, "acr2");
+  Cell* reflector_rodded_cell = new Cell(19, "rrc");
 
   Universe* assembly1 = new Universe();
   Universe* assembly2 = new Universe();
@@ -344,10 +354,10 @@ int main(int argc, char* argv[]) {
   Universe* right_reflector = new Universe();
   Universe* corner_reflector = new Universe();
   Universe* bottom_reflector = new Universe();
-  Universe* assembly_reflector = new Universe();
-  Universe* reflector_rodded = new Universe();
+  Universe* reflector_assembly = new Universe();
   Universe* assembly1_rodded = new Universe();
   Universe* assembly2_rodded = new Universe();
+  Universe* reflector_rodded = new Universe();
 
   assembly1->addCell(assembly1_cell);
   assembly2->addCell(assembly2_cell);
@@ -355,12 +365,13 @@ int main(int argc, char* argv[]) {
   right_reflector->addCell(right_reflector_cell);
   corner_reflector->addCell(corner_reflector_cell);
   bottom_reflector->addCell(bottom_reflector_cell);
-  assembly_reflector->addCell(assembly_reflector_cell);
+  reflector_assembly->addCell(reflector_assembly_cell);
   assembly1_rodded->addCell(assembly1_cell_rodded);
   assembly2_rodded->addCell(assembly2_cell_rodded);
+  reflector_rodded->addCell(reflector_rodded_cell);
 
   /* Root Cell* */
-  Cell* root_cell = new Cell(16, "root");
+  Cell* root_cell = new Cell(20, "root");
   root_cell->addSurface(+1, &xmin);
   root_cell->addSurface(-1, &xmax);
   root_cell->addSurface(+1, &ymin);
@@ -508,6 +519,40 @@ int main(int argc, char* argv[]) {
   }
   assembly2_cell_rodded->setFill(assembly2_lattice_rodded);
 
+  /* Top right, bottom left 17 x 17 assemblies */
+  Lattice* reflector_rodded_lattice = new Lattice();
+  reflector_rodded_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  Universe* matrix_ref_rodded[17*17*axial_refines];
+  {
+    int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
+                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 2, 1, 1, 2, 1, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
+                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+    std::map<int, Universe*> names = {{1, moderator_pin}, {2, control_rod},
+                                      {3, fission_chamber}};
+    for (int z=0; z < axial_refines; z++)
+      for (int n=0; n<17*17; n++)
+        matrix_ref_rodded[z*17*17 + n] = names[mold[n]];
+
+    reflector_rodded_lattice->setUniverses(axial_refines, 17, 17,
+                                           matrix_ref_rodded);
+  }
+  reflector_rodded_cell->setFill(reflector_rodded_lattice);
+
   /* Sliced up water cells - semi finely spaced */
   Lattice* refined_ref_lattice = new Lattice();
   int nr = 3;
@@ -581,47 +626,47 @@ int main(int argc, char* argv[]) {
     assembly_ref_matrix[n] = refined_reflector;
 
   assembly_ref_lattice->setUniverses(axial_refines, 17, 17, assembly_ref_matrix);
-  assembly_reflector_cell->setFill(assembly_ref_lattice);
+  reflector_assembly_cell->setFill(assembly_ref_lattice);
 
   /* 3 x 3 x 9 core to represent two bundles and water */
   Lattice* full_geometry = new Lattice();
   full_geometry->setWidth(21.42, 21.42, 7.14);
   Universe* universes[] = {
-    assembly_reflector, assembly_reflector, right_reflector,
-    assembly_reflector, assembly_reflector, right_reflector,
-    bottom_reflector,   bottom_reflector,   corner_reflector,
+    reflector_rodded,   reflector_rodded,   reflector_assembly,
+    reflector_rodded,   reflector_rodded,   reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
 
-    assembly_reflector, assembly_reflector, right_reflector,
-    assembly_reflector, assembly_reflector, right_reflector,
-    bottom_reflector,   bottom_reflector,   corner_reflector,
+    reflector_rodded,   reflector_rodded,   reflector_assembly,
+    reflector_rodded,   reflector_rodded,   reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
 
-    assembly_reflector, assembly_reflector, right_reflector,
-    assembly_reflector, assembly_reflector, right_reflector,
-    bottom_reflector,   bottom_reflector,   corner_reflector,
+    reflector_rodded,   reflector_rodded,   reflector_assembly,
+    reflector_rodded,   reflector_rodded,   reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
 
-    assembly1_rodded, assembly2_rodded, right_reflector,
-    assembly2_rodded, assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
+    assembly1_rodded,   assembly2_rodded,   reflector_assembly,
+    assembly2_rodded,   assembly1,          reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
     
-    assembly1_rodded, assembly2_rodded, right_reflector,
-    assembly2_rodded, assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1_rodded, assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
+    assembly1_rodded,   assembly2_rodded,   reflector_assembly,
+    assembly2_rodded,   assembly1,          reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
     
-    assembly1_rodded, assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector};
+    assembly1_rodded,   assembly2,          reflector_assembly,
+    assembly2,          assembly1,          reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
+    
+    assembly1_rodded,   assembly2,          reflector_assembly,
+    assembly2,          assembly1,          reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
+    
+    assembly1,          assembly2,          reflector_assembly,
+    assembly2,          assembly1,          reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly,
+    
+    assembly1,          assembly2,          reflector_assembly,
+    assembly2,          assembly1,          reflector_assembly,
+    reflector_assembly, reflector_assembly, reflector_assembly};
 
   full_geometry->setUniverses(9, 3, 3, universes);
 
@@ -647,7 +692,7 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.setDomainDecomposition(3, 3, 3, MPI_COMM_WORLD);
+  //geometry.setDomainDecomposition(3, 3, 3, MPI_COMM_WORLD);
   //geometry.setNumDomainModules(3,3,3);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
@@ -662,8 +707,8 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_heights {-20.0, 0.0, 20.0};
-  track_generator.setSegmentationHeights(seg_heights);
+  std::vector<FP_PRECISION> seg_zones {-32.13, -10.71, 10.71, 32.13};
+  track_generator.setSegmentationZones(seg_zones);
   track_generator.generateTracks();
 
   /* Run simulation */

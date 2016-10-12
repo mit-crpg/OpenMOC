@@ -3,7 +3,7 @@ import openmoc.materialize as materialize
 from surfaces import surfaces
 
 fuel_rings      = 5
-moderator_rings = 1
+moderator_rings = 0
 num_sectors     = 4
 
 ###############################################################################
@@ -65,8 +65,8 @@ cells['MOX 8.7%']        .setNumRings(fuel_rings)
 cells['Guide Tube']      .setNumRings(fuel_rings)
 cells['Fission Chamber'] .setNumRings(fuel_rings)
 cells['Control Rod']     .setNumRings(fuel_rings)
-'''
 cells['Moderator in Pin'].setNumRings(fuel_rings)
+'''
 cells['Moderator']       .setNumRings(moderator_rings)
 '''
 cells['UO2']             .setNumSectors(num_sectors)
