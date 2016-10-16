@@ -63,7 +63,7 @@ public:
 class SegmentCounter: public TraverseSegments {
 private:
   int _max_num_segments;
-  int _total_num_segments;
+  long _total_num_segments;
   bool _count_total_segments;
   bool _total_segments_counted;
 

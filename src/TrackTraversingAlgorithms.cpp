@@ -453,6 +453,7 @@ void LinearExpansionGenerator::execute() {
   FP_PRECISION det;
 
   int num_FSRs = _track_generator->getGeometry()->getNumFSRs();
+  //FIXME
   FP_PRECISION* inv_lin_exp_coeffs = new FP_PRECISION[num_FSRs*_num_coeffs];
   memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
 

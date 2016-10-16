@@ -159,8 +159,8 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
   int num_polar = _track_generator_3D->getNumPolar();
   int tid = omp_get_thread_num();
 
-#pragma omp for schedule(static, 10)
   /* Loop over flattened 2D tracks */
+#pragma omp for
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the flattened track */

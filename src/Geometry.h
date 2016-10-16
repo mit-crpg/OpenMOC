@@ -155,6 +155,9 @@ private:
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::string> _FSRs_to_keys;
 
+  /** An vector of FSR key hashes indexed by FSR ID */
+  std::vector<Point*> _FSRs_to_centroids;
+
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
 
@@ -244,7 +247,7 @@ public:
   int getFSRId(LocalCoords* coords);
   long getGlobalFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
-  Point* getFSRCentroid(int fsr_id);
+  Point* getFSRCentroid(long fsr_id);
   int getCmfdCell(int fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);

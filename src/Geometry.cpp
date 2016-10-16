@@ -975,7 +975,8 @@ Point* Geometry::getFSRPoint(int fsr_id) {
   Point* point;
 
   try {
-    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
+    std::string& key = _FSRs_to_keys[fsr_id];
+    point = _FSR_keys_map.at(key)->_point;
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find characteristic point in FSR: %d", fsr_id);
@@ -990,10 +991,10 @@ Point* Geometry::getFSRPoint(int fsr_id) {
  * @param fsr_id the FSR ID
  * @return the FSR's centroid
  */
-Point* Geometry::getFSRCentroid(int fsr_id) {
+Point* Geometry::getFSRCentroid(long fsr_id) {
 
-  if (_FSR_keys_map.contains(_FSRs_to_keys.at(fsr_id)))
-    return  _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
+  if (fsr_id < _FSR_keys_map.size())
+    return _FSRs_to_centroids[fsr_id];
   else
     log_printf(ERROR, "Could not find centroid in FSR: %d.", fsr_id);
   return NULL;
@@ -1107,7 +1108,8 @@ int Geometry::getCmfdCell(int fsr_id) {
   int cmfd_cell;
 
   try {
-    cmfd_cell = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_cmfd_cell;
+    std::string& key = _FSRs_to_keys[fsr_id];
+    cmfd_cell = _FSR_keys_map.at(key)->_cmfd_cell;
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find CMFD cell in FSR: %d", fsr_id);
@@ -1746,6 +1748,7 @@ void Geometry::initializeFSRVectors() {
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
+  _FSRs_to_centroids = std::vector<Point*>(num_FSRs);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
@@ -2110,7 +2113,8 @@ bool Geometry::withinGlobalBounds(LocalCoords* coords) {
  */
 Cell* Geometry::findCellContainingFSR(int fsr_id) {
 
-  Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
+  std::string& key = _FSRs_to_keys[fsr_id];
+  Point* point = _FSR_keys_map.at(key)->_point;
   LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
                                         point->getZ());
   coords->setUniverse(_root_universe);
@@ -2136,7 +2140,9 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
  * @param centroid a Point representing the FSR centroid
  */
 void Geometry::setFSRCentroid(int fsr, Point* centroid) {
-  _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
+  std::string& key = _FSRs_to_keys[fsr];
+  _FSR_keys_map.at(key)->_centroid = centroid;
+  _FSRs_to_centroids[fsr] = centroid;
 }
 
 

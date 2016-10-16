@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-rodded-B.cpp
+case = pin-cell/pin-cell-3d.cpp
 
 source = \
 Cell.cpp \
@@ -71,7 +71,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpicc
+  CC = mpiCC
   CFLAGS += -DMPIx
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
@@ -213,5 +213,5 @@ edit:
 	vim -p $(case) $(cases)
 
 run:
-	#./$(program)
-	mpirun -np 2 ./$(program)
+	./$(program)
+	#mpirun -np 2 ./$(program)
