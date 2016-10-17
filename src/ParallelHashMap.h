@@ -47,8 +47,8 @@ class FixedHashMap {
 
     FixedHashMap(size_t M = 64);
     virtual ~FixedHashMap();
-    bool contains(K key);
-    V& at(K key);
+    bool contains(K& key);
+    V& at(K& key);
     void insert(K key, V value);
     int insert_and_get_count(K key, V value);
     size_t size();
@@ -108,9 +108,9 @@ class ParallelHashMap {
   public:
     ParallelHashMap(size_t M = 64, size_t L = 64);
     virtual ~ParallelHashMap();
-    bool contains(K key);
-    V at(K key);
-    void update(K key, V value);
+    bool contains(K& key);
+    V at(K& key);
+    void update(K& key, V value);
     void insert(K key, V value);
     int insert_and_get_count(K key, V value);
     size_t size();
@@ -181,7 +181,7 @@ FixedHashMap<K,V>::~FixedHashMap() {
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
-bool FixedHashMap<K,V>::contains(K key) {
+bool FixedHashMap<K,V>::contains(K& key) {
 
   /* get hash into table assuming M is a power of 2, using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
@@ -208,7 +208,7 @@ bool FixedHashMap<K,V>::contains(K key) {
  * @return value associated with the given key
  */
 template <class K, class V>
-V& FixedHashMap<K,V>::at(K key) {
+V& FixedHashMap<K,V>::at(K& key) {
 
   /* get hash into table assuming M is a power of 2, using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
@@ -474,7 +474,7 @@ ParallelHashMap<K,V>::~ParallelHashMap() {
  * @return boolean value referring to whether the key is contained in the map
  */
 template <class K, class V>
-bool ParallelHashMap<K,V>::contains(K key) {
+bool ParallelHashMap<K,V>::contains(K& key) {
 
   /* get thread ID */
   size_t tid = 0;
@@ -512,7 +512,7 @@ bool ParallelHashMap<K,V>::contains(K key) {
  * @return value associated with the key
  */
 template <class K, class V>
-V ParallelHashMap<K,V>::at(K key) {
+V ParallelHashMap<K,V>::at(K& key) {
 
   /* If the size is fixed, simply return the value from the fixed hash map */
   if (_fixed_size)
@@ -585,7 +585,7 @@ void ParallelHashMap<K,V>::insert(K key, V value) {
  * @param value the new value for the key/value pair
  */
 template <class K, class V>
-void ParallelHashMap<K,V>::update(K key, V value) {
+void ParallelHashMap<K,V>::update(K& key, V value) {
 
   /* get lock hash */
   size_t lock_hash = (std::hash<K>()(key) & (_table->bucket_count() - 1))
