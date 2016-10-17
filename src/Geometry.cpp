@@ -1104,19 +1104,9 @@ std::vector<double> Geometry::getGlobalFSRCentroidData(long global_fsr_id) {
  * @return the CMFD cell
  */
 int Geometry::getCmfdCell(int fsr_id) {
-
-  int cmfd_cell;
-
-  try {
-    std::string& key = _FSRs_to_keys[fsr_id];
-    cmfd_cell = _FSR_keys_map.at(key)->_cmfd_cell;
-  }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not find CMFD cell in FSR: %d", fsr_id);
-  }
-
-  return cmfd_cell;
+  return _FSRs_to_CMFD_cells[fsr_id];
 }
+
 
 /**
  * @brief Generate a string FSR "key" that identifies an FSR by its
@@ -1750,6 +1740,7 @@ void Geometry::initializeFSRVectors() {
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
   _FSRs_to_centroids = std::vector<Point*>(num_FSRs);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
+  _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
@@ -1768,6 +1759,7 @@ void Geometry::initializeFSRVectors() {
       fsr_data* fsr = value_list[i];
       int fsr_id = fsr->_fsr_id;
       _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);
+      _FSRs_to_CMFD_cells.at(fsr_id) = fsr->_cmfd_cell;
     }
   }
 

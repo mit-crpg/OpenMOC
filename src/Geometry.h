@@ -155,7 +155,7 @@ private:
   /** An vector of FSR key hashes indexed by FSR ID */
   std::vector<std::string> _FSRs_to_keys;
 
-  /** An vector of FSR key hashes indexed by FSR ID */
+  /** An vector of FSR centroids indexed by FSR ID */
   std::vector<Point*> _FSRs_to_centroids;
 
   /** A vector of Material IDs indexed by FSR IDs */
@@ -163,6 +163,9 @@ private:
 
   /** A vector of ExtrudedFSR pointers indexed by extruded FSR ID */
   std::vector<ExtrudedFSR*> _extruded_FSR_lookup;
+
+  /** An vector of CMFD cell IDs indexed by FSR ID */
+  std::vector<int> _FSRs_to_CMFD_cells;
 
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
