@@ -199,11 +199,6 @@ private:
   CPULSSolver* _ls_solver;
   Geometry* _geometry;
   FP_PRECISION** _thread_fsr_fluxes;
-  Point** _starting_points;
-
-  void tallyScalarFluxLS(segment* curr_segment, int azim_index,
-                         int polar_index, FP_PRECISION* track_flux,
-                         FP_PRECISION* thread_fsr_flux, double direction[3]);
 
 public:
 

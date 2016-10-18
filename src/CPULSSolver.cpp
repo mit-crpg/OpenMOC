@@ -54,7 +54,7 @@ void CPULSSolver::initializeFluxArrays() {
 
   try {
     /* Allocate an array for the FSR scalar flux */
-    int size = _num_FSRs * _num_groups * 3;
+    long size = _num_FSRs * _num_groups * 3;
     _scalar_flux_xyz = new FP_PRECISION[size];
   }
   catch (std::exception &e) {
@@ -75,7 +75,7 @@ void CPULSSolver::initializeSourceArrays() {
   if (_reduced_sources_xyz != NULL)
     delete [] _reduced_sources_xyz;
 
-  int size = _num_FSRs * _num_groups * 3;
+  long size = _num_FSRs * _num_groups * 3;
 
   /* Allocate memory for all source arrays */
   try {
@@ -280,11 +280,12 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     FP_PRECISION* track_flux,
                                     FP_PRECISION* fsr_flux,
-                                    double position[3], double direction[3]) {
+                                    double direction[3]) {
 
   int fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
+  double* position = curr_segment->_starting_position;
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
   /* Set the FSR scalar flux buffer to zero */
@@ -416,6 +417,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   }
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
+
+  for (int i=0; i < 3; i++)
+    position[i] += direction[i] * length;
 }
 
 

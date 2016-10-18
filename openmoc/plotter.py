@@ -784,7 +784,6 @@ def plot_spatial_fluxes(solver, energy_groups=[1], norm=False, gridsize=250,
 
     # Get array of FSR energy-dependent fluxes
     fluxes = get_scalar_fluxes(solver)
-    print fluxes
 
     # Initialize an empty list of Matplotlib figures if requestd by the user
     figures = []

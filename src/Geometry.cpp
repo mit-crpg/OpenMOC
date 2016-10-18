@@ -27,6 +27,7 @@ Geometry::Geometry() {
   _domain_index_y = 1;
   _domain_index_z = 1;
   _domain_FSRs_counted = false;
+  _contains_FSR_centroids = false;
 }
 
 
@@ -933,15 +934,15 @@ int Geometry::getDomainByCoords(LocalCoords* coords) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-long Geometry::getGlobalFSRId(LocalCoords* coords) {
+int Geometry::getGlobalFSRId(LocalCoords* coords) {
 
   /* Check if the Geometry is domain decomposed */
   if (!_domain_decomposed) {
     return getFSRId(coords);
   }
   else {
-    long temp_fsr_id = 0;
-    long global_fsr_id = 0;
+    int temp_fsr_id = 0;
+    int global_fsr_id = 0;
 #ifdef MPIx
     int domain = getDomainByCoords(coords);
     int rank;
@@ -991,7 +992,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
  * @param fsr_id the FSR ID
  * @return the FSR's centroid
  */
-Point* Geometry::getFSRCentroid(long fsr_id) {
+Point* Geometry::getFSRCentroid(int fsr_id) {
 
   if (fsr_id < _FSR_keys_map.size())
     return _FSRs_to_centroids[fsr_id];
@@ -1001,14 +1002,22 @@ Point* Geometry::getFSRCentroid(long fsr_id) {
 }
 
 
+/**
+ * @brief Returns whether any FSR centroids have been set
+ */
+bool Geometry::containsFSRCentroids() {
+  return _contains_FSR_centroids;
+}
+
+
 #ifdef MPIx
 //FIXME
 void Geometry::countDomainFSRs() {
 
   /* Gather the number of FSRs into an array */
   int num_domains = _num_domains_x * _num_domains_y * _num_domains_z;
-  long num_domains_array[num_domains];
-  long my_fsrs = getNumFSRs();
+  int num_domains_array[num_domains];
+  int my_fsrs = getNumFSRs();
   MPI_Allgather(&my_fsrs, 1, MPI_LONG, num_domains_array, 1, MPI_LONG,
                 _MPI_cart);
 
@@ -1021,7 +1030,7 @@ void Geometry::countDomainFSRs() {
 
 
 //FIXME
-void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
+void Geometry::getLocalFSRId(int global_fsr_id, int &local_fsr_id,
                              int &domain) {
 
   /* Count FSRs on each domain if not already counted */
@@ -1029,7 +1038,7 @@ void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
     countDomainFSRs();
 
   /* Determine the local domain where the global FSR resides */
-  long cum_fsrs = 0;
+  int cum_fsrs = 0;
   domain = -1;
   for (int i=0; i < _num_domains_x * _num_domains_y * _num_domains_z; i++) {
     if (cum_fsrs + _num_domain_FSRs.at(i) > global_fsr_id) {
@@ -1053,7 +1062,7 @@ void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
 
 
 //FIXME
-std::vector<double> Geometry::getGlobalFSRCentroidData(long global_fsr_id) {
+std::vector<double> Geometry::getGlobalFSRCentroidData(int global_fsr_id) {
   double xyz[3];
   if (!_domain_decomposed) {
     Point* centroid = getFSRCentroid(global_fsr_id);
@@ -1065,7 +1074,7 @@ std::vector<double> Geometry::getGlobalFSRCentroidData(long global_fsr_id) {
   else {
 
     /* Determine the domain and local FSR ID */
-    long fsr_id;
+    int fsr_id;
     int domain;
     getLocalFSRId(global_fsr_id, fsr_id, domain);
 
@@ -1335,6 +1344,16 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
       end.adjustCoords(delta_x, delta_y);
     }
 
+    /* Calculate the local centroid of the segment if available */
+    if (_contains_FSR_centroids) {
+      Point* centroid = getFSRCentroid(fsr_id);
+      Point* starting_point = start.getHighestLevel()->getPoint();
+      double x_start = starting_point->getX() - centroid->getX();
+      double y_start = starting_point->getY() - centroid->getY();
+      new_segment->_starting_position[0] = x_start;
+      new_segment->_starting_position[1] = y_start;
+    }
+
     /* Add the segment to the Track */
     track->addSegment(new_segment);
 
@@ -1452,6 +1471,18 @@ void Geometry::segmentize3D(Track3D* track) {
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y, delta_z);
       end.adjustCoords(delta_x, delta_y, delta_z);
+    }
+
+    /* Calculate the local centroid of the segment if available */
+    if (_contains_FSR_centroids) {
+      Point* centroid = getFSRCentroid(fsr_id);
+      Point* starting_point = start.getHighestLevel()->getPoint();
+      double x_start = starting_point->getX() - centroid->getX();
+      double y_start = starting_point->getY() - centroid->getY();
+      double z_start = starting_point->getZ() - centroid->getZ();
+      new_segment->_starting_position[0] = x_start;
+      new_segment->_starting_position[1] = y_start;
+      new_segment->_starting_position[2] = z_start;
     }
 
     /* Add the segment to the Track */
@@ -2132,6 +2163,7 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
  * @param centroid a Point representing the FSR centroid
  */
 void Geometry::setFSRCentroid(int fsr, Point* centroid) {
+  _contains_FSR_centroids = true;
   std::string& key = _FSRs_to_keys[fsr];
   _FSR_keys_map.at(key)->_centroid = centroid;
   _FSRs_to_centroids[fsr] = centroid;

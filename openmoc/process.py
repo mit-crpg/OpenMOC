@@ -86,7 +86,6 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
         num_groups = solver.getGeometry().getNumEnergyGroups()
         num_fluxes = num_groups * num_fsrs
         fluxes = solver.getFluxes(num_fluxes)
-        print fluxes
         fluxes = np.reshape(fluxes, (num_fsrs, num_groups))
         return fluxes
 

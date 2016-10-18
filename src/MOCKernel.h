@@ -68,7 +68,8 @@ public:
   /* Executing function describes kernel behavior */
   virtual void execute(FP_PRECISION length, Material* mat, int fsr_id,
                        int track_idx, int cmfd_surface_fwd,
-                       int cmfd_surface_bwd)=0;
+                       int cmfd_surface_bwd, double x_start, double y_start,
+                       double z_start, double phi, double theta)=0;
 
 };
 
@@ -86,7 +87,9 @@ class CounterKernel: public MOCKernel {
 public:
   CounterKernel(TrackGenerator* track_generator, int row_num);
   void execute(FP_PRECISION length, Material* mat, int fsr_id,
-               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd);
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
 };
 
 
@@ -120,7 +123,9 @@ public:
   VolumeKernel(TrackGenerator* track_generator, int row_num);
   void newTrack(Track* track);
   void execute(FP_PRECISION length, Material* mat, int fsr_id,
-               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd);
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
 };
 
 
@@ -142,7 +147,9 @@ private:
 public:
   SegmentationKernel(TrackGenerator* track_generator, int row_num);
   void execute(FP_PRECISION length, Material* mat, int fsr_id,
-               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd);
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
 };
 
 /**
@@ -186,7 +193,9 @@ public:
   void setTrackIndexes(int azim_index, int polar_index);
   void setDirection(bool direction);
   void execute(FP_PRECISION length, Material* mat, int fsr_id,
-               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd);
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
   void post();
 };
 

@@ -159,6 +159,16 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
   FP_PRECISION max_optical_length =
     _track_generator->retrieveMaxOpticalLength();
 
+  /* Get the direction of travel */
+  double phi = track->getPhi();
+  double theta = M_PI_2;
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  if (track_3D != 0)
+    theta = track_3D->getTheta();
+  double xdir = cos(phi) * sin(theta);
+  double ydir = sin(phi) * sin(theta);
+  double zdir = cos(theta);
+
   /* Extract data from this segment to compute its optical
    * length */
   for (int s = 0; s < track->getNumSegments(); s++) {
@@ -187,6 +197,11 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
     int cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
     int cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
 
+    /* Extract the current starting points */
+    double x_curr = curr_segment->_starting_position[0];
+    double y_curr = curr_segment->_starting_position[1];
+    double z_curr = curr_segment->_starting_position[2];
+
     /* Split the segment into sub-segments */
     for (int k=0; k < min_num_cuts; k++) {
 
@@ -202,6 +217,14 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
 
       if (k == min_num_cuts-1)
         new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+
+      /* Set the starting position */
+      new_segment->_starting_position[0] = x_curr;
+      new_segment->_starting_position[1] = y_curr;
+      new_segment->_starting_position[2] = z_curr;
+      x_curr += new_segment->_length * xdir;
+      y_curr += new_segment->_length * ydir;
+      z_curr += new_segment->_length * zdir;
 
       /* Insert the new segment to the Track */
       track->insertSegment(s+k+1, new_segment);
@@ -707,16 +730,6 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
     _thread_fsr_fluxes[i] = new FP_PRECISION[size];
-
-  /* Allocate storage for starting points if necessary */
-  if (_ls_solver != NULL) {
-    _starting_points = new Point*[num_threads];
-    int num_rows = 1;
-    if (_track_generator_3D != NULL)
-      num_rows = _track_generator_3D->getMaxNumTracksPerStack();
-    for (int i=0; i < num_threads; i++)
-      _starting_points[i] = new Point[num_rows];
-  }
 }
 
 
@@ -789,21 +802,14 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     direction[2] = cos_theta;
   }
 
-  /* Extract the maximum track index and get starting points */
+  /* Extract the maximum track index */
   Track** tracks_array = &track;
   int max_track_index = 0;
   if (_segment_formation == OTF_STACKS) {
     int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
     max_track_index = tracks_per_stack[azim_index][xy_index][polar_index] - 1;
     tracks_array = _track_generator_3D->getTemporaryTracksArray(tid);
-    if (_ls_solver != NULL)
-      for (int i=1; i <= max_track_index; i++)
-        _starting_points[tid][i].copyCoords(tracks_array[i]->getStart());
   }
-
-  /* Copy the base Track's starting point */
-  if (_ls_solver != NULL)
-    _starting_points[tid][0].copyCoords(tracks_array[0]->getStart());
 
   /* Loop over each Track segment in forward direction */
   for (int s=0; s < num_segments; s++) {
@@ -818,8 +824,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                    track_flux, thread_fsr_flux);
     else
-      tallyScalarFluxLS(curr_segment, azim_index, polar_index, track_flux,
-                        thread_fsr_flux, direction);
+      _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
+                                    track_flux, thread_fsr_flux, direction);
 
     /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
@@ -850,8 +856,9 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                    track_flux, thread_fsr_flux);
     else
-      tallyScalarFluxLS(curr_segment, azim_index, polar_index, track_flux,
-                        thread_fsr_flux, direction);
+      _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
+                                    track_flux, thread_fsr_flux, direction);
+
 
     /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
@@ -864,41 +871,6 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     _cpu_solver->transferBoundaryFlux(tracks_array[i], azim_index, polar_index,
                                       false, track_flux);
   }
-}
-
-
-//FIXME
-void TransportSweep::tallyScalarFluxLS(segment* curr_segment, int azim_index,
-                                       int polar_index,
-                                       FP_PRECISION* track_flux,
-                                       FP_PRECISION* thread_fsr_flux,
-                                       double direction[3]) {
-
-  /* Linear source approximation retrieves starting point */
-  int tid = omp_get_thread_num();
-  int track_idx = curr_segment->_track_idx;
-  double x = _starting_points[tid][track_idx].getX();
-  double y = _starting_points[tid][track_idx].getY();
-  double z = _starting_points[tid][track_idx].getZ();
-
-  /* Get the centroid of the segment in the local coordinate system */
-  Point* centroid = _geometry->getFSRCentroid(curr_segment->_region_id);
-  double local_position[3];
-  local_position[0] = x - centroid->getX();
-  local_position[1] = y - centroid->getY();
-  local_position[2] = z - centroid->getZ();
-  _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                track_flux, thread_fsr_flux, local_position,
-                                direction);
-
-  /* Update coordinates */
-  x += curr_segment->_length * direction[0];
-  y += curr_segment->_length * direction[1];
-  z += curr_segment->_length * direction[2];
-
-  _starting_points[tid][track_idx].setX(x);
-  _starting_points[tid][track_idx].setY(y);
-  _starting_points[tid][track_idx].setZ(z);
 }
 
 
