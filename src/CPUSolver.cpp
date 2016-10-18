@@ -85,16 +85,16 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
   if (_geometry->isDomainDecomposed()) {
 
     /* Allocate buffer for communcation */
-    long num_total_FSRs = _geometry->getNumTotalFSRs();
+    int num_total_FSRs = _geometry->getNumTotalFSRs();
     FP_PRECISION* temp_fluxes = new FP_PRECISION[num_total_FSRs*_num_groups];
 
     int rank = 0;
     MPI_Comm comm = _geometry->getMPICart();
     MPI_Comm_rank(comm, &rank);
-    for (long r=0; r < num_total_FSRs; r++) {
+    for (int r=0; r < num_total_FSRs; r++) {
 
       /* Determine the domain and local FSR ID */
-      long fsr_id = r;
+      int fsr_id = r;
       int domain = 0;
       _geometry->getLocalFSRId(r, fsr_id, domain);
 
@@ -1857,18 +1857,18 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   if (_geometry->isDomainDecomposed()) {
 
     /* Allocate buffer for communcation */
-    long num_total_FSRs = _geometry->getNumTotalFSRs();
+    int num_total_FSRs = _geometry->getNumTotalFSRs();
     double* temp_fission_rates = new double[num_total_FSRs];
-    for (long i=0; i < num_total_FSRs; i++)
+    for (int i=0; i < num_total_FSRs; i++)
       temp_fission_rates[i] = 0;
 
     int rank = 0;
     MPI_Comm comm = _geometry->getMPICart();
     MPI_Comm_rank(comm, &rank);
-    for (long r=0; r < num_total_FSRs; r++) {
+    for (int r=0; r < num_total_FSRs; r++) {
 
       /* Determine the domain and local FSR ID */
-      long fsr_id = r;
+      int fsr_id = r;
       int domain = 0;
       _geometry->getLocalFSRId(r, fsr_id, domain);
 
