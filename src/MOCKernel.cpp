@@ -146,7 +146,9 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  */
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
                            int track_idx, int cmfd_surface_fwd,
-                           int cmfd_surface_bwd) {
+                           int cmfd_surface_bwd, double x_start,
+                           double y_start, double z_start,
+                           double phi, double theta) {
 
   /* Set omp lock for FSRs */
   omp_set_lock(&_FSR_locks[fsr_id]);
@@ -184,7 +186,9 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
  */
 void CounterKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
                             int track_idx, int cmfd_surface_fwd,
-                            int cmfd_surface_bwd) {
+                            int cmfd_surface_bwd, double x_start,
+                            double y_start, double z_start,
+                            double phi, double theta) {
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
@@ -213,7 +217,9 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
  */
 void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
                                 int track_idx, int cmfd_surface_fwd,
-                                int cmfd_surface_bwd) {
+                                int cmfd_surface_bwd, double x_start,
+                                double y_start, double z_start,
+                                double phi, double theta) {
 
   /* Check if segments have not been set, if so return */
   if (_segments == NULL)
@@ -235,18 +241,27 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
     _segments[_count]._material = mat;
     _segments[_count]._region_id = fsr_id;
     _segments[_count]._track_idx = track_idx;
+    _segments[_count]._starting_position[0] = x_start;
+    _segments[_count]._starting_position[1] = y_start;
+    _segments[_count]._starting_position[2] = z_start;
     _segments[_count]._cmfd_surface_fwd = -1;
     if (i == 0)
       _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
     else
       _segments[_count]._cmfd_surface_bwd = -1;
     length -= temp_length;
+    x_start += temp_length * sin(theta) * cos(phi);
+    y_start += temp_length * sin(theta) * sin(phi);
+    y_start += temp_length * cos(theta);
     _count++;
   }
   _segments[_count]._length = length;
   _segments[_count]._material = mat;
   _segments[_count]._region_id = fsr_id;
   _segments[_count]._track_idx = track_idx;
+  _segments[_count]._starting_position[0] = x_start;
+  _segments[_count]._starting_position[1] = y_start;
+  _segments[_count]._starting_position[2] = z_start;
   _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
   if (num_cuts > 1)
     _segments[_count]._cmfd_surface_bwd = -1;
@@ -311,7 +326,9 @@ void TransportKernel::setDirection(bool direction) {
 //FIXME document
 void TransportKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
                               int track_idx, int cmfd_surface_fwd,
-                              int cmfd_surface_bwd) {
+                              int cmfd_surface_bwd, double x_start,
+                              double y_start, double z_start,
+                              double phi, double theta) {
 
   if (track_idx < _min_track_idx)
     _min_track_idx = track_idx;

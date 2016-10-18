@@ -44,6 +44,9 @@ struct segment {
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
 
+  /** The starting point of the segment relative to the FSR centroid */
+  double _starting_position[3];
+
   /** Constructor initializes CMFD surfaces */
   segment() {
     _track_idx = 0;

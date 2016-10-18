@@ -6,8 +6,10 @@
 
 int main(int argc, char* argv[]) {
 
+#ifdef MPIx
   MPI_Init(&argc, &argv);
   log_set_ranks(MPI_COMM_WORLD);
+#endif
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -162,6 +164,8 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
+#ifdef MPIx
   MPI_Finalize();
+#endif
   return 0;
 }

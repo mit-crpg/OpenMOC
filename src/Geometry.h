@@ -158,6 +158,9 @@ private:
   /** An vector of FSR centroids indexed by FSR ID */
   std::vector<Point*> _FSRs_to_centroids;
 
+  /** A boolean indicating whether any centroids have been set */
+  bool _contains_FSR_centroids;
+
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
 
@@ -186,7 +189,7 @@ private:
   int _domain_index_y;
   int _domain_index_z;
   Lattice* _domain_bounds;
-  std::vector<long> _num_domain_FSRs;
+  std::vector<int> _num_domain_FSRs;
 #ifdef MPIx
   MPI_Comm _MPI_cart;
 #endif
@@ -248,9 +251,10 @@ public:
   std::vector<std::string>& getFSRsToKeys();
   std::vector<int>& getFSRsToMaterialIDs();
   int getFSRId(LocalCoords* coords);
-  long getGlobalFSRId(LocalCoords* coords);
+  int getGlobalFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);
-  Point* getFSRCentroid(long fsr_id);
+  Point* getFSRCentroid(int fsr_id);
+  bool containsFSRCentroids();
   int getCmfdCell(int fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
@@ -293,9 +297,9 @@ public:
   bool withinGlobalBounds(LocalCoords* coords);
 #ifdef MPIx
   void countDomainFSRs();
-  void getLocalFSRId(long global_fsr_id, long &local_fsr_id, int &domain);
+  void getLocalFSRId(int global_fsr_id, int &local_fsr_id, int &domain);
 #endif
-  std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
+  std::vector<double> getGlobalFSRCentroidData(int global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
 };
 

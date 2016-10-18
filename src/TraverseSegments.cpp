@@ -273,7 +273,9 @@ void TraverseSegments::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
   for (int s=0; s < track->getNumSegments(); s++) {
     segment* seg = track->getSegment(s);
     kernel->execute(seg->_length, seg->_material, seg->_region_id, 0,
-                    seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd);
+                    seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd,
+                    seg->_starting_position[0], seg->_starting_position[1],
+                    seg->_starting_position[2], 0, 0);
   }
 }
 
@@ -298,6 +300,8 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
 
   /* Create unit vector */
   double phi = flattened_track->getPhi();
+  double cos_phi = cos(phi);
+  double sin_phi = sin(phi);
   double cos_theta = cos(theta);
   double sin_theta = sin(theta);
   int sign = (cos_theta > 0) - (cos_theta < 0);
@@ -305,10 +309,12 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
   /* Extract starting coordinates */
   double x_start_3D = start->getX();
   double x_start_2D = flattened_track->getStart()->getX();
+  double x_coord = start->getX();
+  double y_coord = start->getY();
   double z_coord = start->getZ();
 
   /* Find 2D distance from 2D edge to start of track */
-  double start_dist_2D = (x_start_3D - x_start_2D) / cos(phi);
+  double start_dist_2D = (x_start_3D - x_start_2D) / cos_phi;
 
   /* Find starting 2D segment */
   int seg_start = 0;
@@ -427,22 +433,33 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
         cmfd_surface_bwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_coord,
                                                     cmfd_surface_bwd);
 
-        /* Move axial height to end of segment */
-        z_coord += cos_theta * dist_3D;
-
         /* Find forward surface */
-        cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_coord,
+        double z_coord_end = z_coord + dist_3D * cos_theta;
+        cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, z_coord_end,
                                                     cmfd_surface_fwd);
-      }
-      else {
-        /* Move axial height to end of segment */
-        z_coord += dist_3D * cos_theta;
       }
 
       /* Operate on segment */
-      if (dist_3D > TINY_MOVE)
+      if (dist_3D > TINY_MOVE) {
+        double x_centroid = 0;
+        double y_centroid = 0;
+        double z_centroid = 0;
+        if (geometry->containsFSRCentroids()) {
+          Point* centroid = geometry->getFSRCentroid(fsr_id);
+          x_centroid = centroid->getX();
+          y_centroid = centroid->getY();
+          z_centroid = centroid->getZ();
+        }
         kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], fsr_id, 0,
-                        cmfd_surface_fwd, cmfd_surface_bwd);
+                        cmfd_surface_fwd, cmfd_surface_bwd,
+                        x_coord - x_centroid, y_coord - y_centroid,
+                        z_coord - z_centroid, phi, theta);
+      }
+
+      /* Move axial height to end of segment */
+      x_coord += dist_3D * sin_theta * cos_phi;
+      y_coord += dist_3D * sin_theta * sin_phi;
+      z_coord += dist_3D * cos_theta;
 
       /* Shorten remaining 2D segment length and move axial level */
       remaining_length_2D -= dist_2D;
@@ -507,6 +524,8 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
 
   /* Create unit vector */
   double phi = flattened_track->getPhi();
+  double cos_phi = cos(phi);
+  double sin_phi = sin(phi);
   double cos_theta = cos(theta);
   double sin_theta = sin(theta);
   double tan_theta = sin_theta / cos_theta;
@@ -516,7 +535,8 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   /* Find 2D distance from 2D edge to start of track */
   double x_start_3D = first.getStart()->getX();
   double x_start_2D = flattened_track->getStart()->getX();
-  double start_dist_2D = (x_start_3D - x_start_2D) / cos(phi);
+  double y_start_2D = flattened_track->getStart()->getY();
+  double start_dist_2D = (x_start_3D - x_start_2D) / cos_phi;
 
   /* Calculate starting intersection of lowest track with z-axis */
   double z0 = first.getStart()->getZ();
@@ -533,6 +553,10 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
     num_fsrs = _mesh_size;
     axial_mesh = _global_z_mesh;
   }
+
+  /* Set the current x and y coordinates */
+  double x_curr = x_start_2D;
+  double y_curr = flattened_track->getStart()->getY();
 
   /* Loop over 2D segments */
   double first_start_z = start_z;
@@ -565,6 +589,18 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
       first_track_upper_z = first_start_z;
     }
 
+    /* Calculate the local x and y centroid of the Extruded FSR */
+    long first_fsr = extruded_FSR->_fsr_ids[0];
+    double fsr_x_start = 0;
+    double fsr_y_start = 0;
+    if (geometry->containsFSRCentroids()) {
+      Point* centroid = geometry->getFSRCentroid(first_fsr);
+      fsr_x_start = x_curr - centroid->getX();
+      fsr_y_start = y_curr - centroid->getY();
+      x_curr += seg_length_2D * cos_phi;
+      y_curr += seg_length_2D * sin_phi;
+    }
+
     /* Loop over all 3D FSRs in the Extruded FSR to find intersections */
     double first_seg_len_3D;
     for (int z_iter = 0; z_iter < num_fsrs; z_iter++) {
@@ -586,6 +622,9 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
       /* Get boundaries of the current mesh cell */
       double z_min = axial_mesh[z_ind];
       double z_max = axial_mesh[z_ind+1];
+
+      /* Calculate the local z center of the FSR */
+      double half_width_z = (z_max - z_min) / 2;
 
       /* Calculate z-stack track indexes that cross the 3D FSR */
       int start_track = std::ceil((z_min - first_track_upper_z) / z_spacing);
@@ -613,10 +652,10 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
           int cmfd_surface_bwd = -1;
 
           /* Get CMFD surface if necessary */
+          double start_z = first_track_lower_z + i * z_spacing;
+          double end_z = first_track_upper_z + i * z_spacing;
+          double dist_to_corner = std::abs((z_min - start_z) / cos_theta);
           if (cmfd != NULL) {
-            double start_z = first_track_lower_z + i * z_spacing;
-            double end_z = first_track_upper_z + i * z_spacing;
-            double dist_to_corner = std::abs((z_min - start_z) / cos_theta);
             if (sign > 0) {
               cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
@@ -637,9 +676,23 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             }
           }
 
+          /* Calculate the entry point of the segment into the FSR */
+          double x_entry = fsr_x_start;
+          double y_entry = fsr_y_start;
+          double z_entry = -half_width_z;
+          if (sign > 0) {
+            double partial_2D = dist_to_corner * sin_theta;
+            x_entry += partial_2D * cos_phi;
+            y_entry += partial_2D * sin_phi;
+          }
+          else {
+            z_entry = end_z - (z_min + half_width_z);
+          }
+
           /* Operate on segment */
           kernel->execute(seg_len_3D, material, fsr_id, i,
-                          cmfd_surface_fwd, cmfd_surface_bwd);
+                          cmfd_surface_fwd, cmfd_surface_bwd,
+                          x_entry, y_entry, z_entry, phi, theta);
         }
       }
 
@@ -660,10 +713,10 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             int cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
 
             /* Get CMFD surfaces if necessary */
+            double start_z = first_start_z + i * z_spacing;
             if (cmfd != NULL) {
 
               /* Calculate start and end z */
-              double start_z = first_start_z + i * z_spacing;
               double end_z = first_end_z + i * z_spacing;
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, end_z,
                                                           cmfd_surface_fwd);
@@ -671,9 +724,15 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
                                                           cmfd_surface_bwd);
             }
 
+            /* Calculate the entry point of the segment into the FSR */
+            double x_entry = fsr_x_start;
+            double y_entry = fsr_y_start;
+            double z_entry = start_z - (z_min + half_width_z);
+
             /* Operate on segment */
             kernel->execute(seg_len_3D, material, fsr_id, i,
-                            cmfd_surface_fwd, cmfd_surface_bwd);
+                            cmfd_surface_fwd, cmfd_surface_bwd,
+                            x_entry, y_entry, z_entry, phi, theta);
           }
         }
       }
@@ -697,32 +756,31 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             int cmfd_surface_bwd = -1;
             int cmfd_surface_fwd = -1;
 
+            /* Determine start and end z */
+            double enter_z;
+            double exit_z;
+            if (sign > 0) {
+              enter_z = z_min;
+              exit_z = z_max;
+            }
+            else {
+              enter_z = z_max;
+              exit_z = z_min;
+            }
+
             /* Get CMFD surfaces if necessary */
+            double track_start_z = first_start_z + i * z_spacing;
+            double dist_to_corner_bwd = (enter_z - track_start_z) / cos_theta;
             if (cmfd != NULL) {
 
-              /* Determine start and end z */
-              double enter_z;
-              double exit_z;
-              if (sign > 0) {
-                enter_z = z_min;
-                exit_z = z_max;
-              }
-              else {
-                enter_z = z_max;
-                exit_z = z_min;
-              }
-
               /* Determine if any corners in the s-z plane are hit */
-              double dist_to_corner;
-              double track_end_z = first_end_z + i * z_spacing;
-              dist_to_corner = (track_end_z - exit_z) / cos_theta;
-              if (dist_to_corner <= TINY_MOVE)
-                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
-
-              double track_start_z = first_start_z + i * z_spacing;
-              dist_to_corner = (enter_z - track_start_z) / cos_theta;
-              if (dist_to_corner <= TINY_MOVE)
+              if (dist_to_corner_bwd <= TINY_MOVE)
                 cmfd_surface_bwd = segments_2D[s]._cmfd_surface_bwd;
+
+              double track_end_z = first_end_z + i * z_spacing;
+              double dist_to_corner_fwd = (track_end_z - exit_z) / cos_theta;
+              if (dist_to_corner_fwd <= TINY_MOVE)
+                cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
 
               /* Find CMFD surfaces */
               cmfd_surface_fwd = cmfd->findCmfdSurfaceOTF(cmfd_cell, exit_z,
@@ -731,9 +789,18 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
                                                           cmfd_surface_bwd);
             }
 
+            /* Calculate the entry point of the segment into the FSR */
+            double partial_2D = dist_to_corner_bwd * sin_theta;
+            double x_entry = fsr_x_start + partial_2D * cos_phi;
+            double y_entry = fsr_y_start + partial_2D * sin_phi;
+            double z_entry = half_width_z;
+            if (sign > 0)
+              z_entry *= -1;
+
             /* Operate on segment */
             kernel->execute(seg_len_3D, material, fsr_id, i,
-                            cmfd_surface_fwd, cmfd_surface_bwd);
+                            cmfd_surface_fwd, cmfd_surface_bwd,
+                            x_entry, y_entry, z_entry, phi, theta);
           }
         }
       }
@@ -754,10 +821,10 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
           int cmfd_surface_bwd = -1;
 
           /* Get CMFD surface if necessary */
+          double start_z = first_track_lower_z + i * z_spacing;
+          double end_z = first_track_upper_z + i * z_spacing;
+          double dist_to_corner = (end_z - z_max) / std::abs(cos_theta);
           if (cmfd != NULL) {
-            double start_z = first_track_lower_z + i * z_spacing;
-            double end_z = first_track_upper_z + i * z_spacing;
-            double dist_to_corner = (end_z - z_max) / std::abs(cos_theta);
             if (sign > 0) {
               if (dist_to_corner <= TINY_MOVE)
                 cmfd_surface_fwd = segments_2D[s]._cmfd_surface_fwd;
@@ -778,9 +845,23 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             }
           }
 
+          /* Calculate the entry point of the segment into the FSR */
+          double x_entry = fsr_x_start;
+          double y_entry = fsr_y_start;
+          double z_entry = half_width_z;
+          if (sign < 0) {
+            double partial_2D = dist_to_corner * sin_theta;
+            x_entry += partial_2D * cos_phi;
+            y_entry += partial_2D * sin_phi;
+          }
+          else {
+            z_entry = start_z - (z_min + half_width_z);
+          }
+
           /* Operate on segment */
           kernel->execute(seg_len_3D, material, fsr_id, i,
-                          cmfd_surface_fwd, cmfd_surface_bwd);
+                          cmfd_surface_fwd, cmfd_surface_bwd,
+                          x_entry, y_entry, z_entry, phi, theta);
         }
       }
     }
