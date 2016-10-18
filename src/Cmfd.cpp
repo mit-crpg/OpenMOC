@@ -2169,7 +2169,7 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
 
 //FIXME
-int Cmfd::convertGlobalFSRIdToCmfdCell(long global_fsr_id) {
+int Cmfd::convertGlobalFSRIdToCmfdCell(int global_fsr_id) {
 
   /* Determine the domain and local FSR ID */
   int cmfd_cell = -1;
@@ -2179,7 +2179,7 @@ int Cmfd::convertGlobalFSRIdToCmfdCell(long global_fsr_id) {
 #ifdef MPIx
   else {
 
-    long fsr_id;
+    int fsr_id;
     int domain;
     _geometry->getLocalFSRId(global_fsr_id, fsr_id, domain);
 

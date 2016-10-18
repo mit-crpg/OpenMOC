@@ -949,7 +949,7 @@ int Geometry::getGlobalFSRId(LocalCoords* coords) {
     MPI_Comm_rank(_MPI_cart, &rank);
     if (domain == rank)
       temp_fsr_id = getFSRId(coords);
-    MPI_Allreduce(&temp_fsr_id, &global_fsr_id, 1, MPI_LONG, MPI_SUM,
+    MPI_Allreduce(&temp_fsr_id, &global_fsr_id, 1, MPI_INT, MPI_SUM,
                   _MPI_cart);
 
     /* Count FSRs on each domain if not already counted */
@@ -1018,7 +1018,7 @@ void Geometry::countDomainFSRs() {
   int num_domains = _num_domains_x * _num_domains_y * _num_domains_z;
   int num_domains_array[num_domains];
   int my_fsrs = getNumFSRs();
-  MPI_Allgather(&my_fsrs, 1, MPI_LONG, num_domains_array, 1, MPI_LONG,
+  MPI_Allgather(&my_fsrs, 1, MPI_INT, num_domains_array, 1, MPI_INT,
                 _MPI_cart);
 
   /* Convert to a vector */
