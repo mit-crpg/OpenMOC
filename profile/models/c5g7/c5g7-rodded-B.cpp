@@ -175,27 +175,27 @@ int main(int argc, char* argv[]) {
   chi["Guide Tube"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
   sigma_t["Guide Tube"] = std::array<double, num_groups> {0.126032, 0.29316,
     0.28424, 0.28096, 0.33444, 0.56564, 1.17215};
-  
+
   /* Define control rod cross-sections */
-  sigma_a["Control Rod"] = std::array<double, num_groups> {1.70490E-03, 
+  sigma_a["Control Rod"] = std::array<double, num_groups> {1.70490E-03,
     8.36224E-03,8.37901E-02, 3.97797E-01, 6.98763E-01, 9.29508E-01,
     1.17836E+00};
   nu_sigma_f["Control Rod"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0,
     0};
-  sigma_f["Control Rod"] = std::array<double, num_groups>  {0, 0, 0, 0, 0, 0, 
+  sigma_f["Control Rod"] = std::array<double, num_groups>  {0, 0, 0, 0, 0, 0,
     0};
-  sigma_s["Control Rod"] = std::array<double, num_groups*num_groups> 
+  sigma_s["Control Rod"] = std::array<double, num_groups*num_groups>
       {1.70563E-01, 4.44012E-02, 9.83670E-05, 1.27786E-07, 0., 0., 0.,
-        0., 4.71050E-01, 6.85480E-04, 3.91395E-10, 0., 0., 0., 
-        0., 0., 8.01859E-01, 7.20132E-04, 0., 0., 0., 
+        0., 4.71050E-01, 6.85480E-04, 3.91395E-10, 0., 0., 0.,
+        0., 0., 8.01859E-01, 7.20132E-04, 0., 0., 0.,
         0., 0., 0., 5.70752E-01, 1.46015E-03, 0., 0.,
         0., 0., 0., 6.55562E-05, 2.07838E-01, 3.81486E-03, 3.69760E-09,
-        0., 0., 0., 0., 1.02427E-03, 2.02465E-01, 4.75290E-03, 
+        0., 0., 0., 0., 1.02427E-03, 2.02465E-01, 4.75290E-03,
         0., 0., 0., 0., 0., 3.53043E-03, 6.58597E-01};
 
 
   chi["Control Rod"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
-  sigma_t["Control Rod"] = std::array<double, num_groups> {2.16768E-01, 
+  sigma_t["Control Rod"] = std::array<double, num_groups> {2.16768E-01,
     4.80098E-01, 8.86369E-01, 9.70009E-01, 9.10482E-01, 1.13775E+00,
     1.84048E+00};
 
@@ -649,23 +649,23 @@ int main(int argc, char* argv[]) {
     assembly1_rodded,   assembly2_rodded,   reflector_assembly,
     assembly2_rodded,   assembly1,          reflector_assembly,
     reflector_assembly, reflector_assembly, reflector_assembly,
-    
+
     assembly1_rodded,   assembly2_rodded,   reflector_assembly,
     assembly2_rodded,   assembly1,          reflector_assembly,
     reflector_assembly, reflector_assembly, reflector_assembly,
-    
+
     assembly1_rodded,   assembly2,          reflector_assembly,
     assembly2,          assembly1,          reflector_assembly,
     reflector_assembly, reflector_assembly, reflector_assembly,
-    
+
     assembly1_rodded,   assembly2,          reflector_assembly,
     assembly2,          assembly1,          reflector_assembly,
     reflector_assembly, reflector_assembly, reflector_assembly,
-    
+
     assembly1,          assembly2,          reflector_assembly,
     assembly2,          assembly1,          reflector_assembly,
     reflector_assembly, reflector_assembly, reflector_assembly,
-    
+
     assembly1,          assembly2,          reflector_assembly,
     assembly2,          assembly1,          reflector_assembly,
     reflector_assembly, reflector_assembly, reflector_assembly};
