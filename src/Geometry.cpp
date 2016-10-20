@@ -557,10 +557,11 @@ int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
   neighbor_coords[0] = offset_x + _domain_index_x;
   neighbor_coords[1] = offset_y + _domain_index_y;
   neighbor_coords[2] = offset_z + _domain_index_z;
-  if (neighbor_coords[0] >= 0 && neighbor_coords[0] < _num_domains_x &&
-      neighbor_coords[1] >= 0 && neighbor_coords[1] < _num_domains_y &&
-      neighbor_coords[2] >= 0 && neighbor_coords[2] < _num_domains_z)
-    MPI_Cart_rank(_MPI_cart, neighbor_coords, &neighbor_rank);
+  if (_domain_decomposed)
+    if (neighbor_coords[0] >= 0 && neighbor_coords[0] < _num_domains_x &&
+        neighbor_coords[1] >= 0 && neighbor_coords[1] < _num_domains_y &&
+        neighbor_coords[2] >= 0 && neighbor_coords[2] < _num_domains_z)
+      MPI_Cart_rank(_MPI_cart, neighbor_coords, &neighbor_rank);
 
   return neighbor_rank;
 }

@@ -26,7 +26,7 @@ class Point {
 private:
 
   /** The Point's xyz coordinates */
-  double* _xyz;
+  double _xyz[3];
 
 public:
   Point();
