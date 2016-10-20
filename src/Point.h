@@ -35,7 +35,7 @@ public:
   double getX() const;
   double getY() const;
   double getZ() const;
-  double* getXYZ() const;
+  double* getXYZ();
   void setX(const double x);
   void setY(const double y);
   void setZ(const double z);
@@ -91,7 +91,7 @@ inline double Point::getZ() const {
  * @brief Returns this Point's x-coordinate.
  * @return the x-coordinate
  */
-inline double* Point::getXYZ() const {
+inline double* Point::getXYZ() {
   return _xyz;
 }
 
