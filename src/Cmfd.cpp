@@ -42,6 +42,7 @@ Cmfd::Cmfd() {
   /* Set matrices and arrays to NULL */
   _A = NULL;
   _M = NULL;
+  _k_eff = 1.0;
   _old_flux = NULL;
   _new_flux = NULL;
   _flux_ratio = NULL;
@@ -689,6 +690,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Construct matrices */
   constructMatrices(moc_iteration);
+  checkNeutronBalance();
 
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
@@ -2859,6 +2861,20 @@ void Cmfd::printTimerReport() {
 //FIXME
 void Cmfd::checkNeutronBalance() {
 
+  /* Initialize variables */
+  omp_lock_t* cell_locks = _old_flux->getCellLocks();
+  int num_rows = _old_flux->getNumRows();
+  int num_x = _old_flux->getNumX();
+  int num_y = _old_flux->getNumY();
+  int num_z = _old_flux->getNumZ();
+  int num_groups = _old_flux->getNumGroups();
+  Vector m_phi(cell_locks, num_x, num_y, num_z, num_groups);
+  Vector a_phi(cell_locks, num_x, num_y, num_z, num_groups);
+
+  /* Compute CMFD balance */
+  matrixMultiplication(_A, _old_flux, &a_phi);
+  matrixMultiplication(_M, _old_flux, &m_phi);
+
   /* Loop over CMFD cells */
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
@@ -2880,10 +2896,10 @@ void Cmfd::checkNeutronBalance() {
       for (int j = 0; j < _cell_fsrs.at(i).size(); j++) {
 
         int fsr_id = _cell_fsrs.at(i).at(j);
-        Material* fsr_material = _FSR_materials[j];
-        double volume = _FSR_volumes[j];
+        Material* fsr_material = _FSR_materials[fsr_id];
+        double volume = _FSR_volumes[fsr_id];
         FP_PRECISION* scat = fsr_material->getSigmaS();
-        FP_PRECISION* flux = &_FSR_fluxes[j*_num_moc_groups];
+        FP_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
 
         /* Loop over MOC energy groups within this CMFD coarse group */
         double chi = 0.0;
@@ -2915,16 +2931,11 @@ void Cmfd::checkNeutronBalance() {
 
       /* Calculate net current out of the cell */
       double net_current = 0.0;
-
-      /* Streaming to neighboring cells */
       for (int s = 0; s < NUM_FACES; s++) {
-        int sense = getSense(s);
         int idx = s * _num_cmfd_groups + e;
-
         int cmfd_cell_next = getCellNext(i, s);
         int surface_next = (s + NUM_FACES / 2) % NUM_FACES;
         int idx_next = surface_next * _num_cmfd_groups + e;
-        FP_PRECISION delta_interface = getSurfaceWidth(s);
         if (cmfd_cell_next == -1) {
           if (_boundaries[s] == VACUUM)
             net_current += _surface_currents->getValue(i, idx);
@@ -2935,9 +2946,18 @@ void Cmfd::checkNeutronBalance() {
         }
       }
 
-      double balance = in_scattering + fission - total - net_current;
-      log_printf(NORMAL, "Neutron balance in cell (%d, %d, %d) for CMFD group "
-                 "%d = %f", x, y, z, e, balance);
+      double moc_balance = in_scattering + fission - total - net_current;
+      log_printf(NORMAL, "MOC neutron balance in cell (%d, %d, %d) for CMFD "
+                 "group %d = %f", x, y, z, e, moc_balance);
+
+      double cmfd_balance = m_phi.getValue(i, e) / _k_eff -
+          a_phi.getValue(i, e);
+      log_printf(NORMAL, "CMFD neutron balance in cell (%d, %d, %d) for CMFD "
+                 "group %d = %f", x, y, z, e, cmfd_balance);
+
+      log_printf(NORMAL, "Net neutron balance in cell (%d, %d, %d) for CMFD "
+                 "group %d = %g", x, y, z, e, moc_balance - cmfd_balance);
+
     }
   }
 }

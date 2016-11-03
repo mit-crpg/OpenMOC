@@ -9,6 +9,7 @@ from geometry import geometry
 ###############################################################################
 
 options = Options()
+openmoc.set_line_length(120)
 
 num_threads = options.num_omp_threads
 azim_spacing = options.azim_spacing

@@ -1853,8 +1853,14 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
       else
         surface = SURFACE_X_MIN_Y_MAX;
     }
-    else
-      surface = SURFACE_X_MIN;
+    else {
+      if (on_min_z)
+        surface = SURFACE_X_MIN_Z_MIN;
+      else if (on_max_z)
+        surface = SURFACE_X_MIN_Z_MAX;
+      else
+        surface = SURFACE_X_MIN;
+    }
   }
   else if (on_max_x) {
     if (on_min_y) {
@@ -1873,8 +1879,14 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
       else
         surface = SURFACE_X_MAX_Y_MAX;
     }
-    else
-      surface = SURFACE_X_MAX;
+    else {
+      if (on_min_z)
+        surface = SURFACE_X_MAX_Z_MIN;
+      else if (on_max_z)
+        surface = SURFACE_X_MAX_Z_MAX;
+      else
+        surface = SURFACE_X_MAX;
+    }
   }
   else if (on_min_y) {
     if (on_min_z)
@@ -1921,6 +1933,10 @@ int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
   double lat_z = cell / (_num_x*_num_y);
   double z_min = _width_z * (lat_z - _num_z/2.0) + _offset.getZ();
   double z_max = z_min + _width_z;
+
+  /* Check for z-surface crossing on 2D surface */
+  if (surface_2D % NUM_SURFACES > 9)
+    log_printf(ERROR, "Found a z-surface crossing on a 2D segment");
 
   /* Check min z boundary for crossing */
   if (fabs(z_min - z) < ON_SURFACE_THRESH) {
