@@ -392,5 +392,4 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
     }
   }
 }
-
 #endif /* CMFD_H_ */
