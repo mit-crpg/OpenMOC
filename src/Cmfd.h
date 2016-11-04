@@ -57,6 +57,8 @@ private:
 
   /** The A (destruction) matrix */
   Matrix* _A;
+  Matrix* _D;
+  Matrix* _TOT;
 
   /** The M (production) matrix */
   Matrix* _M;

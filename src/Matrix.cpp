@@ -247,7 +247,8 @@ void Matrix::printString() {
 
   string << "End Matrix " << std::endl;
 
-  log_printf(NORMAL, string.str().c_str());
+  std::cout << string.str() << std::endl;
+  //log_printf(NORMAL, string.str().c_str());
 }
 
 

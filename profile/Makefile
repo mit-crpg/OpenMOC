@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
@@ -13,7 +13,8 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-rodded-B.cpp
+case = c5g7/c5g7-ws.cpp
+#case = c5g7/c5g7-rodded-B-2x2.cpp
 
 source = \
 Cell.cpp \
@@ -51,6 +52,8 @@ simple-lattice/simple-lattice-3d.cpp \
 c5g7/c5g7-3d.cpp \
 c5g7/c5g7-3d-cmfd.cpp \
 c5g7/c5g7-rodded-B.cpp \
+c5g7/c5g7-rodded-B-2x2.cpp \
+c5g7/c5g7-ws.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
 single-assembly/single-c5g7-assembly.cpp
 
@@ -64,6 +67,7 @@ CFLAGS = -std=gnu++0x
 ifeq ($(COMPILER),gnu)
   CC = gcc
   CFLAGS += -DGNU
+  CFLAGS += -march=native
   #CFLAGS += -v
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
@@ -73,6 +77,7 @@ endif
 ifeq ($(COMPILER),mpi)
   CC = mpicc
   CFLAGS += -DMPIx
+  CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif

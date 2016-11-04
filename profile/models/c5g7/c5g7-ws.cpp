@@ -13,20 +13,21 @@ int main(int argc, char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = 1; //omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.05;
-  int num_azim = 64;
-  double polar_spacing = 0.75;
-  int num_polar = 20;
+  double azim_spacing = 0.2;
+  int num_azim = 8;
+  double polar_spacing = 1.5;
+  int num_polar = 4;
   double tolerance = 1e-5;
-  int max_iters = 40;
-  int axial_refines = 6;
+  int max_iters = 50;
+  int axial_refines = 3;
 
   /* Set logging information */
   set_log_level("NORMAL");
+  set_line_length(120);
   log_printf(TITLE, "Simulating the OECD's C5G7 Benchmark Problem...");
 
   /* Define material properties */
@@ -220,19 +221,19 @@ int main(int argc, char* argv[]) {
   }
 
   /* Create surfaces */
-  XPlane xmin(-32.13);
-  XPlane xmax( 32.13);
-  YPlane ymin(-32.13);
-  YPlane ymax( 32.13);
-  ZPlane zmin(-32.13);
-  ZPlane zmax( 32.13);
+  XPlane xmin(-42.84);
+  XPlane xmax( 42.84);
+  YPlane ymin(-42.84);
+  YPlane ymax( 42.84);
+  ZPlane zmin(-42.84);
+  ZPlane zmax( 42.84);
 
-  xmin.setBoundaryType(REFLECTIVE);
-  xmax.setBoundaryType(VACUUM);
-  ymin.setBoundaryType(VACUUM);
-  ymax.setBoundaryType(REFLECTIVE);
+  xmin.setBoundaryType(PERIODIC);
+  xmax.setBoundaryType(PERIODIC);
+  ymin.setBoundaryType(PERIODIC);
+  ymax.setBoundaryType(PERIODIC);
   zmin.setBoundaryType(REFLECTIVE);
-  zmax.setBoundaryType(VACUUM);
+  zmax.setBoundaryType(REFLECTIVE);
 
   /* Create z-cylinders for the fuel as well as to discretize the moderator
    * into rings */
@@ -633,44 +634,130 @@ int main(int argc, char* argv[]) {
   /* 3 x 3 x 9 core to represent two bundles and water */
   Lattice* full_geometry = new Lattice();
   full_geometry->setWidth(21.42, 21.42, 7.14);
+/*
   Universe* universes[] = {
-    reflector_rodded,   reflector_rodded,   reflector_assembly,
-    reflector_rodded,   reflector_rodded,   reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
 
-    reflector_rodded,   reflector_rodded,   reflector_assembly,
-    reflector_rodded,   reflector_rodded,   reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
 
-    reflector_rodded,   reflector_rodded,   reflector_assembly,
-    reflector_rodded,   reflector_rodded,   reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
 
-    assembly1_rodded,   assembly2_rodded,   reflector_assembly,
-    assembly2_rodded,   assembly1,          reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
+    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
+    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
 
-    assembly1_rodded,   assembly2_rodded,   reflector_assembly,
-    assembly2_rodded,   assembly1,          reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
 
-    assembly1_rodded,   assembly2,          reflector_assembly,
-    assembly2,          assembly1,          reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
 
-    assembly1_rodded,   assembly2,          reflector_assembly,
-    assembly2,          assembly1,          reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
 
-    assembly1,          assembly2,          reflector_assembly,
-    assembly2,          assembly1,          reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly,
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
 
-    assembly1,          assembly2,          reflector_assembly,
-    assembly2,          assembly1,          reflector_assembly,
-    reflector_assembly, reflector_assembly, reflector_assembly};
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1,
+    assembly1,          assembly2,        assembly1,          assembly2,
+    assembly2,          assembly1,        assembly2,          assembly1};
+*/
+  Universe* universes[] = {
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
 
-  full_geometry->setUniverses(9, 3, 3, universes);
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1,
+    assembly1,   assembly2, assembly1,   assembly2,
+    assembly2,   assembly1, assembly2,   assembly1};
+
+  full_geometry->setUniverses(12, 4, 4, universes);
 
   /* Fill root cell with lattice */
   root_cell->setFill(full_geometry);
@@ -679,19 +766,15 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating CMFD mesh...");
 
   Cmfd* cmfd = new Cmfd();
-  cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setLatticeStructure(51, 51, 27);
+  cmfd->setSORRelaxationFactor(1.0);
+  //cmfd->setLatticeStructure(68, 68, 12*axial_refines);
+  cmfd->setLatticeStructure(3, 3, 3);
   std::vector<std::vector<int> > cmfd_group_structure;
-  cmfd_group_structure.resize(7);
-  for (int g=0; g<7; g++)
-    cmfd_group_structure.at(g).push_back(g+1);
-  /*
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
     cmfd_group_structure.at(0).push_back(g+1);
   for (int g=3; g<7; g++)
     cmfd_group_structure.at(1).push_back(g+1);
-  */
   cmfd->setGroupStructure(cmfd_group_structure);
   cmfd->setKNearest(3);
 
@@ -699,8 +782,8 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.setDomainDecomposition(3, 3, 3, MPI_COMM_WORLD);
-  //geometry.setNumDomainModules(3,3,3);
+  //geometry.setDomainDecomposition(1, 1, 1, MPI_COMM_WORLD);
+  geometry.setNumDomainModules(8,8,8);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -714,7 +797,7 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_zones {-32.13, -10.71, 10.71, 32.13};
+  std::vector<FP_PRECISION> seg_zones {-42.84, -14.28, 14.28, 42.84};
   track_generator.setSegmentationZones(seg_zones);
   track_generator.generateTracks();
 
