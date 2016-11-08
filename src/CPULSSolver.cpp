@@ -1,6 +1,5 @@
 #include "CPULSSolver.h"
 
-
 /**
  * @brief Constructor initializes array pointers for Tracks and Materials.
  * @details The constructor retrieves the number of energy groups and FSRs

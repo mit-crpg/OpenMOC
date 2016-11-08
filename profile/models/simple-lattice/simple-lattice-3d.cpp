@@ -5,8 +5,10 @@
 
 int main(int argc, char* argv[]) {
 
+#ifdef MPIx
   MPI_Init(&argc, &argv);
   log_set_ranks(MPI_COMM_WORLD);
+#endif
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -191,7 +193,9 @@ int main(int argc, char* argv[]) {
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
+#ifdef MPIx
   geometry.setDomainDecomposition(2,1,1, MPI_COMM_WORLD);
+#endif
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -214,6 +218,8 @@ int main(int argc, char* argv[]) {
 
   solver.printFissionRates("temp2.txt", 4, 4, 1);
   log_printf(TITLE, "Finished");
+#ifdef MPIx
   MPI_Finalize();
+#endif
   return 0;
 }

@@ -19,11 +19,11 @@ int main(int argc, char* argv[]) {
   #endif
   double azim_spacing = 0.05;
   int num_azim = 64;
-  double polar_spacing = 0.75;
-  int num_polar = 20;
+  double polar_spacing = 1.5;
+  int num_polar = 12;
   double tolerance = 1e-5;
   int max_iters = 40;
-  int axial_refines = 6;
+  int axial_refines = 3;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -682,16 +682,11 @@ int main(int argc, char* argv[]) {
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(51, 51, 27);
   std::vector<std::vector<int> > cmfd_group_structure;
-  cmfd_group_structure.resize(7);
-  for (int g=0; g<7; g++)
-    cmfd_group_structure.at(g).push_back(g+1);
-  /*
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
     cmfd_group_structure.at(0).push_back(g+1);
   for (int g=3; g<7; g++)
     cmfd_group_structure.at(1).push_back(g+1);
-  */
   cmfd->setGroupStructure(cmfd_group_structure);
   cmfd->setKNearest(3);
 
@@ -699,8 +694,9 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
+#ifdef MPIx
   geometry.setDomainDecomposition(3, 3, 3, MPI_COMM_WORLD);
-  //geometry.setNumDomainModules(3,3,3);
+#endif
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 

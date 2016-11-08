@@ -33,6 +33,7 @@ Cmfd::Cmfd() {
   _solve_3D = false;
   _total_tally_size = 0;
   _tallies_allocated = false;
+  _linear_source = false;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -348,7 +349,7 @@ void Cmfd::collapseXS() {
     /* Pointers to material objects */
     Material* fsr_material;
     Material* cell_material;
-
+    
     /* Loop over CMFD cells */
 #pragma omp for
     for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
@@ -435,7 +436,7 @@ void Cmfd::collapseXS() {
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
-          if (rxn_tally_group != 0) {
+          if (rxn_tally_group != 0 && trans_tally_group != 0) {
             FP_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
             _diffusion_tally[i][e] += rxn_tally_group /
@@ -562,7 +563,8 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
    * coefficient correction factor */
-  //dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
+  if (!_linear_source)
+    dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
 
   /* If surface is on a boundary with REFLECTIVE or VACUUM BCs, choose
    * approipriate BC */
@@ -599,11 +601,12 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
-    //dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
+    if (!_linear_source)
+      dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
-        / (delta * dif_coef + delta * dif_coef_next);
+        / (delta * dif_coef + delta * dif_coef_next) + 0.25*delta;
 
     /* Get the outward current on surface */
     current_out = _surface_currents->getValue
@@ -690,7 +693,6 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Construct matrices */
   constructMatrices(moc_iteration);
-  checkNeutronBalance();
 
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
@@ -755,8 +757,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
   /* Zero _A and _M matrices */
   _A->clear();
   _M->clear();
-  _D->clear();
-  _TOT->clear();
 
   #pragma omp parallel
   {
@@ -779,7 +779,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
         /* Net removal term */
         value = material->getSigmaTByGroup(e+1) * volume;
         _A->incrementValue(i, e, i, e, value);
-        _TOT->incrementValue(i, e, i, e, value);
 
         /* Scattering gain from all groups */
         for (int g = 0; g < _num_cmfd_groups; g++) {
@@ -802,13 +801,11 @@ void Cmfd::constructMatrices(int moc_iteration) {
           /* Set the diagonal term */
           value = (dif_surf - sense * dif_surf_corr) * delta;
           _A->incrementValue(i, e, i, e, value);
-          _D->incrementValue(i, e, i, e, value);
 
           /* Set the off diagonal term */
           if (getCellNext(i, s) != -1) {
             value = - (dif_surf + sense * dif_surf_corr) * delta;
             _A->incrementValue(getCellNext(i, s), e, i, e, value);
-            _D->incrementValue(getCellNext(i, s), e, i, e, value);
           }
         }
 
@@ -970,6 +967,7 @@ void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
  */
 void Cmfd::setFluxMoments(FP_PRECISION* flux_moments) {
   _flux_moments = flux_moments;
+  _linear_source = true;
 }
 
 
@@ -2682,8 +2680,6 @@ void Cmfd::initialize() {
     /* Allocate memory for matrix and vector objects */
     _M = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _A = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _D = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _TOT = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _old_source = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _new_source = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _old_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
@@ -2877,14 +2873,10 @@ void Cmfd::checkNeutronBalance() {
   int num_groups = _old_flux->getNumGroups();
   Vector m_phi(cell_locks, num_x, num_y, num_z, num_groups);
   Vector a_phi(cell_locks, num_x, num_y, num_z, num_groups);
-  Vector d_phi(cell_locks, num_x, num_y, num_z, num_groups);
-  Vector tot_phi(cell_locks, num_x, num_y, num_z, num_groups);
 
   /* Compute CMFD balance */
   matrixMultiplication(_A, _old_flux, &a_phi);
   matrixMultiplication(_M, _old_flux, &m_phi);
-  matrixMultiplication(_D, _old_flux, &d_phi);
-  matrixMultiplication(_TOT, _old_flux, &tot_phi);
 
   /* Loop over CMFD cells */
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
@@ -2960,20 +2952,11 @@ void Cmfd::checkNeutronBalance() {
       double moc_balance = in_scattering + fission - total - net_current;
       log_printf(NORMAL, "MOC neutron balance in cell (%d, %d, %d) for CMFD "
                  "group %d = %f", x, y, z, e, moc_balance);
-      std::cout << "MOC leakage = " << net_current << std::endl;
-      std::cout << "MOC total = " << total << std::endl;
-      std::cout << "MOC fission = " << fission << std::endl;
-      std::cout << "MOC in-scattering = " << in_scattering << std::endl;
 
       double cmfd_balance = m_phi.getValue(i, e) / _k_eff -
           a_phi.getValue(i, e);
       log_printf(NORMAL, "CMFD neutron balance in cell (%d, %d, %d) for CMFD "
                  "group %d = %f", x, y, z, e, cmfd_balance);
-      std::cout << "CMFD leakage = " << d_phi.getValue(i, e) << std::endl;
-      std::cout << "CMFD total = " << tot_phi.getValue(i, e) << std::endl;
-      std::cout << "CMFD fission = " << m_phi.getValue(i, e) / _k_eff << std::endl;
-      std::cout << "CMFD in-scattering = " << tot_phi.getValue(i, e) + 
-          d_phi.getValue(i, e) - a_phi.getValue(i, e) << std::endl;
 
       log_printf(NORMAL, "Net neutron balance in cell (%d, %d, %d) for CMFD "
                  "group %d = %g", x, y, z, e, moc_balance - cmfd_balance);

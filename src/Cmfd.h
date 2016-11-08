@@ -57,8 +57,6 @@ private:
 
   /** The A (destruction) matrix */
   Matrix* _A;
-  Matrix* _D;
-  Matrix* _TOT;
 
   /** The M (production) matrix */
   Matrix* _M;
@@ -113,6 +111,9 @@ private:
 
   /** If the user specified fine-to-coarse group indices */
   bool _user_group_indices;
+  
+  /** If a linear source approximation is used */
+  bool _linear_source;
 
   /** Number of FSRs */
   int _num_FSRs;

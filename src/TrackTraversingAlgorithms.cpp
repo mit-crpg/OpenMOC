@@ -487,33 +487,58 @@ void LinearExpansionGenerator::execute() {
   if (_track_generator_3D != NULL) {
     for (int r=0; r < num_FSRs; r++) {
       det = lem[r*nc + 0] * lem[r*nc + 1] * lem[r*nc + 5] +
-          lem[r*nc + 2] * lem[r*nc + 4] * lem[r*nc + 3] +
-          lem[r*nc + 3] * lem[r*nc + 2] * lem[r*nc + 4] -
-          lem[r*nc + 0] * lem[r*nc + 4] * lem[r*nc + 4] -
-          lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
-          lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
+            lem[r*nc + 2] * lem[r*nc + 4] * lem[r*nc + 3] +
+            lem[r*nc + 3] * lem[r*nc + 2] * lem[r*nc + 4] -
+            lem[r*nc + 0] * lem[r*nc + 4] * lem[r*nc + 4] -
+            lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
+            lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
+      
+      if (std::abs(det) < MIN_DET) {
+        log_printf(WARNING, "Unable to form linear source components in "
+                   "source region %d. Switching to linear source in that "
+                   "source region.", r);
+        ilem[r*nc + 0] = 0.0;
+        ilem[r*nc + 1] = 0.0;
+        ilem[r*nc + 2] = 0.0;
+        ilem[r*nc + 3] = 0.0;
+        ilem[r*nc + 4] = 0.0;
+        ilem[r*nc + 5] = 0.0;
+      }
+      else {
 
-      ilem[r*nc + 0] = (lem[r*nc + 1] * lem[r*nc + 5] -
-                        lem[r*nc + 4] * lem[r*nc + 4]) / det;
-      ilem[r*nc + 1] = (lem[r*nc + 0] * lem[r*nc + 5] -
-                        lem[r*nc + 3] * lem[r*nc + 3]) / det;
-      ilem[r*nc + 2] = (lem[r*nc + 3] * lem[r*nc + 4] -
-                        lem[r*nc + 2] * lem[r*nc + 5]) / det;
-      ilem[r*nc + 3] = (lem[r*nc + 2] * lem[r*nc + 4] -
-                        lem[r*nc + 3] * lem[r*nc + 1]) / det;
-      ilem[r*nc + 4] = (lem[r*nc + 3] * lem[r*nc + 2] -
-                        lem[r*nc + 0] * lem[r*nc + 4]) / det;
-      ilem[r*nc + 5] = (lem[r*nc + 0] * lem[r*nc + 1] -
-                        lem[r*nc + 2] * lem[r*nc + 2]) / det;
+        ilem[r*nc + 0] = (lem[r*nc + 1] * lem[r*nc + 5] -
+                          lem[r*nc + 4] * lem[r*nc + 4]) / det;
+        ilem[r*nc + 1] = (lem[r*nc + 0] * lem[r*nc + 5] -
+                          lem[r*nc + 3] * lem[r*nc + 3]) / det;
+        ilem[r*nc + 2] = (lem[r*nc + 3] * lem[r*nc + 4] -
+                          lem[r*nc + 2] * lem[r*nc + 5]) / det;
+        ilem[r*nc + 3] = (lem[r*nc + 2] * lem[r*nc + 4] -
+                          lem[r*nc + 3] * lem[r*nc + 1]) / det;
+        ilem[r*nc + 4] = (lem[r*nc + 3] * lem[r*nc + 2] -
+                          lem[r*nc + 0] * lem[r*nc + 4]) / det;
+        ilem[r*nc + 5] = (lem[r*nc + 0] * lem[r*nc + 1] -
+                          lem[r*nc + 2] * lem[r*nc + 2]) / det;
+      }
     }
   }
   else {
     for (int r=0; r < num_FSRs; r++) {
+      
       det = lem[r*nc  ] * lem[r*nc + 1] - lem[r*nc + 2] * lem[r*nc + 2];
 
-      ilem[r*nc + 0] =  lem[r*nc + 1] / det;
-      ilem[r*nc + 1] =  lem[r*nc + 0] / det;
-      ilem[r*nc + 2] = -lem[r*nc + 2] / det;
+      if (std::abs(det) < MIN_DET) {
+        ilem[r*nc + 0] = 0.0;
+        ilem[r*nc + 1] = 0.0;
+        ilem[r*nc + 2] = 0.0;
+        log_printf(WARNING, "Unable to form linear source components in "
+                   "source region %d. Switching to linear source in that "
+                   "source region.", r);
+      }
+      else {
+        ilem[r*nc + 0] =  lem[r*nc + 1] / det;
+        ilem[r*nc + 1] =  lem[r*nc + 0] / det;
+        ilem[r*nc + 2] = -lem[r*nc + 2] / det;
+      }
     }
   }
 
@@ -674,8 +699,8 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       _lin_exp_coeffs[fsr*_num_coeffs + 5] += wgt * length / volume *
           (zc * zc + pow(cos_theta * length, 2.0) / 12.0);
     }
-
-		/* Set the source constants for all groups and coefficients */
+    
+	/* Set the source constants for all groups and coefficients */
     for (int g=0; g < _num_groups; g++) {
       for (int i=0; i < _num_coeffs; i++)
         _src_constants[fsr*_num_groups*_num_coeffs + g*_num_coeffs + i] +=

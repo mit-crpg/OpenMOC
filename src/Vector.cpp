@@ -1,5 +1,4 @@
 #include "Vector.h"
-#include <fstream>
 
 /**
  * @brief Constructor initializes Vector object as a floating point array
@@ -217,8 +216,6 @@ void Vector::scaleByValue(FP_PRECISION val) {
 void Vector::printString() {
 
   std::stringstream string;
-  //std::ofstream string;
-  //string.open("Sources.txt", std::ios_base::app);
   string << std::setprecision(6);
 
   string << std::endl;
@@ -230,8 +227,7 @@ void Vector::printString() {
 
   string << "End Vector" << std::endl;
 
-  std::cout << string.str() << std::endl;
-  //log_printf(NORMAL, string.str().c_str());
+  log_printf(NORMAL, string.str().c_str());
 }
 
 

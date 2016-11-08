@@ -59,13 +59,6 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
   old_source.scaleByValue(num_rows / old_source.getSum());
   X->scaleByValue(num_rows / old_source.getSum());
 
-  std::cout << "A Matrix" << std::endl;
-  A->printString();
-  std::cout << "M Matrix" << std::endl;
-  M->printString();
-  std::cout << "OLD FLUX Vector" << std::endl;
-  old_source.printString();
-
   /* Power iteration Matrix-Vector solver */
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
@@ -90,13 +83,6 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
     log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
                "%f", iter, _k_eff, residual);
 
-    /*
-    std::ofstream out;
-    out.open("Sources.txt", std::ios_base::app);
-    out << "ITER " << iter << std::endl;
-    out.close();
-    old_source.printString();
-*/
     /* Check for convergence */
     if (residual < tol && iter > MIN_LINALG_POWER_ITERATIONS)
       break;

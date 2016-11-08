@@ -53,6 +53,10 @@
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
+/** The minimum calculated determinant to allow for the calculation of a matrix
+  * inverse. */
+#define MIN_DET 1E-12
+
 /** The maximum number of iterations allowed for a power method eigenvalue
  *  solve in linalg.cpp */
 #define MIN_LINALG_POWER_ITERATIONS 10

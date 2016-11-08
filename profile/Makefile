@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
@@ -13,8 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-ws.cpp
-#case = c5g7/c5g7-rodded-B-2x2.cpp
+case = c5g7/c5g7-rodded-B.cpp
 
 source = \
 Cell.cpp \
@@ -67,8 +66,6 @@ CFLAGS = -std=gnu++0x
 ifeq ($(COMPILER),gnu)
   CC = gcc
   CFLAGS += -DGNU
-  CFLAGS += -march=native
-  #CFLAGS += -v
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif

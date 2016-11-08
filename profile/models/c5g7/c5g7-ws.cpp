@@ -228,10 +228,10 @@ int main(int argc, char* argv[]) {
   ZPlane zmin(-42.84);
   ZPlane zmax( 42.84);
 
-  xmin.setBoundaryType(PERIODIC);
-  xmax.setBoundaryType(PERIODIC);
-  ymin.setBoundaryType(PERIODIC);
-  ymax.setBoundaryType(PERIODIC);
+  xmin.setBoundaryType(REFLECTIVE);
+  xmax.setBoundaryType(REFLECTIVE);
+  ymin.setBoundaryType(REFLECTIVE);
+  ymax.setBoundaryType(REFLECTIVE);
   zmin.setBoundaryType(REFLECTIVE);
   zmax.setBoundaryType(REFLECTIVE);
 
@@ -767,8 +767,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.0);
-  //cmfd->setLatticeStructure(68, 68, 12*axial_refines);
-  cmfd->setLatticeStructure(3, 3, 3);
+  cmfd->setLatticeStructure(68, 68, 12*axial_refines);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -782,8 +781,8 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  //geometry.setDomainDecomposition(1, 1, 1, MPI_COMM_WORLD);
-  geometry.setNumDomainModules(8,8,8);
+  geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
+  geometry.setNumDomainModules(4,4,4);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
