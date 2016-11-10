@@ -13,14 +13,14 @@ int main(int argc, char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 1; //omp_get_num_procs();
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.2;
-  int num_azim = 8;
+  double azim_spacing = 0.1;
+  int num_azim = 16;
   double polar_spacing = 1.5;
-  int num_polar = 4;
+  int num_polar = 12;
   double tolerance = 1e-5;
   int max_iters = 50;
   int axial_refines = 3;
@@ -767,7 +767,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.0);
-  cmfd->setLatticeStructure(68, 68, 12*axial_refines);
+  cmfd->setLatticeStructure(68, 68, 17);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -781,8 +781,8 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
-  geometry.setNumDomainModules(4,4,4);
+  //geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
+  geometry.setNumDomainModules(8,8,8);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 

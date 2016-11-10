@@ -696,6 +696,8 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
+  std::cout << "VEC Flux" << std::endl;
+  _new_flux->printString();
 
   /* Start recording CMFD solve time */
   _timer->startTimer();
