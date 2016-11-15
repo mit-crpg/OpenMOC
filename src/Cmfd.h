@@ -78,6 +78,9 @@ private:
   /** Vector representing the ratio of the new to old CMFD flux */
   Vector* _flux_ratio;
 
+  /** The corrected diffusion coefficients from the previous iteration */
+  Vector* _old_dif_surf_corr;
+
   /** Gauss-Seidel SOR relaxation factor */
   FP_PRECISION _SOR_factor;
 
@@ -111,7 +114,7 @@ private:
 
   /** If the user specified fine-to-coarse group indices */
   bool _user_group_indices;
-  
+
   /** If a linear source approximation is used */
   bool _linear_source;
 
@@ -164,6 +167,9 @@ private:
 
   /** Number of cells to used in updating MOC flux */
   int _k_nearest;
+
+  /** Relaxation factor to use for corrected diffusion coefficients */
+  FP_PRECISION _relaxation_factor;
 
   /** Map storing the k-nearest stencil for each fsr */
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
@@ -271,6 +277,7 @@ public:
 
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
+  void setCMFDRelaxationFactor(FP_PRECISION relaxation_factor);
   void setGeometry(Geometry* geometry);
   void setWidthX(double width);
   void setWidthY(double width);

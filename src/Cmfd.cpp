@@ -44,9 +44,11 @@ Cmfd::Cmfd() {
   _A = NULL;
   _M = NULL;
   _k_eff = 1.0;
+  _relaxation_factor = 1.0;
   _old_flux = NULL;
   _new_flux = NULL;
   _flux_ratio = NULL;
+  _old_dif_surf_corr = NULL;
   _old_source = NULL;
   _new_source = NULL;
   _flux_moments = NULL;
@@ -349,7 +351,7 @@ void Cmfd::collapseXS() {
     /* Pointers to material objects */
     Material* fsr_material;
     Material* cell_material;
-    
+
     /* Loop over CMFD cells */
 #pragma omp for
     for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
@@ -586,6 +588,13 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       /* Set the surface diffusion coefficient and MOC correction */
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
+
+      /* Weight the old and new corrected diffusion coefficients by the
+         relaxation factor */
+      FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
+          (cmfd_cell, surface*_num_cmfd_groups+group);
+      dif_surf_corr = _relaxation_factor * dif_surf_corr +
+          (1.0 - _relaxation_factor) * old_dif_surf_corr;
     }
   }
 
@@ -622,6 +631,13 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient correction */
     dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
         / (flux_next + flux);
+
+    /* Weight the old and new corrected diffusion coefficients by the
+       relaxation factor */
+    FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
+        (cmfd_cell, surface*_num_cmfd_groups+group);
+    dif_surf_corr = _relaxation_factor * dif_surf_corr +
+        (1.0 - _relaxation_factor) * old_dif_surf_corr;
 
     /* If the magnitude of dif_surf_corr is greater than the magnitude of
      * dif_surf, select new values dif_surf_corr and dif_surf to ensure the
@@ -799,6 +815,9 @@ void Cmfd::constructMatrices(int moc_iteration) {
               i, s, e, moc_iteration, false);
           dif_surf_corr = getSurfaceDiffusionCoefficient(
               i, s, e, moc_iteration, true);
+
+          /* Record the corrected diffusion coefficient */
+          _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
 
           /* Set the diagonal term */
           value = (dif_surf - sense * dif_surf_corr) * delta;
@@ -984,6 +1003,21 @@ void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
                       "must be > 0 and < 2. Input value: %i", SOR_factor);
 
   _SOR_factor = SOR_factor;
+}
+
+
+/**
+ * @brief Set the CMFD relaxation factor applied to diffusion coefficients
+ * @param CMFD relaxation factor
+ */
+void Cmfd::setCMFDRelaxationFactor(FP_PRECISION relaxation_factor) {
+
+  if (relaxation_factor <= 0.0 || relaxation_factor > 1.0)
+    log_printf(ERROR, "The successive over-relaxation relaxation factor "
+                      "must be greater than 0 and less than or equal to 1. "
+                      "Input value: %i", relaxation_factor);
+
+  _relaxation_factor = relaxation_factor;
 }
 
 
@@ -2664,6 +2698,8 @@ void Cmfd::initialize() {
     delete _new_flux;
   if (_flux_ratio != NULL)
     delete _flux_ratio;
+  if (_old_dif_surf_corr != NULL)
+    delete _old_dif_surf_corr;
   if (_volumes != NULL)
     delete _volumes;
   if (_cell_locks != NULL)
@@ -2687,6 +2723,8 @@ void Cmfd::initialize() {
     _old_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _new_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _flux_ratio = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
+    _old_dif_surf_corr = new Vector(_cell_locks, _num_x, _num_y, _num_z,
+                                    NUM_SURFACES * ncg);
     _volumes = new Vector(_cell_locks, _num_x, _num_y, _num_z, 1);
 
     /* Initialize k-nearest stencils, currents, flux, and materials */
