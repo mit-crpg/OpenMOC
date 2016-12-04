@@ -24,8 +24,8 @@ max_iters = options.max_iters
 ##########################   Create Core Lattice  #############################
 ###############################################################################
 
-cells['Root'].addSurface(+1, surfaces['Root Big z-min'])
-cells['Root'].addSurface(-1, surfaces['Root Big z-max'])
+cells['Root'].addSurface(+1, surfaces['Root Small z-min'])
+cells['Root'].addSurface(-1, surfaces['Root Small z-max'])
 
 uu = universes['UO2 Unrodded Assembly']
 ur = universes['UO2 Rodded Assembly']

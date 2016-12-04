@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(5, 5, 5);
-  cmfd->setKNearest(3);
+  cmfd->setKNearest(1);
   //cmfd->setCentroidUpdateOn(false);
 
   /* Create the geometry */

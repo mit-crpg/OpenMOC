@@ -615,7 +615,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
-        / (delta * dif_coef + delta * dif_coef_next) + 0.25*delta;
+        / (delta * dif_coef + delta * dif_coef_next);
 
     /* Get the outward current on surface */
     current_out = _surface_currents->getValue
@@ -712,8 +712,6 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
-  std::cout << "VEC Flux" << std::endl;
-  _new_flux->printString();
 
   /* Start recording CMFD solve time */
   _timer->startTimer();
@@ -753,10 +751,8 @@ void Cmfd::rescaleFlux() {
   matrixMultiplication(_M, _new_flux, _new_source);
   matrixMultiplication(_M, _old_flux, _old_source);
 
-  _new_flux->scaleByValue(_num_x*_num_y*_num_z*_num_cmfd_groups /
-                          _new_source->getSum());
-  _old_flux->scaleByValue(_num_x*_num_y*_num_z*_num_cmfd_groups /
-                          _old_source->getSum());
+  _new_flux->scaleByValue(1.0 / _new_source->getSum());
+  _old_flux->scaleByValue(1.0 / _old_source->getSum());
 }
 
 
@@ -2369,7 +2365,6 @@ void Cmfd::generateKNearestStencils() {
       fsr_id = *fsr_iter;
 
       /* Get centroid */
-      //FIXME
       centroid = _geometry->getFSRCentroid(fsr_id);
 
       /* Create new stencil */
@@ -2918,6 +2913,10 @@ void Cmfd::checkNeutronBalance() {
   matrixMultiplication(_A, _old_flux, &a_phi);
   matrixMultiplication(_M, _old_flux, &m_phi);
 
+  double max_imbalance = 0.0;
+  int max_imbalance_cell = -1;
+  int max_imbalance_grp = -1;
+
   /* Loop over CMFD cells */
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
@@ -2990,17 +2989,30 @@ void Cmfd::checkNeutronBalance() {
       }
 
       double moc_balance = in_scattering + fission - total - net_current;
-      log_printf(NORMAL, "MOC neutron balance in cell (%d, %d, %d) for CMFD "
-                 "group %d = %f", x, y, z, e, moc_balance);
 
       double cmfd_balance = m_phi.getValue(i, e) / _k_eff -
-          a_phi.getValue(i, e);
-      log_printf(NORMAL, "CMFD neutron balance in cell (%d, %d, %d) for CMFD "
-                 "group %d = %f", x, y, z, e, cmfd_balance);
+            a_phi.getValue(i, e);
 
-      log_printf(NORMAL, "Net neutron balance in cell (%d, %d, %d) for CMFD "
-                 "group %d = %g", x, y, z, e, moc_balance - cmfd_balance);
+      double tmp_imbalance = std::max(std::abs(moc_balance),
+                                      std::abs(cmfd_balance));
+      if (tmp_imbalance > max_imbalance){
+        max_imbalance = tmp_imbalance;
+        max_imbalance_cell = i;
+        max_imbalance_grp = e;
+      }
 
+      if (std::abs(moc_balance - cmfd_balance) > 1e-14) {
+        log_printf(NORMAL, "MOC neutron balance in cell (%d, %d, %d) for CMFD "
+                   "group %d = %g", x, y, z, e, moc_balance);
+
+        log_printf(NORMAL, "CMFD neutron balance in cell (%d, %d, %d) for CMFD "
+                   "group %d = %g", x, y, z, e, cmfd_balance);
+
+        log_printf(NORMAL, "Net neutron balance in cell (%d, %d, %d) for CMFD "
+                   "group %d = %g", x, y, z, e, moc_balance - cmfd_balance);
+      }
     }
   }
+  log_printf(NORMAL, "Maximum neutron imbalance of %g at cell %i and group "
+             "%d.", max_imbalance, max_imbalance_cell, max_imbalance_grp);
 }

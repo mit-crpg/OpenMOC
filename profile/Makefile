@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-ws.cpp
+case = single-assembly/single-c5g7-assembly.cpp
 
 source = \
 Cell.cpp \

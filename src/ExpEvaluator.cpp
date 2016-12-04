@@ -226,6 +226,9 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
     num_array_values = _max_optical_length * pow(1. / (72. * sqrt(3.0)
                                                  * _exp_precision), 1.0/3.0);
 
+  if (num_array_values < 10)
+    num_array_values = 10;
+
   _exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Increment the number of vaues in the array to ensure that a tau equal to

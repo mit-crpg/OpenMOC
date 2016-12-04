@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
   int num_polar = 12;
   double tolerance = 1e-5;
   int max_iters = 50;
-  int axial_refines = 3;
+  int axial_refines = 1;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -686,18 +686,11 @@ int main(int argc, char* argv[]) {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setLatticeStructure(34, 34, 9);
+  cmfd->setLatticeStructure(34, 34, 3);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(7);
   for (int g=0; g<7; g++)
       cmfd_group_structure.at(g).push_back(g+1);
-  /*
-  cmfd_group_structure.resize(2);
-  for (int g=0; g<3; g++)
-    cmfd_group_structure.at(0).push_back(g+1);
-  for (int g=3; g<7; g++)
-    cmfd_group_structure.at(1).push_back(g+1);
-  */
   cmfd->setGroupStructure(cmfd_group_structure);
   cmfd->setKNearest(3);
 

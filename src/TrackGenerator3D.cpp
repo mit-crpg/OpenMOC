@@ -765,7 +765,7 @@ void TrackGenerator3D::initializeTracks() {
       /* Number of crossings along the z axis */
       double module_width_z = width_z / _geometry->getNumZModules();
       _num_z[i][j] = (int) ceil(module_width_z * _num_l[i][j] * tan(theta)
-                                / module_width_y * sin(phi));
+                                / length);
       _num_l[i][j] *= _geometry->getNumYModules();
       _num_z[i][j] *= _geometry->getNumZModules();
 

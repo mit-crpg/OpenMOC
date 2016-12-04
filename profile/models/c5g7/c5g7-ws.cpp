@@ -660,17 +660,17 @@ int main(int argc, char* argv[]) {
     assembly2,          assembly1,        assembly2,          assembly1,
     assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
     assembly2,          assembly1,        assembly2,          assembly1,
-    
+
     assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
     assembly2,          assembly1,        assembly2,          assembly1,
     assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
     assembly2,          assembly1,        assembly2,          assembly1,
-    
+
     assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
     assembly2,          assembly1,        assembly2,          assembly1,
     assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
     assembly2,          assembly1,        assembly2,          assembly1,
-    
+
     assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
     assembly2,          assembly1,        assembly2,          assembly1,
     assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
@@ -767,7 +767,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.0);
-  cmfd->setLatticeStructure(68, 68, 17);
+  cmfd->setLatticeStructure(68, 68, 48);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
