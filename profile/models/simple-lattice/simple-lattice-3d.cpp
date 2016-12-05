@@ -1,4 +1,5 @@
 #include "../../../src/CPULSSolver.h"
+#include "../../../src/Mesh.h"
 #include "../../../src/log.h"
 #include <array>
 #include <iostream>
@@ -216,10 +217,29 @@ int main(int argc, char* argv[]) {
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
-  solver.printFissionRates("temp2.txt", 4, 4, 1);
+  Lattice mesh_lattice;
+  Mesh mesh(&solver);
+  mesh.createLattice(4, 4, 8);
+  Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
+
+  int my_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+  if (my_rank == 0) {
+    for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {
+      std::cout << " -------- z = " << k << " ----------" << std::endl;
+      for (int j=0; j < rx_rates.at(0).size(); j++) {
+        for (int i=0; i < rx_rates.size(); i++) {
+          std::cout << rx_rates.at(i).at(j).at(k) << " ";
+        }
+        std::cout << std::endl;
+      }
+    }
+  }
+
   log_printf(TITLE, "Finished");
 #ifdef MPIx
   MPI_Finalize();
 #endif
+
   return 0;
 }

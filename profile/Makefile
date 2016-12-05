@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-rodded-B.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 
 source = \
 Cell.cpp \
@@ -27,6 +27,7 @@ linalg.cpp \
 log.cpp \
 Material.cpp \
 Matrix.cpp \
+Mesh.cpp \
 MOCKernel.cpp \
 Point.cpp \
 Progress.cpp \
@@ -72,7 +73,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpicc
+  CC = mpiCC
   CFLAGS += -DMPIx
   CFLAGS += -march=native
   LDFLAGS += -lm
@@ -215,5 +216,5 @@ edit:
 	vim -p $(case) $(cases)
 
 run:
-	./$(program)
-	#mpirun -np 2 ./$(program)
+	#./$(program)
+	mpirun -np 2 ./$(program)

@@ -1235,3 +1235,12 @@ void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
   delete [] fission_rates;
   delete [] fsr_fission_rates;
 }
+
+
+/**
+ * @brief A function that returns the underlying array of scalar fluxes
+ * @return The scalar fluxes
+ */
+FP_PRECISION* Solver::getFluxesArray() {
+  return _scalar_flux;
+}

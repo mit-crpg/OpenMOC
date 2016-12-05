@@ -63,7 +63,7 @@
 /**
  * @enum solverMode
  * @brief The solution mode used by the MOC solver.
-*/
+ */
 enum solverMode {
 
   /** The forward flux distribution */
@@ -77,7 +77,7 @@ enum solverMode {
 /**
  * @enum residualType
  * @brief The type of residual used for the convergence criterion.
-*/
+ */
 enum residualType {
 
   /** A residual on the scalar flux distribution */
@@ -360,6 +360,7 @@ public:
   }
 
   void printTimerReport();
+  FP_PRECISION* getFluxesArray();
 
   //FIXME
   inline void setOTFTransport() {
