@@ -845,7 +845,7 @@ void TrackGenerator::initializeTracks() {
     _num_x[a] = (int) (fabs(module_width / _azim_spacing * sin(phi))) + 1;
     _num_y[a] = (int) (fabs(module_height / _azim_spacing * cos(phi))) + 1;
 
-    /* FIXME */
+    /* Extend the number of intersections with x,y axes for modules */
     _num_x[a] *= _geometry->getNumXModules();
     _num_y[a] *= _geometry->getNumYModules();
 

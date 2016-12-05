@@ -88,7 +88,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
       break;
   }
 
-  log_printf(NORMAL, "Matrix-Vector eigenvalue solve iterations: %d", iter);
+  log_printf(INFO, "Matrix-Vector eigenvalue solve iterations: %d", iter);
 
   return _k_eff;
 }

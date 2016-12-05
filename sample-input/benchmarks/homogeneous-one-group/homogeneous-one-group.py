@@ -33,7 +33,6 @@ log.py_printf('NORMAL', 'Creating materials...')
 
 infinite_medium = Material(name='1-group infinite medium')
 infinite_medium.setNumEnergyGroups(1)
-#infinite_medium.setSigmaA(numpy.array([0.069389522]))
 infinite_medium.setSigmaF(numpy.array([0.0414198575]))
 infinite_medium.setNuSigmaF(numpy.array([0.0994076580]))
 infinite_medium.setSigmaS(numpy.array([0.383259177]))
@@ -99,8 +98,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
-                                         azim_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 

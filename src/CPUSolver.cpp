@@ -1314,10 +1314,8 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
 
 #pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _num_groups; e++)
       _scalar_flux(r, e) *= norm_factor;
-      _old_scalar_flux(r, e) *= norm_factor;
-    }
   }
 
   /* Normalize angular boundary fluxes for each Track */

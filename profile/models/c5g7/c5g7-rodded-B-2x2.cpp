@@ -17,13 +17,14 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.1;
+  double azim_spacing = 0.5;
   int num_azim = 16;
   double polar_spacing = 1.5;
-  int num_polar = 12;
+  int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 50;
-  int axial_refines = 3;
+  int axial_refines = 1;
+  int axial_zones = 3;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -193,8 +194,6 @@ int main(int argc, char* argv[]) {
         0., 0., 0., 6.55562E-05, 2.07838E-01, 3.81486E-03, 3.69760E-09,
         0., 0., 0., 0., 1.02427E-03, 2.02465E-01, 4.75290E-03,
         0., 0., 0., 0., 0., 3.53043E-03, 6.58597E-01};
-
-
   chi["Control Rod"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
   sigma_t["Control Rod"] = std::array<double, num_groups> {2.16768E-01,
     4.80098E-01, 8.86369E-01, 9.70009E-01, 9.10482E-01, 1.13775E+00,
@@ -221,12 +220,12 @@ int main(int argc, char* argv[]) {
   }
 
   /* Create surfaces */
-  XPlane xmin(-42.84);
-  XPlane xmax( 42.84);
-  YPlane ymin(-42.84);
-  YPlane ymax( 42.84);
-  ZPlane zmin(-42.84);
-  ZPlane zmax( 42.84);
+  XPlane xmin(-21.42);
+  XPlane xmax( 21.42);
+  YPlane ymin(-21.42);
+  YPlane ymax( 21.42);
+  ZPlane zmin(-7.14*axial_zones/2);
+  ZPlane zmax( 7.14*axial_zones/2);
 
   xmin.setBoundaryType(REFLECTIVE);
   xmax.setBoundaryType(REFLECTIVE);
@@ -390,7 +389,7 @@ int main(int argc, char* argv[]) {
 
   /* Top left, bottom right 17 x 17 assemblies */
   Lattice* assembly1_lattice = new Lattice();
-  assembly1_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  assembly1_lattice->setWidth(1.26, 1.26, axial_zones*7.14/axial_refines);
   Universe* matrix1[17*17*axial_refines];
   {
     int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -423,7 +422,7 @@ int main(int argc, char* argv[]) {
 
   /* Top right, bottom left 17 x 17 assemblies */
   Lattice* assembly2_lattice = new Lattice();
-  assembly2_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  assembly2_lattice->setWidth(1.26, 1.26, axial_zones*7.14/axial_refines);
   Universe* matrix2[17*17*axial_refines];
   {
     int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -454,310 +453,15 @@ int main(int argc, char* argv[]) {
   }
   assembly2_cell->setFill(assembly2_lattice);
 
-  /* Top left, bottom right 17 x 17 assemblies */
-  Lattice* assembly1_lattice_rodded = new Lattice();
-  assembly1_lattice_rodded->setWidth(1.26, 1.26, 7.14/axial_refines);
-  Universe* matrix1_rodded[17*17*axial_refines];
-  {
-    int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
-                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 2, 1, 1, 2, 1, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
-                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-
-    std::map<int, Universe*> names = {{1, uo2}, {2, control_rod},
-                                      {3, fission_chamber}};
-    for (int z=0; z < axial_refines; z++)
-      for (int n=0; n<17*17; n++)
-        matrix1_rodded[z*17*17 + n] = names[mold[n]];
-
-    assembly1_lattice_rodded->setUniverses(axial_refines, 17, 17,
-                                           matrix1_rodded);
-  }
-  assembly1_cell_rodded->setFill(assembly1_lattice_rodded);
-
-  /* Top right, bottom left 17 x 17 assemblies */
-  Lattice* assembly2_lattice_rodded = new Lattice();
-  assembly2_lattice_rodded->setWidth(1.26, 1.26, 7.14/axial_refines);
-  Universe* matrix2_rodded[17*17*axial_refines];
-  {
-    int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-                        1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1,
-                        1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1,
-                        1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1,
-                        1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1,
-                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
-                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
-                        1, 2, 4, 3, 3, 4, 3, 3, 5, 3, 3, 4, 3, 3, 4, 2, 1,
-                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
-                        1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 1,
-                        1, 2, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 4, 2, 1,
-                        1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1,
-                        1, 2, 2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 2, 4, 2, 2, 1,
-                        1, 2, 2, 2, 2, 4, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 1,
-                        1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-
-    std::map<int, Universe*> names = {{1, mox43}, {2, mox7}, {3, mox87},
-                                      {4, control_rod}, {5, fission_chamber}};
-    for (int z=0; z < axial_refines; z++)
-      for (int n=0; n<17*17; n++)
-        matrix2_rodded[z*17*17 + n] = names[mold[n]];
-
-    assembly2_lattice_rodded->setUniverses(axial_refines, 17, 17,
-                                           matrix2_rodded);
-  }
-  assembly2_cell_rodded->setFill(assembly2_lattice_rodded);
-
-  /* Top right, bottom left 17 x 17 assemblies */
-  Lattice* reflector_rodded_lattice = new Lattice();
-  reflector_rodded_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
-  Universe* matrix_ref_rodded[17*17*axial_refines];
-  {
-    int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
-                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 2, 1, 1, 2, 1, 1, 3, 1, 1, 2, 1, 1, 2, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
-                        1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-
-    std::map<int, Universe*> names = {{1, moderator_pin}, {2, control_rod},
-                                      {3, fission_chamber}};
-    for (int z=0; z < axial_refines; z++)
-      for (int n=0; n<17*17; n++)
-        matrix_ref_rodded[z*17*17 + n] = names[mold[n]];
-
-    reflector_rodded_lattice->setUniverses(axial_refines, 17, 17,
-                                           matrix_ref_rodded);
-  }
-  reflector_rodded_cell->setFill(reflector_rodded_lattice);
-
-  /* Sliced up water cells - semi finely spaced */
-  Lattice* refined_ref_lattice = new Lattice();
-  int nr = 3;
-  refined_ref_lattice->setWidth(1.26/nr, 1.26/nr, 7.14/axial_refines);
-  Universe* refined_ref_matrix[nr*nr*axial_refines];
-  for (int z=0; z < axial_refines; z++)
-    for (int n=0; n<nr*nr; n++)
-      refined_ref_matrix[z*nr*nr + n] = reflector;
-  refined_ref_lattice->setUniverses(axial_refines, nr, nr, refined_ref_matrix);
-  refined_reflector_cell->setFill(refined_ref_lattice);
-
-  /* Sliced up water cells - right side of geometry */
-  Lattice* right_ref_lattice = new Lattice();
-  right_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
-  Universe* right_ref_matrix[17*17*axial_refines];
-  for (int z=0; z < axial_refines; z++) {
-    for (int i=0; i<17; i++) {
-      for (int j=0; j<17; j++) {
-        int index =  17*j + i;
-        if (i<11)
-          right_ref_matrix[17*17*z + index] = refined_reflector;
-        else
-          right_ref_matrix[17*17*z + index] = reflector;
-      }
-    }
-  }
-  right_ref_lattice->setUniverses(axial_refines, 17, 17, right_ref_matrix);
-  right_reflector_cell->setFill(right_ref_lattice);
-
-  /* Sliced up water cells for bottom corner of geometry */
-  Lattice* corner_ref_lattice = new Lattice();
-  corner_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
-  Universe* corner_ref_matrix[17*17*axial_refines];
-  for (int z=0; z < axial_refines; z++) {
-    for (int i=0; i<17; i++) {
-      for (int j=0; j<17; j++) {
-        int index = 17*j + i;
-        if (i<11 && j<11)
-          corner_ref_matrix[17*17*z + index] = refined_reflector;
-        else
-          corner_ref_matrix[17*17*z + index] = reflector;
-      }
-    }
-  }
-  corner_ref_lattice->setUniverses(axial_refines, 17, 17, corner_ref_matrix);
-  corner_reflector_cell->setFill(corner_ref_lattice);
-
-  /* Sliced up water cells for bottom of geometry */
-  Lattice* bottom_ref_lattice = new Lattice();
-  bottom_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
-  Universe* bottom_ref_matrix[17*17*axial_refines];
-  for (int z=0; z < axial_refines; z++) {
-    for (int i=0; i<17; i++) {
-      for (int j=0; j<17; j++) {
-        int index = 17*j + i;
-        if (j<11)
-          bottom_ref_matrix[17*17*z + index] = refined_reflector;
-        else
-          bottom_ref_matrix[17*17*z + index] = reflector;
-      }
-    }
-  }
-  bottom_ref_lattice->setUniverses(axial_refines, 17, 17, bottom_ref_matrix);
-  bottom_reflector_cell->setFill(bottom_ref_lattice);
-
-  /* Reflector assembly (unrodded) */
-  Lattice* assembly_ref_lattice = new Lattice();
-  assembly_ref_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
-  Universe* assembly_ref_matrix[17*17*axial_refines];
-  for (int n=0; n < axial_refines*17*17; n++)
-    assembly_ref_matrix[n] = refined_reflector;
-
-  assembly_ref_lattice->setUniverses(axial_refines, 17, 17, assembly_ref_matrix);
-  reflector_assembly_cell->setFill(assembly_ref_lattice);
-
   /* 3 x 3 x 9 core to represent two bundles and water */
   Lattice* full_geometry = new Lattice();
-  full_geometry->setWidth(21.42, 21.42, 7.14);
-/*
+  full_geometry->setWidth(21.42, 21.42, axial_zones*7.14);
   Universe* universes[] = {
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
+    assembly1,          assembly2,
+    assembly2,          assembly1};
 
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
 
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
-
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
-    assembly1_rodded,   assembly2_rodded, assembly1_rodded,   assembly2_rodded,
-    assembly2_rodded,   assembly1,        assembly2_rodded,   assembly1,
-
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1_rodded,   assembly2,        assembly1_rodded,   assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1,
-    assembly1,          assembly2,        assembly1,          assembly2,
-    assembly2,          assembly1,        assembly2,          assembly1};
-*/
-  Universe* universes[] = {
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1,
-    assembly1,   assembly2, assembly1,   assembly2,
-    assembly2,   assembly1, assembly2,   assembly1};
-
-  full_geometry->setUniverses(12, 4, 4, universes);
+  full_geometry->setUniverses(1, 2, 2, universes);
 
   /* Fill root cell with lattice */
   root_cell->setFill(full_geometry);
@@ -766,8 +470,8 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating CMFD mesh...");
 
   Cmfd* cmfd = new Cmfd();
-  cmfd->setSORRelaxationFactor(1.0);
-  cmfd->setLatticeStructure(68, 68, 48);
+  cmfd->setSORRelaxationFactor(1.5);
+  cmfd->setLatticeStructure(34, 34, 3*axial_zones);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -781,8 +485,10 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
-  //geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
-  geometry.setNumDomainModules(8,8,8);
+#ifdef MPIx
+  geometry.setDomainDecomposition(1, 1, 1, MPI_COMM_WORLD);
+#endif
+  geometry.setNumDomainModules(2,2,2);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -796,7 +502,8 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_zones {-42.84, -14.28, 14.28, 42.84};
+  std::vector<FP_PRECISION> seg_zones {-7.14*axial_zones/2, 0,
+                                        7.14*axial_zones/2};
   track_generator.setSegmentationZones(seg_zones);
   track_generator.generateTracks();
 

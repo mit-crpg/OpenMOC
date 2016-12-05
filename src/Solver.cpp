@@ -1015,7 +1015,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    normalizeFluxes();
     computeFSRSources();
     _timer->startTimer();
     transportSweep();
@@ -1029,6 +1028,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     else
       computeKeff();
 
+    normalizeFluxes();
     residual = computeResidual(res_type);
     log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
                "\tres = %1.3E", i, _k_eff, residual);

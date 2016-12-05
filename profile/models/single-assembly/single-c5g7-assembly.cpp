@@ -1,4 +1,5 @@
 #include "../../../src/CPUSolver.h"
+#include "../../../src/CPULSSolver.h"
 #include "../../../src/log.h"
 #include <array>
 #include <iostream>
@@ -21,6 +22,7 @@ int main() {
 
   /* Set logging information */
   set_log_level("NORMAL");
+  set_line_length(120);
   log_printf(TITLE, "Simulating the OECD's C5G7 Benchmark Problem...");
 
   /* Define material properties */
@@ -195,8 +197,8 @@ int main() {
   XPlane xmax( 10.71);
   YPlane ymin(-10.71);
   YPlane ymax( 10.71);
-  ZPlane zmin(-32.13);
-  ZPlane zmax( 32.13);
+  ZPlane zmin(-7.14);
+  ZPlane zmax( 7.14);
 
   xmin.setBoundaryType(REFLECTIVE);
   xmax.setBoundaryType(REFLECTIVE);
@@ -336,7 +338,7 @@ int main() {
 
   /* Top left, bottom right 17 x 17 assemblies */
   Lattice* assembly1_lattice = new Lattice();
-  assembly1_lattice->setWidth(1.26, 1.26, 7.14/axial_refines);
+  assembly1_lattice->setWidth(1.26, 1.26, 2*7.14/axial_refines);
   Universe* matrix1[17*17*axial_refines];
   {
     int mold[17*17] =  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -476,53 +478,29 @@ int main() {
 
   /* 3 x 3 x 9 core to represent two bundles and water */
   Lattice* full_geometry = new Lattice();
-  full_geometry->setWidth(21.42, 21.42, 7.14);
-  Universe* universes[] = {
-    assembly_reflector, assembly_reflector, right_reflector,
-    assembly_reflector, assembly_reflector, right_reflector,
-    bottom_reflector,   bottom_reflector,   corner_reflector,
 
-    assembly_reflector, assembly_reflector, right_reflector,
-    assembly_reflector, assembly_reflector, right_reflector,
-    bottom_reflector,   bottom_reflector,   corner_reflector,
-
-    assembly_reflector, assembly_reflector, right_reflector,
-    assembly_reflector, assembly_reflector, right_reflector,
-    bottom_reflector,   bottom_reflector,   corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector,
-
-    assembly1,        assembly2,        right_reflector,
-    assembly2,        assembly1,        right_reflector,
-    bottom_reflector, bottom_reflector, corner_reflector};
-
-  full_geometry->setUniverses(9, 3, 3, universes);
+  full_geometry->setWidth(21.42, 21.42, 14.28);
+  Universe* universes[] = {assembly1};
+  full_geometry->setUniverses(1, 1, 1, universes);
 
   /* Fill root cell with lattice */
   root_cell->setFill(full_geometry);
+
+  Cmfd* cmfd = new Cmfd();
+  cmfd->setSORRelaxationFactor(1.5);
+  cmfd->setLatticeStructure(17, 17, 15);
+  std::vector<std::vector<int> > cmfd_group_structure;
+  cmfd_group_structure.resize(7);
+  for (int g=0; g<7; g++)
+    cmfd_group_structure.at(g).push_back(g+1);
+  cmfd->setGroupStructure(cmfd_group_structure);
+  cmfd->setKNearest(1);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
+  geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
@@ -533,9 +511,11 @@ int main() {
                                    polar_spacing);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
-  track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_heights {0.0, 20.0};
-  track_generator.setSegmentationHeights(seg_heights);
+
+  track_generator.setSegmentFormation(OTF_TRACKS);
+  std::vector<FP_PRECISION> seg_heights {-7.14, 7.14};
+  track_generator.setSegmentationZones(seg_heights);
+
   track_generator.generateTracks();
 
   /* Run simulation */

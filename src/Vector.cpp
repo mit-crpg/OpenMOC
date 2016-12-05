@@ -227,7 +227,8 @@ void Vector::printString() {
 
   string << "End Vector" << std::endl;
 
-  log_printf(NORMAL, string.str().c_str());
+  std::cout << string.str() << std::endl;
+  //log_printf(NORMAL, string.str().c_str());
 }
 
 
