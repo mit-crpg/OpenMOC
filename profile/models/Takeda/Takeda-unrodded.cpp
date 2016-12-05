@@ -6,8 +6,10 @@
 
 int main(int argc, char* argv[]) {
 
+#ifdef MPIx
   MPI_Init(&argc, &argv);
   log_set_ranks(MPI_COMM_WORLD);
+#endif
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -15,9 +17,9 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.1;
+  double azim_spacing = 1.0;
   int num_azim = 4;
-  double polar_spacing = 0.1;
+  double polar_spacing = 1.0;
   int num_polar = 6;
   double tolerance = 1e-7;
   int max_iters = 1000;
@@ -201,7 +203,6 @@ int main(int argc, char* argv[]) {
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(5, 5, 5);
   cmfd->setKNearest(1);
-  //cmfd->setCentroidUpdateOn(false);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -218,11 +219,11 @@ int main(int argc, char* argv[]) {
   quad->setNumPolarAngles(num_polar);
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
+  track_generator.setSegmentFormation(OTF_TRACKS);
+  std::vector<FP_PRECISION> seg_zones {-12.5, 12.5};
+  track_generator.setSegmentationZones(seg_zones);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
-  track_generator.setSegmentFormation(OTF_TRACKS);
-  std::vector<FP_PRECISION> seg_heights {0.0};
-  track_generator.setSegmentationHeights(seg_heights);
   track_generator.generateTracks();
 
   /* Run simulation */
@@ -233,6 +234,8 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
+#ifdef MPIx
   MPI_Finalize();
+#endif
   return 0;
 }
