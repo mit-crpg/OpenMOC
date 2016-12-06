@@ -565,8 +565,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
    * coefficient correction factor */
-  if (!_linear_source)
-    dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
+  dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
 
   /* If surface is on a boundary with REFLECTIVE or VACUUM BCs, choose
    * approipriate BC */
@@ -610,8 +609,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
-    if (!_linear_source)
-      dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
+    dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
@@ -876,11 +874,10 @@ void Cmfd::updateMOCFlux() {
         for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
           /* Update FSR flux using ratio of old and new CMFD flux */
-          _FSR_fluxes[*iter*_num_moc_groups + h] = update_ratio
-            * _FSR_fluxes[*iter*_num_moc_groups + h];
+          _FSR_fluxes[*iter*_num_moc_groups + h] *= update_ratio;
 
           /* Update flux moments if they were set */
-          if (_flux_moments != NULL) {
+          if (_linear_source) {
             _flux_moments[(*iter)*3*_num_moc_groups + h*3] *= update_ratio;
             _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 1] *= update_ratio;
             _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 2] *= update_ratio;
