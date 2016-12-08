@@ -1013,6 +1013,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   _timer->startTimer();
 
   /* Source iteration loop */
+  normalizeFluxes();
   for (int i=0; i < max_iters; i++) {
 
     computeFSRSources();

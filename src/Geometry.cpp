@@ -1626,7 +1626,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       int cmfd_surfaces[2];
       cmfd_surfaces[0] = _cmfd->findCmfdSurface(cmfd_cell, &end);
       cmfd_surfaces[1] = _cmfd->findCmfdSurface(cmfd_cell, &start);
-      
+
       /* Ensure surfaces are x-y surfaces (no z-crossings) */
       /* Note: this code takes advantage of the numeric representation of
          surfaces to find a mapping that removes z-surfaces */
@@ -1644,8 +1644,8 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
             cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
           }
           else {
-            local_surface = (half_surf > 6) + 3 * 
-                (local_surface == 2*half_surf);
+            local_surface = (half_surf > 6) + 3 *
+                (local_surface != 2*half_surf);
             cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
           }
         }

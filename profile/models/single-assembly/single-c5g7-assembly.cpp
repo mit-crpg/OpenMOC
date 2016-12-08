@@ -12,9 +12,9 @@ int main() {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.1;
-  int num_azim = 16;
-  double polar_spacing = 0.2;
+  double azim_spacing = 0.25;
+  int num_azim = 4;
+  double polar_spacing = 1.0;
   int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 1000;
@@ -488,7 +488,7 @@ int main() {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setLatticeStructure(17, 17, 15);
+  cmfd->setLatticeStructure(17, 17, 10);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(7);
   for (int g=0; g<7; g++)
@@ -519,7 +519,7 @@ int main() {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);

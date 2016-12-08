@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-rodded-B-2x2.cpp
+case = c5g7/c5g7-rodded-B.cpp
 
 source = \
 Cell.cpp \
@@ -216,5 +216,5 @@ edit:
 	vim -p $(case) $(cases)
 
 run:
-	#./$(program)
-	mpirun -np 2 ./$(program)
+	./$(program)
+	#mpirun -np 2 ./$(program)

@@ -32,6 +32,12 @@ int main(int argc, char* argv[]) {
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties...");
 
+  log_printf(NORMAL, "Azimuthal spacing = %f", azim_spacing);
+  log_printf(NORMAL, "Azimuthal angles = %d", num_azim);
+  log_printf(NORMAL, "Polar spacing = %f", polar_spacing);
+  log_printf(NORMAL, "Polar angles = %d", num_polar);
+  log_printf(NORMAL, "Source region height = %f", 7.14/axial_refines);
+
   const size_t num_groups = 7;
   std::map<std::string, std::array<double, num_groups> > sigma_a;
   std::map<std::string, std::array<double, num_groups> > nu_sigma_f;
@@ -680,7 +686,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
-  cmfd->setLatticeStructure(51, 51, 27);
+  cmfd->setLatticeStructure(51, 51, 9*axial_refines);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -720,6 +726,27 @@ int main(int argc, char* argv[]) {
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
+
+  /* Extract reaction rates */
+  Lattice mesh_lattice;
+  Mesh mesh(&solver);
+  mesh.createLattice(51, 51, 1);
+  Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
+
+  int my_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+  if (my_rank == 0) {
+    for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {
+      std::cout << " -------- z = " << k << " ----------" << std::endl;
+      for (int j=0; j < rx_rates.at(0).size(); j++) {
+        for (int i=0; i < rx_rates.size(); i++) {
+          std::cout << rx_rates.at(i).at(j).at(k) << " ";
+        }
+        std::cout << std::endl;
+      }
+    }
+  }
+
 
   log_printf(TITLE, "Finished");
 #ifdef MPIx
