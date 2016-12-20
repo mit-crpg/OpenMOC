@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-rodded-B.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 
 source = \
 Cell.cpp \

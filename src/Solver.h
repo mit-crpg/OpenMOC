@@ -213,6 +213,9 @@ protected:
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
 
+  /** A string indicating the type of source apporximation */
+  std::string _source_type;
+
   /**
    * @brief Initializes Track boundary angular flux and leakage and
    *        FSR scalar flux arrays.
@@ -309,6 +312,7 @@ public:
   virtual void initializeFixedSources();
 
   void printFissionRates(std::string fname, int nx, int ny, int nz);
+  void printInputParamsSummary();
 
   virtual FP_PRECISION getFlux(int fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;

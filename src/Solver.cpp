@@ -40,6 +40,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _old_scalar_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
+  _source_type = "None";
 
   /* Default polar quadrature */
   _fluxes_per_track = 0;
@@ -996,6 +997,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeSourceArrays();
   initializeCmfd();
   _geometry->fixFSRMaps();
+  printInputParamsSummary();
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
@@ -1244,4 +1246,42 @@ void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
  */
 FP_PRECISION* Solver::getFluxesArray() {
   return _scalar_flux;
+}
+
+
+/**
+ * @brief A function that prints a summary of the input parameters
+ */
+void Solver::printInputParamsSummary() {
+
+  /* Print track laydown parameters */
+  log_printf(NORMAL, "Number of azimuthal angles = %d",
+             _quad->getNumAzimAngles());
+  log_printf(NORMAL, "Azimuthal ray spacing = %f",
+             _track_generator->getDesiredAzimSpacing());
+  log_printf(NORMAL, "Number of polar angles = %d",
+             _quad->getNumPolarAngles());
+  if (_solve_3D) {
+    TrackGenerator3D* track_generator_3D =
+      static_cast<TrackGenerator3D*>(_track_generator);
+    log_printf(NORMAL, "Z-spacing = %f",
+               track_generator_3D->getDesiredZSpacing());
+  }
+
+  /* Print source type */
+  log_printf(NORMAL, "Source type = %s", _source_type.c_str());
+
+  /* Print CMFD parameters */
+  if (_cmfd != NULL) {
+    log_printf(NORMAL, "CMFD acceleration: ON");
+    log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _cmfd->getNumX(),
+               _cmfd->getNumY(), _cmfd->getNumZ());
+    log_printf(NORMAL, "CMFD Group Structure:");
+    log_printf(NORMAL, "\t MOC Group \t CMFD Group");
+    for (int g=0; g < _cmfd->getNumMOCGroups(); g++)
+      log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
+  }
+  else {
+    log_printf(NORMAL, "CMFD acceleration: OFF");
+  }
 }

@@ -14,6 +14,7 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
 
   setNumThreads(1);
   _FSR_locks = NULL;
+  _source_type = "Flat";
 #ifdef MPIx
   _track_message_size = 0;
   _MPI_requests = NULL;

@@ -187,6 +187,13 @@ int main(int argc, char* argv[]) {
 
   Cmfd cmfd;
   cmfd.setLatticeStructure(2,2,4);
+  std::vector<std::vector<int> > cmfd_group_structure;
+  cmfd_group_structure.resize(2);
+  for (int g=0; g<3; g++)
+    cmfd_group_structure.at(0).push_back(g+1);
+  for (int g=3; g<7; g++)
+    cmfd_group_structure.at(1).push_back(g+1);
+  cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setKNearest(3);
 
   /* Create the geometry */
@@ -222,8 +229,10 @@ int main(int argc, char* argv[]) {
   mesh.createLattice(4, 4, 8);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
-  int my_rank;
+  int my_rank = 0;
+#ifdef MPIx
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+#endif
   if (my_rank == 0) {
     for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {
       std::cout << " -------- z = " << k << " ----------" << std::endl;

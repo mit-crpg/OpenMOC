@@ -15,6 +15,7 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xyz = NULL;
   _reduced_sources_xyz = NULL;
+  _source_type = "Linear";
 }
 
 
