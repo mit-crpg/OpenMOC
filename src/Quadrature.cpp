@@ -1158,56 +1158,6 @@ void GLPolarQuad::initialize() {
       thetas[a*(_num_polar/2)+i] = acos(_roots[i]);
     }
   }
-  else if (_num_polar == 14) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1080549487073436620662447);
-      thetas[a*(_num_polar/2)+1] = acos(0.3191123689278897604356718);
-      thetas[a*(_num_polar/2)+2] = acos(0.5152486363581540919652907);
-      thetas[a*(_num_polar/2)+3] = acos(0.6872929048116854701480198);
-      thetas[a*(_num_polar/2)+4] = acos(0.8272013150697649931897947);
-      thetas[a*(_num_polar/2)+5] = acos(0.9284348836635735173363911);
-      thetas[a*(_num_polar/2)+6] = acos(0.9862838086968123388415973);
-    }
-  }
-  else if (_num_polar == 16) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.0950125098376374401853193);
-      thetas[a*(_num_polar/2)+1] = acos(0.2816035507792589132304605);
-      thetas[a*(_num_polar/2)+2] = acos(0.4580167776572273863424194);
-      thetas[a*(_num_polar/2)+3] = acos(0.6178762444026437484466718);
-      thetas[a*(_num_polar/2)+4] = acos(0.7554044083550030338951012);
-      thetas[a*(_num_polar/2)+5] = acos(0.8656312023878317438804679);
-      thetas[a*(_num_polar/2)+6] = acos(0.9445750230732325760779884);
-      thetas[a*(_num_polar/2)+7] = acos(0.9894009349916499325961542);
-    }
-  }
-  else if (_num_polar == 18) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.0847750130417353012422619);
-      thetas[a*(_num_polar/2)+1] = acos(0.2518862256915055095889729);
-      thetas[a*(_num_polar/2)+2] = acos(0.4117511614628426460359318);
-      thetas[a*(_num_polar/2)+3] = acos(0.5597708310739475346078715);
-      thetas[a*(_num_polar/2)+4] = acos(0.6916870430603532078748911);
-      thetas[a*(_num_polar/2)+5] = acos(0.8037049589725231156824175);
-      thetas[a*(_num_polar/2)+6] = acos(0.8926024664975557392060606);
-      thetas[a*(_num_polar/2)+7] = acos(0.9558239495713977551811959);
-      thetas[a*(_num_polar/2)+8] = acos(0.9915651684209309467300160);
-    }
-  }
-  else if (_num_polar == 20) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)]   = acos(0.0765265211334973337546404);
-      thetas[a*(_num_polar/2)+1] = acos(0.2277858511416450780804962);
-      thetas[a*(_num_polar/2)+2] = acos(0.3737060887154195606725482);
-      thetas[a*(_num_polar/2)+3] = acos(0.5108670019508270980043641);
-      thetas[a*(_num_polar/2)+4] = acos(0.6360536807265150254528367);
-      thetas[a*(_num_polar/2)+5] = acos(0.7463319064601507926143051);
-      thetas[a*(_num_polar/2)+6] = acos(0.8391169718222188233945291);
-      thetas[a*(_num_polar/2)+7] = acos(0.9122344282513259058677524);
-      thetas[a*(_num_polar/2)+8] = acos(0.9639719272779137912676661);
-      thetas[a*(_num_polar/2)+9] = acos(0.9931285991850949247861224);
-    }
-  }
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
