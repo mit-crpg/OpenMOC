@@ -37,7 +37,6 @@ track_generator.generateTracks()
 solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-#solver.setOTFTransport()
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 

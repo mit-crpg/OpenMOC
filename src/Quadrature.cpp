@@ -1111,20 +1111,27 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 GLPolarQuad::GLPolarQuad(): Quadrature() {
   _quad_type = GAUSS_LEGENDRE;
   _num_polar = 6;
+
+  /* By default do not adjust weights */
+  _use_adjusted_weights = false;
 }
 
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 20)
+ * @param num_polar the number of polar angles
  */
 void GLPolarQuad::setNumPolarAngles(const int num_polar) {
 
-  if (num_polar > 20)
-    log_printf(ERROR, "Unable to set the number of polar angles to %d "
-               "for GLPolarQuad (max 20 angles)", num_polar);
-
   Quadrature::setNumPolarAngles(num_polar);
+}
+
+
+/**
+  * @brief sets _use_adjusted_weights to true
+  */
+void GLPolarQuad::useAdjustedWeights() {
+  _use_adjusted_weights = true;
 }
 
 
@@ -1141,51 +1148,14 @@ void GLPolarQuad::initialize() {
   /* Allocate temporary arrays for tabulated quadrature values */
   double thetas[_num_polar/2*_num_azim/4];
 
+  /* get roots of Legendre polynomial */
+  _roots = getLegendreRoots(_num_polar);
+
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
-  if (_num_polar == 2) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.5773502691);
-    }
-  }
-  else if (_num_polar == 4) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.3399810435);
-      thetas[a*(_num_polar/2)+1] = acos(0.8611363115);
-    }
-  }
-  else if (_num_polar == 6) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.2386191860);
-      thetas[a*(_num_polar/2)+1] = acos(0.6612093864);
-      thetas[a*(_num_polar/2)+2] = acos(0.9324695142);
-    }
-  }
-  else if (_num_polar == 8) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1834346424);
-      thetas[a*(_num_polar/2)+1] = acos(0.5255324099);
-      thetas[a*(_num_polar/2)+2] = acos(0.7966664774);
-      thetas[a*(_num_polar/2)+3] = acos(0.9602898564);
-    }
-  }
-  else if (_num_polar == 10) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1488743387);
-      thetas[a*(_num_polar/2)+1] = acos(0.4333953941);
-      thetas[a*(_num_polar/2)+2] = acos(0.6794095682);
-      thetas[a*(_num_polar/2)+3] = acos(0.8650633666);
-      thetas[a*(_num_polar/2)+4] = acos(0.9739065285);
-    }
-  }
-  else if (_num_polar == 12) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1252334085);
-      thetas[a*(_num_polar/2)+1] = acos(0.3678314989);
-      thetas[a*(_num_polar/2)+2] = acos(0.5873179542);
-      thetas[a*(_num_polar/2)+3] = acos(0.7699026741);
-      thetas[a*(_num_polar/2)+4] = acos(0.9041172563);
-      thetas[a*(_num_polar/2)+5] = acos(0.9815606342);
+  for (int a=0; a < _num_azim/4; a++) {
+    for (int i=0; i < _num_polar/2; ++i) {
+      thetas[a*(_num_polar/2)+i] = acos(_roots[i]);
     }
   }
   else if (_num_polar == 14) {
@@ -1251,112 +1221,48 @@ void GLPolarQuad::initialize() {
  */
 void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
+  /* get weights */
+  std::vector <double> weights_vec = getGLWeights(_roots, _num_polar);
+
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION weights[_num_polar/2*_num_azim/4];
+  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
-  if (_num_polar == 2) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 1.0;
+  for (int a=0; a < _num_azim/4; a++) {
+
+    /* Calculate simple weights */
+    std::vector <double> nodes;
+    for (int p=0; p<_num_polar/2; ++p) {
+      nodes.push_back(cos(_thetas[a][p]));
     }
-  }
-  else if (_num_polar == 4) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.6521451549 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.3478548451 / 2.0;
-    }
-  }
-  else if (_num_polar == 6) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.4679139346 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.3607615730 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.1713244924 / 2.0;
-    }
-  }
-  else if (_num_polar == 8) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.3626837834 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.3137066459 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.2223810344 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1012285363 / 2.0;
-    }
-  }
-  else if (_num_polar == 10) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.2955242247 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.2692667193 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.2190863625 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1494513492 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.0666713443 / 2.0;
-    }
-  }
-  else if (_num_polar == 12) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.2491470458 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.2334925365 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.2031674267 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1600783286 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.1069393260 / 2.0;
-      weights[a*(_num_polar/2)+5] = 0.0471753364 / 2.0;
-    }
-  }
-  else if (_num_polar == 14) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)]   = 0.2152638534631577901958764 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.2051984637212956039659241 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.1855383974779378137417166 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1572031671581935345696019 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.1215185706879031846894148 / 2.0;
-      weights[a*(_num_polar/2)+5] = 0.0801580871597602098056333 / 2.0;
-      weights[a*(_num_polar/2)+6] = 0.0351194603317518630318329 / 2.0;
-    }
-  }
-  else if (_num_polar == 16) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)]   = 0.1894506104550684962853967 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.1826034150449235888667637 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.1691565193950025381893121 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1495959888165767320815017 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.1246289712555338720524763 / 2.0;
-      weights[a*(_num_polar/2)+5] = 0.0951585116824927848099251 / 2.0;
-      weights[a*(_num_polar/2)+6] = 0.0622535239386478928628438 / 2.0;
-      weights[a*(_num_polar/2)+7] = 0.0271524594117540948517806 / 2.0;
-    }
-  }
-  else if (_num_polar == 18) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)]   = 0.1691423829631435918406565 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.1642764837458327229860538 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.1546846751262652449254180 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1406429146706506512047313 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.1225552067114784601845191 / 2.0;
-      weights[a*(_num_polar/2)+5] = 0.1009420441062871655628140 / 2.0;
-      weights[a*(_num_polar/2)+6] = 0.0764257302548890565291297 / 2.0;
-      weights[a*(_num_polar/2)+7] = 0.0497145488949697964533349 / 2.0;
-      weights[a*(_num_polar/2)+8] = 0.0216160135264833103133427 / 2.0;
-    }
-  }
-  else if (_num_polar == 20) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)]   = 0.1527533871307258506980843 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.1491729864726037467878287 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.1420961093183820513292983 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1316886384491766268984945 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.1181945319615184173123774 / 2.0;
-      weights[a*(_num_polar/2)+5] = 0.1019301198172404350367501 / 2.0;
-      weights[a*(_num_polar/2)+6] = 0.0832767415767047487247581 / 2.0;
-      weights[a*(_num_polar/2)+7] = 0.0626720483341090635695065 / 2.0;
-      weights[a*(_num_polar/2)+8] = 0.0406014298003869413310400 / 2.0;
-      weights[a*(_num_polar/2)+9] = 0.0176140071391521183118620 / 2.0;
+
+    std::vector <double> simple_weights = Quadrature::getSimpleWeights(nodes);
+
+    for (int i=0; i<_num_polar/2; i++) {
+
+      if (_use_adjusted_weights) {
+
+        /* Set weights based on adjusted polar angles */
+        weights[a*(_num_polar/2)+i] = simple_weights[i] / 2.0;
+
+
+      }
+
+      else {
+
+        /* Set weights based on actual GL roots */
+        weights[a*(_num_polar/2)+i] = weights_vec[i] / 2.0;
+      }
     }
   }
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
+  delete [] weights;
+
   Quadrature::precomputeWeights(solve_3D);
 }
-
 
 
 /**
@@ -1542,4 +1448,266 @@ void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);
+}
+
+
+/**
+ * @brief    the Legendre polynomial of degree n evaluated at x
+ * @param    n an integer >=0: the order of the polynomial
+ * @param    x in (-1,1), the point at which to evaluate the polynomial
+ * @return   the value of the Legendre polynomial of degree n at x
+ */
+double Quadrature::legendrePolynomial(int n, double x) {
+  if (n == 0)
+    return 1;
+  if (n == 1)
+    return x;
+  else {
+    double c = 2.0*(n-2) + 3.0;
+    double b = 1.0*(n-2) + 2.0;
+    double a = 1.0*(n-2) + 1.0;
+    double value =
+      c/b * x * Quadrature::legendrePolynomial(n-1, x)
+      - a/b * Quadrature::legendrePolynomial(n-2,x);
+    return value;
+  }
+}
+
+
+/**
+ * @brief    the first logarithmic derivative of a Legendre polynomial
+ * @param    m the order of the polynomial
+ * @param    x point at which to evaluate the logarithmic derivative
+ * @return   the value of the logarithmic derivative at x
+ */
+double GLPolarQuad::logDerivLegendre(int n, double x) {
+  double num = n * x - n * Quadrature::legendrePolynomial(n-1,x)
+    / Quadrature::legendrePolynomial(n,x);
+  double denom = x*x - 1;
+  return num/denom;
+}
+
+
+/**
+ * @brief    the second logarithmic derivative of a Legendre polynomial
+ * @param    m the order of the polynomial
+ * @param    x point at which to evaluate the logarithmic derivative
+ * @return   the value of the logarithmic derivative at x
+ */
+double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
+  double num =
+    n*(n+1) + logDerivLegendre(n,x) * ((1-x*x)* logDerivLegendre(n,x) - 2 * x);
+  double denom = x*x-1;
+  return num/denom;
+}
+
+
+/**
+ * @brief    finds the roots of Legendre polynomial of order n
+ * @detail   guesses for positive roots are set at logarithmic intervals.
+ *           Positive roots are found simultaneously using an
+ *           Alberth-Householder-n method. Each guess is successively nudged
+ *           towards a true root. Only the positive roots are calculated
+ * @param    n the order of the polynomial
+ * @return   a list of the roots of the polynomial
+ */
+std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
+
+  /* put these somewhere else */
+  double E1 = 1e-10;
+  double E2 = 1e-10;
+
+  std::vector <double> roots;
+  std::vector <bool> converged;
+  std::vector <double> s1_tilde;
+  std::vector <double> s2_tilde;
+
+  /* set guesses with log scale*/
+  for (int i=0; i < n/2; ++i) {
+    roots.push_back(- pow(2, (-.5*(i+1))) +1);
+    converged.push_back(false);
+    s1_tilde.push_back(0);
+    s2_tilde.push_back(0);
+
+  }
+
+  if (n%2 == 1) {
+    roots.push_back(0);
+    converged.push_back(true);
+    s1_tilde.push_back(0);
+    s2_tilde.push_back(0);
+  }
+
+
+  bool all_roots_converged = false;
+
+  /* use the Alberth-Housholder_n method to nudge guesses towards roots */
+  while (not all_roots_converged) {
+
+    /* set S tildes */
+    for (int i=0; i < (n+1)/2; ++i) {
+      if (not converged[i]) {
+        double sum1 = 0;
+        double sum2 = 0;
+        for (int j=0; j<= (n+1)/2; ++j) {
+          if (j != i) {
+            sum1 += 1/(roots[i] - roots[j]);
+            sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
+          }
+        }
+
+        s1_tilde[i] = logDerivLegendre(n, roots[i]) - sum1;
+        s2_tilde[i] = secondLogDerivLegendre(n, roots[i]) - sum2;
+
+        /* householder method 2  Halley     */
+        double u_new =
+          roots[i] - 2*s1_tilde[i] / (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
+        double u_old = roots[i];
+        roots[i] = u_new;
+
+        /* if this is the actual root */
+        if (abs(u_new - u_old) < E1) {
+          if (std::abs(Quadrature::legendrePolynomial(n, u_new)) < E2) {
+            converged[i] = true;
+
+            /* if this root equals another root or it is less than 0 */
+            for (int j=0; j < (n+1)/2; ++j) {
+              if (j != i) {
+                if (std::abs(roots[j] - roots[i]) < E1 or roots[i] <= 0) {
+
+                  /* reset the root to its original guess */
+                  roots[i] = - pow(2, (-.5*(i+1))) +1;
+                  converged[i] = false;
+                }
+              }
+            }
+          }
+        } /* if this is the actual root */
+      } /* if not converged */
+    } /* for each guess */
+
+    for (int i=0; i<(n+1)/2; ++ i) {
+      all_roots_converged = converged[i];
+      if (not all_roots_converged)
+        break;
+    }
+  } /* while not all roots converged */
+
+  /* add negative roots */
+  std::sort (roots.begin(), roots.end());
+  return roots;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
+ * @param    roots a vector containing the roots of the Legendre polynomial
+ * @param    n the order of the Legendre Polynomial
+ * @return   a vector of weights matched by index to the vector of roots
+ */
+std::vector <double> GLPolarQuad::getGLWeights(std::vector <double> roots,
+                                               int n) {
+  std::vector <double> weights;
+  for (int i; i<roots.size(); ++i){
+    weights.push_back(
+        - (2*roots[i]*roots[i] - 2)
+        / (n*n*Quadrature::legendrePolynomial(n-1, roots[i])
+          * Quadrature::legendrePolynomial(n-1, roots[i])));
+  }
+
+  return weights;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
+ * @param    root the root of the Legendre polynomial
+ * @param    n the order of the Legendre Polynomial
+ * @return   a vector of weights matched by index to the vector of roots
+ */
+double Quadrature::getSingleGLWeight(double root, int n) {
+  double weight =
+        - (2*root*root - 2) / (n*n*Quadrature::legendrePolynomial(n-1, root)
+                                  * Quadrature::legendrePolynomial(n-1, root));
+
+  return weight;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in numerical integration
+ * @details  assumes the function will be integrated over (-1, 1)
+ * @param    nodes a vector containing the x's that are evaluated
+ * @return   a vector of weights matched by index to the vector of nodes
+ */
+std::vector <double> Quadrature::getSimpleWeights(std::vector <double> nodes) {
+
+  int n = nodes.size();
+  std::vector <double> weights;
+  std::cout.precision(14);
+  std::cout.setf(std::ios::fixed);
+
+  for (int i=0; i<n; ++i)
+    nodes.push_back(-nodes[i]);
+  double a = -1;
+  n = nodes.size();
+
+  /* Declare an array to store the elements of the augmented-matrix */
+  double A[n][n+1];
+
+  /* The solution array */
+  double x[n];
+
+  double b = 1;
+
+  /* Populate A */
+  for (int i=0; i<n; ++i) {
+    for (int j=0; j<n; ++j) {
+      A[i][j] = pow(nodes[j], i);
+    }
+    A[i][n] = (pow(b, i+1) - pow(a, i+1)) / (i+1);
+  }
+
+  /* Pivotisation */
+  for (int i=0; i<n; i++) {
+    for (int k=i+1; k<n; k++) {
+      if (A[i][i] < A[k][i]) {
+        for (int j=0; j<=n; j++) {
+          double temp = A[i][j];
+          A[i][j] = A[k][j];
+          A[k][j] = temp;
+        }
+      }
+    }
+  }
+
+  /* Perform gauss elimination */
+  for (int i=0; i<n-1; i++) {
+    for (int k=i+1; k<n; k++) {
+      double t = A[k][i] / A[i][i];
+
+      /* Make elements below the pivot elements equal to zero or eliminate
+         the variables */
+      for (int j=0; j<=n; j++)
+        A[k][j] = A[k][j] - t * A[i][j];
+     }
+  }
+
+  /* Back-substitution */
+  for (int i=n-1; i>=0; --i) {
+    double sub = 0;
+    for (int j=n-1; j>i; --j) {
+      sub += x[j]*A[i][j];
+    }
+    x[i] = (A[i][n] - sub) / A[i][i];
+  }
+
+  double sum = 0;
+  for (int i=0; i<n; ++i){
+    weights.push_back(x[i]);
+    sum += x[i];
+  }
+
+  return weights;
+
 }
