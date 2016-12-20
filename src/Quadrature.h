@@ -18,7 +18,10 @@
 #include "log.h"
 #include <sstream>
 #endif
-
+#include <vector>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
 
 /**
  * @enum quadratureType
@@ -67,6 +70,9 @@ protected:
 
   /** An array of the sines multipled by the weights */
   FP_PRECISION** _multiples;
+
+  /** the roots to the Legendre polynomial of degree _num_polar */
+  std::vector <double> _roots;
 
 public:
 

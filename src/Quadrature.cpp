@@ -962,6 +962,10 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
  */
 GLPolarQuad::GLPolarQuad(): Quadrature() {
   _quad_type = GAUSS_LEGENDRE;
+
+  /* By default don't adjust weights */
+  _use_adjusted_weights = false;
+
 }
 
 
@@ -993,57 +997,17 @@ void GLPolarQuad::initialize() {
   /* Call parent class initialize routine */
   Quadrature::initialize();
 
-  /* By default don't adjust weights */
-  _use_adjusted_weights = false;
-
   /* Allocate temporary arrays for tabulated quadrature values */
   double* thetas = new double[_num_polar/2*_num_azim/4];
 
+  /* get roots of Legendre polynomial */
+  _roots = getLegendreRoots(_num_polar); 
+
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
-  if (_num_polar == 2) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.5773502691);
-    }
-  }
-  else if (_num_polar == 4) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.3399810435);
-      thetas[a*(_num_polar/2)+1] = acos(0.8611363115);
-    }
-  }
-  else if (_num_polar == 6) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.2386191860);
-      thetas[a*(_num_polar/2)+1] = acos(0.6612093864);
-      thetas[a*(_num_polar/2)+2] = acos(0.9324695142);
-    }
-  }
-  else if (_num_polar == 8) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1834346424);
-      thetas[a*(_num_polar/2)+1] = acos(0.5255324099);
-      thetas[a*(_num_polar/2)+2] = acos(0.7966664774);
-      thetas[a*(_num_polar/2)+3] = acos(0.9602898564);
-    }
-  }
-  else if (_num_polar == 10) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1488743387);
-      thetas[a*(_num_polar/2)+1] = acos(0.4333953941);
-      thetas[a*(_num_polar/2)+2] = acos(0.6794095682);
-      thetas[a*(_num_polar/2)+3] = acos(0.8650633666);
-      thetas[a*(_num_polar/2)+4] = acos(0.9739065285);
-    }
-  }
-  else if (_num_polar == 12) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1252334085);
-      thetas[a*(_num_polar/2)+1] = acos(0.3678314989);
-      thetas[a*(_num_polar/2)+2] = acos(0.5873179542);
-      thetas[a*(_num_polar/2)+3] = acos(0.7699026741);
-      thetas[a*(_num_polar/2)+4] = acos(0.9041172563);
-      thetas[a*(_num_polar/2)+5] = acos(0.9815606342);
+  for (int a=0; a < _num_azim/4; a++) {
+    for (int i=0; i < _num_polar/2; ++i) {
+      thetas[a*(_num_polar/2)+i] = acos(_roots[i]);
     }
   }
 
@@ -1066,7 +1030,7 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
   std::vector <double> weights_vec = getGLWeights(_roots, _num_polar);
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION weights[_num_polar/2*_num_azim/4];
+  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -1082,20 +1046,27 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
     for (int i=0; i<_num_polar/2; i++) {
 
-      if (_use_adjusted_weights)
+      if (_use_adjusted_weights) {
         
         /* Set weights based on adjusted polar angles */
         weights[a*(_num_polar/2)+i] = simple_weights[i] / 2.0;
+
+
+      }
       
-      else 
+      else {
         
         /* Set weights based on actual GL roots */
         weights[a*(_num_polar/2)+i] = weights_vec[i] / 2.0;
+      }
     }
   }
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
+
+  delete [] weights;
+
   Quadrature::precomputeWeights(solve_3D);
 }
 
@@ -1484,21 +1455,20 @@ std::vector <double> Quadrature::getSimpleWeights(std::vector <double> nodes) {
   std::cout.precision(14);
   std::cout.setf(std::ios::fixed);
   
-  //TEMPORARY
   for (int i=0; i<n; ++i)
     nodes.push_back(-nodes[i]);
   double a = -1;
   n = nodes.size();
 
-  // declare an array to store the elements of the augmented-matrix
+  /* Declare an array to store the elements of the augmented-matrix */
   double A[n][n+1];
 
-  // the solution array
+  /* The solution array */
   double x[n];
 
   double b = 1;
 
-  // populate A
+  /* Populate A */
   for (int i=0; i<n; ++i) {
     for (int j=0; j<n; ++j) {
       A[i][j] = pow(nodes[j], i);
@@ -1506,7 +1476,7 @@ std::vector <double> Quadrature::getSimpleWeights(std::vector <double> nodes) {
     A[i][n] = (pow(b, i+1) - pow(a, i+1)) / (i+1);
   }
 
-  // pivotisation 
+  /* Pivotisation */
   for (int i=0; i<n; i++) {
     for (int k=i+1; k<n; k++) {
       if (A[i][i] < A[k][i]) {
@@ -1519,19 +1489,19 @@ std::vector <double> Quadrature::getSimpleWeights(std::vector <double> nodes) {
     }
   }
 
-  // perform gauss elimination
+  /* Perform gauss elimination */
   for (int i=0; i<n-1; i++) {
     for (int k=i+1; k<n; k++) {
       double t = A[k][i] / A[i][i];
 
-      // make elements below the pivot elements equal to zero or eliminate the
-      // variables
+      /* Make elements below the pivot elements equal to zero or eliminate 
+         the variables */
       for (int j=0; j<=n; j++)
         A[k][j] = A[k][j] - t * A[i][j];
      }
   }
 
-  // back-substitution
+  /* Back-substitution */
   for (int i=n-1; i>=0; --i) {
     double sub = 0;
     for (int j=n-1; j>i; --j) {
