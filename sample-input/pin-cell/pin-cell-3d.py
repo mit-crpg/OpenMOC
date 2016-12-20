@@ -25,13 +25,12 @@ max_iters = options.getMaxIterations()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator3D(geometry, 64, 12, .05,
-                                   .1)
+track_generator = TrackGenerator3D(geometry, num_azim, num_polar, azim_spacing,
+                                   polar_spacing)
 quadrature = openmoc.GLPolarQuad()
 quadrature.setNumAzimAngles(num_azim)
 quadrature.setNumPolarAngles(num_polar)
 quadrature.useAdjustedWeights()
-print "gets here"
 track_generator.setQuadrature(quadrature)
 track_generator.setNumThreads(num_threads)
 track_generator.setSegmentFormation(OTF_STACKS)
