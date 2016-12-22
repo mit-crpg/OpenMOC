@@ -358,6 +358,38 @@ int Geometry::getNumCells() {
 
 
 /**
+ * @brief Return a std::map container of Surface IDs (keys) with Surfaces
+ *        pointers (values).
+ * @return a std::map of Surfaces indexed by Surface ID in the geometry
+ */
+std::map<int, Surface*> Geometry::getAllSurfaces() {
+
+  Cell* cell;
+  Surface* surf;
+  std::map<int, Surface*> all_surfs;
+  std::map<int, surface_halfspace*> surfs;
+  std::map<int, Cell*>::iterator c_iter;
+  std::map<int, surface_halfspace*>::iterator s_iter;
+
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = getAllCells();
+
+    for (c_iter = all_cells.begin(); c_iter != all_cells.end(); ++c_iter) {
+      cell = (*c_iter).second;
+      surfs = cell->getSurfaces();
+
+      for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
+	surf = (*s_iter).second->_surface;
+	all_surfs[surf->getId()] = surf;
+      }
+    }
+  }
+
+  return all_surfs;
+}
+
+
+/**
  * @brief Return a std::map container of Material IDs (keys) with Materials
  *        pointers (values).
  * @return a std::map of Materials indexed by Material ID in the geometry
@@ -393,6 +425,22 @@ std::map<int, Material*> Geometry::getAllMaterials() {
  *        pointers (values).
  * @return a std::map of Cells indexed by Cell ID in the geometry
  */
+std::map<int, Cell*> Geometry::getAllCells() {
+
+  std::map<int, Cell*> all_cells;
+
+  if (_root_universe != NULL)
+    all_cells = _root_universe->getAllCells();
+
+  return all_cells;
+}
+
+
+/**
+ * @brief Return a std::map container of Cell IDs (keys) with Cells
+ *        pointers (values).
+ * @return a std::map of Cells indexed by Cell ID in the geometry
+ */
 std::map<int, Cell*> Geometry::getAllMaterialCells() {
 
   std::map<int, Cell*> all_material_cells;
@@ -411,6 +459,22 @@ std::map<int, Cell*> Geometry::getAllMaterialCells() {
   }
 
   return all_material_cells;
+}
+
+
+/**
+ * @brief Return a std::map container of Universe IDs (keys) with Unierses
+ *        pointers (values).
+ * @return a std::map of Universes indexed by Universe ID in the geometry
+ */
+std::map<int, Universe*> Geometry::getAllUniverses() {
+
+  std::map<int, Universe*> all_universes;
+
+  if (_root_universe != NULL)
+    all_universes = _root_universe->getAllUniverses();
+
+  return all_universes;
 }
 
 
@@ -441,7 +505,10 @@ bool Geometry::isDomainDecomposed() {
 }
 
 
-//FIXME
+/**
+ * @brief Returns whether this MPI domain is the root domain
+ * @return If this domain is the root domain (true) or not (false)
+ */
 bool Geometry::isRootDomain() {
   bool first_domain = true;
   if (_domain_decomposed)
@@ -463,7 +530,12 @@ void Geometry::setRootUniverse(Universe* root_universe) {
 //FIXME: add setDefaultDomainDecomposition() function
 
 
-//FIXME
+/**
+ * @brief Sets how many modular track laydown domains are in each MPI domain
+ * @param num_x The number of modular domains in the x-direction per MPI domain
+ * @param num_y The number of modular domains in the y-direction per MPI domain
+ * @param num_z The number of modular domains in the z-direction per MPI domain
+ */
 void Geometry::setNumDomainModules(int num_x, int num_y, int num_z) {
   _num_modules_x = num_x;
   _num_modules_y = num_y;
@@ -484,7 +556,13 @@ int Geometry::getNumZModules() {
 
 
 #ifdef MPIx
-//FIXME
+/**
+ * @brief Domain decomposes the Geometry with MPI and modular ray tracing
+ * @param nx The number of MPI domains in the x-direction
+ * @param ny The number of MPI domains in the y-direction
+ * @param nz The number of MPI domains in the z-direction
+ * @param comm The MPI communicator to be used to communicate between domains
+ */
 void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
 
   /* Calculate number of domains and get the number of MPI ranks */
@@ -498,7 +576,11 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
     log_printf(ERROR, "Number of ranks is %d and number of domains is %d",
                num_ranks, num_domains);
 
-  //FIXME: check that root universe has been set
+
+  /* Check that the root universe has been set */
+  if (_root_universe == NULL)
+    log_printf(ERROR, "The root universe must be set before domain "
+                      "decomposition.");
 
   /* Check that the Geometry needs to be decomposed */
   if (num_domains > 1) {
@@ -541,7 +623,10 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the MPI communicator to communicate between MPI domains
+ * @return The MPI communicator
+ */
 MPI_Comm Geometry::getMPICart() {
   if (!_domain_decomposed)
     log_printf(ERROR, "Tried to get MPI Cart but domain decomposition has not "
@@ -550,7 +635,13 @@ MPI_Comm Geometry::getMPICart() {
 }
 
 
-//FIXME
+/**
+ * @breif Returns the rank of the specified neighboring domain
+ * @param offset_x The shift in the x-direction (number of domains)
+ * @param offset_y The shift in the y-direction (number of domains)
+ * @param offset_z The shift in the z-direction (number of domains)
+ * @return The rank of the neighboring domain
+ */
 int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
   int neighbor_rank = -1;
   int neighbor_coords[3];
@@ -906,7 +997,11 @@ int Geometry::getFSRId(LocalCoords* coords) {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the rank of the domain containing the given coordinates
+ * @param coords The coordinates used to search the domain rank
+ * @return The rank of the domain containing the coordinates
+ */
 int Geometry::getDomainByCoords(LocalCoords* coords) {
   int domain = 0;
 #ifdef MPIx
@@ -1012,7 +1107,9 @@ bool Geometry::containsFSRCentroids() {
 
 
 #ifdef MPIx
-//FIXME
+/**
+ * @brief Counts the number of FSRs in each MPI domain
+ */
 void Geometry::countDomainFSRs() {
 
   /* Gather the number of FSRs into an array */
@@ -1030,7 +1127,12 @@ void Geometry::countDomainFSRs() {
 }
 
 
-//FIXME
+/**
+ * @brief Finds the local FSR ID and domain rank from a global FSR ID
+ * @param global_fsr_id The global unique identifier of an FSR
+ * @param local_fsr_id The unique identifier of an FSR on its current domain
+ * @param domain The rank of the domain containing the FSR
+ */
 void Geometry::getLocalFSRId(int global_fsr_id, int &local_fsr_id,
                              int &domain) {
 
@@ -1062,7 +1164,11 @@ void Geometry::getLocalFSRId(int global_fsr_id, int &local_fsr_id,
 #endif
 
 
-//FIXME
+/**
+ * @brief Returns the FSR centroid of a global FSR
+ * @param global_fsr_id The global unique identifier of the FSR
+ * @return A vector contianing the coordinates of the FSR centroid
+ */
 std::vector<double> Geometry::getGlobalFSRCentroidData(int global_fsr_id) {
   double xyz[3];
   if (!_domain_decomposed) {
@@ -1670,7 +1776,9 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 }
 
 
-//FIXME
+/**
+ * @brief Fixes the FSR map size so that the map is static and fast
+ */
 void Geometry::fixFSRMaps() {
   _FSR_keys_map.setFixedSize();
   _extruded_FSR_keys_map.setFixedSize();
@@ -2415,4 +2523,688 @@ std::vector<FP_PRECISION> Geometry::getUniqueZPlanes() {
   }
 
   return unique_z_planes;
+}
+
+
+/**
+ * @brief Prints all Geoemetry and Material details to a Geometry restart file
+ * @param filename The name of the file where the data is printed
+ */
+void Geometry::dumpToFile(std::string filename) {
+
+  FILE* out;
+  out = fopen(filename.c_str(), "w");
+
+  /* Print number of energy groups */
+  int num_groups = getNumEnergyGroups();
+  fwrite(&num_groups, sizeof(int), 1, out);
+
+  /* Print all material infromation */
+  std::map<int, Material*> all_materials = getAllMaterials();
+  int num_materials = all_materials.size();
+  fwrite(&num_materials, sizeof(int), 1, out);
+  std::map<int, Material*>::iterator material_iter;
+  for (material_iter = all_materials.begin();
+      material_iter != all_materials.end(); ++material_iter) {
+    int key = material_iter->first;
+    Material* mat = material_iter->second;
+    int id = mat->getId();
+    char* name = mat->getName();
+
+    /* Print key and general material information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+
+    /* Print total cross-section */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getSigmaTByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print fission cross-section */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getSigmaFByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print nu * fisison cross-section */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getNuSigmaFByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print neutron emission spectrum (chi) */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getChiByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print scattering cross-section */
+    for (int g=0; g < num_groups; g++) {
+      for (int gp=0; gp < num_groups; gp++) {
+        double value = mat->getSigmaSByGroup(g+1, gp+1);
+        fwrite(&value, sizeof(double), 1, out);
+      }
+    }
+  }
+
+  /* Print root universe ID */
+  int root_id = _root_universe->getId();
+  fwrite(&root_id, sizeof(int), 1, out);
+
+  /* Retrieve all surfaces, cells, and universes */
+  std::map<int, Surface*> all_surfaces = getAllSurfaces();
+  std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+  std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
+
+  std::map<int, Surface*>::iterator surface_iter;
+  std::map<int, Cell*>::iterator cell_iter;
+  std::map<int, Universe*>::iterator univ_iter;
+
+  /* Print all surface information */
+  int num_surfaces = all_surfaces.size();
+  fwrite(&num_surfaces, sizeof(int), 1, out);
+  for (surface_iter = all_surfaces.begin(); surface_iter != all_surfaces.end();
+      ++surface_iter) {
+
+    /* Get key, value pair and general surface information */
+    int key = surface_iter->first;
+    Surface* value = surface_iter->second;
+    int id = value->getId();
+    char* name = value->getName();
+    surfaceType st = value->getSurfaceType();
+    boundaryType bt = value->getBoundaryType();
+
+    /* Print key and general surface information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+    fwrite(&st, sizeof(surfaceType), 1, out);
+    fwrite(&bt, sizeof(boundaryType), 1, out);
+
+    /* Treat specific surface types */
+    if (st == PLANE) {
+      Plane* pl = static_cast<Plane*>(value);
+      double a = pl->getA();
+      double b = pl->getB();
+      double c = pl->getC();
+      double d = pl->getD();
+      fwrite(&a, sizeof(double), 1, out);
+      fwrite(&b, sizeof(double), 1, out);
+      fwrite(&c, sizeof(double), 1, out);
+      fwrite(&d, sizeof(double), 1, out);
+    }
+    else if (st == ZCYLINDER) {
+      ZCylinder* zcyl = static_cast<ZCylinder*>(value);
+      double x = zcyl->getX0();
+      double y = zcyl->getY0();
+      double radius = zcyl->getRadius();
+      fwrite(&x, sizeof(double), 1, out);
+      fwrite(&y, sizeof(double), 1, out);
+      fwrite(&radius, sizeof(double), 1, out);
+    }
+    else if (st == XPLANE) {
+      XPlane* xpl = static_cast<XPlane*>(value);
+      double x = xpl->getX();
+      fwrite(&x, sizeof(double), 1, out);
+    }
+    else if (st == YPLANE) {
+      YPlane* ypl = static_cast<YPlane*>(value);
+      double y = ypl->getY();
+      fwrite(&y, sizeof(double), 1, out);
+    }
+    else if (st == ZPLANE) {
+      ZPlane* zpl = static_cast<ZPlane*>(value);
+      double z = zpl->getZ();
+      fwrite(&z, sizeof(double), 1, out);
+    }
+    else {
+      log_printf(ERROR, "Unsupported surface type for surface ID: %d, name:",
+                 " %s", id, name);
+    }
+  }
+
+  /* Print all cell information */
+  int num_cells = all_cells.size();
+  fwrite(&num_cells, sizeof(int), 1, out);
+  for (cell_iter = all_cells.begin(); cell_iter != all_cells.end();
+      ++cell_iter) {
+
+    /* Get key, value pair and general cell information */
+    int key = cell_iter->first;
+    Cell* cell = cell_iter->second;
+    int id = cell->getId();
+    char* name = cell->getName();
+    cellType ct = cell->getType();
+
+    /* Print key and general surface information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+    fwrite(&ct, sizeof(cellType), 1, out);
+
+    if (ct == MATERIAL) {
+      Material* mat = cell->getFillMaterial();
+      int mat_id = mat->getId();
+      fwrite(&mat_id, sizeof(int), 1, out);
+    }
+    else if (ct == FILL) {
+      Universe* univ = cell->getFillUniverse();
+      int univ_id = univ->getId();
+      fwrite(&univ_id, sizeof(int), 1, out);
+    }
+
+    /* Print cell rotations */
+    bool rot = cell->isRotated();
+    fwrite(&rot, sizeof(bool), 1, out);
+    if (rot) {
+      double rotation[3];
+      rotation[0] = cell->getPhi("radians");
+      rotation[1] = cell->getTheta("radians");
+      rotation[2] = cell->getPsi("radians");
+      fwrite(rotation, sizeof(double), 3, out);
+    }
+
+    /* Print cell translations */
+    bool trans = cell->isTranslated();
+    fwrite(&trans, sizeof(bool), 1, out);
+    if (trans) {
+      double* translation = cell->getTranslation();
+      fwrite(translation, sizeof(double), 3, out);
+    }
+
+    /* Print ring / sector information */
+    int num_rings = cell->getNumRings();
+    int num_sectors = cell->getNumSectors();
+    fwrite(&num_rings, sizeof(int), 1, out);
+    fwrite(&num_sectors, sizeof(int), 1, out);
+
+    /* Print parent cell */
+    bool has_parent = cell->hasParent();
+    fwrite(&has_parent, sizeof(bool), 1, out);
+    if (has_parent) {
+      int parent_id = cell->getParent()->getId();
+      fwrite(&parent_id, sizeof(int), 1, out);
+    }
+
+    /* Print bounding surfaces */
+    std::map<int, surface_halfspace*> surfaces = cell->getSurfaces();
+    std::map<int, surface_halfspace*>::iterator surface_h_iter;
+    int num_cell_surfaces = surfaces.size();
+    fwrite(&num_cell_surfaces, sizeof(int), 1, out);
+    for (surface_h_iter = surfaces.begin(); surface_h_iter != surfaces.end();
+        ++surface_h_iter) {
+      int surface_id = surface_h_iter->first;
+      int halfspace = surface_h_iter->second->_halfspace;
+      fwrite(&surface_id, sizeof(int), 1, out);
+      fwrite(&halfspace, sizeof(int), 1, out);
+    }
+
+    //FIXME WORRY ABOUT NEIGHBORS
+  }
+
+  /* Print all universe information */
+  int num_universes = all_universes.size();
+  fwrite(&num_universes, sizeof(int), 1, out);
+  for (univ_iter = all_universes.begin();
+       univ_iter != all_universes.end(); ++univ_iter) {
+
+    /* Get key, value pair and general cell information */
+    int key = univ_iter->first;
+    Universe* universe = univ_iter->second;
+    int id = universe->getId();
+    char* name = universe->getName();
+    universeType ut = universe->getType();
+
+    /* Print key and general surface information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+    fwrite(&ut, sizeof(universeType), 1, out);
+
+    if (ut == SIMPLE) {
+      /* Print all cells in the universe */
+      std::map<int, Cell*> cells = universe->getCells();
+      int num_universe_cells = cells.size();
+      fwrite(&num_universe_cells, sizeof(int), 1, out);
+      for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
+        int cell_id = cell_iter->first;
+        fwrite(&cell_id, sizeof(int), 1, out);
+      }
+    }
+    else if (ut == LATTICE) {
+      /* Print lattice information */
+      Lattice* lattice = static_cast<Lattice*>(universe);
+      int num_x = lattice->getNumX();
+      int num_y = lattice->getNumY();
+      int num_z = lattice->getNumZ();
+      double width_x = lattice->getWidthX();
+      double width_y = lattice->getWidthY();
+      double width_z = lattice->getWidthZ();
+      double* offset = lattice->getOffset()->getXYZ();
+      fwrite(&num_x, sizeof(int), 1, out);
+      fwrite(&num_y, sizeof(int), 1, out);
+      fwrite(&num_z, sizeof(int), 1, out);
+      fwrite(&width_x, sizeof(double), 1, out);
+      fwrite(&width_y, sizeof(double), 1, out);
+      fwrite(&width_z, sizeof(double), 1, out);
+      fwrite(offset, sizeof(double), 3, out);
+
+      /* Get universes */
+      Universe* universes[num_x * num_y * num_z];
+      for (int i=0; i < num_x; i++) {
+        for (int j=0; j < num_y; j++) {
+          for (int k =0; k < num_z; k++) {
+            int idx = (num_z-1-k) * num_x * num_y + (num_y-1-j) * num_x + i;
+            universes[idx] = lattice->getUniverse(i, j, k);
+          }
+        }
+      }
+      for (int i=0; i < num_x * num_y * num_z; i++) {
+        int universe_id = universes[i]->getId();
+        fwrite(&universe_id, sizeof(int), 1, out);
+      }
+    }
+  }
+
+  /* Close the output file */
+  fclose(out);
+}
+
+
+/**
+ * @brief Loads all Geoemetry and Material details from a Geometry restart file
+ * @param filename The name of the file where the data is loaded
+ */
+void Geometry::loadFromFile(std::string filename) {
+
+  FILE* in;
+  in = fopen(filename.c_str(), "r");
+
+  if (_root_universe != NULL)
+    delete _root_universe;
+
+  std::map<int, Surface*> all_surfaces;
+  std::map<int, Cell*> all_cells;
+  std::map<int, Universe*> all_universes;
+  std::map<int, Material*> all_materials;
+
+  std::map<int, int> fill_cell_universes;
+  std::map<int, int> cell_parent;
+  std::map<int, int*> lattice_universes;
+
+  /* Read number of energy groups */
+  int num_groups;
+  int ret = fread(&num_groups, sizeof(int), 1, in);
+
+  /* Read all material infromation */
+  int num_materials;
+  ret = fread(&num_materials, sizeof(int), 1, in);
+  for (int i=0; i < num_materials; i++) {
+
+    /* Get key, value pair and general surface information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = fread(&key, sizeof(int), 1, in);
+    ret = fread(&id, sizeof(int), 1, in);
+    ret = fread(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = fread(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+
+    /* Create Material */
+    all_materials[key] = new Material(id, name);
+    Material* mat = all_materials[key];
+    mat->setNumEnergyGroups(num_groups);
+
+    /* Set total cross-section */
+    double value;
+    for (int g=0; g < num_groups; g++) {
+      ret = fread(&value, sizeof(double), 1, in);
+      mat->setSigmaTByGroup(value, g+1);
+    }
+
+    /* Set fission cross-section */
+    for (int g=0; g < num_groups; g++) {
+      ret = fread(&value, sizeof(double), 1, in);
+      mat->setSigmaFByGroup(value, g+1);
+    }
+
+    /* Set nu * fisison cross-section */
+    for (int g=0; g < num_groups; g++) {
+      ret = fread(&value, sizeof(double), 1, in);
+      mat->setNuSigmaFByGroup(value, g+1);
+    }
+
+    /* Set neutron emission spectrum (chi) */
+    for (int g=0; g < num_groups; g++) {
+      ret = fread(&value, sizeof(double), 1, in);
+      mat->setChiByGroup(value, g+1);
+    }
+
+    /* Set scattering cross-section */
+    for (int g=0; g < num_groups; g++) {
+      for (int gp=0; gp < num_groups; gp++) {
+        ret = fread(&value, sizeof(double), 1, in);
+        mat->setSigmaSByGroup(value, g+1, gp+1);
+      }
+    }
+  }
+
+  /* Read root universe ID */
+  int root_id;
+  ret = fread(&root_id, sizeof(int), 1, in);
+
+  /* Read all surface information */
+  int num_surfaces;
+  ret = fread(&num_surfaces, sizeof(int), 1, in);
+  for (int i=0; i < num_surfaces; i++) {
+
+    /* Get key, value pair and general surface information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = fread(&key, sizeof(int), 1, in);
+    ret = fread(&id, sizeof(int), 1, in);
+    ret = fread(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = fread(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+    surfaceType st;
+    boundaryType bt;
+    ret = fread(&st, sizeof(surfaceType), 1, in);
+    ret = fread(&bt, sizeof(boundaryType), 1, in);
+
+    /* Treat specific surface types */
+    if (st == PLANE) {
+      double a, b, c, d;
+      ret = fread(&a, sizeof(double), 1, in);
+      ret = fread(&b, sizeof(double), 1, in);
+      ret = fread(&c, sizeof(double), 1, in);
+      ret = fread(&d, sizeof(double), 1, in);
+      all_surfaces[key] = new Plane(a, b, c, d, id, name);
+    }
+    else if (st == ZCYLINDER) {
+      double x, y, radius;
+      ret = fread(&x, sizeof(double), 1, in);
+      ret = fread(&y, sizeof(double), 1, in);
+      ret = fread(&radius, sizeof(double), 1, in);
+      all_surfaces[key] = new ZCylinder(x, y, radius, id, name);
+    }
+    else if (st == XPLANE) {
+      double x;
+      ret = fread(&x, sizeof(double), 1, in);
+      all_surfaces[key] = new XPlane(x, id, name);
+    }
+    else if (st == YPLANE) {
+      double y;
+      ret = fread(&y, sizeof(double), 1, in);
+      all_surfaces[key] = new YPlane(y, id, name);
+    }
+    else if (st == ZPLANE) {
+      double z;
+      ret = fread(&z, sizeof(double), 1, in);
+      all_surfaces[key] = new ZPlane(z, id, name);
+    }
+    else {
+      log_printf(ERROR, "Unsupported surface type %s", name);
+    }
+
+    /* Check that the key and ID match */
+    if (key != id) {
+      std::string str = all_surfaces[key]->toString();
+      log_printf(ERROR, "Surface key %d does not match it's corresponding ID "
+                        "%d for surface:\n%s", key, id, str.c_str());
+    }
+
+    /* Set boundary */
+    all_surfaces[key]->setBoundaryType(bt);
+  }
+
+  /* Read all cell information */
+  int num_cells;
+  ret = fread(&num_cells, sizeof(int), 1, in);
+  for (int i=0; i < num_cells; i++) {
+
+    /* Get key, value pair and general cell information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = fread(&key, sizeof(int), 1, in);
+    ret = fread(&id, sizeof(int), 1, in);
+    ret = fread(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = fread(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+    cellType ct;
+    ret = fread(&ct, sizeof(cellType), 1, in);
+
+    /* Create the cell */
+    all_cells[key] = new Cell(id, name);
+
+    /* Fill the cell */
+    if (ct == MATERIAL) {
+      int mat_id;
+      ret = fread(&mat_id, sizeof(int), 1, in);
+      all_cells[key]->setFill(all_materials[mat_id]);
+    }
+    else if (ct == FILL) {
+      int univ_id;
+      ret = fread(&univ_id, sizeof(int), 1, in);
+      fill_cell_universes[key] = univ_id;
+    }
+
+    /* Read cell rotations */
+    bool rot;
+    ret = fread(&rot, sizeof(bool), 1, in);
+    if (rot) {
+      double rotation[3];
+      ret = fread(rotation, sizeof(double), 3, in);
+      all_cells[key]->setRotation(rotation, 3, "radians");
+    }
+
+    /* Read cell translations */
+    bool trans;
+    ret = fread(&trans, sizeof(bool), 1, in);
+    if (trans) {
+      double translation[3];
+      ret = fread(translation, sizeof(double), 3, in);
+      all_cells[key]->setTranslation(translation, 3);
+    }
+
+    /* Read ring / sector information */
+    int num_rings, num_sectors;
+    ret = fread(&num_rings, sizeof(int), 1, in);
+    ret = fread(&num_sectors, sizeof(int), 1, in);
+    all_cells[key]->setNumRings(num_rings);
+    all_cells[key]->setNumSectors(num_sectors);
+
+    /* Read parent cell */
+    bool has_parent;
+    ret = fread(&has_parent, sizeof(bool), 1, in);
+    if (has_parent) {
+      int parent_id;
+      ret = fread(&parent_id, sizeof(bool), 1, in);
+      cell_parent[key] = parent_id;
+    }
+
+    /* Print bounding surfaces */
+    int num_cell_surfaces;
+    ret = fread(&num_cell_surfaces, sizeof(int), 1, in);
+    for (int s=0; s < num_cell_surfaces; s++) {
+      int surface_id;
+      int halfspace;
+      ret = fread(&surface_id, sizeof(int), 1, in);
+      ret = fread(&halfspace, sizeof(int), 1, in);
+      all_cells[key]->addSurface(halfspace, all_surfaces[surface_id]);
+    }
+
+    /* Check that the key and ID match */
+    if (key != id) {
+      std::string str = all_cells[key]->toString();
+      log_printf(ERROR, "Cell key %d does not match it's corresponding ID "
+                        "%d for surface:\n%s", key, id, str.c_str());
+    }
+  }
+
+  /* Read all universe information */
+  int num_universes;
+  ret = fread(&num_universes, sizeof(int), 1, in);
+  for (int i=0; i < num_universes; i++) {
+
+    /* Get key, value pair and general universe information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = fread(&key, sizeof(int), 1, in);
+    ret = fread(&id, sizeof(int), 1, in);
+    ret = fread(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = fread(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+    universeType ut;
+    ret = fread(&ut, sizeof(universeType), 1, in);
+
+    if (ut == SIMPLE) {
+
+      /* Read all cells in the universe */
+      all_universes[key] = new Universe(id, name);
+      int num_universe_cells;
+      ret = fread(&num_universe_cells, sizeof(int), 1, in);
+      for (int c=0; c < num_universe_cells; c++) {
+        int cell_id;
+        ret = fread(&cell_id, sizeof(int), 1, in);
+        all_universes[key]->addCell(all_cells[cell_id]);
+      }
+    }
+    else if (ut == LATTICE) {
+
+      /* Read lattice information */
+      int num_x, num_y, num_z;
+      double width_x, width_y, width_z;
+      double offset[3];
+      ret = fread(&num_x, sizeof(int), 1, in);
+      ret = fread(&num_y, sizeof(int), 1, in);
+      ret = fread(&num_z, sizeof(int), 1, in);
+      ret = fread(&width_x, sizeof(double), 1, in);
+      ret = fread(&width_y, sizeof(double), 1, in);
+      ret = fread(&width_z, sizeof(double), 1, in);
+      ret = fread(offset, sizeof(double), 3, in);
+
+      /* Create lattice */
+      Lattice* new_lattice = new Lattice(id, name);
+      all_universes[key] = new_lattice;
+      new_lattice->setNumX(num_x);
+      new_lattice->setNumY(num_y);
+      new_lattice->setNumZ(num_z);
+      new_lattice->setWidth(width_x, width_y, width_z);
+      new_lattice->setOffset(offset[0], offset[1], offset[2]);
+
+      /* Get universes */
+      lattice_universes[key] = new int[num_x*num_y*num_z];
+      for (int j=0; j < num_x * num_y * num_z; j++) {
+        int universe_id;
+        ret = fread(&universe_id, sizeof(int), 1, in);
+        lattice_universes[key][j] = universe_id;
+      }
+    }
+
+    /* Check that the key and ID match */
+    if (key != id) {
+      std::string str = all_universes[key]->toString();
+      log_printf(ERROR, "Universe key %d does not match it's corresponding ID "
+                        "%d for surface:\n%s", key, id, str.c_str());
+    }
+  }
+
+  /* Set universe fills in cells */
+  std::map<int, int>::iterator id_iter;
+  for (id_iter = fill_cell_universes.begin();
+       id_iter != fill_cell_universes.end(); ++id_iter)
+    all_cells[id_iter->first]->setFill(all_universes[id_iter->second]);
+
+  /* Set parent cells */
+  for (id_iter = cell_parent.begin(); id_iter != cell_parent.end(); ++id_iter)
+    all_cells[id_iter->first]->setParent(all_cells[id_iter->second]);
+
+  /* Set lattice universes */
+  std::map<int, int*>::iterator lattice_iter;
+  for (lattice_iter = lattice_universes.begin();
+       lattice_iter != lattice_universes.end(); ++lattice_iter) {
+    int id = lattice_iter->first;
+    int* array = lattice_iter->second;
+    Lattice* lattice = static_cast<Lattice*>(all_universes[id]);
+    int num_x = lattice->getNumX();
+    int num_y = lattice->getNumY();
+    int num_z = lattice->getNumZ();
+    Universe* universes[num_x * num_y * num_z];
+    for (int i=0; i < num_x * num_y * num_z; i++) {
+      universes[i] = all_universes[array[i]];
+    }
+    lattice->setUniverses(num_z, num_y, num_x, universes);
+  }
+
+  /* Set root universe */
+  _root_universe = all_universes[root_id];
+
+  /* Close the input file */
+  fclose(in);
 }

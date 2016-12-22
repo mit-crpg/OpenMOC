@@ -151,7 +151,7 @@ public:
 
 /**
  * @class Lattice Universe.h "src/Universe.h"
- * @brief Represents a repeating 2D Lattice of Universes.
+ * @brief Represents a repeating 3D Lattice of Universes.
  */
 class Lattice: public Universe {
 

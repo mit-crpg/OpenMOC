@@ -122,32 +122,6 @@ class Geometry {
 
 private:
 
-  bool _solve_3D;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _x_min_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _x_max_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _y_min_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _y_max_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _z_min_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _z_max_bc;
-
   /** An map of FSR key hashes to unique fsr_data structs */
   ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
   ParallelHashMap<std::string, ExtrudedFSR*> _extruded_FSR_keys_map;
@@ -235,8 +209,11 @@ public:
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
+  std::map<int, Surface*> getAllSurfaces();
   std::map<int, Material*> getAllMaterials();
+  std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
+  std::map<int, Universe*> getAllUniverses();
   std::vector<FP_PRECISION> getUniqueZHeights();
   std::vector<FP_PRECISION> getUniqueZPlanes();
   bool isDomainDecomposed();
@@ -301,6 +278,8 @@ public:
 #endif
   std::vector<double> getGlobalFSRCentroidData(int global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
+  void dumpToFile(std::string filename);
+  void loadFromFile(std::string filename);
 };
 
 #endif /* GEOMETRY_H_ */

@@ -1209,9 +1209,9 @@ std::map<int, Universe*> Lattice::getUniqueUniverses() {
   std::map<int, Universe*> unique_universes;
   Universe* universe;
 
-  for (int k = _num_z-1; k > -1; k--) {
-    for (int j = _num_y-1; j > -1;  j--) {
-      for (int i = 0; i < _num_x; i++) {
+  for (int k = _universes.size()-1; k > -1; k--) {
+    for (int j = _universes.at(k).size()-1; j > -1;  j--) {
+      for (int i = 0; i < _universes.at(k).at(j).size(); i++) {
         universe = _universes.at(k).at(j).at(i).second;
         unique_universes[universe->getId()] = universe;
       }
@@ -1352,8 +1352,8 @@ void Lattice::setUniverses(int num_z, int num_y, int num_x,
     removeUniverse(iter->second);
 
   /* Clear any Universes in the Lattice (from a previous run) */
-  for (int k=0; k < _num_z; k++) {
-    for (int j=0; j < _num_y; j++)
+  for (int k=0; k < _universes.size(); k++) {
+    for (int j=0; j < _universes.at(k).size(); j++)
       _universes.at(k).at(j).clear();
     _universes.at(k).clear();
   }

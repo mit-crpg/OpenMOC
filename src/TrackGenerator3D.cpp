@@ -799,7 +799,6 @@ void TrackGenerator3D::initializeTracks() {
     }
   }
 
-
   /* Compute the total number of chains */
   int num_chains = 0;
   for (int a = 0; a < _num_azim/2; a++) {
