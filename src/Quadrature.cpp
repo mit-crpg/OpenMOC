@@ -503,6 +503,7 @@ void Quadrature::setPolarWeights(FP_PRECISION* weights,
                " in each octant",
                num_azim_times_polar, _num_polar/2, _num_azim/4);
 
+
   /* Initialize memory for arrays */
   if (_polar_weights == NULL) {
     _polar_weights = new FP_PRECISION*[_num_azim/2];
@@ -1046,10 +1047,6 @@ GLPolarQuad::GLPolarQuad(): Quadrature() {
  */
 void GLPolarQuad::setNumPolarAngles(const int num_polar) {
 
-  if (num_polar > 12)
-    log_printf(ERROR, "Unable to set the number of polar angles to %d "
-               "for GLPolarQuad (max 12 angles)", num_polar);
-
   Quadrature::setNumPolarAngles(num_polar);
 }
 
@@ -1067,11 +1064,10 @@ void GLPolarQuad::initialize() {
   /* Allocate temporary arrays for tabulated quadrature values */
   double thetas[_num_polar/2*_num_azim/4];
 
-  /* get roots of Legendre polynomial */
+  /* Get roots of Legendre polynomial */
   _roots = getLegendreRoots(_num_polar);
 
-  /* Tabulated values for the sine thetas and weights for the
-   * Leonard polar angle quadrature */
+  /* Set theta values for polar angles */
   for (int a=0; a < _num_azim/4; a++) {
     for (int i=0; i < _num_polar/2; i++) {
       thetas[a*(_num_polar/2)+i] = acos(_roots[i]);
@@ -1090,16 +1086,15 @@ void GLPolarQuad::initialize() {
  */
 void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
-  /* get weights */
+  /* Get weights */
   std::vector <double> weights_vec = getGLWeights(_roots, _num_polar);
 
   /* Allocate temporary arrays for tabulated quadrature values */
   FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
-  /* Tabulated values for the sine thetas and weights for the
-   * Leonard polar angle quadrature */
+  /* Weights for Gauss Legendre polar angle quadrature */
   for (int a=0; a < _num_azim/4; a++) {
-    for (int i=0; i < _num_polar; i++) {
+    for (int i=0; i < _num_polar/2; i++) {
       weights[a*(_num_polar/2)+i] = weights_vec[i] / 2.0;
     }
   }
@@ -1206,7 +1201,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
       if (not converged[i]) {
         double sum1 = 0;
         double sum2 = 0;
-        for (int j=0; j<= (n+1)/2; ++j) {
+        for (int j=0; j< (n+1)/2; ++j) {
           if (j != i) {
             sum1 += 1/(roots[i] - roots[j]);
             sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
