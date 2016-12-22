@@ -1195,10 +1195,7 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
         /* Set weights based on adjusted polar angles */
         weights[a*(_num_polar/2)+i] = simple_weights[i] / 2.0;
-
-
       }
-
       else {
 
         /* Set weights based on actual GL roots */
@@ -1499,7 +1496,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
       if (not converged[i]) {
         double sum1 = 0;
         double sum2 = 0;
-        for (int j=0; j<= (n+1)/2; ++j) {
+        for (int j=0; j< (n+1)/2; ++j) {
           if (j != i) {
             sum1 += 1/(roots[i] - roots[j]);
             sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
