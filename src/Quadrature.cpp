@@ -503,7 +503,6 @@ void Quadrature::setPolarWeights(FP_PRECISION* weights,
                " in each octant",
                num_azim_times_polar, _num_polar/2, _num_azim/4);
 
-
   /* Initialize memory for arrays */
   if (_polar_weights == NULL) {
     _polar_weights = new FP_PRECISION*[_num_azim/2];
@@ -1190,7 +1189,6 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     s2_tilde.push_back(0);
   }
 
-
   bool all_roots_converged = false;
 
   /* use the Alberth-Housholder_n method to nudge guesses towards roots */
@@ -1211,7 +1209,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
         s1_tilde[i] = logDerivLegendre(n, roots[i]) - sum1;
         s2_tilde[i] = secondLogDerivLegendre(n, roots[i]) - sum2;
 
-        /* householder method 2  Halley     */
+        /* householder method 2 Halley */
         double u_new =
           roots[i] - 2*s1_tilde[i] / (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
         double u_old = roots[i];
