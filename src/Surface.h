@@ -28,8 +28,9 @@ class LocalCoords;
 class Cell;
 
 
-int surf_id();
-void reset_surf_id();
+int surface_id();
+void reset_surface_id();
+void maximize_surface_id(int surface_id);
 
 
 /**
