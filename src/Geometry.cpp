@@ -6,7 +6,7 @@
  */
 void reset_auto_ids() {
   reset_material_id();
-  reset_surf_id();
+  reset_surface_id();
   reset_cell_id();
   reset_universe_id();
 }

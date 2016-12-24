@@ -54,7 +54,7 @@ Surface::Surface(const int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
-    _id = surf_id();
+    _id = surface_id();
 
   /* Use the user-defined ID */
   else
