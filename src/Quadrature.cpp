@@ -1164,7 +1164,6 @@ double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
  */
 std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
 
-  /* put these somewhere else */
   double E1 = 1e-10;
   double E2 = 1e-10;
 
@@ -1243,7 +1242,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     }
   } /* while not all roots converged */
   
-  /* add negative roots */
+  /* put roots in order */
   std::sort (roots.begin(), roots.end());
   return roots;
 }
