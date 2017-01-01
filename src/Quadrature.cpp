@@ -1056,6 +1056,7 @@ void GLPolarQuad::setNumPolarAngles(const int num_polar) {
  *          polar angle quadrature, including the sine thetas and weights.
  */
 void GLPolarQuad::initialize() {
+  
 
   /* Call parent class initialize routine */
   Quadrature::initialize();
@@ -1188,6 +1189,9 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     s2_tilde.push_back(0);
   }
 
+  /* placeholder element */
+  roots.push_back(0);
+
   bool all_roots_converged = false;
 
   /* use the Alberth-Housholder_n method to nudge guesses towards roots */
@@ -1198,7 +1202,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
       if (not converged[i]) {
         double sum1 = 0;
         double sum2 = 0;
-        for (int j=0; j< (n+1)/2; ++j) {
+        for (int j=0; j<= (n+1)/2; ++j) {
           if (j != i) {
             sum1 += 1/(roots[i] - roots[j]);
             sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
@@ -1242,6 +1246,10 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     }
   } /* while not all roots converged */
   
+
+  /* remove placeholder root */
+  roots.pop_back();
+
   /* put roots in order */
   std::sort (roots.begin(), roots.end());
   return roots;
