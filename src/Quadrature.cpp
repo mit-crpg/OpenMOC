@@ -1057,7 +1057,6 @@ void GLPolarQuad::setNumPolarAngles(const int num_polar) {
  */
 void GLPolarQuad::initialize() {
   
-
   /* Call parent class initialize routine */
   Quadrature::initialize();
 
@@ -1179,7 +1178,6 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     converged.push_back(false);
     s1_tilde.push_back(0);
     s2_tilde.push_back(0);
-
   }
 
   if (n%2 == 1) {
@@ -1246,7 +1244,6 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     }
   } /* while not all roots converged */
   
-
   /* remove placeholder root */
   roots.pop_back();
 
