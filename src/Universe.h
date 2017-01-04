@@ -212,7 +212,8 @@ public:
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumZ(int num_z);
-  void setWidth(double width_x, double width_y, double width_z=1.0);
+  void setWidth(double width_x, double width_y,
+                double width_z=std::numeric_limits<double>::infinity());
   void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void updateUniverse(int lat_x, int lat_y, int lat_z, Universe* universe);
   void removeUniverse(Universe* universe);

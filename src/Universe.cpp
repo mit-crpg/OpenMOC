@@ -1701,6 +1701,10 @@ int Lattice::getLatY(Point* point) {
  */
 int Lattice::getLatZ(Point* point) {
 
+  /* Check to see if lattice is infinite in z direction */
+  if (_width_z == std::numeric_limits<double>::infinity())
+    return 0;
+
   /* Compute the z indice for the Lattice cell this point is in */
   int lat_z = (int)floor((point->getZ() + _width_z*_num_z/2.0 -
                           _offset.getZ()) / _width_z);
