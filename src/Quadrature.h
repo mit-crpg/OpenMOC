@@ -22,6 +22,10 @@
 #include "log.h"
 #include <sstream>
 #endif
+#include <vector>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
 
 
 /**
@@ -178,12 +182,20 @@ public:
 class GLPolarQuad: public Quadrature {
 
 private:
+  /** the roots to the Legendre polynomial of degree _num_polar */
+  std::vector <double> _roots;
 
 public:
   GLPolarQuad();
   void setNumPolarAngles(const int num_polar);
   void initialize();
   void precomputeWeights(bool solve_3D);
+
+  double legendrePolynomial(int n, double x);
+  double logDerivLegendre(int n, double x);
+  double secondLogDerivLegendre(int n, double x);
+  std::vector <double> getLegendreRoots(int n);
+  std::vector <double> getGLWeights(std::vector <double> roots, int n);
 };
 
 
