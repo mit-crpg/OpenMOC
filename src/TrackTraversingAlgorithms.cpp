@@ -492,7 +492,7 @@ void LinearExpansionGenerator::execute() {
             lem[r*nc + 0] * lem[r*nc + 4] * lem[r*nc + 4] -
             lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
             lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
-      
+
       if (std::abs(det) < MIN_DET) {
         log_printf(WARNING, "Unable to form linear source components in "
                    "source region %d. Switching to linear source in that "
@@ -523,7 +523,7 @@ void LinearExpansionGenerator::execute() {
   }
   else {
     for (int r=0; r < num_FSRs; r++) {
-      
+
       det = lem[r*nc  ] * lem[r*nc + 1] - lem[r*nc + 2] * lem[r*nc + 2];
 
       if (std::abs(det) < MIN_DET) {
@@ -699,7 +699,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       _lin_exp_coeffs[fsr*_num_coeffs + 5] += wgt * length / volume *
           (zc * zc + pow(cos_theta * length, 2.0) / 12.0);
     }
-    
+
 	/* Set the source constants for all groups and coefficients */
     for (int g=0; g < _num_groups; g++) {
       for (int i=0; i < _num_coeffs; i++)
@@ -1085,4 +1085,35 @@ void TransportSweepOTF::setCPUSolver(CPUSolver* cpu_solver) {
 
 //FIXME
 void TransportSweepOTF::onTrack(Track* track, segment* segments) {
+}
+
+
+//FIXME
+RecenterSegments::RecenterSegments(TrackGenerator* track_generator)
+                                   : TraverseSegments(track_generator) {
+  _geometry = _track_generator->getGeometry();
+}
+
+
+//FIXME
+void RecenterSegments::execute() {
+#pragma omp parallel
+  {
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
+  }
+}
+
+
+//FIXME
+void RecenterSegments::onTrack(Track* track, segment* segments) {
+  if (_geometry->containsFSRCentroids()) {
+    for (int s=0; s < track->getNumSegments(); s++) {
+      int fsr_id = segments[s]._region_id;
+      Point* centroid = _geometry->getFSRCentroid(fsr_id);
+      segments[s]._starting_position[0] -= centroid->getX();
+      segments[s]._starting_position[1] -= centroid->getY();
+      segments[s]._starting_position[2] -= centroid->getZ();
+    }
+  }
 }

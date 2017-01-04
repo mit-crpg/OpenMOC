@@ -770,7 +770,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
   _A->clear();
   _M->clear();
 
-  #pragma omp parallel
+#pragma omp parallel
   {
 
     FP_PRECISION value, volume, delta;
@@ -779,7 +779,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
     Material* material;
 
     /* Loop over cells */
-    #pragma omp for
+#pragma omp for
     for (int i = 0; i < _num_x*_num_y*_num_z; i++) {
 
       material = _materials[i];
@@ -938,7 +938,7 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
     mu = cos(asin(_quadrature->getSinTheta(0,p)));
     expon = exp(-delta / (3 * dif_coef * mu));
     alpha = (1 + expon) / (1 - expon) - 2 * (3 * dif_coef * mu) / delta;
-    rho += mu * _quadrature->getPolarWeight(0,p) * alpha;
+    rho += 2.0 * mu * _quadrature->getPolarWeight(0,p) * alpha;
   }
 
   /* Compute the correction factor */
@@ -2762,7 +2762,7 @@ FP_PRECISION Cmfd::getSurfaceWidth(int surface) {
 
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
     width = _cell_width_y * _cell_width_z;
-  if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
+  else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
     width = _cell_width_x * _cell_width_z;
   else
     width = _cell_width_x * _cell_width_y;

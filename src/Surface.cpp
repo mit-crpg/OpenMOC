@@ -420,9 +420,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
   double my = sin(polar) * sin(azim);
   double mz = cos(polar);
 
-  if ((fabs(mx) < 1.e-10 && fabs(_A) > 1.e-10) ||
-      (fabs(my) < 1.e-10 && fabs(_B) > 1.e-10) ||
-      (fabs(mz) < 1.e-10 && fabs(_C) > 1.e-10))
+  if (fabs(_A*mx + _B*my + _C*mz) < 1.e-10)
     return 0;
 
   /* The track is not parallel to the plane */

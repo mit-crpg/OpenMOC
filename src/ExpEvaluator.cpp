@@ -171,7 +171,6 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
 
 /**
  * @brief If using linear interpolation, builds the table for each polar angle.
- //FIXME
  */
 void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
@@ -219,12 +218,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
     return;
 
   /* Set size of interpolation table */
-  int num_array_values;
-  if (_linear_source)
-    num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
-  else
-    num_array_values = _max_optical_length * pow(1. / (72. * sqrt(3.0)
-                                                 * _exp_precision), 1.0/3.0);
+  int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
 
   if (num_array_values < 10)
     num_array_values = 10;

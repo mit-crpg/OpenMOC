@@ -362,6 +362,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION src_flat = 0.0;
       for (int i=0; i<2; i++)
         src_flat += _reduced_sources_xyz(fsr_id, e, i) * center[i];
+
       src_flat *= 2 * sigma_t[e];
       src_flat += _reduced_sources(fsr_id, e);
 
@@ -403,7 +404,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       fsr_flux[e*4] += polar_wgt_d_psi;
       for (int i=0; i<2; i++)
         fsr_flux[e*4 + i + 1] += polar_wgt_exp_h * direction[i]
-            + polar_wgt_d_psi * position[i];
+              + polar_wgt_d_psi * position[i];
     }
   }
 

@@ -270,4 +270,18 @@ public:
 };
 
 
+//FIXME
+class RecenterSegments: public TraverseSegments {
+
+private:
+
+  Geometry* _geometry;
+
+public:
+
+  RecenterSegments(TrackGenerator* track_generator);
+  void onTrack(Track* track, segment* segments);
+  void execute();
+};
+
 #endif

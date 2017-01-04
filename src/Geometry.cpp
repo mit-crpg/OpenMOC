@@ -1441,10 +1441,38 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
       start.adjustCoords(-delta_x, -delta_y);
       end.adjustCoords(-delta_x, -delta_y);
 
-      new_segment->_cmfd_surface_fwd =
-        _cmfd->findCmfdSurface(cmfd_cell, &end);
-      new_segment->_cmfd_surface_bwd =
-        _cmfd->findCmfdSurface(cmfd_cell, &start);
+      /* Calculate CMFD surfaces */
+      int cmfd_surfaces[2];
+      cmfd_surfaces[0] = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      cmfd_surfaces[1] = _cmfd->findCmfdSurface(cmfd_cell, &start);
+
+      /* Ensure surfaces are x-y surfaces (no z-crossings) */
+      /* Note: this code takes advantage of the numeric representation of
+         surfaces to find a mapping that removes z-surfaces */
+      for (int d=0; d<2; d++) {
+        int local_surface = cmfd_surfaces[d] % NUM_SURFACES;
+        if (local_surface == 2 || local_surface == 5) {
+            cmfd_surfaces[d] = -1;
+        }
+        else if (local_surface > 9) {
+          int cell = cmfd_surfaces[d] / NUM_SURFACES;
+          int half_surf = local_surface / 2;
+          if (local_surface > 17) {
+            int quart_surf = half_surf / 2;
+            local_surface = 2 + quart_surf + (half_surf == 2*quart_surf);
+            cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
+          }
+          else {
+            local_surface = (half_surf > 6) + 3 *
+                (local_surface != 2*half_surf);
+            cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
+          }
+        }
+      }
+
+      /* Save CMFD surfaces */
+      new_segment->_cmfd_surface_fwd = cmfd_surfaces[0];
+      new_segment->_cmfd_surface_bwd = cmfd_surfaces[1];
 
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y);
@@ -1452,9 +1480,11 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     }
 
     /* Calculate the local centroid of the segment if available */
+    Point* starting_point = start.getHighestLevel()->getPoint();
+    new_segment->_starting_position[0] = starting_point->getX();
+    new_segment->_starting_position[1] = starting_point->getY();
     if (_contains_FSR_centroids) {
       Point* centroid = getFSRCentroid(fsr_id);
-      Point* starting_point = start.getHighestLevel()->getPoint();
       double x_start = starting_point->getX() - centroid->getX();
       double y_start = starting_point->getY() - centroid->getY();
       new_segment->_starting_position[0] = x_start;

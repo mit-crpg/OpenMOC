@@ -1060,6 +1060,26 @@ void TrackGenerator::segmentize() {
 
   log_printf(NORMAL, "Ray tracing for 2D track segmentation...");
 
+  /* Check to ensure the Geometry is infinite in axial direction */
+  double max_z = _geometry->getRootUniverse()->getMaxZ();
+  double min_z = _geometry->getRootUniverse()->getMinZ();
+  if ((max_z - min_z) != std::numeric_limits<double>::infinity()) {
+    log_printf(WARNING, "The Geometry was set with non-inifinite z-boundaries"
+               " and supplied to a 2D TrackGenerator. The min-z boundary was "
+               "set to %5.2f and the max-z boundary was set to %5.2f. "
+               "Z-boundaries are assumed to be infinite in 2D "
+               "TrackGenerators.", min_z, max_z);
+    Cmfd* cmfd = _geometry->getCmfd();
+    if (cmfd != NULL) {
+      cmfd->setWidthZ(1.0);
+      Point offset;
+      offset.setX(cmfd->getLattice()->getOffset()->getX());
+      offset.setY(cmfd->getLattice()->getOffset()->getY());
+      offset.setZ(0.0);
+      cmfd->initializeLattice(&offset);
+    }
+  }
+
   int tracks_segmented = 0;
   int num_2D_tracks = getNum2DTracks();
 
@@ -1425,6 +1445,9 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   /* Set the centroid for the FSR */
   for (int r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
+
+  RecenterSegments rs(this);
+  rs.execute();
 
   delete [] centroids;
 }
