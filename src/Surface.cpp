@@ -819,8 +819,8 @@ double ZCylinder::getMaxZ(int halfspace) {
 
 
 /**
- * @brief Finds the intersection Point with this zcylinder from a given Point and
- *        trajectory defined by an angle (0, 1, or 2 points).
+ * @brief Finds the intersection Point with this zcylinder from a given Point
+ *        and trajectory defined by an angle (0, 1, or 2 points).
  * @param point pointer to the Point of interest
  * @param angle the angle defining the trajectory in radians
  * @param points pointer to a an array of Points to store intersection Points
@@ -835,33 +835,40 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
   double xcurr, ycurr, zcurr;
   int num = 0;                        /* Number of intersection Points */
   double a, b, c, q, discr;
-
+  /*std::cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n";
+  std::cout << "            ZCylinder calculation \n";
+  std::cout << "x0, y0, z0 " << x0 << " " << y0 << " " << z0 << std::endl;
+  std::cout << "angle " << angle << std::endl;
+  std::cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n";
+*/
   /* If the track is vertical in y */
-  if ((fabs(angle - M_PI_2)) < 1.0e-10) {
+/*  if ((fabs(angle - M_PI_2)) < TINY_MOVE) {
 
-    /* Solve for where the line x = x0 and the Surface F(x,y) intersect
+    std::cout << "!!!!!!track is vertical " << std::endl;
+
+    * Solve for where the line x = x0 and the Surface F(x,y) intersect
      * Find the y where F(x0, y) = 0
      * Substitute x0 into F(x,y) and rearrange to put in
      * the form of the quadratic formula: ay^2 + by + c = 0 
-     * This is simplified for a z-cylinder with a vertical axis */
+     * This is simplified for a z-cylinder with a vertical axis *
     a = 1.;
     b = _D;
     c = _A * x0 * x0 + _C * x0 + _E;
 
     discr = b*b - 4*c;
 
-    /* There are no intersections */
+    * There are no intersections *
     if (discr < 0)
       return 0;
 
-    /* There is one intersection (ie on the Surface) */
+    * There is one intersection (ie on the Surface) *
     else if (discr == 0) {
       xcurr = x0;
       ycurr = -b / 2;
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
 
-      /* Check that point is in same direction as angle */
+      * Check that point is in same direction as angle *
       if (angle < M_PI && ycurr > y0)
         num++;
       else if (angle > M_PI && ycurr < y0)
@@ -870,11 +877,17 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
       return num;
     }
 
-    /* There are two intersections */
+    * There are two intersections *
     else {
       xcurr = x0;
-      ycurr = (-b + sqrt(discr)) / 2;
       zcurr = z0;
+      
+      // solve quadratic equation for y in a way that reduces error
+      if (b > 0)
+        ycurr = 2*c / (-b - sqrt(discr));
+      if (b < 0)
+        ycurr = -b/2 + sqrt(discr) / 2;
+
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (angle < M_PI && ycurr > y0)
         num++;
@@ -882,8 +895,14 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
         num++;
 
       xcurr = x0;
-      ycurr = (-b - sqrt(discr)) / 2;
       zcurr = z0;
+
+      // solve quadratic equation for y in a way that reduces error
+      if (b > 0)
+        ycurr = -b/2 - sqrt(discr) / 2;
+      if (b < 0)
+        ycurr = 2*c / (-b + sqrt(discr));
+
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (angle < M_PI && ycurr > y0)
         num++;
@@ -893,9 +912,11 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
       return num;
     }
   }
+i*/
+  // if track is near vertical
+  if (abs(tan(angle)) >= 1) {
+    //std::cout << "track is not vertical " << std::endl;
 
-  /* If the track isn't vertical */
-  else {
     /* Solve for where the line y-y0 = m*(x-x0) and the Surface F(x,y)
      * intersect. Find the (x,y) where F(x, y0 + m*(x-x0)) = 0
      * Substitute the point-slope formula for y into F(x,y) and
@@ -903,6 +924,97 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
      * ax^2 + bx + c = 0
      */
     double m = tan(angle);
+
+    q = x0 - 1/m * y0;
+    a = 1 + 1/m *1/ m;
+    b = 2 * 1/m * q + _D + _C * m;
+    c = q * q + _C * q + _E;
+
+    discr = b*b - 4*a*c;
+
+// check this    /* Boolean value describing whether the track is traveling to the right */
+    bool right = angle < M_PI / 2. || angle > 3. * M_PI / 2.;
+
+    /* There are no intersections */
+    if (discr < 0)
+      return 0;
+
+    /* There is one intersection (ie on the Surface) */
+    else if (discr == 0) {
+
+      /* Determine the point of intersection */
+      ycurr = -b / (2*a);
+      xcurr = x0 + 1/m * points[num].getY() - 1/m*y0;
+      zcurr = z0;
+      points[num].setCoords(xcurr, ycurr, zcurr);
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0)
+        num++;
+      else if (!right && xcurr < x0)
+        num++;
+
+      return num;
+    }
+
+    /* There are two intersections */
+    else {
+
+      /* Determine the point of intersection */
+      if (b > 0)
+        ycurr = 2*c / (-b - sqrt(discr));
+      if (b < 0)
+        ycurr = -b/(2*a) + sqrt(discr) / (2*a);
+
+      // this could lead to lots of error when the track is near-vertical
+      xcurr = x0 + 1/m*(ycurr -y0);
+
+      zcurr = z0;
+      points[num].setCoords(xcurr, ycurr, zcurr);
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0)
+        num++;
+      else if (!right && xcurr < x0)
+        num++;
+
+      /* Determine the point of intersection */
+      if (b > 0)
+        ycurr = -b/(2*a) - sqrt(discr) / (2*a);
+      if (b < 0)
+        ycurr = 2*c / (-b + sqrt(discr));
+
+      // this could lead to lots of error when track is near-vertical
+      xcurr = x0 + 1/m*ycurr -1/m*y0;
+      zcurr = z0;
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      //std::cout << "intersection point " << xcurr << " " << ycurr << "\n";
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0)
+        num++;
+      else if (!right && xcurr < x0)
+        num++;
+
+      return num;
+    }
+  }
+
+  /* If the track is near horizontal */
+  else {
+    //std::cout << "track is not vertical " << std::endl;
+
+    /* Solve for where the line y-y0 = m*(x-x0) and the Surface F(x,y)
+     * intersect. Find the (x,y) where F(x, y0 + m*(x-x0)) = 0
+     * Substitute the point-slope formula for y into F(x,y) and
+     * rearrange to put in the form of the quadratic formula:
+     * ax^2 + bx + c = 0
+     */
+    double m = tan(angle);
+
     q = y0 - m * x0;
     a = 1 + m * m;
     b = 2 * m * q + _C + _D * m;
@@ -922,7 +1034,7 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
 
       /* Determine the point of intersection */
       xcurr = -b / (2*a);
-      ycurr = y0 + m * (points[num].getX() - x0);
+      ycurr = y0 + m * points[num].getX() - m*x0;
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
 
@@ -940,8 +1052,14 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
     else {
 
       /* Determine the point of intersection */
-      xcurr = (-b + sqrt(discr)) / (2*a);
-      ycurr = y0 + m * (xcurr - x0);
+      if (b > 0)
+        xcurr = 2*c / (-b - sqrt(discr));
+      if (b < 0)
+        xcurr = -b/(2*a) + sqrt(discr) / (2*a);
+
+      // this could lead to lots of error when the track is near-vertical
+      ycurr = y0 + m*(xcurr -x0);
+
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
 
@@ -953,10 +1071,24 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
         num++;
 
       /* Determine the point of intersection */
-      xcurr = (-b - sqrt(discr)) / (2*a);
-      ycurr = y0 + m * (xcurr - x0);
+      if (b > 0)
+        xcurr = -b/(2*a) - sqrt(discr) / (2*a);
+      if (b < 0)
+        xcurr = 2*c / (-b + sqrt(discr));
+
+      // this could lead to lots of error when track is near-vertical
+      ycurr = y0 + m*xcurr -m*x0;
+/*      std::cout << "--r2: m*xcurr   = " << m*xcurr << std::endl;
+      std::cout << "      m*x0      = " << m*x0 << std::endl;
+      std::cout << " m*(xcurr - x0) = " << m*(xcurr - x0) << std::endl;
+      std::cout << "      y0        = " << y0 << std::endl;
+      std::cout << "    y0 + m*()   = " << ycurr << std::endl;
+      std::cout << "   distribute m = " << y0 + m*xcurr - m*x0
+        << std::endl << std::endl;
+*/
       zcurr = z0;
       points[num].setCoords(xcurr, ycurr, zcurr);
+      //std::cout << "intersection point " << xcurr << " " << ycurr << "\n";
 
       /* Increase the number of intersections if the intersection is in the
        * direction of the track is heading */
@@ -992,4 +1124,26 @@ std::string ZCylinder::toString() {
          << ", radius = " << _radius;
 
     return string.str();
+}
+
+double Surface::kahanSum(double i, double j, double k) {
+  double sum = 0;
+  double c = 0;
+  
+  double y = i - c;
+  double t = sum + y;
+  c = (t - sum) - y;
+  sum = t;
+  
+  y = j - c;
+  t = sum + y;
+  c = (t - sum) - y;
+  sum = t;
+
+  y = k - c;
+  t = sum + y;
+  c = (t - sum) - y;
+  sum = t;
+
+  return sum;
 }

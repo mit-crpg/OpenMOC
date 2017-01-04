@@ -368,6 +368,7 @@ void Track::clearSegments() {
  * @return a character array of this Track's attributes
  */
 std::string Track::toString() {
+  std::cout.precision(17);
   std::stringstream string;
   string << "Track: start, x = " << _start.getX() << ", y = " <<
     _start.getY() << ", z = " << _start.getZ() << ", end, x = " <<

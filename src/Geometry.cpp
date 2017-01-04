@@ -407,7 +407,7 @@ void Geometry::setCmfd(Cmfd* cmfd) {
  *        of the nested Universe hierarchy.
  * @details This method assumes that the LocalCoords has been initialized
  *          with coordinates and a Universe ID. The method will recursively
- *          find the Cell on the lowest level of the nested Universe hierarchy
+ *          
  *          by building a linked list of LocalCoords from the LocalCoord
  *          passed in as an argument down to the lowest level Cell found. In
  *          the process it will set the coordinates at each level of the
@@ -457,6 +457,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
 Cell* Geometry::findFirstCell(LocalCoords* coords) {
+
   coords->adjustCoords(TINY_MOVE);
   return findCellContainingCoords(coords);
 }
@@ -528,9 +529,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
 
       /* Descend one level */
       if (coords->getNext() == NULL)
-	break;
+	      break;
       else
- 	coords = coords->getNext();
+ 	      coords = coords->getNext();
     }
 
     coords = coords->getHighestLevel();
@@ -544,6 +545,8 @@ Cell* Geometry::findNextCell(LocalCoords* coords) {
     }
 
     /* Move point and get next cell */
+//    std::cout << "min_dist = " << min_dist << std::endl;
+//    std::cout << "min_dist with TINY = " << min_dist + TINY_MOVE << std::endl;
     coords->adjustCoords(min_dist + TINY_MOVE);
 
     return findCellContainingCoords(coords);
@@ -813,7 +816,7 @@ void Geometry::segmentize(Track* track) {
   double delta_x, delta_y;
 
   /* Length of each segment */
-  FP_PRECISION length;
+  double length;
   Material* material;
   int fsr_id;
   int num_segments;
@@ -853,7 +856,7 @@ void Geometry::segmentize(Track* track) {
                  "point: x = %f, y = %f", start.getX(), start.getY());
 
     /* Find the segment length, Material and FSR ID */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    length = double(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
 
@@ -1291,4 +1294,19 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
   delete coords;
 
   return cell;
+}
+
+
+/**
+  * @brief  Resets the boundaries of each Universe in the Geometry
+  */
+void Geometry::resetBoundaries() {
+
+  std::map<int, Universe*> universes = getAllUniverses();
+  std::map<int, Universe*>::iterator u_iter;
+
+  /* Reset the boundaries in each Universe */
+  for (u_iter = universes.begin(); u_iter != universes.end(); ++u_iter)
+    u_iter->second->resetBoundaries();
+
 }

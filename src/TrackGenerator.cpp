@@ -851,7 +851,12 @@ segmentationType TrackGenerator::getSegmentFormation() {
  */
 void TrackGenerator::initializeTracks() {
 
+  /* Reset the boundaries in the geometry */
+  _geometry->resetBoundaries();
+
   log_printf(INFO, "Computing azimuthal angles and track spacing...");
+
+  _geometry->resetBoundaries();
 
   /* Each element in arrays corresponds to an angle in phi_eff */
   /* Track spacing along x,y-axes, and perpendicular to each Track */

@@ -24,7 +24,6 @@ materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
 left = openmoc.XPlane(x=-2.0, name='left')
 right = openmoc.XPlane(x=2.0, name='right')
 top = openmoc.YPlane(y=2.0, name='top')
@@ -44,15 +43,10 @@ openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
 fuel = openmoc.Cell(name='fuel')
 fuel.setFill(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=zcylinder)
-
-moderator = openmoc.Cell(name='moderator')
-moderator.setFill(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=zcylinder)
-moderator.addSurface(halfspace=+1, surface=left)
-moderator.addSurface(halfspace=-1, surface=right)
-moderator.addSurface(halfspace=+1, surface=bottom)
-moderator.addSurface(halfspace=-1, surface=top)
+fuel.addSurface(halfspace=+1, surface=left)
+fuel.addSurface(halfspace=-1, surface=right)
+fuel.addSurface(halfspace=+1, surface=bottom)
+fuel.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
@@ -63,13 +57,11 @@ openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
 root_universe = openmoc.Universe(name='root universe')
 root_universe.addCell(fuel)
-root_universe.addCell(moderator)
 
 
 ###############################################################################
 #                         Creating the Geometry
 ###############################################################################
-
 
 openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 
@@ -83,7 +75,7 @@ geometry.setRootUniverse(root_universe)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, 128, .025)
+track_generator = openmoc.TrackGenerator(geometry, 128, .05)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
@@ -94,7 +86,7 @@ track_generator.generateTracks()
 
 solver = openmoc.CPUSolver(track_generator)
 solver.setNumThreads(opts.num_omp_threads)
-solver.setConvergenceThreshold(opts.tolerance)
+solver.setConvergenceThreshold(1e-7)
 solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 

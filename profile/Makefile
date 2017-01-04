@@ -4,16 +4,16 @@
 
 COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = yes
-DEBUG       = no
-PROFILE     = no
-PRECISION   = single
+OPTIMIZE    = no
+DEBUG       = yes
+PROFILE     = yes
+PRECISION   = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = c5g7/c5g7-cmfd.cpp
+case = monte_carlo/monte_carlo.cpp
 
 source = \
 Cell.cpp \
@@ -26,7 +26,6 @@ linalg.cpp \
 log.cpp \
 Material.cpp \
 Matrix.cpp \
-MOCKernel.cpp \
 Point.cpp \
 Quadrature.cpp \
 Solver.cpp \
@@ -34,17 +33,23 @@ Surface.cpp \
 Timer.cpp \
 Track.cpp \
 TrackGenerator.cpp \
-TrackTraversingAlgorithms.cpp \
-TraverseTracks.cpp \
 Universe.cpp \
-Vector.cpp
+Vector.cpp \
+TraverseTracks.cpp \
+TrackTraversingAlgorithms.cpp \
+MOCKernel.cpp \
+Tally.cpp \
+Neutron.cpp \
+MCSolver.cpp \
+Fission.cpp
 
 cases = \
 gradients/one-directional/one-directional-gradient.cpp \
 gradients/two-directional/two-directional-gradient.cpp \
 homogeneous/homogeneous-one-group.cpp \
 c5g7/c5g7.cpp \
-c5g7/c5g7-cmfd.cpp
+c5g7/c5g7-cmfd.cpp \
+monte_carlo/monte_carlo.cpp
 
 #===============================================================================
 # Sets Flags
