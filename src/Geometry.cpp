@@ -2217,15 +2217,8 @@ void Geometry::initializeCmfd() {
   offset.setX(min_x + (max_x - min_x)/2.0);
   offset.setY(min_y + (max_y - min_y)/2.0);
 
-  /* If geometry is infinite in z, set Cmfd z-width to 1.0 and z-offset to 0 */
-  if ((max_z - min_z) == std::numeric_limits<double>::infinity()) {
-    _cmfd->setWidthZ(1.0);
-    offset.setZ(0.0);
-  }
-  else {
-    _cmfd->setWidthZ(max_z - min_z);
-    offset.setZ(min_z + (max_z - min_z)/2.0);
-  }
+  _cmfd->setWidthZ(max_z - min_z);
+  offset.setZ(min_z + (max_z - min_z)/2.0);
 
   _cmfd->initializeLattice(&offset);
 }

@@ -226,6 +226,8 @@ void Cmfd::setNumZ(int num_z) {
   _num_z = num_z;
   if (_width_z != 0.)
     _cell_width_z = _width_z / _num_z;
+  if (_width_z == std::numeric_limits<double>::infinity())
+    _cell_width_z = 1.0;
 }
 
 

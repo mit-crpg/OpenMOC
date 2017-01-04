@@ -1071,7 +1071,7 @@ void TrackGenerator::segmentize() {
                "TrackGenerators.", min_z, max_z);
     Cmfd* cmfd = _geometry->getCmfd();
     if (cmfd != NULL) {
-      cmfd->setWidthZ(1.0);
+      cmfd->setWidthZ(std::numeric_limits<double>::infinity());
       Point offset;
       offset.setX(cmfd->getLattice()->getOffset()->getX());
       offset.setY(cmfd->getLattice()->getOffset()->getY());

@@ -1559,6 +1559,10 @@ Cell* Lattice::findCell(LocalCoords* coords) {
       - (-_width_z*_num_z/2.0 + _offset.getZ() + (lat_z + 0.5) * _width_z)
       + getOffset()->getZ();
 
+  /* Check for 2D problem */
+  if (_width_z == std::numeric_limits<double>::infinity())
+    next_z = coords->getZ();
+
   /* Create a new LocalCoords object for the next level Universe */
   LocalCoords* next_coords;
 
