@@ -1172,7 +1172,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
   std::vector <double> s1_tilde;
   std::vector <double> s2_tilde;
 
-  /* set guesses with log scale*/
+  /* Set guesses with log scale */
   for (int i=0; i < n/2; ++i) {
     roots.push_back(- pow(2, (-.5*(i+1))) +1);
     converged.push_back(false);
@@ -1187,15 +1187,15 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     s2_tilde.push_back(0);
   }
 
-  /* placeholder element */
+  /* Placeholder element */
   roots.push_back(0);
 
   bool all_roots_converged = false;
 
-  /* use the Alberth-Housholder_n method to nudge guesses towards roots */
+  /* Use the Alberth-Housholder_n method to nudge guesses towards roots */
   while (not all_roots_converged) {
     
-    /* set S tildes */
+    /* Set S tildes */
     for (int i=0; i < (n+1)/2; ++i) {
       if (not converged[i]) {
         double sum1 = 0;
@@ -1210,44 +1210,44 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
         s1_tilde[i] = logDerivLegendre(n, roots[i]) - sum1;
         s2_tilde[i] = secondLogDerivLegendre(n, roots[i]) - sum2;
 
-        /* householder method 2 Halley */
+        /* Householder method 2 Halley */
         double u_new =
           roots[i] - 2*s1_tilde[i] / (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
         double u_old = roots[i];
         roots[i] = u_new;
         
-        /* if this is the actual root */
+        /* If this is the actual root */
         if (abs(u_new - u_old) < E1) {
           if (std::abs(legendrePolynomial(n, u_new)) < E2) {
             converged[i] = true;
 
-            /* if this root equals another root or it is less than 0 */
+            /* If this root equals another root or it is less than 0 */
             for (int j=0; j < (n+1)/2; ++j) { 
               if (j != i) {
                 if (std::abs(roots[j] - roots[i]) < E1 or roots[i] <= 0) {
 
-                  /* reset the root to its original guess */
+                  /* Reset the root to its original guess */
                   roots[i] = - pow(2, (-.5*(i+1))) +1;
                   converged[i] = false;
                 }
               }
             }
           }
-        } /* if this is the actual root */
-      } /* if not converged */
-    } /* for each guess */
+        } /* If this is the actual root */
+      } /* If not converged */
+    } /* For each guess */
 
     for (int i=0; i<(n+1)/2; ++ i) {
       all_roots_converged = converged[i];
       if (not all_roots_converged)
         break;
     }
-  } /* while not all roots converged */
+  } /* While not all roots converged */
   
-  /* remove placeholder root */
+  /* Remove placeholder root */
   roots.pop_back();
 
-  /* put roots in order */
+  /* Put roots in order */
   std::sort (roots.begin(), roots.end());
   return roots;
 }

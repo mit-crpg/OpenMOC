@@ -83,8 +83,8 @@ geometry.setRootUniverse(root_universe)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
-                                         opts.azim_spacing)
+track_generator = openmoc.TrackGenerator(geometry, 32,
+                                         .01)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
@@ -98,6 +98,9 @@ solver.setNumThreads(opts.num_omp_threads)
 solver.setConvergenceThreshold(opts.tolerance)
 solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
+
+openmoc.process.store_simulation_state(solver, use_hdf5=True)
+#simulation_state = openmoc.process.restore_simulation_state(filename='states.h5')
 
 
 ###############################################################################

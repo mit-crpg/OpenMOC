@@ -97,21 +97,17 @@ class Test(object):
         ctest_cmd = ['ctest']
 
         # Check for parallel
-        print("checks parallel")
         if options.n_procs:
             ctest_cmd += ['-j', str(options.n_procs)]
 
         # Check for subset of tests
-        print("checks subset")
         if options.regex_tests:
             ctest_cmd += ['-R', str(options.regex_tests)]
 
         # Run CTest
-        print("starts runctest")
         rc = subprocess.call(ctest_cmd)
 
         # Check for error code
-        print("checks ec")
         if rc != 0:
             self.success = False
             self.msg = 'Failed on testing.'
@@ -174,9 +170,7 @@ for key in iter(tests):
     os.chdir('tests/build')
 
     # Run CTest
-    print("runs ctest")
     test.run_ctests()
-    print("finish runs ctest")
 
     # Leave build directory
     os.chdir('..')

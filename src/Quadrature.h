@@ -182,6 +182,7 @@ public:
 class GLPolarQuad: public Quadrature {
 
 private:
+
   /** the roots to the Legendre polynomial of degree _num_polar */
   std::vector <double> _roots;
 
