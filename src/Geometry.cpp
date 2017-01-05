@@ -19,6 +19,7 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+  _root_universe = NULL;
   _domain_decomposed = false;
   _num_modules_x = 1;
   _num_modules_y = 1;

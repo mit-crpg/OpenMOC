@@ -113,6 +113,9 @@
 /* Include standard vector library for SWIG */
 %include "std_vector.i"
 
+/* Include standard string library for SWIG */
+%include "std_string.i"
+
 namespace std {
   %template(DoubleVector) vector<double>;
   %template(FloatVector) vector<float>;
