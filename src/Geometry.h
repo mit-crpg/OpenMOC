@@ -227,6 +227,8 @@ public:
   Cmfd* getCmfd();
   std::vector<std::string>& getFSRsToKeys();
   std::vector<int>& getFSRsToMaterialIDs();
+  std::vector<Point*>& getFSRsToCentroids();
+  std::vector<int>& getFSRsToCMFDCells();
   int getFSRId(LocalCoords* coords);
   int getGlobalFSRId(LocalCoords* coords);
   Point* getFSRPoint(int fsr_id);

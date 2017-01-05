@@ -1097,8 +1097,6 @@ void TrackGenerator::segmentize() {
 
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
-
-  return;
 }
 
 
@@ -1210,6 +1208,7 @@ void TrackGenerator::dumpSegmentsToFile() {
       _geometry->getFSRKeysMap();
   std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
   std::vector<int>& FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
+
   std::string fsr_key;
   int fsr_id;
   double x, y, z;
@@ -1319,6 +1318,9 @@ bool TrackGenerator::readSegmentsFromFile() {
     _geometry->getFSRKeysMap();
   std::vector<int>& FSRs_to_material_IDs = _geometry->getFSRsToMaterialIDs();
   std::vector<std::string>& FSRs_to_keys = _geometry->getFSRsToKeys();
+  std::vector<Point*>& FSRs_to_centroids = _geometry->getFSRsToCentroids();
+  std::vector<int>& FSRs_to_CMFD_cells = _geometry->getFSRsToCMFDCells();
+
   int num_FSRs;
   std::string fsr_key;
   int fsr_key_id;
@@ -1326,6 +1328,10 @@ bool TrackGenerator::readSegmentsFromFile() {
 
   /* Get number of FSRs */
   ret = fread(&num_FSRs, sizeof(int), 1, in);
+
+  /* Resize vectors */
+  FSRs_to_centroids.resize(num_FSRs);
+  FSRs_to_CMFD_cells.resize(num_FSRs);
 
   /* Read FSR vector maps from file */
   for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
@@ -1374,10 +1380,11 @@ bool TrackGenerator::readSegmentsFromFile() {
       cell_fsrs.push_back(*fsrs);
       ret = fread(&num_FSRs, sizeof(int), 1, in);
 
-      /* Loop over FRSs within cell */
+      /* Loop over FSRs within cell */
       for (int fsr = 0; fsr < num_FSRs; fsr++) {
         ret = fread(&fsr_id, sizeof(int), 1, in);
         cell_fsrs.at(cell).push_back(fsr_id);
+        FSRs_to_CMFD_cells.at(fsr_id) = cell;
       }
     }
 
@@ -1413,7 +1420,6 @@ void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
   _max_optical_length = max_optical_length;
   SegmentSplitter segment_splitter(this);
   segment_splitter.execute();
-
 }
 
 

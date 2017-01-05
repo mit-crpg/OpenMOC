@@ -956,12 +956,18 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
     int material_id = curr_segment->_material->getId();
     int region_id = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
+    double start_x = curr_segment->_starting_position[0];
+    double start_y = curr_segment->_starting_position[1];
+    double start_z = curr_segment->_starting_position[2];
 
     /* Write data for this segment to the Track file */
     fwrite(&length, sizeof(double), 1, _out);
     fwrite(&material_id, sizeof(int), 1, _out);
     fwrite(&region_id, sizeof(int), 1, _out);
     fwrite(&track_idx, sizeof(int), 1, _out);
+    fwrite(&start_x, sizeof(double), 1, _out);
+    fwrite(&start_y, sizeof(double), 1, _out);
+    fwrite(&start_z, sizeof(double), 1, _out);
 
     /* Write CMFD-related data for the Track if needed */
     if (cmfd != NULL) {
@@ -1036,6 +1042,12 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     ret = fread(&region_id, sizeof(int), 1, _in);
     int  track_idx;
     ret = fread(&track_idx, sizeof(int), 1, _in);
+    double start_x;
+    ret = fread(&start_x, sizeof(double), 1, _in);
+    double start_y;
+    ret = fread(&start_y, sizeof(double), 1, _in);
+    double start_z;
+    ret = fread(&start_z, sizeof(double), 1, _in);
 
     /* Initialize segment with the data */
     segment* curr_segment = new segment;
@@ -1043,6 +1055,9 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     curr_segment->_material = materials[material_id];
     curr_segment->_region_id = region_id;
     curr_segment->_track_idx = track_idx;
+    curr_segment->_starting_position[0] = start_x;
+    curr_segment->_starting_position[1] = start_y;
+    curr_segment->_starting_position[2] = start_z;
 
     /* Import CMFD-related data if needed */
     if (cmfd != NULL) {

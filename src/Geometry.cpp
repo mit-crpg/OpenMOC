@@ -2242,14 +2242,36 @@ std::vector<std::string>& Geometry::getFSRsToKeys() {
   return _FSRs_to_keys;
 }
 
+
 /**
- * @brief Return a vector indexed by flat source region IDs which contain
+ * @brief Return a vector indexed by flat source region IDs which contains
  *        the corresponding Material IDs.
  * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
 std::vector<int>& Geometry::getFSRsToMaterialIDs() {
   return _FSRs_to_material_IDs;
 }
+
+
+/**
+ * @brief Return a vector indexed by flat source region IDs which contains
+ *        pointers to the corresponding Centroid Information.
+ * @return an array of centroid pointers indexed by FSR ID
+ */
+std::vector<Point*>& Geometry::getFSRsToCentroids() {
+  return _FSRs_to_centroids;
+}
+
+
+/**
+ * @brief Return a vector indexed by flat source region IDs which contains
+ *        the corresponding CMFD cell.
+ * @return an integer vector of FSR to CMFD cell IDs indexed by FSR ID
+ */
+std::vector<int>& Geometry::getFSRsToCMFDCells() {
+  return _FSRs_to_CMFD_cells;
+}
+
 
 /**
  * @brief Determins whether a point is within the bounding box of the domain.
