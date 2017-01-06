@@ -1615,6 +1615,27 @@ void CPUSolver::transportSweep() {
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
 
+  //FIXME
+  /*
+  FILE* out;
+  std::string f = "segs";
+#ifdef MPIx
+  int rank;
+  MPI_Comm comm = _geometry->getMPICart();
+  MPI_Comm_rank(comm, &rank);
+  f += std::to_string(rank);
+#endif
+  out = fopen(f.c_str(), "w");
+  PrintSegments ps(_track_generator);
+  ps.setOutputFile(out);
+  ps.execute();
+  fclose(out);
+#ifdef MPIx
+  MPI_Barrier(comm);
+#endif
+  exit(0);
+  */
+
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
   if (_OTF_transport) {

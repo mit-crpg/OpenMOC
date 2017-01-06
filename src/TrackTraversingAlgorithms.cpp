@@ -1140,7 +1140,7 @@ void RecenterSegments::onTrack(Track* track, segment* segments) {
  * @param track_generator The TrackGenerator to pull tracking information from
 //FIXME
  */
-PrintSegments::DumpSegments(TrackGenerator* track_generator)
+PrintSegments::PrintSegments(TrackGenerator* track_generator)
                            : TraverseSegments(track_generator) {
   _out = NULL;
 }
