@@ -1132,3 +1132,84 @@ void RecenterSegments::onTrack(Track* track, segment* segments) {
     }
   }
 }
+
+
+/**
+ * @brief Constructor for DumpSegments calls the TraverseSegments
+ *        constructor and initializes the output FILE to NULL
+ * @param track_generator The TrackGenerator to pull tracking information from
+//FIXME
+ */
+PrintSegments::DumpSegments(TrackGenerator* track_generator)
+                           : TraverseSegments(track_generator) {
+  _out = NULL;
+}
+
+
+/**
+ * @brief Wrties all tracking information to file
+ * @details SegmentationKernels are created to temporarily store segments for
+ *          on-the-fly method. For each Track, onTrack(...) writes the tracking
+ *          information to file.
+ //FIXME
+ */
+void PrintSegments::execute() {
+  MOCKernel* kernel = getKernel<SegmentationKernel>();
+  loopOverTracks(kernel);
+}
+
+
+/**
+ * @brief Sets the file which to write tracking information
+ * @param out the file which to write tracking infmormation
+ //FIXME
+ */
+void PrintSegments::setOutputFile(FILE* out) {
+  _out = out;
+}
+
+
+/**
+ * @brief Writes tracking information to file for a Track and associated
+ *        segments
+ * @param track The Track whose information is written to file
+ * @param segments The segments associated with the Track whose information is
+ *        written to file
+ //FIXME
+ */
+void PrintSegments::onTrack(Track* track, segment* segments) {
+
+  /* Write data for this Track to the Track file */
+  int num_segments = track->getNumSegments();
+
+  /* Get CMFD mesh object */
+  Cmfd* cmfd = _track_generator->getGeometry()->getCmfd();
+
+  /* Loop over all segments for this Track */
+  for (int s=0; s < num_segments; s++) {
+
+    /* Get data for this segment */
+    segment* curr_segment = &segments[s];
+    FP_PRECISION length = curr_segment->_length;
+    int material_id = curr_segment->_material->getId();
+    int region_id = curr_segment->_region_id;
+    int track_idx = curr_segment->_track_idx;
+    double start_x = curr_segment->_starting_position[0];
+    double start_y = curr_segment->_starting_position[1];
+    double start_z = curr_segment->_starting_position[2];
+
+    /* Write data for this segment to the Track file */
+    fprintf(_out, "%6.4f %d %d %6.4f %6.4f %6.4f", length, material_id,
+            region_id, start_x, start_y, start_z);
+
+    /* Write CMFD-related data for the Track if needed */
+    if (cmfd != NULL) {
+      int cmfd_surface_fwd = curr_segment->_cmfd_surface_fwd;
+      int cmfd_surface_bwd = curr_segment->_cmfd_surface_bwd;
+      fprintf(_out, " %d %d", cmfd_surface_fwd, cmfd_surface_bwd);
+    }
+    fprintf(_out, "\n");
+  }
+}
+
+

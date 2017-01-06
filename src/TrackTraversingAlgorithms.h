@@ -284,4 +284,29 @@ public:
   void execute();
 };
 
+
+/**
+ * @class DumpSegments TrackTraversingAlgorithms.h
+ *        "src/TrackTraversingAlgorithms.h"
+ * @brief A class used to write tracking data to a file
+ * @details DumpSegments imports Track data from the provided TrackGenerator
+ *          and writes the tracking data to the provided file.
+//FIXME
+ */
+class PrintSegments: public TraverseSegments {
+
+private:
+
+  FILE* _out;
+
+public:
+
+  PrintSegments(TrackGenerator* track_generator);
+  void setOutputFile(FILE* out);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+
+
 #endif

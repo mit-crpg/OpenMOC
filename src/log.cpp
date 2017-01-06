@@ -281,8 +281,6 @@ int get_log_level() {
  */
 void log_printf(logLevel level, const char* format, ...) {
 
-
-
   char message[1024];
   std::string msg_string;
   if (level >= log_level) {
