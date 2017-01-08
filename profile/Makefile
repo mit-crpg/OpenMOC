@@ -13,7 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = simple-lattice/simple-lattice-3d.cpp
+case = load-geometry/load-geometry.cpp
 
 source = \
 Cell.cpp \
@@ -55,7 +55,8 @@ c5g7/c5g7-rodded-B.cpp \
 c5g7/c5g7-rodded-B-2x2.cpp \
 c5g7/c5g7-ws.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
-single-assembly/single-c5g7-assembly.cpp
+single-assembly/single-c5g7-assembly.cpp \
+load-geometry/load-geometry.cpp
 
 #===============================================================================
 # Sets Flags
@@ -73,7 +74,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpiCC
+  CC = mpicc
   CFLAGS += -DMPIx
   CFLAGS += -march=native
   LDFLAGS += -lm

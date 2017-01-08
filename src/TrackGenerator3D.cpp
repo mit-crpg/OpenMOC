@@ -978,12 +978,14 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
 
   /* If the start point is on a double reflection, nudge it to avoid track
    * with the same start and end points */
+  bool nudged = false;
   if (l_start != 0.0) {
     if (fabs(int(round(x_ext / width_x)) * width_x - x_ext) < TINY_MOVE ||
         fabs(int(round(y_ext / width_y)) * width_y - y_ext) < TINY_MOVE) {
       l_start += TINY_MOVE * 10;
       x_ext = x_start - _x_min + l_start * cos_phi;
       y_ext = y_start - _y_min + l_start * sin_phi;
+      nudged = true;
     }
   }
 
@@ -1010,6 +1012,12 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   else {
     z1 = _z_max + std::min(0., (lz - nz + 0.5)) * dz;
     z2 = _z_min + std::max(0., (lz - nl + 0.5)) * dz;
+  }
+ 
+  /* If the start point was nudged, nudge it back */
+  if (nudged) {
+    x1 -= 10 * TINY_MOVE * cos_phi;
+    y1 -= 10 * TINY_MOVE * sin_phi;
   }
 
   /* Set the Track start point and ending z-coord */

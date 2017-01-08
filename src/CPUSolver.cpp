@@ -346,7 +346,11 @@ void CPUSolver::copyBoundaryFluxes() {
 
 
 #ifdef MPIx
-//FIXME
+/**
+ * @brief Buffers used to transfer angular flux information are initialized
+ * @details Track connection book-keeping information is also saved for
+ *          efficiency during angular flux packing.
+ */
 void CPUSolver::setupMPIBuffers() {
 
   /* Determine the size of the buffers */
@@ -500,7 +504,10 @@ void CPUSolver::setupMPIBuffers() {
 }
 
 
-//FIXME
+/**
+ * @brief The arrays used to store angular flux information are deleted along
+ *        with book-keeping information for track connections.
+ */
 void CPUSolver::deleteMPIBuffers() {
   for (int i=0; i < _send_buffers.size(); i++) {
     delete [] _send_buffers.at(i);
@@ -665,7 +672,16 @@ void CPUSolver::printCycle(long track_start, int domain_start, int length) {
 }
 
 
-//FIXME
+/**
+ * @brief Angular flux transfer information is packed into buffers.
+ * @details On each domain, angular flux and track connection information
+ *          is packed into buffers. Each buffer pertains to a neighboring
+ *          domain. This function proceeds packing buffers until for each
+ *          neighboring domain either all the tracks have been packed or the
+ *          associated buffer is full. This provided integer array contains
+ *          the index of the last track handled for each neighboring domain.
+ *          These numbers are updated at the end with the last track handled.
+ */
 void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
 
   /* Fill send buffers for every domain */
@@ -873,7 +889,14 @@ void CPUSolver::transferAllInterfaceFluxes() {
 }
 
 
-//FIXME
+/**
+ * @brief A debugging tool used to check track links across domains
+ * @details Domains are traversed in rank order. For each domain, all tracks
+ *          are traversed and for each track, information is requested about
+ *          the connecting track - specifically its angles, and its location.
+ *          When the information is returned, it is checked by the requesting
+ *          domain for consistency.
+ */
 void CPUSolver::boundaryFluxChecker() {
 
   /* Get MPI information */
@@ -896,7 +919,7 @@ void CPUSolver::boundaryFluxChecker() {
     size_of_double = 1;
   }
 
-
+  /* Loop over all domains for requesting information */
   int tester = 0;
   int new_tester = 0;
   while (tester < num_ranks) {
@@ -1221,6 +1244,7 @@ void CPUSolver::boundaryFluxChecker() {
       }
     }
   }
+  MPI_Barrier(MPI_cart);
   log_printf(NORMAL, "Passed boundary flux check");
 }
 #endif
@@ -1614,27 +1638,6 @@ void CPUSolver::transportSweep() {
 
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
-
-  //FIXME
-  /*
-  FILE* out;
-  std::string f = "segs";
-#ifdef MPIx
-  int rank;
-  MPI_Comm comm = _geometry->getMPICart();
-  MPI_Comm_rank(comm, &rank);
-  f += std::to_string(rank);
-#endif
-  out = fopen(f.c_str(), "w");
-  PrintSegments ps(_track_generator);
-  ps.setOutputFile(out);
-  ps.execute();
-  fclose(out);
-#ifdef MPIx
-  MPI_Barrier(comm);
-#endif
-  exit(0);
-  */
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */

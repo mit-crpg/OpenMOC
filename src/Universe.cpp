@@ -1947,7 +1947,7 @@ int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
     log_printf(ERROR, "Found a z-surface crossing on a 2D segment");
 
   /* Check min z boundary for crossing */
-  if (fabs(z_min - z) < ON_SURFACE_THRESH) {
+  if (fabs(z_min - z) < TINY_MOVE) {
     int surface;
     switch (surface_2D % NUM_SURFACES) {
       case SURFACE_X_MIN:
@@ -1981,7 +1981,7 @@ int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
   }
 
   /* Check max z boundary for crossing */
-  if (fabs(z_max - z) < ON_SURFACE_THRESH) {
+  if (fabs(z_max - z) < TINY_MOVE) {
     int surface;
     switch (surface_2D % NUM_SURFACES) {
       case SURFACE_X_MIN:
