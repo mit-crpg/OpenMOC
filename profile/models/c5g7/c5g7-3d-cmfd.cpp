@@ -543,7 +543,7 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
   geometry.setDomainDecomposition(3, 3, 3, MPI_COMM_WORLD);
-  //geometry.setNumDomainModules(3,3,3);
+  geometry.setNumDomainModules(3,3,3);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
 

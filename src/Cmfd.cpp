@@ -27,7 +27,7 @@ Cmfd::Cmfd() {
   _cell_width_z = 0.;
   _flux_update_on = true;
   _centroid_update_on = true;
-  _k_nearest = 3;
+  _k_nearest = 1;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
   _solve_3D = false;

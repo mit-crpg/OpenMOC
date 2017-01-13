@@ -309,7 +309,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
   /* Extract starting coordinates */
   double x_start_3D = start->getX();
   double x_start_2D = flattened_track->getStart()->getX();
-  double x_coord = start->getX();
+  double x_coord = x_start_3D;
   double y_coord = start->getY();
   double z_coord = start->getZ();
 
@@ -450,6 +450,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
           y_centroid = centroid->getY();
           z_centroid = centroid->getZ();
         }
+
         kernel->execute(dist_3D, extruded_FSR->_materials[z_ind], fsr_id, 0,
                         cmfd_surface_fwd, cmfd_surface_bwd,
                         x_coord - x_centroid, y_coord - y_centroid,

@@ -1,6 +1,7 @@
 #include "../../../src/CPUSolver.h"
 #include "../../../src/CPULSSolver.h"
 #include "../../../src/log.h"
+#include "../../../src/Mesh.h"
 #include <array>
 #include <iostream>
 
