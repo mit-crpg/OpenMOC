@@ -984,6 +984,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
   _num_iterations = 0;
+  FP_PRECISION previous_residual = 1.0;
   FP_PRECISION residual = 0.;
 
   /* An initial guess for the eigenvalue */
@@ -1033,10 +1034,12 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     normalizeFluxes();
     residual = computeResidual(res_type);
-    log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
-               "\tres = %1.3E", i, _k_eff, residual);
+    FP_PRECISION dr = residual / previous_residual;
+    log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
+               "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
 
     storeFSRFluxes();
+    previous_residual = residual;
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
