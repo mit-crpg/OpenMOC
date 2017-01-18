@@ -206,7 +206,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
-    num_segments = track_generator.getNumTotalSegments()
+    num_segments = track_generator.getNumSegments()
     num_fsrs = track_generator.getGeometry().getNumTotalFSRs()
     coords = \
         track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
@@ -566,7 +566,12 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
             centroids = np.zeros((num_fsrs, 2), dtype=np.float)
             for fsr_id in range(num_fsrs):
                 coords = geometry.getGlobalFSRCentroidData(fsr_id)
-                centroids[fsr_id,:] = [coords[0], coords[1]]
+                if plane == 'xy':
+                    centroids[fsr_id,:] = [coords[0], coords[1]]
+                elif plane == 'xz':
+                    centroids[fsr_id,:] = [coords[0], coords[2]]
+                elif plane == 'yz':
+                    centroids[fsr_id,:] = [coords[1], coords[2]]
 
             # Plot centroids on figure using matplotlib
             if library == 'pil':
@@ -581,20 +586,20 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 
                 for fsr_id in range(num_fsrs):
                     # Retrieve the pixel coordinates for this centroid
-                    x, y = centroids[fsr_id,:]
+                    coord1, coord2 = centroids[fsr_id,:]
 
                     # Only plot centroid if it is within the plot bounds
-                    if x < coords['bounds']['x'][0] or \
-                        x > coords['bounds']['x'][1]:
+                    if coord1 < coords['bounds'][0] or \
+                        coord1 > coords['bounds'][1]:
                         continue
-                    elif y < coords['bounds']['y'][0] or \
-                        y > coords['bounds']['y'][1]:
+                    elif coord2 < coords['bounds'][2] or \
+                        coord2 > coords['bounds'][3]:
                         continue
 
                     # Transform the centroid into pixel coordinates
-                    x = int((x-coords['dim1'][1]) / \
+                    x = int((coord1-coords['dim1'][1]) / \
                         (coords['dim1'][1]-coords['dim1'][0]))
-                    y = int((y-coords['dim2'][1]) / \
+                    y = int((coord2-coords['dim2'][1]) / \
                         (coords['dim2'][1]-coords['dim2'][0]))
 
                     # Draw circle for this centroid on the image
@@ -1534,7 +1539,7 @@ class PlotParams(object):
         self._filename = None
         self._extension = '.png'
         self._library = 'matplotlib'
-        self._plane = None
+        self._plane = 'xy'
         self._offset = 0
         self._gridsize = 250
         self._xlim = None

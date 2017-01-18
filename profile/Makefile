@@ -49,6 +49,8 @@ Takeda/Takeda-unrodded.cpp \
 pin-cell/pin-cell-3d.cpp \
 fixed-source/pin-cell-fixed-3d.cpp \
 simple-lattice/simple-lattice-3d.cpp \
+gradients/one-directional/one-directional-gradient.cpp \
+gradients/two-directional/two-directional-gradient.cpp \
 c5g7/c5g7-3d.cpp \
 c5g7/c5g7-3d-cmfd.cpp \
 c5g7/c5g7-rodded-B.cpp \

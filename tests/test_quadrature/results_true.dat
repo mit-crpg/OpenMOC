@@ -1,0 +1,1 @@
+All Quadrature sets correctly summed their weights to 4 PI with tolerance 0.005 and calculated the integral of sine as 9.8696 with tolerance 0.5

@@ -469,7 +469,7 @@ void Material::incrementNumInstances() {
  */
 void Material::setNumEnergyGroups(const int num_groups) {
 
-  if (num_groups < 0)
+  if (num_groups < 1)
     log_printf(ERROR, "Unable to set the number of energy groups for "
                "material %d to %d", _id, num_groups);
 
