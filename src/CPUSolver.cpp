@@ -253,22 +253,14 @@ void CPUSolver::initializeSourceArrays() {
   /* Delete old sources arrays if they exist */
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
+  if (_fixed_sources != NULL)
+    delete [] _fixed_sources;
 
   int size = _num_FSRs * _num_groups;
 
   /* Allocate memory for all source arrays */
-  try {
-    _reduced_sources = new FP_PRECISION[size];
-
-    /* If no fixed sources were assigned, use a zeroes array */
-    if (_fixed_sources == NULL) {
-      _fixed_sources = new FP_PRECISION[size];
-      memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
-    }
-  }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not allocate memory for FSR sources");
-  }
+  _reduced_sources = new FP_PRECISION[size];
+  _fixed_sources = new FP_PRECISION[size];
 
   /* Initialize fixed sources to zero */
   memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
@@ -1793,7 +1785,6 @@ void CPUSolver::transferBoundaryFlux(Track* track,
     track_out_id = track->getTrackNextBwd();
     start_out = _fluxes_per_track * (!track->getNextBwdFwd());
   }
-
 
   /* Determine if flux should be transferred */
   if (bc_out == REFLECTIVE || bc_out == PERIODIC) {

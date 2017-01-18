@@ -19,6 +19,8 @@ ExpEvaluator::ExpEvaluator() {
   _azim_index = 0;
   _polar_index = 0;
   _num_polar_terms = 0;
+  _inverse_exp_table_spacing = 1.0;
+  _exp_table_spacing = 1.0;
 }
 
 

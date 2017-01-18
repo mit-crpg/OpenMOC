@@ -527,50 +527,50 @@ void Solver::initializeExpEvaluators() {
       _track_generator->countSegments();
 
     first_evaluator->setMaxOpticalLength(max_tau);
-
-    /* Delete old exponential evaluators */
-    for (int a=0; a < _num_exp_evaluators_azim; a++) {
-      for (int p=0; p < _num_exp_evaluators_polar; p++)
-        if (_exp_evaluators[a][p] != first_evaluator)
-          delete _exp_evaluators[a][p];
-      delete [] _exp_evaluators[a];
-    }
-    delete [] _exp_evaluators;
-
-    /* Determine number of exponential evaluators */
-    _num_exp_evaluators_azim = _num_azim / 4;
-    if (_solve_3D)
-      _num_exp_evaluators_polar = _num_polar / 2;
-    else
-      _num_exp_evaluators_polar = 1;
-
-    /* Allocate new exponential evaluators */
-    _exp_evaluators = new ExpEvaluator**[_num_azim/2];
-    for (int a=0; a < _num_azim/2; a++)
-      _exp_evaluators[a] = new ExpEvaluator*[_num_polar];
-    for (int a=0; a < _num_exp_evaluators_azim; a++) {
-      for (int p=0; p < _num_exp_evaluators_polar; p++) {
-
-        /* Create a new exponential evaluator if necessary */
-        if (a == 0 && p == 0)
-          _exp_evaluators[a][p] = first_evaluator;
-        else
-          _exp_evaluators[a][p] = first_evaluator->deepCopy();
-
-        /* Copy evaluators to supplimentary positions */
-        int sup_azim = _num_azim / 2 - a - 1;
-        int sup_polar = _num_polar - p - 1;
-        _exp_evaluators[sup_azim][p] = _exp_evaluators[a][p];
-        _exp_evaluators[a][sup_polar] = _exp_evaluators[a][p];
-        _exp_evaluators[sup_azim][sup_polar] = _exp_evaluators[a][p];
-      }
-    }
-
-    /* Initialize exponential interpolation table */
-    for (int a=0; a < _num_exp_evaluators_azim; a++)
-      for (int p=0; p < _num_exp_evaluators_polar; p++)
-        _exp_evaluators[a][p]->initialize(a, p, _solve_3D);
   }
+
+  /* Delete old exponential evaluators */
+  for (int a=0; a < _num_exp_evaluators_azim; a++) {
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      if (_exp_evaluators[a][p] != first_evaluator)
+        delete _exp_evaluators[a][p];
+    delete [] _exp_evaluators[a];
+  }
+  delete [] _exp_evaluators;
+
+  /* Determine number of exponential evaluators */
+  _num_exp_evaluators_azim = _num_azim / 4;
+  if (_solve_3D)
+    _num_exp_evaluators_polar = _num_polar / 2;
+  else
+    _num_exp_evaluators_polar = 1;
+
+  /* Allocate new exponential evaluators */
+  _exp_evaluators = new ExpEvaluator**[_num_azim/2];
+  for (int a=0; a < _num_azim/2; a++)
+    _exp_evaluators[a] = new ExpEvaluator*[_num_polar];
+  for (int a=0; a < _num_exp_evaluators_azim; a++) {
+    for (int p=0; p < _num_exp_evaluators_polar; p++) {
+
+      /* Create a new exponential evaluator if necessary */
+      if (a == 0 && p == 0)
+        _exp_evaluators[a][p] = first_evaluator;
+      else
+        _exp_evaluators[a][p] = first_evaluator->deepCopy();
+
+      /* Copy evaluators to supplimentary positions */
+      int sup_azim = _num_azim / 2 - a - 1;
+      int sup_polar = _num_polar - p - 1;
+      _exp_evaluators[sup_azim][p] = _exp_evaluators[a][p];
+      _exp_evaluators[a][sup_polar] = _exp_evaluators[a][p];
+      _exp_evaluators[sup_azim][sup_polar] = _exp_evaluators[a][p];
+    }
+  }
+
+  /* Initialize exponential interpolation table */
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->initialize(a, p, _solve_3D);
 }
 
 
@@ -910,10 +910,10 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
+  initializeFSRs();
   initializeExpEvaluators();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeFSRs();
 
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
@@ -984,6 +984,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
   _num_iterations = 0;
+  FP_PRECISION previous_residual = 1.0;
   FP_PRECISION residual = 0.;
 
   /* An initial guess for the eigenvalue */
@@ -1018,6 +1019,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
+    residual = computeResidual(res_type);
     computeFSRSources();
     _timer->startTimer();
     transportSweep();
@@ -1033,10 +1035,12 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     normalizeFluxes();
     residual = computeResidual(res_type);
-    log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
-               "\tres = %1.3E", i, _k_eff, residual);
+    FP_PRECISION dr = residual / previous_residual;
+    log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
+               "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
 
     storeFSRFluxes();
+    previous_residual = residual;
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */

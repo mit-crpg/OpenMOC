@@ -446,6 +446,8 @@ ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L) {
     omp_init_lock(&_locks[i]);
 
   _announce = new paddedPointer[_num_threads];
+  for (size_t t=0; t<_num_threads; t++)
+    _announce[t].value = NULL;
 }
 
 

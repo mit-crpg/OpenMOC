@@ -27,6 +27,7 @@
 #include <cmath>
 #include <algorithm>
 
+
 /**
  * @enum quadratureType
  * @brief The types of quadrature sets supported by OpenMOC.
@@ -102,10 +103,6 @@ protected:
   void deletePolarArrays();
   void deleteAllArrays();
 
-
-  /** the roots to the Legendre polynomial of degree _num_polar */
-  std::vector <double> _roots;
-
 public:
 
   Quadrature();
@@ -144,10 +141,6 @@ public:
 
   virtual void initialize();
   virtual void precomputeWeights(bool solve_3D);
-
-  double getSingleGLWeight(double root, int n);
-  double legendrePolynomial(int n, double x);
-  std::vector <double> getSimpleWeights(std::vector <double> nodes);
 
   std::string toString();
 };
@@ -194,19 +187,30 @@ public:
 class GLPolarQuad: public Quadrature {
 
 private:
-  bool _use_adjusted_weights;
+
+  /** the roots to the Legendre polynomial of degree _num_polar */
+  std::vector <double> _roots;
+
+  /** the roots which have been adjusted to allow for periodic tracks */
+  std::vector <double> _adjusted_roots;
+
+  /** Whether to updated weights based on adjusted polar angles */
+  bool _correct_weights;
 
 public:
   GLPolarQuad();
   void setNumPolarAngles(const int num_polar);
+  void useCorrectedWeights(bool use_corrected_weights);
   void initialize();
   void precomputeWeights(bool solve_3D);
+  std::vector<double> getCorrectedWeights(int azim);
 
-  void useAdjustedWeights();
+  double legendrePolynomial(int n, double x);
   double logDerivLegendre(int n, double x);
   double secondLogDerivLegendre(int n, double x);
-  std::vector <double> getLegendreRoots(int n);
-  std::vector <double> getGLWeights(std::vector <double> roots, int n);
+  double getSingleWeight(double root, int n);
+  std::vector<double> getLegendreRoots(int n);
+  std::vector<double> getGLWeights(std::vector <double> roots, int n);
 };
 
 

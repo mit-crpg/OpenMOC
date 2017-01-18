@@ -583,7 +583,6 @@ void Quadrature::setTheta(double theta, int azim, int polar) {
                "since polar is not in the range (0, _num_polar/2)",
                azim, polar);
 
-
   if (_thetas == NULL) {
     _thetas = new double*[_num_azim/2];
     for (int i=0; i < _num_azim/2; i++)
@@ -707,24 +706,28 @@ void Quadrature::setAzimWeight(double weight, int azim) {
  */
 void Quadrature::setPolarWeight(FP_PRECISION weight, int azim, int polar) {
 
-  if (weight <= 0.0 || weight >= M_PI_2)
+  if (weight <= 0.0 || weight >= M_PI_2) {
     log_printf(ERROR, "Unable to set polar weight for azim = %d and "
                "polar = %d to %f which is not in the range (0.0, PI/2)",
                azim, polar, weight);
+  }
 
-  if (azim >= _num_azim/4)
+  if (azim >= _num_azim/4) {
     log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
                "since azim is not in the range (0, _num_azim/4)", azim, polar);
+  }
 
-  if (polar >= _num_polar/2)
+  if (polar >= _num_polar/2) {
     log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
                "since polar is not in the range (0, _num_polar/2)", \
                azim, polar);
+  }
 
   if (_polar_weights == NULL) {
     _polar_weights = new FP_PRECISION*[_num_azim/2];
-    for (int a=0; a < _num_azim/2; a++)
+    for (int a=0; a < _num_azim/2; a++) {
       _polar_weights[a] = new FP_PRECISION[_num_polar];
+    }
   }
 
   setPolarValues(_polar_weights, azim, polar, FP_PRECISION(weight));
@@ -744,8 +747,9 @@ void Quadrature::initialize() {
                "Set the number of polar angles before initialization.");
 
   if (_num_azim == 0)
-    log_printf(ERROR, "Unable to initialize Quadrature with zero azimuthal angles. "
-               "Set the number of azimuthal angles before initialization.");
+    log_printf(ERROR, "Unable to initialize Quadrature with zero azimuthal "
+               "angles. Set the number of azimuthal angles before "
+               "initialization.");
 
   if (_phis == NULL)
     _phis = new double[_num_azim/2];
@@ -1111,27 +1115,17 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 GLPolarQuad::GLPolarQuad(): Quadrature() {
   _quad_type = GAUSS_LEGENDRE;
   _num_polar = 6;
-
-  /* By default do not adjust weights */
-  _use_adjusted_weights = false;
+  _correct_weights = true;
 }
 
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles
+ * @param num_polar the number of polar angles (maximum 20)
  */
 void GLPolarQuad::setNumPolarAngles(const int num_polar) {
 
   Quadrature::setNumPolarAngles(num_polar);
-}
-
-
-/**
-  * @brief sets _use_adjusted_weights to true
-  */
-void GLPolarQuad::useAdjustedWeights() {
-  _use_adjusted_weights = true;
 }
 
 
@@ -1165,50 +1159,322 @@ void GLPolarQuad::initialize() {
 
 
 /**
+ * @brief Indicates whether to correct weights based on altered polar angles
+ * @param use_corrected_weights Whether to alter the weights
+ */
+void GLPolarQuad::useCorrectedWeights(bool use_corrected_weights) {
+  _correct_weights = use_corrected_weights;
+}
+
+
+/**
  * @brief Calculates total weights for every azimuthal/polar combination based
  *        on the Gauss-Legendre polar quadrature.
  * @param solve_3D Boolean indicating whether this is a 3D quadrature
  */
 void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
-  /* get weights */
+  /* Get uncorrected weights */
   std::vector <double> weights_vec = getGLWeights(_roots, _num_polar);
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  FP_PRECISION* weights = new FP_PRECISION[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
-  /* Tabulated values for the sine thetas and weights for the
-   * Leonard polar angle quadrature */
+  /* Determine gauss-legendre weights from computed values */
   for (int a=0; a < _num_azim/4; a++) {
 
-    /* Calculate simple weights */
-    std::vector <double> nodes;
-    for (int p=0; p<_num_polar/2; ++p) {
-      nodes.push_back(cos(_thetas[a][p]));
-    }
+    if (_correct_weights)
+      weights_vec = getCorrectedWeights(a);
 
-    std::vector <double> simple_weights = Quadrature::getSimpleWeights(nodes);
-
-    for (int i=0; i<_num_polar/2; i++) {
-
-      if (_use_adjusted_weights) {
-
-        /* Set weights based on adjusted polar angles */
-        weights[a*(_num_polar/2)+i] = simple_weights[i] / 2.0;
-      }
-      else {
-
-        /* Set weights based on actual GL roots */
-        weights[a*(_num_polar/2)+i] = weights_vec[i] / 2.0;
-      }
-    }
+    for (int p=0; p<_num_polar/2; p++)
+      weights[a*(_num_polar/2)+p] = weights_vec[p] / 2.0;
   }
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-  delete [] weights;
-
   Quadrature::precomputeWeights(solve_3D);
+}
+
+
+/**
+ * @brief    the Legendre polynomial of degree n evaluated at x
+ * @param    n an integer >=0: the order of the polynomial
+ * @param    x in (-1,1), the point at which to evaluate the polynomial
+ * @return   the value of the Legendre polynomial of degree n at x
+ */
+double GLPolarQuad::legendrePolynomial(int n, double x) {
+  if (n == 0)
+    return 1;
+  if (n == 1)
+    return x;
+  else {
+    double c = 2.0*(n-2) + 3.0;
+    double b = 1.0*(n-2) + 2.0;
+    double a = 1.0*(n-2) + 1.0;
+    double value = c/b * x * legendrePolynomial(n-1, x)
+      - a/b * legendrePolynomial(n-2,x);
+    return value;
+  }
+}
+
+
+/**
+ * @brief    the first logarithmic derivative of a Legendre polynomial
+ * @param    m the order of the polynomial
+ * @param    x point at which to evaluate the logarithmic derivative
+ * @return   the value of the logarithmic derivative at x
+ */
+double GLPolarQuad::logDerivLegendre(int n, double x) {
+  double num = n * x - n * legendrePolynomial(n-1,x) / legendrePolynomial(n,x);
+  double denom = x*x - 1;
+  return num/denom;
+}
+
+
+/**
+ * @brief    the second logarithmic derivative of a Legendre polynomial
+ * @param    m the order of the polynomial
+ * @param    x point at which to evaluate the logarithmic derivative
+ * @return   the value of the logarithmic derivative at x
+ */
+double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
+  double num =
+    n*(n+1) + logDerivLegendre(n,x) * ((1-x*x)* logDerivLegendre(n,x) - 2 * x);
+  double denom = x*x-1;
+  return num/denom;
+}
+
+
+/**
+ * @brief    finds the roots of Legendre polynomial of order n
+ * @detail   guesses for positive roots are set at logarithmic intervals.
+ *           Positive roots are found simultaneously using an
+ *           Alberth-Householder-n method. Each guess is successively nudged
+ *           towards a true root. Only the positive roots are calculated
+ * @param    n the order of the polynomial
+ * @return   a list of the roots of the polynomial
+ */
+std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
+
+  /* put these somewhere else */
+  double E1 = 1e-10;
+  double E2 = 1e-10;
+
+  std::vector <double> roots;
+  std::vector <bool> converged;
+  std::vector <double> s1_tilde;
+  std::vector <double> s2_tilde;
+
+  /* set guesses with log scale*/
+  for (int i=0; i < n/2; ++i) {
+    roots.push_back(- pow(2, (-.5*(i+1))) +1);
+    converged.push_back(false);
+    s1_tilde.push_back(0);
+    s2_tilde.push_back(0);
+  }
+
+  if (n%2 == 1) {
+    roots.push_back(0);
+    converged.push_back(true);
+    s1_tilde.push_back(0);
+    s2_tilde.push_back(0);
+  }
+
+  /* Placeholder element */
+  roots.push_back(0);
+
+  bool all_roots_converged = false;
+
+  /* use the Alberth-Housholder_n method to nudge guesses towards roots */
+  while (not all_roots_converged) {
+
+    /* set S tildes */
+    for (int i=0; i < (n+1)/2; ++i) {
+      if (not converged[i]) {
+        double sum1 = 0;
+        double sum2 = 0;
+        for (int j=0; j <= (n+1)/2; ++j) {
+          if (j != i) {
+            sum1 += 1/(roots[i] - roots[j]);
+            sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
+          }
+        }
+
+        s1_tilde[i] = logDerivLegendre(n, roots[i]) - sum1;
+        s2_tilde[i] = secondLogDerivLegendre(n, roots[i]) - sum2;
+
+        /* householder method 2 Halley */
+        double u_new =
+          roots[i] - 2*s1_tilde[i] / (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
+        double u_old = roots[i];
+        roots[i] = u_new;
+
+        /* if this is the actual root */
+        if (abs(u_new - u_old) < E1) {
+          if (std::abs(legendrePolynomial(n, u_new)) < E2) {
+            converged[i] = true;
+
+            /* if this root equals another root or it is less than 0 */
+            for (int j=0; j < (n+1)/2; ++j) {
+              if (j != i) {
+                if (std::abs(roots[j] - roots[i]) < E1 or roots[i] <= 0) {
+
+                  /* reset the root to its original guess */
+                  roots[i] = - pow(2, (-.5*(i+1))) + 1;
+                  converged[i] = false;
+                }
+              }
+            }
+          }
+        } /* if this is the actual root */
+      } /* if not converged */
+    } /* for each guess */
+
+    for (int i=0; i<(n+1)/2; ++ i) {
+      all_roots_converged = converged[i];
+      if (not all_roots_converged)
+        break;
+    }
+  } /* while not all roots converged */
+
+  /* Remove placeholder root */
+  roots.pop_back();
+
+  /* Put roots in order */
+  std::sort (roots.begin(), roots.end());
+  return roots;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
+ * @param    roots a vector containing the roots of the Legendre polynomial
+ * @param    n the order of the Legendre Polynomial
+ * @return   a vector of weights matched by index to the vector of roots
+ */
+std::vector<double> GLPolarQuad::getGLWeights(std::vector <double> roots,
+                                               int n) {
+  std::vector<double> weights;
+  for (int i; i<roots.size(); ++i){
+    double value = - (2*roots[i]*roots[i] - 2) /
+      (n*n*legendrePolynomial(n-1, roots[i])
+       * legendrePolynomial(n-1, roots[i]));
+    weights.push_back(value);
+  }
+
+  return weights;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
+ * @param    root the root of the Legendre polynomial
+ * @param    n the order of the Legendre Polynomial
+ * @return   a vector of weights matched by index to the vector of roots
+ */
+double GLPolarQuad::getSingleWeight(double root, int n) {
+  double weight =
+        - (2*root*root - 2) / (n*n*legendrePolynomial(n-1, root)
+                                  * legendrePolynomial(n-1, root));
+
+  return weight;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in numerical integration
+ * @details  assumes the function will be integrated over (-1, 1)
+ * @details  azim the azimuthal angle index
+ * @return   the vector of weights
+ */
+std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
+
+  /* Calculate abscissa */
+  std::vector <double> nodes;
+  for (int p=0; p<_num_polar/2; ++p) {
+    nodes.push_back(cos(_thetas[azim][p]));
+  }
+  for (int p=0; p<_num_polar/2; ++p) {
+    nodes.push_back(-nodes[p]);
+  }
+  int n = nodes.size();
+
+  std::vector<double> weights;
+
+  // declare an array to store the elements of the augmented-matrix
+  __float128 A[n][n+1];
+
+  // the solution array
+  __float128 x[n];
+
+  // index array, used to keep track of the order in which the nodes were passed
+  int index[n];
+  for (int i=0; i<n; ++i)
+    index[i] = i;
+
+  __float128 a = -1;
+  __float128 b = 1;
+
+  // populate A
+  for (int i=0; i<n; ++i) {
+    for (int j=0; j<n; ++j) {
+      A[i][j] = pow(nodes[j], i);
+    }
+    A[i][n] = (pow(b, i+1) - pow(a, i+1)) / (i+1);
+  }
+
+  /* Select pivots */
+  for (int i=0; i<n; i++) {
+    for (int k=i+1; k<n; k++) {
+      if (A[i][i] < A[k][i]) {
+
+        // switch column k and column i
+        for (int j=0; j<=n; j++) {
+          __float128 temp = A[i][j];
+          A[i][j] = A[k][j];
+          A[k][j] = temp;
+        }
+
+        // switch their corresponding indeces
+        __float128 temp_ind = index[i];
+        index[i] = index[k];
+        index[k] = temp_ind;
+      }
+    }
+  }
+
+  // perform gauss elimination
+  for (int i=0; i<n-1; i++) {
+    for (int k=i+1; k<n; k++) {
+      __float128 t = A[k][i] / A[i][i];
+
+      // make elements below the pivot elements equal to zero or eliminate the
+      // variables
+      for (int j=0; j<=n; j++)
+        A[k][j] = A[k][j] - t * A[i][j];
+     }
+  }
+
+  // back-substitution
+  for (int i=n-1; i>=0; --i) {
+    __float128 sub = 0;
+    for (int j=n-1; j>i; --j) {
+      sub += x[j]*A[i][j];
+    }
+    x[i] = (A[i][n] - sub) / A[i][i];
+  }
+
+  for (int i=0; i<n; ++i){
+    weights.push_back(double(x[i]));
+  }
+
+  // fill the vector of weights so that it is indexed to the original
+  // vector of nodes
+  for (int i=0; i<n; ++i)
+    weights[index[i]] = double(x[i]);
+
+  return weights;
+
 }
 
 
@@ -1395,266 +1661,4 @@ void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);
-}
-
-
-/**
- * @brief    the Legendre polynomial of degree n evaluated at x
- * @param    n an integer >=0: the order of the polynomial
- * @param    x in (-1,1), the point at which to evaluate the polynomial
- * @return   the value of the Legendre polynomial of degree n at x
- */
-double Quadrature::legendrePolynomial(int n, double x) {
-  if (n == 0)
-    return 1;
-  if (n == 1)
-    return x;
-  else {
-    double c = 2.0*(n-2) + 3.0;
-    double b = 1.0*(n-2) + 2.0;
-    double a = 1.0*(n-2) + 1.0;
-    double value =
-      c/b * x * Quadrature::legendrePolynomial(n-1, x)
-      - a/b * Quadrature::legendrePolynomial(n-2,x);
-    return value;
-  }
-}
-
-
-/**
- * @brief    the first logarithmic derivative of a Legendre polynomial
- * @param    m the order of the polynomial
- * @param    x point at which to evaluate the logarithmic derivative
- * @return   the value of the logarithmic derivative at x
- */
-double GLPolarQuad::logDerivLegendre(int n, double x) {
-  double num = n * x - n * Quadrature::legendrePolynomial(n-1,x)
-    / Quadrature::legendrePolynomial(n,x);
-  double denom = x*x - 1;
-  return num/denom;
-}
-
-
-/**
- * @brief    the second logarithmic derivative of a Legendre polynomial
- * @param    m the order of the polynomial
- * @param    x point at which to evaluate the logarithmic derivative
- * @return   the value of the logarithmic derivative at x
- */
-double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
-  double num =
-    n*(n+1) + logDerivLegendre(n,x) * ((1-x*x)* logDerivLegendre(n,x) - 2 * x);
-  double denom = x*x-1;
-  return num/denom;
-}
-
-
-/**
- * @brief    finds the roots of Legendre polynomial of order n
- * @detail   guesses for positive roots are set at logarithmic intervals.
- *           Positive roots are found simultaneously using an
- *           Alberth-Householder-n method. Each guess is successively nudged
- *           towards a true root. Only the positive roots are calculated
- * @param    n the order of the polynomial
- * @return   a list of the roots of the polynomial
- */
-std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
-
-  /* put these somewhere else */
-  double E1 = 1e-10;
-  double E2 = 1e-10;
-
-  std::vector <double> roots;
-  std::vector <bool> converged;
-  std::vector <double> s1_tilde;
-  std::vector <double> s2_tilde;
-
-  /* set guesses with log scale*/
-  for (int i=0; i < n/2; ++i) {
-    roots.push_back(- pow(2, (-.5*(i+1))) +1);
-    converged.push_back(false);
-    s1_tilde.push_back(0);
-    s2_tilde.push_back(0);
-
-  }
-
-  if (n%2 == 1) {
-    roots.push_back(0);
-    converged.push_back(true);
-    s1_tilde.push_back(0);
-    s2_tilde.push_back(0);
-  }
-
-
-  bool all_roots_converged = false;
-
-  /* use the Alberth-Housholder_n method to nudge guesses towards roots */
-  while (not all_roots_converged) {
-
-    /* set S tildes */
-    for (int i=0; i < (n+1)/2; ++i) {
-      if (not converged[i]) {
-        double sum1 = 0;
-        double sum2 = 0;
-        for (int j=0; j< (n+1)/2; ++j) {
-          if (j != i) {
-            sum1 += 1/(roots[i] - roots[j]);
-            sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
-          }
-        }
-
-        s1_tilde[i] = logDerivLegendre(n, roots[i]) - sum1;
-        s2_tilde[i] = secondLogDerivLegendre(n, roots[i]) - sum2;
-
-        /* householder method 2  Halley     */
-        double u_new =
-          roots[i] - 2*s1_tilde[i] / (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
-        double u_old = roots[i];
-        roots[i] = u_new;
-
-        /* if this is the actual root */
-        if (abs(u_new - u_old) < E1) {
-          if (std::abs(Quadrature::legendrePolynomial(n, u_new)) < E2) {
-            converged[i] = true;
-
-            /* if this root equals another root or it is less than 0 */
-            for (int j=0; j < (n+1)/2; ++j) {
-              if (j != i) {
-                if (std::abs(roots[j] - roots[i]) < E1 or roots[i] <= 0) {
-
-                  /* reset the root to its original guess */
-                  roots[i] = - pow(2, (-.5*(i+1))) +1;
-                  converged[i] = false;
-                }
-              }
-            }
-          }
-        } /* if this is the actual root */
-      } /* if not converged */
-    } /* for each guess */
-
-    for (int i=0; i<(n+1)/2; ++ i) {
-      all_roots_converged = converged[i];
-      if (not all_roots_converged)
-        break;
-    }
-  } /* while not all roots converged */
-
-  /* add negative roots */
-  std::sort (roots.begin(), roots.end());
-  return roots;
-}
-
-
-/**
- * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
- * @param    roots a vector containing the roots of the Legendre polynomial
- * @param    n the order of the Legendre Polynomial
- * @return   a vector of weights matched by index to the vector of roots
- */
-std::vector <double> GLPolarQuad::getGLWeights(std::vector <double> roots,
-                                               int n) {
-  std::vector <double> weights;
-  for (int i; i<roots.size(); ++i){
-    weights.push_back(
-        - (2*roots[i]*roots[i] - 2)
-        / (n*n*Quadrature::legendrePolynomial(n-1, roots[i])
-          * Quadrature::legendrePolynomial(n-1, roots[i])));
-  }
-
-  return weights;
-}
-
-
-/**
- * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
- * @param    root the root of the Legendre polynomial
- * @param    n the order of the Legendre Polynomial
- * @return   a vector of weights matched by index to the vector of roots
- */
-double Quadrature::getSingleGLWeight(double root, int n) {
-  double weight =
-        - (2*root*root - 2) / (n*n*Quadrature::legendrePolynomial(n-1, root)
-                                  * Quadrature::legendrePolynomial(n-1, root));
-
-  return weight;
-}
-
-
-/**
- * @brief    calculates the weights to be used in numerical integration
- * @details  assumes the function will be integrated over (-1, 1)
- * @param    nodes a vector containing the x's that are evaluated
- * @return   a vector of weights matched by index to the vector of nodes
- */
-std::vector <double> Quadrature::getSimpleWeights(std::vector <double> nodes) {
-
-  int n = nodes.size();
-  std::vector <double> weights;
-  std::cout.precision(14);
-  std::cout.setf(std::ios::fixed);
-
-  for (int i=0; i<n; ++i)
-    nodes.push_back(-nodes[i]);
-  double a = -1;
-  n = nodes.size();
-
-  /* Declare an array to store the elements of the augmented-matrix */
-  double A[n][n+1];
-
-  /* The solution array */
-  double x[n];
-
-  double b = 1;
-
-  /* Populate A */
-  for (int i=0; i<n; ++i) {
-    for (int j=0; j<n; ++j) {
-      A[i][j] = pow(nodes[j], i);
-    }
-    A[i][n] = (pow(b, i+1) - pow(a, i+1)) / (i+1);
-  }
-
-  /* Pivotisation */
-  for (int i=0; i<n; i++) {
-    for (int k=i+1; k<n; k++) {
-      if (A[i][i] < A[k][i]) {
-        for (int j=0; j<=n; j++) {
-          double temp = A[i][j];
-          A[i][j] = A[k][j];
-          A[k][j] = temp;
-        }
-      }
-    }
-  }
-
-  /* Perform gauss elimination */
-  for (int i=0; i<n-1; i++) {
-    for (int k=i+1; k<n; k++) {
-      double t = A[k][i] / A[i][i];
-
-      /* Make elements below the pivot elements equal to zero or eliminate
-         the variables */
-      for (int j=0; j<=n; j++)
-        A[k][j] = A[k][j] - t * A[i][j];
-     }
-  }
-
-  /* Back-substitution */
-  for (int i=n-1; i>=0; --i) {
-    double sub = 0;
-    for (int j=n-1; j>i; --j) {
-      sub += x[j]*A[i][j];
-    }
-    x[i] = (A[i][n] - sub) / A[i][i];
-  }
-
-  double sum = 0;
-  for (int i=0; i<n; ++i){
-    weights.push_back(x[i]);
-    sum += x[i];
-  }
-
-  return weights;
-
 }
