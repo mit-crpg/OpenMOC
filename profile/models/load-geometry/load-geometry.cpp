@@ -22,14 +22,15 @@ int main(int argc, char* argv[]) {
   #endif
   double azim_spacing = 0.2;
   int num_azim = 4;
-  double polar_spacing = 1.0;
+  double polar_spacing = 0.5;
   int num_polar = 2;
   double tolerance = 1e-6;
   int max_iters = 1400;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
-  cmfd.setLatticeStructure(23*4, 23*4, 3);
+  //cmfd.setLatticeStructure(23*4, 23*4, 4);
+  cmfd.setLatticeStructure(17, 17, 2);
   cmfd.setKNearest(1);
 
   /* Load the geometry */
@@ -38,10 +39,10 @@ int main(int argc, char* argv[]) {
   geometry.loadFromFile(file);
   geometry.setCmfd(&cmfd);
 #ifdef MPIx
-  geometry.setDomainDecomposition(2, 2, 1, MPI_COMM_WORLD);
-  geometry.setNumDomainModules(2,2,3);
+  geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
+  //geometry.setNumDomainModules(2,2,2);
 #else
-  geometry.setNumDomainModules(4,4,3);
+  geometry.setNumDomainModules(2,2,2);
 #endif
   geometry.initializeFlatSourceRegions();
 
@@ -52,11 +53,11 @@ int main(int argc, char* argv[]) {
                                    polar_spacing);
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
-  track_generator.setSegmentFormation(OTF_TRACKS);
+  track_generator.setSegmentFormation(OTF_STACKS);
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);

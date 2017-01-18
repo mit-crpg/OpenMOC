@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
   #endif
   double azim_spacing = 0.05;
   int num_azim = 64;
-  double polar_spacing = 1.5;
+  double polar_spacing = 0.75;
   int num_polar = 12;
   double tolerance = 1e-5;
   int max_iters = 40;
@@ -695,7 +695,7 @@ int main(int argc, char* argv[]) {
   for (int g=3; g<7; g++)
     cmfd_group_structure.at(1).push_back(g+1);
   cmfd->setGroupStructure(cmfd_group_structure);
-  cmfd->setKNearest(3);
+  cmfd->setKNearest(1);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");

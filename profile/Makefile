@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no

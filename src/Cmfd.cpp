@@ -471,7 +471,7 @@ void Cmfd::collapseXS() {
 #endif
 
   /* Loop over CMFD cells and set cross sections */
-  #pragma omp for
+#pragma omp for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
     Material* cell_material = _materials[i];

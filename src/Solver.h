@@ -148,7 +148,7 @@ protected:
   segmentationType _segment_formation;
 
   /** The total number of Tracks */
-  int _tot_num_tracks;
+  long _tot_num_tracks;
 
   /** The weights for each azimuthal angle */
   FP_PRECISION* _azim_spacings;

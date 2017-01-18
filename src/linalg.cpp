@@ -89,6 +89,9 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
   }
 
   log_printf(INFO, "Matrix-Vector eigenvalue solve iterations: %d", iter);
+  if (iter == MAX_LINALG_POWER_ITERATIONS)
+    log_printf(WARNING, "Eigenvalue solve failed to converge in %d iterations", 
+               iter);
 
   return _k_eff;
 }
@@ -227,6 +230,11 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   }
 
   log_printf(INFO, "linear solve iterations: %d", iter);
+  
+  /* Check if the maximum iterations were reached */
+  if (iter == MAX_LINEAR_SOLVE_ITERATIONS)
+    log_printf(WARNING, "Linear solve failed to converge in %d iterations", 
+               iter);
 }
 
 
@@ -298,6 +306,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
                X->getNumX(), X->getNumY(), X->getNumZ(), X->getNumGroups(),
                Y->getNumX(), Y->getNumY(), Y->getNumZ(), Y->getNumGroups());
 
+
   FP_PRECISION rmse;
   int num_x = X->getNumX();
   int num_y = X->getNumY();
@@ -326,7 +335,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
 
     rmse = sqrt(residual.getSum() / (num_x * num_y * num_z));
   }
-  else{
+  else {
 
     Vector residual(cell_locks, num_x, num_y, num_z, num_groups);
 
