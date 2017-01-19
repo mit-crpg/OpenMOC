@@ -39,12 +39,12 @@
 /* The typemap used to match the method signature for the TrackGenerator's
  * getter methods for track start and end coordinates for the plotting
  * routines in openmoc.plotter */
-%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_tracks)}
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, long num_tracks)}
 
 /* The typemap used to match the method signature for the TrackGenerator's
  * getter methods for track segment start and end coordinates for the plotting
  * routines in openmoc.plotter */
-%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, int num_segments)}
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* coords, long num_segments)}
 
 /* The typemap used to match the method signature for the Solver's
  * computeFSRFissionRates method for the data processing routines in

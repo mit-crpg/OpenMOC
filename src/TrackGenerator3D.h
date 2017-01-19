@@ -230,12 +230,12 @@ public:
   void useGlobalZMesh();
 
   /* Worker functions */
-  void retrieveTrackCoords(double* coords, int num_tracks);
-  void retrieve3DTrackCoords(double* coords, int num_tracks);
+  void retrieveTrackCoords(double* coords, long num_tracks);
+  void retrieve3DTrackCoords(double* coords, long num_tracks);
   void retrieveGlobalZMesh(FP_PRECISION*& z_mesh, int& num_fsrs);
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
-  void retrieveSegmentCoords(double* coords, int num_segments);
-  void retrieve3DSegmentCoords(double* coords, int num_segments);
+  void retrieveSegmentCoords(double* coords, long num_segments);
+  void retrieve3DSegmentCoords(double* coords, long num_segments);
   void create3DTracksArrays();
   void checkBoundaryConditions();
 };

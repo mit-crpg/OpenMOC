@@ -109,7 +109,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     vals_per_track = openmoc.NUM_VALUES_PER_RETRIEVED_TRACK
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
-    num_tracks = track_generator.getNumTracks()
+    num_tracks = int(track_generator.getNumTracks())
     coords = track_generator.retrieveTrackCoords(num_tracks*vals_per_track)
 
     # Convert data to NumPy arrays
@@ -206,7 +206,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
-    num_segments = track_generator.getNumSegments()
+    num_segments = int(track_generator.getNumSegments())
     num_fsrs = track_generator.getGeometry().getNumTotalFSRs()
     coords = \
         track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)

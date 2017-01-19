@@ -177,10 +177,10 @@ public:
   void setDumpSegments(bool dump_segments);
 
   /* Worker functions */
-  virtual void retrieveTrackCoords(double* coords, int num_tracks);
-  void retrieve2DTrackCoords(double* coords, int num_tracks);
-  virtual void retrieveSegmentCoords(double* coords, int num_segments);
-  void retrieve2DSegmentCoords(double* coords, int num_segments);
+  virtual void retrieveTrackCoords(double* coords, long num_tracks);
+  void retrieve2DTrackCoords(double* coords, long num_tracks);
+  virtual void retrieveSegmentCoords(double* coords, long num_segments);
+  void retrieve2DSegmentCoords(double* coords, long num_segments);
   void generateFSRCentroids(FP_PRECISION* FSR_volumes);
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
