@@ -627,12 +627,59 @@ void Solver::countFissionableFSRs() {
   log_printf(INFO, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
   _num_fissionable_FSRs = 0;
-
   for (int r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
+  }
+}
+
+
+/**
+ * @brief All material cross-sections in the geometry are checked for
+ *        consistency
+ * @details Each cross-section is checked to ensure that the total
+ *          cross-section is greater than or equal to the scattering
+ *          cross-section for each energy group and that all cross-sections
+ *          are positive.
+ */
+void Solver::checkXS() {
+
+  /* Check the materials in each FSR */
+  for (int r=0; r < _num_FSRs; r++) {
+
+    /* Extract cross-sections */
+    Material* material = _FSR_materials[r];
+    FP_PRECISION* sigma_t = material->getSigmaT();
+    FP_PRECISION* sigma_f = material->getSigmaF();
+    FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+    FP_PRECISION* scattering_matrix = material->getSigmaS();
+    FP_PRECISION* chi = material->getChi();
+
+    /* Loop over all energy groups */
+    for (int e=0; e < _num_groups; e++) {
+
+      /* Check that the total cross-section is greater than or equal to the
+         scattering cross-section */
+      FP_PRECISION sigma_s = 0.0;
+      for (int g=0; g < _num_groups; g++) {
+        sigma_s += scattering_matrix[g*_num_groups+e];
+        if (scattering_matrix[g*_num_groups+e] < 0)
+          log_printf(ERROR, "Negative scattering cross-section encountered "
+                     "in material %s ID %d", material->getName(),
+                     material->getId());
+      }
+      if (sigma_s > sigma_t[e])
+        log_printf(ERROR, "Invalid cross-sections encountered. The scattering "
+                   "cross-section has value %6.4f which is greater than the "
+                   "total cross-section of value %6.4f in material %s ID %d",
+                   sigma_s, sigma_t, material->getName(), material->getId());
+
+      /* Check for negative cross-section values */
+      if (sigma_t[e] < 0 || sigma_f[e] < 0 || nu_sigma_f[e] < 0 || chi[e] < 0)
+        log_printf(ERROR, "Negative cross-section encountered in material "
+                   "%s ID %d", material->getName(), material->getId());
+    }
   }
 }
 
@@ -808,6 +855,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Initialize data structures */
   initializeFSRs();
   initializeSourceArrays();
+  checkXS();
   countFissionableFSRs();
   initializeExpEvaluators();
 
@@ -992,6 +1040,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Initialize data structures */
   initializeFSRs();
+  checkXS();
   countFissionableFSRs();
   initializeExpEvaluators();
   initializeFluxArrays();

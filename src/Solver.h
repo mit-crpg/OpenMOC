@@ -229,7 +229,8 @@ protected:
 
   virtual void initializeExpEvaluators();
   virtual void initializeFSRs();
-  virtual void countFissionableFSRs();
+  void countFissionableFSRs();
+  void checkXS();
   virtual void initializeCmfd();
 
   /**

@@ -505,7 +505,7 @@ void TrackGenerator3D::retrieveGlobalZMesh(FP_PRECISION*& z_mesh,
  * @param coords an array of coords of length 6 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
-void TrackGenerator3D::retrieveTrackCoords(double* coords, int num_tracks) {
+void TrackGenerator3D::retrieveTrackCoords(double* coords, long num_tracks) {
   retrieve3DTrackCoords(coords, num_tracks);
 }
 
@@ -526,7 +526,7 @@ void TrackGenerator3D::retrieveTrackCoords(double* coords, int num_tracks) {
  * @param coords an array of coords of length 6 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
-void TrackGenerator3D::retrieve3DTrackCoords(double* coords, int num_tracks) {
+void TrackGenerator3D::retrieve3DTrackCoords(double* coords, long num_tracks) {
 
   if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum3DTracks())
     log_printf(ERROR, "Unable to retrieve the Track coordinates since the "
@@ -580,7 +580,8 @@ void TrackGenerator3D::retrieve3DTrackCoords(double* coords, int num_tracks) {
  * @param coords an array of coords of length 7 times the number of segments
  * @param num_segments the total number of Track segments
  */
-void TrackGenerator3D::retrieveSegmentCoords(double* coords, int num_segments) {
+void TrackGenerator3D::retrieveSegmentCoords(double* coords,
+                                             long num_segments) {
   retrieve3DSegmentCoords(coords, num_segments);
 }
 
@@ -601,7 +602,8 @@ void TrackGenerator3D::retrieveSegmentCoords(double* coords, int num_segments) {
  * @param coords an array of coords of length 7 times the number of segments
  * @param num_segments the total number of Track segments
  */
-void TrackGenerator3D::retrieve3DSegmentCoords(double* coords, int num_segments) {
+void TrackGenerator3D::retrieve3DSegmentCoords(double* coords,
+                                               long num_segments) {
 
   if (num_segments != NUM_VALUES_PER_RETRIEVED_SEGMENT * getNum3DSegments())
     log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
@@ -1013,7 +1015,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
     z1 = _z_max + std::min(0., (lz - nz + 0.5)) * dz;
     z2 = _z_min + std::max(0., (lz - nl + 0.5)) * dz;
   }
- 
+
   /* If the start point was nudged, nudge it back */
   if (nudged) {
     x1 -= 10 * TINY_MOVE * cos_phi;
@@ -1234,7 +1236,7 @@ void TrackGenerator3D::segmentize() {
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
   int tracks_segmented = 0;
-  int num_3D_tracks = getNum3DTracks();
+  long num_3D_tracks = getNum3DTracks();
 
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {

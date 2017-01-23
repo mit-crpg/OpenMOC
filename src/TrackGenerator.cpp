@@ -491,7 +491,7 @@ bool TrackGenerator::containsSegments() {
  * @param coords an array of coords of length 4 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
-void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
+void TrackGenerator::retrieveTrackCoords(double* coords, long num_tracks) {
   retrieve2DTrackCoords(coords, num_tracks);
 }
 
@@ -512,7 +512,7 @@ void TrackGenerator::retrieveTrackCoords(double* coords, int num_tracks) {
  * @param coords an array of coords of length 4 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
-void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
+void TrackGenerator::retrieve2DTrackCoords(double* coords, long num_tracks) {
 
   if (num_tracks != NUM_VALUES_PER_RETRIEVED_TRACK * getNum2DTracks())
     log_printf(ERROR, "Unable to retrieve the Track coordinates since the "
@@ -554,7 +554,7 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, int num_tracks) {
  * @param coords an array of coords of length 5 times the number of segments
  * @param num_segments the total number of Track segments
  */
-void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
+void TrackGenerator::retrieveSegmentCoords(double* coords, long num_segments) {
   retrieve2DSegmentCoords(coords, num_segments);
 }
 
@@ -575,7 +575,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, int num_segments) {
  * @param coords an array of coords of length 5 times the number of segments
  * @param num_segments the total number of Track segments
  */
-void TrackGenerator::retrieve2DSegmentCoords(double* coords, int num_segments) {
+void TrackGenerator::retrieve2DSegmentCoords(double* coords, long num_segments) {
 
   if (num_segments != NUM_VALUES_PER_RETRIEVED_SEGMENT * getNum2DSegments())
     log_printf(ERROR, "Unable to retrieve the Track segment coordinates since "
@@ -1081,7 +1081,7 @@ void TrackGenerator::segmentize() {
   }
 
   int tracks_segmented = 0;
-  int num_2D_tracks = getNum2DTracks();
+  long num_2D_tracks = getNum2DTracks();
 
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {
@@ -1525,7 +1525,7 @@ void TrackGenerator::initializeTracksArray() {
   /* Allocate memory for tracks array */
   if (_tracks_2D_array != NULL)
     delete [] _tracks_2D_array;
-  int num_2D_tracks = getNum2DTracks();
+  long num_2D_tracks = getNum2DTracks();
   _tracks_2D_array = new Track*[num_2D_tracks];
 
   /* Loop over all 2D tracks */
