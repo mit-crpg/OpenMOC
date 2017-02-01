@@ -12,6 +12,7 @@ LocalCoords::LocalCoords(double x, double y, double z) {
   _cell = NULL;
   _next = NULL;
   _prev = NULL;
+  _version_num = 0;
 }
 
 
@@ -144,6 +145,16 @@ LocalCoords* LocalCoords::getPrev() const {
 
 
 /**
+ * @brief Returns the version of the LocalCoords object
+ * @details The version number differentiates otherwise matching FSR keys
+ * @return The version number
+ */
+int LocalCoords::getVersionNum() {
+  return _version_num;
+}
+
+
+/**
  * @brief Set the type of LocalCoords (UNIV or LAT).
  * @param type the type for LocalCoords (UNIV or LAT)
  */
@@ -254,6 +265,17 @@ void LocalCoords::setNext(LocalCoords* next) {
 void LocalCoords::setPrev(LocalCoords* prev) {
   _prev = prev;
 }
+
+
+/**
+ * @brief Setss the version of the LocalCoords object
+ * @details The version number differentiates otherwise matching FSR keys
+ * @param The version number
+ */
+void LocalCoords::setVersionNum(int version_num) {
+  _version_num = version_num;
+}
+
 
 
 /**

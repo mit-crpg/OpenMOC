@@ -76,6 +76,9 @@ private:
   /** A pointer to the LocalCoords at the next higher nested Universe level */
   LocalCoords* _prev;
 
+  /** An integer to differentiate otherwise matching coordinate FSR keys */
+  int _version_num;
+
 public:
   LocalCoords(double x, double y, double z=0.0);
   virtual ~LocalCoords();
@@ -92,6 +95,7 @@ public:
   Point* getPoint();
   LocalCoords* getNext() const;
   LocalCoords* getPrev() const;
+  int getVersionNum();
 
   void setType(coordType type);
   void setUniverse(Universe* universe);
@@ -105,6 +109,7 @@ public:
   void setZ(double z);
   void setNext(LocalCoords *next);
   void setPrev(LocalCoords* coords);
+  void setVersionNum(int version_num);
 
   LocalCoords* getLowestLevel();
   LocalCoords* getHighestLevel();

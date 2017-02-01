@@ -53,6 +53,9 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _timer = new Timer();
 
+  _correct_xs = false;
+  _xs_log_level = ERROR;
+
   //FIXME
   _OTF_transport = false;
 }
@@ -503,6 +506,27 @@ void Solver::useExponentialIntrinsic() {
 }
 
 
+/** 
+ * @brief   Directs OpenMOC to correct unphysical cross-sections
+ * @details If a material is found with greater total scattering cross-section
+ *          than total cross-section, the total cross-section is set to the
+ *          scattering cross-section.
+ */
+void Solver::correctXS() {
+  _correct_xs = true;
+}
+
+
+/** 
+ * @brief   Determines which log level to set cross-section warnings
+ * @details The default log level is ERROR
+ * @param   log_level The log level for outputing cross-section inconsistencies
+ */
+void Solver::setCheckXSLogLevel(logLevel log_level) {
+  _xs_log_level = log_level;
+}
+
+
 /**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
@@ -645,17 +669,42 @@ void Solver::countFissionableFSRs() {
  */
 void Solver::checkXS() {
 
-  /* Check the materials in each FSR */
+  /* Create a set of material pointers */
+  std::set<Material*> materials_set;
+
+  /* Get a set of the materials over all FSR */
+  logLevel level = _xs_log_level;
+#pragma omp parallel for
   for (int r=0; r < _num_FSRs; r++) {
 
-    /* Extract cross-sections */
+    /* Get the material */
     Material* material = _FSR_materials[r];
+
+    /* Check to see that this material hasn't been checked yet */
+    if (materials_set.find(material) == materials_set.end()) {
+#pragma omp critical
+      {
+        if (materials_set.find(material) == materials_set.end())
+          materials_set.insert(material);
+      }
+    }
+  }
+
+  /* Check all unique materials */
+  for (std::set<Material*>::iterator it = materials_set.begin();
+          it != materials_set.end(); ++it) {
+    
+    /* Get the material */
+    Material* material = *it;
+
+    /* Extract cross-sections */
+    char* name = material->getName();
     FP_PRECISION* sigma_t = material->getSigmaT();
     FP_PRECISION* sigma_f = material->getSigmaF();
     FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
     FP_PRECISION* scattering_matrix = material->getSigmaS();
     FP_PRECISION* chi = material->getChi();
-
+            
     /* Loop over all energy groups */
     for (int e=0; e < _num_groups; e++) {
 
@@ -665,20 +714,34 @@ void Solver::checkXS() {
       for (int g=0; g < _num_groups; g++) {
         sigma_s += scattering_matrix[g*_num_groups+e];
         if (scattering_matrix[g*_num_groups+e] < 0)
-          log_printf(ERROR, "Negative scattering cross-section encountered "
-                     "in material %s ID %d", material->getName(),
-                     material->getId());
+          log_printf(level, "Negative scattering cross-section encountered "
+                     "in material ID %d", material->getId());
       }
-      if (sigma_s > sigma_t[e])
-        log_printf(ERROR, "Invalid cross-sections encountered. The scattering "
-                   "cross-section has value %6.4f which is greater than the "
-                   "total cross-section of value %6.4f in material %s ID %d",
-                   sigma_s, sigma_t, material->getName(), material->getId());
+      if (sigma_s > sigma_t[e]) {
+        if (_correct_xs) {
+          log_printf(WARNING, "Invalid cross-sections encountered. The "
+                     "scattering cross-section has value %6.4f which is "
+                     "greater than the total cross-section of value %6.4f in"
+                     " material ID %d for group %d", sigma_s, sigma_t[e], 
+                     material->getId(), e);
+          sigma_t[e] = sigma_s;
+          log_printf(WARNING, "The total cross-section has been corrected to "
+                     " %6.4f in material ID %d for group %d", sigma_s, 
+                     material->getId(), e);
+        }
+        else {
+          log_printf(level, "Invalid cross-sections encountered. The "
+                     "scattering cross-section has value %6.4f which is "
+                     "greater than the total cross-section of value %6.4f in"
+                     " material ID %d for group %d", sigma_s, sigma_t[e], 
+                     material->getId(), e);
+        }
+      }
 
       /* Check for negative cross-section values */
       if (sigma_t[e] < 0 || sigma_f[e] < 0 || nu_sigma_f[e] < 0 || chi[e] < 0)
-        log_printf(ERROR, "Negative cross-section encountered in material "
-                   "%s ID %d", material->getName(), material->getId());
+        log_printf(level, "Negative cross-section encountered in material "
+                   "ID %d", material->getId());
     }
   }
 }

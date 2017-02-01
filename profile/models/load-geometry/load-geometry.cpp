@@ -1,8 +1,10 @@
 #include "../../../src/CPUSolver.h"
 #include "../../../src/CPULSSolver.h"
 #include "../../../src/log.h"
+#include "../../../src/Mesh.h"
 #include <array>
 #include <iostream>
+#include "helper-code/group-structures.h"
 
 int main(int argc, char* argv[]) {
 
@@ -20,18 +22,22 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.2;
-  int num_azim = 4;
-  double polar_spacing = 0.5;
-  int num_polar = 2;
+  double azim_spacing = 0.05;
+  int num_azim = 64;
+  double polar_spacing = 1.5;
+  int num_polar = 14;
   double tolerance = 1e-6;
-  int max_iters = 1400;
+  int max_iters = 40;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
   //cmfd.setLatticeStructure(23*4, 23*4, 4);
+  //FIXME cmfd.setLatticeStructure(17, 17, 200);
   cmfd.setLatticeStructure(17, 17, 2);
   cmfd.setKNearest(1);
+  std::vector<std::vector<int> > cmfd_group_structure = 
+      get_group_structure(70,4);
+  cmfd.setGroupStructure(cmfd_group_structure);
 
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -60,8 +66,31 @@ int main(int argc, char* argv[]) {
   CPULSSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
+  //solver.correctXS();
+  solver.setCheckXSLogLevel(WARNING);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
+
+  Lattice mesh_lattice;
+  Mesh mesh(&solver);
+  mesh.createLattice(17, 17, 1);
+  Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
+
+  int my_rank = 0;
+#ifdef MPIx
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+#endif
+  if (my_rank == 0) {
+    for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {
+      std::cout << " -------- z = " << k << " ----------" << std::endl;
+      for (int j=0; j < rx_rates.at(0).size(); j++) {
+        for (int i=0; i < rx_rates.size(); i++) {
+          std::cout << rx_rates.at(i).at(j).at(k) << " ";
+        }
+        std::cout << std::endl;
+      }
+    }
+  }
 
   log_printf(TITLE, "Finished");
 #ifdef MPIx

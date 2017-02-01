@@ -144,6 +144,12 @@ protected:
   /** Boolean for whether to solve in 3D (true) or 2D (false) */
   bool _solve_3D;
 
+  /** Boolean for whether to correct unphysical cross-sections */
+  bool _correct_xs;
+
+  /** The log level for outputting cross-section inconsitencies */
+  logLevel _xs_log_level;
+
   /** Determines the type of track segmentation to use for 3D MOC */
   segmentationType _segment_formation;
 
@@ -329,6 +335,8 @@ public:
   void setExpPrecision(FP_PRECISION precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
+  void correctXS();
+  void setCheckXSLogLevel(logLevel log_level);
 
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
   void computeSource(int max_iters=1000, double k_eff=1.0,

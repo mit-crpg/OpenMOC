@@ -1230,8 +1230,8 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
     # Query the geometry for the data on the spatial grid
     domains = plot_params.geometry.getSpatialDataOnGrid(
-        coords['dim1'], coords['dim2'], offset=plot_params.offset, plane='xy',
-        domain_type=plot_params.domain_type)
+        coords['dim1'], coords['dim2'], offset=plot_params.offset,
+        plane=plot_params.plane, domain_type=plot_params.domain_type)
     domains = np.reshape(domains, tuple(([plot_params.gridsize]*2)))
     domains[domains == np.nan] = -1
 

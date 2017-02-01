@@ -58,7 +58,8 @@ Material::Material(int id, const char* name) {
     _id = id;
 
   _name = NULL;
-  setName(name);
+  if (name != NULL)
+    setName(name);
 
   _volume = 0.;
   _num_instances = 0;

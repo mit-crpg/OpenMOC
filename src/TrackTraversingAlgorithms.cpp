@@ -432,6 +432,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _quadrature = track_generator->getQuadrature();
   _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
 
+  _num_flat = 0;
   int num_rows = 1;
   _num_coeffs = 3;
   if (_track_generator_3D != NULL) {
@@ -494,9 +495,10 @@ void LinearExpansionGenerator::execute() {
             lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
 
       if (std::abs(det) < MIN_DET) {
-        log_printf(WARNING, "Unable to form linear source components in "
+        log_printf(INFO, "Unable to form linear source components in "
                    "source region %d. Switching to linear source in that "
                    "source region.", r);
+        _num_flat++;
         ilem[r*nc + 0] = 0.0;
         ilem[r*nc + 1] = 0.0;
         ilem[r*nc + 2] = 0.0;
@@ -530,9 +532,10 @@ void LinearExpansionGenerator::execute() {
         ilem[r*nc + 0] = 0.0;
         ilem[r*nc + 1] = 0.0;
         ilem[r*nc + 2] = 0.0;
-        log_printf(WARNING, "Unable to form linear source components in "
+        log_printf(INFO, "Unable to form linear source components in "
                    "source region %d. Switching to linear source in that "
                    "source region.", r);
+        _num_flat++;
       }
       else {
         ilem[r*nc + 0] =  lem[r*nc + 1] / det;
@@ -545,6 +548,13 @@ void LinearExpansionGenerator::execute() {
   memcpy(_lin_exp_coeffs, inv_lin_exp_coeffs,
          num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
   delete [] inv_lin_exp_coeffs;
+  
+  /* Notify user of any regions needing to use a flat source approximation */
+  if (_num_flat > 0) {      
+    log_printf(WARNING, "Unable to form linear source components in %d "
+                        "source regions. Switching to linear source in those "
+                        "source regions.", _num_flat);
+  }
 }
 
 

@@ -1245,13 +1245,13 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
   /* If CMFD is on, get CMFD latice cell and write to key */
   if (_cmfd != NULL) {
       curr_level_key << _cmfd->getLattice()->getLatX(curr->getPoint());
-      key << "CMFD = (" << curr_level_key.str() << ", ";
+      key << "CMFD(" << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatY(curr->getPoint());
-      key << curr_level_key.str() << ", ";
+      key << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatZ(curr->getPoint());
-      key << curr_level_key.str() << ") : ";
+      key << curr_level_key.str() << "):";
   }
 
   /* Descend the linked list hierarchy until the lowest level has
@@ -1265,21 +1265,21 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 
       /* Write lattice ID and lattice cell to key */
       curr_level_key << curr->getLattice()->getId();
-      key << "LAT = " << curr_level_key.str() << " (";
+      key << "L" << curr_level_key.str() << "(";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeX();
-      key << curr_level_key.str() << ", ";
+      key << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeY();
-      key << curr_level_key.str() << ", ";
+      key << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeZ();
-      key << curr_level_key.str() << ") : ";
+      key << curr_level_key.str() << "):";
     }
     else {
       /* write universe ID to key */
       curr_level_key << curr->getUniverse()->getId();
-      key << "UNIV = " << curr_level_key.str() << " : ";
+      key << "U" << curr_level_key.str() << " : ";
     }
 
     /* If lowest coords reached break; otherwise get next coords */
@@ -1294,7 +1294,15 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 
   /* write cell id to key */
   curr_level_key << curr->getCell()->getId();
-  key << "CELL = " << curr_level_key.str();
+  key << "C" << curr_level_key.str();
+
+  /* write version number to key */
+  int version_num = coords->getVersionNum();
+  if (version_num != 0) {
+    curr_level_key.str(std::string());
+    curr_level_key << version_num;
+    key << ":V" << curr_level_key.str();
+  }
 
   return key.str();
 }
@@ -1665,7 +1673,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
   /* Length of each segment */
   FP_PRECISION length;
-  int min_z_ind = 0;
+  std::vector<int> min_z_ind;
   int region_id;
   int num_segments;
 
@@ -1701,15 +1709,19 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     /* Records the minimum length to a 2D intersection */
     FP_PRECISION min_length = std::numeric_limits<FP_PRECISION>::infinity();
+    region_id = -1;
 
     /* Copy end coordinates to start */
     end.copyCoords(&start);
 
     /* Loop over all z-heights to find shortest 2D intersection */
+    min_z_ind.clear();
     for (int i=0; i < z_coords.size(); i++) {
 
       /* Change z-height and copy starting coordinates to end */
       start.setZ(z_coords[i]);
+      start.prune();
+      findCellContainingCoords(&start);
       start.copyCoords(&end);
 
       /* Find the next Cell along the Track's trajectory */
@@ -1726,20 +1738,87 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       /* Check if the segment length is the smallest found */
       if (length < min_length) {
         min_length = length;
-        min_z_ind = i;
+        min_z_ind.clear();
+        min_z_ind.push_back(i);
+      }
+      else if (length == min_length) {
+        min_z_ind.push_back(i);
       }
     }
 
-    /* Traverse across shortest segment */
-    start.setZ(z_coords[min_z_ind]);
+    /* Loop over all shortest segments */
+    for (int m=0; m < min_z_ind.size(); m++) {
+
+      /* Traverse across shortest segment */
+      start.setZ(z_coords[min_z_ind.at(m)]);
+      start.prune();
+      findCellContainingCoords(&start);
+
+      /* Find FSR using starting coordinate */
+      region_id = findExtrudedFSR(&start);
+    
+      /* Get the coordinate of the extruded FSR */
+      std::string fsr_key = getFSRKey(&start);
+      LocalCoords test_coords(0, 0, 0);
+      LocalCoords* ext_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
+      ext_coords = ext_coords->getHighestLevel();
+      test_coords.setX(ext_coords->getX());
+      test_coords.setY(ext_coords->getY());
+      test_coords.setUniverse(_root_universe);
+
+      /* Check to see that this point contains the cell of every axial level */
+      bool coords_contained = true;
+      for (int i=0; i < z_coords.size(); i++) {
+      
+        /* Check the FSR key at this level */
+        start.setZ(z_coords[i]);
+        start.prune();
+        findCellContainingCoords(&start);
+        fsr_key = getFSRKey(&start);
+
+        test_coords.setZ(z_coords[i]);
+        test_coords.prune();
+        findCellContainingCoords(&test_coords);
+        std::string ext_fsr_key = getFSRKey(&test_coords);
+
+        if (fsr_key != ext_fsr_key)
+          coords_contained = false;
+      }
+      
+      /* Reset the starting coordinate */ 
+      start.setZ(z_coords[min_z_ind.at(m)]);
+      start.prune();
+      findCellContainingCoords(&start);
+
+      /* Break loop if coordinates are contained in every axial level */
+      if (coords_contained)
+        break;
+      else if (m == min_z_ind.size() - 1) {
+
+        /* Create a new extruded FSR using the starting coordinate */
+        int version_num = 1;
+        do {
+          start.setVersionNum(version_num);
+          fsr_key = getFSRKey(&start);
+          version_num++;
+        } while(_extruded_FSR_keys_map.contains(fsr_key));
+      
+        /* Get the new FSR using the augmented starting coordinate */
+        region_id = findExtrudedFSR(&start);
+      }
+    }
+
+    /* Move the coordinates to the next intersection */
     start.copyCoords(&end);
     curr = findNextCell(&end, phi);
 
-    /* Find FSR using starting coordinate */
-    region_id = findExtrudedFSR(&start);
-
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
+
+    /* Check that the region ID is valid */
+    if (region_id == -1)
+      log_printf(ERROR, "Failed to find a valid FSR during axial extruded "
+                 "segmentation");
 
     /* Create a new 2D Track segment with extruded region ID */
     segment* new_segment = new segment;
@@ -2076,10 +2155,10 @@ void Geometry::computeFissionability(Universe* univ) {
  * @return a NumPy array or list of the domain IDs
  */
 std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
-						std::vector<double> dim2,
-						double offset,
-            const char* plane,
-						const char* domain_type) {
+                        std::vector<double> dim2,
+                        double offset,
+                        const char* plane,
+                        const char* domain_type) {
 
   LocalCoords* point;
   Cell* cell;

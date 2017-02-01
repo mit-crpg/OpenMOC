@@ -232,9 +232,16 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   log_printf(INFO, "linear solve iterations: %d", iter);
   
   /* Check if the maximum iterations were reached */
-  if (iter == MAX_LINEAR_SOLVE_ITERATIONS)
+  if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {
     log_printf(WARNING, "Linear solve failed to converge in %d iterations", 
                iter);
+    
+    for (int i=0; i < num_x*num_y*num_z*num_groups; i++) {
+      if (x[i] < 0.0)
+        x[i] = 0.0;
+    }
+    X->scaleByValue(num_rows / X->getSum());
+  }
 }
 
 

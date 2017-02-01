@@ -169,6 +169,7 @@ private:
   Quadrature* _quadrature;
   int _num_groups;
   int _num_coeffs;
+  int _num_flat;
   Point** _starting_points;
   FP_PRECISION** _thread_source_constants;
   ExpEvaluator* _exp_evaluator;
