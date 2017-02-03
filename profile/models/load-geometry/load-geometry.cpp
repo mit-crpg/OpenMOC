@@ -33,10 +33,10 @@ int main(int argc, char* argv[]) {
   Cmfd cmfd;
   //cmfd.setLatticeStructure(23*4, 23*4, 4);
   //FIXME cmfd.setLatticeStructure(17, 17, 200);
-  cmfd.setLatticeStructure(17, 17, 2);
+  cmfd.setLatticeStructure(17, 17, 50);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure = 
-      get_group_structure(70,4);
+      get_group_structure(70,8);
   cmfd.setGroupStructure(cmfd_group_structure);
 
   /* Load the geometry */
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   geometry.loadFromFile(file);
   geometry.setCmfd(&cmfd);
 #ifdef MPIx
-  geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(1, 1,25, MPI_COMM_WORLD);
   //geometry.setNumDomainModules(2,2,2);
 #else
   geometry.setNumDomainModules(2,2,2);

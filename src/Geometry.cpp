@@ -19,6 +19,7 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+  _axial_mesh = NULL;
   _root_universe = NULL;
   _domain_decomposed = false;
   _num_modules_x = 1;
@@ -60,6 +61,8 @@ Geometry::~Geometry() {
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
   }
+  if (_axial_mesh != NULL)
+    delete _axial_mesh;
 }
 
 
@@ -670,6 +673,42 @@ void Geometry::setCmfd(Cmfd* cmfd) {
 
 
 /**
+ * @brief Sets a global axial mesh with the given mesh height
+ * @details The global axial mesh is overlaid across the entire Geometry
+ * @param axial_mesh_height The desired height of axial mesh cells
+ */
+void Geometry::setAxialMesh(double axial_mesh_height) {
+
+  /* Get the global Geometry boundaries */
+  double min_x = _root_universe->getMinX();
+  double max_x = _root_universe->getMaxX();
+  double min_y = _root_universe->getMinY();
+  double max_y = _root_universe->getMaxY();
+  double min_z = _root_universe->getMinZ();
+  double max_z = _root_universe->getMaxZ();
+
+  /* Create the lattice */
+  _axial_mesh = new Lattice();
+  _axial_mesh->setNumX(1);
+  _axial_mesh->setNumY(1);
+ 
+  /* Determine actual axial mesh spacing from desired spacing */
+  double total_width_z = max_z - min_z;
+  int num_cells_z = total_width_z / axial_mesh_height;
+  axial_mesh_height = total_width_z / num_cells_z;
+  _axial_mesh->setNumZ(num_cells_z);
+  _axial_mesh->setWidth(max_x - min_x, max_y - min_y, axial_mesh_height);
+
+  /* Create the center point */
+  Point offset;
+  offset.setX(min_x + (max_x - min_x)/2.0);
+  offset.setY(min_y + (max_y - min_y)/2.0);
+  offset.setZ(min_z + (max_z - min_z)/2.0);
+  _axial_mesh->setOffset(offset.getX(), offset.getY(), offset.getZ());
+}
+ 
+
+/**
  * @brief Find the Cell that this LocalCoords object is in at the lowest level
  *        of the nested Universe hierarchy.
  * @details This method assumes that the LocalCoords has been initialized
@@ -823,6 +862,12 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
         coords = coords->getPrev();
         coords->prune();
       }
+    }
+
+    /* Check for distance to an overlaid axial mesh */
+    if (_axial_mesh != NULL) {
+      dist = _axial_mesh->minSurfaceDist(coords->getPoint(), azim, polar);
+      min_dist = std::min(dist, min_dist);
     }
 
     /* Check for distance to nearest CMFD mesh cell boundary */
@@ -1252,6 +1297,13 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatZ(curr->getPoint());
       key << curr_level_key.str() << "):";
+  }
+
+  /* If a global axial mesh is present, get the axial mesh cell */
+  if (_axial_mesh != NULL) {
+      curr_level_key.str(std::string());
+      curr_level_key << _axial_mesh->getLatZ(curr->getPoint());
+      key << "A" << curr_level_key.str() << ":";
   }
 
   /* Descend the linked list hierarchy until the lowest level has

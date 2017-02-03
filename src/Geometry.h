@@ -150,6 +150,9 @@ private:
   /** A CMFD object pointer */
   Cmfd* _cmfd;
 
+  /** An optional axial mesh overlaid on the Geometry */
+  Lattice* _axial_mesh;
+
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
 
@@ -245,6 +248,7 @@ public:
   /* Set parameters */
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
+  void setAxialMesh(double axial_mesh_height);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
