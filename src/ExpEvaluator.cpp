@@ -222,8 +222,8 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   /* Set size of interpolation table */
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
 
-  if (num_array_values < 10)
-    num_array_values = 10;
+  if (num_array_values < 1000)
+    num_array_values = 1000;
 
   _exp_table_spacing = _max_optical_length / num_array_values;
 
@@ -260,11 +260,24 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
       FP_PRECISION tau_a_2 = tau_a * tau_a;
       FP_PRECISION sin_theta_2 = sin_theta * sin_theta;
 
-      /* Compute F1 */
-      FP_PRECISION exp_const_1 = 1.0 - exponential;
-      FP_PRECISION exp_const_2 = exponential * inv_sin_theta;
-      FP_PRECISION exp_const_3 = -0.5 * exp_const_2 * inv_sin_theta;
+      FP_PRECISION exp_const_1;
+      FP_PRECISION exp_const_2;
+      FP_PRECISION exp_const_3;
 
+      /* Compute F1 */
+      if (tau_a < 0.01) {
+        exp_const_1 = inv_sin_theta;
+        exp_const_2 = -0.5 * inv_sin_theta * inv_sin_theta;
+        exp_const_3 = -inv_sin_theta * inv_sin_theta_2 / 3;
+        exp_const_1 += exp_const_2 * tau_a + exp_const_3 * tau_a_2;
+      }
+      else {
+        exp_const_1 = (1.0 - exponential) / tau_a;
+        exp_const_2 = (exponential * (1.0 + tau_m) - 1) / (tau_a * tau_a);
+        exp_const_3 = 0.5 / (tau_a * tau_a * tau_a) *
+            (2.0 - exponential * (tau_m * tau_m + 2.0 * tau_m + 2.0));
+      }
+      
       _exp_table[index] = exp_const_1;
       _exp_table[index+1] = exp_const_2;
       _exp_table[index+2] = exp_const_3;
@@ -272,31 +285,35 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
       if (_linear_source) {
 
         /* Compute F2 */
-        exp_const_1 = 2 * exponential - 2 + tau_m + tau_m * exponential;
-        exp_const_2 = (-exponential * (tau_a + sin_theta) + sin_theta) *
-            inv_sin_theta_2;
-        exp_const_3 = 0.5 * tau_a * exponential * inv_sin_theta *
-            inv_sin_theta_2;
-
+        if (tau_a < 0.01) {
+          exp_const_2 = inv_sin_theta_2 * inv_sin_theta / 6;
+          exp_const_3 = -inv_sin_theta_2 * inv_sin_theta_2 / 6;
+          exp_const_1 = exp_const_2 * tau_a + exp_const_3 * tau_a_2;
+        }
+        else { 
+          exp_const_1 = (tau_m - 2.0 + exponential * (2.0 + tau_m)) / tau_a_2;
+          exp_const_2 = -(tau_m - 4.0 + exponential * (tau_m * tau_m + 3 * tau_m
+              + 4.0)) / (tau_a_2 * tau_a);
+          exp_const_3 = 0.5 * (2.0 * tau_m - 12.0 + exponential * (12.0 +
+              tau_m * (10.0 + tau_m * (4.0 + tau_m)))) / (tau_a_2 * tau_a_2);
+        }
+        
         _exp_table[index+3] = exp_const_1;
         _exp_table[index+4] = exp_const_2;
         _exp_table[index+5] = exp_const_3;
 
         /* Compute H */
-        if (tau_a == 0.0) {
-          exp_const_1 = 0.0;
+        if (tau_a < 0.01) {
           exp_const_2 = 0.5 * inv_sin_theta;
           exp_const_3 = -1.0 * inv_sin_theta_2 / 3.0;
+          exp_const_1 = exp_const_2 * tau_a + exp_const_3 * tau_a_2;
         }
         else {
-          exp_const_1 = (-exponential * (tau_a + sin_theta) + sin_theta) /
-              tau_a;
-          exp_const_2 = (exponential * (tau_a_2 + tau_a * sin_theta +
-              sin_theta_2) - sin_theta_2) / (tau_a_2 * sin_theta);
-          exp_const_3 = 1.0 / (2 * tau_a_2 * tau_a * sin_theta_2) *
-              (-exponential * (tau_a_2 * tau_a + tau_a_2 * sin_theta + 2 * tau_a *
-              sin_theta_2 + 2 * sin_theta_2 * sin_theta) + 2 * sin_theta_2
-              * sin_theta);
+          exp_const_1 = (1.0 - exponential * (1 + tau_m)) / (tau_a * tau_m);
+          exp_const_2 = (exponential * (tau_m * (tau_m + 1.0) + 2.0) - 2.0) 
+              / (tau_m * tau_a_2);
+          exp_const_3 = 0.5 * (6.0 - exponential * (6.0 + tau_m * (6.0 + tau_m
+              * (3 + tau_m)))) / (tau_m * tau_a_2 * tau_a);
         }
         _exp_table[index+6] = exp_const_1;
         _exp_table[index+7] = exp_const_2;
@@ -329,9 +346,12 @@ FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
 
   tau = std::max(tau, 1.e-5);
 
-  return 2.0 * tau / 3.0 - (1 + 2.0 / tau)
-      * (1.0 + tau / 2.0 - (1.0 + 1.0 / tau) *
-         (1.0 - exp(- tau)));
+  if (tau < 0.01)
+    return 7.0 * tau * tau / 120.0 - tau / 12.0;
+  else
+    return 2.0 / 3.0 - (1 + 2.0 / tau)
+        * (1.0 / tau + 0.5 - (1.0 + 1.0 / tau) *
+          (1.0 - exp(- tau)) / tau);
 }
 
 

@@ -661,7 +661,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
           FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
           FP_PRECISION G2_src =
-              _exp_evaluator->computeExponentialG2(tau / sin_theta)
+              tau * _exp_evaluator->computeExponentialG2(tau / sin_theta)
               * src_constant * 2 * _quadrature->getPolarWeight(azim_index, p)
               * sin_theta;
 
@@ -674,7 +674,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
       else {
 
-        FP_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
+        FP_PRECISION G2_src = tau * _exp_evaluator->computeExponentialG2(tau) *
             src_constant;
 
         thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src

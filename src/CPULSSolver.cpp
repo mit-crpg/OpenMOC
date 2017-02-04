@@ -315,17 +315,16 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION tau = sigma_t[e] * length_2D;
       exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1, &exp_F2,
                                                    &exp_H);
-      exp_H *= length * track_flux[e];
+      exp_H *= tau * length * track_flux[e];
 
       // Compute the moment component of the source
       FP_PRECISION src_linear = 0.0;
       for (int i=0; i<3; i++)
         src_linear += _reduced_sources_xyz(fsr_id, e, i) * direction[i];
-      src_linear *= exp_F2;
 
       // Compute the change in flux across the segment
-      FP_PRECISION delta_psi = (track_flux[e] - src_flat) * exp_F1
-          - src_linear;
+      FP_PRECISION delta_psi = tau * (track_flux[e] - src_flat) * exp_F1
+          - src_linear * tau * tau * exp_F2;
 
       // Increment the fsr scalar flux and scalar flux moments
       fsr_flux[e*4] += wgt * delta_psi;
@@ -379,18 +378,17 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                                                   dt, dt2);
         FP_PRECISION exp_H = exp_evaluator->computeExponentialH(exp_index, p,
                                                                  dt, dt2)
-            * length * track_flux[pe];
+            * tau * length * track_flux[pe];
 
         // Compute the moment component of the source
         FP_PRECISION src_linear = 0.0;
         for (int i=0; i<2; i++)
           src_linear += direction[i] * sin_theta *
               _reduced_sources_xyz(fsr_id, e, i);
-        src_linear *= exp_F2;
 
         // Compute the change in flux across the segment
-        FP_PRECISION delta_psi = (track_flux[pe] - src_flat) * exp_F1
-              - src_linear;
+        FP_PRECISION delta_psi = tau * (track_flux[pe] - src_flat) * exp_F1
+              - tau * tau * src_linear * exp_F2;
 
         FP_PRECISION track_weight = _quad->getWeightInline(azim_index, p);
         polar_wgt_d_psi += track_weight * delta_psi;
