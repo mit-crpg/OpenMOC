@@ -494,7 +494,8 @@ void LinearExpansionGenerator::execute() {
             lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
             lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
 
-      if (std::abs(det) < MIN_DET) {
+      double volume = _FSR_volumes[r];
+      if (std::abs(det) < MIN_DET || volume < 1e-6) {
         log_printf(INFO, "Unable to form linear source components in "
                    "source region %d. Switching to linear source in that "
                    "source region.", r);
@@ -520,6 +521,7 @@ void LinearExpansionGenerator::execute() {
                           lem[r*nc + 0] * lem[r*nc + 4]) / det;
         ilem[r*nc + 5] = (lem[r*nc + 0] * lem[r*nc + 1] -
                           lem[r*nc + 2] * lem[r*nc + 2]) / det;
+      
       }
     }
   }
@@ -641,7 +643,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     FP_PRECISION vol_impact = wgt * length / volume;
     for (int g=0; g < _num_groups; g++) {
-
+    
       thread_src_constants[g*_num_coeffs] += vol_impact * xc * xc;
       thread_src_constants[g*_num_coeffs + 1] += vol_impact * yc * yc;
       thread_src_constants[g*_num_coeffs + 2] += vol_impact * xc * yc;
@@ -654,14 +656,14 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
       /* Calculate the optical path length and source contribution */
       FP_PRECISION tau = length * sigma_t[g];
-      FP_PRECISION src_constant = vol_impact * length / (2.0 * sigma_t[g]);
+      FP_PRECISION src_constant = vol_impact * length / 2.0;
 
       if (track_3D == NULL) {
         for (int p=0; p < _quadrature->getNumPolarAngles()/2; p++) {
 
           FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
           FP_PRECISION G2_src =
-              tau * _exp_evaluator->computeExponentialG2(tau / sin_theta)
+              length * _exp_evaluator->computeExponentialG2(tau / sin_theta)
               * src_constant * 2 * _quadrature->getPolarWeight(azim_index, p)
               * sin_theta;
 
@@ -674,9 +676,9 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
       else {
 
-        FP_PRECISION G2_src = tau * _exp_evaluator->computeExponentialG2(tau) *
-            src_constant;
-
+        FP_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
+            length * src_constant;
+          
         thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src
             * sin_theta * sin_theta;
         thread_src_constants[g*_num_coeffs + 1] += sin_phi * sin_phi * G2_src
@@ -693,7 +695,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Set the lock for this FSR */
     omp_set_lock(&_FSR_locks[fsr]);
-
+      
     _lin_exp_coeffs[fsr*_num_coeffs] += wgt * length / volume *
         (xc * xc + pow(cos_phi * sin_theta * length, 2.0) / 12.0);
     _lin_exp_coeffs[fsr*_num_coeffs + 1] += wgt * length / volume *
@@ -729,11 +731,6 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     _starting_points[tid][track_idx].setZ(z);
   }
 }
-
-
-
-
-//FIXME
 
 
 /**

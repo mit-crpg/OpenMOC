@@ -343,6 +343,9 @@ void Cmfd::collapseXS() {
   splitVertexCurrents();
   splitEdgeCurrents();
 
+  //FIXME
+  bool neg_fluxes = false;
+
 #pragma omp parallel
   {
 
@@ -421,6 +424,11 @@ void Cmfd::collapseXS() {
             volume = _FSR_volumes[*iter];
             scat = fsr_material->getSigmaS();
             flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
+            if (flux < 0) {
+              log_printf(INFO, "Negative FLUX encountered in CMFD cell %d"
+                         " group %d for FSR %d of value %6.4f", i, h, *iter, flux);
+              neg_fluxes = true;
+            }
             tot = fsr_material->getSigmaTByGroup(h+1);
             nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
 
@@ -470,8 +478,12 @@ void Cmfd::collapseXS() {
   }
 #endif
 
+  //FIXME
+  if (neg_fluxes)
+      log_printf(WARNING, "Negative FSR fluxes found in group collapse");
+
   /* Loop over CMFD cells and set cross sections */
-#pragma omp for
+#pragma parallel omp for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
     Material* cell_material = _materials[i];
@@ -567,7 +579,8 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
    * coefficient correction factor */
-  dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
+  if (!_linear_source)
+    dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
 
   /* If surface is on a boundary with REFLECTIVE or VACUUM BCs, choose
    * approipriate BC */
@@ -611,7 +624,8 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
-    dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
+    if (!_linear_source)
+      dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
@@ -851,7 +865,7 @@ void Cmfd::updateMOCFlux() {
   log_printf(INFO, "Updating MOC flux...");
 
   /* Precompute the CMFD flux ratios */
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
     for (int e = 0; e < _num_cmfd_groups; e++)
       _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
@@ -859,7 +873,7 @@ void Cmfd::updateMOCFlux() {
   }
 
   /* Loop over mesh cells */
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
     std::vector<int>::iterator iter;
@@ -1012,6 +1026,8 @@ void Cmfd::setCMFDRelaxationFactor(FP_PRECISION relaxation_factor) {
                       "must be greater than 0 and less than or equal to 1. "
                       "Input value: %i", relaxation_factor);
 
+  if (relaxation_factor != 1.0)
+    log_printf(NORMAL, "CMFD relaxation factor: %6.4f", _relaxation_factor);
   _relaxation_factor = relaxation_factor;
 }
 
@@ -2518,6 +2534,7 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
       if (iter->first != 4) {
         cell_next_id = getCellByStencil(cell_id, iter->first);
+        
         ratio += iter->second * _flux_ratio->getValue(cell_next_id, group);
       }
     }
@@ -2527,7 +2544,7 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
       ratio += _flux_ratio->getValue(cell_id, group);
     else {
       ratio += _k_nearest_stencils[fsr][0].second *
-        _flux_ratio->getValue(cell_id, group);
+            _flux_ratio->getValue(cell_id, group);
       ratio /= (_k_nearest_stencils[fsr].size() - 1);
     }
   }
@@ -2719,6 +2736,7 @@ void Cmfd::initialize() {
     _flux_ratio = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _old_dif_surf_corr = new Vector(_cell_locks, _num_x, _num_y, _num_z,
                                     NUM_SURFACES * ncg);
+    _old_dif_surf_corr->setAll(0.0);
     _volumes = new Vector(_cell_locks, _num_x, _num_y, _num_z, 1);
 
     /* Initialize k-nearest stencils, currents, flux, and materials */

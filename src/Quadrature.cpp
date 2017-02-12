@@ -871,7 +871,7 @@ std::string Quadrature::toString() {
   string << "\n\tthetas = ";
   if (_thetas != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
+      for (int p = 0; p < _num_polar/2; p++)
         string << " (" << a << "," << p << "): " << _thetas[a][p] << ", ";
     }
   }
@@ -1115,7 +1115,7 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 GLPolarQuad::GLPolarQuad(): Quadrature() {
   _quad_type = GAUSS_LEGENDRE;
   _num_polar = 6;
-  _correct_weights = true;
+  _correct_weights = false;
 }
 
 
@@ -1257,8 +1257,8 @@ double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
 std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
 
   /* put these somewhere else */
-  double E1 = 1e-10;
-  double E2 = 1e-10;
+  double E1 = 1e-8;
+  double E2 = 1e-8;
 
   std::vector <double> roots;
   std::vector <bool> converged;
@@ -1286,17 +1286,18 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
   bool all_roots_converged = false;
 
   /* use the Alberth-Housholder_n method to nudge guesses towards roots */
-  while (not all_roots_converged) {
+  int MAX_LG_ITERS = 10000;
+  for (int iter=0; iter < MAX_LG_ITERS; iter++) {
 
     /* set S tildes */
     for (int i=0; i < (n+1)/2; ++i) {
-      if (not converged[i]) {
+      if (!converged[i]) {
         double sum1 = 0;
         double sum2 = 0;
         for (int j=0; j <= (n+1)/2; ++j) {
           if (j != i) {
-            sum1 += 1/(roots[i] - roots[j]);
-            sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
+            sum1 += 1 / (roots[i] - roots[j]);
+            sum2 += -1 / ( (roots[i] - roots[j]) * (roots[i] - roots[j]) );
           }
         }
 
@@ -1310,14 +1311,14 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
         roots[i] = u_new;
 
         /* if this is the actual root */
-        if (abs(u_new - u_old) < E1) {
+        if (std::abs(u_new - u_old) < E1) {
           if (std::abs(legendrePolynomial(n, u_new)) < E2) {
             converged[i] = true;
 
             /* if this root equals another root or it is less than 0 */
             for (int j=0; j < (n+1)/2; ++j) {
               if (j != i) {
-                if (std::abs(roots[j] - roots[i]) < E1 or roots[i] <= 0) {
+                if (std::abs(roots[j] - roots[i]) < E1 || roots[i] <= 0) {
 
                   /* reset the root to its original guess */
                   roots[i] = - pow(2, (-.5*(i+1))) + 1;
@@ -1330,11 +1331,17 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
       } /* if not converged */
     } /* for each guess */
 
+    /* Check for convergence */
     for (int i=0; i<(n+1)/2; ++ i) {
       all_roots_converged = converged[i];
-      if (not all_roots_converged)
+      if (!all_roots_converged)
         break;
     }
+    if (all_roots_converged)
+      break;
+    else if (iter == MAX_LG_ITERS - 1)
+      log_printf(ERROR, "Failed to converge Gauss-Legendre roots for %d polar"
+                        " angles.", _num_polar);
   } /* while not all roots converged */
 
   /* Remove placeholder root */

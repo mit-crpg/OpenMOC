@@ -1402,7 +1402,7 @@ void CPUSolver::computeFSRSources() {
 
       _reduced_sources(r,G) = fission_source * chi[G];
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
-      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI / sigma_t[G];
+      _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
     }
   }
 
@@ -1688,8 +1688,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
       /* Attenuate and tally the flux */
-      FP_PRECISION delta_psi = (track_flux[e] - _reduced_sources(fsr_id, e))
-          * exponential;
+      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D * 
+              _reduced_sources(fsr_id, e)) * exponential;
       fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
       track_flux[e] -= delta_psi;
@@ -1711,8 +1711,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
         FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
 
         /* Attenuate and tally the flux */
-        FP_PRECISION delta_psi = (track_flux[pe] - _reduced_sources(fsr_id,e))
-              * exponential;
+        FP_PRECISION delta_psi = (tau * track_flux[pe] - 
+                length * _reduced_sources(fsr_id,e)) * exponential;
         fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
         track_flux[pe] -= delta_psi;
         pe++;
@@ -1819,7 +1819,7 @@ void CPUSolver::addSourceToScalarFlux() {
 
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
-      _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e);
+      _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
     }
   }
 }

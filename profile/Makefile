@@ -14,6 +14,8 @@ PRECISION   = double
 #===============================================================================
 
 case = load-geometry/load-geometry.cpp
+#case = simple-lattice/simple-lattice-3d.cpp
+#case = c5g7/c5g7-rodded-B.cpp
 
 source = \
 Cell.cpp \
@@ -213,7 +215,7 @@ folder:
 all: folder $(addsuffix .o, $(programs)) $(programs)
 
 clean:
-	rm -rf $(programs) $(obj) $(addsuffix .o, $(programs))
+	rm -rf $(program) $(obj) $(addsuffix .o, $(programs))
 
 edit:
 	vim -p $(case) $(cases)

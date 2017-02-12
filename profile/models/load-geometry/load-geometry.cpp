@@ -6,7 +6,7 @@
 #include <iostream>
 #include "helper-code/group-structures.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc,  char* argv[]) {
 
 #ifdef MPIx
   MPI_Init(&argc, &argv);
@@ -14,7 +14,8 @@ int main(int argc, char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  std::string file = "beavrs.geo";
+  //std::string file = "full-axial-simple-assembly.geo";
+  std::string file = "full-axial-w-refs.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -22,30 +23,60 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
+  
   double azim_spacing = 0.05;
-  int num_azim = 64;
-  double polar_spacing = 1.5;
-  int num_polar = 14;
+  int num_azim = 16;
+  double polar_spacing = 0.75;
+  int num_polar = 6;
   double tolerance = 1e-6;
-  int max_iters = 40;
+  int max_iters = 50;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
-  //cmfd.setLatticeStructure(23*4, 23*4, 4);
-  //FIXME cmfd.setLatticeStructure(17, 17, 200);
-  cmfd.setLatticeStructure(17, 17, 50);
+  cmfd.setLatticeStructure(17, 17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure = 
       get_group_structure(70,8);
   cmfd.setGroupStructure(cmfd_group_structure);
+  cmfd.setCMFDRelaxationFactor(0.7);
 
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.loadFromFile(file);
+  geometry.setAxialMesh(2.0);
+  
+  //FIXME
+  std::map<int, Material*> materials = geometry.getAllMaterials();
+  int ng = geometry.getNumEnergyGroups();
+  //FIXME groups 37 and 39 are the issue in helium
+  std::string file2 = "pin-cell.geo"; // (discr)
+  Geometry geometry2;
+  geometry2.loadFromFile(file2);
+  std::map<int, Material*> materials2 = geometry2.getAllMaterials();
+  std::map<int, Material*>::iterator material_iter;
+  for (material_iter = materials.begin();
+      material_iter != materials.end(); ++material_iter) {
+    int key = material_iter->first;
+    Material* mat = materials[key];
+    Material* mat2;
+    if (materials2.find(key) == materials2.end())
+        mat2 = materials[10014];
+    else
+        mat2 = materials2[key];
+    for (int i=0; i < ng; i++) {
+        mat->setSigmaTByGroup(mat2->getSigmaTByGroup(i+1), i+1);
+        mat->setSigmaFByGroup(mat2->getSigmaFByGroup(i+1), i+1);
+        mat->setNuSigmaFByGroup(mat2->getNuSigmaFByGroup(i+1), i+1);
+        mat->setChiByGroup(mat2->getChiByGroup(i+1), i+1);
+        for (int j=0; j < ng; j++)
+          mat->setSigmaSByGroup(mat2->getSigmaSByGroup(i+1,j+1), i+1, j+1);
+      }
+  }
+
   geometry.setCmfd(&cmfd);
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1,25, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(1, 1, 20, MPI_COMM_WORLD);
   //geometry.setNumDomainModules(2,2,2);
 #else
   geometry.setNumDomainModules(2,2,2);
@@ -60,10 +91,17 @@ int main(int argc, char* argv[]) {
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
+  std::vector<FP_PRECISION> zones;
+  zones.push_back(0.0);
+  zones.push_back(20.0);
+  zones.push_back(380.0);
+  zones.push_back(400.0);
+  track_generator.setSegmentationZones(zones);
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator);
+  CPUSolver solver(&track_generator);
+  //solver.useExponentialIntrinsic();
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   //solver.correctXS();

@@ -21,10 +21,10 @@ int main(int argc, char* argv[]) {
   double azim_spacing = 0.05;
   int num_azim = 64;
   double polar_spacing = 0.75;
-  int num_polar = 12;
+  int num_polar = 14;
   double tolerance = 1e-5;
   int max_iters = 40;
-  int axial_refines = 3;
+  int axial_refines = 5;
 
   /* Set logging information */
   set_log_level("NORMAL");

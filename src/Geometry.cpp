@@ -705,6 +705,9 @@ void Geometry::setAxialMesh(double axial_mesh_height) {
   offset.setY(min_y + (max_y - min_y)/2.0);
   offset.setZ(min_z + (max_z - min_z)/2.0);
   _axial_mesh->setOffset(offset.getX(), offset.getY(), offset.getZ());
+
+  log_printf(NORMAL, "Set global axial mesh of width %6.4f cm",
+             axial_mesh_height);
 }
  
 
@@ -1849,11 +1852,12 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
         /* Create a new extruded FSR using the starting coordinate */
         int version_num = 1;
-        do {
+        volatile bool contains_key = true;
+        while (contains_key) {
           start.setVersionNum(version_num);
           fsr_key = getFSRKey(&start);
           version_num++;
-        } while(_extruded_FSR_keys_map.contains(fsr_key));
+        } contains_key = _extruded_FSR_keys_map.contains(fsr_key);
       
         /* Get the new FSR using the augmented starting coordinate */
         region_id = findExtrudedFSR(&start);

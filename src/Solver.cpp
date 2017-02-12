@@ -1131,14 +1131,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    residual = computeResidual(res_type);
     computeFSRSources();
     _timer->startTimer();
     transportSweep();
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-
+    
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
