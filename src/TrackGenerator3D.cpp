@@ -1208,8 +1208,9 @@ void TrackGenerator3D::segmentizeExtruded() {
 
   /* Loop over all extruded Tracks */
 #pragma omp parallel for
-  for (int index=0; index < _num_2D_tracks; index++)
+  for (int index=0; index < _num_2D_tracks; index++) {
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
+  }
 
   /* Initialize 3D FSRs and their associated vectors*/
   log_printf(NORMAL, "Initializing FSRs axially...");

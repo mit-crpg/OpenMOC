@@ -606,7 +606,7 @@ void Solver::initializeExpEvaluators() {
  */
 void Solver::initializeFSRs() {
 
-  log_printf(INFO, "Initializing flat source regions...");
+  log_printf(NORMAL, "Initializing flat source regions...");
 
   /* Delete old FSR arrays if they exist */
   if (_FSR_materials != NULL)
@@ -668,6 +668,8 @@ void Solver::countFissionableFSRs() {
  *          are positive.
  */
 void Solver::checkXS() {
+
+  log_printf(NORMAL, "Checking material cross-sections");
 
   /* Create a set of material pointers */
   std::set<Material*> materials_set;
@@ -1124,7 +1126,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   _timer->processMemUsage(vm, rm);
   log_printf(NODAL, "Using %f MB virtual memory and %f MB resident "
                       "memory ", vm, rm);
-
+  
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 
@@ -1139,6 +1141,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     addSourceToScalarFlux();
     
     /* Solve CMFD diffusion problem and update MOC flux */
+    //FIXME log_printf(NORMAL, "Beginning k-eff computation....");
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else

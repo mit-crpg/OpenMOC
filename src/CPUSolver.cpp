@@ -1314,8 +1314,10 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
       precision = MPI_DOUBLE;
 
     /* Reduce fission rates */
+    // FIXME log_printf(NORMAL, "Starting comm");
     MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, precision,
                   MPI_SUM, comm);
+    // FIXME log_printf(NORMAL, "Comm finished");
     tot_fission_source = reduced_fission;
   }
 #endif

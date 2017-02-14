@@ -27,6 +27,7 @@ Cmfd::Cmfd() {
   _cell_width_z = 0.;
   _flux_update_on = true;
   _centroid_update_on = true;
+  _use_axial_interpolation = false;
   _k_nearest = 1;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
@@ -178,6 +179,9 @@ Cmfd::~Cmfd() {
     }
 #endif
   }
+  
+  for (int r=0; r < _num_FSRs; r++)
+    delete [] _axial_interpolants.at(r);
 }
 
 
@@ -867,9 +871,13 @@ void Cmfd::updateMOCFlux() {
   /* Precompute the CMFD flux ratios */
 #pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
-    for (int e = 0; e < _num_cmfd_groups; e++)
-      _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
-                            / _old_flux->getValue(i, e));
+    for (int e = 0; e < _num_cmfd_groups; e++) {
+      if (_old_flux->getValue(i, e) == 0.0)
+        _flux_ratio->setValue(i, e, 0.0);
+      else
+        _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
+                              / _old_flux->getValue(i, e));
+    }
   }
 
   /* Loop over mesh cells */
@@ -2286,6 +2294,16 @@ void Cmfd::setCellFSRs(std::vector< std::vector<int> >* cell_fsrs) {
 void Cmfd::setFluxUpdateOn(bool flux_update_on) {
   _flux_update_on = flux_update_on;
 }
+  
+
+/**
+ * @brief Set flag indicating whether to use axial interpolation for update
+ *        ratios
+ * @param Flag saying whether to use axial interpolation.
+ */
+void Cmfd::useAxialInterpolation(bool interpolate) {
+  _use_axial_interpolation = interpolate;
+}
 
 
 /**
@@ -2429,6 +2447,55 @@ void Cmfd::generateKNearestStencils() {
          stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
       stencil_iter->second = 1.0 - stencil_iter->second / total_distance;
   }
+
+  /* Initialize axial quadratic interpolant values */
+  _axial_interpolants.resize(_num_FSRs);
+  for (int r=0; r < _num_FSRs; r++) {
+    _axial_interpolants.at(r) = new double[3];
+    for (int j=0; j < 3; j++)
+      _axial_interpolants.at(r)[j] = 0.0;
+  }
+
+  /* Compute axial quadratic interpolation values if requested */
+  if (_use_axial_interpolation) {
+
+    /* Calculate common factors */
+    double dz = _cell_width_z;
+    double dz_2 = _cell_width_z * _cell_width_z;
+
+    /* Loop over mesh cells */
+    for (int i = 0; i < _num_x*_num_y*_num_z; i++) {
+
+      /* Calculate the CMFD cell z-coordinate */
+      int z_ind = i / (_num_x * _num_y);
+      double z_cmfd = (z_ind + 0.5) * _cell_width_z + _lattice->getMinZ();
+
+      /* Check that the CMFD cell is not an end cell */
+      if (z_ind > 0 && z_ind < _num_z-1) {
+
+        /* Loop over FRSs in mesh cell */
+        for (fsr_iter = _cell_fsrs.at(i).begin();
+             fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
+
+          /* Get centroid and calculate relative z-coordinate */
+          fsr_id = *fsr_iter;
+          Point* centroid = _geometry->getFSRCentroid(fsr_id);
+          double zc = (centroid->getZ() - z_cmfd) / dz;
+          if (std::abs(zc) > 0.6)
+            log_printf(ERROR, "Found FSR %d with z-centroid offset in z "
+                       "from CMFD cell %d by %6.4f, whereas the CMFD z-spacing"
+                       " is %6.4f. Coordinates: (%6.4f, %6.4f, %6.4f), cmfd z: "
+                       "%6.4f", fsr_id, i, zc*dz, dz, centroid->getX(),
+                       centroid->getY(), centroid->getZ(), z_cmfd);
+
+          /* Calculate components for quadratic interpolation */
+          _axial_interpolants.at(fsr_id)[0] = zc * zc / 2.0 - zc - 1.0 / 24.0;
+          _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0 / 24.0;
+          _axial_interpolants.at(fsr_id)[2] = zc * zc / 2.0 + zc - 1.0 / 24.0;
+        }
+      }
+    }
+  }
 }
 
 
@@ -2535,23 +2602,50 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
       if (iter->first != 4) {
         cell_next_id = getCellByStencil(cell_id, iter->first);
         
-        ratio += iter->second * _flux_ratio->getValue(cell_next_id, group);
+        ratio += iter->second * getFluxRatio(cell_next_id, group, fsr);
       }
     }
 
     /* INTERNAL */
     if (_k_nearest_stencils[fsr].size() == 1)
-      ratio += _flux_ratio->getValue(cell_id, group);
+      ratio += getFluxRatio(cell_id, group, fsr);
     else {
       ratio += _k_nearest_stencils[fsr][0].second *
-            _flux_ratio->getValue(cell_id, group);
+            getFluxRatio(cell_id, group, fsr);
       ratio /= (_k_nearest_stencils[fsr].size() - 1);
     }
   }
   else
-    ratio = _flux_ratio->getValue(cell_id, group);
+    ratio = getFluxRatio(cell_id, group, fsr);
 
   return ratio;
+}
+
+
+/**
+ * @brief Retreives the ratio of pre- and post- CMFD solve fluxes
+ * @details The CMFD flux ratio is returned for the given FSR. A quadratic
+ *          axial interpolant is used to estimate the value at the FSR.
+ * @param cell_id The CMFD cell ID containing the FSR.
+ * @param group The CMFD energy group being updated.
+ * @param fsr The fsr being updated.
+ * @return the ratio of CMFD fluxes
+ */
+FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
+  double* interpolants = _axial_interpolants.at(fsr);
+  if (interpolants[0] != 0 || interpolants[2] != 0) {
+    int cell_prev = cell_id - _num_x * _num_y;
+    int cell_next = cell_id + _num_x * _num_y;
+    double ratio = interpolants[0] * _flux_ratio->getValue(cell_prev, group) +
+           interpolants[1] * _flux_ratio->getValue(cell_id, group) +
+           interpolants[2] * _flux_ratio->getValue(cell_next, group);
+    if (ratio < 0)
+      ratio = _flux_ratio->getValue(cell_id, group);
+    return ratio;
+  }
+  else {
+    return _flux_ratio->getValue(cell_id, group);
+  }
 }
 
 

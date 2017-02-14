@@ -187,6 +187,12 @@ private:
   /** 2D array of polar track spacings */
   FP_PRECISION** _polar_spacings;
 
+  /** Whether to use axial interpolation for flux update ratios */
+  bool _use_axial_interpolation;
+
+  /** Axial interpolation constants */
+  std::vector<double*> _axial_interpolants;
+
   //FIXME
   int _total_tally_size;
   FP_PRECISION* _tally_memory;
@@ -225,6 +231,7 @@ private:
   /* Private getter functions */
   int getCellNext(int cell_id, int surface_id);
   int getCellByStencil(int cell_id, int stencil_id);
+  FP_PRECISION getFluxRatio(int cell_id, int group, int fsr);
   FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
   FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
@@ -299,6 +306,7 @@ public:
   void setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim);
   void setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                         int num_polar);
+  void useAxialInterpolation(bool interpolate);
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);

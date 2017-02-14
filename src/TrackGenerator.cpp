@@ -27,6 +27,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _FSR_locks = NULL;
   _tracks_2D_array = NULL;
   _tracks_per_azim = NULL;
+  _timer = new Timer();
 }
 
 
@@ -55,6 +56,8 @@ TrackGenerator::~TrackGenerator() {
 
   if (_FSR_volumes != NULL)
     delete [] _FSR_volumes;
+
+  delete _timer;
 }
 
 
@@ -677,6 +680,9 @@ void TrackGenerator::checkBoundaryConditions() {
  *          Points, azimuthal angle, and azimuthal angle quadrature weight.
  */
 void TrackGenerator::generateTracks() {
+    
+  /* Start recording track generation time */
+  _timer->startTimer();
 
   /* Check for valid quadrature */
   if (_quadrature != NULL) {
@@ -738,6 +744,18 @@ void TrackGenerator::generateTracks() {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
                "Tracks. Backtrace:\n%s", e.what());
   }
+  
+  /* Stop recording track generation time and print */
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
+#endif
+  _timer->stopTimer();
+  _timer->recordSplit("Track Generation Time");
+  double gen_time = _timer->getSplit("Track Generation Time");
+  std::string msg_string = "Total Track Generation & Segmentation Time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), gen_time);
 }
 
 

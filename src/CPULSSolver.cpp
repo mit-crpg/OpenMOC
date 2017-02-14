@@ -101,8 +101,10 @@ void CPULSSolver::initializeFSRs() {
   CPUSolver::initializeFSRs();
 
   /* Generate linear source coefficients */
+  log_printf(NORMAL, "Generating linear expansion coefficients");
   LinearExpansionGenerator lin_src_coeffs(this);
   lin_src_coeffs.execute();
+  log_printf(NORMAL, "Done");
 }
 
 

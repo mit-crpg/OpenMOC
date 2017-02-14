@@ -1807,6 +1807,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       /* Traverse across shortest segment */
       start.setZ(z_coords[min_z_ind.at(m)]);
       start.prune();
+      start.setVersionNum(0);
       findCellContainingCoords(&start);
 
       /* Find FSR using starting coordinate */
@@ -1820,7 +1821,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       test_coords.setX(ext_coords->getX());
       test_coords.setY(ext_coords->getY());
       test_coords.setUniverse(_root_universe);
-
+      
       /* Check to see that this point contains the cell of every axial level */
       bool coords_contained = true;
       for (int i=0; i < z_coords.size(); i++) {
@@ -1833,6 +1834,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
         test_coords.setZ(z_coords[i]);
         test_coords.prune();
+        test_coords.setVersionNum(start.getVersionNum());
         findCellContainingCoords(&test_coords);
         std::string ext_fsr_key = getFSRKey(&test_coords);
 
@@ -1850,17 +1852,21 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
         break;
       else if (m == min_z_ind.size() - 1) {
 
-        /* Create a new extruded FSR using the starting coordinate */
-        int version_num = 1;
-        volatile bool contains_key = true;
-        while (contains_key) {
-          start.setVersionNum(version_num);
-          fsr_key = getFSRKey(&start);
-          version_num++;
-        } contains_key = _extruded_FSR_keys_map.contains(fsr_key);
+        #pragma omp critical
+        { 
+          /* Create a new extruded FSR using the starting coordinate */
+          bool contains_key = true;
+          int version_num = 0;
+          while (contains_key) {
+            version_num++;
+            start.setVersionNum(version_num);
+            fsr_key = getFSRKey(&start);
+            contains_key = _extruded_FSR_keys_map.contains(fsr_key);
+          }
       
-        /* Get the new FSR using the augmented starting coordinate */
-        region_id = findExtrudedFSR(&start);
+          /* Get the new FSR using the augmented starting coordinate */
+          region_id = findExtrudedFSR(&start);
+        }
       }
     }
 
@@ -2223,7 +2229,7 @@ std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
   std::vector<int> domains(dim1.size() * dim2.size());
 
   /* Extract the source region IDs */
-#pragma omp parallel for private(point, cell)
+//#pragma omp parallel for private(point, cell)
   for (int i=0; i < dim1.size(); i++) {
     for (int j=0; j < dim2.size(); j++) {
 
@@ -2649,26 +2655,6 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
       /* Add the rounded z-height to the set */
       if (z_heights[i] > min_z && z_heights[i] < max_z)
         unique_mesh.insert(z_heights[i]);
-    }
-  }
-
-  /* Add CMFD levels */
-  if (_cmfd != NULL) {
-
-    /* Cycle through CMFD mesh not included by boundaries */
-    double cmfd_num_z = _cmfd->getNumZ();
-    double width = (max_z - min_z) / cmfd_num_z;
-    for (int i=1; i < cmfd_num_z; i++) {
-
-      /* Calculate z-height */
-      double z_height = min_z + width*i;
-
-      /* Round z-height */
-      int place = 8;
-      z_height = floor(z_height * pow(10, place)) * pow(10, -place);
-
-      /* Add height to set */
-      unique_mesh.insert(z_height);
     }
   }
 

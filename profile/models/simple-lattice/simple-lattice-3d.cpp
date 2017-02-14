@@ -186,6 +186,7 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating Cmfd mesh...");
 
   Cmfd cmfd;
+  cmfd.useAxialInterpolation(true);
   cmfd.setLatticeStructure(2,2,4);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);

@@ -109,6 +109,9 @@ protected:
 
   /** A buffer holding the computed FSR volumes */
   FP_PRECISION* _FSR_volumes;
+  
+  /** A timer to record timing data for track generation */
+  Timer* _timer;
 
   /** Geometry boundaries for this domain */
   double _x_min;

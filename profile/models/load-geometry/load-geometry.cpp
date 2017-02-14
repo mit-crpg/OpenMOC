@@ -16,6 +16,8 @@ int main(int argc,  char* argv[]) {
   /* Define geometry to load */
   //std::string file = "full-axial-simple-assembly.geo";
   std::string file = "full-axial-w-refs.geo";
+  //std::string file = "assembly-1.6-70grp-discr.geo";
+  //std::string file = "full-axial-detail.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -25,20 +27,23 @@ int main(int argc,  char* argv[]) {
   #endif
   
   double azim_spacing = 0.05;
-  int num_azim = 16;
+  int num_azim = 64;
   double polar_spacing = 0.75;
-  int num_polar = 6;
+  int num_polar = 14;
   double tolerance = 1e-6;
   int max_iters = 50;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
+  //cmfd.setLatticeStructure(17, 17, 230);
+  //cmfd.useAxialInterpolation(true);
   cmfd.setLatticeStructure(17, 17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure = 
       get_group_structure(70,8);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setCMFDRelaxationFactor(0.7);
+  //cmfd.setCMFDRelaxationFactor(0.8);
+  cmfd.setCMFDRelaxationFactor(0.5);
 
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -76,7 +81,7 @@ int main(int argc,  char* argv[]) {
 
   geometry.setCmfd(&cmfd);
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 20, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(1, 1, 20, MPI_COMM_WORLD); // FIXME 23
   //geometry.setNumDomainModules(2,2,2);
 #else
   geometry.setNumDomainModules(2,2,2);
@@ -100,18 +105,18 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   //solver.useExponentialIntrinsic();
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
-  //solver.correctXS();
+  solver.correctXS();
   solver.setCheckXSLogLevel(WARNING);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
   Lattice mesh_lattice;
   Mesh mesh(&solver);
-  mesh.createLattice(17, 17, 1);
+  mesh.createLattice(17, 17, 230);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
   int my_rank = 0;
