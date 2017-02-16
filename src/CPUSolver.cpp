@@ -961,7 +961,7 @@ void CPUSolver::boundaryFluxChecker() {
                          my_rank);
 
             /* Send a request for info */
-            MPI_Send(connection, 2, MPI_DOUBLE, dest, 0, MPI_cart);
+            MPI_Send(connection, 2, MPI_LONG, dest, 0, MPI_cart);
 
             /* Receive infomation */
             int receive_size = _fluxes_per_track + size_of_double * 5;
@@ -1163,10 +1163,10 @@ void CPUSolver::boundaryFluxChecker() {
       broadcast[0] = -1;
       broadcast[1] = tester;
       for (int i=0; i < my_rank; i++) {
-        MPI_Send(broadcast, 2, MPI_DOUBLE, i, 0, MPI_cart);
+        MPI_Send(broadcast, 2, MPI_LONG, i, 0, MPI_cart);
       }
       for (int i = my_rank+1; i < num_ranks; i++) {
-        MPI_Send(broadcast, 2, MPI_DOUBLE, i, 0, MPI_cart);
+        MPI_Send(broadcast, 2, MPI_LONG, i, 0, MPI_cart);
       }
     }
     /* Responder */
@@ -1181,7 +1181,7 @@ void CPUSolver::boundaryFluxChecker() {
 
         /* Receive the request for information */
         long connection[2];
-        MPI_Recv(connection, 2, MPI_DOUBLE, tester, 0, MPI_cart, &stat);
+        MPI_Recv(connection, 2, MPI_LONG, tester, 0, MPI_cart, &stat);
 
         /* Check for a broadcast */
         if (connection[0] == -1) {

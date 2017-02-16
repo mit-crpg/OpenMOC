@@ -1137,7 +1137,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
    *  if the directory does not yet exist */
   directory << get_output_directory() << "/tracks";
   struct stat st;
-  if (!stat(directory.str().c_str(), &st) == 0)
+  if (!(stat(directory.str().c_str(), &st) == 0))
     mkdir(directory.str().c_str(), S_IRWXU);
 
   /* Check to see if a Track file exists for this geometry, number of azimuthal

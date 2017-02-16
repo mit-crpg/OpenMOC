@@ -878,6 +878,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
+      return num;
     }
 
     /* There are two intersections */

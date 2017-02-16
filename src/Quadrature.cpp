@@ -879,7 +879,7 @@ std::string Quadrature::toString() {
   string << "\n\tpolar weights = ";
   if (_polar_weights != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
+      for (int p = 0; p < _num_polar/2; p++)
         string << " (" << a << "," << p << "): " << _polar_weights[a][p] << ", ";
     }
   }
@@ -887,7 +887,7 @@ std::string Quadrature::toString() {
   string << "\n\tsin thetas = ";
   if (_sin_thetas != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
+      for (int p = 0; p < _num_polar/2; p++)
         string << " (" << a << "," << p << "): " << _sin_thetas[a][p] << ", ";
     }
   }
@@ -895,7 +895,7 @@ std::string Quadrature::toString() {
   string << "\n\ttotal weights = ";
   if (_total_weights != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
+      for (int p = 0; p < _num_polar/2; p++)
         string << " (" << a << "," << p << "): " << _total_weights[a][p] << ", ";
     }
   }
@@ -1409,18 +1409,18 @@ std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
   std::vector<double> weights;
 
   // declare an array to store the elements of the augmented-matrix
-  __float128 A[n][n+1];
+  long double A[n][n+1];
 
   // the solution array
-  __float128 x[n];
+  long double x[n];
 
   // index array, used to keep track of the order in which the nodes were passed
   int index[n];
   for (int i=0; i<n; ++i)
     index[i] = i;
 
-  __float128 a = -1;
-  __float128 b = 1;
+  long double a = -1;
+  long double b = 1;
 
   // populate A
   for (int i=0; i<n; ++i) {
@@ -1437,13 +1437,13 @@ std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
 
         // switch column k and column i
         for (int j=0; j<=n; j++) {
-          __float128 temp = A[i][j];
+          long double temp = A[i][j];
           A[i][j] = A[k][j];
           A[k][j] = temp;
         }
 
         // switch their corresponding indeces
-        __float128 temp_ind = index[i];
+        long double temp_ind = index[i];
         index[i] = index[k];
         index[k] = temp_ind;
       }
@@ -1453,7 +1453,7 @@ std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
   // perform gauss elimination
   for (int i=0; i<n-1; i++) {
     for (int k=i+1; k<n; k++) {
-      __float128 t = A[k][i] / A[i][i];
+      long double t = A[k][i] / A[i][i];
 
       // make elements below the pivot elements equal to zero or eliminate the
       // variables
@@ -1464,7 +1464,7 @@ std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
 
   // back-substitution
   for (int i=n-1; i>=0; --i) {
-    __float128 sub = 0;
+    long double sub = 0;
     for (int j=n-1; j>i; --j) {
       sub += x[j]*A[i][j];
     }

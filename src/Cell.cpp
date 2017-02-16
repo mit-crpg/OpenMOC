@@ -213,8 +213,9 @@ double Cell::getPhi(std::string units) {
     return _rotation[0] * M_PI / 180.;
   else if (radians.compare(units) == 0)
     return _rotation[0];
-  else
-    log_printf(ERROR, "Unable to return phi in units %s", units.c_str());
+   
+  log_printf(ERROR, "Unable to return phi in units %s", units.c_str());
+  return -1;
 }
 
 
@@ -232,8 +233,9 @@ double Cell::getTheta(std::string units) {
     return _rotation[1] * M_PI / 180.;
   else if (radians.compare(units) == 0)
     return _rotation[1];
-  else
-    log_printf(ERROR, "Unable to return theta in units %s", units.c_str());
+
+  log_printf(ERROR, "Unable to return theta in units %s", units.c_str());
+  return -1;
 }
 
 
@@ -251,8 +253,9 @@ double Cell::getPsi(std::string units) {
     return _rotation[2] * M_PI / 180.;
   else if (radians.compare(units) == 0)
     return _rotation[2];
-  else
-    log_printf(ERROR, "Unable to return psi in units %s", units.c_str());
+
+  log_printf(ERROR, "Unable to return psi in units %s", units.c_str());
+  return -1;
 }
 
 

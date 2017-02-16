@@ -30,6 +30,7 @@ Geometry::Geometry() {
   _domain_index_z = 1;
   _domain_FSRs_counted = false;
   _contains_FSR_centroids = false;
+  _twiddle = false;
 }
 
 
@@ -3018,6 +3019,8 @@ void Geometry::dumpToFile(std::string filename) {
  */
 void Geometry::loadFromFile(std::string filename) {
 
+  _twiddle = true;
+
   FILE* in;
   in = fopen(filename.c_str(), "r");
 
@@ -3035,11 +3038,11 @@ void Geometry::loadFromFile(std::string filename) {
 
   /* Read number of energy groups */
   int num_groups;
-  int ret = fread(&num_groups, sizeof(int), 1, in);
+  int ret = twiddleRead(&num_groups, sizeof(int), 1, in);
 
   /* Read all material infromation */
   int num_materials;
-  ret = fread(&num_materials, sizeof(int), 1, in);
+  ret = twiddleRead(&num_materials, sizeof(int), 1, in);
   for (int i=0; i < num_materials; i++) {
 
     /* Get key, value pair and general surface information */
@@ -3047,12 +3050,12 @@ void Geometry::loadFromFile(std::string filename) {
     int length;
     char* str;
     const char* name;
-    ret = fread(&key, sizeof(int), 1, in);
-    ret = fread(&id, sizeof(int), 1, in);
-    ret = fread(&length, sizeof(int), 1, in);
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
       str = new char[length];
-      ret = fread(str, sizeof(char), length, in);
+      ret = twiddleRead(str, sizeof(char), length, in);
       name = str;
     }
     else {
@@ -3067,32 +3070,32 @@ void Geometry::loadFromFile(std::string filename) {
     /* Set total cross-section */
     double value;
     for (int g=0; g < num_groups; g++) {
-      ret = fread(&value, sizeof(double), 1, in);
+      ret = twiddleRead(&value, sizeof(double), 1, in);
       mat->setSigmaTByGroup(value, g+1);
     }
 
     /* Set fission cross-section */
     for (int g=0; g < num_groups; g++) {
-      ret = fread(&value, sizeof(double), 1, in);
+      ret = twiddleRead(&value, sizeof(double), 1, in);
       mat->setSigmaFByGroup(value, g+1);
     }
 
     /* Set nu * fisison cross-section */
     for (int g=0; g < num_groups; g++) {
-      ret = fread(&value, sizeof(double), 1, in);
+      ret = twiddleRead(&value, sizeof(double), 1, in);
       mat->setNuSigmaFByGroup(value, g+1);
     }
 
     /* Set neutron emission spectrum (chi) */
     for (int g=0; g < num_groups; g++) {
-      ret = fread(&value, sizeof(double), 1, in);
+      ret = twiddleRead(&value, sizeof(double), 1, in);
       mat->setChiByGroup(value, g+1);
     }
 
     /* Set scattering cross-section */
     for (int g=0; g < num_groups; g++) {
       for (int gp=0; gp < num_groups; gp++) {
-        ret = fread(&value, sizeof(double), 1, in);
+        ret = twiddleRead(&value, sizeof(double), 1, in);
         mat->setSigmaSByGroup(value, g+1, gp+1);
       }
     }
@@ -3100,11 +3103,11 @@ void Geometry::loadFromFile(std::string filename) {
 
   /* Read root universe ID */
   int root_id;
-  ret = fread(&root_id, sizeof(int), 1, in);
+  ret = twiddleRead(&root_id, sizeof(int), 1, in);
 
   /* Read all surface information */
   int num_surfaces;
-  ret = fread(&num_surfaces, sizeof(int), 1, in);
+  ret = twiddleRead(&num_surfaces, sizeof(int), 1, in);
   for (int i=0; i < num_surfaces; i++) {
 
     /* Get key, value pair and general surface information */
@@ -3112,12 +3115,12 @@ void Geometry::loadFromFile(std::string filename) {
     int length;
     char* str;
     const char* name;
-    ret = fread(&key, sizeof(int), 1, in);
-    ret = fread(&id, sizeof(int), 1, in);
-    ret = fread(&length, sizeof(int), 1, in);
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
       str = new char[length];
-      ret = fread(str, sizeof(char), length, in);
+      ret = twiddleRead(str, sizeof(char), length, in);
       name = str;
     }
     else {
@@ -3125,38 +3128,39 @@ void Geometry::loadFromFile(std::string filename) {
     }
     surfaceType st;
     boundaryType bt;
-    ret = fread(&st, sizeof(surfaceType), 1, in);
-    ret = fread(&bt, sizeof(boundaryType), 1, in);
+    ret = twiddleRead(&st, sizeof(surfaceType), 1, in);
+    ret = twiddleRead(&bt, sizeof(boundaryType), 1, in);
+
 
     /* Treat specific surface types */
     if (st == PLANE) {
       double a, b, c, d;
-      ret = fread(&a, sizeof(double), 1, in);
-      ret = fread(&b, sizeof(double), 1, in);
-      ret = fread(&c, sizeof(double), 1, in);
-      ret = fread(&d, sizeof(double), 1, in);
+      ret = twiddleRead(&a, sizeof(double), 1, in);
+      ret = twiddleRead(&b, sizeof(double), 1, in);
+      ret = twiddleRead(&c, sizeof(double), 1, in);
+      ret = twiddleRead(&d, sizeof(double), 1, in);
       all_surfaces[key] = new Plane(a, b, c, d, id, name);
     }
     else if (st == ZCYLINDER) {
       double x, y, radius;
-      ret = fread(&x, sizeof(double), 1, in);
-      ret = fread(&y, sizeof(double), 1, in);
-      ret = fread(&radius, sizeof(double), 1, in);
+      ret = twiddleRead(&x, sizeof(double), 1, in);
+      ret = twiddleRead(&y, sizeof(double), 1, in);
+      ret = twiddleRead(&radius, sizeof(double), 1, in);
       all_surfaces[key] = new ZCylinder(x, y, radius, id, name);
     }
     else if (st == XPLANE) {
       double x;
-      ret = fread(&x, sizeof(double), 1, in);
+      ret = twiddleRead(&x, sizeof(double), 1, in);
       all_surfaces[key] = new XPlane(x, id, name);
     }
     else if (st == YPLANE) {
       double y;
-      ret = fread(&y, sizeof(double), 1, in);
+      ret = twiddleRead(&y, sizeof(double), 1, in);
       all_surfaces[key] = new YPlane(y, id, name);
     }
     else if (st == ZPLANE) {
       double z;
-      ret = fread(&z, sizeof(double), 1, in);
+      ret = twiddleRead(&z, sizeof(double), 1, in);
       all_surfaces[key] = new ZPlane(z, id, name);
     }
     else {
@@ -3176,7 +3180,7 @@ void Geometry::loadFromFile(std::string filename) {
 
   /* Read all cell information */
   int num_cells;
-  ret = fread(&num_cells, sizeof(int), 1, in);
+  ret = twiddleRead(&num_cells, sizeof(int), 1, in);
   for (int i=0; i < num_cells; i++) {
 
     /* Get key, value pair and general cell information */
@@ -3184,19 +3188,19 @@ void Geometry::loadFromFile(std::string filename) {
     int length;
     char* str;
     const char* name;
-    ret = fread(&key, sizeof(int), 1, in);
-    ret = fread(&id, sizeof(int), 1, in);
-    ret = fread(&length, sizeof(int), 1, in);
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
       str = new char[length];
-      ret = fread(str, sizeof(char), length, in);
+      ret = twiddleRead(str, sizeof(char), length, in);
       name = str;
     }
     else {
       name = "";
     }
     cellType ct;
-    ret = fread(&ct, sizeof(cellType), 1, in);
+    ret = twiddleRead(&ct, sizeof(cellType), 1, in);
 
     /* Create the cell */
     all_cells[key] = new Cell(id, name);
@@ -3204,57 +3208,57 @@ void Geometry::loadFromFile(std::string filename) {
     /* Fill the cell */
     if (ct == MATERIAL) {
       int mat_id;
-      ret = fread(&mat_id, sizeof(int), 1, in);
+      ret = twiddleRead(&mat_id, sizeof(int), 1, in);
       all_cells[key]->setFill(all_materials[mat_id]);
     }
     else if (ct == FILL) {
       int univ_id;
-      ret = fread(&univ_id, sizeof(int), 1, in);
+      ret = twiddleRead(&univ_id, sizeof(int), 1, in);
       fill_cell_universes[key] = univ_id;
     }
 
     /* Read cell rotations */
     bool rot;
-    ret = fread(&rot, sizeof(bool), 1, in);
+    ret = twiddleRead(&rot, sizeof(bool), 1, in);
     if (rot) {
       double rotation[3];
-      ret = fread(rotation, sizeof(double), 3, in);
+      ret = twiddleRead(rotation, sizeof(double), 3, in);
       all_cells[key]->setRotation(rotation, 3, "radians");
     }
 
     /* Read cell translations */
     bool trans;
-    ret = fread(&trans, sizeof(bool), 1, in);
+    ret = twiddleRead(&trans, sizeof(bool), 1, in);
     if (trans) {
       double translation[3];
-      ret = fread(translation, sizeof(double), 3, in);
+      ret = twiddleRead(translation, sizeof(double), 3, in);
       all_cells[key]->setTranslation(translation, 3);
     }
 
     /* Read ring / sector information */
     int num_rings, num_sectors;
-    ret = fread(&num_rings, sizeof(int), 1, in);
-    ret = fread(&num_sectors, sizeof(int), 1, in);
+    ret = twiddleRead(&num_rings, sizeof(int), 1, in);
+    ret = twiddleRead(&num_sectors, sizeof(int), 1, in);
     all_cells[key]->setNumRings(num_rings);
     all_cells[key]->setNumSectors(num_sectors);
 
     /* Read parent cell */
     bool has_parent;
-    ret = fread(&has_parent, sizeof(bool), 1, in);
+    ret = twiddleRead(&has_parent, sizeof(bool), 1, in);
     if (has_parent) {
       int parent_id;
-      ret = fread(&parent_id, sizeof(bool), 1, in);
+      ret = twiddleRead(&parent_id, sizeof(bool), 1, in);
       cell_parent[key] = parent_id;
     }
 
     /* Print bounding surfaces */
     int num_cell_surfaces;
-    ret = fread(&num_cell_surfaces, sizeof(int), 1, in);
+    ret = twiddleRead(&num_cell_surfaces, sizeof(int), 1, in);
     for (int s=0; s < num_cell_surfaces; s++) {
       int surface_id;
       int halfspace;
-      ret = fread(&surface_id, sizeof(int), 1, in);
-      ret = fread(&halfspace, sizeof(int), 1, in);
+      ret = twiddleRead(&surface_id, sizeof(int), 1, in);
+      ret = twiddleRead(&halfspace, sizeof(int), 1, in);
       all_cells[key]->addSurface(halfspace, all_surfaces[surface_id]);
     }
 
@@ -3268,7 +3272,7 @@ void Geometry::loadFromFile(std::string filename) {
 
   /* Read all universe information */
   int num_universes;
-  ret = fread(&num_universes, sizeof(int), 1, in);
+  ret = twiddleRead(&num_universes, sizeof(int), 1, in);
   for (int i=0; i < num_universes; i++) {
 
     /* Get key, value pair and general universe information */
@@ -3276,29 +3280,29 @@ void Geometry::loadFromFile(std::string filename) {
     int length;
     char* str;
     const char* name;
-    ret = fread(&key, sizeof(int), 1, in);
-    ret = fread(&id, sizeof(int), 1, in);
-    ret = fread(&length, sizeof(int), 1, in);
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
       str = new char[length];
-      ret = fread(str, sizeof(char), length, in);
+      ret = twiddleRead(str, sizeof(char), length, in);
       name = str;
     }
     else {
       name = "";
     }
     universeType ut;
-    ret = fread(&ut, sizeof(universeType), 1, in);
+    ret = twiddleRead(&ut, sizeof(universeType), 1, in);
 
     if (ut == SIMPLE) {
 
       /* Read all cells in the universe */
       all_universes[key] = new Universe(id, name);
       int num_universe_cells;
-      ret = fread(&num_universe_cells, sizeof(int), 1, in);
+      ret = twiddleRead(&num_universe_cells, sizeof(int), 1, in);
       for (int c=0; c < num_universe_cells; c++) {
         int cell_id;
-        ret = fread(&cell_id, sizeof(int), 1, in);
+        ret = twiddleRead(&cell_id, sizeof(int), 1, in);
         all_universes[key]->addCell(all_cells[cell_id]);
       }
     }
@@ -3308,13 +3312,13 @@ void Geometry::loadFromFile(std::string filename) {
       int num_x, num_y, num_z;
       double width_x, width_y, width_z;
       double offset[3];
-      ret = fread(&num_x, sizeof(int), 1, in);
-      ret = fread(&num_y, sizeof(int), 1, in);
-      ret = fread(&num_z, sizeof(int), 1, in);
-      ret = fread(&width_x, sizeof(double), 1, in);
-      ret = fread(&width_y, sizeof(double), 1, in);
-      ret = fread(&width_z, sizeof(double), 1, in);
-      ret = fread(offset, sizeof(double), 3, in);
+      ret = twiddleRead(&num_x, sizeof(int), 1, in);
+      ret = twiddleRead(&num_y, sizeof(int), 1, in);
+      ret = twiddleRead(&num_z, sizeof(int), 1, in);
+      ret = twiddleRead(&width_x, sizeof(double), 1, in);
+      ret = twiddleRead(&width_y, sizeof(double), 1, in);
+      ret = twiddleRead(&width_z, sizeof(double), 1, in);
+      ret = twiddleRead(offset, sizeof(double), 3, in);
 
       /* Create lattice */
       Lattice* new_lattice = new Lattice(id, name);
@@ -3329,7 +3333,7 @@ void Geometry::loadFromFile(std::string filename) {
       lattice_universes[key] = new int[num_x*num_y*num_z];
       for (int j=0; j < num_x * num_y * num_z; j++) {
         int universe_id;
-        ret = fread(&universe_id, sizeof(int), 1, in);
+        ret = twiddleRead(&universe_id, sizeof(int), 1, in);
         lattice_universes[key][j] = universe_id;
       }
     }
@@ -3375,3 +3379,71 @@ void Geometry::loadFromFile(std::string filename) {
   /* Close the input file */
   fclose(in);
 }
+
+
+/**
+ * FIXME
+ *
+ */
+size_t Geometry::twiddleRead(int* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      ptr[i] = __builtin_bswap32(ptr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  return ret;
+}
+size_t Geometry::twiddleRead(universeType* ptr, size_t size, size_t nmemb, 
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(cellType* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(surfaceType* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(boundaryType* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  return ret;
+}
+size_t Geometry::twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream) {
+  long* arr = reinterpret_cast<long*>(ptr);
+  size_t ret = fread(arr, size, nmemb, stream);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap64(arr[i]);
+  return ret;
+}
+
+

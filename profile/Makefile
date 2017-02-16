@@ -80,7 +80,7 @@ endif
 ifeq ($(COMPILER),mpi)
   CC = mpicc
   CFLAGS += -DMPIx
-  CFLAGS += -march=native
+  #CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif

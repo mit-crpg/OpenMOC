@@ -176,6 +176,8 @@ private:
   int _num_modules_y;
   int _num_modules_z;
 
+  bool _twiddle;
+
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
@@ -286,6 +288,14 @@ public:
   int getDomainByCoords(LocalCoords* coords);
   void dumpToFile(std::string filename);
   void loadFromFile(std::string filename);
+  size_t twiddleRead(int* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(universeType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(cellType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(surfaceType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(boundaryType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream);
 };
 
 #endif /* GEOMETRY_H_ */
