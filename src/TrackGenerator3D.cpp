@@ -1420,7 +1420,7 @@ long TrackGenerator3D::get3DTrackID(TrackStackIndexes* tsi) {
 void TrackGenerator3D::initializeDefaultQuadrature() {
   if (_quadrature != NULL)
     delete _quadrature;
-  _quadrature = new EqualWeightPolarQuad();
+  _quadrature = new GLPolarQuad();
   _quadrature->setNumAzimAngles(_num_azim);
   _quadrature->setNumPolarAngles(_num_polar);
 }
