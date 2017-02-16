@@ -337,7 +337,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
 
   /* Extract the appropriate starting mesh */
   int num_fsrs;
-  FP_PRECISION* axial_mesh;
+  double* axial_mesh;
   bool contains_global_z_mesh;
   if (_global_z_mesh != NULL) {
     contains_global_z_mesh = true;
@@ -549,7 +549,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
 
   /* Extract the appropriate starting mesh */
   int num_fsrs;
-  FP_PRECISION* axial_mesh;
+  double* axial_mesh;
   if (_global_z_mesh != NULL) {
     num_fsrs = _mesh_size;
     axial_mesh = _global_z_mesh;
@@ -565,7 +565,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   for (int s=0; s < flattened_track->getNumSegments(); s++) {
 
     /* Get segment length and extruded FSR */
-    FP_PRECISION seg_length_2D = segments_2D[s]._length;
+    double seg_length_2D = segments_2D[s]._length;
     int extruded_fsr_id = segments_2D[s]._region_id;
     ExtrudedFSR* extruded_FSR = geometry->getExtrudedFSR(extruded_fsr_id);
 
@@ -884,8 +884,8 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
  * @param val the level to be searched for in the mesh
  * @param sign the direction of the ray in the z-direction
  */
-int TraverseSegments::findMeshIndex(FP_PRECISION* values, int size,
-                                 FP_PRECISION val, int sign) {
+int TraverseSegments::findMeshIndex(double* values, int size,
+                                    double val, int sign) {
 
   /* Initialize indexes into the values array */
   int imin = 0;

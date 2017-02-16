@@ -95,7 +95,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   int num_groups = geometry->getNumEnergyGroups();
 
   /* Create temporary array for cross-sections */
-  double temp_array[num_groups];
+  FP_PRECISION temp_array[num_groups];
 
   /* Loop over all flat source regions */
   for (int r=0; r < num_fsrs; r++) {

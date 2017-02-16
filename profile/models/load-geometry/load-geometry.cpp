@@ -15,9 +15,9 @@ int main(int argc,  char* argv[]) {
 
   /* Define geometry to load */
   //std::string file = "full-axial-simple-assembly.geo";
-  std::string file = "full-axial-w-refs.geo";
+  //std::string file = "full-axial-w-refs.geo";
   //std::string file = "assembly-1.6-70grp-discr.geo";
-  //std::string file = "full-axial-detail.geo";
+  std::string file = "full-axial-detail.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -28,30 +28,31 @@ int main(int argc,  char* argv[]) {
   
   double azim_spacing = 0.05;
   int num_azim = 64;
-  double polar_spacing = 0.75;
+  double polar_spacing = 0.25;
   int num_polar = 14;
-  double tolerance = 1e-6;
+  double tolerance = 1e-4;
   int max_iters = 50;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
-  //cmfd.setLatticeStructure(17, 17, 230);
+  //cmfd.setLatticeStructure(17, 17, 200);
   //cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17, 17, 200);
+  cmfd.setLatticeStructure(17, 17, 230);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure = 
       get_group_structure(70,8);
   cmfd.setGroupStructure(cmfd_group_structure);
-  //cmfd.setCMFDRelaxationFactor(0.8);
-  cmfd.setCMFDRelaxationFactor(0.5);
+  cmfd.setCMFDRelaxationFactor(0.8);
+  //cmfd.setCMFDRelaxationFactor(0.5);
 
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.loadFromFile(file);
-  geometry.setAxialMesh(2.0);
+  geometry.setAxialMesh(0.5);
   
   //FIXME
+  /*
   std::map<int, Material*> materials = geometry.getAllMaterials();
   int ng = geometry.getNumEnergyGroups();
   //FIXME groups 37 and 39 are the issue in helium
@@ -78,10 +79,11 @@ int main(int argc,  char* argv[]) {
           mat->setSigmaSByGroup(mat2->getSigmaSByGroup(i+1,j+1), i+1, j+1);
       }
   }
+  */
 
   geometry.setCmfd(&cmfd);
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 20, MPI_COMM_WORLD); // FIXME 23
+  geometry.setDomainDecomposition(2, 2, 23, MPI_COMM_WORLD); // FIXME 23
   //geometry.setNumDomainModules(2,2,2);
 #else
   geometry.setNumDomainModules(2,2,2);
@@ -95,13 +97,15 @@ int main(int argc,  char* argv[]) {
                                    polar_spacing);
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
-  track_generator.setSegmentFormation(OTF_STACKS);
+  track_generator.setSegmentFormation(OTF_TRACKS);
+  /*
   std::vector<FP_PRECISION> zones;
   zones.push_back(0.0);
   zones.push_back(20.0);
   zones.push_back(380.0);
   zones.push_back(400.0);
   track_generator.setSegmentationZones(zones);
+  */
   track_generator.generateTracks();
 
   /* Run simulation */

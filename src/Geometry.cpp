@@ -1443,7 +1443,7 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
-  FP_PRECISION length;
+  double length;
   Material* material;
   int fsr_id;
   int num_segments;
@@ -1480,7 +1480,7 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
                  "point: x = %f, y = %f", start.getX(), start.getY());
 
     /* Find the segment length, Material and FSR ID */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    length = double(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
 
@@ -1593,7 +1593,7 @@ void Geometry::segmentize3D(Track3D* track) {
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
-  FP_PRECISION length;
+  double length;
   Material* material;
   int fsr_id;
   int num_segments;
@@ -1636,7 +1636,7 @@ void Geometry::segmentize3D(Track3D* track) {
     }
 
     /* Find the segment length between the segment's start and end points */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    length = double(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
 
@@ -1718,7 +1718,7 @@ void Geometry::segmentize3D(Track3D* track) {
  *        the Geometry is segmentized radially
  */
 void Geometry::segmentizeExtruded(Track* flattened_track,
-    std::vector<FP_PRECISION> z_coords) {
+    std::vector<double> z_coords) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = flattened_track->getStart()->getX();
@@ -1728,7 +1728,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
-  FP_PRECISION length;
+  double length;
   std::vector<int> min_z_ind;
   int region_id;
   int num_segments;
@@ -1764,7 +1764,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   while (curr != NULL) {
 
     /* Records the minimum length to a 2D intersection */
-    FP_PRECISION min_length = std::numeric_limits<FP_PRECISION>::infinity();
+    double min_length = std::numeric_limits<double>::infinity();
     region_id = -1;
 
     /* Copy end coordinates to start */
@@ -1789,7 +1789,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
                    "point: x = %f, y = %f", start.getX(), start.getY());
 
       /* Find the segment length and extruded FSR */
-      length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+      length = double(end.getPoint()->distanceToPoint(start.getPoint()));
 
       /* Check if the segment length is the smallest found */
       if (length < min_length) {
@@ -1971,7 +1971,7 @@ void Geometry::fixFSRMaps() {
  *        length is zero, z meshes are local and need to be created for every
  *        ExtrudedFSR.
  */
-void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
+void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
   log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
 
@@ -2039,7 +2039,7 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       extruded_FSR->_num_fsrs = (size_t) num_segments;
       extruded_FSR->_materials = new Material*[num_segments];
       extruded_FSR->_fsr_ids = new int[num_segments];
-      extruded_FSR->_mesh = new FP_PRECISION[num_segments+1];
+      extruded_FSR->_mesh = new double[num_segments+1];
 
       /* Initialize values in extruded FSR */
       for (int s=0; s < num_segments; s++) {
@@ -2048,7 +2048,7 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       }
 
       /* Initialize z mesh */
-      FP_PRECISION level = min_z;
+      double level = min_z;
       extruded_FSR->_mesh[0] = level;
       for (int s=0; s < num_segments; s++) {
         level += segments[s]._length;
@@ -2504,7 +2504,7 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
  *          duplicates, creating a mesh.
  * @reutrn a vector of z-coords
  */
-std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
+std::vector<double> Geometry::getUniqueZHeights() {
 
   /* Get the bounds of the geometry */
   double min_z = getMinZ();
@@ -2660,10 +2660,10 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
   }
 
   /* Get a vector of the unique z-heights in the Geometry */
-  std::vector<FP_PRECISION> unique_heights;
+  std::vector<double> unique_heights;
   std::set<double>::iterator iter;
   for (iter = unique_mesh.begin(); iter != unique_mesh.end(); ++iter)
-    unique_heights.push_back(static_cast<FP_PRECISION>(*iter));
+    unique_heights.push_back(static_cast<double>(*iter));
 
   return unique_heights;
 }
@@ -2678,15 +2678,15 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
  *          radial planes and returned to the user.
  * @reutrn a vector of z-coords
  */
-std::vector<FP_PRECISION> Geometry::getUniqueZPlanes() {
+std::vector<double> Geometry::getUniqueZPlanes() {
 
   /* Get a vector of all unique z-heights in the Geometry */
-  std::vector<FP_PRECISION> unique_heights = getUniqueZHeights();
+  std::vector<double> unique_heights = getUniqueZHeights();
 
   /* Use the midpoints to construct all possible unique radial planes */
-  std::vector<FP_PRECISION> unique_z_planes;
+  std::vector<double> unique_z_planes;
   for (int i=1; i < unique_heights.size(); i++) {
-    FP_PRECISION mid = (unique_heights[i-1] + unique_heights[i]) / 2;
+    double mid = (unique_heights[i-1] + unique_heights[i]) / 2;
     unique_z_planes.push_back(mid);
   }
 

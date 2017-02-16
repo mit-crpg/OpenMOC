@@ -43,7 +43,7 @@ void MaxOpticalLength::execute() {
  */
 void MaxOpticalLength::onTrack(Track* track, segment* segments) {
   for (int s=0; s < track->getNumSegments(); s++) {
-    FP_PRECISION length = segments[s]._length;
+    double length = segments[s]._length;
     Material* material = segments[s]._material;
     FP_PRECISION* sigma_t = material->getSigmaT();
 
@@ -174,7 +174,7 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
   for (int s = 0; s < track->getNumSegments(); s++) {
     segment* curr_segment = track->getSegment(s);
     Material* material = curr_segment->_material;
-    FP_PRECISION length = curr_segment->_length;
+    double length = curr_segment->_length;
     int fsr_id = curr_segment->_region_id;
 
     /* Compute number of segments to split this segment into */
@@ -208,7 +208,7 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
       /* Create a new Track segment */
       segment* new_segment = new segment;
       new_segment->_material = material;
-      new_segment->_length = length / FP_PRECISION(min_num_cuts);
+      new_segment->_length = length / min_num_cuts;
       new_segment->_region_id = fsr_id;
 
       /* Assign CMFD surface boundaries */

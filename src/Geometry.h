@@ -87,7 +87,7 @@ struct ExtrudedFSR {
     _num_fsrs(0), _coords(NULL){}
 
   /** Array defining the axial mesh */
-  FP_PRECISION* _mesh;
+  double* _mesh;
 
   /** Axial extruded FSR ID */
   int _fsr_id;
@@ -219,8 +219,8 @@ public:
   std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
   std::map<int, Universe*> getAllUniverses();
-  std::vector<FP_PRECISION> getUniqueZHeights();
-  std::vector<FP_PRECISION> getUniqueZPlanes();
+  std::vector<double> getUniqueZHeights();
+  std::vector<double> getUniqueZPlanes();
   bool isDomainDecomposed();
   bool isRootDomain();
   void setRootUniverse(Universe* root_universe);
@@ -261,12 +261,12 @@ public:
 
   /* Other worker methods */
   void subdivideCells();
-  void initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh);
+  void initializeAxialFSRs(std::vector<double> global_z_mesh);
   void initializeFlatSourceRegions();
   void segmentize2D(Track* track, double z_coord);
   void segmentize3D(Track3D* track);
   void segmentizeExtruded(Track* flattened_track,
-      std::vector<FP_PRECISION> z_coords);
+                          std::vector<double> z_coords);
   void fixFSRMaps();
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);

@@ -144,7 +144,7 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void VolumeKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+void VolumeKernel::execute(double length, Material* mat, int fsr_id,
                            int track_idx, int cmfd_surface_fwd,
                            int cmfd_surface_bwd, double x_start,
                            double y_start, double z_start,
@@ -184,7 +184,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+void CounterKernel::execute(double length, Material* mat, int fsr_id,
                             int track_idx, int cmfd_surface_fwd,
                             int cmfd_surface_bwd, double x_start,
                             double y_start, double z_start,
@@ -215,7 +215,7 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+void SegmentationKernel::execute(double length, Material* mat, int fsr_id,
                                 int track_idx, int cmfd_surface_fwd,
                                 int cmfd_surface_bwd, double x_start,
                                 double y_start, double z_start,
@@ -324,7 +324,7 @@ void TransportKernel::setDirection(bool direction) {
 
 
 //FIXME document
-void TransportKernel::execute(FP_PRECISION length, Material* mat, int fsr_id,
+void TransportKernel::execute(double length, Material* mat, int fsr_id,
                               int track_idx, int cmfd_surface_fwd,
                               int cmfd_surface_bwd, double x_start,
                               double y_start, double z_start,

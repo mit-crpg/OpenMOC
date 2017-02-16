@@ -53,8 +53,7 @@ private:
                         TransportKernel* kernel);
 
 
-  int findMeshIndex(FP_PRECISION* values, int size, FP_PRECISION val,
-                    int sign);
+  int findMeshIndex(double* values, int size, double val, int sign);
 
 protected:
 
@@ -63,7 +62,7 @@ protected:
   TrackGenerator3D* _track_generator_3D;
 
   /** A pointer to the associated global z-mesh (if applicable) */
-  FP_PRECISION* _global_z_mesh;
+  double* _global_z_mesh;
 
   /** The size of the global z-mesh */
   int _mesh_size;
