@@ -3017,9 +3017,9 @@ void Geometry::dumpToFile(std::string filename) {
  * @brief Loads all Geoemetry and Material details from a Geometry restart file
  * @param filename The name of the file where the data is loaded
  */
-void Geometry::loadFromFile(std::string filename) {
+void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
-  _twiddle = true;
+  _twiddle = twiddle;
 
   FILE* in;
   in = fopen(filename.c_str(), "r");

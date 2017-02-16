@@ -287,7 +287,7 @@ public:
   std::vector<double> getGlobalFSRCentroidData(int global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
   void dumpToFile(std::string filename);
-  void loadFromFile(std::string filename);
+  void loadFromFile(std::string filename, bool twiddle=false);
   size_t twiddleRead(int* ptr, size_t size, size_t nmemb, FILE* stream);
   size_t twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream);
   size_t twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream);
