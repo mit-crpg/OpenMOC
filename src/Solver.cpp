@@ -746,6 +746,7 @@ void Solver::checkXS() {
                    "ID %d", material->getId());
     }
   }
+  log_printf(NORMAL, "Material cross-section checks complete");
 }
 
 
@@ -1092,7 +1093,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     log_printf(ERROR, "The Solver is unable to compute the eigenvalue "
                "since it does not contain a TrackGenerator");
 
-  log_printf(NORMAL, "Computing the eigenvalue...");
+  log_printf(NORMAL, "Initializing MOC eigenvalue solver...");
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
@@ -1131,6 +1132,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   _timer->startTimer();
 
   /* Source iteration loop */
+  log_printf(NORMAL, "Computing the eigenvalue...");
   for (int i=0; i < max_iters; i++) {
 
     computeFSRSources();
@@ -1141,7 +1143,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     addSourceToScalarFlux();
     
     /* Solve CMFD diffusion problem and update MOC flux */
-    //FIXME log_printf(NORMAL, "Beginning k-eff computation....");
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else
@@ -1153,6 +1154,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
                "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
 
+    if (_cmfd != NULL)
+      _cmfd->setSourceConvergenceThreshold(0.01*residual);
     storeFSRFluxes();
     previous_residual = residual;
     _num_iterations++;

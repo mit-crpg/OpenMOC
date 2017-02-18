@@ -15,7 +15,7 @@ Cmfd::Cmfd() {
   _materials = NULL;
 
   /* Global variables used in solving CMFD problem */
-  _source_convergence_threshold = 1E-8;
+  _source_convergence_threshold = 1E-5;
   _num_x = 1;
   _num_y = 1;
   _num_z = 1;
@@ -866,6 +866,29 @@ void Cmfd::constructMatrices(int moc_iteration) {
  */
 void Cmfd::updateMOCFlux() {
 
+    //FIXME
+    /*
+  for (int e = 0; e < _num_cmfd_groups; e++) {
+      for (int r=0; r < _num_FSRs; r++) {
+          int cell_id = _geometry->getCmfdCell(r);
+          int group = e;
+          double z_cmfd = (cell_id / (_num_x * _num_y)) * _cell_width_z;
+          double z = _geometry->getFSRCentroid(r)->getZ();
+          double* interpolants = _axial_interpolants.at(r);
+          double ratio = 1.0;
+          double old_flux = _old_flux->getValue(cell_id, group);
+          double new_flux = _new_flux->getValue(cell_id, group);
+          double old_cmfd_flux = old_flux;
+          double new_cmfd_flux = new_flux;
+          ratio = getUpdateRatio(cell_id, e, r);
+          new_flux = ratio * old_flux;
+          printf("OLD_FLUX %6.4e NEW_FLUX %6.4e OLD_FLUX_CELL %6.4e NEW_FLUX_CELL"
+                  " %6.4e Z_CELL %6.4e Z_CMFD %6.4e GROUP %d FSR %d\n", old_flux,
+                  new_flux, old_cmfd_flux, new_cmfd_flux, z, z_cmfd, group, r);
+      }
+  }
+  */
+
   log_printf(INFO, "Updating MOC flux...");
 
   /* Precompute the CMFD flux ratios */
@@ -1034,9 +1057,9 @@ void Cmfd::setCMFDRelaxationFactor(FP_PRECISION relaxation_factor) {
                       "must be greater than 0 and less than or equal to 1. "
                       "Input value: %i", relaxation_factor);
 
+  _relaxation_factor = relaxation_factor;
   if (relaxation_factor != 1.0)
     log_printf(NORMAL, "CMFD relaxation factor: %6.4f", _relaxation_factor);
-  _relaxation_factor = relaxation_factor;
 }
 
 
@@ -2470,29 +2493,32 @@ void Cmfd::generateKNearestStencils() {
       int z_ind = i / (_num_x * _num_y);
       double z_cmfd = (z_ind + 0.5) * _cell_width_z + _lattice->getMinZ();
 
-      /* Check that the CMFD cell is not an end cell */
-      if (z_ind > 0 && z_ind < _num_z-1) {
 
-        /* Loop over FRSs in mesh cell */
-        for (fsr_iter = _cell_fsrs.at(i).begin();
-             fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
+      /* Loop over FRSs in mesh cell */
+      for (fsr_iter = _cell_fsrs.at(i).begin();
+           fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
 
-          /* Get centroid and calculate relative z-coordinate */
-          fsr_id = *fsr_iter;
-          Point* centroid = _geometry->getFSRCentroid(fsr_id);
-          double zc = (centroid->getZ() - z_cmfd) / dz;
-          if (std::abs(zc) > 0.6)
-            log_printf(ERROR, "Found FSR %d with z-centroid offset in z "
-                       "from CMFD cell %d by %6.4f, whereas the CMFD z-spacing"
-                       " is %6.4f. Coordinates: (%6.4f, %6.4f, %6.4f), cmfd z: "
-                       "%6.4f", fsr_id, i, zc*dz, dz, centroid->getX(),
-                       centroid->getY(), centroid->getZ(), z_cmfd);
+        /* Get centroid and calculate relative z-coordinate */
+        fsr_id = *fsr_iter;
+        Point* centroid = _geometry->getFSRCentroid(fsr_id);
+        double zc = (centroid->getZ() - z_cmfd) / dz;
+        if (std::abs(zc) > 0.5)
+          log_printf(ERROR, "Found FSR %d with z-centroid offset in z "
+                     "from CMFD cell %d by %6.4f, whereas the CMFD z-spacing"
+                     " is %6.4f. Coordinates: (%6.4f, %6.4f, %6.4f), cmfd z: "
+                     "%6.4f", fsr_id, i, zc*dz, dz, centroid->getX(),
+                     centroid->getY(), centroid->getZ(), z_cmfd);
+      
+        /* Check that the CMFD cell is not an end cell */
+        if (z_ind == 0)
+          zc -= 1.0;
+        else if (z_ind == _num_z - 1)
+          zc += 1.0;
 
-          /* Calculate components for quadratic interpolation */
-          _axial_interpolants.at(fsr_id)[0] = zc * zc / 2.0 - zc - 1.0 / 24.0;
-          _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0 / 24.0;
-          _axial_interpolants.at(fsr_id)[2] = zc * zc / 2.0 + zc - 1.0 / 24.0;
-        }
+        /* Calculate components for quadratic interpolation */
+        _axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
+        _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
+        _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;
       }
     }
   }
@@ -2633,14 +2659,64 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  */
 FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
   double* interpolants = _axial_interpolants.at(fsr);
+  double ratio = 1.0;
   if (interpolants[0] != 0 || interpolants[2] != 0) {
-    int cell_prev = cell_id - _num_x * _num_y;
-    int cell_next = cell_id + _num_x * _num_y;
-    double ratio = interpolants[0] * _flux_ratio->getValue(cell_prev, group) +
-           interpolants[1] * _flux_ratio->getValue(cell_id, group) +
-           interpolants[2] * _flux_ratio->getValue(cell_next, group);
-    if (ratio < 0)
-      ratio = _flux_ratio->getValue(cell_id, group);
+    
+    int z_ind = cell_id / (_num_x * _num_y);
+    int cell_mid = cell_id;
+    if (z_ind == 0)
+      cell_mid += _num_x * _num_y;
+    else if (z_ind == _num_z - 1)
+      cell_mid -= _num_x * _num_y;
+
+    int cell_prev = cell_mid - _num_x * _num_y;
+    int cell_next = cell_mid + _num_x * _num_y;
+    
+    double old_flux_prev = _old_flux->getValue(cell_prev, group);
+    double new_flux_prev = _new_flux->getValue(cell_prev, group);
+    
+    double old_flux_next = _old_flux->getValue(cell_next, group);
+    double new_flux_next = _new_flux->getValue(cell_next, group);
+    
+    double old_flux_mid = _old_flux->getValue(cell_mid, group);
+    double new_flux_mid = _new_flux->getValue(cell_mid, group);
+    
+    double old_flux = interpolants[0] * old_flux_prev +
+           interpolants[1] * old_flux_mid +
+           interpolants[2] * old_flux_next;
+    double new_flux = interpolants[0] * new_flux_prev +
+           interpolants[1] * new_flux_mid +
+           interpolants[2] * new_flux_next;
+
+    if (old_flux != 0)
+      ratio = new_flux / old_flux;
+    
+    if (ratio < 0) {
+      
+      /* Try a linear interpolation */
+      double zc = sqrt(26.0/24.0 - interpolants[1]);
+      if (z_ind < _num_z / 2) {
+        old_flux = zc * (old_flux_mid - old_flux_prev) + old_flux_mid;
+        new_flux = zc * (new_flux_mid - new_flux_prev) + new_flux_mid;
+        if (old_flux != 0)
+          ratio = new_flux / old_flux;
+        else
+          ratio = 0;
+      }
+      else {
+        old_flux = zc * (old_flux_next - old_flux_mid) + old_flux_mid;
+        new_flux = zc * (new_flux_next - new_flux_mid) + new_flux_mid;
+        if (old_flux != 0)
+          ratio = new_flux / old_flux;
+        else
+          ratio = 0;
+      }
+      
+      /* Fallback: using the cell average flux ratio */
+      if (ratio < 0)
+        ratio = _flux_ratio->getValue(cell_id, group);
+    }
+
     return ratio;
   }
   else {

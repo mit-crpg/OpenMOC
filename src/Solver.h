@@ -18,6 +18,7 @@
 #include "Quadrature.h"
 #include "TrackGenerator3D.h"
 #include "Cmfd.h"
+#include "Progress.h"
 #include "ExpEvaluator.h"
 #include "segmentation_type.h"
 #include <math.h>

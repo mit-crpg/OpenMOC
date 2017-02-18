@@ -29,7 +29,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
 void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                  FP_PRECISION SOR_factor=1.5);
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
-FP_PRECISION computeRMSE(Vector* x, Vector* y, bool integrated);
+FP_PRECISION computeRMSE(Vector* x, Vector* y, bool integrated, int it);
 
 
 /**

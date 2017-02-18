@@ -624,6 +624,8 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
     double offset_y = width_y / 2.0 + getMinY();
     double offset_z = width_z / 2.0 + getMinZ();
     _domain_bounds->setOffset(offset_x, offset_y, offset_z);
+    log_printf(NORMAL, "Successfully set %d x %d x %d domain decoomposition",
+                        nx, ny, nz);
   }
 }
 
@@ -3027,6 +3029,8 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
   if (_root_universe != NULL)
     delete _root_universe;
 
+  log_printf(NORMAL, "Reading Geometry from %s", filename.c_str());
+
   std::map<int, Surface*> all_surfaces;
   std::map<int, Cell*> all_cells;
   std::map<int, Universe*> all_universes;
@@ -3378,6 +3382,8 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
   /* Close the input file */
   fclose(in);
+  
+  log_printf(NORMAL, "Read complete");
 }
 
 

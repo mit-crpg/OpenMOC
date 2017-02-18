@@ -60,10 +60,11 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
   X->scaleByValue(num_rows / old_source.getSum());
 
   /* Power iteration Matrix-Vector solver */
+  double initial_residual = 0;
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
     /* Solve X = A^-1 * old_source */
-    linearSolve(A, M, X, &old_source, tol*1e1, SOR_factor);
+    linearSolve(A, M, X, &old_source, tol*1e-4, SOR_factor);
 
     /* Compute the new source */
     matrixMultiplication(M, X, &new_source);
@@ -75,17 +76,22 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
     new_source.scaleByValue(1.0 / _k_eff);
 
     /* Compute the residual */
-    residual = computeRMSE(&new_source, &old_source, true);
+    residual = computeRMSE(&new_source, &old_source, true, iter);
+    if (iter == 0)
+      initial_residual = residual;
 
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
     log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
-               "%f", iter, _k_eff, residual);
+               "%3.2e", iter, _k_eff, residual);
 
     /* Check for convergence */
-    if (residual < tol && iter > MIN_LINALG_POWER_ITERATIONS)
+    //FIXME
+    if ((residual < tol || residual / initial_residual < 0.01)
+           && iter > MIN_LINALG_POWER_ITERATIONS) {
       break;
+    }
   }
 
   log_printf(INFO, "Matrix-Vector eigenvalue solve iterations: %d", iter);
@@ -167,6 +173,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   /* Compute initial source */
   matrixMultiplication(M, X, &old_source);
 
+  double initial_residual = 0;
   while (iter < MAX_LINEAR_SOLVE_ITERATIONS) {
 
     /* Pass new flux to old flux */
@@ -215,7 +222,9 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     matrixMultiplication(M, X, &new_source);
 
     /* Compute the residual */
-    residual = computeRMSE(&new_source, &old_source, true);
+    residual = computeRMSE(&new_source, &old_source, true, 1); 
+    if (iter == 0)
+      initial_residual = residual;
 
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
@@ -225,7 +234,9 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
     log_printf(INFO, "SOR iter: %d, residual: %f", iter, residual);
 
-    if (residual < tol && iter > MIN_LINEAR_SOLVE_ITERATIONS)
+    //FIXME
+    if ((residual < tol || residual / initial_residual < 0.1)
+         && iter > MIN_LINEAR_SOLVE_ITERATIONS)
       break;
   }
 
@@ -303,7 +314,7 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
  * @param Y a second Vector object
  * @param integrated a boolean indicating whether to group-wise integrate.
  */
-FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
+FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated, int it) {
 
   /* Check for consistency of vector dimensions */
   if (X->getNumX() != Y->getNumX() || X->getNumY() != Y->getNumY() ||
@@ -337,7 +348,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated) {
       }
 
       if (new_source != 0.0)
-        residual.setValue(i, 0, pow((new_source - old_source) / new_source, 2));
+        residual.setValue(i, 0, pow((new_source - old_source) / old_source, 2));
     }
 
     rmse = sqrt(residual.getSum() / (num_x * num_y * num_z));
