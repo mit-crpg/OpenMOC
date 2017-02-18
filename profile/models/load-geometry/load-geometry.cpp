@@ -139,10 +139,9 @@ int main(int argc,  char* argv[]) {
   geometry.setCmfd(&cmfd);
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
 #ifdef MPIx
-  ///geometry.setDomainDecomposition(2, 2, 23, MPI_COMM_WORLD); // FIXME 23
-  //geometry.setNumDomainModules(2,2,2);
+  //geometry.setDomainDecomposition(2, 2, 4, MPI_COMM_WORLD); // FIXME 23
 #else
-  geometry.setNumDomainModules(2,2,2);
+  //geometry.setNumDomainModules(2,2,4);
 #endif
   geometry.setNumDomainModules(1,1,num_fsrs);
   geometry.initializeFlatSourceRegions();

@@ -78,6 +78,7 @@
 
 #ifdef MPIx
 #define TRACKS_PER_BUFFER 1000
+#define CMFD_BUFFER_SIZE 10000
 #endif
 
 /** The faces, edges, and vertices that collectively make up the surfaces of a

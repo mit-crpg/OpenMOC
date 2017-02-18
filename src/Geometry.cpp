@@ -624,7 +624,7 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
     double offset_y = width_y / 2.0 + getMinY();
     double offset_z = width_z / 2.0 + getMinZ();
     _domain_bounds->setOffset(offset_x, offset_y, offset_z);
-    log_printf(NORMAL, "Successfully set %d x %d x %d domain decoomposition",
+    log_printf(NORMAL, "Successfully set %d x %d x %d domain decomposition",
                         nx, ny, nz);
   }
 }

@@ -14,6 +14,7 @@
 #include "Python.h"
 #endif
 #include "log.h"
+#include "constants.h"
 #include "Universe.h"
 #include "Track.h"
 #include "Track3D.h"
@@ -194,7 +195,7 @@ private:
   std::vector<double*> _axial_interpolants;
 
   //FIXME
-  int _total_tally_size;
+  long _total_tally_size;
   FP_PRECISION* _tally_memory;
   FP_PRECISION** _nu_fission_tally;
   FP_PRECISION** _reaction_tally;
@@ -207,7 +208,7 @@ private:
   bool _tallies_allocated;
 #ifdef MPIx
   FP_PRECISION* _tally_buffer;
-  Vector* _currents_buffer;
+  FP_PRECISION* _currents_buffer;
 #endif
 
   /** A timer to record timing data for a simulation */

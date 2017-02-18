@@ -175,7 +175,7 @@ Cmfd::~Cmfd() {
 #ifdef MPIx
     if (_geometry->isDomainDecomposed()) {
       delete [] _tally_buffer;
-      delete _currents_buffer;
+      delete [] _currents_buffer;
     }
 #endif
   }
@@ -330,12 +330,22 @@ void Cmfd::collapseXS() {
 
     /* Reduce currents form all domains */
     FP_PRECISION* currents_array = _surface_currents->getArray();
-    FP_PRECISION* currents_buffer_array = _currents_buffer->getArray();
-    int num_currents = _num_x * _num_y * _num_z * _num_cmfd_groups
+    long num_currents = _num_x * _num_y * _num_z * _num_cmfd_groups
         * NUM_SURFACES;
-    MPI_Allreduce(currents_array, currents_buffer_array, num_currents,
-                  precision, MPI_SUM, comm);
-    _currents_buffer->copyTo(_surface_currents);
+
+    long num_messages = num_currents / CMFD_BUFFER_SIZE + 1;
+    for (int i=0; i < num_messages; i++) {
+      long min_idx = i * CMFD_BUFFER_SIZE;
+      long max_idx = (i+1) * CMFD_BUFFER_SIZE;
+      max_idx = std::min(max_idx, num_currents);
+      int num_elements = max_idx - min_idx;
+      FP_PRECISION* send_array = &currents_array[i*CMFD_BUFFER_SIZE];
+      if (num_elements > 0)
+        MPI_Allreduce(send_array, _currents_buffer, num_elements,
+                      precision, MPI_SUM, comm);
+      for (int j=0; j < num_elements; j++)
+        currents_array[i*CMFD_BUFFER_SIZE+j] = _currents_buffer[j];
+    }
 
     /* Tally MPI communication time */
     _timer->stopTimer();
@@ -471,10 +481,19 @@ void Cmfd::collapseXS() {
     _timer->startTimer();
 
     /* Communicate tallies for XS condensation */
-    MPI_Allreduce(_tally_memory, _tally_buffer, _total_tally_size, precision,
-                  MPI_SUM, comm);
-    for (int idx=0; idx < _total_tally_size; idx++)
-      _tally_memory[idx] = _tally_buffer[idx];
+    long num_messages = _total_tally_size / CMFD_BUFFER_SIZE + 1;
+    for (int i=0; i < num_messages; i++) {
+      long min_idx = i * CMFD_BUFFER_SIZE;
+      long max_idx = (i+1) * CMFD_BUFFER_SIZE;
+      max_idx = std::min(max_idx, _total_tally_size);
+      int num_elements = max_idx - min_idx;
+      FP_PRECISION* send_array = &_tally_memory[i*CMFD_BUFFER_SIZE];
+      if (num_elements > 0)
+        MPI_Allreduce(send_array, _tally_buffer, num_elements,
+                      precision, MPI_SUM, comm);
+      for (int j=0; j < num_elements; j++)
+        _tally_memory[i*CMFD_BUFFER_SIZE+j] = _tally_buffer[j];
+    }
 
     /* Tally MPI communication time */
     _timer->stopTimer();
@@ -1246,9 +1265,8 @@ void Cmfd::allocateTallies() {
   /* Create copy buffer of currents and tallies for domain decomposition */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
-    _tally_buffer = new FP_PRECISION[_total_tally_size];
-    _currents_buffer = new Vector(_cell_locks, _num_x, _num_y, _num_z,
-                                  _num_cmfd_groups * NUM_SURFACES);
+    _tally_buffer = new FP_PRECISION[CMFD_BUFFER_SIZE];
+    _currents_buffer = new FP_PRECISION[CMFD_BUFFER_SIZE];
   }
 #endif
 }

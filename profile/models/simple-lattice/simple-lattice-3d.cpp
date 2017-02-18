@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(2,1,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(2,2,1, MPI_COMM_WORLD);
 #endif
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
