@@ -506,7 +506,7 @@ void Solver::useExponentialIntrinsic() {
 }
 
 
-/** 
+/**
  * @brief   Directs OpenMOC to correct unphysical cross-sections
  * @details If a material is found with greater total scattering cross-section
  *          than total cross-section, the total cross-section is set to the
@@ -517,7 +517,7 @@ void Solver::correctXS() {
 }
 
 
-/** 
+/**
  * @brief   Determines which log level to set cross-section warnings
  * @details The default log level is ERROR
  * @param   log_level The log level for outputing cross-section inconsistencies
@@ -695,7 +695,7 @@ void Solver::checkXS() {
   /* Check all unique materials */
   for (std::set<Material*>::iterator it = materials_set.begin();
           it != materials_set.end(); ++it) {
-    
+
     /* Get the material */
     Material* material = *it;
 
@@ -706,7 +706,7 @@ void Solver::checkXS() {
     FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
     FP_PRECISION* scattering_matrix = material->getSigmaS();
     FP_PRECISION* chi = material->getChi();
-            
+
     /* Loop over all energy groups */
     for (int e=0; e < _num_groups; e++) {
 
@@ -724,18 +724,18 @@ void Solver::checkXS() {
           log_printf(WARNING, "Invalid cross-sections encountered. The "
                      "scattering cross-section has value %6.4f which is "
                      "greater than the total cross-section of value %6.4f in"
-                     " material ID %d for group %d", sigma_s, sigma_t[e], 
+                     " material ID %d for group %d", sigma_s, sigma_t[e],
                      material->getId(), e);
           sigma_t[e] = sigma_s;
           log_printf(WARNING, "The total cross-section has been corrected to "
-                     " %6.4f in material ID %d for group %d", sigma_s, 
+                     " %6.4f in material ID %d for group %d", sigma_s,
                      material->getId(), e);
         }
         else {
           log_printf(level, "Invalid cross-sections encountered. The "
                      "scattering cross-section has value %6.4f which is "
                      "greater than the total cross-section of value %6.4f in"
-                     " material ID %d for group %d", sigma_s, sigma_t[e], 
+                     " material ID %d for group %d", sigma_s, sigma_t[e],
                      material->getId(), e);
         }
       }
@@ -1129,11 +1129,18 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double vm;
   double rm;
   _timer->processMemUsage(vm, rm);
+#ifdef MPIx
+  MPI_Barrier(_geometry->getMPICart());
+#endif
   log_printf(NODAL, "Using %f MB virtual memory and %f MB resident "
                       "memory ", vm, rm);
-  
+
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
+#ifdef MPIx
+  MPI_Barrier(_geometry->getMPICart());
+#endif
+  log_printf(NORMAL, "Computing the eigenvalue...");
 
   /* Create object to track convergence data if requested */
   ConvergenceData* convergence_data = NULL;
@@ -1144,12 +1151,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     convergence_data = new ConvergenceData;
     _cmfd->setConvergenceData(convergence_data);
   }
-  
+
   /* Source iteration loop */
-#ifdef MPIx
-  MPI_Barrier(_geometry->getMPICart());
-#endif
-  log_printf(NORMAL, "Computing the eigenvalue...");
   for (int i=0; i < max_iters; i++) {
 
     computeFSRSources();
@@ -1158,7 +1161,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-    
+
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
@@ -1168,7 +1171,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     /* Normalize the flux and compute residuals */
     normalizeFluxes();
     residual = computeResidual(res_type);
-    
+
     /* Compute difference in k and apparent dominance ratio */
     FP_PRECISION dr = residual / previous_residual;
     int dk = 1e5 * (_k_eff - k_prev);
@@ -1187,9 +1190,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
       int linear_iters_1 = convergence_data->linear_iters_1;
       int linear_iters_end = convergence_data->linear_iters_end;
       log_printf(NORMAL, "%3d  %1.6f  %5d  %1.6f  %1.3f  %1.6f  %1.6f"
-                 "  %3d  %1.6f  %1.6f  %3d  %3d    %1.6f", i, _k_eff, 
-                 dk, residual, dr, cmfd_res_1, cmfd_res_end, 
-                 cmfd_iters, linear_res_1, linear_res_end, 
+                 "  %3d  %1.6f  %1.6f  %3d  %3d    %1.6f", i, _k_eff,
+                 dk, residual, dr, cmfd_res_1, cmfd_res_end,
+                 cmfd_iters, linear_res_1, linear_res_end,
                  linear_iters_1, linear_iters_end, pf);
     }
     else {
@@ -1225,7 +1228,7 @@ void Solver::clearTimerSplits() {
 }
 
 
-/** 
+/**
  * @brief Sets the solver to print extra information for each iteration
  */
 void Solver::setVerboseIterationReport() {

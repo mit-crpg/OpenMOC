@@ -481,8 +481,10 @@ void log_printf(logLevel level, const char* format, ...) {
     /* If this is our first time logging, add a header with date, time */
     if (!logging) {
 
+      /*
       if (rank != 0)
         return;
+      */
 
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */
@@ -520,6 +522,7 @@ void log_printf(logLevel level, const char* format, ...) {
         if (_MPI_present) {
           printf("%s", "[  ERROR  ] ");
           printf("%s", msg_string.c_str());
+          fflush(stdout);
           MPI_Finalize();
         }
 #endif
@@ -527,8 +530,10 @@ void log_printf(logLevel level, const char* format, ...) {
       }
       omp_unset_lock(&log_error_lock);
     }
-    else
+    else {
       printf("%s", msg_string.c_str());
+      fflush(stdout);
+    }
   }
 }
 
