@@ -182,7 +182,7 @@ Cmfd::~Cmfd() {
     }
 #endif
   }
-  
+
   for (int r=0; r < _num_FSRs; r++)
     delete [] _axial_interpolants.at(r);
 }
@@ -884,29 +884,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
  */
 void Cmfd::updateMOCFlux() {
 
-    //FIXME
-    /*
-  for (int e = 0; e < _num_cmfd_groups; e++) {
-      for (int r=0; r < _num_FSRs; r++) {
-          int cell_id = _geometry->getCmfdCell(r);
-          int group = e;
-          double z_cmfd = (cell_id / (_num_x * _num_y)) * _cell_width_z;
-          double z = _geometry->getFSRCentroid(r)->getZ();
-          double* interpolants = _axial_interpolants.at(r);
-          double ratio = 1.0;
-          double old_flux = _old_flux->getValue(cell_id, group);
-          double new_flux = _new_flux->getValue(cell_id, group);
-          double old_cmfd_flux = old_flux;
-          double new_cmfd_flux = new_flux;
-          ratio = getUpdateRatio(cell_id, e, r);
-          new_flux = ratio * old_flux;
-          printf("OLD_FLUX %6.4e NEW_FLUX %6.4e OLD_FLUX_CELL %6.4e NEW_FLUX_CELL"
-                  " %6.4e Z_CELL %6.4e Z_CMFD %6.4e GROUP %d FSR %d\n", old_flux,
-                  new_flux, old_cmfd_flux, new_cmfd_flux, z, z_cmfd, group, r);
-      }
-  }
-  */
-
   log_printf(INFO, "Updating MOC flux...");
 
   /* Precompute the CMFD flux ratios */
@@ -940,6 +917,9 @@ void Cmfd::updateMOCFlux() {
 
         /* Get the update ratio */
         FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
+        if (update_ratio != 0.0)
+          update_ratio = exp(_relaxation_factor * log(update_ratio));
+
         if (_convergence_data != NULL)
           if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))
             _convergence_data->pf = update_ratio;
@@ -2539,7 +2519,7 @@ void Cmfd::generateKNearestStencils() {
                      " is %6.4f. Coordinates: (%6.4f, %6.4f, %6.4f), cmfd z: "
                      "%6.4f", fsr_id, i, zc*dz, dz, centroid->getX(),
                      centroid->getY(), centroid->getZ(), z_cmfd);
-      
+
         /* Check that the CMFD cell is not an end cell */
         if (z_ind == 0)
           zc -= 1.0;
@@ -2658,7 +2638,7 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
       if (iter->first != 4) {
         cell_next_id = getCellByStencil(cell_id, iter->first);
-        
+
         ratio += iter->second * getFluxRatio(cell_next_id, group, fsr);
       }
     }
@@ -2692,7 +2672,7 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
   double* interpolants = _axial_interpolants.at(fsr);
   double ratio = 1.0;
   if (interpolants[0] != 0 || interpolants[2] != 0) {
-    
+
     int z_ind = cell_id / (_num_x * _num_y);
     int cell_mid = cell_id;
     if (z_ind == 0)
@@ -2702,16 +2682,16 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
     int cell_prev = cell_mid - _num_x * _num_y;
     int cell_next = cell_mid + _num_x * _num_y;
-    
+
     double old_flux_prev = _old_flux->getValue(cell_prev, group);
     double new_flux_prev = _new_flux->getValue(cell_prev, group);
-    
+
     double old_flux_next = _old_flux->getValue(cell_next, group);
     double new_flux_next = _new_flux->getValue(cell_next, group);
-    
+
     double old_flux_mid = _old_flux->getValue(cell_mid, group);
     double new_flux_mid = _new_flux->getValue(cell_mid, group);
-    
+
     double old_flux = interpolants[0] * old_flux_prev +
            interpolants[1] * old_flux_mid +
            interpolants[2] * old_flux_next;
@@ -2721,9 +2701,9 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
     if (old_flux != 0)
       ratio = new_flux / old_flux;
-    
+
     if (ratio < 0) {
-      
+
       /* Try a linear interpolation */
       double zc = sqrt(26.0/24.0 - interpolants[1]);
       if (z_ind < _num_z / 2) {
@@ -2742,7 +2722,7 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
         else
           ratio = 0;
       }
-      
+
       /* Fallback: using the cell average flux ratio */
       if (ratio < 0)
         ratio = _flux_ratio->getValue(cell_id, group);
