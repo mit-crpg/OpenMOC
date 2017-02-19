@@ -143,15 +143,18 @@ LocalCoords* LocalCoords::getNext() const {
 LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
   if (_next == NULL) {
-    
+
     if (_next_array == NULL)
       _next_array = new LocalCoords[LOCAL_COORDS_LEN];
-    
+
     int next_position = _position + 1;
-    
+
     if (next_position < LOCAL_COORDS_LEN) {
       _next = &_next_array[next_position];
       _next->setArrayPosition(_next_array, next_position);
+      _next->setX(x);
+      _next->setY(y);
+      _next->setZ(z);
     }
     else {
       _next = new LocalCoords(x, y, z);
