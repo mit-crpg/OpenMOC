@@ -15,6 +15,7 @@
 #include "Point.h"
 #include "Universe.h"
 #include "Cell.h"
+#include "constants.h"
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -75,12 +76,18 @@ private:
 
   /** A pointer to the LocalCoords at the next higher nested Universe level */
   LocalCoords* _prev;
+  
+  /** FIXME */
+  int _position;
+  LocalCoords* _next_array;
 
   /** An integer to differentiate otherwise matching coordinate FSR keys */
   int _version_num;
 
+  void setArrayPosition(LocalCoords* array, int position);
+
 public:
-  LocalCoords(double x, double y, double z=0.0);
+  LocalCoords(double x=0.0, double y=0.0, double z=0.0);
   virtual ~LocalCoords();
   coordType getType();
   Universe* getUniverse() const;
@@ -94,8 +101,11 @@ public:
   double getZ() const;
   Point* getPoint();
   LocalCoords* getNext() const;
+  LocalCoords* getNextCreate(double x, double y, double z);
   LocalCoords* getPrev() const;
   int getVersionNum();
+  int getPosition();
+  LocalCoords* getNextArray();
 
   void setType(coordType type);
   void setUniverse(Universe* universe);

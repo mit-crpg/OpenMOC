@@ -523,12 +523,9 @@ Cell* Universe::findCell(LocalCoords* coords) {
        * Update coords to next level and continue search */
       else if (cell->getType() == FILL) {
 
-        LocalCoords* next_coords;
-        if (coords->getNext() == NULL)
-          next_coords = new LocalCoords(coords->getX(), coords->getY(),
-                                        coords->getZ());
-        else
-          next_coords = coords->getNext();
+        LocalCoords* next_coords = coords->getNextCreate(coords->getX(),
+                                                         coords->getY(),
+                                                         coords->getZ());
 
         /* Apply translation to position in the next coords */
         if (cell->isTranslated()){
@@ -559,8 +556,6 @@ Cell* Universe::findCell(LocalCoords* coords) {
         next_coords->setUniverse(univ);
         coords->setCell(cell);
 
-        coords->setNext(next_coords);
-        next_coords->setPrev(coords);
         if (univ->getType() == SIMPLE)
           return univ->findCell(next_coords);
         else
@@ -1564,13 +1559,7 @@ Cell* Lattice::findCell(LocalCoords* coords) {
     next_z = coords->getZ();
 
   /* Create a new LocalCoords object for the next level Universe */
-  LocalCoords* next_coords;
-
-  if (coords->getNext() == NULL)
-    next_coords = new LocalCoords(next_x, next_y, next_z);
-  else
-    next_coords = coords->getNext();
-
+  LocalCoords* next_coords = coords->getNextCreate(next_x, next_y, next_z);
   Universe* univ = getUniverse(lat_x, lat_y, lat_z);
   next_coords->setUniverse(univ);
 
@@ -1579,9 +1568,6 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   coords->setLatticeX(lat_x);
   coords->setLatticeY(lat_y);
   coords->setLatticeZ(lat_z);
-
-  coords->setNext(next_coords);
-  next_coords->setPrev(coords);
 
   /* Search the next lowest level Universe for the Cell */
   return univ->findCell(next_coords);

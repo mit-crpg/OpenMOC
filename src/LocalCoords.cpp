@@ -13,13 +13,18 @@ LocalCoords::LocalCoords(double x, double y, double z) {
   _next = NULL;
   _prev = NULL;
   _version_num = 0;
+  _next_array = NULL;
+  _position = -1;
 }
 
 
 /**
  * @brief Destructor.
  */
-LocalCoords::~LocalCoords() { }
+LocalCoords::~LocalCoords() {
+  if (_position == -1 && _next_array != NULL)
+    delete [] _next_array;
+}
 
 
 /**
@@ -131,6 +136,37 @@ Point* LocalCoords::getPoint() {
  */
 LocalCoords* LocalCoords::getNext() const {
   return _next;
+}
+
+
+//FIXME
+LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
+
+  if (_next == NULL) {
+    
+    if (_next_array == NULL)
+      _next_array = new LocalCoords[LOCAL_COORDS_LEN];
+    
+    int next_position = _position + 1;
+    
+    if (next_position < LOCAL_COORDS_LEN) {
+      _next = &_next_array[next_position];
+      _next->setArrayPosition(_next_array, next_position);
+    }
+    else {
+      _next = new LocalCoords(x, y, z);
+    }
+
+    _next->setPrev(this);
+
+  }
+  return _next;
+}
+
+
+//FIXME
+int LocalCoords::getPosition() {
+  return _position;
 }
 
 
@@ -267,6 +303,13 @@ void LocalCoords::setPrev(LocalCoords* prev) {
 }
 
 
+//FIXME
+void LocalCoords::setArrayPosition(LocalCoords* array, int position) {
+  _next_array = array;
+  _position = position;
+}
+
+
 /**
  * @brief Setss the version of the LocalCoords object
  * @details The version number differentiates otherwise matching FSR keys
@@ -381,7 +424,8 @@ void LocalCoords::prune() {
   /* Iterate over LocalCoords beneath this one in the linked list */
   while (curr != this) {
     next = curr->getPrev();
-    delete curr;
+    if (curr->getPosition() == -1)
+      delete curr;
     curr = next;
   }
 
@@ -427,14 +471,8 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
 
     curr1 = curr1->getNext();
 
-    if (curr1 != NULL && curr2->getNext() == NULL) {
-      LocalCoords* new_coords = new LocalCoords(0.0, 0.0, 0.0);
-      curr2->setNext(new_coords);
-      new_coords->setPrev(curr2);
-      curr2 = new_coords;
-    }
-    else if (curr1 != NULL)
-      curr2 = curr2->getNext();
+    if (curr1 != NULL)
+      curr2 = curr2->getNextCreate(0, 0, 0);
   }
 
   /* Prune any remainder from the old coords linked list */
@@ -460,9 +498,11 @@ std::string LocalCoords::toString() {
     if (curr->getType() == UNIV) {
       string << " UNIVERSE, x = " << curr->getX()
              << ", y = " << curr->getY()
-             << ", z = " << curr->getZ()
-             << ", universe = " << curr->getUniverse()->getId()
-             << ", cell = " << curr->getCell()->getId();
+             << ", z = " << curr->getZ();
+      if (curr->getUniverse() != NULL)
+         string << ", universe = " << curr->getUniverse()->getId();
+      if (curr->getCell() != NULL)
+         string << ", cell = " << curr->getCell()->getId();
     }
     else if (curr->getType() == LAT) {
       string << " LATTICE, x = " << curr->getX()
@@ -482,8 +522,9 @@ std::string LocalCoords::toString() {
              << ", lattice = " << curr->getLattice()->getId()
              << ", lattice_x = " << curr->getLatticeX()
              << ", lattice_y = " << curr->getLatticeY()
-             << ", lattice_z = " << curr->getLatticeZ()
-             << ", cell = " << curr->getCell();
+             << ", lattice_z = " << curr->getLatticeZ();
+      if (curr->getCell() != NULL)
+        string << ", cell = " << curr->getCell();
     }
 
     string << ", next:\n";
