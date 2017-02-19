@@ -1296,8 +1296,11 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
         double sum2 = 0;
         for (int j=0; j <= (n+1)/2; ++j) {
           if (j != i) {
-            sum1 += 1 / (roots[i] - roots[j]);
-            sum2 += -1 / ( (roots[i] - roots[j]) * (roots[i] - roots[j]) );
+            double diff = (roots[i] - roots[j]);
+            if (diff != 0.0) {
+              sum1 += 1 / diff;
+              sum2 += -1 / (diff*diff);
+            }
           }
         }
 
@@ -1305,8 +1308,11 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
         s2_tilde[i] = secondLogDerivLegendre(n, roots[i]) - sum2;
 
         /* householder method 2 Halley */
-        double u_new =
-          roots[i] - 2*s1_tilde[i] / (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
+        double denom = (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
+        double u_new = 0.0;
+        if (denom != 0)
+          u_new = roots[i] - 2*s1_tilde[i] / denom;
+
         double u_old = roots[i];
         roots[i] = u_new;
 
@@ -1342,6 +1348,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
     else if (iter == MAX_LG_ITERS - 1)
       log_printf(ERROR, "Failed to converge Gauss-Legendre roots for %d polar"
                         " angles.", _num_polar);
+
   } /* while not all roots converged */
 
   /* Remove placeholder root */

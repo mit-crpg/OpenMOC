@@ -7,7 +7,7 @@ OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
-PRECISION   = single
+PRECISION   = double
 
 #===============================================================================
 # Source Code List
