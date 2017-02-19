@@ -54,12 +54,12 @@ Solver::Solver(TrackGenerator* track_generator) {
   _timer = new Timer();
 
   _correct_xs = false;
+  _verbose = false;
   _xs_log_level = ERROR;
 
   //FIXME
   _OTF_transport = false;
 }
-
 
 /**
  * @brief Destructor deletes arrays of boundary angular fluxes,
@@ -1103,6 +1103,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
+  FP_PRECISION k_prev = _k_eff;
 
   /* Initialize data structures */
   initializeFSRs();
@@ -1131,6 +1132,16 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 
+  /* Create object to track convergence data if requested */
+  ConvergenceData* convergence_data = NULL;
+  if (_verbose) {
+    log_printf(NORMAL, "iter   k-eff   eps-k  eps-MOC   D.R.   "
+               "eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN"
+               "  #FX1 #FXN  MAX P.F.");
+    convergence_data = new ConvergenceData;
+    _cmfd->setConvergenceData(convergence_data);
+  }
+  
   /* Source iteration loop */
   log_printf(NORMAL, "Computing the eigenvalue...");
   for (int i=0; i < max_iters; i++) {
@@ -1148,11 +1159,37 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     else
       computeKeff();
 
+    /* Normalize the flux and compute residuals */
     normalizeFluxes();
     residual = computeResidual(res_type);
+    
+    /* Compute difference in k and apparent dominance ratio */
     FP_PRECISION dr = residual / previous_residual;
-    log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
-               "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
+    int dk = 1e5 * (_k_eff - k_prev);
+    k_prev = _k_eff;
+
+    /* Ouptut iteration report */
+    if (_verbose) {
+
+      /* Unpack convergence data */
+      double pf = convergence_data->pf;
+      double cmfd_res_1 = convergence_data->cmfd_res_1;
+      double cmfd_res_end = convergence_data->cmfd_res_end;
+      double linear_res_1 = convergence_data->linear_res_1;
+      double linear_res_end = convergence_data->linear_res_end;
+      int cmfd_iters = convergence_data->cmfd_iters;
+      int linear_iters_1 = convergence_data->linear_iters_1;
+      int linear_iters_end = convergence_data->linear_iters_end;
+      log_printf(NORMAL, "%3d  %1.6f  %5d  %1.6f  %1.3f  %1.6f  %1.6f"
+                 "  %3d  %1.6f  %1.6f  %3d  %3d    %1.6f", i, _k_eff, 
+                 dk, residual, dr, cmfd_res_1, cmfd_res_end, 
+                 cmfd_iters, linear_res_1, linear_res_end, 
+                 linear_iters_1, linear_iters_end, pf);
+    }
+    else {
+      log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
+                 "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
+    }
 
     if (_cmfd != NULL)
       _cmfd->setSourceConvergenceThreshold(0.01*residual);
@@ -1161,7 +1198,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh)
+    if (i > 1 && residual < _converge_thresh && std::abs(dk) < 1)
       break;
   }
 
@@ -1179,6 +1216,15 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
  */
 void Solver::clearTimerSplits() {
   _timer->clearSplit("Total time");
+}
+
+
+/** 
+ * @brief Sets the solver to print extra information for each iteration
+ */
+void Solver::setVerboseIterationReport() {
+  set_line_length(120);
+  _verbose = true;
 }
 
 

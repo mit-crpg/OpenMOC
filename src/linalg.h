@@ -24,10 +24,26 @@
 #include <omp.h>
 #endif
 
-FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
-                             FP_PRECISION SOR_factor=1.5);
+
+//FIXME
+struct ConvergenceData {
+  double pf;
+  double cmfd_res_1;
+  double cmfd_res_end;
+  double linear_res_1;
+  double linear_res_end;
+  int cmfd_iters;
+  int linear_iters_1;
+  int linear_iters_end;
+};
+
+
+FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION k_eff,
+                             FP_PRECISION tol, FP_PRECISION SOR_factor=1.5,
+                             ConvergenceData* convergence_data = NULL);
 void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
-                 FP_PRECISION SOR_factor=1.5);
+                 FP_PRECISION SOR_factor=1.5,
+                 ConvergenceData* convergence_data = NULL);
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
 FP_PRECISION computeRMSE(Vector* x, Vector* y, bool integrated, int it);
 

@@ -195,6 +195,9 @@ private:
   std::vector<double*> _axial_interpolants;
 
   //FIXME
+  ConvergenceData* _convergence_data;
+
+  //FIXME
   long _total_tally_size;
   FP_PRECISION* _tally_memory;
   FP_PRECISION** _nu_fission_tally;
@@ -307,6 +310,8 @@ public:
   void setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim);
   void setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                         int num_polar);
+  //FIXME
+  void setConvergenceData(ConvergenceData* convergence_data);
   void useAxialInterpolation(bool interpolate);
 
   /* Set FSR parameters */

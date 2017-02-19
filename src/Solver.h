@@ -148,6 +148,9 @@ protected:
   /** Boolean for whether to correct unphysical cross-sections */
   bool _correct_xs;
 
+  /** Boolean for whether to print verbose iteration reports */
+  bool _verbose;
+  
   /** The log level for outputting cross-section inconsitencies */
   logLevel _xs_log_level;
 
@@ -373,6 +376,7 @@ public:
     return &_boundary_flux(track_id, !fwd, 0);
   }
 
+  void setVerboseIterationReport();
   void printTimerReport();
   FP_PRECISION* getFluxesArray();
 

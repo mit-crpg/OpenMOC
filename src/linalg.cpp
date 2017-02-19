@@ -17,8 +17,9 @@
  * @param SOR_factor the successive over-relaxation factor
  * @return k_eff the dominant eigenvalue
  */
-FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
-                             FP_PRECISION SOR_factor) {
+FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION k_eff,
+                             FP_PRECISION tol, FP_PRECISION SOR_factor,
+                             ConvergenceData* convergence_data) {
 
   log_printf(INFO, "Computing the Matrix-Vector eigenvalue...");
 
@@ -51,45 +52,56 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
   int num_groups = X->getNumGroups();
   Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
   Vector new_source(cell_locks, num_x, num_y, num_z, num_groups);
-  FP_PRECISION residual, _k_eff;
+  FP_PRECISION residual;
   int iter;
 
   /* Compute and normalize the initial source */
   matrixMultiplication(M, X, &old_source);
-  old_source.scaleByValue(num_rows / old_source.getSum());
-  X->scaleByValue(num_rows / old_source.getSum());
+  double old_source_sum = old_source.getSum();
+  old_source.scaleByValue(num_rows / old_source_sum);
+  X->scaleByValue(num_rows * k_eff / old_source_sum);
 
   /* Power iteration Matrix-Vector solver */
   double initial_residual = 0;
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
     /* Solve X = A^-1 * old_source */
-    linearSolve(A, M, X, &old_source, tol*1e-4, SOR_factor);
+    linearSolve(A, M, X, &old_source, tol*1e-2, SOR_factor, convergence_data);
 
     /* Compute the new source */
     matrixMultiplication(M, X, &new_source);
 
     /* Compute and set keff */
-    _k_eff = new_source.getSum() / num_rows;
+    k_eff = new_source.getSum() / num_rows;
 
     /* Scale the new source by keff */
-    new_source.scaleByValue(1.0 / _k_eff);
+    new_source.scaleByValue(1.0 / k_eff);
 
     /* Compute the residual */
     residual = computeRMSE(&new_source, &old_source, true, iter);
-    if (iter == 0)
+    if (iter == 0) {
       initial_residual = residual;
+      if (convergence_data != NULL) {
+        convergence_data->cmfd_res_1 = residual;
+        convergence_data->linear_iters_1 = convergence_data->linear_iters_end;
+        convergence_data->linear_res_1 = convergence_data->linear_res_end;
+      }
+    }
 
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
     log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
-               "%3.2e", iter, _k_eff, residual);
+               "%3.2e", iter, k_eff, residual);
 
     /* Check for convergence */
     //FIXME
     if ((residual < tol || residual / initial_residual < 0.01)
            && iter > MIN_LINALG_POWER_ITERATIONS) {
+      if (convergence_data != NULL) {
+        convergence_data->cmfd_res_end = residual;
+        convergence_data->cmfd_iters = iter;
+      }
       break;
     }
   }
@@ -99,7 +111,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
     log_printf(WARNING, "Eigenvalue solve failed to converge in %d iterations", 
                iter);
 
-  return _k_eff;
+  return k_eff;
 }
 
 
@@ -120,7 +132,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION tol,
  * @param SOR_factor the successive over-relaxation factor
  */
 void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
-                 FP_PRECISION SOR_factor) {
+                 FP_PRECISION SOR_factor, ConvergenceData* convergence_data) {
 
   /* Check for consistency of matrix and vector dimensions */
   if (A->getNumX() != B->getNumX() || A->getNumX() != X->getNumX() ||
@@ -223,8 +235,11 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
     /* Compute the residual */
     residual = computeRMSE(&new_source, &old_source, true, 1); 
-    if (iter == 0)
+    if (iter == 0) {
+      if (convergence_data != NULL)
+        convergence_data->linear_res_end = residual;
       initial_residual = residual;
+    }
 
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
@@ -236,8 +251,11 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
     //FIXME
     if ((residual < tol || residual / initial_residual < 0.1)
-         && iter > MIN_LINEAR_SOLVE_ITERATIONS)
+         && iter > MIN_LINEAR_SOLVE_ITERATIONS) {
+      if (convergence_data != NULL)
+        convergence_data->linear_iters_end = iter;
       break;
+    }
   }
 
   log_printf(INFO, "linear solve iterations: %d", iter);

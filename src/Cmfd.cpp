@@ -14,6 +14,9 @@ Cmfd::Cmfd() {
   _geometry = NULL;
   _materials = NULL;
 
+  //FIXME
+  _convergence_data = NULL;
+
   /* Global variables used in solving CMFD problem */
   _source_convergence_threshold = 1E-5;
   _num_x = 1;
@@ -438,11 +441,6 @@ void Cmfd::collapseXS() {
             volume = _FSR_volumes[*iter];
             scat = fsr_material->getSigmaS();
             flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
-            if (flux < 0) {
-              log_printf(INFO, "Negative FLUX encountered in CMFD cell %d"
-                         " group %d for FSR %d of value %6.4f", i, h, *iter, flux);
-              neg_fluxes = true;
-            }
             tot = fsr_material->getSigmaTByGroup(h+1);
             nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
 
@@ -754,8 +752,9 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   _timer->startTimer();
 
   /* Solve the eigenvalue problem */
-  _k_eff = eigenvalueSolve(_A, _M, _new_flux, _source_convergence_threshold,
-                           _SOR_factor);
+  _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
+                           _source_convergence_threshold,
+                           _SOR_factor, _convergence_data);
 
   /* Tally the CMFD solver time */
   _timer->stopTimer();
@@ -922,6 +921,10 @@ void Cmfd::updateMOCFlux() {
     }
   }
 
+  /* Set max prolongation factor */
+  if (_convergence_data != NULL)
+    _convergence_data->pf = 1.0;
+
   /* Loop over mesh cells */
 #pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
@@ -935,7 +938,11 @@ void Cmfd::updateMOCFlux() {
       for (iter = _cell_fsrs.at(i).begin();
            iter != _cell_fsrs.at(i).end(); ++iter) {
 
+        /* Get the update ratio */
         FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
+        if (_convergence_data != NULL)
+          if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))
+            _convergence_data->pf = update_ratio;
 
         for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
@@ -2335,7 +2342,13 @@ void Cmfd::setCellFSRs(std::vector< std::vector<int> >* cell_fsrs) {
 void Cmfd::setFluxUpdateOn(bool flux_update_on) {
   _flux_update_on = flux_update_on;
 }
-  
+
+
+//FIXME
+void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
+  _convergence_data = convergence_data;
+}
+
 
 /**
  * @brief Set flag indicating whether to use axial interpolation for update
