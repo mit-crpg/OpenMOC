@@ -76,9 +76,6 @@ private:
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
-  /** Vector representing the ratio of the new to old CMFD flux */
-  Vector* _flux_ratio;
-
   /** The corrected diffusion coefficients from the previous iteration */
   Vector* _old_dif_surf_corr;
 
@@ -153,6 +150,9 @@ private:
 
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
+
+  /** Array of surface currents on edges and corners for each CMFD cell */
+  std::map<int, FP_PRECISION> _edge_corner_currents;
 
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<int> > _cell_fsrs;
@@ -393,8 +393,16 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       }
 
       /* Increment currents */
-      _surface_currents->incrementValues
-          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+      if (surf_id < NUM_FACES) {
+        _surface_currents->incrementValues
+            (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+      }
+      else {
+        for (int g=0; g < ncg; g++) {
+          int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
+          _edge_corner_currents[idx] += currents[g];
+        }
+      }
     }
     else {
       int pe = 0;
@@ -411,8 +419,16 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       }
 
       /* Increment currents */
-      _surface_currents->incrementValues
-          (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+      if (surf_id < NUM_FACES) {
+        _surface_currents->incrementValues
+            (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+      }
+      else {
+        for (int g=0; g < ncg; g++) {
+          int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
+          _edge_corner_currents[idx] += currents[g];
+        }
+      }
     }
   }
 }

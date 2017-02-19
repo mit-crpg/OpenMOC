@@ -51,7 +51,6 @@ Cmfd::Cmfd() {
   _relaxation_factor = 1.0;
   _old_flux = NULL;
   _new_flux = NULL;
-  _flux_ratio = NULL;
   _old_dif_surf_corr = NULL;
   _old_source = NULL;
   _new_source = NULL;
@@ -115,9 +114,6 @@ Cmfd::~Cmfd() {
 
   if (_new_flux != NULL)
     delete _new_flux;
-
-  if (_flux_ratio != NULL)
-    delete _flux_ratio;
 
   if (_surface_currents != NULL)
     delete _surface_currents;
@@ -334,7 +330,7 @@ void Cmfd::collapseXS() {
     /* Reduce currents form all domains */
     FP_PRECISION* currents_array = _surface_currents->getArray();
     long num_currents = _num_x * _num_y * _num_z * _num_cmfd_groups
-        * NUM_SURFACES;
+        * NUM_FACES;
 
     long num_messages = num_currents / CMFD_BUFFER_SIZE + 1;
     for (int i=0; i < num_messages; i++) {
@@ -886,18 +882,6 @@ void Cmfd::updateMOCFlux() {
 
   log_printf(INFO, "Updating MOC flux...");
 
-  /* Precompute the CMFD flux ratios */
-#pragma omp parallel for
-  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
-    for (int e = 0; e < _num_cmfd_groups; e++) {
-      if (_old_flux->getValue(i, e) == 0.0)
-        _flux_ratio->setValue(i, e, 0.0);
-      else
-        _flux_ratio->setValue(i, e, _new_flux->getValue(i, e)
-                              / _old_flux->getValue(i, e));
-    }
-  }
-
   /* Set max prolongation factor */
   if (_convergence_data != NULL)
     _convergence_data->pf = 1.0;
@@ -1170,9 +1154,7 @@ void Cmfd::initializeCurrents() {
 
   /* Allocate memory for the CMFD Mesh surface and corner currents Vectors */
   _surface_currents = new Vector(_cell_locks, _num_x, _num_y, _num_z,
-                                 _num_cmfd_groups * NUM_SURFACES);
-
-  return;
+                                 _num_cmfd_groups * NUM_FACES);
 }
 
 
@@ -1452,19 +1434,25 @@ void Cmfd::splitVertexCurrents() {
     FP_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
+    std::map<int, FP_PRECISION>::iterator it;
     int cell, surface;
 
 #pragma omp for
-    for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
-      for (int v = nf + ne - 1; v < ns; v++) {
+    for (int i=0; i < _num_x * _num_y * _num_z; i++) {
+      for (int v = NUM_FACES + NUM_EDGES; v < NUM_SURFACES; v++) {
 
-        /* Get the surfaces to split this vertex's current to */
+        /* Check if this surface is contained in the map */
+        int ind = i * NUM_SURFACES * ncg + v * ncg;
+        it = _edge_corner_currents.find(ind);
+        if (it == _edge_corner_currents.end())
+          continue;
+
         getVertexSplitSurfaces(i, v, &surfaces);
 
         for (int g=0; g > ncg; g++) {
           /* Divide vertex current by 3 since we will split to 3 surfaces,
            * which propagate through 3 edges */
-          current = _surface_currents->getValue(i, v * ncg + g) / 3;
+          current = _edge_corner_currents[ind+g] / 3;
 
           /* Increment current for faces and edges adjacent to this vertex */
           for (iter = surfaces.begin(); iter != surfaces.end(); ++iter) {
@@ -1517,19 +1505,26 @@ void Cmfd::splitEdgeCurrents() {
     FP_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
+    std::map<int, FP_PRECISION>::iterator it;
     int cell, surface;
 
 #pragma omp for
-    for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
-      for (int e = nf - 1; e < nf + ne; e++) {
+    for (int i=0; i < _num_x * _num_y * _num_z; i++) {
+      for (int e = NUM_FACES; e < NUM_SURFACES + NUM_EDGES; e++) {
 
-        /* Get the surfaces to split this edge's current to */
+        /* Check if this surface is contained in the map */
+        int ind = i * NUM_SURFACES * ncg + e * ncg;
+        it = _edge_corner_currents.find(ind);
+        if (it == _edge_corner_currents.end())
+          continue;
+
+        int i = ind / (_num_x * _num_y * _num_z);
         getEdgeSplitSurfaces(i, e, &surfaces);
 
         for (int g=0; g > ncg; g++) {
           /* Divide edge current by 2 since we will split to 2 surfaces,
            * which propagate through 2 surfaces */
-          current = _surface_currents->getValue(i, e * ncg + g) / 2;
+          current = _edge_corner_currents[ind+g] / 2;
 
           /* Increment current for faces adjacent to this edge */
           for (iter = surfaces.begin(); iter != surfaces.end(); ++iter) {
@@ -2724,14 +2719,23 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
       }
 
       /* Fallback: using the cell average flux ratio */
-      if (ratio < 0)
-        ratio = _flux_ratio->getValue(cell_id, group);
+      if (ratio < 0) {
+        if (_old_flux->getValue(cell_id, group) != 0.0)
+          ratio = _new_flux->getValue(cell_id, group) /
+                  _old_flux->getValue(cell_id, group);
+        else
+          ratio = 0.0;
+      }
     }
 
     return ratio;
   }
   else {
-    return _flux_ratio->getValue(cell_id, group);
+    if (_old_flux->getValue(cell_id, group) != 0.0)
+      return _new_flux->getValue(cell_id, group) /
+              _old_flux->getValue(cell_id, group);
+    else
+      return 0.0;
   }
 }
 
@@ -2888,8 +2892,6 @@ void Cmfd::initialize() {
     delete _old_flux;
   if (_new_flux != NULL)
     delete _new_flux;
-  if (_flux_ratio != NULL)
-    delete _flux_ratio;
   if (_old_dif_surf_corr != NULL)
     delete _old_dif_surf_corr;
   if (_volumes != NULL)
@@ -2914,9 +2916,8 @@ void Cmfd::initialize() {
     _new_source = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _old_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _new_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _flux_ratio = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _old_dif_surf_corr = new Vector(_cell_locks, _num_x, _num_y, _num_z,
-                                    NUM_SURFACES * ncg);
+                                    NUM_FACES * ncg);
     _old_dif_surf_corr->setAll(0.0);
     _volumes = new Vector(_cell_locks, _num_x, _num_y, _num_z, 1);
 
