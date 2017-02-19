@@ -29,7 +29,7 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
   
-  double azim_spacing = 0.7;
+  double azim_spacing = 0.4;
   int num_azim = 4;
   double polar_spacing = 1.5; // 1.0
   int num_polar = 2;
