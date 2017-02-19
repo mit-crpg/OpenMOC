@@ -1144,6 +1144,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   
   /* Source iteration loop */
   log_printf(NORMAL, "Computing the eigenvalue...");
+  exit(0);
   for (int i=0; i < max_iters; i++) {
 
     computeFSRSources();

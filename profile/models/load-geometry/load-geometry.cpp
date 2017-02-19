@@ -80,7 +80,6 @@ int main(int argc,  char* argv[]) {
   */
   track_generator.generateTracks();
 
-  exit(0);
   /* Run simulation */
   CPULSSolver solver(&track_generator);
   solver.setVerboseIterationReport();

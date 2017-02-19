@@ -1731,7 +1731,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
   /* Length of each segment */
   double length;
-  std::vector<int> min_z_ind;
+  int min_z_ind;
   int region_id;
   int num_segments;
 
@@ -1768,12 +1768,12 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     /* Records the minimum length to a 2D intersection */
     double min_length = std::numeric_limits<double>::infinity();
     region_id = -1;
+    min_z_ind = -1;
 
     /* Copy end coordinates to start */
     end.copyCoords(&start);
 
     /* Loop over all z-heights to find shortest 2D intersection */
-    min_z_ind.clear();
     for (int i=0; i < z_coords.size(); i++) {
 
       /* Change z-height and copy starting coordinates to end */
@@ -1796,82 +1796,72 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       /* Check if the segment length is the smallest found */
       if (length < min_length) {
         min_length = length;
-        min_z_ind.clear();
-        min_z_ind.push_back(i);
-      }
-      else if (length == min_length) {
-        min_z_ind.push_back(i);
+        min_z_ind = i;
       }
     }
 
-    /* Loop over all shortest segments */
-    for (int m=0; m < min_z_ind.size(); m++) {
 
-      /* Traverse across shortest segment */
-      start.setZ(z_coords[min_z_ind.at(m)]);
-      start.prune();
-      start.setVersionNum(0);
-      findCellContainingCoords(&start);
+    /* Traverse across shortest segment */
+    start.setZ(z_coords[min_z_ind]);
+    start.prune();
+    findCellContainingCoords(&start);
+
+    bool found_coordinate = false;
+
+    int next_version = 0;
+    for (int v=0; v < MAX_VERSION_NUM; v++) {
 
       /* Find FSR using starting coordinate */
+      start.setVersionNum(v);
       region_id = findExtrudedFSR(&start);
-    
-      /* Get the coordinate of the extruded FSR */
       std::string fsr_key = getFSRKey(&start);
-      LocalCoords test_coords(0, 0, 0);
+
+      /* Get the coordinate of the extruded FSR */
       LocalCoords* ext_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
-      ext_coords = ext_coords->getHighestLevel();
-      test_coords.setX(ext_coords->getX());
-      test_coords.setY(ext_coords->getY());
-      test_coords.setUniverse(_root_universe);
+
+      /* Create coordinate copies */
+      LocalCoords test_ext_coords;
+      ext_coords->copyCoords(&test_ext_coords);
+      LocalCoords test_start_coords;
+      start.copyCoords(&test_start_coords);
       
       /* Check to see that this point contains the cell of every axial level */
       bool coords_contained = true;
       for (int i=0; i < z_coords.size(); i++) {
       
         /* Check the FSR key at this level */
-        start.setZ(z_coords[i]);
-        start.prune();
-        findCellContainingCoords(&start);
-        fsr_key = getFSRKey(&start);
+        test_start_coords.setZ(z_coords[i]);
+        test_start_coords.prune();
+        test_start_coords.setVersionNum(0);
+        findCellContainingCoords(&test_start_coords);
+        fsr_key = getFSRKey(&test_start_coords);
 
-        test_coords.setZ(z_coords[i]);
-        test_coords.prune();
-        test_coords.setVersionNum(start.getVersionNum());
-        findCellContainingCoords(&test_coords);
-        std::string ext_fsr_key = getFSRKey(&test_coords);
+        test_ext_coords.setZ(z_coords[i]);
+        test_ext_coords.prune();
+        test_ext_coords.setVersionNum(0);
+        findCellContainingCoords(&test_ext_coords);
+        std::string ext_fsr_key = getFSRKey(&test_ext_coords);
 
-        if (fsr_key != ext_fsr_key)
+        /* Check that FSR keys match */
+        if (fsr_key != ext_fsr_key) {
           coords_contained = false;
-      }
-      
-      /* Reset the starting coordinate */ 
-      start.setZ(z_coords[min_z_ind.at(m)]);
-      start.prune();
-      findCellContainingCoords(&start);
-
-      /* Break loop if coordinates are contained in every axial level */
-      if (coords_contained)
-        break;
-      else if (m == min_z_ind.size() - 1) {
-
-        #pragma omp critical
-        { 
-          /* Create a new extruded FSR using the starting coordinate */
-          bool contains_key = true;
-          int version_num = 0;
-          while (contains_key) {
-            version_num++;
-            start.setVersionNum(version_num);
-            fsr_key = getFSRKey(&start);
-            contains_key = _extruded_FSR_keys_map.contains(fsr_key);
-          }
-      
-          /* Get the new FSR using the augmented starting coordinate */
-          region_id = findExtrudedFSR(&start);
+          break;
         }
       }
+
+      /* Check if we found a valid coordinate */
+      if (coords_contained) {
+        found_coordinate = true;
+        break;
+      }
+
+      /* Reset the starting coordinate */
+      next_version++; 
     }
+
+    if (next_version >= MAX_VERSION_NUM)
+      log_printf(ERROR, "Exceeded the maximum version number in 2D extruded "
+                 "FSRs");
 
     /* Move the coordinates to the next intersection */
     start.copyCoords(&end);
