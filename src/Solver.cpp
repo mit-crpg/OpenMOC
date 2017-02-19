@@ -1114,6 +1114,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeSourceArrays();
   initializeCmfd();
   _geometry->fixFSRMaps();
+#ifdef MPIx
+  MPI_Barrier(_geometry->getMPICart());
+#endif
   printInputParamsSummary();
 
   /* Set scalar flux to unity for each region */
@@ -1143,6 +1146,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   }
   
   /* Source iteration loop */
+#ifdef MPIx
+  MPI_Barrier(_geometry->getMPICart());
+#endif
   log_printf(NORMAL, "Computing the eigenvalue...");
   for (int i=0; i < max_iters; i++) {
 

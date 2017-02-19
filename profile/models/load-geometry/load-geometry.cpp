@@ -29,16 +29,16 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
   
-  double azim_spacing = 0.4;
+  double azim_spacing = 0.5;
   int num_azim = 4;
   double polar_spacing = 1.5; // 1.0
   int num_polar = 2;
   double tolerance = 1e-4;
-  int max_iters = 2;
+  int max_iters = 50;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
-  cmfd.setLatticeStructure(17, 17, 23);
+  cmfd.setLatticeStructure(17, 17, 46);
   cmfd.useAxialInterpolation(true);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure = 
@@ -56,7 +56,7 @@ int main(int argc,  char* argv[]) {
   //geometry.setAxialMesh(2.0);
   geometry.setCmfd(&cmfd);
 #ifdef MPIx
-  //geometry.setDomainDecomposition(1, 1, 23, MPI_COMM_WORLD); // FIXME 23
+  geometry.setDomainDecomposition(2, 1, 1, MPI_COMM_WORLD); // FIXME 23
   //geometry.setNumDomainModules(2,2,2);
 #else
   geometry.setNumDomainModules(2,2,2);

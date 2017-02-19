@@ -126,10 +126,10 @@ private:
 
   /** The mesh defining axial heights of radial planes segmented in on-the-fly
     * calculations */
-  std::vector<FP_PRECISION> _segmentation_heights;
+  std::vector<double> _segmentation_heights;
 
   /** The global axial mesh to use in on-the-fly calculations */
-  std::vector<FP_PRECISION> _global_z_mesh;
+  std::vector<double> _global_z_mesh;
 
   /** The method to use for generating 3D tracks */
   int _track_generation_method;
@@ -232,7 +232,7 @@ public:
   /* Worker functions */
   void retrieveTrackCoords(double* coords, long num_tracks);
   void retrieve3DTrackCoords(double* coords, long num_tracks);
-  void retrieveGlobalZMesh(FP_PRECISION*& z_mesh, int& num_fsrs);
+  void retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs);
   void retrieveSingle3DTrackCoords(double coords[6], int track_id);
   void retrieveSegmentCoords(double* coords, long num_segments);
   void retrieve3DSegmentCoords(double* coords, long num_segments);

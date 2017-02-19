@@ -476,7 +476,7 @@ void TrackGenerator3D::useGlobalZMesh() {
  * @param z_mesh The global z-mesh to be updated
  * @param num_fsrs The number of FSRs in the z-mesh
  */
-void TrackGenerator3D::retrieveGlobalZMesh(FP_PRECISION*& z_mesh,
+void TrackGenerator3D::retrieveGlobalZMesh(double*& z_mesh,
                                            int& num_fsrs) {
   if (_contains_global_z_mesh) {
     z_mesh = &_global_z_mesh[0];
@@ -1200,7 +1200,7 @@ void TrackGenerator3D::segmentizeExtruded() {
   log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
 
   /* Get all unique z-coords at which 2D radial segementation is performed */
-  std::vector<FP_PRECISION> z_coords;
+  std::vector<double> z_coords;
   if (_contains_segmentation_heights)
     z_coords = _segmentation_heights;
   else

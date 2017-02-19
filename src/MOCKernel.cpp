@@ -345,7 +345,8 @@ void TransportKernel::execute(double length, Material* mat, int fsr_id,
   int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
 
   /* Determine common length */
-  FP_PRECISION temp_length = std::min(_max_tau / max_sigma_t, length);
+  FP_PRECISION fp_length = length;
+  FP_PRECISION temp_length = std::min(_max_tau / max_sigma_t, fp_length);
 
   /* Apply MOC equations to segments */
   for (int i=0; i < num_cuts; i++) {

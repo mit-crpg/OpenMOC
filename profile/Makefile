@@ -6,8 +6,8 @@ COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
-PROFILE     = yes
-PRECISION   = double
+PROFILE     = no
+PRECISION   = single
 
 #===============================================================================
 # Source Code List
