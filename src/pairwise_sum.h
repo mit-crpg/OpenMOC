@@ -16,9 +16,9 @@
  * @return the sum of all numbers in the array
  */
 template <typename T>
-inline T pairwise_sum(T* vector, int length) {
+inline double pairwise_sum(T* vector, int length) {
 
-  T sum = 0;
+  double sum = 0;
 
   /* Base case: if length is less than 16, perform summation */
   if (length < 16) {

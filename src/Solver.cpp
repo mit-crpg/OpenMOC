@@ -1115,7 +1115,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeCmfd();
   _geometry->fixFSRMaps();
 #ifdef MPIx
-  MPI_Barrier(_geometry->getMPICart());
+  //MPI_Barrier(_geometry->getMPICart());
 #endif
   printInputParamsSummary();
 
@@ -1130,7 +1130,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double rm;
   _timer->processMemUsage(vm, rm);
 #ifdef MPIx
-  MPI_Barrier(_geometry->getMPICart());
+  //MPI_Barrier(_geometry->getMPICart());
 #endif
   log_printf(NODAL, "Using %f MB virtual memory and %f MB resident "
                       "memory ", vm, rm);
@@ -1138,18 +1138,19 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 #ifdef MPIx
-  MPI_Barrier(_geometry->getMPICart());
+  //MPI_Barrier(_geometry->getMPICart());
 #endif
   log_printf(NORMAL, "Computing the eigenvalue...");
 
   /* Create object to track convergence data if requested */
   ConvergenceData* convergence_data = NULL;
   if (_verbose) {
+    convergence_data = new ConvergenceData;
+    if (_cmfd != NULL)
+      _cmfd->setConvergenceData(convergence_data);
     log_printf(NORMAL, "iter   k-eff   eps-k  eps-MOC   D.R.   "
                "eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN"
                "  #FX1 #FXN  MAX P.F.");
-    convergence_data = new ConvergenceData;
-    _cmfd->setConvergenceData(convergence_data);
   }
 
   /* Source iteration loop */

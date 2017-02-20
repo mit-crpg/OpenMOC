@@ -54,7 +54,7 @@ private:
   Geometry* _geometry;
 
   /** The keff eigenvalue */
-  FP_PRECISION _k_eff;
+  double _k_eff;
 
   /** The A (destruction) matrix */
   Matrix* _A;

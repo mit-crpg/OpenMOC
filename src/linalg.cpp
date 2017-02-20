@@ -17,7 +17,7 @@
  * @param SOR_factor the successive over-relaxation factor
  * @return k_eff the dominant eigenvalue
  */
-FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION k_eff,
+FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                              FP_PRECISION tol, FP_PRECISION SOR_factor,
                              ConvergenceData* convergence_data) {
 
@@ -332,7 +332,7 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
  * @param Y a second Vector object
  * @param integrated a boolean indicating whether to group-wise integrate.
  */
-FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated, int it) {
+double computeRMSE(Vector* X, Vector* Y, bool integrated, int it) {
 
   /* Check for consistency of vector dimensions */
   if (X->getNumX() != Y->getNumX() || X->getNumY() != Y->getNumY() ||
@@ -343,7 +343,7 @@ FP_PRECISION computeRMSE(Vector* X, Vector* Y, bool integrated, int it) {
                Y->getNumX(), Y->getNumY(), Y->getNumZ(), Y->getNumGroups());
 
 
-  FP_PRECISION rmse;
+  double rmse;
   int num_x = X->getNumX();
   int num_y = X->getNumY();
   int num_z = X->getNumZ();

@@ -149,7 +149,7 @@ LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
     int next_position = _position + 1;
 
-    if (next_position < LOCAL_COORDS_LEN) {
+    if (next_position < LOCAL_COORDS_LEN && false) {
       _next = &_next_array[next_position];
       _next->setArrayPosition(_next_array, next_position);
       _next->setX(x);

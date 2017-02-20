@@ -901,8 +901,10 @@ void Cmfd::updateMOCFlux() {
 
         /* Get the update ratio */
         FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
+        /*
         if (update_ratio != 0.0)
           update_ratio = exp(_relaxation_factor * log(update_ratio));
+          */
 
         if (_convergence_data != NULL)
           if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))

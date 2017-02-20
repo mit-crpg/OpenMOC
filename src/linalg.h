@@ -38,7 +38,7 @@ struct ConvergenceData {
 };
 
 
-FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, FP_PRECISION k_eff,
+FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                              FP_PRECISION tol, FP_PRECISION SOR_factor=1.5,
                              ConvergenceData* convergence_data = NULL);
 void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,

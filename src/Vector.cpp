@@ -309,7 +309,7 @@ int Vector::getNumRows() {
  * @brief Get the sum of all the values in the vector.
  * @return The sum of all the values in the vector.
  */
-FP_PRECISION Vector::getSum() {
+double Vector::getSum() {
   return pairwise_sum(_array, _num_rows);
 }
 
