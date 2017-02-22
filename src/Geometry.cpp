@@ -694,7 +694,7 @@ void Geometry::setAxialMesh(double axial_mesh_height) {
   _axial_mesh = new Lattice();
   _axial_mesh->setNumX(1);
   _axial_mesh->setNumY(1);
- 
+
   /* Determine actual axial mesh spacing from desired spacing */
   double total_width_z = max_z - min_z;
   int num_cells_z = total_width_z / axial_mesh_height;
@@ -712,7 +712,7 @@ void Geometry::setAxialMesh(double axial_mesh_height) {
   log_printf(NORMAL, "Set global axial mesh of width %6.4f cm",
              axial_mesh_height);
 }
- 
+
 
 /**
  * @brief Find the Cell that this LocalCoords object is in at the lowest level
@@ -1824,11 +1824,11 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       ext_coords->copyCoords(&test_ext_coords);
       LocalCoords test_start_coords;
       start.copyCoords(&test_start_coords);
-      
+
       /* Check to see that this point contains the cell of every axial level */
       bool coords_contained = true;
       for (int i=0; i < z_coords.size(); i++) {
-      
+
         /* Check the FSR key at this level */
         test_start_coords.setZ(z_coords[i]);
         test_start_coords.prune();
@@ -1856,7 +1856,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       }
 
       /* Reset the starting coordinate */
-      next_version++; 
+      next_version++;
     }
 
     if (next_version >= MAX_VERSION_NUM)
@@ -2356,6 +2356,18 @@ void Geometry::initializeCmfd() {
   offset.setZ(min_z + (max_z - min_z)/2.0);
 
   _cmfd->initializeLattice(&offset);
+
+#ifdef MPIx
+  if (_domain_decomposed) {
+    _cmfd->setGeometry(this);
+    /*
+    _cmfd->setNumDomains(1,1,1);
+    _cmfd->setDomainIndexes(0,0,0);
+    */
+    _cmfd->setNumDomains(_num_domains_x, _num_domains_y, _num_domains_z);
+    _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
+  }
+#endif
 }
 
 
@@ -3372,7 +3384,7 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
   /* Close the input file */
   fclose(in);
-  
+
   log_printf(NORMAL, "Read complete");
 }
 
@@ -3393,7 +3405,7 @@ size_t Geometry::twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream)
   size_t ret = fread(ptr, size, nmemb, stream);
   return ret;
 }
-size_t Geometry::twiddleRead(universeType* ptr, size_t size, size_t nmemb, 
+size_t Geometry::twiddleRead(universeType* ptr, size_t size, size_t nmemb,
                              FILE* stream) {
   size_t ret = fread(ptr, size, nmemb, stream);
   int* arr = reinterpret_cast<int*>(ptr);

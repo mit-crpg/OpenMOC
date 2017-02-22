@@ -196,6 +196,7 @@ private:
 
   //FIXME
   ConvergenceData* _convergence_data;
+  DomainCommunicator* _domain_communicator;
 
   //FIXME
   long _total_tally_size;
@@ -212,6 +213,14 @@ private:
 #ifdef MPIx
   FP_PRECISION* _tally_buffer;
   FP_PRECISION* _currents_buffer;
+
+  int _num_domains_x;
+  int _num_domains_y;
+  int _num_domains_z;
+
+  int _domain_idx_x;
+  int _domain_idx_y;
+  int _domain_idx_z;
 #endif
 
   /** A timer to record timing data for a simulation */
@@ -311,6 +320,10 @@ public:
   void setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                         int num_polar);
   //FIXME
+#ifdef MPIx
+  void setNumDomains(int num_x, int num_y, int num_z);
+  void setDomainIndexes(int idx_x, int idx_y, int idx_z);
+#endif
   void setConvergenceData(ConvergenceData* convergence_data);
   void useAxialInterpolation(bool interpolate);
 
@@ -398,10 +411,12 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
+        omp_set_lock(&_surface_currents->getCellLocks()[cell_id]);
         for (int g=0; g < ncg; g++) {
           int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
           _edge_corner_currents[idx] += currents[g];
         }
+        omp_unset_lock(&_surface_currents->getCellLocks()[cell_id]);
       }
     }
     else {
@@ -424,10 +439,12 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
+        omp_set_lock(&_surface_currents->getCellLocks()[cell_id]);
         for (int g=0; g < ncg; g++) {
           int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
           _edge_corner_currents[idx] += currents[g];
         }
+        omp_unset_lock(&_surface_currents->getCellLocks()[cell_id]);
       }
     }
   }

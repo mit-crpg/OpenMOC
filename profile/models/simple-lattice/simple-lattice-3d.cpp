@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = 1;// omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   int num_azim = 4;
   double polar_spacing = 0.1;
   int num_polar = 6;
-  double tolerance = 1e-5;
+  double tolerance = 1e-8;
   int max_iters = 1000;
 
   /* Define material properties */
@@ -101,10 +101,10 @@ int main(int argc, char* argv[]) {
 
   xmin.setBoundaryType(REFLECTIVE);
   ymin.setBoundaryType(REFLECTIVE);
-  zmin.setBoundaryType(REFLECTIVE);
+  zmin.setBoundaryType(VACUUM);
   xmax.setBoundaryType(REFLECTIVE);
   ymax.setBoundaryType(REFLECTIVE);
-  zmax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(VACUUM);
 
   ZCylinder large_pin(0.0, 0.0, 0.4);
   ZCylinder medium_pin(0.0, 0.0, 0.3);
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(2,2,4);
+  cmfd.setLatticeStructure(4,1,2);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -203,8 +203,9 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  //geometry.setDomainDecomposition(2,2,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(2,1,1, MPI_COMM_WORLD);
 #endif
+  //geometry.setAxialMesh(20.0/4);
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -219,7 +220,8 @@ int main(int argc, char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator);
+  CPUSolver solver(&track_generator);
+  solver.setVerboseIterationReport();
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);

@@ -16,6 +16,7 @@ Cmfd::Cmfd() {
 
   //FIXME
   _convergence_data = NULL;
+  _domain_communicator = NULL;
 
   /* Global variables used in solving CMFD problem */
   _source_convergence_threshold = 1E-5;
@@ -179,6 +180,9 @@ Cmfd::~Cmfd() {
 #endif
   }
 
+  if (_domain_communicator != NULL)
+    delete _domain_communicator;
+
   for (int r=0; r < _num_FSRs; r++)
     delete [] _axial_interpolants.at(r);
 }
@@ -288,6 +292,39 @@ void Cmfd::setWidthZ(double width) {
   if (_num_z != 0)
     _cell_width_z = _width_z / _num_z;
 }
+
+
+#ifdef MPIx
+//FIXME
+void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
+
+  if (_domain_communicator == NULL) {
+    _domain_communicator = new DomainCommunicator;
+    _geometry->getMPICart();
+    _domain_communicator->_MPI_cart = _geometry->getMPICart();
+  }
+
+  _domain_communicator->_num_domains_x = num_x;
+  _domain_communicator->_num_domains_y = num_y;
+  _domain_communicator->_num_domains_z = num_z;
+}
+
+
+//FIXME
+void Cmfd::setDomainIndexes(int idx_x, int idx_y, int idx_z) {
+
+  if (_domain_communicator == NULL) {
+    _domain_communicator = new DomainCommunicator;
+    _geometry->getMPICart();
+    _domain_communicator->_MPI_cart = _geometry->getMPICart();
+  }
+
+  _domain_communicator->stop = false;
+  _domain_communicator->_domain_idx_x = idx_x;
+  _domain_communicator->_domain_idx_y = idx_y;
+  _domain_communicator->_domain_idx_z = idx_z;
+}
+#endif
 
 
 /**
@@ -749,15 +786,46 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Solve the eigenvalue problem */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
-                           _source_convergence_threshold,
-                           _SOR_factor, _convergence_data);
+                           _source_convergence_threshold, _SOR_factor,
+                           _convergence_data, _domain_communicator);
 
   /* Tally the CMFD solver time */
   _timer->stopTimer();
   _timer->recordSplit("Total solver time");
 
+  //FIXME
+  /*
+  if (_domain_communicator != NULL) {
+    int rank;
+    MPI_Comm_rank(_domain_communicator->_MPI_cart, &rank);
+    if (rank == 0) {
+      std::cout << "CMFD After" << std::endl;
+      std::cout << "OLD flux:" << std::endl;
+      _old_flux->printString();
+      std::cout << "NEW flux:" << std::endl;
+      _new_flux->printString();
+    }
+  }
+  */
+
   /* Rescale the old and new flux */
   rescaleFlux();
+
+  //FIXME
+  /*
+  if (_domain_communicator != NULL) {
+    int rank;
+    MPI_Comm_rank(_domain_communicator->_MPI_cart, &rank);
+    if (rank == 0) {
+      std::cout << "CMFD Rescaled" << std::endl;
+      std::cout << "OLD flux:" << std::endl;
+      _old_flux->printString();
+      std::cout << "NEW flux:" << std::endl;
+      _new_flux->printString();
+    }
+    _domain_communicator->stop = true;
+  }
+  */
 
   /* Update the MOC flux */
   updateMOCFlux();

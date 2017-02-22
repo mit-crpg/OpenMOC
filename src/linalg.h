@@ -38,14 +38,46 @@ struct ConvergenceData {
 };
 
 
+//FIXME
+struct DomainCommunicator {
+  int _num_domains_x;
+  int _num_domains_y;
+  int _num_domains_z;
+  int _domain_idx_x;
+  int _domain_idx_y;
+  int _domain_idx_z;
+  int _offset;
+  int** num_connections;
+  int*** indexes;
+  int*** domains;
+  FP_PRECISION*** coupling_coeffs;
+  FP_PRECISION*** fluxes;
+  FP_PRECISION* buffer;
+  int buffer_size;
+  bool stop;
+#ifdef MPIx
+  MPI_Comm _MPI_cart;
+#endif
+};
+
+//FIXME
+void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
+                      int**& coupling_indexes, FP_PRECISION**& coupling_coeffs,
+                      FP_PRECISION**& coupling_fluxes, FP_PRECISION* curr_fluxes,
+                      int& offset);
+
+
 FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                              FP_PRECISION tol, FP_PRECISION SOR_factor=1.5,
-                             ConvergenceData* convergence_data = NULL);
+                             ConvergenceData* convergence_data = NULL,
+                             DomainCommunicator* comm = NULL);
 void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                  FP_PRECISION SOR_factor=1.5,
-                 ConvergenceData* convergence_data = NULL);
+                 ConvergenceData* convergence_data = NULL,
+                 DomainCommunicator* comm = NULL);
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
-FP_PRECISION computeRMSE(Vector* x, Vector* y, bool integrated, int it);
+FP_PRECISION computeRMSE(Vector* x, Vector* y, bool integrated, int it,
+                         DomainCommunicator* comm = NULL);
 
 
 /**
