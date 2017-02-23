@@ -75,6 +75,7 @@ private:
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the beginning of a CMFD solve */
   Vector* _old_flux;
+  Vector* _old_flux_full; //FIXME
 
   /** The corrected diffusion coefficients from the previous iteration */
   Vector* _old_dif_surf_corr;
@@ -199,6 +200,11 @@ private:
   DomainCommunicator* _domain_communicator;
 
   //FIXME
+  int _local_num_x;
+  int _local_num_y;
+  int _local_num_z;
+
+  //FIXME
   long _total_tally_size;
   FP_PRECISION* _tally_memory;
   FP_PRECISION** _nu_fission_tally;
@@ -242,7 +248,8 @@ private:
   void generateKNearestStencils();
 
   /* Private getter functions */
-  int getCellNext(int cell_id, int surface_id);
+  int getCellNext(int cell_id, int surface_id, bool global=true,
+                  bool neighbor=false);
   int getCellByStencil(int cell_id, int stencil_id);
   FP_PRECISION getFluxRatio(int cell_id, int group, int fsr);
   FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
@@ -255,6 +262,7 @@ private:
   FP_PRECISION getSurfaceWidth(int surface);
   FP_PRECISION getPerpendicularSurfaceWidth(int surface);
   int getSense(int surface);
+  int getLocalCMFDCell(int cmfd_cell); //FIXME
 
 
 public:
@@ -411,12 +419,13 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
-        omp_set_lock(&_surface_currents->getCellLocks()[cell_id]);
+
+        omp_set_lock(&_cell_locks[cell_id]);
         for (int g=0; g < ncg; g++) {
           int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
           _edge_corner_currents[idx] += currents[g];
         }
-        omp_unset_lock(&_surface_currents->getCellLocks()[cell_id]);
+        omp_unset_lock(&_cell_locks[cell_id]);
       }
     }
     else {
@@ -439,12 +448,12 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
-        omp_set_lock(&_surface_currents->getCellLocks()[cell_id]);
+        omp_set_lock(&_cell_locks[cell_id]);
         for (int g=0; g < ncg; g++) {
           int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
           _edge_corner_currents[idx] += currents[g];
         }
-        omp_unset_lock(&_surface_currents->getCellLocks()[cell_id]);
+        omp_unset_lock(&_cell_locks[cell_id]);
       }
     }
   }

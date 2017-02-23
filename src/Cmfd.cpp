@@ -23,6 +23,9 @@ Cmfd::Cmfd() {
   _num_x = 1;
   _num_y = 1;
   _num_z = 1;
+  _local_num_x = 1;
+  _local_num_y = 1;
+  _local_num_z = 1;
   _width_x = 0.;
   _width_y = 0.;
   _width_z = 0.;
@@ -180,8 +183,29 @@ Cmfd::~Cmfd() {
 #endif
   }
 
-  if (_domain_communicator != NULL)
+  /* TODO: clean, document */
+  int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
+  if (_domain_communicator != NULL) {
+    for (int rb=0; rb<2; rb++) {
+      for (int nsc=0; nsc < num_cells_local * _num_cmfd_groups; nsc++) {
+        delete [] _domain_communicator->indexes[rb][nsc];
+        delete [] _domain_communicator->domains[rb][nsc];
+        delete [] _domain_communicator->coupling_coeffs[rb][nsc];
+        delete [] _domain_communicator->fluxes[rb][nsc];
+      }
+      delete [] _domain_communicator->num_connections[rb];
+      delete [] _domain_communicator->indexes[rb];
+      delete [] _domain_communicator->domains[rb];
+      delete [] _domain_communicator->coupling_coeffs[rb];
+      delete [] _domain_communicator->fluxes[rb];
+    }
+
+    delete [] _domain_communicator->num_connections;
+    delete [] _domain_communicator->indexes;
+    delete [] _domain_communicator->fluxes;
+    delete [] _domain_communicator->coupling_coeffs;
     delete _domain_communicator;
+  }
 
   for (int r=0; r < _num_FSRs; r++)
     delete [] _axial_interpolants.at(r);
@@ -199,6 +223,9 @@ void Cmfd::setNumX(int num_x) {
                "must be > 0. Input value: %i", num_x);
 
   _num_x = num_x;
+  _local_num_x = _num_x;
+  if (_domain_communicator != NULL)
+    _local_num_x = _num_x / _domain_communicator->_num_domains_x;
   if (_width_x != 0.)
     _cell_width_x = _width_x / _num_x;
 }
@@ -215,6 +242,9 @@ void Cmfd::setNumY(int num_y) {
                "must be > 0. Input value: %i", num_y);
 
   _num_y = num_y;
+  _local_num_y = _num_y;
+  if (_domain_communicator != NULL)
+    _local_num_y = _num_y / _domain_communicator->_num_domains_y;
   if (_width_y != 0.)
     _cell_width_y = _width_y / _num_y;
 }
@@ -231,6 +261,9 @@ void Cmfd::setNumZ(int num_z) {
                "must be > 0. Input value: %i", num_z);
 
   _num_z = num_z;
+  _local_num_z = _num_z;
+  if (_domain_communicator != NULL)
+    _local_num_z = _num_z / _domain_communicator->_num_domains_z;
   if (_width_z != 0.)
     _cell_width_z = _width_z / _num_z;
   if (_width_z == std::numeric_limits<double>::infinity())
@@ -295,7 +328,7 @@ void Cmfd::setWidthZ(double width) {
 
 
 #ifdef MPIx
-//FIXME
+//TODO: document
 void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
 
   if (_domain_communicator == NULL) {
@@ -307,10 +340,14 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   _domain_communicator->_num_domains_x = num_x;
   _domain_communicator->_num_domains_y = num_y;
   _domain_communicator->_num_domains_z = num_z;
+
+  _local_num_x = _num_x / num_x;
+  _local_num_y = _num_y / num_y;
+  _local_num_z = _num_z / num_z;
 }
 
 
-//FIXME
+//TODO: document
 void Cmfd::setDomainIndexes(int idx_x, int idx_y, int idx_z) {
 
   if (_domain_communicator == NULL) {
@@ -393,7 +430,7 @@ void Cmfd::collapseXS() {
   splitVertexCurrents();
   splitEdgeCurrents();
 
-  //FIXME
+  //TODO: clean
   bool neg_fluxes = false;
 
 #pragma omp parallel
@@ -532,13 +569,45 @@ void Cmfd::collapseXS() {
   }
 #endif
 
-  //FIXME
+  //TODO: clean
   if (neg_fluxes)
       log_printf(WARNING, "Negative FSR fluxes found in group collapse");
+
+  //TODO: document
+  int x_start = 0;
+  int y_start = 0;
+  int z_start = 0;
+  int x_end = _num_x;
+  int y_end = _num_y;
+  int z_end = _num_z;
+  if (_geometry->isDomainDecomposed()) {
+    if (_domain_communicator != NULL) {
+      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+      x_end = x_start + _local_num_x;
+      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+      y_end = y_start + _local_num_y;
+      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+      z_end = z_start + _local_num_z;
+    }
+  }
 
   /* Loop over CMFD cells and set cross sections */
 #pragma parallel omp for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+
+    int ix = (i % (_num_x * _num_y)) % _num_x;
+    int iy = (i % (_num_x * _num_y)) / _num_x;
+    int iz = i / (_num_x * _num_y);
+
+    /*
+    if (ix < x_start || ix >= x_end || iy < y_start || iy >= y_end ||
+        iz < z_start || iz >= z_end)
+      continue;
+      */
+
+    int ind = ((iz - z_start) * _local_num_y + iy - y_start) * _local_num_x
+              + ix - x_start;
+
 
     Material* cell_material = _materials[i];
 
@@ -558,7 +627,10 @@ void Cmfd::collapseXS() {
       _volumes->setValue(i, 0, vol_tally);
       cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e + 1);
       cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e + 1);
-      _old_flux->setValue(i, e, rxn_tally / vol_tally);
+      if (ix >= x_start && ix < x_end && iy >= y_start && iy < y_end &&
+          iz >= z_start && iz < z_end)
+        _old_flux->setValue(ind, e, rxn_tally / vol_tally);
+      _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
 
       /* Set chi */
       if (neut_prod_tally != 0.0)
@@ -625,8 +697,8 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* Get diffusivity and flux for Mesh cell */
   FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
-  FP_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
-  int cmfd_cell_next = getCellNext(cmfd_cell, surface);
+  FP_PRECISION flux = _old_flux_full->getValue(cmfd_cell, group); //FIXME
+  int cmfd_cell_next = getCellNext(cmfd_cell, surface); //FIXME
   FP_PRECISION delta_interface = getSurfaceWidth(surface);
   FP_PRECISION delta = getPerpendicularSurfaceWidth(surface);
   int sense = getSense(surface);
@@ -674,7 +746,9 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Set diffusion coefficient and flux for the neighboring cell */
     FP_PRECISION dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
-    flux_next = _old_flux->getValue(cmfd_cell_next, group);
+
+    //FIXME
+    flux_next = _old_flux_full->getValue(cmfd_cell_next, group);
 
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
@@ -785,47 +859,45 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   _timer->startTimer();
 
   /* Solve the eigenvalue problem */
+  /*
+  std::cout << "BEFORE" << std::endl;
+  _new_flux->printString();
+  std::cout << "A....." << std::endl;
+  _A->printString();
+  if (_domain_communicator != NULL) {
+    for (int c = 0; c < 2; c++) {
+      int size = _local_num_x * _local_num_y * _local_num_z * _num_cmfd_groups;
+      for (int cg=0; cg < size; cg++) {
+        int ns = _domain_communicator->num_connections[c][cg];
+        for (int s=0; s < ns; s++) {
+          std::cout << "Connection with domain " <<
+            _domain_communicator->domains[c][cg][s] << " at idx " <<
+            _domain_communicator->indexes[c][cg][s] << " for color " << c << " and "
+            << "row " << cg << " = " <<
+            _domain_communicator->coupling_coeffs[c][cg][s] << std::endl;
+        }
+      }
+    }
+  }
+  std::cout << "M....." << std::endl;
+  _M->printString();
+  */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
                            _source_convergence_threshold, _SOR_factor,
                            _convergence_data, _domain_communicator);
+  /*
+  std::cout << "AFTER" << std::endl;
+  _new_flux->printString();
+  if (moc_iteration > 0)
+    exit(0);
+    */
 
   /* Tally the CMFD solver time */
   _timer->stopTimer();
   _timer->recordSplit("Total solver time");
 
-  //FIXME
-  /*
-  if (_domain_communicator != NULL) {
-    int rank;
-    MPI_Comm_rank(_domain_communicator->_MPI_cart, &rank);
-    if (rank == 0) {
-      std::cout << "CMFD After" << std::endl;
-      std::cout << "OLD flux:" << std::endl;
-      _old_flux->printString();
-      std::cout << "NEW flux:" << std::endl;
-      _new_flux->printString();
-    }
-  }
-  */
-
   /* Rescale the old and new flux */
   rescaleFlux();
-
-  //FIXME
-  /*
-  if (_domain_communicator != NULL) {
-    int rank;
-    MPI_Comm_rank(_domain_communicator->_MPI_cart, &rank);
-    if (rank == 0) {
-      std::cout << "CMFD Rescaled" << std::endl;
-      std::cout << "OLD flux:" << std::endl;
-      _old_flux->printString();
-      std::cout << "NEW flux:" << std::endl;
-      _new_flux->printString();
-    }
-    _domain_communicator->stop = true;
-  }
-  */
 
   /* Update the MOC flux */
   updateMOCFlux();
@@ -851,8 +923,25 @@ void Cmfd::rescaleFlux() {
   matrixMultiplication(_M, _new_flux, _new_source);
   matrixMultiplication(_M, _old_flux, _old_source);
 
-  _new_flux->scaleByValue(1.0 / _new_source->getSum());
-  _old_flux->scaleByValue(1.0 / _old_source->getSum());
+  double new_source_sum = _new_source->getSum();
+  double old_source_sum = _old_source->getSum();
+#ifdef MPIx
+  if (_domain_communicator != NULL) {
+    //FIXME
+    if (_domain_communicator->_num_domains_x *
+        _domain_communicator->_num_domains_y *
+        _domain_communicator->_num_domains_z > 1) {
+    double temp_sum_new = new_source_sum;
+    MPI_Allreduce(&temp_sum_new, &new_source_sum, 1, MPI_DOUBLE, MPI_SUM,
+                  _domain_communicator->_MPI_cart);
+    double temp_sum_old = old_source_sum;
+    MPI_Allreduce(&temp_sum_old, &old_source_sum, 1, MPI_DOUBLE, MPI_SUM,
+                  _domain_communicator->_MPI_cart);
+    }
+  }
+#endif
+  _new_flux->scaleByValue(1.0 / new_source_sum);
+  _old_flux->scaleByValue(1.0 / old_source_sum);
 }
 
 
@@ -872,6 +961,15 @@ void Cmfd::constructMatrices(int moc_iteration) {
   _A->clear();
   _M->clear();
 
+  //TODO: more elegant
+  if (_domain_communicator != NULL) {
+    int num_local_cells = _local_num_x * _local_num_y * _local_num_z;
+    for (int c=0; c<2; c++) {
+      for (int ncg=0; ncg < num_local_cells * _num_cmfd_groups; ncg++) {
+        _domain_communicator->num_connections[c][ncg] = 0;
+      }
+    }
+  }
 #pragma omp parallel
   {
 
@@ -880,9 +978,41 @@ void Cmfd::constructMatrices(int moc_iteration) {
     int sense;
     Material* material;
 
+    int num_cells = _num_x * _num_y * _num_z;
+    int x_start = 0;
+    int y_start = 0;
+    int z_start = 0;
+    int x_end = _num_x;
+    int y_end = _num_y;
+    int z_end = _num_z;
+    if (_geometry->isDomainDecomposed()) {
+      if (_domain_communicator != NULL) {
+        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+        x_end = x_start + _local_num_x;
+        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+        y_end = y_start + _local_num_y;
+        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+        z_end = z_start + _local_num_z;
+      }
+    }
+
     /* Loop over cells */
 #pragma omp for
     for (int i = 0; i < _num_x*_num_y*_num_z; i++) {
+
+      int ix = (i % (_num_x * _num_y)) % _num_x;
+      int iy = (i % (_num_x * _num_y)) / _num_x;
+      int iz = i / (_num_x * _num_y);
+
+      if (ix < x_start || ix >= x_end || iy < y_start || iy >= y_end ||
+          iz < z_start || iz >= z_end)
+        continue;
+
+      int ind = ((iz - z_start) * _local_num_y + iy - y_start) * _local_num_x
+                + ix - x_start;
+
+      //FIXME maybe???
+      int color = (ix + iy + iz) % 2;
 
       material = _materials[i];
       volume = _volumes->getValue(i, 0);
@@ -892,12 +1022,12 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
         /* Net removal term */
         value = material->getSigmaTByGroup(e+1) * volume;
-        _A->incrementValue(i, e, i, e, value);
+        _A->incrementValue(ind, e, ind, e, value);
 
         /* Scattering gain from all groups */
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = - material->getSigmaSByGroup(g+1, e+1) * volume;
-          _A->incrementValue(i, g, i, e, value);
+          _A->incrementValue(ind, g, ind, e, value);
         }
 
         /* Streaming to neighboring cells */
@@ -917,12 +1047,27 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
           /* Set the diagonal term */
           value = (dif_surf - sense * dif_surf_corr) * delta;
-          _A->incrementValue(i, e, i, e, value);
+          _A->incrementValue(ind, e, ind, e, value);
 
           /* Set the off diagonal term */
-          if (getCellNext(i, s) != -1) {
+          if (getCellNext(ind, s, false, false) != -1) {
             value = - (dif_surf + sense * dif_surf_corr) * delta;
-            _A->incrementValue(getCellNext(i, s), e, i, e, value);
+            _A->incrementValue(getCellNext(ind, s, false, false), e, ind, e, value);
+          }
+          /* Check for cell in neighboring domain if applicable */
+          else if (_geometry->isDomainDecomposed()) {
+            if (_domain_communicator != NULL) {
+              if (getCellNext(ind, s, false, true) != -1) {
+                int neighbor_cell = getCellNext(ind, s, false, true);
+                int row = neighbor_cell * _num_cmfd_groups + e;
+                int idx = _domain_communicator->num_connections[color][row];
+                value = - (dif_surf + sense * dif_surf_corr) * delta;
+                _domain_communicator->indexes[color][row][idx] = neighbor_cell;
+                _domain_communicator->domains[color][row][idx] = s;
+                _domain_communicator->coupling_coeffs[color][row][idx] = value;
+                _domain_communicator->num_connections[color][row]++;
+              }
+            }
           }
         }
 
@@ -930,7 +1075,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = material->getChiByGroup(e+1)
               * material->getNuSigmaFByGroup(g+1) * volume;
-          _M->incrementValue(i, g, i, e, value);
+          _M->incrementValue(ind, g, ind, e, value);
         }
       }
     }
@@ -955,8 +1100,38 @@ void Cmfd::updateMOCFlux() {
     _convergence_data->pf = 1.0;
 
   /* Loop over mesh cells */
+  //FIXME
+  int x_start = 0;
+  int y_start = 0;
+  int z_start = 0;
+  int x_end = _num_x;
+  int y_end = _num_y;
+  int z_end = _num_z;
+  if (_geometry->isDomainDecomposed()) {
+    if (_domain_communicator != NULL) {
+      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+      x_end = x_start + _local_num_x;
+      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+      y_end = y_start + _local_num_y;
+      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+      z_end = z_start + _local_num_z;
+    }
+  }
+
 #pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+
+    //FIXME
+    int ix = (i % (_num_x * _num_y)) % _num_x;
+    int iy = (i % (_num_x * _num_y)) / _num_x;
+    int iz = i / (_num_x * _num_y);
+
+    if (ix < x_start || ix >= x_end || iy < y_start || iy >= y_end ||
+        iz < z_start || iz >= z_end)
+      continue;
+
+    int ind = ((iz - z_start) * _local_num_y + iy - y_start) * _local_num_x
+              + ix - x_start;
 
     std::vector<int>::iterator iter;
 
@@ -968,12 +1143,9 @@ void Cmfd::updateMOCFlux() {
            iter != _cell_fsrs.at(i).end(); ++iter) {
 
         /* Get the update ratio */
-        FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
-        /*
-        if (update_ratio != 0.0)
-          update_ratio = exp(_relaxation_factor * log(update_ratio));
-          */
-
+        //FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
+        FP_PRECISION update_ratio = _new_flux->getValue(ind, e) /
+              _old_flux->getValue(ind, e);
         if (_convergence_data != NULL)
           if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))
             _convergence_data->pf = update_ratio;
@@ -1238,6 +1410,7 @@ void Cmfd::initializeCurrents() {
 void Cmfd::initializeCellMap() {
 
   /* Allocate memory for mesh cell FSR vectors */
+  //FIXME
   for (int z = 0; z < _num_z; z++) {
     for (int y = 0; y < _num_y; y++) {
       for (int x = 0; x < _num_x; x++)
@@ -1247,7 +1420,7 @@ void Cmfd::initializeCellMap() {
 }
 
 
-//FIXME XXX
+//TODO DOCUMENT XXX
 void Cmfd::allocateTallies() {
 
   if (_num_x*_num_y*_num_z == 0)
@@ -1413,6 +1586,7 @@ Lattice* Cmfd::getLattice() {
  * @param The CMFD cell ID.
  * @param The FSR ID.
  */
+//FIXME
 void Cmfd::addFSRToCell(int cmfd_cell, int fsr_id) {
   _cell_fsrs.at(cmfd_cell).push_back(fsr_id);
 }
@@ -2217,51 +2391,87 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
  * @param CMFD cell surface ID to look across for neighboring cell
  * @return neighboring CMFD cell ID
  */
-int Cmfd::getCellNext(int cell, int surface_id) {
+//FIXME: HEADER
+int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
 
   int cell_next = -1;
-  int x = (cell % (_num_x * _num_y)) % _num_x;
-  int y = (cell % (_num_x * _num_y)) / _num_x;
-  int z = cell / (_num_x * _num_y);
+
+  int x, y, z;
+  int nx, ny, nz;
+  int x_global, y_global, z_global;
+  if (global || _domain_communicator == NULL) {
+    x_global = (cell % (_num_x * _num_y)) % _num_x;
+    y_global = (cell % (_num_x * _num_y)) / _num_x;
+    z_global = cell / (_num_x * _num_y);
+    x = x_global;
+    y = y_global;
+    z = z_global;
+    nx = _num_x;
+    ny = _num_y;
+    nz = _num_z;
+  }
+  else {
+    x = (cell % (_local_num_x * _local_num_y)) % _local_num_x;
+    y = (cell % (_local_num_x * _local_num_y)) / _local_num_x;
+    z = cell / (_local_num_x * _local_num_y);
+    x_global = x + _domain_communicator->_domain_idx_x * _local_num_x;
+    y_global = y + _domain_communicator->_domain_idx_y * _local_num_y;
+    z_global = z + _domain_communicator->_domain_idx_z * _local_num_z;
+    nx = _local_num_x;
+    ny = _local_num_y;
+    nz = _local_num_z;
+  }
 
   if (surface_id == SURFACE_X_MIN) {
     if (x != 0)
       cell_next = cell - 1;
+    else if (neighbor && !global && x_global != 0)
+      cell_next = cell + (_local_num_x - 1);
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
       cell_next = cell + (_num_x-1);
   }
 
   else if (surface_id == SURFACE_Y_MIN) {
     if (y != 0)
-      cell_next = cell - _num_x;
+      cell_next = cell - nx;
+    else if (neighbor && !global && y_global != 0)
+      cell_next = cell + _local_num_x*(_local_num_y-1);
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
       cell_next = cell + _num_x*(_num_y-1);
   }
 
   else if (surface_id == SURFACE_Z_MIN) {
     if (z != 0)
-      cell_next = cell - _num_x*_num_y;
+      cell_next = cell - nx*ny;
+    else if (neighbor && !global && z_global != 0)
+      cell_next = cell + _local_num_x *_local_num_y*(_local_num_z-1);
     else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
       cell_next = cell + _num_x*_num_y*(_num_z-1);
   }
 
   else if (surface_id == SURFACE_X_MAX) {
-    if (x != _num_x - 1)
+    if (x != nx - 1)
       cell_next = cell + 1;
+    else if (neighbor && !global && x_global != _num_x - 1)
+      cell_next = cell - (_local_num_x-1);
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
       cell_next = cell - (_num_x-1);
   }
 
   else if (surface_id == SURFACE_Y_MAX) {
-    if (y != _num_y - 1)
-      cell_next = cell + _num_x;
+    if (y != ny - 1)
+      cell_next = cell + nx;
+    else if (neighbor && !global && y_global != _num_y - 1)
+      cell_next = cell - _local_num_x*(_local_num_y-1);
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
       cell_next = cell - _num_x*(_num_y-1);
   }
 
   else if (surface_id == SURFACE_Z_MAX) {
-    if (z != _num_z - 1)
-      cell_next = cell + _num_x*_num_y;
+    if (z != nz - 1)
+      cell_next = cell + nx*ny;
+    else if (neighbor && !global && z_global != _num_z - 1)
+      cell_next = cell - _local_num_x*_local_num_y*(_local_num_z-1);
     else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
       cell_next = cell - _num_x*_num_y*(_num_z-1);
   }
@@ -2306,10 +2516,12 @@ int Cmfd::getBoundary(int side) {
  * @param The FSR ID.
  * @return The CMFD cell ID. Return -1 if cell is not found.
  */
+//FIXME
 int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
   std::vector<int>::iterator iter;
-  for (int cell_id=0; cell_id < _num_x*_num_y*_num_z; cell_id++) {
+  for (int cell_id=0; cell_id < _num_x*_num_y*_num_z;
+      cell_id++) {
     for (iter = _cell_fsrs.at(cell_id).begin();
          iter != _cell_fsrs.at(cell_id).end(); ++iter) {
       if (*iter  == fsr_id)
@@ -2321,7 +2533,7 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 }
 
 
-//FIXME
+//TODO document
 int Cmfd::convertGlobalFSRIdToCmfdCell(int global_fsr_id) {
 
   /* Determine the domain and local FSR ID */
@@ -2389,7 +2601,7 @@ void Cmfd::setFluxUpdateOn(bool flux_update_on) {
 }
 
 
-//FIXME
+//TODO document
 void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
   _convergence_data = convergence_data;
 }
@@ -2488,6 +2700,7 @@ void Cmfd::generateKNearestStencils() {
   int num_cells_in_stencil = 9;
 
   /* Loop over mesh cells */
+  //FIXME
   for (int i = 0; i < _num_x*_num_y*_num_z; i++) {
 
     /* Loop over FRSs in mesh cell */
@@ -2946,9 +3159,6 @@ void Cmfd::zeroCurrents() {
  */
 void Cmfd::initialize() {
 
-  int ncg = _num_cmfd_groups;
-  int num_cells = getNumCells();
-
   /* Delete old Matrix and Vector objects if they exist */
   if (_M != NULL)
     delete _M;
@@ -2969,23 +3179,34 @@ void Cmfd::initialize() {
   if (_cell_locks != NULL)
     delete [] _cell_locks;
 
+  /* Calculate the number of elements */
+  int num_cells = _local_num_x * _local_num_y * _local_num_z;
+  int ncg = _num_cmfd_groups;
+
   try {
 
     /* Allocate array of OpenMP locks for each CMFD cell */
-    _cell_locks = new omp_lock_t[num_cells];
+    _cell_locks = new omp_lock_t[_num_x * _num_y * _num_z]; //FIXME
 
     /* Loop over all cells to initialize OpenMP locks */
 #pragma omp parallel for schedule(guided)
-    for (int r=0; r < num_cells; r++)
+    for (int r=0; r < _num_x*_num_y*_num_z; r++)
       omp_init_lock(&_cell_locks[r]);
 
     /* Allocate memory for matrix and vector objects */
-    _M = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _A = new Matrix(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _old_source = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _new_source = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _old_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
-    _new_flux = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
+    _M = new Matrix(_cell_locks, _local_num_x, _local_num_y, _local_num_z,
+                    ncg);
+    _A = new Matrix(_cell_locks, _local_num_x, _local_num_y, _local_num_z,
+                    ncg);
+    _old_source = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                             _local_num_z, ncg);
+    _new_source = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                             _local_num_z, ncg);
+    _old_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                           _local_num_z, ncg);
+    _old_flux_full = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
+    _new_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                           _local_num_z, ncg);
     _old_dif_surf_corr = new Vector(_cell_locks, _num_x, _num_y, _num_z,
                                     NUM_FACES * ncg);
     _old_dif_surf_corr->setAll(0.0);
@@ -2996,6 +3217,42 @@ void Cmfd::initialize() {
     initializeCurrents();
     initializeMaterials();
     allocateTallies();
+
+    /* TODO: document, clean */
+    if (_domain_communicator != NULL) {
+      _local_num_x = _num_x / _domain_communicator->_num_domains_x;
+      _local_num_y = _num_y / _domain_communicator->_num_domains_y;
+      _local_num_z = _num_z / _domain_communicator->_num_domains_z;
+      int offset = _domain_communicator->_domain_idx_x * _local_num_x +
+        _domain_communicator->_domain_idx_y * _local_num_y +
+        _domain_communicator->_domain_idx_z * _local_num_z;
+      _domain_communicator->_offset = offset;
+
+      _domain_communicator->num_connections = new int*[2];
+      _domain_communicator->indexes = new int**[2];
+      _domain_communicator->domains = new int**[2];
+      _domain_communicator->fluxes = new FP_PRECISION**[2];
+      _domain_communicator->coupling_coeffs = new FP_PRECISION**[2];
+      _domain_communicator->buffer =
+                          new FP_PRECISION[2*num_cells*ncg*NUM_FACES];
+      _domain_communicator->buffer_size = num_cells*ncg;
+      for (int rb=0; rb<2; rb++) {
+        _domain_communicator->num_connections[rb] = new int[num_cells*ncg];
+        _domain_communicator->indexes[rb] = new int*[num_cells*ncg];
+        _domain_communicator->domains[rb] = new int*[num_cells*ncg];
+        _domain_communicator->fluxes[rb] = new FP_PRECISION*[num_cells*ncg];
+        _domain_communicator->coupling_coeffs[rb] =
+                            new FP_PRECISION*[num_cells*ncg];
+        for (int nsc=0; nsc < num_cells * ncg; nsc++) {
+          _domain_communicator->num_connections[rb][nsc] = 0;
+          _domain_communicator->indexes[rb][nsc] = new int[NUM_FACES];
+          _domain_communicator->domains[rb][nsc] = new int[NUM_FACES];
+          _domain_communicator->fluxes[rb][nsc] = new FP_PRECISION[NUM_FACES];
+          _domain_communicator->coupling_coeffs[rb][nsc] =
+                              new FP_PRECISION[NUM_FACES];
+        }
+      }
+    }
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
@@ -3134,7 +3391,7 @@ void Cmfd::setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
 }
 
 
-//FIXME
+//TODO: document
 void Cmfd::printTimerReport() {
 
   std::string msg_string;
@@ -3165,7 +3422,7 @@ void Cmfd::printTimerReport() {
 }
 
 
-//FIXME
+//TODO: Document + FIXME
 void Cmfd::checkNeutronBalance() {
 
   /* Initialize variables */
@@ -3244,7 +3501,7 @@ void Cmfd::checkNeutronBalance() {
       double net_current = 0.0;
       for (int s = 0; s < NUM_FACES; s++) {
         int idx = s * _num_cmfd_groups + e;
-        int cmfd_cell_next = getCellNext(i, s);
+        int cmfd_cell_next = getCellNext(i, s); //FIXME
         int surface_next = (s + NUM_FACES / 2) % NUM_FACES;
         int idx_next = surface_next * _num_cmfd_groups + e;
         if (cmfd_cell_next == -1) {
@@ -3285,3 +3542,35 @@ void Cmfd::checkNeutronBalance() {
   log_printf(NORMAL, "Maximum neutron imbalance of %g at cell %i and group "
              "%d.", max_imbalance, max_imbalance_cell, max_imbalance_grp);
 }
+
+
+
+//TODO: REMOVE
+int Cmfd::getLocalCMFDCell(int cmfd_cell) {
+
+  int x_start = 0;
+  int y_start = 0;
+  int z_start = 0;
+  int x_end = _num_x;
+  int y_end = _num_y;
+  int z_end = _num_z;
+  if (_geometry->isDomainDecomposed()) {
+    if (_domain_communicator != NULL) {
+      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+      x_end = x_start + _local_num_x;
+      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+      y_end = y_start + _local_num_y;
+      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+      z_end = z_start + _local_num_z;
+    }
+  }
+
+  int ix = (cmfd_cell % (_num_x * _num_y)) % _num_x;
+  int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
+  int iz = cmfd_cell / (_num_x * _num_y);
+
+  return ((iz - z_start) * _local_num_y + iy - y_start) * _local_num_x
+                + ix - x_start;
+}
+
+

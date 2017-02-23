@@ -43,186 +43,6 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                "different num groups  for the A matrix, M matrix, and X vector:"
                " (%d, %d, %d)", A->getNumGroups(), M->getNumGroups(),
                X->getNumGroups());
-  //FIXME
-  Matrix* A_temp = A;
-  Matrix* M_temp = M;
-  Vector* X_temp = X;
-
-  int num_x_global = X->getNumX();
-  int num_y_global = X->getNumY();
-  int num_z_global = X->getNumZ();
-  /*
-  std::cout << "Starting vector:" << std::endl;
-  X->printString();
-  */
-
-  if (comm != NULL) {
-
-    int nx = num_x_global / comm->_num_domains_x;
-    int ny = num_y_global / comm->_num_domains_y;
-    int nz = num_z_global / comm->_num_domains_z;
-
-    A_temp = new Matrix(A->getCellLocks(), nx, ny, nz, A->getNumGroups());
-    M_temp = new Matrix(M->getCellLocks(), nx, ny, nz, M->getNumGroups());
-    X_temp = new Vector(X->getCellLocks(), nx, ny, nz, X->getNumGroups());
-
-    int ng = A->getNumGroups();
-    int num_small_cells = nx * ny * nz;
-
-    int x_start = comm->_domain_idx_x * nx;
-    int x_end = (comm->_domain_idx_x + 1) * nx;
-    int y_start = comm->_domain_idx_y * ny;
-    int y_end = (comm->_domain_idx_y + 1) * ny;
-    int z_start = comm->_domain_idx_z * nz;
-    int z_end = (comm->_domain_idx_z + 1) * nz;
-
-    comm->num_connections = new int*[2];
-    comm->indexes = new int**[2];
-    comm->domains = new int**[2];
-    comm->fluxes = new FP_PRECISION**[2];
-    comm->coupling_coeffs = new FP_PRECISION**[2];
-    comm->buffer = new FP_PRECISION[2*num_small_cells*ng*NUM_FACES];
-    comm->buffer_size = num_small_cells*ng;
-    for (int rb=0; rb<2; rb++) {
-      comm->num_connections[rb] = new int[num_small_cells*ng];
-      comm->indexes[rb] = new int*[num_small_cells*ng];
-      comm->domains[rb] = new int*[num_small_cells*ng];
-      comm->fluxes[rb] = new FP_PRECISION*[num_small_cells*ng];
-      comm->coupling_coeffs[rb] = new FP_PRECISION*[num_small_cells*ng];
-      //printf("At %d allocating %d\n", rb, num_small_cells * ng);
-      for (int nsc=0; nsc < num_small_cells * ng; nsc++) {
-        comm->num_connections[rb][nsc] = 0;
-        comm->indexes[rb][nsc] = new int[NUM_FACES];
-        comm->domains[rb][nsc] = new int[NUM_FACES];
-        comm->fluxes[rb][nsc] = new FP_PRECISION[NUM_FACES];
-        comm->coupling_coeffs[rb][nsc] = new FP_PRECISION[NUM_FACES];
-        for (int f=0; f < NUM_FACES; f++)
-          comm->fluxes[rb][nsc][f] = X->getValue(nsc/ng, nsc%ng);
-      }
-    }
-
-    comm->_offset = (x_start + y_start + z_start) % 2;
-
-    Matrix* new_mats[2] = {A_temp, M_temp};
-    Matrix* old_mats[2] = {A, M};
-
-    for (int mi=0; mi < 2; mi++) {
-
-      Matrix* new_mat = new_mats[mi];
-      Matrix* old_mat = old_mats[mi];
-
-      Vector* new_vec = X_temp;
-      Vector* old_vec = X;
-
-      int* IA = old_mat->getIA();
-      int* JA = old_mat->getJA();
-
-      for (int ix=x_start; ix < x_end; ix++) {
-        for (int iy=y_start; iy < y_end; iy++) {
-          for (int iz=z_start; iz < z_end; iz++) {
-            int n = ((iz-z_start)*ny + (iy-y_start))*nx + ix - x_start;
-            int n_global = (iz*num_y_global + iy)*num_x_global + ix;
-            for (int g=0; g < ng; g++) {
-              int row_global = n_global * ng + g;
-              int row = n * ng + g;
-
-              new_vec->setValue(n,g,old_vec->getValue(n_global,g));
-              for (int i = IA[row_global]; i < IA[row_global+1]; i++) {
-
-                // Get the column index
-                int col = JA[i];
-                int j = col / ng;
-                int gp = col % ng;
-
-                int jx = (j % (num_x_global * num_y_global)) % num_x_global;
-                int jy = (j % (num_x_global * num_y_global)) / num_x_global;
-                int jz = j / (num_x_global * num_y_global);
-
-                int domain = -1;
-                //FIXME: missing corners
-                if (jx < x_start)
-                  domain = SURFACE_X_MIN;
-                else if (jx >= x_end)
-                  domain = SURFACE_X_MAX;
-                else if (jy < y_start)
-                  domain = SURFACE_Y_MIN;
-                else if (jy >= y_end)
-                  domain = SURFACE_Y_MAX;
-                else if (jz < z_start)
-                  domain = SURFACE_Z_MIN;
-                else if (jz >= z_end)
-                  domain = SURFACE_Z_MAX;
-
-                FP_PRECISION val = old_mat->getValue(j, gp, n_global, g);
-                int jp = ((jz-z_start)*ny + (jy-y_start))*nx + jx - x_start;
-                if (domain == -1) {
-                  new_mat->setValue(jp, gp, n, g, val);
-                }
-                else {
-
-                  /*
-                  printf("Found off node at %d global (%d, %d, %d) local "
-                         "(%d, %d, %d) group %d.\n From global index "
-                         "(%d, %d, %d) group %d.\n", row, jx, jy, jz, jx-x_start,
-                         jy-y_start, jz-z_start, gp, ix, iy, iz, g);
-                  */
-
-                  int color = (ix + iy + iz) % 2;
-                  int idx = comm->num_connections[color][row];
-
-                  comm->domains[color][row][idx] = domain;
-
-                  if (domain == SURFACE_X_MIN)
-                    comm->indexes[color][row][idx] = n + nx-1;
-                  else if (domain == SURFACE_X_MAX)
-                    comm->indexes[color][row][idx] = n - nx+1;
-                  else if (domain == SURFACE_Y_MIN)
-                    comm->indexes[color][row][idx] = n + nx*(ny-1);
-                  else if (domain == SURFACE_Y_MAX)
-                    comm->indexes[color][row][idx] = n - nx*(ny-1);
-                  else if (domain == SURFACE_Z_MIN)
-                    comm->indexes[color][row][idx] = n + nx * ny * (nz-1);
-                  else if (domain == SURFACE_Z_MAX)
-                    comm->indexes[color][row][idx] = n - nx * ny * (nz-1);
-
-                  if (idx >= NUM_FACES) {
-                    std::cout << "OUT OF BOUNDS AT " << row << std::endl;
-                    std::cout << "-------> " << ix << ", " << iy << ", " <<
-                      iz << " (" << g << ", " << gp << ")" << std::endl;
-                  }
-
-                  comm->coupling_coeffs[color][row][idx] = val;
-
-                  comm->num_connections[color][row]++;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  /*
-  if (comm != NULL) {
-    int rank;
-    MPI_Comm_rank(comm->_MPI_cart, &rank);
-    if (rank == 0) {
-      std::cout << "XTEMP" << std::endl;
-      X_temp->printString();
-      std::cout << "X:" << std::endl;
-      X->printString();
-    }
-  }
-  */
-
-
-  Matrix* M_before = M;
-  Vector* X_before = X;
-  Matrix* A_before = A;
-  M = M_temp;
-  X = X_temp;
-  A = A_temp;
 
   /* Initialize variables */
   omp_lock_t* cell_locks = X->getCellLocks();
@@ -239,7 +59,6 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
   matrixMultiplication(M, X, &old_source);
   double old_source_sum = old_source.getSum();
   int num_rows = X->getNumRows();
-  //std::cout << "PRE NUM ROWS = " << num_rows << std::endl;
 #ifdef MPIx
   if (comm != NULL) {
     double temp_sum = old_source_sum;
@@ -257,10 +76,10 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
   double initial_residual = 0;
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
-
     /* Solve X = A^-1 * old_source */
     linearSolve(A, M, X, &old_source, tol*1e-2, SOR_factor,
                 convergence_data, comm);
+
 
     /* Compute the new source */
     matrixMultiplication(M, X, &new_source);
@@ -315,85 +134,6 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     log_printf(WARNING, "Eigenvalue solve failed to converge in %d iterations",
                iter);
 
-
-  M = M_before;
-  X = X_before;
-  A = A_before;
-
-  //FIXME
-  if (comm != NULL) {
-    int nx = num_x;
-    int ny = num_y;
-    int nz = num_z;
-    int ng = A->getNumGroups();
-    int num_small_cells = nx * ny * nz;
-
-    int x_start = comm->_domain_idx_x * nx;
-    int x_end = (comm->_domain_idx_x + 1) * nx;
-    int y_start = comm->_domain_idx_y * ny;
-    int y_end = (comm->_domain_idx_y + 1) * ny;
-    int z_start = comm->_domain_idx_z * nz;
-    int z_end = (comm->_domain_idx_z + 1) * nz;
-
-    for (int vi=0; vi<1; vi++) {
-      Vector* new_vec = X_temp;
-      Vector* old_vec = X;
-
-#ifdef MPIx
-      MPI_Datatype flux_type;
-      if (sizeof(FP_PRECISION) == 4)
-        flux_type = MPI_FLOAT;
-      else
-        flux_type = MPI_DOUBLE;
-
-
-      old_vec->setAll(0.0);
-      FP_PRECISION* send_arr = new FP_PRECISION[num_x_global*num_y_global*num_z_global*ng];
-      for (int ii=0; ii<num_x_global*num_y_global*num_z_global*ng; ii++)
-        send_arr[ii] = 0.0;
-      for (int ix=x_start; ix < x_end; ix++) {
-        for (int iy=y_start; iy < y_end; iy++) {
-          for (int iz=z_start; iz < z_end; iz++) {
-            int n = ((iz-z_start)*ny + (iy-y_start))*nx + ix - x_start;
-            int n_global = (iz*num_y_global + iy)*num_x_global + ix;
-            for (int g=0; g < ng; g++) {
-              old_vec->setValue(n_global,g,new_vec->getValue(n,g));
-              send_arr[n_global*ng+g] = new_vec->getValue(n,g);
-            }
-          }
-        }
-      }
-      if (comm->_num_domains_x * comm->_num_domains_y * comm->_num_domains_z > 1)
-        MPI_Allreduce(send_arr, old_vec->getArray(), num_x_global * num_y_global * num_z_global * ng,
-                      flux_type, MPI_SUM, comm->_MPI_cart);
-      delete [] send_arr;
-#endif
-    }
-
-    for (int rb=0; rb<2; rb++) {
-      //printf("At %d deleting %d\n", rb, num_small_cells * ng);
-      for (int nsc=0; nsc < num_small_cells * ng; nsc++) {
-        delete [] comm->indexes[rb][nsc];
-        delete [] comm->domains[rb][nsc];
-        delete [] comm->coupling_coeffs[rb][nsc];
-        delete [] comm->fluxes[rb][nsc];
-      }
-      delete [] comm->num_connections[rb];
-      delete [] comm->indexes[rb];
-      delete [] comm->domains[rb];
-      delete [] comm->coupling_coeffs[rb];
-      delete [] comm->fluxes[rb];
-    }
-
-    delete [] comm->num_connections;
-    delete [] comm->indexes;
-    delete [] comm->fluxes;
-    delete [] comm->coupling_coeffs;
-
-    delete A_temp;
-    delete M_temp;
-    delete X_temp;
-  }
 
   return k_eff;
 }
@@ -475,6 +215,38 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   FP_PRECISION** coupling_coeffs = NULL;
   FP_PRECISION** coupling_fluxes = NULL;
 
+  //FIXME REMOVE
+  /*
+  if (comm->stop) {
+    for (int c=0; c < 2; c++) {
+      int offset;
+      getCouplingTerms(comm, c, coupling_sizes, coupling_indexes,
+                       coupling_coeffs, coupling_fluxes, x, offset);
+      for (int iz=0; iz < num_z; iz++) {
+        for (int iy=0; iy < num_y; iy++) {
+          for (int ix=(iy+iz+c+offset)%2; ix < num_x; ix+=2) {
+          //for (int ix=0; ix < num_x; ix++) {
+            for (int g=0; g < num_groups; g++) {
+              int color = c;
+              int row = num_groups * ((iz*num_y + iy)*num_x + ix) + g;
+              for (int i = 0; i < coupling_sizes[row]; i++) {
+                int idx = coupling_indexes[row][i] * num_groups + g;
+                int domain = comm->domains[color][row][i];
+                FP_PRECISION flux = coupling_fluxes[idx][domain];
+                printf("COUPLING at color %d, row %d, and idx %d = %6.4f\n",
+                       color, row, idx, coupling_coeffs[row][i]);
+              }
+            }
+          }
+        }
+      }
+    }
+    X->printString();
+    M->printString();
+    A->printString();
+  }
+  */
+
   double initial_residual = 0;
   while (iter < MAX_LINEAR_SOLVE_ITERATIONS) {
 
@@ -506,8 +278,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                 /*
                 printf("At %d (%d, %d, %d) grp %d subtracting %6.4f x %6.4f / %6.4f\n",
                        row, ix, iy, iz, g, a[i], x[col], DIAG[row]);
-
-                       */
+*/
                 if (row == col)
                   x[row] += SOR_factor * b[row] / DIAG[row];
                 else
@@ -522,7 +293,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                   FP_PRECISION flux = coupling_fluxes[idx][domain];
                   x[row] -= SOR_factor * coupling_coeffs[row][i] * flux
                             / DIAG[row];
-                  /*
+                 /*
                   printf("xAt %d (%d, %d, %d) grp %d subtracting %6.4f x %6.4f / "
                        "%6.4f\n INDEXES = (%d, %d)\n", row,
                        ix, iy, iz, g, coupling_coeffs[row][i], flux,
