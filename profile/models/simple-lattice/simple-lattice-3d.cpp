@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(2,2,1);
+  cmfd.setLatticeStructure(2,2,6);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
   for (int g=3; g<7; g++)
     cmfd_group_structure.at(1).push_back(g+1);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setKNearest(3);
+  cmfd.setKNearest(1);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(2,1,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(2,1,2, MPI_COMM_WORLD);
 #endif
   //geometry.setAxialMesh(20.0/4);
   geometry.setCmfd(&cmfd);

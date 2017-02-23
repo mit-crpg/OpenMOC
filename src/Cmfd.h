@@ -263,6 +263,8 @@ private:
   FP_PRECISION getPerpendicularSurfaceWidth(int surface);
   int getSense(int surface);
   int getLocalCMFDCell(int cmfd_cell); //FIXME
+  int getGlobalCMFDCell(int cmfd_cell); //FIXME
+  int getCellColor(int cmfd_cell); //FIXME
 
 
 public:
