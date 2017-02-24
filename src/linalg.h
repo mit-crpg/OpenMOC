@@ -46,14 +46,17 @@ struct DomainCommunicator {
   int _domain_idx_x;
   int _domain_idx_y;
   int _domain_idx_z;
+  int _local_num_x;
+  int _local_num_y;
+  int _local_num_z;
   int _offset;
   int** num_connections;
   int*** indexes;
   int*** domains;
   FP_PRECISION*** coupling_coeffs;
   FP_PRECISION*** fluxes;
-  FP_PRECISION* buffer;
-  int buffer_size;
+  FP_PRECISION** buffer;
+  int num_groups;
   bool stop;
 #ifdef MPIx
   MPI_Comm _MPI_cart;

@@ -850,7 +850,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   }
   std::cout << "M....." << std::endl;
   _M->printString();
-*/
+  */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
                            _source_convergence_threshold, _SOR_factor,
                            _convergence_data, _domain_communicator);
@@ -1063,7 +1063,6 @@ void Cmfd::updateMOCFlux() {
     _convergence_data->pf = 1.0;
 
   /* Loop over mesh cells */
-
 #pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
@@ -2367,7 +2366,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (x != 0)
       cell_next = cell - 1;
     else if (neighbor && !global && x_global != 0)
-      cell_next = cell + (_local_num_x - 1);
+      cell_next = z * _local_num_y + y;
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
       cell_next = cell + (_num_x-1);
   }
@@ -2376,7 +2375,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (y != 0)
       cell_next = cell - nx;
     else if (neighbor && !global && y_global != 0)
-      cell_next = cell + _local_num_x*(_local_num_y-1);
+      cell_next = z * _local_num_x + x;
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
       cell_next = cell + _num_x*(_num_y-1);
   }
@@ -2385,7 +2384,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (z != 0)
       cell_next = cell - nx*ny;
     else if (neighbor && !global && z_global != 0)
-      cell_next = cell + _local_num_x *_local_num_y*(_local_num_z-1);
+      cell_next = y * _local_num_x + x;
     else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
       cell_next = cell + _num_x*_num_y*(_num_z-1);
   }
@@ -2394,7 +2393,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (x != nx - 1)
       cell_next = cell + 1;
     else if (neighbor && !global && x_global != _num_x - 1)
-      cell_next = cell - (_local_num_x-1);
+      cell_next = z * _local_num_y + y;
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
       cell_next = cell - (_num_x-1);
   }
@@ -2403,7 +2402,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (y != ny - 1)
       cell_next = cell + nx;
     else if (neighbor && !global && y_global != _num_y - 1)
-      cell_next = cell - _local_num_x*(_local_num_y-1);
+      cell_next = z * _local_num_x + x;
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
       cell_next = cell - _num_x*(_num_y-1);
   }
@@ -2412,7 +2411,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (z != nz - 1)
       cell_next = cell + nx*ny;
     else if (neighbor && !global && z_global != _num_z - 1)
-      cell_next = cell - _local_num_x*_local_num_y*(_local_num_z-1);
+      cell_next = y * _local_num_x + x;
     else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
       cell_next = cell - _num_x*_num_y*(_num_z-1);
   }
@@ -3164,36 +3163,51 @@ void Cmfd::initialize() {
     initializeMaterials();
     allocateTallies();
 
+
     /* TODO: document, clean */
     if (_domain_communicator != NULL) {
       _local_num_x = _num_x / _domain_communicator->_num_domains_x;
       _local_num_y = _num_y / _domain_communicator->_num_domains_y;
       _local_num_z = _num_z / _domain_communicator->_num_domains_z;
       int offset = _domain_communicator->_domain_idx_x * _local_num_x +
-        _domain_communicator->_domain_idx_y * _local_num_y +
-        _domain_communicator->_domain_idx_z * _local_num_z;
+                    _domain_communicator->_domain_idx_y * _local_num_y +
+                    _domain_communicator->_domain_idx_z * _local_num_z;
       _domain_communicator->_offset = offset;
+      _domain_communicator->_local_num_x = _local_num_x;
+      _domain_communicator->_local_num_y = _local_num_y;
+      _domain_communicator->_local_num_z = _local_num_z;
+      _domain_communicator->num_groups = ncg;
+
+      int dir_sizes[3] = {num_cells / _local_num_x,  num_cells / _local_num_y,
+                          num_cells / _local_num_z};
 
       _domain_communicator->num_connections = new int*[2];
       _domain_communicator->indexes = new int**[2];
       _domain_communicator->domains = new int**[2];
       _domain_communicator->fluxes = new FP_PRECISION**[2];
       _domain_communicator->coupling_coeffs = new FP_PRECISION**[2];
-      _domain_communicator->buffer =
-                          new FP_PRECISION[2*num_cells*ncg*NUM_FACES];
-      _domain_communicator->buffer_size = num_cells*ncg;
+      _domain_communicator->buffer = new FP_PRECISION*[NUM_FACES];
       for (int rb=0; rb<2; rb++) {
         _domain_communicator->num_connections[rb] = new int[num_cells*ncg];
         _domain_communicator->indexes[rb] = new int*[num_cells*ncg];
         _domain_communicator->domains[rb] = new int*[num_cells*ncg];
-        _domain_communicator->fluxes[rb] = new FP_PRECISION*[num_cells*ncg];
+        _domain_communicator->fluxes[rb] = new FP_PRECISION*[NUM_FACES];
         _domain_communicator->coupling_coeffs[rb] =
                             new FP_PRECISION*[num_cells*ncg];
+
+        for (int coord=0; coord < 3; coord++) {
+          for (int d=0; d < 2; d++) {
+            int surf = coord + 3 * d;
+            _domain_communicator->fluxes[rb][surf] =
+                                new FP_PRECISION[dir_sizes[coord]*ncg];
+            _domain_communicator->buffer[surf] =
+                                new FP_PRECISION[2*dir_sizes[coord]*ncg];
+          }
+        }
         for (int nsc=0; nsc < num_cells * ncg; nsc++) {
           _domain_communicator->num_connections[rb][nsc] = 0;
           _domain_communicator->indexes[rb][nsc] = new int[NUM_FACES];
           _domain_communicator->domains[rb][nsc] = new int[NUM_FACES];
-          _domain_communicator->fluxes[rb][nsc] = new FP_PRECISION[NUM_FACES];
           _domain_communicator->coupling_coeffs[rb][nsc] =
                               new FP_PRECISION[NUM_FACES];
         }

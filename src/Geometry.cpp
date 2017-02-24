@@ -2361,12 +2361,12 @@ void Geometry::initializeCmfd() {
   if (_domain_decomposed) {
     _cmfd->setGeometry(this);
        //FIXME
-    /*
     _cmfd->setNumDomains(1,1,1);
     _cmfd->setDomainIndexes(0,0,0);
-    */
+    /*
     _cmfd->setNumDomains(_num_domains_x, _num_domains_y, _num_domains_z);
     _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
+    */
 
   }
 #endif

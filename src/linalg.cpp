@@ -278,7 +278,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                 /*
                 printf("At %d (%d, %d, %d) grp %d subtracting %6.4f x %6.4f / %6.4f\n",
                        row, ix, iy, iz, g, a[i], x[col], DIAG[row]);
-*/
+                       */
                 if (row == col)
                   x[row] += SOR_factor * b[row] / DIAG[row];
                 else
@@ -290,17 +290,17 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                 for (int i = 0; i < coupling_sizes[row]; i++) {
                   int idx = coupling_indexes[row][i] * num_groups + g;
                   int domain = comm->domains[color][row][i];
-                  FP_PRECISION flux = coupling_fluxes[idx][domain];
+                  FP_PRECISION flux = coupling_fluxes[domain][idx];
                   x[row] -= SOR_factor * coupling_coeffs[row][i] * flux
                             / DIAG[row];
-                 /*
+                  /*
                   printf("xAt %d (%d, %d, %d) grp %d subtracting %6.4f x %6.4f / "
                        "%6.4f\n INDEXES = (%d, %d)\n", row,
                        ix, iy, iz, g, coupling_coeffs[row][i], flux,
                        DIAG[row], idx, domain);
                   std::cout << "Fluxes:" << std::endl;
                   for (int ii=0; ii < M->getNumRows(); ii++)
-                    std::cout << coupling_fluxes[ii][domain] << " ";
+                    std::cout << coupling_fluxes[domain][NUM_FACES] << " ";
                   std::cout << std::endl;
                   */
                 }
@@ -370,17 +370,32 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
 
     offset = comm->_offset;
 
-    int buffer_size = comm->buffer_size;
     MPI_Request requests[2*NUM_FACES];
 
+    int nx = comm->_local_num_x;
+    int ny = comm->_local_num_y;
+    int nz = comm->_local_num_z;
+
+    int ng = comm->num_groups;
+
+    MPI_Datatype flux_type;
+    if (sizeof(FP_PRECISION) == 4)
+      flux_type = MPI_FLOAT;
+    else
+      flux_type = MPI_DOUBLE;
+
+    /*
+    for (int k=0; k < nz; k++)
+      for (int j=0; j < ny; j++)
+        for (int i=0; i < nx; i++)
+          for (int g=0; g < ng; g++)
+            printf("Flux at %d (%d, %d, %d) g %d = %6.4f\n", k*nx*ny + j*nx + i,
+                  i, j, k, g, curr_fluxes[ng*(k*nx*ny+j*nx+i)+g]);
+                  */
+
+    int sizes[NUM_FACES];
     for (int coord=0; coord < 3; coord++) {
       for (int d=0; d<2; d++) {
-
-        MPI_Datatype flux_type;
-        if (sizeof(FP_PRECISION) == 4)
-          flux_type = MPI_FLOAT;
-        else
-          flux_type = MPI_DOUBLE;
 
         int dir = 2*d-1;
         int surf = coord + 3*d;
@@ -390,16 +405,71 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
         MPI_Cart_shift(comm->_MPI_cart, coord, dir, &source, &dest);
 
         // Pack MPI buffer
-        for (int i=0; i < buffer_size; i++) {
-          comm->buffer[2*surf*buffer_size+i] = curr_fluxes[i];
+        int size = 0;
+        if (surf == SURFACE_X_MIN) {
+          size = ny * nz * ng;
+          for (int i=0; i < nz; i++)
+            for (int j=0; j < ny; j++)
+              for (int g=0; g < ng; g++)
+                comm->buffer[surf][ng*(i*ny+j)+g] =
+                  curr_fluxes[ng*((i*ny + j)*nx)+g];
+        }
+        else if (surf == SURFACE_X_MAX) {
+          size = ny * nz * ng;
+          for (int i=0; i < nz; i++)
+            for (int j=0; j < ny; j++)
+              for (int g=0; g < ng; g++)
+                comm->buffer[surf][ng*(i*ny+j)+g] =
+                  curr_fluxes[ng*((i*ny + j)*nx + nx-1)+g];
+        }
+        else if (surf == SURFACE_Y_MIN) {
+          size = nx * nz * ng;
+          for (int i=0; i < nz; i++)
+            for (int j=0; j < nx; j++)
+              for (int g=0; g < ng; g++)
+                comm->buffer[surf][ng*(i*nx+j)+g] =
+                  curr_fluxes[ng*(i*nx*ny + j)+g];
+        }
+        else if (surf == SURFACE_Y_MAX) {
+          size = nx * nz * ng;
+          for (int i=0; i < nz; i++)
+            for (int j=0; j < nx; j++)
+              for (int g=0; g < ng; g++)
+                comm->buffer[surf][ng*(i*nx+j)+g] =
+                  curr_fluxes[ng*(i*nx*ny + j + nx*(ny-1))+g];
+        }
+        else if (surf == SURFACE_Z_MIN) {
+          size = nx * ny * ng;
+          for (int i=0; i < ny; i++)
+            for (int j=0; j < nx; j++)
+              for (int g=0; g < ng; g++)
+                comm->buffer[surf][ng*(i*nx+j)+g] =
+                  curr_fluxes[ng*(i*nx + j)+g];
+        }
+        else if (surf == SURFACE_Z_MAX) {
+          size = nx * ny * ng;
+          for (int i=0; i < ny; i++)
+            for (int j=0; j < nx; j++)
+              for (int g=0; g < ng; g++)
+                comm->buffer[surf][ng*(i*nx+j)+g] =
+                  curr_fluxes[ng*(i*nx + j + nx*ny*(nz-1))+g];
         }
 
+        sizes[surf] = size;
+
+        /*
+        std::cout << "Surf " << surf << " Sending:";
+        for (int i=0; i < size; i++)
+          std::cout << " " << comm->buffer[surf][i];
+        std::cout << std::endl;
+        */
+
         // Post send
-        MPI_Isend(&comm->buffer[2*surf*buffer_size], buffer_size, flux_type,
+        MPI_Isend(comm->buffer[surf], size, flux_type,
                   dest, 0, comm->_MPI_cart, &requests[2*surf]);
 
         // Post receive
-        MPI_Irecv(&comm->buffer[(2*op_surf+1)*buffer_size], buffer_size, flux_type,
+        MPI_Irecv(&comm->buffer[op_surf][size], size, flux_type,
                   source, 0, comm->_MPI_cart, &requests[2*op_surf+1]);
       }
     }
@@ -425,8 +495,13 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           if (flag == 0)
             round_complete = false;
           else
-            for (int i=0; i < buffer_size; i++)
-              coupling_fluxes[i][surf] = comm->buffer[(2*surf+1)*buffer_size+i];
+            for (int i=0; i < sizes[surf]; i++) {
+              /*
+              std::cout << "DOMAIN " << surf << " putting " <<
+                  comm->buffer[surf][sizes[surf]+i] << " at " << i << std::endl;
+              */
+              coupling_fluxes[surf][i] = comm->buffer[surf][sizes[surf]+i];
+            }
         }
       }
     }
