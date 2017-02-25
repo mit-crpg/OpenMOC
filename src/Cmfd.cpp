@@ -1305,7 +1305,7 @@ void Cmfd::initializeMaterials() {
   if (_materials != NULL)
     delete [] _materials;
 
-  try{
+  try {
     _materials = new Material*[_num_x*_num_y*_num_z];
 
     for (int z = 0; z < _num_z; z++) {
@@ -2640,12 +2640,12 @@ void Cmfd::generateKNearestStencils() {
   int num_cells_in_stencil = 9;
 
   /* Loop over mesh cells */
-  //FIXME
-  for (int i = 0; i < _num_x*_num_y*_num_z; i++) {
+  for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
 
     /* Loop over FRSs in mesh cell */
-    for (fsr_iter = _cell_fsrs.at(i).begin();
-         fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
+    int global_ind = getGlobalCMFDCell(i);
+    for (fsr_iter = _cell_fsrs.at(global_ind).begin();
+         fsr_iter != _cell_fsrs.at(global_ind).end(); ++fsr_iter) {
 
       fsr_id = *fsr_iter;
 
@@ -2660,7 +2660,7 @@ void Cmfd::generateKNearestStencils() {
       for (int j=0; j < num_cells_in_stencil; j++)
         _k_nearest_stencils[fsr_id]
           .push_back(std::make_pair<int, FP_PRECISION>
-                     (int(j), getDistanceToCentroid(centroid, i, j)));
+                     (int(j), getDistanceToCentroid(centroid, global_ind, j)));
 
       /* Sort the distances */
       std::sort(_k_nearest_stencils[fsr_id].begin(),
@@ -2771,51 +2771,51 @@ void Cmfd::generateKNearestStencils() {
 int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
 
   int cell_next_id = -1;
-  int x = (cell_id % (_num_x * _num_y)) % _num_x;
-  int y = (cell_id % (_num_x * _num_y)) / _num_x;
+  int x = (cell_id % (_local_num_x * _local_num_y)) % _local_num_x;
+  int y = (cell_id % (_local_num_x * _local_num_y)) / _local_num_x;
 
   if (stencil_id == 0) {
     if (x != 0 && y != 0)
-      cell_next_id = cell_id - _num_x - 1;
+      cell_next_id = cell_id - _local_num_x - 1;
   }
   else if (stencil_id == 1) {
     if (y != 0)
-      cell_next_id = cell_id - _num_x;
+      cell_next_id = cell_id - _local_num_x;
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-      cell_next_id = cell_id + _num_x * (_num_y - 1);
+      cell_next_id = cell_id + _local_num_x * (_local_num_y - 1);
   }
   else if (stencil_id == 2) {
-    if (x != _num_x - 1 && y != 0)
-      cell_next_id = cell_id - _num_x + 1;
+    if (x != _local_num_x - 1 && y != 0)
+      cell_next_id = cell_id - _local_num_x + 1;
   }
   else if (stencil_id == 3) {
     if (x != 0)
       cell_next_id = cell_id - 1;
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-      cell_next_id = cell_id + (_num_x - 1);
+      cell_next_id = cell_id + (_local_num_x - 1);
   }
   else if (stencil_id == 4) {
     cell_next_id = cell_id;
   }
   else if (stencil_id == 5) {
-    if (x != _num_x - 1)
+    if (x != _local_num_x - 1)
       cell_next_id = cell_id + 1;
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-      cell_next_id = cell_id - (_num_x - 1);
+      cell_next_id = cell_id - (_local_num_x - 1);
   }
   else if (stencil_id == 6) {
-    if (x != 0 && y != _num_y - 1)
-      cell_next_id = cell_id + _num_x - 1;
+    if (x != 0 && y != _local_num_y - 1)
+      cell_next_id = cell_id + _local_num_x - 1;
   }
   else if (stencil_id == 7) {
-    if (y != _num_y - 1)
-      cell_next_id = cell_id + _num_x;
+    if (y != _local_num_y - 1)
+      cell_next_id = cell_id + _local_num_x;
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-      cell_next_id = cell_id - _num_x * (_num_y - 1);
+      cell_next_id = cell_id - _local_num_x * (_local_num_y - 1);
   }
   else if (stencil_id == 8) {
-    if (x != _num_x - 1 && y != _num_y - 1)
-      cell_next_id = cell_id + _num_x + 1;
+    if (x != _local_num_x - 1 && y != _local_num_y - 1)
+      cell_next_id = cell_id + _local_num_x + 1;
   }
 
   return cell_next_id;
@@ -2857,7 +2857,7 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
          iter != _k_nearest_stencils[fsr].end(); ++iter) {
 
       if (iter->first != 4) {
-        cell_next_id = getCellByStencil(cell_id, iter->first);
+        cell_next_id = getCellByStencil(getLocalCMFDCell(cell_id), iter->first);
 
         ratio += iter->second * getFluxRatio(cell_next_id, group, fsr);
       }
