@@ -368,6 +368,9 @@ inline int Cmfd::getCmfdGroup(int group) {
  *        intersects. If there is no 2D intersection, -1 should be input.
  */
 inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
+  /* FIXME!!!!!!!!!! */
+  cell_id = getGlobalCMFDCell(cell_id);
+
   return _lattice->getLatticeSurfaceOTF(cell_id, z, surface_2D);
 }
 
@@ -400,6 +403,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
     cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
     tally_current = true;
   }
+
 
   /* Tally current if necessary */
   if (tally_current) {

@@ -222,4 +222,4 @@ edit:
 
 run:
 	#./$(program)
-	mpirun -np 4 ./$(program)
+	mpirun -np 2 ./$(program)
