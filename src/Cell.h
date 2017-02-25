@@ -170,6 +170,8 @@ public:
   Cell* getParent();
   Cell* getOldestAncestor();
 
+  int getNumZCylinders();
+
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 

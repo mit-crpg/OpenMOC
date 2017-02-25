@@ -116,6 +116,9 @@ private:
   /** If a linear source approximation is used */
   bool _linear_source;
 
+  /** If diffusion coefficients are limited by the flux */
+  bool _flux_limiting;
+
   /** Number of FSRs */
   int _num_FSRs;
 
@@ -313,6 +316,7 @@ public:
   //FIXME
   void setConvergenceData(ConvergenceData* convergence_data);
   void useAxialInterpolation(bool interpolate);
+  void useFluxLimiting(bool flux_limiting);
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);

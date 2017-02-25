@@ -1548,3 +1548,18 @@ std::string Cell::toString() {
 void Cell::printString() {
   log_printf(NORMAL, toString().c_str());
 }
+
+
+//FIXME
+int Cell::getNumZCylinders() {
+  
+  std::map<int, surface_halfspace*>::iterator iter1;
+  int num = 0;
+  for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1)
+    if (iter1->second->_surface->getSurfaceType() == ZCYLINDER)
+      num++;
+  
+  return num;
+}
+
+ 

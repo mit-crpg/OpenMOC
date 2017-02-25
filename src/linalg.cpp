@@ -66,7 +66,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
     /* Solve X = A^-1 * old_source */
-    linearSolve(A, M, X, &old_source, tol*1e-2, SOR_factor, convergence_data);
+    linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor, convergence_data);
 
     /* Compute the new source */
     matrixMultiplication(M, X, &new_source);
@@ -96,8 +96,9 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
 
     /* Check for convergence */
     //FIXME
-    if ((residual < tol || residual / initial_residual < 0.01)
-           && iter > MIN_LINALG_POWER_ITERATIONS) {
+    // if ((residual < tol || residual / initial_residual < 0.01)
+    if (residual / initial_residual < 0.03 && 
+        iter > MIN_LINALG_POWER_ITERATIONS) {
       if (convergence_data != NULL) {
         convergence_data->cmfd_res_end = residual;
         convergence_data->cmfd_iters = iter;

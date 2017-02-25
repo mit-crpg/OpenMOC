@@ -59,7 +59,7 @@ public:
 
   void flattenFSRFluxes(FP_PRECISION value);
   FP_PRECISION normalizeFluxes();
-  void computeFSRSources();
+  void computeFSRSources(int iteration);
   void addSourceToScalarFlux();
 
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,

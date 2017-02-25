@@ -105,7 +105,6 @@ public:
   LocalCoords* getPrev() const;
   int getVersionNum();
   int getPosition();
-  LocalCoords* getNextArray();
 
   void setType(coordType type);
   void setUniverse(Universe* universe);

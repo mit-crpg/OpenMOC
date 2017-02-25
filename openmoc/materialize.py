@@ -211,6 +211,11 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
+        elif 'consistent nu-scatter matrix' in domain_group:
+            sigma = _get_numpy_array(domain_group, 'consistent nu-scatter matrix', suffix)
+            material.setSigmaS(sigma)
+            py_printf('DEBUG', 'Loaded "consistent nu-scatter matrix" MGXS for "%s %s"',
+                      domain_type, str(domain_spec))
         else:
             py_printf('WARNING', 'No "scatter matrix" found for "%s %s"',
                       domain_type, str(domain_spec))
@@ -390,6 +395,12 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %d"',
+                      domain_type, domain.id)
+        elif 'consistent nu-scatter matrix' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'consistent nu-scatter matrix')
+            sigma = mgxs.get_xs(nuclides='sum').flatten()
+            material.setSigmaS(sigma)
+            py_printf('DEBUG', 'Loaded "consistent nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         else:
             py_printf('WARNING', 'No "scatter matrix" or "nu-scatter matrix" '

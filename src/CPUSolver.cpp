@@ -1356,7 +1356,7 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
  * @details This method computes the total source in each FSR based on
  *          this iteration's current approximation to the scalar flux.
  */
-void CPUSolver::computeFSRSources() {
+void CPUSolver::computeFSRSources(int iteration) {
 
   int tid;
   FP_PRECISION scatter_source, fission_source;
@@ -1405,6 +1405,9 @@ void CPUSolver::computeFSRSources() {
       _reduced_sources(r,G) = fission_source * chi[G];
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
+      //FIXME
+      if (_reduced_sources(r,G) < 0.0 && iteration < 10)
+        _reduced_sources(r,G) = 0.0;
     }
   }
 

@@ -58,7 +58,7 @@ protected:
   void initializeSourceArrays();
 
   void normalizeFluxes();
-  void computeFSRSources();
+  void computeFSRSources(int iteration);
   void addSourceToScalarFlux();
   void computeKeff();
 

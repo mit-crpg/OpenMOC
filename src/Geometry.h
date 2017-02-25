@@ -234,8 +234,8 @@ public:
   std::vector<int>& getFSRsToMaterialIDs();
   std::vector<Point*>& getFSRsToCentroids();
   std::vector<int>& getFSRsToCMFDCells();
-  int getFSRId(LocalCoords* coords);
-  int getGlobalFSRId(LocalCoords* coords);
+  int getFSRId(LocalCoords* coords, bool err_check=true);
+  int getGlobalFSRId(LocalCoords* coords, bool err_check=true);
   Point* getFSRPoint(int fsr_id);
   Point* getFSRCentroid(int fsr_id);
   bool containsFSRCentroids();
