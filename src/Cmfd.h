@@ -68,6 +68,12 @@ private:
   /** The new source vector */
   Vector* _new_source;
 
+  //FIXME FIXME FIXME: REMOVE ALL dfd
+  Vector* dfd_old_flux_full;
+  Vector* dfd_surface_currents;
+  Vector* dfd_old_dif_surf_corr;
+  Material** dfd_materials;
+
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;

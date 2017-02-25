@@ -18,6 +18,10 @@ Cmfd::Cmfd() {
   _convergence_data = NULL;
   _domain_communicator = NULL;
 
+  //FIXME FIXME FIXME: REMOVE ALL dfd
+  dfd_materials = NULL;
+
+
   /* Global variables used in solving CMFD problem */
   _source_convergence_threshold = 1E-5;
   _num_x = 1;
@@ -140,6 +144,13 @@ Cmfd::~Cmfd() {
       delete _materials[i];
   }
   delete [] _materials;
+
+  //FIXME
+  if (_materials != NULL) {
+    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
+      delete dfd_materials[i];
+  }
+  delete [] dfd_materials;
 
   /* Delete the CMFD lattice */
   if (_lattice != NULL)
@@ -444,13 +455,37 @@ void Cmfd::collapseXS() {
     Material* fsr_material;
     Material* cell_material;
 
+    //TODO: clean
+    int x_start = 0;
+    int y_start = 0;
+    int z_start = 0;
+    int x_end = _num_x;
+    int y_end = _num_y;
+    int z_end = _num_z;
+    if (_geometry->isDomainDecomposed()) {
+      if (_domain_communicator != NULL) {
+        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+        x_end = x_start + _local_num_x;
+        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+        y_end = y_start + _local_num_y;
+        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+        z_end = z_start + _local_num_z;
+      }
+    }
+
     /* Loop over CMFD cells */
+    //FIXME LOOP
 #pragma omp for
     for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
-      int ind = getLocalCMFDCell(i);
+      int ix = i % _num_x;
+      int iy = (i % (_num_x * _num_y)) / _num_x;
+      int iz = i / (_num_x * _num_y);
+      if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
+          || z_start - iz > 1 || iz - z_end > 0)
+        continue;
 
-      cell_material = _materials[i];
+      int ind = getLocalCMFDCell(i);
       std::vector<int>::iterator iter;
 
       /* Loop over CMFD coarse energy groups */
@@ -579,11 +614,39 @@ void Cmfd::collapseXS() {
   if (neg_fluxes)
       log_printf(WARNING, "Negative FSR fluxes found in group collapse");
 
+  //TODO: clean
+  int x_start = 0;
+  int y_start = 0;
+  int z_start = 0;
+  int x_end = _num_x;
+  int y_end = _num_y;
+  int z_end = _num_z;
+  if (_geometry->isDomainDecomposed()) {
+    if (_domain_communicator != NULL) {
+      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+      x_end = x_start + _local_num_x;
+      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+      y_end = y_start + _local_num_y;
+      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+      z_end = z_start + _local_num_z;
+    }
+  }
+
+
   /* Loop over CMFD cells and set cross sections */
+  //FIXME LOOP
 #pragma parallel omp for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
     int ind = getLocalCMFDCell(i);
+
+    //FIXME NOW
+    int ix = i % _num_x;
+    int iy = (i % (_num_x * _num_y)) / _num_x;
+    int iz = i / (_num_x * _num_y);
+    if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
+        || z_start - iz > 1 || iz - z_end > 0)
+      continue;
 
     Material* cell_material = _materials[i];
 
@@ -975,30 +1038,27 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
     /* Loop over cells */
 #pragma omp for
-    for (int i = 0; i < _num_x*_num_y*_num_z; i++) {
+    for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
 
-      int ind = getLocalCMFDCell(i);
-
-      if (ind == -1)
-        continue;
+      int global_ind = getGlobalCMFDCell(i);
 
       //FIXME maybe???
-      int color = getCellColor(i);
+      int color = getCellColor(global_ind);
 
-      material = _materials[i];
-      volume = _volumes->getValue(i, 0);
+      material = _materials[global_ind]; //FIXME DFD
+      volume = _volumes->getValue(global_ind, 0);
 
       /* Loop over groups */
       for (int e = 0; e < _num_cmfd_groups; e++) {
 
         /* Net removal term */
         value = material->getSigmaTByGroup(e+1) * volume;
-        _A->incrementValue(ind, e, ind, e, value);
+        _A->incrementValue(i, e, i, e, value);
 
         /* Scattering gain from all groups */
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = - material->getSigmaSByGroup(g+1, e+1) * volume;
-          _A->incrementValue(ind, g, ind, e, value);
+          _A->incrementValue(i, g, i, e, value);
         }
 
         /* Streaming to neighboring cells */
@@ -1009,9 +1069,9 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
           /* Set transport term on diagonal */
           dif_surf = getSurfaceDiffusionCoefficient(
-              i, s, e, moc_iteration, false);
+              global_ind, s, e, moc_iteration, false);
           dif_surf_corr = getSurfaceDiffusionCoefficient(
-              i, s, e, moc_iteration, true);
+              global_ind, s, e, moc_iteration, true);
 
           /*
           printf("Got D's at %d, %d, %d ====> %6.4f, %6.4f\n", i, s, e, dif_surf,
@@ -1019,23 +1079,23 @@ void Cmfd::constructMatrices(int moc_iteration) {
               */
 
           /* Record the corrected diffusion coefficient */
-          _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
+          _old_dif_surf_corr->setValue(global_ind, s*_num_cmfd_groups+e, dif_surf_corr);
 
           /* Set the diagonal term */
           value = (dif_surf - sense * dif_surf_corr) * delta;
-          _A->incrementValue(ind, e, ind, e, value);
+          _A->incrementValue(i, e, i, e, value);
 
           /* Set the off diagonal term */
-          if (getCellNext(ind, s, false, false) != -1) {
+          if (getCellNext(i, s, false, false) != -1) {
             value = - (dif_surf + sense * dif_surf_corr) * delta;
-            _A->incrementValue(getCellNext(ind, s, false, false), e, ind, e, value);
+            _A->incrementValue(getCellNext(i, s, false, false), e, i, e, value);
           }
           /* Check for cell in neighboring domain if applicable */
           else if (_geometry->isDomainDecomposed()) {
             if (_domain_communicator != NULL) {
-              if (getCellNext(ind, s, false, true) != -1) {
-                int neighbor_cell = getCellNext(ind, s, false, true);
-                int row = ind * _num_cmfd_groups + e;
+              if (getCellNext(i, s, false, true) != -1) {
+                int neighbor_cell = getCellNext(i, s, false, true);
+                int row = i * _num_cmfd_groups + e;
                 int idx = _domain_communicator->num_connections[color][row];
                 value = - (dif_surf + sense * dif_surf_corr) * delta;
                 _domain_communicator->indexes[color][row][idx] = neighbor_cell;
@@ -1051,7 +1111,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = material->getChiByGroup(e+1)
               * material->getNuSigmaFByGroup(g+1) * volume;
-          _M->incrementValue(ind, g, ind, e, value);
+          _M->incrementValue(i, g, i, e, value);
         }
       }
     }
@@ -1077,12 +1137,7 @@ void Cmfd::updateMOCFlux() {
 
   /* Loop over mesh cells */
 #pragma omp parallel for
-  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
-
-    //FIXME
-    int ind = getLocalCMFDCell(i);
-    if (ind == -1)
-      continue;
+  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
     std::vector<int>::iterator iter;
 
@@ -1090,16 +1145,16 @@ void Cmfd::updateMOCFlux() {
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Loop over FRSs in mesh cell */
-      for (iter = _cell_fsrs.at(ind).begin();
-           iter != _cell_fsrs.at(ind).end(); ++iter) {
+      for (iter = _cell_fsrs.at(i).begin();
+           iter != _cell_fsrs.at(i).end(); ++iter) {
 
         /* Get the update ratio */
         //FIXME
-        /*
         FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
+        /*
+        FP_PRECISION update_ratio = _new_flux->getValue(i, e) /
+              _old_flux->getValue(i, e);
               */
-        FP_PRECISION update_ratio = _new_flux->getValue(ind, e) /
-              _old_flux->getValue(ind, e);
         if (_convergence_data != NULL)
           if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))
             _convergence_data->pf = update_ratio;
@@ -1321,6 +1376,7 @@ void Cmfd::initializeMaterials() {
 
   try {
     _materials = new Material*[_num_x*_num_y*_num_z];
+    dfd_materials = new Material*[_local_num_x*_local_num_y*_local_num_z];
 
     for (int z = 0; z < _num_z; z++) {
       for (int y = 0; y < _num_y; y++) {
@@ -1328,6 +1384,16 @@ void Cmfd::initializeMaterials() {
           material = new Material(z*_num_x*_num_y + y*_num_x + x);
           material->setNumEnergyGroups(_num_cmfd_groups);
           _materials[z*_num_x*_num_y + y*_num_x + x] = material;
+        }
+      }
+    }
+    for (int z = 0; z < _local_num_z; z++) {
+      for (int y = 0; y < _local_num_y; y++) {
+        for (int x = 0; x < _local_num_x; x++) {
+          int ind = z*_local_num_x*_local_num_y + y*_local_num_x + x;
+          material = new Material(ind);
+          material->setNumEnergyGroups(_num_cmfd_groups);
+          _materials[ind] = material;
         }
       }
     }
@@ -1641,8 +1707,33 @@ void Cmfd::splitVertexCurrents() {
     std::map<int, FP_PRECISION>::iterator it;
     int cell, surface;
 
+    //TODO: clean
+    int x_start = 0;
+    int y_start = 0;
+    int z_start = 0;
+    int x_end = _num_x;
+    int y_end = _num_y;
+    int z_end = _num_z;
+    if (_geometry->isDomainDecomposed()) {
+      if (_domain_communicator != NULL) {
+        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+        x_end = x_start + _local_num_x;
+        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+        y_end = y_start + _local_num_y;
+        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+        z_end = z_start + _local_num_z;
+      }
+    }
+
+    //FIXME LOOP
 #pragma omp for
     for (int i=0; i < _num_x * _num_y * _num_z; i++) {
+      int ix = i % _num_x;
+      int iy = (i % (_num_x * _num_y)) / _num_x;
+      int iz = i / (_num_x * _num_y);
+      if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
+          || z_start - iz > 1 || iz - z_end > 0)
+        continue;
       for (int v = NUM_FACES + NUM_EDGES; v < NUM_SURFACES; v++) {
 
         /* Check if this surface is contained in the map */
@@ -1712,9 +1803,36 @@ void Cmfd::splitEdgeCurrents() {
     std::map<int, FP_PRECISION>::iterator it;
     int cell, surface;
 
+    //TODO: clean
+    int x_start = 0;
+    int y_start = 0;
+    int z_start = 0;
+    int x_end = _num_x;
+    int y_end = _num_y;
+    int z_end = _num_z;
+    if (_geometry->isDomainDecomposed()) {
+      if (_domain_communicator != NULL) {
+        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+        x_end = x_start + _local_num_x;
+        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+        y_end = y_start + _local_num_y;
+        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+        z_end = z_start + _local_num_z;
+      }
+    }
+
+
+    //FIXME LOOP
 #pragma omp for
     for (int i=0; i < _num_x * _num_y * _num_z; i++) {
+      int ix = i % _num_x;
+      int iy = (i % (_num_x * _num_y)) / _num_x;
+      int iz = i / (_num_x * _num_y);
+      if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
+          || z_start - iz > 1 || iz - z_end > 0)
+        continue;
       for (int e = NUM_FACES; e < NUM_SURFACES + NUM_EDGES; e++) {
+
 
         /* Check if this surface is contained in the map */
         int ind = i * NUM_SURFACES * ncg + e * ncg;
@@ -2910,8 +3028,6 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  */
 FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
-  cell_id = getLocalCMFDCell(cell_id);
-
   double* interpolants = _axial_interpolants.at(fsr);
   double ratio = 1.0;
   if (interpolants[0] != 0 || interpolants[2] != 0) {
@@ -3585,7 +3701,7 @@ int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
 
 //TODO: REMOVE
 int Cmfd::getCellColor(int cmfd_cell) {
-  int ix = (cmfd_cell % (_num_x * _num_y)) % _num_x;
+  int ix = cmfd_cell % _num_x;
   int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
   int iz = cmfd_cell / (_num_x * _num_y);
   int color = (ix + iy + iz) % 2;

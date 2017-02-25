@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
   for (int g=3; g<7; g++)
     cmfd_group_structure.at(1).push_back(g+1);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setKNearest(3);
+  cmfd.setKNearest(1);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
