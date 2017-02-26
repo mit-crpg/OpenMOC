@@ -657,11 +657,92 @@ void Cmfd::collapseXS() {
     }
   }
 
+  //FIXME HERE X
+  for (int y=0; y < _local_num_y; y++) {
+    for (int z=0; z < _local_num_z; z++) {
+      int global_ind = ((z_start + z) * _local_num_y + y + y_start) *
+                        _local_num_x + x_start - 1;
+      if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int idx = _boundary_index_map.at(SURFACE_Z_MIN)[global_ind];
+        _volume_new_tally[SURFACE_X_MIN][idx] = _volume_tally[global_ind];
+      }
+      global_ind = ((z_start + z) * _local_num_y + y + y_start) *
+                        _local_num_x + x_start + _local_num_x;
+      if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int idx = _boundary_index_map.at(SURFACE_Z_MAX)[global_ind];
+        _volume_new_tally[SURFACE_X_MAX][idx] = _volume_tally[global_ind];
+      }
+    }
+  }
+
+  // FIXME HERE Y
+  for (int x=0; x < _local_num_x; x++) {
+    for (int z=0; z < _local_num_z; z++) {
+      int global_ind = ((z_start + z) * _local_num_y + y_start-1) *
+                        _local_num_x + x + x_start;
+      if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int idx = _boundary_index_map.at(SURFACE_Y_MIN)[global_ind];
+        _volume_new_tally[SURFACE_Y_MIN][idx] = _volume_tally[global_ind];
+      }
+      global_ind = ((z_start + z) * _local_num_y + _local_num_y + y_start)
+                    * _local_num_x + x + x_start;
+      if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int idx = _boundary_index_map.at(SURFACE_Z_MAX)[global_ind];
+        _volume_new_tally[SURFACE_Y_MAX][idx] = _volume_tally[global_ind];
+      }
+    }
+  }
+
+  // FIXME HERE Z
+  for (int x=0; x < _local_num_x; x++) {
+    for (int y=0; y < _local_num_y; y++) {
+      int global_ind = ((z_start-1) * _local_num_y + y + y_start) *
+                      _local_num_x + x + x_start;
+      if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int idx = _boundary_index_map.at(SURFACE_Z_MIN)[global_ind];
+        _volume_new_tally[SURFACE_Z_MIN][idx] = _volume_tally[global_ind];
+      }
+      global_ind = ((_local_num_z + z_start) * _local_num_y + y + y_start) *
+                      _local_num_x + x + x_start;
+      if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int idx = _boundary_index_map.at(SURFACE_Z_MAX)[global_ind];
+        _volume_new_tally[SURFACE_Z_MAX][idx] = _volume_tally[global_ind];
+      }
+    }
+  }
+
+  //FIXME
+#pragma omp parallel for
+  for (int ind = 0; ind < _local_num_x * _local_num_y * _local_num_z; ind++) {
+    int i = getGlobalCMFDCell(ind);
+    /* Loop over CMFD coarse energy groups */
+    for (int e = 0; e < _num_cmfd_groups; e++) {
+
+      /* Load tallies at this cell and energy group */
+      FP_PRECISION vol_tally = _volume_tally[i][e];
+      FP_PRECISION rxn_tally = _reaction_tally[i][e];
+      _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
+      _old_flux->setValue(ind, e, rxn_tally / vol_tally);
+
+      /* Set the Mesh cell properties with the tallies */
+      _volumes->setValue(i, 0, vol_tally);
+    }
+  }
+
   /* Loop over CMFD cells and set cross sections */
 #pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
-    int ind = getLocalCMFDCell(i);
+    int ix = i % _num_x;
+    int iy = (i % (_num_x * _num_y)) / _num_x;
+    int iz = i / (_num_x * _num_y);
+
+    int here = false;
+    if (ix == x_start-1 || ix == x_end || iy == y_start-1 || iy == y_end ||
+        iz == z_start-1 || iz == z_end)
+        here = true;
+    if (!here)
+      continue;
 
     /* Loop over CMFD coarse energy groups */
     for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -670,8 +751,6 @@ void Cmfd::collapseXS() {
       FP_PRECISION vol_tally = _volume_tally[i][e];
       FP_PRECISION rxn_tally = _reaction_tally[i][e];
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
-      if (ind != -1)
-        _old_flux->setValue(ind, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
       _volumes->setValue(i, 0, vol_tally);
@@ -1144,12 +1223,7 @@ void Cmfd::updateMOCFlux() {
            iter != _cell_fsrs.at(i).end(); ++iter) {
 
         /* Get the update ratio */
-        //FIXME
         FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
-        /*
-        FP_PRECISION update_ratio = _new_flux->getValue(i, e) /
-              _old_flux->getValue(i, e);
-              */
         if (_convergence_data != NULL)
           if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))
             _convergence_data->pf = update_ratio;
@@ -3377,11 +3451,11 @@ void Cmfd::initialize() {
         for (int z=0; z < _local_num_z; z++) {
           int global_ind = ((z_start + z) * _local_num_y + y + y_start) *
                             _local_num_x + x_start - 1;
-          _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = z * _local_num_y
+          _boundary_index_map.at(SURFACE_X_MIN)[global_ind] = z * _local_num_y
                                                               + y;
           global_ind = ((z_start + z) * _local_num_y + y + y_start) *
                             _local_num_x + x_start + _local_num_x;
-          _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = z * _local_num_y
+          _boundary_index_map.at(SURFACE_X_MAX)[global_ind] = z * _local_num_y
                                                                 + y;
         }
       }
