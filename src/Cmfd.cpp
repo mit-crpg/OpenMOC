@@ -18,10 +18,6 @@ Cmfd::Cmfd() {
   _convergence_data = NULL;
   _domain_communicator = NULL;
 
-  //FIXME FIXME FIXME: REMOVE ALL dfd
-  dfd_materials = NULL;
-
-
   /* Global variables used in solving CMFD problem */
   _source_convergence_threshold = 1E-5;
   _num_x = 1;
@@ -140,17 +136,10 @@ Cmfd::~Cmfd() {
 
   /* Delete CMFD materials array */
   if (_materials != NULL) {
-    for (int i=0; i < _num_x * _num_y * _num_z; i++)
+    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
       delete _materials[i];
   }
   delete [] _materials;
-
-  //FIXME
-  if (_materials != NULL) {
-    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
-      delete dfd_materials[i];
-  }
-  delete [] dfd_materials;
 
   /* Delete the CMFD lattice */
   if (_lattice != NULL)
@@ -396,6 +385,10 @@ void Cmfd::collapseXS() {
     log_printf(ERROR, "Tallies need to be allocated before collapsing "
                "cross-sections");
 
+  /* Split vertex and edge currents to side surfaces */
+  splitVertexCurrents();
+  splitEdgeCurrents();
+
   /* Reduce currents across domains if necessary */
 #ifdef MPIx
   MPI_Comm comm;
@@ -437,10 +430,6 @@ void Cmfd::collapseXS() {
   }
 #endif
 
-  /* Split vertex and edge currents to side surfaces */
-  splitVertexCurrents();
-  splitEdgeCurrents();
-
   //TODO: clean
   bool neg_fluxes = false;
 
@@ -450,6 +439,9 @@ void Cmfd::collapseXS() {
     /* Initialize variables for FSR properties*/
     FP_PRECISION volume, flux, tot, nu_fis, chi;
     FP_PRECISION* scat;
+
+    FP_PRECISION scat_tally[_num_cmfd_groups];
+    FP_PRECISION chi_tally[_num_cmfd_groups];
 
     /* Pointers to material objects */
     Material* fsr_material;
@@ -481,28 +473,29 @@ void Cmfd::collapseXS() {
       int ix = i % _num_x;
       int iy = (i % (_num_x * _num_y)) / _num_x;
       int iz = i / (_num_x * _num_y);
+
+      int ind = getLocalCMFDCell(i);
       if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
           || z_start - iz > 1 || iz - z_end > 0)
         continue;
-
-      int ind = getLocalCMFDCell(i);
       std::vector<int>::iterator iter;
 
       /* Loop over CMFD coarse energy groups */
       for (int e = 0; e < _num_cmfd_groups; e++) {
 
         /* Zero tallies for this group */
-        _nu_fission_tally[i][e] = 0.0;
+        FP_PRECISION nu_fission_tally = 0.0;
+        FP_PRECISION total_tally = 0.0;
+        FP_PRECISION neutron_production_tally = 0.0;
+
+        _diffusion_tally[i][e] = 0.0;
         _reaction_tally[i][e] = 0.0;
         _volume_tally[i][e] = 0.0;
-        _total_tally[i][e] = 0.0;
-        _neutron_production_tally[i][e] = 0.0;
-        _diffusion_tally[i][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
-          _scattering_tally[i][e][g] = 0.0;
-          _chi_tally[i][e][g] = 0.0;
+          scat_tally[g] = 0.0;
+          chi_tally[g] = 0.0;
         }
 
         /* Loop over FSRs in CMFD cell to compute chi */
@@ -522,10 +515,9 @@ void Cmfd::collapseXS() {
                 chi += fsr_material->getChiByGroup(h+1);
 
               for (int h = 0; h < _num_moc_groups; h++) {
-                _chi_tally[i][e][b] += chi *
-                    fsr_material->getNuSigmaFByGroup(h+1) *
+                chi_tally[b] += chi * fsr_material->getNuSigmaFByGroup(h+1) *
                     _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-                _neutron_production_tally[i][e] += chi *
+                neutron_production_tally += chi *
                     fsr_material->getNuSigmaFByGroup(h+1) *
                     _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
               }
@@ -555,8 +547,8 @@ void Cmfd::collapseXS() {
               nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
 
               /* Increment tallies for this group */
-              _total_tally[i][e] += tot * flux * volume;
-              _nu_fission_tally[i][e] += nu_fis * flux * volume;
+              total_tally += tot * flux * volume;
+              nu_fission_tally += nu_fis * flux * volume;
               _reaction_tally[i][e] += flux * volume;
               _volume_tally[i][e] += volume;
 
@@ -566,7 +558,7 @@ void Cmfd::collapseXS() {
 
               /* Scattering tallies */
               for (int g = 0; g < _num_moc_groups; g++) {
-                _scattering_tally[i][e][getCmfdGroup(g)] +=
+                scat_tally[getCmfdGroup(g)] +=
                     scat[g*_num_moc_groups+h] * flux * volume;
               }
             }
@@ -576,6 +568,27 @@ void Cmfd::collapseXS() {
                 rxn_tally_group;
             _diffusion_tally[i][e] += rxn_tally_group /
                 (3.0 * flux_avg_sigma_t);
+          }
+        }
+
+        /* Save cross-sections to material */
+        if (ind >= 0) {
+          FP_PRECISION rxn_tally = _reaction_tally[i][e];
+          cell_material = _materials[ind];
+          cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
+          cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
+
+          /* Set chi */
+          if (neutron_production_tally != 0.0)
+            cell_material->setChiByGroup(chi_tally[e] / neutron_production_tally,
+                                         e + 1);
+          else
+            cell_material->setChiByGroup(0.0, e + 1);
+
+          /* Set scattering xs */
+          for (int g = 0; g < _num_cmfd_groups; g++) {
+            cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e + 1,
+                                            g + 1);
           }
         }
       }
@@ -632,55 +645,24 @@ void Cmfd::collapseXS() {
     }
   }
 
-
   /* Loop over CMFD cells and set cross sections */
-  //FIXME LOOP
-#pragma parallel omp for
+#pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
     int ind = getLocalCMFDCell(i);
-
-    //FIXME NOW
-    int ix = i % _num_x;
-    int iy = (i % (_num_x * _num_y)) / _num_x;
-    int iz = i / (_num_x * _num_y);
-    if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
-        || z_start - iz > 1 || iz - z_end > 0)
-      continue;
-
-    Material* cell_material = _materials[i];
 
     /* Loop over CMFD coarse energy groups */
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Load tallies at this cell and energy group */
       FP_PRECISION vol_tally = _volume_tally[i][e];
-      FP_PRECISION tot_tally = _total_tally[i][e];
-      FP_PRECISION nu_fis_tally = _nu_fission_tally[i][e];
       FP_PRECISION rxn_tally = _reaction_tally[i][e];
-      FP_PRECISION neut_prod_tally = _neutron_production_tally[i][e];
-      FP_PRECISION* scat_tally = _scattering_tally[i][e];
-      FP_PRECISION* chi_tally = _chi_tally[i][e];
+      _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
+      if (ind != -1)
+        _old_flux->setValue(ind, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
       _volumes->setValue(i, 0, vol_tally);
-      cell_material->setSigmaTByGroup(tot_tally / rxn_tally, e + 1);
-      cell_material->setNuSigmaFByGroup(nu_fis_tally / rxn_tally, e + 1);
-      if (ind != -1)
-        _old_flux->setValue(ind, e, rxn_tally / vol_tally);
-      _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
-
-      /* Set chi */
-      if (neut_prod_tally != 0.0)
-        cell_material->setChiByGroup(chi_tally[e] / neut_prod_tally, e + 1);
-      else
-        cell_material->setChiByGroup(0.0, e + 1);
-
-      /* Set scattering xs */
-      for (int g = 0; g < _num_cmfd_groups; g++) {
-        cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e + 1,
-                                        g + 1);
-      }
     }
   }
 }
@@ -1045,7 +1027,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
       //FIXME maybe???
       int color = getCellColor(global_ind);
 
-      material = _materials[global_ind]; //FIXME DFD
+      material = _materials[i];
       volume = _volumes->getValue(global_ind, 0);
 
       /* Loop over groups */
@@ -1375,22 +1357,11 @@ void Cmfd::initializeMaterials() {
     delete [] _materials;
 
   try {
-    _materials = new Material*[_num_x*_num_y*_num_z];
-    dfd_materials = new Material*[_local_num_x*_local_num_y*_local_num_z];
-
+    _materials = new Material*[_local_num_x*_local_num_y*_local_num_z];
     for (int z = 0; z < _num_z; z++) {
       for (int y = 0; y < _num_y; y++) {
         for (int x = 0; x < _num_x; x++) {
-          material = new Material(z*_num_x*_num_y + y*_num_x + x);
-          material->setNumEnergyGroups(_num_cmfd_groups);
-          _materials[z*_num_x*_num_y + y*_num_x + x] = material;
-        }
-      }
-    }
-    for (int z = 0; z < _local_num_z; z++) {
-      for (int y = 0; y < _local_num_y; y++) {
-        for (int x = 0; x < _local_num_x; x++) {
-          int ind = z*_local_num_x*_local_num_y + y*_local_num_x + x;
+          int ind = z*_num_x*_num_y + y*_num_x + x;
           material = new Material(ind);
           material->setNumEnergyGroups(_num_cmfd_groups);
           _materials[ind] = material;
@@ -1755,6 +1726,7 @@ void Cmfd::splitVertexCurrents() {
             surface = (*iter) % ns;
             _surface_currents->incrementValue(cell, surface * ncg + g, current);
           }
+          _edge_corner_currents[ind+g] = 0.0;
         }
       }
     }
@@ -1854,6 +1826,9 @@ void Cmfd::splitEdgeCurrents() {
             surface = (*iter) % ns;
             _surface_currents->incrementValue(cell, surface * ncg + g, current);
           }
+
+          _edge_corner_currents[ind+g] = 0.0;
+
         }
       }
     }
@@ -3299,7 +3274,6 @@ void Cmfd::initialize() {
     initializeMaterials();
     allocateTallies();
 
-
     /* TODO: document, clean */
     if (_domain_communicator != NULL) {
       _local_num_x = _num_x / _domain_communicator->_num_domains_x;
@@ -3349,6 +3323,14 @@ void Cmfd::initialize() {
         }
       }
     }
+
+    //TODO: document, clean
+    int num_vars = 1;
+    int comm_data_size = 2 * num_vars * ncg * (_local_num_x * _local_num_y +
+      _local_num_x * _local_num_z + _local_num_y * _local_num_z);
+    _inter_domain_data = new FP_PRECISION[comm_data_size];
+    _boundary_index_map.resize(NUM_FACES); // FIXME FIXME FIXME
+
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "

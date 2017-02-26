@@ -72,7 +72,6 @@ private:
   Vector* dfd_old_flux_full;
   Vector* dfd_surface_currents;
   Vector* dfd_old_dif_surf_corr;
-  Material** dfd_materials;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
@@ -204,6 +203,8 @@ private:
   //FIXME
   ConvergenceData* _convergence_data;
   DomainCommunicator* _domain_communicator;
+  FP_PRECISION* _inter_domain_data;
+  std::vector<std::map<int, int> > _boundary_index_map;
 
   //FIXME
   int _local_num_x;
@@ -271,7 +272,6 @@ private:
   int getLocalCMFDCell(int cmfd_cell); //FIXME
   int getGlobalCMFDCell(int cmfd_cell); //FIXME
   int getCellColor(int cmfd_cell); //FIXME
-
 
 public:
 
@@ -396,6 +396,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   int ncg = _num_cmfd_groups;
   FP_PRECISION currents[_num_cmfd_groups];
   memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
+  std::map<int, FP_PRECISION>::iterator it;
 
   /* Check if the current needs to be tallied */
   bool tally_current = false;
@@ -433,10 +434,16 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       else {
 
         omp_set_lock(&_cell_locks[cell_id]);
-        for (int g=0; g < ncg; g++) {
-          int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
-          _edge_corner_currents[idx] += currents[g];
-        }
+
+        int first_ind = (cell_id * NUM_SURFACES + surf_id) * ncg;
+        it = _edge_corner_currents.find(first_ind);
+        if (it == _edge_corner_currents.end())
+          for (int g=0; g < ncg; g++)
+            _edge_corner_currents[first_ind+g] = 0.0;
+
+        for (int g=0; g < ncg; g++)
+          _edge_corner_currents[first_ind+g] += currents[g];
+
         omp_unset_lock(&_cell_locks[cell_id]);
       }
     }
@@ -461,10 +468,16 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       }
       else {
         omp_set_lock(&_cell_locks[cell_id]);
-        for (int g=0; g < ncg; g++) {
-          int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
-          _edge_corner_currents[idx] += currents[g];
-        }
+
+        int first_ind = (cell_id * NUM_SURFACES + surf_id) * ncg;
+        it = _edge_corner_currents.find(first_ind);
+        if (it == _edge_corner_currents.end())
+          for (int g=0; g < ncg; g++)
+            _edge_corner_currents[first_ind+g] = 0.0;
+
+        for (int g=0; g < ncg; g++)
+          _edge_corner_currents[first_ind+g] += currents[g];
+
         omp_unset_lock(&_cell_locks[cell_id]);
       }
     }
