@@ -196,6 +196,19 @@ Cmfd::~Cmfd() {
     delete [] _domain_communicator->fluxes;
     delete [] _domain_communicator->coupling_coeffs;
     delete _domain_communicator;
+
+    delete [] _inter_domain_data;
+    for (int s=0; s < NUM_FACES; s++) {
+      delete [] _volume_new_tally[s];
+      delete [] _reaction_new_tally[s];
+      delete [] _diffusion_new_tally[s];
+      delete [] _surface_new_currents[s];
+    }
+
+    delete [] _volume_new_tally;
+    delete [] _reaction_new_tally;
+    delete [] _diffusion_new_tally;
+    delete [] _surface_new_currents;
   }
 
   for (int r=0; r < _num_FSRs; r++)
@@ -1060,7 +1073,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
               */
 
           /* Record the corrected diffusion coefficient */
-          _old_dif_surf_corr->setValue(global_ind, s*_num_cmfd_groups+e, dif_surf_corr);
+          _old_dif_surf_corr->setValue(global_ind, s*_num_cmfd_groups+e,
+                                       dif_surf_corr);
 
           /* Set the diagonal term */
           value = (dif_surf - sense * dif_surf_corr) * delta;
@@ -3316,15 +3330,90 @@ void Cmfd::initialize() {
                               new FP_PRECISION[NUM_FACES];
         }
       }
+
+      //TODO: document, clean
+      int storage_per_cell = ((2 + NUM_FACES) * ncg + 1);
+      int num_per_side[3] = {_local_num_y * _local_num_z,
+                          _local_num_x * _local_num_z,
+                          _local_num_x * _local_num_y};
+
+      int comm_data_size = 0;
+      for (int s=0; s < NUM_FACES; s++)
+        comm_data_size += num_per_side[s % 3] * storage_per_cell;
+      _inter_domain_data = new FP_PRECISION[comm_data_size];
+
+      _volume_new_tally = new FP_PRECISION**[NUM_FACES];
+      _reaction_new_tally = new FP_PRECISION**[NUM_FACES];
+      _diffusion_new_tally = new FP_PRECISION**[NUM_FACES];
+      //FIXME: Be weary of corner currents (adding out of bounds, uncommon)
+      _surface_new_currents = new FP_PRECISION**[NUM_FACES];
+
+      int start = 0;
+      for (int s=0; s < NUM_FACES; s++) {
+        _volume_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _reaction_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _diffusion_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _surface_new_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        for (int idx=0; idx < num_per_side[s % 3]; idx++) {
+          _volume_new_tally[s][idx] = &_inter_domain_data[start];
+          _reaction_new_tally[s][idx] = &_inter_domain_data[start+1];
+          _diffusion_new_tally[s][idx] = &_inter_domain_data[start+ncg+1];
+          _surface_new_currents[s][idx] = &_inter_domain_data[start+2*ncg+1];
+          start += storage_per_cell;
+        }
+      }
+
+      int x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+      int x_end = x_start + _local_num_x;
+      int y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+      int y_end = y_start + _local_num_y;
+      int z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+      int z_end = z_start + _local_num_z;
+
+      _boundary_index_map.resize(NUM_FACES); // FIXME FIXME FIXME
+
+      // X
+      for (int y=0; y < _local_num_y; y++) {
+        for (int z=0; z < _local_num_z; z++) {
+          int global_ind = ((z_start + z) * _local_num_y + y + y_start) *
+                            _local_num_x + x_start - 1;
+          _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = z * _local_num_y
+                                                              + y;
+          global_ind = ((z_start + z) * _local_num_y + y + y_start) *
+                            _local_num_x + x_start + _local_num_x;
+          _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = z * _local_num_y
+                                                                + y;
+        }
+      }
+
+      // Y
+      for (int x=0; x < _local_num_x; x++) {
+        for (int z=0; z < _local_num_z; z++) {
+          int global_ind = ((z_start + z) * _local_num_y + y_start-1) *
+                            _local_num_x + x + x_start;
+          _boundary_index_map.at(SURFACE_Y_MIN)[global_ind] = z * _local_num_x
+                                                              + x;
+          global_ind = ((z_start + z) * _local_num_y + _local_num_y + y_start)
+                        * _local_num_x + x + x_start;
+          _boundary_index_map.at(SURFACE_Y_MAX)[global_ind] = z * _local_num_x
+                                                              + x;
+        }
+      }
+
+      // Z
+      for (int x=0; x < _local_num_x; x++) {
+        for (int y=0; y < _local_num_y; y++) {
+          int global_ind = ((z_start-1) * _local_num_y + y + y_start) *
+                          _local_num_x + x + x_start;
+          _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = y * _local_num_x
+                                                              + x;
+          global_ind = ((_local_num_z + z_start) * _local_num_y + y + y_start) *
+                          _local_num_x + x + x_start;
+          _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = y * _local_num_x
+                                                              + x;
+        }
+      }
     }
-
-    //TODO: document, clean
-    int num_vars = 1;
-    int comm_data_size = 2 * num_vars * ncg * (_local_num_x * _local_num_y +
-      _local_num_x * _local_num_z + _local_num_y * _local_num_z);
-    _inter_domain_data = new FP_PRECISION[comm_data_size];
-    _boundary_index_map.resize(NUM_FACES); // FIXME FIXME FIXME
-
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
