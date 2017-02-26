@@ -162,19 +162,10 @@ Cmfd::~Cmfd() {
   if (_tallies_allocated) {
 
     delete [] _tally_memory;
-    delete [] _nu_fission_tally;
     delete [] _reaction_tally;
     delete [] _volume_tally;
-    delete [] _total_tally;
-    delete [] _neutron_production_tally;
     delete [] _diffusion_tally;
 
-    for (int i=0; i < _num_x * _num_y * _num_z; i++) {
-      delete [] _scattering_tally[i];
-      delete [] _chi_tally[i];
-    }
-    delete [] _scattering_tally;
-    delete [] _chi_tally;
 #ifdef MPIx
     if (_geometry->isDomainDecomposed()) {
       delete [] _tally_buffer;
@@ -465,6 +456,15 @@ void Cmfd::collapseXS() {
       }
     }
 
+
+    for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+      for (int e=0; e < _num_cmfd_groups; e++) {
+        _diffusion_tally[i][e] = 0.0;
+        _reaction_tally[i][e] = 0.0;
+        _volume_tally[i][e] = 0.0;
+      }
+    }
+
     /* Loop over CMFD cells */
     //FIXME LOOP
 #pragma omp for
@@ -475,8 +475,7 @@ void Cmfd::collapseXS() {
       int iz = i / (_num_x * _num_y);
 
       int ind = getLocalCMFDCell(i);
-      if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
-          || z_start - iz > 1 || iz - z_end > 0)
+      if (ind == -1)
         continue;
       std::vector<int>::iterator iter;
 
@@ -1455,14 +1454,9 @@ void Cmfd::allocateTallies() {
   }
 
   /* Assign tallies to allocated data */
-  _nu_fission_tally = integrated_tallies[0];
   _reaction_tally = integrated_tallies[1];
   _volume_tally = integrated_tallies[2];
-  _total_tally = integrated_tallies[3];
-  _neutron_production_tally = integrated_tallies[4];
   _diffusion_tally = integrated_tallies[5];
-  _scattering_tally =  groupwise_tallies[0];
-  _chi_tally =  groupwise_tallies[1];
   _tallies_allocated = true;
 
   /* Create copy buffer of currents and tallies for domain decomposition */

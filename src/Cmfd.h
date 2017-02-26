@@ -214,14 +214,9 @@ private:
   //FIXME
   long _total_tally_size;
   FP_PRECISION* _tally_memory;
-  FP_PRECISION** _nu_fission_tally;
   FP_PRECISION** _reaction_tally;
   FP_PRECISION** _volume_tally;
-  FP_PRECISION** _total_tally;
-  FP_PRECISION** _neutron_production_tally;
   FP_PRECISION** _diffusion_tally;
-  FP_PRECISION*** _scattering_tally;
-  FP_PRECISION*** _chi_tally;
   bool _tallies_allocated;
 #ifdef MPIx
   FP_PRECISION* _tally_buffer;
