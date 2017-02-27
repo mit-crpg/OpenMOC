@@ -311,8 +311,10 @@ void Cmfd::collapseXS() {
   if (!_tallies_allocated)
     log_printf(ERROR, "Tallies need to be allocated before collapsing "
                "cross-sections");
-
+    
   /* Reduce currents across domains if necessary */
+  splitVertexCurrents();
+  splitEdgeCurrents();
 #ifdef MPIx
   MPI_Comm comm;
   MPI_Datatype precision;
@@ -355,8 +357,6 @@ void Cmfd::collapseXS() {
 
   /* Split vertex and edge currents to side surfaces */  
   _timer->startTimer();
-  splitVertexCurrents();
-  splitEdgeCurrents();
   _timer->stopTimer();
   _timer->recordSplit("Current spliting time");
 
@@ -504,7 +504,7 @@ void Cmfd::collapseXS() {
       log_printf(WARNING, "Negative FSR fluxes found in group collapse");
 
   /* Loop over CMFD cells and set cross sections */
-#pragma parallel omp for
+#pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
     Material* cell_material = _materials[i];
@@ -624,6 +624,20 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
 
+        //FIXME
+        if (!_materials[cmfd_cell]->isFissionable()) {
+          bool reflector = true;
+          for (int s=0; s < NUM_FACES; s++) {
+            int neighbor = getCellNext(cmfd_cell, s);
+            if (neighbor != -1) {
+              if (_materials[neighbor]->isFissionable())
+                reflector = false;
+            }
+          }
+          if (reflector)
+            dif_surf_corr = 0.0;
+        }
+
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
       FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
@@ -678,6 +692,20 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
         dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
                         / (flux_next + flux);
       }
+    }
+
+    //FIXME
+    if (!_materials[cmfd_cell]->isFissionable()) {
+      bool reflector = true;
+      for (int s=0; s < NUM_FACES; s++) {
+        int neighbor = getCellNext(cmfd_cell, s);
+        if (neighbor != -1) {
+          if (_materials[neighbor]->isFissionable())
+            reflector = false;
+        }
+      }
+      if (reflector)
+        dif_surf_corr = 0.0;
     }
 
     /* Weight the old and new corrected diffusion coefficients by the
@@ -754,7 +782,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   /* Tally the XS collpase time */
   _timer->stopTimer();
   _timer->recordSplit("Total collapse time");
-
+    
   /* Construct matrices */
   constructMatrices(moc_iteration);
 
@@ -763,7 +791,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Start recording CMFD solve time */
   _timer->startTimer();
-
+  
   /* Solve the eigenvalue problem */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
                            _source_convergence_threshold,
@@ -772,13 +800,13 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   /* Tally the CMFD solver time */
   _timer->stopTimer();
   _timer->recordSplit("Total solver time");
-
+  
   /* Rescale the old and new flux */
   rescaleFlux();
-
+ 
   /* Update the MOC flux */
   updateMOCFlux();
-
+  
   /* Tally the total CMFD time */
   _timer->stopTimer();
   _timer->recordSplit("Total CMFD time");
@@ -1479,6 +1507,7 @@ void Cmfd::splitVertexCurrents() {
             surface = (*iter) % ns;
             _surface_currents->incrementValue(cell, surface * ncg + g, current);
           }
+          _edge_corner_currents[ind+g] = 0.0;
         }
       }
     }
@@ -1551,6 +1580,7 @@ void Cmfd::splitEdgeCurrents() {
             surface = (*iter) % ns;
             _surface_currents->incrementValue(cell, surface * ncg + g, current);
           }
+          _edge_corner_currents[ind+g] = 0.0;
         }
       }
     }
@@ -2511,7 +2541,7 @@ void Cmfd::generateKNearestStencils() {
   }
 
   /* Compute axial quadratic interpolation values if requested */
-  if (_use_axial_interpolation) {
+  if (_use_axial_interpolation && _num_z >= 3) {
 
     /* Calculate common factors */
     double dz = _cell_width_z;
@@ -2700,6 +2730,15 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  * @return the ratio of CMFD fluxes
  */
 FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
+
+    /*
+    //FIXME
+    if (_old_flux->getValue(cell_id, group) != 0.0)
+      return _new_flux->getValue(cell_id, group) /
+              _old_flux->getValue(cell_id, group);
+    else
+      return 0.0;
+      */
   double* interpolants = _axial_interpolants.at(fsr);
   double ratio = 1.0;
   if (interpolants[0] != 0 || interpolants[2] != 0) {

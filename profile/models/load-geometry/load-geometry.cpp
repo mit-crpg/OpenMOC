@@ -14,9 +14,10 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  std::string file = "full-axial-assembly-no-TC.geo";
-  //std::string file = "few-pins.geo";
-  //std::string file = "single-assembly-short-TC.geo";
+  //std::string file = "few-pins-reduced-ref-v2.geo";
+  //std::string file = "full-assembly-final.geo";
+  //std::string file = "beavrs-2D-v2-NULL-corr.geo";
+  std::string file = "beavrs-2D-v2.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -25,36 +26,46 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
  
+  double azim_spacing = 0.4;
+  int num_azim = 4;
+  double polar_spacing = 8.5; // 1.0
+  int num_polar = 2;
+
+  /*
   double azim_spacing = 0.1;
   int num_azim = 32;
   double polar_spacing = 0.75; // 1.0
-  int num_polar = 2;
+  int num_polar = 6;
+  */
+
   double tolerance = 1e-4;
-  int max_iters = 50;
+  int max_iters = 25;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17, 17, 230);
+  cmfd.setLatticeStructure(17*17, 17*17, 1);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
+  //std::vector<std::vector<int> > cmfd_group_structure =
+   //   get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.7);
   cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
-  //cmfd.setCMFDRelaxationFactor(0.5);
 
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.loadFromFile(file);
 
-  geometry.setAxialMesh(2.0);
+  //FIXME geometry.setAxialMesh(2.0);
   geometry.setCmfd(&cmfd);
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 23, MPI_COMM_WORLD); // FIXME 23
+  //geometry.setDomainDecomposition(1, 1, 1, MPI_COMM_WORLD); // FIXME 23
+  geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD); // FIXME 23
 #else
   //geometry.setNumDomainModules(2,2,4);
 #endif
@@ -78,18 +89,18 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator);
+  CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
   //solver.correctXS();
-  solver.setCheckXSLogLevel(WARNING);
+  solver.setCheckXSLogLevel(INFO);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
   Lattice mesh_lattice;
   Mesh mesh(&solver);
-  mesh.createLattice(17, 17, 230);
+  mesh.createLattice(17*17, 17*17, 1);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
   int my_rank = 0;

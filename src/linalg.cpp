@@ -192,6 +192,10 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Pass new flux to old flux */
     X->copyTo(&X_old);
 
+    /* Check if we need to cut the SOR factor */
+    if (iter > 100)
+      SOR_factor = 1.0;
+
     /* Iteration over red/black cells */
     for (int color = 0; color < 2; color++) {
       for (int oct = 0; oct < 8; oct++) {

@@ -1369,6 +1369,7 @@ void CPUSolver::computeFSRSources(int iteration) {
   FP_PRECISION* fission_sources = new FP_PRECISION[size];
   size = _num_threads * _num_groups;
   FP_PRECISION* scatter_sources = new FP_PRECISION[size];
+  int num_negative_sources = 0;
 
   /* For all FSRs, find the source */
 #pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
@@ -1406,10 +1407,17 @@ void CPUSolver::computeFSRSources(int iteration) {
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
       //FIXME
-      if (_reduced_sources(r,G) < 0.0 && iteration < 10)
-        _reduced_sources(r,G) = 0.0;
+      if (_reduced_sources(r,G) < 0.0) {
+#pragma omp atomic
+        num_negative_sources++;
+        if (iteration < 25)
+          _reduced_sources(r,G) = 0.0;
+      }
     }
   }
+
+  if (num_negative_sources > 0)
+    log_printf(WARNING, "Computed %d negative sources", num_negative_sources);
 
   delete [] fission_sources;
   delete [] scatter_sources;

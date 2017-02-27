@@ -1115,7 +1115,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeCmfd();
   _geometry->fixFSRMaps();
 #ifdef MPIx
-  //MPI_Barrier(_geometry->getMPICart());
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
 #endif
   printInputParamsSummary();
 
@@ -1130,7 +1131,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double rm;
   _timer->processMemUsage(vm, rm);
 #ifdef MPIx
-  //MPI_Barrier(_geometry->getMPICart());
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
 #endif
   log_printf(NODAL, "Using %f MB virtual memory and %f MB resident "
                       "memory ", vm, rm);
@@ -1138,7 +1140,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 #ifdef MPIx
-  //MPI_Barrier(_geometry->getMPICart());
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
 #endif
   log_printf(NORMAL, "Computing the eigenvalue...");
 
@@ -1159,17 +1162,40 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     computeFSRSources(i);
     _timer->startTimer();
+/*
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Barrier(_geometry->getMPICart());
+    log_printf(NORMAL,"Transport sweeping");
+  }
+#endif
+*/
     transportSweep();
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-
+/*
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Barrier(_geometry->getMPICart());
+    log_printf(NORMAL,"COmputing CMFD");
+  }
+#endif
+*/
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else
       computeKeff();
-
+/*
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Barrier(_geometry->getMPICart());
+    log_printf(NORMAL,"COmputing residual");
+  }
+#endif
+*/
+    
     /* Normalize the flux and compute residuals */
     normalizeFluxes();
     residual = computeResidual(res_type);

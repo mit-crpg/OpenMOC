@@ -368,6 +368,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   int ncg = _num_cmfd_groups;
   FP_PRECISION currents[_num_cmfd_groups];
   memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
+  std::map<int, FP_PRECISION>::iterator it;
 
   /* Check if the current needs to be tallied */
   bool tally_current = false;
@@ -402,10 +403,18 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
-        for (int g=0; g < ncg; g++) {
-          int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
-          _edge_corner_currents[idx] += currents[g];
-        }
+        omp_set_lock(&_cell_locks[cell_id]);
+
+        int first_ind = (cell_id * NUM_SURFACES + surf_id) * ncg;
+        it = _edge_corner_currents.find(first_ind);
+        if (it == _edge_corner_currents.end())
+          for (int g=0; g < ncg; g++)
+            _edge_corner_currents[first_ind+g] = 0.0;
+
+        for (int g=0; g < ncg; g++)
+          _edge_corner_currents[first_ind+g] += currents[g];
+
+        omp_unset_lock(&_cell_locks[cell_id]);
       }
     }
     else {
@@ -428,10 +437,19 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
-        for (int g=0; g < ncg; g++) {
-          int idx = cell_id * NUM_SURFACES * ncg + surf_id * ncg + g;
-          _edge_corner_currents[idx] += currents[g];
-        }
+        
+        omp_set_lock(&_cell_locks[cell_id]);
+
+        int first_ind = (cell_id * NUM_SURFACES + surf_id) * ncg;
+        it = _edge_corner_currents.find(first_ind);
+        if (it == _edge_corner_currents.end())
+          for (int g=0; g < ncg; g++)
+            _edge_corner_currents[first_ind+g] = 0.0;
+
+        for (int g=0; g < ncg; g++)
+          _edge_corner_currents[first_ind+g] += currents[g];
+        
+        omp_unset_lock(&_cell_locks[cell_id]);
       }
     }
   }
