@@ -669,6 +669,8 @@ void Cmfd::collapseXS() {
             _volume_tally[global_ind][e];
           _reaction_new_tally[SURFACE_X_MIN][idx][e] =
             _reaction_tally[global_ind][e];
+          _diffusion_new_tally[SURFACE_X_MIN][idx][e] =
+            _diffusion_tally[global_ind][e];
         }
         global_ind = ((z_start + z) * _num_y + y + y_start) *
                           _num_x + x_start + _local_num_x;
@@ -678,6 +680,8 @@ void Cmfd::collapseXS() {
             _volume_tally[global_ind][e];
           _reaction_new_tally[SURFACE_X_MAX][idx][e] =
             _reaction_tally[global_ind][e];
+          _diffusion_new_tally[SURFACE_X_MAX][idx][e] =
+            _diffusion_tally[global_ind][e];
         }
       }
     }
@@ -693,6 +697,8 @@ void Cmfd::collapseXS() {
             _volume_tally[global_ind][e];
           _reaction_new_tally[SURFACE_Y_MIN][idx][e] =
             _reaction_tally[global_ind][e];
+          _diffusion_new_tally[SURFACE_Y_MIN][idx][e] =
+            _diffusion_tally[global_ind][e];
         }
         global_ind = ((z_start + z) * _num_y + _local_num_y + y_start)
                       * _num_x + x + x_start;
@@ -702,6 +708,8 @@ void Cmfd::collapseXS() {
             _volume_tally[global_ind][e];
           _reaction_new_tally[SURFACE_Y_MAX][idx][e] =
             _reaction_tally[global_ind][e];
+          _diffusion_new_tally[SURFACE_Y_MAX][idx][e] =
+            _diffusion_tally[global_ind][e];
         }
       }
     }
@@ -717,6 +725,8 @@ void Cmfd::collapseXS() {
             _volume_tally[global_ind][e];
           _reaction_new_tally[SURFACE_Z_MIN][idx][e] =
             _reaction_tally[global_ind][e];
+          _diffusion_new_tally[SURFACE_Z_MIN][idx][e] =
+            _diffusion_tally[global_ind][e];
         }
         global_ind = ((_local_num_z + z_start) * _num_y + y + y_start) *
                         _num_x + x + x_start;
@@ -726,6 +736,8 @@ void Cmfd::collapseXS() {
             _volume_tally[global_ind][e];
           _reaction_new_tally[SURFACE_Z_MAX][idx][e] =
             _reaction_tally[global_ind][e];
+          _diffusion_new_tally[SURFACE_Z_MAX][idx][e] =
+            _diffusion_tally[global_ind][e];
         }
       }
     }
@@ -787,20 +799,13 @@ void Cmfd::collapseXS() {
 
       /* Load tallies at this cell and energy group */
       FP_PRECISION vol_tally = _volume_new_tally[s][idx][0];
-      std::cout << "vol OLD = " << _volume_tally[i][e] << std::endl;
-      std::cout << "vol NEW = " << _volume_new_tally[s][idx][0] << std::endl;
       FP_PRECISION rxn_tally = _reaction_new_tally[s][idx][e];
-      std::cout << "rxn OLD = " << _reaction_tally[i][e] << std::endl;
-      std::cout << "rxn NEW = " << _reaction_new_tally[s][idx][e] << std::endl;
-      printf("Indexes (%d, %d) (%d, %d, %d)\n", i, e, s, idx, 0);
-
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
       _volumes->setValue(i, 0, vol_tally);
     }
   }
-  exit(0);
 }
 
 
@@ -818,6 +823,8 @@ void Cmfd::collapseXS() {
  * @return The diffusion coefficient
  */
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
+
+  //FIXME int local_cmfd_cell = getLocalCMFDCell(cmfd_cell);
   return _diffusion_tally[cmfd_cell][group] /
     _reaction_tally[cmfd_cell][group];
 }
@@ -3497,15 +3504,11 @@ void Cmfd::initialize() {
           int global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start - 1;
 
-          std::cout << "Putting global index " << global_ind << " at index " <<
-            z * _local_num_y + y << std::endl;
           _boundary_index_map.at(SURFACE_X_MIN)[global_ind] = z * _local_num_y
                                                               + y;
           global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start + _local_num_x;
 
-          std::cout << "Putting global index " << global_ind << " at index " <<
-            z * _local_num_y + y << std::endl;
           _boundary_index_map.at(SURFACE_X_MAX)[global_ind] = z * _local_num_y
                                                                 + y;
         }
