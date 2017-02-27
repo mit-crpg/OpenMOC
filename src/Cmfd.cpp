@@ -661,21 +661,23 @@ void Cmfd::collapseXS() {
   for (int e=0; e < _num_cmfd_groups; e++) {
     for (int y=0; y < _local_num_y; y++) {
       for (int z=0; z < _local_num_z; z++) {
-        int global_ind = ((z_start + z) * _local_num_y + y + y_start) *
-                          _local_num_x + x_start - 1;
-        if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_Z_MIN)[global_ind];
-          std::cout << "Req global index " << global_ind << " at index " <<
-            idx << std::endl;
-          _volume_new_tally[SURFACE_X_MIN][idx][0] = _volume_tally[global_ind][e];
+        int global_ind = ((z_start + z) * _num_y + y + y_start) *
+                          _num_x + x_start - 1;
+        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
+          int idx = _boundary_index_map.at(SURFACE_X_MIN)[global_ind];
+          _volume_new_tally[SURFACE_X_MIN][idx][0] =
+            _volume_tally[global_ind][e];
+          _reaction_new_tally[SURFACE_X_MIN][idx][e] =
+            _reaction_tally[global_ind][e];
         }
-        global_ind = ((z_start + z) * _local_num_y + y + y_start) *
-                          _local_num_x + x_start + _local_num_x;
-        if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_Z_MAX)[global_ind];
-          std::cout << "Req global index " << global_ind << " at index " <<
-            idx << std::endl;
-          _volume_new_tally[SURFACE_X_MAX][idx][0] = _volume_tally[global_ind][e];
+        global_ind = ((z_start + z) * _num_y + y + y_start) *
+                          _num_x + x_start + _local_num_x;
+        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
+          int idx = _boundary_index_map.at(SURFACE_X_MAX)[global_ind];
+          _volume_new_tally[SURFACE_X_MAX][idx][0] =
+            _volume_tally[global_ind][e];
+          _reaction_new_tally[SURFACE_X_MAX][idx][e] =
+            _reaction_tally[global_ind][e];
         }
       }
     }
@@ -683,17 +685,23 @@ void Cmfd::collapseXS() {
     // FIXME HERE Y
     for (int x=0; x < _local_num_x; x++) {
       for (int z=0; z < _local_num_z; z++) {
-        int global_ind = ((z_start + z) * _local_num_y + y_start-1) *
-                          _local_num_x + x + x_start;
-        if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int global_ind = ((z_start + z) * _num_y + y_start-1) *
+                          _num_x + x + x_start;
+        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
           int idx = _boundary_index_map.at(SURFACE_Y_MIN)[global_ind];
-          _volume_new_tally[SURFACE_Y_MIN][idx][0] = _volume_tally[global_ind][e];
+          _volume_new_tally[SURFACE_Y_MIN][idx][0] =
+            _volume_tally[global_ind][e];
+          _reaction_new_tally[SURFACE_Y_MIN][idx][e] =
+            _reaction_tally[global_ind][e];
         }
-        global_ind = ((z_start + z) * _local_num_y + _local_num_y + y_start)
-                      * _local_num_x + x + x_start;
-        if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_Z_MAX)[global_ind];
-          _volume_new_tally[SURFACE_Y_MAX][idx][0] = _volume_tally[global_ind][e];
+        global_ind = ((z_start + z) * _num_y + _local_num_y + y_start)
+                      * _num_x + x + x_start;
+        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
+          int idx = _boundary_index_map.at(SURFACE_Y_MAX)[global_ind];
+          _volume_new_tally[SURFACE_Y_MAX][idx][0] =
+            _volume_tally[global_ind][e];
+          _reaction_new_tally[SURFACE_Y_MAX][idx][e] =
+            _reaction_tally[global_ind][e];
         }
       }
     }
@@ -701,17 +709,23 @@ void Cmfd::collapseXS() {
     // FIXME HERE Z
     for (int x=0; x < _local_num_x; x++) {
       for (int y=0; y < _local_num_y; y++) {
-        int global_ind = ((z_start-1) * _local_num_y + y + y_start) *
-                        _local_num_x + x + x_start;
-        if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        int global_ind = ((z_start-1) * _num_y + y + y_start) *
+                        _num_x + x + x_start;
+        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
           int idx = _boundary_index_map.at(SURFACE_Z_MIN)[global_ind];
-          _volume_new_tally[SURFACE_Z_MIN][idx][0] = _volume_tally[global_ind][e];
+          _volume_new_tally[SURFACE_Z_MIN][idx][0] =
+            _volume_tally[global_ind][e];
+          _reaction_new_tally[SURFACE_Z_MIN][idx][e] =
+            _reaction_tally[global_ind][e];
         }
-        global_ind = ((_local_num_z + z_start) * _local_num_y + y + y_start) *
-                        _local_num_x + x + x_start;
-        if (global_ind > 0 && global_ind < _num_x * _num_y * _num_z) {
+        global_ind = ((_local_num_z + z_start) * _num_y + y + y_start) *
+                        _num_x + x + x_start;
+        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
           int idx = _boundary_index_map.at(SURFACE_Z_MAX)[global_ind];
-          _volume_new_tally[SURFACE_Z_MAX][idx][0] = _volume_tally[global_ind][e];
+          _volume_new_tally[SURFACE_Z_MAX][idx][0] =
+            _volume_tally[global_ind][e];
+          _reaction_new_tally[SURFACE_Z_MAX][idx][e] =
+            _reaction_tally[global_ind][e];
         }
       }
     }
@@ -773,10 +787,13 @@ void Cmfd::collapseXS() {
 
       /* Load tallies at this cell and energy group */
       FP_PRECISION vol_tally = _volume_new_tally[s][idx][0];
-      std::cout << "OLD = " << _volume_tally[i][e] << std::endl;
-      std::cout << "NEW = " << _volume_new_tally[s][idx][0] << std::endl;
+      std::cout << "vol OLD = " << _volume_tally[i][e] << std::endl;
+      std::cout << "vol NEW = " << _volume_new_tally[s][idx][0] << std::endl;
+      FP_PRECISION rxn_tally = _reaction_new_tally[s][idx][e];
+      std::cout << "rxn OLD = " << _reaction_tally[i][e] << std::endl;
+      std::cout << "rxn NEW = " << _reaction_new_tally[s][idx][e] << std::endl;
       printf("Indexes (%d, %d) (%d, %d, %d)\n", i, e, s, idx, 0);
-      FP_PRECISION rxn_tally = _reaction_tally[i][e];
+
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
@@ -3477,15 +3494,15 @@ void Cmfd::initialize() {
       // X
       for (int y=0; y < _local_num_y; y++) {
         for (int z=0; z < _local_num_z; z++) {
-          int global_ind = ((z_start + z) * _local_num_y + y + y_start) *
-                            _local_num_x + x_start - 1;
+          int global_ind = ((z_start + z) * _num_y + y + y_start) *
+                            _num_x + x_start - 1;
 
           std::cout << "Putting global index " << global_ind << " at index " <<
             z * _local_num_y + y << std::endl;
           _boundary_index_map.at(SURFACE_X_MIN)[global_ind] = z * _local_num_y
                                                               + y;
-          global_ind = ((z_start + z) * _local_num_y + y + y_start) *
-                            _local_num_x + x_start + _local_num_x;
+          global_ind = ((z_start + z) * _num_y + y + y_start) *
+                            _num_x + x_start + _local_num_x;
 
           std::cout << "Putting global index " << global_ind << " at index " <<
             z * _local_num_y + y << std::endl;
@@ -3497,12 +3514,12 @@ void Cmfd::initialize() {
       // Y
       for (int x=0; x < _local_num_x; x++) {
         for (int z=0; z < _local_num_z; z++) {
-          int global_ind = ((z_start + z) * _local_num_y + y_start-1) *
-                            _local_num_x + x + x_start;
+          int global_ind = ((z_start + z) * _num_y + y_start-1) *
+                            _num_x + x + x_start;
           _boundary_index_map.at(SURFACE_Y_MIN)[global_ind] = z * _local_num_x
                                                               + x;
-          global_ind = ((z_start + z) * _local_num_y + _local_num_y + y_start)
-                        * _local_num_x + x + x_start;
+          global_ind = ((z_start + z) * _num_y + _local_num_y + y_start)
+                        * _num_x + x + x_start;
           _boundary_index_map.at(SURFACE_Y_MAX)[global_ind] = z * _local_num_x
                                                               + x;
         }
@@ -3511,12 +3528,12 @@ void Cmfd::initialize() {
       // Z
       for (int x=0; x < _local_num_x; x++) {
         for (int y=0; y < _local_num_y; y++) {
-          int global_ind = ((z_start-1) * _local_num_y + y + y_start) *
-                          _local_num_x + x + x_start;
+          int global_ind = ((z_start-1) * _num_y + y + y_start) *
+                          _num_x + x + x_start;
           _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = y * _local_num_x
                                                               + x;
-          global_ind = ((_local_num_z + z_start) * _local_num_y + y + y_start) *
-                          _local_num_x + x + x_start;
+          global_ind = ((_local_num_z + z_start) * _num_y + y + y_start) *
+                          _num_x + x + x_start;
           _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = y * _local_num_x
                                                               + x;
         }
