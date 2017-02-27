@@ -823,8 +823,6 @@ void Cmfd::collapseXS() {
  * @return The diffusion coefficient
  */
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
-
-  //FIXME int local_cmfd_cell = getLocalCMFDCell(cmfd_cell);
   return _diffusion_tally[cmfd_cell][group] /
     _reaction_tally[cmfd_cell][group];
 }
@@ -859,7 +857,16 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   FP_PRECISION flux_next;
 
   /* Get diffusivity and flux for Mesh cell */
-  FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
+
+  FP_PRECISION dif_coef;
+  int local_cmfd_cell = getLocalCMFDCell(cmfd_cell);
+  if (local_cmfd_cell == -1) {
+    int idx = _boundary_index_map.at(surface)[cmfd_cell];
+    _diffusion_new_tally[surface][idx][group];
+  }
+  else {
+    dif_coef = getDiffusionCoefficient(cmfd_cell, group);
+  }
   FP_PRECISION flux = _old_flux_full->getValue(cmfd_cell, group); //FIXME
   int cmfd_cell_next = getCellNext(cmfd_cell, surface); //FIXME
   FP_PRECISION delta_interface = getSurfaceWidth(surface);
