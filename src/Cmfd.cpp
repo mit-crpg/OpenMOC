@@ -868,8 +868,12 @@ void Cmfd::collapseXS() {
  * @return The diffusion coefficient
  */
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
-  return _diffusion_tally[cmfd_cell][group] /
-    _reaction_tally[cmfd_cell][group];
+  //FIXME
+  int local_cell = getLocalCMFDCell(cmfd_cell);
+  if (local_cell == -1)
+    std::cout << "ERROR" << std::endl;
+  return _diffusion_dfd_tally[local_cell][group] /
+    _reaction_dfd_tally[local_cell][group];
 }
 
 
@@ -907,7 +911,8 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   int local_cmfd_cell = getLocalCMFDCell(cmfd_cell);
   if (local_cmfd_cell == -1) {
     int idx = _boundary_index_map.at(surface)[cmfd_cell];
-    _diffusion_new_tally[surface][idx][group];
+    dif_coef = _diffusion_new_tally[surface][idx][group] /
+                _reaction_new_tally[surface][idx][group];
   }
   else {
     dif_coef = getDiffusionCoefficient(cmfd_cell, group);
@@ -960,7 +965,17 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     int surface_next = (surface + NUM_FACES / 2) % NUM_FACES;
 
     /* Set diffusion coefficient and flux for the neighboring cell */
-    FP_PRECISION dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
+    //FIXME
+    int local_cell_next = getLocalCMFDCell(cmfd_cell_next);
+    FP_PRECISION dif_coef_next;
+    if (local_cell_next == -1) {
+      int idx = _boundary_index_map.at(surface)[cmfd_cell_next];
+      dif_coef_next = _diffusion_new_tally[surface][idx][group] /
+                _reaction_new_tally[surface][idx][group];
+    }
+    else {
+      dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
+    }
 
     //FIXME
     flux_next = _old_flux_full->getValue(cmfd_cell_next, group);
