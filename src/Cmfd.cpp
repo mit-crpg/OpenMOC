@@ -518,6 +518,8 @@ void Cmfd::collapseXS() {
         _reaction_tally[i][e] = 0.0;
         _volume_tally[i][e] = 0.0;
 
+        _volume_dfd_tally[ind][e] = 0.0;
+
         _diffusion_dfd_tally[ind][e] = 0.0;
         _reaction_dfd_tally[ind][e] = 0.0;
         _volume_dfd_tally[ind][e] = 0.0;
@@ -560,6 +562,7 @@ void Cmfd::collapseXS() {
 
           /* Reset volume tally for this MOC group */
           _volume_tally[i][e] = 0.0;
+          _volume_dfd_tally[ind][e] = 0.0;
           FP_PRECISION rxn_tally_group = 0.0;
           FP_PRECISION trans_tally_group = 0.0;
 
@@ -793,9 +796,9 @@ void Cmfd::collapseXS() {
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Load tallies at this cell and energy group */
-      FP_PRECISION vol_tally = _volume_tally[i][e];
+      //FP_PRECISION vol_tally = _volume_tally[i][e];
+      FP_PRECISION vol_tally = _volume_dfd_tally[ind][e];
       //FP_PRECISION rxn_tally = _reaction_tally[i][e];
-      //FP_PRECISION vol_tally = _volume_dfd_tally[ind][e];
       FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
       _old_flux->setValue(ind, e, rxn_tally / vol_tally);
