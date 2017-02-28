@@ -904,17 +904,18 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   /* Get diffusivity and flux for Mesh cell */
 
   FP_PRECISION dif_coef;
-  int local_cmfd_cell = getLocalCMFDCell(cmfd_cell);
+  int global_cmfd_cell = cmfd_cell;
+  int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
   if (local_cmfd_cell == -1) {
-    int idx = _boundary_index_map.at(surface)[cmfd_cell];
+    int idx = _boundary_index_map.at(surface)[global_cmfd_cell];
     dif_coef = _diffusion_new_tally[surface][idx][group] /
                 _reaction_new_tally[surface][idx][group];
   }
   else {
     dif_coef = getDiffusionCoefficient(local_cmfd_cell, group);
   }
-  FP_PRECISION flux = _old_flux_full->getValue(cmfd_cell, group); //FIXME
-  int cmfd_cell_next = getCellNext(cmfd_cell, surface); //FIXME
+  FP_PRECISION flux = _old_flux_full->getValue(global_cmfd_cell, group); //FIXME
+  int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface); //FIXME
   FP_PRECISION delta_interface = getSurfaceWidth(surface);
   FP_PRECISION delta = getPerpendicularSurfaceWidth(surface);
   int sense = getSense(surface);
@@ -926,7 +927,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* If surface is on a boundary with REFLECTIVE or VACUUM BCs, choose
    * approipriate BC */
-  if (cmfd_cell_next == -1) {
+  if (global_cmfd_cell_next == -1) {
 
     /* REFLECTIVE BC */
     if (_boundaries[surface] == REFLECTIVE) {
@@ -939,7 +940,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
       /* Compute the surface-averaged current leaving the cell */
       current_out = sense * _surface_currents->getValue
-          (cmfd_cell, surface*_num_cmfd_groups + group) / delta_interface;
+          (global_cmfd_cell, surface*_num_cmfd_groups + group) / delta_interface;
 
       /* Set the surface diffusion coefficient and MOC correction */
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
@@ -948,7 +949,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
       FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-          (cmfd_cell, surface*_num_cmfd_groups+group);
+          (global_cmfd_cell, surface*_num_cmfd_groups+group);
       dif_surf_corr = _relaxation_factor * dif_surf_corr +
           (1.0 - _relaxation_factor) * old_dif_surf_corr;
     }
@@ -962,10 +963,10 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Set diffusion coefficient and flux for the neighboring cell */
     //FIXME
-    int local_cell_next = getLocalCMFDCell(cmfd_cell_next);
+    int local_cell_next = getLocalCMFDCell(global_cmfd_cell_next);
     FP_PRECISION dif_coef_next;
     if (local_cell_next == -1) {
-      int idx = _boundary_index_map.at(surface)[cmfd_cell_next];
+      int idx = _boundary_index_map.at(surface)[global_cmfd_cell_next];
       dif_coef_next = _diffusion_new_tally[surface][idx][group] /
                 _reaction_new_tally[surface][idx][group];
     }
@@ -974,7 +975,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     }
 
     //FIXME
-    flux_next = _old_flux_full->getValue(cmfd_cell_next, group);
+    flux_next = _old_flux_full->getValue(global_cmfd_cell_next, group);
 
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
@@ -987,11 +988,11 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Get the outward current on surface */
     current_out = _surface_currents->getValue
-        (cmfd_cell, surface*_num_cmfd_groups + group);
+        (global_cmfd_cell, surface*_num_cmfd_groups + group);
 
     /* Get the inward current on the surface */
     current_in = _surface_currents->getValue
-        (cmfd_cell_next, surface_next*_num_cmfd_groups + group);
+        (global_cmfd_cell_next, surface_next*_num_cmfd_groups + group);
 
     /* Compute the surface-averaged net current across the surface */
     current = sense * (current_out - current_in) / delta_interface;
@@ -1003,7 +1004,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Weight the old and new corrected diffusion coefficients by the
        relaxation factor */
     FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-        (cmfd_cell, surface*_num_cmfd_groups+group);
+        (global_cmfd_cell, surface*_num_cmfd_groups+group);
     dif_surf_corr = _relaxation_factor * dif_surf_corr +
         (1.0 - _relaxation_factor) * old_dif_surf_corr;
 
