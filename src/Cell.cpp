@@ -34,9 +34,9 @@ void reset_cell_id() {
  * @brief Maximize the auto-generated unique Cell ID counter.
  * @details This method updates the auto-generated unique Cell ID
  *          counter if the input parameter is greater than the present
- *          value. This is useful for the OpenCG compatibility module
+ *          value. This is useful for the OpenMC compatibility module
  *          to ensure that the auto-generated Cell IDs do not
- *          collide with those created in OpenCG.
+ *          collide with those created in OpenMC.
  * @param cell_id the id assigned to the auto-generated counter
  */
 void maximize_cell_id(int cell_id) {
@@ -268,7 +268,7 @@ double* Cell::getRotationMatrix() {
 /**
  * @brief Fills an array with the rotation angles for x, y and z.
  * @details This class method is intended to be called by the OpenMOC
- *          Python OpenCG compatiblity module. Although this method appears to
+ *          Python OpenMC compatiblity module. Although this method appears to
  *          require two arguments, in reality it only requires one due to SWIG
  *          and would be called from within Python as follows:
  *
@@ -313,7 +313,7 @@ double* Cell::getTranslation() {
 /**
  * @brief Fills an array with the translations along x, y and z.
  * @details This class method is intended to be called by the OpenMOC
- *          Python OpenCG compatiblity module. Although this method appears to
+ *          Python OpenMC compatiblity module. Although this method appears to
  *          require two arguments, in reality it only requires one due to SWIG
  *          and would be called from within Python as follows:
  *

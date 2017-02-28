@@ -33,9 +33,9 @@ void reset_universe_id() {
  * @brief Maximize the auto-generated unique Universe ID counter.
  * @details This method updates the auto-generated unique Universe ID
  *          counter if the input parameter is greater than the present
- *          value. This is useful for the OpenCG compatibility module
+ *          value. This is useful for the OpenMC compatibility module
  *          to ensure that the auto-generated Universe IDs do not
- *          collide with those created in OpenCG.
+ *          collide with those created in OpenMC.
  * @param universe_id the id assigned to the auto-generated counter
  */
 void maximize_universe_id(int universe_id) {
