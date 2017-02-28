@@ -868,12 +868,8 @@ void Cmfd::collapseXS() {
  * @return The diffusion coefficient
  */
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
-  //FIXME
-  int local_cell = getLocalCMFDCell(cmfd_cell);
-  if (local_cell == -1)
-    std::cout << "ERROR" << std::endl;
-  return _diffusion_dfd_tally[local_cell][group] /
-    _reaction_dfd_tally[local_cell][group];
+  return _diffusion_dfd_tally[cmfd_cell][group] /
+    _reaction_dfd_tally[cmfd_cell][group];
 }
 
 
@@ -915,7 +911,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                 _reaction_new_tally[surface][idx][group];
   }
   else {
-    dif_coef = getDiffusionCoefficient(cmfd_cell, group);
+    dif_coef = getDiffusionCoefficient(local_cmfd_cell, group);
   }
   FP_PRECISION flux = _old_flux_full->getValue(cmfd_cell, group); //FIXME
   int cmfd_cell_next = getCellNext(cmfd_cell, surface); //FIXME
@@ -974,7 +970,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                 _reaction_new_tally[surface][idx][group];
     }
     else {
-      dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
+      dif_coef_next = getDiffusionCoefficient(local_cell_next, group);
     }
 
     //FIXME
