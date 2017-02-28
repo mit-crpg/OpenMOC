@@ -28,8 +28,8 @@ int main(int argc,  char* argv[]) {
  
   double azim_spacing = 0.1;
   int num_azim = 32;
-  double polar_spacing = 5.0; // 1.0
-  int num_polar = 6;
+  double polar_spacing = 0.75; // 1.0
+  int num_polar = 10;
 
   /*
   double azim_spacing = 0.1;
@@ -44,7 +44,7 @@ int main(int argc,  char* argv[]) {
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17*17, 17*17, 1);
+  cmfd.setLatticeStructure(17*17, 17*17, 5);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
@@ -65,7 +65,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
 #ifdef MPIx
   //geometry.setDomainDecomposition(1, 1, 1, MPI_COMM_WORLD); // FIXME 23
-  geometry.setDomainDecomposition(17, 2, 1, MPI_COMM_WORLD); // FIXME 23
+  geometry.setDomainDecomposition(34, 2, 1, MPI_COMM_WORLD); // FIXME 23
 #else
   //geometry.setNumDomainModules(2,2,4);
 #endif
