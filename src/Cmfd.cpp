@@ -166,6 +166,10 @@ Cmfd::~Cmfd() {
     delete [] _volume_tally;
     delete [] _diffusion_tally;
 
+    delete [] _reaction_dfd_tally;
+    delete [] _volume_dfd_tally;
+    delete [] _diffusion_dfd_tally;
+
 #ifdef MPIx
     if (_geometry->isDomainDecomposed()) {
       delete [] _tally_buffer;
@@ -437,6 +441,24 @@ void Cmfd::collapseXS() {
   //TODO: clean
   bool neg_fluxes = false;
 
+  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+    for (int e=0; e < _num_cmfd_groups; e++) {
+      _diffusion_tally[i][e] = 0.0;
+      _reaction_tally[i][e] = 0.0;
+      _volume_tally[i][e] = 0.0;
+    }
+  }
+
+  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+    for (int e=0; e < _num_cmfd_groups; e++) {
+      _diffusion_dfd_tally[i][e] = 0.0;
+      _reaction_dfd_tally[i][e] = 0.0;
+      _volume_dfd_tally[i][e] = 0.0;
+    }
+  }
+
+
+
 #pragma omp parallel
   {
 
@@ -470,14 +492,6 @@ void Cmfd::collapseXS() {
     }
 
 
-    for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
-      for (int e=0; e < _num_cmfd_groups; e++) {
-        _diffusion_tally[i][e] = 0.0;
-        _reaction_tally[i][e] = 0.0;
-        _volume_tally[i][e] = 0.0;
-      }
-    }
-
     /* Loop over CMFD cells */
     //FIXME LOOP
 #pragma omp for
@@ -503,6 +517,10 @@ void Cmfd::collapseXS() {
         _diffusion_tally[i][e] = 0.0;
         _reaction_tally[i][e] = 0.0;
         _volume_tally[i][e] = 0.0;
+
+        _diffusion_dfd_tally[ind][e] = 0.0;
+        _reaction_dfd_tally[ind][e] = 0.0;
+        _volume_dfd_tally[ind][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
@@ -562,7 +580,9 @@ void Cmfd::collapseXS() {
               total_tally += tot * flux * volume;
               nu_fission_tally += nu_fis * flux * volume;
               _reaction_tally[i][e] += flux * volume;
+              _reaction_dfd_tally[ind][e] += flux * volume;
               _volume_tally[i][e] += volume;
+              _volume_dfd_tally[ind][e] += volume;
 
               /* Increment diffusion MOC group-wise tallies */
               rxn_tally_group += flux * volume;
@@ -580,12 +600,15 @@ void Cmfd::collapseXS() {
                 rxn_tally_group;
             _diffusion_tally[i][e] += rxn_tally_group /
                 (3.0 * flux_avg_sigma_t);
+            _diffusion_dfd_tally[ind][e] += rxn_tally_group /
+                (3.0 * flux_avg_sigma_t);
           }
         }
 
         /* Save cross-sections to material */
         if (ind >= 0) {
           FP_PRECISION rxn_tally = _reaction_tally[i][e];
+          //FIXME FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
           cell_material = _materials[ind];
           cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
           cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
@@ -620,6 +643,21 @@ void Cmfd::collapseXS() {
       long min_idx = i * CMFD_BUFFER_SIZE;
       long max_idx = (i+1) * CMFD_BUFFER_SIZE;
       max_idx = std::min(max_idx, _total_tally_size);
+      int num_elements = max_idx - min_idx;
+      FP_PRECISION* send_array = &_tally_memory[i*CMFD_BUFFER_SIZE];
+      if (num_elements > 0)
+        MPI_Allreduce(send_array, _tally_buffer, num_elements,
+                      precision, MPI_SUM, comm);
+      for (int j=0; j < num_elements; j++)
+        _tally_memory[i*CMFD_BUFFER_SIZE+j] = _tally_buffer[j];
+    }
+
+    /* Communicate tallies for XS condensation */
+    num_messages = _total_tally_dfd_size / CMFD_BUFFER_SIZE + 1;
+    for (int i=0; i < num_messages; i++) {
+      long min_idx = i * CMFD_BUFFER_SIZE;
+      long max_idx = (i+1) * CMFD_BUFFER_SIZE;
+      max_idx = std::min(max_idx, _total_tally_dfd_size);
       int num_elements = max_idx - min_idx;
       FP_PRECISION* send_array = &_tally_memory[i*CMFD_BUFFER_SIZE];
       if (num_elements > 0)
@@ -755,6 +793,8 @@ void Cmfd::collapseXS() {
       /* Load tallies at this cell and energy group */
       FP_PRECISION vol_tally = _volume_tally[i][e];
       FP_PRECISION rxn_tally = _reaction_tally[i][e];
+      //FIXME FP_PRECISION vol_tally = _volume_dfd_tally[ind][e];
+      //FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
       _old_flux->setValue(ind, e, rxn_tally / vol_tally);
 
@@ -1604,6 +1644,26 @@ void Cmfd::allocateTallies() {
   _reaction_tally = integrated_tallies[1];
   _volume_tally = integrated_tallies[2];
   _diffusion_tally = integrated_tallies[5];
+  _tallies_allocated = true;
+
+  /* Allocate memory for tallies */
+  int local_num_cells = _local_num_x * _local_num_y * _local_num_z;
+  int tally_size = local_num_cells * _num_cmfd_groups;
+  int _total_tally_dfd_size = 3 * tally_size;
+  _tally_dfd_memory = new FP_PRECISION[_total_tally_dfd_size];
+  FP_PRECISION** all_tallies[3];
+  for (int t=0; t < 3; t++) {
+    all_tallies[t] = new FP_PRECISION*[local_num_cells];
+    for (int i=0; i < local_num_cells; i++) {
+      int idx = i * _num_cmfd_groups + t * tally_size;
+      all_tallies[t][i] = &_tally_dfd_memory[idx];
+    }
+  }
+
+  /* Assign tallies to allocated data */
+  _diffusion_dfd_tally = all_tallies[0];
+  _reaction_dfd_tally = all_tallies[1];
+  _volume_dfd_tally = all_tallies[2];
   _tallies_allocated = true;
 
   /* Create copy buffer of currents and tallies for domain decomposition */

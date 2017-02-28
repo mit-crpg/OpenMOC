@@ -74,6 +74,10 @@ private:
   FP_PRECISION*** _diffusion_new_tally;
   FP_PRECISION*** _surface_new_currents;
 
+  FP_PRECISION** _reaction_dfd_tally;
+  FP_PRECISION** _volume_dfd_tally;
+  FP_PRECISION** _diffusion_dfd_tally;
+
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;
@@ -214,7 +218,9 @@ private:
 
   //FIXME
   long _total_tally_size;
+  long _total_tally_dfd_size;
   FP_PRECISION* _tally_memory;
+  FP_PRECISION* _tally_dfd_memory;
   FP_PRECISION** _reaction_tally;
   FP_PRECISION** _volume_tally;
   FP_PRECISION** _diffusion_tally;
