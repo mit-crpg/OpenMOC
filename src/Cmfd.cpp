@@ -903,19 +903,10 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* Get diffusivity and flux for Mesh cell */
 
-  FP_PRECISION dif_coef;
-  int global_cmfd_cell = cmfd_cell;
-  int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
-  if (local_cmfd_cell == -1) {
-    int idx = _boundary_index_map.at(surface)[global_cmfd_cell];
-    dif_coef = _diffusion_new_tally[surface][idx][group] /
-                _reaction_new_tally[surface][idx][group];
-  }
-  else {
-    dif_coef = getDiffusionCoefficient(local_cmfd_cell, group);
-  }
-  FP_PRECISION flux = _old_flux_full->getValue(global_cmfd_cell, group); //FIXME
+  FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
+  int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
   int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface); //FIXME
+  FP_PRECISION flux = _old_flux_full->getValue(global_cmfd_cell, group); //FIXME
   FP_PRECISION delta_interface = getSurfaceWidth(surface);
   FP_PRECISION delta = getPerpendicularSurfaceWidth(surface);
   int sense = getSense(surface);
@@ -962,16 +953,15 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     int surface_next = (surface + NUM_FACES / 2) % NUM_FACES;
 
     /* Set diffusion coefficient and flux for the neighboring cell */
-    //FIXME
-    int local_cell_next = getLocalCMFDCell(global_cmfd_cell_next);
+    int cmfd_cell_next = getLocalCMFDCell(global_cmfd_cell_next);
     FP_PRECISION dif_coef_next;
-    if (local_cell_next == -1) {
+    if (cmfd_cell_next == -1) {
       int idx = _boundary_index_map.at(surface)[global_cmfd_cell_next];
       dif_coef_next = _diffusion_new_tally[surface][idx][group] /
                 _reaction_new_tally[surface][idx][group];
     }
     else {
-      dif_coef_next = getDiffusionCoefficient(local_cell_next, group);
+      dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
     }
 
     //FIXME
@@ -1258,9 +1248,9 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
           /* Set transport term on diagonal */
           dif_surf = getSurfaceDiffusionCoefficient(
-              global_ind, s, e, moc_iteration, false);
+              i, s, e, moc_iteration, false);
           dif_surf_corr = getSurfaceDiffusionCoefficient(
-              global_ind, s, e, moc_iteration, true);
+              i, s, e, moc_iteration, true);
 
           /*
           printf("Got D's at %d, %d, %d ====> %6.4f, %6.4f\n", i, s, e, dif_surf,
