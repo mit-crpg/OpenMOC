@@ -607,8 +607,8 @@ void Cmfd::collapseXS() {
 
         /* Save cross-sections to material */
         if (ind >= 0) {
-          //FIXME FP_PRECISION rxn_tally = _reaction_tally[i][e];
-          FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
+          FP_PRECISION rxn_tally = _reaction_tally[i][e];
+          //FIXME FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
           cell_material = _materials[ind];
           cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
           cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
