@@ -481,19 +481,19 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     cv.check_type('mgxs_lib', mgxs_lib, openmc.mgxs.Library)
 
+    from openmc.openmoc_compatible import get_openmoc_geometry
+
     # For Python 2.X.X
     if sys.version_info[0] == 2:
-        from opencg_compatible import get_openmoc_geometry
         from process import get_scalar_fluxes
     # For Python 3.X.X
     else:
-        from openmoc.opencg_compatible import get_openmoc_geometry
         from openmoc.process import get_scalar_fluxes
 
     py_printf('NORMAL', 'Computing SPH factors...')
 
-    # Create an OpenMOC Geometry from the OpenCG Geometry
-    geometry = get_openmoc_geometry(mgxs_lib.opencg_geometry)
+    # Create an OpenMOC Geometry from the OpenMC Geometry
+    geometry = get_openmoc_geometry(mgxs_lib.geometry)
 
     # Load the MGXS library data into the OpenMOC geometry
     load_openmc_mgxs_lib(mgxs_lib, geometry)

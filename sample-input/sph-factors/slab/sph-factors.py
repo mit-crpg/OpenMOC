@@ -1,6 +1,6 @@
 import openmoc
-import openmoc.opencg_compatible
 import openmc.mgxs
+import openmc.openmoc_compatible
 
 import numpy as np
 import matplotlib
@@ -22,9 +22,9 @@ openmoc.log.set_log_level('NORMAL')
 # Initialize 2-group OpenMC multi-group cross section library for a pin cell
 mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='.')
 
-# Create an OpenMOC Geometry from the OpenCG Geometry
+# Create an OpenMOC Geometry from the OpenMC Geometry
 openmoc_geometry = \
-    openmoc.opencg_compatible.get_openmoc_geometry(mgxs_lib.opencg_geometry)
+    openmc.openmoc_compatible.get_openmoc_geometry(mgxs_lib.geometry)
 
 # Load cross section data
 openmoc_materials = \
@@ -71,7 +71,7 @@ keff_with_sph = solver.getKeff()
 # Report the OpenMC and OpenMOC eigenvalues
 openmoc.log.py_printf('RESULT', 'OpenMOC keff w/o SPH: \t%1.5f', keff_no_sph)
 openmoc.log.py_printf('RESULT', 'OpenMOC keff w/ SPH: \t%1.5f', keff_with_sph)
-openmoc.log.py_printf('RESULT', 'OpenMC keff: \t\t0.96281 +/- 0.00009')
+openmoc.log.py_printf('RESULT', 'OpenMC keff: \t\t0.95820 +/- 0.00106')
 
 # Extract the OpenMOC scalar fluxes
 fluxes_sph = openmoc.process.get_scalar_fluxes(solver) * sph

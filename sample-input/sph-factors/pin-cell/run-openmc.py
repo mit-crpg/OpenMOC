@@ -29,7 +29,7 @@ borated_water.add_nuclide('B-10', 8.0042e-6)
 borated_water.add_nuclide('B-11', 3.2218e-5)
 borated_water.add_nuclide('H-1', 4.9457e-2)
 borated_water.add_nuclide('O-16', 2.4672e-2)
-borated_water.add_s_alpha_beta('HH2O', '71t')
+borated_water.add_s_alpha_beta('HH2O')
 
 # Instantiate a MaterialsFile, register all Materials, and export to XML
 materials_file = openmc.Materials([uo2, helium, zircaloy, borated_water])
@@ -122,9 +122,9 @@ settings_file.export_to_xml()
 
 # Instantiate a 16-group EnergyGroups object
 groups = openmc.mgxs.EnergyGroups()
-groups.group_edges = [0., 0.03e-6, 0.058e-6, 0.14e-6, 0.28e-6, 0.35e-6, 
-                      0.625e-6, 0.85e-6, 0.972e-6, 1.02e-6, 1.097e-6, 
-                      1.15e-6, 1.3e-6, 4.e-6, 5.53e-3, 821.e-3, 20.]
+groups.group_edges = [0., 0.03, 0.058, 0.14, 0.28, 0.35,
+                      0.625, 0.85, 0.972, 1.02, 1.097,
+                      1.15, 1.3, 4., 5.53e3, 821.e3, 20.e6]
 
 # Initialize an MGXS Library for OpenMOC
 mgxs_lib = openmc.mgxs.Library(geometry)
@@ -145,4 +145,4 @@ tallies_file.export_to_xml()
 ###############################################################################
 
 # Run OpenMC
-openmc.run(output=True, mpi_procs=4, threads=1)
+openmc.run()

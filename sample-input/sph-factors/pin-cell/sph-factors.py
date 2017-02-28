@@ -1,5 +1,5 @@
 import openmoc
-import openmoc.opencg_compatible
+import openmc.openmoc_compatible
 import openmc.mgxs
 
 import numpy as np
@@ -22,9 +22,9 @@ openmoc.log.set_log_level('NORMAL')
 # Initialize 2-group OpenMC multi-group cross section library for a pin cell
 mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='.')
 
-# Create an OpenMOC Geometry from the OpenCG Geometry
+# Create an OpenMOC Geometry from the OpenMOC Geometry
 openmoc_geometry = \
-    openmoc.opencg_compatible.get_openmoc_geometry(mgxs_lib.opencg_geometry)
+    openmc.openmoc_compatible.get_openmoc_geometry(mgxs_lib.geometry)
 
 # Load cross section data
 openmoc_materials = \
