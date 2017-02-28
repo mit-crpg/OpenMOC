@@ -624,19 +624,13 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
 
-        //FIXME
-        if (!_materials[cmfd_cell]->isFissionable()) {
-          bool reflector = true;
-          for (int s=0; s < NUM_FACES; s++) {
-            int neighbor = getCellNext(cmfd_cell, s);
-            if (neighbor != -1) {
-              if (_materials[neighbor]->isFissionable())
-                reflector = false;
-            }
-          }
-          if (reflector)
-            dif_surf_corr = 0.0;
-        }
+      //FIXME
+      int ix = cmfd_cell % _num_x;
+      int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
+      double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
+                        (iy - _num_y/2) * (iy - _num_y/2));
+      if (radius > _num_x / 2)
+        dif_surf_corr = 0.0;
 
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
@@ -695,18 +689,13 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     }
 
     //FIXME
-    if (!_materials[cmfd_cell]->isFissionable()) {
-      bool reflector = true;
-      for (int s=0; s < NUM_FACES; s++) {
-        int neighbor = getCellNext(cmfd_cell, s);
-        if (neighbor != -1) {
-          if (_materials[neighbor]->isFissionable())
-            reflector = false;
-        }
-      }
-      if (reflector)
+      int ix = cmfd_cell % _num_x;
+      int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
+      double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
+                        (iy - _num_y/2) * (iy - _num_y/2));
+      if (radius > _num_x / 2)
         dif_surf_corr = 0.0;
-    }
+
 
     /* Weight the old and new corrected diffusion coefficients by the
        relaxation factor */

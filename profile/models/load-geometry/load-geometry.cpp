@@ -26,10 +26,10 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
  
-  double azim_spacing = 0.4;
-  int num_azim = 4;
-  double polar_spacing = 8.5; // 1.0
-  int num_polar = 2;
+  double azim_spacing = 0.1;
+  int num_azim = 32;
+  double polar_spacing = 5.0; // 1.0
+  int num_polar = 6;
 
   /*
   double azim_spacing = 0.1;
@@ -65,7 +65,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
 #ifdef MPIx
   //geometry.setDomainDecomposition(1, 1, 1, MPI_COMM_WORLD); // FIXME 23
-  geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD); // FIXME 23
+  geometry.setDomainDecomposition(17, 2, 1, MPI_COMM_WORLD); // FIXME 23
 #else
   //geometry.setNumDomainModules(2,2,4);
 #endif
@@ -89,7 +89,7 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
