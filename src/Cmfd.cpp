@@ -473,37 +473,12 @@ void Cmfd::collapseXS() {
     Material* fsr_material;
     Material* cell_material;
 
-    //TODO: clean
-    int x_start = 0;
-    int y_start = 0;
-    int z_start = 0;
-    int x_end = _num_x;
-    int y_end = _num_y;
-    int z_end = _num_z;
-    if (_geometry->isDomainDecomposed()) {
-      if (_domain_communicator != NULL) {
-        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-        x_end = x_start + _local_num_x;
-        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-        y_end = y_start + _local_num_y;
-        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-        z_end = z_start + _local_num_z;
-      }
-    }
-
-
     /* Loop over CMFD cells */
     //FIXME LOOP
 #pragma omp for
-    for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+    for (int ind = 0; ind < _local_num_x * _local_num_y * _local_num_z; ind++) {
 
-      int ix = i % _num_x;
-      int iy = (i % (_num_x * _num_y)) / _num_x;
-      int iz = i / (_num_x * _num_y);
-
-      int ind = getLocalCMFDCell(i);
-      if (ind == -1)
-        continue;
+      int i = getGlobalCMFDCell(ind);
       std::vector<int>::iterator iter;
 
       /* Loop over CMFD coarse energy groups */
@@ -531,28 +506,26 @@ void Cmfd::collapseXS() {
         }
 
         /* Loop over FSRs in CMFD cell to compute chi */
-        if (ind >= 0) {
-          for (iter = _cell_fsrs.at(ind).begin();
-               iter != _cell_fsrs.at(ind).end(); ++iter) {
+        for (iter = _cell_fsrs.at(ind).begin();
+             iter != _cell_fsrs.at(ind).end(); ++iter) {
 
-            fsr_material = _FSR_materials[*iter];
-            volume = _FSR_volumes[*iter];
+          fsr_material = _FSR_materials[*iter];
+          volume = _FSR_volumes[*iter];
 
-            /* Chi tallies */
-            for (int b = 0; b < _num_cmfd_groups; b++) {
-              chi = 0.0;
+          /* Chi tallies */
+          for (int b = 0; b < _num_cmfd_groups; b++) {
+            chi = 0.0;
 
-              /* Compute the chi for group b */
-              for (int h = _group_indices[b]; h < _group_indices[b + 1]; h++)
-                chi += fsr_material->getChiByGroup(h+1);
+            /* Compute the chi for group b */
+            for (int h = _group_indices[b]; h < _group_indices[b + 1]; h++)
+              chi += fsr_material->getChiByGroup(h+1);
 
-              for (int h = 0; h < _num_moc_groups; h++) {
-                chi_tally[b] += chi * fsr_material->getNuSigmaFByGroup(h+1) *
-                    _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-                neutron_production_tally += chi *
-                    fsr_material->getNuSigmaFByGroup(h+1) *
-                    _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-              }
+            for (int h = 0; h < _num_moc_groups; h++) {
+              chi_tally[b] += chi * fsr_material->getNuSigmaFByGroup(h+1) *
+                  _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
+              neutron_production_tally += chi *
+                  fsr_material->getNuSigmaFByGroup(h+1) *
+                  _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
             }
           }
         }
@@ -609,25 +582,21 @@ void Cmfd::collapseXS() {
         }
 
         /* Save cross-sections to material */
-        if (ind >= 0) {
-          //FIXME FP_PRECISION rxn_tally = _reaction_tally[i][e];
-          FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
-          cell_material = _materials[ind];
-          cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
-          cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
+        FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
+        cell_material = _materials[ind];
+        cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
+        cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
+        /* Set chi */
+        if (neutron_production_tally != 0.0)
+          cell_material->setChiByGroup(chi_tally[e] / neutron_production_tally,
+                                       e + 1);
+        else
+          cell_material->setChiByGroup(0.0, e + 1);
 
-          /* Set chi */
-          if (neutron_production_tally != 0.0)
-            cell_material->setChiByGroup(chi_tally[e] / neutron_production_tally,
-                                         e + 1);
-          else
-            cell_material->setChiByGroup(0.0, e + 1);
-
-          /* Set scattering xs */
-          for (int g = 0; g < _num_cmfd_groups; g++) {
-            cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e + 1,
-                                            g + 1);
-          }
+        /* Set scattering xs */
+        for (int g = 0; g < _num_cmfd_groups; g++) {
+          cell_material->setSigmaSByGroup(scat_tally[g] / rxn_tally, e + 1,
+                                          g + 1);
         }
       }
     }
@@ -654,23 +623,6 @@ void Cmfd::collapseXS() {
       for (int j=0; j < num_elements; j++)
         _tally_memory[i*CMFD_BUFFER_SIZE+j] = _tally_buffer[j];
     }
-
-    /* Communicate tallies for XS condensation */
-    /*
-    num_messages = _total_tally_dfd_size / CMFD_BUFFER_SIZE + 1;
-    for (int i=0; i < num_messages; i++) {
-      long min_idx = i * CMFD_BUFFER_SIZE;
-      long max_idx = (i+1) * CMFD_BUFFER_SIZE;
-      max_idx = std::min(max_idx, _total_tally_dfd_size);
-      int num_elements = max_idx - min_idx;
-      FP_PRECISION* send_array = &_tally_memory[i*CMFD_BUFFER_SIZE];
-      if (num_elements > 0)
-        MPI_Allreduce(send_array, _tally_buffer, num_elements,
-                      precision, MPI_SUM, comm);
-      for (int j=0; j < num_elements; j++)
-        _tally_memory[i*CMFD_BUFFER_SIZE+j] = _tally_buffer[j];
-    }
-    */
 
     /* Tally MPI communication time */
     _timer->stopTimer();
@@ -796,9 +748,7 @@ void Cmfd::collapseXS() {
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Load tallies at this cell and energy group */
-      //FP_PRECISION vol_tally = _volume_tally[i][e];
       FP_PRECISION vol_tally = _volume_dfd_tally[ind][e];
-      //FP_PRECISION rxn_tally = _reaction_tally[i][e];
       FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
       _old_flux->setValue(ind, e, rxn_tally / vol_tally);
