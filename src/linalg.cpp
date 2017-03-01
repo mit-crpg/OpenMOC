@@ -384,15 +384,6 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
     else
       flux_type = MPI_DOUBLE;
 
-    /*
-    for (int k=0; k < nz; k++)
-      for (int j=0; j < ny; j++)
-        for (int i=0; i < nx; i++)
-          for (int g=0; g < ng; g++)
-            printf("Flux at %d (%d, %d, %d) g %d = %6.4f\n", k*nx*ny + j*nx + i,
-                  i, j, k, g, curr_fluxes[ng*(k*nx*ny+j*nx+i)+g]);
-                  */
-
     int sizes[NUM_FACES];
     for (int coord=0; coord < 3; coord++) {
       for (int d=0; d<2; d++) {
@@ -456,13 +447,6 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
         }
 
         sizes[surf] = size;
-
-        /*
-        std::cout << "Surf " << surf << " Sending:";
-        for (int i=0; i < size; i++)
-          std::cout << " " << comm->buffer[surf][i];
-        std::cout << std::endl;
-        */
 
         // Post send
         MPI_Isend(comm->buffer[surf], size, flux_type,

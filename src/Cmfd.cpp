@@ -586,6 +586,7 @@ void Cmfd::collapseXS() {
         cell_material = _materials[ind];
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
         cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
+
         /* Set chi */
         if (neutron_production_tally != 0.0)
           cell_material->setChiByGroup(chi_tally[e] / neutron_production_tally,
@@ -3923,4 +3924,95 @@ int Cmfd::getCellColor(int cmfd_cell) {
   int iz = cmfd_cell / (_num_x * _num_y);
   int color = (ix + iy + iz) % 2;
   return color;
+}
+
+
+/**
+ * @brief Exchanges ghost cell buffers in 3D cartesian (i.e., 6 directions)
+ * @param comm The cartesian MPI domain communicator object that is configured for the CMFD exchange
+ * @param send_buffers A 2D array of floating point data. The outer dimension corresponds to each face of the domain,
+ *        while the inner dimension is the serialized buffer corresponding to the number of 2D cells to exchange times
+ *        the number of energy groups.
+ * @param recv_buffers A 2D array of floating point data. The outer dimension corresponds to each face of the domain,
+ *        while the inner dimension is the serialized buffer corresponding to the number of 2D cells to exchange times
+ *        the number of energy groups.
+ */
+void Cmfd::ghostCellExchange(FP_PRECISION** send_buffers, FP_PRECISION** recv_buffers) {
+
+	MPI_Request requests[2*NUM_FACES];
+
+	MPI_Datatype precision;
+	if (sizeof(FP_PRECISION) == 4)
+		precision = MPI_FLOAT;
+	else
+		precision = MPI_DOUBLE;
+
+	//FIXME: FOR CORNERS, WE NEED TO ADD CONTRIBUTIONS, rather than simple overwrite
+	int sizes[NUM_FACES];
+	for (int coord=0; coord < 3; coord++) {
+		for (int d=0; d<2; d++) {
+
+			int dir = 2*d-1;
+			int surf = coord + 3*d;
+			int op_surf = surf - 3*dir;
+			int source, dest;
+
+			// Figure out serialized buffer length for this face
+			int size = 0;
+			if (surf == SURFACE_X_MIN) {
+				size = _local_num_y * _local_num_z * _num_cmfd_groups;
+			}
+			else if (surf == SURFACE_X_MAX) {
+				size = _local_num_y * _local_num_z * _num_cmfd_groups;
+			}
+			else if (surf == SURFACE_Y_MIN) {
+				size = _local_num_x * _local_num_z * _num_cmfd_groups;
+			}
+			else if (surf == SURFACE_Y_MAX) {
+				size = _local_num_x * _local_num_z * _num_cmfd_groups;
+			}
+			else if (surf == SURFACE_Z_MIN) {
+				size = _local_num_x * _local_num_y * _num_cmfd_groups;
+			}
+			else if (surf == SURFACE_Z_MAX) {
+				size = _local_num_x * _local_num_y * _num_cmfd_groups;
+			}
+
+			sizes[surf] = size;
+
+			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
+
+			// Post send
+			MPI_Isend(send_buffers[surf], size, precision,
+					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
+
+			// Post receive
+			MPI_Irecv(recv_buffers[surf], size, precision,
+					source, 0, _domain_communicator->_MPI_cart, &requests[2*op_surf+1]);
+		}
+	}
+
+	// Block for communication round to complete
+	bool round_complete = false;
+	while (!round_complete) {
+
+		round_complete = true;
+		int flag;
+		MPI_Status send_stat;
+		MPI_Status recv_stat;
+
+		for (int coord=0; coord < 3; coord++) {
+			for (int d=0; d<2; d++) {
+				int surf = coord + 3*d;
+
+				MPI_Test(&requests[2*surf], &flag, &send_stat);
+				if (flag == 0)
+					round_complete = false;
+
+				MPI_Test(&requests[2*surf+1], &flag, &recv_stat);
+				if (flag == 0)
+					round_complete = false;
+			}
+		}
+	}
 }
