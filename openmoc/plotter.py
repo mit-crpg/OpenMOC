@@ -43,14 +43,6 @@ except ImportError:
 # Force non-interactive mode for plotting on clusters
 plt.ioff()
 
-# Default matplotlib parameters to use in all plots
-matplotlib_rcparams = matplotlib.rcParamsDefault
-matplotlib_rcparams['font.family'] = 'sans-serif'
-matplotlib_rcparams['font.weight'] = 'normal'
-matplotlib_rcparams['font.size'] = 15
-matplotlib_rcparams['savefig.dpi'] = 500
-matplotlib_rcparams['figure.dpi'] = 500
-
 # A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
 
@@ -90,12 +82,8 @@ def plot_tracks(track_generator, get_figure=False):
         py_printf('ERROR', 'Unable to plot Tracks since the track ' +
                   'generator has not yet generated tracks')
 
-    global subdirectory, matplotlib_rcparams
+    global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
-
-    # Ensure that normal settings are used even if called from ipython
-    curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
     try:
@@ -128,9 +116,6 @@ def plot_tracks(track_generator, get_figure=False):
 
     title = 'Tracks for {0} angles and {1} cm spacing'.format(num_azim, spacing)
     plt.title(title)
-
-    # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
 
     # Save the figure to a file or return to user
     if get_figure:
@@ -173,12 +158,8 @@ def plot_segments(track_generator, get_figure=False):
         py_printf('ERROR', 'Unable to plot Track segments since the ' +
                   'TrackGenerator has not yet generated Tracks.')
 
-    global subdirectory, matplotlib_rcparams
+    global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
-
-    # Ensure that normal settings are used even if called from ipython
-    curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
     try:
@@ -237,9 +218,6 @@ def plot_segments(track_generator, get_figure=False):
     title = 'z = {0}'.format(z[0])
     plt.suptitle(suptitle)
     plt.title(title)
-
-    # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
 
     if get_figure:
         return fig
@@ -454,7 +432,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
 
     py_printf('NORMAL', 'Plotting the flat source regions...')
 
-    global subdirectory, matplotlib_rcparams
+    global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
 
     num_fsrs = geometry.getNumFSRs()
@@ -757,12 +735,8 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
     py_printf('NORMAL', 'Plotting the scalar fluxes vs. energy...')
 
-    global subdirectory, matplotlib_rcparams
+    global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
-
-    # Ensure that normal settings are used even if called from ipython
-    curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
     try:
@@ -829,9 +803,6 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
             filename = 'flux-fsr-{0}.png'.format(fsr)
             plt.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
-
-    # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
 
     # Return the figures if requested by user
     if get_figure:
@@ -1070,7 +1041,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         py_printf('ERROR', 'Unable to plot spatial data since ' +
                   'domains_to_data is not a dict, array or DataFrame')
 
-    global subdirectory, matplotlib_rcparams
+    global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
 
     # Make directory if it does not exist
@@ -1158,10 +1129,6 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         # Use Matplotlib to plot 2D color map of domain data
         else:
 
-            # Ensure that normal settings are used even if called from ipython
-            curr_rc = dict(matplotlib.rcParams)
-            matplotlib.rcParams.update(matplotlib_rcparams)
-
             fig = plt.figure()
             fig.patch.set_facecolor('none')
             plt.imshow(np.flipud(surface), extent=coords['bounds'],
@@ -1193,9 +1160,6 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             else:
                 fig.savefig(plot_filename, bbox_inches='tight')
                 plt.close()
-
-            # Restore settings if called from ipython
-            matplotlib.rcParams.update(curr_rc)
 
     # Return Matplotlib figures if requested by user
     if get_figure:
@@ -1236,12 +1200,8 @@ def plot_quadrature(solver, get_figure=False):
 
     py_printf('NORMAL', 'Plotting the quadrature...')
 
-    global subdirectory, matplotlib_rcparams
+    global subdirectory
     directory = openmoc.get_output_directory() + subdirectory
-
-    # Ensure that normal settings are used even if called from ipython
-    curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
 
     # Make directory if it does not exist
     try:
@@ -1322,9 +1282,6 @@ def plot_quadrature(solver, get_figure=False):
     ax.set_ylim([0,1])
     ax.set_zlim([0,1])
     plt.title(title)
-
-    # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
 
     # Save the figure or return to user
     if get_figure:

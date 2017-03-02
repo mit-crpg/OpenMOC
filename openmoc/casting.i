@@ -1,5 +1,5 @@
 /* C++ casting helper method for openmoc.process computePinPowers
- * routine and the OpenCG compatibility module */
+ * routine and the OpenMC compatibility module */
 
 %module casting
 

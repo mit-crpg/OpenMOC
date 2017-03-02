@@ -6,10 +6,10 @@ sp = openmc.StatePoint('statepoint.100.h5')
 
 # Instantiate a 1-group EnergyGroups object
 groups = openmc.mgxs.EnergyGroups()
-groups.group_edges = [0., 20.]
+groups.group_edges = [0., 20e6]
 
 # Initialize an 2-group MGXS Library for OpenMOC
-mgxs_lib = openmc.mgxs.Library(sp.summary.openmc_geometry)
+mgxs_lib = openmc.mgxs.Library(sp.summary.geometry)
 mgxs_lib.energy_groups = groups
 mgxs_lib.mgxs_types = ['total', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'cell'

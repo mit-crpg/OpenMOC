@@ -32,9 +32,9 @@ void reset_surface_id() {
  * @brief Maximize the auto-generated unique Surface ID counter.
  * @details This method updates the auto-generated unique Surface ID
  *          counter if the input parameter is greater than the present
- *          value. This is useful for the OpenCG compatibility module
+ *          value. This is useful for the OpenMC compatibility module
  *          to ensure that the auto-generated Surface IDs do not
- *          collide with those created in OpenCG.
+ *          collide with those created in OpenMC.
  * @param surface_id the id assigned to the auto-generated counter
  */
 void maximize_surface_id(int surface_id) {

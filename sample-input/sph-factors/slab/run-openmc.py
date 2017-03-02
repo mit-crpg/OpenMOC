@@ -1,8 +1,7 @@
 import numpy as np
-import opencg
 import openmc
 import openmc.mgxs
-import openmc.opencg_compatible
+import openmc.openmoc_compatible
 
 
 ###############################################################################
@@ -26,7 +25,7 @@ water.add_nuclide('H-1', 4.41459E-2)
 water.add_nuclide('O-16', 2.20729E-2)
 water.add_nuclide('B-10', 9.52537E-6)
 water.add_nuclide('B-11', 3.83408E-5)
-water.add_s_alpha_beta(name='HH2O', xs='71t')
+water.add_s_alpha_beta(name='HH2O')
 
 # Instantiate a MaterialsFile, add Materials
 materials_file = openmc.Materials([fuel, clad, water])
@@ -36,54 +35,61 @@ materials_file.default_xs = '71c'
 # Export to "materials.xml"
 materials_file.export_to_xml()
 
-# Get OpenCG versions of each OpenMC material to fill OpenCG Cells below
-opencg_fuel = openmc.opencg_compatible.get_opencg_material(fuel)
-opencg_clad = openmc.opencg_compatible.get_opencg_material(clad)
-opencg_water = openmc.opencg_compatible.get_opencg_material(water)
-
 
 ###############################################################################
 #                 Exporting to OpenMC geometry.xml File
 ###############################################################################
 
 # Create bounding surfaces
-min_x = opencg.XPlane(boundary='reflective', x0=0.0)
-max_x = opencg.XPlane(boundary='reflective', x0=5.0)
-min_y = opencg.YPlane(boundary='reflective', y0=0.0)
-max_y = opencg.YPlane(boundary='reflective', y0=10.0)
-min_z = opencg.ZPlane(boundary='reflective', z0=0.0)
-max_z = opencg.ZPlane(boundary='reflective', z0=10.0)
+min_x = openmc.XPlane(boundary_type='reflective', x0=0.0)
+max_x = openmc.XPlane(boundary_type='reflective', x0=5.0)
+min_y = openmc.YPlane(boundary_type='reflective', y0=0.0)
+max_y = openmc.YPlane(boundary_type='reflective', y0=10.0)
+min_z = openmc.ZPlane(boundary_type='reflective', z0=0.0)
+max_z = openmc.ZPlane(boundary_type='reflective', z0=10.0)
 
 # Create material interfacial surfaces
-left = opencg.XPlane(surface_id=1, boundary='interface', x0=2.0)
-right = opencg.XPlane(surface_id=2, boundary='interface', x0=2.4)
+left = openmc.XPlane(surface_id=1, x0=2.0)
+right = openmc.XPlane(surface_id=2, x0=2.4)
 
 # Create a Universe to encapsulate the 1D slab
-slab_universe = opencg.Universe(name='1D slab')
+slab_universe = openmc.Universe(name='1D slab')
 
-# Create fuel Cell
-fuel_cell = opencg.Cell(name='fuel')
-fuel_cell.fill = opencg_fuel
-fuel_cell.add_surface(halfspace=+1, surface=min_x)
-fuel_cell.add_surface(halfspace=-1, surface=left)
-slab_universe.add_cell(fuel_cell)
+# Create fuel Cells
+slab_width = 2. / 40.
+for i in range(40):
+    fuel_cell = openmc.Cell(name='fuel {}'.format(i))
+    fuel_cell.fill = fuel
+    fuel_cell.add_surface(
+        halfspace=+1, surface=openmc.XPlane(x0=slab_width*i))
+    fuel_cell.add_surface(
+        halfspace=-1, surface=openmc.XPlane(x0=slab_width * (i+1)))
+    slab_universe.add_cell(fuel_cell)
 
-# Create clad Cell
-clad_cell = opencg.Cell(name='clad')
-clad_cell.fill = opencg_clad
-clad_cell.add_surface(halfspace=+1, surface=left)
-clad_cell.add_surface(halfspace=-1, surface=right)
-slab_universe.add_cell(clad_cell)
+# Create fuel Cells
+slab_width = 0.4 / 20.
+for i in range(20):
+    clad_cell = openmc.Cell(name='clad {}'.format(i))
+    clad_cell.fill = clad
+    clad_cell.add_surface(
+        halfspace=+1, surface=openmc.XPlane(x0=2.+slab_width*i))
+    clad_cell.add_surface(
+        halfspace=-1, surface=openmc.XPlane(x0=2.+slab_width * (i+1)))
+    slab_universe.add_cell(clad_cell)
 
-# Create water Cell
-water_cell = opencg.Cell(name='water')
-water_cell.fill = opencg_water
-water_cell.add_surface(halfspace=+1, surface=right)
-water_cell.add_surface(halfspace=-1, surface=max_x)
-slab_universe.add_cell(water_cell)
+# Create water Cells
+slab_width = 2.6 / 40.
+for i in range(40):
+    water_cell = openmc.Cell(name='water {}'.format(i))
+    water_cell.fill = water
+    water_cell.add_surface(
+        halfspace=+1, surface=openmc.XPlane(x0=2.4+slab_width * i))
+    water_cell.add_surface(
+        halfspace=-1, surface=openmc.XPlane(x0=2.4+slab_width * (i+1)))
+    slab_universe.add_cell(water_cell)
 
 # Create root Cell
-root_cell = opencg.Cell(name='root cell')
+root_cell = openmc.Cell(name='root cell')
 root_cell.fill = slab_universe
 
 # Add boundary planes
@@ -95,25 +101,12 @@ root_cell.add_surface(halfspace=+1, surface=min_z)
 root_cell.add_surface(halfspace=-1, surface=max_z)
 
 # Create root Universe
-root_universe = opencg.Universe(universe_id=0, name='root universe')
+root_universe = openmc.Universe(universe_id=0, name='root universe')
 root_universe.add_cell(root_cell)
 
-# Instantiate OpenCG's linear mesh operators for spatial discretization
-fuel_mesh = opencg.LinearMesh('x', fuel_cell.min_x, fuel_cell.max_x, 40)
-clad_mesh = opencg.LinearMesh('x', clad_cell.min_x, clad_cell.max_x, 20)
-water_mesh = opencg.LinearMesh('x', water_cell.min_x, water_cell.max_x, 40)
-
-# Discretize the fuel, clad and water cells
-fuel_cells = fuel_mesh.subdivide_cell(fuel_cell, slab_universe)
-clad_cells = clad_mesh.subdivide_cell(clad_cell, slab_universe)
-water_cells = water_mesh.subdivide_cell(water_cell, slab_universe)
-
 # Create Geometry and set root Universe
-opencg_geometry = opencg.Geometry()
-opencg_geometry.root_universe = root_universe
-
-# Get an OpenMC version of this OpenCG geometry
-openmc_geometry = openmc.opencg_compatible.get_openmc_geometry(opencg_geometry)
+openmc_geometry = openmc.Geometry()
+openmc_geometry.root_universe = root_universe
 openmc_geometry.export_to_xml()
 
 
@@ -122,8 +115,8 @@ openmc_geometry.export_to_xml()
 ###############################################################################
 
 # Construct uniform initial source distribution over fissionable zones
-lower_left = opencg_geometry.bounds[:3]
-upper_right = opencg_geometry.bounds[3:]
+lower_left = [0., 0., 0.]
+upper_right = [5., 5., 10.]
 source = openmc.source.Source(space=openmc.stats.Box(lower_left, upper_right))
 source.only_fissionable = True
 
@@ -142,15 +135,10 @@ settings_file.export_to_xml()
 #                     Exporting to OpenMC plots.xml File
 ###############################################################################
 
-# Find the edge widths for the geometry's bounding box
-delta_x = opencg_geometry.max_x - opencg_geometry.min_x
-delta_y = opencg_geometry.max_y - opencg_geometry.min_y
-delta_z = opencg_geometry.max_z - opencg_geometry.min_z
-
 # Instantiate a Plot
 plot = openmc.Plot()
-plot.origin = [delta_x/2., delta_y/2., delta_z/2.]
-plot.width = [delta_x, delta_z]
+plot.origin = [2.5, 2.5, 5.]
+plot.width = [5., 5.]
 plot.pixels = [250, 250]
 plot.color = 'cell'
 
@@ -165,7 +153,7 @@ plot_file.export_to_xml()
 
 # Instantiate a 1-group EnergyGroups object
 groups = openmc.mgxs.EnergyGroups()
-groups.group_edges = [0., 20.]
+groups.group_edges = [0., 20e6]
 
 # Initialize an MGXS Library for OpenMOC
 mgxs_lib = openmc.mgxs.Library(openmc_geometry, by_nuclide=False)
@@ -173,7 +161,7 @@ mgxs_lib.energy_groups = groups
 mgxs_lib.mgxs_types = ['total', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'cell'
 mgxs_lib.correction = None
-mgxs_lib.domains = openmc_geometry.get_all_material_cells()
+mgxs_lib.domains = openmc_geometry.get_all_material_cells().values()
 mgxs_lib.build_library()
 
 # Create a "tallies.xml" file for the MGXS Library
@@ -187,4 +175,4 @@ tallies_file.export_to_xml()
 ###############################################################################
 
 # Run OpenMC
-openmc.run(output=True, mpi_procs=3)
+openmc.run()

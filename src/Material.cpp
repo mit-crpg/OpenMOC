@@ -31,9 +31,9 @@ void reset_material_id() {
  * @brief Maximize the auto-generated unique Material ID counter.
  * @details This method updates the auto-generated unique Material ID
  *          counter if the input parameter is greater than the present
- *          value. This is useful for the OpenCG compatibility module
+ *          value. This is useful for the OpenMC compatibility module
  *          to ensure that the auto-generated Material IDs do not
- *          collide with those created in OpenCG.
+ *          collide with those created in OpenMC.
  * @param material_id the id assigned to the auto-generated counter
  */
 void maximize_material_id(int material_id) {
