@@ -738,6 +738,8 @@ void Cmfd::collapseXS() {
       }
     }
   }
+  // FFT HERE
+
 
   //FIXME
 #pragma omp parallel for
@@ -3483,7 +3485,7 @@ void Cmfd::initialize() {
       }
 
       //TODO: document, clean
-      int storage_per_cell = ((2 + NUM_FACES) * ncg + 1);
+      int storage_per_cell = ((2 + 2*NUM_FACES) * ncg + 1);
       int num_per_side[3] = {_local_num_y * _local_num_z,
                           _local_num_x * _local_num_z,
                           _local_num_x * _local_num_y};
@@ -3510,6 +3512,27 @@ void Cmfd::initialize() {
           _reaction_new_tally[s][idx] = &_inter_domain_data[start+1];
           _diffusion_new_tally[s][idx] = &_inter_domain_data[start+ncg+1];
           _surface_new_currents[s][idx] = &_inter_domain_data[start+2*ncg+1];
+          start += storage_per_cell;
+        }
+      }
+      //TODO HERE FIXME BUG
+      //TODO: make & pack send buffers
+      _send_volumes = new FP_PRECISION**[NUM_FACES];
+      _send_reaction = new FP_PRECISION**[NUM_FACES];
+      _send_diffusion = new FP_PRECISION**[NUM_FACES];
+      _send_currents = new FP_PRECISION**[NUM_FACES];
+
+      start = 0;
+      for (int s=0; s < NUM_FACES; s++) {
+        _send_volumes[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _send_reaction[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _send_diffusion[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _send_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        for (int idx=0; idx < num_per_side[s % 3]; idx++) {
+          _send_volumes[s][idx] = &_send_domain_data[start];
+          _send_reaction[s][idx] = &_send_domain_data[start+1];
+          _send_diffusion[s][idx] = &_send_domain_data[start+ncg+1];
+          _send_currents[s][idx] = &_send_domain_data[start+2*ncg+1];
           start += storage_per_cell;
         }
       }
@@ -3947,7 +3970,9 @@ void Cmfd::ghostCellExchange(FP_PRECISION** send_buffers, FP_PRECISION** recv_bu
 	else
 		precision = MPI_DOUBLE;
 
-	//FIXME: FOR CORNERS, WE NEED TO ADD CONTRIBUTIONS, rather than simple overwrite
+  int storage_per_cell = ((2 + 2*NUM_FACES) * _num_cmfd_groups + 1);
+
+  //FIXME: FOR CURRENT CORNERS, WE NEED TO ADD CONTRIBUTIONS, rather than simple overwrite
 	int sizes[NUM_FACES];
 	for (int coord=0; coord < 3; coord++) {
 		for (int d=0; d<2; d++) {
@@ -3960,22 +3985,22 @@ void Cmfd::ghostCellExchange(FP_PRECISION** send_buffers, FP_PRECISION** recv_bu
 			// Figure out serialized buffer length for this face
 			int size = 0;
 			if (surf == SURFACE_X_MIN) {
-				size = _local_num_y * _local_num_z * _num_cmfd_groups;
+				size = _local_num_y * _local_num_z * storage_per_cell;
 			}
 			else if (surf == SURFACE_X_MAX) {
-				size = _local_num_y * _local_num_z * _num_cmfd_groups;
+				size = _local_num_y * _local_num_z * storage_per_cell;
 			}
 			else if (surf == SURFACE_Y_MIN) {
-				size = _local_num_x * _local_num_z * _num_cmfd_groups;
+				size = _local_num_x * _local_num_z * storage_per_cell;
 			}
 			else if (surf == SURFACE_Y_MAX) {
-				size = _local_num_x * _local_num_z * _num_cmfd_groups;
+				size = _local_num_x * _local_num_z * storage_per_cell;
 			}
 			else if (surf == SURFACE_Z_MIN) {
-				size = _local_num_x * _local_num_y * _num_cmfd_groups;
+				size = _local_num_x * _local_num_y * storage_per_cell;
 			}
 			else if (surf == SURFACE_Z_MAX) {
-				size = _local_num_x * _local_num_y * _num_cmfd_groups;
+				size = _local_num_x * _local_num_y * storage_per_cell;
 			}
 
 			sizes[surf] = size;

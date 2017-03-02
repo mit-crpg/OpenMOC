@@ -74,6 +74,12 @@ private:
   FP_PRECISION*** _diffusion_new_tally;
   FP_PRECISION*** _surface_new_currents;
 
+  FP_PRECISION*** _send_volumes;
+  FP_PRECISION*** _send_reaction;
+  FP_PRECISION*** _send_diffusion;
+  FP_PRECISION*** _send_currents;
+
+
   FP_PRECISION** _reaction_dfd_tally;
   FP_PRECISION** _volume_dfd_tally;
   FP_PRECISION** _diffusion_dfd_tally;
@@ -209,6 +215,7 @@ private:
   ConvergenceData* _convergence_data;
   DomainCommunicator* _domain_communicator;
   FP_PRECISION* _inter_domain_data;
+  FP_PRECISION* _send_domain_data;
   std::vector<std::map<int, int> > _boundary_index_map;
 
   //FIXME
