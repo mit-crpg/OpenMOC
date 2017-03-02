@@ -385,32 +385,26 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 
         # Search for the scattering matrix cross section
         if 'consistent nu-scatter matrix' in mgxs_lib.mgxs_types:
-            print('one')
             mgxs = mgxs_lib.get_mgxs(domain, 'consistent nu-scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "consistent nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'nu-scatter matrix' in mgxs_lib.mgxs_types:
-            print('two')
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'consistent scatter matrix' in mgxs_lib.mgxs_types:
-            print('three')
             mgxs = mgxs_lib.get_mgxs(domain, 'consistent scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
-            print(sigma)
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "consistent scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
-            print('four')
             mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
-            print(sigma)
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
