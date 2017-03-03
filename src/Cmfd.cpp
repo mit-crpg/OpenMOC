@@ -474,7 +474,6 @@ void Cmfd::collapseXS() {
     Material* cell_material;
 
     /* Loop over CMFD cells */
-    //FIXME LOOP
 #pragma omp for
     for (int ind = 0; ind < _local_num_x * _local_num_y * _local_num_z; ind++) {
 
@@ -3495,6 +3494,8 @@ void Cmfd::initialize() {
         comm_data_size += num_per_side[s % 3] * storage_per_cell;
       _inter_domain_data = new FP_PRECISION[comm_data_size];
 
+      _domain_data_by_surface = new FP_PRECISION*[NUM_FACES];
+      _send_data_by_surface = new FP_PRECISION*[NUM_FACES];
       _volume_new_tally = new FP_PRECISION**[NUM_FACES];
       _reaction_new_tally = new FP_PRECISION**[NUM_FACES];
       _diffusion_new_tally = new FP_PRECISION**[NUM_FACES];
@@ -3503,6 +3504,8 @@ void Cmfd::initialize() {
 
       int start = 0;
       for (int s=0; s < NUM_FACES; s++) {
+        _domain_data_by_surface[s] = &_inter_domain_data[start];
+        _send_data_by_surface[s] = &_send_domain_data[start];
         _volume_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
         _reaction_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
         _diffusion_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
@@ -3515,8 +3518,7 @@ void Cmfd::initialize() {
           start += storage_per_cell;
         }
       }
-      //TODO HERE FIXME BUG
-      //TODO: make & pack send buffers
+
       _send_volumes = new FP_PRECISION**[NUM_FACES];
       _send_reaction = new FP_PRECISION**[NUM_FACES];
       _send_diffusion = new FP_PRECISION**[NUM_FACES];
@@ -3950,6 +3952,48 @@ int Cmfd::getCellColor(int cmfd_cell) {
 }
 
 
+//TODO: description
+void Cmfd::packBuffers() {
+
+  int current_idx[6] = {0,0,0,0,0,0};
+  bool found_surfaces[NUM_SURFACES];
+
+  for (int x=0; x < _local_num_x; x++) {
+    for (int y=0; y < _local_num_y; y++) {
+      for (int z=0; z < _local_num_z; z++) {
+        for (int s=0; s < NUM_SURFACES; s++)
+          found_surfaces[s] = false;
+        if (x == 0)
+          found_surfaces[SURFACE_X_MIN] = true;
+        else if (x == _local_num_x-1)
+          found_surfaces[SURFACE_X_MAX] = true;
+        if (y == 0)
+          found_surfaces[SURFACE_Y_MIN] = true;
+        else if (y == _local_num_y-1)
+          found_surfaces[SURFACE_Y_MAX] = true;
+        if (z == 0)
+          found_surfaces[SURFACE_Z_MIN] = true;
+        else if (z == _local_num_z-1)
+          found_surfaces[SURFACE_Z_MAX] = true;
+        for (int s=0; s < NUM_SURFACES; s++) {
+          if (found_surfaces[s]) {
+            int idx = current_idx[s];
+            int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
+            for (int e=0; e < _num_cmfd_groups; e++) {
+              _send_volumes[s][idx][e] = _volume_dfd_tally[cell_id][e];
+              _send_reaction[s][idx][e] = _reaction_dfd_tally[cell_id][e];
+              _send_diffusion[s][idx][e] = _diffusion_dfd_tally[cell_id][e];
+              //FIXME _send_currents[s][idx][e] //FIXME
+            }
+            current_idx[s]++;
+          }
+        }
+      }
+    }
+  }
+}
+
+
 /**
  * @brief Exchanges ghost cell buffers in 3D cartesian (i.e., 6 directions)
  * @param comm The cartesian MPI domain communicator object that is configured for the CMFD exchange
@@ -3979,7 +4023,6 @@ void Cmfd::ghostCellExchange(FP_PRECISION** send_buffers, FP_PRECISION** recv_bu
 
 			int dir = 2*d-1;
 			int surf = coord + 3*d;
-			int op_surf = surf - 3*dir;
 			int source, dest;
 
 			// Figure out serialized buffer length for this face
@@ -4008,12 +4051,12 @@ void Cmfd::ghostCellExchange(FP_PRECISION** send_buffers, FP_PRECISION** recv_bu
 			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
 
 			// Post send
-			MPI_Isend(send_buffers[surf], size, precision,
+			MPI_Isend(_send_data_by_surface[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
 
 			// Post receive
-			MPI_Irecv(recv_buffers[surf], size, precision,
-					source, 0, _domain_communicator->_MPI_cart, &requests[2*op_surf+1]);
+			MPI_Irecv(_domain_data_by_surface[surf], size, precision,
+					source, 0, _domain_communicator->_MPI_cart, &requests[2*surf+1]);
 		}
 	}
 
@@ -4040,4 +4083,5 @@ void Cmfd::ghostCellExchange(FP_PRECISION** send_buffers, FP_PRECISION** recv_bu
 			}
 		}
 	}
+  //FIXME TODO: FOR CURRENTS, Add send data
 }

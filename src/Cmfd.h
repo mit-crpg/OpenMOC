@@ -79,7 +79,6 @@ private:
   FP_PRECISION*** _send_diffusion;
   FP_PRECISION*** _send_currents;
 
-
   FP_PRECISION** _reaction_dfd_tally;
   FP_PRECISION** _volume_dfd_tally;
   FP_PRECISION** _diffusion_dfd_tally;
@@ -216,6 +215,8 @@ private:
   DomainCommunicator* _domain_communicator;
   FP_PRECISION* _inter_domain_data;
   FP_PRECISION* _send_domain_data;
+  FP_PRECISION** _domain_data_by_surface;
+  FP_PRECISION** _send_data_by_surface;
   std::vector<std::map<int, int> > _boundary_index_map;
 
   //FIXME
@@ -281,6 +282,7 @@ private:
   int getLocalCMFDCell(int cmfd_cell); //FIXME
   int getGlobalCMFDCell(int cmfd_cell); //FIXME
   int getCellColor(int cmfd_cell); //FIXME
+  void packBuffers();
   void ghostCellExchange(FP_PRECISION** send_buffers,
                          FP_PRECISION** recv_buffers);
 
