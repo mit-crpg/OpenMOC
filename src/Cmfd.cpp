@@ -649,6 +649,7 @@ void Cmfd::collapseXS() {
       y_end = y_start + _local_num_y;
       z_start = _domain_communicator->_domain_idx_z * _local_num_z;
       z_end = z_start + _local_num_z;
+      ghostCellExchange();
     }
   }
 
@@ -3493,6 +3494,7 @@ void Cmfd::initialize() {
       for (int s=0; s < NUM_FACES; s++)
         comm_data_size += num_per_side[s % 3] * storage_per_cell;
       _inter_domain_data = new FP_PRECISION[comm_data_size];
+      _send_domain_data = new FP_PRECISION[comm_data_size];
 
       _domain_data_by_surface = new FP_PRECISION*[NUM_FACES];
       _send_data_by_surface = new FP_PRECISION*[NUM_FACES];
@@ -3979,8 +3981,8 @@ void Cmfd::packBuffers() {
           if (found_surfaces[s]) {
             int idx = current_idx[s];
             int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
+            _send_volumes[s][idx][0] = _volume_dfd_tally[cell_id][0];
             for (int e=0; e < _num_cmfd_groups; e++) {
-              _send_volumes[s][idx][e] = _volume_dfd_tally[cell_id][e];
               _send_reaction[s][idx][e] = _reaction_dfd_tally[cell_id][e];
               _send_diffusion[s][idx][e] = _diffusion_dfd_tally[cell_id][e];
               //FIXME _send_currents[s][idx][e] //FIXME
@@ -4004,7 +4006,9 @@ void Cmfd::packBuffers() {
  *        while the inner dimension is the serialized buffer corresponding to the number of 2D cells to exchange times
  *        the number of energy groups.
  */
-void Cmfd::ghostCellExchange(FP_PRECISION** send_buffers, FP_PRECISION** recv_buffers) {
+void Cmfd::ghostCellExchange() {
+
+  packBuffers();
 
 	MPI_Request requests[2*NUM_FACES];
 

@@ -283,8 +283,7 @@ private:
   int getGlobalCMFDCell(int cmfd_cell); //FIXME
   int getCellColor(int cmfd_cell); //FIXME
   void packBuffers();
-  void ghostCellExchange(FP_PRECISION** send_buffers,
-                         FP_PRECISION** recv_buffers);
+  void ghostCellExchange();
 
 public:
 
