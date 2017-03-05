@@ -200,15 +200,15 @@ Cmfd::~Cmfd() {
 
     delete [] _inter_domain_data;
     for (int s=0; s < NUM_FACES; s++) {
-      delete [] _volume_new_tally[s];
-      delete [] _reaction_new_tally[s];
-      delete [] _diffusion_new_tally[s];
+      delete [] _boundary_volumes[s];
+      delete [] _boundary_reaction[s];
+      delete [] _boundary_diffusion[s];
       delete [] _surface_new_currents[s];
     }
 
-    delete [] _volume_new_tally;
-    delete [] _reaction_new_tally;
-    delete [] _diffusion_new_tally;
+    delete [] _boundary_volumes;
+    delete [] _boundary_reaction;
+    delete [] _boundary_diffusion;
     delete [] _surface_new_currents;
   }
 
@@ -638,14 +638,14 @@ void Cmfd::collapseXS() {
           if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
             int idx = _boundary_index_map.at(SURFACE_X_MIN)[global_ind];
             printf("At XMIN %d volume = %6.4f\n", idx,
-                  _volume_new_tally[SURFACE_X_MIN][idx][0]);
+                  _boundary_volumes[SURFACE_X_MIN][idx][0]);
           }
           global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start + _local_num_x;
           if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
             int idx = _boundary_index_map.at(SURFACE_X_MAX)[global_ind];
             printf("At XMAX %d volume = %6.4f\n", idx,
-                  _volume_new_tally[SURFACE_X_MAX][idx][0]);
+                  _boundary_volumes[SURFACE_X_MAX][idx][0]);
           }
         }
       }
@@ -665,7 +665,6 @@ void Cmfd::collapseXS() {
       /* Load tallies at this cell and energy group */
       FP_PRECISION vol_tally = _volume_tally[ind][e];
       FP_PRECISION rxn_tally = _reaction_tally[ind][e];
-      _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
       _old_flux->setValue(ind, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
@@ -708,8 +707,8 @@ void Cmfd::collapseXS() {
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Load tallies at this cell and energy group */
-      FP_PRECISION vol_tally = _volume_new_tally[s][idx][0];
-      FP_PRECISION rxn_tally = _reaction_new_tally[s][idx][e];
+      FP_PRECISION vol_tally = _boundary_volumes[s][idx][0];
+      FP_PRECISION rxn_tally = _boundary_reaction[s][idx][e];
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
     }
   }
@@ -768,7 +767,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
   int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
   int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface); //FIXME
-  FP_PRECISION flux = _old_flux_full->getValue(global_cmfd_cell, group); //FIXME
+  FP_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
   FP_PRECISION delta_interface = getSurfaceWidth(surface);
   FP_PRECISION delta = getPerpendicularSurfaceWidth(surface);
   int sense = getSense(surface);
@@ -819,15 +818,14 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     FP_PRECISION dif_coef_next;
     if (cmfd_cell_next == -1) {
       int idx = _boundary_index_map.at(surface)[global_cmfd_cell_next];
-      dif_coef_next = _diffusion_new_tally[surface][idx][group] /
-                _reaction_new_tally[surface][idx][group];
+      dif_coef_next = _boundary_diffusion[surface][idx][group] /
+                _boundary_reaction[surface][idx][group];
+      flux_next = _old_flux_full->getValue(global_cmfd_cell_next, group);
     }
     else {
       dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
+      flux_next = _old_flux->getValue(cmfd_cell_next, group);
     }
-
-    //FIXME
-    flux_next = _old_flux_full->getValue(global_cmfd_cell_next, group);
 
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
@@ -1082,8 +1080,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
     for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
 
       int global_ind = getGlobalCMFDCell(i);
-
-      //FIXME maybe???
       int color = getCellColor(global_ind);
 
       material = _materials[i];
@@ -3401,9 +3397,9 @@ void Cmfd::initialize() {
 
       _domain_data_by_surface = new FP_PRECISION*[NUM_FACES];
       _send_data_by_surface = new FP_PRECISION*[NUM_FACES];
-      _volume_new_tally = new FP_PRECISION**[NUM_FACES];
-      _reaction_new_tally = new FP_PRECISION**[NUM_FACES];
-      _diffusion_new_tally = new FP_PRECISION**[NUM_FACES];
+      _boundary_volumes = new FP_PRECISION**[NUM_FACES];
+      _boundary_reaction = new FP_PRECISION**[NUM_FACES];
+      _boundary_diffusion = new FP_PRECISION**[NUM_FACES];
       //FIXME: Be weary of corner currents (adding out of bounds, uncommon)
       _surface_new_currents = new FP_PRECISION**[NUM_FACES];
 
@@ -3411,14 +3407,14 @@ void Cmfd::initialize() {
       for (int s=0; s < NUM_FACES; s++) {
         _domain_data_by_surface[s] = &_inter_domain_data[start];
         _send_data_by_surface[s] = &_send_domain_data[start];
-        _volume_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
-        _reaction_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
-        _diffusion_new_tally[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _boundary_volumes[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _boundary_reaction[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _boundary_diffusion[s] = new FP_PRECISION*[num_per_side[s % 3]];
         _surface_new_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
         for (int idx=0; idx < num_per_side[s % 3]; idx++) {
-          _volume_new_tally[s][idx] = &_inter_domain_data[start];
-          _reaction_new_tally[s][idx] = &_inter_domain_data[start+1];
-          _diffusion_new_tally[s][idx] = &_inter_domain_data[start+ncg+1];
+          _boundary_volumes[s][idx] = &_inter_domain_data[start];
+          _boundary_reaction[s][idx] = &_inter_domain_data[start+1];
+          _boundary_diffusion[s][idx] = &_inter_domain_data[start+ncg+1];
           _surface_new_currents[s][idx] = &_inter_domain_data[start+2*ncg+1];
           start += storage_per_cell;
         }
@@ -4055,7 +4051,7 @@ void Cmfd::ghostCellExchange() {
 
         std::cout << "Rxns on surface " << op_surf << std::endl;
         for (int j=0; j < size / storage_per_cell; j++)
-          std::cout << _reaction_new_tally[op_surf][j][0] << " ";
+          std::cout << _boundary_reaction[op_surf][j][0] << " ";
         std::cout << std::endl;
       }
 		}

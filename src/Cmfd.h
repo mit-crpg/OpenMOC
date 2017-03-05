@@ -68,10 +68,10 @@ private:
   /** The new source vector */
   Vector* _new_source;
 
-  //FIXME FIXME FIXME: REMOVE ALL dfd
-  FP_PRECISION*** _volume_new_tally;
-  FP_PRECISION*** _reaction_new_tally;
-  FP_PRECISION*** _diffusion_new_tally;
+  //FIXME
+  FP_PRECISION*** _boundary_volumes;
+  FP_PRECISION*** _boundary_reaction;
+  FP_PRECISION*** _boundary_diffusion;
   FP_PRECISION*** _surface_new_currents;
 
   FP_PRECISION*** _send_volumes;
