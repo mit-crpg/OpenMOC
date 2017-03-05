@@ -1038,7 +1038,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
     int sense;
     Material* material;
 
-    int num_cells = _num_x * _num_y * _num_z;
     int x_start = 0;
     int y_start = 0;
     int z_start = 0;
@@ -1740,13 +1739,8 @@ void Cmfd::splitVertexCurrents() {
 
     //FIXME LOOP
 #pragma omp for
-    for (int i=0; i < _num_x * _num_y * _num_z; i++) {
-      int ix = i % _num_x;
-      int iy = (i % (_num_x * _num_y)) / _num_x;
-      int iz = i / (_num_x * _num_y);
-      if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
-          || z_start - iz > 1 || iz - z_end > 0)
-        continue;
+    for (int il=0; il < _local_num_x * _local_num_y * _local_num_z; il++) {
+      int i = getGlobalCMFDCell(il);
       for (int v = NUM_FACES + NUM_EDGES; v < NUM_SURFACES; v++) {
 
         /* Check if this surface is contained in the map */
@@ -1838,13 +1832,8 @@ void Cmfd::splitEdgeCurrents() {
 
     //FIXME LOOP
 #pragma omp for
-    for (int i=0; i < _num_x * _num_y * _num_z; i++) {
-      int ix = i % _num_x;
-      int iy = (i % (_num_x * _num_y)) / _num_x;
-      int iz = i / (_num_x * _num_y);
-      if (x_start - ix > 1 || ix - x_end > 0 || y_start - iy > 1 || iy - y_end > 0
-          || z_start - iz > 1 || iz - z_end > 0)
-        continue;
+    for (int il=0; il < _local_num_x * _local_num_y * _local_num_z; il++) {
+      int i = getGlobalCMFDCell(il);
       for (int e = NUM_FACES; e < NUM_SURFACES + NUM_EDGES; e++) {
 
 
