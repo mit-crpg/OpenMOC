@@ -650,10 +650,33 @@ void Cmfd::collapseXS() {
       z_start = _domain_communicator->_domain_idx_z * _local_num_z;
       z_end = z_start + _local_num_z;
       ghostCellExchange();
+      for (int y=0; y < _local_num_y; y++) {
+        for (int z=0; z < _local_num_z; z++) {
+          int global_ind = ((z_start + z) * _num_y + y + y_start) *
+                            _num_x + x_start - 1;
+          if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
+            int idx = _boundary_index_map.at(SURFACE_X_MIN)[global_ind];
+            /*
+            printf("At XMIN %d volume = %6.4f\n", idx,
+                  _volume_new_tally[SURFACE_X_MIN][idx][0]);
+                  */
+          }
+          global_ind = ((z_start + z) * _num_y + y + y_start) *
+                            _num_x + x_start + _local_num_x;
+          if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
+            int idx = _boundary_index_map.at(SURFACE_X_MAX)[global_ind];
+            /*
+            printf("At XMAX %d volume = %6.4f\n", idx,
+                  _volume_new_tally[SURFACE_X_MAX][idx][0]);
+                  */
+          }
+        }
+      }
     }
   }
 
   //FIXME HERE X
+  /*
   for (int e=0; e < _num_cmfd_groups; e++) {
     for (int y=0; y < _local_num_y; y++) {
       for (int z=0; z < _local_num_z; z++) {
@@ -738,7 +761,8 @@ void Cmfd::collapseXS() {
       }
     }
   }
-  // FFT HERE
+  */
+  //exit(0);
 
 
   //FIXME
@@ -3958,27 +3982,29 @@ int Cmfd::getCellColor(int cmfd_cell) {
 void Cmfd::packBuffers() {
 
   int current_idx[6] = {0,0,0,0,0,0};
-  bool found_surfaces[NUM_SURFACES];
+  bool found_surfaces[NUM_FACES];
 
-  for (int x=0; x < _local_num_x; x++) {
+  //printf("Local sizes = (%d, %d, %d)\n", _local_num_x, _local_num_y, _local_num_z);
+  for (int z=0; z < _local_num_z; z++) {
     for (int y=0; y < _local_num_y; y++) {
-      for (int z=0; z < _local_num_z; z++) {
-        for (int s=0; s < NUM_SURFACES; s++)
+      for (int x=0; x < _local_num_x; x++) {
+        for (int s=0; s < NUM_FACES; s++)
           found_surfaces[s] = false;
         if (x == 0)
           found_surfaces[SURFACE_X_MIN] = true;
-        else if (x == _local_num_x-1)
+        if (x == _local_num_x-1)
           found_surfaces[SURFACE_X_MAX] = true;
         if (y == 0)
           found_surfaces[SURFACE_Y_MIN] = true;
-        else if (y == _local_num_y-1)
+        if (y == _local_num_y-1)
           found_surfaces[SURFACE_Y_MAX] = true;
         if (z == 0)
           found_surfaces[SURFACE_Z_MIN] = true;
-        else if (z == _local_num_z-1)
+        if (z == _local_num_z-1)
           found_surfaces[SURFACE_Z_MAX] = true;
-        for (int s=0; s < NUM_SURFACES; s++) {
+        for (int s=0; s < NUM_FACES; s++) {
           if (found_surfaces[s]) {
+            //printf("Found surface %d at (%d, %d, %d)\n", s, x, y, z);
             int idx = current_idx[s];
             int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
             _send_volumes[s][idx][0] = _volume_dfd_tally[cell_id][0];
@@ -3993,6 +4019,14 @@ void Cmfd::packBuffers() {
       }
     }
   }
+  /*
+  for (int s=0; s < NUM_FACES; s++) {
+    std::cout << "Surface " << s << " Volumes:";
+    for (int i=0; i < current_idx[s]; i++)
+      std::cout << " " << _send_volumes[s][i][0];
+    std::cout << std::endl;
+  }
+  */
 }
 
 
@@ -4027,6 +4061,7 @@ void Cmfd::ghostCellExchange() {
 
 			int dir = 2*d-1;
 			int surf = coord + 3*d;
+      int op_surf = surf - 3*dir;
 			int source, dest;
 
 			// Figure out serialized buffer length for this face
@@ -4057,9 +4092,18 @@ void Cmfd::ghostCellExchange() {
 			// Post send
 			MPI_Isend(_send_data_by_surface[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
+      /*
+      if (dest >= 0) {
+        std::cout << "Sending to " << dest << ":";
+        for (int j=0; j < size; j++) {
+          std::cout << " " << _send_data_by_surface[surf][j];
+        }
+        std::cout << std::endl;
+      }
+      */
 
 			// Post receive
-			MPI_Irecv(_domain_data_by_surface[surf], size, precision,
+			MPI_Irecv(_domain_data_by_surface[op_surf], size, precision,
 					source, 0, _domain_communicator->_MPI_cart, &requests[2*surf+1]);
 		}
 	}
@@ -4088,4 +4132,54 @@ void Cmfd::ghostCellExchange() {
 		}
 	}
   //FIXME TODO: FOR CURRENTS, Add send data
+	/*
+  for (int coord=0; coord < 3; coord++) {
+		for (int d=0; d<2; d++) {
+
+			int dir = 2*d-1;
+			int surf = coord + 3*d;
+      int op_surf = surf - 3*dir;
+			int source, dest;
+
+			// Figure out serialized buffer length for this face
+			int size = 0;
+			if (surf == SURFACE_X_MIN) {
+				size = _local_num_y * _local_num_z * storage_per_cell;
+			}
+			else if (surf == SURFACE_X_MAX) {
+				size = _local_num_y * _local_num_z * storage_per_cell;
+			}
+			else if (surf == SURFACE_Y_MIN) {
+				size = _local_num_x * _local_num_z * storage_per_cell;
+			}
+			else if (surf == SURFACE_Y_MAX) {
+				size = _local_num_x * _local_num_z * storage_per_cell;
+			}
+			else if (surf == SURFACE_Z_MIN) {
+				size = _local_num_x * _local_num_y * storage_per_cell;
+			}
+			else if (surf == SURFACE_Z_MAX) {
+				size = _local_num_x * _local_num_y * storage_per_cell;
+			}
+
+			sizes[surf] = size;
+
+			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
+
+			// Post send
+      if (source >= 0) {
+        std::cout << "Received from " << source << ":";
+        for (int j=0; j < size; j++) {
+          std::cout << " " << _domain_data_by_surface[op_surf][j];
+        }
+        std::cout << std::endl << std::endl;
+
+        std::cout << "Rxns on surface " << op_surf << std::endl;
+        for (int j=0; j < size / storage_per_cell; j++)
+          std::cout << _reaction_new_tally[op_surf][j][0] << " ";
+        std::cout << std::endl;
+      }
+		}
+	}
+  */
 }
