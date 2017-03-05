@@ -655,26 +655,25 @@ void Cmfd::collapseXS() {
     }
   }
 
-  //FIXME
+  /* Calculate (local) old fluxes and set volumes */
 #pragma omp parallel for
-  for (int ind = 0; ind < _local_num_x * _local_num_y * _local_num_z; ind++) {
-
-    int i = getGlobalCMFDCell(ind);
+  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
     /* Loop over CMFD coarse energy groups */
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Load tallies at this cell and energy group */
-      FP_PRECISION vol_tally = _volume_tally[ind][e];
-      FP_PRECISION rxn_tally = _reaction_tally[ind][e];
-      _old_flux->setValue(ind, e, rxn_tally / vol_tally);
+      FP_PRECISION vol_tally = _volume_tally[i][e];
+      FP_PRECISION rxn_tally = _reaction_tally[i][e];
+      _old_flux->setValue(i, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
-      _volumes->setValue(ind, 0, vol_tally);
+      _volumes->setValue(i, 0, vol_tally);
     }
   }
 
   /* Loop over CMFD cells and set cross sections */
+  //FIXME LOOP
 #pragma omp parallel for
   for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
 
@@ -768,7 +767,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
   int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
-  int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface); //FIXME
+  int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface);
   FP_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
   FP_PRECISION delta_interface = getSurfaceWidth(surface);
   FP_PRECISION delta = getPerpendicularSurfaceWidth(surface);
