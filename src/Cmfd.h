@@ -79,10 +79,6 @@ private:
   FP_PRECISION*** _send_diffusion;
   FP_PRECISION*** _send_currents;
 
-  FP_PRECISION** _reaction_dfd_tally;
-  FP_PRECISION** _volume_dfd_tally;
-  FP_PRECISION** _diffusion_dfd_tally;
-
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;

@@ -162,13 +162,10 @@ Cmfd::~Cmfd() {
   if (_tallies_allocated) {
 
     delete [] _tally_memory;
+
     delete [] _reaction_tally;
     delete [] _volume_tally;
     delete [] _diffusion_tally;
-
-    delete [] _reaction_dfd_tally;
-    delete [] _volume_dfd_tally;
-    delete [] _diffusion_dfd_tally;
 
 #ifdef MPIx
     if (_geometry->isDomainDecomposed()) {
@@ -441,19 +438,11 @@ void Cmfd::collapseXS() {
   //TODO: clean
   bool neg_fluxes = false;
 
-  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
     for (int e=0; e < _num_cmfd_groups; e++) {
       _diffusion_tally[i][e] = 0.0;
       _reaction_tally[i][e] = 0.0;
       _volume_tally[i][e] = 0.0;
-    }
-  }
-
-  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
-    for (int e=0; e < _num_cmfd_groups; e++) {
-      _diffusion_dfd_tally[i][e] = 0.0;
-      _reaction_dfd_tally[i][e] = 0.0;
-      _volume_dfd_tally[i][e] = 0.0;
     }
   }
 
@@ -488,15 +477,11 @@ void Cmfd::collapseXS() {
         FP_PRECISION total_tally = 0.0;
         FP_PRECISION neutron_production_tally = 0.0;
 
-        _diffusion_tally[i][e] = 0.0;
-        _reaction_tally[i][e] = 0.0;
-        _volume_tally[i][e] = 0.0;
+        _volume_tally[ind][e] = 0.0;
 
-        _volume_dfd_tally[ind][e] = 0.0;
-
-        _diffusion_dfd_tally[ind][e] = 0.0;
-        _reaction_dfd_tally[ind][e] = 0.0;
-        _volume_dfd_tally[ind][e] = 0.0;
+        _diffusion_tally[ind][e] = 0.0;
+        _reaction_tally[ind][e] = 0.0;
+        _volume_tally[ind][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
@@ -533,8 +518,7 @@ void Cmfd::collapseXS() {
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
 
           /* Reset volume tally for this MOC group */
-          _volume_tally[i][e] = 0.0;
-          _volume_dfd_tally[ind][e] = 0.0;
+          _volume_tally[ind][e] = 0.0;
           FP_PRECISION rxn_tally_group = 0.0;
           FP_PRECISION trans_tally_group = 0.0;
 
@@ -554,10 +538,8 @@ void Cmfd::collapseXS() {
               /* Increment tallies for this group */
               total_tally += tot * flux * volume;
               nu_fission_tally += nu_fis * flux * volume;
-              _reaction_tally[i][e] += flux * volume;
-              _reaction_dfd_tally[ind][e] += flux * volume;
-              _volume_tally[i][e] += volume;
-              _volume_dfd_tally[ind][e] += volume;
+              _reaction_tally[ind][e] += flux * volume;
+              _volume_tally[ind][e] += volume;
 
               /* Increment diffusion MOC group-wise tallies */
               rxn_tally_group += flux * volume;
@@ -573,15 +555,13 @@ void Cmfd::collapseXS() {
           if (rxn_tally_group != 0 && trans_tally_group != 0) {
             FP_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
-            _diffusion_tally[i][e] += rxn_tally_group /
-                (3.0 * flux_avg_sigma_t);
-            _diffusion_dfd_tally[ind][e] += rxn_tally_group /
+            _diffusion_tally[ind][e] += rxn_tally_group /
                 (3.0 * flux_avg_sigma_t);
           }
         }
 
         /* Save cross-sections to material */
-        FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
+        FP_PRECISION rxn_tally = _reaction_tally[ind][e];
         cell_material = _materials[ind];
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
         cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
@@ -650,120 +630,28 @@ void Cmfd::collapseXS() {
       z_start = _domain_communicator->_domain_idx_z * _local_num_z;
       z_end = z_start + _local_num_z;
       ghostCellExchange();
+      /*
       for (int y=0; y < _local_num_y; y++) {
         for (int z=0; z < _local_num_z; z++) {
           int global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start - 1;
           if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
             int idx = _boundary_index_map.at(SURFACE_X_MIN)[global_ind];
-            /*
             printf("At XMIN %d volume = %6.4f\n", idx,
                   _volume_new_tally[SURFACE_X_MIN][idx][0]);
-                  */
           }
           global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start + _local_num_x;
           if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
             int idx = _boundary_index_map.at(SURFACE_X_MAX)[global_ind];
-            /*
             printf("At XMAX %d volume = %6.4f\n", idx,
                   _volume_new_tally[SURFACE_X_MAX][idx][0]);
-                  */
           }
         }
       }
+      */
     }
   }
-
-  //FIXME HERE X
-  /*
-  for (int e=0; e < _num_cmfd_groups; e++) {
-    for (int y=0; y < _local_num_y; y++) {
-      for (int z=0; z < _local_num_z; z++) {
-        int global_ind = ((z_start + z) * _num_y + y + y_start) *
-                          _num_x + x_start - 1;
-        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_X_MIN)[global_ind];
-          _volume_new_tally[SURFACE_X_MIN][idx][0] =
-            _volume_tally[global_ind][e];
-          _reaction_new_tally[SURFACE_X_MIN][idx][e] =
-            _reaction_tally[global_ind][e];
-          _diffusion_new_tally[SURFACE_X_MIN][idx][e] =
-            _diffusion_tally[global_ind][e];
-        }
-        global_ind = ((z_start + z) * _num_y + y + y_start) *
-                          _num_x + x_start + _local_num_x;
-        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_X_MAX)[global_ind];
-          _volume_new_tally[SURFACE_X_MAX][idx][0] =
-            _volume_tally[global_ind][e];
-          _reaction_new_tally[SURFACE_X_MAX][idx][e] =
-            _reaction_tally[global_ind][e];
-          _diffusion_new_tally[SURFACE_X_MAX][idx][e] =
-            _diffusion_tally[global_ind][e];
-        }
-      }
-    }
-
-    // FIXME HERE Y
-    for (int x=0; x < _local_num_x; x++) {
-      for (int z=0; z < _local_num_z; z++) {
-        int global_ind = ((z_start + z) * _num_y + y_start-1) *
-                          _num_x + x + x_start;
-        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_Y_MIN)[global_ind];
-          _volume_new_tally[SURFACE_Y_MIN][idx][0] =
-            _volume_tally[global_ind][e];
-          _reaction_new_tally[SURFACE_Y_MIN][idx][e] =
-            _reaction_tally[global_ind][e];
-          _diffusion_new_tally[SURFACE_Y_MIN][idx][e] =
-            _diffusion_tally[global_ind][e];
-        }
-        global_ind = ((z_start + z) * _num_y + _local_num_y + y_start)
-                      * _num_x + x + x_start;
-        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_Y_MAX)[global_ind];
-          _volume_new_tally[SURFACE_Y_MAX][idx][0] =
-            _volume_tally[global_ind][e];
-          _reaction_new_tally[SURFACE_Y_MAX][idx][e] =
-            _reaction_tally[global_ind][e];
-          _diffusion_new_tally[SURFACE_Y_MAX][idx][e] =
-            _diffusion_tally[global_ind][e];
-        }
-      }
-    }
-
-    // FIXME HERE Z
-    for (int x=0; x < _local_num_x; x++) {
-      for (int y=0; y < _local_num_y; y++) {
-        int global_ind = ((z_start-1) * _num_y + y + y_start) *
-                        _num_x + x + x_start;
-        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_Z_MIN)[global_ind];
-          _volume_new_tally[SURFACE_Z_MIN][idx][0] =
-            _volume_tally[global_ind][e];
-          _reaction_new_tally[SURFACE_Z_MIN][idx][e] =
-            _reaction_tally[global_ind][e];
-          _diffusion_new_tally[SURFACE_Z_MIN][idx][e] =
-            _diffusion_tally[global_ind][e];
-        }
-        global_ind = ((_local_num_z + z_start) * _num_y + y + y_start) *
-                        _num_x + x + x_start;
-        if (global_ind >= 0 && global_ind < _num_x * _num_y * _num_z) {
-          int idx = _boundary_index_map.at(SURFACE_Z_MAX)[global_ind];
-          _volume_new_tally[SURFACE_Z_MAX][idx][0] =
-            _volume_tally[global_ind][e];
-          _reaction_new_tally[SURFACE_Z_MAX][idx][e] =
-            _reaction_tally[global_ind][e];
-          _diffusion_new_tally[SURFACE_Z_MAX][idx][e] =
-            _diffusion_tally[global_ind][e];
-        }
-      }
-    }
-  }
-  */
-  //exit(0);
-
 
   //FIXME
 #pragma omp parallel for
@@ -775,8 +663,8 @@ void Cmfd::collapseXS() {
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Load tallies at this cell and energy group */
-      FP_PRECISION vol_tally = _volume_dfd_tally[ind][e];
-      FP_PRECISION rxn_tally = _reaction_dfd_tally[ind][e];
+      FP_PRECISION vol_tally = _volume_tally[ind][e];
+      FP_PRECISION rxn_tally = _reaction_tally[ind][e];
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
       _old_flux->setValue(ind, e, rxn_tally / vol_tally);
 
@@ -845,8 +733,8 @@ void Cmfd::collapseXS() {
  * @return The diffusion coefficient
  */
 FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
-  return _diffusion_dfd_tally[cmfd_cell][group] /
-    _reaction_dfd_tally[cmfd_cell][group];
+  return _diffusion_tally[cmfd_cell][group] /
+    _reaction_tally[cmfd_cell][group];
 }
 
 
@@ -1625,9 +1513,6 @@ void Cmfd::allocateTallies() {
   }
 
   /* Assign tallies to allocated data */
-  _reaction_tally = integrated_tallies[1];
-  _volume_tally = integrated_tallies[2];
-  _diffusion_tally = integrated_tallies[5];
   _tallies_allocated = true;
 
   /* Allocate memory for tallies */
@@ -1645,9 +1530,9 @@ void Cmfd::allocateTallies() {
   }
 
   /* Assign tallies to allocated data */
-  _diffusion_dfd_tally = all_tallies[0];
-  _reaction_dfd_tally = all_tallies[1];
-  _volume_dfd_tally = all_tallies[2];
+  _diffusion_tally = all_tallies[0];
+  _reaction_tally = all_tallies[1];
+  _volume_tally = all_tallies[2];
   _tallies_allocated = true;
 
   /* Create copy buffer of currents and tallies for domain decomposition */
@@ -4007,10 +3892,10 @@ void Cmfd::packBuffers() {
             //printf("Found surface %d at (%d, %d, %d)\n", s, x, y, z);
             int idx = current_idx[s];
             int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
-            _send_volumes[s][idx][0] = _volume_dfd_tally[cell_id][0];
+            _send_volumes[s][idx][0] = _volume_tally[cell_id][0];
             for (int e=0; e < _num_cmfd_groups; e++) {
-              _send_reaction[s][idx][e] = _reaction_dfd_tally[cell_id][e];
-              _send_diffusion[s][idx][e] = _diffusion_dfd_tally[cell_id][e];
+              _send_reaction[s][idx][e] = _reaction_tally[cell_id][e];
+              _send_diffusion[s][idx][e] = _diffusion_tally[cell_id][e];
               //FIXME _send_currents[s][idx][e] //FIXME
             }
             current_idx[s]++;
