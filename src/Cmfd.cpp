@@ -672,45 +672,25 @@ void Cmfd::collapseXS() {
     }
   }
 
-  /* Loop over CMFD cells and set cross sections */
-  //FIXME LOOP
+  /* Loop over boundary CMFD cells and set cross sections */
 #pragma omp parallel for
-  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+  for (int s=0; s < NUM_FACES; s++) {
 
-    int ix = i % _num_x;
-    int iy = (i % (_num_x * _num_y)) / _num_x;
-    int iz = i / (_num_x * _num_y);
+    /* Loop over all CMFD cells on the current surface */
+    std::map<int, int>::iterator it;
+    for (it=_boundary_index_map.at(s).begin();
+        it != _boundary_index_map.at(s).end(); ++it) {
 
-    int here = false;
-    if (ix == x_start-1 || ix == x_end || iy == y_start-1 || iy == y_end ||
-        iz == z_start-1 || iz == z_end)
-        here = true;
-    if (!here)
-      continue;
+      int idx = it->second;
 
-    int s = -1;
-    if (ix == x_start-1)
-      s = SURFACE_X_MIN;
-    else if (ix == x_end)
-      s = SURFACE_X_MAX;
-    if (iy == y_start-1)
-      s = SURFACE_Y_MIN;
-    else if (iy == y_end)
-      s = SURFACE_Y_MAX;
-    if (iz == z_start-1)
-      s = SURFACE_Z_MIN;
-    else if (iz == z_end)
-      s = SURFACE_Z_MAX;
+      /* Loop over CMFD coarse energy groups */
+      for (int e = 0; e < _num_cmfd_groups; e++) {
 
-    int idx = _boundary_index_map.at(s)[i];
-
-    /* Loop over CMFD coarse energy groups */
-    for (int e = 0; e < _num_cmfd_groups; e++) {
-
-      /* Load tallies at this cell and energy group */
-      FP_PRECISION vol_tally = _boundary_volumes[s][idx][0];
-      FP_PRECISION rxn_tally = _boundary_reaction[s][idx][e];
-      _old_boundary_flux[s][idx][e] = rxn_tally / vol_tally;
+        /* Load tallies at this cell and energy group */
+        FP_PRECISION vol_tally = _boundary_volumes[s][idx][0];
+        FP_PRECISION rxn_tally = _boundary_reaction[s][idx][e];
+        _old_boundary_flux[s][idx][e] = rxn_tally / vol_tally;
+      }
     }
   }
 }
