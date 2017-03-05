@@ -466,9 +466,8 @@ void Cmfd::collapseXS() {
 
     /* Loop over CMFD cells */
 #pragma omp for
-    for (int ind = 0; ind < _local_num_x * _local_num_y * _local_num_z; ind++) {
+    for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
-      int i = getGlobalCMFDCell(ind);
       std::vector<int>::iterator iter;
 
       /* Loop over CMFD coarse energy groups */
@@ -479,11 +478,9 @@ void Cmfd::collapseXS() {
         FP_PRECISION total_tally = 0.0;
         FP_PRECISION neutron_production_tally = 0.0;
 
-        _volume_tally[ind][e] = 0.0;
-
-        _diffusion_tally[ind][e] = 0.0;
-        _reaction_tally[ind][e] = 0.0;
-        _volume_tally[ind][e] = 0.0;
+        _diffusion_tally[i][e] = 0.0;
+        _reaction_tally[i][e] = 0.0;
+        _volume_tally[i][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
         for (int g = 0; g < _num_cmfd_groups; g++) {
@@ -492,8 +489,8 @@ void Cmfd::collapseXS() {
         }
 
         /* Loop over FSRs in CMFD cell to compute chi */
-        for (iter = _cell_fsrs.at(ind).begin();
-             iter != _cell_fsrs.at(ind).end(); ++iter) {
+        for (iter = _cell_fsrs.at(i).begin();
+             iter != _cell_fsrs.at(i).end(); ++iter) {
 
           fsr_material = _FSR_materials[*iter];
           volume = _FSR_volumes[*iter];
@@ -520,51 +517,49 @@ void Cmfd::collapseXS() {
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
 
           /* Reset volume tally for this MOC group */
-          _volume_tally[ind][e] = 0.0;
+          _volume_tally[i][e] = 0.0;
           FP_PRECISION rxn_tally_group = 0.0;
           FP_PRECISION trans_tally_group = 0.0;
 
           /* Loop over FSRs in CMFD cell */
-          if (ind >= 0) {
-            for (iter = _cell_fsrs.at(ind).begin();
-                 iter != _cell_fsrs.at(ind).end(); ++iter) {
+          for (iter = _cell_fsrs.at(i).begin();
+               iter != _cell_fsrs.at(i).end(); ++iter) {
 
-              /* Gets FSR volume, material, and cross sections */
-              fsr_material = _FSR_materials[*iter];
-              volume = _FSR_volumes[*iter];
-              scat = fsr_material->getSigmaS();
-              flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
-              tot = fsr_material->getSigmaTByGroup(h+1);
-              nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
+            /* Gets FSR volume, material, and cross sections */
+            fsr_material = _FSR_materials[*iter];
+            volume = _FSR_volumes[*iter];
+            scat = fsr_material->getSigmaS();
+            flux = _FSR_fluxes[(*iter)*_num_moc_groups+h];
+            tot = fsr_material->getSigmaTByGroup(h+1);
+            nu_fis = fsr_material->getNuSigmaFByGroup(h+1);
 
-              /* Increment tallies for this group */
-              total_tally += tot * flux * volume;
-              nu_fission_tally += nu_fis * flux * volume;
-              _reaction_tally[ind][e] += flux * volume;
-              _volume_tally[ind][e] += volume;
+            /* Increment tallies for this group */
+            total_tally += tot * flux * volume;
+            nu_fission_tally += nu_fis * flux * volume;
+            _reaction_tally[i][e] += flux * volume;
+            _volume_tally[i][e] += volume;
 
-              /* Increment diffusion MOC group-wise tallies */
-              rxn_tally_group += flux * volume;
-              trans_tally_group += tot * flux * volume;
+            /* Increment diffusion MOC group-wise tallies */
+            rxn_tally_group += flux * volume;
+            trans_tally_group += tot * flux * volume;
 
-              /* Scattering tallies */
-              for (int g = 0; g < _num_moc_groups; g++) {
-                scat_tally[getCmfdGroup(g)] +=
-                    scat[g*_num_moc_groups+h] * flux * volume;
-              }
+            /* Scattering tallies */
+            for (int g = 0; g < _num_moc_groups; g++) {
+              scat_tally[getCmfdGroup(g)] +=
+                  scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
           if (rxn_tally_group != 0 && trans_tally_group != 0) {
             FP_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
-            _diffusion_tally[ind][e] += rxn_tally_group /
+            _diffusion_tally[i][e] += rxn_tally_group /
                 (3.0 * flux_avg_sigma_t);
           }
         }
 
         /* Save cross-sections to material */
-        FP_PRECISION rxn_tally = _reaction_tally[ind][e];
-        cell_material = _materials[ind];
+        FP_PRECISION rxn_tally = _reaction_tally[i][e];
+        cell_material = _materials[i];
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
         cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
 
