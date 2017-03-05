@@ -802,7 +802,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
       FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-          (global_cmfd_cell, surface*_num_cmfd_groups+group);
+          (cmfd_cell, surface*_num_cmfd_groups+group);
       dif_surf_corr = _relaxation_factor * dif_surf_corr +
           (1.0 - _relaxation_factor) * old_dif_surf_corr;
     }
@@ -856,7 +856,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Weight the old and new corrected diffusion coefficients by the
        relaxation factor */
     FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-        (global_cmfd_cell, surface*_num_cmfd_groups+group);
+        (cmfd_cell, surface*_num_cmfd_groups+group);
     dif_surf_corr = _relaxation_factor * dif_surf_corr +
         (1.0 - _relaxation_factor) * old_dif_surf_corr;
 
@@ -1120,8 +1120,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
               */
 
           /* Record the corrected diffusion coefficient */
-          _old_dif_surf_corr->setValue(global_ind, s*_num_cmfd_groups+e,
-                                       dif_surf_corr);
+          _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
 
           /* Set the diagonal term */
           value = (dif_surf - sense * dif_surf_corr) * delta;
@@ -3328,9 +3327,8 @@ void Cmfd::initialize() {
     _old_flux_full = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _new_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
                            _local_num_z, ncg);
-    //FIXME
-    _old_dif_surf_corr = new Vector(_cell_locks, _num_x, _num_y, _num_z,
-                                    NUM_FACES * ncg);
+    _old_dif_surf_corr = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                                    _local_num_z, NUM_FACES * ncg);
     _old_dif_surf_corr->setAll(0.0);
     _volumes = new Vector(_cell_locks, _local_num_x, _local_num_y, _local_num_z, 1);
 
