@@ -203,12 +203,14 @@ Cmfd::~Cmfd() {
       delete [] _boundary_volumes[s];
       delete [] _boundary_reaction[s];
       delete [] _boundary_diffusion[s];
+      delete [] _old_boundary_flux[s];
       delete [] _surface_new_currents[s];
     }
 
     delete [] _boundary_volumes;
     delete [] _boundary_reaction;
     delete [] _boundary_diffusion;
+    delete [] _old_boundary_flux;
     delete [] _surface_new_currents;
   }
 
@@ -709,7 +711,7 @@ void Cmfd::collapseXS() {
       /* Load tallies at this cell and energy group */
       FP_PRECISION vol_tally = _boundary_volumes[s][idx][0];
       FP_PRECISION rxn_tally = _boundary_reaction[s][idx][e];
-      _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
+      _old_boundary_flux[s][idx][e] = rxn_tally / vol_tally;
     }
   }
 }
@@ -820,7 +822,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       int idx = _boundary_index_map.at(surface)[global_cmfd_cell_next];
       dif_coef_next = _boundary_diffusion[surface][idx][group] /
                 _boundary_reaction[surface][idx][group];
-      flux_next = _old_flux_full->getValue(global_cmfd_cell_next, group);
+      flux_next = _old_boundary_flux[surface][idx][group];
     }
     else {
       dif_coef_next = getDiffusionCoefficient(cmfd_cell_next, group);
@@ -1436,6 +1438,7 @@ void Cmfd::initializeCurrents() {
     delete _surface_currents;
 
   /* Allocate memory for the CMFD Mesh surface and corner currents Vectors */
+  //FIXME MEM
   _surface_currents = new Vector(_cell_locks, _num_x, _num_y, _num_z,
                                  _num_cmfd_groups * NUM_FACES);
 }
@@ -1481,7 +1484,7 @@ void Cmfd::allocateTallies() {
       total_groupwise_tally_size;
 
   /* Allocate memory for tallies */
-  _tally_memory = new FP_PRECISION[_total_tally_size];
+  _tally_memory = new FP_PRECISION[_total_tally_size]; // FIXME MEM
   FP_PRECISION** integrated_tallies[6];
   for (int t=0; t<6; t++) {
     integrated_tallies[t] = new FP_PRECISION*[num_cells];
@@ -3301,7 +3304,7 @@ void Cmfd::initialize() {
   try {
 
     /* Allocate array of OpenMP locks for each CMFD cell */
-    _cell_locks = new omp_lock_t[_num_x * _num_y * _num_z]; //FIXME
+    _cell_locks = new omp_lock_t[_num_x * _num_y * _num_z]; //FIXME MEM
 
     /* Loop over all cells to initialize OpenMP locks */
 #pragma omp parallel for schedule(guided)
@@ -3319,8 +3322,6 @@ void Cmfd::initialize() {
                              _local_num_z, ncg);
     _old_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
                            _local_num_z, ncg);
-    //FIXME
-    _old_flux_full = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _new_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
                            _local_num_z, ncg);
     _old_dif_surf_corr = new Vector(_cell_locks, _local_num_x, _local_num_y,
@@ -3384,7 +3385,7 @@ void Cmfd::initialize() {
       }
 
       //TODO: document, clean
-      int storage_per_cell = ((2 + 2*NUM_FACES) * ncg + 1);
+      int storage_per_cell = ((3 + 2*NUM_FACES) * ncg + 1);
       int num_per_side[3] = {_local_num_y * _local_num_z,
                           _local_num_x * _local_num_z,
                           _local_num_x * _local_num_y};
@@ -3400,6 +3401,7 @@ void Cmfd::initialize() {
       _boundary_volumes = new FP_PRECISION**[NUM_FACES];
       _boundary_reaction = new FP_PRECISION**[NUM_FACES];
       _boundary_diffusion = new FP_PRECISION**[NUM_FACES];
+      _old_boundary_flux = new FP_PRECISION**[NUM_FACES];
       //FIXME: Be weary of corner currents (adding out of bounds, uncommon)
       _surface_new_currents = new FP_PRECISION**[NUM_FACES];
 
@@ -3410,12 +3412,14 @@ void Cmfd::initialize() {
         _boundary_volumes[s] = new FP_PRECISION*[num_per_side[s % 3]];
         _boundary_reaction[s] = new FP_PRECISION*[num_per_side[s % 3]];
         _boundary_diffusion[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _old_boundary_flux[s] = new FP_PRECISION*[num_per_side[s % 3]];
         _surface_new_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
         for (int idx=0; idx < num_per_side[s % 3]; idx++) {
           _boundary_volumes[s][idx] = &_inter_domain_data[start];
           _boundary_reaction[s][idx] = &_inter_domain_data[start+1];
           _boundary_diffusion[s][idx] = &_inter_domain_data[start+ncg+1];
-          _surface_new_currents[s][idx] = &_inter_domain_data[start+2*ncg+1];
+          _old_boundary_flux[s][idx] = &_inter_domain_data[start+2*ncg+1];
+          _surface_new_currents[s][idx] = &_inter_domain_data[start+3*ncg+1];
           start += storage_per_cell;
         }
       }

@@ -72,6 +72,7 @@ private:
   FP_PRECISION*** _boundary_volumes;
   FP_PRECISION*** _boundary_reaction;
   FP_PRECISION*** _boundary_diffusion;
+  FP_PRECISION*** _old_boundary_flux;
   FP_PRECISION*** _surface_new_currents;
 
   FP_PRECISION*** _send_volumes;
@@ -86,7 +87,6 @@ private:
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the beginning of a CMFD solve */
   Vector* _old_flux;
-  Vector* _old_flux_full; //FIXME
 
   /** The corrected diffusion coefficients from the previous iteration */
   Vector* _old_dif_surf_corr;
