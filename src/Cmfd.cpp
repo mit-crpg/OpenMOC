@@ -669,7 +669,7 @@ void Cmfd::collapseXS() {
       _old_flux->setValue(ind, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
-      _volumes->setValue(i, 0, vol_tally);
+      _volumes->setValue(ind, 0, vol_tally);
     }
   }
 
@@ -711,9 +711,6 @@ void Cmfd::collapseXS() {
       FP_PRECISION vol_tally = _volume_new_tally[s][idx][0];
       FP_PRECISION rxn_tally = _reaction_new_tally[s][idx][e];
       _old_flux_full->setValue(i, e, rxn_tally / vol_tally);
-
-      /* Set the Mesh cell properties with the tallies */
-      _volumes->setValue(i, 0, vol_tally);
     }
   }
 }
@@ -1090,7 +1087,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
       int color = getCellColor(global_ind);
 
       material = _materials[i];
-      volume = _volumes->getValue(global_ind, 0);
+      volume = _volumes->getValue(i, 0);
 
       /* Loop over groups */
       for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -1459,7 +1456,6 @@ void Cmfd::initializeCurrents() {
 void Cmfd::initializeCellMap() {
 
   /* Allocate memory for mesh cell FSR vectors */
-  //FIXME
   for (int z = 0; z < _local_num_z; z++) {
     for (int y = 0; y < _local_num_y; y++) {
       for (int x = 0; x < _local_num_x; x++)
@@ -1653,7 +1649,6 @@ Lattice* Cmfd::getLattice() {
  * @param The CMFD cell ID.
  * @param The FSR ID.
  */
-//FIXME
 void Cmfd::addFSRToCell(int cmfd_cell, int fsr_id) {
   _cell_fsrs.at(cmfd_cell).push_back(fsr_id);
 }
@@ -2639,7 +2634,6 @@ int Cmfd::getBoundary(int side) {
  * @param The FSR ID.
  * @return The CMFD cell ID. Return -1 if cell is not found.
  */
-//FIXME
 int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
   std::vector<int>::iterator iter;
@@ -3330,13 +3324,15 @@ void Cmfd::initialize() {
                              _local_num_z, ncg);
     _old_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
                            _local_num_z, ncg);
+    //FIXME
     _old_flux_full = new Vector(_cell_locks, _num_x, _num_y, _num_z, ncg);
     _new_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
                            _local_num_z, ncg);
+    //FIXME
     _old_dif_surf_corr = new Vector(_cell_locks, _num_x, _num_y, _num_z,
                                     NUM_FACES * ncg);
     _old_dif_surf_corr->setAll(0.0);
-    _volumes = new Vector(_cell_locks, _num_x, _num_y, _num_z, 1);
+    _volumes = new Vector(_cell_locks, _local_num_x, _local_num_y, _local_num_z, 1);
 
     /* Initialize k-nearest stencils, currents, flux, and materials */
     generateKNearestStencils();
