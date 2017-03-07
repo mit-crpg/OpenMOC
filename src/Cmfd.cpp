@@ -396,50 +396,6 @@ void Cmfd::collapseXS() {
   //FIXME splitVertexCurrents();
   //FIXME splitEdgeCurrents();
 
-  // Reduce currents across domains if necessary
-#ifdef MPIx
-  MPI_Comm comm;
-  MPI_Datatype precision;
-  if (_geometry->isDomainDecomposed()) {
-
-    // Retrieve MPI information
-    comm = _geometry->getMPICart();
-    if (sizeof(FP_PRECISION) == 4)
-      precision = MPI_FLOAT;
-    else
-      precision = MPI_DOUBLE;
-
-    // Start recording MPI communication time
-    _timer->startTimer();
-
-    // Reduce currents form all domains
-    FP_PRECISION* currents_array = _old_surface_currents->getArray();
-    long num_currents = _num_x * _num_y * _num_z * _num_cmfd_groups
-        * NUM_FACES;
-
-    long num_messages = num_currents / CMFD_BUFFER_SIZE + 1;
-    for (int i=0; i < num_messages; i++) {
-      long min_idx = i * CMFD_BUFFER_SIZE;
-      long max_idx = (i+1) * CMFD_BUFFER_SIZE;
-      max_idx = std::min(max_idx, num_currents);
-      int num_elements = max_idx - min_idx;
-      FP_PRECISION* send_array = &currents_array[i*CMFD_BUFFER_SIZE];
-      if (num_elements > 0)
-        MPI_Allreduce(send_array, _currents_buffer, num_elements,
-                      precision, MPI_SUM, comm);
-      for (int j=0; j < num_elements; j++)
-        currents_array[i*CMFD_BUFFER_SIZE+j] = _currents_buffer[j];
-    }
-
-    // Tally MPI communication time
-    _timer->stopTimer();
-    _timer->recordSplit("Total MPI communication time");
-  }
-#endif
-
-  //TODO: clean
-  bool neg_fluxes = false;
-
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
     for (int e=0; e < _num_cmfd_groups; e++) {
       _diffusion_tally[i][e] = 0.0;
@@ -579,7 +535,16 @@ void Cmfd::collapseXS() {
 
   /* Reduce tallies across domains if necessary */
 #ifdef MPIx
+  MPI_Comm comm;
+  MPI_Datatype precision;
   if (_geometry->isDomainDecomposed()) {
+
+    /* Retrieve MPI information */
+    comm = _geometry->getMPICart();
+    if (sizeof(FP_PRECISION) == 4)
+      precision = MPI_FLOAT;
+    else
+      precision = MPI_DOUBLE;
 
     /* Start recording MPI communication time */
     _timer->startTimer();
@@ -604,10 +569,6 @@ void Cmfd::collapseXS() {
     _timer->recordSplit("Total MPI communication time");
   }
 #endif
-
-  //TODO: clean
-  if (neg_fluxes)
-      log_printf(WARNING, "Negative FSR fluxes found in group collapse");
 
   //TODO: clean
   int x_start = 0;
@@ -747,10 +708,6 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       /* Compute the surface-averaged current leaving the cell */
       current_out = sense * _surface_currents->getValue
           (cmfd_cell, surface*_num_cmfd_groups + group) / delta_interface;
-      /* FIXME
-      current_out = sense * _old_surface_currents->getValue
-          (global_cmfd_cell, surface*_num_cmfd_groups + group) / delta_interface;
-      */
 
       /* Set the surface diffusion coefficient and MOC correction */
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
@@ -778,11 +735,6 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     current_out = _surface_currents->getValue
         (cmfd_cell, surface*_num_cmfd_groups + group);
 
-    /* FIXME
-    current_out = _old_surface_currents->getValue
-        (global_cmfd_cell, surface*_num_cmfd_groups + group);
-        */
-
     /* Set diffusion coefficient and flux for the neighboring cell */
     int cmfd_cell_next = getLocalCMFDCell(global_cmfd_cell_next);
     FP_PRECISION dif_coef_next;
@@ -793,10 +745,6 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       flux_next = _old_boundary_flux[surface][idx][group];
 
       /* Get the inward current on the surface */
-      /* FIXME
-      current_in = _old_surface_currents->getValue(global_cmfd_cell_next,
-                  surface_next*_num_cmfd_groups+group);
-                  */
       current_in = boundary_currents[idx][surface_next*_num_cmfd_groups+group];
     }
     else {
@@ -805,10 +753,6 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       flux_next = _old_flux->getValue(cmfd_cell_next, group);
 
       /* Get the inward current on the surface */
-      /* FIXME
-      current_in = _old_surface_currents->getValue
-          (global_cmfd_cell_next, surface_next*_num_cmfd_groups + group);
-          */
       current_in = _surface_currents->getValue
           (cmfd_cell_next, surface_next*_num_cmfd_groups + group);
     }
@@ -1415,13 +1359,6 @@ void Cmfd::initializeCurrents() {
   /* Allocate memory for the CMFD Mesh surface and corner currents Vectors */
   _surface_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
                               _local_num_z, _num_cmfd_groups * NUM_FACES);
-
-  //FIXME
-  omp_lock_t* old_cell_locks = new omp_lock_t[_num_x*_num_y*_num_z];
-  for (int r=0; r < _num_x * _num_y * _num_z; r++)
-    omp_init_lock(&old_cell_locks[r]);
-  _old_surface_currents = new Vector(old_cell_locks, _num_x, _num_y,
-                                _num_z, _num_cmfd_groups * NUM_FACES);
 }
 
 
@@ -3241,8 +3178,6 @@ void Cmfd::setKNearest(int k_nearest) {
  */
 void Cmfd::zeroCurrents() {
   _surface_currents->clear();
-  //FIXME
-  _old_surface_currents->clear();
 
   // Clear boundary currents
 #pragma omp parallel for

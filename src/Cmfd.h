@@ -162,7 +162,6 @@ private:
 
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
-  Vector* _old_surface_currents;
 
   /** Array of surface currents on edges and corners for each CMFD cell */
   std::map<int, FP_PRECISION> _edge_corner_currents;
@@ -444,9 +443,6 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
       /* Increment currents */
       if (surf_id < NUM_FACES) {
-        //FIXME
-        _old_surface_currents->incrementValues
-            (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
         _surface_currents->incrementValues
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
@@ -482,9 +478,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
       /* Increment currents */
       if (surf_id < NUM_FACES) {
-        //FIXME
-        _old_surface_currents->incrementValues
-            (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+        _surface_currents->incrementValues
+            (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
         omp_set_lock(&_cell_locks[cell_id]);
