@@ -73,7 +73,7 @@ private:
   FP_PRECISION*** _boundary_reaction;
   FP_PRECISION*** _boundary_diffusion;
   FP_PRECISION*** _old_boundary_flux;
-  FP_PRECISION*** _surface_new_currents;
+  FP_PRECISION*** _boundary_surface_currents;
 
   FP_PRECISION*** _send_volumes;
   FP_PRECISION*** _send_reaction;
@@ -162,6 +162,7 @@ private:
 
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
+  Vector* _old_surface_currents;
 
   /** Array of surface currents on edges and corners for each CMFD cell */
   std::map<int, FP_PRECISION> _edge_corner_currents;
@@ -423,6 +424,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   /* Tally current if necessary */
   if (tally_current) {
 
+    //FIXME cell_id = getLocalCMFDCell(cell_id);
+
     if (_solve_3D) {
       FP_PRECISION wgt = _quadrature->getWeightInline(azim_index, polar_index);
       for (int e=0; e < _num_moc_groups; e++) {
@@ -436,12 +439,13 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
       /* Increment currents */
       if (surf_id < NUM_FACES) {
-        _surface_currents->incrementValues
+        //FIXME
+        _old_surface_currents->incrementValues
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
 
-        omp_set_lock(&_cell_locks[cell_id]);
+        //FIXME omp_set_lock(&_cell_locks[cell_id]);
 
         int first_ind = (cell_id * NUM_SURFACES + surf_id) * ncg;
         it = _edge_corner_currents.find(first_ind);
@@ -452,7 +456,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
 
-        omp_unset_lock(&_cell_locks[cell_id]);
+        //FIXME omp_unset_lock(&_cell_locks[cell_id]);
       }
     }
     else {
@@ -471,7 +475,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
 
       /* Increment currents */
       if (surf_id < NUM_FACES) {
-        _surface_currents->incrementValues
+        //FIXME
+        _old_surface_currents->incrementValues
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
