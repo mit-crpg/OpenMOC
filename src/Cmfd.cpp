@@ -356,7 +356,6 @@ void Cmfd::setDomainIndexes(int idx_x, int idx_y, int idx_z) {
     _domain_communicator->_MPI_cart = _geometry->getMPICart();
   }
 
-  _domain_communicator->stop = false;
   _domain_communicator->_domain_idx_x = idx_x;
   _domain_communicator->_domain_idx_y = idx_y;
   _domain_communicator->_domain_idx_z = idx_z;
@@ -386,10 +385,12 @@ void Cmfd::collapseXS() {
                "cross-sections");
 
   /* Split vertex and edge currents to side surfaces */
-  //FIXME BOGO
-  //splitVertexCurrents();
-  //splitEdgeCurrents();
-  //communicateSplits();
+  /* FIXME
+  splitVertexCurrents();
+  splitEdgeCurrents();
+  if (_geometry->isDomainDecomposed())
+    communicateSplits();
+  */
 
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
     for (int e=0; e < _num_cmfd_groups; e++) {
@@ -565,23 +566,25 @@ void Cmfd::collapseXS() {
   }
 
   /* Loop over boundary CMFD cells and set cross sections */
+  if (_geometry->isDomainDecomposed()) {
 #pragma omp parallel for
-  for (int s=0; s < NUM_FACES; s++) {
+    for (int s=0; s < NUM_FACES; s++) {
 
-    /* Loop over all CMFD cells on the current surface */
-    std::map<int, int>::iterator it;
-    for (it=_boundary_index_map.at(s).begin();
-        it != _boundary_index_map.at(s).end(); ++it) {
+      /* Loop over all CMFD cells on the current surface */
+      std::map<int, int>::iterator it;
+      for (it=_boundary_index_map.at(s).begin();
+          it != _boundary_index_map.at(s).end(); ++it) {
 
-      int idx = it->second;
+        int idx = it->second;
 
-      /* Loop over CMFD coarse energy groups */
-      for (int e = 0; e < _num_cmfd_groups; e++) {
+        /* Loop over CMFD coarse energy groups */
+        for (int e = 0; e < _num_cmfd_groups; e++) {
 
-        /* Load tallies at this cell and energy group */
-        FP_PRECISION vol_tally = _boundary_volumes[s][idx][0];
-        FP_PRECISION rxn_tally = _boundary_reaction[s][idx][e];
-        _old_boundary_flux[s][idx][e] = rxn_tally / vol_tally;
+          /* Load tallies at this cell and energy group */
+          FP_PRECISION vol_tally = _boundary_volumes[s][idx][0];
+          FP_PRECISION rxn_tally = _boundary_reaction[s][idx][e];
+          _old_boundary_flux[s][idx][e] = rxn_tally / vol_tally;
+        }
       }
     }
   }
@@ -683,9 +686,6 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   /* If surface is an interface or PERIODIC BC, use finite differencing */
   else {
 
-    /* Get the currents in cells touching this boundary */
-    FP_PRECISION** boundary_currents = _boundary_surface_currents[surface];
-
     /* Get the surface index for the surface in the neighboring cell */
     int surface_next = (surface + NUM_FACES / 2) % NUM_FACES;
 
@@ -697,6 +697,10 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     int cmfd_cell_next = getLocalCMFDCell(global_cmfd_cell_next);
     FP_PRECISION dif_coef_next;
     if (cmfd_cell_next == -1) {
+
+      /* Get the currents in cells touching this boundary */
+      FP_PRECISION** boundary_currents = _boundary_surface_currents[surface];
+
       int idx = _boundary_index_map.at(surface)[global_cmfd_cell_next];
       dif_coef_next = _boundary_diffusion[surface][idx][group] /
                 _boundary_reaction[surface][idx][group];
@@ -1785,9 +1789,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
   int ns = NUM_SURFACES;
 
   if (vertex == SURFACE_X_MIN_Y_MIN_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
 
     if (x == 0) {
       if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
@@ -1819,9 +1823,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
       surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MIN);
   }
   else if (vertex == SURFACE_X_MIN_Y_MIN_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
 
     if (x == 0) {
       if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
@@ -1853,9 +1857,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
       surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MIN);
   }
   else if (vertex == SURFACE_X_MIN_Y_MAX_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MIN);
 
     if (x == 0) {
       if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
@@ -1887,9 +1891,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
       surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MAX);
   }
   else if (vertex == SURFACE_X_MIN_Y_MAX_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MAX);
 
     if (x == 0) {
       if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
@@ -1921,9 +1925,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
       surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MAX);
   }
   else if (vertex == SURFACE_X_MAX_Y_MIN_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
 
     if (x == _num_x - 1) {
       if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
@@ -1955,9 +1959,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
       surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MAX_Y_MIN);
   }
   else if (vertex == SURFACE_X_MAX_Y_MIN_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MAX);
 
     if (x == _num_x - 1) {
       if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
@@ -1989,9 +1993,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
       surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MAX_Y_MIN);
   }
   else if (vertex == SURFACE_X_MAX_Y_MAX_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MIN);
+    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MIN);
 
     if (x == _num_x - 1) {
       if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
@@ -2023,9 +2027,9 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
       surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MAX_Y_MAX);
   }
   else if (vertex == SURFACE_X_MAX_Y_MAX_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MAX);
+    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MAX);
+    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MAX);
 
     if (x == _num_x - 1) {
       if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
@@ -3129,28 +3133,32 @@ void Cmfd::zeroCurrents() {
   _surface_currents->clear();
 
   // Clear boundary currents
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
 #pragma omp parallel for
-  for (int s=0; s < NUM_FACES; s++) {
+    for (int s=0; s < NUM_FACES; s++) {
 
-    // Loop over all CMFD cells on the current surface
-    std::map<int, int>::iterator it;
-    for (it=_boundary_index_map.at(s).begin();
-        it != _boundary_index_map.at(s).end(); ++it) {
+      // Loop over all CMFD cells on the current surface
+      std::map<int, int>::iterator it;
+      for (it=_boundary_index_map.at(s).begin();
+          it != _boundary_index_map.at(s).end(); ++it) {
 
-      int idx = it->second;
+        int idx = it->second;
 
-      // Loop over CMFD coarse energy groups
-      for (int e = 0; e < _num_cmfd_groups; e++) {
+        // Loop over CMFD coarse energy groups
+        for (int e = 0; e < _num_cmfd_groups; e++) {
 
-        // Loop over cell faces
-        for (int f=0; f < NUM_FACES; f++) {
-          _boundary_surface_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
-          _off_domain_split_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
-          _received_split_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
+          // Loop over cell faces
+          for (int f=0; f < NUM_FACES; f++) {
+            _boundary_surface_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
+            _off_domain_split_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
+            _received_split_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
+          }
         }
       }
     }
   }
+#endif
 }
 
 
@@ -4041,18 +4049,8 @@ void Cmfd::communicateSplits() {
 			// Post send
       MPI_Isend(_send_split_currents_array[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
-      /*
-			//FIXME BOGO DEBUG
-      if (dest >= 0) {
-        std::cout << "Sending to " << dest << ":";
-        for (int j=0; j < size; j++) {
-          std::cout << " " << _send_data_by_surface[surf][j];
-        }
-        std::cout << std::endl;
-      }
-      */
 
-			// Post receive
+      // Post receive
 			MPI_Irecv(_receive_split_currents_array[op_surf], size, precision,
 					source, 0, _domain_communicator->_MPI_cart, &requests[2*surf+1]);
 		}

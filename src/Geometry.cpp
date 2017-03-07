@@ -2356,15 +2356,10 @@ void Geometry::initializeCmfd() {
   offset.setZ(min_z + (max_z - min_z)/2.0);
 
   _cmfd->initializeLattice(&offset);
+  _cmfd->setGeometry(this);
 
 #ifdef MPIx
   if (_domain_decomposed) {
-    _cmfd->setGeometry(this);
-       //FIXME
-    /*
-    _cmfd->setNumDomains(1,1,1);
-    _cmfd->setDomainIndexes(0,0,0);
-    */
     _cmfd->setNumDomains(_num_domains_x, _num_domains_y, _num_domains_z);
     _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
 
