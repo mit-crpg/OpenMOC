@@ -172,11 +172,11 @@ Cmfd::~Cmfd() {
   int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
   if (_domain_communicator != NULL) {
     for (int rb=0; rb<2; rb++) {
-      for (int nsc=0; nsc < num_cells_local * _num_cmfd_groups; nsc++) {
-        delete [] _domain_communicator->indexes[rb][nsc];
-        delete [] _domain_communicator->domains[rb][nsc];
-        delete [] _domain_communicator->coupling_coeffs[rb][nsc];
-        delete [] _domain_communicator->fluxes[rb][nsc];
+      for (int f=0; f < NUM_FACES; f++) {
+        delete [] _domain_communicator->indexes[rb][f];
+        delete [] _domain_communicator->domains[rb][f];
+        delete [] _domain_communicator->coupling_coeffs[rb][f];
+        delete [] _domain_communicator->fluxes[rb][f];
       }
       delete [] _domain_communicator->num_connections[rb];
       delete [] _domain_communicator->indexes[rb];

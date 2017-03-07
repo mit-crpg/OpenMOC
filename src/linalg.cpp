@@ -225,7 +225,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
       int offset = 0;
       getCouplingTerms(comm, color, coupling_sizes, coupling_indexes,
                        coupling_coeffs, coupling_fluxes, x, offset);
-//#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
       for (int iz=0; iz < num_z; iz++) {
         for (int iy=0; iy < num_y; iy++) {
           for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
