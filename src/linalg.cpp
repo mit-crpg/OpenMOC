@@ -118,7 +118,6 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                "%3.2e", iter, k_eff, residual);
 
     /* Check for convergence */
-    //FIXME
     if ((residual < tol || residual / initial_residual < 0.01)
            && iter > MIN_LINALG_POWER_ITERATIONS) {
       if (convergence_data != NULL) {
@@ -215,38 +214,6 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   FP_PRECISION** coupling_coeffs = NULL;
   FP_PRECISION** coupling_fluxes = NULL;
 
-  //FIXME REMOVE
-  /*
-  if (comm->stop) {
-    for (int c=0; c < 2; c++) {
-      int offset;
-      getCouplingTerms(comm, c, coupling_sizes, coupling_indexes,
-                       coupling_coeffs, coupling_fluxes, x, offset);
-      for (int iz=0; iz < num_z; iz++) {
-        for (int iy=0; iy < num_y; iy++) {
-          for (int ix=(iy+iz+c+offset)%2; ix < num_x; ix+=2) {
-          //for (int ix=0; ix < num_x; ix++) {
-            for (int g=0; g < num_groups; g++) {
-              int color = c;
-              int row = num_groups * ((iz*num_y + iy)*num_x + ix) + g;
-              for (int i = 0; i < coupling_sizes[row]; i++) {
-                int idx = coupling_indexes[row][i] * num_groups + g;
-                int domain = comm->domains[color][row][i];
-                FP_PRECISION flux = coupling_fluxes[idx][domain];
-                printf("COUPLING at color %d, row %d, and idx %d = %6.4f\n",
-                       color, row, idx, coupling_coeffs[row][i]);
-              }
-            }
-          }
-        }
-      }
-    }
-    X->printString();
-    M->printString();
-    A->printString();
-  }
-  */
-
   double initial_residual = 0;
   while (iter < MAX_LINEAR_SOLVE_ITERATIONS) {
 
@@ -275,10 +242,6 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                 // Get the column index
                 int col = JA[i];
 
-                /*
-                printf("At %d (%d, %d, %d) grp %d subtracting %6.4f x %6.4f / %6.4f\n",
-                       row, ix, iy, iz, g, a[i], x[col], DIAG[row]);
-                       */
                 if (row == col)
                   x[row] += SOR_factor * b[row] / DIAG[row];
                 else
@@ -293,16 +256,6 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                   FP_PRECISION flux = coupling_fluxes[domain][idx];
                   x[row] -= SOR_factor * coupling_coeffs[row][i] * flux
                             / DIAG[row];
-                  /*
-                  printf("xAt %d (%d, %d, %d) grp %d subtracting %6.4f x %6.4f / "
-                       "%6.4f\n INDEXES = (%d, %d)\n", row,
-                       ix, iy, iz, g, coupling_coeffs[row][i], flux,
-                       DIAG[row], idx, domain);
-                  std::cout << "Fluxes:" << std::endl;
-                  for (int ii=0; ii < M->getNumRows(); ii++)
-                    std::cout << coupling_fluxes[domain][NUM_FACES] << " ";
-                  std::cout << std::endl;
-                  */
                 }
               }
             }
@@ -315,7 +268,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     matrixMultiplication(M, X, &new_source);
 
     // Compute the residual
-    residual = computeRMSE(&new_source, &old_source, true, 1, comm); //FIXME
+    residual = computeRMSE(&new_source, &old_source, true, 1, comm);
     if (iter == 0) {
       if (convergence_data != NULL)
         convergence_data->linear_res_end = residual;
@@ -479,13 +432,8 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           if (flag == 0)
             round_complete = false;
           else
-            for (int i=0; i < sizes[surf]; i++) {
-              /*
-              std::cout << "DOMAIN " << surf << " putting " <<
-                  comm->buffer[surf][sizes[surf]+i] << " at " << i << std::endl;
-              */
+            for (int i=0; i < sizes[surf]; i++)
               coupling_fluxes[surf][i] = comm->buffer[surf][sizes[surf]+i];
-            }
         }
       }
     }
