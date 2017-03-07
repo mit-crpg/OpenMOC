@@ -425,6 +425,11 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   if (tally_current) {
 
     //FIXME cell_id = getLocalCMFDCell(cell_id);
+    int local_cell_id = getLocalCMFDCell(cell_id);
+    if (local_cell_id == -1) {
+      std::cout << "INVALID TALLY" << std::endl;
+      exit(1);
+    }
 
     if (_solve_3D) {
       FP_PRECISION wgt = _quadrature->getWeightInline(azim_index, polar_index);
@@ -442,6 +447,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         //FIXME
         _old_surface_currents->incrementValues
             (cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+        _surface_currents->incrementValues
+            (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
 

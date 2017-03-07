@@ -448,8 +448,6 @@ void Cmfd::collapseXS() {
     }
   }
 
-
-
 #pragma omp parallel
   {
 
@@ -649,6 +647,82 @@ void Cmfd::collapseXS() {
       */
     }
   }
+
+  //FIXME: test currents
+  for (int z=0; z < _num_z; z++) {
+    for (int y=0; y < _num_y; y++) {
+      for (int x=0; x < _num_x; x++) {
+
+        int global_id = (z * _num_y + y) * _num_x + x;
+        int local_id = getLocalCMFDCell(global_id);
+        if (local_id != -1) {
+          printf("[LOCAL] (%d, %d, %d)\n", x, y, z);
+          for (int s=0; s < NUM_FACES; s++) {
+            std::cout << "old Face " << s << ":";
+            for (int e=0; e <_num_cmfd_groups; e++) {
+              double old_val =
+                _old_surface_currents->getValue(global_id, s*_num_cmfd_groups+e);
+              std::cout << " " << old_val;
+            }
+            std::cout << std::endl << "new Face " << s << ":";
+            for (int e=0; e <_num_cmfd_groups; e++) {
+              double new_val =
+                _surface_currents->getValue(local_id, s*_num_cmfd_groups+e);
+              std::cout << " " << new_val;
+            }
+            std::cout << std::endl;
+            for (int e=0; e <_num_cmfd_groups; e++) {
+              double old_val =
+                _old_surface_currents->getValue(global_id, s*_num_cmfd_groups+e);
+              double new_val =
+                _surface_currents->getValue(local_id, s*_num_cmfd_groups+e);
+              if (fabs(new_val - old_val) > 1e-10)
+                std::cout << "ERROR ------------ MISMATCH on SURFACE " << s
+                  << ", GROUP " << e << std::endl;
+            }
+          }
+        }
+        else {
+          for (int f=0; f < NUM_FACES; f++) {
+            std::map<int, int>::iterator it =
+              _boundary_index_map.at(f).find(global_id);
+            if (it != _boundary_index_map.at(f).end()) {
+
+            //FIXME VOODOO
+              printf("[GLOBAL] (%d, %d, %d) on face %d\n", x, y, z, f);
+              for (int s=0; s < NUM_FACES; s++) {
+                std::cout << "old Face " << s << ":";
+                for (int e=0; e <_num_cmfd_groups; e++) {
+                  double old_val =
+                    _old_surface_currents->getValue(global_id, s*_num_cmfd_groups+e);
+                  std::cout << " " << old_val;
+                }
+                std::cout << std::endl << "new Face " << s << ":";
+                for (int e=0; e <_num_cmfd_groups; e++) {
+                  int idx = it->second;
+                  double new_val =
+                    _boundary_surface_currents[f][idx][s*_num_cmfd_groups+e];
+                  std::cout << " " << new_val;
+                }
+                std::cout << std::endl;
+                for (int e=0; e <_num_cmfd_groups; e++) {
+                  double old_val =
+                    _old_surface_currents->getValue(global_id, s*_num_cmfd_groups+e);
+                  int idx = it->second;
+                  double new_val =
+                    _boundary_surface_currents[f][idx][s*_num_cmfd_groups+e];
+                  if (fabs(new_val - old_val) > 1e-10)
+                    std::cout << "ERROR ------------ MISMATCH on SURFACE " << s
+                      << ", GROUP " << e << std::endl;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  exit(1);
 
   /* Calculate (local) old fluxes and set volumes */
 #pragma omp parallel for
@@ -3406,15 +3480,19 @@ void Cmfd::initialize() {
       }
 
       //TODO: document, clean
-      int storage_per_cell = ((3 + 2*NUM_FACES) * ncg + 1);
+      int storage_per_cell = ((2 + NUM_FACES) * ncg + 1);
       int num_per_side[3] = {_local_num_y * _local_num_z,
                           _local_num_x * _local_num_z,
                           _local_num_x * _local_num_y};
 
-      int comm_data_size = 0;
+      int num_boundary_cells = 0;
       for (int s=0; s < NUM_FACES; s++)
-        comm_data_size += num_per_side[s % 3] * storage_per_cell;
-      _inter_domain_data = new FP_PRECISION[comm_data_size];
+        num_boundary_cells += num_per_side[s % 3];
+
+      int internal = ncg * num_boundary_cells;
+      int comm_data_size = storage_per_cell * num_boundary_cells;
+
+      _inter_domain_data = new FP_PRECISION[comm_data_size + internal];
       _send_domain_data = new FP_PRECISION[comm_data_size];
 
       _domain_data_by_surface = new FP_PRECISION*[NUM_FACES];
@@ -3427,6 +3505,7 @@ void Cmfd::initialize() {
       _boundary_surface_currents = new FP_PRECISION**[NUM_FACES];
 
       int start = 0;
+      int ext = 0;
       for (int s=0; s < NUM_FACES; s++) {
         _domain_data_by_surface[s] = &_inter_domain_data[start];
         _send_data_by_surface[s] = &_send_domain_data[start];
@@ -3439,8 +3518,10 @@ void Cmfd::initialize() {
           _boundary_volumes[s][idx] = &_inter_domain_data[start];
           _boundary_reaction[s][idx] = &_inter_domain_data[start+1];
           _boundary_diffusion[s][idx] = &_inter_domain_data[start+ncg+1];
-          _old_boundary_flux[s][idx] = &_inter_domain_data[start+2*ncg+1];
-          _boundary_surface_currents[s][idx] = &_inter_domain_data[start+3*ncg+1];
+          _boundary_surface_currents[s][idx] =
+            &_inter_domain_data[start+2*ncg+1];
+          _old_boundary_flux[s][idx] = &_inter_domain_data[comm_data_size+ext];
+          ext += ncg;
           start += storage_per_cell;
         }
       }
@@ -3475,46 +3556,58 @@ void Cmfd::initialize() {
       _boundary_index_map.resize(NUM_FACES); // FIXME FIXME FIXME
 
       // X
+      int global_ind;
       for (int y=0; y < _local_num_y; y++) {
         for (int z=0; z < _local_num_z; z++) {
-          int global_ind = ((z_start + z) * _num_y + y + y_start) *
+          if (x_start - 1 >= 0) {
+            global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start - 1;
-
-          _boundary_index_map.at(SURFACE_X_MIN)[global_ind] = z * _local_num_y
+            _boundary_index_map.at(SURFACE_X_MIN)[global_ind] = z * _local_num_y
                                                               + y;
-          global_ind = ((z_start + z) * _num_y + y + y_start) *
+          }
+          if (x_start + _local_num_x < _num_x) {
+            global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start + _local_num_x;
 
-          _boundary_index_map.at(SURFACE_X_MAX)[global_ind] = z * _local_num_y
+            _boundary_index_map.at(SURFACE_X_MAX)[global_ind] = z * _local_num_y
                                                                 + y;
+          }
         }
       }
 
       // Y
       for (int x=0; x < _local_num_x; x++) {
         for (int z=0; z < _local_num_z; z++) {
-          int global_ind = ((z_start + z) * _num_y + y_start-1) *
+          if (y_start - 1 >= 0) {
+            global_ind = ((z_start + z) * _num_y + y_start-1) *
                             _num_x + x + x_start;
-          _boundary_index_map.at(SURFACE_Y_MIN)[global_ind] = z * _local_num_x
-                                                              + x;
-          global_ind = ((z_start + z) * _num_y + _local_num_y + y_start)
-                        * _num_x + x + x_start;
-          _boundary_index_map.at(SURFACE_Y_MAX)[global_ind] = z * _local_num_x
-                                                              + x;
+            _boundary_index_map.at(SURFACE_Y_MIN)[global_ind] = z * _local_num_x
+                                                                + x;
+          }
+          if (y_start + _local_num_y < _num_y) {
+            global_ind = ((z_start + z) * _num_y + _local_num_y + y_start)
+                          * _num_x + x + x_start;
+            _boundary_index_map.at(SURFACE_Y_MAX)[global_ind] = z * _local_num_x
+                                                                + x;
+          }
         }
       }
 
       // Z
       for (int x=0; x < _local_num_x; x++) {
         for (int y=0; y < _local_num_y; y++) {
-          int global_ind = ((z_start-1) * _num_y + y + y_start) *
+          if (z_start - 1 >= 0) {
+            global_ind = ((z_start-1) * _num_y + y + y_start) *
                           _num_x + x + x_start;
-          _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = y * _local_num_x
-                                                              + x;
-          global_ind = ((_local_num_z + z_start) * _num_y + y + y_start) *
-                          _num_x + x + x_start;
-          _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = y * _local_num_x
-                                                              + x;
+            _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = y * _local_num_x
+                                                                + x;
+          }
+          if (z_start + _local_num_z < _num_z) {
+            global_ind = ((_local_num_z + z_start) * _num_y + y + y_start) *
+                            _num_x + x + x_start;
+            _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = y * _local_num_x
+                                                                + x;
+          }
         }
       }
     }
@@ -3911,12 +4004,8 @@ void Cmfd::packBuffers() {
               _send_reaction[s][idx][e] = _reaction_tally[cell_id][e];
               _send_diffusion[s][idx][e] = _diffusion_tally[cell_id][e];
               for (int f=0; f < NUM_FACES; f++) {
-                int wut = f+1;
-                //FIXME HERE
-                /*
                 _send_currents[s][idx][f*_num_cmfd_groups + e] =
                   _surface_currents->getValue(cell_id, f*_num_cmfd_groups+e);
-                  */
               }
             }
             current_idx[s]++;
@@ -3958,7 +4047,7 @@ void Cmfd::ghostCellExchange() {
 	else
 		precision = MPI_DOUBLE;
 
-  int storage_per_cell = ((3 + 2*NUM_FACES) * _num_cmfd_groups + 1);
+  int storage_per_cell = ((2 + NUM_FACES) * _num_cmfd_groups + 1);
 
   //FIXME: FOR CURRENT CORNERS, WE NEED TO ADD CONTRIBUTIONS, rather than simple overwrite
 	int sizes[NUM_FACES];
@@ -4073,7 +4162,6 @@ void Cmfd::ghostCellExchange() {
 			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
 
 			// Post send
-      /*
       if (source >= 0) {
         std::cout << "Received from " << source << ":";
         for (int j=0; j < size; j++) {
@@ -4089,7 +4177,6 @@ void Cmfd::ghostCellExchange() {
           std::cout << std::endl;
         }
       }
-      */
 		}
 	}
 }
