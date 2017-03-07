@@ -213,7 +213,7 @@ private:
   /** Axial interpolation constants */
   std::vector<double*> _axial_interpolants;
 
-  //FIXME
+  //TODO: document
   ConvergenceData* _convergence_data;
   DomainCommunicator* _domain_communicator;
   FP_PRECISION* _inter_domain_data;
@@ -231,7 +231,7 @@ private:
   /* The number of on-domain cells in the z-direction */
   int _local_num_z;
 
-  //FIXME
+  //TODO: document
   long _total_tally_size;
   FP_PRECISION* _tally_memory;
   FP_PRECISION** _reaction_tally;
@@ -272,9 +272,9 @@ private:
   FP_PRECISION getSurfaceWidth(int surface);
   FP_PRECISION getPerpendicularSurfaceWidth(int surface);
   int getSense(int surface);
-  int getLocalCMFDCell(int cmfd_cell); //FIXME
-  int getGlobalCMFDCell(int cmfd_cell); //FIXME
-  int getCellColor(int cmfd_cell); //FIXME
+  int getLocalCMFDCell(int cmfd_cell); //TODO: optimize, document
+  int getGlobalCMFDCell(int cmfd_cell); //TODO: optimize, document
+    int getCellColor(int cmfd_cell); //TODO: optimize, document
   void packBuffers();
   void ghostCellExchange();
   void communicateSplits();
@@ -342,7 +342,7 @@ public:
   void setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim);
   void setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                         int num_polar);
-  //FIXME
+  //TODO: clean, document
 #ifdef MPIx
   void setNumDomains(int num_x, int num_y, int num_z);
   void setDomainIndexes(int idx_x, int idx_y, int idx_z);
@@ -381,9 +381,7 @@ inline int Cmfd::getCmfdGroup(int group) {
  *        intersects. If there is no 2D intersection, -1 should be input.
  */
 inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
-  /* FIXME!!!!!!!!!! */
   int global_cell_id = getGlobalCMFDCell(cell_id);
-
   return _lattice->getLatticeSurfaceOTF(global_cell_id, z, surface_2D);
 }
 

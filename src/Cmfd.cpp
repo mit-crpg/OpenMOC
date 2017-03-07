@@ -14,7 +14,7 @@ Cmfd::Cmfd() {
   _geometry = NULL;
   _materials = NULL;
 
-  //FIXME
+  /* Communication structs */
   _convergence_data = NULL;
   _domain_communicator = NULL;
 
@@ -1574,25 +1574,7 @@ void Cmfd::splitVertexCurrents() {
     std::map<int, FP_PRECISION>::iterator it;
     int cell, surface;
 
-    //TODO: clean
-    int x_start = 0;
-    int y_start = 0;
-    int z_start = 0;
-    int x_end = _num_x;
-    int y_end = _num_y;
-    int z_end = _num_z;
-    if (_geometry->isDomainDecomposed()) {
-      if (_domain_communicator != NULL) {
-        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-        x_end = x_start + _local_num_x;
-        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-        y_end = y_start + _local_num_y;
-        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-        z_end = z_start + _local_num_z;
-      }
-    }
 
-    //FIXME LOOP
 #pragma omp for
     for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
@@ -1682,26 +1664,6 @@ void Cmfd::splitEdgeCurrents() {
     std::map<int, FP_PRECISION>::iterator it;
     int cell, surface;
 
-    //TODO: clean
-    int x_start = 0;
-    int y_start = 0;
-    int z_start = 0;
-    int x_end = _num_x;
-    int y_end = _num_y;
-    int z_end = _num_z;
-    if (_geometry->isDomainDecomposed()) {
-      if (_domain_communicator != NULL) {
-        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-        x_end = x_start + _local_num_x;
-        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-        y_end = y_start + _local_num_y;
-        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-        z_end = z_start + _local_num_z;
-      }
-    }
-
-
-    //FIXME LOOP
 #pragma omp for
     for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
@@ -2371,7 +2333,7 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
  * @param CMFD cell surface ID to look across for neighboring cell
  * @return neighboring CMFD cell ID
  */
-//FIXME: HEADER
+//TODO: fix HEADER
 int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
 
   int cell_next = -1;
@@ -3727,64 +3689,6 @@ void Cmfd::checkNeutronBalance() {
 }
 
 
-
-//TODO: REMOVE
-int Cmfd::getLocalCMFDCell(int cmfd_cell) {
-
-  int x_start = 0;
-  int y_start = 0;
-  int z_start = 0;
-  int x_end = _num_x;
-  int y_end = _num_y;
-  int z_end = _num_z;
-  if (_geometry->isDomainDecomposed()) {
-    if (_domain_communicator != NULL) {
-      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-      x_end = x_start + _local_num_x;
-      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-      y_end = y_start + _local_num_y;
-      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-      z_end = z_start + _local_num_z;
-    }
-  }
-
-  int ix = (cmfd_cell % (_num_x * _num_y)) % _num_x;
-  int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
-  int iz = cmfd_cell / (_num_x * _num_y);
-
-  int local_cmfd_cell;
-  if (ix < x_start || ix >= x_end || iy < y_start || iy >= y_end ||
-      iz < z_start || iz >= z_end)
-    local_cmfd_cell = -1;
-  else
-    local_cmfd_cell = ((iz - z_start) * _local_num_y + iy - y_start) * _local_num_x
-                      + ix - x_start;
-  return local_cmfd_cell;
-}
-
-//TODO: REMOVE
-int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
-
-  int x_start = 0;
-  int y_start = 0;
-  int z_start = 0;
-  if (_geometry->isDomainDecomposed()) {
-    if (_domain_communicator != NULL) {
-      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-    }
-  }
-
-  int ix = cmfd_cell % _local_num_x;
-  int iy = (cmfd_cell % (_local_num_x * _local_num_y)) / _local_num_x;
-  int iz = cmfd_cell / (_local_num_x * _local_num_y);
-
-  return ((iz + z_start) * _num_y + iy + y_start) * _num_x
-                + ix + x_start;
-}
-
-
 //TODO: REMOVE
 int Cmfd::getCellColor(int cmfd_cell) {
   int ix = cmfd_cell % _num_x;
@@ -3864,7 +3768,6 @@ void Cmfd::ghostCellExchange() {
 
   int storage_per_cell = ((2 + NUM_FACES) * _num_cmfd_groups + 1);
 
-  //FIXME: FOR CURRENT CORNERS, WE NEED TO ADD CONTRIBUTIONS, rather than simple overwrite
 	int sizes[NUM_FACES];
 	for (int coord=0; coord < 3; coord++) {
 		for (int d=0; d<2; d++) {
@@ -3902,16 +3805,6 @@ void Cmfd::ghostCellExchange() {
 			// Post send
       MPI_Isend(_send_data_by_surface[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
-      /*
-			//FIXME DEBUG
-      if (dest >= 0) {
-        std::cout << "Sending to " << dest << ":";
-        for (int j=0; j < size; j++) {
-          std::cout << " " << _send_data_by_surface[surf][j];
-        }
-        std::cout << std::endl;
-      }
-      */
 
 			// Post receive
 			MPI_Irecv(_domain_data_by_surface[op_surf], size, precision,
@@ -3999,7 +3892,7 @@ void Cmfd::ghostCellExchange() {
 }
 
 
-//FIXME
+//TODO: document
 void Cmfd::communicateSplits() {
 
 	MPI_Request requests[2*NUM_FACES];
@@ -4084,7 +3977,7 @@ void Cmfd::communicateSplits() {
 }
 
 
-//FIXME
+//TODO: document
 void Cmfd::unpackSplitCurrents() {
 
   int current_idx[6] = {0,0,0,0,0,0};
@@ -4126,3 +4019,62 @@ void Cmfd::unpackSplitCurrents() {
     }
   }
 }
+
+
+//TODO: REMOVE
+int Cmfd::getLocalCMFDCell(int cmfd_cell) {
+
+  int x_start = 0;
+  int y_start = 0;
+  int z_start = 0;
+  int x_end = _num_x;
+  int y_end = _num_y;
+  int z_end = _num_z;
+  if (_geometry->isDomainDecomposed()) {
+    if (_domain_communicator != NULL) {
+      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+      x_end = x_start + _local_num_x;
+      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+      y_end = y_start + _local_num_y;
+      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+      z_end = z_start + _local_num_z;
+    }
+  }
+
+  int ix = (cmfd_cell % (_num_x * _num_y)) % _num_x;
+  int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
+  int iz = cmfd_cell / (_num_x * _num_y);
+
+  int local_cmfd_cell;
+  if (ix < x_start || ix >= x_end || iy < y_start || iy >= y_end ||
+      iz < z_start || iz >= z_end)
+    local_cmfd_cell = -1;
+  else
+    local_cmfd_cell = ((iz - z_start) * _local_num_y + iy - y_start) * _local_num_x
+                      + ix - x_start;
+  return local_cmfd_cell;
+}
+
+
+//TODO: REMOVE
+int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
+
+  int x_start = 0;
+  int y_start = 0;
+  int z_start = 0;
+  if (_geometry->isDomainDecomposed()) {
+    if (_domain_communicator != NULL) {
+      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
+      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
+      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+    }
+  }
+
+  int ix = cmfd_cell % _local_num_x;
+  int iy = (cmfd_cell % (_local_num_x * _local_num_y)) / _local_num_x;
+  int iz = cmfd_cell / (_local_num_x * _local_num_y);
+
+  return ((iz + z_start) * _num_y + iy + y_start) * _num_x
+                + ix + x_start;
+}
+
