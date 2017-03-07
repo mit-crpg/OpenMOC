@@ -222,9 +222,7 @@ private:
 
   //FIXME
   long _total_tally_size;
-  long _total_tally_dfd_size;
   FP_PRECISION* _tally_memory;
-  FP_PRECISION* _tally_dfd_memory;
   FP_PRECISION** _reaction_tally;
   FP_PRECISION** _volume_tally;
   FP_PRECISION** _diffusion_tally;
@@ -411,12 +409,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
   /* Tally current if necessary */
   if (tally_current) {
 
-    //FIXME cell_id = getLocalCMFDCell(cell_id);
     int local_cell_id = getLocalCMFDCell(cell_id);
-    if (local_cell_id == -1) {
-      std::cout << "INVALID TALLY" << std::endl;
-      exit(1);
-    }
 
     if (_solve_3D) {
       FP_PRECISION wgt = _quadrature->getWeightInline(azim_index, polar_index);
@@ -436,9 +429,9 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
       }
       else {
 
-        //FIXME omp_set_lock(&_cell_locks[cell_id]);
+        omp_set_lock(&_cell_locks[local_cell_id]);
 
-        int first_ind = (cell_id * NUM_SURFACES + surf_id) * ncg;
+        int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
         it = _edge_corner_currents.find(first_ind);
         if (it == _edge_corner_currents.end())
           for (int g=0; g < ncg; g++)
@@ -447,7 +440,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
 
-        //FIXME omp_unset_lock(&_cell_locks[cell_id]);
+        omp_unset_lock(&_cell_locks[local_cell_id]);
       }
     }
     else {
@@ -470,9 +463,9 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
-        omp_set_lock(&_cell_locks[cell_id]);
+        omp_set_lock(&_cell_locks[local_cell_id]);
 
-        int first_ind = (cell_id * NUM_SURFACES + surf_id) * ncg;
+        int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
         it = _edge_corner_currents.find(first_ind);
         if (it == _edge_corner_currents.end())
           for (int g=0; g < ncg; g++)
@@ -481,7 +474,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
 
-        omp_unset_lock(&_cell_locks[cell_id]);
+        omp_unset_lock(&_cell_locks[local_cell_id]);
       }
     }
   }

@@ -884,17 +884,12 @@ void Cmfd::rescaleFlux() {
   double old_source_sum = _old_source->getSum();
 #ifdef MPIx
   if (_domain_communicator != NULL) {
-    //FIXME
-    if (_domain_communicator->_num_domains_x *
-        _domain_communicator->_num_domains_y *
-        _domain_communicator->_num_domains_z > 1) {
     double temp_sum_new = new_source_sum;
     MPI_Allreduce(&temp_sum_new, &new_source_sum, 1, MPI_DOUBLE, MPI_SUM,
                   _domain_communicator->_MPI_cart);
     double temp_sum_old = old_source_sum;
     MPI_Allreduce(&temp_sum_old, &old_source_sum, 1, MPI_DOUBLE, MPI_SUM,
                   _domain_communicator->_MPI_cart);
-    }
   }
 #endif
   _new_flux->scaleByValue(1.0 / new_source_sum);
@@ -1352,14 +1347,14 @@ void Cmfd::allocateTallies() {
   int num_cells = _num_x * _num_y * _num_z;
   int local_num_cells = _local_num_x * _local_num_y * _local_num_z;
   int tally_size = local_num_cells * _num_cmfd_groups;
-  int _total_tally_dfd_size = 3 * tally_size;
-  _tally_dfd_memory = new FP_PRECISION[_total_tally_dfd_size];
+  int _total_tally_size = 3 * tally_size;
+  _tally_memory = new FP_PRECISION[_total_tally_size];
   FP_PRECISION** all_tallies[3];
   for (int t=0; t < 3; t++) {
     all_tallies[t] = new FP_PRECISION*[local_num_cells];
     for (int i=0; i < local_num_cells; i++) {
       int idx = i * _num_cmfd_groups + t * tally_size;
-      all_tallies[t][i] = &_tally_dfd_memory[idx];
+      all_tallies[t][i] = &_tally_memory[idx];
     }
   }
 
@@ -3251,7 +3246,6 @@ void Cmfd::initialize() {
       _boundary_reaction = new FP_PRECISION**[NUM_FACES];
       _boundary_diffusion = new FP_PRECISION**[NUM_FACES];
       _old_boundary_flux = new FP_PRECISION**[NUM_FACES];
-      //FIXME: Be weary of corner currents (adding out of bounds, uncommon)
       _boundary_surface_currents = new FP_PRECISION**[NUM_FACES];
 
       int start = 0;
@@ -3303,9 +3297,9 @@ void Cmfd::initialize() {
       int z_start = _domain_communicator->_domain_idx_z * _local_num_z;
       int z_end = z_start + _local_num_z;
 
-      _boundary_index_map.resize(NUM_FACES); // FIXME FIXME FIXME
+      _boundary_index_map.resize(NUM_FACES);
 
-      // X
+      /* Map connecting cells on x-surfaces */
       int global_ind;
       for (int y=0; y < _local_num_y; y++) {
         for (int z=0; z < _local_num_z; z++) {
@@ -3325,7 +3319,7 @@ void Cmfd::initialize() {
         }
       }
 
-      // Y
+      /* Map connecting cells on y-surfaces */
       for (int x=0; x < _local_num_x; x++) {
         for (int z=0; z < _local_num_z; z++) {
           if (y_start - 1 >= 0) {
@@ -3343,7 +3337,7 @@ void Cmfd::initialize() {
         }
       }
 
-      // Z
+      /* Map connecting cells on z-surfaces */
       for (int x=0; x < _local_num_x; x++) {
         for (int y=0; y < _local_num_y; y++) {
           if (z_start - 1 >= 0) {
@@ -3610,7 +3604,7 @@ void Cmfd::checkNeutronBalance() {
       double net_current = 0.0;
       for (int s = 0; s < NUM_FACES; s++) {
         int idx = s * _num_cmfd_groups + e;
-        int cmfd_cell_next = getCellNext(i, s); //FIXME
+        int cmfd_cell_next = getCellNext(i, s);
         int surface_next = (s + NUM_FACES / 2) % NUM_FACES;
         int idx_next = surface_next * _num_cmfd_groups + e;
         if (cmfd_cell_next == -1) {
@@ -3746,7 +3740,6 @@ void Cmfd::packBuffers() {
           found_surfaces[SURFACE_Z_MAX] = true;
         for (int s=0; s < NUM_FACES; s++) {
           if (found_surfaces[s]) {
-            //printf("Found surface %d at (%d, %d, %d)\n", s, x, y, z);
             int idx = current_idx[s];
             int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
             _send_volumes[s][idx][0] = _volume_tally[cell_id][0];
@@ -3764,14 +3757,6 @@ void Cmfd::packBuffers() {
       }
     }
   }
-  /*
-  for (int s=0; s < NUM_FACES; s++) {
-    std::cout << "Surface " << s << " Volumes:";
-    for (int i=0; i < current_idx[s]; i++)
-      std::cout << " " << _send_volumes[s][i][0];
-    std::cout << std::endl;
-  }
-  */
 }
 
 
@@ -3835,10 +3820,10 @@ void Cmfd::ghostCellExchange() {
 			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
 
 			// Post send
-			//FIXME DEBUG
       MPI_Isend(_send_data_by_surface[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
       /*
+			//FIXME DEBUG
       if (dest >= 0) {
         std::cout << "Sending to " << dest << ":";
         for (int j=0; j < size; j++) {
