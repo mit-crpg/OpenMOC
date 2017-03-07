@@ -68,7 +68,7 @@ private:
   /** The new source vector */
   Vector* _new_source;
 
-  //FIXME
+  /* Domain boundary communication buffers */
   FP_PRECISION*** _boundary_volumes;
   FP_PRECISION*** _boundary_reaction;
   FP_PRECISION*** _boundary_diffusion;
@@ -79,6 +79,13 @@ private:
   FP_PRECISION*** _send_reaction;
   FP_PRECISION*** _send_diffusion;
   FP_PRECISION*** _send_currents;
+
+  FP_PRECISION* _send_split_current_data;
+  FP_PRECISION* _receive_split_current_data;
+  FP_PRECISION** _send_split_currents_array;
+  FP_PRECISION** _receive_split_currents_array;
+  FP_PRECISION*** _off_domain_split_currents;
+  FP_PRECISION*** _received_split_currents;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
@@ -215,9 +222,13 @@ private:
   FP_PRECISION** _send_data_by_surface;
   std::vector<std::map<int, int> > _boundary_index_map;
 
-  //FIXME
+  /* The number of on-domain cells in the x-direction */
   int _local_num_x;
+
+  /* The number of on-domain cells in the y-direction */
   int _local_num_y;
+
+  /* The number of on-domain cells in the z-direction */
   int _local_num_z;
 
   //FIXME
@@ -266,6 +277,8 @@ private:
   int getCellColor(int cmfd_cell); //FIXME
   void packBuffers();
   void ghostCellExchange();
+  void communicateSplits();
+  void unpackSplitCurrents();
 
 public:
 
@@ -369,9 +382,9 @@ inline int Cmfd::getCmfdGroup(int group) {
  */
 inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
   /* FIXME!!!!!!!!!! */
-  cell_id = getGlobalCMFDCell(cell_id);
+  int global_cell_id = getGlobalCMFDCell(cell_id);
 
-  return _lattice->getLatticeSurfaceOTF(cell_id, z, surface_2D);
+  return _lattice->getLatticeSurfaceOTF(global_cell_id, z, surface_2D);
 }
 
 
