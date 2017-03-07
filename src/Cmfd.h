@@ -229,18 +229,6 @@ private:
   FP_PRECISION** _volume_tally;
   FP_PRECISION** _diffusion_tally;
   bool _tallies_allocated;
-#ifdef MPIx
-  FP_PRECISION* _tally_buffer;
-  FP_PRECISION* _currents_buffer;
-
-  int _num_domains_x;
-  int _num_domains_y;
-  int _num_domains_z;
-
-  int _domain_idx_x;
-  int _domain_idx_y;
-  int _domain_idx_z;
-#endif
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;

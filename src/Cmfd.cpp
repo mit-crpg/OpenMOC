@@ -166,13 +166,6 @@ Cmfd::~Cmfd() {
     delete [] _reaction_tally;
     delete [] _volume_tally;
     delete [] _diffusion_tally;
-
-#ifdef MPIx
-    if (_geometry->isDomainDecomposed()) {
-      delete [] _tally_buffer;
-      delete [] _currents_buffer;
-    }
-#endif
   }
 
   /* TODO: clean, document */
@@ -532,43 +525,6 @@ void Cmfd::collapseXS() {
       }
     }
   }
-
-  /* Reduce tallies across domains if necessary */
-#ifdef MPIx
-  MPI_Comm comm;
-  MPI_Datatype precision;
-  if (_geometry->isDomainDecomposed()) {
-
-    /* Retrieve MPI information */
-    comm = _geometry->getMPICart();
-    if (sizeof(FP_PRECISION) == 4)
-      precision = MPI_FLOAT;
-    else
-      precision = MPI_DOUBLE;
-
-    /* Start recording MPI communication time */
-    _timer->startTimer();
-
-    /* Communicate tallies for XS condensation */
-    long num_messages = _total_tally_size / CMFD_BUFFER_SIZE + 1;
-    for (int i=0; i < num_messages; i++) {
-      long min_idx = i * CMFD_BUFFER_SIZE;
-      long max_idx = (i+1) * CMFD_BUFFER_SIZE;
-      max_idx = std::min(max_idx, _total_tally_size);
-      int num_elements = max_idx - min_idx;
-      FP_PRECISION* send_array = &_tally_memory[i*CMFD_BUFFER_SIZE];
-      if (num_elements > 0)
-        MPI_Allreduce(send_array, _tally_buffer, num_elements,
-                      precision, MPI_SUM, comm);
-      for (int j=0; j < num_elements; j++)
-        _tally_memory[i*CMFD_BUFFER_SIZE+j] = _tally_buffer[j];
-    }
-
-    /* Tally MPI communication time */
-    _timer->stopTimer();
-    _timer->recordSplit("Total MPI communication time");
-  }
-#endif
 
   //TODO: clean
   int x_start = 0;
@@ -1394,40 +1350,6 @@ void Cmfd::allocateTallies() {
 
   /* Determine tally sizes */
   int num_cells = _num_x * _num_y * _num_z;
-  int integrated_tally_size = num_cells * _num_cmfd_groups;
-  int total_integrated_tally_size = 6 * integrated_tally_size;
-  int groupwise_tally_size = integrated_tally_size * _num_cmfd_groups;
-  int total_groupwise_tally_size = 2 * groupwise_tally_size;
-  _total_tally_size = total_integrated_tally_size +
-      total_groupwise_tally_size;
-
-  /* Allocate memory for tallies */
-  _tally_memory = new FP_PRECISION[_total_tally_size]; // FIXME MEM
-  FP_PRECISION** integrated_tallies[6];
-  for (int t=0; t<6; t++) {
-    integrated_tallies[t] = new FP_PRECISION*[num_cells];
-    for (int i=0; i < num_cells; i++) {
-      int idx = i*_num_cmfd_groups + t*integrated_tally_size;
-      integrated_tallies[t][i] = &_tally_memory[idx];
-    }
-  }
-  FP_PRECISION*** groupwise_tallies[2];
-  for (int t=0; t<2; t++) {
-    groupwise_tallies[t] = new FP_PRECISION**[num_cells];
-    for (int i=0; i < num_cells; i++) {
-      groupwise_tallies[t][i] = new FP_PRECISION*[_num_cmfd_groups];
-      for (int g=0; g < _num_cmfd_groups; g++) {
-        int idx = i*_num_cmfd_groups*_num_cmfd_groups + g*_num_cmfd_groups
-              + t*groupwise_tally_size + total_integrated_tally_size;
-        groupwise_tallies[t][i][g] = &_tally_memory[idx];
-      }
-    }
-  }
-
-  /* Assign tallies to allocated data */
-  _tallies_allocated = true;
-
-  /* Allocate memory for tallies */
   int local_num_cells = _local_num_x * _local_num_y * _local_num_z;
   int tally_size = local_num_cells * _num_cmfd_groups;
   int _total_tally_dfd_size = 3 * tally_size;
@@ -1446,14 +1368,6 @@ void Cmfd::allocateTallies() {
   _reaction_tally = all_tallies[1];
   _volume_tally = all_tallies[2];
   _tallies_allocated = true;
-
-  /* Create copy buffer of currents and tallies for domain decomposition */
-#ifdef MPIx
-  if (_geometry->isDomainDecomposed()) {
-    _tally_buffer = new FP_PRECISION[CMFD_BUFFER_SIZE];
-    _currents_buffer = new FP_PRECISION[CMFD_BUFFER_SIZE];
-  }
-#endif
 }
 
 
