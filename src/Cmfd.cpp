@@ -820,40 +820,9 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   _timer->startTimer();
 
   /* Solve the eigenvalue problem */
-  /*
-  std::cout << "BEFORE" << std::endl;
-  _new_flux->printString();
-  std::cout << "A....." << std::endl;
-  _A->printString();
-  if (_domain_communicator != NULL) {
-    for (int c = 0; c < 2; c++) {
-      int size = _local_num_x * _local_num_y * _local_num_z * _num_cmfd_groups;
-      for (int cg=0; cg < size; cg++) {
-        int ns = _domain_communicator->num_connections[c][cg];
-        for (int s=0; s < ns; s++) {
-          int idx = _domain_communicator->indexes[c][cg][s];
-          int domain = _domain_communicator->domains[c][cg][s];
-          std::cout << "Connection with domain " <<
-            domain << " at idx " << idx << " for color " << c << " and "
-            << "row " << cg << " = " <<
-            _domain_communicator->coupling_coeffs[c][cg][s] << std::endl;
-        }
-      }
-    }
-  }
-  std::cout << "M....." << std::endl;
-  _M->printString();
-  */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
                            _source_convergence_threshold, _SOR_factor,
                            _convergence_data, _domain_communicator);
-  /*
-  std::cout << "AFTER" << std::endl;
-  _new_flux->printString();
-  _surface_currents->printString();
-  if (moc_iteration > 0)
-    exit(0);
-    */
 
   /* Tally the CMFD solver time */
   _timer->stopTimer();
@@ -3833,60 +3802,6 @@ void Cmfd::ghostCellExchange() {
 				if (flag == 0)
 					round_complete = false;
 			}
-		}
-	}
-  for (int coord=0; coord < 3; coord++) {
-		for (int d=0; d<2; d++) {
-
-			int dir = 2*d-1;
-			int surf = coord + 3*d;
-      int op_surf = surf - 3*dir;
-			int source, dest;
-
-			// Figure out serialized buffer length for this face
-			int size = 0;
-      int current_storage = NUM_FACES * _num_cmfd_groups;
-			if (surf == SURFACE_X_MIN) {
-				size = _local_num_y * _local_num_z;
-			}
-			else if (surf == SURFACE_X_MAX) {
-				size = _local_num_y * _local_num_z;
-			}
-			else if (surf == SURFACE_Y_MIN) {
-				size = _local_num_x * _local_num_z;
-			}
-			else if (surf == SURFACE_Y_MAX) {
-				size = _local_num_x * _local_num_z;
-			}
-			else if (surf == SURFACE_Z_MIN) {
-				size = _local_num_x * _local_num_y;
-			}
-			else if (surf == SURFACE_Z_MAX) {
-				size = _local_num_x * _local_num_y;
-			}
-
-      size *= current_storage;
-
-			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
-
-			// Post send
-      /*
-      if (source >= 0) {
-        std::cout << "Received from " << source << ":";
-        for (int j=0; j < size; j++) {
-          std::cout << " " << _domain_data_by_surface[op_surf][j];
-        }
-        std::cout << std::endl << std::endl;
-
-        std::cout << "Currents on surface " << op_surf << std::endl;
-        for (int j=0; j < size / current_storage; j++) {
-          std::cout << "Cell " << j << ":";
-          for (int c=0; c < current_storage; c++)
-            std::cout << " " << _boundary_surface_currents[op_surf][j][c];
-          std::cout << std::endl;
-        }
-      }
-      */
 		}
 	}
 }
