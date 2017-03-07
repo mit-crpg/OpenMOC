@@ -957,11 +957,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
           dif_surf_corr = getSurfaceDiffusionCoefficient(
               i, s, e, moc_iteration, true);
 
-          /*
-          printf("Got D's at %d, %d, %d ====> %6.4f, %6.4f\n", i, s, e, dif_surf,
-              dif_surf_corr);
-              */
-
           /* Record the corrected diffusion coefficient */
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
 
