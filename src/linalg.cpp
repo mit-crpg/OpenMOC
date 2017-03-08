@@ -507,7 +507,6 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
                X->getNumX(), X->getNumY(), X->getNumZ(), X->getNumGroups(),
                Y->getNumX(), Y->getNumY(), Y->getNumZ(), Y->getNumGroups());
 
-
   double rmse;
   double sum_residuals;
   int norm;
@@ -532,7 +531,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
         old_source += Y->getValue(i, g);
       }
 
-      if (new_source != 0.0)
+      if (old_source != 0.0)
         residual.setValue(i, 0, pow((new_source - old_source) / old_source, 2));
     }
     sum_residuals = residual.getSum();
@@ -561,14 +560,19 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
     double temp_residual = sum_residuals;
     MPI_Allreduce(&temp_residual, &sum_residuals, 1, MPI_DOUBLE, MPI_SUM,
         comm->_MPI_cart);
-    double temp_norm = norm;
+    int temp_norm = norm;
     MPI_Allreduce(&temp_norm, &norm, 1, MPI_INT, MPI_SUM, comm->_MPI_cart);
-    rmse = sqrt(sum_residuals / norm);
-    double temp_rmse = 0;
-    MPI_Allreduce(&temp_rmse, &rmse, 1, MPI_DOUBLE, MPI_MAX, comm->_MPI_cart);
   }
 #endif
 
+  rmse = sqrt(sum_residuals / norm);
+
+#ifdef MPIx
+  if (comm != NULL) {
+    double temp_rmse = rmse;
+    MPI_Allreduce(&temp_rmse, &rmse, 1, MPI_DOUBLE, MPI_MAX, comm->_MPI_cart);
+  }
+#endif
 
   return rmse;
 }
