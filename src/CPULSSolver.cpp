@@ -154,8 +154,8 @@ FP_PRECISION CPULSSolver::normalizeFluxes() {
  * @details This method computes the total source in each FSR based on
  *          this iteration's current approximation to the scalar flux.
  */
-void CPULSSolver::computeFSRSources() {
-  CPUSolver::computeFSRSources();
+void CPULSSolver::computeFSRSources(int iteration) {
+  CPUSolver::computeFSRSources(iteration);
 
   int num_coeffs = 3;
   if (_solve_3D)

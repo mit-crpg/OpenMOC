@@ -270,7 +270,7 @@ protected:
    * @brief Computes the total source (fission, scattering, fixed) for
    *        each FSR and energy group.
    */
-  virtual void computeFSRSources() =0;
+  virtual void computeFSRSources(int iteration) =0;
 
   /**
    * @brief Computes the residual between successive flux/source iterations.

@@ -937,7 +937,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */
-  computeFSRSources();
+  computeFSRSources(0);
 
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
@@ -1039,7 +1039,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    computeFSRSources();
+    computeFSRSources(i);
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
@@ -1115,7 +1115,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   initializeCmfd();
   _geometry->fixFSRMaps();
 #ifdef MPIx
-  //MPI_Barrier(_geometry->getMPICart());
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
 #endif
   printInputParamsSummary();
 
@@ -1130,7 +1131,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double rm;
   _timer->processMemUsage(vm, rm);
 #ifdef MPIx
-  //MPI_Barrier(_geometry->getMPICart());
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
 #endif
   log_printf(NODAL, "Using %f MB virtual memory and %f MB resident "
                       "memory ", vm, rm);
@@ -1138,37 +1140,62 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
 #ifdef MPIx
-  //MPI_Barrier(_geometry->getMPICart());
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
 #endif
   log_printf(NORMAL, "Computing the eigenvalue...");
 
   /* Create object to track convergence data if requested */
   ConvergenceData* convergence_data = NULL;
   if (_verbose) {
-    convergence_data = new ConvergenceData;
-    if (_cmfd != NULL)
+    if (_cmfd != NULL) {
+      convergence_data = new ConvergenceData;
       _cmfd->setConvergenceData(convergence_data);
-    log_printf(NORMAL, "iter   k-eff   eps-k  eps-MOC   D.R.   "
+      log_printf(NORMAL, "iter   k-eff   eps-k  eps-MOC   D.R.   "
                "eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN"
                "  #FX1 #FXN  MAX P.F.");
+    }
   }
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    computeFSRSources();
+    computeFSRSources(i);
     _timer->startTimer();
+/*
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Barrier(_geometry->getMPICart());
+    log_printf(NORMAL,"Transport sweeping");
+  }
+#endif
+*/
     transportSweep();
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-
+/*
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Barrier(_geometry->getMPICart());
+    log_printf(NORMAL,"COmputing CMFD");
+  }
+#endif
+*/
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else
       computeKeff();
-
+/*
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Barrier(_geometry->getMPICart());
+    log_printf(NORMAL,"COmputing residual");
+  }
+#endif
+*/
+    
     /* Normalize the flux and compute residuals */
     normalizeFluxes();
     residual = computeResidual(res_type);
@@ -1179,7 +1206,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     k_prev = _k_eff;
 
     /* Ouptut iteration report */
-    if (_verbose) {
+    if (_verbose && convergence_data != NULL) {
 
       /* Unpack convergence data */
       double pf = convergence_data->pf;

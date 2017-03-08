@@ -213,7 +213,7 @@ double Cell::getPhi(std::string units) {
     return _rotation[0] * M_PI / 180.;
   else if (radians.compare(units) == 0)
     return _rotation[0];
-   
+
   log_printf(ERROR, "Unable to return phi in units %s", units.c_str());
   return -1;
 }
@@ -1547,4 +1547,17 @@ std::string Cell::toString() {
  */
 void Cell::printString() {
   log_printf(NORMAL, toString().c_str());
+}
+
+
+//FIXME
+int Cell::getNumZCylinders() {
+
+  std::map<int, surface_halfspace*>::iterator iter1;
+  int num = 0;
+  for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1)
+    if (iter1->second->_surface->getSurfaceType() == ZCYLINDER)
+      num++;
+
+  return num;
 }

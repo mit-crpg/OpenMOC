@@ -1356,7 +1356,7 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
  * @details This method computes the total source in each FSR based on
  *          this iteration's current approximation to the scalar flux.
  */
-void CPUSolver::computeFSRSources() {
+void CPUSolver::computeFSRSources(int iteration) {
 
   int tid;
   FP_PRECISION scatter_source, fission_source;
@@ -1369,6 +1369,7 @@ void CPUSolver::computeFSRSources() {
   FP_PRECISION* fission_sources = new FP_PRECISION[size];
   size = _num_threads * _num_groups;
   FP_PRECISION* scatter_sources = new FP_PRECISION[size];
+  int num_negative_sources = 0;
 
   /* For all FSRs, find the source */
 #pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
@@ -1405,8 +1406,20 @@ void CPUSolver::computeFSRSources() {
       _reduced_sources(r,G) = fission_source * chi[G];
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
+      //FIXME
+      /*
+      if (_reduced_sources(r,G) < 0.0) {
+#pragma omp atomic
+        num_negative_sources++;
+        if (iteration < 25)
+          _reduced_sources(r,G) = 0.0;
+      }
+      */
     }
   }
+
+  if (num_negative_sources > 0)
+    log_printf(WARNING, "Computed %d negative sources", num_negative_sources);
 
   delete [] fission_sources;
   delete [] scatter_sources;
@@ -1690,7 +1703,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
       /* Attenuate and tally the flux */
-      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D * 
+      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
               _reduced_sources(fsr_id, e)) * exponential;
       fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
@@ -1713,7 +1726,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
         FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
 
         /* Attenuate and tally the flux */
-        FP_PRECISION delta_psi = (tau * track_flux[pe] - 
+        FP_PRECISION delta_psi = (tau * track_flux[pe] -
                 length * _reduced_sources(fsr_id,e)) * exponential;
         fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
         track_flux[pe] -= delta_psi;

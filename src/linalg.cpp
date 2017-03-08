@@ -77,9 +77,8 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
     /* Solve X = A^-1 * old_source */
-    linearSolve(A, M, X, &old_source, tol*1e-2, SOR_factor,
-                convergence_data, comm);
-
+    linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor, convergence_data,
+                comm);
 
     /* Compute the new source */
     matrixMultiplication(M, X, &new_source);
@@ -118,8 +117,8 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                "%3.2e", iter, k_eff, residual);
 
     /* Check for convergence */
-    if ((residual < tol || residual / initial_residual < 0.01)
-           && iter > MIN_LINALG_POWER_ITERATIONS) {
+    if (residual / initial_residual < 0.03 &&
+        iter > MIN_LINALG_POWER_ITERATIONS) {
       if (convergence_data != NULL) {
         convergence_data->cmfd_res_end = residual;
         convergence_data->cmfd_iters = iter;
@@ -220,6 +219,10 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     /* Pass new flux to old flux */
     X->copyTo(&X_old);
 
+    /* Check if we need to cut the SOR factor */
+    if (iter > 100)
+      SOR_factor = 1.0;
+
     // Iteration over red/black cells
     for (int color = 0; color < 2; color++) {
       int offset = 0;
@@ -298,12 +301,6 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {
     log_printf(WARNING, "Linear solve failed to converge in %d iterations",
                iter);
-
-    for (int i=0; i < num_x*num_y*num_z*num_groups; i++) {
-      if (x[i] < 0.0)
-        x[i] = 0.0;
-    }
-    X->scaleByValue(num_rows / X->getSum());
   }
 }
 

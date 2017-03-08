@@ -327,7 +327,7 @@ void VectorizedSolver::normalizeFluxes() {
  * @details This method computes the total source in each FSR based on
  *          this iteration's current approximation to the scalar flux.
  */
-void VectorizedSolver::computeFSRSources() {
+void VectorizedSolver::computeFSRSources(int iteration) {
 
   int tid;
   FP_PRECISION scatter_source;

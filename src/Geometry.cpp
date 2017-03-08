@@ -1031,7 +1031,7 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-int Geometry::getFSRId(LocalCoords* coords) {
+int Geometry::getFSRId(LocalCoords* coords, bool err_check) {
 
   int fsr_id = 0;
   std::string fsr_key;
@@ -1041,8 +1041,13 @@ int Geometry::getFSRId(LocalCoords* coords) {
     fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
-               "geometry with finer track spacing", fsr_key.c_str());
+    if (err_check) {
+        log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
+                  "geometry with finer track spacing", fsr_key.c_str());
+    }
+    else {
+      return -1;
+    }
   }
 
   return fsr_id;
@@ -1082,11 +1087,11 @@ int Geometry::getDomainByCoords(LocalCoords* coords) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-int Geometry::getGlobalFSRId(LocalCoords* coords) {
+int Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
 
   /* Check if the Geometry is domain decomposed */
   if (!_domain_decomposed) {
-    return getFSRId(coords);
+    return getFSRId(coords, err_check);
   }
   else {
     int temp_fsr_id = 0;
@@ -2245,7 +2250,7 @@ std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       /* Extract the ID of the domain of interest */
       if (withinGlobalBounds(point)) {
         if (strcmp(domain_type, "fsr") == 0)
-          domains[i+j*dim1.size()] = getGlobalFSRId(point);
+          domains[i+j*dim1.size()] = getGlobalFSRId(point, false);
         else if (strcmp(domain_type, "material") == 0)
           domains[i+j*dim1.size()] = cell->getFillMaterial()->getId();
         else if (strcmp(domain_type, "cell") == 0)

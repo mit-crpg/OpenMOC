@@ -35,6 +35,7 @@ Cmfd::Cmfd() {
   _flux_update_on = true;
   _centroid_update_on = true;
   _use_axial_interpolation = false;
+  _flux_limiting = false;
   _k_nearest = 1;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
@@ -674,6 +675,16 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
 
+      //FIXME
+      /*
+      int ix = cmfd_cell % _num_x;
+      int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
+      double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
+                        (iy - _num_y/2) * (iy - _num_y/2));
+      if (radius > _num_x / 2)
+        dif_surf_corr = 0.0;
+      */
+
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
       FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
@@ -734,6 +745,30 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient correction */
     dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
         / (flux_next + flux);
+
+    /* Flux limiting condition */
+    if (_flux_limiting) {
+      double ratio = dif_surf_corr / dif_surf;
+      if(std::abs(ratio) > 1.0) {
+        if (ratio > 0)
+          dif_surf = std::abs(current / (2.0*flux_next));
+        else
+          dif_surf = std::abs(current / (2.0*flux));
+        dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
+                        / (flux_next + flux);
+      }
+    }
+
+    //FIXME
+    /*
+      int ix = cmfd_cell % _num_x;
+      int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
+      double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
+                        (iy - _num_y/2) * (iy - _num_y/2));
+      if (radius > _num_x / 2)
+        dif_surf_corr = 0.0;
+        */
+
 
     /* Weight the old and new corrected diffusion coefficients by the
        relaxation factor */
@@ -1029,6 +1064,13 @@ void Cmfd::updateMOCFlux() {
 
         /* Get the update ratio */
         FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
+
+        /* Limit the update ratio */
+        if (update_ratio > 20.0)
+          update_ratio = 20.0;
+        if (update_ratio < 0.05)
+          update_ratio = 0.05;
+
         if (_convergence_data != NULL)
           if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))
             _convergence_data->pf = update_ratio;
@@ -2522,6 +2564,12 @@ void Cmfd::useAxialInterpolation(bool interpolate) {
 }
 
 
+//FIXME
+void Cmfd::useFluxLimiting(bool flux_limiting) {
+  _flux_limiting = flux_limiting;
+}
+
+
 /**
  * @brief Get flag indicating whether to update the MOC flux.
  * @return Flag saying whether to update MOC flux.
@@ -2675,7 +2723,7 @@ void Cmfd::generateKNearestStencils() {
   }
 
   /* Compute axial quadratic interpolation values if requested */
-  if (_use_axial_interpolation) {
+  if (_use_axial_interpolation && _local_num_z >= 3) {
 
     /* Calculate common factors */
     double dz = _cell_width_z;
@@ -2691,6 +2739,7 @@ void Cmfd::generateKNearestStencils() {
         z_cmfd += _domain_communicator->_domain_idx_z * _cell_width_z * _local_num_z;
 
       /* Loop over FRSs in mesh cell */
+      int num_fissionable_FSRs = 0;
       for (fsr_iter = _cell_fsrs.at(i).begin();
            fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
 
@@ -2715,6 +2764,17 @@ void Cmfd::generateKNearestStencils() {
         _axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
         _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
         _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;
+
+        /* Set zero axial prolongation for cells with no fissionalbe material */
+        if (_FSR_materials[fsr_id]->isFissionable())
+          num_fissionable_FSRs++;
+      }
+
+      /* Remove axial prolongation for non-fissionable cells */
+      if (num_fissionable_FSRs == 0) {
+        _axial_interpolants.at(fsr_id)[0] = 0.0;
+        _axial_interpolants.at(fsr_id)[1] = 1.0;
+        _axial_interpolants.at(fsr_id)[2] = 0.0;
       }
     }
   }
@@ -3527,6 +3587,12 @@ void Cmfd::printTimerReport() {
   msg_string = "Total CMFD solver time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
+
+  /* FIXME */
+  double split_time = _timer->getSplit("Current spliting time");
+  msg_string = "Total current spliting time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), split_time);
 }
 
 

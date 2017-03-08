@@ -23,11 +23,11 @@
 
 /** A negligible cross-section value to over-ride user-defined
  *  cross-sections very near zero (e.g., within (-1E-10, 1E-10)) */
-#define ZERO_SIGMA_T 1E-10
+#define ZERO_SIGMA_T 1E-6
 
 /** Threshold to determine how close the sum of \f$ \Sigma_a \f$ and
  *  \f$ \Sigma_s \f$ must match \f$ \Sigma_t \f$ for each energy group */
-#define SIGMA_T_THRESH 1E-3
+#define SIGMA_T_THRESH 1E-10
 
 /** Distance a Point is moved to cross over a Surface into a new Cell */
 #define TINY_MOVE 1E-8

@@ -135,6 +135,9 @@ private:
   /** If a linear source approximation is used */
   bool _linear_source;
 
+  /** If diffusion coefficients are limited by the flux */
+  bool _flux_limiting;
+
   /** Number of FSRs */
   int _num_FSRs;
 
@@ -349,6 +352,7 @@ public:
 #endif
   void setConvergenceData(ConvergenceData* convergence_data);
   void useAxialInterpolation(bool interpolate);
+  void useFluxLimiting(bool flux_limiting);
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
@@ -486,6 +490,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
           _edge_corner_currents[first_ind+g] += currents[g];
 
         omp_unset_lock(&_cell_locks[local_cell_id]);
+
       }
     }
   }

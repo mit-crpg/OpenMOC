@@ -87,7 +87,7 @@ protected:
   virtual void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
   virtual FP_PRECISION normalizeFluxes();
-  virtual void computeFSRSources();
+  virtual void computeFSRSources(int iteration);
   virtual void transportSweep();
   virtual void addSourceToScalarFlux();
   void computeKeff();
