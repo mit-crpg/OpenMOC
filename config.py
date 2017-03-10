@@ -100,6 +100,7 @@ class configuration:
 
   sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
                     'src/Cell.cpp',
+                    'src/Region.cpp',
                     'src/Geometry.cpp',
                     'src/LocalCoords.cpp',
                     'src/log.cpp',
@@ -124,6 +125,7 @@ class configuration:
 
   sources['clang'] = ['openmoc/openmoc_wrap.cpp',
                       'src/Cell.cpp',
+                      'src/Region.cpp',
                       'src/Geometry.cpp',
                       'src/LocalCoords.cpp',
                       'src/log.cpp',
@@ -149,6 +151,7 @@ class configuration:
 
   sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
                      'src/Cell.cpp',
+                     'src/Region.cpp',
                      'src/Geometry.cpp',
                      'src/LocalCoords.cpp',
                      'src/log.cpp',
@@ -175,6 +178,7 @@ class configuration:
 
   sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
                       'src/Cell.cpp',
+                      'src/Region.cpp',
                       'src/Geometry.cpp',
                       'src/LocalCoords.cpp',
                       'src/log.cpp',
