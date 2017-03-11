@@ -1155,8 +1155,6 @@ std::string Geometry::toString() {
       string << translation[1] << ", " << translation[2] << ")";
     }
 
-    string << ", # surfaces = " << cell_iter->second->getNumSurfaces();
-
     /** Add string data for the Surfaces in this Cell */
     surfaces = cell_iter->second->getSurfaces();
     string << ", Surfaces: ";

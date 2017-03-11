@@ -161,7 +161,6 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  int getNumSurfaces() const;
   std::map<int, surface_halfspace*> getSurfaces() const;
   bool hasParent();
   Cell* getParent();

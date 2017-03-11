@@ -89,13 +89,6 @@ Cell::Cell(int id, const char* name) {
  * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
-
-  // FIXME: Decide whether to delete regions???
-  //  std::map<int, surface_halfspace*>::iterator iter;
-  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-  //    delete iter->second;
-  //  _surfaces.clear();
-
   if (_name != NULL)
     delete [] _name;
 }
@@ -625,16 +618,6 @@ boundaryType Cell::getMaxYBoundaryType() {
   }
 
   return bc;
-}
-
-
-/**
- * @brief Return the number of Surfaces in the Cell.
- * @return the number of Surfaces
- */
-int Cell::getNumSurfaces() const {
-  // FIXME: Hmmmm...Add this to the Region class???
-  return _surfaces.size();
 }
 
 
@@ -1434,8 +1417,6 @@ std::string Cell::toString() {
   }
 
   // FIXME: Probably just remove this 
-  //  string << ", # surfaces = " << getNumSurfaces();
-
   /** Add string data for the Surfaces in this Cell */
   //  std::map<int, surface_halfspace*>::iterator iter;
   //  string << ", Surfaces: ";
