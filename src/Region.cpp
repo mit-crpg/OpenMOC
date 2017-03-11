@@ -142,6 +142,31 @@ bool Intersection::containsPoint(Point* point) {
   return true;
 }
 
+/**
+ * @brief Computes the minimum distance to a Surface in the Intersection from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Intersection returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Intersection::minSurfaceDist(LocalCoords* coords) {
+
+  double curr_dist;
+  double min_dist = INFINITY;
+
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    curr_dist = (*iter)->minSurfaceDist(coords);
+
+    /* If the distance to Cell is less than current min distance, update */
+    if (curr_dist < min_dist)
+      min_dist = curr_dist;
+  }
+
+  return min_dist;
+}
+
 
 
 
@@ -180,7 +205,7 @@ void Union::addNode(Region* node) {
 
 
 /**
- * @brie
+ * @brief
  * @returns
  */
 std::vector<Region*> Union::getNodes() {
@@ -224,13 +249,41 @@ bool Union::containsPoint(Point* point) {
 }
 
 
+/**
+ * @brief Computes the minimum distance to a Surface in the Union from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Union returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Union::minSurfaceDist(LocalCoords* coords) {
+
+  double curr_dist;
+  double min_dist = INFINITY;
+
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    curr_dist = (*iter)->minSurfaceDist(coords);
+
+    /* If the distance to Cell is less than current min distance, update */
+    if (curr_dist < min_dist)
+      min_dist = curr_dist;
+  }
+
+  return min_dist;
+}
+
+
 
 
 
 /**
  * @brief FIXME: Is this necessary???
  */
-Complement::Complement() { }
+Complement::Complement() {
+  _node = NULL;
+}
 
 
 /**
@@ -275,7 +328,26 @@ std::vector<Region*> Complement::getNodes() {
  * @param @returns
  */
 bool Complement::containsPoint(Point* point) {
-  return !_node->containsPoint(point);
+  if (_node == NULL)
+    return false;
+  else
+    return !_node->containsPoint(point);
+}
+
+
+/**
+ * @brief Computes the minimum distance to a Surface in the Complement from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Complement returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Complement::minSurfaceDist(LocalCoords* coords) {
+  if (_node == NULL)
+    return INFINITY;
+  else
+    return _node->minSurfaceDist(coords);
 }
 
 
@@ -400,4 +472,17 @@ bool Halfspace::containsPoint(Point* point) {
     return (_surface->evaluate(point) >= 0);
   else
     return (_surface->evaluate(point) < 0);
+}
+
+
+/**
+ * @brief Computes the minimum distance to the Surface in the Halfspace from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect the Surface in the
+ *          Halfspace returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Halfspace::minSurfaceDist(LocalCoords* coords) {
+  return _surface->getMinDistance(coords);
 }

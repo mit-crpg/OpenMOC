@@ -14,9 +14,7 @@
 #include "Python.h"
 #endif
 #include "Surface.h"
-#include "Point.h"
 #include <limits>
-#include <string>
 #endif
 
 
@@ -53,6 +51,7 @@ public:
 
   // FIXME: Use the notation used by the ray tracing code
   virtual bool containsPoint(Point* point) =0;
+  virtual double minSurfaceDist(LocalCoords* coords) =0;
 };
 
 
@@ -77,6 +76,7 @@ public:
   
   Intersection* getIntersection(Region* other);
   bool containsPoint(Point* point);
+  double minSurfaceDist(LocalCoords* coords);
 };
 
 
@@ -102,7 +102,7 @@ public:
   
   Union* getUnion(Region* other);
   bool containsPoint(Point* point);
-    
+  double minSurfaceDist(LocalCoords* coords);    
 };
 
 
@@ -130,6 +130,7 @@ public:
   std::vector<Region*> getNodes();
   
   bool containsPoint(Point* point);  
+  double minSurfaceDist(LocalCoords* coords);
 };
 
 
@@ -163,6 +164,7 @@ public:
   Halfspace* getInversion();
   
   bool containsPoint(Point* point);  
+  double minSurfaceDist(LocalCoords* coords);
 };
 
 

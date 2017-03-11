@@ -1024,33 +1024,18 @@ bool Cell::containsCoords(LocalCoords* coords) {
 
 
 /**
- * @brief Computes the minimum distance to a Surface from a point with a given
- *        trajectory at a certain angle stored in a LocalCoords object.
+ * @brief Computes the minimum distance to a Surface in the Cell's Region from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param coords a pointer to a localcoords
  */
 double Cell::minSurfaceDist(LocalCoords* coords) {
-
-  double curr_dist;
-  double min_dist = INFINITY;
-
-  std::map<int, surface_halfspace*>::iterator iter;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-
-  /* Loop over all of the Cell's Surfaces */
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second->_surface->getMinDistance(coords);
-
-    /* If the distance to Cell is less than current min distance, update */
-    if (curr_dist < min_dist)
-      min_dist = curr_dist;
-  }
-
-  return min_dist;
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->minSurfaceDist(coords);
 }
 
 
@@ -1416,13 +1401,6 @@ std::string Cell::toString() {
     string << ", (translation = " << _translation[0] << ", ";
     string << _translation[1] << ", " << _translation[2] << ")";
   }
-
-  // FIXME: Probably just remove this 
-  /** Add string data for the Surfaces in this Cell */
-  //  std::map<int, surface_halfspace*>::iterator iter;
-  //  string << ", Surfaces: ";
-  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-  //    string <<  iter->second->_surface->toString() << ", ";
 
   return string.str();
 }
