@@ -57,7 +57,7 @@ Union* Region::getUnion(Region* other) {
 Complement* Region::getInversion() {
   // FIXME: This is memory leak hell
   Complement* new_complement = new Complement();
-  new_complement->setNode(this);
+  new_complement->addNode(this);
   return new_complement;
 }
 
@@ -121,17 +121,13 @@ Intersection* Intersection::getIntersection(Region* other) {
  * @param
  * @returns
  */
-bool Intersection::contains(Point* point) {
-
-  bool inside = true;
+bool Intersection::containsPoint(Point* point) {
   std::vector<Region*>::iterator iter;
-
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
-    if (!(*iter)->contains(point))
-      inside = false;
+    if (!(*iter)->containsPoint(point))
+      return false;
   }
-
-  return inside;
+  return true;
 }
 
 
@@ -194,17 +190,13 @@ Union* Union::getUnion(Region* other) {
  * @param
  * @returns
  */
-bool Union::contains(Point* point) {
-
-  bool inside = false;
+bool Union::containsPoint(Point* point) {
   std::vector<Region*>::iterator iter;
-
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
-    if ((*iter)->contains(point))
-      inside = true;
+    if ((*iter)->containsPoint(point))
+      return true;
   }
-
-  return inside;
+  return false;
 }
 
 
@@ -228,7 +220,7 @@ Complement::~Complement() { }
  * @param
  * @returns
  */
-void Complement::setNode(Region* node) {
+void Complement::addNode(Region* node) {
   _node = node;
 }
 
@@ -248,8 +240,8 @@ std::vector<Region*> Complement::getNodes() {
  * @brief FIXME: Rename this for the ray tracing code convention
  * @param @returns
  */
-bool Complement::contains(Point* point) {
-  return !_node->contains(point);
+bool Complement::containsPoint(Point* point) {
+  return !_node->containsPoint(point);
 }
 
 
@@ -260,16 +252,31 @@ bool Complement::contains(Point* point) {
  * @param
  * @param
  */
-Halfspace::Halfspace(Surface* surface, int halfspace) {
+Halfspace::Halfspace(int halfspace, Surface* surface) {
+
+  if (halfspace != -1 && halfspace != +1)
+    log_printf(ERROR, "Unable to create halfspace from surface %d since the "
+	       "halfspace %d is not -1 or 1", surface->getId(), halfspace);
+
   _surface = surface;
   _halfspace = halfspace;
 }
-
 
 /**
  * @brief FIXME: Should this delete the nodes???
  */
 Halfspace::~Halfspace() { }
+
+
+/**
+ * @brief
+ * @param
+ */
+void Halfspace::addNode(Region* node) {
+  // FIXME: WTF
+  return;
+  //  _nodes.push_back(node);
+}
 
 
 /**
@@ -334,7 +341,7 @@ Union* Halfspace::getUnion(Region* other) {
  */
 Halfspace* Halfspace::getInversion() {
   // FIXME: This is memory leak hell
-  Halfspace* new_halfspace = new Halfspace(_surface, -1 * _halfspace);
+  Halfspace* new_halfspace = new Halfspace(-1 * _halfspace, _surface);
   return new_halfspace;
 }
 
@@ -344,7 +351,7 @@ Halfspace* Halfspace::getInversion() {
  * @param
  * @returns
  */
-bool Halfspace::contains(Point* point) {
+bool Halfspace::containsPoint(Point* point) {
   // FIXME: This may be an optimization over what we have now
   if (_halfspace == 1)
     return (_surface->evaluate(point) >= 0);

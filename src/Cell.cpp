@@ -67,6 +67,7 @@ Cell::Cell(int id, const char* name) {
   setName(name);
 
   _cell_type = UNFILLED;
+  _region = NULL;
   _fill = NULL;
   _volume = 0.;
   _num_instances = 0;
@@ -89,10 +90,11 @@ Cell::Cell(int id, const char* name) {
  */
 Cell::~Cell() {
 
-  std::map<int, surface_halfspace*>::iterator iter;
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    delete iter->second;
-  _surfaces.clear();
+  // FIXME: Decide whether to delete regions???
+  //  std::map<int, surface_halfspace*>::iterator iter;
+  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+  //    delete iter->second;
+  //  _surfaces.clear();
 
   if (_name != NULL)
     delete [] _name;
@@ -366,6 +368,7 @@ double Cell::getMinX() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -390,6 +393,7 @@ double Cell::getMaxX() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -414,6 +418,7 @@ double Cell::getMinY() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -438,6 +443,7 @@ double Cell::getMaxY() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -462,6 +468,7 @@ double Cell::getMinZ() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -486,6 +493,7 @@ double Cell::getMaxZ() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -512,6 +520,7 @@ boundaryType Cell::getMinXBoundaryType() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -542,6 +551,7 @@ boundaryType Cell::getMaxXBoundaryType() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -572,6 +582,7 @@ boundaryType Cell::getMinYBoundaryType() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -602,6 +613,7 @@ boundaryType Cell::getMaxYBoundaryType() {
   Surface* surface;
   int halfspace;
 
+  // FIXME: Hmmmm...Add this to the Region class???
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -621,6 +633,7 @@ boundaryType Cell::getMaxYBoundaryType() {
  * @return the number of Surfaces
  */
 int Cell::getNumSurfaces() const {
+  // FIXME: Hmmmm...Add this to the Region class???
   return _surfaces.size();
 }
 
@@ -631,6 +644,7 @@ int Cell::getNumSurfaces() const {
  * @return std::map of Surface pointers and halfspaces
  */
 std::map<int, surface_halfspace*> Cell::getSurfaces() const {
+  // FIXME: Hmmmm...Add this to the Region class???
   return _surfaces;
 }
 
@@ -964,6 +978,22 @@ void Cell::setParent(Cell* parent) {
  */
 void Cell::addSurface(int halfspace, Surface* surface) {
 
+  // FIXME: this is memory leak hell
+  Halfspace* new_halfspace = new Halfspace(halfspace, surface);
+  if (_region == NULL)
+    _region = new_halfspace;
+  else{
+    if (dynamic_cast<Intersection*>(_region)) 
+      _region->addNode(new_halfspace);
+    else {
+      Intersection* intersection = new Intersection();
+      intersection->addNode(_region);
+      intersection->addNode(new_halfspace);
+      _region = intersection;
+    }
+  }
+
+  // FIXME: Decide what to do with this...
   if (halfspace != -1 && halfspace != +1)
     log_printf(ERROR, "Unable to add surface %d to cell %d since the halfspace"
                " %d is not -1 or 1", surface->getId(), _id, halfspace);
@@ -973,19 +1003,6 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   new_surf_half->_halfspace = halfspace;
 
   _surfaces[surface->getId()] = new_surf_half;
-}
-
-
-/**
- * @brief Removes a Surface from this Cell's container of bounding Surfaces.
- * @param surface a pointer to the Surface to remove
- */
-void Cell::removeSurface(Surface* surface) {
-
-  if (_surfaces.find(surface->getId()) != _surfaces.end()) {
-    delete _surfaces[surface->getId()];
-    _surfaces.erase(surface->getId());
-  }
 }
 
 
@@ -1009,20 +1026,21 @@ void Cell::addNeighborCell(Cell* cell) {
  * @param point a pointer to a Point
  */
 bool Cell::containsPoint(Point* point) {
+  return _region->containsPoint(point);
 
   /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
+  //  std::map<int, surface_halfspace*>::iterator iter;
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Return false if the Point is not in the correct Surface halfspace */
-    if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
-        < 0.0)
-      return false;
-  }
+  //    if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
+  //        < 0.0)
+  //      return false;
+  //  }
 
   /* Return true if the Point is in the correct halfspace for each Surface */
-  return true;
+  //  return true;
 }
 
 
@@ -1051,6 +1069,8 @@ double Cell::minSurfaceDist(LocalCoords* coords) {
   double min_dist = INFINITY;
 
   std::map<int, surface_halfspace*>::iterator iter;
+
+  // FIXME: Hmmmm...Add this to the Region class???
 
   /* Loop over all of the Cell's Surfaces */
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
@@ -1111,10 +1131,11 @@ Cell* Cell::clone() {
     new_cell->setTranslation(_translation, 3);
 
   /* Loop over all of this Cell's Surfaces and add them to the clone */
-  std::map<int, surface_halfspace*>::iterator iter;
+  //  std::map<int, surface_halfspace*>::iterator iter;
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    new_cell->addSurface(iter->second->_halfspace, iter->second->_surface);
+  // FIXME: Need to clone regions
+  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+  //    new_cell->addSurface(iter->second->_halfspace, iter->second->_surface);
 
   return new_cell;
 }
@@ -1460,13 +1481,14 @@ std::string Cell::toString() {
     string << _translation[1] << ", " << _translation[2] << ")";
   }
 
-  string << ", # surfaces = " << getNumSurfaces();
+  // FIXME: Probably just remove this 
+  //  string << ", # surfaces = " << getNumSurfaces();
 
   /** Add string data for the Surfaces in this Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  string << ", Surfaces: ";
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second->_surface->toString() << ", ";
+  //  std::map<int, surface_halfspace*>::iterator iter;
+  //  string << ", Surfaces: ";
+  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+  //    string <<  iter->second->_surface->toString() << ", ";
 
   return string.str();
 }

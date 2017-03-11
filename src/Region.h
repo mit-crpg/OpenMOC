@@ -43,6 +43,7 @@ public:
   Region();
   virtual ~Region();
 
+  virtual void addNode(Region* node) =0;
   virtual std::vector<Region*> getNodes() =0;
 
   Intersection* getIntersection(Region* other);
@@ -50,7 +51,7 @@ public:
   Complement* getInversion();
 
   // FIXME: Use the notation used by the ray tracing code
-  virtual bool contains(Point* point) =0;
+  virtual bool containsPoint(Point* point) =0;
 };
 
 
@@ -74,7 +75,7 @@ public:
   std::vector<Region*> getNodes();
   
   Intersection* getIntersection(Region* other);
-  bool contains(Point* point);
+  bool containsPoint(Point* point);
 };
 
 
@@ -98,7 +99,7 @@ public:
   std::vector<Region*> getNodes();
   
   Union* getUnion(Region* other);
-  bool contains(Point* point);
+  bool containsPoint(Point* point);
     
 };
 
@@ -120,12 +121,12 @@ public:
   virtual ~Complement();
 
   // FIXME: should this retain the original addNodes() syntax???
-  void setNode(Region* node);
+  void addNode(Region* node);
 
   // FIXME: should this retain the original getNodes() syntax???
   std::vector<Region*> getNodes();
   
-  bool contains(Point* point);  
+  bool containsPoint(Point* point);  
 };
 
 
@@ -146,17 +147,18 @@ private:
   int _halfspace;
 
 public:
-  Halfspace(Surface* surface, int halfspace);
+  Halfspace(int halfspace, Surface* surface);
   virtual ~Halfspace();
 
   // FIXME: this may be bullshit
+  void addNode(Region* node);
   std::vector<Region*> getNodes();
 
   Intersection* getIntersection(Region* other);
   Union* getUnion(Region* other);
   Halfspace* getInversion();
   
-  bool contains(Point* point);  
+  bool containsPoint(Point* point);  
 };
 
 

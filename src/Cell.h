@@ -14,8 +14,7 @@
 #include "Python.h"
 #endif
 #include "Material.h"
-#include "Surface.h"
-#include "Point.h"
+#include "Region.h"
 #include <limits>
 #include <string>
 #endif
@@ -23,6 +22,7 @@
 /* Forward declarations to resolve circular dependencies */
 class Universe;
 class Surface;
+class Region;
 
 int cell_id();
 void reset_cell_id();
@@ -85,6 +85,9 @@ private:
 
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
+
+  /** FIXME: */
+  Region* _region;
 
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
@@ -184,7 +187,6 @@ public:
   void setNumSectors(int num_sectors);
   void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
-  void removeSurface(Surface* surface);
   void addNeighborCell(Cell* cell);
 
   bool isFissionable();
