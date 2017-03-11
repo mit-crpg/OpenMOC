@@ -626,11 +626,6 @@ Cell* Universe::findCell(LocalCoords* coords) {
   /* Sets the LocalCoord type to UNIV at this level */
   coords->setType(UNIV);
 
-  /* If the LocalCoords is populated with Universe/Cell already, we assume
-   * that we are looking for the location in a neighboring Cell */
-  if (coords->getCell() != NULL)
-    cells = coords->getCell()->getNeighbors();
-
   /* Add all of Universe's Cells to the back of neighbor Cells vector */
   std::transform(_cells.begin(), _cells.end(),
                  std::back_inserter(cells), pair_second(_cells));
@@ -730,19 +725,6 @@ void Universe::subdivideCells(double max_radius) {
         static_cast<Lattice*>(fill)->subdivideCells(max_radius);
     }
   }
-}
-
-
-/**
- * @brief Builds collections of neighboring Cells for all Cells in this
- *        Universe for optimized ray tracing.
- */
-void Universe::buildNeighbors() {
-
-  /* Loop over all of the Universe's Cells and make recursive call */
-  std::map<int, Cell*>::iterator iter;
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    iter->second->buildNeighbors();
 }
 
 
@@ -1293,23 +1275,6 @@ void Lattice::subdivideCells(double max_radius) {
   for (iter = universes.begin(); iter != universes.end(); ++iter)
     iter->second->subdivideCells(max_radius);
 }
-
-
-/**
- * @brief Builds collections of neighboring Cells for all Cells in each
- *        Universe in the Lattice for optimized ray tracing.
- */
-void Lattice::buildNeighbors() {
-
-  /* Get list of unique Universes in this Lattice */
-  std::map<int, Universe*> universes = getUniqueUniverses();
-
-  /* Loop over each Universe and make recursive call */
-  std::map<int, Universe*>::iterator iter;
-  for (iter = universes.begin(); iter != universes.end(); ++iter)
-    iter->second->buildNeighbors();
-}
-
 
 
 /**

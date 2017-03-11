@@ -650,15 +650,6 @@ std::map<int, surface_halfspace*> Cell::getSurfaces() const {
 
 
 /**
- * @brief Return the std::vector of neighbor Cells to this Cell.
- * @return std::vector of neighbor Cell pointers
- */
-std::vector<Cell*> Cell::getNeighbors() const {
-  return _neighbors;
-}
-
-
-/**
  * @brief Return true if the Cell has a parent and false otherwise.
  * @return whether the Cell has a parent Cell
  */
@@ -1003,18 +994,6 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   new_surf_half->_halfspace = halfspace;
 
   _surfaces[surface->getId()] = new_surf_half;
-}
-
-
-/**
- * @brief Add a neighboring Cell to this Cell's collection of neighbors.
- * @param cell a pointer to the neighboring Cell
- */
-void Cell::addNeighborCell(Cell* cell) {
-
-  /* Add the neighbor Cell if it is not already in the collection */
-  if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
-    _neighbors.push_back(cell);
 }
 
 
@@ -1417,33 +1396,6 @@ void Cell::subdivideCell(double max_radius) {
 
     /* Set the new Universe as the fill for this Cell */
     setFill(new_fill);
-  }
-}
-
-
-/**
- * @brief Build a collection of neighboring Cells for optimized ray tracing.
- */
-void Cell::buildNeighbors() {
-
-  Surface* surface;
-  int halfspace;
-
-  /* Add this Cell to all of the Surfaces in this Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    surface->addNeighborCell(halfspace, this);
-  }
-
-  /* Make recursive call to the Cell's fill Universe */
-  if (_cell_type == FILL) {
-    Universe* fill = static_cast<Universe*>(_fill);
-    if (fill->getType() == SIMPLE)
-      static_cast<Universe*>(fill)->buildNeighbors();
-    else
-      static_cast<Lattice*>(fill)->buildNeighbors();
   }
 }
 

@@ -67,10 +67,6 @@ Surface::Surface(const int id, const char* name) {
   setName(name);
 
   _boundary_type = BOUNDARY_NONE;
-
-  /* Initialize empty vectors of neighbor Cells for each halfspace */
-  _neighbors[-1] = new std::vector<Cell*>();
-  _neighbors[+1] = new std::vector<Cell*>();
 }
 
 
@@ -80,14 +76,6 @@ Surface::Surface(const int id, const char* name) {
 Surface::~Surface() {
   if (_name != NULL)
     delete [] _name;
-
-  if (!_neighbors.empty()) {
-    _neighbors[-1]->clear();
-    _neighbors[+1]->clear();
-    delete _neighbors[-1];
-    delete _neighbors[+1];
-    _neighbors.clear();
-  }
 }
 
 
@@ -163,43 +151,6 @@ void Surface::setName(const char* name) {
  */
 void Surface::setBoundaryType(boundaryType boundary_type) {
   _boundary_type = boundary_type;
-}
-
-
-/**
- * @brief Adds a neighbor Cell to this Surface's collection of neighbors.
- * @param halfspace the +/-1 halfspace for the neighboring Cell
- * @param cell a pointer to the neighboring Cell
- */
-void Surface::addNeighborCell(int halfspace, Cell* cell) {
-
-  if (halfspace != -1 && halfspace != +1)
-    log_printf(ERROR, "Unable to add neighbor Cell %d to Surface %d since the "
-               "halfspace %d is not -1 or 1", cell->getId(), _id, halfspace);
-
-  /* Get pointer to vector of neighbor Cells for this halfspace */
-  std::vector<Cell*>* neighbors = _neighbors[halfspace];
-
-  /* Add the neighbor Cell if the collection does not already contain it*/
-  if (std::find(neighbors->begin(), neighbors->end(), cell) == neighbors->end())
-    neighbors->push_back(cell);
-
-  /* Update Cells with the neighbor Cells on the opposite Surface halfspace */
-  std::vector<Cell*>::iterator iter1;
-  std::vector<Cell*>::iterator iter2;
-  for (iter1 = _neighbors[-1]->begin();
-       iter1 != _neighbors[-1]->end(); ++iter1) {
-    for (iter2 = _neighbors[1]->begin();
-         iter2 != _neighbors[1]->end(); ++iter2)
-      (*iter1)->addNeighborCell(*iter2);
-  }
-
-  for (iter1 = _neighbors[1]->begin();
-       iter1 != _neighbors[1]->end(); ++iter1) {
-    for (iter2 = _neighbors[-1]->begin();
-         iter2 != _neighbors[-1]->end(); ++iter2)
-      (*iter1)->addNeighborCell(*iter2);
-  }
 }
 
 

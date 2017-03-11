@@ -783,15 +783,10 @@ void Geometry::subdivideCells() {
  *          source iteration. This method first subdivides all Cells by calling
  *          the Geometry::subdivideCells() method. Then it initializes the CMFD
  *          object.
- * @brief neighbor_cells whether to use neighbor cell optimizations
  */
-void Geometry::initializeFSRs(bool neighbor_cells) {
+void Geometry::initializeFSRs() {
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
-
-  /* Build collections of neighbor Cells for optimized ray tracing */
-  if (neighbor_cells)
-    _root_universe->buildNeighbors();
 }
 
 

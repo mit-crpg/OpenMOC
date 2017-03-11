@@ -125,9 +125,6 @@ private:
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
   std::map<int, surface_halfspace*> _surfaces;
 
-  /* Vector of neighboring Cells */
-  std::vector<Cell*> _neighbors;
-
   void ringify(std::vector<Cell*>& subcells, double max_radius);
   void sectorize(std::vector<Cell*>& subcells);
 
@@ -166,7 +163,6 @@ public:
   boundaryType getMaxYBoundaryType();
   int getNumSurfaces() const;
   std::map<int, surface_halfspace*> getSurfaces() const;
-  std::vector<Cell*> getNeighbors() const;
   bool hasParent();
   Cell* getParent();
   Cell* getOldestAncestor();
@@ -187,7 +183,6 @@ public:
   void setNumSectors(int num_sectors);
   void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
-  void addNeighborCell(Cell* cell);
 
   bool isFissionable();
   bool containsPoint(Point* point);
@@ -196,7 +191,6 @@ public:
 
   Cell* clone();
   void subdivideCell(double max_radius);
-  void buildNeighbors();
 
   std::string toString();
   void printString();
