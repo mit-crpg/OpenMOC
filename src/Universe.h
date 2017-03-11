@@ -113,6 +113,7 @@ public:
   void addCell(Cell* cell);
   void removeCell(Cell* cell);
 
+  bool containsPoint(Point* point);
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
   void subdivideCells(double max_radius=INFINITY);
@@ -194,7 +195,7 @@ public:
   void removeUniverse(Universe* universe);
   void subdivideCells(double max_radius=INFINITY);
 
-  bool withinBounds(Point* point);
+  bool containsPoint(Point* point);
   Cell* findCell(LocalCoords* coords);
   double minSurfaceDist(LocalCoords* coords);
 

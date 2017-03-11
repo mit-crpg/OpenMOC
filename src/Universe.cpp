@@ -610,6 +610,24 @@ void Universe::removeCell(Cell* cell) {
 
 
 /**
+ * @brief
+ * @param
+ * @returns
+ */
+bool Universe::containsPoint(Point* point) {
+
+  /* Loop over all Cells */
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (!iter->second->containsPoint(point))
+      return false;
+  }
+
+  return true;
+}
+
+
+/**
  * @brief Finds the Cell for which a LocalCoords object resides.
  * @details Finds the Cell that a LocalCoords object is located inside by
  *          checking each of this Universe's Cells. Returns NULL if the
@@ -1282,7 +1300,7 @@ void Lattice::subdivideCells(double max_radius) {
  * @param point a pointer to the Point of interest
  * @return true if the Point is in the bounds, false if not
  */
-bool Lattice::withinBounds(Point* point) {
+bool Lattice::containsPoint(Point* point) {
 
   /* Computes the Lattice bounds */
   double bound_x_max = _offset.getX() + _num_x/2.0 * _width_x;

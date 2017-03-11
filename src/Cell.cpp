@@ -357,152 +357,74 @@ int Cell::getNumSectors() {
 
 
 /**
- * @brief Return the minimum reachable x-coordinate in the Cell.
+ * @brief Return the minimum reachable x-coordinate in the Cell's Region.
  * @return the minimum x-coordinate
  */
 double Cell::getMinX() {
-
-  /* Set a default min-x */
-  double min_x = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_x = std::max(min_x, surface->getMinX(halfspace));
-  }
-
-  return min_x;
+  if (_region == NULL)
+    return -std::numeric_limits<double>::infinity();
+  else
+    return _region->getMinX();
 }
 
 
 /**
- * @brief Return the maximum reachable x-coordinate in the Cell.
+ * @brief Return the maximum reachable x-coordinate in the Cell's Region.
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
-
-  /* Set a default max-x */
-  double max_x = std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_x = std::min(max_x, surface->getMaxX(halfspace));
-  }
-
-  return max_x;
+  if (_region == NULL)
+    return std::numeric_limits<double>::infinity();
+  else
+    return _region->getMaxX();
 }
 
 
 /**
- * @brief Return the minimum reachable y-coordinate in the Cell.
+ * @brief Return the minimum reachable y-coordinate in the Cell's Region.
  * @return the minimum y-coordinate
  */
 double Cell::getMinY() {
-
-  /* Set a default min-y */
-  double min_y = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_y = std::max(min_y, surface->getMinY(halfspace));
-  }
-
-  return min_y;
+  if (_region == NULL)
+    return -std::numeric_limits<double>::infinity();
+  else
+    return _region->getMinY();
 }
 
 
 /**
- * @brief Return the maximum reachable y-coordinate in the Cell.
+ * @brief Return the maximum reachable y-coordinate in the Cell's Region.
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
-
-  /* Set a default max-y */
-  double max_y = std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_y = std::min(max_y, surface->getMaxY(halfspace));
-  }
-
-  return max_y;
+  if (_region == NULL)
+    return std::numeric_limits<double>::infinity();
+  else
+    return _region->getMaxY();
 }
 
 
 /**
- * @brief Return the minimum reachable z-coordinate in the Cell.
+ * @brief Return the minimum reachable z-coordinate in the Cell's Region.
  * @return the minimum z-coordinate
  */
 double Cell::getMinZ() {
-
-  /* Set a default min-z */
-  double min_z = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_z = std::max(min_z, surface->getMinZ(halfspace));
-  }
-
-  return min_z;
+  if (_region == NULL)
+    return -std::numeric_limits<double>::infinity();
+  else
+    return _region->getMinZ();
 }
 
 
 /**
- * @brief Return the maximum reachable z-coordinate in the Cell.
+ * @brief Return the maximum reachable z-coordinate in the Cell's Region.
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
-
-  /* Set a default max-z */
-  double max_z = std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_z = std::min(max_z, surface->getMaxZ(halfspace));
-  }
-
-  return max_z;
+  if (_region == NULL)
+    return std::numeric_limits<double>::infinity();
+  else
+    return _region->getMaxZ();
 }
 
 
@@ -1007,7 +929,17 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  * @param point a pointer to a Point
  */
 bool Cell::containsPoint(Point* point) {
-  return _region->containsPoint(point);
+  // FIXME: Is this bullshit???
+  if (_region == NULL) {
+    if (_cell_type == FILL) {
+      Universe* fill = static_cast<Universe*>(_fill);
+      fill->containsPoint(point);
+    }
+    else
+      return true;
+  }
+  else
+    return _region->containsPoint(point);
 }
 
 

@@ -44,6 +44,12 @@ public:
 
   virtual void addNode(Region* node) =0;
   virtual std::vector<Region*> getNodes() =0;
+  virtual double getMinX() =0;
+  virtual double getMaxX() =0;
+  virtual double getMinY() =0;
+  virtual double getMaxY() =0;
+  virtual double getMinZ() =0;
+  virtual double getMaxZ() =0;
 
   Intersection* getIntersection(Region* other);
   Union* getUnion(Region* other);
@@ -73,6 +79,12 @@ public:
 
   void addNode(Region* node);
   std::vector<Region*> getNodes();
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
   
   Intersection* getIntersection(Region* other);
   bool containsPoint(Point* point);
@@ -97,8 +109,13 @@ public:
   Union* clone();
 
   void addNode(Region* node);
-
   std::vector<Region*> getNodes();
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
   
   Union* getUnion(Region* other);
   bool containsPoint(Point* point);
@@ -128,7 +145,14 @@ public:
 
   // FIXME: should this retain the original getNodes() syntax???
   std::vector<Region*> getNodes();
-  
+
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
+
   bool containsPoint(Point* point);  
   double minSurfaceDist(LocalCoords* coords);
 };
@@ -158,6 +182,12 @@ public:
   // FIXME: this may be bullshit
   void addNode(Region* node);
   std::vector<Region*> getNodes();
+  double getMinX();
+  double getMaxX();
+  double getMinY();
+  double getMaxY();
+  double getMinZ();
+  double getMaxZ();
 
   Intersection* getIntersection(Region* other);
   Union* getUnion(Region* other);
