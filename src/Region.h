@@ -42,6 +42,7 @@ public:
   // FIXME: Are these needed for an abstract class???
   Region();
   virtual ~Region();
+  virtual Region* clone() =0;
 
   virtual void addNode(Region* node) =0;
   virtual std::vector<Region*> getNodes() =0;
@@ -69,9 +70,9 @@ private:
 public:
   Intersection();
   virtual ~Intersection();
+  Intersection* clone();
 
   void addNode(Region* node);
-
   std::vector<Region*> getNodes();
   
   Intersection* getIntersection(Region* other);
@@ -93,6 +94,7 @@ private:
 public:
   Union();
   virtual ~Union();
+  Union* clone();
 
   void addNode(Region* node);
 
@@ -119,6 +121,7 @@ private:
 public:
   Complement();
   virtual ~Complement();
+  Complement* clone();
 
   // FIXME: should this retain the original addNodes() syntax???
   void addNode(Region* node);
@@ -149,6 +152,7 @@ private:
 public:
   Halfspace(int halfspace, Surface* surface);
   virtual ~Halfspace();
+  Halfspace* clone();
 
   // FIXME: this may be bullshit
   void addNode(Region* node);

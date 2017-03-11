@@ -78,6 +78,18 @@ Intersection::~Intersection() { }
 
 
 /**
+ * @brief FIXME: Should this delete the nodes???
+ */
+Intersection* Intersection::clone() {
+  Intersection* clone = new Intersection();
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
+    clone->addNode((*iter)->clone());
+  return clone;
+}
+
+
+/**
  * @brief
  * @param
  */
@@ -143,6 +155,18 @@ Union::Union() { }
  * @brief FIXME: Should this delete the nodes???
  */
 Union::~Union() { }
+
+
+/**
+ * @brief FIXME: Should this delete the nodes???
+ */
+Union* Union::clone() {
+  Union* clone = new Union();
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
+    clone->addNode((*iter)->clone());
+  return clone;
+}
 
 
 /**
@@ -216,6 +240,16 @@ Complement::~Complement() { }
 
 
 /**
+ * @brief FIXME: Should this delete the nodes???
+ */
+Complement* Complement::clone() {
+  Complement* clone = new Complement();
+  clone->addNode(_node);
+  return clone;
+}
+
+
+/**
  * @brief
  * @param
  * @returns
@@ -266,6 +300,15 @@ Halfspace::Halfspace(int halfspace, Surface* surface) {
  * @brief FIXME: Should this delete the nodes???
  */
 Halfspace::~Halfspace() { }
+
+
+/**
+ * @brief FIXME: Should this delete the nodes???
+ */
+Halfspace* Halfspace::clone() {
+  Halfspace* clone = new Halfspace(_halfspace, _surface);
+  return clone;
+}
 
 
 /**

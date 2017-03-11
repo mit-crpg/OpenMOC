@@ -135,6 +135,7 @@ public:
   int getId() const;
   char* getName() const;
   cellType getType() const;
+  Region* getRegion();
   Material* getFillMaterial();
   Universe* getFillUniverse();
   double getVolume();
@@ -170,6 +171,7 @@ public:
   std::map<int, Universe*> getAllUniverses();
 
   void setName(const char* name);
+  void setRegion(Region* region);
   void setFill(Material* fill);
   void setFill(Universe* fill);
   void setVolume(double volume);

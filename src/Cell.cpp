@@ -131,6 +131,15 @@ cellType Cell::getType() const {
 
 
 /**
+ * @brief Return the Cell type (FILL or MATERIAL).
+ * @return the Cell type
+ */
+Region* Cell::getRegion() {
+  return _region;
+}
+
+
+/**
  * @brief Return a pointer to the Material filling this Cell.
  * @return the Material fill pointer
  */
@@ -752,6 +761,16 @@ void Cell::setName(const char* name) {
 
 
 /**
+ * @brief Sets the name of the Cell
+ * @param name the Cell name string
+ */
+void Cell::setRegion(Region* region) {
+  // FIXME: this is a memory leak
+  _region = region;
+}
+
+
+/**
  * @brief Sets the Material filling this Cell.
  * @param fill the Material filling this Cell
  */
@@ -989,20 +1008,6 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  */
 bool Cell::containsPoint(Point* point) {
   return _region->containsPoint(point);
-
-  /* Loop over all Surfaces inside the Cell */
-  //  std::map<int, surface_halfspace*>::iterator iter;
-
-  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    /* Return false if the Point is not in the correct Surface halfspace */
-  //    if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
-  //        < 0.0)
-  //      return false;
-  //  }
-
-  /* Return true if the Point is in the correct halfspace for each Surface */
-  //  return true;
 }
 
 
@@ -1092,12 +1097,8 @@ Cell* Cell::clone() {
   if (_translated)
     new_cell->setTranslation(_translation, 3);
 
-  /* Loop over all of this Cell's Surfaces and add them to the clone */
-  //  std::map<int, surface_halfspace*>::iterator iter;
-
-  // FIXME: Need to clone regions
-  //  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-  //    new_cell->addSurface(iter->second->_halfspace, iter->second->_surface);
+  /* Clone the Cell's Region */
+  new_cell->setRegion(_region->clone());
 
   return new_cell;
 }
