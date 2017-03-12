@@ -434,28 +434,10 @@ double Cell::getMaxZ() {
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Cell::getMinXBoundaryType() {
-
-  /* Set a default min-x and boundary type*/
-  double min_x = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (min_x < surface->getMinX(halfspace)) {
-      min_x = surface->getMinX(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMinXBoundaryType();
 }
 
 
@@ -465,28 +447,10 @@ boundaryType Cell::getMinXBoundaryType() {
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Cell::getMaxXBoundaryType() {
-
-  /* Set a default max-x and boundary type*/
-  double max_x = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (max_x > surface->getMaxX(halfspace)) {
-      max_x = surface->getMaxX(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMaxXBoundaryType();
 }
 
 
@@ -496,28 +460,10 @@ boundaryType Cell::getMaxXBoundaryType() {
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Cell::getMinYBoundaryType() {
-
-  /* Set a default min-y and boundary type*/
-  double min_y = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (min_y < surface->getMinY(halfspace)) {
-      min_y = surface->getMinY(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMinYBoundaryType();
 }
 
 
@@ -527,28 +473,10 @@ boundaryType Cell::getMinYBoundaryType() {
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Cell::getMaxYBoundaryType() {
-
-  /* Set a default max-y and boundary type*/
-  double max_y = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  // FIXME: Hmmmm...Add this to the Region class???
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (max_y > surface->getMaxY(halfspace)) {
-      max_y = surface->getMaxY(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMaxYBoundaryType();
 }
 
 
