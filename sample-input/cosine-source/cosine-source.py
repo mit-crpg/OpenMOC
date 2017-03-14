@@ -119,7 +119,7 @@ solver.setNumThreads(opts.num_omp_threads)
 solver.setConvergenceThreshold(opts.tolerance)
 
 # Set the source in every cell to a cosine distribution
-for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+for fsr_id in range(solver.getGeometry().getNumFSRs()):
 
   # Get the coordinates of some point within the FSR
   pt = solver.getGeometry().getFSRPoint(fsr_id)
