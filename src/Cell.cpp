@@ -853,8 +853,13 @@ bool Cell::containsPoint(Point* point) {
   // FIXME: Is this bullshit???
   if (_region == NULL) {
     if (_cell_type == FILL) {
-      Universe* fill = static_cast<Universe*>(_fill);
-      fill->containsPoint(point);
+      Universe* univ = static_cast<Universe*>(_fill);
+      if (univ->getType() == SIMPLE)
+	return univ->containsPoint(point);
+      else {
+	Lattice* latt = static_cast<Lattice*>(_fill);
+	return latt->containsPoint(point);
+      }
     }
     else
       return true;
@@ -1034,8 +1039,6 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::map<int, Halfspace*>::iterator iter1;
   std::map<int, Halfspace*> all_surfaces = getSurfaces();
   for (iter1=all_surfaces.begin(); iter1 != all_surfaces.end(); ++iter1) {
-
-    //  FIXME: This needs to be updated for the Halfspace class
 
     /* Determine if any of the Surfaces is a ZCylinder */
     if (iter1->second->getSurface()->getSurfaceType() == ZCYLINDER) {
