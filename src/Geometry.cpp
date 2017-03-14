@@ -255,9 +255,9 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
   Cell* cell;
   Surface* surf;
   std::map<int, Surface*> all_surfs;
-  std::map<int, surface_halfspace*> surfs;
+  std::map<int, Halfspace*> surfs;
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
 
   if (_root_universe != NULL) {
     std::map<int, Cell*> all_cells = getAllCells();
@@ -267,7 +267,7 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
       surfs = cell->getSurfaces();
 
       for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-	surf = (*s_iter).second->_surface;
+	surf = (*s_iter).second->getSurface();
 	all_surfs[surf->getId()] = surf;
       }
     }
@@ -1132,11 +1132,11 @@ std::string Geometry::toString() {
 
   std::map<int, Cell*> cells = getAllCells();
   std::map<int, Universe*> universes = getAllUniverses();
-  std::map<int, surface_halfspace*> surfaces;
+  std::map<int, Halfspace*> surfaces;
 
   std::map<int, Cell*>::iterator cell_iter;
   std::map<int, Universe*>::iterator univ_iter;
-  std::map<int, surface_halfspace*>::iterator surf_iter;
+  std::map<int, Halfspace*>::iterator surf_iter;
 
   /** Add string data for all Cells */
   string << "\n\tCells:\n\t\t";
@@ -1159,7 +1159,7 @@ std::string Geometry::toString() {
     surfaces = cell_iter->second->getSurfaces();
     string << ", Surfaces: ";
     for (surf_iter = surfaces.begin(); surf_iter != surfaces.end(); ++surf_iter)
-      string <<  surf_iter->second->_surface->toString() << ", ";
+      string <<  surf_iter->second->getSurface()->toString() << ", ";
   }
 
   /** Add string data for all Universes */

@@ -485,9 +485,13 @@ boundaryType Cell::getMaxYBoundaryType() {
  *        surfaces bounding the Cell.
  * @return std::map of Surface pointers and halfspaces
  */
-std::map<int, surface_halfspace*> Cell::getSurfaces() const {
-  // FIXME: Hmmmm...Add this to the Region class???
-  return _surfaces;
+std::map<int, Halfspace*> Cell::getSurfaces() const {
+  if (_region != NULL)
+    return _region->getAllSurfaces();
+  else {
+    std::map<int, Halfspace*> all_surfaces;
+    return all_surfaces;
+  }
 }
 
 
@@ -835,17 +839,6 @@ void Cell::addSurface(int halfspace, Surface* surface) {
       _region = intersection;
     }
   }
-
-  // FIXME: Decide what to do with this...
-  if (halfspace != -1 && halfspace != +1)
-    log_printf(ERROR, "Unable to add surface %d to cell %d since the halfspace"
-               " %d is not -1 or 1", surface->getId(), _id, halfspace);
-
-  surface_halfspace* new_surf_half = new surface_halfspace;
-  new_surf_half->_surface = surface;
-  new_surf_half->_halfspace = halfspace;
-
-  _surfaces[surface->getId()] = new_surf_half;
 }
 
 
@@ -1038,13 +1031,17 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::vector<Cell*> rings;
 
   /* See if the Cell contains 1 or 2 ZCYLINDER Surfaces */
-  std::map<int, surface_halfspace*>::iterator iter1;
-  for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
+  std::map<int, Halfspace*>::iterator iter1;
+  std::map<int, Halfspace*> all_surfaces = getSurfaces();
+  for (iter1=all_surfaces.begin(); iter1 != all_surfaces.end(); ++iter1) {
+
+    //  FIXME: This needs to be updated for the Halfspace class
 
     /* Determine if any of the Surfaces is a ZCylinder */
-    if (iter1->second->_surface->getSurfaceType() == ZCYLINDER) {
-      int halfspace = iter1->second->_halfspace;
-      ZCylinder* zcylinder = static_cast<ZCylinder*>(iter1->second->_surface);
+    if (iter1->second->getSurface()->getSurfaceType() == ZCYLINDER) {
+      int halfspace = iter1->second->getHalfspace();
+      ZCylinder* zcylinder =
+	static_cast<ZCylinder*>(iter1->second->getSurface());
 
       /* Outermost bounding ZCylinder */
       if (halfspace == -1) {

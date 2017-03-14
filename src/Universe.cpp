@@ -140,17 +140,17 @@ double Universe::getMinX() {
 
   double min_x = -std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
 
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*> surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
 
       if (surf->getSurfaceType() == XPLANE && halfspace == +1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
@@ -175,17 +175,17 @@ double Universe::getMaxX() {
 
   double max_x = std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
 
   /* Check if the universe contains a cell with an x-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*> surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
       if (surf->getSurfaceType() == XPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
         return surf->getMaxX(halfspace);
@@ -209,17 +209,17 @@ double Universe::getMinY() {
 
   double min_y = -std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
 
   /* Check if the universe contains a cell with an y-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*> surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
 
       if (surf->getSurfaceType() == YPLANE && halfspace == +1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
@@ -244,17 +244,17 @@ double Universe::getMaxY() {
 
   double max_y = std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
 
   /* Check if the universe contains a cell with an y-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
         return surf->getMaxY(halfspace);
@@ -310,18 +310,18 @@ double Universe::getMaxZ() {
 boundaryType Universe::getMinXBoundaryType() {
 
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
   boundaryType bc_x = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
 
       if (surf->getSurfaceType() == XPLANE && halfspace == +1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
@@ -341,18 +341,18 @@ boundaryType Universe::getMinXBoundaryType() {
 boundaryType Universe::getMaxXBoundaryType() {
 
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
   boundaryType bc_x = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
 
       if (surf->getSurfaceType() == XPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
@@ -372,18 +372,18 @@ boundaryType Universe::getMaxXBoundaryType() {
 boundaryType Universe::getMinYBoundaryType() {
 
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
   boundaryType bc_y = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
 
       if (surf->getSurfaceType() == YPLANE && halfspace == +1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
@@ -403,18 +403,18 @@ boundaryType Universe::getMinYBoundaryType() {
 boundaryType Universe::getMaxYBoundaryType() {
 
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
   boundaryType bc_y = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-      surf = s_iter->second->_surface;
-      halfspace = s_iter->second->_halfspace;
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
 
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)

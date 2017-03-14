@@ -107,6 +107,25 @@ std::vector<Region*> Intersection::getNodes() {
 }
 
 
+
+/**
+ * @brief
+ * @returns
+ */
+std::map<int, Halfspace*> Intersection::getAllSurfaces() {
+  std::map<int, Halfspace*> all_surfaces;
+  std::map<int, Halfspace*> node_surfaces;
+  std::vector<Region*>::iterator iter;
+
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
+    node_surfaces = (*iter)->getAllSurfaces();
+    all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
+  }
+
+  return all_surfaces;
+}
+
+
 /**
  * @brief Return the minimum reachable x-coordinate in the Intersection.
  * @return the minimum x-coordinate
@@ -415,6 +434,24 @@ void Union::addNode(Region* node) {
  */
 std::vector<Region*> Union::getNodes() {
   return _nodes;
+}
+
+
+/**
+ * @brief
+ * @returns
+ */
+std::map<int, Halfspace*> Union::getAllSurfaces() {
+  std::map<int, Halfspace*> all_surfaces;
+  std::map<int, Halfspace*> node_surfaces;
+  std::vector<Region*>::iterator iter;
+
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
+    node_surfaces = (*iter)->getAllSurfaces();
+    all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
+  }
+
+  return all_surfaces;
 }
 
 
@@ -733,6 +770,18 @@ std::vector<Region*> Complement::getNodes() {
 
 
 /**
+ * @brief
+ * @returns
+ */
+std::map<int, Halfspace*> Complement::getAllSurfaces() {
+  std::map<int, Halfspace*> all_surfaces;
+  std::map<int, Halfspace*> node_surfaces = _node->getAllSurfaces();
+  all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
+  return all_surfaces;
+}
+
+
+/**
  * @brief Return the minimum reachable x-coordinate in the Complement.
  * @return the minimum x-coordinate
  */
@@ -938,6 +987,24 @@ Halfspace* Halfspace::clone() {
  * @brief
  * @param
  */
+Surface* Halfspace::getSurface() {
+  return _surface;
+}
+
+
+/**
+ * @brief
+ * @param
+ */
+int Halfspace::getHalfspace() {
+  return _halfspace;
+}
+
+
+/**
+ * @brief
+ * @param
+ */
 void Halfspace::addNode(Region* node) {
   // FIXME: WTF
   return;
@@ -953,6 +1020,17 @@ std::vector<Region*> Halfspace::getNodes() {
   std::vector<Region*> nodes;
   nodes.push_back(this);
   return nodes;
+}
+
+
+/**
+ * @brief
+ * @returns
+ */
+std::map<int, Halfspace*> Halfspace::getAllSurfaces() {
+  std::map<int, Halfspace*> all_surfaces;
+  all_surfaces[_surface->getId()] = this;
+  return all_surfaces;
 }
 
 

@@ -44,6 +44,7 @@ public:
 
   virtual void addNode(Region* node) =0;
   virtual std::vector<Region*> getNodes() =0;
+  virtual std::map<int, Halfspace*> getAllSurfaces() =0;
 
   virtual double getMinX() =0;
   virtual double getMaxX() =0;
@@ -84,6 +85,7 @@ public:
 
   void addNode(Region* node);
   std::vector<Region*> getNodes();
+  std::map<int, Halfspace*> getAllSurfaces();
 
   double getMinX();
   double getMaxX();
@@ -120,6 +122,7 @@ public:
 
   void addNode(Region* node);
   std::vector<Region*> getNodes();
+  std::map<int, Halfspace*> getAllSurfaces();
 
   double getMinX();
   double getMaxX();
@@ -161,6 +164,8 @@ public:
   // FIXME: should this retain the original getNodes() syntax???
   std::vector<Region*> getNodes();
 
+  std::map<int, Halfspace*> getAllSurfaces();
+
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -192,22 +197,27 @@ private:
 
   /** The halfspace associated with this surface */
   int _halfspace;
-
+  
 public:
+
   Halfspace(int halfspace, Surface* surface);
   virtual ~Halfspace();
   Halfspace* clone();
 
+  Surface* getSurface();
+  int getHalfspace();
+
   // FIXME: this may be bullshit
   void addNode(Region* node);
   std::vector<Region*> getNodes();
+  std::map<int, Halfspace*> getAllSurfaces();
+
   double getMinX();
   double getMaxX();
   double getMinY();
   double getMaxY();
   double getMinZ();
   double getMaxZ();
-
   boundaryType getMinXBoundaryType();
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
