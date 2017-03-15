@@ -2722,9 +2722,9 @@ void Cmfd::generateKNearestStencils() {
 
       /* Calculate the CMFD cell z-coordinate */
       int z_ind = i / (_local_num_x * _local_num_y);
-      double z_cmfd = (z_ind + 0.5) * _cell_width_z + _lattice->getMinZ();
+      double z_cmfd = (z_ind + 0.5) * dz + _lattice->getMinZ();
       if (_domain_communicator != NULL)
-        z_cmfd += _domain_communicator->_domain_idx_z * _cell_width_z * _local_num_z;
+        z_cmfd += _domain_communicator->_domain_idx_z * dz * _local_num_z;
 
       /* Loop over FRSs in mesh cell */
       int num_fissionable_FSRs = 0;

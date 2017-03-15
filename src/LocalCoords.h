@@ -76,7 +76,7 @@ private:
 
   /** A pointer to the LocalCoords at the next higher nested Universe level */
   LocalCoords* _prev;
-  
+
   /** FIXME */
   int _position;
   LocalCoords* _next_array;

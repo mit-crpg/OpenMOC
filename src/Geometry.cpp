@@ -1602,8 +1602,6 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
-
-  return;
 }
 
 
@@ -1614,10 +1612,9 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
- * @param max_optical_length the maximum optical length a segment is allowed to
- *          have
+ * @param setup whether the segmentize routine is called during OTF setup
  */
-void Geometry::segmentize3D(Track3D* track) {
+void Geometry::segmentize3D(Track3D* track, bool setup) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -1642,6 +1639,18 @@ void Geometry::segmentize3D(Track3D* track) {
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi, theta);
   Cell* prev;
+
+  /* Vector to fill coordinates if necessary */
+  std::vector<LocalCoords*> fsr_coords;
+  LocalCoords* preallocation;
+  int preallocation_size = 0;
+  if (setup) {
+    if (_axial_mesh != NULL) {
+      preallocation_size = _axial_mesh->getNumZ();
+      preallocation = new LocalCoords[preallocation_size];
+      fsr_coords.reserve(preallocation_size);
+    }
+  }
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -1673,7 +1682,21 @@ void Geometry::segmentize3D(Track3D* track) {
     /* Find the segment length between the segment's start and end points */
     length = double(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
-    fsr_id = findFSRId(&start);
+
+    /* Get the FSR ID or save the coordinates */
+    int fsr_id = -1;
+    if (setup) {
+      LocalCoords* new_fsr_coords;
+      if (fsr_coords.size() >= preallocation_size)
+        new_fsr_coords = new LocalCoords(0,0,0);
+      else
+        new_fsr_coords = &preallocation[fsr_coords.size()];
+      start.copyCoords(new_fsr_coords);
+      fsr_coords.push_back(new_fsr_coords);
+    }
+    else {
+      fsr_id = findFSRId(&start);
+    }
 
     /* Create a new Track segment */
     segment* new_segment = new segment;
@@ -1687,7 +1710,7 @@ void Geometry::segmentize3D(Track3D* track) {
                end.getX(), end.getY(), end.getZ());
 
     /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
-    if (_cmfd != NULL) {
+    if (_cmfd != NULL && !setup) {
 
       /* Find cmfd cell that segment lies in */
       int cmfd_cell = _cmfd->findCmfdCell(&start);
@@ -1711,7 +1734,7 @@ void Geometry::segmentize3D(Track3D* track) {
     }
 
     /* Calculate the local centroid of the segment if available */
-    if (_contains_FSR_centroids) {
+    if (_contains_FSR_centroids && !setup) {
       Point* centroid = getFSRCentroid(fsr_id);
       Point* starting_point = start.getHighestLevel()->getPoint();
       double x_start = starting_point->getX() - centroid->getX();
@@ -1728,6 +1751,24 @@ void Geometry::segmentize3D(Track3D* track) {
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
              track->getNumSegments(), track->toString().c_str());
+
+  /* Search FSR IDs if necessary */
+  if (setup) {
+#pragma omp critical
+    {
+      for (int s=0; s < track->getNumSegments(); s++) {
+        int fsr_id = findFSRId(fsr_coords.at(s));
+        track->getSegment(s)->_region_id = fsr_id;
+      }
+    }
+
+    for (int s=0; s < fsr_coords.size(); s++)
+      fsr_coords.at(s)->prune();
+
+    if (preallocation_size > 0)
+      delete [] preallocation;
+  }
+
 
   /* Truncate the linked list for the LocalCoords */
   start.prune();
@@ -2009,7 +2050,14 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   std::string msg = "initializing 3D FSRs";
   Progress progress(_extruded_FSR_keys_map.size(), msg, 0.01, this, true);
 
+  /* Re-allocate the FSR keys map with the new anticipated size */
+  int anticipated_size = 2 * _extruded_FSR_keys_map.size();
+  if (_axial_mesh != NULL)
+    anticipated_size *= _axial_mesh->getNumZ();
+  _FSR_keys_map.realloc(anticipated_size);
+
   /* Loop over extruded FSRs */
+#pragma omp parallel for
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
     progress.incrementCounter();
@@ -2029,21 +2077,24 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
       extruded_FSR->_fsr_ids = new int[num_regions];
 
       /* Loop over all regions in the global mesh */
-      for (int n=0; n < num_regions; n++) {
+#pragma omp critical
+      {
+        for (int n=0; n < num_regions; n++) {
 
-        /* Set the axial coordinate at the midpoint of mesh boundaries */
-        double midpt = (global_z_mesh[n] + global_z_mesh[n+1]) / 2;
-        LocalCoords coord(x0, y0, midpt);
-        coord.setUniverse(_root_universe);
+          /* Set the axial coordinate at the midpoint of mesh boundaries */
+          double midpt = (global_z_mesh[n] + global_z_mesh[n+1]) / 2;
+          LocalCoords coord(x0, y0, midpt);
+          coord.setUniverse(_root_universe);
 
-        /* Get the FSR ID and material */
-        Cell* cell = findCellContainingCoords(&coord);
-        int fsr_id = findFSRId(&coord);
-        Material* material = cell->getFillMaterial();
+          /* Get the FSR ID and material */
+          Cell* cell = findCellContainingCoords(&coord);
+          int fsr_id = findFSRId(&coord);
+          Material* material = cell->getFillMaterial();
 
-        /* Set the FSR ID and material */
-        extruded_FSR->_fsr_ids[n] = fsr_id;
-        extruded_FSR->_materials[n] = material;
+          /* Set the FSR ID and material */
+          extruded_FSR->_fsr_ids[n] = fsr_id;
+          extruded_FSR->_materials[n] = material;
+        }
       }
     }
     else {
@@ -2053,7 +2104,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
       track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
 
       /* Shoot vertical track through the geometry to initialize 3D FSRs */
-      segmentize3D(&track);
+      segmentize3D(&track, true);
 
       /* Extract segments from track */
       int num_segments = track.getNumSegments();
