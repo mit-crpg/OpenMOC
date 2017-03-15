@@ -270,6 +270,7 @@ double Universe::getMaxY() {
 }
 
 
+
 /**
  * @brief Returns the minimum reachable z-coordinate in the Universe.
  * @return the minimum reachable z-coordinate
@@ -277,10 +278,29 @@ double Universe::getMaxY() {
 double Universe::getMinZ() {
 
   double min_z = -std::numeric_limits<double>::infinity();
-  std::map<int, Cell*>::iterator iter;
+  std::map<int, Cell*>::iterator c_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
+  Surface* surf;
+  int halfspace;
 
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    min_z = std::min(min_z, iter->second->getMinZ());
+  /* Check if the universe contains a cell with a z-min boundary */
+  for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
+
+    for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
+
+      if (surf->getSurfaceType() == ZPLANE && halfspace == +1 &&
+          surf->getBoundaryType() != BOUNDARY_NONE)
+        return surf->getMinZ(halfspace);
+    }
+  }
+
+  /* If a z-min boundary was not found, get the z-min from the bounding boxes
+   * of the cells */
+  for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
+    min_z = std::min(min_z, c_iter->second->getMinZ());
 
   return min_z;
 }
@@ -293,10 +313,28 @@ double Universe::getMinZ() {
 double Universe::getMaxZ() {
 
   double max_z = std::numeric_limits<double>::infinity();
-  std::map<int, Cell*>::iterator iter;
+  std::map<int, Cell*>::iterator c_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
+  Surface* surf;
+  int halfspace;
 
-  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
-    max_z = std::max(max_z, iter->second->getMaxZ());
+  /* Check if the universe contains a cell with an z-max boundary */
+  for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
+
+    for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
+      surf = s_iter->second->getSurface();
+      halfspace = s_iter->second->getHalfspace();
+      if (surf->getSurfaceType() == ZPLANE && halfspace == -1 &&
+          surf->getBoundaryType() != BOUNDARY_NONE)
+        return surf->getMaxZ(halfspace);
+    }
+  }
+
+  /* If a y-max boundary was not found, get the y-max from the bounding boxes
+   * of the cells */
+  for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
+    max_z = std::max(max_z, c_iter->second->getMaxZ());
 
   return max_z;
 }
