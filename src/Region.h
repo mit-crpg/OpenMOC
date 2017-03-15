@@ -19,11 +19,6 @@
 #endif
 
 
-// FIXME: Add a Halfspace class
-// FIXME: Add this to SWIG
-// FIXME: Incorporate this into the Cell class
-
-
 /* Forward declarations to resolve circular dependencies */
 class Intersection;
 class Union;
@@ -37,6 +32,11 @@ class Halfspace;
  */
 class Region {
 
+protected:
+
+  // FIXME: Add doxygen comment
+  std::vector<Region*> _nodes;
+
 public:
   // FIXME: Are these needed for an abstract class???
   Region();
@@ -47,12 +47,12 @@ public:
   virtual std::vector<Region*> getNodes() =0;
   virtual std::map<int, Halfspace*> getAllSurfaces() =0;
 
-  virtual double getMinX() =0;
-  virtual double getMaxX() =0;
-  virtual double getMinY() =0;
-  virtual double getMaxY() =0;
-  virtual double getMinZ() =0;
-  virtual double getMaxZ() =0;
+  virtual double getMinX();
+  virtual double getMaxX();
+  virtual double getMinY();
+  virtual double getMaxY();
+  virtual double getMinZ();
+  virtual double getMaxZ();
   virtual boundaryType getMinXBoundaryType() =0;
   virtual boundaryType getMaxXBoundaryType() =0;
   virtual boundaryType getMinYBoundaryType() =0;
@@ -74,11 +74,6 @@ public:
  */
 class Intersection : public Region {
 
-private:
-
-  // FIXME: Add doxygen comment
-  std::vector<Region*> _nodes;
-
 public:
   Intersection();
   virtual ~Intersection();
@@ -88,12 +83,6 @@ public:
   std::vector<Region*> getNodes();
   std::map<int, Halfspace*> getAllSurfaces();
 
-  double getMinX();
-  double getMaxX();
-  double getMinY();
-  double getMaxY();
-  double getMinZ();
-  double getMaxZ();
   boundaryType getMinXBoundaryType();
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
@@ -111,11 +100,6 @@ public:
  */
 class Union : public Region {
 
-private:
-
-  // FIXME: Add doxygen comment
-  std::vector<Region*> _nodes;
-
 public:
   Union();
   virtual ~Union();
@@ -125,12 +109,6 @@ public:
   std::vector<Region*> getNodes();
   std::map<int, Halfspace*> getAllSurfaces();
 
-  double getMinX();
-  double getMaxX();
-  double getMinY();
-  double getMaxY();
-  double getMinZ();
-  double getMaxZ();
   boundaryType getMinXBoundaryType();
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
@@ -152,6 +130,7 @@ class Complement : public Region {
 private:
 
   // FIXME: Add doxygen comment
+  // FIXME: Can this be removed???
   Region* _node;
 
 public:
@@ -167,12 +146,6 @@ public:
 
   std::map<int, Halfspace*> getAllSurfaces();
 
-  double getMinX();
-  double getMaxX();
-  double getMinY();
-  double getMaxY();
-  double getMinZ();
-  double getMaxZ();
   boundaryType getMinXBoundaryType();
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();

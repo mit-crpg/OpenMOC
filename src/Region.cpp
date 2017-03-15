@@ -15,6 +15,114 @@ Region::~Region() { }
 
 
 /**
+ * @brief Return the minimum reachable x-coordinate in the Region.
+ * @return the minimum x-coordinate
+ */
+double Region::getMinX() {
+
+  /* Set a default min-x */
+  double min_x = -std::numeric_limits<double>::infinity();
+
+  /* Loop over all nodes in the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
+    min_x = std::max(min_x, (*iter)->getMinX());
+
+  return min_x;
+}
+
+
+/**
+ * @brief Return the maximum reachable x-coordinate in the Region.
+ * @return the maximum x-coordinate
+ */
+double Region::getMaxX() {
+
+  /* Set a default max-x */
+  double max_x = std::numeric_limits<double>::infinity();
+
+  /* Loop over all nodes in the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
+    max_x = std::min(max_x, (*iter)->getMaxX());
+
+  return max_x;
+}
+
+
+/**
+ * @brief Return the minimum reachable y-coordinate in the Region.
+ * @return the minimum y-coordinate
+ */
+double Region::getMinY() {
+
+  /* Set a default min-y */
+  double min_y = -std::numeric_limits<double>::infinity();
+
+  /* Loop over all nodes in the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
+    min_y = std::max(min_y, (*iter)->getMinY());
+
+  return min_y;
+}
+
+
+/**
+ * @brief Return the maximum reachable y-coordinate in the Region.
+ * @return the maximum y-coordinate
+ */
+double Region::getMaxY() {
+
+  /* Set a default max-y */
+  double max_y = std::numeric_limits<double>::infinity();
+
+  /* Loop over all nodes in the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
+    max_y = std::min(max_y, (*iter)->getMaxY());
+
+  return max_y;
+}
+
+
+/**
+ * @brief Return the minimum reachable z-coordinate in the Region.
+ * @return the minimum z-coordinate
+ */
+double Region::getMinZ() {
+
+  /* Set a default min-z */
+  double min_z = -std::numeric_limits<double>::infinity();
+
+  /* Loop over all nodes in the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
+    min_z = std::max(min_z, (*iter)->getMinZ());
+
+  return min_z;
+}
+
+
+/**
+ * @brief Return the maximum reachable z-coordinate in the Region.
+ * @return the maximum z-coordinate
+ */
+double Region::getMaxZ() {
+
+  /* Set a default max-z */
+  double max_z = std::numeric_limits<double>::infinity();
+
+  /* Loop over all nodes in the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
+    max_z = std::min(max_z, (*iter)->getMaxZ());
+
+  return max_z;
+}
+
+
+/**
  * @brief
  * @param
  * @returns
@@ -123,114 +231,6 @@ std::map<int, Halfspace*> Intersection::getAllSurfaces() {
   }
 
   return all_surfaces;
-}
-
-
-/**
- * @brief Return the minimum reachable x-coordinate in the Intersection.
- * @return the minimum x-coordinate
- */
-double Intersection::getMinX() {
-
-  /* Set a default min-x */
-  double min_x = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_x = std::max(min_x, (*iter)->getMinX());
-
-  return min_x;
-}
-
-
-/**
- * @brief Return the maximum reachable x-coordinate in the Intersection.
- * @return the maximum x-coordinate
- */
-double Intersection::getMaxX() {
-
-  /* Set a default max-x */
-  double max_x = std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_x = std::min(max_x, (*iter)->getMaxX());
-
-  return max_x;
-}
-
-
-/**
- * @brief Return the minimum reachable y-coordinate in the Intersection.
- * @return the minimum y-coordinate
- */
-double Intersection::getMinY() {
-
-  /* Set a default min-y */
-  double min_y = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_y = std::max(min_y, (*iter)->getMinY());
-
-  return min_y;
-}
-
-
-/**
- * @brief Return the maximum reachable y-coordinate in the Intersection.
- * @return the maximum y-coordinate
- */
-double Intersection::getMaxY() {
-
-  /* Set a default max-y */
-  double max_y = std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_y = std::min(max_y, (*iter)->getMaxY());
-
-  return max_y;
-}
-
-
-/**
- * @brief Return the minimum reachable z-coordinate in the Intersection.
- * @return the minimum z-coordinate
- */
-double Intersection::getMinZ() {
-
-  /* Set a default min-z */
-  double min_z = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_z = std::max(min_z, (*iter)->getMinZ());
-
-  return min_z;
-}
-
-
-/**
- * @brief Return the maximum reachable z-coordinate in the Intersection.
- * @return the maximum z-coordinate
- */
-double Intersection::getMaxZ() {
-
-  /* Set a default max-z */
-  double max_z = std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_z = std::min(max_z, (*iter)->getMaxZ());
-
-  return max_z;
 }
 
 
@@ -456,114 +456,6 @@ std::map<int, Halfspace*> Union::getAllSurfaces() {
 
 
 /**
- * @brief Return the minimum reachable x-coordinate in the Union.
- * @return the minimum x-coordinate
- */
-double Union::getMinX() {
-
-  /* Set a default min-x */
-  double min_x = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_x = std::max(min_x, (*iter)->getMinX());
-
-  return min_x;
-}
-
-
-/**
- * @brief Return the maximum reachable x-coordinate in the Union.
- * @return the maximum x-coordinate
- */
-double Union::getMaxX() {
-
-  /* Set a default max-x */
-  double max_x = std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_x = std::min(max_x, (*iter)->getMaxX());
-
-  return max_x;
-}
-
-
-/**
- * @brief Return the minimum reachable y-coordinate in the Union.
- * @return the minimum y-coordinate
- */
-double Union::getMinY() {
-
-  /* Set a default min-y */
-  double min_y = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_y = std::max(min_y, (*iter)->getMinY());
-
-  return min_y;
-}
-
-
-/**
- * @brief Return the maximum reachable y-coordinate in the Union.
- * @return the maximum y-coordinate
- */
-double Union::getMaxY() {
-
-  /* Set a default max-y */
-  double max_y = std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_y = std::min(max_y, (*iter)->getMaxY());
-
-  return max_y;
-}
-
-
-/**
- * @brief Return the minimum reachable z-coordinate in the Union.
- * @return the minimum z-coordinate
- */
-double Union::getMinZ() {
-
-  /* Set a default min-z */
-  double min_z = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_z = std::max(min_z, (*iter)->getMinZ());
-
-  return min_z;
-}
-
-
-/**
- * @brief Return the maximum reachable z-coordinate in the Union.
- * @return the maximum z-coordinate
- */
-double Union::getMaxZ() {
-
-  /* Set a default max-z */
-  double max_z = std::numeric_limits<double>::infinity();
-
-  /* Loop over all nodes in the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_z = std::min(max_z, (*iter)->getMaxZ());
-
-  return max_z;
-}
-
-
-/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the minimum reachable x-coordinate in the Union.
  * @return the boundary condition at the minimum x-coordinate
@@ -778,96 +670,6 @@ std::map<int, Halfspace*> Complement::getAllSurfaces() {
   std::map<int, Halfspace*> node_surfaces = _node->getAllSurfaces();
   all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
   return all_surfaces;
-}
-
-
-/**
- * @brief Return the minimum reachable x-coordinate in the Complement.
- * @return the minimum x-coordinate
- */
-double Complement::getMinX() {
-
-  /* Set a default min-x */
-  double min_x = -std::numeric_limits<double>::infinity();
-  if (_node != NULL)
-    min_x = std::max(min_x, _node->getMinX());
-
-  return min_x;
-}
-
-
-/**
- * @brief Return the maximum reachable x-coordinate in the Complement.
- * @return the maximum x-coordinate
- */
-double Complement::getMaxX() {
-
-  /* Set a default max-x */
-  double max_x = std::numeric_limits<double>::infinity();
-  if (_node != NULL)
-    max_x = std::min(max_x, _node->getMaxX());
-
-  return max_x;
-}
-
-
-/**
- * @brief Return the minimum reachable y-coordinate in the Complement.
- * @return the minimum y-coordinate
- */
-double Complement::getMinY() {
-
-  /* Set a default min-y */
-  double min_y = -std::numeric_limits<double>::infinity();
-  if (_node != NULL)
-    min_y = std::max(min_y, _node->getMinY());
-
-  return min_y;
-}
-
-
-/**
- * @brief Return the maximum reachable y-coordinate in the Complement.
- * @return the maximum y-coordinate
- */
-double Complement::getMaxY() {
-
-  /* Set a default max-y */
-  double max_y = std::numeric_limits<double>::infinity();
-  if (_node != NULL)
-    max_y = std::min(max_y, _node->getMaxY());
-
-  return max_y;
-}
-
-
-/**
- * @brief Return the minimum reachable z-coordinate in the Complement.
- * @return the minimum z-coordinate
- */
-double Complement::getMinZ() {
-
-  /* Set a default min-z */
-  double min_z = -std::numeric_limits<double>::infinity();
-  if (_node != NULL)
-    min_z = std::max(min_z, _node->getMinZ());
-
-  return min_z;
-}
-
-
-/**
- * @brief Return the maximum reachable z-coordinate in the Complement.
- * @return the maximum z-coordinate
- */
-double Complement::getMaxZ() {
-
-  /* Set a default max-z */
-  double max_z = std::numeric_limits<double>::infinity();
-  if (_node != NULL)
-    max_z = std::min(max_z, _node->getMaxZ());
-
-  return max_z;
 }
 
 
