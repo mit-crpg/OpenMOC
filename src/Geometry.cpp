@@ -2007,7 +2007,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
   std::string msg = "initializing 3D FSRs";
-  Progress progress(_extruded_FSR_keys_map.size(), msg);
+  Progress progress(_extruded_FSR_keys_map.size(), msg, 0.01, this, true);
 
   /* Loop over extruded FSRs */
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
@@ -2083,6 +2083,11 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
     }
   }
   delete [] extruded_FSRs;
+#ifdef MPIx
+  if (_domain_decomposed)
+    MPI_Barrier(_MPI_cart);
+#endif
+  log_printf(NORMAL, "Finished initializing 3D FSRs");
 }
 
 
@@ -2097,6 +2102,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 void Geometry::initializeFSRVectors() {
 
   /* get keys and values from map */
+  log_printf(NORMAL, "Initializing FSR lookup vectors");
   std::string *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
 
@@ -2135,6 +2141,7 @@ void Geometry::initializeFSRVectors() {
     /* Allocate extruded FSR lookup vector and fill with extruded FSRs by ID */
     _extruded_FSR_lookup = std::vector<ExtrudedFSR*>(num_extruded_FSRs);
     ExtrudedFSR **extruded_value_list = _extruded_FSR_keys_map.values();
+#pragma omp parallel for
     for (int i=0; i < num_extruded_FSRs; i++) {
       int fsr_id = extruded_value_list[i]->_fsr_id;
       _extruded_FSR_lookup[fsr_id] = extruded_value_list[i];

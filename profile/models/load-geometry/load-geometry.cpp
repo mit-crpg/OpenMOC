@@ -15,8 +15,10 @@ int main(int argc,  char* argv[]) {
 
   /* Define geometry to load */
   //std::string file = "few-pins-reduced-ref-v2.geo";
-  std::string file = "full-assembly-final.geo";
-  //std::string file = "beavrs-2D.geo";
+  //std::string file = "full-assembly-final.geo";
+  //std::string file = "beavrs-2D-v2-NULL-corr.geo";
+  //std::string file = "beavrs-2D-v2.geo";
+  std::string file = "full-core-beavrs-new.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -25,21 +27,28 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
  
+  double azim_spacing = 0.2;
+  int num_azim = 4; //FIXME 32
+  double polar_spacing = 5.0;
+  int num_polar = 6;
+
+  /*
   double azim_spacing = 0.1;
   int num_azim = 32;
-  double polar_spacing = 0.75;
-  int num_polar = 20;
+  double polar_spacing = 5.0; // 1.0
+  int num_polar = 6;
+  */
 
-  double tolerance = 1e-4;
-  int max_iters = 50;
+  double tolerance = 1e-7;
+  int max_iters = 250;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17, 17, 200);
+  cmfd.setLatticeStructure(17*17, 17*17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70,25);
+      get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.7);
   cmfd.setSORRelaxationFactor(1.6);
@@ -49,12 +58,17 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.loadFromFile(file);
+  //geometry.manipulateXS();
 
   geometry.setAxialMesh(2.0);
   geometry.setCmfd(&cmfd);
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 40, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD);
+  //geometry.setNumDomainModules(17,17,1);
+  //geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD); // FIXME 23
+#else
+  //geometry.setNumDomainModules(2,2,4);
 #endif
   geometry.initializeFlatSourceRegions();
 
@@ -64,7 +78,7 @@ int main(int argc,  char* argv[]) {
                                    polar_spacing);
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
-  track_generator.setSegmentFormation(OTF_STACKS); //FIXME
+  track_generator.setSegmentFormation(OTF_STACKS);
   /*
   std::vector<FP_PRECISION> zones;
   zones.push_back(0.0);
@@ -76,7 +90,7 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator);
+  CPUSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
@@ -85,9 +99,10 @@ int main(int argc,  char* argv[]) {
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
+  return 0; //FIXME
   Lattice mesh_lattice;
   Mesh mesh(&solver);
-  mesh.createLattice(17, 17, 200);
+  mesh.createLattice(17*17, 17*17, 1);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
   int my_rank = 0;
