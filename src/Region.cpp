@@ -1,7 +1,6 @@
 #include "Region.h"
 
 
-
 /**
  * @brief FIXME: Is this needed for an abstract class???
  */
@@ -123,6 +122,102 @@ double Region::getMaxZ() {
 
 
 /**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable x-coordinate in the Region.
+ * @return the boundary condition at the minimum x-coordinate
+ */
+boundaryType Region::getMinXBoundaryType() {
+
+  /* Set a default min-x and boundary type*/
+  double min_x = -std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all nodes inside the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if (min_x < (*iter)->getMinX()) {
+      min_x = (*iter)->getMinX();
+      bc = (*iter)->getMinXBoundaryType();
+    }
+  }
+
+  return bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable x-coordinate in the Region.
+ * @return the boundary condition at the maximum x-coordinate
+ */
+boundaryType Region::getMaxXBoundaryType() {
+
+  /* Set a default max-x and boundary type*/
+  double max_x = std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all nodes inside the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if (max_x > (*iter)->getMaxX()) {
+      max_x = (*iter)->getMaxX();
+      bc = (*iter)->getMaxXBoundaryType();
+    }
+  }
+
+  return bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable y-coordinate in the Region.
+ * @return the boundary condition at the minimum y-coordinate
+ */
+boundaryType Region::getMinYBoundaryType() {
+
+  /* Set a default min-y and boundary type*/
+  double min_y = -std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all nodes inside the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if (min_y < (*iter)->getMinY()) {
+      min_y = (*iter)->getMinY();
+      bc = (*iter)->getMinYBoundaryType();
+    }
+  }
+
+  return bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable y-coordinate in the Region.
+ * @return the boundary condition at the maximum y-coordinate
+ */
+boundaryType Region::getMaxYBoundaryType() {
+
+  /* Set a default max-y and boundary type*/
+  double max_y = std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all nodes inside the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if (max_y > (*iter)->getMaxY()) {
+      max_y = (*iter)->getMaxY();
+      bc = (*iter)->getMaxYBoundaryType();
+    }
+  }
+
+  return bc;
+}
+
+
+/**
  * @brief
  * @param
  * @returns
@@ -231,102 +326,6 @@ std::map<int, Halfspace*> Intersection::getAllSurfaces() {
   }
 
   return all_surfaces;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable x-coordinate in the Intersection.
- * @return the boundary condition at the minimum x-coordinate
- */
-boundaryType Intersection::getMinXBoundaryType() {
-
-  /* Set a default min-x and boundary type*/
-  double min_x = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (min_x < (*iter)->getMinX()) {
-      min_x = (*iter)->getMinX();
-      bc = (*iter)->getMinXBoundaryType();
-    }
-  }
-
-  return bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable x-coordinate in the Intersection.
- * @return the boundary condition at the maximum x-coordinate
- */
-boundaryType Intersection::getMaxXBoundaryType() {
-
-  /* Set a default max-x and boundary type*/
-  double max_x = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (max_x > (*iter)->getMaxX()) {
-      max_x = (*iter)->getMaxX();
-      bc = (*iter)->getMaxXBoundaryType();
-    }
-  }
-
-  return bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable y-coordinate in the Intersection.
- * @return the boundary condition at the minimum y-coordinate
- */
-boundaryType Intersection::getMinYBoundaryType() {
-
-  /* Set a default min-y and boundary type*/
-  double min_y = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (min_y < (*iter)->getMinY()) {
-      min_y = (*iter)->getMinY();
-      bc = (*iter)->getMinYBoundaryType();
-    }
-  }
-
-  return bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable y-coordinate in the Intersection.
- * @return the boundary condition at the maximum y-coordinate
- */
-boundaryType Intersection::getMaxYBoundaryType() {
-
-  /* Set a default max-y and boundary type*/
-  double max_y = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Region */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (max_y > (*iter)->getMaxY()) {
-      max_y = (*iter)->getMaxY();
-      bc = (*iter)->getMaxYBoundaryType();
-    }
-  }
-
-  return bc;
 }
 
 
@@ -456,102 +455,6 @@ std::map<int, Halfspace*> Union::getAllSurfaces() {
 
 
 /**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable x-coordinate in the Union.
- * @return the boundary condition at the minimum x-coordinate
- */
-boundaryType Union::getMinXBoundaryType() {
-
-  /* Set a default min-x and boundary type*/
-  double min_x = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Union */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (min_x < (*iter)->getMinX()) {
-      min_x = (*iter)->getMinX();
-      bc = (*iter)->getMinXBoundaryType();
-    }
-  }
-
-  return bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable x-coordinate in the Union.
- * @return the boundary condition at the maximum x-coordinate
- */
-boundaryType Union::getMaxXBoundaryType() {
-
-  /* Set a default max-x and boundary type*/
-  double max_x = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Union */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (max_x > (*iter)->getMaxX()) {
-      max_x = (*iter)->getMaxX();
-      bc = (*iter)->getMaxXBoundaryType();
-    }
-  }
-
-  return bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable y-coordinate in the Union.
- * @return the boundary condition at the minimum y-coordinate
- */
-boundaryType Union::getMinYBoundaryType() {
-
-  /* Set a default min-y and boundary type*/
-  double min_y = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Union */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (min_y < (*iter)->getMinY()) {
-      min_y = (*iter)->getMinY();
-      bc = (*iter)->getMinYBoundaryType();
-    }
-  }
-
-  return bc;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable y-coordinate in the Union.
- * @return the boundary condition at the maximum y-coordinate
- */
-boundaryType Union::getMaxYBoundaryType() {
-
-  /* Set a default max-y and boundary type*/
-  double max_y = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all nodes inside the Union */
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (max_y > (*iter)->getMaxY()) {
-      max_y = (*iter)->getMaxY();
-      bc = (*iter)->getMaxYBoundaryType();
-    }
-  }
-
-  return bc;
-}
-
-
-/**
  * @brief
  * @param
  * @returns
@@ -670,58 +573,6 @@ std::map<int, Halfspace*> Complement::getAllSurfaces() {
   std::map<int, Halfspace*> node_surfaces = _node->getAllSurfaces();
   all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
   return all_surfaces;
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable x-coordinate in the Complement.
- * @return the boundary condition at the minimum x-coordinate
- */
-boundaryType Complement::getMinXBoundaryType() {
-  if (_node == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _node->getMinXBoundaryType();
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable x-coordinate in the Complement.
- * @return the boundary condition at the maximum x-coordinate
- */
-boundaryType Complement::getMaxXBoundaryType() {
-  if (_node == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _node->getMaxXBoundaryType();
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the minimum reachable y-coordinate in the Complement.
- * @return the boundary condition at the minimum y-coordinate
- */
-boundaryType Complement::getMinYBoundaryType() {
-  if (_node == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _node->getMinYBoundaryType();
-}
-
-
-/**
- * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable y-coordinate in the Complement.
- * @return the boundary condition at the maximum y-coordinate
- */
-boundaryType Complement::getMaxYBoundaryType() {
-  if (_node == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _node->getMaxYBoundaryType();
 }
 
 
@@ -1051,4 +902,3 @@ void RectangularPrism::setBoundaryType(boundaryType boundary_type) {
   for (iter = all_surfaces.begin(); iter != all_surfaces.end(); iter++)
     iter->second->getSurface()->setBoundaryType(boundary_type);
 }
-

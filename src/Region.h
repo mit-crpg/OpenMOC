@@ -53,10 +53,10 @@ public:
   virtual double getMaxY();
   virtual double getMinZ();
   virtual double getMaxZ();
-  virtual boundaryType getMinXBoundaryType() =0;
-  virtual boundaryType getMaxXBoundaryType() =0;
-  virtual boundaryType getMinYBoundaryType() =0;
-  virtual boundaryType getMaxYBoundaryType() =0;
+  virtual boundaryType getMinXBoundaryType();
+  virtual boundaryType getMaxXBoundaryType();
+  virtual boundaryType getMinYBoundaryType();
+  virtual boundaryType getMaxYBoundaryType();
 
   Intersection* getIntersection(Region* other);
   Union* getUnion(Region* other);
@@ -82,11 +82,6 @@ public:
   void addNode(Region* node);
   std::vector<Region*> getNodes();
   std::map<int, Halfspace*> getAllSurfaces();
-
-  boundaryType getMinXBoundaryType();
-  boundaryType getMaxXBoundaryType();
-  boundaryType getMinYBoundaryType();
-  boundaryType getMaxYBoundaryType();
   
   Intersection* getIntersection(Region* other);
   bool containsPoint(Point* point);
@@ -108,11 +103,6 @@ public:
   void addNode(Region* node);
   std::vector<Region*> getNodes();
   std::map<int, Halfspace*> getAllSurfaces();
-
-  boundaryType getMinXBoundaryType();
-  boundaryType getMaxXBoundaryType();
-  boundaryType getMinYBoundaryType();
-  boundaryType getMaxYBoundaryType();
 
   Union* getUnion(Region* other);
   bool containsPoint(Point* point);
@@ -145,11 +135,6 @@ public:
   std::vector<Region*> getNodes();
 
   std::map<int, Halfspace*> getAllSurfaces();
-
-  boundaryType getMinXBoundaryType();
-  boundaryType getMaxXBoundaryType();
-  boundaryType getMinYBoundaryType();
-  boundaryType getMaxYBoundaryType();
 
   bool containsPoint(Point* point);  
   double minSurfaceDist(LocalCoords* coords);
