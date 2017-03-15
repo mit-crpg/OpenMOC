@@ -60,7 +60,7 @@ public:
   // FIXME: Use the notation used by the ray tracing code
   virtual bool containsPoint(Point* point) =0;
   virtual double minSurfaceDist(LocalCoords* coords) =0;
-  virtual Region* clone() =0;
+  virtual Region* clone();
 };
 
 
@@ -74,7 +74,6 @@ public:
   Intersection* getIntersection(Region* other);
   bool containsPoint(Point* point);
   double minSurfaceDist(LocalCoords* coords);
-  Intersection* clone();
 };
 
 
@@ -88,7 +87,6 @@ class Union : public Region {
   Union* getUnion(Region* other);
   bool containsPoint(Point* point);
   double minSurfaceDist(LocalCoords* coords);    
-  Union* clone();
 };
 
 
@@ -101,7 +99,6 @@ class Complement : public Region {
  public:
   bool containsPoint(Point* point);  
   double minSurfaceDist(LocalCoords* coords);
-  Complement* clone();
 };
 
 

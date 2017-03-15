@@ -290,6 +290,29 @@ Complement* Region::getInversion() {
 
 
 /**
+ * @brief FIXME: Should this delete the nodes???
+ */
+Region* Region::clone() {
+
+  /* Instantiate appropriate class type for the clone */
+  Region* clone;
+  if (dynamic_cast<Intersection*>(this))
+    clone = new Intersection();
+  else if (dynamic_cast<Union*>(this))
+    clone = new Union();
+  else if (dynamic_cast<Complement*>(this))
+    clone = new Complement();
+
+  /* Add clones of this region's nodes to the cloned region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
+    clone->addNode((*iter)->clone());
+  return clone;
+}
+
+
+
+/**
  * @brief
  * @param
  * @returns
@@ -350,17 +373,6 @@ double Intersection::minSurfaceDist(LocalCoords* coords) {
   return min_dist;
 }
 
-
-/**
- * @brief FIXME: Should this delete the nodes???
- */
-Intersection* Intersection::clone() {
-  Intersection* clone = new Intersection();
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
-    clone->addNode((*iter)->clone());
-  return clone;
-}
 
 
 /**
@@ -426,18 +438,6 @@ double Union::minSurfaceDist(LocalCoords* coords) {
 
 
 /**
- * @brief FIXME: Should this delete the nodes???
- */
-Union* Union::clone() {
-  Union* clone = new Union();
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
-    clone->addNode((*iter)->clone());
-  return clone;
-}
-
-
-/**
  * @brief FIXME: Rename this for the ray tracing code convention
  * @param @returns
  */
@@ -462,16 +462,6 @@ double Complement::minSurfaceDist(LocalCoords* coords) {
     return INFINITY;
   else
     return _nodes[0]->minSurfaceDist(coords);
-}
-
-
-/**
- * @brief FIXME: Should this delete the nodes???
- */
-Complement* Complement::clone() {
-  Complement* clone = new Complement();
-  clone->addNode(_nodes[0]->clone());
-  return clone;
 }
 
 
