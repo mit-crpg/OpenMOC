@@ -2,15 +2,39 @@
 
 
 /**
- * @brief FIXME: Is this needed for an abstract class???
+ * @brief
+ * @param
  */
-Region::Region() { }
+void Region::addNode(Region* node) {
+  _nodes.push_back(node);
+}
 
 
 /**
- * @brief FIXME: Is this needed for an abstract class???
+ * @brief
+ * @returns
  */
-Region::~Region() { }
+std::vector<Region*> Region::getNodes() {
+  return _nodes;
+}
+
+
+/**
+ * @brief
+ * @returns
+ */
+std::map<int, Halfspace*> Region::getAllSurfaces() {
+  std::map<int, Halfspace*> all_surfaces;
+  std::map<int, Halfspace*> node_surfaces;
+  std::vector<Region*>::iterator iter;
+
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
+    node_surfaces = (*iter)->getAllSurfaces();
+    all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
+  }
+
+  return all_surfaces;
+}
 
 
 /**
@@ -265,70 +289,6 @@ Complement* Region::getInversion() {
 }
 
 
-
-
-
-/**
- * @brief FIXME: Is this necessary???
- */
-Intersection::Intersection() { }
-
-
-/**
- * @brief FIXME: Should this delete the nodes???
- */
-Intersection::~Intersection() { }
-
-
-/**
- * @brief FIXME: Should this delete the nodes???
- */
-Intersection* Intersection::clone() {
-  Intersection* clone = new Intersection();
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
-    clone->addNode((*iter)->clone());
-  return clone;
-}
-
-
-/**
- * @brief
- * @param
- */
-void Intersection::addNode(Region* node) {
-  _nodes.push_back(node);
-}
-
-
-/**
- * @brief
- * @returns
- */
-std::vector<Region*> Intersection::getNodes() {
-  return _nodes;
-}
-
-
-
-/**
- * @brief
- * @returns
- */
-std::map<int, Halfspace*> Intersection::getAllSurfaces() {
-  std::map<int, Halfspace*> all_surfaces;
-  std::map<int, Halfspace*> node_surfaces;
-  std::vector<Region*>::iterator iter;
-
-  for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
-    node_surfaces = (*iter)->getAllSurfaces();
-    all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
-  }
-
-  return all_surfaces;
-}
-
-
 /**
  * @brief
  * @param
@@ -391,66 +351,15 @@ double Intersection::minSurfaceDist(LocalCoords* coords) {
 }
 
 
-
-
-/**
- * @brief FIXME: Is this necessary???
- */
-Union::Union() { }
-
-
 /**
  * @brief FIXME: Should this delete the nodes???
  */
-Union::~Union() { }
-
-
-/**
- * @brief FIXME: Should this delete the nodes???
- */
-Union* Union::clone() {
-  Union* clone = new Union();
+Intersection* Intersection::clone() {
+  Intersection* clone = new Intersection();
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
     clone->addNode((*iter)->clone());
   return clone;
-}
-
-
-/**
- * @brief
- * @param
- * @returns
- */
-void Union::addNode(Region* node) {
-  _nodes.push_back(node);
-}
-
-
-/**
- * @brief
- * @returns
- */
-std::vector<Region*> Union::getNodes() {
-  return _nodes;
-}
-
-
-/**
- * @brief
- * @returns
- */
-std::map<int, Halfspace*> Union::getAllSurfaces() {
-  std::map<int, Halfspace*> all_surfaces;
-  std::map<int, Halfspace*> node_surfaces;
-  std::vector<Region*>::iterator iter;
-
-  for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
-    node_surfaces = (*iter)->getAllSurfaces();
-    all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
-  }
-
-  return all_surfaces;
 }
 
 
@@ -516,63 +425,15 @@ double Union::minSurfaceDist(LocalCoords* coords) {
 }
 
 
-
-
-
-/**
- * @brief FIXME: Is this necessary???
- */
-Complement::Complement() {
-  _node = NULL;
-}
-
-
 /**
  * @brief FIXME: Should this delete the nodes???
  */
-Complement::~Complement() { }
-
-
-/**
- * @brief FIXME: Should this delete the nodes???
- */
-Complement* Complement::clone() {
-  Complement* clone = new Complement();
-  clone->addNode(_node);
+Union* Union::clone() {
+  Union* clone = new Union();
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
+    clone->addNode((*iter)->clone());
   return clone;
-}
-
-
-/**
- * @brief
- * @param
- * @returns
- */
-void Complement::addNode(Region* node) {
-  _node = node;
-}
-
-
-/**
- * @brief
- * @returns
- */
-std::vector<Region*> Complement::getNodes() {
-  std::vector<Region*> nodes;
-  nodes.push_back(_node);
-  return nodes;
-}
-
-
-/**
- * @brief
- * @returns
- */
-std::map<int, Halfspace*> Complement::getAllSurfaces() {
-  std::map<int, Halfspace*> all_surfaces;
-  std::map<int, Halfspace*> node_surfaces = _node->getAllSurfaces();
-  all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
-  return all_surfaces;
 }
 
 
@@ -581,10 +442,10 @@ std::map<int, Halfspace*> Complement::getAllSurfaces() {
  * @param @returns
  */
 bool Complement::containsPoint(Point* point) {
-  if (_node == NULL)
+  if (_nodes.size() > 0)
     return false;
   else
-    return !_node->containsPoint(point);
+    return _nodes[0]->containsPoint(point);
 }
 
 
@@ -597,13 +458,21 @@ bool Complement::containsPoint(Point* point) {
  * @param coords a pointer to a localcoords
  */
 double Complement::minSurfaceDist(LocalCoords* coords) {
-  if (_node == NULL)
+  if (_nodes.size() > 0)
     return INFINITY;
   else
-    return _node->minSurfaceDist(coords);
+    return _nodes[0]->minSurfaceDist(coords);
 }
 
 
+/**
+ * @brief FIXME: Should this delete the nodes???
+ */
+Complement* Complement::clone() {
+  Complement* clone = new Complement();
+  clone->addNode(_nodes[0]->clone());
+  return clone;
+}
 
 
 /**

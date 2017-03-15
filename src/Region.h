@@ -38,14 +38,9 @@ protected:
   std::vector<Region*> _nodes;
 
 public:
-  // FIXME: Are these needed for an abstract class???
-  Region();
-  virtual ~Region();
-  virtual Region* clone() =0;
-
-  virtual void addNode(Region* node) =0;
-  virtual std::vector<Region*> getNodes() =0;
-  virtual std::map<int, Halfspace*> getAllSurfaces() =0;
+  virtual void addNode(Region* node);
+  virtual std::vector<Region*> getNodes();
+  virtual std::map<int, Halfspace*> getAllSurfaces();
 
   virtual double getMinX();
   virtual double getMaxX();
@@ -65,6 +60,7 @@ public:
   // FIXME: Use the notation used by the ray tracing code
   virtual bool containsPoint(Point* point) =0;
   virtual double minSurfaceDist(LocalCoords* coords) =0;
+  virtual Region* clone() =0;
 };
 
 
@@ -75,17 +71,10 @@ public:
 class Intersection : public Region {
 
 public:
-  Intersection();
-  virtual ~Intersection();
-  Intersection* clone();
-
-  void addNode(Region* node);
-  std::vector<Region*> getNodes();
-  std::map<int, Halfspace*> getAllSurfaces();
-  
   Intersection* getIntersection(Region* other);
   bool containsPoint(Point* point);
   double minSurfaceDist(LocalCoords* coords);
+  Intersection* clone();
 };
 
 
@@ -95,20 +84,12 @@ public:
  */
 class Union : public Region {
 
-public:
-  Union();
-  virtual ~Union();
-  Union* clone();
-
-  void addNode(Region* node);
-  std::vector<Region*> getNodes();
-  std::map<int, Halfspace*> getAllSurfaces();
-
+ public:
   Union* getUnion(Region* other);
   bool containsPoint(Point* point);
   double minSurfaceDist(LocalCoords* coords);    
+  Union* clone();
 };
-
 
 
 /**
@@ -117,29 +98,11 @@ public:
  */
 class Complement : public Region {
 
-private:
-
-  // FIXME: Add doxygen comment
-  // FIXME: Can this be removed???
-  Region* _node;
-
-public:
-  Complement();
-  virtual ~Complement();
-  Complement* clone();
-
-  // FIXME: should this retain the original addNodes() syntax???
-  void addNode(Region* node);
-
-  // FIXME: should this retain the original getNodes() syntax???
-  std::vector<Region*> getNodes();
-
-  std::map<int, Halfspace*> getAllSurfaces();
-
+ public:
   bool containsPoint(Point* point);  
   double minSurfaceDist(LocalCoords* coords);
+  Complement* clone();
 };
-
 
 
 
