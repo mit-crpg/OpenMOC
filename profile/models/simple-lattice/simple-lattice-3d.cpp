@@ -196,6 +196,7 @@ int main(int argc, char* argv[]) {
     cmfd_group_structure.at(1).push_back(g+1);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setKNearest(1);
+  cmfd.useFluxLimiting(false);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -203,9 +204,8 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(1,2,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(2,1,1, MPI_COMM_WORLD);
 #endif
-  //geometry.setAxialMesh(20.0/4);
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 
@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   solver.setVerboseIterationReport();
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);

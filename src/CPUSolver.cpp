@@ -1407,14 +1407,12 @@ void CPUSolver::computeFSRSources(int iteration) {
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
       //FIXME
-      /*
       if (_reduced_sources(r,G) < 0.0) {
 #pragma omp atomic
         num_negative_sources++;
         if (iteration < 25)
           _reduced_sources(r,G) = 0.0;
       }
-      */
     }
   }
 

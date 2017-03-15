@@ -13,9 +13,7 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-#case = load-geometry/load-geometry.cpp
-case = simple-lattice/simple-lattice-3d.cpp
-#case = c5g7/c5g7-rodded-B.cpp
+case = load-geometry/load-geometry.cpp
 
 source = \
 Cell.cpp \
@@ -78,7 +76,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpiCC
+  CC = mpicc
   CFLAGS += -DMPIx
   #CFLAGS += -march=native
   LDFLAGS += -lm
@@ -221,5 +219,5 @@ edit:
 	vim -p $(case) $(cases)
 
 run:
-	#./$(program)
-	mpirun -np 2 ./$(program)
+	./$(program)
+	#mpirun -np 3 ./$(program)

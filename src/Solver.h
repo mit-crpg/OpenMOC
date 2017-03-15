@@ -99,7 +99,7 @@ enum residualType {
 class Solver {
 
 protected:
-
+  
   /** The number of azimuthal angles */
   int _num_azim;
 

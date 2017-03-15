@@ -336,8 +336,9 @@ LocalCoords* LocalCoords::getLowestLevel() {
   LocalCoords* curr = this;
 
   /* Traverse linked list */
-  while (curr->getNext() != NULL)
+  while (curr->getNext() != NULL) {
     curr = curr->getNext();
+  }
 
   return curr;
 }
@@ -355,8 +356,9 @@ LocalCoords* LocalCoords::getHighestLevel() {
   LocalCoords* curr = this;
 
   /* Traverse linked list */
-  while (curr->getPrev() != NULL)
+  while (curr->getPrev() != NULL) {
     curr = curr->getPrev();
+  }
 
   return curr;
 }
@@ -474,8 +476,9 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
 
     curr1 = curr1->getNext();
 
-    if (curr1 != NULL)
+    if (curr1 != NULL) {
       curr2 = curr2->getNextCreate(0, 0, 0);
+    }
   }
 
   /* Prune any remainder from the old coords linked list */

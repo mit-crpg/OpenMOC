@@ -393,14 +393,6 @@ void Cmfd::collapseXS() {
     communicateSplits();
   */
 
-  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
-    for (int e=0; e < _num_cmfd_groups; e++) {
-      _diffusion_tally[i][e] = 0.0;
-      _reaction_tally[i][e] = 0.0;
-      _volume_tally[i][e] = 0.0;
-    }
-  }
-
 #pragma omp parallel
   {
 
@@ -531,24 +523,21 @@ void Cmfd::collapseXS() {
   }
 
   //TODO: clean
-  int x_start = 0;
-  int y_start = 0;
-  int z_start = 0;
-  int x_end = _num_x;
-  int y_end = _num_y;
-  int z_end = _num_z;
   if (_geometry->isDomainDecomposed()) {
     if (_domain_communicator != NULL) {
-      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-      x_end = x_start + _local_num_x;
-      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-      y_end = y_start + _local_num_y;
-      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-      z_end = z_start + _local_num_z;
+
+      /* Start recording MPI communication time */
+      _timer->startTimer();
+  
+      /* Do the Ghost cell exchange */
       ghostCellExchange();
+
+      /* Tally the MPI communication time */
+      _timer->stopTimer();
+      _timer->recordSplit("CMFD MPI communication time");
     }
   }
-
+  
   /* Calculate (local) old fluxes and set volumes */
 #pragma omp parallel for
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
@@ -565,7 +554,7 @@ void Cmfd::collapseXS() {
       _volumes->setValue(i, 0, vol_tally);
     }
   }
-
+  
   /* Loop over boundary CMFD cells and set cross sections */
   if (_geometry->isDomainDecomposed()) {
 #pragma omp parallel for
@@ -640,7 +629,6 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   FP_PRECISION flux_next;
 
   /* Get diffusivity and flux for Mesh cell */
-
   FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
   int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
   int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface);
@@ -681,9 +669,9 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
       double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
                         (iy - _num_y/2) * (iy - _num_y/2));
-      if (radius > _num_x / 2)
+      if (radius > _num_x / 2 + 10)
         dif_surf_corr = 0.0;
-      */
+        */
 
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
@@ -765,7 +753,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
       double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
                         (iy - _num_y/2) * (iy - _num_y/2));
-      if (radius > _num_x / 2)
+      if (radius > _num_x / 2 + 10)
         dif_surf_corr = 0.0;
         */
 
@@ -844,7 +832,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   /* Tally the XS collpase time */
   _timer->stopTimer();
   _timer->recordSplit("Total collapse time");
-
+  
   /* Construct matrices */
   constructMatrices(moc_iteration);
 
@@ -853,7 +841,7 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Start recording CMFD solve time */
   _timer->startTimer();
-
+  
   /* Solve the eigenvalue problem */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
                            _source_convergence_threshold, _SOR_factor,
@@ -865,10 +853,10 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Rescale the old and new flux */
   rescaleFlux();
-
+  
   /* Update the MOC flux */
   updateMOCFlux();
-
+  
   /* Tally the total CMFD time */
   _timer->stopTimer();
   _timer->recordSplit("Total CMFD time");
@@ -1453,7 +1441,7 @@ int Cmfd::findCmfdCell(LocalCoords* coords) {
   int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
   if (local_cmfd_cell == -1)
     log_printf(ERROR, "Cannot find CMFD cell for Point %s  since it is not "
-               "within a local CMFD cell boundary", point->toString());
+               "within a local CMFD cell boundary", point->toString().c_str());
   return local_cmfd_cell;
 }
 
@@ -2771,11 +2759,13 @@ void Cmfd::generateKNearestStencils() {
       }
 
       /* Remove axial prolongation for non-fissionable cells */
+      /*
       if (num_fissionable_FSRs == 0) {
         _axial_interpolants.at(fsr_id)[0] = 0.0;
         _axial_interpolants.at(fsr_id)[1] = 1.0;
         _axial_interpolants.at(fsr_id)[2] = 0.0;
       }
+      */
     }
   }
 }
@@ -2923,7 +2913,7 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
     int cell_mid = cell_id;
     if (z_ind == 0)
       cell_mid += _local_num_x * _local_num_y;
-    else if (z_ind == _num_z - 1)
+    else if (z_ind == _local_num_z - 1)
       cell_mid -= _local_num_x * _local_num_y;
 
     int cell_prev = cell_mid - _local_num_x * _local_num_y;
@@ -3217,6 +3207,7 @@ void Cmfd::initialize() {
       _local_num_x = _num_x / _domain_communicator->_num_domains_x;
       _local_num_y = _num_y / _domain_communicator->_num_domains_y;
       _local_num_z = _num_z / _domain_communicator->_num_domains_z;
+      _domain_communicator->stop = false;
       int offset = _domain_communicator->_domain_idx_x * _local_num_x +
                     _domain_communicator->_domain_idx_y * _local_num_y +
                     _domain_communicator->_domain_idx_z * _local_num_z;
@@ -3576,9 +3567,9 @@ void Cmfd::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), xs_collapse_time);
 
-  /* Get the total communication time */
-  double comm_time = _timer->getSplit("Total MPI communication time");
-  msg_string = "Total MPI communication time";
+  /* Get the MPI communication time */
+  double comm_time = _timer->getSplit("CMFD MPI communication time");
+  msg_string = "CMFD MPI communication time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
 
@@ -3587,12 +3578,6 @@ void Cmfd::printTimerReport() {
   msg_string = "Total CMFD solver time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
-
-  /* FIXME */
-  double split_time = _timer->getSplit("Current spliting time");
-  msg_string = "Total current spliting time";
-  msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), split_time);
 }
 
 
@@ -3833,7 +3818,7 @@ void Cmfd::ghostCellExchange() {
 			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
 
 			// Post send
-      MPI_Isend(_send_data_by_surface[surf], size, precision,
+            MPI_Isend(_send_data_by_surface[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
 
 			// Post receive
@@ -3916,7 +3901,7 @@ void Cmfd::communicateSplits() {
 			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
 
 			// Post send
-      MPI_Isend(_send_split_currents_array[surf], size, precision,
+            MPI_Isend(_send_split_currents_array[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
 
       // Post receive
@@ -4053,4 +4038,3 @@ int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
   return ((iz + z_start) * _num_y + iy + y_start) * _num_x
                 + ix + x_start;
 }
-

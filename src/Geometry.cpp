@@ -425,6 +425,34 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 }
 
 
+//FIXME
+void Geometry::manipulateXS() {
+  
+  std::map<int, Material*> all_materials = getAllMaterials();
+  std::map<int, Material*>::iterator mat_iter;
+  std::map<int, Cell*> all_material_cells = getAllMaterialCells();
+  std::map<int, Cell*>::iterator cell_iter;
+
+  for (mat_iter = all_materials.begin(); mat_iter != all_materials.end(); 
+       ++mat_iter) {
+    
+      Material* mat = mat_iter->second;
+      int ng = mat->getNumEnergyGroups();
+      for (int g=0; g < ng; g++) {
+        double sigma_t = mat->getSigmaTByGroup(g+1);
+        for (int gp=0; gp < ng; gp++)
+          if (mat->getSigmaSByGroup(g+1, gp+1) < 0)
+            mat->setSigmaSByGroup(0.0, g+1, gp+1);
+        double sigma_s = 0.0;
+        for (int gp=0; gp < ng; gp++)
+          sigma_s += mat->getSigmaSByGroup(g+1, gp+1);
+        if (sigma_s > sigma_t)
+          mat->setSigmaTByGroup(sigma_s, g+1);
+      }
+  }
+}
+
+
 /**
  * @brief Return a std::map container of Cell IDs (keys) with Cells
  *        pointers (values).
@@ -844,7 +872,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
      * At each universe/lattice level get distance to next
      * universe or lattice cell. Recheck min_dist. */
     while (coords != NULL) {
-
+    
       /* If we reach a LocalCoord in a Lattice, find the distance to the
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
@@ -1320,7 +1348,7 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
   /* Descend the linked list hierarchy until the lowest level has
    * been reached */
   while (curr != NULL) {
-
+    
     /* Clear string stream */
     curr_level_key.str(std::string());
 
@@ -1748,7 +1776,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi);
-
+  
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL) {
     int dom = _domain_index_x + _domain_index_y * _num_domains_x +
@@ -1769,7 +1797,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
    * move it to the next Cell, create a new segment, and add it to the
    * Geometry */
   while (curr != NULL) {
-
+      
     /* Records the minimum length to a 2D intersection */
     double min_length = std::numeric_limits<double>::infinity();
     region_id = -1;
@@ -1805,7 +1833,6 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       }
     }
 
-
     /* Traverse across shortest segment */
     start.setZ(z_coords[min_z_ind]);
     start.prune();
@@ -1815,7 +1842,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     int next_version = 0;
     for (int v=0; v < MAX_VERSION_NUM; v++) {
-
+  
       /* Find FSR using starting coordinate */
       start.setVersionNum(v);
       region_id = findExtrudedFSR(&start);
@@ -2076,7 +2103,7 @@ void Geometry::initializeFSRVectors() {
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
-  _FSRs_to_centroids = std::vector<Point*>(num_FSRs);
+  _FSRs_to_centroids = std::vector<Point*>(num_FSRs, NULL);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
 
@@ -2531,7 +2558,7 @@ std::vector<double> Geometry::getUniqueZHeights() {
 
   /* Cycle through known universes */
   while (!universes.empty()) {
-
+    
     /* Get the last universe and explore it */
     Universe* curr_universe = universes.back();
     universes.pop_back();

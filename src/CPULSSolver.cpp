@@ -221,7 +221,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
         src_x = scatter_source_x + chi[g] * fission_source_x;
         src_y = scatter_source_y + chi[g] * fission_source_y;
         src_z = scatter_source_z + chi[g] * fission_source_z;
-        
+
         /* Compute total (scatter+fission+fixed) reduced source moments */
         if (_solve_3D) {
           _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *

@@ -1162,39 +1162,16 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     computeFSRSources(i);
     _timer->startTimer();
-/*
-#ifdef MPIx
-  if (_geometry->isDomainDecomposed()) {
-    MPI_Barrier(_geometry->getMPICart());
-    log_printf(NORMAL,"Transport sweeping");
-  }
-#endif
-*/
     transportSweep();
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-/*
-#ifdef MPIx
-  if (_geometry->isDomainDecomposed()) {
-    MPI_Barrier(_geometry->getMPICart());
-    log_printf(NORMAL,"COmputing CMFD");
-  }
-#endif
-*/
+    
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else
       computeKeff();
-/*
-#ifdef MPIx
-  if (_geometry->isDomainDecomposed()) {
-    MPI_Barrier(_geometry->getMPICart());
-    log_printf(NORMAL,"COmputing residual");
-  }
-#endif
-*/
     
     /* Normalize the flux and compute residuals */
     normalizeFluxes();

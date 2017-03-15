@@ -216,6 +216,7 @@ public:
   int getNumCells();
   std::map<int, Surface*> getAllSurfaces();
   std::map<int, Material*> getAllMaterials();
+  void manipulateXS(); //FIXME
   std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
   std::map<int, Universe*> getAllUniverses();

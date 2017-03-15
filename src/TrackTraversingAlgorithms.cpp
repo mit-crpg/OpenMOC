@@ -476,7 +476,8 @@ void LinearExpansionGenerator::execute() {
   /* Invert the expansion coefficient matrix */
   FP_PRECISION det;
 
-  int num_FSRs = _track_generator->getGeometry()->getNumFSRs();
+  Geometry* geometry = _track_generator->getGeometry();
+  int num_FSRs = geometry->getNumFSRs();
   //FIXME
   FP_PRECISION* inv_lin_exp_coeffs = new FP_PRECISION[num_FSRs*_num_coeffs];
   memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
@@ -497,7 +498,7 @@ void LinearExpansionGenerator::execute() {
       double volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         log_printf(INFO, "Unable to form linear source components in "
-                   "source region %d. Switching to linear source in that "
+                   "source region %d. Switching to flat source in that "
                    "source region.", r);
         _num_flat++;
         ilem[r*nc + 0] = 0.0;
@@ -535,7 +536,7 @@ void LinearExpansionGenerator::execute() {
         ilem[r*nc + 1] = 0.0;
         ilem[r*nc + 2] = 0.0;
         log_printf(INFO, "Unable to form linear source components in "
-                   "source region %d. Switching to linear source in that "
+                   "source region %d. Switching to flat source in that "
                    "source region.", r);
         _num_flat++;
       }
@@ -543,6 +544,24 @@ void LinearExpansionGenerator::execute() {
         ilem[r*nc + 0] =  lem[r*nc + 1] / det;
         ilem[r*nc + 1] =  lem[r*nc + 0] / det;
         ilem[r*nc + 2] = -lem[r*nc + 2] / det;
+      }
+    }
+  }
+
+  //FIXME
+  if (true) {
+    double max_linear_radius = (8.5*15-2)*1.26; // (8.5*15+4) * 1.26
+    Universe* root_universe = geometry->getRootUniverse();
+    double center_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;
+    double center_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
+    double center_z = (root_universe->getMinZ() + root_universe->getMaxZ()) / 2;
+#pragma omp parallel for
+    for (int r = 0; r < num_FSRs; r++) {
+      Point* centroid = geometry->getFSRCentroid(r);
+      double dist = centroid->distance(center_x, center_y, centroid->getZ());
+      if (dist > max_linear_radius) {
+        for (int i=0; i < nc; i++)
+          ilem[r*nc+i] = 0.0;
       }
     }
   }

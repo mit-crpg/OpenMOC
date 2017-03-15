@@ -240,11 +240,11 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
               int row = row_start + g;
               x[row] = (1.0 - SOR_factor) * x[row];
+              
               for (int i = IA[row]; i < IA[row+1]; i++) {
 
                 // Get the column index
                 int col = JA[i];
-
                 if (row == col)
                   x[row] += SOR_factor * b[row] / DIAG[row];
                 else
@@ -283,12 +283,11 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
     // Increment the interations counter
     iter++;
-
+        
     log_printf(INFO, "SOR iter: %d, residual: %f", iter, residual);
 
-    //FIXME
-    if ((residual < tol || residual / initial_residual < 0.1)
-         && iter > MIN_LINEAR_SOLVE_ITERATIONS) {
+    // Check for convergence
+    if (residual / initial_residual < 0.1 && iter > MIN_LINEAR_SOLVE_ITERATIONS) {
       if (convergence_data != NULL)
         convergence_data->linear_iters_end = iter;
       break;
@@ -522,7 +521,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
     Vector residual(cell_locks, num_x, num_y, num_z, 1);
 
     /* Compute the RMSE */
-    #pragma omp parallel for private(new_source, old_source)
+#pragma omp parallel for private(new_source, old_source)
     for (int i = 0; i < num_x*num_y*num_z; i++) {
       new_source = 0.0;
       old_source = 0.0;
@@ -530,7 +529,6 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
         new_source += X->getValue(i, g);
         old_source += Y->getValue(i, g);
       }
-
       if (old_source != 0.0)
         residual.setValue(i, 0, pow((new_source - old_source) / old_source, 2));
     }

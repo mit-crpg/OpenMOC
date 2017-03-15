@@ -1208,12 +1208,19 @@ void TrackGenerator3D::segmentizeExtruded() {
 
   /* Loop over all extruded Tracks */
 #pragma omp parallel for
-  for (int index=0; index < _num_2D_tracks; index++) {
+  for (int index=0; index < _num_2D_tracks; index++)
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
-  }
 
   /* Initialize 3D FSRs and their associated vectors*/
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
+#endif
   log_printf(NORMAL, "Initializing FSRs axially...");
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
+#endif
   _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
