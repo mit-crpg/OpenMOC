@@ -2,59 +2,8 @@
 
 %module thisown
 
-/* An Intersection owns the memory for each Region it contains */
-%pythonappend Intersection::addNode %{
-  # SWIG 3
-  if 'node'in locals():
-    node = locals()['node']
-  elif 'args' in locals() and 'node' in locals()['args']:
-    node = locals()['args']['node']
-  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
-    node = locals()['kwargs']['node']
-
-  # SWIG 2
-  else:
-    node = locals()['args'][1]
-
-  node.thisown = False
-%}
-
-/* A Union owns the memory for each Region it contains */
-%pythonappend Union::addNode %{
-  # SWIG 3
-  if 'node'in locals():
-    node = locals()['node']
-  elif 'args' in locals() and 'node' in locals()['args']:
-    node = locals()['args']['node']
-  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
-    node = locals()['kwargs']['node']
-
-  # SWIG 2
-  else:
-    node = locals()['args'][1]
-
-  node.thisown = False
-%}
-
-/* A Cell owns the memory for each Surface it contains */
-%pythonappend Intersection::addNode %{
-  # SWIG 3
-  if 'node'in locals():
-    node = locals()['node']
-  elif 'args' in locals() and 'node' in locals()['args']:
-    node = locals()['args']['node']
-  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
-    node = locals()['kwargs']['node']
-
-  # SWIG 2
-  else:
-    node = locals()['args'][1]
-
-  node.thisown = False
-%}
-
-/* A Complement owns the memory for each Region it contains */
-%pythonappend Complement::addNode %{
+/* A Region owns the memory for each Region it contains */
+%pythonappend Region::addNode %{
   # SWIG 3
   if 'node'in locals():
     node = locals()['node']

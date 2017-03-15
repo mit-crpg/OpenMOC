@@ -416,10 +416,10 @@ bool Union::containsPoint(Point* point) {
  * @param @returns
  */
 bool Complement::containsPoint(Point* point) {
-  if (_nodes.size() > 0)
+  if (_nodes.size() == 0)
     return false;
   else
-    return _nodes[0]->containsPoint(point);
+    return !_nodes[0]->containsPoint(point); // FIXME!!!
 }
 
 
