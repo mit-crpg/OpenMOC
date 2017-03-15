@@ -14,6 +14,7 @@
 #include "Python.h"
 #endif
 #include "Surface.h"
+#include "boundary_type.h"
 #include <limits>
 #endif
 
@@ -231,5 +232,17 @@ public:
   double minSurfaceDist(LocalCoords* coords);
 };
 
+
+/**
+ * @class Halfspace Halfspace.h "src/Region.h"
+ * @brief A positive or negative halfspace Region.
+ */
+class RectangularPrism : public Intersection {
+
+public:
+  RectangularPrism(double width_x, double width_y,
+		   double origin_x=0., double origin_y=0.);
+  void setBoundaryType(boundaryType boundary_type);
+};
 
 #endif /* REGION_H_ */

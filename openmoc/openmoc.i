@@ -15,6 +15,7 @@
   #include <cstddef>
   #include "../src/constants.h"
   #include "../src/Cell.h"
+  #include "../src/Region.h"
   #include "../src/Geometry.h"
   #include "../src/LocalCoords.h"
   #include "../src/log.h"
@@ -111,6 +112,7 @@ namespace std {
 %include <exception.i>
 %include ../src/constants.h
 %include ../src/Cell.h
+%include ../src/Region.h
 %include ../src/Geometry.h
 %include ../src/LocalCoords.h
 %include ../src/log.h

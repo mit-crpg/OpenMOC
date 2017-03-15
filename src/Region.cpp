@@ -1209,3 +1209,44 @@ bool Halfspace::containsPoint(Point* point) {
 double Halfspace::minSurfaceDist(LocalCoords* coords) {
   return _surface->getMinDistance(coords);
 }
+
+
+/**
+ * @brief FIXME: Is this necessary???
+ */
+RectangularPrism::RectangularPrism(double width_x, double width_y,
+				   double origin_x, double origin_y) {
+
+  XPlane* min_x = new XPlane(origin_x-width_x/2.);
+  XPlane* max_x = new XPlane(origin_x+width_x/2.);
+  YPlane* min_y = new YPlane(origin_y-width_y/2.);
+  YPlane* max_y = new YPlane(origin_y+width_y/2.);
+
+  min_x->setName("min-x");
+  max_x->setName("max-x");
+  min_y->setName("min-y");
+  max_y->setName("max-y");
+
+  Halfspace* half_min_x = new Halfspace(+1, min_x);
+  Halfspace* half_max_x = new Halfspace(-1, max_x);
+  Halfspace* half_min_y = new Halfspace(+1, min_y);
+  Halfspace* half_max_y = new Halfspace(-1, max_y);
+
+  addNode(half_min_x);
+  addNode(half_max_x);
+  addNode(half_min_y);
+  addNode(half_max_y);
+}
+
+
+/**
+ * @brief
+ * @param
+ */
+void RectangularPrism::setBoundaryType(boundaryType boundary_type) {
+  std::map<int, Halfspace*> all_surfaces = getAllSurfaces();
+  std::map<int, Halfspace*>::iterator iter;
+  for (iter = all_surfaces.begin(); iter != all_surfaces.end(); iter++)
+    iter->second->getSurface()->setBoundaryType(boundary_type);
+}
+

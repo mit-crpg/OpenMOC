@@ -2,6 +2,109 @@
 
 %module thisown
 
+/* An Intersection owns the memory for each Region it contains */
+%pythonappend Intersection::addNode %{
+  # SWIG 3
+  if 'node'in locals():
+    node = locals()['node']
+  elif 'args' in locals() and 'node' in locals()['args']:
+    node = locals()['args']['node']
+  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+    node = locals()['kwargs']['node']
+
+  # SWIG 2
+  else:
+    node = locals()['args'][1]
+
+  node.thisown = False
+%}
+
+/* A Union owns the memory for each Region it contains */
+%pythonappend Union::addNode %{
+  # SWIG 3
+  if 'node'in locals():
+    node = locals()['node']
+  elif 'args' in locals() and 'node' in locals()['args']:
+    node = locals()['args']['node']
+  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+    node = locals()['kwargs']['node']
+
+  # SWIG 2
+  else:
+    node = locals()['args'][1]
+
+  node.thisown = False
+%}
+
+/* A Cell owns the memory for each Surface it contains */
+%pythonappend Intersection::addNode %{
+  # SWIG 3
+  if 'node'in locals():
+    node = locals()['node']
+  elif 'args' in locals() and 'node' in locals()['args']:
+    node = locals()['args']['node']
+  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+    node = locals()['kwargs']['node']
+
+  # SWIG 2
+  else:
+    node = locals()['args'][1]
+
+  node.thisown = False
+%}
+
+/* A Complement owns the memory for each Region it contains */
+%pythonappend Complement::addNode %{
+  # SWIG 3
+  if 'node'in locals():
+    node = locals()['node']
+  elif 'args' in locals() and 'node' in locals()['args']:
+    node = locals()['args']['node']
+  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+    node = locals()['kwargs']['node']
+
+  # SWIG 2
+  else:
+    node = locals()['args'][1]
+
+  node.thisown = False
+%}
+
+/* A Halfspace owns the memory for each Region it contains */
+%pythonappend Halfspace::addNode %{
+  # SWIG 3
+  if 'node'in locals():
+    node = locals()['node']
+  elif 'args' in locals() and 'node' in locals()['args']:
+    node = locals()['args']['node']
+  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+    node = locals()['kwargs']['node']
+
+  # SWIG 2
+  else:
+    node = locals()['args'][1]
+
+  node.thisown = False
+%}
+
+/* A Halfspace owns the memory for the Surface it contains */
+%pythonappend Halfspace::Halfspace %{
+  # SWIG 3
+  if 'surface' in locals():
+    surface = locals()['surface']
+  elif 'args' in locals() and 'surface' in locals()['args']:
+    surface = locals()['args']['surface']
+  elif 'kwargs' in locals() and 'surface' in locals()['kwargs']:
+    surface = locals()['kwargs']['surface']
+
+  # SWIG 2
+  else:
+    surface = locals()['args'][0]
+
+  surface.thisown = False
+%}
+
+
 /* A Cell owns the memory for each Surface it contains */
 %pythonappend Cell::addSurface %{
   # SWIG 3
@@ -51,6 +154,23 @@
     fill = locals()['args'][0]
 
   fill.thisown = False
+%}
+
+/* A Cell owns the memory for its Material/Universe fill */
+%pythonappend Cell::setRegion %{
+  # SWIG 3
+  if 'region' in locals():
+    region = locals()['region']
+  elif 'args' in locals() and 'region' in locals()['args']:
+    region = locals()['args']['region']
+  elif 'kwargs' in locals() and 'region' in locals()['kwargs']:
+    region = locals()['kwargs']['region']
+
+  # SWIG 2
+  else:
+    region = locals()['args'][0]
+
+  region.thisown = False
 %}
 
 /* A Universe owns the memory for each Cell it contains */
