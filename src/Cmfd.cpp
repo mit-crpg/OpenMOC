@@ -2734,9 +2734,9 @@ void Cmfd::generateKNearestStencils() {
 
       /* Calculate the CMFD cell z-coordinate */
       int z_ind = i / (_local_num_x * _local_num_y);
-      double z_cmfd = (z_ind + 0.5) * _cell_width_z + _lattice->getMinZ();
+      double z_cmfd = (z_ind + 0.5) * dz + _lattice->getMinZ();
       if (_domain_communicator != NULL)
-        z_cmfd += _domain_communicator->_domain_idx_z * _cell_width_z * _local_num_z;
+        z_cmfd += _domain_communicator->_domain_idx_z * dz * _local_num_z;
 
       /* Loop over FRSs in mesh cell */
       int num_fissionable_FSRs = 0;
@@ -2923,7 +2923,7 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
     int cell_mid = cell_id;
     if (z_ind == 0)
       cell_mid += _local_num_x * _local_num_y;
-    else if (z_ind == _num_z - 1)
+    else if (z_ind == _local_num_z - 1)
       cell_mid -= _local_num_x * _local_num_y;
 
     int cell_prev = cell_mid - _local_num_x * _local_num_y;

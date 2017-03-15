@@ -1592,34 +1592,49 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
   int lat_y = getLatY(point);
   int lat_z = getLatZ(point);
 
-  /* Create planes representing the boundaries of the lattice cell */
-  XPlane xplane(0.0);
-  YPlane yplane(0.0);
-  ZPlane zplane(0.0);
+  /* Get unit vector components */
+  double u_xy = sin(polar);
+  double u_x = u_xy * cos(azim);
+  double u_y = u_xy * sin(azim);
+  double u_z = cos(polar);
+
+  /* Determine the appropriate boundaries */
+  if (u_x > 0)
+    lat_x++;
+  if (u_y > 0)
+    lat_y++;
+  if (u_z > 0)
+    lat_z++;
 
   /* Get the min distance for X PLANE  */
-  if (azim < M_PI_2 || azim > 3.0 * M_PI_2)
-    xplane.setX(((lat_x + 1) * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
-  else
-    xplane.setX((lat_x * _width_x - _width_x*_num_x/2.0 + _offset.getX()));
+  double dist_x;
+  if (u_x != 0.0) {
+    double plane_x = lat_x * _width_x - _width_x*_num_x/2 + _offset.getX();
+    dist_x = (plane_x - point->getX()) / u_x;
+  }
+  else {
+    dist_x = std::numeric_limits<double>::infinity();
+  }
 
-  double dist_x = xplane.getMinDistance(point, azim, polar);
+  /* Get the min distance for Y PLANE  */
+  double dist_y;
+  if (u_y != 0.0) {
+    double plane_y = lat_y * _width_y - _width_y*_num_y/2 + _offset.getY();
+    dist_y = (plane_y - point->getY()) / u_y;
+  }
+  else {
+    dist_y = std::numeric_limits<double>::infinity();
+  }
 
-  /* Get the min distance for Y PLANE */
-  if (azim < M_PI)
-    yplane.setY(((lat_y + 1) * _width_y - _width_y*_num_y/2.0 + _offset.getY()));
-  else
-    yplane.setY((lat_y * _width_y - _width_y*_num_y/2.0 + _offset.getY()));
-
-  double dist_y = yplane.getMinDistance(point, azim, polar);
-
-  /* Get the min distance for Z PLANE */
-  if (polar < M_PI_2)
-    zplane.setZ(((lat_z + 1) * _width_z - _width_z*_num_z/2.0 + _offset.getZ()));
-  else
-    zplane.setZ((lat_z * _width_z - _width_z*_num_z/2.0 + _offset.getZ()));
-
-  double dist_z = zplane.getMinDistance(point, azim, polar);
+  /* Get the min distance for Z PLANE  */
+  double dist_z;
+  if (u_z != 0) {
+    double plane_z = lat_z * _width_z - _width_z*_num_z/2 + _offset.getZ();
+    dist_z = (plane_z - point->getZ()) / u_z;
+  }
+  else {
+    dist_z = std::numeric_limits<double>::infinity();
+  }
 
   /* return shortest distance to next lattice cell */
   return std::min(dist_x, std::min(dist_y, dist_z));

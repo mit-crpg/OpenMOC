@@ -121,6 +121,7 @@ class ParallelHashMap {
     void clear();
     void setFixedSize();
     void print_buckets();
+    void realloc(size_t M);
 };
 
 
@@ -872,4 +873,17 @@ void ParallelHashMap<K,V>::print_buckets() {
   _announce[tid].value = NULL;
 }
 
+/**
+ * @brief Reallocates the underlying table to the desired size.
+ * @param M The requested new size
+ */
+template <class K, class V>
+void ParallelHashMap<K,V>::realloc(size_t M) {
+
+  /* delete old table */
+  delete _table;
+
+  /* allocate new table */
+  _table = new FixedHashMap<K,V>(M);
+}
 #endif
