@@ -290,6 +290,32 @@ Complement* Region::getInversion() {
 
 
 /**
+ * @brief Computes the minimum distance to a Surface in the Region from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Region returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Region::minSurfaceDist(LocalCoords* coords) {
+
+  double curr_dist;
+  double min_dist = INFINITY;
+
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    curr_dist = (*iter)->minSurfaceDist(coords);
+
+    /* If the distance to Cell is less than current min distance, update */
+    if (curr_dist < min_dist)
+      min_dist = curr_dist;
+  }
+
+  return min_dist;
+}
+
+
+/**
  * @brief FIXME: Should this delete the nodes???
  */
 Region* Region::clone() {
@@ -348,32 +374,6 @@ bool Intersection::containsPoint(Point* point) {
 }
 
 
-/**
- * @brief Computes the minimum distance to a Surface in the Intersection from
- *        a point with a given trajectory at a certain angle stored in a
- *        LocalCoords object.
- * @details If the trajectory will not intersect any of the Surfaces in the
- *          Intersection returns INFINITY.
- * @param coords a pointer to a localcoords
- */
-double Intersection::minSurfaceDist(LocalCoords* coords) {
-
-  double curr_dist;
-  double min_dist = INFINITY;
-
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    curr_dist = (*iter)->minSurfaceDist(coords);
-
-    /* If the distance to Cell is less than current min distance, update */
-    if (curr_dist < min_dist)
-      min_dist = curr_dist;
-  }
-
-  return min_dist;
-}
-
-
 
 /**
  * @brief
@@ -412,32 +412,6 @@ bool Union::containsPoint(Point* point) {
 
 
 /**
- * @brief Computes the minimum distance to a Surface in the Union from
- *        a point with a given trajectory at a certain angle stored in a
- *        LocalCoords object.
- * @details If the trajectory will not intersect any of the Surfaces in the
- *          Union returns INFINITY.
- * @param coords a pointer to a localcoords
- */
-double Union::minSurfaceDist(LocalCoords* coords) {
-
-  double curr_dist;
-  double min_dist = INFINITY;
-
-  std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    curr_dist = (*iter)->minSurfaceDist(coords);
-
-    /* If the distance to Cell is less than current min distance, update */
-    if (curr_dist < min_dist)
-      min_dist = curr_dist;
-  }
-
-  return min_dist;
-}
-
-
-/**
  * @brief FIXME: Rename this for the ray tracing code convention
  * @param @returns
  */
@@ -446,22 +420,6 @@ bool Complement::containsPoint(Point* point) {
     return false;
   else
     return _nodes[0]->containsPoint(point);
-}
-
-
-/**
- * @brief Computes the minimum distance to a Surface in the Complement from
- *        a point with a given trajectory at a certain angle stored in a
- *        LocalCoords object.
- * @details If the trajectory will not intersect any of the Surfaces in the
- *          Complement returns INFINITY.
- * @param coords a pointer to a localcoords
- */
-double Complement::minSurfaceDist(LocalCoords* coords) {
-  if (_nodes.size() > 0)
-    return INFINITY;
-  else
-    return _nodes[0]->minSurfaceDist(coords);
 }
 
 
