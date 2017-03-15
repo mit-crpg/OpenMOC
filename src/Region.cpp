@@ -419,7 +419,7 @@ bool Complement::containsPoint(Point* point) {
   if (_nodes.size() == 0)
     return false;
   else
-    return !_nodes[0]->containsPoint(point); // FIXME!!!
+    return !_nodes[0]->containsPoint(point);
 }
 
 
