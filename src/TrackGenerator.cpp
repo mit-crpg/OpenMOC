@@ -11,8 +11,8 @@
 TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
                                double azim_spacing) {
 
-  setNumThreads(1);
   setGeometry(geometry);
+  setNumThreads(1);
   setNumAzim(num_azim);
   setDesiredAzimSpacing(azim_spacing);
   _contains_2D_tracks = false;
@@ -321,7 +321,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   /* Check to ensure all FSRs are crossed by at least one track */
   for (int i=0; i < num_FSRs; i++) {
     if (_FSR_volumes[i] == 0.0) {
-      log_printf(NORMAL, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
+      log_printf(ERROR, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
                  i, _geometry->getFSRPoint(i)->getX(),
                  _geometry->getFSRPoint(i)->getY(),
                  _geometry->getFSRPoint(i)->getZ());
@@ -386,6 +386,8 @@ void TrackGenerator::setNumThreads(int num_threads) {
 
   /* Set the number of threads for OpenMP */
   omp_set_num_threads(_num_threads);
+  if (_geometry != NULL)
+    _geometry->reserveKeyStrings(num_threads);
 }
 
 

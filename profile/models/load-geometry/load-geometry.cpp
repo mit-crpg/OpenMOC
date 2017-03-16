@@ -18,6 +18,7 @@ int main(int argc,  char* argv[]) {
   //std::string file = "full-assembly-final.geo";
   //std::string file = "beavrs-2D-v2-NULL-corr.geo";
   //std::string file = "beavrs-2D-v2.geo";
+  //std::string file = "beavrs-2D-v3.geo";
   std::string file = "full-core-beavrs-new.geo";
 
   /* Define simulation parameters */
@@ -28,8 +29,8 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.2;
-  int num_azim = 4; //FIXME 32
-  double polar_spacing = 5.0;
+  int num_azim = 8; //FIXME 32
+  double polar_spacing = 1.0;
   int num_polar = 6;
 
   /*
@@ -60,11 +61,12 @@ int main(int argc,  char* argv[]) {
   geometry.loadFromFile(file);
   //geometry.manipulateXS();
 
-  geometry.setAxialMesh(2.0);
+  //FIXME geometry.setOverlaidMesh(2.0);
   geometry.setCmfd(&cmfd);
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
+  log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(17, 17, 4, MPI_COMM_WORLD);
   //geometry.setNumDomainModules(17,17,1);
   //geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD); // FIXME 23
 #else
@@ -99,7 +101,6 @@ int main(int argc,  char* argv[]) {
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
-  return 0; //FIXME
   Lattice mesh_lattice;
   Mesh mesh(&solver);
   mesh.createLattice(17*17, 17*17, 1);

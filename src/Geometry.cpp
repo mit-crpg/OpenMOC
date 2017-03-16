@@ -19,7 +19,7 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
-  _axial_mesh = NULL;
+  _overlaid_mesh = NULL;
   _root_universe = NULL;
   _domain_decomposed = false;
   _num_modules_x = 1;
@@ -62,8 +62,8 @@ Geometry::~Geometry() {
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
   }
-  if (_axial_mesh != NULL)
-    delete _axial_mesh;
+  if (_overlaid_mesh != NULL)
+    delete _overlaid_mesh;
 }
 
 
@@ -704,11 +704,13 @@ void Geometry::setCmfd(Cmfd* cmfd) {
 
 
 /**
- * @brief Sets a global axial mesh with the given mesh height
- * @details The global axial mesh is overlaid across the entire Geometry
+ * @brief Sets a global overlaid mesh with the given mesh height
+ * @details The global overlaid mesh is overlaid across the entire Geometry
  * @param axial_mesh_height The desired height of axial mesh cells
+ //TODO: update description
  */
-void Geometry::setAxialMesh(double axial_mesh_height) {
+void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
+                               int num_radial_domains, int* radial_domains) {
 
   /* Get the global Geometry boundaries */
   double min_x = _root_universe->getMinX();
@@ -719,23 +721,38 @@ void Geometry::setAxialMesh(double axial_mesh_height) {
   double max_z = _root_universe->getMaxZ();
 
   /* Create the lattice */
-  _axial_mesh = new Lattice();
-  _axial_mesh->setNumX(1);
-  _axial_mesh->setNumY(1);
+  _overlaid_mesh = new Lattice();
+  if (num_x > 0 && num_y > 0) {
+    for (int i=0; i < num_radial_domains; i++) {
+      if (radial_domains[2*i] == _domain_index_x && 
+          radial_domains[2*i+1] == _domain_index_y) {
+        _overlaid_mesh->setNumX(num_x);
+        _overlaid_mesh->setNumY(num_y);
+      }
+    }
+  }
+  else {
+    num_x = 1;
+    num_y = 1;
+    _overlaid_mesh->setNumX(1);
+    _overlaid_mesh->setNumY(1);
+  }
 
   /* Determine actual axial mesh spacing from desired spacing */
   double total_width_z = max_z - min_z;
   int num_cells_z = total_width_z / axial_mesh_height;
   axial_mesh_height = total_width_z / num_cells_z;
-  _axial_mesh->setNumZ(num_cells_z);
-  _axial_mesh->setWidth(max_x - min_x, max_y - min_y, axial_mesh_height);
+  double mesh_width_x = (max_x - min_x) / num_x;
+  double mesh_width_y = (max_y - min_y) / num_y;
+  _overlaid_mesh->setNumZ(num_cells_z);
+  _overlaid_mesh->setWidth(mesh_width_x, mesh_width_y, axial_mesh_height);
 
   /* Create the center point */
   Point offset;
   offset.setX(min_x + (max_x - min_x)/2.0);
   offset.setY(min_y + (max_y - min_y)/2.0);
   offset.setZ(min_z + (max_z - min_z)/2.0);
-  _axial_mesh->setOffset(offset.getX(), offset.getY(), offset.getZ());
+  _overlaid_mesh->setOffset(offset.getX(), offset.getY(), offset.getZ());
 
   log_printf(NORMAL, "Set global axial mesh of width %6.4f cm",
              axial_mesh_height);
@@ -898,9 +915,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       }
     }
 
-    /* Check for distance to an overlaid axial mesh */
-    if (_axial_mesh != NULL) {
-      dist = _axial_mesh->minSurfaceDist(coords->getPoint(), azim, polar);
+    /* Check for distance to an overlaid mesh */
+    if (_overlaid_mesh != NULL) {
+      dist = _overlaid_mesh->minSurfaceDist(coords->getPoint(), azim, polar);
       min_dist = std::min(dist, min_dist);
     }
 
@@ -948,7 +965,9 @@ int Geometry::findFSRId(LocalCoords* coords) {
   curr = coords->getLowestLevel();
 
   /* Generate unique FSR key */
-  std::string fsr_key = getFSRKey(coords);
+  int thread_id = omp_get_thread_num();
+  std::string& fsr_key = _fsr_keys[thread_id];
+  getFSRKeyFast(coords, fsr_key);
 
   /* If FSR has not been encountered, update FSR maps and vectors */
   if (!_FSR_keys_map.contains(fsr_key)) {
@@ -1310,6 +1329,196 @@ int Geometry::getCmfdCell(int fsr_id) {
 
 
 /**
+ * @brief reserves the FSR key strings
+ * @param the number of threads
+ */
+void Geometry::reserveKeyStrings(int num_threads) {
+  int string_size = 255;
+  _fsr_keys.resize(num_threads);
+  for (int i=0; i<num_threads; ++i) {
+    _fsr_keys[i].reserve(string_size);
+  }
+}
+
+
+/**
+ * @brief Generate a string FSR "key" that identifies an FSR by its
+ *        unique hierarchical lattice/universe/cell structure.
+ * @details Since not all FSRs will reside on the absolute lowest universe
+ *          level and Cells might overlap other cells, it is important to
+ *          have a method for uniquely identifying FSRs. This method
+ *          creates a unique FSR key by constructing a structured string
+ *          that describes the hierarchy of lattices/universes/cells.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR key
+ */
+void Geometry::getFSRKeyFast(LocalCoords* coords, std::string& key) {
+
+  LocalCoords* curr = coords->getHighestLevel();
+
+  /* Assess the string size of the key */
+  Point* point = curr->getPoint();
+  int total_size = 0;
+  if (_cmfd != NULL) {
+    total_size += getNumDigits(_cmfd->getLattice()->getLatX(point));
+    total_size += getNumDigits(_cmfd->getLattice()->getLatY(point));
+    total_size += getNumDigits(_cmfd->getLattice()->getLatZ(point));
+    total_size += 9;
+  }
+  if (_overlaid_mesh != NULL) {
+    total_size += getNumDigits(_overlaid_mesh->getLatX(point));
+    total_size += getNumDigits(_overlaid_mesh->getLatY(point));
+    total_size += getNumDigits(_overlaid_mesh->getLatZ(point));
+    total_size += 4;
+  }
+  while (curr != NULL) {
+    if (curr->getType() == LAT) {
+      total_size += getNumDigits(curr->getLattice()->getId());
+      total_size += getNumDigits(curr->getLatticeX());
+      total_size += getNumDigits(curr->getLatticeY());
+      total_size += getNumDigits(curr->getLatticeZ());
+      total_size += 6;
+    }
+    else {
+      total_size += getNumDigits(curr->getUniverse()->getId());
+      total_size += 2;
+    }
+    if (curr->getNext() == NULL)
+      break;
+    else
+      curr = curr->getNext();
+  }
+  total_size += getNumDigits(curr->getCell()->getId());
+  total_size += 1;
+  int version_num = coords->getVersionNum();
+  if (version_num != 0) {
+    total_size += getNumDigits(version_num);
+    total_size += 2;
+  }
+
+  /* Resize key */
+  if (total_size > 255)
+    log_printf(ERROR, "Found key exceeding the 255 character threshold");
+  key.resize(total_size);
+  curr = curr->getHighestLevel();
+
+  /* If CMFD is on, get CMFD latice cell and write to key */
+  int ind = 0;
+  if (_cmfd != NULL) {
+    key.replace(ind, 5, "CMFD(");
+    ind += 5;
+    printToString(key, ind, _cmfd->getLattice()->getLatX(point));
+    key.at(ind) = ',';
+    ind++;
+    printToString(key, ind, _cmfd->getLattice()->getLatY(point));
+    key.at(ind) = ',';
+    ind++;
+    printToString(key, ind, _cmfd->getLattice()->getLatZ(point));
+    key.replace(ind, 2, "):");
+    ind += 2;
+  }
+
+  /* If a global overlaid mesh is present, get the axial mesh cell */
+  if (_overlaid_mesh != NULL) {
+    key.at(ind) = 'A';
+    ind++;
+    printToString(key, ind, _overlaid_mesh->getLatZ(point));
+    key.at(ind) = 'R';
+    ind++;
+    printToString(key, ind, _overlaid_mesh->getLatX(point));
+    key.at(ind) = ',';
+    ind++;
+    printToString(key, ind, _overlaid_mesh->getLatY(point));
+    key.at(ind) = ':';
+    ind++;
+  }
+
+  /* Descend the linked list hierarchy until the lowest level has
+   * been reached */
+  while (curr != NULL) {
+
+    /* write lattice to key */
+    if (curr->getType() == LAT) {
+      key.at(ind) = 'L';
+      ind++;
+      printToString(key, ind, curr->getLattice()->getId());
+      key.at(ind) = '(';
+      ind++;
+      printToString(key, ind, curr->getLatticeX());
+      key.at(ind) = ',';
+      ind++;
+      printToString(key, ind, curr->getLatticeY());
+      key.at(ind) = ',';
+      ind++;
+      printToString(key, ind, curr->getLatticeZ());
+      key.replace(ind, 2, "):");
+      ind += 2;
+    }
+    else {
+
+      /* write universe ID to key */
+      key.at(ind) = 'U';
+      ind++;
+      printToString(key, ind, curr->getUniverse()->getId());
+      key.at(ind) = ':';
+      ind++;
+    }
+
+    /* If lowest coords reached break; otherwise get next coords */
+    if (curr->getNext() == NULL)
+      break;
+    else
+      curr = curr->getNext();
+  }
+
+  /* write cell id to key */
+  key.at(ind) = 'C';
+  ind++;
+  printToString(key, ind, curr->getCell()->getId());
+
+  /* write version number to key */
+  if (version_num != 0) {
+    key.replace(ind, 2, ":V");
+    ind += 2;
+    printToString(key, ind, version_num);
+  }
+}
+
+
+//TODO: description
+int Geometry::getNumDigits(int number) {
+  if (number < 0)
+    log_printf(ERROR, "Trying to ge the digits of negative number %d", number);
+  int ref = 10;
+  int num_digits = 1;
+  while (number >= ref) {
+    num_digits++;
+    ref *= 10;
+  }
+  return num_digits;
+}
+
+
+//TODO: Description
+void Geometry::printToString(std::string& str, int& index, int value) {
+
+  char digits[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+  int num_digits = getNumDigits(value);
+  for (int i=0; i < num_digits; i++) {
+    int base = 1;
+    for (int j=0; j < num_digits - i - 1; j++)
+      base *= 10;
+    char digit = digits[value / base];
+    str.at(index+i) = digit;
+    value -= (value / base) * base;
+  }
+  index += num_digits;
+}
+
+
+//FIXME OLD
+/**
  * @brief Generate a string FSR "key" that identifies an FSR by its
  *        unique hierarchical lattice/universe/cell structure.
  * @details Since not all FSRs will reside on the absolute lowest universe
@@ -1338,17 +1547,23 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
       key << curr_level_key.str() << "):";
   }
 
-  /* If a global axial mesh is present, get the axial mesh cell */
-  if (_axial_mesh != NULL) {
+  /* If a global overlaid mesh is present, record mesh cells */
+  if (_overlaid_mesh != NULL) {
       curr_level_key.str(std::string());
-      curr_level_key << _axial_mesh->getLatZ(curr->getPoint());
+      curr_level_key << _overlaid_mesh->getLatZ(curr->getPoint());
       key << "A" << curr_level_key.str() << ":";
+      curr_level_key.str(std::string());
+      curr_level_key << _overlaid_mesh->getLatX(curr->getPoint());
+      key << "R" << curr_level_key.str() << ",";
+      curr_level_key.str(std::string());
+      curr_level_key << _overlaid_mesh->getLatY(curr->getPoint());
+      key << curr_level_key.str() << ":";
   }
 
   /* Descend the linked list hierarchy until the lowest level has
    * been reached */
   while (curr != NULL) {
-    
+
     /* Clear string stream */
     curr_level_key.str(std::string());
 
@@ -1645,8 +1860,8 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
   LocalCoords* preallocation;
   int preallocation_size = 0;
   if (setup) {
-    if (_axial_mesh != NULL) {
-      preallocation_size = _axial_mesh->getNumZ();
+    if (_overlaid_mesh != NULL && false) {
+      preallocation_size = _overlaid_mesh->getNumZ();
       preallocation = new LocalCoords[preallocation_size];
       fsr_coords.reserve(preallocation_size);
     }
@@ -1685,7 +1900,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
 
     /* Get the FSR ID or save the coordinates */
     int fsr_id = -1;
-    if (setup) {
+    if (setup && false) {
       LocalCoords* new_fsr_coords;
       if (fsr_coords.size() >= preallocation_size)
         new_fsr_coords = new LocalCoords(0,0,0);
@@ -1753,7 +1968,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
              track->getNumSegments(), track->toString().c_str());
 
   /* Search FSR IDs if necessary */
-  if (setup) {
+  if (setup && false) {
 #pragma omp critical
     {
       for (int s=0; s < track->getNumSegments(); s++) {
@@ -2052,12 +2267,13 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
   /* Re-allocate the FSR keys map with the new anticipated size */
   int anticipated_size = 2 * _extruded_FSR_keys_map.size();
-  if (_axial_mesh != NULL)
-    anticipated_size *= _axial_mesh->getNumZ();
+  if (_overlaid_mesh != NULL)
+    anticipated_size *= _overlaid_mesh->getNumZ();
   _FSR_keys_map.realloc(anticipated_size);
 
   /* Loop over extruded FSRs */
-#pragma omp parallel for
+//#pragma omp parallel for
+  //FIXME
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
     progress.incrementCounter();
@@ -2134,6 +2350,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
     }
   }
   delete [] extruded_FSRs;
+  //exit(0); //FIXME
 #ifdef MPIx
   if (_domain_decomposed)
     MPI_Barrier(_MPI_cart);

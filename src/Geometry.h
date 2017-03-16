@@ -151,10 +151,13 @@ private:
   Cmfd* _cmfd;
 
   /** An optional axial mesh overlaid on the Geometry */
-  Lattice* _axial_mesh;
+  Lattice* _overlaid_mesh;
 
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
+
+  /* A vector containing allocated strings for key generation */
+  std::vector<std::string> _fsr_keys; 
 
   //FIXME
   bool _domain_decomposed;
@@ -243,6 +246,9 @@ public:
   int getCmfdCell(int fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
+  void getFSRKeyFast(LocalCoords* coords, std::string& key);
+  void printToString(std::string& str, int& index, int value);
+  int getNumDigits(int number);
   ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
 #ifdef MPIx
   int getNeighborDomain(int offset_x, int offset_y, int offset_z);
@@ -251,7 +257,9 @@ public:
   /* Set parameters */
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(int fsr, Point* centroid);
-  void setAxialMesh(double axial_mesh_height);
+  void setOverlaidMesh(double axial_mesh_height, int num_x=0,
+                       int num_y=0, int num_radial_domains=0,
+                       int* radial_domains=NULL);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
@@ -261,6 +269,7 @@ public:
   Cell* findCellContainingFSR(int fsr_id);
 
   /* Other worker methods */
+  void reserveKeyStrings(int num_threads);
   void subdivideCells();
   void initializeAxialFSRs(std::vector<double> global_z_mesh);
   void initializeFlatSourceRegions();

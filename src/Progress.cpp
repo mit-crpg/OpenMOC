@@ -4,6 +4,12 @@
 Progress::Progress(int num_iterations, std::string name, double interval, 
                    Geometry* geometry, bool mpi_comm) {
 
+  if (geometry != NULL) {
+    if (!geometry->isDomainDecomposed()) {
+      geometry = NULL;
+      mpi_comm = false;
+    }
+  }
   _mpi_comm = mpi_comm;
   _geometry = geometry;
   _num_iterations = num_iterations;
