@@ -1541,7 +1541,7 @@ int Lattice::getLatY(Point* point) {
 int Lattice::getLatZ(Point* point) {
 
   /* Check to see if lattice is infinite in z direction */
-  if (_width_z == std::numeric_limits<double>::infinity())
+  if (_width_z == std::numeric_limits<double>::max())
     return 0;
 
   /* Compute the z indice for the Lattice cell this point is in */
