@@ -277,7 +277,7 @@ double* Cell::getRotationMatrix() {
  *          and would be called from within Python as follows:
  *
  * @code
- *          rotation = cell.getRotation(3)
+ *          rotation = cell.retrieveRotation(3)
  * @endcode
  *
  * @param rotation an array of rotation angles of length 3 for x, y and z
@@ -850,7 +850,6 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  * @param point a pointer to a Point
  */
 bool Cell::containsPoint(Point* point) {
-  // FIXME: Is this bullshit???
   if (_region == NULL) {
     if (_cell_type == FILL) {
       Universe* univ = static_cast<Universe*>(_fill);

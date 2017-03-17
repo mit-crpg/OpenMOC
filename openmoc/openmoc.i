@@ -107,6 +107,7 @@ namespace std {
   %template(DoubleVector) vector<double>;
   %template(IntVector) vector<int>;
   %template(Array) vector< vector<int> >;
+  %template(RegionVector) vector<Region*>;
 }
 
 %include <exception.i>

@@ -27,6 +27,26 @@ class Halfspace;
 
 
 /**
+ * @enum regionType
+ * @brief The types of regions supported by OpenMOC.
+ */
+enum regionType {
+  /** The intersection of one or more regions */
+  INTERSECTION,
+
+  /** The union of one or more regions */
+  UNION,
+
+  /** The complement of a region */
+  COMPLEMENT,
+
+  /** The side of a surface */
+  HALFSPACE
+
+};
+
+
+/**
  * @class Region Region.h "src/Region.h"
  * @brief A region of space that can be assigned to a Cell.
  */
@@ -35,12 +55,16 @@ class Region {
 protected:
 
   // FIXME: Add doxygen comment
+  regionType _region_type;
+
+  // FIXME: Add doxygen comment
   std::vector<Region*> _nodes;
 
 public:
   virtual void addNode(Region* node);
   virtual std::vector<Region*> getNodes();
   virtual std::map<int, Halfspace*> getAllSurfaces();
+  regionType getRegionType();
 
   virtual double getMinX();
   virtual double getMaxX();
@@ -71,6 +95,7 @@ public:
 class Intersection : public Region {
 
 public:
+  Intersection();
   Intersection* getIntersection(Region* other);
   bool containsPoint(Point* point);
 };
@@ -83,6 +108,7 @@ public:
 class Union : public Region {
 
  public:
+  Union();
   Union* getUnion(Region* other);
   bool containsPoint(Point* point);
 };
@@ -94,7 +120,8 @@ class Union : public Region {
  */
 class Complement : public Region {
 
- public:
+public:
+  Complement();
   bool containsPoint(Point* point);  
 };
 
@@ -115,7 +142,6 @@ private:
   int _halfspace;
   
 public:
-
   Halfspace(int halfspace, Surface* surface);
   virtual ~Halfspace();
   Halfspace* clone();

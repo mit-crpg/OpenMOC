@@ -38,6 +38,15 @@ std::map<int, Halfspace*> Region::getAllSurfaces() {
 
 
 /**
+ * @brief
+ * @returns
+ */
+regionType Region::getRegionType() {
+  return _region_type;
+}
+
+
+/**
  * @brief Return the minimum reachable x-coordinate in the Region.
  * @return the minimum x-coordinate
  */
@@ -337,6 +346,15 @@ Region* Region::clone() {
 }
 
 
+/**
+ * @brief
+ * @param
+ * @param
+ */
+Intersection::Intersection() {
+  _region_type = INTERSECTION;
+}
+
 
 /**
  * @brief
@@ -373,6 +391,15 @@ bool Intersection::containsPoint(Point* point) {
   return true;
 }
 
+
+/**
+ * @brief
+ * @param
+ * @param
+ */
+Union::Union() {
+  _region_type = UNION;
+}
 
 
 /**
@@ -412,6 +439,16 @@ bool Union::containsPoint(Point* point) {
 
 
 /**
+ * @brief
+ * @param
+ * @param
+ */
+Complement::Complement() {
+  _region_type = COMPLEMENT;
+}
+
+
+/**
  * @brief FIXME: Rename this for the ray tracing code convention
  * @param @returns
  */
@@ -434,9 +471,11 @@ Halfspace::Halfspace(int halfspace, Surface* surface) {
     log_printf(ERROR, "Unable to create halfspace from surface %d since the "
 	       "halfspace %d is not -1 or 1", surface->getId(), halfspace);
 
+  _region_type = HALFSPACE;
   _surface = surface;
   _halfspace = halfspace;
 }
+
 
 /**
  * @brief FIXME: Should this delete the nodes???
@@ -659,12 +698,11 @@ Halfspace* Halfspace::getInversion() {
  * @param
  * @returns
  */
-bool Halfspace::containsPoint(Point* point) {
-  // FIXME: This may be an optimization over what we have now
+bool Halfspace::containsPoint(Point* point) { 
   if (_halfspace == 1)
     return (_surface->evaluate(point) >= 0);
   else
-    return (_surface->evaluate(point) < 0);
+   return (_surface->evaluate(point) < 0);
 }
 
 
@@ -685,7 +723,8 @@ double Halfspace::minSurfaceDist(LocalCoords* coords) {
  * @brief FIXME: Is this necessary???
  */
 RectangularPrism::RectangularPrism(double width_x, double width_y,
-				   double origin_x, double origin_y) {
+				   double origin_x, double origin_y):
+  Intersection() {
 
   XPlane* min_x = new XPlane(origin_x-width_x/2.);
   XPlane* max_x = new XPlane(origin_x+width_x/2.);

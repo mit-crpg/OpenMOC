@@ -1404,7 +1404,7 @@ Cell* Lattice::findCell(LocalCoords* coords) {
     (-_width_y*_num_y/2.0 + _offset.getY() + (lat_y + 0.5) * _width_y) +
     getOffset()->getY();
 
-  if (_width_z == std::numeric_limits<double>::infinity())
+  if (_width_z == std::numeric_limits<double>::max())
     next_z = coords->getZ();
   else
     next_z = coords->getZ() -
