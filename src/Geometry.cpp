@@ -446,6 +446,7 @@ void Geometry::manipulateXS() {
         double sigma_s = 0.0;
         for (int gp=0; gp < ng; gp++)
           sigma_s += mat->getSigmaSByGroup(g+1, gp+1);
+        sigma_s *= 1.1;
         if (sigma_s > sigma_t)
           mat->setSigmaTByGroup(sigma_s, g+1);
       }
@@ -722,21 +723,21 @@ void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
 
   /* Create the lattice */
   _overlaid_mesh = new Lattice();
+  int real_num_x = 1;
+  int real_num_y = 1;
   if (num_x > 0 && num_y > 0) {
     for (int i=0; i < num_radial_domains; i++) {
       if (radial_domains[2*i] == _domain_index_x && 
           radial_domains[2*i+1] == _domain_index_y) {
-        _overlaid_mesh->setNumX(num_x);
-        _overlaid_mesh->setNumY(num_y);
+        real_num_x = num_x;
+        real_num_y = num_y;
       }
     }
   }
-  else {
-    num_x = 1;
-    num_y = 1;
-    _overlaid_mesh->setNumX(1);
-    _overlaid_mesh->setNumY(1);
-  }
+  num_x = real_num_x;
+  num_y = real_num_y;
+  _overlaid_mesh->setNumX(num_x);
+  _overlaid_mesh->setNumY(num_y);
 
   /* Determine actual axial mesh spacing from desired spacing */
   double total_width_z = max_z - min_z;
@@ -2350,7 +2351,6 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
     }
   }
   delete [] extruded_FSRs;
-  //exit(0); //FIXME
 #ifdef MPIx
   if (_domain_decomposed)
     MPI_Barrier(_MPI_cart);

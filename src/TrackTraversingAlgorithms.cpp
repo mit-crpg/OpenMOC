@@ -450,6 +450,10 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   }
 
   _exp_evaluator = new ExpEvaluator();
+
+  std::string msg = "Initializing track linear source componenets";
+  _progress = new Progress(_track_generator->getNumTracks(), msg, 0.1, 
+                    track_generator->getGeometry(), true);
 }
 
 //FIXME destructor
@@ -462,6 +466,7 @@ LinearExpansionGenerator::~LinearExpansionGenerator() {
   delete [] _thread_source_constants;
   delete [] _starting_points;
   delete _exp_evaluator;
+  delete _progress;
 }
 
 
@@ -473,9 +478,6 @@ void LinearExpansionGenerator::execute() {
     loopOverTracks(kernel);
   }
 
-  /* Invert the expansion coefficient matrix */
-  FP_PRECISION det;
-
   Geometry* geometry = _track_generator->getGeometry();
   int num_FSRs = geometry->getNumFSRs();
   //FIXME
@@ -486,8 +488,11 @@ void LinearExpansionGenerator::execute() {
   FP_PRECISION* ilem = inv_lin_exp_coeffs;
   int nc = _num_coeffs;
 
+  /* Invert the expansion coefficient matrix */
   if (_track_generator_3D != NULL) {
+#pragma omp parallel for
     for (int r=0; r < num_FSRs; r++) {
+      FP_PRECISION det;
       det = lem[r*nc + 0] * lem[r*nc + 1] * lem[r*nc + 5] +
             lem[r*nc + 2] * lem[r*nc + 4] * lem[r*nc + 3] +
             lem[r*nc + 3] * lem[r*nc + 2] * lem[r*nc + 4] -
@@ -527,8 +532,10 @@ void LinearExpansionGenerator::execute() {
     }
   }
   else {
+#pragma omp parallel for
     for (int r=0; r < num_FSRs; r++) {
 
+      FP_PRECISION det;
       det = lem[r*nc  ] * lem[r*nc + 1] - lem[r*nc + 2] * lem[r*nc + 2];
 
       if (std::abs(det) < MIN_DET) {
@@ -549,8 +556,18 @@ void LinearExpansionGenerator::execute() {
   }
 
   //FIXME
+  if (false) {
+#pragma omp parallel for
+    for (int r = 0; r < num_FSRs; r++) {
+      if (_track_generator->getFSRVolume(r) < 1e-3)
+        for (int i=0; i < nc; i++)
+          ilem[r*nc+i] = 0.0;
+    }
+  }
+
+  //FIXME
   if (true) {
-    double max_linear_radius = (8.5*15-2)*1.26; // (8.5*15+4) * 1.26
+    double max_linear_radius = (10*15)*1.26; // (8.5*15+4) * 1.26 || * -2 *
     Universe* root_universe = geometry->getRootUniverse();
     double center_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;
     double center_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
@@ -571,11 +588,21 @@ void LinearExpansionGenerator::execute() {
   delete [] inv_lin_exp_coeffs;
   
   /* Notify user of any regions needing to use a flat source approximation */
-  if (_num_flat > 0) {      
-    log_printf(WARNING, "Unable to form linear source components in %d "
-                        "source regions. Switching to linear source in those "
-                        "source regions.", _num_flat);
-  }
+  int total_num_flat = _num_flat;
+  int total_num_FSRs = num_FSRs;
+#ifdef MPIx
+  if (geometry->isDomainDecomposed()) {
+    MPI_Allreduce(&_num_flat, &total_num_flat, 1, MPI_INT, MPI_SUM,
+                  geometry->getMPICart());
+    MPI_Allreduce(&num_FSRs, &total_num_FSRs, 1, MPI_INT, MPI_SUM,
+                  geometry->getMPICart());
+    }
+#endif
+  if (total_num_flat > 0)
+    if (geometry->isRootDomain())
+      log_printf(WARNING, "Unable to form linear source components in %d / %d "
+                          "source regions. Switching to flat source in those "
+                          "source regions.", total_num_flat, total_num_FSRs);
 }
 
 
@@ -716,19 +743,19 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     omp_set_lock(&_FSR_locks[fsr]);
       
     _lin_exp_coeffs[fsr*_num_coeffs] += wgt * length / volume *
-        (xc * xc + pow(cos_phi * sin_theta * length, 2.0) / 12.0);
+        (xc * xc + pow(cos_phi * sin_theta * length, 2) / 12.0);
     _lin_exp_coeffs[fsr*_num_coeffs + 1] += wgt * length / volume *
-        (yc * yc + pow(sin_phi * sin_theta * length, 2.0) / 12.0);
+        (yc * yc + pow(sin_phi * sin_theta * length, 2) / 12.0);
     _lin_exp_coeffs[fsr*_num_coeffs + 2] += wgt * length / volume *
-        (xc * yc + sin_phi * cos_phi * pow(sin_theta * length, 2.0) / 12.0);
+        (xc * yc + sin_phi * cos_phi * pow(sin_theta * length, 2) / 12.0);
 
     if (track_3D != NULL) {
       _lin_exp_coeffs[fsr*_num_coeffs + 3] += wgt * length / volume *
-          (xc * zc + cos_phi * cos_theta * sin_theta * pow(length, 2.0) / 12.0);
+          (xc * zc + cos_phi * cos_theta * sin_theta * pow(length, 2) / 12.0);
       _lin_exp_coeffs[fsr*_num_coeffs + 4] += wgt * length / volume *
-          (yc * zc + sin_phi * cos_theta * sin_theta * pow(length, 2.0) / 12.0);
+          (yc * zc + sin_phi * cos_theta * sin_theta * pow(length, 2) / 12.0);
       _lin_exp_coeffs[fsr*_num_coeffs + 5] += wgt * length / volume *
-          (zc * zc + pow(cos_theta * length, 2.0) / 12.0);
+          (zc * zc + pow(cos_theta * length, 2) / 12.0);
     }
 
 	/* Set the source constants for all groups and coefficients */
@@ -749,6 +776,8 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     _starting_points[tid][track_idx].setY(y);
     _starting_points[tid][track_idx].setZ(z);
   }
+  for (int i=0; i <= max_track_index; i++)
+    _progress->incrementCounter();
 }
 
 

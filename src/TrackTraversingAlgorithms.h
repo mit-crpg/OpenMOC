@@ -173,6 +173,7 @@ private:
   Point** _starting_points;
   FP_PRECISION** _thread_source_constants;
   ExpEvaluator* _exp_evaluator;
+  Progress* _progress;
 
 public:
 

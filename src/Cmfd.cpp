@@ -835,6 +835,27 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   
   /* Construct matrices */
   constructMatrices(moc_iteration);
+  
+  //FIXME
+  if (moc_iteration >= 5 && false) {
+    for (int i=0; i < _domain_communicator->_num_domains_x; i++) {
+      for (int j=0; j < _domain_communicator->_num_domains_y; j++) {
+        for (int k=0; k < _domain_communicator->_num_domains_z; k++) {
+          if (_domain_communicator->_domain_idx_x == i &&
+              _domain_communicator->_domain_idx_y == j &&
+              _domain_communicator->_domain_idx_z == k) {
+              std::cout << "DOMAIN " << i << ", " << j << ", " << k << std::endl;
+              _A->printString();
+              _M->printString();
+              std::cout.flush();
+          }
+          MPI_Barrier(_domain_communicator->_MPI_cart);
+        }
+      }
+    }
+  }
+  if (moc_iteration > 6 && false)
+      exit(0);
 
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);

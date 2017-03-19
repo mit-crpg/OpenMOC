@@ -55,6 +55,17 @@ void CPULSSolver::initializeFluxArrays() {
   try {
     /* Allocate an array for the FSR scalar flux */
     long size = _num_FSRs * _num_groups * 3;
+    long max_size = size;
+#ifdef MPIX
+    if (_geometry->isDomainDecomposed())
+      MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
+                    _geometry->getMPICart());
+#endif
+    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+        / (double) (1e6);
+    log_printf(NORMAL, "Max linear flux storage per domain = %6.2f MB",
+               max_size_mb);
+    
     _scalar_flux_xyz = new FP_PRECISION[size];
   }
   catch (std::exception &e) {
@@ -79,6 +90,17 @@ void CPULSSolver::initializeSourceArrays() {
 
   /* Allocate memory for all source arrays */
   try {
+    long max_size = size;
+#ifdef MPIX
+    if (_geometry->isDomainDecomposed())
+      MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
+                    _geometry->getMPICart());
+#endif
+    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+        / (double) (1e6);
+    log_printf(NORMAL, "Max linear source storage per domain = %6.2f MB",
+               max_size_mb);
+    
     _reduced_sources_xyz = new FP_PRECISION[size];
   }
   catch(std::exception &e) {
@@ -221,6 +243,13 @@ void CPULSSolver::computeFSRSources(int iteration) {
         src_x = scatter_source_x + chi[g] * fission_source_x;
         src_y = scatter_source_y + chi[g] * fission_source_y;
         src_z = scatter_source_z + chi[g] * fission_source_z;
+
+        //FIXME
+        if (iteration < 5 && false) {
+            src_x = 0;
+            src_y = 0;
+            src_z = 0;
+        }
 
         /* Compute total (scatter+fission+fixed) reduced source moments */
         if (_solve_3D) {
@@ -583,6 +612,18 @@ FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
       int size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
       if (_solve_3D)
         size *= 2;
+
+      int max_size = size;
+#ifdef MPIX
+      if (_geometry->isDomainDecomposed())
+        MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+                      _geometry->getMPICart());
+#endif
+      double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+          / (double) (1e6);
+      log_printf(NORMAL, "Max linear constant storage per domain = %6.2f MB",
+                 max_size_mb);
+
       _FSR_source_constants = new FP_PRECISION[size];
       memset(_FSR_source_constants, 0., size * sizeof(FP_PRECISION));
     }

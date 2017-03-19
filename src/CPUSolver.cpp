@@ -219,12 +219,33 @@ void CPUSolver::initializeFluxArrays() {
   /* Allocate memory for the Track boundary flux and leakage arrays */
   try {
     size = 2 * _tot_num_tracks * _fluxes_per_track;
+    int max_size = size;
+#ifdef MPIX
+    if (_geometry->isDomainDecomposed())
+      MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+                    _geometry->getMPICart());
+#endif
+    double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
+        / (double) (1e6);
+    log_printf(NORMAL, "Max boundary angular flux storage per domain = %6.2f "
+               "MB", max_size_mb);
+
     _boundary_flux = new FP_PRECISION[size];
     _start_flux = new FP_PRECISION[size];
-    _boundary_leakage = new FP_PRECISION[size];
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
+    max_size = size;
+#ifdef MPIX
+    if (_geometry->isDomainDecomposed())
+      MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+                    _geometry->getMPICart());
+#endif
+    max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
+        / (double) (1e6);
+    log_printf(NORMAL, "Max scalar flux storage per domain = %6.2f MB",
+               max_size_mb);
+
     _scalar_flux = new FP_PRECISION[size];
     _old_scalar_flux = new FP_PRECISION[size];
     memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
@@ -261,6 +282,17 @@ void CPUSolver::initializeSourceArrays() {
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size];
   _fixed_sources = new FP_PRECISION[size];
+    
+  int max_size = size;
+#ifdef MPIX
+  if (_geometry->isDomainDecomposed())
+    MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+                  _geometry->getMPICart());
+#endif
+  double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
+        / (double) (1e6);
+  log_printf(NORMAL, "Max source storage per domain = %6.2f MB",
+             max_size_mb);
 
   /* Initialize fixed sources to zero */
   memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);

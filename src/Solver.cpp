@@ -1129,13 +1129,21 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Print memory report */
   double vm;
   double rm;
+  double max_vm = vm;
+  double max_rm = rm;
   _timer->processMemUsage(vm, rm);
 #ifdef MPIx
-  if (_geometry->isDomainDecomposed())
+  if (_geometry->isDomainDecomposed()) {
     MPI_Barrier(_geometry->getMPICart());
+    MPI_Allreduce(&vm, &max_vm, 1, MPI_DOUBLE, MPI_MAX,
+                  _geometry->getMPICart());
+    MPI_Allreduce(&rm, &max_rm, 1, MPI_DOUBLE, MPI_MAX,
+                  _geometry->getMPICart());
+  }
 #endif
-  log_printf(NODAL, "Using %f MB virtual memory and %f MB resident "
-                      "memory ", vm, rm);
+  if (_geometry->isRootDomain())
+    log_printf(NORMAL, "Using maximum %f MB virtual memory and %f MB resident "
+                        "memory per node", vm, rm);
 
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();

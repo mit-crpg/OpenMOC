@@ -287,7 +287,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     log_printf(INFO, "SOR iter: %d, residual: %f", iter, residual);
 
     // Check for convergence
-    if (residual / initial_residual < 0.1 && iter > MIN_LINEAR_SOLVE_ITERATIONS) {
+    if ((residual / initial_residual < 0.1 || residual < tol) &&
+        iter > MIN_LINEAR_SOLVE_ITERATIONS) {
       if (convergence_data != NULL)
         convergence_data->linear_iters_end = iter;
       break;
