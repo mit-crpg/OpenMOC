@@ -41,7 +41,7 @@ int main(int argc,  char* argv[]) {
   */
 
   double tolerance = 1e-4;
-  int max_iters = 15;
+  int max_iters = 30;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -52,7 +52,7 @@ int main(int argc,  char* argv[]) {
       get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.7);
-  cmfd.setSORRelaxationFactor(1.0);
+  cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
 
   /* Load the geometry */
@@ -165,7 +165,6 @@ int main(int argc,  char* argv[]) {
   mesh.createLattice(17*17, 17*17, 1);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
-  return 0;
   int my_rank = 0;
 #ifdef MPIx
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);

@@ -1042,8 +1042,12 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
     fsr_id = _extruded_FSR_keys_map.insert_and_get_count(fsr_key, NULL);
     if (fsr_id == -1) {
       ExtrudedFSR volatile* fsr;
+      int count = 0;
       do {
         fsr = _extruded_FSR_keys_map.at(fsr_key);
+        count++;
+        if (count > 1e8)
+          log_printf(ERROR, "Application stuck in finding extruded FSR");
       } while (fsr == NULL);
       fsr_id = fsr->_fsr_id;
     }
@@ -1062,8 +1066,12 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
   /* If FSR has already been encountered, get the fsr id from map */
   else {
     ExtrudedFSR volatile* fsr;
+    int count = 0;
     do {
       fsr = _extruded_FSR_keys_map.at(fsr_key);
+      count++;
+      if (count > 1e8)
+        log_printf(ERROR, "Application stuck in finding extruded FSR");
     } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;

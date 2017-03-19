@@ -1311,9 +1311,9 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
   FP_PRECISION volume;
   FP_PRECISION tot_fission_source;
   FP_PRECISION norm_factor;
-
-  int size = _num_FSRs * _num_groups;
-  FP_PRECISION* fission_sources = new FP_PRECISION[_num_FSRs * _num_groups];
+  
+  FP_PRECISION* int_fission_sources = new FP_PRECISION[_num_FSRs];
+  FP_PRECISION* group_fission_sources = new FP_PRECISION[_num_groups];
 
   /* Compute total fission source for each FSR, energy group */
 #pragma omp parallel for private(volume, nu_sigma_f) schedule(guided)
@@ -1324,11 +1324,15 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
     volume = _FSR_volumes[r];
 
     for (int e=0; e < _num_groups; e++)
-      fission_sources(r,e) = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
+      group_fission_sources[e] = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
+
+    int_fission_sources[r] = pairwise_sum<FP_PRECISION>(group_fission_sources, 
+                                                        _num_groups);
   }
 
   /* Compute the total fission source */
-  tot_fission_source = pairwise_sum<FP_PRECISION>(fission_sources,size);
+  tot_fission_source = pairwise_sum<FP_PRECISION>(int_fission_sources,
+                                                  _num_FSRs);
 
 #ifdef MPIx
   /* Reduce total fission rates across domians */
@@ -1355,7 +1359,8 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
 #endif
 
   /* Deallocate memory for fission source array */
-  delete [] fission_sources;
+  delete [] int_fission_sources;
+  delete [] group_fission_sources;
 
   /* Normalize scalar fluxes in each FSR */
   norm_factor = 1.0 / tot_fission_source;
@@ -1397,9 +1402,8 @@ void CPUSolver::computeFSRSources(int iteration) {
   FP_PRECISION* chi;
   Material* material;
 
-  int size = _num_FSRs * _num_groups;
-  FP_PRECISION* fission_sources = new FP_PRECISION[size];
-  size = _num_threads * _num_groups;
+  FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
+  int size = _num_threads * _num_groups;
   FP_PRECISION* scatter_sources = new FP_PRECISION[size];
   int num_negative_sources = 0;
 
@@ -1420,9 +1424,9 @@ void CPUSolver::computeFSRSources(int iteration) {
     /* Compute fission source for each group */
     if (material->isFissionable()) {
       for (int e=0; e < _num_groups; e++)
-        fission_sources(r,e) = _scalar_flux(r,e) * nu_sigma_f[e];
+        fission_sources[e] = _scalar_flux(r,e) * nu_sigma_f[e];
 
-      fission_source = pairwise_sum<FP_PRECISION>(&fission_sources(r,0),
+      fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
                                                   _num_groups);
       fission_source /= _k_eff;
     }
