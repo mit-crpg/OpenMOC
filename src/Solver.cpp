@@ -41,6 +41,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _fixed_sources = NULL;
   _reduced_sources = NULL;
   _source_type = "None";
+  
+  _regionwise_scratch = NULL;
 
   /* Default polar quadrature */
   _fluxes_per_track = 0;
@@ -90,6 +92,13 @@ Solver::~Solver() {
 
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
+
+  if (_regionwise_scratch != NULL)
+    delete [] _regionwise_scratch;
+  
+  for (int i=0; i < _groupwise_scratch.size(); i++)
+    delete [] _groupwise_scratch.at(i);
+  _groupwise_scratch.clear();
 
   for (int a=0; a < _num_exp_evaluators_azim; a++) {
     for (int p=0; p < _num_exp_evaluators_polar; p++)
@@ -624,6 +633,18 @@ void Solver::initializeFSRs() {
     _fluxes_per_track = _num_groups;
   else
     _fluxes_per_track = _num_groups * _num_polar/2;
+
+  /* Allocate scratch memory */
+  for (int i=0; i < _groupwise_scratch.size(); i++)
+    delete [] _groupwise_scratch.at(i);
+  if (_regionwise_scratch != NULL)
+    delete [] _regionwise_scratch;
+  //FIXME
+  int num_threads = omp_get_num_procs();
+  _groupwise_scratch.resize(num_threads);
+  for (int i=0; i < num_threads; i++)
+    _groupwise_scratch.at(i) = new FP_PRECISION[_num_groups];
+  _regionwise_scratch = new double[_num_FSRs];
 
   /* Generate the FSR centroids */
   _track_generator->generateFSRCentroids(_FSR_volumes);

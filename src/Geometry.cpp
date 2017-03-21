@@ -2061,7 +2061,13 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
    * Geometry */
+  int find_cell_count = 0;
   while (curr != NULL) {
+
+    /* Check if stuck in loop */
+    find_cell_count++;
+    if (find_cell_count > 1e6)
+      log_printf(ERROR, "Caught in inifinite loop finding next cell");
       
     /* Records the minimum length to a 2D intersection */
     double min_length = std::numeric_limits<double>::infinity();

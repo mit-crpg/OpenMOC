@@ -14,6 +14,7 @@ PRECISION   = double
 #===============================================================================
 
 case = load-geometry/load-geometry.cpp
+#case = simple-lattice/simple-lattice-3d.cpp
 
 source = \
 Cell.cpp \

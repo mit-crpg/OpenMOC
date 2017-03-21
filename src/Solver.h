@@ -186,6 +186,10 @@ protected:
   /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
 
+  /** Temporary scratch pads for intermediate storage of computing steps */
+  std::vector<FP_PRECISION*> _groupwise_scratch;
+  double* _regionwise_scratch;
+
   /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
   std::map< std::pair<int, int>, FP_PRECISION > _fix_src_FSR_map;
 

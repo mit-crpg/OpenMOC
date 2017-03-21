@@ -1209,7 +1209,7 @@ void TrackGenerator3D::segmentizeExtruded() {
   /* Loop over all extruded Tracks */
   Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.1, _geometry,
                     true);
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++) {
     progress.incrementCounter();
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);

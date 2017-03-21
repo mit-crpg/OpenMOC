@@ -185,19 +185,12 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
 #pragma omp parallel
   {
+    int tid = omp_get_thread_num();
     Material* material;
     FP_PRECISION* sigma_t;
     FP_PRECISION* nu_sigma_f;
     FP_PRECISION* chi;
     FP_PRECISION sigma_s;
-    FP_PRECISION scatter_source_x, scatter_source_y, scatter_source_z;
-    FP_PRECISION fission_source_x, fission_source_y, fission_source_z;
-    FP_PRECISION* fission_sources_x = new FP_PRECISION[_num_groups];
-    FP_PRECISION* scatter_sources_x = new FP_PRECISION[_num_groups];
-    FP_PRECISION* fission_sources_y = new FP_PRECISION[_num_groups];
-    FP_PRECISION* scatter_sources_y = new FP_PRECISION[_num_groups];
-    FP_PRECISION* fission_sources_z = new FP_PRECISION[_num_groups];
-    FP_PRECISION* scatter_sources_z = new FP_PRECISION[_num_groups];
     FP_PRECISION src_x, src_y, src_z;
 
     /* Compute the total source for each FSR */
@@ -211,31 +204,55 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
       /* Compute scatter + fission source for group g */
       for (int g=0; g < _num_groups; g++) {
+       
+        /* Compute scatter sources */
+        FP_PRECISION* scatter_sources_x = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
           sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
           scatter_sources_x[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,0);
-          scatter_sources_y[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,1);
-          scatter_sources_z[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,2);
-          fission_sources_x[g_prime] = nu_sigma_f[g_prime] *
-            _scalar_flux_xyz(r,g_prime,0);
-          fission_sources_y[g_prime] = nu_sigma_f[g_prime] *
-            _scalar_flux_xyz(r,g_prime,1);
-          fission_sources_z[g_prime] = nu_sigma_f[g_prime] *
-            _scalar_flux_xyz(r,g_prime,2);
         }
+        FP_PRECISION scatter_source_x = 
+            pairwise_sum<FP_PRECISION>(scatter_sources_x, _num_groups);
 
-        scatter_source_x = pairwise_sum<FP_PRECISION>(scatter_sources_x,
-                                                      _num_groups);
-        scatter_source_y = pairwise_sum<FP_PRECISION>(scatter_sources_y,
-                                                      _num_groups);
-        scatter_source_z = pairwise_sum<FP_PRECISION>(scatter_sources_z,
-                                                      _num_groups);
-        fission_source_x = pairwise_sum<FP_PRECISION>(fission_sources_x,
-                                                      _num_groups);
-        fission_source_y = pairwise_sum<FP_PRECISION>(fission_sources_y,
-                                                      _num_groups);
-        fission_source_z = pairwise_sum<FP_PRECISION>(fission_sources_z,
-                                                      _num_groups);
+        FP_PRECISION* scatter_sources_y = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          scatter_sources_y[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,1);
+        }
+        FP_PRECISION scatter_source_y = 
+            pairwise_sum<FP_PRECISION>(scatter_sources_y, _num_groups);
+ 
+        FP_PRECISION* scatter_sources_z = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          scatter_sources_z[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,2);
+        }
+        FP_PRECISION scatter_source_z = 
+            pairwise_sum<FP_PRECISION>(scatter_sources_z, _num_groups);
+ 
+
+        /* Compute fission sources */
+        FP_PRECISION* fission_sources_x = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++)
+          fission_sources_x[g_prime] = 
+              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,0);
+        FP_PRECISION fission_source_x =
+            pairwise_sum<FP_PRECISION>(fission_sources_x, _num_groups);
+
+        FP_PRECISION* fission_sources_y = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++)
+          fission_sources_y[g_prime] = 
+              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,1);
+        FP_PRECISION fission_source_y =
+            pairwise_sum<FP_PRECISION>(fission_sources_y, _num_groups);
+        
+        FP_PRECISION* fission_sources_z = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++)
+          fission_sources_z[g_prime] = 
+              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,2);
+        FP_PRECISION fission_source_z =
+            pairwise_sum<FP_PRECISION>(fission_sources_z, _num_groups);
+
         fission_source_x /= _k_eff;
         fission_source_y /= _k_eff;
         fission_source_z /= _k_eff;
@@ -269,13 +286,6 @@ void CPULSSolver::computeFSRSources(int iteration) {
         }
       }
     }
-
-    delete [] fission_sources_x;
-    delete [] scatter_sources_x;
-    delete [] fission_sources_y;
-    delete [] scatter_sources_y;
-    delete [] fission_sources_z;
-    delete [] scatter_sources_z;
   }
 }
 

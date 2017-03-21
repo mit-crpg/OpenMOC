@@ -29,9 +29,9 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1; //FIXME 0.2 / 1.0
-  int num_azim = 4; //FIXME 8 / 4
+  int num_azim = 8; //FIXME 8 / 4
   double polar_spacing = 1.5; //FIXME 5.0 / 1.5
-  int num_polar = 2; //FIXME 6 / 2
+  int num_polar = 6; //FIXME 6 / 2
 
   /*
   double azim_spacing = 0.1;
@@ -51,7 +51,7 @@ int main(int argc,  char* argv[]) {
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setCMFDRelaxationFactor(0.7);
+  cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
 

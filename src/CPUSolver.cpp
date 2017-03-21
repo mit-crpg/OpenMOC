@@ -1307,32 +1307,31 @@ void CPUSolver::storeFSRFluxes() {
  */
 FP_PRECISION CPUSolver::normalizeFluxes() {
 
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION volume;
-  FP_PRECISION tot_fission_source;
-  FP_PRECISION norm_factor;
-  
-  FP_PRECISION* int_fission_sources = new FP_PRECISION[_num_FSRs];
-  FP_PRECISION* group_fission_sources = new FP_PRECISION[_num_groups];
+  double* int_fission_sources = _regionwise_scratch;
 
   /* Compute total fission source for each FSR, energy group */
-#pragma omp parallel for private(volume, nu_sigma_f) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+#pragma omp parallel
+  {
+    int tid = omp_get_thread_num();
+    FP_PRECISION* group_fission_sources = _groupwise_scratch.at(tid);
+#pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
 
-    /* Get pointers to important data structures */
-    nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
-    volume = _FSR_volumes[r];
+      /* Get pointers to important data structures */
+      FP_PRECISION* nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+      FP_PRECISION volume = _FSR_volumes[r];
 
-    for (int e=0; e < _num_groups; e++)
-      group_fission_sources[e] = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
+      for (int e=0; e < _num_groups; e++)
+        group_fission_sources[e] = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
 
-    int_fission_sources[r] = pairwise_sum<FP_PRECISION>(group_fission_sources, 
+      int_fission_sources[r] = pairwise_sum<FP_PRECISION>(group_fission_sources, 
                                                         _num_groups);
+    }
   }
 
   /* Compute the total fission source */
-  tot_fission_source = pairwise_sum<FP_PRECISION>(int_fission_sources,
-                                                  _num_FSRs);
+  FP_PRECISION tot_fission_source = pairwise_sum<double>(int_fission_sources,
+                                                         _num_FSRs);
 
 #ifdef MPIx
   /* Reduce total fission rates across domians */
@@ -1350,20 +1349,14 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
       precision = MPI_DOUBLE;
 
     /* Reduce fission rates */
-    // FIXME log_printf(NORMAL, "Starting comm");
     MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, precision,
                   MPI_SUM, comm);
-    // FIXME log_printf(NORMAL, "Comm finished");
     tot_fission_source = reduced_fission;
   }
 #endif
 
-  /* Deallocate memory for fission source array */
-  delete [] int_fission_sources;
-  delete [] group_fission_sources;
-
   /* Normalize scalar fluxes in each FSR */
-  norm_factor = 1.0 / tot_fission_source;
+  FP_PRECISION norm_factor = 1.0 / tot_fission_source;
 
   log_printf(DEBUG, "Tot. Fiss. Src. = %f, Norm. factor = %f",
              tot_fission_source, norm_factor);
@@ -1395,31 +1388,21 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
  */
 void CPUSolver::computeFSRSources(int iteration) {
 
-  int tid;
-  FP_PRECISION scatter_source, fission_source;
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION* sigma_t;
-  FP_PRECISION* chi;
-  Material* material;
-
-  FP_PRECISION* fission_sources = new FP_PRECISION[_num_groups];
-  int size = _num_threads * _num_groups;
-  FP_PRECISION* scatter_sources = new FP_PRECISION[size];
   int num_negative_sources = 0;
 
   /* For all FSRs, find the source */
-#pragma omp parallel for private(tid, material, nu_sigma_f, chi, \
-    sigma_t, fission_source, scatter_source) schedule(guided)
+#pragma omp parallel for schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
-    tid = omp_get_thread_num();
-    material = _FSR_materials[r];
-    nu_sigma_f = material->getNuSigmaF();
-    chi = material->getChi();
-    sigma_t = material->getSigmaT();
+    int tid = omp_get_thread_num();
+    Material* material = _FSR_materials[r];
+    FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+    FP_PRECISION* chi = material->getChi();
+    FP_PRECISION* sigma_t = material->getSigmaT();
+    FP_PRECISION* fission_sources = _groupwise_scratch.at(tid);
 
     /* Initialize the fission sources to zero */
-    fission_source = 0.0;
+    FP_PRECISION fission_source = 0.0;
 
     /* Compute fission source for each group */
     if (material->isFissionable()) {
@@ -1432,12 +1415,13 @@ void CPUSolver::computeFSRSources(int iteration) {
     }
 
     /* Compute total (fission+scatter+fixed) source for group G */
+    FP_PRECISION* scatter_sources = _groupwise_scratch.at(tid);
     for (int G=0; G < _num_groups; G++) {
       for (int g=0; g < _num_groups; g++)
-        scatter_sources(tid,g) = material->getSigmaSByGroup(g+1,G+1)
+        scatter_sources[g] = material->getSigmaSByGroup(g+1,G+1)
                                   * _scalar_flux(r,g);
-      scatter_source = pairwise_sum<FP_PRECISION>(&scatter_sources(tid,0),
-                                                _num_groups);
+      FP_PRECISION scatter_source = 
+          pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
 
       _reduced_sources(r,G) = fission_source * chi[G];
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
@@ -1454,9 +1438,6 @@ void CPUSolver::computeFSRSources(int iteration) {
 
   if (num_negative_sources > 0)
     log_printf(WARNING, "Computed %d negative sources", num_negative_sources);
-
-  delete [] fission_sources;
-  delete [] scatter_sources;
 }
 
 
@@ -1470,7 +1451,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   int norm;
   double residual;
-  double* residuals = new double[_num_FSRs];
+  double* residuals = _regionwise_scratch;
   memset(residuals, 0., _num_FSRs * sizeof(double));
 
   if (res_type == SCALAR_FLUX) {
@@ -1585,10 +1566,6 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   /* Compute RMS residual */
   residual = sqrt(residual / norm);
-
-  /* Deallocate memory for residuals array */
-  delete [] residuals;
-
   return residual;
 }
 
@@ -1603,29 +1580,29 @@ void CPUSolver::computeKeff() {
   FP_PRECISION* sigma;
   FP_PRECISION volume;
 
-  FP_PRECISION fission;
-  FP_PRECISION* FSR_rates = new FP_PRECISION[_num_FSRs];
-  FP_PRECISION* group_rates = new FP_PRECISION[_num_threads * _num_groups];
+  double fission;
+  double* FSR_rates = _regionwise_scratch;
 
   /* Loop over all FSRs and compute the volume-integrated total rates */
 #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
   for (int r=0; r < _num_FSRs; r++) {
 
-    tid = omp_get_thread_num() * _num_groups;
-    volume = _FSR_volumes[r];
-    material = _FSR_materials[r];
-    sigma = material->getNuSigmaF();
+    int tid = omp_get_thread_num();
+    FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
+    FP_PRECISION volume = _FSR_volumes[r];
+    Material* material = _FSR_materials[r];
+    FP_PRECISION* sigma = material->getNuSigmaF();
 
     for (int e=0; e < _num_groups; e++)
-      group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
+      group_rates[e] = sigma[e] * _scalar_flux(r,e);
 
-    FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
+    FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
     FSR_rates[r] *= volume;
   }
 
   /* Reduce new fission rates across FSRs */
-  fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+  fission = pairwise_sum<double>(FSR_rates, _num_FSRs);
 
 #ifdef MPIx
   /* Reduce fission rates across domians */
@@ -1635,15 +1612,10 @@ void CPUSolver::computeKeff() {
     MPI_Comm comm = _geometry->getMPICart();
 
     /* Determine the floating point precision */
-    FP_PRECISION reduced_fission;
-    MPI_Datatype precision;
-    if (sizeof(FP_PRECISION) == 4)
-      precision = MPI_FLOAT;
-    else
-      precision = MPI_DOUBLE;
+    double reduced_fission;
 
     /* Reduce fission rates */
-    MPI_Allreduce(&fission, &reduced_fission, 1, precision, MPI_SUM, comm);
+    MPI_Allreduce(&fission, &reduced_fission, 1, MPI_DOUBLE, MPI_SUM, comm);
     fission = reduced_fission;
   }
 #endif
@@ -1653,9 +1625,6 @@ void CPUSolver::computeKeff() {
    * _k_eff is the old _k_eff * sum(new_source). Implicitly, we are just doing
    * _k_eff = sum(new_source) / sum(old_source). */
   _k_eff *= fission;
-
-  delete [] FSR_rates;
-  delete [] group_rates;
 }
 
 
