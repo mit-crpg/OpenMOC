@@ -88,23 +88,6 @@
   fill.thisown = False
 %}
 
-/* A Cell owns the memory for its Region */
-%pythonappend Cell::setRegion %{
-  # SWIG 3
-  if 'region' in locals():
-    region = locals()['region']
-  elif 'args' in locals() and 'region' in locals()['args']:
-    region = locals()['args']['region']
-  elif 'kwargs' in locals() and 'region' in locals()['kwargs']:
-    region = locals()['kwargs']['region']
-
-  # SWIG 2
-  else:
-    region = locals()['args'][0]
-
-  region.thisown = False
-%}
-
 /* A Universe owns the memory for each Cell it contains */
 %pythonappend Universe::addCell %{
   # SWIG 3

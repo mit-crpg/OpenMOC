@@ -616,10 +616,13 @@ void Cell::setName(const char* name) {
 
 /**
  * @brief Sets the Region bounding the Cell
+ * @details NOTE: This method deep copies the Region and stores
+ *          the copy. Any changes made to the Region will not be
+ *          reflected in the Region copy stored by the Cell.
  * @param region the Region bounding the Cell
  */
 void Cell::setRegion(Region* region) {
-  _region = region;
+  _region = region->clone();
 }
 
 
