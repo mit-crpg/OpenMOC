@@ -70,7 +70,7 @@ private:
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
-  /** FIXME: */
+  /** A pointer to the Region bounding the Cell */
   Region* _region;
 
   /** A pointer to the Material or Universe filling this Cell */

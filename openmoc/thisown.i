@@ -48,7 +48,7 @@
 
   # SWIG 2
   else:
-    surface = locals()['args'][0]
+    surface = locals()['args'][1]
 
   surface.thisown = False
 %}
@@ -71,23 +71,6 @@
   surface.thisown = False
 %}
 
-/* Python must free memory for each Surface that is not in a Cell */
-%pythonappend Cell::removeSurface %{
-  # SWIG 3
-  if 'surface' in locals():
-    surface = locals()['surface']
-  elif 'args' in locals() and 'surface' in locals()['args']:
-    surface = locals()['args']['surface']
-  elif 'kwargs' in locals() and 'surface' in locals()['kwargs']:
-    surface = locals()['kwargs']['surface']
-
-  # SWIG 2
-  else:
-    surface = locals()['args'][0]
-
-  surface.thisown = True
-%}
-
 /* A Cell owns the memory for its Material/Universe fill */
 %pythonappend Cell::setFill %{
   # SWIG 3
@@ -105,7 +88,7 @@
   fill.thisown = False
 %}
 
-/* A Cell owns the memory for its Material/Universe fill */
+/* A Cell owns the memory for its Region */
 %pythonappend Cell::setRegion %{
   # SWIG 3
   if 'region' in locals():

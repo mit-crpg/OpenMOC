@@ -91,6 +91,8 @@ Cell::Cell(int id, const char* name) {
 Cell::~Cell() {
   if (_name != NULL)
     delete [] _name;
+  if (_region != NULL)
+    delete _region;
 }
 
 
@@ -131,8 +133,8 @@ cellType Cell::getType() const {
 
 
 /**
- * @brief Return the Cell type (FILL or MATERIAL).
- * @return the Cell type
+ * @brief Return the Cell's Region spatial domain.
+ * @return the Cell's Region
  */
 Region* Cell::getRegion() {
   return _region;
@@ -362,7 +364,7 @@ int Cell::getNumSectors() {
  */
 double Cell::getMinX() {
   if (_region == NULL)
-    return -std::numeric_limits<double>::infinity();
+    return -INFINITY;
   else
     return _region->getMinX();
 }
@@ -374,7 +376,7 @@ double Cell::getMinX() {
  */
 double Cell::getMaxX() {
   if (_region == NULL)
-    return std::numeric_limits<double>::infinity();
+    return INFINITY;
   else
     return _region->getMaxX();
 }
@@ -386,7 +388,7 @@ double Cell::getMaxX() {
  */
 double Cell::getMinY() {
   if (_region == NULL)
-    return -std::numeric_limits<double>::infinity();
+    return -INFINITY;
   else
     return _region->getMinY();
 }
@@ -398,7 +400,7 @@ double Cell::getMinY() {
  */
 double Cell::getMaxY() {
   if (_region == NULL)
-    return std::numeric_limits<double>::infinity();
+    return INFINITY;
   else
     return _region->getMaxY();
 }
@@ -410,7 +412,7 @@ double Cell::getMaxY() {
  */
 double Cell::getMinZ() {
   if (_region == NULL)
-    return -std::numeric_limits<double>::infinity();
+    return -INFINITY;
   else
     return _region->getMinZ();
 }
@@ -422,7 +424,7 @@ double Cell::getMinZ() {
  */
 double Cell::getMaxZ() {
   if (_region == NULL)
-    return std::numeric_limits<double>::infinity();
+    return INFINITY;
   else
     return _region->getMaxZ();
 }
@@ -481,17 +483,15 @@ boundaryType Cell::getMaxYBoundaryType() {
 
 
 /**
- * @brief Return the std::map of Surface pointers and halfspaces (+/-1) for all
- *        surfaces bounding the Cell.
- * @return std::map of Surface pointers and halfspaces
+ * @brief Return the std::map of Halfspace object pointers for all
+ *        surfaces within the Region bounding the Cell.
+ * @return std::map of Halfspace object pointers
  */
 std::map<int, Halfspace*> Cell::getSurfaces() const {
+  std::map<int, Halfspace*> all_surfaces;
   if (_region != NULL)
-    return _region->getAllSurfaces();
-  else {
-    std::map<int, Halfspace*> all_surfaces;
-    return all_surfaces;
-  }
+    all_surfaces = _region->getAllSurfaces();
+  return all_surfaces;
 }
 
 
@@ -615,11 +615,10 @@ void Cell::setName(const char* name) {
 
 
 /**
- * @brief Sets the name of the Cell
- * @param name the Cell name string
+ * @brief Sets the Region bounding the Cell
+ * @param region the Region bounding the Cell
  */
 void Cell::setRegion(Region* region) {
-  // FIXME: this is a memory leak
   _region = region;
 }
 
@@ -819,14 +818,15 @@ void Cell::setParent(Cell* parent) {
 
 
 /**
- * @brief Insert a Surface into this Cell's container of bounding Surfaces.
+ * @brief Insert a Surface into this Cell's bounding Region.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
  */
 void Cell::addSurface(int halfspace, Surface* surface) {
 
-  // FIXME: this is memory leak hell
   Halfspace* new_halfspace = new Halfspace(halfspace, surface);
+
+  /* Assign the Halfspace as the Cell's Region if it has none */
   if (_region == NULL)
     _region = new_halfspace;
   else{
@@ -844,12 +844,14 @@ void Cell::addSurface(int halfspace, Surface* surface) {
 
 /**
  * @brief Determines whether a Point is contained inside a Cell.
- * @details Queries each Surface inside the Cell to determine if the Point
- *          is on the same side of the Surface. This point is only inside
- *          the Cell if it is on the same side of every Surface in the Cell.
+ * @details Queries the Region bounding the Cell to determine if the Point
+ *          is within the Region. This point is only inside the Cell if it
+ *          is on the same side of every Surface bounding the Cell.
  * @param point a pointer to a Point
  */
 bool Cell::containsPoint(Point* point) {
+
+  /* If a FILL Cell, query the filling Universe or Lattice */
   if (_region == NULL) {
     if (_cell_type == FILL) {
       Universe* univ = static_cast<Universe*>(_fill);
@@ -863,6 +865,8 @@ bool Cell::containsPoint(Point* point) {
     else
       return true;
   }
+
+  /* Query the Cell's bounding Region */
   else
     return _region->containsPoint(point);
 }
