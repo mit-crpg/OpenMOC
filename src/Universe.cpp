@@ -331,7 +331,7 @@ double Universe::getMaxZ() {
     }
   }
 
-  /* If a y-max boundary was not found, get the y-max from the bounding boxes
+  /* If a z-max boundary was not found, get the z-max from the bounding boxes
    * of the cells */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
     max_z = std::max(max_z, c_iter->second->getMaxZ());
@@ -648,20 +648,23 @@ void Universe::removeCell(Cell* cell) {
 
 
 /**
- * @brief
- * @param
- * @returns
+ * @brief Determines whether a Point is contained inside a Universe.
+ * @details Queries each Cell in the Universe to determine if the Point
+ *          is within the Universe. This point is only inside the Universe
+ *          if it is in one of the Cells.
+ * @param point a pointer to a Point
+ * @returns true if the Point is inside the Universe; otherwise false
  */
 bool Universe::containsPoint(Point* point) {
 
   /* Loop over all Cells */
   std::map<int, Cell*>::iterator iter;
   for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
-    if (!iter->second->containsPoint(point))
-      return false;
+    if (iter->second->containsPoint(point))
+      return true;
   }
 
-  return true;
+  return false;
 }
 
 

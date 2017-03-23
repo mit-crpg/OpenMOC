@@ -85,7 +85,7 @@ public:
 
 
 /**
- * @class Intersection Intersection.h "src/Region.h"
+ * @class Intersection Region.h "src/Region.h"
  * @brief An intersection of two or more Regions.
  */
 class Intersection : public Region {
@@ -97,7 +97,7 @@ public:
 
 
 /**
- * @class Union Union.h "src/Region.h"
+ * @class Union Region.h "src/Region.h"
  * @brief A union of two or more Regions.
  */
 class Union : public Region {
@@ -109,7 +109,7 @@ class Union : public Region {
 
 
 /**
- * @class Complement Complement.h "src/Region.h"
+ * @class Complement Region.h "src/Region.h"
  * @brief A complement of a Region.
  */
 class Complement : public Region {
@@ -122,7 +122,7 @@ public:
 
 
 /**
- * @class Halfspace Halfspace.h "src/Region.h"
+ * @class Halfspace Region.h "src/Region.h"
  * @brief A positive or negative halfspace Region.
  */
 class Halfspace : public Region {
@@ -160,8 +160,8 @@ public:
 
 
 /**
- * @class Halfspace Halfspace.h "src/Region.h"
- * @brief A positive or negative halfspace Region.
+ * @class RectangularPrism Region.h "src/Region.h"
+ * @brief An infinite rectangular prism aligned with the z-axis.
  */
 class RectangularPrism : public Intersection {
 

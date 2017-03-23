@@ -1067,7 +1067,7 @@ std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> grid_x,
   /* Extract the material IDs */
   else if (strcmp(domain_type, "material") == 0) {
 
-    #pragma omp parallel for private(point, cell)
+#pragma omp parallel for private(point, cell)
     for (int i=0; i < num_x; i++) {
       for (int j=0; j < num_y; j++) {
 
