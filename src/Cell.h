@@ -143,7 +143,7 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  std::map<int, Halfspace*> getSurfaces() const;
+  std::map<int, Halfspace*> getSurfaces();
   bool hasParent();
   Cell* getParent();
   Cell* getOldestAncestor();

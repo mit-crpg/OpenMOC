@@ -487,7 +487,7 @@ boundaryType Cell::getMaxYBoundaryType() {
  *        surfaces within the Region bounding the Cell.
  * @return std::map of Halfspace object pointers
  */
-std::map<int, Halfspace*> Cell::getSurfaces() const {
+std::map<int, Halfspace*> Cell::getSurfaces() {
   std::map<int, Halfspace*> all_surfaces;
   if (_region != NULL)
     all_surfaces = _region->getAllSurfaces();

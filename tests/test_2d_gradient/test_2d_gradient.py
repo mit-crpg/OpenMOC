@@ -28,9 +28,9 @@ class TwoDGradientTestHarness(TestHarness):
                 root_cell = cell
 
         # Apply VACUUM BCs on the xmin and ymax surfaces
-        surfaces = root_cell.getSurfaces()
+        surfaces = self.input_set.geometry.getAllSurfaces()
         for surface_id in surfaces:
-            surface = surfaces[surface_id]._surface
+            surface = surfaces[surface_id]
             if surface.getName() == 'xmin':
                 surface.setBoundaryType(openmoc.VACUUM)
             if surface.getName() == 'ymax':

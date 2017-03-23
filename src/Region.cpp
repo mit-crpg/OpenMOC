@@ -5,7 +5,7 @@
  * @brief Destructor clears vector of the nodes within the Region.
  */
 Region::~Region() {
-  _nodes.clear();
+  //  _nodes.clear();
 }
 
 
@@ -560,11 +560,14 @@ boundaryType Halfspace::getMaxYBoundaryType() {
  *          Surface as the Halfspace.
  * @returns true if the Point is inside the Halfspace; otherwise false
  */
-bool Halfspace::containsPoint(Point* point) { 
-  if (_halfspace == 1)
-    return (_surface->evaluate(point) >= 0);
+bool Halfspace::containsPoint(Point* point) {
+  double evaluation = _surface->evaluate(point);
+  if (fabs(evaluation) <= ON_SURFACE_THRESH)
+    return true;
+  else if (_halfspace == 1)
+    return (evaluation >= 0);
   else
-   return (_surface->evaluate(point) < 0);
+   return (evaluation < 0);
 }
 
 
