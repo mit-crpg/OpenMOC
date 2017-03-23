@@ -1142,9 +1142,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   printInputParamsSummary();
 
   /* Set scalar flux to unity for each region */
+  log_printf(NORMAL, "FIXME flattening FSR fluxes");
   flattenFSRFluxes(1.0);
+  log_printf(NORMAL, "FIXME Normalizing FSR fluxes");
   normalizeFluxes();
+  log_printf(NORMAL, "FIXME storing FSR fluxes");
   storeFSRFluxes();
+  log_printf(NORMAL, "FIXME zeroing track fluxes");
   zeroTrackFluxes();
 
   /* Print memory report */
@@ -1152,6 +1156,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double rm;
   double max_vm = vm;
   double max_rm = rm;
+  log_printf(NORMAL, "FIXME getting memory report");
+    /*
   _timer->processMemUsage(vm, rm);
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
@@ -1165,6 +1171,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   if (_geometry->isRootDomain())
     log_printf(NORMAL, "Using maximum %f MB virtual memory and %f MB resident "
                         "memory per node", vm, rm);
+  */
 
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();

@@ -1207,7 +1207,7 @@ void TrackGenerator3D::segmentizeExtruded() {
     z_coords = _geometry->getUniqueZPlanes();
 
   /* Loop over all extruded Tracks */
-  Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.1, _geometry,
+  Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.001, _geometry,
                     true);
 //#pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++) {
