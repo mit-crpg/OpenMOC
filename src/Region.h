@@ -54,13 +54,14 @@ class Region {
 
 protected:
 
-  // FIXME: Add doxygen comment
+  /** The type of Region (ie, UNION, INTERSECTION, etc) */
   regionType _region_type;
 
-  // FIXME: Add doxygen comment
+  /** A collection of the nodes within the Region */
   std::vector<Region*> _nodes;
 
 public:
+  virtual ~Region();
   virtual void addNode(Region* node);
   virtual std::vector<Region*> getNodes();
   virtual std::map<int, Halfspace*> getAllSurfaces();
@@ -77,11 +78,6 @@ public:
   virtual boundaryType getMinYBoundaryType();
   virtual boundaryType getMaxYBoundaryType();
 
-  Intersection* getIntersection(Region* other);
-  Union* getUnion(Region* other);
-  Complement* getInversion();
-
-  // FIXME: Use the notation used by the ray tracing code
   virtual bool containsPoint(Point* point) =0;
   virtual double minSurfaceDist(LocalCoords* coords);
   virtual Region* clone();
@@ -96,7 +92,6 @@ class Intersection : public Region {
 
 public:
   Intersection();
-  Intersection* getIntersection(Region* other);
   bool containsPoint(Point* point);
 };
 
@@ -109,7 +104,6 @@ class Union : public Region {
 
  public:
   Union();
-  Union* getUnion(Region* other);
   bool containsPoint(Point* point);
 };
 
@@ -143,15 +137,10 @@ private:
   
 public:
   Halfspace(int halfspace, Surface* surface);
-  virtual ~Halfspace();
   Halfspace* clone();
 
   Surface* getSurface();
   int getHalfspace();
-
-  // FIXME: this may be bullshit
-  void addNode(Region* node);
-  std::vector<Region*> getNodes();
   std::map<int, Halfspace*> getAllSurfaces();
 
   double getMinX();
@@ -165,10 +154,6 @@ public:
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
 
-  Intersection* getIntersection(Region* other);
-  Union* getUnion(Region* other);
-  Halfspace* getInversion();
-  
   bool containsPoint(Point* point);  
   double minSurfaceDist(LocalCoords* coords);
 };

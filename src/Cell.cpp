@@ -851,6 +851,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  *          is within the Region. This point is only inside the Cell if it
  *          is on the same side of every Surface bounding the Cell.
  * @param point a pointer to a Point
+ * @returns true if the Point is inside the Cell; otherwise false
  */
 bool Cell::containsPoint(Point* point) {
 
