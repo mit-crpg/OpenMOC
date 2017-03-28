@@ -24,12 +24,8 @@ materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = openmoc.XPlane(x=-34.0, name='left')
-right = openmoc.XPlane(x=34.0, name='right')
-top = openmoc.YPlane(y=-34.0, name='top')
-bottom = openmoc.YPlane(y=34.0, name='bottom')
-boundaries = [left, right, top, bottom]
-for boundary in boundaries: boundary.setBoundaryType(openmoc.REFLECTIVE)
+boundary = openmoc.RectangularPrism(68., 68.)
+boundary.setBoundaryType(openmoc.REFLECTIVE)
 
 zcylinders = list()
 radii = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
@@ -76,12 +72,6 @@ cells[8].setFill(materials['UO2'])
 cells[9].setFill(materials['Water'])
 cells[10].setFill(materials['UO2'])
 cells[11].setFill(materials['Water'])
-
-# Add the boundary Planes to the "root" Cell
-root_cell.addSurface(halfspace=+1, surface=boundaries[0])
-root_cell.addSurface(halfspace=-1, surface=boundaries[1])
-root_cell.addSurface(halfspace=+1, surface=boundaries[2])
-root_cell.addSurface(halfspace=-1, surface=boundaries[3])
 
 
 ###############################################################################
@@ -179,6 +169,7 @@ core.setUniverses([[[u7, u8, u7, u8],
 assembly1.setFill(a1)
 assembly2.setFill(a2)
 root_cell.setFill(core)
+root_cell.setRegion(boundary)
 
 
 ###############################################################################

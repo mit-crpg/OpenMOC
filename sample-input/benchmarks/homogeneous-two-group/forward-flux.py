@@ -41,15 +41,8 @@ infinite_medium.setSigmaT(sigma_t)
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = openmoc.XPlane(x=-100.0, name='left')
-right = openmoc.XPlane(x=100.0, name='right')
-top = openmoc.YPlane(y=100.0, name='top')
-bottom = openmoc.YPlane(y=-100.0, name='bottom')
-
-left.setBoundaryType(openmoc.REFLECTIVE)
-right.setBoundaryType(openmoc.REFLECTIVE)
-top.setBoundaryType(openmoc.REFLECTIVE)
-bottom.setBoundaryType(openmoc.REFLECTIVE)
+boundary = openmoc.RectangularPrism(200., 200.)
+boundary.setBoundaryType(openmoc.REFLECTIVE)
 
 
 ###############################################################################
@@ -60,10 +53,7 @@ openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
 cell = openmoc.Cell()
 cell.setFill(infinite_medium)
-cell.addSurface(halfspace=+1, surface=left)
-cell.addSurface(halfspace=-1, surface=right)
-cell.addSurface(halfspace=+1, surface=bottom)
-cell.addSurface(halfspace=-1, surface=top)
+cell.setRegion(boundary)
 
 
 ###############################################################################

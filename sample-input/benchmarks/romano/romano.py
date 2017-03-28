@@ -44,15 +44,9 @@ moderator.setChi(numpy.array([1.0]))
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
 zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.4)
-left = openmoc.XPlane(x=-0.635)
-right = openmoc.XPlane(x=0.635)
-top = openmoc.YPlane(y=0.635)
-bottom = openmoc.YPlane(y=-0.635)
 
-left.setBoundaryType(openmoc.REFLECTIVE)
-right.setBoundaryType(openmoc.REFLECTIVE)
-top.setBoundaryType(openmoc.REFLECTIVE)
-bottom.setBoundaryType(openmoc.REFLECTIVE)
+boundary = openmoc.RectangularPrism(1.27, 1.27)
+boundary.setBoundaryType(openmoc.REFLECTIVE)
 
 
 ###############################################################################
@@ -67,11 +61,8 @@ fuel_cell.addSurface(halfspace=-1, surface=zcylinder)
 
 moderator_cell = openmoc.Cell(name='moderator')
 moderator_cell.setFill(moderator)
+moderator_cell.setRegion(boundary)
 moderator_cell.addSurface(halfspace=+1, surface=zcylinder)
-moderator_cell.addSurface(halfspace=+1, surface=left)
-moderator_cell.addSurface(halfspace=-1, surface=right)
-moderator_cell.addSurface(halfspace=+1, surface=bottom)
-moderator_cell.addSurface(halfspace=-1, surface=top)
 
 
 ###############################################################################
