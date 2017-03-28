@@ -300,8 +300,52 @@ In most cases, the first step towards building a reactor geometry is to create t
     top.setBoundaryType(openmoc.REFLECTIVE)
 
 
+Regions
+-------
+
+Surfaces may be combined into complex spatial regions represented by the abstract ``Region`` class. The ``Halfspace`` is the simplest ``Region`` subclass, and is designed to represent a single side of a ``Surface``. The ``Region``'s ``Union``, ``Intersection`` and ``Complement`` subclasses represent union and intersection boolean operations between one or more ``Region`` "nodes", including ``Halfspace`` objects. The ``Complement`` class represents a unary operation with a single ``Region`` object. The ``Union``, ``Intersection`` and ``Complement`` classes can be arbitrarily and recursively constructed from the fundamental ``Halfspace`` objects which serve as "building blocks" for more complicated structures. The following code snippet illustrates the assembly of regions to represent the moderator and fuel for a simple LWR fuel pin cell:
+
+.. code-block:: python
+
+    # Initialize circular fuel pin surface with an optional string name
+    circle = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.45, name='fuel radius')
+
+    # Initialize planar bounding surfaces for a single fuel pin cell
+    left = openmoc.XPlane(x=-0.63, name='left')
+    right = openmoc.XPlane(x=0.63, name='right')
+    bottom = openmoc.YPlane(y=-0.63, name='bottom')
+    top = openmoc.YPlane(y=0.63, name='top')
+
+    # Initialize Halfspaces for each surface
+    inner_halfspace = openmoc.Halfspace(+1, circle)
+    outer_halfspace = openmoc.Halfspace(-1, circle)
+    left_halfspace = openmoc.Halfspace(+1, left)
+    right_halfspace = openmoc.Halfspace(-1, right)
+    bottom_halfspace = openmoc.Halfspace(+1, bottom)
+    top_halfspace = openmoc.Halfspace(-1, top)
+
+    # Initialize Intersection region for the fuel
+    fuel_region = openmc.Intersection()
+    fuel_region.addNode(circle_inner)
+
+    # Initialize Intersection region for the moderator
+    moderator_region = openmc.Intersection()
+    moderator_region.addNode(circle_outer)
+    moderator_region.addNode(left_halfspace)
+    moderator_region.addNode(right_halfspace)
+    moderator_region.addNode(top_halfspace)
+    moderator_region.addNode(bottom_halfspace)
+
+The regions are supplied to define the spatial bounds of ``Cell`` objects as discussed in the following section.
+
+.. note:: The ``RectangularPrism`` class is a special-purpose subclass of the ``Intersection`` class. The ``RectangularPrism`` represents an infinitely long rectangular prism aligned with the :math:`z`-axis, a shape commonly used in geometric models of LWR fuel pin cells.
+
+
 Cells and Universes
 -------------------
+
+leave this note in the comments for the following section:
+-a user can either specify (1) a `Region` object manually and populate it with the halfspaces of various surfaces.
 
 The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in :ref:`Cells <cells>` and :ref:`Universes <universes>`, respectively. OpenMOC provides the ``Cell`` class for regions of space bounded by ``Surface`` halfspaces and which may be filled by a ``Material`` or ``Universe``. The following code snippet illustrates how to create cells filled by the fuel and moderator materials. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.
 
