@@ -65,7 +65,6 @@
 %warnfilter(511) swig::SwigPyIterator;
 %warnfilter(511) Cell::setFill;
 %warnfilter(511) std::vector;
-%warnfilter(511) std::vector<Region*>;
 
 /* Methods for SWIG to ignore in generating Python API */
 %ignore setFSRCentroid(int fsr, Point* centroid);
