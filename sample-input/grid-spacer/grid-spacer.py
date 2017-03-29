@@ -27,7 +27,7 @@ openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 boundary = openmoc.RectangularPrism(4., 4.)
 boundary.setBoundaryType(openmoc.PERIODIC)
 
-zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='medium pin')
+zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='fuel pin')
 
 
 ###############################################################################

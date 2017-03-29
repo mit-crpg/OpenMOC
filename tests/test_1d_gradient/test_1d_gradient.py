@@ -31,7 +31,7 @@ class OneDGradientTestHarness(TestHarness):
         surfaces = self.input_set.geometry.getAllSurfaces()
         for surface_id in surfaces:
             surface = surfaces[surface_id]
-            if 'x' in surface.getName():
+            if surface.getSurfaceType() == openmoc.XPLANE:
                 surface.setBoundaryType(openmoc.VACUUM)
 
     def __init__(self):
