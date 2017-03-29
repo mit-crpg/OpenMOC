@@ -316,7 +316,7 @@ Surfaces may be combined into complex spatial regions represented by the abstrac
     bottom = openmoc.YPlane(y=-0.63, name='bottom')
     top = openmoc.YPlane(y=0.63, name='top')
 
-    # Initialize Halfspaces for each surface
+    # Initialize halfspaces for each surface
     inner_halfspace = openmoc.Halfspace(+1, circle)
     outer_halfspace = openmoc.Halfspace(-1, circle)
     left_halfspace = openmoc.Halfspace(+1, left)
@@ -324,11 +324,11 @@ Surfaces may be combined into complex spatial regions represented by the abstrac
     bottom_halfspace = openmoc.Halfspace(+1, bottom)
     top_halfspace = openmoc.Halfspace(-1, top)
 
-    # Initialize Intersection region for the fuel
+    # Initialize intersection region for the fuel
     fuel_region = openmc.Intersection()
     fuel_region.addNode(circle_inner)
 
-    # Initialize Intersection region for the moderator
+    # Initialize intersection region for the moderator
     moderator_region = openmc.Intersection()
     moderator_region.addNode(circle_outer)
     moderator_region.addNode(left_halfspace)
@@ -344,10 +344,7 @@ The regions are supplied to define the spatial bounds of ``Cell`` objects as dis
 Cells and Universes
 -------------------
 
-leave this note in the comments for the following section:
--a user can either specify (1) a `Region` object manually and populate it with the halfspaces of various surfaces.
-
-The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in :ref:`Cells <cells>` and :ref:`Universes <universes>`, respectively. OpenMOC provides the ``Cell`` class for regions of space bounded by ``Surface`` halfspaces and which may be filled by a ``Material`` or ``Universe``. The following code snippet illustrates how to create cells filled by the fuel and moderator materials. Next, the script adds the appropriate halfspace of the circle surface created in the preceding section to each cell.
+The next step to create a geometry is to instantiate cells which represent unique geometric shapes and use them to construct universes. The CSG formulations for cells and universes in OpenMOC are discussed in further detail in :ref:`Cells <cells>` and :ref:`Universes <universes>`, respectively. OpenMOC provides the ``Cell`` class for regions of space filled by a ``Material`` or ``Universe``. The following code snippet illustrates how to create cells filled by the fuel and moderator materials. Next, the script assigns the ``Region`` instances created in the preceding section to each cell.
 
 .. code-block:: python
 
@@ -364,9 +361,11 @@ The next step to create a geometry is to instantiate cells which represent uniqu
     fuel.setFill(uo2)
     moderator.setFill(water)
 
-    # Add the circle surface to each cell
-    fuel.addSurface(halfspace=-1, surface=circle)
-    moderator.addSurface(halfspace=+1, surface=circle)
+    # Assign a spatial region to each cell
+    fuel.setRegion(fuel_region)
+    moderator.setRegion(moderator_region)
+
+.. note:: It can be convenient to directly assign a surface halfspace to a ``Cell`` with the ``Cell::addSurface(halfspace, surface)`` method. This method instantiates a ``Halfspace`` object for the surface, and an ``Intersection`` object to combine the halfspace with any prior ``Region`` which may have been assigned to the cell.
 
 Each universe is comprised of one or more cells. A ``Universe`` can be instantiated and each of the previously created cells added to it as shown in the following snippet.
 
