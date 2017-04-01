@@ -227,6 +227,7 @@ public:
   std::vector<double> getUniqueZPlanes();
   bool isDomainDecomposed();
   bool isRootDomain();
+  void getDomainIndexes(int* indexes);
   void setRootUniverse(Universe* root_universe);
 #ifdef MPIx
   void setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm);
@@ -238,6 +239,7 @@ public:
   std::vector<int>& getFSRsToMaterialIDs();
   std::vector<Point*>& getFSRsToCentroids();
   std::vector<int>& getFSRsToCMFDCells();
+  std::vector<ExtrudedFSR*>& getExtrudedFSRLookup();
   int getFSRId(LocalCoords* coords, bool err_check=true);
   int getGlobalFSRId(LocalCoords* coords, bool err_check=true);
   Point* getFSRPoint(int fsr_id);
@@ -250,6 +252,7 @@ public:
   void printToString(std::string& str, int& index, int value);
   int getNumDigits(int number);
   ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
+  ParallelHashMap<std::string, ExtrudedFSR*>& getExtrudedFSRKeysMap();
 #ifdef MPIx
   int getNeighborDomain(int offset_x, int offset_y, int offset_z);
 #endif

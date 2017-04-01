@@ -1207,9 +1207,9 @@ void TrackGenerator3D::segmentizeExtruded() {
     z_coords = _geometry->getUniqueZPlanes();
 
   /* Loop over all extruded Tracks */
-  Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.001, _geometry,
+  Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.01, _geometry,
                     true);
-//#pragma omp parallel for
+#pragma omp parallel for
   for (int index=0; index < _num_2D_tracks; index++) {
     progress.incrementCounter();
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
@@ -1475,15 +1475,28 @@ std::string TrackGenerator3D::getTestFilename(std::string directory) {
                   << _geometry->getCmfd()->getNumX()
                   << "x" << _geometry->getCmfd()->getNumY()
                   << "x" << _geometry->getCmfd()->getNumZ()
-                  << "_quad_" << quad_type << "_track_" << track_method
-                  << ".data";
+                  << "_quad_" << quad_type << "_track_" << track_method;
   else
     test_filename << directory << "/3D_"
                   << _num_azim << "_azim_"
                   << _num_polar << "_polar_"
                   << _azim_spacing << "x" << _z_spacing
                   << "_cm_spacing_quad_"
-                  << quad_type << "_track_" << track_method << ".data";
+                  << quad_type << "_track_" << track_method;
+
+  if (_geometry->isDomainDecomposed()) {
+    test_filename << "_dd";
+    struct stat st;
+    if (!(stat(test_filename.str().c_str(), &st) == 0))
+      mkdir(test_filename.str().c_str(), S_IRWXU);
+    int indexes[3];
+    _geometry->getDomainIndexes(indexes);
+    test_filename << "/domain";
+    for (int i=0; i<3; i++)
+      test_filename << "_" << indexes[i];
+  }
+
+  test_filename << ".data";
 
   return test_filename.str();
 }
@@ -1494,7 +1507,10 @@ std::string TrackGenerator3D::getTestFilename(std::string directory) {
  * @param contains_segments whether the TrackGenerator contains segments
  */
 void TrackGenerator3D::setContainsSegments(bool contains_segments) {
-  _contains_3D_segments = contains_segments;
+  if (_segment_formation == EXPLICIT_3D)
+    _contains_3D_segments = contains_segments;
+  else
+    _contains_2D_segments = contains_segments;
 }
 
 
@@ -1554,6 +1570,19 @@ void TrackGenerator3D::allocateTemporarySegments() {
     _contains_temporary_segments = true;
   }
 
+  /* Determine storage size of temporary segments */
+  long max_size = _num_seg_matrix_columns;
+#ifdef MPIX
+  if (_geometry->isDomainDecomposed())
+    MPI_Allreduce(&_num_seg_matrix_columns, &max_size, 1, MPI_LONG, MPI_MAX,
+                  _geometry->getMPICart());
+#endif
+  double max_size_mb = (double) (max_size * _num_threads * sizeof(segment)) 
+      / (double) (1e6);
+ 
+  log_printf(NORMAL, "Max temporary segment storage per domain = %6.2f MB",
+             max_size_mb);
+  
   /* Allocate new temporary segments */
   for (int t = 0; t < _num_threads; t++)
     _temporary_segments.at(t) = new segment[_num_seg_matrix_columns];
@@ -1577,6 +1606,12 @@ void TrackGenerator3D::allocateTemporaryTracks() {
     _temporary_tracks_array.resize(_num_threads);
     _contains_temporary_tracks = true;
   }
+ 
+  /* Report memory usage */ 
+  double size_mb = (double) (_num_threads * _max_num_tracks_per_stack
+        * sizeof(Track3D)) / (double) 1e6;
+  log_printf(NORMAL, "Temporary Track storage per domain = %6.2f MB",
+             size_mb);
 
   /* Allocate new temporary segments */
   for (int t = 0; t < _num_threads; t++) {
@@ -2344,4 +2379,164 @@ void TrackGenerator3D::getTSIByIndex(long id, TrackStackIndexes* tsi) {
   }
 
   log_printf(ERROR, "could not generate TSI from track ID: %ld", id);
+}
+
+
+//FIXME
+void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
+
+  /* Module to write track info */
+  DumpSegments dump_segments(this);
+  dump_segments.setOutputFile(out);
+
+  /* Write extruded FSR data */
+    ParallelHashMap<std::string, ExtrudedFSR*>& extruded_FSR_keys_map =
+        _geometry->getExtrudedFSRKeysMap();
+    std::string* extruded_fsr_key_list = extruded_FSR_keys_map.keys();
+    ExtrudedFSR** extruded_fsr_list = extruded_FSR_keys_map.values();
+    
+    /* Write number of extruded FSRs */
+    int num_extruded_FSRs = extruded_FSR_keys_map.size();
+    fwrite(&num_extruded_FSRs, sizeof(int), 1, out);
+
+    /* Write extruded FSR data */
+    for (int i=0; i < num_extruded_FSRs; i++) {
+      
+      std::string key = extruded_fsr_key_list[i];
+      int string_length = key.length() + 1;
+      fwrite(&string_length, sizeof(int), 1, out);
+      fwrite(key.c_str(), sizeof(char)*string_length, 1, out);
+
+      ExtrudedFSR* extruded_fsr = extruded_fsr_list[i];
+      
+      int extruded_fsr_id = extruded_fsr->_fsr_id;
+      fwrite(&extruded_fsr_id, sizeof(int), 1, out);
+ 
+      double x = extruded_fsr->_coords->getX();
+      double y = extruded_fsr->_coords->getY();
+      double z = extruded_fsr->_coords->getZ();
+      fwrite(&x, sizeof(double), 1, out);
+      fwrite(&y, sizeof(double), 1, out);
+      fwrite(&z, sizeof(double), 1, out);
+      
+      int num_fsrs = extruded_fsr->_num_fsrs;
+      fwrite(&num_fsrs, sizeof(int), 1, out);
+     
+      double init_mesh_val = extruded_fsr->_mesh[0];
+      fwrite(&init_mesh_val, sizeof(double), 1, out);
+      
+      for (int j=0; j < num_fsrs; j++) {
+        int fsr_id = extruded_fsr->_fsr_ids[j];
+        fwrite(&fsr_id, sizeof(int), 1, out);
+        double mesh_val = extruded_fsr->_mesh[j+1];
+        fwrite(&mesh_val, sizeof(double), 1, out);
+      }
+    }
+    
+    /* Delete extruded FSR key and value lists */
+    delete [] extruded_fsr_key_list;
+    delete [] extruded_fsr_list;
+
+    /* Record 2D track info */
+    int num_2D_tracks = getNum2DTracks();
+    fwrite(&num_2D_tracks, sizeof(int), 1, out);
+    for (int i=0; i < num_2D_tracks; i++) {
+      Track* track = _tracks_2D_array[i];
+      segment* segments = track->getSegments();
+      dump_segments.onTrack(track, segments);
+    }
+
+    /* Record maximum number of segments */
+    fwrite(&_max_num_segments, sizeof(int), 1, out);
+}
+
+
+void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
+  
+  /* Module to read track info */
+  ReadSegments read_segments(this);
+  read_segments.setInputFile(in);
+
+    /* Read number of extruded FSRs */
+    ParallelHashMap<std::string, ExtrudedFSR*>& extruded_FSR_keys_map =
+        _geometry->getExtrudedFSRKeysMap();
+    int num_extruded_FSRs;
+    int ret = _geometry->twiddleRead(&num_extruded_FSRs, sizeof(int), 1, in);
+    
+    /* Resize for the number of extruded FSRs */
+    std::vector<ExtrudedFSR*>& extruded_FSR_lookup = 
+        _geometry->getExtrudedFSRLookup();
+    extruded_FSR_lookup.resize(num_extruded_FSRs);
+    extruded_FSR_keys_map.realloc(2*num_extruded_FSRs);
+
+    /* Write extruded FSR data */
+    for (int i=0; i < num_extruded_FSRs; i++) {
+      
+      /* Read the extruded FSR key */
+      int string_length;
+      ret = _geometry->twiddleRead(&string_length, sizeof(int), 1, in);
+      char* char_buffer2 = new char[string_length];
+      ret = _geometry->twiddleRead(char_buffer2, sizeof(char)*string_length, 1,
+                                   in);
+      std::string key = std::string(char_buffer2);    
+
+      /* Create new extruded FSR and add to map */
+      ExtrudedFSR* extruded_fsr = new ExtrudedFSR;
+      extruded_FSR_keys_map.insert(key, extruded_fsr);
+      
+      /* Read ID */
+      int extruded_fsr_id;
+      ret = _geometry->twiddleRead(&extruded_fsr_id, sizeof(int), 1, in);
+      extruded_fsr->_fsr_id = extruded_fsr_id;
+
+      /* Read coordinates */
+      double x, y, z;
+      ret = _geometry->twiddleRead(&x, sizeof(double), 1, in);
+      ret = _geometry->twiddleRead(&y, sizeof(double), 1, in);
+      ret = _geometry->twiddleRead(&z, sizeof(double), 1, in);
+      LocalCoords* coords = new LocalCoords(x,y,z);
+      coords->setUniverse(_geometry->getRootUniverse());
+      extruded_fsr->_coords = coords;
+
+      /* Read the number of FSRs and allocate memory */
+      int num_fsrs;
+      ret = _geometry->twiddleRead(&num_fsrs, sizeof(int), 1, in);
+      extruded_fsr->_num_fsrs = num_fsrs;
+      extruded_fsr->_materials = new Material*[num_fsrs];
+      extruded_fsr->_fsr_ids = new int[num_fsrs];
+      extruded_fsr->_mesh = new double[num_fsrs+1];
+
+      /* Read the mesh values and FSR IDs */
+      double init_mesh_val;
+      ret = _geometry->twiddleRead(&init_mesh_val, sizeof(double), 1, in);
+      extruded_fsr->_mesh[0] = init_mesh_val;
+
+      for (int j=0; j < num_fsrs; j++) {
+        int fsr_id;
+        ret = _geometry->twiddleRead(&fsr_id, sizeof(int), 1, in);
+        double mesh_val;
+        ret = _geometry->twiddleRead(&mesh_val, sizeof(double), 1, in);
+        extruded_fsr->_fsr_ids[j] = fsr_id;
+        extruded_fsr->_materials[j] = _geometry->findFSRMaterial(fsr_id);
+        extruded_fsr->_mesh[j+1] = mesh_val;
+      }
+
+      /* Setup reverse lookup */
+      extruded_FSR_lookup[extruded_fsr_id] = extruded_fsr;
+    }
+
+    /* Record 2D track info */
+    int num_2D_tracks;
+    ret = _geometry->twiddleRead(&num_2D_tracks, sizeof(int), 1, in);
+    for (int i=0; i < num_2D_tracks; i++) {
+      Track* track = _tracks_2D_array[i];
+      read_segments.onTrack(track, NULL);
+    }
+    _contains_2D_segments = true;
+
+    /* Record maximum number of segments */
+    ret = _geometry->twiddleRead(&_max_num_segments, sizeof(int), 1, in);
+
+    /* Allocate temporary segments */
+    allocateTemporarySegments();
 }

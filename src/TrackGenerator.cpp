@@ -724,9 +724,7 @@ void TrackGenerator::generateTracks() {
 
       /* Segmentize the tracks */
       segmentize();
-      if (_segment_formation == EXPLICIT_2D ||
-          _segment_formation == EXPLICIT_3D)
-        dumpSegmentsToFile();
+      dumpSegmentsToFile();
     }
 
     /* Allocate array of mutex locks for each FSR */
@@ -1146,11 +1144,9 @@ void TrackGenerator::initializeTrackFileDirectory() {
    * angles, and track spacing, and if so, import the ray tracing data */
   _tracks_filename = getTestFilename(directory.str());
   if (!stat(_tracks_filename.c_str(), &buffer)) {
-    if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D) {
-      if (readSegmentsFromFile()) {
-        _use_input_file = true;
-        setContainsSegments(true);
-      }
+    if (readSegmentsFromFile()) {
+      _use_input_file = true;
+      setContainsSegments(true);
     }
   }
 }
@@ -1168,12 +1164,13 @@ std::string TrackGenerator::getTestFilename(std::string directory) {
                   << _num_azim << "_azim_"
                   << _azim_spacing << "_cm_spacing_cmfd_"
                   << _geometry->getCmfd()->getNumX()
-                  << "x" << _geometry->getCmfd()->getNumY()
-                  << ".data";
+                  << "x" << _geometry->getCmfd()->getNumY();
   else
     test_filename << directory << "/2D_"
                   << _num_azim << "_angles_"
-                  << _azim_spacing << "_cm_spacing.data";
+                  << _azim_spacing << "_cm_spacing";
+
+  test_filename << ".data";
 
   return test_filename.str();
 }
@@ -1221,8 +1218,9 @@ void TrackGenerator::dumpSegmentsToFile() {
   /* Write segment data to Track file */
   DumpSegments dump_segments(this);
   dump_segments.setOutputFile(out);
-  dump_segments.execute();
-
+  if (_segment_formation == EXPLICIT_2D || _segment_formation == EXPLICIT_3D)
+    dump_segments.execute();
+  
   /* Get FSR vector maps */
   ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
@@ -1291,6 +1289,10 @@ void TrackGenerator::dumpSegmentsToFile() {
   delete [] fsr_key_list;
   delete [] fsr_data_list;
 
+  /* Write 2D basis information for 3D solvers */
+  if (_segment_formation != EXPLICIT_2D && _segment_formation != EXPLICIT_3D)
+    writeExtrudedFSRInfo(out);
+
   /* Close the Track file */
   fclose(out);
 
@@ -1299,6 +1301,10 @@ void TrackGenerator::dumpSegmentsToFile() {
    * tracing parameters have not changed */
   _use_input_file = true;
 }
+
+
+//FIXME
+void TrackGenerator::writeExtrudedFSRInfo(FILE* out) {}
 
 
 /**
@@ -1315,9 +1321,9 @@ bool TrackGenerator::readSegmentsFromFile() {
   int string_length;
 
   /* Import Geometry metadata from the Track file */
-  ret = fread(&string_length, sizeof(int), 1, in);
+  ret = _geometry->twiddleRead(&string_length, sizeof(int), 1, in);
   char* geometry_to_string = new char[string_length];
-  ret = fread(geometry_to_string, sizeof(char)*string_length, 1, in);
+  ret = _geometry->twiddleRead(geometry_to_string, sizeof(char)*string_length, 1, in);
 
   /* Check if our Geometry is exactly the same as the Geometry in the
    * Track file for this number of azimuthal angles and track spacing */
@@ -1331,7 +1337,8 @@ bool TrackGenerator::readSegmentsFromFile() {
   /* Load all segment data into Tracks */
   ReadSegments read_segments(this);
   read_segments.setInputFile(in);
-  read_segments.execute();
+  if (_segment_formation == EXPLICIT_2D || _segment_formation == EXPLICIT_3D)
+    read_segments.execute();
 
   /* Create FSR vector maps */
   ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
@@ -1347,7 +1354,7 @@ bool TrackGenerator::readSegmentsFromFile() {
   double x, y, z;
 
   /* Get number of FSRs */
-  ret = fread(&num_FSRs, sizeof(int), 1, in);
+  ret = _geometry->twiddleRead(&num_FSRs, sizeof(int), 1, in);
 
   /* Resize vectors */
   FSRs_to_centroids.resize(num_FSRs);
@@ -1357,16 +1364,16 @@ bool TrackGenerator::readSegmentsFromFile() {
   for (int fsr_id=0; fsr_id < num_FSRs; fsr_id++) {
 
     /* Read key for FSR_keys_map */
-    ret = fread(&string_length, sizeof(int), 1, in);
+    ret = _geometry->twiddleRead(&string_length, sizeof(int), 1, in);
     char* char_buffer1 = new char[string_length];
-    ret = fread(char_buffer1, sizeof(char)*string_length, 1, in);
+    ret = _geometry->twiddleRead(char_buffer1, sizeof(char)*string_length, 1, in);
     fsr_key = std::string(char_buffer1);
 
     /* Read data from file for FSR_keys_map */
-    ret = fread(&fsr_key_id, sizeof(int), 1, in);
-    ret = fread(&x, sizeof(double), 1, in);
-    ret = fread(&y, sizeof(double), 1, in);
-    ret = fread(&z, sizeof(double), 1, in);
+    ret = _geometry->twiddleRead(&fsr_key_id, sizeof(int), 1, in);
+    ret = _geometry->twiddleRead(&x, sizeof(double), 1, in);
+    ret = _geometry->twiddleRead(&y, sizeof(double), 1, in);
+    ret = _geometry->twiddleRead(&z, sizeof(double), 1, in);
     fsr_data* fsr = new fsr_data;
     fsr->_fsr_id = fsr_key_id;
     Point* point = new Point();
@@ -1376,13 +1383,13 @@ bool TrackGenerator::readSegmentsFromFile() {
 
     /* Read data from file for FSR_to_materials_IDs */
     int material_id;
-    ret = fread(&material_id, sizeof(int), 1, in);
+    ret = _geometry->twiddleRead(&material_id, sizeof(int), 1, in);
     FSRs_to_material_IDs.push_back(material_id);
 
     /* Read data from file for FSR_to_keys */
-    ret = fread(&string_length, sizeof(int), 1, in);
+    ret = _geometry->twiddleRead(&string_length, sizeof(int), 1, in);
     char* char_buffer2 = new char[string_length];
-    ret = fread(char_buffer2, sizeof(char)*string_length, 1, in);
+    ret = _geometry->twiddleRead(char_buffer2, sizeof(char)*string_length, 1, in);
     fsr_key = std::string(char_buffer2);
     FSRs_to_keys.push_back(fsr_key);
   }
@@ -1392,17 +1399,17 @@ bool TrackGenerator::readSegmentsFromFile() {
   if (cmfd != NULL) {
     std::vector< std::vector<int> > cell_fsrs;
     int num_cells, fsr_id;
-    ret = fread(&num_cells, sizeof(int), 1, in);
+    ret = _geometry->twiddleRead(&num_cells, sizeof(int), 1, in);
 
     /* Loop over CMFD cells */
     for (int cell=0; cell < num_cells; cell++) {
       std::vector<int>* fsrs = new std::vector<int>;
       cell_fsrs.push_back(*fsrs);
-      ret = fread(&num_FSRs, sizeof(int), 1, in);
+      ret = _geometry->twiddleRead(&num_FSRs, sizeof(int), 1, in);
 
       /* Loop over FSRs within cell */
       for (int fsr = 0; fsr < num_FSRs; fsr++) {
-        ret = fread(&fsr_id, sizeof(int), 1, in);
+        ret = _geometry->twiddleRead(&fsr_id, sizeof(int), 1, in);
         cell_fsrs.at(cell).push_back(fsr_id);
         FSRs_to_CMFD_cells.at(fsr_id) = cell;
       }
@@ -1412,11 +1419,19 @@ bool TrackGenerator::readSegmentsFromFile() {
     cmfd->setCellFSRs(&cell_fsrs);
   }
 
+  /* Read 2D basis information for OTF 3D solvers */
+  if (_segment_formation != EXPLICIT_2D && _segment_formation != EXPLICIT_3D)
+    readExtrudedFSRInfo(in);
+
   /* Close the Track file */
   fclose(in);
 
   return true;
 }
+
+
+//FIXME
+void TrackGenerator::readExtrudedFSRInfo(FILE* in) {}
 
 
 /**

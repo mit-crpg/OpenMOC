@@ -5,7 +5,7 @@
 COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
-DEBUG       = no
+DEBUG       = yes
 PROFILE     = no
 PRECISION   = double
 

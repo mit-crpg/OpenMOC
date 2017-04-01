@@ -15,23 +15,23 @@ int main(int argc,  char* argv[]) {
 
   /* Define geometry to load */
   //std::string file = "few-pins-reduced-ref-v2.geo";
-  //std::string file = "full-assembly-final.geo";
+  std::string file = "full-assembly-final.geo";
   //std::string file = "beavrs-2D-v2-NULL-corr.geo";
   //std::string file = "beavrs-2D-v2.geo";
   //std::string file = "beavrs-2D-v3.geo"; //FIXME
-  std::string file = "full-core-beavrs-new.geo";
+  //std::string file = "full-core-beavrs-new.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = 1; //omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 8;
-  double polar_spacing = 1.5;
-  int num_polar = 6; //FIXME 6 / 2
+  int num_azim = 32;
+  double polar_spacing = 0.75;
+  int num_polar = 10;
 
   /*
   double azim_spacing = 0.1;
@@ -59,7 +59,6 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.loadFromFile(file);
-  //geometry.manipulateXS(); // FIXME ON / OFF
 
   //FIXME
   int num_rad_discr = 96;
@@ -125,7 +124,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(17, 17, 4, MPI_COMM_WORLD); //FIXME 1/2
+  geometry.setDomainDecomposition(17, 17, 10, MPI_COMM_WORLD); //FIXME 1/2
 #else
   //geometry.setNumDomainModules(2,2,4);
 #endif

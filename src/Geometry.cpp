@@ -552,6 +552,14 @@ bool Geometry::isRootDomain() {
 }
 
 
+//FIXME
+void Geometry::getDomainIndexes(int* indexes) {
+  indexes[0] = _domain_index_x;
+  indexes[1] = _domain_index_y;
+  indexes[2] = _domain_index_z;
+}
+
+
 /**
  * @brief Sets the root Universe for the CSG tree.
  * @param root_universe the root Universe of the CSG tree.
@@ -2698,12 +2706,24 @@ ParallelHashMap<std::string, fsr_data*>& Geometry::getFSRKeysMap() {
 }
 
 
+//FIXME
+ParallelHashMap<std::string, ExtrudedFSR*>& Geometry::getExtrudedFSRKeysMap() {
+  return _extruded_FSR_keys_map;
+}
+
+
 /**
  * @brief Returns the vector that maps FSR IDs to FSR key hashes
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
 std::vector<std::string>& Geometry::getFSRsToKeys() {
   return _FSRs_to_keys;
+}
+
+
+//FIXME
+std::vector<ExtrudedFSR*>& Geometry::getExtrudedFSRLookup() {
+  return _extruded_FSR_lookup;
 }
 
 
@@ -3771,5 +3791,3 @@ size_t Geometry::twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* strea
       arr[i] = __builtin_bswap64(arr[i]);
   return ret;
 }
-
-

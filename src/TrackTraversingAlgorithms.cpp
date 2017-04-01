@@ -1008,7 +1008,11 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
     /* Get data for this segment */
     segment* curr_segment = &segments[s];
     FP_PRECISION length = curr_segment->_length;
-    int material_id = curr_segment->_material->getId();
+    int material_id;
+    if (curr_segment->_material != NULL)
+      material_id = curr_segment->_material->getId();
+    else
+      material_id = -1;
     int region_id = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
     double start_x = curr_segment->_starting_position[0];
@@ -1083,26 +1087,26 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
 
   /* Import data for this Track from Track file */
   int num_segments;
-  ret = fread(&num_segments, sizeof(int), 1, _in);
+  ret = geometry->twiddleRead(&num_segments, sizeof(int), 1, _in);
 
   /* Loop over all segments in this Track */
   for (int s=0; s < num_segments; s++) {
 
     /* Import data for this segment from Track file */
     double length;
-    ret = fread(&length, sizeof(double), 1, _in);
+    ret = geometry->twiddleRead(&length, sizeof(double), 1, _in);
     int material_id;
-    ret = fread(&material_id, sizeof(int), 1, _in);
+    ret = geometry->twiddleRead(&material_id, sizeof(int), 1, _in);
     int region_id;
-    ret = fread(&region_id, sizeof(int), 1, _in);
+    ret = geometry->twiddleRead(&region_id, sizeof(int), 1, _in);
     int  track_idx;
-    ret = fread(&track_idx, sizeof(int), 1, _in);
+    ret = geometry->twiddleRead(&track_idx, sizeof(int), 1, _in);
     double start_x;
-    ret = fread(&start_x, sizeof(double), 1, _in);
+    ret = geometry->twiddleRead(&start_x, sizeof(double), 1, _in);
     double start_y;
-    ret = fread(&start_y, sizeof(double), 1, _in);
+    ret = geometry->twiddleRead(&start_y, sizeof(double), 1, _in);
     double start_z;
-    ret = fread(&start_z, sizeof(double), 1, _in);
+    ret = geometry->twiddleRead(&start_z, sizeof(double), 1, _in);
 
     /* Initialize segment with the data */
     segment* curr_segment = new segment;
@@ -1117,10 +1121,10 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     /* Import CMFD-related data if needed */
     if (cmfd != NULL) {
       int cmfd_surface_fwd;
-      ret = fread(&cmfd_surface_fwd, sizeof(int), 1, _in);
+      ret = geometry->twiddleRead(&cmfd_surface_fwd, sizeof(int), 1, _in);
       curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
       int cmfd_surface_bwd;
-      ret = fread(&cmfd_surface_bwd, sizeof(int), 1, _in);
+      ret = geometry->twiddleRead(&cmfd_surface_bwd, sizeof(int), 1, _in);
       curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
     }
 

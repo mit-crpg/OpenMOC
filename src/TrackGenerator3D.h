@@ -179,6 +179,9 @@ private:
                       bool create_arrays, bool save_tracks);
   double getLStart(TrackChainIndexes* tci);
   int getFirst2DTrackLinkIndex(TrackChainIndexes* tci, Track3D* track_3D);
+  
+  void writeExtrudedFSRInfo(FILE* out);
+  void readExtrudedFSRInfo(FILE* in);
 
 public:
 

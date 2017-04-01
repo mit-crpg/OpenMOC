@@ -225,6 +225,12 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   if (num_array_values < 1000)
     num_array_values = 1000;
 
+  if (num_array_values > 1e5) {
+    log_printf(WARNING, "Reducing exponential table size from %d to %d",
+               num_array_values, 1e5);
+    num_array_values = 1e5;
+  }
+
   _exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Increment the number of vaues in the array to ensure that a tau equal to
@@ -234,10 +240,11 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   /* Compute the reciprocal of the table entry spacing */
   _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
 
-  /* Allocate array for the table */
+  /* Delete old table */
   if (_exp_table != NULL)
     delete [] _exp_table;
 
+  /* Allocate array for the table */
   _table_size = num_array_values * _num_exp_terms * _num_polar_terms;
   _exp_table = new FP_PRECISION[_table_size];
 

@@ -129,6 +129,8 @@ protected:
   virtual void allocateTemporarySegments();
   virtual void resetStatus();
   virtual void initializeDefaultQuadrature();
+  virtual void writeExtrudedFSRInfo(FILE* out);
+  virtual void readExtrudedFSRInfo(FILE* in);
   virtual std::string getTestFilename(std::string directory);
 
 public:
