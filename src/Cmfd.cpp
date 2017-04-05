@@ -412,6 +412,52 @@ void Cmfd::collapseXS() {
     for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
       std::vector<long>::iterator iter;
+      cell_material = _materials[i];
+
+      /* Zero group-wise fission terms */
+      FP_PRECISION neutron_production_tally = 0.0;
+      for (int e = 0; e < _num_cmfd_groups; e++)
+        chi_tally[e] = 0.0;
+
+      /* Loop over FSRs in CMFD cell */
+      for (iter = _cell_fsrs.at(i).begin();
+           iter != _cell_fsrs.at(i).end(); ++iter) {
+
+        fsr_material = _FSR_materials[*iter];
+        volume = _FSR_volumes[*iter];
+        
+        /* Calculate total neutron production in the FSR */
+        FP_PRECISION neutron_production = 0.0;
+        for (int h = 0; h < _num_moc_groups; h++)
+          neutron_production += fsr_material->getNuSigmaFByGroup(h+1) *
+              _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
+        
+        /* Calculate contribution to all CMFD groups */    
+        for (int e=0; e < _num_cmfd_groups; e++) {
+          chi = 0;
+          for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++)
+            chi += fsr_material->getChiByGroup(h+1);
+          
+          chi_tally[e] += chi * neutron_production;
+        }
+
+        /* Add to total neutron production within the CMFD cell */
+        neutron_production_tally += neutron_production;
+      }
+
+      /* Set chi */
+      if (neutron_production_tally != 0.0) {
+        
+        /* Calculate group-wise fission contriubtions */
+        for (int e=0; e < _num_cmfd_groups; e++)
+          cell_material->setChiByGroup(chi_tally[e] / neutron_production_tally,
+                                       e + 1);
+      }
+      else {
+        /* Calculate group-wise chi to zero */
+        for (int e=0; e < _num_cmfd_groups; e++)
+          cell_material->setChiByGroup(0.0, e + 1); 
+      }
 
       /* Loop over CMFD coarse energy groups */
       for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -419,42 +465,14 @@ void Cmfd::collapseXS() {
         /* Zero tallies for this group */
         FP_PRECISION nu_fission_tally = 0.0;
         FP_PRECISION total_tally = 0.0;
-        FP_PRECISION neutron_production_tally = 0.0;
 
         _diffusion_tally[i][e] = 0.0;
         _reaction_tally[i][e] = 0.0;
         _volume_tally[i][e] = 0.0;
 
         /* Zero each group-to-group scattering tally */
-        for (int g = 0; g < _num_cmfd_groups; g++) {
+        for (int g = 0; g < _num_cmfd_groups; g++)
           scat_tally[g] = 0.0;
-          chi_tally[g] = 0.0;
-        }
-
-        /* Loop over FSRs in CMFD cell to compute chi */
-        for (iter = _cell_fsrs.at(i).begin();
-             iter != _cell_fsrs.at(i).end(); ++iter) {
-
-          fsr_material = _FSR_materials[*iter];
-          volume = _FSR_volumes[*iter];
-
-          /* Chi tallies */
-          for (int b = 0; b < _num_cmfd_groups; b++) {
-            chi = 0.0;
-
-            /* Compute the chi for group b */
-            for (int h = _group_indices[b]; h < _group_indices[b + 1]; h++)
-              chi += fsr_material->getChiByGroup(h+1);
-
-            for (int h = 0; h < _num_moc_groups; h++) {
-              chi_tally[b] += chi * fsr_material->getNuSigmaFByGroup(h+1) *
-                  _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-              neutron_production_tally += chi *
-                  fsr_material->getNuSigmaFByGroup(h+1) *
-                  _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-            }
-          }
-        }
 
         /* Loop over MOC energy groups within this CMFD coarse group */
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
@@ -502,16 +520,8 @@ void Cmfd::collapseXS() {
 
         /* Save cross-sections to material */
         FP_PRECISION rxn_tally = _reaction_tally[i][e];
-        cell_material = _materials[i];
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
         cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
-
-        /* Set chi */
-        if (neutron_production_tally != 0.0)
-          cell_material->setChiByGroup(chi_tally[e] / neutron_production_tally,
-                                       e + 1);
-        else
-          cell_material->setChiByGroup(0.0, e + 1);
 
         /* Set scattering xs */
         for (int g = 0; g < _num_cmfd_groups; g++) {
