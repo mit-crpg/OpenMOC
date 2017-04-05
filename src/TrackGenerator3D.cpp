@@ -2426,8 +2426,8 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
       fwrite(&init_mesh_val, sizeof(double), 1, out);
       
       for (int j=0; j < num_fsrs; j++) {
-        int fsr_id = extruded_fsr->_fsr_ids[j];
-        fwrite(&fsr_id, sizeof(int), 1, out);
+        long fsr_id = extruded_fsr->_fsr_ids[j];
+        fwrite(&fsr_id, sizeof(long), 1, out);
         double mesh_val = extruded_fsr->_mesh[j+1];
         fwrite(&mesh_val, sizeof(double), 1, out);
       }
@@ -2503,7 +2503,7 @@ void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
       ret = _geometry->twiddleRead(&num_fsrs, sizeof(int), 1, in);
       extruded_fsr->_num_fsrs = num_fsrs;
       extruded_fsr->_materials = new Material*[num_fsrs];
-      extruded_fsr->_fsr_ids = new int[num_fsrs];
+      extruded_fsr->_fsr_ids = new long[num_fsrs];
       extruded_fsr->_mesh = new double[num_fsrs+1];
 
       /* Read the mesh values and FSR IDs */
@@ -2512,8 +2512,8 @@ void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
       extruded_fsr->_mesh[0] = init_mesh_val;
 
       for (int j=0; j < num_fsrs; j++) {
-        int fsr_id;
-        ret = _geometry->twiddleRead(&fsr_id, sizeof(int), 1, in);
+        long fsr_id;
+        ret = _geometry->twiddleRead(&fsr_id, sizeof(long), 1, in);
         double mesh_val;
         ret = _geometry->twiddleRead(&mesh_val, sizeof(double), 1, in);
         extruded_fsr->_fsr_ids[j] = fsr_id;

@@ -175,7 +175,7 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
     segment* curr_segment = track->getSegment(s);
     Material* material = curr_segment->_material;
     double length = curr_segment->_length;
-    int fsr_id = curr_segment->_region_id;
+    long fsr_id = curr_segment->_region_id;
 
     /* Compute number of segments to split this segment into */
     int min_num_cuts = 1;
@@ -379,7 +379,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   for (int s=0; s < track->getNumSegments(); s++) {
 
     segment* curr_segment = &segments[s];
-    int fsr = curr_segment->_region_id;
+    long fsr = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
 
     /* Extract information */
@@ -479,7 +479,7 @@ void LinearExpansionGenerator::execute() {
   }
 
   Geometry* geometry = _track_generator->getGeometry();
-  int num_FSRs = geometry->getNumFSRs();
+  long num_FSRs = geometry->getNumFSRs();
   //FIXME
   FP_PRECISION* inv_lin_exp_coeffs = new FP_PRECISION[num_FSRs*_num_coeffs];
   memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
@@ -533,7 +533,7 @@ void LinearExpansionGenerator::execute() {
   }
   else {
 #pragma omp parallel for
-    for (int r=0; r < num_FSRs; r++) {
+    for (long r=0; r < num_FSRs; r++) {
 
       FP_PRECISION det;
       det = lem[r*nc  ] * lem[r*nc + 1] - lem[r*nc + 2] * lem[r*nc + 2];
@@ -558,7 +558,7 @@ void LinearExpansionGenerator::execute() {
   //FIXME
   if (false) {
 #pragma omp parallel for
-    for (int r = 0; r < num_FSRs; r++) {
+    for (long r = 0; r < num_FSRs; r++) {
       if (_track_generator->getFSRVolume(r) < 1e-3)
         for (int i=0; i < nc; i++)
           ilem[r*nc+i] = 0.0;
@@ -573,7 +573,7 @@ void LinearExpansionGenerator::execute() {
     double center_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
     double center_z = (root_universe->getMinZ() + root_universe->getMaxZ()) / 2;
 #pragma omp parallel for
-    for (int r = 0; r < num_FSRs; r++) {
+    for (long r = 0; r < num_FSRs; r++) {
       Point* centroid = geometry->getFSRCentroid(r);
       double dist = centroid->distance(center_x, center_y, centroid->getZ());
       if (dist > max_linear_radius) {
@@ -589,12 +589,12 @@ void LinearExpansionGenerator::execute() {
   
   /* Notify user of any regions needing to use a flat source approximation */
   int total_num_flat = _num_flat;
-  int total_num_FSRs = num_FSRs;
+  long total_num_FSRs = num_FSRs;
 #ifdef MPIx
   if (geometry->isDomainDecomposed()) {
     MPI_Allreduce(&_num_flat, &total_num_flat, 1, MPI_INT, MPI_SUM,
                   geometry->getMPICart());
-    MPI_Allreduce(&num_FSRs, &total_num_FSRs, 1, MPI_INT, MPI_SUM,
+    MPI_Allreduce(&num_FSRs, &total_num_FSRs, 1, MPI_LONG, MPI_SUM,
                   geometry->getMPICart());
     }
 #endif
@@ -663,7 +663,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Extract segment information */
     segment* curr_segment = &segments[s];
-    int fsr = curr_segment->_region_id;
+    long fsr = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
     FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
     FP_PRECISION length = curr_segment->_length;
@@ -854,11 +854,12 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
 
   /* Extract Track information */
-  int track_id = track->getUid();
+  long track_id = track->getUid();
   int azim_index = track->getAzimIndex();
   int xy_index = track->getXYIndex();
   int num_segments = track->getNumSegments();
-  FP_PRECISION* track_flux;
+    //FIXME MEM : float / FP_PRECISION
+  float* track_flux;
 
   /* Extract the polar index if a 3D track */
   int polar_index = 0;
@@ -896,7 +897,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
     /* Get the forward track flux */
     segment* curr_segment = &segments[s];
-    int curr_track_id = track_id + curr_segment->_track_idx;
+    long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, true);
 
     /* Apply MOC equations */
@@ -928,7 +929,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
     /* Get the backward track flux */
     segment* curr_segment = &segments[s];
-    int curr_track_id = track_id + curr_segment->_track_idx;
+    long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, false);
 
     /* Apply MOC equations */
@@ -1013,7 +1014,7 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
       material_id = curr_segment->_material->getId();
     else
       material_id = -1;
-    int region_id = curr_segment->_region_id;
+    long region_id = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
     double start_x = curr_segment->_starting_position[0];
     double start_y = curr_segment->_starting_position[1];
@@ -1022,7 +1023,7 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
     /* Write data for this segment to the Track file */
     fwrite(&length, sizeof(double), 1, _out);
     fwrite(&material_id, sizeof(int), 1, _out);
-    fwrite(&region_id, sizeof(int), 1, _out);
+    fwrite(&region_id, sizeof(long), 1, _out);
     fwrite(&track_idx, sizeof(int), 1, _out);
     fwrite(&start_x, sizeof(double), 1, _out);
     fwrite(&start_y, sizeof(double), 1, _out);
@@ -1097,8 +1098,8 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     ret = geometry->twiddleRead(&length, sizeof(double), 1, _in);
     int material_id;
     ret = geometry->twiddleRead(&material_id, sizeof(int), 1, _in);
-    int region_id;
-    ret = geometry->twiddleRead(&region_id, sizeof(int), 1, _in);
+    long region_id;
+    ret = geometry->twiddleRead(&region_id, sizeof(long), 1, _in);
     int  track_idx;
     ret = geometry->twiddleRead(&track_idx, sizeof(int), 1, _in);
     double start_x;
@@ -1183,7 +1184,7 @@ void RecenterSegments::execute() {
 void RecenterSegments::onTrack(Track* track, segment* segments) {
   if (_geometry->containsFSRCentroids()) {
     for (int s=0; s < track->getNumSegments(); s++) {
-      int fsr_id = segments[s]._region_id;
+      long fsr_id = segments[s]._region_id;
       Point* centroid = _geometry->getFSRCentroid(fsr_id);
       segments[s]._starting_position[0] -= centroid->getX();
       segments[s]._starting_position[1] -= centroid->getY();
@@ -1251,7 +1252,7 @@ void PrintSegments::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     FP_PRECISION length = curr_segment->_length;
     int material_id = curr_segment->_material->getId();
-    int region_id = curr_segment->_region_id;
+    long region_id = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
     double start_x = curr_segment->_starting_position[0];
     double start_y = curr_segment->_starting_position[1];

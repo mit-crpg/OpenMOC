@@ -107,10 +107,10 @@ protected:
   int _num_groups;
 
   /** The number of flat source regions */
-  int _num_FSRs;
+  long _num_FSRs;
 
   /** The number of fissionable flat source regions */
-  int _num_fissionable_FSRs;
+  long _num_fissionable_FSRs;
 
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
   FP_PRECISION* _FSR_volumes;
@@ -169,8 +169,9 @@ protected:
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
    *  a Track along both "forward" and "reverse" directions. */
-  FP_PRECISION* _boundary_flux;
-  FP_PRECISION* _start_flux;
+    //FIXME MEM : float / FP_PRECISION
+  float* _boundary_flux;
+  float* _start_flux;
 
   /** The angular leakages for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the weighted outgoing fluxes
@@ -314,7 +315,7 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
-  FP_PRECISION getFSRVolume(int fsr_id);
+  FP_PRECISION getFSRVolume(long fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
@@ -329,13 +330,13 @@ public:
   void printFissionRates(std::string fname, int nx, int ny, int nz);
   void printInputParamsSummary();
 
-  virtual FP_PRECISION getFlux(int fsr_id, int group);
+  virtual FP_PRECISION getFlux(long fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
-  FP_PRECISION getFSRSource(int fsr_id, int group);
+  FP_PRECISION getFSRSource(long fsr_id, int group);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  virtual void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
   void setFixedSourceByMaterial(Material* material, int group,
                                 FP_PRECISION source);
@@ -368,7 +369,7 @@ public:
   *                      in as a NumPy array from Python)
   * @param num_FSRs the number of FSRs passed in from Python
   */
-  virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
+  virtual void computeFSRFissionRates(double* fission_rates, long num_FSRs) =0;
 
   /**
    * @brief Returns the boundary flux array at the requested indexes
@@ -376,7 +377,8 @@ public:
    * @param fwd Whether the direction of the angular flux along the track is
    *        forward (True) or backward (False)
    */
-  inline FP_PRECISION* getBoundaryFlux(int track_id, bool fwd) {
+    //FIXME MEM : float / FP_PRECISION
+  inline float* getBoundaryFlux(long track_id, bool fwd) {
     return &_boundary_flux(track_id, !fwd, 0);
   }
 

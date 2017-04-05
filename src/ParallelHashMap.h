@@ -50,7 +50,7 @@ class FixedHashMap {
     bool contains(K& key);
     V& at(K& key);
     void insert(K key, V value);
-    int insert_and_get_count(K key, V value);
+    long insert_and_get_count(K key, V value);
     size_t size();
     size_t bucket_count();
     K* keys();
@@ -112,7 +112,7 @@ class ParallelHashMap {
     V at(K& key);
     void update(K& key, V value);
     void insert(K key, V value);
-    int insert_and_get_count(K key, V value);
+    long insert_and_get_count(K key, V value);
     size_t size();
     size_t bucket_count();
     size_t num_locks();
@@ -276,7 +276,7 @@ void FixedHashMap<K,V>::insert(K key, V value) {
  *      key was already present in map.
  */
 template <class K, class V>
-int FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
+long FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
 
   /* get hash into table using fast modulus */
   size_t key_hash = std::hash<K>()(key) & (_M-1);
@@ -301,7 +301,7 @@ int FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
 #pragma omp critical (node_incr)
     N = _N++;
 
-  return (int) N;
+  return (long) N;
 }
 
 
@@ -619,7 +619,7 @@ void ParallelHashMap<K,V>::update(K& key, V value) {
  *      already exists
  */
 template <class K, class V>
-int ParallelHashMap<K,V>::insert_and_get_count(K key, V value) {
+long ParallelHashMap<K,V>::insert_and_get_count(K key, V value) {
 
   /* check if resize needed */
   if (2*_table->size() > _table->bucket_count())
@@ -637,7 +637,7 @@ int ParallelHashMap<K,V>::insert_and_get_count(K key, V value) {
   omp_set_lock(&_locks[lock_hash]);
 
   /* insert value */
-  int N =_table->insert_and_get_count(key, value);
+  long N =_table->insert_and_get_count(key, value);
 
   /* release lock */
   omp_unset_lock(&_locks[lock_hash]);

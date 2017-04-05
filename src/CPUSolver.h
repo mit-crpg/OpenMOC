@@ -99,8 +99,8 @@ public:
 
   int getNumThreads();
   void setNumThreads(int num_threads);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
-  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+  virtual void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
+  void computeFSRFissionRates(double* fission_rates, long num_FSRs);
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
@@ -109,8 +109,9 @@ public:
    * @param track_flux a pointer to the Track's angular flux
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
    */
+    //FIXME MEM : float / FP_PRECISION
   virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
-                               int polar_index, FP_PRECISION* track_flux,
+                               int polar_index, float* track_flux,
                                FP_PRECISION* fsr_flux);
 
   /**
@@ -120,8 +121,9 @@ public:
    * @param track_flux a pointer to the Track's angular flux
    * @param fwd the direction of integration along the segment
    */
+    //FIXME MEM : float / FP_PRECISION
   virtual void tallyCurrent(segment* curr_segment, int azim_index,
-                            int polar_index, FP_PRECISION* track_flux,
+                            int polar_index, float* track_flux,
                             bool fwd);
 
   /**
@@ -131,9 +133,10 @@ public:
    * @param direction the Track direction (forward - true, reverse - false)
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
+    //FIXME MEM : float / FP_PRECISION
   virtual void transferBoundaryFlux(Track* track, int azim_index,
                                     int polar_index, bool direction,
-                                    FP_PRECISION* track_flux);
+                                    float* track_flux);
 
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 

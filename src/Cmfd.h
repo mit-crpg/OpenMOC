@@ -139,7 +139,7 @@ private:
   bool _flux_limiting;
 
   /** Number of FSRs */
-  int _num_FSRs;
+  long _num_FSRs;
 
   /** The volumes (areas) for each FSR */
   FP_PRECISION* _FSR_volumes;
@@ -177,7 +177,7 @@ private:
   std::map<int, FP_PRECISION> _edge_corner_currents;
 
   /** Vector of vectors of FSRs containing in each cell */
-  std::vector< std::vector<int> > _cell_fsrs;
+  std::vector< std::vector<long> > _cell_fsrs;
 
   /** Pointer to Lattice object representing the CMFD mesh */
   Lattice* _lattice;
@@ -298,9 +298,10 @@ public:
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);
   int findCmfdSurfaceOTF(int cell_id, double z, int surface_2D);
-  void addFSRToCell(int cell_id, int fsr_id);
+  void addFSRToCell(int cell_id, long fsr_id);
   void zeroCurrents();
-  void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
+    //FIXME MEM : float / FP_PRECISION
+  void tallyCurrent(segment* curr_segment, float* track_flux,
                     int azim_index, int polar_index, bool fwd);
   void printTimerReport();
   void checkNeutronBalance();
@@ -315,9 +316,9 @@ public:
   int getNumX();
   int getNumY();
   int getNumZ();
-  int convertFSRIdToCmfdCell(int fsr_id);
-  int convertGlobalFSRIdToCmfdCell(int global_fsr_id);
-  std::vector< std::vector<int> >* getCellFSRs();
+  int convertFSRIdToCmfdCell(long fsr_id);
+  int convertGlobalFSRIdToCmfdCell(long global_fsr_id);
+  std::vector< std::vector<long> >* getCellFSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();
 
@@ -331,7 +332,7 @@ public:
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumZ(int num_z);
-  void setNumFSRs(int num_fsrs);
+  void setNumFSRs(long num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y, int num_z=1);
@@ -358,7 +359,7 @@ public:
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
-  void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
+  void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);
 };
 
@@ -398,7 +399,8 @@ inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
  * @param polar_weights array of polar weights for some azimuthal angle
  * @param fwd boolean indicating direction of integration along segment
  */
-inline void Cmfd::tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
+    //FIXME MEM : float / FP_PRECISION
+inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
                                int azim_index, int polar_index, bool fwd) {
 
   int surf_id, cell_id, cmfd_group;

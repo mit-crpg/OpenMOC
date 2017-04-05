@@ -143,7 +143,7 @@ TrackGenerator* Solver::getTrackGenerator() {
  * @param fsr_id the flat source region ID of interest
  * @return the flat source region volume
  */
-FP_PRECISION Solver::getFSRVolume(int fsr_id) {
+FP_PRECISION Solver::getFSRVolume(long fsr_id) {
 
   if (fsr_id < 0 || fsr_id > _num_FSRs)
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
@@ -240,7 +240,7 @@ bool Solver::isUsingExponentialInterpolation() {
  * @param group the energy group of interest
  * @return the FSR scalar flux
  */
-FP_PRECISION Solver::getFlux(int fsr_id, int group) {
+FP_PRECISION Solver::getFlux(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
@@ -273,7 +273,7 @@ FP_PRECISION Solver::getFlux(int fsr_id, int group) {
  * @param group the energy group of interest
  * @return the flat source region source
  */
-FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
+FP_PRECISION Solver::getFSRSource(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a source for FSR ID = %d "
@@ -415,7 +415,7 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
+void Solver::setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source) {
 
   if (group <= 0 || group > _num_groups)
     log_printf(ERROR,"Unable to set fixed source for group %d in "
@@ -653,7 +653,7 @@ void Solver::initializeFSRs() {
   _FSR_materials = new Material*[_num_FSRs];
 
   /* Loop over all FSRs to extract FSR material pointers */
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
@@ -673,7 +673,7 @@ void Solver::countFissionableFSRs() {
 
   /* Count the number of fissionable FSRs */
   _num_fissionable_FSRs = 0;
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
   }
@@ -698,7 +698,7 @@ void Solver::checkXS() {
   /* Get a set of the materials over all FSR */
   logLevel level = _xs_log_level;
 #pragma omp parallel for
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
 
     /* Get the material */
     Material* material = _FSR_materials[r];
@@ -795,7 +795,7 @@ void Solver::initializeFixedSources() {
     source = _fix_src_cell_map[cell_group_key];
 
     /* Search for this Cell in all FSRs */
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       fsr_cell = _geometry->findCellContainingFSR(r);
       if (cell_group_key.first->getId() == fsr_cell->getId())
         setFixedSourceByFSR(r, group, source);
@@ -811,7 +811,7 @@ void Solver::initializeFixedSources() {
     group = mat_group_key.second;
     source = _fix_src_material_map[mat_group_key];
 
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       fsr_material = _geometry->findFSRMaterial(r);
       if (mat_group_key.first->getId() == fsr_material->getId())
         setFixedSourceByFSR(r, group, source);

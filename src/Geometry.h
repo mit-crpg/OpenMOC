@@ -47,7 +47,7 @@ struct fsr_data {
     _centroid(NULL){}
 
   /** The FSR ID */
-  int _fsr_id;
+  long _fsr_id;
 
   /** The CMFD Cell */
   int _cmfd_cell;
@@ -93,7 +93,7 @@ struct ExtrudedFSR {
   int _fsr_id;
 
   /** Array of 3D FSR IDs */
-  int* _fsr_ids;
+  long* _fsr_ids;
 
   /** Array of material pointers for each FSR */
   Material** _materials;
@@ -169,7 +169,7 @@ private:
   int _domain_index_y;
   int _domain_index_z;
   Lattice* _domain_bounds;
-  std::vector<int> _num_domain_FSRs;
+  std::vector<long> _num_domain_FSRs;
 #ifdef MPIx
   MPI_Comm _MPI_cart;
 #endif
@@ -212,8 +212,8 @@ public:
   boundaryType getMinZBoundaryType();
   boundaryType getMaxZBoundaryType();
   Universe* getRootUniverse();
-  int getNumFSRs();
-  int getNumTotalFSRs();
+  long getNumFSRs();
+  long getNumTotalFSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
@@ -240,12 +240,12 @@ public:
   std::vector<Point*>& getFSRsToCentroids();
   std::vector<int>& getFSRsToCMFDCells();
   std::vector<ExtrudedFSR*>& getExtrudedFSRLookup();
-  int getFSRId(LocalCoords* coords, bool err_check=true);
-  int getGlobalFSRId(LocalCoords* coords, bool err_check=true);
-  Point* getFSRPoint(int fsr_id);
-  Point* getFSRCentroid(int fsr_id);
+  long getFSRId(LocalCoords* coords, bool err_check=true);
+  long getGlobalFSRId(LocalCoords* coords, bool err_check=true);
+  Point* getFSRPoint(long fsr_id);
+  Point* getFSRCentroid(long fsr_id);
   bool containsFSRCentroids();
-  int getCmfdCell(int fsr_id);
+  int getCmfdCell(long fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
   void getFSRKeyFast(LocalCoords* coords, std::string& key);
@@ -259,17 +259,17 @@ public:
 
   /* Set parameters */
   void setCmfd(Cmfd* cmfd);
-  void setFSRCentroid(int fsr, Point* centroid);
+  void setFSRCentroid(long fsr, Point* centroid);
   void setOverlaidMesh(double axial_mesh_height, int num_x=0,
                        int num_y=0, int num_radial_domains=0,
                        int* radial_domains=NULL);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
-  Material* findFSRMaterial(int fsr_id);
-  int findFSRId(LocalCoords* coords);
+  Material* findFSRMaterial(long fsr_id);
+  long findFSRId(LocalCoords* coords);
   int findExtrudedFSR(LocalCoords* coords);
-  Cell* findCellContainingFSR(int fsr_id);
+  Cell* findCellContainingFSR(long fsr_id);
 
   /* Other worker methods */
   void reserveKeyStrings(int num_threads);
@@ -283,11 +283,11 @@ public:
   void fixFSRMaps();
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
-  std::vector<int> getSpatialDataOnGrid(std::vector<double> dim1,
-                                        std::vector<double> dim2,
-                                        double offset,
-                                        const char* plane,
-                                        const char* domain_type);
+  std::vector<long> getSpatialDataOnGrid(std::vector<double> dim1,
+                                         std::vector<double> dim2,
+                                         double offset,
+                                         const char* plane,
+                                         const char* domain_type);
   std::string toString();
   void printString();
   void initializeCmfd();
@@ -295,9 +295,9 @@ public:
   bool withinGlobalBounds(LocalCoords* coords);
 #ifdef MPIx
   void countDomainFSRs();
-  void getLocalFSRId(int global_fsr_id, int &local_fsr_id, int &domain);
+  void getLocalFSRId(long global_fsr_id, long &local_fsr_id, int &domain);
 #endif
-  std::vector<double> getGlobalFSRCentroidData(int global_fsr_id);
+  std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
   void dumpToFile(std::string filename);
   void loadFromFile(std::string filename, bool twiddle=false);
@@ -309,6 +309,7 @@ public:
   size_t twiddleRead(surfaceType* ptr, size_t size, size_t nmemb, FILE* stream);
   size_t twiddleRead(boundaryType* ptr, size_t size, size_t nmemb, FILE* stream);
   size_t twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream);
 };
 
 #endif /* GEOMETRY_H_ */

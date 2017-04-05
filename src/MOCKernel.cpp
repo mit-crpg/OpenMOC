@@ -144,7 +144,7 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void VolumeKernel::execute(double length, Material* mat, int fsr_id,
+void VolumeKernel::execute(double length, Material* mat, long fsr_id,
                            int track_idx, int cmfd_surface_fwd,
                            int cmfd_surface_bwd, double x_start,
                            double y_start, double z_start,
@@ -184,7 +184,7 @@ void VolumeKernel::execute(double length, Material* mat, int fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(double length, Material* mat, int fsr_id,
+void CounterKernel::execute(double length, Material* mat, long fsr_id,
                             int track_idx, int cmfd_surface_fwd,
                             int cmfd_surface_bwd, double x_start,
                             double y_start, double z_start,
@@ -215,7 +215,7 @@ void CounterKernel::execute(double length, Material* mat, int fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void SegmentationKernel::execute(double length, Material* mat, int fsr_id,
+void SegmentationKernel::execute(double length, Material* mat, long fsr_id,
                                 int track_idx, int cmfd_surface_fwd,
                                 int cmfd_surface_bwd, double x_start,
                                 double y_start, double z_start,
@@ -324,7 +324,7 @@ void TransportKernel::setDirection(bool direction) {
 
 
 //FIXME document
-void TransportKernel::execute(double length, Material* mat, int fsr_id,
+void TransportKernel::execute(double length, Material* mat, long fsr_id,
                               int track_idx, int cmfd_surface_fwd,
                               int cmfd_surface_bwd, double x_start,
                               double y_start, double z_start,
@@ -370,8 +370,9 @@ void TransportKernel::execute(double length, Material* mat, int fsr_id,
 
     /* Get the backward track flux */
     int curr_track_id = _track_id + track_idx;
-    FP_PRECISION* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
-                                                            _direction);
+    //FIXME MEM : float / FP_PRECISION
+    float* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
+                                                     _direction);
 
     /* Apply MOC equations */
     _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
@@ -388,8 +389,9 @@ void TransportKernel::execute(double length, Material* mat, int fsr_id,
 //FIXME
 void TransportKernel::post() {
   for (int i=_min_track_idx; i <= _max_track_idx; i++) {
-    FP_PRECISION* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,
-                                                            _direction);
+    //FIXME MEM : float / FP_PRECISION
+    float* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,
+                                                     _direction);
     Track track;
     //_sti._z = i; FIXME THIS IS BROKEN
     //_track_generator_3D->getTrackOTF(&track, &_sti);

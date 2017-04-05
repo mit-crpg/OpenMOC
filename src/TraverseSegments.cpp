@@ -408,7 +408,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
       }
 
       /* Get the 3D FSR */
-      int fsr_id = extruded_FSR->_fsr_ids[z_ind];
+      long fsr_id = extruded_FSR->_fsr_ids[z_ind];
 
       /* Calculate CMFD surface */
       int cmfd_surface_bwd = -1;
@@ -600,7 +600,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
         z_ind = num_fsrs - z_iter - 1;
 
       /* Extract the FSR ID and Material ID of this 3D FSR */
-      int fsr_id = extruded_FSR->_fsr_ids[z_ind];
+      long fsr_id = extruded_FSR->_fsr_ids[z_ind];
       Material* material = extruded_FSR->_materials[z_ind];
 
       /* Find CMFD cell if necessary */

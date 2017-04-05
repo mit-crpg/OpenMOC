@@ -76,7 +76,7 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
   /* Copy the fluxes into the input array */
   else {
 #pragma omp parallel for schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
         out_fluxes[r*_num_groups+e] = _scalar_flux(r,e);
     }
@@ -95,7 +95,7 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
     for (int r=0; r < num_total_FSRs; r++) {
 
       /* Determine the domain and local FSR ID */
-      int fsr_id = r;
+      long fsr_id = r;
       int domain = 0;
       _geometry->getLocalFSRId(r, fsr_id, domain);
 
@@ -148,14 +148,14 @@ void CPUSolver::setNumThreads(int num_threads) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void CPUSolver::setFixedSourceByFSR(int fsr_id, int group,
+void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
                                     FP_PRECISION source) {
 
   Solver::setFixedSourceByFSR(fsr_id, group, source);
 
   /* Allocate the fixed sources array if not yet allocated */
   if (_fixed_sources == NULL) {
-    int size = _num_FSRs * _num_groups;
+    long size = _num_FSRs * _num_groups;
     _fixed_sources = new FP_PRECISION[size];
     memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
   }
@@ -214,15 +214,15 @@ void CPUSolver::initializeFluxArrays() {
     deleteMPIBuffers();
 #endif
 
-  int size;
+  long size;
 
   /* Allocate memory for the Track boundary flux and leakage arrays */
   try {
     size = 2 * _tot_num_tracks * _fluxes_per_track;
-    int max_size = size;
+    long max_size = size;
 #ifdef MPIX
     if (_geometry->isDomainDecomposed())
-      MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+      MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
     double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
@@ -230,15 +230,16 @@ void CPUSolver::initializeFluxArrays() {
     log_printf(NORMAL, "Max boundary angular flux storage per domain = %6.2f "
                "MB", max_size_mb);
 
-    _boundary_flux = new FP_PRECISION[size];
-    _start_flux = new FP_PRECISION[size];
+    //FIXME MEM : float / FP_PRECISION
+    _boundary_flux = new float[size];
+    _start_flux = new float[size];
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
     max_size = size;
 #ifdef MPIX
     if (_geometry->isDomainDecomposed())
-      MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+      MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
     max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
@@ -277,16 +278,16 @@ void CPUSolver::initializeSourceArrays() {
   if (_fixed_sources != NULL)
     delete [] _fixed_sources;
 
-  int size = _num_FSRs * _num_groups;
+  long size = _num_FSRs * _num_groups;
 
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size];
   _fixed_sources = new FP_PRECISION[size];
     
-  int max_size = size;
+  long max_size = size;
 #ifdef MPIX
   if (_geometry->isDomainDecomposed())
-    MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+    MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                   _geometry->getMPICart());
 #endif
   double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
@@ -309,7 +310,8 @@ void CPUSolver::initializeFixedSources() {
 
   Solver::initializeFixedSources();
 
-  int fsr_id, group;
+  long fsr_id;
+  int group;
   std::pair<int, int> fsr_group_key;
   std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
 
@@ -342,7 +344,7 @@ void CPUSolver::initializeFixedSources() {
 void CPUSolver::zeroTrackFluxes() {
 
 #pragma omp parallel for schedule(guided)
-  for (int t=0; t < _tot_num_tracks; t++) {
+  for (long t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++) {
         _boundary_flux(t, d, pe) = 0.0;
@@ -360,7 +362,7 @@ void CPUSolver::zeroTrackFluxes() {
 void CPUSolver::copyBoundaryFluxes() {
 
 #pragma omp parallel for schedule(guided)
-  for (int t=0; t < _tot_num_tracks; t++) {
+  for (long t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++)
         _boundary_flux(t,d,pe) = _start_flux(t, d, pe);
@@ -951,7 +953,7 @@ void CPUSolver::boundaryFluxChecker() {
     if (tester == my_rank) {
 
       /* Loop over all tracks */
-      for (int t=0; t < _tot_num_tracks; t++) {
+      for (long t=0; t < _tot_num_tracks; t++) {
 
         /* Get the Track */
         TrackStackIndexes tsi;
@@ -1281,7 +1283,7 @@ void CPUSolver::boundaryFluxChecker() {
 void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
       _scalar_flux(r,e) = value;
   }
@@ -1294,7 +1296,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 void CPUSolver::storeFSRFluxes() {
 
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
       _old_scalar_flux(r,e) = _scalar_flux(r,e);
   }
@@ -1315,7 +1317,7 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
     int tid = omp_get_thread_num();
     FP_PRECISION* group_fission_sources = _groupwise_scratch.at(tid);
 #pragma omp for schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
 
       /* Get pointers to important data structures */
       FP_PRECISION* nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
@@ -1362,14 +1364,14 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
              tot_fission_source, norm_factor);
 
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
       _scalar_flux(r, e) *= norm_factor;
   }
 
   /* Normalize angular boundary fluxes for each Track */
 #pragma omp parallel for schedule(guided)
-  for (int i=0; i < _tot_num_tracks; i++) {
+  for (long i=0; i < _tot_num_tracks; i++) {
     for (int j=0; j < 2; j++) {
       for (int pe=0; pe < _fluxes_per_track; pe++) {
         _start_flux(i, j, pe) *= norm_factor;
@@ -1392,7 +1394,7 @@ void CPUSolver::computeFSRSources(int iteration) {
 
   /* For all FSRs, find the source */
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
 
     int tid = omp_get_thread_num();
     Material* material = _FSR_materials[r];
@@ -1449,7 +1451,7 @@ void CPUSolver::computeFSRSources(int iteration) {
  */
 double CPUSolver::computeResidual(residualType res_type) {
 
-  int norm;
+  long norm;
   double residual;
   double* residuals = _regionwise_scratch;
   memset(residuals, 0., _num_FSRs * sizeof(double));
@@ -1458,7 +1460,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
     norm = _num_FSRs;
 
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
         if (_old_scalar_flux(r,e) > 0.) {
           residuals[r] += pow((_scalar_flux(r,e) - _old_scalar_flux(r,e)) /
@@ -1553,8 +1555,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     residual = reduced_res;
 
     /* Reduce normalization factors */
-    int reduced_norm;
-    MPI_Allreduce(&norm, &reduced_norm, 1, MPI_INT, MPI_SUM, comm);
+    long reduced_norm;
+    MPI_Allreduce(&norm, &reduced_norm, 1, MPI_LONG, MPI_SUM, comm);
     norm = reduced_norm;
   }
 #endif
@@ -1586,7 +1588,7 @@ void CPUSolver::computeKeff() {
   /* Loop over all FSRs and compute the volume-integrated total rates */
 #pragma omp parallel for private(tid, volume, \
     material, sigma) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
 
     int tid = omp_get_thread_num();
     FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
@@ -1679,12 +1681,13 @@ void CPUSolver::transportSweep() {
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
  */
+    //FIXME MEM : float / FP_PRECISION
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
-                                FP_PRECISION* track_flux,
+                                float* track_flux,
                                 FP_PRECISION* fsr_flux) {
 
-  int fsr_id = curr_segment->_region_id;
+  long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
@@ -1757,7 +1760,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  * @param fwd boolean indicating direction of integration along segment
  */
 void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
-                             int polar_index, FP_PRECISION* track_flux,
+                             int polar_index, float* track_flux,
                              bool fwd) {
 
   /* Tally surface currents if CMFD is in use */
@@ -1776,10 +1779,11 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
  * @param direction the Track direction (forward - true, reverse - false)
  * @param track_flux a pointer to the Track's outgoing angular flux
  */
+    //FIXME MEM : float / FP_PRECISION
 void CPUSolver::transferBoundaryFlux(Track* track,
                                      int azim_index, int polar_index,
                                      bool direction,
-                                     FP_PRECISION* track_flux) {
+                                     float* track_flux) {
 
   /* Extract boundary conditions for this Track and the pointer to the
    * outgoing reflective Track, and index into the leakage array */
@@ -1806,13 +1810,15 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 
   /* Determine if flux should be transferred */
   if (bc_out == REFLECTIVE || bc_out == PERIODIC) {
-    FP_PRECISION* track_out_flux = &_start_flux(track_out_id, 0, start_out);
+    //FIXME MEM : float / FP_PRECISION
+    float* track_out_flux = &_start_flux(track_out_id, 0, start_out);
     for (int pe=0; pe < _fluxes_per_track; pe++)
       track_out_flux[pe] = track_flux[pe];
   }
   if (bc_in == VACUUM) {
     long track_id = track->getUid();
-    FP_PRECISION* track_in_flux = &_start_flux(track_id, !direction, 0);
+    //FIXME MEM : float / FP_PRECISION
+    float* track_in_flux = &_start_flux(track_id, !direction, 0);
     for (int pe=0; pe < _fluxes_per_track; pe++)
       track_in_flux[pe] = 0.0;
   }
@@ -1831,7 +1837,7 @@ void CPUSolver::addSourceToScalarFlux() {
   /* Add in source term and normalize flux to volume for each FSR */
   /* Loop over FSRs, energy groups */
 #pragma omp parallel for private(volume, sigma_t) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     volume = _FSR_volumes[r];
     sigma_t = _FSR_materials[r]->getSigmaT();
 
@@ -1859,7 +1865,7 @@ void CPUSolver::addSourceToScalarFlux() {
  *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
  */
-void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
+void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
 
   if (_scalar_flux == NULL)
     log_printf(ERROR, "Unable to compute FSR fission rates since the "
@@ -1871,12 +1877,12 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   FP_PRECISION vol;
 
   /* Initialize fission rates to zero */
-  for (int r=0; r < _num_FSRs; r++)
+  for (long r=0; r < _num_FSRs; r++)
     fission_rates[r] = 0.0;
 
   /* Loop over all FSRs and compute the volume-weighted fission rate */
 #pragma omp parallel for private (nu_sigma_f, vol) schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
     vol = _FSR_volumes[r];
 
@@ -1889,7 +1895,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
   if (_geometry->isDomainDecomposed()) {
 
     /* Allocate buffer for communcation */
-    int num_total_FSRs = _geometry->getNumTotalFSRs();
+    long num_total_FSRs = _geometry->getNumTotalFSRs();
     double* temp_fission_rates = new double[num_total_FSRs];
     for (int i=0; i < num_total_FSRs; i++)
       temp_fission_rates[i] = 0;
@@ -1900,7 +1906,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
     for (int r=0; r < num_total_FSRs; r++) {
 
       /* Determine the domain and local FSR ID */
-      int fsr_id = r;
+      long fsr_id = r;
       int domain = 0;
       _geometry->getLocalFSRId(r, fsr_id, domain);
 
@@ -1938,8 +1944,8 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
   else
     precision = MPI_DOUBLE;
 #endif
-  std::vector<int> fsr_ids = _geometry->getSpatialDataOnGrid(dim1, dim2, offset,
-                                                             plane, "fsr");
+  std::vector<long> fsr_ids = _geometry->getSpatialDataOnGrid(dim1, dim2, offset,
+                                                              plane, "fsr");
   std::vector<int> domain_contains_coords(fsr_ids.size());
   std::vector<int> num_contains_coords(fsr_ids.size());
 #pragma omp parallel for

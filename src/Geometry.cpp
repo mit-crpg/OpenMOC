@@ -43,7 +43,7 @@ Geometry::~Geometry() {
   if (_FSR_keys_map.size() != 0) {
 
     fsr_data **values = _FSR_keys_map.values();
-    for (int i=0; i<_FSR_keys_map.size(); i++)
+    for (long i=0; i<_FSR_keys_map.size(); i++)
       delete values[i];
     delete [] values;
 
@@ -281,7 +281,7 @@ boundaryType Geometry::getMaxZBoundaryType() {
  * @brief Returns the number of flat source regions in the Geometry domain.
  * @return number of FSRs
  */
-int Geometry::getNumFSRs() {
+long Geometry::getNumFSRs() {
   return _FSRs_to_keys.size();
 }
 
@@ -290,12 +290,12 @@ int Geometry::getNumFSRs() {
  * @brief Returns the number of flat source regions in the entire Geometry.
  * @return number of FSRs
  */
-int Geometry::getNumTotalFSRs() {
-  int domain_fsrs =  _FSRs_to_keys.size();
-  int total_fsrs = domain_fsrs;
+long Geometry::getNumTotalFSRs() {
+  long domain_fsrs =  _FSRs_to_keys.size();
+  long total_fsrs = domain_fsrs;
 #ifdef MPIx
   if (_domain_decomposed)
-    MPI_Allreduce(&domain_fsrs, &total_fsrs, 1, MPI_INT, MPI_SUM, _MPI_cart);
+    MPI_Allreduce(&domain_fsrs, &total_fsrs, 1, MPI_LONG, MPI_SUM, _MPI_cart);
 #endif
   return total_fsrs;
 }
@@ -840,7 +840,7 @@ Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
  * @param fsr_id a FSR id
  * @return a pointer to the Material that this FSR is in
  */
-Material* Geometry::findFSRMaterial(int fsr_id) {
+Material* Geometry::findFSRMaterial(long fsr_id) {
 
   std::map<int, Material*> all_materials;
 
@@ -967,9 +967,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-int Geometry::findFSRId(LocalCoords* coords) {
+long Geometry::findFSRId(LocalCoords* coords) {
 
-  int fsr_id;
+  long fsr_id;
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
 
@@ -1095,9 +1095,9 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-int Geometry::getFSRId(LocalCoords* coords, bool err_check) {
+long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
 
-  int fsr_id = 0;
+  long fsr_id = 0;
   std::string fsr_key;
 
   try {
@@ -1151,22 +1151,22 @@ int Geometry::getDomainByCoords(LocalCoords* coords) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-int Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
+long Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
 
   /* Check if the Geometry is domain decomposed */
   if (!_domain_decomposed) {
     return getFSRId(coords, err_check);
   }
   else {
-    int temp_fsr_id = 0;
-    int global_fsr_id = 0;
+    long temp_fsr_id = 0;
+    long global_fsr_id = 0;
 #ifdef MPIx
     int domain = getDomainByCoords(coords);
     int rank;
     MPI_Comm_rank(_MPI_cart, &rank);
     if (domain == rank)
       temp_fsr_id = getFSRId(coords);
-    MPI_Allreduce(&temp_fsr_id, &global_fsr_id, 1, MPI_INT, MPI_SUM,
+    MPI_Allreduce(&temp_fsr_id, &global_fsr_id, 1, MPI_LONG, MPI_SUM,
                   _MPI_cart);
 
     /* Count FSRs on each domain if not already counted */
@@ -1174,7 +1174,7 @@ int Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
       countDomainFSRs();
 
     /* Add FSR count from prior domains */
-    for (int i=0; i < domain; i++)
+    for (long i=0; i < domain; i++)
       global_fsr_id += _num_domain_FSRs.at(i);
 
 #endif
@@ -1188,7 +1188,7 @@ int Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
  * @param fsr_id the FSR ID
  * @return the FSR's characteristic point
  */
-Point* Geometry::getFSRPoint(int fsr_id) {
+Point* Geometry::getFSRPoint(long fsr_id) {
 
   Point* point;
 
@@ -1209,7 +1209,7 @@ Point* Geometry::getFSRPoint(int fsr_id) {
  * @param fsr_id the FSR ID
  * @return the FSR's centroid
  */
-Point* Geometry::getFSRCentroid(int fsr_id) {
+Point* Geometry::getFSRCentroid(long fsr_id) {
 
   if (fsr_id < _FSR_keys_map.size())
     return _FSRs_to_centroids[fsr_id];
@@ -1236,8 +1236,8 @@ void Geometry::countDomainFSRs() {
   /* Gather the number of FSRs into an array */
   int num_domains = _num_domains_x * _num_domains_y * _num_domains_z;
   int num_domains_array[num_domains];
-  int my_fsrs = getNumFSRs();
-  MPI_Allgather(&my_fsrs, 1, MPI_INT, num_domains_array, 1, MPI_INT,
+  long my_fsrs = getNumFSRs();
+  MPI_Allgather(&my_fsrs, 1, MPI_LONG, num_domains_array, 1, MPI_LONG,
                 _MPI_cart);
 
   /* Convert to a vector */
@@ -1254,7 +1254,7 @@ void Geometry::countDomainFSRs() {
  * @param local_fsr_id The unique identifier of an FSR on its current domain
  * @param domain The rank of the domain containing the FSR
  */
-void Geometry::getLocalFSRId(int global_fsr_id, int &local_fsr_id,
+void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
                              int &domain) {
 
   /* Count FSRs on each domain if not already counted */
@@ -1262,7 +1262,7 @@ void Geometry::getLocalFSRId(int global_fsr_id, int &local_fsr_id,
     countDomainFSRs();
 
   /* Determine the local domain where the global FSR resides */
-  int cum_fsrs = 0;
+  long cum_fsrs = 0;
   domain = -1;
   for (int i=0; i < _num_domains_x * _num_domains_y * _num_domains_z; i++) {
     if (cum_fsrs + _num_domain_FSRs.at(i) > global_fsr_id) {
@@ -1290,7 +1290,7 @@ void Geometry::getLocalFSRId(int global_fsr_id, int &local_fsr_id,
  * @param global_fsr_id The global unique identifier of the FSR
  * @return A vector contianing the coordinates of the FSR centroid
  */
-std::vector<double> Geometry::getGlobalFSRCentroidData(int global_fsr_id) {
+std::vector<double> Geometry::getGlobalFSRCentroidData(long global_fsr_id) {
   double xyz[3];
   if (!_domain_decomposed) {
     Point* centroid = getFSRCentroid(global_fsr_id);
@@ -1302,7 +1302,7 @@ std::vector<double> Geometry::getGlobalFSRCentroidData(int global_fsr_id) {
   else {
 
     /* Determine the domain and local FSR ID */
-    int fsr_id;
+    long fsr_id;
     int domain;
     getLocalFSRId(global_fsr_id, fsr_id, domain);
 
@@ -1340,7 +1340,7 @@ std::vector<double> Geometry::getGlobalFSRCentroidData(int global_fsr_id) {
  * @param fsr_id the FSR ID
  * @return the CMFD cell
  */
-int Geometry::getCmfdCell(int fsr_id) {
+int Geometry::getCmfdCell(long fsr_id) {
   return _FSRs_to_CMFD_cells[fsr_id];
 }
 
@@ -1859,7 +1859,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
   /* Length of each segment */
   double length;
   Material* material;
-  int fsr_id;
+  long fsr_id;
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
@@ -1916,7 +1916,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
     material = prev->getFillMaterial();
 
     /* Get the FSR ID or save the coordinates */
-    int fsr_id = -1;
+    long fsr_id = -1;
     if (setup && false) {
       LocalCoords* new_fsr_coords;
       if (fsr_coords.size() >= preallocation_size)
@@ -1989,7 +1989,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
 #pragma omp critical
     {
       for (int s=0; s < track->getNumSegments(); s++) {
-        int fsr_id = findFSRId(fsr_coords.at(s));
+        long fsr_id = findFSRId(fsr_coords.at(s));
         track->getSegment(s)->_region_id = fsr_id;
       }
     }
@@ -2313,7 +2313,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
       size_t num_regions = global_z_mesh.size() - 1;
       extruded_FSR->_num_fsrs = num_regions;
       extruded_FSR->_materials = new Material*[num_regions];
-      extruded_FSR->_fsr_ids = new int[num_regions];
+      extruded_FSR->_fsr_ids = new long[num_regions];
 
       /* Loop over all regions in the global mesh */
 #pragma omp critical
@@ -2327,7 +2327,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
           /* Get the FSR ID and material */
           Cell* cell = findCellContainingCoords(&coord);
-          int fsr_id = findFSRId(&coord);
+          long fsr_id = findFSRId(&coord);
           Material* material = cell->getFillMaterial();
 
           /* Set the FSR ID and material */
@@ -2352,7 +2352,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
       /* Allocate materials and mesh in extruded FSR */
       extruded_FSR->_num_fsrs = (size_t) num_segments;
       extruded_FSR->_materials = new Material*[num_segments];
-      extruded_FSR->_fsr_ids = new int[num_segments];
+      extruded_FSR->_fsr_ids = new long[num_segments];
       extruded_FSR->_mesh = new double[num_segments+1];
 
       /* Initialize values in extruded FSR */
@@ -2405,20 +2405,20 @@ void Geometry::initializeFSRVectors() {
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
-  for (int i=0; i < num_FSRs; i++)
+  for (long i=0; i < num_FSRs; i++)
   {
     std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
-    int fsr_id = fsr->_fsr_id;
+    long fsr_id = fsr->_fsr_id;
     _FSRs_to_keys.at(fsr_id) = key;
     _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
   }
 
   /* add cmfd information serially */
   if (_cmfd != NULL) {
-    for (int i=0; i < num_FSRs; i++) {
+    for (long i=0; i < num_FSRs; i++) {
       fsr_data* fsr = value_list[i];
-      int fsr_id = fsr->_fsr_id;
+      long fsr_id = fsr->_fsr_id;
       _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);
       _FSRs_to_CMFD_cells.at(fsr_id) = fsr->_cmfd_cell;
     }
@@ -2538,7 +2538,7 @@ void Geometry::computeFissionability(Universe* univ) {
  * @param domain_type the type of domain ('fsr', 'material', 'cell')
  * @return a NumPy array or list of the domain IDs
  */
-std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
+std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
                         std::vector<double> dim2,
                         double offset,
                         const char* plane,
@@ -2548,7 +2548,7 @@ std::vector<int> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
   Cell* cell;
 
   /* Instantiate a vector to hold the domain IDs */
-  std::vector<int> domains(dim1.size() * dim2.size());
+  std::vector<long> domains(dim1.size() * dim2.size());
 
   /* Extract the source region IDs */
 //#pragma omp parallel for private(point, cell)
@@ -2801,7 +2801,7 @@ bool Geometry::withinGlobalBounds(LocalCoords* coords) {
  * @brief Finds the Cell containing a given fsr ID.
  * @param fsr_id an FSR ID.
  */
-Cell* Geometry::findCellContainingFSR(int fsr_id) {
+Cell* Geometry::findCellContainingFSR(long fsr_id) {
 
   std::string& key = _FSRs_to_keys[fsr_id];
   Point* point = _FSR_keys_map.at(key)->_point;
@@ -2829,7 +2829,7 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
  * @param fsr a FSR id
  * @param centroid a Point representing the FSR centroid
  */
-void Geometry::setFSRCentroid(int fsr, Point* centroid) {
+void Geometry::setFSRCentroid(long fsr, Point* centroid) {
   _contains_FSR_centroids = true;
   std::string& key = _FSRs_to_keys[fsr];
   _FSR_keys_map.at(key)->_centroid = centroid;
@@ -3785,6 +3785,14 @@ size_t Geometry::twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream)
 }
 size_t Geometry::twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream) {
   long* arr = reinterpret_cast<long*>(ptr);
+  size_t ret = fread(arr, size, nmemb, stream);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap64(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream) {
+  long* arr = ptr;
   size_t ret = fread(arr, size, nmemb, stream);
   if (_twiddle)
     for (int i=0; i < nmemb; i++)

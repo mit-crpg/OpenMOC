@@ -159,7 +159,7 @@ public:
   void exportFSRVolumes(double* out_volumes, int num_fsrs);
   FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();
-  FP_PRECISION getFSRVolume(int fsr_id);
+  FP_PRECISION getFSRVolume(long fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
   FP_PRECISION retrieveMaxOpticalLength();

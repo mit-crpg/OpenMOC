@@ -139,7 +139,7 @@ void CPULSSolver::flattenFSRFluxes(FP_PRECISION value) {
   CPUSolver::flattenFSRFluxes(value);
 
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux_xyz(r,e,0) = 0.0;
       _scalar_flux_xyz(r,e,1) = 0.0;
@@ -159,7 +159,7 @@ FP_PRECISION CPULSSolver::normalizeFluxes() {
   FP_PRECISION norm_factor = CPUSolver::normalizeFluxes();
 
 #pragma omp parallel for schedule(guided)
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux_xyz(r,e,0) *= norm_factor;
       _scalar_flux_xyz(r,e,1) *= norm_factor;
@@ -195,7 +195,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
     /* Compute the total source for each FSR */
 #pragma omp for schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
 
       material = _FSR_materials[r];
       nu_sigma_f = material->getNuSigmaF();
@@ -306,13 +306,14 @@ void CPULSSolver::computeFSRSources(int iteration) {
  *            backwards (-1)
 //FIXME: NOT THE CORRECT PARAMS
  */
+    //FIXME MEM : float / FP_PRECISION
 void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
-                                    FP_PRECISION* track_flux,
+                                    float* track_flux,
                                     FP_PRECISION* fsr_flux,
                                     double direction[3]) {
 
-  int fsr_id = curr_segment->_region_id;
+  long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   double* position = curr_segment->_starting_position;
@@ -471,7 +472,7 @@ void CPULSSolver::addSourceToScalarFlux() {
     /* Add in source term and normalize flux to volume for each FSR */
     /* Loop over FSRs, energy groups */
 #pragma omp for
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       volume = _FSR_volumes[r];
       sigma_t = _FSR_materials[r]->getSigmaT();
 
@@ -526,7 +527,7 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 
   coords->setUniverse(_geometry->getRootUniverse());
   Cell* cell = _geometry->findCellContainingCoords(coords);
-  int fsr = _geometry->getFSRId(coords);
+  long fsr = _geometry->getFSRId(coords);
   Point* centroid = _geometry->getFSRCentroid(fsr);
   x = coords->getX();
   y = coords->getY();
@@ -593,7 +594,7 @@ FP_PRECISION* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 #pragma omp critical
   {
     if (_FSR_lin_exp_matrix == NULL) {
-      int size = _geometry->getNumFSRs() * 3;
+      long size = _geometry->getNumFSRs() * 3;
       if (_solve_3D)
         size *= 2;
       _FSR_lin_exp_matrix = new FP_PRECISION[size];
@@ -612,14 +613,14 @@ FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
 #pragma omp critical
   {
     if (_FSR_source_constants == NULL) {
-      int size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
+      long size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
       if (_solve_3D)
         size *= 2;
 
-      int max_size = size;
+      long max_size = size;
 #ifdef MPIX
       if (_geometry->isDomainDecomposed())
-        MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
+        MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                       _geometry->getMPICart());
 #endif
       double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 

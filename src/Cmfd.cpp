@@ -147,7 +147,7 @@ Cmfd::~Cmfd() {
     delete _lattice;
 
   /* Clear the _cell_fsrs vector of vectors */
-  std::vector< std::vector<int> >::iterator iter1;
+  std::vector< std::vector<long> >::iterator iter1;
   for (iter1 = _cell_fsrs.begin(); iter1 != _cell_fsrs.end(); ++iter1)
     iter1->clear();
   _cell_fsrs.clear();
@@ -208,7 +208,7 @@ Cmfd::~Cmfd() {
     delete [] _boundary_surface_currents;
   }
 
-  for (int r=0; r < _num_FSRs; r++)
+  for (long r=0; r < _num_FSRs; r++)
     delete [] _axial_interpolants.at(r);
 }
 
@@ -411,7 +411,7 @@ void Cmfd::collapseXS() {
 #pragma omp for
     for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
-      std::vector<int>::iterator iter;
+      std::vector<long>::iterator iter;
 
       /* Loop over CMFD coarse energy groups */
       for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -1062,7 +1062,7 @@ void Cmfd::updateMOCFlux() {
 #pragma omp parallel for
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
-    std::vector<int>::iterator iter;
+    std::vector<long>::iterator iter;
 
     /* Loop over CMFD groups */
     for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -1347,7 +1347,7 @@ void Cmfd::initializeCellMap() {
   for (int z = 0; z < _local_num_z; z++) {
     for (int y = 0; y < _local_num_y; y++) {
       for (int x = 0; x < _local_num_x; x++)
-        _cell_fsrs.push_back(std::vector<int>());
+        _cell_fsrs.push_back(std::vector<long>());
     }
   }
 }
@@ -1495,7 +1495,7 @@ Lattice* Cmfd::getLattice() {
  * @param The CMFD cell ID.
  * @param The FSR ID.
  */
-void Cmfd::addFSRToCell(int cmfd_cell, int fsr_id) {
+void Cmfd::addFSRToCell(int cmfd_cell, long fsr_id) {
   _cell_fsrs.at(cmfd_cell).push_back(fsr_id);
 }
 
@@ -1531,7 +1531,7 @@ int Cmfd::getNumCells() {
  * @brief set the number of FSRs.
  * @param the number of FSRs
  */
-void Cmfd::setNumFSRs(int num_fsrs) {
+void Cmfd::setNumFSRs(long num_fsrs) {
   _num_FSRs = num_fsrs;
 }
 
@@ -2473,9 +2473,9 @@ int Cmfd::getBoundary(int side) {
  * @param The FSR ID.
  * @return The CMFD cell ID. Return -1 if cell is not found.
  */
-int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
+int Cmfd::convertFSRIdToCmfdCell(long fsr_id) {
 
-  std::vector<int>::iterator iter;
+  std::vector<long>::iterator iter;
   for (int cell_id=0; cell_id < _local_num_x*_local_num_y*_local_num_z;
       cell_id++) {
     for (iter = _cell_fsrs.at(cell_id).begin();
@@ -2490,7 +2490,7 @@ int Cmfd::convertFSRIdToCmfdCell(int fsr_id) {
 
 
 //TODO document
-int Cmfd::convertGlobalFSRIdToCmfdCell(int global_fsr_id) {
+int Cmfd::convertGlobalFSRIdToCmfdCell(long global_fsr_id) {
 
   /* Determine the domain and local FSR ID */
   int cmfd_cell = -1;
@@ -2500,7 +2500,7 @@ int Cmfd::convertGlobalFSRIdToCmfdCell(int global_fsr_id) {
 #ifdef MPIx
   else {
 
-    int fsr_id;
+    long fsr_id;
     int domain;
     _geometry->getLocalFSRId(global_fsr_id, fsr_id, domain);
 
@@ -2525,7 +2525,7 @@ int Cmfd::convertGlobalFSRIdToCmfdCell(int global_fsr_id) {
  *        the FSRs that lie in each cell.
  * @return Vector of vectors containing FSR IDs in each cell.
  */
-std::vector< std::vector<int> >* Cmfd::getCellFSRs() {
+std::vector< std::vector<long> >* Cmfd::getCellFSRs() {
   return &_cell_fsrs;
 }
 
@@ -2535,10 +2535,10 @@ std::vector< std::vector<int> >* Cmfd::getCellFSRs() {
  *        the FSRs that lie in each cell.
  * @param Vector of vectors containing FSR IDs in each cell.
  */
-void Cmfd::setCellFSRs(std::vector< std::vector<int> >* cell_fsrs) {
+void Cmfd::setCellFSRs(std::vector< std::vector<long> >* cell_fsrs) {
 
   if (!_cell_fsrs.empty()) {
-    std::vector< std::vector<int> >::iterator iter;
+    std::vector< std::vector<long> >::iterator iter;
     for (iter = _cell_fsrs.begin(); iter != _cell_fsrs.end(); ++iter)
       iter->clear();
     _cell_fsrs.clear();
@@ -2654,9 +2654,9 @@ void Cmfd::generateKNearestStencils() {
     return;
 
   std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
-  std::vector<int>::iterator fsr_iter;
+  std::vector<long>::iterator fsr_iter;
   Point* centroid;
-  int fsr_id;
+  long fsr_id;
 
   /* Number of cells in stencil */
   int num_cells_in_stencil = 9;
@@ -2707,7 +2707,7 @@ void Cmfd::generateKNearestStencils() {
   /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
    * its k-nearest CMFD cells */
   FP_PRECISION total_distance;
-  for (int i=0; i < _num_FSRs; i++) {
+  for (long i=0; i < _num_FSRs; i++) {
     total_distance = 1.e-10;
 
     /* Compute the total distance of each FSR centroid to its k-nearest CMFD
@@ -2725,7 +2725,7 @@ void Cmfd::generateKNearestStencils() {
 
   /* Initialize axial quadratic interpolant values */
   _axial_interpolants.resize(_num_FSRs);
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     _axial_interpolants.at(r) = new double[3];
     for (int j=0; j < 3; j++)
       _axial_interpolants.at(r)[j] = 0.0;
@@ -3644,7 +3644,7 @@ void Cmfd::checkNeutronBalance() {
       /* Loop over FSRs in CMFD cell */
       for (int j = 0; j < _cell_fsrs.at(i).size(); j++) {
 
-        int fsr_id = _cell_fsrs.at(i).at(j);
+        long fsr_id = _cell_fsrs.at(i).at(j);
         Material* fsr_material = _FSR_materials[fsr_id];
         double volume = _FSR_volumes[fsr_id];
         FP_PRECISION* scat = fsr_material->getSigmaS();
