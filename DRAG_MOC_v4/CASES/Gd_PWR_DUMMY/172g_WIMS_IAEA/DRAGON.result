@@ -1,0 +1,716 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                          LINE
+* Regression tests for WIMS-D4 Wimslib capabilities in Dragon.             0001
+* Running time = ~ 7m                                                      0002
+* G. Marleau                                                               0003
+*                                                                          0004
+PROCEDURE PWR_Gd ;                                                         0005
+SEQ_ASCII res ;                                                            0006
+res := PWR_Gd ;                                                            0007
+** TCWU41 ; (* 3D SUPERCELL WITH MCCG *)                                   0008
+QUIT "LIST" .                                                              0009
+ 
+<|PROCEDURE PWR_Gd ;                                                      |<0005
+<|SEQ_ASCII res ;                                                         |<0006
+<|res := PWR_Gd ;                                                         |<0007
+<|LINKED_LIST                                                             |<0011
+<|ASSMB DISCR LIBRARY CP CALC OUT ;                                       |<0012
+<|SEQ_ASCII                                                               |<0013
+<|res ;                                                                   |<0014
+<|MODULE                                                                  |<0015
+<|LIB: GEO: SYBILT: SHI: ASM: FLU:                                        |<0016
+<|EDI: END: ;                                                             |<0017
+<|LIBRARY := LIB: ::                                                      |<0021
+<|NMIX 9 CTRA NONE                                                        |<0022
+<|MIXS LIB: WIMSD4 FIL: iaeagx                                            |<0023
+<|MIX 1 579.9                                                             |<0024
+<|H1H2O1    = '3001'   4.76690E-2     O161   = '6016'   2.38345E-2        |<0025
+<|BNat1     = '1011'   2.38103E-5                                         |<0026
+<|MIX 2 579.9                        O162      = '6016'   3.06711E-4      |<0027
+<|Cr522     = '52'     7.54987E-5   Fe562     = '2056'   1.47624E-4       |<0028
+<|Zr912     = '91'     4.18621E-2                                         |<0029
+<|MIX 3 579.9                                                             |<0030
+<|H1H2O3    = '3001'   4.65292E-2   O163   = '6016'   2.32646E-2          |<0031
+<|Cr523     = '52'     4.79927E-5                                         |<0032
+<|Fe563     = '2056'   4.45845E-5   Ni583     = '58'     1.13521E-4       |<0033
+<|MoNat3    = '96'     4.03755E-6                                         |<0034
+<|Al273     = '27'     2.35231E-6                                         |<0035
+<|Mn553     = '55'     4.15901E-7                                         |<0036
+<|BNat3     = '1011'   2.32761E-5                                         |<0037
+<|Zr913     = '91'     8.92427E-4                                         |<0038
+<|MIX 4 579.9                        O164      = '6016'   2.87335E-4      |<0039
+<|Cr524     = '52'     7.07291E-5   Fe564     = '2056'   1.38298E-4       |<0040
+<|Zr914     = '91'     3.92175E-2                                         |<0041
+<|MIX 5 579.9                                                             |<0042
+<|H1H2O5    = '3001'   4.71346E-2   O165   = '6016'   2.35673E-2          |<0043
+<|Cr525     = '52'     2.24991E-5                                         |<0044
+<|Fe565     = '2056'   2.09013E-5   Ni585     = '58'     5.32188E-5       |<0045
+<|MoNat5    = '96'     1.89281E-6                                         |<0046
+<|Al275     = '27'     1.10277E-6                                         |<0047
+<|Mn555     = '55'     1.94976E-7                                         |<0048
+<|BNat5     = '1011'   2.35598E-5                                         |<0049
+<|Zr915     = '91'     4.18372E-4                                         |<0050
+<|MIX 6 579.9                                                             |<0051
+<|H1H2O6    = '3001'   4.71676E-2   O166   = '6016'   2.35838E-2          |<0052
+<|Cr526     = '52'     2.11122E-5                                         |<0053
+<|Fe566     = '2056'   1.96130E-5   Ni586     = '58'     4.99383E-5       |<0054
+<|MoNat6    = '96'     1.77614E-6                                         |<0055
+<|Al276     = '27'     1.03479E-6                                         |<0056
+<|Mn556     = '55'     1.82957E-7                                         |<0057
+<|BNat6     = '1011'   2.35753E-5                                         |<0058
+<|Zr916     = '91'     3.92583E-4                                         |<0059
+<|MIX 7 933.6                        O167     = '6016'     4.49355E-2     |<0060
+<|U2357     = '2235'   7.39237E-4 1                                       |<0061
+<|U2387     = '8238'   2.17285E-2 1                                       |<0062
+<|MIX 8 933.6                        O168     = '6016'     4.49355E-2     |<0063
+<|U2358     = '2235'   7.39237E-4 1                                       |<0064
+<|U2388    =  '8238'   2.17285E-2 1                                       |<0065
+<|Gd1578    = '2157'   4.17900E-4                                         |<0066
+<|Gd1568    = '2156'   5.62500E-4                                         |<0067
+<|;                                                                       |<0068
+ DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+ DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
+ DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
+ DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
+ DD   DD  RRRR     AAAAAAA  GG  GGG  OO   OO  NN  NN NN
+ DD   DD  RR RR    AAAAAAA  GG   GG  OO   OO  NN   NNNN
+ DDDDDDD  RR  RR   AA   AA  GGGGGGG  OOOOOOO  NN    NNN
+ DDDDDD   RR   RR  AA   AA   GGGGG    OOOOO   NN     NN
+
+ VERSION dragon 5  Version 5.0.0                                       February 20, 2012                                               
+ GROUPE D'ANALYSE NUCLEAIRE
+ ECOLE POLYTECHNIQUE DE MONTREAL
+
+
+
+ COPYRIGHT NOTICE FOR THIS VERSION OF dragon:
+ --------------------------------------------
+ Copyright (C) 2002 Ecole Polytechnique de Montreal 
+ This library is free software; you can redistribute it
+ and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any
+ later version 
+
+
+
+
+->@BEGIN MODULE : LIB:        
+->@DESCRIPTION  : Microscopic xs-library processing                                       
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ OPTIONS
+ -------
+ IMPX       1   (0=NO PRINT/1=SHORT/2=MORE)
+ IPROB      0   (0=DIRECT/1=ADJOINT)
+ ITIME      1   (1=STEADY-STATE/2=PROMPT)
+ NLIB       1   (NUMBER OF SETS OF LIBRARIES)
+ NGF       45   (NUMBER OF FAST GROUP WITHOUT SELF-SHIELDING)
+ IGRMAX    92   (LAST GROUP INDEX WITH SELF-SHIELDING)
+ NBISO     49   (NUMBER OF ISOTOPES OR MATERIALS)
+ NBMIX      8   (NUMBER OF MIXTURES)
+ NRES       1   (NUMBER OF SETS OF RESONANT MIXTURES)
+ NCOMB      0   (NUMBER OF DEPLETING MIXTURES)
+ NEDMAC    12   (NUMBER OF CROSS SECTION EDITS)
+ NGRO     172   (NUMBER OF ENERGY GROUPS)
+ NL         2   (NUMBER OF LEGENDRE ORDERS)
+ ITRANC     0   (0=NO TRANSPORT CORRECTION/1=APOLLO TYPE/2=RECOVER FROM LIBRARY/3=WIMS-D TYPE/4=LEAKAGE CORRECTION)
+ NBESP      0   (NUMBER OF ENERGY-DEPENDENT FISSION SPECTRA)
+ IPROC      0   (-1=SKIP LIBRARY PROCESSING/0=DILUTION INTERPOLATION/1=USE PHYSICAL TABLES/2=BUILD A DRAGLIB/3=COMPUTE CALENDF TABLES/4=SLOWING-DOWN TABLES/5=ALL CALENDF)
+ IMAC       1   (0=DO NOT/1=DO BUILD AN EMBEDDED MACROLIB)
+ NDEL       0   (NUMBER OF PRECURSOR GROUPS)
+ NDEPL      0   (NUMBER OF DEPLETING ISOTOPES)
+ NFISS      0   (NUMBER OF FISSILE ISOTOPES)
+ ISOADD     0   (0=COMPLETE BURNUP CHAIN/1=DO NOT)
+ MAXISM   300   (MAX. NUMBER OF ISOTOPES PER MIXTURE)
+ IPRECI     4   (CALENDF ACCURACY FLAG:1/2/3/4)
+
+ CROSS SECTION EDIT NAME (LCM DIRECTORY NAME)
+ --------------------------------------------
+   1  NFTOT        2  NG           3  N2N   
+   4  N3N          5  N4N          6  NA    
+   7  NP           8  N2A          9  NNP   
+  10  ND          11  NT          12  TRANC 
+
+ AVAILABLE CROSS-SECTION LIBRARIES:
+    1 -- iaeagx                                                          
+
+                                                        NUMBER
+ SPEC   LOCAL NAME    ISOTOPE       FROM LIBRARY  MIX   DENSITY     TEMP(K)    SIGZERO    SELF-SHIEL  THERMAL CORRECTION
+ -----  ------------  ------------  ------------  ----  ----------  ---------  ---------  ----------  ------------------
+     1  H1H2O1  0001  3001          WIMSD4     1     1  4.7669E-02  5.799E+02  1.000E+10   0             0                 
+     2  O161    0001  6016          WIMSD4     1     1  2.3835E-02  5.799E+02  1.000E+10   0             0                 
+     3  BNat1   0001  1011          WIMSD4     1     1  2.3810E-05  5.799E+02  1.000E+10   0             0                 
+     4  O162    0002  6016          WIMSD4     1     2  3.0671E-04  5.799E+02  1.000E+10   0             0                 
+     5  Cr522   0002  52            WIMSD4     1     2  7.5499E-05  5.799E+02  1.000E+10   0             0                 
+     6  Fe562   0002  2056          WIMSD4     1     2  1.4762E-04  5.799E+02  1.000E+10   0             0                 
+     7  Zr912   0002  91            WIMSD4     1     2  4.1862E-02  5.799E+02  1.000E+10   0             0                 
+     8  H1H2O3  0003  3001          WIMSD4     1     3  4.6529E-02  5.799E+02  1.000E+10   0             0                 
+     9  O163    0003  6016          WIMSD4     1     3  2.3265E-02  5.799E+02  1.000E+10   0             0                 
+    10  Cr523   0003  52            WIMSD4     1     3  4.7993E-05  5.799E+02  1.000E+10   0             0                 
+    11  Fe563   0003  2056          WIMSD4     1     3  4.4584E-05  5.799E+02  1.000E+10   0             0                 
+    12  Ni583   0003  58            WIMSD4     1     3  1.1352E-04  5.799E+02  1.000E+10   0             0                 
+    13  MoNat3  0003  96            WIMSD4     1     3  4.0375E-06  5.799E+02  1.000E+10   0             0                 
+    14  Al273   0003  27            WIMSD4     1     3  2.3523E-06  5.799E+02  1.000E+10   0             0                 
+    15  Mn553   0003  55            WIMSD4     1     3  4.1590E-07  5.799E+02  1.000E+10   0             0                 
+    16  BNat3   0003  1011          WIMSD4     1     3  2.3276E-05  5.799E+02  1.000E+10   0             0                 
+    17  Zr913   0003  91            WIMSD4     1     3  8.9243E-04  5.799E+02  1.000E+10   0             0                 
+    18  O164    0004  6016          WIMSD4     1     4  2.8733E-04  5.799E+02  1.000E+10   0             0                 
+    19  Cr524   0004  52            WIMSD4     1     4  7.0729E-05  5.799E+02  1.000E+10   0             0                 
+    20  Fe564   0004  2056          WIMSD4     1     4  1.3830E-04  5.799E+02  1.000E+10   0             0                 
+    21  Zr914   0004  91            WIMSD4     1     4  3.9217E-02  5.799E+02  1.000E+10   0             0                 
+    22  H1H2O5  0005  3001          WIMSD4     1     5  4.7135E-02  5.799E+02  1.000E+10   0             0                 
+    23  O165    0005  6016          WIMSD4     1     5  2.3567E-02  5.799E+02  1.000E+10   0             0                 
+    24  Cr525   0005  52            WIMSD4     1     5  2.2499E-05  5.799E+02  1.000E+10   0             0                 
+    25  Fe565   0005  2056          WIMSD4     1     5  2.0901E-05  5.799E+02  1.000E+10   0             0                 
+    26  Ni585   0005  58            WIMSD4     1     5  5.3219E-05  5.799E+02  1.000E+10   0             0                 
+    27  MoNat5  0005  96            WIMSD4     1     5  1.8928E-06  5.799E+02  1.000E+10   0             0                 
+    28  Al275   0005  27            WIMSD4     1     5  1.1028E-06  5.799E+02  1.000E+10   0             0                 
+    29  Mn555   0005  55            WIMSD4     1     5  1.9498E-07  5.799E+02  1.000E+10   0             0                 
+    30  BNat5   0005  1011          WIMSD4     1     5  2.3560E-05  5.799E+02  1.000E+10   0             0                 
+    31  Zr915   0005  91            WIMSD4     1     5  4.1837E-04  5.799E+02  1.000E+10   0             0                 
+    32  H1H2O6  0006  3001          WIMSD4     1     6  4.7168E-02  5.799E+02  1.000E+10   0             0                 
+    33  O166    0006  6016          WIMSD4     1     6  2.3584E-02  5.799E+02  1.000E+10   0             0                 
+    34  Cr526   0006  52            WIMSD4     1     6  2.1112E-05  5.799E+02  1.000E+10   0             0                 
+    35  Fe566   0006  2056          WIMSD4     1     6  1.9613E-05  5.799E+02  1.000E+10   0             0                 
+    36  Ni586   0006  58            WIMSD4     1     6  4.9938E-05  5.799E+02  1.000E+10   0             0                 
+    37  MoNat6  0006  96            WIMSD4     1     6  1.7761E-06  5.799E+02  1.000E+10   0             0                 
+    38  Al276   0006  27            WIMSD4     1     6  1.0348E-06  5.799E+02  1.000E+10   0             0                 
+    39  Mn556   0006  55            WIMSD4     1     6  1.8296E-07  5.799E+02  1.000E+10   0             0                 
+    40  BNat6   0006  1011          WIMSD4     1     6  2.3575E-05  5.799E+02  1.000E+10   0             0                 
+    41  Zr916   0006  91            WIMSD4     1     6  3.9258E-04  5.799E+02  1.000E+10   0             0                 
+    42  O167    0007  6016          WIMSD4     1     7  4.4935E-02  9.336E+02  1.000E+10   0             0                 
+    43  U2357   0007  2235          WIMSD4     1     7  7.3924E-04  9.336E+02  1.000E+10   1             0                 
+    44  U2387   0007  8238          WIMSD4     1     7  2.1729E-02  9.336E+02  1.000E+10   1             0                 
+    45  O168    0008  6016          WIMSD4     1     8  4.4935E-02  9.336E+02  1.000E+10   0             0                 
+    46  U2358   0008  2235          WIMSD4     1     8  7.3924E-04  9.336E+02  1.000E+10   1             0                 
+    47  U2388   0008  8238          WIMSD4     1     8  2.1729E-02  9.336E+02  1.000E+10   1             0                 
+    48  Gd1578  0008  2157          WIMSD4     1     8  4.1790E-04  9.336E+02  1.000E+10   0             0                 
+    49  Gd1568  0008  2156          WIMSD4     1     8  5.6250E-04  9.336E+02  1.000E+10   0             0                 
+->@END MODULE   : LIB:        
+-->>TIME SPENT IN MODULE LIB:        :      0.061
+<|ASSMB := GEO: :: CAR2D 15 15                                            |<0076
+<|X- REFL X+ REFL Y- REFL Y+ REFL                                         |<0077
+<|CELL C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2                       |<0078
+<|C2 C3 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C3 C2                            |<0079
+<|C2 C2 C2 C2 C2 C1 C2 C2 C2 C1 C2 C2 C2 C2 C2                            |<0080
+<|C2 C2 C2 C1 C2 C2 C2 C2 C2 C2 C2 C1 C2 C2 C2                            |<0081
+<|C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2                            |<0082
+<|C2 C2 C1 C2 C2 C1 C2 C2 C2 C1 C2 C2 C1 C2 C2                            |<0083
+<|C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2                            |<0084
+<|C2 C2 C2 C2 C2 C2 C2 C1 C2 C2 C2 C2 C2 C2 C2                            |<0085
+<|C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2                            |<0086
+<|C2 C2 C1 C2 C2 C1 C2 C2 C2 C1 C2 C2 C1 C2 C2                            |<0087
+<|C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2                            |<0088
+<|C2 C2 C2 C1 C2 C2 C2 C2 C2 C2 C2 C1 C2 C2 C2                            |<0089
+<|C2 C2 C2 C2 C2 C1 C2 C2 C2 C1 C2 C2 C2 C2 C2                            |<0090
+<|C2 C3 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C3 C2                            |<0091
+<|C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2                            |<0092
+<|::: C1 := GEO: CARCEL 2                                                 |<0093
+<|MESHX 0.0 1.26472 MESHY 0.0 1.26472                                     |<0094
+<|RADIUS 0.0 0.572435 0.613142  MIX 1 2 3 ;                               |<0095
+<|::: C2 := GEO: C1  RADIUS 0.0 0.412660 0.474364  MIX 7 4 5 ;            |<0096
+<|::: C3 := GEO: C1  RADIUS 0.0 0.412660 0.474364  MIX 8 4 6 ;            |<0097
+<|;                                                                       |<0098
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE CARTESIAN 2-D   .
+->@END MODULE   : GEO:        
+-->>TIME SPENT IN MODULE GEO:        :      0.004
+<|DISCR := SYBILT: ASSMB ::                                               |<0105
+<|TITLE 'TCWU02: 17 X 17 MULTICELL PWR BENCHMARK WITHOUT POISON'          |<0106
+<|MAXR 900  ;                                                             |<0107
+->@BEGIN MODULE : SYBILT:     
+->@DESCRIPTION  : Sybil 2-D tracking                                                      
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CARTESIAN MULTICELL OPTION (EURYDICE-2) BASED ON GEOMETRY LOCATED IN 'ASSMB       '.
+
+
+ NUMBER OF CELLS ALONG THE X-AXIS =  15
+                 ALONG THE Y-AXIS =  15     AVAILABLE STORAGE MAXPTS = 900
+ NUMBER OF MERGED VOLUMES =  675
+ NUMBER OF DISTINCT PHYSICAL MIXTURES =    8
+
+
+     GENERATING CELL   RADIUS
+
+    1 'C2          '   0.00000E+00 4.12660E-01 4.74364E-01
+                       A = 1.26472E+00   B = 1.26472E+00
+
+    2 'C3          '   0.00000E+00 4.12660E-01 4.74364E-01
+                       A = 1.26472E+00   B = 1.26472E+00
+
+    3 'C1          '   0.00000E+00 5.72435E-01 6.13142E-01
+                       A = 1.26472E+00   B = 1.26472E+00
+
+
+ INFINITE DOMAIN.
+
+
+ DP-0 APPROXIMATION AROUND EACH CARTESIAN CELL.
+
+ QUADRATURE PARAMETERS:
+ HETEROGENEOUS CELLS   -    ANGLES   NA =  3 IN (0,PI/4)
+                          SEGMENTS   NX =  3
+
+ HOMOGENEOUS CELLS     -    ANGLES   NH =  5
+
+ CYLINDRICAL CELLS     -  SEGMENTS   MR =  5
+
+
+
+ TOTAL NUMBER OF CELLS IN THE DOMAIN =    225
+ TOTAL NUMBER OF MERGED CELLS =    225
+ TOTAL NUMBER OF GENERATING CELLS =      3     AVAILABLE STORAGE MAXCEL =    900
+
+
+ TOTAL NUMBER OF DISTINCT OUT-CURRENTS =    900
+ TOTAL NUMBER OF OUT-CURRENTS SURROUNDING ALL THE CELLS =    900     AVAILABLE STORAGE MAXJ =   3600
+
+
+ SYBEUR: MAXIMUM STORAGE REQUIRED BY THE TRACKS =     696 +   1587        AVAILABLE STORAGE MAXZ =   10000
+
+
+ SYBEUR: EXACT STORAGE REQUIRED BY THE TRACKS =    308 INT +    639 REAL        ACCURACY =  5.225E-05
+
+
+ NUMBER OF VOLUMES =    675     AVAILABLE STORAGE MAXBLK =    900
+
+
+ STATE VECTOR:
+ NREG     675   (NUMBER OF REGIONS)
+ NUN      675   (NUMBER OF FLUX UNKNOWNS)
+ ILK        1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
+ NBMIX      8   (MAXIMUM NUMBER OF MIXTURES USED)
+ NSURF      0   (NUMBER OF OUTER SURFACES)
+ ITG        4   (TYPE OF GEOMETRY)
+ MAXZ   10000   (TRACKING LENGTH)
+ MAXJ    3600   (INTERNAL STORAGE LENGTH FOR CURRENTS)
+ NUNCUR   900   (NUMBER OF ADDITIONAL INTERFACE CURRENT COMPONENTS)
+ IBIHET     0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+->@END MODULE   : SYBILT:     
+-->>TIME SPENT IN MODULE SYBILT:     :      0.001
+<|LIBRARY := SHI: LIBRARY DISCR :: EDIT 0 NOLJ ;                          |<0108
+->@BEGIN MODULE : SHI:        
+->@DESCRIPTION  : Self-shielding by improved Stammler method                              
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : SHI:        
+-->>TIME SPENT IN MODULE SHI:        :    786.869
+<|CP := ASM: LIBRARY DISCR ;                                              |<0109
+->@BEGIN MODULE : ASM:        
+->@DESCRIPTION  : To built system matrices (CP and IC)                                    
+->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+ COMPUTATION OF DRAGON COMPLETE CP BY DOOR =   SYBIL       
+
+ OPTIONS
+ -------
+ IMPX       1   (0=NO PRINT/1=SHORT/2=MORE)
+ ITPIJ      1   (1=WIJ/2=PIJ/3=WIJK/4=PIJK)
+ LNORM      1   (0=NORMALIZE PIJ TO 1/1=DO NOT)
+ LALBS      1   (0=RECOVER AND SAVE WIS/1=DO NOT)
+ IPHASE     2   (1=GENERAL FLUX SOLUTION/2=PIJ APPROACH)
+ ISTRM      1   (1=HOMO BN OR NO LEAKAGE/2=ECCO/3=TIBERE)
+ KNORM      4   (0=NO/1=GELBARD/2=DIAGONAL/3=NON-LINEAR/4=HELIOS)
+ NGRP     172   (NUMBER OF GROUPS)
+ NUN      675   (NUMBER OF UNKNOWNS)
+ NBMIX      8   (NUMBER OF MIXTURES)
+ NANI       1   (NUMBER OF LEGENDRE ORDERS SCATTERING XS)
+ IDIFF      0   (0/1: DIFFUSION COEFFICIENTS ABSENT/PRESENT)
+ DOOR           (SYBIL       )
+->@END MODULE   : ASM:        
+-->>TIME SPENT IN MODULE ASM:        :    338.091
+<|CALC := FLU: CP LIBRARY DISCR ::                                        |<0110
+<|TYPE B B1 ;                                                             |<0111
+->@BEGIN MODULE : FLU:        
+->@DESCRIPTION  : Solve the flux equations                                                
+->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+
+
+ P. I. M.    SOLUTION TO TRANSPORT EQUATION
+
+ CALCULATION TYPE            =  BUCKLING
+ FORWARD/BACKWARD OPTION     =    DIRECT
+ (AN)ISOTROPY OPTION         = ISOTROPIC
+ LEAKAGE TYPE                =      B1  
+ LEAKAGE OPTION              =       PNL
+ BUCKLING                    =  G SEARCH
+ INITIAL TOTAL BUCKLING      =  0.00000E+00
+ FLUX SOLUTION DOOR          =    TRAFIC
+ NB. OF GROUPS               =       172
+ NB. OF REGIONS              =       675
+ NB. OF UNKNOWNS PER GROUP   =       675
+ MAX. OUTER ITERATIONS       =      6751
+ MAX. THERMAL ITERATIONS     =       344
+ ACCELERATION SCHEME         =( 3 FREE, 3 ACCELERATED)
+ REBALANCING OPTION          = ON 
+ SELF-SCATTERING REDUCTION   = ON 
+ FUNDAMENTAL MODE            = ON 
+ EIGENVALUE TOLERANCE        =  1.000E-05
+ UNKNOWN OUTER TOLERANCE     =  5.000E-05
+ UNKNOWN INNER TOLERANCE     =  5.000E-05
+
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 5.549962E-01 BUCK= 0.00000E+00
+          IN(  1) FLX: PRC= 6.57E+02 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 1.33E-01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  3) FLX: PRC= 4.27E-02 TAR= 5.00E-05 IGDEB=           94 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.94E-04
+          IN(  4) FLX: PRC= 3.15E-02 TAR= 5.00E-05 IGDEB=           94 ACCE=     3.42201
+                  FIRST UNCONVERGED GROUP PRC= 0.21E-03
+          IN(  5) FLX: PRC= 9.56E-03 TAR= 5.00E-05 IGDEB=           94 ACCE=     1.67191
+                  FIRST UNCONVERGED GROUP PRC= 0.14E-03
+          IN(  6) FLX: PRC= 4.90E-03 TAR= 5.00E-05 IGDEB=           94 ACCE=     1.68022
+                  FIRST UNCONVERGED GROUP PRC= 0.11E-03
+          IN(  7) FLX: PRC= 2.03E-03 TAR= 5.00E-05 IGDEB=          109 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.52E-04
+          IN(  8) FLX: PRC= 1.45E-03 TAR= 5.00E-05 IGDEB=          139 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.68E-04
+          IN(  9) FLX: PRC= 1.11E-03 TAR= 5.00E-05 IGDEB=          139 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.53E-04
+          IN( 10) FLX: PRC= 3.14E-04 TAR= 5.00E-05 IGDEB=          139 ACCE=     4.05107
+                  FIRST UNCONVERGED GROUP PRC= 0.11E-03
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE *NOT* REACHED AFTER    10 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  5
+        BUCKLING =  3.35776E-03
+        K-EFFECTIVE =  0.999999  (  1.000000 )
+        K-INFINITE =  1.199185
+        MIGRATION AREA =  5.93208E+01
+
+ OUT(  1) EIG: PRC= 4.45E-01 TAR= 1.00E-05 KEFF= 9.999993E-01 BUCK= 3.35776E-03
+ OUT(  1) FLX:                             FNOR= 1.000001E+00 ACCE=     1.00000
+          IN(  1) FLX: PRC= 1.58E-01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 5.85E-03 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  3) FLX: PRC= 2.51E-03 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  4) FLX: PRC= 1.97E-03 TAR= 5.00E-05 IGDEB=            1 ACCE=     3.26145
+          IN(  5) FLX: PRC= 5.58E-04 TAR= 5.00E-05 IGDEB=           97 ACCE=     1.37938
+                  FIRST UNCONVERGED GROUP PRC= 0.65E-04
+          IN(  6) FLX: PRC= 4.51E-04 TAR= 5.00E-05 IGDEB=           97 ACCE=     3.67272
+                  FIRST UNCONVERGED GROUP PRC= 0.16E-03
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  3
+        BUCKLING =  3.37836E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200440
+        MIGRATION AREA =  5.93305E+01
+
+ OUT(  2) EIG: PRC= 5.50E-07 TAR= 1.00E-05 KEFF= 9.999999E-01 BUCK= 3.37836E-03
+ OUT(  2) FLX: PRC= 1.57E-01 TAR= 5.00E-05 FNOR= 1.000000E+00 ACCE=     1.00000
+          IN(  1) FLX: PRC= 1.70E-02 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 8.85E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  3) FLX: PRC= 4.96E-04 TAR= 5.00E-05 IGDEB=          109 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.52E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE *NOT* REACHED AFTER     3 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38049E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200571
+        MIGRATION AREA =  5.93318E+01
+
+ OUT(  3) EIG: PRC= 6.31E-07 TAR= 1.00E-05 KEFF= 1.000000E+00 BUCK= 3.38049E-03
+ OUT(  3) FLX: PRC= 1.67E-02 TAR= 5.00E-05 FNOR= 9.999995E-01 ACCE=     1.00000
+          IN(  1) FLX: PRC= 2.14E-03 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 3.88E-04 TAR= 5.00E-05 IGDEB=          109 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.62E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38108E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200607
+        MIGRATION AREA =  5.93322E+01
+
+ OUT(  4) EIG: PRC= 4.28E-07 TAR= 1.00E-05 KEFF= 1.000000E+00 BUCK= 3.38108E-03
+ OUT(  4) FLX: PRC= 7.12E-04 TAR= 5.00E-05 FNOR= 9.999999E-01 ACCE=     1.15622
+          IN(  1) FLX: PRC= 3.08E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 2.37E-04 TAR= 5.00E-05 IGDEB=          141 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.55E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38144E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200629
+        MIGRATION AREA =  5.93324E+01
+
+ OUT(  5) EIG: PRC= 1.12E-07 TAR= 1.00E-05 KEFF= 1.000000E+00 BUCK= 3.38144E-03
+ OUT(  5) FLX: PRC= 6.58E-04 TAR= 5.00E-05 FNOR= 1.000000E+00 ACCE=     0.29704
+          IN(  1) FLX: PRC= 2.56E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 2.15E-04 TAR= 5.00E-05 IGDEB=          142 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.56E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38148E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200632
+        MIGRATION AREA =  5.93325E+01
+
+ OUT(  6) EIG: PRC= 5.34E-08 TAR= 1.00E-05 KEFF= 9.999999E-01 BUCK= 3.38148E-03
+ OUT(  6) FLX: PRC= 6.39E-04 TAR= 5.00E-05 FNOR= 1.000000E+00 ACCE=     0.10677
+          IN(  1) FLX: PRC= 2.45E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 2.07E-04 TAR= 5.00E-05 IGDEB=          142 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.53E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38150E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200633
+        MIGRATION AREA =  5.93325E+01
+
+ OUT(  7) EIG: PRC= 1.57E-08 TAR= 1.00E-05 KEFF= 9.999999E-01 BUCK= 3.38150E-03
+ OUT(  7) FLX: PRC= 4.58E-04 TAR= 5.00E-05 FNOR= 1.000000E+00 ACCE=     1.00000
+          IN(  1) FLX: PRC= 1.88E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 1.36E-04 TAR= 5.00E-05 IGDEB=          144 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.53E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38164E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200641
+        MIGRATION AREA =  5.93326E+01
+
+ OUT(  8) EIG: PRC= 1.77E-08 TAR= 1.00E-05 KEFF= 9.999999E-01 BUCK= 3.38164E-03
+ OUT(  8) FLX: PRC= 2.96E-04 TAR= 5.00E-05 FNOR= 1.000000E+00 ACCE=     1.00000
+          IN(  1) FLX: PRC= 1.21E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 8.32E-05 TAR= 5.00E-05 IGDEB=          148 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.52E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38172E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200647
+        MIGRATION AREA =  5.93327E+01
+
+ OUT(  9) EIG: PRC= 4.46E-08 TAR= 1.00E-05 KEFF= 9.999999E-01 BUCK= 3.38172E-03
+ OUT(  9) FLX: PRC= 1.90E-04 TAR= 5.00E-05 FNOR= 1.000000E+00 ACCE=     1.00000
+          IN(  1) FLX: PRC= 7.75E-05 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  2) FLX: PRC= 5.61E-05 TAR= 5.00E-05 IGDEB=          154 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.50E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE B   
+        NUMBER OF ITERATIONS =  2
+        BUCKLING =  3.38177E-03
+        K-EFFECTIVE =  1.000000  (  1.000000 )
+        K-INFINITE =  1.200650
+        MIGRATION AREA =  5.93327E+01
+
+ OUT( 10) EIG: PRC= 1.22E-08 TAR= 1.00E-05 KEFF= 9.999999E-01 BUCK= 3.38177E-03
+ OUT( 10) FLX: PRC= 8.07E-06 TAR= 5.00E-05 FNOR= 1.000000E+00 ACCE=     2.68563
+ FLU2DR: CPU TIME=        6. EXTERNAL CONVERGENCE       REACHED AFTER    10 ITERATIONS.
+
+ ++ TRACKING CALLED=  33 TIMES FINAL KINF=1.200655E+00 FINAL KEFF=9.999999E-01 B2= 3.38177E-03 PRECISION= 1.22E-08
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      4824
+->@END MODULE   : FLU:        
+-->>TIME SPENT IN MODULE FLU:        :      5.653
+<|OUT := EDI: LIBRARY DISCR CALC ASSMB ::                                 |<0112
+<|EDIT 3 UPS SAVE MICR RES MERGE COMP COND 4.0                            |<0113
+<|;                                                                       |<0114
+->@BEGIN MODULE : EDI:        
+->@DESCRIPTION  : Editing module                                                          
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ EDITION-RELATED OPTIONS
+ -----------------------
+ NMERGE       1   (NUMBER OF MERGED REGIONS)
+ NGCOND       2   (NUMBER OF CONDENSED ENERGY GROUPS)
+ IFFAC        0   (=1: 4 FACTORS CALCULATION REQUESTED)
+ ILUPS        1   (=1: REMOVE UP-SCATTERING CONTRIBUTIONS)
+ NACTI        0   (NUMBER OF MIXTURES WITH ACTIVATION EDITS)
+ NSTATS       0   (TYPE OF STATISTIC CALCULATIONS)
+ IADF         0   (=0: DO NOT COMPUTE ADF INFO; =1: USE ALBS INFO; =2: USE BOUNDARY REGION AVERAGED FLUX INFO)
+ IEUR         0   (=1/2/3: SYBIL OR EXCELL MACRO-TRACKING/NXT MACRO-TRACKING/ELSE)
+ NBMICR      -2   (=-1: PROCESS ALL ISOTOPES; >1 NUMBER OF ISOTOPES TO PROCESS)
+ IPRINT       3   (PRINT LEVEL)
+ NSAVES       2   (=0: NO COMPUTE/NO SAVE; =1: COMPUTE/NO SAVE; =2: COMPUTE/SAVE)
+ NWGTH        0   (=0: FLUX WEIGHTING FOR P1 INFO; =1: CURRENT WEIGHTING FOR P1 INFO)
+ MAXPTS     675   (ALLOCATED STORAGE LENGTH FOR REGION-DEPENDENT ARRAYS)
+ IHF          1   (=1: H-FACTOR CALCULATION REQUESTED)
+ NDEL         0   (NUMBER OF DELAYED PRECURSOR GROUPS)
+ LGEO         0   (=0: MACRO-GEOMETRY NOT AVAILABLE; =1: IS AVAILABLE)
+ IADJ         0   (=0: DIRECT FLUX; =1: DIRECT-ADJOINT WEIGHTING)
+
+
+ MERGING INDEX:
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1    1    1    1    1    1    1    1    1    1    1    1
+     1    1    1
+
+ EDI: SAVE MICROLIB INFO ON DIRECTORY 'REF-CASE0001'.
+
+
+
+
+     REGION      VOLUME       REGION      VOLUME       REGION      VOLUME       REGION      VOLUME       REGION      VOLUME  
+        1     3.59890E+02
+
+ E N E R G Y   L I M I T S   (EV)
+  1.9640E+07 >   1 >   4.0000E+00 >   2 >   1.0000E-05
+
+ F L U X E S   A N D    R E A C T I O N    R A T E S
+ ---------------------------------------------------
+
+ G R O U P   :   1
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION      LEAKAGE     PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   8.78055E-02   3.16003E+01   1.55507E+01   2.93729E-01   1.93807E-01   1.54399E-01   1.00000E+00   1.47051E+01   5.51867E-01
+
+ G R O U P   :   2
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION      LEAKAGE     PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.06589E-02   7.43492E+00   8.88190E+00   5.39149E-01   8.06193E-01   1.27179E-02   0.00000E+00   8.34275E+00   0.00000E+00
+
+ MERGED/CONDENSED SET OF X-S SAVED IN LCM DIRECTORY 'REF-CASE0001'.
+
+
+ F L U X E S   A N D   H O M O G E N I Z E D   X - S
+ ---------------------------------------------------
+
+ G R O U P   :   1
+ REGION   AVERAGE         SPH          NTOT0       DIFFUSION     ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX          FACTOR         X-S       COEFFICIENT       X-S          X-S          SPECTRUM   WITHIN GROUP  OUT OF GROUP
+    1   8.78055E-02   1.00000E+00   4.92106E-01   1.44481E+00   9.29515E-03   6.13308E-03   1.00000E+00   4.65347E-01   1.74640E-02
+
+ FLUX DISADVANTAGE FACTOR =   1.01686E+00
+
+ G R O U P   :   2
+ REGION   AVERAGE         SPH          NTOT0       DIFFUSION     ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX          FACTOR         X-S       COEFFICIENT       X-S          X-S          SPECTRUM   WITHIN GROUP  OUT OF GROUP
+    1   2.06589E-02   1.00000E+00   1.19462E+00   5.05819E-01   7.25158E-02   1.08433E-01   0.00000E+00   1.12210E+00   0.00000E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.30722E-01
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0001':
+
+
+ LCMLIB: CONTENT OF ACTIVE DIRECTORY '/           ' OF THE TABLE    'OUT         ':
+
+ BLOCK NAME----------    LENGTH    TYPE
+
+    1  'SIGNATURE   '         3    CHARACTER       ='L_EDIT      '
+    2  'TITLE       '        18    CHARACTER       
+    3  'STATE-VECTOR'        40    INTEGER         
+    4  'LINK.GEOM   '         3    CHARACTER       
+    5  'LAST-EDIT   '         3    CHARACTER       
+    6  'REF-CASE0001'        -1    DIRECTORY       
+    7  'REF:IMERGE  '       675    INTEGER         
+    8  'REF:MATCOD  '       675    INTEGER         
+    9  'REF:VOLUME  '       675    REAL            
+   10  'REF:IGCOND  '         2    INTEGER         
+
+
+ TOTAL NUMBER OF WORDS ON DIRECTORY '/           ' =      2094
+
+->@END MODULE   : EDI:        
+-->>TIME SPENT IN MODULE EDI:        :      0.961
+<|res := LIBRARY ;                                                        |<0115
+->@BEGIN MODULE : EQU:        
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ DRVEQU: A LCM OBJECT NAMED 'LIBRARY     ' WAS EXPORTED TO FILE 'res         '.
+->@END MODULE   : EQU:        
+-->>TIME SPENT IN MODULE EQU:        :     50.674
+>|test TCWU02 completed                                                   |>0116
+<|END: ;                                                                  |<0117
+cle2000_c: UNABLE TO FIND NODE FOR <-->res at position 0
+DRAGON: kernel error (code=  666).

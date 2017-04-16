@@ -1,0 +1,95 @@
+* LWR PIN TEST CASE
+* SOLVE BY CP METHOD IN DRAGON
+* USING A DRAGLIB FORMAT JEFF 3.1.2 LIBRARY, 172 GROUPS
+*
+*********** CASE RAN WITH DRAGON ******************
+* After reading the SS library and process it to input 
+* it to OpenMOC, the following results were obtained
+*
+* DRAGON  Keff = 1.248765
+* OpenMOC Keff = 1.248819 (nazim=64, track  = 0.05,
+*                          tol = 1E-5              )
+*********** CASE RAN WITH DRAGON ******************
+* After reading the SS library and process it to input 
+* it to OpenMOC, the following results were obtained
+
+
+*----
+*  TEST CASE TO OBTAIN SELF-SHIELDED (SS) MICROSCOPIC XS
+* 
+*  ASCII FILE THAT WILL CONTAIN THE SS LIBRARY -> library_ss
+*
+*----
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST
+  ASSMB DISCR LIBRARY CP CALC OUT ;
+SEQ_ASCII
+  library_ss ;
+MODULE
+  LIB: GEO: SYBILT: SHI: ASM: FLU: EDI: 
+  END: ;
+
+*----
+*  Microscopic cross sections from file jeff3p1p2 format DRAGON (i.e. DRAGLIB)
+*----
+
+LIBRARY := LIB: ::
+  NMIX 3 CTRA NONE
+  MIXS LIB: DRAGON FIL: jeff3p1p2gx     
+  
+
+ MIX 1 579.9
+    H1H2O    = 'H1_H2O'   4.76690E-2   O16_1    = 'O16'   2.38345E-2
+
+  MIX 2 579.9                          O16_2    = 'O16'   3.06711E-4
+    Cr52     = 'Cr52'     7.54987E-5   Fe56     = 'Fe56'  1.47624E-4
+    Zr91     = 'Zr91'     4.18621E-2
+ 
+  MIX 3 900.0                          O16_3    = 'O16'   4.49355E-2
+    U235     = 'U235'   7.39237E-4 1 
+    U238     = 'U238'   2.17285E-2 1 
+ 
+  ;
+*----
+*  Geometry ASSMB : a 1 X 1 assembly
+*  contains  C1 : cell with fuel
+*            
+* Reflective BCs
+*----
+ASSMB := GEO: :: CAR2D 1 1
+  X- REFL X+ REFL Y- REFL Y+ REFL
+  CELL C1 
+
+  ::: C1 := GEO: CARCEL 2
+    MESHX 0.0 1.26472 MESHY 0.0 1.26472
+    RADIUS 0.0 0.412660 0.474364  MIX 3 2 1 ;
+
+  ;
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      SYBIL
+*  Flux calculation for K 
+*----
+************* SS ****************************
+DISCR := SYBILT: ASSMB ::
+  TITLE '4 X 4 ASSEMBLY'
+  MAXR 4000 QUA2 6 3 ;
+LIBRARY := SHI: LIBRARY DISCR :: EDIT 0 ;
+**********************************************
+
+CP := ASM: LIBRARY DISCR ;
+
+********CP method************
+CALC := FLU: CP LIBRARY DISCR ::
+  TYPE K ;
+*****************************
+
+OUT := EDI: LIBRARY DISCR CALC ASSMB ::
+  EDIT 3 UPS SAVE MICR RES MERGE CELL 
+  ;
+
+library_ss := LIBRARY ;
+ECHO "run completed" ;
+END: ; 
+QUIT "LIST" .

@@ -1,0 +1,109 @@
+*---------------------------------------------------------
+*  TEST CASE TO BENCHMARK DRAGON vs. OpenMOC
+*  4 X 4 MOX ASSEMBLY WITH POISON (JUST TO PLAY WITH IT). 
+*  DRAGLIB 172 GROUPS LIBRARY FILE jeff3p1p2gx 
+
+*** DRAGON CALCULATION PARAMETERS ************************* 
+*  NO TRANSPORT CORRECTION IS INCLUDED IN THE CALCULATION *
+*  MOC USED (64 azim, track 1/20, EXCEL MODULE)           *
+*  SELF-SHIELDING (SS) Stammler METHOD WAS EMPLOYED       *
+***********************************************************
+
+******************RESULTS**********************************
+*                                                         *
+*DRAGON  KEFF =1.249409                                   *
+*OpenMOC KEFF =1.249093 num_azim=64, track=0.05 tol=1E-5) * 
+*                                                         *
+***********************************************************
+
+*----
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST
+  ASSMB DISCR LIBRARY CP CALC OUT TRACK SYS ;
+SEQ_ASCII
+  library_ss ;
+SEQ_BINARY
+MOC ;
+MODULE
+  LIB: GEO: SYBILT: SHI: ASM: FLU: EDI: EXCELT: MCCGT: 
+  END: ;
+
+*----
+*  Microscopic cross sections 
+*----
+LIBRARY := LIB: ::
+  NMIX 3 CTRA NONE
+  MIXS LIB: DRAGON FIL: jeff3p1p2gx
+  
+  MIX 1 579.9
+    H1H2O    = 'H1_H2O'   4.76690E-2   O16_1    =  'O16'   2.38345E-2
+    BNat     = 'B11'   2.38103E-5
+    
+  MIX 2 579.9                          O16_2    =  'O16'   3.06711E-4
+    Cr52     = 'Cr52'     7.54987E-5   Fe56     =  'Fe56'  1.47624E-4
+    Zr91     = 'Zr91'     4.18621E-2
+    
+  MIX 3 933.6                        O16_3      =  'O16'   4.49355E-2
+  U235   = 'U235'    5.39237E-4 1 
+  U238   = 'U238'    1.17285E-2 1 
+  Pu238 =  'Pu238'   2.109E-5 1
+  Pu239 =  'Pu239'   3.579E-4 1
+  Pu240 =  'Pu240'   2.108E-4 1
+  Pu241 =  'Pu241'   7.165E-5 1
+  Pu242 =  'Pu242'   6.554E-5 1
+  AM241 =  'Am241'   1.083E-5 1
+  ;
+*----
+*  Geometry ASSMB : a 4 X 4 MOX test case
+*  contains  C1 : cell without fuel
+*            C2 : normal fuel cell
+*----
+ASSMB := GEO: :: CAR2D 4 4
+  X- REFL X+ REFL Y- REFL Y+ REFL
+  CELL C1 C2 C2 C1 
+       C2 C2 C2 C2
+       C2 C2 C2 C2
+       C1 C2 C2 C1 
+       
+  ::: C1 := GEO: CARCEL 2
+    MESHX 0.0 1.26472 MESHY 0.0 1.26472
+    RADIUS 0.0 0.572435 0.613142  MIX 1 2 1 ;
+  ::: C2 := GEO: C1  RADIUS 0.0 0.412660 0.474364  MIX 3 2 1 ;
+
+  ;
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      MOC
+*  Flux calculation for K
+*----
+DISCR := SYBILT: ASSMB ::
+  TITLE '4 X 4 MULTICELL ASSEMBLY' 
+  MAXR 400 QUA2 6 3 ;
+  
+LIBRARY := SHI: LIBRARY DISCR :: EDIT 0 NOLJ ;
+
+TRACK MOC := EXCELT: ASSMB ::
+     TITLE 'EXCELT FOR MOC' 
+  MAXR 300  TRAK TISO 64 20.0 ;
+
+TRACK := MCCGT: TRACK MOC :: 
+  EDIT 1 GAUS 3 ;
+
+SYS := ASM: LIBRARY TRACK MOC :: 
+  EDIT 2 ARM ;
+  
+CALC := FLU: LIBRARY TRACK SYS MOC :: 
+  TYPE K ;
+
+OUT := EDI: LIBRARY DISCR CALC ASSMB ::
+  EDIT 3 UPS SAVE MICR RES MERGE CELL COND 4.0
+  ;
+
+
+library_ss := LIBRARY ;
+
+
+ECHO "test completed" ;
+END: ; 
+QUIT "LIST" .

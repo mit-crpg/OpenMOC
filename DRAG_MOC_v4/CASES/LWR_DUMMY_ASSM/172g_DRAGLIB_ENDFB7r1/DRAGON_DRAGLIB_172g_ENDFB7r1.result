@@ -1,0 +1,1205 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                          LINE
+* Regression tests for WIMS-D4 Wimslib capabilities in Dragon.             0001
+* Running time = ~ 7m                                                      0002
+* G. Marleau                                                               0003
+*                                                                          0004
+PROCEDURE gg_MOC2 ;                                                        0005
+SEQ_ASCII library_ss ;                                                     0006
+library_ss := gg_MOC2 ;                                                    0007
+** TCWU41 ; (* 3D SUPERCELL WITH MCCG *)                                   0008
+QUIT "LIST" .                                                              0009
+ 
+<|PROCEDURE gg_MOC2 ;                                                     |<0005
+<|SEQ_ASCII library_ss ;                                                  |<0006
+<|library_ss := gg_MOC2 ;                                                 |<0007
+<|LINKED_LIST                                                             |<0019
+<|ASSMB DISCR LIBRARY CP CALC OUT TRACK SYS ;                             |<0020
+<|SEQ_ASCII                                                               |<0021
+<|library_ss ;                                                            |<0022
+<|SEQ_BINARY                                                              |<0023
+<|MOC ;                                                                   |<0024
+<|MODULE                                                                  |<0025
+<|LIB: GEO: SYBILT: SHI: ASM: FLU: EDI: EXCELT: MCCGT:                    |<0026
+<|END: ;                                                                  |<0027
+<|LIBRARY := LIB: ::                                                      |<0031
+<|NMIX 3 CTRA NONE                                                        |<0032
+<|MIXS LIB: DRAGON FIL: endfb7                                            |<0033
+<|MIX 1 579.9                                                             |<0034
+<|H1H2O    = 'H1_H2O'   4.76690E-2   O16_1    =  'O16'   2.38345E-2       |<0035
+<|BNat     = 'B11'   2.38103E-5                                           |<0036
+<|MIX 2 579.9                          O16_2    =  'O16'   3.06711E-4     |<0037
+<|Cr52     = 'Cr52'     7.54987E-5   Fe56     =  'Fe56'  1.47624E-4       |<0038
+<|Zr91     = 'Zr91'     4.18621E-2                                        |<0039
+<|MIX 3 933.6                        O16_3      =  'O16'   4.49355E-2     |<0040
+<|U235   = 'U235'    5.39237E-4 1                                         |<0041
+<|U238   = 'U238'    1.17285E-2 1                                         |<0042
+<|Pu238 =  'Pu238'   2.109E-5 1                                           |<0043
+<|Pu239 =  'Pu239'   3.579E-4 1                                           |<0044
+<|Pu240 =  'Pu240'   2.108E-4 1                                           |<0045
+<|Pu241 =  'Pu241'   7.165E-5 1                                           |<0046
+<|Pu242 =  'Pu242'   6.554E-5 1                                           |<0047
+<|AM241 =  'Am241'   1.083E-5 1                                           |<0048
+<|;                                                                       |<0049
+ DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+ DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
+ DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
+ DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
+ DD   DD  RRRR     AAAAAAA  GG  GGG  OO   OO  NN  NN NN
+ DD   DD  RR RR    AAAAAAA  GG   GG  OO   OO  NN   NNNN
+ DDDDDDD  RR  RR   AA   AA  GGGGGGG  OOOOOOO  NN    NNN
+ DDDDDD   RR   RR  AA   AA   GGGGG    OOOOO   NN     NN
+
+ VERSION dragon 5  Version 5.0.0                                       February 20, 2012                                               
+ GROUPE D'ANALYSE NUCLEAIRE
+ ECOLE POLYTECHNIQUE DE MONTREAL
+
+
+
+ COPYRIGHT NOTICE FOR THIS VERSION OF dragon:
+ --------------------------------------------
+ Copyright (C) 2002 Ecole Polytechnique de Montreal 
+ This library is free software; you can redistribute it
+ and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any
+ later version 
+
+
+
+
+->@BEGIN MODULE : LIB:        
+->@DESCRIPTION  : Microscopic xs-library processing                                       
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ PROCESSING DRAGON LIBRARY NAMED endfb7      .
+
+ X-SECTION LIBRARY INFO:
+ draglib from /tmp/endfb7r1 at Wed Jun  6 17:28:19 2012                          
+
+ PROCESSING ISOTOPE/MATERIAL 'H1H2O   0001' (HNISOR='H1_H2O      ').
+
+ ISOTOPE/MATERIAL INFO:
+ H1_H2O from /tmp/endfb7r1 (125) at Wed Jun  6 17:28:19 2012                     
+
+ PROCESSING ISOTOPE/MATERIAL 'O16_1   0001' (HNISOR='O16         ').
+
+ ISOTOPE/MATERIAL INFO:
+ O16 from /tmp/endfb7r1 (825) at Wed Jun  6 22:00:45 2012                        
+
+ PROCESSING ISOTOPE/MATERIAL 'BNat    0001' (HNISOR='B11         ').
+
+ ISOTOPE/MATERIAL INFO:
+ B11 from /tmp/endfb7r1 (528) at Wed Jun  6 21:38:56 2012                        
+
+ PROCESSING ISOTOPE/MATERIAL 'O16_2   0002' (HNISOR='O16         ').
+
+ ISOTOPE/MATERIAL INFO:
+ O16 from /tmp/endfb7r1 (825) at Wed Jun  6 22:00:45 2012                        
+
+ PROCESSING ISOTOPE/MATERIAL 'Cr52    0002' (HNISOR='Cr52        ').
+
+ ISOTOPE/MATERIAL INFO:
+ Cr52 from /tmp/endfb7r1 (2431) at Thu Jun  7 01:23:27 2012                      
+
+ PROCESSING ISOTOPE/MATERIAL 'Fe56    0002' (HNISOR='Fe56        ').
+
+ ISOTOPE/MATERIAL INFO:
+ Fe56 from /tmp/endfb7r1 (2631) at Thu Jun  7 01:56:09 2012                      
+
+ PROCESSING ISOTOPE/MATERIAL 'Zr91    0002' (HNISOR='Zr91        ').
+
+ ISOTOPE/MATERIAL INFO:
+ Zr91 from /tmp/endfb7r1 (4028) at Thu Jun  7 19:02:20 2012                      
+
+ PROCESSING ISOTOPE/MATERIAL 'O16_3   0003' (HNISOR='O16         ').
+
+ ISOTOPE/MATERIAL INFO:
+ O16 from /tmp/endfb7r1 (825) at Wed Jun  6 22:00:45 2012                        
+
+ PROCESSING ISOTOPE/MATERIAL 'U235    0003' (HNISOR='U235        ').
+
+ ISOTOPE/MATERIAL INFO:
+ U235 from /tmp/endfb7r1 (9228) at Thu Jun  7 06:28:33 2012                      
+
+ PROCESSING ISOTOPE/MATERIAL 'U238    0003' (HNISOR='U238        ').
+
+ ISOTOPE/MATERIAL INFO:
+ U238 from /tmp/endfb7r1 (9237) at Thu Jun  7 07:53:58 2012                      
+
+ PROCESSING ISOTOPE/MATERIAL 'Pu238   0003' (HNISOR='Pu238       ').
+
+ ISOTOPE/MATERIAL INFO:
+ Pu238 from /tmp/endfb7r1 (9434) at Thu Jun  7 09:05:15 2012                     
+
+ PROCESSING ISOTOPE/MATERIAL 'Pu239   0003' (HNISOR='Pu239       ').
+
+ ISOTOPE/MATERIAL INFO:
+ Pu239 from /tmp/endfb7r1 (9437) at Thu Jun  7 09:32:22 2012                     
+
+ PROCESSING ISOTOPE/MATERIAL 'Pu240   0003' (HNISOR='Pu240       ').
+
+ ISOTOPE/MATERIAL INFO:
+ Pu240 from /tmp/endfb7r1 (9440) at Thu Jun  7 09:53:54 2012                     
+
+ PROCESSING ISOTOPE/MATERIAL 'Pu241   0003' (HNISOR='Pu241       ').
+
+ ISOTOPE/MATERIAL INFO:
+ Pu241 from /tmp/endfb7r1 (9443) at Thu Jun  7 10:14:00 2012                     
+
+ PROCESSING ISOTOPE/MATERIAL 'Pu242   0003' (HNISOR='Pu242       ').
+
+ ISOTOPE/MATERIAL INFO:
+ Pu242 from /tmp/endfb7r1 (9446) at Thu Jun  7 10:34:43 2012                     
+
+ PROCESSING ISOTOPE/MATERIAL 'AM241   0003' (HNISOR='Am241       ').
+
+ ISOTOPE/MATERIAL INFO:
+ Am241 from /tmp/endfb7r1 (9543) at Thu Jun  7 11:13:22 2012                     
+
+ OPTIONS
+ -------
+ IMPX       1   (0=NO PRINT/1=SHORT/2=MORE)
+ IPROB      0   (0=DIRECT/1=ADJOINT)
+ ITIME      1   (1=STEADY-STATE/2=PROMPT)
+ NLIB       1   (NUMBER OF SETS OF LIBRARIES)
+ NGF       32   (NUMBER OF FAST GROUP WITHOUT SELF-SHIELDING)
+ IGRMAX    95   (LAST GROUP INDEX WITH SELF-SHIELDING)
+ NBISO     16   (NUMBER OF ISOTOPES OR MATERIALS)
+ NBMIX      3   (NUMBER OF MIXTURES)
+ NRES       1   (NUMBER OF SETS OF RESONANT MIXTURES)
+ NCOMB      0   (NUMBER OF DEPLETING MIXTURES)
+ NEDMAC    12   (NUMBER OF CROSS SECTION EDITS)
+ NGRO     172   (NUMBER OF ENERGY GROUPS)
+ NL         2   (NUMBER OF LEGENDRE ORDERS)
+ ITRANC     0   (0=NO TRANSPORT CORRECTION/1=APOLLO TYPE/2=RECOVER FROM LIBRARY/3=WIMS-D TYPE/4=LEAKAGE CORRECTION)
+ NBESP      0   (NUMBER OF ENERGY-DEPENDENT FISSION SPECTRA)
+ IPROC      0   (-1=SKIP LIBRARY PROCESSING/0=DILUTION INTERPOLATION/1=USE PHYSICAL TABLES/2=BUILD A DRAGLIB/3=COMPUTE CALENDF TABLES/4=SLOWING-DOWN TABLES/5=ALL CALENDF)
+ IMAC       1   (0=DO NOT/1=DO BUILD AN EMBEDDED MACROLIB)
+ NDEL       6   (NUMBER OF PRECURSOR GROUPS)
+ NDEPL      0   (NUMBER OF DEPLETING ISOTOPES)
+ NFISS      0   (NUMBER OF FISSILE ISOTOPES)
+ ISOADD     0   (0=COMPLETE BURNUP CHAIN/1=DO NOT)
+ MAXISM   300   (MAX. NUMBER OF ISOTOPES PER MIXTURE)
+ IPRECI     4   (CALENDF ACCURACY FLAG:1/2/3/4)
+
+ CROSS SECTION EDIT NAME (LCM DIRECTORY NAME)
+ --------------------------------------------
+   1  NFTOT        2  NG           3  N2N   
+   4  N3N          5  N4N          6  NA    
+   7  NP           8  N2A          9  NNP   
+  10  ND          11  NT          12  TRANC 
+
+ AVAILABLE CROSS-SECTION LIBRARIES:
+    1 -- endfb7                                                          
+
+                                                        NUMBER
+ SPEC   LOCAL NAME    ISOTOPE       FROM LIBRARY  MIX   DENSITY     TEMP(K)    SIGZERO    SELF-SHIEL  THERMAL CORRECTION
+ -----  ------------  ------------  ------------  ----  ----------  ---------  ---------  ----------  ------------------
+     1  H1H2O   0001  H1_H2O        DRAGON     1     1  4.7669E-02  5.799E+02  1.000E+10   0             0                 
+     2  O16_1   0001  O16           DRAGON     1     1  2.3835E-02  5.799E+02  1.000E+10   0             0                 
+     3  BNat    0001  B11           DRAGON     1     1  2.3810E-05  5.799E+02  1.000E+10   0             0                 
+     4  O16_2   0002  O16           DRAGON     1     2  3.0671E-04  5.799E+02  1.000E+10   0             0                 
+     5  Cr52    0002  Cr52          DRAGON     1     2  7.5499E-05  5.799E+02  1.000E+10   0             0                 
+     6  Fe56    0002  Fe56          DRAGON     1     2  1.4762E-04  5.799E+02  1.000E+10   0             0                 
+     7  Zr91    0002  Zr91          DRAGON     1     2  4.1862E-02  5.799E+02  1.000E+10   0             0                 
+     8  O16_3   0003  O16           DRAGON     1     3  4.4935E-02  9.336E+02  1.000E+10   0             0                 
+     9  U235    0003  U235          DRAGON     1     3  5.3924E-04  9.336E+02  1.000E+10   1             0                 
+    10  U238    0003  U238          DRAGON     1     3  1.1729E-02  9.336E+02  1.000E+10   1             0                 
+    11  Pu238   0003  Pu238         DRAGON     1     3  2.1090E-05  9.336E+02  1.000E+10   1             0                 
+    12  Pu239   0003  Pu239         DRAGON     1     3  3.5790E-04  9.336E+02  1.000E+10   1             0                 
+    13  Pu240   0003  Pu240         DRAGON     1     3  2.1080E-04  9.336E+02  1.000E+10   1             0                 
+    14  Pu241   0003  Pu241         DRAGON     1     3  7.1650E-05  9.336E+02  1.000E+10   1             0                 
+    15  Pu242   0003  Pu242         DRAGON     1     3  6.5540E-05  9.336E+02  1.000E+10   1             0                 
+    16  AM241   0003  Am241         DRAGON     1     3  1.0830E-05  9.336E+02  1.000E+10   1             0                 
+->@END MODULE   : LIB:        
+-->>TIME SPENT IN MODULE LIB:        :      0.100
+<|ASSMB := GEO: :: CAR2D 4 4                                              |<0055
+<|X- REFL X+ REFL Y- REFL Y+ REFL                                         |<0056
+<|CELL C1 C2 C2 C1                                                        |<0057
+<|C2 C2 C2 C2                                                             |<0058
+<|C2 C2 C2 C2                                                             |<0059
+<|C1 C2 C2 C1                                                             |<0060
+<|::: C1 := GEO: CARCEL 2                                                 |<0061
+<|MESHX 0.0 1.26472 MESHY 0.0 1.26472                                     |<0062
+<|RADIUS 0.0 0.572435 0.613142  MIX 1 2 1 ;                               |<0063
+<|::: C2 := GEO: C1  RADIUS 0.0 0.412660 0.474364  MIX 3 2 1 ;            |<0064
+<|;                                                                       |<0065
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE CARTESIAN 2-D   .
+->@END MODULE   : GEO:        
+-->>TIME SPENT IN MODULE GEO:        :      0.000
+<|DISCR := SYBILT: ASSMB ::                                               |<0071
+<|TITLE 'TCWU02: 17 X 17 MULTICELL PWR BENCHMARK WITHOUT POISON'          |<0072
+<|MAXR 400 QUA2 6 3 ;                                                     |<0073
+->@BEGIN MODULE : SYBILT:     
+->@DESCRIPTION  : Sybil 2-D tracking                                                      
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CARTESIAN MULTICELL OPTION (EURYDICE-2) BASED ON GEOMETRY LOCATED IN 'ASSMB       '.
+
+
+ NUMBER OF CELLS ALONG THE X-AXIS =   4
+                 ALONG THE Y-AXIS =   4     AVAILABLE STORAGE MAXPTS = 400
+ NUMBER OF MERGED VOLUMES =   48
+ NUMBER OF DISTINCT PHYSICAL MIXTURES =    3
+
+
+     GENERATING CELL   RADIUS
+
+    1 'C1          '   0.00000E+00 5.72435E-01 6.13142E-01
+                       A = 1.26472E+00   B = 1.26472E+00
+
+    2 'C2          '   0.00000E+00 4.12660E-01 4.74364E-01
+                       A = 1.26472E+00   B = 1.26472E+00
+
+
+ INFINITE DOMAIN.
+
+
+ DP-0 APPROXIMATION AROUND EACH CARTESIAN CELL.
+
+ QUADRATURE PARAMETERS:
+ HETEROGENEOUS CELLS   -    ANGLES   NA =  6 IN (0,PI/4)
+                          SEGMENTS   NX =  3
+
+ HOMOGENEOUS CELLS     -    ANGLES   NH =  5
+
+ CYLINDRICAL CELLS     -  SEGMENTS   MR =  5
+
+
+
+ TOTAL NUMBER OF CELLS IN THE DOMAIN =     16
+ TOTAL NUMBER OF MERGED CELLS =     16
+ TOTAL NUMBER OF GENERATING CELLS =      2     AVAILABLE STORAGE MAXCEL =    400
+
+
+ TOTAL NUMBER OF DISTINCT OUT-CURRENTS =     64
+ TOTAL NUMBER OF OUT-CURRENTS SURROUNDING ALL THE CELLS =     64     AVAILABLE STORAGE MAXJ =   1600
+
+
+ SYBEUR: MAXIMUM STORAGE REQUIRED BY THE TRACKS =     920 +   2030        AVAILABLE STORAGE MAXZ =   10000
+
+
+ SYBEUR: EXACT STORAGE REQUIRED BY THE TRACKS =    402 INT +    836 REAL        ACCURACY =  5.774E-05
+
+
+ NUMBER OF VOLUMES =     48     AVAILABLE STORAGE MAXBLK =    400
+
+
+ STATE VECTOR:
+ NREG      48   (NUMBER OF REGIONS)
+ NUN       48   (NUMBER OF FLUX UNKNOWNS)
+ ILK        1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
+ NBMIX      3   (MAXIMUM NUMBER OF MIXTURES USED)
+ NSURF      0   (NUMBER OF OUTER SURFACES)
+ ITG        4   (TYPE OF GEOMETRY)
+ MAXZ   10000   (TRACKING LENGTH)
+ MAXJ    1600   (INTERNAL STORAGE LENGTH FOR CURRENTS)
+ NUNCUR    64   (NUMBER OF ADDITIONAL INTERFACE CURRENT COMPONENTS)
+ IBIHET     0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+->@END MODULE   : SYBILT:     
+-->>TIME SPENT IN MODULE SYBILT:     :      0.001
+<|LIBRARY := SHI: LIBRARY DISCR :: EDIT 0 NOLJ ;                          |<0074
+->@BEGIN MODULE : SHI:        
+->@DESCRIPTION  : Self-shielding by improved Stammler method                              
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : SHI:        
+-->>TIME SPENT IN MODULE SHI:        :      0.589
+<|TRACK MOC := EXCELT: ASSMB ::                                           |<0075
+<|TITLE 'EXCELT FOR MOC'                                                  |<0076
+<|MAXR 300  TRAK TISO 64 20.0 ;                                           |<0077
+->@BEGIN MODULE : EXCELT:     
+->@DESCRIPTION  : Excell tracking in 2- and 3-D                                           
+->@CREDITS      : G. Marleau, M. Ouisloumen, R. Roy                                       
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ ASSMB        ASSEMBLY IS **OK**      
+ EXCELT FOR MOC                                                          
+
+
+ 
+ ECHO = >>> GEOMETRY NAME: ASSMB   
+ ECHO = >>> TRACKING FILE: MOC     
+ ECHO = >>>          DISP: NEWT
+ ECHO = >>> NORMALIZED-LOCAL        
+ 
+
+  ====> GLOBAL MESHING  
+        X-COORDINATES: 
+               0.000000      1.264720      2.529440      3.794160      5.058880
+        Y-COORDINATES: 
+               0.000000      1.264720      2.529440      3.794160      5.058880
+        CELL(       1,       1,       1)  (X,Y)- CENTRE: (      0.632360      0.632360)
+                          RADII:/                                0.572435      0.613142
+        CELL(       2,       1,       1)  (X,Y)- CENTRE: (      1.897080      0.632360)
+                          RADII:/                                0.412660      0.474364
+        CELL(       3,       1,       1)  (X,Y)- CENTRE: (      3.161800      0.632360)
+                          RADII:/                                0.412660      0.474364
+        CELL(       4,       1,       1)  (X,Y)- CENTRE: (      4.426520      0.632360)
+                          RADII:/                                0.572435      0.613142
+        CELL(       1,       2,       1)  (X,Y)- CENTRE: (      0.632360      1.897080)
+                          RADII:/                                0.412660      0.474364
+        CELL(       2,       2,       1)  (X,Y)- CENTRE: (      1.897080      1.897080)
+                          RADII:/                                0.412660      0.474364
+        CELL(       3,       2,       1)  (X,Y)- CENTRE: (      3.161800      1.897080)
+                          RADII:/                                0.412660      0.474364
+        CELL(       4,       2,       1)  (X,Y)- CENTRE: (      4.426520      1.897080)
+                          RADII:/                                0.412660      0.474364
+        CELL(       1,       3,       1)  (X,Y)- CENTRE: (      0.632360      3.161800)
+                          RADII:/                                0.412660      0.474364
+        CELL(       2,       3,       1)  (X,Y)- CENTRE: (      1.897080      3.161800)
+                          RADII:/                                0.412660      0.474364
+        CELL(       3,       3,       1)  (X,Y)- CENTRE: (      3.161800      3.161800)
+                          RADII:/                                0.412660      0.474364
+        CELL(       4,       3,       1)  (X,Y)- CENTRE: (      4.426520      3.161800)
+                          RADII:/                                0.412660      0.474364
+        CELL(       1,       4,       1)  (X,Y)- CENTRE: (      0.632360      4.426520)
+                          RADII:/                                0.572435      0.613142
+        CELL(       2,       4,       1)  (X,Y)- CENTRE: (      1.897080      4.426520)
+                          RADII:/                                0.412660      0.474364
+        CELL(       3,       4,       1)  (X,Y)- CENTRE: (      3.161800      4.426520)
+                          RADII:/                                0.412660      0.474364
+        CELL(       4,       4,       1)  (X,Y)- CENTRE: (      4.426520      4.426520)
+                          RADII:/                                0.572435      0.613142
+ 
+ >>> GEOMETRY TREATED:    ASSMB       
+ >>> EXCELL TREATMENT <<< 
+ 
+ 
+
+ NOW, TRACKING   >>> ASSMB        GEOMETRY <<<    (WITH  16 CYLINDERS)
+
+ RECOMPUTED PARAMETERS 
+ NANGL  =        64 (NUMBER OF TRACKING ANGLES)
+ ISYMM  =         1 (TRACKING SYMMETRY FACTOR)
+ CUTOFX =   0.00000 (CUTOFF FOR TRACK LENGTH)
+ DENS   =  19.98788 (TRACK DENSITY)
+ PCORN  =   0.00000 (CORNER DUPLICATION DISTANCE)
+ -----------------
+
+ 
+
+ TRACKING ERRORS ON SURFACE   AVERAGE ERROR:     0.0934 %      MAXIMUM ERROR:     0.2876 % 
+ MAXIMUM ERROR ON SURFACE=      16 WITH AREA  = 1.2611E+00
+ 
+ TRACKING ERRORS ON VOLUME    AVERAGE ERROR:     0.0000 %      MAXIMUM ERROR:     0.4363 % 
+ MAXIMUM ERROR IN REGION =      11 WITH VOLUME= 1.5096E-01
+ 
+ ECHO = >>> ISOTROPIC CP CALCULATION    
+ ECHO = >>> NB. OF REGIONS:    48
+ EXCELT PRINT LEVEL =       1
+ TRACK STATE-VECTOR
+ ------------------
+ NREG   =      48 (NUMBER OF REGIONS)
+ NUNKNO =      48 (NUMBER OF UNKNOWNS IN SYSTEM)
+ ILEAK  =       1 (LEAKAGE FLAG:0=PRESENT/1=ABSENT)
+ MAXMIX =       3 (NUMBER OF MIXTURES)
+ NSOUT  =      16 (NUMBER OF OUTER SURFACES)
+ NANIS  =       1 (FLUX ANISOTROPY ORDER)
+ ITROP  =       1 (GEOMETRY TYPE)
+ NORE   =       0 (TRACK NORMALIZATION OPTION)
+ KTOPT  =       0 (TYPE OF TRACKING:0=TISO/1=TSPC)
+ KSPEC  =       0 (TYPE OF BOUNDARY CONDITION)
+ NANGL  =      64 (USER-SUPPLIED NUMBER OF TRACKING ANGLES)
+ ISYMM  =       1 (USER-SUPPLIED TRACKING SYMMETRY FACTOR)
+ INSB   =       0 (TYPE OF VECTORIZATION:0=ONEG/1=ALLG/2=XCLL)
+ NDIM   =       2 (NUMBER OF GEOMETRIC DIMENSIONS)
+ NPRISM =       0 (NUMBER OF PLANS IN 3D PRISMATIC GEOMETRIES)
+ IBIHET =       0 (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+ -----------------
+
+ EXCELL TRACK OPTIONS 
+ CUTOFX =          0.00000000 (CUTOFF FOR TRACK LENGTH)
+ DENS   =         20.00000000 (TRACK DENSITY)
+ PCORN  =          0.00000000 (CORNER DUPLICATION DISTANCE)
+ -----------------
+
+->@END MODULE   : EXCELT:     
+-->>TIME SPENT IN MODULE EXCELT:     :      0.058
+<|TRACK := MCCGT: TRACK MOC ::                                            |<0078
+<|EDIT 1 GAUS 3 ;                                                         |<0079
+->@BEGIN MODULE : MCCGT:      
+->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
+->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : MCCGT:      
+-->>TIME SPENT IN MODULE MCCGT:      :      0.008
+<|SYS := ASM: LIBRARY TRACK MOC ::                                        |<0080
+<|EDIT 2 ARM ;                                                            |<0081
+->@BEGIN MODULE : ASM:        
+->@DESCRIPTION  : To built system matrices (CP and IC)                                    
+->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+ COMPUTATION OF DRAGON RESPONSE MATRICES BY DOOR =   MCCG        
+
+
+                               EDITION REGION/VOLUME/MIXTURE 
+
+     REGION     VOLUME       MIXTURE     REGION     VOLUME       MIXTURE     REGION     VOLUME       MIXTURE
+
+        1     1.02944E+00       1            2     1.51617E-01       2            3     4.18456E-01       1
+        4     5.34976E-01       3            5     1.71949E-01       2            6     8.92592E-01       1
+        7     5.34976E-01       3            8     1.71949E-01       2            9     8.92592E-01       1
+       10     1.02944E+00       1           11     1.51617E-01       2           12     4.18456E-01       1
+       13     5.34976E-01       3           14     1.71949E-01       2           15     8.92592E-01       1
+       16     5.34976E-01       3           17     1.71949E-01       2           18     8.92592E-01       1
+       19     5.34976E-01       3           20     1.71949E-01       2           21     8.92592E-01       1
+       22     5.34976E-01       3           23     1.71949E-01       2           24     8.92592E-01       1
+       25     5.34976E-01       3           26     1.71949E-01       2           27     8.92592E-01       1
+       28     5.34976E-01       3           29     1.71949E-01       2           30     8.92592E-01       1
+       31     5.34976E-01       3           32     1.71949E-01       2           33     8.92592E-01       1
+       34     5.34976E-01       3           35     1.71949E-01       2           36     8.92592E-01       1
+       37     1.02944E+00       1           38     1.51617E-01       2           39     4.18456E-01       1
+       40     5.34976E-01       3           41     1.71949E-01       2           42     8.92592E-01       1
+       43     5.34976E-01       3           44     1.71949E-01       2           45     8.92592E-01       1
+       46     1.02944E+00       1           47     1.51617E-01       2           48     4.18456E-01       1
+   -->>TIME SPENT IN: SUMMATION UPON THE TRACKING FOR ACA/SCR :      4.401 s.
+   -->>TIME SPENT IN: CALCULATION OF ACA PRECONDITIONER       :      0.001 s.
+
+ OPTIONS
+ -------
+ IMPX       2   (0=NO PRINT/1=SHORT/2=MORE)
+ ITPIJ      1   (1=WIJ/2=PIJ/3=WIJK/4=PIJK)
+ LNORM      1   (0=NORMALIZE PIJ TO 1/1=DO NOT)
+ LALBS      1   (0=RECOVER AND SAVE WIS/1=DO NOT)
+ IPHASE     1   (1=GENERAL FLUX SOLUTION/2=PIJ APPROACH)
+ ISTRM      1   (1=HOMO BN OR NO LEAKAGE/2=ECCO/3=TIBERE)
+ KNORM      4   (0=NO/1=GELBARD/2=DIAGONAL/3=NON-LINEAR/4=HELIOS)
+ NGRP     172   (NUMBER OF GROUPS)
+ NUN       64   (NUMBER OF UNKNOWNS)
+ NBMIX      3   (NUMBER OF MIXTURES)
+ NANI       1   (NUMBER OF LEGENDRE ORDERS SCATTERING XS)
+ IDIFF      0   (0/1: DIFFUSION COEFFICIENTS ABSENT/PRESENT)
+ DOOR           (MCCG        )
+->@END MODULE   : ASM:        
+-->>TIME SPENT IN MODULE ASM:        :      4.402
+<|CALC := FLU: LIBRARY TRACK SYS MOC ::                                   |<0082
+<|TYPE K ;                                                                |<0083
+->@BEGIN MODULE : FLU:        
+->@DESCRIPTION  : Solve the flux equations                                                
+->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+
+
+ P. I. M.    SOLUTION TO TRANSPORT EQUATION
+
+ CALCULATION TYPE            =     K-INF
+ FORWARD/BACKWARD OPTION     =    DIRECT
+ (AN)ISOTROPY OPTION         = ISOTROPIC
+ FLUX SOLUTION DOOR          =    MCCG  
+ NB. OF GROUPS               =       172
+ NB. OF REGIONS              =        48
+ NB. OF UNKNOWNS PER GROUP   =        64
+ MAX. OUTER ITERATIONS       =        95
+ MAX. THERMAL ITERATIONS     =       344
+ ACCELERATION SCHEME         =( 3 FREE, 3 ACCELERATED)
+ REBALANCING OPTION          = ON 
+ SELF-SCATTERING REDUCTION   = ON 
+ FUNDAMENTAL MODE            = ON 
+ EIGENVALUE TOLERANCE        =  1.000E-05
+ UNKNOWN OUTER TOLERANCE     =  5.000E-05
+ UNKNOWN INNER TOLERANCE     =  5.000E-05
+
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 5.180523E-01 BUCK= 0.00000E+00
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  1) FLX: PRC= 2.07E+02 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  2) FLX: PRC= 3.90E-01 TAR= 5.00E-05 IGDEB=            2 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.53E-01
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  3) FLX: PRC= 8.40E-02 TAR= 5.00E-05 IGDEB=            3 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.20E-03
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  4) FLX: PRC= 4.96E-02 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.34687
+                  FIRST UNCONVERGED GROUP PRC= 0.12E-03
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  5) FLX: PRC= 2.28E-02 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.87003
+                  FIRST UNCONVERGED GROUP PRC= 0.97E-04
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  6) FLX: PRC= 1.15E-02 TAR= 5.00E-05 IGDEB=           13 ACCE=     1.51614
+                  FIRST UNCONVERGED GROUP PRC= 0.13E-03
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  7) FLX: PRC= 7.94E-03 TAR= 5.00E-05 IGDEB=           21 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.53E-04
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  8) FLX: PRC= 5.42E-03 TAR= 5.00E-05 IGDEB=           36 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.61E-04
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  9) FLX: PRC= 3.69E-03 TAR= 5.00E-05 IGDEB=           43 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.54E-04
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN( 10) FLX: PRC= 1.80E-04 TAR= 5.00E-05 IGDEB=           43 ACCE=     3.11215
+                  FIRST UNCONVERGED GROUP PRC= 0.55E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=       38. INTERNAL CONVERGENCE *NOT* REACHED AFTER    10 ITERATIONS.
+ OUT(  1) EIG: PRC= 5.86E-01 TAR= 1.00E-05 KEFF= 1.250804E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 7.994855E-01 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  1) FLX: PRC= 1.07E-02 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  2) FLX: PRC= 9.76E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  3) FLX: PRC= 1.58E-04 TAR= 5.00E-05 IGDEB=           21 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.59E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        5. INTERNAL CONVERGENCE *NOT* REACHED AFTER     3 ITERATIONS.
+ OUT(  2) EIG: PRC= 5.30E-05 TAR= 1.00E-05 KEFF= 1.250738E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX:                             FNOR= 7.995278E-01 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  1) FLX: PRC= 7.07E-05 TAR= 5.00E-05 IGDEB=           20 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.51E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE *NOT* REACHED AFTER     1 ITERATIONS.
+ OUT(  3) EIG: PRC= 2.45E-07 TAR= 1.00E-05 KEFF= 1.250738E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 7.07E-05 TAR= 5.00E-05 FNOR= 7.995280E-01 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  1) FLX: PRC= 2.58E-05 TAR= 5.00E-05 IGDEB=          173 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+ OUT(  4) EIG: PRC= 1.64E-08 TAR= 1.00E-05 KEFF= 1.250738E+00 BUCK= 0.00000E+00
+ OUT(  4) FLX: PRC= 1.95E-05 TAR= 5.00E-05 FNOR= 7.995280E-01 ACCE=     1.28936
+ FLU2DR: CPU TIME=       45. EXTERNAL CONVERGENCE       REACHED AFTER     4 ITERATIONS.
+
+ ++ TRACKING CALLED=  15 TIMES FINAL KINF=1.250738E+00 FINAL KEFF=1.250738E+00 B2= 0.00000E+00 PRECISION= 1.64E-08
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2446
+->@END MODULE   : FLU:        
+-->>TIME SPENT IN MODULE FLU:        :     44.548
+<|OUT := EDI: LIBRARY DISCR CALC ASSMB ::                                 |<0084
+<|EDIT 3 UPS SAVE MICR RES MERGE CELL COND 4.0                            |<0085
+<|;                                                                       |<0086
+lcmop_c: OPEN A NEW OBJECT NAMED 'MACRO$GEO' WITH ADDRESS = 47870624.
+->@BEGIN MODULE : EDI:        
+->@DESCRIPTION  : Editing module                                                          
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ EDI: GEOMETRY 'ASSMB       ' WAS PREVIOUSLY TRACKED BY MODULE SYBIL       .
+
+ EDIGEO: MERGING INDEX:
+     1    1    1    2    2    2    3    3    3    4    4    4    5    5
+     5    6    6    6    7    7    7    8    8    8    9    9    9   10
+    10   10   11   11   11   12   12   12   13   13   13   14   14   14
+    15   15   15   16   16   16
+
+ EDIGEO: CREATION OF A GEOMETRY NAMED 'MACRO$GEO   ' ON LEVEL  1 WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR (MACRO GEOMETRY):
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         4   (X-DIMENSION INDEX)
+ LY         4   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      16   (NUMBER OF REGIONS)
+ MAXMIX    16   (MAX. NB. OF MIXTURES)
+ ------------------------------------------------------------
+
+
+ EDITION-RELATED OPTIONS
+ -----------------------
+ NMERGE      16   (NUMBER OF MERGED REGIONS)
+ NGCOND       2   (NUMBER OF CONDENSED ENERGY GROUPS)
+ IFFAC        0   (=1: 4 FACTORS CALCULATION REQUESTED)
+ ILUPS        1   (=1: REMOVE UP-SCATTERING CONTRIBUTIONS)
+ NACTI        0   (NUMBER OF MIXTURES WITH ACTIVATION EDITS)
+ NSTATS       0   (TYPE OF STATISTIC CALCULATIONS)
+ IADF         0   (=0: DO NOT COMPUTE ADF INFO; =1: USE ALBS INFO; =2: USE BOUNDARY REGION AVERAGED FLUX INFO)
+ IEUR         3   (=1/2/3: SYBIL OR EXCELL MACRO-TRACKING/NXT MACRO-TRACKING/ELSE)
+ NBMICR      -2   (=-1: PROCESS ALL ISOTOPES; >1 NUMBER OF ISOTOPES TO PROCESS)
+ IPRINT       3   (PRINT LEVEL)
+ NSAVES       2   (=0: NO COMPUTE/NO SAVE; =1: COMPUTE/NO SAVE; =2: COMPUTE/SAVE)
+ NWGTH        0   (=0: FLUX WEIGHTING FOR P1 INFO; =1: CURRENT WEIGHTING FOR P1 INFO)
+ MAXPTS      48   (ALLOCATED STORAGE LENGTH FOR REGION-DEPENDENT ARRAYS)
+ IHF          1   (=1: H-FACTOR CALCULATION REQUESTED)
+ NDEL         6   (NUMBER OF DELAYED PRECURSOR GROUPS)
+ LGEO         1   (=0: MACRO-GEOMETRY NOT AVAILABLE; =1: IS AVAILABLE)
+ IADJ         0   (=0: DIRECT FLUX; =1: DIRECT-ADJOINT WEIGHTING)
+
+
+ MERGING INDEX:
+     1    1    1    2    2    2    3    3    3    4    4    4    5    5
+     5    6    6    6    7    7    7    8    8    8    9    9    9   10
+    10   10   11   11   11   12   12   12   13   13   13   14   14   14
+    15   15   15   16   16   16
+
+ EDI: SAVE MICROLIB INFO ON DIRECTORY 'REF-CASE0001'.
+
+
+
+
+     REGION      VOLUME       REGION      VOLUME       REGION      VOLUME       REGION      VOLUME       REGION      VOLUME  
+        1     1.59952E+00        2     1.59952E+00        3     1.59952E+00        4     1.59952E+00        5     1.59952E+00
+        6     1.59952E+00        7     1.59952E+00        8     1.59952E+00        9     1.59952E+00       10     1.59952E+00
+       11     1.59952E+00       12     1.59952E+00       13     1.59952E+00       14     1.59952E+00       15     1.59952E+00
+       16     1.59952E+00
+
+ E N E R G Y   L I M I T S   (EV)
+  1.9640E+07 >   1 >   4.0000E+00 >   2 >   1.0000E-05
+
+ F L U X E S   A N D    R E A C T I O N    R A T E S
+ ---------------------------------------------------
+
+ G R O U P   :   1
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.33439E+00   2.13438E+00   1.25768E+00   2.27669E-03   0.00000E+00   0.00000E+00   1.18934E+00   6.60577E-02
+    2   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+    3   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+    4   1.33439E+00   2.13438E+00   1.25768E+00   2.27670E-03   0.00000E+00   0.00000E+00   1.18934E+00   6.60577E-02
+    5   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+    6   1.40312E+00   2.24431E+00   1.05922E+00   2.25543E-02   1.86467E-02   9.75497E-02   9.99451E-01   3.72120E-02
+    7   1.40312E+00   2.24431E+00   1.05922E+00   2.25543E-02   1.86467E-02   9.75497E-02   9.99450E-01   3.72120E-02
+    8   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+    9   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+   10   1.40312E+00   2.24431E+00   1.05922E+00   2.25543E-02   1.86467E-02   9.75498E-02   9.99450E-01   3.72120E-02
+   11   1.40312E+00   2.24431E+00   1.05922E+00   2.25543E-02   1.86467E-02   9.75497E-02   9.99450E-01   3.72120E-02
+   12   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+   13   1.33439E+00   2.13438E+00   1.25768E+00   2.27670E-03   0.00000E+00   0.00000E+00   1.18934E+00   6.60577E-02
+   14   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+   15   1.39753E+00   2.23537E+00   1.05858E+00   2.29352E-02   1.88336E-02   1.07567E-01   9.97632E-01   3.80144E-02
+   16   1.33439E+00   2.13438E+00   1.25767E+00   2.27669E-03   0.00000E+00   0.00000E+00   1.18934E+00   6.60577E-02
+
+ G R O U P   :   2
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.16002E-01   5.05451E-01   7.63439E-01   4.23715E-03   0.00000E+00   0.00000E+00   7.59202E-01   0.00000E+00
+    2   2.25895E-01   3.61323E-01   4.49429E-01   6.04497E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+    3   2.25895E-01   3.61323E-01   4.49429E-01   6.04497E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+    4   3.16002E-01   5.05451E-01   7.63439E-01   4.23714E-03   0.00000E+00   0.00000E+00   7.59202E-01   0.00000E+00
+    5   2.25895E-01   3.61323E-01   4.49429E-01   6.04498E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+    6   2.08023E-01   3.32736E-01   4.09117E-01   5.41620E-02   7.89030E-02   1.26717E-09   3.54955E-01   0.00000E+00
+    7   2.08023E-01   3.32736E-01   4.09117E-01   5.41620E-02   7.89030E-02   1.26717E-09   3.54955E-01   0.00000E+00
+    8   2.25895E-01   3.61323E-01   4.49429E-01   6.04497E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+    9   2.25895E-01   3.61323E-01   4.49429E-01   6.04497E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+   10   2.08023E-01   3.32736E-01   4.09117E-01   5.41620E-02   7.89030E-02   1.26717E-09   3.54955E-01   0.00000E+00
+   11   2.08023E-01   3.32736E-01   4.09117E-01   5.41620E-02   7.89030E-02   1.26717E-09   3.54955E-01   0.00000E+00
+   12   2.25895E-01   3.61323E-01   4.49429E-01   6.04497E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+   13   3.16002E-01   5.05450E-01   7.63439E-01   4.23714E-03   0.00000E+00   0.00000E+00   7.59202E-01   0.00000E+00
+   14   2.25895E-01   3.61323E-01   4.49429E-01   6.04497E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+   15   2.25895E-01   3.61323E-01   4.49429E-01   6.04498E-02   8.87337E-02   1.38705E-09   3.88979E-01   0.00000E+00
+   16   3.16002E-01   5.05451E-01   7.63440E-01   4.23714E-03   0.00000E+00   0.00000E+00   7.59202E-01   0.00000E+00
+
+ MERGED/CONDENSED SET OF X-S SAVED IN LCM DIRECTORY 'REF-CASE0001'.
+
+
+ F L U X E S   A N D   H O M O G E N I Z E D   X - S
+ ---------------------------------------------------
+
+ G R O U P   :   1
+ REGION   AVERAGE         SPH          NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX          FACTOR         X-S           X-S          X-S          SPECTRUM   WITHIN GROUP  OUT OF GROUP
+    1   1.33439E+00   1.00000E+00   5.89246E-01   1.06668E-03   0.00000E+00   0.00000E+00   5.57230E-01   3.09494E-02
+    2   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46294E-01   1.70059E-02
+    3   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46293E-01   1.70059E-02
+    4   1.33439E+00   1.00000E+00   5.89246E-01   1.06668E-03   0.00000E+00   0.00000E+00   5.57230E-01   3.09494E-02
+    5   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46294E-01   1.70059E-02
+    6   1.40312E+00   1.00000E+00   4.71956E-01   1.00495E-02   8.30842E-03   1.00000E+00   4.45326E-01   1.65806E-02
+    7   1.40312E+00   1.00000E+00   4.71956E-01   1.00495E-02   8.30842E-03   1.00000E+00   4.45326E-01   1.65806E-02
+    8   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46293E-01   1.70059E-02
+    9   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46293E-01   1.70059E-02
+   10   1.40312E+00   1.00000E+00   4.71956E-01   1.00495E-02   8.30842E-03   1.00000E+00   4.45326E-01   1.65806E-02
+   11   1.40312E+00   1.00000E+00   4.71956E-01   1.00495E-02   8.30842E-03   1.00000E+00   4.45326E-01   1.65806E-02
+   12   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46294E-01   1.70059E-02
+   13   1.33439E+00   1.00000E+00   5.89246E-01   1.06668E-03   0.00000E+00   0.00000E+00   5.57230E-01   3.09494E-02
+   14   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46293E-01   1.70059E-02
+   15   1.39753E+00   1.00000E+00   4.73559E-01   1.02601E-02   8.42527E-03   1.00000E+00   4.46293E-01   1.70059E-02
+   16   1.33439E+00   1.00000E+00   5.89246E-01   1.06668E-03   0.00000E+00   0.00000E+00   5.57230E-01   3.09494E-02
+
+ FLUX DISADVANTAGE FACTOR =   1.02946E+00
+
+ G R O U P   :   2
+ REGION   AVERAGE         SPH          NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX          FACTOR         X-S           X-S          X-S          SPECTRUM   WITHIN GROUP  OUT OF GROUP
+    1   3.16002E-01   1.00000E+00   1.51041E+00   8.38291E-03   0.00000E+00   0.00000E+00   1.50203E+00   0.00000E+00
+    2   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+    3   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+    4   3.16002E-01   1.00000E+00   1.51041E+00   8.38290E-03   0.00000E+00   0.00000E+00   1.50203E+00   0.00000E+00
+    5   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+    6   2.08023E-01   1.00000E+00   1.22955E+00   1.62778E-01   2.37134E-01   1.29900E-08   1.06677E+00   0.00000E+00
+    7   2.08023E-01   1.00000E+00   1.22955E+00   1.62777E-01   2.37134E-01   1.29900E-08   1.06677E+00   0.00000E+00
+    8   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+    9   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+   10   2.08023E-01   1.00000E+00   1.22955E+00   1.62778E-01   2.37134E-01   1.29900E-08   1.06677E+00   0.00000E+00
+   11   2.08023E-01   1.00000E+00   1.22955E+00   1.62777E-01   2.37134E-01   1.29900E-08   1.06677E+00   0.00000E+00
+   12   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+   13   3.16002E-01   1.00000E+00   1.51041E+00   8.38289E-03   0.00000E+00   0.00000E+00   1.50203E+00   0.00000E+00
+   14   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+   15   2.25895E-01   1.00000E+00   1.24384E+00   1.67301E-01   2.45580E-01   1.28947E-08   1.07654E+00   0.00000E+00
+   16   3.16002E-01   1.00000E+00   1.51041E+00   8.38289E-03   0.00000E+00   0.00000E+00   1.50203E+00   0.00000E+00
+
+ FLUX DISADVANTAGE FACTOR =   7.85107E-01
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_1   0001'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_2   0001'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='Cr52    0001'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.43% ISOTOPE='Fe56    0001'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0002'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0003'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_1   0004'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_2   0004'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='Cr52    0004'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.43% ISOTOPE='Fe56    0004'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0005'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_1   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.22% ISOTOPE='O16_2   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Cr52    0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Fe56    0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.45% ISOTOPE='O16_3   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.12% ISOTOPE='U235    0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.47% ISOTOPE='U238    0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu238   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.71% ISOTOPE='Pu239   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.66% ISOTOPE='Pu240   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.79% ISOTOPE='Pu241   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.07% ISOTOPE='Pu242   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.15% ISOTOPE='AM241   0006'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_1   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.22% ISOTOPE='O16_2   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Cr52    0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Fe56    0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.45% ISOTOPE='O16_3   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.12% ISOTOPE='U235    0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.47% ISOTOPE='U238    0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu238   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.71% ISOTOPE='Pu239   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.66% ISOTOPE='Pu240   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.79% ISOTOPE='Pu241   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.07% ISOTOPE='Pu242   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.15% ISOTOPE='AM241   0007'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0008'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0009'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_1   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.22% ISOTOPE='O16_2   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Cr52    0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Fe56    0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.45% ISOTOPE='O16_3   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.12% ISOTOPE='U235    0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.47% ISOTOPE='U238    0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu238   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.71% ISOTOPE='Pu239   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.66% ISOTOPE='Pu240   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.79% ISOTOPE='Pu241   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.07% ISOTOPE='Pu242   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.15% ISOTOPE='AM241   0010'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_1   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.22% ISOTOPE='O16_2   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Cr52    0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.59% ISOTOPE='Fe56    0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.45% ISOTOPE='O16_3   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.12% ISOTOPE='U235    0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.47% ISOTOPE='U238    0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu238   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.71% ISOTOPE='Pu239   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.66% ISOTOPE='Pu240   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.79% ISOTOPE='Pu241   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.07% ISOTOPE='Pu242   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.15% ISOTOPE='AM241   0011'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0012'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_1   0013'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_2   0013'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='Cr52    0013'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.43% ISOTOPE='Fe56    0013'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0014'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.19% ISOTOPE='O16_1   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.12% ISOTOPE='BNat    0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.21% ISOTOPE='O16_2   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.55% ISOTOPE='Cr52    0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.56% ISOTOPE='Fe56    0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='O16_3   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='U235    0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.38% ISOTOPE='U238    0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.57% ISOTOPE='Pu238   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.67% ISOTOPE='Pu239   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.63% ISOTOPE='Pu240   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.68% ISOTOPE='Pu241   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  1.98% ISOTOPE='Pu242   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  2.02% ISOTOPE='AM241   0015'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_1   0016'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.16% ISOTOPE='O16_2   0016'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.42% ISOTOPE='Cr52    0016'.
+
+ *** WARNING *** NORMALIZATION OF THE WITHIN-GROUP SCATTERING TRANSFER IN GROUP   2 AND ORDER  1 BY  0.43% ISOTOPE='Fe56    0016'.
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0001':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0002':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0003':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0004':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0005':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0006':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0007':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0008':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0009':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0010':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0011':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0012':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0013':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0014':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0015':
+
+
+ CROSS SECTION OF MERGED/CONDENSED ISOTOPE '*MAC*RES0016':
+
+
+ LCMLIB: CONTENT OF ACTIVE DIRECTORY '/           ' OF THE TABLE    'OUT         ':
+
+ BLOCK NAME----------    LENGTH    TYPE
+
+    1  'SIGNATURE   '         3    CHARACTER       ='L_EDIT      '
+    2  'TITLE       '        18    CHARACTER       
+    3  'MACRO-GEOM  '        -1    DIRECTORY       
+    4  'STATE-VECTOR'        40    INTEGER         
+    5  'LINK.GEOM   '         3    CHARACTER       
+    6  'LAST-EDIT   '         3    CHARACTER       
+    7  'REF-CASE0001'        -1    DIRECTORY       
+    8  'REF:IMERGE  '        48    INTEGER         
+    9  'REF:MATCOD  '        48    INTEGER         
+   10  'REF:VOLUME  '        48    REAL            
+   11  'REF:IGCOND  '         2    INTEGER         
+
+
+ TOTAL NUMBER OF WORDS ON DIRECTORY '/           ' =       213
+
+->@END MODULE   : EDI:        
+-->>TIME SPENT IN MODULE EDI:        :      0.059
+<|library_ss := LIBRARY ;                                                 |<0087
+->@BEGIN MODULE : EQU:        
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ DRVEQU: A LCM OBJECT NAMED 'LIBRARY     ' WAS EXPORTED TO FILE 'library_ss  '.
+->@END MODULE   : EQU:        
+-->>TIME SPENT IN MODULE EQU:        :      0.620
+>|test TCWU02 completed                                                   |>0088
+<|END: ;                                                                  |<0089
+cle2000_c: UNABLE TO FIND NODE FOR <-->library_ss at position 0
+DRAGON: kernel error (code=  666).

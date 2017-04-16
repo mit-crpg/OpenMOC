@@ -1,0 +1,149 @@
+*----
+*  TEST CASE 
+*  17 X 17 MOX PWR ASSEMBLY BENCHMARK
+*  FROM THE UAM OECD/NEA EXPERT GROUP
+*  WIMSD4 69 GROUPS LIBRARY FILE iaea FROM WLUP
+*
+*  REF: Specifications of the UAM OECD/NEA
+*       Expert Group
+*
+*----
+*  SOLUTION OBTAINED BY THE INTERFACE CURRENT METHOD
+*
+*  DRAGON  Keff = 1.107164
+*  OepnMOC Keff = 1.107486 (nazim=32,tol=1E-5)
+*----
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST
+  ASSMB DISCR LIBRARY CP CALC OUT ;
+  
+SEQ_ASCII
+  library_ss ;
+MODULE
+  LIB: GEO: SYBILT: SHI: ASM: FLU: 
+  EDI: END: ;
+
+*----
+*  Microscopic cross sections from file iaea format WIMSD4
+*----
+LIBRARY := LIB: ::
+  NMIX 8 CTRA NONE
+  MIXS LIB: WIMSD4 FIL: iaea
+  
+  MIX 1 584.0
+    H1H2O    = '3001'   4.70E-2   O161   = '6016'   2.34E-2
+    B10     = '10'   1.016E-5 B11 = '11' 4.090E-5
+  
+  MIX 2 584.0
+    O162      = '6016'   3.06711E-4
+    Cr522     = '52'     6.24587E-5   
+    Fe562     = '2056'   1.47624E-4
+    Zr912     = '91'     4.18621E-2
+  
+  MIX 3 610.0
+    O163      = '6016'   3.06711E-4
+    Cr523     = '52'     6.24587E-5  
+    Fe563     = '2056'   1.47624E-4
+    Zr913     = '91'     4.18621E-2
+
+* 9.8%    
+  MIX 4 900.0
+  Pu2384 = '948'  5.646E-5 1
+  Pu2394 = '6239' 1.226E-3 1
+  Pu2404 =  '1240' 5.643E-4 1
+  Pu2414 =  '1241' 1.918E-4 1
+  Pu2424 =  '242'  1.755E-4 1
+  AM2414 =  '951'  2.899E-5 1
+  U2384 =   '8238' 2.080E-2 1
+  U2354 =   '2235' 5.349E-5 1
+  O164 =    '6016' 4.620E-2
+  
+* 6.5%
+ MIX 5 900.0
+  Pu2385 = '948'  3.750E-5 1
+  Pu2395 = '6239' 8.141E-4 1
+  Pu2405 =  '1240' 3.749E-4 1
+  Pu2415 =  '1241' 1.274E-4 1
+  Pu2425 =  '242'  1.165E-4 1
+  AM2415 =  '951'  1.926E-5 1
+  U2385 =    '8238' 2.156E-2 1
+  U2355 =   '2235' 5.349E-5 1
+  O165 =    '6016' 4.621E-2
+  
+* 3.7% 
+ MIX 6 900.0
+  Pu2386 = '948'  2.109E-5 1
+  Pu2396 = '6239' 4.579E-4 1
+  Pu2406 =  '1240' 2.108E-4 1
+  Pu2416 =  '1241' 7.165E-5 1
+  Pu2426 =  '242'  6.554E-5 1
+  AM2416 =  '951'  1.083E-5 1
+  U2386 =   '8238' 2.222E-2 1
+  U2356 =   '2235' 5.349E-5 1
+  O166 =    '6016' 4.622E-2  
+    
+ ;
+*----
+*  Geometry ASSMB : a 17 X 17 MOX PWR assembly
+*----
+ASSMB := GEO: :: CAR2D 17 17
+  X- REFL X+ REFL Y- REFL Y+ REFL
+      
+  CELL 
+ 
+  C1 C1 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C1 C1
+  C1 C4 C2 C2 C2 C4 C2 C2 C4 C2 C2 C4 C2 C2 C2 C4 C1 
+  C4 C2 C2 C2 C2 C3 C2 C2 C3 C2 C2 C3 C2 C2 C2 C2 C4 
+  C4 C2 C2 C3 C2 C2 C2 C2 C2 C2 C2 C2 C2 C3 C2 C2 C4 
+  C4 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C4 
+  C4 C4 C3 C2 C2 C3 C2 C2 C3 C2 C2 C3 C2 C2 C3 C4 C4 
+  C4 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C4 
+  C4 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C4  
+  C4 C4 C3 C2 C2 C3 C2 C2 C2 C2 C2 C3 C2 C2 C3 C4 C4 
+  C4 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C4
+  C4 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C4      
+  C4 C4 C3 C2 C2 C3 C2 C2 C3 C2 C2 C3 C2 C2 C3 C4 C4
+  C4 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C2 C4
+  C4 C2 C2 C3 C2 C2 C2 C2 C2 C2 C2 C2 C2 C3 C2 C2 C4
+  C4 C2 C2 C2 C2 C3 C2 C2 C3 C2 C2 C3 C2 C2 C2 C2 C4
+  C1 C4 C2 C2 C2 C4 C2 C2 C4 C2 C2 C4 C2 C2 C2 C4 C1
+  C1 C1 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C1 C1
+
+* C1 MOX 3.7% Pu
+* C2 MOX 9.8% Pu
+* C3 Guide tube
+* C4 MOX 6.5% Pu
+
+
+  ::: C1 := GEO: CARCEL 2
+    MESHX 0.0 1.262 MESHY 0.0 1.262 
+    RADIUS 0.0 0.412660 0.474364 MIX 6 3 1 ;
+  ::: C2 := GEO: C1  MIX 4 3 1 ;
+  ::: C3 := GEO: C2  MIX 1 2 1 ;
+  ::: C4 := GEO: C3  MIX 5 3 1 ;
+  ;
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      SYBIL
+*  Flux calculation for B1 homogeneous leakage
+*----
+DISCR := SYBILT: ASSMB ::
+  TITLE '17 X 17 MULTICELL PWR MOX UAM BENCHMARK'
+  MAXR 900 ;
+LIBRARY := SHI: LIBRARY DISCR :: EDIT 0 NOLJ ;
+CP := ASM: LIBRARY DISCR ;
+CALC := FLU: CP LIBRARY DISCR ::
+  TYPE B B1 ;
+
+
+OUT := EDI: LIBRARY DISCR CALC ASSMB ::
+  EDIT 3 SAVE MICR RES MERGE COMP COND 4.0
+  ;
+
+library_ss := LIBRARY ;
+
+
+ECHO "test completed" ;
+END: ; 
+QUIT "LIST" .
