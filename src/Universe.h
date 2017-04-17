@@ -81,6 +81,17 @@ protected:
    *  with a non-zero fission cross-section and is fissionable */
   bool _fissionable;
 
+  /** The extrema of the Universe */
+  double _min_x;
+  double _max_x;
+  double _min_y;
+  double _max_y;
+  double _min_z;
+  double _max_z;
+
+  /** A flag for determining if extrema are up to date */
+  bool _cell_added;
+
 public:
 
   Universe(const int id=-1, const char* name="");
@@ -108,6 +119,7 @@ public:
   std::map<int, Universe*> getAllUniverses();
   bool isFissionable();
 
+  void calculateExtrema();
   void setName(const char* name);
   void setType(universeType type);
   void addCell(Cell* cell);
