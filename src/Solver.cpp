@@ -1005,6 +1005,8 @@ void Solver::computeEigenvalue(int max_iters, solverMode mode,
   if (_num_iterations == max_iters-1)
     log_printf(WARNING, "Unable to converge the source distribution");
 
+  log_printf(RESULT, "Final k_eff = %1.6f", _k_eff);
+
   resetMaterials(mode);
 
   _timer->stopTimer();
