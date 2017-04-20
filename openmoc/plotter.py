@@ -208,7 +208,7 @@ def plot_segments(track_generator, get_figure=False):
     for i in range(num_segments):
         cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
         scalarMap = cmx.ScalarMappable(norm=cNorm)
-        color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+        color = scalarMap.to_rgba(color_map[int(fsrs[i] % num_fsrs)])
         plt.plot([x[i*2], x[i*2+1]], [y[i*2], y[i*2+1]], c=color)
 
     plt.xlim([x.min(), x.max()])

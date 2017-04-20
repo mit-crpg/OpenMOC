@@ -201,11 +201,23 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                       '"%s %s"', domain_type, str(domain_spec))
 
         # Search for the scattering matrix cross section
-        if 'nu-scatter matrix' in domain_group:
+        if 'consistent nu-scatter matrix' in domain_group:
+            sigma = _get_numpy_array(
+                domain_group, 'consistent nu-scatter matrix', suffix)
+            material.setSigmaS(sigma)
+            py_printf('DEBUG', 'Loaded "consistent nu-scatter matrix" '
+                      'MGXS for "%s %s"', domain_type, str(domain_spec))
+        elif 'nu-scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'nu-scatter matrix', suffix)
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "nu-scatter matrix" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
+        elif 'consistent scatter matrix' in domain_group:
+            sigma = _get_numpy_array(
+                domain_group, 'consistent scatter matrix', suffix)
+            material.setSigmaS(sigma)
+            py_printf('DEBUG', 'Loaded "consistent scatter matrix" '
+                      'MGXS for "%s %s"', domain_type, str(domain_spec))
         elif 'scatter matrix' in domain_group:
             sigma = _get_numpy_array(domain_group, 'scatter matrix', suffix)
             material.setSigmaS(sigma)
@@ -400,8 +412,8 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
             mgxs = mgxs_lib.get_mgxs(domain, 'consistent scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
             material.setSigmaS(sigma)
-            py_printf('DEBUG', 'Loaded "consistent scatter matrix" MGXS for "%s %d"',
-                      domain_type, domain.id)
+            py_printf('DEBUG', 'Loaded "consistent scatter matrix" '
+                      'MGXS for "%s %d"', domain_type, domain.id)
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
@@ -699,9 +711,15 @@ def _load_openmc_src(mgxs_lib, solver):
         tot_volume = openmoc_domain.getVolume()
 
         # Extract an openmc.mgxs.MGXS object for the scattering matrix
-        if 'nu-scatter matrix' in mgxs_lib.mgxs_types:
+        if 'consistent nu-scatter matrix' in mgxs_lib.mgxs_types:
+            scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
+                                        'consistent nu-scatter matrix')
+        elif 'nu-scatter matrix' in mgxs_lib.mgxs_types:
             scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
                                         'nu-scatter matrix')
+        elif 'consistent scatter matrix' in mgxs_lib.mgxs_types:
+            scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
+                                        'consistent scatter matrix')
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
             scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
                                         'scatter matrix')
