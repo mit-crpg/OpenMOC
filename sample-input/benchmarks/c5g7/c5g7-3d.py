@@ -12,20 +12,20 @@ axial_refines = 2
 
 options = Options()
 
-num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+num_threads = options.num_omp_threads
+azim_spacing = options.azim_spacing
+num_azim = options.num_azim
+polar_spacing = options.polar_spacing
+num_polar = options.num_polar
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 ###############################################################################
 ##########################   Create Core Lattice  #############################
 ###############################################################################
 
-cells['Root'].addSurface(+1, surfaces['Root Big z-min'])
-cells['Root'].addSurface(-1, surfaces['Root Big z-max'])
+cells['Root'].addSurface(+1, surfaces['Root Small z-min'])
+cells['Root'].addSurface(-1, surfaces['Root Small z-max'])
 
 uu = universes['UO2 Unrodded Assembly']
 ur = universes['UO2 Rodded Assembly']
@@ -39,7 +39,7 @@ rc = universes['Reflector Corner Assembly']
 
 # 3 x 3 x 10 core to represent 3D core
 lattices['Root'].setWidth(width_x=21.42, width_y=21.42, width_z=21.42/axial_refines)
-lattices['Root'].setUniverses3D([[[ru, ru, ri],
+lattices['Root'].setUniverses([[[ru, ru, ri],
                                   [ru, ru, ri],
                                   [rb, rb, rc]]] * axial_refines +
                                 [[[uu, mu, ri],
@@ -55,7 +55,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,10*axial_refines)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([[1,2,3],[4,5,6,7]])
 cmfd.setCentroidUpdateOn(False)
 
 ###############################################################################
@@ -83,7 +83,7 @@ track_generator = openmoc.TrackGenerator3D(geometry, num_azim, num_polar,
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.setSegmentFormation(openmoc.OTF_STACKS)
-track_generator.setSegmentationHeights([0.1])
+track_generator.setSegmentationZones([-32.13, 32.13])
 track_generator.generateTracks()
 
 ###############################################################################

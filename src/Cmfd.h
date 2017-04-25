@@ -14,12 +14,14 @@
 #include "Python.h"
 #endif
 #include "log.h"
+#include "constants.h"
 #include "Universe.h"
-#include "Track2D.h"
+#include "Track.h"
 #include "Track3D.h"
 #include "Quadrature.h"
 #include "linalg.h"
 #include "Geometry.h"
+#include "Timer.h"
 #endif
 
 /** Forward declaration of Geometry class */
@@ -52,7 +54,7 @@ private:
   Geometry* _geometry;
 
   /** The keff eigenvalue */
-  FP_PRECISION _k_eff;
+  double _k_eff;
 
   /** The A (destruction) matrix */
   Matrix* _A;
@@ -66,6 +68,25 @@ private:
   /** The new source vector */
   Vector* _new_source;
 
+  /* Domain boundary communication buffers */
+  FP_PRECISION*** _boundary_volumes;
+  FP_PRECISION*** _boundary_reaction;
+  FP_PRECISION*** _boundary_diffusion;
+  FP_PRECISION*** _old_boundary_flux;
+  FP_PRECISION*** _boundary_surface_currents;
+
+  FP_PRECISION*** _send_volumes;
+  FP_PRECISION*** _send_reaction;
+  FP_PRECISION*** _send_diffusion;
+  FP_PRECISION*** _send_currents;
+
+  FP_PRECISION* _send_split_current_data;
+  FP_PRECISION* _receive_split_current_data;
+  FP_PRECISION** _send_split_currents_array;
+  FP_PRECISION** _receive_split_currents_array;
+  FP_PRECISION*** _off_domain_split_currents;
+  FP_PRECISION*** _received_split_currents;
+
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;
@@ -74,8 +95,8 @@ private:
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
-  /** Vector representing the ratio of the new to old CMFD flux */
-  Vector* _flux_ratio;
+  /** The corrected diffusion coefficients from the previous iteration */
+  Vector* _old_dif_surf_corr;
 
   /** Gauss-Seidel SOR relaxation factor */
   FP_PRECISION _SOR_factor;
@@ -111,8 +132,14 @@ private:
   /** If the user specified fine-to-coarse group indices */
   bool _user_group_indices;
 
+  /** If a linear source approximation is used */
+  bool _linear_source;
+
+  /** If diffusion coefficients are limited by the flux */
+  bool _flux_limiting;
+
   /** Number of FSRs */
-  int _num_FSRs;
+  long _num_FSRs;
 
   /** The volumes (areas) for each FSR */
   FP_PRECISION* _FSR_volumes;
@@ -122,6 +149,9 @@ private:
 
   /** The FSR scalar flux in each energy group */
   FP_PRECISION* _FSR_fluxes;
+
+  /** The source region flux moments (x, y, and z) for each energy group */
+  FP_PRECISION* _flux_moments;
 
   /** Array of CMFD cell volumes */
   Vector* _volumes;
@@ -143,8 +173,11 @@ private:
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
+  /** Array of surface currents on edges and corners for each CMFD cell */
+  std::map<int, FP_PRECISION> _edge_corner_currents;
+
   /** Vector of vectors of FSRs containing in each cell */
-  std::vector< std::vector<int> > _cell_fsrs;
+  std::vector< std::vector<long> > _cell_fsrs;
 
   /** Pointer to Lattice object representing the CMFD mesh */
   Lattice* _lattice;
@@ -157,6 +190,9 @@ private:
 
   /** Number of cells to used in updating MOC flux */
   int _k_nearest;
+
+  /** Relaxation factor to use for corrected diffusion coefficients */
+  FP_PRECISION _relaxation_factor;
 
   /** Map storing the k-nearest stencil for each fsr */
   std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
@@ -174,6 +210,41 @@ private:
   /** 2D array of polar track spacings */
   FP_PRECISION** _polar_spacings;
 
+  /** Whether to use axial interpolation for flux update ratios */
+  bool _use_axial_interpolation;
+
+  /** Axial interpolation constants */
+  std::vector<double*> _axial_interpolants;
+
+  //TODO: document
+  ConvergenceData* _convergence_data;
+  DomainCommunicator* _domain_communicator;
+  FP_PRECISION* _inter_domain_data;
+  FP_PRECISION* _send_domain_data;
+  FP_PRECISION** _domain_data_by_surface;
+  FP_PRECISION** _send_data_by_surface;
+  std::vector<std::map<int, int> > _boundary_index_map;
+
+  /* The number of on-domain cells in the x-direction */
+  int _local_num_x;
+
+  /* The number of on-domain cells in the y-direction */
+  int _local_num_y;
+
+  /* The number of on-domain cells in the z-direction */
+  int _local_num_z;
+
+  //TODO: document
+  long _total_tally_size;
+  FP_PRECISION* _tally_memory;
+  FP_PRECISION** _reaction_tally;
+  FP_PRECISION** _volume_tally;
+  FP_PRECISION** _diffusion_tally;
+  bool _tallies_allocated;
+
+  /** A timer to record timing data for a simulation */
+  Timer* _timer;
+
   /* Private worker functions */
   FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
                                        FP_PRECISION delta);
@@ -190,8 +261,10 @@ private:
   void generateKNearestStencils();
 
   /* Private getter functions */
-  int getCellNext(int cell_id, int surface_id);
+  int getCellNext(int cell_id, int surface_id, bool global=true,
+                  bool neighbor=false);
   int getCellByStencil(int cell_id, int stencil_id);
+  FP_PRECISION getFluxRatio(int cell_id, int group, int fsr);
   FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
   FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
@@ -202,7 +275,15 @@ private:
   FP_PRECISION getSurfaceWidth(int surface);
   FP_PRECISION getPerpendicularSurfaceWidth(int surface);
   int getSense(int surface);
-
+  int getLocalCMFDCell(int cmfd_cell); //TODO: optimize, document
+  int getGlobalCMFDCell(int cmfd_cell); //TODO: optimize, document
+    int getCellColor(int cmfd_cell); //TODO: optimize, document
+  void packBuffers();
+#ifdef MPIx
+  void ghostCellExchange();
+  void communicateSplits();
+#endif
+  void unpackSplitCurrents();
 
 public:
 
@@ -214,14 +295,18 @@ public:
   void initialize();
   void initializeCellMap();
   void initializeGroupMap();
+  void allocateTallies();
   void initializeLattice(Point* offset);
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);
   int findCmfdSurfaceOTF(int cell_id, double z, int surface_2D);
-  void addFSRToCell(int cell_id, int fsr_id);
+  void addFSRToCell(int cell_id, long fsr_id);
   void zeroCurrents();
-  void tallyCurrent(segment* curr_segment, FP_PRECISION* track_flux,
+    //FIXME MEM : float / FP_PRECISION
+  void tallyCurrent(segment* curr_segment, float* track_flux,
                     int azim_index, int polar_index, bool fwd);
+  void printTimerReport();
+  void checkNeutronBalance();
 
   /* Get parameters */
   int getNumCmfdGroups();
@@ -233,13 +318,15 @@ public:
   int getNumX();
   int getNumY();
   int getNumZ();
-  int convertFSRIdToCmfdCell(int fsr_id);
-  std::vector< std::vector<int> >* getCellFSRs();
+  int convertFSRIdToCmfdCell(long fsr_id);
+  int convertGlobalFSRIdToCmfdCell(long global_fsr_id);
+  std::vector< std::vector<long> >* getCellFSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();
 
   /* Set parameters */
   void setSORRelaxationFactor(FP_PRECISION SOR_factor);
+  void setCMFDRelaxationFactor(FP_PRECISION relaxation_factor);
   void setGeometry(Geometry* geometry);
   void setWidthX(double width);
   void setWidthY(double width);
@@ -247,26 +334,169 @@ public:
   void setNumX(int num_x);
   void setNumY(int num_y);
   void setNumZ(int num_z);
-  void setNumFSRs(int num_fsrs);
+  void setNumFSRs(long num_fsrs);
   void setNumMOCGroups(int num_moc_groups);
   void setBoundary(int side, boundaryType boundary);
   void setLatticeStructure(int num_x, int num_y, int num_z=1);
   void setFluxUpdateOn(bool flux_update_on);
   void setCentroidUpdateOn(bool centroid_update_on);
-  void setGroupStructure(int* group_indices, int length_group_indices);
+  void setGroupStructure(std::vector< std::vector<int> > group_indices);
   void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
   void setQuadrature(Quadrature* quadrature);
   void setKNearest(int k_nearest);
   void setSolve3D(bool solve_3d);
-  void setAzimSpacings(double* azim_spacings, int num_azim);
-  void setPolarSpacings(double** polar_spacings, int num_azim,
+  void setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim);
+  void setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
                         int num_polar);
+  //TODO: clean, document
+#ifdef MPIx
+  void setNumDomains(int num_x, int num_y, int num_z);
+  void setDomainIndexes(int idx_x, int idx_y, int idx_z);
+#endif
+  void setConvergenceData(ConvergenceData* convergence_data);
+  void useAxialInterpolation(bool interpolate);
+  void useFluxLimiting(bool flux_limiting);
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
-  void setCellFSRs(std::vector< std::vector<int> >* cell_fsrs);
+  void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
+  void setFluxMoments(FP_PRECISION* flux_moments);
 };
 
+
+/**
+ * @brief Get the CMFD group given an MOC group.
+ * @param group the MOC energy group
+ * @return the CMFD energy group
+ */
+inline int Cmfd::getCmfdGroup(int group) {
+  return _group_indices_map[group];
+}
+
+
+/*
+ * @brief Quickly finds a 3D CMFD surface given a cell, global coordinate, and
+ *        2D CMFD surface. Intended for use in axial on-the-fly ray tracing.
+ * @details If the coords is not on a surface, -1 is returned. If there is
+ *          no 2D CMFD surface intersection, -1 should be input for the 2D CMFD
+ *          surface.
+ * @param cell_id The CMFD cell ID that the local coords is in.
+ * @param z the axial height in the root universe of the point being evaluated.
+ * @param surface_2D The ID of the 2D CMFD surface that the LocalCoords object
+ *        intersects. If there is no 2D intersection, -1 should be input.
+ */
+inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
+  int global_cell_id = getGlobalCMFDCell(cell_id);
+  return _lattice->getLatticeSurfaceOTF(global_cell_id, z, surface_2D);
+}
+
+
+/**
+ * @brief Tallies the current contribution from this segment across the
+ *        the appropriate CMFD mesh cell surface.
+ * @param curr_segment the current Track segment
+ * @param track_flux the outgoing angular flux for this segment
+ * @param polar_weights array of polar weights for some azimuthal angle
+ * @param fwd boolean indicating direction of integration along segment
+ */
+    //FIXME MEM : float / FP_PRECISION
+inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
+                               int azim_index, int polar_index, bool fwd) {
+
+  int surf_id, cell_id, cmfd_group;
+  int ncg = _num_cmfd_groups;
+  FP_PRECISION currents[_num_cmfd_groups];
+  memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
+  std::map<int, FP_PRECISION>::iterator it;
+
+  /* Check if the current needs to be tallied */
+  bool tally_current = false;
+  if (curr_segment->_cmfd_surface_fwd != -1 && fwd) {
+    surf_id = curr_segment->_cmfd_surface_fwd % NUM_SURFACES;
+    cell_id = curr_segment->_cmfd_surface_fwd / NUM_SURFACES;
+    tally_current = true;
+  }
+  else if (curr_segment->_cmfd_surface_bwd != -1 && !fwd) {
+    surf_id = curr_segment->_cmfd_surface_bwd % NUM_SURFACES;
+    cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
+    tally_current = true;
+  }
+
+
+  /* Tally current if necessary */
+  if (tally_current) {
+
+    int local_cell_id = getLocalCMFDCell(cell_id);
+
+    if (_solve_3D) {
+      FP_PRECISION wgt = _quadrature->getWeightInline(azim_index, polar_index);
+      for (int e=0; e < _num_moc_groups; e++) {
+
+        /* Get the CMFD group */
+        cmfd_group = getCmfdGroup(e);
+
+        /* Increment the surface group */
+        currents[cmfd_group] += track_flux[e] * wgt;
+      }
+
+      /* Increment currents */
+      if (surf_id < NUM_FACES) {
+        _surface_currents->incrementValues
+            (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+      }
+      else {
+
+        omp_set_lock(&_cell_locks[local_cell_id]);
+
+        int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
+        it = _edge_corner_currents.find(first_ind);
+        if (it == _edge_corner_currents.end())
+          for (int g=0; g < ncg; g++)
+            _edge_corner_currents[first_ind+g] = 0.0;
+
+        for (int g=0; g < ncg; g++)
+          _edge_corner_currents[first_ind+g] += currents[g];
+
+        omp_unset_lock(&_cell_locks[local_cell_id]);
+      }
+    }
+    else {
+      int pe = 0;
+      for (int e=0; e < _num_moc_groups; e++) {
+
+        /* Get the CMFD group */
+        cmfd_group = getCmfdGroup(e);
+
+        for (int p = 0; p < _num_polar/2; p++) {
+          currents[cmfd_group] += track_flux[pe]
+              * _quadrature->getWeightInline(azim_index, p);
+          pe++;
+        }
+      }
+
+      /* Increment currents */
+      if (surf_id < NUM_FACES) {
+        _surface_currents->incrementValues
+            (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
+      }
+      else {
+        omp_set_lock(&_cell_locks[local_cell_id]);
+
+        int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
+        it = _edge_corner_currents.find(first_ind);
+        if (it == _edge_corner_currents.end())
+          for (int g=0; g < ncg; g++)
+            _edge_corner_currents[first_ind+g] = 0.0;
+
+        for (int g=0; g < ncg; g++)
+          _edge_corner_currents[first_ind+g] += currents[g];
+
+        omp_unset_lock(&_cell_locks[local_cell_id]);
+
+      }
+    }
+  }
+}
 #endif /* CMFD_H_ */

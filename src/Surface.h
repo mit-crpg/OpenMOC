@@ -28,8 +28,9 @@ class LocalCoords;
 class Cell;
 
 
-int surf_id();
-void reset_surf_id();
+int surface_id();
+void reset_surface_id();
+void maximize_surface_id(int surface_id);
 
 
 /**
@@ -101,6 +102,11 @@ public:
   char* getName() const;
   surfaceType getSurfaceType();
   boundaryType getBoundaryType();
+
+
+  //FIXME
+  double getMin(int axis, int halfspace);
+  double getMax(int axis, int halfspace);
 
   /**
    * @brief Returns the minimum x value for one of this Surface's halfspaces.

@@ -106,7 +106,7 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell]);
 
-  #pragma omp simd
+#pragma omp simd
   for (int g=group_first; g <= group_last; g++)
     _array[cell*_num_groups + g] += vals[g-group_first];
 
@@ -227,7 +227,8 @@ void Vector::printString() {
 
   string << "End Vector" << std::endl;
 
-  log_printf(NORMAL, string.str().c_str());
+  std::cout << string.str() << std::endl;
+  //log_printf(NORMAL, string.str().c_str());
 }
 
 
@@ -308,7 +309,7 @@ int Vector::getNumRows() {
  * @brief Get the sum of all the values in the vector.
  * @return The sum of all the values in the vector.
  */
-FP_PRECISION Vector::getSum() {
+double Vector::getSum() {
   return pairwise_sum(_array, _num_rows);
 }
 

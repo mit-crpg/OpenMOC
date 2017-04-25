@@ -122,13 +122,13 @@ log.py_printf('NORMAL', 'Creating nested 2 x 2 lattices...')
 # 2x2 assembly
 lattice = openmoc.Lattice(name='2x2 lattice')
 lattice.setWidth(width_x=1.0, width_y=1.0)
-lattice.setUniverses([[pin1, pin2], [pin1, pin3]])
+lattice.setUniverses([[[pin1, pin2], [pin1, pin3]]])
 lattice_cell.setFill(lattice)
 
 # 2x2 core
 core = openmoc.Lattice(name='2x2 core')
 core.setWidth(width_x=2.0, width_y=2.0, width_z=1.0)
-core.setUniverses([[assembly, assembly], [assembly, assembly]])
+core.setUniverses([[[assembly, assembly], [assembly, assembly]]])
 root_cell.setFill(core)
 
 

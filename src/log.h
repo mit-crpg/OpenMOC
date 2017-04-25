@@ -12,7 +12,9 @@
 #define LOG_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -29,7 +31,13 @@
 #include <omp.h>
 #endif
 
+#ifdef MPIx
+#include <mpi.h>
+#endif
+
+#ifdef SWIG
 #define printf PySys_WriteStdout
+#endif
 
 
 /**
@@ -53,6 +61,9 @@ typedef enum logLevels {
 
   /** A brief progress update on run progress */
   NORMAL,
+
+  /** A brief progress update by node on run progress */
+  NODAL,
 
   /** A message of a single line of characters */
   SEPARATOR,
@@ -107,6 +118,8 @@ int get_log_level();
 
 void log_printf(logLevel level, const char *format, ...);
 std::string create_multiline_msg(std::string level, std::string message);
-
+#ifdef MPIx
+void log_set_ranks(MPI_Comm comm);
+#endif
 
 #endif /* LOG_H_ */

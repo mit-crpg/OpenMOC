@@ -28,6 +28,7 @@ universes['Reflector Rodded Assembly']   = openmoc.Universe()
 universes['Reflector Right Assembly']    = openmoc.Universe()
 universes['Reflector Bottom Assembly']   = openmoc.Universe()
 universes['Reflector Corner Assembly']   = openmoc.Universe()
+universes['Reflector Assembly']          = openmoc.Universe()
 
 # Add cells to universes
 universes['Root']                       .addCell(cells['Root'])
@@ -58,3 +59,4 @@ universes['Reflector Rodded Assembly']  .addCell(cells['Reflector Rodded Assembl
 universes['Reflector Right Assembly']   .addCell(cells['Reflector Right Assembly'])
 universes['Reflector Bottom Assembly']  .addCell(cells['Reflector Bottom Assembly'])
 universes['Reflector Corner Assembly']  .addCell(cells['Reflector Corner Assembly'])
+universes['Reflector Assembly']         .addCell(cells['Reflector Assembly'])

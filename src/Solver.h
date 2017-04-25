@@ -10,12 +10,15 @@
 
 #ifdef __cplusplus
 #define _USE_MATH_DEFINES
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "constants.h"
 #include "Timer.h"
 #include "Quadrature.h"
 #include "TrackGenerator3D.h"
 #include "Cmfd.h"
+#include "Progress.h"
 #include "ExpEvaluator.h"
 #include "segmentation_type.h"
 #include <math.h>
@@ -57,10 +60,25 @@
  *  for each FSR and energy group */
 #define scatter_sources(r,e) (scatter_sources[(r)*_num_groups + (e)])
 
+
+/**
+ * @enum solverMode
+ * @brief The solution mode used by the MOC solver.
+ */
+enum solverMode {
+
+  /** The forward flux distribution */
+  FORWARD,
+
+  /** The adjoint flux distribution */
+  ADJOINT,
+};
+
+
 /**
  * @enum residualType
  * @brief The type of residual used for the convergence criterion.
-*/
+ */
 enum residualType {
 
   /** A residual on the scalar flux distribution */
@@ -81,7 +99,7 @@ enum residualType {
 class Solver {
 
 protected:
-
+  
   /** The number of azimuthal angles */
   int _num_azim;
 
@@ -89,10 +107,10 @@ protected:
   int _num_groups;
 
   /** The number of flat source regions */
-  int _num_FSRs;
+  long _num_FSRs;
 
   /** The number of fissionable flat source regions */
-  int _num_fissionable_FSRs;
+  long _num_fissionable_FSRs;
 
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
   FP_PRECISION* _FSR_volumes;
@@ -119,7 +137,7 @@ protected:
   int _fluxes_per_track;
 
   /** A pointer to the array of Tracks */
-  Track** _tracks;
+  Track** _tracks; //FIXME
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
@@ -127,23 +145,33 @@ protected:
   /** Boolean for whether to solve in 3D (true) or 2D (false) */
   bool _solve_3D;
 
+  /** Boolean for whether to correct unphysical cross-sections */
+  bool _correct_xs;
+
+  /** Boolean for whether to print verbose iteration reports */
+  bool _verbose;
+  
+  /** The log level for outputting cross-section inconsitencies */
+  logLevel _xs_log_level;
+
   /** Determines the type of track segmentation to use for 3D MOC */
   segmentationType _segment_formation;
 
   /** The total number of Tracks */
-  int _tot_num_tracks;
+  long _tot_num_tracks;
 
   /** The weights for each azimuthal angle */
-  double* _azim_spacings;
+  FP_PRECISION* _azim_spacings;
 
   /** The weights for each polar angle in the polar angle quadrature */
-  double** _polar_spacings;
+  FP_PRECISION** _polar_spacings;
 
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
    *  a Track along both "forward" and "reverse" directions. */
-  FP_PRECISION* _boundary_flux;
-  FP_PRECISION* _start_flux;
+    //FIXME MEM : float / FP_PRECISION
+  float* _boundary_flux;
+  float* _start_flux;
 
   /** The angular leakages for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the weighted outgoing fluxes
@@ -159,6 +187,19 @@ protected:
   /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
 
+  /** Temporary scratch pads for intermediate storage of computing steps */
+  std::vector<FP_PRECISION*> _groupwise_scratch;
+  double* _regionwise_scratch;
+
+  /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
+  std::map< std::pair<int, int>, FP_PRECISION > _fix_src_FSR_map;
+
+  /** A mapping of fixed sources keyed by the pair (Cell*, energy group) */
+  std::map< std::pair<Cell*, int>, FP_PRECISION > _fix_src_cell_map;
+
+  /** A mapping of fixed sources keyed by the pair (Material*, energy group) */
+  std::map< std::pair<Material*, int>, FP_PRECISION > _fix_src_material_map;
+
   /** Ratios of source to total cross-section for each FSR and energy group */
   FP_PRECISION* _reduced_sources;
 
@@ -171,14 +212,24 @@ protected:
   /** The tolerance for converging the source/flux */
   FP_PRECISION _converge_thresh;
 
-  /** En ExpEvaluator to compute exponentials in the transport equation */
-  ExpEvaluator* _exp_evaluator;
+  /** A matrix of ExpEvaluators to compute exponentials in the transport
+    * equation. The matrix is indexed by azimuthal index and polar index */
+  ExpEvaluator*** _exp_evaluators;
+
+  /** The number of exponential evaluators in the azimuthal direction */
+  int _num_exp_evaluators_azim;
+
+  /** The number of exponential evaluators in the polar direction */
+  int _num_exp_evaluators_polar;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
 
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
+
+  /** A string indicating the type of source apporximation */
+  std::string _source_type;
 
   /**
    * @brief Initializes Track boundary angular flux and leakage and
@@ -191,9 +242,10 @@ protected:
    */
   virtual void initializeSourceArrays() =0;
 
-  virtual void initializeExpEvaluator();
+  virtual void initializeExpEvaluators();
   virtual void initializeFSRs();
-  virtual void countFissionableFSRs();
+  void countFissionableFSRs();
+  void checkXS();
   virtual void initializeCmfd();
 
   /**
@@ -217,13 +269,13 @@ protected:
    * @brief Normalizes all FSR scalar fluxes and Track boundary angular
    *        fluxes to the total fission source (times \f$ \nu \f$).
    */
-  virtual void normalizeFluxes() =0;
+  virtual FP_PRECISION normalizeFluxes() =0;
 
   /**
    * @brief Computes the total source (fission, scattering, fixed) for
    *        each FSR and energy group.
    */
-  virtual void computeFSRSources() =0;
+  virtual void computeFSRSources(int iteration) =0;
 
   /**
    * @brief Computes the residual between successive flux/source iterations.
@@ -252,6 +304,9 @@ protected:
 
   void clearTimerSplits();
 
+  //FIXME
+  bool _OTF_transport;
+
 public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
@@ -260,7 +315,7 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
-  FP_PRECISION getFSRVolume(int fsr_id);
+  FP_PRECISION getFSRVolume(long fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
@@ -270,14 +325,18 @@ public:
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
+  virtual void initializeFixedSources();
 
-  virtual FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  virtual FP_PRECISION getFSRSource(int fsr_id, int group);
-  virtual FP_PRECISION* getBoundaryFlux(int track_id, bool fwd);
+  void printFissionRates(std::string fname, int nx, int ny, int nz);
+  void printInputParamsSummary();
+
+  virtual FP_PRECISION getFlux(long fsr_id, int group);
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
+  FP_PRECISION getFSRSource(long fsr_id, int group);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   virtual void setConvergenceThreshold(FP_PRECISION threshold);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
+  virtual void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
   void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
   void setFixedSourceByMaterial(Material* material, int group,
                                 FP_PRECISION source);
@@ -285,6 +344,8 @@ public:
   void setExpPrecision(FP_PRECISION precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
+  void correctXS();
+  void setCheckXSLogLevel(logLevel log_level);
 
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
   void computeSource(int max_iters=1000, double k_eff=1.0,
@@ -308,9 +369,27 @@ public:
   *                      in as a NumPy array from Python)
   * @param num_FSRs the number of FSRs passed in from Python
   */
-  virtual void computeFSRFissionRates(double* fission_rates, int num_FSRs) =0;
+  virtual void computeFSRFissionRates(double* fission_rates, long num_FSRs) =0;
 
+  /**
+   * @brief Returns the boundary flux array at the requested indexes
+   * @param track_id The Track's Unique ID
+   * @param fwd Whether the direction of the angular flux along the track is
+   *        forward (True) or backward (False)
+   */
+    //FIXME MEM : float / FP_PRECISION
+  inline float* getBoundaryFlux(long track_id, bool fwd) {
+    return &_boundary_flux(track_id, !fwd, 0);
+  }
+
+  void setVerboseIterationReport();
   void printTimerReport();
+  FP_PRECISION* getFluxesArray();
+
+  //FIXME
+  inline void setOTFTransport() {
+    _OTF_transport = true;
+  }
 };
 
 

@@ -71,10 +71,6 @@ class configuration:
   # Build the openmoc.cuda module
   with_cuda = False
 
-  # Compile with NumPy typemaps and the C API to allow users to pass NumPy
-  # arrays to/from the C++ source code
-  with_numpy = True
-
   # The vector length used for the VectorizedSolver class. This will used
   # as a hint for the Intel compiler to issue SIMD (ie, SSE, AVX, etc) vector
   # instructions. This is accomplished by adding "dummy" energy groups such
@@ -104,108 +100,43 @@ class configuration:
 
   sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
                     'src/Cell.cpp',
+                    'src/Cmfd.cpp',
+                    'src/CPUSolver.cpp',
+                    'src/CPULSSolver.cpp',
+                    'src/ExpEvaluator.cpp',
                     'src/Geometry.cpp',
+                    'src/linalg.cpp',
                     'src/LocalCoords.cpp',
                     'src/log.cpp',
                     'src/Material.cpp',
+                    'src/Matrix.cpp',
+                    'src/MOCKernel.cpp',
                     'src/Point.cpp',
+                    'src/Progress.cpp',
                     'src/Quadrature.cpp',
-                    'src/ExpEvaluator.cpp',
                     'src/Solver.cpp',
-                    'src/CPUSolver.cpp',
                     'src/Surface.cpp',
                     'src/Timer.cpp',
                     'src/Track.cpp',
-                    'src/Track2D.cpp',
                     'src/Track3D.cpp',
-                    'src/Vector.cpp',
-                    'src/Matrix.cpp',
-                    'src/linalg.cpp',
-                    'src/Progress.cpp',
                     'src/TrackGenerator.cpp',
                     'src/TrackGenerator3D.cpp',
-                    'src/TraverseSegments.cpp',
                     'src/TrackTraversingAlgorithms.cpp',
-                    'src/MOCKernel.cpp',
+                    'src/TraverseSegments.cpp',
                     'src/Universe.cpp',
-                    'src/Cmfd.cpp']
+                    'src/Vector.cpp']
 
-  sources['clang'] = ['openmoc/openmoc_wrap.cpp',
-                      'src/Cell.cpp',
-                      'src/Geometry.cpp',
-                      'src/LocalCoords.cpp',
-                      'src/log.cpp',
-                      'src/Material.cpp',
-                      'src/Point.cpp',
-                      'src/Quadrature.cpp',
-                      'src/ExpEvaluator.cpp',
-                      'src/Solver.cpp',
-                      'src/CPUSolver.cpp',
-                      'src/Surface.cpp',
-                      'src/Timer.cpp',
-                      'src/Track.cpp',
-                      'src/Track2D.cpp',
-                      'src/Track3D.cpp',
-                      'src/Vector.cpp',
-                      'src/Matrix.cpp',
-                      'src/linalg.cpp',
-                      'src/Progress.cpp',
-                      'src/TrackGenerator.cpp',
-                      'src/TrackGenerator3D.cpp',
-                      'src/TraverseSegments.cpp',
-                      'src/TrackTraversingAlgorithms.cpp',
-                      'src/MOCKernel.cpp',
-                      'src/Universe.cpp',
-                      'src/Cmfd.cpp']
+  sources['clang'] = sources['gcc']
 
-  sources['icpc'] = ['openmoc/openmoc_wrap.cpp',
-                     'src/Cell.cpp',
-                     'src/Geometry.cpp',
-                     'src/LocalCoords.cpp',
-                     'src/log.cpp',
-                     'src/Material.cpp',
-                     'src/Point.cpp',
-                     'src/Quadrature.cpp',
-                     'src/ExpEvaluator.cpp',
-                     'src/Solver.cpp',
-                     'src/CPUSolver.cpp',
-                     'src/VectorizedSolver.cpp',
-                     'src/Surface.cpp',
-                     'src/Timer.cpp',
-                     'src/Track.cpp',
-                     'src/Track2D.cpp',
-                     'src/Track3D.cpp',
-                     'src/TrackGenerator.cpp',
-                     'src/TrackGenerator3D.cpp',
-                     'src/TraverseSegments.cpp',
-                     'src/TrackTraversingAlgorithms.cpp',
-                     'src/MOCKernel.cpp',
-                     'src/Universe.cpp',
-                     'src/Cmfd.cpp']
 
-  sources['bgxlc'] = ['openmoc/openmoc_wrap.cpp',
-                      'src/Cell.cpp',
-                      'src/Geometry.cpp',
-                      'src/LocalCoords.cpp',
-                      'src/log.cpp',
-                      'src/Material.cpp',
-                      'src/Point.cpp',
-                      'src/Quadrature.cpp',
-                      'src/ExpEvaluator.cpp',
-                      'src/Solver.cpp',
-                      'src/CPUSolver.cpp',
-                      'src/Surface.cpp',
-                      'src/Timer.cpp',
-                      'src/Track.cpp',
-                      'src/Track2D.cpp',
-                      'src/Track3D.cpp',
-                      'src/TrackGenerator.cpp',
-                      'src/TrackGenerator3D.cpp',
-                      'src/TraverseSegments.cpp',
-                      'src/TrackTraversingAlgorithms.cpp',
-                      'src/MOCKernel.cpp',
-                      'src/Universe.cpp',
-                      'src/Cmfd.cpp']
+  sources['mpicc'] = sources['gcc']
+
+
+  sources['icpc'] = sources['gcc'] + ['src/VectorizedSolver.cpp']
+
+
+  sources['bgxlc'] = sources['gcc']
+
 
   sources['nvcc'] = ['openmoc/cuda/openmoc_cuda_wrap.cpp',
                      'src/accel/cuda/GPUExpEvaluator.cu',
@@ -223,6 +154,8 @@ class configuration:
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
+  compiler_flags['mpicc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
+                           '-std=c++11', '-fpic']
   compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
                              '-fopenmp', '-fvectorize', '-fpic',
                              '-Qunused-arguments',
@@ -238,8 +171,7 @@ class configuration:
   compiler_flags['nvcc'] =  ['--relocatable-device-code', 'true',
                              '-c', '-O3',  '-std=c++11',
                              '--compiler-options', '-fpic',
-                             '-gencode=arch=compute_20,code=sm_20',
-                             '-gencode=arch=compute_30,code=sm_30']
+                             '-arch=compute_20']
 
 
   #############################################################################
@@ -255,6 +187,13 @@ class configuration:
   else:
     linker_flags['gcc'] = ['-fopenmp', '-shared',
                            '-Wl,-soname,' + get_openmoc_object_name()]
+
+  if ('macosx' in get_platform()):
+    linker_flags['mpicc'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
+                             '-Wl,-install_name,' + get_openmoc_object_name()]
+  else:
+    linker_flags['mpicc'] = ['-fopenmp', '-shared',
+                             '-Wl,-soname,' + get_openmoc_object_name()]
 
   if ('macosx' in get_platform()):
     linker_flags['clang'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
@@ -279,6 +218,7 @@ class configuration:
   shared_libraries = dict()
 
   shared_libraries['gcc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
+  shared_libraries['mpicc'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['clang'] = ['stdc++', 'gomp', 'dl','pthread', 'm']
   shared_libraries['icpc'] = ['stdc++', 'iomp5', 'pthread', 'irc',
                               'imf','rt', 'mkl_rt','m',]
@@ -297,6 +237,7 @@ class configuration:
   usr_lib = sys.exec_prefix + '/lib'
 
   library_directories['gcc'] = [usr_lib]
+  library_directories['mpicc'] = [usr_lib]
   library_directories['clang'] = [usr_lib]
   library_directories['icpc'] = [usr_lib]
   library_directories['bgxlc'] = [usr_lib]
@@ -312,6 +253,7 @@ class configuration:
   include_directories = dict()
 
   include_directories['gcc'] = list()
+  include_directories['mpicc'] = list()
   include_directories['clang'] = list()
   include_directories['icpc'] = list()
   include_directories['bgxlc'] = list()
@@ -339,76 +281,80 @@ class configuration:
   macros = dict()
 
   macros['gcc'] = dict()
+  macros['mpicc'] = dict()
   macros['clang'] = dict()
   macros['icpc'] = dict()
   macros['bgxlc'] = dict()
   macros['nvcc'] = dict()
 
   macros['gcc']['single']= [('FP_PRECISION', 'float'),
-                            ('SINGLE', None),
                             ('GCC', None),
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
+  macros['mpicc']['single']= [('FP_PRECISION', 'float'),
+                            ('MPICC', None),
+                            ('VEC_LENGTH', vector_length),
+                            ('VEC_ALIGNMENT', vector_alignment)]
+
   macros['clang']['single']= [('FP_PRECISION', 'float'),
-                              ('SINGLE', None),
                               ('CLANG', None),
                               ('VEC_LENGTH', vector_length),
                               ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['icpc']['single']= [('FP_PRECISION', 'float'),
-                             ('SINGLE', None),
                              ('ICPC', None),
                              ('MKL_ILP64', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
-                               ('SINGLE', None),
                                ('BGXLC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment),
                                ('CCACHE_CC', 'bgxlc++_r')]
 
   macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
-                              ('SINGLE', None),
                               ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
 
   macros['gcc']['double'] = [('FP_PRECISION', 'double'),
-                             ('DOUBLE', None),
                              ('GCC', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
 
+  macros['mpicc']['double'] = [('FP_PRECISION', 'double'),
+                               ('MPICC', None),
+                               ('VEC_LENGTH', vector_length),
+                               ('VEC_ALIGNMENT', vector_alignment)]
+
   macros['clang']['double'] = [('FP_PRECISION', 'double'),
-                               ('DOUBLE', None),
                                ('CLANG', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['icpc']['double'] = [('FP_PRECISION', 'double'),
-                              ('DOUBLE', None),
                               ('ICPC', None),
                               ('MKL_ILP64', None),
                               ('VEC_LENGTH', vector_length),
                               ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['bgxlc']['double'] = [('FP_PRECISION', 'double'),
-                               ('DOUBLE', None),
                                ('BGXLC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment),
                                ('CCACHE_CC', 'bgxlc++_r')]
 
   macros['nvcc']['double'] = [('FP_PRECISION', 'double'),
-                              ('DOUBLE', None),
-                              ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
-  # define OPENMP
+
+  # define OPENMP and SWIG (for log output)
   for compiler in macros:
     for precision in macros[compiler]:
       macros[compiler][precision].append(('OPENMP', None))
+      macros[compiler][precision].append(('SWIG', None))
+      if cc == 'mpicc':
+        macros[compiler][precision].append(('MPIx', None))
 
 
   def setup_extension_modules(self):
@@ -431,27 +377,33 @@ class configuration:
         self.compiler_flags[k].append('-pg')
         self.compiler_flags[k].append('-g')
 
-    # If the user passed in the --no-numpy flag, tell SWIG not to embed
-    # NumPy typemaps in the source code
-    if not self.with_numpy:
-      self.swig_flags.append('-DNO_NUMPY')
+    # Obtain the NumPy include directory
+    try:
+      numpy_include = numpy.get_include()
+    except AttributeError:
+      numpy_include = numpy.get_numpy_include()
 
-    # Otherwise, obtain the NumPy include directory
-    else:
-      try:
-        numpy_include = numpy.get_include()
+    # Add the NumPy include directory to the include directories
+    # list for each type of compiler
+    for cc in self.include_directories.keys():
+      self.include_directories[cc].append(numpy_include)
 
-      except AttributeError:
-        numpy_include = numpy.get_numpy_include()
-
-      # Add the NumPy include directory to the include directories
-      # list for each type of compiler
-      for cc in self.include_directories.keys():
-        self.include_directories[cc].append(numpy_include)
+    # FIXME
+    mpi4py_include = '/usr/local/lib/python2.7/dist-packages/mpi4py/include/'
+    mpi4py_include = '/home/gunogeof/.local/lib/python2.7/site-packages/mpi4py/include/'
+    mpi4py_include = '/apps/local/easybuild/software/mpi4py/2.0.0-gmvolf-5.5.4-Python-2.7.8/lib/python2.7/site-packages/mpi4py/include/'
+    self.include_directories['mpicc'].append(mpi4py_include)
 
 
     # The main openmoc extension (defaults are gcc and single precision)
     self.swig_flags += ['-D' + self.fp.upper()]
+    if self.fp == 'double':
+      self.swig_flags += ['-DFP_PRECISION=double']
+    else:
+      self.swig_flags += ['-DFP_PRECISION=float']
+
+    if self.cc == 'mpicc':
+      self.swig_flags += ['-DMPIx']
 
     self.extensions.append(
       Extension(name = '_openmoc',

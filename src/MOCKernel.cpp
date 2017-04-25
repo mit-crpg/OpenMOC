@@ -1,5 +1,6 @@
 #include "MOCKernel.h"
 #include "TrackGenerator3D.h"
+#include "CPUSolver.h"
 
 /**
  * @brief Constructor for the MOCKernel assigns default values
@@ -10,6 +11,7 @@
 MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
   _count = 0;
   _max_tau = track_generator->retrieveMaxOpticalLength();
+  _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
 }
 
 
@@ -31,6 +33,7 @@ VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
                "FSR locks");
 
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
+  _quadrature = track_generator->getQuadrature();
   _weight = 0;
 }
 
@@ -51,7 +54,7 @@ SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator,
   TrackGenerator3D* track_generator_3D =
     dynamic_cast<TrackGenerator3D*>(track_generator);
   if (track_generator_3D != NULL)
-    _segments = track_generator_3D->getTemporarySegments(thread_id, row_num);
+    _segments = track_generator_3D->getTemporarySegments(thread_id);
   else
     _segments = NULL;
 }
@@ -84,7 +87,21 @@ void MOCKernel::newTrack(Track* track) {
  * @param track The new Track the MOCKernel prepares to handle
  */
 void VolumeKernel::newTrack(Track* track) {
-  _weight = track->getWeight();
+
+  /* Compute the Track azimuthal weight */
+  int azim_index = track->getAzimIndex();
+  _weight = _quadrature->getAzimSpacing(azim_index)
+      * _quadrature->getAzimWeight(azim_index);
+
+  /* Multiply by polar weight if 3D */
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  if (track_3D != NULL) {
+    int polar_index = track_3D->getPolarIndex();
+    _weight *= _quadrature->getPolarSpacing(azim_index, polar_index)
+        * _quadrature->getPolarWeight(azim_index, polar_index);
+  }
+
+  /* Reset the count */
   _count = 0;
 }
 
@@ -127,22 +144,25 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+void VolumeKernel::execute(double length, Material* mat, long fsr_id,
+                           int track_idx, int cmfd_surface_fwd,
+                           int cmfd_surface_bwd, double x_start,
+                           double y_start, double z_start,
+                           double phi, double theta) {
 
   /* Set omp lock for FSRs */
-  omp_set_lock(&_FSR_locks[id]);
+  omp_set_lock(&_FSR_locks[fsr_id]);
 
   /* Add value to buffer */
-  _FSR_volumes[id] += _weight * length;
+  _FSR_volumes[fsr_id] += _weight * length;
 
   /* Unset lock */
-  omp_unset_lock(&_FSR_locks[id]);
+  omp_unset_lock(&_FSR_locks[fsr_id]);
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+  for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
@@ -164,13 +184,16 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, int id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+void CounterKernel::execute(double length, Material* mat, long fsr_id,
+                            int track_idx, int cmfd_surface_fwd,
+                            int cmfd_surface_bwd, double x_start,
+                            double y_start, double z_start,
+                            double phi, double theta) {
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+  for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
@@ -192,8 +215,11 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, int id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
-    int cmfd_surface_fwd, int cmfd_surface_bwd) {
+void SegmentationKernel::execute(double length, Material* mat, long fsr_id,
+                                int track_idx, int cmfd_surface_fwd,
+                                int cmfd_surface_bwd, double x_start,
+                                double y_start, double z_start,
+                                double phi, double theta) {
 
   /* Check if segments have not been set, if so return */
   if (_segments == NULL)
@@ -202,7 +228,7 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
   /* Determine the number of cuts on the segment */
   FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
-  for (int e=0; e < mat->getNumEnergyGroups(); e++)
+  for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
@@ -213,22 +239,165 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, int id,
     FP_PRECISION temp_length = _max_tau / max_sigma_t;
     _segments[_count]._length = temp_length;
     _segments[_count]._material = mat;
-    _segments[_count]._region_id = id;
+    _segments[_count]._region_id = fsr_id;
+    _segments[_count]._track_idx = track_idx;
+    _segments[_count]._starting_position[0] = x_start;
+    _segments[_count]._starting_position[1] = y_start;
+    _segments[_count]._starting_position[2] = z_start;
     _segments[_count]._cmfd_surface_fwd = -1;
     if (i == 0)
       _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
     else
       _segments[_count]._cmfd_surface_bwd = -1;
     length -= temp_length;
+    x_start += temp_length * sin(theta) * cos(phi);
+    y_start += temp_length * sin(theta) * sin(phi);
+    y_start += temp_length * cos(theta);
     _count++;
   }
   _segments[_count]._length = length;
   _segments[_count]._material = mat;
-  _segments[_count]._region_id = id;
+  _segments[_count]._region_id = fsr_id;
+  _segments[_count]._track_idx = track_idx;
+  _segments[_count]._starting_position[0] = x_start;
+  _segments[_count]._starting_position[1] = y_start;
+  _segments[_count]._starting_position[2] = z_start;
   _segments[_count]._cmfd_surface_fwd = cmfd_surface_fwd;
   if (num_cuts > 1)
     _segments[_count]._cmfd_surface_bwd = -1;
   else
     _segments[_count]._cmfd_surface_bwd = cmfd_surface_bwd;
   _count++;
+}
+
+
+//FIXME
+TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
+                                 : MOCKernel(track_generator, row_num) {
+  _direction = true;
+  _min_track_idx = 0;
+  _max_track_idx = 0;
+  _azim_index = 0;
+  _polar_index = 0;
+  _track_id = 0;
+  _thread_fsr_flux = new FP_PRECISION[_num_groups];
+}
+
+TransportKernel::~TransportKernel() {
+  delete [] _thread_fsr_flux;
+}
+
+
+/**
+ * @brief Sets a pointer to the CPUSolver to enable use of transport functions
+ * @param cpu_solver pointer to the CPUSolver
+ */
+//FIXME
+void TransportKernel::setCPUSolver(CPUSolver* cpu_solver) {
+  _cpu_solver = cpu_solver;
+}
+
+
+/**
+ * @brief Sets the indexes of the current Track
+ * @param axim_index the Track's azimuthal index
+ * @param polar_index the Track's polar index
+ */
+//FIXME: delete?
+void TransportKernel::newTrack(Track* track) {
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  _azim_index = track_3D->getAzimIndex();
+  _polar_index = track_3D->getPolarIndex();
+  _track_id = track_3D->getUid();
+  _count = 0;
+}
+
+
+/**
+ * @brief Sets the direction of the current track
+ * @param direction the direction of the track: true = Forward, false = Backward
+ */
+//FIXME: delete?
+void TransportKernel::setDirection(bool direction) {
+  _direction = direction;
+}
+
+
+//FIXME document
+void TransportKernel::execute(double length, Material* mat, long fsr_id,
+                              int track_idx, int cmfd_surface_fwd,
+                              int cmfd_surface_bwd, double x_start,
+                              double y_start, double z_start,
+                              double phi, double theta) {
+
+  if (track_idx < _min_track_idx)
+    _min_track_idx = track_idx;
+  else if (track_idx > _max_track_idx)
+    _max_track_idx = track_idx;
+
+  /* Determine the number of cuts on the segment */
+  FP_PRECISION* sigma_t = mat->getSigmaT();
+  FP_PRECISION max_sigma_t = 0;
+  for (int e=0; e < _num_groups; e++)
+    if (sigma_t[e] > max_sigma_t)
+      max_sigma_t = sigma_t[e];
+
+  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
+
+  /* Determine common length */
+  FP_PRECISION fp_length = length;
+  FP_PRECISION temp_length = std::min(_max_tau / max_sigma_t, fp_length);
+
+  /* Apply MOC equations to segments */
+  for (int i=0; i < num_cuts; i++) {
+
+    /* Copy data into segment */
+    segment curr_segment;
+    curr_segment._length = temp_length;
+    curr_segment._material = mat;
+    curr_segment._region_id = fsr_id;
+    curr_segment._track_idx = track_idx; //FIXME
+
+    /* Determine CMFD surfaces */
+    if (i == 0)
+      curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+    else
+      curr_segment._cmfd_surface_bwd = -1;
+    if (i == num_cuts - 1)
+      curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+    else
+      curr_segment._cmfd_surface_fwd = -1;
+
+    /* Get the backward track flux */
+    int curr_track_id = _track_id + track_idx;
+    //FIXME MEM : float / FP_PRECISION
+    float* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
+                                                     _direction);
+
+    /* Apply MOC equations */
+    _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
+                                 track_flux, _thread_fsr_flux);
+    _cpu_solver->tallyCurrent(&curr_segment, _azim_index, _polar_index,
+                                     track_flux, true);
+
+    /* Shorten remaining 3D length */
+    length -= temp_length;
+  }
+}
+
+
+//FIXME
+void TransportKernel::post() {
+  for (int i=_min_track_idx; i <= _max_track_idx; i++) {
+    //FIXME MEM : float / FP_PRECISION
+    float* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,
+                                                     _direction);
+    Track track;
+    //_sti._z = i; FIXME THIS IS BROKEN
+    //_track_generator_3D->getTrackOTF(&track, &_sti);
+    _cpu_solver->transferBoundaryFlux(&track, _azim_index, _polar_index,
+                                      _direction, track_flux);
+  }
+  _min_track_idx = 0;
+  _max_track_idx = 0;
 }

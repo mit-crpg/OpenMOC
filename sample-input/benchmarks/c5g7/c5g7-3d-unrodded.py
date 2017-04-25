@@ -12,13 +12,13 @@ axial_refines = 2
 
 options = Options()
 
-num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+num_threads = options.num_omp_threads
+azim_spacing = options.azim_spacing
+num_azim = options.num_azim
+polar_spacing = options.polar_spacing
+num_polar = options.num_polar
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 ###############################################################################
 ##########################   Create Core Lattice  #############################
@@ -39,7 +39,7 @@ rc = universes['Reflector Corner Assembly']
 
 # 3 x 3 x 9 core to represent 3D core
 lattices['Root'].setWidth(width_x=21.42, width_y=21.42, width_z=7.14/axial_refines)
-lattices['Root'].setUniverses3D([[[rr, rr, ri],
+lattices['Root'].setUniverses([[[rr, rr, ri],
                                   [rr, rr, ri],
                                   [rb, rb, rc]]] * 3 * axial_refines +
                                 [[[uu, mu, ri],
@@ -55,7 +55,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51,9*axial_refines)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([[1,2,3],[4,5,6,7]])
 cmfd.setCentroidUpdateOn(True)
 cmfd.setKNearest(3)
 
@@ -85,7 +85,7 @@ track_generator.setQuadrature(quad)
 
 track_generator.setNumThreads(num_threads)
 track_generator.setSegmentFormation(openmoc.OTF_STACKS)
-track_generator.setSegmentationHeights([0.1])
+track_generator.setSegmentationZones([-32.13, -10.71, 10.71, 32.13])
 track_generator.generateTracks()
 
 ###############################################################################

@@ -133,7 +133,7 @@ log.py_printf('NORMAL', 'Creating 4 x 4 core of 17 x 17 assemblies...')
 # 1st 17x17 assembly
 a1 = openmoc.Lattice(name='assembly 1')
 a1.setWidth(width_x=1.0, width_y=1.0)
-a1.setUniverses([
+a1.setUniverses([[
     [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
     [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
     [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
@@ -150,12 +150,12 @@ a1.setUniverses([
     [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
     [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1],
     [u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2, u3, u2],
-    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1]])
+    [u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1, u2, u1]]])
 
 # 2nd 17x17 assembly
 a2 = openmoc.Lattice(name='assembly 2')
 a2.setWidth(width_x=1.0, width_y=1.0)
-a2.setUniverses([
+a2.setUniverses([[
     [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
     [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
     [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
@@ -172,15 +172,15 @@ a2.setUniverses([
     [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
     [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4],
     [u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5, u6, u5],
-    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4]])
+    [u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4, u5, u4]]])
 
 # 4x4 core
 core = openmoc.Lattice(name='full core')
 core.setWidth(width_x=17.0, width_y=17.0, width_z=1.0)
-core.setUniverses([[u7, u8, u7, u8],
-                   [u8, u7, u8, u7],
-                   [u7, u8, u7, u8],
-                   [u8, u7, u8, u7]])
+core.setUniverses([[[u7, u8, u7, u8],
+                    [u8, u7, u8, u7],
+                    [u7, u8, u7, u8],
+                    [u8, u7, u8, u7]]])
 
 assembly1.setFill(a1)
 assembly2.setFill(a2)

@@ -10,13 +10,13 @@ from lattices import lattices, universes, cells, surfaces
 
 options = Options()
 
-num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+num_threads = options.num_omp_threads
+azim_spacing = options.azim_spacing
+num_azim = options.num_azim
+polar_spacing = options.polar_spacing
+num_polar = options.num_polar
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 uu = universes['UO2 Unrodded Assembly']
 ur = universes['UO2 Rodded Assembly']
@@ -30,7 +30,7 @@ rc = universes['Reflector Corner Assembly']
 
 # 3 x 3 x 9 core to represent 3D core
 lattices['Root'].setWidth(width_x=21.42, width_y=21.42)
-lattices['Root'].setUniverses3D([[[uu, mu, ri],
+lattices['Root'].setUniverses([[[uu, mu, ri],
                                   [mu, uu, ri],
                                   [rb, rb, rc]]])
 
@@ -45,7 +45,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 cmfd = openmoc.Cmfd()
 cmfd.setSORRelaxationFactor(1.5)
 cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([1,4,8])
+cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
 cmfd.setCentroidUpdateOn(True)
 cmfd.setKNearest(3)
 
@@ -69,8 +69,7 @@ log.py_printf('NORMAL', 'Initializing the track generator...')
 quad = openmoc.EqualAnglePolarQuad()
 quad.setNumPolarAngles(num_polar)
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
-                                         azim_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()

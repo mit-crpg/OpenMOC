@@ -2,15 +2,15 @@ import openmoc
 import openmoc.materialize as materialize
 from surfaces import surfaces
 
-fuel_rings      = 1
-moderator_rings = 1
-num_sectors     = 1
+fuel_rings      = 5
+moderator_rings = 0
+num_sectors     = 4
 
 ###############################################################################
 ###########################   Creating Materials   ############################
 ###############################################################################
 
-materials = materialize.materialize('../../c5g7-materials.py')
+materials = materialize.load_from_hdf5('c5g7-mgxs.h5', '../../')
 
 ###############################################################################
 ######################   Creating Cells and Universes   #######################
@@ -41,7 +41,7 @@ cells['Reflector Rodded Assembly']   = openmoc.Cell()
 cells['Reflector Right Assembly']    = openmoc.Cell()
 cells['Reflector Bottom Assembly']   = openmoc.Cell()
 cells['Reflector Corner Assembly']   = openmoc.Cell()
-
+cells['Reflector Assembly']          = openmoc.Cell()
 
 # Set material fills
 cells['UO2']             .setFill(materials['UO2'])
@@ -56,15 +56,19 @@ cells['Reflector']       .setFill(materials['Water'])
 cells['Moderator in Pin'].setFill(materials['Water'])
 
 # Set rings and sectors
+'''
 cells['UO2']             .setNumRings(fuel_rings)
 cells['MOX 4.3%']        .setNumRings(fuel_rings)
 cells['MOX 7.0%']        .setNumRings(fuel_rings)
 cells['MOX 8.7%']        .setNumRings(fuel_rings)
+'''
 cells['Guide Tube']      .setNumRings(fuel_rings)
 cells['Fission Chamber'] .setNumRings(fuel_rings)
 cells['Control Rod']     .setNumRings(fuel_rings)
 cells['Moderator in Pin'].setNumRings(fuel_rings)
+'''
 cells['Moderator']       .setNumRings(moderator_rings)
+'''
 cells['UO2']             .setNumSectors(num_sectors)
 cells['MOX 4.3%']        .setNumSectors(num_sectors)
 cells['MOX 7.0%']        .setNumSectors(num_sectors)
@@ -73,7 +77,7 @@ cells['Guide Tube']      .setNumSectors(num_sectors)
 cells['Fission Chamber'] .setNumSectors(num_sectors)
 cells['Control Rod']     .setNumSectors(num_sectors)
 cells['Moderator in Pin'].setNumSectors(num_sectors)
-cells['Moderator']       .setNumSectors(num_sectors)
+cells['Moderator']       .setNumSectors(8)
 
 # Add surfaces
 cells['UO2']             .addSurface(-1, surfaces['Fuel Cylinder'])

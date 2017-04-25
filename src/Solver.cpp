@@ -1,4 +1,6 @@
 #include "Solver.h"
+#include <fstream>
+
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
  *        set to NULL.
@@ -19,7 +21,11 @@ Solver::Solver(TrackGenerator* track_generator) {
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
-  _exp_evaluator = new ExpEvaluator();
+  _num_exp_evaluators_azim = 1;
+  _num_exp_evaluators_polar = 1;
+  _exp_evaluators = new ExpEvaluator**[_num_exp_evaluators_azim];
+  _exp_evaluators[0] = new ExpEvaluator*[_num_exp_evaluators_polar];
+  _exp_evaluators[0][0] = new ExpEvaluator();
   _solve_3D = false;
   _segment_formation = EXPLICIT_2D;
 
@@ -34,6 +40,9 @@ Solver::Solver(TrackGenerator* track_generator) {
   _old_scalar_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
+  _source_type = "None";
+  
+  _regionwise_scratch = NULL;
 
   /* Default polar quadrature */
   _fluxes_per_track = 0;
@@ -45,8 +54,14 @@ Solver::Solver(TrackGenerator* track_generator) {
   _converge_thresh = 1E-5;
 
   _timer = new Timer();
-}
 
+  _correct_xs = false;
+  _verbose = false;
+  _xs_log_level = ERROR;
+
+  //FIXME
+  _OTF_transport = false;
+}
 
 /**
  * @brief Destructor deletes arrays of boundary angular fluxes,
@@ -78,8 +93,19 @@ Solver::~Solver() {
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
 
-  if (_exp_evaluator != NULL)
-    delete _exp_evaluator;
+  if (_regionwise_scratch != NULL)
+    delete [] _regionwise_scratch;
+  
+  for (int i=0; i < _groupwise_scratch.size(); i++)
+    delete [] _groupwise_scratch.at(i);
+  _groupwise_scratch.clear();
+
+  for (int a=0; a < _num_exp_evaluators_azim; a++) {
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      delete _exp_evaluators[a][p];
+    delete [] _exp_evaluators[a];
+  }
+  delete [] _exp_evaluators;
 }
 
 
@@ -117,7 +143,7 @@ TrackGenerator* Solver::getTrackGenerator() {
  * @param fsr_id the flat source region ID of interest
  * @return the flat source region volume
  */
-FP_PRECISION Solver::getFSRVolume(int fsr_id) {
+FP_PRECISION Solver::getFSRVolume(long fsr_id) {
 
   if (fsr_id < 0 || fsr_id > _num_FSRs)
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
@@ -181,7 +207,7 @@ FP_PRECISION Solver::getConvergenceThreshold() {
  * @return The max optical length
  */
 FP_PRECISION Solver::getMaxOpticalLength() {
-  return _exp_evaluator->getMaxOpticalLength();
+  return _exp_evaluators[0][0]->getMaxOpticalLength();
 }
 
 
@@ -204,7 +230,7 @@ bool Solver::isUsingDoublePrecision() {
  * @return true if using linear interpolation to compute exponentials
  */
 bool Solver::isUsingExponentialInterpolation() {
-  return _exp_evaluator->isUsingInterpolation();
+  return _exp_evaluators[0][0]->isUsingInterpolation();
 }
 
 
@@ -214,7 +240,7 @@ bool Solver::isUsingExponentialInterpolation() {
  * @param group the energy group of interest
  * @return the FSR scalar flux
  */
-FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int group) {
+FP_PRECISION Solver::getFlux(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
@@ -247,7 +273,7 @@ FP_PRECISION Solver::getFSRScalarFlux(int fsr_id, int group) {
  * @param group the energy group of interest
  * @return the flat source region source
  */
-FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
+FP_PRECISION Solver::getFSRSource(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a source for FSR ID = %d "
@@ -283,7 +309,7 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
 
   /* Compute scatter source */
   for (int g=0; g < _num_groups; g++)
-    source += material->getSigmaSByGroupInline(g,group-1)
+    source += material->getSigmaSByGroup(g+1,group)
               * _scalar_flux(fsr_id,g);
 
   /* Add in fixed source (if specified by user) */
@@ -293,17 +319,6 @@ FP_PRECISION Solver::getFSRSource(int fsr_id, int group) {
   source *= ONE_OVER_FOUR_PI;
 
   return source;
-}
-
-
-/**
- * @brief Returns the boundary flux array at the requested indexes
- * @param track_id The Track's Unique ID
- * @param fwd Whether the direction of the angular flux along the track is
- *        forward (True) or backward (False)
- */
-FP_PRECISION* Solver::getBoundaryFlux(int track_id, bool fwd) {
-  return &_boundary_flux(track_id, !fwd, 0);
 }
 
 
@@ -353,8 +368,8 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _track_generator = track_generator;
   _segment_formation = _track_generator->getSegmentFormation();
   _num_azim = _track_generator->getNumAzim();
-  _azim_spacings = _track_generator->getAzimSpacings();
   _quad = _track_generator->getQuadrature();
+  _azim_spacings = _quad->getAzimSpacings();
   _num_polar = _quad->getNumPolarAngles();
   _tracks = _track_generator->getTracksArray();
 
@@ -362,7 +377,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   if (track_generator_3D != NULL) {
     _fluxes_per_track = _num_groups;
     _tot_num_tracks = track_generator_3D->getNum3DTracks();
-    _polar_spacings = track_generator_3D->getPolarSpacings();
+    _polar_spacings = _quad->getPolarSpacings();
     _tracks_per_stack = track_generator_3D->getTracksPerStack();
     _solve_3D = true;
   }
@@ -400,7 +415,7 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
+void Solver::setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source) {
 
   if (group <= 0 || group > _num_groups)
     log_printf(ERROR,"Unable to set fixed source for group %d in "
@@ -409,6 +424,8 @@ void Solver::setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source) {
   if (fsr_id < 0 || fsr_id >= _num_FSRs)
     log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
                "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+  _fix_src_FSR_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
 
@@ -432,13 +449,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
 
   /* Add the source to all FSRs for this MATERIAL type Cell */
   else {
-    Cell* fsr_cell;
-
-    for (int r=0; r < _num_FSRs; r++) {
-      fsr_cell = _geometry->findCellContainingFSR(r);
-      if (cell->getId() == fsr_cell->getId())
-        setFixedSourceByFSR(r, group, source);
-    }
+    _fix_src_cell_map[std::pair<Cell*, int>(cell, group)] = source;
   }
 }
 
@@ -453,15 +464,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
  */
 void Solver::setFixedSourceByMaterial(Material* material, int group,
                                       FP_PRECISION source) {
-
-  Material* fsr_material;
-
-  /* Add the source to all FSRs for this Material */
-  for (int r=0; r < _num_FSRs; r++) {
-    fsr_material = _geometry->findFSRMaterial(r);
-    if (material->getId() == fsr_material->getId())
-      setFixedSourceByFSR(r, group, source);
-  }
+  _fix_src_material_map[std::pair<Material*, int>(material, group)] = source;
 }
 
 
@@ -470,7 +473,9 @@ void Solver::setFixedSourceByMaterial(Material* material, int group,
  * @param max_optical_length The max optical length
  */
 void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
-  _exp_evaluator->setMaxOpticalLength(max_optical_length);
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->setMaxOpticalLength(max_optical_length);
 }
 
 
@@ -482,7 +487,9 @@ void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
  * @param precision the precision of the exponential interpolation table,
  */
 void Solver::setExpPrecision(FP_PRECISION precision) {
-  _exp_evaluator->setExpPrecision(precision);
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->setExpPrecision(precision);
 }
 
 
@@ -491,7 +498,9 @@ void Solver::setExpPrecision(FP_PRECISION precision) {
  *        exponential in the transport equation.
  */
 void Solver::useExponentialInterpolation() {
-  _exp_evaluator->useInterpolation();
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->useInterpolation();
 }
 
 
@@ -500,24 +509,48 @@ void Solver::useExponentialInterpolation() {
  *        function to compute the exponential in the transport equation.
  */
 void Solver::useExponentialIntrinsic() {
-  _exp_evaluator->useIntrinsic();
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->useIntrinsic();
+}
+
+
+/**
+ * @brief   Directs OpenMOC to correct unphysical cross-sections
+ * @details If a material is found with greater total scattering cross-section
+ *          than total cross-section, the total cross-section is set to the
+ *          scattering cross-section.
+ */
+void Solver::correctXS() {
+  _correct_xs = true;
+}
+
+
+/**
+ * @brief   Determines which log level to set cross-section warnings
+ * @details The default log level is ERROR
+ * @param   log_level The log level for outputing cross-section inconsistencies
+ */
+void Solver::setCheckXSLogLevel(logLevel log_level) {
+  _xs_log_level = log_level;
 }
 
 
 /**
  * @brief Initializes new ExpEvaluator object to compute exponentials.
  */
-void Solver::initializeExpEvaluator() {
+void Solver::initializeExpEvaluators() {
 
-  _exp_evaluator->setSolve3D(_solve_3D);
-  _exp_evaluator->setQuadrature(_quad);
+  //FIXME
+  ExpEvaluator* first_evaluator = _exp_evaluators[0][0];
+  first_evaluator->setQuadrature(_quad);
 
-  if (_exp_evaluator->isUsingInterpolation()) {
+  if (first_evaluator->isUsingInterpolation()) {
 
     /* Find minimum of optional user-specified and actual max taus */
     FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
-    FP_PRECISION max_tau_b = _exp_evaluator->getMaxOpticalLength();
-    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b);
+    FP_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
+    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
@@ -526,10 +559,51 @@ void Solver::initializeExpEvaluator() {
     else
       _track_generator->countSegments();
 
-    /* Initialize exponential interpolation table */
-    _exp_evaluator->setMaxOpticalLength(max_tau);
-    _exp_evaluator->initialize();
+    first_evaluator->setMaxOpticalLength(max_tau);
   }
+
+  /* Delete old exponential evaluators */
+  for (int a=0; a < _num_exp_evaluators_azim; a++) {
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      if (_exp_evaluators[a][p] != first_evaluator)
+        delete _exp_evaluators[a][p];
+    delete [] _exp_evaluators[a];
+  }
+  delete [] _exp_evaluators;
+
+  /* Determine number of exponential evaluators */
+  _num_exp_evaluators_azim = _num_azim / 4;
+  if (_solve_3D)
+    _num_exp_evaluators_polar = _num_polar / 2;
+  else
+    _num_exp_evaluators_polar = 1;
+
+  /* Allocate new exponential evaluators */
+  _exp_evaluators = new ExpEvaluator**[_num_azim/2];
+  for (int a=0; a < _num_azim/2; a++)
+    _exp_evaluators[a] = new ExpEvaluator*[_num_polar];
+  for (int a=0; a < _num_exp_evaluators_azim; a++) {
+    for (int p=0; p < _num_exp_evaluators_polar; p++) {
+
+      /* Create a new exponential evaluator if necessary */
+      if (a == 0 && p == 0)
+        _exp_evaluators[a][p] = first_evaluator;
+      else
+        _exp_evaluators[a][p] = first_evaluator->deepCopy();
+
+      /* Copy evaluators to supplimentary positions */
+      int sup_azim = _num_azim / 2 - a - 1;
+      int sup_polar = _num_polar - p - 1;
+      _exp_evaluators[sup_azim][p] = _exp_evaluators[a][p];
+      _exp_evaluators[a][sup_polar] = _exp_evaluators[a][p];
+      _exp_evaluators[sup_azim][sup_polar] = _exp_evaluators[a][p];
+    }
+  }
+
+  /* Initialize exponential interpolation table */
+  for (int a=0; a < _num_exp_evaluators_azim; a++)
+    for (int p=0; p < _num_exp_evaluators_polar; p++)
+      _exp_evaluators[a][p]->initialize(a, p, _solve_3D);
 }
 
 
@@ -541,7 +615,7 @@ void Solver::initializeExpEvaluator() {
  */
 void Solver::initializeFSRs() {
 
-  log_printf(INFO, "Initializing flat source regions...");
+  log_printf(NORMAL, "Initializing flat source regions...");
 
   /* Delete old FSR arrays if they exist */
   if (_FSR_materials != NULL)
@@ -560,6 +634,18 @@ void Solver::initializeFSRs() {
   else
     _fluxes_per_track = _num_groups * _num_polar/2;
 
+  /* Allocate scratch memory */
+  for (int i=0; i < _groupwise_scratch.size(); i++)
+    delete [] _groupwise_scratch.at(i);
+  if (_regionwise_scratch != NULL)
+    delete [] _regionwise_scratch;
+  //FIXME
+  int num_threads = omp_get_num_procs();
+  _groupwise_scratch.resize(num_threads);
+  for (int i=0; i < num_threads; i++)
+    _groupwise_scratch.at(i) = new FP_PRECISION[_num_groups];
+  _regionwise_scratch = new double[_num_FSRs];
+
   /* Generate the FSR centroids */
   _track_generator->generateFSRCentroids(_FSR_volumes);
 
@@ -567,7 +653,7 @@ void Solver::initializeFSRs() {
   _FSR_materials = new Material*[_num_FSRs];
 
   /* Loop over all FSRs to extract FSR material pointers */
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
     log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
                r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
@@ -586,12 +672,150 @@ void Solver::countFissionableFSRs() {
   log_printf(INFO, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
-  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
   _num_fissionable_FSRs = 0;
-
-  for (int r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++) {
     if (_FSR_materials[r]->isFissionable())
       _num_fissionable_FSRs++;
+  }
+}
+
+
+/**
+ * @brief All material cross-sections in the geometry are checked for
+ *        consistency
+ * @details Each cross-section is checked to ensure that the total
+ *          cross-section is greater than or equal to the scattering
+ *          cross-section for each energy group and that all cross-sections
+ *          are positive.
+ */
+void Solver::checkXS() {
+
+  log_printf(NORMAL, "Checking material cross-sections");
+
+  /* Create a set of material pointers */
+  std::set<Material*> materials_set;
+
+  /* Get a set of the materials over all FSR */
+  logLevel level = _xs_log_level;
+#pragma omp parallel for
+  for (long r=0; r < _num_FSRs; r++) {
+
+    /* Get the material */
+    Material* material = _FSR_materials[r];
+
+    /* Check to see that this material hasn't been checked yet */
+    if (materials_set.find(material) == materials_set.end()) {
+#pragma omp critical
+      {
+        if (materials_set.find(material) == materials_set.end())
+          materials_set.insert(material);
+      }
+    }
+  }
+
+  /* Check all unique materials */
+  for (std::set<Material*>::iterator it = materials_set.begin();
+          it != materials_set.end(); ++it) {
+
+    /* Get the material */
+    Material* material = *it;
+
+    /* Extract cross-sections */
+    char* name = material->getName();
+    FP_PRECISION* sigma_t = material->getSigmaT();
+    FP_PRECISION* sigma_f = material->getSigmaF();
+    FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+    FP_PRECISION* scattering_matrix = material->getSigmaS();
+    FP_PRECISION* chi = material->getChi();
+
+    /* Loop over all energy groups */
+    for (int e=0; e < _num_groups; e++) {
+
+      /* Check that the total cross-section is greater than or equal to the
+         scattering cross-section */
+      FP_PRECISION sigma_s = 0.0;
+      for (int g=0; g < _num_groups; g++) {
+        sigma_s += scattering_matrix[g*_num_groups+e];
+        if (scattering_matrix[g*_num_groups+e] < 0)
+          log_printf(level, "Negative scattering cross-section encountered "
+                     "in material ID %d", material->getId());
+      }
+      if (sigma_s > sigma_t[e]) {
+        if (_correct_xs) {
+          log_printf(WARNING, "Invalid cross-sections encountered. The "
+                     "scattering cross-section has value %6.4f which is "
+                     "greater than the total cross-section of value %6.4f in"
+                     " material ID %d for group %d", sigma_s, sigma_t[e],
+                     material->getId(), e);
+          sigma_t[e] = sigma_s;
+          log_printf(WARNING, "The total cross-section has been corrected to "
+                     " %6.4f in material ID %d for group %d", sigma_s,
+                     material->getId(), e);
+        }
+        else {
+          log_printf(level, "Invalid cross-sections encountered. The "
+                     "scattering cross-section has value %6.4f which is "
+                     "greater than the total cross-section of value %6.4f in"
+                     " material ID %d for group %d", sigma_s, sigma_t[e],
+                     material->getId(), e);
+        }
+      }
+
+      /* Check for negative cross-section values */
+      if (sigma_t[e] < 0 || sigma_f[e] < 0 || nu_sigma_f[e] < 0 || chi[e] < 0)
+        log_printf(level, "Negative cross-section encountered in material "
+                   "ID %d", material->getId());
+    }
+  }
+  log_printf(NORMAL, "Material cross-section checks complete");
+}
+
+
+/**
+ * @brief Assigns fixed sources assigned by Cell, Material to FSRs.
+ */
+void Solver::initializeFixedSources() {
+
+  Cell* fsr_cell;
+  Material* fsr_material;
+  int group;
+  FP_PRECISION source;
+  std::pair<Cell*, int> cell_group_key;
+  std::pair<Material*, int> mat_group_key;
+  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
+  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
+
+  /* Fixed sources assigned by Cell */
+  for (cell_iter = _fix_src_cell_map.begin();
+       cell_iter != _fix_src_cell_map.end(); ++cell_iter) {
+
+    /* Get the Cell with an assigned fixed source */
+    cell_group_key = cell_iter->first;
+    group = cell_group_key.second;
+    source = _fix_src_cell_map[cell_group_key];
+
+    /* Search for this Cell in all FSRs */
+    for (long r=0; r < _num_FSRs; r++) {
+      fsr_cell = _geometry->findCellContainingFSR(r);
+      if (cell_group_key.first->getId() == fsr_cell->getId())
+        setFixedSourceByFSR(r, group, source);
+    }
+  }
+
+  /** Fixed sources assigned by Material */
+  for (mat_iter = _fix_src_material_map.begin();
+       mat_iter != _fix_src_material_map.end(); ++mat_iter) {
+
+    /* Get the Material with an assigned fixed source */
+    mat_group_key = mat_iter->first;
+    group = mat_group_key.second;
+    source = _fix_src_material_map[mat_group_key];
+
+    for (long r=0; r < _num_FSRs; r++) {
+      fsr_material = _geometry->findFSRMaterial(r);
+      if (mat_group_key.first->getId() == fsr_material->getId())
+        setFixedSourceByFSR(r, group, source);
+    }
   }
 }
 
@@ -636,15 +860,14 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRFluxes(_scalar_flux);
   _cmfd->setQuadrature(_quad);
   _cmfd->setGeometry(_geometry);
-  _cmfd->setAzimSpacings(_track_generator->getAzimSpacings(), _num_azim);
+  _cmfd->setAzimSpacings(_quad->getAzimSpacings(), _num_azim);
   _cmfd->initialize();
 
 
   TrackGenerator3D* track_generator_3D =
     dynamic_cast<TrackGenerator3D*>(_track_generator);
   if (track_generator_3D != NULL)
-    _cmfd->setPolarSpacings
-      (track_generator_3D->getPolarSpacings(), _num_azim, _num_polar);
+    _cmfd->setPolarSpacings(_quad->getPolarSpacings(), _num_azim, _num_polar);
 }
 
 
@@ -711,10 +934,17 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
+  /* Initialize keff to 1 for FSR source calcualtions */
+  _k_eff = 1.;
+
   FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
-  initializeExpEvaluator();
+  initializeFSRs();
+  initializeSourceArrays();
+  checkXS();
+  countFissionableFSRs();
+  initializeExpEvaluators();
 
   /* Initialize new flux arrays if a) the user requested the use of
    * only fixed sources or b) no previous simulation was performed which
@@ -722,15 +952,13 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   if (only_fixed_source || _num_iterations == 0) {
     initializeFluxArrays();
     flattenFSRFluxes(0.0);
+    storeFSRFluxes();
   }
 
-  initializeSourceArrays();
-  initializeFSRs();
-  countFissionableFSRs();
   zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */
-  computeFSRSources();
+  computeFSRSources(0);
 
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
@@ -817,10 +1045,10 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   FP_PRECISION residual = 0.;
 
   /* Initialize data structures */
-  initializeExpEvaluator();
+  initializeFSRs();
+  initializeExpEvaluators();
   initializeFluxArrays();
   initializeSourceArrays();
-  initializeFSRs();
 
   /* Guess unity scalar flux for each region */
   flattenFSRFluxes(1.0);
@@ -832,7 +1060,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    computeFSRSources();
+    computeFSRSources(i);
     transportSweep();
     addSourceToScalarFlux();
     residual = computeResidual(res_type);
@@ -886,59 +1114,137 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     log_printf(ERROR, "The Solver is unable to compute the eigenvalue "
                "since it does not contain a TrackGenerator");
 
-  log_printf(NORMAL, "Computing the eigenvalue...");
+  log_printf(NORMAL, "Initializing MOC eigenvalue solver...");
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
-
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
-
   _num_iterations = 0;
+  FP_PRECISION previous_residual = 1.0;
   FP_PRECISION residual = 0.;
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
+  FP_PRECISION k_prev = _k_eff;
 
   /* Initialize data structures */
   initializeFSRs();
+  checkXS();
   countFissionableFSRs();
-  initializeExpEvaluator();
+  initializeExpEvaluators();
   initializeFluxArrays();
   initializeSourceArrays();
   initializeCmfd();
+  _geometry->fixFSRMaps();
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
+#endif
+  printInputParamsSummary();
 
   /* Set scalar flux to unity for each region */
   flattenFSRFluxes(1.0);
-  zeroTrackFluxes();
+  normalizeFluxes();
   storeFSRFluxes();
+  zeroTrackFluxes();
+
+  /* Print memory report */
+  double vm;
+  double rm;
+  double max_vm = vm;
+  double max_rm = rm;
+  log_printf(NORMAL, "FIXME getting memory report");
+  //FIXME
+  _timer->processMemUsage(vm, rm);
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Barrier(_geometry->getMPICart());
+    MPI_Allreduce(&vm, &max_vm, 1, MPI_DOUBLE, MPI_MAX,
+                  _geometry->getMPICart());
+    MPI_Allreduce(&rm, &max_rm, 1, MPI_DOUBLE, MPI_MAX,
+                  _geometry->getMPICart());
+  }
+#endif
+  if (_geometry->isRootDomain())
+    log_printf(NORMAL, "Using maximum %f MB virtual memory and %f MB resident "
+                        "memory per node", vm, rm);
+  //FIXME
+
+  /* Start the timer to record the total time to converge the source */
+  _timer->startTimer();
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
+#endif
+  log_printf(NORMAL, "Computing the eigenvalue...");
+
+  /* Create object to track convergence data if requested */
+  ConvergenceData* convergence_data = NULL;
+  if (_verbose) {
+    if (_cmfd != NULL) {
+      convergence_data = new ConvergenceData;
+      _cmfd->setConvergenceData(convergence_data);
+      log_printf(NORMAL, "iter   k-eff   eps-k  eps-MOC   D.R.   "
+               "eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN"
+               "  #FX1 #FXN  MAX P.F.");
+    }
+  }
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    normalizeFluxes();
-    computeFSRSources();
+    computeFSRSources(i);
     _timer->startTimer();
     transportSweep();
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-
+    
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else
       computeKeff();
 
-    log_printf(NORMAL, "Iteration %d:\tk_eff = %1.6f"
-               "\tres = %1.3E", i, _k_eff, residual);
-
+    /* Normalize the flux and compute residuals */
+    normalizeFluxes();
     residual = computeResidual(res_type);
+
+    /* Compute difference in k and apparent dominance ratio */
+    FP_PRECISION dr = residual / previous_residual;
+    int dk = 1e5 * (_k_eff - k_prev);
+    k_prev = _k_eff;
+
+    /* Ouptut iteration report */
+    if (_verbose && convergence_data != NULL) {
+
+      /* Unpack convergence data */
+      double pf = convergence_data->pf;
+      double cmfd_res_1 = convergence_data->cmfd_res_1;
+      double cmfd_res_end = convergence_data->cmfd_res_end;
+      double linear_res_1 = convergence_data->linear_res_1;
+      double linear_res_end = convergence_data->linear_res_end;
+      int cmfd_iters = convergence_data->cmfd_iters;
+      int linear_iters_1 = convergence_data->linear_iters_1;
+      int linear_iters_end = convergence_data->linear_iters_end;
+      log_printf(NORMAL, "%3d  %1.6f  %5d  %1.6f  %1.3f  %1.6f  %1.6f"
+                 "  %3d  %1.6f  %1.6f  %3d  %3d    %1.6f", i, _k_eff,
+                 dk, residual, dr, cmfd_res_1, cmfd_res_end,
+                 cmfd_iters, linear_res_1, linear_res_end,
+                 linear_iters_1, linear_iters_end, pf);
+    }
+    else {
+      log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
+                 "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
+    }
+
+    if (_cmfd != NULL)
+      _cmfd->setSourceConvergenceThreshold(0.01*residual);
     storeFSRFluxes();
+    previous_residual = residual;
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh)
+    if (i > 1 && residual < _converge_thresh && std::abs(dk) < 1)
       break;
   }
 
@@ -960,11 +1266,26 @@ void Solver::clearTimerSplits() {
 
 
 /**
+ * @brief Sets the solver to print extra information for each iteration
+ */
+void Solver::setVerboseIterationReport() {
+  set_line_length(120);
+  _verbose = true;
+}
+
+
+/**
  * @brief Prints a report of the timing statistics to the console.
  */
 void Solver::printTimerReport() {
 
   std::string msg_string;
+
+  /* Collapse timer to average values in domain decomposition */
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    _timer->reduceTimer(_geometry->getMPICart());
+#endif
 
   log_printf(TITLE, "TIMING REPORT");
 
@@ -985,8 +1306,28 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep);
 
+  double transfer_time = _timer->getSplit("Total transfer time");
+  msg_string = "Angular Flux Transfer";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transfer_time);
+
+  double pack_time = _timer->getSplit("Packing time");
+  msg_string = "Angular Flux Packing Time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), pack_time);
+
+  double comm_time = _timer->getSplit("Communication time");
+  msg_string = "Angular Flux Communication Time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
+
+  double idle_time = _timer->getSplit("Idle time");
+  msg_string = "Total Idle Time Between Sweeps";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), idle_time);
+
   /* Time per segment */
-  int num_segments = 0;
+  long num_segments = 0;
   TrackGenerator3D* track_generator_3D =
     dynamic_cast<TrackGenerator3D*>(_track_generator);
   if (track_generator_3D != NULL)
@@ -994,11 +1335,28 @@ void Solver::printTimerReport() {
   else
     num_segments = _track_generator->getNum2DSegments();
 
-  int num_integrations = _fluxes_per_track * num_segments * _num_iterations;
+  /* Reduce number of Tracks and segments if necessary */
+  long total_num_segments = num_segments;
+  long total_num_tracks = _tot_num_tracks;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Comm MPI_cart = _geometry->getMPICart();
+    MPI_Allreduce(&num_segments, &total_num_segments, 1, MPI_LONG,
+                  MPI_SUM, MPI_cart);
+    MPI_Allreduce(&_tot_num_tracks, &total_num_tracks, 1, MPI_LONG,
+                  MPI_SUM, MPI_cart);
+  }
+#endif
+
+  long num_integrations = 2 * _fluxes_per_track * total_num_segments *
+      _num_iterations;
   double time_per_integration = (transport_sweep / num_integrations);
   msg_string = "Integration time per segment integration";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
+
+  if (_cmfd != NULL)
+    _cmfd->printTimerReport();
 
   set_separator_character('-');
   log_printf(SEPARATOR, "-");
@@ -1007,9 +1365,9 @@ void Solver::printTimerReport() {
   log_printf(RESULT, "%s", msg_string.c_str());
   log_printf(SEPARATOR, "-");
 
-  int num_digits = (int) log10((double) _tot_num_tracks);
-  num_digits += (int) log10((double) num_segments);
-  num_digits += (int) log10((double) _num_FSRs);
+  int num_digits = (int) log10((double) total_num_tracks);
+  num_digits += (int) log10((double) total_num_segments);
+  num_digits += (int) log10((double) _geometry->getNumTotalFSRs());
 
   num_digits = 66 - num_digits;
   num_digits /= 4;
@@ -1021,13 +1379,122 @@ void Solver::printTimerReport() {
       msg << " ";
 
     if (i == 0)
-      msg << _tot_num_tracks;
+      msg << total_num_tracks;
     else if (i == 1)
-      msg << num_segments;
+      msg << total_num_segments;
     else if (i == 2)
-      msg << _num_FSRs;
+      msg << _geometry->getNumTotalFSRs();
   }
 
   log_printf(RESULT, "%s", msg.str().c_str());
   log_printf(SEPARATOR, "-");
+}
+
+
+//FIXME
+void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
+
+  Universe* root_universe = _geometry->getRootUniverse();
+  double x_min = root_universe->getMinX();
+  double x_max = root_universe->getMaxX();
+  double y_min = root_universe->getMinY();
+  double y_max = root_universe->getMaxY();
+  double z_min = root_universe->getMinZ();
+  double z_max = root_universe->getMaxZ();
+
+  double* fission_rates = new double[nx*ny*nz];
+  for (int i=0; i < nx*ny*nz; i++)
+    fission_rates[i] = 0;
+
+  int num_fsrs = _geometry->getNumTotalFSRs();
+  double* fsr_fission_rates = new double[num_fsrs];
+  computeFSRFissionRates(fsr_fission_rates, num_fsrs);
+
+  for (long r=0; r < num_fsrs; r++) {
+
+    std::vector<double> pt = _geometry->getGlobalFSRCentroidData(r);
+
+    int x_ind = nx * (pt.at(0) - x_min) / (x_max - x_min);
+    int y_ind = ny * (pt.at(1) - y_min) / (y_max - y_min);
+    int z_ind = nz * (pt.at(2) - z_min) / (z_max - z_min);
+
+    int ind = z_ind * nx * ny + y_ind * nx + x_ind;
+
+    fission_rates[ind] += fsr_fission_rates[r];
+  }
+
+  int rank = 0;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Comm comm = _geometry->getMPICart();
+    MPI_Comm_rank(comm, &rank);
+  }
+#endif
+
+  if (rank == 0) {
+    std::ofstream out(fname.c_str());
+    out << "Fission rates for (" << nx << ", " << ny << ", " << nz <<
+      ")" << std::endl;
+    for (int i=0; i < nx; i++) {
+      for (int j=0; j < ny; j++) {
+        for (int k=0; k < nz; k++) {
+          int ind = k * nx * ny + j * nx + i;
+          out << "Region " << i << ", " << j << ", " << k << " at point " <<
+            "(" << x_min + (i+0.5) * (x_max - x_min) << ", " <<
+            y_min + (j+0.5) * (y_max - y_min) << ", " <<
+            z_min + (k+0.5) * (z_max - z_min) << ") -> " <<
+            fission_rates[ind] << std::endl;
+        }
+      }
+    }
+  }
+  delete [] fission_rates;
+  delete [] fsr_fission_rates;
+}
+
+
+/**
+ * @brief A function that returns the underlying array of scalar fluxes
+ * @return The scalar fluxes
+ */
+FP_PRECISION* Solver::getFluxesArray() {
+  return _scalar_flux;
+}
+
+
+/**
+ * @brief A function that prints a summary of the input parameters
+ */
+void Solver::printInputParamsSummary() {
+
+  /* Print track laydown parameters */
+  log_printf(NORMAL, "Number of azimuthal angles = %d",
+             _quad->getNumAzimAngles());
+  log_printf(NORMAL, "Azimuthal ray spacing = %f",
+             _track_generator->getDesiredAzimSpacing());
+  log_printf(NORMAL, "Number of polar angles = %d",
+             _quad->getNumPolarAngles());
+  if (_solve_3D) {
+    TrackGenerator3D* track_generator_3D =
+      static_cast<TrackGenerator3D*>(_track_generator);
+    log_printf(NORMAL, "Z-spacing = %f",
+               track_generator_3D->getDesiredZSpacing());
+  }
+
+  /* Print source type */
+  log_printf(NORMAL, "Source type = %s", _source_type.c_str());
+
+  /* Print CMFD parameters */
+  if (_cmfd != NULL) {
+    log_printf(NORMAL, "CMFD acceleration: ON");
+    log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _cmfd->getNumX(),
+               _cmfd->getNumY(), _cmfd->getNumZ());
+    log_printf(NORMAL, "CMFD Group Structure:");
+    log_printf(NORMAL, "\t MOC Group \t CMFD Group");
+    for (int g=0; g < _cmfd->getNumMOCGroups(); g++)
+      log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
+  }
+  else {
+    log_printf(NORMAL, "CMFD acceleration: OFF");
+  }
 }

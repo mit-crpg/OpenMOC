@@ -6,7 +6,7 @@
  */
 void reset_auto_ids() {
   reset_material_id();
-  reset_surf_id();
+  reset_surface_id();
   reset_cell_id();
   reset_universe_id();
 }
@@ -19,6 +19,18 @@ Geometry::Geometry() {
 
   /* Initialize CMFD object to NULL */
   _cmfd = NULL;
+  _overlaid_mesh = NULL;
+  _root_universe = NULL;
+  _domain_decomposed = false;
+  _num_modules_x = 1;
+  _num_modules_y = 1;
+  _num_modules_z = 1;
+  _domain_index_x = 1;
+  _domain_index_y = 1;
+  _domain_index_z = 1;
+  _domain_FSRs_counted = false;
+  _contains_FSR_centroids = false;
+  _twiddle = false;
 }
 
 
@@ -31,25 +43,27 @@ Geometry::~Geometry() {
   if (_FSR_keys_map.size() != 0) {
 
     fsr_data **values = _FSR_keys_map.values();
-    for (int i=0; i<_FSR_keys_map.size(); i++)
+    for (long i=0; i<_FSR_keys_map.size(); i++)
       delete values[i];
-    delete[] values;
+    delete [] values;
 
     ExtrudedFSR **extruded_fsrs = _extruded_FSR_keys_map.values();
     for (int i=0; i<_extruded_FSR_keys_map.size(); i++) {
       if (extruded_fsrs[i]->_mesh != NULL)
-        delete[] extruded_fsrs[i]->_mesh;
-      delete[] extruded_fsrs[i]->_fsr_ids;
-      delete[] extruded_fsrs[i]->_materials;
+        delete [] extruded_fsrs[i]->_mesh;
+      delete [] extruded_fsrs[i]->_fsr_ids;
+      delete [] extruded_fsrs[i]->_materials;
       delete extruded_fsrs[i];
     }
-    delete[] extruded_fsrs;
+    delete [] extruded_fsrs;
 
     _FSR_keys_map.clear();
     _extruded_FSR_keys_map.clear();
     _FSRs_to_keys.clear();
     _FSRs_to_material_IDs.clear();
   }
+  if (_overlaid_mesh != NULL)
+    delete _overlaid_mesh;
 }
 
 
@@ -85,7 +99,15 @@ double Geometry::getWidthZ() {
  * @return the minimum x-coordinate (cm)
  */
 double Geometry::getMinX() {
-  return _root_universe->getMinX();
+  if (_domain_decomposed) {
+    double geometry_min_x = _root_universe->getMinX();
+    double geometry_max_x = _root_universe->getMaxX();
+    double domain_width_x = (geometry_max_x - geometry_min_x) / _num_domains_x;
+    return geometry_min_x + _domain_index_x * domain_width_x;
+  }
+  else {
+    return _root_universe->getMinX();
+  }
 }
 
 
@@ -94,7 +116,16 @@ double Geometry::getMinX() {
  * @return the maximum x-coordinate (cm)
  */
 double Geometry::getMaxX() {
-  return _root_universe->getMaxX();
+  if (_domain_decomposed) {
+    double geometry_min_x = _root_universe->getMinX();
+    double geometry_max_x = _root_universe->getMaxX();
+    double domain_width_x = (geometry_max_x - geometry_min_x) / _num_domains_x;
+    int reverse_index_x = _num_domains_x - _domain_index_x - 1;
+    return geometry_max_x - reverse_index_x * domain_width_x;
+  }
+  else {
+    return _root_universe->getMaxX();
+  }
 }
 
 
@@ -103,7 +134,15 @@ double Geometry::getMaxX() {
  * @return the minimum y-coordinate (cm)
  */
 double Geometry::getMinY() {
-  return _root_universe->getMinY();
+  if (_domain_decomposed) {
+    double geometry_min_y = _root_universe->getMinY();
+    double geometry_max_y = _root_universe->getMaxY();
+    double domain_width_y = (geometry_max_y - geometry_min_y) / _num_domains_y;
+    return geometry_min_y + _domain_index_y * domain_width_y;
+  }
+  else {
+    return _root_universe->getMinY();
+  }
 }
 
 
@@ -112,7 +151,16 @@ double Geometry::getMinY() {
  * @return the maximum y-coordinate (cm)
  */
 double Geometry::getMaxY() {
-  return _root_universe->getMaxY();
+  if (_domain_decomposed) {
+    double geometry_min_y = _root_universe->getMinY();
+    double geometry_max_y = _root_universe->getMaxY();
+    double domain_width_y = (geometry_max_y - geometry_min_y) / _num_domains_y;
+    int reverse_index_y = _num_domains_y - _domain_index_y - 1;
+    return geometry_max_y - reverse_index_y * domain_width_y;
+  }
+  else {
+    return _root_universe->getMaxY();
+  }
 }
 
 
@@ -121,7 +169,15 @@ double Geometry::getMaxY() {
  * @return the minimum z-coordinate (cm)
  */
 double Geometry::getMinZ() {
-  return _root_universe->getMinZ();
+  if (_domain_decomposed) {
+    double geometry_min_z = _root_universe->getMinZ();
+    double geometry_max_z = _root_universe->getMaxZ();
+    double domain_width_z = (geometry_max_z - geometry_min_z) / _num_domains_z;
+    return geometry_min_z + _domain_index_z * domain_width_z;
+  }
+  else {
+    return _root_universe->getMinZ();
+  }
 }
 
 
@@ -130,7 +186,16 @@ double Geometry::getMinZ() {
  * @return the maximum z-coordinate (cm)
  */
 double Geometry::getMaxZ() {
-  return _root_universe->getMaxZ();
+  if (_domain_decomposed) {
+    double geometry_min_z = _root_universe->getMinZ();
+    double geometry_max_z = _root_universe->getMaxZ();
+    double domain_width_z = (geometry_max_z - geometry_min_z) / _num_domains_z;
+    int reverse_index_z = _num_domains_z - _domain_index_z - 1;
+    return geometry_max_z - reverse_index_z * domain_width_z;
+  }
+  else {
+    return _root_universe->getMaxZ();
+  }
 }
 
 
@@ -140,7 +205,10 @@ double Geometry::getMaxZ() {
  * @return the boundary conditions for the minimum x-coordinate in the Geometry
  */
 boundaryType Geometry::getMinXBoundaryType() {
-  return _root_universe->getMinXBoundaryType();
+  if (_domain_decomposed && _domain_index_x > 0)
+   return INTERFACE;
+  else
+    return _root_universe->getMinXBoundaryType();
 }
 
 
@@ -150,7 +218,10 @@ boundaryType Geometry::getMinXBoundaryType() {
  * @return the boundary conditions for the maximum z-coordinate in the Geometry
  */
 boundaryType Geometry::getMaxXBoundaryType() {
-  return _root_universe->getMaxXBoundaryType();
+  if (_domain_decomposed && _domain_index_x < _num_domains_x-1)
+    return INTERFACE;
+  else
+    return _root_universe->getMaxXBoundaryType();
 }
 
 
@@ -160,7 +231,10 @@ boundaryType Geometry::getMaxXBoundaryType() {
  * @return the boundary conditions for the minimum y-coordinate in the Geometry
  */
 boundaryType Geometry::getMinYBoundaryType() {
-  return _root_universe->getMinYBoundaryType();
+  if (_domain_decomposed && _domain_index_y > 0)
+    return INTERFACE;
+  else
+    return _root_universe->getMinYBoundaryType();
 }
 
 
@@ -170,7 +244,10 @@ boundaryType Geometry::getMinYBoundaryType() {
  * @return the boundary conditions for the maximum y-coordinate in the Geometry
  */
 boundaryType Geometry::getMaxYBoundaryType() {
-  return _root_universe->getMaxYBoundaryType();
+  if (_domain_decomposed && _domain_index_y < _num_domains_y-1)
+    return INTERFACE;
+  else
+    return _root_universe->getMaxYBoundaryType();
 }
 
 
@@ -180,7 +257,10 @@ boundaryType Geometry::getMaxYBoundaryType() {
  * @return the boundary conditions for the minimum z-coordinate in the Geometry
  */
 boundaryType Geometry::getMinZBoundaryType() {
-  return _root_universe->getMinZBoundaryType();
+  if (_domain_decomposed && _domain_index_z > 0)
+    return INTERFACE;
+  else
+    return _root_universe->getMinZBoundaryType();
 }
 
 
@@ -190,17 +270,36 @@ boundaryType Geometry::getMinZBoundaryType() {
  * @return the boundary conditions for the maximum z-coordinate in the Geometry
  */
 boundaryType Geometry::getMaxZBoundaryType() {
-  return _root_universe->getMaxZBoundaryType();
+  if (_domain_decomposed && _domain_index_z < _num_domains_z-1)
+    return INTERFACE;
+  else
+    return _root_universe->getMaxZBoundaryType();
 }
 
 
 /**
- * @brief Returns the number of flat source regions in the Geometry.
+ * @brief Returns the number of flat source regions in the Geometry domain.
  * @return number of FSRs
  */
-int Geometry::getNumFSRs() {
+long Geometry::getNumFSRs() {
   return _FSRs_to_keys.size();
 }
+
+
+/**
+ * @brief Returns the number of flat source regions in the entire Geometry.
+ * @return number of FSRs
+ */
+long Geometry::getNumTotalFSRs() {
+  long domain_fsrs =  _FSRs_to_keys.size();
+  long total_fsrs = domain_fsrs;
+#ifdef MPIx
+  if (_domain_decomposed)
+    MPI_Allreduce(&domain_fsrs, &total_fsrs, 1, MPI_LONG, MPI_SUM, _MPI_cart);
+#endif
+  return total_fsrs;
+}
+
 
 /**
  * @brief Returns the number of energy groups for each Material's nuclear data.
@@ -264,6 +363,38 @@ int Geometry::getNumCells() {
 
 
 /**
+ * @brief Return a std::map container of Surface IDs (keys) with Surfaces
+ *        pointers (values).
+ * @return a std::map of Surfaces indexed by Surface ID in the geometry
+ */
+std::map<int, Surface*> Geometry::getAllSurfaces() {
+
+  Cell* cell;
+  Surface* surf;
+  std::map<int, Surface*> all_surfs;
+  std::map<int, surface_halfspace*> surfs;
+  std::map<int, Cell*>::iterator c_iter;
+  std::map<int, surface_halfspace*>::iterator s_iter;
+
+  if (_root_universe != NULL) {
+    std::map<int, Cell*> all_cells = getAllCells();
+
+    for (c_iter = all_cells.begin(); c_iter != all_cells.end(); ++c_iter) {
+      cell = (*c_iter).second;
+      surfs = cell->getSurfaces();
+
+      for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
+	surf = (*s_iter).second->_surface;
+	all_surfs[surf->getId()] = surf;
+      }
+    }
+  }
+
+  return all_surfs;
+}
+
+
+/**
  * @brief Return a std::map container of Material IDs (keys) with Materials
  *        pointers (values).
  * @return a std::map of Materials indexed by Material ID in the geometry
@@ -294,6 +425,51 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 }
 
 
+//FIXME
+void Geometry::manipulateXS() {
+  
+  std::map<int, Material*> all_materials = getAllMaterials();
+  std::map<int, Material*>::iterator mat_iter;
+  std::map<int, Cell*> all_material_cells = getAllMaterialCells();
+  std::map<int, Cell*>::iterator cell_iter;
+
+  for (mat_iter = all_materials.begin(); mat_iter != all_materials.end(); 
+       ++mat_iter) {
+    
+      Material* mat = mat_iter->second;
+      int ng = mat->getNumEnergyGroups();
+      for (int g=0; g < ng; g++) {
+        double sigma_t = mat->getSigmaTByGroup(g+1);
+        for (int gp=0; gp < ng; gp++)
+          if (mat->getSigmaSByGroup(g+1, gp+1) < 0)
+            mat->setSigmaSByGroup(0.0, g+1, gp+1);
+        double sigma_s = 0.0;
+        for (int gp=0; gp < ng; gp++)
+          sigma_s += mat->getSigmaSByGroup(g+1, gp+1);
+        sigma_s *= 1.1;
+        if (sigma_s > sigma_t)
+          mat->setSigmaTByGroup(sigma_s, g+1);
+      }
+  }
+}
+
+
+/**
+ * @brief Return a std::map container of Cell IDs (keys) with Cells
+ *        pointers (values).
+ * @return a std::map of Cells indexed by Cell ID in the geometry
+ */
+std::map<int, Cell*> Geometry::getAllCells() {
+
+  std::map<int, Cell*> all_cells;
+
+  if (_root_universe != NULL)
+    all_cells = _root_universe->getAllCells();
+
+  return all_cells;
+}
+
+
 /**
  * @brief Return a std::map container of Cell IDs (keys) with Cells
  *        pointers (values).
@@ -321,6 +497,22 @@ std::map<int, Cell*> Geometry::getAllMaterialCells() {
 
 
 /**
+ * @brief Return a std::map container of Universe IDs (keys) with Unierses
+ *        pointers (values).
+ * @return a std::map of Universes indexed by Universe ID in the geometry
+ */
+std::map<int, Universe*> Geometry::getAllUniverses() {
+
+  std::map<int, Universe*> all_universes;
+
+  if (_root_universe != NULL)
+    all_universes = _root_universe->getAllUniverses();
+
+  return all_universes;
+}
+
+
+/**
  * @brief Returns the Universe at the root node in the CSG tree.
  * @return the root Universe
  */
@@ -339,6 +531,36 @@ Cmfd* Geometry::getCmfd() {
 
 
 /**
+ * @breif Returns whether the Geometry is domain decomposed
+ * @return If the domain is decomposed (true) or not (false)
+ */
+bool Geometry::isDomainDecomposed() {
+  return _domain_decomposed;
+}
+
+
+/**
+ * @brief Returns whether this MPI domain is the root domain
+ * @return If this domain is the root domain (true) or not (false)
+ */
+bool Geometry::isRootDomain() {
+  bool first_domain = true;
+  if (_domain_decomposed)
+    if (_domain_index_x != 0 || _domain_index_y != 0 || _domain_index_z != 0)
+      first_domain = false;
+  return first_domain;
+}
+
+
+//FIXME
+void Geometry::getDomainIndexes(int* indexes) {
+  indexes[0] = _domain_index_x;
+  indexes[1] = _domain_index_y;
+  indexes[2] = _domain_index_z;
+}
+
+
+/**
  * @brief Sets the root Universe for the CSG tree.
  * @param root_universe the root Universe of the CSG tree.
  */
@@ -347,12 +569,208 @@ void Geometry::setRootUniverse(Universe* root_universe) {
 }
 
 
+//FIXME: add setDefaultDomainDecomposition() function
+
+
+/**
+ * @brief Sets how many modular track laydown domains are in each MPI domain
+ * @param num_x The number of modular domains in the x-direction per MPI domain
+ * @param num_y The number of modular domains in the y-direction per MPI domain
+ * @param num_z The number of modular domains in the z-direction per MPI domain
+ */
+void Geometry::setNumDomainModules(int num_x, int num_y, int num_z) {
+  _num_modules_x = num_x;
+  _num_modules_y = num_y;
+  _num_modules_z = num_z;
+}
+
+int Geometry::getNumXModules() {
+  return _num_modules_x;
+}
+
+int Geometry::getNumYModules() {
+  return _num_modules_y;
+}
+
+int Geometry::getNumZModules() {
+  return _num_modules_z;
+}
+
+
+#ifdef MPIx
+/**
+ * @brief Domain decomposes the Geometry with MPI and modular ray tracing
+ * @param nx The number of MPI domains in the x-direction
+ * @param ny The number of MPI domains in the y-direction
+ * @param nz The number of MPI domains in the z-direction
+ * @param comm The MPI communicator to be used to communicate between domains
+ */
+void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
+
+  /* Calculate number of domains and get the number of MPI ranks */
+  int num_domains = nx*ny*nz;
+  int num_ranks;
+  MPI_Comm_size(comm, &num_ranks);
+
+  /* Check that the number of domains equals the number of ranks */
+  log_set_ranks(comm);
+  if (num_ranks != num_domains)
+    log_printf(ERROR, "Number of ranks is %d and number of domains is %d",
+               num_ranks, num_domains);
+
+
+  /* Check that the root universe has been set */
+  if (_root_universe == NULL)
+    log_printf(ERROR, "The root universe must be set before domain "
+                      "decomposition.");
+
+  /* Check that the Geometry needs to be decomposed */
+  if (num_domains > 1) {
+
+    /* Make note of the domain decomposition */
+    _domain_decomposed = true;
+    _num_domains_x = nx;
+    _num_domains_y = ny;
+    _num_domains_z = nz;
+
+    /* Create the MPI Communicator */
+    int dims[3] = {nx, ny, nz};
+    int wrap[3] = {false, false, false};
+    int ret = MPI_Cart_create(comm, 3, dims, wrap, true, &_MPI_cart);
+    log_set_ranks(_MPI_cart);
+
+    /* Determine the domain indexes */
+    int rank;
+    int cart_coords[3];
+    MPI_Comm_rank(_MPI_cart, &rank);
+    MPI_Cart_coords(_MPI_cart, rank, 3, cart_coords);
+    _domain_index_x = cart_coords[0];
+    _domain_index_y = cart_coords[1];
+    _domain_index_z = cart_coords[2];
+
+    /* Set the bounds in a 1x1x1 Lattice object */
+    _domain_bounds = new Lattice();
+    _domain_bounds->setNumX(1);
+    _domain_bounds->setNumY(1);
+    _domain_bounds->setNumZ(1);
+    double width_x = getWidthX();
+    double width_y = getWidthY();
+    double width_z = getWidthZ();
+    _domain_bounds->setWidth(width_x, width_y, width_z);
+    double offset_x = width_x / 2.0 + getMinX();
+    double offset_y = width_y / 2.0 + getMinY();
+    double offset_z = width_z / 2.0 + getMinZ();
+    _domain_bounds->setOffset(offset_x, offset_y, offset_z);
+    log_printf(NORMAL, "Successfully set %d x %d x %d domain decomposition",
+                        nx, ny, nz);
+  }
+}
+
+
+/**
+ * @brief Returns the MPI communicator to communicate between MPI domains
+ * @return The MPI communicator
+ */
+MPI_Comm Geometry::getMPICart() {
+  if (!_domain_decomposed)
+    log_printf(ERROR, "Tried to get MPI Cart but domain decomposition has not "
+               "yet been set");
+  return _MPI_cart;
+}
+
+
+/**
+ * @breif Returns the rank of the specified neighboring domain
+ * @param offset_x The shift in the x-direction (number of domains)
+ * @param offset_y The shift in the y-direction (number of domains)
+ * @param offset_z The shift in the z-direction (number of domains)
+ * @return The rank of the neighboring domain
+ */
+int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
+  int neighbor_rank = -1;
+  int neighbor_coords[3];
+  neighbor_coords[0] = offset_x + _domain_index_x;
+  neighbor_coords[1] = offset_y + _domain_index_y;
+  neighbor_coords[2] = offset_z + _domain_index_z;
+  if (_domain_decomposed)
+    if (neighbor_coords[0] >= 0 && neighbor_coords[0] < _num_domains_x &&
+        neighbor_coords[1] >= 0 && neighbor_coords[1] < _num_domains_y &&
+        neighbor_coords[2] >= 0 && neighbor_coords[2] < _num_domains_z)
+      MPI_Cart_rank(_MPI_cart, neighbor_coords, &neighbor_rank);
+
+  return neighbor_rank;
+}
+#endif
+
+
 /**
  * @brief Sets the pointer to a CMFD object used for acceleration.
  * @param cmfd a pointer to the CMFD object
  */
 void Geometry::setCmfd(Cmfd* cmfd) {
   _cmfd = cmfd;
+}
+
+
+/**
+ * @brief Sets a global overlaid mesh with the given mesh height
+ * @details The global overlaid mesh is overlaid across the entire Geometry
+ * @param axial_mesh_height The desired height of axial mesh cells
+ //TODO: update description
+ */
+void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
+                               int num_radial_domains, int* radial_domains) {
+
+  /* Get the global Geometry boundaries */
+  double min_x = _root_universe->getMinX();
+  double max_x = _root_universe->getMaxX();
+  double min_y = _root_universe->getMinY();
+  double max_y = _root_universe->getMaxY();
+  double min_z = _root_universe->getMinZ();
+  double max_z = _root_universe->getMaxZ();
+
+  /* Create the lattice */
+  _overlaid_mesh = new Lattice();
+  int real_num_x = 1;
+  int real_num_y = 1;
+  if (num_x > 0 && num_y > 0) {
+    if (radial_domains == NULL) {
+      real_num_x = num_x;
+      real_num_y = num_y;
+    }
+    else {
+      for (int i=0; i < num_radial_domains; i++) {
+        if (radial_domains[2*i] == _domain_index_x && 
+            radial_domains[2*i+1] == _domain_index_y) {
+          real_num_x = num_x;
+          real_num_y = num_y;
+        }
+      }
+    }
+  }
+  num_x = real_num_x;
+  num_y = real_num_y;
+  _overlaid_mesh->setNumX(num_x);
+  _overlaid_mesh->setNumY(num_y);
+
+  /* Determine actual axial mesh spacing from desired spacing */
+  double total_width_z = max_z - min_z;
+  int num_cells_z = total_width_z / axial_mesh_height;
+  axial_mesh_height = total_width_z / num_cells_z;
+  double mesh_width_x = (max_x - min_x) / num_x;
+  double mesh_width_y = (max_y - min_y) / num_y;
+  _overlaid_mesh->setNumZ(num_cells_z);
+  _overlaid_mesh->setWidth(mesh_width_x, mesh_width_y, axial_mesh_height);
+
+  /* Create the center point */
+  Point offset;
+  offset.setX(min_x + (max_x - min_x)/2.0);
+  offset.setY(min_y + (max_y - min_y)/2.0);
+  offset.setZ(min_z + (max_z - min_z)/2.0);
+  _overlaid_mesh->setOffset(offset.getX(), offset.getY(), offset.getZ());
+
+  log_printf(NORMAL, "Set global axial mesh of width %6.4f cm",
+             axial_mesh_height);
 }
 
 
@@ -428,7 +846,7 @@ Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
  * @param fsr_id a FSR id
  * @return a pointer to the Material that this FSR is in
  */
-Material* Geometry::findFSRMaterial(int fsr_id) {
+Material* Geometry::findFSRMaterial(long fsr_id) {
 
   std::map<int, Material*> all_materials;
 
@@ -468,6 +886,13 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   /* Get the current Cell */
   cell = coords->getCell();
 
+  /* If the current coords is outside the domain, return NULL */
+  if (_domain_decomposed) {
+    Point* point = coords->getHighestLevel()->getPoint();
+    if (!_domain_bounds->withinBounds(point))
+      return NULL;
+  }
+
   /* If the current coords is not in any Cell, return NULL */
   if (cell == NULL)
     return NULL;
@@ -479,7 +904,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
      * At each universe/lattice level get distance to next
      * universe or lattice cell. Recheck min_dist. */
     while (coords != NULL) {
-
+    
       /* If we reach a LocalCoord in a Lattice, find the distance to the
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
@@ -488,7 +913,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       }
       /* If we reach a LocalCoord in a Universe, find the distance to the
        * nearest cell surface */
-      else{
+      else {
         Cell* cell = coords->getCell();
         dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
       }
@@ -505,11 +930,27 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       }
     }
 
+    /* Check for distance to an overlaid mesh */
+    if (_overlaid_mesh != NULL) {
+      dist = _overlaid_mesh->minSurfaceDist(coords->getPoint(), azim, polar);
+      min_dist = std::min(dist, min_dist);
+    }
+
     /* Check for distance to nearest CMFD mesh cell boundary */
     if (_cmfd != NULL) {
       Lattice* lattice = _cmfd->getLattice();
       dist = lattice->minSurfaceDist(coords->getPoint(), azim, polar);
       min_dist = std::min(dist, min_dist);
+    }
+
+    /* Check for distance to nearest domain boundary */
+    bool domain_boundary = false;
+    if (_domain_decomposed) {
+      dist = _domain_bounds->minSurfaceDist(coords->getPoint(), azim, polar);
+      if (dist - min_dist < ON_SURFACE_THRESH) {
+        min_dist = dist;
+        domain_boundary = true;
+      }
     }
 
     /* Move point and get next cell */
@@ -518,7 +959,10 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
     double delta_z = cos(polar) * (min_dist + TINY_MOVE);
     coords->adjustCoords(delta_x, delta_y, delta_z);
 
-    return findCellContainingCoords(coords);
+    if (domain_boundary)
+      return NULL;
+    else
+      return findCellContainingCoords(coords);
   }
 }
 
@@ -529,26 +973,27 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-int Geometry::findFSRId(LocalCoords* coords) {
+long Geometry::findFSRId(LocalCoords* coords) {
 
-  int fsr_id;
+  long fsr_id;
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
-  std::hash<std::string> key_hash_function;
 
-  /* Generate faulty FSR key */
-  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+  /* Generate unique FSR key */
+  int thread_id = omp_get_thread_num();
+  std::string& fsr_key = _fsr_keys[thread_id];
+  getFSRKeyFast(coords, fsr_key);
 
   /* If FSR has not been encountered, update FSR maps and vectors */
-  if (!_FSR_keys_map.contains(fsr_key_hash)) {
+  if (!_FSR_keys_map.contains(fsr_key)) {
 
     /* Try to get a clean copy of the fsr_id, adding the FSR data
        if necessary where -1 indicates the key was already added */
-    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
+    fsr_id = _FSR_keys_map.insert_and_get_count(fsr_key, NULL);
     if (fsr_id == -1) {
       fsr_data volatile* fsr;
       do {
-        fsr = _FSR_keys_map.at(fsr_key_hash);
+        fsr = _FSR_keys_map.at(fsr_key);
       } while (fsr == NULL);
       fsr_id = fsr->_fsr_id;
     }
@@ -557,7 +1002,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
       /* Add FSR information to FSR key map and FSR_to vectors */
       fsr_data* fsr = new fsr_data;
       fsr->_fsr_id = fsr_id;
-      _FSR_keys_map.at(fsr_key_hash) = fsr;
+      _FSR_keys_map.update(fsr_key, fsr);
       Point* point = new Point();
       point->setCoords(coords->getHighestLevel()->getX(),
                        coords->getHighestLevel()->getY(),
@@ -578,7 +1023,7 @@ int Geometry::findFSRId(LocalCoords* coords) {
   else {
     fsr_data volatile* fsr;
     do {
-      fsr = _FSR_keys_map.at(fsr_key_hash);
+      fsr = _FSR_keys_map.at(fsr_key);
     } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;
@@ -599,21 +1044,24 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
   int fsr_id;
   LocalCoords* curr = coords;
   curr = coords->getLowestLevel();
-  std::hash<std::string> key_hash_function;
 
   /* Generate unique FSR key */
-  std::size_t fsr_key_hash = key_hash_function(getFSRKey(coords));
+  std::string fsr_key = getFSRKey(coords);
 
   /* If FSR has not been encountered, update FSR maps and vectors */
-  if (!_extruded_FSR_keys_map.contains(fsr_key_hash)) {
+  if (!_extruded_FSR_keys_map.contains(fsr_key)) {
 
     /* Try to get a clean copy of the fsr_id, adding the FSR data
        if necessary where -1 indicates the key was already added */
-    fsr_id = _extruded_FSR_keys_map.insert_and_get_count(fsr_key_hash, NULL);
+    fsr_id = _extruded_FSR_keys_map.insert_and_get_count(fsr_key, NULL);
     if (fsr_id == -1) {
       ExtrudedFSR volatile* fsr;
+      int count = 0;
       do {
-        fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
+        fsr = _extruded_FSR_keys_map.at(fsr_key);
+        count++;
+        if (count > 1e8)
+          log_printf(ERROR, "Application stuck in finding extruded FSR");
       } while (fsr == NULL);
       fsr_id = fsr->_fsr_id;
     }
@@ -624,7 +1072,7 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
       fsr->_fsr_id = fsr_id;
       fsr->_num_fsrs = 0;
       fsr->_coords = new LocalCoords(0, 0, 0);
-      _extruded_FSR_keys_map.at(fsr_key_hash) = fsr;
+      _extruded_FSR_keys_map.update(fsr_key, fsr);
       coords->copyCoords(fsr->_coords);
     }
   }
@@ -632,8 +1080,12 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
   /* If FSR has already been encountered, get the fsr id from map */
   else {
     ExtrudedFSR volatile* fsr;
+    int count = 0;
     do {
-      fsr = _extruded_FSR_keys_map.at(fsr_key_hash);
+      fsr = _extruded_FSR_keys_map.at(fsr_key);
+      count++;
+      if (count > 1e8)
+        log_printf(ERROR, "Application stuck in finding extruded FSR");
     } while (fsr == NULL);
 
     fsr_id = fsr->_fsr_id;
@@ -649,22 +1101,95 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
  * @param coords a LocalCoords object pointer
  * @return the FSR ID for a given LocalCoords object
  */
-int Geometry::getFSRId(LocalCoords* coords) {
+long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
 
-  int fsr_id = 0;
+  long fsr_id = 0;
   std::string fsr_key;
-  std::hash<std::string> key_hash_function;
 
-  try{
-    fsr_key = getFSRKey(coords);
-    fsr_id = _FSR_keys_map.at(key_hash_function(fsr_key))->_fsr_id;
+  try {
+    /* Generate unique FSR key */
+    int thread_id = omp_get_thread_num();
+    std::string& fsr_key = _fsr_keys[thread_id];
+    getFSRKeyFast(coords, fsr_key);
+    // FIXME NOW fsr_key = getFSRKey(coords);
+    fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
   catch(std::exception &e) {
-    log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
-               "geometry with finer track spacing", fsr_key.c_str());
+    if (err_check) {
+        log_printf(ERROR, "Could not find FSR ID with key: %s. Try creating "
+                  "geometry with finer track spacing", fsr_key.c_str());
+    }
+    else {
+      return -1;
+    }
   }
 
   return fsr_id;
+}
+
+
+/**
+ * @brief Returns the rank of the domain containing the given coordinates
+ * @param coords The coordinates used to search the domain rank
+ * @return The rank of the domain containing the coordinates
+ */
+int Geometry::getDomainByCoords(LocalCoords* coords) {
+  int domain = 0;
+#ifdef MPIx
+  if (_domain_decomposed) {
+    int domain_idx[3];
+    double width_x = _root_universe->getMaxX() - _root_universe->getMinX();
+    domain_idx[0] = (coords->getPoint()->getX() - _root_universe->getMinX())
+                    * _num_domains_x / width_x;
+    double width_y = _root_universe->getMaxY() - _root_universe->getMinY();
+    domain_idx[1] = (coords->getPoint()->getY() - _root_universe->getMinY())
+                    * _num_domains_y / width_y;
+    double width_z = _root_universe->getMaxZ() - _root_universe->getMinZ();
+    domain_idx[2] = (coords->getPoint()->getZ() - _root_universe->getMinZ())
+                    * _num_domains_z / width_z;
+
+    MPI_Cart_rank(_MPI_cart, domain_idx, &domain);
+  }
+#endif
+  return domain;
+}
+
+
+/**
+ * @brief Return the global ID of the flat source region that a given
+ *        LocalCoords object resides within.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR ID for a given LocalCoords object
+ */
+long Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
+
+  /* Check if the Geometry is domain decomposed */
+  if (!_domain_decomposed) {
+    return getFSRId(coords, err_check);
+  }
+  else {
+    long temp_fsr_id = 0;
+    long global_fsr_id = 0;
+#ifdef MPIx
+    int domain = getDomainByCoords(coords);
+    int rank;
+    MPI_Comm_rank(_MPI_cart, &rank);
+    if (domain == rank)
+      temp_fsr_id = getFSRId(coords);
+    MPI_Allreduce(&temp_fsr_id, &global_fsr_id, 1, MPI_LONG, MPI_SUM,
+                  _MPI_cart);
+
+    /* Count FSRs on each domain if not already counted */
+    if (!_domain_FSRs_counted)
+      countDomainFSRs();
+
+    /* Add FSR count from prior domains */
+    for (long i=0; i < domain; i++)
+      global_fsr_id += _num_domain_FSRs.at(i);
+
+#endif
+    return global_fsr_id;
+  }
 }
 
 
@@ -673,12 +1198,13 @@ int Geometry::getFSRId(LocalCoords* coords) {
  * @param fsr_id the FSR ID
  * @return the FSR's characteristic point
  */
-Point* Geometry::getFSRPoint(int fsr_id) {
+Point* Geometry::getFSRPoint(long fsr_id) {
 
   Point* point;
 
-  try{
-    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_point;
+  try {
+    std::string& key = _FSRs_to_keys[fsr_id];
+    point = _FSR_keys_map.at(key)->_point;
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not find characteristic point in FSR: %d", fsr_id);
@@ -693,18 +1219,129 @@ Point* Geometry::getFSRPoint(int fsr_id) {
  * @param fsr_id the FSR ID
  * @return the FSR's centroid
  */
-Point* Geometry::getFSRCentroid(int fsr_id) {
+Point* Geometry::getFSRCentroid(long fsr_id) {
 
-  Point* point;
-
-  try{
-    point = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_centroid;
-  }
-  catch(std::exception &e) {
+  if (fsr_id < _FSR_keys_map.size())
+    return _FSRs_to_centroids[fsr_id];
+  else
     log_printf(ERROR, "Could not find centroid in FSR: %d.", fsr_id);
+  return NULL;
+}
+
+
+/**
+ * @brief Returns whether any FSR centroids have been set
+ */
+bool Geometry::containsFSRCentroids() {
+  return _contains_FSR_centroids;
+}
+
+
+#ifdef MPIx
+/**
+ * @brief Counts the number of FSRs in each MPI domain
+ */
+void Geometry::countDomainFSRs() {
+
+  /* Gather the number of FSRs into an array */
+  int num_domains = _num_domains_x * _num_domains_y * _num_domains_z;
+  int num_domains_array[num_domains];
+  long my_fsrs = getNumFSRs();
+  MPI_Allgather(&my_fsrs, 1, MPI_LONG, num_domains_array, 1, MPI_LONG,
+                _MPI_cart);
+
+  /* Convert to a vector */
+  _num_domain_FSRs.resize(num_domains);
+  for (int i=0; i < num_domains; i++)
+    _num_domain_FSRs.at(i) = num_domains_array[i];
+  _domain_FSRs_counted = true;
+}
+
+
+/**
+ * @brief Finds the local FSR ID and domain rank from a global FSR ID
+ * @param global_fsr_id The global unique identifier of an FSR
+ * @param local_fsr_id The unique identifier of an FSR on its current domain
+ * @param domain The rank of the domain containing the FSR
+ */
+void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
+                             int &domain) {
+
+  /* Count FSRs on each domain if not already counted */
+  if (!_domain_FSRs_counted)
+    countDomainFSRs();
+
+  /* Determine the local domain where the global FSR resides */
+  long cum_fsrs = 0;
+  domain = -1;
+  for (int i=0; i < _num_domains_x * _num_domains_y * _num_domains_z; i++) {
+    if (cum_fsrs + _num_domain_FSRs.at(i) > global_fsr_id) {
+      domain = i;
+      break;
+    }
+    else {
+      cum_fsrs += _num_domain_FSRs.at(i);
+    }
   }
 
-  return point;
+  /* Ensure a domain was found with the FSR ID */
+  if (domain == -1)
+    log_printf(ERROR, "No domain was found with the global FSR ID %d. The "
+               "total number of FSRs in the Geometry is %d.", global_fsr_id,
+               getNumTotalFSRs());
+
+  local_fsr_id = global_fsr_id - cum_fsrs;
+}
+#endif
+
+
+/**
+ * @brief Returns the FSR centroid of a global FSR
+ * @param global_fsr_id The global unique identifier of the FSR
+ * @return A vector contianing the coordinates of the FSR centroid
+ */
+std::vector<double> Geometry::getGlobalFSRCentroidData(long global_fsr_id) {
+  double xyz[3];
+  if (!_domain_decomposed) {
+    Point* centroid = getFSRCentroid(global_fsr_id);
+    xyz[0] = centroid->getX();
+    xyz[1] = centroid->getY();
+    xyz[2] = centroid->getZ();
+  }
+#ifdef MPIx
+  else {
+
+    /* Determine the domain and local FSR ID */
+    long fsr_id;
+    int domain;
+    getLocalFSRId(global_fsr_id, fsr_id, domain);
+
+    /* Get the FSR centroid in the correct domain */
+    int rank;
+    MPI_Comm_rank(_MPI_cart, &rank);
+    double temp_xyz[3];
+    if (rank == domain) {
+      Point* centroid = getFSRCentroid(fsr_id);
+      temp_xyz[0] = centroid->getX();
+      temp_xyz[1] = centroid->getY();
+      temp_xyz[2] = centroid->getZ();
+    }
+    else {
+      temp_xyz[0] = 0;
+      temp_xyz[1] = 0;
+      temp_xyz[2] = 0;
+    }
+
+    /* Broadcast the centroid */
+    MPI_Allreduce(temp_xyz, xyz, 3, MPI_DOUBLE, MPI_SUM, _MPI_cart);
+  }
+#endif
+
+  /* Convert centroid data into a vector */
+  std::vector<double> data(3);
+  for (int i=0; i<3; i++)
+    data.at(i) = xyz[i];
+  return data;
 }
 
 
@@ -713,20 +1350,201 @@ Point* Geometry::getFSRCentroid(int fsr_id) {
  * @param fsr_id the FSR ID
  * @return the CMFD cell
  */
-int Geometry::getCmfdCell(int fsr_id) {
-
-  int cmfd_cell;
-
-  try{
-    cmfd_cell = _FSR_keys_map.at(_FSRs_to_keys.at(fsr_id))->_cmfd_cell;
-  }
-  catch(std::exception &e) {
-    log_printf(ERROR, "Could not find CMFD cell in FSR: %d", fsr_id);
-  }
-
-  return cmfd_cell;
+int Geometry::getCmfdCell(long fsr_id) {
+  return _FSRs_to_CMFD_cells[fsr_id];
 }
 
+
+/**
+ * @brief reserves the FSR key strings
+ * @param the number of threads
+ */
+void Geometry::reserveKeyStrings(int num_threads) {
+  int string_size = 255;
+  _fsr_keys.resize(num_threads);
+  for (int i=0; i<num_threads; ++i) {
+    _fsr_keys[i].reserve(string_size);
+  }
+}
+
+
+/**
+ * @brief Generate a string FSR "key" that identifies an FSR by its
+ *        unique hierarchical lattice/universe/cell structure.
+ * @details Since not all FSRs will reside on the absolute lowest universe
+ *          level and Cells might overlap other cells, it is important to
+ *          have a method for uniquely identifying FSRs. This method
+ *          creates a unique FSR key by constructing a structured string
+ *          that describes the hierarchy of lattices/universes/cells.
+ * @param coords a LocalCoords object pointer
+ * @return the FSR key
+ */
+void Geometry::getFSRKeyFast(LocalCoords* coords, std::string& key) {
+
+  LocalCoords* curr = coords->getHighestLevel();
+
+  /* Assess the string size of the key */
+  Point* point = curr->getPoint();
+  int total_size = 0;
+  if (_cmfd != NULL) {
+    total_size += getNumDigits(_cmfd->getLattice()->getLatX(point));
+    total_size += getNumDigits(_cmfd->getLattice()->getLatY(point));
+    total_size += getNumDigits(_cmfd->getLattice()->getLatZ(point));
+    total_size += 9;
+  }
+  if (_overlaid_mesh != NULL) {
+    total_size += getNumDigits(_overlaid_mesh->getLatX(point));
+    total_size += getNumDigits(_overlaid_mesh->getLatY(point));
+    total_size += getNumDigits(_overlaid_mesh->getLatZ(point));
+    total_size += 4;
+  }
+  while (curr != NULL) {
+    if (curr->getType() == LAT) {
+      total_size += getNumDigits(curr->getLattice()->getId());
+      total_size += getNumDigits(curr->getLatticeX());
+      total_size += getNumDigits(curr->getLatticeY());
+      total_size += getNumDigits(curr->getLatticeZ());
+      total_size += 6;
+    }
+    else {
+      total_size += getNumDigits(curr->getUniverse()->getId());
+      total_size += 2;
+    }
+    if (curr->getNext() == NULL)
+      break;
+    else
+      curr = curr->getNext();
+  }
+  total_size += getNumDigits(curr->getCell()->getId());
+  total_size += 1;
+  int version_num = coords->getVersionNum();
+  if (version_num != 0) {
+    total_size += getNumDigits(version_num);
+    total_size += 2;
+  }
+
+  /* Resize key */
+  if (total_size > 255)
+    log_printf(ERROR, "Found key exceeding the 255 character threshold");
+  key.resize(total_size);
+  curr = curr->getHighestLevel();
+
+  /* If CMFD is on, get CMFD latice cell and write to key */
+  int ind = 0;
+  if (_cmfd != NULL) {
+    key.replace(ind, 5, "CMFD(");
+    ind += 5;
+    printToString(key, ind, _cmfd->getLattice()->getLatX(point));
+    key.at(ind) = ',';
+    ind++;
+    printToString(key, ind, _cmfd->getLattice()->getLatY(point));
+    key.at(ind) = ',';
+    ind++;
+    printToString(key, ind, _cmfd->getLattice()->getLatZ(point));
+    key.replace(ind, 2, "):");
+    ind += 2;
+  }
+
+  /* If a global overlaid mesh is present, get the axial mesh cell */
+  if (_overlaid_mesh != NULL) {
+    key.at(ind) = 'A';
+    ind++;
+    printToString(key, ind, _overlaid_mesh->getLatZ(point));
+    key.at(ind) = 'R';
+    ind++;
+    printToString(key, ind, _overlaid_mesh->getLatX(point));
+    key.at(ind) = ',';
+    ind++;
+    printToString(key, ind, _overlaid_mesh->getLatY(point));
+    key.at(ind) = ':';
+    ind++;
+  }
+
+  /* Descend the linked list hierarchy until the lowest level has
+   * been reached */
+  while (curr != NULL) {
+
+    /* write lattice to key */
+    if (curr->getType() == LAT) {
+      key.at(ind) = 'L';
+      ind++;
+      printToString(key, ind, curr->getLattice()->getId());
+      key.at(ind) = '(';
+      ind++;
+      printToString(key, ind, curr->getLatticeX());
+      key.at(ind) = ',';
+      ind++;
+      printToString(key, ind, curr->getLatticeY());
+      key.at(ind) = ',';
+      ind++;
+      printToString(key, ind, curr->getLatticeZ());
+      key.replace(ind, 2, "):");
+      ind += 2;
+    }
+    else {
+
+      /* write universe ID to key */
+      key.at(ind) = 'U';
+      ind++;
+      printToString(key, ind, curr->getUniverse()->getId());
+      key.at(ind) = ':';
+      ind++;
+    }
+
+    /* If lowest coords reached break; otherwise get next coords */
+    if (curr->getNext() == NULL)
+      break;
+    else
+      curr = curr->getNext();
+  }
+
+  /* write cell id to key */
+  key.at(ind) = 'C';
+  ind++;
+  printToString(key, ind, curr->getCell()->getId());
+
+  /* write version number to key */
+  if (version_num != 0) {
+    key.replace(ind, 2, ":V");
+    ind += 2;
+    printToString(key, ind, version_num);
+  }
+}
+
+
+//TODO: description
+int Geometry::getNumDigits(int number) {
+  if (number < 0)
+    log_printf(ERROR, "Trying to ge the digits of negative number %d", number);
+  int ref = 10;
+  int num_digits = 1;
+  while (number >= ref) {
+    num_digits++;
+    ref *= 10;
+  }
+  return num_digits;
+}
+
+
+//TODO: Description
+void Geometry::printToString(std::string& str, int& index, int value) {
+
+  char digits[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+  int num_digits = getNumDigits(value);
+  for (int i=0; i < num_digits; i++) {
+    int base = 1;
+    for (int j=0; j < num_digits - i - 1; j++)
+      base *= 10;
+    char digit = digits[value / base];
+    str.at(index+i) = digit;
+    value -= (value / base) * base;
+  }
+  index += num_digits;
+}
+
+
+//FIXME OLD
 /**
  * @brief Generate a string FSR "key" that identifies an FSR by its
  *        unique hierarchical lattice/universe/cell structure.
@@ -747,13 +1565,26 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
   /* If CMFD is on, get CMFD latice cell and write to key */
   if (_cmfd != NULL) {
       curr_level_key << _cmfd->getLattice()->getLatX(curr->getPoint());
-      key << "CMFD = (" << curr_level_key.str() << ", ";
+      key << "CMFD(" << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatY(curr->getPoint());
-      key << curr_level_key.str() << ", ";
+      key << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << _cmfd->getLattice()->getLatZ(curr->getPoint());
-      key << curr_level_key.str() << ") : ";
+      key << curr_level_key.str() << "):";
+  }
+
+  /* If a global overlaid mesh is present, record mesh cells */
+  if (_overlaid_mesh != NULL) {
+      curr_level_key.str(std::string());
+      curr_level_key << _overlaid_mesh->getLatZ(curr->getPoint());
+      key << "A" << curr_level_key.str() << ":";
+      curr_level_key.str(std::string());
+      curr_level_key << _overlaid_mesh->getLatX(curr->getPoint());
+      key << "R" << curr_level_key.str() << ",";
+      curr_level_key.str(std::string());
+      curr_level_key << _overlaid_mesh->getLatY(curr->getPoint());
+      key << curr_level_key.str() << ":";
   }
 
   /* Descend the linked list hierarchy until the lowest level has
@@ -767,21 +1598,21 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 
       /* Write lattice ID and lattice cell to key */
       curr_level_key << curr->getLattice()->getId();
-      key << "LAT = " << curr_level_key.str() << " (";
+      key << "L" << curr_level_key.str() << "(";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeX();
-      key << curr_level_key.str() << ", ";
+      key << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeY();
-      key << curr_level_key.str() << ", ";
+      key << curr_level_key.str() << ",";
       curr_level_key.str(std::string());
       curr_level_key << curr->getLatticeZ();
-      key << curr_level_key.str() << ") : ";
+      key << curr_level_key.str() << "):";
     }
     else {
       /* write universe ID to key */
       curr_level_key << curr->getUniverse()->getId();
-      key << "UNIV = " << curr_level_key.str() << " : ";
+      key << "U" << curr_level_key.str() << " : ";
     }
 
     /* If lowest coords reached break; otherwise get next coords */
@@ -796,7 +1627,15 @@ std::string Geometry::getFSRKey(LocalCoords* coords) {
 
   /* write cell id to key */
   curr_level_key << curr->getCell()->getId();
-  key << "CELL = " << curr_level_key.str();
+  key << "C" << curr_level_key.str();
+
+  /* write version number to key */
+  int version_num = coords->getVersionNum();
+  if (version_num != 0) {
+    curr_level_key.str(std::string());
+    curr_level_key << version_num;
+    key << ":V" << curr_level_key.str();
+  }
 
   return key.str();
 }
@@ -826,7 +1665,9 @@ void Geometry::subdivideCells() {
 
   /* Compute equivalent radius with the same area as the Geometry */
   /* This is used as the maximum radius for all ringified Cells */
-  double max_radius = sqrt(getWidthX() * getWidthY() / M_PI);
+  double width_x = _root_universe->getMaxX() - _root_universe->getMinX();
+  double width_y = _root_universe->getMaxY() - _root_universe->getMinY();
+  double max_radius = sqrt(width_x * width_y / M_PI);
 
   /* Recursively subdivide Cells into rings and sectors */
   _root_universe->subdivideCells(max_radius);
@@ -847,6 +1688,7 @@ void Geometry::initializeFlatSourceRegions() {
   subdivideCells();
 
   /* Build collections of neighbor Cells for optimized ray tracing */
+  //FIXME
   _root_universe->buildNeighbors();
 
   /* Create map of Material IDs to Material pointers */
@@ -868,7 +1710,7 @@ void Geometry::initializeFlatSourceRegions() {
  * @param z_coord the axial height at which the 2D plane of the geometry is
  *        formed
  */
-void Geometry::segmentize2D(Track2D* track, double z_coord) {
+void Geometry::segmentize2D(Track* track, double z_coord) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -878,7 +1720,7 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
-  FP_PRECISION length;
+  double length;
   Material* material;
   int fsr_id;
   int num_segments;
@@ -896,7 +1738,7 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track2D: %s", track->toString().c_str());
+               "of this Track: %s", track->toString().c_str());
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
@@ -915,7 +1757,7 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
                  "point: x = %f, y = %f", start.getX(), start.getY());
 
     /* Find the segment length, Material and FSR ID */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    length = double(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
     fsr_id = findFSRId(&start);
 
@@ -941,14 +1783,54 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
       start.adjustCoords(-delta_x, -delta_y);
       end.adjustCoords(-delta_x, -delta_y);
 
-      new_segment->_cmfd_surface_fwd =
-        _cmfd->findCmfdSurface(cmfd_cell, &end);
-      new_segment->_cmfd_surface_bwd =
-        _cmfd->findCmfdSurface(cmfd_cell, &start);
+      /* Calculate CMFD surfaces */
+      int cmfd_surfaces[2];
+      cmfd_surfaces[0] = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      cmfd_surfaces[1] = _cmfd->findCmfdSurface(cmfd_cell, &start);
+
+      /* Ensure surfaces are x-y surfaces (no z-crossings) */
+      /* Note: this code takes advantage of the numeric representation of
+         surfaces to find a mapping that removes z-surfaces */
+      for (int d=0; d<2; d++) {
+        int local_surface = cmfd_surfaces[d] % NUM_SURFACES;
+        if (local_surface == 2 || local_surface == 5) {
+            cmfd_surfaces[d] = -1;
+        }
+        else if (local_surface > 9) {
+          int cell = cmfd_surfaces[d] / NUM_SURFACES;
+          int half_surf = local_surface / 2;
+          if (local_surface > 17) {
+            int quart_surf = half_surf / 2;
+            local_surface = 2 + quart_surf + (half_surf == 2*quart_surf);
+            cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
+          }
+          else {
+            local_surface = (half_surf > 6) + 3 *
+                (local_surface != 2*half_surf);
+            cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
+          }
+        }
+      }
+
+      /* Save CMFD surfaces */
+      new_segment->_cmfd_surface_fwd = cmfd_surfaces[0];
+      new_segment->_cmfd_surface_bwd = cmfd_surfaces[1];
 
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y);
       end.adjustCoords(delta_x, delta_y);
+    }
+
+    /* Calculate the local centroid of the segment if available */
+    Point* starting_point = start.getHighestLevel()->getPoint();
+    new_segment->_starting_position[0] = starting_point->getX();
+    new_segment->_starting_position[1] = starting_point->getY();
+    if (_contains_FSR_centroids) {
+      Point* centroid = getFSRCentroid(fsr_id);
+      double x_start = starting_point->getX() - centroid->getX();
+      double y_start = starting_point->getY() - centroid->getY();
+      new_segment->_starting_position[0] = x_start;
+      new_segment->_starting_position[1] = y_start;
     }
 
     /* Add the segment to the Track */
@@ -956,14 +1838,12 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
 
   }
 
-  log_printf(DEBUG, "Created %d segments for Track2D: %s",
+  log_printf(DEBUG, "Created %d segments for Track: %s",
              track->getNumSegments(), track->toString().c_str());
 
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
-
-  return;
 }
 
 
@@ -974,10 +1854,9 @@ void Geometry::segmentize2D(Track2D* track, double z_coord) {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
- * @param max_optical_length the maximum optical length a segment is allowed to
- *          have
+ * @param setup whether the segmentize routine is called during OTF setup
  */
-void Geometry::segmentize3D(Track3D* track) {
+void Geometry::segmentize3D(Track3D* track, bool setup) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -988,9 +1867,9 @@ void Geometry::segmentize3D(Track3D* track) {
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
-  FP_PRECISION length;
+  double length;
   Material* material;
-  int fsr_id;
+  long fsr_id;
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
@@ -1002,6 +1881,18 @@ void Geometry::segmentize3D(Track3D* track) {
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi, theta);
   Cell* prev;
+
+  /* Vector to fill coordinates if necessary */
+  std::vector<LocalCoords*> fsr_coords;
+  LocalCoords* preallocation;
+  int preallocation_size = 0;
+  if (setup) {
+    if (_overlaid_mesh != NULL && false) {
+      preallocation_size = _overlaid_mesh->getNumZ();
+      preallocation = new LocalCoords[preallocation_size];
+      fsr_coords.reserve(preallocation_size);
+    }
+  }
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -1031,9 +1922,23 @@ void Geometry::segmentize3D(Track3D* track) {
     }
 
     /* Find the segment length between the segment's start and end points */
-    length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+    length = double(end.getPoint()->distanceToPoint(start.getPoint()));
     material = prev->getFillMaterial();
-    fsr_id = findFSRId(&start);
+
+    /* Get the FSR ID or save the coordinates */
+    long fsr_id = -1;
+    if (setup && false) {
+      LocalCoords* new_fsr_coords;
+      if (fsr_coords.size() >= preallocation_size)
+        new_fsr_coords = new LocalCoords(0,0,0);
+      else
+        new_fsr_coords = &preallocation[fsr_coords.size()];
+      start.copyCoords(new_fsr_coords);
+      fsr_coords.push_back(new_fsr_coords);
+    }
+    else {
+      fsr_id = findFSRId(&start);
+    }
 
     /* Create a new Track segment */
     segment* new_segment = new segment;
@@ -1047,7 +1952,7 @@ void Geometry::segmentize3D(Track3D* track) {
                end.getX(), end.getY(), end.getZ());
 
     /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
-    if (_cmfd != NULL) {
+    if (_cmfd != NULL && !setup) {
 
       /* Find cmfd cell that segment lies in */
       int cmfd_cell = _cmfd->findCmfdCell(&start);
@@ -1070,12 +1975,42 @@ void Geometry::segmentize3D(Track3D* track) {
       end.adjustCoords(delta_x, delta_y, delta_z);
     }
 
+    /* Calculate the local centroid of the segment if available */
+    if (_contains_FSR_centroids && !setup) {
+      Point* centroid = getFSRCentroid(fsr_id);
+      Point* starting_point = start.getHighestLevel()->getPoint();
+      double x_start = starting_point->getX() - centroid->getX();
+      double y_start = starting_point->getY() - centroid->getY();
+      double z_start = starting_point->getZ() - centroid->getZ();
+      new_segment->_starting_position[0] = x_start;
+      new_segment->_starting_position[1] = y_start;
+      new_segment->_starting_position[2] = z_start;
+    }
+
     /* Add the segment to the Track */
     track->addSegment(new_segment);
   }
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
              track->getNumSegments(), track->toString().c_str());
+
+  /* Search FSR IDs if necessary */
+  if (setup && false) {
+#pragma omp critical
+    {
+      for (int s=0; s < track->getNumSegments(); s++) {
+        long fsr_id = findFSRId(fsr_coords.at(s));
+        track->getSegment(s)->_region_id = fsr_id;
+      }
+    }
+
+    for (int s=0; s < fsr_coords.size(); s++)
+      fsr_coords.at(s)->prune();
+
+    if (preallocation_size > 0)
+      delete [] preallocation;
+  }
+
 
   /* Truncate the linked list for the LocalCoords */
   start.prune();
@@ -1111,8 +2046,8 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
-  FP_PRECISION length;
-  int min_z_ind = 0;
+  double length;
+  int min_z_ind;
   int region_id;
   int num_segments;
 
@@ -1124,19 +2059,38 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi);
-
+  
   /* If starting Point was outside the bounds of the Geometry */
-  if (curr == NULL)
+  if (curr == NULL) {
+    int dom = _domain_index_x + _domain_index_y * _num_domains_x +
+      _domain_index_z * _num_domains_x * _num_domains_y;
+    double min_x = getMinX();
+    double max_x = getMaxX();
+    double min_y = getMinY();
+    double max_y = getMaxY();
+    double min_z = getMinZ();
+    double max_z = getMaxZ();
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track2D: %s", flattened_track->toString().c_str());
+               "of this Track: %s on domain %d with bounds (%f, %f) x (%f, %f)"
+               "(%f, %f)", flattened_track->toString().c_str(), dom, min_x, max_x,
+               min_y, max_y, min_z, max_z);
+  }
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
    * move it to the next Cell, create a new segment, and add it to the
    * Geometry */
+  int find_cell_count = 0;
   while (curr != NULL) {
 
+    /* Check if stuck in loop */
+    find_cell_count++;
+    if (find_cell_count > 1e6)
+      log_printf(ERROR, "Caught in inifinite loop finding next cell");
+      
     /* Records the minimum length to a 2D intersection */
-    FP_PRECISION min_length = std::numeric_limits<FP_PRECISION>::infinity();
+    double min_length = std::numeric_limits<double>::infinity();
+    region_id = -1;
+    min_z_ind = -1;
 
     /* Copy end coordinates to start */
     end.copyCoords(&start);
@@ -1146,6 +2100,8 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
       /* Change z-height and copy starting coordinates to end */
       start.setZ(z_coords[i]);
+      start.prune();
+      findCellContainingCoords(&start);
       start.copyCoords(&end);
 
       /* Find the next Cell along the Track's trajectory */
@@ -1157,7 +2113,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
                    "point: x = %f, y = %f", start.getX(), start.getY());
 
       /* Find the segment length and extruded FSR */
-      length = FP_PRECISION(end.getPoint()->distanceToPoint(start.getPoint()));
+      length = double(end.getPoint()->distanceToPoint(start.getPoint()));
 
       /* Check if the segment length is the smallest found */
       if (length < min_length) {
@@ -1168,14 +2124,77 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     /* Traverse across shortest segment */
     start.setZ(z_coords[min_z_ind]);
+    start.prune();
+    findCellContainingCoords(&start);
+
+    bool found_coordinate = false;
+
+    int next_version = 0;
+    for (int v=0; v < MAX_VERSION_NUM; v++) {
+  
+      /* Find FSR using starting coordinate */
+      start.setVersionNum(v);
+      region_id = findExtrudedFSR(&start);
+      std::string fsr_key = getFSRKey(&start);
+
+      /* Get the coordinate of the extruded FSR */
+      LocalCoords* ext_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
+
+      /* Create coordinate copies */
+      LocalCoords test_ext_coords;
+      ext_coords->copyCoords(&test_ext_coords);
+      LocalCoords test_start_coords;
+      start.copyCoords(&test_start_coords);
+
+      /* Check to see that this point contains the cell of every axial level */
+      bool coords_contained = true;
+      for (int i=0; i < z_coords.size(); i++) {
+
+        /* Check the FSR key at this level */
+        test_start_coords.setZ(z_coords[i]);
+        test_start_coords.prune();
+        test_start_coords.setVersionNum(0);
+        findCellContainingCoords(&test_start_coords);
+        fsr_key = getFSRKey(&test_start_coords);
+
+        test_ext_coords.setZ(z_coords[i]);
+        test_ext_coords.prune();
+        test_ext_coords.setVersionNum(0);
+        findCellContainingCoords(&test_ext_coords);
+        std::string ext_fsr_key = getFSRKey(&test_ext_coords);
+
+        /* Check that FSR keys match */
+        if (fsr_key != ext_fsr_key) {
+          coords_contained = false;
+          break;
+        }
+      }
+
+      /* Check if we found a valid coordinate */
+      if (coords_contained) {
+        found_coordinate = true;
+        break;
+      }
+
+      /* Reset the starting coordinate */
+      next_version++;
+    }
+
+    if (next_version >= MAX_VERSION_NUM)
+      log_printf(ERROR, "Exceeded the maximum version number in 2D extruded "
+                 "FSRs");
+
+    /* Move the coordinates to the next intersection */
     start.copyCoords(&end);
     curr = findNextCell(&end, phi);
 
-    /* Find FSR using starting coordinate */
-    region_id = findExtrudedFSR(&start);
-
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
+
+    /* Check that the region ID is valid */
+    if (region_id == -1)
+      log_printf(ERROR, "Failed to find a valid FSR during axial extruded "
+                 "segmentation");
 
     /* Create a new 2D Track segment with extruded region ID */
     segment* new_segment = new segment;
@@ -1195,10 +2214,38 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       start.adjustCoords(-delta_x, -delta_y, 0);
       end.adjustCoords(-delta_x, -delta_y, 0);
 
-      new_segment->_cmfd_surface_fwd =
-        _cmfd->findCmfdSurface(cmfd_cell, &end);
-      new_segment->_cmfd_surface_bwd =
-        _cmfd->findCmfdSurface(cmfd_cell, &start);
+      /* Calculate CMFD surfaces */
+      int cmfd_surfaces[2];
+      cmfd_surfaces[0] = _cmfd->findCmfdSurface(cmfd_cell, &end);
+      cmfd_surfaces[1] = _cmfd->findCmfdSurface(cmfd_cell, &start);
+
+      /* Ensure surfaces are x-y surfaces (no z-crossings) */
+      /* Note: this code takes advantage of the numeric representation of
+         surfaces to find a mapping that removes z-surfaces */
+      for (int d=0; d<2; d++) {
+        int local_surface = cmfd_surfaces[d] % NUM_SURFACES;
+        if (local_surface == 2 || local_surface == 5) {
+            cmfd_surfaces[d] = -1;
+        }
+        else if (local_surface > 9) {
+          int cell = cmfd_surfaces[d] / NUM_SURFACES;
+          int half_surf = local_surface / 2;
+          if (local_surface > 17) {
+            int quart_surf = half_surf / 2;
+            local_surface = 2 + quart_surf + (half_surf == 2*quart_surf);
+            cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
+          }
+          else {
+            local_surface = (half_surf > 6) + 3 *
+                (local_surface != 2*half_surf);
+            cmfd_surfaces[d] = cell * NUM_SURFACES + local_surface;
+          }
+        }
+      }
+
+      /* Save CMFD surfaces */
+      new_segment->_cmfd_surface_fwd = cmfd_surfaces[0];
+      new_segment->_cmfd_surface_bwd = cmfd_surfaces[1];
 
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y, 0);
@@ -1212,8 +2259,15 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();
+}
 
-  return;
+
+/**
+ * @brief Fixes the FSR map size so that the map is static and fast
+ */
+void Geometry::fixFSRMaps() {
+  _FSR_keys_map.setFixedSize();
+  _extruded_FSR_keys_map.setFixedSize();
 }
 
 
@@ -1230,21 +2284,29 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
  *        length is zero, z meshes are local and need to be created for every
  *        ExtrudedFSR.
  */
-void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
+void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
   log_printf(NORMAL, "Initializing 3D FSRs in axially extruded regions...");
 
   /* Determine the extent of the axial geometry */
-  FP_PRECISION min_z = getMinZ();
-  FP_PRECISION max_z = getMaxZ();
+  double min_z = getMinZ();
+  double max_z = getMaxZ();
 
   /* Extract list of extruded FSRs */
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
   std::string msg = "initializing 3D FSRs";
-  Progress progress(_extruded_FSR_keys_map.size(), msg);
+  Progress progress(_extruded_FSR_keys_map.size(), msg, 0.01, this, true);
+
+  /* Re-allocate the FSR keys map with the new anticipated size */
+  int anticipated_size = 2 * _extruded_FSR_keys_map.size();
+  if (_overlaid_mesh != NULL)
+    anticipated_size *= _overlaid_mesh->getNumZ();
+  _FSR_keys_map.realloc(anticipated_size);
 
   /* Loop over extruded FSRs */
+//#pragma omp parallel for
+  //FIXME
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
     progress.incrementCounter();
@@ -1261,24 +2323,27 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       size_t num_regions = global_z_mesh.size() - 1;
       extruded_FSR->_num_fsrs = num_regions;
       extruded_FSR->_materials = new Material*[num_regions];
-      extruded_FSR->_fsr_ids = new int[num_regions];
+      extruded_FSR->_fsr_ids = new long[num_regions];
 
       /* Loop over all regions in the global mesh */
-      for (int n=0; n < num_regions; n++) {
+#pragma omp critical
+      {
+        for (int n=0; n < num_regions; n++) {
 
-        /* Set the axial coordinate at the midpoint of mesh boundaries */
-        double midpt = (global_z_mesh[n] + global_z_mesh[n+1]) / 2;
-        LocalCoords coord(x0, y0, midpt);
-        coord.setUniverse(_root_universe);
+          /* Set the axial coordinate at the midpoint of mesh boundaries */
+          double midpt = (global_z_mesh[n] + global_z_mesh[n+1]) / 2;
+          LocalCoords coord(x0, y0, midpt);
+          coord.setUniverse(_root_universe);
 
-        /* Get the FSR ID and material */
-        Cell* cell = findCellContainingCoords(&coord);
-        int fsr_id = findFSRId(&coord);
-        Material* material = cell->getFillMaterial();
+          /* Get the FSR ID and material */
+          Cell* cell = findCellContainingCoords(&coord);
+          long fsr_id = findFSRId(&coord);
+          Material* material = cell->getFillMaterial();
 
-        /* Set the FSR ID and material */
-        extruded_FSR->_fsr_ids[n] = fsr_id;
-        extruded_FSR->_materials[n] = material;
+          /* Set the FSR ID and material */
+          extruded_FSR->_fsr_ids[n] = fsr_id;
+          extruded_FSR->_materials[n] = material;
+        }
       }
     }
     else {
@@ -1288,7 +2353,7 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       track.setValues(x0, y0, min_z, x0, y0, max_z, 0, 0);
 
       /* Shoot vertical track through the geometry to initialize 3D FSRs */
-      segmentize3D(&track);
+      segmentize3D(&track, true);
 
       /* Extract segments from track */
       int num_segments = track.getNumSegments();
@@ -1297,8 +2362,8 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       /* Allocate materials and mesh in extruded FSR */
       extruded_FSR->_num_fsrs = (size_t) num_segments;
       extruded_FSR->_materials = new Material*[num_segments];
-      extruded_FSR->_fsr_ids = new int[num_segments];
-      extruded_FSR->_mesh = new FP_PRECISION[num_segments+1];
+      extruded_FSR->_fsr_ids = new long[num_segments];
+      extruded_FSR->_mesh = new double[num_segments+1];
 
       /* Initialize values in extruded FSR */
       for (int s=0; s < num_segments; s++) {
@@ -1307,7 +2372,7 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       }
 
       /* Initialize z mesh */
-      FP_PRECISION level = min_z;
+      double level = min_z;
       extruded_FSR->_mesh[0] = level;
       for (int s=0; s < num_segments; s++) {
         level += segments[s]._length;
@@ -1317,7 +2382,12 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
       }
     }
   }
-  delete[] extruded_FSRs;
+  delete [] extruded_FSRs;
+#ifdef MPIx
+  if (_domain_decomposed)
+    MPI_Barrier(_MPI_cart);
+#endif
+  log_printf(NORMAL, "Finished initializing 3D FSRs");
 }
 
 
@@ -1332,31 +2402,35 @@ void Geometry::initializeAxialFSRs(std::vector<FP_PRECISION> global_z_mesh) {
 void Geometry::initializeFSRVectors() {
 
   /* get keys and values from map */
-  std::size_t *key_list = _FSR_keys_map.keys();
+  log_printf(NORMAL, "Initializing FSR lookup vectors");
+  std::string *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
 
   /* allocate vectors */
   int num_FSRs = _FSR_keys_map.size();
-  _FSRs_to_keys = std::vector<std::size_t>(num_FSRs);
+  _FSRs_to_keys = std::vector<std::string>(num_FSRs);
+  _FSRs_to_centroids = std::vector<Point*>(num_FSRs, NULL);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
+  _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
 
   /* fill vectors key and material ID information */
   #pragma omp parallel for
-  for (int i=0; i < num_FSRs; i++)
+  for (long i=0; i < num_FSRs; i++)
   {
-    std::size_t key = key_list[i];
+    std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
-    int fsr_id = fsr->_fsr_id;
+    long fsr_id = fsr->_fsr_id;
     _FSRs_to_keys.at(fsr_id) = key;
     _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
   }
 
   /* add cmfd information serially */
   if (_cmfd != NULL) {
-    for (int i=0; i < num_FSRs; i++) {
+    for (long i=0; i < num_FSRs; i++) {
       fsr_data* fsr = value_list[i];
-      int fsr_id = fsr->_fsr_id;
+      long fsr_id = fsr->_fsr_id;
       _cmfd->addFSRToCell(fsr->_cmfd_cell, fsr_id);
+      _FSRs_to_CMFD_cells.at(fsr_id) = fsr->_cmfd_cell;
     }
   }
 
@@ -1367,6 +2441,7 @@ void Geometry::initializeFSRVectors() {
     /* Allocate extruded FSR lookup vector and fill with extruded FSRs by ID */
     _extruded_FSR_lookup = std::vector<ExtrudedFSR*>(num_extruded_FSRs);
     ExtrudedFSR **extruded_value_list = _extruded_FSR_keys_map.values();
+#pragma omp parallel for
     for (int i=0; i < num_extruded_FSRs; i++) {
       int fsr_id = extruded_value_list[i]->_fsr_id;
       _extruded_FSR_lookup[fsr_id] = extruded_value_list[i];
@@ -1451,6 +2526,87 @@ void Geometry::computeFissionability(Universe* univ) {
 
 
 /**
+ * @brief Get the material, cell or FSR IDs on a 2D spatial grid.
+ * @details This is a helper method for the openmoc.plotter module.
+ *          This method may also be called by the user in Python if needed.
+ *          A user must initialize NumPy arrays with the x and y grid
+ *          coordinates input to this function. This function then fills
+ *          a NumPy array with the domain IDs for each coordinate. An example
+ *          of how this function might be called in Python is as follows:
+ *
+ * @code
+ *          grid_x = numpy.arange(-2., +2., 100)
+ *          grid_y = numpy.arange(-2., +2., 100)
+ *          domain_ids = geometry.getSpatialDataOnGrid(
+ *              grid_x, grid_y, 20., 'xy', 'material')
+ * @endcode
+ *
+ * @param dim1 a numpy array of the first dimension's coordinates
+ * @param dim2 a numpy array of the second dimension's coordinates
+ * @param offset The coordinate at which the plane is located
+ * @param plane The plane for which data is gathered ('xy', 'xz', 'yz')
+ * @param domain_type the type of domain ('fsr', 'material', 'cell')
+ * @return a NumPy array or list of the domain IDs
+ */
+std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
+                        std::vector<double> dim2,
+                        double offset,
+                        const char* plane,
+                        const char* domain_type) {
+
+  LocalCoords* point;
+  Cell* cell;
+
+  /* Instantiate a vector to hold the domain IDs */
+  std::vector<long> domains(dim1.size() * dim2.size());
+
+  /* Extract the source region IDs */
+//#pragma omp parallel for private(point, cell)
+  for (int i=0; i < dim1.size(); i++) {
+    for (int j=0; j < dim2.size(); j++) {
+
+      /* Find the Cell containing this point */
+      if (strcmp(plane, "xy") == 0)
+        point = new LocalCoords(dim1[i], dim2[j], offset);
+      else if (strcmp(plane, "xz") == 0)
+        point = new LocalCoords(dim1[i], offset, dim2[j]);
+      else if (strcmp(plane, "yz") == 0)
+        point = new LocalCoords(offset, dim1[i], dim2[j]);
+      else
+        log_printf(ERROR, "Unable to extract spatial data for "
+                          "unsupported plane %s", plane);
+
+      point->setUniverse(_root_universe);
+      //cell = findCellContainingCoords(point);
+      cell = _root_universe->findCell(point);
+      domains[i+j*dim1.size()] = -1;
+
+      /* Extract the ID of the domain of interest */
+      if (withinGlobalBounds(point)) {
+        if (strcmp(domain_type, "fsr") == 0)
+          domains[i+j*dim1.size()] = getGlobalFSRId(point, false);
+        else if (strcmp(domain_type, "material") == 0)
+          domains[i+j*dim1.size()] = cell->getFillMaterial()->getId();
+        else if (strcmp(domain_type, "cell") == 0)
+          domains[i+j*dim1.size()] = cell->getId();
+        else
+          log_printf(ERROR, "Unable to extract spatial data for "
+                            "unsupported domain type %s", domain_type);
+      }
+
+      /* Deallocate memory for LocalCoords */
+      point = point->getHighestLevel();
+      point->prune();
+      delete point;
+    }
+  }
+  
+  /* Return the domain IDs */
+  return domains;
+}
+
+
+/**
  * @brief Converts this Geometry's attributes to a character array.
  * @details This method calls the toString() method for all Materials,
  *          Surfaces, Cell, Universes and Lattices contained by the Geometry.
@@ -1499,37 +2655,55 @@ void Geometry::printString() {
  */
 void Geometry::initializeCmfd() {
 
+  /* Get the global Geometry boundary conditions */
+  boundaryType min_x_bound = _root_universe->getMinXBoundaryType();
+  boundaryType max_x_bound = _root_universe->getMaxXBoundaryType();
+  boundaryType min_y_bound = _root_universe->getMinYBoundaryType();
+  boundaryType max_y_bound = _root_universe->getMaxYBoundaryType();
+  boundaryType min_z_bound = _root_universe->getMinZBoundaryType();
+  boundaryType max_z_bound = _root_universe->getMaxZBoundaryType();
+
+  /* Get the global Geometry boundaries */
+  double min_x = _root_universe->getMinX();
+  double max_x = _root_universe->getMaxX();
+  double min_y = _root_universe->getMinY();
+  double max_y = _root_universe->getMaxY();
+  double min_z = _root_universe->getMinZ();
+  double max_z = _root_universe->getMaxZ();
+
   /* Set CMFD mesh boundary conditions */
-  _cmfd->setBoundary(SURFACE_X_MIN, getMinXBoundaryType());
-  _cmfd->setBoundary(SURFACE_Y_MIN, getMinYBoundaryType());
-  _cmfd->setBoundary(SURFACE_Z_MIN, getMinZBoundaryType());
-  _cmfd->setBoundary(SURFACE_X_MAX, getMaxXBoundaryType());
-  _cmfd->setBoundary(SURFACE_Y_MAX, getMaxYBoundaryType());
-  _cmfd->setBoundary(SURFACE_Z_MAX, getMaxZBoundaryType());
+  _cmfd->setBoundary(SURFACE_X_MIN, min_x_bound);
+  _cmfd->setBoundary(SURFACE_Y_MIN, min_y_bound);
+  _cmfd->setBoundary(SURFACE_Z_MIN, min_z_bound);
+  _cmfd->setBoundary(SURFACE_X_MAX, max_x_bound);
+  _cmfd->setBoundary(SURFACE_Y_MAX, max_y_bound);
+  _cmfd->setBoundary(SURFACE_Z_MAX, max_z_bound);
 
   /* Set CMFD mesh dimensions and number of groups */
-  _cmfd->setWidthX(getWidthX());
-  _cmfd->setWidthY(getWidthY());
+  _cmfd->setWidthX(max_x - min_x);
+  _cmfd->setWidthY(max_y - min_y);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
 
   /* Initialize the CMFD lattice */
   Point offset;
-  offset.setX(getMinX() + getWidthX()/2.0);
-  offset.setY(getMinY() + getWidthY()/2.0);
+  offset.setX(min_x + (max_x - min_x)/2.0);
+  offset.setY(min_y + (max_y - min_y)/2.0);
 
-  /* If geometry is infinite in z, set Cmfd z-width to 1.0 and z-offset to 0 */
-  if (getWidthZ() == std::numeric_limits<double>::infinity()) {
-    _cmfd->setWidthZ(1.0);
-    offset.setZ(0.0);
-  }
-  else {
-    _cmfd->setWidthZ(getWidthZ());
-    offset.setZ(getMinZ() + getWidthZ()/2.0);
-  }
+  _cmfd->setWidthZ(max_z - min_z);
+  offset.setZ(min_z + (max_z - min_z)/2.0);
 
   _cmfd->initializeLattice(&offset);
+  _cmfd->setGeometry(this);
+
+#ifdef MPIx
+  if (_domain_decomposed) {
+    _cmfd->setNumDomains(_num_domains_x, _num_domains_y, _num_domains_z);
+    _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
+
+  }
+#endif
 }
 
 
@@ -1537,8 +2711,14 @@ void Geometry::initializeCmfd() {
  * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
  * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
  */
-ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap() {
-  return &_FSR_keys_map;
+ParallelHashMap<std::string, fsr_data*>& Geometry::getFSRKeysMap() {
+  return _FSR_keys_map;
+}
+
+
+//FIXME
+ParallelHashMap<std::string, ExtrudedFSR*>& Geometry::getExtrudedFSRKeysMap() {
+  return _extruded_FSR_keys_map;
 }
 
 
@@ -1546,60 +2726,51 @@ ParallelHashMap<std::size_t, fsr_data*>* Geometry::getFSRKeysMap() {
  * @brief Returns the vector that maps FSR IDs to FSR key hashes
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
-std::vector<std::size_t>* Geometry::getFSRsToKeys() {
-  return &_FSRs_to_keys;
+std::vector<std::string>& Geometry::getFSRsToKeys() {
+  return _FSRs_to_keys;
 }
 
+
+//FIXME
+std::vector<ExtrudedFSR*>& Geometry::getExtrudedFSRLookup() {
+  return _extruded_FSR_lookup;
+}
+
+
 /**
- * @brief Return a vector indexed by flat source region IDs which contain
+ * @brief Return a vector indexed by flat source region IDs which contains
  *        the corresponding Material IDs.
  * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
-std::vector<int>* Geometry::getFSRsToMaterialIDs() {
-  if (_FSR_keys_map.size() == 0)
-    log_printf(ERROR, "Unable to return the FSR-to-Material map array since "
-               "the Geometry has not initialized FSRs.");
-
-  return &_FSRs_to_material_IDs;
+std::vector<int>& Geometry::getFSRsToMaterialIDs() {
+  return _FSRs_to_material_IDs;
 }
 
+
 /**
- * @brief Sets the _FSR_keys_map map
- * @details The _FSR_keys_map stores a hash of a std::string representing
- *          the Lattice/Cell/Universe hierarchy for a unique region
- *          and the associated FSR data. fsr_data is a struct that contains
- *          a unique FSR id and a Point located in the highest level Universe
- *          that is contained in the FSR. This method is used when the tracks
- *          are read from file to avoid unnecessary segmentation.
- * @param FSR_keys_map map of FSR keys to FSR data
+ * @brief Return a vector indexed by flat source region IDs which contains
+ *        pointers to the corresponding Centroid Information.
+ * @return an array of centroid pointers indexed by FSR ID
  */
-void Geometry::setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>*
-                             FSR_keys_map) {
-  _FSR_keys_map = *FSR_keys_map;
+std::vector<Point*>& Geometry::getFSRsToCentroids() {
+  return _FSRs_to_centroids;
 }
 
+
 /**
- * @brief Sets the _FSRs_to_keys vector
- * @param FSRs_to_keys vector of FSR key hashes indexed by FSR IDs
+ * @brief Return a vector indexed by flat source region IDs which contains
+ *        the corresponding CMFD cell.
+ * @return an integer vector of FSR to CMFD cell IDs indexed by FSR ID
  */
-void Geometry::setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys) {
-  _FSRs_to_keys = *FSRs_to_keys;
+std::vector<int>& Geometry::getFSRsToCMFDCells() {
+  return _FSRs_to_CMFD_cells;
 }
 
 
 /**
- * @brief Sets the _FSRs_to_material_IDs vector
- * @param FSRs_to_material_IDs vector mapping FSR IDs to cells
- */
-void Geometry::setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs) {
-  _FSRs_to_material_IDs = *FSRs_to_material_IDs;
-}
-
-
-/**
- * @brief Determins whether a point is within the bounding box of the geometry.
+ * @brief Determins whether a point is within the bounding box of the domain.
  * @param coords a populated LocalCoords linked list
- * @return boolean indicating whether the coords is within the geometry
+ * @return boolean indicating whether the coords is within the domain
  */
 bool Geometry::withinBounds(LocalCoords* coords) {
 
@@ -1607,8 +2778,8 @@ bool Geometry::withinBounds(LocalCoords* coords) {
   double y = coords->getY();
   double z = coords->getZ();
 
-  if (x < getMinX() || x > getMaxX() || y < getMinY() || y > getMaxY()
-      || z < getMinZ() || z > getMaxZ())
+  if (x <= getMinX() || x >= getMaxX() || y <= getMinY() || y >= getMaxY()
+      || z <= getMinZ() || z >= getMaxZ())
     return false;
   else
     return true;
@@ -1616,12 +2787,34 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 
 
 /**
+ * @brief Determins whether a point is within the bounding box of the Geometry.
+ * @param coords a populated LocalCoords linked list
+ * @return boolean indicating whether the coords is within the geometry
+ */
+bool Geometry::withinGlobalBounds(LocalCoords* coords) {
+
+  double x = coords->getX();
+  double y = coords->getY();
+  double z = coords->getZ();
+
+  if (x <= _root_universe->getMinX() || x >= _root_universe->getMaxX() ||
+      y <= _root_universe->getMinY() || y >= _root_universe->getMaxY() ||
+      z <= _root_universe->getMinZ() || z >= _root_universe->getMaxZ())
+    return false;
+  else
+    return true;
+}
+
+
+
+/**
  * @brief Finds the Cell containing a given fsr ID.
  * @param fsr_id an FSR ID.
  */
-Cell* Geometry::findCellContainingFSR(int fsr_id) {
+Cell* Geometry::findCellContainingFSR(long fsr_id) {
 
-  Point* point = _FSR_keys_map.at(_FSRs_to_keys[fsr_id])->_point;
+  std::string& key = _FSRs_to_keys[fsr_id];
+  Point* point = _FSR_keys_map.at(key)->_point;
   LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
                                         point->getZ());
   coords->setUniverse(_root_universe);
@@ -1646,8 +2839,11 @@ Cell* Geometry::findCellContainingFSR(int fsr_id) {
  * @param fsr a FSR id
  * @param centroid a Point representing the FSR centroid
  */
-void Geometry::setFSRCentroid(int fsr, Point* centroid) {
-  _FSR_keys_map.at(_FSRs_to_keys[fsr])->_centroid = centroid;
+void Geometry::setFSRCentroid(long fsr, Point* centroid) {
+  _contains_FSR_centroids = true;
+  std::string& key = _FSRs_to_keys[fsr];
+  _FSR_keys_map.at(key)->_centroid = centroid;
+  _FSRs_to_centroids[fsr] = centroid;
 }
 
 
@@ -1660,7 +2856,7 @@ void Geometry::setFSRCentroid(int fsr, Point* centroid) {
  *          duplicates, creating a mesh.
  * @reutrn a vector of z-coords
  */
-std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
+std::vector<double> Geometry::getUniqueZHeights() {
 
   /* Get the bounds of the geometry */
   double min_z = getMinZ();
@@ -1668,6 +2864,8 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
 
   /* Initialize set for axial mesh */
   std::set<double> unique_mesh;
+  unique_mesh.insert(min_z);
+  unique_mesh.insert(max_z);
 
   /* Initialize vector of unvisited universes and add the root universe */
   std::vector<Universe*> universes;
@@ -1679,7 +2877,7 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
 
   /* Cycle through known universes */
   while (!universes.empty()) {
-
+    
     /* Get the last universe and explore it */
     Universe* curr_universe = universes.back();
     universes.pop_back();
@@ -1808,28 +3006,8 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
         * ON_SURFACE_THRESH;
 
       /* Add the rounded z-height to the set */
-      if (z_heights[i] >= min_z && z_heights[i] <= max_z)
+      if (z_heights[i] > min_z && z_heights[i] < max_z)
         unique_mesh.insert(z_heights[i]);
-    }
-  }
-
-  /* Add CMFD levels */
-  if (_cmfd != NULL) {
-
-    /* Cycle through CMFD mesh not included by boundaries */
-    double cmfd_num_z = _cmfd->getNumZ();
-    double width = (max_z - min_z) / cmfd_num_z;
-    for (int i=1; i < cmfd_num_z; i++) {
-
-      /* Calculate z-height */
-      double z_height = min_z + width*i;
-
-      /* Round z-height */
-      int place = 8;
-      z_height = floor(z_height * pow(10, place)) * pow(10, -place);
-
-      /* Add height to set */
-      unique_mesh.insert(z_height);
     }
   }
 
@@ -1837,7 +3015,7 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
   std::vector<double> unique_heights;
   std::set<double>::iterator iter;
   for (iter = unique_mesh.begin(); iter != unique_mesh.end(); ++iter)
-    unique_heights.push_back(static_cast<FP_PRECISION>(*iter));
+    unique_heights.push_back(static_cast<double>(*iter));
 
   return unique_heights;
 }
@@ -1852,17 +3030,782 @@ std::vector<FP_PRECISION> Geometry::getUniqueZHeights() {
  *          radial planes and returned to the user.
  * @reutrn a vector of z-coords
  */
-std::vector<FP_PRECISION> Geometry::getUniqueZPlanes() {
+std::vector<double> Geometry::getUniqueZPlanes() {
 
   /* Get a vector of all unique z-heights in the Geometry */
-  std::vector<FP_PRECISION> unique_heights = getUniqueZHeights();
+  std::vector<double> unique_heights = getUniqueZHeights();
 
   /* Use the midpoints to construct all possible unique radial planes */
-  std::vector<FP_PRECISION> unique_z_planes;
+  std::vector<double> unique_z_planes;
   for (int i=1; i < unique_heights.size(); i++) {
-    FP_PRECISION mid = (unique_heights[i-1] + unique_heights[i]) / 2;
+    double mid = (unique_heights[i-1] + unique_heights[i]) / 2;
     unique_z_planes.push_back(mid);
   }
 
   return unique_z_planes;
+}
+
+
+/**
+ * @brief Prints all Geoemetry and Material details to a Geometry restart file
+ * @param filename The name of the file where the data is printed
+ */
+void Geometry::dumpToFile(std::string filename) {
+
+  FILE* out;
+  out = fopen(filename.c_str(), "w");
+
+  /* Print number of energy groups */
+  int num_groups = getNumEnergyGroups();
+  fwrite(&num_groups, sizeof(int), 1, out);
+
+  /* Print all material infromation */
+  std::map<int, Material*> all_materials = getAllMaterials();
+  int num_materials = all_materials.size();
+  fwrite(&num_materials, sizeof(int), 1, out);
+  std::map<int, Material*>::iterator material_iter;
+  for (material_iter = all_materials.begin();
+      material_iter != all_materials.end(); ++material_iter) {
+    int key = material_iter->first;
+    Material* mat = material_iter->second;
+    int id = mat->getId();
+    char* name = mat->getName();
+
+    /* Print key and general material information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+
+    /* Print total cross-section */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getSigmaTByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print fission cross-section */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getSigmaFByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print nu * fisison cross-section */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getNuSigmaFByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print neutron emission spectrum (chi) */
+    for (int g=0; g < num_groups; g++) {
+      double value = mat->getChiByGroup(g+1);
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
+    /* Print scattering cross-section */
+    for (int g=0; g < num_groups; g++) {
+      for (int gp=0; gp < num_groups; gp++) {
+        double value = mat->getSigmaSByGroup(g+1, gp+1);
+        fwrite(&value, sizeof(double), 1, out);
+      }
+    }
+  }
+
+  /* Print root universe ID */
+  int root_id = _root_universe->getId();
+  fwrite(&root_id, sizeof(int), 1, out);
+
+  /* Retrieve all surfaces, cells, and universes */
+  std::map<int, Surface*> all_surfaces = getAllSurfaces();
+  std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+  std::map<int, Universe*> all_universes = _root_universe->getAllUniverses();
+
+  std::map<int, Surface*>::iterator surface_iter;
+  std::map<int, Cell*>::iterator cell_iter;
+  std::map<int, Universe*>::iterator univ_iter;
+
+  /* Print all surface information */
+  int num_surfaces = all_surfaces.size();
+  fwrite(&num_surfaces, sizeof(int), 1, out);
+  for (surface_iter = all_surfaces.begin(); surface_iter != all_surfaces.end();
+      ++surface_iter) {
+
+    /* Get key, value pair and general surface information */
+    int key = surface_iter->first;
+    Surface* value = surface_iter->second;
+    int id = value->getId();
+    char* name = value->getName();
+    surfaceType st = value->getSurfaceType();
+    boundaryType bt = value->getBoundaryType();
+
+    /* Print key and general surface information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+    fwrite(&st, sizeof(surfaceType), 1, out);
+    fwrite(&bt, sizeof(boundaryType), 1, out);
+
+    /* Treat specific surface types */
+    if (st == PLANE) {
+      Plane* pl = static_cast<Plane*>(value);
+      double a = pl->getA();
+      double b = pl->getB();
+      double c = pl->getC();
+      double d = pl->getD();
+      fwrite(&a, sizeof(double), 1, out);
+      fwrite(&b, sizeof(double), 1, out);
+      fwrite(&c, sizeof(double), 1, out);
+      fwrite(&d, sizeof(double), 1, out);
+    }
+    else if (st == ZCYLINDER) {
+      ZCylinder* zcyl = static_cast<ZCylinder*>(value);
+      double x = zcyl->getX0();
+      double y = zcyl->getY0();
+      double radius = zcyl->getRadius();
+      fwrite(&x, sizeof(double), 1, out);
+      fwrite(&y, sizeof(double), 1, out);
+      fwrite(&radius, sizeof(double), 1, out);
+    }
+    else if (st == XPLANE) {
+      XPlane* xpl = static_cast<XPlane*>(value);
+      double x = xpl->getX();
+      fwrite(&x, sizeof(double), 1, out);
+    }
+    else if (st == YPLANE) {
+      YPlane* ypl = static_cast<YPlane*>(value);
+      double y = ypl->getY();
+      fwrite(&y, sizeof(double), 1, out);
+    }
+    else if (st == ZPLANE) {
+      ZPlane* zpl = static_cast<ZPlane*>(value);
+      double z = zpl->getZ();
+      fwrite(&z, sizeof(double), 1, out);
+    }
+    else {
+      log_printf(ERROR, "Unsupported surface type for surface ID: %d, name:",
+                 " %s", id, name);
+    }
+  }
+
+  /* Print all cell information */
+  int num_cells = all_cells.size();
+  fwrite(&num_cells, sizeof(int), 1, out);
+  for (cell_iter = all_cells.begin(); cell_iter != all_cells.end();
+      ++cell_iter) {
+
+    /* Get key, value pair and general cell information */
+    int key = cell_iter->first;
+    Cell* cell = cell_iter->second;
+    int id = cell->getId();
+    char* name = cell->getName();
+    cellType ct = cell->getType();
+
+    /* Print key and general surface information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+    fwrite(&ct, sizeof(cellType), 1, out);
+
+    if (ct == MATERIAL) {
+      Material* mat = cell->getFillMaterial();
+      int mat_id = mat->getId();
+      fwrite(&mat_id, sizeof(int), 1, out);
+    }
+    else if (ct == FILL) {
+      Universe* univ = cell->getFillUniverse();
+      int univ_id = univ->getId();
+      fwrite(&univ_id, sizeof(int), 1, out);
+    }
+
+    /* Print cell rotations */
+    bool rot = cell->isRotated();
+    fwrite(&rot, sizeof(bool), 1, out);
+    if (rot) {
+      double rotation[3];
+      rotation[0] = cell->getPhi("radians");
+      rotation[1] = cell->getTheta("radians");
+      rotation[2] = cell->getPsi("radians");
+      fwrite(rotation, sizeof(double), 3, out);
+    }
+
+    /* Print cell translations */
+    bool trans = cell->isTranslated();
+    fwrite(&trans, sizeof(bool), 1, out);
+    if (trans) {
+      double* translation = cell->getTranslation();
+      fwrite(translation, sizeof(double), 3, out);
+    }
+
+    /* Print ring / sector information */
+    int num_rings = cell->getNumRings();
+    int num_sectors = cell->getNumSectors();
+    fwrite(&num_rings, sizeof(int), 1, out);
+    fwrite(&num_sectors, sizeof(int), 1, out);
+
+    /* Print parent cell */
+    bool has_parent = cell->hasParent();
+    fwrite(&has_parent, sizeof(bool), 1, out);
+    if (has_parent) {
+      int parent_id = cell->getParent()->getId();
+      fwrite(&parent_id, sizeof(int), 1, out);
+    }
+
+    /* Print bounding surfaces */
+    std::map<int, surface_halfspace*> surfaces = cell->getSurfaces();
+    std::map<int, surface_halfspace*>::iterator surface_h_iter;
+    int num_cell_surfaces = surfaces.size();
+    fwrite(&num_cell_surfaces, sizeof(int), 1, out);
+    for (surface_h_iter = surfaces.begin(); surface_h_iter != surfaces.end();
+        ++surface_h_iter) {
+      int surface_id = surface_h_iter->first;
+      int halfspace = surface_h_iter->second->_halfspace;
+      fwrite(&surface_id, sizeof(int), 1, out);
+      fwrite(&halfspace, sizeof(int), 1, out);
+    }
+
+    //FIXME WORRY ABOUT NEIGHBORS
+  }
+
+  /* Print all universe information */
+  int num_universes = all_universes.size();
+  fwrite(&num_universes, sizeof(int), 1, out);
+  for (univ_iter = all_universes.begin();
+       univ_iter != all_universes.end(); ++univ_iter) {
+
+    /* Get key, value pair and general cell information */
+    int key = univ_iter->first;
+    Universe* universe = univ_iter->second;
+    int id = universe->getId();
+    char* name = universe->getName();
+    universeType ut = universe->getType();
+
+    /* Print key and general surface information */
+    fwrite(&key, sizeof(int), 1, out);
+    fwrite(&id, sizeof(int), 1, out);
+    if (strcmp(name, "") == 0) {
+      int length = 0;
+      fwrite(&length, sizeof(int), 1, out);
+    }
+    else {
+      int length = std::char_traits<char>::length(name);
+      fwrite(&length, sizeof(int), 1, out);
+      fwrite(name, sizeof(char), length, out);
+    }
+    fwrite(&ut, sizeof(universeType), 1, out);
+
+    if (ut == SIMPLE) {
+      /* Print all cells in the universe */
+      std::map<int, Cell*> cells = universe->getCells();
+      int num_universe_cells = cells.size();
+      fwrite(&num_universe_cells, sizeof(int), 1, out);
+      for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
+        int cell_id = cell_iter->first;
+        fwrite(&cell_id, sizeof(int), 1, out);
+      }
+    }
+    else if (ut == LATTICE) {
+      /* Print lattice information */
+      Lattice* lattice = static_cast<Lattice*>(universe);
+      int num_x = lattice->getNumX();
+      int num_y = lattice->getNumY();
+      int num_z = lattice->getNumZ();
+      double width_x = lattice->getWidthX();
+      double width_y = lattice->getWidthY();
+      double width_z = lattice->getWidthZ();
+      double* offset = lattice->getOffset()->getXYZ();
+      fwrite(&num_x, sizeof(int), 1, out);
+      fwrite(&num_y, sizeof(int), 1, out);
+      fwrite(&num_z, sizeof(int), 1, out);
+      fwrite(&width_x, sizeof(double), 1, out);
+      fwrite(&width_y, sizeof(double), 1, out);
+      fwrite(&width_z, sizeof(double), 1, out);
+      fwrite(offset, sizeof(double), 3, out);
+
+      /* Get universes */
+      Universe* universes[num_x * num_y * num_z];
+      for (int i=0; i < num_x; i++) {
+        for (int j=0; j < num_y; j++) {
+          for (int k =0; k < num_z; k++) {
+            int idx = (num_z-1-k) * num_x * num_y + (num_y-1-j) * num_x + i;
+            universes[idx] = lattice->getUniverse(i, j, k);
+          }
+        }
+      }
+      for (int i=0; i < num_x * num_y * num_z; i++) {
+        int universe_id = universes[i]->getId();
+        fwrite(&universe_id, sizeof(int), 1, out);
+      }
+    }
+  }
+
+  /* Close the output file */
+  fclose(out);
+}
+
+
+/**
+ * @brief Loads all Geoemetry and Material details from a Geometry restart file
+ * @param filename The name of the file where the data is loaded
+ */
+void Geometry::loadFromFile(std::string filename, bool twiddle) {
+
+  _twiddle = twiddle;
+
+  FILE* in;
+  in = fopen(filename.c_str(), "r");
+
+  if (_root_universe != NULL)
+    delete _root_universe;
+
+  log_printf(NORMAL, "Reading Geometry from %s", filename.c_str());
+
+  std::map<int, Surface*> all_surfaces;
+  std::map<int, Cell*> all_cells;
+  std::map<int, Universe*> all_universes;
+  std::map<int, Material*> all_materials;
+
+  std::map<int, int> fill_cell_universes;
+  std::map<int, int> cell_parent;
+  std::map<int, int*> lattice_universes;
+
+  /* Read number of energy groups */
+  int num_groups;
+  int ret = twiddleRead(&num_groups, sizeof(int), 1, in);
+
+  /* Read all material infromation */
+  int num_materials;
+  ret = twiddleRead(&num_materials, sizeof(int), 1, in);
+  for (int i=0; i < num_materials; i++) {
+
+    /* Get key, value pair and general surface information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = twiddleRead(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+
+    /* Create Material */
+    all_materials[key] = new Material(id, name);
+    Material* mat = all_materials[key];
+    mat->setNumEnergyGroups(num_groups);
+
+    /* Set total cross-section */
+    double value;
+    for (int g=0; g < num_groups; g++) {
+      ret = twiddleRead(&value, sizeof(double), 1, in);
+      mat->setSigmaTByGroup(value, g+1);
+    }
+
+    /* Set fission cross-section */
+    for (int g=0; g < num_groups; g++) {
+      ret = twiddleRead(&value, sizeof(double), 1, in);
+      mat->setSigmaFByGroup(value, g+1);
+    }
+
+    /* Set nu * fisison cross-section */
+    for (int g=0; g < num_groups; g++) {
+      ret = twiddleRead(&value, sizeof(double), 1, in);
+      mat->setNuSigmaFByGroup(value, g+1);
+    }
+
+    /* Set neutron emission spectrum (chi) */
+    for (int g=0; g < num_groups; g++) {
+      ret = twiddleRead(&value, sizeof(double), 1, in);
+      mat->setChiByGroup(value, g+1);
+    }
+
+    /* Set scattering cross-section */
+    for (int g=0; g < num_groups; g++) {
+      for (int gp=0; gp < num_groups; gp++) {
+        ret = twiddleRead(&value, sizeof(double), 1, in);
+        mat->setSigmaSByGroup(value, g+1, gp+1);
+      }
+    }
+  }
+
+  /* Read root universe ID */
+  int root_id;
+  ret = twiddleRead(&root_id, sizeof(int), 1, in);
+
+  /* Read all surface information */
+  int num_surfaces;
+  ret = twiddleRead(&num_surfaces, sizeof(int), 1, in);
+  for (int i=0; i < num_surfaces; i++) {
+
+    /* Get key, value pair and general surface information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = twiddleRead(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+    surfaceType st;
+    boundaryType bt;
+    ret = twiddleRead(&st, sizeof(surfaceType), 1, in);
+    ret = twiddleRead(&bt, sizeof(boundaryType), 1, in);
+
+
+    /* Treat specific surface types */
+    if (st == PLANE) {
+      double a, b, c, d;
+      ret = twiddleRead(&a, sizeof(double), 1, in);
+      ret = twiddleRead(&b, sizeof(double), 1, in);
+      ret = twiddleRead(&c, sizeof(double), 1, in);
+      ret = twiddleRead(&d, sizeof(double), 1, in);
+      all_surfaces[key] = new Plane(a, b, c, d, id, name);
+    }
+    else if (st == ZCYLINDER) {
+      double x, y, radius;
+      ret = twiddleRead(&x, sizeof(double), 1, in);
+      ret = twiddleRead(&y, sizeof(double), 1, in);
+      ret = twiddleRead(&radius, sizeof(double), 1, in);
+      all_surfaces[key] = new ZCylinder(x, y, radius, id, name);
+    }
+    else if (st == XPLANE) {
+      double x;
+      ret = twiddleRead(&x, sizeof(double), 1, in);
+      all_surfaces[key] = new XPlane(x, id, name);
+    }
+    else if (st == YPLANE) {
+      double y;
+      ret = twiddleRead(&y, sizeof(double), 1, in);
+      all_surfaces[key] = new YPlane(y, id, name);
+    }
+    else if (st == ZPLANE) {
+      double z;
+      ret = twiddleRead(&z, sizeof(double), 1, in);
+      all_surfaces[key] = new ZPlane(z, id, name);
+    }
+    else {
+      log_printf(ERROR, "Unsupported surface type %s", name);
+    }
+
+    /* Check that the key and ID match */
+    if (key != id) {
+      std::string str = all_surfaces[key]->toString();
+      log_printf(ERROR, "Surface key %d does not match it's corresponding ID "
+                        "%d for surface:\n%s", key, id, str.c_str());
+    }
+
+    /* Set boundary */
+    all_surfaces[key]->setBoundaryType(bt);
+  }
+
+  /* Read all cell information */
+  int num_cells;
+  ret = twiddleRead(&num_cells, sizeof(int), 1, in);
+  for (int i=0; i < num_cells; i++) {
+
+    /* Get key, value pair and general cell information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = twiddleRead(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+    cellType ct;
+    ret = twiddleRead(&ct, sizeof(cellType), 1, in);
+
+    /* Create the cell */
+    all_cells[key] = new Cell(id, name);
+
+    /* Fill the cell */
+    if (ct == MATERIAL) {
+      int mat_id;
+      ret = twiddleRead(&mat_id, sizeof(int), 1, in);
+      all_cells[key]->setFill(all_materials[mat_id]);
+    }
+    else if (ct == FILL) {
+      int univ_id;
+      ret = twiddleRead(&univ_id, sizeof(int), 1, in);
+      fill_cell_universes[key] = univ_id;
+    }
+
+    /* Read cell rotations */
+    bool rot;
+    ret = twiddleRead(&rot, sizeof(bool), 1, in);
+    if (rot) {
+      double rotation[3];
+      ret = twiddleRead(rotation, sizeof(double), 3, in);
+      all_cells[key]->setRotation(rotation, 3, "radians");
+    }
+
+    /* Read cell translations */
+    bool trans;
+    ret = twiddleRead(&trans, sizeof(bool), 1, in);
+    if (trans) {
+      double translation[3];
+      ret = twiddleRead(translation, sizeof(double), 3, in);
+      all_cells[key]->setTranslation(translation, 3);
+    }
+
+    /* Read ring / sector information */
+    int num_rings, num_sectors;
+    ret = twiddleRead(&num_rings, sizeof(int), 1, in);
+    ret = twiddleRead(&num_sectors, sizeof(int), 1, in);
+    all_cells[key]->setNumRings(num_rings);
+    all_cells[key]->setNumSectors(num_sectors);
+
+    /* Read parent cell */
+    bool has_parent;
+    ret = twiddleRead(&has_parent, sizeof(bool), 1, in);
+    if (has_parent) {
+      int parent_id;
+      ret = twiddleRead(&parent_id, sizeof(bool), 1, in);
+      cell_parent[key] = parent_id;
+    }
+
+    /* Print bounding surfaces */
+    int num_cell_surfaces;
+    ret = twiddleRead(&num_cell_surfaces, sizeof(int), 1, in);
+    for (int s=0; s < num_cell_surfaces; s++) {
+      int surface_id;
+      int halfspace;
+      ret = twiddleRead(&surface_id, sizeof(int), 1, in);
+      ret = twiddleRead(&halfspace, sizeof(int), 1, in);
+      all_cells[key]->addSurface(halfspace, all_surfaces[surface_id]);
+    }
+
+    /* Check that the key and ID match */
+    if (key != id) {
+      std::string str = all_cells[key]->toString();
+      log_printf(ERROR, "Cell key %d does not match it's corresponding ID "
+                        "%d for surface:\n%s", key, id, str.c_str());
+    }
+  }
+
+  /* Read all universe information */
+  int num_universes;
+  ret = twiddleRead(&num_universes, sizeof(int), 1, in);
+  for (int i=0; i < num_universes; i++) {
+
+    /* Get key, value pair and general universe information */
+    int key, id;
+    int length;
+    char* str;
+    const char* name;
+    ret = twiddleRead(&key, sizeof(int), 1, in);
+    ret = twiddleRead(&id, sizeof(int), 1, in);
+    ret = twiddleRead(&length, sizeof(int), 1, in);
+    if (length > 0) {
+      str = new char[length];
+      ret = twiddleRead(str, sizeof(char), length, in);
+      name = str;
+    }
+    else {
+      name = "";
+    }
+    universeType ut;
+    ret = twiddleRead(&ut, sizeof(universeType), 1, in);
+
+    if (ut == SIMPLE) {
+
+      /* Read all cells in the universe */
+      all_universes[key] = new Universe(id, name);
+      int num_universe_cells;
+      ret = twiddleRead(&num_universe_cells, sizeof(int), 1, in);
+      for (int c=0; c < num_universe_cells; c++) {
+        int cell_id;
+        ret = twiddleRead(&cell_id, sizeof(int), 1, in);
+        all_universes[key]->addCell(all_cells[cell_id]);
+      }
+    }
+    else if (ut == LATTICE) {
+
+      /* Read lattice information */
+      int num_x, num_y, num_z;
+      double width_x, width_y, width_z;
+      double offset[3];
+      ret = twiddleRead(&num_x, sizeof(int), 1, in);
+      ret = twiddleRead(&num_y, sizeof(int), 1, in);
+      ret = twiddleRead(&num_z, sizeof(int), 1, in);
+      ret = twiddleRead(&width_x, sizeof(double), 1, in);
+      ret = twiddleRead(&width_y, sizeof(double), 1, in);
+      ret = twiddleRead(&width_z, sizeof(double), 1, in);
+      ret = twiddleRead(offset, sizeof(double), 3, in);
+
+      /* Create lattice */
+      Lattice* new_lattice = new Lattice(id, name);
+      all_universes[key] = new_lattice;
+      new_lattice->setNumX(num_x);
+      new_lattice->setNumY(num_y);
+      new_lattice->setNumZ(num_z);
+      new_lattice->setWidth(width_x, width_y, width_z);
+      new_lattice->setOffset(offset[0], offset[1], offset[2]);
+
+      /* Get universes */
+      lattice_universes[key] = new int[num_x*num_y*num_z];
+      for (int j=0; j < num_x * num_y * num_z; j++) {
+        int universe_id;
+        ret = twiddleRead(&universe_id, sizeof(int), 1, in);
+        lattice_universes[key][j] = universe_id;
+      }
+    }
+
+    /* Check that the key and ID match */
+    if (key != id) {
+      std::string str = all_universes[key]->toString();
+      log_printf(ERROR, "Universe key %d does not match it's corresponding ID "
+                        "%d for surface:\n%s", key, id, str.c_str());
+    }
+  }
+
+  /* Set universe fills in cells */
+  std::map<int, int>::iterator id_iter;
+  for (id_iter = fill_cell_universes.begin();
+       id_iter != fill_cell_universes.end(); ++id_iter)
+    all_cells[id_iter->first]->setFill(all_universes[id_iter->second]);
+
+  /* Set parent cells */
+  for (id_iter = cell_parent.begin(); id_iter != cell_parent.end(); ++id_iter)
+    all_cells[id_iter->first]->setParent(all_cells[id_iter->second]);
+
+  /* Set lattice universes */
+  std::map<int, int*>::iterator lattice_iter;
+  for (lattice_iter = lattice_universes.begin();
+       lattice_iter != lattice_universes.end(); ++lattice_iter) {
+    int id = lattice_iter->first;
+    int* array = lattice_iter->second;
+    Lattice* lattice = static_cast<Lattice*>(all_universes[id]);
+    int num_x = lattice->getNumX();
+    int num_y = lattice->getNumY();
+    int num_z = lattice->getNumZ();
+    Universe* universes[num_x * num_y * num_z];
+    for (int i=0; i < num_x * num_y * num_z; i++) {
+      universes[i] = all_universes[array[i]];
+    }
+    lattice->setUniverses(num_z, num_y, num_x, universes);
+  }
+
+  /* Set root universe */
+  _root_universe = all_universes[root_id];
+
+  /* Close the input file */
+  fclose(in);
+
+  log_printf(NORMAL, "Read complete");
+}
+
+
+/**
+ * FIXME
+ *
+ */
+size_t Geometry::twiddleRead(int* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      ptr[i] = __builtin_bswap32(ptr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  return ret;
+}
+size_t Geometry::twiddleRead(universeType* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(cellType* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(surfaceType* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(boundaryType* ptr, size_t size, size_t nmemb,
+                             FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  int* arr = reinterpret_cast<int*>(ptr);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap32(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream) {
+  size_t ret = fread(ptr, size, nmemb, stream);
+  return ret;
+}
+size_t Geometry::twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream) {
+  long* arr = reinterpret_cast<long*>(ptr);
+  size_t ret = fread(arr, size, nmemb, stream);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap64(arr[i]);
+  return ret;
+}
+size_t Geometry::twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream) {
+  long* arr = ptr;
+  size_t ret = fread(arr, size, nmemb, stream);
+  if (_twiddle)
+    for (int i=0; i < nmemb; i++)
+      arr[i] = __builtin_bswap64(arr[i]);
+  return ret;
 }

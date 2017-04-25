@@ -1,4 +1,4 @@
-%define DOCSTRING 
+%define DOCSTRING
 "A method of characteristics code for nuclear reactor physics calculations."
 %enddef
 
@@ -44,18 +44,7 @@
 
 #ifdef NO_NUMPY
 #else
-%include "../numpy.i"
-
-%init %{
-  import_array();
-%}
-
-/* The typemap used to match the method signature for the Solver's
- * computeFSRFissionRates method for the data processing routines in
- * openmoc.process */
-%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fission_rates, int num_FSRs)}
-
-
+%include "../numpy_typemaps.i"
 #endif
 
 %include <exception.i>
@@ -67,9 +56,3 @@
 %include ../../src/accel/cuda/clone.h
 
 #define PySys_WriteStdout printf
-
-#ifdef DOUBLE
-typedef double FP_PRECISION;
-#else
-typedef float FP_PRECISION;
-#endif

@@ -33,6 +33,14 @@
 #define track_leakage(pe) (track_leakage[(pe)])
 
 
+//FIXME
+struct sendInfo {
+  long track_id;
+  int domain;
+  bool fwd;
+};
+
+
 /**
  * @class CPUSolver CPUSolver.h "src/CPUSolver.h"
  * @brief This a subclass of the Solver class for multi-core CPUs using
@@ -48,18 +56,40 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-  void initializeFSRs();
+  //FIXME
+#ifdef MPIx
+  int _track_message_size;
+  std::vector<FP_PRECISION*> _send_buffers;
+  std::vector<FP_PRECISION*> _receive_buffers;
+  std::vector<std::vector<long> > _boundary_tracks;
+  std::vector<std::vector<long> > _track_connections;
+  std::vector<int> _neighbor_domains;
+  MPI_Request* _MPI_requests;
+  bool* _MPI_sends;
+  bool* _MPI_receives;
+#endif
+
+
+  virtual void initializeFluxArrays();
+  virtual void initializeSourceArrays();
+  virtual void initializeFSRs();
 
   void zeroTrackFluxes();
   void copyBoundaryFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
+#ifdef MPIx
+  void setupMPIBuffers();
+  void deleteMPIBuffers();
+  void packBuffers(std::vector<long> &packing_indexes);
+  void transferAllInterfaceFluxes();
+  void printCycle(long track_start, int domain_start, int length);
+  void boundaryFluxChecker();
+#endif
+  virtual void flattenFSRFluxes(FP_PRECISION value);
   void storeFSRFluxes();
-  void normalizeFluxes();
-  void computeFSRSources();
-  void transportSweep();
-  void addSourceToScalarFlux();
+  virtual FP_PRECISION normalizeFluxes();
+  virtual void computeFSRSources(int iteration);
+  virtual void transportSweep();
+  virtual void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
 
@@ -69,8 +99,8 @@ public:
 
   int getNumThreads();
   void setNumThreads(int num_threads);
-  virtual void setFixedSourceByFSR(int fsr_id, int group, FP_PRECISION source);
-  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+  virtual void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
+  void computeFSRFissionRates(double* fission_rates, long num_FSRs);
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
@@ -79,8 +109,9 @@ public:
    * @param track_flux a pointer to the Track's angular flux
    * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
    */
+    //FIXME MEM : float / FP_PRECISION
   virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
-                               int polar_index, FP_PRECISION* track_flux,
+                               int polar_index, float* track_flux,
                                FP_PRECISION* fsr_flux);
 
   /**
@@ -90,20 +121,32 @@ public:
    * @param track_flux a pointer to the Track's angular flux
    * @param fwd the direction of integration along the segment
    */
+    //FIXME MEM : float / FP_PRECISION
   virtual void tallyCurrent(segment* curr_segment, int azim_index,
-                            int polar_index, FP_PRECISION* track_flux,
+                            int polar_index, float* track_flux,
                             bool fwd);
 
   /**
    * @brief Updates the boundary flux for a Track given boundary conditions.
-   * @param track_id the ID number for the Track of interest
+   * @param track_id the ID number for the Track of interest FIXME
    * @param azim_index a pointer to the azimuthal angle index for this segment
    * @param direction the Track direction (forward - true, reverse - false)
    * @param track_flux a pointer to the Track's outgoing angular flux
    */
-  virtual void transferBoundaryFlux(int track_id, int azim_index,
+    //FIXME MEM : float / FP_PRECISION
+  virtual void transferBoundaryFlux(Track* track, int azim_index,
                                     int polar_index, bool direction,
-                                    FP_PRECISION* track_flux);
+                                    float* track_flux);
+
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
+
+  void initializeFixedSources();
+
+  //FIXME
+  void printFSRFluxes(std::vector<double> dim1,
+                      std::vector<double> dim2, double offset,
+                      const char* plane);
+  void printFluxesTemp();
 };
 
 

@@ -136,3 +136,55 @@ void Timer::clearSplit(const char* msg) {
 void Timer::clearSplits() {
   _timer_splits.clear();
 }
+
+
+// FIXME
+void Timer::processMemUsage(double& vm_usage, double& resident_set) {
+
+   vm_usage     = 0.0;
+   resident_set = 0.0;
+
+   /* Open file containing memory info */
+   std::ifstream stat_stream("/proc/self/stat", std::ios_base::in);
+
+   /* Read in dummy data */
+   std::string tmp;
+   for (int i=0; i < 22; i++)
+     stat_stream >> tmp;
+
+   /* Read in virtual and resident memory */
+   unsigned long vsize;
+   stat_stream >> vsize;
+   long rss;
+   stat_stream >> rss;
+   stat_stream.close();
+
+   /* Calculate memory usage */
+   long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024;
+   vm_usage = (double) vsize / 1024.0 / 1024.0;
+   resident_set = rss * page_size_kb / 1024.0;
+}
+
+
+//FIXME
+#ifdef MPIx
+void Timer::reduceTimer(MPI_Comm comm) {
+
+  std::map<std::string, double>::iterator iter;
+  for (iter = _timer_splits.begin(); iter != _timer_splits.end(); ++iter) {
+
+    /* Collapse timing results down to one value for each category */
+    double curr_split = (*iter).second;
+    double total_split = 0;
+    MPI_Reduce(&curr_split, &total_split, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+
+    /* On the main node, average over the number of ranks, update result */
+    if (total_split != 0) {
+      int num_ranks;
+      MPI_Comm_size(comm, &num_ranks);
+      total_split /= num_ranks;
+      (*iter).second = total_split;
+    }
+  }
+}
+#endif

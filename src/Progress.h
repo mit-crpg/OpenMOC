@@ -24,6 +24,11 @@
 #include "log.h"
 #endif
 
+#ifdef MPIx
+#include <mpi.h>
+#endif
+
+class Geometry;
 
 class Progress {
 
@@ -33,11 +38,14 @@ private:
   std::string _name;
   int _counter;
   int _num_iterations;
-  double _interval;
-  double _last_interval;
+  int _curr_interval;
+  std::vector<int> _intervals;
+  Geometry* _geometry;
+  bool _mpi_comm;
 
 public:
-  Progress(int num_iterations, std::string name, double interval=0.1);
+  Progress(int num_iterations, std::string name, double interval=0.1,
+           Geometry* geometry=NULL, bool mpi_comm=false);
   virtual ~Progress();
 
   /* Worker functions */

@@ -68,6 +68,14 @@ static char title_char = '*';
  */
 static int line_length = 67;
 
+//FIXME
+static int rank = 0;
+static int num_ranks = 1;
+#ifdef MPIx
+static MPI_Comm _MPI_comm;
+static bool _MPI_present = false;
+#endif
+
 
 /**
  * @var log_error_lock
@@ -152,6 +160,7 @@ void set_separator_character(char c) {
 char get_separator_character() {
   return separator_char;
 }
+
 
 /**
  * @brief Sets the character to be used when printing HEADER log messages.
@@ -315,6 +324,9 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (NORMAL):
       {
+        if (rank != 0)
+          return;
+
         std::string msg = std::string(message);
         std::string level_prefix = "[  NORMAL ]  ";
 
@@ -328,8 +340,29 @@ void log_printf(logLevel level, const char* format, ...) {
 
         break;
       }
+    case (NODAL):
+      {
+
+        std::string msg = std::string(message);
+        std::stringstream ss;
+        ss << "[  NODE " << rank << " ]  ";
+        std::string level_prefix = ss.str();
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
+
     case (SEPARATOR):
       {
+        if (rank != 0)
+          return;
         std::string pad = std::string(line_length, separator_char);
         std::string prefix = std::string("[SEPARATOR]  ");
         std::stringstream ss;
@@ -339,6 +372,8 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (HEADER):
       {
+        if (rank != 0)
+          return;
         int size = strlen(message);
         int halfpad = (line_length - 4 - size) / 2;
         std::string pad1 = std::string(halfpad, header_char);
@@ -352,6 +387,8 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (TITLE):
       {
+        if (rank != 0)
+          return;
         int size = strlen(message);
         int halfpad = (line_length - size) / 2;
         std::string pad = std::string(halfpad, ' ');
@@ -395,6 +432,8 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (RESULT):
       {
+        if (rank != 0)
+          return;
         std::string msg = std::string(message);
         std::string level_prefix = "[  RESULT ]  ";
 
@@ -442,6 +481,11 @@ void log_printf(logLevel level, const char* format, ...) {
     /* If this is our first time logging, add a header with date, time */
     if (!logging) {
 
+      /*
+      if (rank != 0)
+        return;
+      */
+
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */
       if (output_directory.compare(".") == 0)
@@ -474,12 +518,22 @@ void log_printf(logLevel level, const char* format, ...) {
     if (level == ERROR) {
       omp_set_lock(&log_error_lock);
       {
+#ifdef MPIx
+        if (_MPI_present) {
+          printf("%s", "[  ERROR  ] ");
+          printf("%s", msg_string.c_str());
+          fflush(stdout);
+          MPI_Finalize();
+        }
+#endif
         throw std::logic_error(msg_string.c_str());
       }
       omp_unset_lock(&log_error_lock);
     }
-    else
+    else {
       printf("%s", msg_string.c_str());
+      fflush(stdout);
+    }
   }
 }
 
@@ -543,3 +597,14 @@ std::string create_multiline_msg(std::string level, std::string message) {
 
   return msg_string;
 }
+
+
+//FIXME
+#ifdef MPIx
+void log_set_ranks(MPI_Comm comm) {
+  _MPI_comm = comm;
+  _MPI_present = true;
+  MPI_Comm_size(comm, &num_ranks);
+  MPI_Comm_rank(comm, &rank);
+}
+#endif

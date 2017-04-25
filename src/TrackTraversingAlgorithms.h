@@ -10,8 +10,8 @@
  *          on each Track, and an execute() function which applies the
  *          algorithm. The execute() function should contain a call to
  *          TraverseSegments::loopOverTracks(...). To specify a behavior to
- *          be applied once for each segment, kernels should be initialized
- *          using the TraverseSegments::getKernels<KernelType>() function and
+ *          be applied once for each segment, the kernel should be initialized
+ *          using the TraverseSegments::getKernel<KernelType>() function and
  *          passed to TraverseSegments::loopOverTracks().
  * @date February 23, 2016
  * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
@@ -21,10 +21,12 @@
 #define TRACK_TRAVERSING_ALGORITHMS_H_
 
 #include "TraverseSegments.h"
+#include "ExpEvaluator.h" //FIXME
 
 
 /** Forward declaration of CPUSolver class */
 class CPUSolver;
+class CPULSSolver;
 
 
 /**
@@ -61,12 +63,17 @@ public:
 class SegmentCounter: public TraverseSegments {
 private:
   int _max_num_segments;
+  long _total_num_segments;
+  bool _count_total_segments;
+  bool _total_segments_counted;
 
 public:
 
   SegmentCounter(TrackGenerator* track_generator);
   void execute();
   void onTrack(Track* track, segment* segments);
+  void countTotalNumSegments();
+  long getTotalNumSegments();
 };
 
 
@@ -126,11 +133,52 @@ private:
   Point** _centroids;
   FP_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
+  Quadrature* _quadrature;
+  Point** _starting_points;
 
 public:
 
   CentroidGenerator(TrackGenerator* track_generator);
+  virtual ~CentroidGenerator();
   void setCentroids(Point** centroids);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
+
+/**
+ * @class LinearExpansionGenerator TrackTraversingAlgorithms.h
+ *        "src/TrackTraversingAlgorithms.h"
+ * @brief A class used to calculate the linear expansion coeffs of each FSR
+ * @details A LinearExpansionGenerator imports FSR Volumes and associated
+ *          locks form the provided CPUSolver, then centroids are calculated
+ *          and stored in the provided buffer by first allocating
+ *          SegmentationKernels to temporarily store segments and then looping
+ *          over all segments and adding their contribution to each FSR
+ *          centroid.
+ */
+//FIXME
+class LinearExpansionGenerator: public TraverseSegments {
+
+private:
+
+  FP_PRECISION* _lin_exp_coeffs;
+  FP_PRECISION* _FSR_volumes;
+  omp_lock_t* _FSR_locks;
+  FP_PRECISION* _src_constants;
+  Quadrature* _quadrature;
+  int _num_groups;
+  int _num_coeffs;
+  int _num_flat;
+  Point** _starting_points;
+  FP_PRECISION** _thread_source_constants;
+  ExpEvaluator* _exp_evaluator;
+  Progress* _progress;
+
+public:
+
+  LinearExpansionGenerator(CPULSSolver* solver);
+  virtual ~LinearExpansionGenerator();
   void execute();
   void onTrack(Track* track, segment* segments);
 };
@@ -150,13 +198,17 @@ class TransportSweep: public TraverseSegments {
 private:
 
   CPUSolver* _cpu_solver;
+  CPULSSolver* _ls_solver;
+  Geometry* _geometry;
+  FP_PRECISION** _thread_fsr_fluxes;
 
 public:
 
-  TransportSweep(TrackGenerator* track_generator);
-  void setCPUSolver(CPUSolver* cpu_solver);
+  TransportSweep(CPUSolver* cpu_solver);
+  virtual ~TransportSweep();
   void execute();
   void onTrack(Track* track, segment* segments);
+
 };
 
 
@@ -198,10 +250,65 @@ private:
 public:
 
   ReadSegments(TrackGenerator* track_generator);
-  void setInputFile(FILE* in);
+  void setInputFile(FILE* input);
   void execute();
   void onTrack(Track* track, segment* segments);
 };
+
+
+//FIXME
+class TransportSweepOTF: public TraverseSegments {
+
+private:
+
+  CPUSolver* _cpu_solver;
+
+public:
+
+  TransportSweepOTF(TrackGenerator* track_generator);
+  void setCPUSolver(CPUSolver* cpu_solver);
+  void onTrack(Track* track, segment* segments);
+  void execute();
+};
+
+
+//FIXME
+class RecenterSegments: public TraverseSegments {
+
+private:
+
+  Geometry* _geometry;
+
+public:
+
+  RecenterSegments(TrackGenerator* track_generator);
+  void onTrack(Track* track, segment* segments);
+  void execute();
+};
+
+
+/**
+ * @class DumpSegments TrackTraversingAlgorithms.h
+ *        "src/TrackTraversingAlgorithms.h"
+ * @brief A class used to write tracking data to a file
+ * @details DumpSegments imports Track data from the provided TrackGenerator
+ *          and writes the tracking data to the provided file.
+//FIXME
+ */
+class PrintSegments: public TraverseSegments {
+
+private:
+
+  FILE* _out;
+
+public:
+
+  PrintSegments(TrackGenerator* track_generator);
+  void setOutputFile(FILE* out);
+  void execute();
+  void onTrack(Track* track, segment* segments);
+};
+
 
 
 #endif

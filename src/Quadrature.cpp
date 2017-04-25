@@ -10,9 +10,11 @@ Quadrature::Quadrature() {
   _sin_thetas = NULL;
   _thetas = NULL;
   _phis = NULL;
+  _azim_spacings = NULL;
+  _polar_spacings = NULL;
   _azim_weights = NULL;
   _polar_weights = NULL;
-  _multiples = NULL;
+  _total_weights = NULL;
 }
 
 
@@ -21,38 +23,71 @@ Quadrature::Quadrature() {
  *        of the polar angles and the products of the sines and weights.
  */
 Quadrature::~Quadrature() {
+  deleteAllArrays();
+}
+
+
+/**
+ * @brief Deletes all arrays indexed by polar angle
+ */
+void Quadrature::deletePolarArrays() {
 
   if (_sin_thetas != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _sin_thetas[i];
+    for (int a=0; a < _num_azim/2; a++)
+      delete [] _sin_thetas[a];
     delete [] _sin_thetas;
+    _sin_thetas = NULL;
   }
 
   if (_thetas != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _thetas[i];
+    for (int a=0; a < _num_azim/2; a++)
+      delete [] _thetas[a];
     delete [] _thetas;
+    _thetas = NULL;
   }
 
-  if (_phis != NULL)
-    delete [] _phis;
-
-  if (_azim_weights != NULL)
-    delete [] _azim_weights;
+  if (_polar_spacings != NULL) {
+    for (int a=0; a < _num_azim/2; a++)
+      delete [] _polar_spacings[a];
+    delete [] _polar_spacings;
+    _polar_spacings = NULL;
+  }
 
   if (_polar_weights != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _polar_weights[i];
+    for (int a=0; a < _num_azim/2; a++)
+      delete [] _polar_weights[a];
     delete [] _polar_weights;
+    _polar_weights = NULL;
   }
 
-  if (_multiples != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _multiples[i];
-    delete [] _multiples;
+  if (_total_weights != NULL) {
+    for (int a=0; a < _num_azim/2; a++)
+      delete [] _total_weights[a];
+    delete [] _total_weights;
+    _total_weights = NULL;
   }
 }
 
+
+/**
+ * @brief Deletes all arrays allocated by the Quadrature
+ */
+void Quadrature::deleteAllArrays() {
+
+  if (_phis != NULL)
+    delete [] _phis;
+  _phis = NULL;
+
+  if (_azim_spacings != NULL)
+    delete [] _azim_spacings;
+  _azim_spacings = NULL;
+
+  if (_azim_weights != NULL)
+    delete [] _azim_weights;
+  _azim_weights = NULL;
+
+  deletePolarArrays();
+}
 
 
 /**
@@ -96,15 +131,15 @@ FP_PRECISION Quadrature::getSinTheta(int azim, int polar) {
                "and azim angle = %d but the sin thetas have not been "
                "initialized", polar, azim);
 
-  azim = getFirstOctantAzim(azim);
-  polar = getFirstOctantPolar(polar);
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
   return _sin_thetas[azim][polar];
 }
 
 
 /**
- * @brief Returns the polar angle value for a given azimuthal and polar
+ * @brief Returns the polar angle in radians for a given azimuthal and polar
  *        angle index.
  * @param azim index of the azimthal angle of interest
  * @param polar index of the polar angle of interest
@@ -127,18 +162,15 @@ double Quadrature::getTheta(int azim, int polar) {
                "and azim angle = %d but the thetas have not been "
                "initialized", polar, azim);
 
-  int first_polar = getFirstOctantPolar(polar);
-  azim = getFirstOctantAzim(azim);
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
-  if (polar < _num_polar/2)
-    return _thetas[azim][first_polar];
-  else
-    return M_PI - _thetas[azim][first_polar];
+  return _thetas[azim][polar];
 }
 
 
 /**
- * @brief Returns the azimuthal angle value.
+ * @brief Returns the azimuthal angle value in radians.
  * @param azim index of the azimthal angle of interest
  * @return the value of the azimuthal angle
  */
@@ -154,21 +186,16 @@ double Quadrature::getPhi(int azim) {
                "azim angle = %d but the phis have not been "
                "initialized", azim);
 
-  int first_azim = getFirstOctantAzim(azim);
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
-  if (azim < _num_azim/4)
-    return _phis[first_azim];
-  else if (azim < _num_azim/2)
-    return M_PI - _phis[first_azim];
-  else if (azim < 3*_num_azim/4)
-    return M_PI + _phis[first_azim];
-  else
-    return 2.0 * M_PI - _phis[first_azim];
+  return _phis[azim];
 }
 
 
 /**
- * @brief Returns the azimuthal angle weight value for a particular azimuthal angle.
+ * @brief Returns the azimuthal angle weight value for a particular azimuthal
+ *        angle.
  * @param azim index of the azimuthal angle of interest
  * @return the weight for an azimuthal angle
  */
@@ -183,7 +210,9 @@ FP_PRECISION Quadrature::getAzimWeight(int azim) {
     log_printf(ERROR, "Attempted to retrieve weight for azimuthal angle = %d "
                "but the azimuthal weights have not been initialized", azim);
 
-  azim = getFirstOctantAzim(azim);
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+
   return _azim_weights[azim];
 }
 
@@ -201,56 +230,58 @@ FP_PRECISION Quadrature::getPolarWeight(int azim, int polar) {
                "%d and azim angle = %d when only %d polar angles are "
                "defined", polar, azim, _num_polar);
 
-  else if (azim < 0 || azim >= _num_azim)
+  if (azim < 0 || azim >= _num_azim)
     log_printf(ERROR, "Attempted to retrieve polar weight for polar angle = "
                "%d and azim angle = %d when only %d azim angles are "
                "defined", polar, azim, _num_azim);
 
-  else if (_polar_weights == NULL)
+  if (_polar_weights == NULL)
     log_printf(ERROR, "Attempted to retrieve polar weight for polar angle = %d "
                "and azim angle = %d but the thetas have not been "
                "initialized", polar, azim);
 
-  azim = getFirstOctantAzim(azim);
-  polar = getFirstOctantPolar(polar);
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
   return _polar_weights[azim][polar];
 }
 
 
 /**
- * @brief Returns the multiple value for a particular azimuthal and polar angle.
- * @details A multiple is the sine of a polar angle multiplied by its weight.
+ * @brief Returns the total weight for Tracks with the given azimuthal and
+ *        polar indexes
+ * @details Angular weights are multiplied by Track spacings
  * @param azim index of the azimuthal angle of interest
  * @param polar index of the polar angle of interest
- * @return the value of the sine of the polar angle multiplied with its weight
+ * @return the total weight of each Track with the given indexes
  */
-FP_PRECISION Quadrature::getMultiple(int azim, int polar) {
+FP_PRECISION Quadrature::getWeight(int azim, int polar) {
 
   if (polar < 0 || polar >= _num_polar)
-    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = "
+    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = "
                "%d and azimuthal angle = %d but only %d polar angles are "
                "defined", polar, azim, _num_polar);
 
   else if (azim < 0 || azim >= _num_azim)
-    log_printf(ERROR, "Attempted to retrieve the multiple for polar angle = "
+    log_printf(ERROR, "Attempted to retrieve the weight for polar angle = "
                "%d and azimuthal angle = %d but only %d azimuthal angles are "
                "defined", polar, azim, _num_azim);
 
-  else if (_multiples == NULL)
-    log_printf(ERROR, "Attempted to retrieve multiple for polar angle = %d "
+  else if (_total_weights == NULL)
+    log_printf(ERROR, "Attempted to retrieve weight for polar angle = %d "
                "and azimuthal angle = %d but the multiples have not been "
                "initialized", polar, azim);
 
-  azim = getFirstOctantAzim(azim);
-  polar = getFirstOctantPolar(polar);
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
 
-  return _multiples[azim][polar];
+  return _total_weights[azim][polar];
 }
 
 
 /**
- * @brief Returns a pointer to the Quadrature's array of \f$ sin\theta_{p} \f$.
+ * @brief Returns a pointer to the Quadrature's array of polar angle sines
+          \f$ sin\theta_{p} \f$.
  * @return a pointer to the array of \f$ sin\theta_{p} \f$
  */
 FP_PRECISION** Quadrature::getSinThetas() {
@@ -264,7 +295,8 @@ FP_PRECISION** Quadrature::getSinThetas() {
 
 
 /**
- * @brief Returns a pointer to the Quadrature's array of \f$ \theta_{p} \f$.
+ * @brief Returns a pointer to the Quadrature's array of polar angles
+          \f$ \theta_{p} \f$.
  * @return a pointer to the array of \f$ \theta_{p} \f$
  */
 double** Quadrature::getThetas() {
@@ -278,7 +310,8 @@ double** Quadrature::getThetas() {
 
 
 /**
- * @brief Returns a pointer to the Quadrature's array of \f$ \phi \f$.
+ * @brief Returns a pointer to the Quadrature's array of azimuthal angles
+          \f$ \phi \f$.
  * @return a pointer to the array of \f$ \phi \f$
  */
 double* Quadrature::getPhis() {
@@ -320,74 +353,6 @@ FP_PRECISION** Quadrature::getPolarWeights() {
 
 
 /**
- * @brief Returns a pointer to the Quadrature's array of multiples.
- * @details A multiple is the sine of a polar angle multiplied by its weight.
- * @return a pointer to the multiples array
- */
-FP_PRECISION** Quadrature::getMultiples() {
-
-  if (_multiples == NULL)
-    log_printf(ERROR, "Attempted to retrieve the multiples array "
-               "but it has not been initialized");
-
-  return _multiples;
-}
-
-
-int Quadrature::getFirstOctantAzim(int azim) {
-  if (azim < _num_azim/4)
-    return azim;
-  else if (azim < _num_azim/2)
-    return (_num_azim/2 - azim - 1);
-  else if (azim < 3*_num_azim/4)
-    return azim - _num_azim/2;
-  else
-    return (_num_azim - azim - 1);
-}
-
-
-int Quadrature::getFirstOctantPolar(int polar) {
-  if (polar < _num_polar/2)
-    return polar;
-  else
-    return (_num_polar - polar - 1);
-}
-
-
-int Quadrature::getOrthant(int azim, int polar) {
-
-  int orthant;
-
-  if (azim < _num_azim/4) {
-    if (polar < _num_polar/2)
-      orthant = 0;
-    else
-      orthant = 2;
-  }
-  else if (azim < _num_azim/2) {
-    if (polar < _num_polar/2)
-      orthant = 4;
-    else
-      orthant = 6;
-  }
-  else if (azim < 3*_num_azim/4) {
-    if (polar < _num_polar/2)
-      orthant = 3;
-    else
-      orthant = 1;
-  }
-  else{
-    if (polar < _num_polar/2)
-      orthant = 7;
-    else
-      orthant = 5;
-  }
-
-  return orthant;
-}
-
-
-/**
  * @brief Set the number of azimuthal angles to initialize.
  * @param num_azim the number of azimuthal angles
  */
@@ -401,7 +366,67 @@ void Quadrature::setNumAzimAngles(const int num_azim) {
     log_printf(ERROR, "Unable to set the number of azimuthal angles to %d "
                "which is not divisible by 4", num_azim);
 
-  _num_azim = num_azim;
+  if (num_azim != _num_azim) {
+
+    /* Delete arrays with old settings */
+    deleteAllArrays();
+    _num_azim = num_azim;
+  }
+}
+
+
+/**
+ * @brief Returns an array of adjusted azimuthal spacings.
+ * @details An array of azimuthal spacings after adjustment is returned,
+ *          indexed by azimuthal angle
+ * @return the array of azimuthal spacings
+ */
+FP_PRECISION* Quadrature::getAzimSpacings() {
+  return _azim_spacings;
+}
+
+
+/**
+ * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
+ *        angle index.
+ * @details The aziumthal spacing depends on the azimuthal angle. This function
+ *          returns the azimuthal spacing used at the desired azimuthal angle
+ *          index.
+ * @param azim the requested azimuthal angle index
+ * @return the requested azimuthal spacing
+ */
+FP_PRECISION Quadrature::getAzimSpacing(int azim) {
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+  return _azim_spacings[azim];
+}
+
+
+/**
+ * @brief Returns a 2D array of adjusted polar spacings
+ * @details An array of polar spacings after adjustment is returned,
+ *          indexed first by azimuthal angle and then by polar angle
+ * @return the 2D array of polar spacings
+ */
+FP_PRECISION** Quadrature::getPolarSpacings() {
+  return _polar_spacings;
+}
+
+
+/**
+ * @brief Returns the adjusted polar spacing at the requested azimuthal
+ *        angle index and polar angle index
+ * @details The polar spacing depends on the azimuthal angle and the polar
+ *          angle. This function returns the azimuthal spacing used at the
+ *          desired azimuthal angle and polar angle indexes.
+ * @param azim the requested azimuthal angle index
+ * @param polar the requested polar angle index
+ * @return the requested polar spacing
+ */
+FP_PRECISION Quadrature::getPolarSpacing(int azim, int polar) {
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+  return _polar_spacings[azim][polar];
 }
 
 
@@ -415,33 +440,40 @@ void Quadrature::setNumPolarAngles(const int num_polar) {
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "which is less than or equal to zero", num_polar);
 
-  else if (num_polar % 2 != 0)
+  if (num_polar % 2 != 0)
     log_printf(ERROR, "Unable to set the number of polar angles to %d "
                "which is not divisible by 2", num_polar);
 
-  _num_polar = num_polar;
+  if (num_polar != _num_polar) {
+
+    /* Delete arrays with old settings */
+    deletePolarArrays();
+    _num_polar = num_polar;
+  }
 }
 
 
 /**
- * @brief Set the Quadrature's array of sines of each polar angle.
+ * @brief Sets the Quadrature's array of polar angles.
  * @details This method is a helper function to allow OpenMOC users to assign
- *          the Quadrature's sin thetas in Python. A user must initialize a
+ *          the Quadrature's polar angles in Python. A user must initialize a
  *          NumPy array of the correct size (e.g., a float64 array the length
- *          of the number of polar angles) as input to this function. This
- *          function then fills the NumPy array with the data values for the
- *          Quadrature's sin thetas. An example of how this function might be
+ *          of the number of azimuthal times polar angles) as input to this
+ *          function. This function then fills the Quadrature's polar angles
+ *          with the given values. An example of how this function might be
  *          called in Python is as follows:
  *
  * @code
- *          sin_thetas= numpy.array([0.05, 0.1, 0.15, ... ])
- *          polar_quad = openmoc.Quadrature()
- *          polar_quad.setNumPolarAngles(len(sin_thetas))
- *          polar_quad.setSinThetas(sin_thetas)
+ *          thetas = numpy.array([pi/6, pi/4, pi/3, ... ])
+ *          quad = openmoc.Quadrature()
+ *          quad.setNumAzimAngles(num_azim)
+ *          quad.setNumPolarAngles(len(thetas) / num_azim)
+ *          quad.setThetas(thetas)
  * @endcode
  *
- * @param sin_thetas the array of sines of each polar angle
- * @param num_polar the number of polar angles
+ * @param thetas the array of polar angle for each azimuthal/polar angle
+ *        combination
+ * @param num_azim_times_polar the total number of angles (azimuthal x polar)
  */
 void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
 
@@ -451,17 +483,12 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
                " in each octant",
                num_azim_times_polar, _num_polar/2, _num_azim/4);
 
-  /* Deallocate memory if it was allocated previously */
-  if (_thetas != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _thetas[i];
-    delete [] _thetas;
-  }
-
   /* Initialize memory for arrays */
-  _thetas = new double*[_num_azim/4];
-  for (int i=0; i < _num_azim/4; i++)
-    _thetas[i] = new double[_num_polar/2];
+  if (_thetas == NULL) {
+    _thetas = new double*[_num_azim/2];
+    for (int i=0; i < _num_azim/2; i++)
+      _thetas[i] = new double[_num_polar];
+  }
 
   /* Extract sin thetas from user input */
   int ap=0;
@@ -472,13 +499,39 @@ void Quadrature::setThetas(double* thetas, int num_azim_times_polar) {
                    "not in the range [0,PI/2]", thetas[ap]);
 
       _thetas[a][p] = thetas[ap];
+      _thetas[_num_azim/2 - a - 1][p] = thetas[ap];
+      _thetas[a][_num_polar - p - 1] = M_PI - thetas[ap];
+      _thetas[_num_azim/2 - a - 1][_num_polar - p - 1] = M_PI - thetas[ap];
       ap++;
     }
   }
 }
 
 
-void Quadrature::setPolarWeights(double* weights, int num_azim_times_polar) {
+/**
+ * @brief Set the Quadrature's array of polar weights.
+ * @details This method is a helper function to allow OpenMOC users to assign
+ *          the Quadrature's polar weights in Python. A user must initialize a
+ *          NumPy array of the correct size (e.g., a float64 array the length
+ *          of the number of azimuthal times polar angles) as input to this
+ *          function. This function then fills the Quadrature's polar weights
+ *          with the given values. An example of how this function might be
+ *          called in Python is as follows:
+ *
+ * @code
+ *          polar_weights = numpy.array([0.1, 0.2, 0.05, ... ])
+ *          quad = openmoc.Quadrature()
+ *          quad.setNumAzimAngles(num_azim)
+ *          quad.setNumPolarAngles(len(polar_weights) / num_azim)
+ *          quad.setPolarWeights(polar_weights)
+ * @endcode
+ *
+ * @param weights The polar weights
+ * @param num_azim_times_polar the total number of angles in one octant
+ *        (azimuthal x polar)
+ */
+void Quadrature::setPolarWeights(FP_PRECISION* weights,
+                                 int num_azim_times_polar) {
 
   if (_num_polar/2 * _num_azim/4 != num_azim_times_polar)
     log_printf(ERROR, "Unable to set %d polar weights for Quadrature "
@@ -486,33 +539,34 @@ void Quadrature::setPolarWeights(double* weights, int num_azim_times_polar) {
                " in each octant",
                num_azim_times_polar, _num_polar/2, _num_azim/4);
 
-  /* Deallocate memory if it was allocated previously */
-  if (_polar_weights != NULL) {
-    for (int i=0; i < _num_azim/4; i++)
-      delete [] _polar_weights[i];
-    delete [] _polar_weights;
-  }
-
   /* Initialize memory for arrays */
-  _polar_weights = new FP_PRECISION*[_num_azim/4];
-  for (int i=0; i < _num_azim/4; i++)
-    _polar_weights[i] = new FP_PRECISION[_num_polar/2];
+  if (_polar_weights == NULL) {
+    _polar_weights = new FP_PRECISION*[_num_azim/2];
+    for (int i=0; i < _num_azim/2; i++)
+      _polar_weights[i] = new FP_PRECISION[_num_polar];
+  }
 
   /* Extract polar weights from user input */
   int ap=0;
   for (int a=0; a < _num_azim/4; a++) {
     for (int p=0; p < _num_polar/2; p++) {
       if (weights[ap] < 0. || weights[ap] > M_PI_2)
-        log_printf(ERROR, "Unable to polar weight to %f which is "
+        log_printf(ERROR, "Unable to set polar weight to %f which is "
                    "not in the range [0,PI/2]", weights[ap]);
 
-      _polar_weights[a][p] = FP_PRECISION(weights[ap]);
+      setPolarValues(_polar_weights, a, p, weights[ap]);
       ap++;
     }
   }
 }
 
 
+/**
+ * @brief Sets the polar angle for the given indexes.
+ * @param theta the value in radians of the polar angle to be set
+ * @param azim the azimuthal index of the angle of interest
+ * @param polar the polar index of the angle of interest
+ */
 void Quadrature::setTheta(double theta, int azim, int polar) {
 
   if (theta <= 0.0 || theta >= M_PI_2)
@@ -529,81 +583,162 @@ void Quadrature::setTheta(double theta, int azim, int polar) {
                "since polar is not in the range (0, _num_polar/2)",
                azim, polar);
 
-
   if (_thetas == NULL) {
-    _thetas = new double*[_num_azim/4];
-    for (int i=0; i < _num_azim/4; i++)
-      _thetas[i] = new double[_num_polar/2];
+    _thetas = new double*[_num_azim/2];
+    for (int i=0; i < _num_azim/2; i++)
+      _thetas[i] = new double[_num_polar];
   }
 
   _thetas[azim][polar] = theta;
+  _thetas[_num_azim/2 - azim - 1][polar] = theta;
+  _thetas[azim][_num_polar - polar - 1] = M_PI - theta;
+  _thetas[_num_azim/2 - azim - 1][_num_polar - polar - 1] = M_PI - theta;
 }
 
 
+/**
+ * @brief Sets the azimuthal angle for the given index.
+ * @param phi the value in radians of the azimuthal angle to be set
+ * @param azim the azimuthal index
+ */
 void Quadrature::setPhi(double phi, int azim) {
 
   if (phi <= 0.0 || phi >= M_PI_2)
     log_printf(ERROR, "Unable to set phi for azim = %d to %f which is not "
                "in the range (0.0, PI/2)", azim, phi);
 
-  else if (azim >= _num_azim/4)
+  if (azim >= _num_azim/4)
     log_printf(ERROR, "Unable to set phi for azim = %d since azim is not in"
                " the range (0, _num_azim/4)", azim);
 
-  else if (_phis == NULL)
-    _phis = new double[_num_azim/4];
+  if (_phis == NULL)
+    _phis = new double[_num_azim/2];
 
   _phis[azim] = phi;
+  _phis[_num_azim/2 - azim - 1] = M_PI - phi;
 }
 
 
+/**
+ * @brief Sets the azimuthal spacing for the given index.
+ * @param spacing the spacing (cm) in the azimuthal direction to be set
+ * @param azim the azimuthal index
+ */
+void Quadrature::setAzimSpacing(FP_PRECISION spacing, int azim) {
+
+  if (spacing <= 0.0)
+    log_printf(ERROR, "Unable to set azimuthal spacing for azim = %d to %f "
+                      "which is not strictly greater than zero", azim,
+                      spacing);
+
+  if (azim >= _num_azim/4)
+    log_printf(ERROR, "Unable to set azimuthal spacing for azim = %d since "
+                      " azim is not in the range (0, _num_azim/4)", azim);
+
+  if (_azim_spacings == NULL)
+    _azim_spacings = new FP_PRECISION[_num_azim/2];
+
+  setAzimuthalValues(_azim_spacings, azim, spacing);
+}
+
+
+/**
+ * @brief Sets the polar spacing for the given indexes
+ * @param spacing the spacing in the polar direction to be set
+ * @param azim the azimuthal index corresponding to the angle
+ * @param azim the polar index corresponding to the angle
+ */
+void Quadrature::setPolarSpacing(FP_PRECISION spacing, int azim, int polar) {
+
+  if (spacing <= 0)
+    log_printf(ERROR, "Unable to set polar spacing for azim = %d and polar = "
+                      "%d to %f which is not strictly greater than zero", azim,
+                      polar, spacing);
+
+  if (azim >= _num_azim/4)
+    log_printf(ERROR, "Unable to set polar spacing for azim = %d and polar = "
+                      "%d since azim is not in the range (0, _num_azim/4)",
+                      azim, polar);
+
+  if (polar >= _num_polar/2)
+    log_printf(ERROR, "Unable to set polar spacing for azim = %d and polar = "
+                      "%d since polar is not in the range (0, _num_polar/2)",
+                      azim, polar);
+
+
+  if (_polar_spacings == NULL) {
+    _polar_spacings = new FP_PRECISION*[_num_azim/2];
+    for (int a=0; a < _num_azim/2; a++)
+      _polar_spacings[a] = new FP_PRECISION[_num_polar];
+  }
+
+  setPolarValues(_polar_spacings, azim, polar, spacing);
+}
+
+
+/**
+ * @brief Sets the azimuthal weight for the given index.
+ * @param weight the weight of the azimuthal angle
+ * @param azim the azimuthal index
+ */
 void Quadrature::setAzimWeight(double weight, int azim) {
 
   if (weight <= 0.0 || weight >= M_PI_2)
     log_printf(ERROR, "Unable to set azim weight for azim = %d to %f which is "
                "not in the range (0.0, PI/2)", azim, weight);
 
-  else if (azim >= _num_azim/4)
+  if (azim >= _num_azim/4)
     log_printf(ERROR, "Unable to set azim weight for azim = %d since azim is "
                "not in the range (0, _num_azim/4)", azim);
 
-  else if (_azim_weights == NULL)
-    _azim_weights = new FP_PRECISION[_num_azim/4];
+  if (_azim_weights == NULL)
+    _azim_weights = new FP_PRECISION[_num_azim/2];
 
-  _azim_weights[azim] = FP_PRECISION(weight);
-}
-
-
-void Quadrature::setPolarWeight(double weight, int azim, int polar) {
-
-  if (weight <= 0.0 || weight >= M_PI_2)
-    log_printf(ERROR, "Unable to set polar weight for azim = %d and "
-               "polar = %d to %f which is not in the range (0.0, PI/2)",
-               azim, polar, weight);
-
-  else if (azim >= _num_azim/4)
-    log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
-               "since azim is not in the range (0, _num_azim/4)", azim, polar);
-
-  else if (polar >= _num_polar/2)
-    log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
-               "since polar is not in the range (0, _num_polar/2)", \
-               azim, polar);
-
-  else if (_polar_weights == NULL) {
-    _polar_weights = new FP_PRECISION*[_num_azim/4];
-    for (int i=0; i < _num_azim/4; i++)
-      _polar_weights[i] = new FP_PRECISION[_num_polar/2];
-  }
-
-  _polar_weights[azim][polar] = FP_PRECISION(weight);
+  setAzimuthalValues(_azim_weights, azim, FP_PRECISION(weight));
 }
 
 
 /**
- * @brief Dummy routine to initialize the polar quadrature.
- * @details The parent class routine simply checks that the number of polar
- *          angles has been set by the user and returns;
+ * @brief Sets the polar weight for the given indexes.
+ * @param weight the weight of the polar angle
+ * @param azim the azimuthal index corresponding to the angle
+ * @param azim the polar index corresponding to the angle
+ */
+void Quadrature::setPolarWeight(FP_PRECISION weight, int azim, int polar) {
+
+  if (weight <= 0.0 || weight >= M_PI_2) {
+    log_printf(ERROR, "Unable to set polar weight for azim = %d and "
+               "polar = %d to %f which is not in the range (0.0, PI/2)",
+               azim, polar, weight);
+  }
+
+  if (azim >= _num_azim/4) {
+    log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
+               "since azim is not in the range (0, _num_azim/4)", azim, polar);
+  }
+
+  if (polar >= _num_polar/2) {
+    log_printf(ERROR, "Unable to set polar weight for azim = %d and polar = %d "
+               "since polar is not in the range (0, _num_polar/2)", \
+               azim, polar);
+  }
+
+  if (_polar_weights == NULL) {
+    _polar_weights = new FP_PRECISION*[_num_azim/2];
+    for (int a=0; a < _num_azim/2; a++) {
+      _polar_weights[a] = new FP_PRECISION[_num_polar];
+    }
+  }
+
+  setPolarValues(_polar_weights, azim, polar, FP_PRECISION(weight));
+}
+
+
+/**
+ * @brief Initialize the polar quadrature azimuthal angles.
+ * @details The parent class routine simply checks that number of polar and
+ *          azimuthal angles have been set by the user and generates the
+ *          azimuthal angles if not already generated.
  */
 void Quadrature::initialize() {
 
@@ -611,35 +746,54 @@ void Quadrature::initialize() {
     log_printf(ERROR, "Unable to initialize Quadrature with zero polar angles. "
                "Set the number of polar angles before initialization.");
 
-  else if (_num_azim == 0)
-    log_printf(ERROR, "Unable to initialize Quadrature with zero azimuthal angles. "
-               "Set the number of azimuthal angles before initialization.");
+  if (_num_azim == 0)
+    log_printf(ERROR, "Unable to initialize Quadrature with zero azimuthal "
+               "angles. Set the number of azimuthal angles before "
+               "initialization.");
 
   if (_phis == NULL)
-    _phis = new double[_num_azim/4];
+    _phis = new double[_num_azim/2];
 
   /* Compute a desired azimuthal angles */
-  for (int a = 0; a < _num_azim/4; a++)
+  for (int a = 0; a < _num_azim/2; a++)
     _phis[a] = 2.0 * M_PI / _num_azim * (0.5 + a);
 }
 
 
 /**
- * @brief This private routine computes the produce of the sine thetas and
+ * @brief This private routine computes the product of the sine thetas and
  *        weights for each angle in the polar quadrature.
  * @details Note that this routine must be called after populating the
  *          sine thetas and weights arrays.
  */
 void Quadrature::precomputeWeights(bool solve_3D) {
 
-  double x1, x2;
+  /* Check that track spacings have been set */
+  if (_azim_spacings == NULL)
+    log_printf(ERROR, "Unable to precompute weights since track spacings have "
+                      "not yet been set");
 
-  if (_azim_weights != NULL)
-    delete [] _azim_weights;
+  /* Check that polar angles have been set */
+  if (_thetas == NULL)
+    log_printf(ERROR, "Unable to precompute weights since polar angles have "
+                      "not yet been set");
 
-  _azim_weights = new FP_PRECISION[_num_azim/4];
+  /* Clear azimuthal weights */
+  if (_azim_weights == NULL)
+    _azim_weights = new FP_PRECISION[_num_azim/2];
+
+  /* Create uncorrected weights if no angles have been set yet */
+  if (_phis == NULL) {
+    log_printf(NORMAL, "WARNING: Using uncorrected angles for weights");
+    double phi = M_PI / _num_azim;
+    for (int a = 0; a < _num_azim/4; a++) {
+      setPhi(phi, a);
+      phi += 2*M_PI / _num_azim;
+    }
+  }
 
   /* Compute the azimuthal weights */
+  double x1, x2;
   for (int a = 0; a < _num_azim/4; a++) {
 
     /* The azimuthal weights (in radians) using equal weight quadrature */
@@ -653,39 +807,35 @@ void Quadrature::precomputeWeights(bool solve_3D) {
     else
       x2 = _phis[a];
 
-    _azim_weights[a] = FP_PRECISION((x1 + x2) / M_PI);
+    setAzimuthalValues(_azim_weights, a, FP_PRECISION((x1 + x2) / M_PI));
   }
 
-  /* Deallocate memory if it was allocated previously */
-  if (_sin_thetas != NULL) {
-    for (int a=0; a < _num_azim/4; a++)
-      delete [] _sin_thetas[a];
-    delete [] _sin_thetas;
+  /* Allocate memory if it was not allocated previously */
+  if (_sin_thetas == NULL) {
+    _sin_thetas = new FP_PRECISION*[_num_azim/2];
+    for (int a=0; a < _num_azim/2; a++)
+      _sin_thetas[a] = new FP_PRECISION[_num_polar];
   }
 
-  /* Deallocate memory if it was allocated previously */
-  if (_multiples != NULL) {
-    for (int a=0; a < _num_azim/4; a++)
-      delete [] _multiples[a];
-    delete [] _multiples;
+  /* Allocate memory if it was not allocated previously */
+  if (_total_weights == NULL) {
+    _total_weights = new FP_PRECISION*[_num_azim/2];
+    for (int a=0; a < _num_azim/2; a++)
+    _total_weights[a] = new FP_PRECISION[_num_polar];
   }
-
-  /* Initialize memory for arrays */
-  _multiples = new FP_PRECISION*[_num_azim/4];
-  _sin_thetas = new FP_PRECISION*[_num_azim/4];
-  for (int a=0; a < _num_azim/4; a++) {
-    _multiples[a] = new FP_PRECISION[_num_polar/2];
-    _sin_thetas[a] = new FP_PRECISION[_num_polar/2];
-  }
-
 
   /* Compute multiples of sine thetas and weights */
   for (int a=0; a < _num_azim/4; a++) {
     for (int p=0; p < _num_polar/2; p++) {
-      _sin_thetas[a][p] = sin(_thetas[a][p]);
-      _multiples[a][p] = _azim_weights[a] * _polar_weights[a][p];
-      if (!solve_3D)
-        _multiples[a][p] *= _sin_thetas[a][p];
+      FP_PRECISION sin_theta = sin(_thetas[a][p]);
+      FP_PRECISION weight = 2.0 * M_PI * _azim_weights[a] * _azim_spacings[a]
+          * _polar_weights[a][p];
+      if (solve_3D)
+        weight *= _polar_spacings[a][p];
+      else
+        weight *= 2.0 * sin_theta;
+      setPolarValues(_sin_thetas, a, p, sin_theta);
+      setPolarValues(_total_weights, a, p, weight);
     }
   }
 }
@@ -721,7 +871,7 @@ std::string Quadrature::toString() {
   string << "\n\tthetas = ";
   if (_thetas != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
+      for (int p = 0; p < _num_polar/2; p++)
         string << " (" << a << "," << p << "): " << _thetas[a][p] << ", ";
     }
   }
@@ -729,7 +879,7 @@ std::string Quadrature::toString() {
   string << "\n\tpolar weights = ";
   if (_polar_weights != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
+      for (int p = 0; p < _num_polar/2; p++)
         string << " (" << a << "," << p << "): " << _polar_weights[a][p] << ", ";
     }
   }
@@ -737,16 +887,16 @@ std::string Quadrature::toString() {
   string << "\n\tsin thetas = ";
   if (_sin_thetas != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
+      for (int p = 0; p < _num_polar/2; p++)
         string << " (" << a << "," << p << "): " << _sin_thetas[a][p] << ", ";
     }
   }
 
-  string << "\n\tmultiples = ";
-  if (_multiples != NULL) {
+  string << "\n\ttotal weights = ";
+  if (_total_weights != NULL) {
     for (int a = 0; a < _num_azim/4; a++) {
-      for (int p = 0; p < _num_polar/2; p)
-        string << " (" << a << "," << p << "): " << _multiples[a][p] << ", ";
+      for (int p = 0; p < _num_polar/2; p++)
+        string << " (" << a << "," << p << "): " << _total_weights[a][p] << ", ";
     }
   }
 
@@ -754,6 +904,10 @@ std::string Quadrature::toString() {
 }
 
 
+/**
+ * @breif Returns the type of Quadrature created.
+ * @return The quadrature type
+ */
 quadratureType Quadrature::getQuadratureType() {
   return _quad_type;
 }
@@ -764,12 +918,13 @@ quadratureType Quadrature::getQuadratureType() {
  */
 TYPolarQuad::TYPolarQuad(): Quadrature() {
   _quad_type = TABUCHI_YAMAMOTO;
+  _num_polar = 6;
 }
 
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 3)
+ * @param num_polar the number of polar angles (maximum 6)
  */
 void TYPolarQuad::setNumPolarAngles(const int num_polar) {
 
@@ -792,7 +947,7 @@ void TYPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
@@ -819,16 +974,18 @@ void TYPolarQuad::initialize() {
 
   /* Set the arrays of thetas */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the TY quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void TYPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* weights = new double[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Tabuchi-Yamamoto polar angle quadrature */
@@ -855,10 +1012,6 @@ void TYPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
-
   Quadrature::precomputeWeights(solve_3D);
 }
 
@@ -869,12 +1022,13 @@ void TYPolarQuad::precomputeWeights(bool solve_3D) {
  */
 LeonardPolarQuad::LeonardPolarQuad(): Quadrature() {
   _quad_type = LEONARD;
+  _num_polar = 6;
 }
 
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (2 or 3)
+ * @param num_polar the number of polar angles (4 or 6)
  */
 void LeonardPolarQuad::setNumPolarAngles(const int num_polar) {
 
@@ -897,7 +1051,7 @@ void LeonardPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -918,16 +1072,18 @@ void LeonardPolarQuad::initialize() {
 
   /* Set the arrays of thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the Leonard polar quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* weights = new double[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
@@ -948,10 +1104,6 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
-
   Quadrature::precomputeWeights(solve_3D);
 }
 
@@ -962,18 +1114,16 @@ void LeonardPolarQuad::precomputeWeights(bool solve_3D) {
  */
 GLPolarQuad::GLPolarQuad(): Quadrature() {
   _quad_type = GAUSS_LEGENDRE;
+  _num_polar = 6;
+  _correct_weights = false;
 }
 
 
 /**
  * @brief Set the number of polar angles to initialize.
- * @param num_polar the number of polar angles (maximum 6)
+ * @param num_polar the number of polar angles (maximum 20)
  */
 void GLPolarQuad::setNumPolarAngles(const int num_polar) {
-
-  if (num_polar > 12)
-    log_printf(ERROR, "Unable to set the number of polar angles to %d "
-               "for GLPolarQuad (max 12 angles)", num_polar);
 
   Quadrature::setNumPolarAngles(num_polar);
 }
@@ -990,126 +1140,356 @@ void GLPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
+
+  /* get roots of Legendre polynomial */
+  _roots = getLegendreRoots(_num_polar);
 
   /* Tabulated values for the sine thetas and weights for the
    * Leonard polar angle quadrature */
-  if (_num_polar == 2) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.5773502691);
-    }
-  }
-  else if (_num_polar == 4) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.3399810435);
-      thetas[a*(_num_polar/2)+1] = acos(0.8611363115);
-    }
-  }
-  else if (_num_polar == 6) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.2386191860);
-      thetas[a*(_num_polar/2)+1] = acos(0.6612093864);
-      thetas[a*(_num_polar/2)+2] = acos(0.9324695142);
-    }
-  }
-  else if (_num_polar == 8) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1834346424);
-      thetas[a*(_num_polar/2)+1] = acos(0.5255324099);
-      thetas[a*(_num_polar/2)+2] = acos(0.7966664774);
-      thetas[a*(_num_polar/2)+3] = acos(0.9602898564);
-    }
-  }
-  else if (_num_polar == 10) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1488743387);
-      thetas[a*(_num_polar/2)+1] = acos(0.4333953941);
-      thetas[a*(_num_polar/2)+2] = acos(0.6794095682);
-      thetas[a*(_num_polar/2)+3] = acos(0.8650633666);
-      thetas[a*(_num_polar/2)+4] = acos(0.9739065285);
-    }
-  }
-  else if (_num_polar == 12) {
-    for (int a=0; a < _num_azim/4; a++) {
-      thetas[a*(_num_polar/2)] = acos(0.1252334085);
-      thetas[a*(_num_polar/2)+1] = acos(0.3678314989);
-      thetas[a*(_num_polar/2)+2] = acos(0.5873179542);
-      thetas[a*(_num_polar/2)+3] = acos(0.7699026741);
-      thetas[a*(_num_polar/2)+4] = acos(0.9041172563);
-      thetas[a*(_num_polar/2)+5] = acos(0.9815606342);
+  for (int a=0; a < _num_azim/4; a++) {
+    for (int i=0; i < _num_polar/2; ++i) {
+      thetas[a*(_num_polar/2)+i] = acos(_roots[i]);
     }
   }
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
+/**
+ * @brief Indicates whether to correct weights based on altered polar angles
+ * @param use_corrected_weights Whether to alter the weights
+ */
+void GLPolarQuad::useCorrectedWeights(bool use_corrected_weights) {
+  _correct_weights = use_corrected_weights;
+}
+
+
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the Gauss-Legendre polar quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
-  /* Allocate temporary arrays for tabulated quadrature values */
-  double* weights = new double[_num_polar/2*_num_azim/4];
+  /* Get uncorrected weights */
+  std::vector <double> weights_vec = getGLWeights(_roots, _num_polar);
 
-  /* Tabulated values for the sine thetas and weights for the
-   * Leonard polar angle quadrature */
-  if (_num_polar == 2) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 1.0;
-    }
-  }
-  else if (_num_polar == 4) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.6521451549 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.3478548451 / 2.0;
-    }
-  }
-  else if (_num_polar == 6) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.4679139346 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.3607615730 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.1713244924 / 2.0;
-    }
-  }
-  else if (_num_polar == 8) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.3626837834 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.3137066459 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.2223810344 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1012285363 / 2.0;
-    }
-  }
-  else if (_num_polar == 10) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.2955242247 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.2692667193 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.2190863625 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1494513492 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.0666713443 / 2.0;
-    }
-  }
-  else if (_num_polar == 12) {
-    for (int a=0; a < _num_azim/4; a++) {
-      weights[a*(_num_polar/2)] = 0.2491470458 / 2.0;
-      weights[a*(_num_polar/2)+1] = 0.2334925365 / 2.0;
-      weights[a*(_num_polar/2)+2] = 0.2031674267 / 2.0;
-      weights[a*(_num_polar/2)+3] = 0.1600783286 / 2.0;
-      weights[a*(_num_polar/2)+4] = 0.1069393260 / 2.0;
-      weights[a*(_num_polar/2)+5] = 0.0471753364 / 2.0;
-    }
+  /* Allocate temporary arrays for tabulated quadrature values */
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
+
+  /* Determine gauss-legendre weights from computed values */
+  for (int a=0; a < _num_azim/4; a++) {
+
+    if (_correct_weights)
+      weights_vec = getCorrectedWeights(a);
+
+    for (int p=0; p<_num_polar/2; p++)
+      weights[a*(_num_polar/2)+p] = weights_vec[p] / 2.0;
   }
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
-
   Quadrature::precomputeWeights(solve_3D);
 }
 
+
+/**
+ * @brief    the Legendre polynomial of degree n evaluated at x
+ * @param    n an integer >=0: the order of the polynomial
+ * @param    x in (-1,1), the point at which to evaluate the polynomial
+ * @return   the value of the Legendre polynomial of degree n at x
+ */
+double GLPolarQuad::legendrePolynomial(int n, double x) {
+  if (n == 0)
+    return 1;
+  if (n == 1)
+    return x;
+  else {
+    double c = 2.0*(n-2) + 3.0;
+    double b = 1.0*(n-2) + 2.0;
+    double a = 1.0*(n-2) + 1.0;
+    double value = c/b * x * legendrePolynomial(n-1, x)
+      - a/b * legendrePolynomial(n-2,x);
+    return value;
+  }
+}
+
+
+/**
+ * @brief    the first logarithmic derivative of a Legendre polynomial
+ * @param    m the order of the polynomial
+ * @param    x point at which to evaluate the logarithmic derivative
+ * @return   the value of the logarithmic derivative at x
+ */
+double GLPolarQuad::logDerivLegendre(int n, double x) {
+  double num = n * x - n * legendrePolynomial(n-1,x) / legendrePolynomial(n,x);
+  double denom = x*x - 1;
+  return num/denom;
+}
+
+
+/**
+ * @brief    the second logarithmic derivative of a Legendre polynomial
+ * @param    m the order of the polynomial
+ * @param    x point at which to evaluate the logarithmic derivative
+ * @return   the value of the logarithmic derivative at x
+ */
+double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
+  double num =
+    n*(n+1) + logDerivLegendre(n,x) * ((1-x*x)* logDerivLegendre(n,x) - 2 * x);
+  double denom = x*x-1;
+  return num/denom;
+}
+
+
+/**
+ * @brief    finds the roots of Legendre polynomial of order n
+ * @detail   guesses for positive roots are set at logarithmic intervals.
+ *           Positive roots are found simultaneously using an
+ *           Alberth-Householder-n method. Each guess is successively nudged
+ *           towards a true root. Only the positive roots are calculated
+ * @param    n the order of the polynomial
+ * @return   a list of the roots of the polynomial
+ */
+std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
+
+  /* put these somewhere else */
+  double E1 = 1e-8;
+  double E2 = 1e-8;
+
+  std::vector <double> roots;
+  std::vector <bool> converged;
+  std::vector <double> s1_tilde;
+  std::vector <double> s2_tilde;
+
+  /* set guesses with log scale*/
+  for (int i=0; i < n/2; ++i) {
+    roots.push_back(- pow(2, (-.5*(i+1))) +1);
+    converged.push_back(false);
+    s1_tilde.push_back(0);
+    s2_tilde.push_back(0);
+  }
+
+  if (n%2 == 1) {
+    roots.push_back(0);
+    converged.push_back(true);
+    s1_tilde.push_back(0);
+    s2_tilde.push_back(0);
+  }
+
+  /* Placeholder element */
+  roots.push_back(0);
+
+  bool all_roots_converged = false;
+
+  /* use the Alberth-Housholder_n method to nudge guesses towards roots */
+  int MAX_LG_ITERS = 10000;
+  for (int iter=0; iter < MAX_LG_ITERS; iter++) {
+
+    /* set S tildes */
+    for (int i=0; i < (n+1)/2; ++i) {
+      if (!converged[i]) {
+        double sum1 = 0;
+        double sum2 = 0;
+        for (int j=0; j <= (n+1)/2; ++j) {
+          if (j != i) {
+            double diff = (roots[i] - roots[j]);
+            if (diff != 0.0) {
+              sum1 += 1 / diff;
+              sum2 += -1 / (diff*diff);
+            }
+          }
+        }
+
+        s1_tilde[i] = logDerivLegendre(n, roots[i]) - sum1;
+        s2_tilde[i] = secondLogDerivLegendre(n, roots[i]) - sum2;
+
+        /* householder method 2 Halley */
+        double denom = (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
+        double u_new = 0.0;
+        if (denom != 0)
+          u_new = roots[i] - 2*s1_tilde[i] / denom;
+
+        double u_old = roots[i];
+        roots[i] = u_new;
+
+        /* if this is the actual root */
+        if (std::abs(u_new - u_old) < E1) {
+          if (std::abs(legendrePolynomial(n, u_new)) < E2) {
+            converged[i] = true;
+
+            /* if this root equals another root or it is less than 0 */
+            for (int j=0; j < (n+1)/2; ++j) {
+              if (j != i) {
+                if (std::abs(roots[j] - roots[i]) < E1 || roots[i] <= 0) {
+
+                  /* reset the root to its original guess */
+                  roots[i] = - pow(2, (-.5*(i+1))) + 1;
+                  converged[i] = false;
+                }
+              }
+            }
+          }
+        } /* if this is the actual root */
+      } /* if not converged */
+    } /* for each guess */
+
+    /* Check for convergence */
+    for (int i=0; i<(n+1)/2; ++ i) {
+      all_roots_converged = converged[i];
+      if (!all_roots_converged)
+        break;
+    }
+    if (all_roots_converged)
+      break;
+    else if (iter == MAX_LG_ITERS - 1)
+      log_printf(ERROR, "Failed to converge Gauss-Legendre roots for %d polar"
+                        " angles.", _num_polar);
+
+  } /* while not all roots converged */
+
+  /* Remove placeholder root */
+  roots.pop_back();
+
+  /* Put roots in order */
+  std::sort (roots.begin(), roots.end());
+  return roots;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
+ * @param    roots a vector containing the roots of the Legendre polynomial
+ * @param    n the order of the Legendre Polynomial
+ * @return   a vector of weights matched by index to the vector of roots
+ */
+std::vector<double> GLPolarQuad::getGLWeights(std::vector <double> roots,
+                                               int n) {
+  std::vector<double> weights;
+  for (int i; i<roots.size(); ++i){
+    double value = - (2*roots[i]*roots[i] - 2) /
+      (n*n*legendrePolynomial(n-1, roots[i])
+       * legendrePolynomial(n-1, roots[i]));
+    weights.push_back(value);
+  }
+
+  return weights;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
+ * @param    root the root of the Legendre polynomial
+ * @param    n the order of the Legendre Polynomial
+ * @return   a vector of weights matched by index to the vector of roots
+ */
+double GLPolarQuad::getSingleWeight(double root, int n) {
+  double weight =
+        - (2*root*root - 2) / (n*n*legendrePolynomial(n-1, root)
+                                  * legendrePolynomial(n-1, root));
+
+  return weight;
+}
+
+
+/**
+ * @brief    calculates the weights to be used in numerical integration
+ * @details  assumes the function will be integrated over (-1, 1)
+ * @details  azim the azimuthal angle index
+ * @return   the vector of weights
+ */
+std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
+
+  /* Calculate abscissa */
+  std::vector <double> nodes;
+  for (int p=0; p<_num_polar/2; ++p) {
+    nodes.push_back(cos(_thetas[azim][p]));
+  }
+  for (int p=0; p<_num_polar/2; ++p) {
+    nodes.push_back(-nodes[p]);
+  }
+  int n = nodes.size();
+
+  std::vector<double> weights;
+
+  // declare an array to store the elements of the augmented-matrix
+  long double A[n][n+1];
+
+  // the solution array
+  long double x[n];
+
+  // index array, used to keep track of the order in which the nodes were passed
+  int index[n];
+  for (int i=0; i<n; ++i)
+    index[i] = i;
+
+  long double a = -1;
+  long double b = 1;
+
+  // populate A
+  for (int i=0; i<n; ++i) {
+    for (int j=0; j<n; ++j) {
+      A[i][j] = pow(nodes[j], i);
+    }
+    A[i][n] = (pow(b, i+1) - pow(a, i+1)) / (i+1);
+  }
+
+  /* Select pivots */
+  for (int i=0; i<n; i++) {
+    for (int k=i+1; k<n; k++) {
+      if (A[i][i] < A[k][i]) {
+
+        // switch column k and column i
+        for (int j=0; j<=n; j++) {
+          long double temp = A[i][j];
+          A[i][j] = A[k][j];
+          A[k][j] = temp;
+        }
+
+        // switch their corresponding indeces
+        long double temp_ind = index[i];
+        index[i] = index[k];
+        index[k] = temp_ind;
+      }
+    }
+  }
+
+  // perform gauss elimination
+  for (int i=0; i<n-1; i++) {
+    for (int k=i+1; k<n; k++) {
+      long double t = A[k][i] / A[i][i];
+
+      // make elements below the pivot elements equal to zero or eliminate the
+      // variables
+      for (int j=0; j<=n; j++)
+        A[k][j] = A[k][j] - t * A[i][j];
+     }
+  }
+
+  // back-substitution
+  for (int i=n-1; i>=0; --i) {
+    long double sub = 0;
+    for (int j=n-1; j>i; --j) {
+      sub += x[j]*A[i][j];
+    }
+    x[i] = (A[i][n] - sub) / A[i][i];
+  }
+
+  for (int i=0; i<n; ++i){
+    weights.push_back(double(x[i]));
+  }
+
+  // fill the vector of weights so that it is indexed to the original
+  // vector of nodes
+  for (int i=0; i<n; ++i)
+    weights[index[i]] = double(x[i]);
+
+  return weights;
+
+}
 
 
 /**
@@ -1117,6 +1497,7 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
  */
 EqualWeightPolarQuad::EqualWeightPolarQuad(): Quadrature() {
   _quad_type = EQUAL_WEIGHT;
+  _num_polar = 6;
 }
 
 
@@ -1139,7 +1520,7 @@ void EqualWeightPolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   double cos_theta_a, cos_theta_b;
 
@@ -1158,16 +1539,18 @@ void EqualWeightPolarQuad::initialize() {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the equal weight polar quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* weights = new double[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   double y1, y2;
 
@@ -1195,13 +1578,9 @@ void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
 
-  /* Deallocate temporary arrays */
-  delete [] weights;
-
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);
 }
-
 
 
 /**
@@ -1209,6 +1588,7 @@ void EqualWeightPolarQuad::precomputeWeights(bool solve_3D) {
  */
 EqualAnglePolarQuad::EqualAnglePolarQuad(): Quadrature() {
   _quad_type = EQUAL_ANGLE;
+  _num_polar = 6;
 }
 
 
@@ -1231,12 +1611,11 @@ void EqualAnglePolarQuad::initialize() {
   Quadrature::initialize();
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* thetas = new double[_num_polar/2*_num_azim/4];
+  double thetas[_num_polar/2*_num_azim/4];
 
   double cos_theta_a, cos_theta_b;
   double theta_a, theta_b;
   double delta_theta = M_PI / (_num_polar);
-
 
   /* Generate the sin thetas and weights using equations 420-422 of the
    * DOE Nucl. Eng. Handbook "Lattice Physics Computations" */
@@ -1255,16 +1634,18 @@ void EqualAnglePolarQuad::initialize() {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setThetas(thetas, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] thetas;
 }
 
 
+/**
+ * @brief Calculates total weights for every azimuthal/polar combination based
+ *        on the equal angle polar quadrature.
+ * @param solve_3D Boolean indicating whether this is a 3D quadrature
+ */
 void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Allocate temporary arrays for tabulated quadrature values */
-  double* weights = new double[_num_polar/2*_num_azim/4];
+  FP_PRECISION weights[_num_polar/2*_num_azim/4];
 
   double y1, y2;
 
@@ -1291,9 +1672,6 @@ void EqualAnglePolarQuad::precomputeWeights(bool solve_3D) {
 
   /* Set the arrays of sin thetas and weights */
   Quadrature::setPolarWeights(weights, _num_polar/2*_num_azim/4);
-
-  /* Deallocate temporary arrays */
-  delete [] weights;
 
   /* Compute the product of the sine thetas and weights */
   Quadrature::precomputeWeights(solve_3D);

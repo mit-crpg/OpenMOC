@@ -2,7 +2,7 @@
 
 int Surface::_n = 0;
 
-static int auto_id = 10000;
+static int auto_id = DEFAULT_INIT_ID;
 
 /**
  * @brief Returns an auto-generated unique surface ID.
@@ -13,7 +13,7 @@ static int auto_id = 10000;
  *          first ID begins at 10000. Hence, user-defined surface IDs greater
  *          than or equal to 10000 are prohibited.
  */
-int surf_id() {
+int surface_id() {
   int id = auto_id;
   auto_id++;
   return id;
@@ -23,8 +23,23 @@ int surf_id() {
 /**
  * @brief Resets the auto-generated unique Surface ID counter to 10000.
  */
-void reset_surf_id() {
-  auto_id = 10000;
+void reset_surface_id() {
+  auto_id = DEFAULT_INIT_ID;
+}
+
+
+/**
+ * @brief Maximize the auto-generated unique Surface ID counter.
+ * @details This method updates the auto-generated unique Surface ID
+ *          counter if the input parameter is greater than the present
+ *          value. This is useful for the OpenCG compatibility module
+ *          to ensure that the auto-generated Surface IDs do not
+ *          collide with those created in OpenCG.
+ * @param surface_id the id assigned to the auto-generated counter
+ */
+void maximize_surface_id(int surface_id) {
+  if (surface_id > auto_id)
+    auto_id = surface_id;
 }
 
 
@@ -39,7 +54,7 @@ Surface::Surface(const int id, const char* name) {
 
   /* If the user did not define an optional ID, create one */
   if (id == 0)
-    _id = surf_id();
+    _id = surface_id();
 
   /* Use the user-defined ID */
   else
@@ -119,6 +134,48 @@ surfaceType Surface::getSurfaceType() {
  */
 boundaryType Surface::getBoundaryType() {
   return _boundary_type;
+}
+
+
+/**
+ * @brief Returns the minimum coordinate in the axis direction of the
+ *        surface
+ * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+ * @param halfspace the halfspace to consider
+ * @return the minimum coordinate in the axis direction
+ */
+double Surface::getMin(int axis, int halfspace) {
+  if (axis == 0)
+    return getMinX(halfspace);
+  else if (axis == 1)
+    return getMinY(halfspace);
+  else if (axis == 2)
+    return getMinZ(halfspace);
+  else
+    log_printf(ERROR, "Could not retrieve minimum Surface coordinate since axis"
+                      " is not recognized");
+  return 0;
+}
+
+
+/**
+ * @brief Returns the maximum coordinate in the axis direction of the
+ *        surface
+ * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+ * @param halfspace the halfspace to consider
+ * @return the maximum coordinate in the axis direction
+ */
+double Surface::getMax(int axis, int halfspace) {
+  if (axis == 0)
+    return getMaxX(halfspace);
+  else if (axis == 1)
+    return getMaxY(halfspace);
+  else if (axis == 2)
+    return getMaxZ(halfspace);
+  else
+    log_printf(ERROR, "Could not retrieve minimum Surface coordinate since axis"
+                      " is not recognized");
+  return 0;
 }
 
 
@@ -363,9 +420,7 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
   double my = sin(polar) * sin(azim);
   double mz = cos(polar);
 
-  if ((fabs(mx) < 1.e-10 && fabs(_A) > 1.e-10) ||
-      (fabs(my) < 1.e-10 && fabs(_B) > 1.e-10) ||
-      (fabs(mz) < 1.e-10 && fabs(_C) > 1.e-10))
+  if (fabs(_A*mx + _B*my + _C*mz) < 1.e-10)
     return 0;
 
   /* The track is not parallel to the plane */
@@ -414,7 +469,7 @@ std::string Plane::toString() {
  * @param name the optional name of the XPlane
  */
 XPlane::XPlane(const double x, const int id, const char* name):
-  Plane(1, 0, 0, -x, id) {
+  Plane(1, 0, 0, -x, id, name) {
 
   _surface_type = XPLANE;
   _x = x;
@@ -789,11 +844,11 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
      * Find the y where F(x0, y) = 0
      * Substitute x0 into F(x,y) and rearrange to put in
      * the form of the quadratic formula: ay^2 + by + c = 0 */
-    a = _B * _B;
+    a = 1.0;
     b = _D;
     c = _A * x0 * x0 + _C * x0 + _E;
 
-    discr = b*b - 4*a*c;
+    discr = b*b - 4*c;
 
     /* There are no intersections */
     if (discr < 0)
@@ -802,7 +857,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
       xcurr = x0;
-      ycurr = -b / (2*a);
+      ycurr = -b / 2;
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
@@ -823,12 +878,13 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
+      return num;
     }
 
     /* There are two intersections */
     else {
       xcurr = x0;
-      ycurr = (-b + sqrt(discr)) / (2 * a);
+      ycurr = (-b + sqrt(discr)) / 2;
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0) {
@@ -881,13 +937,16 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
      * rearrange to put in the form of the quadratic formula:
      * ax^2 + bx + c = 0
      */
-    double m = sin(azim) / cos(azim);
+    double m = tan(azim);
     q = y0 - m * x0;
-    a = _A + _B * _B * m * m;
-    b = 2 * _B * m * q + _C + _D * m;
-    c = _B * q * q + _D * q + _E;
+    a = 1 + m * m;
+    b = 2 * m * q + _C + _D * m;
+    c = q * q + _D * q + _E;
 
     discr = b*b - 4*a*c;
+
+    /* Boolean value describing whether the track is traveling to the right */
+    bool right = azim < M_PI / 2. || azim > 3. * M_PI / 2.;
 
     /* There are no intersections */
     if (discr < 0)
@@ -899,18 +958,21 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       ycurr = y0 + m * (points[num].getX() - x0);
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0) {
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+      else if (!right && xcurr < x0) {
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
@@ -921,40 +983,51 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
 
     /* There are two intersections */
     else {
+
+      /* Determine first point of intersection */
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) *
+        tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0) {
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+      else if (!right && xcurr < x0) {
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
 
+      /* Determine second point of intersection */
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
+      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) *
+        tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+
+      /* Increase the number of intersections if the intersection is in the
+       * direction of the track is heading */
+      if (right && xcurr > x0) {
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      else if (azim > M_PI && ycurr < y0) {
+      else if (!right && xcurr < x0) {
         if (zcurr > z0 && polar < M_PI/2.0)
           num++;
         else if (zcurr < z0 && polar > M_PI/2.0)

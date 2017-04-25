@@ -5,21 +5,13 @@ from openmoc.options import Options
 from lattices import lattices, universes, cells
 import numpy as np
 
-refines = 5
+refines = 1
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-options = Options()
-
-num_threads = options.getNumThreads()
-azim_spacing = options.getAzimSpacing()
-num_azim = options.getNumAzimAngles()
-polar_spacing = options.getPolarSpacing()
-num_polar = options.getNumPolarAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+opts = Options()
 
 ###############################################################################
 ###########################   Creating Lattices   #############################
@@ -31,7 +23,7 @@ a = universes['Control Rod']
 r = universes['Reflector']
 
 lattices['Root'].setWidth(width_x=5.0/refines, width_y=5.0/refines, width_z=5.0/refines)
-lattices['Root'].setUniverses3D([[np.repeat([r, r, r, r, r], refines).tolist()] * 4 * refines +
+lattices['Root'].setUniverses([[np.repeat([r, r, r, r, r], refines).tolist()] * 4 * refines +
                                  [np.repeat([r, r, r, v, r], refines).tolist()] * refines] * 2 * refines +
                                 [[np.repeat([r, r, r, r, r], refines).tolist()] * 2 * refines +
                                  [np.repeat([c, c, c, r, r], refines).tolist()] * 2 * refines +
@@ -61,12 +53,14 @@ geometry.initializeFlatSourceRegions()
 ###############################################################################
 
 quad = openmoc.EqualAnglePolarQuad()
-quad.setNumPolarAngles(num_polar)
+quad.setNumPolarAngles(opts.num_polar)
 
-track_generator = openmoc.TrackGenerator3D(geometry, num_azim, num_polar,
-                                           azim_spacing, polar_spacing)
+track_generator = openmoc.TrackGenerator3D(geometry, opts.num_azim,
+                                           opts.num_polar,
+                                           opts.azim_spacing,
+                                           opts.polar_spacing)
 track_generator.setQuadrature(quad)
-track_generator.setNumThreads(num_threads)
+track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
@@ -76,9 +70,9 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = openmoc.CPUSolver(track_generator)
-solver.setConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
-solver.computeEigenvalue(max_iters)
+solver.setConvergenceThreshold(opts.tolerance)
+solver.setNumThreads(opts.num_omp_threads)
+solver.computeEigenvalue(opts.max_iters)
 solver.printTimerReport()
 
 ###############################################################################
@@ -101,3 +95,4 @@ plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='xz', offset=0.)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2],
                             gridsize=500, plane='yz', offset=0.)
+

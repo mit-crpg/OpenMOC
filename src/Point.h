@@ -9,7 +9,9 @@
 #define POINT_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "log.h"
 #include <math.h>
 #include <sstream>
@@ -24,7 +26,7 @@ class Point {
 private:
 
   /** The Point's xyz coordinates */
-  double* _xyz;
+  double _xyz[3];
 
 public:
   Point();
@@ -33,13 +35,15 @@ public:
   double getX() const;
   double getY() const;
   double getZ() const;
-  double* getXYZ() const;
+  double* getXYZ();
   void setX(const double x);
   void setY(const double y);
   void setZ(const double z);
   double distance(const double x, const double y, const double z) const;
   double distanceToPoint(const Point* point);
+  void copyCoords(Point* point);
   std::string toString();
+  void setXYZ(double* xyz);
 };
 
 
@@ -87,7 +91,7 @@ inline double Point::getZ() const {
  * @brief Returns this Point's x-coordinate.
  * @return the x-coordinate
  */
-inline double* Point::getXYZ() const {
+inline double* Point::getXYZ() {
   return _xyz;
 }
 
@@ -118,6 +122,13 @@ inline void Point::setZ(const double z) {
   _xyz[2] = z;
 }
 
+//FIXME
+inline void Point::setXYZ(double* xyz) {
+  _xyz[0] = xyz[0];
+  _xyz[1] = xyz[1];
+  _xyz[2] = xyz[2];
+}
+
 
 /**
  * @brief Compute the distance from this Point to another Point of interest.
@@ -143,6 +154,14 @@ inline double Point::distanceToPoint(const Point* point) {
   double deltay = _xyz[1] - point->getY();
   double deltaz = _xyz[2] - point->getZ();
   return sqrt(deltax*deltax + deltay*deltay + deltaz*deltaz);
+}
+
+
+//FIXME
+inline void Point::copyCoords(Point* point) {
+  _xyz[0] = point->getX();
+  _xyz[1] = point->getY();
+  _xyz[2] = point->getZ();
 }
 
 

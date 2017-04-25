@@ -9,11 +9,13 @@
 #define TRACK3D_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Point.h"
 #include "Material.h"
 #include "Track.h"
-#include "Track2D.h"
+#include "Track.h"
 #include "LocalCoords.h"
 #include <vector>
 #endif

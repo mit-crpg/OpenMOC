@@ -9,17 +9,26 @@
 #define TIMER_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "log.h"
 #include <time.h>
 #include <omp.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <utility>
 #include <map>
 #include <vector>
 #include <string>
+#include <ios>
+#include <unistd.h>
+#endif
+
+#ifdef MPIx
+#include <mpi.h>
 #endif
 
 
@@ -88,6 +97,10 @@ public:
   void printSplits();
   void clearSplit(const char* msg);
   void clearSplits();
+  void processMemUsage(double& vm_usage, double& resident_set);
+#ifdef MPIx
+  void reduceTimer(MPI_Comm comm);
+#endif
 };
 
 #endif /* TIMER_H_ */

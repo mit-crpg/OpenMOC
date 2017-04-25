@@ -9,7 +9,9 @@
 #define TRACK_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Point.h"
 #include "Material.h"
 #include "boundary_type.h"
@@ -25,7 +27,7 @@
 struct segment {
 
   /** The length of the segment (cm) */
-  FP_PRECISION _length;
+  double _length;
 
   /** A pointer to the material in which this segment resides */
   Material* _material;
@@ -33,18 +35,27 @@ struct segment {
   /** The ID for flat source region in which this segment resides */
   int _region_id;
 
+  // FIXME
+  int _track_idx;
+
   /** The ID for the mesh surface crossed by the Track end point */
   int _cmfd_surface_fwd;
 
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
 
+  /** The starting point of the segment relative to the FSR centroid */
+  double _starting_position[3];
+
   /** Constructor initializes CMFD surfaces */
   segment() {
+    _track_idx = 0;
+    _material = NULL;
     _cmfd_surface_fwd = -1;
     _cmfd_surface_bwd = -1;
   }
 };
+
 
 /**
  * @class Track Track.h "src/Track.h"
@@ -87,52 +98,63 @@ protected:
   /* Indices that are used to locate the track in the various track arrays */
   int _azim_index;
   int _xy_index;
-  int _periodic_cycle_id;
-  int _reflective_cycle_id;
-  int _periodic_track_index;
+  int _link_index;
 
-  /** Pointers to reflective and periodic Tracks in the forward and reverse
-   *  directions */
-  Track* _track_refl_fwd;
-  Track* _track_refl_bwd;
-  Track* _track_prdc_fwd;
-  Track* _track_prdc_bwd;
+  /** Pointers to next, reflective, and periodic Tracks in the forward and
+   *  reverse directions */
+  long _track_next_fwd;
+  long _track_next_bwd;
+  long _track_prdc_fwd;
+  long _track_prdc_bwd;
+  long _track_refl_fwd;
+  long _track_refl_bwd;
 
   /** Booleans to indicate wheter the reflective Tracks in the forward and
    *  and backward direction enter into Tracks pointed in the forward
    *  direction. */
-  bool _refl_fwd_fwd;
-  bool _refl_bwd_fwd;
+  bool _next_fwd_fwd;
+  bool _next_bwd_fwd;
 
   /** Boolean indicating whether the track is pointing fwd (True) or bwd
    *  (False) in the cycle of tracks */
+  //FIXME
   bool _direction_in_cycle;
 
-  /** The weight of the Track for use in volume and MOC calculations */
-  FP_PRECISION _weight;
+  //FIXME
+  int _surface_in;
+  int _surface_out;
+  int _domain_fwd;
+  int _domain_bwd;
 
 public:
   Track();
   virtual ~Track();
 
   /* Setter methods */
+  virtual void setValues(const double start_x, const double start_y,
+                         const double end_x, const double end_y,
+                         const double phi);
+  virtual void setCoords(double x0, double y0,
+                         double x1, double y1);
   void setUid(int uid);
   void setPhi(const double phi);
   void setBCFwd(const boundaryType bc_fwd);
   void setBCBwd(const boundaryType bc_bwd);
-  void setTrackReflFwd(Track* track);
-  void setTrackPrdcFwd(Track* track);
-  void setTrackReflBwd(Track* track);
-  void setTrackPrdcBwd(Track* track);
-  void setReflFwdFwd(bool fwd);
-  void setReflBwdFwd(bool fwd);
+  void setTrackNextFwd(long track_id);
+  void setTrackNextBwd(long track_id);
+  void setTrackPrdcFwd(long track_id);
+  void setTrackPrdcBwd(long track_id);
+  void setTrackReflFwd(long track_id);
+  void setTrackReflBwd(long track_id);
+  void setNextFwdFwd(bool fwd);
+  void setNextBwdFwd(bool fwd);
   void setXYIndex(int index);
   void setAzimIndex(int index);
-  void setPeriodicCycleId(int id);
-  void setReflectiveCycleId(int id);
-  void setPeriodicTrackIndex(int index);
-  void setDirectionInCycle(bool fwd);
-  void setWeight(FP_PRECISION weight);
+  void setSurfaceIn(int surface_in);
+  void setSurfaceOut(int surface_out);
+  void setDomainFwd(int neighbor);
+  void setDomainBwd(int neighbor);
+  void setLinkIndex(int index);
 
   /* Getter methods */
   int getUid();
@@ -140,24 +162,26 @@ public:
   Point* getStart();
   double getPhi() const;
   double getLength();
-  Track* getTrackReflFwd();
-  Track* getTrackReflBwd();
-  Track* getTrackPrdcFwd();
-  Track* getTrackPrdcBwd();
-  bool getReflFwdFwd();
-  bool getReflBwdFwd();
+  long getTrackNextFwd();
+  long getTrackNextBwd();
+  long getTrackPrdcFwd();
+  long getTrackPrdcBwd();
+  long getTrackReflFwd();
+  long getTrackReflBwd();
+  bool getNextFwdFwd();
+  bool getNextBwdFwd();
   int getXYIndex();
   int getAzimIndex();
-  int getPeriodicCycleId();
-  int getReflectiveCycleId();
+  int getLinkIndex();
   boundaryType getBCFwd() const;
   boundaryType getBCBwd() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-  int getPeriodicTrackIndex();
-  bool getDirectionInCycle();
-  FP_PRECISION getWeight();
+  int getDomainFwd();
+  int getDomainBwd();
+  int getSurfaceIn();
+  int getSurfaceOut();
 
   /* Worker methods */
   void addSegment(segment* segment);
@@ -165,7 +189,7 @@ public:
   void insertSegment(int index, segment* segment);
   void clearSegments();
   void setNumSegments(int num_segments);
-  virtual std::string toString()=0;
+  virtual std::string toString();
 };
 
 
@@ -226,6 +250,53 @@ inline int Track::getNumSegments() {
  */
 inline void Track::setNumSegments(int num_segments) {
     _num_segments = num_segments;
+}
+
+
+/**
+ * @brief Returns a pointer to the Track's end Point.
+ * @return A pointer to the Track's end Point
+ */
+inline Point* Track::getEnd() {
+  return &_end;
+}
+
+
+/**
+ * @brief Returns a pointer to the Track's start Point.
+ * @return A pointer to the Track's start Point
+ */
+inline Point* Track::getStart() {
+  return &_start;
+}
+
+
+/**
+ * @brief Return the Track's azimuthal angle (with respect to the x-axis).
+ * @return The azimuthal angle \f$ \phi \in [0, \pi] \f$
+ */
+inline double Track::getPhi() const {
+  return _phi;
+}
+
+
+/**
+ * @brief Returns the boundary condition for the flux along the Track's
+ *        "forward" direction.
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
+ */
+inline boundaryType Track::getBCFwd() const {
+  return _bc_fwd;
+}
+
+
+/**
+ * @brief Returns the boundary condition for the flux along the Track's
+ *        "reverse" direction.
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
+ */
+inline boundaryType Track::getBCBwd() const {
+  return _bc_bwd;
 }
 
 #endif /* TRACK_H_ */

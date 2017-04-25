@@ -9,7 +9,9 @@
 #define GEOMETRY_H_
 
 #ifdef __cplusplus
+#ifdef SWIG
 #include "Python.h"
+#endif
 #include "Cmfd.h"
 #include "Progress.h"
 #include <limits>
@@ -22,6 +24,11 @@
 #include <functional>
 #include "ParallelHashMap.h"
 #endif
+
+#ifdef MPIx
+#include <mpi.h>
+#endif
+
 
 /** Forward declaration of Cmfd class */
 class Cmfd;
@@ -40,7 +47,7 @@ struct fsr_data {
     _centroid(NULL){}
 
   /** The FSR ID */
-  int _fsr_id;
+  long _fsr_id;
 
   /** The CMFD Cell */
   int _cmfd_cell;
@@ -80,13 +87,13 @@ struct ExtrudedFSR {
     _num_fsrs(0), _coords(NULL){}
 
   /** Array defining the axial mesh */
-  FP_PRECISION* _mesh;
+  double* _mesh;
 
   /** Axial extruded FSR ID */
   int _fsr_id;
 
   /** Array of 3D FSR IDs */
-  int* _fsr_ids;
+  long* _fsr_ids;
 
   /** Array of material pointers for each FSR */
   Material** _materials;
@@ -115,38 +122,18 @@ class Geometry {
 
 private:
 
-  bool _solve_3D;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _x_min_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _x_max_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _y_min_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _y_max_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _z_min_bc;
-
-  /** The boundary conditions at the top of the bounding box containing
-   *  the Geometry. False is for vacuum and true is for reflective BCs. */
-  boundaryType _z_max_bc;
-
   /** An map of FSR key hashes to unique fsr_data structs */
-  ParallelHashMap<std::size_t, fsr_data*> _FSR_keys_map;
-  ParallelHashMap<std::size_t, ExtrudedFSR*> _extruded_FSR_keys_map;
+  ParallelHashMap<std::string, fsr_data*> _FSR_keys_map;
+  ParallelHashMap<std::string, ExtrudedFSR*> _extruded_FSR_keys_map;
 
   /** An vector of FSR key hashes indexed by FSR ID */
-  std::vector<std::size_t> _FSRs_to_keys;
+  std::vector<std::string> _FSRs_to_keys;
+
+  /** An vector of FSR centroids indexed by FSR ID */
+  std::vector<Point*> _FSRs_to_centroids;
+
+  /** A boolean indicating whether any centroids have been set */
+  bool _contains_FSR_centroids;
 
   /** A vector of Material IDs indexed by FSR IDs */
   std::vector<int> _FSRs_to_material_IDs;
@@ -154,14 +141,45 @@ private:
   /** A vector of ExtrudedFSR pointers indexed by extruded FSR ID */
   std::vector<ExtrudedFSR*> _extruded_FSR_lookup;
 
+  /** An vector of CMFD cell IDs indexed by FSR ID */
+  std::vector<int> _FSRs_to_CMFD_cells;
+
   /* The Universe at the root node in the CSG tree */
   Universe* _root_universe;
 
   /** A CMFD object pointer */
   Cmfd* _cmfd;
 
+  /** An optional axial mesh overlaid on the Geometry */
+  Lattice* _overlaid_mesh;
+
   /* A map of all Material in the Geometry for optimization purposes */
   std::map<int, Material*> _all_materials;
+
+  /* A vector containing allocated strings for key generation */
+  std::vector<std::string> _fsr_keys; 
+
+  //FIXME
+  bool _domain_decomposed;
+  bool _domain_FSRs_counted;
+  int _num_domains_x;
+  int _num_domains_y;
+  int _num_domains_z;
+  int _domain_index_x;
+  int _domain_index_y;
+  int _domain_index_z;
+  Lattice* _domain_bounds;
+  std::vector<long> _num_domain_FSRs;
+#ifdef MPIx
+  MPI_Comm _MPI_cart;
+#endif
+
+  //FIXME
+  int _num_modules_x;
+  int _num_modules_y;
+  int _num_modules_z;
+
+  bool _twiddle;
 
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
@@ -170,6 +188,12 @@ public:
 
   Geometry();
   virtual ~Geometry();
+
+  //FIXME
+  void setNumDomainModules(int num_x, int num_y, int num_z);
+  int getNumXModules();
+  int getNumYModules();
+  int getNumZModules();
 
   /* Get parameters */
   double getWidthX();
@@ -188,56 +212,104 @@ public:
   boundaryType getMinZBoundaryType();
   boundaryType getMaxZBoundaryType();
   Universe* getRootUniverse();
-  int getNumFSRs();
+  long getNumFSRs();
+  long getNumTotalFSRs();
   int getNumEnergyGroups();
   int getNumMaterials();
   int getNumCells();
+  std::map<int, Surface*> getAllSurfaces();
   std::map<int, Material*> getAllMaterials();
+  void manipulateXS(); //FIXME
+  std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
-  std::vector<FP_PRECISION> getUniqueZHeights();
-  std::vector<FP_PRECISION> getUniqueZPlanes();
+  std::map<int, Universe*> getAllUniverses();
+  std::vector<double> getUniqueZHeights();
+  std::vector<double> getUniqueZPlanes();
+  bool isDomainDecomposed();
+  bool isRootDomain();
+  void getDomainIndexes(int* indexes);
   void setRootUniverse(Universe* root_universe);
+#ifdef MPIx
+  void setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm);
+  MPI_Comm getMPICart();
+#endif
 
   Cmfd* getCmfd();
-  std::vector<std::size_t>* getFSRsToKeys();
-  std::vector<int>* getFSRsToMaterialIDs();
-  int getFSRId(LocalCoords* coords);
-  Point* getFSRPoint(int fsr_id);
-  Point* getFSRCentroid(int fsr_id);
-  int getCmfdCell(int fsr_id);
+  std::vector<std::string>& getFSRsToKeys();
+  std::vector<int>& getFSRsToMaterialIDs();
+  std::vector<Point*>& getFSRsToCentroids();
+  std::vector<int>& getFSRsToCMFDCells();
+  std::vector<ExtrudedFSR*>& getExtrudedFSRLookup();
+  long getFSRId(LocalCoords* coords, bool err_check=true);
+  long getGlobalFSRId(LocalCoords* coords, bool err_check=true);
+  Point* getFSRPoint(long fsr_id);
+  Point* getFSRCentroid(long fsr_id);
+  bool containsFSRCentroids();
+  int getCmfdCell(long fsr_id);
   ExtrudedFSR* getExtrudedFSR(int extruded_fsr_id);
   std::string getFSRKey(LocalCoords* coords);
-  ParallelHashMap<std::size_t, fsr_data*>* getFSRKeysMap();
+  void getFSRKeyFast(LocalCoords* coords, std::string& key);
+  void printToString(std::string& str, int& index, int value);
+  int getNumDigits(int number);
+  ParallelHashMap<std::string, fsr_data*>& getFSRKeysMap();
+  ParallelHashMap<std::string, ExtrudedFSR*>& getExtrudedFSRKeysMap();
+#ifdef MPIx
+  int getNeighborDomain(int offset_x, int offset_y, int offset_z);
+#endif
 
   /* Set parameters */
-  void setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
-  void setFSRsToKeys(std::vector<std::size_t>* FSRs_to_keys);
   void setCmfd(Cmfd* cmfd);
-  void setFSRCentroid(int fsr, Point* centroid);
-  void setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
+  void setFSRCentroid(long fsr, Point* centroid);
+  void setOverlaidMesh(double axial_mesh_height, int num_x=0,
+                       int num_y=0, int num_radial_domains=0,
+                       int* radial_domains=NULL);
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
-  Material* findFSRMaterial(int fsr_id);
-  int findFSRId(LocalCoords* coords);
+  Material* findFSRMaterial(long fsr_id);
+  long findFSRId(LocalCoords* coords);
   int findExtrudedFSR(LocalCoords* coords);
-  Cell* findCellContainingFSR(int fsr_id);
+  Cell* findCellContainingFSR(long fsr_id);
 
   /* Other worker methods */
+  void reserveKeyStrings(int num_threads);
   void subdivideCells();
   void initializeAxialFSRs(std::vector<double> global_z_mesh);
   void initializeFlatSourceRegions();
-  void segmentize2D(Track2D* track, double z_coord);
-  void segmentize3D(Track3D* track);
+  void segmentize2D(Track* track, double z_coord);
+  void segmentize3D(Track3D* track, bool setup=false);
   void segmentizeExtruded(Track* flattened_track,
-      std::vector<double> z_coords);
+                          std::vector<double> z_coords);
+  void fixFSRMaps();
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
-
+  std::vector<long> getSpatialDataOnGrid(std::vector<double> dim1,
+                                         std::vector<double> dim2,
+                                         double offset,
+                                         const char* plane,
+                                         const char* domain_type);
   std::string toString();
   void printString();
   void initializeCmfd();
   bool withinBounds(LocalCoords* coords);
+  bool withinGlobalBounds(LocalCoords* coords);
+#ifdef MPIx
+  void countDomainFSRs();
+  void getLocalFSRId(long global_fsr_id, long &local_fsr_id, int &domain);
+#endif
+  std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
+  int getDomainByCoords(LocalCoords* coords);
+  void dumpToFile(std::string filename);
+  void loadFromFile(std::string filename, bool twiddle=false);
+  size_t twiddleRead(int* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(universeType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(cellType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(surfaceType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(boundaryType* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream);
+  size_t twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream);
 };
 
 #endif /* GEOMETRY_H_ */

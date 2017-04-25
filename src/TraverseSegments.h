@@ -11,7 +11,7 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "Track2D.h"
+#include "Track.h"
 #include "Track3D.h"
 #include "Geometry.h"
 #include "TrackGenerator3D.h"
@@ -28,30 +28,32 @@
  *          is an abstract class meant to be extended by classes defined in
  *          TrackTraversingAlgorithms.h. This parent class's main purpose is to
  *          abstract the looping procedure and apply a function onTrack(...) to
- *          each Track and apply supplied MOCKernels to each segment. If NULL
- *          is provided for the MOCKernels, only the functionality defined in
- *          onTrack(...) is applied to each Track.
+ *          each Track and apply the supplied MOCKernel to each segment. If
+ *          NULL is provided for the MOCKernel, only the functionality defined
+ *          in onTrack(...) is applied to each Track.
  */
 class TraverseSegments {
 
 private:
 
   /* Functions defining how to loop over Tracks */
-  void loopOverTracks2D(MOCKernel** kernels);
-  void loopOverTracksExplicit(MOCKernel** kernels);
-  void loopOverTracksByTrackOTF(MOCKernel** kernels);
-  void loopOverTracksByStackOTF(MOCKernel** kernels);
+  void loopOverTracks2D(MOCKernel* kernel);
+  void loopOverTracksExplicit(MOCKernel* kernel);
+  void loopOverTracksByTrackOTF(MOCKernel* kernel);
+  void loopOverTracksByStackOTF(MOCKernel* kernel);
 
   /* Functions defining how to traverse segments */
   void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
   void traceSegmentsOTF(Track* flattened_track, Point* start,
                         double theta, MOCKernel* kernel);
   void traceStackOTF(Track* flattened_track, int polar_index,
-                     MOCKernel** kernels);
+                     MOCKernel* kernel);
+
+  void traceStackTwoWay(Track* flattened_track, int polar_index,
+                        TransportKernel* kernel);
 
 
-  int findMeshIndex(FP_PRECISION* values, int size, FP_PRECISION val,
-                    int sign);
+  int findMeshIndex(double* values, int size, double val, int sign);
 
 protected:
 
@@ -60,7 +62,7 @@ protected:
   TrackGenerator3D* _track_generator_3D;
 
   /** A pointer to the associated global z-mesh (if applicable) */
-  FP_PRECISION* _global_z_mesh;
+  double* _global_z_mesh;
 
   /** The size of the global z-mesh */
   int _mesh_size;
@@ -72,26 +74,24 @@ protected:
   virtual ~TraverseSegments();
 
   /* Functions defining how to loop over and operate on Tracks */
-  void loopOverTracks(MOCKernel** kernels);
+  void loopOverTracks(MOCKernel* kernel);
   virtual void onTrack(Track* track, segment* segments) = 0;
 
-  /* Returns a matrix of kernels of the requested type */
-  template <class KernelType>
-  MOCKernel** getKernels() {
+  //FIXME
+  void loopOverTracksByStackTwoWay(TransportKernel* kernel);
 
-    /* Check for segmentation kernels in explicit methods */
+  /* Returns a kernel of the requested type */
+  template <class KernelType>
+  MOCKernel* getKernel() {
+
+    /* Check for segmentation kernel in explicit methods */
     if ((typeid(KernelType) != typeid(SegmentationKernel)) ||
         ((_segment_formation != EXPLICIT_2D) &&
         (_segment_formation != EXPLICIT_3D))) {
 
-      /* Allocate kernels */
-      int num_segment_matrix_rows = 1;
-      if (_track_generator_3D != NULL)
-        num_segment_matrix_rows = _track_generator_3D->getNumRows();
-      MOCKernel** kernels = new MOCKernel*[num_segment_matrix_rows];
-      for (int z=0; z < num_segment_matrix_rows; z++)
-        kernels[z] = new KernelType(_track_generator, z);
-      return kernels;
+      /* Allocate kernel */
+      MOCKernel* kernel = new KernelType(_track_generator, 0);
+      return kernel;
     }
     else
       return NULL;

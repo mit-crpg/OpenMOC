@@ -8,15 +8,20 @@
 #ifndef MOCKERNEL_H_
 #define MOCKERNEL_H_
 
+#ifdef SWIG
 #include "Python.h"
-#include "Track2D.h"
+#endif
+#include "Track.h"
 #include "Track3D.h"
 #include "Geometry.h"
+#include "Quadrature.h"
 
 
 /* Forward declaration of TrackGenerator */
 class TrackGenerator;
 
+//FIXME
+class CPUSolver;
 
 /**
  * @class MOCKernel MOCKernel.h "src/MOCKernel.h"
@@ -43,6 +48,9 @@ protected:
   /** Maximum optical path length when forming segments */
   FP_PRECISION _max_tau;
 
+  /** Number of energy groups in the current problem */
+  int _num_groups;
+
 public:
 
   MOCKernel(TrackGenerator* track_generator, int row_num);
@@ -58,8 +66,10 @@ public:
   virtual void newTrack(Track* track);
 
   /* Executing function describes kernel behavior */
-  virtual void execute(FP_PRECISION length, Material* mat, int id,
-      int cmfd_surface_fwd, int cmfd_surface_bwd)=0;
+  virtual void execute(double length, Material* mat, long fsr_id,
+                       int track_idx, int cmfd_surface_fwd,
+                       int cmfd_surface_bwd, double x_start, double y_start,
+                       double z_start, double phi, double theta)=0;
 
 };
 
@@ -73,10 +83,13 @@ public:
  *          (less than the max optical path length) in the input length.
  */
 class CounterKernel: public MOCKernel {
+
 public:
   CounterKernel(TrackGenerator* track_generator, int row_num);
-  void execute(FP_PRECISION length, Material* mat, int id,
-      int cmfd_surface_fwd, int cmfd_surface_bwd);
+  void execute(double length, Material* mat, long fsr_id,
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
 };
 
 
@@ -99,15 +112,20 @@ private:
   /** Pointer to array of FSR volumes */
   FP_PRECISION* _FSR_volumes;
 
-  /** A weight to be applied to segmentation data, if applicable */
+  /** The Track's volume weight */
   FP_PRECISION _weight;
+
+  /** The associated quadrature from which weights are derived */
+  Quadrature* _quadrature;
 
 public:
 
   VolumeKernel(TrackGenerator* track_generator, int row_num);
   void newTrack(Track* track);
-  void execute(FP_PRECISION length, Material* mat, int id,
-      int cmfd_surface_fwd, int cmfd_surface_bwd);
+  void execute(double length, Material* mat, long fsr_id,
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
 };
 
 
@@ -128,8 +146,58 @@ private:
 
 public:
   SegmentationKernel(TrackGenerator* track_generator, int row_num);
-  void execute(FP_PRECISION length, Material* mat, int id,
-      int cmfd_surface_fwd, int cmfd_surface_bwd);
+  void execute(double length, Material* mat, long fsr_id,
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
 };
+
+/**
+ * @class TransportKernel MOCKernel.h "src/MOCKernel.h"
+ * @brief Applies transport equations to segment data
+ * @details A TransportKernel inherets from MOCKernel and is a kernel which
+ *          is initialized with a pointer to a CPU Solver. Input data of the
+ *          "execute" function is used to apply the MOC equations in CPUSolver.
+ */
+class TransportKernel: public MOCKernel {
+private:
+
+  /** Pointer to CPUSolver enabling use of transport functions */
+  CPUSolver* _cpu_solver;
+
+  /** Pointer to angular flux data in the current direction */
+  FP_PRECISION* _thread_fsr_flux;
+
+  /** Azimuthal index of the current track */
+  int _azim_index;
+
+  /** Polar index of the current track */
+  int _polar_index;
+
+  /** Unique ID of the current track */
+  int _track_id;
+
+  /** Direction of the current track (true = Forward / false = Backward) */
+  bool _direction;
+
+  int _min_track_idx;
+  int _max_track_idx;
+
+public:
+  TransportKernel(TrackGenerator* track_generator, int row_num);
+  virtual ~TransportKernel();
+  void newTrack(Track* track);
+  void setCPUSolver(CPUSolver* cpu_solver);
+  void setTrackFlux(FP_PRECISION* fwd_flux, FP_PRECISION* bwd_flux,
+                    int track_id);
+  void setTrackIndexes(int azim_index, int polar_index);
+  void setDirection(bool direction);
+  void execute(double length, Material* mat, long fsr_id,
+               int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
+               double x_start, double y_start, double z_start,
+               double phi, double theta);
+  void post();
+};
+
 
 #endif /* MOCKERNEL_H_ */

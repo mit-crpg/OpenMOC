@@ -12,7 +12,7 @@ log.set_log_level('NORMAL')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.py')
+materials = materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 
 ###############################################################################
@@ -25,15 +25,15 @@ xmin = openmoc.XPlane(x=-2.0, name='xmin')
 xmax = openmoc.XPlane(x= 2.0, name='xmax')
 ymin = openmoc.YPlane(y=-2.0, name='ymin')
 ymax = openmoc.YPlane(y= 2.0, name='ymax')
-zmin = openmoc.ZPlane(z=-0.5, name='zmin')
-zmax = openmoc.ZPlane(z= 0.5, name='zmax')
+zmin = openmoc.ZPlane(z=-10.0, name='zmin')
+zmax = openmoc.ZPlane(z= 10.0, name='zmax')
 
-xmin.setBoundaryType(openmoc.PERIODIC)
-xmax.setBoundaryType(openmoc.PERIODIC)
-ymin.setBoundaryType(openmoc.PERIODIC)
-ymax.setBoundaryType(openmoc.PERIODIC)
-zmin.setBoundaryType(openmoc.PERIODIC)
-zmax.setBoundaryType(openmoc.PERIODIC)
+xmin.setBoundaryType(openmoc.REFLECTIVE)
+xmax.setBoundaryType(openmoc.REFLECTIVE)
+ymin.setBoundaryType(openmoc.REFLECTIVE)
+ymax.setBoundaryType(openmoc.REFLECTIVE)
+zmin.setBoundaryType(openmoc.REFLECTIVE)
+zmax.setBoundaryType(openmoc.REFLECTIVE)
 
 large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.4, name='large pin')
 medium_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='medium pin')
@@ -104,11 +104,11 @@ root_universe.addCell(root_cell)
 log.py_printf('NORMAL', 'Creating simple 4 x 4 lattice...')
 
 lattice = openmoc.Lattice(name='4x4 lattice')
-lattice.setWidth(width_x=1.0, width_y=1.0, width_z=1.0)
-lattice.setUniverses([[pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3],
-                      [pin1, pin2, pin1, pin2],
-                      [pin2, pin3, pin2, pin3]])
+lattice.setWidth(width_x=1.0, width_y=1.0, width_z=20.0)
+lattice.setUniverses([[[pin1, pin2, pin1, pin2],
+                       [pin2, pin3, pin2, pin3],
+                       [pin1, pin2, pin1, pin2],
+                       [pin2, pin3, pin2, pin3]]])
 root_cell.setFill(lattice)
 
 
@@ -119,8 +119,8 @@ root_cell.setFill(lattice)
 log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = openmoc.Cmfd()
-cmfd.setLatticeStructure(2,2,1)
-cmfd.setKNearest(1)
+cmfd.setLatticeStructure(2,2,4)
+cmfd.setKNearest(3)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
