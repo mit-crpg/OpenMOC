@@ -226,8 +226,10 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     // Iteration over red/black cells
     for (int color = 0; color < 2; color++) {
       int offset = 0;
+#ifdef MPIx
       getCouplingTerms(comm, color, coupling_sizes, coupling_indexes,
                        coupling_coeffs, coupling_fluxes, x, offset);
+#endif
 #pragma omp parallel for collapse(2)
       for (int iz=0; iz < num_z; iz++) {
         for (int iy=0; iy < num_y; iy++) {
@@ -307,6 +309,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
 
 //FIXME
+#ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, FP_PRECISION**& coupling_coeffs,
                       FP_PRECISION**& coupling_fluxes, FP_PRECISION* curr_fluxes,
@@ -436,6 +439,7 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
     }
   }
 }
+#endif
 
 
 /**

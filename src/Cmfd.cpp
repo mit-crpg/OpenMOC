@@ -533,6 +533,7 @@ void Cmfd::collapseXS() {
   }
 
   //TODO: clean
+#ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
     if (_domain_communicator != NULL) {
 
@@ -547,6 +548,7 @@ void Cmfd::collapseXS() {
       _timer->recordSplit("CMFD MPI communication time");
     }
   }
+#endif
   
   /* Calculate (local) old fluxes and set volumes */
 #pragma omp parallel for
@@ -846,27 +848,6 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   /* Construct matrices */
   constructMatrices(moc_iteration);
   
-  //FIXME
-  if (moc_iteration >= 5 && false) {
-    for (int i=0; i < _domain_communicator->_num_domains_x; i++) {
-      for (int j=0; j < _domain_communicator->_num_domains_y; j++) {
-        for (int k=0; k < _domain_communicator->_num_domains_z; k++) {
-          if (_domain_communicator->_domain_idx_x == i &&
-              _domain_communicator->_domain_idx_y == j &&
-              _domain_communicator->_domain_idx_z == k) {
-              std::cout << "DOMAIN " << i << ", " << j << ", " << k << std::endl;
-              _A->printString();
-              _M->printString();
-              std::cout.flush();
-          }
-          MPI_Barrier(_domain_communicator->_MPI_cart);
-        }
-      }
-    }
-  }
-  if (moc_iteration > 6 && false)
-      exit(0);
-
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
 
@@ -3800,6 +3781,7 @@ void Cmfd::packBuffers() {
  *        while the inner dimension is the serialized buffer corresponding to the number of 2D cells to exchange times
  *        the number of energy groups.
  */
+#ifdef MPIx
 void Cmfd::ghostCellExchange() {
 
   packBuffers();
@@ -3967,6 +3949,7 @@ void Cmfd::communicateSplits() {
 
   unpackSplitCurrents();
 }
+#endif
 
 
 //TODO: document

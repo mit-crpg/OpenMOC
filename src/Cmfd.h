@@ -279,8 +279,10 @@ private:
   int getGlobalCMFDCell(int cmfd_cell); //TODO: optimize, document
     int getCellColor(int cmfd_cell); //TODO: optimize, document
   void packBuffers();
+#ifdef MPIx
   void ghostCellExchange();
   void communicateSplits();
+#endif
   void unpackSplitCurrents();
 
 public:

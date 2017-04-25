@@ -566,7 +566,7 @@ void LinearExpansionGenerator::execute() {
   }
 
   //FIXME
-  if (true) {
+  if (false) {
     double max_linear_radius = (10*17)*1.26; // (8.5*15+4) * 1.26 || * -2 *
     Universe* root_universe = geometry->getRootUniverse();
     double center_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;

@@ -734,11 +734,17 @@ void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
   int real_num_x = 1;
   int real_num_y = 1;
   if (num_x > 0 && num_y > 0) {
-    for (int i=0; i < num_radial_domains; i++) {
-      if (radial_domains[2*i] == _domain_index_x && 
-          radial_domains[2*i+1] == _domain_index_y) {
-        real_num_x = num_x;
-        real_num_y = num_y;
+    if (radial_domains == NULL) {
+      real_num_x = num_x;
+      real_num_y = num_y;
+    }
+    else {
+      for (int i=0; i < num_radial_domains; i++) {
+        if (radial_domains[2*i] == _domain_index_x && 
+            radial_domains[2*i+1] == _domain_index_y) {
+          real_num_x = num_x;
+          real_num_y = num_y;
+        }
       }
     }
   }
@@ -1101,7 +1107,11 @@ long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
   std::string fsr_key;
 
   try {
-    fsr_key = getFSRKey(coords);
+    /* Generate unique FSR key */
+    int thread_id = omp_get_thread_num();
+    std::string& fsr_key = _fsr_keys[thread_id];
+    getFSRKeyFast(coords, fsr_key);
+    // FIXME NOW fsr_key = getFSRKey(coords);
     fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
   catch(std::exception &e) {
@@ -2590,7 +2600,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       delete point;
     }
   }
-
+  
   /* Return the domain IDs */
   return domains;
 }

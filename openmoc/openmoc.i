@@ -83,6 +83,16 @@
 %ignore setFSRsToMaterialIDs(std::vector<int>* FSRs_to_material_IDs);
 %ignore setFSRKeysMap(ParallelHashMap<std::size_t, fsr_data*>* FSR_keys_map);
 %ignore initializeFSRVectors();
+%ignore twiddleRead(int* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(universeType* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(cellType* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(surfaceType* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(boundaryType* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream);
+
 
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
  * attributes. These attributes should be used internally only by the Matrix and
@@ -120,6 +130,7 @@ namespace std {
   %template(DoubleVector) vector<double>;
   %template(FloatVector) vector<float>;
   %template(IntVector) vector<int>;
+  %template(LongVector) vector<long>;
   %template(Array) vector< vector<int> >;
 }
 

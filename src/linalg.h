@@ -64,11 +64,12 @@ struct DomainCommunicator {
 };
 
 //FIXME
+#ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, FP_PRECISION**& coupling_coeffs,
                       FP_PRECISION**& coupling_fluxes, FP_PRECISION* curr_fluxes,
                       int& offset);
-
+#endif
 
 FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                              FP_PRECISION tol, FP_PRECISION SOR_factor=1.5,

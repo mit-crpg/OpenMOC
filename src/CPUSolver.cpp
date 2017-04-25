@@ -225,12 +225,11 @@ void CPUSolver::initializeFluxArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
+    double max_size_mb = (double) (2 * max_size * sizeof(float)) 
         / (double) (1e6);
     log_printf(NORMAL, "Max boundary angular flux storage per domain = %6.2f "
                "MB", max_size_mb);
 
-    //FIXME MEM : float / FP_PRECISION
     _boundary_flux = new float[size];
     _start_flux = new float[size];
 
@@ -1681,7 +1680,6 @@ void CPUSolver::transportSweep() {
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
  */
-    //FIXME MEM : float / FP_PRECISION
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
                                 float* track_flux,
@@ -1779,7 +1777,6 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
  * @param direction the Track direction (forward - true, reverse - false)
  * @param track_flux a pointer to the Track's outgoing angular flux
  */
-    //FIXME MEM : float / FP_PRECISION
 void CPUSolver::transferBoundaryFlux(Track* track,
                                      int azim_index, int polar_index,
                                      bool direction,
@@ -1810,14 +1807,12 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 
   /* Determine if flux should be transferred */
   if (bc_out == REFLECTIVE || bc_out == PERIODIC) {
-    //FIXME MEM : float / FP_PRECISION
     float* track_out_flux = &_start_flux(track_out_id, 0, start_out);
     for (int pe=0; pe < _fluxes_per_track; pe++)
       track_out_flux[pe] = track_flux[pe];
   }
   if (bc_in == VACUUM) {
     long track_id = track->getUid();
-    //FIXME MEM : float / FP_PRECISION
     float* track_in_flux = &_start_flux(track_id, !direction, 0);
     for (int pe=0; pe < _fluxes_per_track; pe++)
       track_in_flux[pe] = 0.0;
@@ -1944,8 +1939,9 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
   else
     precision = MPI_DOUBLE;
 #endif
-  std::vector<long> fsr_ids = _geometry->getSpatialDataOnGrid(dim1, dim2, offset,
-                                                              plane, "fsr");
+  std::vector<long> fsr_ids = _geometry->getSpatialDataOnGrid(dim1, dim2,
+                                                              offset, plane,
+                                                              "fsr");
   std::vector<int> domain_contains_coords(fsr_ids.size());
   std::vector<int> num_contains_coords(fsr_ids.size());
 #pragma omp parallel for
