@@ -13,8 +13,9 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = load-geometry/load-geometry.cpp
-#case = simple-lattice/simple-lattice-3d.cpp
+#case = load-geometry/load-geometry.cpp
+case = simple-lattice/simple-lattice-3d.cpp
+#case = homogeneous/homogeneous.cpp
 
 source = \
 Cell.cpp \
@@ -57,6 +58,7 @@ c5g7/c5g7-3d-cmfd.cpp \
 c5g7/c5g7-rodded-B.cpp \
 c5g7/c5g7-rodded-B-2x2.cpp \
 c5g7/c5g7-ws.cpp \
+homogeneous/homogeneous.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
 single-assembly/single-c5g7-assembly.cpp \
 load-geometry/load-geometry.cpp
@@ -77,7 +79,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpicc
+  CC = mpiCC
   CFLAGS += -DMPIx
   #CFLAGS += -march=native
   LDFLAGS += -lm

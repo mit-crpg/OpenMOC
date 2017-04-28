@@ -43,6 +43,7 @@ Cmfd::Cmfd() {
   _total_tally_size = 0;
   _tallies_allocated = false;
   _linear_source = false;
+  _check_neutron_balance = false;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -64,6 +65,7 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
   _user_group_indices = false;
   _surface_currents = NULL;
+  _full_surface_currents = NULL;
   _cell_locks = NULL;
   _volumes = NULL;
   _lattice = NULL;
@@ -122,6 +124,9 @@ Cmfd::~Cmfd() {
 
   if (_surface_currents != NULL)
     delete _surface_currents;
+
+  if (_full_surface_currents != NULL)
+    delete _full_surface_currents;
 
   if (_volumes != NULL)
     delete _volumes;
@@ -386,9 +391,9 @@ void Cmfd::collapseXS() {
                "cross-sections");
 
   /* Split vertex and edge currents to side surfaces */
-  /* FIXME
   splitVertexCurrents();
   splitEdgeCurrents();
+  /* FIXME
   if (_geometry->isDomainDecomposed())
     communicateSplits();
   */
@@ -425,19 +430,19 @@ void Cmfd::collapseXS() {
 
         fsr_material = _FSR_materials[*iter];
         volume = _FSR_volumes[*iter];
-        
+
         /* Calculate total neutron production in the FSR */
         FP_PRECISION neutron_production = 0.0;
         for (int h = 0; h < _num_moc_groups; h++)
           neutron_production += fsr_material->getNuSigmaFByGroup(h+1) *
               _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
-        
-        /* Calculate contribution to all CMFD groups */    
+
+        /* Calculate contribution to all CMFD groups */
         for (int e=0; e < _num_cmfd_groups; e++) {
           chi = 0;
           for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++)
             chi += fsr_material->getChiByGroup(h+1);
-          
+
           chi_tally[e] += chi * neutron_production;
         }
 
@@ -447,7 +452,7 @@ void Cmfd::collapseXS() {
 
       /* Set chi */
       if (neutron_production_tally != 0.0) {
-        
+
         /* Calculate group-wise fission contriubtions */
         for (int e=0; e < _num_cmfd_groups; e++)
           cell_material->setChiByGroup(chi_tally[e] / neutron_production_tally,
@@ -456,7 +461,7 @@ void Cmfd::collapseXS() {
       else {
         /* Calculate group-wise chi to zero */
         for (int e=0; e < _num_cmfd_groups; e++)
-          cell_material->setChiByGroup(0.0, e + 1); 
+          cell_material->setChiByGroup(0.0, e + 1);
       }
 
       /* Loop over CMFD coarse energy groups */
@@ -539,7 +544,7 @@ void Cmfd::collapseXS() {
 
       /* Start recording MPI communication time */
       _timer->startTimer();
-  
+
       /* Do the Ghost cell exchange */
       ghostCellExchange();
 
@@ -549,7 +554,7 @@ void Cmfd::collapseXS() {
     }
   }
 #endif
-  
+
   /* Calculate (local) old fluxes and set volumes */
 #pragma omp parallel for
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
@@ -566,7 +571,7 @@ void Cmfd::collapseXS() {
       _volumes->setValue(i, 0, vol_tally);
     }
   }
-  
+
   /* Loop over boundary CMFD cells and set cross sections */
   if (_geometry->isDomainDecomposed()) {
 #pragma omp parallel for
@@ -838,22 +843,30 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
   /* Start recording XS collapse time */
   _timer->startTimer();
 
+  /* Copy surface currents if neutron balance check requested */
+  if (_check_neutron_balance)
+    copyFullSurfaceCurrents();
+
   /* Collapse the cross sections onto the CMFD mesh */
   collapseXS();
 
   /* Tally the XS collpase time */
   _timer->stopTimer();
   _timer->recordSplit("Total collapse time");
-  
+
   /* Construct matrices */
   constructMatrices(moc_iteration);
-  
+
+  /* Check neturon balance if requested */
+  if (_check_neutron_balance)
+    checkNeutronBalance();
+
   /* Copy old flux to new flux */
   _old_flux->copyTo(_new_flux);
 
   /* Start recording CMFD solve time */
   _timer->startTimer();
-  
+
   /* Solve the eigenvalue problem */
   _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
                            _source_convergence_threshold, _SOR_factor,
@@ -865,10 +878,10 @@ FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
 
   /* Rescale the old and new flux */
   rescaleFlux();
-  
+
   /* Update the MOC flux */
   updateMOCFlux();
-  
+
   /* Tally the total CMFD time */
   _timer->stopTimer();
   _timer->recordSplit("Total CMFD time");
@@ -1221,6 +1234,14 @@ void Cmfd::setCMFDRelaxationFactor(FP_PRECISION relaxation_factor) {
 
 
 /**
+ * @brief Forces CMFD to check neutron balance on every solve
+ */
+void Cmfd::checkBalance() {
+  _check_neutron_balance = true;
+}
+
+
+/**
  * @brief Get the number of coarse CMFD energy groups.
  * @return the number of CMFD energy groups
  */
@@ -1321,7 +1342,7 @@ void Cmfd::initializeCurrents() {
 
   /* Allocate memory for the CMFD Mesh surface and corner currents Vectors */
   _surface_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                              _local_num_z, _num_cmfd_groups * NUM_FACES);
+                                 _local_num_z, _num_cmfd_groups * NUM_FACES);
 }
 
 
@@ -1609,17 +1630,27 @@ void Cmfd::splitVertexCurrents() {
             /* Look for the CMFD cell on-domain */
             int local_cell = getLocalCMFDCell(cell);
 
-            /* Check for new index in map */
-            int new_ind = (local_cell * NUM_SURFACES + surface) * ncg + g;
-            std::map<int, FP_PRECISION>::iterator it =
-              _edge_corner_currents.find(new_ind);
+            /* Add face contributions */
+            if (surface < NUM_FACES) {
+              if (local_cell != -1) {
+                _surface_currents->incrementValue(local_cell,
+                                                  surface * ncg + g, current);
+              }
+            }
+            else {
 
-            /* If it doesn't exist, initialize to zero */
-            if (it == _edge_corner_currents.end())
-              _edge_corner_currents[new_ind] = 0.0;
+              /* Check for new index in map */
+              int new_ind = (local_cell * NUM_SURFACES + surface) * ncg + g;
+              std::map<int, FP_PRECISION>::iterator it =
+                _edge_corner_currents.find(new_ind);
 
-            /* Add the contribution */
-            _edge_corner_currents[new_ind] += current;
+              /* If it doesn't exist, initialize to zero */
+              if (it == _edge_corner_currents.end())
+                _edge_corner_currents[new_ind] = 0.0;
+
+              /* Add the contribution */
+              _edge_corner_currents[new_ind] += current;
+            }
           }
           _edge_corner_currents[ind+g] = 0.0;
         }
@@ -1675,7 +1706,7 @@ void Cmfd::splitEdgeCurrents() {
 
       int global_id = getGlobalCMFDCell(i);
 
-      for (int e = NUM_FACES; e < NUM_SURFACES + NUM_EDGES; e++) {
+      for (int e = NUM_FACES; e < NUM_FACES + NUM_EDGES; e++) {
 
         /* Check if this surface is contained in the map */
         int ind = i * NUM_SURFACES * ncg + e * ncg;
@@ -1756,277 +1787,52 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
   int z = cell / (_num_x * _num_y);
   int ns = NUM_SURFACES;
 
-  if (vertex == SURFACE_X_MIN_Y_MIN_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
+  int cell_indexes[3] = {x,y,z};
+  int cell_limits[3] = {_num_x, _num_y, _num_z};
 
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1)) * ns + SURFACE_Y_MIN_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MIN_Z_MIN);
+  int direction[3];
+  convertSurfaceToDirection(vertex, direction);
 
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MIN);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MIN_Z_MIN);
+  /* Get the partial surfaces composing the edge split */
+  int remainder_surfaces[3];
+  int partial_surfaces[3];
+  for (int i=0; i < 3; i++) {
+    int remainder_direction[3];
+    int partial_direction[3];
+    for (int j=0; j < 3; j++) {
+      if (i == j) {
+        remainder_direction[j] = 0;
+        partial_direction[j] = direction[j];
+      }
+      else {
+        remainder_direction[j] = direction[j];
+        partial_direction[j] = 0;
+      }
     }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MIN_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MIN);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MIN_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MIN);
+    remainder_surfaces[i] = convertDirectionToSurface(remainder_direction);
+    partial_surfaces[i] = convertDirectionToSurface(partial_direction);
   }
-  else if (vertex == SURFACE_X_MIN_Y_MIN_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
 
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MAX);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1)) * ns + SURFACE_Y_MIN_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MIN_Z_MAX);
+  /* Treat all partial surfaces */
+  for (int i=0; i < 3; i++) {
 
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MAX);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MIN_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MIN_Z_MAX);
+    int remainder_surface = remainder_surfaces[i];
+    int partial_surface = partial_surfaces[i];
 
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MIN);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MIN_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MIN);
-  }
-  else if (vertex == SURFACE_X_MIN_Y_MAX_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MIN);
+    surfaces->push_back(cell * ns + partial_surface);
 
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MIN);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1)) * ns + SURFACE_Y_MAX_Z_MIN);
+    /* Tally current on neighboring cell or appropriate boundary */
+    int cell_next = getCellNext(cell, partial_surface);
+    if (cell_indexes[i] == 0 && direction[i] == -1 ||
+        cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1) {
+      if (_boundaries[partial_surface] == REFLECTIVE)
+        surfaces->push_back(cell * ns + remainder_surface);
+      else if (_boundaries[partial_surface] == PERIODIC)
+        surfaces->push_back(cell_next * ns + remainder_surface);
     }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MAX_Z_MIN);
-
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MIN);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MIN_Z_MIN);
+    else {
+      surfaces->push_back(cell_next * ns + remainder_surface);
     }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MIN_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MAX);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MIN_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MAX);
-  }
-  else if (vertex == SURFACE_X_MIN_Y_MAX_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MAX);
-
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MAX);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1)) * ns + SURFACE_Y_MAX_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MAX_Z_MAX);
-
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Z_MAX);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MIN_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MIN_Z_MAX);
-
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN_Y_MAX);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MIN_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MIN_Y_MAX);
-  }
-  else if (vertex == SURFACE_X_MAX_Y_MIN_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
-
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MIN);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1)) * ns + SURFACE_Y_MIN_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MIN_Z_MIN);
-
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MIN);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MAX_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MAX_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MIN);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MAX_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MAX_Y_MIN);
-  }
-  else if (vertex == SURFACE_X_MAX_Y_MIN_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MAX);
-
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN_Z_MAX);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1)) * ns + SURFACE_Y_MIN_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MIN_Z_MAX);
-
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MAX);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MAX_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MAX_Z_MAX);
-
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MIN);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MAX_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MAX_Y_MIN);
-  }
-  else if (vertex == SURFACE_X_MAX_Y_MAX_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MIN);
-
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MIN);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1)) * ns + SURFACE_Y_MAX_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MAX_Z_MIN);
-
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MIN);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MAX_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MAX_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MAX);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MAX_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MAX_Y_MAX);
-  }
-  else if (vertex == SURFACE_X_MAX_Y_MAX_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MAX);
-
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX_Z_MAX);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1)) * ns + SURFACE_Y_MAX_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MAX_Z_MAX);
-
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Z_MAX);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MAX_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MAX_Z_MAX);
-
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX_Y_MAX);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MAX_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MAX_Y_MAX);
   }
 }
 
@@ -2054,281 +1860,48 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
   int z = cell / (_num_x * _num_y);
   int ns = NUM_SURFACES;
 
-  if (edge == SURFACE_X_MIN_Y_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
+  int cell_indexes[3] = {x,y,z};
+  int cell_limits[3] = {_num_x, _num_y, _num_z};
 
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1))* ns + SURFACE_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MIN);
+  int direction[3];
+  convertSurfaceToDirection(edge, direction);
 
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MIN);
+  /* Get the partial surfaces composing the edge split */
+  int partial_surfaces[2];
+  int ind = 0;
+  for (int i=0; i < 3; i++) {
+    if (direction[i] != 0) {
+      int partial_direction[3] = {0,0,0};
+      partial_direction[i] = direction[i];
+      partial_surfaces[ind] = convertDirectionToSurface(partial_direction);
+      ind++;
     }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MIN);
   }
-  else if (edge == SURFACE_X_MAX_Y_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
 
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1))* ns + SURFACE_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MIN);
+  /* Treat all partial surfaces */
+  ind = 0;
+  for (int i=0; i < 3; i++) {
+    if (direction[i] != 0) {
 
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_X_MAX);
-  }
-  else if (edge == SURFACE_X_MIN_Y_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
+      int partial_surface = partial_surfaces[ind];
+      int other_surface = partial_surfaces[1-ind];
 
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1))* ns + SURFACE_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Y_MAX);
+      surfaces->push_back(cell * ns + partial_surface);
 
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MIN);
+      /* Tally current on neighboring cell or appropriate boundary */
+      int cell_next = getCellNext(cell, partial_surface);
+      if (cell_indexes[i] == 0 && direction[i] == -1 ||
+          cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1) {
+        if (_boundaries[partial_surface] == REFLECTIVE)
+          surfaces->push_back(cell * ns + other_surface);
+        else if (_boundaries[partial_surface] == PERIODIC)
+          surfaces->push_back(cell_next * ns + other_surface);
+      }
+      else {
+        surfaces->push_back(cell_next * ns + other_surface);
+      }
+      ind++;
     }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MIN);
-  }
-  else if (edge == SURFACE_X_MAX_Y_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1))* ns + SURFACE_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Y_MAX);
-
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1)) * ns
-                            + SURFACE_X_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_X_MAX);
-  }
-  else if (edge == SURFACE_X_MIN_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1))* ns + SURFACE_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MIN);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_Z_MIN);
-  }
-  else if (edge == SURFACE_X_MAX_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1))* ns + SURFACE_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_X_MAX);
-  }
-  else if (edge == SURFACE_X_MIN_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-
-    if (x == 0) {
-      if (_boundaries[SURFACE_X_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-      else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-        surfaces->push_back((cell + (_num_x - 1))* ns + SURFACE_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell - 1) * ns + SURFACE_Z_MAX);
-
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MIN);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MIN);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MIN);
-  }
-  else if (edge == SURFACE_X_MAX_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_X_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-
-    if (x == _num_x - 1) {
-      if (_boundaries[SURFACE_X_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-      else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-        surfaces->push_back((cell - (_num_x - 1))* ns + SURFACE_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell + 1) * ns + SURFACE_Z_MAX);
-
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_X_MAX);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_X_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_X_MAX);
-  }
-  else if (edge == SURFACE_Y_MIN_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1))* ns + SURFACE_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_Y_MIN);
-  }
-  else if (edge == SURFACE_Y_MAX_Z_MIN) {
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MIN);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1))* ns + SURFACE_Z_MIN);
-    }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_Z_MIN);
-
-    if (z == 0) {
-      if (_boundaries[SURFACE_Z_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-      else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x * _num_y) * ns + SURFACE_Y_MAX);
-  }
-  else if (edge == SURFACE_Y_MIN_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-
-    if (y == 0) {
-      if (_boundaries[SURFACE_Y_MIN] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-      else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-        surfaces->push_back((cell + _num_x * (_num_y - 1))* ns + SURFACE_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell - _num_x) * ns + SURFACE_Z_MAX);
-
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MIN);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_Y_MIN);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_Y_MIN);
-  }
-  else if (edge == SURFACE_Y_MAX_Z_MAX) {
-    surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-    surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-
-    if (y == _num_y - 1) {
-      if (_boundaries[SURFACE_Y_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Z_MAX);
-      else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * (_num_y - 1))* ns + SURFACE_Z_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x) * ns + SURFACE_Z_MAX);
-
-    if (z == _num_z - 1) {
-      if (_boundaries[SURFACE_Z_MAX] == REFLECTIVE)
-        surfaces->push_back(cell * ns + SURFACE_Y_MAX);
-      else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
-        surfaces->push_back((cell - _num_x * _num_y * (_num_z - 1)) * ns
-                            + SURFACE_Y_MAX);
-    }
-    else
-      surfaces->push_back((cell + _num_x * _num_y) * ns + SURFACE_Y_MAX);
   }
 }
 
@@ -2771,7 +2344,7 @@ void Cmfd::generateKNearestStencils() {
       }
 
       /* Remove axial prolongation for non-fissionable cells */
-      /*
+      /* FIXME
       if (num_fissionable_FSRs == 0) {
         _axial_interpolants.at(fsr_id)[0] = 0.0;
         _axial_interpolants.at(fsr_id)[1] = 1.0;
@@ -3593,9 +3166,45 @@ void Cmfd::printTimerReport() {
 }
 
 
+//FIXME: TODO: description
+void Cmfd::copyFullSurfaceCurrents() {
+
+  /* Allocate full surface currents if necessary */
+  if (_full_surface_currents == NULL)
+    _full_surface_currents = new Vector(_cell_locks, _local_num_x,
+                                        _local_num_y, _local_num_z,
+                                        _num_cmfd_groups * NUM_SURFACES);
+
+  /* Clear the currently saved surface currents */
+  _full_surface_currents->clear();
+
+  /* Copy surface currents from surface faces */
+  for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+    for (int s=0; s < NUM_FACES; s++) {
+      for (int g=0; g < _num_cmfd_groups; g++) {
+        FP_PRECISION current =
+          _surface_currents->getValue(i, s * _num_cmfd_groups + g);
+        _full_surface_currents->incrementValue(i, s * _num_cmfd_groups + g,
+                                               current);
+      }
+    }
+  }
+
+  /* Copy surface currents from edges and corners */
+  std::map<int, FP_PRECISION>::iterator it;
+  for (it = _edge_corner_currents.begin();
+       it != _edge_corner_currents.end(); ++it) {
+    int key = it->first;
+    int cell = key / (_num_cmfd_groups * NUM_SURFACES);
+    int surf_group = key % (_num_cmfd_groups * NUM_SURFACES);
+    _full_surface_currents->incrementValue(cell, surf_group, it->second);
+  }
+}
+
+
 //TODO: Document + FIXME
 // FIXME FIXME FIXME
-void Cmfd::checkNeutronBalance() {
+void Cmfd::checkNeutronBalance(bool pre_split) {
 
   /* Initialize variables */
   omp_lock_t* cell_locks = _old_flux->getCellLocks();
@@ -3671,18 +3280,131 @@ void Cmfd::checkNeutronBalance() {
 
       /* Calculate net current out of the cell */
       double net_current = 0.0;
-      for (int s = 0; s < NUM_FACES; s++) {
-        int idx = s * _num_cmfd_groups + e;
-        int cmfd_cell_next = getCellNext(i, s);
-        int surface_next = (s + NUM_FACES / 2) % NUM_FACES;
-        int idx_next = surface_next * _num_cmfd_groups + e;
-        if (cmfd_cell_next == -1) {
-          if (_boundaries[s] == VACUUM)
-            net_current += _surface_currents->getValue(i, idx);
+
+      /* Use currents before splitting edges/corners if requested */
+      if (pre_split) {
+
+        /* Create arrays of cell indexes and bounds */
+        int cell_limits[3] = {_local_num_x, _local_num_y, _local_num_z};
+        int cell_ind[3];
+        cell_ind[0] = i % _local_num_x;
+        cell_ind[1] = (i / _local_num_x) % _local_num_y;
+        cell_ind[2] = i / (_local_num_x * _local_num_y);
+
+        /* Tally current from all surfaces including edges and corners */
+        for (int s=0; s < NUM_SURFACES; s++) {
+
+          /* Compute index and vector direction */
+          int idx = s * _num_cmfd_groups + e;
+          int direction[3];
+          convertSurfaceToDirection(s, direction);
+
+          /* Copute the next CMFD cell from the cell indexes and direction */
+          int cmfd_cell_next = 0;
+          int cell_next_ind[3];
+          for (int d=0; d < 3; d++)
+            cell_next_ind[d] = cell_ind[d] + direction[d];
+
+          cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] * _local_num_x
+                         + cell_next_ind[2] * (_local_num_x * _local_num_y);
+
+          /* Compute the oposite direction vector */
+          int op_direction[3];
+          for (int d=0; d < 3; d++)
+            op_direction[d] = -1 * direction[d];
+
+          /* Determine if the next CMFD cell is within the bounds */
+          for (int d=0; d < 3; d++)
+            if (cell_next_ind[d] < 0 || cell_next_ind[d] >= cell_limits[d])
+              cmfd_cell_next = -1;
+
+          /* If the cell is outside the bounds, handle boundaries */
+          if (cmfd_cell_next == -1) {
+
+            /* Booleans for determining surface boundary type */
+            bool vacuum = false;
+            bool reflective = false;
+            bool transmit_avail = false;
+
+            int transmit_direction[3] = {0,0,0};
+
+            /* Loop over all directions to handle boundaries */
+            for (int d=0; d < 3; d++) {
+              if (cell_next_ind[d] < 0 || cell_next_ind[d] >= cell_limits[d]) {
+
+                /* Form the surface for each direction */
+                int partial_direction[3] = {0,0,0};
+                partial_direction[d] = direction[d];
+                int partial_surface =
+                  convertDirectionToSurface(partial_direction);
+
+                /* Look at the boundary type in this direction */
+                if (_boundaries[partial_surface] == VACUUM) {
+                  vacuum = true;
+                }
+                else if (_boundaries[partial_surface] == REFLECTIVE) {
+                  reflective = true;
+                  op_direction[d] *= -1;
+                }
+              }
+
+              /* For non-boundary surfaces, save the direction */
+              else if (direction[d] != 0) {
+                transmit_avail = true;
+                transmit_direction[d] = direction[d];
+              }
+            }
+
+            /* For vacuum boundaries, tally the leakage */
+            if (vacuum) {
+              net_current += _full_surface_currents->getValue(i, idx);
+            }
+
+            /* For reflective boundaries, find the appropriate cell to
+               deliver current if available */
+            else if (reflective && transmit_avail) {
+              for (int d=0; d < 3; d++)
+                cell_next_ind[d] = cell_ind[d] + transmit_direction[d];
+              cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] *
+                              _local_num_x + cell_next_ind[2] *
+                              (_local_num_x * _local_num_y);
+            }
+          }
+
+          /* Transmit current to available cells */
+          if (cmfd_cell_next != -1) {
+            int surface_next = convertDirectionToSurface(op_direction);
+            int idx_next = surface_next * _num_cmfd_groups + e;
+            net_current += _full_surface_currents->getValue(i, idx) -
+              _full_surface_currents->getValue(cmfd_cell_next, idx_next);
+          }
         }
-        else {
-          net_current += _surface_currents->getValue(i, idx) -
-              _surface_currents->getValue(cmfd_cell_next,idx_next);
+      }
+
+      /* Use post-split edges/corner currents if requested */
+      else {
+
+        /* Tally current only over surface faces */
+        for (int s = 0; s < NUM_FACES; s++) {
+          int idx = s * _num_cmfd_groups + e;
+          int cmfd_cell_next = getCellNext(i, s);
+          int surface_next = (s + NUM_FACES / 2) % NUM_FACES;
+          int idx_next = surface_next * _num_cmfd_groups + e;
+          if (cmfd_cell_next == -1) {
+            if (_boundaries[s] == VACUUM) {
+              net_current += _surface_currents->getValue(i, idx);
+              int direction[3];
+              convertSurfaceToDirection(s, direction);
+            }
+          }
+          else {
+            net_current += _surface_currents->getValue(i, idx) -
+                _surface_currents->getValue(cmfd_cell_next,idx_next);
+            int direction[3];
+            int op_direction[3];
+            convertSurfaceToDirection(s, direction);
+            convertSurfaceToDirection(surface_next, op_direction);
+          }
         }
       }
 
@@ -4051,4 +3773,108 @@ int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
 
   return ((iz + z_start) * _num_y + iy + y_start) * _num_x
                 + ix + x_start;
+}
+
+
+//FIXME: description
+int Cmfd::convertDirectionToSurface(int* direction) {
+  int surface = 0;
+  int num_crossings = std::abs(direction[0]) + std::abs(direction[1]) +
+    std::abs(direction[2]);
+  if (num_crossings == 1) {
+    for (int i=0; i < 3; i++) {
+      int present = std::abs(direction[i]);
+      int fwd = (direction[i] + 1) / 2;
+      surface += present * (3 * fwd + i);
+    }
+  }
+  else if (num_crossings == 2) {
+    surface += NUM_FACES;
+    int ind1 = 0;
+    int ind2 = 0;
+    if (direction[0] == 0) {
+      ind1 = direction[1];
+      ind2 = direction[2];
+      surface += 8;
+    }
+    else if (direction[1] == 0) {
+      ind1 = direction[0];
+      ind2 = direction[2];
+      surface += 4;
+    }
+    else if (direction[2] == 0) {
+      ind1 = direction[0];
+      ind2 = direction[1];
+    }
+    ind1 = (ind1 + 1) / 2;
+    ind2 = (ind2 + 1) / 2;
+    surface += 2 * ind2 + ind1;
+  }
+  else if (num_crossings == 3) {
+    surface += NUM_FACES + NUM_EDGES;
+    int fwd[3];
+    for (int i=0; i < 3; i++)
+      fwd[i] = (direction[i] + 1) / 2;
+    surface += 4 * fwd[0] + 2 * fwd[1] + fwd[2];
+  }
+  else {
+    log_printf(ERROR, "Invalid number of surface crossings");
+  }
+  return surface;
+}
+
+
+//FIXME TODO
+void Cmfd::convertSurfaceToDirection(int surface, int* direction) {
+  direction[0] = 0;
+  direction[1] = 0;
+  direction[2] = 0;
+  if (surface < NUM_FACES) {
+    int ind = surface % 3;
+    int dir = 2 * (surface/3) - 1;
+    direction[ind] = dir;
+  }
+  else if (surface < NUM_FACES + NUM_EDGES) {
+    surface -= NUM_FACES;
+    int group = surface / 4;
+    int skipped = 2 - group;
+    surface = surface % 4;
+    int ind[2];
+    ind[0] = surface % 2;
+    ind[1] = (surface - ind[0]) / 2;
+    int n = 0;
+    for (int i=0; i < 3; i++) {
+      if (i != skipped) {
+        direction[i] = 2 * ind[n] - 1;
+        n++;
+      }
+    }
+  }
+  else if (surface < NUM_SURFACES) {
+    surface -= NUM_FACES + NUM_EDGES;
+    direction[0] = 2 * (surface / 4) - 1;
+    direction[1] = 2 * ((surface / 2) % 2) - 1;
+    direction[2] = 2 * (surface % 2) - 1;
+  }
+  else {
+    log_printf(ERROR, "Invalid surface ID %d", surface);
+  }
+}
+
+
+//FIXME: description
+std::string Cmfd::getSurfaceNameFromDirection(int* direction) {
+  std::string str = "SURFACE";
+  std::string variables = "XYZ";
+  for (int i=0; i < 3; i++) {
+    if (direction[i] != 0) {
+      str += "_";
+      str += variables.at(i);
+      if (direction[i] < 0)
+        str += "_MIN";
+      else
+        str += "_MAX";
+    }
+  }
+  return str;
 }

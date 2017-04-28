@@ -452,7 +452,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _exp_evaluator = new ExpEvaluator();
 
   std::string msg = "Initializing track linear source componenets";
-  _progress = new Progress(_track_generator->getNumTracks(), msg, 0.1, 
+  _progress = new Progress(_track_generator->getNumTracks(), msg, 0.1,
                     track_generator->getGeometry(), true);
 }
 
@@ -527,7 +527,7 @@ void LinearExpansionGenerator::execute() {
                           lem[r*nc + 0] * lem[r*nc + 4]) / det;
         ilem[r*nc + 5] = (lem[r*nc + 0] * lem[r*nc + 1] -
                           lem[r*nc + 2] * lem[r*nc + 2]) / det;
-      
+
       }
     }
   }
@@ -586,7 +586,7 @@ void LinearExpansionGenerator::execute() {
   memcpy(_lin_exp_coeffs, inv_lin_exp_coeffs,
          num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
   delete [] inv_lin_exp_coeffs;
-  
+
   /* Notify user of any regions needing to use a flat source approximation */
   int total_num_flat = _num_flat;
   long total_num_FSRs = num_FSRs;
@@ -689,7 +689,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     FP_PRECISION vol_impact = wgt * length / volume;
     for (int g=0; g < _num_groups; g++) {
-    
+
       thread_src_constants[g*_num_coeffs] += vol_impact * xc * xc;
       thread_src_constants[g*_num_coeffs + 1] += vol_impact * yc * yc;
       thread_src_constants[g*_num_coeffs + 2] += vol_impact * xc * yc;
@@ -724,7 +724,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
         FP_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
             length * src_constant;
-          
+
         thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src
             * sin_theta * sin_theta;
         thread_src_constants[g*_num_coeffs + 1] += sin_phi * sin_phi * G2_src
@@ -741,7 +741,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Set the lock for this FSR */
     omp_set_lock(&_FSR_locks[fsr]);
-      
+
     _lin_exp_coeffs[fsr*_num_coeffs] += wgt * length / volume *
         (xc * xc + pow(cos_phi * sin_theta * length, 2) / 12.0);
     _lin_exp_coeffs[fsr*_num_coeffs + 1] += wgt * length / volume *
@@ -1259,7 +1259,7 @@ void PrintSegments::onTrack(Track* track, segment* segments) {
     double start_z = curr_segment->_starting_position[2];
 
     /* Write data for this segment to the Track file */
-    fprintf(_out, "%6.4f %d %d %6.4f %6.4f %6.4f", length, material_id,
+    fprintf(_out, "%6.4f %d %ld %6.4f %6.4f %6.4f", length, material_id,
             region_id, start_x, start_y, start_z);
 
     /* Write CMFD-related data for the Track if needed */

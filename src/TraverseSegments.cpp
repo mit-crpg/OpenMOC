@@ -611,7 +611,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
       /* Get boundaries of the current mesh cell */
       double z_min = axial_mesh[z_ind];
       double z_max = axial_mesh[z_ind+1];
-    
+
       /* Calculate the local x and y centroid of the Extruded FSR */
       double fsr_x_start = 0;
       double fsr_y_start = 0;

@@ -14,9 +14,9 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 1.0;
+  double azim_spacing = 1.5;
   int num_azim = 4;
-  double polar_spacing = 1.0;
+  double polar_spacing = 10.0;
   int num_polar = 2;
   double tolerance = 1e-7;
   int max_iters = 2000;
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties...");
 
-  const size_t num_groups = 7;
+  const size_t num_groups = 2;
   std::map<std::string, std::array<double, num_groups> > sigma_a;
   std::map<std::string, std::array<double, num_groups> > nu_sigma_f;
   std::map<std::string, std::array<double, num_groups> > sigma_f;
@@ -32,7 +32,8 @@ int main(int argc, char* argv[]) {
   std::map<std::string, std::array<double, num_groups> > chi;
   std::map<std::string, std::array<double, num_groups> > sigma_t;
 
-  /* Define water cross-sections */
+  // Define water cross-sections
+  /*
   sigma_a["Water"] = std::array<double, num_groups> {6.0105E-4, 1.5793E-5,
       3.3716E-4, 0.0019406, 0.0057416, 0.015001, 0.037239};
   nu_sigma_f["Water"] = std::array<double, num_groups> {0, 0, 0, 0, 0, 0, 0};
@@ -49,7 +50,7 @@ int main(int argc, char* argv[]) {
   sigma_t["Water"] = std::array<double, num_groups> {0.159206, 0.41297,
     0.59031, 0.58435, 0.718, 1.25445, 2.65038};
 
-  /* Define UO2 cross-sections */
+  // Define UO2 cross-sections
   sigma_a["UO2"] = std::array<double, num_groups> {0.0080248, 0.0037174,
     0.026769, 0.096236, 0.03002, 0.11126, 0.28278};
   nu_sigma_f["UO2"] = std::array<double, num_groups> {0.02005998, 0.002027303,
@@ -68,6 +69,15 @@ int main(int argc, char* argv[]) {
     1.1761E-7, 0.0, 0.0, 0.0};
   sigma_t["UO2"] = std::array<double, num_groups> {0.177949, 0.329805,
     0.480388, 0.554367, 0.311801, 0.395168, 0.564406};
+    */
+
+  sigma_a["Water"] = std::array<double, num_groups> {0.0, 0.2};
+  nu_sigma_f["Water"] = std::array<double, num_groups> {0.0, 0.2};
+  sigma_f["Water"] = std::array<double, num_groups> {0.0, 0.2/2.4};
+  sigma_s["Water"] = std::array<double, num_groups*num_groups>
+      {0.2-0.015, 0.015, 0, 0.8};
+  chi["Water"] = std::array<double, num_groups> {1, 0};
+  sigma_t["Water"] = std::array<double, num_groups> {0.2, 1.0};
 
   /* Create materials */
   log_printf(NORMAL, "Creating materials...");
@@ -91,24 +101,24 @@ int main(int argc, char* argv[]) {
   /* Create surfaces */
   log_printf(NORMAL, "Creating surfaces...");
 
-  XPlane xmin(-2.0);
-  XPlane xmax( 2.0);
-  YPlane ymin(-2.0);
-  YPlane ymax( 2.0);
-  ZPlane zmin(-2.0);
-  ZPlane zmax( 2.0);
+  XPlane xmin(-16.5);
+  XPlane xmax( 16.5);
+  YPlane ymin(-16.5);
+  YPlane ymax( 16.5);
+  ZPlane zmin(-101.0);
+  ZPlane zmax( 101.0);
 
-  xmin.setBoundaryType(REFLECTIVE);
-  ymin.setBoundaryType(REFLECTIVE);
+  xmin.setBoundaryType(VACUUM);
+  ymin.setBoundaryType(VACUUM);
   zmin.setBoundaryType(REFLECTIVE);
-  xmax.setBoundaryType(REFLECTIVE);
-  ymax.setBoundaryType(REFLECTIVE);
+  xmax.setBoundaryType(VACUUM);
+  ymax.setBoundaryType(VACUUM);
   zmax.setBoundaryType(REFLECTIVE);
 
   /* Add universes */
   log_printf(NORMAL, "Creating universes...");
   Cell root_cell;
-  root_cell.setFill(materials["UO2"]);
+  root_cell.setFill(materials["Water"]);
   root_cell.addSurface(+1, &xmin);
   root_cell.addSurface(-1, &xmax);
   root_cell.addSurface(+1, &ymin);
@@ -119,13 +129,17 @@ int main(int argc, char* argv[]) {
   Universe* root_universe = new Universe();
   root_universe->addCell(&root_cell);
 
-  /* Creat the geometry */
+  /* Create CMFD mesh */
+  log_printf(NORMAL, "Creating Cmfd mesh...");
+  Cmfd* cmfd = new Cmfd();
+  cmfd->setLatticeStructure(10, 10, 10);
+
+  /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
 
   Geometry* geometry = new Geometry();
   geometry->setRootUniverse(root_universe);
-  geometry->setDomainDecomposition(2, 1, 1);
-  geometry->setNumDomainModules(1,2,2);
+  geometry->setCmfd(cmfd);
   geometry->initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -140,6 +154,7 @@ int main(int argc, char* argv[]) {
 
   /* Run simulation */
   CPUSolver solver(&track_generator);
+  solver.setVerboseIterationReport();
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);

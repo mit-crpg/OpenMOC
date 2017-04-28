@@ -173,6 +173,10 @@ private:
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
 
+  /** Array of surface currents on all faces + edges and corners used in
+      debugging */
+  Vector* _full_surface_currents;
+
   /** Array of surface currents on edges and corners for each CMFD cell */
   std::map<int, FP_PRECISION> _edge_corner_currents;
 
@@ -187,6 +191,9 @@ private:
 
   /** Flag indicating whether to us centroid updating */
   bool _centroid_update_on;
+
+  /** Flag indicating whether to check neutron balance on every CMFD solve */
+  bool _check_neutron_balance;
 
   /** Number of cells to used in updating MOC flux */
   int _k_nearest;
@@ -259,6 +266,9 @@ private:
   void initializeMaterials();
   void initializeCurrents();
   void generateKNearestStencils();
+  int convertDirectionToSurface(int* direction);
+  void convertSurfaceToDirection(int surface, int* direction);
+  std::string getSurfaceNameFromDirection(int* direction);
 
   /* Private getter functions */
   int getCellNext(int cell_id, int surface_id, bool global=true,
@@ -284,6 +294,8 @@ private:
   void communicateSplits();
 #endif
   void unpackSplitCurrents();
+  void copyFullSurfaceCurrents();
+  void checkNeutronBalance(bool pre_split=true);
 
 public:
 
@@ -302,11 +314,10 @@ public:
   int findCmfdSurfaceOTF(int cell_id, double z, int surface_2D);
   void addFSRToCell(int cell_id, long fsr_id);
   void zeroCurrents();
-    //FIXME MEM : float / FP_PRECISION
   void tallyCurrent(segment* curr_segment, float* track_flux,
                     int azim_index, int polar_index, bool fwd);
   void printTimerReport();
-  void checkNeutronBalance();
+  void checkBalance();
 
   /* Get parameters */
   int getNumCmfdGroups();
@@ -401,7 +412,6 @@ inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
  * @param polar_weights array of polar weights for some azimuthal angle
  * @param fwd boolean indicating direction of integration along segment
  */
-    //FIXME MEM : float / FP_PRECISION
 inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
                                int azim_index, int polar_index, bool fwd) {
 
