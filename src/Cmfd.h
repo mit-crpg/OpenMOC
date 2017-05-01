@@ -269,6 +269,7 @@ private:
   int convertDirectionToSurface(int* direction);
   void convertSurfaceToDirection(int surface, int* direction);
   std::string getSurfaceNameFromDirection(int* direction);
+  std::string getSurfaceNameFromSurface(int surface);
 
   /* Private getter functions */
   int getCellNext(int cell_id, int surface_id, bool global=true,
@@ -291,9 +292,9 @@ private:
   void packBuffers();
 #ifdef MPIx
   void ghostCellExchange();
-  void communicateSplits();
+  void communicateSplits(bool faces);
 #endif
-  void unpackSplitCurrents();
+  void unpackSplitCurrents(bool faces);
   void copyFullSurfaceCurrents();
   void checkNeutronBalance(bool pre_split=true);
 

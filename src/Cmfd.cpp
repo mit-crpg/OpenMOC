@@ -392,11 +392,11 @@ void Cmfd::collapseXS() {
 
   /* Split vertex and edge currents to side surfaces */
   splitVertexCurrents();
-  splitEdgeCurrents();
-  /* FIXME
   if (_geometry->isDomainDecomposed())
-    communicateSplits();
-  */
+    communicateSplits(false);
+  splitEdgeCurrents();
+  if (_geometry->isDomainDecomposed())
+    communicateSplits(true);
 
 #pragma omp parallel
   {
@@ -1631,25 +1631,46 @@ void Cmfd::splitVertexCurrents() {
             int local_cell = getLocalCMFDCell(cell);
 
             /* Add face contributions */
-            if (surface < NUM_FACES) {
-              if (local_cell != -1) {
+            if (local_cell != -1) {
+              if (surface < NUM_FACES) {
                 _surface_currents->incrementValue(local_cell,
                                                   surface * ncg + g, current);
               }
+              else {
+
+                /* Check for new index in map */
+                int new_ind = (local_cell * NUM_SURFACES + surface) * ncg + g;
+                std::map<int, FP_PRECISION>::iterator it =
+                  _edge_corner_currents.find(new_ind);
+
+                /* If it doesn't exist, initialize to zero */
+                if (it == _edge_corner_currents.end())
+                  _edge_corner_currents[new_ind] = 0.0;
+
+                /* Add the contribution */
+                _edge_corner_currents[new_ind] += current;
+              }
             }
+
+            /* Look for the CMFD cell off-domain */
             else {
 
-              /* Check for new index in map */
-              int new_ind = (local_cell * NUM_SURFACES + surface) * ncg + g;
-              std::map<int, FP_PRECISION>::iterator it =
-                _edge_corner_currents.find(new_ind);
+              /* Look for the boundary containing the cell */
+              for (int s=0; s < NUM_FACES; s++) {
 
-              /* If it doesn't exist, initialize to zero */
-              if (it == _edge_corner_currents.end())
-                _edge_corner_currents[new_ind] = 0.0;
+                std::map<int, int>::iterator it =
+                  _boundary_index_map.at(s).find(cell);
 
-              /* Add the contribution */
-              _edge_corner_currents[new_ind] += current;
+                if (it != _boundary_index_map.at(s).end()) {
+
+                  int idx = it->second;
+
+                  /* Add the current to the off-domain split currents cell */
+                  _off_domain_split_currents[s][idx][surface * ncg + g] +=
+                    current;
+                  break;
+                }
+              }
             }
           }
           _edge_corner_currents[ind+g] = 0.0;
@@ -2710,10 +2731,13 @@ void Cmfd::zeroCurrents() {
         for (int e = 0; e < _num_cmfd_groups; e++) {
 
           // Loop over cell faces
-          for (int f=0; f < NUM_FACES; f++) {
+          for (int f=0; f < NUM_FACES; f++)
             _boundary_surface_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
-            _off_domain_split_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
-            _received_split_currents[s][idx][f*_num_cmfd_groups+e] = 0.0;
+
+          // Loop over all cell faces and edges
+          for (int fe=0; fe < NUM_FACES + NUM_EDGES; fe++) {
+            _off_domain_split_currents[s][idx][fe*_num_cmfd_groups+e] = 0.0;
+            _received_split_currents[s][idx][fe*_num_cmfd_groups+e] = 0.0;
           }
         }
       }
@@ -2849,14 +2873,11 @@ void Cmfd::initialize() {
 
       int internal = ncg * num_boundary_cells;
       int comm_data_size = storage_per_cell * num_boundary_cells;
-      int split_current_size = ncg * NUM_FACES * num_boundary_cells;
 
       _inter_domain_data = new FP_PRECISION[comm_data_size + internal];
       _send_domain_data = new FP_PRECISION[comm_data_size];
 
-      _send_split_current_data = new FP_PRECISION[split_current_size];
-      _receive_split_current_data = new FP_PRECISION[split_current_size];
-
+      /* Allocate memory for communication of off-domain quantities */
       _domain_data_by_surface = new FP_PRECISION*[NUM_FACES];
       _send_data_by_surface = new FP_PRECISION*[NUM_FACES];
       _boundary_volumes = new FP_PRECISION**[NUM_FACES];
@@ -2865,11 +2886,6 @@ void Cmfd::initialize() {
       _boundary_surface_currents = new FP_PRECISION**[NUM_FACES];
 
       _old_boundary_flux = new FP_PRECISION**[NUM_FACES];
-
-      _send_split_currents_array = new FP_PRECISION*[NUM_FACES];
-      _receive_split_currents_array = new FP_PRECISION*[NUM_FACES];
-      _off_domain_split_currents = new FP_PRECISION**[NUM_FACES];
-      _received_split_currents = new FP_PRECISION**[NUM_FACES];
 
       int start = 0;
       int ext = 0;
@@ -2884,13 +2900,6 @@ void Cmfd::initialize() {
 
         _old_boundary_flux[s] = new FP_PRECISION*[num_per_side[s % 3]];
 
-        _send_split_currents_array[s] =
-          &_send_split_current_data[ext*NUM_FACES];
-        _receive_split_currents_array[s] =
-          &_receive_split_current_data[ext*NUM_FACES];
-        _off_domain_split_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
-        _received_split_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
-
         for (int idx=0; idx < num_per_side[s % 3]; idx++) {
 
           _boundary_volumes[s][idx] = &_inter_domain_data[start];
@@ -2901,16 +2910,44 @@ void Cmfd::initialize() {
 
           _old_boundary_flux[s][idx] = &_inter_domain_data[comm_data_size+ext];
 
-          _off_domain_split_currents[s][idx] =
-            &_send_split_current_data[ext*NUM_FACES];
-          _received_split_currents[s][idx] =
-            &_receive_split_current_data[ext*NUM_FACES];
-
           ext += ncg;
           start += storage_per_cell;
         }
       }
 
+      /* Allocate memory for split current communication */
+      int ns = NUM_FACES + NUM_EDGES;
+      int split_current_size = ncg * ns * num_boundary_cells;
+      _send_split_current_data = new FP_PRECISION[split_current_size];
+      _receive_split_current_data = new FP_PRECISION[split_current_size];
+
+      _send_split_currents_array = new FP_PRECISION*[NUM_FACES];
+      _receive_split_currents_array = new FP_PRECISION*[NUM_FACES];
+      _off_domain_split_currents = new FP_PRECISION**[NUM_FACES];
+      _received_split_currents = new FP_PRECISION**[NUM_FACES];
+
+      start = 0;
+      for (int s=0; s < NUM_FACES; s++) {
+
+        _send_split_currents_array[s] =
+          &_send_split_current_data[start];
+        _receive_split_currents_array[s] =
+          &_receive_split_current_data[start];
+        _off_domain_split_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
+        _received_split_currents[s] = new FP_PRECISION*[num_per_side[s % 3]];
+
+        for (int idx=0; idx < num_per_side[s % 3]; idx++) {
+
+          _off_domain_split_currents[s][idx] =
+            &_send_split_current_data[start];
+          _received_split_currents[s][idx] =
+            &_receive_split_current_data[start];
+
+          start += ns*ncg;
+        }
+      }
+
+      /* Allocate memory for communication of on-domain quantities */
       _send_volumes = new FP_PRECISION**[NUM_FACES];
       _send_reaction = new FP_PRECISION**[NUM_FACES];
       _send_diffusion = new FP_PRECISION**[NUM_FACES];
@@ -2998,7 +3035,7 @@ void Cmfd::initialize() {
       }
     }
   }
-  catch(std::exception &e) {
+  catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "
                "Backtrace:%s", e.what());
   }
@@ -3495,13 +3532,16 @@ void Cmfd::packBuffers() {
 
 /**
  * @brief Exchanges ghost cell buffers in 3D cartesian (i.e., 6 directions)
- * @param comm The cartesian MPI domain communicator object that is configured for the CMFD exchange
- * @param send_buffers A 2D array of floating point data. The outer dimension corresponds to each face of the domain,
- *        while the inner dimension is the serialized buffer corresponding to the number of 2D cells to exchange times
- *        the number of energy groups.
- * @param recv_buffers A 2D array of floating point data. The outer dimension corresponds to each face of the domain,
- *        while the inner dimension is the serialized buffer corresponding to the number of 2D cells to exchange times
- *        the number of energy groups.
+ * @param comm The cartesian MPI domain communicator object that is configured
+ *        for the CMFD exchange
+ * @param send_buffers A 2D array of floating point data. The outer dimension
+ *        corresponds to each face of the domain,
+ *        while the inner dimension is the serialized buffer corresponding to
+ *        the number of 2D cells to exchange times the number of energy groups.
+ * @param recv_buffers A 2D array of floating point data. The outer dimension
+ *        corresponds to each face of the domain,
+ *        while the inner dimension is the serialized buffer corresponding to
+ *        the number of 2D cells to exchange times the number of energy groups.
  */
 #ifdef MPIx
 void Cmfd::ghostCellExchange() {
@@ -3553,7 +3593,7 @@ void Cmfd::ghostCellExchange() {
 			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
 
 			// Post send
-            MPI_Isend(_send_data_by_surface[surf], size, precision,
+      MPI_Isend(_send_data_by_surface[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
 
 			// Post receive
@@ -3589,7 +3629,15 @@ void Cmfd::ghostCellExchange() {
 
 
 //TODO: document
-void Cmfd::communicateSplits() {
+void Cmfd::communicateSplits(bool faces) {
+
+  //TODO: Form into communicateEdgeCurrents and communicateFaceCurrents
+  // 1. communicate edge currents use array of length NUM_EDGES, called after
+  //    vertex splits
+  // 2. communicate face currents use array of length NUM_FACES, called after
+  //    edge splits
+  // NOTE: only communicate currents that are saved OFF DOMAIN at each step
+  // NOTE: communicateFaceCurrents will use currents formed from vertex splits
 
 	MPI_Request requests[2*NUM_FACES];
 
@@ -3599,7 +3647,7 @@ void Cmfd::communicateSplits() {
 	else
 		precision = MPI_DOUBLE;
 
-  int storage_per_cell = NUM_FACES * _num_cmfd_groups;
+  int storage_per_cell = (NUM_FACES + NUM_EDGES) * _num_cmfd_groups;
 
 	int sizes[NUM_FACES];
 	for (int coord=0; coord < 3; coord++) {
@@ -3636,7 +3684,7 @@ void Cmfd::communicateSplits() {
 			MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
 
 			// Post send
-            MPI_Isend(_send_split_currents_array[surf], size, precision,
+      MPI_Isend(_send_split_currents_array[surf], size, precision,
 					dest, 0, _domain_communicator->_MPI_cart, &requests[2*surf]);
 
       // Post receive
@@ -3669,20 +3717,23 @@ void Cmfd::communicateSplits() {
 		}
 	}
 
-  unpackSplitCurrents();
+  unpackSplitCurrents(faces);
 }
 #endif
 
 
 //TODO: document
-void Cmfd::unpackSplitCurrents() {
+void Cmfd::unpackSplitCurrents(bool faces) {
 
   int current_idx[6] = {0,0,0,0,0,0};
   bool found_surfaces[NUM_FACES];
 
+  /* Loop over all CMFD cells */
   for (int z=0; z < _local_num_z; z++) {
     for (int y=0; y < _local_num_y; y++) {
       for (int x=0; x < _local_num_x; x++) {
+
+        /* Look for boundaries touching the CMFD cell */
         for (int s=0; s < NUM_FACES; s++)
           found_surfaces[s] = false;
         if (x == 0)
@@ -3697,18 +3748,68 @@ void Cmfd::unpackSplitCurrents() {
           found_surfaces[SURFACE_Z_MIN] = true;
         if (z == _local_num_z-1)
           found_surfaces[SURFACE_Z_MAX] = true;
+
+        /* Handle all boundaries */
         for (int s=0; s < NUM_FACES; s++) {
           if (found_surfaces[s]) {
-            int idx = current_idx[s];
+
+            /* Convert the (x,y,z) indexes to a cell ID and boundary index */
             int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
-            for (int e=0; e < _num_cmfd_groups; e++) {
+            int idx = current_idx[s];
+
+            /* Copy the appropriate face or edge information */
+            if (faces) {
+
+              /* Treat CMFD cell face currents */
               for (int f=0; f < NUM_FACES; f++) {
-                FP_PRECISION value =
-                  _received_split_currents[s][idx][f * _num_cmfd_groups + e];
-                _surface_currents->incrementValue(cell_id, f*_num_cmfd_groups+e,
-                                                  value);
+                for (int g=0; g < _num_cmfd_groups; g++) {
+
+                  /* Get the face current value */
+                  FP_PRECISION value =
+                    _received_split_currents[s][idx][f * _num_cmfd_groups + g];
+
+                  /* Treat nonzero values */
+                  if (value != 0.0)
+                    _surface_currents->incrementValue(cell_id,
+                                                      f * _num_cmfd_groups + g,
+                                                      value);
+                }
               }
             }
+            else {
+
+              /* Treat CMFD cell edge currents */
+              for (int e=NUM_FACES; e < NUM_EDGES+NUM_FACES; e++) {
+
+                int surf_idx = cell_id * NUM_SURFACES * _num_cmfd_groups + e *
+                  _num_cmfd_groups;
+
+                for (int g=0; g < _num_cmfd_groups; g++) {
+
+                  /* Get the edge current value */
+                  FP_PRECISION value =
+                    _received_split_currents[s][idx][e * _num_cmfd_groups + g];
+
+                  /* Treat nonzero values */
+                  if (value != 0.0) {
+
+                    /* Check for new index in map */
+                    int new_ind = surf_idx + g;
+                    std::map<int, FP_PRECISION>::iterator it =
+                      _edge_corner_currents.find(new_ind);
+
+                    /* If it doesn't exist, initialize to zero */
+                    if (it == _edge_corner_currents.end())
+                      _edge_corner_currents[new_ind] = 0.0;
+
+                    /* Add the contribution */
+                    _edge_corner_currents[new_ind] += value;
+                  }
+                }
+              }
+            }
+
+            /* Increment the boundary index */
             current_idx[s]++;
           }
         }
@@ -3877,4 +3978,12 @@ std::string Cmfd::getSurfaceNameFromDirection(int* direction) {
     }
   }
   return str;
+}
+
+
+//FIXME: description
+std::string Cmfd::getSurfaceNameFromSurface(int surface) {
+  int direction[3];
+  convertSurfaceToDirection(surface, direction);
+  return getSurfaceNameFromDirection(direction);
 }
