@@ -1340,6 +1340,10 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::vector<ZCylinder*>::iterator iter2;
   std::vector<Cell*>::iterator iter3;
 
+  /* Heuristic to improve area-balancing for low number of rings */
+  if (halfspace1 == 0 && radius1 == max_radius && _num_rings < 3)
+    radius1 = radius2 + 0.5 * (radius1 - radius2);
+
   /* Compute the increment, either by radius or area, to use to construct
    * the concentric rings */
   double increment;
