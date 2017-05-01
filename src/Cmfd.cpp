@@ -392,11 +392,15 @@ void Cmfd::collapseXS() {
 
   /* Split vertex and edge currents to side surfaces */
   splitVertexCurrents();
+#ifdef MPIx
   if (_geometry->isDomainDecomposed())
     communicateSplits(false);
+#endif
   splitEdgeCurrents();
+#ifdef MPIx
   if (_geometry->isDomainDecomposed())
     communicateSplits(true);
+#endif
 
 #pragma omp parallel
   {
