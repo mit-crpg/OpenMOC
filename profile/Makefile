@@ -5,7 +5,7 @@
 COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
-DEBUG       = yes
+DEBUG       = no
 PROFILE     = no
 PRECISION   = double
 
@@ -13,8 +13,8 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-#case = load-geometry/load-geometry.cpp
-case = simple-lattice/simple-lattice-3d.cpp
+case = load-geometry/load-geometry.cpp
+#case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp
 
 source = \
@@ -79,7 +79,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpiCC
+  CC = mpicc
   CFLAGS += -DMPIx
   #CFLAGS += -march=native
   LDFLAGS += -lm

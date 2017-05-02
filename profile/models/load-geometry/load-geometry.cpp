@@ -20,39 +20,32 @@ int main(int argc,  char* argv[]) {
   //std::string file = "beavrs-2D-v2.geo";
   //std::string file = "beavrs-2D-v3.geo"; //FIXME
   //std::string file = "full-core-beavrs-new.geo";
-  std::string file = "fc-no-corr.geo";
+  std::string file = "single-assembly.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 4; //FIXME omp_get_num_procs(); //FIXME 12
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 4; //FIXME 32
-  double polar_spacing = 0.75;
-  int num_polar = 2; //FIXME 10
-
-  /*
-  double azim_spacing = 0.1;
   int num_azim = 32;
-  double polar_spacing = 5.0; // 1.0
-  int num_polar = 6;
-  */
-
+  double polar_spacing = 0.75;
+  int num_polar = 10;
+  
   double tolerance = 1e-4;
   int max_iters = 250;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17*17, 17*17, 200); //FIXME 17*17, 17*17, 200
+  cmfd.setLatticeStructure(17, 17, 200); //FIXME 17*17, 17*17, 200
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 8);
+      get_group_structure(70, 25);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setCMFDRelaxationFactor(0.5);
+  cmfd.setCMFDRelaxationFactor(0.7);
   cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
 
@@ -125,13 +118,15 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD); //FIXME 17 x 17 x 10 //FIXME B 10
+  geometry.setDomainDecomposition(1, 1, 10, MPI_COMM_WORLD); //FIXME 17x17xN
 #else
   //geometry.setNumDomainModules(2,2,4);
 #endif
-  //geometry.setOverlaidMesh(2.0); //FIXME B 2.0
+  geometry.setOverlaidMesh(2.0); //FIXME B 2.0
+  /*
   geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
                            rad_discr_domains); //FIXME 2.0, 17*17*3, 17*17*3
+                           */
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -163,7 +158,7 @@ int main(int argc,  char* argv[]) {
 
   Lattice mesh_lattice;
   Mesh mesh(&solver);
-  mesh.createLattice(17*17, 17*17, 200); //FIXME 17*17, 17*17, ???
+  mesh.createLattice(17, 17, 200); //FIXME 17*17, 17*17, ???
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
   int my_rank = 0;

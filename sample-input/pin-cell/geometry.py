@@ -53,6 +53,7 @@ moderator.addSurface(halfspace=+1, surface=ymin)
 moderator.addSurface(halfspace=-1, surface=ymax)
 moderator.addSurface(halfspace=+1, surface=zmin)
 moderator.addSurface(halfspace=-1, surface=zmax)
+moderator.setNumRings(2)
 
 ###############################################################################
 #                            Creating Universes
