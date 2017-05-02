@@ -24,13 +24,8 @@ materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = openmoc.XPlane(x=-20.0, name='left')
-right = openmoc.XPlane(x=20.0, name='right')
-top = openmoc.YPlane(y=20.0, name='top')
-bottom = openmoc.YPlane(y=-20.0, name='bottom')
-boundaries = [left, right, top, bottom]
-
-for boundary in boundaries: boundary.setBoundaryType(openmoc.VACUUM)
+boundary = openmoc.RectangularPrism(40., 40.)
+boundary.setBoundaryType(openmoc.VACUUM)
 
 
 ###############################################################################
@@ -46,10 +41,7 @@ source_cell = openmoc.Cell(name='source')
 source_cell.setFill(materials['Water'])
 
 root_cell = openmoc.Cell(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=left)
-root_cell.addSurface(halfspace=-1, surface=right)
-root_cell.addSurface(halfspace=+1, surface=bottom)
-root_cell.addSurface(halfspace=-1, surface=top)
+root_cell.setRegion(boundary)
 
 
 ###############################################################################

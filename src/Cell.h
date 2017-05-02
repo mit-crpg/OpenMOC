@@ -14,8 +14,7 @@
 #include "Python.h"
 #endif
 #include "Material.h"
-#include "Surface.h"
-#include "Point.h"
+#include "Region.h"
 #include <limits>
 #include <string>
 #endif
@@ -23,27 +22,12 @@
 /* Forward declarations to resolve circular dependencies */
 class Universe;
 class Surface;
+class Region;
+class Halfspace;
 
 int cell_id();
 void reset_cell_id();
 void maximize_cell_id(int cell_id);
-
-
-/**
- * @struct surface_halfspace
- * @brief A surface_halfspace represents a surface pointer with associated
- *        halfspace.
- */
-struct surface_halfspace {
-
-  /** A pointer to the Surface object */
-  Surface* _surface;
-
-  /** The halfspace associated with this surface */
-  int _halfspace;
-
-};
-
 
 
 /**
@@ -86,6 +70,9 @@ private:
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
+  /** A pointer to the Region bounding the Cell */
+  Region* _region;
+
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
@@ -119,12 +106,6 @@ private:
   /** A parent Cell if cloned by another Cell */
   Cell* _parent;
 
-  /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
-  std::map<int, surface_halfspace*> _surfaces;
-
-  /* Vector of neighboring Cells */
-  std::vector<Cell*> _neighbors;
-
   void ringify(std::vector<Cell*>& subcells, double max_radius);
   void sectorize(std::vector<Cell*>& subcells);
 
@@ -135,6 +116,7 @@ public:
   int getId() const;
   char* getName() const;
   cellType getType() const;
+  Region* getRegion();
   Material* getFillMaterial();
   Universe* getFillUniverse();
   double getVolume();
@@ -161,9 +143,7 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  int getNumSurfaces() const;
-  std::map<int, surface_halfspace*> getSurfaces() const;
-  std::vector<Cell*> getNeighbors() const;
+  std::map<int, Halfspace*> getSurfaces();
   bool hasParent();
   Cell* getParent();
   Cell* getOldestAncestor();
@@ -172,6 +152,7 @@ public:
   std::map<int, Universe*> getAllUniverses();
 
   void setName(const char* name);
+  void setRegion(Region* region);
   void setFill(Material* fill);
   void setFill(Universe* fill);
   void setVolume(double volume);
@@ -184,8 +165,6 @@ public:
   void setNumSectors(int num_sectors);
   void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
-  void removeSurface(Surface* surface);
-  void addNeighborCell(Cell* cell);
 
   bool isFissionable();
   bool containsPoint(Point* point);
@@ -194,7 +173,6 @@ public:
 
   Cell* clone();
   void subdivideCell(double max_radius);
-  void buildNeighbors();
 
   std::string toString();
   void printString();

@@ -28,10 +28,10 @@ class OneDGradientTestHarness(TestHarness):
                 root_cell = cell
 
         # Apply VACUUM BCs on the min/max XPlane surfaces
-        surfaces = root_cell.getSurfaces()
+        surfaces = self.input_set.geometry.getAllSurfaces()
         for surface_id in surfaces:
-            surface = surfaces[surface_id]._surface
-            if 'x' in surface.getName():
+            surface = surfaces[surface_id]
+            if surface.getSurfaceType() == openmoc.XPLANE:
                 surface.setBoundaryType(openmoc.VACUUM)
 
     def __init__(self):

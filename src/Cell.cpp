@@ -67,6 +67,7 @@ Cell::Cell(int id, const char* name) {
   setName(name);
 
   _cell_type = UNFILLED;
+  _region = NULL;
   _fill = NULL;
   _volume = 0.;
   _num_instances = 0;
@@ -88,14 +89,10 @@ Cell::Cell(int id, const char* name) {
  * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
-
-  std::map<int, surface_halfspace*>::iterator iter;
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    delete iter->second;
-  _surfaces.clear();
-
   if (_name != NULL)
     delete [] _name;
+  if (_region != NULL)
+    delete _region;
 }
 
 
@@ -132,6 +129,15 @@ char* Cell::getName() const {
  */
 cellType Cell::getType() const {
   return _cell_type;
+}
+
+
+/**
+ * @brief Return the Cell's Region spatial domain.
+ * @return the Cell's Region
+ */
+Region* Cell::getRegion() {
+  return _region;
 }
 
 
@@ -273,7 +279,7 @@ double* Cell::getRotationMatrix() {
  *          and would be called from within Python as follows:
  *
  * @code
- *          rotation = cell.getRotation(3)
+ *          rotation = cell.retrieveRotation(3)
  * @endcode
  *
  * @param rotation an array of rotation angles of length 3 for x, y and z
@@ -353,146 +359,74 @@ int Cell::getNumSectors() {
 
 
 /**
- * @brief Return the minimum reachable x-coordinate in the Cell.
+ * @brief Return the minimum reachable x-coordinate in the Cell's Region.
  * @return the minimum x-coordinate
  */
 double Cell::getMinX() {
-
-  /* Set a default min-x */
-  double min_x = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_x = std::max(min_x, surface->getMinX(halfspace));
-  }
-
-  return min_x;
+  if (_region == NULL)
+    return -INFINITY;
+  else
+    return _region->getMinX();
 }
 
 
 /**
- * @brief Return the maximum reachable x-coordinate in the Cell.
+ * @brief Return the maximum reachable x-coordinate in the Cell's Region.
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
-
-  /* Set a default max-x */
-  double max_x = std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_x = std::min(max_x, surface->getMaxX(halfspace));
-  }
-
-  return max_x;
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->getMaxX();
 }
 
 
 /**
- * @brief Return the minimum reachable y-coordinate in the Cell.
+ * @brief Return the minimum reachable y-coordinate in the Cell's Region.
  * @return the minimum y-coordinate
  */
 double Cell::getMinY() {
-
-  /* Set a default min-y */
-  double min_y = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_y = std::max(min_y, surface->getMinY(halfspace));
-  }
-
-  return min_y;
+  if (_region == NULL)
+    return -INFINITY;
+  else
+    return _region->getMinY();
 }
 
 
 /**
- * @brief Return the maximum reachable y-coordinate in the Cell.
+ * @brief Return the maximum reachable y-coordinate in the Cell's Region.
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
-
-  /* Set a default max-y */
-  double max_y = std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_y = std::min(max_y, surface->getMaxY(halfspace));
-  }
-
-  return max_y;
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->getMaxY();
 }
 
 
 /**
- * @brief Return the minimum reachable z-coordinate in the Cell.
+ * @brief Return the minimum reachable z-coordinate in the Cell's Region.
  * @return the minimum z-coordinate
  */
 double Cell::getMinZ() {
-
-  /* Set a default min-z */
-  double min_z = -std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_z = std::max(min_z, surface->getMinZ(halfspace));
-  }
-
-  return min_z;
+  if (_region == NULL)
+    return -INFINITY;
+  else
+    return _region->getMinZ();
 }
 
 
 /**
- * @brief Return the maximum reachable z-coordinate in the Cell.
+ * @brief Return the maximum reachable z-coordinate in the Cell's Region.
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
-
-  /* Set a default max-z */
-  double max_z = std::numeric_limits<double>::infinity();
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_z = std::min(max_z, surface->getMaxZ(halfspace));
-  }
-
-  return max_z;
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->getMaxZ();
 }
 
 
@@ -502,27 +436,10 @@ double Cell::getMaxZ() {
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Cell::getMinXBoundaryType() {
-
-  /* Set a default min-x and boundary type*/
-  double min_x = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (min_x < surface->getMinX(halfspace)) {
-      min_x = surface->getMinX(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMinXBoundaryType();
 }
 
 
@@ -532,27 +449,10 @@ boundaryType Cell::getMinXBoundaryType() {
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Cell::getMaxXBoundaryType() {
-
-  /* Set a default max-x and boundary type*/
-  double max_x = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (max_x > surface->getMaxX(halfspace)) {
-      max_x = surface->getMaxX(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMaxXBoundaryType();
 }
 
 
@@ -562,27 +462,10 @@ boundaryType Cell::getMaxXBoundaryType() {
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Cell::getMinYBoundaryType() {
-
-  /* Set a default min-y and boundary type*/
-  double min_y = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (min_y < surface->getMinY(halfspace)) {
-      min_y = surface->getMinY(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMinYBoundaryType();
 }
 
 
@@ -592,55 +475,23 @@ boundaryType Cell::getMinYBoundaryType() {
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Cell::getMaxYBoundaryType() {
-
-  /* Set a default max-y and boundary type*/
-  double max_y = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
-
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-
-    if (max_y > surface->getMaxY(halfspace)) {
-      max_y = surface->getMaxY(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  if (_region == NULL)
+    return BOUNDARY_NONE;
+  else
+    return _region->getMaxYBoundaryType();
 }
 
 
 /**
- * @brief Return the number of Surfaces in the Cell.
- * @return the number of Surfaces
+ * @brief Return the std::map of Halfspace object pointers for all
+ *        surfaces within the Region bounding the Cell.
+ * @return std::map of Halfspace object pointers
  */
-int Cell::getNumSurfaces() const {
-  return _surfaces.size();
-}
-
-
-/**
- * @brief Return the std::map of Surface pointers and halfspaces (+/-1) for all
- *        surfaces bounding the Cell.
- * @return std::map of Surface pointers and halfspaces
- */
-std::map<int, surface_halfspace*> Cell::getSurfaces() const {
-  return _surfaces;
-}
-
-
-/**
- * @brief Return the std::vector of neighbor Cells to this Cell.
- * @return std::vector of neighbor Cell pointers
- */
-std::vector<Cell*> Cell::getNeighbors() const {
-  return _neighbors;
+std::map<int, Halfspace*> Cell::getSurfaces() {
+  std::map<int, Halfspace*> all_surfaces;
+  if (_region != NULL)
+    all_surfaces = _region->getAllSurfaces();
+  return all_surfaces;
 }
 
 
@@ -760,6 +611,18 @@ void Cell::setName(const char* name) {
   /* Copy the input character array Cell name to the class attribute name */
   for (int i=0; i <= length; i++)
     _name[i] = name[i];
+}
+
+
+/**
+ * @brief Sets the Region bounding the Cell
+ * @details NOTE: This method deep copies the Region and stores
+ *          the copy. Any changes made to the Region will not be
+ *          reflected in the Region copy stored by the Cell.
+ * @param region the Region bounding the Cell
+ */
+void Cell::setRegion(Region* region) {
+  _region = region->clone();
 }
 
 
@@ -958,71 +821,58 @@ void Cell::setParent(Cell* parent) {
 
 
 /**
- * @brief Insert a Surface into this Cell's container of bounding Surfaces.
+ * @brief Insert a Surface into this Cell's bounding Region.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
  */
 void Cell::addSurface(int halfspace, Surface* surface) {
 
-  if (halfspace != -1 && halfspace != +1)
-    log_printf(ERROR, "Unable to add surface %d to cell %d since the halfspace"
-               " %d is not -1 or 1", surface->getId(), _id, halfspace);
+  Halfspace* new_halfspace = new Halfspace(halfspace, surface);
 
-  surface_halfspace* new_surf_half = new surface_halfspace;
-  new_surf_half->_surface = surface;
-  new_surf_half->_halfspace = halfspace;
-
-  _surfaces[surface->getId()] = new_surf_half;
-}
-
-
-/**
- * @brief Removes a Surface from this Cell's container of bounding Surfaces.
- * @param surface a pointer to the Surface to remove
- */
-void Cell::removeSurface(Surface* surface) {
-
-  if (_surfaces.find(surface->getId()) != _surfaces.end()) {
-    delete _surfaces[surface->getId()];
-    _surfaces.erase(surface->getId());
+  /* Assign the Halfspace as the Cell's Region if it has none */
+  if (_region == NULL)
+    _region = new_halfspace;
+  else{
+    if (dynamic_cast<Intersection*>(_region)) 
+      _region->addNode(new_halfspace);
+    else {
+      Intersection* intersection = new Intersection();
+      intersection->addNode(_region);
+      intersection->addNode(new_halfspace);
+      _region = intersection;
+    }
   }
-}
-
-
-/**
- * @brief Add a neighboring Cell to this Cell's collection of neighbors.
- * @param cell a pointer to the neighboring Cell
- */
-void Cell::addNeighborCell(Cell* cell) {
-
-  /* Add the neighbor Cell if it is not already in the collection */
-  if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
-    _neighbors.push_back(cell);
 }
 
 
 /**
  * @brief Determines whether a Point is contained inside a Cell.
- * @details Queries each Surface inside the Cell to determine if the Point
- *          is on the same side of the Surface. This point is only inside
- *          the Cell if it is on the same side of every Surface in the Cell.
+ * @details Queries the Region bounding the Cell to determine if the Point
+ *          is within the Region. This point is only inside the Cell if it
+ *          is on the same side of every Surface bounding the Cell.
  * @param point a pointer to a Point
+ * @returns true if the Point is inside the Cell; otherwise false
  */
 bool Cell::containsPoint(Point* point) {
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    /* Return false if the Point is not in the correct Surface halfspace */
-    if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
-        < 0.0)
-      return false;
+  /* If a FILL Cell, query the filling Universe or Lattice */
+  if (_region == NULL) {
+    if (_cell_type == FILL) {
+      Universe* univ = static_cast<Universe*>(_fill);
+      if (univ->getType() == SIMPLE)
+	return univ->containsPoint(point);
+      else {
+	Lattice* latt = static_cast<Lattice*>(_fill);
+	return latt->containsPoint(point);
+      }
+    }
+    else
+      return true;
   }
 
-  /* Return true if the Point is in the correct halfspace for each Surface */
-  return true;
+  /* Query the Cell's bounding Region */
+  else
+    return _region->containsPoint(point);
 }
 
 
@@ -1039,31 +889,18 @@ bool Cell::containsCoords(LocalCoords* coords) {
 
 
 /**
- * @brief Computes the minimum distance to a Surface from a point with a given
- *        trajectory at a certain angle stored in a LocalCoords object.
+ * @brief Computes the minimum distance to a Surface in the Cell's Region from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param coords a pointer to a localcoords
  */
 double Cell::minSurfaceDist(LocalCoords* coords) {
-
-  double curr_dist;
-  double min_dist = INFINITY;
-
-  std::map<int, surface_halfspace*>::iterator iter;
-
-  /* Loop over all of the Cell's Surfaces */
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second->_surface->getMinDistance(coords);
-
-    /* If the distance to Cell is less than current min distance, update */
-    if (curr_dist < min_dist)
-      min_dist = curr_dist;
-  }
-
-  return min_dist;
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->minSurfaceDist(coords);
 }
 
 
@@ -1110,11 +947,8 @@ Cell* Cell::clone() {
   if (_translated)
     new_cell->setTranslation(_translation, 3);
 
-  /* Loop over all of this Cell's Surfaces and add them to the clone */
-  std::map<int, surface_halfspace*>::iterator iter;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    new_cell->addSurface(iter->second->_halfspace, iter->second->_surface);
+  /* Clone the Cell's Region */
+  new_cell->setRegion(_region->clone());
 
   return new_cell;
 }
@@ -1209,13 +1043,15 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::vector<Cell*> rings;
 
   /* See if the Cell contains 1 or 2 ZCYLINDER Surfaces */
-  std::map<int, surface_halfspace*>::iterator iter1;
-  for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
+  std::map<int, Halfspace*>::iterator iter1;
+  std::map<int, Halfspace*> all_surfaces = getSurfaces();
+  for (iter1=all_surfaces.begin(); iter1 != all_surfaces.end(); ++iter1) {
 
     /* Determine if any of the Surfaces is a ZCylinder */
-    if (iter1->second->_surface->getSurfaceType() == ZCYLINDER) {
-      int halfspace = iter1->second->_halfspace;
-      ZCylinder* zcylinder = static_cast<ZCylinder*>(iter1->second->_surface);
+    if (iter1->second->getSurface()->getSurfaceType() == ZCYLINDER) {
+      int halfspace = iter1->second->getHalfspace();
+      ZCylinder* zcylinder =
+	static_cast<ZCylinder*>(iter1->second->getSurface());
 
       /* Outermost bounding ZCylinder */
       if (halfspace == -1) {
@@ -1401,33 +1237,6 @@ void Cell::subdivideCell(double max_radius) {
 
 
 /**
- * @brief Build a collection of neighboring Cells for optimized ray tracing.
- */
-void Cell::buildNeighbors() {
-
-  Surface* surface;
-  int halfspace;
-
-  /* Add this Cell to all of the Surfaces in this Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    surface->addNeighborCell(halfspace, this);
-  }
-
-  /* Make recursive call to the Cell's fill Universe */
-  if (_cell_type == FILL) {
-    Universe* fill = static_cast<Universe*>(_fill);
-    if (fill->getType() == SIMPLE)
-      static_cast<Universe*>(fill)->buildNeighbors();
-    else
-      static_cast<Lattice*>(fill)->buildNeighbors();
-  }
-}
-
-
-/**
  * @brief Convert this Cell's attributes to a string format.
  * @return a character array of this Cell's attributes
  */
@@ -1459,14 +1268,6 @@ std::string Cell::toString() {
     string << ", (translation = " << _translation[0] << ", ";
     string << _translation[1] << ", " << _translation[2] << ")";
   }
-
-  string << ", # surfaces = " << getNumSurfaces();
-
-  /** Add string data for the Surfaces in this Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  string << ", Surfaces: ";
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second->_surface->toString() << ", ";
 
   return string.str();
 }

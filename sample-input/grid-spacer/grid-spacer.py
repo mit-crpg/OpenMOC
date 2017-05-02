@@ -25,11 +25,23 @@ materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
 boundary = openmoc.RectangularPrism(4., 4.)
-boundary.setBoundaryType(openmoc.REFLECTIVE)
+boundary.setBoundaryType(openmoc.PERIODIC)
 
-large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.4, name='large pin')
-medium_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='medium pin')
-small_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.2, name='small pin')
+zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='fuel pin')
+
+
+###############################################################################
+#                            Creating Grid Spacer
+###############################################################################
+
+outer_box = openmoc.RectangularPrism(1.00, 1.00)
+inner_box = openmoc.RectangularPrism(0.96, 0.96)
+inner_complement = openmoc.Complement()
+inner_complement.addNode(inner_box)
+
+grid_spacer_region = openmoc.Intersection()
+grid_spacer_region.addNode(outer_box)
+grid_spacer_region.addNode(inner_complement)
 
 
 ###############################################################################
@@ -38,40 +50,21 @@ small_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.2, name='small pin')
 
 openmoc.log.py_printf('NORMAL', 'Creating cells...')
 
-large_fuel = openmoc.Cell(name='large pin fuel')
-large_fuel.setNumRings(3)
-large_fuel.setNumSectors(8)
-large_fuel.setFill(materials['UO2'])
-large_fuel.addSurface(halfspace=-1, surface=large_zcylinder)
+fuel = openmoc.Cell(name='fuel')
+fuel.setNumRings(3)
+fuel.setNumSectors(8)
+fuel.setFill(materials['UO2'])
+fuel.addSurface(halfspace=-1, surface=zcylinder)
 
-large_moderator = openmoc.Cell(name='large pin moderator')
-large_moderator.setNumSectors(8)
-large_moderator.setFill(materials['Water'])
-large_moderator.addSurface(halfspace=+1, surface=large_zcylinder)
+moderator = openmoc.Cell(name='amoderator')
+fuel.setNumSectors(8)
+moderator.setFill(materials['Water'])
+moderator.setRegion(inner_box)
+moderator.addSurface(halfspace=+1, surface=zcylinder)
 
-medium_fuel = openmoc.Cell(name='medium pin fuel')
-medium_fuel.setNumRings(3)
-medium_fuel.setNumSectors(8)
-medium_fuel.setFill(materials['UO2'])
-medium_fuel.addSurface(halfspace=-1, surface=medium_zcylinder)
-
-medium_moderator = openmoc.Cell(name='medium pin moderator')
-medium_moderator.setNumSectors(8)
-medium_moderator.setFill(materials['Water'])
-medium_moderator.addSurface(halfspace=+1, surface=medium_zcylinder)
-
-small_fuel = openmoc.Cell(name='small pin fuel')
-small_fuel.setNumRings(3)
-small_fuel.setNumSectors(8)
-small_fuel.setFill(materials['UO2'])
-small_fuel.addSurface(halfspace=-1, surface=small_zcylinder)
-
-small_moderator = openmoc.Cell(name='small pin moderator')
-small_moderator.setNumSectors(8)
-small_moderator.setFill(materials['Water'])
-small_moderator.addSurface(halfspace=+1, surface=small_zcylinder)
-
-lattice_cell = openmoc.Cell(name='lattice cell')
+grid_spacer = openmoc.Cell(name='mox grid spacer')
+grid_spacer.setFill(materials['MOX-4.3%'])
+grid_spacer.setRegion(grid_spacer_region)
 
 root_cell = openmoc.Cell(name='root cell')
 root_cell.setRegion(boundary)
@@ -83,19 +76,12 @@ root_cell.setRegion(boundary)
 
 openmoc.log.py_printf('NORMAL', 'Creating universes...')
 
-pin1 = openmoc.Universe(name='large pin cell')
-pin2 = openmoc.Universe(name='medium pin cell')
-pin3 = openmoc.Universe(name='small pin cell')
-assembly = openmoc.Universe(name='2x2 lattice')
+pin = openmoc.Universe(name='pin cell')
 root_universe = openmoc.Universe(name='root universe')
 
-pin1.addCell(large_fuel)
-pin1.addCell(large_moderator)
-pin2.addCell(medium_fuel)
-pin2.addCell(medium_moderator)
-pin3.addCell(small_fuel)
-pin3.addCell(small_moderator)
-assembly.addCell(lattice_cell)
+pin.addCell(fuel)
+pin.addCell(moderator)
+pin.addCell(grid_spacer)
 root_universe.addCell(root_cell)
 
 
@@ -103,19 +89,15 @@ root_universe.addCell(root_cell)
 #                            Creating Lattices
 ###############################################################################
 
-openmoc.log.py_printf('NORMAL', 'Creating nested 2 x 2 lattices...')
+openmoc.log.py_printf('NORMAL', 'Creating 4 x 4 lattice w/ grid spacers...')
 
-# 2x2 assembly
-lattice = openmoc.Lattice(name='2x2 lattice')
+lattice = openmoc.Lattice(name='4x4 lattice w/ grid spacers')
 lattice.setWidth(width_x=1.0, width_y=1.0)
-lattice.setUniverses([[[pin1, pin2], [pin1, pin3]]])
-lattice_cell.setFill(lattice)
-
-# 2x2 core
-core = openmoc.Lattice(name='2x2 core')
-core.setWidth(width_x=2.0, width_y=2.0)
-core.setUniverses([[[assembly, assembly], [assembly, assembly]]])
-root_cell.setFill(core)
+lattice.setUniverses([[[pin, pin, pin, pin],
+                       [pin, pin, pin, pin],
+                       [pin, pin, pin, pin],
+                       [pin, pin, pin, pin]]])
+root_cell.setFill(lattice)
 
 
 ###############################################################################
@@ -157,9 +139,10 @@ solver.printTimerReport()
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
+openmoc.plotter.plot_segments(track_generator)
 openmoc.plotter.plot_materials(geometry, gridsize=500)
 openmoc.plotter.plot_cells(geometry, gridsize=500)
-openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500)
+openmoc.plotter.plot_flat_source_regions(geometry, gridsize=500, centroids=True)
 openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
 
 openmoc.log.py_printf('TITLE', 'Finished')

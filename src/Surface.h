@@ -90,9 +90,6 @@ protected:
    *  (ie, VACUUM or REFLECTIVE) */
   boundaryType _boundary_type;
 
-  /* Vector of neighboring Cells */
-  std::map<int, std::vector<Cell*>* > _neighbors;
-
 public:
   Surface(const int id=0, const char* name="");
   virtual ~Surface();
@@ -147,7 +144,6 @@ public:
 
   void setName(const char* name);
   void setBoundaryType(const boundaryType boundary_type);
-  void addNeighborCell(int halfspace, Cell* cell);
 
   /**
    * @brief Evaluate a Point using the Surface's potential equation.

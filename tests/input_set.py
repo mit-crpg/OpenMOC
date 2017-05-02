@@ -54,24 +54,14 @@ class HomInfMedInput(InputSet):
         num_cells_x = 10
         num_cells_y = 10
 
-        xmin = openmoc.XPlane(x=-length/2., name='xmin')
-        xmax = openmoc.XPlane(x=+length/2., name='xmax')
-        ymin = openmoc.YPlane(y=-length/2., name='ymin')
-        ymax = openmoc.YPlane(y=+length/2., name='ymax')
-
-        xmax.setBoundaryType(openmoc.REFLECTIVE)
-        xmin.setBoundaryType(openmoc.REFLECTIVE)
-        ymin.setBoundaryType(openmoc.REFLECTIVE)
-        ymax.setBoundaryType(openmoc.REFLECTIVE)
+        boundary = openmoc.RectangularPrism(length, length)
+        boundary.setBoundaryType(openmoc.REFLECTIVE)
 
         fill = openmoc.Cell(name='fill')
         fill.setFill(self.materials['infinite medium'])
 
         root_cell = openmoc.Cell(name='root cell')
-        root_cell.addSurface(halfspace=+1, surface=xmin)
-        root_cell.addSurface(halfspace=-1, surface=xmax)
-        root_cell.addSurface(halfspace=+1, surface=ymin)
-        root_cell.addSurface(halfspace=-1, surface=ymax)
+        root_cell.setRegion(boundary)
 
         fill_universe = openmoc.Universe(name='homogeneous fill cell')
         fill_universe.addCell(fill)
@@ -103,15 +93,10 @@ class PinCellInput(InputSet):
         """Instantiate a pin cell Geometry."""
 
         zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
-        xmin = openmoc.XPlane(x=-2.0, name='xmin')
-        xmax = openmoc.XPlane(x=+2.0, name='xmax')
-        ymin = openmoc.YPlane(y=-2.0, name='ymin')
-        ymax = openmoc.YPlane(y=+2.0, name='ymax')
 
-        xmin.setBoundaryType(openmoc.REFLECTIVE)
-        xmax.setBoundaryType(openmoc.REFLECTIVE)
-        ymin.setBoundaryType(openmoc.REFLECTIVE)
-        ymax.setBoundaryType(openmoc.REFLECTIVE)
+        boundary = openmoc.RectangularPrism(4., 4.)
+        boundary.setBoundaryType(openmoc.REFLECTIVE)
+
 
         fuel = openmoc.Cell(name='fuel')
         fuel.setFill(self.materials['UO2'])
@@ -119,11 +104,8 @@ class PinCellInput(InputSet):
 
         moderator = openmoc.Cell(name='moderator')
         moderator.setFill(self.materials['Water'])
+        moderator.setRegion(boundary)
         moderator.addSurface(halfspace=+1, surface=zcylinder)
-        moderator.addSurface(halfspace=+1, surface=xmin)
-        moderator.addSurface(halfspace=-1, surface=xmax)
-        moderator.addSurface(halfspace=+1, surface=ymin)
-        moderator.addSurface(halfspace=-1, surface=ymax)
 
         root_universe = openmoc.Universe(name='root universe')
         root_universe.addCell(fuel)
@@ -198,23 +180,13 @@ class LatticeGridInput(InputSet):
     def create_geometry(self):
         """Instantiate a 3x3 grid Geometry by making a lattice"""
 
-        # Create the planes bounding the geometry
-        xmin = openmoc.XPlane(x=-3.0, name='xmin')
-        xmax = openmoc.XPlane(x=3.0, name='xmax')
-        ymin = openmoc.YPlane(y=-3.0, name='ymin')
-        ymax = openmoc.YPlane(y=3.0, name='ymax')
-
-        xmin.setBoundaryType(openmoc.REFLECTIVE)
-        xmax.setBoundaryType(openmoc.REFLECTIVE)
-        ymin.setBoundaryType(openmoc.REFLECTIVE)
-        ymax.setBoundaryType(openmoc.REFLECTIVE)
+        # Create the bounding box for the geometry
+        boundary = openmoc.RectangularPrism(6., 6.)
+        boundary.setBoundaryType(openmoc.REFLECTIVE)
 
         # Create the root cell, bounded by the geometry bounds
         root_cell = openmoc.Cell(name='root cell')
-        root_cell.addSurface(halfspace=+1, surface=xmin)
-        root_cell.addSurface(halfspace=-1, surface=xmax)
-        root_cell.addSurface(halfspace=+1, surface=ymin)
-        root_cell.addSurface(halfspace=-1, surface=ymax)
+        root_cell.setRegion(boundary)
 
         # Create UO2 and water cells
         uo2_cell = openmoc.Cell(name='UO2 Cell')
@@ -257,11 +229,8 @@ class SimpleLatticeInput(InputSet):
     def create_geometry(self):
         """Instantiate a 4x4 pin cell lattice Geometry."""
 
-        xmin = openmoc.XPlane(x=-2.0, name='xmin')
-        xmax = openmoc.XPlane(x=+2.0, name='xmax')
-        ymax = openmoc.YPlane(y=+2.0, name='ymin')
-        ymin = openmoc.YPlane(y=-2.0, name='ymax')
-        boundaries = [xmin, xmax, ymin, ymax]
+        boundary = openmoc.RectangularPrism(4., 4.)
+        boundary.setBoundaryType(openmoc.REFLECTIVE)
 
         large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
                                             radius=0.4, name='large pin')
@@ -269,8 +238,6 @@ class SimpleLatticeInput(InputSet):
                                              radius=0.3, name='medium pin')
         small_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
                                             radius=0.2, name='small pin')
-
-        for boundary in boundaries: boundary.setBoundaryType(openmoc.REFLECTIVE)
 
         large_fuel = openmoc.Cell(name='large pin fuel')
         large_fuel.setNumRings(3)
@@ -308,10 +275,7 @@ class SimpleLatticeInput(InputSet):
         lattice_cell = openmoc.Cell(name='lattice cell')
 
         root_cell = openmoc.Cell(name='root cell')
-        root_cell.addSurface(halfspace=+1, surface=boundaries[0])
-        root_cell.addSurface(halfspace=-1, surface=boundaries[1])
-        root_cell.addSurface(halfspace=+1, surface=boundaries[2])
-        root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+        root_cell.setRegion(boundary)
 
         pin1 = openmoc.Universe(name='large pin cell')
         pin2 = openmoc.Universe(name='medium pin cell')
@@ -346,6 +310,81 @@ class SimpleLatticeInput(InputSet):
         super(SimpleLatticeInput, self).create_geometry()
 
 
+class GridSpacerInput(InputSet):
+    """A 4x4 lattice with grid spacers problem from sample-input/grid-spacer."""
+
+    def create_materials(self):
+        """Instantiate C5G7 Materials."""
+        self.materials = \
+            openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
+                                               directory='../../sample-input/')
+
+    def create_geometry(self):
+        """Instantiate a 4x4 pin cell lattice Geometry."""
+
+        boundary = openmoc.RectangularPrism(4., 4.)
+        boundary.setBoundaryType(openmoc.PERIODIC)
+
+        zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='fuel pin')
+
+        outer_box = openmoc.RectangularPrism(1.00, 1.00)
+        inner_box = openmoc.RectangularPrism(0.96, 0.96)
+        inner_complement = openmoc.Complement()
+        inner_complement.addNode(inner_box)
+
+        grid_spacer_region = openmoc.Intersection()
+        grid_spacer_region.addNode(outer_box)
+        grid_spacer_region.addNode(inner_complement)
+
+        fuel = openmoc.Cell(name='fuel')
+        fuel.setNumRings(3)
+        fuel.setNumSectors(8)
+        fuel.setFill(self.materials['UO2'])
+        fuel.addSurface(halfspace=-1, surface=zcylinder)
+
+        moderator = openmoc.Cell(name='moderator')
+        moderator.setNumSectors(8)
+        moderator.setFill(self.materials['Water'])
+        moderator.setRegion(inner_box)
+        moderator.addSurface(halfspace=+1, surface=zcylinder)
+
+        grid_spacer = openmoc.Cell(name='mox grid spacer')
+        grid_spacer.setFill(self.materials['MOX-4.3%'])
+        grid_spacer.setRegion(grid_spacer_region)
+
+        lattice_cell = openmoc.Cell(name='lattice cell')
+
+        root_cell = openmoc.Cell(name='root cell')
+        root_cell.setRegion(boundary)
+
+        pin = openmoc.Universe(name='pin cell')
+        assembly = openmoc.Universe(name='2x2 lattice')
+        root_universe = openmoc.Universe(name='root universe')
+
+        pin.addCell(fuel)
+        pin.addCell(moderator)
+        pin.addCell(grid_spacer)
+        assembly.addCell(lattice_cell)
+        root_universe.addCell(root_cell)
+
+        # 2x2 assembly
+        lattice = openmoc.Lattice(name='2x2 lattice')
+        lattice.setWidth(width_x=1.0, width_y=1.0)
+        lattice.setUniverses([[[pin, pin], [pin, pin]]])
+        lattice_cell.setFill(lattice)
+
+        # 2x2 core
+        core = openmoc.Lattice(name='2x2 core')
+        core.setWidth(width_x=2.0, width_y=2.0)
+        core.setUniverses([[[assembly, assembly], [assembly, assembly]]])
+        root_cell.setFill(core)
+
+        self.geometry = openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
+
+        super(GridSpacerInput, self).create_geometry()
+
+        
 class PwrAssemblyInput(InputSet):
     """A 17x17 pin cell lattice problem from sample-input/ipython-notebook."""
 
@@ -361,16 +400,9 @@ class PwrAssemblyInput(InputSet):
         # Create ZCylinder for the fuel and moderator
         fuel_radius = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.54)
 
-        # Create planes to bound the entire geometry
-        xmin = openmoc.XPlane(x=-10.71, name='xmin')
-        xmax = openmoc.XPlane(x=+10.71, name='xmax')
-        ymin = openmoc.YPlane(y=-10.71, name='ymin')
-        ymax = openmoc.YPlane(y=+10.71, name='xmax')
-
-        xmin.setBoundaryType(openmoc.REFLECTIVE)
-        xmax.setBoundaryType(openmoc.REFLECTIVE)
-        ymin.setBoundaryType(openmoc.REFLECTIVE)
-        ymax.setBoundaryType(openmoc.REFLECTIVE)
+        # Create bounding box for the entire geometry
+        boundary = openmoc.RectangularPrism(21.42, 21.42)
+        boundary.setBoundaryType(openmoc.REFLECTIVE)
 
         # 4.3% MOX pin cell
         mox43_cell = openmoc.Cell()
@@ -474,10 +506,7 @@ class PwrAssemblyInput(InputSet):
         # Root Cell/Universe
         root_cell = openmoc.Cell(name='Full Geometry')
         root_cell.setFill(assembly)
-        root_cell.addSurface(+1, xmin)
-        root_cell.addSurface(-1, xmax)
-        root_cell.addSurface(+1, ymin)
-        root_cell.addSurface(-1, ymax)
+        root_cell.setRegion(boundary)
 
         root_universe = openmoc.Universe(name='Root Universe')
         root_universe.addCell(root_cell)

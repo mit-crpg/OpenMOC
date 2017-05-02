@@ -25,7 +25,7 @@ class PlotCellsTestHarness(PlottingTestHarness):
             plot_cells(self.input_set.geometry, gridsize=100, 
                        get_figure=True))
         self.figures.append(
-            plot_cells(self.input_set.geometry, gridsize=100, 
+           plot_cells(self.input_set.geometry, gridsize=100, 
                        zcoord=10., get_figure=True))
         self.figures.append(
             plot_cells(self.input_set.geometry, gridsize=100, 

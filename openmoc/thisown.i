@@ -2,6 +2,58 @@
 
 %module thisown
 
+/* A Region owns the memory for each Region it contains */
+%pythonappend Region::addNode %{
+  # SWIG 3
+  if 'node'in locals():
+    node = locals()['node']
+  elif 'args' in locals() and 'node' in locals()['args']:
+    node = locals()['args']['node']
+  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+    node = locals()['kwargs']['node']
+
+  # SWIG 2
+  else:
+    node = locals()['args'][1]
+
+  node.thisown = False
+%}
+
+/* A Halfspace owns the memory for each Region it contains */
+%pythonappend Halfspace::addNode %{
+  # SWIG 3
+  if 'node'in locals():
+    node = locals()['node']
+  elif 'args' in locals() and 'node' in locals()['args']:
+    node = locals()['args']['node']
+  elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+    node = locals()['kwargs']['node']
+
+  # SWIG 2
+  else:
+    node = locals()['args'][1]
+
+  node.thisown = False
+%}
+
+/* A Halfspace owns the memory for the Surface it contains */
+%pythonappend Halfspace::Halfspace %{
+  # SWIG 3
+  if 'surface' in locals():
+    surface = locals()['surface']
+  elif 'args' in locals() and 'surface' in locals()['args']:
+    surface = locals()['args']['surface']
+  elif 'kwargs' in locals() and 'surface' in locals()['kwargs']:
+    surface = locals()['kwargs']['surface']
+
+  # SWIG 2
+  else:
+    surface = locals()['args'][1]
+
+  surface.thisown = False
+%}
+
+
 /* A Cell owns the memory for each Surface it contains */
 %pythonappend Cell::addSurface %{
   # SWIG 3
@@ -17,23 +69,6 @@
     surface = locals()['args'][1]
 
   surface.thisown = False
-%}
-
-/* Python must free memory for each Surface that is not in a Cell */
-%pythonappend Cell::removeSurface %{
-  # SWIG 3
-  if 'surface' in locals():
-    surface = locals()['surface']
-  elif 'args' in locals() and 'surface' in locals()['args']:
-    surface = locals()['args']['surface']
-  elif 'kwargs' in locals() and 'surface' in locals()['kwargs']:
-    surface = locals()['kwargs']['surface']
-
-  # SWIG 2
-  else:
-    surface = locals()['args'][0]
-
-  surface.thisown = True
 %}
 
 /* A Cell owns the memory for its Material/Universe fill */

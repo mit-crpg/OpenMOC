@@ -24,17 +24,12 @@ materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = openmoc.XPlane(x=-2.0, name='left')
-right = openmoc.XPlane(x=2.0, name='right')
-bottom = openmoc.YPlane(y=-2.0, name='bottom')
-top = openmoc.YPlane(y=2.0, name='top')
-boundaries = [left, right, bottom, top]
+boundary = openmoc.RectangularPrism(4., 4.)
+boundary.setBoundaryType(openmoc.PERIODIC)
 
 large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.4, name='large pin')
 medium_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.3, name='medium pin')
 small_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=0.2, name='small pin')
-
-for boundary in boundaries: boundary.setBoundaryType(openmoc.PERIODIC)
 
 
 ###############################################################################
@@ -77,10 +72,7 @@ small_moderator.setFill(materials['Water'])
 small_moderator.addSurface(halfspace=+1, surface=small_zcylinder)
 
 root_cell = openmoc.Cell(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=boundaries[0])
-root_cell.addSurface(halfspace=-1, surface=boundaries[1])
-root_cell.addSurface(halfspace=+1, surface=boundaries[2])
-root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+root_cell.setRegion(boundary)
 
 
 ###############################################################################
