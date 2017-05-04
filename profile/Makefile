@@ -61,7 +61,9 @@ c5g7/c5g7-ws.cpp \
 homogeneous/homogeneous.cpp \
 single-assembly/quarter-c5g7-assembly.cpp \
 single-assembly/single-c5g7-assembly.cpp \
-load-geometry/load-geometry.cpp
+load-geometry/load-geometry.cpp \
+load-geometry/load-single-assembly.cpp \
+load-geometry/load-full-core.cpp
 
 #===============================================================================
 # Sets Flags
