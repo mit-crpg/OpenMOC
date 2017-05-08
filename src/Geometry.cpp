@@ -1245,7 +1245,7 @@ void Geometry::countDomainFSRs() {
 
   /* Gather the number of FSRs into an array */
   int num_domains = _num_domains_x * _num_domains_y * _num_domains_z;
-  int num_domains_array[num_domains];
+  long num_domains_array[num_domains];
   long my_fsrs = getNumFSRs();
   MPI_Allgather(&my_fsrs, 1, MPI_LONG, num_domains_array, 1, MPI_LONG,
                 _MPI_cart);
@@ -1689,7 +1689,7 @@ void Geometry::initializeFlatSourceRegions() {
 
   /* Build collections of neighbor Cells for optimized ray tracing */
   //FIXME
-  _root_universe->buildNeighbors();
+  //_root_universe->buildNeighbors();
 
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
@@ -2296,7 +2296,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
 
   std::string msg = "initializing 3D FSRs";
-  Progress progress(_extruded_FSR_keys_map.size(), msg, 0.01, this, true);
+  Progress progress(_extruded_FSR_keys_map.size(), msg, 0.1, this, true);
 
   /* Re-allocate the FSR keys map with the new anticipated size */
   int anticipated_size = 2 * _extruded_FSR_keys_map.size();
@@ -2305,8 +2305,8 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   _FSR_keys_map.realloc(anticipated_size);
 
   /* Loop over extruded FSRs */
-//#pragma omp parallel for
   //FIXME
+#pragma omp parallel for
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
     progress.incrementCounter();
