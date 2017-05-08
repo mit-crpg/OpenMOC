@@ -427,15 +427,15 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 
 //FIXME
 void Geometry::manipulateXS() {
-  
+
   std::map<int, Material*> all_materials = getAllMaterials();
   std::map<int, Material*>::iterator mat_iter;
   std::map<int, Cell*> all_material_cells = getAllMaterialCells();
   std::map<int, Cell*>::iterator cell_iter;
 
-  for (mat_iter = all_materials.begin(); mat_iter != all_materials.end(); 
+  for (mat_iter = all_materials.begin(); mat_iter != all_materials.end();
        ++mat_iter) {
-    
+
       Material* mat = mat_iter->second;
       int ng = mat->getNumEnergyGroups();
       for (int g=0; g < ng; g++) {
@@ -740,7 +740,7 @@ void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
     }
     else {
       for (int i=0; i < num_radial_domains; i++) {
-        if (radial_domains[2*i] == _domain_index_x && 
+        if (radial_domains[2*i] == _domain_index_x &&
             radial_domains[2*i+1] == _domain_index_y) {
           real_num_x = num_x;
           real_num_y = num_y;
@@ -904,7 +904,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
      * At each universe/lattice level get distance to next
      * universe or lattice cell. Recheck min_dist. */
     while (coords != NULL) {
-    
+
       /* If we reach a LocalCoord in a Lattice, find the distance to the
        * nearest lattice cell boundary */
       if (coords->getType() == LAT) {
@@ -2059,7 +2059,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi);
-  
+
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL) {
     int dom = _domain_index_x + _domain_index_y * _num_domains_x +
@@ -2086,7 +2086,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     find_cell_count++;
     if (find_cell_count > 1e6)
       log_printf(ERROR, "Caught in inifinite loop finding next cell");
-      
+
     /* Records the minimum length to a 2D intersection */
     double min_length = std::numeric_limits<double>::infinity();
     region_id = -1;
@@ -2131,7 +2131,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     int next_version = 0;
     for (int v=0; v < MAX_VERSION_NUM; v++) {
-  
+
       /* Find FSR using starting coordinate */
       start.setVersionNum(v);
       region_id = findExtrudedFSR(&start);
@@ -2305,7 +2305,6 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   _FSR_keys_map.realloc(anticipated_size);
 
   /* Loop over extruded FSRs */
-  //FIXME
 #pragma omp parallel for
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
@@ -2387,7 +2386,66 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   if (_domain_decomposed)
     MPI_Barrier(_MPI_cart);
 #endif
+
+  /* Re-order FSR IDs so they are sequential in the axial direction */
+  reorderFSRIDs();
+
   log_printf(NORMAL, "Finished initializing 3D FSRs");
+}
+
+
+//FIXME
+void Geometry::reorderFSRIDs() {
+
+  /* Extract list of extruded FSRs */
+  ExtrudedFSR** extruded_FSRs = _extruded_FSR_keys_map.values();
+
+  std::string msg = "reordering FSR IDs";
+  Progress progress(_extruded_FSR_keys_map.size(), msg, 0.1, this, true);
+
+  /* Get the FSR data objects */
+  int curr_id = 0;
+  fsr_data** value_list = _FSR_keys_map.values();
+  fsr_data* fsr_data_objects[_FSR_keys_map.size()];
+#pragma omp parallel for
+  for (int i=0; i < _FSR_keys_map.size(); i++) {
+    int id = value_list[i]->_fsr_id;
+    fsr_data_objects[id] = value_list[i];
+  }
+
+  /* Loop over extruded FSRs */
+#pragma omp parallel for
+  for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
+
+    progress.incrementCounter();
+
+    /* Extract coordinates of extruded FSR */
+    ExtrudedFSR* extruded_FSR = extruded_FSRs[i];
+
+    /* Get the number of FSRs in this axial region */
+    size_t num_local_fsrs = extruded_FSR->_num_fsrs;
+
+    /* Get the starting FSR ID of the axial FSRs */
+    int start_id = 0;
+#pragma omp critcal
+    {
+      start_id = curr_id;
+      curr_id += num_local_fsrs;
+    }
+
+    /* Re-assign the IDs of all axial FSRs */
+    for (int j=0; j < num_local_fsrs; j++) {
+
+      int previous_id = extruded_FSR->_fsr_ids[j];
+      int new_id = start_id + j;
+
+      fsr_data_objects[previous_id]->_fsr_id = new_id;
+      extruded_FSR->_fsr_ids[j] = new_id;
+    }
+  }
+
+  delete [] extruded_FSRs;
+  delete [] value_list;
 }
 
 
@@ -2600,7 +2658,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       delete point;
     }
   }
-  
+
   /* Return the domain IDs */
   return domains;
 }
@@ -2877,7 +2935,7 @@ std::vector<double> Geometry::getUniqueZHeights() {
 
   /* Cycle through known universes */
   while (!universes.empty()) {
-    
+
     /* Get the last universe and explore it */
     Universe* curr_universe = universes.back();
     universes.pop_back();
