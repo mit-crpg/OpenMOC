@@ -17,6 +17,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _num_fissionable_FSRs = 0;
   _FSR_volumes = NULL;
   _FSR_materials = NULL;
+  _chi_spectrum_material = NULL;
 
   _track_generator = NULL;
   _geometry = NULL;
@@ -41,7 +42,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _fixed_sources = NULL;
   _reduced_sources = NULL;
   _source_type = "None";
-  
+
   _regionwise_scratch = NULL;
 
   /* Default polar quadrature */
@@ -95,7 +96,7 @@ Solver::~Solver() {
 
   if (_regionwise_scratch != NULL)
     delete [] _regionwise_scratch;
-  
+
   for (int i=0; i < _groupwise_scratch.size(); i++)
     delete [] _groupwise_scratch.at(i);
   _groupwise_scratch.clear();
@@ -533,6 +534,15 @@ void Solver::correctXS() {
  */
 void Solver::setCheckXSLogLevel(logLevel log_level) {
   _xs_log_level = log_level;
+}
+
+
+/**
+ * @brief Sets the chi spectrum for use as an inital flux guess
+ * @param material The material used for obtaining the chi spectrum
+ */
+void Solver::setChiSpectrumMaterial(Material* material) {
+  _chi_spectrum_material = material;
 }
 
 
@@ -1050,8 +1060,11 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   initializeFluxArrays();
   initializeSourceArrays();
 
-  /* Guess unity scalar flux for each region */
-  flattenFSRFluxes(1.0);
+  /* Guess flat spatial scalar flux for each region */
+  if (_chi_spectrum_material == NULL)
+    flattenFSRFluxes(1.0);
+  else
+    flattenFSRFluxesChiSpectrum();
   zeroTrackFluxes();
 
   /* Start the timer to record the total time to converge the flux */
@@ -1141,8 +1154,11 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 #endif
   printInputParamsSummary();
 
-  /* Set scalar flux to unity for each region */
-  flattenFSRFluxes(1.0);
+  /* Guess flat spatial scalar flux for each region */
+  if (_chi_spectrum_material == NULL)
+    flattenFSRFluxes(1.0);
+  else
+    flattenFSRFluxesChiSpectrum();
   normalizeFluxes();
   storeFSRFluxes();
   zeroTrackFluxes();
@@ -1198,7 +1214,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-    
+
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);

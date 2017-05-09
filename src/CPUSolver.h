@@ -85,6 +85,7 @@ protected:
   void boundaryFluxChecker();
 #endif
   virtual void flattenFSRFluxes(FP_PRECISION value);
+  virtual void flattenFSRFluxesChiSpectrum();
   void storeFSRFluxes();
   virtual FP_PRECISION normalizeFluxes();
   virtual void computeFSRSources(int iteration);
