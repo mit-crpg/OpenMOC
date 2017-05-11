@@ -2404,17 +2404,23 @@ void Geometry::reorderFSRIDs() {
   Progress progress(_extruded_FSR_keys_map.size(), msg, 0.1, this, true);
 
   /* Get the FSR data objects */
-  int curr_id = 0;
+  long curr_id = 0;
   fsr_data** value_list = _FSR_keys_map.values();
-  fsr_data* fsr_data_objects[_FSR_keys_map.size()];
+  fsr_data** fsr_data_objects = new fsr_data*[_FSR_keys_map.size()];
+
+  /* Create a mapping of old to new IDs */
+  long* id_mapping = new long[_FSR_keys_map.size()];
+  bool* id_remapped = new bool[_FSR_keys_map.size()];
 #pragma omp parallel for
-  for (int i=0; i < _FSR_keys_map.size(); i++) {
-    int id = value_list[i]->_fsr_id;
+  for (long i=0; i < _FSR_keys_map.size(); i++) {
+    long id = value_list[i]->_fsr_id;
     fsr_data_objects[id] = value_list[i];
+    id_mapping[i] = i;
+    id_remapped[i] = false;
   }
 
   /* Loop over extruded FSRs */
-#pragma omp parallel for
+  long count = 0;
   for (int i=0; i < _extruded_FSR_keys_map.size(); i++) {
 
     progress.incrementCounter();
@@ -2425,19 +2431,16 @@ void Geometry::reorderFSRIDs() {
     /* Get the number of FSRs in this axial region */
     size_t num_local_fsrs = extruded_FSR->_num_fsrs;
 
-    /* Get the starting FSR ID of the axial FSRs */
-    int start_id = 0;
-#pragma omp critcal
-    {
-      start_id = curr_id;
-      curr_id += num_local_fsrs;
-    }
-
     /* Re-assign the IDs of all axial FSRs */
     for (int j=0; j < num_local_fsrs; j++) {
 
-      int previous_id = extruded_FSR->_fsr_ids[j];
-      int new_id = start_id + j;
+      long previous_id = extruded_FSR->_fsr_ids[j];
+      if (!id_remapped[previous_id]) {
+        id_mapping[previous_id] = count;
+        id_remapped[previous_id] = true;
+        count++;
+      }
+      long new_id = id_mapping[previous_id];
 
       fsr_data_objects[previous_id]->_fsr_id = new_id;
       extruded_FSR->_fsr_ids[j] = new_id;
@@ -2446,6 +2449,9 @@ void Geometry::reorderFSRIDs() {
 
   delete [] extruded_FSRs;
   delete [] value_list;
+  delete [] fsr_data_objects;
+  delete [] id_mapping;
+  delete [] id_remapped;
 }
 
 
@@ -2465,12 +2471,12 @@ void Geometry::initializeFSRVectors() {
   fsr_data **value_list = _FSR_keys_map.values();
 
   /* allocate vectors */
-  int num_FSRs = _FSR_keys_map.size();
+  size_t num_FSRs = _FSR_keys_map.size();
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
   _FSRs_to_centroids = std::vector<Point*>(num_FSRs, NULL);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
-
+  
   /* fill vectors key and material ID information */
   #pragma omp parallel for
   for (long i=0; i < num_FSRs; i++)
@@ -2491,7 +2497,7 @@ void Geometry::initializeFSRVectors() {
       _FSRs_to_CMFD_cells.at(fsr_id) = fsr->_cmfd_cell;
     }
   }
-
+  
   /* Check if extruded FSRs are present */
   size_t num_extruded_FSRs = _extruded_FSR_keys_map.size();
   if (num_extruded_FSRs > 0) {
@@ -2501,13 +2507,13 @@ void Geometry::initializeFSRVectors() {
     ExtrudedFSR **extruded_value_list = _extruded_FSR_keys_map.values();
 #pragma omp parallel for
     for (int i=0; i < num_extruded_FSRs; i++) {
-      int fsr_id = extruded_value_list[i]->_fsr_id;
+      long fsr_id = extruded_value_list[i]->_fsr_id;
       _extruded_FSR_lookup[fsr_id] = extruded_value_list[i];
     }
 
     delete [] extruded_value_list;
   }
-
+  
   /* Delete key and value lists */
   delete[] key_list;
   delete[] value_list;

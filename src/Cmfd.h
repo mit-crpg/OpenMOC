@@ -207,6 +207,9 @@ private:
 
   /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
   omp_lock_t* _cell_locks;
+  
+  /** OpenMP mutual exclusion lock for edge/corner current tallies */
+  omp_lock_t _edge_corner_lock;
 
   /** Flag indicating whether the problem is 2D or 3D */
   bool _solve_3D;
@@ -459,7 +462,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
       }
       else {
 
-        omp_set_lock(&_cell_locks[local_cell_id]);
+        omp_set_lock(&_edge_corner_lock);
 
         int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
         it = _edge_corner_currents.find(first_ind);
@@ -470,7 +473,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
 
-        omp_unset_lock(&_cell_locks[local_cell_id]);
+        omp_unset_lock(&_edge_corner_lock);
       }
     }
     else {
@@ -493,7 +496,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
       else {
-        omp_set_lock(&_cell_locks[local_cell_id]);
+        omp_set_lock(&_edge_corner_lock);
 
         int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
         it = _edge_corner_currents.find(first_ind);
@@ -503,8 +506,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
-
-        omp_unset_lock(&_cell_locks[local_cell_id]);
+        
+        omp_unset_lock(&_edge_corner_lock);
 
       }
     }

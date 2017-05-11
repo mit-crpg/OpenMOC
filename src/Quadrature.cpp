@@ -1369,7 +1369,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
 std::vector<double> GLPolarQuad::getGLWeights(std::vector <double> roots,
                                                int n) {
   std::vector<double> weights;
-  for (int i; i<roots.size(); ++i){
+  for (int i=0; i<roots.size(); ++i) {
     double value = - (2*roots[i]*roots[i] - 2) /
       (n*n*legendrePolynomial(n-1, roots[i])
        * legendrePolynomial(n-1, roots[i]));

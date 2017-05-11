@@ -1,5 +1,8 @@
 #include "Solver.h"
 #include <fstream>
+#ifdef BGQ
+#include <spi/include/kernel/memory.h>
+#endif
 
 /**
  * @brief Constructor initializes an empty Solver class with array pointers
@@ -1148,6 +1151,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   zeroTrackFluxes();
 
   /* Print memory report */
+#ifdef BGQ
   double vm;
   double rm;
   double max_vm = vm;
@@ -1167,7 +1171,27 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   if (_geometry->isRootDomain())
     log_printf(NORMAL, "Using maximum %f MB virtual memory and %f MB resident "
                         "memory per node", vm, rm);
-  //FIXME
+   
+  uint64_t shared, persist, heapavail, stackavail, stack, heap, guard, mmap;
+
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_SHARED, &shared);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_PERSIST, &persist);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAPAVAIL, &heapavail);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_STACKAVAIL, &stackavail);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_STACK, &stack);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAP, &heap);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_GUARD, &guard);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_MMAP, &mmap);
+
+  log_printf(NORMAL, "Allocated heap: %.2f MB, avail. heap: %.2f MB", 
+             (double)heap/(1024*1024),(double)heapavail/(1024*1024));
+  log_printf(NORMAL, "Allocated stack: %.2f MB, avail. stack: %.2f MB",
+             (double)stack/(1024*1024), (double)stackavail/(1024*1024));
+  log_printf(NORMAL, "Memory: shared: %.2f MB, persist: %.2f MB, guard: %.2f "
+             "MB, mmap: %.2f MB\n", (double)shared/(1024*1024), 
+             (double)persist/(1024*1024), (double)guard/(1024*1024), 
+             (double)mmap/(1024*1024));
+#endif
 
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();

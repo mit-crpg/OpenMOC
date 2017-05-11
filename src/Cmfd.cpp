@@ -1848,8 +1848,8 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
 
     /* Tally current on neighboring cell or appropriate boundary */
     int cell_next = getCellNext(cell, partial_surface);
-    if (cell_indexes[i] == 0 && direction[i] == -1 ||
-        cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1) {
+    if ((cell_indexes[i] == 0 && direction[i] == -1) ||
+        (cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1)) {
       if (_boundaries[partial_surface] == REFLECTIVE)
         surfaces->push_back(cell * ns + remainder_surface);
       else if (_boundaries[partial_surface] == PERIODIC)
@@ -1915,8 +1915,8 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
 
       /* Tally current on neighboring cell or appropriate boundary */
       int cell_next = getCellNext(cell, partial_surface);
-      if (cell_indexes[i] == 0 && direction[i] == -1 ||
-          cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1) {
+      if ((cell_indexes[i] == 0 && direction[i] == -1) ||
+          (cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1)) {
         if (_boundaries[partial_surface] == REFLECTIVE)
           surfaces->push_back(cell * ns + other_surface);
         else if (_boundaries[partial_surface] == PERIODIC)
@@ -2790,6 +2790,7 @@ void Cmfd::initialize() {
 #pragma omp parallel for schedule(guided)
     for (int r=0; r < num_cells; r++)
       omp_init_lock(&_cell_locks[r]);
+    omp_init_lock(&_edge_corner_lock);
 
     /* Allocate memory for matrix and vector objects */
     _M = new Matrix(_cell_locks, _local_num_x, _local_num_y, _local_num_z,

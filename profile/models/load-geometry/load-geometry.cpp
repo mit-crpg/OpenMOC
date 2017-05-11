@@ -30,12 +30,12 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 32;
+  int num_azim = 4;
   double polar_spacing = 0.75;
-  int num_polar = 10;
+  int num_polar = 2;
   
   double tolerance = 1e-4;
-  int max_iters = 250;
+  int max_iters = 30;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -43,7 +43,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17, 17, 200); //FIXME 17*17, 17*17, 200
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 25);
+      get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.7);
   cmfd.setSORRelaxationFactor(1.6);
@@ -118,7 +118,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 10, MPI_COMM_WORLD); //FIXME 17x17xN
+  geometry.setDomainDecomposition(1, 1, 5, MPI_COMM_WORLD); //FIXME 17x17xN
 #else
   //geometry.setNumDomainModules(2,2,4);
 #endif
@@ -136,6 +136,12 @@ int main(int argc,  char* argv[]) {
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
+  double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,
+                    254., 260., 306., 312., 360., 366., 400., 402., 412., 414.,
+                    418., 420.};
+  std::vector<double> segmentation_zones(z_arr, z_arr + sizeof(z_arr) 
+                                         / sizeof(double));
+  track_generator.setSegmentationZones(segmentation_zones);
   /*
   std::vector<FP_PRECISION> zones;
   zones.push_back(0.0);

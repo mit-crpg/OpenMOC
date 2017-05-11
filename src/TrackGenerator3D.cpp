@@ -1228,7 +1228,7 @@ void TrackGenerator3D::segmentizeExtruded() {
   _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
-
+   
   /* Count the number of segments in each track */
   countSegments();
 }

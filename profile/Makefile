@@ -13,7 +13,8 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = load-geometry/load-geometry.cpp
+case = load-geometry/load-full-core.cpp
+#case = load-geometry/load-geometry.cpp
 #case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp
 
@@ -113,6 +114,7 @@ endif
 
 # Debug Flags
 ifeq ($(DEBUG),yes)
+  CFLAGS += -O0
   CFLAGS += -g
   ifeq ($(COMPILER),intel)
   CFLAGS += -vec-report

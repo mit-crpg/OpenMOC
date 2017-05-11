@@ -18,7 +18,7 @@ int main(int argc,  char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = 7; //FIXME 12 / omp_get_num_procs();
+  int num_threads = omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -30,11 +30,11 @@ int main(int argc,  char* argv[]) {
 
   double tolerance = 1e-4;
   int max_iters = 20;
-
+  
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17*17, 17*17, 200); //FIXME 17*17, 17*17, 200
+  cmfd.setLatticeStructure(17*17, 17*17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
@@ -111,13 +111,10 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD); //FIXME 17 x 17 x 10
-#else
-  //geometry.setNumDomainModules(2,2,4);
+  geometry.setDomainDecomposition(17, 17, 5, MPI_COMM_WORLD);
 #endif
-  //FIXME geometry.setOverlaidMesh(2.0); 
   geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
-                           rad_discr_domains); //FIXME 2.0, 17*17*3, 17*17*3
+                           rad_discr_domains);
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -127,6 +124,12 @@ int main(int argc,  char* argv[]) {
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
+  double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,
+                    254., 260., 306., 312., 360., 366., 400., 402., 412., 414.,
+                    418., 420.};
+  std::vector<double> segmentation_zones(z_arr, z_arr + sizeof(z_arr) 
+                                         / sizeof(double));
+  track_generator.setSegmentationZones(segmentation_zones);
   track_generator.generateTracks();
 
   /* Run simulation */
@@ -134,14 +137,13 @@ int main(int argc,  char* argv[]) {
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
-  //solver.correctXS();
   solver.setCheckXSLogLevel(INFO);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
   Lattice mesh_lattice;
   Mesh mesh(&solver);
-  mesh.createLattice(17*17, 17*17, 1);
+  mesh.createLattice(17*17, 17*17, 200);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
   int my_rank = 0;
