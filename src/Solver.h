@@ -99,7 +99,7 @@ enum residualType {
 class Solver {
 
 protected:
-  
+
   /** The number of azimuthal angles */
   int _num_azim;
 
@@ -117,6 +117,9 @@ protected:
 
   /** The FSR Material pointers indexed by FSR UID */
   Material** _FSR_materials;
+
+  /** Material to be used for calculating the initial flux guess from chi */
+  Material* _chi_spectrum_material;
 
   /** A pointer to a TrackGenerator which contains Tracks */
   TrackGenerator* _track_generator;
@@ -150,7 +153,7 @@ protected:
 
   /** Boolean for whether to print verbose iteration reports */
   bool _verbose;
-  
+
   /** The log level for outputting cross-section inconsitencies */
   logLevel _xs_log_level;
 
@@ -261,6 +264,11 @@ protected:
   virtual void flattenFSRFluxes(FP_PRECISION value) =0;
 
   /**
+   * @brief Set the scalar flux for each FSR to a chi spectrum.
+   */
+  virtual void flattenFSRFluxesChiSpectrum() =0;
+
+  /**
    * @brief Stores the current scalar fluxes in the old scalar flux array.
    */
   virtual void storeFSRFluxes() =0;
@@ -346,6 +354,7 @@ public:
   void useExponentialIntrinsic();
   void correctXS();
   void setCheckXSLogLevel(logLevel log_level);
+  void setChiSpectrumMaterial(Material* material);
 
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
   void computeSource(int max_iters=1000, double k_eff=1.0,

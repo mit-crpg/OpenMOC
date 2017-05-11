@@ -225,7 +225,7 @@ void CPUSolver::initializeFluxArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    double max_size_mb = (double) (2 * max_size * sizeof(float)) 
+    double max_size_mb = (double) (2 * max_size * sizeof(float))
         / (double) (1e6);
     log_printf(NORMAL, "Max boundary angular flux storage per domain = %6.2f "
                "MB", max_size_mb);
@@ -241,7 +241,7 @@ void CPUSolver::initializeFluxArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
+    max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
     log_printf(NORMAL, "Max scalar flux storage per domain = %6.2f MB",
                max_size_mb);
@@ -282,14 +282,14 @@ void CPUSolver::initializeSourceArrays() {
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size];
   _fixed_sources = new FP_PRECISION[size];
-    
+
   long max_size = size;
 #ifdef MPIX
   if (_geometry->isDomainDecomposed())
     MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                   _geometry->getMPICart());
 #endif
-  double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION)) 
+  double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
   log_printf(NORMAL, "Max source storage per domain = %6.2f MB",
              max_size_mb);
@@ -1290,6 +1290,23 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
 
 /**
+ * @brief Set the scalar flux for each FSR to a chi spectrum
+ */
+void CPUSolver::flattenFSRFluxesChiSpectrum() {
+  if (_chi_spectrum_material == NULL)
+    log_printf(ERROR, "A flattening of the FSR fluxes for a chi spectrum was "
+               "requested but no chi spectrum material was set.");
+
+  FP_PRECISION* chi = _chi_spectrum_material->getChi();
+#pragma omp parallel for schedule(guided)
+  for (long r=0; r < _num_FSRs; r++) {
+    for (int e=0; e < _num_groups; e++)
+      _scalar_flux(r,e) = chi[e];
+  }
+}
+
+
+/**
  * @brief Stores the FSR scalar fluxes in the old scalar flux array.
  */
 void CPUSolver::storeFSRFluxes() {
@@ -1325,7 +1342,7 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
       for (int e=0; e < _num_groups; e++)
         group_fission_sources[e] = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
 
-      int_fission_sources[r] = pairwise_sum<FP_PRECISION>(group_fission_sources, 
+      int_fission_sources[r] = pairwise_sum<FP_PRECISION>(group_fission_sources,
                                                         _num_groups);
     }
   }
@@ -1421,7 +1438,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       for (int g=0; g < _num_groups; g++)
         scatter_sources[g] = material->getSigmaSByGroup(g+1,G+1)
                                   * _scalar_flux(r,g);
-      FP_PRECISION scatter_source = 
+      FP_PRECISION scatter_source =
           pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
 
       _reduced_sources(r,G) = fission_source * chi[G];
