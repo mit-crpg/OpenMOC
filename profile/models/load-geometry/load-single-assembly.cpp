@@ -14,13 +14,8 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  //std::string file = "few-pins-reduced-ref-v2.geo";
-  //std::string file = "full-assembly-final.geo";
-  //std::string file = "beavrs-2D-v2-NULL-corr.geo";
-  //std::string file = "beavrs-2D-v2.geo";
-  //std::string file = "beavrs-2D-v3.geo"; //FIXME
-  //std::string file = "full-core-beavrs-new.geo";
-  std::string file = "single-assembly.geo";
+  //std::string file = "single-assembly-nc.geo";
+  std::string file = "single-no-TC.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -30,11 +25,11 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 32;
+  int num_azim = 4;
   double polar_spacing = 0.75;
-  int num_polar = 10;
+  int num_polar = 2;
   
-  double tolerance = 1e-4;
+  double tolerance = 1e-7;
   int max_iters = 250;
 
   /* Create CMFD lattice */
@@ -43,7 +38,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17, 17, 200); //FIXME 17*17, 17*17, 200
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 25);
+      get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.7);
   cmfd.setSORRelaxationFactor(1.6);
@@ -52,7 +47,7 @@ int main(int argc,  char* argv[]) {
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
-  geometry.loadFromFile(file);
+  geometry.loadFromFile(file, true);
 
   //FIXME
   int num_rad_discr = 96;
@@ -118,15 +113,9 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 40, MPI_COMM_WORLD); //FIXME 17x17xN
-#else
-  //geometry.setNumDomainModules(2,2,4);
+  geometry.setDomainDecomposition(1, 1, 20, MPI_COMM_WORLD); //FIXME 17x17xN
 #endif
-  geometry.setOverlaidMesh(2.0); //FIXME B 2.0
-  /*
-  geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
-                           rad_discr_domains); //FIXME 2.0, 17*17*3, 17*17*3
-                           */
+  geometry.setOverlaidMesh(2.0);
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
@@ -136,22 +125,19 @@ int main(int argc,  char* argv[]) {
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
-  /*
-  std::vector<FP_PRECISION> zones;
-  zones.push_back(0.0);
-  zones.push_back(20.0);
-  zones.push_back(380.0);
-  zones.push_back(400.0);
-  track_generator.setSegmentationZones(zones);
-    */
+  double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,
+                    254., 260., 306., 312., 360., 366., 400., 402., 412., 414.,
+                    418., 420.};
+  std::vector<double> segmentation_zones(z_arr, z_arr + sizeof(z_arr) 
+                                         / sizeof(double));
+  track_generator.setSegmentationZones(segmentation_zones);
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator); //FIXME LS / FS
+  CPUSolver solver(&track_generator); //FIXME LS / FS
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
-  //solver.correctXS();
   solver.setCheckXSLogLevel(INFO);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();

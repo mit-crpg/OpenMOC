@@ -14,7 +14,7 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  std::string file = "full-core.geo";
+  std::string file = "full-core-nc.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -29,7 +29,7 @@ int main(int argc,  char* argv[]) {
   int num_polar = 2;
 
   double tolerance = 1e-4;
-  int max_iters = 20;
+  int max_iters = 40;
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -46,7 +46,7 @@ int main(int argc,  char* argv[]) {
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
-  geometry.loadFromFile(file);
+  geometry.loadFromFile(file, true);
 
   //FIXME
   int num_rad_discr = 96;
@@ -133,7 +133,7 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator); //FIXME LS / FS
+  CPUSolver solver(&track_generator); //FIXME LS / FS
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

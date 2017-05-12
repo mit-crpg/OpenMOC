@@ -619,7 +619,6 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
   /* Use local array accumulator to prevent false sharing */
   int tid = omp_get_thread_num();
-  _starting_points[tid][0].copyCoords(track->getStart());
   FP_PRECISION* thread_src_constants = _thread_source_constants[tid];
 
   /* Calculate the azimuthal weight */
@@ -638,23 +637,6 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     int polar_index = track_3D->getPolarIndex();
     wgt *= _quadrature->getPolarSpacing(azim_index, polar_index)
         *_quadrature->getPolarWeight(azim_index, polar_index);
-    if (_segment_formation == OTF_STACKS) {
-      int xy_index = track->getXYIndex();
-      int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
-      Track3D* current_stack = _track_generator_3D->getTemporary3DTracks(tid);
-      int stack_size = tracks_per_stack[azim_index][xy_index][polar_index];
-      for (int i=1; i < stack_size; i++)
-        _starting_points[tid][i].copyCoords(current_stack[i].getStart());
-    }
-  }
-
-  /* Extract the maximum track index and get Track data */
-  Track** tracks_array = &track;
-  int max_track_index = 0;
-  if (_segment_formation == OTF_STACKS) {
-    int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
-    max_track_index = tracks_per_stack[azim_index][xy_index][polar_index] - 1;
-    tracks_array = _track_generator_3D->getTemporaryTracksArray(tid);
   }
 
   /* Loop over segments to accumlate contribution to centroids */
@@ -671,17 +653,16 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Extract FSR information */
     double volume = _FSR_volumes[fsr];
-    Point* centroid = geometry->getFSRCentroid(fsr);
 
     /* Extract the starting points of the segment */
-    double x = _starting_points[tid][track_idx].getX();
-    double y = _starting_points[tid][track_idx].getY();
-    double z = _starting_points[tid][track_idx].getZ();
+    double x = curr_segment->_starting_position[0];
+    double y = curr_segment->_starting_position[1];
+    double z = curr_segment->_starting_position[2];
 
     /* Get the centroid of the segment in the local coordinate system */
-    double xc = x - centroid->getX() + length * 0.5 * cos_phi * sin_theta;
-    double yc = y - centroid->getY() + length * 0.5 * sin_phi * sin_theta;
-    double zc = z - centroid->getZ() + length * 0.5 * cos_theta;
+    double xc = x + length * 0.5 * cos_phi * sin_theta;
+    double yc = y + length * 0.5 * sin_phi * sin_theta;
+    double zc = z + length * 0.5 * cos_theta;
 
     /* Set the FSR src constants buffer to zero */
     memset(thread_src_constants, 0.0, _num_groups * _num_coeffs *
@@ -767,14 +748,13 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Unset the lock for this FSR */
     omp_unset_lock(&_FSR_locks[fsr]);
+  }
 
-    x += length * cos_phi * sin_theta;
-    y += length * sin_phi * sin_theta;
-    z += length * cos_theta;
-
-    _starting_points[tid][track_idx].setX(x);
-    _starting_points[tid][track_idx].setY(y);
-    _starting_points[tid][track_idx].setZ(z);
+  /* Determine progress */
+  int max_track_index = 0;
+  if (_segment_formation == OTF_STACKS) {
+    int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
+    max_track_index = tracks_per_stack[azim_index][xy_index][polar_index] - 1;
   }
   for (int i=0; i <= max_track_index; i++)
     _progress->incrementCounter();

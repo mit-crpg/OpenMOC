@@ -13,7 +13,8 @@ PRECISION   = double
 # Source Code List
 #===============================================================================
 
-case = load-geometry/load-full-core.cpp
+#case = load-geometry/load-full-core.cpp
+case = load-geometry/load-single-assembly.cpp
 #case = load-geometry/load-geometry.cpp
 #case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp

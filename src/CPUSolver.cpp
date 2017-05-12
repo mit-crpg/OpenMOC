@@ -1406,7 +1406,7 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
  */
 void CPUSolver::computeFSRSources(int iteration) {
 
-  int num_negative_sources = 0;
+  long num_negative_sources = 0;
 
   /* For all FSRs, find the source */
 #pragma omp parallel for schedule(guided)
@@ -1454,8 +1454,28 @@ void CPUSolver::computeFSRSources(int iteration) {
     }
   }
 
-  if (num_negative_sources > 0)
-    log_printf(WARNING, "Computed %d negative sources", num_negative_sources);
+  /* Tally the total number of negative source across the entire problem */
+  long total_num_negative_sources = num_negative_sources;
+  int num_negative_source_domains = (num_negative_sources > 0);
+  int total_num_negative_source_domains = num_negative_source_domains;
+#ifdef MPIx
+  MPI_Allreduce(&num_negative_sources, &total_num_negative_sources, 1,
+                MPI_LONG, MPI_SUM, _geometry->getMPICart());
+  MPI_Allreduce(&num_negative_source_domains, 
+                &total_num_negative_source_domains, 1,
+                MPI_INT, MPI_SUM, _geometry->getMPICart());
+#endif
+
+  /* Report negative sources */
+  if (total_num_negative_sources > 0) {
+    if (_geometry->isRootDomain()) {
+      log_printf(WARNING, "Computed %ld negative sources on %d domains", 
+                 total_num_negative_sources,
+                 total_num_negative_source_domains);
+      if (iteration < 25)
+        log_printf(WARNING, "Negative sources corrected to zero");
+    }
+  }
 }
 
 
