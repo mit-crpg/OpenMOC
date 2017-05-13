@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(1,1,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(2,2,2, MPI_COMM_WORLD);
 #endif
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator);
+  CPUSolver solver(&track_generator);
   solver.setVerboseIterationReport();
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);

@@ -1459,11 +1459,13 @@ void CPUSolver::computeFSRSources(int iteration) {
   int num_negative_source_domains = (num_negative_sources > 0);
   int total_num_negative_source_domains = num_negative_source_domains;
 #ifdef MPIx
-  MPI_Allreduce(&num_negative_sources, &total_num_negative_sources, 1,
-                MPI_LONG, MPI_SUM, _geometry->getMPICart());
-  MPI_Allreduce(&num_negative_source_domains, 
-                &total_num_negative_source_domains, 1,
-                MPI_INT, MPI_SUM, _geometry->getMPICart());
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Allreduce(&num_negative_sources, &total_num_negative_sources, 1,
+                  MPI_LONG, MPI_SUM, _geometry->getMPICart());
+    MPI_Allreduce(&num_negative_source_domains, 
+                  &total_num_negative_source_domains, 1,
+                  MPI_INT, MPI_SUM, _geometry->getMPICart());
+  }
 #endif
 
   /* Report negative sources */

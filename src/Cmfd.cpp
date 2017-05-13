@@ -339,7 +339,6 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
 
   if (_domain_communicator == NULL) {
     _domain_communicator = new DomainCommunicator;
-    _geometry->getMPICart();
     _domain_communicator->_MPI_cart = _geometry->getMPICart();
   }
 
@@ -358,7 +357,6 @@ void Cmfd::setDomainIndexes(int idx_x, int idx_y, int idx_z) {
 
   if (_domain_communicator == NULL) {
     _domain_communicator = new DomainCommunicator;
-    _geometry->getMPICart();
     _domain_communicator->_MPI_cart = _geometry->getMPICart();
   }
 

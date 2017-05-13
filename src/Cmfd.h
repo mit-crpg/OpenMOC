@@ -456,7 +456,6 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
       }
 
       /* Increment currents */
-        /* FIXME: DELETE    
       if (surf_id < NUM_FACES) {
         _surface_currents->incrementValues
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
@@ -476,7 +475,6 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
         omp_unset_lock(&_edge_corner_lock);
       }
-    */
     }
     else {
       int pe = 0;

@@ -24,9 +24,9 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
  
-  double azim_spacing = 0.1;
+  double azim_spacing = 5.0; // 0.1
   int num_azim = 4;
-  double polar_spacing = 0.75;
+  double polar_spacing = 1.25; //0.75
   int num_polar = 2;
   
   double tolerance = 1e-7;
@@ -35,7 +35,7 @@ int main(int argc,  char* argv[]) {
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17, 17, 200); //FIXME 17*17, 17*17, 200
+  cmfd.setLatticeStructure(2, 2, 200); //FIXME 17*17, 17*17, 200
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
@@ -109,13 +109,14 @@ int main(int argc,  char* argv[]) {
   }
 
 
-  geometry.setCmfd(&cmfd); //FIXME OFF /ON
+  //geometry.setCmfd(&cmfd); //FIXME OFF /ON
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 20, MPI_COMM_WORLD); //FIXME 17x17xN
+  geometry.setDomainDecomposition(1, 1, 1, MPI_COMM_WORLD); //FIXME 17x17xN
+  geometry.setNumDomainModules(1, 1, 20);
 #endif
-  geometry.setOverlaidMesh(2.0);
+  //geometry.setOverlaidMesh(2.0);
   geometry.initializeFlatSourceRegions();
 
   /* Create the track generator */
