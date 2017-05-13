@@ -2476,7 +2476,7 @@ void Geometry::initializeFSRVectors() {
   _FSRs_to_centroids = std::vector<Point*>(num_FSRs, NULL);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
-  
+
   /* fill vectors key and material ID information */
   #pragma omp parallel for
   for (long i=0; i < num_FSRs; i++)
@@ -2497,7 +2497,7 @@ void Geometry::initializeFSRVectors() {
       _FSRs_to_CMFD_cells.at(fsr_id) = fsr->_cmfd_cell;
     }
   }
-  
+
   /* Check if extruded FSRs are present */
   size_t num_extruded_FSRs = _extruded_FSR_keys_map.size();
   if (num_extruded_FSRs > 0) {
@@ -2513,7 +2513,7 @@ void Geometry::initializeFSRVectors() {
 
     delete [] extruded_value_list;
   }
-  
+
   /* Delete key and value lists */
   delete[] key_list;
   delete[] value_list;
@@ -3472,8 +3472,9 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
     ret = twiddleRead(&id, sizeof(int), 1, in);
     ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
-      str = new char[length];
+      str = new char[length+1];
       ret = twiddleRead(str, sizeof(char), length, in);
+      str[length] = '\0';
       name = str;
     }
     else {
@@ -3537,8 +3538,9 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
     ret = twiddleRead(&id, sizeof(int), 1, in);
     ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
-      str = new char[length];
+      str = new char[length+1];
       ret = twiddleRead(str, sizeof(char), length, in);
+      str[length] = '\0';
       name = str;
     }
     else {
@@ -3610,8 +3612,9 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
     ret = twiddleRead(&id, sizeof(int), 1, in);
     ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
-      str = new char[length];
+      str = new char[length+1];
       ret = twiddleRead(str, sizeof(char), length, in);
+      str[length] = '\0';
       name = str;
     }
     else {
@@ -3702,8 +3705,9 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
     ret = twiddleRead(&id, sizeof(int), 1, in);
     ret = twiddleRead(&length, sizeof(int), 1, in);
     if (length > 0) {
-      str = new char[length];
+      str = new char[length+1];
       ret = twiddleRead(str, sizeof(char), length, in);
+      str[length] = '\0';
       name = str;
     }
     else {

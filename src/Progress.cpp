@@ -1,7 +1,7 @@
 #include "Progress.h"
 #include "Geometry.h"
 
-Progress::Progress(int num_iterations, std::string name, double interval, 
+Progress::Progress(int num_iterations, std::string name, double interval,
                    Geometry* geometry, bool mpi_comm) {
 
   if (geometry != NULL) {
@@ -39,8 +39,9 @@ void Progress::incrementCounter() {
   #pragma omp critical
   {
     curr_count = _counter++;
-    while (curr_count == _intervals[_curr_interval] && 
-            _curr_interval < _intervals.size()) {
+    while (_curr_interval < _intervals.size()) {
+      if (curr_count != _intervals.at(_curr_interval))
+        break;
       double count = curr_count;
       if (count != 0)
         count += 1;
@@ -55,6 +56,8 @@ void Progress::incrementCounter() {
       std::string msg = "Progress " + _name + ": %4.2f %%";
       log_printf(NORMAL, msg.c_str(), percent);
       _curr_interval++;
+      if (_curr_interval >= _intervals.size())
+        break;
     }
 #pragma omp flush (_counter, _curr_interval)
   }

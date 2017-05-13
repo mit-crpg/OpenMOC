@@ -23,12 +23,12 @@ int main(int argc,  char* argv[]) {
   #else
   int num_threads = 1;
   #endif
- 
+
   double azim_spacing = 5.0; // 0.1
   int num_azim = 4;
   double polar_spacing = 1.25; //0.75
   int num_polar = 2;
-  
+
   double tolerance = 1e-7;
   int max_iters = 250;
 
@@ -129,7 +129,7 @@ int main(int argc,  char* argv[]) {
   double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,
                     254., 260., 306., 312., 360., 366., 400., 402., 412., 414.,
                     418., 420.};
-  std::vector<double> segmentation_zones(z_arr, z_arr + sizeof(z_arr) 
+  std::vector<double> segmentation_zones(z_arr, z_arr + sizeof(z_arr)
                                          / sizeof(double));
   track_generator.setSegmentationZones(segmentation_zones);
   track_generator.generateTracks();
