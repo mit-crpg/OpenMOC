@@ -1721,7 +1721,7 @@ void CPUSolver::transportSweep() {
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
                                 float* track_flux,
-                                NEW_FP_PRECISION* fsr_flux) {
+                                FP_PRECISION* fsr_flux) {
 
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
@@ -1731,7 +1731,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
   /* Set the FSR scalar flux buffer to zero */
-  memset(fsr_flux, 0.0, _num_groups * sizeof(NEW_FP_PRECISION));
+  memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
 
   if (_solve_3D) {
 

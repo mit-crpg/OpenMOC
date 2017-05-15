@@ -787,9 +787,9 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   size += 8;
 
   /* Allocate temporary storage of FSR fluxes */
-  _thread_fsr_fluxes = new NEW_FP_PRECISION*[num_threads];
+  _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new NEW_FP_PRECISION[size];
+    _thread_fsr_fluxes[i] = new FP_PRECISION[size];
 }
 
 
@@ -831,7 +831,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Get the temporary FSR flux */
   int tid = omp_get_thread_num();
-  NEW_FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
+  FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
 
   /* Extract Track information */
   long track_id = track->getUid();

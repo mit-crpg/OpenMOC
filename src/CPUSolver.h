@@ -113,7 +113,7 @@ public:
     //FIXME MEM : float / FP_PRECISION
   virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
                                int polar_index, float* track_flux,
-                               NEW_FP_PRECISION* fsr_flux);
+                               FP_PRECISION* fsr_flux);
 
   /**
    * @brief Computes the contribution to surface current from a Track segment.

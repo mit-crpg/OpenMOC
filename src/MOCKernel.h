@@ -166,7 +166,7 @@ private:
   CPUSolver* _cpu_solver;
 
   /** Pointer to angular flux data in the current direction */
-  NEW_FP_PRECISION* _thread_fsr_flux;
+  FP_PRECISION* _thread_fsr_flux;
 
   /** Azimuthal index of the current track */
   int _azim_index;

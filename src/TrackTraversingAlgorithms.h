@@ -200,7 +200,7 @@ private:
   CPUSolver* _cpu_solver;
   CPULSSolver* _ls_solver;
   Geometry* _geometry;
-  NEW_FP_PRECISION** _thread_fsr_fluxes;
+  FP_PRECISION** _thread_fsr_fluxes;
 
 public:
 
