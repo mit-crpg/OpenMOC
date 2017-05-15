@@ -1297,7 +1297,7 @@ void CPUSolver::flattenFSRFluxesChiSpectrum() {
     log_printf(ERROR, "A flattening of the FSR fluxes for a chi spectrum was "
                "requested but no chi spectrum material was set.");
 
-  FP_PRECISION* chi = _chi_spectrum_material->getChi();
+  NEW_FP_PRECISION* chi = _chi_spectrum_material->getChi();
 #pragma omp parallel for schedule(guided)
   for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++)
@@ -1336,7 +1336,7 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
     for (long r=0; r < _num_FSRs; r++) {
 
       /* Get pointers to important data structures */
-      FP_PRECISION* nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+      NEW_FP_PRECISION* nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
       FP_PRECISION volume = _FSR_volumes[r];
 
       for (int e=0; e < _num_groups; e++)
@@ -1414,9 +1414,9 @@ void CPUSolver::computeFSRSources(int iteration) {
 
     int tid = omp_get_thread_num();
     Material* material = _FSR_materials[r];
-    FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-    FP_PRECISION* chi = material->getChi();
-    FP_PRECISION* sigma_t = material->getSigmaT();
+    NEW_FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+    NEW_FP_PRECISION* chi = material->getChi();
+    NEW_FP_PRECISION* sigma_t = material->getSigmaT();
     FP_PRECISION* fission_sources = _groupwise_scratch.at(tid);
 
     /* Initialize the fission sources to zero */
@@ -1512,7 +1512,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     norm = _num_fissionable_FSRs;
 
     double new_fission_source, old_fission_source;
-    FP_PRECISION* nu_sigma_f;
+    NEW_FP_PRECISION* nu_sigma_f;
     Material* material;
 
     for (int r=0; r < _num_FSRs; r++) {
@@ -1541,7 +1541,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
     double new_total_source, old_total_source;
     FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
-    FP_PRECISION* nu_sigma_f;
+    NEW_FP_PRECISION* nu_sigma_f;
     Material* material;
 
     for (int r=0; r < _num_FSRs; r++) {
@@ -1632,7 +1632,7 @@ void CPUSolver::computeKeff() {
     FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
     FP_PRECISION volume = _FSR_volumes[r];
     Material* material = _FSR_materials[r];
-    FP_PRECISION* sigma = material->getNuSigmaF();
+    NEW_FP_PRECISION* sigma = material->getNuSigmaF();
 
     for (int e=0; e < _num_groups; e++)
       group_rates[e] = sigma[e] * _scalar_flux(r,e);
@@ -1726,7 +1726,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
-  FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
+  NEW_FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* The change in angular flux along this Track segment in the FSR */
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
@@ -1866,7 +1866,7 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 void CPUSolver::addSourceToScalarFlux() {
 
   FP_PRECISION volume;
-  FP_PRECISION* sigma_t;
+  NEW_FP_PRECISION* sigma_t;
 
   /* Add in source term and normalize flux to volume for each FSR */
   /* Loop over FSRs, energy groups */
@@ -1907,7 +1907,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
 
   log_printf(INFO, "Computing FSR fission rates...");
 
-  FP_PRECISION* nu_sigma_f;
+  NEW_FP_PRECISION* nu_sigma_f;
   FP_PRECISION vol;
 
   /* Initialize fission rates to zero */

@@ -404,8 +404,9 @@ void Cmfd::collapseXS() {
   {
 
     /* Initialize variables for FSR properties*/
-    FP_PRECISION volume, flux, tot, nu_fis, chi;
-    FP_PRECISION* scat;
+    FP_PRECISION volume, flux;
+    NEW_FP_PRECISION tot, nu_fis, chi;
+    NEW_FP_PRECISION* scat;
 
     FP_PRECISION scat_tally[_num_cmfd_groups];
     FP_PRECISION chi_tally[_num_cmfd_groups];
@@ -3287,7 +3288,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         long fsr_id = _cell_fsrs.at(i).at(j);
         Material* fsr_material = _FSR_materials[fsr_id];
         double volume = _FSR_volumes[fsr_id];
-        FP_PRECISION* scat = fsr_material->getSigmaS();
+        NEW_FP_PRECISION* scat = fsr_material->getSigmaS();
         FP_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
 
         /* Loop over MOC energy groups within this CMFD coarse group */

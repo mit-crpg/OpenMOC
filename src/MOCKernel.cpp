@@ -160,7 +160,7 @@ void VolumeKernel::execute(double length, Material* mat, long fsr_id,
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
   /* Determine the number of cuts on the segment */
-  FP_PRECISION* sigma_t = mat->getSigmaT();
+  NEW_FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
@@ -191,7 +191,7 @@ void CounterKernel::execute(double length, Material* mat, long fsr_id,
                             double phi, double theta) {
 
   /* Determine the number of cuts on the segment */
-  FP_PRECISION* sigma_t = mat->getSigmaT();
+  NEW_FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
@@ -226,7 +226,7 @@ void SegmentationKernel::execute(double length, Material* mat, long fsr_id,
     return;
 
   /* Determine the number of cuts on the segment */
-  FP_PRECISION* sigma_t = mat->getSigmaT();
+  NEW_FP_PRECISION* sigma_t = mat->getSigmaT();
   double max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
@@ -336,8 +336,8 @@ void TransportKernel::execute(double length, Material* mat, long fsr_id,
     _max_track_idx = track_idx;
 
   /* Determine the number of cuts on the segment */
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  FP_PRECISION max_sigma_t = 0;
+  NEW_FP_PRECISION* sigma_t = mat->getSigmaT();
+  NEW_FP_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];

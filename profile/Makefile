@@ -8,6 +8,7 @@ OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
 PRECISION   = double
+NEW_PRECISION = single
 
 #===============================================================================
 # Source Code List
@@ -140,6 +141,17 @@ ifeq ($(PRECISION),double)
   CFLAGS += -DFP_PRECISION=double
 #  CFLAGS += -DDOUBLE
 endif
+
+ifeq ($(NEW_PRECISION),single)
+  CFLAGS += -DNEW_FP_PRECISION=float
+  CFLAGS += -DSINGLE
+endif
+ifeq ($(NEW_PRECISION),double)
+  CFLAGS += -DNEW_FP_PRECISION=double
+#  CFLAGS += -DDOUBLE
+endif
+
+
 
 # Vector Flags
 CFLAGS += -DVEC_LENGTH=8

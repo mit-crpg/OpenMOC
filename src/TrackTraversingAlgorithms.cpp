@@ -45,7 +45,7 @@ void MaxOpticalLength::onTrack(Track* track, segment* segments) {
   for (int s=0; s < track->getNumSegments(); s++) {
     double length = segments[s]._length;
     Material* material = segments[s]._material;
-    FP_PRECISION* sigma_t = material->getSigmaT();
+    NEW_FP_PRECISION* sigma_t = material->getSigmaT();
 
     for (int e=0; e < material->getNumEnergyGroups(); e++) {
       FP_PRECISION tau = length*sigma_t[e];
@@ -180,7 +180,7 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
     /* Compute number of segments to split this segment into */
     int min_num_cuts = 1;
     int num_groups = material->getNumEnergyGroups();
-    FP_PRECISION* sigma_t = material->getSigmaT();
+    NEW_FP_PRECISION* sigma_t = material->getSigmaT();
 
     for (int g=0; g < num_groups; g++) {
       FP_PRECISION tau = length * sigma_t[g];
@@ -647,7 +647,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long fsr = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
-    FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
+    NEW_FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
     FP_PRECISION length = curr_segment->_length;
     FP_PRECISION length_2 = length * length;
 

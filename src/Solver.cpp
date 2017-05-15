@@ -300,8 +300,8 @@ FP_PRECISION Solver::getFSRSource(long fsr_id, int group) {
                "since it has not yet been computed");
 
   Material* material = _FSR_materials[fsr_id];
-  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-  FP_PRECISION* chi = material->getChi();
+  NEW_FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+  NEW_FP_PRECISION* chi = material->getChi();
   FP_PRECISION source = 0.;
 
   /* Compute fission source */
@@ -735,18 +735,18 @@ void Solver::checkXS() {
 
     /* Extract cross-sections */
     char* name = material->getName();
-    FP_PRECISION* sigma_t = material->getSigmaT();
-    FP_PRECISION* sigma_f = material->getSigmaF();
-    FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-    FP_PRECISION* scattering_matrix = material->getSigmaS();
-    FP_PRECISION* chi = material->getChi();
+    NEW_FP_PRECISION* sigma_t = material->getSigmaT();
+    NEW_FP_PRECISION* sigma_f = material->getSigmaF();
+    NEW_FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+    NEW_FP_PRECISION* scattering_matrix = material->getSigmaS();
+    NEW_FP_PRECISION* chi = material->getChi();
 
     /* Loop over all energy groups */
     for (int e=0; e < _num_groups; e++) {
 
       /* Check that the total cross-section is greater than or equal to the
          scattering cross-section */
-      FP_PRECISION sigma_s = 0.0;
+      NEW_FP_PRECISION sigma_s = 0.0;
       for (int g=0; g < _num_groups; g++) {
         sigma_s += scattering_matrix[g*_num_groups+e];
         if (scattering_matrix[g*_num_groups+e] < 0)
