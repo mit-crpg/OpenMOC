@@ -148,7 +148,7 @@ private:
   Material** _FSR_materials;
 
   /** The FSR scalar flux in each energy group */
-  FP_PRECISION* _FSR_fluxes;
+  NEW_FP_PRECISION* _FSR_fluxes;
 
   /** The source region flux moments (x, y, and z) for each energy group */
   FP_PRECISION* _flux_moments;
@@ -375,7 +375,7 @@ public:
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
-  void setFSRFluxes(FP_PRECISION* scalar_flux);
+  void setFSRFluxes(NEW_FP_PRECISION* scalar_flux);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);
 };

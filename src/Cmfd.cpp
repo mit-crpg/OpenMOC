@@ -1190,7 +1190,7 @@ void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
  * @brief Set pointer to FSR flux array.
  * @param pointer to FSR flux array
  */
-void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
+void Cmfd::setFSRFluxes(NEW_FP_PRECISION* scalar_flux) {
   _FSR_fluxes = scalar_flux;
 }
 
@@ -3289,7 +3289,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         Material* fsr_material = _FSR_materials[fsr_id];
         double volume = _FSR_volumes[fsr_id];
         NEW_FP_PRECISION* scat = fsr_material->getSigmaS();
-        FP_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
+        NEW_FP_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
 
         /* Loop over MOC energy groups within this CMFD coarse group */
         double chi = 0.0;

@@ -280,7 +280,7 @@ TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
   _azim_index = 0;
   _polar_index = 0;
   _track_id = 0;
-  _thread_fsr_flux = new FP_PRECISION[_num_groups];
+  _thread_fsr_flux = new NEW_FP_PRECISION[_num_groups];
 }
 
 TransportKernel::~TransportKernel() {

@@ -795,8 +795,8 @@ void Solver::initializeFixedSources() {
   FP_PRECISION source;
   std::pair<Cell*, int> cell_group_key;
   std::pair<Material*, int> mat_group_key;
-  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
-  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
+  std::map< std::pair<Cell*, int>, NEW_FP_PRECISION >::iterator cell_iter;
+  std::map< std::pair<Material*, int>, NEW_FP_PRECISION >::iterator mat_iter;
 
   /* Fixed sources assigned by Cell */
   for (cell_iter = _fix_src_cell_map.begin();
@@ -1497,7 +1497,7 @@ void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
  * @brief A function that returns the underlying array of scalar fluxes
  * @return The scalar fluxes
  */
-FP_PRECISION* Solver::getFluxesArray() {
+NEW_FP_PRECISION* Solver::getFluxesArray() {
   return _scalar_flux;
 }
 

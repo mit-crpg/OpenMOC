@@ -64,7 +64,7 @@ public:
 
     //FIXME MEM : float / FP_PRECISION
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
-                         float* track_flux, FP_PRECISION* fsr_flux,
+                         float* track_flux, NEW_FP_PRECISION* fsr_flux,
                          double direction[3]);
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);

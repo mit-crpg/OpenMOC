@@ -179,32 +179,32 @@ protected:
   /** The angular leakages for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the weighted outgoing fluxes
    *  for a Track along both "forward" and "reverse" directions. */
-  FP_PRECISION* _boundary_leakage;
+  NEW_FP_PRECISION* _boundary_leakage;
 
   /** The scalar flux for each energy group in each FSR */
-  FP_PRECISION* _scalar_flux;
+  NEW_FP_PRECISION* _scalar_flux;
 
   /** The old scalar flux for each energy group in each FSR */
-  FP_PRECISION* _old_scalar_flux;
+  NEW_FP_PRECISION* _old_scalar_flux;
 
   /** Optional user-specified fixed sources in each FSR and energy group */
-  FP_PRECISION* _fixed_sources;
+  NEW_FP_PRECISION* _fixed_sources;
 
   /** Temporary scratch pads for intermediate storage of computing steps */
   std::vector<FP_PRECISION*> _groupwise_scratch;
   double* _regionwise_scratch;
 
   /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
-  std::map< std::pair<int, int>, FP_PRECISION > _fix_src_FSR_map;
+  std::map< std::pair<int, int>, NEW_FP_PRECISION > _fix_src_FSR_map;
 
   /** A mapping of fixed sources keyed by the pair (Cell*, energy group) */
-  std::map< std::pair<Cell*, int>, FP_PRECISION > _fix_src_cell_map;
+  std::map< std::pair<Cell*, int>, NEW_FP_PRECISION > _fix_src_cell_map;
 
   /** A mapping of fixed sources keyed by the pair (Material*, energy group) */
-  std::map< std::pair<Material*, int>, FP_PRECISION > _fix_src_material_map;
+  std::map< std::pair<Material*, int>, NEW_FP_PRECISION > _fix_src_material_map;
 
   /** Ratios of source to total cross-section for each FSR and energy group */
-  FP_PRECISION* _reduced_sources;
+  NEW_FP_PRECISION* _reduced_sources;
 
   /** The current iteration's approximation to k-effective */
   FP_PRECISION _k_eff;
@@ -339,7 +339,7 @@ public:
   void printInputParamsSummary();
 
   virtual FP_PRECISION getFlux(long fsr_id, int group);
-  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
+  virtual void getFluxes(NEW_FP_PRECISION* out_fluxes, int num_fluxes) = 0;
   FP_PRECISION getFSRSource(long fsr_id, int group);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
@@ -393,7 +393,7 @@ public:
 
   void setVerboseIterationReport();
   void printTimerReport();
-  FP_PRECISION* getFluxesArray();
+  NEW_FP_PRECISION* getFluxesArray();
 
   //FIXME
   inline void setOTFTransport() {

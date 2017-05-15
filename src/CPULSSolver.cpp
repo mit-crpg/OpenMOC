@@ -310,7 +310,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
 void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     float* track_flux,
-                                    FP_PRECISION* fsr_flux,
+                                    NEW_FP_PRECISION* fsr_flux,
                                     double direction[3]) {
 
   long fsr_id = curr_segment->_region_id;

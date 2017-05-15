@@ -83,7 +83,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   /* Extract fluxes and geometry information */
   Geometry* geometry = _solver->getGeometry();
   FP_PRECISION* volumes = _solver->getTrackGenerator()->getFSRVolumesBuffer();
-  FP_PRECISION* fluxes = _solver->getFluxesArray();
+  NEW_FP_PRECISION* fluxes = _solver->getFluxesArray();
   int num_fsrs = geometry->getNumFSRs();
 
   /* Create a 1D array of reaction rates with the appropriate size */

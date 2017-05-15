@@ -166,7 +166,7 @@ private:
   CPUSolver* _cpu_solver;
 
   /** Pointer to angular flux data in the current direction */
-  FP_PRECISION* _thread_fsr_flux;
+  NEW_FP_PRECISION* _thread_fsr_flux;
 
   /** Azimuthal index of the current track */
   int _azim_index;
@@ -188,7 +188,7 @@ public:
   virtual ~TransportKernel();
   void newTrack(Track* track);
   void setCPUSolver(CPUSolver* cpu_solver);
-  void setTrackFlux(FP_PRECISION* fwd_flux, FP_PRECISION* bwd_flux,
+  void setTrackFlux(NEW_FP_PRECISION* fwd_flux, NEW_FP_PRECISION* bwd_flux,
                     int track_id);
   void setTrackIndexes(int azim_index, int polar_index);
   void setDirection(bool direction);
