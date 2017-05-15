@@ -53,9 +53,9 @@ struct DomainCommunicator {
   int** num_connections;
   int*** indexes;
   int*** domains;
-  FP_PRECISION*** coupling_coeffs;
-  FP_PRECISION*** fluxes;
-  FP_PRECISION** buffer;
+  NEW_FP_PRECISION*** coupling_coeffs;
+  NEW_FP_PRECISION*** fluxes;
+  NEW_FP_PRECISION** buffer;
   int num_groups;
   bool stop;
 #ifdef MPIx
@@ -66,8 +66,8 @@ struct DomainCommunicator {
 //FIXME
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
-                      int**& coupling_indexes, FP_PRECISION**& coupling_coeffs,
-                      FP_PRECISION**& coupling_fluxes, FP_PRECISION* curr_fluxes,
+                      int**& coupling_indexes, NEW_FP_PRECISION**& coupling_coeffs,
+                      NEW_FP_PRECISION**& coupling_fluxes, FP_PRECISION* curr_fluxes,
                       int& offset);
 #endif
 

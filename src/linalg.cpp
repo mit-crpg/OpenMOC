@@ -210,8 +210,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   //
   int* coupling_sizes = NULL;
   int** coupling_indexes = NULL;
-  FP_PRECISION** coupling_coeffs = NULL;
-  FP_PRECISION** coupling_fluxes = NULL;
+  NEW_FP_PRECISION** coupling_coeffs = NULL;
+  NEW_FP_PRECISION** coupling_fluxes = NULL;
 
   double initial_residual = 0;
   while (iter < MAX_LINEAR_SOLVE_ITERATIONS) {
@@ -311,8 +311,9 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 //FIXME
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
-                      int**& coupling_indexes, FP_PRECISION**& coupling_coeffs,
-                      FP_PRECISION**& coupling_fluxes, FP_PRECISION* curr_fluxes,
+                      int**& coupling_indexes, NEW_FP_PRECISION**& coupling_coeffs,
+                      NEW_FP_PRECISION**& coupling_fluxes, 
+                      FP_PRECISION* curr_fluxes,
                       int& offset) {
 
   if (comm != NULL) {
@@ -332,7 +333,7 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
     int ng = comm->num_groups;
 
     MPI_Datatype flux_type;
-    if (sizeof(FP_PRECISION) == 4)
+    if (sizeof(NEW_FP_PRECISION) == 4)
       flux_type = MPI_FLOAT;
     else
       flux_type = MPI_DOUBLE;
