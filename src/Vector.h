@@ -29,7 +29,7 @@ class Vector {
 private:
 
   /** A list of lists representing the vector */
-  FP_PRECISION* _array;
+  NEW_FP_PRECISION* _array;
   int _num_rows;
   int _num_x;
   int _num_y;
@@ -50,29 +50,29 @@ public:
   virtual ~Vector();
 
   /* Worker functions */
-  void incrementValue(int cell, int group, FP_PRECISION val);
+  void incrementValue(int cell, int group, NEW_FP_PRECISION val);
   void incrementValues(int cell, int group_start, int group_end,
-      FP_PRECISION* vals);
+                       FP_PRECISION* vals);
   void clear();
-  void scaleByValue(FP_PRECISION val);
+  void scaleByValue(NEW_FP_PRECISION val);
   void printString();
   void copyTo(Vector* vector);
 
   /* Getter functions */
-  FP_PRECISION getValue(int cell, int group);
-  FP_PRECISION* getArray();
+  NEW_FP_PRECISION getValue(int cell, int group);
+  NEW_FP_PRECISION* getArray();
   int getNumX();
   int getNumY();
   int getNumZ();
   int getNumGroups();
   int getNumRows();
-  FP_PRECISION getSum();
+  double getSum();
   omp_lock_t* getCellLocks();
 
   /* Setter functions */
-  void setValue(int cell, int group, FP_PRECISION val);
-  void setValues(int cell, int group_start, int group_end, FP_PRECISION* vals);
-  void setAll(FP_PRECISION val);
+  void setValue(int cell, int group, NEW_FP_PRECISION val);
+  void setValues(int cell, int group_start, int group_end, NEW_FP_PRECISION* vals);
+  void setAll(NEW_FP_PRECISION val);
 };
 
 #endif /* VECTOR_H_ */

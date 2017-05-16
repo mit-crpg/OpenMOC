@@ -28,7 +28,7 @@ Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_z,
 
   /* Initialize variables */
   for (int i=0; i < _num_rows; i++)
-    _LIL.push_back(std::map<int, FP_PRECISION>());
+    _LIL.push_back(std::map<int, NEW_FP_PRECISION>());
 
   _A = NULL;
   _IA = NULL;
@@ -83,7 +83,7 @@ Matrix::~Matrix() {
  * @param val The value used to increment the row/column location.
  */
 void Matrix::incrementValue(int cell_from, int group_from,
-                            int cell_to, int group_to, FP_PRECISION val) {
+                            int cell_to, int group_to, NEW_FP_PRECISION val) {
 
   if (cell_from >= _num_x*_num_y*_num_z || cell_from < 0)
     log_printf(ERROR, "Unable to increment Matrix value for cell_from %d"
@@ -128,7 +128,7 @@ void Matrix::incrementValue(int cell_from, int group_from,
  * @param val The value used to set the row/column location.
  */
 void Matrix::setValue(int cell_from, int group_from,
-                      int cell_to, int group_to, FP_PRECISION val) {
+                      int cell_to, int group_to, NEW_FP_PRECISION val) {
 
   if (cell_from >= _num_x*_num_y*_num_z || cell_from < 0)
     log_printf(ERROR, "Unable to set Matrix value for cell_from %d"
@@ -193,15 +193,15 @@ void Matrix::convertToCSR() {
     delete [] _DIAG;
 
   /* Allocate memory for arrays */
-  _A = new FP_PRECISION[NNZ];
+  _A = new NEW_FP_PRECISION[NNZ];
   _IA = new int[_num_rows+1];
   _JA = new int[NNZ];
-  _DIAG = new FP_PRECISION[_num_rows];
+  _DIAG = new NEW_FP_PRECISION[_num_rows];
   std::fill_n(_DIAG, _num_rows, 0.0);
 
   /* Form arrays */
   int j = 0;
-  std::map<int, FP_PRECISION>::iterator iter;
+  std::map<int, NEW_FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     _IA[row] = j;
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
@@ -265,7 +265,7 @@ void Matrix::printString() {
  * @param group_from The destination group.
  * @return The value at the corresponding row/column location.
  */
-FP_PRECISION Matrix::getValue(int cell_from, int group_from,
+NEW_FP_PRECISION Matrix::getValue(int cell_from, int group_from,
                               int cell_to, int group_to) {
   int row = cell_to*_num_groups + group_to;
   int col = cell_from*_num_groups + group_from;
@@ -277,7 +277,7 @@ FP_PRECISION Matrix::getValue(int cell_from, int group_from,
  * @brief Get the A component of the CSR form of the matrix object.
  * @return A pointer to the A component of the CSR form matrix object.
  */
-FP_PRECISION* Matrix::getA() {
+NEW_FP_PRECISION* Matrix::getA() {
 
   if (_modified)
     convertToCSR();
@@ -316,7 +316,7 @@ int* Matrix::getJA() {
  * @brief Get the diagonal component of the matrix object.
  * @return A pointer to the diagonal component of the matrix object.
  */
-FP_PRECISION* Matrix::getDiag() {
+NEW_FP_PRECISION* Matrix::getDiag() {
 
   if (_modified)
     convertToCSR();
@@ -377,7 +377,7 @@ int Matrix::getNumRows() {
 int Matrix::getNNZ() {
 
   int NNZ = 0;
-  std::map<int, FP_PRECISION>::iterator iter;
+  std::map<int, NEW_FP_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
       if (iter->second != 0.0)
@@ -453,7 +453,7 @@ void Matrix::transpose() {
   Matrix temp(_cell_locks, _num_x, _num_y, _num_z, _num_groups);
   convertToCSR();
   int col, cell_to, cell_from, group_to, group_from;
-  FP_PRECISION val;
+  NEW_FP_PRECISION val;
 
   /* Transpose matrix to temp */
   for (int row=0; row < _num_rows; row++) {
@@ -473,7 +473,7 @@ void Matrix::transpose() {
   temp.convertToCSR();
   int* IA = temp.getIA();
   int* JA = temp.getJA();
-  FP_PRECISION* A = temp.getA();
+  NEW_FP_PRECISION* A = temp.getA();
 
   for (int row=0; row < _num_rows; row++) {
     for (int i = IA[row]; i < IA[row+1]; i++) {

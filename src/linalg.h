@@ -67,7 +67,7 @@ struct DomainCommunicator {
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, NEW_FP_PRECISION**& coupling_coeffs,
-                      NEW_FP_PRECISION**& coupling_fluxes, FP_PRECISION* curr_fluxes,
+                      NEW_FP_PRECISION**& coupling_fluxes, NEW_FP_PRECISION* curr_fluxes,
                       int& offset);
 #endif
 
