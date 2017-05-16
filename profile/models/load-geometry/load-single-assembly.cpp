@@ -15,6 +15,8 @@ int main(int argc,  char* argv[]) {
 
   /* Define geometry to load */
   //std::string file = "single-assembly-nc.geo";
+  //std::string file = "single-assembly-5G-adjust.geo";
+  //std::string file = "single-assembly-5G-adjust-no-neg.geo";
   std::string file = "single-no-TC.geo";
 
   /* Define simulation parameters */
@@ -24,10 +26,10 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
 
-  double azim_spacing = 0.1; // 0.1
-  int num_azim = 4;
-  double polar_spacing = 0.75; //0.75
-  int num_polar = 2;
+  double azim_spacing = 0.1;
+  int num_azim = 32;
+  double polar_spacing = 0.75;
+  int num_polar = 10;
 
   double tolerance = 1e-7;
   int max_iters = 250;
@@ -35,7 +37,7 @@ int main(int argc,  char* argv[]) {
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17, 17, 200); //FIXME 17*17, 17*17, 200
+  cmfd.setLatticeStructure(17, 17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
@@ -47,7 +49,7 @@ int main(int argc,  char* argv[]) {
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
-  geometry.loadFromFile(file);
+  geometry.loadFromFile(file,true);
 
   //FIXME
   int num_rad_discr = 96;
