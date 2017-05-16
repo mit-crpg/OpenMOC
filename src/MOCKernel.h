@@ -188,7 +188,7 @@ public:
   virtual ~TransportKernel();
   void newTrack(Track* track);
   void setCPUSolver(CPUSolver* cpu_solver);
-  void setTrackFlux(NEW_FP_PRECISION* fwd_flux, NEW_FP_PRECISION* bwd_flux,
+  void setTrackFlux(NEW_PRECISION* fwd_flux, NEW_PRECISION* bwd_flux,
                     int track_id);
   void setTrackIndexes(int azim_index, int polar_index);
   void setDirection(bool direction);

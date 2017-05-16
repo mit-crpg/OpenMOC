@@ -143,11 +143,11 @@ ifeq ($(PRECISION),double)
 endif
 
 ifeq ($(NEW_PRECISION),single)
-  CFLAGS += -DNEW_FP_PRECISION=float
+  CFLAGS += -DNEW_PRECISION=float
   CFLAGS += -DSINGLE
 endif
 ifeq ($(NEW_PRECISION),double)
-  CFLAGS += -DNEW_FP_PRECISION=double
+  CFLAGS += -DNEW_PRECISION=double
 #  CFLAGS += -DDOUBLE
 endif
 

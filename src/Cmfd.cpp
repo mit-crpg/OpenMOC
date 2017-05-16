@@ -405,8 +405,8 @@ void Cmfd::collapseXS() {
 
     /* Initialize variables for FSR properties*/
     FP_PRECISION volume, flux;
-    NEW_FP_PRECISION tot, nu_fis, chi;
-    NEW_FP_PRECISION* scat;
+    NEW_PRECISION tot, nu_fis, chi;
+    NEW_PRECISION* scat;
 
     FP_PRECISION scat_tally[_num_cmfd_groups];
     FP_PRECISION chi_tally[_num_cmfd_groups];
@@ -652,7 +652,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
   int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
   int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface);
-  NEW_FP_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
+  NEW_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
   FP_PRECISION delta_interface = getSurfaceWidth(surface);
   FP_PRECISION delta = getPerpendicularSurfaceWidth(surface);
   int sense = getSense(surface);
@@ -695,7 +695,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
-      NEW_FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
+      NEW_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
           (cmfd_cell, surface*_num_cmfd_groups+group);
       dif_surf_corr = _relaxation_factor * dif_surf_corr +
           (1.0 - _relaxation_factor) * old_dif_surf_corr;
@@ -714,11 +714,11 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Set diffusion coefficient and flux for the neighboring cell */
     int cmfd_cell_next = getLocalCMFDCell(global_cmfd_cell_next);
-    NEW_FP_PRECISION dif_coef_next;
+    NEW_PRECISION dif_coef_next;
     if (cmfd_cell_next == -1) {
 
       /* Get the currents in cells touching this boundary */
-      NEW_FP_PRECISION** boundary_currents = _boundary_surface_currents[surface];
+      NEW_PRECISION** boundary_currents = _boundary_surface_currents[surface];
 
       int idx = _boundary_index_map.at(surface)[global_cmfd_cell_next];
       dif_coef_next = _boundary_diffusion[surface][idx][group] /
@@ -780,7 +780,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Weight the old and new corrected diffusion coefficients by the
        relaxation factor */
-    NEW_FP_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
+    NEW_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
         (cmfd_cell, surface*_num_cmfd_groups+group);
     dif_surf_corr = _relaxation_factor * dif_surf_corr +
         (1.0 - _relaxation_factor) * old_dif_surf_corr;
@@ -951,8 +951,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
 #pragma omp parallel
   {
 
-    NEW_FP_PRECISION value, volume, delta;
-    NEW_FP_PRECISION dif_surf, dif_surf_corr;
+    NEW_PRECISION value, volume, delta;
+    NEW_PRECISION dif_surf, dif_surf_corr;
     int sense;
     Material* material;
 
@@ -1079,7 +1079,7 @@ void Cmfd::updateMOCFlux() {
            iter != _cell_fsrs.at(i).end(); ++iter) {
 
         /* Get the update ratio */
-        NEW_FP_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
+        NEW_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
 
         /* Limit the update ratio */
         if (update_ratio > 20.0)
@@ -1190,7 +1190,7 @@ void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
  * @brief Set pointer to FSR flux array.
  * @param pointer to FSR flux array
  */
-void Cmfd::setFSRFluxes(NEW_FP_PRECISION* scalar_flux) {
+void Cmfd::setFSRFluxes(NEW_PRECISION* scalar_flux) {
   _FSR_fluxes = scalar_flux;
 }
 
@@ -1384,10 +1384,10 @@ void Cmfd::allocateTallies() {
   int local_num_cells = _local_num_x * _local_num_y * _local_num_z;
   int tally_size = local_num_cells * _num_cmfd_groups;
   int _total_tally_size = 3 * tally_size;
-  _tally_memory = new NEW_FP_PRECISION[_total_tally_size];
-  NEW_FP_PRECISION** all_tallies[3];
+  _tally_memory = new NEW_PRECISION[_total_tally_size];
+  NEW_PRECISION** all_tallies[3];
   for (int t=0; t < 3; t++) {
-    all_tallies[t] = new NEW_FP_PRECISION*[local_num_cells];
+    all_tallies[t] = new NEW_PRECISION*[local_num_cells];
     for (int i=0; i < local_num_cells; i++) {
       int idx = i * _num_cmfd_groups + t * tally_size;
       all_tallies[t][i] = &_tally_memory[idx];
@@ -1601,7 +1601,7 @@ void Cmfd::splitVertexCurrents() {
     FP_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
-    std::map<int, NEW_FP_PRECISION>::iterator it;
+    std::map<int, NEW_PRECISION>::iterator it;
     int cell, surface;
 
 
@@ -1643,7 +1643,7 @@ void Cmfd::splitVertexCurrents() {
 
                 /* Check for new index in map */
                 int new_ind = (local_cell * NUM_SURFACES + surface) * ncg + g;
-                std::map<int, NEW_FP_PRECISION>::iterator it =
+                std::map<int, NEW_PRECISION>::iterator it =
                   _edge_corner_currents.find(new_ind);
 
                 /* If it doesn't exist, initialize to zero */
@@ -1722,7 +1722,7 @@ void Cmfd::splitEdgeCurrents() {
     FP_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
-    std::map<int, NEW_FP_PRECISION>::iterator it;
+    std::map<int, NEW_PRECISION>::iterator it;
     int cell, surface;
 
 #pragma omp for
@@ -2470,7 +2470,7 @@ int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
  */
 FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
-  NEW_FP_PRECISION ratio = 0.0;
+  NEW_PRECISION ratio = 0.0;
   std::vector< std::pair<int, FP_PRECISION> >::iterator iter;
   int cell_next_id;
 
@@ -2836,24 +2836,24 @@ void Cmfd::initialize() {
       _domain_communicator->num_connections = new int*[2];
       _domain_communicator->indexes = new int**[2];
       _domain_communicator->domains = new int**[2];
-      _domain_communicator->fluxes = new NEW_FP_PRECISION**[2];
-      _domain_communicator->coupling_coeffs = new NEW_FP_PRECISION**[2];
-      _domain_communicator->buffer = new NEW_FP_PRECISION*[NUM_FACES];
+      _domain_communicator->fluxes = new NEW_PRECISION**[2];
+      _domain_communicator->coupling_coeffs = new NEW_PRECISION**[2];
+      _domain_communicator->buffer = new NEW_PRECISION*[NUM_FACES];
       for (int rb=0; rb<2; rb++) {
         _domain_communicator->num_connections[rb] = new int[num_cells*ncg];
         _domain_communicator->indexes[rb] = new int*[num_cells*ncg];
         _domain_communicator->domains[rb] = new int*[num_cells*ncg];
-        _domain_communicator->fluxes[rb] = new NEW_FP_PRECISION*[NUM_FACES];
+        _domain_communicator->fluxes[rb] = new NEW_PRECISION*[NUM_FACES];
         _domain_communicator->coupling_coeffs[rb] =
-                            new NEW_FP_PRECISION*[num_cells*ncg];
+                            new NEW_PRECISION*[num_cells*ncg];
 
         for (int coord=0; coord < 3; coord++) {
           for (int d=0; d < 2; d++) {
             int surf = coord + 3 * d;
             _domain_communicator->fluxes[rb][surf] =
-                                new NEW_FP_PRECISION[dir_sizes[coord]*ncg];
+                                new NEW_PRECISION[dir_sizes[coord]*ncg];
             _domain_communicator->buffer[surf] =
-                                new NEW_FP_PRECISION[2*dir_sizes[coord]*ncg];
+                                new NEW_PRECISION[2*dir_sizes[coord]*ncg];
           }
         }
         for (int nsc=0; nsc < num_cells * ncg; nsc++) {
@@ -2861,7 +2861,7 @@ void Cmfd::initialize() {
           _domain_communicator->indexes[rb][nsc] = new int[NUM_FACES];
           _domain_communicator->domains[rb][nsc] = new int[NUM_FACES];
           _domain_communicator->coupling_coeffs[rb][nsc] =
-                              new NEW_FP_PRECISION[NUM_FACES];
+                              new NEW_PRECISION[NUM_FACES];
         }
       }
 
@@ -2878,18 +2878,18 @@ void Cmfd::initialize() {
       int internal = ncg * num_boundary_cells;
       int comm_data_size = storage_per_cell * num_boundary_cells;
 
-      _inter_domain_data = new NEW_FP_PRECISION[comm_data_size + internal];
-      _send_domain_data = new NEW_FP_PRECISION[comm_data_size];
+      _inter_domain_data = new NEW_PRECISION[comm_data_size + internal];
+      _send_domain_data = new NEW_PRECISION[comm_data_size];
 
       /* Allocate memory for communication of off-domain quantities */
-      _domain_data_by_surface = new NEW_FP_PRECISION*[NUM_FACES];
-      _send_data_by_surface = new NEW_FP_PRECISION*[NUM_FACES];
-      _boundary_volumes = new NEW_FP_PRECISION**[NUM_FACES];
-      _boundary_reaction = new NEW_FP_PRECISION**[NUM_FACES];
-      _boundary_diffusion = new NEW_FP_PRECISION**[NUM_FACES];
-      _boundary_surface_currents = new NEW_FP_PRECISION**[NUM_FACES];
+      _domain_data_by_surface = new NEW_PRECISION*[NUM_FACES];
+      _send_data_by_surface = new NEW_PRECISION*[NUM_FACES];
+      _boundary_volumes = new NEW_PRECISION**[NUM_FACES];
+      _boundary_reaction = new NEW_PRECISION**[NUM_FACES];
+      _boundary_diffusion = new NEW_PRECISION**[NUM_FACES];
+      _boundary_surface_currents = new NEW_PRECISION**[NUM_FACES];
 
-      _old_boundary_flux = new NEW_FP_PRECISION**[NUM_FACES];
+      _old_boundary_flux = new NEW_PRECISION**[NUM_FACES];
 
       int start = 0;
       int ext = 0;
@@ -2897,12 +2897,12 @@ void Cmfd::initialize() {
 
         _domain_data_by_surface[s] = &_inter_domain_data[start];
         _send_data_by_surface[s] = &_send_domain_data[start];
-        _boundary_volumes[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
-        _boundary_reaction[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
-        _boundary_diffusion[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
-        _boundary_surface_currents[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
+        _boundary_volumes[s] = new NEW_PRECISION*[num_per_side[s % 3]];
+        _boundary_reaction[s] = new NEW_PRECISION*[num_per_side[s % 3]];
+        _boundary_diffusion[s] = new NEW_PRECISION*[num_per_side[s % 3]];
+        _boundary_surface_currents[s] = new NEW_PRECISION*[num_per_side[s % 3]];
 
-        _old_boundary_flux[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
+        _old_boundary_flux[s] = new NEW_PRECISION*[num_per_side[s % 3]];
 
         for (int idx=0; idx < num_per_side[s % 3]; idx++) {
 
@@ -2922,13 +2922,13 @@ void Cmfd::initialize() {
       /* Allocate memory for split current communication */
       int ns = NUM_FACES + NUM_EDGES;
       int split_current_size = ncg * ns * num_boundary_cells;
-      _send_split_current_data = new NEW_FP_PRECISION[split_current_size];
-      _receive_split_current_data = new NEW_FP_PRECISION[split_current_size];
+      _send_split_current_data = new NEW_PRECISION[split_current_size];
+      _receive_split_current_data = new NEW_PRECISION[split_current_size];
 
-      _send_split_currents_array = new NEW_FP_PRECISION*[NUM_FACES];
-      _receive_split_currents_array = new NEW_FP_PRECISION*[NUM_FACES];
-      _off_domain_split_currents = new NEW_FP_PRECISION**[NUM_FACES];
-      _received_split_currents = new NEW_FP_PRECISION**[NUM_FACES];
+      _send_split_currents_array = new NEW_PRECISION*[NUM_FACES];
+      _receive_split_currents_array = new NEW_PRECISION*[NUM_FACES];
+      _off_domain_split_currents = new NEW_PRECISION**[NUM_FACES];
+      _received_split_currents = new NEW_PRECISION**[NUM_FACES];
 
       start = 0;
       for (int s=0; s < NUM_FACES; s++) {
@@ -2937,8 +2937,8 @@ void Cmfd::initialize() {
           &_send_split_current_data[start];
         _receive_split_currents_array[s] =
           &_receive_split_current_data[start];
-        _off_domain_split_currents[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
-        _received_split_currents[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
+        _off_domain_split_currents[s] = new NEW_PRECISION*[num_per_side[s % 3]];
+        _received_split_currents[s] = new NEW_PRECISION*[num_per_side[s % 3]];
 
         for (int idx=0; idx < num_per_side[s % 3]; idx++) {
 
@@ -2952,17 +2952,17 @@ void Cmfd::initialize() {
       }
 
       /* Allocate memory for communication of on-domain quantities */
-      _send_volumes = new NEW_FP_PRECISION**[NUM_FACES];
-      _send_reaction = new NEW_FP_PRECISION**[NUM_FACES];
-      _send_diffusion = new NEW_FP_PRECISION**[NUM_FACES];
-      _send_currents = new NEW_FP_PRECISION**[NUM_FACES];
+      _send_volumes = new NEW_PRECISION**[NUM_FACES];
+      _send_reaction = new NEW_PRECISION**[NUM_FACES];
+      _send_diffusion = new NEW_PRECISION**[NUM_FACES];
+      _send_currents = new NEW_PRECISION**[NUM_FACES];
 
       start = 0;
       for (int s=0; s < NUM_FACES; s++) {
-        _send_volumes[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
-        _send_reaction[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
-        _send_diffusion[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
-        _send_currents[s] = new NEW_FP_PRECISION*[num_per_side[s % 3]];
+        _send_volumes[s] = new NEW_PRECISION*[num_per_side[s % 3]];
+        _send_reaction[s] = new NEW_PRECISION*[num_per_side[s % 3]];
+        _send_diffusion[s] = new NEW_PRECISION*[num_per_side[s % 3]];
+        _send_currents[s] = new NEW_PRECISION*[num_per_side[s % 3]];
         for (int idx=0; idx < num_per_side[s % 3]; idx++) {
           _send_volumes[s][idx] = &_send_domain_data[start];
           _send_reaction[s][idx] = &_send_domain_data[start+1];
@@ -3232,7 +3232,7 @@ void Cmfd::copyFullSurfaceCurrents() {
   }
 
   /* Copy surface currents from edges and corners */
-  std::map<int, NEW_FP_PRECISION>::iterator it;
+  std::map<int, NEW_PRECISION>::iterator it;
   for (it = _edge_corner_currents.begin();
        it != _edge_corner_currents.end(); ++it) {
     int key = it->first;
@@ -3288,8 +3288,8 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         long fsr_id = _cell_fsrs.at(i).at(j);
         Material* fsr_material = _FSR_materials[fsr_id];
         double volume = _FSR_volumes[fsr_id];
-        NEW_FP_PRECISION* scat = fsr_material->getSigmaS();
-        NEW_FP_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
+        NEW_PRECISION* scat = fsr_material->getSigmaS();
+        NEW_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
 
         /* Loop over MOC energy groups within this CMFD coarse group */
         double chi = 0.0;
@@ -3555,7 +3555,7 @@ void Cmfd::ghostCellExchange() {
   MPI_Request requests[2*NUM_FACES];
 
   MPI_Datatype precision;
-  if (sizeof(NEW_FP_PRECISION) == 4)
+  if (sizeof(NEW_PRECISION) == 4)
     precision = MPI_FLOAT;
   else
     precision = MPI_DOUBLE;
@@ -3646,7 +3646,7 @@ void Cmfd::communicateSplits(bool faces) {
   MPI_Request requests[2*NUM_FACES];
 
   MPI_Datatype precision;
-  if (sizeof(NEW_FP_PRECISION) == 4)
+  if (sizeof(NEW_PRECISION) == 4)
     precision = MPI_FLOAT;
   else
     precision = MPI_DOUBLE;
@@ -3769,7 +3769,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                 for (int g=0; g < _num_cmfd_groups; g++) {
 
                   /* Get the face current value */
-                  NEW_FP_PRECISION value =
+                  NEW_PRECISION value =
                     _received_split_currents[s][idx][f * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
@@ -3791,7 +3791,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                 for (int g=0; g < _num_cmfd_groups; g++) {
 
                   /* Get the edge current value */
-                  NEW_FP_PRECISION value =
+                  NEW_PRECISION value =
                     _received_split_currents[s][idx][e * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
@@ -3799,7 +3799,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
 
                     /* Check for new index in map */
                     int new_ind = surf_idx + g;
-                    std::map<int, NEW_FP_PRECISION>::iterator it =
+                    std::map<int, NEW_PRECISION>::iterator it =
                       _edge_corner_currents.find(new_ind);
 
                     /* If it doesn't exist, initialize to zero */

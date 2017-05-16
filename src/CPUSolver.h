@@ -139,7 +139,7 @@ public:
                                     int polar_index, bool direction,
                                     float* track_flux);
 
-  virtual void getFluxes(NEW_FP_PRECISION* out_fluxes, int num_fluxes);
+  virtual void getFluxes(NEW_PRECISION* out_fluxes, int num_fluxes);
 
   void initializeFixedSources();
 

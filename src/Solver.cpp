@@ -300,8 +300,8 @@ FP_PRECISION Solver::getFSRSource(long fsr_id, int group) {
                "since it has not yet been computed");
 
   Material* material = _FSR_materials[fsr_id];
-  NEW_FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-  NEW_FP_PRECISION* chi = material->getChi();
+  NEW_PRECISION* nu_sigma_f = material->getNuSigmaF();
+  NEW_PRECISION* chi = material->getChi();
   FP_PRECISION source = 0.;
 
   /* Compute fission source */
@@ -735,18 +735,18 @@ void Solver::checkXS() {
 
     /* Extract cross-sections */
     char* name = material->getName();
-    NEW_FP_PRECISION* sigma_t = material->getSigmaT();
-    NEW_FP_PRECISION* sigma_f = material->getSigmaF();
-    NEW_FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-    NEW_FP_PRECISION* scattering_matrix = material->getSigmaS();
-    NEW_FP_PRECISION* chi = material->getChi();
+    NEW_PRECISION* sigma_t = material->getSigmaT();
+    NEW_PRECISION* sigma_f = material->getSigmaF();
+    NEW_PRECISION* nu_sigma_f = material->getNuSigmaF();
+    NEW_PRECISION* scattering_matrix = material->getSigmaS();
+    NEW_PRECISION* chi = material->getChi();
 
     /* Loop over all energy groups */
     for (int e=0; e < _num_groups; e++) {
 
       /* Check that the total cross-section is greater than or equal to the
          scattering cross-section */
-      NEW_FP_PRECISION sigma_s = 0.0;
+      NEW_PRECISION sigma_s = 0.0;
       for (int g=0; g < _num_groups; g++) {
         sigma_s += scattering_matrix[g*_num_groups+e];
         if (scattering_matrix[g*_num_groups+e] < 0)
@@ -795,8 +795,8 @@ void Solver::initializeFixedSources() {
   FP_PRECISION source;
   std::pair<Cell*, int> cell_group_key;
   std::pair<Material*, int> mat_group_key;
-  std::map< std::pair<Cell*, int>, NEW_FP_PRECISION >::iterator cell_iter;
-  std::map< std::pair<Material*, int>, NEW_FP_PRECISION >::iterator mat_iter;
+  std::map< std::pair<Cell*, int>, NEW_PRECISION >::iterator cell_iter;
+  std::map< std::pair<Material*, int>, NEW_PRECISION >::iterator mat_iter;
 
   /* Fixed sources assigned by Cell */
   for (cell_iter = _fix_src_cell_map.begin();
@@ -1497,7 +1497,7 @@ void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
  * @brief A function that returns the underlying array of scalar fluxes
  * @return The scalar fluxes
  */
-NEW_FP_PRECISION* Solver::getFluxesArray() {
+NEW_PRECISION* Solver::getFluxesArray() {
   return _scalar_flux;
 }
 

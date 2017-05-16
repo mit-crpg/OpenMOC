@@ -69,23 +69,23 @@ private:
   int _num_groups;
 
   /** An array of the total cross-sections for each energy group */
-  NEW_FP_PRECISION* _sigma_t;
+  NEW_PRECISION* _sigma_t;
 
   /** A 2D array of the scattering cross-section matrix from/into each group */
-  NEW_FP_PRECISION* _sigma_s;
+  NEW_PRECISION* _sigma_s;
 
   /** An array of the fission cross-sections for each energy group */
-  NEW_FP_PRECISION* _sigma_f;
+  NEW_PRECISION* _sigma_f;
 
   /** An array of the fission cross-sections multiplied by nu \f$ \nu \f$
    *  for each energy group */
-  NEW_FP_PRECISION* _nu_sigma_f;
+  NEW_PRECISION* _nu_sigma_f;
 
   /** An array of the chi \f$ \chi \f$ values for each energy group */
-  NEW_FP_PRECISION* _chi;
+  NEW_PRECISION* _chi;
 
   /** A 2D array of the fission matrix from/into each group */
-  NEW_FP_PRECISION* _fiss_matrix;
+  NEW_PRECISION* _fiss_matrix;
 
   /** A boolean representing whether or not this Material contains a non-zero
    *  fission cross-section and is fissionable */
@@ -107,18 +107,18 @@ public:
   double getVolume();
   int getNumInstances();
   int getNumEnergyGroups() const;
-  NEW_FP_PRECISION* getSigmaT();
-  NEW_FP_PRECISION* getSigmaS();
-  NEW_FP_PRECISION* getSigmaF();
-  NEW_FP_PRECISION* getNuSigmaF();
-  NEW_FP_PRECISION* getChi();
-  NEW_FP_PRECISION* getFissionMatrix();
-  NEW_FP_PRECISION getSigmaTByGroup(int group);
-  NEW_FP_PRECISION getSigmaSByGroup(int origin, int destination);
-  NEW_FP_PRECISION getSigmaFByGroup(int group);
-  NEW_FP_PRECISION getNuSigmaFByGroup(int group);
-  NEW_FP_PRECISION getChiByGroup(int group);
-  NEW_FP_PRECISION getFissionMatrixByGroup(int origin, int destination);
+  NEW_PRECISION* getSigmaT();
+  NEW_PRECISION* getSigmaS();
+  NEW_PRECISION* getSigmaF();
+  NEW_PRECISION* getNuSigmaF();
+  NEW_PRECISION* getChi();
+  NEW_PRECISION* getFissionMatrix();
+  NEW_PRECISION getSigmaTByGroup(int group);
+  NEW_PRECISION getSigmaSByGroup(int origin, int destination);
+  NEW_PRECISION getSigmaFByGroup(int group);
+  NEW_PRECISION getNuSigmaFByGroup(int group);
+  NEW_PRECISION getChiByGroup(int group);
+  NEW_PRECISION getFissionMatrixByGroup(int origin, int destination);
   bool isFissionable();
   bool isDataAligned();
   int getNumVectorGroups();

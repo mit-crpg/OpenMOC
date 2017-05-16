@@ -69,23 +69,23 @@ private:
   Vector* _new_source;
 
   /* Domain boundary communication buffers */
-  NEW_FP_PRECISION*** _boundary_volumes;
-  NEW_FP_PRECISION*** _boundary_reaction;
-  NEW_FP_PRECISION*** _boundary_diffusion;
-  NEW_FP_PRECISION*** _old_boundary_flux;
-  NEW_FP_PRECISION*** _boundary_surface_currents;
+  NEW_PRECISION*** _boundary_volumes;
+  NEW_PRECISION*** _boundary_reaction;
+  NEW_PRECISION*** _boundary_diffusion;
+  NEW_PRECISION*** _old_boundary_flux;
+  NEW_PRECISION*** _boundary_surface_currents;
 
-  NEW_FP_PRECISION*** _send_volumes;
-  NEW_FP_PRECISION*** _send_reaction;
-  NEW_FP_PRECISION*** _send_diffusion;
-  NEW_FP_PRECISION*** _send_currents;
+  NEW_PRECISION*** _send_volumes;
+  NEW_PRECISION*** _send_reaction;
+  NEW_PRECISION*** _send_diffusion;
+  NEW_PRECISION*** _send_currents;
 
-  NEW_FP_PRECISION* _send_split_current_data;
-  NEW_FP_PRECISION* _receive_split_current_data;
-  NEW_FP_PRECISION** _send_split_currents_array;
-  NEW_FP_PRECISION** _receive_split_currents_array;
-  NEW_FP_PRECISION*** _off_domain_split_currents;
-  NEW_FP_PRECISION*** _received_split_currents;
+  NEW_PRECISION* _send_split_current_data;
+  NEW_PRECISION* _receive_split_current_data;
+  NEW_PRECISION** _send_split_currents_array;
+  NEW_PRECISION** _receive_split_currents_array;
+  NEW_PRECISION*** _off_domain_split_currents;
+  NEW_PRECISION*** _received_split_currents;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
@@ -148,7 +148,7 @@ private:
   Material** _FSR_materials;
 
   /** The FSR scalar flux in each energy group */
-  NEW_FP_PRECISION* _FSR_fluxes;
+  NEW_PRECISION* _FSR_fluxes;
 
   /** The source region flux moments (x, y, and z) for each energy group */
   FP_PRECISION* _flux_moments;
@@ -178,7 +178,7 @@ private:
   Vector* _full_surface_currents;
 
   /** Array of surface currents on edges and corners for each CMFD cell */
-  std::map<int, NEW_FP_PRECISION> _edge_corner_currents;
+  std::map<int, NEW_PRECISION> _edge_corner_currents;
 
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<long> > _cell_fsrs;
@@ -229,10 +229,10 @@ private:
   //TODO: document
   ConvergenceData* _convergence_data;
   DomainCommunicator* _domain_communicator;
-  NEW_FP_PRECISION* _inter_domain_data;
-  NEW_FP_PRECISION* _send_domain_data;
-  NEW_FP_PRECISION** _domain_data_by_surface;
-  NEW_FP_PRECISION** _send_data_by_surface;
+  NEW_PRECISION* _inter_domain_data;
+  NEW_PRECISION* _send_domain_data;
+  NEW_PRECISION** _domain_data_by_surface;
+  NEW_PRECISION** _send_data_by_surface;
   std::vector<std::map<int, int> > _boundary_index_map;
 
   /* The number of on-domain cells in the x-direction */
@@ -246,10 +246,10 @@ private:
 
   //TODO: document
   long _total_tally_size;
-  NEW_FP_PRECISION* _tally_memory;
-  NEW_FP_PRECISION** _reaction_tally;
-  NEW_FP_PRECISION** _volume_tally;
-  NEW_FP_PRECISION** _diffusion_tally;
+  NEW_PRECISION* _tally_memory;
+  NEW_PRECISION** _reaction_tally;
+  NEW_PRECISION** _volume_tally;
+  NEW_PRECISION** _diffusion_tally;
   bool _tallies_allocated;
 
   /** A timer to record timing data for a simulation */
@@ -375,7 +375,7 @@ public:
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
-  void setFSRFluxes(NEW_FP_PRECISION* scalar_flux);
+  void setFSRFluxes(NEW_PRECISION* scalar_flux);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);
 };
@@ -423,7 +423,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
   int ncg = _num_cmfd_groups;
   FP_PRECISION currents[_num_cmfd_groups];
   memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
-  std::map<int, NEW_FP_PRECISION>::iterator it;
+  std::map<int, NEW_PRECISION>::iterator it;
 
   /* Check if the current needs to be tallied */
   bool tally_current = false;

@@ -194,13 +194,13 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   int num_groups = X->getNumGroups();
   int num_rows = X->getNumRows();
   Vector X_old(cell_locks, num_x, num_y, num_z, num_groups);
-  NEW_FP_PRECISION* x_old = X_old.getArray();
+  NEW_PRECISION* x_old = X_old.getArray();
   int* IA = A->getIA();
   int* JA = A->getJA();
-  NEW_FP_PRECISION* DIAG = A->getDiag();
-  NEW_FP_PRECISION* a = A->getA();
-  NEW_FP_PRECISION* x = X->getArray();
-  NEW_FP_PRECISION* b = B->getArray();
+  NEW_PRECISION* DIAG = A->getDiag();
+  NEW_PRECISION* a = A->getA();
+  NEW_PRECISION* x = X->getArray();
+  NEW_PRECISION* b = B->getArray();
   Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
   Vector new_source(cell_locks, num_x, num_y, num_z, num_groups);
 
@@ -210,8 +210,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
   //
   int* coupling_sizes = NULL;
   int** coupling_indexes = NULL;
-  NEW_FP_PRECISION** coupling_coeffs = NULL;
-  NEW_FP_PRECISION** coupling_fluxes = NULL;
+  NEW_PRECISION** coupling_coeffs = NULL;
+  NEW_PRECISION** coupling_fluxes = NULL;
 
   double initial_residual = 0;
   while (iter < MAX_LINEAR_SOLVE_ITERATIONS) {
@@ -258,7 +258,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
                 for (int i = 0; i < coupling_sizes[row]; i++) {
                   int idx = coupling_indexes[row][i] * num_groups + g;
                   int domain = comm->domains[color][row][i];
-                  NEW_FP_PRECISION flux = coupling_fluxes[domain][idx];
+                  NEW_PRECISION flux = coupling_fluxes[domain][idx];
                   x[row] -= SOR_factor * coupling_coeffs[row][i] * flux
                             / DIAG[row];
                 }
@@ -311,9 +311,9 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 //FIXME
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
-                      int**& coupling_indexes, NEW_FP_PRECISION**& coupling_coeffs,
-                      NEW_FP_PRECISION**& coupling_fluxes, 
-                      NEW_FP_PRECISION* curr_fluxes,
+                      int**& coupling_indexes, NEW_PRECISION**& coupling_coeffs,
+                      NEW_PRECISION**& coupling_fluxes, 
+                      NEW_PRECISION* curr_fluxes,
                       int& offset) {
 
   if (comm != NULL) {
@@ -333,7 +333,7 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
     int ng = comm->num_groups;
 
     MPI_Datatype flux_type;
-    if (sizeof(NEW_FP_PRECISION) == 4)
+    if (sizeof(NEW_PRECISION) == 4)
       flux_type = MPI_FLOAT;
     else
       flux_type = MPI_DOUBLE;
@@ -477,9 +477,9 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
   B->setAll(0.0);
   int* IA = A->getIA();
   int* JA = A->getJA();
-  NEW_FP_PRECISION* a = A->getA();
-  NEW_FP_PRECISION* x = X->getArray();
-  NEW_FP_PRECISION* b = B->getArray();
+  NEW_PRECISION* a = A->getA();
+  NEW_PRECISION* x = X->getArray();
+  NEW_PRECISION* b = B->getArray();
   int num_rows = X->getNumRows();
 
   #pragma omp parallel for
@@ -638,13 +638,13 @@ void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol
   int num_groups = X->getNumGroups();
   int num_rows = X->getNumRows();
   Vector X_old(cell_locks, num_x, num_y, num_z, num_groups);
-  NEW_FP_PRECISION* x_old = X_old.getArray();
+  NEW_PRECISION* x_old = X_old.getArray();
   int* IA = A->getIA();
   int* JA = A->getJA();
-  NEW_FP_PRECISION* DIAG = A->getDiag();
-  NEW_FP_PRECISION* a = A->getA();
-  NEW_FP_PRECISION* x = X->getArray();
-  NEW_FP_PRECISION* b = B->getArray();
+  NEW_PRECISION* DIAG = A->getDiag();
+  NEW_PRECISION* a = A->getA();
+  NEW_PRECISION* x = X->getArray();
+  NEW_PRECISION* b = B->getArray();
   int row, col;
   Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
   Vector new_source(cell_locks, num_x, num_y, num_z, num_groups);

@@ -83,7 +83,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   /* Extract fluxes and geometry information */
   Geometry* geometry = _solver->getGeometry();
   FP_PRECISION* volumes = _solver->getTrackGenerator()->getFSRVolumesBuffer();
-  NEW_FP_PRECISION* fluxes = _solver->getFluxesArray();
+  NEW_PRECISION* fluxes = _solver->getFluxesArray();
   int num_fsrs = geometry->getNumFSRs();
 
   /* Create a 1D array of reaction rates with the appropriate size */
@@ -95,7 +95,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   int num_groups = geometry->getNumEnergyGroups();
 
   /* Create temporary array for cross-sections */
-  NEW_FP_PRECISION temp_array[num_groups];
+  NEW_PRECISION temp_array[num_groups];
 
   /* Loop over all flat source regions */
   for (int r=0; r < num_fsrs; r++) {
@@ -107,7 +107,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
 
     /* Determine the volume and cross-sections of the FSR */
     double volume = volumes[r];
-    NEW_FP_PRECISION* xs_array;
+    NEW_PRECISION* xs_array;
     switch (rx) {
       case FISSION_RX:
         xs_array = mat->getSigmaF();
@@ -118,7 +118,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
       case ABSORPTION_RX:
         {
           xs_array = temp_array;
-          NEW_FP_PRECISION* scattering = mat->getSigmaS();
+          NEW_PRECISION* scattering = mat->getSigmaS();
           for (int g=0; g < num_groups; g++) {
             xs_array[g] = 0.0;
             for (int gp=0; gp < num_groups; gp++) {

@@ -187,10 +187,10 @@ void CPULSSolver::computeFSRSources(int iteration) {
   {
     int tid = omp_get_thread_num();
     Material* material;
-    NEW_FP_PRECISION* sigma_t;
-    NEW_FP_PRECISION* nu_sigma_f;
-    NEW_FP_PRECISION* chi;
-    NEW_FP_PRECISION sigma_s;
+    NEW_PRECISION* sigma_t;
+    NEW_PRECISION* nu_sigma_f;
+    NEW_PRECISION* chi;
+    NEW_PRECISION sigma_s;
     FP_PRECISION src_x, src_y, src_z;
 
     /* Compute the total source for each FSR */
@@ -315,7 +315,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
-  NEW_FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
+  NEW_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   double* position = curr_segment->_starting_position;
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
@@ -467,7 +467,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 #pragma omp parallel
   {
     FP_PRECISION volume, flux_const;
-    NEW_FP_PRECISION* sigma_t;
+    NEW_PRECISION* sigma_t;
 
     /* Add in source term and normalize flux to volume for each FSR */
     /* Loop over FSRs, energy groups */
