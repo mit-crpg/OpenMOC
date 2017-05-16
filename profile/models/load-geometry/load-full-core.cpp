@@ -132,8 +132,20 @@ int main(int argc,  char* argv[]) {
   track_generator.setSegmentationZones(segmentation_zones);
   track_generator.generateTracks();
 
+  /* Find fissionable material */
+  Material* fiss_material = NULL;
+  std::map<int, Material*> materials = geometry.getAllMaterials();
+  for (std::map<int, Material*>::iterator it = materials.begin();
+       it != materials.end(); ++it) {
+    if (it->second->isFissionable()) {
+      fiss_material = it->second;
+      break;
+    }
+  }
+
   /* Run simulation */
   CPUSolver solver(&track_generator); //FIXME LS / FS
+  solver.setChiSpectrumMaterial(fiss_material);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

@@ -358,18 +358,18 @@ void TransportKernel::execute(double length, Material* mat, long fsr_id,
     curr_segment._region_id = fsr_id;
     curr_segment._track_idx = track_idx; //FIXME
 
-    /* Determine CMFD surfaces */
-    if (i == 0)
-      curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
-    else
-      curr_segment._cmfd_surface_bwd = -1;
-    if (i == num_cuts - 1)
-      curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
-    else
-      curr_segment._cmfd_surface_fwd = -1;
+        
+        if (i == 0)
+          curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+        else
+          curr_segment._cmfd_surface_bwd = -1;
+        if (i == num_cuts - 1)
+          curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+        else
+          curr_segment._cmfd_surface_fwd = -1;
 
     /* Get the backward track flux */
-    int curr_track_id = _track_id + track_idx;
+    long curr_track_id = _track_id + track_idx;
     //FIXME MEM : float / FP_PRECISION
     float* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
                                                      _direction);
