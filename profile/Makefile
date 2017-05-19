@@ -8,14 +8,17 @@ OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
 PRECISION   = double
-NEW_PRECISION = single
+NEW_PRECISION = double
+CMFD_PRECISION = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
 #case = load-geometry/load-full-core.cpp
-case = load-geometry/load-single-assembly.cpp
+#case = load-geometry/load-single-assembly.cpp
+case = load-geometry/load-2D-full-core.cpp
+
 #case = load-geometry/load-geometry.cpp
 #case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp
@@ -66,6 +69,7 @@ single-assembly/quarter-c5g7-assembly.cpp \
 single-assembly/single-c5g7-assembly.cpp \
 load-geometry/load-geometry.cpp \
 load-geometry/load-single-assembly.cpp \
+load-geometry/load-2D-full-core.cpp \
 load-geometry/load-full-core.cpp
 
 #===============================================================================
@@ -144,12 +148,17 @@ endif
 
 ifeq ($(NEW_PRECISION),single)
   CFLAGS += -DNEW_PRECISION=float
-  CFLAGS += -DSINGLE
 endif
 ifeq ($(NEW_PRECISION),double)
   CFLAGS += -DNEW_PRECISION=double
-#  CFLAGS += -DDOUBLE
 endif
+ifeq ($(CMFD_PRECISION),single)
+  CFLAGS += -DCMFD_PRECISION=float
+endif
+ifeq ($(CMFD_PRECISION),double)
+  CFLAGS += -DCMFD_PRECISION=double
+endif
+
 
 
 

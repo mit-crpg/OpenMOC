@@ -1072,8 +1072,8 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
       fsr->_fsr_id = fsr_id;
       fsr->_num_fsrs = 0;
       fsr->_coords = new LocalCoords(0, 0, 0);
-      _extruded_FSR_keys_map.update(fsr_key, fsr);
       coords->copyCoords(fsr->_coords);
+      _extruded_FSR_keys_map.update(fsr_key, fsr);
     }
   }
 
@@ -2134,11 +2134,15 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
       /* Find FSR using starting coordinate */
       start.setVersionNum(v);
-      region_id = findExtrudedFSR(&start);
+      region_id = findExtrudedFSR(&start); //FIXME
       std::string fsr_key = getFSRKey(&start);
 
       /* Get the coordinate of the extruded FSR */
-      LocalCoords* ext_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
+      LocalCoords* volatile retreived_coords = NULL;
+      do {
+        retreived_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
+      } while (retreived_coords == NULL);
+      LocalCoords* ext_coords = retreived_coords;
 
       /* Create coordinate copies */
       LocalCoords test_ext_coords;

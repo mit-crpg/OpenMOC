@@ -17,7 +17,8 @@ int main(int argc,  char* argv[]) {
   //std::string file = "single-assembly-nc.geo";
   //std::string file = "single-assembly-5G-adjust.geo";
   //std::string file = "single-assembly-5G-adjust-no-neg.geo";
-  std::string file = "single-no-TC.geo";
+  //std::string file = "single-no-TC.geo";
+  std::string file = "v1-single-assembly.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -49,7 +50,7 @@ int main(int argc,  char* argv[]) {
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
-  geometry.loadFromFile(file,true);
+  geometry.loadFromFile(file, true);
 
   //FIXME
   int num_rad_discr = 96;
@@ -115,7 +116,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 20, MPI_COMM_WORLD); //FIXME 17x17xN
+  geometry.setDomainDecomposition(1, 1, 40, MPI_COMM_WORLD); //FIXME 17x17xN
 #endif
   geometry.setOverlaidMesh(2.0);
   geometry.initializeFlatSourceRegions();
@@ -136,7 +137,7 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator); //FIXME LS / FS
+  CPUSolver solver(&track_generator); //FIXME LS / FS
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
