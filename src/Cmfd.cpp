@@ -684,12 +684,14 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
 
       //FIXME
+      /*
       int ix = cmfd_cell % _num_x;
       int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
       double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
                         (iy - _num_y/2) * (iy - _num_y/2));
       if (radius > _num_x / 2 + 10)
         dif_surf_corr = 0.0;
+        */
 
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
@@ -766,12 +768,14 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     }
 
     //FIXME
+    /*
       int ix = cmfd_cell % _num_x;
       int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
       double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
                         (iy - _num_y/2) * (iy - _num_y/2));
       if (radius > _num_x / 2 + 10)
         dif_surf_corr = 0.0;
+        */
 
 
     /* Weight the old and new corrected diffusion coefficients by the
