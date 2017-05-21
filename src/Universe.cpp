@@ -490,25 +490,14 @@ void Universe::removeCell(Cell* cell) {
  */
 Cell* Universe::findCell(LocalCoords* coords) {
 
-  Cell* cell;
-  std::vector<Cell*> cells;
-  std::vector<Cell*>::iterator iter;
 
   /* Sets the LocalCoord type to UNIV at this level */
   coords->setType(UNIV);
 
-  /* If the LocalCoords is populated with Universe/Cell already, we assume
-   * that we are looking for the location in a neighboring Cell */
-  if (coords->getCell() != NULL)
-    cells = coords->getCell()->getNeighbors();
-
-  /* Add all of Universe's Cells to the back of neighbor Cells vector */
-  std::transform(_cells.begin(), _cells.end(),
-                 std::back_inserter(cells), pair_second(_cells));
-
   /* Loop over all Cells */
-  for (iter = cells.begin(); iter != cells.end(); ++iter) {
-    cell = (*iter);
+  std::map<int,Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    Cell* cell = iter->second;
 
     if (cell->containsCoords(coords)) {
 

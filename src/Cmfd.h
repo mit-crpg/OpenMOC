@@ -251,6 +251,7 @@ private:
   CMFD_PRECISION** _volume_tally;
   CMFD_PRECISION** _diffusion_tally;
   bool _tallies_allocated;
+  bool _domain_communicator_allocated;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
