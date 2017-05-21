@@ -5,7 +5,7 @@
  * @param x the x-coordinate
  * @param y the y-coordinate
  */
-LocalCoords::LocalCoords(double x, double y, double z) {
+LocalCoords::LocalCoords(double x, double y, double z, bool first) {
   _coords.setCoords(x, y, z);
   _universe = NULL;
   _lattice = NULL;
@@ -13,7 +13,14 @@ LocalCoords::LocalCoords(double x, double y, double z) {
   _next = NULL;
   _prev = NULL;
   _version_num = 0;
-  _next_array = NULL;
+  if (first) {
+    _array_size = LOCAL_COORDS_LEN;
+    _next_array = new LocalCoords[LOCAL_COORDS_LEN];
+  }
+  else {
+    _array_size = 0;
+    _next_array = NULL;
+  }
   _position = -1;
 }
 
@@ -22,6 +29,9 @@ LocalCoords::LocalCoords(double x, double y, double z) {
  * @brief Destructor.
  */
 LocalCoords::~LocalCoords() {
+  prune();
+  if (_position == -1)
+    delete [] _next_array;
 }
 
 
@@ -140,10 +150,23 @@ LocalCoords* LocalCoords::getNext() const {
 //FIXME
 LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
+  if (_position + 1 >= _array_size) {
+    _next = new LocalCoords(x, y, z, true);
+    _next->setPrev(this);
+  }
+  else {
+    _next = &_next_array[_position+1];
+    _next->setPrev(this);
+    _next->setArrayPosition(_next_array, _position+1, _array_size);
+    _next->getPoint()->setCoords(x, y, z);
+  }
+
+  /*
   if (_next == NULL) {
     _next = new LocalCoords(x, y, z);
     _next->setPrev(this);
   }
+  */
   return _next;
 }
 
@@ -288,9 +311,11 @@ void LocalCoords::setPrev(LocalCoords* prev) {
 
 
 //FIXME
-void LocalCoords::setArrayPosition(LocalCoords* array, int position) {
+void LocalCoords::setArrayPosition(LocalCoords* array, int position,
+                                   int array_size) {
   _next_array = array;
   _position = position;
+  _array_size = array_size;
 }
 
 

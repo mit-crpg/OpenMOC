@@ -80,14 +80,15 @@ private:
   /** FIXME */
   int _position;
   LocalCoords* _next_array;
+  int _array_size;
 
   /** An integer to differentiate otherwise matching coordinate FSR keys */
   int _version_num;
 
-  void setArrayPosition(LocalCoords* array, int position);
+  void setArrayPosition(LocalCoords* array, int position, int array_size);
 
 public:
-  LocalCoords(double x=0.0, double y=0.0, double z=0.0);
+  LocalCoords(double x=0.0, double y=0.0, double z=0.0, bool first=false);
   virtual ~LocalCoords();
   coordType getType();
   Universe* getUniverse() const;

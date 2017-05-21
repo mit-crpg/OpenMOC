@@ -42,6 +42,7 @@ Cmfd::Cmfd() {
   _solve_3D = false;
   _total_tally_size = 0;
   _tallies_allocated = false;
+  _domain_communicator_allocated = false;
   _linear_source = false;
   _check_neutron_balance = false;
 
@@ -177,43 +178,46 @@ Cmfd::~Cmfd() {
   /* TODO: clean, document */
   int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
   if (_domain_communicator != NULL) {
-    for (int rb=0; rb<2; rb++) {
-      for (int f=0; f < NUM_FACES; f++) {
-        delete [] _domain_communicator->indexes[rb][f];
-        delete [] _domain_communicator->domains[rb][f];
-        delete [] _domain_communicator->coupling_coeffs[rb][f];
-        delete [] _domain_communicator->fluxes[rb][f];
+    if(_domain_communicator_allocated) {
+      for (int rb=0; rb<2; rb++) {
+        for (int f=0; f < NUM_FACES; f++) {
+          delete [] _domain_communicator->indexes[rb][f];
+          delete [] _domain_communicator->domains[rb][f];
+          delete [] _domain_communicator->coupling_coeffs[rb][f];
+          delete [] _domain_communicator->fluxes[rb][f];
+        }
+        delete [] _domain_communicator->num_connections[rb];
+        delete [] _domain_communicator->indexes[rb];
+        delete [] _domain_communicator->domains[rb];
+        delete [] _domain_communicator->coupling_coeffs[rb];
+        delete [] _domain_communicator->fluxes[rb];
       }
-      delete [] _domain_communicator->num_connections[rb];
-      delete [] _domain_communicator->indexes[rb];
-      delete [] _domain_communicator->domains[rb];
-      delete [] _domain_communicator->coupling_coeffs[rb];
-      delete [] _domain_communicator->fluxes[rb];
-    }
 
-    delete [] _domain_communicator->num_connections;
-    delete [] _domain_communicator->indexes;
-    delete [] _domain_communicator->fluxes;
-    delete [] _domain_communicator->coupling_coeffs;
+      delete [] _domain_communicator->num_connections;
+      delete [] _domain_communicator->indexes;
+      delete [] _domain_communicator->fluxes;
+      delete [] _domain_communicator->coupling_coeffs;
+      delete _domain_communicator;
+
+      delete [] _inter_domain_data;
+      for (int s=0; s < NUM_FACES; s++) {
+        delete [] _boundary_volumes[s];
+        delete [] _boundary_reaction[s];
+        delete [] _boundary_diffusion[s];
+        delete [] _old_boundary_flux[s];
+        delete [] _boundary_surface_currents[s];
+      }
+
+      delete [] _boundary_volumes;
+      delete [] _boundary_reaction;
+      delete [] _boundary_diffusion;
+      delete [] _old_boundary_flux;
+      delete [] _boundary_surface_currents;
+    }
     delete _domain_communicator;
-
-    delete [] _inter_domain_data;
-    for (int s=0; s < NUM_FACES; s++) {
-      delete [] _boundary_volumes[s];
-      delete [] _boundary_reaction[s];
-      delete [] _boundary_diffusion[s];
-      delete [] _old_boundary_flux[s];
-      delete [] _boundary_surface_currents[s];
-    }
-
-    delete [] _boundary_volumes;
-    delete [] _boundary_reaction;
-    delete [] _boundary_diffusion;
-    delete [] _old_boundary_flux;
-    delete [] _boundary_surface_currents;
   }
 
-  for (long r=0; r < _num_FSRs; r++)
+  for (long r=0; r < _axial_interpolants.size(); r++)
     delete [] _axial_interpolants.at(r);
 }
 
@@ -2863,6 +2867,7 @@ void Cmfd::initialize() {
           _domain_communicator->coupling_coeffs[rb][nsc] =
                               new CMFD_PRECISION[NUM_FACES];
         }
+        _domain_communicator_allocated = true;
       }
 
       //TODO: document, clean
