@@ -27,8 +27,8 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
 
-  double azim_spacing = 0.05; // 0.5
-  int num_azim = 64; // 4
+  double azim_spacing = 0.05;
+  int num_azim = 64;
   double polar_spacing = 1.5;
   int num_polar = 2;
 

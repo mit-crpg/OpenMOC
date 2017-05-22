@@ -28,7 +28,7 @@ int main(int argc,  char* argv[]) {
   double polar_spacing = 0.75;
   int num_polar = 2;
 
-  double tolerance = 1e-4;
+  double tolerance = 1e-7;
   int max_iters = 40;
   
   /* Create CMFD lattice */
