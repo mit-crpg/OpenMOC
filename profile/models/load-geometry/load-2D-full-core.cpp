@@ -14,8 +14,8 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  //std::string file = "v1-full-core-2D.geo";
-  std::string file = "v2-full-core-2D-no-rings.geo";
+  std::string file = "v1-full-core-2D.geo";
+  //std::string file = "v2-full-core-2D-no-rings.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -26,11 +26,11 @@ int main(int argc,  char* argv[]) {
  
   double azim_spacing = 0.1;
   int num_azim = 4;
-  double polar_spacing = 1.5;
+  double polar_spacing = 0.88;
   int num_polar = 2;
 
   double tolerance = 1e-7;
-  int max_iters = 40;
+  int max_iters = 400;
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -40,7 +40,7 @@ int main(int argc,  char* argv[]) {
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setCMFDRelaxationFactor(0.7);
+  cmfd.setCMFDRelaxationFactor(0.25);
   cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
 
@@ -144,7 +144,7 @@ int main(int argc,  char* argv[]) {
 
   /* Run simulation */
   CPUSolver solver(&track_generator); //FIXME LS / FS
-  solver.setChiSpectrumMaterial(fiss_material);
+  //solver.setChiSpectrumMaterial(fiss_material);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

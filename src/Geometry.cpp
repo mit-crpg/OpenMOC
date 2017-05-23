@@ -899,7 +899,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
 
   /* If the current coords is inside a Cell, look for next Cell */
   else {
-
+    
     /* Ascend universes until at the highest level.
      * At each universe/lattice level get distance to next
      * universe or lattice cell. Recheck min_dist. */
@@ -2060,7 +2060,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   //FIXME
   LocalCoords test_ext_coords(0,0,0,true);
   LocalCoords test_start_coords(0,0,0,true);
-
+  
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi);
 
@@ -2127,8 +2127,8 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     }
 
     /* Traverse across shortest segment */
-    start.setZ(z_coords[min_z_ind]);
     start.prune();
+    start.setZ(z_coords[min_z_ind]);
     findCellContainingCoords(&start);
 
     bool found_coordinate = false;
@@ -2196,7 +2196,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     /* Move the coordinates to the next intersection */
     start.copyCoords(&end);
-    curr = findNextCell(&end, phi);
+    curr = findNextCell(&end, phi, M_PI_2);
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());

@@ -688,12 +688,14 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
 
       //FIXME
+      /*
       int ix = cmfd_cell % _num_x;
       int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
       double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
                         (iy - _num_y/2) * (iy - _num_y/2));
       if (radius > _num_x / 2 + 10)
         dif_surf_corr = 0.0;
+        */
 
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
@@ -770,12 +772,14 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     }
 
     //FIXME
+    /*
       int ix = cmfd_cell % _num_x;
       int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
       double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
                         (iy - _num_y/2) * (iy - _num_y/2));
       if (radius > _num_x / 2 + 10)
         dif_surf_corr = 0.0;
+        */
 
 
     /* Weight the old and new corrected diffusion coefficients by the
@@ -1849,10 +1853,12 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
     int cell_next = getCellNext(cell, partial_surface);
     if ((cell_indexes[i] == 0 && direction[i] == -1) ||
         (cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1)) {
-      if (_boundaries[partial_surface] == REFLECTIVE)
+      if (_boundaries[partial_surface] == REFLECTIVE) {
         surfaces->push_back(cell * ns + remainder_surface);
-      else if (_boundaries[partial_surface] == PERIODIC)
+      }
+      else if (_boundaries[partial_surface] == PERIODIC) {
         surfaces->push_back(cell_next * ns + remainder_surface);
+      }
     }
     else {
       surfaces->push_back(cell_next * ns + remainder_surface);
@@ -1892,6 +1898,7 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
 
   /* Get the partial surfaces composing the edge split */
   int partial_surfaces[2];
+  int opposite_surfaces[2];
   int ind = 0;
   for (int i=0; i < 3; i++) {
     if (direction[i] != 0) {
@@ -1916,10 +1923,12 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
       int cell_next = getCellNext(cell, partial_surface);
       if ((cell_indexes[i] == 0 && direction[i] == -1) ||
           (cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1)) {
-        if (_boundaries[partial_surface] == REFLECTIVE)
+        if (_boundaries[partial_surface] == REFLECTIVE) {
           surfaces->push_back(cell * ns + other_surface);
-        else if (_boundaries[partial_surface] == PERIODIC)
+        }
+        else if (_boundaries[partial_surface] == PERIODIC) {
           surfaces->push_back(cell_next * ns + other_surface);
+        }
       }
       else {
         surfaces->push_back(cell_next * ns + other_surface);
@@ -3259,19 +3268,54 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   Vector a_phi(cell_locks, num_x, num_y, num_z, num_groups);
 
   /* Compute CMFD balance */
-  matrixMultiplication(_A, _old_flux, &a_phi);
+
+  /* Compute neutron production */
   matrixMultiplication(_M, _old_flux, &m_phi);
+  
+  /* Compute neutron transfer and loss */
+  matrixMultiplication(_A, _old_flux, &a_phi);
+  CMFD_PRECISION* a_phi_array = a_phi.getArray();
+  int* coupling_sizes = NULL;
+  int** coupling_indexes = NULL;
+  CMFD_PRECISION** coupling_coeffs = NULL;
+  CMFD_PRECISION** coupling_fluxes = NULL;
+  int offset = 0;
+  for (int color=0; color < 2; color++) {
+    getCouplingTerms(_domain_communicator, color, coupling_sizes, 
+                     coupling_indexes, coupling_coeffs, coupling_fluxes,
+                     _old_flux->getArray(), offset);
+                
+#pragma omp parallel for collapse(2)
+    for (int iz=0; iz < _local_num_z; iz++) {
+      for (int iy=0; iy < _local_num_y; iy++) {
+        for (int ix=(iy+iz+color+offset)%2; ix < _local_num_x; ix+=2) {
+          int cell = (iz*_local_num_y + iy)*_local_num_x + ix;
+          for (int g=0; g < _num_cmfd_groups; g++) {
+
+            int row = cell * _num_cmfd_groups + g;
+
+            for (int i = 0; i < coupling_sizes[row]; i++) {
+              int idx = coupling_indexes[row][i] * _num_cmfd_groups + g;
+              int domain = _domain_communicator->domains[color][row][i];
+              CMFD_PRECISION flux = coupling_fluxes[domain][idx];
+              a_phi_array[row] += coupling_coeffs[row][i] * flux;
+            }
+          }
+        }
+      }
+    }
+  }
 
   double max_imbalance = 0.0;
   int max_imbalance_cell = -1;
   int max_imbalance_grp = -1;
 
   /* Loop over CMFD cells */
-  for (int i = 0; i < _num_x * _num_y * _num_z; i++) {
+  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
-    int x = (i % (_num_x * _num_y)) % _num_x;
-    int y = (i % (_num_x * _num_y)) / _num_x;
-    int z = i / (_num_x * _num_y);
+    int x = (i % (_local_num_x * _local_num_y)) % _local_num_x;
+    int y = (i % (_local_num_x * _local_num_y)) / _local_num_x;
+    int z = i / (_local_num_x * _local_num_y);
 
     Material* cell_material = _materials[i];
 

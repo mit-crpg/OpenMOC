@@ -150,15 +150,17 @@ LocalCoords* LocalCoords::getNext() const {
 //FIXME
 LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
-  if (_position + 1 >= _array_size) {
-    _next = new LocalCoords(x, y, z, true);
-    _next->setPrev(this);
-  }
-  else {
-    _next = &_next_array[_position+1];
-    _next->setPrev(this);
-    _next->setArrayPosition(_next_array, _position+1, _array_size);
-    _next->getPoint()->setCoords(x, y, z);
+  if (_next == NULL) {
+    if (_position + 1 >= _array_size) {
+      _next = new LocalCoords(x, y, z, true);
+      _next->setPrev(this);
+    }
+    else {
+      _next = &_next_array[_position+1];
+      _next->setPrev(this);
+      _next->setArrayPosition(_next_array, _position+1, _array_size);
+      _next->getPoint()->setCoords(x, y, z);
+    }
   }
 
   /*
@@ -507,21 +509,30 @@ std::string LocalCoords::toString() {
   while (curr != NULL) {
     string << "LocalCoords: level = ";
 
+    int univ_id = -1;
+    if (curr->getUniverse() != NULL)
+      univ_id = curr->getUniverse()->getId();
+    int lat_id = -1;
+    if (curr->getLattice() != NULL)
+      lat_id = curr->getLattice()->getId();
+    int cell_id = -1;
+    if (curr->getCell() != NULL)
+      cell_id = curr->getCell()->getId();
+    
+    
     if (curr->getType() == UNIV) {
       string << " UNIVERSE, x = " << curr->getX()
              << ", y = " << curr->getY()
              << ", z = " << curr->getZ();
-      if (curr->getUniverse() != NULL)
-         string << ", universe = " << curr->getUniverse()->getId();
-      if (curr->getCell() != NULL)
-         string << ", cell = " << curr->getCell()->getId();
+      string << ", universe = " << univ_id;
+      string << ", cell = " << cell_id;
     }
     else if (curr->getType() == LAT) {
       string << " LATTICE, x = " << curr->getX()
              << ", y = " << curr->getY()
              << ", z = " << curr->getZ()
-             << ", universe = " << curr->getUniverse()->getId()
-             << ", lattice = " << curr->getLattice()->getId()
+             << ", universe = " << univ_id
+             << ", lattice = " << lat_id
              << ", lattice_x = " << curr->getLatticeX()
              << ", lattice_y = " << curr->getLatticeY()
              << ", lattice_z = " << curr->getLatticeZ();
@@ -530,13 +541,12 @@ std::string LocalCoords::toString() {
       string << " NONE, x = " << curr->getX()
              << ", y = " << curr->getY()
              << ", z = " << curr->getZ()
-             << ", universe = " << curr->getUniverse()->getId()
-             << ", lattice = " << curr->getLattice()->getId()
+             << ", universe = " << univ_id
+             << ", lattice = " << lat_id
              << ", lattice_x = " << curr->getLatticeX()
              << ", lattice_y = " << curr->getLatticeY()
              << ", lattice_z = " << curr->getLatticeZ();
-      if (curr->getCell() != NULL)
-        string << ", cell = " << curr->getCell();
+        string << ", cell = " << cell_id;
     }
 
     string << ", next:\n";

@@ -456,7 +456,7 @@ bool Track::getNextBwdFwd() {
 std::string Track::toString() {
   std::stringstream string;
   string << "Track: start, x = " << _start.getX() << ", y = " <<
-    _start.getY() << ", z = " << ", end, x = " <<
+    _start.getY() << ", end, x = " <<
     _end.getX() << ", y = " << _end.getY() <<
     ", phi = " << _phi;
   return string.str();

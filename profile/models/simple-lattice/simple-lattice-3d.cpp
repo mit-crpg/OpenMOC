@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
   double azim_spacing = 0.1;
   int num_azim = 4;
   double polar_spacing = 0.1;
-  int num_polar = 6;
+  int num_polar = 2;
   double tolerance = 1e-8;
   int max_iters = 1000;
 
@@ -99,12 +99,12 @@ int main(int argc, char* argv[]) {
   ZPlane zmin(-10.0);
   ZPlane zmax( 10.0);
 
-  xmin.setBoundaryType(REFLECTIVE);
-  ymin.setBoundaryType(REFLECTIVE);
-  zmin.setBoundaryType(VACUUM);
-  xmax.setBoundaryType(REFLECTIVE);
-  ymax.setBoundaryType(REFLECTIVE);
-  zmax.setBoundaryType(VACUUM);
+  xmin.setBoundaryType(VACUUM);
+  ymin.setBoundaryType(VACUUM);
+  zmin.setBoundaryType(REFLECTIVE);
+  xmax.setBoundaryType(VACUUM);
+  ymax.setBoundaryType(VACUUM);
+  zmax.setBoundaryType(REFLECTIVE);
 
   ZCylinder large_pin(0.0, 0.0, 0.4);
   ZCylinder medium_pin(0.0, 0.0, 0.3);
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(2,2,6);
+  cmfd.setLatticeStructure(4,4,7);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -204,8 +204,9 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(2,2,2, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(4,4,1, MPI_COMM_WORLD);
 #endif
+  //geometry.setNumDomainModules(2,2,1);
   geometry.setCmfd(&cmfd);
   geometry.initializeFlatSourceRegions();
 

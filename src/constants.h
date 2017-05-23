@@ -59,7 +59,7 @@
 
 /** The maximum number of iterations allowed for a power method eigenvalue
  *  solve in linalg.cpp */
-#define MIN_LINALG_POWER_ITERATIONS 50
+#define MIN_LINALG_POWER_ITERATIONS 150
 #define MAX_LINALG_POWER_ITERATIONS 25000
 
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
