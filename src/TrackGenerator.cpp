@@ -20,7 +20,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _quadrature = NULL;
   _z_coord = 0.0;
   _segment_formation = EXPLICIT_2D;
-  _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
+  _max_optical_length = std::numeric_limits<NEW_PRECISION>::max();
   _max_num_segments = 0;
   _FSR_volumes = NULL;
   _dump_segments = true;

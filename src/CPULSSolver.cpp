@@ -311,12 +311,12 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     float* track_flux,
                                     FP_PRECISION* fsr_flux,
-                                    double direction[3]) {
+                                    NEW_PRECISION direction[3]) {
 
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   NEW_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  double* position = curr_segment->_starting_position;
+  NEW_PRECISION* position = curr_segment->_starting_position;
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
   /* Set the FSR scalar flux buffer to zero */

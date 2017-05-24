@@ -24,7 +24,7 @@ MaxOpticalLength::MaxOpticalLength(TrackGenerator* track_generator)
  *          and setting it on the TrackGenerator.
 */
 void MaxOpticalLength::execute() {
-  FP_PRECISION infinity = std::numeric_limits<FP_PRECISION>::max();
+  FP_PRECISION infinity = std::numeric_limits<NEW_PRECISION>::max();
   _track_generator->setMaxOpticalLength(infinity);
 #pragma omp parallel
   {
@@ -43,12 +43,12 @@ void MaxOpticalLength::execute() {
  */
 void MaxOpticalLength::onTrack(Track* track, segment* segments) {
   for (int s=0; s < track->getNumSegments(); s++) {
-    double length = segments[s]._length;
+    NEW_PRECISION length = segments[s]._length;
     Material* material = segments[s]._material;
     NEW_PRECISION* sigma_t = material->getSigmaT();
 
     for (int e=0; e < material->getNumEnergyGroups(); e++) {
-      FP_PRECISION tau = length*sigma_t[e];
+      NEW_PRECISION tau = length*sigma_t[e];
       if (tau > _max_tau) {
 #pragma omp critical
         _max_tau = std::max(_max_tau, tau);
@@ -849,7 +849,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     polar_index = track_3D->getPolarIndex();
 
   /* Compute unit vector if necessary */
-  double direction[3];
+  NEW_PRECISION direction[3];
   if (_ls_solver != NULL) {
     double phi = track->getPhi();
     double cos_theta = 0.0;

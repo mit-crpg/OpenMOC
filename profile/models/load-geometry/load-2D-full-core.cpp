@@ -40,7 +40,7 @@ int main(int argc,  char* argv[]) {
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setCMFDRelaxationFactor(0.25);
+  cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
 

@@ -144,11 +144,11 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void VolumeKernel::execute(double length, Material* mat, long fsr_id,
+void VolumeKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
                            int track_idx, int cmfd_surface_fwd,
-                           int cmfd_surface_bwd, double x_start,
-                           double y_start, double z_start,
-                           double phi, double theta) {
+                           int cmfd_surface_bwd, NEW_PRECISION x_start,
+                           NEW_PRECISION y_start, NEW_PRECISION z_start,
+                           NEW_PRECISION phi, NEW_PRECISION theta) {
 
   /* Set omp lock for FSRs */
   omp_set_lock(&_FSR_locks[fsr_id]);
@@ -161,7 +161,7 @@ void VolumeKernel::execute(double length, Material* mat, long fsr_id,
 
   /* Determine the number of cuts on the segment */
   NEW_PRECISION* sigma_t = mat->getSigmaT();
-  double max_sigma_t = 0;
+  NEW_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
@@ -184,15 +184,15 @@ void VolumeKernel::execute(double length, Material* mat, long fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(double length, Material* mat, long fsr_id,
+void CounterKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
                             int track_idx, int cmfd_surface_fwd,
-                            int cmfd_surface_bwd, double x_start,
-                            double y_start, double z_start,
-                            double phi, double theta) {
+                            int cmfd_surface_bwd, NEW_PRECISION x_start,
+                            NEW_PRECISION y_start, NEW_PRECISION z_start,
+                            NEW_PRECISION phi, NEW_PRECISION theta) {
 
   /* Determine the number of cuts on the segment */
   NEW_PRECISION* sigma_t = mat->getSigmaT();
-  double max_sigma_t = 0;
+  NEW_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
@@ -215,11 +215,11 @@ void CounterKernel::execute(double length, Material* mat, long fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void SegmentationKernel::execute(double length, Material* mat, long fsr_id,
+void SegmentationKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
                                 int track_idx, int cmfd_surface_fwd,
-                                int cmfd_surface_bwd, double x_start,
-                                double y_start, double z_start,
-                                double phi, double theta) {
+                                int cmfd_surface_bwd, NEW_PRECISION x_start,
+                                NEW_PRECISION y_start, NEW_PRECISION z_start,
+                                NEW_PRECISION phi, NEW_PRECISION theta) {
 
   /* Check if segments have not been set, if so return */
   if (_segments == NULL)
@@ -227,7 +227,7 @@ void SegmentationKernel::execute(double length, Material* mat, long fsr_id,
 
   /* Determine the number of cuts on the segment */
   NEW_PRECISION* sigma_t = mat->getSigmaT();
-  double max_sigma_t = 0;
+  NEW_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
@@ -324,11 +324,11 @@ void TransportKernel::setDirection(bool direction) {
 
 
 //FIXME document
-void TransportKernel::execute(double length, Material* mat, long fsr_id,
+void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
                               int track_idx, int cmfd_surface_fwd,
-                              int cmfd_surface_bwd, double x_start,
-                              double y_start, double z_start,
-                              double phi, double theta) {
+                              int cmfd_surface_bwd, NEW_PRECISION x_start,
+                              NEW_PRECISION y_start, NEW_PRECISION z_start,
+                              NEW_PRECISION phi, NEW_PRECISION theta) {
 
   if (track_idx < _min_track_idx)
     _min_track_idx = track_idx;
