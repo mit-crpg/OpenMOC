@@ -566,8 +566,9 @@ void LinearExpansionGenerator::execute() {
   }
 
   //FIXME
-  if (false) {
-    double max_linear_radius = (10*17)*1.26; // (8.5*15+4) * 1.26 || * -2 *
+  if (true) {
+      //FIXME -2 -> +4
+    double max_linear_radius = (8.5*15-2)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
     Universe* root_universe = geometry->getRootUniverse();
     double center_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;
     double center_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
@@ -879,7 +880,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, true);
-
+   
     /* Apply MOC equations */
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
@@ -911,7 +912,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, false);
-
+    
     /* Apply MOC equations */
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,

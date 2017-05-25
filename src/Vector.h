@@ -29,7 +29,7 @@ class Vector {
 private:
 
   /** A list of lists representing the vector */
-  NEW_PRECISION* _array;
+  CMFD_PRECISION* _array;
   int _num_rows;
   int _num_x;
   int _num_y;
@@ -50,17 +50,17 @@ public:
   virtual ~Vector();
 
   /* Worker functions */
-  void incrementValue(int cell, int group, NEW_PRECISION val);
+  void incrementValue(int cell, int group, CMFD_PRECISION val);
   void incrementValues(int cell, int group_start, int group_end,
                        FP_PRECISION* vals);
   void clear();
-  void scaleByValue(NEW_PRECISION val);
+  void scaleByValue(CMFD_PRECISION val);
   void printString();
   void copyTo(Vector* vector);
 
   /* Getter functions */
-  NEW_PRECISION getValue(int cell, int group);
-  NEW_PRECISION* getArray();
+  CMFD_PRECISION getValue(int cell, int group);
+  CMFD_PRECISION* getArray();
   int getNumX();
   int getNumY();
   int getNumZ();
@@ -70,9 +70,9 @@ public:
   omp_lock_t* getCellLocks();
 
   /* Setter functions */
-  void setValue(int cell, int group, NEW_PRECISION val);
-  void setValues(int cell, int group_start, int group_end, NEW_PRECISION* vals);
-  void setAll(NEW_PRECISION val);
+  void setValue(int cell, int group, CMFD_PRECISION val);
+  void setValues(int cell, int group_start, int group_end, CMFD_PRECISION* vals);
+  void setAll(CMFD_PRECISION val);
 };
 
 #endif /* VECTOR_H_ */

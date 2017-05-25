@@ -23,7 +23,7 @@ Vector::Vector(omp_lock_t* cell_locks, int num_x, int num_y, int num_z,
   _num_rows = _num_x*_num_y*_num_z*_num_groups;
 
   /* Initialize array and set all to 0.0 */
-  _array = new NEW_PRECISION[_num_rows];
+  _array = new CMFD_PRECISION[_num_rows];
   setAll(0.0);
 
   /* Set OpenMP locks for each Vector cell */
@@ -55,7 +55,7 @@ Vector::~Vector() {
  * @param group The group location.
  * @param val The value used to increment the row location.
  */
-void Vector::incrementValue(int cell, int group, NEW_PRECISION val) {
+void Vector::incrementValue(int cell, int group, CMFD_PRECISION val) {
 
   if (cell >= _num_x*_num_y*_num_z || cell < 0)
     log_printf(ERROR, "Unable to increment Vector value for cell %d"
@@ -115,7 +115,7 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
 }
 
 
-void Vector::setAll(NEW_PRECISION val) {
+void Vector::setAll(CMFD_PRECISION val) {
   std::fill_n(_array, _num_rows, val);
 }
 
@@ -130,7 +130,7 @@ void Vector::setAll(NEW_PRECISION val) {
  * @param group The group location.
  * @param val The value used to set the row location.
  */
-void Vector::setValue(int cell, int group, NEW_PRECISION val) {
+void Vector::setValue(int cell, int group, CMFD_PRECISION val) {
 
   if (cell >= _num_x*_num_y*_num_z || cell < 0)
     log_printf(ERROR, "Unable to set Vector value for cell %d"
@@ -162,7 +162,7 @@ void Vector::setValue(int cell, int group, NEW_PRECISION val) {
  * @param vals The values used to set the row locations.
  */
 void Vector::setValues(int cell, int group_first, int group_last,
-                       NEW_PRECISION* vals) {
+                       CMFD_PRECISION* vals) {
 
   if (cell >= _num_x*_num_y*_num_z || cell < 0)
     log_printf(ERROR, "Unable to set Vector values for cell %d"
@@ -202,7 +202,7 @@ void Vector::clear() {
  * @brief Scales the vector by a given value.
  * @param val The value to scale the vector by.
  */
-void Vector::scaleByValue(NEW_PRECISION val) {
+void Vector::scaleByValue(CMFD_PRECISION val) {
 
   #pragma omp parallel for schedule(guided)
   for (int i=0; i < _num_rows; i++)
@@ -246,7 +246,7 @@ void Vector::copyTo(Vector* vector) {
  * @param cell The cell location index.
  * @param group The group location index.
  */
-NEW_PRECISION Vector::getValue(int cell, int group) {
+CMFD_PRECISION Vector::getValue(int cell, int group) {
   return _array[cell*_num_groups + group];
 }
 
@@ -255,7 +255,7 @@ NEW_PRECISION Vector::getValue(int cell, int group) {
  * @brief Get the array describing the vector.
  * @return The array describing the vector.
  */
-NEW_PRECISION* Vector::getArray() {
+CMFD_PRECISION* Vector::getArray() {
   return _array;
 }
 

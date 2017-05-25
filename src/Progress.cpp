@@ -47,12 +47,10 @@ void Progress::incrementCounter() {
         count += 1;
       double num_iters = _num_iterations;
       double percent = count / num_iters * 100.0;
-/*
 #ifdef MPIx
       if (_mpi_comm)
         MPI_Barrier(_geometry->getMPICart());
 #endif
-*/
       std::string msg = "Progress " + _name + ": %4.2f %%";
       log_printf(NORMAL, msg.c_str(), percent);
       _curr_interval++;

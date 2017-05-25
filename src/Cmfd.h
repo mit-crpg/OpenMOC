@@ -69,23 +69,23 @@ private:
   Vector* _new_source;
 
   /* Domain boundary communication buffers */
-  NEW_PRECISION*** _boundary_volumes;
-  NEW_PRECISION*** _boundary_reaction;
-  NEW_PRECISION*** _boundary_diffusion;
-  NEW_PRECISION*** _old_boundary_flux;
-  NEW_PRECISION*** _boundary_surface_currents;
+  CMFD_PRECISION*** _boundary_volumes;
+  CMFD_PRECISION*** _boundary_reaction;
+  CMFD_PRECISION*** _boundary_diffusion;
+  CMFD_PRECISION*** _old_boundary_flux;
+  CMFD_PRECISION*** _boundary_surface_currents;
 
-  NEW_PRECISION*** _send_volumes;
-  NEW_PRECISION*** _send_reaction;
-  NEW_PRECISION*** _send_diffusion;
-  NEW_PRECISION*** _send_currents;
+  CMFD_PRECISION*** _send_volumes;
+  CMFD_PRECISION*** _send_reaction;
+  CMFD_PRECISION*** _send_diffusion;
+  CMFD_PRECISION*** _send_currents;
 
-  NEW_PRECISION* _send_split_current_data;
-  NEW_PRECISION* _receive_split_current_data;
-  NEW_PRECISION** _send_split_currents_array;
-  NEW_PRECISION** _receive_split_currents_array;
-  NEW_PRECISION*** _off_domain_split_currents;
-  NEW_PRECISION*** _received_split_currents;
+  CMFD_PRECISION* _send_split_current_data;
+  CMFD_PRECISION* _receive_split_current_data;
+  CMFD_PRECISION** _send_split_currents_array;
+  CMFD_PRECISION** _receive_split_currents_array;
+  CMFD_PRECISION*** _off_domain_split_currents;
+  CMFD_PRECISION*** _received_split_currents;
 
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
@@ -178,7 +178,7 @@ private:
   Vector* _full_surface_currents;
 
   /** Array of surface currents on edges and corners for each CMFD cell */
-  std::map<int, NEW_PRECISION> _edge_corner_currents;
+  std::map<int, CMFD_PRECISION> _edge_corner_currents;
 
   /** Vector of vectors of FSRs containing in each cell */
   std::vector< std::vector<long> > _cell_fsrs;
@@ -229,10 +229,10 @@ private:
   //TODO: document
   ConvergenceData* _convergence_data;
   DomainCommunicator* _domain_communicator;
-  NEW_PRECISION* _inter_domain_data;
-  NEW_PRECISION* _send_domain_data;
-  NEW_PRECISION** _domain_data_by_surface;
-  NEW_PRECISION** _send_data_by_surface;
+  CMFD_PRECISION* _inter_domain_data;
+  CMFD_PRECISION* _send_domain_data;
+  CMFD_PRECISION** _domain_data_by_surface;
+  CMFD_PRECISION** _send_data_by_surface;
   std::vector<std::map<int, int> > _boundary_index_map;
 
   /* The number of on-domain cells in the x-direction */
@@ -246,11 +246,12 @@ private:
 
   //TODO: document
   long _total_tally_size;
-  NEW_PRECISION* _tally_memory;
-  NEW_PRECISION** _reaction_tally;
-  NEW_PRECISION** _volume_tally;
-  NEW_PRECISION** _diffusion_tally;
+  CMFD_PRECISION* _tally_memory;
+  CMFD_PRECISION** _reaction_tally;
+  CMFD_PRECISION** _volume_tally;
+  CMFD_PRECISION** _diffusion_tally;
   bool _tallies_allocated;
+  bool _domain_communicator_allocated;
 
   /** A timer to record timing data for a simulation */
   Timer* _timer;
@@ -423,7 +424,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
   int ncg = _num_cmfd_groups;
   FP_PRECISION currents[_num_cmfd_groups];
   memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
-  std::map<int, NEW_PRECISION>::iterator it;
+  std::map<int, CMFD_PRECISION>::iterator it;
 
   /* Check if the current needs to be tallied */
   bool tally_current = false;

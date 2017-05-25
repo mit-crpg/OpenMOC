@@ -1071,9 +1071,9 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
       ExtrudedFSR* fsr = new ExtrudedFSR;
       fsr->_fsr_id = fsr_id;
       fsr->_num_fsrs = 0;
-      fsr->_coords = new LocalCoords(0, 0, 0);
-      _extruded_FSR_keys_map.update(fsr_key, fsr);
+      fsr->_coords = new LocalCoords(0, 0, 0, true);
       coords->copyCoords(fsr->_coords);
+      _extruded_FSR_keys_map.update(fsr_key, fsr);
     }
   }
 
@@ -1930,7 +1930,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
     if (setup && false) {
       LocalCoords* new_fsr_coords;
       if (fsr_coords.size() >= preallocation_size)
-        new_fsr_coords = new LocalCoords(0,0,0);
+        new_fsr_coords = new LocalCoords(0, 0, 0, true);
       else
         new_fsr_coords = &preallocation[fsr_coords.size()];
       start.copyCoords(new_fsr_coords);
@@ -2052,10 +2052,14 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0, z0);
-  LocalCoords end(x0, y0, z0);
+  LocalCoords start(x0, y0, z0, true);
+  LocalCoords end(x0, y0, z0, true);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
+      
+  //FIXME
+  LocalCoords test_ext_coords(0,0,0,true);
+  LocalCoords test_start_coords(0,0,0,true);
 
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi);
@@ -2134,16 +2138,22 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
       /* Find FSR using starting coordinate */
       start.setVersionNum(v);
-      region_id = findExtrudedFSR(&start);
+      region_id = findExtrudedFSR(&start); //FIXME
       std::string fsr_key = getFSRKey(&start);
 
       /* Get the coordinate of the extruded FSR */
-      LocalCoords* ext_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
+      LocalCoords* volatile retreived_coords = NULL;
+      int lc0 = 0;
+      do {
+        retreived_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
+        lc0++;
+        if (lc0 > 1e8)
+          log_printf(ERROR, "Stuck in LOOP waiting for FSR coords");
+      } while (retreived_coords == NULL);
+      LocalCoords* ext_coords = retreived_coords;
 
       /* Create coordinate copies */
-      LocalCoords test_ext_coords;
       ext_coords->copyCoords(&test_ext_coords);
-      LocalCoords test_start_coords;
       start.copyCoords(&test_start_coords);
 
       /* Check to see that this point contains the cell of every axial level */
@@ -2631,11 +2641,11 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
 
       /* Find the Cell containing this point */
       if (strcmp(plane, "xy") == 0)
-        point = new LocalCoords(dim1[i], dim2[j], offset);
+        point = new LocalCoords(dim1[i], dim2[j], offset, true);
       else if (strcmp(plane, "xz") == 0)
-        point = new LocalCoords(dim1[i], offset, dim2[j]);
+        point = new LocalCoords(dim1[i], offset, dim2[j], true);
       else if (strcmp(plane, "yz") == 0)
-        point = new LocalCoords(offset, dim1[i], dim2[j]);
+        point = new LocalCoords(offset, dim1[i], dim2[j], true);
       else
         log_printf(ERROR, "Unable to extract spatial data for "
                           "unsupported plane %s", plane);
@@ -2880,7 +2890,7 @@ Cell* Geometry::findCellContainingFSR(long fsr_id) {
   std::string& key = _FSRs_to_keys[fsr_id];
   Point* point = _FSR_keys_map.at(key)->_point;
   LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
-                                        point->getZ());
+                                        point->getZ(), true);
   coords->setUniverse(_root_universe);
   Cell* cell = findCellContainingCoords(coords);
 

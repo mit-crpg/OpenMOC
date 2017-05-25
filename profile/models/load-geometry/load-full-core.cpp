@@ -14,7 +14,7 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  std::string file = "full-core-nc.geo";
+  std::string file = "v1-full-core.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -28,7 +28,7 @@ int main(int argc,  char* argv[]) {
   double polar_spacing = 0.75;
   int num_polar = 2;
 
-  double tolerance = 1e-4;
+  double tolerance = 1e-7;
   int max_iters = 40;
   
   /* Create CMFD lattice */
@@ -132,8 +132,20 @@ int main(int argc,  char* argv[]) {
   track_generator.setSegmentationZones(segmentation_zones);
   track_generator.generateTracks();
 
+  /* Find fissionable material */
+  Material* fiss_material = NULL;
+  std::map<int, Material*> materials = geometry.getAllMaterials();
+  for (std::map<int, Material*>::iterator it = materials.begin();
+       it != materials.end(); ++it) {
+    if (it->second->isFissionable()) {
+      fiss_material = it->second;
+      break;
+    }
+  }
+
   /* Run simulation */
   CPUSolver solver(&track_generator); //FIXME LS / FS
+  solver.setChiSpectrumMaterial(fiss_material);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

@@ -27,13 +27,13 @@ class Matrix {
 private:
 
   /** A list of lists representing the matrix */
-  std::vector< std::map<int, NEW_PRECISION> > _LIL;
+  std::vector< std::map<int, CMFD_PRECISION> > _LIL;
 
   /** The CSR matrix variables */
-  NEW_PRECISION* _A;
+  CMFD_PRECISION* _A;
   int* _IA;
   int* _JA;
-  NEW_PRECISION* _DIAG;
+  CMFD_PRECISION* _DIAG;
 
   bool _modified;
   int _num_x;
@@ -58,18 +58,18 @@ public:
 
   /* Worker functions */
   void incrementValue(int cell_from, int group_from, int cell_to, int group_to,
-                      NEW_PRECISION val);
+                      CMFD_PRECISION val);
   void clear();
   void printString();
   void transpose();
 
   /* Getter functions */
-  NEW_PRECISION getValue(int cell_from, int group_from, int cell_to,
+  CMFD_PRECISION getValue(int cell_from, int group_from, int cell_to,
                         int group_to);
-  NEW_PRECISION* getA();
+  CMFD_PRECISION* getA();
   int* getIA();
   int* getJA();
-  NEW_PRECISION* getDiag();
+  CMFD_PRECISION* getDiag();
   int getNumX();
   int getNumY();
   int getNumZ();
@@ -80,7 +80,7 @@ public:
 
   /* Setter functions */
   void setValue(int cell_from, int group_from, int cell_to, int group_to,
-                NEW_PRECISION val);
+                CMFD_PRECISION val);
 };
 
 #endif /* MATRIX_H_ */

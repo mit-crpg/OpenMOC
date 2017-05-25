@@ -1386,15 +1386,12 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
   }
 
   /* Normalize angular boundary fluxes for each Track */
-#pragma omp parallel for schedule(guided)
-  for (long i=0; i < _tot_num_tracks; i++) {
-    for (int j=0; j < 2; j++) {
-      for (int pe=0; pe < _fluxes_per_track; pe++) {
-        _start_flux(i, j, pe) *= norm_factor;
-        _boundary_flux(i, j, pe) *= norm_factor;
-      }
-    }
+// FIXME #pragma omp parallel for
+  for (long idx=0; idx < 2 * _tot_num_tracks * _fluxes_per_track; idx++) {
+    _start_flux[idx] *= norm_factor;
+    _boundary_flux[idx] *= norm_factor;
   }
+
   return norm_factor;
 }
 
@@ -1444,6 +1441,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       _reduced_sources(r,G) = fission_source * chi[G];
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
+      
       //FIXME
       if (_reduced_sources(r,G) < 0.0) {
 #pragma omp atomic
@@ -1685,8 +1683,26 @@ void CPUSolver::transportSweep() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
+  /*
+  std::cout << "Before Copy: START FWD = " << _start_flux(323, 0, 2) << std::endl;
+  std::cout << "Before Copy: BOUND FWD = " << _boundary_flux(323, 0, 2) 
+      << std::endl;
+  std::cout << "Before Copy: START BWD = " << _start_flux(323, 1, 2) << std::endl;
+  std::cout << "Before Copy: BOUND BWD = " << _boundary_flux(323, 1, 2) 
+      << std::endl;
+  */
+
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
+  
+  /*
+  std::cout << "After Copy: START FWD = " << _start_flux(323, 0, 2) << std::endl;
+  std::cout << "After Copy: BOUND FWD = " << _boundary_flux(323, 0, 2) 
+      << std::endl;
+  std::cout << "After Copy: START BWD = " << _start_flux(323, 1, 2) << std::endl;
+  std::cout << "After Copy: BOUND BWD = " << _boundary_flux(323, 1, 2) 
+      << std::endl;
+      */
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
@@ -1699,6 +1715,15 @@ void CPUSolver::transportSweep() {
     TransportSweep sweep_tracks(this);
     sweep_tracks.execute();
   }
+  
+  /*
+  std::cout << "After sweep: START FWD = " << _start_flux(323, 0, 2) << std::endl;
+  std::cout << "After sweep: BOUND FWD = " << _boundary_flux(323, 0, 2) 
+      << std::endl;
+  std::cout << "After sweep: START BWD = " << _start_flux(323, 1, 2) << std::endl;
+  std::cout << "After sweep: BOUND BWD = " << _boundary_flux(323, 1, 2) 
+      << std::endl;
+      */
 
 #ifdef MPIx
   /* Transfer all interface fluxes after the transport sweep */
