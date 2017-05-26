@@ -147,7 +147,7 @@ TrackGenerator* Solver::getTrackGenerator() {
  * @param fsr_id the flat source region ID of interest
  * @return the flat source region volume
  */
-FP_PRECISION Solver::getFSRVolume(long fsr_id) {
+NEW_PRECISION Solver::getFSRVolume(long fsr_id) {
 
   if (fsr_id < 0 || fsr_id > _num_FSRs)
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "

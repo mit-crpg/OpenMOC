@@ -383,7 +383,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     int track_idx = curr_segment->_track_idx;
 
     /* Extract information */
-    double volume = _FSR_volumes[fsr];
+    NEW_PRECISION volume = _FSR_volumes[fsr];
     double x = _starting_points[tid][track_idx].getX();
     double y = _starting_points[tid][track_idx].getY();
     double z = _starting_points[tid][track_idx].getZ();
@@ -500,7 +500,7 @@ void LinearExpansionGenerator::execute() {
             lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
             lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
 
-      double volume = _FSR_volumes[r];
+      NEW_PRECISION volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         log_printf(INFO, "Unable to form linear source components in "
                    "source region %d. Switching to flat source in that "
@@ -653,7 +653,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     FP_PRECISION length_2 = length * length;
 
     /* Extract FSR information */
-    double volume = _FSR_volumes[fsr];
+    NEW_PRECISION volume = _FSR_volumes[fsr];
 
     /* Extract the starting points of the segment */
     double x = curr_segment->_starting_position[0];
@@ -669,7 +669,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     memset(thread_src_constants, 0.0, _num_groups * _num_coeffs *
            sizeof(FP_PRECISION));
 
-    FP_PRECISION vol_impact = wgt * length / volume;
+    NEW_PRECISION vol_impact = wgt * length / volume;
     for (int g=0; g < _num_groups; g++) {
 
       thread_src_constants[g*_num_coeffs] += vol_impact * xc * xc;

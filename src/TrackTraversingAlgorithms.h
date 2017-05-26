@@ -131,7 +131,7 @@ class CentroidGenerator: public TraverseSegments {
 private:
 
   Point** _centroids;
-  FP_PRECISION* _FSR_volumes;
+  NEW_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
   Quadrature* _quadrature;
   Point** _starting_points;
@@ -163,7 +163,7 @@ class LinearExpansionGenerator: public TraverseSegments {
 private:
 
   FP_PRECISION* _lin_exp_coeffs;
-  FP_PRECISION* _FSR_volumes;
+  NEW_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
   FP_PRECISION* _src_constants;
   Quadrature* _quadrature;

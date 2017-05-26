@@ -466,7 +466,8 @@ void CPULSSolver::addSourceToScalarFlux() {
 
 #pragma omp parallel
   {
-    FP_PRECISION volume, flux_const;
+    NEW_PRECISION volume;
+    FP_PRECISION flux_const;
     NEW_PRECISION* sigma_t;
 
     /* Add in source term and normalize flux to volume for each FSR */

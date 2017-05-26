@@ -142,7 +142,7 @@ private:
   long _num_FSRs;
 
   /** The volumes (areas) for each FSR */
-  FP_PRECISION* _FSR_volumes;
+  NEW_PRECISION* _FSR_volumes;
 
   /** Pointers to Materials for each FSR */
   Material** _FSR_materials;
@@ -375,7 +375,7 @@ public:
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
-  void setFSRVolumes(FP_PRECISION* FSR_volumes);
+  void setFSRVolumes(NEW_PRECISION* FSR_volumes);
   void setFSRFluxes(NEW_PRECISION* scalar_flux);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);

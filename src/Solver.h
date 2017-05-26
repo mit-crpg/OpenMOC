@@ -113,7 +113,7 @@ protected:
   long _num_fissionable_FSRs;
 
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
-  FP_PRECISION* _FSR_volumes;
+  NEW_PRECISION* _FSR_volumes;
 
   /** The FSR Material pointers indexed by FSR UID */
   Material** _FSR_materials;
@@ -323,7 +323,7 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
-  FP_PRECISION getFSRVolume(long fsr_id);
+  NEW_PRECISION getFSRVolume(long fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();

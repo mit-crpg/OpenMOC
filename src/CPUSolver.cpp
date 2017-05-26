@@ -149,7 +149,7 @@ void CPUSolver::setNumThreads(int num_threads) {
  * @param source the volume-averaged source in this group
  */
 void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
-                                    FP_PRECISION source) {
+                                    NEW_PRECISION source) {
 
   Solver::setFixedSourceByFSR(fsr_id, group, source);
 
@@ -1317,7 +1317,7 @@ double CPUSolver::normalizeFluxes() {
 
       /* Get pointers to important data structures */
       NEW_PRECISION* nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
-      FP_PRECISION volume = _FSR_volumes[r];
+      NEW_PRECISION volume = _FSR_volumes[r];
 
       for (int e=0; e < _num_groups; e++)
         group_fission_sources[e] = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
@@ -1590,7 +1590,7 @@ void CPUSolver::computeKeff() {
 
   int tid;
   Material* material;
-  FP_PRECISION volume;
+  NEW_PRECISION volume;
 
   double fission;
   double* FSR_rates = _regionwise_scratch;
@@ -1602,7 +1602,7 @@ void CPUSolver::computeKeff() {
 
     int tid = omp_get_thread_num();
     FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
-    FP_PRECISION volume = _FSR_volumes[r];
+    NEW_PRECISION volume = _FSR_volumes[r];
     Material* material = _FSR_materials[r];
     NEW_PRECISION* sigma = material->getNuSigmaF();
 
@@ -1837,7 +1837,7 @@ void CPUSolver::transferBoundaryFlux(Track* track,
  */
 void CPUSolver::addSourceToScalarFlux() {
 
-  FP_PRECISION volume;
+  NEW_PRECISION volume;
   NEW_PRECISION* sigma_t;
 
   /* Add in source term and normalize flux to volume for each FSR */
@@ -1880,7 +1880,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
   log_printf(INFO, "Computing FSR fission rates...");
 
   NEW_PRECISION* nu_sigma_f;
-  FP_PRECISION vol;
+  NEW_PRECISION vol;
 
   /* Initialize fission rates to zero */
   for (long r=0; r < _num_FSRs; r++)

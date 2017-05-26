@@ -82,7 +82,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
 
   /* Extract fluxes and geometry information */
   Geometry* geometry = _solver->getGeometry();
-  FP_PRECISION* volumes = _solver->getTrackGenerator()->getFSRVolumesBuffer();
+  NEW_PRECISION* volumes = _solver->getTrackGenerator()->getFSRVolumesBuffer();
   NEW_PRECISION* fluxes = _solver->getFluxesArray();
   int num_fsrs = geometry->getNumFSRs();
 
@@ -106,7 +106,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
     int lat_cell = _lattice->getLatticeCell(pt);
 
     /* Determine the volume and cross-sections of the FSR */
-    double volume = volumes[r];
+    NEW_PRECISION volume = volumes[r];
     NEW_PRECISION* xs_array;
     switch (rx) {
       case FISSION_RX:

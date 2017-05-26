@@ -408,7 +408,7 @@ void Cmfd::collapseXS() {
   {
 
     /* Initialize variables for FSR properties*/
-    FP_PRECISION volume, flux;
+    NEW_PRECISION volume, flux;
     NEW_PRECISION tot, nu_fis, chi;
     NEW_PRECISION* scat;
 
@@ -1192,7 +1192,7 @@ void Cmfd::setFSRMaterials(Material** FSR_materials) {
  * @brief Set the pointer to the array of FSR_volumes.
  * @param array of FSR volumes
  */
-void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
+void Cmfd::setFSRVolumes(NEW_PRECISION* FSR_volumes) {
   _FSR_volumes = FSR_volumes;
 }
 
@@ -3342,7 +3342,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
 
         long fsr_id = _cell_fsrs.at(i).at(j);
         Material* fsr_material = _FSR_materials[fsr_id];
-        double volume = _FSR_volumes[fsr_id];
+        NEW_PRECISION volume = _FSR_volumes[fsr_id];
         NEW_PRECISION* scat = fsr_material->getSigmaS();
         NEW_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
 

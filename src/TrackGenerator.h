@@ -108,7 +108,7 @@ protected:
   bool _dump_segments;
 
   /** A buffer holding the computed FSR volumes */
-  FP_PRECISION* _FSR_volumes;
+  NEW_PRECISION* _FSR_volumes;
   
   /** A timer to record timing data for track generation */
   Timer* _timer;
@@ -157,9 +157,9 @@ public:
   int getNumX(int azim);
   int getNumY(int azim);
   void exportFSRVolumes(double* out_volumes, int num_fsrs);
-  FP_PRECISION* getFSRVolumesBuffer();
-  FP_PRECISION* getFSRVolumes();
-  FP_PRECISION getFSRVolume(long fsr_id);
+  NEW_PRECISION* getFSRVolumesBuffer();
+  NEW_PRECISION* getFSRVolumes();
+  NEW_PRECISION getFSRVolume(long fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
   FP_PRECISION retrieveMaxOpticalLength();
@@ -186,7 +186,7 @@ public:
   void retrieve2DTrackCoords(double* coords, long num_tracks);
   virtual void retrieveSegmentCoords(double* coords, long num_segments);
   void retrieve2DSegmentCoords(double* coords, long num_segments);
-  void generateFSRCentroids(FP_PRECISION* FSR_volumes);
+  void generateFSRCentroids(NEW_PRECISION* FSR_volumes);
   void generateTracks();
   void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);

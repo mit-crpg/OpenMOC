@@ -110,7 +110,7 @@ private:
   omp_lock_t* _FSR_locks;
 
   /** Pointer to array of FSR volumes */
-  FP_PRECISION* _FSR_volumes;
+  NEW_PRECISION* _FSR_volumes;
 
   /** The Track's volume weight */
   FP_PRECISION _weight;
