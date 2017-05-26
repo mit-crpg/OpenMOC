@@ -261,7 +261,7 @@ protected:
    * @brief Set the scalar flux for each FSR and energy group to some value.
    * @param value the value to assign to each FSR scalar flux
    */
-  virtual void flattenFSRFluxes(FP_PRECISION value) =0;
+  virtual void flattenFSRFluxes(NEW_PRECISION value) =0;
 
   /**
    * @brief Set the scalar flux for each FSR to a chi spectrum.
@@ -277,7 +277,7 @@ protected:
    * @brief Normalizes all FSR scalar fluxes and Track boundary angular
    *        fluxes to the total fission source (times \f$ \nu \f$).
    */
-  virtual FP_PRECISION normalizeFluxes() =0;
+  virtual double normalizeFluxes() =0;
 
   /**
    * @brief Computes the total source (fission, scattering, fixed) for

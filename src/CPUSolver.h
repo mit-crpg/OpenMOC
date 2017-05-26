@@ -84,10 +84,10 @@ protected:
   void printCycle(long track_start, int domain_start, int length);
   void boundaryFluxChecker();
 #endif
-  virtual void flattenFSRFluxes(FP_PRECISION value);
+  virtual void flattenFSRFluxes(NEW_PRECISION value);
   virtual void flattenFSRFluxesChiSpectrum();
   void storeFSRFluxes();
-  virtual FP_PRECISION normalizeFluxes();
+  virtual double normalizeFluxes();
   virtual void computeFSRSources(int iteration);
   virtual void transportSweep();
   virtual void addSourceToScalarFlux();

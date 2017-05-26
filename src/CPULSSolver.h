@@ -57,8 +57,8 @@ public:
   void initializeExpEvaluators();
   void initializeFSRs();
 
-  void flattenFSRFluxes(FP_PRECISION value);
-  FP_PRECISION normalizeFluxes();
+  void flattenFSRFluxes(NEW_PRECISION value);
+  double normalizeFluxes();
   void computeFSRSources(int iteration);
   void addSourceToScalarFlux();
 

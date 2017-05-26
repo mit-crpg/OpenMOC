@@ -144,7 +144,7 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator); //FIXME LS / FS
+  CPUSolver solver(&track_generator); //FIXME LS / FS
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

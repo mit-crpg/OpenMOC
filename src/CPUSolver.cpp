@@ -108,7 +108,7 @@ void CPUSolver::getFluxes(NEW_PRECISION* out_fluxes, int num_fluxes) {
           temp_fluxes[r*_num_groups+e] = 0.0;
     }
 
-    /* Determine the type of FP_PRECISION and communicate fluxes */
+    /* Determine the type of NEW_PRECISION and communicate fluxes */
     MPI_Datatype flux_type;
     if (sizeof(NEW_PRECISION) == 4)
       flux_type = MPI_FLOAT;
@@ -243,7 +243,7 @@ void CPUSolver::initializeFluxArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION))
+    max_size_mb = (double) (2 * max_size * sizeof(NEW_PRECISION))
         / (double) (1e6);
     log_printf(NORMAL, "Max scalar flux storage per domain = %6.2f MB",
                max_size_mb);
@@ -566,7 +566,6 @@ void CPUSolver::deleteMPIBuffers() {
 void CPUSolver::printCycle(long track_start, int domain_start, int length) {
 
   /* Initialize buffer for MPI communication */
-  FP_PRECISION buffer[2*_fluxes_per_track];
   int message_size = sizeof(sendInfo);
 
   /* Initialize MPI requests and status */
@@ -979,11 +978,11 @@ void CPUSolver::boundaryFluxChecker() {
 
             /* Receive infomation */
             int receive_size = _fluxes_per_track + 2 * 5;
-            FP_PRECISION buffer[receive_size];
+            float buffer[receive_size];
             MPI_Recv(buffer, receive_size, MPI_FLOAT, dest, 0, MPI_cart, &stat);
 
             /* Unpack received infomrmation */
-            FP_PRECISION angular_fluxes[_fluxes_per_track];
+            float angular_fluxes[_fluxes_per_track];
             for (int i=0; i < _fluxes_per_track; i++)
               angular_fluxes[i] = buffer[i];
 
@@ -1218,7 +1217,7 @@ void CPUSolver::boundaryFluxChecker() {
 
           /* Fill the information */
           int send_size = _fluxes_per_track + 2 * 5;
-          FP_PRECISION buffer[send_size];
+          float buffer[send_size];
           for (int pe=0; pe < _fluxes_per_track; pe++)
             buffer[pe] = _start_flux(t, dir, pe);
 
@@ -1260,7 +1259,7 @@ void CPUSolver::boundaryFluxChecker() {
  * @brief Set the scalar flux for each FSR and energy group to some value.
  * @param value the value to assign to each FSR scalar flux
  */
-void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
+void CPUSolver::flattenFSRFluxes(NEW_PRECISION value) {
 
 #pragma omp parallel for schedule(guided)
   for (long r=0; r < _num_FSRs; r++) {
@@ -1304,7 +1303,7 @@ void CPUSolver::storeFSRFluxes() {
  * @brief Normalizes all FSR scalar fluxes and Track boundary angular
  *        fluxes to the total fission source (times \f$ \nu \f$).
  */
-FP_PRECISION CPUSolver::normalizeFluxes() {
+double CPUSolver::normalizeFluxes() {
 
   double* int_fission_sources = _regionwise_scratch;
 
@@ -1329,7 +1328,7 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
   }
 
   /* Compute the total fission source */
-  FP_PRECISION tot_fission_source = pairwise_sum<double>(int_fission_sources,
+  double tot_fission_source = pairwise_sum<double>(int_fission_sources,
                                                          _num_FSRs);
 
 #ifdef MPIx
@@ -1340,22 +1339,17 @@ FP_PRECISION CPUSolver::normalizeFluxes() {
     MPI_Comm comm = _geometry->getMPICart();
 
     /* Determine the floating point precision */
-    FP_PRECISION reduced_fission;
-    MPI_Datatype precision;
-    if (sizeof(FP_PRECISION) == 4)
-      precision = MPI_FLOAT;
-    else
-      precision = MPI_DOUBLE;
+    double reduced_fission;
 
     /* Reduce fission rates */
-    MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, precision,
+    MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, MPI_DOUBLE,
                   MPI_SUM, comm);
     tot_fission_source = reduced_fission;
   }
 #endif
 
   /* Normalize scalar fluxes in each FSR */
-  FP_PRECISION norm_factor = 1.0 / tot_fission_source;
+  double norm_factor = 1.0 / tot_fission_source;
 
   log_printf(DEBUG, "Tot. Fiss. Src. = %f, Norm. factor = %f",
              tot_fission_source, norm_factor);
@@ -1398,7 +1392,7 @@ void CPUSolver::computeFSRSources(int iteration) {
     FP_PRECISION* fission_sources = _groupwise_scratch.at(tid);
 
     /* Initialize the fission sources to zero */
-    FP_PRECISION fission_source = 0.0;
+    NEW_PRECISION fission_source = 0.0;
 
     /* Compute fission source for each group */
     if (material->isFissionable()) {
@@ -1416,7 +1410,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       for (int g=0; g < _num_groups; g++)
         scatter_sources[g] = material->getSigmaSByGroup(g+1,G+1)
                                   * _scalar_flux(r,g);
-      FP_PRECISION scatter_source =
+      NEW_PRECISION scatter_source =
           pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
 
       _reduced_sources(r,G) = fission_source * chi[G];
@@ -1519,7 +1513,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     norm = _num_FSRs;
 
     double new_total_source, old_total_source;
-    FP_PRECISION inverse_k_eff = 1.0 / _k_eff;
+    double inverse_k_eff = 1.0 / _k_eff;
     NEW_PRECISION* nu_sigma_f;
     Material* material;
 
@@ -1664,27 +1658,9 @@ void CPUSolver::transportSweep() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
-  /*
-  std::cout << "Before Copy: START FWD = " << _start_flux(323, 0, 2) << std::endl;
-  std::cout << "Before Copy: BOUND FWD = " << _boundary_flux(323, 0, 2) 
-      << std::endl;
-  std::cout << "Before Copy: START BWD = " << _start_flux(323, 1, 2) << std::endl;
-  std::cout << "Before Copy: BOUND BWD = " << _boundary_flux(323, 1, 2) 
-      << std::endl;
-  */
-
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
   
-  /*
-  std::cout << "After Copy: START FWD = " << _start_flux(323, 0, 2) << std::endl;
-  std::cout << "After Copy: BOUND FWD = " << _boundary_flux(323, 0, 2) 
-      << std::endl;
-  std::cout << "After Copy: START BWD = " << _start_flux(323, 1, 2) << std::endl;
-  std::cout << "After Copy: BOUND BWD = " << _boundary_flux(323, 1, 2) 
-      << std::endl;
-      */
-
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
   if (_OTF_transport) {
@@ -1697,15 +1673,6 @@ void CPUSolver::transportSweep() {
     sweep_tracks.execute();
   }
   
-  /*
-  std::cout << "After sweep: START FWD = " << _start_flux(323, 0, 2) << std::endl;
-  std::cout << "After sweep: BOUND FWD = " << _boundary_flux(323, 0, 2) 
-      << std::endl;
-  std::cout << "After sweep: START BWD = " << _start_flux(323, 1, 2) << std::endl;
-  std::cout << "After sweep: BOUND BWD = " << _boundary_flux(323, 1, 2) 
-      << std::endl;
-      */
-
 #ifdef MPIx
   /* Transfer all interface fluxes after the transport sweep */
   if (_track_generator->getGeometry()->isDomainDecomposed())
@@ -1730,7 +1697,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 FP_PRECISION* fsr_flux) {
 
   long fsr_id = curr_segment->_region_id;
-  FP_PRECISION length = curr_segment->_length;
+  NEW_PRECISION length = curr_segment->_length;
   NEW_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* The change in angular flux along this Track segment in the FSR */
@@ -1741,17 +1708,17 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
   if (_solve_3D) {
 
-    FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
+    NEW_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
     for (int e=0; e < _num_groups; e++) {
 
-      FP_PRECISION tau = sigma_t[e] * length_2D;
+      NEW_PRECISION tau = sigma_t[e] * length_2D;
 
       /* Compute the exponential */
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
       /* Attenuate and tally the flux */
-      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
+      NEW_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
               _reduced_sources(fsr_id, e)) * exponential;
       fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
@@ -1765,7 +1732,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     /* Loop over energy groups */
     for (int e=0; e < _num_groups; e++) {
 
-      FP_PRECISION tau = sigma_t[e] * length;
+      NEW_PRECISION tau = sigma_t[e] * length;
 
       /* Loop over polar angles */
       for (int p=0; p < _num_polar/2; p++) {
@@ -1774,7 +1741,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
         FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
 
         /* Attenuate and tally the flux */
-        FP_PRECISION delta_psi = (tau * track_flux[pe] -
+        NEW_PRECISION delta_psi = (tau * track_flux[pe] -
                 length * _reduced_sources(fsr_id,e)) * exponential;
         fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
         track_flux[pe] -= delta_psi;

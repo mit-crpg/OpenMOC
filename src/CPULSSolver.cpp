@@ -135,7 +135,7 @@ void CPULSSolver::initializeFSRs() {
  *        value and the scalar flux moments to zero.
  * @param value the value to assign to each FSR scalar flux
  */
-void CPULSSolver::flattenFSRFluxes(FP_PRECISION value) {
+void CPULSSolver::flattenFSRFluxes(NEW_PRECISION value) {
   CPUSolver::flattenFSRFluxes(value);
 
 #pragma omp parallel for schedule(guided)
@@ -153,10 +153,10 @@ void CPULSSolver::flattenFSRFluxes(FP_PRECISION value) {
  * @brief Normalizes all FSR scalar fluxes and Track boundary angular
  *        fluxes to the total fission source (times \f$ \nu \f$).
  */
-FP_PRECISION CPULSSolver::normalizeFluxes() {
+double CPULSSolver::normalizeFluxes() {
 
   /* Normalize scalar fluxes in each FSR */
-  FP_PRECISION norm_factor = CPUSolver::normalizeFluxes();
+  double norm_factor = CPUSolver::normalizeFluxes();
 
 #pragma omp parallel for schedule(guided)
   for (long r=0; r < _num_FSRs; r++) {
