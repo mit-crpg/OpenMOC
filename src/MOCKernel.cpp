@@ -166,7 +166,9 @@ void VolumeKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
-  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
+  int num_cuts = 1;
+  if (length * max_sigma_t > _max_tau)
+    num_cuts = length * max_sigma_t / _max_tau;
 
   /* Increment count */
   _count += num_cuts;
@@ -197,7 +199,9 @@ void CounterKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
-  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
+  int num_cuts = 1;
+  if (length * max_sigma_t > _max_tau)
+    num_cuts = length * max_sigma_t / _max_tau;
 
   /* Increment count */
   _count += num_cuts;
@@ -232,7 +236,9 @@ void SegmentationKernel::execute(NEW_PRECISION length, Material* mat, long fsr_i
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
-  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
+  int num_cuts = 1;
+  if (length * max_sigma_t > _max_tau)
+    num_cuts = length * max_sigma_t / _max_tau;
 
   /* Add segment information */
   for (int i=0; i < num_cuts-1; i++) {
@@ -342,7 +348,9 @@ void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
 
-  int num_cuts = std::max((int) std::ceil(length * max_sigma_t / _max_tau), 1);
+  int num_cuts = 1;
+  if (length * max_sigma_t > _max_tau)
+    num_cuts = length * max_sigma_t / _max_tau;
 
   /* Determine common length */
   FP_PRECISION fp_length = length;

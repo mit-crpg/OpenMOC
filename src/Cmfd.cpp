@@ -1113,6 +1113,13 @@ void Cmfd::updateMOCFlux() {
       }
     }
   }
+#ifdef MPIx
+  if (_domain_communicator != NULL) {
+    double max_pf = _convergence_data->pf;
+    MPI_Allreduce(&max_pf, &_convergence_data->pf, 1, MPI_DOUBLE, MPI_MAX,
+                  _domain_communicator->_MPI_cart);
+  }
+#endif
 }
 
 
@@ -2931,6 +2938,7 @@ void Cmfd::initialize() {
 
       /* Allocate memory for split current communication */
       int ns = NUM_FACES + NUM_EDGES;
+      int vec_size = ns*ncg*sizeof(CMFD_PRECISION);
       int split_current_size = ncg * ns * num_boundary_cells;
       _send_split_current_data = new CMFD_PRECISION[split_current_size];
       _receive_split_current_data = new CMFD_PRECISION[split_current_size];
@@ -2954,8 +2962,10 @@ void Cmfd::initialize() {
 
           _off_domain_split_currents[s][idx] =
             &_send_split_current_data[start];
+          memset(_off_domain_split_currents[s][idx], 0.0, vec_size);
           _received_split_currents[s][idx] =
             &_receive_split_current_data[start];
+          memset(_received_split_currents[s][idx], 0.0, vec_size);
 
           start += ns*ncg;
         }
@@ -3805,6 +3815,12 @@ void Cmfd::unpackSplitCurrents(bool faces) {
             /* Convert the (x,y,z) indexes to a cell ID and boundary index */
             int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
             int idx = current_idx[s];
+            //FIXME YOLO
+            int num_per_side[3] = {_local_num_y * _local_num_z,
+                          _local_num_x * _local_num_z,
+                          _local_num_x * _local_num_y};
+            if (idx < 0 || idx >= num_per_side[s%3])
+                log_printf(ERROR, "Whoa!! Got idx %d / %d", idx, num_per_side[s%3]);
 
             /* Copy the appropriate face or edge information */
             if (faces) {
@@ -3852,7 +3868,13 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                       _edge_corner_currents[new_ind] = 0.0;
 
                     /* Add the contribution */
-                    _edge_corner_currents[new_ind] += value;
+                    //FIXME YOLO
+                    double temp = value * 9.0;
+                    CMFD_PRECISION start_val = _edge_corner_currents[new_ind];
+                    CMFD_PRECISION end_val = start_val * 9.0;
+                    CMFD_PRECISION new_val = (temp + end_val) / 9.0;
+                    _edge_corner_currents[new_ind] = new_val;
+                    //FIXME _edge_corner_currents[new_ind] += value;
                   }
                 }
               }

@@ -25,17 +25,17 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 4;
-  double polar_spacing = 0.88;
-  int num_polar = 2;
+  int num_azim = 16;
+  double polar_spacing = 0.75;
+  int num_polar = 6;
 
-  double tolerance = 1e-7;
+  double tolerance = 1e-4;
   int max_iters = 400;
   
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17*17, 17*17, 5);
+  cmfd.setLatticeStructure(17*17, 17*17, 1);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
@@ -143,7 +143,7 @@ int main(int argc,  char* argv[]) {
   }
 
   /* Run simulation */
-  CPUSolver solver(&track_generator); //FIXME LS / FS
+  CPULSSolver solver(&track_generator); //FIXME LS / FS
   //solver.setChiSpectrumMaterial(fiss_material);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();

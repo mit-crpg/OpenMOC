@@ -86,13 +86,13 @@ void CPUSolver::getFluxes(NEW_PRECISION* out_fluxes, int num_fluxes) {
   if (_geometry->isDomainDecomposed()) {
 
     /* Allocate buffer for communcation */
-    int num_total_FSRs = _geometry->getNumTotalFSRs();
+    long num_total_FSRs = _geometry->getNumTotalFSRs();
     NEW_PRECISION* temp_fluxes = new NEW_PRECISION[num_total_FSRs*_num_groups];
 
     int rank = 0;
     MPI_Comm comm = _geometry->getMPICart();
     MPI_Comm_rank(comm, &rank);
-    for (int r=0; r < num_total_FSRs; r++) {
+    for (long r=0; r < num_total_FSRs; r++) {
 
       /* Determine the domain and local FSR ID */
       long fsr_id = r;
@@ -232,6 +232,8 @@ void CPUSolver::initializeFluxArrays() {
 
     _boundary_flux = new float[size];
     _start_flux = new float[size];
+    memset(_boundary_flux, 0., size * sizeof(float));
+    memset(_start_flux, 0., size * sizeof(float));
 
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
@@ -379,10 +381,7 @@ void CPUSolver::copyBoundaryFluxes() {
 void CPUSolver::setupMPIBuffers() {
 
   /* Determine the size of the buffers */
-  if (sizeof(FP_PRECISION) == 4)
-    _track_message_size = _fluxes_per_track + 3;
-  else
-    _track_message_size = _fluxes_per_track + 2;
+  _track_message_size = _fluxes_per_track + 3;
   int length = TRACKS_PER_BUFFER * _track_message_size;
 
   /* Initialize MPI requests and status */
@@ -404,9 +403,9 @@ void CPUSolver::setupMPIBuffers() {
             int domain = _geometry->getNeighborDomain(dx, dy, dz);
             if (domain != -1) {
               neighbor_connections.insert({domain, idx});
-              FP_PRECISION* send_buffer = new FP_PRECISION[length];
+              float* send_buffer = new float[length];
               _send_buffers.push_back(send_buffer);
-              FP_PRECISION* receive_buffer = new FP_PRECISION[length];
+              float* receive_buffer = new float[length];
               _receive_buffers.push_back(receive_buffer);
               _neighbor_domains.push_back(domain);
               idx++;
@@ -781,13 +780,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
   /* Initialize timer for total function cost */
   _timer->startTimer();
 
-  /* Initialize buffer for MPI communication */
-  MPI_Datatype flux_type;
-  if (sizeof(FP_PRECISION) == 4)
-    flux_type = MPI_FLOAT;
-  else
-    flux_type = MPI_DOUBLE;
-
   /* Create bookkeeping vectors */
   std::vector<long> packing_indexes;
 
@@ -823,13 +815,13 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
         /* Send outgoing flux */
         MPI_Isend(_send_buffers.at(i), _track_message_size *
-                  TRACKS_PER_BUFFER, flux_type, domain, 0, MPI_cart,
+                  TRACKS_PER_BUFFER, MPI_FLOAT, domain, 0, MPI_cart,
                   &_MPI_requests[i*2]);
         _MPI_sends[i] = true;
 
         /* Receive incoming flux */
         MPI_Irecv(_receive_buffers.at(i), _track_message_size *
-                  TRACKS_PER_BUFFER, flux_type, domain, 0, MPI_cart,
+                  TRACKS_PER_BUFFER, MPI_FLOAT, domain, 0, MPI_cart,
                   &_MPI_requests[i*2+1]);
         _MPI_receives[i] = true;
 
@@ -881,11 +873,11 @@ void CPUSolver::transferAllInterfaceFluxes() {
       if (_MPI_receives[i]) {
 
         /* Get the buffer for the connecting domain */
-        FP_PRECISION* buffer = _receive_buffers.at(i);
+        float* buffer = _receive_buffers.at(i);
         for (int t=0; t < TRACKS_PER_BUFFER; t++) {
 
           /* Get the Track ID */
-          FP_PRECISION* curr_track_buffer = &buffer[t*_track_message_size];
+          float* curr_track_buffer = &buffer[t*_track_message_size];
           long* track_idx =
             reinterpret_cast<long*>(&curr_track_buffer[_fluxes_per_track+1]);
           long track_id = track_idx[0];
@@ -932,17 +924,6 @@ void CPUSolver::boundaryFluxChecker() {
   MPI_Comm_rank(MPI_cart, &my_rank);
   int num_ranks;
   MPI_Comm_size(MPI_cart, &num_ranks);
-
-  MPI_Datatype flux_type;
-  int size_of_double;
-  if (sizeof(FP_PRECISION) == 4) {
-    flux_type = MPI_FLOAT;
-    size_of_double = 2;
-  }
-  else {
-    flux_type = MPI_DOUBLE;
-    size_of_double = 1;
-  }
 
   /* Loop over all domains for requesting information */
   int tester = 0;
@@ -997,9 +978,9 @@ void CPUSolver::boundaryFluxChecker() {
             MPI_Send(connection, 2, MPI_LONG, dest, 0, MPI_cart);
 
             /* Receive infomation */
-            int receive_size = _fluxes_per_track + size_of_double * 5;
+            int receive_size = _fluxes_per_track + 2 * 5;
             FP_PRECISION buffer[receive_size];
-            MPI_Recv(buffer, receive_size, flux_type, dest, 0, MPI_cart, &stat);
+            MPI_Recv(buffer, receive_size, MPI_FLOAT, dest, 0, MPI_cart, &stat);
 
             /* Unpack received infomrmation */
             FP_PRECISION angular_fluxes[_fluxes_per_track];
@@ -1008,7 +989,7 @@ void CPUSolver::boundaryFluxChecker() {
 
             double track_info[5];
             for (int i=0; i < 5; i++) {
-              int idx = _fluxes_per_track + size_of_double * i;
+              int idx = _fluxes_per_track + 2 * i;
               double* track_info_location =
                 reinterpret_cast<double*>(&buffer[idx]);
               track_info[i] = track_info_location[0];
@@ -1236,7 +1217,7 @@ void CPUSolver::boundaryFluxChecker() {
           track_generator_3D->getTrackOTF(&track, &tsi);
 
           /* Fill the information */
-          int send_size = _fluxes_per_track + size_of_double * 5;
+          int send_size = _fluxes_per_track + 2 * 5;
           FP_PRECISION buffer[send_size];
           for (int pe=0; pe < _fluxes_per_track; pe++)
             buffer[pe] = _start_flux(t, dir, pe);
@@ -1257,14 +1238,14 @@ void CPUSolver::boundaryFluxChecker() {
           track_data[4] = track.getPhi();
 
           for (int i=0; i < 5; i++) {
-            int idx = _fluxes_per_track + size_of_double * i;
+            int idx = _fluxes_per_track + 2 * i;
             double* track_info_location =
               reinterpret_cast<double*>(&buffer[idx]);
             track_info_location[0] = track_data[i];
           }
 
           /* Send the information */
-          MPI_Send(buffer, send_size, flux_type, tester, 0, MPI_cart);
+          MPI_Send(buffer, send_size, MPI_FLOAT, tester, 0, MPI_cart);
         }
       }
     }
@@ -1973,10 +1954,8 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
         temp_fission_rates[r] = fission_rates[fsr_id];
     }
 
-    MPI_Barrier(comm);
     MPI_Allreduce(temp_fission_rates, fission_rates, num_total_FSRs,
                   MPI_DOUBLE, MPI_SUM, comm);
-    MPI_Barrier(comm);
     delete [] temp_fission_rates;
   }
 #endif
