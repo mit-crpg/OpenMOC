@@ -130,7 +130,7 @@ int MOCKernel::getCount() {
  *          then when they get too large.
  * @param the maximum optical path length for a segment
  */
-void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
+void MOCKernel::setMaxOpticalLength(NEW_PRECISION max_tau) {
   _max_tau = max_tau;
 }
 
@@ -242,7 +242,7 @@ void SegmentationKernel::execute(NEW_PRECISION length, Material* mat, long fsr_i
 
   /* Add segment information */
   for (int i=0; i < num_cuts-1; i++) {
-    FP_PRECISION temp_length = _max_tau / max_sigma_t;
+    NEW_PRECISION temp_length = _max_tau / max_sigma_t;
     _segments[_count]._length = temp_length;
     _segments[_count]._material = mat;
     _segments[_count]._region_id = fsr_id;
@@ -286,7 +286,7 @@ TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
   _azim_index = 0;
   _polar_index = 0;
   _track_id = 0;
-  _thread_fsr_flux = new FP_PRECISION[_num_groups];
+  _thread_fsr_flux = new NEW_PRECISION[_num_groups];
 }
 
 TransportKernel::~TransportKernel() {
@@ -353,8 +353,8 @@ void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
     num_cuts = length * max_sigma_t / _max_tau;
 
   /* Determine common length */
-  FP_PRECISION fp_length = length;
-  FP_PRECISION temp_length = std::min(_max_tau / max_sigma_t, fp_length);
+  NEW_PRECISION fp_length = length;
+  NEW_PRECISION temp_length = std::min(_max_tau / max_sigma_t, fp_length);
 
   /* Apply MOC equations to segments */
   for (int i=0; i < num_cuts; i++) {

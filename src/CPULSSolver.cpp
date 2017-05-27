@@ -191,7 +191,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
     NEW_PRECISION* nu_sigma_f;
     NEW_PRECISION* chi;
     NEW_PRECISION sigma_s;
-    FP_PRECISION src_x, src_y, src_z;
+    NEW_PRECISION src_x, src_y, src_z;
 
     /* Compute the total source for each FSR */
 #pragma omp for schedule(guided)
@@ -211,7 +211,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
           sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
           scatter_sources_x[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,0);
         }
-        FP_PRECISION scatter_source_x = 
+        double scatter_source_x = 
             pairwise_sum<FP_PRECISION>(scatter_sources_x, _num_groups);
 
         FP_PRECISION* scatter_sources_y = _groupwise_scratch.at(tid);
@@ -219,7 +219,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
           sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
           scatter_sources_y[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,1);
         }
-        FP_PRECISION scatter_source_y = 
+        double scatter_source_y = 
             pairwise_sum<FP_PRECISION>(scatter_sources_y, _num_groups);
  
         FP_PRECISION* scatter_sources_z = _groupwise_scratch.at(tid);
@@ -227,7 +227,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
           sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
           scatter_sources_z[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,2);
         }
-        FP_PRECISION scatter_source_z = 
+        double scatter_source_z = 
             pairwise_sum<FP_PRECISION>(scatter_sources_z, _num_groups);
  
 
@@ -236,21 +236,21 @@ void CPULSSolver::computeFSRSources(int iteration) {
         for (int g_prime=0; g_prime < _num_groups; g_prime++)
           fission_sources_x[g_prime] = 
               nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,0);
-        FP_PRECISION fission_source_x =
+        double fission_source_x =
             pairwise_sum<FP_PRECISION>(fission_sources_x, _num_groups);
 
         FP_PRECISION* fission_sources_y = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++)
           fission_sources_y[g_prime] = 
               nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,1);
-        FP_PRECISION fission_source_y =
+        double fission_source_y =
             pairwise_sum<FP_PRECISION>(fission_sources_y, _num_groups);
         
         FP_PRECISION* fission_sources_z = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++)
           fission_sources_z[g_prime] = 
               nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,2);
-        FP_PRECISION fission_source_z =
+        double fission_source_z =
             pairwise_sum<FP_PRECISION>(fission_sources_z, _num_groups);
 
         fission_source_x /= _k_eff;
@@ -310,17 +310,17 @@ void CPULSSolver::computeFSRSources(int iteration) {
 void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     float* track_flux,
-                                    FP_PRECISION* fsr_flux,
+                                    NEW_PRECISION* fsr_flux,
                                     NEW_PRECISION direction[3]) {
 
   long fsr_id = curr_segment->_region_id;
-  FP_PRECISION length = curr_segment->_length;
+  NEW_PRECISION length = curr_segment->_length;
   NEW_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   NEW_PRECISION* position = curr_segment->_starting_position;
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
   /* Set the FSR scalar flux buffer to zero */
-  memset(fsr_flux, 0.0, _num_groups * 4 * sizeof(FP_PRECISION));
+  memset(fsr_flux, 0.0, _num_groups * 4 * sizeof(NEW_PRECISION));
 
   if (_solve_3D) {
 
@@ -329,13 +329,13 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     for (int i=0; i<3; i++)
       center[i] = position[i] + 0.5 * length * direction[i];
 
-    FP_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
-    FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
+    NEW_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
+    NEW_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
     for (int e=0; e < _num_groups; e++) {
 
       // Compute the flat component of the reduced source
-      FP_PRECISION src_flat = 0.0;
+      NEW_PRECISION src_flat = 0.0;
       for (int i=0; i<3; i++)
         src_flat += _reduced_sources_xyz(fsr_id, e, i) * center[i];
       src_flat *= 2;
@@ -349,13 +349,13 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       exp_H *= length * track_flux[e];
 
       // Compute the moment component of the source
-      FP_PRECISION src_linear = 0.0;
+      NEW_PRECISION src_linear = 0.0;
       for (int i=0; i<3; i++) {
         src_linear += _reduced_sources_xyz(fsr_id, e, i) * direction[i];
       }
 
       // Compute the change in flux across the segment
-      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D * src_flat) *
+      NEW_PRECISION delta_psi = (tau * track_flux[e] - length_2D * src_flat) *
           exp_F1 - src_linear * length_2D * length_2D * exp_F2;
       
       // Increment the fsr scalar flux and scalar flux moments
@@ -386,11 +386,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       NEW_PRECISION dt = exp_evaluator->getDifference(exp_index, tau);
       NEW_PRECISION dt2 = dt * dt;
 
-      FP_PRECISION polar_wgt_d_psi = 0.0;
-      FP_PRECISION polar_wgt_exp_h = 0.0;
+      NEW_PRECISION polar_wgt_d_psi = 0.0;
+      NEW_PRECISION polar_wgt_exp_h = 0.0;
 
       // Compute the flat component of the reduced source
-      FP_PRECISION src_flat = 0.0;
+      NEW_PRECISION src_flat = 0.0;
       for (int i=0; i<2; i++)
         src_flat += _reduced_sources_xyz(fsr_id, e, i) * center[i];
 
@@ -401,7 +401,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       for (int p=0; p < num_polar_2; p++) {
 
         /* Get the sine of the polar angle */
-        FP_PRECISION sin_theta = _quad->getSinTheta(azim_index, p);
+        NEW_PRECISION sin_theta = _quad->getSinTheta(azim_index, p);
 
         // Compute the exponential terms
         NEW_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, p,
@@ -413,16 +413,16 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
             * tau * length * track_flux[pe];
 
         // Compute the moment component of the source
-        FP_PRECISION src_linear = 0.0;
+        NEW_PRECISION src_linear = 0.0;
         for (int i=0; i<2; i++)
           src_linear += direction[i] * sin_theta *
               _reduced_sources_xyz(fsr_id, e, i);
 
         // Compute the change in flux across the segment
-        FP_PRECISION delta_psi = (tau * track_flux[pe] - length * src_flat)
+        NEW_PRECISION delta_psi = (tau * track_flux[pe] - length * src_flat)
             * exp_F1 - length * length * src_linear * exp_F2;
 
-        FP_PRECISION track_weight = _quad->getWeightInline(azim_index, p);
+        NEW_PRECISION track_weight = _quad->getWeightInline(azim_index, p);
         polar_wgt_d_psi += track_weight * delta_psi;
         polar_wgt_exp_h += track_weight * exp_H;
 
@@ -467,7 +467,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 #pragma omp parallel
   {
     NEW_PRECISION volume;
-    FP_PRECISION flux_const;
+    NEW_PRECISION flux_const;
     NEW_PRECISION* sigma_t;
 
     /* Add in source term and normalize flux to volume for each FSR */

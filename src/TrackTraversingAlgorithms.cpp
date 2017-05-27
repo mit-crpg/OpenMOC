@@ -24,7 +24,7 @@ MaxOpticalLength::MaxOpticalLength(TrackGenerator* track_generator)
  *          and setting it on the TrackGenerator.
 */
 void MaxOpticalLength::execute() {
-  FP_PRECISION infinity = std::numeric_limits<NEW_PRECISION>::max();
+  NEW_PRECISION infinity = std::numeric_limits<NEW_PRECISION>::max();
   _track_generator->setMaxOpticalLength(infinity);
 #pragma omp parallel
   {
@@ -156,7 +156,7 @@ void SegmentSplitter::execute() {
 void SegmentSplitter::onTrack(Track* track, segment* segments) {
 
   /* Get the max optical length from the TrackGenerator */
-  FP_PRECISION max_optical_length =
+  NEW_PRECISION max_optical_length =
     _track_generator->retrieveMaxOpticalLength();
 
   /* Get the direction of travel */
@@ -183,7 +183,7 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
     NEW_PRECISION* sigma_t = material->getSigmaT();
 
     for (int g=0; g < num_groups; g++) {
-      FP_PRECISION tau = length * sigma_t[g];
+      NEW_PRECISION tau = length * sigma_t[g];
       int num_cuts = ceil(tau / max_optical_length);
       min_num_cuts = std::max(num_cuts, min_num_cuts);
     }
@@ -788,9 +788,9 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   size += 8;
 
   /* Allocate temporary storage of FSR fluxes */
-  _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
+  _thread_fsr_fluxes = new NEW_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new FP_PRECISION[size];
+    _thread_fsr_fluxes[i] = new NEW_PRECISION[size];
 }
 
 
@@ -832,7 +832,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Get the temporary FSR flux */
   int tid = omp_get_thread_num();
-  FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
+  NEW_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
 
   /* Extract Track information */
   long track_id = track->getUid();
@@ -989,7 +989,7 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
 
     /* Get data for this segment */
     segment* curr_segment = &segments[s];
-    FP_PRECISION length = curr_segment->_length;
+    NEW_PRECISION length = curr_segment->_length;
     int material_id;
     if (curr_segment->_material != NULL)
       material_id = curr_segment->_material->getId();
@@ -1231,7 +1231,7 @@ void PrintSegments::onTrack(Track* track, segment* segments) {
 
     /* Get data for this segment */
     segment* curr_segment = &segments[s];
-    FP_PRECISION length = curr_segment->_length;
+    NEW_PRECISION length = curr_segment->_length;
     int material_id = curr_segment->_material->getId();
     long region_id = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;

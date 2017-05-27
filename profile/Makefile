@@ -8,16 +8,16 @@ OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
 PRECISION   = double
-NEW_PRECISION = single
-CMFD_PRECISION = single
+NEW_PRECISION = double
+CMFD_PRECISION = double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
 #case = load-geometry/load-full-core.cpp
-case = load-geometry/load-single-assembly.cpp
-#case = load-geometry/load-2D-full-core.cpp
+#case = load-geometry/load-single-assembly.cpp
+case = load-geometry/load-2D-full-core.cpp
 
 #case = load-geometry/load-geometry.cpp
 #case = simple-lattice/simple-lattice-3d.cpp

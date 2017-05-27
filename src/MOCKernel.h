@@ -46,7 +46,7 @@ protected:
   int _count;
 
   /** Maximum optical path length when forming segments */
-  FP_PRECISION _max_tau;
+  NEW_PRECISION _max_tau;
 
   /** Number of energy groups in the current problem */
   int _num_groups;
@@ -60,7 +60,7 @@ public:
   int getCount();
 
   /* Sets the max optical path length to a different value */
-  void setMaxOpticalLength(FP_PRECISION max_tau);
+  void setMaxOpticalLength(NEW_PRECISION max_tau);
 
   /* Prepare MOCKernel for handling a new track */
   virtual void newTrack(Track* track);
@@ -113,7 +113,7 @@ private:
   NEW_PRECISION* _FSR_volumes;
 
   /** The Track's volume weight */
-  FP_PRECISION _weight;
+  NEW_PRECISION _weight;
 
   /** The associated quadrature from which weights are derived */
   Quadrature* _quadrature;
@@ -166,7 +166,7 @@ private:
   CPUSolver* _cpu_solver;
 
   /** Pointer to angular flux data in the current direction */
-  FP_PRECISION* _thread_fsr_flux;
+  NEW_PRECISION* _thread_fsr_flux;
 
   /** Azimuthal index of the current track */
   int _azim_index;

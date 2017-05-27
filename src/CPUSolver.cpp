@@ -1410,7 +1410,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       for (int g=0; g < _num_groups; g++)
         scatter_sources[g] = material->getSigmaSByGroup(g+1,G+1)
                                   * _scalar_flux(r,g);
-      NEW_PRECISION scatter_source =
+      double scatter_source =
           pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
 
       _reduced_sources(r,G) = fission_source * chi[G];
@@ -1694,7 +1694,7 @@ void CPUSolver::transportSweep() {
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
                                 float* track_flux,
-                                FP_PRECISION* fsr_flux) {
+                                NEW_PRECISION* fsr_flux) {
 
   long fsr_id = curr_segment->_region_id;
   NEW_PRECISION length = curr_segment->_length;
@@ -1704,7 +1704,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
   /* Set the FSR scalar flux buffer to zero */
-  memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux, 0.0, _num_groups * sizeof(NEW_PRECISION));
 
   if (_solve_3D) {
 
