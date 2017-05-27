@@ -1210,7 +1210,7 @@ void Cmfd::setFSRFluxes(NEW_PRECISION* scalar_flux) {
  * @brief Set pointer to source region flux moments array
  * @param pointer to source region flux moments array
  */
-void Cmfd::setFluxMoments(FP_PRECISION* flux_moments) {
+void Cmfd::setFluxMoments(NEW_PRECISION* flux_moments) {
   _flux_moments = flux_moments;
   _linear_source = true;
 }

@@ -162,16 +162,16 @@ class LinearExpansionGenerator: public TraverseSegments {
 
 private:
 
-  FP_PRECISION* _lin_exp_coeffs;
+  NEW_PRECISION* _lin_exp_coeffs;
   NEW_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
-  FP_PRECISION* _src_constants;
+  NEW_PRECISION* _src_constants;
   Quadrature* _quadrature;
   int _num_groups;
   int _num_coeffs;
   int _num_flat;
   Point** _starting_points;
-  FP_PRECISION** _thread_source_constants;
+  NEW_PRECISION** _thread_source_constants;
   ExpEvaluator* _exp_evaluator;
   Progress* _progress;
 

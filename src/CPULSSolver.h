@@ -36,16 +36,16 @@ class CPULSSolver : public CPUSolver {
 protected:
 
   /** The FSR linear expansion matrix values for each FSR */
-  FP_PRECISION* _FSR_lin_exp_matrix;
+  NEW_PRECISION* _FSR_lin_exp_matrix;
 
   /** The FSR source constants for each FSR and energy group */
-  FP_PRECISION* _FSR_source_constants;
+  NEW_PRECISION* _FSR_source_constants;
 
   /** An array of the scalar flux x, y, and z terms */
-  FP_PRECISION* _scalar_flux_xyz;
+  NEW_PRECISION* _scalar_flux_xyz;
 
   /** An array of the reduced source x, y, and z terms */
-  FP_PRECISION* _reduced_sources_xyz;
+  NEW_PRECISION* _reduced_sources_xyz;
 
 public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
@@ -68,8 +68,8 @@ public:
                          NEW_PRECISION direction[3]);
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
-  FP_PRECISION* getLinearExpansionCoeffsBuffer();
-  FP_PRECISION* getSourceConstantsBuffer();
+  NEW_PRECISION* getLinearExpansionCoeffsBuffer();
+  NEW_PRECISION* getSourceConstantsBuffer();
 };
 
 

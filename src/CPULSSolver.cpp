@@ -61,12 +61,12 @@ void CPULSSolver::initializeFluxArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+    double max_size_mb = (double) (max_size * sizeof(NEW_PRECISION)) 
         / (double) (1e6);
     log_printf(NORMAL, "Max linear flux storage per domain = %6.2f MB",
                max_size_mb);
     
-    _scalar_flux_xyz = new FP_PRECISION[size];
+    _scalar_flux_xyz = new NEW_PRECISION[size];
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the scalar flux moments");
@@ -96,19 +96,19 @@ void CPULSSolver::initializeSourceArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+    double max_size_mb = (double) (max_size * sizeof(NEW_PRECISION)) 
         / (double) (1e6);
     log_printf(NORMAL, "Max linear source storage per domain = %6.2f MB",
                max_size_mb);
     
-    _reduced_sources_xyz = new FP_PRECISION[size];
+    _reduced_sources_xyz = new NEW_PRECISION[size];
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR source moments");
   }
 
   /* Initialize source moments to zero */
-  memset(_reduced_sources_xyz, 0.0, sizeof(FP_PRECISION) * size);
+  memset(_reduced_sources_xyz, 0.0, sizeof(NEW_PRECISION) * size);
 }
 
 
@@ -591,15 +591,15 @@ void CPULSSolver::initializeExpEvaluators() {
 /**
  FIXME
  */
-FP_PRECISION* CPULSSolver::getLinearExpansionCoeffsBuffer() {
+NEW_PRECISION* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 #pragma omp critical
   {
     if (_FSR_lin_exp_matrix == NULL) {
       long size = _geometry->getNumFSRs() * 3;
       if (_solve_3D)
         size *= 2;
-      _FSR_lin_exp_matrix = new FP_PRECISION[size];
-      memset(_FSR_lin_exp_matrix, 0., size * sizeof(FP_PRECISION));
+      _FSR_lin_exp_matrix = new NEW_PRECISION[size];
+      memset(_FSR_lin_exp_matrix, 0., size * sizeof(NEW_PRECISION));
     }
   }
 
@@ -610,7 +610,7 @@ FP_PRECISION* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 /**
 FIXME
  */
-FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
+NEW_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
 #pragma omp critical
   {
     if (_FSR_source_constants == NULL) {
@@ -624,13 +624,13 @@ FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
         MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                       _geometry->getMPICart());
 #endif
-      double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+      double max_size_mb = (double) (max_size * sizeof(NEW_PRECISION)) 
           / (double) (1e6);
       log_printf(NORMAL, "Max linear constant storage per domain = %6.2f MB",
                  max_size_mb);
 
-      _FSR_source_constants = new FP_PRECISION[size];
-      memset(_FSR_source_constants, 0., size * sizeof(FP_PRECISION));
+      _FSR_source_constants = new NEW_PRECISION[size];
+      memset(_FSR_source_constants, 0., size * sizeof(NEW_PRECISION));
     }
   }
 

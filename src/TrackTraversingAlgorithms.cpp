@@ -442,10 +442,10 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
 
   int num_threads = omp_get_max_threads();
   _starting_points = new Point*[num_threads];
-  _thread_source_constants = new FP_PRECISION*[num_threads];
+  _thread_source_constants = new NEW_PRECISION*[num_threads];
 
   for (int i=0; i < num_threads; i++) {
-    _thread_source_constants[i] = new FP_PRECISION[_num_coeffs * _num_groups];
+    _thread_source_constants[i] = new NEW_PRECISION[_num_coeffs * _num_groups];
     _starting_points[i] = new Point[num_rows];
   }
 
@@ -481,11 +481,11 @@ void LinearExpansionGenerator::execute() {
   Geometry* geometry = _track_generator->getGeometry();
   long num_FSRs = geometry->getNumFSRs();
   //FIXME
-  FP_PRECISION* inv_lin_exp_coeffs = new FP_PRECISION[num_FSRs*_num_coeffs];
-  memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
+  NEW_PRECISION* inv_lin_exp_coeffs = new NEW_PRECISION[num_FSRs*_num_coeffs];
+  memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(NEW_PRECISION));
 
-  FP_PRECISION* lem = _lin_exp_coeffs;
-  FP_PRECISION* ilem = inv_lin_exp_coeffs;
+  NEW_PRECISION* lem = _lin_exp_coeffs;
+  NEW_PRECISION* ilem = inv_lin_exp_coeffs;
   int nc = _num_coeffs;
 
   /* Invert the expansion coefficient matrix */
@@ -585,7 +585,7 @@ void LinearExpansionGenerator::execute() {
   }
 
   memcpy(_lin_exp_coeffs, inv_lin_exp_coeffs,
-         num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
+         num_FSRs*_num_coeffs*sizeof(NEW_PRECISION));
   delete [] inv_lin_exp_coeffs;
 
   /* Notify user of any regions needing to use a flat source approximation */
@@ -620,7 +620,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
   /* Use local array accumulator to prevent false sharing */
   int tid = omp_get_thread_num();
-  FP_PRECISION* thread_src_constants = _thread_source_constants[tid];
+  NEW_PRECISION* thread_src_constants = _thread_source_constants[tid];
 
   /* Calculate the azimuthal weight */
   double wgt = _quadrature->getAzimSpacing(azim_index)
@@ -649,8 +649,8 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     long fsr = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
     NEW_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-    FP_PRECISION length = curr_segment->_length;
-    FP_PRECISION length_2 = length * length;
+    NEW_PRECISION length = curr_segment->_length;
+    NEW_PRECISION length_2 = length * length;
 
     /* Extract FSR information */
     NEW_PRECISION volume = _FSR_volumes[fsr];
@@ -667,7 +667,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Set the FSR src constants buffer to zero */
     memset(thread_src_constants, 0.0, _num_groups * _num_coeffs *
-           sizeof(FP_PRECISION));
+           sizeof(NEW_PRECISION));
 
     NEW_PRECISION vol_impact = wgt * length / volume;
     for (int g=0; g < _num_groups; g++) {
@@ -683,14 +683,14 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
 
       /* Calculate the optical path length and source contribution */
-      FP_PRECISION tau = length * sigma_t[g];
-      FP_PRECISION src_constant = vol_impact * length / 2.0;
+      NEW_PRECISION tau = length * sigma_t[g];
+      NEW_PRECISION src_constant = vol_impact * length / 2.0;
 
       if (track_3D == NULL) {
         for (int p=0; p < _quadrature->getNumPolarAngles()/2; p++) {
 
-          FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
-          FP_PRECISION G2_src =
+          NEW_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
+          NEW_PRECISION G2_src =
               length * _exp_evaluator->computeExponentialG2(tau / sin_theta)
               * src_constant * 2 * _quadrature->getPolarWeight(azim_index, p)
               * sin_theta;
@@ -704,7 +704,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
       else {
 
-        FP_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
+        NEW_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
             length * src_constant;
 
         thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src
