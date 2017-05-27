@@ -1715,7 +1715,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       NEW_PRECISION tau = sigma_t[e] * length_2D;
 
       /* Compute the exponential */
-      FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
+      NEW_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
       /* Attenuate and tally the flux */
       NEW_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
@@ -1738,7 +1738,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       for (int p=0; p < _num_polar/2; p++) {
 
         /* Compute the exponential */
-        FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
+        NEW_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
 
         /* Attenuate and tally the flux */
         NEW_PRECISION delta_psi = (tau * track_flux[pe] -

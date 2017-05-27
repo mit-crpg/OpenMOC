@@ -342,8 +342,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       src_flat += _reduced_sources(fsr_id, e);
 
       // Compute the exponential terms
-      FP_PRECISION exp_F1, exp_F2, exp_H;
-      FP_PRECISION tau = sigma_t[e] * length_2D;
+      NEW_PRECISION exp_F1, exp_F2, exp_H;
+      NEW_PRECISION tau = sigma_t[e] * length_2D;
       exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1, &exp_F2,
                                                    &exp_H);
       exp_H *= length * track_flux[e];
@@ -381,10 +381,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     int num_polar_2 = _num_polar / 2;
     for (int e=0; e < _num_groups; e++) {
 
-      FP_PRECISION tau = sigma_t[e] * length;
+      NEW_PRECISION tau = sigma_t[e] * length;
       int exp_index = exp_evaluator->getExponentialIndex(tau);
-      FP_PRECISION dt = exp_evaluator->getDifference(exp_index, tau);
-      FP_PRECISION dt2 = dt * dt;
+      NEW_PRECISION dt = exp_evaluator->getDifference(exp_index, tau);
+      NEW_PRECISION dt2 = dt * dt;
 
       FP_PRECISION polar_wgt_d_psi = 0.0;
       FP_PRECISION polar_wgt_exp_h = 0.0;
@@ -404,11 +404,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         FP_PRECISION sin_theta = _quad->getSinTheta(azim_index, p);
 
         // Compute the exponential terms
-        FP_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, p,
+        NEW_PRECISION exp_F1 = exp_evaluator->computeExponentialF1(exp_index, p,
                                                                   dt, dt2);
-        FP_PRECISION exp_F2 = exp_evaluator->computeExponentialF2(exp_index, p,
+        NEW_PRECISION exp_F2 = exp_evaluator->computeExponentialF2(exp_index, p,
                                                                   dt, dt2);
-        FP_PRECISION exp_H = exp_evaluator->computeExponentialH(exp_index, p,
+        NEW_PRECISION exp_H = exp_evaluator->computeExponentialH(exp_index, p,
                                                                  dt, dt2)
             * tau * length * track_flux[pe];
 

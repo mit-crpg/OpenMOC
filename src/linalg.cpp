@@ -129,7 +129,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
 
   log_printf(INFO, "Matrix-Vector eigenvalue solve iterations: %d", iter);
   if (iter == MAX_LINALG_POWER_ITERATIONS)
-    log_printf(WARNING, "Eigenvalue solve failed to converge in %d iterations",
+    log_printf(ERROR, "Eigenvalue solve failed to converge in %d iterations",
                iter);
 
 
@@ -301,7 +301,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
   // Check if the maximum iterations were reached
   if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {
-    log_printf(WARNING, "Linear solve failed to converge in %d iterations",
+    log_printf(ERROR, "Linear solve failed to converge in %d iterations",
                iter);
   }
 }

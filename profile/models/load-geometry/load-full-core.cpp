@@ -24,11 +24,11 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 4;
-  double polar_spacing = 0.75;
-  int num_polar = 2;
+  int num_azim = 8;
+  double polar_spacing = 1.5;
+  int num_polar = 6;
 
-  double tolerance = 1e-7;
+  double tolerance = 1e-4;
   int max_iters = 40;
   
   /* Create CMFD lattice */
@@ -144,7 +144,7 @@ int main(int argc,  char* argv[]) {
   }
 
   /* Run simulation */
-  CPUSolver solver(&track_generator); //FIXME LS / FS
+  CPULSSolver solver(&track_generator); //FIXME LS / FS
   solver.setChiSpectrumMaterial(fiss_material);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();

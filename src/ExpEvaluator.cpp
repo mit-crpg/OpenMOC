@@ -47,7 +47,7 @@ void ExpEvaluator::setQuadrature(Quadrature* quadrature) {
  *        interpolation table.
  * @param max_optical_length the maximum optical length
  */
-void ExpEvaluator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+void ExpEvaluator::setMaxOpticalLength(NEW_PRECISION max_optical_length) {
 
   if (max_optical_length <= 0)
     log_printf(ERROR, "Cannot set max optical length to %f because it "
@@ -65,7 +65,7 @@ void ExpEvaluator::setMaxOpticalLength(FP_PRECISION max_optical_length) {
  *          analysis of Yamamoto in his 2004 paper on the subject.
  * @param exp_precision the maximum exponential approximation error
  */
-void ExpEvaluator::setExpPrecision(FP_PRECISION exp_precision) {
+void ExpEvaluator::setExpPrecision(NEW_PRECISION exp_precision) {
 
   if (exp_precision <= 0)
     log_printf(ERROR, "Cannot set exp precision to %f because it "
@@ -105,7 +105,7 @@ void ExpEvaluator::useLinearSource() {
  *        interpolation table.
  * @return max_optical_length the maximum optical length
  */
-FP_PRECISION ExpEvaluator::getMaxOpticalLength() {
+NEW_PRECISION ExpEvaluator::getMaxOpticalLength() {
   return _max_optical_length;
 }
 
@@ -114,7 +114,7 @@ FP_PRECISION ExpEvaluator::getMaxOpticalLength() {
  * @brief Gets the maximum acceptable approximation error for exponentials.
  * @return the maximum exponential approximation error
  */
-FP_PRECISION ExpEvaluator::getExpPrecision() {
+NEW_PRECISION ExpEvaluator::getExpPrecision() {
   return _exp_precision;
 }
 
@@ -132,7 +132,7 @@ bool ExpEvaluator::isUsingInterpolation() {
  * @brief Returns the exponential table spacing.
  * @return exponential table spacing
  */
-FP_PRECISION ExpEvaluator::getTableSpacing() {
+NEW_PRECISION ExpEvaluator::getTableSpacing() {
 
   if (_exp_table == NULL)
     log_printf(ERROR, "Unable to return the exponential table spacing "
@@ -161,7 +161,7 @@ int ExpEvaluator::getTableSize() {
  * @brief Returns a pointer to the exponential interpolation table.
  * @return pointer to the exponential interpolation table
  */
-FP_PRECISION* ExpEvaluator::getExpTable() {
+NEW_PRECISION* ExpEvaluator::getExpTable() {
 
   if (_exp_table == NULL)
     log_printf(ERROR, "Unable to return exponential table "
@@ -246,7 +246,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
   /* Allocate array for the table */
   _table_size = num_array_values * _num_exp_terms * _num_polar_terms;
-  _exp_table = new FP_PRECISION[_table_size];
+  _exp_table = new NEW_PRECISION[_table_size];
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
@@ -255,21 +255,21 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
       int index = _num_exp_terms * (_num_polar_terms * i + p);
 
       int current_polar = _polar_index + p;
-      FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index,
+      NEW_PRECISION sin_theta = _quadrature->getSinTheta(azim_index,
                                                         current_polar);
-      FP_PRECISION inv_sin_theta = 1.0 / sin_theta;
+      NEW_PRECISION inv_sin_theta = 1.0 / sin_theta;
 
-      FP_PRECISION tau_a = i * _exp_table_spacing;
-      FP_PRECISION tau_m = tau_a * inv_sin_theta;
-      FP_PRECISION exponential = exp(-tau_m);
+      NEW_PRECISION tau_a = i * _exp_table_spacing;
+      NEW_PRECISION tau_m = tau_a * inv_sin_theta;
+      NEW_PRECISION exponential = exp(-tau_m);
 
-      FP_PRECISION inv_sin_theta_2 = inv_sin_theta * inv_sin_theta;
-      FP_PRECISION tau_a_2 = tau_a * tau_a;
-      FP_PRECISION sin_theta_2 = sin_theta * sin_theta;
+      NEW_PRECISION inv_sin_theta_2 = inv_sin_theta * inv_sin_theta;
+      NEW_PRECISION tau_a_2 = tau_a * tau_a;
+      NEW_PRECISION sin_theta_2 = sin_theta * sin_theta;
 
-      FP_PRECISION exp_const_1;
-      FP_PRECISION exp_const_2;
-      FP_PRECISION exp_const_3;
+      NEW_PRECISION exp_const_1;
+      NEW_PRECISION exp_const_2;
+      NEW_PRECISION exp_const_3;
 
       /* Compute F1 */
       if (tau_a < 0.01) {
@@ -347,7 +347,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
  * @param polar the polar angle index
  * @return the evaluated exponential
  */
-FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
+NEW_PRECISION ExpEvaluator::computeExponentialG2(NEW_PRECISION tau) {
 
   if (tau == 0.0)
     return 0.0;
