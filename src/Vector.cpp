@@ -87,7 +87,7 @@ void Vector::incrementValue(int cell, int group, CMFD_PRECISION val) {
  * @param vals The values used to increment the row locations.
  */
 void Vector::incrementValues(int cell, int group_first, int group_last,
-                             FP_PRECISION* vals) {
+                             CMFD_PRECISION* vals) {
 
   if (cell >= _num_x*_num_y*_num_z || cell < 0)
     log_printf(ERROR, "Unable to increment Vector values for cell %d"

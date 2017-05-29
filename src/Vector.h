@@ -52,7 +52,7 @@ public:
   /* Worker functions */
   void incrementValue(int cell, int group, CMFD_PRECISION val);
   void incrementValues(int cell, int group_start, int group_end,
-                       FP_PRECISION* vals);
+                       CMFD_PRECISION* vals);
   void clear();
   void scaleByValue(CMFD_PRECISION val);
   void printString();

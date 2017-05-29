@@ -18,11 +18,12 @@
  * @return k_eff the dominant eigenvalue
  */
 FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
-                             FP_PRECISION tol, FP_PRECISION SOR_factor,
+                             double tol, FP_PRECISION SOR_factor,
                              ConvergenceData* convergence_data,
                              DomainCommunicator* comm) {
 
   log_printf(INFO, "Computing the Matrix-Vector eigenvalue...");
+  tol = std::max(MIN_LINALG_TOLERANCE, tol);
 
   /* Check for consistency of matrix and vector dimensions */
   if (A->getNumX() != M->getNumX() || A->getNumX() != X->getNumX())
@@ -153,10 +154,12 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
  * @param tol the power method and linear solve source convergence threshold
  * @param SOR_factor the successive over-relaxation factor
  */
-void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
+void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  FP_PRECISION SOR_factor, ConvergenceData* convergence_data,
                  DomainCommunicator* comm) {
 
+  tol = std::max(MIN_LINALG_TOLERANCE, tol);
+  
   /* Check for consistency of matrix and vector dimensions */
   if (A->getNumX() != B->getNumX() || A->getNumX() != X->getNumX() ||
       A->getNumX() != M->getNumX())
@@ -286,7 +289,11 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
     // Increment the interations counter
     iter++;
 
-    log_printf(INFO, "SOR iter: %d, residual: %f", iter, residual);
+    log_printf(INFO, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
+               ", ratio = %3.2e, tolerance: %3.2e, end? %d", iter, residual,
+               initial_residual, residual / initial_residual, tol,
+               (residual / initial_residual < 0.1 || residual < tol) &&
+               iter > MIN_LINEAR_SOLVE_ITERATIONS);
         
     // Check for convergence
     if ((residual / initial_residual < 0.1 || residual < tol) &&
@@ -301,8 +308,13 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
 
   // Check if the maximum iterations were reached
   if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {
-    log_printf(ERROR, "Linear solve failed to converge in %d iterations",
-               iter);
+    matrixMultiplication(M, X, &new_source);
+    double residual = computeRMSE(&new_source, &old_source, true, 1, comm);
+    log_printf(WARNING, "Ratio = %3.2e, tol = %3.2e", residual / initial_residual,
+               tol);
+    log_printf(ERROR, "Linear solve failed to converge in %d iterations with "
+               "initial residual %3.2e and final residual %3.2e", iter, 
+               initial_residual, residual);
   }
 }
 
@@ -598,7 +610,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
  * @param tol the power method and linear solve source convergence threshold
  * @param SOR_factor the successive over-relaxation factor
  */
-void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
+void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  FP_PRECISION SOR_factor, ConvergenceData* convergence_data) {
 
   /* Check for consistency of matrix and vector dimensions */

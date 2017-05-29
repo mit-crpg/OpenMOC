@@ -28,8 +28,8 @@
 class Geometry;
 
 /** Comparitor for sorting k-nearest stencil std::pair objects */
-inline bool stencilCompare(const std::pair<int, FP_PRECISION>& firstElem,
-                           const std::pair<int, FP_PRECISION>& secondElem) {
+inline bool stencilCompare(const std::pair<int, double>& firstElem,
+                           const std::pair<int, double>& secondElem) {
   return firstElem.second < secondElem.second;
 }
 
@@ -99,10 +99,10 @@ private:
   Vector* _old_dif_surf_corr;
 
   /** Gauss-Seidel SOR relaxation factor */
-  FP_PRECISION _SOR_factor;
+  double _SOR_factor;
 
   /** cmfd source convergence threshold */
-  FP_PRECISION _source_convergence_threshold;
+  double _source_convergence_threshold;
 
   /** Number of cells in x direction */
   int _num_x;
@@ -160,12 +160,12 @@ private:
   Material** _materials;
 
   /** Physical dimensions of the geometry and each CMFD cell */
-  FP_PRECISION _width_x;
-  FP_PRECISION _width_y;
-  FP_PRECISION _width_z;
-  FP_PRECISION _cell_width_x;
-  FP_PRECISION _cell_width_y;
-  FP_PRECISION _cell_width_z;
+  double _width_x;
+  double _width_y;
+  double _width_z;
+  double _cell_width_x;
+  double _cell_width_y;
+  double _cell_width_z;
 
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
@@ -199,10 +199,10 @@ private:
   int _k_nearest;
 
   /** Relaxation factor to use for corrected diffusion coefficients */
-  FP_PRECISION _relaxation_factor;
+  double _relaxation_factor;
 
   /** Map storing the k-nearest stencil for each fsr */
-  std::map<int, std::vector< std::pair<int, FP_PRECISION> > >
+  std::map<int, std::vector< std::pair<int, double> > >
     _k_nearest_stencils;
 
   /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
@@ -215,10 +215,10 @@ private:
   bool _solve_3D;
 
   /** Array of azimuthal track spacings */
-  FP_PRECISION* _azim_spacings;
+  double* _azim_spacings;
 
   /** 2D array of polar track spacings */
-  FP_PRECISION** _polar_spacings;
+  double** _polar_spacings;
 
   /** Whether to use axial interpolation for flux update ratios */
   bool _use_axial_interpolation;
@@ -257,8 +257,8 @@ private:
   Timer* _timer;
 
   /* Private worker functions */
-  FP_PRECISION computeLarsensEDCFactor(FP_PRECISION dif_coef,
-                                       FP_PRECISION delta);
+  CMFD_PRECISION computeLarsensEDCFactor(CMFD_PRECISION dif_coef,
+                                         CMFD_PRECISION delta);
   void constructMatrices(int moc_iteration);
   void collapseXS();
   void updateMOCFlux();
@@ -279,16 +279,16 @@ private:
   int getCellNext(int cell_id, int surface_id, bool global=true,
                   bool neighbor=false);
   int getCellByStencil(int cell_id, int stencil_id);
-  FP_PRECISION getFluxRatio(int cell_id, int group, int fsr);
-  FP_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
-  FP_PRECISION getDistanceToCentroid(Point* centroid, int cell_id,
+  CMFD_PRECISION getFluxRatio(int cell_id, int group, int fsr);
+  CMFD_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
+  double getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
-  FP_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-                                              int group, int moc_iteration,
-                                              bool correction);
-  FP_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
-  FP_PRECISION getSurfaceWidth(int surface);
-  FP_PRECISION getPerpendicularSurfaceWidth(int surface);
+  CMFD_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
+                                                int group, int moc_iteration,
+                                                bool correction);
+  CMFD_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
+  CMFD_PRECISION getSurfaceWidth(int surface);
+  CMFD_PRECISION getPerpendicularSurfaceWidth(int surface);
   int getSense(int surface);
   int getLocalCMFDCell(int cmfd_cell); //TODO: optimize, document
   int getGlobalCMFDCell(int cmfd_cell); //TODO: optimize, document
@@ -308,7 +308,7 @@ public:
   virtual ~Cmfd();
 
   /* Worker functions */
-  FP_PRECISION computeKeff(int moc_iteration);
+  double computeKeff(int moc_iteration);
   void initialize();
   void initializeCellMap();
   void initializeGroupMap();
@@ -341,8 +341,8 @@ public:
   bool isCentroidUpdateOn();
 
   /* Set parameters */
-  void setSORRelaxationFactor(FP_PRECISION SOR_factor);
-  void setCMFDRelaxationFactor(FP_PRECISION relaxation_factor);
+  void setSORRelaxationFactor(double SOR_factor);
+  void setCMFDRelaxationFactor(double relaxation_factor);
   void setGeometry(Geometry* geometry);
   void setWidthX(double width);
   void setWidthY(double width);
@@ -357,12 +357,12 @@ public:
   void setFluxUpdateOn(bool flux_update_on);
   void setCentroidUpdateOn(bool centroid_update_on);
   void setGroupStructure(std::vector< std::vector<int> > group_indices);
-  void setSourceConvergenceThreshold(FP_PRECISION source_thresh);
+  void setSourceConvergenceThreshold(double source_thresh);
   void setQuadrature(Quadrature* quadrature);
   void setKNearest(int k_nearest);
   void setSolve3D(bool solve_3d);
-  void setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim);
-  void setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
+  void setAzimSpacings(double* azim_spacings, int num_azim);
+  void setPolarSpacings(double** polar_spacings, int num_azim,
                         int num_polar);
   //TODO: clean, document
 #ifdef MPIx
@@ -422,8 +422,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
   int surf_id, cell_id, cmfd_group;
   int ncg = _num_cmfd_groups;
-  FP_PRECISION currents[_num_cmfd_groups];
-  memset(currents, 0.0, sizeof(FP_PRECISION) * _num_cmfd_groups);
+  CMFD_PRECISION currents[_num_cmfd_groups];
+  memset(currents, 0.0, sizeof(CMFD_PRECISION) * _num_cmfd_groups);
   std::map<int, CMFD_PRECISION>::iterator it;
 
   /* Check if the current needs to be tallied */

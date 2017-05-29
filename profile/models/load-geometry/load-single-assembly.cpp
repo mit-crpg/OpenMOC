@@ -35,8 +35,8 @@ int main(int argc,  char* argv[]) {
   double polar_spacing = 0.75;
   int num_polar = 2;
 
-  double tolerance = 1e-8;
-  int max_iters = 250;
+  double tolerance = 1e-4;
+  int max_iters = 2;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -54,68 +54,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.loadFromFile(file, true);
-
-  //FIXME
-  int num_rad_discr = 96;
-  int rad_discr_domains[96*2];
-  int ind = 0;
-  for (int i=0; i < 17; i++) {
-    int offset = std::abs(8-i);
-    if (offset == 8) {
-      for (int j=0; j < 17; j++) {
-        rad_discr_domains[2*ind] = i;
-        rad_discr_domains[2*ind+1] = j;
-        ind++;
-      }
-    }
-    else if (offset == 7) {
-      for (int j=0; j < 5; j++) {
-        rad_discr_domains[2*ind] = i;
-        rad_discr_domains[2*ind+1] = j;
-        ind++;
-      }
-      for (int j=12; j < 17; j++) {
-        rad_discr_domains[2*ind] = i;
-        rad_discr_domains[2*ind+1] = j;
-        ind++;
-      }
-    }
-    else if (offset == 6) {
-      for (int j=0; j < 3; j++) {
-        rad_discr_domains[2*ind] = i;
-        rad_discr_domains[2*ind+1] = j;
-        ind++;
-      }
-      for (int j=14; j < 17; j++) {
-        rad_discr_domains[2*ind] = i;
-        rad_discr_domains[2*ind+1] = j;
-        ind++;
-      }
-    }
-    else if (offset == 5 || offset == 4) {
-      for (int j=0; j < 2; j++) {
-        rad_discr_domains[2*ind] = i;
-        rad_discr_domains[2*ind+1] = j;
-        ind++;
-      }
-      for (int j=15; j < 17; j++) {
-        rad_discr_domains[2*ind] = i;
-        rad_discr_domains[2*ind+1] = j;
-        ind++;
-      }
-    }
-    else if (offset < 4) {
-      rad_discr_domains[2*ind] = i;
-      rad_discr_domains[2*ind+1] = 0;
-      ind++;
-      rad_discr_domains[2*ind] = i;
-      rad_discr_domains[2*ind+1] = 16;
-      ind++;
-    }
-  }
-
-
-  geometry.setCmfd(&cmfd); //FIXME OFF /ON
+  //geometry.setCmfd(&cmfd); //FIXME OFF /ON
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
@@ -154,7 +93,7 @@ int main(int argc,  char* argv[]) {
 
   Lattice mesh_lattice;
   Mesh mesh(&solver);
-  mesh.createLattice(17, 17, 200); //FIXME 1
+  mesh.createLattice(17, 17, 1); //FIXME 1
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
   int my_rank = 0;

@@ -24,9 +24,9 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 8;
-  double polar_spacing = 1.5;
-  int num_polar = 6;
+  int num_azim = 4;
+  double polar_spacing = 0.75;
+  int num_polar = 2;
 
   double tolerance = 1e-4;
   int max_iters = 40;

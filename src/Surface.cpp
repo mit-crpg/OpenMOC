@@ -405,15 +405,13 @@ double Plane::getD() {
 * @param points pointer to a Point to store the intersection Point
 * @return the number of intersection Points (0 or 1)
 */
-inline int Plane::intersection(Point* point, double azim, double polar, Point* points) {
+int Plane::intersection(Point* point, double azim, double polar, Point* points) {
 
   double x0 = point->getX();
   double y0 = point->getY();
   double z0 = point->getZ();
-  double l;
 
   int num = 0;                /* number of intersections */
-  double xcurr, ycurr, zcurr; /* coordinates of current intersection point */
 
   /* The track and plane are parallel */
   double mx = sin(polar) * cos(azim);
@@ -424,13 +422,13 @@ inline int Plane::intersection(Point* point, double azim, double polar, Point* p
     return 0;
 
   /* The track is not parallel to the plane */
-  else{
+  else {
 
-    l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
+    double l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
       (_A * mx + _B * my + _C * mz);
-    xcurr = x0 + l * mx;
-    ycurr = y0 + l * my;
-    zcurr = z0 + l * mz;
+    double xcurr = x0 + l * mx;
+    double ycurr = y0 + l * my;
+    double zcurr = z0 + l * mz;
 
     if (l > 0.0)
       num++;
@@ -833,9 +831,10 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
   double x0 = point->getX();
   double y0 = point->getY();
   double z0 = point->getZ();
-  double xcurr, ycurr, zcurr;
+  double xcurr = 0;
+  double ycurr = 0;
+  double zcurr = 0;
   int num = 0;                        /* Number of intersection Points */
-  double a, b, c, q, discr;
 
   /* If the track is vertical in y */
   if ((fabs(azim - M_PI_2)) < 1.0e-10 || (fabs(azim - 3.0 * M_PI_2)) < 1.0e-10) {
@@ -844,11 +843,11 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
      * Find the y where F(x0, y) = 0
      * Substitute x0 into F(x,y) and rearrange to put in
      * the form of the quadratic formula: ay^2 + by + c = 0 */
-    a = 1.0;
-    b = _D;
-    c = _A * x0 * x0 + _C * x0 + _E;
+    double a = 1.0;
+    double b = _D;
+    double c = _A * x0 * x0 + _C * x0 + _E;
 
-    discr = b*b - 4*c;
+    double discr = b*b - 4*c;
 
     /* There are no intersections */
     if (discr < 0)
@@ -856,8 +855,8 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
 
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
-      xcurr = x0;
-      ycurr = -b / 2;
+      double xcurr = x0;
+      double ycurr = -b / 2;
       zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
@@ -878,7 +877,6 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-      return num;
     }
 
     /* There are two intersections */
@@ -924,8 +922,6 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-
-      return num;
     }
   }
 
@@ -938,12 +934,12 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
      * ax^2 + bx + c = 0
      */
     double m = tan(azim);
-    q = y0 - m * x0;
-    a = 1 + m * m;
-    b = 2 * m * q + _C + _D * m;
-    c = q * q + _D * q + _E;
+    double q = y0 - m * x0;
+    double a = 1 + m * m;
+    double b = 2 * m * q + _C + _D * m;
+    double c = q * q + _D * q + _E;
 
-    discr = b*b - 4*a*c;
+    double discr = b*b - 4*a*c;
 
     /* Boolean value describing whether the track is traveling to the right */
     bool right = azim < M_PI / 2. || azim > 3. * M_PI / 2.;
@@ -977,8 +973,6 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-
-      return num;
     }
 
     /* There are two intersections */
@@ -1035,10 +1029,9 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
-
-      return num;
     }
   }
+  return num;
 }
 
 

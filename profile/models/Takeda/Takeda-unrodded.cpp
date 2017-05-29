@@ -17,10 +17,10 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 1.0;
+  double azim_spacing = 0.1;
   int num_azim = 4;
-  double polar_spacing = 1.0;
-  int num_polar = 6;
+  double polar_spacing = 0.75;
+  int num_polar = 2;
   double tolerance = 1e-7;
   int max_iters = 1000;
   int refines = 2;
@@ -227,7 +227,7 @@ int main(int argc, char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPUSolver solver(&track_generator);
+  CPULSSolver solver(&track_generator);
   solver.setNumThreads(num_threads);
   solver.setConvergenceThreshold(tolerance);
   solver.computeEigenvalue(max_iters);

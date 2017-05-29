@@ -72,17 +72,17 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
 #endif
 
 FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
-                             FP_PRECISION tol, FP_PRECISION SOR_factor=1.5,
+                             double tol, FP_PRECISION SOR_factor=1.5,
                              ConvergenceData* convergence_data = NULL,
                              DomainCommunicator* comm = NULL);
-void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
+void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  FP_PRECISION SOR_factor=1.5,
                  ConvergenceData* convergence_data = NULL,
                  DomainCommunicator* comm = NULL);
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
 FP_PRECISION computeRMSE(Vector* x, Vector* y, bool integrated, int it,
                          DomainCommunicator* comm = NULL);
-void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, FP_PRECISION tol,
+void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                    FP_PRECISION SOR_factor=1.5,
                    ConvergenceData* convergence_data = NULL);
 

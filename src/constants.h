@@ -59,11 +59,13 @@
 
 /** The maximum number of iterations allowed for a power method eigenvalue
  *  solve in linalg.cpp */
-#define MIN_LINALG_POWER_ITERATIONS 150
+#define MIN_LINALG_POWER_ITERATIONS 100
 #define MAX_LINALG_POWER_ITERATIONS 25000
 
+#define MIN_LINALG_TOLERANCE double(1E-8)
+
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
-#define MIN_LINEAR_SOLVE_ITERATIONS 50
+#define MIN_LINEAR_SOLVE_ITERATIONS 25
 #define MAX_LINEAR_SOLVE_ITERATIONS 1000
 
 #ifdef NVCC

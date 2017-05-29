@@ -385,7 +385,7 @@ inline double Surface::getMinDistance(Point* point, double azim, double polar) {
   Point intersections[2];
 
   /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, azim, polar, intersections);
+  int num_inters = intersection(point, azim, polar, intersections);
   double distance = INFINITY;
 
   /* If there is one intersection Point */

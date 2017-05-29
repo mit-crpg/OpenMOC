@@ -159,7 +159,7 @@ Cmfd::~Cmfd() {
   _cell_fsrs.clear();
 
   /* Clear the _k_nearest_stencils map of vectors */
-  std::map<int, std::vector< std::pair<int, FP_PRECISION> > >::iterator iter2;
+  std::map<int, std::vector< std::pair<int, double> > >::iterator iter2;
   for (iter2 = _k_nearest_stencils.begin(); iter2 != _k_nearest_stencils.end();
        ++iter2)
     iter2->second.clear();
@@ -412,8 +412,8 @@ void Cmfd::collapseXS() {
     NEW_PRECISION tot, nu_fis, chi;
     NEW_PRECISION* scat;
 
-    FP_PRECISION scat_tally[_num_cmfd_groups];
-    FP_PRECISION chi_tally[_num_cmfd_groups];
+    double scat_tally[_num_cmfd_groups];
+    double chi_tally[_num_cmfd_groups];
 
     /* Pointers to material objects */
     Material* fsr_material;
@@ -427,7 +427,7 @@ void Cmfd::collapseXS() {
       cell_material = _materials[i];
 
       /* Zero group-wise fission terms */
-      FP_PRECISION neutron_production_tally = 0.0;
+      double neutron_production_tally = 0.0;
       for (int e = 0; e < _num_cmfd_groups; e++)
         chi_tally[e] = 0.0;
 
@@ -439,7 +439,7 @@ void Cmfd::collapseXS() {
         volume = _FSR_volumes[*iter];
 
         /* Calculate total neutron production in the FSR */
-        FP_PRECISION neutron_production = 0.0;
+        double neutron_production = 0.0;
         for (int h = 0; h < _num_moc_groups; h++)
           neutron_production += fsr_material->getNuSigmaFByGroup(h+1) *
               _FSR_fluxes[(*iter)*_num_moc_groups+h] * volume;
@@ -475,8 +475,8 @@ void Cmfd::collapseXS() {
       for (int e = 0; e < _num_cmfd_groups; e++) {
 
         /* Zero tallies for this group */
-        FP_PRECISION nu_fission_tally = 0.0;
-        FP_PRECISION total_tally = 0.0;
+        double nu_fission_tally = 0.0;
+        double total_tally = 0.0;
 
         _diffusion_tally[i][e] = 0.0;
         _reaction_tally[i][e] = 0.0;
@@ -491,8 +491,8 @@ void Cmfd::collapseXS() {
 
           /* Reset volume tally for this MOC group */
           _volume_tally[i][e] = 0.0;
-          FP_PRECISION rxn_tally_group = 0.0;
-          FP_PRECISION trans_tally_group = 0.0;
+          double rxn_tally_group = 0.0;
+          double trans_tally_group = 0.0;
 
           /* Loop over FSRs in CMFD cell */
           for (iter = _cell_fsrs.at(i).begin();
@@ -523,7 +523,7 @@ void Cmfd::collapseXS() {
             }
           }
           if (rxn_tally_group != 0 && trans_tally_group != 0) {
-            FP_PRECISION flux_avg_sigma_t = trans_tally_group /
+            CMFD_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
             _diffusion_tally[i][e] += rxn_tally_group /
                 (3.0 * flux_avg_sigma_t);
@@ -531,7 +531,7 @@ void Cmfd::collapseXS() {
         }
 
         /* Save cross-sections to material */
-        FP_PRECISION rxn_tally = _reaction_tally[i][e];
+        double rxn_tally = _reaction_tally[i][e];
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
         cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
 
@@ -570,8 +570,8 @@ void Cmfd::collapseXS() {
     for (int e = 0; e < _num_cmfd_groups; e++) {
 
       /* Load tallies at this cell and energy group */
-      FP_PRECISION vol_tally = _volume_tally[i][e];
-      FP_PRECISION rxn_tally = _reaction_tally[i][e];
+      double vol_tally = _volume_tally[i][e];
+      double rxn_tally = _reaction_tally[i][e];
       _old_flux->setValue(i, e, rxn_tally / vol_tally);
 
       /* Set the Mesh cell properties with the tallies */
@@ -595,8 +595,8 @@ void Cmfd::collapseXS() {
         for (int e = 0; e < _num_cmfd_groups; e++) {
 
           /* Load tallies at this cell and energy group */
-          FP_PRECISION vol_tally = _boundary_volumes[s][idx][0];
-          FP_PRECISION rxn_tally = _boundary_reaction[s][idx][e];
+          double vol_tally = _boundary_volumes[s][idx][0];
+          double rxn_tally = _boundary_reaction[s][idx][e];
           _old_boundary_flux[s][idx][e] = rxn_tally / vol_tally;
         }
       }
@@ -618,7 +618,7 @@ void Cmfd::collapseXS() {
  * @param group A CMFD energy group
  * @return The diffusion coefficient
  */
-FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
+CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
   return _diffusion_tally[cmfd_cell][group] /
     _reaction_tally[cmfd_cell][group];
 }
@@ -644,21 +644,21 @@ FP_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  * @return The surface diffusion coefficient, (\f$ \hat{D} \f$) or
  *         (\f$ \tilde{D} \f$)
  */
-FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
+CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                                                   int group, int moc_iteration,
                                                   bool correction) {
 
-  FP_PRECISION dif_surf, dif_surf_corr;
-  FP_PRECISION current, current_out, current_in;
-  FP_PRECISION flux_next;
+  CMFD_PRECISION dif_surf, dif_surf_corr;
+  NEW_PRECISION current, current_out, current_in;
+  CMFD_PRECISION flux_next;
 
   /* Get diffusivity and flux for Mesh cell */
-  FP_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
+  CMFD_PRECISION dif_coef = getDiffusionCoefficient(cmfd_cell, group);
   int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
   int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface);
   CMFD_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
-  FP_PRECISION delta_interface = getSurfaceWidth(surface);
-  FP_PRECISION delta = getPerpendicularSurfaceWidth(surface);
+  CMFD_PRECISION delta_interface = getSurfaceWidth(surface);
+  CMFD_PRECISION delta = getPerpendicularSurfaceWidth(surface);
   int sense = getSense(surface);
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
@@ -834,7 +834,7 @@ FP_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
  *  @param moc_iteration MOC iteration number
  *  @return The dominant eigenvalue of the nonlinear diffusion problem
  */
-FP_PRECISION Cmfd::computeKeff(int moc_iteration) {
+double Cmfd::computeKeff(int moc_iteration) {
 
   log_printf(INFO, "Running diffusion solver...");
 
@@ -1157,12 +1157,12 @@ void Cmfd::updateMOCFlux() {
  * @param delta Width of the cell in the direction of interest
  * @return The diffusion coefficient correction factor
  */
-FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
-                                           FP_PRECISION delta) {
+CMFD_PRECISION Cmfd::computeLarsensEDCFactor(CMFD_PRECISION dif_coef,
+                                             CMFD_PRECISION delta) {
 
   /* Initialize variables */
-  FP_PRECISION alpha, mu, expon;
-  FP_PRECISION rho = 0.0;
+  CMFD_PRECISION alpha, mu, expon;
+  double rho = 0.0;
 
   /* Loop over polar angles */
   for (int p = 0; p < _num_polar/2; p++) {
@@ -1173,7 +1173,7 @@ FP_PRECISION Cmfd::computeLarsensEDCFactor(FP_PRECISION dif_coef,
   }
 
   /* Compute the correction factor */
-  FP_PRECISION correction = 1.0 + delta * rho / (2 * dif_coef);
+  CMFD_PRECISION correction = 1.0 + delta * rho / (2 * dif_coef);
 
   return correction;
 }
@@ -1220,7 +1220,7 @@ void Cmfd::setFluxMoments(NEW_PRECISION* flux_moments) {
  * @brief Set successive over-relaxation relaxation factor.
  * @param over-relaxation factor
  */
-void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
+void Cmfd::setSORRelaxationFactor(double SOR_factor) {
 
   if (SOR_factor <= 0.0 || SOR_factor >= 2.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
@@ -1234,7 +1234,7 @@ void Cmfd::setSORRelaxationFactor(FP_PRECISION SOR_factor) {
  * @brief Set the CMFD relaxation factor applied to diffusion coefficients
  * @param CMFD relaxation factor
  */
-void Cmfd::setCMFDRelaxationFactor(FP_PRECISION relaxation_factor) {
+void Cmfd::setCMFDRelaxationFactor(double relaxation_factor) {
 
   if (relaxation_factor <= 0.0 || relaxation_factor > 1.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
@@ -1486,7 +1486,9 @@ int Cmfd::findCmfdCell(LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   int global_cmfd_cell = _lattice->getLatticeCell(point);
   int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
-  if (local_cmfd_cell == -1)
+  if (global_cmfd_cell == -1)
+    log_printf(ERROR, "XXX ", point->toString().c_str());
+  else if (local_cmfd_cell == -1)
     log_printf(ERROR, "Cannot find CMFD cell for Point %s  since it is not "
                "within a local CMFD cell boundary", point->toString().c_str());
   return local_cmfd_cell;
@@ -1609,7 +1611,7 @@ void Cmfd::splitVertexCurrents() {
 #pragma omp parallel
   {
 
-    FP_PRECISION current;
+    NEW_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
     std::map<int, CMFD_PRECISION>::iterator it;
@@ -1730,7 +1732,7 @@ void Cmfd::splitEdgeCurrents() {
 #pragma omp parallel
   {
 
-    FP_PRECISION current;
+    NEW_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
     std::map<int, CMFD_PRECISION>::iterator it;
@@ -2217,7 +2219,7 @@ bool Cmfd::isCentroidUpdateOn() {
  * @brief Sets the threshold for CMFD source convergence (>0)
  * @param the threshold for source convergence
  */
-void Cmfd::setSourceConvergenceThreshold(FP_PRECISION source_thresh) {
+void Cmfd::setSourceConvergenceThreshold(double source_thresh) {
 
   if (source_thresh <= 0.0)
     log_printf(ERROR, "Unable to set the CMFD source convergence threshold to"
@@ -2257,7 +2259,7 @@ void Cmfd::generateKNearestStencils() {
   if (!_centroid_update_on)
     return;
 
-  std::vector< std::pair<int, FP_PRECISION> >::iterator stencil_iter;
+  std::vector< std::pair<int, double> >::iterator stencil_iter;
   std::vector<long>::iterator fsr_iter;
   Point* centroid;
   long fsr_id;
@@ -2281,12 +2283,12 @@ void Cmfd::generateKNearestStencils() {
 
       /* Create new stencil */
       _k_nearest_stencils[fsr_id] =
-        std::vector< std::pair<int, FP_PRECISION> >();
+        std::vector< std::pair<int, double> >();
 
       /* Get distance to all cells that touch current cell */
       for (int j=0; j < num_cells_in_stencil; j++)
         _k_nearest_stencils[fsr_id]
-          .push_back(std::make_pair<int, FP_PRECISION>
+          .push_back(std::make_pair<int, double>
                      (int(j), getDistanceToCentroid(centroid, global_ind, j)));
 
       /* Sort the distances */
@@ -2296,7 +2298,7 @@ void Cmfd::generateKNearestStencils() {
       /* Remove ghost cells that are outside the geometry boundaries */
       stencil_iter = _k_nearest_stencils[fsr_id].begin();
       while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
-        if (stencil_iter->second == std::numeric_limits<FP_PRECISION>::max())
+        if (stencil_iter->second == std::numeric_limits<double>::max())
           stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
         else
           ++stencil_iter;
@@ -2310,7 +2312,7 @@ void Cmfd::generateKNearestStencils() {
 
   /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
    * its k-nearest CMFD cells */
-  FP_PRECISION total_distance;
+  double total_distance;
   for (long i=0; i < _num_FSRs; i++) {
     total_distance = 1.e-10;
 
@@ -2484,10 +2486,10 @@ int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
  * @param fsr The fsr being updated.
  * @return the ratio used to update the FSR flux.
  */
-FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
+CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
   CMFD_PRECISION ratio = 0.0;
-  std::vector< std::pair<int, FP_PRECISION> >::iterator iter;
+  std::vector< std::pair<int, double> >::iterator iter;
   int cell_next_id;
 
   if (_centroid_update_on) {
@@ -2528,7 +2530,7 @@ FP_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  * @param fsr The fsr being updated.
  * @return the ratio of CMFD fluxes
  */
-FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
+CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
   double* interpolants = _axial_interpolants.at(fsr);
   double ratio = 1.0;
@@ -2618,22 +2620,22 @@ FP_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
  *
  *          where 4 is the given CMFD cell. If a CMFD edge or corner cells is
  *          given and the stencil indexed cell lies outside the geometry, the
- *          maximum allowable FP_PRECISION value is returned.
+ *          maximum allowable double value is returned.
  * @param centroid The numerical centroid an FSR in the cell.
  * @param cell_id The CMFD cell containing the FSR.
  * @param stencil_index The index of the cell in the stencil that we want to
  *        get the distance from.
  * @return the distance from the CMFD cell centroid to the FSR centroid.
  */
-FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
-                                         int stencil_index) {
+double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
+                                   int stencil_index) {
 
   int x = (cell_id % (_num_x * _num_y)) % _num_x;
   int y = (cell_id % (_num_x * _num_y)) / _num_x;
-  FP_PRECISION dist_x, dist_y;
+  double dist_x, dist_y;
   bool found = false;
-  FP_PRECISION centroid_x = centroid->getX();
-  FP_PRECISION centroid_y = centroid->getY();
+  double centroid_x = centroid->getX();
+  double centroid_y = centroid->getY();
 
   /* LOWER LEFT CORNER */
   if (x > 0 && y > 0 && stencil_index == 0) {
@@ -2701,7 +2703,7 @@ FP_PRECISION Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   if (found)
     return pow(dist_x + dist_y, 0.5);
   else
-    return std::numeric_limits<FP_PRECISION>::max();
+    return std::numeric_limits<double>::max();
 }
 
 
@@ -3090,9 +3092,9 @@ void Cmfd::initializeLattice(Point* offset) {
  * @param surface A surface index, from 0 to NUM_FACES - 1
  * @return The surface width
  */
-FP_PRECISION Cmfd::getSurfaceWidth(int surface) {
+CMFD_PRECISION Cmfd::getSurfaceWidth(int surface) {
 
-  FP_PRECISION width;
+  CMFD_PRECISION width;
 
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
     width = _cell_width_y * _cell_width_z;
@@ -3110,7 +3112,7 @@ FP_PRECISION Cmfd::getSurfaceWidth(int surface) {
  * @param surface A surface index, from 0 to NUM_FACES - 1
  * @return The perpendicular surface width
  */
-FP_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface) {
+CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface) {
 
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
     return _cell_width_x;
@@ -3157,15 +3159,15 @@ void Cmfd::setSolve3D(bool solve_3D) {
  * @param azim_spacings An array of azimuthal spacings for each azimuthal angle.
  * @param num_azim the number of azimuthal angles.
  */
-void Cmfd::setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim) {
+void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim) {
 
   if (_azim_spacings != NULL)
     delete [] _azim_spacings;
 
-  _azim_spacings = new FP_PRECISION[num_azim/4];
+  _azim_spacings = new double[num_azim/4];
 
   for (int a=0; a < num_azim/4; a++)
-    _azim_spacings[a] = FP_PRECISION(azim_spacings[a]);
+    _azim_spacings[a] = double(azim_spacings[a]);
 }
 
 
@@ -3176,7 +3178,7 @@ void Cmfd::setAzimSpacings(FP_PRECISION* azim_spacings, int num_azim) {
  * @param num_azim the number of azimuthal angles.
  * @param num_polar the number of polar angles.
  */
-void Cmfd::setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
+void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
                             int num_polar) {
 
   if (_polar_spacings != NULL) {
@@ -3185,13 +3187,13 @@ void Cmfd::setPolarSpacings(FP_PRECISION** polar_spacings, int num_azim,
     delete [] _polar_spacings;
   }
 
-  _polar_spacings = new FP_PRECISION*[num_azim/4];
+  _polar_spacings = new double*[num_azim/4];
   for (int a=0; a < num_azim/4; a++)
-    _polar_spacings[a] = new FP_PRECISION[num_polar/2];
+    _polar_spacings[a] = new double[num_polar/2];
 
   for (int a=0; a < num_azim/4; a++) {
     for (int p=0; p < num_polar/2; p++)
-      _polar_spacings[a][p] = FP_PRECISION(polar_spacings[a][p]);
+      _polar_spacings[a][p] = double(polar_spacings[a][p]);
   }
 }
 
@@ -3243,7 +3245,7 @@ void Cmfd::copyFullSurfaceCurrents() {
   for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
     for (int s=0; s < NUM_FACES; s++) {
       for (int g=0; g < _num_cmfd_groups; g++) {
-        FP_PRECISION current =
+        NEW_PRECISION current =
           _surface_currents->getValue(i, s * _num_cmfd_groups + g);
         _full_surface_currents->incrementValue(i, s * _num_cmfd_groups + g,
                                                current);

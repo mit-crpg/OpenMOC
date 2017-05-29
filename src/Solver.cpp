@@ -1136,7 +1136,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   clearTimerSplits();
   _num_iterations = 0;
   FP_PRECISION previous_residual = 1.0;
-  FP_PRECISION residual = 0.;
+  double residual = 0.;
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
