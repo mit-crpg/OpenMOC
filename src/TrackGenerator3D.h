@@ -226,7 +226,7 @@ public:
   void setDesiredZSpacing(double spacing);
   void setSegmentFormation(segmentationType segmentation_type);
   void setTrackGenerationMethod(int method);
-  void setSegmentationZones(std::vector<FP_PRECISION> z_mesh);
+  void setSegmentationZones(std::vector<double> z_mesh);
   void setLinkingTracks(TrackStackIndexes* tsi, TrackChainIndexes* tci,
                         bool outgoing, Track3D* track);
   void setLinkIndex(TrackChainIndexes* tci, TrackStackIndexes* tsi);

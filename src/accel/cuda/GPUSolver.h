@@ -78,22 +78,22 @@ private:
   dev_track* _dev_tracks;
 
   /** Thrust vector of angular fluxes for each track */
-  thrust::device_vector<FP_PRECISION> _boundary_flux;
+  thrust::device_vector<NEW_PRECISION> _boundary_flux;
 
   /** Thrust vector of leakages for each track */
-  thrust::device_vector<FP_PRECISION> _boundary_leakage;
+  thrust::device_vector<NEW_PRECISION> _boundary_leakage;
 
   /** Thrust vector of FSR scalar fluxes */
-  thrust::device_vector<FP_PRECISION> _scalar_flux;
+  thrust::device_vector<NEW_PRECISION> _scalar_flux;
 
   /** Thrust vector of old FSR scalar fluxes */
-  thrust::device_vector<FP_PRECISION> _old_scalar_flux;
+  thrust::device_vector<NEW_PRECISION> _old_scalar_flux;
 
   /** Thrust vector of fixed sources in each FSR */
-  thrust::device_vector<FP_PRECISION> _fixed_sources;
+  thrust::device_vector<NEW_PRECISION> _fixed_sources;
 
   /** Thrust vector of source / sigma_t in each FSR */
-  thrust::device_vector<FP_PRECISION> _reduced_sources;
+  thrust::device_vector<NEW_PRECISION> _reduced_sources;
 
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
@@ -109,7 +109,7 @@ private:
   void initializeSourceArrays();
 
   void zeroTrackFluxes();
-  void flattenFSRFluxes(FP_PRECISION value);
+  void flattenFSRFluxes(NEW_PRECISION value);
   void storeFSRFluxes();
   void normalizeFluxes();
   void computeFSRSources();
@@ -130,13 +130,13 @@ public:
    * @return the number of threads per block
    */
   int getNumThreadsPerBlock();
-  FP_PRECISION getFSRScalarFlux(int fsr_id, int group);
-  FP_PRECISION getFSRSource(int fsr_id, int group);
+  NEW_PRECISION getFSRScalarFlux(int fsr_id, int group);
+  NEW_PRECISION getFSRSource(int fsr_id, int group);
 
   void setNumThreadBlocks(int num_blocks);
   void setNumThreadsPerBlock(int num_threads);
   void setFixedSourceByFSR(int fsr_id, int group, 
-                           FP_PRECISION source);
+                           NEW_PRECISION source);
   void setGeometry(Geometry* geometry);
   void setTrackGenerator(TrackGenerator* track_generator);
 

@@ -98,14 +98,14 @@ int VectorizedSolver::getNumVectorWidths() {
  * @param source the volume-averaged source in this group
  */
 void VectorizedSolver::setFixedSourceByFSR(int fsr_id, int group,
-                                    FP_PRECISION source) {
+                                    NEW_PRECISION source) {
 
   Solver::setFixedSourceByFSR(fsr_id, group, source);
 
   /* Allocate the fixed sources array if not yet allocated */
   if (_fixed_sources == NULL) {
-    int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    int size = _num_FSRs * _num_groups * sizeof(NEW_PRECISION);
+    _fixed_sources = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
     memset(_fixed_sources, 0.0, size);
   }
 
@@ -158,8 +158,8 @@ void VectorizedSolver::initializeExpEvaluator() {
    * - this is not used by default, but can be to allow for vectorized
    * evaluation of the exponentials. Unfortunately this does not appear
    * to give any performance boost. */
-  int size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
-  _thread_exponentials = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  int size = _num_threads * _polar_times_groups * sizeof(NEW_PRECISION);
+  _thread_exponentials = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 }
 
 
@@ -197,19 +197,19 @@ void VectorizedSolver::initializeFluxArrays() {
   try{
 
     size = 2 * _tot_num_tracks * _num_groups * _num_polar;
-    size *= sizeof(FP_PRECISION);
-    _boundary_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-    _boundary_leakage = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    size *= sizeof(NEW_PRECISION);
+    _boundary_flux = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    _boundary_leakage = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-    size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    _scalar_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-    _old_scalar_flux = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    size = _num_FSRs * _num_groups * sizeof(NEW_PRECISION);
+    _scalar_flux = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    _old_scalar_flux = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-    size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-    _delta_psi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    size = _num_threads * _num_groups * sizeof(NEW_PRECISION);
+    _delta_psi = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-    size = _num_threads * _polar_times_groups * sizeof(FP_PRECISION);
-    _thread_taus = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    size = _num_threads * _polar_times_groups * sizeof(NEW_PRECISION);
+    _thread_taus = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the fluxes");
@@ -232,12 +232,12 @@ void VectorizedSolver::initializeSourceArrays() {
 
   /* Allocate aligned memory for all source arrays */
   try{
-    size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-    _reduced_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+    size = _num_FSRs * _num_groups * sizeof(NEW_PRECISION);
+    _reduced_sources = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
     /* Allocate the fixed sources array if not yet allocated */
     if (_fixed_sources == NULL) {
-      _fixed_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+      _fixed_sources = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
       memset(_fixed_sources, 0.0, size);
     }
   }
@@ -253,13 +253,13 @@ void VectorizedSolver::initializeSourceArrays() {
  */
 void VectorizedSolver::normalizeFluxes() {
 
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION volume;
-  FP_PRECISION tot_fission_source;
-  FP_PRECISION norm_factor;
+  NEW_PRECISION* nu_sigma_f;
+  NEW_PRECISION volume;
+  NEW_PRECISION tot_fission_source;
+  NEW_PRECISION norm_factor;
 
-  int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-  FP_PRECISION* fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  int size = _num_FSRs * _num_groups * sizeof(NEW_PRECISION);
+  NEW_PRECISION* fission_sources = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* Compute total fission source for each FSR, energy group */
   #pragma omp parallel for private(volume, nu_sigma_f)  \
@@ -330,18 +330,18 @@ void VectorizedSolver::normalizeFluxes() {
 void VectorizedSolver::computeFSRSources(int iteration) {
 
   int tid;
-  FP_PRECISION scatter_source;
-  FP_PRECISION fission_source;
-  FP_PRECISION* nu_sigma_f;
-  FP_PRECISION* sigma_s;
-  FP_PRECISION* sigma_t;
-  FP_PRECISION* chi;
+  NEW_PRECISION scatter_source;
+  NEW_PRECISION fission_source;
+  NEW_PRECISION* nu_sigma_f;
+  NEW_PRECISION* sigma_s;
+  NEW_PRECISION* sigma_t;
+  NEW_PRECISION* chi;
   Material* material;
 
-  int size = _num_FSRs * _num_groups * sizeof(FP_PRECISION);
-  FP_PRECISION* fission_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-  size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-  FP_PRECISION* scatter_sources = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  int size = _num_FSRs * _num_groups * sizeof(NEW_PRECISION);
+  NEW_PRECISION* fission_sources = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  size = _num_threads * _num_groups * sizeof(NEW_PRECISION);
+  NEW_PRECISION* scatter_sources = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* For all FSRs, find the source */
   #pragma omp parallel for private(material, nu_sigma_f, chi, \
@@ -414,8 +414,8 @@ void VectorizedSolver::computeFSRSources(int iteration) {
  */
 void VectorizedSolver::addSourceToScalarFlux() {
 
-  FP_PRECISION volume;
-  FP_PRECISION* sigma_t;
+  NEW_PRECISION volume;
+  NEW_PRECISION* sigma_t;
 
   /* Add in source term and normalize flux to volume for each FSR */
   /* Loop over FSRs, energy groups */
@@ -464,15 +464,15 @@ void VectorizedSolver::computeKeff() {
 
   int tid;
   Material* material;
-  FP_PRECISION* sigma;
-  FP_PRECISION volume;
-  FP_PRECISION total, fission, scatter, leakage;
+  NEW_PRECISION* sigma;
+  NEW_PRECISION volume;
+  NEW_PRECISION total, fission, scatter, leakage;
 
-  int size = _num_FSRs * sizeof(FP_PRECISION);
-  FP_PRECISION* FSR_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  int size = _num_FSRs * sizeof(NEW_PRECISION);
+  NEW_PRECISION* FSR_rates = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
-  size = _num_threads * _num_groups * sizeof(FP_PRECISION);
-  FP_PRECISION* group_rates = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  size = _num_threads * _num_groups * sizeof(NEW_PRECISION);
+  NEW_PRECISION* group_rates = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* Loop over all FSRs and compute the volume-weighted total rates */
   #pragma omp parallel for private(tid, volume, \
@@ -610,18 +610,18 @@ void VectorizedSolver::computeKeff() {
  */
 void VectorizedSolver::tallyScalarFlux(segment* curr_segment,
                                        int azim_index,
-                                       FP_PRECISION* track_flux,
-                                       FP_PRECISION* fsr_flux) {
+                                       NEW_PRECISION* track_flux,
+                                       NEW_PRECISION* fsr_flux) {
 
   int tid = omp_get_thread_num();
   int fsr_id = curr_segment->_region_id;
-  FP_PRECISION* delta_psi = &_delta_psi[tid*_num_groups];
-  FP_PRECISION* exponentials = &_thread_exponentials[tid*_polar_times_groups];
+  NEW_PRECISION* delta_psi = &_delta_psi[tid*_num_groups];
+  NEW_PRECISION* exponentials = &_thread_exponentials[tid*_polar_times_groups];
 
   computeExponentials(curr_segment, exponentials);
 
   /* Set the FSR scalar flux buffer to zero */
-  memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux, 0.0, _num_groups * sizeof(NEW_PRECISION));
 
   /* Tally the flux contribution from segment to FSR's scalar flux */
   /* Loop over polar angles */
@@ -675,14 +675,14 @@ void VectorizedSolver::tallyScalarFlux(segment* curr_segment,
  * @param exponentials the array to store the exponential values
  */
 void VectorizedSolver::computeExponentials(segment* curr_segment,
-                                           FP_PRECISION* exponentials) {
+                                           NEW_PRECISION* exponentials) {
 
-  FP_PRECISION length = curr_segment->_length;
-  FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
+  NEW_PRECISION length = curr_segment->_length;
+  NEW_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
 
   /* Evaluate the exponentials using the linear interpolation table */
   if (_exp_evaluator->isUsingInterpolation()) {
-    FP_PRECISION tau;
+    NEW_PRECISION tau;
 
     for (int e=0; e < _num_groups; e++) {
       tau = length * sigma_t[e];
@@ -695,8 +695,8 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
   else {
 
     int tid = omp_get_thread_num();
-    FP_PRECISION* sin_thetas = _polar_quad->getSinThetas();
-    FP_PRECISION* taus = &_thread_taus[tid*_polar_times_groups];
+    NEW_PRECISION* sin_thetas = _polar_quad->getSinThetas();
+    NEW_PRECISION* taus = &_thread_taus[tid*_polar_times_groups];
 
     /* Initialize the tau argument for the exponentials */
     for (int p=0; p < _num_polar; p++) {
@@ -746,10 +746,10 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
  */
 void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
                                             bool direction,
-                                            FP_PRECISION* track_flux) {
+                                            NEW_PRECISION* track_flux) {
   int start;
   bool bc;
-  FP_PRECISION* track_leakage;
+  NEW_PRECISION* track_leakage;
   int track_out_id;
 
   /* Extract boundary conditions for this Track and the pointer to the
@@ -771,7 +771,7 @@ void VectorizedSolver::transferBoundaryFlux(int track_id, int azim_index,
     bc = _tracks[track_id]->getBCIn();
   }
 
-  FP_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
+  NEW_PRECISION* track_out_flux = &_boundary_flux(track_out_id,0,0,start);
 
   /* Loop over polar angles and energy groups */
   for (int p=0; p < _num_polar; p++) {

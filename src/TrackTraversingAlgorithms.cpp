@@ -492,7 +492,7 @@ void LinearExpansionGenerator::execute() {
   if (_track_generator_3D != NULL) {
 #pragma omp parallel for
     for (int r=0; r < num_FSRs; r++) {
-      FP_PRECISION det;
+      double det;
       det = lem[r*nc + 0] * lem[r*nc + 1] * lem[r*nc + 5] +
             lem[r*nc + 2] * lem[r*nc + 4] * lem[r*nc + 3] +
             lem[r*nc + 3] * lem[r*nc + 2] * lem[r*nc + 4] -
@@ -535,7 +535,7 @@ void LinearExpansionGenerator::execute() {
 #pragma omp parallel for
     for (long r=0; r < num_FSRs; r++) {
 
-      FP_PRECISION det;
+      double det;
       det = lem[r*nc  ] * lem[r*nc + 1] - lem[r*nc + 2] * lem[r*nc + 2];
 
       if (std::abs(det) < MIN_DET) {

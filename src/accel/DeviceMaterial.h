@@ -25,25 +25,25 @@ struct dev_material {
   int _id;
 
   /** An array of the total cross-sections for each energy group */
-  FP_PRECISION* _sigma_t;
+  NEW_PRECISION* _sigma_t;
 
   /** An array of the absorption cross-sections for each energy group */
-  FP_PRECISION* _sigma_a;
+  NEW_PRECISION* _sigma_a;
 
   /** A 2D array of the scattering cross-section matrix. The first index is
    *  row number and second index is column number */
-  FP_PRECISION* _sigma_f;
+  NEW_PRECISION* _sigma_f;
 
   /** An array of the fission cross-sections multiplied by nu \f$ \nu \f$
    *  for each energy group */
-  FP_PRECISION* _nu_sigma_f;
+  NEW_PRECISION* _nu_sigma_f;
 
   /** An array of the chi \f$ \chi \f$ values for each energy group */
-  FP_PRECISION* _chi;
+  NEW_PRECISION* _chi;
 
   /** An array of the group-to-group scattering cross-sections. The first
    *  index is row number; second index is column number */
-  FP_PRECISION* _sigma_s;
+  NEW_PRECISION* _sigma_s;
 
   /**
    * @brief Constructor for a dev_material struct on a GPU.

@@ -67,24 +67,24 @@ struct DomainCommunicator {
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, CMFD_PRECISION**& coupling_coeffs,
-                      CMFD_PRECISION**& coupling_fluxes, CMFD_PRECISION* curr_fluxes,
-                      int& offset);
+                      CMFD_PRECISION**& coupling_fluxes,
+                      CMFD_PRECISION* curr_fluxes, int& offset);
 #endif
 
-FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
-                             double tol, FP_PRECISION SOR_factor=1.5,
-                             ConvergenceData* convergence_data = NULL,
-                             DomainCommunicator* comm = NULL);
+double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
+                       double tol, double SOR_factor=1.5,
+                       ConvergenceData* convergence_data = NULL,
+                       DomainCommunicator* comm = NULL);
 void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
-                 FP_PRECISION SOR_factor=1.5,
+                 double SOR_factor=1.5,
                  ConvergenceData* convergence_data = NULL,
                  DomainCommunicator* comm = NULL);
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
-FP_PRECISION computeRMSE(Vector* x, Vector* y, bool integrated, int it,
+double computeRMSE(Vector* x, Vector* y, bool integrated, int it,
                          DomainCommunicator* comm = NULL);
 void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
-                   FP_PRECISION SOR_factor=1.5,
-                   ConvergenceData* convergence_data = NULL);
+                    double SOR_factor=1.5,
+                    ConvergenceData* convergence_data = NULL);
 
 /**
  * @brief Transpose a 2D matrix.

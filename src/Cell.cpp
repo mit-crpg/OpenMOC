@@ -1125,47 +1125,7 @@ double Cell::minSurfaceDist(Point* point, double azim, double polar) {
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
 
     /* Find the minimum distance from this surface to this Point */
-    if (iter->second->_surface == NULL)
-      log_printf(ERROR, "Null surface");
-    Surface* surf = iter->second->_surface;
-    surfaceType typ = surf->getSurfaceType();
-    int can = 0;
-    if (typ == XPLANE) {
-      can = 1;
-      curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
-    }
-    else if (typ == YPLANE) {
-      can = 2;
-      curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
-    }
-    else if (typ == ZPLANE) {
-      can = 3;
-      curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
-    }
-    else if (typ == ZCYLINDER) {
-      can = 5;
-      double h_azim = azim * 2;
-      double h_polar = polar * 2;
-      double x_val = point->getX();
-      double y_val = point->getY();
-      double z_val = point->getZ();
-      if (x_val * y_val * z_val > 1e10)
-          log_printf(ERROR, "Weird vals");
-      curr_dist = surf->getMinDistance(point, h_azim/2, h_polar/2);
-    }
-    else if (typ == PLANE) {
-      can = 4;
-      curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
-    }
-    else {
-      log_printf(ERROR, "Type = UNKNOWN");
-      curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
-    }
-    volatile Surface* volatile ss = iter->second->_surface;
-    if (ss == NULL) {
-       log_printf(ERROR, "Error code %d", can);
-    } 
-    //curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
+    curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
 
     /* If the distance to Cell is less than current min distance, update */
     if (curr_dist < min_dist)

@@ -164,10 +164,10 @@ protected:
   long _tot_num_tracks;
 
   /** The weights for each azimuthal angle */
-  FP_PRECISION* _azim_spacings;
+  double* _azim_spacings;
 
   /** The weights for each polar angle in the polar angle quadrature */
-  FP_PRECISION** _polar_spacings;
+  double** _polar_spacings;
 
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
@@ -207,13 +207,13 @@ protected:
   NEW_PRECISION* _reduced_sources;
 
   /** The current iteration's approximation to k-effective */
-  FP_PRECISION _k_eff;
+  double _k_eff;
 
   /** The number of source iterations needed to reach convergence */
   int _num_iterations;
 
   /** The tolerance for converging the source/flux */
-  FP_PRECISION _converge_thresh;
+  double _converge_thresh;
 
   /** A matrix of ExpEvaluators to compute exponentials in the transport
     * equation. The matrix is indexed by azimuthal index and polar index */
@@ -327,9 +327,9 @@ public:
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
-  FP_PRECISION getKeff();
-  FP_PRECISION getConvergenceThreshold();
-  FP_PRECISION getMaxOpticalLength();
+  double getKeff();
+  double getConvergenceThreshold();
+  NEW_PRECISION getMaxOpticalLength();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
@@ -338,18 +338,18 @@ public:
   void printFissionRates(std::string fname, int nx, int ny, int nz);
   void printInputParamsSummary();
 
-  virtual FP_PRECISION getFlux(long fsr_id, int group);
+  virtual double getFlux(long fsr_id, int group);
   virtual void getFluxes(NEW_PRECISION* out_fluxes, int num_fluxes) = 0;
-  FP_PRECISION getFSRSource(long fsr_id, int group);
+  double getFSRSource(long fsr_id, int group);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setConvergenceThreshold(FP_PRECISION threshold);
-  virtual void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
-  void setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source);
+  virtual void setConvergenceThreshold(double threshold);
+  virtual void setFixedSourceByFSR(long fsr_id, int group, double source);
+  void setFixedSourceByCell(Cell* cell, int group, double source);
   void setFixedSourceByMaterial(Material* material, int group,
-                                FP_PRECISION source);
-  void setMaxOpticalLength(FP_PRECISION max_optical_length);
-  void setExpPrecision(FP_PRECISION precision);
+                                double source);
+  void setMaxOpticalLength(NEW_PRECISION max_optical_length);
+  void setExpPrecision(double precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
   void correctXS();

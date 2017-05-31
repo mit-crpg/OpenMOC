@@ -192,7 +192,7 @@ double Solver::getTotalTime() {
  * @brief Returns the converged eigenvalue \f$ k_{eff} \f$.
  * @return the converged eigenvalue \f$ k_{eff} \f$
  */
-FP_PRECISION Solver::getKeff() {
+double Solver::getKeff() {
   return _k_eff;
 }
 
@@ -201,7 +201,7 @@ FP_PRECISION Solver::getKeff() {
  * @brief Returns the threshold for source/flux convergence.
  * @return the threshold for source/flux convergence
  */
-FP_PRECISION Solver::getConvergenceThreshold() {
+double Solver::getConvergenceThreshold() {
   return _converge_thresh;
 }
 
@@ -210,7 +210,7 @@ FP_PRECISION Solver::getConvergenceThreshold() {
  * @brief Get the maximum allowable optical length for a track segment
  * @return The max optical length
  */
-FP_PRECISION Solver::getMaxOpticalLength() {
+NEW_PRECISION Solver::getMaxOpticalLength() {
   return _exp_evaluators[0][0]->getMaxOpticalLength();
 }
 
@@ -244,7 +244,7 @@ bool Solver::isUsingExponentialInterpolation() {
  * @param group the energy group of interest
  * @return the FSR scalar flux
  */
-FP_PRECISION Solver::getFlux(long fsr_id, int group) {
+double Solver::getFlux(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
@@ -277,7 +277,7 @@ FP_PRECISION Solver::getFlux(long fsr_id, int group) {
  * @param group the energy group of interest
  * @return the flat source region source
  */
-FP_PRECISION Solver::getFSRSource(long fsr_id, int group) {
+double Solver::getFSRSource(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a source for FSR ID = %d "
@@ -302,7 +302,7 @@ FP_PRECISION Solver::getFSRSource(long fsr_id, int group) {
   Material* material = _FSR_materials[fsr_id];
   NEW_PRECISION* nu_sigma_f = material->getNuSigmaF();
   NEW_PRECISION* chi = material->getChi();
-  FP_PRECISION source = 0.;
+  double source = 0.;
 
   /* Compute fission source */
   if (material->isFissionable()) {
@@ -401,7 +401,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
  * @brief The default threshold for convergence is 1E-5.
  * @param source_thresh the threshold for source/flux convergence
  */
-void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
+void Solver::setConvergenceThreshold(double threshold) {
 
   if (threshold <= 0.0)
     log_printf(ERROR, "Unable to set the convergence threshold to %f "
@@ -419,7 +419,7 @@ void Solver::setConvergenceThreshold(FP_PRECISION threshold) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source) {
+void Solver::setFixedSourceByFSR(long fsr_id, int group, double source) {
 
   if (group <= 0 || group > _num_groups)
     log_printf(ERROR,"Unable to set fixed source for group %d in "
@@ -441,7 +441,7 @@ void Solver::setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source) {
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
-void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
+void Solver::setFixedSourceByCell(Cell* cell, int group, double source) {
 
   /* Recursively add the source to all Cells within a FILL type Cell */
   if (cell->getType() == FILL) {
@@ -467,7 +467,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, FP_PRECISION source) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByMaterial(Material* material, int group,
-                                      FP_PRECISION source) {
+                                      double source) {
   _fix_src_material_map[std::pair<Material*, int>(material, group)] = source;
 }
 
@@ -476,7 +476,7 @@ void Solver::setFixedSourceByMaterial(Material* material, int group,
  * @brief Set the maximum allowable optical length for a track segment
  * @param max_optical_length The max optical length
  */
-void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
+void Solver::setMaxOpticalLength(NEW_PRECISION max_optical_length) {
   for (int a=0; a < _num_exp_evaluators_azim; a++)
     for (int p=0; p < _num_exp_evaluators_polar; p++)
       _exp_evaluators[a][p]->setMaxOpticalLength(max_optical_length);
@@ -490,7 +490,7 @@ void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
  *          Yamamoto's 2003 paper.
  * @param precision the precision of the exponential interpolation table,
  */
-void Solver::setExpPrecision(FP_PRECISION precision) {
+void Solver::setExpPrecision(double precision) {
   for (int a=0; a < _num_exp_evaluators_azim; a++)
     for (int p=0; p < _num_exp_evaluators_polar; p++)
       _exp_evaluators[a][p]->setExpPrecision(precision);
@@ -561,9 +561,9 @@ void Solver::initializeExpEvaluators() {
   if (first_evaluator->isUsingInterpolation()) {
 
     /* Find minimum of optional user-specified and actual max taus */
-    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
-    FP_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
-    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
+    NEW_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+    NEW_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
+    NEW_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
@@ -653,7 +653,7 @@ void Solver::initializeFSRs() {
   if (_regionwise_scratch != NULL)
     delete [] _regionwise_scratch;
   //FIXME
-  int num_threads = omp_get_num_procs();
+  int num_threads = omp_get_max_threads();
   _groupwise_scratch.resize(num_threads);
   for (int i=0; i < num_threads; i++)
     _groupwise_scratch.at(i) = new FP_PRECISION[_num_groups];
@@ -792,7 +792,7 @@ void Solver::initializeFixedSources() {
   Cell* fsr_cell;
   Material* fsr_material;
   int group;
-  FP_PRECISION source;
+  NEW_PRECISION source;
   std::pair<Cell*, int> cell_group_key;
   std::pair<Material*, int> mat_group_key;
   std::map< std::pair<Cell*, int>, NEW_PRECISION >::iterator cell_iter;
@@ -950,7 +950,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Initialize keff to 1 for FSR source calcualtions */
   _k_eff = 1.;
 
-  FP_PRECISION residual = 0.;
+  double residual = 0.;
 
   /* Initialize data structures */
   initializeFSRs();
@@ -1055,7 +1055,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   clearTimerSplits();
 
   _k_eff = k_eff;
-  FP_PRECISION residual = 0.;
+  double residual = 0.;
 
   /* Initialize data structures */
   initializeFSRs();
@@ -1135,12 +1135,12 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
   _num_iterations = 0;
-  FP_PRECISION previous_residual = 1.0;
+  double previous_residual = 1.0;
   double residual = 0.;
 
   /* An initial guess for the eigenvalue */
   _k_eff = 1.0;
-  FP_PRECISION k_prev = _k_eff;
+  double k_prev = _k_eff;
 
   /* Initialize data structures */
   initializeFSRs();
@@ -1250,7 +1250,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     residual = computeResidual(res_type);
 
     /* Compute difference in k and apparent dominance ratio */
-    FP_PRECISION dr = residual / previous_residual;
+    double dr = residual / previous_residual;
     int dk = 1e5 * (_k_eff - k_prev);
     k_prev = _k_eff;
 

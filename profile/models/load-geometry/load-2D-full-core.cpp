@@ -14,8 +14,9 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  std::string file = "v1-full-core-2D.geo";
+  //std::string file = "v1-full-core-2D.geo";
   //std::string file = "v2-full-core-2D-no-rings.geo";
+  std::string file = "old-beavrs-2D.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -29,8 +30,8 @@ int main(int argc,  char* argv[]) {
   double polar_spacing = 0.75;
   int num_polar = 2;
 
-  double tolerance = 1e-5;
-  int max_iters = 400;
+  double tolerance = 1e-8;
+  int max_iters = 30;
   
   /* Create CMFD lattice */
   Cmfd cmfd;

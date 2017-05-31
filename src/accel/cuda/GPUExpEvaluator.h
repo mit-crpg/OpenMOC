@@ -32,9 +32,9 @@ private:
 public:
 
   /** The exponential linear interpolation table */
-  FP_PRECISION* _exp_table;
+  NEW_PRECISION* _exp_table;
 
-  __device__ FP_PRECISION computeExponential(FP_PRECISION tau, int polar);
+  __device__ NEW_PRECISION computeExponential(NEW_PRECISION tau, int polar);
 };
 
 

@@ -42,7 +42,7 @@
 #define POLAR_WEIGHT_SUM_TOL 1E-5
 
 /** The default maximum optical path length */
-#define MAX_OPTICAL_LENGTH FP_PRECISION(10.)
+#define MAX_OPTICAL_LENGTH NEW_PRECISION(10.)
 
 /** A small amount to increment the tau, the max optical path length, to ensure
  *  that tracks with the max optical path length are not split. */
@@ -51,7 +51,7 @@
 /** The minimum acceptable precision for exponential evaluations from
  *  the ExpEvaluator's linear interpolation table. This default precision
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
-#define EXP_PRECISION FP_PRECISION(1E-5)
+#define EXP_PRECISION NEW_PRECISION(1E-5)
 
 /** The minimum calculated determinant to allow for the calculation of a matrix
   * inverse. */
@@ -62,7 +62,7 @@
 #define MIN_LINALG_POWER_ITERATIONS 100
 #define MAX_LINALG_POWER_ITERATIONS 25000
 
-#define MIN_LINALG_TOLERANCE double(1E-8)
+#define MIN_LINALG_TOLERANCE double(1E-15)
 
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
 #define MIN_LINEAR_SOLVE_ITERATIONS 25

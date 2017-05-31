@@ -25,7 +25,7 @@ int main(int argc,  char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = omp_get_max_threads();
   #else
   int num_threads = 1;
   #endif
@@ -35,13 +35,13 @@ int main(int argc,  char* argv[]) {
   double polar_spacing = 0.75;
   int num_polar = 2;
 
-  double tolerance = 1e-4;
+  double tolerance = 1e-8;
   int max_iters = 2;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17, 17, 200); //FIXME 5
+  cmfd.setLatticeStructure(17, 17, 200); //FIXME 5 / 200
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
       get_group_structure(70, 8);
@@ -54,13 +54,13 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.loadFromFile(file, true);
-  //geometry.setCmfd(&cmfd); //FIXME OFF /ON
+  geometry.setCmfd(&cmfd); //FIXME OFF /ON
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
   geometry.setDomainDecomposition(1, 1, 40, MPI_COMM_WORLD); //FIXME 17x17xN
 #endif
-  //geometry.setNumDomainModules(17, 17, 1);
+  geometry.setNumDomainModules(17, 17, 1);
   geometry.setOverlaidMesh(2.0);
   geometry.initializeFlatSourceRegions();
 

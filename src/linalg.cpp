@@ -17,8 +17,8 @@
  * @param SOR_factor the successive over-relaxation factor
  * @return k_eff the dominant eigenvalue
  */
-FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
-                             double tol, FP_PRECISION SOR_factor,
+double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
+                             double tol, double SOR_factor,
                              ConvergenceData* convergence_data,
                              DomainCommunicator* comm) {
 
@@ -53,7 +53,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
   int num_groups = X->getNumGroups();
   Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
   Vector new_source(cell_locks, num_x, num_y, num_z, num_groups);
-  FP_PRECISION residual;
+  double residual;
   int iter;
 
   /* Compute and normalize the initial source */
@@ -155,7 +155,7 @@ FP_PRECISION eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
  * @param SOR_factor the successive over-relaxation factor
  */
 void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
-                 FP_PRECISION SOR_factor, ConvergenceData* convergence_data,
+                 double SOR_factor, ConvergenceData* convergence_data,
                  DomainCommunicator* comm) {
 
   tol = std::max(MIN_LINALG_TOLERANCE, tol);
@@ -188,7 +188,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                B->getNumGroups(), X->getNumGroups());
 
   /* Initialize variables */
-  FP_PRECISION residual;
+  double residual;
   int iter = 0;
   omp_lock_t* cell_locks = X->getCellLocks();
   int num_x = X->getNumX();
@@ -535,7 +535,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
 
   if (integrated) {
 
-    FP_PRECISION new_source, old_source;
+    double new_source, old_source;
     Vector residual(cell_locks, num_x, num_y, num_z, 1);
 
     /* Compute the RMSE */
@@ -611,7 +611,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
  * @param SOR_factor the successive over-relaxation factor
  */
 void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
-                 FP_PRECISION SOR_factor, ConvergenceData* convergence_data) {
+                 double SOR_factor, ConvergenceData* convergence_data) {
 
   /* Check for consistency of matrix and vector dimensions */
   if (A->getNumX() != B->getNumX() || A->getNumX() != X->getNumX() ||
@@ -641,7 +641,7 @@ void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                B->getNumGroups(), X->getNumGroups());
 
   /* Initialize variables */
-  FP_PRECISION residual;
+  double residual;
   int iter = 0;
   omp_lock_t* cell_locks = X->getCellLocks();
   int num_x = X->getNumX();

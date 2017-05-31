@@ -522,7 +522,7 @@ void CPULSSolver::addSourceToScalarFlux() {
  * @param coords The coords of the point to get the flux at
  * @param group the energy group
  */
-FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
+double CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 
   double x, y, z, xc, yc, zc;
 
@@ -537,10 +537,10 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
   yc = centroid->getY();
   zc = centroid->getZ();
 
-  FP_PRECISION flux = _scalar_flux(fsr, group);
-  FP_PRECISION flux_x = 0.0;
-  FP_PRECISION flux_y = 0.0;
-  FP_PRECISION flux_z = 0.0;
+  double flux = _scalar_flux(fsr, group);
+  double flux_x = 0.0;
+  double flux_y = 0.0;
+  double flux_z = 0.0;
 
 
   if (_solve_3D) {

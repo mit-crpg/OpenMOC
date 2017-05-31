@@ -99,7 +99,7 @@ protected:
   segmentationType _segment_formation;
 
   /** Max optical segment length for Tracks before splitting */
-  FP_PRECISION _max_optical_length;
+  NEW_PRECISION _max_optical_length;
 
   /** Maximum number of track segmenets in a single Track */
   int _max_num_segments;
@@ -151,7 +151,7 @@ public:
   Track** get2DTracksArray();
   virtual Track** getTracksArray();
   Track** get2DTracks();
-  FP_PRECISION getMaxOpticalLength();
+  NEW_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
   int getNumThreads();
   int getNumX(int azim);
@@ -162,7 +162,7 @@ public:
   NEW_PRECISION getFSRVolume(long fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
-  FP_PRECISION retrieveMaxOpticalLength();
+  NEW_PRECISION retrieveMaxOpticalLength();
   omp_lock_t* getFSRLocks();
   segmentationType getSegmentFormation();
   virtual bool containsTracks();
@@ -177,7 +177,7 @@ public:
   virtual void setGeometry(Geometry* geometry);
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
-  void setMaxOpticalLength(FP_PRECISION tau);
+  void setMaxOpticalLength(NEW_PRECISION tau);
   void setMaxNumSegments(int max_num_segments);
   void setDumpSegments(bool dump_segments);
 
@@ -188,7 +188,7 @@ public:
   void retrieve2DSegmentCoords(double* coords, long num_segments);
   void generateFSRCentroids(NEW_PRECISION* FSR_volumes);
   void generateTracks();
-  void splitSegments(FP_PRECISION max_optical_length);
+  void splitSegments(NEW_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);
   void dumpSegmentsToFile();
   bool readSegmentsFromFile();

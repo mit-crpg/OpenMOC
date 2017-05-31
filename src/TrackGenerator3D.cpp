@@ -393,7 +393,7 @@ void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
  * @param z_mesh the z-coordinates defining the height of the radial
  *        segmentation planes
  */
-void TrackGenerator3D::setSegmentationZones(std::vector<FP_PRECISION> zones) {
+void TrackGenerator3D::setSegmentationZones(std::vector<double> zones) {
 
   /* Clear any previous segmentation heights and note their existence */
   _contains_segmentation_heights = true;

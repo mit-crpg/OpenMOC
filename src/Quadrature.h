@@ -59,7 +59,7 @@ protected:
   int _num_polar;
 
   /** An array of the sines of quadrature polar angles */
-  FP_PRECISION** _sin_thetas;
+  double** _sin_thetas;
 
   /** An array of the quadrature polar angles */
   double** _thetas;
@@ -68,19 +68,19 @@ protected:
   double* _phis;
 
   /** The actual track azimuthal spacing (cm) by azimuthal angle */
-  FP_PRECISION* _azim_spacings;
+  double* _azim_spacings;
 
   /** An array of the quadrature azimuthal weights */
-  FP_PRECISION* _azim_weights;
+  double* _azim_weights;
 
   /** The actual track polar spacing (cm) by (azim, polar) */
-  FP_PRECISION** _polar_spacings;
+  double** _polar_spacings;
 
   /** An array of the quadrature polar weights */
-  FP_PRECISION** _polar_weights;
+  double** _polar_weights;
 
   /** An array of the total weights for each azimuthal/polar angle pair */
-  FP_PRECISION** _total_weights;
+  double** _total_weights;
 
 
   /* Templates for setting the same values to complimentary and supplementary
@@ -110,34 +110,34 @@ public:
 
   int getNumPolarAngles() const;
   int getNumAzimAngles() const;
-  FP_PRECISION getSinTheta(int azim, int polar);
+  double getSinTheta(int azim, int polar);
   double getTheta(int azim, int polar);
   double getPhi(int azim);
-  FP_PRECISION getAzimWeight(int azim);
-  FP_PRECISION getPolarWeight(int azim, int polar);
-  FP_PRECISION getWeight(int azim, int polar);
-  FP_PRECISION getWeightInline(int azim, int polar);
-  FP_PRECISION** getSinThetas();
+  double getAzimWeight(int azim);
+  double getPolarWeight(int azim, int polar);
+  double getWeight(int azim, int polar);
+  double getWeightInline(int azim, int polar);
+  double** getSinThetas();
   double** getThetas();
   double* getPhis();
-  FP_PRECISION* getAzimWeights();
-  FP_PRECISION** getPolarWeights();
+  double* getAzimWeights();
+  double** getPolarWeights();
   quadratureType getQuadratureType();
-  FP_PRECISION* getAzimSpacings();
-  FP_PRECISION getAzimSpacing(int azim);
-  FP_PRECISION** getPolarSpacings();
-  FP_PRECISION getPolarSpacing(int azim, int polar);
+  double* getAzimSpacings();
+  double getAzimSpacing(int azim);
+  double** getPolarSpacings();
+  double getPolarSpacing(int azim, int polar);
 
   virtual void setNumAzimAngles(const int num_azim);
   virtual void setNumPolarAngles(const int num_polar);
   void setThetas(double* thetas, int num_azim_times_polar);
-  void setPolarWeights(FP_PRECISION* weights, int num_azim_times_polar);
+  void setPolarWeights(double* weights, int num_azim_times_polar);
   void setTheta(double theta, int azim, int polar);
   void setPhi(double phi, int azim);
-  void setAzimSpacing(FP_PRECISION spacing, int azim);
+  void setAzimSpacing(double spacing, int azim);
   void setAzimWeight(double weight, int azim);
-  void setPolarSpacing(FP_PRECISION spacing, int azim, int polar);
-  void setPolarWeight(FP_PRECISION weight, int azim, int polar);
+  void setPolarSpacing(double spacing, int azim, int polar);
+  void setPolarWeight(double weight, int azim, int polar);
 
   virtual void initialize();
   virtual void precomputeWeights(bool solve_3D);
@@ -256,7 +256,7 @@ public:
  * @param polar index of the polar angle of interest
  * @return the total weight of each Track with the given indexes
  */
-inline FP_PRECISION Quadrature::getWeightInline(int azim, int polar) {
+inline double Quadrature::getWeightInline(int azim, int polar) {
   return _total_weights[azim][polar];
 }
 

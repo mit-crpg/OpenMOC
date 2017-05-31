@@ -238,7 +238,7 @@ Track** TrackGenerator::get2DTracks() {
  * @return _max_optical_length the maximum optical length of any segment in the
  *         Geometry
  */
-FP_PRECISION TrackGenerator::getMaxOpticalLength() {
+NEW_PRECISION TrackGenerator::getMaxOpticalLength() {
   MaxOpticalLength update_max_optical_length(this);
   update_max_optical_length.execute();
   return _max_optical_length;
@@ -1444,7 +1444,7 @@ void TrackGenerator::readExtrudedFSRInfo(FILE* in) {}
  *          transport sweep.
  * @param max_optical_length the maximum optical length
  */
-void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
+void TrackGenerator::splitSegments(NEW_PRECISION max_optical_length) {
 
   if (!containsSegments())
     log_printf(ERROR, "Unable to split segments since segments have not yet "
@@ -1501,7 +1501,7 @@ void TrackGenerator::generateFSRCentroids(NEW_PRECISION* FSR_volumes) {
  *        on-the-fly computation
  * @param tau maximum optical path length
  */
-void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
+void TrackGenerator::setMaxOpticalLength(NEW_PRECISION tau) {
   _max_optical_length = tau;
 }
 
@@ -1520,7 +1520,7 @@ void TrackGenerator::setMaxNumSegments(int max_num_segments) {
  *        on-the-fly computation
  * @return maximum optical path length
  */
-FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
+NEW_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
   return _max_optical_length;
 }
 

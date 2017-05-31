@@ -67,7 +67,7 @@ public:
                          float* track_flux, NEW_PRECISION* fsr_flux,
                          NEW_PRECISION direction[3]);
 
-  FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
+  double getFluxByCoords(LocalCoords* coords, int group);
   NEW_PRECISION* getLinearExpansionCoeffsBuffer();
   NEW_PRECISION* getSourceConstantsBuffer();
 };

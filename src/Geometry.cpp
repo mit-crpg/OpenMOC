@@ -2143,12 +2143,8 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
       /* Get the coordinate of the extruded FSR */
       LocalCoords* volatile retreived_coords = NULL;
-      int lc0 = 0;
       do {
         retreived_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
-        lc0++;
-        if (lc0 > 1e8)
-          log_printf(ERROR, "Stuck in LOOP waiting for FSR coords");
       } while (retreived_coords == NULL);
       LocalCoords* ext_coords = retreived_coords;
 

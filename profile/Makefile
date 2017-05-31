@@ -6,7 +6,7 @@ COMPILER    = mpi
 OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
-PROFILE     = yes
+PROFILE     = no
 PRECISION   = double
 NEW_PRECISION = double
 CMFD_PRECISION = double
@@ -133,6 +133,7 @@ endif
 # Profiling Flags
 ifeq ($(PROFILE),yes)
   CFLAGS += -pg
+  CFLAGS += -O0
   CFLAGS += -fno-omit-frame-pointer
 endif
 
