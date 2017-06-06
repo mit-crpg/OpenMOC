@@ -300,7 +300,8 @@ private:
 #endif
   void unpackSplitCurrents(bool faces);
   void copyFullSurfaceCurrents();
-  void checkNeutronBalance(bool pre_split=true);
+  void checkNeutronBalance(bool pre_split=true); 
+  void printProlongationFactors(int iteration);
 
 public:
 

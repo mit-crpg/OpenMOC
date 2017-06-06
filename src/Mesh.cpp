@@ -84,7 +84,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   Geometry* geometry = _solver->getGeometry();
   NEW_PRECISION* volumes = _solver->getTrackGenerator()->getFSRVolumesBuffer();
   NEW_PRECISION* fluxes = _solver->getFluxesArray();
-  int num_fsrs = geometry->getNumFSRs();
+  long num_fsrs = geometry->getNumFSRs();
 
   /* Create a 1D array of reaction rates with the appropriate size */
   std::vector<double> rx_rates;
@@ -98,7 +98,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   NEW_PRECISION temp_array[num_groups];
 
   /* Loop over all flat source regions */
-  for (int r=0; r < num_fsrs; r++) {
+  for (long r=0; r < num_fsrs; r++) {
 
     /* Determine the FSR material and which Mesh cell contains it */
     Material* mat = geometry->findFSRMaterial(r);

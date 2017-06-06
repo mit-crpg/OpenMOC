@@ -955,7 +955,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Initialize data structures */
   initializeFSRs();
   initializeSourceArrays();
-  checkXS();
+  //FIXME checkXS();
   countFissionableFSRs();
   initializeExpEvaluators();
 
@@ -1144,7 +1144,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Initialize data structures */
   initializeFSRs();
-  checkXS();
+  //FIXME checkXS();
   countFissionableFSRs();
   initializeExpEvaluators();
   initializeFluxArrays();
@@ -1174,6 +1174,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double max_rm = rm;
   log_printf(NORMAL, "FIXME getting memory report");
   //FIXME
+  /*
   _timer->processMemUsage(vm, rm);
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
@@ -1188,6 +1189,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     log_printf(NORMAL, "Using maximum %f MB virtual memory and %f MB resident "
                         "memory per node", vm, rm);
    
+  */
   uint64_t shared, persist, heapavail, stackavail, stack, heap, guard, mmap;
 
   Kernel_GetMemorySize(KERNEL_MEMSIZE_SHARED, &shared);

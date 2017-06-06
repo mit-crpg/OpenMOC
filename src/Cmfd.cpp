@@ -888,6 +888,7 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Update the MOC flux */
   updateMOCFlux();
+  //FIXME printProlongationFactors(moc_iteration);
 
   /* Tally the total CMFD time */
   _timer->stopTimer();
@@ -898,7 +899,8 @@ double Cmfd::computeKeff(int moc_iteration) {
 
 
 /**
- * @brief Rescale the initial and converged flux arrays.
+ * @
+ * brief Rescale the initial and converged flux arrays.
  * @details The diffusion problem is a generalized eigenvalue problem and
  *          therefore the solution is independent of flux level. This method
  *          rescales the input flux and converged flux to both have an average
@@ -4059,4 +4061,62 @@ std::string Cmfd::getSurfaceNameFromSurface(int surface) {
   int direction[3];
   convertSurfaceToDirection(surface, direction);
   return getSurfaceNameFromDirection(direction);
+}
+
+
+//FIXME
+void Cmfd::printProlongationFactors(int iteration) {
+
+  /* Loop over CMFD groups */
+  for (int e = 0; e < _num_cmfd_groups; e++) {
+  
+    /* Create arrays for spatial data */
+    double log_ratios[_num_x * _num_y * _num_z];
+    for (int i = 0; i < _num_x * _num_y * _num_z; i++)
+      log_ratios[i] = 0.0;
+    for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+
+      double old_flux = _old_flux->getValue(i, e);
+      double new_flux = _new_flux->getValue(i, e);
+      int cell_id = getGlobalCMFDCell(i);
+      log_ratios[cell_id] = log(new_flux/old_flux);
+    }
+
+#ifdef MPIx
+    if (_geometry->isDomainDecomposed()) {
+      double temp_log_ratios[_num_x * _num_y * _num_z];
+      for (int i = 0; i < _num_x * _num_y * _num_z; i++)
+        temp_log_ratios[i] = log_ratios[i];
+      MPI_Allreduce(temp_log_ratios, log_ratios, _num_x * _num_y * _num_z,
+                    MPI_DOUBLE, MPI_SUM, _geometry->getMPICart());
+    }
+#endif
+
+    /* Print negative source distribution to file */
+    if (_geometry->isRootDomain()) {
+      long long iter = iteration;
+      long long group = e;
+      std::string fname = "pf_group_";
+      std::string group_num = std::to_string(group);
+      std::string iter_num = std::to_string(iter);
+      fname += group_num;
+      fname += "_iter_";
+      fname += iter_num;
+      std::ofstream out(fname);
+
+      out << "[NORMAL]  Spatial distribution of prolongation factors:" 
+          << std::endl;
+      for (int z=0; z < _num_z; z++) {
+        out << " -------- z = " << z << " ----------" << std::endl;
+        for (int y=0; y < _num_y; y++) {
+          for (int x=0; x < _num_x; x++) {
+            int ind = (z * _num_y + y) * _num_x + x;
+            out << log_ratios[ind] << " ";
+          }
+          out << std::endl;
+        }
+      }
+      out.close();
+    }
+  }
 }

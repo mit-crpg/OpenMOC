@@ -148,6 +148,7 @@ public:
                       std::vector<double> dim2, double offset,
                       const char* plane);
   void printFluxesTemp();
+  void printNegativeSources(int iteration, int num_x, int num_y, int num_z);
 };
 
 

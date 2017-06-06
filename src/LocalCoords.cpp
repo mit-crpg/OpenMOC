@@ -31,7 +31,7 @@ LocalCoords::LocalCoords(double x, double y, double z, bool first) {
 LocalCoords::~LocalCoords() {
   prune();
   if (_position == -1)
-    delete [] _next_array;
+    deleteArray();
 }
 
 
@@ -158,17 +158,12 @@ LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
     else {
       _next = &_next_array[_position+1];
       _next->setPrev(this);
+      _next->setNext(NULL);
       _next->setArrayPosition(_next_array, _position+1, _array_size);
       _next->getPoint()->setCoords(x, y, z);
     }
   }
 
-  /*
-  if (_next == NULL) {
-    _next = new LocalCoords(x, y, z);
-    _next->setPrev(this);
-  }
-  */
   return _next;
 }
 
@@ -438,12 +433,23 @@ void LocalCoords::prune() {
   while (curr != this) {
     next = curr->getPrev();
     if (curr->getPosition() == -1)
-      delete curr;
+      curr->deleteArray();
     curr = next;
   }
 
   /* Set the next LocalCoord in the linked list to null */
   setNext(NULL);
+}
+
+
+/**
+ * @brief Deletes the underlying array for next coordinates
+ */
+void LocalCoords::deleteArray() {
+  if (_next_array != NULL) {
+      delete [] _next_array;
+      _next_array = NULL;
+  }
 }
 
 

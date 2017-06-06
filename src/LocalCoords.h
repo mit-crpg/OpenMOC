@@ -126,6 +126,7 @@ public:
   void adjustCoords(double delta_x, double delta_y, double delta_z=0.0);
   void updateMostLocal(Point* point);
   void prune();
+  void deleteArray();
   void copyCoords(LocalCoords* coords);
   std::string toString();
 };

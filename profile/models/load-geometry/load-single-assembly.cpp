@@ -20,8 +20,9 @@ int main(int argc,  char* argv[]) {
   //std::string file = "single-assembly-5G-adjust.geo";
   //std::string file = "single-assembly-5G-adjust-no-neg.geo";
   //std::string file = "single-no-TC.geo";
-  std::string file = "v1-single-assembly.geo";
+  //std::string file = "v1-single-assembly.geo";
   //std::string file = "v1-single-assembly-2D.geo";
+  std::string file = "v4-single-assembly-new-xs.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -36,7 +37,7 @@ int main(int argc,  char* argv[]) {
   int num_polar = 2;
 
   double tolerance = 1e-8;
-  int max_iters = 2;
+  int max_iters = 500;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -83,7 +84,7 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator); //FIXME LS / FS
+  CPUSolver solver(&track_generator); //FIXME LS / FS
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

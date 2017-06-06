@@ -1427,6 +1427,29 @@ void CPUSolver::computeFSRSources(int iteration) {
     }
   }
 
+  // FIXME tally energy spectrum if negative sources present
+  double neg_energy_spectrum[_num_groups];
+  for (int e=0; e < _num_groups; e++)
+    neg_energy_spectrum[e] = 0.0;
+  for (long r=0; r < _num_FSRs; r++) {
+    bool neg = false;
+    for (int e=0; e < _num_groups; e++)
+      if (_reduced_sources(r,e) <= 0.0)
+        neg = true;
+    if (neg)
+      for (int e=0; e < _num_groups; e++)
+        neg_energy_spectrum[e] += _scalar_flux(r,e);
+  }
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    double send_energy_spectrum[_num_groups];
+    for (int e=0; e < _num_groups; e++)
+      send_energy_spectrum[e] = neg_energy_spectrum[e];
+    MPI_Allreduce(&send_energy_spectrum, &neg_energy_spectrum, _num_groups,
+                  MPI_DOUBLE, MPI_SUM, _geometry->getMPICart());
+  }
+#endif
+
   /* Tally the total number of negative source across the entire problem */
   long total_num_negative_sources = num_negative_sources;
   int num_negative_source_domains = (num_negative_sources > 0);
@@ -1447,10 +1470,17 @@ void CPUSolver::computeFSRSources(int iteration) {
       log_printf(WARNING, "Computed %ld negative sources on %d domains", 
                  total_num_negative_sources,
                  total_num_negative_source_domains);
+        /*
+      for (int e=0; e < _num_groups; e++)
+        log_printf(WARNING, "Negative Energy Spectrum Group %d = %3.2e", e, neg_energy_spectrum[e]);
+        */
       if (iteration < 25)
         log_printf(WARNING, "Negative sources corrected to zero");
     }
   }
+
+  //FIXME PRINT
+  //printNegativeSources(iteration, 17, 17, 200);
 }
 
 
@@ -2029,4 +2059,103 @@ void CPUSolver::printFluxesTemp() {
   double z_mid = (z_min + z_max) / 2 + TINY_MOVE;
 
   printFSRFluxes(x, y, z_mid, "xy");
+}
+
+
+//FIXME DISC
+void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
+                                     int num_z) {
+
+  long long iter = iteration;
+  std::string fname = "sa_5G_negative_sources_iter_";
+  std::string iter_num = std::to_string(iter);
+  fname += iter_num;
+  std::ofstream out(fname);
+
+  /* Create a lattice */
+  Lattice lattice;
+  lattice.setNumX(num_x);
+  lattice.setNumY(num_y);
+  lattice.setNumZ(num_z);
+
+  /* Get the root universe */
+  Universe* root_universe = _geometry->getRootUniverse();
+
+  /* Determine the geometry widths in each direction */
+  double width_x = (root_universe->getMaxX() - root_universe->getMinX())/num_x;
+  double width_y = (root_universe->getMaxY() - root_universe->getMinY())/num_y;
+  double width_z = (root_universe->getMaxZ() - root_universe->getMinZ())/num_z;
+
+  /* Determine the center-point of the geometry */
+  double offset_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;
+  double offset_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
+  double offset_z = (root_universe->getMinZ() + root_universe->getMaxZ()) / 2;
+
+  /* Create the Mesh lattice */
+  lattice.setWidth(width_x, width_y, width_z);
+  lattice.setOffset(offset_x, offset_y, offset_z);
+
+  /* Create a group-wise negative source mapping */
+  int by_group[_num_groups];
+  for (int e=0; e < _num_groups; e++)
+    by_group[e] = 0;
+
+  int mapping[num_x*num_y*num_z];
+  for (int i=0; i < num_x*num_y*num_z; i++)
+    mapping[i] = 0;
+
+  /* Loop over all flat source regions */
+  for (long r=0; r < _num_FSRs; r++) {
+
+    /* Determine the Mesh cell containing the FSR */
+    Point* pt = _geometry->getFSRPoint(r);
+    int lat_cell = lattice.getLatticeCell(pt);
+
+    /* Determine the number of negative sources */
+    for (int e=0; e < _num_groups; e++) {
+      if (_reduced_sources(r,e) <= 0.0) {
+        by_group[e]++;
+        mapping[lat_cell]++;
+      }
+    }
+  }
+  
+  /* If domain decomposed, do a reduction */
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    int size = num_x * num_y * num_z;
+    int neg_src_send[size];
+    for (int i=0; i < size; i++)
+      neg_src_send[i] = mapping[i];
+    MPI_Allreduce(neg_src_send, mapping, size, MPI_INT, MPI_SUM,
+                  _geometry->getMPICart());
+    
+    int neg_src_grp_send[size];
+    for (int e=0; e < _num_groups; e++)
+        neg_src_grp_send[e] = by_group[e];
+    MPI_Allreduce(neg_src_grp_send, by_group, _num_groups, MPI_INT, MPI_SUM,
+                  _geometry->getMPICart());
+  }
+#endif
+
+
+  /* Print negative source distribution to file */
+  if (_geometry->isRootDomain()) {
+    out << "[NORMAL]  Group-wise distribution of negative sources:" 
+        << std::endl;
+    for (int e=0; e < _num_groups; e++)
+      out << "[NORMAL]  Group "  << e << ": " << by_group[e] << std::endl;
+    out << "[NORMAL]  Spatial distribution of negative sources:" << std::endl;
+    for (int z=0; z < num_z; z++) {
+      out << " -------- z = " << z << " ----------" << std::endl;
+      for (int y=0; y < num_y; y++) {
+        for (int x=0; x < num_x; x++) {
+          int ind = (z * num_y + y) * num_x + x;
+          out << mapping[ind] << " ";
+        }
+        out << std::endl;
+      }
+    }
+  }
+  out.close();
 }
