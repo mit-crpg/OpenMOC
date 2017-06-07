@@ -3295,9 +3295,12 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   CMFD_PRECISION** coupling_fluxes = NULL;
   int offset = 0;
   for (int color=0; color < 2; color++) {
+
+#ifdef MPIx
     getCouplingTerms(_domain_communicator, color, coupling_sizes, 
                      coupling_indexes, coupling_coeffs, coupling_fluxes,
                      _old_flux->getArray(), offset);
+#endif
                 
 #pragma omp parallel for collapse(2)
     for (int iz=0; iz < _local_num_z; iz++) {
