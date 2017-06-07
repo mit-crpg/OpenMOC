@@ -14,7 +14,7 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  std::string file = "v3-full-core-new-xs.geo";
+  std::string file = "v10-full-core-new-xs.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP

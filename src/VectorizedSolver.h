@@ -44,14 +44,14 @@ protected:
   int _num_vector_lengths;
 
   /** The change in angular flux along a track segment for each energy group */
-  NEW_PRECISION* _delta_psi;
+  FP_PRECISION* _delta_psi;
 
   /** An array for the optical length for each thread in each energy group */
-  NEW_PRECISION* _thread_taus;
+  FP_PRECISION* _thread_taus;
 
   /** An array for the exponential terms in the transport equation for *
    *  each thread in each energy group and polar angle */
-  NEW_PRECISION* _thread_exponentials;
+  FP_PRECISION* _thread_exponentials;
 
   void initializeExpEvaluator();
   void initializeFluxArrays();
@@ -63,10 +63,10 @@ protected:
   void computeKeff();
 
   void tallyScalarFlux(segment* curr_segment, int azim_index,
-                       NEW_PRECISION* track_flux, NEW_PRECISION* fsr_flux);
+                       FP_PRECISION* track_flux, FP_PRECISION* fsr_flux);
   void transferBoundaryFlux(int track_id, int azim_index, bool direction,
-                            NEW_PRECISION* track_flux);
-  void computeExponentials(segment* curr_segment, NEW_PRECISION* exponentials);
+                            FP_PRECISION* track_flux);
+  void computeExponentials(segment* curr_segment, FP_PRECISION* exponentials);
 
 public:
   VectorizedSolver(TrackGenerator* track_generator=NULL);
@@ -75,7 +75,7 @@ public:
   int getNumVectorWidths();
 
   void setFixedSourceByFSR(int fsr_id, int group,
-                           NEW_PRECISION source);
+                           FP_PRECISION source);
   void setGeometry(Geometry* geometry);
 };
 

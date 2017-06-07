@@ -113,7 +113,7 @@ protected:
   long _num_fissionable_FSRs;
 
   /** The FSR "volumes" (i.e., areas) indexed by FSR UID */
-  NEW_PRECISION* _FSR_volumes;
+  FP_PRECISION* _FSR_volumes;
 
   /** The FSR Material pointers indexed by FSR UID */
   Material** _FSR_materials;
@@ -172,39 +172,38 @@ protected:
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
    *  a Track along both "forward" and "reverse" directions. */
-    //FIXME MEM : float / FP_PRECISION
   float* _boundary_flux;
   float* _start_flux;
 
   /** The angular leakages for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the weighted outgoing fluxes
    *  for a Track along both "forward" and "reverse" directions. */
-  NEW_PRECISION* _boundary_leakage;
+  FP_PRECISION* _boundary_leakage;
 
   /** The scalar flux for each energy group in each FSR */
-  NEW_PRECISION* _scalar_flux;
+  FP_PRECISION* _scalar_flux;
 
   /** The old scalar flux for each energy group in each FSR */
-  NEW_PRECISION* _old_scalar_flux;
+  FP_PRECISION* _old_scalar_flux;
 
   /** Optional user-specified fixed sources in each FSR and energy group */
-  NEW_PRECISION* _fixed_sources;
+  FP_PRECISION* _fixed_sources;
 
   /** Temporary scratch pads for intermediate storage of computing steps */
   std::vector<FP_PRECISION*> _groupwise_scratch;
   double* _regionwise_scratch;
 
   /** A mapping of fixed sources keyed by the pair (FSR ID, energy group) */
-  std::map< std::pair<int, int>, NEW_PRECISION > _fix_src_FSR_map;
+  std::map< std::pair<int, int>, FP_PRECISION > _fix_src_FSR_map;
 
   /** A mapping of fixed sources keyed by the pair (Cell*, energy group) */
-  std::map< std::pair<Cell*, int>, NEW_PRECISION > _fix_src_cell_map;
+  std::map< std::pair<Cell*, int>, FP_PRECISION > _fix_src_cell_map;
 
   /** A mapping of fixed sources keyed by the pair (Material*, energy group) */
-  std::map< std::pair<Material*, int>, NEW_PRECISION > _fix_src_material_map;
+  std::map< std::pair<Material*, int>, FP_PRECISION > _fix_src_material_map;
 
   /** Ratios of source to total cross-section for each FSR and energy group */
-  NEW_PRECISION* _reduced_sources;
+  FP_PRECISION* _reduced_sources;
 
   /** The current iteration's approximation to k-effective */
   double _k_eff;
@@ -261,7 +260,7 @@ protected:
    * @brief Set the scalar flux for each FSR and energy group to some value.
    * @param value the value to assign to each FSR scalar flux
    */
-  virtual void flattenFSRFluxes(NEW_PRECISION value) =0;
+  virtual void flattenFSRFluxes(FP_PRECISION value) =0;
 
   /**
    * @brief Set the scalar flux for each FSR to a chi spectrum.
@@ -323,13 +322,13 @@ public:
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
-  NEW_PRECISION getFSRVolume(long fsr_id);
+  FP_PRECISION getFSRVolume(long fsr_id);
   int getNumPolarAngles();
   int getNumIterations();
   double getTotalTime();
   double getKeff();
   double getConvergenceThreshold();
-  NEW_PRECISION getMaxOpticalLength();
+  FP_PRECISION getMaxOpticalLength();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
 
@@ -339,7 +338,7 @@ public:
   void printInputParamsSummary();
 
   virtual double getFlux(long fsr_id, int group);
-  virtual void getFluxes(NEW_PRECISION* out_fluxes, int num_fluxes) = 0;
+  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
   double getFSRSource(long fsr_id, int group);
 
   virtual void setTrackGenerator(TrackGenerator* track_generator);
@@ -348,7 +347,7 @@ public:
   void setFixedSourceByCell(Cell* cell, int group, double source);
   void setFixedSourceByMaterial(Material* material, int group,
                                 double source);
-  void setMaxOpticalLength(NEW_PRECISION max_optical_length);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setExpPrecision(double precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
@@ -386,14 +385,13 @@ public:
    * @param fwd Whether the direction of the angular flux along the track is
    *        forward (True) or backward (False)
    */
-    //FIXME MEM : float / FP_PRECISION
   inline float* getBoundaryFlux(long track_id, bool fwd) {
     return &_boundary_flux(track_id, !fwd, 0);
   }
 
   void setVerboseIterationReport();
   void printTimerReport();
-  NEW_PRECISION* getFluxesArray();
+  FP_PRECISION* getFluxesArray();
 
   //FIXME
   inline void setOTFTransport() {

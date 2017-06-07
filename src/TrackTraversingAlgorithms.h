@@ -40,7 +40,7 @@ class CPULSSolver;
  */
 class MaxOpticalLength: public TraverseSegments {
 private:
-  NEW_PRECISION _max_tau;
+  FP_PRECISION _max_tau;
 
 public:
 
@@ -131,7 +131,7 @@ class CentroidGenerator: public TraverseSegments {
 private:
 
   Point** _centroids;
-  NEW_PRECISION* _FSR_volumes;
+  FP_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
   Quadrature* _quadrature;
   Point** _starting_points;
@@ -162,16 +162,16 @@ class LinearExpansionGenerator: public TraverseSegments {
 
 private:
 
-  NEW_PRECISION* _lin_exp_coeffs;
-  NEW_PRECISION* _FSR_volumes;
+  FP_PRECISION* _lin_exp_coeffs;
+  FP_PRECISION* _FSR_volumes;
   omp_lock_t* _FSR_locks;
-  NEW_PRECISION* _src_constants;
+  FP_PRECISION* _src_constants;
   Quadrature* _quadrature;
   int _num_groups;
   int _num_coeffs;
   int _num_flat;
   Point** _starting_points;
-  NEW_PRECISION** _thread_source_constants;
+  FP_PRECISION** _thread_source_constants;
   ExpEvaluator* _exp_evaluator;
   Progress* _progress;
 
@@ -200,7 +200,7 @@ private:
   CPUSolver* _cpu_solver;
   CPULSSolver* _ls_solver;
   Geometry* _geometry;
-  NEW_PRECISION** _thread_fsr_fluxes;
+  FP_PRECISION** _thread_fsr_fluxes;
 
 public:
 

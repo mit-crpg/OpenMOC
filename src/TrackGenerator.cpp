@@ -20,7 +20,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _quadrature = NULL;
   _z_coord = 0.0;
   _segment_formation = EXPLICIT_2D;
-  _max_optical_length = std::numeric_limits<NEW_PRECISION>::max();
+  _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _max_num_segments = 0;
   _FSR_volumes = NULL;
   _dump_segments = true;
@@ -118,13 +118,13 @@ omp_lock_t* TrackGenerator::getFSRLocks() {
  * @brief Return the array used to store the FSR volumes
  * @return _FSR_volumes the FSR volumes array indexed by FSR ID
  */
-NEW_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
+FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
 #pragma omp critical
   {
     if (_FSR_volumes == NULL) {
       long num_FSRs = _geometry->getNumFSRs();
-      _FSR_volumes = new NEW_PRECISION[num_FSRs];
-      memset(_FSR_volumes, 0., num_FSRs*sizeof(NEW_PRECISION));
+      _FSR_volumes = new FP_PRECISION[num_FSRs];
+      memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
     }
   }
 
@@ -238,7 +238,7 @@ Track** TrackGenerator::get2DTracks() {
  * @return _max_optical_length the maximum optical length of any segment in the
  *         Geometry
  */
-NEW_PRECISION TrackGenerator::getMaxOpticalLength() {
+FP_PRECISION TrackGenerator::getMaxOpticalLength() {
   MaxOpticalLength update_max_optical_length(this);
   update_max_optical_length.execute();
   return _max_optical_length;
@@ -307,12 +307,12 @@ void TrackGenerator::exportFSRVolumes(double* out_volumes, int num_fsrs) {
  *          TrackGenerator and is freed during deconstruction.
  * @return a pointer to the array of FSR volumes
  */
-NEW_PRECISION* TrackGenerator::getFSRVolumes() {
+FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Reset FSR volumes to zero */
   long num_FSRs = _geometry->getNumFSRs();
   if (_FSR_volumes != NULL)
-    memset(_FSR_volumes, 0., num_FSRs*sizeof(NEW_PRECISION));
+    memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
 
   /* Create volume calculator and calculate new FSR volumes */
   VolumeCalculator volume_calculator(this);
@@ -340,7 +340,7 @@ NEW_PRECISION* TrackGenerator::getFSRVolumes() {
  * @param fsr_id the ID for the FSR of interest
  * @return the FSR volume
  */
-NEW_PRECISION TrackGenerator::getFSRVolume(long fsr_id) {
+FP_PRECISION TrackGenerator::getFSRVolume(long fsr_id) {
 
   if (_FSR_volumes == NULL)
     log_printf(ERROR, "Unable to get the FSR volume since FSR volumes "
@@ -1444,7 +1444,7 @@ void TrackGenerator::readExtrudedFSRInfo(FILE* in) {}
  *          transport sweep.
  * @param max_optical_length the maximum optical length
  */
-void TrackGenerator::splitSegments(NEW_PRECISION max_optical_length) {
+void TrackGenerator::splitSegments(FP_PRECISION max_optical_length) {
 
   if (!containsSegments())
     log_printf(ERROR, "Unable to split segments since segments have not yet "
@@ -1469,7 +1469,7 @@ void TrackGenerator::splitSegments(NEW_PRECISION max_optical_length) {
  *          Approximation in CASMO 5", PHYSOR 2012.
  * @param FSR_volumes An array of FSR volumes.
  */
-void TrackGenerator::generateFSRCentroids(NEW_PRECISION* FSR_volumes) {
+void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   long num_FSRs = _geometry->getNumFSRs();
 
@@ -1501,7 +1501,7 @@ void TrackGenerator::generateFSRCentroids(NEW_PRECISION* FSR_volumes) {
  *        on-the-fly computation
  * @param tau maximum optical path length
  */
-void TrackGenerator::setMaxOpticalLength(NEW_PRECISION tau) {
+void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
   _max_optical_length = tau;
 }
 
@@ -1520,7 +1520,7 @@ void TrackGenerator::setMaxNumSegments(int max_num_segments) {
  *        on-the-fly computation
  * @return maximum optical path length
  */
-NEW_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
+FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
   return _max_optical_length;
 }
 

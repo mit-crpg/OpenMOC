@@ -8,7 +8,6 @@ OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
 PRECISION   = double
-NEW_PRECISION = double
 CMFD_PRECISION = double
 
 #===============================================================================

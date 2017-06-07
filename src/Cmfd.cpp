@@ -408,9 +408,9 @@ void Cmfd::collapseXS() {
   {
 
     /* Initialize variables for FSR properties*/
-    NEW_PRECISION volume, flux;
-    NEW_PRECISION tot, nu_fis, chi;
-    NEW_PRECISION* scat;
+    FP_PRECISION volume, flux;
+    FP_PRECISION tot, nu_fis, chi;
+    FP_PRECISION* scat;
 
     double scat_tally[_num_cmfd_groups];
     double chi_tally[_num_cmfd_groups];
@@ -649,7 +649,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                                                   bool correction) {
 
   CMFD_PRECISION dif_surf, dif_surf_corr;
-  NEW_PRECISION current, current_out, current_in;
+  FP_PRECISION current, current_out, current_in;
   CMFD_PRECISION flux_next;
 
   /* Get diffusivity and flux for Mesh cell */
@@ -957,7 +957,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
 #pragma omp parallel
   {
 
-    NEW_PRECISION value, volume, delta;
+    FP_PRECISION value, volume, delta;
     CMFD_PRECISION dif_surf, dif_surf_corr;
     int sense;
     Material* material;
@@ -1194,7 +1194,7 @@ void Cmfd::setFSRMaterials(Material** FSR_materials) {
  * @brief Set the pointer to the array of FSR_volumes.
  * @param array of FSR volumes
  */
-void Cmfd::setFSRVolumes(NEW_PRECISION* FSR_volumes) {
+void Cmfd::setFSRVolumes(FP_PRECISION* FSR_volumes) {
   _FSR_volumes = FSR_volumes;
 }
 
@@ -1203,7 +1203,7 @@ void Cmfd::setFSRVolumes(NEW_PRECISION* FSR_volumes) {
  * @brief Set pointer to FSR flux array.
  * @param pointer to FSR flux array
  */
-void Cmfd::setFSRFluxes(NEW_PRECISION* scalar_flux) {
+void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
   _FSR_fluxes = scalar_flux;
 }
 
@@ -1212,7 +1212,7 @@ void Cmfd::setFSRFluxes(NEW_PRECISION* scalar_flux) {
  * @brief Set pointer to source region flux moments array
  * @param pointer to source region flux moments array
  */
-void Cmfd::setFluxMoments(NEW_PRECISION* flux_moments) {
+void Cmfd::setFluxMoments(FP_PRECISION* flux_moments) {
   _flux_moments = flux_moments;
   _linear_source = true;
 }
@@ -1613,7 +1613,7 @@ void Cmfd::splitVertexCurrents() {
 #pragma omp parallel
   {
 
-    NEW_PRECISION current;
+    FP_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
     std::map<int, CMFD_PRECISION>::iterator it;
@@ -1734,7 +1734,7 @@ void Cmfd::splitEdgeCurrents() {
 #pragma omp parallel
   {
 
-    NEW_PRECISION current;
+    FP_PRECISION current;
     std::vector<int> surfaces;
     std::vector<int>::iterator iter;
     std::map<int, CMFD_PRECISION>::iterator it;
@@ -3247,7 +3247,7 @@ void Cmfd::copyFullSurfaceCurrents() {
   for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
     for (int s=0; s < NUM_FACES; s++) {
       for (int g=0; g < _num_cmfd_groups; g++) {
-        NEW_PRECISION current =
+        FP_PRECISION current =
           _surface_currents->getValue(i, s * _num_cmfd_groups + g);
         _full_surface_currents->incrementValue(i, s * _num_cmfd_groups + g,
                                                current);
@@ -3346,9 +3346,9 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
 
         long fsr_id = _cell_fsrs.at(i).at(j);
         Material* fsr_material = _FSR_materials[fsr_id];
-        NEW_PRECISION volume = _FSR_volumes[fsr_id];
-        NEW_PRECISION* scat = fsr_material->getSigmaS();
-        NEW_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
+        FP_PRECISION volume = _FSR_volumes[fsr_id];
+        FP_PRECISION* scat = fsr_material->getSigmaS();
+        FP_PRECISION* flux = &_FSR_fluxes[fsr_id*_num_moc_groups];
 
         /* Loop over MOC energy groups within this CMFD coarse group */
         double chi = 0.0;

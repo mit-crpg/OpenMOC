@@ -23,7 +23,7 @@
 struct dev_segment {
 
   /** The length of the segment (cm) */
-  NEW_PRECISION _length;
+  FP_PRECISION _length;
 
   /** An index into the _materials array that contains Material pointers */
   int _material_index;

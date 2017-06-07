@@ -187,7 +187,7 @@ int Material::getNumEnergyGroups() const {
  * @brief Return the array of the Material's total cross-sections.
  * @return the pointer to the Material's array of total cross-sections
  */
-NEW_PRECISION* Material::getSigmaT() {
+FP_PRECISION* Material::getSigmaT() {
   if (_sigma_t == NULL)
     log_printf(ERROR, "Unable to return Material %d's total "
                "cross-section since it has not yet been set", _id);
@@ -200,7 +200,7 @@ NEW_PRECISION* Material::getSigmaT() {
  * @brief Return the array of the Material's scattering cross-section matrix.
  * @return the pointer to the Material's array of scattering cross-sections
  */
-NEW_PRECISION* Material::getSigmaS() {
+FP_PRECISION* Material::getSigmaS() {
   if (_sigma_s == NULL)
     log_printf(ERROR, "Unable to return Material %d's scattering "
                "cross-section since it has not yet been set", _id);
@@ -213,7 +213,7 @@ NEW_PRECISION* Material::getSigmaS() {
  * @brief Return the array of the Material's fission cross-sections.
  * @return the pointer to the Material's array of fission cross-sections
  */
-NEW_PRECISION* Material::getSigmaF() {
+FP_PRECISION* Material::getSigmaF() {
   if (_sigma_f == NULL)
     log_printf(ERROR, "Unable to return material %d's fission "
                "cross-section since it has not yet been set", _id);
@@ -228,7 +228,7 @@ NEW_PRECISION* Material::getSigmaF() {
  * @return the pointer to the Material's array of fission cross-sections
  *         multiplied by nu \f$ \nu \f$
  */
-NEW_PRECISION* Material::getNuSigmaF() {
+FP_PRECISION* Material::getNuSigmaF() {
   if (_nu_sigma_f == NULL)
     log_printf(ERROR, "Unable to return Material %d's nu times fission "
                "cross-section since it has not yet been set", _id);
@@ -241,7 +241,7 @@ NEW_PRECISION* Material::getNuSigmaF() {
  * @brief Return the array of the Material's chi \f$ \chi \f$.
  * @return the pointer to the Material's array of chi \f$ \chi \f$ values
  */
-NEW_PRECISION* Material::getChi() {
+FP_PRECISION* Material::getChi() {
   if (_chi == NULL)
     log_printf(ERROR, "Unable to return Material %d's chi spectrum "
                "since it has not yet been set", _id);
@@ -254,7 +254,7 @@ NEW_PRECISION* Material::getChi() {
  * @brief Return the array of the Material's fission matrix.
  * @return the pointer to the Material's fission matrix array
  */
-NEW_PRECISION* Material::getFissionMatrix() {
+FP_PRECISION* Material::getFissionMatrix() {
   if (_fiss_matrix == NULL)
     log_printf(ERROR, "Unable to return Material %d's fission matrix "
                "since it has not yet been built", _id);
@@ -268,7 +268,7 @@ NEW_PRECISION* Material::getFissionMatrix() {
  * @param group the energy group
  * @return the total cross section
  */
-NEW_PRECISION Material::getSigmaTByGroup(int group) {
+FP_PRECISION Material::getSigmaTByGroup(int group) {
   if (_sigma_t == NULL)
     log_printf(ERROR, "Unable to return Material %d's total "
                "cross section since it has not yet been set", _id);
@@ -287,7 +287,7 @@ NEW_PRECISION Material::getSigmaTByGroup(int group) {
  * @param destination the outgoing energy group
  * @return the scattering cross section
  */
-NEW_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
+FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
   if (_sigma_s == NULL)
     log_printf(ERROR, "Unable to return Material %d's scattering "
                "cross section since it has not yet been set", _id);
@@ -307,7 +307,7 @@ NEW_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
  * @param group the energy group
  * @return the fission cross section
  */
-NEW_PRECISION Material::getSigmaFByGroup(int group) {
+FP_PRECISION Material::getSigmaFByGroup(int group) {
   if (_sigma_f == NULL)
     log_printf(ERROR, "Unable to return material %d's fission "
                "cross section since it has not yet been set", _id);
@@ -325,7 +325,7 @@ NEW_PRECISION Material::getSigmaFByGroup(int group) {
  * @param group the energy group
  * @return the nu-fission cross section
  */
-NEW_PRECISION Material::getNuSigmaFByGroup(int group) {
+FP_PRECISION Material::getNuSigmaFByGroup(int group) {
   if (_nu_sigma_f == NULL)
     log_printf(ERROR, "Unable to return Material %d's nu-fission "
                "cross section since it has not yet been set", _id);
@@ -343,7 +343,7 @@ NEW_PRECISION Material::getNuSigmaFByGroup(int group) {
  * @param group the energy group
  * @return the fission spectrum
  */
-NEW_PRECISION Material::getChiByGroup(int group) {
+FP_PRECISION Material::getChiByGroup(int group) {
   if (_chi == NULL)
     log_printf(ERROR, "Unable to return Material %d's chi spectrum "
                "since it has not yet been set", _id);
@@ -362,7 +362,7 @@ NEW_PRECISION Material::getChiByGroup(int group) {
  * @param destination the outgoing energy group \f$ E_{1} \f$
  * @return the fission matrix entry \f$ \nu\Sigma_{f}(E_{0}) * \chi(E_{1})\f$
  */
-NEW_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
+FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
   if (_fiss_matrix == NULL)
     log_printf(ERROR, "Unable to return Material %d's fission matrix "
                "cross section since it has not yet been built", _id);
@@ -515,18 +515,18 @@ void Material::setNumEnergyGroups(const int num_groups) {
   }
 
   /* Allocate memory for data arrays */
-  _sigma_t = new NEW_PRECISION[_num_groups];
-  _sigma_f = new NEW_PRECISION[_num_groups];
-  _nu_sigma_f = new NEW_PRECISION[_num_groups];
-  _chi = new NEW_PRECISION[_num_groups];
-  _sigma_s = new NEW_PRECISION[_num_groups*_num_groups];
+  _sigma_t = new FP_PRECISION[_num_groups];
+  _sigma_f = new FP_PRECISION[_num_groups];
+  _nu_sigma_f = new FP_PRECISION[_num_groups];
+  _chi = new FP_PRECISION[_num_groups];
+  _sigma_s = new FP_PRECISION[_num_groups*_num_groups];
 
   /* Assign the null vector to each data array */
-  memset(_sigma_t, 0.0, sizeof(NEW_PRECISION) * _num_groups);
-  memset(_sigma_f, 0.0, sizeof(NEW_PRECISION) * _num_groups);
-  memset(_nu_sigma_f, 0.0, sizeof(NEW_PRECISION) * _num_groups);
-  memset(_chi, 0.0, sizeof(NEW_PRECISION) * _num_groups);
-  memset(_sigma_s, 0.0, sizeof(NEW_PRECISION) * _num_groups * _num_groups);
+  memset(_sigma_t, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_nu_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_chi, 0.0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_s, 0.0, sizeof(FP_PRECISION) * _num_groups * _num_groups);
 }
 
 
@@ -566,10 +566,10 @@ void Material::setSigmaT(double* xs, int num_groups) {
     if (fabs(xs[i]) < ZERO_SIGMA_T) {
       log_printf(INFO, "Overriding zero cross-section in "
                  "group %d for Material %d with 1E-10", i, _id);
-      _sigma_t[i] = NEW_PRECISION(ZERO_SIGMA_T);
+      _sigma_t[i] = FP_PRECISION(ZERO_SIGMA_T);
     }
     else
-      _sigma_t[i] = NEW_PRECISION(xs[i]);
+      _sigma_t[i] = FP_PRECISION(xs[i]);
   }
 }
 
@@ -589,10 +589,10 @@ void Material::setSigmaTByGroup(double xs, int group) {
     if (fabs(xs) < ZERO_SIGMA_T) {
       log_printf(INFO, "Overriding zero cross-section in "
                  "group %d for Material %d with 1E-10", group, _id);
-      _sigma_t[group-1] = NEW_PRECISION(ZERO_SIGMA_T);
+      _sigma_t[group-1] = FP_PRECISION(ZERO_SIGMA_T);
     }
     else
-      _sigma_t[group-1] = NEW_PRECISION(xs);
+      _sigma_t[group-1] = FP_PRECISION(xs);
 }
 
 
@@ -879,7 +879,7 @@ void Material::buildFissionMatrix() {
   if (_fiss_matrix != NULL)
     delete [] _fiss_matrix;
 
-  _fiss_matrix = new NEW_PRECISION[_num_groups*_num_groups];
+  _fiss_matrix = new FP_PRECISION[_num_groups*_num_groups];
 
   /* Compute vector outer product of chi and the fission cross-section */
   for (int G=0; G < _num_groups; G++) {
@@ -913,26 +913,26 @@ void Material::alignData() {
   _num_vector_groups = (_num_groups / VEC_LENGTH) + 1;
 
   /* Allocate memory for the new aligned xs data */
-  int size = _num_vector_groups * VEC_LENGTH * sizeof(NEW_PRECISION);
+  int size = _num_vector_groups * VEC_LENGTH * sizeof(FP_PRECISION);
 
   /* Allocate word-aligned memory for cross-section data arrays */
-  NEW_PRECISION* new_sigma_t = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-  NEW_PRECISION* new_sigma_f = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-  NEW_PRECISION* new_nu_sigma_f=(NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-  NEW_PRECISION* new_chi = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_sigma_t = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_sigma_f = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* The fission and scattering matrices will be the number of vector
    * groups wide (SIMD) and the actual number of groups long since
    * instructions are not SIMD in this dimension */
 
   size = _num_vector_groups * VEC_LENGTH * _num_vector_groups;
-  size *= VEC_LENGTH * sizeof(NEW_PRECISION);
-  NEW_PRECISION* new_fiss_matrix = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
-  NEW_PRECISION* new_sigma_s = (NEW_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  size *= VEC_LENGTH * sizeof(FP_PRECISION);
+  FP_PRECISION* new_fiss_matrix = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  FP_PRECISION* new_sigma_s = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
 
   /* Initialize data structures to ones for sigma_t since it is used to
    * divide the source in the solver, and zeroes for everything else */
-  size = _num_vector_groups * VEC_LENGTH * sizeof(NEW_PRECISION);
+  size = _num_vector_groups * VEC_LENGTH * sizeof(FP_PRECISION);
   for (int i=0; i < _num_vector_groups * VEC_LENGTH; i++) {
     new_sigma_t[i] = 1.0;
     new_sigma_f[i] = 0.0;
@@ -945,7 +945,7 @@ void Material::alignData() {
   memset(new_sigma_s, 0.0, size);
 
   /* Copy materials data from unaligned arrays into new aligned arrays */
-  size = _num_groups * sizeof(NEW_PRECISION);
+  size = _num_groups * sizeof(FP_PRECISION);
   memcpy(new_sigma_t, _sigma_t, size);
   memcpy(new_sigma_f, _sigma_f, size);
   memcpy(new_nu_sigma_f, _nu_sigma_f, size);
@@ -1004,9 +1004,9 @@ void Material::transposeProductionMatrices() {
 
   /* Perform matrix transpose on each matrix that has been allocated */
   if (_fiss_matrix != NULL)
-    matrix_transpose<NEW_PRECISION>(_fiss_matrix, num_groups, num_groups);
+    matrix_transpose<FP_PRECISION>(_fiss_matrix, num_groups, num_groups);
   if (_sigma_s != NULL)
-    matrix_transpose<NEW_PRECISION>(_sigma_s, num_groups, num_groups);
+    matrix_transpose<FP_PRECISION>(_sigma_s, num_groups, num_groups);
 }
 
 

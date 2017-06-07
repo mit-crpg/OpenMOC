@@ -36,16 +36,16 @@ class CPULSSolver : public CPUSolver {
 protected:
 
   /** The FSR linear expansion matrix values for each FSR */
-  NEW_PRECISION* _FSR_lin_exp_matrix;
+  FP_PRECISION* _FSR_lin_exp_matrix;
 
   /** The FSR source constants for each FSR and energy group */
-  NEW_PRECISION* _FSR_source_constants;
+  FP_PRECISION* _FSR_source_constants;
 
   /** An array of the scalar flux x, y, and z terms */
-  NEW_PRECISION* _scalar_flux_xyz;
+  FP_PRECISION* _scalar_flux_xyz;
 
   /** An array of the reduced source x, y, and z terms */
-  NEW_PRECISION* _reduced_sources_xyz;
+  FP_PRECISION* _reduced_sources_xyz;
 
 public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
@@ -57,19 +57,18 @@ public:
   void initializeExpEvaluators();
   void initializeFSRs();
 
-  void flattenFSRFluxes(NEW_PRECISION value);
+  void flattenFSRFluxes(FP_PRECISION value);
   double normalizeFluxes();
   void computeFSRSources(int iteration);
   void addSourceToScalarFlux();
 
-    //FIXME MEM : float / FP_PRECISION
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
-                         float* track_flux, NEW_PRECISION* fsr_flux,
-                         NEW_PRECISION direction[3]);
+                         float* track_flux, FP_PRECISION* fsr_flux,
+                         FP_PRECISION direction[3]);
 
   double getFluxByCoords(LocalCoords* coords, int group);
-  NEW_PRECISION* getLinearExpansionCoeffsBuffer();
-  NEW_PRECISION* getSourceConstantsBuffer();
+  FP_PRECISION* getLinearExpansionCoeffsBuffer();
+  FP_PRECISION* getSourceConstantsBuffer();
 };
 
 

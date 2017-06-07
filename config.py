@@ -288,64 +288,76 @@ class configuration:
   macros['nvcc'] = dict()
 
   macros['gcc']['single']= [('FP_PRECISION', 'float'),
+                            ('CMFD_PRECISION', 'double'),
                             ('GCC', None),
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['mpicc']['single']= [('FP_PRECISION', 'float'),
+                            ('CMFD_PRECISION', 'double'),
                             ('MPICC', None),
                             ('VEC_LENGTH', vector_length),
                             ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['clang']['single']= [('FP_PRECISION', 'float'),
+                              ('CMFD_PRECISION', 'double'),
                               ('CLANG', None),
                               ('VEC_LENGTH', vector_length),
                               ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['icpc']['single']= [('FP_PRECISION', 'float'),
+                             ('CMFD_PRECISION', 'double'),
                              ('ICPC', None),
                              ('MKL_ILP64', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['bgxlc']['single'] = [('FP_PRECISION', 'float'),
+                               ('CMFD_PRECISION', 'double'),
                                ('BGXLC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment),
                                ('CCACHE_CC', 'bgxlc++_r')]
 
   macros['nvcc']['single'] = [('FP_PRECISION', 'float'),
+                              ('CMFD_PRECISION', 'double'),
                               ('NVCC', None),
                               ('CCACHE_CC', 'nvcc')]
 
   macros['gcc']['double'] = [('FP_PRECISION', 'double'),
+                             ('CMFD_PRECISION', 'double'),
                              ('GCC', None),
                              ('VEC_LENGTH', vector_length),
                              ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['mpicc']['double'] = [('FP_PRECISION', 'double'),
+                               ('CMFD_PRECISION', 'double'),
                                ('MPICC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['clang']['double'] = [('FP_PRECISION', 'double'),
+                               ('CMFD_PRECISION', 'double'),
                                ('CLANG', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['icpc']['double'] = [('FP_PRECISION', 'double'),
+                              ('CMFD_PRECISION', 'double'),
                               ('ICPC', None),
                               ('MKL_ILP64', None),
                               ('VEC_LENGTH', vector_length),
                               ('VEC_ALIGNMENT', vector_alignment)]
 
   macros['bgxlc']['double'] = [('FP_PRECISION', 'double'),
+                               ('CMFD_PRECISION', 'double'),
                                ('BGXLC', None),
                                ('VEC_LENGTH', vector_length),
                                ('VEC_ALIGNMENT', vector_alignment),
                                ('CCACHE_CC', 'bgxlc++_r')]
 
   macros['nvcc']['double'] = [('FP_PRECISION', 'double'),
+                              ('CMFD_PRECISION', 'double'),
                               ('CCACHE_CC', 'nvcc')]
 
   # define OPENMP and SWIG (for log output)

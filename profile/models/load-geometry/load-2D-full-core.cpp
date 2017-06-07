@@ -15,7 +15,7 @@ int main(int argc,  char* argv[]) {
 
   /* Define geometry to load */
   //std::string file = "v1-full-core-2D.geo";
-  std::string file = "v2-full-core-2D-new-xs.geo";
+  std::string file = "v5-full-core-2D-new-xs.geo";
   //std::string file = "v2-full-core-2D-no-rings.geo";
   //std::string file = "old-beavrs-2D.geo";
   //std::string file = "beavrs-2D-raw-TC.geo";

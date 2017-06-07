@@ -142,16 +142,16 @@ private:
   long _num_FSRs;
 
   /** The volumes (areas) for each FSR */
-  NEW_PRECISION* _FSR_volumes;
+  FP_PRECISION* _FSR_volumes;
 
   /** Pointers to Materials for each FSR */
   Material** _FSR_materials;
 
   /** The FSR scalar flux in each energy group */
-  NEW_PRECISION* _FSR_fluxes;
+  FP_PRECISION* _FSR_fluxes;
 
   /** The source region flux moments (x, y, and z) for each energy group */
-  NEW_PRECISION* _flux_moments;
+  FP_PRECISION* _flux_moments;
 
   /** Array of CMFD cell volumes */
   Vector* _volumes;
@@ -376,10 +376,10 @@ public:
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
-  void setFSRVolumes(NEW_PRECISION* FSR_volumes);
-  void setFSRFluxes(NEW_PRECISION* scalar_flux);
+  void setFSRVolumes(FP_PRECISION* FSR_volumes);
+  void setFSRFluxes(FP_PRECISION* scalar_flux);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
-  void setFluxMoments(NEW_PRECISION* flux_moments);
+  void setFluxMoments(FP_PRECISION* flux_moments);
 };
 
 

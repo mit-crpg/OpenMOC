@@ -147,7 +147,7 @@ TrackGenerator* Solver::getTrackGenerator() {
  * @param fsr_id the flat source region ID of interest
  * @return the flat source region volume
  */
-NEW_PRECISION Solver::getFSRVolume(long fsr_id) {
+FP_PRECISION Solver::getFSRVolume(long fsr_id) {
 
   if (fsr_id < 0 || fsr_id > _num_FSRs)
     log_printf(ERROR, "Unable to get the volume for FSR %d since the FSR "
@@ -210,7 +210,7 @@ double Solver::getConvergenceThreshold() {
  * @brief Get the maximum allowable optical length for a track segment
  * @return The max optical length
  */
-NEW_PRECISION Solver::getMaxOpticalLength() {
+FP_PRECISION Solver::getMaxOpticalLength() {
   return _exp_evaluators[0][0]->getMaxOpticalLength();
 }
 
@@ -300,8 +300,8 @@ double Solver::getFSRSource(long fsr_id, int group) {
                "since it has not yet been computed");
 
   Material* material = _FSR_materials[fsr_id];
-  NEW_PRECISION* nu_sigma_f = material->getNuSigmaF();
-  NEW_PRECISION* chi = material->getChi();
+  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+  FP_PRECISION* chi = material->getChi();
   double source = 0.;
 
   /* Compute fission source */
@@ -476,7 +476,7 @@ void Solver::setFixedSourceByMaterial(Material* material, int group,
  * @brief Set the maximum allowable optical length for a track segment
  * @param max_optical_length The max optical length
  */
-void Solver::setMaxOpticalLength(NEW_PRECISION max_optical_length) {
+void Solver::setMaxOpticalLength(FP_PRECISION max_optical_length) {
   for (int a=0; a < _num_exp_evaluators_azim; a++)
     for (int p=0; p < _num_exp_evaluators_polar; p++)
       _exp_evaluators[a][p]->setMaxOpticalLength(max_optical_length);
@@ -561,9 +561,9 @@ void Solver::initializeExpEvaluators() {
   if (first_evaluator->isUsingInterpolation()) {
 
     /* Find minimum of optional user-specified and actual max taus */
-    NEW_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
-    NEW_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
-    NEW_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
+    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+    FP_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
+    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
 
     /* Split Track segments so that none has a greater optical length */
     _track_generator->setMaxOpticalLength(max_tau);
@@ -735,18 +735,18 @@ void Solver::checkXS() {
 
     /* Extract cross-sections */
     char* name = material->getName();
-    NEW_PRECISION* sigma_t = material->getSigmaT();
-    NEW_PRECISION* sigma_f = material->getSigmaF();
-    NEW_PRECISION* nu_sigma_f = material->getNuSigmaF();
-    NEW_PRECISION* scattering_matrix = material->getSigmaS();
-    NEW_PRECISION* chi = material->getChi();
+    FP_PRECISION* sigma_t = material->getSigmaT();
+    FP_PRECISION* sigma_f = material->getSigmaF();
+    FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
+    FP_PRECISION* scattering_matrix = material->getSigmaS();
+    FP_PRECISION* chi = material->getChi();
 
     /* Loop over all energy groups */
     for (int e=0; e < _num_groups; e++) {
 
       /* Check that the total cross-section is greater than or equal to the
          scattering cross-section */
-      NEW_PRECISION sigma_s = 0.0;
+      FP_PRECISION sigma_s = 0.0;
       for (int g=0; g < _num_groups; g++) {
         sigma_s += scattering_matrix[g*_num_groups+e];
         if (scattering_matrix[g*_num_groups+e] < 0)
@@ -792,11 +792,11 @@ void Solver::initializeFixedSources() {
   Cell* fsr_cell;
   Material* fsr_material;
   int group;
-  NEW_PRECISION source;
+  FP_PRECISION source;
   std::pair<Cell*, int> cell_group_key;
   std::pair<Material*, int> mat_group_key;
-  std::map< std::pair<Cell*, int>, NEW_PRECISION >::iterator cell_iter;
-  std::map< std::pair<Material*, int>, NEW_PRECISION >::iterator mat_iter;
+  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
+  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
 
   /* Fixed sources assigned by Cell */
   for (cell_iter = _fix_src_cell_map.begin();
@@ -1499,7 +1499,7 @@ void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
  * @brief A function that returns the underlying array of scalar fluxes
  * @return The scalar fluxes
  */
-NEW_PRECISION* Solver::getFluxesArray() {
+FP_PRECISION* Solver::getFluxesArray() {
   return _scalar_flux;
 }
 

@@ -24,7 +24,7 @@ MaxOpticalLength::MaxOpticalLength(TrackGenerator* track_generator)
  *          and setting it on the TrackGenerator.
 */
 void MaxOpticalLength::execute() {
-  NEW_PRECISION infinity = std::numeric_limits<NEW_PRECISION>::max();
+  FP_PRECISION infinity = std::numeric_limits<FP_PRECISION>::max();
   _track_generator->setMaxOpticalLength(infinity);
 #pragma omp parallel
   {
@@ -43,12 +43,12 @@ void MaxOpticalLength::execute() {
  */
 void MaxOpticalLength::onTrack(Track* track, segment* segments) {
   for (int s=0; s < track->getNumSegments(); s++) {
-    NEW_PRECISION length = segments[s]._length;
+    FP_PRECISION length = segments[s]._length;
     Material* material = segments[s]._material;
-    NEW_PRECISION* sigma_t = material->getSigmaT();
+    FP_PRECISION* sigma_t = material->getSigmaT();
 
     for (int e=0; e < material->getNumEnergyGroups(); e++) {
-      NEW_PRECISION tau = length*sigma_t[e];
+      FP_PRECISION tau = length*sigma_t[e];
       if (tau > _max_tau) {
 #pragma omp critical
         _max_tau = std::max(_max_tau, tau);
@@ -156,7 +156,7 @@ void SegmentSplitter::execute() {
 void SegmentSplitter::onTrack(Track* track, segment* segments) {
 
   /* Get the max optical length from the TrackGenerator */
-  NEW_PRECISION max_optical_length =
+  FP_PRECISION max_optical_length =
     _track_generator->retrieveMaxOpticalLength();
 
   /* Get the direction of travel */
@@ -180,10 +180,10 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
     /* Compute number of segments to split this segment into */
     int min_num_cuts = 1;
     int num_groups = material->getNumEnergyGroups();
-    NEW_PRECISION* sigma_t = material->getSigmaT();
+    FP_PRECISION* sigma_t = material->getSigmaT();
 
     for (int g=0; g < num_groups; g++) {
-      NEW_PRECISION tau = length * sigma_t[g];
+      FP_PRECISION tau = length * sigma_t[g];
       int num_cuts = ceil(tau / max_optical_length);
       min_num_cuts = std::max(num_cuts, min_num_cuts);
     }
@@ -383,7 +383,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
     int track_idx = curr_segment->_track_idx;
 
     /* Extract information */
-    NEW_PRECISION volume = _FSR_volumes[fsr];
+    FP_PRECISION volume = _FSR_volumes[fsr];
     double x = _starting_points[tid][track_idx].getX();
     double y = _starting_points[tid][track_idx].getY();
     double z = _starting_points[tid][track_idx].getZ();
@@ -442,10 +442,10 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
 
   int num_threads = omp_get_max_threads();
   _starting_points = new Point*[num_threads];
-  _thread_source_constants = new NEW_PRECISION*[num_threads];
+  _thread_source_constants = new FP_PRECISION*[num_threads];
 
   for (int i=0; i < num_threads; i++) {
-    _thread_source_constants[i] = new NEW_PRECISION[_num_coeffs * _num_groups];
+    _thread_source_constants[i] = new FP_PRECISION[_num_coeffs * _num_groups];
     _starting_points[i] = new Point[num_rows];
   }
 
@@ -481,11 +481,11 @@ void LinearExpansionGenerator::execute() {
   Geometry* geometry = _track_generator->getGeometry();
   long num_FSRs = geometry->getNumFSRs();
   //FIXME
-  NEW_PRECISION* inv_lin_exp_coeffs = new NEW_PRECISION[num_FSRs*_num_coeffs];
-  memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(NEW_PRECISION));
+  FP_PRECISION* inv_lin_exp_coeffs = new FP_PRECISION[num_FSRs*_num_coeffs];
+  memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
 
-  NEW_PRECISION* lem = _lin_exp_coeffs;
-  NEW_PRECISION* ilem = inv_lin_exp_coeffs;
+  FP_PRECISION* lem = _lin_exp_coeffs;
+  FP_PRECISION* ilem = inv_lin_exp_coeffs;
   int nc = _num_coeffs;
 
   /* Invert the expansion coefficient matrix */
@@ -500,7 +500,7 @@ void LinearExpansionGenerator::execute() {
             lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
             lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
 
-      NEW_PRECISION volume = _FSR_volumes[r];
+      FP_PRECISION volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         log_printf(INFO, "Unable to form linear source components in "
                    "source region %d. Switching to flat source in that "
@@ -586,7 +586,7 @@ void LinearExpansionGenerator::execute() {
   }
 
   memcpy(_lin_exp_coeffs, inv_lin_exp_coeffs,
-         num_FSRs*_num_coeffs*sizeof(NEW_PRECISION));
+         num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
   delete [] inv_lin_exp_coeffs;
 
   /* Notify user of any regions needing to use a flat source approximation */
@@ -621,7 +621,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
   /* Use local array accumulator to prevent false sharing */
   int tid = omp_get_thread_num();
-  NEW_PRECISION* thread_src_constants = _thread_source_constants[tid];
+  FP_PRECISION* thread_src_constants = _thread_source_constants[tid];
 
   /* Calculate the azimuthal weight */
   double wgt = _quadrature->getAzimSpacing(azim_index)
@@ -649,12 +649,12 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long fsr = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
-    NEW_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-    NEW_PRECISION length = curr_segment->_length;
-    NEW_PRECISION length_2 = length * length;
+    FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
+    FP_PRECISION length = curr_segment->_length;
+    FP_PRECISION length_2 = length * length;
 
     /* Extract FSR information */
-    NEW_PRECISION volume = _FSR_volumes[fsr];
+    FP_PRECISION volume = _FSR_volumes[fsr];
 
     /* Extract the starting points of the segment */
     double x = curr_segment->_starting_position[0];
@@ -668,9 +668,9 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Set the FSR src constants buffer to zero */
     memset(thread_src_constants, 0.0, _num_groups * _num_coeffs *
-           sizeof(NEW_PRECISION));
+           sizeof(FP_PRECISION));
 
-    NEW_PRECISION vol_impact = wgt * length / volume;
+    FP_PRECISION vol_impact = wgt * length / volume;
     for (int g=0; g < _num_groups; g++) {
 
       thread_src_constants[g*_num_coeffs] += vol_impact * xc * xc;
@@ -684,14 +684,14 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
 
       /* Calculate the optical path length and source contribution */
-      NEW_PRECISION tau = length * sigma_t[g];
-      NEW_PRECISION src_constant = vol_impact * length / 2.0;
+      FP_PRECISION tau = length * sigma_t[g];
+      FP_PRECISION src_constant = vol_impact * length / 2.0;
 
       if (track_3D == NULL) {
         for (int p=0; p < _quadrature->getNumPolarAngles()/2; p++) {
 
-          NEW_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
-          NEW_PRECISION G2_src =
+          FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
+          FP_PRECISION G2_src =
               length * _exp_evaluator->computeExponentialG2(tau / sin_theta)
               * src_constant * 2 * _quadrature->getPolarWeight(azim_index, p)
               * sin_theta;
@@ -705,7 +705,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
       else {
 
-        NEW_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
+        FP_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
             length * src_constant;
 
         thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src
@@ -789,9 +789,9 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   size += 8;
 
   /* Allocate temporary storage of FSR fluxes */
-  _thread_fsr_fluxes = new NEW_PRECISION*[num_threads];
+  _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new NEW_PRECISION[size];
+    _thread_fsr_fluxes[i] = new FP_PRECISION[size];
 }
 
 
@@ -833,14 +833,13 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Get the temporary FSR flux */
   int tid = omp_get_thread_num();
-  NEW_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
+  FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
 
   /* Extract Track information */
   long track_id = track->getUid();
   int azim_index = track->getAzimIndex();
   int xy_index = track->getXYIndex();
   int num_segments = track->getNumSegments();
-    //FIXME MEM : float / FP_PRECISION
   float* track_flux;
 
   /* Extract the polar index if a 3D track */
@@ -850,7 +849,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     polar_index = track_3D->getPolarIndex();
 
   /* Compute unit vector if necessary */
-  NEW_PRECISION direction[3];
+  FP_PRECISION direction[3];
   if (_ls_solver != NULL) {
     double phi = track->getPhi();
     double cos_theta = 0.0;
@@ -990,7 +989,7 @@ void DumpSegments::onTrack(Track* track, segment* segments) {
 
     /* Get data for this segment */
     segment* curr_segment = &segments[s];
-    NEW_PRECISION length = curr_segment->_length;
+    FP_PRECISION length = curr_segment->_length;
     int material_id;
     if (curr_segment->_material != NULL)
       material_id = curr_segment->_material->getId();
@@ -1232,7 +1231,7 @@ void PrintSegments::onTrack(Track* track, segment* segments) {
 
     /* Get data for this segment */
     segment* curr_segment = &segments[s];
-    NEW_PRECISION length = curr_segment->_length;
+    FP_PRECISION length = curr_segment->_length;
     int material_id = curr_segment->_material->getId();
     long region_id = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;

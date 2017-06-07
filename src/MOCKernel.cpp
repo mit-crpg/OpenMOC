@@ -130,7 +130,7 @@ int MOCKernel::getCount() {
  *          then when they get too large.
  * @param the maximum optical path length for a segment
  */
-void MOCKernel::setMaxOpticalLength(NEW_PRECISION max_tau) {
+void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
   _max_tau = max_tau;
 }
 
@@ -144,11 +144,11 @@ void MOCKernel::setMaxOpticalLength(NEW_PRECISION max_tau) {
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void VolumeKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
+void VolumeKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                            int track_idx, int cmfd_surface_fwd,
-                           int cmfd_surface_bwd, NEW_PRECISION x_start,
-                           NEW_PRECISION y_start, NEW_PRECISION z_start,
-                           NEW_PRECISION phi, NEW_PRECISION theta) {
+                           int cmfd_surface_bwd, FP_PRECISION x_start,
+                           FP_PRECISION y_start, FP_PRECISION z_start,
+                           FP_PRECISION phi, FP_PRECISION theta) {
 
   /* Set omp lock for FSRs */
   omp_set_lock(&_FSR_locks[fsr_id]);
@@ -160,8 +160,8 @@ void VolumeKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
   /* Determine the number of cuts on the segment */
-  NEW_PRECISION* sigma_t = mat->getSigmaT();
-  NEW_PRECISION max_sigma_t = 0;
+  FP_PRECISION* sigma_t = mat->getSigmaT();
+  FP_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
@@ -186,15 +186,15 @@ void VolumeKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void CounterKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
+void CounterKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                             int track_idx, int cmfd_surface_fwd,
-                            int cmfd_surface_bwd, NEW_PRECISION x_start,
-                            NEW_PRECISION y_start, NEW_PRECISION z_start,
-                            NEW_PRECISION phi, NEW_PRECISION theta) {
+                            int cmfd_surface_bwd, FP_PRECISION x_start,
+                            FP_PRECISION y_start, FP_PRECISION z_start,
+                            FP_PRECISION phi, FP_PRECISION theta) {
 
   /* Determine the number of cuts on the segment */
-  NEW_PRECISION* sigma_t = mat->getSigmaT();
-  NEW_PRECISION max_sigma_t = 0;
+  FP_PRECISION* sigma_t = mat->getSigmaT();
+  FP_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
@@ -219,19 +219,19 @@ void CounterKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
  * @param mat Material associated with the segment
  * @param id the FSR ID of the FSR associated with the segment
  */
-void SegmentationKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
+void SegmentationKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                                 int track_idx, int cmfd_surface_fwd,
-                                int cmfd_surface_bwd, NEW_PRECISION x_start,
-                                NEW_PRECISION y_start, NEW_PRECISION z_start,
-                                NEW_PRECISION phi, NEW_PRECISION theta) {
+                                int cmfd_surface_bwd, FP_PRECISION x_start,
+                                FP_PRECISION y_start, FP_PRECISION z_start,
+                                FP_PRECISION phi, FP_PRECISION theta) {
 
   /* Check if segments have not been set, if so return */
   if (_segments == NULL)
     return;
 
   /* Determine the number of cuts on the segment */
-  NEW_PRECISION* sigma_t = mat->getSigmaT();
-  NEW_PRECISION max_sigma_t = 0;
+  FP_PRECISION* sigma_t = mat->getSigmaT();
+  FP_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
@@ -242,7 +242,7 @@ void SegmentationKernel::execute(NEW_PRECISION length, Material* mat, long fsr_i
 
   /* Add segment information */
   for (int i=0; i < num_cuts-1; i++) {
-    NEW_PRECISION temp_length = _max_tau / max_sigma_t;
+    FP_PRECISION temp_length = _max_tau / max_sigma_t;
     _segments[_count]._length = temp_length;
     _segments[_count]._material = mat;
     _segments[_count]._region_id = fsr_id;
@@ -286,7 +286,7 @@ TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
   _azim_index = 0;
   _polar_index = 0;
   _track_id = 0;
-  _thread_fsr_flux = new NEW_PRECISION[_num_groups];
+  _thread_fsr_flux = new FP_PRECISION[_num_groups];
 }
 
 TransportKernel::~TransportKernel() {
@@ -330,11 +330,11 @@ void TransportKernel::setDirection(bool direction) {
 
 
 //FIXME document
-void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
+void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                               int track_idx, int cmfd_surface_fwd,
-                              int cmfd_surface_bwd, NEW_PRECISION x_start,
-                              NEW_PRECISION y_start, NEW_PRECISION z_start,
-                              NEW_PRECISION phi, NEW_PRECISION theta) {
+                              int cmfd_surface_bwd, FP_PRECISION x_start,
+                              FP_PRECISION y_start, FP_PRECISION z_start,
+                              FP_PRECISION phi, FP_PRECISION theta) {
 
   if (track_idx < _min_track_idx)
     _min_track_idx = track_idx;
@@ -342,8 +342,8 @@ void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
     _max_track_idx = track_idx;
 
   /* Determine the number of cuts on the segment */
-  NEW_PRECISION* sigma_t = mat->getSigmaT();
-  NEW_PRECISION max_sigma_t = 0;
+  FP_PRECISION* sigma_t = mat->getSigmaT();
+  FP_PRECISION max_sigma_t = 0;
   for (int e=0; e < _num_groups; e++)
     if (sigma_t[e] > max_sigma_t)
       max_sigma_t = sigma_t[e];
@@ -353,8 +353,8 @@ void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
     num_cuts = length * max_sigma_t / _max_tau;
 
   /* Determine common length */
-  NEW_PRECISION fp_length = length;
-  NEW_PRECISION temp_length = std::min(_max_tau / max_sigma_t, fp_length);
+  FP_PRECISION fp_length = length;
+  FP_PRECISION temp_length = std::min(_max_tau / max_sigma_t, fp_length);
 
   /* Apply MOC equations to segments */
   for (int i=0; i < num_cuts; i++) {
@@ -378,7 +378,6 @@ void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
 
     /* Get the backward track flux */
     long curr_track_id = _track_id + track_idx;
-    //FIXME MEM : float / FP_PRECISION
     float* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
                                                      _direction);
 
@@ -397,7 +396,6 @@ void TransportKernel::execute(NEW_PRECISION length, Material* mat, long fsr_id,
 //FIXME
 void TransportKernel::post() {
   for (int i=_min_track_idx; i <= _max_track_idx; i++) {
-    //FIXME MEM : float / FP_PRECISION
     float* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,
                                                      _direction);
     Track track;

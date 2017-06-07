@@ -35,31 +35,31 @@ private:
   bool _linear_source;
 
   /** The spacing for the exponential linear interpolation table */
-  NEW_PRECISION _exp_table_spacing;
+  FP_PRECISION _exp_table_spacing;
 
   /** The inverse spacing for the exponential linear interpolation table */
-  NEW_PRECISION _inverse_exp_table_spacing;
+  FP_PRECISION _inverse_exp_table_spacing;
 
   /** The sine of the base polar angle */
-  NEW_PRECISION _sin_theta_no_offset;
+  FP_PRECISION _sin_theta_no_offset;
 
   /** The inverse of the sine of the base polar angle */
-  NEW_PRECISION _inverse_sin_theta_no_offset;
+  FP_PRECISION _inverse_sin_theta_no_offset;
 
   /** The number of entries in the exponential linear interpolation table */
   int _table_size;
 
   /** The exponential linear interpolation table */
-  NEW_PRECISION* _exp_table;
+  FP_PRECISION* _exp_table;
 
   /** The PolarQuad object of interest */
   Quadrature* _quadrature;
 
   /** The maximum optical length a track is allowed to have */
-  NEW_PRECISION _max_optical_length;
+  FP_PRECISION _max_optical_length;
 
   /** The maximum acceptable approximation error for exponentials */
-  NEW_PRECISION _exp_precision;
+  FP_PRECISION _exp_precision;
 
   /** The azimuthal angle index used by this exponential evaluator */
   int _azim_index;
@@ -80,66 +80,66 @@ public:
   virtual ~ExpEvaluator();
 
   void setQuadrature(Quadrature* quadrature);
-  void setMaxOpticalLength(NEW_PRECISION max_optical_length);
-  void setExpPrecision(NEW_PRECISION exp_precision);
+  void setMaxOpticalLength(FP_PRECISION max_optical_length);
+  void setExpPrecision(FP_PRECISION exp_precision);
   void useInterpolation();
   void useIntrinsic();
   void useLinearSource();
 
-  NEW_PRECISION getMaxOpticalLength();
-  NEW_PRECISION getExpPrecision();
+  FP_PRECISION getMaxOpticalLength();
+  FP_PRECISION getExpPrecision();
   bool isUsingInterpolation();
-  NEW_PRECISION getTableSpacing();
+  FP_PRECISION getTableSpacing();
   int getTableSize();
-  NEW_PRECISION* getExpTable();
-  int getExponentialIndex(NEW_PRECISION tau);
-  NEW_PRECISION getDifference(int index, NEW_PRECISION tau);
-  NEW_PRECISION convertDistance3Dto2D(NEW_PRECISION length);
+  FP_PRECISION* getExpTable();
+  int getExponentialIndex(FP_PRECISION tau);
+  FP_PRECISION getDifference(int index, FP_PRECISION tau);
+  FP_PRECISION convertDistance3Dto2D(FP_PRECISION length);
 
   void initialize(int azim_index, int polar_index, bool solve_3D);
-  NEW_PRECISION computeExponential(NEW_PRECISION tau, int polar_offset);
-  NEW_PRECISION computeExponentialF1(int index, int polar_offset,
-                                    NEW_PRECISION dt, NEW_PRECISION dt2);
-  NEW_PRECISION computeExponentialF2(int index, int polar_offset,
-                                    NEW_PRECISION dt, NEW_PRECISION dt2);
-  NEW_PRECISION computeExponentialH(int index, int polar_offset,
-                                   NEW_PRECISION dt, NEW_PRECISION dt2);
-  void retrieveExponentialComponents(NEW_PRECISION tau, int polar_offset,
-                                     NEW_PRECISION* exp_F1,
-                                     NEW_PRECISION* exp_F2,
-                                     NEW_PRECISION* exp_H);
+  FP_PRECISION computeExponential(FP_PRECISION tau, int polar_offset);
+  FP_PRECISION computeExponentialF1(int index, int polar_offset,
+                                    FP_PRECISION dt, FP_PRECISION dt2);
+  FP_PRECISION computeExponentialF2(int index, int polar_offset,
+                                    FP_PRECISION dt, FP_PRECISION dt2);
+  FP_PRECISION computeExponentialH(int index, int polar_offset,
+                                   FP_PRECISION dt, FP_PRECISION dt2);
+  void retrieveExponentialComponents(FP_PRECISION tau, int polar_offset,
+                                     FP_PRECISION* exp_F1,
+                                     FP_PRECISION* exp_F2,
+                                     FP_PRECISION* exp_H);
 
-  NEW_PRECISION computeExponentialG2(NEW_PRECISION tau);
+  FP_PRECISION computeExponentialG2(FP_PRECISION tau);
   ExpEvaluator* deepCopy();
 };
 
 
 //FIXME
-inline int ExpEvaluator::getExponentialIndex(NEW_PRECISION tau) {
+inline int ExpEvaluator::getExponentialIndex(FP_PRECISION tau) {
   return floor(tau * _inverse_exp_table_spacing);
 }
 
 
 //FIXME
-inline NEW_PRECISION ExpEvaluator::getDifference(int index, NEW_PRECISION tau) {
+inline FP_PRECISION ExpEvaluator::getDifference(int index, FP_PRECISION tau) {
   return tau - index * _exp_table_spacing;
 }
 
 
 //FIXME
-inline NEW_PRECISION ExpEvaluator::convertDistance3Dto2D(NEW_PRECISION length) {
+inline FP_PRECISION ExpEvaluator::convertDistance3Dto2D(FP_PRECISION length) {
   return length * _sin_theta_no_offset;
 }
 
 
 //FIXME
-inline NEW_PRECISION ExpEvaluator::computeExponential(NEW_PRECISION tau,
+inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
                                                      int polar_offset) {
 
   /* Extract exponential indexes and differences */
   int exp_index = getExponentialIndex(tau);
-  NEW_PRECISION dt = getDifference(exp_index, tau);
-  NEW_PRECISION dt2 = dt * dt;
+  FP_PRECISION dt = getDifference(exp_index, tau);
+  FP_PRECISION dt2 = dt * dt;
 
   /* Compute the exponential */
   return computeExponentialF1(exp_index, polar_offset, dt, dt2);
@@ -164,10 +164,10 @@ inline NEW_PRECISION ExpEvaluator::computeExponential(NEW_PRECISION tau,
  * @param dt the distance to the corresponding look-up table bin
  * @return dt2 the distance to the corresponding look-up table bin squared
  */
-inline NEW_PRECISION ExpEvaluator::computeExponentialF1(int index,
+inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
                                                        int polar_offset,
-                                                       NEW_PRECISION dt,
-                                                       NEW_PRECISION dt2) {
+                                                       FP_PRECISION dt,
+                                                       FP_PRECISION dt2) {
 
   /* Calculate full index */
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
@@ -178,8 +178,8 @@ inline NEW_PRECISION ExpEvaluator::computeExponentialF1(int index,
   }
   else {
     int polar_index = _polar_index + polar_offset;
-    NEW_PRECISION tau = index * _exp_table_spacing + dt;
-    NEW_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
+    FP_PRECISION tau = index * _exp_table_spacing + dt;
+    FP_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
                                                                 polar_index);
     return (1.0 - exp(- tau * inv_sin_theta)) / tau;
   }
@@ -203,10 +203,10 @@ inline NEW_PRECISION ExpEvaluator::computeExponentialF1(int index,
  * @param dt the distance to the corresponding look-up table bin
  * @return dt2 the distance to the corresponding look-up table bin squared
  */
-inline NEW_PRECISION ExpEvaluator::computeExponentialF2(int index,
+inline FP_PRECISION ExpEvaluator::computeExponentialF2(int index,
                                                        int polar_offset,
-                                                       NEW_PRECISION dt,
-                                                       NEW_PRECISION dt2) {
+                                                       FP_PRECISION dt,
+                                                       FP_PRECISION dt2) {
   /* Calculate full index */
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
@@ -216,11 +216,11 @@ inline NEW_PRECISION ExpEvaluator::computeExponentialF2(int index,
   else {
 
     int polar_index = _polar_index + polar_offset;
-    NEW_PRECISION tau = index * _exp_table_spacing + dt;
-    NEW_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
+    FP_PRECISION tau = index * _exp_table_spacing + dt;
+    FP_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
                                                                 polar_index);
-    NEW_PRECISION tau_m = tau * inv_sin_theta;
-    NEW_PRECISION F1 = (1.0 - exp(- tau_m)) / tau;
+    FP_PRECISION tau_m = tau * inv_sin_theta;
+    FP_PRECISION F1 = (1.0 - exp(- tau_m)) / tau;
     return 2.0 / tau * (inv_sin_theta - F1) - inv_sin_theta * F1;
   }
 }
@@ -243,10 +243,10 @@ inline NEW_PRECISION ExpEvaluator::computeExponentialF2(int index,
  * @param dt the distance to the corresponding look-up table bin
  * @return dt2 the distance to the corresponding look-up table bin squared
  */
-inline NEW_PRECISION ExpEvaluator::computeExponentialH(int index,
+inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
                                                       int polar_offset,
-                                                      NEW_PRECISION dt,
-                                                      NEW_PRECISION dt2) {
+                                                      FP_PRECISION dt,
+                                                      FP_PRECISION dt2) {
   /* Calculate full index */
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
@@ -255,28 +255,28 @@ inline NEW_PRECISION ExpEvaluator::computeExponentialH(int index,
         _exp_table[full_index + 8] * dt2;
   else {
     int polar_index = _polar_index + polar_offset;
-    NEW_PRECISION tau = index * _exp_table_spacing + dt;
-    NEW_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
+    FP_PRECISION tau = index * _exp_table_spacing + dt;
+    FP_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
                                                                 polar_index);
-    NEW_PRECISION tau_m = tau * inv_sin_theta;
-    NEW_PRECISION F1 = (1.0 - exp(- tau_m)) / tau;
-    NEW_PRECISION G1 = 1.0 / tau + 0.5 * inv_sin_theta - (1.0 + 1.0 / tau_m) * F1;
+    FP_PRECISION tau_m = tau * inv_sin_theta;
+    FP_PRECISION F1 = (1.0 - exp(- tau_m)) / tau;
+    FP_PRECISION G1 = 1.0 / tau + 0.5 * inv_sin_theta - (1.0 + 1.0 / tau_m) * F1;
     return 0.5 * inv_sin_theta - G1;
   }
 }
 
 
 //FIXME: description
-inline void ExpEvaluator::retrieveExponentialComponents(NEW_PRECISION tau,
+inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
                                                         int polar_offset,
-                                                        NEW_PRECISION* exp_F1,
-                                                        NEW_PRECISION* exp_F2,
-                                                        NEW_PRECISION* exp_H) {
+                                                        FP_PRECISION* exp_F1,
+                                                        FP_PRECISION* exp_F2,
+                                                        FP_PRECISION* exp_H) {
   if (_interpolate) {
 
     int exp_index = getExponentialIndex(tau);
-    NEW_PRECISION dt = getDifference(exp_index, tau);
-    NEW_PRECISION dt2 = dt * dt;
+    FP_PRECISION dt = getDifference(exp_index, tau);
+    FP_PRECISION dt2 = dt * dt;
     int full_index = (exp_index * _num_polar_terms + polar_offset)
       * _num_exp_terms;
     *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt +
@@ -288,12 +288,12 @@ inline void ExpEvaluator::retrieveExponentialComponents(NEW_PRECISION tau,
   }
   else {
     int polar_index = _polar_index + polar_offset;
-    NEW_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
+    FP_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
                                                                 polar_index);
-    NEW_PRECISION tau_m = tau * inv_sin_theta;
+    FP_PRECISION tau_m = tau * inv_sin_theta;
     int exp_index = getExponentialIndex(tau);
-    NEW_PRECISION dt = getDifference(exp_index, tau);
-    NEW_PRECISION dt2 = dt * dt;
+    FP_PRECISION dt = getDifference(exp_index, tau);
+    FP_PRECISION dt2 = dt * dt;
     *exp_F1 = computeExponentialF1(tau, polar_offset, dt, dt2);
     *exp_F2 = computeExponentialF2(tau, polar_offset, dt, dt2);
     *exp_H = computeExponentialH(tau, polar_offset, dt, dt2);

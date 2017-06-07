@@ -82,8 +82,8 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
 
   /* Extract fluxes and geometry information */
   Geometry* geometry = _solver->getGeometry();
-  NEW_PRECISION* volumes = _solver->getTrackGenerator()->getFSRVolumesBuffer();
-  NEW_PRECISION* fluxes = _solver->getFluxesArray();
+  FP_PRECISION* volumes = _solver->getTrackGenerator()->getFSRVolumesBuffer();
+  FP_PRECISION* fluxes = _solver->getFluxesArray();
   long num_fsrs = geometry->getNumFSRs();
 
   /* Create a 1D array of reaction rates with the appropriate size */
@@ -95,7 +95,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   int num_groups = geometry->getNumEnergyGroups();
 
   /* Create temporary array for cross-sections */
-  NEW_PRECISION temp_array[num_groups];
+  FP_PRECISION temp_array[num_groups];
 
   /* Loop over all flat source regions */
   for (long r=0; r < num_fsrs; r++) {
@@ -106,8 +106,8 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
     int lat_cell = _lattice->getLatticeCell(pt);
 
     /* Determine the volume and cross-sections of the FSR */
-    NEW_PRECISION volume = volumes[r];
-    NEW_PRECISION* xs_array;
+    FP_PRECISION volume = volumes[r];
+    FP_PRECISION* xs_array;
     switch (rx) {
       case FISSION_RX:
         xs_array = mat->getSigmaF();
@@ -118,7 +118,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
       case ABSORPTION_RX:
         {
           xs_array = temp_array;
-          NEW_PRECISION* scattering = mat->getSigmaS();
+          FP_PRECISION* scattering = mat->getSigmaS();
           for (int g=0; g < num_groups; g++) {
             xs_array[g] = 0.0;
             for (int gp=0; gp < num_groups; gp++) {

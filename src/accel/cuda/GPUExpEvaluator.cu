@@ -5,10 +5,10 @@
 __constant__ bool interpolate[1];
 
 /** The inverse spacing for the exponential linear interpolation table */
-__constant__ NEW_PRECISION inverse_exp_table_spacing[1];
+__constant__ FP_PRECISION inverse_exp_table_spacing[1];
 
 /** An array for the sines of the polar angle in the polar Quadrature set */
-extern __constant__ NEW_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
+extern __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 
 /** Twice the number of polar angles */
 extern __constant__ int two_times_num_polar[1];
@@ -35,21 +35,21 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
   if (evaluator_h->isUsingInterpolation()) {
 
     /* Copy inverse table spacing to constant memory on the device */
-    NEW_PRECISION inverse_spacing_h = 1.0 / evaluator_h->getTableSpacing();
+    FP_PRECISION inverse_spacing_h = 1.0 / evaluator_h->getTableSpacing();
     cudaMemcpyToSymbol(inverse_exp_table_spacing, (void*)&inverse_spacing_h,
-                       sizeof(NEW_PRECISION), 0, cudaMemcpyHostToDevice);
+                       sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
     /* Allocate memory for the interpolation table on the device */
     int exp_table_size_h = evaluator_h->getTableSize();
-    NEW_PRECISION* exp_table_h = evaluator_h->getExpTable();
+    FP_PRECISION* exp_table_h = evaluator_h->getExpTable();
 
-    NEW_PRECISION* exp_table_d;
-    cudaMalloc((void**)&exp_table_d, exp_table_size_h * sizeof(NEW_PRECISION));
+    FP_PRECISION* exp_table_d;
+    cudaMalloc((void**)&exp_table_d, exp_table_size_h * sizeof(FP_PRECISION));
     cudaMemcpy((void*)exp_table_d, (void*)exp_table_h,
-               exp_table_size_h * sizeof(NEW_PRECISION), 
+               exp_table_size_h * sizeof(FP_PRECISION), 
                cudaMemcpyHostToDevice);
     cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d, 
-               sizeof(NEW_PRECISION*), cudaMemcpyHostToDevice);
+               sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
   }
 
   return;
@@ -66,10 +66,10 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
  * @param polar the polar angle index
  * @return the evaluated exponential
  */
-__device__ NEW_PRECISION GPUExpEvaluator::computeExponential(NEW_PRECISION tau,
+__device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
                                                             int polar) {
 
-  NEW_PRECISION exponential;
+  FP_PRECISION exponential;
 
   /* Evaluate the exponential using the linear interpolation table */
   if (*interpolate) {

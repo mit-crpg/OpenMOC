@@ -99,7 +99,7 @@ protected:
   segmentationType _segment_formation;
 
   /** Max optical segment length for Tracks before splitting */
-  NEW_PRECISION _max_optical_length;
+  FP_PRECISION _max_optical_length;
 
   /** Maximum number of track segmenets in a single Track */
   int _max_num_segments;
@@ -108,7 +108,7 @@ protected:
   bool _dump_segments;
 
   /** A buffer holding the computed FSR volumes */
-  NEW_PRECISION* _FSR_volumes;
+  FP_PRECISION* _FSR_volumes;
   
   /** A timer to record timing data for track generation */
   Timer* _timer;
@@ -151,18 +151,18 @@ public:
   Track** get2DTracksArray();
   virtual Track** getTracksArray();
   Track** get2DTracks();
-  NEW_PRECISION getMaxOpticalLength();
+  FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
   int getNumThreads();
   int getNumX(int azim);
   int getNumY(int azim);
   void exportFSRVolumes(double* out_volumes, int num_fsrs);
-  NEW_PRECISION* getFSRVolumesBuffer();
-  NEW_PRECISION* getFSRVolumes();
-  NEW_PRECISION getFSRVolume(long fsr_id);
+  FP_PRECISION* getFSRVolumesBuffer();
+  FP_PRECISION* getFSRVolumes();
+  FP_PRECISION getFSRVolume(long fsr_id);
   double getZCoord();
   Quadrature* getQuadrature();
-  NEW_PRECISION retrieveMaxOpticalLength();
+  FP_PRECISION retrieveMaxOpticalLength();
   omp_lock_t* getFSRLocks();
   segmentationType getSegmentFormation();
   virtual bool containsTracks();
@@ -177,7 +177,7 @@ public:
   virtual void setGeometry(Geometry* geometry);
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
-  void setMaxOpticalLength(NEW_PRECISION tau);
+  void setMaxOpticalLength(FP_PRECISION tau);
   void setMaxNumSegments(int max_num_segments);
   void setDumpSegments(bool dump_segments);
 
@@ -186,9 +186,9 @@ public:
   void retrieve2DTrackCoords(double* coords, long num_tracks);
   virtual void retrieveSegmentCoords(double* coords, long num_segments);
   void retrieve2DSegmentCoords(double* coords, long num_segments);
-  void generateFSRCentroids(NEW_PRECISION* FSR_volumes);
+  void generateFSRCentroids(FP_PRECISION* FSR_volumes);
   void generateTracks();
-  void splitSegments(NEW_PRECISION max_optical_length);
+  void splitSegments(FP_PRECISION max_optical_length);
   double leastCommonMultiple(double a, double b);
   void dumpSegmentsToFile();
   bool readSegmentsFromFile();

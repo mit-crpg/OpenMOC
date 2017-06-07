@@ -22,7 +22,7 @@ int main(int argc,  char* argv[]) {
   //std::string file = "single-no-TC.geo";
   //std::string file = "v1-single-assembly.geo";
   //std::string file = "v1-single-assembly-2D.geo";
-  std::string file = "v4-single-assembly-new-xs.geo";
+  std::string file = "v5-single-assembly-new-xs.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP

@@ -46,7 +46,7 @@ protected:
   int _count;
 
   /** Maximum optical path length when forming segments */
-  NEW_PRECISION _max_tau;
+  FP_PRECISION _max_tau;
 
   /** Number of energy groups in the current problem */
   int _num_groups;
@@ -60,16 +60,16 @@ public:
   int getCount();
 
   /* Sets the max optical path length to a different value */
-  void setMaxOpticalLength(NEW_PRECISION max_tau);
+  void setMaxOpticalLength(FP_PRECISION max_tau);
 
   /* Prepare MOCKernel for handling a new track */
   virtual void newTrack(Track* track);
 
   /* Executing function describes kernel behavior */
-  virtual void execute(NEW_PRECISION length, Material* mat, long fsr_id,
+  virtual void execute(FP_PRECISION length, Material* mat, long fsr_id,
                        int track_idx, int cmfd_surface_fwd,
-                       int cmfd_surface_bwd, NEW_PRECISION x_start, NEW_PRECISION y_start,
-                       NEW_PRECISION z_start, NEW_PRECISION phi, NEW_PRECISION theta)=0;
+                       int cmfd_surface_bwd, FP_PRECISION x_start, FP_PRECISION y_start,
+                       FP_PRECISION z_start, FP_PRECISION phi, FP_PRECISION theta)=0;
 
 };
 
@@ -86,10 +86,10 @@ class CounterKernel: public MOCKernel {
 
 public:
   CounterKernel(TrackGenerator* track_generator, int row_num);
-  void execute(NEW_PRECISION length, Material* mat, long fsr_id,
+  void execute(FP_PRECISION length, Material* mat, long fsr_id,
                int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
-               NEW_PRECISION x_start, NEW_PRECISION y_start, NEW_PRECISION z_start,
-               NEW_PRECISION phi, NEW_PRECISION theta);
+               FP_PRECISION x_start, FP_PRECISION y_start, FP_PRECISION z_start,
+               FP_PRECISION phi, FP_PRECISION theta);
 };
 
 
@@ -110,10 +110,10 @@ private:
   omp_lock_t* _FSR_locks;
 
   /** Pointer to array of FSR volumes */
-  NEW_PRECISION* _FSR_volumes;
+  FP_PRECISION* _FSR_volumes;
 
   /** The Track's volume weight */
-  NEW_PRECISION _weight;
+  FP_PRECISION _weight;
 
   /** The associated quadrature from which weights are derived */
   Quadrature* _quadrature;
@@ -122,10 +122,10 @@ public:
 
   VolumeKernel(TrackGenerator* track_generator, int row_num);
   void newTrack(Track* track);
-  void execute(NEW_PRECISION length, Material* mat, long fsr_id,
+  void execute(FP_PRECISION length, Material* mat, long fsr_id,
                int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
-               NEW_PRECISION x_start, NEW_PRECISION y_start, NEW_PRECISION z_start,
-               NEW_PRECISION phi, NEW_PRECISION theta);
+               FP_PRECISION x_start, FP_PRECISION y_start, FP_PRECISION z_start,
+               FP_PRECISION phi, FP_PRECISION theta);
 };
 
 
@@ -146,10 +146,10 @@ private:
 
 public:
   SegmentationKernel(TrackGenerator* track_generator, int row_num);
-  void execute(NEW_PRECISION length, Material* mat, long fsr_id,
+  void execute(FP_PRECISION length, Material* mat, long fsr_id,
                int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
-               NEW_PRECISION x_start, NEW_PRECISION y_start, NEW_PRECISION z_start,
-               NEW_PRECISION phi, NEW_PRECISION theta);
+               FP_PRECISION x_start, FP_PRECISION y_start, FP_PRECISION z_start,
+               FP_PRECISION phi, FP_PRECISION theta);
 };
 
 /**
@@ -166,7 +166,7 @@ private:
   CPUSolver* _cpu_solver;
 
   /** Pointer to angular flux data in the current direction */
-  NEW_PRECISION* _thread_fsr_flux;
+  FP_PRECISION* _thread_fsr_flux;
 
   /** Azimuthal index of the current track */
   int _azim_index;
@@ -188,14 +188,14 @@ public:
   virtual ~TransportKernel();
   void newTrack(Track* track);
   void setCPUSolver(CPUSolver* cpu_solver);
-  void setTrackFlux(NEW_PRECISION* fwd_flux, NEW_PRECISION* bwd_flux,
+  void setTrackFlux(FP_PRECISION* fwd_flux, FP_PRECISION* bwd_flux,
                     int track_id);
   void setTrackIndexes(int azim_index, int polar_index);
   void setDirection(bool direction);
-  void execute(NEW_PRECISION length, Material* mat, long fsr_id,
+  void execute(FP_PRECISION length, Material* mat, long fsr_id,
                int track_idx, int cmfd_surface_fwd, int cmfd_surface_bwd,
-               NEW_PRECISION x_start, NEW_PRECISION y_start, NEW_PRECISION z_start,
-               NEW_PRECISION phi, NEW_PRECISION theta);
+               FP_PRECISION x_start, FP_PRECISION y_start, FP_PRECISION z_start,
+               FP_PRECISION phi, FP_PRECISION theta);
   void post();
 };
 

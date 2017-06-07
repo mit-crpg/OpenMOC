@@ -27,7 +27,7 @@
 struct segment {
 
   /** The length of the segment (cm) */
-  NEW_PRECISION _length;
+  FP_PRECISION _length;
 
   /** A pointer to the material in which this segment resides */
   Material* _material;
@@ -45,7 +45,7 @@ struct segment {
   int _cmfd_surface_bwd;
 
   /** The starting point of the segment relative to the FSR centroid */
-  NEW_PRECISION _starting_position[3];
+  FP_PRECISION _starting_position[3];
 
   /** Constructor initializes CMFD surfaces */
   segment() {
