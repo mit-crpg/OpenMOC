@@ -15,11 +15,11 @@ CMFD_PRECISION = double
 #===============================================================================
 
 #case = load-geometry/load-full-core.cpp
-case = load-geometry/load-single-assembly.cpp
+#case = load-geometry/load-single-assembly.cpp
 #case = load-geometry/load-2D-full-core.cpp
 
 #case = load-geometry/load-geometry.cpp
-#case = simple-lattice/simple-lattice-3d.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp
 
 source = \
@@ -87,7 +87,7 @@ endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpicc
+  CC = mpiCC
   CFLAGS += -DMPIx
   #CFLAGS += -march=native
   LDFLAGS += -lm
