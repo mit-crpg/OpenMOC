@@ -1406,17 +1406,18 @@ void CPUSolver::computeFSRSources(int iteration) {
 
     /* Compute total (fission+scatter+fixed) source for group G */
     FP_PRECISION* scatter_sources = _groupwise_scratch.at(tid);
+    FP_PRECISION* sigma_s = material->getSigmaS();
     for (int G=0; G < _num_groups; G++) {
+      int first_idx = G * _num_groups;
       for (int g=0; g < _num_groups; g++)
-        scatter_sources[g] = material->getSigmaSByGroup(g+1,G+1)
-                                  * _scalar_flux(r,g);
+        scatter_sources[g] = sigma_s[first_idx+g] * _scalar_flux(r,g);
       double scatter_source =
           pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
 
       _reduced_sources(r,G) = fission_source * chi[G];
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
-      
+
       //FIXME
       if (_reduced_sources(r,G) < 0.0) {
 #pragma omp atomic
@@ -1458,7 +1459,7 @@ void CPUSolver::computeFSRSources(int iteration) {
   if (_geometry->isDomainDecomposed()) {
     MPI_Allreduce(&num_negative_sources, &total_num_negative_sources, 1,
                   MPI_LONG, MPI_SUM, _geometry->getMPICart());
-    MPI_Allreduce(&num_negative_source_domains, 
+    MPI_Allreduce(&num_negative_source_domains,
                   &total_num_negative_source_domains, 1,
                   MPI_INT, MPI_SUM, _geometry->getMPICart());
   }
@@ -1467,7 +1468,7 @@ void CPUSolver::computeFSRSources(int iteration) {
   /* Report negative sources */
   if (total_num_negative_sources > 0) {
     if (_geometry->isRootDomain()) {
-      log_printf(WARNING, "Computed %ld negative sources on %d domains", 
+      log_printf(WARNING, "Computed %ld negative sources on %d domains",
                  total_num_negative_sources,
                  total_num_negative_source_domains);
       if (iteration < 25)
@@ -1558,12 +1559,12 @@ double CPUSolver::computeResidual(residualType res_type) {
       }
 
       /* Compute total scattering source for group G */
+      FP_PRECISION* sigma_s = material->getSigmaS();
       for (int G=0; G < _num_groups; G++) {
+        int first_idx = G * _num_groups;
         for (int g=0; g < _num_groups; g++) {
-          new_total_source += material->getSigmaSByGroup(g+1,G+1)
-                              * _scalar_flux(r,g);
-          old_total_source += material->getSigmaSByGroup(g+1,G+1)
-                              * _old_scalar_flux(r,g);
+          new_total_source += sigma_s[first_idx+g] * _scalar_flux(r,g);
+          old_total_source += sigma_s[first_idx+g] * _old_scalar_flux(r,g);
         }
       }
 
@@ -1683,7 +1684,7 @@ void CPUSolver::transportSweep() {
 
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
-  
+
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
   if (_OTF_transport) {
@@ -1695,7 +1696,7 @@ void CPUSolver::transportSweep() {
     TransportSweep sweep_tracks(this);
     sweep_tracks.execute();
   }
-  
+
 #ifdef MPIx
   /* Transfer all interface fluxes after the transport sweep */
   if (_track_generator->getGeometry()->isDomainDecomposed())
@@ -2112,7 +2113,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
       }
     }
   }
-  
+
   /* If domain decomposed, do a reduction */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
@@ -2122,7 +2123,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
       neg_src_send[i] = mapping[i];
     MPI_Allreduce(neg_src_send, mapping, size, MPI_INT, MPI_SUM,
                   _geometry->getMPICart());
-    
+
     int neg_src_grp_send[size];
     for (int e=0; e < _num_groups; e++)
         neg_src_grp_send[e] = by_group[e];
@@ -2134,7 +2135,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
 
   /* Print negative source distribution to file */
   if (_geometry->isRootDomain()) {
-    out << "[NORMAL]  Group-wise distribution of negative sources:" 
+    out << "[NORMAL]  Group-wise distribution of negative sources:"
         << std::endl;
     for (int e=0; e < _num_groups; e++)
       out << "[NORMAL]  Group "  << e << ": " << by_group[e] << std::endl;
