@@ -316,6 +316,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     float* track_flux,
                                     FP_PRECISION* fsr_flux,
+                                    FP_PRECISION* scratch_pad,
                                     FP_PRECISION direction[3]) {
 
   long fsr_id = curr_segment->_region_id;
@@ -340,27 +341,49 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     FP_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
+    // Compute the exponential terms
+    FP_PRECISION* exponentials = &scratch_pad[0];
     for (int e=0; e < _num_groups; e++) {
-
-      // Compute the exponential terms
-      FP_PRECISION exp_F1, exp_F2, exp_H;
+      int idx = 3*e;
       FP_PRECISION tau = sigma_t[e] * length_2D;
-      exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1, &exp_F2,
-                                                   &exp_H);
+      exp_evaluator->retrieveExponentialComponents(tau, 0, &scratch_pad[idx],
+                                                   &scratch_pad[idx+1],
+                                                   &scratch_pad[idx+2]);
+    }
+
+    // Compute the sources
+    FP_PRECISION* sources = &scratch_pad[3*_num_groups];
+    for (int e=0; e < _num_groups; e++) {
 
       // Compute indexes upfront for performance
       long scalar_idx = start_scalar_idx + e;
       long first_linear_idx = start_linear_idx + 3*e;
+      int flat_idx = 2*e;
 
       // Compute the flat and linear components of the source
       FP_PRECISION src_flat = 0.0;
       FP_PRECISION src_linear = 0.0;
       for (int i=0; i<3; i++) {
         int linear_idx = first_linear_idx + i;
-        src_flat += _reduced_sources_xyz[linear_idx] * center_x2[i];
-        src_linear += _reduced_sources_xyz[linear_idx] * direction[i];
+        sources[flat_idx] += _reduced_sources_xyz[linear_idx] * center_x2[i];
+        sources[flat_idx+1] += _reduced_sources_xyz[linear_idx] * direction[i];
       }
-      src_flat += _reduced_sources[scalar_idx];
+      sources[flat_idx] += _reduced_sources[scalar_idx];
+    }
+
+    for (int e=0; e < _num_groups; e++) {
+
+      // Load sources
+      int first_idx = 2*e;
+      FP_PRECISION src_flat = sources[first_idx];
+      FP_PRECISION src_linear = sources[first_idx+1];
+
+      // Load exponential terms
+      first_idx += e; // equivalent to 3*e
+      FP_PRECISION exp_F1 = exponentials[first_idx];
+      FP_PRECISION exp_F2 = exponentials[first_idx+1];
+      FP_PRECISION exp_H = exponentials[first_idx+2];
+      FP_PRECISION tau = sigma_t[e] * length_2D;
 
       // Compute the change in flux across the segment
       exp_H *= length * track_flux[e];
@@ -368,7 +391,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
           exp_F1 - src_linear * length_2D * length_2D * exp_F2;
 
       // Increment the fsr scalar flux and scalar flux moments
-      int first_idx = e*4;
+      first_idx += e; // equivalent to 4*e
       fsr_flux[first_idx] += wgt * delta_psi;
       first_idx++;
       FP_PRECISION reduced_delta = delta_psi / tau;

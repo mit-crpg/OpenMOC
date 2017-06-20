@@ -792,15 +792,25 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
   for (int i=0; i < num_threads; i++)
     _thread_fsr_fluxes[i] = new FP_PRECISION[size];
+
+  /* Allocate scratch pad for each thread */
+  int scratch_pad_size = 5 * num_groups + 8;
+  _thread_scratch_pads = new FP_PRECISION*[num_threads];
+  for (int i=0; i < num_threads; i++)
+    _thread_scratch_pads[i] = new FP_PRECISION[scratch_pad_size];
+
 }
 
 
 //FIXME
 TransportSweep::~TransportSweep() {
   int num_threads = omp_get_max_threads();
-  for (int i=0; i < num_threads; i++)
+  for (int i=0; i < num_threads; i++) {
     delete [] _thread_fsr_fluxes[i];
+    delete [] _thread_scratch_pads[i];
+  }
   delete [] _thread_fsr_fluxes;
+  delete [] _thread_scratch_pads;
 }
 
 
@@ -834,6 +844,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Get the temporary FSR flux */
   int tid = omp_get_thread_num();
   FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
+  FP_PRECISION* thread_scratch_pad = _thread_scratch_pads[tid];
 
   /* Extract Track information */
   long track_id = track->getUid();
@@ -880,14 +891,15 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, true);
-   
+
     /* Apply MOC equations */
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                    track_flux, thread_fsr_flux);
     else
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    track_flux, thread_fsr_flux, direction);
+                                    track_flux, thread_fsr_flux,
+                                    thread_scratch_pad, direction);
 
     /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
@@ -912,14 +924,15 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, false);
-    
+
     /* Apply MOC equations */
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
                                    track_flux, thread_fsr_flux);
     else
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    track_flux, thread_fsr_flux, direction);
+                                    track_flux, thread_fsr_flux,
+                                    thread_scratch_pad, direction);
 
 
     /* Tally the current for CMFD */
