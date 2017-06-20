@@ -361,8 +361,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       int flat_idx = 2*e;
 
       // Compute the flat and linear components of the source
-      FP_PRECISION src_flat = 0.0;
-      FP_PRECISION src_linear = 0.0;
+      sources[flat_idx] = 0.0;
+      sources[flat_idx+1] = 0.0;
       for (int i=0; i<3; i++) {
         int linear_idx = first_linear_idx + i;
         sources[flat_idx] += _reduced_sources_xyz[linear_idx] * center_x2[i];
