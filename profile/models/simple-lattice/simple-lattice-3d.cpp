@@ -17,12 +17,17 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.1;
-  int num_azim = 4;
-  double polar_spacing = 0.1;
-  int num_polar = 2;
-  double tolerance = 1e-8;
+  double azim_spacing = 0.05;
+  int num_azim = 64;
+  double polar_spacing = 0.5;
+  int num_polar = 10;
+  double tolerance = 1e-4;
   int max_iters = 1000;
+
+  int fuel_rings = 2;
+  int moderator_rings = 2;
+  int fuel_sectors = 4;
+  int moderator_sectors = 8;
 
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties...");
@@ -99,11 +104,11 @@ int main(int argc, char* argv[]) {
   ZPlane zmin(-10.0);
   ZPlane zmax( 10.0);
 
-  xmin.setBoundaryType(VACUUM);
-  ymin.setBoundaryType(VACUUM);
+  xmin.setBoundaryType(REFLECTIVE);
+  ymin.setBoundaryType(REFLECTIVE);
   zmin.setBoundaryType(REFLECTIVE);
-  xmax.setBoundaryType(VACUUM);
-  ymax.setBoundaryType(VACUUM);
+  xmax.setBoundaryType(REFLECTIVE);
+  ymax.setBoundaryType(REFLECTIVE);
   zmax.setBoundaryType(REFLECTIVE);
 
   ZCylinder large_pin(0.0, 0.0, 0.4);
@@ -116,26 +121,38 @@ int main(int argc, char* argv[]) {
   Cell large_fuel;
   large_fuel.setFill(materials["UO2"]);
   large_fuel.addSurface(-1, &large_pin);
+  large_fuel.setNumRings(fuel_rings);
+  large_fuel.setNumSectors(fuel_sectors);
 
   Cell large_moderator;
   large_moderator.setFill(materials["Water"]);
   large_moderator.addSurface(+1, &large_pin);
+  large_moderator.setNumRings(moderator_rings);
+  large_moderator.setNumSectors(moderator_sectors);
 
   Cell medium_fuel;
   medium_fuel.setFill(materials["UO2"]);
   medium_fuel.addSurface(-1, &medium_pin);
+  medium_fuel.setNumRings(fuel_rings);
+  medium_fuel.setNumSectors(fuel_sectors);
 
   Cell medium_moderator;
   medium_moderator.setFill(materials["Water"]);
   medium_moderator.addSurface(+1, &medium_pin);
+  medium_moderator.setNumRings(moderator_rings);
+  medium_moderator.setNumSectors(moderator_sectors);
 
   Cell small_fuel;
   small_fuel.setFill(materials["UO2"]);
   small_fuel.addSurface(-1, &small_pin);
+  small_fuel.setNumRings(fuel_rings);
+  small_fuel.setNumSectors(fuel_sectors);
 
   Cell small_moderator;
   small_moderator.setFill(materials["Water"]);
   small_moderator.addSurface(+1, &small_pin);
+  small_moderator.setNumRings(moderator_rings);
+  small_moderator.setNumSectors(moderator_sectors);
 
   Cell root_cell;
   root_cell.addSurface(+1, &xmin);
@@ -187,7 +204,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(4,4,7);
+  cmfd.setLatticeStructure(4,4,10);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -204,7 +221,7 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(4,4,1, MPI_COMM_WORLD);
+  //geometry.setDomainDecomposition(4,4,1, MPI_COMM_WORLD);
 #endif
   //geometry.setNumDomainModules(2,2,1);
   geometry.setCmfd(&cmfd);
@@ -230,7 +247,7 @@ int main(int argc, char* argv[]) {
 
   Lattice mesh_lattice;
   Mesh mesh(&solver);
-  mesh.createLattice(4, 4, 8);
+  mesh.createLattice(4, 4, 10);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
   int my_rank = 0;

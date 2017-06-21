@@ -64,7 +64,7 @@ public:
 
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
                          float* track_flux, FP_PRECISION* fsr_flux,
-                         FP_PRECISION direction[3]);
+                         FP_PRECISION* scratch_pad, FP_PRECISION direction[3]);
 
   double getFluxByCoords(LocalCoords* coords, int group);
   FP_PRECISION* getLinearExpansionCoeffsBuffer();

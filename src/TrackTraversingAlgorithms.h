@@ -201,6 +201,7 @@ private:
   CPULSSolver* _ls_solver;
   Geometry* _geometry;
   FP_PRECISION** _thread_fsr_fluxes;
+  FP_PRECISION** _thread_scratch_pads;
 
 public:
 

@@ -61,11 +61,11 @@ void CPULSSolver::initializeFluxArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
     log_printf(NORMAL, "Max linear flux storage per domain = %6.2f MB",
                max_size_mb);
-    
+
     _scalar_flux_xyz = new FP_PRECISION[size];
   }
   catch (std::exception &e) {
@@ -96,11 +96,11 @@ void CPULSSolver::initializeSourceArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
     log_printf(NORMAL, "Max linear source storage per domain = %6.2f MB",
                max_size_mb);
-    
+
     _reduced_sources_xyz = new FP_PRECISION[size];
   }
   catch(std::exception &e) {
@@ -190,7 +190,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
     FP_PRECISION* sigma_t;
     FP_PRECISION* nu_sigma_f;
     FP_PRECISION* chi;
-    FP_PRECISION sigma_s;
+    FP_PRECISION* sigma_s;
     FP_PRECISION src_x, src_y, src_z;
 
     /* Compute the total source for each FSR */
@@ -201,54 +201,60 @@ void CPULSSolver::computeFSRSources(int iteration) {
       nu_sigma_f = material->getNuSigmaF();
       chi = material->getChi();
       sigma_t = material->getSigmaT();
+      sigma_s = material->getSigmaS();
 
       /* Compute scatter + fission source for group g */
       for (int g=0; g < _num_groups; g++) {
-       
+
+        int first_scattering_index = g * _num_groups;
+
         /* Compute scatter sources */
         FP_PRECISION* scatter_sources_x = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
-          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
-          scatter_sources_x[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,0);
+          int idx = first_scattering_index + g_prime;
+          scatter_sources_x[g_prime] = sigma_s[idx] *
+            _scalar_flux_xyz(r,g_prime,0);
         }
-        double scatter_source_x = 
+        double scatter_source_x =
             pairwise_sum<FP_PRECISION>(scatter_sources_x, _num_groups);
 
         FP_PRECISION* scatter_sources_y = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
-          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
-          scatter_sources_y[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,1);
+          int idx = first_scattering_index + g_prime;
+          scatter_sources_y[g_prime] = sigma_s[idx]
+            * _scalar_flux_xyz(r,g_prime,1);
         }
-        double scatter_source_y = 
+        double scatter_source_y =
             pairwise_sum<FP_PRECISION>(scatter_sources_y, _num_groups);
- 
+
         FP_PRECISION* scatter_sources_z = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
-          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
-          scatter_sources_z[g_prime] = sigma_s * _scalar_flux_xyz(r,g_prime,2);
+          int idx = first_scattering_index + g_prime;
+          scatter_sources_z[g_prime] = sigma_s[idx]
+            * _scalar_flux_xyz(r,g_prime,2);
         }
-        double scatter_source_z = 
+        double scatter_source_z =
             pairwise_sum<FP_PRECISION>(scatter_sources_z, _num_groups);
- 
+
 
         /* Compute fission sources */
         FP_PRECISION* fission_sources_x = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_x[g_prime] = 
+          fission_sources_x[g_prime] =
               nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,0);
         double fission_source_x =
             pairwise_sum<FP_PRECISION>(fission_sources_x, _num_groups);
 
         FP_PRECISION* fission_sources_y = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_y[g_prime] = 
+          fission_sources_y[g_prime] =
               nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,1);
         double fission_source_y =
             pairwise_sum<FP_PRECISION>(fission_sources_y, _num_groups);
-        
+
         FP_PRECISION* fission_sources_z = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_z[g_prime] = 
+          fission_sources_z[g_prime] =
               nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,2);
         double fission_source_z =
             pairwise_sum<FP_PRECISION>(fission_sources_z, _num_groups);
@@ -310,6 +316,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     float* track_flux,
                                     FP_PRECISION* fsr_flux,
+                                    FP_PRECISION* scratch_pad,
                                     FP_PRECISION direction[3]) {
 
   long fsr_id = curr_segment->_region_id;
@@ -318,50 +325,79 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION* position = curr_segment->_starting_position;
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
+  long start_scalar_idx = fsr_id * _num_groups;
+  long start_linear_idx = start_scalar_idx * 3;
+
   /* Set the FSR scalar flux buffer to zero */
   memset(fsr_flux, 0.0, _num_groups * 4 * sizeof(FP_PRECISION));
 
   if (_solve_3D) {
 
     /* Compute the segment midpoint */
-    double center[3];
+    double center_x2[3];
     for (int i=0; i<3; i++)
-      center[i] = position[i] + 0.5 * length * direction[i];
+      center_x2[i] = 2 * (position[i] + 0.5 * length * direction[i]);
 
     FP_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
+    // Compute the exponential terms
+    FP_PRECISION* exponentials = &scratch_pad[0];
+    for (int e=0; e < _num_groups; e++) {
+      int idx = 3*e;
+      FP_PRECISION tau = sigma_t[e] * length_2D;
+      exp_evaluator->retrieveExponentialComponents(tau, 0, &scratch_pad[idx],
+                                                   &scratch_pad[idx+1],
+                                                   &scratch_pad[idx+2]);
+    }
+
+    // Compute the sources
+    FP_PRECISION* sources = &scratch_pad[3*_num_groups];
     for (int e=0; e < _num_groups; e++) {
 
-      // Compute the flat component of the reduced source
-      FP_PRECISION src_flat = 0.0;
-      for (int i=0; i<3; i++)
-        src_flat += _reduced_sources_xyz(fsr_id, e, i) * center[i];
-      src_flat *= 2;
-      src_flat += _reduced_sources(fsr_id, e);
+      // Compute indexes upfront for performance
+      long scalar_idx = start_scalar_idx + e;
+      long first_linear_idx = start_linear_idx + 3*e;
+      int flat_idx = 2*e;
 
-      // Compute the exponential terms
-      FP_PRECISION exp_F1, exp_F2, exp_H;
-      FP_PRECISION tau = sigma_t[e] * length_2D;
-      exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1, &exp_F2,
-                                                   &exp_H);
-      exp_H *= length * track_flux[e];
-
-      // Compute the moment component of the source
-      FP_PRECISION src_linear = 0.0;
+      // Compute the flat and linear components of the source
+      sources[flat_idx] = 0.0;
+      sources[flat_idx+1] = 0.0;
       for (int i=0; i<3; i++) {
-        src_linear += _reduced_sources_xyz(fsr_id, e, i) * direction[i];
+        int linear_idx = first_linear_idx + i;
+        sources[flat_idx] += _reduced_sources_xyz[linear_idx] * center_x2[i];
+        sources[flat_idx+1] += _reduced_sources_xyz[linear_idx] * direction[i];
       }
+      sources[flat_idx] += _reduced_sources[scalar_idx];
+    }
+
+    for (int e=0; e < _num_groups; e++) {
+
+      // Load sources
+      int first_idx = 2*e;
+      FP_PRECISION src_flat = sources[first_idx];
+      FP_PRECISION src_linear = sources[first_idx+1];
+
+      // Load exponential terms
+      first_idx += e; // equivalent to 3*e
+      FP_PRECISION exp_F1 = exponentials[first_idx];
+      FP_PRECISION exp_F2 = exponentials[first_idx+1];
+      FP_PRECISION exp_H = exponentials[first_idx+2];
+      FP_PRECISION tau = sigma_t[e] * length_2D;
 
       // Compute the change in flux across the segment
+      exp_H *= length * track_flux[e];
       FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D * src_flat) *
           exp_F1 - src_linear * length_2D * length_2D * exp_F2;
-      
+
       // Increment the fsr scalar flux and scalar flux moments
-      fsr_flux[e*4] += wgt * delta_psi;
+      first_idx += e; // equivalent to 4*e
+      fsr_flux[first_idx] += wgt * delta_psi;
+      first_idx++;
+      FP_PRECISION reduced_delta = delta_psi / tau;
       for (int i=0; i<3; i++)
-        fsr_flux[e*4 + i + 1] += wgt * length_2D * (exp_H * direction[i]
-              + delta_psi * position[i] / tau);
+        fsr_flux[first_idx + i] += wgt * length_2D * (exp_H * direction[i]
+              + reduced_delta * position[i]);
 
       // Decrement the track flux
       track_flux[e] -= delta_psi;
@@ -441,9 +477,17 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   omp_set_lock(&_FSR_locks[fsr_id]);
 
   for (int e=0; e < _num_groups; e++) {
-    _scalar_flux(fsr_id,e) += fsr_flux[e*4];
+
+    // Compute indexes upfront for performance
+    long scalar_idx = start_scalar_idx + e;
+    long first_linear_idx = start_linear_idx + 3*e;
+    int first_idx = e*4;
+
+    // Add to global scalar flux vector
+    _scalar_flux[scalar_idx] += fsr_flux[first_idx];
+    first_idx++;
     for (int i=0; i<3; i++)
-      _scalar_flux_xyz(fsr_id,e,i) += fsr_flux[e*4 + i + 1];
+      _scalar_flux_xyz[first_linear_idx+i] += fsr_flux[first_idx + i];
   }
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
@@ -623,7 +667,7 @@ FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
         MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                       _geometry->getMPICart());
 #endif
-      double max_size_mb = (double) (max_size * sizeof(FP_PRECISION)) 
+      double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
           / (double) (1e6);
       log_printf(NORMAL, "Max linear constant storage per domain = %6.2f MB",
                  max_size_mb);
