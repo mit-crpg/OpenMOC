@@ -1331,6 +1331,9 @@ double CPUSolver::normalizeFluxes() {
   double tot_fission_source = pairwise_sum<double>(int_fission_sources,
                                                          _num_FSRs);
 
+  /* Get the total number of source regions */
+  long total_num_FSRs = _num_FSRs;
+
 #ifdef MPIx
   /* Reduce total fission rates across domians */
   if (_geometry->isDomainDecomposed()) {
@@ -1345,11 +1348,14 @@ double CPUSolver::normalizeFluxes() {
     MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, MPI_DOUBLE,
                   MPI_SUM, comm);
     tot_fission_source = reduced_fission;
+    
+    /* Get total number of FSRs across all domains */
+    MPI_Allreduce(&_num_FSRs, &total_num_FSRs, 1, MPI_LONG, MPI_SUM, comm);
   }
 #endif
 
   /* Normalize scalar fluxes in each FSR */
-  double norm_factor = 1.0 / tot_fission_source;
+  double norm_factor = total_num_FSRs / tot_fission_source;
 
   log_printf(DEBUG, "Tot. Fiss. Src. = %f, Norm. factor = %f",
              tot_fission_source, norm_factor);
@@ -1426,29 +1432,6 @@ void CPUSolver::computeFSRSources(int iteration) {
       }
     }
   }
-
-  // FIXME tally energy spectrum if negative sources present
-  double neg_energy_spectrum[_num_groups];
-  for (int e=0; e < _num_groups; e++)
-    neg_energy_spectrum[e] = 0.0;
-  for (long r=0; r < _num_FSRs; r++) {
-    bool neg = false;
-    for (int e=0; e < _num_groups; e++)
-      if (_reduced_sources(r,e) <= 0.0)
-        neg = true;
-    if (neg)
-      for (int e=0; e < _num_groups; e++)
-        neg_energy_spectrum[e] += _scalar_flux(r,e);
-  }
-#ifdef MPIx
-  if (_geometry->isDomainDecomposed()) {
-    double send_energy_spectrum[_num_groups];
-    for (int e=0; e < _num_groups; e++)
-      send_energy_spectrum[e] = neg_energy_spectrum[e];
-    MPI_Allreduce(&send_energy_spectrum, &neg_energy_spectrum, _num_groups,
-                  MPI_DOUBLE, MPI_SUM, _geometry->getMPICart());
-  }
-#endif
 
   /* Tally the total number of negative source across the entire problem */
   long total_num_negative_sources = num_negative_sources;
@@ -2060,7 +2043,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
                                      int num_z) {
 
   long long iter = iteration;
-  std::string fname = "sa_5G_negative_sources_iter_";
+  std::string fname = "k_negative_sources_iter_";
   std::string iter_num = std::to_string(iter);
   fname += iter_num;
   std::ofstream out(fname);
