@@ -833,7 +833,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   if (_region == NULL)
     _region = new_halfspace;
   else{
-    if (dynamic_cast<Intersection*>(_region)) 
+    if (dynamic_cast<Intersection*>(_region))
       _region->addNode(new_halfspace);
     else {
       Intersection* intersection = new Intersection();
@@ -948,7 +948,8 @@ Cell* Cell::clone() {
     new_cell->setTranslation(_translation, 3);
 
   /* Clone the Cell's Region */
-  new_cell->setRegion(_region->clone());
+  if (_region != NULL)
+    new_cell->setRegion(_region->clone());
 
   return new_cell;
 }
