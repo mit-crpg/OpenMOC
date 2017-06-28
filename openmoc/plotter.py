@@ -102,8 +102,8 @@ def plot_tracks(track_generator, get_figure=False):
 
     # Convert data to NumPy arrays
     coords = np.array(coords)
-    x = coords[0::vals_per_track/2]
-    y = coords[1::vals_per_track/2]
+    x = coords[0::int(vals_per_track/2)]
+    y = coords[1::int(vals_per_track/2)]
 
     # Make figure of line segments for each Track
     fig = plt.figure()
