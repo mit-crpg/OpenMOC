@@ -244,18 +244,20 @@ class configuration:
   linker_flags = dict()
 
   if ('macosx' in get_platform()):
-    linker_flags['gcc'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
-                           '-Wl,-install_name,' + get_openmoc_object_name()]
-  else:
-    linker_flags['gcc'] = ['-fopenmp', '-shared',
-                           '-Wl,-soname,' + get_openmoc_object_name()]
-
-  if ('macosx' in get_platform()):
-    linker_flags['clang'] = ['-fopenmp', '-dynamiclib', '-lpython2.7',
+      python_lib = sysconfig.get_config_vars('BLDLIBRARY')[0].split()[1]
+      linker_flags['gcc'] = ['-fopenmp', '-dynamiclib', python_lib,
                              '-Wl,-install_name,' + get_openmoc_object_name()]
   else:
-    linker_flags['clang'] = ['-fopenmp', '-shared',
+      linker_flags['gcc'] = ['-fopenmp', '-shared',
                              '-Wl,-soname,' + get_openmoc_object_name()]
+
+  if ('macosx' in get_platform()):
+      python_lib = sysconfig.get_config_vars('BLDLIBRARY')[0].split()[1]
+      linker_flags['clang'] = ['-fopenmp', '-dynamiclib', python_lib,
+                               '-Wl,-install_name,' + get_openmoc_object_name()]
+  else:
+      linker_flags['clang'] = ['-fopenmp', '-shared',
+                               '-Wl,-soname,' + get_openmoc_object_name()]
 
   linker_flags['icpc'] = [ '-openmp', '-shared',
                            '-Xlinker', '-soname=' + get_openmoc_object_name()]
