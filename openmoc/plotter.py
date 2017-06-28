@@ -1215,7 +1215,7 @@ def plot_quadrature(solver, get_figure=False):
     num_azim = track_generator.getNumAzim()
     azim_spacing = track_generator.getDesiredAzimSpacing()
     num_polar_2 = int(quad.getNumPolarAngles() / 2)
-    phis = np.zeros(num_azim/4)
+    phis = np.zeros(int(num_azim/4))
     thetas = np.zeros(num_polar_2)
 
     # Get the polar angles
