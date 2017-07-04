@@ -69,6 +69,7 @@ Material::Material(int id, const char* name) {
 
   _sigma_t = NULL;
   _sigma_s = NULL;
+  _sigma_a = NULL;
   _sigma_f = NULL;
   _nu_sigma_f = NULL;
   _chi = NULL;
@@ -118,6 +119,9 @@ Material::~Material() {
 
     if (_sigma_s != NULL)
       delete [] _sigma_s;
+
+    if (_sigma_a != NULL)
+      delete [] _sigma_a;
 
     if (_sigma_f != NULL)
       delete [] _sigma_f;
@@ -206,6 +210,36 @@ FP_PRECISION* Material::getSigmaS() {
                "cross-section since it has not yet been set", _id);
 
   return _sigma_s;
+}
+
+
+/**
+ * @brief Return the array of the Material's scattering cross-section matrix.
+ * @return the pointer to the Material's array of scattering cross-sections
+ */
+FP_PRECISION* Material::getSigmaA() {
+
+  if (_num_groups <= 0)
+    log_printf(ERROR, "Unable to return Material %d's absorption "
+               "cross-section since it has %d groups", _id, _num_groups);
+
+  if (_sigma_s == NULL || _sigma_t == NULL) {
+    log_printf(ERROR, "Unable to return Material %d's scattering "
+               "cross-section since scattering and total have not been set",
+               _id);
+  }
+
+  if (_sigma_a == NULL) {
+    _sigma_a = new FP_PRECISION[_num_groups];
+    for (int g=0; g < _num_groups; g++) {
+      _sigma_a[g] = _sigma_t[g];
+      for (int gp=0; gp < _num_groups; gp++) {
+        _sigma_a[g] -= _sigma_s[gp*_num_groups + g];
+      }
+    }
+  }
+
+  return _sigma_a;
 }
 
 
