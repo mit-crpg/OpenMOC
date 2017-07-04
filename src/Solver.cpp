@@ -1168,30 +1168,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Print memory report */
 #ifdef BGQ
-  double vm;
-  double rm;
-  double max_vm = vm;
-  double max_rm = rm;
-  log_printf(NORMAL, "FIXME getting memory report");
-  //FIXME
-  /*
-  _timer->processMemUsage(vm, rm);
-#ifdef MPIx
-  if (_geometry->isDomainDecomposed()) {
-    MPI_Barrier(_geometry->getMPICart());
-    MPI_Allreduce(&vm, &max_vm, 1, MPI_DOUBLE, MPI_MAX,
-                  _geometry->getMPICart());
-    MPI_Allreduce(&rm, &max_rm, 1, MPI_DOUBLE, MPI_MAX,
-                  _geometry->getMPICart());
-  }
-#endif
-  if (_geometry->isRootDomain())
-    log_printf(NORMAL, "Using maximum %f MB virtual memory and %f MB resident "
-                        "memory per node", vm, rm);
-   
-  */
   uint64_t shared, persist, heapavail, stackavail, stack, heap, guard, mmap;
-
   Kernel_GetMemorySize(KERNEL_MEMSIZE_SHARED, &shared);
   Kernel_GetMemorySize(KERNEL_MEMSIZE_PERSIST, &persist);
   Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAPAVAIL, &heapavail);
@@ -1201,13 +1178,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   Kernel_GetMemorySize(KERNEL_MEMSIZE_GUARD, &guard);
   Kernel_GetMemorySize(KERNEL_MEMSIZE_MMAP, &mmap);
 
-  log_printf(NORMAL, "Allocated heap: %.2f MB, avail. heap: %.2f MB", 
+  log_printf(NORMAL, "Allocated heap: %.2f MB, avail. heap: %.2f MB",
              (double)heap/(1024*1024),(double)heapavail/(1024*1024));
   log_printf(NORMAL, "Allocated stack: %.2f MB, avail. stack: %.2f MB",
              (double)stack/(1024*1024), (double)stackavail/(1024*1024));
   log_printf(NORMAL, "Memory: shared: %.2f MB, persist: %.2f MB, guard: %.2f "
-             "MB, mmap: %.2f MB\n", (double)shared/(1024*1024), 
-             (double)persist/(1024*1024), (double)guard/(1024*1024), 
+             "MB, mmap: %.2f MB\n", (double)shared/(1024*1024),
+             (double)persist/(1024*1024), (double)guard/(1024*1024),
              (double)mmap/(1024*1024));
 #endif
 

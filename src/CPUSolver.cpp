@@ -235,6 +235,12 @@ void CPUSolver::initializeFluxArrays() {
     memset(_boundary_flux, 0., size * sizeof(float));
     memset(_start_flux, 0., size * sizeof(float));
 
+    /* Allocate memory for boundary leakage if necessary */
+    if (_cmfd == NULL) {
+      _boundary_leakage = new float[_tot_num_tracks];
+      memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
+    }
+
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
     max_size = size;
@@ -1685,6 +1691,9 @@ void CPUSolver::transportSweep() {
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
 
+  /* Zero boundary leakage tally */
+  memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
+
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
   if (_OTF_transport) {
@@ -1851,6 +1860,16 @@ void CPUSolver::transferBoundaryFlux(Track* track,
     float* track_in_flux = &_start_flux(track_id, !direction, 0);
     for (int pe=0; pe < _fluxes_per_track; pe++)
       track_in_flux[pe] = 0.0;
+  }
+
+  /* Tally leakage if applicable */
+  if (_cmfd == NULL) {
+    if (bc_out == VACUUM) {
+      long track_id = track->getUid();
+      FP_PRECISION weight = _quad->getWeightInline(azim_index, polar_index);
+      for (int pe=0; pe < _fluxes_per_track; pe++)
+        _boundary_leakage[track_id] += weight * track_flux[pe];
+    }
   }
 }
 
