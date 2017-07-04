@@ -172,7 +172,7 @@ protected:
 
   /** The angular leakages for each Track. This array stores the weighted
     * outgoing angular fluxes for use in non-CMFD eigenvalue calculations. */
-  FP_PRECISION* _boundary_leakage;
+  float* _boundary_leakage;
 
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
