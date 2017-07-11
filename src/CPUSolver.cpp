@@ -235,6 +235,12 @@ void CPUSolver::initializeFluxArrays() {
     memset(_boundary_flux, 0., size * sizeof(float));
     memset(_start_flux, 0., size * sizeof(float));
 
+    /* Allocate memory for boundary leakage if necessary */
+    if (_cmfd == NULL) {
+      _boundary_leakage = new float[_tot_num_tracks];
+      memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
+    }
+
     /* Allocate an array for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
     max_size = size;
@@ -1595,55 +1601,60 @@ double CPUSolver::computeResidual(residualType res_type) {
  */
 void CPUSolver::computeKeff() {
 
-  int tid;
-  Material* material;
-  FP_PRECISION volume;
-
-  double fission;
   double* FSR_rates = _regionwise_scratch;
+  double rates[3];
 
   /* Loop over all FSRs and compute the volume-integrated total rates */
-#pragma omp parallel for private(tid, volume, \
-    material) schedule(guided)
-  for (long r=0; r < _num_FSRs; r++) {
+  for (int type=0; type < 2; type++) {
+#pragma omp parallel for schedule(guided)
+    for (long r=0; r < _num_FSRs; r++) {
 
-    int tid = omp_get_thread_num();
-    FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
-    FP_PRECISION volume = _FSR_volumes[r];
-    Material* material = _FSR_materials[r];
-    FP_PRECISION* sigma = material->getNuSigmaF();
+      int tid = omp_get_thread_num();
+      FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
+      FP_PRECISION volume = _FSR_volumes[r];
+      Material* material = _FSR_materials[r];
+      FP_PRECISION* sigma;
+      if (type == 0)
+        sigma = material->getNuSigmaF();
+      else
+        sigma = material->getSigmaA();
 
-    for (int e=0; e < _num_groups; e++)
-      group_rates[e] = sigma[e] * _scalar_flux(r,e);
+      for (int e=0; e < _num_groups; e++)
+        group_rates[e] = sigma[e] * _scalar_flux(r,e);
 
-    FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
-    FSR_rates[r] *= volume;
+      FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
+      FSR_rates[r] *= volume;
+    }
+
+    /* Reduce new fission rates across FSRs */
+    rates[type] = pairwise_sum<double>(FSR_rates, _num_FSRs);
   }
 
-  /* Reduce new fission rates across FSRs */
-  fission = pairwise_sum<double>(FSR_rates, _num_FSRs);
+  /* Compute total leakage rate */
+  rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
 
 #ifdef MPIx
-  /* Reduce fission rates across domians */
+  /* Reduce rates across domians */
   if (_geometry->isDomainDecomposed()) {
 
     /* Get the communicator */
     MPI_Comm comm = _geometry->getMPICart();
 
-    /* Determine the floating point precision */
-    double reduced_fission;
+    /* Copy local rates */
+    double local_rates[3];
+    for (int i=0; i < 3; i++)
+      local_rates[i] = rates[i];
 
-    /* Reduce fission rates */
-    MPI_Allreduce(&fission, &reduced_fission, 1, MPI_DOUBLE, MPI_SUM, comm);
-    fission = reduced_fission;
+    /* Reduce computed rates */
+    MPI_Allreduce(local_rates, rates, 3, MPI_DOUBLE, MPI_SUM, comm);
   }
 #endif
 
-
-  /* The old_source is normalized to sum to _k_eff; therefore, the new
-   * _k_eff is the old _k_eff * sum(new_source). Implicitly, we are just doing
-   * _k_eff = sum(new_source) / sum(old_source). */
-  _k_eff *= fission;
+  /* Compute k-eff from fission, absorption, and leakage rates */
+  double fission = rates[0];
+  double absorption = rates[1];
+  double leakage = rates[2];
+  _k_eff = fission / (absorption + leakage);
 }
 
 
@@ -1667,6 +1678,9 @@ void CPUSolver::transportSweep() {
 
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
+
+  /* Zero boundary leakage tally */
+  memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
@@ -1834,6 +1848,16 @@ void CPUSolver::transferBoundaryFlux(Track* track,
     float* track_in_flux = &_start_flux(track_id, !direction, 0);
     for (int pe=0; pe < _fluxes_per_track; pe++)
       track_in_flux[pe] = 0.0;
+  }
+
+  /* Tally leakage if applicable */
+  if (_cmfd == NULL) {
+    if (bc_out == VACUUM) {
+      long track_id = track->getUid();
+      FP_PRECISION weight = _quad->getWeightInline(azim_index, polar_index);
+      for (int pe=0; pe < _fluxes_per_track; pe++)
+        _boundary_leakage[track_id] += weight * track_flux[pe];
+    }
   }
 }
 

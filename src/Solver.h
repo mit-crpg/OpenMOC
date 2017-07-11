@@ -44,11 +44,6 @@
                                                 + (j)*_fluxes_per_track \
                                                + (pe)])
 
-/** Indexing macro for the leakage for each polar angle and energy group
- *  for both the forward and reverse direction for each track */
-#define _boundary_leakage(i,pe2) (_boundary_leakage[2*(i)*_fluxes_per_track \
-                                                    +(pe2)])
-
 /** Indexing scheme for fixed sources for each FSR and energy group */
 #define _fixed_sources(r,e) (_fixed_sources[(r)*_num_groups + (e)])
 
@@ -175,10 +170,9 @@ protected:
   float* _boundary_flux;
   float* _start_flux;
 
-  /** The angular leakages for each Track for all energy groups, polar angles,
-   *  and azimuthal angles. This array stores the weighted outgoing fluxes
-   *  for a Track along both "forward" and "reverse" directions. */
-  FP_PRECISION* _boundary_leakage;
+  /** The angular leakages for each Track. This array stores the weighted
+    * outgoing angular fluxes for use in non-CMFD eigenvalue calculations. */
+  float* _boundary_leakage;
 
   /** The scalar flux for each energy group in each FSR */
   FP_PRECISION* _scalar_flux;
