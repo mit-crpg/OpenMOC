@@ -398,25 +398,25 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         # Search for the scattering matrix cross section
         if 'consistent nu-scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'consistent nu-scatter matrix')
-            sigma = mgxs.get_xs(nuclides='sum').flatten()
+            sigma = mgxs.get_xs(nuclides='sum', moment=0).flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "consistent nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'nu-scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-scatter matrix')
-            sigma = mgxs.get_xs(nuclides='sum').flatten()
+            sigma = mgxs.get_xs(nuclides='sum', moment=0).flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'consistent scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'consistent scatter matrix')
-            sigma = mgxs.get_xs(nuclides='sum').flatten()
+            sigma = mgxs.get_xs(nuclides='sum', moment=0).flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "consistent scatter matrix" '
                       'MGXS for "%s %d"', domain_type, domain.id)
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix')
-            sigma = mgxs.get_xs(nuclides='sum').flatten()
+            sigma = mgxs.get_xs(nuclides='sum', moment=0).flatten()
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
@@ -748,7 +748,7 @@ def _load_openmc_src(mgxs_lib, solver):
         openmc_fluxes[i, :] /= tot_volume
 
         # Extract a NumPy array for each MGXS summed across all nuclides
-        scatter = scatter.get_xs(nuclides='sum')
+        scatter = scatter.get_xs(nuclides='sum', moment=0)
         nu_fission = nu_fission.get_xs(nuclides='sum')
         chi = chi.get_xs(nuclides='sum')
 
