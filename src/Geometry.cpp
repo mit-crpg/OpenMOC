@@ -1694,6 +1694,11 @@ void Geometry::initializeFlatSourceRegions() {
   /* Create map of Material IDs to Material pointers */
   _all_materials = getAllMaterials();
 
+  /* Initialize absorption XS if CMFD absent */
+  std::map<int, Material*>::iterator iter;
+  for (iter = _all_materials.begin(); iter != _all_materials.end(); ++iter)
+    iter->second->getSigmaA();
+
   /* Initialize CMFD */
   if (_cmfd != NULL)
     initializeCmfd();

@@ -14,8 +14,9 @@ CMFD_PRECISION = double
 # Source Code List
 #===============================================================================
 
-#case = load-geometry/load-full-core.cpp
+case = load-geometry/load-full-core.cpp
 #case = load-geometry/load-single-assembly.cpp
+#case = load-geometry/load-few-assm.cpp
 #case = load-geometry/load-2D-full-core.cpp
 
 #case = load-geometry/load-geometry.cpp
@@ -68,6 +69,7 @@ single-assembly/quarter-c5g7-assembly.cpp \
 single-assembly/single-c5g7-assembly.cpp \
 load-geometry/load-geometry.cpp \
 load-geometry/load-single-assembly.cpp \
+load-geometry/load-few-assm.cpp \
 load-geometry/load-2D-full-core.cpp \
 load-geometry/load-full-core.cpp
 
@@ -81,15 +83,16 @@ CFLAGS = -std=gnu++0x
 ifeq ($(COMPILER),gnu)
   CC = gcc
   CFLAGS += -DGNU
+  CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpiCC
+  CC = mpicc
   CFLAGS += -DMPIx
-  #CFLAGS += -march=native
+  CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif
