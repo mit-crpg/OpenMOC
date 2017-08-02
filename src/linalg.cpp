@@ -104,6 +104,8 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     residual = computeRMSE(&new_source, &old_source, true, iter, comm);
     if (iter == 0) {
       initial_residual = residual;
+      if (residual == 0.0)
+        initial_residual = 1e-10;
       if (convergence_data != NULL) {
         convergence_data->cmfd_res_1 = residual;
         convergence_data->linear_iters_1 = convergence_data->linear_iters_end;
@@ -118,7 +120,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                "%3.2e", iter, k_eff, residual);
 
     /* Check for convergence */
-    if (residual / initial_residual < 0.03 &&
+    if ((residual / initial_residual < 0.03) &&
         iter > MIN_LINALG_POWER_ITERATIONS) {
       if (convergence_data != NULL) {
         convergence_data->cmfd_res_end = residual;
@@ -159,7 +161,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  DomainCommunicator* comm) {
 
   tol = std::max(MIN_LINALG_TOLERANCE, tol);
-  
+
   /* Check for consistency of matrix and vector dimensions */
   if (A->getNumX() != B->getNumX() || A->getNumX() != X->getNumX() ||
       A->getNumX() != M->getNumX())
@@ -245,7 +247,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
               int row = row_start + g;
               x[row] = (1.0 - SOR_factor) * x[row];
-              
+
               for (int i = IA[row]; i < IA[row+1]; i++) {
 
                 // Get the column index
@@ -294,7 +296,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                initial_residual, residual / initial_residual, tol,
                (residual / initial_residual < 0.1 || residual < tol) &&
                iter > MIN_LINEAR_SOLVE_ITERATIONS);
-        
+
     // Check for convergence
     if ((residual / initial_residual < 0.1 || residual < tol) &&
         iter > MIN_LINEAR_SOLVE_ITERATIONS) {
@@ -313,7 +315,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     log_printf(WARNING, "Ratio = %3.2e, tol = %3.2e", residual / initial_residual,
                tol);
     log_printf(ERROR, "Linear solve failed to converge in %d iterations with "
-               "initial residual %3.2e and final residual %3.2e", iter, 
+               "initial residual %3.2e and final residual %3.2e", iter,
                initial_residual, residual);
   }
 }
@@ -324,7 +326,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, CMFD_PRECISION**& coupling_coeffs,
-                      CMFD_PRECISION**& coupling_fluxes, 
+                      CMFD_PRECISION**& coupling_fluxes,
                       CMFD_PRECISION* curr_fluxes,
                       int& offset) {
 

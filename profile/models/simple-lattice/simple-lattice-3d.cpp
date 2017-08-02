@@ -17,17 +17,17 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 0.05;
-  int num_azim = 64;
+  double azim_spacing = 0.1;
+  int num_azim = 4;
   double polar_spacing = 0.5;
-  int num_polar = 10;
-  double tolerance = 1e-4;
+  int num_polar = 2;
+  double tolerance = 1e-12;
   int max_iters = 1000;
 
-  int fuel_rings = 2;
-  int moderator_rings = 2;
-  int fuel_sectors = 4;
-  int moderator_sectors = 8;
+  int fuel_rings = 1;
+  int moderator_rings = 1;
+  int fuel_sectors = 1;
+  int moderator_sectors = 1;
 
   /* Define material properties */
   log_printf(NORMAL, "Defining material properties...");
@@ -106,10 +106,10 @@ int main(int argc, char* argv[]) {
 
   xmin.setBoundaryType(REFLECTIVE);
   ymin.setBoundaryType(REFLECTIVE);
-  zmin.setBoundaryType(REFLECTIVE);
+  zmin.setBoundaryType(VACUUM);
   xmax.setBoundaryType(REFLECTIVE);
   ymax.setBoundaryType(REFLECTIVE);
-  zmax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(VACUUM);
 
   ZCylinder large_pin(0.0, 0.0, 0.4);
   ZCylinder medium_pin(0.0, 0.0, 0.3);
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(4,4,10);
+  cmfd.setLatticeStructure(4,4,7);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)

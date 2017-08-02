@@ -87,6 +87,9 @@ private:
   CMFD_PRECISION*** _off_domain_split_currents;
   CMFD_PRECISION*** _received_split_currents;
 
+  /* A tally buffer for threads to tally temporary surface currents */
+  CMFD_PRECISION** _temporary_currents;
+
   /** Vector representing the flux for each cmfd cell and cmfd enegy group at
    * the end of a CMFD solve */
   Vector* _new_flux;
@@ -138,6 +141,10 @@ private:
   /** If diffusion coefficients are limited by the flux */
   bool _flux_limiting;
 
+  /** Whether to rebalance the computed sigma-t to be consistent with the MOC
+   *  solution on every sweep */
+  bool _balance_sigma_t;
+
   /** Number of FSRs */
   long _num_FSRs;
 
@@ -149,6 +156,9 @@ private:
 
   /** The FSR scalar flux in each energy group */
   FP_PRECISION* _FSR_fluxes;
+
+  /** The FSR source in each energy group */
+  FP_PRECISION* _FSR_sources;
 
   /** The source region flux moments (x, y, and z) for each energy group */
   FP_PRECISION* _flux_moments;
@@ -172,6 +182,12 @@ private:
 
   /** Array of surface currents for each CMFD cell */
   Vector* _surface_currents;
+
+  /** Array of total current from starting boundary fluxes */
+  Vector* _starting_currents;
+
+  /** Array of net currents of all CMFD cells */
+  Vector* _net_currents;
 
   /** Array of surface currents on all faces + edges and corners used in
       debugging */
@@ -207,7 +223,7 @@ private:
 
   /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
   omp_lock_t* _cell_locks;
-  
+
   /** OpenMP mutual exclusion lock for edge/corner current tallies */
   omp_lock_t _edge_corner_lock;
 
@@ -300,7 +316,7 @@ private:
 #endif
   void unpackSplitCurrents(bool faces);
   void copyFullSurfaceCurrents();
-  void checkNeutronBalance(bool pre_split=true); 
+  void checkNeutronBalance(bool pre_split=true);
   void printProlongationFactors(int iteration);
 
 public:
@@ -322,6 +338,9 @@ public:
   void zeroCurrents();
   void tallyCurrent(segment* curr_segment, float* track_flux,
                     int azim_index, int polar_index, bool fwd);
+  void tallyStartingCurrent(Point* point, double delta_x, double delta_y,
+                            double delta_z, float* track_flux, double weight);
+  void recordNetCurrents();
   void printTimerReport();
   void checkBalance();
 
@@ -340,6 +359,7 @@ public:
   std::vector< std::vector<long> >* getCellFSRs();
   bool isFluxUpdateOn();
   bool isCentroidUpdateOn();
+  bool isSigmaTRebalanceOn();
 
   /* Set parameters */
   void setSORRelaxationFactor(double SOR_factor);
@@ -365,7 +385,9 @@ public:
   void setAzimSpacings(double* azim_spacings, int num_azim);
   void setPolarSpacings(double** polar_spacings, int num_azim,
                         int num_polar);
+
   //TODO: clean, document
+  void enforceBalanceOnDiagonal(int cmfd_cell, int group);
 #ifdef MPIx
   void setNumDomains(int num_x, int num_y, int num_z);
   void setDomainIndexes(int idx_x, int idx_y, int idx_z);
@@ -373,11 +395,13 @@ public:
   void setConvergenceData(ConvergenceData* convergence_data);
   void useAxialInterpolation(bool interpolate);
   void useFluxLimiting(bool flux_limiting);
+  void rebalanceSigmaT(bool balance_sigma_t);
 
   /* Set FSR parameters */
   void setFSRMaterials(Material** FSR_materials);
   void setFSRVolumes(FP_PRECISION* FSR_volumes);
   void setFSRFluxes(FP_PRECISION* scalar_flux);
+  void setFSRSources(FP_PRECISION* sources);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);
 };
@@ -423,7 +447,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
   int surf_id, cell_id, cmfd_group;
   int ncg = _num_cmfd_groups;
-  CMFD_PRECISION currents[_num_cmfd_groups];
+  int tid = omp_get_thread_num();
+  CMFD_PRECISION* currents = _temporary_currents[tid];
   memset(currents, 0.0, sizeof(CMFD_PRECISION) * _num_cmfd_groups);
   std::map<int, CMFD_PRECISION>::iterator it;
 
@@ -508,7 +533,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
-        
+
         omp_unset_lock(&_edge_corner_lock);
 
       }

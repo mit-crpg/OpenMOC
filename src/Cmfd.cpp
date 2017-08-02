@@ -36,6 +36,7 @@ Cmfd::Cmfd() {
   _centroid_update_on = true;
   _use_axial_interpolation = false;
   _flux_limiting = false;
+  _balance_sigma_t = false;
   _k_nearest = 1;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
@@ -66,6 +67,8 @@ Cmfd::Cmfd() {
   _group_indices_map = NULL;
   _user_group_indices = false;
   _surface_currents = NULL;
+  _starting_currents = NULL;
+  _net_currents = NULL;
   _full_surface_currents = NULL;
   _cell_locks = NULL;
   _volumes = NULL;
@@ -126,6 +129,12 @@ Cmfd::~Cmfd() {
   if (_surface_currents != NULL)
     delete _surface_currents;
 
+  if (_starting_currents != NULL)
+    delete _starting_currents;
+
+  if (_net_currents != NULL)
+    delete _net_currents;
+
   if (_full_surface_currents != NULL)
     delete _full_surface_currents;
 
@@ -174,6 +183,11 @@ Cmfd::~Cmfd() {
     delete [] _volume_tally;
     delete [] _diffusion_tally;
   }
+
+  int num_threads = omp_get_max_threads();
+  for (int t=0; t < num_threads; t++)
+    delete [] _temporary_currents[t];
+  delete [] _temporary_currents;
 
   /* TODO: clean, document */
   int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
@@ -387,6 +401,10 @@ void Cmfd::collapseXS() {
 
   log_printf(INFO, "Collapsing cross-sections onto CMFD mesh...");
 
+  /* Record net currents over cells if neutron balance of sigma-t requested */
+  if (_balance_sigma_t)
+    recordNetCurrents();
+
   /* Check to see that CMFD tallies have been allocated */
   if (!_tallies_allocated)
     log_printf(ERROR, "Tallies need to be allocated before collapsing "
@@ -544,7 +562,6 @@ void Cmfd::collapseXS() {
     }
   }
 
-  //TODO: clean
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
     if (_domain_communicator != NULL) {
@@ -888,7 +905,6 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Update the MOC flux */
   updateMOCFlux();
-  //FIXME printProlongationFactors(moc_iteration);
 
   /* Tally the total CMFD time */
   _timer->stopTimer();
@@ -995,6 +1011,11 @@ void Cmfd::constructMatrices(int moc_iteration) {
         /* Net removal term */
         value = material->getSigmaTByGroup(e+1) * volume;
         _A->incrementValue(i, e, i, e, value);
+
+        /* Re-compute diagonal if neutron re-balance requested */
+        if (_balance_sigma_t) {
+          enforceBalanceOnDiagonal(i, e);
+        }
 
         /* Scattering gain from all groups */
         for (int g = 0; g < _num_cmfd_groups; g++) {
@@ -1209,6 +1230,15 @@ void Cmfd::setFSRFluxes(FP_PRECISION* scalar_flux) {
 
 
 /**
+ * @brief Set pointer to FSR source array.
+ * @param pointer to FSR source array
+ */
+void Cmfd::setFSRSources(FP_PRECISION* sources) {
+  _FSR_sources = sources;
+}
+
+
+/**
  * @brief Set pointer to source region flux moments array
  * @param pointer to source region flux moments array
  */
@@ -1359,6 +1389,14 @@ void Cmfd::initializeCurrents() {
   /* Allocate memory for the CMFD Mesh surface and corner currents Vectors */
   _surface_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
                                  _local_num_z, _num_cmfd_groups * NUM_FACES);
+
+  /* Allocate memory for the actual starting currents on boundary CMFD cells */
+  _starting_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                                 _local_num_z, _num_cmfd_groups);
+
+  /* Allocate memory for the net currents of all CMFD cells */
+  _net_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                                 _local_num_z, _num_cmfd_groups);
 }
 
 
@@ -1488,11 +1526,6 @@ int Cmfd::findCmfdCell(LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   int global_cmfd_cell = _lattice->getLatticeCell(point);
   int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
-  if (global_cmfd_cell == -1)
-    log_printf(ERROR, "XXX ", point->toString().c_str());
-  else if (local_cmfd_cell == -1)
-    log_printf(ERROR, "Cannot find CMFD cell for Point %s  since it is not "
-               "within a local CMFD cell boundary", point->toString().c_str());
   return local_cmfd_cell;
 }
 
@@ -2158,14 +2191,20 @@ void Cmfd::setCellFSRs(std::vector< std::vector<long> >* cell_fsrs) {
 
 /**
  * @brief Set flag indicating whether to update the MOC flux.
- * @param Flag saying whether to update MOC flux.
+ * @param flux_update_on Flag saying whether to update MOC flux.
  */
 void Cmfd::setFluxUpdateOn(bool flux_update_on) {
   _flux_update_on = flux_update_on;
 }
 
 
-//TODO document
+/**
+ * @brief Sets the a ConvergenceData object to record diagnostics
+ * @details The ConvergenceData object records the number of fission source
+ *          and flux iterations for the CMFD solver as well as the maximum
+ *          magnitude prolongation factor
+ * @param convergence_data The convergence data object
+ */
 void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
   _convergence_data = convergence_data;
 }
@@ -2181,9 +2220,32 @@ void Cmfd::useAxialInterpolation(bool interpolate) {
 }
 
 
-//FIXME
+/**
+ * @brief Turns on the flux limiting condition
+ * @details TODO
+ * @param flux_limiting whether to turn on the flux limiting condition
+ */
 void Cmfd::useFluxLimiting(bool flux_limiting) {
   _flux_limiting = flux_limiting;
+}
+
+
+/**
+ * @brief Rebalances the total cross section to be consistent with the MOC
+ *        solution on every sweep
+ * @param balance_sigma_t Wheter to compute the rebalanced total cross-section
+ */
+void Cmfd::rebalanceSigmaT(bool balance_sigma_t) {
+  _balance_sigma_t = balance_sigma_t;
+}
+
+
+/**
+ * @brief Returns a flag indicating whether the sigma-t rebalance is on
+ * @return A flag indicating whether the rebalance is on
+ */
+bool Cmfd::isSigmaTRebalanceOn() {
+  return _balance_sigma_t;
 }
 
 
@@ -2233,7 +2295,7 @@ void Cmfd::setSourceConvergenceThreshold(double source_thresh) {
 
 /**
  * @brief Sets the PolarQuad object in use by the MOC Solver.
- * @param polar_quad a PolarQuad object pointer from the Solver
+ * @param quadrature a PolarQuad object pointer from the Solver
  */
 void Cmfd::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
@@ -2386,15 +2448,6 @@ void Cmfd::generateKNearestStencils() {
         if (_FSR_materials[fsr_id]->isFissionable())
           num_fissionable_FSRs++;
       }
-
-      /* Remove axial prolongation for non-fissionable cells */
-      /* FIXME
-      if (num_fissionable_FSRs == 0) {
-        _axial_interpolants.at(fsr_id)[0] = 0.0;
-        _axial_interpolants.at(fsr_id)[1] = 1.0;
-        _axial_interpolants.at(fsr_id)[2] = 0.0;
-      }
-      */
     }
   }
 }
@@ -2736,6 +2789,8 @@ void Cmfd::setKNearest(int k_nearest) {
  */
 void Cmfd::zeroCurrents() {
   _surface_currents->clear();
+  _starting_currents->clear();
+  _net_currents->clear();
 
   // Clear boundary currents
 #ifdef MPIx
@@ -2801,6 +2856,12 @@ void Cmfd::initialize() {
   int ncg = _num_cmfd_groups;
 
   try {
+
+    /* Allocate temporary tally vectors for surface currents by thread */
+    int num_threads = omp_get_max_threads();
+    _temporary_currents = new CMFD_PRECISION*[num_threads];
+    for (int t=0; t < num_threads; t++)
+      _temporary_currents[t] = new CMFD_PRECISION[ncg];
 
     /* Allocate array of OpenMP locks for each CMFD cell */
     _cell_locks = new omp_lock_t[num_cells];
@@ -3231,7 +3292,12 @@ void Cmfd::printTimerReport() {
 }
 
 
-//FIXME: TODO: description
+/**
+ * @brief Forms a full copy of the surface currents on every surface
+ * @details The copy contains all surface currents including edge and corner
+ *          currents explicitly. It is stored in the _full_surface_currents
+ *          vector for use in debugging and diagnostics.
+ */
 void Cmfd::copyFullSurfaceCurrents() {
 
   /* Allocate full surface currents if necessary */
@@ -3285,7 +3351,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
 
   /* Compute neutron production */
   matrixMultiplication(_M, _old_flux, &m_phi);
-  
+
   /* Compute neutron transfer and loss */
   matrixMultiplication(_A, _old_flux, &a_phi);
   CMFD_PRECISION* a_phi_array = a_phi.getArray();
@@ -3297,11 +3363,11 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   for (int color=0; color < 2; color++) {
 
 #ifdef MPIx
-    getCouplingTerms(_domain_communicator, color, coupling_sizes, 
+    getCouplingTerms(_domain_communicator, color, coupling_sizes,
                      coupling_indexes, coupling_coeffs, coupling_fluxes,
                      _old_flux->getArray(), offset);
 #endif
-                
+
 #pragma omp parallel for collapse(2)
     for (int iz=0; iz < _local_num_z; iz++) {
       for (int iy=0; iy < _local_num_y; iy++) {
@@ -3541,7 +3607,10 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
 }
 
 
-//TODO: REMOVE
+/**
+ * @brief Returns the color of a CMFD cell in the red/black SOR solver
+ * @param cmfd_cell The cmfd cell's global ID
+ */
 int Cmfd::getCellColor(int cmfd_cell) {
   int ix = cmfd_cell % _num_x;
   int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
@@ -3551,7 +3620,9 @@ int Cmfd::getCellColor(int cmfd_cell) {
 }
 
 
-//TODO: description
+/**
+ * @brief Packs reaction rates and currents into buffers for communication
+ */
 void Cmfd::packBuffers() {
 
   int current_idx[6] = {0,0,0,0,0,0};
@@ -3788,7 +3859,10 @@ void Cmfd::communicateSplits(bool faces) {
 #endif
 
 
-//TODO: document
+/**
+ * @brief Unpacks communicated split current data
+ * @param faces Whether to split the currents onto surface faces
+ */
 void Cmfd::unpackSplitCurrents(bool faces) {
 
   int current_idx[6] = {0,0,0,0,0,0};
@@ -3822,12 +3896,6 @@ void Cmfd::unpackSplitCurrents(bool faces) {
             /* Convert the (x,y,z) indexes to a cell ID and boundary index */
             int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
             int idx = current_idx[s];
-            //FIXME YOLO
-            int num_per_side[3] = {_local_num_y * _local_num_z,
-                          _local_num_x * _local_num_z,
-                          _local_num_x * _local_num_y};
-            if (idx < 0 || idx >= num_per_side[s%3])
-                log_printf(ERROR, "Whoa!! Got idx %d / %d", idx, num_per_side[s%3]);
 
             /* Copy the appropriate face or edge information */
             if (faces) {
@@ -3875,13 +3943,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                       _edge_corner_currents[new_ind] = 0.0;
 
                     /* Add the contribution */
-                    //FIXME YOLO
-                    double temp = value * 9.0;
-                    CMFD_PRECISION start_val = _edge_corner_currents[new_ind];
-                    CMFD_PRECISION end_val = start_val * 9.0;
-                    CMFD_PRECISION new_val = (temp + end_val) / 9.0;
-                    _edge_corner_currents[new_ind] = new_val;
-                    //FIXME _edge_corner_currents[new_ind] += value;
+                    _edge_corner_currents[new_ind] += value;
                   }
                 }
               }
@@ -3932,7 +3994,11 @@ int Cmfd::getLocalCMFDCell(int cmfd_cell) {
 }
 
 
-//TODO: REMOVE
+/**
+ * @brief Converts a local CMFD cell ID into its global ID
+ * @param cmfd_cell The local CMFD cell ID
+ * @return The global CMFD cell ID
+ */
 int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
 
   int x_start = 0;
@@ -3955,7 +4021,14 @@ int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Converts a 3 integer vector direction into a surface
+ * @details The direction is a tuplet with each value taking either
+ *          +1 (positive directed), 0 (neutral, or -1 (negative directed)
+ * @param direction The integer vector describing the direction
+ * @return The surface associated with traveling the provided direction from
+ *         the origin of the cell
+ */
 int Cmfd::convertDirectionToSurface(int* direction) {
   int surface = 0;
   int num_crossings = std::abs(direction[0]) + std::abs(direction[1]) +
@@ -4003,7 +4076,13 @@ int Cmfd::convertDirectionToSurface(int* direction) {
 }
 
 
-//FIXME TODO
+/**
+ * @brief Converts a surface into a 3 integer vector direction
+ * @details The direction is a tuplet with each value taking either
+ *          +1 (positive directed), 0 (neutral, or -1 (negative directed)
+ * @param surface The surface of interest
+ * @param direction The integer vector describing the direction
+ */
 void Cmfd::convertSurfaceToDirection(int surface, int* direction) {
   direction[0] = 0;
   direction[1] = 0;
@@ -4041,7 +4120,14 @@ void Cmfd::convertSurfaceToDirection(int surface, int* direction) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Returns the surface name associated with the 3 integer vector
+ *        direction
+ * @details The direction is a tuplet with each value taking either
+ *          +1 (positive directed), 0 (neutral, or -1 (negative directed)
+ * @param direction The integer vector describing the direction
+ * @return A string containing the surface name
+ */
 std::string Cmfd::getSurfaceNameFromDirection(int* direction) {
   std::string str = "SURFACE";
   std::string variables = "XYZ";
@@ -4059,7 +4145,11 @@ std::string Cmfd::getSurfaceNameFromDirection(int* direction) {
 }
 
 
-//FIXME: description
+/**
+ * @brief Returns the surface name associated with a surface
+ * @param surface The surface of interest
+ * @return A string containing the surface name
+ */
 std::string Cmfd::getSurfaceNameFromSurface(int surface) {
   int direction[3];
   convertSurfaceToDirection(surface, direction);
@@ -4067,12 +4157,14 @@ std::string Cmfd::getSurfaceNameFromSurface(int surface) {
 }
 
 
-//FIXME
+/**
+ * @brief A debugging tool that prints all prolongation facotrs to file
+ */
 void Cmfd::printProlongationFactors(int iteration) {
 
   /* Loop over CMFD groups */
   for (int e = 0; e < _num_cmfd_groups; e++) {
-  
+
     /* Create arrays for spatial data */
     double log_ratios[_num_x * _num_y * _num_z];
     for (int i = 0; i < _num_x * _num_y * _num_z; i++)
@@ -4107,7 +4199,7 @@ void Cmfd::printProlongationFactors(int iteration) {
       fname += iter_num;
       std::ofstream out(fname);
 
-      out << "[NORMAL]  Spatial distribution of prolongation factors:" 
+      out << "[NORMAL]  Spatial distribution of prolongation factors:"
           << std::endl;
       for (int z=0; z < _num_z; z++) {
         out << " -------- z = " << z << " ----------" << std::endl;
@@ -4120,6 +4212,210 @@ void Cmfd::printProlongationFactors(int iteration) {
         }
       }
       out.close();
+    }
+  }
+}
+
+
+/**
+ * @brief Modifies the diagonal element to be consistent with the MOC solve
+ * @details This function re-computes a new total cross-section x volume that
+ *          maintains consistency with the MOC solution. Generall, this will
+ *          not change the diagonal element at all since CMFD should be
+ *          consistent with MOC. However, if negative fluxes are corrected to
+ *          zero after the MOC transport sweep, there will be an inconsistency.
+ *          This function modifies sigma-t so that there is consistency with
+ *          the altered solution.
+ * @details cmfd_cell The cmfd cell of the element to adjust
+ * @details group The cmfd group of the element to adjust
+ */
+void Cmfd::enforceBalanceOnDiagonal(int cmfd_cell, int group) {
+
+  /* Initialize tallies */
+  Material* material = _materials[cmfd_cell];
+  double cmfd_volume = _volumes->getValue(cmfd_cell, 0);
+
+  /* Loop over FSRs in CMFD cell to tally the total neutron source */
+  double moc_source = 0.0;
+  for (int j = 0; j < _cell_fsrs.at(cmfd_cell).size(); j++) {
+
+    long fsr_id = _cell_fsrs.at(cmfd_cell).at(j);
+    FP_PRECISION volume = _FSR_volumes[fsr_id];
+
+    /* Loop over MOC energy groups within this CMFD coarse group */
+    for (int h = _group_indices[group]; h < _group_indices[group+1]; h++)
+      moc_source += 4 * M_PI * volume *
+        _FSR_sources[fsr_id * _num_moc_groups + h];
+  }
+
+  /* Compute updated value */
+  double flux = _old_flux->getValue(cmfd_cell, group);
+  CMFD_PRECISION net_current = _net_currents->getValue(cmfd_cell, group);
+  CMFD_PRECISION updated_value = (moc_source - net_current) / flux;
+
+  /* Update the diagonal element */
+  _A->setValue(cmfd_cell, group, cmfd_cell, group, updated_value);
+}
+
+
+/**
+ * @brief This function tallies the current impinging on the domain from
+ *        starting fluxes
+ * @details Incoming currents are tallied for use in diagnostics, debugging,
+ *          and adjusting sigma-t to enforce consistency with the MOC solution,
+ *          if requested
+ * @param point The point where the fluxes enter the geometry
+ * @param delta_x The a small x-nudge in the direction of travel
+ * @param delta_y The a small y-nudge in the direction of travel
+ * @param delta_z The a small z-nudge in the direction of travel
+ * @param track_flux The angular fluxes impinging on the domain
+ * @param weight The weight of the Track
+ */
+void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
+                                double delta_z, float* track_flux,
+                                double weight) {
+
+  /* Check for non-zero current */
+  bool non_zero = false;
+  for (int e=0; e < _num_moc_groups; e++) {
+    if (track_flux[e] != 0.0) {
+      non_zero = true;
+      break;
+    }
+  }
+  if (!non_zero)
+    return;
+
+  /* Create local coordinate */
+  LocalCoords coords;
+  coords.setUniverse(_geometry->getRootUniverse());
+  coords.setX(point->getX());
+  coords.setY(point->getY());
+  coords.setZ(point->getZ());
+
+  /* Find the CMFD cell */
+  coords.adjustCoords(delta_x, delta_y, delta_z);
+  int cell = findCmfdCell(&coords);
+  coords.adjustCoords(-delta_x, -delta_y, -delta_z);
+
+  /* Check the CMFD cell */
+  if (cell == -1)
+    log_printf(ERROR, "Failed to find starting CMFD cell for track start "
+               "point");
+  int cell_x = cell % _local_num_x;
+  int cell_y = (cell % (_local_num_x * _local_num_y)) / _local_num_x;
+  int cell_z = cell / (_local_num_x * _local_num_y);
+  int bounds[3];
+  bool singular[3] = {_local_num_x == 1, _local_num_y == 1, _local_num_z == 1};
+  bounds[0] = -1 * (cell_x == 0) + (cell_x == _local_num_x-1);
+  bounds[1] = -1 * (cell_y == 0) + (cell_y == _local_num_y-1);
+  bounds[2] = -1 * (cell_z == 0) + (cell_z == _local_num_z-1);
+  if ((bounds[0] == 0 && !singular[0]) && (bounds[1] == 0 && !singular[1]) &&
+      (bounds[2] == 0 && !singular[2]))
+    log_printf(ERROR, "Track start point not on a boundary CMFD cell. "
+               "Cell = %d (%d, %d, %d) from Track: (%3.2f, %3.2f, %3.2f) "
+               "adjusted (%3.2e, %3.2e, %3.2e)", cell, cell_x, cell_y, cell_z,
+               point->getX(), point->getY(), point->getZ(), delta_x, delta_y,
+               delta_z);
+
+
+  int tid = omp_get_thread_num();
+  CMFD_PRECISION* currents = _temporary_currents[tid];
+  memset(currents, 0.0, sizeof(CMFD_PRECISION) * _num_cmfd_groups);
+
+  /* Tally currents to each CMFD group locally */
+  for (int e=0; e < _num_moc_groups; e++) {
+
+    /* Get the CMFD group */
+    int cmfd_group = getCmfdGroup(e);
+
+    /* Increment the surface group */
+    currents[cmfd_group] += track_flux[e] * weight;
+  }
+
+
+  /* Tally starting currents to cell */
+  _starting_currents->incrementValues(cell, 0, _num_cmfd_groups - 1, currents);
+
+}
+
+
+/**
+ * @param Records net currents (leakage) on every CMFD cell for every group
+ */
+void Cmfd::recordNetCurrents() {
+
+#pragma omp parallel for
+  for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+
+    for (int e=0; e < _num_cmfd_groups; e++)
+      _net_currents->incrementValue(i, e,
+                                    -1 * _starting_currents->getValue(i,e));
+
+    /* Compute cell indexes */
+    int cell_ind[3];
+    cell_ind[0] = i % _local_num_x;
+    cell_ind[1] = (i / _local_num_x) % _local_num_y;
+    cell_ind[2] = i / (_local_num_x * _local_num_y);
+
+    /* Tally current from all surfaces including edges and corners */
+    for (int s=0; s < NUM_SURFACES; s++) {
+
+      /* Check if edge/corner exists */
+      if (s >= NUM_FACES) {
+        int idx = i * NUM_SURFACES * _num_cmfd_groups + s * _num_cmfd_groups;
+        std::map<int, CMFD_PRECISION>::iterator it =
+          _edge_corner_currents.find(idx);
+        if (it == _edge_corner_currents.end())
+          continue;
+      }
+
+      /* Compute index and vector direction */
+      int direction[3];
+      convertSurfaceToDirection(s, direction);
+
+      /* Copute the next CMFD cell from the cell indexes and direction */
+      int cmfd_cell_next = 0;
+      int cell_next_ind[3];
+      for (int d=0; d < 3; d++)
+        cell_next_ind[d] = cell_ind[d] + direction[d];
+
+      cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] * _local_num_x
+                     + cell_next_ind[2] * (_local_num_x * _local_num_y);
+      if (cell_next_ind[0] < 0 || cell_next_ind[0] >= _local_num_x ||
+          cell_next_ind[1] < 0 || cell_next_ind[1] >= _local_num_y ||
+          cell_next_ind[2] < 0 || cell_next_ind[2] >= _local_num_z)
+        cmfd_cell_next = -1;
+
+      /* Tally net currents */
+      if (s < NUM_FACES) {
+        int idx = s * _num_cmfd_groups;
+        for (int e=0; e < _num_cmfd_groups; e++) {
+          double current = 1 * _surface_currents->getValue(i, idx+e);
+          _net_currents->incrementValue(i, e, current);
+        }
+
+        if (cmfd_cell_next != -1) {
+          for (int e=0; e < _num_cmfd_groups; e++) {
+            double current = -1 * _surface_currents->getValue(i, idx+e);
+            _net_currents->incrementValue(cmfd_cell_next, e, current);
+          }
+        }
+      }
+      else {
+        int idx = i * NUM_SURFACES * _num_cmfd_groups + s * _num_cmfd_groups;
+        for (int e=0; e < _num_cmfd_groups; e++) {
+          double current = _edge_corner_currents.at(idx+e);
+          _net_currents->incrementValue(i, e, current);
+        }
+
+        if (cmfd_cell_next != -1) {
+          for (int e=0; e < _num_cmfd_groups; e++) {
+            double current = -1 * _edge_corner_currents.at(idx+e);
+            _net_currents->incrementValue(cmfd_cell_next, e, current);
+          }
+        }
+      }
     }
   }
 }
