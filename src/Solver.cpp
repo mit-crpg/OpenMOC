@@ -65,6 +65,9 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   //FIXME
   _OTF_transport = false;
+  //FIXME
+  _reset_iteration = -1;
+  _limit_xs = false;
 }
 
 /**
@@ -693,6 +696,79 @@ void Solver::countFissionableFSRs() {
 }
 
 
+//FIXME
+void Solver::checkLimitXS(int iteration) {
+
+  if (iteration == _reset_iteration)
+    log_printf(NORMAL, "Re-setting material cross-sections");
+  else
+    return;
+
+  /* Create a set of material pointers */
+  std::map<int, Material*> materials_set;
+
+  /* Check all unique materials */
+  for (std::map<int, Material*>::iterator it = _limit_materials.begin();
+          it != _limit_materials.end(); ++it) {
+
+    /* Get the material */
+    int id = it->first;
+    Material* material = it->second;
+    Material* original_material = _original_materials[id];
+
+    /* Extract cross-sections */
+    FP_PRECISION* sigma_t = material->getSigmaT();
+    FP_PRECISION* sigma_s = material->getSigmaS();
+
+    /* Extract cross-sections */
+    FP_PRECISION* original_sigma_t = original_material->getSigmaT();
+    FP_PRECISION* original_sigma_s = original_material->getSigmaS();
+
+    /* Loop over all energy groups */
+    for (int e=0; e < _num_groups; e++) {
+      sigma_t[e] = original_sigma_t[e];
+      sigma_s[e*_num_groups+e] = original_sigma_s[e*_num_groups+e];
+    }
+  }
+  log_printf(NORMAL, "Material re-set complete");
+}
+
+
+//FIXME
+void Solver::setLimitingXSMaterials(std::vector<int> material_ids, 
+                                    int reset_iteration) {
+  _limit_xs_materials = material_ids;
+  _reset_iteration = reset_iteration;
+  _limit_xs = true;
+}
+
+
+//FIXME
+void Solver::limitXS() {
+
+  log_printf(NORMAL, "Limiting negative cross-sections in %d materials",
+             _limit_xs_materials.size());
+  std::map<int, Material*> all_materials = _geometry->getAllMaterials();
+  for (int i=0; i < _limit_xs_materials.size(); i++) {
+    int mat_id = _limit_xs_materials.at(i);
+    Material* material = all_materials[mat_id];
+    Material* material_copy = material->clone();
+    _original_materials[mat_id] = material_copy;
+    _limit_materials[mat_id] = material;
+    FP_PRECISION* scattering_matrix = material->getSigmaS();
+    FP_PRECISION* sigma_t = material->getSigmaT();
+    for (int e=0; e < _num_groups; e++) {
+      double scattering_value = scattering_matrix[e*_num_groups+e];
+      if (scattering_value < 0.0) {
+        scattering_matrix[e*_num_groups+e] = 0.0;
+        sigma_t[e] -= scattering_value;
+      }
+    }
+  }
+  log_printf(NORMAL, "Cross-section adjustment complete");
+}
+
+
 /**
  * @brief All material cross-sections in the geometry are checked for
  *        consistency
@@ -955,7 +1031,6 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Initialize data structures */
   initializeFSRs();
   initializeSourceArrays();
-  //FIXME checkXS();
   countFissionableFSRs();
   initializeExpEvaluators();
 
@@ -1144,7 +1219,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Initialize data structures */
   initializeFSRs();
-  //FIXME checkXS();
+  limitXS(); // FIXME
   countFissionableFSRs();
   initializeExpEvaluators();
   initializeFluxArrays();
@@ -1210,6 +1285,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
+
+    if (_limit_xs)
+      checkLimitXS(i);
 
     computeFSRSources(i);
     _timer->startTimer();

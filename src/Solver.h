@@ -137,6 +137,13 @@ protected:
   /** A pointer to the array of Tracks */
   Track** _tracks; //FIXME
 
+  //FIXME
+  std::vector<int> _limit_xs_materials;
+  int _reset_iteration;
+  bool _limit_xs;
+  std::map<int, Material*> _original_materials;
+  std::map<int, Material*> _limit_materials;
+
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
 
@@ -386,6 +393,13 @@ public:
   void setVerboseIterationReport();
   void printTimerReport();
   FP_PRECISION* getFluxesArray();
+
+  //FIXME
+  void limitXS();
+  void setLimitingXSMaterials(std::vector<int> material_ids,
+                              int reset_iteration);
+  void checkLimitXS(int iteration);
+
 
   //FIXME
   inline void setOTFTransport() {
