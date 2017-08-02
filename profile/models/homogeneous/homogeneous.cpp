@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   #else
   int num_threads = 1;
   #endif
-  double azim_spacing = 1.5;
+  double azim_spacing = 10.0;
   int num_azim = 4;
   double polar_spacing = 10.0;
   int num_polar = 2;
@@ -101,19 +101,19 @@ int main(int argc, char* argv[]) {
   /* Create surfaces */
   log_printf(NORMAL, "Creating surfaces...");
 
-  XPlane xmin(-16.5);
-  XPlane xmax( 16.5);
-  YPlane ymin(-16.5);
-  YPlane ymax( 16.5);
-  ZPlane zmin(-101.0);
-  ZPlane zmax( 101.0);
+  XPlane xmin(-100.0);
+  XPlane xmax( 100.0);
+  YPlane ymin(-100.0);
+  YPlane ymax( 100.0);
+  ZPlane zmin(-100.0);
+  ZPlane zmax( 100.0);
 
   xmin.setBoundaryType(VACUUM);
   ymin.setBoundaryType(VACUUM);
-  zmin.setBoundaryType(REFLECTIVE);
+  zmin.setBoundaryType(VACUUM);
   xmax.setBoundaryType(VACUUM);
   ymax.setBoundaryType(VACUUM);
-  zmax.setBoundaryType(REFLECTIVE);
+  zmax.setBoundaryType(VACUUM);
 
   /* Add universes */
   log_printf(NORMAL, "Creating universes...");
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
   /* Create CMFD mesh */
   log_printf(NORMAL, "Creating Cmfd mesh...");
   Cmfd* cmfd = new Cmfd();
-  cmfd->setLatticeStructure(10, 10, 10);
+  cmfd->setLatticeStructure(2, 2, 1);
 
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");

@@ -74,8 +74,10 @@ protected:
   virtual void initializeSourceArrays();
   virtual void initializeFSRs();
 
+
   void zeroTrackFluxes();
   void copyBoundaryFluxes();
+  void tallyStartingCurrents();
 #ifdef MPIx
   void setupMPIBuffers();
   void deleteMPIBuffers();

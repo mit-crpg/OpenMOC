@@ -871,6 +871,7 @@ void Solver::initializeCmfd() {
   _cmfd->setFSRVolumes(_FSR_volumes);
   _cmfd->setFSRMaterials(_FSR_materials);
   _cmfd->setFSRFluxes(_scalar_flux);
+  _cmfd->setFSRSources(_reduced_sources);
   _cmfd->setQuadrature(_quad);
   _cmfd->setGeometry(_geometry);
   _cmfd->setAzimSpacings(_quad->getAzimSpacings(), _num_azim);
@@ -1256,8 +1257,11 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
                  "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
     }
 
-    if (_cmfd != NULL)
+    if (_cmfd != NULL) {
+      if (residual <= 0)
+        residual = 1e-6;
       _cmfd->setSourceConvergenceThreshold(0.01*residual);
+    }
     storeFSRFluxes();
     previous_residual = residual;
     _num_iterations++;

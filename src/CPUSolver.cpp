@@ -378,6 +378,48 @@ void CPUSolver::copyBoundaryFluxes() {
 }
 
 
+//FIXME: make suitable for 2D
+void CPUSolver::tallyStartingCurrents() {
+
+#pragma omp parallel for schedule(guided)
+  for (long t=0; t < _tot_num_tracks; t++) {
+
+    /* Get 3D Track data */
+    TrackGenerator3D* track_generator_3D =
+        dynamic_cast<TrackGenerator3D*>(_track_generator);
+    if (track_generator_3D != NULL) {
+      TrackStackIndexes tsi;
+      Track3D track;
+      track_generator_3D->getTSIByIndex(t, &tsi);
+      track_generator_3D->getTrackOTF(&track, &tsi);
+
+      /* Determine the first and last CMFD cells of each track */
+      double azim = track.getPhi();
+      double polar = track.getTheta();
+      double delta_x = cos(azim) * sin(polar) * TINY_MOVE;
+      double delta_y = sin(azim) * sin(polar) * TINY_MOVE;
+      double delta_z = cos(polar) * TINY_MOVE;
+      Point* start = track.getStart();
+      Point* end = track.getEnd();
+
+      /* Get the track weight */
+      int azim_index = track.getAzimIndex();
+      int polar_index = track.getPolarIndex();
+      double weight = _quad->getWeightInline(azim_index, polar_index);
+
+      /* Tally currents */
+      _cmfd->tallyStartingCurrent(start, delta_x, delta_y, delta_z,
+                                  &_start_flux(t, 0, 0), weight);
+      _cmfd->tallyStartingCurrent(end, -delta_x, -delta_y, -delta_z,
+                                  &_start_flux(t, 1, 0), weight);
+    }
+    else {
+      log_printf(ERROR, "Starting currents not implemented yet for 2D MOC");
+    }
+  }
+}
+
+
 #ifdef MPIx
 /**
  * @brief Buffers used to transfer angular flux information are initialized
@@ -1695,6 +1737,11 @@ void CPUSolver::transportSweep() {
 
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
+
+  /* Tally the starting fluxes to boundaries */
+  if (_cmfd != NULL)
+    if (_cmfd->isSigmaTRebalanceOn())
+      tallyStartingCurrents();
 
   /* Zero boundary leakage tally */
   memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
