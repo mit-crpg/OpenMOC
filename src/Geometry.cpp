@@ -1695,9 +1695,11 @@ void Geometry::initializeFlatSourceRegions() {
   _all_materials = getAllMaterials();
 
   /* Initialize absorption XS if CMFD absent */
-  std::map<int, Material*>::iterator iter;
-  for (iter = _all_materials.begin(); iter != _all_materials.end(); ++iter)
-    iter->second->getSigmaA();
+  if (_cmfd == NULL) {
+    std::map<int, Material*>::iterator iter;
+    for (iter = _all_materials.begin(); iter != _all_materials.end(); ++iter)
+      iter->second->getSigmaA();
+  }
 
   /* Initialize CMFD */
   if (_cmfd != NULL)
