@@ -775,6 +775,26 @@ void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
 
 
 /**
+ * @brief Clears all boundary conditions from the Geometry
+ */
+void Geometry::clearBoundaries() {
+
+  /* Extract all surfaces from the Geometry */
+  std::map<int, Surface*> all_surfaces = getAllSurfaces();
+  std::map<int, Surface*>::iterator it;
+
+  /* Iterate over all surfaces */
+  for (it = all_surfaces.begin(); it != all_surfaces.end(); ++it) {
+
+    /* Remove boundary conditions */
+    Surface* surface = it->second;
+    if (surface->getBoundaryType() != BOUNDARY_NONE)
+      surface->setBoundaryType(BOUNDARY_NONE);
+  }
+}
+
+
+/**
  * @brief Find the Cell that this LocalCoords object is in at the lowest level
  *        of the nested Universe hierarchy.
  * @details This method assumes that the LocalCoords has been initialized
@@ -899,7 +919,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
 
   /* If the current coords is inside a Cell, look for next Cell */
   else {
-    
+
     /* Ascend universes until at the highest level.
      * At each universe/lattice level get distance to next
      * universe or lattice cell. Recheck min_dist. */
@@ -2063,11 +2083,11 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   LocalCoords end(x0, y0, z0, true);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
-      
+
   //FIXME
   LocalCoords test_ext_coords(0,0,0,true);
   LocalCoords test_start_coords(0,0,0,true);
-  
+
   /* Find the Cell containing the Track starting Point */
   Cell* curr = findFirstCell(&end, phi);
 
