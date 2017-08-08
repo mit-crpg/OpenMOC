@@ -263,6 +263,7 @@ public:
   void setOverlaidMesh(double axial_mesh_height, int num_x=0,
                        int num_y=0, int num_radial_domains=0,
                        int* radial_domains=NULL);
+  void clearBoundaries();
 
   /* Find methods */
   Cell* findCellContainingCoords(LocalCoords* coords);
