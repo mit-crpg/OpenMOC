@@ -550,6 +550,15 @@ void Cmfd::collapseXS() {
 
         /* Save cross-sections to material */
         double rxn_tally = _reaction_tally[i][e];
+
+        if (rxn_tally == 0.0) {
+          log_printf(WARNING, "Zero reaction tally calculated in CMFD cell %d "
+                     "in CMFD group %d", i, e);
+          rxn_tally = ZERO_SIGMA_T;
+          _reaction_tally[i][e] = ZERO_SIGMA_T;
+          _diffusion_tally[i][e] = ZERO_SIGMA_T;
+        }
+
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
         cell_material->setNuSigmaFByGroup(nu_fission_tally / rxn_tally, e + 1);
 
@@ -1390,13 +1399,15 @@ void Cmfd::initializeCurrents() {
   _surface_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
                                  _local_num_z, _num_cmfd_groups * NUM_FACES);
 
-  /* Allocate memory for the actual starting currents on boundary CMFD cells */
-  _starting_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                                 _local_num_z, _num_cmfd_groups);
+  if (_balance_sigma_t) {
+    /* Allocate memory for the actual starting currents on boundary CMFD cells */
+    _starting_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                                    _local_num_z, _num_cmfd_groups);
 
-  /* Allocate memory for the net currents of all CMFD cells */
-  _net_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                                 _local_num_z, _num_cmfd_groups);
+    /* Allocate memory for the net currents of all CMFD cells */
+    _net_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
+                               _local_num_z, _num_cmfd_groups);
+  }
 }
 
 
@@ -2788,9 +2799,13 @@ void Cmfd::setKNearest(int k_nearest) {
  * @brief Zero the surface currents for each mesh cell and energy group.
  */
 void Cmfd::zeroCurrents() {
+
   _surface_currents->clear();
-  _starting_currents->clear();
-  _net_currents->clear();
+
+  if (_balance_sigma_t) {
+    _starting_currents->clear();
+    _net_currents->clear();
+  }
 
   // Clear boundary currents
 #ifdef MPIx

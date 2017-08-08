@@ -424,6 +424,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
     : TraverseSegments(solver->getTrackGenerator()) {
 
+  /* Import data from the Solver and TrackGenerator */
   _lin_exp_coeffs = solver->getLinearExpansionCoeffsBuffer();
   _src_constants = solver->getSourceConstantsBuffer();
   TrackGenerator* track_generator = solver->getTrackGenerator();
@@ -432,6 +433,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _quadrature = track_generator->getQuadrature();
   _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
 
+  /* Determine the number of linear coefficients */
   _num_flat = 0;
   int num_rows = 1;
   _num_coeffs = 3;
@@ -440,6 +442,13 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
     _num_coeffs = 6;
   }
 
+  /* Reset linear source coefficients to zero */
+  long size = track_generator->getGeometry()->getNumFSRs() * _num_coeffs;
+  memset(_lin_exp_coeffs, 0.0, size * sizeof(FP_PRECISION));
+  size *= _num_groups;
+  memset(_src_constants, 0.0, size * sizeof(FP_PRECISION));
+
+  /* Create local thread tallies */
   int num_threads = omp_get_max_threads();
   _starting_points = new Point*[num_threads];
   _thread_source_constants = new FP_PRECISION*[num_threads];

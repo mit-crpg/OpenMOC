@@ -13,7 +13,7 @@
 #define REPORT_WIDTH 53
 
 /** The minimum auto ID used for Surfaces, Cells, Materials and Universes */
-#define DEFAULT_INIT_ID 10000
+#define DEFAULT_INIT_ID 100000
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.566370614359172

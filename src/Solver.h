@@ -398,7 +398,7 @@ public:
   void limitXS();
   void setLimitingXSMaterials(std::vector<int> material_ids,
                               int reset_iteration);
-  void checkLimitXS(int iteration);
+  virtual void checkLimitXS(int iteration);
 
 
   //FIXME
