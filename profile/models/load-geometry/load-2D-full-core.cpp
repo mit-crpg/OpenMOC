@@ -5,6 +5,7 @@
 #include <array>
 #include <iostream>
 #include "helper-code/group-structures.h"
+#include <fenv.h>
 
 int main(int argc,  char* argv[]) {
 
@@ -13,13 +14,15 @@ int main(int argc,  char* argv[]) {
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
+  ///feenableexcept(FE_DIVBYZERO);
   /* Define geometry to load */
   //std::string file = "v1-full-core-2D.geo";
-  std::string file = "v5-full-core-2D-new-xs.geo";
-  //std::string file = "v2-full-core-2D-no-rings.geo";
-  //std::string file = "old-beavrs-2D.geo";
-  //std::string file = "beavrs-2D-raw-TC.geo";
-  //std::string file = "beavrs-2D-raw-TC-K5.geo";
+  //std::string file = "vc1-full-core-2D.geo";
+  //std::string file = "noTC-full-core-2D.geo";
+  //std::string file = "old-geo-files/beavrs-2D-raw-TC.geo";
+  //std::string file = "will-2D-TC-2.geo";
+  //std::string file = "cas-2D-TCo.geo";
+  std::string file = "b1-2D.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -34,7 +37,7 @@ int main(int argc,  char* argv[]) {
   int num_polar = 2;
 
   double tolerance = 1e-10;
-  int max_iters = 25;
+  int max_iters = 10;
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -42,7 +45,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17*17, 17*17, 1);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 8);
+      get_group_structure(70, 25);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);

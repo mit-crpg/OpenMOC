@@ -385,6 +385,7 @@ public:
   void setAzimSpacings(double* azim_spacings, int num_azim);
   void setPolarSpacings(double** polar_spacings, int num_azim,
                         int num_polar);
+  void setKeff(double k_eff);
 
   //TODO: clean, document
   void enforceBalanceOnDiagonal(int cmfd_cell, int group);
@@ -464,7 +465,6 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
     cell_id = curr_segment->_cmfd_surface_bwd / NUM_SURFACES;
     tally_current = true;
   }
-
 
   /* Tally current if necessary */
   if (tally_current) {

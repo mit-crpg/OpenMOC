@@ -3277,6 +3277,12 @@ void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
 
 
 //TODO: document
+void Cmfd::setKeff(double k_eff) {
+  _k_eff = k_eff;
+}
+
+
+//TODO: document
 void Cmfd::printTimerReport() {
 
   std::string msg_string;

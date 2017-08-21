@@ -126,7 +126,7 @@ void CPULSSolver::initializeFSRs() {
   log_printf(NORMAL, "Generating linear expansion coefficients");
   LinearExpansionGenerator lin_src_coeffs(this);
   lin_src_coeffs.execute();
-  log_printf(NORMAL, "Done");
+  log_printf(NORMAL, "Linear expansion coefficient generation complete");
 }
 
 
@@ -171,6 +171,22 @@ double CPULSSolver::normalizeFluxes() {
 }
 
 
+//FIXME
+void CPULSSolver::checkLimitXS(int iteration) {
+
+  Solver::checkLimitXS(iteration);
+
+  if (iteration != _reset_iteration)
+    return;
+
+  /* Generate linear source coefficients */
+  log_printf(NORMAL, "Generating linear expansion coefficients");
+  LinearExpansionGenerator lin_src_coeffs(this);
+  lin_src_coeffs.execute();
+  log_printf(NORMAL, "Linear expansion coefficient generation complete");
+}
+
+
 /**
  * @brief Computes the total source (fission, scattering, fixed) in each FSR.
  * @details This method computes the total source in each FSR based on
@@ -212,8 +228,13 @@ void CPULSSolver::computeFSRSources(int iteration) {
         FP_PRECISION* scatter_sources_x = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
           int idx = first_scattering_index + g_prime;
-          scatter_sources_x[g_prime] = sigma_s[idx] *
-            _scalar_flux_xyz(r,g_prime,0);
+          if (sigma_s[idx] > 0) {
+            scatter_sources_x[g_prime] = sigma_s[idx] *
+              _scalar_flux_xyz(r,g_prime,0);
+          }
+          else {
+            scatter_sources_x[g_prime] = 1.0e-20;
+          }
         }
         double scatter_source_x =
             pairwise_sum<FP_PRECISION>(scatter_sources_x, _num_groups);
@@ -221,8 +242,13 @@ void CPULSSolver::computeFSRSources(int iteration) {
         FP_PRECISION* scatter_sources_y = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
           int idx = first_scattering_index + g_prime;
-          scatter_sources_y[g_prime] = sigma_s[idx]
-            * _scalar_flux_xyz(r,g_prime,1);
+          if (sigma_s[idx] > 0) {
+            scatter_sources_y[g_prime] = sigma_s[idx]
+              * _scalar_flux_xyz(r,g_prime,1);
+          }
+          else {
+            scatter_sources_y[g_prime] = 1.0e-20;
+          }
         }
         double scatter_source_y =
             pairwise_sum<FP_PRECISION>(scatter_sources_y, _num_groups);
@@ -230,8 +256,13 @@ void CPULSSolver::computeFSRSources(int iteration) {
         FP_PRECISION* scatter_sources_z = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
           int idx = first_scattering_index + g_prime;
-          scatter_sources_z[g_prime] = sigma_s[idx]
-            * _scalar_flux_xyz(r,g_prime,2);
+          if (sigma_s[idx] > 0.0) {
+            scatter_sources_z[g_prime] = sigma_s[idx]
+              * _scalar_flux_xyz(r,g_prime,2);
+          }
+          else {
+            scatter_sources_y[g_prime] = 1.0e-20;
+          }
         }
         double scatter_source_z =
             pairwise_sum<FP_PRECISION>(scatter_sources_z, _num_groups);

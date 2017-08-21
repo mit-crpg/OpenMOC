@@ -14,7 +14,11 @@ int main(int argc,  char* argv[]) {
 #endif
 
   /* Define geometry to load */
-  std::string file = "v10-full-core-new-xs.geo";
+  //std::string file = "v11-full-core-new-xs.geo";
+  //std::string file = "will-3D-TC-core.geo";
+  //std::string file = "b2-full-core.geo";
+  //std::string file = "final-full-core.geo";
+  std::string file = "final-full-core-full-TC.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -23,13 +27,13 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
  
-  double azim_spacing = 0.1;
-  int num_azim = 4;
-  double polar_spacing = 0.75;
+  double azim_spacing = 0.1; // 0.1
+  int num_azim = 4; //TODO 32
+  double polar_spacing = 0.75; // 0.75
   int num_polar = 2;
 
-  double tolerance = 1e-4;
-  int max_iters = 50;
+  double tolerance = 1e-8;
+  int max_iters = 30; //TODO 8
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -37,11 +41,12 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17*17, 17*17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 8);
+      get_group_structure(70, 25);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
+  cmfd.rebalanceSigmaT(true);
 
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -112,6 +117,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
   geometry.setDomainDecomposition(17, 17, 5, MPI_COMM_WORLD);
+  //geometry.setNumDomainModules(17, 17, 40);
 #endif
   geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
                            rad_discr_domains);
@@ -145,11 +151,21 @@ int main(int argc,  char* argv[]) {
 
   /* Run simulation */
   CPUSolver solver(&track_generator); //FIXME LS / FS
-  solver.setChiSpectrumMaterial(fiss_material);
+  //solver.setChiSpectrumMaterial(fiss_material);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
   solver.setCheckXSLogLevel(INFO);
+  
+  //FIXME
+  std::vector<int> material_ids;
+  material_ids.push_back(10016); //outer water
+  material_ids.push_back(10017); //upper water
+  material_ids.push_back(10018); //radial-ref water
+  material_ids.push_back(10019); //water-spn
+  //solver.setLimitingXSMaterials(material_ids, 8);
+  //solver.setLimitingXSMaterials(material_ids, 100);
+
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 

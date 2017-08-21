@@ -42,6 +42,7 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
+  _stabalizing_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
   _source_type = "None";
@@ -60,6 +61,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _timer = new Timer();
 
   _correct_xs = false;
+  _stabalize_transport = false;
   _verbose = false;
   _xs_log_level = ERROR;
 
@@ -93,6 +95,9 @@ Solver::~Solver() {
 
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
+  
+  if (_stabalizing_flux != NULL)
+    delete [] _stabalizing_flux;
 
   if (_fixed_sources != NULL)
     delete [] _fixed_sources;
@@ -530,6 +535,21 @@ void Solver::useExponentialIntrinsic() {
  */
 void Solver::correctXS() {
   _correct_xs = true;
+}
+
+
+/**
+ * @brief   Directs OpenMOC to use the diagonal stabalizing correction to
+ *          the source iteration transport sweep
+ * @details The source iteration process which MOC uses can be unstable
+ *          if negative cross-sections arise from transport correction. This
+ *          instability causes issues in convergence. The stabalizing
+ *          correction fixes this by adding a diagonal matrix to both sides
+ *          of the discretized transport equation which introduces no bias
+ *          but transforms the iteration matrix into one that is stable.
+ */
+void Solver::stabalizeTransport() {
+  _stabalize_transport = true;
 }
 
 
@@ -1290,6 +1310,12 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     if (_limit_xs)
       checkLimitXS(i);
 
+    /* Comptue the stabalizing flux if necessary */
+    if (_stabalize_transport) {
+      computeStabalizingFlux();
+    }
+
+    /* Perform the source iteration */
     computeFSRSources(i);
     _timer->startTimer();
     transportSweep();
@@ -1302,6 +1328,11 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
       _k_eff = _cmfd->computeKeff(i);
     else
       computeKeff();
+    
+    /* Apply the flux adjustment if transport stabalization is on */
+    if (_stabalize_transport) {
+      stabalizeFlux();
+    }
 
     /* Normalize the flux and compute residuals */
     normalizeFluxes();

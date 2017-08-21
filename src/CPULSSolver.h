@@ -56,6 +56,9 @@ public:
   void initializeCmfd();
   void initializeExpEvaluators();
   void initializeFSRs();
+  
+  //FIXME
+  void checkLimitXS(int iteration);
 
   void flattenFSRFluxes(FP_PRECISION value);
   double normalizeFluxes();

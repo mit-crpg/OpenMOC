@@ -247,6 +247,9 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
               int row = row_start + g;
               x[row] = (1.0 - SOR_factor) * x[row];
+                
+              if (DIAG[row] == 0)
+                  log_printf(ERROR, "ZERO DIAGONAL");
 
               for (int i = IA[row]; i < IA[row+1]; i++) {
 
