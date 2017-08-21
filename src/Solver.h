@@ -30,6 +30,9 @@
 /** Indexing macro for the old scalar flux in each FSR and energy group */
 #define _old_scalar_flux(r,e) (_old_scalar_flux[(r)*_num_groups + (e)])
 
+/** Indexing macro for the stabailizing flux in each FSR and energy group */
+#define _stabalizing_flux(r,e) (_stabalizing_flux[(r)*_num_groups + (e)])
+
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources(r,e) (_reduced_sources[(r)*_num_groups + (e)])
@@ -146,6 +149,10 @@ protected:
   /** Boolean for whether to correct unphysical cross-sections */
   bool _correct_xs;
 
+  /** Boolean for whether to apply the stabalizing correction to the source
+    * iteration (transport sweep) process */
+  bool _stabalize_transport;
+
   /** Boolean for whether to print verbose iteration reports */
   bool _verbose;
 
@@ -179,6 +186,9 @@ protected:
 
   /** The old scalar flux for each energy group in each FSR */
   FP_PRECISION* _old_scalar_flux;
+  
+  /** The stabalizing flux for each energy group in each FSR */
+  FP_PRECISION* _stabalizing_flux;
 
   /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
@@ -273,6 +283,16 @@ protected:
   virtual double normalizeFluxes() =0;
 
   /**
+   * @brief Computes the stabalizing flux for transport stabalization
+   */
+  virtual void computeStabalizingFlux() =0;
+  
+  /**
+   * @brief Adjusts the scalar flux for transport stabalization
+   */
+  virtual void stabalizeFlux() =0;
+
+  /**
    * @brief Computes the total source (fission, scattering, fixed) for
    *        each FSR and energy group.
    */
@@ -346,6 +366,7 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
   void correctXS();
+  void stabalizeTransport();
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
 

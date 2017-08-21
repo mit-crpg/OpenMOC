@@ -22,7 +22,8 @@ int main(int argc,  char* argv[]) {
   //std::string file = "single-no-TC.geo";
   //std::string file = "v1-single-assembly.geo";
   //std::string file = "v1-single-assembly-2D.geo";
-  std::string file = "v5-single-assembly-new-xs.geo";
+  //std::string file = "v5-single-assembly-new-xs.geo";
+  std::string file = "assembly-lattice-1x1.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -45,7 +46,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17, 17, 200); //FIXME 5 / 200
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 8);
+      get_group_structure(70, 25);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.7);
   cmfd.setSORRelaxationFactor(1.6);
@@ -59,7 +60,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(1, 1, 40, MPI_COMM_WORLD); //FIXME 17x17xN
+  //geometry.setDomainDecomposition(1, 1, 40, MPI_COMM_WORLD); //FIXME 17x17xN
 #endif
   geometry.setNumDomainModules(17, 17, 1);
   geometry.setOverlaidMesh(2.0);
@@ -89,6 +90,7 @@ int main(int argc,  char* argv[]) {
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
   solver.setCheckXSLogLevel(INFO);
+  solver.stabalizeTransport();
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 

@@ -208,6 +208,9 @@ void CPUSolver::initializeFluxArrays() {
 
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
+  
+  if (_stabalizing_flux != NULL)
+    delete [] _stabalizing_flux;
 
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
@@ -241,7 +244,7 @@ void CPUSolver::initializeFluxArrays() {
       memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
     }
 
-    /* Allocate an array for the FSR scalar flux */
+    /* Determine the size of arrays for the FSR scalar flux */
     size = _num_FSRs * _num_groups;
     max_size = size;
 #ifdef MPIX
@@ -249,15 +252,28 @@ void CPUSolver::initializeFluxArrays() {
       MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                     _geometry->getMPICart());
 #endif
-    max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION))
+
+    /* Determine the amount of memory allocated */
+    int num_flux_arrays = 2;
+    if (_stabalize_transport)
+      num_flux_arrays++;
+
+    max_size_mb = (double) (num_flux_arrays * max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
     log_printf(NORMAL, "Max scalar flux storage per domain = %6.2f MB",
                max_size_mb);
 
+    /* Allocate scalar fluxes */
     _scalar_flux = new FP_PRECISION[size];
     _old_scalar_flux = new FP_PRECISION[size];
     memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
     memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
+
+    /* Allocate stabalizing flux vector if necessary */
+    if (_stabalize_transport) {
+      _stabalizing_flux = new FP_PRECISION[size];
+      memset(_stabalizing_flux, 0., size * sizeof(FP_PRECISION));
+    }
 
 #ifdef MPIx
     /* Allocate memory for angular flux exchaning buffers */
@@ -1928,6 +1944,57 @@ void CPUSolver::addSourceToScalarFlux() {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
+    }
+  }
+}
+
+
+/**
+ * @brief Computes the stabalizing flux for transport stabalization
+ */
+void CPUSolver::computeStabalizingFlux() {
+
+  /* Loop over all flat source regions */
+  for (int r=0; r < _num_FSRs; r++) {
+
+    /* Extract the scattering matrix */
+    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+    for (int e=0; e < _num_groups; e++) {
+      
+      /* Extract the in-scattering (diagonal) element */
+      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+      
+      /* For negative cross-sections, add the absolute value of the 
+         in-scattering rate to the stabalizing flux */
+      if (sigma_s < 0.0)
+        _stabalizing_flux(r, e) = -_scalar_flux(r,e) * sigma_s;
+    }
+  }
+}
+
+
+/**
+ * @brief Adjusts the scalar flux for transport stabalization
+ */
+void CPUSolver::stabalizeFlux() {
+
+  /* Loop over all flat source regions */
+  for (int r=0; r < _num_FSRs; r++) {
+
+    /* Extract the scattering matrix */
+    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+    for (int e=0; e < _num_groups; e++) {
+      
+      /* Extract the in-scattering (diagonal) element */
+      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+      
+      /* For negative cross-sections, add the stabalizing flux
+         and divide by the diagonal matrix element used to form it so that
+         no bias is introduced but the source iteration is stabalized */
+      if (sigma_s < 0.0) {
+        _scalar_flux(r, e) += _stabalizing_flux(r,e);
+        _scalar_flux(r, e) /= (1.0 - sigma_s);
+      }
     }
   }
 }
