@@ -1493,7 +1493,7 @@ void CPUSolver::computeFSRSources(int iteration) {
 #pragma omp atomic
         num_negative_sources++;
         if (iteration < 25)
-          _reduced_sources(r,G) = 0.0;
+          _reduced_sources(r,G) = 1.0e-20;
       }
     }
   }
@@ -1944,6 +1944,8 @@ void CPUSolver::addSourceToScalarFlux() {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
+      if (_scalar_flux(r, e) <= 0.0)
+        _scalar_flux(r, e) = 1.0e-20;
     }
   }
 }

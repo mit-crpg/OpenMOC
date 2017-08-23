@@ -152,6 +152,7 @@ int main(int argc,  char* argv[]) {
   /* Run simulation */
   CPUSolver solver(&track_generator); //FIXME LS / FS
   //solver.setChiSpectrumMaterial(fiss_material);
+  solver.stabalizeTransport();
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

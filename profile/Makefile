@@ -18,6 +18,9 @@ CMFD_PRECISION = double
 case = load-geometry/load-single-assembly.cpp
 #case = load-geometry/load-few-assm.cpp
 #case = load-geometry/load-2D-full-core.cpp
+#case = load-geometry/trunc-core-2D.cpp
+#case = load-geometry/load-corner.cpp
+#case = load-geometry/load-assembly-lattice.cpp
 
 #case = load-geometry/load-geometry.cpp
 #case = simple-lattice/simple-lattice-3d.cpp
@@ -71,6 +74,9 @@ load-geometry/load-geometry.cpp \
 load-geometry/load-single-assembly.cpp \
 load-geometry/load-few-assm.cpp \
 load-geometry/load-2D-full-core.cpp \
+load-geometry/trunc-core-2D.cpp \
+load-geometry/load-corner.cpp \
+load-geometry/load-assembly-lattice.cpp \
 load-geometry/load-full-core.cpp
 
 #===============================================================================
@@ -83,7 +89,7 @@ CFLAGS = -std=gnu++0x
 ifeq ($(COMPILER),gnu)
   CC = gcc
   CFLAGS += -DGNU
-  CFLAGS += -march=native
+  #CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif
@@ -92,7 +98,7 @@ endif
 ifeq ($(COMPILER),mpi)
   CC = mpicc
   CFLAGS += -DMPIx
-  CFLAGS += -march=native
+  #CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif

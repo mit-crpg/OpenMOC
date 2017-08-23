@@ -293,6 +293,7 @@ public:
   std::string toString();
   void printString();
   void initializeCmfd();
+  void initializeSpectrumCalculator(Cmfd* spectrum_calculator);
   bool withinBounds(LocalCoords* coords);
   bool withinGlobalBounds(LocalCoords* coords);
 #ifdef MPIx

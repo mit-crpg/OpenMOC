@@ -63,6 +63,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _correct_xs = false;
   _stabalize_transport = false;
   _verbose = false;
+  _calculate_initial_spectrum = false;
+  _initial_spectrum_thresh = 1.0;
   _xs_log_level = ERROR;
 
   //FIXME
@@ -551,6 +553,16 @@ void Solver::correctXS() {
 void Solver::stabalizeTransport() {
   _stabalize_transport = true;
 }
+  
+
+/**
+ * @brief Instructs OpenMOC to perform an initial spectrum calculation
+ * @param threshold The convergence threshold of the spectrum calculation
+ */
+void Solver::setInitialSpectrumCalculation(double threshold) {
+  _calculate_initial_spectrum = true;
+  _initial_spectrum_thresh = threshold;
+}
 
 
 /**
@@ -982,6 +994,71 @@ void Solver::initializeCmfd() {
 
 
 /**
+ * @brief Performs a spectrum calculation to update the scalar fluxes
+ * @details This function is meant to be used before transport sweeps in an
+ *          eigenvalue calculation in order to gain a better initial guess
+ *          on the flux shape. It is equivalent to performing a CMFD update
+ *          with no current tallies (pure diffusion solve) across a coarse
+ *          mesh with one mesh cell per domain.
+ * @param threshold The convergence threshold of the calculation
+ */
+void Solver::calculateInitialSpectrum(double threshold) {
+
+  log_printf(NORMAL, "Calculating initial spectrum with threshold %3.2e", 
+             threshold);
+  
+  /* Setup the spectrum calclator as a CMFD solver in MOC group structure */
+  Cmfd spectrum_calculator;  
+  std::vector<std::vector<int> > group_structure;
+  group_structure.resize(_num_groups);
+  for (int g=0; g < _num_groups; g++)
+    group_structure.at(g).push_back(g+1);    
+  spectrum_calculator.setGroupStructure(group_structure);
+  
+  /* Set CMFD settings for the spectrum calculator */
+  spectrum_calculator.setSORRelaxationFactor(1.6);
+  spectrum_calculator.useFluxLimiting(true);
+  spectrum_calculator.setKNearest(1);
+  _geometry->initializeSpectrumCalculator(&spectrum_calculator);
+
+  /* If 2D Solve, set z-direction mesh size to 1 and depth to 1.0 */
+  if (!_solve_3D) {
+    spectrum_calculator.setNumZ(1);
+    spectrum_calculator.setBoundary(SURFACE_Z_MIN, REFLECTIVE);
+    spectrum_calculator.setBoundary(SURFACE_Z_MAX, REFLECTIVE);
+  }
+
+  /* Intialize the energy group structure */
+  spectrum_calculator.setSourceConvergenceThreshold(threshold);
+  spectrum_calculator.setNumMOCGroups(_num_groups);
+  spectrum_calculator.initializeGroupMap();
+
+  /* Give the spectrum calculator the number of FSRs and FSR property arrays */
+  spectrum_calculator.setSolve3D(_solve_3D);
+  spectrum_calculator.setNumFSRs(_num_FSRs);
+  spectrum_calculator.setFSRVolumes(_FSR_volumes);
+  spectrum_calculator.setFSRMaterials(_FSR_materials);
+  spectrum_calculator.setFSRFluxes(_scalar_flux);
+  spectrum_calculator.setFSRSources(_reduced_sources);
+  spectrum_calculator.setQuadrature(_quad);
+  spectrum_calculator.setAzimSpacings(_quad->getAzimSpacings(), _num_azim);
+  spectrum_calculator.initialize();
+
+  /* Solve the system */
+  log_printf(NORMAL, "Computing K-eff");
+  _k_eff = spectrum_calculator.computeKeff(0);
+  log_printf(NORMAL, "Normalizing Fluxes");
+  normalizeFluxes();
+
+  /* Copy k-eff to CMFD solver if applicable */
+  if (_cmfd != NULL)
+    _cmfd->setKeff(_k_eff);
+
+  log_printf(NORMAL, "Calculated initial spectrum with k-eff = %6.6f", _k_eff);
+}
+
+
+/**
  * @brief Computes the scalar flux distribution by performing a series of
  *        transport sweeps.
  * @details This is the main method exposed to the user through the Python
@@ -1283,6 +1360,10 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
              (double)persist/(1024*1024), (double)guard/(1024*1024),
              (double)mmap/(1024*1024));
 #endif
+  
+  /* Perform initial spectrum calculation if requested */
+  if (_calculate_initial_spectrum)
+    calculateInitialSpectrum(_initial_spectrum_thresh);
 
   /* Start the timer to record the total time to converge the source */
   _timer->startTimer();
@@ -1316,12 +1397,14 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     }
 
     /* Perform the source iteration */
+    if (i >= 0) {
     computeFSRSources(i);
     _timer->startTimer();
     transportSweep();
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
+    }
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())

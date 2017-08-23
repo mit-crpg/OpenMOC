@@ -882,14 +882,14 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Collapse the cross sections onto the CMFD mesh */
   collapseXS();
-
+  
   /* Tally the XS collpase time */
   _timer->stopTimer();
   _timer->recordSplit("Total collapse time");
 
   /* Construct matrices */
   constructMatrices(moc_iteration);
-
+  
   /* Check neturon balance if requested */
   if (_check_neutron_balance)
     checkNeutronBalance();

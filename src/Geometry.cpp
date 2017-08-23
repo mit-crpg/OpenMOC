@@ -2498,19 +2498,19 @@ void Geometry::reorderFSRIDs() {
  */
 void Geometry::initializeFSRVectors() {
 
-  /* get keys and values from map */
+  /* Get keys and values from map */
   log_printf(NORMAL, "Initializing FSR lookup vectors");
   std::string *key_list = _FSR_keys_map.keys();
   fsr_data **value_list = _FSR_keys_map.values();
 
-  /* allocate vectors */
+  /* Allocate vectors */
   size_t num_FSRs = _FSR_keys_map.size();
   _FSRs_to_keys = std::vector<std::string>(num_FSRs);
   _FSRs_to_centroids = std::vector<Point*>(num_FSRs, NULL);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
 
-  /* fill vectors key and material ID information */
+  /* Fill vectors key and material ID information */
   #pragma omp parallel for
   for (long i=0; i < num_FSRs; i++)
   {
@@ -2521,7 +2521,7 @@ void Geometry::initializeFSRVectors() {
     _FSRs_to_material_IDs.at(fsr_id) = fsr->_mat_id;
   }
 
-  /* add cmfd information serially */
+  /* Add cmfd information serially */
   if (_cmfd != NULL) {
     for (long i=0; i < num_FSRs; i++) {
       fsr_data* fsr = value_list[i];
@@ -2776,9 +2776,10 @@ void Geometry::initializeCmfd() {
   _cmfd->setBoundary(SURFACE_Y_MAX, max_y_bound);
   _cmfd->setBoundary(SURFACE_Z_MAX, max_z_bound);
 
-  /* Set CMFD mesh dimensions and number of groups */
+  /* Set CMFD mesh dimensions */
   _cmfd->setWidthX(max_x - min_x);
   _cmfd->setWidthY(max_y - min_y);
+  _cmfd->setWidthZ(max_z - min_z);
 
   /* Intialize CMFD Maps */
   _cmfd->initializeCellMap();
@@ -2787,8 +2788,6 @@ void Geometry::initializeCmfd() {
   Point offset;
   offset.setX(min_x + (max_x - min_x)/2.0);
   offset.setY(min_y + (max_y - min_y)/2.0);
-
-  _cmfd->setWidthZ(max_z - min_z);
   offset.setZ(min_z + (max_z - min_z)/2.0);
 
   _cmfd->initializeLattice(&offset);
@@ -2798,9 +2797,73 @@ void Geometry::initializeCmfd() {
   if (_domain_decomposed) {
     _cmfd->setNumDomains(_num_domains_x, _num_domains_y, _num_domains_z);
     _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
-
   }
 #endif
+}
+
+
+/**
+ * @brief This is a method that initializes the initial spectrum calculator
+ */
+void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
+
+  /* Setup the CMFD lattice with the domain dimensions */
+  spectrum_calculator->setLatticeStructure(_num_domains_x, _num_domains_y,
+                                           _num_domains_z); 
+
+  /* Get the global Geometry boundary conditions */
+  boundaryType min_x_bound = _root_universe->getMinXBoundaryType();
+  boundaryType max_x_bound = _root_universe->getMaxXBoundaryType();
+  boundaryType min_y_bound = _root_universe->getMinYBoundaryType();
+  boundaryType max_y_bound = _root_universe->getMaxYBoundaryType();
+  boundaryType min_z_bound = _root_universe->getMinZBoundaryType();
+  boundaryType max_z_bound = _root_universe->getMaxZBoundaryType();
+
+  /* Get the global Geometry boundaries */
+  double min_x = _root_universe->getMinX();
+  double max_x = _root_universe->getMaxX();
+  double min_y = _root_universe->getMinY();
+  double max_y = _root_universe->getMaxY();
+  double min_z = _root_universe->getMinZ();
+  double max_z = _root_universe->getMaxZ();
+
+  /* Set spectrum caclulator boundary conditions */
+  spectrum_calculator->setBoundary(SURFACE_X_MIN, min_x_bound);
+  spectrum_calculator->setBoundary(SURFACE_Y_MIN, min_y_bound);
+  spectrum_calculator->setBoundary(SURFACE_Z_MIN, min_z_bound);
+  spectrum_calculator->setBoundary(SURFACE_X_MAX, max_x_bound);
+  spectrum_calculator->setBoundary(SURFACE_Y_MAX, max_y_bound);
+  spectrum_calculator->setBoundary(SURFACE_Z_MAX, max_z_bound);
+
+  /* Set spectrum calculator dimensions */
+  spectrum_calculator->setWidthX(max_x - min_x);
+  spectrum_calculator->setWidthY(max_y - min_y);
+  spectrum_calculator->setWidthZ(max_z - min_z);
+
+  /* Intialize CMFD Maps */
+  spectrum_calculator->initializeCellMap();
+
+  /* Initialize the CMFD lattice */
+  Point offset;
+  offset.setX(min_x + (max_x - min_x)/2.0);
+  offset.setY(min_y + (max_y - min_y)/2.0);
+  offset.setZ(min_z + (max_z - min_z)/2.0);
+
+  spectrum_calculator->initializeLattice(&offset);
+  spectrum_calculator->setGeometry(this);
+
+#ifdef MPIx
+  if (_domain_decomposed) {
+    spectrum_calculator->setNumDomains(_num_domains_x, _num_domains_y, 
+                                       _num_domains_z);
+    spectrum_calculator->setDomainIndexes(_domain_index_x, _domain_index_y,
+                                          _domain_index_z);
+  }
+#endif
+
+  /* Add FSRs to domain cell */
+  for (long r=0; r < getNumFSRs(); r++)
+    spectrum_calculator->addFSRToCell(0, r);
 }
 
 

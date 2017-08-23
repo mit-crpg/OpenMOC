@@ -162,6 +162,13 @@ protected:
 
   /** Boolean for whether to print verbose iteration reports */
   bool _verbose;
+  
+  /** Boolean for whether to perform a spectrum calculation for the initial 
+   *  flux guess */
+  bool _calculate_initial_spectrum;
+  
+  /** Convergence threshold for the initial spectrum calculation */
+  double _initial_spectrum_thresh;
 
   /** The log level for outputting cross-section inconsitencies */
   logLevel _xs_log_level;
@@ -260,6 +267,7 @@ protected:
   void countFissionableFSRs();
   void checkXS();
   virtual void initializeCmfd();
+  void calculateInitialSpectrum(double threshold);
 
   /**
    * @brief Zero each Track's boundary fluxes for each energy group and polar
@@ -374,6 +382,7 @@ public:
   void useExponentialIntrinsic();
   void correctXS();
   void stabalizeTransport();
+  void setInitialSpectrumCalculation(double threshold);
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
 
