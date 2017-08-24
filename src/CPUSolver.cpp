@@ -1961,6 +1961,10 @@ void CPUSolver::computeStabalizingFlux() {
 
     /* Extract the scattering matrix */
     FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+    
+    /* Extract total cross-sections */
+    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+
     for (int e=0; e < _num_groups; e++) {
       
       /* Extract the in-scattering (diagonal) element */
@@ -1969,7 +1973,8 @@ void CPUSolver::computeStabalizingFlux() {
       /* For negative cross-sections, add the absolute value of the 
          in-scattering rate to the stabalizing flux */
       if (sigma_s < 0.0)
-        _stabalizing_flux(r, e) = -_scalar_flux(r,e) * sigma_s;
+        _stabalizing_flux(r, e) = -_scalar_flux(r,e) * _stabalization_factor 
+            * sigma_s / sigma_t[e];
     }
   }
 }
@@ -1985,6 +1990,10 @@ void CPUSolver::stabalizeFlux() {
 
     /* Extract the scattering matrix */
     FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+    
+    /* Extract total cross-sections */
+    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+    
     for (int e=0; e < _num_groups; e++) {
       
       /* Extract the in-scattering (diagonal) element */
@@ -1995,7 +2004,8 @@ void CPUSolver::stabalizeFlux() {
          no bias is introduced but the source iteration is stabalized */
       if (sigma_s < 0.0) {
         _scalar_flux(r, e) += _stabalizing_flux(r,e);
-        _scalar_flux(r, e) /= (1.0 - sigma_s);
+        _scalar_flux(r, e) /= (1.0 - _stabalization_factor * sigma_s / 
+                               sigma_t[e]);
       }
     }
   }

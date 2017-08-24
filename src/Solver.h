@@ -232,6 +232,9 @@ protected:
   /** The tolerance for converging the source/flux */
   double _converge_thresh;
 
+  /** The factor applied to the source iteration stabilization */
+  double _stabalization_factor;
+
   /** A matrix of ExpEvaluators to compute exponentials in the transport
     * equation. The matrix is indexed by azimuthal index and polar index */
   ExpEvaluator*** _exp_evaluators;
@@ -381,7 +384,7 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
   void correctXS();
-  void stabalizeTransport();
+  void stabalizeTransport(double stabalization_factor);
   void setInitialSpectrumCalculation(double threshold);
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);

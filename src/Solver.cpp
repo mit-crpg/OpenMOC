@@ -549,9 +549,11 @@ void Solver::correctXS() {
  *          correction fixes this by adding a diagonal matrix to both sides
  *          of the discretized transport equation which introduces no bias
  *          but transforms the iteration matrix into one that is stable.
+ * @param stabalization_factor The factor applied to the stabalizing correction
  */
-void Solver::stabalizeTransport() {
+void Solver::stabalizeTransport(double stabalization_factor) {
   _stabalize_transport = true;
+  _stabalization_factor = stabalization_factor;
 }
   
 
@@ -1397,14 +1399,12 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     }
 
     /* Perform the source iteration */
-    if (i >= 0) {
     computeFSRSources(i);
     _timer->startTimer();
     transportSweep();
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-    }
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
