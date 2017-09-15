@@ -22,6 +22,9 @@ Geometry::Geometry() {
   _overlaid_mesh = NULL;
   _root_universe = NULL;
   _domain_decomposed = false;
+  _num_domains_x = 1;
+  _num_domains_y = 1;
+  _num_domains_z = 1;
   _num_modules_x = 1;
   _num_modules_y = 1;
   _num_modules_z = 1;

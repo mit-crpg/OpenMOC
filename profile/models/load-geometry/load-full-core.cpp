@@ -28,7 +28,7 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1; // 0.1
-  int num_azim = 4; //TODO 32
+  int num_azim = 8; //TODO 32
   double polar_spacing = 0.75; // 0.75
   int num_polar = 2;
 
@@ -116,7 +116,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(17, 17, 4, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(17, 17, 5, MPI_COMM_WORLD);
   //geometry.setNumDomainModules(17, 17, 40);
 #endif
   geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
