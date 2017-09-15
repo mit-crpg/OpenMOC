@@ -394,6 +394,10 @@ void CPUSolver::copyBoundaryFluxes() {
 }
 
 
+/**
+ * @brief Computes the total current impingent on boundary CMFD cells from
+ *        starting angular fluxes
+ */
 //FIXME: make suitable for 2D
 void CPUSolver::tallyStartingCurrents() {
 
@@ -1488,7 +1492,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
 
-      //FIXME
+      /* Correct negative sources to (near) zero */
       if (_reduced_sources(r,G) < 0.0) {
 #pragma omp atomic
         num_negative_sources++;
@@ -1933,6 +1937,7 @@ void CPUSolver::addSourceToScalarFlux() {
 
   FP_PRECISION volume;
   FP_PRECISION* sigma_t;
+  long num_negative_fluxes = 0;
 
   /* Add in source term and normalize flux to volume for each FSR */
   /* Loop over FSRs, energy groups */
@@ -1944,10 +1949,37 @@ void CPUSolver::addSourceToScalarFlux() {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
-      if (_scalar_flux(r, e) <= 0.0)
+      if (_scalar_flux(r, e) <= 0.0) {
         _scalar_flux(r, e) = 1.0e-20;
+#pragma omp atomic
+        num_negative_fluxes++;
+      }
     }
   }
+
+  /* Tally the total number of negative fluxes across the entire problem */
+  long total_num_negative_fluxes = num_negative_fluxes;
+  int num_negative_flux_domains = (num_negative_fluxes > 0);
+  int total_num_negative_flux_domains = num_negative_flux_domains;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Allreduce(&num_negative_fluxes, &total_num_negative_fluxes, 1,
+                  MPI_LONG, MPI_SUM, _geometry->getMPICart());
+    MPI_Allreduce(&num_negative_flux_domains,
+                  &total_num_negative_flux_domains, 1,
+                  MPI_INT, MPI_SUM, _geometry->getMPICart());
+  }
+#endif
+
+  /* Report negative fluxes */
+  if (total_num_negative_fluxes > 0) {
+    if (_geometry->isRootDomain()) {
+      log_printf(WARNING, "Computed %ld negative fluxes on %d domains",
+                 total_num_negative_fluxes,
+                 total_num_negative_flux_domains);
+    }
+  }
+
 }
 
 
@@ -1957,7 +1989,8 @@ void CPUSolver::addSourceToScalarFlux() {
 void CPUSolver::computeStabalizingFlux() {
 
   /* Loop over all flat source regions */
-  for (int r=0; r < _num_FSRs; r++) {
+#pragma omp parallel for
+  for (long r=0; r < _num_FSRs; r++) {
 
     /* Extract the scattering matrix */
     FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
@@ -1986,7 +2019,8 @@ void CPUSolver::computeStabalizingFlux() {
 void CPUSolver::stabalizeFlux() {
 
   /* Loop over all flat source regions */
-  for (int r=0; r < _num_FSRs; r++) {
+#pragma omp parallel for
+  for (long r=0; r < _num_FSRs; r++) {
 
     /* Extract the scattering matrix */
     FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();

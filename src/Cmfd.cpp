@@ -35,7 +35,7 @@ Cmfd::Cmfd() {
   _flux_update_on = true;
   _centroid_update_on = true;
   _use_axial_interpolation = false;
-  _flux_limiting = false;
+  _flux_limiting = true;
   _balance_sigma_t = false;
   _k_nearest = 1;
   _SOR_factor = 1.0;
@@ -713,16 +713,6 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
 
-      //FIXME
-      /*
-      int ix = cmfd_cell % _num_x;
-      int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
-      double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
-                        (iy - _num_y/2) * (iy - _num_y/2));
-      if (radius > _num_x / 2 + 10)
-        dif_surf_corr = 0.0;
-        */
-
       /* Weight the old and new corrected diffusion coefficients by the
          relaxation factor */
       CMFD_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
@@ -776,6 +766,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
         / (delta * dif_coef + delta * dif_coef_next);
+        
 
     /* Compute the surface-averaged net current across the surface */
     current = sense * (current_out - current_in) / delta_interface;
@@ -785,28 +776,19 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
         / (flux_next + flux);
 
     /* Flux limiting condition */
-    if (_flux_limiting) {
+    if (_flux_limiting && moc_iteration > 0) {
       double ratio = dif_surf_corr / dif_surf;
-      if(std::abs(ratio) > 1.0) {
-        if (ratio > 0)
-          dif_surf = std::abs(current / (2.0*flux_next));
-        else
+      if (std::abs(ratio) > 1.0) {
+
+        if (sense * current > 0)
           dif_surf = std::abs(current / (2.0*flux));
+        else
+          dif_surf = std::abs(current / (2.0*flux_next));
+        
         dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
                         / (flux_next + flux);
       }
     }
-
-    //FIXME
-    /*
-      int ix = cmfd_cell % _num_x;
-      int iy = (cmfd_cell % (_num_x * _num_y)) / _num_x;
-      double radius = sqrt((ix - _num_x/2) * (ix - _num_x/2) +
-                        (iy - _num_y/2) * (iy - _num_y/2));
-      if (radius > _num_x / 2 + 10)
-        dif_surf_corr = 0.0;
-        */
-
 
     /* Weight the old and new corrected diffusion coefficients by the
        relaxation factor */
@@ -815,26 +797,6 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     dif_surf_corr = _relaxation_factor * dif_surf_corr +
         (1.0 - _relaxation_factor) * old_dif_surf_corr;
 
-    /* If the magnitude of dif_surf_corr is greater than the magnitude of
-     * dif_surf, select new values dif_surf_corr and dif_surf to ensure the
-     * coarse mesh equations are guaranteed to be diagonally dominant */
-    if (fabs(dif_surf_corr) > dif_surf && moc_iteration != 0) {
-
-      /* Get the sign of dif_surf_corr */
-      int sign = (int) round(fabs(dif_surf_corr) / dif_surf_corr);
-
-      /* Compute the surface diffusion coefficient while preserving the
-       * the surface-averaged net current across the surface and the signs
-       * of the surface diffusion coefficients. */
-      if (sense == sign)
-        dif_surf = fabs(current / (2 * flux_next));
-      else
-        dif_surf = fabs(current / (2 * flux));
-
-      /* Set dif_surf_corr to have the same magnitude as dif_surf,
-       *  but the same sign as originially computed. */
-      dif_surf_corr = sign * dif_surf;
-    }
   }
 
   /* If it is the first MOC iteration, solve the straight diffusion problem
@@ -889,7 +851,7 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Construct matrices */
   constructMatrices(moc_iteration);
-  
+
   /* Check neturon balance if requested */
   if (_check_neutron_balance)
     checkNeutronBalance();
@@ -1056,6 +1018,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
             value = - (dif_surf + sense * dif_surf_corr) * delta;
             _A->incrementValue(getCellNext(i, s, false, false), e, i, e, value);
           }
+
           /* Check for cell in neighboring domain if applicable */
           else if (_geometry->isDomainDecomposed()) {
             if (_domain_communicator != NULL) {
@@ -1170,12 +1133,12 @@ void Cmfd::updateMOCFlux() {
  *          nonlinear iteration acceleration of CMFD is affected by the choice
  *          of diffusion coefficient. All flat source methods, when applied for
  *          thick optical meshes, artificially distribute neutrons in space.
- *          This is the reason that Larsen’s effective diffusion coefficient is
+ *          This is the reason that Larsen's effective diffusion coefficient is
  *          useful in ensuring that the CMFD acceleration equations have a
  *          diffusion coefficient (on the flux gradient term) that is
  *          consistent, not with the physical transport problem, but with the
  *          transport problem that is being accelerated by the CMFD equations.
- *          Larsen’s effective diffusion coefficient is precisely this term in
+ *          Larsen's effective diffusion coefficient is precisely this term in
  *          the one-dimensional limit. The following publications provide
  *          further background on how this term is derived and used:
  *
@@ -4269,10 +4232,17 @@ void Cmfd::enforceBalanceOnDiagonal(int cmfd_cell, int group) {
         _FSR_sources[fsr_id * _num_moc_groups + h];
   }
 
+  if (moc_source == 0.0)
+    moc_source = 1e-20;
+
   /* Compute updated value */
   double flux = _old_flux->getValue(cmfd_cell, group);
   CMFD_PRECISION net_current = _net_currents->getValue(cmfd_cell, group);
   CMFD_PRECISION updated_value = (moc_source - net_current) / flux;
+
+  if (updated_value < 0.0)
+    log_printf(ERROR, "Negative Total XS of %6.4f computed in CMFD rebalance",
+               updated_value);
 
   /* Update the diagonal element */
   _A->setValue(cmfd_cell, group, cmfd_cell, group, updated_value);

@@ -42,8 +42,14 @@ void MaxOpticalLength::execute() {
  * @param segments The segments for which the optical path length is calculated
  */
 void MaxOpticalLength::onTrack(Track* track, segment* segments) {
+
+  FP_PRECISION sin_theta = 1.0;
+  Track3D* track_3d = dynamic_cast<Track3D*>(track);
+  if (track_3d != NULL)
+    sin_theta = sin(track_3d->getTheta());
+
   for (int s=0; s < track->getNumSegments(); s++) {
-    FP_PRECISION length = segments[s]._length;
+    FP_PRECISION length = segments[s]._length * sin_theta;
     Material* material = segments[s]._material;
     FP_PRECISION* sigma_t = material->getSigmaT();
 
@@ -425,9 +431,8 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
     : TraverseSegments(solver->getTrackGenerator()) {
 
   /* Import data from the Solver and TrackGenerator */
-  _lin_exp_coeffs = solver->getLinearExpansionCoeffsBuffer();
-  _src_constants = solver->getSourceConstantsBuffer();
   TrackGenerator* track_generator = solver->getTrackGenerator();
+  _solver = solver;
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _FSR_locks = track_generator->getFSRLocks();
   _quadrature = track_generator->getQuadrature();
@@ -444,17 +449,19 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
 
   /* Reset linear source coefficients to zero */
   long size = track_generator->getGeometry()->getNumFSRs() * _num_coeffs;
-  memset(_lin_exp_coeffs, 0.0, size * sizeof(FP_PRECISION));
+  _lin_exp_coeffs = new double[size];
+  memset(_lin_exp_coeffs, 0.0, size * sizeof(double));
   size *= _num_groups;
-  memset(_src_constants, 0.0, size * sizeof(FP_PRECISION));
+  _src_constants = new double[size];
+  memset(_src_constants, 0.0, size * sizeof(double));
 
   /* Create local thread tallies */
   int num_threads = omp_get_max_threads();
   _starting_points = new Point*[num_threads];
-  _thread_source_constants = new FP_PRECISION*[num_threads];
+  _thread_source_constants = new double*[num_threads];
 
   for (int i=0; i < num_threads; i++) {
-    _thread_source_constants[i] = new FP_PRECISION[_num_coeffs * _num_groups];
+    _thread_source_constants[i] = new double[_num_coeffs * _num_groups];
     _starting_points[i] = new Point[num_rows];
   }
 
@@ -474,6 +481,8 @@ LinearExpansionGenerator::~LinearExpansionGenerator() {
   }
   delete [] _thread_source_constants;
   delete [] _starting_points;
+  delete [] _src_constants;
+  delete [] _lin_exp_coeffs;
   delete _exp_evaluator;
   delete _progress;
 }
@@ -489,18 +498,15 @@ void LinearExpansionGenerator::execute() {
 
   Geometry* geometry = _track_generator->getGeometry();
   long num_FSRs = geometry->getNumFSRs();
-  //FIXME
-  FP_PRECISION* inv_lin_exp_coeffs = new FP_PRECISION[num_FSRs*_num_coeffs];
-  memset(inv_lin_exp_coeffs, 0., num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
 
-  FP_PRECISION* lem = _lin_exp_coeffs;
-  FP_PRECISION* ilem = inv_lin_exp_coeffs;
+  double* lem = _lin_exp_coeffs;
+  double* ilem = _solver->getLinearExpansionCoeffsBuffer();
   int nc = _num_coeffs;
 
   /* Invert the expansion coefficient matrix */
   if (_track_generator_3D != NULL) {
 #pragma omp parallel for
-    for (int r=0; r < num_FSRs; r++) {
+    for (long r=0; r < num_FSRs; r++) {
       double det;
       det = lem[r*nc + 0] * lem[r*nc + 1] * lem[r*nc + 5] +
             lem[r*nc + 2] * lem[r*nc + 4] * lem[r*nc + 3] +
@@ -509,7 +515,7 @@ void LinearExpansionGenerator::execute() {
             lem[r*nc + 3] * lem[r*nc + 1] * lem[r*nc + 3] -
             lem[r*nc + 2] * lem[r*nc + 2] * lem[r*nc + 5];
 
-      FP_PRECISION volume = _FSR_volumes[r];
+      double volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         log_printf(INFO, "Unable to form linear source components in "
                    "source region %d. Switching to flat source in that "
@@ -524,19 +530,31 @@ void LinearExpansionGenerator::execute() {
       }
       else {
 
-        ilem[r*nc + 0] = (lem[r*nc + 1] * lem[r*nc + 5] -
-                          lem[r*nc + 4] * lem[r*nc + 4]) / det;
-        ilem[r*nc + 1] = (lem[r*nc + 0] * lem[r*nc + 5] -
-                          lem[r*nc + 3] * lem[r*nc + 3]) / det;
-        ilem[r*nc + 2] = (lem[r*nc + 3] * lem[r*nc + 4] -
-                          lem[r*nc + 2] * lem[r*nc + 5]) / det;
-        ilem[r*nc + 3] = (lem[r*nc + 2] * lem[r*nc + 4] -
-                          lem[r*nc + 3] * lem[r*nc + 1]) / det;
-        ilem[r*nc + 4] = (lem[r*nc + 3] * lem[r*nc + 2] -
-                          lem[r*nc + 0] * lem[r*nc + 4]) / det;
-        ilem[r*nc + 5] = (lem[r*nc + 0] * lem[r*nc + 1] -
-                          lem[r*nc + 2] * lem[r*nc + 2]) / det;
+        double curr_ilem[6];
 
+        curr_ilem[0] = (lem[r*nc + 1] * lem[r*nc + 5] -
+                        lem[r*nc + 4] * lem[r*nc + 4]) / det;
+        curr_ilem[1] = (lem[r*nc + 0] * lem[r*nc + 5] -
+                        lem[r*nc + 3] * lem[r*nc + 3]) / det;
+        curr_ilem[2] = (lem[r*nc + 3] * lem[r*nc + 4] -
+                        lem[r*nc + 2] * lem[r*nc + 5]) / det;
+        curr_ilem[3] = (lem[r*nc + 2] * lem[r*nc + 4] -
+                        lem[r*nc + 3] * lem[r*nc + 1]) / det;
+        curr_ilem[4] = (lem[r*nc + 3] * lem[r*nc + 2] -
+                        lem[r*nc + 0] * lem[r*nc + 4]) / det;
+        curr_ilem[5] = (lem[r*nc + 0] * lem[r*nc + 1] -
+                        lem[r*nc + 2] * lem[r*nc + 2]) / det;
+
+        /* Copy inverses */
+        long ind = r*nc;
+        for (int i=0; i < 6; i++) {
+          if (curr_ilem[i] < -1.0e10)
+            ilem[ind+i] = -1.0e10;
+          else if (curr_ilem[i] > 1.0e10)
+            ilem[ind+i] = 1.0e10;
+          else
+            ilem[ind+i] = curr_ilem[i];
+        }
       }
     }
   }
@@ -563,6 +581,15 @@ void LinearExpansionGenerator::execute() {
       }
     }
   }
+  
+  /* Copy the source constants to buffer */
+  FP_PRECISION* src_constants_buffer = _solver->getSourceConstantsBuffer();
+  long size = num_FSRs * _num_coeffs * _num_groups;
+#pragma omp parallel for
+  for (long i=0; i < size; i++)
+    src_constants_buffer[i] = _src_constants[i];
+
+
 
   //FIXME
   if (false) {
@@ -575,10 +602,11 @@ void LinearExpansionGenerator::execute() {
   }
 
   //FIXME
-  if (true) {
+  if (false) {
       //FIXME -2 -> +4
     //double max_linear_radius = (8.5*15-2)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
-    double max_linear_radius = (10*17)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
+    double max_linear_radius = (7.5*17+2)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
+    //double max_linear_radius = (10*17)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
     Universe* root_universe = geometry->getRootUniverse();
     double center_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;
     double center_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
@@ -593,10 +621,6 @@ void LinearExpansionGenerator::execute() {
       }
     }
   }
-
-  memcpy(_lin_exp_coeffs, inv_lin_exp_coeffs,
-         num_FSRs*_num_coeffs*sizeof(FP_PRECISION));
-  delete [] inv_lin_exp_coeffs;
 
   /* Notify user of any regions needing to use a flat source approximation */
   int total_num_flat = _num_flat;
@@ -630,7 +654,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
   /* Use local array accumulator to prevent false sharing */
   int tid = omp_get_thread_num();
-  FP_PRECISION* thread_src_constants = _thread_source_constants[tid];
+  double* thread_src_constants = _thread_source_constants[tid];
 
   /* Calculate the azimuthal weight */
   double wgt = _quadrature->getAzimSpacing(azim_index)
@@ -659,11 +683,11 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     long fsr = curr_segment->_region_id;
     int track_idx = curr_segment->_track_idx;
     FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-    FP_PRECISION length = curr_segment->_length;
-    FP_PRECISION length_2 = length * length;
+    double length = curr_segment->_length;
+    double length_2 = length * length;
 
     /* Extract FSR information */
-    FP_PRECISION volume = _FSR_volumes[fsr];
+    double volume = _FSR_volumes[fsr];
 
     /* Extract the starting points of the segment */
     double x = curr_segment->_starting_position[0];
@@ -677,9 +701,9 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Set the FSR src constants buffer to zero */
     memset(thread_src_constants, 0.0, _num_groups * _num_coeffs *
-           sizeof(FP_PRECISION));
+           sizeof(double));
 
-    FP_PRECISION vol_impact = wgt * length / volume;
+    double vol_impact = wgt * length / volume;
     for (int g=0; g < _num_groups; g++) {
 
       thread_src_constants[g*_num_coeffs] += vol_impact * xc * xc;
@@ -693,14 +717,14 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
 
       /* Calculate the optical path length and source contribution */
-      FP_PRECISION tau = length * sigma_t[g];
-      FP_PRECISION src_constant = vol_impact * length / 2.0;
+      double tau = length * sigma_t[g];
+      double src_constant = vol_impact * length / 2.0;
 
       if (track_3D == NULL) {
         for (int p=0; p < _quadrature->getNumPolarAngles()/2; p++) {
 
-          FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index, p);
-          FP_PRECISION G2_src =
+          double sin_theta = _quadrature->getSinTheta(azim_index, p);
+          double G2_src =
               length * _exp_evaluator->computeExponentialG2(tau / sin_theta)
               * src_constant * 2 * _quadrature->getPolarWeight(azim_index, p)
               * sin_theta;
@@ -714,7 +738,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
       }
       else {
 
-        FP_PRECISION G2_src = _exp_evaluator->computeExponentialG2(tau) *
+        double G2_src = _exp_evaluator->computeExponentialG2(tau) *
             length * src_constant;
 
         thread_src_constants[g*_num_coeffs] += cos_phi * cos_phi * G2_src

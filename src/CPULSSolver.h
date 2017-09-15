@@ -25,6 +25,9 @@
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources_xyz(r,e,x) (_reduced_sources_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
 
+/** Indexing macro for the stabalizing scalar flux moments in each FSR and
+ *  energy group */
+#define _stabalizing_flux_xyz(r,e,x) (_stabalizing_flux_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
 
 /**
  * @class CPULSSolver CPULSSolver.h "src/CPULSSolver.h"
@@ -36,7 +39,7 @@ class CPULSSolver : public CPUSolver {
 protected:
 
   /** The FSR linear expansion matrix values for each FSR */
-  FP_PRECISION* _FSR_lin_exp_matrix;
+  double* _FSR_lin_exp_matrix;
 
   /** The FSR source constants for each FSR and energy group */
   FP_PRECISION* _FSR_source_constants;
@@ -46,6 +49,12 @@ protected:
 
   /** An array of the reduced source x, y, and z terms */
   FP_PRECISION* _reduced_sources_xyz;
+  
+  /** The stabalizing flux for each energy group in each FSR */
+  FP_PRECISION* _stabalizing_flux_xyz;
+
+  /** Whether to stabalize the flux moments */
+  bool _stabalize_moments;
 
 public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
@@ -64,13 +73,15 @@ public:
   double normalizeFluxes();
   void computeFSRSources(int iteration);
   void addSourceToScalarFlux();
+  void computeStabalizingFlux();
+  void stabalizeFlux();
 
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
                          float* track_flux, FP_PRECISION* fsr_flux,
                          FP_PRECISION* scratch_pad, FP_PRECISION direction[3]);
 
   double getFluxByCoords(LocalCoords* coords, int group);
-  FP_PRECISION* getLinearExpansionCoeffsBuffer();
+  double* getLinearExpansionCoeffsBuffer();
   FP_PRECISION* getSourceConstantsBuffer();
 };
 

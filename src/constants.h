@@ -66,7 +66,7 @@
 
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
 #define MIN_LINEAR_SOLVE_ITERATIONS 25
-#define MAX_LINEAR_SOLVE_ITERATIONS 1000
+#define MAX_LINEAR_SOLVE_ITERATIONS 10000
 
 #ifdef NVCC
 

@@ -499,7 +499,7 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
   CMFD_PRECISION* b = B->getArray();
   int num_rows = X->getNumRows();
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int row = 0; row < num_rows; row++) {
     for (int i = IA[row]; i < IA[row+1]; i++)
       b[row] += a[i] * x[JA[i]];

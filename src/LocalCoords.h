@@ -129,6 +129,7 @@ public:
   void deleteArray();
   void copyCoords(LocalCoords* coords);
   std::string toString();
+  void detectLoop();
 };
 
 

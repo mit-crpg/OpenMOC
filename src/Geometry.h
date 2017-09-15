@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <set>
 #include <omp.h>
@@ -292,6 +293,9 @@ public:
                                          const char* domain_type);
   std::string toString();
   void printString();
+  void printFSRsToFile(const char* plane="xy", int gridsize=1000, 
+                       double offset=0.0, double* bounds_x = NULL, 
+                       double* bounds_y = NULL, double* bounds_z = NULL);
   void initializeCmfd();
   void initializeSpectrumCalculator(Cmfd* spectrum_calculator);
   bool withinBounds(LocalCoords* coords);

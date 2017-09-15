@@ -14,8 +14,8 @@ CMFD_PRECISION = double
 # Source Code List
 #===============================================================================
 
-#case = load-geometry/load-full-core.cpp
-case = load-geometry/load-single-assembly.cpp
+case = load-geometry/load-full-core.cpp
+#case = load-geometry/load-single-assembly.cpp
 #case = load-geometry/load-few-assm.cpp
 #case = load-geometry/load-2D-full-core.cpp
 #case = load-geometry/trunc-core-2D.cpp

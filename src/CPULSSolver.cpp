@@ -15,6 +15,8 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xyz = NULL;
   _reduced_sources_xyz = NULL;
+  _stabalizing_flux_xyz = NULL;
+  _stabalize_moments = true;
   _source_type = "Linear";
 }
 
@@ -31,6 +33,9 @@ CPULSSolver::~CPULSSolver() {
 
   if (_reduced_sources_xyz != NULL)
     delete [] _reduced_sources_xyz;
+  
+  if (_stabalizing_flux_xyz != NULL)
+    delete [] _stabalizing_flux_xyz;
 
   if (_FSR_lin_exp_matrix != NULL)
     delete [] _FSR_lin_exp_matrix;
@@ -63,10 +68,20 @@ void CPULSSolver::initializeFluxArrays() {
 #endif
     double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
+
+    if (_stabalize_transport && _stabalize_moments)
+      max_size_mb *= 2;
+
     log_printf(NORMAL, "Max linear flux storage per domain = %6.2f MB",
                max_size_mb);
 
     _scalar_flux_xyz = new FP_PRECISION[size];
+    memset(_scalar_flux_xyz, 0., size * sizeof(FP_PRECISION));
+    
+    if (_stabalize_transport && _stabalize_moments) {
+      _stabalizing_flux_xyz = new FP_PRECISION[size];
+      memset(_stabalizing_flux_xyz, 0., size * sizeof(FP_PRECISION));
+    }
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the scalar flux moments");
@@ -417,7 +432,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION tau = sigma_t[e] * length_2D;
 
       // Compute the change in flux across the segment
-      exp_H *= length * track_flux[e];
+      exp_H *= length * track_flux[e] * length_2D * wgt;
       FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D * src_flat) *
           exp_F1 - src_linear * length_2D * length_2D * exp_F2;
 
@@ -425,10 +440,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       first_idx += e; // equivalent to 4*e
       fsr_flux[first_idx] += wgt * delta_psi;
       first_idx++;
-      FP_PRECISION reduced_delta = delta_psi / tau;
+      FP_PRECISION reduced_delta = wgt * delta_psi / sigma_t[e];
       for (int i=0; i<3; i++)
-        fsr_flux[first_idx + i] += wgt * length_2D * (exp_H * direction[i]
-              + reduced_delta * position[i]);
+        fsr_flux[first_idx + i] += exp_H * direction[i] + reduced_delta * 
+                                    position[i];
 
       // Decrement the track flux
       track_flux[e] -= delta_psi;
@@ -592,6 +607,88 @@ void CPULSSolver::addSourceToScalarFlux() {
 
 
 /**
+ * @brief Computes the stabalizing flux for transport stabalization
+ */
+void CPULSSolver::computeStabalizingFlux() {
+
+  /* Compute flat stabalizing flux */
+  CPUSolver::computeStabalizingFlux();
+
+  /* Check whether moment stabalization is requested */ 
+  if (!_stabalize_moments)
+    return;
+
+  /* Loop over all flat source regions, compute stabalizing flux moments */
+#pragma omp parallel for
+  for (long r=0; r < _num_FSRs; r++) {
+
+    /* Extract the scattering matrix */
+    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+    
+    /* Extract total cross-sections */
+    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+
+    for (int e=0; e < _num_groups; e++) {
+      
+      /* Extract the in-scattering (diagonal) element */
+      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+      
+      /* For negative cross-sections, add the absolute value of the 
+         in-scattering rate to the stabalizing flux */
+      if (sigma_s < 0.0) {
+        for (int i=0; i < 3; i++) {
+          _stabalizing_flux_xyz(r, e, i) = -_scalar_flux_xyz(r,e,i) * 
+              _stabalization_factor * sigma_s / sigma_t[e];
+        }
+      }
+    }
+  }
+}
+
+
+/**
+ * @brief Adjusts the scalar flux for transport stabalization
+ */
+void CPULSSolver::stabalizeFlux() {
+
+  /* Stabalize the flat scalar flux */
+  CPUSolver::stabalizeFlux();
+
+  /* Check whether moment stabalization is requested */ 
+  if (!_stabalize_moments)
+    return;
+
+  /* Loop over all flat source regions, apply stabalizing flux moments */
+#pragma omp parallel for
+  for (long r=0; r < _num_FSRs; r++) {
+
+    /* Extract the scattering matrix */
+    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+    
+    /* Extract total cross-sections */
+    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+    
+    for (int e=0; e < _num_groups; e++) {
+      
+      /* Extract the in-scattering (diagonal) element */
+      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+      
+      /* For negative cross-sections, add the stabalizing flux
+         and divide by the diagonal matrix element used to form it so that
+         no bias is introduced but the source iteration is stabalized */
+      if (sigma_s < 0.0) {
+        for (int i=0; i < 3; i++) {
+          _scalar_flux_xyz(r, e, i) += _stabalizing_flux_xyz(r, e, i);
+          _scalar_flux_xyz(r, e, i) /= (1.0 - _stabalization_factor * sigma_s /
+                                       sigma_t[e]);
+        }
+      }
+    }
+  }
+}
+
+
+/**
  * @brief Get the flux at a specific point in the geometry.
  * @param coords The coords of the point to get the flux at
  * @param group the energy group
@@ -665,15 +762,15 @@ void CPULSSolver::initializeExpEvaluators() {
 /**
  FIXME
  */
-FP_PRECISION* CPULSSolver::getLinearExpansionCoeffsBuffer() {
+double* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 #pragma omp critical
   {
     if (_FSR_lin_exp_matrix == NULL) {
       long size = _geometry->getNumFSRs() * 3;
       if (_solve_3D)
         size *= 2;
-      _FSR_lin_exp_matrix = new FP_PRECISION[size];
-      memset(_FSR_lin_exp_matrix, 0., size * sizeof(FP_PRECISION));
+      _FSR_lin_exp_matrix = new double[size];
+      memset(_FSR_lin_exp_matrix, 0., size * sizeof(double));
     }
   }
 

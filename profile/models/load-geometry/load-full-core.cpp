@@ -32,8 +32,8 @@ int main(int argc,  char* argv[]) {
   double polar_spacing = 0.75; // 0.75
   int num_polar = 2;
 
-  double tolerance = 1e-8;
-  int max_iters = 30; //TODO 8
+  double tolerance = 1e-4;
+  int max_iters = 25; //TODO 8
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -41,12 +41,12 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17*17, 17*17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 25);
+      get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
   cmfd.useFluxLimiting(true);
-  cmfd.rebalanceSigmaT(true);
+  //cmfd.rebalanceSigmaT(true);
 
   /* Load the geometry */
   log_printf(NORMAL, "Creating geometry...");
@@ -116,7 +116,7 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
-  geometry.setDomainDecomposition(17, 17, 5, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(17, 17, 4, MPI_COMM_WORLD);
   //geometry.setNumDomainModules(17, 17, 40);
 #endif
   geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
@@ -150,9 +150,9 @@ int main(int argc,  char* argv[]) {
   }
 
   /* Run simulation */
-  CPUSolver solver(&track_generator); //FIXME LS / FS
+  CPULSSolver solver(&track_generator); //FIXME LS / FS
   //solver.setChiSpectrumMaterial(fiss_material);
-  solver.stabalizeTransport();
+  solver.stabalizeTransport(0.25);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

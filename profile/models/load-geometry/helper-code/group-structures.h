@@ -35,7 +35,6 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=46; g<70; g++)
         cmfd_group_structure.at(3).push_back(g+1);
     }
-    /*
     else if (num_cmfd_groups == 8) {
       for (int g=0; g<5; g++)
         cmfd_group_structure.at(0).push_back(g+1);
@@ -54,7 +53,7 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=60; g<70; g++)
         cmfd_group_structure.at(7).push_back(g+1);
     }
-    */
+    /*
     else if (num_cmfd_groups == 8) {
       for (int g=0; g<7; g++)
         cmfd_group_structure.at(0).push_back(g+1);
@@ -73,6 +72,7 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=62; g<70; g++)
         cmfd_group_structure.at(7).push_back(g+1);
     }
+    */
 
     else if (num_cmfd_groups == 11) {
       for (int g=0; g<5; g++)

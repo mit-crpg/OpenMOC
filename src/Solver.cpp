@@ -591,7 +591,7 @@ void Solver::setChiSpectrumMaterial(Material* material) {
  */
 void Solver::initializeExpEvaluators() {
 
-  //FIXME
+  /* Compute the first exponential evaluator */
   ExpEvaluator* first_evaluator = _exp_evaluators[0][0];
   first_evaluator->setQuadrature(_quad);
 
@@ -689,7 +689,7 @@ void Solver::initializeFSRs() {
     delete [] _groupwise_scratch.at(i);
   if (_regionwise_scratch != NULL)
     delete [] _regionwise_scratch;
-  //FIXME
+  
   int num_threads = omp_get_max_threads();
   _groupwise_scratch.resize(num_threads);
   for (int i=0; i < num_threads; i++)
@@ -730,7 +730,10 @@ void Solver::countFissionableFSRs() {
 }
 
 
-//FIXME
+/**
+ * @brief Checks to see if limited XS should be reset
+ * @param iteration The MOC iteration number
+ */
 void Solver::checkLimitXS(int iteration) {
 
   if (iteration == _reset_iteration)
@@ -768,7 +771,12 @@ void Solver::checkLimitXS(int iteration) {
 }
 
 
-//FIXME
+/**
+ * @brief Instructs MOC to limit negative cross-sections for early iterations
+ * @param material_ids The material IDs of the cross-sections to limit
+ * @param reset_iteration The iteration to reset cross-sections to their 
+ *        defaults
+ */
 void Solver::setLimitingXSMaterials(std::vector<int> material_ids, 
                                     int reset_iteration) {
   _limit_xs_materials = material_ids;
@@ -777,7 +785,10 @@ void Solver::setLimitingXSMaterials(std::vector<int> material_ids,
 }
 
 
-//FIXME
+/**
+ * @brief Limits cross-sections so that there are no negative cross-sections
+ * @details A copy of the original cross-section is saved
+ */
 void Solver::limitXS() {
 
   log_printf(NORMAL, "Limiting negative cross-sections in %d materials",
@@ -1319,7 +1330,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Initialize data structures */
   initializeFSRs();
-  limitXS(); // FIXME
   countFissionableFSRs();
   initializeExpEvaluators();
   initializeFluxArrays();
@@ -1390,9 +1400,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    if (_limit_xs)
-      checkLimitXS(i);
-
     /* Comptue the stabalizing flux if necessary */
     if (_stabalize_transport) {
       computeStabalizingFlux();
@@ -1405,7 +1412,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-
+    
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);

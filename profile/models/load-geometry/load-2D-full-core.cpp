@@ -14,7 +14,7 @@ int main(int argc,  char* argv[]) {
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
-  ///feenableexcept(FE_DIVBYZERO);
+  //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
   /* Define geometry to load */
   //std::string file = "v1-full-core-2D.geo";
   //std::string file = "vc1-full-core-2D.geo";
@@ -22,7 +22,7 @@ int main(int argc,  char* argv[]) {
   //std::string file = "old-geo-files/beavrs-2D-raw-TC.geo";
   //std::string file = "will-2D-TC-2.geo";
   //std::string file = "cas-2D-TCo.geo";
-  std::string file = "b1-2D.geo";
+  std::string file = "full-core-2D-final-full-tc.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -32,20 +32,20 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 4;
+  int num_azim = 16;
   double polar_spacing = 0.75;
-  int num_polar = 2;
+  int num_polar = 6;
 
   double tolerance = 1e-10;
-  int max_iters = 10;
+  int max_iters = 30;
   
   /* Create CMFD lattice */
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(17*17, 17*17, 1);
+  cmfd.setLatticeStructure(17*17, 17*17, 5);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 25);
+      get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
@@ -127,6 +127,7 @@ int main(int argc,  char* argv[]) {
 
   /* Create the track generator */
   log_printf(NORMAL, "Initializing the track generator...");
+  
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
   track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
@@ -152,6 +153,7 @@ int main(int argc,  char* argv[]) {
   /* Run simulation */
   CPUSolver solver(&track_generator); //FIXME LS / FS
   //solver.setChiSpectrumMaterial(fiss_material);
+  solver.stabalizeTransport(0.25);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

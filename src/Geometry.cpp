@@ -552,7 +552,10 @@ bool Geometry::isRootDomain() {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the domain indexes of the current domain
+ * @param indexes A pointer to the array to be filled with the indexes
+ */
 void Geometry::getDomainIndexes(int* indexes) {
   indexes[0] = _domain_index_x;
   indexes[1] = _domain_index_y;
@@ -1131,7 +1134,8 @@ long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
     int thread_id = omp_get_thread_num();
     std::string& fsr_key = _fsr_keys[thread_id];
     getFSRKeyFast(coords, fsr_key);
-    // FIXME NOW fsr_key = getFSRKey(coords);
+    if (!_FSR_keys_map.contains(fsr_key) && !err_check)
+      return -1;
     fsr_id = _FSR_keys_map.at(fsr_key)->_fsr_id;
   }
   catch(std::exception &e) {
@@ -2427,7 +2431,9 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 }
 
 
-//FIXME
+/**
+ * @brief Reorders FSRs so that they are contiguous in the axial direction
+ */
 void Geometry::reorderFSRIDs() {
 
   /* Extract list of extruded FSRs */
@@ -2651,8 +2657,8 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
                         const char* plane,
                         const char* domain_type) {
 
-  LocalCoords* point;
   Cell* cell;
+  LocalCoords* point;
 
   /* Instantiate a vector to hold the domain IDs */
   std::vector<long> domains(dim1.size() * dim2.size());
@@ -2668,13 +2674,12 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       else if (strcmp(plane, "xz") == 0)
         point = new LocalCoords(dim1[i], offset, dim2[j], true);
       else if (strcmp(plane, "yz") == 0)
-        point = new LocalCoords(offset, dim1[i], dim2[j], true);
+        point = new LocalCoords(offset, dim1[i], dim2[j], true); 
       else
         log_printf(ERROR, "Unable to extract spatial data for "
                           "unsupported plane %s", plane);
 
       point->setUniverse(_root_universe);
-      //cell = findCellContainingCoords(point);
       cell = _root_universe->findCell(point);
       domains[i+j*dim1.size()] = -1;
 
@@ -2743,6 +2748,131 @@ std::string Geometry::toString() {
  */
 void Geometry::printString() {
   log_printf(RESULT, toString().c_str());
+}
+  
+
+/**
+ * @brief Prints FSR layout to file
+ * @description This provides a way to get the functionality of the 
+ *              plot_flat_source_regions Python function without Python
+ * @brief plane The "xy", "xz", or "yz" plane in which to extract flat source
+ *        regions
+ * @brief gridsize The number of points to plot in each direction
+ * @brief offset The offset of the plane in the third dimension
+ * @brief bounds_x a two valued array for the plotted x-limits
+ * @brief bounds_y a two valued array for the plotted y-limits
+ * @brief bounds_z a two valued array for the plotted z-limits
+ */
+void Geometry::printFSRsToFile(const char* plane, int gridsize, double offset,
+                               double* bounds_x, double* bounds_y, 
+                               double* bounds_z) {
+  
+  /* Get geometry min and max */
+  double min_x = _root_universe->getMinX();
+  double max_x = _root_universe->getMaxX();
+  double min_y = _root_universe->getMinY();
+  double max_y = _root_universe->getMaxY();
+  double min_z = _root_universe->getMinZ();
+  double max_z = _root_universe->getMaxZ();
+
+  if (bounds_x != NULL) {
+    min_x = bounds_x[0];
+    max_x = bounds_x[1];
+  }
+  if (bounds_y != NULL) {
+    min_y = bounds_y[0];
+    max_y = bounds_y[1];
+  }
+  if (bounds_z != NULL) {
+    min_z = bounds_z[0];
+    max_z = bounds_z[1];
+  }
+
+  /* Create coordinate vectors */
+  std::vector<double> dim1(gridsize);
+  std::vector<double> dim2(gridsize);
+
+  /* Determine minimum and maximum values */
+  double dim1_min = -1;
+  double dim1_max = -1;
+  double dim2_min = -1;
+  double dim2_max = -1;
+
+  /* x-y plane */
+  if (strcmp(plane, "xy") == 0) {
+    dim1_min = min_x;
+    dim1_max = max_x;
+    dim2_min = min_y;
+    dim2_max = max_y;
+  }
+
+  /* x-z plane */
+  else if (strcmp(plane, "xz") == 0) {
+    dim1_min = min_x;
+    dim1_max = max_x;
+    dim2_min = min_z;
+    dim2_max = max_z;
+  }
+
+  /* y-z plane */
+  else if (strcmp(plane, "yz") == 0) {
+    dim1_min = min_y;
+    dim1_max = max_y;
+    dim2_min = min_z;
+    dim2_max = max_z;
+  }
+
+  else {
+    log_printf(ERROR, "Plane type %s unrecognized", plane);
+  }
+
+  /* Create grid */
+  double width1 = (dim1_max - dim1_min) / (gridsize + 1);
+  double width2 = (dim2_max - dim2_min) / (gridsize + 1);
+  for (int i=0; i < gridsize; i++) {
+    dim1.at(i) = dim1_min + (i+1) * width1;
+    dim2.at(i) = dim2_min + (i+1) * width2;
+  }
+
+  /* Retrive data */
+  log_printf(NORMAL, "Getting FSR layout on domains");
+  std::vector<long> domain_data = getSpatialDataOnGrid(dim1, dim2, offset,
+                                                       plane, "fsr");
+
+  long* fsr_array = new long[domain_data.size()];
+#pragma omp parallel for
+  for (int i=0; i < domain_data.size(); i++) {
+    fsr_array[i] = domain_data.at(i) + 1;
+  }
+
+#ifdef MPIx
+  log_printf(NORMAL, "Communicating FSR layout accross domains");
+  long* reduced_fsr_array = new long[domain_data.size()];
+  MPI_Allreduce(fsr_array, reduced_fsr_array, domain_data.size(),
+                MPI_LONG, MPI_SUM, _MPI_cart);
+#pragma omp parallel for
+  for (int i=0; i < domain_data.size(); i++)
+    fsr_array[i] = reduced_fsr_array[i];
+  delete [] reduced_fsr_array;
+#endif
+
+
+  /* Print to file */
+  log_printf(NORMAL, "Printing FSRs to file");
+  if (isRootDomain()) {
+    std::ofstream out("fsr-printout.txt");
+    out << "[HEADER] FSR printout" << std::endl;
+    out << "[HEADER] Plane = " << plane << std::endl;
+    out << "[HEADER] Offset = " << offset << std::endl;
+    out << "[HEADER] Bounds = (" << dim1_min << ", " << dim1_max << ") x (" 
+        << dim2_min << ", " << dim2_max << ")" << std::endl;
+    out << "[HEADER] Gridsize = " << gridsize << std::endl;
+    for (int i=0; i < domain_data.size(); i++) {
+      out << fsr_array[i] << " ";
+    }
+  }
+
+  delete [] fsr_array;
 }
 
 

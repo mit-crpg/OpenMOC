@@ -161,6 +161,10 @@ LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
       _next->setNext(NULL);
       _next->setArrayPosition(_next_array, _position+1, _array_size);
       _next->getPoint()->setCoords(x, y, z);
+      _next->setLattice(NULL);
+      _next->setUniverse(NULL);
+      _next->setCell(NULL);
+      _next->setVersionNum(0);
     }
   }
 
@@ -168,9 +172,30 @@ LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the LocalCoords position in the _next_array
+ * @return The position of this object in the underlying _next_array
+ */
 int LocalCoords::getPosition() {
   return _position;
+}
+
+
+/**
+ * @brief Searches through the LocalCoords object to detect a loop
+ * @details A loop is assumed if the LocalCoords apparent length is greater
+ *          1000 memebers
+ */
+void LocalCoords::detectLoop() {
+  int n = 0;
+
+  LocalCoords* iter = _next;
+  while (_next != NULL) {
+      iter = iter->getNext();
+      n++;
+      if (n > 1000)
+        log_printf(ERROR, "Infinite loop of coords");
+  }
 }
 
 

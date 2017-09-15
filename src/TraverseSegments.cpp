@@ -275,7 +275,7 @@ void TraverseSegments::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
     kernel->execute(seg->_length, seg->_material, seg->_region_id, 0,
                     seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd,
                     seg->_starting_position[0], seg->_starting_position[1],
-                    seg->_starting_position[2], 0, 0);
+                    seg->_starting_position[2], 0, M_PI_2);
   }
 }
 
