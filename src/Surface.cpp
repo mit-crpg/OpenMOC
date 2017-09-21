@@ -1,8 +1,10 @@
 #include "Surface.h"
+#include <set>
 
 int Surface::_n = 0;
 
 static int auto_id = DEFAULT_INIT_ID;
+static std::set<int> used_ids;
 
 /**
  * @brief Returns an auto-generated unique surface ID.
@@ -16,6 +18,10 @@ static int auto_id = DEFAULT_INIT_ID;
 int surface_id() {
   int id = auto_id;
   auto_id++;
+  while (used_ids.find(id) != used_ids.end()) {
+    id = auto_id;
+    auto_id++;
+  }
   return id;
 }
 
@@ -59,6 +65,9 @@ Surface::Surface(const int id, const char* name) {
   /* Use the user-defined ID */
   else
     _id = id;
+
+  /* Add the ID to the used set */
+  used_ids.insert(_id);
 
   _uid = _n;
   _n++;

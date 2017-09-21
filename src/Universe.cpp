@@ -1,9 +1,11 @@
 #include "Universe.h"
+#include <set>
 
 
 int Universe::_n = 0;
 
 static int auto_id = DEFAULT_INIT_ID;
+static std::set<int> used_ids;
 
 /**
  * @brief Returns an auto-generated unique Universe ID.
@@ -17,6 +19,10 @@ static int auto_id = DEFAULT_INIT_ID;
 int universe_id() {
   int id = auto_id;
   auto_id++;
+  while (used_ids.find(id) != used_ids.end()) {
+    id = auto_id;
+    auto_id++;
+  }
   return id;
 }
 
@@ -61,6 +67,9 @@ Universe::Universe(const int id, const char* name) {
 
   _uid = _n;
   _n++;
+  
+  /* Add the ID to the used set */
+  used_ids.insert(_id);
 
   _name = NULL;
   setName(name);

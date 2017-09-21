@@ -881,7 +881,12 @@ Material* Geometry::findFSRMaterial(long fsr_id) {
   else
     all_materials = _all_materials;
 
-  return all_materials[_FSRs_to_material_IDs.at(fsr_id)];
+  int mat_id = _FSRs_to_material_IDs.at(fsr_id);
+  if (all_materials.find(mat_id) == all_materials.end())
+      log_printf(ERROR, "Failed to find FSR Material for FSR %ld with "
+                 "Material ID %d", fsr_id, mat_id);
+
+  return all_materials[mat_id];
 }
 
 
@@ -3506,7 +3511,7 @@ void Geometry::dumpToFile(std::string filename) {
     int id = cell->getId();
     char* name = cell->getName();
     cellType ct = cell->getType();
-
+    
     /* Print key and general surface information */
     fwrite(&key, sizeof(int), 1, out);
     fwrite(&id, sizeof(int), 1, out);
@@ -3593,7 +3598,7 @@ void Geometry::dumpToFile(std::string filename) {
     int id = universe->getId();
     char* name = universe->getName();
     universeType ut = universe->getType();
-
+    
     /* Print key and general surface information */
     fwrite(&key, sizeof(int), 1, out);
     fwrite(&id, sizeof(int), 1, out);
