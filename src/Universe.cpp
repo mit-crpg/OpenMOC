@@ -1626,7 +1626,7 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
 
   /* Get the min distance for Z PLANE  */
   double dist_z;
-  if (u_z != 0) {
+  if (u_z != 0 && _width_z != std::numeric_limits<double>::infinity()) {
     double plane_z = lat_z * _width_z - _width_z*_num_z/2 + _offset.getZ();
     dist_z = (plane_z - point->getZ()) / u_z;
   }
@@ -1836,12 +1836,16 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   on_max_y = yplane.isPointOnSurface(point);
 
   /* Check if point is on Z_MIN boundary */
-  zplane.setZ((lat_z*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
-  on_min_z = zplane.isPointOnSurface(point);
+  if (_width_z != std::numeric_limits<double>::infinity()) {
+    zplane.setZ((lat_z*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
+    on_min_z = zplane.isPointOnSurface(point);
+  }
 
   /* Check if point is on Z_MAX boundary */
-  zplane.setZ(((lat_z + 1)*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
-  on_max_z = zplane.isPointOnSurface(point);
+  if (_width_z != std::numeric_limits<double>::infinity()) {
+    zplane.setZ(((lat_z + 1)*_width_z - _width_z*_num_z/2.0 + _offset.getZ()));
+    on_max_z = zplane.isPointOnSurface(point);
+  }
 
   if (on_min_x) {
     if (on_min_y) {

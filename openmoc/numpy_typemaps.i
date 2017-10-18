@@ -49,7 +49,7 @@
 /* The typemap used to match the method signature for the Solver's
  * computeFSRFissionRates method for the data processing routines in
  * openmoc.process */
-%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fission_rates, int num_FSRs)}
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* fission_rates, long num_FSRs)}
 
 /* The typemap used to match the method signature for the Universe's
  * getCellIds method for the data processing routines in openmoc.process */

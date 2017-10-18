@@ -618,33 +618,77 @@ void CPULSSolver::computeStabalizingFlux() {
   if (!_stabalize_moments)
     return;
 
-  /* Loop over all flat source regions, compute stabalizing flux moments */
+  if (_stabalization_type == DIAGONAL) {
+    /* Loop over all flat source regions, compute stabalizing flux moments */
 #pragma omp parallel for
-  for (long r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
 
-    /* Extract the scattering matrix */
-    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+      /* Extract the scattering matrix */
+      FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
     
-    /* Extract total cross-sections */
-    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+      /* Extract total cross-sections */
+      FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
 
-    for (int e=0; e < _num_groups; e++) {
+      for (int e=0; e < _num_groups; e++) {
       
-      /* Extract the in-scattering (diagonal) element */
-      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+        /* Extract the in-scattering (diagonal) element */
+        FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
       
-      /* For negative cross-sections, add the absolute value of the 
-         in-scattering rate to the stabalizing flux */
-      if (sigma_s < 0.0) {
-        for (int i=0; i < 3; i++) {
-          _stabalizing_flux_xyz(r, e, i) = -_scalar_flux_xyz(r,e,i) * 
-              _stabalization_factor * sigma_s / sigma_t[e];
+        /* For negative cross-sections, add the absolute value of the 
+           in-scattering rate to the stabalizing flux */
+        if (sigma_s < 0.0) {
+          for (int i=0; i < 3; i++) {
+            _stabalizing_flux_xyz(r, e, i) = -_scalar_flux_xyz(r,e,i) * 
+                _stabalization_factor * sigma_s / sigma_t[e];
+          }
         }
       }
     }
   }
-}
+  else if (_stabalization_type == YAMAMOTO) {
 
+    /* Treat each group */
+#pragma omp parallel for
+    for (int e=0; e < _num_groups; e++) {
+
+      /* Look for largest absolute scattering ratio */
+      FP_PRECISION max_ratio = 0.0;
+      for (long r=0; r < _num_FSRs; r++) {
+        
+        /* Extract the scattering value */
+        FP_PRECISION scat = _FSR_materials[r]->getSigmaSByGroup(e+1, e+1);
+    
+        /* Extract total cross-sections */
+        FP_PRECISION total = _FSR_materials[r]->getSigmaTByGroup(e+1);
+
+        /* Determine scattering ratio */
+        FP_PRECISION ratio = std::abs(scat / total);
+        if (ratio > max_ratio)
+          ratio = max_ratio;
+      }
+      max_ratio *= _stabalization_factor;
+      for (long r=0; r < _num_FSRs; r++) {
+        for (int i=0; i < 3; i++) {
+          _stabalizing_flux_xyz(r, e, i) = _scalar_flux_xyz(r,e,i) * max_ratio;
+        }
+      }
+    }
+  }
+  else if (_stabalization_type == GLOBAL) {
+    
+    /* Get the multiplicative factor */
+    FP_PRECISION mult_factor = 1.0 / _stabalization_factor - 1.0;
+   
+    /* Apply the global muliplicative factor */ 
+#pragma omp parallel for
+    for (long r=0; r < _num_FSRs; r++)
+      for (int e=0; e < _num_groups; e++)
+        for (int i=0; i <3; i++)
+          _stabalizing_flux_xyz(r, e, i) = _scalar_flux_xyz(r, e, i)
+             * mult_factor;
+  }
+}
+      
 
 /**
  * @brief Adjusts the scalar flux for transport stabalization
@@ -658,29 +702,74 @@ void CPULSSolver::stabalizeFlux() {
   if (!_stabalize_moments)
     return;
 
-  /* Loop over all flat source regions, apply stabalizing flux moments */
+  if (_stabalization_type == DIAGONAL) {
+    /* Loop over all flat source regions, apply stabalizing flux moments */
 #pragma omp parallel for
-  for (long r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
 
-    /* Extract the scattering matrix */
-    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+      /* Extract the scattering matrix */
+      FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
     
-    /* Extract total cross-sections */
-    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+      /* Extract total cross-sections */
+      FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
     
+      for (int e=0; e < _num_groups; e++) {
+      
+        /* Extract the in-scattering (diagonal) element */
+        FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+      
+        /* For negative cross-sections, add the stabalizing flux
+           and divide by the diagonal matrix element used to form it so that
+           no bias is introduced but the source iteration is stabalized */
+        if (sigma_s < 0.0) {
+          for (int i=0; i < 3; i++) {
+            _scalar_flux_xyz(r, e, i) += _stabalizing_flux_xyz(r, e, i);
+            _scalar_flux_xyz(r, e, i) /= (1.0 - _stabalization_factor * sigma_s /
+                                         sigma_t[e]);
+          }
+        }
+      }
+    }
+  }
+  else if (_stabalization_type == YAMAMOTO) {
+
+    /* Treat each group */
+#pragma omp parallel for
     for (int e=0; e < _num_groups; e++) {
-      
-      /* Extract the in-scattering (diagonal) element */
-      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
-      
-      /* For negative cross-sections, add the stabalizing flux
-         and divide by the diagonal matrix element used to form it so that
-         no bias is introduced but the source iteration is stabalized */
-      if (sigma_s < 0.0) {
+
+      /* Look for largest absolute scattering ratio */
+      FP_PRECISION max_ratio = 0.0;
+      for (long r=0; r < _num_FSRs; r++) {
+        
+        /* Extract the scattering value */
+        FP_PRECISION scat = _FSR_materials[r]->getSigmaSByGroup(e+1, e+1);
+    
+        /* Extract total cross-sections */
+        FP_PRECISION total = _FSR_materials[r]->getSigmaTByGroup(e+1);
+
+        /* Determine scattering ratio */
+        FP_PRECISION ratio = std::abs(scat / total);
+        if (ratio > max_ratio)
+          ratio = max_ratio;
+      }
+      max_ratio *= _stabalization_factor;
+      for (long r=0; r < _num_FSRs; r++) {
         for (int i=0; i < 3; i++) {
           _scalar_flux_xyz(r, e, i) += _stabalizing_flux_xyz(r, e, i);
-          _scalar_flux_xyz(r, e, i) /= (1.0 - _stabalization_factor * sigma_s /
-                                       sigma_t[e]);
+          _scalar_flux_xyz(r, e, i) /= (1 + max_ratio);
+        }
+      }
+    }
+  }
+  else if (_stabalization_type == GLOBAL) {
+
+    /* Apply the damping factor */    
+#pragma omp parallel for
+    for (long r=0; r < _num_FSRs; r++) {
+      for (int e=0; e < _num_groups; e++) {
+        for (int i=0; i <3; i++) {
+          _scalar_flux_xyz(r, e, i) += _stabalizing_flux_xyz(r, e, i);
+          _scalar_flux_xyz(r, e, i) *= _stabalization_factor;
         }
       }
     }

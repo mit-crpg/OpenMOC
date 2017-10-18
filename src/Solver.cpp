@@ -549,11 +549,30 @@ void Solver::correctXS() {
  *          correction fixes this by adding a diagonal matrix to both sides
  *          of the discretized transport equation which introduces no bias
  *          but transforms the iteration matrix into one that is stable.
+ *
+ *          Three stabalization options exist: DIAGONAL, YAMAMOTO, and GLOBAL.
+ *
+ *          DIAGONAL: The stabalization is only applied to fluxes where the
+ *                    associated in-scatter cross-section is negative. The
+ *                    added stabalizing flux is equal to the magnitude of the
+ *                    in-scatter cross-section divided by the total
+ *                    cross-section and scaled by the stabalization factor.
+ *          YAMAMOTO: This is the same as DIAGONAL except that the largest
+ *                    stabalization is applied to all regions, not just those
+ *                    containing negative in-scatter cross-sections.
+ *          GLOBAL: This method applies a global stabalization factor to all
+ *                  fluxes defined by the user. In addition, the stabalization
+ *                  factor in this option refers to a damping factor, not
+ *                  the magnitude of the stabalizing correction.
+ *
  * @param stabalization_factor The factor applied to the stabalizing correction
+ * @param stabalizaiton_type The type of stabalization to use
  */
-void Solver::stabalizeTransport(double stabalization_factor) {
+void Solver::stabalizeTransport(double stabalization_factor, 
+                                stabalizationType stabalization_type) {
   _stabalize_transport = true;
   _stabalization_factor = stabalization_factor;
+  _stabalization_type = stabalization_type;
 }
   
 
@@ -1401,7 +1420,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   for (int i=0; i < max_iters; i++) {
 
     /* Comptue the stabalizing flux if necessary */
-    if (_stabalize_transport) {
+    if (i > 0 && _stabalize_transport) {
       computeStabalizingFlux();
     }
 
@@ -1420,7 +1439,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
       computeKeff();
     
     /* Apply the flux adjustment if transport stabalization is on */
-    if (_stabalize_transport) {
+    if (i > 0 && _stabalize_transport) {
       stabalizeFlux();
     }
 

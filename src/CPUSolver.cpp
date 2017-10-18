@@ -1496,7 +1496,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       if (_reduced_sources(r,G) < 0.0) {
 #pragma omp atomic
         num_negative_sources++;
-        if (iteration < 25)
+        if (iteration < 30)
           _reduced_sources(r,G) = 1.0e-20;
       }
     }
@@ -1522,7 +1522,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       log_printf(WARNING, "Computed %ld negative sources on %d domains",
                  total_num_negative_sources,
                  total_num_negative_source_domains);
-      if (iteration < 25)
+      if (iteration < 30)
         log_printf(WARNING, "Negative sources corrected to zero");
     }
   }
@@ -1988,27 +1988,68 @@ void CPUSolver::addSourceToScalarFlux() {
  */
 void CPUSolver::computeStabalizingFlux() {
 
-  /* Loop over all flat source regions */
-#pragma omp parallel for
-  for (long r=0; r < _num_FSRs; r++) {
-
-    /* Extract the scattering matrix */
-    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+  if (_stabalization_type == DIAGONAL) {
     
-    /* Extract total cross-sections */
-    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+    /* Loop over all flat source regions */
+#pragma omp parallel for
+    for (long r=0; r < _num_FSRs; r++) {
 
-    for (int e=0; e < _num_groups; e++) {
+      /* Extract the scattering matrix */
+      FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+    
+      /* Extract total cross-sections */
+      FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+
+      for (int e=0; e < _num_groups; e++) {
       
-      /* Extract the in-scattering (diagonal) element */
-      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+        /* Extract the in-scattering (diagonal) element */
+        FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
       
-      /* For negative cross-sections, add the absolute value of the 
-         in-scattering rate to the stabalizing flux */
-      if (sigma_s < 0.0)
-        _stabalizing_flux(r, e) = -_scalar_flux(r,e) * _stabalization_factor 
-            * sigma_s / sigma_t[e];
+        /* For negative cross-sections, add the absolute value of the 
+           in-scattering rate to the stabalizing flux */
+        if (sigma_s < 0.0)
+          _stabalizing_flux(r, e) = -_scalar_flux(r,e) * _stabalization_factor 
+              * sigma_s / sigma_t[e];
+      }
     }
+  }
+  else if (_stabalization_type == YAMAMOTO) {
+
+    /* Treat each group */
+#pragma omp parallel for
+    for (int e=0; e < _num_groups; e++) {
+
+      /* Look for largest absolute scattering ratio */
+      FP_PRECISION max_ratio = 0.0;
+      for (long r=0; r < _num_FSRs; r++) {
+        
+        /* Extract the scattering value */
+        FP_PRECISION scat = _FSR_materials[r]->getSigmaSByGroup(e+1, e+1);
+    
+        /* Extract total cross-sections */
+        FP_PRECISION total = _FSR_materials[r]->getSigmaTByGroup(e+1);
+
+        /* Determine scattering ratio */
+        FP_PRECISION ratio = std::abs(scat / total);
+        if (ratio > max_ratio)
+          max_ratio = ratio;
+      }
+      max_ratio *= _stabalization_factor;
+      for (long r=0; r < _num_FSRs; r++) {
+        _stabalizing_flux(r, e) = _scalar_flux(r,e) * max_ratio;
+      }
+    }
+  }
+  else if (_stabalization_type == GLOBAL) {
+    
+    /* Get the multiplicative factor */
+    FP_PRECISION mult_factor = 1.0 / _stabalization_factor - 1.0;
+   
+    /* Apply the global muliplicative factor */ 
+#pragma omp parallel for
+    for (long r=0; r < _num_FSRs; r++)
+      for (int e=0; e < _num_groups; e++)
+        _stabalizing_flux(r, e) = mult_factor * _scalar_flux(r,e);
   }
 }
 
@@ -2018,28 +2059,70 @@ void CPUSolver::computeStabalizingFlux() {
  */
 void CPUSolver::stabalizeFlux() {
 
-  /* Loop over all flat source regions */
+  if (_stabalization_type == DIAGONAL) {
+  
+    /* Loop over all flat source regions */
 #pragma omp parallel for
-  for (long r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
 
-    /* Extract the scattering matrix */
-    FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
+      /* Extract the scattering matrix */
+      FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
     
-    /* Extract total cross-sections */
-    FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
+      /* Extract total cross-sections */
+      FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
     
+      for (int e=0; e < _num_groups; e++) {
+      
+        /* Extract the in-scattering (diagonal) element */
+        FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+      
+        /* For negative cross-sections, add the stabalizing flux
+           and divide by the diagonal matrix element used to form it so that
+           no bias is introduced but the source iteration is stabalized */
+        if (sigma_s < 0.0) {
+          _scalar_flux(r, e) += _stabalizing_flux(r,e);
+          _scalar_flux(r, e) /= (1.0 - _stabalization_factor * sigma_s / 
+                                 sigma_t[e]);
+        }
+      }
+    }
+  }
+  else if (_stabalization_type == YAMAMOTO) {
+
+    /* Treat each group */
+#pragma omp parallel for
     for (int e=0; e < _num_groups; e++) {
-      
-      /* Extract the in-scattering (diagonal) element */
-      FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
-      
-      /* For negative cross-sections, add the stabalizing flux
-         and divide by the diagonal matrix element used to form it so that
-         no bias is introduced but the source iteration is stabalized */
-      if (sigma_s < 0.0) {
-        _scalar_flux(r, e) += _stabalizing_flux(r,e);
-        _scalar_flux(r, e) /= (1.0 - _stabalization_factor * sigma_s / 
-                               sigma_t[e]);
+
+      /* Look for largest absolute scattering ratio */
+      FP_PRECISION max_ratio = 0.0;
+      for (long r=0; r < _num_FSRs; r++) {
+        
+        /* Extract the scattering value */
+        FP_PRECISION scat = _FSR_materials[r]->getSigmaSByGroup(e+1, e+1);
+    
+        /* Extract total cross-sections */
+        FP_PRECISION total = _FSR_materials[r]->getSigmaTByGroup(e+1);
+
+        /* Determine scattering ratio */
+        FP_PRECISION ratio = std::abs(scat / total);
+        if (ratio > max_ratio)
+          max_ratio = ratio;
+      }
+      max_ratio *= _stabalization_factor;
+      for (long r=0; r < _num_FSRs; r++) {
+        _scalar_flux(r, e) += _stabalizing_flux(r, e);
+        _scalar_flux(r, e) /= (1 + max_ratio);
+      }
+    }
+  }
+  else if (_stabalization_type == GLOBAL) {
+
+    /* Apply the damping factor */    
+#pragma omp parallel for
+    for (long r=0; r < _num_FSRs; r++) {
+      for (int e=0; e < _num_groups; e++) {
+        _scalar_flux(r, e) += _stabalizing_flux(r, e);
+        _scalar_flux(r, e) *= _stabalization_factor;
       }
     }
   }

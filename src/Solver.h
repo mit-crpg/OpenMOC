@@ -89,6 +89,24 @@ enum residualType {
   TOTAL_SOURCE,
 };
 
+
+/**
+ * @enum stabalizationType
+ * @brief The type of stabalization to use on source iteration
+ */
+enum stabalizationType {
+
+  /** General diagonal stabalization */
+  DIAGONAL,
+
+  /** Yamamoto's groupwise stabalization */
+  YAMAMOTO,
+
+  /** Global damping on the scalar flux update */
+  GLOBAL,
+};
+
+
 /**
  * @class Solver Solver.h "src/Solver.h"
  * @brief This is an abstract base class which different Solver subclasses
@@ -234,6 +252,9 @@ protected:
 
   /** The factor applied to the source iteration stabilization */
   double _stabalization_factor;
+  
+  /** The type of source iteration stabilization */
+  stabalizationType _stabalization_type;
 
   /** A matrix of ExpEvaluators to compute exponentials in the transport
     * equation. The matrix is indexed by azimuthal index and polar index */
@@ -384,7 +405,8 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
   void correctXS();
-  void stabalizeTransport(double stabalization_factor);
+  void stabalizeTransport(double stabalization_factor,
+                          stabalizationType stabalization_type=DIAGONAL);
   void setInitialSpectrumCalculation(double threshold);
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
