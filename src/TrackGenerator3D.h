@@ -131,9 +131,6 @@ private:
   /** The global axial mesh to use in on-the-fly calculations */
   std::vector<double> _global_z_mesh;
 
-  /** The method to use for generating 3D tracks */
-  int _track_generation_method;
-
   /** Dimensions of temporary segments storage matrix */
   int _num_seg_matrix_rows;
   int _num_seg_matrix_columns;
@@ -205,7 +202,6 @@ public:
   Track** getTemporaryTracksArray(int thread_id);
   int getNumZ(int azim, int polar);
   int getNumL(int azim, int polar);
-  int getTrackGenerationMethod();
   int*** getTracksPerStack();
   int getMaxNumTracksPerStack();
   bool containsTracks();
@@ -221,11 +217,9 @@ public:
   void getTrackOTF(Track3D* track, TrackStackIndexes* tsi);
 
   /* Set parameters */
-  void setGeometry(Geometry* geometry);
   void setNumPolar(int num_polar);
   void setDesiredZSpacing(double spacing);
   void setSegmentFormation(segmentationType segmentation_type);
-  void setTrackGenerationMethod(int method);
   void setSegmentationZones(std::vector<double> z_mesh);
   void setLinkingTracks(TrackStackIndexes* tsi, TrackChainIndexes* tci,
                         bool outgoing, Track3D* track);
