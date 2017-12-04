@@ -1317,9 +1317,11 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   }
 
   /* Error checking */
-  if (num_zcylinders == 0)
-    log_printf(ERROR, "Unable to ringify Cell %d since it does not "
-              "contain any ZCYLINDER type Surface(s)", _id);
+  if (num_zcylinders == 0) {
+    log_printf(WARNING, "Unable to ringify Cell %d: %s since it does not "
+              "contain any ZCYLINDER type Surface(s)", _id, _name);
+    return;
+  }
 
   if (num_zcylinders > 2)
     log_printf(NORMAL, "Unable to ringify Cell %d since it "

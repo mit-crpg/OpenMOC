@@ -53,13 +53,17 @@
  *  was selected based on analysis by Yamamoto's 2004 paper on the topic. */
 #define EXP_PRECISION FP_PRECISION(1E-5)
 
+/** The minimum number of interpolation points to be used in an exponential
+ *  lookup table */
+#define MIN_EXP_INTERP_POINTS 100
+
 /** The minimum calculated determinant to allow for the calculation of a matrix
   * inverse. */
 #define MIN_DET 1E-10
 
 /** The maximum number of iterations allowed for a power method eigenvalue
  *  solve in linalg.cpp */
-#define MIN_LINALG_POWER_ITERATIONS 100
+#define MIN_LINALG_POWER_ITERATIONS 25
 #define MAX_LINALG_POWER_ITERATIONS 25000
 
 #define MIN_LINALG_TOLERANCE double(1E-15)

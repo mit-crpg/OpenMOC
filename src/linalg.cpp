@@ -564,7 +564,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
     Vector residual(cell_locks, num_x, num_y, num_z, num_groups);
 
     /* Compute the RMSE */
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < num_x*num_y*num_z; i++) {
       for (int g = 0; g < num_groups; g++) {
         if (X->getValue(i, g) != 0.0)

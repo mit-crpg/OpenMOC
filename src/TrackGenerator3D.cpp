@@ -461,7 +461,7 @@ void TrackGenerator3D::setSegmentationZones(std::vector<double> zones) {
  */
 void TrackGenerator3D::useGlobalZMesh() {
   _contains_global_z_mesh = true;
-  _global_z_mesh = _geometry->getUniqueZHeights();
+  _global_z_mesh = _geometry->getUniqueZHeights(true);
 }
 
 

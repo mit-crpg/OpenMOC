@@ -3148,13 +3148,15 @@ void Geometry::setFSRCentroid(long fsr, Point* centroid) {
 /*
  * @brief Returns a vector of z-coords defining a superposition of all axial
  *        boundaries in the Geometry.
+ * @param include_overlaid_mesh whether to include an overlaid mesh in the
+ *        set of unique z-coords
  * @details The Geometry is traversed to retrieve all Z-planes and implicit
  *          z-boundaries, such as lattice boundaries. The levels of all these
  *          z-boundaries are rounded and added to a set containing no
  *          duplicates, creating a mesh.
  * @reutrn a vector of z-coords
  */
-std::vector<double> Geometry::getUniqueZHeights() {
+std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
 
   /* Get the bounds of the geometry */
   double min_z = getMinZ();
@@ -3309,12 +3311,21 @@ std::vector<double> Geometry::getUniqueZHeights() {
     }
   }
 
+  /* Include overlaid mesh heights if requested */
+  if (include_overlaid_mesh && _overlaid_mesh != NULL) {
+    int num_z = _overlaid_mesh->getNumZ();
+    double dz = (max_z - min_z) / num_z;
+    for (int i=1; i < num_z; i++)
+      unique_mesh.insert(min_z + i*dz);
+  }
+
   /* Get a vector of the unique z-heights in the Geometry */
   std::vector<double> unique_heights;
   std::set<double>::iterator iter;
   for (iter = unique_mesh.begin(); iter != unique_mesh.end(); ++iter)
     unique_heights.push_back(static_cast<double>(*iter));
 
+  std::sort(unique_heights.begin(), unique_heights.end());
   return unique_heights;
 }
 

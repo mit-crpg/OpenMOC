@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include "CPUSolver.h"
 #include <fstream>
 #ifdef BGQ
 #include <spi/include/kernel/memory.h>

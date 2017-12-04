@@ -106,6 +106,7 @@ public:
   void setNumThreads(int num_threads);
   virtual void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
   void computeFSRFissionRates(double* fission_rates, long num_FSRs);
+  virtual void printInputParamsSummary();
 
   /**
    * @brief Computes the contribution to the FSR flux from a Track segment.
