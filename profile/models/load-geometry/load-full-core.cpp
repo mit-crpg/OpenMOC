@@ -18,7 +18,9 @@ int main(int argc,  char* argv[]) {
   //std::string file = "will-3D-TC-core.geo";
   //std::string file = "b2-full-core.geo";
   //std::string file = "final-full-core.geo";
-  std::string file = "final-full-core-full-TC.geo";
+  //std::string file = "final-full-core-full-TC.geo";
+  //std::string file = "beavrs-casmo-water-xs.geo";
+  std::string file = "tw-full-core-3D.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -28,12 +30,12 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1; // 0.1
-  int num_azim = 8; //TODO 32
+  int num_azim = 4; //TODO 32
   double polar_spacing = 0.75; // 0.75
   int num_polar = 2;
 
   double tolerance = 1e-4;
-  int max_iters = 25; //TODO 8
+  int max_iters = 200; //TODO 8
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -41,7 +43,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17*17, 17*17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 8);
+      get_group_structure(70, 25);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
@@ -119,7 +121,7 @@ int main(int argc,  char* argv[]) {
   geometry.setDomainDecomposition(17, 17, 5, MPI_COMM_WORLD);
   //geometry.setNumDomainModules(17, 17, 40);
 #endif
-  geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
+  geometry.setOverlaidMesh(2.0, 17*17*1, 17*17*1, num_rad_discr, 
                            rad_discr_domains);
   geometry.initializeFlatSourceRegions();
 
@@ -138,20 +140,8 @@ int main(int argc,  char* argv[]) {
   track_generator.setSegmentationZones(segmentation_zones);
   track_generator.generateTracks();
 
-  /* Find fissionable material */
-  Material* fiss_material = NULL;
-  std::map<int, Material*> materials = geometry.getAllMaterials();
-  for (std::map<int, Material*>::iterator it = materials.begin();
-       it != materials.end(); ++it) {
-    if (it->second->isFissionable()) {
-      fiss_material = it->second;
-      break;
-    }
-  }
-
   /* Run simulation */
   CPULSSolver solver(&track_generator); //FIXME LS / FS
-  //solver.setChiSpectrumMaterial(fiss_material);
   solver.stabalizeTransport(0.25);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
@@ -166,6 +156,7 @@ int main(int argc,  char* argv[]) {
   material_ids.push_back(10019); //water-spn
   //solver.setLimitingXSMaterials(material_ids, 8);
   //solver.setLimitingXSMaterials(material_ids, 100);
+  //solver.setResidualByReference("/projects/Full_core_3D_MOC/ref-fluxes-fc");
 
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();

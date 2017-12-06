@@ -224,7 +224,7 @@ public:
   std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
   std::map<int, Universe*> getAllUniverses();
-  std::vector<double> getUniqueZHeights();
+  std::vector<double> getUniqueZHeights(bool include_overlaid_mesh = false);
   std::vector<double> getUniqueZPlanes();
   bool isDomainDecomposed();
   bool isRootDomain();

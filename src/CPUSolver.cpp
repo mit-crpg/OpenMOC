@@ -2207,6 +2207,19 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
 }
 
 
+/**
+ * @brief A function that prints a summary of the input parameters
+ */
+void CPUSolver::printInputParamsSummary() {
+
+  /* Print general solver input params summary */
+  Solver::printInputParamsSummary();
+
+  /* Print threads used */
+  log_printf(NORMAL, "Using %d threads", _num_threads);
+}
+
+
 //FIXME
 void CPUSolver::printFSRFluxes(std::vector<double> dim1,
                                std::vector<double> dim2,

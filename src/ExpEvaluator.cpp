@@ -219,17 +219,23 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   if (!_interpolate)
     return;
 
-  /* Set size of interpolation table */
+  /* Set size of interpolation table for linear interpolation */
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
 
-  if (num_array_values < 1000)
-    num_array_values = 1000;
+  /* Adjust for quadratic interpolation */
+  num_array_values /= 4;
+
+  if (num_array_values < MIN_EXP_INTERP_POINTS)
+    num_array_values = MIN_EXP_INTERP_POINTS;
 
   if (num_array_values > 1e5) {
     log_printf(WARNING, "Reducing exponential table size from %d to %d",
                num_array_values, 1e5);
     num_array_values = 1e5;
   }
+
+  log_printf(NORMAL, "Creating exponential lookup table with %d interpolation "
+             "points", num_array_values);
 
   _exp_table_spacing = _max_optical_length / num_array_values;
 

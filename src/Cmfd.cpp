@@ -75,6 +75,7 @@ Cmfd::Cmfd() {
   _lattice = NULL;
   _azim_spacings = NULL;
   _polar_spacings = NULL;
+  _temporary_currents = NULL;
 
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[6];
@@ -185,9 +186,11 @@ Cmfd::~Cmfd() {
   }
 
   int num_threads = omp_get_max_threads();
-  for (int t=0; t < num_threads; t++)
-    delete [] _temporary_currents[t];
-  delete [] _temporary_currents;
+  if (_temporary_currents != NULL) {
+    for (int t=0; t < num_threads; t++)
+      delete [] _temporary_currents[t];
+    delete [] _temporary_currents;
+  }
 
   /* TODO: clean, document */
   int num_cells_local = _local_num_x * _local_num_y * _local_num_z;

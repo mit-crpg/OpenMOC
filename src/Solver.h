@@ -409,7 +409,7 @@ public:
   virtual void initializeFixedSources();
 
   void printFissionRates(std::string fname, int nx, int ny, int nz);
-  void printInputParamsSummary();
+  virtual void printInputParamsSummary();
 
   void setResidualByReference(std::string fname);
   void dumpFSRFluxes(std::string fname);

@@ -7,15 +7,16 @@ OPENMP      = yes
 OPTIMIZE    = yes
 DEBUG       = no
 PROFILE     = no
-PRECISION   = double
-CMFD_PRECISION = double
+PRECISION   = single
+CMFD_PRECISION = single
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-case = load-geometry/load-full-core.cpp
-#case = load-geometry/load-single-assembly.cpp
+#case = load-geometry/load-full-core.cpp
+case = load-geometry/load-single-assembly.cpp
+#case = load-geometry/load-tc-study.cpp
 #case = load-geometry/load-few-assm.cpp
 #case = load-geometry/load-2D-full-core.cpp
 #case = load-geometry/trunc-core-2D.cpp
@@ -77,6 +78,7 @@ load-geometry/load-2D-full-core.cpp \
 load-geometry/trunc-core-2D.cpp \
 load-geometry/load-corner.cpp \
 load-geometry/load-assembly-lattice.cpp \
+load-geometry/load-tc-study.cpp \
 load-geometry/load-full-core.cpp
 
 #===============================================================================
@@ -167,9 +169,6 @@ endif
 ifeq ($(CMFD_PRECISION),double)
   CFLAGS += -DCMFD_PRECISION=double
 endif
-
-
-
 
 # Vector Flags
 CFLAGS += -DVEC_LENGTH=8

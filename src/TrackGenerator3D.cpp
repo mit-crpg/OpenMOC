@@ -24,7 +24,6 @@ TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
   _max_num_tracks_per_stack = 0;
   _num_seg_matrix_rows = 0;
   _num_seg_matrix_columns = 0;
-  _track_generation_method = GLOBAL_TRACKING; //FIXME
   _tracks_3D = NULL;
   _tracks_2D_chains = NULL;
 
@@ -462,7 +461,7 @@ void TrackGenerator3D::setSegmentationZones(std::vector<double> zones) {
  */
 void TrackGenerator3D::useGlobalZMesh() {
   _contains_global_z_mesh = true;
-  _global_z_mesh = _geometry->getUniqueZHeights();
+  _global_z_mesh = _geometry->getUniqueZHeights(true);
 }
 
 
@@ -1275,47 +1274,6 @@ void TrackGenerator3D::segmentize() {
 
 
 /**
- * @brief Set a pointer to the Geometry to use for track generation.
- * @details If the Geometry is domain decomposed, the ray tracing method is set
- *          to modular ray tracing.
- * @param geometry a pointer to the Geometry
- */
-void TrackGenerator3D::setGeometry(Geometry* geometry) {
-  if (geometry->isDomainDecomposed())
-    _track_generation_method = MODULAR_RAY_TRACING;
-  TrackGenerator::setGeometry(geometry);
-}
-
-
-/**
- * @brief Sets the track laydown method for generation of 3D Tracks
- * @details Options for the track laydown are GLOBAL_TRACKING,
- *          MODULAR_RAY_TRACING, and SIMPLIFIED_MODULAR_RAY_TRACING
- * @param method The track laydown method
- */
-void TrackGenerator3D::setTrackGenerationMethod(int method) {
-
-  if (method != GLOBAL_TRACKING && method != MODULAR_RAY_TRACING &&
-      method != SIMPLIFIED_MODULAR_RAY_TRACING)
-    log_printf(ERROR, "Unable to set Track Generation Method to %i. Valid"
-               " methods include GLOBAL_TRACKING, MODULAR_RAY_TRACING, "
-               "and SIMPLIFIED_MODULAR_RAY_TRACING", method);
-
-  _track_generation_method = method;
-}
-
-
-/**
- * @brief Returns the track laydown method used for generating 3D Tracks
- * @return The track generation method: GLOBAL_TRACKING, MODULAR_RAY_TRACING,
- *         or SIMPLIFIED_MODULAR_RAY_TRACING
- */
-int TrackGenerator3D::getTrackGenerationMethod() {
-  return _track_generation_method;
-}
-
-
-/**
  * @brief Fills an array with the x,y coordinates for a given track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
@@ -1458,13 +1416,6 @@ std::string TrackGenerator3D::getTestFilename(std::string directory) {
     quad_type = "LEONARD";
   else if (_quadrature->getQuadratureType() == GAUSS_LEGENDRE)
     quad_type = "GAUSS_LEGENDRE";
-
-  if (_track_generation_method == GLOBAL_TRACKING)
-    track_method = "GT";
-  else if (_track_generation_method == MODULAR_RAY_TRACING)
-    track_method = "MRT";
-  else if (_track_generation_method == SIMPLIFIED_MODULAR_RAY_TRACING)
-    track_method = "sMRT";
 
   if (_geometry->getCmfd() != NULL)
     test_filename << directory << "/3D_"

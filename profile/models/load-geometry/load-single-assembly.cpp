@@ -23,8 +23,13 @@ int main(int argc,  char* argv[]) {
   //std::string file = "v1-single-assembly.geo";
   //std::string file = "v1-single-assembly-2D.geo";
   //std::string file = "final-single-assembly.geo";
-  std::string file = "assembly-lattice-1x1.geo";
+  //std::string file = "assembly-lattice-1x1.geo";
+  //std::string file = "tc-sa.geo";
   //std::string file = "rad-mesh/sa-fuel-4-mod-0.geo";
+  //std::string file = "tw-single-assembly.geo";
+  std::string file = "radial-mesh-geo/tw-single-assembly-"
+                     "fr0fs4-mr1ms8-gr0gs8.geo";
+  //std::string file = "tw-trunc-single-assembly.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -33,8 +38,8 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
 
-  double azim_spacing = 0.1;
-  int num_azim = 32;
+  double azim_spacing = 0.05;
+  int num_azim = 64;
   double polar_spacing = 0.75;
   int num_polar = 10;
 
@@ -47,7 +52,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17, 17, 200); //FIXME 5 / 200
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 4);
+      get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.7);
   cmfd.setSORRelaxationFactor(1.6);
@@ -71,7 +76,6 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Initializing the track generator...");
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
-  track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
   double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,
@@ -80,6 +84,7 @@ int main(int argc,  char* argv[]) {
 /* FIXME
   double z_arr[] = {120., 130.};
                     */
+  //double z_arr[] = {0., 20., 380., 400.};
   std::vector<double> segmentation_zones(z_arr, z_arr + sizeof(z_arr)
                                          / sizeof(double));
   track_generator.setSegmentationZones(segmentation_zones);
@@ -91,6 +96,11 @@ int main(int argc,  char* argv[]) {
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
   solver.setCheckXSLogLevel(INFO);
+  //solver.loadInitialFSRFluxes("fluxes-70-group");
+  //solver.setResidualByReference("ref-fluxes-70-group-flat");
+  //solver.setResidualByReference("ref-fluxes-70-group-flat-trunc");
+  //solver.stabalizeTransport(1.0, YAMAMOTO);
+  //solver.stabalizeTransport(1.0/16.0);
   solver.stabalizeTransport(0.25);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();

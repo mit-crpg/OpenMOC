@@ -14,15 +14,9 @@ int main(int argc,  char* argv[]) {
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
-  //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+  //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT & ~FE_UNDERFLOW & ~FE_OVERFLOW);
   /* Define geometry to load */
-  //std::string file = "v1-full-core-2D.geo";
-  //std::string file = "vc1-full-core-2D.geo";
-  //std::string file = "noTC-full-core-2D.geo";
-  //std::string file = "old-geo-files/beavrs-2D-raw-TC.geo";
-  //std::string file = "will-2D-TC-2.geo";
-  //std::string file = "cas-2D-TCo.geo";
-  std::string file = "full-core-2D-final-full-tc.geo";
+  std::string file = "tw-full-core-2D.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -32,12 +26,12 @@ int main(int argc,  char* argv[]) {
   #endif
  
   double azim_spacing = 0.1;
-  int num_azim = 16;
-  double polar_spacing = 0.75;
+  int num_azim = 32;
+  double polar_spacing = 1.5;
   int num_polar = 6;
 
   double tolerance = 1e-10;
-  int max_iters = 30;
+  int max_iters = 550;
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -117,6 +111,7 @@ int main(int argc,  char* argv[]) {
 
   geometry.setCmfd(&cmfd); //FIXME OFF /ON
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
+  log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxY() - geometry.getMinY());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
   geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD);
@@ -140,20 +135,22 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Find fissionable material */
-  Material* fiss_material = NULL;
   std::map<int, Material*> materials = geometry.getAllMaterials();
   for (std::map<int, Material*>::iterator it = materials.begin();
        it != materials.end(); ++it) {
-    if (it->second->isFissionable()) {
-      fiss_material = it->second;
-      break;
+    Material* mat = it->second;
+    for (int g=0; g < 70; g++) {
+      if (mat->getSigmaTByGroup(g+1) < 0.0)
+          log_printf(ERROR, "Negative sigma-t of %6.4f", mat->getSigmaTByGroup(g+1));
     }
   }
 
   /* Run simulation */
   CPUSolver solver(&track_generator); //FIXME LS / FS
   //solver.setChiSpectrumMaterial(fiss_material);
+  //solver.stabalizeTransport(1.0, YAMAMOTO);
   solver.stabalizeTransport(0.25);
+  //solver.setResidualByReference("ref-fluxes-fc");
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
