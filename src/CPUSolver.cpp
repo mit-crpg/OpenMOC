@@ -1542,15 +1542,19 @@ double CPUSolver::computeResidual(residualType res_type) {
   double* residuals = _regionwise_scratch;
   memset(residuals, 0., _num_FSRs * sizeof(double));
 
+  FP_PRECISION* reference_flux = _old_scalar_flux;
+  if (_calculate_residuals_by_reference)
+    reference_flux = _reference_flux;
+
   if (res_type == SCALAR_FLUX) {
 
     norm = _num_FSRs;
 
     for (long r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++)
-        if (_old_scalar_flux(r,e) > 0.) {
-          residuals[r] += pow((_scalar_flux(r,e) - _old_scalar_flux(r,e)) /
-                              _old_scalar_flux(r,e), 2);
+        if (reference_flux(r,e) > 0.) {
+          residuals[r] += pow((_scalar_flux(r,e) - reference_flux(r,e)) /
+                              reference_flux(r,e), 2);
       }
     }
   }
@@ -1573,7 +1577,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
         for (int e=0; e < _num_groups; e++) {
           new_fission_source += _scalar_flux(r,e) * nu_sigma_f[e];
-          old_fission_source += _old_scalar_flux(r,e) * nu_sigma_f[e];
+          old_fission_source += reference_flux(r,e) * nu_sigma_f[e];
         }
 
         if (old_fission_source > 0.)
@@ -1602,7 +1606,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
         for (int e=0; e < _num_groups; e++) {
           new_total_source += _scalar_flux(r,e) * nu_sigma_f[e];
-          old_total_source += _old_scalar_flux(r,e) * nu_sigma_f[e];
+          old_total_source += reference_flux(r,e) * nu_sigma_f[e];
         }
 
         new_total_source *= inverse_k_eff;
@@ -1615,7 +1619,7 @@ double CPUSolver::computeResidual(residualType res_type) {
         int first_idx = G * _num_groups;
         for (int g=0; g < _num_groups; g++) {
           new_total_source += sigma_s[first_idx+g] * _scalar_flux(r,g);
-          old_total_source += sigma_s[first_idx+g] * _old_scalar_flux(r,g);
+          old_total_source += sigma_s[first_idx+g] * reference_flux(r,g);
         }
       }
 
