@@ -225,8 +225,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     X->copyTo(&X_old);
 
     /* Check if we need to cut the SOR factor */
-    if (iter > 100)
-      SOR_factor = 1.0;
+    if (iter != 0 && (iter % 100 == 0))
+      SOR_factor /= 2;
 
     // Iteration over red/black cells
     for (int color = 0; color < 2; color++) {
@@ -249,7 +249,8 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
               x[row] = (1.0 - SOR_factor) * x[row];
                 
               if (DIAG[row] == 0)
-                  log_printf(ERROR, "ZERO DIAGONAL");
+                  log_printf(ERROR, "A zero has been found on the diagonal of "
+                             "the CMFD matrix");
 
               for (int i = IA[row]; i < IA[row+1]; i++) {
 
