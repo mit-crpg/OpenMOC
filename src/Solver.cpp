@@ -1,5 +1,7 @@
 #include "Solver.h"
+#include <unordered_map>
 #include <fstream>
+#include <sys/stat.h>
 #ifdef BGQ
 #include <spi/include/kernel/memory.h>
 #endif
@@ -22,6 +24,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _FSR_materials = NULL;
   _chi_spectrum_material = NULL;
 
+  _k_eff = 1.;
+
   _track_generator = NULL;
   _geometry = NULL;
   _cmfd = NULL;
@@ -42,6 +46,7 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
+  _reference_flux = NULL;
   _stabalizing_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
@@ -65,6 +70,9 @@ Solver::Solver(TrackGenerator* track_generator) {
   _verbose = false;
   _calculate_initial_spectrum = false;
   _initial_spectrum_thresh = 1.0;
+  _load_initial_FSR_fluxes = false;
+  _calculate_residuals_by_reference = false;
+
   _xs_log_level = ERROR;
 
   //FIXME
@@ -97,6 +105,9 @@ Solver::~Solver() {
 
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
+  
+  if (_reference_flux != NULL)
+    delete [] _reference_flux;
   
   if (_stabalizing_flux != NULL)
     delete [] _stabalizing_flux;
@@ -1343,10 +1354,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   double previous_residual = 1.0;
   double residual = 0.;
 
-  /* An initial guess for the eigenvalue */
-  _k_eff = 1.0;
-  double k_prev = _k_eff;
-
   /* Initialize data structures */
   initializeFSRs();
   countFissionableFSRs();
@@ -1361,6 +1368,14 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 #endif
   printInputParamsSummary();
 
+  /* Load reference solution if necessary */
+  if (_calculate_residuals_by_reference) {
+    loadFSRFluxes(_reference_file, false);
+    long size = _num_FSRs * _num_groups;
+    _reference_flux = new FP_PRECISION[size];
+    memcpy(_reference_flux, _scalar_flux, size * sizeof(FP_PRECISION));
+  }
+
   /* Guess flat spatial scalar flux for each region */
   if (_chi_spectrum_material == NULL)
     flattenFSRFluxes(1.0);
@@ -1370,26 +1385,29 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   storeFSRFluxes();
   zeroTrackFluxes();
 
+  /* Load initial FSR fluxes from file if requested */
+  if (_load_initial_FSR_fluxes) {
+    loadFSRFluxes(_initial_FSR_fluxes_file, true);
+    normalizeFluxes();
+    storeFSRFluxes();
+
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Barrier(_geometry->getMPICart());
+#endif
+
+    int startup_iterations = 30;
+    computeFSRSources(0);
+    for (int i=0; i < startup_iterations; i++) {
+      log_printf(NORMAL, "Startup sweep %d / %d", i, startup_iterations);
+      transportSweep();
+    }
+    addSourceToScalarFlux();
+  }
+
   /* Print memory report */
 #ifdef BGQ
-  uint64_t shared, persist, heapavail, stackavail, stack, heap, guard, mmap;
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_SHARED, &shared);
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_PERSIST, &persist);
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAPAVAIL, &heapavail);
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_STACKAVAIL, &stackavail);
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_STACK, &stack);
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAP, &heap);
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_GUARD, &guard);
-  Kernel_GetMemorySize(KERNEL_MEMSIZE_MMAP, &mmap);
-
-  log_printf(NORMAL, "Allocated heap: %.2f MB, avail. heap: %.2f MB",
-             (double)heap/(1024*1024),(double)heapavail/(1024*1024));
-  log_printf(NORMAL, "Allocated stack: %.2f MB, avail. stack: %.2f MB",
-             (double)stack/(1024*1024), (double)stackavail/(1024*1024));
-  log_printf(NORMAL, "Memory: shared: %.2f MB, persist: %.2f MB, guard: %.2f "
-             "MB, mmap: %.2f MB\n", (double)shared/(1024*1024),
-             (double)persist/(1024*1024), (double)guard/(1024*1024),
-             (double)mmap/(1024*1024));
+  printBGQMemory();
 #endif
   
   /* Perform initial spectrum calculation if requested */
@@ -1415,6 +1433,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
                "  #FX1 #FXN  MAX P.F.");
     }
   }
+  
+  /* Record the starting eigenvalue guess */
+  double k_prev = _k_eff;
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -1423,7 +1444,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     if (i > 0 && _stabalize_transport) {
       computeStabalizingFlux();
     }
-
+    
     /* Perform the source iteration */
     computeFSRSources(i);
     _timer->startTimer();
@@ -1451,7 +1472,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     double dr = residual / previous_residual;
     int dk = 1e5 * (_k_eff - k_prev);
     k_prev = _k_eff;
-
+    
     /* Ouptut iteration report */
     if (_verbose && convergence_data != NULL) {
 
@@ -1472,7 +1493,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     }
     else {
       log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
-                 "res = %1.3E   D.R. = %1.2f", i, _k_eff, residual, dr);
+                 "res = %1.3E  delta-k (pcm) = %d D.R. = %1.2f", i, _k_eff, 
+                 residual, dk, dr);
     }
 
     if (_cmfd != NULL) {
@@ -1704,6 +1726,273 @@ FP_PRECISION* Solver::getFluxesArray() {
 
 
 /**
+ * @brief Sets residuals to be computed a error relative to a reference
+ * @params fname The file containing the flux solution of the reference
+ */
+void Solver::setResidualByReference(std::string fname) {
+  _calculate_residuals_by_reference = true;
+  _reference_file = fname;
+}
+
+
+/**
+ * @brief Prints scalar fluxes to a binary file
+ * @details The name of the file to dump the fluxes to
+ */
+void Solver::dumpFSRFluxes(std::string fname) {
+
+  /* Determine the FSR fluxes file name */
+  std::string filename = fname;
+  if (_geometry->isDomainDecomposed()) {
+    int indexes[3];
+    if (_geometry->isRootDomain())
+      mkdir(filename.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#ifdef MPIx
+    MPI_Barrier(_geometry->getMPICart());
+#endif
+    filename += "/node";
+    _geometry->getDomainIndexes(indexes);
+    for (int i=0; i < 3; i++) {
+      long long int num = indexes[i];
+      std::string str = std::to_string(num);
+      filename += "_" + str;
+    }
+  }
+  
+  /* Write the FSR fluxes file */
+  FILE* out;
+  out = fopen(filename.c_str(), "w");
+
+  /* Write k-eff */
+  fwrite(&_k_eff, sizeof(double), 1, out);
+
+  /* Write number of energy groups */
+  fwrite(&_num_groups, sizeof(int), 1, out);
+  
+  /* Write number of energy groups */
+  fwrite(&_num_FSRs, sizeof(long), 1, out);
+
+  /* Write centroid and flux data */
+  for (long r=0; r < _num_FSRs; r++) {
+    Point* centroid = _geometry->getFSRCentroid(r);
+    double x = centroid->getX();
+    double y = centroid->getY();
+    double z = centroid->getZ();
+    fwrite(&x, sizeof(double), 1, out);
+    fwrite(&y, sizeof(double), 1, out);
+    fwrite(&z, sizeof(double), 1, out);
+    fwrite(&_scalar_flux[r*_num_groups], sizeof(double), _num_groups, out);
+  }
+  fclose(out);
+}
+
+
+/**
+ * @brief Loads the initial scalar flux distribution from a binary file
+ * @param fname The file containing the scalar fluxes
+ */
+void Solver::loadInitialFSRFluxes(std::string fname) {
+  _initial_FSR_fluxes_file = fname;
+  _load_initial_FSR_fluxes = true;
+}
+
+
+/**
+ * @brief Load scalar fluxes from a binary file
+ * @details The matching source regions between the current calculation and
+ *          those in the loaded file are determined by comparing centroids
+ * @param assign_k_eff Whether to set k-eff to that loaded in the binary file
+ * @param tolerance The width of the region in which to search for the matching
+ *        centroid
+ */
+void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
+                           double tolerance) {
+
+  /* Determine the FSR fluxes file name */
+  std::string filename = fname;
+  if (_geometry->isDomainDecomposed()) {
+    int indexes[3]; 
+    filename += "/node";
+    _geometry->getDomainIndexes(indexes);
+    for (int i=0; i < 3; i++) {
+      long long int num = indexes[i];
+      std::string str = std::to_string(num);
+      filename += "_" + str;
+    }
+  }
+  
+  /* Load the FSR fluxes file */
+  FILE* in;
+  in = fopen(filename.c_str(), "r");
+  if (in == NULL)
+    log_printf(ERROR, "Failed to find file %s", filename.c_str());
+  log_printf(NORMAL, "Reading fluxes from %s", fname.c_str());
+
+  /* Read number of energy groups */
+  double k_eff;
+  int ret = fread(&k_eff, sizeof(double), 1, in);
+  if (assign_k_eff) {
+    log_printf(NORMAL, "Loaded k-eff %6.6f", k_eff);
+    _k_eff = k_eff;
+  }
+
+  /* Read number of energy groups */
+  int num_groups;
+  ret = fread(&num_groups, sizeof(int), 1, in);
+  
+  /* Read number of energy groups */
+  long num_FSRs;
+  ret = fread(&num_FSRs, sizeof(long), 1, in);
+
+  /* Check that the number of FSRs and the number of groups match */
+  if (num_FSRs != _num_FSRs)
+    log_printf(ERROR, "The number of FSRs in the current Geometry do not match"
+               " the number of FSRs in the binary flux data file");
+  if (num_groups != _num_groups)
+    log_printf(ERROR, "The number of energy groups in the current Geometry do "
+               "not match the number of energy groups in the binary flux data "
+               "file");
+
+  /* Setup array structures */
+  double* x_coord = new double[num_FSRs];
+  double* y_coord = new double[num_FSRs];
+  double* z_coord = new double[num_FSRs];
+  double* fluxes = new double[num_FSRs * num_groups];
+
+  /* Load data into structures */
+  for (long r=0; r < num_FSRs; r++) {
+    ret = fread(&x_coord[r], sizeof(double), 1, in);
+    ret = fread(&y_coord[r], sizeof(double), 1, in);
+    ret = fread(&z_coord[r], sizeof(double), 1, in);
+    ret = fread(&fluxes[r*num_groups], sizeof(double), num_groups, in);
+  }
+  fclose(in);
+
+  /* Setup cell index mapping */
+  int* cell_x = new int[num_FSRs];
+  int* cell_y = new int[num_FSRs];
+  int* cell_z = new int[num_FSRs];
+#pragma omp parallel for
+  for (long r=0; r < num_FSRs; r++) {
+    cell_x[r] = x_coord[r] / tolerance;
+    cell_y[r] = y_coord[r] / tolerance;
+    cell_z[r] = z_coord[r] / tolerance;
+  }
+  int* cell_indexes[3] = {cell_x, cell_y, cell_z};
+
+  /* Find min/max indexes in order to make integer-index mapping */
+  int min_ind[3] = {cell_x[0], cell_y[0], cell_z[0]};
+  int max_ind[3] = {cell_x[0], cell_y[0], cell_z[0]};
+  for (long r=0; r < num_FSRs; r++) {
+    for (int i=0; i < 3; i++) {
+      if (cell_indexes[i][r] < min_ind[i])
+        min_ind[i] = cell_indexes[i][r];
+      if (cell_indexes[i][r] > max_ind[i])
+        max_ind[i] = cell_indexes[i][r];
+    }
+  }
+
+  /* Create mapping of FSRs to cell indexes */
+  std::unordered_map<long, std::vector<long>> hashed_lookup;
+  long nx = max_ind[0] - min_ind[0] + 1;
+  long ny = max_ind[1] - min_ind[1] + 1;
+  long nz = max_ind[2] - min_ind[2] + 1;
+  for (long r=0; r < num_FSRs; r++) {
+    long index = (cell_z[r] - min_ind[2]) * nx * ny + 
+                (cell_y[r] - min_ind[1]) * nx + cell_x[r] - min_ind[0];
+    if (hashed_lookup.find(index) == hashed_lookup.end())
+      hashed_lookup.insert(std::make_pair(index, std::vector<long>()));
+    hashed_lookup[index].push_back(r);
+  }
+  
+  /* Generate centroids if they have not been generated yet */
+  double max_centroid_error = 0.0;
+  if (!_geometry->containsFSRCentroids()) 
+    _track_generator->generateFSRCentroids(_FSR_volumes);
+
+  /* Asign starting fluxes to the scalar fluxes array */
+#pragma omp parallel for
+  for (long r=0; r < _num_FSRs; r++) {
+
+    /* Get the cell coordinates */
+    Point* centroid = _geometry->getFSRCentroid(r);
+    double* centroid_xyz = centroid->getXYZ();
+    int cell_xyz[3];
+    for (int i=0; i < 3; i++)
+      cell_xyz[i] = centroid_xyz[i] / tolerance;
+    
+    /* Look at all cell combinations */
+    double min_dist = std::numeric_limits<double>::max();
+    long load_fsr = -1;
+    for (int dx=-1; dx <= 1; dx++) {
+      for (int dy=-1; dy <= 1; dy++) {
+        for (int dz=-1; dz <= 1; dz++) {
+          
+          int new_cell_xyz[3];
+          int d[3] = {dx, dy, dz};
+          for (int i=0; i < 3; i++)
+            new_cell_xyz[i] = cell_xyz[i] + d[i];
+          
+          /* Make sure index is within origin min/max bounds */
+          for (int i=0; i < 3; i++) {
+            if (new_cell_xyz[i] > max_ind[i])
+              new_cell_xyz[i] = max_ind[i];
+            if (cell_xyz[i] < min_ind[i])
+              new_cell_xyz[i] = min_ind[i];
+          }
+
+          /* Calculate index */
+          long index = (new_cell_xyz[2] - min_ind[2]) * nx * ny + 
+                       (new_cell_xyz[1] - min_ind[1]) * nx + 
+                       new_cell_xyz[0] - min_ind[0];
+
+          /* Lookup all FSRs in the cell and check for distance to centroid */
+          if (hashed_lookup.find(index) != hashed_lookup.end()) {
+            for (int j =0; j < hashed_lookup[index].size(); j++) {
+              long fsr_id = hashed_lookup[index].at(j);
+              long dist = centroid->distance(x_coord[fsr_id], y_coord[fsr_id], 
+                                             z_coord[fsr_id]);
+              if (dist < min_dist) {
+                min_dist = dist;
+                load_fsr = fsr_id;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    /* Check against maximum centroid mismatch */
+    if (min_dist > max_centroid_error)
+      max_centroid_error = min_dist;
+
+    /* Check to ensure the loaded FSR is positive */
+    if (load_fsr < 0)
+      log_printf(ERROR, "Loaded FSR %d with location (%3.2f, %3.2f, %3.2f) "
+                 "and cell (%d, %d, %d)", load_fsr, centroid_xyz[0], 
+                 centroid_xyz[1], centroid_xyz[2], cell_xyz[0], cell_xyz[1],
+                 cell_xyz[2]);
+
+    /* Assign scalar fluxes */
+    for (int e=0; e < _num_groups; e++)
+      _scalar_flux[r*num_groups+e] = fluxes[load_fsr * num_groups + e];
+  }
+
+  /* Delete auxilary data structures */
+  delete [] x_coord;
+  delete [] y_coord;
+  delete [] z_coord;
+  delete [] fluxes;
+  delete [] cell_x;
+  delete [] cell_y;
+  delete [] cell_z;
+
+  log_printf(NORMAL, "FSR fluxes successfully loaded with maximum centroid "
+             "error %6.4e", max_centroid_error);
+}
+
+
+/**
  * @brief A function that prints a summary of the input parameters
  */
 void Solver::printInputParamsSummary() {
@@ -1724,6 +2013,25 @@ void Solver::printInputParamsSummary() {
 
   /* Print source type */
   log_printf(NORMAL, "Source type = %s", _source_type.c_str());
+  
+  /* Print MOC stabalization */
+  if (_stabalize_transport) {
+
+    std::string stabalization_str;
+    
+    if (_stabalization_type == DIAGONAL)
+      stabalization_str = "DIAGONAL";
+    else if (_stabalization_type == YAMAMOTO)
+      stabalization_str = "TY";
+    else if (_stabalization_type == GLOBAL)
+      stabalization_str = "GLOBAL";
+
+    log_printf(NORMAL, "MOC Damping = %s (%3.2f)", stabalization_str.c_str(), 
+               _stabalization_factor);
+  }
+  else {
+    log_printf(NORMAL, "MOC transport undamped");
+  }
 
   /* Print CMFD parameters */
   if (_cmfd != NULL) {
@@ -1739,3 +2047,30 @@ void Solver::printInputParamsSummary() {
     log_printf(NORMAL, "CMFD acceleration: OFF");
   }
 }
+
+
+/**
+ * @brief Prints the memory report for the BG/Q architecture
+ */
+#ifdef BGQ
+void Solver::printBGQMemory() {
+  uint64_t shared, persist, heapavail, stackavail, stack, heap, guard, mmap;
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_SHARED, &shared);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_PERSIST, &persist);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAPAVAIL, &heapavail);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_STACKAVAIL, &stackavail);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_STACK, &stack);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_HEAP, &heap);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_GUARD, &guard);
+  Kernel_GetMemorySize(KERNEL_MEMSIZE_MMAP, &mmap);
+
+  log_printf(NORMAL, "Allocated heap: %.2f MB, avail. heap: %.2f MB",
+             (double)heap/(1024*1024),(double)heapavail/(1024*1024));
+  log_printf(NORMAL, "Allocated stack: %.2f MB, avail. stack: %.2f MB",
+             (double)stack/(1024*1024), (double)stackavail/(1024*1024));
+  log_printf(NORMAL, "Memory: shared: %.2f MB, persist: %.2f MB, guard: %.2f "
+             "MB, mmap: %.2f MB\n", (double)shared/(1024*1024),
+             (double)persist/(1024*1024), (double)guard/(1024*1024),
+             (double)mmap/(1024*1024));
+}
+#endif

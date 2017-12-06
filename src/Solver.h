@@ -30,6 +30,12 @@
 /** Indexing macro for the old scalar flux in each FSR and energy group */
 #define _old_scalar_flux(r,e) (_old_scalar_flux[(r)*_num_groups + (e)])
 
+/** Indexing macro for the reference scalar flux in each FSR and energy group */
+#define _reference_flux(r,e) (_reference_flux[(r)*_num_groups + (e)])
+
+/** Indexing macro for the reference scalar flux in each FSR and energy group */
+#define reference_flux(r,e) (reference_flux[(r)*_num_groups + (e)])
+
 /** Indexing macro for the stabailizing flux in each FSR and energy group */
 #define _stabalizing_flux(r,e) (_stabalizing_flux[(r)*_num_groups + (e)])
 
@@ -187,6 +193,18 @@ protected:
   
   /** Convergence threshold for the initial spectrum calculation */
   double _initial_spectrum_thresh;
+  
+  /** Boolean for whether to load initial FSR flux profile from file */
+  bool _load_initial_FSR_fluxes;
+  
+  /** Boolean for whether to calculate residuals from reference flux */
+  bool _calculate_residuals_by_reference;
+
+  /** File to load initial FSR fluxes from */
+  std::string _initial_FSR_fluxes_file;
+  
+  /** File to load reference FSR fluxes from */
+  std::string _reference_file;
 
   /** The log level for outputting cross-section inconsitencies */
   logLevel _xs_log_level;
@@ -218,6 +236,9 @@ protected:
 
   /** The old scalar flux for each energy group in each FSR */
   FP_PRECISION* _old_scalar_flux;
+  
+  /** The reference scalar flux for each energy group in each FSR */
+  FP_PRECISION* _reference_flux;
   
   /** The stabalizing flux for each energy group in each FSR */
   FP_PRECISION* _stabalizing_flux;
@@ -390,6 +411,11 @@ public:
   void printFissionRates(std::string fname, int nx, int ny, int nz);
   void printInputParamsSummary();
 
+  void setResidualByReference(std::string fname);
+  void dumpFSRFluxes(std::string fname);
+  void loadInitialFSRFluxes(std::string fname);
+  void loadFSRFluxes(std::string fname, bool assign_k_eff=false, double tolerance=0.01);
+
   virtual double getFlux(long fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
   double getFSRSource(long fsr_id, int group);
@@ -416,6 +442,7 @@ public:
                      residualType res_type=TOTAL_SOURCE);
   void computeEigenvalue(int max_iters=1000,
                          residualType res_type=FISSION_SOURCE);
+  void printBGQMemory();
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in
