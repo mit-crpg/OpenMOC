@@ -48,7 +48,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17*17, 17*17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 2);
+      get_group_structure(70, 8);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
@@ -150,7 +150,7 @@ int main(int argc,  char* argv[]) {
 
   /* Run simulation */
   CPULSSolver solver(&track_generator); //FIXME LS / FS
-  solver.stabalizeTransport(0.5);
+  solver.stabalizeTransport(0.25);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
