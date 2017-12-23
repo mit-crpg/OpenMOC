@@ -100,8 +100,8 @@ private:
 
   /** The corrected diffusion coefficients from the previous iteration */
   Vector* _old_dif_surf_corr;
-  
-  /** Whether the old diffusion coefficient has been set */  
+
+  /** Whether the old diffusion coefficient has been set */
   bool _old_dif_surf_valid;
 
   /** Gauss-Seidel SOR relaxation factor */
@@ -125,8 +125,7 @@ private:
   /** Number of polar angles */
   int _num_polar;
 
-  /** Number of energy groups used in cmfd solver. Note that cmfd supports
-   * energy condensation from the MOC */
+  /** Number of energy groups used in cmfd solver */
   int _num_cmfd_groups;
 
   /** Coarse energy indices for fine energy groups */
@@ -134,6 +133,15 @@ private:
 
   /** Map of MOC groups to CMFD groups */
   int* _group_indices_map;
+
+  /** Number of energy groups in the backup CMFD solver */
+  int _num_backup_groups;
+
+  /** Map of MOC groups to backup CMFD group structure */
+  std::vector< std::vector<int> > _backup_group_structure;
+
+  /** Map of CMFD groups to backup CMFD group structure */
+  int* _cmfd_group_to_backup_group;
 
   /** If the user specified fine-to-coarse group indices */
   bool _user_group_indices;
@@ -396,6 +404,7 @@ public:
   void setPolarSpacings(double** polar_spacings, int num_azim,
                         int num_polar);
   void setKeff(double k_eff);
+  void setBackupGroupStructure(std::vector< std::vector<int> > group_indices);
 
   //TODO: clean, document
   void enforceBalanceOnDiagonal(int cmfd_cell, int group);

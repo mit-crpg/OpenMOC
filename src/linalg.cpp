@@ -73,13 +73,13 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
 #endif
   old_source.scaleByValue(num_rows / old_source_sum);
   X->scaleByValue(num_rows * k_eff / old_source_sum);
-    
+
   /* Power iteration Matrix-Vector solver */
   double initial_residual = 0;
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
     /* Solve X = A^-1 * old_source */
-    bool converged = linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor, 
+    bool converged = linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor,
                                  convergence_data, comm);
 
     /* Check for divergence */
@@ -117,7 +117,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
         convergence_data->linear_res_1 = convergence_data->linear_res_end;
       }
     }
-    
+
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
@@ -251,7 +251,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
               int row = row_start + g;
               x[row] = (1.0 - SOR_factor) * x[row];
-                
+
               if (DIAG[row] == 0)
                   log_printf(ERROR, "A zero has been found on the diagonal of "
                              "the CMFD matrix");
@@ -297,10 +297,10 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     // Record current minimum residual
     if (residual < min_residual)
       min_residual = residual;
-    
+
     // Check for going off the rails
     int raised = fetestexcept (FE_INVALID);
-    if (residual > 1e3 * min_residual || (raised & FE_INVALID)) {
+    if ((residual > 1e3 * min_residual && min_residual > 1e-10) || raised) {
       log_printf(NORMAL, "WARNING: linear solve divergent.");
       if (convergence_data != NULL)
         convergence_data->linear_iters_end = iter;
@@ -609,7 +609,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
 
   /* Error check residual componenets */
   if (sum_residuals < 0.0) {
-    log_printf(WARNING, "CMFD Residual mean square error %6.4f less than zero", 
+    log_printf(WARNING, "CMFD Residual mean square error %6.4f less than zero",
                sum_residuals);
     sum_residuals = 0.0;
   }

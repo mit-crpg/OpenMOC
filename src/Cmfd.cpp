@@ -51,6 +51,7 @@ Cmfd::Cmfd() {
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
   _num_cmfd_groups = 0;
+  _num_backup_groups = 1;
   _num_polar = 0;
 
   /* Set matrices and arrays to NULL */
@@ -78,6 +79,8 @@ Cmfd::Cmfd() {
   _polar_spacings = NULL;
   _temporary_currents = NULL;
   _backup_cmfd = NULL;
+  _cmfd_group_to_backup_group = NULL;
+  _backup_group_structure.resize(0);
 
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[6];
@@ -799,7 +802,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient correction */
     dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
         / (flux_next + flux);
-      
+
     /* Flux limiting condition */
     if (_flux_limiting && moc_iteration > 0) {
       double ratio = dif_surf_corr / dif_surf;
@@ -893,18 +896,19 @@ double Cmfd::computeKeff(int moc_iteration) {
                                  _source_convergence_threshold, _SOR_factor,
                                  _convergence_data, _domain_communicator);
 
-  /* Try to use a one-group solver to remedy convergence issues */
-  bool one_group_solution = false;
-  if (k_eff == -1 && _num_cmfd_groups > 1) {
+  /* Try to use a few-group solver to remedy convergence issues */
+  bool reduced_group_solution = false;
+  if (k_eff == -1 && _num_cmfd_groups > _num_backup_groups) {
 
-    log_printf(NORMAL, "Switching to one-group CMFD solver on this iteration");
+    log_printf(NORMAL, "Switching to a %d group CMFD solver on this iteration",
+               _num_backup_groups);
 
     if (_backup_cmfd == NULL)
       initializeBackupCmfdSolver();
-  
+
     copyCurrentsToBackup();
     k_eff = _backup_cmfd->computeKeff(moc_iteration);
-    one_group_solution = true;
+    reduced_group_solution = true;
   }
 
   /* Tally the CMFD solver time */
@@ -916,13 +920,14 @@ double Cmfd::computeKeff(int moc_iteration) {
     _k_eff = k_eff;
   else
     return _k_eff;
-  
-  /* Do not prolong again if one-group solution was used */
-  if (one_group_solution) {
-    log_printf(NORMAL, "One-group CMFD solver was successful");
+
+  /* Do not prolong again if the few-group solution was used */
+  if (reduced_group_solution) {
+    log_printf(NORMAL, "The %d group CMFD solver was successful",
+               _num_backup_groups);
     return _k_eff;
   }
- 
+
   /* Rescale the old and new flux */
   rescaleFlux();
 
@@ -3205,12 +3210,18 @@ void Cmfd::initializeBackupCmfdSolver() {
   _backup_cmfd->useFluxLimiting(_flux_limiting);
 
   /* Set one-group group structure */
-  std::vector< std::vector<int> > cmfd_group_structure;
-  std::vector<int> all_groups;
-  for (int e=0; e < _num_moc_groups; e++)
-    all_groups.push_back(e+1);
-  cmfd_group_structure.push_back(all_groups);
-  _backup_cmfd->setGroupStructure(cmfd_group_structure);
+  if (_backup_group_structure.size() == 0) {
+
+    std::vector<int> all_groups;
+    for (int e=0; e < _num_moc_groups; e++)
+      all_groups.push_back(e+1);
+    _backup_group_structure.push_back(all_groups);
+
+    _cmfd_group_to_backup_group = new int[_num_cmfd_groups];
+    for (int e=0; e < _num_cmfd_groups; e++)
+      _cmfd_group_to_backup_group[e] = 0;
+  }
+  _backup_cmfd->setGroupStructure(_backup_group_structure);
 
   /* Set CMFD mesh boundary conditions */
   for (int i=0; i < 6; i++)
@@ -3274,6 +3285,9 @@ void Cmfd::copyCurrentsToBackup() {
   /* Clear currents */
   _backup_cmfd->zeroCurrents();
 
+  /* Get the number of backup groups */
+  int nbg = _backup_group_structure.size();
+
   /* Get the local current array */
   Vector* backup_currents = _backup_cmfd->getLocalCurrents();
 
@@ -3283,11 +3297,14 @@ void Cmfd::copyCurrentsToBackup() {
 
     for (int f=0; f < NUM_FACES; f++) {
 
-      /* Sum group contributions and add to currents */
-      CMFD_PRECISION val = 0.0;
-      for (int e=0; e < _num_cmfd_groups; e++)
-        val += _surface_currents->getValue(i, f * _num_cmfd_groups + e);
-      backup_currents->incrementValue(i, f, val);
+      for (int e=0; e < _num_cmfd_groups; e++) {
+
+        /* Sum group contributions and add to currents */
+        int bg =  _cmfd_group_to_backup_group[e];
+        CMFD_PRECISION val =
+          _surface_currents->getValue(i, f * _num_cmfd_groups + e);
+        backup_currents->incrementValue(i, f * nbg + bg, val);
+      }
     }
   }
 
@@ -3316,7 +3333,8 @@ void Cmfd::copyCurrentsToBackup() {
 
           /* Loop over CMFD coarse energy groups */
           for (int e = 0; e < _num_cmfd_groups; e++) {
-            backup_currents[idx][f] +=
+            int bg =  _cmfd_group_to_backup_group[e];
+            backup_currents[idx][f*nbg + bg] +=
               boundary_currents[idx][f*_num_cmfd_groups+e];
           }
         }
@@ -3441,6 +3459,51 @@ void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
 //TODO: document
 void Cmfd::setKeff(double k_eff) {
   _k_eff = k_eff;
+}
+
+
+//FIXME
+void Cmfd::setBackupGroupStructure(std::vector< std::vector<int> >
+                                   group_indices) {
+
+  /* Assign the number of backup energy groups */
+  _num_backup_groups = group_indices.size();
+
+  /* Initialize mappings */
+  _backup_group_structure = group_indices;
+  _cmfd_group_to_backup_group = new int[_num_cmfd_groups];
+  for (int e=0; e < _num_cmfd_groups; e++)
+    _cmfd_group_to_backup_group[e] = -1;
+
+  /* Check that the mapping is valid and assign CMFD groups to backup groups */
+  int cmfd_group = -1;
+  int moc_group = 0;
+  for (int i=0; i < group_indices.size(); i++) {
+    for (int j=0; j < group_indices.at(i).size(); j++) {
+      if (group_indices.at(i).at(j) != moc_group + 1) {
+        log_printf(ERROR, "Invalid backup group structure: indices must be "
+                   "monotonic and include all MOC groups.");
+      }
+      if (moc_group >= _group_indices[cmfd_group+1]) {
+        cmfd_group++;
+        _cmfd_group_to_backup_group[cmfd_group] = i;
+      }
+
+      if (i != _cmfd_group_to_backup_group[cmfd_group])
+        log_printf(ERROR, "Invalid backup group structure: indices of backup "
+                   "group structure must align with boundaries of CMFD group "
+                   "structure.");
+
+      moc_group++;
+    }
+  }
+
+  /* Ensure that every CMFD group has a backup group */
+  for (int e=0; e < _num_cmfd_groups; e++) {
+    if (_cmfd_group_to_backup_group[e] == -1)
+      log_printf(ERROR, "Invalid backup group structure: failed to find "
+                 "matching index for CMFD group %d", e);
+  }
 }
 
 
