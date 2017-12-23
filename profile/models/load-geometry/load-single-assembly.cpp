@@ -6,6 +6,7 @@
 #include <iostream>
 #include "helper-code/group-structures.h"
 #include <fenv.h>
+#include <sstream>
 
 int main(int argc,  char* argv[]) {
 
@@ -16,20 +17,25 @@ int main(int argc,  char* argv[]) {
 
   //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT & ~FE_UNDERFLOW);
   /* Define geometry to load */
-  //std::string file = "single-assembly-nc.geo";
-  //std::string file = "single-assembly-5G-adjust.geo";
-  //std::string file = "single-assembly-5G-adjust-no-neg.geo";
-  //std::string file = "old-geo-files/single-no-TC.geo";
-  //std::string file = "v1-single-assembly.geo";
-  //std::string file = "v1-single-assembly-2D.geo";
-  //std::string file = "final-single-assembly.geo";
-  //std::string file = "assembly-lattice-1x1.geo";
-  //std::string file = "tc-sa.geo";
-  //std::string file = "rad-mesh/sa-fuel-4-mod-0.geo";
   //std::string file = "tw-single-assembly.geo";
-  std::string file = "radial-mesh-geo/tw-single-assembly-"
-                     "fr0fs4-mr1ms8-gr0gs8.geo";
+  
+  //std::string file = "tw-final-single-domain.geo";
   //std::string file = "tw-trunc-single-assembly.geo";
+  std::string file = "tw-final-single-assembly.geo";
+
+  /* FIXME
+  int lat = 1;  
+  std::string file = "lattice/tw-lattice-";
+  std::stringstream ss;
+  ss << lat;
+  std::string lat_string = ss.str();
+  file += lat_string;
+  file += "x";
+  file += lat_string;
+  file += "x";
+  file += lat_string;
+  file += ".geo";
+  */
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -39,12 +45,12 @@ int main(int argc,  char* argv[]) {
   #endif
 
   double azim_spacing = 0.05;
-  int num_azim = 64;
+  int num_azim = 8; // 32
   double polar_spacing = 0.75;
-  int num_polar = 10;
+  int num_polar = 4; // 10
 
-  double tolerance = 1e-4;
-  int max_iters = 500;
+  double tolerance = 1e-10;
+  int max_iters = 50;
 
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -64,11 +70,14 @@ int main(int argc,  char* argv[]) {
   geometry.loadFromFile(file, true);
   geometry.setCmfd(&cmfd); //FIXME OFF /ON
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
-  log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
+  double min_z = geometry.getMinZ();
+  double max_z = geometry.getMaxZ();
+  log_printf(NORMAL, "Height = %8.6e", max_z - min_z);
 #ifdef MPIx
+  //geometry.setDomainDecomposition(lat, lat, lat, MPI_COMM_WORLD); //FIXME 17x17xN
   geometry.setDomainDecomposition(1, 1, 100, MPI_COMM_WORLD); //FIXME 17x17xN
 #endif
-  //geometry.setNumDomainModules(17, 17, 1);
+  //geometry.setNumDomainModules(1, 1, refines);
   geometry.setOverlaidMesh(2.0);
   geometry.initializeFlatSourceRegions();
 
@@ -77,13 +86,13 @@ int main(int argc,  char* argv[]) {
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
   track_generator.setNumThreads(num_threads);
+  //track_generator.setNumThreads(omp_get_max_threads());
   track_generator.setSegmentFormation(OTF_STACKS);
   double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,
                     254., 260., 306., 312., 360., 366., 400., 402., 412., 414.,
                     418., 420.};
-/* FIXME
-  double z_arr[] = {120., 130.};
-                    */
+  //double z_arr[] = {120., 140.};
+  //FIXME double z_arr[] = {min_z, max_z};
   //double z_arr[] = {0., 20., 380., 400.};
   std::vector<double> segmentation_zones(z_arr, z_arr + sizeof(z_arr)
                                          / sizeof(double));

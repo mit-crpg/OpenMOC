@@ -5,6 +5,7 @@
 #include <array>
 #include <iostream>
 #include "helper-code/group-structures.h"
+#include <fenv.h>
 
 int main(int argc,  char* argv[]) {
 
@@ -20,7 +21,11 @@ int main(int argc,  char* argv[]) {
   //std::string file = "final-full-core.geo";
   //std::string file = "final-full-core-full-TC.geo";
   //std::string file = "beavrs-casmo-water-xs.geo";
-  std::string file = "tw-full-core-3D.geo";
+  std::string file = "tw-final-full-core-3D.geo";
+  //feenableexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_INVALID);
+  //feenableexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_INVALID);
+  
+  double start_time = omp_get_wtime();
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -29,13 +34,13 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
  
-  double azim_spacing = 0.1; // 0.1
-  int num_azim = 4; //TODO 32
-  double polar_spacing = 0.75; // 0.75
-  int num_polar = 2;
+  double azim_spacing = 0.05;
+  int num_azim = 8; // 8
+  double polar_spacing = 0.75;
+  int num_polar = 2; // 2
 
   double tolerance = 1e-4;
-  int max_iters = 200; //TODO 8
+  int max_iters = 27; //FIXME: 27
   
   /* Create CMFD lattice */
   Cmfd cmfd;
@@ -43,7 +48,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17*17, 17*17, 200);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 25);
+      get_group_structure(70, 2);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
@@ -118,10 +123,14 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Pitch = %8.6e", geometry.getMaxX() - geometry.getMinX());
   log_printf(NORMAL, "Height = %8.6e", geometry.getMaxZ() - geometry.getMinZ());
 #ifdef MPIx
+  //geometry.setDomainDecomposition(17, 17, 40, MPI_COMM_WORLD);
+  //geometry.setNumDomainModules(1, 1, 1);
+  //geometry.setDomainDecomposition(17, 17, 20, MPI_COMM_WORLD);
+  //geometry.setNumDomainModules(1, 1, 2);
   geometry.setDomainDecomposition(17, 17, 5, MPI_COMM_WORLD);
-  //geometry.setNumDomainModules(17, 17, 40);
+  geometry.setNumDomainModules(1, 1, 8);
 #endif
-  geometry.setOverlaidMesh(2.0, 17*17*1, 17*17*1, num_rad_discr, 
+  geometry.setOverlaidMesh(2.0, 17*17*3, 17*17*3, num_rad_discr, 
                            rad_discr_domains);
   geometry.initializeFlatSourceRegions();
 
@@ -129,7 +138,6 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Initializing the track generator...");
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
-  track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
   double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,
@@ -142,24 +150,15 @@ int main(int argc,  char* argv[]) {
 
   /* Run simulation */
   CPULSSolver solver(&track_generator); //FIXME LS / FS
-  solver.stabalizeTransport(0.25);
+  solver.stabalizeTransport(0.5);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);
   solver.setCheckXSLogLevel(INFO);
-  
-  //FIXME
-  std::vector<int> material_ids;
-  material_ids.push_back(10016); //outer water
-  material_ids.push_back(10017); //upper water
-  material_ids.push_back(10018); //radial-ref water
-  material_ids.push_back(10019); //water-spn
-  //solver.setLimitingXSMaterials(material_ids, 8);
-  //solver.setLimitingXSMaterials(material_ids, 100);
-  //solver.setResidualByReference("/projects/Full_core_3D_MOC/ref-fluxes-fc");
-
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
+  double end_time = omp_get_wtime();
+  log_printf(NORMAL, "Total Time = %6.4f", end_time - start_time);
 
   Lattice mesh_lattice;
   Mesh mesh(&solver);

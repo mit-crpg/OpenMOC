@@ -16,7 +16,7 @@ int main(int argc,  char* argv[]) {
 
   //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT & ~FE_UNDERFLOW & ~FE_OVERFLOW);
   /* Define geometry to load */
-  std::string file = "tw-full-core-2D.geo";
+  std::string file = "tw-final-full-core-2D.geo";
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -25,12 +25,12 @@ int main(int argc,  char* argv[]) {
   int num_threads = 1;
   #endif
  
-  double azim_spacing = 0.1;
-  int num_azim = 32;
+  double azim_spacing = 0.05;
+  int num_azim = 8;
   double polar_spacing = 1.5;
-  int num_polar = 6;
+  int num_polar = 4;
 
-  double tolerance = 1e-10;
+  double tolerance = 1e-4;
   int max_iters = 550;
   
   /* Create CMFD lattice */
@@ -39,7 +39,7 @@ int main(int argc,  char* argv[]) {
   cmfd.setLatticeStructure(17*17, 17*17, 5);
   cmfd.setKNearest(1);
   std::vector<std::vector<int> > cmfd_group_structure =
-      get_group_structure(70, 8);
+      get_group_structure(70, 70);
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setCMFDRelaxationFactor(0.5);
   cmfd.setSORRelaxationFactor(1.6);
@@ -116,7 +116,7 @@ int main(int argc,  char* argv[]) {
 #ifdef MPIx
   geometry.setDomainDecomposition(17, 17, 1, MPI_COMM_WORLD);
 #endif
-  geometry.setOverlaidMesh(10.0, 17*17*3, 17*17*3, num_rad_discr, 
+  geometry.setOverlaidMesh(10.0, 17*17*1, 17*17*1, num_rad_discr, 
                            rad_discr_domains);
   geometry.initializeFlatSourceRegions();
 
@@ -125,7 +125,6 @@ int main(int argc,  char* argv[]) {
   
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
-  track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
   double z_arr[] = {120., 130.};
@@ -146,8 +145,7 @@ int main(int argc,  char* argv[]) {
   }
 
   /* Run simulation */
-  CPUSolver solver(&track_generator); //FIXME LS / FS
-  //solver.setChiSpectrumMaterial(fiss_material);
+  CPULSSolver solver(&track_generator); //FIXME LS / FS
   //solver.stabalizeTransport(1.0, YAMAMOTO);
   solver.stabalizeTransport(0.25);
   //solver.setResidualByReference("ref-fluxes-fc");

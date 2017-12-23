@@ -234,7 +234,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
     num_array_values = 1e5;
   }
 
-  log_printf(NORMAL, "Creating exponential lookup table with %d interpolation "
+  log_printf(INFO, "Creating exponential lookup table with %d interpolation "
              "points", num_array_values);
 
   _exp_table_spacing = _max_optical_length / num_array_values;

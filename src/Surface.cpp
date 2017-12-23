@@ -857,7 +857,10 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
     else if (discr == 0) {
       double xcurr = x0;
       double ycurr = -b / 2;
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      if (interior < 0.0)
+        interior = 0.0;
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
@@ -882,8 +885,13 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
     /* There are two intersections */
     else {
       xcurr = x0;
+      if (discr < 0.0)
+        discr = 0.0;
       ycurr = (-b + sqrt(discr)) / 2;
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      if (interior < 0.0)
+        interior = 0.0;
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
@@ -904,7 +912,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
 
       xcurr = x0;
       ycurr = (-b - sqrt(discr)) / (2 * a);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0) {
         if (zcurr > z0 && polar < M_PI/2.0)
@@ -950,9 +958,12 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
 
     /* There is one intersection (ie on the Surface) */
     else if (discr == 0) {
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      if (interior < 0.0)
+        interior = 0.0;
       xcurr = -b / (2*a);
       ycurr = y0 + m * (points[num].getX() - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) * tan(M_PI_2 - polar);
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Increase the number of intersections if the intersection is in the
@@ -979,10 +990,12 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
     else {
 
       /* Determine first point of intersection */
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      if (interior < 0.0)
+        interior = 0.0;
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) *
-        tan(M_PI_2 - polar);
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Increase the number of intersections if the intersection is in the
@@ -1007,8 +1020,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       /* Determine second point of intersection */
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0 + sqrt(pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0)) *
-        tan(M_PI_2 - polar);
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Increase the number of intersections if the intersection is in the

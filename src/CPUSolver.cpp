@@ -1655,6 +1655,16 @@ double CPUSolver::computeResidual(residualType res_type) {
       log_printf(ERROR, "The Solver is unable to compute a "
                  "FISSION_SOURCE residual without fissionable FSRs");
 
+  /* Error check residual componenets */
+  if (residual < 0.0) {
+    log_printf(WARNING, "MOC Residual mean square error %6.4f less than zero", 
+               residual);
+    residual = 0.0;
+  }
+  if (norm <= 0) {
+    log_printf(WARNING, "MOC resdiual norm %d less than one", norm);
+    norm = 1;
+  }
 
   /* Compute RMS residual */
   residual = sqrt(residual / norm);
