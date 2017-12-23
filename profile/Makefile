@@ -24,7 +24,7 @@ case = load-geometry/load-full-core.cpp
 #case = load-geometry/load-assembly-lattice.cpp
 
 #case = load-geometry/load-geometry.cpp
-#case = simple-lattice/simple-lattice-3d.cpp
+case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp
 
 source = \
