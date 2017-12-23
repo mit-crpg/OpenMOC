@@ -76,6 +76,7 @@ Cmfd::Cmfd() {
   _azim_spacings = NULL;
   _polar_spacings = NULL;
   _temporary_currents = NULL;
+  _backup_cmfd = NULL;
 
   /* Initialize boundaries to be reflective */
   _boundaries = new boundaryType[6];
@@ -236,6 +237,9 @@ Cmfd::~Cmfd() {
 
   for (long r=0; r < _axial_interpolants.size(); r++)
     delete [] _axial_interpolants.at(r);
+
+  if (_backup_cmfd != NULL)
+    delete _backup_cmfd;
 }
 
 
@@ -316,8 +320,24 @@ int Cmfd::getNumY() {
 }
 
 
+/**
+ * @brief Get the number of Mesh cells in the z-direction
+ * @return number of Mesh cells in the z-direction
+ */
 int Cmfd::getNumZ() {
   return _num_z;
+}
+
+
+//FIXME
+Vector* Cmfd::getLocalCurrents() {
+  return _surface_currents;
+}
+
+
+//FIXME
+CMFD_PRECISION*** Cmfd::getBoundarySurfaceCurrents() {
+  return _boundary_surface_currents;
 }
 
 
@@ -769,7 +789,6 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
         / (delta * dif_coef + delta * dif_coef_next);
-        
 
     /* Compute the surface-averaged net current across the surface */
     current = sense * (current_out - current_in) / delta_interface;
@@ -787,7 +806,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
           dif_surf = std::abs(current / (2.0*flux));
         else
           dif_surf = std::abs(current / (2.0*flux_next));
-        
+
         dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
                         / (flux_next + flux);
       }
@@ -847,7 +866,7 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Collapse the cross sections onto the CMFD mesh */
   collapseXS();
-  
+
   /* Tally the XS collpase time */
   _timer->stopTimer();
   _timer->recordSplit("Total collapse time");
@@ -873,6 +892,15 @@ double Cmfd::computeKeff(int moc_iteration) {
   /* Tally the CMFD solver time */
   _timer->stopTimer();
   _timer->recordSplit("Total solver time");
+
+  //FIXME
+  if (_num_cmfd_groups > 1) {
+    if (_backup_cmfd == NULL)
+      initializeBackupCmfdSolver();
+    copyCurrentsToBackup();
+    _k_eff = _backup_cmfd->computeKeff(moc_iteration);
+    return _k_eff;
+  }
 
   /* Rescale the old and new flux */
   rescaleFlux();
@@ -1048,6 +1076,14 @@ void Cmfd::constructMatrices(int moc_iteration) {
       }
     }
   }
+  //FIXME
+  /*
+  if (_num_cmfd_groups == 1 || true) {
+    log_printf(NORMAL, "Number of groups = %d", _num_cmfd_groups);
+    _A->printString();
+    _M->printString();
+  }
+  */
 
   log_printf(INFO, "Done constructing matrices...");
 }
@@ -3128,6 +3164,141 @@ void Cmfd::initializeLattice(Point* offset) {
   _lattice->setNumZ(_num_z);
   _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
   _lattice->setOffset(offset->getX(), offset->getY(), offset->getZ());
+}
+
+
+//FIXME
+void Cmfd::initializeBackupCmfdSolver() {
+
+  /* Initialize new CMFD object */
+  _backup_cmfd = new Cmfd();
+  _backup_cmfd->useAxialInterpolation(_use_axial_interpolation);
+  _backup_cmfd->setLatticeStructure(_num_x, _num_y, _num_z);
+  _backup_cmfd->setKNearest(_k_nearest);
+  _backup_cmfd->setSORRelaxationFactor(_SOR_factor);
+  _backup_cmfd->setCMFDRelaxationFactor(_relaxation_factor);
+  _backup_cmfd->useFluxLimiting(_flux_limiting);
+
+  /* Set one-group group structure */
+  std::vector< std::vector<int> > cmfd_group_structure;
+  std::vector<int> all_groups;
+  for (int e=0; e < _num_moc_groups; e++)
+    all_groups.push_back(e+1);
+  cmfd_group_structure.push_back(all_groups);
+  _backup_cmfd->setGroupStructure(cmfd_group_structure);
+
+  /* Set CMFD mesh boundary conditions */
+  for (int i=0; i < 6; i++)
+    _backup_cmfd->setBoundary(i, _boundaries[i]);
+
+  /* Set CMFD mesh dimensions */
+  _backup_cmfd->setWidthX(_width_x);
+  _backup_cmfd->setWidthY(_width_y);
+  _backup_cmfd->setWidthZ(_width_z);
+
+  /* Intialize CMFD Maps */
+  _backup_cmfd->initializeCellMap();
+
+  /* Initialize the CMFD lattice */
+  _backup_cmfd->initializeLattice(_lattice->getOffset());
+  _backup_cmfd->setGeometry(_geometry);
+
+#ifdef MPIx
+  if (_domain_communicator != NULL) {
+
+    _backup_cmfd->setNumDomains(_domain_communicator->_num_domains_x,
+                                _domain_communicator->_num_domains_y,
+                                _domain_communicator->_num_domains_z);
+    _backup_cmfd->setDomainIndexes(_domain_communicator->_domain_idx_x,
+                                   _domain_communicator->_domain_idx_y,
+                                   _domain_communicator->_domain_idx_z);
+  }
+#endif
+
+  /* Initialize the backup CMFD solver */
+  _backup_cmfd->initialize();
+
+  /* Intialize the CMFD energy group structure */
+  _backup_cmfd->setSourceConvergenceThreshold(_source_convergence_threshold);
+  _backup_cmfd->setNumMOCGroups(_num_moc_groups);
+  _backup_cmfd->initializeGroupMap();
+
+  /* Give CMFD number of FSRs and FSR property arrays */
+  _backup_cmfd->setSolve3D(_solve_3D);
+  _backup_cmfd->setNumFSRs(_num_FSRs);
+  _backup_cmfd->setFSRVolumes(_FSR_volumes);
+  _backup_cmfd->setFSRMaterials(_FSR_materials);
+  _backup_cmfd->setFSRFluxes(_FSR_fluxes);
+  _backup_cmfd->setFSRSources(_FSR_sources);
+  _backup_cmfd->setQuadrature(_quadrature);
+  if (_flux_moments != NULL)
+    _backup_cmfd->setFluxMoments(_flux_moments);
+
+  /* Add FSRs to cells */
+  _backup_cmfd->setCellFSRs(&_cell_fsrs);
+
+  /* Initialize the backup CMFD solver */
+  _backup_cmfd->initialize();
+  _backup_cmfd->setConvergenceData(_convergence_data);
+}
+
+
+// FIXME
+void Cmfd::copyCurrentsToBackup() {
+
+  /* Clear currents */
+  _backup_cmfd->zeroCurrents();
+
+  /* Get the local current array */
+  Vector* backup_currents = _backup_cmfd->getLocalCurrents();
+
+  /* Copy on-node surface currents */
+#pragma omp parallel for
+  for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+
+    for (int f=0; f < NUM_FACES; f++) {
+
+      /* Sum group contributions and add to currents */
+      CMFD_PRECISION val = 0.0;
+      for (int e=0; e < _num_cmfd_groups; e++)
+        val += _surface_currents->getValue(i, f * _num_cmfd_groups + e);
+      backup_currents->incrementValue(i, f, val);
+    }
+  }
+
+#ifdef MPIx
+  /* Copy off-node surface currents */
+  if (_domain_communicator != NULL) {
+
+    CMFD_PRECISION*** off_node_currents =
+      _backup_cmfd->getBoundarySurfaceCurrents();
+
+    for (int surface=0; surface < NUM_FACES; surface++) {
+
+      /* Extract arrays on surface */
+      CMFD_PRECISION** boundary_currents = _boundary_surface_currents[surface];
+      CMFD_PRECISION** backup_currents = off_node_currents[surface];
+
+      /* Loop over all CMFD cells on the current surface */
+      std::map<int, int>::iterator it;
+      for (it=_boundary_index_map.at(surface).begin();
+           it != _boundary_index_map.at(surface).end(); ++it) {
+
+        int idx = it->second;
+
+        /* Loop over cell faces */
+        for (int f=0; f < NUM_FACES; f++) {
+
+          /* Loop over CMFD coarse energy groups */
+          for (int e = 0; e < _num_cmfd_groups; e++) {
+            backup_currents[idx][f] +=
+              boundary_currents[idx][f*_num_cmfd_groups+e];
+          }
+        }
+      }
+    }
+  }
+#endif
 }
 
 

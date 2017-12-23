@@ -272,6 +272,9 @@ private:
   /** A timer to record timing data for a simulation */
   Timer* _timer;
 
+  /** A one-group backup CMFD solver */
+  Cmfd* _backup_cmfd;
+
   /* Private worker functions */
   CMFD_PRECISION computeLarsensEDCFactor(CMFD_PRECISION dif_coef,
                                          CMFD_PRECISION delta);
@@ -331,6 +334,8 @@ public:
   void initializeGroupMap();
   void allocateTallies();
   void initializeLattice(Point* offset);
+  void initializeBackupCmfdSolver();
+  void copyCurrentsToBackup();
   int findCmfdCell(LocalCoords* coords);
   int findCmfdSurface(int cell_id, LocalCoords* coords);
   int findCmfdSurfaceOTF(int cell_id, double z, int surface_2D);
@@ -354,6 +359,8 @@ public:
   int getNumX();
   int getNumY();
   int getNumZ();
+  Vector* getLocalCurrents();
+  CMFD_PRECISION*** getBoundarySurfaceCurrents();
   int convertFSRIdToCmfdCell(long fsr_id);
   int convertGlobalFSRIdToCmfdCell(long global_fsr_id);
   std::vector< std::vector<long> >* getCellFSRs();
