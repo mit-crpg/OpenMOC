@@ -75,7 +75,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                        double tol, double SOR_factor=1.5,
                        ConvergenceData* convergence_data = NULL,
                        DomainCommunicator* comm = NULL);
-void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
+bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  double SOR_factor=1.5,
                  ConvergenceData* convergence_data = NULL,
                  DomainCommunicator* comm = NULL);

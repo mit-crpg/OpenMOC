@@ -769,7 +769,6 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
         / (delta * dif_coef + delta * dif_coef_next);
-        
 
     /* Compute the surface-averaged net current across the surface */
     current = sense * (current_out - current_in) / delta_interface;
@@ -777,13 +776,13 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient correction */
     dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
         / (flux_next + flux);
-
+      
     /* Flux limiting condition */
     if (_flux_limiting && moc_iteration > 0) {
       double ratio = dif_surf_corr / dif_surf;
       if (std::abs(ratio) > 1.0) {
 
-        if (sense * current > 0)
+        if (sense * current > 0.0)
           dif_surf = std::abs(current / (2.0*flux));
         else
           dif_surf = std::abs(current / (2.0*flux_next));
@@ -866,13 +865,19 @@ double Cmfd::computeKeff(int moc_iteration) {
   _timer->startTimer();
 
   /* Solve the eigenvalue problem */
-  _k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
-                           _source_convergence_threshold, _SOR_factor,
-                           _convergence_data, _domain_communicator);
-
+  double k_eff = eigenvalueSolve(_A, _M, _new_flux, _k_eff,
+                                 _source_convergence_threshold, _SOR_factor,
+                                 _convergence_data, _domain_communicator);
+  
   /* Tally the CMFD solver time */
   _timer->stopTimer();
   _timer->recordSplit("Total solver time");
+
+  /* Check for a legitimate solve */
+  if (k_eff != -1)
+    _k_eff = k_eff;
+  else
+    return _k_eff;
 
   /* Rescale the old and new flux */
   rescaleFlux();
@@ -2600,7 +2605,10 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
     if (ratio < 0) {
 
       /* Try a linear interpolation */
-      double zc = sqrt(26.0/24.0 - interpolants[1]);
+      double zc_2 = 26.0/24.0 - interpolants[1];
+      if (zc_2 < 0.0)
+        zc_2 = 0.0;
+      double zc = sqrt(zc_2);
       if (z_ind < _num_z / 2) {
         old_flux = zc * (old_flux_mid - old_flux_prev) + old_flux_mid;
         new_flux = zc * (new_flux_mid - new_flux_prev) + new_flux_mid;

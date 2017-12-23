@@ -1,5 +1,6 @@
 #include "linalg.h"
 #include <fstream>
+#include <fenv.h>
 
 /**
  * @brief Solves a generalized eigenvalue problem using the Power method.
@@ -72,14 +73,18 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
 #endif
   old_source.scaleByValue(num_rows / old_source_sum);
   X->scaleByValue(num_rows * k_eff / old_source_sum);
-
+    
   /* Power iteration Matrix-Vector solver */
   double initial_residual = 0;
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
     /* Solve X = A^-1 * old_source */
-    linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor, convergence_data,
-                comm);
+    bool converged = linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor, 
+                                 convergence_data, comm);
+
+    /* Check for divergence */
+    if (!converged)
+      return -1.0;
 
     /* Compute the new source */
     matrixMultiplication(M, X, &new_source);
@@ -112,7 +117,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
         convergence_data->linear_res_1 = convergence_data->linear_res_end;
       }
     }
-
+    
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
@@ -156,10 +161,11 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
  * @param tol the power method and linear solve source convergence threshold
  * @param SOR_factor the successive over-relaxation factor
  */
-void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
+bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  double SOR_factor, ConvergenceData* convergence_data,
                  DomainCommunicator* comm) {
 
+  bool success = true;
   tol = std::max(MIN_LINALG_TOLERANCE, tol);
 
   /* Check for consistency of matrix and vector dimensions */
@@ -190,7 +196,9 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                B->getNumGroups(), X->getNumGroups());
 
   /* Initialize variables */
+  bool reset = false;
   double residual;
+  double min_residual = 1e6;
   int iter = 0;
   omp_lock_t* cell_locks = X->getCellLocks();
   int num_x = X->getNumX();
@@ -212,7 +220,7 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   /* Compute initial source */
   matrixMultiplication(M, X, &old_source);
 
-  //
+  // Initialize communication buffers
   int* coupling_sizes = NULL;
   int** coupling_indexes = NULL;
   CMFD_PRECISION** coupling_coeffs = NULL;
@@ -223,10 +231,6 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
     /* Pass new flux to old flux */
     X->copyTo(&X_old);
-
-    /* Check if we need to cut the SOR factor */
-    if (iter != 0 && (iter % 100 == 0))
-      SOR_factor /= 2;
 
     // Iteration over red/black cells
     for (int color = 0; color < 2; color++) {
@@ -282,11 +286,25 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     matrixMultiplication(M, X, &new_source);
 
     // Compute the residual
+    feclearexcept (FE_ALL_EXCEPT);
     residual = computeRMSE(&new_source, &old_source, true, 1, comm);
     if (iter == 0) {
       if (convergence_data != NULL)
         convergence_data->linear_res_end = residual;
       initial_residual = residual;
+    }
+
+    // Record current minimum residual
+    if (residual < min_residual)
+      min_residual = residual;
+    
+    // Check for going off the rails
+    int raised = fetestexcept (FE_INVALID);
+    if (residual > 1e3 * min_residual || (raised & FE_INVALID)) {
+      log_printf(NORMAL, "WARNING: linear solve divergent.");
+      if (convergence_data != NULL)
+        convergence_data->linear_iters_end = iter;
+      return false;
     }
 
     // Copy the new source to the old source
@@ -316,12 +334,14 @@ void linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {
     matrixMultiplication(M, X, &new_source);
     double residual = computeRMSE(&new_source, &old_source, true, 1, comm);
-    log_printf(WARNING, "Ratio = %3.2e, tol = %3.2e", residual / initial_residual,
+    log_printf(INFO, "Ratio = %3.2e, tol = %3.2e", residual / initial_residual,
                tol);
-    log_printf(ERROR, "Linear solve failed to converge in %d iterations with "
+    log_printf(NORMAL, "Linear solve failed to converge in %d iterations with "
                "initial residual %3.2e and final residual %3.2e", iter,
                initial_residual, residual);
+    success = false;
   }
+  return success;
 }
 
 
@@ -587,6 +607,18 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
   }
 #endif
 
+  /* Error check residual componenets */
+  if (sum_residuals < 0.0) {
+    log_printf(WARNING, "CMFD Residual mean square error %6.4f less than zero", 
+               sum_residuals);
+    sum_residuals = 0.0;
+  }
+  if (norm <= 0) {
+    log_printf(WARNING, "CMFD resdiual norm %d less than one", norm);
+    norm = 1;
+  }
+
+  /* Compute RMS residual error */
   rmse = sqrt(sum_residuals / norm);
 
 #ifdef MPIx
