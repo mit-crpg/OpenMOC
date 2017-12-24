@@ -790,3 +790,170 @@ void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   }
 }
 
+
+//FIXME
+bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
+                   double SOR_factor, ConvergenceData* convergence_data,
+                   DomainCommunicator* comm) {
+
+  /* Create vector for stabilizing flux */
+  omp_lock_t* cell_locks = X->getCellLocks();
+  int num_x = X->getNumX();
+  int num_y = X->getNumY();
+  int num_z = X->getNumZ();
+  int num_groups = X->getNumGroups();
+  int num_rows = X->getNumRows();
+
+  Vector dd(cell_locks, num_x, num_y, num_z, num_groups);
+  dd->setAll(0.0);
+
+  CMFD_PRECISION* dd_array = dd.getArray();
+  CMFD_PRECISION x = X->getArray();
+
+  /* Stabalize matrix A to be diagonally dominant */
+  CMFD_PRECISION* a = _A->getA();
+  CMFD_PRECISION* a_diag = _A->getDiag();
+  int* IA = _A->getIA();
+  int* JA = _A->getJA();
+
+  /* Loop over cells */
+  for (int color = 0; color < 2; color++) {
+		int offset = 0;
+#ifdef MPIx
+		getCouplingTerms(comm, color, coupling_sizes, coupling_indexes,
+										 coupling_coeffs, coupling_fluxes, x, offset);
+#endif
+#pragma omp parallel for collapse(2)
+		for (int iz=0; iz < num_z; iz++) {
+			for (int iy=0; iy < num_y; iy++) {
+				for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
+
+					int cell = (iz*num_y + iy)*num_x + ix;
+
+					/* Determine whether each group's row is diagonally dominant */
+					for (int e = 0; e < num_groups; e++) {
+
+						int row = cell * num_groups + e;
+
+						/* Add local off-diagonal elements */
+						double row_sum = 0.0;
+						int diag_ind = -1;
+						for (int idx = IA[row]; idx < IA[row+1]; idx++) {
+							if (JA[idx] != row)
+								row_sum += std::abs(a[idx]);
+							else
+								diag_ind = idx;
+						}
+
+						/* Add off-node off-diagonal elements */
+#ifdef MPIx
+						if (_domain_communicator != NULL) {
+							int* coupling_sizes = _domain_communicator->num_connections[color];
+							CMFD_PRECISION** coupling_coeffs =
+									_domain_communicator->coupling_coeffs[color];
+							for (int idx = 0; idx < coupling_sizes[row]; idx++)
+								row_sum += std::abs(coupling_coeffs[row][idx]);
+						}
+#endif
+
+            /* Check for diagonal dominance */
+            if (row_sum > a[diag_ind])
+              dd->incrementValue(cell, e, row_sum - a[diag_ind]);
+          }
+        }
+      }
+    }
+  }
+
+  /* Adjust matrix A to be diagonally dominant */
+#pragma omp parallel for
+  for (int i=0; i < num_x*num_y*num_z; i++) {
+    for (int e=0; e < num_groups; e++) {
+      A->incrementValue(i, e, i, e, dd->getValue(i,e));
+    }
+  }
+
+  /* Solve the linear system for the partial solution */
+  Vector partial_x(cell_locks, num_x, num_y, num_z, num_groups);
+  X->copyTo(partial_x);
+  bool converged = linearSolve(A, M, partial_x, B, tol, SOR_factor, convergence_data,
+                               comm);
+  if (!converged)
+    log_printf(ERROR, "Stabalized linear solver failed to converge");
+
+  /* Create a vector for the remainder right hand side */
+  Vector RHS(cell_locks, num_x, num_y, num_z, num_groups);
+  CMFD_PRECISION* rhs_array = RHS.getArray();
+  CMFD_PRECISION* px_array = partial_x.getArray();
+
+  /* Keep track of sources */
+  Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
+  Vector new_source(cell_locks, num_x, num_y, num_z, num_groups);
+
+  /* Calculate source */
+  matrixMultiplication(M, X, &new_source);
+
+  /* Iterate to get the total solution */
+  double residual = 0.0;
+  for (int iter=0; iter < MAX_LINEAR_SOLVE_ITERATIONS; iter++) {
+
+    new_source.copyTo(&old_source);
+
+    for (int row=0; row < num_rows; row++)
+      rhs_array[row] = px_array[row] + dd_array[row] * x[row];
+
+    bool converged = linearSolve(A, M, X, RHS, tol, SOR_factor,
+                                 convergence_data, comm);
+    if (!converged)
+      log_printf(ERROR, "Stabalized linear solver inner iteration failed"
+                 " to converge");
+
+    // Compute the new source
+    matrixMultiplication(M, X, &new_source);
+
+    // Compute the residual
+    residual = computeRMSE(&new_source, &old_source, true, 1, comm);
+    if (iter == 0)
+      initial_residual = residual;
+
+    // Record current minimum residual
+    if (residual < min_residual)
+      min_residual = residual;
+
+    // Check for going off the rails
+    int raised = fetestexcept (FE_INVALID);
+    if ((residual > 1e3 * min_residual && min_residual > 1e-10) || raised) {
+      log_printf(NORMAL, "WARNING: linear solve divergent.");
+      if (convergence_data != NULL)
+        convergence_data->linear_iters_end = iter;
+      return false;
+    }
+
+    // Copy the new source to the old source
+    new_source.copyTo(&old_source);
+
+    // Increment the interations counter
+    iter++;
+
+    log_printf(INFO, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
+               ", ratio = %3.2e, tolerance: %3.2e, end? %d", iter, residual,
+               initial_residual, residual / initial_residual, tol,
+               (residual / initial_residual < 0.1 || residual < tol) &&
+               iter > MIN_LINEAR_SOLVE_ITERATIONS);
+
+    // Check for convergence
+    if ((residual / initial_residual < 0.1 || residual < tol) &&
+        iter > MIN_LINEAR_SOLVE_ITERATIONS) {
+      break;
+    }
+  }
+
+
+  /* Reset matrix A */
+#pragma omp parallel for
+  for (int i=0; i < num_x*num_y*num_z; i++) {
+    for (int e=0; e < num_groups; e++) {
+      A->incrementValue(i, e, i, e, -dd->getValue(i,e));
+    }
+  }
+}
