@@ -76,11 +76,21 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
 
   /* Power iteration Matrix-Vector solver */
   double initial_residual = 0;
+  bool solver_failure = false;
   for (iter = 0; iter < MAX_LINALG_POWER_ITERATIONS; iter++) {
 
     /* Solve X = A^-1 * old_source */
-    bool converged = linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor,
-                                 convergence_data, comm);
+    bool converged = false;
+    if (!solver_failure)
+      converged = linearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor,
+                              convergence_data, comm);
+
+    /* If the solver failed, try the diagonally dominant solver */
+    if (!converged) {
+      solver_failure = true;
+      converged = ddLinearSolve(A, M, X, &old_source, tol*1e-1, SOR_factor,
+                                convergence_data, comm);
+    }
 
     /* Check for divergence */
     if (!converged)
@@ -805,16 +815,22 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   int num_rows = X->getNumRows();
 
   Vector dd(cell_locks, num_x, num_y, num_z, num_groups);
-  dd->setAll(0.0);
+  dd.setAll(0.0);
 
   CMFD_PRECISION* dd_array = dd.getArray();
-  CMFD_PRECISION x = X->getArray();
+  CMFD_PRECISION* x = X->getArray();
 
   /* Stabalize matrix A to be diagonally dominant */
-  CMFD_PRECISION* a = _A->getA();
-  CMFD_PRECISION* a_diag = _A->getDiag();
-  int* IA = _A->getIA();
-  int* JA = _A->getJA();
+  CMFD_PRECISION* a = A->getA();
+  CMFD_PRECISION* a_diag = A->getDiag();
+  int* IA = A->getIA();
+  int* JA = A->getJA();
+
+  // Initialize communication buffers
+  int* coupling_sizes = NULL;
+  int** coupling_indexes = NULL;
+  CMFD_PRECISION** coupling_coeffs = NULL;
+  CMFD_PRECISION** coupling_fluxes = NULL;
 
   /* Loop over cells */
   for (int color = 0; color < 2; color++) {
@@ -840,25 +856,24 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 						int diag_ind = -1;
 						for (int idx = IA[row]; idx < IA[row+1]; idx++) {
 							if (JA[idx] != row)
-								row_sum += std::abs(a[idx]);
+								row_sum += fabs(a[idx]);
 							else
 								diag_ind = idx;
 						}
 
 						/* Add off-node off-diagonal elements */
 #ifdef MPIx
-						if (_domain_communicator != NULL) {
-							int* coupling_sizes = _domain_communicator->num_connections[color];
-							CMFD_PRECISION** coupling_coeffs =
-									_domain_communicator->coupling_coeffs[color];
+						if (comm != NULL) {
+							int* coupling_sizes = comm->num_connections[color];
+							CMFD_PRECISION** coupling_coeffs = comm->coupling_coeffs[color];
 							for (int idx = 0; idx < coupling_sizes[row]; idx++)
-								row_sum += std::abs(coupling_coeffs[row][idx]);
+								row_sum += fabs(coupling_coeffs[row][idx]);
 						}
 #endif
 
             /* Check for diagonal dominance */
             if (row_sum > a[diag_ind])
-              dd->incrementValue(cell, e, row_sum - a[diag_ind]);
+              dd.incrementValue(cell, e, row_sum - a[diag_ind]);
           }
         }
       }
@@ -869,22 +884,14 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 #pragma omp parallel for
   for (int i=0; i < num_x*num_y*num_z; i++) {
     for (int e=0; e < num_groups; e++) {
-      A->incrementValue(i, e, i, e, dd->getValue(i,e));
+      A->incrementValue(i, e, i, e, dd.getValue(i,e));
     }
   }
-
-  /* Solve the linear system for the partial solution */
-  Vector partial_x(cell_locks, num_x, num_y, num_z, num_groups);
-  X->copyTo(partial_x);
-  bool converged = linearSolve(A, M, partial_x, B, tol, SOR_factor, convergence_data,
-                               comm);
-  if (!converged)
-    log_printf(ERROR, "Stabalized linear solver failed to converge");
 
   /* Create a vector for the remainder right hand side */
   Vector RHS(cell_locks, num_x, num_y, num_z, num_groups);
   CMFD_PRECISION* rhs_array = RHS.getArray();
-  CMFD_PRECISION* px_array = partial_x.getArray();
+  CMFD_PRECISION* b = B->getArray();
 
   /* Keep track of sources */
   Vector old_source(cell_locks, num_x, num_y, num_z, num_groups);
@@ -894,15 +901,18 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   matrixMultiplication(M, X, &new_source);
 
   /* Iterate to get the total solution */
+  double initial_residual = 0.0;
   double residual = 0.0;
+  double min_residual = 1e6;
   for (int iter=0; iter < MAX_LINEAR_SOLVE_ITERATIONS; iter++) {
 
+    // Copy the new source to the old source
     new_source.copyTo(&old_source);
 
     for (int row=0; row < num_rows; row++)
-      rhs_array[row] = px_array[row] + dd_array[row] * x[row];
+      rhs_array[row] = b[row] + dd_array[row] * x[row];
 
-    bool converged = linearSolve(A, M, X, RHS, tol, SOR_factor,
+    bool converged = linearSolve(A, M, X, &RHS, tol, SOR_factor,
                                  convergence_data, comm);
     if (!converged)
       log_printf(ERROR, "Stabalized linear solver inner iteration failed"
@@ -921,31 +931,15 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
       min_residual = residual;
 
     // Check for going off the rails
-    int raised = fetestexcept (FE_INVALID);
-    if ((residual > 1e3 * min_residual && min_residual > 1e-10) || raised) {
-      log_printf(NORMAL, "WARNING: linear solve divergent.");
-      if (convergence_data != NULL)
-        convergence_data->linear_iters_end = iter;
+    if (residual > 1e3 * min_residual && min_residual > 1e-10) {
+      log_printf(NORMAL, "WARNING: inner linear solve divergent.");
+      log_printf(NORMAL, "Residual = %6.4e, Min Res = %6.4e", residual, min_residual);
       return false;
     }
 
-    // Copy the new source to the old source
-    new_source.copyTo(&old_source);
-
-    // Increment the interations counter
-    iter++;
-
-    log_printf(INFO, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
-               ", ratio = %3.2e, tolerance: %3.2e, end? %d", iter, residual,
-               initial_residual, residual / initial_residual, tol,
-               (residual / initial_residual < 0.1 || residual < tol) &&
-               iter > MIN_LINEAR_SOLVE_ITERATIONS);
-
     // Check for convergence
-    if ((residual / initial_residual < 0.1 || residual < tol) &&
-        iter > MIN_LINEAR_SOLVE_ITERATIONS) {
+    if (residual / initial_residual < 0.1 || residual < tol)
       break;
-    }
   }
 
 
@@ -953,7 +947,9 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 #pragma omp parallel for
   for (int i=0; i < num_x*num_y*num_z; i++) {
     for (int e=0; e < num_groups; e++) {
-      A->incrementValue(i, e, i, e, -dd->getValue(i,e));
+      A->incrementValue(i, e, i, e, -dd.getValue(i,e));
     }
   }
+
+  return true;
 }

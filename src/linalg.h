@@ -81,7 +81,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  DomainCommunicator* comm = NULL);
 bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                    double SOR_factor, ConvergenceData* convergence_data,
-                   DomainCommunicator* comm) {
+                   DomainCommunicator* comm);
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
 double computeRMSE(Vector* x, Vector* y, bool integrated, int it,
                          DomainCommunicator* comm = NULL);

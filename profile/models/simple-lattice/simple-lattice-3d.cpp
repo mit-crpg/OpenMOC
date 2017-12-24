@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) {
 
   Cmfd cmfd;
   cmfd.useAxialInterpolation(true);
-  cmfd.setLatticeStructure(4,4,7);
+  cmfd.setLatticeStructure(4,4,4);
   std::vector<std::vector<int> > cmfd_group_structure;
   cmfd_group_structure.resize(2);
   for (int g=0; g<3; g++)
@@ -221,7 +221,7 @@ int main(int argc, char* argv[]) {
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  //geometry.setDomainDecomposition(4,4,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(2,2,1, MPI_COMM_WORLD);
 #endif
   //geometry.setNumDomainModules(2,2,1);
   geometry.setCmfd(&cmfd);
@@ -232,7 +232,6 @@ int main(int argc, char* argv[]) {
 
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar,
                                    azim_spacing, polar_spacing);
-  track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
   track_generator.generateTracks();
