@@ -557,7 +557,7 @@ std::string create_multiline_msg(std::string level, std::string message) {
     substring = message.substr(start, line_length);
 
     /* Begin multiline messages with ellipsis */
-    if (start != 0 and substring.back() != '*')
+    if (start != 0)
       msg_string += "... ";
 
     /* Truncate substring to last complete word */
