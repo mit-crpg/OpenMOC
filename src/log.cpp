@@ -378,28 +378,52 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (HEADER):
       {
-        int size = strlen(buffer);
-        int halfpad = (line_length - 4 - size) / 2;
-        std::string pad1 = std::string(halfpad, header_char);
-        std::string pad2 = std::string(halfpad +
-                           (line_length - 4 - size) % 2, header_char);
         std::string prefix = std::string("[  HEADER ]  ");
-        std::stringstream ss;
-        ss << prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
-        msg_string = ss.str();
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(prefix, msg);
+
+        /* Puts message on single line */
+        else{
+          int size = strlen(buffer);
+          int halfpad = (line_length - 4 - size) / 2;
+          std::string pad1 = std::string(halfpad, header_char);
+          std::string pad2 = std::string(halfpad +
+                           (line_length - 4 - size) % 2, header_char);
+          std::string prefix = std::string("[  HEADER ]  ");
+          std::stringstream ss;
+          ss << prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
+          msg_string = ss.str();
+        }
         break;
       }
     case (TITLE):
       {
-        int size = strlen(buffer);
-        int halfpad = (line_length - size) / 2;
-        std::string pad = std::string(halfpad, ' ');
         std::string prefix = std::string("[  TITLE  ]  ");
-        std::stringstream ss;
-        ss << prefix << std::string(line_length, title_char) << "\n";
-        ss << prefix << pad << buffer << pad << "\n";
-        ss << prefix << std::string(line_length, title_char) << "\n";
-        msg_string = ss.str();
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length){
+          msg_string = create_multiline_msg(prefix, msg);
+          std::stringstream ss;
+          ss << prefix << std::string(line_length, title_char) << "\n";
+          ss << msg_string;
+          ss << prefix << std::string(line_length, title_char) << "\n";
+          msg_string = ss.str();
+        }
+
+        /* Puts message on single line */
+        else{
+          int size = strlen(buffer);
+          int halfpad = (line_length - size) / 2;
+          std::string pad = std::string(halfpad, ' ');
+
+          std::stringstream ss;
+          ss << prefix << std::string(line_length, title_char) << "\n";
+          ss << prefix << pad << buffer << pad << "\n";
+          ss << prefix << std::string(line_length, title_char) << "\n";
+          msg_string = ss.str();
+        }
         break;
       }
     case (WARNING):
@@ -529,12 +553,12 @@ std::string create_multiline_msg(std::string level, std::string message) {
     /* Append log level to the beginning of each line */
     msg_string += level;
 
-    /* Begin multiline messages with ellipsis */
-    if (start != 0)
-      msg_string += "... ";
-
-    /* Find the current full length substring for line*/
+    /* Find the current full length substring for line */
     substring = message.substr(start, line_length);
+
+    /* Begin multiline messages with ellipsis */
+    if (start != 0 and substring.back() != '*')
+      msg_string += "... ";
 
     /* Truncate substring to last complete word */
     if (end <= size) {
