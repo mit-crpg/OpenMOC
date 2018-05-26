@@ -1352,7 +1352,7 @@ class PlotParams(object):
         self._transparent_zeros = False
         self._interpolation = None
         self._colorbar = False
-        self._cmap = plt.get_cmap('spectral')
+        self._cmap = plt.get_cmap('nipy_spectral')
         self._vmin = None
         self._vmax = None
 
