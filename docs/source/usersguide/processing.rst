@@ -734,7 +734,7 @@ Property                  Type                      Default                 Note
 ``transparent_zeros``     boolean                   False                   Make zeros in the data appear transparent
 ``interpolation``         string                    None                    Interpolation used between points (e.g., 'nearest')
 ``colorbar``              boolean                   False                   Include a colorbar to the right of the plot
-``cmap``                  ``matplotlib.colormap``   ``cmap('spectral')``    A Matplotlib colormap for the plot
+``cmap``                  ``matplotlib.colormap``   ``cmap('nipy_spectral')``    A Matplotlib colormap for the plot
 ``vmin``                  float                     None                    The minimum value used in colormapping the data
 ``vmax``                  float                     None                    The maximum value used in colormapping the data
 ========================  ========================  ======================  ==========================================================
