@@ -114,9 +114,9 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
 
     # Convert data to NumPy arrays
     coords = np.array(coords)
-    x = coords[0::vals_per_track/2]
-    y = coords[1::vals_per_track/2]
-    z = coords[2::vals_per_track/2]
+    x = coords[0::vals_per_track//2]
+    y = coords[1::vals_per_track//2]
+    z = coords[2::vals_per_track//2]
 
     # Make figure of line segments for each Track
     fig = plt.figure()
@@ -1402,7 +1402,7 @@ def plot_quadrature(solver, get_figure=False):
     num_azim = track_generator.getNumAzim()
     azim_spacing = track_generator.getDesiredAzimSpacing()
     num_polar_2 = int(quad.getNumPolarAngles() / 2)
-    phis = np.zeros(num_azim/4)
+    phis = np.zeros(num_azim//4)
     thetas = np.zeros(num_polar_2)
 
     # Get the polar angles
