@@ -1963,7 +1963,7 @@ void CPUSolver::addSourceToScalarFlux() {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
-      if (_scalar_flux(r, e) <= 0.0) {
+      if (_scalar_flux(r, e) < 0.0) {
         _scalar_flux(r, e) = 1.0e-20;
 #pragma omp atomic
         num_negative_fluxes++;
@@ -2384,7 +2384,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
 
     /* Determine the number of negative sources */
     for (int e=0; e < _num_groups; e++) {
-      if (_reduced_sources(r,e) <= 0.0) {
+      if (_reduced_sources(r,e) < 0.0) {
         by_group[e]++;
         mapping[lat_cell]++;
       }
