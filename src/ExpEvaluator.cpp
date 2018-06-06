@@ -294,6 +294,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
       _exp_table[index] = exp_const_1;
       _exp_table[index+1] = exp_const_2;
       _exp_table[index+2] = exp_const_3;
+      log_printf(DEBUG, "slope %f, intercept %f", exp_const_1, exp_const_2);
 
       if (_linear_source) {
 
