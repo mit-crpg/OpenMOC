@@ -31,7 +31,7 @@ class SimulationStateTestHarness(TestHarness):
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=True, num_tracks=True, num_segments=True,
-                     hash_output=True):
+                     hash_output=False):
         """Digest info in the simulation states and return hash as a string."""
 
         # Restore simulation state from pickled binary file
