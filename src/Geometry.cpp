@@ -1547,7 +1547,7 @@ void Geometry::getFSRKeyFast(LocalCoords* coords, std::string& key) {
 //TODO: description
 int Geometry::getNumDigits(int number) {
   if (number < 0)
-    log_printf(ERROR, "Trying to ge the digits of negative number %d", number);
+    log_printf(ERROR, "Trying to get the digits of negative number %d", number);
   int ref = 10;
   int num_digits = 1;
   while (number >= ref) {

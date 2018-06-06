@@ -20,6 +20,7 @@ class TrackingGridCMFDTestHarness(TrackingTestHarness):
     def _setup(self):
         """Initialize the materials, geometry, and tracks"""
         super(TrackingGridCMFDTestHarness, self)._create_geometry()
+        super(TrackingGridCMFDTestHarness, self)._create_trackgenerator()
 
         # Initialize track objects
         self.tracks['Diagonal Track'] = openmoc.Track()

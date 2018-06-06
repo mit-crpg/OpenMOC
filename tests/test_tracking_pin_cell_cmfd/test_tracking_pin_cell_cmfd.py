@@ -20,6 +20,7 @@ class TrackingPinCellCMFDTestHarness(TrackingTestHarness):
     def _setup(self):
         """Initialize the materials, geometry, and tracks."""
         super(TrackingPinCellCMFDTestHarness, self)._create_geometry()
+        super(TrackingPinCellCMFDTestHarness, self)._create_trackgenerator()
 
         # Initialize track objects
         self.tracks['Diagonal Track'] = openmoc.Track()
