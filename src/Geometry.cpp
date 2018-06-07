@@ -1699,7 +1699,7 @@ void Geometry::subdivideCells() {
   /* This is used as the maximum radius for all ringified Cells */
   double width_x = _root_universe->getMaxX() - _root_universe->getMinX();
   double width_y = _root_universe->getMaxY() - _root_universe->getMinY();
-  double max_radius = sqrt(width_x * width_y / M_PI);
+  double max_radius = sqrt(width_x * width_x + width_y * width_y) / 2;
 
   /* Recursively subdivide Cells into rings and sectors */
   _root_universe->subdivideCells(max_radius);
