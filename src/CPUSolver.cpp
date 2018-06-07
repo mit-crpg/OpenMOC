@@ -1678,41 +1678,38 @@ double CPUSolver::computeResidual(residualType res_type) {
 void CPUSolver::computeKeff() {
 
   double* FSR_rates = _regionwise_scratch;
-  double rates[3];
 
-  /* Loop over all FSRs and compute the volume-integrated total rates */
-  for (int type=0; type < 2; type++) {
-#pragma omp parallel for schedule(guided)
-    for (long r=0; r < _num_FSRs; r++) {
+  FP_PRECISION fission;
+
+  /* Compute the old nu-fission rates in each FSR */
+#pragma omp parallel
+  {
+
+    int tid = omp_get_thread_num() * _num_groups;
+    Material* material;
+    FP_PRECISION* sigma;
+    FP_PRECISION volume;
+
+#pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
 
       int tid = omp_get_thread_num();
       FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
-      FP_PRECISION volume = _FSR_volumes[r];
-      Material* material = _FSR_materials[r];
-      FP_PRECISION* sigma;
-      if (type == 0)
-        sigma = material->getNuSigmaF();
-      else
-        sigma = material->getSigmaA();
 
-      for (int e=0; e < _num_groups; e++){
-        log_printf(NORMAL,"xs g%d : %f, flux %f", e, sigma[e], _scalar_flux(r,e));
-        group_rates[e] = sigma[e] * _scalar_flux(r,e);
-}
+      volume = _FSR_volumes[r];
+      material = _FSR_materials[r];
+      sigma = material->getNuSigmaF();
 
-      FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
+      for (int e=0; e < _num_groups; e++)
+        group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
+
+      FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
       FSR_rates[r] *= volume;
-      log_printf(NORMAL, "%f", FSR_rates[r]);
     }
-    log_printf(NORMAL, "%d", _num_FSRs);
-    /* Reduce new fission rates across FSRs */
-    rates[type] = pairwise_sum<double>(FSR_rates, _num_FSRs);
-    log_printf(NORMAL, "%f %f", rates[0], rates[1] );
   }
 
-  /* Compute total leakage rate */
-  rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
-  log_printf(NORMAL, "tracks %d", _tot_num_tracks);
+  /* Reduce new fission rates across FSRs */
+  fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
 
 #ifdef MPIx
   /* Reduce rates across domians */
@@ -1723,21 +1720,15 @@ void CPUSolver::computeKeff() {
     MPI_Comm comm = _geometry->getMPICart();
 
     /* Copy local rates */
-    double local_rates[3];
-    for (int i=0; i < 3; i++)
-      local_rates[i] = rates[i];
+    double local_rate;
+      local_rate = fission;
 
     /* Reduce computed rates */
-    MPI_Allreduce(local_rates, rates, 3, MPI_DOUBLE, MPI_SUM, comm);
+    MPI_Allreduce(local_rate, fission, 1, MPI_DOUBLE, MPI_SUM, comm);
   }
 #endif
 
-  /* Compute k-eff from fission, absorption, and leakage rates */
-  double fission = rates[0];
-  double absorption = rates[1];
-  double leakage = rates[2];
-  _k_eff = fission / (absorption + leakage);
-  log_printf(NORMAL, "fission %f, absorption %f, leakage %f", fission, absorption, leakage);
+  _k_eff *= fission / _num_FSRs;
 }
 
 
@@ -1942,12 +1933,10 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   if (_cmfd == NULL) {
     if (bc_out == VACUUM) {
       long track_id = track->getUid();
-      log_printf(NORMAL, "%d %f", track_id, _boundary_leakage[track_id]);
       FP_PRECISION weight = _quad->getWeightInline(azim_index, polar_index);
       for (int pe=0; pe < _fluxes_per_track; pe++)
         _boundary_leakage[track_id] += weight * track_flux[pe];
     }
-      log_printf(NORMAL, "%d %f", track_id, _boundary_leakage[track_id]);
   }
 }
 
