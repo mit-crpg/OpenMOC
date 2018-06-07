@@ -1942,11 +1942,12 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   if (_cmfd == NULL) {
     if (bc_out == VACUUM) {
       long track_id = track->getUid();
-      log_printf(NORMAL, "%d", track_id);
+      log_printf(NORMAL, "%d %f", track_id, _boundary_leakage[track_id]);
       FP_PRECISION weight = _quad->getWeightInline(azim_index, polar_index);
       for (int pe=0; pe < _fluxes_per_track; pe++)
         _boundary_leakage[track_id] += weight * track_flux[pe];
     }
+      log_printf(NORMAL, "%d %f", track_id, _boundary_leakage[track_id]);
   }
 }
 
