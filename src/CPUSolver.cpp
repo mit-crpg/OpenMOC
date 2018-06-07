@@ -1435,7 +1435,7 @@ double CPUSolver::normalizeFluxes() {
   }
 
   /* Normalize angular boundary fluxes for each Track */
-// FIXME #pragma omp parallel for
+#pragma omp parallel for schedule(guided) //FIXME
   for (long idx=0; idx < 2 * _tot_num_tracks * _fluxes_per_track; idx++) {
     _start_flux[idx] *= norm_factor;
     _boundary_flux[idx] *= norm_factor;
@@ -1695,24 +1695,30 @@ void CPUSolver::computeKeff() {
       else
         sigma = material->getSigmaA();
 
-      for (int e=0; e < _num_groups; e++)
+      for (int e=0; e < _num_groups; e++){
+        log_printf(NORMAL,"xs g%d : %f, flux %f", e, sigma[e], _scalar_flux(r,e));
         group_rates[e] = sigma[e] * _scalar_flux(r,e);
+}
 
       FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
       FSR_rates[r] *= volume;
+      log_printf(NORMAL, "%f", FSR_rates[r]);
     }
-
+    log_printf(NORMAL, "%d", _num_FSRs);
     /* Reduce new fission rates across FSRs */
     rates[type] = pairwise_sum<double>(FSR_rates, _num_FSRs);
+    log_printf(NORMAL, "%f %f", rates[0], rates[1] );
   }
 
   /* Compute total leakage rate */
   rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
+  log_printf(NORMAL, "tracks %d", _tot_num_tracks);
 
 #ifdef MPIx
   /* Reduce rates across domians */
   if (_geometry->isDomainDecomposed()) {
-
+    
+    log_printf(NORMAL, "Geometry is domain decomposed" );
     /* Get the communicator */
     MPI_Comm comm = _geometry->getMPICart();
 
@@ -1731,6 +1737,7 @@ void CPUSolver::computeKeff() {
   double absorption = rates[1];
   double leakage = rates[2];
   _k_eff = fission / (absorption + leakage);
+  log_printf(NORMAL, "fission %f, absorption %f, leakage %f", fission, absorption, leakage);
 }
 
 
@@ -1935,6 +1942,7 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   if (_cmfd == NULL) {
     if (bc_out == VACUUM) {
       long track_id = track->getUid();
+      log_printf(NORMAL, "%d", track_id);
       FP_PRECISION weight = _quad->getWeightInline(azim_index, polar_index);
       for (int pe=0; pe < _fluxes_per_track; pe++)
         _boundary_leakage[track_id] += weight * track_flux[pe];

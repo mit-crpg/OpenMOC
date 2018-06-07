@@ -695,7 +695,7 @@ void Solver::initializeExpEvaluators() {
  */
 void Solver::initializeFSRs() {
 
-  log_printf(NORMAL, "Initializing flat source regions...");
+  log_printf(NORMAL, "Initializing solver arrays...");
 
   /* Delete old FSR arrays if they exist */
   if (_FSR_materials != NULL)
