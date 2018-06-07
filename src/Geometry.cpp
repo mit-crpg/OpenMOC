@@ -1715,7 +1715,7 @@ void Geometry::subdivideCells() {
  *          object.
  */
 void Geometry::initializeFlatSourceRegions() {
-
+    
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 

@@ -25,7 +25,7 @@ class TestHarness(object):
     """General class for running OpenMOC regression tests."""
     def __init__(self):
 
-        openmoc.log.set_log_level('DEBUG')
+        openmoc.log.set_log_level('NORMAL')
 
         # Define default simulation parameters
         self.spacing = 0.1
