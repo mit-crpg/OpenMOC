@@ -1715,6 +1715,8 @@ void Geometry::subdivideCells() {
  *          object.
  */
 void Geometry::initializeFlatSourceRegions() {
+
+  log_printf(NORMAL, "Initializing flat source regions...");
     
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
