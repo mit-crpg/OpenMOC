@@ -619,6 +619,7 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, long num_segments) 
 
         x1 = x0 + cos(phi) * curr_segment->_length;
         y1 = y0 + sin(phi) * curr_segment->_length;
+        z1 = z0;
 
         coords[counter+4] = x1;
         coords[counter+5] = y1;
