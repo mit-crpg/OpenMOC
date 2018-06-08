@@ -67,6 +67,8 @@ Geometry::~Geometry() {
   }
   if (_overlaid_mesh != NULL)
     delete _overlaid_mesh;
+
+  //TODO Delete local coords created! from tracks and from FSRs
 }
 
 

@@ -1759,7 +1759,8 @@ void CPUSolver::transportSweep() {
       tallyStartingCurrents();
 
   /* Zero boundary leakage tally */
-  memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
+  if (_cmfd==NULL)
+    memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */

@@ -160,8 +160,8 @@ Cmfd::~Cmfd() {
   if (_materials != NULL) {
     for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
       delete _materials[i];
+    delete [] _materials;
   }
-  delete [] _materials;
 
   /* Delete the CMFD lattice */
   if (_lattice != NULL)
@@ -1392,8 +1392,12 @@ void Cmfd::initializeMaterials() {
   Material* material;
 
   /* Delete old CMFD surface currents vector if it exists */
-  if (_materials != NULL)
+  if (_materials != NULL){
+    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
+      delete _materials[i];
     delete [] _materials;
+  }
+
 
   try {
     _materials = new Material*[_local_num_x*_local_num_y*_local_num_z];
