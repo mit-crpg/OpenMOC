@@ -588,7 +588,6 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
     }
     sum_residuals = residual.getSum();
     norm = num_x * num_y * num_z;
-
   }
   else {
 

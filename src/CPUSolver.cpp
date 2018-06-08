@@ -200,7 +200,7 @@ void CPUSolver::initializeFluxArrays() {
   if (_start_flux != NULL)
     delete [] _start_flux;
 
-  if (_boundary_leakage != NULL)
+  if (_cmfd==NULL and _boundary_leakage != NULL)
     delete [] _boundary_leakage;
 
   if (_scalar_flux != NULL)
