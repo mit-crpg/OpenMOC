@@ -1685,25 +1685,20 @@ void CPUSolver::computeKeff() {
 #pragma omp parallel
   {
 
-    int tid = omp_get_thread_num() * _num_groups;
-    Material* material;
-    FP_PRECISION* sigma;
-    FP_PRECISION volume;
-
 #pragma omp for schedule(guided)
     for (int r=0; r < _num_FSRs; r++) {
 
       int tid = omp_get_thread_num();
       FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
 
-      volume = _FSR_volumes[r];
-      material = _FSR_materials[r];
-      sigma = material->getNuSigmaF();
+      FP_PRECISION volume = _FSR_volumes[r];
+      Material* material = _FSR_materials[r];
+      FP_PRECISION* sigma = material->getNuSigmaF();
 
       for (int e=0; e < _num_groups; e++)
-        group_rates[tid+e] = sigma[e] * _scalar_flux(r,e);
+        group_rates[e] = sigma[e] * _scalar_flux(r,e);
 
-      FSR_rates[r]=pairwise_sum<FP_PRECISION>(&group_rates[tid], _num_groups);
+      FSR_rates[r]=pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
       FSR_rates[r] *= volume;
     }
   }
