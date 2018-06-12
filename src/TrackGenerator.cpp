@@ -45,6 +45,8 @@ TrackGenerator::~TrackGenerator() {
       delete [] _tracks_2D[a];
     delete [] _tracks_2D;
 
+    delete[] _tracks_2D_array;
+
     /* Delete track laydown information */
     delete [] _num_x;
     delete [] _num_y;
@@ -58,6 +60,8 @@ TrackGenerator::~TrackGenerator() {
 
   if (_FSR_volumes != NULL)
     delete [] _FSR_volumes;
+
+  delete _quadrature;
 
   delete _timer;
 

@@ -13,7 +13,7 @@ azim_spacing = options.azim_spacing
 num_azim = options.num_azim
 num_polar = options.num_polar
 tolerance = options.tolerance
-max_iters = options.max_iters
+max_iters = 1 #options.max_iters
 
 
 ###############################################################################
