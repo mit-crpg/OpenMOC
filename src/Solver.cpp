@@ -671,7 +671,7 @@ void Solver::initializeExpEvaluators() {
       else
         _exp_evaluators[a][p] = first_evaluator->deepCopy();
 
-      /* Copy evaluators to supplimentary positions */
+      /* Copy evaluators to supplementary positions */
       int sup_azim = _num_azim / 2 - a - 1;
       int sup_polar = _num_polar - p - 1;
       _exp_evaluators[sup_azim][p] = _exp_evaluators[a][p];

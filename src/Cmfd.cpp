@@ -239,8 +239,10 @@ Cmfd::~Cmfd() {
     delete _domain_communicator;
   }
 
-  for (long r=0; r < _axial_interpolants.size(); r++)
+  for (long r=0; r < _axial_interpolants.size(); r++){
+    log_printf(NORMAL, "%d / %d / %d", r, _num_FSRs, _axial_interpolants.size());
     delete [] _axial_interpolants.at(r);
+  }
 
   if (_backup_cmfd != NULL)
     delete _backup_cmfd;

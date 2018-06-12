@@ -184,7 +184,7 @@ int LocalCoords::getPosition() {
 /**
  * @brief Searches through the LocalCoords object to detect a loop
  * @details A loop is assumed if the LocalCoords apparent length is greater
- *          1000 memebers
+ *          1000 members
  */
 void LocalCoords::detectLoop() {
   int n = 0;

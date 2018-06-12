@@ -36,6 +36,8 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
  */
 TrackGenerator::~TrackGenerator() {
 
+  log_printf(NORMAL, "Calling destructor for track gen");
+
   if (_contains_2D_tracks) {
 
     /* Delete 2D tracks */

@@ -24,7 +24,6 @@ class OneDGradientTestHarness(TestHarness):
         cells = self.input_set.geometry.getAllCells()
         for cell_id in cells:
             cell = cells[cell_id]
-            print(cell.getName(), cell.getId())
             if cell.getName() == 'root cell':
                 root_cell = cell
 
@@ -34,16 +33,7 @@ class OneDGradientTestHarness(TestHarness):
             surface = surfaces[surface_id]._surface
             if len(surface.getName()) > 0:
                 if surface.getName()[0] == 'x':
-                    print("Setting to vacuum")
                     surface.setBoundaryType(openmoc.VACUUM)
-
-        #import openmoc.plotter as plotter
-        #geometry = self.input_set.geometry
-        #plotter.plot_cells(geometry)
-        #import time
-        #time.sleep(1000)
-        #plotter.plot_flat_source_regions(geometry)
-
 
     def __init__(self):
         super(OneDGradientTestHarness, self).__init__()
