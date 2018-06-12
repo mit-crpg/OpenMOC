@@ -125,12 +125,14 @@ Solver::~Solver() {
     delete [] _groupwise_scratch.at(i);
   _groupwise_scratch.clear();
 
-  for (int a=0; a < _num_exp_evaluators_azim; a++) {
-    for (int p=0; p < _num_exp_evaluators_polar; p++)
+  for (int a=0; a < _num_azim/2; a++) {
+    for (int p=0; p < _num_polar; p++)
       delete _exp_evaluators[a][p];
     delete [] _exp_evaluators[a];
   }
   delete [] _exp_evaluators;
+
+  delete _timer;
 }
 
 
