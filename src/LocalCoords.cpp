@@ -33,10 +33,8 @@ LocalCoords::LocalCoords(double x, double y, double z, bool first) {
  */
 LocalCoords::~LocalCoords() {
   prune();
-  if (_position == -1){
-    log_printf(NORMAL,"Deleting arrays in destructor");
+  if (_position == -1)
     deleteArray();
-  }
 }
 
 
@@ -152,10 +150,15 @@ LocalCoords* LocalCoords::getNext() const {
 }
 
 
-//FIXME
+/**
+ * @brief Creates and returns a pointer to the next LocalCoords (nested 
+ *        deeper)
+ * @param x the x-coordinate
+ * @param y the y-coordinate
+ * @param z the z-coordinate
+ * @return pointer to the next LocalCoords that was just created
+ */
 LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
-
-  log_printf(NORMAL, "Copying coords");
 
   if (_next == NULL) {
 
@@ -342,7 +345,14 @@ void LocalCoords::setPrev(LocalCoords* prev) {
 }
 
 
-//FIXME
+/**
+ * @brief Sets the position of this LocalCoords in the array of LocalCoords,
+ *        the pointer to this array (next LocalCoords for this) is also
+ *        transfered
+ * @param array pointer to the array of next LocalCoords
+ * @param position index of this LocalCoords in said array
+ * @param array_size size of the array
+ */
 void LocalCoords::setArrayPosition(LocalCoords* array, int position,
                                    int array_size) {
   _next_array = array;
