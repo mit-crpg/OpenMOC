@@ -1769,8 +1769,8 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0, z0);
-  LocalCoords end(x0, y0, z0);
+  LocalCoords start(x0, y0, z0, true);
+  LocalCoords end(x0, y0, z0, true);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
 
@@ -1883,8 +1883,6 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
 
   log_printf(DEBUG, "Created %d segments for Track: %s",
              track->getNumSegments(), track->toString().c_str());
-
-  log_printf(NORMAL, "Position of start %d will it deallocate", start.getPosition());
 
   /* Truncate the linked list for the LocalCoords */
   start.prune();

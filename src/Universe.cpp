@@ -499,7 +499,6 @@ void Universe::removeCell(Cell* cell) {
  */
 Cell* Universe::findCell(LocalCoords* coords) {
 
-
   /* Sets the LocalCoord type to UNIV at this level */
   coords->setType(UNIV);
 

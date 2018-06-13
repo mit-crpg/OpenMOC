@@ -1,9 +1,12 @@
 #include "LocalCoords.h"
 
 /**
- * @brief Constructor sets the x and y coordinates.
+ * @brief Constructor sets the x, y and z coordinates and position as a coord.
  * @param x the x-coordinate
  * @param y the y-coordinate
+ * @param z the z-coordinate
+ * @param first whether the LocalCoords is the first one, that will contain an
+ *        array to all the next LocalCoords
  */
 LocalCoords::LocalCoords(double x, double y, double z, bool first) {
   _coords.setCoords(x, y, z);
@@ -152,7 +155,12 @@ LocalCoords* LocalCoords::getNext() const {
 //FIXME
 LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
+  log_printf(NORMAL, "Copying coords");
+
   if (_next == NULL) {
+
+    /* If more LocalCoords than the array size defined in constants.h, 
+    create a new one */
     if (_position + 1 >= _array_size) {
       _next = new LocalCoords(x, y, z, true);
       _next->setPrev(this);
@@ -459,10 +467,8 @@ void LocalCoords::prune() {
   /* Iterate over LocalCoords beneath this one in the linked list */
   while (curr != this) {
     next = curr->getPrev();
-    if (curr->getPosition() == -1){
+    if (curr->getPosition() == -1)
       curr->deleteArray();
-    log_printf(NORMAL,"Deleting arrays in prune");
-}
     curr = next;
   }
 
@@ -553,7 +559,6 @@ std::string LocalCoords::toString() {
     int cell_id = -1;
     if (curr->getCell() != NULL)
       cell_id = curr->getCell()->getId();
-    
     
     if (curr->getType() == UNIV) {
       string << " UNIVERSE, x = " << curr->getX()

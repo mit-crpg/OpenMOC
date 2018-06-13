@@ -8,12 +8,12 @@ from openmoc import plotter as plotter
 
 options = openmoc.options.Options()
 
-num_threads = 1#options.num_omp_threads
+num_threads = options.num_omp_threads
 azim_spacing = options.azim_spacing
 num_azim = options.num_azim
 num_polar = options.num_polar
 tolerance = options.tolerance
-max_iters = 1 #options.max_iters
+max_iters = options.max_iters
 
 
 ###############################################################################
