@@ -1,0 +1,5 @@
+recursive-include src *.h *.cpp *.cu
+recursive-include sample-input *.py *.h5 *.pbs
+include *.rst
+include setup.py
+include config.py
