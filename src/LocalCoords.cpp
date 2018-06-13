@@ -30,8 +30,10 @@ LocalCoords::LocalCoords(double x, double y, double z, bool first) {
  */
 LocalCoords::~LocalCoords() {
   prune();
-  if (_position == -1)
+  if (_position == -1){
+    log_printf(NORMAL,"Deleting arrays in destructor");
     deleteArray();
+  }
 }
 
 
@@ -457,8 +459,10 @@ void LocalCoords::prune() {
   /* Iterate over LocalCoords beneath this one in the linked list */
   while (curr != this) {
     next = curr->getPrev();
-    if (curr->getPosition() == -1)
+    if (curr->getPosition() == -1){
       curr->deleteArray();
+    log_printf(NORMAL,"Deleting arrays in prune");
+}
     curr = next;
   }
 

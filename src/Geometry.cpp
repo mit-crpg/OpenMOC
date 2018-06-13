@@ -1884,6 +1884,8 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
   log_printf(DEBUG, "Created %d segments for Track: %s",
              track->getNumSegments(), track->toString().c_str());
 
+  log_printf(NORMAL, "Position of start %d will it deallocate", start.getPosition());
+
   /* Truncate the linked list for the LocalCoords */
   start.prune();
   end.prune();

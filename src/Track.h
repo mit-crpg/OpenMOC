@@ -54,9 +54,6 @@ struct segment {
     _cmfd_surface_fwd = -1;
     _cmfd_surface_bwd = -1;
   }
-
-  /** Destructor */
-  ~segment(){  }
 };
 
 

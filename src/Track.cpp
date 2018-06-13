@@ -225,14 +225,6 @@ void Track::insertSegment(int index, segment* segment) {
  * @brief Deletes each of this Track's segments.
  */
 void Track::clearSegments() {
-  std::vector<segment>::iterator iter;
-
-  /* Loop over segments */
-  for (iter = _segments.begin(); iter != _segments.end(); ++iter){
-  //  delete &iter;
-    log_printf(NORMAL,"Deleting seg");
-  }
-
   _segments.clear();
 }
 
