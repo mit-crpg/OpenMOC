@@ -118,6 +118,9 @@ Solver::~Solver() {
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
 
+  if (_boundary_leakage != NULL)
+    delete [] _boundary_leakage;
+
   if (_regionwise_scratch != NULL)
     delete [] _regionwise_scratch;
 

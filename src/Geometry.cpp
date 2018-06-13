@@ -1916,8 +1916,8 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0, z0);
-  LocalCoords end(x0, y0, z0);
+  LocalCoords start(x0, y0, z0, true);
+  LocalCoords end(x0, y0, z0, true);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
 
