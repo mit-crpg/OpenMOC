@@ -95,7 +95,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -192,7 +192,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -886,7 +886,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -1306,7 +1306,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
             # Ensure that normal settings are used even if called from ipython
             curr_rc = dict(matplotlib.rcParams)
-            matplotlib.rcParams.update(matplotlib_rcparams)
+            matplotlib.rcParams.update(curr_rc)
 
             fig = plt.figure()
             fig.patch.set_facecolor('none')
@@ -1388,7 +1388,7 @@ def plot_quadrature(solver, get_figure=False):
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:

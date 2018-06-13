@@ -129,15 +129,19 @@ Solver::~Solver() {
   _groupwise_scratch.clear();
 
   /** Delete exponential evaluators */
-  for (int a=0; a < _num_exp_evaluators_azim; a++) {
-    for (int p=0; p < _num_exp_evaluators_polar; p++) {
-      delete _exp_evaluators[a][p];
+  if (_exp_evaluators != NULL){
+    for (int a=0; a < _num_exp_evaluators_azim; a++) {
+      for (int p=0; p < _num_exp_evaluators_polar; p++) {
+        delete _exp_evaluators[a][p];
+      }
     }
+    for (int a=0; a < _num_azim/2; a++){
+      /* Handle edge case when exp_evaluators are not initialized */
+      if (a < 1 or _num_exp_evaluators_azim > 1)
+        delete [] _exp_evaluators[a];
+    }
+    delete [] _exp_evaluators;
   }
-  for (int a=0; a < _num_azim/2; a++)
-    delete [] _exp_evaluators[a];
-  
-  delete [] _exp_evaluators;
 
   delete _timer;
 }
