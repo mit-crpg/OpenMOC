@@ -1690,7 +1690,6 @@ void CPUSolver::computeKeff() {
 
       int tid = omp_get_thread_num();
       FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
-
       FP_PRECISION volume = _FSR_volumes[r];
       Material* material = _FSR_materials[r];
       FP_PRECISION* sigma = material->getNuSigmaF();
@@ -1698,7 +1697,7 @@ void CPUSolver::computeKeff() {
       for (int e=0; e < _num_groups; e++)
         group_rates[e] = sigma[e] * _scalar_flux(r,e);
 
-      FSR_rates[r]=pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
+      FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
       FSR_rates[r] *= volume;
     }
   }
@@ -1709,8 +1708,7 @@ void CPUSolver::computeKeff() {
 #ifdef MPIx
   /* Reduce rates across domians */
   if (_geometry->isDomainDecomposed()) {
-    
-    log_printf(NORMAL, "Geometry is domain decomposed" );
+
     /* Get the communicator */
     MPI_Comm comm = _geometry->getMPICart();
 

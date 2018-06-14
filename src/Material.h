@@ -145,7 +145,6 @@ public:
   void setNuSigmaFByGroup(double xs, int group);
   void setSigmaSByGroup(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
-  void resetSigmaA();
 
   void buildFissionMatrix();
   void transposeProductionMatrices();

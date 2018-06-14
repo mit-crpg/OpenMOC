@@ -7,7 +7,6 @@ sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
 from input_set import PinCellInput
 import openmoc
-import openmoc.plotter as plotter
 
 class SplitSegmentsCMFDTestHarness(TestHarness):
     """Test segment splitting based on max optical path length with

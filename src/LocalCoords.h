@@ -41,7 +41,7 @@ enum coordType {
  * @brief The LocalCoords represents a set of local coordinates on some
  *        level of nested Universes making up the geometry.
  *        _next and _prev allow for use of LocalCoords as a linked list
- *        but _next_array can also be used to acess coordinates.
+ *        but _next_array can also be used to access coordinates.
  */
 class LocalCoords {
 

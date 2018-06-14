@@ -239,9 +239,8 @@ Cmfd::~Cmfd() {
     delete _domain_communicator;
   }
 
-  for (long r=0; r < _num_FSRs; r++){
+  for (long r=0; r < _axial_interpolants.size(); r++)
     delete [] _axial_interpolants.at(r);
-  }
 
   if (_backup_cmfd != NULL)
     delete _backup_cmfd;

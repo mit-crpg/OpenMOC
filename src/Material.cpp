@@ -892,15 +892,6 @@ void Material::setChiByGroup(double xs, int group) {
 
 
 /**
- * @brief Disallocate the absorption cross-section to allow for re-generation
- */
-void Material::resetSigmaA() {
-  delete [] _sigma_a;
-  _sigma_a = NULL;
-}
-
-
-/**
  * @brief Builds the fission matrix from chi and the fission cross-section.
  * @details The fission matrix is constructed as the outer product of the
  *          chi and fission cross-section vectors. This routine is intended
