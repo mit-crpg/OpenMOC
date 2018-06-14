@@ -200,9 +200,10 @@ void CPUSolver::initializeFluxArrays() {
   if (_start_flux != NULL)
     delete [] _start_flux;
 
-  if (_boundary_leakage != NULL)
+  if (_boundary_leakage != NULL){
+    log_printf(NORMAL, "del boound");
     delete [] _boundary_leakage;
-
+}
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
@@ -240,6 +241,7 @@ void CPUSolver::initializeFluxArrays() {
 
     /* Allocate memory for boundary leakage if necessary */
     if (_cmfd == NULL) {
+    log_printf(NORMAL, "all boound");
       _boundary_leakage = new float[_tot_num_tracks];
       memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
     }

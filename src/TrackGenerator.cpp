@@ -71,7 +71,10 @@ TrackGenerator::~TrackGenerator() {
 }
 
 
-//FIXME
+/**
+ * @brief Return the number of tracks for each azimuthal angle
+ * @return the number of tracks for each azimuthal angle
+ */
 long* TrackGenerator::getTracksPerAzim() {
   return _tracks_per_azim;
 }
