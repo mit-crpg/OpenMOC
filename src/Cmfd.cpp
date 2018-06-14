@@ -239,8 +239,7 @@ Cmfd::~Cmfd() {
     delete _domain_communicator;
   }
 
-  for (long r=0; r < _axial_interpolants.size(); r++){
-    log_printf(NORMAL, "%d / %d / %d", r, _num_FSRs, _axial_interpolants.size());
+  for (long r=0; r < _num_FSRs; r++){
     delete [] _axial_interpolants.at(r);
   }
 
@@ -2633,9 +2632,12 @@ CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  */
 CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
-  double* interpolants = _axial_interpolants.at(fsr);
+  double* interpolants;
   double ratio = 1.0;
-  if (interpolants[0] != 0 || interpolants[2] != 0) {
+  if (_k_nearest > 0)
+    interpolants = _axial_interpolants.at(fsr);
+
+  if (_k_nearest > 0 and (interpolants[0] != 0 or interpolants[2] != 0)) {
 
     int z_ind = cell_id / (_local_num_x * _local_num_y);
     int cell_mid = cell_id;
@@ -2825,7 +2827,7 @@ void Cmfd::setGeometry(Geometry* geometry) {
  */
 void Cmfd::setKNearest(int k_nearest) {
 
-  if (_k_nearest < 1 || k_nearest > 9)
+  if (k_nearest < 1 || k_nearest > 9)
     log_printf(ERROR, "Unable to set CMFD k-nearest to %i. k-nearest "
                "must be between 1 and 9.", k_nearest);
   else
@@ -2885,10 +2887,10 @@ void Cmfd::zeroCurrents() {
 void Cmfd::initialize() {
 
   /* Delete old Matrix and Vector objects if they exist */
-  if (_M != NULL)
-    delete _M;
   if (_A != NULL)
     delete _A;
+  if (_M != NULL)
+    delete _M;
   if (_old_source != NULL)
     delete _old_source;
   if (_new_source != NULL)

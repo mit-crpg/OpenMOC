@@ -133,7 +133,7 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
           xs_array[g] = 1.0;
         break;
       default:
-        log_printf(ERROR, "Unrecgonized reaction type in Mesh object");
+        log_printf(ERROR, "Unrecognized reaction type in Mesh object");
     }
 
     /* Tally the reaction rates summed across all groups */

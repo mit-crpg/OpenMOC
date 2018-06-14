@@ -56,6 +56,7 @@ Geometry::~Geometry() {
         delete [] extruded_fsrs[i]->_mesh;
       delete [] extruded_fsrs[i]->_fsr_ids;
       delete [] extruded_fsrs[i]->_materials;
+      delete extruded_fsrs[i]->_coords;
       delete extruded_fsrs[i];
     }
     delete [] extruded_fsrs;
@@ -67,8 +68,6 @@ Geometry::~Geometry() {
   }
   if (_overlaid_mesh != NULL)
     delete _overlaid_mesh;
-
-  //TODO Delete local coords created from tracks and from FSRs
 }
 
 

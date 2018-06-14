@@ -34,7 +34,7 @@ class MultiSimMaterialsCmfdTestHarness(MultiSimTestHarness):
         """Run multiple OpenMOC eigenvalue calculations with CMFD with
         different materials."""
 
-        for i in range(self.num_simulations):
+        for i in range(2):#self.num_simulations):
 
             # Extract all of the material-filled cells in the geometry
             cells = self.input_set.geometry.getAllMaterialCells()
