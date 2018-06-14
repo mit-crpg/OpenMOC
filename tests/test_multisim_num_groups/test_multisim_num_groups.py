@@ -35,12 +35,6 @@ class MultiSimNumGroupsTestHarness(MultiSimTestHarness):
         material.setSigmaS(np.array([0.383259177]))
         material.setChi(np.array([1.0]))
         material.setSigmaT(np.array([0.452648699]))
-        material.resetSigmaA()
-
-        # Re-initialize FSRs to re-compute absorption xs
-        # TODO Delete this once MOC solvers stops using xs_a
-        geometry = self.input_set.geometry
-        geometry.initializeFlatSourceRegions()
 
         # Run eigenvalue calculation and store the results
         super(MultiSimNumGroupsTestHarness, self)._run_openmoc()
@@ -52,12 +46,6 @@ class MultiSimNumGroupsTestHarness(MultiSimTestHarness):
         material.setSigmaS(np.array([0.1, 0.117, 0., 1.42]))
         material.setChi(np.array([1.0, 0.0]))
         material.setSigmaT(np.array([0.2208, 1.604]))
-        material.resetSigmaA()
-
-        # Re-initialize FSRs to re-compute absorption xs
-        # TODO Delete this once MOC solvers stops using xs_a
-        geometry = self.input_set.geometry
-        geometry.initializeFlatSourceRegions()
 
         # Run eigenvalue calculation and store the results
         super(MultiSimNumGroupsTestHarness, self)._run_openmoc()

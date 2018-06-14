@@ -201,7 +201,6 @@ void CPUSolver::initializeFluxArrays() {
     delete [] _start_flux;
 
   if (_boundary_leakage != NULL){
-    log_printf(NORMAL, "del boound");
     delete [] _boundary_leakage;
 }
   if (_scalar_flux != NULL)
@@ -239,9 +238,9 @@ void CPUSolver::initializeFluxArrays() {
     memset(_boundary_flux, 0., size * sizeof(float));
     memset(_start_flux, 0., size * sizeof(float));
 
-    /* Allocate memory for boundary leakage if necessary */
-    if (_cmfd == NULL) {
-    log_printf(NORMAL, "all boound");
+    /* Allocate memory for boundary leakage if necessary. CMFD is not set in
+       solver at this point */
+    if (_geometry->getCmfd() == NULL) {
       _boundary_leakage = new float[_tot_num_tracks];
       memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
     }
@@ -1681,7 +1680,7 @@ void CPUSolver::computeKeff() {
 
   double* FSR_rates = _regionwise_scratch;
 
-  FP_PRECISION fission;
+  double fission;
 
   /* Compute the old nu-fission rates in each FSR */
 #pragma omp parallel
@@ -1705,7 +1704,7 @@ void CPUSolver::computeKeff() {
   }
 
   /* Reduce new fission rates across FSRs */
-  fission = pairwise_sum<FP_PRECISION>(FSR_rates, _num_FSRs);
+  fission = pairwise_sum<double>(FSR_rates, _num_FSRs);
 
 #ifdef MPIx
   /* Reduce rates across domians */

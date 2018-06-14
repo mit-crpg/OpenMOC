@@ -120,7 +120,7 @@ def add_test(name, cc='gcc', num_threads=1, debug=True, ):
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
-#add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
 #add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
 #add_test('normal-clang', cc='clang', num_threads=1)

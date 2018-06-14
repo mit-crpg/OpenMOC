@@ -1025,7 +1025,7 @@ void Solver::initializeCmfd() {
   }
 
   /* Intialize the CMFD energy group structure */
-  _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1);
+  _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1); //FIXME
   _cmfd->setNumMOCGroups(_num_groups);
   _cmfd->initializeGroupMap();
 

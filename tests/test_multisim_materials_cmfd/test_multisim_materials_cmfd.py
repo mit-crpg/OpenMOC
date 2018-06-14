@@ -26,8 +26,6 @@ class MultiSimMaterialsCmfdTestHarness(MultiSimTestHarness):
         cmfd = openmoc.Cmfd()
         cmfd.setSORRelaxationFactor(1.5)
         cmfd.setLatticeStructure(3,3)
-        cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
-        cmfd.setKNearest(3)
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
