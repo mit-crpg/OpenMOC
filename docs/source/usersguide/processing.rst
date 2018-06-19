@@ -716,28 +716,28 @@ Parameter               Type                                                   D
 
 .. _table_plot_params:
 
-========================  ========================  ======================  ==========================================================
-Property                  Type                      Default                 Note
-========================  ========================  ======================  ==========================================================
-``geometry``              ``Geometry``              None                    The Geometry to query when generating the spatial map
-``domain_type``           string                    'fsr'                   The domain type used to map spatial data to the geometry
-``filename``              string                    None                    The filename string
-``extension``             string                    '.png'                  The image file extension (e.g., '.png')
-``library``               string                    'matplotlib'            The plotting library to use ('matplotlib' or 'pil')
-``zcoord``                float                     0                       The level along the :math:`z`-axis to plot
-``gridsize``              integer                   250                     The pixel resolution
-``xlim``                  2-tuple                   None                    The min/max :math:`x`-coordinates to plot
-``ylim``                  2-tuple                   None                    The min/max :math:`y`-coordinates to plot
-``title``                 string                    None                    The minor title string
-``suptitle``              string                    None                    The major title string
-``norm``                  boolean                   False                   Normalize the plotted data to unity
-``transparent_zeros``     boolean                   False                   Make zeros in the data appear transparent
-``interpolation``         string                    None                    Interpolation used between points (e.g., 'nearest')
-``colorbar``              boolean                   False                   Include a colorbar to the right of the plot
-``cmap``                  ``matplotlib.colormap``   ``cmap('nipy_spectral')``    A Matplotlib colormap for the plot
-``vmin``                  float                     None                    The minimum value used in colormapping the data
-``vmax``                  float                     None                    The maximum value used in colormapping the data
-========================  ========================  ======================  ==========================================================
+========================  ========================  ==========================  ==========================================================
+Property                  Type                      Default                     Note
+========================  ========================  ==========================  ==========================================================
+``geometry``              ``Geometry``              None                        The Geometry to query when generating the spatial map
+``domain_type``           string                    'fsr'                       The domain type used to map spatial data to the geometry
+``filename``              string                    None                        The filename string
+``extension``             string                    '.png'                      The image file extension (e.g., '.png')
+``library``               string                    'matplotlib'                The plotting library to use ('matplotlib' or 'pil')
+``zcoord``                float                     0                           The level along the :math:`z`-axis to plot
+``gridsize``              integer                   250                         The pixel resolution
+``xlim``                  2-tuple                   None                        The min/max :math:`x`-coordinates to plot
+``ylim``                  2-tuple                   None                        The min/max :math:`y`-coordinates to plot
+``title``                 string                    None                        The minor title string
+``suptitle``              string                    None                        The major title string
+``norm``                  boolean                   False                       Normalize the plotted data to unity
+``transparent_zeros``     boolean                   False                       Make zeros in the data appear transparent
+``interpolation``         string                    None                        Interpolation used between points (e.g., 'nearest')
+``colorbar``              boolean                   False                       Include a colorbar to the right of the plot
+``cmap``                  ``matplotlib.colormap``   ``cmap('nipy_spectral')``   A Matplotlib colormap for the plot
+``vmin``                  float                     None                        The minimum value used in colormapping the data
+``vmax``                  float                     None                        The maximum value used in colormapping the data
+========================  ========================  ==========================  ==========================================================
 
 **Table 18**: The ``PlotParams`` class property attributes for plot customization.
 
