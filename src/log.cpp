@@ -378,11 +378,11 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (HEADER):
       {
-        std::string prefix = std::string("[  HEADER ]  ");
+        std::string level_prefix = std::string("[  HEADER ]  ");
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)
-          msg_string = create_multiline_msg(prefix, msg);
+          msg_string = create_multiline_msg(level_prefix, msg);
 
         /* Puts message on single line */
         else{
@@ -393,22 +393,22 @@ void log_printf(logLevel level, const char* format, ...) {
                            (line_length - 4 - size) % 2, header_char);
           std::string prefix = std::string("[  HEADER ]  ");
           std::stringstream ss;
-          ss << prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
+          ss << level_prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
           msg_string = ss.str();
         }
         break;
       }
     case (TITLE):
       {
-        std::string prefix = std::string("[  TITLE  ]  ");
+        std::string level_prefix = std::string("[  TITLE  ]  ");
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length){
-          msg_string = create_multiline_msg(prefix, msg);
+          msg_string = create_multiline_msg(level_prefix, msg);
           std::stringstream ss;
-          ss << prefix << std::string(line_length, title_char) << "\n";
+          ss << level_prefix << std::string(line_length, title_char) << "\n";
           ss << msg_string;
-          ss << prefix << std::string(line_length, title_char) << "\n";
+          ss << level_prefix << std::string(line_length, title_char) << "\n";
           msg_string = ss.str();
         }
 
@@ -419,9 +419,9 @@ void log_printf(logLevel level, const char* format, ...) {
           std::string pad = std::string(halfpad, ' ');
 
           std::stringstream ss;
-          ss << prefix << std::string(line_length, title_char) << "\n";
-          ss << prefix << pad << buffer << pad << "\n";
-          ss << prefix << std::string(line_length, title_char) << "\n";
+          ss << level_prefix << std::string(line_length, title_char) << "\n";
+          ss << level_prefix << pad << buffer << pad << "\n";
+          ss << level_prefix << std::string(line_length, title_char) << "\n";
           msg_string = ss.str();
         }
         break;
