@@ -370,9 +370,9 @@ void log_printf(logLevel level, const char* format, ...) {
     case (SEPARATOR):
       {
         std::string pad = std::string(line_length, separator_char);
-        std::string prefix = std::string("[SEPARATOR]  ");
+        std::string level_prefix = std::string("[SEPARATOR]  ");
         std::stringstream ss;
-        ss << prefix << pad << "\n";
+        ss << level_prefix << pad << "\n";
         msg_string = ss.str();
         break;
       }
@@ -391,7 +391,6 @@ void log_printf(logLevel level, const char* format, ...) {
           std::string pad1 = std::string(halfpad, header_char);
           std::string pad2 = std::string(halfpad +
                            (line_length - 4 - size) % 2, header_char);
-          std::string prefix = std::string("[  HEADER ]  ");
           std::stringstream ss;
           ss << level_prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
           msg_string = ss.str();
