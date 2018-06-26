@@ -53,6 +53,7 @@ Cmfd::Cmfd() {
   _num_cmfd_groups = 0;
   _num_backup_groups = 1;
   _num_polar = 0;
+  _num_azim = 0;
 
   /* Set matrices and arrays to NULL */
   _A = NULL;
@@ -151,7 +152,7 @@ Cmfd::~Cmfd() {
     delete [] _azim_spacings;
 
   if (_polar_spacings != NULL) {
-    for (int a=0; a < _quadrature->getNumAzimAngles()/4; a++)
+    for (int a=0; a < _num_azim / 4; a++)
       delete [] _polar_spacings[a];
     delete [] _polar_spacings;
   }
@@ -244,6 +245,8 @@ Cmfd::~Cmfd() {
 
   if (_backup_cmfd != NULL)
     delete _backup_cmfd;
+
+  delete _timer;
 }
 
 
@@ -2344,6 +2347,7 @@ void Cmfd::setSourceConvergenceThreshold(double source_thresh) {
 void Cmfd::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
   _num_polar = quadrature->getNumPolarAngles();
+  _num_azim = quadrature->getNumAzimAngles();
 }
 
 
