@@ -63,7 +63,7 @@ Material::Material(int id, const char* name) {
   _volume = 0.;
   _num_instances = 0;
 
-  /* Initialize a dummy number groups */
+  /* Initialize a dummy number of energy groups */
   _num_groups = -1;
 
   _sigma_t = NULL;
@@ -406,7 +406,7 @@ int Material::getNumVectorGroups() {
 
 
 /**
- * @brief Sets the name of the Material
+ * @brief Sets the name of the Material.
  * @param name the Material name string
  */
 void Material::setName(const char* name) {
@@ -547,7 +547,7 @@ void Material::setNumEnergyGroups(const int num_groups) {
  *
  *          NOTE: This routine will override an zero-valued cross-sections
  *          (e.g., in void or gap regions) with a minimum value of 1E-10 to
- *          void numerical issues in the MOC solver.
+ *          avoid numerical issues in the MOC solver.
  *
  * @param xs the array of total cross-sections
  * @param num_groups the number of energy groups
