@@ -104,14 +104,39 @@ Cell::~Cell() {
   //  delete iter->second;
   //_surfaces.clear();
 
+  log_printf(NORMAL, "Destrr cell %s", _name);
+
   if (_name != NULL)
     delete [] _name;
   if (_region != NULL)
     delete _region;
-  if (_cell_type == MATERIAL)
-    delete (Material*)_fill;
-  else
-    delete (Universe*)_fill;
+  if (_fill != NULL) {
+    if (_cell_type == MATERIAL) {
+
+      void* copy = _fill;
+      delete (Material*)_fill;
+
+      /* Make sure we do not delete the same Material twice */
+      Cell* parent_cell = _parent;
+      std::map<int, Cell*>::iterator cell;
+
+      while (parent_cell != NULL) {
+        std::map<int, Cell*> cells = _parent->getAllCells();
+
+        /* Loop on child cells */
+        for (cell = cells.begin(); cell != cells.end(); ++cell) {
+          if (cell->second->getType() == MATERIAL and 
+              cell->second->getFillMaterial() == copy)
+            cell->second->setFill((Material*)NULL);
+        }
+
+        /* Go up one level */
+        parent_cell = _parent->getParent();
+      }
+    }
+    else
+      delete (Universe*)_fill;
+  }
 }
 
 

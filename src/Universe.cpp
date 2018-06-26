@@ -88,6 +88,8 @@ Universe::Universe(const int id, const char* name) {
  */
 Universe::~Universe() {
 
+  log_printf(NORMAL, "Destr univ %s", _name);
+
   if (_name != NULL)
     delete [] _name;
 
