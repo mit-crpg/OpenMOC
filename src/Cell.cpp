@@ -104,8 +104,6 @@ Cell::~Cell() {
   //  delete iter->second;
   //_surfaces.clear();
 
-  log_printf(NORMAL, "Destrr cell %s", _name);
-
   if (_name != NULL)
     delete [] _name;
   if (_region != NULL)

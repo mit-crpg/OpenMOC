@@ -78,6 +78,7 @@ Surface::Surface(const int id, const char* name) {
  * @brief Destructor.
  */
 Surface::~Surface() {
+
   if (_name != NULL)
     delete [] _name;
 

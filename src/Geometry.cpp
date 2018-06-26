@@ -48,6 +48,13 @@ Geometry::~Geometry() {
   for (iter = materials.begin(); iter != materials.end(); ++iter)
     delete iter->second;
 
+  /* Free all surfaces */
+  std::map<int, Surface*> surfaces = getAllSurfaces();
+  std::map<int, Surface*>::iterator iter_s;
+  for (iter_s = surfaces.begin(); iter_s != surfaces.end(); ++iter_s) {
+    delete iter_s->second;
+  }
+
   /* Free all cells and universes */
   delete _root_universe;
 
