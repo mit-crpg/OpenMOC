@@ -42,6 +42,12 @@ Geometry::Geometry() {
  */
 Geometry::~Geometry() {
 
+  /* Free all materials */
+  std::map<int, Material*> materials = _root_universe->getAllMaterials();
+  std::map<int, Material*>::iterator iter;
+  for (iter = materials.begin(); iter != materials.end(); ++iter)
+    delete iter->second;
+
   /* Free all cells and universes */
   delete _root_universe;
 

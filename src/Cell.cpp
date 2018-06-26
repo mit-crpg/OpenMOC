@@ -111,30 +111,9 @@ Cell::~Cell() {
   if (_region != NULL)
     delete _region;
   if (_fill != NULL) {
-    if (_cell_type == MATERIAL) {
-
-      void* copy = _fill;
-      delete (Material*)_fill;
-
-      /* Make sure we do not delete the same Material twice */
-      Cell* parent_cell = _parent;
-      std::map<int, Cell*>::iterator cell;
-
-      while (parent_cell != NULL) {
-        std::map<int, Cell*> cells = _parent->getAllCells();
-
-        /* Loop on child cells */
-        for (cell = cells.begin(); cell != cells.end(); ++cell) {
-          if (cell->second->getType() == MATERIAL and 
-              cell->second->getFillMaterial() == copy)
-            cell->second->setFill((Material*)NULL);
-        }
-
-        /* Go up one level */
-        parent_cell = _parent->getParent();
-      }
-    }
-    else
+    /* Materials are deleted separately from cells, since multiple cells
+      can share a same material */
+    if (_cell_type != MATERIAL)
       delete (Universe*)_fill;
   }
 }
