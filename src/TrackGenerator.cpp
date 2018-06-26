@@ -60,14 +60,7 @@ TrackGenerator::~TrackGenerator() {
     delete [] _FSR_volumes;
 
   delete _quadrature;
-
   delete _timer;
-
-  /* Delete centroids */
-  std::vector<Point*>& centroids = _geometry->getFSRsToCentroids();
-  long num_FSRs = _geometry->getNumFSRs();
-  for (long r=0; r < num_FSRs; r++)
-    delete centroids[r];
 }
 
 

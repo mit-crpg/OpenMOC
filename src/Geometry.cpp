@@ -42,7 +42,6 @@ Geometry::Geometry() {
  */
 Geometry::~Geometry() {
 
-  log_printf(NORMAL, "Geometry destructor");
   /* Free all cells and universes */
   delete _root_universe;
 
