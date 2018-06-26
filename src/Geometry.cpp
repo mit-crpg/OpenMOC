@@ -42,6 +42,10 @@ Geometry::Geometry() {
  */
 Geometry::~Geometry() {
 
+  log_printf(NORMAL, "Geometry destructor");
+  /* Free all cells and universes */
+  delete _root_universe;
+
   /* Free FSR maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {
 

@@ -91,6 +91,11 @@ Universe::~Universe() {
   if (_name != NULL)
     delete [] _name;
 
+  /* Delete all cells */
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter)
+    delete iter->second;
+
   /* Clear the map of Cells */
   _cells.clear();
 }
