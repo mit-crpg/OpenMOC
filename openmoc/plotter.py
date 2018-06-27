@@ -207,7 +207,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
     num_segments = int(track_generator.getNumSegments())
-    num_fsrs = track_generator.getGeometry().getNumTotalFSRs()
+    num_fsrs = int(track_generator.getGeometry().getNumTotalFSRs())
     coords = \
         track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
 
@@ -521,7 +521,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
 
-    num_fsrs = geometry.getNumTotalFSRs()
+    num_fsrs = int(geometry.getNumTotalFSRs())
     fsrs_to_fsrs = np.arange(num_fsrs, dtype=np.int64)
     fsrs_to_fsrs = _colorize(fsrs_to_fsrs, num_fsrs)
 
@@ -677,7 +677,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
     # Create a NumPy array to map FSRs to CMFD cells
-    num_fsrs = geometry.getNumTotalFSRs()
+    num_fsrs = int(geometry.getNumTotalFSRs())
     fsrs_to_cmfd_cells = np.zeros(num_fsrs, dtype=np.int64)
     for fsr_id in range(num_fsrs):
         fsrs_to_cmfd_cells[fsr_id] = cmfd.convertGlobalFSRIdToCmfdCell(fsr_id)
@@ -1017,7 +1017,7 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
     # Compute the volume-weighted fission rates for each FSR
     geometry = solver.getGeometry()
-    fission_rates = solver.computeFSRFissionRates(geometry.getNumTotalFSRs())
+    fission_rates = solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()))
 
     # Initialize plotting parameters
     plot_params = PlotParams()
@@ -1199,7 +1199,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     elif plot_params.domain_type == 'cell':
         num_domains = len(plot_params.geometry.getAllMaterialCells())
     else:
-        num_domains = plot_params.geometry.getNumTotalFSRs()
+        num_domains = int(plot_params.geometry.getNumTotalFSRs())
 
     if isinstance(domains_to_data, (np.ndarray, dict)):
         pandas_df = False
@@ -1551,7 +1551,7 @@ class PlotParams(object):
         self._transparent_zeros = False
         self._interpolation = None
         self._colorbar = False
-        self._cmap = plt.get_cmap('spectral')
+        self._cmap = plt.get_cmap('nipy_spectral')
         self._vmin = None
         self._vmax = None
 

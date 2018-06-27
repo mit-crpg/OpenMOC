@@ -82,7 +82,7 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 
     # Extract all of the FSR scalar fluxes
     if groups == 'all' and fsrs == 'all':
-        num_fsrs = solver.getGeometry().getNumTotalFSRs()
+        num_fsrs = int(solver.getGeometry().getNumTotalFSRs())
         num_groups = solver.getGeometry().getNumEnergyGroups()
         num_fluxes = num_groups * num_fsrs
         fluxes = solver.getFluxes(num_fluxes)
@@ -91,7 +91,7 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 
     # Build a list of FSRs to iterate over
     if fsrs == 'all':
-        num_fsrs = solver.getGeometry().getNumTotalFSRs()
+        num_fsrs = int(solver.getGeometry().getNumTotalFSRs())
         fsrs = np.arange(num_fsrs)
     else:
         num_fsrs = len(fsrs)
@@ -155,13 +155,13 @@ def compute_fission_rates(solver, use_hdf5=False):
 
     # Compute the volume-weighted fission rates for each FSR
     fsr_fission_rates = \
-        solver.computeFSRFissionRates(geometry.getNumTotalFSRs())
+        solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()))
 
     # Initialize fission rates dictionary
     fission_rates_sum = {}
 
     # Loop over FSRs and populate fission rates dictionary
-    for fsr in range(geometry.getNumTotalFSRs()):
+    for fsr in range(int(geometry.getNumTotalFSRs())):
 
         if geometry.findFSRMaterial(fsr).isFissionable():
 
@@ -341,7 +341,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     track_generator = solver.getTrackGenerator()
 
     # Retrieve useful data from the Solver, Geometry and TrackGenerator
-    num_FSRs = geometry.getNumTotalFSRs()
+    num_FSRs = int(geometry.getNumTotalFSRs())
     num_materials = geometry.getNumMaterials()
     num_groups = geometry.getNumEnergyGroups()
     zcoord = track_generator.getZCoord()
@@ -897,11 +897,11 @@ class Mesh(object):
         cv.check_value('volume', volume, ('averaged', 'integrated'))
 
         geometry = solver.getGeometry()
-        num_fsrs = geometry.getNumTotalFSRs()
+        num_fsrs = int(geometry.getNumTotalFSRs())
 
         # Compute the volume- and energy-integrated fission rates for each FSR
         fission_rates = \
-            solver.computeFSRFissionRates(geometry.getNumTotalFSRs())
+            solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()))
 
         # Initialize a 2D or 3D NumPy array in which to tally
         tally = np.zeros(tuple(self.dimension), dtype=np.float)
@@ -964,7 +964,7 @@ class Mesh(object):
         # Extract parameters from the Geometry
         geometry = solver.getGeometry()
         num_groups = geometry.getNumEnergyGroups()
-        num_fsrs = geometry.getNumTotalFSRs()
+        num_fsrs = int(geometry.getNumTotalFSRs())
 
         # Coefficients must be specified as a dict, ndarray or DataFrame
         if domain_type in ['material', 'cell']:

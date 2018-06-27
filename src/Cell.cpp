@@ -98,16 +98,16 @@ Cell::Cell(int id, const char* name) {
 Cell::~Cell() {
 
   // DUPLICATE of region deletion
-  //std::map<int, surface_halfspace*>::iterator iter;
-  //std::map<int, surface_halfspace*> _surfaces = getSurfaces();
-  //for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-  //  delete iter->second;
-  //_surfaces.clear();
+  std::map<int, surface_halfspace*>::iterator iter;
+  std::map<int, surface_halfspace*> _surfaces = getSurfaces();
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+    delete iter->second;
+  _surfaces.clear();
 
   if (_name != NULL)
     delete [] _name;
-  if (_region != NULL)
-    delete _region;
+  //if (_region != NULL)  //FIXME will be used with MGXS
+  //  delete _region;
   if (_fill != NULL) {
     /* Materials are deleted separately from cells, since multiple cells
       can share a same material */
