@@ -44,4 +44,6 @@ script:
   - cd ..
 
 after_success:
+  - cd tests
   - coveralls
+  - cd ..
