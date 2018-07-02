@@ -28,6 +28,7 @@ before_install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy h5py pandas matplotlib pillow
   - source activate test-environment
   - pip install python-coveralls
+  - pip install coverage
 
 install:
   # ================= Get C++11-compatible compiler ==================

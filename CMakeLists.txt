@@ -19,7 +19,7 @@ foreach(test ${TESTS})
 
   add_test(NAME ${TEST_NAME}
     WORKING_DIRECTORY ${TEST_PATH}
-    COMMAND ${PYTHON_EXECUTABLE} ${TEST_NAME}
+    COMMAND coverage run ${TEST_NAME}
   )
 
 endforeach(test)

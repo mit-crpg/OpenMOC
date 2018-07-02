@@ -78,7 +78,6 @@ class Test(object):
         """Run CMake to create CTest script"""
 
         cmake_cmd = ['cmake', '-H..', '-Bbuild']
-        cmake_cmd += ['-DPYTHON_EXECUTABLE=' + sys.executable]
 
         # Run CMake
         rc = subprocess.call(cmake_cmd)
@@ -127,7 +126,7 @@ def add_test(name, cc='gcc', num_threads=1, debug=False, ):
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
-#add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
 #add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
 #add_test('normal-clang', cc='clang', num_threads=1)
@@ -191,9 +190,9 @@ for key in iter(tests):
         shutil.copy(logfile[0], logfilename)
 
 # Clear build directory and remove binary and hdf5 files
-#shutil.rmtree('build', ignore_errors=True)
-#shutil.rmtree('openmoc', ignore_errors=True)
-#subprocess.call(['./cleanup'])
+shutil.rmtree('build', ignore_errors=True)
+shutil.rmtree('openmoc', ignore_errors=True)
+subprocess.call(['./cleanup'])
 
 # Print out summary of results
 print('\n' + '='*54)
