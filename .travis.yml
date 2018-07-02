@@ -25,7 +25,7 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy h5py pandas matplotlib pillow
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy h5py pandas matplotlib pillow coveralls
   - source activate test-environment
 
 install:
@@ -41,3 +41,6 @@ script:
   - cd tests
   - ./travis.sh
   - cd ..
+
+after_success:
+  - coveralls
