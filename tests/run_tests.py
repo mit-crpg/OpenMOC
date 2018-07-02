@@ -15,6 +15,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-j', '--parallel', dest='n_procs', default='1',
                   help="Number of parallel jobs.")
+parser.add_option('-v', '--verbose', action="store_true", dest="verbose",
+                  default=False, help="Make CTest verbose.")
 parser.add_option('-R', '--tests-regex', dest='regex_tests',
                   help="Run tests matching regular expression. "
                   "Test names are the directories present in tests folder. "
@@ -96,6 +98,10 @@ class Test(object):
         # Default CTest string
         ctest_cmd = ['ctest']
 
+        # Check for verbose
+        if options.verbose:
+            ctest_cmd += ['--verbose']
+
         # Check for parallel
         if options.n_procs:
             ctest_cmd += ['-j', str(options.n_procs)]
@@ -105,6 +111,7 @@ class Test(object):
             ctest_cmd += ['-R', str(options.regex_tests)]
 
         # Run CTest
+        print(ctest_cmd)
         rc = subprocess.call(ctest_cmd)
 
         # Check for error code
@@ -120,7 +127,7 @@ def add_test(name, cc='gcc', num_threads=1, debug=False, ):
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
-add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+#add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
 #add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
 #add_test('normal-clang', cc='clang', num_threads=1)
@@ -184,9 +191,9 @@ for key in iter(tests):
         shutil.copy(logfile[0], logfilename)
 
 # Clear build directory and remove binary and hdf5 files
-shutil.rmtree('build', ignore_errors=True)
-shutil.rmtree('openmoc', ignore_errors=True)
-subprocess.call(['./cleanup'])
+#shutil.rmtree('build', ignore_errors=True)
+#shutil.rmtree('openmoc', ignore_errors=True)
+#subprocess.call(['./cleanup'])
 
 # Print out summary of results
 print('\n' + '='*54)

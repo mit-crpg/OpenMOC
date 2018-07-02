@@ -16,6 +16,9 @@ import openmoc
 import openmoc.plotter
 import openmoc.process
 
+print(openmoc)
+print(openmoc.plotter)
+
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
