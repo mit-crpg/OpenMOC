@@ -42,9 +42,7 @@ install:
 script:
   - cd tests
   - ./travis.sh
-  - cd ..
 
 after_success:
-  - cd tests
   - coveralls
   - cd ..

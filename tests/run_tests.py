@@ -26,6 +26,9 @@ parser.add_option('-C', '--build-config', dest='build_config',
                         "Specific build configurations can be printed out with "
                         "optional argument -p, --print. This uses standard "
                         "regex syntax to select build configurations.")
+parser.add_option('-c', '--coverage', dest='coverage',
+                  help="Run tests with coverage.py to output Python code "
+                  "coverage.")
 parser.add_option('-l', '--list', action="store_true",
                   dest="list_build_configs", default=False,
                   help="List out build configurations.")
@@ -110,7 +113,6 @@ class Test(object):
             ctest_cmd += ['-R', str(options.regex_tests)]
 
         # Run CTest
-        print(ctest_cmd)
         rc = subprocess.call(ctest_cmd)
 
         # Check for error code
@@ -126,7 +128,7 @@ def add_test(name, cc='gcc', num_threads=1, debug=False, ):
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
-add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+#add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
 #add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
 #add_test('normal-clang', cc='clang', num_threads=1)
@@ -189,9 +191,14 @@ for key in iter(tests):
         logfilename = logfilename + '_{0}.log'.format(test.name)
         shutil.copy(logfile[0], logfilename)
 
+# Combine all coverage files
+if coverage == True:
+    os.system('coverage combine test*/.coverage')
+
 # Clear build directory and remove binary and hdf5 files
 shutil.rmtree('build', ignore_errors=True)
-shutil.rmtree('openmoc', ignore_errors=True)
+if coverage == False:
+    shutil.rmtree('openmoc', ignore_errors=True)
 subprocess.call(['./cleanup'])
 
 # Print out summary of results
