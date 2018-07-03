@@ -17,9 +17,16 @@ foreach(test ${TESTS})
   get_filename_component(TEST_NAME ${test} NAME)
   get_filename_component(TEST_PATH ${test} PATH)
 
-  add_test(NAME ${TEST_NAME}
-    WORKING_DIRECTORY ${TEST_PATH}
-    COMMAND coverage run ${TEST_NAME}
+  if(${COVERAGE})
+    add_test(NAME ${TEST_NAME}
+      WORKING_DIRECTORY ${TEST_PATH}
+      COMMAND ${PYTHON_EXECUTABLE} run --omit=${OMIT} ${TEST_NAME}
   )
+  else()
+    add_test(NAME ${TEST_NAME}
+      WORKING_DIRECTORY ${TEST_PATH}
+      COMMAND ${PYTHON_EXECUTABLE} ${TEST_NAME}
+  )
+  endif()
 
 endforeach(test)

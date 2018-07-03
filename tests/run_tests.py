@@ -15,7 +15,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-j', '--parallel', dest='n_procs', default='1',
                   help="Number of parallel jobs.")
-parser.add_option('-v', '--verbose', action="store_true", dest="verbose",
+parser.add_option('-v', '--verbose', action="store_true", dest='verbose',
                   default=False, help="Make CTest verbose.")
 parser.add_option('-R', '--tests-regex', dest='regex_tests',
                   help="Run tests matching regular expression. "
@@ -26,9 +26,9 @@ parser.add_option('-C', '--build-config', dest='build_config',
                         "Specific build configurations can be printed out with "
                         "optional argument -p, --print. This uses standard "
                         "regex syntax to select build configurations.")
-parser.add_option('-c', '--coverage', dest='coverage',
-                  help="Run tests with coverage.py to output Python code "
-                  "coverage.")
+parser.add_option('-c', '--coverage', action="store_true", dest='coverage',
+                   default=False, help="Run tests with coverage.py to output "
+                  "Python code coverage.")
 parser.add_option('-l', '--list', action="store_true",
                   dest="list_build_configs", default=False,
                   help="List out build configurations.")
@@ -82,6 +82,14 @@ class Test(object):
 
         cmake_cmd = ['cmake', '-H..', '-Bbuild']
 
+        # Run tests with coverage option or not
+        if options.coverage:
+            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + shutil.which('coverage')]
+            cmake_cmd += ['-DCOVERAGE=True']
+            cmake_cmd += ['-DOMIT=test*']
+        else:
+            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + sys.executable]
+
         # Run CMake
         rc = subprocess.call(cmake_cmd)
 
@@ -128,7 +136,7 @@ def add_test(name, cc='gcc', num_threads=1, debug=False, ):
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
-#add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
 #add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
 #add_test('normal-clang', cc='clang', num_threads=1)
@@ -192,12 +200,12 @@ for key in iter(tests):
         shutil.copy(logfile[0], logfilename)
 
 # Combine all coverage files
-if coverage == True:
+if options.coverage:
     os.system('coverage combine test*/.coverage')
 
 # Clear build directory and remove binary and hdf5 files
 shutil.rmtree('build', ignore_errors=True)
-if coverage == False:
+if not options.coverage:
     shutil.rmtree('openmoc', ignore_errors=True)
 subprocess.call(['./cleanup'])
 
