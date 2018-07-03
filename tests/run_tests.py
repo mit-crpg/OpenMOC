@@ -10,6 +10,7 @@ import glob
 import subprocess
 from collections import OrderedDict
 from optparse import OptionParser
+from distutils.spawn import find_executable
 
 # Command line parsing
 parser = OptionParser()
@@ -83,8 +84,8 @@ class Test(object):
         cmake_cmd = ['cmake', '-H..', '-Bbuild']
 
         # Run tests with coverage option or not
-        if options.coverage and sys.version_info.major >= 3:
-            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + shutil.which('coverage')]
+        if options.coverage:
+            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + find_executable('coverage')]
             cmake_cmd += ['-DCOVERAGE=True']
             cmake_cmd += ['-DOMIT=test*']
         else:
@@ -200,7 +201,7 @@ for key in iter(tests):
         shutil.copy(logfile[0], logfilename)
 
 # Combine all coverage files
-if options.coverage and sys.version_info.major >= 3:
+if options.coverage:
     os.system('coverage combine test*/.coverage')
 
 # Clear build directory and remove binary and hdf5 files
