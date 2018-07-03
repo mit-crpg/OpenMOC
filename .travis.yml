@@ -27,8 +27,8 @@ before_install:
   - conda info -a
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy h5py pandas matplotlib pillow
   - source activate test-environment
-  - pip install python-coveralls
   - pip install coverage
+  - pip install cpp-coveralls
 
 install:
   # ================= Get C++11-compatible compiler ==================
@@ -44,5 +44,10 @@ script:
   - ./travis.sh
 
 after_success:
-  - coveralls
+  - cd ..
+  - coveralls -i src -i build/temp.linux*/src/ --exclude-pattern "/usr/*" --dump cpp_cov.json
+  - cd tests
+  # Switch to Python version, which can merge
+  - pip install coveralls
+  - coveralls  --merge=../cpp_cov.json
   - cd ..
