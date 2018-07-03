@@ -64,6 +64,7 @@ class custom_install(install):
     ('with-cuda', None, "Build openmoc.cuda module for NVIDIA GPUs"),
     ('debug-mode', None, "Build with debugging symbols"),
     ('profile-mode', None, "Build with profiling symbols"),
+    ('coverage-mode', None, "Build with coverage symbols"),
     ('with-ccache', None, "Build with ccache for rapid recompilation"),
   ]
 
@@ -74,6 +75,7 @@ class custom_install(install):
   # Set some compile options to be boolean switches
   boolean_options = ['debug-mode',
                      'profile-mode',
+                     'coverage-mode',
                      'with-ccache']
 
   # Include all of the boolean options provided by distutils for the
@@ -103,6 +105,7 @@ class custom_install(install):
     self.with_cuda = False
     self.debug_mode = False
     self.profile_mode = False
+    self.coverage_mode = False
     self.with_ccache = False
 
 
@@ -125,6 +128,7 @@ class custom_install(install):
     config.with_cuda = self.with_cuda
     config.debug_mode = self.debug_mode
     config.profile_mode = self.profile_mode
+    config.coverage_mode = self.coverage_mode
     config.with_ccache = self.with_ccache
 
     # Check that the user specified a supported C++ compiler
