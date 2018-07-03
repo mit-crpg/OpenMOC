@@ -4,7 +4,7 @@ OpenMOC
 
 .. image:: https://api.travis-ci.org/mit-crpg/OpenMOC.svg?branch=develop
     :target: https://travis-ci.org/mit-crpg/OpenMOC
-.. image:: https://coveralls.io/repos/github/mit-crpg/mit-crpg/badge.svg?branch=develop
+.. image:: https://coveralls.io/repos/github/mit-crpg/OpenMOC/badge.svg?branch=develop
     :target: https://coveralls.io/github/mit-crpg/OpenMOC?branch=develop
 .. image:: https://img.shields.io/badge/powered%20by-OpenMOC-blue.svg
     :target: https://mit-crpg.github.io/OpenMOC/
