@@ -47,12 +47,14 @@ class Test(object):
     # previous Tests, if any (this helps eliminate redundant builds)
     _setup_cmd = []
 
-    def __init__(self, name, cc='gcc', num_threads=1, debug=False):
+    def __init__(self, name, cc='gcc', num_threads=1, debug=False, 
+                 coverage=False):
         self.name = name
         self.cc = cc
         self.fp = FP
         self.num_threads = num_threads
         self.debug = debug
+        self.coverage = coverage
         self.success = True
         self.msg = None
 
@@ -64,6 +66,8 @@ class Test(object):
         setup_cmd += ['--cc={0}'.format(self.cc), '--fp={0}'.format(self.fp)]
         if self.debug:
             setup_cmd += ['--debug-mode']
+        if self.coverage:
+            setup_cmd += ['--coverage-mode']
 
         # Run setup.py if it was not run for the previous Test
         if setup_cmd != Test._setup_cmd:
@@ -133,12 +137,12 @@ class Test(object):
 
 # Simple function to add a test to the global tests dictionary
 def add_test(name, cc='gcc', num_threads=1, debug=False, ):
-    tests.update({name: Test(name, cc, num_threads, debug)})
+    tests.update({name: Test(name, cc, num_threads, debug, options.coverage)})
 
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
-#add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
 #add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
 #add_test('normal-clang', cc='clang', num_threads=1)
