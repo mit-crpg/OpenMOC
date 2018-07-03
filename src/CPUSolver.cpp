@@ -200,9 +200,9 @@ void CPUSolver::initializeFluxArrays() {
   if (_start_flux != NULL)
     delete [] _start_flux;
 
-  if (_boundary_leakage != NULL){
+  if (_boundary_leakage != NULL)
     delete [] _boundary_leakage;
-}
+
   if (_scalar_flux != NULL)
     delete [] _scalar_flux;
 
@@ -1568,7 +1568,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       new_fission_source = 0.;
       old_fission_source = 0.;
       material = _FSR_materials[r];
@@ -1597,7 +1597,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       new_total_source = 0.;
       old_total_source = 0.;
       material = _FSR_materials[r];
@@ -1679,17 +1679,28 @@ double CPUSolver::computeResidual(residualType res_type) {
 void CPUSolver::computeKeff() {
 
   double* FSR_rates = _regionwise_scratch;
-  double fission[0];
+  double rates[3];
 
-  /* Compute the old nu-fission rates in each FSR */
+  int num_rates = 1;
+  if (!_keff_from_fission_rates)
+    num_rates = 2;
+
+  /* Loop over all FSRs and compute the volume-integrated total rates */
+  for (int type=0; type < num_rates; type++) {
 #pragma omp parallel for schedule(guided)
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
 
       int tid = omp_get_thread_num();
       FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
       FP_PRECISION volume = _FSR_volumes[r];
       Material* material = _FSR_materials[r];
-      FP_PRECISION* sigma = material->getNuSigmaF();
+
+      /* Get cross section for desired rate */
+      FP_PRECISION* sigma;
+      if (type == 0)
+        sigma = material->getNuSigmaF();
+      else
+        sigma = material->getSigmaA();
 
       for (int e=0; e < _num_groups; e++)
         group_rates[e] = sigma[e] * _scalar_flux(r,e);
@@ -1698,8 +1709,13 @@ void CPUSolver::computeKeff() {
       FSR_rates[r] *= volume;
     }
 
-  /* Reduce new fission rates across FSRs */
-  fission[0] = pairwise_sum<double>(FSR_rates, _num_FSRs);
+    /* Reduce new fission rates across FSRs */
+    rates[type] = pairwise_sum<double>(FSR_rates, _num_FSRs);
+  }
+
+  /* Compute total leakage rate */
+  if (!_keff_from_fission_rates)
+    rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
 
 #ifdef MPIx
   /* Reduce rates across domians */
@@ -1709,15 +1725,18 @@ void CPUSolver::computeKeff() {
     MPI_Comm comm = _geometry->getMPICart();
 
     /* Copy local rates */
-    double local_rate[0];
-    local_rate[0] = fission[0];
-
-    /* Reduce computed rates */
-    MPI_Allreduce(local_rate, fission, 1, MPI_DOUBLE, MPI_SUM, comm);
+    double local_rates[num_rates];
+    for (int i=0; i < num_rates; i++)
+      local_rates[i] = rates[i];
+ 
+     /* Reduce computed rates */
+    MPI_Allreduce(local_rates, rates, num_rates, MPI_DOUBLE, MPI_SUM, comm);
   }
 #endif
-
-  _k_eff *= fission[0] / _num_FSRs;
+  if (!_keff_from_fission_rates)
+    _k_eff *= rates[0] / (rates[1] + rates[2]);
+  else
+    _k_eff *= rates[0] / _num_FSRs;
 }
 
 
@@ -2185,7 +2204,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
     int rank = 0;
     MPI_Comm comm = _geometry->getMPICart();
     MPI_Comm_rank(comm, &rank);
-    for (int r=0; r < num_total_FSRs; r++) {
+    for (long r=0; r < num_total_FSRs; r++) {
 
       /* Determine the domain and local FSR ID */
       long fsr_id = r;
@@ -2243,7 +2262,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
   std::vector<int> domain_contains_coords(fsr_ids.size());
   std::vector<int> num_contains_coords(fsr_ids.size());
 #pragma omp parallel for
-  for (int r=0; r < fsr_ids.size(); r++) {
+  for (long r=0; r < fsr_ids.size(); r++) {
     if (fsr_ids.at(r) != -1)
       domain_contains_coords.at(r) = 1;
     else
@@ -2265,7 +2284,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
     std::vector<FP_PRECISION> total_fluxes(fsr_ids.size());
 
 #pragma omp parallel for
-    for (int r=0; r < fsr_ids.size(); r++) {
+    for (long r=0; r < fsr_ids.size(); r++) {
       if (domain_contains_coords.at(r) != 0)
         domain_fluxes.at(r) = getFlux(fsr_ids.at(r), e+1);
     }

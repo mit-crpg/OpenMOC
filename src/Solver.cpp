@@ -25,6 +25,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _chi_spectrum_material = NULL;
 
   _k_eff = 1.;
+  _keff_from_fission_rates = true;
 
   _track_generator = NULL;
   _geometry = NULL;

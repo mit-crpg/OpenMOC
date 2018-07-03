@@ -34,6 +34,7 @@ Geometry::Geometry() {
   _domain_FSRs_counted = false;
   _contains_FSR_centroids = false;
   _twiddle = false;
+  _loaded_from_file = false;
 }
 
 
@@ -49,14 +50,17 @@ Geometry::~Geometry() {
     delete iter->second;
 
   /* Free all surfaces */
-  std::map<int, Surface*> surfaces = getAllSurfaces();
-  std::map<int, Surface*>::iterator iter_s;
-  for (iter_s = surfaces.begin(); iter_s != surfaces.end(); ++iter_s) {
-    delete iter_s->second;
+  if (_loaded_from_file) {
+    std::map<int, Surface*> surfaces = getAllSurfaces();
+    std::map<int, Surface*>::iterator iter_s;
+    for (iter_s = surfaces.begin(); iter_s != surfaces.end(); ++iter_s) {
+      delete iter_s->second;
+    }
   }
 
   /* Free all cells and universes */
-  delete _root_universe;
+  if (_loaded_from_file)
+    delete _root_universe;
 
   /* Free FSR maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {
@@ -3700,6 +3704,7 @@ void Geometry::dumpToFile(std::string filename) {
 void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
   _twiddle = twiddle;
+  _loaded_from_file = true;
 
   FILE* in;
   in = fopen(filename.c_str(), "r");

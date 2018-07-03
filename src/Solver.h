@@ -265,6 +265,9 @@ protected:
   /** The current iteration's approximation to k-effective */
   double _k_eff;
 
+  /** How to compute the k-effective when not using CMFD */
+  bool _keff_from_fission_rates;
+
   /** The number of source iterations needed to reach convergence */
   int _num_iterations;
 
