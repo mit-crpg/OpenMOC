@@ -239,7 +239,8 @@ void CPUSolver::initializeFluxArrays() {
     memset(_start_flux, 0., size * sizeof(float));
 
     /* Allocate memory for boundary leakage if necessary. CMFD is not set in
-       solver at this point */
+       solver at this point, so the value of _cmfd is always NULL as initial
+       value currently*/
     if (_geometry->getCmfd() == NULL) {
       _boundary_leakage = new float[_tot_num_tracks];
       memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
@@ -1436,7 +1437,7 @@ double CPUSolver::normalizeFluxes() {
   }
 
   /* Normalize angular boundary fluxes for each Track */
-#pragma omp parallel for schedule(guided) //FIXME
+#pragma omp parallel for schedule(guided)
   for (long idx=0; idx < 2 * _tot_num_tracks * _fluxes_per_track; idx++) {
     _start_flux[idx] *= norm_factor;
     _boundary_flux[idx] *= norm_factor;
@@ -1714,8 +1715,10 @@ void CPUSolver::computeKeff() {
   }
 
   /* Compute total leakage rate */
-  if (!_keff_from_fission_rates)
+  if (!_keff_from_fission_rates){
     rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
+    num_rates=3;
+  }
 
 #ifdef MPIx
   /* Reduce rates across domians */
@@ -1734,6 +1737,7 @@ void CPUSolver::computeKeff() {
   }
 #endif
   if (!_keff_from_fission_rates)
+    /* Compute k-eff from fission, absorption, and leakage rates */
     _k_eff *= rates[0] / (rates[1] + rates[2]);
   else
     _k_eff *= rates[0] / _num_FSRs;
