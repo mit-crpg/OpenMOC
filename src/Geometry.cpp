@@ -3941,7 +3941,7 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
       cell_parent[key] = parent_id;
     }
 
-    /* Print bounding surfaces */
+    /* Read bounding surfaces */
     int num_cell_surfaces;
     ret = twiddleRead(&num_cell_surfaces, sizeof(int), 1, in);
     for (int s=0; s < num_cell_surfaces; s++) {

@@ -1715,7 +1715,7 @@ void CPUSolver::computeKeff() {
   }
 
   /* Compute total leakage rate */
-  if (!_keff_from_fission_rates){
+  if (!_keff_from_fission_rates) {
     rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
     num_rates=3;
   }

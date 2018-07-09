@@ -99,7 +99,6 @@ Cell::~Cell() {
 
   // DUPLICATE of region deletion
   std::map<int, surface_halfspace*>::iterator iter;
-  std::map<int, surface_halfspace*> _surfaces = getSurfaces();
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
     delete iter->second;
   _surfaces.clear();
