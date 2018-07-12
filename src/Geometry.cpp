@@ -58,9 +58,23 @@ Geometry::~Geometry() {
     }
   }
 
-  /* Free all cells and universes */
-  if (_loaded_from_file)
-    delete _root_universe;
+  /* Free all cells */
+  if (_loaded_from_file) {
+    std::map<int, Cell*> cells = getAllCells();
+    std::map<int, Cell*>::iterator iter_c;
+    for (iter_c = cells.begin(); iter_c != cells.end(); ++iter_c) {
+      delete iter_c->second;
+    }
+  }
+
+  /* Free all universes */
+  if (_loaded_from_file) {
+    std::map<int, Universe*> universes = getAllUniverses();
+    std::map<int, Universe*>::iterator iter_u;
+    for (iter_u = universes.begin(); iter_u != universes.end(); ++iter_u) {
+      delete iter_u->second;
+    }
+  }
 
   /* Free FSR maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {

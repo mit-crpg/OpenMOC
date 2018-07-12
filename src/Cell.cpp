@@ -107,12 +107,10 @@ Cell::~Cell() {
     delete [] _name;
   //if (_region != NULL)  //FIXME will be used with MGXS
   //  delete _region;
-  if (_fill != NULL) {
-    /* Materials are deleted separately from cells, since multiple cells
+  /* Materials are deleted separately from cells, since multiple cells
       can share a same material */
-    if (_cell_type != MATERIAL)
-      delete (Universe*)_fill;
-  }
+  /* Universes are also deleted separately, since Universes can have been
+     defined in your input scripts, rather than loaded from a Geometry file */
 }
 
 
