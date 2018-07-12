@@ -88,16 +88,6 @@ class ComputeFluxTestHarness(TestHarness):
         track_generator = self.track_generator
         solver=self.solver
 
-        import openmoc.plotter as plotter
-        #plotter.plot_quadrature(solver)
-        #plotter.plot_tracks(track_generator)
-        #plotter.plot_segments(track_generator)
-        #plotter.plot_materials(geometry, gridsize=500)
-        #plotter.plot_cells(geometry, gridsize=500)
-        #plotter.plot_flat_source_regions(geometry, gridsize=500)
-        #import time
-        #time.sleep(1000)
-
 
 if __name__ == '__main__':
     harness = ComputeFluxTestHarness()

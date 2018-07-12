@@ -531,7 +531,7 @@ void log_printf(logLevel level, const char* format, ...) {
       omp_unset_lock(&log_error_lock);
     }
     else {
-      std::cout << msg_string;
+      printf("%s", &msg_string[0]);
       fflush(stdout);
     }
   }
