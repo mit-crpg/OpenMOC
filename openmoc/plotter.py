@@ -95,7 +95,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -114,9 +114,9 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
 
     # Convert data to NumPy arrays
     coords = np.array(coords)
-    x = coords[0::vals_per_track/2]
-    y = coords[1::vals_per_track/2]
-    z = coords[2::vals_per_track/2]
+    x = coords[0::vals_per_track//2]
+    y = coords[1::vals_per_track//2]
+    z = coords[2::vals_per_track//2]
 
     # Make figure of line segments for each Track
     fig = plt.figure()
@@ -192,7 +192,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -207,7 +207,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
     num_segments = int(track_generator.getNumSegments())
-    num_fsrs = track_generator.getGeometry().getNumTotalFSRs()
+    num_fsrs = int(track_generator.getGeometry().getNumTotalFSRs())
     coords = \
         track_generator.retrieveSegmentCoords(num_segments*vals_per_segment)
 
@@ -243,7 +243,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
         for i in range(num_segments):
             cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
             scalarMap = cmx.ScalarMappable(norm=cNorm)
-            color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+            color = scalarMap.to_rgba(color_map[int(fsrs[i]) % num_fsrs])
             plt.plot(x[i*2:(i+1)*2], y[i*2:(i+1)*2], z[i*2:(i+1)*2],  c=color)
         if z.min() != z.max():
           ax.set_zlim(z.min(), z.max())
@@ -251,7 +251,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
         for i in range(num_segments):
             cNorm  = colors.Normalize(vmin=0, vmax=max(color_map))
             scalarMap = cmx.ScalarMappable(norm=cNorm)
-            color = scalarMap.to_rgba(color_map[fsrs[i] % num_fsrs])
+            color = scalarMap.to_rgba(color_map[int(fsrs[i]) % num_fsrs])
             plt.plot(x[i*2:(i+1)*2], y[i*2:(i+1)*2], c=color)
 
     plt.xlim([x.min(), x.max()])
@@ -521,7 +521,7 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
 
-    num_fsrs = geometry.getNumTotalFSRs()
+    num_fsrs = int(geometry.getNumTotalFSRs())
     fsrs_to_fsrs = np.arange(num_fsrs, dtype=np.int64)
     fsrs_to_fsrs = _colorize(fsrs_to_fsrs, num_fsrs)
 
@@ -677,7 +677,7 @@ def plot_cmfd_cells(geometry, cmfd, gridsize=250, xlim=None, ylim=None,
     py_printf('NORMAL', 'Plotting the CMFD cells...')
 
     # Create a NumPy array to map FSRs to CMFD cells
-    num_fsrs = geometry.getNumTotalFSRs()
+    num_fsrs = int(geometry.getNumTotalFSRs())
     fsrs_to_cmfd_cells = np.zeros(num_fsrs, dtype=np.int64)
     for fsr_id in range(num_fsrs):
         fsrs_to_cmfd_cells[fsr_id] = cmfd.convertGlobalFSRIdToCmfdCell(fsr_id)
@@ -886,7 +886,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -1017,7 +1017,7 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
     # Compute the volume-weighted fission rates for each FSR
     geometry = solver.getGeometry()
-    fission_rates = solver.computeFSRFissionRates(geometry.getNumTotalFSRs())
+    fission_rates = solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()))
 
     # Initialize plotting parameters
     plot_params = PlotParams()
@@ -1199,7 +1199,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
     elif plot_params.domain_type == 'cell':
         num_domains = len(plot_params.geometry.getAllMaterialCells())
     else:
-        num_domains = plot_params.geometry.getNumTotalFSRs()
+        num_domains = int(plot_params.geometry.getNumTotalFSRs())
 
     if isinstance(domains_to_data, (np.ndarray, dict)):
         pandas_df = False
@@ -1306,7 +1306,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
 
             # Ensure that normal settings are used even if called from ipython
             curr_rc = dict(matplotlib.rcParams)
-            matplotlib.rcParams.update(matplotlib_rcparams)
+            matplotlib.rcParams.update(curr_rc)
 
             fig = plt.figure()
             fig.patch.set_facecolor('none')
@@ -1388,7 +1388,7 @@ def plot_quadrature(solver, get_figure=False):
 
     # Ensure that normal settings are used even if called from ipython
     curr_rc = dict(matplotlib.rcParams)
-    matplotlib.rcParams.update(matplotlib_rcparams)
+    matplotlib.rcParams.update(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -1402,7 +1402,7 @@ def plot_quadrature(solver, get_figure=False):
     num_azim = track_generator.getNumAzim()
     azim_spacing = track_generator.getDesiredAzimSpacing()
     num_polar_2 = int(quad.getNumPolarAngles() / 2)
-    phis = np.zeros(num_azim/4)
+    phis = np.zeros(num_azim//4)
     thetas = np.zeros(num_polar_2)
 
     # Get the polar angles
@@ -1551,7 +1551,7 @@ class PlotParams(object):
         self._transparent_zeros = False
         self._interpolation = None
         self._colorbar = False
-        self._cmap = plt.get_cmap('spectral')
+        self._cmap = plt.get_cmap('nipy_spectral')
         self._vmin = None
         self._vmax = None
 

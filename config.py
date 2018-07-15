@@ -65,6 +65,9 @@ class configuration:
   # Compile code with debug symbols (ie, -g)
   debug_mode = False
 
+  # Compile code with address sanitizer
+  sanitizer_mode = False
+
   # Compile code with debug symbols (ie, -g, -pg)
   profile_mode = False
 
@@ -381,6 +384,12 @@ class configuration:
     if self.debug_mode:
       for k in self.compiler_flags:
         self.compiler_flags[k].append('-g')
+
+    # If the user wishes to compile using the address sanitizer, append
+    # flag to all lists of compiler flags for all distribution types
+    if self.sanitizer_mode:
+      for k in self.compiler_flags:
+        self.compiler_flags[k].append('-fsanitize=address')
 
     # If the user wishes to compile using profile mode, append the profiling
     # flag to all lists of compiler flags for all distribution types

@@ -1,9 +1,12 @@
 #include "LocalCoords.h"
 
 /**
- * @brief Constructor sets the x and y coordinates.
+ * @brief Constructor sets the x, y and z coordinates and position as a coord.
  * @param x the x-coordinate
  * @param y the y-coordinate
+ * @param z the z-coordinate
+ * @param first whether the LocalCoords is the first one, that will contain an
+ *        array to all the next LocalCoords
  */
 LocalCoords::LocalCoords(double x, double y, double z, bool first) {
   _coords.setCoords(x, y, z);
@@ -147,10 +150,20 @@ LocalCoords* LocalCoords::getNext() const {
 }
 
 
-//FIXME
+/**
+ * @brief Creates and returns a pointer to the next LocalCoords (nested 
+ *        deeper)
+ * @param x the x-coordinate
+ * @param y the y-coordinate
+ * @param z the z-coordinate
+ * @return pointer to the next LocalCoords that was just created
+ */
 LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
   if (_next == NULL) {
+
+    /* If more LocalCoords than the array size defined in constants.h, 
+    create a new one */
     if (_position + 1 >= _array_size) {
       _next = new LocalCoords(x, y, z, true);
       _next->setPrev(this);
@@ -184,7 +197,7 @@ int LocalCoords::getPosition() {
 /**
  * @brief Searches through the LocalCoords object to detect a loop
  * @details A loop is assumed if the LocalCoords apparent length is greater
- *          1000 memebers
+ *          1000 members
  */
 void LocalCoords::detectLoop() {
   int n = 0;
@@ -332,7 +345,14 @@ void LocalCoords::setPrev(LocalCoords* prev) {
 }
 
 
-//FIXME
+/**
+ * @brief Sets the position of this LocalCoords in the array of LocalCoords,
+ *        the pointer to this array (next LocalCoords for this) is also
+ *        transfered
+ * @param array pointer to the array of next LocalCoords
+ * @param position index of this LocalCoords in said array
+ * @param array_size size of the array
+ */
 void LocalCoords::setArrayPosition(LocalCoords* array, int position,
                                    int array_size) {
   _next_array = array;
@@ -549,7 +569,6 @@ std::string LocalCoords::toString() {
     int cell_id = -1;
     if (curr->getCell() != NULL)
       cell_id = curr->getCell()->getId();
-    
     
     if (curr->getType() == UNIV) {
       string << " UNIVERSE, x = " << curr->getX()

@@ -238,8 +238,10 @@ void CPUSolver::initializeFluxArrays() {
     memset(_boundary_flux, 0., size * sizeof(float));
     memset(_start_flux, 0., size * sizeof(float));
 
-    /* Allocate memory for boundary leakage if necessary */
-    if (_cmfd == NULL) {
+    /* Allocate memory for boundary leakage if necessary. CMFD is not set in
+       solver at this point, so the value of _cmfd is always NULL as initial
+       value currently*/
+    if (_geometry->getCmfd() == NULL) {
       _boundary_leakage = new float[_tot_num_tracks];
       memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
     }
@@ -1435,7 +1437,7 @@ double CPUSolver::normalizeFluxes() {
   }
 
   /* Normalize angular boundary fluxes for each Track */
-// FIXME #pragma omp parallel for
+#pragma omp parallel for schedule(guided)
   for (long idx=0; idx < 2 * _tot_num_tracks * _fluxes_per_track; idx++) {
     _start_flux[idx] *= norm_factor;
     _boundary_flux[idx] *= norm_factor;
@@ -1567,7 +1569,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       new_fission_source = 0.;
       old_fission_source = 0.;
       material = _FSR_materials[r];
@@ -1596,7 +1598,7 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
-    for (int r=0; r < _num_FSRs; r++) {
+    for (long r=0; r < _num_FSRs; r++) {
       new_total_source = 0.;
       old_total_source = 0.;
       material = _FSR_materials[r];
@@ -1680,8 +1682,12 @@ void CPUSolver::computeKeff() {
   double* FSR_rates = _regionwise_scratch;
   double rates[3];
 
+  int num_rates = 1;
+  if (!_keff_from_fission_rates)
+    num_rates = 2;
+
   /* Loop over all FSRs and compute the volume-integrated total rates */
-  for (int type=0; type < 2; type++) {
+  for (int type=0; type < num_rates; type++) {
 #pragma omp parallel for schedule(guided)
     for (long r=0; r < _num_FSRs; r++) {
 
@@ -1689,6 +1695,8 @@ void CPUSolver::computeKeff() {
       FP_PRECISION* group_rates = _groupwise_scratch.at(tid);
       FP_PRECISION volume = _FSR_volumes[r];
       Material* material = _FSR_materials[r];
+
+      /* Get cross section for desired rate */
       FP_PRECISION* sigma;
       if (type == 0)
         sigma = material->getNuSigmaF();
@@ -1707,7 +1715,10 @@ void CPUSolver::computeKeff() {
   }
 
   /* Compute total leakage rate */
-  rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
+  if (!_keff_from_fission_rates) {
+    rates[2] = pairwise_sum<float>(_boundary_leakage, _tot_num_tracks);
+    num_rates=3;
+  }
 
 #ifdef MPIx
   /* Reduce rates across domians */
@@ -1717,20 +1728,19 @@ void CPUSolver::computeKeff() {
     MPI_Comm comm = _geometry->getMPICart();
 
     /* Copy local rates */
-    double local_rates[3];
-    for (int i=0; i < 3; i++)
+    double local_rates[num_rates];
+    for (int i=0; i < num_rates; i++)
       local_rates[i] = rates[i];
-
-    /* Reduce computed rates */
-    MPI_Allreduce(local_rates, rates, 3, MPI_DOUBLE, MPI_SUM, comm);
+ 
+     /* Reduce computed rates */
+    MPI_Allreduce(local_rates, rates, num_rates, MPI_DOUBLE, MPI_SUM, comm);
   }
 #endif
-
-  /* Compute k-eff from fission, absorption, and leakage rates */
-  double fission = rates[0];
-  double absorption = rates[1];
-  double leakage = rates[2];
-  _k_eff = fission / (absorption + leakage);
+  if (!_keff_from_fission_rates)
+    /* Compute k-eff from fission, absorption, and leakage rates */
+    _k_eff *= rates[0] / (rates[1] + rates[2]);
+  else
+    _k_eff *= rates[0] / _num_FSRs;
 }
 
 
@@ -1761,7 +1771,8 @@ void CPUSolver::transportSweep() {
       tallyStartingCurrents();
 
   /* Zero boundary leakage tally */
-  memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
+  if (_cmfd == NULL)
+    memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
@@ -1963,7 +1974,7 @@ void CPUSolver::addSourceToScalarFlux() {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
-      if (_scalar_flux(r, e) <= 0.0) {
+      if (_scalar_flux(r, e) < 0.0) {
         _scalar_flux(r, e) = 1.0e-20;
 #pragma omp atomic
         num_negative_fluxes++;
@@ -2197,7 +2208,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
     int rank = 0;
     MPI_Comm comm = _geometry->getMPICart();
     MPI_Comm_rank(comm, &rank);
-    for (int r=0; r < num_total_FSRs; r++) {
+    for (long r=0; r < num_total_FSRs; r++) {
 
       /* Determine the domain and local FSR ID */
       long fsr_id = r;
@@ -2255,7 +2266,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
   std::vector<int> domain_contains_coords(fsr_ids.size());
   std::vector<int> num_contains_coords(fsr_ids.size());
 #pragma omp parallel for
-  for (int r=0; r < fsr_ids.size(); r++) {
+  for (long r=0; r < fsr_ids.size(); r++) {
     if (fsr_ids.at(r) != -1)
       domain_contains_coords.at(r) = 1;
     else
@@ -2277,7 +2288,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
     std::vector<FP_PRECISION> total_fluxes(fsr_ids.size());
 
 #pragma omp parallel for
-    for (int r=0; r < fsr_ids.size(); r++) {
+    for (long r=0; r < fsr_ids.size(); r++) {
       if (domain_contains_coords.at(r) != 0)
         domain_fluxes.at(r) = getFlux(fsr_ids.at(r), e+1);
     }
@@ -2384,7 +2395,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
 
     /* Determine the number of negative sources */
     for (int e=0; e < _num_groups; e++) {
-      if (_reduced_sources(r,e) <= 0.0) {
+      if (_reduced_sources(r,e) < 0.0) {
         by_group[e]++;
         mapping[lat_cell]++;
       }

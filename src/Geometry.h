@@ -181,6 +181,7 @@ private:
   int _num_modules_z;
 
   bool _twiddle;
+  bool _loaded_from_file;
 
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);

@@ -34,6 +34,7 @@ Geometry::Geometry() {
   _domain_FSRs_counted = false;
   _contains_FSR_centroids = false;
   _twiddle = false;
+  _loaded_from_file = false;
 }
 
 
@@ -41,6 +42,39 @@ Geometry::Geometry() {
  * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
+
+  /* Free all materials */
+  std::map<int, Material*> materials = _root_universe->getAllMaterials();
+  std::map<int, Material*>::iterator iter;
+  for (iter = materials.begin(); iter != materials.end(); ++iter)
+    delete iter->second;
+
+  /* Free all surfaces */
+  if (_loaded_from_file) {
+    std::map<int, Surface*> surfaces = getAllSurfaces();
+    std::map<int, Surface*>::iterator iter_s;
+    for (iter_s = surfaces.begin(); iter_s != surfaces.end(); ++iter_s) {
+      delete iter_s->second;
+    }
+  }
+
+  /* Free all cells */
+  if (_loaded_from_file) {
+    std::map<int, Cell*> cells = getAllCells();
+    std::map<int, Cell*>::iterator iter_c;
+    for (iter_c = cells.begin(); iter_c != cells.end(); ++iter_c) {
+      delete iter_c->second;
+    }
+  }
+
+  /* Free all universes */
+  if (_loaded_from_file) {
+    std::map<int, Universe*> universes = getAllUniverses();
+    std::map<int, Universe*>::iterator iter_u;
+    for (iter_u = universes.begin(); iter_u != universes.end(); ++iter_u) {
+      delete iter_u->second;
+    }
+  }
 
   /* Free FSR maps if they were initialized */
   if (_FSR_keys_map.size() != 0) {
@@ -56,6 +90,7 @@ Geometry::~Geometry() {
         delete [] extruded_fsrs[i]->_mesh;
       delete [] extruded_fsrs[i]->_fsr_ids;
       delete [] extruded_fsrs[i]->_materials;
+      delete extruded_fsrs[i]->_coords;
       delete extruded_fsrs[i];
     }
     delete [] extruded_fsrs;
@@ -1547,7 +1582,7 @@ void Geometry::getFSRKeyFast(LocalCoords* coords, std::string& key) {
 //TODO: description
 int Geometry::getNumDigits(int number) {
   if (number < 0)
-    log_printf(ERROR, "Trying to ge the digits of negative number %d", number);
+    log_printf(ERROR, "Trying to get the digits of negative number %d", number);
   int ref = 10;
   int num_digits = 1;
   while (number >= ref) {
@@ -1699,7 +1734,7 @@ void Geometry::subdivideCells() {
   /* This is used as the maximum radius for all ringified Cells */
   double width_x = _root_universe->getMaxX() - _root_universe->getMinX();
   double width_y = _root_universe->getMaxY() - _root_universe->getMinY();
-  double max_radius = sqrt(width_x * width_y / M_PI);
+  double max_radius = sqrt(width_x * width_x + width_y * width_y) / 2;
 
   /* Recursively subdivide Cells into rings and sectors */
   _root_universe->subdivideCells(max_radius);
@@ -1716,6 +1751,8 @@ void Geometry::subdivideCells() {
  */
 void Geometry::initializeFlatSourceRegions() {
 
+  log_printf(NORMAL, "Initializing flat source regions...");
+    
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
@@ -1765,8 +1802,8 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0, z0);
-  LocalCoords end(x0, y0, z0);
+  LocalCoords start(x0, y0, z0, true);
+  LocalCoords end(x0, y0, z0, true);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
 
@@ -1912,8 +1949,8 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
   int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
-  LocalCoords start(x0, y0, z0);
-  LocalCoords end(x0, y0, z0);
+  LocalCoords start(x0, y0, z0, true);
+  LocalCoords end(x0, y0, z0, true);
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
 
@@ -3681,6 +3718,7 @@ void Geometry::dumpToFile(std::string filename) {
 void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
   _twiddle = twiddle;
+  _loaded_from_file = true;
 
   FILE* in;
   in = fopen(filename.c_str(), "r");
@@ -3917,7 +3955,7 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
       cell_parent[key] = parent_id;
     }
 
-    /* Print bounding surfaces */
+    /* Read bounding surfaces */
     int num_cell_surfaces;
     ret = twiddleRead(&num_cell_surfaces, sizeof(int), 1, in);
     for (int s=0; s < num_cell_surfaces; s++) {

@@ -119,7 +119,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     residual = computeRMSE(&new_source, &old_source, true, iter, comm);
     if (iter == 0) {
       initial_residual = residual;
-      if (residual == 0.0)
+      if (initial_residual < 1e-14)
         initial_residual = 1e-10;
       if (convergence_data != NULL) {
         convergence_data->cmfd_res_1 = residual;
@@ -311,7 +311,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     // Check for going off the rails
     int raised = fetestexcept (FE_INVALID);
     if ((residual > 1e3 * min_residual && min_residual > 1e-10) || raised) {
-      log_printf(NORMAL, "WARNING: linear solve divergent.");
+      log_printf(WARNING, "linear solve divergent : res %f", residual);
       if (convergence_data != NULL)
         convergence_data->linear_iters_end = iter;
       return false;
@@ -588,7 +588,6 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
     }
     sum_residuals = residual.getSum();
     norm = num_x * num_y * num_z;
-
   }
   else {
 
@@ -923,8 +922,11 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
     // Compute the residual
     residual = computeRMSE(&new_source, &old_source, true, 1, comm);
-    if (iter == 0)
+    if (iter == 0){
       initial_residual = residual;
+      if (initial_residual < 1e-14)
+        initial_residual = 1e-10;
+    }
 
     // Record current minimum residual
     if (residual < min_residual)

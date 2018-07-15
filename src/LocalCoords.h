@@ -40,6 +40,8 @@ enum coordType {
  * @class LocalCoords LocalCoords.h "openmoc/src/host/LocalCoords.h"
  * @brief The LocalCoords represents a set of local coordinates on some
  *        level of nested Universes making up the geometry.
+ *        _next and _prev allow for use of LocalCoords as a linked list
+ *        but _next_array can also be used to access coordinates.
  */
 class LocalCoords {
 
@@ -77,9 +79,13 @@ private:
   /** A pointer to the LocalCoords at the next higher nested Universe level */
   LocalCoords* _prev;
 
-  /** FIXME */
-  int _position;
+  /** An array that contains pointers to all the next LocalCoords */
   LocalCoords* _next_array;
+
+  /** Position in the _next_array of coordinates */
+  int _position;
+
+  /** Size of the _next_array of coordinates */
   int _array_size;
 
   /** An integer to differentiate otherwise matching coordinate FSR keys */

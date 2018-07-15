@@ -19,7 +19,7 @@
 
 /**
  * @class Point Point.h "src/Point.h"
- * @brief Class to represent a 2D point in space.
+ * @brief Class to represent a 2D/3D point in space.
  */
 class Point {
 
@@ -122,7 +122,11 @@ inline void Point::setZ(const double z) {
   _xyz[2] = z;
 }
 
-//FIXME
+
+/**
+ * @brief Set the Point's x, y and z-coordinates
+ * @param xyz array with the three coordinates
+ */
 inline void Point::setXYZ(double* xyz) {
   _xyz[0] = xyz[0];
   _xyz[1] = xyz[1];
@@ -157,7 +161,10 @@ inline double Point::distanceToPoint(const Point* point) {
 }
 
 
-//FIXME
+/**
+ * @brief Copy the coordinates from another point
+ * @param point a pointer to the Point that has the coordinates of interest
+ */
 inline void Point::copyCoords(Point* point) {
   _xyz[0] = point->getX();
   _xyz[1] = point->getY();

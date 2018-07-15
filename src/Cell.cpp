@@ -97,6 +97,7 @@ Cell::Cell(int id, const char* name) {
  */
 Cell::~Cell() {
 
+  // DUPLICATE of region deletion
   std::map<int, surface_halfspace*>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
     delete iter->second;
@@ -104,6 +105,12 @@ Cell::~Cell() {
 
   if (_name != NULL)
     delete [] _name;
+  //if (_region != NULL)  //FIXME will be used with MGXS
+  //  delete _region;
+  /* Materials are deleted separately from cells, since multiple cells
+      can share a same material */
+  /* Universes are also deleted separately, since Universes can have been
+     defined in your input scripts, rather than loaded from a Geometry file */
 }
 
 
@@ -1356,12 +1363,13 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
 
   /* If there is no outer bounding surface, make the rings have the same
    * radius increment (e.g. moderator in a pin cell universe). */
-  if (halfspace1 == 0)
+  if (halfspace1 == 0){
     increment = fabs(radius1 - radius2) / _num_rings;
   
-  /* Heuristic to improve area-balancing for low number of rings */
-  if (halfspace1 == 0 && radius1 == max_radius && _num_rings < 3)
-    increment = 1.5 * (radius1 - radius2) / _num_rings;
+    /* Heuristic to improve area-balancing for low number of rings */
+    if (halfspace1 == 0 && radius1 == max_radius && _num_rings < 3)
+      increment = 1.5 * (radius1 - radius2) / _num_rings;
+  }
 
   /* If there is an outer bounding surface, make the rings have the same
    * area (e.g. fuel in a pin cell universe).*/

@@ -63,6 +63,7 @@ class custom_install(install):
                   "main openmoc module"),
     ('with-cuda', None, "Build openmoc.cuda module for NVIDIA GPUs"),
     ('debug-mode', None, "Build with debugging symbols"),
+    ('sanitizer-mode', None, "Build with address sanitizer"),
     ('profile-mode', None, "Build with profiling symbols"),
     ('with-ccache', None, "Build with ccache for rapid recompilation"),
   ]
@@ -73,6 +74,7 @@ class custom_install(install):
 
   # Set some compile options to be boolean switches
   boolean_options = ['debug-mode',
+                     'sanitizer-mode',
                      'profile-mode',
                      'with-ccache']
 
@@ -103,6 +105,7 @@ class custom_install(install):
     # Set defaults for each of the newly defined compile time options
     self.with_cuda = False
     self.debug_mode = False
+    self.sanitizer_mode = False
     self.profile_mode = False
     self.with_ccache = False
 
@@ -125,6 +128,7 @@ class custom_install(install):
     # unless the corresponding flag was invoked by the user
     config.with_cuda = self.with_cuda
     config.debug_mode = self.debug_mode
+    config.sanitizer_mode = self.sanitizer_mode
     config.profile_mode = self.profile_mode
     config.with_ccache = self.with_ccache
 

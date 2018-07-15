@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   int num_azim = 4;
   double polar_spacing = 0.5;
   int num_polar = 2;
-  double tolerance = 1e-12;
+  double tolerance = 1e-5;
   int max_iters = 1000;
 
   int fuel_rings = 1;

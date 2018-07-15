@@ -15,6 +15,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-j', '--parallel', dest='n_procs', default='1',
                   help="Number of parallel jobs.")
+parser.add_option('-v', '--verbose', action="store_true", dest="verbose",
+                  default=False, help="Make CTest verbose.")
 parser.add_option('-R', '--tests-regex', dest='regex_tests',
                   help="Run tests matching regular expression. "
                   "Test names are the directories present in tests folder. "
@@ -95,6 +97,10 @@ class Test(object):
 
         # Default CTest string
         ctest_cmd = ['ctest']
+
+        # Check for verbose
+        if options.verbose:
+            ctest_cmd += ['--verbose']
 
         # Check for parallel
         if options.n_procs:

@@ -91,7 +91,8 @@ Universe::~Universe() {
   if (_name != NULL)
     delete [] _name;
 
-  /* Clear the map of Cells */
+  /* Clear the map of Cells, cells are deallocated either with the Geometry
+     or automatically at the end of your input file */
   _cells.clear();
 }
 
@@ -498,7 +499,6 @@ void Universe::removeCell(Cell* cell) {
  * @return a pointer the Cell where the LocalCoords is located
  */
 Cell* Universe::findCell(LocalCoords* coords) {
-
 
   /* Sets the LocalCoord type to UNIV at this level */
   coords->setType(UNIV);

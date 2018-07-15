@@ -43,6 +43,8 @@ TrackGenerator::~TrackGenerator() {
       delete [] _tracks_2D[a];
     delete [] _tracks_2D;
 
+    delete[] _tracks_2D_array;
+
     /* Delete track laydown information */
     delete [] _num_x;
     delete [] _num_y;
@@ -57,11 +59,15 @@ TrackGenerator::~TrackGenerator() {
   if (_FSR_volumes != NULL)
     delete [] _FSR_volumes;
 
+  delete _quadrature;
   delete _timer;
 }
 
 
-//FIXME
+/**
+ * @brief Return the number of tracks for each azimuthal angle
+ * @return the number of tracks for each azimuthal angle
+ */
 long* TrackGenerator::getTracksPerAzim() {
   return _tracks_per_azim;
 }
@@ -619,6 +625,7 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, long num_segments) 
 
         x1 = x0 + cos(phi) * curr_segment->_length;
         y1 = y0 + sin(phi) * curr_segment->_length;
+        z1 = z0;
 
         coords[counter+4] = x1;
         coords[counter+5] = y1;

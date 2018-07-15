@@ -125,7 +125,11 @@ private:
   /** Number of polar angles */
   int _num_polar;
 
-  /** Number of energy groups used in cmfd solver */
+  /** Number of azimuthal angles */
+  int _num_azim;
+
+  /** Number of energy groups used in cmfd solver. Note that cmfd supports
+   * energy condensation from the MOC */
   int _num_cmfd_groups;
 
   /** Coarse energy indices for fine energy groups */

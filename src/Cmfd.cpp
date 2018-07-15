@@ -53,6 +53,7 @@ Cmfd::Cmfd() {
   _num_cmfd_groups = 0;
   _num_backup_groups = 1;
   _num_polar = 0;
+  _num_azim = 0;
 
   /* Set matrices and arrays to NULL */
   _A = NULL;
@@ -151,7 +152,7 @@ Cmfd::~Cmfd() {
     delete [] _azim_spacings;
 
   if (_polar_spacings != NULL) {
-    for (int a=0; a < _quadrature->getNumAzimAngles()/4; a++)
+    for (int a=0; a < _num_azim / 4; a++)
       delete [] _polar_spacings[a];
     delete [] _polar_spacings;
   }
@@ -160,8 +161,8 @@ Cmfd::~Cmfd() {
   if (_materials != NULL) {
     for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
       delete _materials[i];
+    delete [] _materials;
   }
-  delete [] _materials;
 
   /* Delete the CMFD lattice */
   if (_lattice != NULL)
@@ -244,6 +245,8 @@ Cmfd::~Cmfd() {
 
   if (_backup_cmfd != NULL)
     delete _backup_cmfd;
+
+  delete _timer;
 }
 
 
@@ -1392,8 +1395,12 @@ void Cmfd::initializeMaterials() {
   Material* material;
 
   /* Delete old CMFD surface currents vector if it exists */
-  if (_materials != NULL)
+  if (_materials != NULL){
+    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
+      delete _materials[i];
     delete [] _materials;
+  }
+
 
   try {
     _materials = new Material*[_local_num_x*_local_num_y*_local_num_z];
@@ -2340,6 +2347,7 @@ void Cmfd::setSourceConvergenceThreshold(double source_thresh) {
 void Cmfd::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
   _num_polar = quadrature->getNumPolarAngles();
+  _num_azim = quadrature->getNumAzimAngles();
 }
 
 
@@ -2627,9 +2635,12 @@ CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  */
 CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
-  double* interpolants = _axial_interpolants.at(fsr);
+  double* interpolants;
   double ratio = 1.0;
-  if (interpolants[0] != 0 || interpolants[2] != 0) {
+  if (_k_nearest > 0)
+    interpolants = _axial_interpolants.at(fsr);
+
+  if (_k_nearest > 0 and (interpolants[0] != 0 or interpolants[2] != 0)) {
 
     int z_ind = cell_id / (_local_num_x * _local_num_y);
     int cell_mid = cell_id;
@@ -2819,7 +2830,7 @@ void Cmfd::setGeometry(Geometry* geometry) {
  */
 void Cmfd::setKNearest(int k_nearest) {
 
-  if (_k_nearest < 1 || k_nearest > 9)
+  if (k_nearest < 1 || k_nearest > 9)
     log_printf(ERROR, "Unable to set CMFD k-nearest to %i. k-nearest "
                "must be between 1 and 9.", k_nearest);
   else
@@ -2879,10 +2890,10 @@ void Cmfd::zeroCurrents() {
 void Cmfd::initialize() {
 
   /* Delete old Matrix and Vector objects if they exist */
-  if (_M != NULL)
-    delete _M;
   if (_A != NULL)
     delete _A;
+  if (_M != NULL)
+    delete _M;
   if (_old_source != NULL)
     delete _old_source;
   if (_new_source != NULL)

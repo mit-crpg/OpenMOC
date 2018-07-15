@@ -25,6 +25,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _chi_spectrum_material = NULL;
 
   _k_eff = 1.;
+  _keff_from_fission_rates = true;
 
   _track_generator = NULL;
   _geometry = NULL;
@@ -118,6 +119,9 @@ Solver::~Solver() {
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
 
+  if (_boundary_leakage != NULL)
+    delete [] _boundary_leakage;
+
   if (_regionwise_scratch != NULL)
     delete [] _regionwise_scratch;
 
@@ -125,12 +129,22 @@ Solver::~Solver() {
     delete [] _groupwise_scratch.at(i);
   _groupwise_scratch.clear();
 
-  for (int a=0; a < _num_exp_evaluators_azim; a++) {
-    for (int p=0; p < _num_exp_evaluators_polar; p++)
-      delete _exp_evaluators[a][p];
-    delete [] _exp_evaluators[a];
+  /** Delete exponential evaluators */
+  if (_exp_evaluators != NULL){
+    for (int a=0; a < _num_exp_evaluators_azim; a++) {
+      for (int p=0; p < _num_exp_evaluators_polar; p++) {
+        delete _exp_evaluators[a][p];
+      }
+    }
+    for (int a=0; a < _num_azim/2; a++){
+      /* Handle edge case when exp_evaluators are not initialized */
+      if (a < 1 or _num_exp_evaluators_azim > 1)
+        delete [] _exp_evaluators[a];
+    }
+    delete [] _exp_evaluators;
   }
-  delete [] _exp_evaluators;
+
+  delete _timer;
 }
 
 
@@ -671,7 +685,7 @@ void Solver::initializeExpEvaluators() {
       else
         _exp_evaluators[a][p] = first_evaluator->deepCopy();
 
-      /* Copy evaluators to supplimentary positions */
+      /* Copy evaluators to supplementary positions */
       int sup_azim = _num_azim / 2 - a - 1;
       int sup_polar = _num_polar - p - 1;
       _exp_evaluators[sup_azim][p] = _exp_evaluators[a][p];
@@ -695,7 +709,7 @@ void Solver::initializeExpEvaluators() {
  */
 void Solver::initializeFSRs() {
 
-  log_printf(NORMAL, "Initializing flat source regions...");
+  log_printf(NORMAL, "Initializing solver arrays...");
 
   /* Delete old FSR arrays if they exist */
   if (_FSR_materials != NULL)
@@ -1012,7 +1026,7 @@ void Solver::initializeCmfd() {
   }
 
   /* Intialize the CMFD energy group structure */
-  _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1);
+  _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1); //FIXME
   _cmfd->setNumMOCGroups(_num_groups);
   _cmfd->initializeGroupMap();
 

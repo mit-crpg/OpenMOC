@@ -16,6 +16,7 @@
 Vector::Vector(omp_lock_t* cell_locks, int num_x, int num_y, int num_z,
                int num_groups) {
 
+  //TODO Change initialization of Vector to clean Valgrind log
   setNumX(num_x);
   setNumY(num_y);
   setNumZ(num_z);
