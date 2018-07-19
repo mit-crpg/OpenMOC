@@ -237,7 +237,7 @@ Cmfd::~Cmfd() {
       delete [] _old_boundary_flux;
       delete [] _boundary_surface_currents;
     }
-    delete _domain_communicator;
+    //delete _domain_communicator;
   }
 
   for (long r=0; r < _axial_interpolants.size(); r++)
@@ -1178,7 +1178,7 @@ void Cmfd::updateMOCFlux() {
     }
   }
 #ifdef MPIx
-  if (_domain_communicator != NULL) {
+  if (_domain_communicator != NULL && _convergence_data != NULL) {
     double max_pf = _convergence_data->pf;
     MPI_Allreduce(&max_pf, &_convergence_data->pf, 1, MPI_DOUBLE, MPI_MAX,
                   _domain_communicator->_MPI_cart);
@@ -2367,91 +2367,91 @@ void Cmfd::setQuadrature(Quadrature* quadrature) {
  *          k is reduced to the number of neighbor cells for that instance.
  */
 void Cmfd::generateKNearestStencils() {
-
-  if (!_centroid_update_on)
-    return;
-
   std::vector< std::pair<int, double> >::iterator stencil_iter;
   std::vector<long>::iterator fsr_iter;
   Point* centroid;
   long fsr_id;
-
-  /* Number of cells in stencil */
-  int num_cells_in_stencil = 9;
-
-  /* Loop over mesh cells */
-  for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
-
-    int global_ind = getGlobalCMFDCell(i);
-
-    /* Loop over FRSs in mesh cell */
-    for (fsr_iter = _cell_fsrs.at(i).begin();
-         fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
-
-      fsr_id = *fsr_iter;
-
-      /* Get centroid */
-      centroid = _geometry->getFSRCentroid(fsr_id);
-
-      /* Create new stencil */
-      _k_nearest_stencils[fsr_id] =
-        std::vector< std::pair<int, double> >();
-
-      /* Get distance to all cells that touch current cell */
-      for (int j=0; j < num_cells_in_stencil; j++)
-        _k_nearest_stencils[fsr_id]
-          .push_back(std::make_pair<int, double>
-                     (int(j), getDistanceToCentroid(centroid, global_ind, j)));
-
-      /* Sort the distances */
-      std::sort(_k_nearest_stencils[fsr_id].begin(),
-                _k_nearest_stencils[fsr_id].end(), stencilCompare);
-
-      /* Remove ghost cells that are outside the geometry boundaries */
-      stencil_iter = _k_nearest_stencils[fsr_id].begin();
-      while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
-        if (stencil_iter->second == std::numeric_limits<double>::max())
-          stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
-        else
-          ++stencil_iter;
+  
+  if (_centroid_update_on){
+    /* Number of cells in stencil */
+    int num_cells_in_stencil = 9;
+  
+    /* Loop over mesh cells */
+    for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
+  
+      int global_ind = getGlobalCMFDCell(i);
+  
+      /* Loop over FRSs in mesh cell */
+      for (fsr_iter = _cell_fsrs.at(i).begin();
+          fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
+  
+        fsr_id = *fsr_iter;
+  
+        /* Get centroid */
+        centroid = _geometry->getFSRCentroid(fsr_id);
+  
+        /* Create new stencil */
+        _k_nearest_stencils[fsr_id] =
+          std::vector< std::pair<int, double> >();
+  
+        /* Get distance to all cells that touch current cell */
+        for (int j=0; j < num_cells_in_stencil; j++)
+          _k_nearest_stencils[fsr_id]
+            .push_back(std::make_pair<int, double>
+                      (int(j), getDistanceToCentroid(centroid, global_ind, j)));
+  
+        /* Sort the distances */
+        std::sort(_k_nearest_stencils[fsr_id].begin(),
+                  _k_nearest_stencils[fsr_id].end(), stencilCompare);
+  
+        /* Remove ghost cells that are outside the geometry boundaries */
+        stencil_iter = _k_nearest_stencils[fsr_id].begin();
+        while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
+          if (stencil_iter->second == std::numeric_limits<double>::max())
+            stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
+          else
+            ++stencil_iter;
+        }
+  
+        /* Resize stencil to be of size <= _k_nearest */
+        _k_nearest_stencils[fsr_id].resize
+          (std::min(_k_nearest, int(_k_nearest_stencils[fsr_id].size())));
       }
-
-      /* Resize stencil to be of size <= _k_nearest */
-      _k_nearest_stencils[fsr_id].resize
-        (std::min(_k_nearest, int(_k_nearest_stencils[fsr_id].size())));
+    }
+  
+    /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
+    * its k-nearest CMFD cells */
+    double total_distance;
+    for (long i=0; i < _num_FSRs; i++) {
+      total_distance = 1.e-10;
+  
+      /* Compute the total distance of each FSR centroid to its k-nearest CMFD
+      * cells */
+      for (stencil_iter = _k_nearest_stencils[i].begin();
+          stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
+        total_distance += stencil_iter->second;
+  
+      /* Reset the second stencil value to
+      * (1.0 - cell_distance / total_distance) */
+      for (stencil_iter = _k_nearest_stencils[i].begin();
+          stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
+        stencil_iter->second = 1.0 - stencil_iter->second / total_distance;
     }
   }
 
-  /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
-   * its k-nearest CMFD cells */
-  double total_distance;
-  for (long i=0; i < _num_FSRs; i++) {
-    total_distance = 1.e-10;
 
-    /* Compute the total distance of each FSR centroid to its k-nearest CMFD
-     * cells */
-    for (stencil_iter = _k_nearest_stencils[i].begin();
-         stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
-      total_distance += stencil_iter->second;
-
-    /* Reset the second stencil value to
-     * (1.0 - cell_distance / total_distance) */
-    for (stencil_iter = _k_nearest_stencils[i].begin();
-         stencil_iter < _k_nearest_stencils[i].end(); ++stencil_iter)
-      stencil_iter->second = 1.0 - stencil_iter->second / total_distance;
-  }
-
-  /* Initialize axial quadratic interpolant values */
-  _axial_interpolants.resize(_num_FSRs);
-  for (long r=0; r < _num_FSRs; r++) {
-    _axial_interpolants.at(r) = new double[3];
-    for (int j=0; j < 3; j++)
-      _axial_interpolants.at(r)[j] = 0.0;
-  }
 
   /* Compute axial quadratic interpolation values if requested */
   if (_use_axial_interpolation && _local_num_z >= 3) {
 
+    /* Initialize axial quadratic interpolant values */
+    _axial_interpolants.resize(_num_FSRs);
+    for (long r=0; r < _num_FSRs; r++) {
+      _axial_interpolants.at(r) = new double[3];
+      for (int j=0; j < 3; j++)
+        _axial_interpolants.at(r)[j] = 0.0;
+    }
+    
     /* Calculate common factors */
     double dz = _cell_width_z;
     double dz_2 = _cell_width_z * _cell_width_z;
@@ -2637,11 +2637,10 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
   double* interpolants;
   double ratio = 1.0;
-  if (_k_nearest > 0)
+  if (_use_axial_interpolation)
     interpolants = _axial_interpolants.at(fsr);
-
-  if (_k_nearest > 0 and (interpolants[0] != 0 or interpolants[2] != 0)) {
-
+  if (_use_axial_interpolation && _local_num_z >= 3 && 
+    ( interpolants[0] != 0 || interpolants[2] != 0) ) {
     int z_ind = cell_id / (_local_num_x * _local_num_y);
     int cell_mid = cell_id;
     if (z_ind == 0)

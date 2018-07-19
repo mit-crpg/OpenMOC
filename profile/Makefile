@@ -2,10 +2,10 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
-OPTIMIZE    = yes
-DEBUG       = no
+OPTIMIZE    = no
+DEBUG       = yes
 PROFILE     = no
 PRECISION   = single
 CMFD_PRECISION = single
@@ -14,7 +14,7 @@ CMFD_PRECISION = single
 # Source Code List
 #===============================================================================
 
-case = load-geometry/load-full-core.cpp
+#case = load-geometry/load-full-core.cpp
 #case = load-geometry/load-single-assembly.cpp
 #case = load-geometry/load-tc-study.cpp
 #case = load-geometry/load-few-assm.cpp

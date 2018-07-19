@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
   double polar_spacing = 0.5;
   int num_polar = 2;
   double tolerance = 1e-5;
-  int max_iters = 1000;
+  int max_iters = 3;
 
   int fuel_rings = 1;
   int moderator_rings = 1;
@@ -212,16 +212,17 @@ int main(int argc, char* argv[]) {
   for (int g=3; g<7; g++)
     cmfd_group_structure.at(1).push_back(g+1);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setKNearest(1);
+  cmfd.setKNearest(9);
   cmfd.useFluxLimiting(false);
-
+  cmfd.setCentroidUpdateOn(false);
+  cmfd.useAxialInterpolation(true);
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(2,2,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(1,1,1, MPI_COMM_WORLD);
 #endif
   //geometry.setNumDomainModules(2,2,1);
   geometry.setCmfd(&cmfd);
