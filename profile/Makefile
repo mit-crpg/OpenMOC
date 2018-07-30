@@ -14,7 +14,7 @@ CMFD_PRECISION = single
 # Source Code List
 #===============================================================================
 
-case = load-geometry/load-full-core.cpp
+#case = load-geometry/load-full-core.cpp
 #case = load-geometry/load-single-assembly.cpp
 #case = load-geometry/load-tc-study.cpp
 #case = load-geometry/load-few-assm.cpp

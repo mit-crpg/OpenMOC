@@ -212,16 +212,19 @@ int main(int argc, char* argv[]) {
   for (int g=3; g<7; g++)
     cmfd_group_structure.at(1).push_back(g+1);
   cmfd.setGroupStructure(cmfd_group_structure);
-  cmfd.setKNearest(1);
+  cmfd.setKNearest(9);
   cmfd.useFluxLimiting(false);
-
+  //setCentroidUpdateOn is the prerequisites for k-nearest update. 
+  cmfd.setCentroidUpdateOn(false);
+  //useAxialInterpolation sets the axial flux update to be 2nd order interpolation.
+  cmfd.useAxialInterpolation(true);
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
 
   Geometry geometry;
   geometry.setRootUniverse(&root_universe);
 #ifdef MPIx
-  geometry.setDomainDecomposition(2,2,1, MPI_COMM_WORLD);
+  geometry.setDomainDecomposition(1,1,1, MPI_COMM_WORLD);
 #endif
   //geometry.setNumDomainModules(2,2,1);
   geometry.setCmfd(&cmfd);
