@@ -2,10 +2,10 @@
 # User Options
 #===============================================================================
 
-COMPILER    = mpi
+COMPILER    = gnu
 OPENMP      = yes
-OPTIMIZE    = no
-DEBUG       = yes
+OPTIMIZE    = yes
+DEBUG       = no
 PROFILE     = no
 PRECISION   = single
 CMFD_PRECISION = single

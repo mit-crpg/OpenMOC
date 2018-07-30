@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
   double polar_spacing = 0.5;
   int num_polar = 2;
   double tolerance = 1e-5;
-  int max_iters = 3;
+  int max_iters = 1000;
 
   int fuel_rings = 1;
   int moderator_rings = 1;
@@ -214,7 +214,9 @@ int main(int argc, char* argv[]) {
   cmfd.setGroupStructure(cmfd_group_structure);
   cmfd.setKNearest(9);
   cmfd.useFluxLimiting(false);
+  //setCentroidUpdateOn is the prerequisites for k-nearest update. 
   cmfd.setCentroidUpdateOn(false);
+  //useAxialInterpolation sets the axial flux update to be 2nd order interpolation.
   cmfd.useAxialInterpolation(true);
   /* Create the geometry */
   log_printf(NORMAL, "Creating geometry...");
