@@ -15,8 +15,8 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _FSR_lin_exp_matrix = NULL;
   _scalar_flux_xyz = NULL;
   _reduced_sources_xyz = NULL;
-  _stabalizing_flux_xyz = NULL;
-  _stabalize_moments = true;
+  _stabilizing_flux_xyz = NULL;
+  _stabilize_moments = true;
   _source_type = "Linear";
 }
 
@@ -34,8 +34,8 @@ CPULSSolver::~CPULSSolver() {
   if (_reduced_sources_xyz != NULL)
     delete [] _reduced_sources_xyz;
   
-  if (_stabalizing_flux_xyz != NULL)
-    delete [] _stabalizing_flux_xyz;
+  if (_stabilizing_flux_xyz != NULL)
+    delete [] _stabilizing_flux_xyz;
 
   if (_FSR_lin_exp_matrix != NULL)
     delete [] _FSR_lin_exp_matrix;
@@ -69,7 +69,7 @@ void CPULSSolver::initializeFluxArrays() {
     double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
 
-    if (_stabalize_transport && _stabalize_moments)
+    if (_stabilize_transport && _stabilize_moments)
       max_size_mb *= 2;
 
     log_printf(NORMAL, "Max linear flux storage per domain = %6.2f MB",
@@ -78,9 +78,9 @@ void CPULSSolver::initializeFluxArrays() {
     _scalar_flux_xyz = new FP_PRECISION[size];
     memset(_scalar_flux_xyz, 0., size * sizeof(FP_PRECISION));
     
-    if (_stabalize_transport && _stabalize_moments) {
-      _stabalizing_flux_xyz = new FP_PRECISION[size];
-      memset(_stabalizing_flux_xyz, 0., size * sizeof(FP_PRECISION));
+    if (_stabilize_transport && _stabilize_moments) {
+      _stabilizing_flux_xyz = new FP_PRECISION[size];
+      memset(_stabilizing_flux_xyz, 0., size * sizeof(FP_PRECISION));
     }
   }
   catch (std::exception &e) {
@@ -243,13 +243,8 @@ void CPULSSolver::computeFSRSources(int iteration) {
         FP_PRECISION* scatter_sources_x = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
           int idx = first_scattering_index + g_prime;
-          if (sigma_s[idx] > 0) {
-            scatter_sources_x[g_prime] = sigma_s[idx] *
-              _scalar_flux_xyz(r,g_prime,0);
-          }
-          else {
-            scatter_sources_x[g_prime] = 1.0e-20;
-          }
+          scatter_sources_x[g_prime] = sigma_s[idx] *
+               _scalar_flux_xyz(r,g_prime,0);
         }
         double scatter_source_x =
             pairwise_sum<FP_PRECISION>(scatter_sources_x, _num_groups);
@@ -257,13 +252,8 @@ void CPULSSolver::computeFSRSources(int iteration) {
         FP_PRECISION* scatter_sources_y = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
           int idx = first_scattering_index + g_prime;
-          if (sigma_s[idx] > 0) {
-            scatter_sources_y[g_prime] = sigma_s[idx]
-              * _scalar_flux_xyz(r,g_prime,1);
-          }
-          else {
-            scatter_sources_y[g_prime] = 1.0e-20;
-          }
+          scatter_sources_y[g_prime] = sigma_s[idx] *
+               _scalar_flux_xyz(r,g_prime,1);
         }
         double scatter_source_y =
             pairwise_sum<FP_PRECISION>(scatter_sources_y, _num_groups);
@@ -271,13 +261,8 @@ void CPULSSolver::computeFSRSources(int iteration) {
         FP_PRECISION* scatter_sources_z = _groupwise_scratch.at(tid);
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
           int idx = first_scattering_index + g_prime;
-          if (sigma_s[idx] > 0.0) {
-            scatter_sources_z[g_prime] = sigma_s[idx]
-              * _scalar_flux_xyz(r,g_prime,2);
-          }
-          else {
-            scatter_sources_y[g_prime] = 1.0e-20;
-          }
+          scatter_sources_z[g_prime] = sigma_s[idx] *
+               _scalar_flux_xyz(r,g_prime,2);
         }
         double scatter_source_z =
             pairwise_sum<FP_PRECISION>(scatter_sources_z, _num_groups);
@@ -313,28 +298,41 @@ void CPULSSolver::computeFSRSources(int iteration) {
         src_y = scatter_source_y + chi[g] * fission_source_y;
         src_z = scatter_source_z + chi[g] * fission_source_z;
 
-        /* Compute total (scatter+fission+fixed) reduced source moments */
+        /* Compute total (scatter+fission) reduced source moments */
         if (_solve_3D) {
-          _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
-              (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
-               _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y +
-               _FSR_lin_exp_matrix[r*num_coeffs+3] * src_z);
-          _reduced_sources_xyz(r,g,1) = ONE_OVER_FOUR_PI / 2 *
-              (_FSR_lin_exp_matrix[r*num_coeffs+2] * src_x +
-               _FSR_lin_exp_matrix[r*num_coeffs+1] * src_y +
-               _FSR_lin_exp_matrix[r*num_coeffs+4] * src_z);
-          _reduced_sources_xyz(r,g,2) = ONE_OVER_FOUR_PI / 2 *
-              (_FSR_lin_exp_matrix[r*num_coeffs+3] * src_x +
-               _FSR_lin_exp_matrix[r*num_coeffs+4] * src_y +
-               _FSR_lin_exp_matrix[r*num_coeffs+5] * src_z);
+          if (_reduced_sources(r,g) > 1e-15 or iteration > 29) {
+            _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
+                 (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
+                  _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y +
+                  _FSR_lin_exp_matrix[r*num_coeffs+3] * src_z);
+            _reduced_sources_xyz(r,g,1) = ONE_OVER_FOUR_PI / 2 *
+                 (_FSR_lin_exp_matrix[r*num_coeffs+2] * src_x +
+                  _FSR_lin_exp_matrix[r*num_coeffs+1] * src_y +
+                  _FSR_lin_exp_matrix[r*num_coeffs+4] * src_z);
+            _reduced_sources_xyz(r,g,2) = ONE_OVER_FOUR_PI / 2 *
+                 (_FSR_lin_exp_matrix[r*num_coeffs+3] * src_x +
+                  _FSR_lin_exp_matrix[r*num_coeffs+4] * src_y +
+                  _FSR_lin_exp_matrix[r*num_coeffs+5] * src_z);
+          }
+          else {
+            _reduced_sources_xyz(r,g,0) = 1e-20;     
+            _reduced_sources_xyz(r,g,1) = 1e-20;
+            _reduced_sources_xyz(r,g,2) = 1e-20;
+          }
         }
         else {
-          _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
-              (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
-               _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y);
-          _reduced_sources_xyz(r,g,1) = ONE_OVER_FOUR_PI / 2 *
-              (_FSR_lin_exp_matrix[r*num_coeffs+2] * src_x +
-               _FSR_lin_exp_matrix[r*num_coeffs+1] * src_y);
+          if (_reduced_sources(r,g) > 1e-15 or iteration > 29) {
+            _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
+                 (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
+                  _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y);
+            _reduced_sources_xyz(r,g,1) = ONE_OVER_FOUR_PI / 2 *
+                 (_FSR_lin_exp_matrix[r*num_coeffs+2] * src_x +
+                  _FSR_lin_exp_matrix[r*num_coeffs+1] * src_y);
+          }
+          else {
+            _reduced_sources_xyz(r,g,0) = 1e-20;     
+            _reduced_sources_xyz(r,g,1) = 1e-20;
+          }
         }
       }
     }
@@ -343,20 +341,17 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
 
 /**
- * @brief Computes the contribution to the FSR scalar flux from a Track segment.
+ * @brief Computes the contribution to the LSR scalar flux from a Track segment.
  * @details This method integrates the angular flux for a Track segment across
- *          energy groups and polar angles, and tallies it into the FSR
+ *          energy groups and polar angles, and tallies it into the LSR
  *          scalar flux, and updates the Track's angular flux.
  * @param curr_segment a pointer to the Track segment of interest
- * @param azim_index a pointer to the azimuthal angle index for this segment
+ * @param azim_index azimuthal angle index for this 3D Track
+ * @param polar_index polar angle index for this 3D Track
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
- * @param x the x-coord of the segment starting point
- * @param y the y-coord of the segment starting point
- * @param z the z-coord of the segment starting point
- * @param fwd int indicating whether the segment is pointing forward (1) or
- *            backwards (-1)
-//FIXME: NOT THE CORRECT PARAMS
+ * @param scratch_pad a pointer to an empty array of size 4 * _num_groups
+ * @param direction the segment's direction
  */
 void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
@@ -607,19 +602,19 @@ void CPULSSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Computes the stabalizing flux for transport stabalization
+ * @brief Computes the stabilizing flux for transport stabilization
  */
-void CPULSSolver::computeStabalizingFlux() {
+void CPULSSolver::computeStabilizingFlux() {
 
-  /* Compute flat stabalizing flux */
-  CPUSolver::computeStabalizingFlux();
+  /* Compute flat stabilizing flux */
+  CPUSolver::computeStabilizingFlux();
 
-  /* Check whether moment stabalization is requested */ 
-  if (!_stabalize_moments)
+  /* Check whether moment stabilization is requested */ 
+  if (!_stabilize_moments)
     return;
 
-  if (_stabalization_type == DIAGONAL) {
-    /* Loop over all flat source regions, compute stabalizing flux moments */
+  if (_stabilization_type == DIAGONAL) {
+    /* Loop over all flat source regions, compute stabilizing flux moments */
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++) {
 
@@ -635,17 +630,17 @@ void CPULSSolver::computeStabalizingFlux() {
         FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
       
         /* For negative cross-sections, add the absolute value of the 
-           in-scattering rate to the stabalizing flux */
+           in-scattering rate to the stabilizing flux */
         if (sigma_s < 0.0) {
           for (int i=0; i < 3; i++) {
-            _stabalizing_flux_xyz(r, e, i) = -_scalar_flux_xyz(r,e,i) * 
-                _stabalization_factor * sigma_s / sigma_t[e];
+            _stabilizing_flux_xyz(r, e, i) = -_scalar_flux_xyz(r,e,i) * 
+                _stabilization_factor * sigma_s / sigma_t[e];
           }
         }
       }
     }
   }
-  else if (_stabalization_type == YAMAMOTO) {
+  else if (_stabilization_type == YAMAMOTO) {
 
     /* Treat each group */
 #pragma omp parallel for
@@ -666,44 +661,44 @@ void CPULSSolver::computeStabalizingFlux() {
         if (ratio > max_ratio)
           ratio = max_ratio;
       }
-      max_ratio *= _stabalization_factor;
+      max_ratio *= _stabilization_factor;
       for (long r=0; r < _num_FSRs; r++) {
         for (int i=0; i < 3; i++) {
-          _stabalizing_flux_xyz(r, e, i) = _scalar_flux_xyz(r,e,i) * max_ratio;
+          _stabilizing_flux_xyz(r, e, i) = _scalar_flux_xyz(r,e,i) * max_ratio;
         }
       }
     }
   }
-  else if (_stabalization_type == GLOBAL) {
+  else if (_stabilization_type == GLOBAL) {
     
     /* Get the multiplicative factor */
-    FP_PRECISION mult_factor = 1.0 / _stabalization_factor - 1.0;
+    FP_PRECISION mult_factor = 1.0 / _stabilization_factor - 1.0;
    
     /* Apply the global muliplicative factor */ 
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++)
       for (int e=0; e < _num_groups; e++)
         for (int i=0; i <3; i++)
-          _stabalizing_flux_xyz(r, e, i) = _scalar_flux_xyz(r, e, i)
+          _stabilizing_flux_xyz(r, e, i) = _scalar_flux_xyz(r, e, i)
              * mult_factor;
   }
 }
       
 
 /**
- * @brief Adjusts the scalar flux for transport stabalization
+ * @brief Adjusts the scalar flux for transport stabilization
  */
-void CPULSSolver::stabalizeFlux() {
+void CPULSSolver::stabilizeFlux() {
 
   /* Stabalize the flat scalar flux */
-  CPUSolver::stabalizeFlux();
+  CPUSolver::stabilizeFlux();
 
-  /* Check whether moment stabalization is requested */ 
-  if (!_stabalize_moments)
+  /* Check whether moment stabilization is requested */ 
+  if (!_stabilize_moments)
     return;
 
-  if (_stabalization_type == DIAGONAL) {
-    /* Loop over all flat source regions, apply stabalizing flux moments */
+  if (_stabilization_type == DIAGONAL) {
+    /* Loop over all flat source regions, apply stabilizing flux moments */
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++) {
 
@@ -718,20 +713,20 @@ void CPULSSolver::stabalizeFlux() {
         /* Extract the in-scattering (diagonal) element */
         FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
       
-        /* For negative cross-sections, add the stabalizing flux
+        /* For negative cross-sections, add the stabilizing flux
            and divide by the diagonal matrix element used to form it so that
-           no bias is introduced but the source iteration is stabalized */
+           no bias is introduced but the source iteration is stabilized */
         if (sigma_s < 0.0) {
           for (int i=0; i < 3; i++) {
-            _scalar_flux_xyz(r, e, i) += _stabalizing_flux_xyz(r, e, i);
-            _scalar_flux_xyz(r, e, i) /= (1.0 - _stabalization_factor * sigma_s /
+            _scalar_flux_xyz(r, e, i) += _stabilizing_flux_xyz(r, e, i);
+            _scalar_flux_xyz(r, e, i) /= (1.0 - _stabilization_factor * sigma_s /
                                          sigma_t[e]);
           }
         }
       }
     }
   }
-  else if (_stabalization_type == YAMAMOTO) {
+  else if (_stabilization_type == YAMAMOTO) {
 
     /* Treat each group */
 #pragma omp parallel for
@@ -752,24 +747,24 @@ void CPULSSolver::stabalizeFlux() {
         if (ratio > max_ratio)
           ratio = max_ratio;
       }
-      max_ratio *= _stabalization_factor;
+      max_ratio *= _stabilization_factor;
       for (long r=0; r < _num_FSRs; r++) {
         for (int i=0; i < 3; i++) {
-          _scalar_flux_xyz(r, e, i) += _stabalizing_flux_xyz(r, e, i);
+          _scalar_flux_xyz(r, e, i) += _stabilizing_flux_xyz(r, e, i);
           _scalar_flux_xyz(r, e, i) /= (1 + max_ratio);
         }
       }
     }
   }
-  else if (_stabalization_type == GLOBAL) {
+  else if (_stabilization_type == GLOBAL) {
 
     /* Apply the damping factor */    
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++) {
         for (int i=0; i <3; i++) {
-          _scalar_flux_xyz(r, e, i) += _stabalizing_flux_xyz(r, e, i);
-          _scalar_flux_xyz(r, e, i) *= _stabalization_factor;
+          _scalar_flux_xyz(r, e, i) += _stabilizing_flux_xyz(r, e, i);
+          _scalar_flux_xyz(r, e, i) *= _stabilization_factor;
         }
       }
     }

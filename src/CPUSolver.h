@@ -92,8 +92,8 @@ protected:
   virtual double normalizeFluxes();
   virtual void computeFSRSources(int iteration);
   virtual void transportSweep();
-  virtual void computeStabalizingFlux();
-  virtual void stabalizeFlux();
+  virtual void computeStabilizingFlux();
+  virtual void stabilizeFlux();
   virtual void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);

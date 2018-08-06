@@ -209,8 +209,8 @@ void CPUSolver::initializeFluxArrays() {
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
   
-  if (_stabalizing_flux != NULL)
-    delete [] _stabalizing_flux;
+  if (_stabilizing_flux != NULL)
+    delete [] _stabilizing_flux;
 
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
@@ -257,7 +257,7 @@ void CPUSolver::initializeFluxArrays() {
 
     /* Determine the amount of memory allocated */
     int num_flux_arrays = 2;
-    if (_stabalize_transport)
+    if (_stabilize_transport)
       num_flux_arrays++;
 
     max_size_mb = (double) (num_flux_arrays * max_size * sizeof(FP_PRECISION))
@@ -271,10 +271,10 @@ void CPUSolver::initializeFluxArrays() {
     memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
     memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
 
-    /* Allocate stabalizing flux vector if necessary */
-    if (_stabalize_transport) {
-      _stabalizing_flux = new FP_PRECISION[size];
-      memset(_stabalizing_flux, 0., size * sizeof(FP_PRECISION));
+    /* Allocate stabilizing flux vector if necessary */
+    if (_stabilize_transport) {
+      _stabilizing_flux = new FP_PRECISION[size];
+      memset(_stabilizing_flux, 0., size * sizeof(FP_PRECISION));
     }
 
 #ifdef MPIx
@@ -2009,11 +2009,11 @@ void CPUSolver::addSourceToScalarFlux() {
 
 
 /**
- * @brief Computes the stabalizing flux for transport stabalization
+ * @brief Computes the stabilizing flux for transport stabilization
  */
-void CPUSolver::computeStabalizingFlux() {
+void CPUSolver::computeStabilizingFlux() {
 
-  if (_stabalization_type == DIAGONAL) {
+  if (_stabilization_type == DIAGONAL) {
     
     /* Loop over all flat source regions */
 #pragma omp parallel for
@@ -2031,14 +2031,14 @@ void CPUSolver::computeStabalizingFlux() {
         FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
       
         /* For negative cross-sections, add the absolute value of the 
-           in-scattering rate to the stabalizing flux */
+           in-scattering rate to the stabilizing flux */
         if (sigma_s < 0.0)
-          _stabalizing_flux(r, e) = -_scalar_flux(r,e) * _stabalization_factor 
+          _stabilizing_flux(r, e) = -_scalar_flux(r,e) * _stabilization_factor 
               * sigma_s / sigma_t[e];
       }
     }
   }
-  else if (_stabalization_type == YAMAMOTO) {
+  else if (_stabilization_type == YAMAMOTO) {
 
     /* Treat each group */
 #pragma omp parallel for
@@ -2059,32 +2059,32 @@ void CPUSolver::computeStabalizingFlux() {
         if (ratio > max_ratio)
           max_ratio = ratio;
       }
-      max_ratio *= _stabalization_factor;
+      max_ratio *= _stabilization_factor;
       for (long r=0; r < _num_FSRs; r++) {
-        _stabalizing_flux(r, e) = _scalar_flux(r,e) * max_ratio;
+        _stabilizing_flux(r, e) = _scalar_flux(r,e) * max_ratio;
       }
     }
   }
-  else if (_stabalization_type == GLOBAL) {
+  else if (_stabilization_type == GLOBAL) {
     
     /* Get the multiplicative factor */
-    FP_PRECISION mult_factor = 1.0 / _stabalization_factor - 1.0;
+    FP_PRECISION mult_factor = 1.0 / _stabilization_factor - 1.0;
    
     /* Apply the global muliplicative factor */ 
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++)
       for (int e=0; e < _num_groups; e++)
-        _stabalizing_flux(r, e) = mult_factor * _scalar_flux(r,e);
+        _stabilizing_flux(r, e) = mult_factor * _scalar_flux(r,e);
   }
 }
 
 
 /**
- * @brief Adjusts the scalar flux for transport stabalization
+ * @brief Adjusts the scalar flux for transport stabilization
  */
-void CPUSolver::stabalizeFlux() {
+void CPUSolver::stabilizeFlux() {
 
-  if (_stabalization_type == DIAGONAL) {
+  if (_stabilization_type == DIAGONAL) {
   
     /* Loop over all flat source regions */
 #pragma omp parallel for
@@ -2101,18 +2101,18 @@ void CPUSolver::stabalizeFlux() {
         /* Extract the in-scattering (diagonal) element */
         FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
       
-        /* For negative cross-sections, add the stabalizing flux
+        /* For negative cross-sections, add the stabilizing flux
            and divide by the diagonal matrix element used to form it so that
-           no bias is introduced but the source iteration is stabalized */
+           no bias is introduced but the source iteration is stabilized */
         if (sigma_s < 0.0) {
-          _scalar_flux(r, e) += _stabalizing_flux(r,e);
-          _scalar_flux(r, e) /= (1.0 - _stabalization_factor * sigma_s / 
+          _scalar_flux(r, e) += _stabilizing_flux(r,e);
+          _scalar_flux(r, e) /= (1.0 - _stabilization_factor * sigma_s / 
                                  sigma_t[e]);
         }
       }
     }
   }
-  else if (_stabalization_type == YAMAMOTO) {
+  else if (_stabilization_type == YAMAMOTO) {
 
     /* Treat each group */
 #pragma omp parallel for
@@ -2133,21 +2133,21 @@ void CPUSolver::stabalizeFlux() {
         if (ratio > max_ratio)
           max_ratio = ratio;
       }
-      max_ratio *= _stabalization_factor;
+      max_ratio *= _stabilization_factor;
       for (long r=0; r < _num_FSRs; r++) {
-        _scalar_flux(r, e) += _stabalizing_flux(r, e);
+        _scalar_flux(r, e) += _stabilizing_flux(r, e);
         _scalar_flux(r, e) /= (1 + max_ratio);
       }
     }
   }
-  else if (_stabalization_type == GLOBAL) {
+  else if (_stabilization_type == GLOBAL) {
 
     /* Apply the damping factor */    
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++) {
-        _scalar_flux(r, e) += _stabalizing_flux(r, e);
-        _scalar_flux(r, e) *= _stabalization_factor;
+        _scalar_flux(r, e) += _stabilizing_flux(r, e);
+        _scalar_flux(r, e) *= _stabilization_factor;
       }
     }
   }

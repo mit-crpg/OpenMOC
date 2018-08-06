@@ -36,8 +36,8 @@
 /** Indexing macro for the reference scalar flux in each FSR and energy group */
 #define reference_flux(r,e) (reference_flux[(r)*_num_groups + (e)])
 
-/** Indexing macro for the stabailizing flux in each FSR and energy group */
-#define _stabalizing_flux(r,e) (_stabalizing_flux[(r)*_num_groups + (e)])
+/** Indexing macro for the stabiilizing flux in each FSR and energy group */
+#define _stabilizing_flux(r,e) (_stabilizing_flux[(r)*_num_groups + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
@@ -97,15 +97,15 @@ enum residualType {
 
 
 /**
- * @enum stabalizationType
- * @brief The type of stabalization to use on source iteration
+ * @enum stabilizationType
+ * @brief The type of stabilization to use on source iteration
  */
-enum stabalizationType {
+enum stabilizationType {
 
-  /** General diagonal stabalization */
+  /** General diagonal stabilization */
   DIAGONAL,
 
-  /** Yamamoto's groupwise stabalization */
+  /** Yamamoto's groupwise stabilization */
   YAMAMOTO,
 
   /** Global damping on the scalar flux update */
@@ -180,9 +180,9 @@ protected:
   /** Boolean for whether to correct unphysical cross-sections */
   bool _correct_xs;
 
-  /** Boolean for whether to apply the stabalizing correction to the source
+  /** Boolean for whether to apply the stabilizing correction to the source
     * iteration (transport sweep) process */
-  bool _stabalize_transport;
+  bool _stabilize_transport;
 
   /** Boolean for whether to print verbose iteration reports */
   bool _verbose;
@@ -240,8 +240,8 @@ protected:
   /** The reference scalar flux for each energy group in each FSR */
   FP_PRECISION* _reference_flux;
   
-  /** The stabalizing flux for each energy group in each FSR */
-  FP_PRECISION* _stabalizing_flux;
+  /** The stabilizing flux for each energy group in each FSR */
+  FP_PRECISION* _stabilizing_flux;
 
   /** Optional user-specified fixed sources in each FSR and energy group */
   FP_PRECISION* _fixed_sources;
@@ -275,10 +275,10 @@ protected:
   double _converge_thresh;
 
   /** The factor applied to the source iteration stabilization */
-  double _stabalization_factor;
+  double _stabilization_factor;
   
   /** The type of source iteration stabilization */
-  stabalizationType _stabalization_type;
+  stabilizationType _stabilization_type;
 
   /** A matrix of ExpEvaluators to compute exponentials in the transport
     * equation. The matrix is indexed by azimuthal index and polar index */
@@ -346,14 +346,14 @@ protected:
   virtual double normalizeFluxes() =0;
 
   /**
-   * @brief Computes the stabalizing flux for transport stabalization
+   * @brief Computes the stabilizing flux for transport stabilization
    */
-  virtual void computeStabalizingFlux() =0;
+  virtual void computeStabilizingFlux() =0;
   
   /**
-   * @brief Adjusts the scalar flux for transport stabalization
+   * @brief Adjusts the scalar flux for transport stabilization
    */
-  virtual void stabalizeFlux() =0;
+  virtual void stabilizeFlux() =0;
 
   /**
    * @brief Computes the total source (fission, scattering, fixed) for
@@ -434,8 +434,8 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
   void correctXS();
-  void stabalizeTransport(double stabalization_factor,
-                          stabalizationType stabalization_type=DIAGONAL);
+  void stabilizeTransport(double stabilization_factor,
+                          stabilizationType stabilization_type=DIAGONAL);
   void setInitialSpectrumCalculation(double threshold);
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
