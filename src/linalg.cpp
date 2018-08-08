@@ -616,14 +616,14 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
   }
 #endif
 
-  /* Error check residual componenets */
+  /* Error check residual components */
   if (sum_residuals < 0.0) {
     log_printf(WARNING, "CMFD Residual mean square error %6.4f less than zero",
                sum_residuals);
     sum_residuals = 0.0;
   }
   if (norm <= 0) {
-    log_printf(WARNING, "CMFD resdiual norm %d less than one", norm);
+    log_printf(WARNING, "CMFD residual norm %d less than one", norm);
     norm = 1;
   }
 
@@ -775,7 +775,7 @@ void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
     log_printf(INFO, "SOR iter: %d, residual: %f", iter, residual);
 
-    //FIXME
+    /* Exit linear solve loop if converged */
     if ((residual < tol || residual / initial_residual < 0.1)
          && iter > MIN_LINEAR_SOLVE_ITERATIONS) {
       if (convergence_data != NULL)
@@ -800,7 +800,27 @@ void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 }
 
 
-//FIXME
+/**
+ * @brief Solves a linear system using the linear solver above, but makes the 
+ *        loss and streaming matrix diagonally dominant first, to increase
+ *        likelihood of convergence.
+ * @details This function takes in a loss + streaming Matrix (A),
+ *          a fission gain Matrix (M), a flux Vector (X), a source Vector (B),
+ *          a source convergence tolerance (tol) and a successive
+ *          over-relaxation factor (SOR_factor) and makes (A) diagonally 
+ *          dominant before calling the linear solve routine to compute the
+ *          solution to the linear system. The input X Vector is modified in
+ *          place to be the solution vector. The transformation to make (A) 
+ *          diagonally dominant is compensated by another matrix multiplication.
+ * @param A the loss + streaming Matrix object
+ * @param M the fission gain Matrix object
+ * @param X the flux Vector object
+ * @param B the source Vector object
+ * @param tol the power method and linear solve source convergence threshold
+ * @param SOR_factor the successive over-relaxation factor
+ * @param convergence_data a summary of the convergence performance
+ * @param comm a communicator for exchanging data through MPI
+ */
 bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                    double SOR_factor, ConvergenceData* convergence_data,
                    DomainCommunicator* comm) {

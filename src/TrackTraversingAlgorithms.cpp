@@ -467,7 +467,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
 
   _exp_evaluator = new ExpEvaluator();
 
-  std::string msg = "Initializing track linear source componenets";
+  std::string msg = "Initializing track linear source components";
   _progress = new Progress(_track_generator->getNumTracks(), msg, 0.1,
                     track_generator->getGeometry(), true);
 }

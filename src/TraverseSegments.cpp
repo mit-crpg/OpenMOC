@@ -806,7 +806,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
             double partial_2D = dist_to_corner_bwd * sin_theta;
             double x_entry = fsr_x_start + partial_2D * cos_phi;
             double y_entry = fsr_y_start + partial_2D * sin_phi;
-            double z_entry = track_start_z - z_cent;
+            double z_entry = enter_z - z_cent;
 
             /* Operate on segment */
             kernel->execute(seg_len_3D, material, fsr_id, i,
