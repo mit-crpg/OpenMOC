@@ -48,6 +48,8 @@ Cmfd::Cmfd() {
   _check_neutron_balance = false;
   _old_dif_surf_valid = false;
 
+  _non_uniform = false;
+  
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
   _num_cmfd_groups = 0;
@@ -263,8 +265,6 @@ void Cmfd::setNumX(int num_x) {
   _local_num_x = _num_x;
   if (_domain_communicator != NULL)
     _local_num_x = _num_x / _domain_communicator->_num_domains_x;
-  if (_width_x != 0.)
-    _cell_width_x = _width_x / _num_x;
 }
 
 
@@ -282,8 +282,6 @@ void Cmfd::setNumY(int num_y) {
   _local_num_y = _num_y;
   if (_domain_communicator != NULL)
     _local_num_y = _num_y / _domain_communicator->_num_domains_y;
-  if (_width_y != 0.)
-    _cell_width_y = _width_y / _num_y;
 }
 
 
@@ -301,10 +299,10 @@ void Cmfd::setNumZ(int num_z) {
   _local_num_z = _num_z;
   if (_domain_communicator != NULL)
     _local_num_z = _num_z / _domain_communicator->_num_domains_z;
-  if (_width_z != 0.)
-    _cell_width_z = _width_z / _num_z;
-  if (_width_z == std::numeric_limits<double>::infinity())
+
+  if (_width_z == std::numeric_limits<double>::infinity()) {
     _cell_width_z = 1.0;
+  }
 }
 
 
@@ -359,8 +357,6 @@ CMFD_PRECISION*** Cmfd::getBoundarySurfaceCurrents() {
  */
 void Cmfd::setWidthX(double width) {
   _width_x = width;
-  if (_num_x != 0)
-    _cell_width_x = _width_x / _num_x;
 }
 
 
@@ -370,8 +366,6 @@ void Cmfd::setWidthX(double width) {
  */
 void Cmfd::setWidthY(double width) {
   _width_y = width;
-  if (_num_y != 0)
-    _cell_width_y = _width_y / _num_y;
 }
 
 
@@ -381,8 +375,6 @@ void Cmfd::setWidthY(double width) {
  */
 void Cmfd::setWidthZ(double width) {
   _width_z = width;
-  if (_num_z != 0)
-    _cell_width_z = _width_z / _num_z;
 }
 
 
@@ -730,8 +722,13 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
   int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface);
   CMFD_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
-  CMFD_PRECISION delta_interface = getSurfaceWidth(surface);
-  CMFD_PRECISION delta = getPerpendicularSurfaceWidth(surface);
+  CMFD_PRECISION delta_interface = getSurfaceWidth(surface, global_cmfd_cell);
+  CMFD_PRECISION delta = getPerpendicularSurfaceWidth(surface, global_cmfd_cell);
+  
+  CMFD_PRECISION delta_next = 0.0;
+  if(global_cmfd_cell_next != -1) 
+    delta_next = getPerpendicularSurfaceWidth(surface, global_cmfd_cell_next);
+    
   int sense = getSense(surface);
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
@@ -814,7 +811,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
-        / (delta * dif_coef + delta * dif_coef_next);
+               / (delta_next * dif_coef + delta * dif_coef_next);
 
     /* Compute the surface-averaged net current across the surface */
     current = sense * (current_out - current_in) / delta_interface;
@@ -822,7 +819,10 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient correction */
     dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
         / (flux_next + flux);
-
+    /*if (correction)
+      printf("cmfd_cell=%2d, surface=%2d, group=%2d,flux=%20.10E, flux_next=%20.10E, dif_surf=%20.10E, dif_surf_corr=%20.10E, current_out=%20.10E, current_in=%20.10E\n",
+                 cmfd_cell,surface,group,flux,flux_next,dif_surf,dif_surf_corr,current_out,current_in);
+*/
     /* Flux limiting condition */
     if (_flux_limiting && moc_iteration > 0) {
       double ratio = dif_surf_corr / dif_surf;
@@ -1074,7 +1074,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
         for (int s = 0; s < NUM_FACES; s++) {
 
           sense = getSense(s);
-          delta = getSurfaceWidth(s);
+          delta = getSurfaceWidth(s, global_ind);
 
           /* Set transport term on diagonal */
           dif_surf = getSurfaceDiffusionCoefficient(
@@ -1416,7 +1416,7 @@ void Cmfd::initializeMaterials() {
       for (int y = 0; y < _local_num_y; y++) {
         for (int x = 0; x < _local_num_x; x++) {
           int ind = z*_local_num_x*_local_num_y + y*_local_num_x + x;
-          material = new Material(ind);
+          material = new Material(ind); //ind might be greater than DEFAULT_INIT_ID, dangerous.
           material->setNumEnergyGroups(_num_cmfd_groups);
           _materials[ind] = material;
         }
@@ -1572,7 +1572,8 @@ void Cmfd::initializeGroupMap() {
  */
 int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
-  cell = getGlobalCMFDCell(cell);
+  if (_geometry->isDomainDecomposed())
+    cell = getGlobalCMFDCell(cell);
   return _lattice->getLatticeSurface(cell, point);
 }
 
@@ -1585,8 +1586,12 @@ int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
 int Cmfd::findCmfdCell(LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   int global_cmfd_cell = _lattice->getLatticeCell(point);
-  int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
-  return local_cmfd_cell;
+  if (_geometry->isDomainDecomposed()) {
+    int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
+    return local_cmfd_cell;
+  }
+  else
+    return global_cmfd_cell;
 }
 
 
@@ -2515,6 +2520,7 @@ void Cmfd::generateKNearestStencils() {
 
 
   /* Compute axial quadratic interpolation values if requested */
+//need to be fixed, considering average value and non-uniform axial meshes.
   if (_use_axial_interpolation && _local_num_z >= 3) {
 
     /* Initialize axial quadratic interpolant values */
@@ -2822,67 +2828,72 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   bool found = false;
   double centroid_x = centroid->getX();
   double centroid_y = centroid->getY();
+  
+  /* The center of geometry is not always at (0,0,0), then relative coordinates
+     should be used. */
+  double dx = centroid_x - _lattice->getMinX();
+  double dy = centroid_y - _lattice->getMinY();
 
   /* LOWER LEFT CORNER */
   if (x > 0 && y > 0 && stencil_index == 0) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* LOWER RIGHT CORNER */
   else if (x < _num_x - 1 && y > 0 && stencil_index == 2) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* LEFT SIDE */
   else if (x > 0 && stencil_index == 3) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2), 2.0);
     found = true;
   }
 
   /* CURRENT */
   else if (stencil_index == 4) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2), 2.0);
     found = true;
   }
 
   /* RIGHT SIDE */
   else if (x < _num_x - 1 && stencil_index == 5) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2 ), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2 ), 2.0);
     found = true;
   }
 
   /* UPPER LEFT CORNER */
   else if (x > 0 && y < _num_y - 1 && stencil_index == 6) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
   /* TOP SIDE */
   else if (y < _num_y - 1 && stencil_index == 7) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
   /* UPPER RIGHT CORNER */
   else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
@@ -3271,9 +3282,45 @@ void Cmfd::initialize() {
 
 
 /**
- * @brief Initialize the CMFD lattice.
+ * @brief Initialize the CMFD lattice and compute mesh dimenssions.
  */
 void Cmfd::initializeLattice(Point* offset) {
+
+  if(_non_uniform) {
+    setNumX(_cell_widths_x.size());
+    setNumY(_cell_widths_y.size());
+    setNumZ(_cell_widths_z.size());
+  }
+  else {
+    _cell_width_x = _width_x / _num_x;
+    _cell_width_y = _width_y / _num_y;
+    _cell_width_z = _width_z / _num_z;
+    
+    _cell_widths_x.resize(_num_x,_cell_width_x);
+    _cell_widths_y.resize(_num_y,_cell_width_y);
+    _cell_widths_z.resize(_num_z,_cell_width_z);
+  }
+
+  _accumulate_x.resize(_num_x+1,0.0);
+  _accumulate_y.resize(_num_y+1,0.0);
+  _accumulate_z.resize(_num_z+1,0.0);
+  
+  for(int i=0; i<_num_x; i++)
+    _accumulate_x[i+1] = _accumulate_x[i] + _cell_widths_x[i];
+    
+  for(int i=0; i<_num_y; i++)
+    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];  
+    
+  for(int i=0; i<_num_z; i++)
+    _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
+  
+  if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
+     fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
+     fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
+    log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
+          "with geometry dimensions. width_x = %f, width_y = %f, width_z = %f," 
+          "sum_x = %f, sum_y = %f, sum_z = %f", _width_x, _width_y, _width_z, 
+          _accumulate_x[_num_x], _accumulate_y[_num_y], _accumulate_z[_num_z]);
 
   /* Delete old lattice if it exists */
   if (_lattice != NULL)
@@ -3284,8 +3331,14 @@ void Cmfd::initializeLattice(Point* offset) {
   _lattice->setNumX(_num_x);
   _lattice->setNumY(_num_y);
   _lattice->setNumZ(_num_z);
-  _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
+  if(_non_uniform)
+    _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
+  else
+    _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
+  
   _lattice->setOffset(offset->getX(), offset->getY(), offset->getZ());
+  
+  _lattice->computeSizes();
 }
 
 
@@ -3451,18 +3504,20 @@ void Cmfd::copyCurrentsToBackup() {
  * @param surface A surface index, from 0 to NUM_FACES - 1
  * @return The surface width
  */
-CMFD_PRECISION Cmfd::getSurfaceWidth(int surface) {
+CMFD_PRECISION Cmfd::getSurfaceWidth(int surface, int global_ind) {
 
   CMFD_PRECISION width;
-
+  
+  int ix = global_ind % _num_x;
+  int iy = (global_ind % (_num_x * _num_y)) / _num_x;
+  int iz = global_ind / (_num_x * _num_y);
+  
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
-    width = _cell_width_y * _cell_width_z;
+    return _cell_widths_y[iy] * _cell_widths_z[iz];
   else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
-    width = _cell_width_x * _cell_width_z;
+    return _cell_widths_x[ix] * _cell_widths_z[iz];
   else
-    width = _cell_width_x * _cell_width_y;
-
-  return width;
+    return _cell_widths_x[ix] * _cell_widths_y[iy];
 }
 
 
@@ -3471,14 +3526,18 @@ CMFD_PRECISION Cmfd::getSurfaceWidth(int surface) {
  * @param surface A surface index, from 0 to NUM_FACES - 1
  * @return The perpendicular surface width
  */
-CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface) {
+CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface, int global_ind) {
 
+  int ix = global_ind % _num_x;
+  int iy = (global_ind % (_num_x * _num_y)) / _num_x;
+  int iz = global_ind / (_num_x * _num_y);
+  
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
-    return _cell_width_x;
+    return _cell_widths_x[ix];
   else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
-    return _cell_width_y;
+    return _cell_widths_y[iy];
   else
-    return _cell_width_z;
+    return _cell_widths_z[iz];
 }
 
 
@@ -4752,4 +4811,60 @@ void Cmfd::recordNetCurrents() {
       }
     }
   }
+}
+
+/**
+ * @brief Set width of non-uniform meshes in x y z directions.
+ * @details An example of how this may be called from Python illustrated below:
+ *
+ * @code
+ *          cmfd.setWidths([[1,2,3], [4,5,6,7], [3.3,2.4]])
+ * @endcode
+ *
+ * @param widths A vector of 3 vectors for the x y z sizes of non-uniform meshes
+ */
+void Cmfd::setWidths(std::vector< std::vector<double> > widths) {
+  
+  if(widths.size() != 3) 
+    log_printf(ERROR, "Widths of THREE directions must be provided");
+  
+  _non_uniform = true;
+  _cell_widths_x = widths[0];
+  _cell_widths_y = widths[1];
+  _cell_widths_z = widths[2]; 
+}
+
+/**
+ * @brief For debug use.
+ */
+void Cmfd::printSizes() {
+  int i;
+  printf("non_uniform=%d, \nNum_XYZ: %2d, %2d, %2d\n", _non_uniform,
+         _num_x, _num_y, _num_z);
+  printf("Num_Local_XYZ: %2d, %2d, %2d\n", _local_num_x, 
+         _local_num_y, _local_num_z);
+  printf("width_XYZ: %f, %f, %f\n", _width_x,_width_y,_width_z);
+  printf("cell_width_XYZ: %f, %f, %f\n", _cell_width_x,
+         _cell_width_y,_cell_width_z);
+  printf("cell_widths_XYZ:\n");
+  for(i=0; i<_num_x; i++)
+    printf("i=%d, %f; ",i, _cell_widths_x[i]);
+  printf("\n");
+  for(i=0; i<_num_y; i++)
+    printf("i=%d, %f; ",i, _cell_widths_y[i]);
+  printf("\n");
+  for(i=0; i<_num_z; i++)
+    printf("i=%d, %f; ",i, _cell_widths_z[i]);
+  printf("\n");
+
+  printf("accumulates_XYZ:\n");
+  for(i=0; i<_num_x+1; i++)
+    printf("i=%d, %f; ",i, _accumulate_x[i]);
+  printf("\n");
+  for(i=0; i<_num_y+1; i++)
+    printf("i=%d, %f; ",i, _accumulate_y[i]);
+  printf("\n");
+  for(i=0; i<_num_z+1; i++)
+    printf("i=%d, %f; ",i, _accumulate_z[i]);
+  printf("\n");
 }

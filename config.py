@@ -160,7 +160,7 @@ class configuration:
   compiler_flags = dict()
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
-                           '-std=c++11', '-fpic']
+                           '-std=c++11', '-fpic', '-Wfloat-equal']
   compiler_flags['mpicc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
   compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
@@ -390,7 +390,7 @@ class configuration:
         self.compiler_flags[k].append('-g')
         ind = [i for i, item in enumerate(self.compiler_flags[k]) \
          if item.startswith('-O')]
-        self.compiler_flags[k][ind[0]] = '-Og'
+        self.compiler_flags[k][ind[0]] = '-O0'
 
     # If the user wishes to compile using the address sanitizer, append
     # flag to all lists of compiler flags for all distribution types

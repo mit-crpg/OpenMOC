@@ -9,7 +9,7 @@
 #define CONSTANTS_H_
 
 /** Threshold to determine if a float equals to 0.0 */
-#define FLT_EPSILON 1.0E-50
+#define FLT_EPSILON 1.0E-15
 
 /* The single line width permissible for timer / memory logger reports */
 #define REPORT_WIDTH 53

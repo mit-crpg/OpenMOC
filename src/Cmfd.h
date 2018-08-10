@@ -191,7 +191,20 @@ private:
   double _cell_width_x;
   double _cell_width_y;
   double _cell_width_z;
-
+  
+  /** Physical dimensions of non-uniform CMFD meshes (for whole geometry) */
+  std::vector<double> _cell_widths_x;
+  std::vector<double> _cell_widths_y;
+  std::vector<double> _cell_widths_z;
+  
+  /** Distance of each mesh from the left-lower-bottom most point */
+  std::vector<double> _accumulate_x;
+  std::vector<double> _accumulate_y;
+  std::vector<double> _accumulate_z;
+  
+  /** True if the cmfd meshes are non-uniform */
+  bool _non_uniform;
+  
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
 
@@ -346,8 +359,8 @@ private:
                                                 int group, int moc_iteration,
                                                 bool correction);
   CMFD_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
-  CMFD_PRECISION getSurfaceWidth(int surface);
-  CMFD_PRECISION getPerpendicularSurfaceWidth(int surface);
+  CMFD_PRECISION getSurfaceWidth(int surface, int global_ind);
+  CMFD_PRECISION getPerpendicularSurfaceWidth(int surface, int global_ind);
   int getSense(int surface);
   int getLocalCMFDCell(int cmfd_cell); //TODO: optimize, document
   int getGlobalCMFDCell(int cmfd_cell); //TODO: optimize, document
@@ -454,6 +467,12 @@ public:
   void setFSRSources(FP_PRECISION* sources);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);
+  
+  /* Set XYZ widths of non-uniform meshes */
+  void setWidths(std::vector< std::vector<double> > widths);
+  
+  /* For debug use */
+  void printSizes();
 };
 
 

@@ -1623,8 +1623,8 @@ std::string Cell::toString() {
   std::map<int, Halfspace*> _surfaces = getSurfaces();
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << "\nhalfspace = " << iter->second->_halfspace << ", " <<
-           iter->second->_surface->toString();
+    string <<  std::showpos << "\nhalfspace = " << iter->second->_halfspace 
+           << ", " << iter->second->_surface->toString();
 
   return string.str();
 }

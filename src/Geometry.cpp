@@ -2616,12 +2616,16 @@ void Geometry::initializeFSRVectors() {
     /* Allocate extruded FSR lookup vector and fill with extruded FSRs by ID */
     _extruded_FSR_lookup = std::vector<ExtrudedFSR*>(num_extruded_FSRs);
     ExtrudedFSR **extruded_value_list = _extruded_FSR_keys_map.values();
+    std::string *extruded_key_list = _extruded_FSR_keys_map.keys();
 #pragma omp parallel for
     for (int i=0; i < num_extruded_FSRs; i++) {
       long fsr_id = extruded_value_list[i]->_fsr_id;
       _extruded_FSR_lookup[fsr_id] = extruded_value_list[i];
+      /* log_printf(NORMAL, "ExtFSRId=%d, Extkey=%s\n", fsr_id, 
+                 extruded_key_list[i].c_str()); */
     }
 
+    delete [] extruded_key_list;
     delete [] extruded_value_list;
   }
 
@@ -2983,9 +2987,6 @@ void Geometry::initializeCmfd() {
   _cmfd->setWidthY(max_y - min_y);
   _cmfd->setWidthZ(max_z - min_z);
 
-  /* Intialize CMFD Maps */
-  _cmfd->initializeCellMap();
-
   /* Initialize the CMFD lattice */
   Point offset;
   offset.setX(min_x + (max_x - min_x)/2.0);
@@ -2993,6 +2994,10 @@ void Geometry::initializeCmfd() {
   offset.setZ(min_z + (max_z - min_z)/2.0);
 
   _cmfd->initializeLattice(&offset);
+  
+  /* Intialize CMFD Maps */
+  _cmfd->initializeCellMap();
+  
   _cmfd->setGeometry(this);
 
 #ifdef MPIx
