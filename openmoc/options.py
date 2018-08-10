@@ -62,12 +62,14 @@ class Options(object):
         """Initialize default values for each runtime parameter and parses the
         command line arguments assigns the appropriate value to each."""
 
-        self._short_args = 'hfa:s:i:c:t:b:g:r:l:'
+        self._short_args = 'fha:s:r:l:i:c:t:b:g:'
         self._long_args = ['help',
                            'num-azim=',
                            'azim-spacing=',
-                           'tolerance=',
+                           'num_polar=',
+                           'polar-spacing=',
                            'max-iters=',
+                           'tolerance=',                           
                            'num-omp-threads=',
                            'num-thread-blocks=',
                            'num-threads-per-block=']
@@ -169,7 +171,7 @@ class Options(object):
                 num_azim += 'the number of azimuthal angles\n'
                 print(num_azim)
 
-                num_polar = '\t{: <35}'.format('-a, --num-polar=<6>')
+                num_polar = '\t{: <35}'.format('-r, --num-polar=<6>')
                 num_polar += 'the number of polar angles\n'
                 print(num_polar)
 
@@ -177,7 +179,7 @@ class Options(object):
                 azim_spacing += 'The azimuthal track spacing [cm]\n'
                 print(azim_spacing)
 
-                polar_spacing = '\t{: <35}'.format('-s, --polar-spacing=<0.1>')
+                polar_spacing = '\t{: <35}'.format('-l, --polar-spacing=<0.1>')
                 polar_spacing += 'The polar track spacing [cm]\n'
                 print(polar_spacing)
 
@@ -207,11 +209,11 @@ class Options(object):
 
             elif opt in ('-a', '--num-azim'):
                 self._num_azim = int(arg)
-            elif opt in ('-a', '--num-polar'):
+            elif opt in ('-r', '--num-polar'):
                 self._num_polar = int(arg)
             elif opt in ('-s', '--azim-spacing'):
                 self._azim_spacing = float(arg)
-            elif opt in ('-s', '--polar-spacing'):
+            elif opt in ('-l', '--polar-spacing'):
                 self._polar_spacing = float(arg)
             elif opt in ('-i', '--max-iters'):
                 self._max_iters = int(arg)
