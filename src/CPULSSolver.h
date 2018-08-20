@@ -65,16 +65,16 @@ public:
   void initializeCmfd();
   void initializeExpEvaluators();
   void initializeFSRs();
-  
-  //FIXME
-  void checkLimitXS(int iteration);
 
   void flattenFSRFluxes(FP_PRECISION value);
   double normalizeFluxes();
   void computeFSRSources(int iteration);
   void addSourceToScalarFlux();
+  
+  /* Transport stabilization routines */
   void computeStabilizingFlux();
   void stabilizeFlux();
+  void checkLimitXS(int iteration);
 
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
                          float* track_flux, FP_PRECISION* fsr_flux,

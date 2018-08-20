@@ -167,6 +167,7 @@ void CPULSSolver::flattenFSRFluxes(FP_PRECISION value) {
 /**
  * @brief Normalizes all FSR scalar fluxes and Track boundary angular
  *        fluxes to the total fission source (times \f$ \nu \f$).
+ * @return norm_factor the normalization factor on the scalar fluxes and moments
  */
 double CPULSSolver::normalizeFluxes() {
 
@@ -186,26 +187,11 @@ double CPULSSolver::normalizeFluxes() {
 }
 
 
-//FIXME
-void CPULSSolver::checkLimitXS(int iteration) {
-
-  Solver::checkLimitXS(iteration);
-
-  if (iteration != _reset_iteration)
-    return;
-
-  /* Generate linear source coefficients */
-  log_printf(NORMAL, "Generating linear expansion coefficients");
-  LinearExpansionGenerator lin_src_coeffs(this);
-  lin_src_coeffs.execute();
-  log_printf(NORMAL, "Linear expansion coefficient generation complete");
-}
-
-
 /**
  * @brief Computes the total source (fission, scattering, fixed) in each FSR.
  * @details This method computes the total source in each FSR based on
- *          this iteration's current approximation to the scalar flux.
+ *          this iteration's current approximation to the scalar flux and its
+ *          moments. Fixed source moments are currently not supported.
  */
 void CPULSSolver::computeFSRSources(int iteration) {
   CPUSolver::computeFSRSources(iteration);
@@ -233,6 +219,39 @@ void CPULSSolver::computeFSRSources(int iteration) {
       chi = material->getChi();
       sigma_t = material->getSigmaT();
       sigma_s = material->getSigmaS();
+
+      /* Initialize the fission sources to zero */
+      double fission_source_x = 0.0;
+      double fission_source_y = 0.0;
+      double fission_source_z = 0.0;
+
+      /* Compute fission sources */
+      if (material->isFissionable()) {
+        FP_PRECISION* fission_sources_x = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++)
+          fission_sources_x[g_prime] =
+              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,0);
+        fission_source_x =
+            pairwise_sum<FP_PRECISION>(fission_sources_x, _num_groups);
+
+        FP_PRECISION* fission_sources_y = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++)
+          fission_sources_y[g_prime] =
+              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,1);
+        fission_source_y =
+            pairwise_sum<FP_PRECISION>(fission_sources_y, _num_groups);
+
+        FP_PRECISION* fission_sources_z = _groupwise_scratch.at(tid);
+        for (int g_prime=0; g_prime < _num_groups; g_prime++)
+          fission_sources_z[g_prime] =
+              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,2);
+        fission_source_z =
+            pairwise_sum<FP_PRECISION>(fission_sources_z, _num_groups);
+
+        fission_source_x /= _k_eff;
+        fission_source_y /= _k_eff;
+        fission_source_z /= _k_eff;
+      }
 
       /* Compute scatter + fission source for group g */
       for (int g=0; g < _num_groups; g++) {
@@ -267,33 +286,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
         double scatter_source_z =
             pairwise_sum<FP_PRECISION>(scatter_sources_z, _num_groups);
 
-
-        /* Compute fission sources */
-        FP_PRECISION* fission_sources_x = _groupwise_scratch.at(tid);
-        for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_x[g_prime] =
-              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,0);
-        double fission_source_x =
-            pairwise_sum<FP_PRECISION>(fission_sources_x, _num_groups);
-
-        FP_PRECISION* fission_sources_y = _groupwise_scratch.at(tid);
-        for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_y[g_prime] =
-              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,1);
-        double fission_source_y =
-            pairwise_sum<FP_PRECISION>(fission_sources_y, _num_groups);
-
-        FP_PRECISION* fission_sources_z = _groupwise_scratch.at(tid);
-        for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_z[g_prime] =
-              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,2);
-        double fission_source_z =
-            pairwise_sum<FP_PRECISION>(fission_sources_z, _num_groups);
-
-        fission_source_x /= _k_eff;
-        fission_source_y /= _k_eff;
-        fission_source_z /= _k_eff;
-
+        /* Compute total (scatter + fission) source */
         src_x = scatter_source_x + chi[g] * fission_source_x;
         src_y = scatter_source_y + chi[g] * fission_source_y;
         src_z = scatter_source_z + chi[g] * fission_source_z;
@@ -773,6 +766,27 @@ void CPULSSolver::stabilizeFlux() {
 
 
 /**
+ * @brief Checks to see if limited XS should be reset
+ * @details For the linear source, the linear expansion coefficients should also
+ *          be reset, to use the non-limited cross sections.
+ * @param iteration The MOC iteration number
+ */
+void CPULSSolver::checkLimitXS(int iteration) {
+
+  Solver::checkLimitXS(iteration);
+
+  if (iteration != _reset_iteration)
+    return;
+
+  /* Generate linear source coefficients */
+  log_printf(NORMAL, "Generating linear expansion coefficients");
+  LinearExpansionGenerator lin_src_coeffs(this);
+  lin_src_coeffs.execute();
+  log_printf(NORMAL, "Linear expansion coefficient generation complete");
+}
+
+
+/**
  * @brief Get the flux at a specific point in the geometry.
  * @param coords The coords of the point to get the flux at
  * @param group the energy group
@@ -826,7 +840,12 @@ double CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 }
 
 
-//FIXME
+/**
+ * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
+ * @details For the linear source solver, a pointer to the flux moments is 
+ *          passed to the Cmfd object so that they can be updated as well in
+ *          the prolongation phase.
+ */
 void CPULSSolver::initializeCmfd() {
   Solver::initializeCmfd();
   if (_cmfd != NULL)
@@ -834,7 +853,10 @@ void CPULSSolver::initializeCmfd() {
 }
 
 
-//FIXME
+/**
+ * @brief Initializes new ExpEvaluator objects to compute exponentials.
+ * @details Using the linear source incurs calculating extra exponential terms.
+ */
 void CPULSSolver::initializeExpEvaluators() {
   for (int a=0; a < _num_exp_evaluators_azim; a++)
     for (int p=0; p < _num_exp_evaluators_polar; p++)
@@ -844,7 +866,10 @@ void CPULSSolver::initializeExpEvaluators() {
 
 
 /**
- FIXME
+ * @brief Initializes (if not initialized) and returns a memory buffer to the 
+ *        linear source expansion matrix coefficients.
+ * @return _FSR_lin_exp_matrix a pointer to the linear source expansion 
+ *         coefficients
  */
 double* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 #pragma omp critical
@@ -863,7 +888,9 @@ double* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 
 
 /**
-FIXME
+ * @brief Initializes (if not initialized) and returns a memory buffer to the 
+ *        constant part (constant between MOC iterations) of the linear source.
+ * @return _FSR_source_constants a pointer to the linear source constant part
  */
 FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
 #pragma omp critical

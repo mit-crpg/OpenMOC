@@ -1800,7 +1800,8 @@ void CPUSolver::transportSweep() {
  *          energy groups and polar angles, and tallies it into the FSR
  *          scalar flux, and updates the Track's angular flux.
  * @param curr_segment a pointer to the Track segment of interest
- * @param azim_index a pointer to the azimuthal angle index for this segment
+ * @param azim_index azimuthal angle index for this segment
+ * @param polar_index polar angle index for this segment 
  * @param track_flux a pointer to the Track's angular flux
  * @param fsr_flux a pointer to the temporary FSR flux buffer
  */
@@ -1878,6 +1879,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index the azimuthal index for this segmenbt
+ * @param polar_index the polar index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
  */
@@ -1896,8 +1898,9 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
  * @details For reflective boundary conditions, the outgoing boundary flux
  *          for the Track is given to the reflecting Track. For vacuum
  *          boundary conditions, the outgoing flux tallied as leakage.
- * @param track_id the ID number for the Track of interest
- * @param azim_index a pointer to the azimuthal angle index for this segment
+ * @param track a pointer to the Track of interest
+ * @param azim_index azimuthal angle index for this segment
+ * @param polar_index polar angle index for this segment
  * @param direction the Track direction (forward - true, reverse - false)
  * @param track_flux a pointer to the Track's outgoing angular flux
  */
