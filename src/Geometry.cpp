@@ -42,13 +42,6 @@ Geometry::Geometry() {
  * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
-
-  /* Free all materials */
-  std::map<int, Material*> materials = _root_universe->getAllMaterials();
-  std::map<int, Material*>::iterator iter;
-  for (iter = materials.begin(); iter != materials.end(); ++iter)
-    delete iter->second;
-
   /* Free all surfaces */
   if (_loaded_from_file) {
     std::map<int, Surface*> surfaces = getAllSurfaces();
@@ -422,8 +415,8 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
       surfs = cell->getSurfaces();
 
       for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-	surf = (*s_iter).second->_surface;
-	all_surfs[surf->getId()] = surf;
+  surf = (*s_iter).second->_surface;
+  all_surfs[surf->getId()] = surf;
       }
     }
   }
@@ -2625,11 +2618,11 @@ void Geometry::computeFissionability(Universe* univ) {
 
   Material* material;
   std::map<int, Material*> materials;
-	std::map<int, Material*>::iterator mat_iter;
+  std::map<int, Material*>::iterator mat_iter;
 
   Universe* universe;
   std::map<int, Universe*> universes;
-	std::map<int, Universe*>::iterator univ_iter;
+  std::map<int, Universe*>::iterator univ_iter;
 
   /* If no Universe was passed in as an argument, then this is the first
    * recursive call from a user via Python, so get the base Universe */
