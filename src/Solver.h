@@ -439,6 +439,12 @@ public:
   void setConvergenceThreshold(double threshold);
   virtual void setFixedSourceByFSR(long fsr_id, int group, double source);
   void setFixedSourceByCell(Cell* cell, int group, double source);
+  virtual void setFixedSourceMomentsByCell(Cell* cell, int group, 
+                                           double source_x, double source_y, 
+                                           double source_z) = 0;
+  virtual void setFixedSourceMomentByFSR(long fsr_id, int group,
+                                         double source_x, double source_y,
+                                         double source_z) = 0;
   void setFixedSourceByMaterial(Material* material, int group,
                                 double source);
   void setMaxOpticalLength(FP_PRECISION max_optical_length);

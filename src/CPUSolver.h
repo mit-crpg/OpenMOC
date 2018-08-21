@@ -139,7 +139,6 @@ public:
                             bool direction, float* track_flux);
 
   void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
-
   void initializeFixedSources();
 
   void printFSRFluxes(std::vector<double> dim1,

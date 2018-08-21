@@ -17,6 +17,7 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
   _reduced_sources_xyz = NULL;
   _stabilizing_flux_xyz = NULL;
   _stabilize_moments = true;
+  _fixed_source_moments_on = false;
   _source_type = "Linear";
 }
 
@@ -111,6 +112,8 @@ void CPULSSolver::initializeSourceArrays() {
 #endif
     double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
+    if (_fixed_source_moments_on)
+      max_size_mb *= 3;
     log_printf(NORMAL, "Max linear source storage per domain = %6.2f MB",
                max_size_mb);
 
@@ -142,6 +145,150 @@ void CPULSSolver::initializeFSRs() {
   LinearExpansionGenerator lin_src_coeffs(this);
   lin_src_coeffs.execute();
   log_printf(NORMAL, "Linear expansion coefficient generation complete");
+}
+
+
+/**
+ * @brief Initializes the arrays for the fixed source and its moments
+ */
+void CPULSSolver::initializeFixedSources() {
+
+  CPUSolver::initializeFixedSources();
+  log_printf(NORMAL, "Initializing linear fixed sources...");
+
+  /* Allocate the fixed sources array if not yet allocated */
+  if (_fixed_sources_xyz.empty()) {
+    long size = _num_FSRs * _num_groups;
+    _fixed_sources_xyz.resize(size);
+    for (long i=0; i<size; i++)
+      _fixed_sources_xyz.at(i).resize(3, 0);
+  }
+
+  /* Fill the fixed source moments with the user defined values */
+  Cell* fsr_cell;
+  long cell_id, fsr_id;
+  int group;
+  double source_x, source_y, source_z;
+  std::map< std::pair<Cell*, int>, std::vector<double> >::iterator cell_iter;
+  std::map< std::pair<int, int>, std::vector<double> >::iterator fsr_iter;
+
+  /* Fixed sources assigned by Cell */
+  for (cell_iter = _fix_src_xyz_cell_map.begin();
+       cell_iter != _fix_src_xyz_cell_map.end(); ++cell_iter) {
+
+    /* Get the Cell with an assigned fixed source */
+    cell_id = (cell_iter->first).first->getId();
+    group = cell_iter->first.second;
+    source_x = cell_iter->second[0];
+    source_y = cell_iter->second[1];
+    source_z = cell_iter->second[2];
+
+    /* Search for this Cell in all FSRs */
+    for (long r=0; r < _num_FSRs; r++) {
+      fsr_cell = _geometry->findCellContainingFSR(r);
+      if (cell_id == fsr_cell->getId())
+        setFixedSourceMomentByFSR(r, group+1, source_x, source_y, source_z);
+    }
+  }
+
+  /* Fixed sources assigned by FSRs */
+  for (fsr_iter = _fix_src_xyz_FSR_map.begin();
+       fsr_iter != _fix_src_xyz_FSR_map.end(); ++fsr_iter) {
+
+    /* Get the Cell with an assigned fixed source */
+    fsr_id = (fsr_iter->first).first;
+    group = fsr_iter->first.second;
+    source_x = fsr_iter->second[0];
+    source_y = fsr_iter->second[1];
+    source_z = fsr_iter->second[2];
+
+    /* Warn the user if a fixed source has already been assigned to this FSR */
+    if (fabs(_fixed_sources_xyz(fsr_id,group,0)) > FLT_EPSILON ||
+        fabs(_fixed_sources_xyz(fsr_id,group,1)) > FLT_EPSILON ||
+        fabs(_fixed_sources_xyz(fsr_id,group,2)) > FLT_EPSILON)
+      log_printf(WARNING, "Overriding fixed linear source %f %f %f in FSR ID=%d"
+                 " group %d with %f %f %f", _fixed_sources_xyz(fsr_id,group, 0),
+                 _fixed_sources_xyz(fsr_id,group,1),
+                 _fixed_sources_xyz(fsr_id,group,2), fsr_id, group, source_x,
+                 source_y, source_z);
+
+    /* Store the fixed source moments for this FSR and energy group */
+    _fixed_sources_xyz(fsr_id,group,0) = source_x;
+    _fixed_sources_xyz(fsr_id,group,1) = source_y;
+    _fixed_sources_xyz(fsr_id,group,2) = source_z;
+  }
+}
+
+
+/**
+ * @brief Assign fixed source moments for a Cell and energy group.
+ * @details This routine will add fixed source moments to all instances of the
+ *          Cell in the geometry (e.g., all FSRs for this Cell).
+ * @param cell a pointer to the Cell of interest
+ * @param group the energy group (starts at 1)
+ * @param src_x the volume-averaged source x-moment in this group
+ * @param src_y the volume-averaged source y-moment in this group
+ * @param src_z the volume-averaged source z-moment in this group
+ */
+void CPULSSolver::setFixedSourceMomentsByCell(Cell* cell, int group,
+                                              double src_x, double src_y,
+                                              double src_z) {
+
+  /* Recursively add the source to all Cells within a FILL type Cell */
+  if (cell->getType() == FILL) {
+    std::map<int, Cell*> cells = cell->getAllCells();
+    std::map<int, Cell*>::iterator iter;
+    for (iter = cells.begin(); iter != cells.end(); ++iter)
+      setFixedSourceMomentsByCell(iter->second, group, src_x, src_y,
+                                  src_z);
+  }
+
+  /* Add the source to all FSRs for this MATERIAL type Cell */
+  else {
+    /* Switch to zero indexing */
+    group--;
+
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)].resize(3, 0);
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)][0] = src_x;
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)][1] = src_y;
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)][2] = src_z;
+  }
+
+  /* Keep a trace that fixed moments have been provided */
+  _fixed_source_moments_on = true;
+}
+
+
+/**
+ * @brief Assign fixed source moments for a FSR and energy group.
+ * @param fsr_id the id of the FSR
+ * @param group the energy group (starts at 1)
+ * @param src_x the volume-averaged source x-moment in this group
+ * @param src_y the volume-averaged source y-moment in this group
+ * @param src_z the volume-averaged source z-moment in this group
+ */
+void CPULSSolver::setFixedSourceMomentByFSR(long fsr_id, int group,
+                                            double src_x, double src_y,
+                                            double src_z) {
+
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR,"Unable to set fixed source for group %d in "
+               "in a %d energy group problem", group, _num_groups);
+
+  if (fsr_id < 0 || fsr_id >= _num_FSRs)
+    log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
+               "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+  /* Switch to zero indexing */
+  group--;
+
+  _fix_src_xyz_FSR_map[std::pair<int, int>(fsr_id, group)].resize(3, 0);
+  _fix_src_xyz_FSR_map[std::pair<int, int>(fsr_id, group)][0] = src_x;
+  _fix_src_xyz_FSR_map[std::pair<int, int>(fsr_id, group)][1] = src_y;
+  _fix_src_xyz_FSR_map[std::pair<int, int>(fsr_id, group)][2] = src_z;
+
+  /* Keep a trace that fixed moments have been provided */
+  _fixed_source_moments_on = true;
 }
 
 
@@ -290,6 +437,11 @@ void CPULSSolver::computeFSRSources(int iteration) {
         src_x = scatter_source_x + chi[g] * fission_source_x;
         src_y = scatter_source_y + chi[g] * fission_source_y;
         src_z = scatter_source_z + chi[g] * fission_source_z;
+        if (_fixed_source_moments_on) {
+          src_x += _fixed_sources_xyz(r, g, 0);
+          src_y += _fixed_sources_xyz(r, g, 1);
+          src_z += _fixed_sources_xyz(r, g, 2);
+        }
 
         /* Compute total (scatter+fission) reduced source moments */
         if (_SOLVE_3D) {
