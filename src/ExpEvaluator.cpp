@@ -367,7 +367,10 @@ FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
 }
 
 
-//FIXME
+/**
+ * @brief Deep copies an ExpEvaluator, for developing purposes.
+ * @return the copied ExpEvaluator
+ */
 ExpEvaluator* ExpEvaluator::deepCopy() {
 
   ExpEvaluator* new_evaluator = new ExpEvaluator();

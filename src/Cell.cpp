@@ -890,6 +890,7 @@ void Cell::setNumInstances(int num_instances) {
   _num_instances = num_instances;
 }
 
+
 /**
  * @brief Set the Cell's rotation angles about the x, y and z axes.
  * @details This method is a helper function to allow OpenMOC users to assign
@@ -1499,7 +1500,7 @@ void Cell::buildNeighbors() {
   Surface* surface;
   int halfspace;
 
-  /* Add this Cell to all of the Surfaces in this Cell */
+  /* Add this Cell to all of this Cell's Surfaces's neighbor lists */
   std::map<int, surface_halfspace*>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
@@ -1572,7 +1573,10 @@ void Cell::printString() {
 }
 
 
-//FIXME
+/**
+ * @brief Obtain and return the number of ZCylinders in the cell's surfaces
+ * @return the number of ZCylinders used to define this cell's region
+ */
 int Cell::getNumZCylinders() {
 
   std::map<int, surface_halfspace*>::iterator iter1;

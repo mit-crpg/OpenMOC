@@ -257,13 +257,25 @@ private:
   /** Axial interpolation constants */
   std::vector<double*> _axial_interpolants;
 
-  //TODO: document
+  /* Structure to contain information about the convergence of the CMFD */
   ConvergenceData* _convergence_data;
+  
+  /* MPI communicator to transfer buffers, mainly currents at interfaces */
   DomainCommunicator* _domain_communicator;
+  
+  /* Buffer to contain received data */
   CMFD_PRECISION* _inter_domain_data;
+  
+  /* Buffer to contain sent data from domain */
   CMFD_PRECISION* _send_domain_data;
+  
+  /* For each face (1st dimension of the array), will contain data received */
   CMFD_PRECISION** _domain_data_by_surface;
+
+  /* For each face (1st dimension of the array), will contain data to send */
   CMFD_PRECISION** _send_data_by_surface;
+  
+  /* Map of the indexes to each boundary in the tally arrays */
   std::vector<std::map<int, int> > _boundary_index_map;
 
   /* The number of on-domain cells in the x-direction */
@@ -275,13 +287,26 @@ private:
   /* The number of on-domain cells in the z-direction */
   int _local_num_z;
 
-  //TODO: document
+  /* Size of _tally_memory array */
   long _total_tally_size;
+  
+  /* 1D array that contains all tallies */
   CMFD_PRECISION* _tally_memory;
+  
+  /* 2D array that contains reaction rates in each cell and group */
   CMFD_PRECISION** _reaction_tally;
+
+  /* 2D array that contains volume tallies of each cell */
   CMFD_PRECISION** _volume_tally;
+  
+  /* 2D array that contains diffusion tallies for each cell and groups */
   CMFD_PRECISION** _diffusion_tally;
+  
+  /* Boolean to check if tallies are allocated */
   bool _tallies_allocated;
+  
+  /* Boolean to check if the domain communicator (for domain decomposed CMFD)
+   * has been allocated */
   bool _domain_communicator_allocated;
 
   /** A timer to record timing data for a simulation */
@@ -326,7 +351,7 @@ private:
   int getSense(int surface);
   int getLocalCMFDCell(int cmfd_cell); //TODO: optimize, document
   int getGlobalCMFDCell(int cmfd_cell); //TODO: optimize, document
-    int getCellColor(int cmfd_cell); //TODO: optimize, document
+  int getCellColor(int cmfd_cell); //TODO: optimize, document
   void packBuffers();
 #ifdef MPIx
   void ghostCellExchange();
@@ -410,15 +435,16 @@ public:
   void setKeff(double k_eff);
   void setBackupGroupStructure(std::vector< std::vector<int> > group_indices);
 
-  //TODO: clean, document
-  void enforceBalanceOnDiagonal(int cmfd_cell, int group);
 #ifdef MPIx
   void setNumDomains(int num_x, int num_y, int num_z);
   void setDomainIndexes(int idx_x, int idx_y, int idx_z);
 #endif
   void setConvergenceData(ConvergenceData* convergence_data);
   void useAxialInterpolation(bool interpolate);
+  
+  /* Methods to try to fix stability issues */
   void useFluxLimiting(bool flux_limiting);
+  void enforceBalanceOnDiagonal(int cmfd_cell, int group);
   void rebalanceSigmaT(bool balance_sigma_t);
 
   /* Set FSR parameters */
