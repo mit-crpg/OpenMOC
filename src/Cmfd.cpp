@@ -237,7 +237,6 @@ Cmfd::~Cmfd() {
       delete [] _old_boundary_flux;
       delete [] _boundary_surface_currents;
     }
-    //delete _domain_communicator;
   }
 
   for (long r=0; r < _axial_interpolants.size(); r++)
@@ -2447,9 +2446,7 @@ void Cmfd::generateKNearestStencils() {
     /* Initialize axial quadratic interpolant values */
     _axial_interpolants.resize(_num_FSRs);
     for (long r=0; r < _num_FSRs; r++) {
-      _axial_interpolants.at(r) = new double[3];
-      for (int j=0; j < 3; j++)
-        _axial_interpolants.at(r)[j] = 0.0;
+      _axial_interpolants.at(r) = new double[3]();
     }
     
     /* Calculate common factors */
@@ -2640,7 +2637,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
   if (_use_axial_interpolation)
     interpolants = _axial_interpolants.at(fsr);
   if (_use_axial_interpolation && _local_num_z >= 3 && 
-    ( interpolants[0] != 0 || interpolants[2] != 0) ) {
+    (interpolants[0] != 0 || interpolants[2] != 0)) {
     int z_ind = cell_id / (_local_num_x * _local_num_y);
     int cell_mid = cell_id;
     if (z_ind == 0)
