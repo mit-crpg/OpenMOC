@@ -528,9 +528,9 @@ Cell* Universe::findCell(LocalCoords* coords) {
         /* Apply translation to position in the next coords */
         if (cell->isTranslated()){
           double* translation = cell->getTranslation();
-          double new_x = coords->getX() + translation[0];
-          double new_y = coords->getY() + translation[1];
-          double new_z = coords->getZ() + translation[2];
+          double new_x = coords->getX() - translation[0];
+          double new_y = coords->getY() - translation[1];
+          double new_z = coords->getZ() - translation[2];
           next_coords->setX(new_x);
           next_coords->setY(new_y);
           next_coords->setZ(new_z);
@@ -1395,20 +1395,20 @@ void Lattice::updateUniverse(int lat_x, int lat_y, int lat_z,
 
   if (_num_x == -1 || _num_y == -1 || _num_z == -1)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d which "
-	       "has not yet been assigned an array of Universes",
-	       universe->getId(), _id);
+         "has not yet been assigned an array of Universes",
+         universe->getId(), _id);
   if (lat_x < 0 || lat_x >= _num_x)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
-	       "Lattice cell index lat_x=%d which is outside the "
-	       "array of Universes", universe->getId(), _id, lat_x);
+         "Lattice cell index lat_x=%d which is outside the "
+         "array of Universes", universe->getId(), _id, lat_x);
   if (lat_y < 0 || lat_y >= _num_y)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
-	       "Lattice cell index lat_z=%d which is outside the "
-	       "array of Universes", universe->getId(), _id, lat_z);
+         "Lattice cell index lat_y=%d which is outside the "
+         "array of Universes", universe->getId(), _id, lat_y);
   if (lat_z < 0 || lat_z >= _num_z)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
-	       "Lattice cell index lat_z=%d which is outside the "
-	       "array of Universes", universe->getId(), _id, lat_z);
+         "Lattice cell index lat_z=%d which is outside the "
+         "array of Universes", universe->getId(), _id, lat_z);
 
   /* Assign the Universe to the array */
   _universes.at(lat_z).at(lat_y).at(lat_x) =
