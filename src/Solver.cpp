@@ -48,7 +48,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _scalar_flux = NULL;
   _old_scalar_flux = NULL;
   _reference_flux = NULL;
-  _stabalizing_flux = NULL;
+  _stabilizing_flux = NULL;
   _fixed_sources = NULL;
   _reduced_sources = NULL;
   _source_type = "None";
@@ -67,7 +67,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _timer = new Timer();
 
   _correct_xs = false;
-  _stabalize_transport = false;
+  _stabilize_transport = false;
   _verbose = false;
   _calculate_initial_spectrum = false;
   _initial_spectrum_thresh = 1.0;
@@ -110,8 +110,8 @@ Solver::~Solver() {
   if (_reference_flux != NULL)
     delete [] _reference_flux;
   
-  if (_stabalizing_flux != NULL)
-    delete [] _stabalizing_flux;
+  if (_stabilizing_flux != NULL)
+    delete [] _stabilizing_flux;
 
   if (_fixed_sources != NULL)
     delete [] _fixed_sources;
@@ -566,38 +566,38 @@ void Solver::correctXS() {
 
 
 /**
- * @brief   Directs OpenMOC to use the diagonal stabalizing correction to
+ * @brief   Directs OpenMOC to use the diagonal stabilizing correction to
  *          the source iteration transport sweep
  * @details The source iteration process which MOC uses can be unstable
  *          if negative cross-sections arise from transport correction. This
- *          instability causes issues in convergence. The stabalizing
+ *          instability causes issues in convergence. The stabilizing
  *          correction fixes this by adding a diagonal matrix to both sides
  *          of the discretized transport equation which introduces no bias
  *          but transforms the iteration matrix into one that is stable.
  *
- *          Three stabalization options exist: DIAGONAL, YAMAMOTO, and GLOBAL.
+ *          Three stabilization options exist: DIAGONAL, YAMAMOTO, and GLOBAL.
  *
- *          DIAGONAL: The stabalization is only applied to fluxes where the
+ *          DIAGONAL: The stabilization is only applied to fluxes where the
  *                    associated in-scatter cross-section is negative. The
- *                    added stabalizing flux is equal to the magnitude of the
+ *                    added stabilizing flux is equal to the magnitude of the
  *                    in-scatter cross-section divided by the total
- *                    cross-section and scaled by the stabalization factor.
+ *                    cross-section and scaled by the stabilization factor.
  *          YAMAMOTO: This is the same as DIAGONAL except that the largest
- *                    stabalization is applied to all regions, not just those
+ *                    stabilization is applied to all regions, not just those
  *                    containing negative in-scatter cross-sections.
- *          GLOBAL: This method applies a global stabalization factor to all
- *                  fluxes defined by the user. In addition, the stabalization
+ *          GLOBAL: This method applies a global stabilization factor to all
+ *                  fluxes defined by the user. In addition, the stabilization
  *                  factor in this option refers to a damping factor, not
- *                  the magnitude of the stabalizing correction.
+ *                  the magnitude of the stabilizing correction.
  *
- * @param stabalization_factor The factor applied to the stabalizing correction
- * @param stabalizaiton_type The type of stabalization to use
+ * @param stabilization_factor The factor applied to the stabilizing correction
+ * @param stabilizaiton_type The type of stabilization to use
  */
-void Solver::stabalizeTransport(double stabalization_factor, 
-                                stabalizationType stabalization_type) {
-  _stabalize_transport = true;
-  _stabalization_factor = stabalization_factor;
-  _stabalization_type = stabalization_type;
+void Solver::stabilizeTransport(double stabilization_factor, 
+                                stabilizationType stabilization_type) {
+  _stabilize_transport = true;
+  _stabilization_factor = stabilization_factor;
+  _stabilization_type = stabilization_type;
 }
   
 
@@ -1454,9 +1454,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    /* Comptue the stabalizing flux if necessary */
-    if (i > 0 && _stabalize_transport) {
-      computeStabalizingFlux();
+    /* Comptue the stabilizing flux if necessary */
+    if (i > 0 && _stabilize_transport) {
+      computeStabilizingFlux();
     }
     
     /* Perform the source iteration */
@@ -1473,9 +1473,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     else
       computeKeff();
     
-    /* Apply the flux adjustment if transport stabalization is on */
-    if (i > 0 && _stabalize_transport) {
-      stabalizeFlux();
+    /* Apply the flux adjustment if transport stabilization is on */
+    if (i > 0 && _stabilize_transport) {
+      stabilizeFlux();
     }
 
     /* Normalize the flux and compute residuals */
@@ -2028,20 +2028,20 @@ void Solver::printInputParamsSummary() {
   /* Print source type */
   log_printf(NORMAL, "Source type = %s", _source_type.c_str());
   
-  /* Print MOC stabalization */
-  if (_stabalize_transport) {
+  /* Print MOC stabilization */
+  if (_stabilize_transport) {
 
-    std::string stabalization_str;
+    std::string stabilization_str;
     
-    if (_stabalization_type == DIAGONAL)
-      stabalization_str = "DIAGONAL";
-    else if (_stabalization_type == YAMAMOTO)
-      stabalization_str = "TY";
-    else if (_stabalization_type == GLOBAL)
-      stabalization_str = "GLOBAL";
+    if (_stabilization_type == DIAGONAL)
+      stabilization_str = "DIAGONAL";
+    else if (_stabilization_type == YAMAMOTO)
+      stabilization_str = "TY";
+    else if (_stabilization_type == GLOBAL)
+      stabilization_str = "GLOBAL";
 
-    log_printf(NORMAL, "MOC Damping = %s (%3.2f)", stabalization_str.c_str(), 
-               _stabalization_factor);
+    log_printf(NORMAL, "MOC Damping = %s (%3.2f)", stabilization_str.c_str(), 
+               _stabilization_factor);
   }
   else {
     log_printf(NORMAL, "MOC transport undamped");

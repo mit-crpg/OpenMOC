@@ -25,9 +25,9 @@
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
 #define _reduced_sources_xyz(r,e,x) (_reduced_sources_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
 
-/** Indexing macro for the stabalizing scalar flux moments in each FSR and
+/** Indexing macro for the stabilizing scalar flux moments in each FSR and
  *  energy group */
-#define _stabalizing_flux_xyz(r,e,x) (_stabalizing_flux_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
+#define _stabilizing_flux_xyz(r,e,x) (_stabilizing_flux_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
 
 /**
  * @class CPULSSolver CPULSSolver.h "src/CPULSSolver.h"
@@ -50,11 +50,11 @@ protected:
   /** An array of the reduced source x, y, and z terms */
   FP_PRECISION* _reduced_sources_xyz;
   
-  /** The stabalizing flux for each energy group in each FSR */
-  FP_PRECISION* _stabalizing_flux_xyz;
+  /** The stabilizing flux for each energy group in each FSR */
+  FP_PRECISION* _stabilizing_flux_xyz;
 
-  /** Whether to stabalize the flux moments */
-  bool _stabalize_moments;
+  /** Whether to stabilize the flux moments */
+  bool _stabilize_moments;
 
 public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
@@ -65,16 +65,16 @@ public:
   void initializeCmfd();
   void initializeExpEvaluators();
   void initializeFSRs();
-  
-  //FIXME
-  void checkLimitXS(int iteration);
 
   void flattenFSRFluxes(FP_PRECISION value);
   double normalizeFluxes();
   void computeFSRSources(int iteration);
   void addSourceToScalarFlux();
-  void computeStabalizingFlux();
-  void stabalizeFlux();
+  
+  /* Transport stabilization routines */
+  void computeStabilizingFlux();
+  void stabilizeFlux();
+  void checkLimitXS(int iteration);
 
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
                          float* track_flux, FP_PRECISION* fsr_flux,

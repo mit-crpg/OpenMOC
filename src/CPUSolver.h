@@ -92,8 +92,8 @@ protected:
   virtual double normalizeFluxes();
   virtual void computeFSRSources(int iteration);
   virtual void transportSweep();
-  virtual void computeStabalizingFlux();
-  virtual void stabalizeFlux();
+  virtual void computeStabilizingFlux();
+  virtual void stabilizeFlux();
   virtual void addSourceToScalarFlux();
   void computeKeff();
   double computeResidual(residualType res_type);
@@ -108,35 +108,14 @@ public:
   void computeFSRFissionRates(double* fission_rates, long num_FSRs);
   virtual void printInputParamsSummary();
 
-  /**
-   * @brief Computes the contribution to the FSR flux from a Track segment.
-   * @param curr_segment a pointer to the Track segment of interest
-   * @param azim_index a pointer to the azimuthal angle index for this segment
-   * @param track_flux a pointer to the Track's angular flux
-   * @param fsr_flux a pointer to the temporary FSR scalar flux buffer
-   */
   virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
                                int polar_index, float* track_flux,
                                FP_PRECISION* fsr_flux);
 
-  /**
-   * @brief Computes the contribution to surface current from a Track segment.
-   * @param curr_segment a pointer to the Track segment of interest
-   * @param azim_index a pointer to the azimuthal angle index for this segment
-   * @param track_flux a pointer to the Track's angular flux
-   * @param fwd the direction of integration along the segment
-   */
   virtual void tallyCurrent(segment* curr_segment, int azim_index,
                             int polar_index, float* track_flux,
                             bool fwd);
 
-  /**
-   * @brief Updates the boundary flux for a Track given boundary conditions.
-   * @param track_id the ID number for the Track of interest FIXME
-   * @param azim_index a pointer to the azimuthal angle index for this segment
-   * @param direction the Track direction (forward - true, reverse - false)
-   * @param track_flux a pointer to the Track's outgoing angular flux
-   */
   virtual void transferBoundaryFlux(Track* track, int azim_index,
                                     int polar_index, bool direction,
                                     float* track_flux);
@@ -145,7 +124,6 @@ public:
 
   void initializeFixedSources();
 
-  //FIXME
   void printFSRFluxes(std::vector<double> dim1,
                       std::vector<double> dim2, double offset,
                       const char* plane);
