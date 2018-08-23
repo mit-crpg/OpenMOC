@@ -1403,7 +1403,7 @@ void Lattice::updateUniverse(int lat_x, int lat_y, int lat_z,
          "array of Universes", universe->getId(), _id, lat_x);
   if (lat_y < 0 || lat_y >= _num_y)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
-         "Lattice cell index lat_z=%d which is outside the "
+         "Lattice cell index lat_y=%d which is outside the "
          "array of Universes", universe->getId(), _id, lat_z);
   if (lat_z < 0 || lat_z >= _num_z)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
