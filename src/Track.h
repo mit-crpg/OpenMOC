@@ -35,7 +35,7 @@ struct segment {
   /** The ID for flat source region in which this segment resides */
   int _region_id;
 
-  // FIXME
+  /** The ID of the track */
   int _track_idx;
 
   /** The ID for the mesh surface crossed by the Track end point */
@@ -120,9 +120,11 @@ protected:
   //FIXME
   bool _direction_in_cycle;
 
-  //FIXME
+  /** Surfaces at the beginning and end of the Track */
   int _surface_in;
   int _surface_out;
+  
+  /** Domains further along and before the current domain on this Track */
   int _domain_fwd;
   int _domain_bwd;
 

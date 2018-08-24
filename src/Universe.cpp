@@ -1395,20 +1395,20 @@ void Lattice::updateUniverse(int lat_x, int lat_y, int lat_z,
 
   if (_num_x == -1 || _num_y == -1 || _num_z == -1)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d which "
-	       "has not yet been assigned an array of Universes",
-	       universe->getId(), _id);
+           "has not yet been assigned an array of Universes",
+           universe->getId(), _id);
   if (lat_x < 0 || lat_x >= _num_x)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
-	       "Lattice cell index lat_x=%d which is outside the "
-	       "array of Universes", universe->getId(), _id, lat_x);
+           "Lattice cell index lat_x=%d which is outside the "
+           "array of Universes", universe->getId(), _id, lat_x);
   if (lat_y < 0 || lat_y >= _num_y)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
-	       "Lattice cell index lat_z=%d which is outside the "
-	       "array of Universes", universe->getId(), _id, lat_z);
+           "Lattice cell index lat_z=%d which is outside the "
+           "array of Universes", universe->getId(), _id, lat_z);
   if (lat_z < 0 || lat_z >= _num_z)
     log_printf(ERROR, "Unable to set Universe %d in Lattice %d with "
-	       "Lattice cell index lat_z=%d which is outside the "
-	       "array of Universes", universe->getId(), _id, lat_z);
+           "Lattice cell index lat_z=%d which is outside the "
+           "array of Universes", universe->getId(), _id, lat_z);
 
   /* Assign the Universe to the array */
   _universes.at(lat_z).at(lat_y).at(lat_x) =

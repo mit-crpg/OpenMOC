@@ -79,7 +79,7 @@ SegmentCounter::SegmentCounter(TrackGenerator* track_generator)
 
 
 /**
- * @brief Determines the maximum number of segments per Track
+ * @brief Determines the maximum number of segments per Track.
  * @details CounterKernels are initialized to count segments along each Track.
  *          Then Tracks are traversed, saving the maximum number of segments
  *          and setting the corresponding parameter on the TrackGenerator.
@@ -97,13 +97,18 @@ void SegmentCounter::execute() {
 }
 
 
-//FIXME
+/**
+ * @brief Turn on counting segments.
+*/
 void SegmentCounter::countTotalNumSegments() {
   _count_total_segments = true;
 }
 
 
-//FIXME
+/**
+ * @brief Get the total number of segments.
+ * @return The total number of segments
+*/
 long SegmentCounter::getTotalNumSegments() {
   if (!_total_segments_counted)
     log_printf(ERROR, "The total number of segments have not been counted. "
@@ -301,7 +306,9 @@ CentroidGenerator::CentroidGenerator(TrackGenerator* track_generator)
 }
 
 
-//FIXME
+/**
+ * @brief Destructor for the CentroidGenerator.
+*/
 CentroidGenerator::~CentroidGenerator() {
   int num_threads = omp_get_max_threads();
   for (int i=0; i < num_threads; i++)
@@ -351,7 +358,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   double wgt = _quadrature->getAzimSpacing(azim_index)
       * _quadrature->getAzimWeight(azim_index);
 
-  //FIXME
+  /* Use local array accumulator to prevent false sharing */
   int tid = omp_get_thread_num();
   _starting_points[tid][0].copyCoords(track->getStart());
 
@@ -426,7 +433,12 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 }
 
 
-//FIXME
+/**
+ * @brief Constructor for LinearExpansionGenerator calls the TraverseSegments
+ *        constructor, allocates memory for the linear expansion terms and
+ *        initializes its own exponential evaluator.
+ * @param solver the linear source solver used
+ */
 LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
     : TraverseSegments(solver->getTrackGenerator()) {
 
@@ -472,7 +484,9 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
                     track_generator->getGeometry(), true);
 }
 
-//FIXME destructor
+/**
+ * @brief Destructor for the LinearExpansionGenerator.
+ */
 LinearExpansionGenerator::~LinearExpansionGenerator() {
   int num_threads = omp_get_max_threads();
   for (int i=0; i < num_threads; i++) {
@@ -488,7 +502,10 @@ LinearExpansionGenerator::~LinearExpansionGenerator() {
 }
 
 
-//FIXME
+/**
+ * @brief When executed, the LinearExpansionGenerator Kernel loops over all 
+ *        Tracks to compute constant terms used to compute the linear source.
+ */
 void LinearExpansionGenerator::execute() {
 #pragma omp parallel
   {
@@ -589,39 +606,6 @@ void LinearExpansionGenerator::execute() {
   for (long i=0; i < size; i++)
     src_constants_buffer[i] = _src_constants[i];
 
-
-
-  //FIXME
-  if (false) {
-#pragma omp parallel for
-    for (long r = 0; r < num_FSRs; r++) {
-      if (_track_generator->getFSRVolume(r) < 1e-3)
-        for (int i=0; i < nc; i++)
-          ilem[r*nc+i] = 0.0;
-    }
-  }
-
-  //FIXME
-  if (false) {
-      //FIXME -2 -> +4
-    //double max_linear_radius = (8.5*15-2)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
-    double max_linear_radius = (7.5*17+2)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
-    //double max_linear_radius = (10*17)*1.26; // (8.5*15+4) * 1.26 || * -2 * || 10*17*1.26
-    Universe* root_universe = geometry->getRootUniverse();
-    double center_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;
-    double center_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
-    double center_z = (root_universe->getMinZ() + root_universe->getMaxZ()) / 2;
-#pragma omp parallel for
-    for (long r = 0; r < num_FSRs; r++) {
-      Point* centroid = geometry->getFSRCentroid(r);
-      double dist = centroid->distance(center_x, center_y, centroid->getZ());
-      if (dist > max_linear_radius) {
-        for (int i=0; i < nc; i++)
-          ilem[r*nc+i] = 0.0;
-      }
-    }
-  }
-
   /* Notify user of any regions needing to use a flat source approximation */
   int total_num_flat = _num_flat;
   long total_num_FSRs = num_FSRs;
@@ -641,7 +625,12 @@ void LinearExpansionGenerator::execute() {
 }
 
 
-//FIXME
+/**
+ * @brief Contributions to the linear source expansion terms and constant terms
+ *        are calculated for every segment in the Track.
+ * @param track Track the Kernel is acting on
+ * @param segments segments on that Track
+ */
 void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
   /* Extract track information */
@@ -774,7 +763,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
           (zc * zc + pow(cos_theta * length, 2) / 12.0);
     }
 
-	/* Set the source constants for all groups and coefficients */
+    /* Set the source constants for all groups and coefficients */
     for (int g=0; g < _num_groups; g++) {
       for (int i=0; i < _num_coeffs; i++)
         _src_constants[fsr*_num_groups*_num_coeffs + g*_num_coeffs + i] +=
@@ -835,7 +824,9 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
 }
 
 
-//FIXME
+/**
+ * @brief Destructor for the TransportSweep.
+ */
 TransportSweep::~TransportSweep() {
   int num_threads = omp_get_max_threads();
   for (int i=0; i < num_threads; i++) {
@@ -1162,14 +1153,21 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
 }
 
 
-//FIXME
+/**
+ * @brief Constructor for TransportSweepOTF calls the TraverseSegments 
+ *        constructor.
+ * @param track_generator Track generator to generate the tracks
+ */
 TransportSweepOTF::TransportSweepOTF(TrackGenerator* track_generator)
                                    : TraverseSegments(track_generator) {
   _cpu_solver = NULL;
 }
 
 
-//FIXME
+/**
+ * @brief When executed, the Kernel loops over all tracks, both generating them
+ *        and solving the MOC equations.
+ */
 void TransportSweepOTF::execute() {
 #pragma omp parallel
   {
@@ -1180,24 +1178,38 @@ void TransportSweepOTF::execute() {
 }
 
 
-//FIXME
+/**
+ * @brief Set the solver for the OTF TransportSweep
+ * @param cpu_solver Solver to use to solve MOC equations
+ */
 void TransportSweepOTF::setCPUSolver(CPUSolver* cpu_solver) {
   _cpu_solver = cpu_solver;
 }
 
-//FIXME
+/**
+ * @brief NOT IMPLEMENTED
+ * @param track the Track of interest
+ * @param segments array of segments on that track
+ */
 void TransportSweepOTF::onTrack(Track* track, segment* segments) {
 }
 
 
-//FIXME
+/**
+ * @brief Constructor for the RecenterSegments calls the TraverseSegments
+ *        constructor and sets the track generator.
+ * @param track_generator Track generator to obtain and re-center segments.
+ */
 RecenterSegments::RecenterSegments(TrackGenerator* track_generator)
                                    : TraverseSegments(track_generator) {
   _geometry = _track_generator->getGeometry();
 }
 
 
-//FIXME
+/**
+ * @brief When executed, the Kernel loops over all Tracks to recenter their
+ *        segments.
+ */
 void RecenterSegments::execute() {
 #pragma omp parallel
   {
@@ -1207,7 +1219,12 @@ void RecenterSegments::execute() {
 }
 
 
-//FIXME
+/**
+ * @brief Loops over all segments provided, obtain their region (FSR) centroid
+ *        and re-center the segment.
+ * @param track Track which contains the segments
+ * @param segments array of segments to re-center
+ */
 void RecenterSegments::onTrack(Track* track, segment* segments) {
   if (_geometry->containsFSRCentroids()) {
     for (int s=0; s < track->getNumSegments(); s++) {
@@ -1222,10 +1239,9 @@ void RecenterSegments::onTrack(Track* track, segment* segments) {
 
 
 /**
- * @brief Constructor for DumpSegments calls the TraverseSegments
+ * @brief Constructor for PrintSegments calls the TraverseSegments
  *        constructor and initializes the output FILE to NULL
  * @param track_generator The TrackGenerator to pull tracking information from
-//FIXME
  */
 PrintSegments::PrintSegments(TrackGenerator* track_generator)
                            : TraverseSegments(track_generator) {
@@ -1234,11 +1250,11 @@ PrintSegments::PrintSegments(TrackGenerator* track_generator)
 
 
 /**
- * @brief Wrties all tracking information to file
+ * @brief Wrties all tracking information to file.
  * @details SegmentationKernels are created to temporarily store segments for
- *          on-the-fly method. For each Track, onTrack(...) writes the tracking
+ *          on-the-fly methods. For each Track, onTrack(...) writes the tracking
  *          information to file.
- //FIXME
+ //FIXME debug ?
  */
 void PrintSegments::execute() {
   MOCKernel* kernel = getKernel<SegmentationKernel>();
@@ -1247,9 +1263,8 @@ void PrintSegments::execute() {
 
 
 /**
- * @brief Sets the file which to write tracking information
+ * @brief Sets the file which to write tracking information.
  * @param out the file which to write tracking infmormation
- //FIXME
  */
 void PrintSegments::setOutputFile(FILE* out) {
   _out = out;
@@ -1258,11 +1273,11 @@ void PrintSegments::setOutputFile(FILE* out) {
 
 /**
  * @brief Writes tracking information to file for a Track and associated
- *        segments
+ *        segments.
  * @param track The Track whose information is written to file
  * @param segments The segments associated with the Track whose information is
  *        written to file
- //FIXME
+ //FIXME debug ?
  */
 void PrintSegments::onTrack(Track* track, segment* segments) {
 
@@ -1298,5 +1313,3 @@ void PrintSegments::onTrack(Track* track, segment* segments) {
     fprintf(_out, "\n");
   }
 }
-
-

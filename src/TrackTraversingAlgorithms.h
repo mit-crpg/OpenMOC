@@ -21,7 +21,7 @@
 #define TRACK_TRAVERSING_ALGORITHMS_H_
 
 #include "TraverseSegments.h"
-#include "ExpEvaluator.h" //FIXME
+#include "ExpEvaluator.h"
 
 
 /** Forward declaration of CPUSolver class */
@@ -150,14 +150,10 @@ public:
  * @class LinearExpansionGenerator TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
  * @brief A class used to calculate the linear expansion coeffs of each FSR
- * @details A LinearExpansionGenerator imports FSR Volumes and associated
- *          locks form the provided CPUSolver, then centroids are calculated
- *          and stored in the provided buffer by first allocating
- *          SegmentationKernels to temporarily store segments and then looping
- *          over all segments and adding their contribution to each FSR
- *          centroid.
- */
-//FIXME
+ * @details A LinearExpansionGenerator loops through all tracks and computes :
+ *          a linear source term that is constant through all iterations, matrix
+ *          coefficients in each FSR that help compute the linear source.
+ */  //TODO Improve
 class LinearExpansionGenerator: public TraverseSegments {
 
 private:
@@ -258,7 +254,15 @@ public:
 };
 
 
-//FIXME
+/**
+ * @class TransportSweepOTF TrackTraversingAlgorithms.h
+ *        "src/TrackTraversingAlgorithms.h"
+ * @brief A class used to ray trace and apply the MOC transport equations 
+ *        simultaneously On-The-Fly.
+ * @details TransportSweepOTF uses at track generator and a CPUSolver to solve
+ *          the ray-trace and solve the MOC equations at the same time. 
+ *          NOT FULLY IMPLEMENTED //TODO
+ */
 class TransportSweepOTF: public TraverseSegments {
 
 private:
@@ -274,7 +278,15 @@ public:
 };
 
 
-//FIXME
+/**
+ * @class RecenterSegments TrackTraversingAlgorithms.h
+ *        "src/TrackTraversingAlgorithms.h"
+ * @brief A class used to recenter Segments once their centroid is known.
+ * @details PrintSegments imports Track data from the provided TrackGenerator
+ *          and loops through segments to re-center them once their centroid has
+ *          been computed. This is important to use the linear source with 
+ *          explicit ray tracing.
+ */
 class RecenterSegments: public TraverseSegments {
 
 private:
@@ -290,12 +302,11 @@ public:
 
 
 /**
- * @class DumpSegments TrackTraversingAlgorithms.h
+ * @class PrintSegments TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
  * @brief A class used to write tracking data to a file
- * @details DumpSegments imports Track data from the provided TrackGenerator
+ * @details PrintSegments imports Track data from the provided TrackGenerator
  *          and writes the tracking data to the provided file.
-//FIXME
  */
 class PrintSegments: public TraverseSegments {
 

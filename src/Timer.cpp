@@ -138,7 +138,13 @@ void Timer::clearSplits() {
 }
 
 
-// FIXME
+//TODO This function is not really about time, it could be moved elsewhere.
+/**
+ * @brief Read memory usage file (on a HPC installation), and process it to make
+ *        it more readable. Used for profiling.
+ * @param vm_usage total use of virtual memory
+ * @param resident_set total use of resident memory
+ */
 void Timer::processMemUsage(double& vm_usage, double& resident_set) {
 
    vm_usage     = 0.0;
@@ -166,7 +172,10 @@ void Timer::processMemUsage(double& vm_usage, double& resident_set) {
 }
 
 
-//FIXME
+/**
+ * @brief Transfer timer data across all domains.
+ * @param comm a MPI communicator to transfer data
+ */
 #ifdef MPIx
 void Timer::reduceTimer(MPI_Comm comm) {
 

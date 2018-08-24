@@ -901,7 +901,7 @@ void Material::buildFissionMatrix() {
 
   if (_num_groups == 0)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
-	       "since the number of energy groups has not been set", _id);
+           "since the number of energy groups has not been set", _id);
   else if (_nu_sigma_f == NULL)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
               "since its nu-fission cross-section has not been set", _id);

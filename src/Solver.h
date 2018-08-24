@@ -162,13 +162,21 @@ protected:
   int _fluxes_per_track;
 
   /** A pointer to the array of Tracks */
-  Track** _tracks; //FIXME
+  Track** _tracks; //TODO Check if used, if not delete
 
-  //FIXME
+  /** Ids of materials that will have their cross section limited */
   std::vector<int> _limit_xs_materials;
+
+  /** Iteration at which to revert to original cross sections */
   int _reset_iteration;
+
+  /** Whether to limit cross sections or not */
   bool _limit_xs;
+
+  /** Map of the original materials */
   std::map<int, Material*> _original_materials;
+
+  /** Map of the materials with limited cross sections */
   std::map<int, Material*> _limit_materials;
 
   /** A pointer to an array with the number of Tracks per azimuthal angle */
@@ -386,9 +394,10 @@ protected:
    */
   virtual void transportSweep() =0;
 
+  /** To stop and reset all timer splits */
   void clearTimerSplits();
 
-  //FIXME
+  /* Whether to ray-trace and propagate fluxes at the same time */
   bool _OTF_transport;
 
 public:
@@ -466,7 +475,7 @@ public:
   virtual void computeFSRFissionRates(double* fission_rates, long num_FSRs) =0;
 
   /**
-   * @brief Returns the boundary flux array at the requested indexes
+   * @brief Returns the boundary flux array at the requested indexes.
    * @param track_id The Track's Unique ID
    * @param fwd Whether the direction of the angular flux along the track is
    *        forward (True) or backward (False)
@@ -479,14 +488,17 @@ public:
   void printTimerReport();
   FP_PRECISION* getFluxesArray();
 
-  //FIXME
+  /* Functions to limit cross sections, to attempt to stabilize MOC */
   void limitXS();
   void setLimitingXSMaterials(std::vector<int> material_ids,
                               int reset_iteration);
   virtual void checkLimitXS(int iteration);
 
 
-  //FIXME
+  /**
+   * @brief Activate On-The-Fly transport, to OTF ray-trace and propagate the
+   *        track angular fluxes at the same time.
+   */
   inline void setOTFTransport() {
     _OTF_transport = true;
   }
