@@ -161,8 +161,8 @@ protected:
   /** The number of flux varies stored per track in each direction */
   int _fluxes_per_track;
 
-  /** A pointer to the array of Tracks */
-  Track** _tracks; //TODO Check if used, if not delete
+  /** A pointer to the Tracks array, only for GPUSolver and VectorizedSolver */
+  Track** _tracks; //FIXME 
 
   /** Ids of materials that will have their cross section limited */
   std::vector<int> _limit_xs_materials;

@@ -41,7 +41,6 @@ private:
   void loopOverTracksExplicit(MOCKernel* kernel);
   void loopOverTracksByTrackOTF(MOCKernel* kernel);
   void loopOverTracksByStackOTF(MOCKernel* kernel);
-  void loopOverTracksByStackTwoWay(TransportKernel* kernel);
 
   /* Functions defining how to traverse segments */
   void traceSegmentsExplicit(Track* track, MOCKernel* kernel);
@@ -77,6 +76,9 @@ protected:
   /* Functions defining how to loop over and operate on Tracks */
   void loopOverTracks(MOCKernel* kernel);
   virtual void onTrack(Track* track, segment* segments) = 0;
+
+  //FIXME Rework function calls to make this private
+  void loopOverTracksByStackTwoWay(TransportKernel* kernel);
 
   /* Returns a kernel of the requested type */
   template <class KernelType>
