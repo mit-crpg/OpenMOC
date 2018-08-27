@@ -299,7 +299,7 @@ double* Cell::getRotationMatrix() {
  * @param units the angular units in "radians" or "degrees" (default)
  */
 void Cell::retrieveRotation(double* rotations, int num_axes,
-			    std::string units) {
+          std::string units) {
   if (num_axes != 3)
     log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
@@ -1003,7 +1003,7 @@ void Cell::setNumRings(int num_rings) {
     log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
                "a negative number", num_rings, _id);
 
-  _num_rings = num_rings;
+  _num_rings = num_rings;//seems no need if equals 1
 }
 
 
@@ -1367,7 +1367,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
     increment = fabs(radius1 - radius2) / _num_rings;
   
     /* Heuristic to improve area-balancing for low number of rings */
-    if (halfspace1 == 0 && radius1 == max_radius && _num_rings < 3)
+    if (radius1 == max_radius && _num_rings < 3)
       increment = 1.5 * (radius1 - radius2) / _num_rings;
   }
 
@@ -1557,7 +1557,8 @@ std::string Cell::toString() {
   std::map<int, surface_halfspace*>::iterator iter;
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second->_surface->toString() << ", ";
+    string << "\nhalfspace = " << iter->second->_halfspace << ", " <<
+           iter->second->_surface->toString();
 
   return string.str();
 }
