@@ -62,11 +62,11 @@ class Options(object):
         """Initialize default values for each runtime parameter and parses the
         command line arguments assigns the appropriate value to each."""
 
-        self._short_args = 'fha:s:r:l:i:c:t:b:g:'
+        self._short_args = 'fha:s:p:l:i:c:t:b:g:'
         self._long_args = ['help',
                            'num-azim=',
                            'azim-spacing=',
-                           'num_polar=',
+                           'num-polar=',
                            'polar-spacing=',
                            'max-iters=',
                            'tolerance=',                           
@@ -77,7 +77,7 @@ class Options(object):
         self._num_azim = 4
         self._num_polar = 6
         self._azim_spacing = 0.1
-        self._polar_spacing = 0.1
+        self._polar_spacing = 0.75
         self._max_iters = 1000
         self._tolerance = 1E-5
         self._num_omp_threads = multiprocessing.cpu_count()
@@ -171,7 +171,7 @@ class Options(object):
                 num_azim += 'the number of azimuthal angles\n'
                 print(num_azim)
 
-                num_polar = '\t{: <35}'.format('-r, --num-polar=<6>')
+                num_polar = '\t{: <35}'.format('-p, --num-polar=<6>')
                 num_polar += 'the number of polar angles\n'
                 print(num_polar)
 
@@ -209,7 +209,7 @@ class Options(object):
 
             elif opt in ('-a', '--num-azim'):
                 self._num_azim = int(arg)
-            elif opt in ('-r', '--num-polar'):
+            elif opt in ('-p', '--num-polar'):
                 self._num_polar = int(arg)
             elif opt in ('-s', '--azim-spacing'):
                 self._azim_spacing = float(arg)

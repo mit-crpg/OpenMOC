@@ -384,8 +384,9 @@ class configuration:
     if self.debug_mode:
       for k in self.compiler_flags:
         self.compiler_flags[k].append('-g')
-        ind = [i for i, item in enumerate(self.compiler_flags[k]) if item.startswith('-O')]
-        self.compiler_flags[k][ind[0]] = '-O0'
+        ind = [i for i, item in enumerate(self.compiler_flags[k]) \
+         if item.startswith('-O')]
+        self.compiler_flags[k][ind[0]] = '-Og'
 
     # If the user wishes to compile using the address sanitizer, append
     # flag to all lists of compiler flags for all distribution types
