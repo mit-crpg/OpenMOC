@@ -1060,7 +1060,7 @@ std::string ZCylinder::toString() {
   std::stringstream string;
 
   string << "Surface ID = " << _id
-         << ", name " << _name
+         << ", name = " << _name
          << ", type = ZCYLINDER "
          << ", A = " << _A << ", B = " << _B
          << ", C = " << _C << ", D = " << _D << ", E = " << _E
