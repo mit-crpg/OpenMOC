@@ -77,7 +77,7 @@ class Options(object):
         self._num_azim = 4
         self._num_polar = 6
         self._azim_spacing = 0.1
-        self._polar_spacing = 0.75
+        self._polar_spacing = 1.5
         self._max_iters = 1000
         self._tolerance = 1E-5
         self._num_omp_threads = multiprocessing.cpu_count()
@@ -179,7 +179,7 @@ class Options(object):
                 azim_spacing += 'The azimuthal track spacing [cm]\n'
                 print(azim_spacing)
 
-                polar_spacing = '\t{: <35}'.format('-l, --polar-spacing=<0.1>')
+                polar_spacing = '\t{: <35}'.format('-l, --polar-spacing=<1.5>')
                 polar_spacing += 'The polar track spacing [cm]\n'
                 print(polar_spacing)
 
