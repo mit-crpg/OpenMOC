@@ -908,7 +908,13 @@ void TrackGenerator3D::initialize2DTrackChains() {
 }
 
 
-//FIXME: description
+/**
+ * @brief Traverses all the 3D chain tracks, and split each 3D chain track into 
+          3D tracks belonging to the z-stacks
+ * @param tcis The array of track chain indices
+ * @param num_chains The size of the array of track chain indices
+ * @param save_tracks Whether or not to save the 3D tracks
+ */
 void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
                                          int num_chains, bool save_tracks) {
 
@@ -942,7 +948,13 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 }
 
 
-//FIXME: description
+/**
+ * @brief Compute the coordinates of a 3D chain track, and the link number of 
+          the 2D track where its start point reseide on
+ * @param tci the track chain index of a chain track
+ * @param track_3D the chain track
+ * @return the link number of the 2D track where its start point reseide on
+ */
 int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
                                                Track3D* track_3D) {
 
@@ -1035,7 +1047,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
  *          boundaries is split into multiple tracks by finding those
  *          x and y intersections. If create_tracks is set to true, the Tracks
  *          will be altered to represent the correct 3D Tracks. If not, the
- *          number of tracks in the train will simply be counted. Whenever this
+ *          number of tracks in the chain will simply be counted. Whenever this
  *          function is called, the number of tracks in the associated z-stacks
  *          are incremented.
  * @param track The 3D track to be decomposed
@@ -1128,7 +1140,7 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
       break;
 
     /* If the Z boundary or last link or the desired link has been reached,
-     * exit */
+     * exit. tci->_link appoints the desired track*/
     if (dl_z < dl_xy || track_2D->getXYIndex() >= _num_y[tci->_azim] ||
         tci->_link == link - first_link)
       end_of_chain = true;
@@ -1258,8 +1270,15 @@ void TrackGenerator3D::segmentize() {
 #pragma omp parallel for
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       for (int p=0; p < _num_polar; p++) {
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++)
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
           _geometry->segmentize3D(&_tracks_3D[a][i][p][z]);
+          TrackStackIndexes tsi;
+          tsi._azim = a;
+          tsi._xy = i;
+          tsi._polar = p;
+          tsi._z = z;
+          _tracks_3D[a][i][p][z].setUid(get3DTrackID(&tsi));    
+        }
       }
     }
 

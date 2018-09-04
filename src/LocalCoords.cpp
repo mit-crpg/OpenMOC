@@ -477,7 +477,7 @@ void LocalCoords::prune() {
   LocalCoords* next = curr->getPrev();
 
   /* Iterate over LocalCoords beneath this one in the linked list */
-  while (curr != this) {
+  while (curr != this) {// it seems nothing has been down in this while loop
     next = curr->getPrev();
     if (curr->getPosition() == -1)
       curr->deleteArray();

@@ -2045,12 +2045,12 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
     }
 
     /* Calculate the local centroid of the segment if available */
-    if (_contains_FSR_centroids && !setup) {
-      Point* centroid = getFSRCentroid(fsr_id);
+    if (!setup) {
+      //Point* centroid = getFSRCentroid(fsr_id);
       Point* starting_point = start.getHighestLevel()->getPoint();
-      double x_start = starting_point->getX() - centroid->getX();
-      double y_start = starting_point->getY() - centroid->getY();
-      double z_start = starting_point->getZ() - centroid->getZ();
+      double x_start = starting_point->getX();
+      double y_start = starting_point->getY();
+      double z_start = starting_point->getZ();
       new_segment->_starting_position[0] = x_start;
       new_segment->_starting_position[1] = y_start;
       new_segment->_starting_position[2] = z_start;

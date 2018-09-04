@@ -1625,7 +1625,15 @@ void TrackGenerator::resetStatus() {
 void TrackGenerator::allocateTemporarySegments() {}
 
 
-//FIXME: description
+/**
+ * @brief Compute and return the track UID number
+ * @details Compute and return the track UID number based on the azimuthal 
+            number and the xy_index. Track UID number is also the index in the 
+            Track** TrackGenerator::_tracks_2D_array
+ * @param a the azimuthal number of a track
+ * @param x the xy_index of a track
+ * @return the track UID number of a track 
+ */
 int TrackGenerator::get2DTrackID(int a, int x) {
 
   int uid = 0;

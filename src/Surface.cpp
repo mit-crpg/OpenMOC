@@ -991,11 +991,9 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
     else {
 
       /* Determine first point of intersection */
-      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
-      if (interior < 0.0)
-        interior = 0.0;
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
       zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
@@ -1021,6 +1019,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       /* Determine second point of intersection */
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
+      interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
       zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
