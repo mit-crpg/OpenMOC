@@ -198,7 +198,7 @@ Cmfd::~Cmfd() {
     delete [] _temporary_currents;
   }
 
-  /* TODO: clean, document */
+  /* De-allocate domain communicator */
   int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
   if (_domain_communicator != NULL) {
     if(_domain_communicator_allocated) {
@@ -335,13 +335,19 @@ int Cmfd::getNumZ() {
 }
 
 
-//FIXME
+/**
+ * @brief Get the Vector of surface currents.
+ * @return pointer to a vector containing the surface currents.
+ */
 Vector* Cmfd::getLocalCurrents() {
   return _surface_currents;
 }
 
 
-//FIXME
+/**
+ * @brief Get the array of surface currents on the boundaries.
+ * @return 3D array containing the boundary surface currents.
+ */
 CMFD_PRECISION*** Cmfd::getBoundarySurfaceCurrents() {
   return _boundary_surface_currents;
 }
@@ -381,7 +387,12 @@ void Cmfd::setWidthZ(double width) {
 
 
 #ifdef MPIx
-//TODO: document
+/**
+ * @brief Set the number of domains in each direction.
+ * @param num_x number of domains in the X direction
+ * @param num_y number of domains in the Y direction
+ * @param num_z number of domains in the Z direction
+ */
 void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
 
   if (_domain_communicator == NULL) {
@@ -399,7 +410,9 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
 }
 
 
-//TODO: document
+/**
+ * @brief Set the indexes of the domain among the global lattice of domains.
+ */
 void Cmfd::setDomainIndexes(int idx_x, int idx_y, int idx_z) {
 
   if (_domain_communicator == NULL) {
@@ -991,7 +1004,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
   _A->clear();
   _M->clear();
 
-  //TODO: more elegant
+  /* Zero the number of connections */
   if (_domain_communicator != NULL) {
     int num_local_cells = _local_num_x * _local_num_y * _local_num_z;
     for (int c=0; c<2; c++) {
@@ -1105,14 +1118,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
       }
     }
   }
-  //FIXME
-  /*
-  if (_num_cmfd_groups == 1 || true) {
-    log_printf(NORMAL, "Number of groups = %d", _num_cmfd_groups);
-    _A->printString();
-    _M->printString();
-  }
-  */
 
   log_printf(INFO, "Done constructing matrices...");
 }
@@ -1465,7 +1470,12 @@ void Cmfd::initializeCellMap() {
 }
 
 
-//TODO DOCUMENT XXX
+/**
+ * @brief Allocates memory for the CMFD tallies.
+ * @details This method is called by the CMFD initialization routine, and 
+ *          allocates memory for the diffusion, reaction and volume tallies for
+ *          every CMFD cells.
+ */
 void Cmfd::allocateTallies() {
 
   if (_num_x*_num_y*_num_z == 0)
@@ -2031,11 +2041,12 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
 
 /**
  * @brief Get the ID of the Mesh cell next to given Mesh cell.
- * @param current Mesh cell ID
- * @param CMFD cell surface ID to look across for neighboring cell
+ * @param cell index of the current CMFD cell
+ * @param surface_id id of the surface between the current cell and the next
+ * @param global work at the global (all domains together) level
+ * @param neighbor give cell in neighboring domain
  * @return neighboring CMFD cell ID
  */
-//TODO: fix HEADER
 int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
 
   int cell_next = -1;
@@ -2066,6 +2077,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     nz = _local_num_z;
   }
 
+  /* Find the cell on the other side of the surface */
   if (surface_id == SURFACE_X_MIN) {
     if (x != 0)
       cell_next = cell - 1;
@@ -2147,7 +2159,7 @@ int Cmfd::getBoundary(int side) {
 
 
 /**
- * @brief Return the CMFD cell ID that an FSR lies in.
+ * @brief Return the CMFD cell ID that a FSR lies in.
  * @details Note that a CMFD cell is not an actual Cell object; rather, a CMFD
  *          cell is just a way of describing each of the rectangular regions
  *          that make up a CMFD lattice. CMFD cells are numbered with 0 in the
@@ -2157,7 +2169,7 @@ int Cmfd::getBoundary(int side) {
  *                  8    9  10  11
  *                  4    5   6   7
  *                  0    1   2   3
- * @param The FSR ID.
+ * @param fsr_id the FSR ID.
  * @return The CMFD cell ID. Return -1 if cell is not found.
  */
 int Cmfd::convertFSRIdToCmfdCell(long fsr_id) {
@@ -2176,7 +2188,11 @@ int Cmfd::convertFSRIdToCmfdCell(long fsr_id) {
 }
 
 
-//TODO document
+/**
+ * @brief Return the CMFD cell ID that a FSR lies in.
+ * @param global_fsr_id The global FSR ID.
+ * @return The CMFD cell ID.
+ */
 int Cmfd::convertGlobalFSRIdToCmfdCell(long global_fsr_id) {
 
   /* Determine the domain and local FSR ID */
@@ -2259,7 +2275,7 @@ void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
 /**
  * @brief Set flag indicating whether to use axial interpolation for update
  *        ratios
- * @param Flag saying whether to use axial interpolation.
+ * @param interpolate flag saying whether to use axial interpolation.
  */
 void Cmfd::useAxialInterpolation(bool interpolate) {
   _use_axial_interpolation = interpolate;
@@ -2268,11 +2284,62 @@ void Cmfd::useAxialInterpolation(bool interpolate) {
 
 /**
  * @brief Turns on the flux limiting condition
- * @details TODO
+ * @details If the CMFD correction diffusion coefficient is larger than the 
+ *          diffusion coefficient, recompute the diffusion coefficient as the 
+ *          ratio of current to twice the flux, and re-compute a correction
+ *          diffusion coefficient.
  * @param flux_limiting whether to turn on the flux limiting condition
  */
 void Cmfd::useFluxLimiting(bool flux_limiting) {
   _flux_limiting = flux_limiting;
+}
+
+
+/**
+ * @brief Modifies the diagonal element to be consistent with the MOC solve
+ * @details This function re-computes a new total cross-section x volume that
+ *          maintains consistency with the MOC solution. Generall, this will
+ *          not change the diagonal element at all since CMFD should be
+ *          consistent with MOC. However, if negative fluxes are corrected to
+ *          zero after the MOC transport sweep, there will be an inconsistency.
+ *          This function modifies sigma-t so that there is consistency with
+ *          the altered solution.
+ * @param cmfd_cell The cmfd cell of the element to adjust
+ * @param group The cmfd group of the element to adjust
+ */
+void Cmfd::enforceBalanceOnDiagonal(int cmfd_cell, int group) {
+
+  /* Initialize tallies */
+  Material* material = _materials[cmfd_cell];
+  double cmfd_volume = _volumes->getValue(cmfd_cell, 0);
+
+  /* Loop over FSRs in CMFD cell to tally the total neutron source */
+  double moc_source = 0.0;
+  for (int j = 0; j < _cell_fsrs.at(cmfd_cell).size(); j++) {
+
+    long fsr_id = _cell_fsrs.at(cmfd_cell).at(j);
+    FP_PRECISION volume = _FSR_volumes[fsr_id];
+
+    /* Loop over MOC energy groups within this CMFD coarse group */
+    for (int h = _group_indices[group]; h < _group_indices[group+1]; h++)
+      moc_source += 4 * M_PI * volume *
+        _FSR_sources[fsr_id * _num_moc_groups + h];
+  }
+
+  if (moc_source == 0.0)
+    moc_source = 1e-20;
+
+  /* Compute updated value */
+  double flux = _old_flux->getValue(cmfd_cell, group);
+  CMFD_PRECISION net_current = _net_currents->getValue(cmfd_cell, group);
+  CMFD_PRECISION updated_value = (moc_source - net_current) / flux;
+
+  if (updated_value < 0.0)
+    log_printf(ERROR, "Negative Total XS of %6.4f computed in CMFD rebalance",
+               updated_value);
+
+  /* Update the diagonal element */
+  _A->setValue(cmfd_cell, group, cmfd_cell, group, updated_value);
 }
 
 
@@ -2944,14 +3011,15 @@ void Cmfd::initialize() {
     _old_dif_surf_corr->setAll(0.0);
     _volumes = new Vector(_cell_locks, _local_num_x, _local_num_y, _local_num_z, 1);
 
-    /* Initialize k-nearest stencils, currents, flux, and materials */
+    /* Initialize k-nearest stencils, currents, flux, materials and tallies */
     generateKNearestStencils();
     initializeCurrents();
     initializeMaterials();
     allocateTallies();
 
-    /* TODO: document, clean */
+    /* Initialize domain communicator */
     if (_domain_communicator != NULL) {
+      /* Size of domain in each direction */
       _local_num_x = _num_x / _domain_communicator->_num_domains_x;
       _local_num_y = _num_y / _domain_communicator->_num_domains_y;
       _local_num_z = _num_z / _domain_communicator->_num_domains_z;
@@ -2968,9 +3036,12 @@ void Cmfd::initialize() {
       int dir_sizes[3] = {num_cells / _local_num_x,  num_cells / _local_num_y,
                           num_cells / _local_num_z};
 
+      /* Allocate arrays to contain information about the domain's neighbors */
       _domain_communicator->num_connections = new int*[2];
       _domain_communicator->indexes = new int**[2];
       _domain_communicator->domains = new int**[2];
+      
+      /* Arrays to contain data to communicate to/receive from other domains */
       _domain_communicator->fluxes = new CMFD_PRECISION**[2];
       _domain_communicator->coupling_coeffs = new CMFD_PRECISION**[2];
       _domain_communicator->buffer = new CMFD_PRECISION*[NUM_FACES];
@@ -3001,12 +3072,12 @@ void Cmfd::initialize() {
         _domain_communicator_allocated = true;
       }
 
-      //TODO: document, clean
       int storage_per_cell = ((2 + NUM_FACES) * ncg + 1);
       int num_per_side[3] = {_local_num_y * _local_num_z,
                           _local_num_x * _local_num_z,
                           _local_num_x * _local_num_y};
 
+      /* Count number of cells at each face of the domain */
       int num_boundary_cells = 0;
       for (int s=0; s < NUM_FACES; s++)
         num_boundary_cells += num_per_side[s % 3];
@@ -3204,7 +3275,12 @@ void Cmfd::initializeLattice(Point* offset) {
 }
 
 
-//FIXME
+/**
+ * @brief Initializes a backup CMFD solver.
+ * @details This backup solver is not necessary to run simulations, but may be 
+ *          used if the regular solver fails and the user wants to try another
+ *          group structure without restarting the simulation.
+ */
 void Cmfd::initializeBackupCmfdSolver() {
 
   /* Initialize new CMFD object */
@@ -3286,7 +3362,11 @@ void Cmfd::initializeBackupCmfdSolver() {
 }
 
 
-// FIXME
+/**
+ * @brief Copies the current from the regular to the backup CMFD solver.
+ * @details The currents are condensed to the backup solver's energy structure
+ *          when transfered as well.
+ */
 void Cmfd::copyCurrentsToBackup() {
 
   /* Clear currents */
@@ -3463,13 +3543,21 @@ void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
 }
 
 
-//TODO: document
+/**
+ * @brief Set the value of the k effective for the CMFD solver. This is meant 
+ *        for research / debugging purposes.
+ * @param k_eff the k_eff value to set.
+ */
 void Cmfd::setKeff(double k_eff) {
   _k_eff = k_eff;
 }
 
 
-//FIXME
+/**
+ * @brief Set the backup CMFD solver's group structure. It is necessarily
+ *        coarser than and must align with the regular CMFD group structure.
+ * @param group_indices the indices of the CMFD groups in the MOC groups
+ */
 void Cmfd::setBackupGroupStructure(std::vector< std::vector<int> >
                                    group_indices) {
 
@@ -3514,7 +3602,9 @@ void Cmfd::setBackupGroupStructure(std::vector< std::vector<int> >
 }
 
 
-//TODO: document
+/**
+ * @brief Report the physical time use by major components of the CMFD solver.
+ */
 void Cmfd::printTimerReport() {
 
   std::string msg_string;
@@ -3586,8 +3676,13 @@ void Cmfd::copyFullSurfaceCurrents() {
 }
 
 
-//TODO: Document + FIXME
-// FIXME FIXME FIXME
+/**
+ * @brief Computes the neutron balance over each CMFD cell for both MOC and CMFD
+ * @details This routine can be used once the CMFD matrices have been formed to
+ *          compute the neutron balance in the CMFD cell. With regards to MOC,
+ *          it loops over all fsrs in the cell to compute all reaction rates and
+ *          currents.
+ */
 void Cmfd::checkNeutronBalance(bool pre_split) {
 
   /* Initialize variables */
@@ -3730,7 +3825,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
           cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] * _local_num_x
                          + cell_next_ind[2] * (_local_num_x * _local_num_y);
 
-          /* Compute the oposite direction vector */
+          /* Compute the opposite direction vector */
           int op_direction[3];
           for (int d=0; d < 3; d++)
             op_direction[d] = -1 * direction[d];
@@ -4018,7 +4113,11 @@ void Cmfd::ghostCellExchange() {
 }
 
 
-//TODO: document
+/**
+ * @brief Communicate split (at corners and edges) currents (respectively edge 
+ *        and face currents) to other domains.
+ * @param faces whether the currents are for edges or faces, for unpacking
+ */
 void Cmfd::communicateSplits(bool faces) {
 
   //TODO: Form into communicateEdgeCurrents and communicateFaceCurrents
@@ -4212,7 +4311,12 @@ void Cmfd::unpackSplitCurrents(bool faces) {
 }
 
 
-//TODO: REMOVE
+/**
+ * @brief Converts a global CMFD cell ID into its local ID
+ * @details Marked for deletion, but still used thoroughly.
+ * @param cmfd_cell The global CMFD cell ID
+ * @return The local CMFD cell ID, -1 if not in the domain.
+ */
 int Cmfd::getLocalCMFDCell(int cmfd_cell) {
 
   int x_start = 0;
@@ -4467,54 +4571,6 @@ void Cmfd::printProlongationFactors(int iteration) {
       out.close();
     }
   }
-}
-
-
-/**
- * @brief Modifies the diagonal element to be consistent with the MOC solve
- * @details This function re-computes a new total cross-section x volume that
- *          maintains consistency with the MOC solution. Generall, this will
- *          not change the diagonal element at all since CMFD should be
- *          consistent with MOC. However, if negative fluxes are corrected to
- *          zero after the MOC transport sweep, there will be an inconsistency.
- *          This function modifies sigma-t so that there is consistency with
- *          the altered solution.
- * @details cmfd_cell The cmfd cell of the element to adjust
- * @details group The cmfd group of the element to adjust
- */
-void Cmfd::enforceBalanceOnDiagonal(int cmfd_cell, int group) {
-
-  /* Initialize tallies */
-  Material* material = _materials[cmfd_cell];
-  double cmfd_volume = _volumes->getValue(cmfd_cell, 0);
-
-  /* Loop over FSRs in CMFD cell to tally the total neutron source */
-  double moc_source = 0.0;
-  for (int j = 0; j < _cell_fsrs.at(cmfd_cell).size(); j++) {
-
-    long fsr_id = _cell_fsrs.at(cmfd_cell).at(j);
-    FP_PRECISION volume = _FSR_volumes[fsr_id];
-
-    /* Loop over MOC energy groups within this CMFD coarse group */
-    for (int h = _group_indices[group]; h < _group_indices[group+1]; h++)
-      moc_source += 4 * M_PI * volume *
-        _FSR_sources[fsr_id * _num_moc_groups + h];
-  }
-
-  if (moc_source == 0.0)
-    moc_source = 1e-20;
-
-  /* Compute updated value */
-  double flux = _old_flux->getValue(cmfd_cell, group);
-  CMFD_PRECISION net_current = _net_currents->getValue(cmfd_cell, group);
-  CMFD_PRECISION updated_value = (moc_source - net_current) / flux;
-
-  if (updated_value < 0.0)
-    log_printf(ERROR, "Negative Total XS of %6.4f computed in CMFD rebalance",
-               updated_value);
-
-  /* Update the diagonal element */
-  _A->setValue(cmfd_cell, group, cmfd_cell, group, updated_value);
 }
 
 

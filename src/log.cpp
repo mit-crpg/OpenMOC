@@ -68,11 +68,17 @@ static char title_char = '*';
  */
 static int line_length = 67;
 
-//FIXME
+/* Rank of the domain */
 static int rank = 0;
+
+/* Number of domains */
 static int num_ranks = 1;
+
 #ifdef MPIx
+/* MPI communicator to transfer data with */
 static MPI_Comm _MPI_comm;
+
+/* Boolean to test if MPI is used */
 static bool _MPI_present = false;
 #endif
 
@@ -599,7 +605,11 @@ std::string create_multiline_msg(std::string level, std::string message) {
 }
 
 
-//FIXME
+//FIXME Consider deleting as it is not used currently.
+/**
+ * @brief Set the rank of the communicator.
+ * @param comm a MPI communicator to transfer data with
+ */
 #ifdef MPIx
 void log_set_ranks(MPI_Comm comm) {
   _MPI_comm = comm;

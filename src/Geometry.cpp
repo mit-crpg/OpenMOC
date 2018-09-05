@@ -422,8 +422,8 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
       surfs = cell->getSurfaces();
 
       for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-	surf = (*s_iter).second->_surface;
-	all_surfs[surf->getId()] = surf;
+    surf = (*s_iter).second->_surface;
+    all_surfs[surf->getId()] = surf;
       }
     }
   }
@@ -463,7 +463,9 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 }
 
 
-//FIXME
+/**
+ * @brief Modify scattering and total cross sections to study MOC stability
+ */
 void Geometry::manipulateXS() {
 
   std::map<int, Material*> all_materials = getAllMaterials();
@@ -757,7 +759,10 @@ void Geometry::setCmfd(Cmfd* cmfd) {
  * @brief Sets a global overlaid mesh with the given mesh height
  * @details The global overlaid mesh is overlaid across the entire Geometry
  * @param axial_mesh_height The desired height of axial mesh cells
- //TODO: update description
+ * @param num_x number of divisions in the X direction
+ * @param num_y number of divisions in the Y direction
+ * @param num_radial_domains number of radial domains
+ * @param radial_domains array with the indexes of each domain in X and Y
  */
 void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
                                int num_radial_domains, int* radial_domains) {
@@ -1579,7 +1584,12 @@ void Geometry::getFSRKeyFast(LocalCoords* coords, std::string& key) {
 }
 
 
-//TODO: description
+//FIXME Find a better way to do this, without a function call
+/**
+ * @brief Get the number of digits in base 10 of a number
+ * @param number the number of interest
+ * @return the number of digits in base 10 of a number
+ */
 int Geometry::getNumDigits(int number) {
   if (number < 0)
     log_printf(ERROR, "Trying to get the digits of negative number %d", number);
@@ -1593,7 +1603,14 @@ int Geometry::getNumDigits(int number) {
 }
 
 
-//TODO: Description
+//FIXME Find a better way to do this, without a function call
+/**
+ * @brief Print a number to a given String.
+ * @param str the string to print to
+ * @param index the last index in that string
+ * @param value the number to print
+ * @return the number of digits in base 10 of a number
+ */
 void Geometry::printToString(std::string& str, int& index, int value) {
 
   char digits[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -2133,7 +2150,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   start.setUniverse(_root_universe);
   end.setUniverse(_root_universe);
 
-  //FIXME
+  /* Create two localCoords to check results */
   LocalCoords test_ext_coords(0,0,0,true);
   LocalCoords test_start_coords(0,0,0,true);
 
@@ -2625,11 +2642,11 @@ void Geometry::computeFissionability(Universe* univ) {
 
   Material* material;
   std::map<int, Material*> materials;
-	std::map<int, Material*>::iterator mat_iter;
+    std::map<int, Material*>::iterator mat_iter;
 
   Universe* universe;
   std::map<int, Universe*> universes;
-	std::map<int, Universe*>::iterator univ_iter;
+    std::map<int, Universe*>::iterator univ_iter;
 
   /* If no Universe was passed in as an argument, then this is the first
    * recursive call from a user via Python, so get the base Universe */
@@ -3051,7 +3068,10 @@ ParallelHashMap<std::string, fsr_data*>& Geometry::getFSRKeysMap() {
 }
 
 
-//FIXME
+/**
+ * @brief Returns a pointer to the map that maps FSR keys to extruded FSRs
+ * @return pointer to _FSR_keys_map map of FSR keys to extruded FSRs
+ */
 ParallelHashMap<std::string, ExtrudedFSR*>& Geometry::getExtrudedFSRKeysMap() {
   return _extruded_FSR_keys_map;
 }
@@ -3066,7 +3086,10 @@ std::vector<std::string>& Geometry::getFSRsToKeys() {
 }
 
 
-//FIXME
+/**
+ * @brief Returns the vector that maps FSR IDs to extruded FSRs
+ * @return _extruded_FSR_lookup map of FSR keys to extruded FSRs
+ */
 std::vector<ExtrudedFSR*>& Geometry::getExtrudedFSRLookup() {
   return _extruded_FSR_lookup;
 }
@@ -3374,7 +3397,7 @@ std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
  *          z-boundaries, such as lattice boundaries. The mid points of this
  *          mesh are then used to construcut a vector of all potential unique
  *          radial planes and returned to the user.
- * @reutrn a vector of z-coords
+ * @return a vector of z-coords
  */
 std::vector<double> Geometry::getUniqueZPlanes() {
 
@@ -3631,7 +3654,7 @@ void Geometry::dumpToFile(std::string filename) {
       fwrite(&halfspace, sizeof(int), 1, out);
     }
 
-    //FIXME WORRY ABOUT NEIGHBORS
+    //FIXME Print neighbors or decide to re-compute them
   }
 
   /* Print all universe information */
@@ -4089,8 +4112,12 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
 
 /**
- * FIXME
- *
+ * @brief Read an integer array from file.
+ * @param ptr the integer array to fill with the data read
+ * @param size the size of each element to read (here size(int))
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
  */
 size_t Geometry::twiddleRead(int* ptr, size_t size, size_t nmemb,
                              FILE* stream) {
@@ -4100,10 +4127,30 @@ size_t Geometry::twiddleRead(int* ptr, size_t size, size_t nmemb,
       ptr[i] = __builtin_bswap32(ptr[i]);
   return ret;
 }
+
+
+/**
+ * @brief Read a boolean array from file.
+ * @param ptr the boolean array to fill with the data read
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream) {
   size_t ret = fread(ptr, size, nmemb, stream);
   return ret;
 }
+
+
+/**
+ * @brief Read an array of universeType from file.
+ * @param ptr the array to fill with the data read
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(universeType* ptr, size_t size, size_t nmemb,
                              FILE* stream) {
   size_t ret = fread(ptr, size, nmemb, stream);
@@ -4113,6 +4160,16 @@ size_t Geometry::twiddleRead(universeType* ptr, size_t size, size_t nmemb,
       arr[i] = __builtin_bswap32(arr[i]);
   return ret;
 }
+
+
+/**
+ * @brief Read an array of cellType from file.
+ * @param ptr the array to fill with the read data
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(cellType* ptr, size_t size, size_t nmemb,
                              FILE* stream) {
   size_t ret = fread(ptr, size, nmemb, stream);
@@ -4122,6 +4179,16 @@ size_t Geometry::twiddleRead(cellType* ptr, size_t size, size_t nmemb,
       arr[i] = __builtin_bswap32(arr[i]);
   return ret;
 }
+
+
+/**
+ * @brief Read an array of surfaceType from file.
+ * @param ptr the array to fill with the data read
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(surfaceType* ptr, size_t size, size_t nmemb,
                              FILE* stream) {
   size_t ret = fread(ptr, size, nmemb, stream);
@@ -4131,6 +4198,16 @@ size_t Geometry::twiddleRead(surfaceType* ptr, size_t size, size_t nmemb,
       arr[i] = __builtin_bswap32(arr[i]);
   return ret;
 }
+
+
+/**
+ * @brief Read an array of boundaryType from file.
+ * @param ptr the array to fill with the data read
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(boundaryType* ptr, size_t size, size_t nmemb,
                              FILE* stream) {
   size_t ret = fread(ptr, size, nmemb, stream);
@@ -4140,10 +4217,30 @@ size_t Geometry::twiddleRead(boundaryType* ptr, size_t size, size_t nmemb,
       arr[i] = __builtin_bswap32(arr[i]);
   return ret;
 }
+
+
+/**
+ * @brief Read an array of char from file.
+ * @param ptr the array to fill with the data read
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream) {
   size_t ret = fread(ptr, size, nmemb, stream);
   return ret;
 }
+
+
+/**
+ * @brief Read an array of double from file.
+ * @param ptr the array to fill with the data read
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream) {
   long* arr = reinterpret_cast<long*>(ptr);
   size_t ret = fread(arr, size, nmemb, stream);
@@ -4152,6 +4249,16 @@ size_t Geometry::twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* strea
       arr[i] = __builtin_bswap64(arr[i]);
   return ret;
 }
+
+
+/**
+ * @brief Read an array of long int from file.
+ * @param ptr the array to fill with the data read
+ * @param size the size of each element to read
+ * @param nmemb the number of elements to read
+ * @param stream the file to read from
+ * @return the return status of the read operation
+ */
 size_t Geometry::twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream) {
   long* arr = ptr;
   size_t ret = fread(arr, size, nmemb, stream);

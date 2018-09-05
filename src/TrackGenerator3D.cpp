@@ -908,7 +908,12 @@ void TrackGenerator3D::initialize2DTrackChains() {
 }
 
 
-//FIXME: description
+/**
+ * @brief Save or initialize 3D track data by looping through chains.
+ * @param tcis array of Track chain indexes, sorted by chain
+ * @param num_chains number of 3D Track chains to examine
+ * @param save_tracks whether saving tracks or initializing them
+ */
 void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
                                          int num_chains, bool save_tracks) {
 
@@ -942,7 +947,13 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 }
 
 
-//FIXME: description
+//FIXME
+/**
+ * @brief
+ * @param
+ * @param
+ * @return
+ */
 int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
                                                Track3D* track_3D) {
 
@@ -1033,23 +1044,12 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
  * @brief A 3D Track is decomposed by intersections with x and y boundaries
  * @details A 3D Track which initially neglects intersections with x and y
  *          boundaries is split into multiple tracks by finding those
- *          x and y intersections. If create_tracks is set to true, the Tracks
- *          will be altered to represent the correct 3D Tracks. If not, the
- *          number of tracks in the train will simply be counted. Whenever this
- *          function is called, the number of tracks in the associated z-stacks
- *          are incremented.
+ *          x and y intersections. If create_arrays is True, the number of 
+ *          tracks in the associated z-stacks is incremented.
+ * @param tci pointer to an array of the track chain indexes, indexed by chains
  * @param track The 3D track to be decomposed
- * @param l_start The distance accross the radial or "l" direction to where the
- *        track starts
- * @param l_end The distance accross the radial or "l" direction to where the
- *        track end
- * @param azim The azimuthal index of the track
- * @param chain The chain index of the track
- * @param polar The polar index of the track
- * @param lz_index The lz index into the Track3D cycles array
- * @param create_tracks Boolean value determining whether to create the
- *        associated decomposed tracks (true) or simply count them (false)
- //FIXME: description
+ * @param create_arrays whether creating the stack array of Tracks
+ * @param save_tracks whether to save the Track3D or just initialize it
  */
 void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
                                       Track3D* track,
@@ -1667,7 +1667,10 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
 }
 
 
-//FIXME
+/**
+ * @brief Get the array of 3D Tracks.
+ * @return a pointer to the array of 3D Tracks
+ */
 Track3D**** TrackGenerator3D::get3DTracks() {
   return _tracks_3D;
 }
@@ -2333,7 +2336,10 @@ void TrackGenerator3D::getTSIByIndex(long id, TrackStackIndexes* tsi) {
 }
 
 
-//FIXME
+/**
+ * @brief Write information about an Extruded FSR.
+ * @param out file to write to
+ */
 void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
 
   /* Module to write track info */
@@ -2402,6 +2408,10 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
 }
 
 
+/**
+ * @brief Read information about an Extruded FSR.
+ * @param in file to read from
+ */
 void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
   
   /* Module to read track info */
