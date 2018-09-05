@@ -137,6 +137,9 @@ void CPULSSolver::initializeFSRs() {
 
   CPUSolver::initializeFSRs();
 
+  /* Initialize constant source components and source expansion matrices */
+  initializeLinearSourceConstants();
+
   /* Generate linear source coefficients */
   log_printf(NORMAL, "Generating linear expansion coefficients");
   LinearExpansionGenerator lin_src_coeffs(this);
@@ -146,6 +149,150 @@ void CPULSSolver::initializeFSRs() {
 
 
 /**
+ * @brief Initializes the arrays for the fixed source and its moments
+ */
+void CPULSSolver::initializeFixedSources() {
+
+  log_printf(NORMAL, "Initializing linear fixed sources");
+  CPUSolver::initializeFixedSources();
+
+  /* Fill the fixed source moments with the user defined values */
+  Cell* cell;
+  long cell_id;
+  long fsr_id;
+  int group;
+  double source_x, source_y, source_z;
+  std::pair<Cell*, int> cell_group_key;
+  std::map< std::pair<Cell*, int>, FP_PRECISION* >::iterator cell_iter;
+
+  //FIXME Add fixed sources assigned by Material and FSR for completeness
+  /* Fixed sources moments assigned by Cell */
+  for (cell_iter = _fix_src_xyz_cell_map.begin();
+       cell_iter != _fix_src_xyz_cell_map.end(); ++cell_iter) {
+
+    /* Get the Cell with an assigned fixed source moment */
+    cell_group_key = cell_iter->first;
+    group = cell_group_key.second;
+    source_x = _fix_src_xyz_cell_map[cell_group_key][0];
+    source_y = _fix_src_xyz_cell_map[cell_group_key][1];
+    source_z = _fix_src_xyz_cell_map[cell_group_key][2];
+
+    /* Search for this Cell in all FSRs */  //FIXME Really inefficient
+    int cell_id = cell_group_key.first->getId();
+    for (long r=0; r < _num_FSRs; r++) {
+      Cell* fsr_cell = _geometry->findCellContainingFSR(r);
+      //log_printf(NORMAL, "FSR %d, cell %d", r, fsr_cell->getId());
+      if (cell_id == fsr_cell->getId()) {
+        //log_printf(NORMAL, "Transfering %d %d", r, group);
+        setFixedSourceMomentByFSR(r, group, source_x, source_y, source_z);
+      }
+    }
+  }
+
+  std::pair<long, int> fsr_group_key;
+  std::map< std::pair<long, int>, FP_PRECISION* >::iterator fsr_iter;
+
+  /* Populate fixed source array with any user-defined sources */
+  for (fsr_iter = _fix_src_xyz_FSR_map.begin();
+       fsr_iter != _fix_src_xyz_FSR_map.end(); ++fsr_iter) {
+
+    /* Get the FSR with an assigned fixed source */
+    fsr_group_key = fsr_iter->first;
+    fsr_id = fsr_group_key.first;
+    group = fsr_group_key.second;
+
+    if (group <= 0 || group > _num_groups)
+      log_printf(ERROR,"Unable to use fixed source for group %d in "
+                 "a %d energy group problem", group, _num_groups);
+
+    if (fsr_id < 0 || fsr_id >= _num_FSRs)
+      log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
+                 "%d FSRs in the geometry", fsr_id, _num_FSRs);
+    //log_printf(NORMAL, "Final %d %d", fsr_id, group);
+    //log_printf(NORMAL, "%f %f %f", _fix_src_xyz_FSR_map[fsr_group_key][0], _fix_src_xyz_FSR_map[fsr_group_key][1], _fix_src_xyz_FSR_map[fsr_group_key][2]);
+
+    _fixed_sources_xyz(fsr_id, group-1)[0] = _fix_src_xyz_FSR_map[fsr_group_key][0];
+    _fixed_sources_xyz(fsr_id, group-1)[1] = _fix_src_xyz_FSR_map[fsr_group_key][1];
+    _fixed_sources_xyz(fsr_id, group-1)[2] = _fix_src_xyz_FSR_map[fsr_group_key][2];
+  }
+}
+
+
+/**
+ * @brief Assign fixed source moments for a Cell and energy group.
+ * @details This routine will add fixed source moments to all instances of the
+ *          Cell in the geometry (e.g., all FSRs for this Cell).
+ * @param cell a pointer to the Cell of interest
+ * @param group the energy group
+ * @param source_x the volume-averaged source x-moment in this group
+ * @param source_y the volume-averaged source y-moment in this group
+ * @param source_z the volume-averaged source z-moment in this group
+ */
+void CPULSSolver::setFixedSourceMomentsByCell(Cell* cell, int group, 
+                                  double source_x, double source_y, double source_z) {
+
+  /* Allocate the fixed sources array if not yet allocated */
+  if (_fixed_sources_xyz == NULL) {
+    long num_FSRs = _geometry->getNumFSRs();
+    int num_groups = _geometry->getNumEnergyGroups();
+    log_printf(NORMAL, "%d %d", num_FSRs, num_groups);
+    long size = num_FSRs * num_groups;
+    _fixed_sources_xyz = new FP_PRECISION*[size];
+    for (int i=0; i<size; i++)
+      _fixed_sources_xyz[i] = new FP_PRECISION[3]();
+  }
+
+  /* Recursively add the source to all Cells within a FILL type Cell */
+  if (cell->getType() == FILL) {
+    std::map<int, Cell*> cells = cell->getAllCells();
+    std::map<int, Cell*>::iterator iter;
+    for (iter = cells.begin(); iter != cells.end(); ++iter)
+      setFixedSourceMomentsByCell(iter->second, group, source_x, source_y,
+                                  source_z);
+  }
+
+  /* Add the source to all FSRs for this MATERIAL type Cell */
+  else {
+    FP_PRECISION* aa = new FP_PRECISION[3]; //FIXME Ugly, initialize at the same time as _fixed_sources_xyz
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)] = aa;
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)][0] = source_x;
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)][1] = source_y;
+    _fix_src_xyz_cell_map[std::pair<Cell*, int>(cell, group)][2] = source_z;
+  }
+}
+
+
+/**
+ * @brief Assign fixed source moments for a FSR and energy group.
+ * @param fsr_id the id of the FSR
+ * @param group the energy group
+ * @param source_x the volume-averaged source x-moment in this group
+ * @param source_y the volume-averaged source y-moment in this group
+ * @param source_z the volume-averaged source z-moment in this group
+ */
+void CPULSSolver::setFixedSourceMomentByFSR(long fsr_id, int group, 
+                                            double source_x, double source_y,
+                                            double source_z) {
+
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR,"Unable to set fixed source for group %d in "
+               "in a %d energy group problem", group, _num_groups);
+
+  if (fsr_id < 0 || fsr_id >= _num_FSRs)
+    log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
+               "%d FSRs in the geometry", fsr_id, _num_FSRs);
+
+  FP_PRECISION* aa = new FP_PRECISION[3];
+  _fix_src_xyz_FSR_map[std::pair<long, int>(fsr_id, group)] = aa;
+  _fix_src_xyz_FSR_map[std::pair<long, int>(fsr_id, group)][0] = source_x;
+  _fix_src_xyz_FSR_map[std::pair<long, int>(fsr_id, group)][1] = source_y;
+  _fix_src_xyz_FSR_map[std::pair<long, int>(fsr_id, group)][2] = source_z;
+
+}
+
+
+/**
+>>>>>>> fcc3bbe... Enable restart simulations for LS solver, fix all restart tests //WIP results not updated
  * @brief Set the scalar flux constants for each FSR and energy group to some
  *        value and the scalar flux moments to zero.
  * @param value the value to assign to each FSR scalar flux
@@ -308,7 +455,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
                   _FSR_lin_exp_matrix[r*num_coeffs+5] * src_z);
           }
           else {
-            _reduced_sources_xyz(r,g,0) = 1e-20;     
+            _reduced_sources_xyz(r,g,0) = 1e-20;
             _reduced_sources_xyz(r,g,1) = 1e-20;
             _reduced_sources_xyz(r,g,2) = 1e-20;
           }
@@ -866,55 +1013,61 @@ void CPULSSolver::initializeExpEvaluators() {
 
 
 /**
- * @brief Initializes (if not initialized) and returns a memory buffer to the 
- *        linear source expansion matrix coefficients.
- * @return _FSR_lin_exp_matrix a pointer to the linear source expansion 
- *         coefficients
+ * @brief Initialize linear source constant component and matrix coefficients.
  */
-double* CPULSSolver::getLinearExpansionCoeffsBuffer() {
+void CPULSSolver::initializeLinearSourceConstants() {
+
+  if (_FSR_source_constants != NULL)
+    delete[] _FSR_source_constants;
+  if (_FSR_lin_exp_matrix != NULL)
+    delete[] _FSR_lin_exp_matrix;
+
 #pragma omp critical
   {
-    if (_FSR_lin_exp_matrix == NULL) {
-      long size = _geometry->getNumFSRs() * 3;
-      if (_solve_3D)
-        size *= 2;
-      _FSR_lin_exp_matrix = new double[size];
-      memset(_FSR_lin_exp_matrix, 0., size * sizeof(double));
-    }
+    /* Initialize linear source constant component */
+    long size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
+    if (_solve_3D)
+      size *= 2;
+
+    long max_size = size;
+#ifdef MPIX
+    if (_geometry->isDomainDecomposed())
+    MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
+                  _geometry->getMPICart());
+#endif
+    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
+         / (double) (1e6);
+    log_printf(NORMAL, "Max linear constant storage per domain = %6.2f MB",
+               max_size_mb);
+
+    _FSR_source_constants = new FP_PRECISION[size]();
+
+    /* Initialize linear source matrix coefficients */
+    size = _geometry->getNumFSRs() * 3;
+    if (_solve_3D)
+      size *= 2;
+    _FSR_lin_exp_matrix = new double[size]();
   }
+}
+
+
+/**
+ * @brief Returns a memory buffer to the linear source expansion coefficent 
+ *        matrix.
+ * @return _FSR_lin_exp_matrix a pointer to the linear source coefficient matrix
+ */
+double* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 
   return _FSR_lin_exp_matrix;
 }
 
 
 /**
- * @brief Initializes (if not initialized) and returns a memory buffer to the 
- *        constant part (constant between MOC iterations) of the linear source.
+ * @brief Returns a memory buffer to the constant part (constant between MOC 
+ *        iterations) of the linear source.
  * @return _FSR_source_constants a pointer to the linear source constant part
  */
 FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
-#pragma omp critical
-  {
-    if (_FSR_source_constants == NULL) {
-      long size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
-      if (_solve_3D)
-        size *= 2;
-
-      long max_size = size;
-#ifdef MPIX
-      if (_geometry->isDomainDecomposed())
-        MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
-                      _geometry->getMPICart());
-#endif
-      double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
-          / (double) (1e6);
-      log_printf(NORMAL, "Max linear constant storage per domain = %6.2f MB",
-                 max_size_mb);
-
-      _FSR_source_constants = new FP_PRECISION[size];
-      memset(_FSR_source_constants, 0., size * sizeof(FP_PRECISION));
-    }
-  }
 
   return _FSR_source_constants;
 }

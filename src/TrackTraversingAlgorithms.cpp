@@ -449,11 +449,9 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
 
   /* Reset linear source coefficients to zero */
   long size = track_generator->getGeometry()->getNumFSRs() * _num_coeffs;
-  _lin_exp_coeffs = new double[size];
-  memset(_lin_exp_coeffs, 0.0, size * sizeof(double));
+  _lin_exp_coeffs = new double[size]();
   size *= _num_groups;
-  _src_constants = new double[size];
-  memset(_src_constants, 0.0, size * sizeof(double));
+  _src_constants = new double[size]();
 
   /* Create local thread tallies */
   int num_threads = omp_get_max_threads();

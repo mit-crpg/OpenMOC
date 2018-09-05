@@ -716,6 +716,7 @@ void Solver::initializeFSRs() {
     delete [] _FSR_materials;
 
   /* Get an array of volumes indexed by FSR  */
+  _track_generator->initializeFSRVolumesBuffer();
   _FSR_volumes = _track_generator->getFSRVolumes();
 
   /* Retrieve simulation parameters from the Geometry */
@@ -749,8 +750,9 @@ void Solver::initializeFSRs() {
   /* Loop over all FSRs to extract FSR material pointers */
   for (long r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d and volume = %f ",
-               r, _FSR_materials[r]->getId(), _FSR_volumes[r]);
+    log_printf(NORMAL, "FSR ID = %d has Material ID = %d, volume = %f and "
+               "centroid [%f, %f, %f]", r, _FSR_materials[r]->getId(), 
+               _FSR_volumes[r], centroid[0], centroid[1], centroid[2]);
   }
 }
 
@@ -1365,8 +1367,11 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
   _num_iterations = 0;
+
+  /* Clear convergence data from a previous simulation run */
   double previous_residual = 1.0;
   double residual = 0.;
+  _k_eff = 1.;
 
   /* Initialize data structures */
   initializeFSRs();

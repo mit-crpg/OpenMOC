@@ -24,6 +24,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _max_num_segments = 0;
   _FSR_volumes = NULL;
   _dump_segments = true;
+  _segments_centered = false;
   _FSR_locks = NULL;
   _tracks_2D_array = NULL;
   _tracks_per_azim = NULL;
@@ -120,19 +121,24 @@ omp_lock_t* TrackGenerator::getFSRLocks() {
 }
 
 
+void TrackGenerator::initializeFSRVolumesBuffer() {
+
+  if (_FSR_volumes != NULL)
+    delete[] _FSR_volumes;
+
+#pragma omp critical
+  {
+    long num_FSRs = _geometry->getNumFSRs();
+    _FSR_volumes = new FP_PRECISION[num_FSRs]();
+  }
+}
+
+
 /**
  * @brief Return the array used to store the FSR volumes
  * @return _FSR_volumes the FSR volumes array indexed by FSR ID
  */
 FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
-#pragma omp critical
-  {
-    if (_FSR_volumes == NULL) {
-      long num_FSRs = _geometry->getNumFSRs();
-      _FSR_volumes = new FP_PRECISION[num_FSRs];
-      memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-    }
-  }
 
   return _FSR_volumes;
 }
@@ -326,6 +332,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Check to ensure all FSRs are crossed by at least one track */
   for (long i=0; i < num_FSRs; i++) {
+    log_printf(NORMAL, "FSR %d vol %f", i, _FSR_volumes[i]);
     if (_FSR_volumes[i] == 0.0) {
       log_printf(ERROR, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
                  i, _geometry->getFSRPoint(i)->getX(),
@@ -1496,8 +1503,13 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   for (long r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
 
-  RecenterSegments rs(this);
-  rs.execute();
+  /* Recenter the segments around their centroid */
+  if (_segment_formation == EXPLICIT_2D or _segment_formation == EXPLICIT_3D
+      and _segments_centered == false) {
+    RecenterSegments rs(this);
+    rs.execute();
+    _segments_centered = true;
+  }
 
   delete [] centroids;
 }

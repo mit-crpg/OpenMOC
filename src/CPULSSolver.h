@@ -81,6 +81,7 @@ public:
                          FP_PRECISION* scratch_pad, FP_PRECISION direction[3]);
 
   double getFluxByCoords(LocalCoords* coords, int group);
+  void initializeLinearSourceConstants();
   double* getLinearExpansionCoeffsBuffer();
   FP_PRECISION* getSourceConstantsBuffer();
 };
