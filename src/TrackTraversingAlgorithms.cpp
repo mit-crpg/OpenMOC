@@ -401,12 +401,10 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
         setX(_centroids[fsr]->getX() + wgt *
         (x + cos_phi * sin_theta * curr_segment->_length / 2.0)
         * curr_segment->_length / _FSR_volumes[fsr]);
-
     _centroids[fsr]->
         setY(_centroids[fsr]->getY() + wgt *
         (y + sin_phi * sin_theta * curr_segment->_length / 2.0)
         * curr_segment->_length / _FSR_volumes[fsr]);
-
     _centroids[fsr]->
         setZ(_centroids[fsr]->getZ() + wgt *
         (z + cos_theta * curr_segment->_length / 2.0)

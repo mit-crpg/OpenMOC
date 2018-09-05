@@ -332,7 +332,6 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Check to ensure all FSRs are crossed by at least one track */
   for (long i=0; i < num_FSRs; i++) {
-    log_printf(NORMAL, "FSR %d vol %f", i, _FSR_volumes[i]);
     if (_FSR_volumes[i] == 0.0) {
       log_printf(ERROR, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
                  i, _geometry->getFSRPoint(i)->getX(),
@@ -1503,9 +1502,10 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   for (long r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
 
-  /* Recenter the segments around their centroid */
-  if (_segment_formation == EXPLICIT_2D or _segment_formation == EXPLICIT_3D
+  /* Recenter the segments around FSR centroid */
+  if ((_segment_formation == EXPLICIT_2D or _segment_formation == EXPLICIT_3D)
       and _segments_centered == false) {
+    log_printf(NORMAL, "Centering segments around FSR centroid...");
     RecenterSegments rs(this);
     rs.execute();
     _segments_centered = true;

@@ -750,9 +750,8 @@ void Solver::initializeFSRs() {
   /* Loop over all FSRs to extract FSR material pointers */
   for (long r=0; r < _num_FSRs; r++) {
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-    log_printf(NORMAL, "FSR ID = %d has Material ID = %d, volume = %f and "
-               "centroid [%f, %f, %f]", r, _FSR_materials[r]->getId(), 
-               _FSR_volumes[r], centroid[0], centroid[1], centroid[2]);
+    log_printf(DEBUG, "FSR ID = %d has Material ID = %d, volume = %f", r, 
+               _FSR_materials[r]->getId(), _FSR_volumes[r]);
   }
 }
 
