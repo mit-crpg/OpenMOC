@@ -502,8 +502,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       // Increment the fsr scalar flux and scalar flux moments
       fsr_flux[e*4] += polar_wgt_d_psi;
       for (int i=0; i<2; i++)
-        fsr_flux[e*4 + i + 1] += polar_wgt_exp_h * direction[i]
-              + polar_wgt_d_psi * position[i];
+        fsr_flux[e*4 + i + 1] += polar_wgt_exp_h * direction[i] / sigma_t[e]
+              + polar_wgt_d_psi * position[i] / sigma_t[e];
     }
   }
 
