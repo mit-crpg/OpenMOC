@@ -1846,7 +1846,7 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
 
-    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    /* Save indices of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL) {
 
       /* Find cmfd cell that segment lies in */
@@ -1898,6 +1898,7 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     }
 
     /* Calculate the local centroid of the segment if available */
+    //FIXME Consider reversing nudge
     Point* starting_point = start.getHighestLevel()->getPoint();
     new_segment->_starting_position[0] = starting_point->getX();
     new_segment->_starting_position[1] = starting_point->getY();
@@ -2027,7 +2028,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
                start.getX(), start.getY(), start.getZ(),
                end.getX(), end.getY(), end.getZ());
 
-    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    /* Save indices of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL && !setup) {
 
       /* Find cmfd cell that segment lies in */
@@ -2283,7 +2284,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     new_segment->_length = min_length;
     new_segment->_region_id = region_id;
 
-    /* Save indicies of CMFD Mesh surfaces that the Track segment crosses */
+    /* Save indices of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL) {
 
       /* Find cmfd cell that segment lies in */
