@@ -72,16 +72,6 @@
 #define MIN_LINEAR_SOLVE_ITERATIONS 25
 #define MAX_LINEAR_SOLVE_ITERATIONS 10000
 
-#ifdef NVCC
-
-/** The maximum number of polar angles to reserve constant memory on GPU */
-#define MAX_POLAR_ANGLES_GPU 10
-
-/** The maximum number of azimuthal angles to reserve constant memory on GPU */
-#define MAX_AZIM_ANGLES_GPU 256
-
-#endif
-
 #ifdef MPIx
 #define TRACKS_PER_BUFFER 1000
 #define CMFD_BUFFER_SIZE 10000
